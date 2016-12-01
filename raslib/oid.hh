@@ -51,13 +51,13 @@ public:
     r_OId();
 
     /// constructs an OId from the string representation
-    r_OId( const char* );
+    r_OId(const char*);
 
     /// constructor getting oid parts
-    r_OId( const char* initSystemName, const char* initBaseName, double initLocalOId );
+    r_OId(const char* initSystemName, const char* initBaseName, double initLocalOId);
 
     /// copy constructor
-    r_OId( const r_OId& );
+    r_OId(const r_OId&);
 
     /// destructor
     virtual ~r_OId();
@@ -69,29 +69,29 @@ public:
     void print_status(std::ostream& s) const;
 
     /// operator for assigning an oid
-    const r_OId& operator= ( const r_OId& );
+    const r_OId& operator= (const r_OId&);
 
     //@Man: Comparison operators:
     //@{
     ///
 
     /// operator for equality
-    bool operator==( const r_OId& ) const;
+    bool operator==(const r_OId&) const;
 
     /// operator for not equal
-    bool operator!=( const r_OId& ) const;
+    bool operator!=(const r_OId&) const;
 
     /// operator for greater than
-    bool operator> ( const r_OId& ) const;
+    bool operator> (const r_OId&) const;
 
     /// operator for less than
-    bool operator< ( const r_OId& ) const;
+    bool operator< (const r_OId&) const;
 
     /// operator for greater or equal than
-    bool operator>=( const r_OId& ) const;
+    bool operator>=(const r_OId&) const;
 
     /// operator for less than or equal
-    bool operator<=( const r_OId& ) const;
+    bool operator<=(const r_OId&) const;
 
     ///
     //@}
@@ -131,7 +131,7 @@ private:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Oid}.
 */
-extern std::ostream& operator<<( std::ostream& s, const r_OId& oid );
+extern std::ostream& operator<<(std::ostream& s, const r_OId& oid);
 
 #include "raslib/oid.icc"
 #endif

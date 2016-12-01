@@ -120,7 +120,7 @@ public:
     /*@Doc:
     */
 
-    virtual ~DBMDDSet( );
+    virtual ~DBMDDSet();
     /*@Doc:
     */
 
@@ -142,7 +142,7 @@ public:
 protected:
     friend class ObjectBroker;
 
-    typedef std::set<DBMDDObjId, std::less<DBMDDObjId> > DBMDDObjIdSet;
+    typedef std::set<DBMDDObjId, std::less<DBMDDObjId>> DBMDDObjIdSet;
 
     DBMDDSet(const OId& id) throw (r_Error);
     /*@Doc:

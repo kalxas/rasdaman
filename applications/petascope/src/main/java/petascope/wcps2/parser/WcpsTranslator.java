@@ -43,7 +43,7 @@ import petascope.wcps2.result.VisitorResult;
  */
 public class WcpsTranslator {
 
-    private final CoverageRegistry coverageRegistry;    
+    private final CoverageRegistry coverageRegistry;
     private final WcpsCoverageMetadataService wcpsCoverageMetadataService;
     private final RasqlTranslationService rasqlTranslationService;
     private final SubsetParsingService subsetParsingService;
@@ -58,7 +58,7 @@ public class WcpsTranslator {
      * @param subsetParsingService
      */
     public WcpsTranslator(CoverageRegistry coverageRegistry, WcpsCoverageMetadataService wcpsCoverageMetadataService,
-                            RasqlTranslationService rasqlTranslationService, SubsetParsingService subsetParsingService) {
+                          RasqlTranslationService rasqlTranslationService, SubsetParsingService subsetParsingService) {
         this.coverageRegistry = coverageRegistry;
         this.wcpsCoverageMetadataService = wcpsCoverageMetadataService;
         this.rasqlTranslationService = rasqlTranslationService;
@@ -102,19 +102,19 @@ public class WcpsTranslator {
             // And throw WCPSProcessingError or other kind of Exceptions if possible
             translationTree = evaluator.visit(parseTree);
             translationTree.setMimeType(evaluator.getMimeType());
-            
+
             // Get the aliasCoverage for multipart
             this.coverageAliasRegistry = evaluator.getCoverageAliasRegistry();
-        } catch(WCPSProcessingError ex) {
+        } catch (WCPSProcessingError ex) {
             throw new PetascopeException(ex.getExceptionCode(), ex.getMessage(), ex);
-        } catch(Exception ex) {
-          throw new PetascopeException(ExceptionCode.WcpsError, ex.getMessage(), ex);
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.WcpsError, ex.getMessage(), ex);
         }
         return translationTree;
     }
-    
+
     // Get the coverageVariableNames and coverageNames
-    public CoverageAliasRegistry getCoverageAliasRegistry() { 
+    public CoverageAliasRegistry getCoverageAliasRegistry() {
         return this.coverageAliasRegistry;
     }
 }

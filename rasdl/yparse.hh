@@ -37,7 +37,7 @@ struct rINT_list
     int               data;
 
     ///
-    rINT_list  *next;
+    rINT_list*  next;
 };
 
 
@@ -49,11 +49,11 @@ struct rINT_list
 struct YDeclarator
 {
     ///
-    YSymbol      *symbol;
+    YSymbol*      symbol;
     ///
-    rINT_list    *array_size;
+    rINT_list*    array_size;
     ///
-    YDeclarator  *next;
+    YDeclarator*  next;
 };
 
 #endif

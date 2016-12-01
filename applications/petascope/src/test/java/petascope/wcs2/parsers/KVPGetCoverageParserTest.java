@@ -96,7 +96,7 @@ public class KVPGetCoverageParserTest {
             }
             for (Map.Entry<String, String> kv : correctResults.get(i).entrySet()) {
                 assertTrue(res.containsValue(kv.getValue()));
-            }            
+            }
         }
     }
 }

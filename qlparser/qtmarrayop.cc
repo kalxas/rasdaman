@@ -63,28 +63,28 @@ using namespace std;
 
 const QtNode::QtNodeType QtMarrayOp::nodeType = QT_MARRAYOP;
 
-QtMarrayOp::QtMarrayOp( const string &initIteratorName, QtOperation* mintervalExp, QtOperation* cellExp )
-    :  QtBinaryOperation( mintervalExp, cellExp ), iteratorName( initIteratorName )
+QtMarrayOp::QtMarrayOp(const string& initIteratorName, QtOperation* mintervalExp, QtOperation* cellExp)
+    :  QtBinaryOperation(mintervalExp, cellExp), iteratorName(initIteratorName)
 {
 }
 
 
 
 void
-QtMarrayOp::optimizeLoad( QtTrimList* trimList )
+QtMarrayOp::optimizeLoad(QtTrimList* trimList)
 {
     // delete the trimList and optimize subtrees
 
     // release( trimList->begin(), trimList->end() );
-    for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+    for (QtNode::QtTrimList::iterator iter = trimList->begin(); iter != trimList->end(); iter++)
     {
         delete *iter;
-        *iter=NULL;
+        *iter = NULL;
     }
     delete trimList;
-    trimList=NULL;
+    trimList = NULL;
 
-    QtBinaryOperation::optimizeLoad( new QtNode::QtTrimList() );
+    QtBinaryOperation::optimizeLoad(new QtNode::QtTrimList());
 }
 
 
@@ -98,14 +98,14 @@ QtMarrayOp::isCommutative() const
 
 
 QtData*
-QtMarrayOp::evaluate( QtDataList* inputList )
+QtMarrayOp::evaluate(QtDataList* inputList)
 {
     startTimer("QtMarrayOp");
 
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
 
-    if( getOperand( inputList, operand1, 1 ) )
+    if (getOperand(inputList, operand1, 1))
     {
 
         //idea: if operand1 is a QT_INTERVAL convert it to QT_MINTERVAL
@@ -118,20 +118,26 @@ QtMarrayOp::evaluate( QtDataList* inputList )
             tmpMinterval << (static_cast<QtIntervalData*>(operand1))->getIntervalData();
 
             //save operand1-pointer to oldOp
-            QtData* oldOp=operand1;
+            QtData* oldOp = operand1;
             //overwrite operand1 with new minterval
-            operand1=new QtMintervalData(tmpMinterval);
+            operand1 = new QtMintervalData(tmpMinterval);
             //delete old operand1
-            if( oldOp ) oldOp->deleteRef();
+            if (oldOp)
+            {
+                oldOp->deleteRef();
+            }
         }
 
 #ifdef QT_RUNTIME_TYPE_CHECK
-        if( operand1->getDataType() != QT_MINTERVAL )
+        if (operand1->getDataType() != QT_MINTERVAL)
             LERROR << "Internal error in QtMarrayOp::evaluate() - "
-                           << "runtime type checking failed (Minterval).";
+                   << "runtime type checking failed (Minterval).";
 
         // delete old operand
-        if( operand1 ) operand1->deleteRef();
+        if (operand1)
+        {
+            operand1->deleteRef();
+        }
 
         return 0;
 #endif
@@ -191,7 +197,10 @@ QtMarrayOp::evaluate( QtDataList* inputList )
                 inputList = NULL;
             }
 
-            if (operand1) operand1->deleteRef();
+            if (operand1)
+            {
+                operand1->deleteRef();
+            }
 
             throw;
         }
@@ -218,7 +227,10 @@ QtMarrayOp::evaluate( QtDataList* inputList )
         returnValue = new QtMDD(static_cast<MDDObj*>(mddres));
 
         // delete old operands
-        if (operand1) operand1->deleteRef();
+        if (operand1)
+        {
+            operand1->deleteRef();
+        }
     }
 
     stopTimer();
@@ -229,35 +241,43 @@ QtMarrayOp::evaluate( QtDataList* inputList )
 
 
 void
-QtMarrayOp::printTree( int tab, ostream& s, QtChildType mode )
+QtMarrayOp::printTree(int tab, ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMarrayOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
 
-    QtBinaryOperation::printTree( tab, s, mode );
+    QtBinaryOperation::printTree(tab, s, mode);
 }
 
 
 
 void
-QtMarrayOp::printAlgebraicExpression( ostream& s )
+QtMarrayOp::printAlgebraicExpression(ostream& s)
 {
     s << "(";
 
     s << iteratorName.c_str() << ",";
 
-    if( input1 )
-        input1->printAlgebraicExpression( s );
+    if (input1)
+    {
+        input1->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ",";
 
-    if( input2 )
-        input2->printAlgebraicExpression( s );
+    if (input2)
+    {
+        input2->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ")";
 }
@@ -265,18 +285,18 @@ QtMarrayOp::printAlgebraicExpression( ostream& s )
 
 
 const QtTypeElement&
-QtMarrayOp::checkType( QtTypeTuple* typeTuple )
+QtMarrayOp::checkType(QtTypeTuple* typeTuple)
 {
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     // check operand branches
-    if( input1 && input2 )
+    if (input1 && input2)
     {
 
         // check domain expression
-        const QtTypeElement& domainExp = input1->checkType( typeTuple );
+        const QtTypeElement& domainExp = input1->checkType(typeTuple);
 
-        if( (domainExp.getDataType() != QT_MINTERVAL) && (domainExp.getDataType() != QT_INTERVAL) )
+        if ((domainExp.getDataType() != QT_MINTERVAL) && (domainExp.getDataType() != QT_INTERVAL))
         {
             LFATAL << "Error: QtMarrayOp::checkType() - Can not evaluate domain expression to an minterval.";
             parseInfo.setErrorNo(401);
@@ -289,31 +309,31 @@ QtMarrayOp::checkType( QtTypeTuple* typeTuple )
 
         // add domain iterator to the list of bounded variables
         bool newList = false;
-        if( !typeTuple )
+        if (!typeTuple)
         {
             typeTuple = new QtTypeTuple();
             newList = true;
         }
-        typeTuple->tuple.push_back( QtTypeElement( QT_POINT, iteratorName.c_str() ) );
+        typeTuple->tuple.push_back(QtTypeElement(QT_POINT, iteratorName.c_str()));
 
         // get type
-        const QtTypeElement& valueExp = input2->checkType( typeTuple );
+        const QtTypeElement& valueExp = input2->checkType(typeTuple);
 
         // remove iterator again
         typeTuple->tuple.pop_back();
-        if( newList )
+        if (newList)
         {
             delete typeTuple;
             typeTuple = NULL;
         }
 
         // check type
-        if( valueExp.getDataType() != QT_BOOL   && valueExp.getDataType() != QT_COMPLEX &&
+        if (valueExp.getDataType() != QT_BOOL   && valueExp.getDataType() != QT_COMPLEX &&
                 valueExp.getDataType() != QT_CHAR   && valueExp.getDataType() != QT_OCTET   &&
                 valueExp.getDataType() != QT_USHORT && valueExp.getDataType() != QT_SHORT   &&
                 valueExp.getDataType() != QT_ULONG  && valueExp.getDataType() != QT_LONG    &&
                 valueExp.getDataType() != QT_FLOAT  && valueExp.getDataType() != QT_DOUBLE  &&
-                valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2 )
+                valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2)
         {
             LERROR << "Error: QtMarrayOp::checkType() - Value expression must be either of type atomic or complex.";
             parseInfo.setErrorNo(412);
@@ -322,13 +342,15 @@ QtMarrayOp::checkType( QtTypeTuple* typeTuple )
 
         // create MDD type
         BaseType*    cellType    = static_cast<BaseType*>(const_cast<Type*>(valueExp.getType()));
-        MDDBaseType* mddBaseType = new MDDBaseType( "tmp", cellType );
-        TypeFactory::addTempType( mddBaseType );
+        MDDBaseType* mddBaseType = new MDDBaseType("tmp", cellType);
+        TypeFactory::addTempType(mddBaseType);
 
-        dataStreamType.setType( mddBaseType );
+        dataStreamType.setType(mddBaseType);
     }
     else
+    {
         LERROR << "Error: QtMarrayOp::checkType() - operand branch invalid.";
+    }
 
     return dataStreamType;
 }

@@ -30,57 +30,57 @@ import java.util.List;
  */
 public class ServiceIdentification {
 
-        private Description serviceDescription;
-        private String serviceType;
-        private String serviceTypeCodespace;
-        private List<String> serviceTypeVersions;
-        private String serviceFees;
-        private List<String> accessConstraints;
+    private Description serviceDescription;
+    private String serviceType;
+    private String serviceTypeCodespace;
+    private List<String> serviceTypeVersions;
+    private String serviceFees;
+    private List<String> accessConstraints;
 
-        // Constructors
-        // Title and abstract are optional: ServiceType and ServiceTypeVersion are mandatory
-        public ServiceIdentification (String type, List<String> typeVersions) {
-            serviceType = type;
-            serviceTypeVersions = typeVersions;
-            serviceDescription = new Description();
-            accessConstraints = new ArrayList<String>();
-        }
-        public ServiceIdentification (String type, String codespace, List<String> typeVersions) {
-            this(type, typeVersions);
-            serviceTypeCodespace = codespace;
-        }
+    // Constructors
+    // Title and abstract are optional: ServiceType and ServiceTypeVersion are mandatory
+    public ServiceIdentification(String type, List<String> typeVersions) {
+        serviceType = type;
+        serviceTypeVersions = typeVersions;
+        serviceDescription = new Description();
+        accessConstraints = new ArrayList<String>();
+    }
+    public ServiceIdentification(String type, String codespace, List<String> typeVersions) {
+        this(type, typeVersions);
+        serviceTypeCodespace = codespace;
+    }
 
-        // Getters/Setterss
-        public Description getDescription() {
-            return serviceDescription;
-        }
-        public void setDescription(Description descr) {
-            serviceDescription = descr;
-        }
-        //
-        public String getType() {
-            return serviceType;
-        }
-        //
-        public String getTypeCodeSpace() {
-            return (null == serviceTypeCodespace) ? "" : serviceTypeCodespace;
-        }
-        //
-        public List<String> getTypeVersions() {
-            return serviceTypeVersions;
-        }
-        //
-        public String getFees() {
-            return (null == serviceFees) ? "" : serviceFees;
-        }
-        public void setFees(String fees) {
-            serviceFees = fees;
-        }
-        //
-        public List<String> getAccessConstraints() {
-            return accessConstraints.isEmpty() ? new ArrayList<String>() : accessConstraints;
-        }
-        public void addAccessConstraint(String constraint) {
-            accessConstraints.add(constraint);
-        }
-    } //~ ServiceIdentification
+    // Getters/Setterss
+    public Description getDescription() {
+        return serviceDescription;
+    }
+    public void setDescription(Description descr) {
+        serviceDescription = descr;
+    }
+    //
+    public String getType() {
+        return serviceType;
+    }
+    //
+    public String getTypeCodeSpace() {
+        return (null == serviceTypeCodespace) ? "" : serviceTypeCodespace;
+    }
+    //
+    public List<String> getTypeVersions() {
+        return serviceTypeVersions;
+    }
+    //
+    public String getFees() {
+        return (null == serviceFees) ? "" : serviceFees;
+    }
+    public void setFees(String fees) {
+        serviceFees = fees;
+    }
+    //
+    public List<String> getAccessConstraints() {
+        return accessConstraints.isEmpty() ? new ArrayList<String>() : accessConstraints;
+    }
+    public void addAccessConstraint(String constraint) {
+        accessConstraints.add(constraint);
+    }
+} //~ ServiceIdentification

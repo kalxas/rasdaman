@@ -65,7 +65,7 @@ public:
     /** Initialization: takes the tarnsmitter buffer containing data to be send
         and a pointer to a Communicator object, which will coordinate the transmission
     Assert: transmitterBuffer!=0, newClientComm !=0  */
-    void init(CommBuffer *transmitterBuffer, RnpBaseClientComm *newClientComm) throw();
+    void init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newClientComm) throw();
 
     /// Call-back function for the Communicator.
     void processRequest() throw();
@@ -94,7 +94,7 @@ protected:
     /// Resets the object: clears the connection and marks the job as ready
     void resetState() throw();
 private:
-    RnpBaseClientComm *clientCommPtr;
+    RnpBaseClientComm* clientCommPtr;
 
     RnpReceiver rnpReceiver;
     bool        answerOk;
@@ -188,7 +188,7 @@ protected:
 
     // stuff for non blocking communication
     RnpClientJob    clientJob;             // the client job
-    NbCommunicator  *communicatorPtr;      // the communicator to be used
+    NbCommunicator*  communicatorPtr;      // the communicator to be used
     NbCommunicator  internalCommunicator;  // an internal communicator, if you dont like that you put another one
 
     // connection parameters
@@ -236,7 +236,7 @@ protected:
 
     void resetJob() throw();
 
-    RnpBaseServerComm *serverCommPtr;
+    RnpBaseServerComm* serverCommPtr;
 
     RnpReceiver rnpReceiver;
 
@@ -292,7 +292,7 @@ public:
     might throw whatever is appropriate. 'processRequest()' catches 'AkgException',
     'exception' and (...) and converts them for transmission.
     If you don't like this version, make another one */
-    virtual void processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob *callingJob) throw();
+    virtual void processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob* callingJob) throw();
 
     /** Instructs the communicator that it should exit. Usefull to implement
         'down server' commands  */
@@ -351,7 +351,7 @@ private:
 
     int                nrServerJobs;
 
-    NbCommunicator  *communicator;
+    NbCommunicator*  communicator;
 
     int  transmitterBufferSize;
 };

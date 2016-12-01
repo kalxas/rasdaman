@@ -118,7 +118,7 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_UNARY_OPERATION, QT_OID},
     {QT_UNARY_OPERATION, QT_SDOM},
     {QT_UNARY_OPERATION, QT_UNARY_INDUCE},
-    {QT_UNARY_OPERATION, QT_PROJECT},    
+    {QT_UNARY_OPERATION, QT_PROJECT},
     {QT_UNARY_OPERATION, QT_ENCODE},
     {QT_UNARY_OPERATION, QT_DECODE},
     {QT_UNARY_OPERATION, QT_INFO},
@@ -155,12 +155,12 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
 
 int QtNode::minim[QtNodes];
 int QtNode::maxim[QtNodes];
-int QtNode::child_range[QtNodes+1];
+int QtNode::child_range[QtNodes + 1];
 
 bool QtNode::MinMaxDone = false;
-    
+
 #ifdef RMANBENCHMARK
-    long QtNode::timerCounter = 0;
+long QtNode::timerCounter = 0;
 #endif
 
 QtNode::QtNode()
@@ -171,46 +171,47 @@ QtNode::QtNode()
         MinMaxDone = true;
         SetMinMax();
     }
-    
+
 #ifdef RMANBENCHMARK
     evaluationTimer = NULL;
-#endif 
+#endif
 }
 
 
-QtNode::QtNode( QtNode* node )
-    : parent( node )
+QtNode::QtNode(QtNode* node)
+    : parent(node)
 {
     if (!MinMaxDone)
     {
         MinMaxDone = true;
         SetMinMax();
     }
-    
+
 #ifdef RMANBENCHMARK
     evaluationTimer = NULL;
-#endif 
+#endif
 }
 
 
 QtNode::~QtNode()
 {
 #ifdef RMANBENCHMARK
-    if (evaluationTimer) {
+    if (evaluationTimer)
+    {
         delete evaluationTimer;
     }
-#endif 
+#endif
 }
 
 bool
-QtNode::subtype( enum QtNodeType a, enum QtNodeType b )
+QtNode::subtype(enum QtNodeType a, enum QtNodeType b)
 {
-    return (minim[a]<=minim[b] && maxim[b]<=maxim[a]);
+    return (minim[a] <= minim[b] && maxim[b] <= maxim[a]);
 }
 
 
 QtNode::QtNodeList*
-QtNode::getChilds( QtChildType flag )
+QtNode::getChilds(QtChildType flag)
 {
     // Default definition is used for all leaf nodes.
 
@@ -223,35 +224,39 @@ QtNode::getChilds( QtChildType flag )
     // In mode QT_LEAF_NODES the method call is passed to the sons
     // and just the leaf nodes insert themselves.
 
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
 
     resultList = new QtNodeList();
 
-    if( flag == QT_LEAF_NODES )
-        resultList->push_back( this );
+    if (flag == QT_LEAF_NODES)
+    {
+        resultList->push_back(this);
+    }
 
     return resultList;
 }
 
 
 QtNode::QtNodeList*
-QtNode::getChild( const QtNodeType node, QtChildType flag )
+QtNode::getChild(const QtNodeType node, QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
     QtNodeList::iterator iter;
 
-    resultList = getChilds( flag );
+    resultList = getChilds(flag);
 
-    for( iter=resultList->begin(); iter!=resultList->end(); iter++ )
-        if( node != (*iter)->getNodeType() )
-            resultList->erase( iter-- );
+    for (iter = resultList->begin(); iter != resultList->end(); iter++)
+        if (node != (*iter)->getNodeType())
+        {
+            resultList->erase(iter--);
+        }
 
     return resultList;
 }
 
 
 bool
-QtNode::equalMeaning( QtNode* /*node*/ )
+QtNode::equalMeaning(QtNode* /*node*/)
 {
     return false;
 }
@@ -277,36 +282,41 @@ QtNode::simplify()
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
 
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
     QtNodeList::iterator iter;
 
     try
     {
-        resultList = getChilds( QT_DIRECT_CHILDS );
-        for( iter=resultList->begin(); iter!=resultList->end(); iter++ )
+        resultList = getChilds(QT_DIRECT_CHILDS);
+        for (iter = resultList->begin(); iter != resultList->end(); iter++)
+        {
             (*iter)->simplify();
+        }
     }
-    catch(...)
+    catch (...)
     {
-        if( resultList )
+        if (resultList)
         {
             delete resultList;
-            resultList=NULL;
+            resultList = NULL;
         }
         throw;
     }
 
     delete resultList;
-    resultList=NULL;
+    resultList = NULL;
 }
 
 
 QtNode::QtNodeType
-QtNode::getQtNodeTypeParent (QtNode::QtNodeType node)
+QtNode::getQtNodeTypeParent(QtNode::QtNodeType node)
 {
     int i = 0;
-    for (i=0; i<QtNodes; i++)
-        if ( QtInheritance[i][1] == node ) return QtInheritance[i][0];
+    for (i = 0; i < QtNodes; i++)
+        if (QtInheritance[i][1] == node)
+        {
+            return QtInheritance[i][0];
+        }
     throw r_Error(QTNODETYPEPARENTDOESNOTEXIST);
 }
 
@@ -318,42 +328,50 @@ operator<(const QtNode::QtNodePair a, const QtNode::QtNodePair b)
 }
 
 void
-QtNode::num_node (const QtNodePair *arr, const enum QtNodeType x)
+QtNode::num_node(const QtNodePair* arr, const enum QtNodeType x)
 {
     int i;
     static int ID = 0 ;
     enum QtNodeType child;
     minim[x] = ID++;
-    for (i = child_range[x]; i < child_range[x+1]; i++)
+    for (i = child_range[x]; i < child_range[x + 1]; i++)
+    {
         num_node(arr, arr[i].deriv);
+    }
     maxim[x] = ID++;
 }
 
 void
-QtNode::set_child_range(const QtNodePair *arr)
+QtNode::set_child_range(const QtNodePair* arr)
 {
     int i;
-    child_range[QtNodes] = QtNodes-1;
-    for (i=QtNodes-3; i>=0; i--)
+    child_range[QtNodes] = QtNodes - 1;
+    for (i = QtNodes - 3; i >= 0; i--)
     {
-        if (arr[i].base != arr[i+1].base) child_range[arr[i+1].base] = i+1;
+        if (arr[i].base != arr[i + 1].base)
+        {
+            child_range[arr[i + 1].base] = i + 1;
+        }
     }
     child_range[arr[0].base] = 0;
-    for (i=QtNodes-1; i>0; i--)
-        if (child_range[i] == 0) child_range[i] = child_range[i+1];
+    for (i = QtNodes - 1; i > 0; i--)
+        if (child_range[i] == 0)
+        {
+            child_range[i] = child_range[i + 1];
+        }
 }
 
 void
 QtNode::SetMinMax()
 {
     int i;
-    QtNodePair arr[QtNodes-1];
-    for (i=0; i<(QtNodes-1); i++)
+    QtNodePair arr[QtNodes - 1];
+    for (i = 0; i < (QtNodes - 1); i++)
     {
         arr[i].base = QtInheritance[i][0];
         arr[i].deriv = QtInheritance[i][1];
     }
-    std::sort(arr,arr+QtNodes-1);
+    std::sort(arr, arr + QtNodes - 1);
     //creating child_range
     set_child_range(arr);
     //numbering the nodes
@@ -362,7 +380,7 @@ QtNode::SetMinMax()
 
 
 void
-QtNode::startTimer(__attribute__ ((unused)) const char* name)
+QtNode::startTimer(__attribute__((unused)) const char* name)
 {
 #ifdef RMANBENCHMARK
     if (!evaluationTimer)
@@ -424,7 +442,7 @@ QtNode::getEvaluationTime()
 
 
 QtTypeElement::QtTypeElement()
-    : dataType( QT_TYPE_UNKNOWN ),
+    : dataType(QT_TYPE_UNKNOWN),
       type(NULL),
       name(NULL)
 {
@@ -432,38 +450,47 @@ QtTypeElement::QtTypeElement()
 
 
 
-QtTypeElement::QtTypeElement( const QtDataType initDataType,
-                              const char*      initName )
-    : dataType( QT_TYPE_UNKNOWN ),
-      type( NULL ),
-      name( NULL )
-{
-    setDataType( initDataType );
-
-    if( initName ) name = strdup( initName );
-}
-
-
-
-QtTypeElement::QtTypeElement( const Type*            initType,
-                              const char*      initName )
-    : dataType( QT_TYPE_UNKNOWN ),
-      type( NULL ),
-      name( NULL )
-{
-    setType( initType );
-
-    if( initName ) name = strdup( initName );
-}
-
-
-
-QtTypeElement::QtTypeElement( const QtTypeElement& typeElement )
-    : dataType( typeElement.dataType ),
-      type( typeElement.type ),
+QtTypeElement::QtTypeElement(const QtDataType initDataType,
+                             const char*      initName)
+    : dataType(QT_TYPE_UNKNOWN),
+      type(NULL),
       name(NULL)
 {
-    if( typeElement.name ) name = strdup( typeElement.name );
+    setDataType(initDataType);
+
+    if (initName)
+    {
+        name = strdup(initName);
+    }
+}
+
+
+
+QtTypeElement::QtTypeElement(const Type*            initType,
+                             const char*      initName)
+    : dataType(QT_TYPE_UNKNOWN),
+      type(NULL),
+      name(NULL)
+{
+    setType(initType);
+
+    if (initName)
+    {
+        name = strdup(initName);
+    }
+}
+
+
+
+QtTypeElement::QtTypeElement(const QtTypeElement& typeElement)
+    : dataType(typeElement.dataType),
+      type(typeElement.type),
+      name(NULL)
+{
+    if (typeElement.name)
+    {
+        name = strdup(typeElement.name);
+    }
 }
 
 
@@ -472,30 +499,33 @@ QtTypeElement::~QtTypeElement()
 {
     // Note: Types are free by the type factory.
 
-    if( name )
+    if (name)
     {
-        free( name );
-        name=NULL;
+        free(name);
+        name = NULL;
     }
 }
 
 
 
 const QtTypeElement&
-QtTypeElement::operator=( const QtTypeElement& obj )
+QtTypeElement::operator=(const QtTypeElement& obj)
 {
-    if( this != &obj )
+    if (this != &obj)
     {
-        if( name )
+        if (name)
         {
-            free( name );
+            free(name);
             name = NULL;
         }
 
         dataType = obj.dataType;
         type     = obj.type;
 
-        if( obj.name ) name = strdup( obj.name );
+        if (obj.name)
+        {
+            name = strdup(obj.name);
+        }
 
     }
 
@@ -505,18 +535,18 @@ QtTypeElement::operator=( const QtTypeElement& obj )
 
 
 void
-QtTypeElement::printStatus( std::ostream& s ) const
+QtTypeElement::printStatus(std::ostream& s) const
 {
-    if( type )
+    if (type)
     {
         char* typeStructure = type->getTypeStructure();
         s << typeStructure << std::flush;
-        free( typeStructure );
-        typeStructure=NULL;
+        free(typeStructure);
+        typeStructure = NULL;
     }
     else
     {
-        switch( dataType )
+        switch (dataType)
         {
         case QT_STRING:
             s << "string" << std::flush;
@@ -541,21 +571,23 @@ QtTypeElement::printStatus( std::ostream& s ) const
         }
     }
 
-    if( name )
+    if (name)
+    {
         s << ":" << name << std::flush;
+    }
 }
 
 
 
 void
-QtTypeElement::setDataType( const QtDataType newDataType )
+QtTypeElement::setDataType(const QtDataType newDataType)
 {
     dataType = newDataType;
 
     // reset type information
     type = NULL;
 
-    switch( dataType )
+    switch (dataType)
     {
     case QT_TYPE_UNKNOWN:
         break;
@@ -613,13 +645,13 @@ QtTypeElement::setDataType( const QtDataType newDataType )
 
 
 void
-QtTypeElement::setType(const Type* newType )
+QtTypeElement::setType(const Type* newType)
 {
     type     = NULL;
     dataType = QT_TYPE_UNKNOWN;
 
-    if( newType )
-        switch( newType->getType() )
+    if (newType)
+        switch (newType->getType())
         {
         case BOOLTYPE:
             dataType = QT_BOOL;
@@ -666,54 +698,60 @@ QtTypeElement::setType(const Type* newType )
         }
 
     // if type is supported
-    if( dataType != QT_TYPE_UNKNOWN )
+    if (dataType != QT_TYPE_UNKNOWN)
+    {
         type = newType;
+    }
 }
 
 
 
-QtTypeTuple::QtTypeTuple( unsigned int length )
-    : tuple( length )
+QtTypeTuple::QtTypeTuple(unsigned int length)
+    : tuple(length)
 {
 }
 
 
 
 void
-QtTypeTuple::concat( const QtTypeTuple& typeTuple )
+QtTypeTuple::concat(const QtTypeTuple& typeTuple)
 {
     // reserve space for concatenated type
-    tuple.reserve( tuple.size() + typeTuple.tuple.size() );
+    tuple.reserve(tuple.size() + typeTuple.tuple.size());
 
     // concatenate tuples
-    for( std::vector<QtTypeElement>::const_iterator iter = typeTuple.tuple.begin();
-            iter != typeTuple.tuple.end(); iter++ )
-        tuple.push_back( *iter );
+    for (std::vector<QtTypeElement>::const_iterator iter = typeTuple.tuple.begin();
+            iter != typeTuple.tuple.end(); iter++)
+    {
+        tuple.push_back(*iter);
+    }
 }
 
 
 
 void
-QtTypeTuple::concat( const QtTypeElement& typeElement )
+QtTypeTuple::concat(const QtTypeElement& typeElement)
 {
-    tuple.push_back( typeElement );
+    tuple.push_back(typeElement);
 }
 
 
 
 void
-QtTypeTuple::printStatus( std::ostream& s ) const
+QtTypeTuple::printStatus(std::ostream& s) const
 {
     s << "<" << std::flush;
 
-    for( std::vector<QtTypeElement>::const_iterator iter = tuple.begin();
+    for (std::vector<QtTypeElement>::const_iterator iter = tuple.begin();
             iter != tuple.end();
-            iter++ )
+            iter++)
     {
-        if( iter != tuple.begin() )
+        if (iter != tuple.begin())
+        {
             s << ", " << std::flush;
+        }
 
-        (*iter).printStatus( s );
+        (*iter).printStatus(s);
     }
 
     s << ">" << std::flush;

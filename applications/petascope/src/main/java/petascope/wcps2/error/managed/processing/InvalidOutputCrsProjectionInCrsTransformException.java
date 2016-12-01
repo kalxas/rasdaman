@@ -17,7 +17,7 @@ public class InvalidOutputCrsProjectionInCrsTransformException  extends WCPSProc
      */
     public InvalidOutputCrsProjectionInCrsTransformException(String outputCrs, String axisName) {
         super(ERROR_TEMPLATE.replace("$outputCrs", outputCrs)
-                            .replace("$axis", axisName), ExceptionCode.WcpsError);
+              .replace("$axis", axisName), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Invalid outputCRS projection '$outputCrs' for axis '$axis'.";

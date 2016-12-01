@@ -26,11 +26,11 @@ rasdaman GmbH.
 namespace common
 {
 ConnectionFailedException::ConnectionFailedException()
-    :RuntimeException("The server is not responding to requests.")
+    : RuntimeException("The server is not responding to requests.")
 {}
 
-ConnectionFailedException::ConnectionFailedException(const std::string &reason)
-    :RuntimeException(reason)
+ConnectionFailedException::ConnectionFailedException(const std::string& reason)
+    : RuntimeException(reason)
 {}
 
 ConnectionFailedException::~ConnectionFailedException() throw()

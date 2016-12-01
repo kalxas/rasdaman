@@ -33,18 +33,16 @@ public class RasdamanUpdaterFactory {
     public RasdamanUpdaterFactory() {
     }
 
-    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, String values, String shiftDomain){
+    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, String values, String shiftDomain) {
         return new RasdamanValuesUpdater(collectionName, collectionOid, domain, values, shiftDomain);
     }
 
-    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, File file, String mimeType, String shiftDomain, String rangeParameters){
-        if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)){
+    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, File file, String mimeType, String shiftDomain, String rangeParameters) {
+        if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {
             return new RasdamanGribUpdater(collectionName, collectionOid, domain, file, rangeParameters, shiftDomain);
-        }
-        else if(mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)){
+        } else if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)) {
             return new RasdamanNetcdfUpdater(collectionName, collectionOid, domain, file, shiftDomain, rangeParameters);
-        }
-        else {
+        } else {
             return new RasdamanDecodeUpdater(collectionName, collectionOid, domain, file, shiftDomain);
         }
     }

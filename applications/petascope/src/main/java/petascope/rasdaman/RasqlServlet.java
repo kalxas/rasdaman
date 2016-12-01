@@ -80,8 +80,9 @@ public class RasqlServlet extends CORSHttpServlet {
     }
 
     private void setServletURL(HttpServletRequest req) {
-        if("".equals(ConfigManager.PETASCOPE_SERVLET_URL) )
+        if ("".equals(ConfigManager.PETASCOPE_SERVLET_URL)) {
             ConfigManager.PETASCOPE_SERVLET_URL = req.getRequestURL().toString();
+        }
     }
 
     @Override
@@ -137,8 +138,7 @@ public class RasqlServlet extends CORSHttpServlet {
         } catch (Exception ex) {
             printError(outStream, res, "Failed evaluating query: " + query, ex, USE_DEFAULT_STATUS);
             log.error("Failed evaluating query: " + query, ex);
-        }
-        finally {
+        } finally {
             try {
                 outStream.close();
             } catch (IOException ex) {
@@ -199,7 +199,7 @@ public class RasqlServlet extends CORSHttpServlet {
      * @throws PetascopeException in case of error in query evaluation
      */
     private void executeQuery(OutputStream os, HttpServletResponse res, String username,
-            String password, String query, String filePath) throws PetascopeException {
+                              String password, String query, String filePath) throws PetascopeException {
         try {
             Object tmpResult = null;
 
@@ -232,7 +232,7 @@ public class RasqlServlet extends CORSHttpServlet {
             }
         } catch (IOException ex) {
             throw new PetascopeException(ExceptionCode.IOConnectionError,
-                    "Failed writing result to output stream", ex);
+                                         "Failed writing result to output stream", ex);
         } finally {
             // remove the uploaded filePath after insert/update to collection
             if (filePath != null) {
@@ -257,17 +257,17 @@ public class RasqlServlet extends CORSHttpServlet {
     private request validateRequest(OutputStream os, HttpServletResponse res, String username, String password, String query) {
         if (username == null) {
             printError(os, res, "required KVP parameter " +
-                    KVPSymbols.KEY_USERNAME + " missing from request.", null, 400);
+                       KVPSymbols.KEY_USERNAME + " missing from request.", null, 400);
             return request.INVALID;
         }
         if (password == null) {
             printError(os, res, "required KVP parameter " +
-                    KVPSymbols.KEY_PASSWORD + " missing from request.", null, 400);
+                       KVPSymbols.KEY_PASSWORD + " missing from request.", null, 400);
             return request.INVALID;
         }
         if (query == null) {
             printError(os, res, "required KVP parameter " +
-                    KVPSymbols.KEY_QUERY + " missing from request.", null, 400);
+                       KVPSymbols.KEY_QUERY + " missing from request.", null, 400);
             return request.INVALID;
         }
 

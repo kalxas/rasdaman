@@ -73,7 +73,7 @@ public class CrsProjectionUtil {
      * @return  List<BigDecimal>    Locations transformed to targetCRS (defined at construction time).
      * @throws  WCSException
      */
-    public static List<BigDecimal> transform (String sourceCrs, String targetCrs, double[] srcCoords, boolean isSwapCoords) throws WCSException {
+    public static List<BigDecimal> transform(String sourceCrs, String targetCrs, double[] srcCoords, boolean isSwapCoords) throws WCSException {
 
         try {
             double[] trasfCoords = new double[srcCoords.length];
@@ -107,22 +107,23 @@ public class CrsProjectionUtil {
              * As we have the same origin (0) then the assumption above is not valid..
              * e.g: x=0, y=15000 -> x=20, y=0. which is wrong, should be x=0, y=20
              */
-            if(isSwapCoords) {
+            if (isSwapCoords) {
                 double buf;
-                for (int i = 0; i < trasfCoords.length/2; i++) {
-                    if (trasfCoords[i] > trasfCoords[i+trasfCoords.length/2]) {
+                for (int i = 0; i < trasfCoords.length / 2; i++) {
+                    if (trasfCoords[i] > trasfCoords[i + trasfCoords.length / 2]) {
                         // Need to swap the coordinates
                         buf = trasfCoords[i];
-                        trasfCoords[i] = trasfCoords[i+trasfCoords.length/2];
-                        trasfCoords[i+trasfCoords.length/2] = buf;
+                        trasfCoords[i] = trasfCoords[i + trasfCoords.length / 2];
+                        trasfCoords[i + trasfCoords.length / 2] = buf;
                     }
                 }
             }
 
             // Format output
             List<BigDecimal> out = new ArrayList<BigDecimal>(srcCoords.length);
-            for (int i = 0; i < trasfCoords.length; i++)
+            for (int i = 0; i < trasfCoords.length; i++) {
                 out.add(new BigDecimal(trasfCoords[i]));
+            }
 
             return out;
 

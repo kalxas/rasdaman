@@ -55,15 +55,15 @@ char* O2DBName = "RASBASE";
 #else
 char* O2DBName = "NorbertBase";
 #endif
-char *collName = "testColl";
-char defaultCollName[]= "ObjsContainer";
+char* collName = "testColl";
+char defaultCollName[] = "ObjsContainer";
 
 #ifdef BASEDB_O2
 extern char* myExecArgv0 = "";
 #endif
 
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
 #ifdef BASEDB_O2
     myExecArgv0 = argv[0];
@@ -90,7 +90,7 @@ main( int argc, char** argv)
     {
         errorDBOpen = db.open(O2DBName);
     }
-    catch(...)
+    catch (...)
     {
         cout << "Caught Exception " << endl;
         exit(-1);
@@ -111,7 +111,9 @@ main( int argc, char** argv)
     {
     }
     else
-        cout <<"Error allocating OId for collection " << endl;
+    {
+        cout << "Error allocating OId for collection " << endl;
+    }
     PersMDDColl* col;
     try
     {
@@ -134,7 +136,7 @@ main( int argc, char** argv)
     }
     else
     {
-        cout << "Error by allocation of OId" <<endl;
+        cout << "Error by allocation of OId" << endl;
         exit(1);
     }
 
@@ -145,9 +147,9 @@ main( int argc, char** argv)
 
     // create MDD Object 1
 
-    r_Sinterval limits1Obj1(0l,100l);
-    r_Sinterval limits2Obj1(0l,100l);
-    r_Sinterval limits3Obj1(0l,100l);
+    r_Sinterval limits1Obj1(0l, 100l);
+    r_Sinterval limits2Obj1(0l, 100l);
+    r_Sinterval limits3Obj1(0l, 100l);
     r_Minterval dom(3);
     dom << limits1Obj1 << limits2Obj1 << limits3Obj1;
 
@@ -156,60 +158,62 @@ main( int argc, char** argv)
 
     char* test = (char*)mymalloc((dom.cell_count() + 1) * mddtype->getBaseType()->getSize());
     for (i = 0; i < 1000; i++)
-        test[i] = i%255;
+    {
+        test[i] = i % 255;
+    }
 
-    dom[0].set_interval(0l,1l);
-    dom[1].set_interval(0l,1l);
-    dom[2].set_interval(0l,1l);
+    dom[0].set_interval(0l, 1l);
+    dom[1].set_interval(0l, 1l);
+    dom[2].set_interval(0l, 1l);
     PersTile* tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "1--------------" << endl;
 
-    dom[0].set_interval(2l,3l);
-    dom[1].set_interval(0l,1l);
-    dom[2].set_interval(0l,1l);
+    dom[0].set_interval(2l, 3l);
+    dom[1].set_interval(0l, 1l);
+    dom[2].set_interval(0l, 1l);
     tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "2--------------" << endl;
 
-    dom[0].set_interval(4l,5l);
-    dom[1].set_interval(0l,1l);
-    dom[2].set_interval(0l,1l);
+    dom[0].set_interval(4l, 5l);
+    dom[1].set_interval(0l, 1l);
+    dom[2].set_interval(0l, 1l);
     tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "3--------------" << endl;
 
-    dom[1].set_interval(0l,1l);
-    dom[0].set_interval(20l,21l);
-    dom[2].set_interval(0l,1l);
+    dom[1].set_interval(0l, 1l);
+    dom[0].set_interval(20l, 21l);
+    dom[2].set_interval(0l, 1l);
     tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "4--------------" << endl;
 
-    dom[1].set_interval(0l,1l);
-    dom[0].set_interval(22l,23l);
-    dom[2].set_interval(0l,1l);
+    dom[1].set_interval(0l, 1l);
+    dom[0].set_interval(22l, 23l);
+    dom[2].set_interval(0l, 1l);
     tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "5--------------" << endl;
 
-    dom[1].set_interval(0l,1l);
-    dom[0].set_interval(24l,25l);
-    dom[2].set_interval(0l,1l);
+    dom[1].set_interval(0l, 1l);
+    dom[0].set_interval(24l, 25l);
+    dom[2].set_interval(0l, 1l);
     tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "6--------------" << endl;
 
-    dom[1].set_interval(0l,1l);
-    dom[0].set_interval(10l,11l);
-    dom[2].set_interval(0l,1l);
+    dom[1].set_interval(0l, 1l);
+    dom[0].set_interval(10l, 11l);
+    dom[2].set_interval(0l, 1l);
     tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "7--------------" << endl;
 
-    dom[1].set_interval(0l,1l);
-    dom[0].set_interval(26l,27l);
-    dom[2].set_interval(0l,1l);
+    dom[1].set_interval(0l, 1l);
+    dom[0].set_interval(26l, 27l);
+    dom[2].set_interval(0l, 1l);
     tile1Obj1 = new PersTile(dom, mddtype->getBaseType(), test);
     MDDObj1->insertTile(tile1Obj1);
     cout << "8--------------" << endl;
@@ -219,9 +223,13 @@ main( int argc, char** argv)
     r_Point po("[10,0,1]");
     char* utest = MDDObj1->pointQuery(po);
     if (utest)
+    {
         cout << "works" << endl;
+    }
     else
+    {
         cout << "failure" << endl;
+    }
     ta.commit();
     db.close();
 }

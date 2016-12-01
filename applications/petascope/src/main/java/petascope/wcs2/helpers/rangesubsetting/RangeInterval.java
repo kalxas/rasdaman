@@ -42,7 +42,7 @@ public class RangeInterval extends RangeItem {
     }
 
     /**
-     * Returns the low component of the range 
+     * Returns the low component of the range
      */
     public String getLowComponent() {
         return lowComponent;

@@ -43,23 +43,26 @@ rasdaman GmbH.
 #endif
 
 
-bool testIsMessageDigestAvailable(const char *mdName)
+bool testIsMessageDigestAvailable(const char* mdName)
 {
     EVP_MD_CTX mdctx;
-    const EVP_MD *md;
+    const EVP_MD* md;
 
     OpenSSL_add_all_digests();
 
     md = EVP_get_digestbyname(mdName);//"MD5");
 
-    if(!md) return false;
+    if (!md)
+    {
+        return false;
+    }
     return true;
 }
 
-int messageDigest(const char *input,char *output,const char *mdName)
+int messageDigest(const char* input, char* output, const char* mdName)
 {
     EVP_MD_CTX mdctx;
-    const EVP_MD *md;
+    const EVP_MD* md;
     unsigned int md_len, i;
     unsigned char md_value[100];
 
@@ -67,13 +70,19 @@ int messageDigest(const char *input,char *output,const char *mdName)
 
     md = EVP_get_digestbyname(mdName);
 
-    if(!md) return 0;
+    if (!md)
+    {
+        return 0;
+    }
 
     EVP_DigestInit(&mdctx, md);
-    EVP_DigestUpdate(&mdctx,input, strlen(input));
+    EVP_DigestUpdate(&mdctx, input, strlen(input));
     EVP_DigestFinal(&mdctx, md_value, &md_len);
 
-    for(i = 0; i < md_len; i++) sprintf(output+i+i,"%02x", md_value[i]);
+    for (i = 0; i < md_len; i++)
+    {
+        sprintf(output + i + i, "%02x", md_value[i]);
+    }
 
     return strlen(output);
 }

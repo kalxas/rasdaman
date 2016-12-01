@@ -50,42 +50,42 @@ class rviewTypeMan: public rviewFrame
 {
 public:
 
-    rviewTypeMan(rviewFrame *parentWindow);
-    rviewTypeMan(rviewFrame *parentWindow, const r_Type *type);
+    rviewTypeMan(rviewFrame* parentWindow);
+    rviewTypeMan(rviewFrame* parentWindow, const r_Type* type);
     ~rviewTypeMan(void);
 
     void unlinkParent(void);
 
-    void setType(const r_Type *type);
+    void setType(const r_Type* type);
     void label(void);
-    int  process(wxObject &obj, wxEvent &evt);
+    int  process(wxObject& obj, wxEvent& evt);
     void OnSize(int w, int h);
-    int convert(r_Ref<r_GMarray> &src, r_Ref<r_GMarray> &dest);
+    int convert(r_Ref<r_GMarray>& src, r_Ref<r_GMarray>& dest);
 
 
 protected:
 
     void clearData(void);
 
-    wxPanel *panel;
-    wxGroupBox **structures;
-    rviewCheckBox **members;
-    unsigned int *offsets;
-    unsigned char *primtypes;
+    wxPanel* panel;
+    wxGroupBox** structures;
+    rviewCheckBox** members;
+    unsigned int* offsets;
+    unsigned char* primtypes;
     unsigned int numStruct, numMembers, typeDepth;
     unsigned int baseTypeLength;
-    r_Type *myType;
-    rviewFrame *parent;
-    rviewButton *closeBut, *convertBut;
-    const char **typeNames;
+    r_Type* myType;
+    rviewFrame* parent;
+    rviewButton* closeBut, *convertBut;
+    const char** typeNames;
     DynamicString baseTypeName;
 
 
 private:
 
-    void initShare(rviewFrame *parentWindow);
-    void parseStructType(const r_Structure_Type *tp, unsigned int &nums, unsigned int &numm, unsigned int depth, unsigned int offset=0, wxRect *bbox=NULL);
-    void parsePrimitiveType(const r_Primitive_Type *tp, const char *name, unsigned int &numm, unsigned int offset=0, wxRect *bbox=NULL);
+    void initShare(rviewFrame* parentWindow);
+    void parseStructType(const r_Structure_Type* tp, unsigned int& nums, unsigned int& numm, unsigned int depth, unsigned int offset = 0, wxRect* bbox = NULL);
+    void parsePrimitiveType(const r_Primitive_Type* tp, const char* name, unsigned int& numm, unsigned int offset = 0, wxRect* bbox = NULL);
 
     static const char structName[];
     static const char marrayName[];

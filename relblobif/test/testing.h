@@ -60,69 +60,69 @@ private:
 
 #define TEST_FAIL() \
     Test::test_result_ = false,\
-    LOG << "Test failed at " << __FILE__ << ":" << __LINE__ << endl
+                         LOG << "Test failed at " << __FILE__ << ":" << __LINE__ << endl
 
 #define EXPECT_TRUE(a) \
     if (!(a)) Test::test_result_ = false, \
-        LOG << "Expected " << #a << " to evaluate to true but found " \
-        "otherwise" << endl \
-        << "In file " << __FILE__ << " at line " << __LINE__ << endl
+                                       LOG << "Expected " << #a << " to evaluate to true but found " \
+                                       "otherwise" << endl \
+                                       << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_FALSE(a) \
     if (a) Test::test_result_ = false, \
-        LOG << "Expected " << #a << " to evaluate to false but found " \
-        "otherwise" << endl \
-        << "In file " << __FILE__ << " at line " << __LINE__ << endl
+                                    LOG << "Expected " << #a << " to evaluate to false but found " \
+                                    "otherwise" << endl \
+                                    << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_NOT_EQ(a,b) \
     if ((a) == (b)) Test::test_result_ = false, \
-        LOG << "Expected different values but found otherwise" <<endl \
-        << #a << " : " << (a) << endl \
-        << #b << " : " << (b) << endl \
-        << "In file " << __FILE__ << " at line " << __LINE__ << endl
+                                             LOG << "Expected different values but found otherwise" <<endl \
+                                             << #a << " : " << (a) << endl \
+                                             << #b << " : " << (b) << endl \
+                                             << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_EQ(a,b) \
     if ((a) != (b)) Test::test_result_ = false, \
-        LOG << "Expected equality but found otherwise" <<endl \
-        << #a << " : " << (a) << endl \
-        << #b << " : " << (b) << endl \
-        << "In file " << __FILE__ << " at line " << __LINE__ << endl
+                                             LOG << "Expected equality but found otherwise" <<endl \
+                                             << #a << " : " << (a) << endl \
+                                             << #b << " : " << (b) << endl \
+                                             << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_EQ_STR(a,b) \
     if (strcmp((a),(b)) != 0) Test::test_result_ = false, \
-        LOG << "Expected equality but found otherwise" <<endl \
-        << "First string : " << a << " ." << endl \
-        << "Second string: " << b << " ." << endl \
-        << "In file " << __FILE__ << " at line " << __LINE__ << endl
+                LOG << "Expected equality but found otherwise" <<endl \
+                << "First string : " << a << " ." << endl \
+                << "Second string: " << b << " ." << endl \
+                << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_EQ_MEM(a,b,size) \
     if (memcmp((a),(b),(size)) != 0) Test::test_result_ = false, \
-        LOG << "Expected equality but found otherwise" <<endl \
-        << "First string : " << Test::charPtrToString(a, size) << " ." << endl \
-        << "Second string: " << Test::charPtrToString(b, size) << " ." << endl \
-        << "In file " << __FILE__ << " at line " << __LINE__ << endl
+                LOG << "Expected equality but found otherwise" <<endl \
+                << "First string : " << Test::charPtrToString(a, size) << " ." << endl \
+                << "Second string: " << Test::charPtrToString(b, size) << " ." << endl \
+                << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define RUN_TEST(method) \
     {LOG << "Running " << #method << endl; \
-    Test::test_result_ = true; \
-    Test::tests_run_ ++; \
-    try { method; } \
-    catch(...) { \
-        Test::test_result_ = false;\
-        LOG << "Test failed because of unknown exception!" << endl; \
-    } \
-    if (!Test::test_result_) { \
-        LOG << "Test " << #method << " failed!" << endl;\
-    } else { \
-        LOG << "Test " << #method << " passed!" <<endl;\
-        Test::tests_passed_ ++; \
-    } \
-    LOG << endl; }
+        Test::test_result_ = true; \
+        Test::tests_run_ ++; \
+        try { method; } \
+        catch(...) { \
+            Test::test_result_ = false;\
+            LOG << "Test failed because of unknown exception!" << endl; \
+        } \
+        if (!Test::test_result_) { \
+            LOG << "Test " << #method << " failed!" << endl;\
+        } else { \
+            LOG << "Test " << #method << " passed!" <<endl;\
+            Test::tests_passed_ ++; \
+        } \
+        LOG << endl; }
 
 #define TEST_SUMMARY() \
-  LOG << "Run " << Test::tests_run_ << " tests" << endl; \
-  LOG << Test::tests_passed_ << " tests passed!" << endl; \
-  if (Test::tests_passed_ != Test::tests_run_) \
-    return 1;
+    LOG << "Run " << Test::tests_run_ << " tests" << endl; \
+    LOG << Test::tests_passed_ << " tests passed!" << endl; \
+    if (Test::tests_passed_ != Test::tests_run_) \
+        return 1;
 
 #endif  // TESTING_H__

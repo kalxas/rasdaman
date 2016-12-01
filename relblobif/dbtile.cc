@@ -74,7 +74,7 @@ DBTile::getMemorySize() const
 void
 DBTile::setCells(char* newCells)
 {
-    if(cells != newCells)
+    if (cells != newCells)
     {
         cells = newCells;
         ownCells = true;
@@ -85,9 +85,9 @@ DBTile::setCells(char* newCells)
 void
 DBTile::setNoModificationData(char* newCells) const
 {
-    if(cells != newCells)
+    if (cells != newCells)
     {
-        if(cells != NULL && ownCells)
+        if (cells != NULL && ownCells)
         {
             LDEBUG << "DBTile::setNoModificationData() freeing blob cells";
             free(cells);
@@ -197,7 +197,7 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format 
         {
             for (j = 0; j < patSize; j++)
             {
-                cells[(i+j)]= pat[j];
+                cells[(i + j)] = pat[j];
             }
         }
         // pad end with 0
@@ -207,7 +207,7 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format 
             i -= patSize;
             for (; i < size; i++)
             {
-                cells[i]=0;
+                cells[i] = 0;
             }
         }
         else
@@ -266,14 +266,16 @@ DBTile::DBTile(const OId& id) throw (r_Error)
         cells(NULL),
         currentFormat(r_Array)
 {
-    LTRACE << "DBTile(" << id <<")";
+    LTRACE << "DBTile(" << id << ")";
     ownCells = true;
 }
 
 DBTile::~DBTile()
 {
     if (!ownCells)
+    {
         return;
+    }
 
     if (cells)
     {
@@ -331,10 +333,12 @@ DBTile::printStatus(unsigned int level, std::ostream& stream) const
     stream << " r_Data_Format " << dataFormat << " size " << size << " ";
 #ifdef DEBUG
     for (int a = 0; a < size; a++)
+    {
         stream << " " << (int)(cells[a]);
+    }
     stream << endl;
 #endif
-    }
+}
 
 std::ostream&
 operator << (std::ostream& stream, DBTile& b)
@@ -347,9 +351,11 @@ operator << (std::ostream& stream, DBTile& b)
     stream << "\t\tCells\t\t:";
 #ifdef DEBUG
     for (int a = 0; a < b.size; a++)
-            stream << " " << (int)(b.cells[a]);
+    {
+        stream << " " << (int)(b.cells[a]);
+    }
     stream << endl;
 #endif
-        return stream;
+    return stream;
 }
 

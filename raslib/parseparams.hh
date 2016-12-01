@@ -65,14 +65,14 @@ public:
     */
 
     /// default constructor, should not be used
-    r_Parse_Params( void );
+    r_Parse_Params(void);
     /// constructor, gets descriptor of the values to scan for
-    r_Parse_Params( unsigned int num );
+    r_Parse_Params(unsigned int num);
     /// destructor
-    ~r_Parse_Params( void );
+    ~r_Parse_Params(void);
     /// add parameters to the list
-    int add( const char *key, void *store, parse_param_type type );
-    int add( const std::string& key, void *store, parse_param_type type );
+    int add(const char* key, void* store, parse_param_type type);
+    int add(const std::string& key, void* store, parse_param_type type);
     /**
        Add a parameter to the list. key is the keyword, e.g. ``quality'', type
        is one of the available types and describes the data type of the parameter
@@ -84,37 +84,37 @@ public:
        the variable is NULL and if not doing a delete [] <var>.
      */
     /// process parameter string
-    int process( const char *str ) const;
-    int process( const char *str, char separator, bool withWhiteSpaces ) const;
+    int process(const char* str) const;
+    int process(const char* str, char separator, bool withWhiteSpaces) const;
     /**
        process the parameter string. Returns the number of keywords found
        or -1 for error.
     */
-    
+
     /**
      * @return a json representation of the format parameters. This generally looks like this:
-     * 
-{
-  // Absolute path to input file(s). This improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed;
-  // It is possible that a format could have multiple files associated to each other, so this argument is an array of filepaths.
-  "filePaths": [ "/path/to/file.tif", ... ],
+     *
+    {
+    // Absolute path to input file(s). This improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed;
+    // It is possible that a format could have multiple files associated to each other, so this argument is an array of filepaths.
+    "filePaths": [ "/path/to/file.tif", ... ],
 
-  // Only the given subset needs to be extracted from the input file.
-  "subsetDomain": "[0:100,0:100]",
+    // Only the given subset needs to be extracted from the input file.
+    "subsetDomain": "[0:100,0:100]",
 
-  // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB and has a performance penalty, so avoid if possible);
-  // The argument is an array of 0-based axis ids indicating the axes that need to be transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
-  "transpose": [0,1],
+    // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB and has a performance penalty, so avoid if possible);
+    // The argument is an array of 0-based axis ids indicating the axes that need to be transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
+    "transpose": [0,1],
 
-  // Specify variable names, band ids (0-based), etc.
-  "datasets": [ "var1", "var2", ... ],
+    // Specify variable names, band ids (0-based), etc.
+    "datasets": [ "var1", "var2", ... ],
 
-  // Extra format parameters
-  "formatParameters": {
+    // Extra format parameters
+    "formatParameters": {
     "key": "value",
     ..
-  }
-}
+    }
+    }
      */
 //    Json::Value toJson();
 
@@ -124,13 +124,13 @@ protected:
     //@{
     typedef struct parse_params_s
     {
-        const char *key;
-        void *store;
+        const char* key;
+        void* store;
         parse_param_type type;
     } parse_params_t;
     //@}
 
-    parse_params_t *params;
+    parse_params_t* params;
     unsigned int maxnum;
     unsigned int number;
 
@@ -141,7 +141,7 @@ protected:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Parse_Params::parse_param_type}.
   */
-extern std::ostream& operator<<( std::ostream& s, const r_Parse_Params::parse_param_type& d );
+extern std::ostream& operator<<(std::ostream& s, const r_Parse_Params::parse_param_type& d);
 
 
 #endif

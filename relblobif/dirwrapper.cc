@@ -47,12 +47,12 @@ void DirWrapper::createDirectory(const string& dirPath) throw (r_Error)
         {
             LFATAL << "error: failed creating directory - " << dirPath;
             LFATAL << "reason: " << strerror(errno);
-            throw r_Error(static_cast<unsigned int> (FILEDATADIR_NOTWRITABLE));
+            throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTWRITABLE));
         }
     }
 }
 
-int removePath(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+int removePath(const char* fpath, const struct stat* sb, int typeflag, struct FTW* ftwbuf)
 {
     int ret = remove(fpath);
     if (ret == IO_ERROR_RC)
@@ -101,7 +101,7 @@ string DirWrapper::convertFromCanonicalPath(const string& dirPath)
 }
 
 DirEntryIterator::DirEntryIterator(const string& dirPathArg, bool filesArg)
-: dirPath(DirWrapper::convertToCanonicalPath(dirPathArg)), filesOnly(filesArg)
+    : dirPath(DirWrapper::convertToCanonicalPath(dirPathArg)), filesOnly(filesArg)
 {
 }
 
@@ -133,7 +133,7 @@ string DirEntryIterator::next()
     string ret("");
     if (dirStream != NULL && (dirEntry = readdir(dirStream)) != NULL)
     {
-        if(strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
+        if (strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
         {
             struct stat st;
             if (fstatat(dirfd(dirStream), dirEntry->d_name, &st, 0) == IO_ERROR_RC)

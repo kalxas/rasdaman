@@ -47,7 +47,7 @@ using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
 
-class ServerManagerTest:public ::testing::Test
+class ServerManagerTest: public ::testing::Test
 {
 protected:
     ServerManagerTest()
@@ -233,7 +233,7 @@ TEST_F(ServerManagerTest, tryGetFreeServer)
 
     boost::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *boost::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
-    EXPECT_CALL(serverGroupMockRef, tryGetAvailableServer(_,_)).WillOnce(Return(false)).WillOnce(Return(true));
+    EXPECT_CALL(serverGroupMockRef, tryGetAvailableServer(_, _)).WillOnce(Return(false)).WillOnce(Return(true));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *boost::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
@@ -281,7 +281,7 @@ TEST_F(ServerManagerTest, startServerGroupAll)
 
 TEST_F(ServerManagerTest, startServerGroupHost)
 {
-    std::string hostName="hostName";
+    std::string hostName = "hostName";
     ServerGroupConfigProto groupConfig;
     groupConfig.set_host(hostName);
 
@@ -310,7 +310,7 @@ TEST_F(ServerManagerTest, startServerGroupHost)
 
 TEST_F(ServerManagerTest, startServerGroupByName)
 {
-    std::string groupName="groupName";
+    std::string groupName = "groupName";
     ServerGroupConfigProto groupConfig;
     groupConfig.set_name(groupName);
 
@@ -366,7 +366,7 @@ TEST_F(ServerManagerTest, stopServerGroupAll)
 
 TEST_F(ServerManagerTest, stopServerGroupHost)
 {
-    std::string hostName="hostName";
+    std::string hostName = "hostName";
     ServerGroupConfigProto groupConfig;
     groupConfig.set_host(hostName);
 
@@ -396,7 +396,7 @@ TEST_F(ServerManagerTest, stopServerGroupHost)
 
 TEST_F(ServerManagerTest, stopServerGroupByName)
 {
-    std::string groupName="groupName";
+    std::string groupName = "groupName";
     ServerGroupConfigProto groupConfig;
     groupConfig.set_name(groupName);
 

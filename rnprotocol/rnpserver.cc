@@ -60,7 +60,7 @@ extern "C"
 
 void startRnpServer()
 {
-    signal (SIGTERM, rnpSignalHandler);
+    signal(SIGTERM, rnpSignalHandler);
 
     LINFO << "Initializing control connections...";
     rasmgrComm.init(static_cast<unsigned int>(configuration.getTimeout()), configuration.getServerName(), configuration.getRasmgrHost(), configuration.getRasmgrPort());
@@ -75,7 +75,7 @@ void startRnpServer()
 
     LINFO << "Initializing job control...";
     communicator.initJobs(1);
-    communicator.setTimeout(RNP_TIMEOUT_LISTEN,0); // the select loop!
+    communicator.setTimeout(RNP_TIMEOUT_LISTEN, 0); // the select loop!
 
     communicator.setListenPort(configuration.getListenPort());
 
@@ -89,7 +89,7 @@ void startRnpServer()
     NbJob::setTimeoutInterval(configuration.getTimeout());
 
     LINFO << "connecting to base DBMS...";
-    RasServerEntry &rasserver = RasServerEntry::getInstance();
+    RasServerEntry& rasserver = RasServerEntry::getInstance();
     rasserver.compat_connectToDBMS();
 
     LINFO << "ok, waiting for clients.\n";
@@ -116,16 +116,18 @@ void stopRnpServer()
 }
 
 
-void rnpSignalHandler(__attribute__ ((unused)) int sig)
+void rnpSignalHandler(__attribute__((unused)) int sig)
 {
-    static int in_progress=0;   // sema for signal-in-signal
+    static int in_progress = 0; // sema for signal-in-signal
 
     if (in_progress)        // routine already active?
-        return;         // ...then don't interfere
+    {
+        return;    // ...then don't interfere
+    }
 
     in_progress = 1;        // block further signals
 
-    for(long j=0; j<1000000; j++)   // make sure server notices shutdown
+    for (long j = 0; j < 1000000; j++) // make sure server notices shutdown
         ;           // NB: why this large number? doesn't seem to be thought over carefully -- PB 2003-nov-23
 
     stopRnpServer();        // send shutdown request

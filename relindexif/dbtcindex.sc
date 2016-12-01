@@ -44,35 +44,35 @@ rasdaman GmbH.
 void
 DBTCIndex::deleteFromDb() throw (r_Error)
 {
-    throw r_Error( r_Error::r_Error_BaseDBMSFailed );
+    throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
 void
 DBTCIndex::storeTiles()
 {
-    throw r_Error( r_Error::r_Error_BaseDBMSFailed );
+    throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
 void
 DBTCIndex::insertBlob()
 {
-    throw r_Error( r_Error::r_Error_BaseDBMSFailed );
+    throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
 void
-DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute__ ((unused)) r_Bytes blobSize) throw (r_Error)
+DBTCIndex::writeInlineTiles(__attribute__((unused)) char* theblob, __attribute__((unused)) r_Bytes blobSize) throw (r_Error)
 {
-    throw r_Error( r_Error::r_Error_BaseDBMSFailed );
+    throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
 void
 DBTCIndex::readInlineTiles() throw (r_Error)
 {
-    throw r_Error( r_Error::r_Error_BaseDBMSFailed );
+    throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
 void
 DBTCIndex::updateTileIndexMappings() throw (r_Error)
 {
-    throw r_Error( r_Error::r_Error_BaseDBMSFailed );
+    throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }

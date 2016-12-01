@@ -39,12 +39,15 @@ using namespace rnp;
 
 const char* RnpTransport::carrierNames[] =
 {
-    "(unknown)","RNP","HTTP","(bad)"
+    "(unknown)", "RNP", "HTTP", "(bad)"
 };
 
 const char* RnpTransport::getCarrierName(RnpTransport::CarrierProtocol x) throw()
 {
-    if(x < crp_Unknown || x >= crp_HowMany) return carrierNames[0];
+    if (x < crp_Unknown || x >= crp_HowMany)
+    {
+        return carrierNames[0];
+    }
     return carrierNames[x];
 }
 
@@ -98,22 +101,22 @@ const void* RnpReceiver::getCarrierHeader() throw()
 
 bool RnpReceiver::isDiscarding() const throw()
 {
-    return status == discarding ? true:false;
+    return status == discarding ? true : false;
 }
 
 bool RnpReceiver::validateMessage() throw()
 {
-    if(status == waitingHeader)
+    if (status == waitingHeader)
     {
         rnpHeader = NULL;
 
-        if(isHttpCarrier() || isRnpCarrier())
+        if (isHttpCarrier() || isRnpCarrier())
         {
             // a valid carrier header was detected
-            if(rnpHeader != NULL)
+            if (rnpHeader != NULL)
             {
                 // we can switch to reading the message
-                if(prepareMessageBuffer())
+                if (prepareMessageBuffer())
                 {
                     status = readingMessage;
                 }
@@ -137,14 +140,14 @@ bool RnpReceiver::validateMessage() throw()
         }
     }
 
-    if(status == readingMessage)
+    if (status == readingMessage)
     {
-        if(rnpMessageBuffer.getNotFilledSize() != 0)
+        if (rnpMessageBuffer.getNotFilledSize() != 0)
         {
             return false;
         }
     }
-    if(status == discarding)
+    if (status == discarding)
     {
         LDEBUG << "RnpReceiver::validateMessage - discarding(3).";
         headerBuffer.clearToRead();
@@ -167,34 +170,34 @@ bool RnpReceiver::validateMessage() throw()
 
 bool RnpReceiver::isHttpCarrier() throw()
 {
-    char *data = static_cast<char*>(headerBuffer.getData());
+    char* data = static_cast<char*>(headerBuffer.getData());
 
     rnpHeader = NULL;
     carrierHeaderLength = -1;
 
-    bool isHttpReqHeader = strncmp(data,"POST RnpMessage HTTP/1.1",24) ? false : true;
-    bool isHttpAnsHeader = strncmp(data,"HTTP/1.1 200 OK"         ,15) ? false : true;
+    bool isHttpReqHeader = strncmp(data, "POST RnpMessage HTTP/1.1", 24) ? false : true;
+    bool isHttpAnsHeader = strncmp(data, "HTTP/1.1 200 OK"         , 15) ? false : true;
 
-    if(isHttpReqHeader == false && isHttpAnsHeader == false)
+    if (isHttpReqHeader == false && isHttpAnsHeader == false)
     {
         return false;
     }
 
-    char *eoHttp = strstr(data,"\r\n\r\n");
+    char* eoHttp = strstr(data, "\r\n\r\n");
 
-    if(eoHttp == NULL)
+    if (eoHttp == NULL)
     {
         return false;
     }
 
     carrierHeaderLength = eoHttp - data + 4;
 
-    if( carrierHeaderLength == -1)
+    if (carrierHeaderLength == -1)
     {
         return false;
     }
 
-    if(carrierHeaderLength + static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
+    if (carrierHeaderLength + static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
     {
         // is HTTP carrier, but we need more data to say if it's an embedded RnpMessage
         return true;
@@ -204,7 +207,7 @@ bool RnpReceiver::isHttpCarrier() throw()
 
     bool isRnp = rnpHeader->isRnpMessage();
 
-    if(isRnp)
+    if (isRnp)
     {
         carrier = RnpTransport::crp_Http;
         LDEBUG << "RnpReceiver::isHttpCarrier - valid HTTP carrier detected.";
@@ -215,12 +218,12 @@ bool RnpReceiver::isHttpCarrier() throw()
 
 bool RnpReceiver::isRnpCarrier() throw()
 {
-    char *data = static_cast<char*>(headerBuffer.getData());
+    char* data = static_cast<char*>(headerBuffer.getData());
 
     rnpHeader = NULL;
     carrierHeaderLength = -1;
 
-    if(static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
+    if (static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
     {
         // we need more data to say if it's an RnpMessage
         return true;
@@ -231,7 +234,7 @@ bool RnpReceiver::isRnpCarrier() throw()
 
     bool isRnp = rnpHeader->isRnpMessage();
 
-    if(isRnp)
+    if (isRnp)
     {
         carrier = RnpTransport::crp_Rnp;
         LDEBUG << "RnpReceiver::isRnpCarrier - valid RNP carrier detected!";
@@ -242,14 +245,16 @@ bool RnpReceiver::isRnpCarrier() throw()
 
 bool RnpReceiver::prepareMessageBuffer() throw()
 {
-    if(rnpMessageBuffer.allocate(rnpHeader->getTotalLength()) == false)
+    if (rnpMessageBuffer.allocate(rnpHeader->getTotalLength()) == false)
+    {
         return false;
+    }
 
-    char *data = static_cast<char*>(headerBuffer.getData());
+    char* data = static_cast<char*>(headerBuffer.getData());
 
     rnpMessageBuffer.read(data + carrierHeaderLength, headerBuffer.getDataSize() - carrierHeaderLength);
 
-    RnpHeader *nRnpHeader = static_cast<RnpHeader*>(rnpMessageBuffer.getData());
+    RnpHeader* nRnpHeader = static_cast<RnpHeader*>(rnpMessageBuffer.getData());
 
     return true;
 }
@@ -264,14 +269,20 @@ RnpTransmitter::RnpTransmitter() throw()
 
 RnpTransmitter::~RnpTransmitter() throw()
 {
-    if(carrier != NULL) delete carrier;
+    if (carrier != NULL)
+    {
+        delete carrier;
+    }
 }
 
 bool RnpTransmitter::startRequest(RnpQuark serverType, RnpTransport::CarrierProtocol desiredProtocol) throw()
 {
     getCarrierObject(desiredProtocol);
 
-    if(carrier == NULL) return false;
+    if (carrier == NULL)
+    {
+        return false;
+    }
 
     startMessage(serverType, carrier->getRequestHeaderLength());
 
@@ -282,7 +293,10 @@ bool RnpTransmitter::startAnswer(RnpQuark serverType, RnpTransport::CarrierProto
 {
     getCarrierObject(desiredProtocol);
 
-    if(carrier == NULL) return false;
+    if (carrier == NULL)
+    {
+        return false;
+    }
 
     startMessage(serverType, carrier->getAnswerHeaderLength());
 
@@ -291,9 +305,12 @@ bool RnpTransmitter::startAnswer(RnpQuark serverType, RnpTransport::CarrierProto
 
 akg::CommBuffer* RnpTransmitter::endMessage() throw()
 {
-    if(carrier == NULL) return NULL;
+    if (carrier == NULL)
+    {
+        return NULL;
+    }
 
-    akg::CommBuffer *theBuffer = RnpProtocolEncoder::endMessage();
+    akg::CommBuffer* theBuffer = RnpProtocolEncoder::endMessage();
     carrier->putHeader(theBuffer);
 
     return theBuffer;
@@ -309,9 +326,12 @@ RnpCarrier* RnpTransmitter::getCarrierObject(RnpTransport::CarrierProtocol desir
 {
     carrierType = desiredProtocol;
 
-    if(carrier != NULL) delete carrier;
+    if (carrier != NULL)
+    {
+        delete carrier;
+    }
 
-    switch(carrierType)
+    switch (carrierType)
     {
     case RnpTransport::crp_Rnp :
         carrier = new RnpCarrier;
@@ -334,7 +354,7 @@ RnpCarrier* RnpTransmitter::getCarrierObject(RnpTransport::CarrierProtocol desir
 
 int  RnpTransmitter::getBufferSize() const throw()
 {
-    if ( ! ( commBuffer != 0 ) )
+    if (!(commBuffer != 0))
     {
         LDEBUG << "RnpTransmitter::getBufferSize(): warning: assert will fire.";
     }
@@ -344,7 +364,7 @@ int  RnpTransmitter::getBufferSize() const throw()
 
 int  RnpTransmitter::getNotFilledSize() const throw()
 {
-    if ( ! ( commBuffer != 0 ) )
+    if (!(commBuffer != 0))
     {
         LDEBUG << "RnpTransmitter::getNotFilledSize(): warning: assert will fire.";
     }
@@ -354,7 +374,7 @@ int  RnpTransmitter::getNotFilledSize() const throw()
 
 int  RnpTransmitter::getDataSize() const throw()
 {
-    if ( ! ( commBuffer != 0 ) )
+    if (!(commBuffer != 0))
     {
         LDEBUG << "RnpTransmitter::getDataSize(): warning: assert will fire.";
     }
@@ -414,26 +434,26 @@ int HttpRnpCarrier::getAnswerHeaderLength() throw()
     return strlen(theAnswerHeader);
 }
 
-void HttpRnpCarrier::putHeader(akg::CommBuffer *messageBuffer) throw()
+void HttpRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) throw()
 {
-    char *data = static_cast<char*>(messageBuffer->getData());
+    char* data = static_cast<char*>(messageBuffer->getData());
 
-    const char *header  = requestHeader ? theRequestHeader : theAnswerHeader;
+    const char* header  = requestHeader ? theRequestHeader : theAnswerHeader;
     int    headerLength = strlen(header);
     int     posOfLength = headerLength - 14;
 
-    strncpy(data,header,static_cast<size_t>(posOfLength));
+    strncpy(data, header, static_cast<size_t>(posOfLength));
 
-    sprintf(data + posOfLength, "%10d",messageBuffer->getDataSize() - headerLength);
+    sprintf(data + posOfLength, "%10d", messageBuffer->getDataSize() - headerLength);
 
-    strncpy(data + headerLength - 4,"\r\n\r\n",4); // it shouldn't be null terminated!
+    strncpy(data + headerLength - 4, "\r\n\r\n", 4); // it shouldn't be null terminated!
 }
 
-const char HttpRnpCarrier::theRequestHeader[]=
+const char HttpRnpCarrier::theRequestHeader[] =
     "POST RnpMessage HTTP/1.1\r\nAccept: bin/rnp\r\nUserAgent: RnpClient/1.0\r\nContent-length: uxxxyyyzzz\r\n\r\n";
 //                                                ^10 digits
 
-const char HttpRnpCarrier::theAnswerHeader[]=
+const char HttpRnpCarrier::theAnswerHeader[] =
     "HTTP/1.1 200 OK\r\nContent-type: bin/rnp\r\nContent-length: uxxxyyyzzz\r\n\r\n";
 
 
@@ -455,13 +475,13 @@ int BadRnpCarrier::getAnswerHeaderLength() throw()
     return strlen(theHeader);
 }
 
-void BadRnpCarrier::putHeader(akg::CommBuffer *messageBuffer) throw()
+void BadRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) throw()
 {
-    char *data = static_cast<char*>(messageBuffer->getData());
+    char* data = static_cast<char*>(messageBuffer->getData());
 
-    strncpy(data,theHeader,strlen(theHeader));
+    strncpy(data, theHeader, strlen(theHeader));
 }
 
-const char BadRnpCarrier::theHeader[]="BadCarrier";
+const char BadRnpCarrier::theHeader[] = "BadCarrier";
 
 

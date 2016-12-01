@@ -65,7 +65,7 @@ r_Tiling::~r_Tiling()
 const char*
 r_No_Tiling::description = "no parameters";
 
-r_No_Tiling::r_No_Tiling(__attribute__ ((unused)) const char* encoded) throw(r_Error)
+r_No_Tiling::r_No_Tiling(__attribute__((unused)) const char* encoded) throw(r_Error)
 {
     //we don't use encoded string, it is present in order to have
     //uniform interface "char* constructor" for every tiling strategy
@@ -86,13 +86,13 @@ r_No_Tiling::print_status(std::ostream& os) const
 }
 
 bool
-r_No_Tiling::is_compatible(__attribute__ ((unused)) const r_Minterval& obj_domain, __attribute__ ((unused)) r_Bytes cellTypeSize) const
+r_No_Tiling::is_compatible(__attribute__((unused)) const r_Minterval& obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const
 {
     return true;
 }
 
 std::vector<r_Minterval>*
-r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, __attribute__ ((unused)) r_Bytes cellTypeSize) const throw (r_Error)
+r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const throw (r_Error)
 {
     std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
     result->push_back(obj_domain);
@@ -125,14 +125,14 @@ r_Size_Tiling::description = "tile configuration or tile dimension and tile size
 r_Size_Tiling::r_Size_Tiling(const char* encoded) throw (r_Error)
     :   tile_size(0)
 {
-    if(!encoded)
+    if (!encoded)
     {
-        LFATAL << "r_Size_Tiling::r_Size_Tiling(" << (encoded?encoded:"NULL") << ")";
+        LFATAL << "r_Size_Tiling::r_Size_Tiling(" << (encoded ? encoded : "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    r_Bytes tileS=strtol(encoded, (char**)NULL, DefaultBase);
-    if(tileS<=0)
+    r_Bytes tileS = strtol(encoded, (char**)NULL, DefaultBase);
+    if (tileS <= 0)
     {
         LFATAL << "r_Size_Tiling::r_Size_Tiling(" << encoded << "): Error decoding tile size.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
@@ -182,10 +182,12 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
     // compute the domain of the small tiles
     // tiles are n-dimensional cubes with edge length n-th root of max tile size
     LTRACE << "tile size " << get_tile_size();
-    r_Range edgeLength = static_cast<r_Range>(std::max(static_cast<r_Range>(floor(pow(get_tile_size()/cellTypeSize, 1/static_cast<double>(dim)))), static_cast<r_Range>(1)));
+    r_Range edgeLength = static_cast<r_Range>(std::max(static_cast<r_Range>(floor(pow(get_tile_size() / cellTypeSize, 1 / static_cast<double>(dim)))), static_cast<r_Range>(1)));
     r_Dimension dimcnt = 0;
     for (dimcnt = 0; dimcnt < dim; dimcnt++)
+    {
         tileDom << r_Sinterval(static_cast<r_Range>(0), edgeLength - 1);
+    }
 
     r_Minterval currDom(dim);
     r_Point cursor(dim);
@@ -195,7 +197,9 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
 
     // initialize cursor
     for (dimcnt = 0; dimcnt < dim; dimcnt++)
+    {
         cursor[dimcnt] = 0;
+    }
 
     // calculate size of Tiles
     tileSize = tileDom.get_extent();
@@ -204,8 +208,10 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
     origin = bigDom.get_origin();
 
     // initialize currDom
-    for (dimcnt=0; dimcnt < dim; dimcnt++)
+    for (dimcnt = 0; dimcnt < dim; dimcnt++)
+    {
         currDom << r_Sinterval(static_cast<r_Range>(origin[dimcnt]), static_cast<r_Range>(origin[dimcnt] + tileSize[dimcnt] - 1));
+    }
     // resets tileDom to lower left side of bigTile
     tileDom = currDom;
 
@@ -228,7 +234,7 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
         cursor[i] += tileSize[i];
         // move cursor
         currDom = tileDom.create_translation(cursor);
-        while (!(currDom.intersects_with( bigDom )))
+        while (!(currDom.intersects_with(bigDom)))
         {
             cursor[i] = 0;
             if (i == 0)

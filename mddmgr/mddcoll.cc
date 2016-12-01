@@ -67,7 +67,7 @@ rasdaman GmbH.
 
 MDDColl::MDDColl(const CollectionType* newType, const char* name)
 {
-    LTRACE << "MDDColl(" << newType->getName() << ", " << (name?name:"null") << ") " << (r_Ptr)this;
+    LTRACE << "MDDColl(" << newType->getName() << ", " << (name ? name : "null") << ") " << (r_Ptr)this;
     const char* theName = name;
     if (theName == NULL)
     {
@@ -151,12 +151,14 @@ MDDColl::~MDDColl()
 {
     LTRACE << (r_Ptr)this;
     if (isPersistent())
+    {
         releaseAll();
+    }
     //else released by release transfer structures
 }
 
 MDDColl::MDDColl(const DBMDDSetId& coll)
-    :dbColl(coll)
+    : dbColl(coll)
 {
 }
 
@@ -179,7 +181,9 @@ MDDColl::getMDDObj(const DBMDDObj* objToGet) const
     MDDObj* persMDDObjToGet = NULL;
     MDDObjMap::const_iterator i = mddCache.find(const_cast<DBMDDObj*>(objToGet));
     if (i != mddCache.end())
+    {
         persMDDObjToGet = static_cast<MDDObj*>((*i).second);
+    }
     else
     {
         persMDDObjToGet = new MDDObj(const_cast<DBMDDObj*>(objToGet));
@@ -198,17 +202,19 @@ void
 MDDColl::printStatus(unsigned int level, std::ostream& stream) const
 {
     dbColl->printStatus(level, stream);
-    char* indent = new char[level*2 +1];
-    for (unsigned int j = 0; j < level*2 ; j++)
+    char* indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2 ; j++)
+    {
         indent[j] = ' ';
-    indent[level*2] = '\0';
+    }
+    indent[level * 2] = '\0';
     stream << indent;
     for (MDDObjMap::iterator i = mddCache.begin(); i != mddCache.end(); i++)
     {
         stream << (r_Ptr)(*i).second;
     }
     delete[] indent;
-    indent=0;
+    indent = 0;
 }
 
 MDDCollIter*
@@ -228,7 +234,7 @@ MDDColl::remove(const MDDObj* obj)
 
         //remove from cache ;(
         MDDObjMap::iterator i = mddCache.find(t2.ptr());
-        if(i != mddCache.end())
+        if (i != mddCache.end())
         {
             LTRACE << "remove(" << (r_Ptr)obj << ") found in cache";
             mddCache.erase(i);
@@ -439,7 +445,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
                 transObj->insertTile(transTile);
                 retval->insert(transObj);
 
-                free( typeStructure );
+                free(typeStructure);
                 typeStructure = NULL;
             }
 
@@ -482,7 +488,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             transObj->insertTile(transTile);
             retval->insert(transObj);
 
-            free( typeStructure );
+            free(typeStructure);
             typeStructure = NULL;
 
             mddIter.advance();

@@ -61,16 +61,18 @@ extern struct ServerBase    Server;
 *
 */
 
-rc_t Initialize( int argc, char *argv[], struct ServerBase *newServer )
+rc_t Initialize(int argc, char* argv[], struct ServerBase* newServer)
 {
 
     /*  Make sure that the Server structure is empty.  -------------------- */
-    bzero( (char *)newServer, sizeof( *newServer ) );
+    bzero((char*)newServer, sizeof(*newServer));
 
     /*  Create Head of ChildList  */
-    newServer->ChildList = static_cast<struct ChildBase*>(mymalloc( sizeof( struct ChildBase ) ));
-    if( newServer->ChildList == NULL )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  Initialize(): malloc() failed!" );
+    newServer->ChildList = static_cast<struct ChildBase*>(mymalloc(sizeof(struct ChildBase)));
+    if (newServer->ChildList == NULL)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  Initialize(): malloc() failed!");
+    }
     else
     {
         //LogMsg( LG_SERVER, DEBUG, "DEBUG:  Creating Head of ChildList" );
@@ -81,20 +83,24 @@ rc_t Initialize( int argc, char *argv[], struct ServerBase *newServer )
 
     /* Read the environment variables */
     char* dummy = const_cast<char*>(CONFDIR);
-    if( dummy == NULL)
-        ErrorMsg( E_SYS, FAIL, "FAIL:  configure error: CONFDIR not provided." );
+    if (dummy == NULL)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  configure error: CONFDIR not provided.");
+    }
     newServer->Directory = static_cast<char*>(mymalloc(strlen(dummy) + 2));
     strcpy(newServer->Directory, dummy);
-    if( newServer->Directory[strlen(newServer->Directory)] != '/' )
-        strcat( newServer->Directory, "/" );
+    if (newServer->Directory[strlen(newServer->Directory)] != '/')
+    {
+        strcat(newServer->Directory, "/");
+    }
 
     /*  Read Arguments and Server configuration file - and setup  --------- */
     /*      the corresponding data structures.  --------------------------- */
 
-    ReadArgs( newServer, argc, argv );
+    ReadArgs(newServer, argc, argv);
     //ReadConfig( newServer );
 
-    ConfigureServer( newServer );
+    ConfigureServer(newServer);
     // CheckConfig( newServer );  // Check for reasonable configuration
 
     /*  Set timeout for communication with subservers and client  --------- */
@@ -102,27 +108,27 @@ rc_t Initialize( int argc, char *argv[], struct ServerBase *newServer )
     newServer->Client.TimeOut.tv_usec = 0;
 
     /*  Get the process into "daemon"-mode.  ------------------------------ */
-    InitDaemon( newServer->Log.Mode );
+    InitDaemon(newServer->Log.Mode);
     newServer->PId = getpid();
 
     //SavePId( newServer->PidFile );
     /*  Initialize the Server Socket.  ------------------------------------ */
-    InitSocket( &newServer->SockFD, &newServer->Socket, newServer->Port );
+    InitSocket(&newServer->SockFD, &newServer->Socket, newServer->Port);
 
     /*  Setup and Open the logfiles.  ------------------------------------- */
-    OpenLog( &newServer->Log, newServer->Log.Access.Filename,
-             newServer->Log.Server.Filename,
-             newServer->Log.Comm.Filename );
+    OpenLog(&newServer->Log, newServer->Log.Access.Filename,
+            newServer->Log.Server.Filename,
+            newServer->Log.Comm.Filename);
 
 
-    LogMsg( LG_SERVER, INFO, "INFO:  ========= %s started. ===============", DAEMONNAME );
+    LogMsg(LG_SERVER, INFO, "INFO:  ========= %s started. ===============", DAEMONNAME);
 
     // We don't do that so that the one process running can be exited with simple ^C
     /*  Initialize the signal handlers.  ---------------------------------- */
     // InitSigHandler();
 
     /*  Everything is just great...  -------------------------------------- */
-    return( OK );
+    return (OK);
 }
 
 
@@ -149,16 +155,16 @@ rc_t Initialize( int argc, char *argv[], struct ServerBase *newServer )
 *
 */
 
-rc_t InitDaemon( __attribute__ ((unused)) int Mode )
+rc_t InitDaemon(__attribute__((unused)) int Mode)
 {
     int i;
     pid_t pid;
     int openmax;
 
     // RasDaMan does not go into background!
-    i = chdir( Server.Directory );            /* Arbeitsverzeichnis wechseln */
-    umask( 0 );                           /* Dateischutzbitmaske loeschen */
-    return( OK );
+    i = chdir(Server.Directory);              /* Arbeitsverzeichnis wechseln */
+    umask(0);                             /* Dateischutzbitmaske loeschen */
+    return (OK);
 }
 
 
@@ -192,29 +198,35 @@ rc_t InitDaemon( __attribute__ ((unused)) int Mode )
 *
 */
 
-rc_t InitSocket( int *SockFD, struct sockaddr_in *Socket, int Port )
+rc_t InitSocket(int* SockFD, struct sockaddr_in* Socket, int Port)
 {
     int val = 0;
     size_t len;
 
     Socket->sin_family       = AF_INET;
-    Socket->sin_addr.s_addr  = htonl( INADDR_ANY );
-    Socket->sin_port         = htons( Port );
-    if( ( *SockFD = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  Open socket for server." );
+    Socket->sin_addr.s_addr  = htonl(INADDR_ANY);
+    Socket->sin_port         = htons(Port);
+    if ((*SockFD = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  Open socket for server.");
+    }
 
 #ifdef SO_REUSEADDR
     val = 1;
-    len = sizeof( val );
-    if( setsockopt( *SockFD, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len ) < 0 )
-        ErrorMsg( E_SYS, WARN, "WARN:  InitSocket(): can't set sockopt REUSEADDR." );
+    len = sizeof(val);
+    if (setsockopt(*SockFD, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len) < 0)
+    {
+        ErrorMsg(E_SYS, WARN, "WARN:  InitSocket(): can't set sockopt REUSEADDR.");
+    }
 #else
-    LogMsg( LG_SERVER, INFO, "INFO:  InitSocket(): sockopt REUSEADDR not available." );
+    LogMsg(LG_SERVER, INFO, "INFO:  InitSocket(): sockopt REUSEADDR not available.");
 #endif
 
-    if( bind( *SockFD, (struct sockaddr *)Socket, sizeof( *Socket ) ) < 0 )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  Bind socket for server." );
-    return( OK );
+    if (bind(*SockFD, (struct sockaddr*)Socket, sizeof(*Socket)) < 0)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  Bind socket for server.");
+    }
+    return (OK);
 }
 
 
@@ -248,27 +260,29 @@ rc_t InitSocket( int *SockFD, struct sockaddr_in *Socket, int Port )
 *
 */
 
-rc_t InitClientSocket( int *SockFD,
-                       struct sockaddr_in *Socket,
-                       char *Hostname,
-                       int Port )
+rc_t InitClientSocket(int* SockFD,
+                      struct sockaddr_in* Socket,
+                      char* Hostname,
+                      int Port)
 {
-    struct hostent *Host;
+    struct hostent* Host;
 
-    bzero( (char *)Socket, sizeof( *Socket ) );
+    bzero((char*)Socket, sizeof(*Socket));
 
     Socket->sin_family       = AF_INET;
-    Host = gethostbyname( Hostname );
-    if( Host == NULL )
+    Host = gethostbyname(Hostname);
+    if (Host == NULL)
     {
-        return( ERROR );
+        return (ERROR);
     }
-    memcpy( (char *)&Socket->sin_addr, (char *)Host->h_addr, static_cast<size_t>(Host->h_length) );
+    memcpy((char*)&Socket->sin_addr, (char*)Host->h_addr, static_cast<size_t>(Host->h_length));
 
-    Socket->sin_port         = htons( Port );
-    if( ( *SockFD = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )
-        return( ERROR );
-    return( OK );
+    Socket->sin_port         = htons(Port);
+    if ((*SockFD = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        return (ERROR);
+    }
+    return (OK);
 }
 
 
@@ -308,13 +322,13 @@ rc_t InitClientSocket( int *SockFD,
 */
 
 
-void SavePId( char *PIdFilename )
+void SavePId(char* PIdFilename)
 {
-    FILE  *PIdFile;
+    FILE*  PIdFile;
 
-    if( ( PIdFile = fopen( PIdFilename, "w" ) ) != NULL )
+    if ((PIdFile = fopen(PIdFilename, "w")) != NULL)
     {
-        fprintf( PIdFile, "%d", getpid() );
-        fclose( PIdFile );
+        fprintf(PIdFile, "%d", getpid());
+        fclose(PIdFile);
     }
 }

@@ -43,7 +43,7 @@ public class SubsetValidator {
     public void validate(List<CellDomainElement> inputCoverageDomain, String affectedDomain) throws WCSTInvalidComputedDomainCellCount {
         validateDomainsCellCount(inputCoverageDomain, affectedDomain);
         validateCellCountsByDimension(inputCoverageDomain, affectedDomain);
-    }    
+    }
 
     private void validateDomainsCellCount(List<CellDomainElement> inputCoverageDomain, String affectedDomain) throws WCSTInvalidComputedDomainCellCount {
         if (getDomainCellCount(inputCoverageDomain) != getDomainCellCount(affectedDomain)) {
@@ -54,14 +54,14 @@ public class SubsetValidator {
     private void validateCellCountsByDimension(List<CellDomainElement> inputCoverageDomain, String affectedDomain) throws WCSTInvalidComputedDomainCellCount {
         List<Integer> inputDimCellCount = getNonSliceCellCounts(inputCoverageDomain);
         List<Integer> affectedDimCellCount = getNonSliceCellCounts(affectedDomain);
-        if ( !inputDimCellCount.containsAll(affectedDimCellCount) || !affectedDimCellCount.containsAll(inputDimCellCount) ){
+        if (!inputDimCellCount.containsAll(affectedDimCellCount) || !affectedDimCellCount.containsAll(inputDimCellCount)) {
             throw new WCSTInvalidComputedDomainCellCount(getCellDomainListStringRepresentation(inputCoverageDomain), affectedDomain);
         }
     }
 
-    private List<Integer> getNonSliceCellCounts(List<CellDomainElement> domain){
+    private List<Integer> getNonSliceCellCounts(List<CellDomainElement> domain) {
         List<Integer> result = new ArrayList<Integer>();
-        for (CellDomainElement cellDomainElement: domain) {
+        for (CellDomainElement cellDomainElement : domain) {
             if (cellDomainElement.getHiInt() > cellDomainElement.getLoInt()) {
                 result.add(Integer.valueOf(cellDomainElement.getHiInt() - cellDomainElement.getLoInt() + 1));
             }
@@ -69,7 +69,7 @@ public class SubsetValidator {
         return result;
     }
 
-    private List<Integer> getNonSliceCellCounts(String domain){
+    private List<Integer> getNonSliceCellCounts(String domain) {
         List<Integer> result = new ArrayList<Integer>();
         String[] domainParts = domain.replace("[", "").replace("]", "").split(",");
         for (String domainPart : domainParts) {
@@ -84,15 +84,15 @@ public class SubsetValidator {
         return result;
     }
 
-    private int getDomainCellCount(List<CellDomainElement> domain){
+    private int getDomainCellCount(List<CellDomainElement> domain) {
         int result = 1;
-        for (CellDomainElement domainElement: domain) {
+        for (CellDomainElement domainElement : domain) {
             result *= domainElement.getHiInt() - domainElement.getLoInt() + 1;
         }
         return result;
     }
 
-    private int getDomainCellCount(String domain){
+    private int getDomainCellCount(String domain) {
         int result = 1;
         String[] domainParts = domain.replace("[", "").replace("]", "").split(",");
         for (String domainPart : domainParts) {
@@ -106,10 +106,10 @@ public class SubsetValidator {
         return result;
     }
 
-    private String getCellDomainListStringRepresentation(List<CellDomainElement> cellDomainElements){
+    private String getCellDomainListStringRepresentation(List<CellDomainElement> cellDomainElements) {
         String result = "[";
         int count = 0;
-        for (CellDomainElement cellDomainElement: cellDomainElements) {
+        for (CellDomainElement cellDomainElement : cellDomainElements) {
             result += cellDomainElement.getLo() + ":" + cellDomainElement.getHi();
             if (count < cellDomainElements.size() - 1) {
                 result += ",";

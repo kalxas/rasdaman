@@ -51,7 +51,7 @@ class IOSelector
 {
 public:
     IOSelector();
-    void setTimeout(int sec,int milisec);
+    void setTimeout(int sec, int milisec);
     void disableTimeout();
     void setReadSocket(int socket);
     void clearReadSocket(int socket);
@@ -76,7 +76,7 @@ private:
 
     struct timeval tvinit;
     struct timeval tv;
-    timeval *tvptr;       // set to &tv... for timeout, NULL for no timeout
+    timeval* tvptr;       // set to &tv... for timeout, NULL for no timeout
 
 };
 
@@ -87,7 +87,7 @@ class NbJob
 {
 public:
     NbJob();
-    void init(IOSelector *pselector,int maxInputBuffer);
+    void init(IOSelector* pselector, int maxInputBuffer);
 
     enum acceptStatus
     {
@@ -101,14 +101,14 @@ public:
 
     bool readPartialMessage();
     bool isMessageOK();
-    const char *getMessage();
+    const char* getMessage();
 
     bool initSendAnswer(const char*);
     bool writePartialMessage();
     bool isOperationPending();
 
     int  getSocket();
-    const char *getRequestor();   // added -- PB 2004-jul-16
+    const char* getRequestor();   // added -- PB 2004-jul-16
 
     bool wasError();
     void closeConnection();
@@ -122,15 +122,15 @@ private:
     void clearInputBuffer();
     void clearOutputBuffer();
     int socket;
-    IOSelector *pselector;
+    IOSelector* pselector;
 
     // reading
-    char *inputBuffer;
+    char* inputBuffer;
     int   nextReadPos;
     int   maxInputLength;
     char  messageTerminator;
     // writing
-    char *outputBuffer;
+    char* outputBuffer;
     int  answerLength;
     int  nextWritePos;
     // errors
@@ -175,7 +175,7 @@ protected:
     void lookForTimeout();
     int listenSocket;
 
-    NbJob *job;
+    NbJob* job;
     int   maxJobs;
 
     volatile bool exitRequest;

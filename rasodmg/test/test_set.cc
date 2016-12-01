@@ -47,19 +47,19 @@ int main()
     r_Minterval domainV(1);
     domainV << r_Sinterval((r_Range) 0, (r_Range) 100);
     r_GMarray* v = new r_GMarray(domainV, 1);
-    
+
     r_Minterval domainX(1);
     domainX << r_Sinterval((r_Range) 0, (r_Range) 200);
     r_GMarray* x = new r_GMarray(domainX, 1);
-    
+
     r_Minterval domainY(1);
     domainY << r_Sinterval((r_Range) 0, (r_Range) 300);
     r_GMarray* y = new r_GMarray(domainY, 1);
-    
+
     r_Minterval domainZ(1);
     domainZ << r_Sinterval((r_Range) 0, (r_Range) 400);
     r_GMarray* z = new r_GMarray(domainZ, 1);
-    
+
     r_GMarray* next = new r_GMarray();
 
     cout << endl << endl;
@@ -101,12 +101,12 @@ int main()
     a.remove_element(next);
     cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
 
-    cout << "Testing assignment operator on r_Sets." << endl << "(creating r_Set 'b' that is equal to 'a'.)" <<endl;
+    cout << "Testing assignment operator on r_Sets." << endl << "(creating r_Set 'b' that is equal to 'a'.)" << endl;
     r_Set<r_GMarray*> b;
     b = a;
     cout << "Cardinality of 'b': " << b.cardinality() << endl << endl;
 
-    cout << "Testing copy constructor of r_Set." << endl << "(creating r_Set 'c' that is equal to 'a'.)" <<endl;
+    cout << "Testing copy constructor of r_Set." << endl << "(creating r_Set 'c' that is equal to 'a'.)" << endl;
     r_Set<r_GMarray*> c(a);
     cout << "Cardinality of 'c': " << c.cardinality() << endl << endl;
 

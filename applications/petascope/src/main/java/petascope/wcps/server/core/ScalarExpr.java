@@ -80,7 +80,9 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                     log.trace("Matched metadata scalar expression.");
                 } catch (WCPSException e) {
                     // Wrong/unsupported input
-                    if (e.getExceptionCode() == ExceptionCode.UnsupportedCombination) throw(e);
+                    if (e.getExceptionCode() == ExceptionCode.UnsupportedCombination) {
+                        throw(e);
+                    }
                     child = null;
                 }
             }
@@ -108,7 +110,9 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                     log.trace("Matched numeric scalar expression.");
                 } catch (WCPSException e) {
                     if (e.getExceptionCode().equals(ExceptionCode.MissingCRS) ||
-                        e.getExceptionCode().equals(ExceptionCode.InvalidSubsetting)) throw(e);
+                            e.getExceptionCode().equals(ExceptionCode.InvalidSubsetting)) {
+                        throw(e);
+                    }
                     child = null;
                 }
             }
@@ -181,38 +185,38 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
         // Build domain metadata
         cellDomainList.add(new CellDomainElement("1", "1", 0));
-        domainList.add( new DomainElement(
-                BigDecimal.ONE,
-                BigDecimal.ONE,
-                AxisTypes.X_AXIS,
-                AxisTypes.X_AXIS,
-                CrsUtil.PURE_UOM,
-                crs.get(0),
-                0,
-                BigInteger.ONE,
-                true, false)
-                );
+        domainList.add(new DomainElement(
+                           BigDecimal.ONE,
+                           BigDecimal.ONE,
+                           AxisTypes.X_AXIS,
+                           AxisTypes.X_AXIS,
+                           CrsUtil.PURE_UOM,
+                           crs.get(0),
+                           0,
+                           BigInteger.ONE,
+                           true, false)
+                      );
         // "unsigned int" is default datatype
         rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
 
         try {
-            Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
+            Set<Pair<String, String>> emptyMetadata = new HashSet<Pair<String, String>>();
             CoverageMetadata metadata = new CoverageMetadata(
-                    coverageName,
-                    XMLSymbols.LABEL_GRID_COVERAGE,
-                    "", // native format
-                    emptyMetadata,
-                    crs,
-                    cellDomainList,
-                    domainList,
-                    Pair.of(BigInteger.ZERO, ""),
-                    rangeList
-                    );
+                coverageName,
+                XMLSymbols.LABEL_GRID_COVERAGE,
+                "", // native format
+                emptyMetadata,
+                crs,
+                cellDomainList,
+                domainList,
+                Pair.of(BigInteger.ZERO, ""),
+                rangeList
+            );
             return metadata;
         } catch (PetascopeException ex) {
-            throw (WCPSException) ex;
+            throw(WCPSException) ex;
         } catch (Exception ex) {
-            throw (WCPSException) ex;
+            throw(WCPSException) ex;
         }
     }
 

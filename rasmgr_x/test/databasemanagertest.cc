@@ -44,11 +44,11 @@ using rasmgr::DatabaseHostPropertiesProto;
 using rasmgr::DatabasePropertiesProto;
 using rasmgr::DatabaseMgrProto;
 
-class DatabaseManagerTest:public ::testing::Test
+class DatabaseManagerTest: public ::testing::Test
 {
 protected:
-    DatabaseManagerTest():hostName("hostName"),connectString("connectString"),
-        userName("userName"), passwdString("passwdString"),dbName("dbName"),
+    DatabaseManagerTest(): hostName("hostName"), connectString("connectString"),
+        userName("userName"), passwdString("passwdString"), dbName("dbName"),
         db(new Database(dbName))
     {
         this->dbhManager.reset(new DatabaseHostManager());

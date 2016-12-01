@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 
 
-r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter, unsigned int tlen, unsigned int step)
+r_MiterDirect::r_MiterDirect(void* data, const r_Minterval& total, const r_Minterval& iter, unsigned int tlen, unsigned int step)
     :   done(false),
         id(NULL),
         baseAddress(data),
@@ -47,9 +47,9 @@ r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minte
     r_Range s = tlen;
     r_Range offset = 0;
 
-    id=new r_miter_direct_data[dim];
+    id = new r_miter_direct_data[dim];
 
-    for (i = static_cast<int>(dim)-1; i >= 0; i--)
+    for (i = static_cast<int>(dim) - 1; i >= 0; i--)
     {
         id[i].low = iter[static_cast<r_Dimension>(i)].low();
         id[i].high = iter[static_cast<r_Dimension>(i)].high();
@@ -78,12 +78,12 @@ void r_MiterDirect::reset(void)
     r_Dimension i = 0;
     r_ULong offset = 0;
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         id[i].pos = id[i].low;
         offset += id[i].step * (id[i].low - id[i].origin);
     }
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         id[i].data = static_cast<void*>((static_cast<r_Octet*>(baseAddress)) + offset);
     }
@@ -92,24 +92,27 @@ void r_MiterDirect::reset(void)
 
 
 void
-r_MiterDirect::print_pos(std::ostream &str) const
+r_MiterDirect::print_pos(std::ostream& str) const
 {
     str << '[' << id[0].pos;
-    for (r_Dimension i=1; i<dim; i++) str << ',' << id[i].pos;
+    for (r_Dimension i = 1; i < dim; i++)
+    {
+        str << ',' << id[i].pos;
+    }
     str << ']';
 }
 
 
 
-std::ostream &operator<<(std::ostream &str, const r_MiterDirect &iter)
+std::ostream& operator<<(std::ostream& str, const r_MiterDirect& iter)
 {
     iter.print_pos(str);
     return str;
 }
 
 r_miter_direct_data::r_miter_direct_data()
-    :data(NULL), pos(0), low(0), high(0),
-     step(0), baseStep(0), extent(0), origin(0)
+    : data(NULL), pos(0), low(0), high(0),
+      step(0), baseStep(0), extent(0), origin(0)
 {
 }
 

@@ -26,7 +26,7 @@ package petascope.wcps2.decodeparameters.model;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class GeoReference {
-    
+
     private String crs;
     private BoundingBox bbox;
 

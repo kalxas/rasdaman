@@ -37,7 +37,7 @@ namespace rascontrol
 /**
  * @brief The ControlRasMgrRasnet class Implementation of the ControlRasMgrComm that uses the rasnet protocol.
  */
-class ControlRasMgrRasnet:public ControlRasMgrComm
+class ControlRasMgrRasnet: public ControlRasMgrComm
 {
 public:
     ControlRasMgrRasnet(const rascontrol::UserCredentials& userCredentials, rascontrol::RasControlConfig& config);
@@ -53,8 +53,8 @@ private:
     const UserCredentials& userCredentials;
     rascontrol::RasControlConfig& config;
 
-    boost::shared_ptr< ::rasnet::service::RasMgrRasCtrlService::Stub> rasmgrService;
-    boost::shared_ptr< ::common::HealthService::Stub> healthService;
+    boost::shared_ptr<::rasnet::service::RasMgrRasCtrlService::Stub> rasmgrService;
+    boost::shared_ptr<::common::HealthService::Stub> healthService;
 };
 
 } /* namespace rascontrol */

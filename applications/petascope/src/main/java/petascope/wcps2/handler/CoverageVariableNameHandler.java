@@ -60,8 +60,7 @@ public class CoverageVariableNameHandler {
             //axis iterator, no coverage information, just pass the info up
 
             metadata = null;
-        }
-        else {
+        } else {
             // coverage does exist
             metadata = coverageRegistry.lookupCoverage(coverageName);
             rasql = coverageAlias.replace(SubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");

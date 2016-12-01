@@ -47,36 +47,36 @@ class Exp
 {
 
 public:
-    Exp( char* name );
+    Exp(char* name);
 
-    void useTimer( );
+    void useTimer();
 
-    ~Exp( );
+    ~Exp();
 
     RMTimer* t1;
     RMTimer t2;
     char* name;
 };
 
-Exp::Exp( char* n)
-    :t2("Test Timer ", "t2" ), name( n )
+Exp::Exp(char* n)
+    : t2("Test Timer ", "t2"), name(n)
 {
-    t1 = new RMTimer( "Test Timer ", "t1" );
+    t1 = new RMTimer("Test Timer ", "t1");
 }
 
-void Exp::useTimer( )
+void Exp::useTimer()
 {
-    cout << "useTimer "<< name << " t1 ... "<<endl;
-    t1->start( );
-    t1->stop( );
-    cout << "and  t2"<<endl;
-    t2.start( );
-    t2.stop( );
+    cout << "useTimer " << name << " t1 ... " << endl;
+    t1->start();
+    t1->stop();
+    cout << "and  t2" << endl;
+    t2.start();
+    t2.stop();
 }
 
-Exp::~Exp( )
+Exp::~Exp()
 {
-    cout << "Exp::~Exp( " << name << " ) "<< endl;
+    cout << "Exp::~Exp( " << name << " ) " << endl;
     delete t1;
 }
 
@@ -93,11 +93,11 @@ int main()
     tt.stop( );
     */
 
-    Exp e( "Exp Object" );
-    e.useTimer( );
+    Exp e("Exp Object");
+    e.useTimer();
 
     Exp* ep = new Exp("Pointer to Exp Object");
-    ep->useTimer( );
+    ep->useTimer();
     delete ep;
 
     return 0;

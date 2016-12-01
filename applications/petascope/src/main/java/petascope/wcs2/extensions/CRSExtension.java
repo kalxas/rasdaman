@@ -48,19 +48,19 @@ public class CRSExtension implements Extension {
      * correspondent to the one which the desired collection is natively stored.
      *
      * @param request The WCS request, which is directly modified.
-     * @param m coverage metadata 
-     * @throws petascope.exceptions.WCSException 
+     * @param m coverage metadata
+     * @throws petascope.exceptions.WCSException
      *
      */
     protected void handle(GetCoverageRequest request, GetCoverageMetadata m) throws WCSException {
-        
+
         GetCoverageRequest.CrsExt crsExt = request.getCrsExt();
         if (crsExt.getOutputCrs() != null) {
             m.setOutputCrs(crsExt.getOutputCrs());
-        }        
+        }
         if (crsExt.getSubsettingCrs() != null) {
             m.setSubsettingCrs(crsExt.getSubsettingCrs());
-        }        
+        }
     }
 
     @Override

@@ -66,60 +66,39 @@ bool SymbolTable<T>::putSymbol(const std::string& symbol, T value)
 {
     bool retVal = false;
     // if not locally declared
-    if ( (STVars.find(symbol) == STVars.end()) )
+    if ((STVars.find(symbol) == STVars.end()))
     {
         if (getSymbol(symbol) == 0)
+        {
             keys.push_back(symbol);
+        }
         STVars[symbol] = value;
         retVal = true;
     }
     else
+    {
         retVal = false;
+    }
     return retVal;
 }
 
 // store symbol into hash-table
 template <class T>
-void SymbolTable<T>::storeSymbol( const std::string& symbol, T value )
+void SymbolTable<T>::storeSymbol(const std::string& symbol, T value)
 {
     STVars[symbol] = value;
 }
 
 // get symbol from table
 template <class T>
-T SymbolTable<T>::getSymbol( const std::string& symbol )
+T SymbolTable<T>::getSymbol(const std::string& symbol)
 {
     T retVal = 0;
 
     // find if locally declared
-    if ( !(STVars.find(symbol) == STVars.end()) )
+    if (!(STVars.find(symbol) == STVars.end()))
     {
-        retVal=STVars[symbol];
-    }
-    else
-    {
-        // find if declared in outer scopes
-        size_t idx=STScopes.size();
-        while (idx > 0)
-        {
-            idx--;
-            if ( !(STScopes[idx].find(symbol) == STScopes[idx].end()) )
-                retVal=STScopes[idx][symbol];
-        }
-    }
-    return retVal;
-}
-
-// lookup symbol in table
-template <class T>
-bool SymbolTable<T>::lookupSymbol( const std::string& symbol )
-{
-    bool retVal=false;
-
-    // find if locally declared
-    if ( !(STVars.find(symbol) == STVars.end()) )
-    {
-        retVal=true;
+        retVal = STVars[symbol];
     }
     else
     {
@@ -128,8 +107,37 @@ bool SymbolTable<T>::lookupSymbol( const std::string& symbol )
         while (idx > 0)
         {
             idx--;
-            if ( !(STScopes[idx].find(symbol) == STScopes[idx].end()) )
-                retVal=true;
+            if (!(STScopes[idx].find(symbol) == STScopes[idx].end()))
+            {
+                retVal = STScopes[idx][symbol];
+            }
+        }
+    }
+    return retVal;
+}
+
+// lookup symbol in table
+template <class T>
+bool SymbolTable<T>::lookupSymbol(const std::string& symbol)
+{
+    bool retVal = false;
+
+    // find if locally declared
+    if (!(STVars.find(symbol) == STVars.end()))
+    {
+        retVal = true;
+    }
+    else
+    {
+        // find if declared in outer scopes
+        size_t idx = STScopes.size();
+        while (idx > 0)
+        {
+            idx--;
+            if (!(STScopes[idx].find(symbol) == STScopes[idx].end()))
+            {
+                retVal = true;
+            }
         }
     }
     return retVal;

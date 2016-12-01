@@ -143,8 +143,7 @@ public class EncodeDataExpr extends AbstractRasNode {
                 try {
                     GdalParameters gdalParams = new GdalParameters((CoverageExpr)coverageExprType, 2);
                     // if georeferenced is false then no need to add bounding box as extra parameters
-                    if (gdalParams.isGeoreferenced())
-                    {
+                    if (gdalParams.isGeoreferenced()) {
                         CoverageInfo info = ((CoverageExpr) coverageExprType).getCoverageInfo();
 
                         if (info != null) {

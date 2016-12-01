@@ -28,7 +28,7 @@ import petascope.util.XMLSymbols;
  *
  * @author rasdaman
  */
-public class WCSTMissingDomainSet extends WCSTException{
+public class WCSTMissingDomainSet extends WCSTException {
     public WCSTMissingDomainSet() {
         super(ExceptionCode.WCSTMissingEnvelope, EXCEPTION_TEXT);
     }

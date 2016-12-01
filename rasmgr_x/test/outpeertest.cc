@@ -40,11 +40,11 @@ namespace rasmgr
 namespace test
 {
 
-class OutPeerTest:public ::testing::Test
+class OutPeerTest: public ::testing::Test
 {
 protected:
     OutPeerTest()
-        :peerHost("127.0.0.1"), peerPort(35000), peer(peerHost, peerPort)
+        : peerHost("127.0.0.1"), peerPort(35000), peer(peerHost, peerPort)
     {
         this->service = boost::make_shared<DummyRasmgrService>();
         this->healthService = boost::make_shared<common::HealthServiceImpl>();

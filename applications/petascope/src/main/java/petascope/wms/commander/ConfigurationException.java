@@ -25,17 +25,15 @@ package petascope.wms.commander;
 /**
  * ConfigurationException: error evaluating configuration file
  */
-public class ConfigurationException extends CommanderException
-{
+public class ConfigurationException extends CommanderException {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Constructor for ConfigurationException
      * @param msg String
      */
-    public ConfigurationException( String msg )
-    {
-        super( msg );
+    public ConfigurationException(String msg) {
+        super(msg);
     }
 
 }

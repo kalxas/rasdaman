@@ -59,21 +59,21 @@ public class DomainElement implements Cloneable {
 
     // constructor
     public DomainElement(
-            BigDecimal min,
-            BigDecimal max,
-            String axisLabel,
-            String axisType,
-            String axisUom,
-            String crsUri,
-            int order,
-            BigInteger dim,
-            boolean positiveForwards,
-            boolean isIrregular)
-            throws WCPSException {
+        BigDecimal min,
+        BigDecimal max,
+        String axisLabel,
+        String axisType,
+        String axisUom,
+        String crsUri,
+        int order,
+        BigInteger dim,
+        boolean positiveForwards,
+        boolean isIrregular)
+    throws WCPSException {
 
         if (axisLabel == null) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid domain element: Element name and type cannot be null.");
+                                    "Invalid domain element: Element name and type cannot be null.");
         }
 
         // store to fields
@@ -92,13 +92,13 @@ public class DomainElement implements Cloneable {
             maxValue = max;
         } else {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid domain element: Element name cannot be empty.");
+                                    "Invalid domain element: Element name cannot be empty.");
         }
 
         // native CRS and crsSet := Native + GridCRS (no CRS extension enables)
         if ((crsUri == null) || CrsUtil.isGridCrs(crsUri)) {
-               nativeCrs = CrsUtil.GRID_CRS;
-               crsSet.add(nativeCrs);
+            nativeCrs = CrsUtil.GRID_CRS;
+            crsSet.add(nativeCrs);
         } else {
             nativeCrs = crsUri;
             crsSet.addAll(Arrays.asList(nativeCrs, CrsUtil.GRID_CRS));
@@ -109,7 +109,7 @@ public class DomainElement implements Cloneable {
             // Consistency checks
             if (maxValue.compareTo(minValue) < 0) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        "Invalid domain element: upper-bound is greater then lower-bound.");
+                                        "Invalid domain element: upper-bound is greater then lower-bound.");
             }
 
             BigDecimal diffBD = maxValue.subtract(minValue).add(CrsUtil.isGridCrs(nativeCrs) ? BigDecimal.ONE : BigDecimal.ZERO);
@@ -133,17 +133,17 @@ public class DomainElement implements Cloneable {
             boolean posForwards = positiveForwards ? true : false;
             boolean isIrr       =      isIrregular ? true : false;
             DomainElement cloned = new DomainElement(
-                    cloneMin,
-                    cloneMax,
-                    cloneLabel,
-                    cloneType,
-                    cloneUom,
-                    cloneCrs,
-                    order,
-                    dimensionality,
-                    posForwards,
-                    isIrr
-                    );
+                cloneMin,
+                cloneMax,
+                cloneLabel,
+                cloneType,
+                cloneUom,
+                cloneCrs,
+                order,
+                dimensionality,
+                posForwards,
+                isIrr
+            );
             cloned.setCoefficients(this.coefficients);
             return cloned;
         } catch (Exception ime) {
@@ -153,7 +153,7 @@ public class DomainElement implements Cloneable {
 
     public boolean equals(DomainElement de) {
         return minValue.equals(de.minValue) && maxValue.equals(maxValue)
-                && label.equals(de.label) && type.equals(de.type);
+               && label.equals(de.label) && type.equals(de.type);
     }
 
     // Interface: getters/setters
@@ -169,7 +169,9 @@ public class DomainElement implements Cloneable {
         return minValue;
     }
 
-    public void setMaxValue(BigDecimal newValue) { this.maxValue = newValue; }
+    public void setMaxValue(BigDecimal newValue) {
+        this.maxValue = newValue;
+    }
     /**
      * Cell width for this domain element.
      * @return Positive scalar value: (M-m)/W
@@ -209,7 +211,7 @@ public class DomainElement implements Cloneable {
     }
 
     public int getOrder() {
-       return iOrder;
+        return iOrder;
     }
 
     public CrsDefinition getCrsDef() {
@@ -264,12 +266,12 @@ public class DomainElement implements Cloneable {
     @Override
     public String toString() {
         String d = "Domain #" + iOrder + " {"
-                + "Name:" + label
-                + " | Type:" + type
-                + " | UoM:" + uom
-                + " | [" + minValue
-                + ","    + maxValue + "]"
-                + " | CRS:" + nativeCrs + "'}";
+                   + "Name:" + label
+                   + " | Type:" + type
+                   + " | UoM:" + uom
+                   + " | [" + minValue
+                   + ","    + maxValue + "]"
+                   + " | CRS:" + nativeCrs + "'}";
         return d;
     }
 }

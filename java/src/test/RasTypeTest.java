@@ -32,11 +32,9 @@ import rasj.RasStructureType;
 import rasj.RasType;
 
 /* Test for correct parsing of type strings by RasType class */
-public class RasTypeTest
-{
+public class RasTypeTest {
     @Test
-    public void testStructureWithAttributeNames()
-    {
+    public void testStructureWithAttributeNames() {
         String typeString = "struct {char red, long green, float blue}";
         RasBaseType[] attrTypes = {
             new RasPrimitiveType("RAS_CHAR", RasGlobalDefs.RAS_CHAR),
@@ -53,8 +51,7 @@ public class RasTypeTest
     }
 
     @Test
-    public void testStructureWithoutAttributeNames()
-    {
+    public void testStructureWithoutAttributeNames() {
         String typeString = "struct {char, long}";
         RasBaseType[] attrTypes = {
             new RasPrimitiveType("RAS_CHAR", RasGlobalDefs.RAS_CHAR),
@@ -70,8 +67,7 @@ public class RasTypeTest
     }
 
     @Test
-    public void testNamedStructure()
-    {
+    public void testNamedStructure() {
         String typeString = "struct MyStruct {char}";
         String name = "MyStruct";
         RasBaseType[] attrTypes = {

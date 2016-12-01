@@ -57,5 +57,5 @@ public class DeleteLayerRequest extends Request {
 
     private final Layer layer;
     public static final String LAYER_PARAM_NAME = "layer";
-    private static final String REQUEST_PARAM_VALUE = "DeleteLayer";    
+    private static final String REQUEST_PARAM_VALUE = "DeleteLayer";
 }

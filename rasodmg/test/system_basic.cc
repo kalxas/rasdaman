@@ -82,16 +82,16 @@ static const char rcsid[] = "@(#)rasodmg/test,SystemBasic: $Id: system_basic.cc,
 #include "import_error.hh"
 
 void
-fast_scale_process_primitive_type(const r_Primitive_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
+fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
 void
-fast_scale_process_structured_type(const r_Structure_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
+fast_scale_process_structured_type(const r_Structure_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
 template<class T>
 void
-fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, bool round);
+fast_scale_resample_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, bool round);
 
 template<class T>
 void
-fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length);
+fast_scale_aggregate_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length);
 
 void
 signalHandler(int sig)
@@ -408,8 +408,8 @@ SystemBasic::insidePatternDef = false;
 const int
 SystemBasic::queryBufferLength = 512;
 
-std::list<std::pair<double, char*> >*
-SystemBasic::scaleLevels = NULL;
+std::list<std::pair<double, char*>>*
+                                 SystemBasic::scaleLevels = NULL;
 
 int
 SystemBasic::wrongBytes = 0;
@@ -462,14 +462,14 @@ SystemBasic::force = false;
 
 //--tiling params description
 const string
-SystemBasic::tilingDesc= string("") +
-                         "<tiling-name> tiling strategy, specified as:" + CommandLineParameter::descLineSep +
-                         "  " + tiling_name_notiling          + "," + CommandLineParameter::descLineSep +
-                         "  " + tiling_name_sizetiling        + "," + CommandLineParameter::descLineSep +
-                         "  " + tiling_name_alignedtiling     + "," + CommandLineParameter::descLineSep +
-                         "  " + tiling_name_interesttiling    + "," + CommandLineParameter::descLineSep +
-                         "  " + tiling_name_directionaltiling + "," + CommandLineParameter::descLineSep +
-                         "  " + tiling_name_statisticaltiling;
+SystemBasic::tilingDesc = string("") +
+                          "<tiling-name> tiling strategy, specified as:" + CommandLineParameter::descLineSep +
+                          "  " + tiling_name_notiling          + "," + CommandLineParameter::descLineSep +
+                          "  " + tiling_name_sizetiling        + "," + CommandLineParameter::descLineSep +
+                          "  " + tiling_name_alignedtiling     + "," + CommandLineParameter::descLineSep +
+                          "  " + tiling_name_interesttiling    + "," + CommandLineParameter::descLineSep +
+                          "  " + tiling_name_directionaltiling + "," + CommandLineParameter::descLineSep +
+                          "  " + tiling_name_statisticaltiling;
 
 const string
 SystemBasic::tilingParamsDesc =  string("") +
@@ -495,58 +495,58 @@ SystemBasic::parseParams(int argc, char** argv)
 {
     int retval = 0;
     //program interface
-    CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
-    CommandLineParameter &clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
-    CommandLineParameter &clp_tiling    = cmlInter.addStringParameter(CommandLineParser::noShortName, "tiling", tilingDesc.c_str(), tiling_name_sizetiling);
-    CommandLineParameter &tilingParams  = cmlInter.addStringParameter(CommandLineParser::noShortName, "tilingparams", tilingParamsDesc.c_str(), "131072");
-    CommandLineParameter &clp_testbed   = cmlInter.addFlagParameter(CommandLineParser::noShortName, "testbed", "testbed output flag.");
-    CommandLineParameter &clp_transparent   = cmlInter.addFlagParameter('t', "transparent", "transparent update flag.\n\t\tIf it is specified black data will be treated as transparent");
-    CommandLineParameter &clp_printtext = cmlInter.addFlagParameter(CommandLineParser::noShortName, "printtext", "output of char data will be printed as text - not numbers.\n\t\tUseful for printing the names of all collections/or text stored in mdds");
-    CommandLineParameter &clp_server    = cmlInter.addStringParameter('s', "server", "<host-name> host's name where rasmgr runs.", serverName);
-    CommandLineParameter &clp_port      = cmlInter.addStringParameter('p', "port", "<nnnn> port number used by rasmgr.", "7001");
-    CommandLineParameter &clp_database  = cmlInter.addStringParameter('d', "database", "<db-name> name of database.", baseName);
-    CommandLineParameter &clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, "user", "<user-name> name of user", userName);
-    CommandLineParameter &clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName,"passwd", "<user-passwd> password of user", passwd);
-    CommandLineParameter &clp_storage   = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "<format> storage format.", format_name_array);
-    CommandLineParameter &clp_storageParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformatparams", "<params> parameters used for storing", NULL);
-    CommandLineParameter &clp_transfer  = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformat", "<format> transfer format.", format_name_array );
-    CommandLineParameter &clp_transferParams    = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformatparams", "<params> parameters used for transfer", NULL);
-    CommandLineParameter &clp_input     = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformat", "<format> input format.", format_name_array );
-    CommandLineParameter &clp_inputParams   = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformatparams", "<params> parameters used for input", NULL);
-    CommandLineParameter &clp_output    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformat", "<format> output format.", format_name_array );
-    CommandLineParameter &clp_outputParams  = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformatparams", "<params> parameters used for output", NULL);
-    CommandLineParameter &clp_outputFileName    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputfilename", "<name> file name of output file", NULL);
-    CommandLineParameter &clp_polygon   = cmlInter.addStringParameter(CommandLineParser::noShortName, "polygon", "<polygon-path> polygon path used for delimiting the data.  The polygon has to be given in counter clockwise direction.  Do not forget to supply insidepattern and/or outsidepattern", NULL);
-    CommandLineParameter &clp_shrink    = cmlInter.addStringParameter(CommandLineParser::noShortName, "shrink", "<number> pixels that will reduce the polygon.", "0");
-    CommandLineParameter &clp_fillinside    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepattern", "<pattern> will be used to fill the outside of the polygon.", NULL);
-    CommandLineParameter &clp_filloutside   = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepattern", "<pattern> will be used to fill the inside of the polygon.", NULL);
-    CommandLineParameter &clp_fillinsidesel = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepatternbackdrop", "<pattern> will be used to fill the outside of the polygon in the backdrop mdd.", NULL);
-    CommandLineParameter &clp_filloutsidesel    = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepatternbackdrop", "<pattern> will be used to fill the inside of the polygon in the backdrop mdd.", NULL);
-    CommandLineParameter &clp_collType  = cmlInter.addStringParameter(CommandLineParser::noShortName, "colltype", "<coll-type> type of collection");
-    CommandLineParameter &clp_mddType   = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddtype", "<mdd-type> type of marray");
-    CommandLineParameter &clp_collName  = cmlInter.addStringParameter('c', "collname", "<coll-name> name of collection");
-    CommandLineParameter &clp_mddoid    = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddoid","<mdd-oid> oid of the marray to work on");
-    CommandLineParameter &clp_colloid   = cmlInter.addStringParameter(CommandLineParser::noShortName, "colloid","<coll-oid> oid of the set to work on");
-    CommandLineParameter &clp_mddDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain","<mdd-domain> domain of marray");
-    CommandLineParameter &clp_overlayDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "overlaydomain","<overlay-domain> domain that is updated in the db in case of an overlay, default is the domain of the image");
-    CommandLineParameter &clp_align     = cmlInter.addStringParameter(CommandLineParser::noShortName, "align","<pixels> number of pixels to align the domain to.  May be used instead of overlaydomain.", "0");
-    CommandLineParameter &clp_tiledupdate   = cmlInter.addFlagParameter(CommandLineParser::noShortName, "tiledupdate","do job in smaller pieces.  Use update buffer size to compute the size of each update.  May not be used with a file insertion!");
-    CommandLineParameter &clp_read      = cmlInter.addStringParameter('r', "read", "<file-name> name of input file");
-    CommandLineParameter &clp_conversiontypename    = cmlInter.addStringParameter(CommandLineParser::noShortName, "conversiontype","<type-name> name of type to be passed to the conversion module");
-    CommandLineParameter &clp_scalelevels   = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalelevels","<level-spec> list of scale levels: collection:1/scalefactor;...\n\t\te.g. coll:1;coll_1:2;coll_3:4;coll_4:8");
+    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
+    CommandLineParameter& clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
+    CommandLineParameter& clp_tiling    = cmlInter.addStringParameter(CommandLineParser::noShortName, "tiling", tilingDesc.c_str(), tiling_name_sizetiling);
+    CommandLineParameter& tilingParams  = cmlInter.addStringParameter(CommandLineParser::noShortName, "tilingparams", tilingParamsDesc.c_str(), "131072");
+    CommandLineParameter& clp_testbed   = cmlInter.addFlagParameter(CommandLineParser::noShortName, "testbed", "testbed output flag.");
+    CommandLineParameter& clp_transparent   = cmlInter.addFlagParameter('t', "transparent", "transparent update flag.\n\t\tIf it is specified black data will be treated as transparent");
+    CommandLineParameter& clp_printtext = cmlInter.addFlagParameter(CommandLineParser::noShortName, "printtext", "output of char data will be printed as text - not numbers.\n\t\tUseful for printing the names of all collections/or text stored in mdds");
+    CommandLineParameter& clp_server    = cmlInter.addStringParameter('s', "server", "<host-name> host's name where rasmgr runs.", serverName);
+    CommandLineParameter& clp_port      = cmlInter.addStringParameter('p', "port", "<nnnn> port number used by rasmgr.", "7001");
+    CommandLineParameter& clp_database  = cmlInter.addStringParameter('d', "database", "<db-name> name of database.", baseName);
+    CommandLineParameter& clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, "user", "<user-name> name of user", userName);
+    CommandLineParameter& clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, "passwd", "<user-passwd> password of user", passwd);
+    CommandLineParameter& clp_storage   = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "<format> storage format.", format_name_array);
+    CommandLineParameter& clp_storageParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformatparams", "<params> parameters used for storing", NULL);
+    CommandLineParameter& clp_transfer  = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformat", "<format> transfer format.", format_name_array);
+    CommandLineParameter& clp_transferParams    = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformatparams", "<params> parameters used for transfer", NULL);
+    CommandLineParameter& clp_input     = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformat", "<format> input format.", format_name_array);
+    CommandLineParameter& clp_inputParams   = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformatparams", "<params> parameters used for input", NULL);
+    CommandLineParameter& clp_output    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformat", "<format> output format.", format_name_array);
+    CommandLineParameter& clp_outputParams  = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformatparams", "<params> parameters used for output", NULL);
+    CommandLineParameter& clp_outputFileName    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputfilename", "<name> file name of output file", NULL);
+    CommandLineParameter& clp_polygon   = cmlInter.addStringParameter(CommandLineParser::noShortName, "polygon", "<polygon-path> polygon path used for delimiting the data.  The polygon has to be given in counter clockwise direction.  Do not forget to supply insidepattern and/or outsidepattern", NULL);
+    CommandLineParameter& clp_shrink    = cmlInter.addStringParameter(CommandLineParser::noShortName, "shrink", "<number> pixels that will reduce the polygon.", "0");
+    CommandLineParameter& clp_fillinside    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepattern", "<pattern> will be used to fill the outside of the polygon.", NULL);
+    CommandLineParameter& clp_filloutside   = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepattern", "<pattern> will be used to fill the inside of the polygon.", NULL);
+    CommandLineParameter& clp_fillinsidesel = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepatternbackdrop", "<pattern> will be used to fill the outside of the polygon in the backdrop mdd.", NULL);
+    CommandLineParameter& clp_filloutsidesel    = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepatternbackdrop", "<pattern> will be used to fill the inside of the polygon in the backdrop mdd.", NULL);
+    CommandLineParameter& clp_collType  = cmlInter.addStringParameter(CommandLineParser::noShortName, "colltype", "<coll-type> type of collection");
+    CommandLineParameter& clp_mddType   = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddtype", "<mdd-type> type of marray");
+    CommandLineParameter& clp_collName  = cmlInter.addStringParameter('c', "collname", "<coll-name> name of collection");
+    CommandLineParameter& clp_mddoid    = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddoid", "<mdd-oid> oid of the marray to work on");
+    CommandLineParameter& clp_colloid   = cmlInter.addStringParameter(CommandLineParser::noShortName, "colloid", "<coll-oid> oid of the set to work on");
+    CommandLineParameter& clp_mddDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain", "<mdd-domain> domain of marray");
+    CommandLineParameter& clp_overlayDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "overlaydomain", "<overlay-domain> domain that is updated in the db in case of an overlay, default is the domain of the image");
+    CommandLineParameter& clp_align     = cmlInter.addStringParameter(CommandLineParser::noShortName, "align", "<pixels> number of pixels to align the domain to.  May be used instead of overlaydomain.", "0");
+    CommandLineParameter& clp_tiledupdate   = cmlInter.addFlagParameter(CommandLineParser::noShortName, "tiledupdate", "do job in smaller pieces.  Use update buffer size to compute the size of each update.  May not be used with a file insertion!");
+    CommandLineParameter& clp_read      = cmlInter.addStringParameter('r', "read", "<file-name> name of input file");
+    CommandLineParameter& clp_conversiontypename    = cmlInter.addStringParameter(CommandLineParser::noShortName, "conversiontype", "<type-name> name of type to be passed to the conversion module");
+    CommandLineParameter& clp_scalelevels   = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalelevels", "<level-spec> list of scale levels: collection:1/scalefactor;...\n\t\te.g. coll:1;coll_1:2;coll_3:4;coll_4:8");
     string t = string("") + "<function-name> name of the scaling algorithm.\n\t\teither " + scale_function_name_subsampling + " or " + scale_function_name_bitaggregation;
-    CommandLineParameter &clp_updatebuffer  = cmlInter.addStringParameter(CommandLineParser::noShortName, "buffersize", "<buffer-size> number of cells that can be written in one go when using tiledupdate.  If align is defined then the minimum update size is taken to be the value align in each dimension.", defaultUpdateBufferSize);
-    CommandLineParameter &cml_layerlist     = cmlInter.addStringParameter(CommandLineParser::noShortName, "layerlist", "<list> list of files for merging: <\"layer[[;layer]...]\"> \n\t\tlayer:  <filename:TruePattern:FalsePattern>\n\t\tTruePattern / FalsePattern:\n\t\tbinary pattern expressed as decimal number(e.g.: 01001 = 9)");
-    CommandLineParameter &clp_scalefunction = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalefunction", t.c_str(), scale_function_name_subsampling);
-    CommandLineParameter &clientcommSleep   = cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommsleep", "<seconds> number of seconds to wait till retry", "1");
-    CommandLineParameter &clientcommMaxRetry= cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommretry", "<tries> number of retries before giving up", "10");
-    CommandLineParameter &rpcMaxRetry   = cmlInter.addStringParameter(CommandLineParser::noShortName, "rpcretry", "<tries> number of retries before giving up", "5");
-    CommandLineParameter &clp_Force     = cmlInter.addFlagParameter(CommandLineParser::noShortName, "force", "force writing of files");
+    CommandLineParameter& clp_updatebuffer  = cmlInter.addStringParameter(CommandLineParser::noShortName, "buffersize", "<buffer-size> number of cells that can be written in one go when using tiledupdate.  If align is defined then the minimum update size is taken to be the value align in each dimension.", defaultUpdateBufferSize);
+    CommandLineParameter& cml_layerlist     = cmlInter.addStringParameter(CommandLineParser::noShortName, "layerlist", "<list> list of files for merging: <\"layer[[;layer]...]\"> \n\t\tlayer:  <filename:TruePattern:FalsePattern>\n\t\tTruePattern / FalsePattern:\n\t\tbinary pattern expressed as decimal number(e.g.: 01001 = 9)");
+    CommandLineParameter& clp_scalefunction = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalefunction", t.c_str(), scale_function_name_subsampling);
+    CommandLineParameter& clientcommSleep   = cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommsleep", "<seconds> number of seconds to wait till retry", "1");
+    CommandLineParameter& clientcommMaxRetry = cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommretry", "<tries> number of retries before giving up", "10");
+    CommandLineParameter& rpcMaxRetry   = cmlInter.addStringParameter(CommandLineParser::noShortName, "rpcretry", "<tries> number of retries before giving up", "5");
+    CommandLineParameter& clp_Force     = cmlInter.addFlagParameter(CommandLineParser::noShortName, "force", "force writing of files");
     try
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cout << usageHeader;
         cmlInter.printHelp();
@@ -594,7 +594,9 @@ SystemBasic::parseParams(int argc, char** argv)
         {
             retval = readScaleLevels(cmlInter.getValueAsString("scalelevels"));
             if (retval != 0)
+            {
                 return retval;
+            }
         }
         testBed = cmlInter.isPresent("testbed");
         force = cmlInter.isPresent("force");
@@ -691,17 +693,25 @@ SystemBasic::parseParams(int argc, char** argv)
                 r_Range high = overlayDomain[dim].high();
                 r_Range low = overlayDomain[dim].low();
 
-                r_Range highd = high%align;
+                r_Range highd = high % align;
                 if (high < 0)
+                {
                     high = high - highd - 1;
+                }
                 else
+                {
                     high = high + align - highd - 1;
+                }
 
-                r_Range lowd = overlayDomain[dim].low()%align;
+                r_Range lowd = overlayDomain[dim].low() % align;
                 if (low < 0)
+                {
                     low = low - align - lowd;
+                }
                 else
+                {
                     low = low - lowd;
+                }
                 overlayDomain[dim].set_interval(low, high);
             }
             RMInit::logOut << "Alignment changed overlay domain to " << overlayDomain << endl;
@@ -776,7 +786,7 @@ SystemBasic::parseParams(int argc, char** argv)
             }
         }
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cout << usageHeader;
         cmlInter.printHelp();
@@ -795,7 +805,7 @@ SystemBasic::saveData(const char* fileNamePat, const char* data, r_Bytes length,
     r_Primitive_Type* tp = new r_Primitive_Type("Char", r_Type::CHAR);
     r_Convertor* conv = r_Convertor_Factory::create(r_PNG, data, dom, tp);
     r_convDesc desc = conv->convertTo(NULL);
-    size_t dtaSize=desc.destInterv.cell_count()*tp->size();
+    size_t dtaSize = desc.destInterv.cell_count() * tp->size();
     std::ofstream o;
     o.open(fileNamePat);
     if (!o.is_open())
@@ -821,9 +831,13 @@ SystemBasic::openTransaction(bool readwrite) throw (r_Error)
     db.set_useridentification(userName, passwd);
     db.open(baseName);
     if (readwrite)
+    {
         ta.begin(r_Transaction::read_write);
+    }
     else
+    {
         ta.begin(r_Transaction::read_only);
+    }
     db.set_transfer_format(transferFormat, transferFormatParams);
     db.set_storage_format(storageFormat, storageFormatParams);
 }
@@ -878,10 +892,13 @@ SystemBasic::printScalar(const r_Scalar& scalar)
     {
         r_Structure* structValue = (r_Structure*)&scalar;
         cout << "	{ " << std::flush;
-        for(int i=0; i<structValue->count_elements(); i++)
+        for (int i = 0; i < structValue->count_elements(); i++)
         {
             printScalar((*structValue)[i]);
-            if (i < structValue->count_elements()-1) cout << ", " << std::flush;
+            if (i < structValue->count_elements() - 1)
+            {
+                cout << ", " << std::flush;
+            }
         }
         cout << " 	}" << endl;
     }
@@ -917,7 +934,7 @@ SystemBasic::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minte
                 delete tp;
                 tp = (r_Base_Type*)desc.destType;
                 tmpInt = desc.destInterv;
-                dtaSize=tmpInt.cell_count()*tp->size();
+                dtaSize = tmpInt.cell_count() * tp->size();
                 delete [] src;
                 src = desc.dest;
                 delete conv;
@@ -1003,7 +1020,7 @@ SystemBasic::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterv
                 throw r_Error();
             }
             dtaSize = desc.destInterv.cell_count() * tp->size(); // desc.destInterv[0].high() - desc.destInterv[0].low() + 1;
-            interv=desc.destInterv;
+            interv = desc.destInterv;
             delete src;
             src = desc.dest;
             delete conv;
@@ -1037,7 +1054,9 @@ SystemBasic::checkFile(const char* fileN, int& retval)
 {
     FILE* fileD = NULL;
     if ((fileD = fopen(fileN, "r")) == NULL)
+    {
         retval = FILEINACCESSIBLE;
+    }
     return fileD;
 }
 
@@ -1054,7 +1073,7 @@ SystemBasic::getData(FILE* file, size_t& dtaSize, int& retval)
     {
         dta = new char[size];
     }
-    catch(std::bad_alloc)
+    catch (std::bad_alloc)
     {
         RMInit::logOut << "Unable to claim memory(" << size << "B)!"  << endl;
         retval = UNABLETOCLAIMRESOURCEFORFILE;
@@ -1072,7 +1091,7 @@ int
 SystemBasic::readScaleLevels(const char* startPos)
 {
     int retval = 0;
-    scaleLevels = new std::list<std::pair<double, char*> >();
+    scaleLevels = new std::list<std::pair<double, char*>>();
     const char* endPos = NULL;
     char* levelName = NULL;
     const char* factorName = NULL;
@@ -1295,11 +1314,11 @@ SystemBasic::explainRetval(int retval)
     theTiling = NULL;
     if (scaleLevels != NULL)
     {
-        std::list<std::pair<double, char*> >::iterator iter = scaleLevels->begin();
-        std::list<std::pair<double, char*> >::iterator end = scaleLevels->end();
+        std::list<std::pair<double, char*>>::iterator iter = scaleLevels->begin();
+        std::list<std::pair<double, char*>>::iterator end = scaleLevels->end();
         for (; iter != end; iter++)
         {
-            delete [] (*iter).second;
+            delete [](*iter).second;
             (*iter).second = NULL;
         }
         delete scaleLevels;
@@ -1320,7 +1339,9 @@ SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Forma
     {
         mddData = getData(tempFile, mddDataSize, retval);
         if (retval != 0)
+        {
             return retval;
+        }
         try
         {
             tempType = r_Type::get_any_type(conversionTypeName);
@@ -1357,9 +1378,13 @@ SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Forma
                     */
                     polygon.setMArray(*tempMDD);
                     if (insidePatternDef)
+                    {
                         polygon.fillMArrayInside(insidePattern);
+                    }
                     if (outsidePatternDef)
+                    {
                         polygon.fillMArrayOutside(outsidePattern);
+                    }
                     /* should be done in r_PolygonCutOut
                                             }
                                         else    {
@@ -1412,7 +1437,7 @@ SystemBasic::compareGMarrays(const r_Ref<r_GMarray>& baseMDD, r_Ref<r_GMarray>& 
                     wrongBytes++;
                 }
             }
-            wrongBytes*=typeLen;
+            wrongBytes *= typeLen;
         }
         else
         {
@@ -1502,8 +1527,8 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
                             memcpy(&(targetMDDCells[elemNum * typeLen]), &(replaceBlackMDDCells[elemNum * typeLen]), typeLen);
                         }
                     }
-                    replaceBlackIter.id[dim-1].pos += width;
-                    targetIter.id[dim-1].pos += width;
+                    replaceBlackIter.id[dim - 1].pos += width;
+                    targetIter.id[dim - 1].pos += width;
                     ++replaceBlackIter;
                     ++targetIter;
                 }
@@ -1529,8 +1554,8 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
 
                     memcpy(targetMDDCells, backgroundMDDCells, typeLen * backgroundWidth);
 
-                    backgroundIter.id[dim-1].pos += backgroundWidth;
-                    targetIter.id[dim-1].pos += backgroundWidth;
+                    backgroundIter.id[dim - 1].pos += backgroundWidth;
+                    targetIter.id[dim - 1].pos += backgroundWidth;
                     ++backgroundIter;
                     ++targetIter;
                 }
@@ -1551,8 +1576,8 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
                             memcpy(&(targetMDDCells[elemNum * typeLen]), &(replaceBlackMDDCells[elemNum * typeLen]), typeLen);
                         }
                     }
-                    replaceBlackIter.id[dim-1].pos += width;
-                    targetIter2.id[dim-1].pos += width;
+                    replaceBlackIter.id[dim - 1].pos += width;
+                    targetIter2.id[dim - 1].pos += width;
                     ++replaceBlackIter;
                     ++targetIter2;
                 }
@@ -1650,7 +1675,7 @@ SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval&
     if (retval == 0)
     {
         size_t tlen = baseMDD->get_type_length();
-        r_Ref<r_GMarray> scaledMDD = new (baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
+        r_Ref<r_GMarray> scaledMDD = new(baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
         const r_Type* type = scaledMDD->get_base_type_schema();
         if (type != NULL)
         {
@@ -1684,12 +1709,12 @@ SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval&
             RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
                     RMInit::dbgOut << "Waiting 10 sec before execute\n" << std::endl; \
                     sleep(10); \
-                    RMInit::dbgOut << "Continue now\n" << std::endl; );
+                    RMInit::dbgOut << "Continue now\n" << std::endl;);
             r_oql_execute(query);
             RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                     RMInit::dbgOut << "Waiting 10 sec after execute\n" << std::endl; \
                     sleep(10); \
-                    RMInit::dbgOut << "Continue now\n" << std::endl; );
+                    RMInit::dbgOut << "Continue now\n" << std::endl;);
         }
         scaledMDD.destroy();
     }
@@ -1705,7 +1730,7 @@ SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval
     if (retval == 0)
     {
         size_t tlen = baseMDD->get_type_length();
-        r_Ref<r_GMarray> scaledMDD = new (baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
+        r_Ref<r_GMarray> scaledMDD = new(baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
         const r_Type* type = ((r_GMarray*)&*baseMDD)->get_base_type_schema();
         if (type != NULL)
         {
@@ -1737,9 +1762,9 @@ SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval
             std::ostringstream stream;
             stream << "SELECT A" << downScaleDomain << " FROM " << collectionName << " AS A";
             r_OQL_Query query(stream.str().c_str());
-            r_Set< r_Ref_Any > result;
+            r_Set<r_Ref_Any> result;
             r_oql_execute(query, result);
-            r_Iterator< r_Ref_Any > iter = result.create_iterator();
+            r_Iterator<r_Ref_Any> iter = result.create_iterator();
             r_Ref<r_GMarray> selectedMDD = r_Ref<r_GMarray>(*iter);
             if (retval == 0)
             {
@@ -1767,7 +1792,7 @@ SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval
 }
 
 void
-fast_scale_process_primitive_type(const r_Primitive_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
+fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
 {
     if (func == r_BitAggregation)
     {
@@ -1833,12 +1858,12 @@ fast_scale_process_primitive_type(const r_Primitive_Type *primType, char *dest, 
 }
 
 void
-fast_scale_process_structured_type(const r_Structure_Type *structType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
+fast_scale_process_structured_type(const r_Structure_Type* structType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
 {
     r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
     while (iter != structType->defines_attribute_end())
     {
-        r_Type *newType;
+        r_Type* newType;
         unsigned long offset;
 
         newType = (*iter).type_of().clone();
@@ -1846,12 +1871,12 @@ fast_scale_process_structured_type(const r_Structure_Type *structType, char *des
 
         if (newType->isStructType())
         {
-            r_Structure_Type *newStructType = (r_Structure_Type*)newType;
+            r_Structure_Type* newStructType = (r_Structure_Type*)newType;
             fast_scale_process_structured_type(newStructType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         else
         {
-            r_Primitive_Type *newPrimType = (r_Primitive_Type*)newType;
+            r_Primitive_Type* newPrimType = (r_Primitive_Type*)newType;
             fast_scale_process_primitive_type(newPrimType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         delete newType;
@@ -1862,7 +1887,7 @@ fast_scale_process_structured_type(const r_Structure_Type *structType, char *des
 
 // always iterate over the full dest domain, but not over the full src domain.
 template<class T>
-void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, bool round)
+void fast_scale_resample_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, bool round)
 {
     //cout << "here " << destIv << srcIv << iterDom << ", " << type_len << " " << length << endl;
     r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
@@ -1871,7 +1896,7 @@ void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv,
     unsigned int dim = (unsigned int)srcIv.dimension();
     unsigned int i;
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         subIter.id[i].low = 0;
     }
@@ -1882,7 +1907,7 @@ void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv,
 
         // init sub iterator
         subIter.done = 0;
-        for (i=0; i<dim; i++)
+        for (i = 0; i < dim; i++)
         {
             long rest;
 
@@ -1890,9 +1915,11 @@ void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv,
             subIter.id[i].data = srcIter.getData();
             rest = srcIter.id[i].high - srcIter.id[i].pos;
             if (rest >= (long)length)
-                rest = (long)length-1;
+            {
+                rest = (long)length - 1;
+            }
             subIter.id[i].high = rest;
-            count *= rest+1;
+            count *= rest + 1;
         }
         while (subIter.done == 0)
         {
@@ -1901,9 +1928,13 @@ void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv,
         }
         // use round to nearest
         if (round)
+        {
             *((T*)(destIter.getData())) = (T)(sum / count + 0.5);
+        }
         else
+        {
             *((T*)(destIter.getData())) = (T)(sum / count);
+        }
         //cout << (long)(((const T*)(srcIter.getData())) - src) << " , " << (long)(((T*)(destIter.getData())) - dest) << endl;
         ++srcIter;
         ++destIter;
@@ -1912,7 +1943,7 @@ void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv,
 
 // always iterate over the full dest domain, but not over the full src domain.
 template<class T>
-void fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length)
+void fast_scale_aggregate_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length)
 {
     //cout << "here " << destIv << srcIv << iterDom << ", " << type_len << " " << length << endl;
     r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
@@ -1921,7 +1952,7 @@ void fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv
     unsigned int dim = (unsigned int)srcIv.dimension();
     unsigned int i;
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         subIter.id[i].low = 0;
     }
@@ -1932,7 +1963,7 @@ void fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv
 
         // init sub iterator
         subIter.done = 0;
-        for (i=0; i<dim; i++)
+        for (i = 0; i < dim; i++)
         {
             long rest;
 
@@ -1940,9 +1971,11 @@ void fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv
             subIter.id[i].data = srcIter.getData();
             rest = srcIter.id[i].high - srcIter.id[i].pos;
             if (rest >= (long)length)
-                rest = (long)length-1;
+            {
+                rest = (long)length - 1;
+            }
             subIter.id[i].high = rest;
-            count *= rest+1;
+            count *= rest + 1;
         }
         while (subIter.done == 0)
         {
@@ -1978,7 +2011,7 @@ main(int argc, const char** argv)
                 {
                     cout << "ERROR clip != base (" << factor << "): " << clipDomain << " " << baseDomain << endl;
                 }
-                factor = factor /2;
+                factor = factor / 2;
             }
             factor = 0.5;
             baseDomain.translate(translation);

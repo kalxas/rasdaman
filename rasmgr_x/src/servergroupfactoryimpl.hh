@@ -8,7 +8,7 @@ namespace rasmgr
 class DatabaseHostManager;
 class ServerFactory;
 
-class ServerGroupFactoryImpl:public ServerGroupFactory
+class ServerGroupFactoryImpl: public ServerGroupFactory
 {
 public:
     ServerGroupFactoryImpl(boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);

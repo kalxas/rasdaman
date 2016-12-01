@@ -43,7 +43,7 @@ akg::CommBuffer::CommBuffer() throw()
     maxBuffSize = 0;
     fillSize = 0;
     sendSize = 0;
-    allocated= false;
+    allocated = false;
 }
 
 akg::CommBuffer::CommBuffer(int size) throw()
@@ -54,11 +54,11 @@ akg::CommBuffer::CommBuffer(int size) throw()
     allocate(size);
 }
 
-akg::CommBuffer::CommBuffer(void *externalBuffer,int totalSize, int dataSize) throw()
+akg::CommBuffer::CommBuffer(void* externalBuffer, int totalSize, int dataSize) throw()
 {
     data = NULL;
     maxBuffSize = 0;
-    takeOver(externalBuffer,totalSize,dataSize);
+    takeOver(externalBuffer, totalSize, dataSize);
 }
 
 akg::CommBuffer::~CommBuffer() throw()
@@ -90,8 +90,8 @@ bool  akg::CommBuffer::allocate(int size) throw()
         maxBuffSize = size;
     }
 
-    buffSize=size;
-    allocated=true;
+    buffSize = size;
+    allocated = true;
     return true;
 }
 
@@ -103,10 +103,10 @@ void akg::CommBuffer::freeBuffer() throw()
     buffSize = 0;
     fillSize = 0;
     sendSize = 0;
-    allocated= false;
+    allocated = false;
 }
 
-void akg::CommBuffer::takeOver(void *externalBuffer,int totalSize, int dataSize) throw()
+void akg::CommBuffer::takeOver(void* externalBuffer, int totalSize, int dataSize) throw()
 {
     assert(externalBuffer != 0);
     assert(totalSize > 0);
@@ -130,11 +130,14 @@ bool akg::CommBuffer::resize(int newSize) throw()
     assert(data != 0);
 
     // we can't make the buffer smaller by truncating inside data!
-    if(newSize < fillSize) return false;
+    if (newSize < fillSize)
+    {
+        return false;
+    }
 
-    char *newData = new char[newSize];
+    char* newData = new char[newSize];
     memcpy(newData, data, static_cast<size_t>(fillSize));
-    if(allocated == true )
+    if (allocated == true)
     {
         delete[] data;
         data = NULL;
@@ -165,34 +168,37 @@ int   akg::CommBuffer::getSendedSize()    throw()
 }
 int   akg::CommBuffer::getNotFilledSize() throw()
 {
-    return buffSize-fillSize;
+    return buffSize - fillSize;
 }
 int   akg::CommBuffer::getNotSendedSize() throw()
 {
-    return fillSize-sendSize;
+    return fillSize - sendSize;
 }
 bool  akg::CommBuffer::isAllocated()      throw()
 {
     return allocated;
 }
 
-int akg::CommBuffer::read(FileDescriptor &socket) throw()
+int akg::CommBuffer::read(FileDescriptor& socket) throw()
 {
-    int rasp = socket.read(data+fillSize,buffSize-fillSize);
+    int rasp = socket.read(data + fillSize, buffSize - fillSize);
 
-    if(rasp>=0) fillSize += rasp;
+    if (rasp >= 0)
+    {
+        fillSize += rasp;
+    }
 
     return rasp;
 }
 
-int akg::CommBuffer::read(const void *externalBuffer,int size) throw()
+int akg::CommBuffer::read(const void* externalBuffer, int size) throw()
 {
     assert(externalBuffer != 0);
     assert(size >= 0);
 
-    int cpSize = size<(buffSize-fillSize) ? size:(buffSize-fillSize);
+    int cpSize = size < (buffSize - fillSize) ? size : (buffSize - fillSize);
 
-    memcpy(data+fillSize,externalBuffer,static_cast<size_t>(cpSize));
+    memcpy(data + fillSize, externalBuffer, static_cast<size_t>(cpSize));
     fillSize += cpSize;
 
     return cpSize;
@@ -202,32 +208,35 @@ int akg::CommBuffer::reserve(int size) throw()
 {
     assert(size >= 0);
 
-    int cpSize = size<(buffSize-fillSize) ? size:(buffSize-fillSize);
+    int cpSize = size < (buffSize - fillSize) ? size : (buffSize - fillSize);
 
     fillSize += cpSize;
 
     return cpSize;
 }
 
-int akg::CommBuffer::write(FileDescriptor &socket) throw()
+int akg::CommBuffer::write(FileDescriptor& socket) throw()
 {
     LDEBUG << "CommBuffer write fillSize=" << fillSize << " sendSize=" << sendSize;
-    int rasp = socket.write(data+sendSize,fillSize-sendSize);
+    int rasp = socket.write(data + sendSize, fillSize - sendSize);
 
-    if(rasp>=0) sendSize+=rasp;
+    if (rasp >= 0)
+    {
+        sendSize += rasp;
+    }
 
     return rasp;
 }
 
-int akg::CommBuffer::write(void *externalBuffer,int size) throw()
+int akg::CommBuffer::write(void* externalBuffer, int size) throw()
 {
     assert(externalBuffer != 0);
     assert(size >= 0);
 
-    int cpSize = size<(fillSize-sendSize) ? size:(fillSize-sendSize);
+    int cpSize = size < (fillSize - sendSize) ? size : (fillSize - sendSize);
 
-    memcpy(externalBuffer,data+sendSize,static_cast<size_t>(cpSize));
-    sendSize+=cpSize;
+    memcpy(externalBuffer, data + sendSize, static_cast<size_t>(cpSize));
+    sendSize += cpSize;
 
     return cpSize;
 }
@@ -235,12 +244,12 @@ int akg::CommBuffer::write(void *externalBuffer,int size) throw()
 void akg::CommBuffer::clearToRead() throw()
 {
     LDEBUG << "CommBuffer clearToRead";
-    fillSize=0;
-    sendSize=0;
+    fillSize = 0;
+    sendSize = 0;
 }
 void akg::CommBuffer::clearToWrite() throw()
 {
     LDEBUG << "CommBuffer clearToWrite";
-    sendSize=0;
+    sendSize = 0;
 }
 

@@ -57,7 +57,7 @@ public:
 
 private:
     void informRasMGR(int what);
-    int  writeWholeMessage(int socket,char *destBuffer,int buffSize);
+    int  writeWholeMessage(int socket, char* destBuffer, int buffSize);
 
     const char* serverName;
     const char* rasmgrHost;

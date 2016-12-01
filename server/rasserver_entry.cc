@@ -48,16 +48,16 @@ using namespace std;
 
 struct HTTPRequest
 {
-    char *Database;
+    char* Database;
     int   Command;
-    char *QueryString;
+    char* QueryString;
     int   ClientType;
-    char *ClientID;
+    char* ClientID;
     int   Endianess;
     int   NumberOfQueryParams;
-    char *BinData;
+    char* BinData;
     int   BinDataSize;
-    char *Capability;
+    char* Capability;
 };
 
 
@@ -65,8 +65,10 @@ RasServerEntry* RasServerEntry::myself = 0;
 
 RasServerEntry& RasServerEntry::getInstance()
 {
-    if(myself == 0)
+    if (myself == 0)
+    {
         myself = new RasServerEntry;
+    }
     return *myself;
 }
 
@@ -78,29 +80,31 @@ RasServerEntry::~RasServerEntry()
 {
 }
 
-void RasServerEntry::compat_connectToDBMS() throw( r_Error )
+void RasServerEntry::compat_connectToDBMS() throw(r_Error)
 {
     // here no log output, this is a server startup function!
 
     admin = AdminIf::instance();
-    if( !admin )
-        throw r_Error( r_Error::r_Error_BaseDBMSFailed );
+    if (!admin)
+    {
+        throw r_Error(r_Error::r_Error_BaseDBMSFailed);
+    }
 }
 
-void RasServerEntry::compat_connectNewClient(const char *capability)
+void RasServerEntry::compat_connectNewClient(const char* capability)
 {
     // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
     LTRACE << "Request: connectNewClient...";
 
     char client[256];
-    strcpy( client, "unknown" );
+    strcpy(client, "unknown");
 
     // reverted the below to execute the #if part instead of the #else
     // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
     // DM 2012-nov-10
 #if 1 // client table is a relict from 1-process, multi-user rasdaman;
     // now it conflicts with rasmgr dispatcher mimics, so we disable -- PB 2005-sep-01
-    currentClientContext = new ClientTblElt( client, ++(clientCount) );
+    currentClientContext = new ClientTblElt(client, ++(clientCount));
     currentClientIdx    = clientCount;
 #else
 // this id must be !=0 because otherwise in ServerComm::getClientContext() it will not be recognized as valid id, and then the "last action" time will not be updated (timeout!)
@@ -109,7 +113,7 @@ void RasServerEntry::compat_connectNewClient(const char *capability)
     // disable client list by using only 1 element (fixed id), initialize only once
     currentClientIdx = SINGLETON_CLIENTID;
     // if (currentClientContext==NULL)
-    currentClientContext = new ClientTblElt( client, currentClientIdx );
+    currentClientContext = new ClientTblElt(client, currentClientIdx);
     LDEBUG << "using constant Client id " << currentClientIdx;
 
     // make sure any old element is deleted; currently inhibited, crashes :( -- PB 2005-sep-02
@@ -119,12 +123,14 @@ void RasServerEntry::compat_connectNewClient(const char *capability)
 #endif // 0
 
     // Put the context information in the static control list
-    ServerComm::addClientTblEntry( currentClientContext );
+    ServerComm::addClientTblEntry(currentClientContext);
 
     LDEBUG << "assigned Client id " << currentClientIdx;
 
-    if(accessControl.crunchCapability(capability) == CAPABILITY_REFUSED)
+    if (accessControl.crunchCapability(capability) == CAPABILITY_REFUSED)
+    {
         throw r_Ecapability_refused();
+    }
     LTRACE << MSG_OK;
 }
 
@@ -136,13 +142,13 @@ void RasServerEntry::compat_disconnectClient()
     // reverted the below to execute the #if part instead of the #else
     // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
     // DM 2012-nov-10
-#if 1 // 
-    deleteClientTblEntry( currentClientIdx );
+#if 1 //
+    deleteClientTblEntry(currentClientIdx);
     currentClientIdx = static_cast<unsigned long>(-1);
 #else
     // disable client list, use 1 constant element (see above) -- PB 2005-sep-01
     currentClientIdx = SINGLETON_CLIENTID;
-    ServerComm::deleteClientTblEntry( currentClientIdx );
+    ServerComm::deleteClientTblEntry(currentClientIdx);
 
     // delete currentClientContext;
     // currentClientContext = NULL;
@@ -157,9 +163,9 @@ void RasServerEntry::compat_disconnectClient()
 // Therefore let us take the original approach: delete only the requested client. -- PB 2003-nov-24
 #if 0
     // THIS IS PARANOIA, ONCE WE HAD SOME PROBLEMS, SO WE KILL ALL
-    while(!clientTbl.empty())
+    while (!clientTbl.empty())
     {
-        ClientTblElt *temp = clientTbl.front();
+        ClientTblElt* temp = clientTbl.front();
 
         temp->currentUsers = 0; // forced!
 
@@ -169,48 +175,48 @@ void RasServerEntry::compat_disconnectClient()
 }
 
 // we want the ServerComm version, we'll drop this client management anyway
-ServerComm::ClientTblElt* RasServerEntry::getClientContext( unsigned long ClientId )
+ServerComm::ClientTblElt* RasServerEntry::getClientContext(unsigned long ClientId)
 {
 #if 0 // see above -- we just have 1 single context -- PB 2005-sep-01
     ClientId = SINGLETON_CLIENTID;
 #endif // 0
 
-    return ServerComm::getClientContext( ClientId );
+    return ServerComm::getClientContext(ClientId);
 }
 
 
 void RasServerEntry::compat_openDB(const char* databaseName)
 {
     // we use "ServercComm::" just to show that it's that function
-    ServerComm::openDB( currentClientIdx, databaseName, "" );
+    ServerComm::openDB(currentClientIdx, databaseName, "");
 }
 
 void RasServerEntry::compat_closeDB()
 {
-    ServerComm::closeDB( currentClientIdx);
+    ServerComm::closeDB(currentClientIdx);
 }
 
 void RasServerEntry::compat_beginTA(bool rw)
 {
-    ServerComm::beginTA( currentClientIdx, rw ? 0 : 1);
+    ServerComm::beginTA(currentClientIdx, rw ? 0 : 1);
 }
 
 void RasServerEntry::compat_commitTA()
 {
-    ServerComm::commitTA( currentClientIdx);
+    ServerComm::commitTA(currentClientIdx);
 }
 
 void RasServerEntry::compat_abortTA()
 {
-    ServerComm::abortTA( currentClientIdx);
+    ServerComm::abortTA(currentClientIdx);
 }
 
 bool RasServerEntry::compat_isOpenTA()
 {
-    return ServerComm::isTAOpen( currentClientIdx );
+    return ServerComm::isTAOpen(currentClientIdx);
 }
 
-int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *RequestInfo);
+int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestInfo);
 
 int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer)
 {
@@ -230,7 +236,7 @@ int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPara
     RequestInfo.Capability = NULL;
 
     int resultLen = 0;
-    if(GetHTTPRequestTemp( const_cast<char*>(httpParams), httpParamsLen, &RequestInfo) == 0)
+    if (GetHTTPRequestTemp(const_cast<char*>(httpParams), httpParamsLen, &RequestInfo) == 0)
     {
         // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
         // logged now in rnprotocol modules -- PB 2005-sep-05
@@ -240,13 +246,15 @@ int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPara
         resultLen = HttpServer::processRequest(currentClientIdx, RequestInfo.Database, RequestInfo.Command,
                                                RequestInfo.QueryString, RequestInfo.BinDataSize,
                                                RequestInfo.BinData, RequestInfo.Endianess,
-                                               queryResult,RequestInfo.Capability);
+                                               queryResult, RequestInfo.Capability);
 
         resultBuffer = queryResult;
         LINFO << MSG_OK;
     }
     else
+    {
         LERROR << "Error: Internal HTTP protocol mismatch.";
+    }
 
     // free RequestInfo
     free(RequestInfo.Database);
@@ -268,16 +276,16 @@ r_OId RasServerEntry::compat_getNewOId(unsigned short objType)
 }
 
 
-int RasServerEntry::compat_executeQueryRpc(const char* query, ExecuteQueryRes &queryResult)
+int RasServerEntry::compat_executeQueryRpc(const char* query, ExecuteQueryRes& queryResult)
 {
-    queryResult.token=NULL;
-    queryResult.typeName=NULL;
-    queryResult.typeStructure=NULL;
+    queryResult.token = NULL;
+    queryResult.typeName = NULL;
+    queryResult.typeStructure = NULL;
 
     return ServerComm::executeQuery(currentClientIdx, query, queryResult);
 }
 
-int RasServerEntry::compat_getNextElement(char* &buffer, unsigned int  &bufferSize )
+int RasServerEntry::compat_getNextElement(char*& buffer, unsigned int&  bufferSize)
 {
     return ServerComm::getNextElement(currentClientIdx, buffer, bufferSize);
 }
@@ -287,22 +295,22 @@ int RasServerEntry::compat_endTransfer()
     return ServerComm::endTransfer(currentClientIdx);
 }
 
-int RasServerEntry::compat_getNextMDD(r_Minterval &mddDomain, char* &typeName, char* &typeStructure, r_OId &oid,unsigned short &currentFormat)
+int RasServerEntry::compat_getNextMDD(r_Minterval& mddDomain, char*& typeName, char*& typeStructure, r_OId& oid, unsigned short& currentFormat)
 {
-    return ServerComm::getNextMDD( currentClientIdx, mddDomain, typeName, typeStructure, oid, currentFormat);
+    return ServerComm::getNextMDD(currentClientIdx, mddDomain, typeName, typeStructure, oid, currentFormat);
 }
 int RasServerEntry::compat_getNextTile(RPCMarray** rpcMarray)
 {
-    return ServerComm::getNextTile( currentClientIdx, rpcMarray);
+    return ServerComm::getNextTile(currentClientIdx, rpcMarray);
 }
 
-int RasServerEntry::compat_ExecuteUpdateQuery(const char *query, ExecuteUpdateRes& returnStructure)
+int RasServerEntry::compat_ExecuteUpdateQuery(const char* query, ExecuteUpdateRes& returnStructure)
 {
     // update query (and insert < v9.1), does not return results
     return ServerComm::executeUpdate(currentClientIdx, query, returnStructure);
 }
 
-int RasServerEntry::compat_ExecuteInsertQuery(const char* query, ExecuteQueryRes &queryResult)
+int RasServerEntry::compat_ExecuteInsertQuery(const char* query, ExecuteQueryRes& queryResult)
 {
     // insert query (>= v9.1), returns results
     return ServerComm::executeInsert(currentClientIdx, query, queryResult);
@@ -313,191 +321,199 @@ int RasServerEntry::compat_InitUpdate()
     return ServerComm::initExecuteUpdate(currentClientIdx);
 }
 
-int RasServerEntry::compat_StartInsertTransMDD(const char *domain, int typeLength, const char *typeName)
+int RasServerEntry::compat_StartInsertTransMDD(const char* domain, int typeLength, const char* typeName)
 {
     r_Minterval mddDomain(domain);
     return ServerComm::startInsertTransMDD(currentClientIdx, mddDomain, static_cast<unsigned int>(typeLength), typeName);
 }
 
-int RasServerEntry::compat_InsertTile(int persistent, RPCMarray *rpcMarray)
+int RasServerEntry::compat_InsertTile(int persistent, RPCMarray* rpcMarray)
 {
-    return ServerComm::insertTile( currentClientIdx, persistent, rpcMarray );
+    return ServerComm::insertTile(currentClientIdx, persistent, rpcMarray);
 }
 
 int RasServerEntry::compat_EndInsertMDD(int persistent)
 {
-    return ServerComm::endInsertMDD( currentClientIdx, persistent );
+    return ServerComm::endInsertMDD(currentClientIdx, persistent);
 }
 
-int RasServerEntry::compat_GetTypeStructure(const char *typeName, int typeType, char* &typeStructure)
+int RasServerEntry::compat_GetTypeStructure(const char* typeName, int typeType, char*& typeStructure)
 {
-    return ServerComm::getTypeStructure( currentClientIdx, typeName, typeType, typeStructure );
+    return ServerComm::getTypeStructure(currentClientIdx, typeName, typeType, typeStructure);
 }
 
-int RasServerEntry::compat_StartInsertPersMDD(const char *collName, r_Minterval &mddDomain, int typeLength, const char *typeName, r_OId &oid)
+int RasServerEntry::compat_StartInsertPersMDD(const char* collName, r_Minterval& mddDomain, int typeLength, const char* typeName, r_OId& oid)
 {
-    return ServerComm::startInsertPersMDD( currentClientIdx, collName, mddDomain, static_cast<unsigned int>(typeLength), typeName, oid );
+    return ServerComm::startInsertPersMDD(currentClientIdx, collName, mddDomain, static_cast<unsigned int>(typeLength), typeName, oid);
 }
 
-int RasServerEntry::compat_InsertMDD(const char *collName, RPCMarray *rpcMarray, const char *typeName, r_OId &oid)
+int RasServerEntry::compat_InsertMDD(const char* collName, RPCMarray* rpcMarray, const char* typeName, r_OId& oid)
 {
-    return ServerComm::insertMDD( currentClientIdx, collName, rpcMarray, typeName, oid );
+    return ServerComm::insertMDD(currentClientIdx, collName, rpcMarray, typeName, oid);
 }
 
-int RasServerEntry::compat_InsertCollection(const char *collName, const char *typeName, r_OId &oid)
+int RasServerEntry::compat_InsertCollection(const char* collName, const char* typeName, r_OId& oid)
 {
-    return ServerComm::insertColl( currentClientIdx, collName, typeName, oid );
+    return ServerComm::insertColl(currentClientIdx, collName, typeName, oid);
 }
 
-int RasServerEntry::compat_DeleteCollByName(const char *collName)
+int RasServerEntry::compat_DeleteCollByName(const char* collName)
 {
-    return ServerComm::deleteCollByName( currentClientIdx, collName );
+    return ServerComm::deleteCollByName(currentClientIdx, collName);
 }
 
-int RasServerEntry::compat_DeleteObjByOId(r_OId &oid)
+int RasServerEntry::compat_DeleteObjByOId(r_OId& oid)
 {
-    return ServerComm::deleteObjByOId( currentClientIdx, oid );
+    return ServerComm::deleteObjByOId(currentClientIdx, oid);
 }
 
-int RasServerEntry::compat_RemoveObjFromColl(const char *collName, r_OId &oid)
+int RasServerEntry::compat_RemoveObjFromColl(const char* collName, r_OId& oid)
 {
-    return ServerComm::removeObjFromColl( currentClientIdx, collName, oid );
+    return ServerComm::removeObjFromColl(currentClientIdx, collName, oid);
 }
 
-int RasServerEntry::compat_GetCollectionByName(const char* collName, char* &typeName, char* &typeStructure, r_OId &oid)
+int RasServerEntry::compat_GetCollectionByName(const char* collName, char*& typeName, char*& typeStructure, r_OId& oid)
 {
-    return ServerComm::getCollByName( currentClientIdx, collName, typeName, typeStructure, oid );
+    return ServerComm::getCollByName(currentClientIdx, collName, typeName, typeStructure, oid);
 }
 
-int RasServerEntry::compat_GetCollectionByName(r_OId oid, char* &typeName, char* &typeStructure, char* &collName)
+int RasServerEntry::compat_GetCollectionByName(r_OId oid, char*& typeName, char*& typeStructure, char*& collName)
 {
-    return ServerComm::getCollByOId( currentClientIdx, oid, typeName,typeStructure, collName );
+    return ServerComm::getCollByOId(currentClientIdx, oid, typeName, typeStructure, collName);
 }
 
-int RasServerEntry::compat_GetCollectionOidsByName(const char* collName, char* &typeName, char* &typeStructure, r_OId &oid, RPCOIdEntry* &oidTable, unsigned int &oidTableSize)
+int RasServerEntry::compat_GetCollectionOidsByName(const char* collName, char*& typeName, char*& typeStructure, r_OId& oid, RPCOIdEntry*& oidTable, unsigned int& oidTableSize)
 {
-    return ServerComm::getCollOIdsByName( currentClientIdx, collName, typeName, typeStructure, oid, oidTable, oidTableSize);
+    return ServerComm::getCollOIdsByName(currentClientIdx, collName, typeName, typeStructure, oid, oidTable, oidTableSize);
 }
 
-int RasServerEntry::compat_GetCollectionOidsByOId(r_OId oid, char* &typeName, char* &typeStructure, RPCOIdEntry* &oidTable, unsigned int &oidTableSize, char* &collName)
+int RasServerEntry::compat_GetCollectionOidsByOId(r_OId oid, char*& typeName, char*& typeStructure, RPCOIdEntry*& oidTable, unsigned int& oidTableSize, char*& collName)
 {
-    return ServerComm::getCollOIdsByOId( currentClientIdx, oid, typeName, typeStructure, oidTable, oidTableSize, collName);
+    return ServerComm::getCollOIdsByOId(currentClientIdx, oid, typeName, typeStructure, oidTable, oidTableSize, collName);
 }
 
-int RasServerEntry::compat_GetObjectType(r_OId &oid, unsigned short &objType)
+int RasServerEntry::compat_GetObjectType(r_OId& oid, unsigned short& objType)
 {
-    return ServerComm::getObjectType( currentClientIdx, oid, objType );
+    return ServerComm::getObjectType(currentClientIdx, oid, objType);
 }
 
 int RasServerEntry::compat_SetTransferFormat(int format, const char* params)
 {
-    return ServerComm::setTransferMode( currentClientIdx, format, params );
+    return ServerComm::setTransferMode(currentClientIdx, format, params);
 }
 
 int RasServerEntry::compat_SetStorageFormat(int format, const char* params)
 {
-    return ServerComm::setStorageMode( currentClientIdx, format, params );
+    return ServerComm::setStorageMode(currentClientIdx, format, params);
 }
 
 //### stupid inherited stuff, we'll lose them later #####
-void RasServerEntry::startRpcServer() throw( r_Error ) {}
+void RasServerEntry::startRpcServer() throw(r_Error) {}
 void RasServerEntry::stopRpcServer() {}
 //#######################################################
 
 // local version of this function, with small adaptations to compile here.
-int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *RequestInfo)
+int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestInfo)
 {
     int result = 0;     // function return value
-    char *Buffer = NULL;    // ptr to current analysis point in Input
-    char *Input = NULL; // local copy of Source
+    char* Buffer = NULL;    // ptr to current analysis point in Input
+    char* Input = NULL; // local copy of Source
 
     Input = new char[ SourceLen + 1 ];
-    memcpy( Input, Source, static_cast<size_t>(SourceLen) );
+    memcpy(Input, Source, static_cast<size_t>(SourceLen));
     Input[SourceLen] = '\0';
     // Read the message body and check for the post parameters
-    Buffer = strtok( Input, "=" );
-    while( Buffer != NULL )
+    Buffer = strtok(Input, "=");
+    while (Buffer != NULL)
     {
-        if( strcmp(Buffer,"Database") == 0 )
+        if (strcmp(Buffer, "Database") == 0)
         {
-            RequestInfo->Database = strdup(strtok( NULL, "&" ));
+            RequestInfo->Database = strdup(strtok(NULL, "&"));
             LDEBUG << "Parameter Database is " << RequestInfo->Database;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"QueryString") == 0 )
+        else if (strcmp(Buffer, "QueryString") == 0)
         {
-            RequestInfo->QueryString = strdup(strtok( NULL, "&" ));
+            RequestInfo->QueryString = strdup(strtok(NULL, "&"));
             LDEBUG << "Parameter QueryString is " << RequestInfo->QueryString;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"Capability") == 0 )
+        else if (strcmp(Buffer, "Capability") == 0)
         {
-            RequestInfo->Capability = strdup(strtok( NULL, "&\0" ));
+            RequestInfo->Capability = strdup(strtok(NULL, "&\0"));
             LDEBUG << "Parameter Capability is " << RequestInfo->Capability;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"ClientID") == 0 )
+        else if (strcmp(Buffer, "ClientID") == 0)
         {
-            RequestInfo->ClientID = strdup(strtok( NULL, "&" ));
+            RequestInfo->ClientID = strdup(strtok(NULL, "&"));
             LDEBUG << "Parameter ClientID is " << RequestInfo->ClientID;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"Command") == 0 )
+        else if (strcmp(Buffer, "Command") == 0)
         {
-            RequestInfo->Command = atoi( strtok( NULL, "&" ) );
+            RequestInfo->Command = atoi(strtok(NULL, "&"));
             LDEBUG << "Parameter Command is " << RequestInfo->Command;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"Endianess") == 0 )
+        else if (strcmp(Buffer, "Endianess") == 0)
         {
-            RequestInfo->Endianess = atoi( strtok( NULL, "&" ) );
+            RequestInfo->Endianess = atoi(strtok(NULL, "&"));
             LDEBUG << "Parameter Endianess is " << RequestInfo->Endianess;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"NumberOfQueryParameters") == 0 )
+        else if (strcmp(Buffer, "NumberOfQueryParameters") == 0)
         {
-            RequestInfo->NumberOfQueryParams = atoi( strtok( NULL, "&" ) );
+            RequestInfo->NumberOfQueryParams = atoi(strtok(NULL, "&"));
             LDEBUG << "Parameter NumberOfQueryParams is " << RequestInfo->NumberOfQueryParams;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"BinDataSize") == 0 )
+        else if (strcmp(Buffer, "BinDataSize") == 0)
         {
-            RequestInfo->BinDataSize = atoi( strtok( NULL, "&" ) );
+            RequestInfo->BinDataSize = atoi(strtok(NULL, "&"));
             LDEBUG << "Parameter BinDataSize is " << RequestInfo->BinDataSize;
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"BinData") == 0 )
+        else if (strcmp(Buffer, "BinData") == 0)
         {
             // This parameter has to be the last one!
             RequestInfo->BinData = new char[RequestInfo->BinDataSize ];
-            memcpy(RequestInfo->BinData, Source + (SourceLen-RequestInfo->BinDataSize), static_cast<unsigned int>(RequestInfo->BinDataSize) );
+            memcpy(RequestInfo->BinData, Source + (SourceLen - RequestInfo->BinDataSize), static_cast<unsigned int>(RequestInfo->BinDataSize));
             //set Buffer to NULL => exit this while block
             Buffer = NULL;
         }
-        else if( strcmp(Buffer,"ClientType") == 0 )
+        else if (strcmp(Buffer, "ClientType") == 0)
         {
-            Buffer = strtok( NULL, "&" );
+            Buffer = strtok(NULL, "&");
             LDEBUG << "Parameter Type is " << Buffer;
             /* BROWSER? */
-            if( strcmp(Buffer,"BROWSER") == 0 )
+            if (strcmp(Buffer, "BROWSER") == 0)
+            {
                 RequestInfo->ClientType = 1;
+            }
             /* Rasclient? */
-            else if( strcmp(Buffer,"RASCLIENT") == 0 )
+            else if (strcmp(Buffer, "RASCLIENT") == 0)
+            {
                 RequestInfo->ClientType = 2;
+            }
             /* Sonstiges */
             else
             {
                 LDEBUG << "Error: Unknown Parameter: " << Buffer;
                 result = 2;
             }
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
         else
+        {
             result = 1;
+        }
     }
 
     if (result == 0)
+    {
         delete[] Input;
+    }
     return result;
 }
 
@@ -518,20 +534,22 @@ r_OId RasServerEntry::createMDD(const char* collName, const char* mddTypeName, c
     fc.setCollectionName(collName);
     fc.setMDDTypeName(mddTypeName);
 
-    if(rcindex)
+    if (rcindex)
+    {
         return fc.createRCxMDD(definitionDomain, tileDomain);
+    }
 
     return fc.createMDD(definitionDomain);
 }
 
-void  RasServerEntry::extendMDD(r_OId mddOId, const char *stripeDomain, const char* tileDomain)
+void  RasServerEntry::extendMDD(r_OId mddOId, const char* stripeDomain, const char* tileDomain)
 {
     FastMDDCreator fc;
 
     fc.addStripe(mddOId, stripeDomain, tileDomain);
 }
 
-vector<r_Minterval> RasServerEntry::getTileDomains(r_OId mddOId, const char *stripeDomain)
+vector<r_Minterval> RasServerEntry::getTileDomains(r_OId mddOId, const char* stripeDomain)
 {
     FastMDDCreator fc;
 

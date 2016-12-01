@@ -52,11 +52,11 @@ rasdaman GmbH.
 /* TimeOut values are given in seconds
  */
 
-   /*  Timeout when talking with subservers and client  */
+/*  Timeout when talking with subservers and client  */
 #define     DIALOG_TIMEOUT    30
-   /*  Timeout when trying to get an unspecified mesage body, for example  */
-   /*  dynamically generated output (typically CGI output).                */
-   /*  You may have to *really* wait for it, so don't make it too small!   */
+/*  Timeout when trying to get an unspecified mesage body, for example  */
+/*  dynamically generated output (typically CGI output).                */
+/*  You may have to *really* wait for it, so don't make it too small!   */
 #define     MSGBODY_TIMEOUT   30
 
 
@@ -127,7 +127,7 @@ typedef int socklen_t;
 
 /* LogLevels / ReturnCodes:
  *    DEBUG   (1)   Detaillierte Aktionsmeldungen
- *    INFO    (2)   Statusmeldungen 
+ *    INFO    (2)   Statusmeldungen
  *    NOTE    (3)   Hinweise auf besondere Situationen
  *    WARN    (5)   Behebbare Fehlersituationen
  *    ERROR   (10)  Fehler die zu Aktionsabbruch fuehren
@@ -173,7 +173,7 @@ typedef int socklen_t;
 #define    KEY_PORT           6
 #define    KEY_SERVERADMIN    7
 #define    KEY_SERVERLOG      8
-#define    KEY_SERVERNAME     9 
+#define    KEY_SERVERNAME     9
 #define    KEY_SERVERROOT     10
 #define    NUM_KEYS           11
 

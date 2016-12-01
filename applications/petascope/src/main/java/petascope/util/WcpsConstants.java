@@ -165,7 +165,7 @@ public interface WcpsConstants {
     public static final String MSG_NUMERIC_SQRT                 = "numericSqrt";
     public static final String MSG_NUMERIC_UNARY_MINUS          = "numericUnaryMinus";
     public static final String MSG_NOT                          = "not";
-    public static final String MSG_OCTET			= "octet";
+    public static final String MSG_OCTET            = "octet";
     public static final String MSG_OGC                          = "ogc";
     public static final String MSG_OR                           = "or";
     public static final String MSG_OP1                          = "op1";
@@ -254,7 +254,7 @@ public interface WcpsConstants {
     public static final String MSG_XMLNS                        = "xmlns=\"http://www.opengis.net/wcps/1.0\" service=\"WCPS\" version=\"1.0.0\"";
     public static final String MSG_XML_SYNTAX                   = "xmlSyntax";
     public static final String MSG_Y                            = "Y";
-    
+
     /**
      * DBParam messages
      */

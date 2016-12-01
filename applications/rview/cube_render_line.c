@@ -31,115 +31,121 @@ rasdaman GmbH.
 
 
 
-    i = (8 - (ge->midx + renderDesc->left_p)) & 7;
-    if ((i > width) || (width < 8)) i = width;
-    while (i > 0)
-    {
-      width -= i;
-      nom -= ((real_t)i) * left_g->z; den -= ((real_t)i) * deltaLR_g.z; h = 0.0;
-      if (den != 0)
-      {
-        h = -nom/den;
-	if (h < 0.0) h = 0.0;
-        if (h > 1.0) h = 1.0;
-      }
-#ifndef TEXEL_CONST_X
-      dtx = ((int32)(left_t->x + h * deltaLR_t.x) - tx) / i;
-#endif
-#ifndef TEXEL_CONST_Y
-      dty = ((int32)(left_t->y + h * deltaLR_t.y) - ty) / i;
-#endif
-#ifndef TEXEL_CONST_Z
-      dtz = ((int32)(left_t->z + h * deltaLR_t.z) - tz) / i;
-#endif
-      while (i > 0)
-      {
-#if (CUBE_RENDER_DEBUG > 2)
-	printf("\t(%d, %d, %d: %d)\n", (tx>>FIXPOINT_PREC), (ty>>FIXPOINT_PREC), (tz>>FIXPOINT_PREC), ((tx>>FIXPOINT_PREC)*dimy + (ty>>FIXPOINT_PREC))*dimz + (tz>>FIXPOINT_PREC)); fflush(stdout);
-#endif
-#if (CUBE_RENDER_DEBUG > 0)
-	if (((tx>>FIXPOINT_PREC)*dimy + (ty>>FIXPOINT_PREC))*dimz + (tz>>FIXPOINT_PREC) > high_tide_src)
-	{
-	  printf("Texture buffer overflow (%d, %d, %d) | (%f, %f, %f)!\n", (tx>>FIXPOINT_PREC), (ty>>FIXPOINT_PREC), (tz>>FIXPOINT_PREC), left_t->x + deltaLR_t.x, left_t->y + deltaLR_t.y, left_t->z + deltaLR_t.z); fflush(stdout); break;
-	}
-        if (dest.c > high_tide_dest)
-	{
-	  printf("Screen buffer overflow (%d)!\n", (int)(high_tide_dest - (uint8*)(ge->dest)));
-          fflush(stdout); break;
-	}
-#endif
-	TEXEL_ASSIGN;
-	i--;
-      }
-      if (width < 8) i = width;
-    }
-    if (width <= 0) continue;
-    /* The above loop guarantees that at this point width >= 8 */
-    dn = (real_t)(-8.0 * left_g->z); dd = (real_t)(-8.0 * deltaLR_g.z);
-    nom += dn; den += dd; h = 0.0;
+i = (8 - (ge->midx + renderDesc->left_p)) & 7;
+if ((i > width) || (width < 8))
+{
+    i = width;
+}
+while (i > 0)
+{
+    width -= i;
+    nom -= ((real_t)i) * left_g->z;
+    den -= ((real_t)i) * deltaLR_g.z;
+    h = 0.0;
     if (den != 0)
     {
-      h = -nom/den;
-      if (h < 0.0) h = 0.0;
-      if (h > 1.0) h = 1.0;
+        h = -nom / den;
+        if (h < 0.0)
+        {
+            h = 0.0;
+        }
+        if (h > 1.0)
+        {
+            h = 1.0;
+        }
     }
 #ifndef TEXEL_CONST_X
-    dtx = ((int32)(left_t->x + h * deltaLR_t.x) - tx) / 8;
+    dtx = ((int32)(left_t->x + h * deltaLR_t.x) - tx) / i;
 #endif
 #ifndef TEXEL_CONST_Y
-    dty = ((int32)(left_t->y + h * deltaLR_t.y) - ty) / 8;
+    dty = ((int32)(left_t->y + h * deltaLR_t.y) - ty) / i;
 #endif
 #ifndef TEXEL_CONST_Z
-    dtz = ((int32)(left_t->z + h * deltaLR_t.z) - tz) / 8;
+    dtz = ((int32)(left_t->z + h * deltaLR_t.z) - tz) / i;
+#endif
+    while (i > 0)
+    {
+#if (CUBE_RENDER_DEBUG > 2)
+        printf("\t(%d, %d, %d: %d)\n", (tx >> FIXPOINT_PREC), (ty >> FIXPOINT_PREC), (tz >> FIXPOINT_PREC), ((tx >> FIXPOINT_PREC)*dimy + (ty >> FIXPOINT_PREC))*dimz + (tz >> FIXPOINT_PREC));
+        fflush(stdout);
+#endif
+#if (CUBE_RENDER_DEBUG > 0)
+        if (((tx >> FIXPOINT_PREC)*dimy + (ty >> FIXPOINT_PREC))*dimz + (tz >> FIXPOINT_PREC) > high_tide_src)
+        {
+            printf("Texture buffer overflow (%d, %d, %d) | (%f, %f, %f)!\n", (tx >> FIXPOINT_PREC), (ty >> FIXPOINT_PREC), (tz >> FIXPOINT_PREC), left_t->x + deltaLR_t.x, left_t->y + deltaLR_t.y, left_t->z + deltaLR_t.z);
+            fflush(stdout);
+            break;
+        }
+        if (dest.c > high_tide_dest)
+        {
+            printf("Screen buffer overflow (%d)!\n", (int)(high_tide_dest - (uint8*)(ge->dest)));
+            fflush(stdout);
+            break;
+        }
+#endif
+        TEXEL_ASSIGN;
+        i--;
+    }
+    if (width < 8)
+    {
+        i = width;
+    }
+}
+if (width <= 0)
+{
+    continue;
+}
+/* The above loop guarantees that at this point width >= 8 */
+dn = (real_t)(-8.0 * left_g->z);
+dd = (real_t)(-8.0 * deltaLR_g.z);
+nom += dn;
+den += dd;
+h = 0.0;
+if (den != 0)
+{
+    h = -nom / den;
+    if (h < 0.0)
+    {
+        h = 0.0;
+    }
+    if (h > 1.0)
+    {
+        h = 1.0;
+    }
+}
+#ifndef TEXEL_CONST_X
+dtx = ((int32)(left_t->x + h* deltaLR_t.x) - tx) / 8;
+#endif
+#ifndef TEXEL_CONST_Y
+dty = ((int32)(left_t->y + h* deltaLR_t.y) - ty) / 8;
+#endif
+#ifndef TEXEL_CONST_Z
+dtz = ((int32)(left_t->z + h* deltaLR_t.z) - tz) / 8;
 #endif
 
-    /* Help the compiler do efficient Int/FP parallelism. */
-    while (width >= 16)
-    {
-      width -= 8; h = 0.0;
-      nom += dn;
-      TEXEL_ACCU_0(accu_t);
-      den += dd;
-      TEXEL_ACCU_1(accu_t);
-      if (den != 0) h = -nom/den;
-      TEXEL_ACCU_2(accu_t);
-      if (h < 0.0) h = 0.0;
-      TEXEL_ACCU_3(accu_t);
-      if (h > 1.0) h = 1.0;
-      TEXEL_ACCU_0(accu_t);
-#ifndef TEXEL_CONST_X
-      ntx = (int32)(left_t->x + h * deltaLR_t.x);
-#endif
-      TEXEL_ACCU_1(accu_t);
-#ifndef TEXEL_CONST_Y
-      nty = (int32)(left_t->y + h * deltaLR_t.y);
-#endif
-      TEXEL_ACCU_2(accu_t);
-#ifndef TEXEL_CONST_Z
-      ntz = (int32)(left_t->z + h * deltaLR_t.z);
-#endif
-      TEXEL_ACCU_3(accu_t);
-#ifndef TEXEL_CONST_X
-      dtx = (ntx - tx) / 8;
-#endif
-#ifndef TEXEL_CONST_Y
-      dty = (nty - ty) / 8;
-#endif
-#ifndef TEXEL_CONST_Z
-      dtz = (ntz - tz) / 8;
-#endif
-    }
-    /* 8 <= width <= 15 here! */
-    width -= 8; h = 0.0;
-    nom -= ((real_t)width) * left_g->z;
+/* Help the compiler do efficient Int/FP parallelism. */
+while (width >= 16)
+{
+    width -= 8;
+    h = 0.0;
+    nom += dn;
     TEXEL_ACCU_0(accu_t);
-    den -= ((real_t)width) * deltaLR_g.z;
+    den += dd;
     TEXEL_ACCU_1(accu_t);
-    if (den != 0) h = -nom/den;
+    if (den != 0)
+    {
+        h = -nom / den;
+    }
     TEXEL_ACCU_2(accu_t);
-    if (h < 0.0) h = 0.0;
+    if (h < 0.0)
+    {
+        h = 0.0;
+    }
     TEXEL_ACCU_3(accu_t);
-    if (h > 1.0) h = 1.0;
+    if (h > 1.0)
+    {
+        h = 1.0;
+    }
     TEXEL_ACCU_0(accu_t);
 #ifndef TEXEL_CONST_X
     ntx = (int32)(left_t->x + h * deltaLR_t.x);
@@ -153,20 +159,64 @@ rasdaman GmbH.
     ntz = (int32)(left_t->z + h * deltaLR_t.z);
 #endif
     TEXEL_ACCU_3(accu_t);
-    if (width > 0)
-    {
 #ifndef TEXEL_CONST_X
-      dtx = (ntx - tx) / width;
+    dtx = (ntx - tx) / 8;
 #endif
 #ifndef TEXEL_CONST_Y
-      dty = (nty - ty) / width;
+    dty = (nty - ty) / 8;
 #endif
 #ifndef TEXEL_CONST_Z
-      dtz = (ntz - tz) / width;
+    dtz = (ntz - tz) / 8;
 #endif
-      while (width > 0)
-      {
-	TEXEL_ASSIGN;
-	width--;
-      }
+}
+/* 8 <= width <= 15 here! */
+width -= 8;
+h = 0.0;
+nom -= ((real_t)width) * left_g->z;
+TEXEL_ACCU_0(accu_t);
+den -= ((real_t)width) * deltaLR_g.z;
+TEXEL_ACCU_1(accu_t);
+if (den != 0)
+{
+    h = -nom / den;
+}
+TEXEL_ACCU_2(accu_t);
+if (h < 0.0)
+{
+    h = 0.0;
+}
+TEXEL_ACCU_3(accu_t);
+if (h > 1.0)
+{
+    h = 1.0;
+}
+TEXEL_ACCU_0(accu_t);
+#ifndef TEXEL_CONST_X
+ntx = (int32)(left_t->x + h* deltaLR_t.x);
+#endif
+TEXEL_ACCU_1(accu_t);
+#ifndef TEXEL_CONST_Y
+nty = (int32)(left_t->y + h* deltaLR_t.y);
+#endif
+TEXEL_ACCU_2(accu_t);
+#ifndef TEXEL_CONST_Z
+ntz = (int32)(left_t->z + h* deltaLR_t.z);
+#endif
+TEXEL_ACCU_3(accu_t);
+if (width > 0)
+{
+#ifndef TEXEL_CONST_X
+    dtx = (ntx - tx) / width;
+#endif
+#ifndef TEXEL_CONST_Y
+    dty = (nty - ty) / width;
+#endif
+#ifndef TEXEL_CONST_Z
+    dtz = (ntz - tz) / width;
+#endif
+    while (width > 0)
+    {
+        TEXEL_ASSIGN;
+        width--;
     }
+}

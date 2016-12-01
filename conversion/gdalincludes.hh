@@ -28,12 +28,12 @@
  * BUGS:
  *
  * AUTHORS:
- * 	Alex Dumitru <alex@flanche.net>
- * 	Vlad Mericariu <vlad@flanche.net>
+ *  Alex Dumitru <alex@flanche.net>
+ *  Vlad Mericariu <vlad@flanche.net>
  *
  ************************************************************/
 #ifndef GDALINCLUDES_H
-#define	GDALINCLUDES_H
+#define GDALINCLUDES_H
 
 #include "config.h"
 
@@ -70,4 +70,4 @@
 
 #endif
 
-#endif	/* GDALINCLUDES_H */
+#endif  /* GDALINCLUDES_H */

@@ -46,19 +46,19 @@ class QtCondense : public QtUnaryOperation
 {
 public:
     /// constructor getting operation
-    QtCondense( Ops::OpType newOpType);
+    QtCondense(Ops::OpType newOpType);
 
     /// constructor getting operation and operand
-    QtCondense( Ops::OpType newOpType, QtOperation* input );
+    QtCondense(Ops::OpType newOpType, QtOperation* input);
 
     /// method for computing full condense operation (without early termination option)
-    QtData* computeFullCondense( QtDataList* inputList, r_Minterval& areaOp);// = r_Minterval() );
+    QtData* computeFullCondense(QtDataList* inputList, r_Minterval& areaOp); // = r_Minterval() );
 
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
 
     /// optimizing load access
-    virtual void optimizeLoad( QtTrimList* trimList );
+    virtual void optimizeLoad(QtTrimList* trimList);
     /**
       The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
       message with empty triming list to its operand tree.
@@ -67,13 +67,13 @@ public:
     */
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method returning class name
     inline virtual const char* getClassName() const;
@@ -108,10 +108,10 @@ public:
     QtSome();
 
     /// constructor getting the operand
-    QtSome( QtOperation* input );
+    QtSome(QtOperation* input);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -144,10 +144,10 @@ public:
     QtAll();
 
     /// constructor getting the operand
-    QtAll( QtOperation* input );
+    QtAll(QtOperation* input);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -180,10 +180,10 @@ public:
     QtCountCells();
 
     /// constructor getting the operand
-    QtCountCells( QtOperation* input );
+    QtCountCells(QtOperation* input);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -215,10 +215,10 @@ public:
     QtAddCells();
 
     /// constructor getting the operand
-    QtAddCells( QtOperation* input );
+    QtAddCells(QtOperation* input);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -250,10 +250,10 @@ public:
     QtAvgCells();
 
     /// constructor getting the operand
-    QtAvgCells( QtOperation* input );
+    QtAvgCells(QtOperation* input);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -285,10 +285,10 @@ public:
     QtMinCells();
 
     /// constructor getting the operand
-    QtMinCells( QtOperation* input );
+    QtMinCells(QtOperation* input);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -320,10 +320,10 @@ public:
     QtMaxCells();
 
     /// constructor getting the operand
-    QtMaxCells( QtOperation* input );
+    QtMaxCells(QtOperation* input);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;

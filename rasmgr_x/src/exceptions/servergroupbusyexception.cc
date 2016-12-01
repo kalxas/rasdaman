@@ -26,7 +26,7 @@ namespace rasmgr
 {
 
 ServerGroupBusyException::ServerGroupBusyException(const std::string& serverGroupName):
-    common::ResourceBusyException("The server group "+serverGroupName + " is busy and the operation cannot be completed.")
+    common::ResourceBusyException("The server group " + serverGroupName + " is busy and the operation cannot be completed.")
 {}
 
 ServerGroupBusyException::~ServerGroupBusyException() throw()

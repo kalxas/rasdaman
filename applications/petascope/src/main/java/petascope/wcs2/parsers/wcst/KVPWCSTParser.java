@@ -69,25 +69,23 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
         //split query string into parameters
         Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
         //distinguish between the 3 possible request types: InsertCoverage, DeleteCoverage and UpdateCoverage
-        if(params.get(REQUEST).equals(RequestHandler.INSERT_COVERAGE)){
+        if (params.get(REQUEST).equals(RequestHandler.INSERT_COVERAGE)) {
             //validate the request against WCS-T spec requirements
             validateInsertCoverageRequest(params);
             String useId = "";
-            if(params.get(USE_ID) != null){
+            if (params.get(USE_ID) != null) {
                 useId = params.get(USE_ID);
             }
             InsertCoverageRequest insertCoverageRequest = new InsertCoverageRequest(
-                    params.get(COVERAGE),
-                    parseCoverageRefUrl(params.get(COVERAGE_REF)),
-                    useId.equals(USE_NEW_ID),
-                    params.get(PIXEL_DATA_TYPE),
-                    params.get(TILING));
+                params.get(COVERAGE),
+                parseCoverageRefUrl(params.get(COVERAGE_REF)),
+                useId.equals(USE_NEW_ID),
+                params.get(PIXEL_DATA_TYPE),
+                params.get(TILING));
             return insertCoverageRequest;
-        }
-        else if(params.get(REQUEST).equals(RequestHandler.DELETE_COVERAGE)){
+        } else if (params.get(REQUEST).equals(RequestHandler.DELETE_COVERAGE)) {
             return new DeleteCoverageRequest(params.get(COVERAGE_ID));
-        }
-        else if(params.get(REQUEST).equals(RequestHandler.UPDATE_COVERAGE)){
+        } else if (params.get(REQUEST).equals(RequestHandler.UPDATE_COVERAGE)) {
             //update coverage request received
             String coverageId = params.get(COVERAGE_ID);
             String inputCoverage = params.get(INPUT_COVERAGE);
@@ -98,7 +96,7 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
             List<Pair<String, String>> rangeComponents = new ArrayList<Pair<String, String>>();
             String tiling = params.get(TILING);
             UpdateCoverageRequest updateCoverageRequest = new UpdateCoverageRequest(coverageId, inputCoverage, inputCoverageRef,
-                     maskGrid, maskGridRef, subsets, rangeComponents, null, tiling);
+                    maskGrid, maskGridRef, subsets, rangeComponents, null, tiling);
             return updateCoverageRequest;
         }
         //not a request that this parser can parse, but canParse returned true
@@ -110,9 +108,9 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
     /**
      * Parses the URL from the coverageRef parameter
      */
-    private URL parseCoverageRefUrl(String coverageRef) throws WCSTMalformedURL{
+    private URL parseCoverageRefUrl(String coverageRef) throws WCSTMalformedURL {
         URL ret = null;
-        if(coverageRef != null){
+        if (coverageRef != null) {
             try {
                 ret = new URL(coverageRef);
             } catch (MalformedURLException ex) {
@@ -125,14 +123,14 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
     /**
      * Validates the request of type InsertCoverage against WCS-T spec
      */
-    private void validateInsertCoverageRequest(Map<String, String> params) throws WCSTMissingCoverageParameter, WCSTUnknownUseId{
+    private void validateInsertCoverageRequest(Map<String, String> params) throws WCSTMissingCoverageParameter, WCSTUnknownUseId {
         //Req 3: at least one of coverageRef or coverage params exists
-        if(!params.containsKey(COVERAGE) && !params.containsKey(COVERAGE_REF)){
+        if (!params.containsKey(COVERAGE) && !params.containsKey(COVERAGE_REF)) {
             throw new WCSTMissingCoverageParameter();
         }
         //Req 6: if useId is specified, it should have one of the predefined values
-        if(params.containsKey(USE_ID) && !params.get(USE_ID).equals(USE_EXISTING_ID)
-                && !params.get(USE_ID).equals(USE_NEW_ID)){
+        if (params.containsKey(USE_ID) && !params.get(USE_ID).equals(USE_EXISTING_ID)
+                && !params.get(USE_ID).equals(USE_NEW_ID)) {
             throw new WCSTUnknownUseId();
         }
     }
@@ -161,12 +159,12 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
     public boolean canParse(HTTPRequest request) {
         Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
         boolean canParse = request.getRequestString() != null
-                && !request.getRequestString().startsWith("<")
-                && !params.isEmpty()
-                && (params.get(REQUEST).equals(RequestHandler.INSERT_COVERAGE)
-                   || params.get(REQUEST).equals(RequestHandler.DELETE_COVERAGE)
-                   || params.get(REQUEST).equals(RequestHandler.UPDATE_COVERAGE)
-                );
+                           && !request.getRequestString().startsWith("<")
+                           && !params.isEmpty()
+                           && (params.get(REQUEST).equals(RequestHandler.INSERT_COVERAGE)
+                               || params.get(REQUEST).equals(RequestHandler.DELETE_COVERAGE)
+                               || params.get(REQUEST).equals(RequestHandler.UPDATE_COVERAGE)
+                              );
         log.trace("KVPParser<{}> {} parse the request", getOperationName(), canParse ? "can" : "cannot");
         return canParse;
     }

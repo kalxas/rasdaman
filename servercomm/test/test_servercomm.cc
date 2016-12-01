@@ -61,24 +61,30 @@ RMINITGLOBALS('C');
 #include <signal.h>
 
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
     strcpy(globalConnectId, "tcp:postgresql://localhost:5432/RASBASE");
 
@@ -88,38 +94,38 @@ int main( int argc, char** argv )
     DatabaseIf database;
     TransactionIf ta;
     AdminIf* myAdmin = AdminIf::instance();
-    database.open( "RASSERVICE");
-    ta.begin( &database );
+    database.open("RASSERVICE");
+    ta.begin(&database);
 
-    ServerComm::ClientTblElt *r = new ServerComm::ClientTblElt("testclient", 2);
+    ServerComm::ClientTblElt* r = new ServerComm::ClientTblElt("testclient", 2);
 
-    server.addClientTblEntry (r);
+    server.addClientTblEntry(r);
 
     accessControl.setServerName("NT1");
     accessControl.crunchCapability("$I1$ER.$BRASBASE$T1:3:2008:23:39:24$NNT1$D983893f406445a922cba0301bc5a85ec$K");
     server.openDB(2, "RASBASE", "costea");
     SET_OUTPUT(TRUE);
 
-    char *buff = new char[1000];
+    char* buff = new char[1000];
     unsigned int size;
 
     QtScalarData* t;
 
     try
     {
-        server.executeQuery(2, "SELECT a from RAS_COLLECTIONNAMES as a", result );
+        server.executeQuery(2, "SELECT a from RAS_COLLECTIONNAMES as a", result);
         vector<QtData*>::iterator i;
         /*    for (i=r->transferData->begin(); i!=r->transferData->end(); ++i) {
           // t = (QtScalarData*)(*i);
           // t->printStatus();
           }*/
     }
-    catch ( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         cerr << errorObj.what() << endl;
         return -1;
     }
-    catch ( ... )
+    catch (...)
     {
         cerr << "Unknown exception caught in main." << endl;
         return -1;

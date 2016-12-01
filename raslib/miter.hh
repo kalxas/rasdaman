@@ -52,9 +52,9 @@ class r_Miter
 {
 public:
     /// constructor.
-    inline r_Miter( const r_Minterval* newAreaIter,
-                    const r_Minterval* newAreaTile, r_Bytes newCellSize,
-                    const char* newFirstCell );
+    inline r_Miter(const r_Minterval* newAreaIter,
+                   const r_Minterval* newAreaTile, r_Bytes newCellSize,
+                   const char* newFirstCell);
     /**
       The pointers are stored, do not delete the objects as long
       as the iterator is used!

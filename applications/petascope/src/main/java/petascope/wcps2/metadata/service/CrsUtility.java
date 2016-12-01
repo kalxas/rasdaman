@@ -140,8 +140,8 @@ public class CrsUtility {
     public static boolean geoReferencedSubsettingCrs(String axisName, String axisCrs, WcpsCoverageMetadata wcpsCoverageMetadata) {
         // Only support subsettingCrs in geo-referenced axis (not time axis or grid axis)
         Axis nativeAxis = wcpsCoverageMetadata.getAxisByName(axisName);
-        if ( (nativeAxis.getAxisType().equals(AxisTypes.X_AXIS))
-          || (nativeAxis.getAxisType().equals(AxisTypes.Y_AXIS)) ) {
+        if ((nativeAxis.getAxisType().equals(AxisTypes.X_AXIS))
+                || (nativeAxis.getAxisType().equals(AxisTypes.Y_AXIS))) {
             // NOTE: if subsettingCrs is Index%d or CRS:1 then it will not need to transform
             // e.g: i:"http://.../Index2D" or i:"CRS:1" is not valid outputCrs to transform
             if (CrsUtil.isIndexCrs(axisCrs) || CrsUtil.isGridCrs(axisCrs)) {

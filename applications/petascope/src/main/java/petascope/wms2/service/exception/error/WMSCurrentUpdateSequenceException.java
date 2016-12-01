@@ -39,7 +39,7 @@ public class WMSCurrentUpdateSequenceException extends WMSException {
      */
     public WMSCurrentUpdateSequenceException(long clientUpdateSequence, long serverUpdateSequence) {
         super(ERROR_MESSAGE.replace("$ClientUpdateSequence", String.valueOf(clientUpdateSequence))
-                .replace("$ServerUpdateSequence", String.valueOf(serverUpdateSequence)));
+              .replace("$ServerUpdateSequence", String.valueOf(serverUpdateSequence)));
     }
 
     @NotNull

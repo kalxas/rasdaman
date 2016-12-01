@@ -47,33 +47,36 @@ static const char rcsid[] = "@(#)qlparser, QtOId: $Header: /home/rasdev/CVS-repo
 const QtNode::QtNodeType QtOId::nodeType = QtNode::QT_OID;
 
 
-QtOId::QtOId( QtVariable* newInput )
-    : QtUnaryOperation( newInput )
+QtOId::QtOId(QtVariable* newInput)
+    : QtUnaryOperation(newInput)
 {
 }
 
 
 
 QtData*
-QtOId::evaluate( QtDataList* inputList )
+QtOId::evaluate(QtDataList* inputList)
 {
     startTimer("QtOid");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
 
-    operand = input->evaluate( inputList );
+    operand = input->evaluate(inputList);
 
-    if( operand )
+    if (operand)
     {
 #ifdef QT_RUNTIME_TYPE_CHECK
-        if( operand->getDataType() == QT_MDD )
+        if (operand->getDataType() == QT_MDD)
         {
             LERROR << "Internal error in QtOId::evaluate() - "
-                           << "runtime type checking failed (MDD).";
+                   << "runtime type checking failed (MDD).";
 
             // delete old operand
-            if( operand ) operand->deleteRef();
+            if (operand)
+            {
+                operand->deleteRef();
+            }
 
             return 0;
         }
@@ -82,24 +85,27 @@ QtOId::evaluate( QtDataList* inputList )
         QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
         MDDObj* mddObj = qtMDD->getMDDObject();
 
-        if( mddObj->isPersistent() )
+        if (mddObj->isPersistent())
         {
             MDDObj* persMDD = static_cast<MDDObj*>(mddObj);
 
             // get local oid and pass it as double
             OId localOId;
-            if( !persMDD->getOId( &localOId ) )
+            if (!persMDD->getOId(&localOId))
             {
                 LTRACE << "  oid = " << static_cast<double>(localOId);
 
-                returnValue = new QtAtomicData( static_cast<double>(localOId), static_cast<unsigned short>(8) );
+                returnValue = new QtAtomicData(static_cast<double>(localOId), static_cast<unsigned short>(8));
             }
             else
             {
                 LFATAL << "Error: QtOId::evaluate() - could not get oid.";
 
                 // delete old operand
-                if( operand ) operand->deleteRef();
+                if (operand)
+                {
+                    operand->deleteRef();
+                }
 
                 parseInfo.setErrorNo(384);
                 throw parseInfo;
@@ -110,17 +116,25 @@ QtOId::evaluate( QtDataList* inputList )
             LFATAL << "Error: QtOId::evaluate() - operand is not a persistent MDD.";
 
             // delete old operand
-            if( operand ) operand->deleteRef();
+            if (operand)
+            {
+                operand->deleteRef();
+            }
             parseInfo.setErrorNo(383);
             throw parseInfo;
         }
 
         // delete old operand
-        if( operand ) operand->deleteRef();
+        if (operand)
+        {
+            operand->deleteRef();
+        }
     }
     else
+    {
         LERROR << "Error: QtOId::evaluate() - operand is not provided.";
-    
+    }
+
     stopTimer();
 
     return returnValue;
@@ -129,24 +143,28 @@ QtOId::evaluate( QtDataList* inputList )
 
 
 void
-QtOId::printTree( int tab, std::ostream& s, QtChildType mode )
+QtOId::printTree(int tab, std::ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOId Object: " << getEvaluationTime() << std::endl;
 
-    QtUnaryOperation::printTree( tab, s, mode );
+    QtUnaryOperation::printTree(tab, s, mode);
 }
 
 
 
 void
-QtOId::printAlgebraicExpression( std::ostream& s )
+QtOId::printAlgebraicExpression(std::ostream& s)
 {
     s << "oid(" << std::flush;
 
-    if( input )
-        input->printAlgebraicExpression( s );
+    if (input)
+    {
+        input->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ")";
 }
@@ -154,28 +172,30 @@ QtOId::printAlgebraicExpression( std::ostream& s )
 
 
 const QtTypeElement&
-QtOId::checkType( QtTypeTuple* typeTuple )
+QtOId::checkType(QtTypeTuple* typeTuple)
 {
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     // check operand branches
-    if( input )
+    if (input)
     {
 
         // get input type
-        const QtTypeElement& inputType = input->checkType( typeTuple );
+        const QtTypeElement& inputType = input->checkType(typeTuple);
 
-        if( inputType.getDataType() != QT_MDD )
+        if (inputType.getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtOId::checkType() - operand is not of type MDD.";
             parseInfo.setErrorNo(383);
             throw parseInfo;
         }
 
-        dataStreamType.setDataType( QT_DOUBLE );
+        dataStreamType.setDataType(QT_DOUBLE);
     }
     else
+    {
         LFATAL << "Error: QtOId::checkType() - operand branch invalid.";
+    }
 
     return dataStreamType;
 }

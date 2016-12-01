@@ -34,125 +34,125 @@ import secore.util.StringUtil;
  */
 public class RequestParam implements Comparable<RequestParam> {
 
-  public final String key;
-  public final ParamValue val;
-  
-  /**
-   * is this parameter a key-value pair?
-   */
-  private boolean kvp;
-  
-  /**
-   * Construct parameter from a single string:
-   * 1. if it's a single value then it's a REST parameter
-   * 2. if it's of the form key=value then it's KVP
-   * 
-   * @param param request parameter
-   * @throws SecoreException 
-   */
-  public RequestParam(String param) throws SecoreException {
-    if (param == null) {
-      throw new SecoreException(ExceptionCode.InvalidParameterValue,
-          "Can not parse null parameter.");
-    }
-    if (param.contains(KEY_VALUE_SEPARATOR)) {
-      String[] tmp = param.split(KEY_VALUE_SEPARATOR);
-      this.key = tmp[0];
-      String value = StringUtil.join(tmp, 1, tmp.length, KEY_VALUE_SEPARATOR);
-      if (tmp[0].matches("^\\d+")) {
-        this.val = new ResolveRequest(value);
-      } else {
-        this.val = new SimpleParamValue(value);
-      }
-      this.kvp = true;
-    } else {
-      this.key = null;
-      this.val = new SimpleParamValue(param);
-      this.kvp = false;
-    }
-  }
+    public final String key;
+    public final ParamValue val;
 
-  public RequestParam(String key, ParamValue val) {
-    if (val == null) {
-      throw new IllegalArgumentException("The value of a request parameter must not be null.");
-    }
-    this.key = key;
-    this.val = val;
-    this.kvp = key != null;
-  }
+    /**
+     * is this parameter a key-value pair?
+     */
+    private boolean kvp;
 
-  public RequestParam(String key, String val) {
-    if (val == null) {
-      throw new IllegalArgumentException("The value of a request parameter must not be null.");
+    /**
+     * Construct parameter from a single string:
+     * 1. if it's a single value then it's a REST parameter
+     * 2. if it's of the form key=value then it's KVP
+     *
+     * @param param request parameter
+     * @throws SecoreException
+     */
+    public RequestParam(String param) throws SecoreException {
+        if (param == null) {
+            throw new SecoreException(ExceptionCode.InvalidParameterValue,
+                                      "Can not parse null parameter.");
+        }
+        if (param.contains(KEY_VALUE_SEPARATOR)) {
+            String[] tmp = param.split(KEY_VALUE_SEPARATOR);
+            this.key = tmp[0];
+            String value = StringUtil.join(tmp, 1, tmp.length, KEY_VALUE_SEPARATOR);
+            if (tmp[0].matches("^\\d+")) {
+                this.val = new ResolveRequest(value);
+            } else {
+                this.val = new SimpleParamValue(value);
+            }
+            this.kvp = true;
+        } else {
+            this.key = null;
+            this.val = new SimpleParamValue(param);
+            this.kvp = false;
+        }
     }
-    this.key = key;
-    this.val = new SimpleParamValue(val);
-    this.kvp = key != null;
-  }
 
-  public boolean isKvp() {
-    return key != null && kvp;
-  }
-
-  public void setKvp() {
-    this.kvp = true;
-  }
-  
-  /**
-   * @return true if the parameter is REST (only value), or false if it is KVP.
-   */
-  public boolean isRest() {
-    return key == null || !kvp;
-  }
-
-  public void setRest() {
-    this.kvp = false;
-  }
-  
-  /**
-   * Get separator in the URI for this parameter. For KVP parameter the
-   * separator before the parameter is '&', and for REST parameter (only value)
-   * the separator is '/'.
-   */
-  public String getParamSeparator() {
-    String ret = Constants.PAIR_SEPARATOR;
-    if (isRest()) {
-      ret = Constants.REST_SEPARATOR;
+    public RequestParam(String key, ParamValue val) {
+        if (val == null) {
+            throw new IllegalArgumentException("The value of a request parameter must not be null.");
+        }
+        this.key = key;
+        this.val = val;
+        this.kvp = key != null;
     }
-    return ret;
-  }
-  
-  /**
-   * Get fragment in the URI for this parameter. For KVP parameter the
-   * separator before the parameter is '?', and for REST parameter (only value)
-   * the separator is '/'.
-   */
-  public String getFragmentSeparator() {
-    String ret = Constants.QUERY_SEPARATOR;
-    if (isRest()) {
-      ret = Constants.REST_SEPARATOR;
-    }
-    return ret;
-  }
 
-  @Override
-  public String toString() {
-    String ret = null;
-    if (isRest()) {
-      ret = val.toString();
-    } else {
-      ret = key + Constants.KEY_VALUE_SEPARATOR + val.toString();
+    public RequestParam(String key, String val) {
+        if (val == null) {
+            throw new IllegalArgumentException("The value of a request parameter must not be null.");
+        }
+        this.key = key;
+        this.val = new SimpleParamValue(val);
+        this.kvp = key != null;
     }
-    return ret;
-  }
 
-  public int compareTo(RequestParam o) {
-    // try first to convert to integer
-    try {
-      return Integer.valueOf(key).compareTo(Integer.valueOf(o.key));
-    } catch (Exception ex) {
-      // failed
-      return 0;
+    public boolean isKvp() {
+        return key != null && kvp;
     }
-  }
+
+    public void setKvp() {
+        this.kvp = true;
+    }
+
+    /**
+     * @return true if the parameter is REST (only value), or false if it is KVP.
+     */
+    public boolean isRest() {
+        return key == null || !kvp;
+    }
+
+    public void setRest() {
+        this.kvp = false;
+    }
+
+    /**
+     * Get separator in the URI for this parameter. For KVP parameter the
+     * separator before the parameter is '&', and for REST parameter (only value)
+     * the separator is '/'.
+     */
+    public String getParamSeparator() {
+        String ret = Constants.PAIR_SEPARATOR;
+        if (isRest()) {
+            ret = Constants.REST_SEPARATOR;
+        }
+        return ret;
+    }
+
+    /**
+     * Get fragment in the URI for this parameter. For KVP parameter the
+     * separator before the parameter is '?', and for REST parameter (only value)
+     * the separator is '/'.
+     */
+    public String getFragmentSeparator() {
+        String ret = Constants.QUERY_SEPARATOR;
+        if (isRest()) {
+            ret = Constants.REST_SEPARATOR;
+        }
+        return ret;
+    }
+
+    @Override
+    public String toString() {
+        String ret = null;
+        if (isRest()) {
+            ret = val.toString();
+        } else {
+            ret = key + Constants.KEY_VALUE_SEPARATOR + val.toString();
+        }
+        return ret;
+    }
+
+    public int compareTo(RequestParam o) {
+        // try first to convert to integer
+        try {
+            return Integer.valueOf(key).compareTo(Integer.valueOf(o.key));
+        } catch (Exception ex) {
+            // failed
+            return 0;
+        }
+    }
 }

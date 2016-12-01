@@ -32,11 +32,11 @@ public class ServiceProvider {
     private ServiceContact serviceContact;
 
     // Constructors
-    public ServiceProvider (String name) {
+    public ServiceProvider(String name) {
         providerName = name;
         serviceContact = new ServiceContact(); // mandatory but can be empty
     }
-    public ServiceProvider (String name, String site) {
+    public ServiceProvider(String name, String site) {
         this(name);
         providerSite = site;
     }

@@ -146,10 +146,10 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
         RESTUrl rUrl = new RESTUrl(request.getUrlPath());
         List<String> coverageIds = new ArrayList<String>(Arrays.asList(
-                rUrl.getByIndex(RESTGetCoverageParser.COVERAGE_ID_PLACE).fst.split(",")));
+                    rUrl.getByIndex(RESTGetCoverageParser.COVERAGE_ID_PLACE).fst.split(",")));
         if (coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A GetCoverage request can specify only one CoverageId");
+                                   "A GetCoverage request can specify only one CoverageId");
         }
         String mediaType = ListUtil.head(rUrl.getByKey("mediatype"));
         // Test /conf/core/getCoverage-acceptable-mediaType
@@ -157,7 +157,7 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
             throw new WCSException(ExceptionCode.InvalidMediatype);
         }
         String format = ListUtil.head(rUrl.getByKey("format"));
-        
+
         /*
         format=application/gml+xml&mediaType=multipart/related OGC CITE test it is valid
         if (FormatExtension.MIME_MULTIPART.equals(mediaType) && FormatExtension.MIME_GML.equals(format)) {

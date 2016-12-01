@@ -64,9 +64,9 @@ void
 r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 {
 
-    if(!mIntStr)
+    if (!mIntStr)
     {
-        LFATAL << "r_Minterval::r_Minterval(" << (mIntStr?mIntStr:"NULL") << ")";
+        LFATAL << "r_Minterval::r_Minterval(" << (mIntStr ? mIntStr : "NULL") << ")";
         throw r_Eno_interval();
     }
 
@@ -85,8 +85,10 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 
     // calculate dimensionality
     p = mIntStr;
-    while((p = strchr(++p, ',')))
+    while ((p = strchr(++p, ',')))
+    {
         dimensionality++;
+    }
 
     // allocate space for intervals
     intervals = new r_Sinterval[ dimensionality ];
@@ -104,17 +106,19 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
     }
 
     // for each dimension: get sinterval
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
     {
         // --- evaluate lower bound ------------------------------
         str >> c;           // test read first char
         if (c == '*')           // low bound is '*'
+        {
             sint.set_low('*');
+        }
         else                // low bound must be a number
         {
             str.putback(c);
             str >> b;       // read type r_Range
-            if ( ! str )        // check for proper int recognition
+            if (! str)          // check for proper int recognition
             {
                 LFATAL << "minterval constructor failed on dim " << i << ", lo";
                 throw r_Eno_interval();
@@ -137,12 +141,14 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
         // --- evaluate upper bound ------------------------------
         str >> c;
         if (c == '*')
+        {
             sint.set_high('*');
+        }
         else
         {
             str.putback(c);
             str >> b;
-            if ( ! str )
+            if (! str)
             {
                 LFATAL << "minterval constructor failed on dim " << i << ", hi";
                 throw r_Eno_interval();
@@ -152,7 +158,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
         str >> c;
 
         // --- next dimension needs either ',' separator or ']' end tag
-        if ((i != dimensionality-1 && c != ',') || (i == dimensionality-1 && c != ']'))
+        if ((i != dimensionality - 1 && c != ',') || (i == dimensionality - 1 && c != ']'))
         {
             dimensionality = 0;
             delete[] intervals;
@@ -163,7 +169,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 
         intervals[i] = sint;
 
-        sint.set_interval('*','*');
+        sint.set_interval('*', '*');
     }
 }
 
@@ -190,7 +196,7 @@ r_Minterval::r_Minterval(const char* mIntStr) throw(r_Eno_interval)
         constructorinit(temp);
         free(temp);
     }
-    catch(r_Error err)
+    catch (r_Error err)
     {
         free(temp);
         throw;
@@ -242,11 +248,13 @@ r_Minterval::r_Minterval(const r_Minterval& minterval)
 //    LTRACE << "r_Minterval(const r_Minterval&), this=" << this;
     dimensionality = minterval.dimensionality;
     streamInitCnt = minterval.streamInitCnt;
-    if(minterval.intervals)
+    if (minterval.intervals)
     {
         intervals = new r_Sinterval[dimensionality];
-        for (r_Dimension i=0; i<dimensionality; i++)
+        for (r_Dimension i = 0; i < dimensionality; i++)
+        {
             intervals[i] = minterval[i];
+        }
     }
 }
 
@@ -273,13 +281,13 @@ r_Minterval::intersects_with(const r_Minterval& minterval) const
 
     if (dimensionality != minterval.dimension())
     {
-        LDEBUG << "cannot check if " << this << " and " << minterval << 
-            " intersect, mintervals do not share the same dimension.";
+        LDEBUG << "cannot check if " << this << " and " << minterval <<
+               " intersect, mintervals do not share the same dimension.";
         return false;
     }
 
     // none of the interval pairs are allowed to be disjoint
-    for (r_Dimension i=0; i<dimensionality && result; i++)
+    for (r_Dimension i = 0; i < dimensionality && result; i++)
     {
         if (!intervals[i].intersects_with(minterval[i]))
         {
@@ -298,7 +306,7 @@ r_Minterval::operator[](r_Dimension i) const
     if (i >= dimensionality)
     {
         LFATAL << "r_Minterval:::operator[](" << i << ") const index out of bounds (" << dimensionality << ")";
-        throw r_Eindex_violation(0, dimensionality-1, i);
+        throw r_Eindex_violation(0, dimensionality - 1, i);
     }
 
     return intervals[i];
@@ -310,7 +318,7 @@ r_Minterval::operator[](r_Dimension i)
     if (i >= dimensionality)
     {
         LFATAL << "r_Minterval:::operator[](" << i << ") index out of bounds (" << dimensionality << ")";
-        throw r_Eindex_violation(0, dimensionality-1, i);
+        throw r_Eindex_violation(0, dimensionality - 1, i);
     }
 
     return intervals[i];
@@ -331,13 +339,17 @@ r_Minterval::operator=(const r_Minterval& minterval)
         dimensionality = minterval.dimension();
         streamInitCnt   = minterval.streamInitCnt;
 
-        if(minterval.intervals)
+        if (minterval.intervals)
         {
             if (!intervals)
+            {
                 intervals = new r_Sinterval[ dimensionality ];
+            }
 
-            for (r_Dimension i=0; i<dimensionality; i++)
+            for (r_Dimension i = 0; i < dimensionality; i++)
+            {
                 intervals[i] = minterval[i];
+            }
         }
     }
 
@@ -353,7 +365,7 @@ r_Minterval::operator==(const r_Minterval& mint) const
     {
         returnValue = true;
 
-        for (r_Dimension i=0; i<dimensionality && returnValue ; i++)
+        for (r_Dimension i = 0; i < dimensionality && returnValue ; i++)
         {
             if (intervals[i] != mint[i])
             {
@@ -377,14 +389,16 @@ r_Minterval::get_origin() const throw(r_Error)
 {
     r_Point pt(dimensionality);
 
-    if(!is_origin_fixed())
+    if (!is_origin_fixed())
     {
         LFATAL << "r_Minterval::get_origin() " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
-        pt[i]=intervals[i].low();
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
+        pt[i] = intervals[i].low();
+    }
 
     return pt;
 }
@@ -394,14 +408,16 @@ r_Minterval::get_high() const throw(r_Error)
 {
     r_Point pt(dimensionality);
 
-    if(!is_high_fixed())
+    if (!is_high_fixed())
     {
         LFATAL << "r_Minterval::get_high() " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         pt[i] = intervals[i].high();
+    }
 
     return pt;
 }
@@ -411,14 +427,16 @@ r_Minterval::get_extent() const throw(r_Error)
 {
     r_Point pt(dimensionality);
 
-    if(!is_origin_fixed() || !is_high_fixed())
+    if (!is_origin_fixed() || !is_high_fixed())
     {
         LFATAL << "r_Minterval::get_high() " << *this << " is opened";
         throw r_Error(INTERVALOPEN);
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         pt[i] = intervals[i].get_extent();
+    }
 
     return pt;
 }
@@ -429,7 +447,7 @@ r_Minterval::reverse_translate(const r_Point& t) throw(r_Error, r_Edim_mismatch,
     if (dimensionality != t.dimension())
     {
         LFATAL << "r_Minterval::reverse_translate(" << t << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, t.dimension()));
+        throw (r_Edim_mismatch(dimensionality, t.dimension()));
     }
 
     if (!is_origin_fixed() || !is_high_fixed())
@@ -438,8 +456,10 @@ r_Minterval::reverse_translate(const r_Point& t) throw(r_Error, r_Edim_mismatch,
         throw r_Error(INTERVALOPEN);
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].set_interval(intervals[i].low() - t[i], intervals[i].high() - t[i]);
+    }
 
     return *this;
 }
@@ -450,7 +470,7 @@ r_Minterval::translate(const r_Point& t) throw(r_Error, r_Edim_mismatch, r_Eno_i
     if (dimensionality != t.dimension())
     {
         LFATAL << "r_Minterval::translate(" << t << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, t.dimension()));
+        throw (r_Edim_mismatch(dimensionality, t.dimension()));
     }
 
     if (!is_origin_fixed() || !is_high_fixed())
@@ -459,8 +479,10 @@ r_Minterval::translate(const r_Point& t) throw(r_Error, r_Edim_mismatch, r_Eno_i
         throw r_Error(INTERVALOPEN);
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].set_interval(intervals[i].low() + t[i], intervals[i].high() + t[i]);
+    }
 
     return *this;
 }
@@ -507,7 +529,7 @@ r_Minterval::scale(const vector<double>& scaleVec) throw(r_Eno_interval)
     double high = 0., low = 0.;
 
     // if the size of scale vector is different from dimensionality, undefined behaviour
-    if(scaleVec.size() != dimensionality)
+    if (scaleVec.size() != dimensionality)
     {
         throw r_Edim_mismatch(scaleVec.size(), dimensionality);
     }
@@ -515,11 +537,11 @@ r_Minterval::scale(const vector<double>& scaleVec) throw(r_Eno_interval)
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
         // do explicit rounding, because the cast down in set_interval doesn't do the good rounding for negative values -- PB 2005-jun-19
-        low  = floor( scaleVec[i] * intervals[i].low() );
+        low  = floor(scaleVec[i] * intervals[i].low());
 
         //correction by 1e-6 to avoid the strage bug when high was a
         //integer value and floor return value-1(e.g. query 47.ql)
-        high = floor(scaleVec[i] * (intervals[i].high() +1) + 0.000001) - 1;
+        high = floor(scaleVec[i] * (intervals[i].high() + 1) + 0.000001) - 1;
 
         // apparently the above correction doesn't work for certain big numbers,
         // e.g. 148290:148290 is scaled to 74145:74144 (invalid) by factor 0.5 -- DM 2012-may-25
@@ -562,20 +584,24 @@ r_Minterval::union_of(const r_Minterval& mint1, const r_Minterval& mint2) throw(
     if (mint1.dimension() != mint2.dimension())
     {
         LFATAL << "r_Minterval::union_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
-        throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
+        throw (r_Edim_mismatch(mint1.dimension(), mint2.dimension()));
     }
 
     // cleanup + initializing of this
     if (dimensionality != mint1.dimension())
     {
         if (intervals)
+        {
             delete[] intervals;
+        }
         dimensionality = mint1.dimension();
         streamInitCnt   = dimensionality;
         intervals = new r_Sinterval[ dimensionality ];
     }
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].union_of(mint1[i], mint2[i]);
+    }
 
     return *this;
 }
@@ -586,11 +612,13 @@ r_Minterval::union_with(const r_Minterval& mint) throw(r_Edim_mismatch, r_Eno_in
     if (dimensionality != mint.dimension())
     {
         LFATAL << "r_Minterval::union_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].union_with(mint[i]);
+    }
 
     return *this;
 }
@@ -607,13 +635,15 @@ r_Minterval::create_union(const r_Minterval& mint) const throw(r_Edim_mismatch, 
     if (dimensionality != mint.dimension())
     {
         LFATAL << "r_Minterval::create_union(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
     r_Minterval result(dimensionality);
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         result << intervals[i].create_union(mint[i]);
+    }
 
     return result;
 }
@@ -630,22 +660,26 @@ r_Minterval::difference_of(const r_Minterval& mint1, const r_Minterval& mint2) t
     if (mint1.dimension() != mint2.dimension())
     {
         LFATAL << "r_Minterval::difference_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
-        throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
+        throw (r_Edim_mismatch(mint1.dimension(), mint2.dimension()));
     }
 
     if (dimensionality != mint1.dimension())
     {
         // cleanup + initializing of this
         if (intervals)
+        {
             delete[] intervals;
+        }
 
         dimensionality = mint1.dimension();
         streamInitCnt = dimensionality;
         intervals = new r_Sinterval[ dimensionality ];
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].difference_of(mint1[i], mint2[i]);
+    }
 
     return *this;
 }
@@ -656,11 +690,13 @@ r_Minterval::difference_with(const r_Minterval& mint) throw(r_Edim_mismatch, r_E
     if (dimensionality != mint.dimension())
     {
         LFATAL << "r_Minterval::difference_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].difference_with(mint[i]);
+    }
 
     return *this;
 }
@@ -677,13 +713,15 @@ r_Minterval::create_difference(const r_Minterval& mint) const throw(r_Edim_misma
     if (dimensionality != mint.dimension())
     {
         LFATAL << "r_Minterval::create_difference(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
     r_Minterval result(dimensionality);
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         result << intervals[i].create_difference(mint[i]);
+    }
 
     return result;
 }
@@ -700,21 +738,25 @@ r_Minterval::intersection_of(const r_Minterval& mint1, const r_Minterval& mint2)
     if (mint1.dimension() != mint2.dimension())
     {
         LFATAL << "r_Minterval::intersection_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
-        throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
+        throw (r_Edim_mismatch(mint1.dimension(), mint2.dimension()));
     }
     if (dimensionality != mint1.dimension())
     {
         // cleanup + initializing of this
         if (intervals)
+        {
             delete[] intervals;
+        }
 
         dimensionality = mint1.dimension();
         streamInitCnt = dimensionality;
         intervals = new r_Sinterval[ dimensionality ];
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].intersection_of(mint1[i], mint2[i]);
+    }
     return *this;
 }
 
@@ -724,11 +766,13 @@ r_Minterval::intersection_with(const r_Minterval& mint) throw(r_Edim_mismatch, r
     if (dimensionality != mint.dimension())
     {
         LFATAL << "r_Minterval::intersection_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].intersection_with(mint[i]);
+    }
 
     return *this;
 }
@@ -745,13 +789,15 @@ r_Minterval::create_intersection(const r_Minterval& mint) const throw(r_Edim_mis
     if (dimensionality != mint.dimension())
     {
         LFATAL << "r_Minterval::create_intersection(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
     r_Minterval result(dimensionality);
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         result << intervals[i].create_intersection(mint[i]);
+    }
 
     return result;
 }
@@ -768,21 +814,25 @@ r_Minterval::closure_of(const r_Minterval& mint1, const r_Minterval& mint2) thro
     if (mint1.dimension() != mint2.dimension())
     {
         LFATAL << "r_Minterval::closure_of(" << mint1 << ", " << mint2 << ") dimensions do not match";
-        throw(r_Edim_mismatch( mint1.dimension(), mint2.dimension()));
+        throw (r_Edim_mismatch(mint1.dimension(), mint2.dimension()));
     }
     if (mint1.dimension() != dimensionality)
     {
         // cleanup + initializing of this
         if (intervals)
+        {
             delete[] intervals;
+        }
 
         dimensionality = mint1.dimension();
         streamInitCnt = dimensionality;
         intervals = new r_Sinterval[ dimensionality ];
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].closure_of(mint1[i], mint2[i]);
+    }
 
     return *this;
 }
@@ -793,11 +843,13 @@ r_Minterval::closure_with(const r_Minterval& mint) throw(r_Edim_mismatch, r_Eno_
     if (dimensionality != mint.dimension())
     {
 //        LFATAL << "r_Minterval::closure_with(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         intervals[i].closure_with(mint[i]);
+    }
 
     return *this;
 }
@@ -808,13 +860,15 @@ r_Minterval::create_closure(const r_Minterval& mint) const throw(r_Edim_mismatch
     if (dimensionality != mint.dimension())
     {
         LFATAL << "r_Minterval::create_closure(" << mint << ") dimensions (" << dimensionality << ") do not match";
-        throw(r_Edim_mismatch( dimensionality, mint.dimension()));
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
 
     r_Minterval result(dimensionality);
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         result << intervals[i].create_closure(mint[i]);
+    }
 
     return result;
 }
@@ -826,10 +880,12 @@ r_Minterval::print_status(std::ostream& s) const
 
     if (dimensionality > 0)
     {
-        for (r_Dimension i=0; i<dimensionality-1; i++)
+        for (r_Dimension i = 0; i < dimensionality - 1; i++)
+        {
             s << intervals[i] << ",";
+        }
 
-        s << intervals[dimensionality-1];
+        s << intervals[dimensionality - 1];
     }
 
     s << "]";
@@ -857,7 +913,7 @@ r_Minterval::get_named_axis_string_representation() const
 
     bool isFirst = true;
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
     {
         if (!isFirst)
         {
@@ -883,10 +939,12 @@ r_Area
 r_Minterval::cell_count() const throw(r_Error)
 {
     r_Area cellCount = 1;
-    r_Point ptExt=get_extent();
+    r_Point ptExt = get_extent();
 
-    for (r_Dimension i=0; i<dimensionality; i++)
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
         cellCount *= static_cast<r_Area>(ptExt[i]);
+    }
 
     return cellCount;
 }
@@ -906,7 +964,7 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
         throw r_Edim_mismatch(point.dimension(), dimensionality);
     }
 
-    ptExt=get_extent();
+    ptExt = get_extent();
 
     // calculate offset
     for (i = 0; i < dimensionality - 1; i++)
@@ -914,17 +972,17 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
         if (point[i] < intervals[i].low() || point[i] > intervals[i].high())
         {
             LFATAL << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")";
-            throw(r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
+            throw (r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
         }
 
-        offset = (offset + static_cast<long long unsigned int>(point[i] - intervals[i].low())) * static_cast<long long unsigned int>(ptExt[i+1]);
+        offset = (offset + static_cast<long long unsigned int>(point[i] - intervals[i].low())) * static_cast<long long unsigned int>(ptExt[i + 1]);
     }
 
     // now i = dimensionality - 1
     if (point[i] < intervals[i].low() || point[i] > intervals[i].high())
     {
         LFATAL << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")";
-        throw(r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
+        throw (r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
     }
     offset += static_cast<long long unsigned int>(point[i] - intervals[i].low());
 
@@ -938,7 +996,7 @@ r_Point
 r_Minterval::cell_point(r_Area offset) const throw(r_Eno_cell, r_Error)
 {
     r_Dimension i;
-    unsigned int factor=1;
+    unsigned int factor = 1;
     r_Point pt(dimensionality), ptExt;
 
     if (offset >= cell_count())
@@ -947,15 +1005,17 @@ r_Minterval::cell_point(r_Area offset) const throw(r_Eno_cell, r_Error)
         throw r_Eno_cell();
     }
 
-    ptExt=get_extent();
+    ptExt = get_extent();
 
-    for (i=0; i<dimensionality; i++)
+    for (i = 0; i < dimensionality; i++)
+    {
         factor *= ptExt[i];
+    }
 
-    for (i=0; i<dimensionality; i++)
+    for (i = 0; i < dimensionality; i++)
     {
         factor /= ptExt[i];
-        pt[i]   = intervals[i].low() + static_cast<r_Range>((offset - (offset%factor))/factor);
+        pt[i]   = intervals[i].low() + static_cast<r_Range>((offset - (offset % factor)) / factor);
         offset %= factor;
     }
 
@@ -968,16 +1028,19 @@ r_Minterval::delete_dimension(r_Dimension dim) throw(r_Eindex_violation)
     if (dim >= dimensionality)
     {
         LFATAL << "r_Minterval::delete_dimension(" << dim << ") dimension is out of range (" << dimensionality << ")";
-        throw r_Eindex_violation(0, dimensionality-1, dim);
+        throw r_Eindex_violation(0, dimensionality - 1, dim);
     }
 
     dimensionality -= 1;
     streamInitCnt = dimensionality;
     r_Sinterval* newIntervals = new r_Sinterval[ dimensionality ];
 
-    for (r_Dimension i=0, j=0; i<dimensionality; i++, j++)
+    for (r_Dimension i = 0, j = 0; i < dimensionality; i++, j++)
     {
-        if (i==dim) j++;
+        if (i == dim)
+        {
+            j++;
+        }
         newIntervals[i] = intervals[j];
     }
 
@@ -986,17 +1049,17 @@ r_Minterval::delete_dimension(r_Dimension dim) throw(r_Eindex_violation)
     intervals = newIntervals;
 }
 
-void r_Minterval::transpose( r_Dimension a, r_Dimension b ) throw( r_Eindex_violation )
+void r_Minterval::transpose(r_Dimension a, r_Dimension b) throw(r_Eindex_violation)
 {
     if (a >= dimensionality)
     {
         LFATAL << "dimension " << a << " is out of range (" << dimensionality << ")";
-        throw r_Eindex_violation(0, dimensionality-1, a);
+        throw r_Eindex_violation(0, dimensionality - 1, a);
     }
     if (b >= dimensionality)
     {
         LFATAL << "dimension " << b << " is out of range (" << dimensionality << ")";
-        throw r_Eindex_violation(0, dimensionality-1, b);
+        throw r_Eindex_violation(0, dimensionality - 1, b);
     }
     if (a != b)
     {
@@ -1012,7 +1075,9 @@ r_Minterval::get_storage_size() const
     r_Bytes sz = sizeof(r_Sinterval*) + 2 * sizeof(r_Dimension);
 
     if (dimensionality > 0)
+    {
         sz += dimensionality * intervals->get_storage_size();
+    }
 
     return sz;
 }
@@ -1036,12 +1101,12 @@ r_Minterval::is_mergeable(const r_Minterval& b) const
         int ones_differences = 0;
 
         // For all dimensions
-        for (r_Dimension i=0; i<dimensionality; i++)
+        for (r_Dimension i = 0; i < dimensionality; i++)
         {
             // Diferente origins
             if (a[i].low() != b[i].low())
             {
-                if ((a[i].low() == b[i].high()+1) || (b[i].low() == a[i].high()+1))
+                if ((a[i].low() == b[i].high() + 1) || (b[i].low() == a[i].high() + 1))
                     // If borders are adjacent
                 {
                     // Update counter
@@ -1068,8 +1133,10 @@ r_Minterval::is_mergeable(const r_Minterval& b) const
         }
 
         // Only one adjacent borded
-        if (is_merg && (ones_differences!=1))
+        if (is_merg && (ones_differences != 1))
+        {
             is_merg = false;
+        }
         // allowed
     }
     return is_merg;
@@ -1087,7 +1154,9 @@ std::ostream& operator<<(std::ostream& os, const std::vector<r_Minterval>& vec)
 
     unsigned int size = vec.size();
     for (unsigned int i = 0; i < size; i++)
+    {
         os << vec[i] << std::endl;
+    }
 
     os << " } ";
     return os;
@@ -1097,15 +1166,17 @@ std::ostream& operator<<(std::ostream& s, const vector<double>& doubleVec)
 {
     vector<double>::const_iterator iter, iterEnd;
 
-    iter=doubleVec.begin();
-    iterEnd=doubleVec.end();
+    iter = doubleVec.begin();
+    iterEnd = doubleVec.end();
     s << "{";
-    while(iter != iterEnd)
+    while (iter != iterEnd)
     {
         s << *iter;
         ++iter;
-        if(iter != iterEnd)
+        if (iter != iterEnd)
+        {
             s << ", ";
+        }
     }
     s << "}";
 

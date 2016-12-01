@@ -54,7 +54,10 @@ const r_Base_Type&
 r_Base_Type::operator=(const r_Base_Type& oldObj)
 {
     // Gracefully handle self assignment
-    if (this == &oldObj) return *this;
+    if (this == &oldObj)
+    {
+        return *this;
+    }
 
     r_Type::operator=(oldObj);
     typeSize = oldObj.typeSize;

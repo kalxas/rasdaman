@@ -50,5 +50,5 @@ public interface ProtocolExtension extends  Extension {
      * @throws WCSException
      */
     Response handle(HTTPRequest request, DbMetadataSource meta)
-            throws PetascopeException, WCSException, SecoreException;
+    throws PetascopeException, WCSException, SecoreException;
 }

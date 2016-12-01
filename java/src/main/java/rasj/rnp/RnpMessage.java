@@ -23,7 +23,7 @@ rasdaman GmbH.
 /*************************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  *
@@ -36,48 +36,41 @@ package rasj.rnp;
 
 import java.util.*;
 import java.io.*;
-   
 
-public class RnpMessage
-  {
+
+public class RnpMessage {
     public RnpMessageHeader header;
     public Vector fragments;
     public RnpFragment currentFragment = null;
-    
-    void write(DataOutputStream dataStream) throws IOException
-       {
-       header.write(dataStream);	
-       for(int i=0; i < header.countFragments(); i++)
-	  {
-	  RnpFragment frag = (RnpFragment)fragments.get(i);
-	  frag.write(dataStream);
-	  }
-       }
-       
-    void read(DataInputStream dataStream) throws IOException, RnpException
-       {
-       header = new RnpMessageHeader(0);
-       header.read(dataStream);	
-       fragments = new Vector();	
-       for(int i=0; i < header.countFragments(); i++)
-	 {
-	 currentFragment = new RnpFragment(0,0);	    
-	 currentFragment.read(dataStream);            
-	 fragments.add(currentFragment);
-	 }
-       currentFragment = null;   
-       }
-    
-    void print()
-       {
-       header.print();	
-       for(int i=0; i < header.countFragments(); i++)
-	   {
-	   System.out.print("Fragment " + i + "  ");	  
-	   RnpFragment frag = (RnpFragment)fragments.get(i);
-	   frag.print();
-	   }
-       }
-       
+
+    void write(DataOutputStream dataStream) throws IOException {
+        header.write(dataStream);
+        for (int i = 0; i < header.countFragments(); i++) {
+            RnpFragment frag = (RnpFragment)fragments.get(i);
+            frag.write(dataStream);
+        }
     }
+
+    void read(DataInputStream dataStream) throws IOException, RnpException {
+        header = new RnpMessageHeader(0);
+        header.read(dataStream);
+        fragments = new Vector();
+        for (int i = 0; i < header.countFragments(); i++) {
+            currentFragment = new RnpFragment(0, 0);
+            currentFragment.read(dataStream);
+            fragments.add(currentFragment);
+        }
+        currentFragment = null;
+    }
+
+    void print() {
+        header.print();
+        for (int i = 0; i < header.countFragments(); i++) {
+            System.out.print("Fragment " + i + "  ");
+            RnpFragment frag = (RnpFragment)fragments.get(i);
+            frag.print();
+        }
+    }
+
+}
 

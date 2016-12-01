@@ -25,7 +25,7 @@
 namespace rasmgr
 {
 DbBusyException::DbBusyException(const std::string& dbName)
-    :common::ResourceBusyException("The database "+dbName+" is busy and its properties cannot be changed.")
+    : common::ResourceBusyException("The database " + dbName + " is busy and its properties cannot be changed.")
 {
 
 }

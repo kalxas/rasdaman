@@ -48,7 +48,7 @@ public class PersistentMetadataObjectProvider {
      * Constructor for the class
      *
      * @param connection the jdbc connection to a known database
-     */   
+     */
     public PersistentMetadataObjectProvider(@NotNull ConnectionSource connection) {
         this.connection = connection;
     }

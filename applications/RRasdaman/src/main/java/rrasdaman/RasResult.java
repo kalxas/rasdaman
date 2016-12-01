@@ -53,8 +53,9 @@ public class RasResult {
             while (iterator != null && iterator.hasNext() && rowsCount != 0) {
                 Object current = iterator.next();
                 result.add(current);
-                if (rowsCount > 0)
+                if (rowsCount > 0) {
                     --rowsCount;
+                }
                 ++emitted;
             }
         }
@@ -74,8 +75,9 @@ public class RasResult {
     }
 
     public void clearResult() {
-        if (!active)
+        if (!active) {
             return;
+        }
         statement = null;
         bag = null;
         active = false;
@@ -84,6 +86,6 @@ public class RasResult {
 
     public String toString() {
         return String.format("RasResult{ total %d elements, %d emitted }",
-                bag != null? bag.size() : 0, emitted);
+                             bag != null ? bag.size() : 0, emitted);
     }
 }

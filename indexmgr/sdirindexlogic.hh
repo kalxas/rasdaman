@@ -126,10 +126,10 @@ public:
     /*@Doc:
     */
 
-    static int compare( const r_Minterval& mint1,
-                        const r_Minterval& mint2,
-                        OrderPoint o1 = Lowest,
-                        OrderPoint o2 = Lowest);
+    static int compare(const r_Minterval& mint1,
+                       const r_Minterval& mint2,
+                       OrderPoint o1 = Lowest,
+                       OrderPoint o2 = Lowest);
     /*@Doc:
         Compares two intervals based on two points from each one.
         Returns : -1 if mint1.point(o1) < mint2.point(o2);
@@ -139,32 +139,32 @@ public:
         mint.point(o) is the highest corner point of mint if o == Highest.
     */
 
-    static int binarySearch(    const IndexDS* theIx,
-                                const r_Minterval& newDomain,
-                                OrderPoint o,
-                                int first,
-                                int last);
+    static int binarySearch(const IndexDS* theIx,
+                            const r_Minterval& newDomain,
+                            OrderPoint o,
+                            int first,
+                            int last);
     /*@Doc:
         Returns position of searched item or position before the one where
         it should be inserted to keep the order of the list (-1 means it should be
         inserted at the beginning of the list).
     */
 
-    static int binaryPointSearch(   const IndexDS* theIx,
-                                    const r_Point& pnt,
-                                    OrderPoint o,
-                                    int first,
-                                    int last);
+    static int binaryPointSearch(const IndexDS* theIx,
+                                 const r_Point& pnt,
+                                 OrderPoint o,
+                                 int first,
+                                 int last);
     /*@Doc:
         Returns position of tile having the point, -1 if point not there.
     */
 
-    static int binaryRegionSearch(  const IndexDS* theIx,
-                                    const r_Minterval& mint,
-                                    r_Area& area,
-                                    KeyObjectVector& intersectedObjects,
-                                    int first,
-                                    int last);
+    static int binaryRegionSearch(const IndexDS* theIx,
+                                  const r_Minterval& mint,
+                                  r_Area& area,
+                                  KeyObjectVector& intersectedObjects,
+                                  int first,
+                                  int last);
     /*@Doc:
         Assumes ordering according to the lowest corner of the tiles!!!
     */

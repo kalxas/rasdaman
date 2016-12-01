@@ -32,54 +32,48 @@
 package petascope.wms;
 
 
-public class RasPersistentScaleLayer
-{
+public class RasPersistentScaleLayer {
     /**
      * The rasdaman collection name
      **/
     protected String collectionName;
-    
+
     /**
      * The area in GK which is covered by the RasDaMan collection.  The collection must start at the origin ([0,0]).
      **/
     protected BoundingBox boundingBox;
-    
+
     /**
      * Create a new object:
      * @param theRasCollectionName the name of the RasDaMan collection
      * @param bbox the bounding box of the image in the collection
      **/
-    public RasPersistentScaleLayer(String theRasCollectionName, BoundingBox bbox)
-    {
+    public RasPersistentScaleLayer(String theRasCollectionName, BoundingBox bbox) {
         collectionName = theRasCollectionName;
         boundingBox = bbox;
     }
-    
-    public double getGroundResolutionX()
-    {
+
+    public double getGroundResolutionX() {
         return boundingBox.resX;
     }
-    
-    public double getGroundResolutionY()
-    {
+
+    public double getGroundResolutionY() {
         return boundingBox.resY;
     }
-    
+
     /**
      * accessor method
      * @return a reference to the bounding box of the persistent collection
      **/
-    public BoundingBox getBoundingBox()
-    {
+    public BoundingBox getBoundingBox() {
         return boundingBox;
     }
-    
+
     /**
      * accessor method
      * @return a reference to the persistent collections name
      **/
-    public String getName()
-    {
+    public String getName() {
         return collectionName;
     }
 }

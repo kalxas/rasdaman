@@ -45,10 +45,10 @@ public class WCPSProcessingError extends RuntimeException {
     public WCPSProcessingError(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
     public ExceptionCode getExceptionCode() {
         return this.exceptionCode;
     }
-    
+
     private ExceptionCode exceptionCode;
 }

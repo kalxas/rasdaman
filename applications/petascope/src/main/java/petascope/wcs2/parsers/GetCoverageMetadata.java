@@ -78,8 +78,8 @@ public class GetCoverageMetadata {
     // GeoTiff/JP2000/NetCDF/etc encoding: LONG first = rasdaman order (common GIS practice)
     // http://www.remotesensing.org/geotiff/faq.html?What%20is%20the%20purpose%20of%20GeoTIFF%20format%20for%20satellite%20data#AxisOrder
     private String gisDomLow;  // Domain request lower bound (always easting first)
-    private String gisDomHigh; // Domain request upper bound (always easting first)   
-    
+    private String gisDomHigh; // Domain request upper bound (always easting first)
+
     /**
      * Map of axis labels and their scale factors.
      * Only axes that are explicitly scaled in a WCS request appear here.
@@ -96,7 +96,7 @@ public class GetCoverageMetadata {
 
         if (!meta.existsCoverageName(coverageId)) {
             throw new WCSException(ExceptionCode.NoSuchCoverage.locator(coverageId),
-                    "One of the identifiers passed does not match with any of the coverages offered by this server");
+                                   "One of the identifiers passed does not match with any of the coverages offered by this server");
         }
         metadata = WcsUtil.getMetadata(meta, coverageId) ;
 
@@ -124,7 +124,7 @@ public class GetCoverageMetadata {
                 domHigh += WcsUtil.fitToSampleSpace(dom.getMaxValue(), dom, true, coverageType) + " ";
             }
         } catch (PetascopeException pEx) {
-            throw (WCSException)pEx;
+            throw(WCSException)pEx;
         }
 
         gridType = coverageType.replace("Coverage", "");
@@ -192,7 +192,7 @@ public class GetCoverageMetadata {
 
         // Use TreeMap to store grid origin coordinates and order by CRS axis order (key)
         // No need to use GetCoverage CRS, I can use full set of URIs since order is preserved even if there are slicings.
-        Map<Integer,String> gridOrigin = new TreeMap<Integer,String>();
+        Map<Integer, String> gridOrigin = new TreeMap<Integer, String>();
         // local
         BigDecimal border;
         BigDecimal sspaceShift;
@@ -211,8 +211,8 @@ public class GetCoverageMetadata {
                     log.debug("Grid axis n." + gridAxisOrder + " (" + crsAxisLabel + ") is parallel to CRS axis n." + crsAxisOrder + ".");
                     // Grid origin is in the centre of a sample space (eg pixel centre): get half-pixel value (+ or - signed)
                     border = (positiveDirection) ?
-                            BigDecimal.valueOf(Double.parseDouble(domLowComponentsIt.next())) :
-                            BigDecimal.valueOf(Double.parseDouble(domHighComponentsIt.next()));
+                             BigDecimal.valueOf(Double.parseDouble(domLowComponentsIt.next())) :
+                             BigDecimal.valueOf(Double.parseDouble(domHighComponentsIt.next()));
                     sspaceShift = WcsUtil.getSampleSpaceShift(domEl.getDirectionalResolution(), domEl.isIrregular(), domEl.getUom(), metadata.getCoverageType());
                     // Now apply the shift to the border values in domLow/domHigh
                     origin = border.subtract(sspaceShift);
@@ -280,12 +280,12 @@ public class GetCoverageMetadata {
     public String getCrs() {
         return crs;
     }
-    
+
     public String getOutputCrs() {
         return outputCrs;
     }
-    
-    public String getSubsettingCrs() { 
+
+    public String getSubsettingCrs() {
         return subsettingCrs;
     }
 
@@ -360,22 +360,22 @@ public class GetCoverageMetadata {
         // Changing CRS means 1+ slices have been requested: trigger an update of coverage type
         //updateCoverageType();
     }
-    
+
     /**
      * Update the outputCrs of a coverage
      * In can change when user want to transform from nativeCRS (e.g: 4326) to (3857)
      * with WCS (outputCrs="http://...crs/EPSG/0/3857) or WCPS (crsTransform(c, {Lat:".../3857"(1110:11120), Long:".../3857"(1223:32323)
-     * @param newUri 
+     * @param newUri
      */
     public void setOutputCrs(String newUri) {
         outputCrs = newUri;
     }
-    
+
     /**
      * Update the subsettingCrs of a coverage
      * with WCS (subsettingCrs="http://..../0/3857") or WCPS (Lat:"http://.../3857"(1230:2330))
      * It will transform the subset(e.g: 1230:2330) with the input CRS (e.g: 3857) without using the native CRS (e.g: 4326)
-     * @param newUri 
+     * @param newUri
      */
     public void setSubsettingCrs(String newUri) {
         subsettingCrs = newUri;
@@ -423,8 +423,8 @@ public class GetCoverageMetadata {
     protected void updateCoverageType() {
         if (WcsUtil.isGrid(getCoverageType())) {
             if (WcsUtil.isRectifiedGrid(
-                    getCoverageType(),
-                    getMetadata().getDomainsByNames(Arrays.asList(getGridAxisLabels().split(" "))))) {
+                        getCoverageType(),
+                        getMetadata().getDomainsByNames(Arrays.asList(getGridAxisLabels().split(" "))))) {
                 this.coverageType = XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
             } else {
                 this.coverageType = XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;

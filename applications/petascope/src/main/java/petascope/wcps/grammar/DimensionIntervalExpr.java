@@ -52,9 +52,9 @@ public class DimensionIntervalExpr implements IParseTreeNode {
 
         if (fun.equals(WcpsConstants.MSG_SCALARS)) {
             result += "<" + WcpsConstants.MSG_LOWER_BOUND + ">" + e1.toXML() + "</" +
-                    WcpsConstants.MSG_LOWER_BOUND + ">";
+                      WcpsConstants.MSG_LOWER_BOUND + ">";
             result += "<" + WcpsConstants.MSG_UPPER_BOUND + ">" + e2.toXML() + "</" +
-                    WcpsConstants.MSG_UPPER_BOUND + ">";
+                      WcpsConstants.MSG_UPPER_BOUND + ">";
         } else if (fun.equals(WcpsConstants.MSG_DOMAIN_METADATA)) {
             result = str;
         }

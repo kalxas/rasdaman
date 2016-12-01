@@ -39,14 +39,14 @@ TEST(RasControlTest, UserCredentialsConstructor)
     std::string testPassword = "testPass";
     std::string testUser = "testUser";
 
-    UserCredentials configuredUserCredentials(testUser,testPassword);
+    UserCredentials configuredUserCredentials(testUser, testPassword);
     UserCredentials defaultCredentials;
 
     ASSERT_EQ(DEFAULT_USER, defaultCredentials.getUserName());
     ASSERT_EQ(common::Crypto::messageDigest(DEFAULT_PASSWD, DEFAULT_DIGEST), defaultCredentials.getUserPassword());
 
     ASSERT_EQ(testUser, configuredUserCredentials.getUserName());
-    ASSERT_EQ(common::Crypto::messageDigest(testPassword,DEFAULT_DIGEST), configuredUserCredentials.getUserPassword());
+    ASSERT_EQ(common::Crypto::messageDigest(testPassword, DEFAULT_DIGEST), configuredUserCredentials.getUserPassword());
 
 }
 
@@ -56,19 +56,19 @@ TEST(RasControlTest, UserCredentialsEnvironmentLogin)
     std::string testUser = "testUser";
 
     char* envVar = new char[30];
-    std::string envVarString = RASLOGIN+"="+testUser+":"+testPassword;
-    strcpy(envVar,envVarString.c_str());
+    std::string envVarString = RASLOGIN + "=" + testUser + ":" + testPassword;
+    strcpy(envVar, envVarString.c_str());
     UserCredentials credentials;
 
     ASSERT_ANY_THROW(credentials.environmentLogin());
 
     putenv(envVar);
-    char *s=getenv("RASLOGIN");
+    char* s = getenv("RASLOGIN");
     printf("%s\n", s);
 
     ASSERT_NO_THROW(credentials.environmentLogin());
-    ASSERT_EQ(testUser,credentials.getUserName());
-    ASSERT_EQ(testPassword,credentials.getUserPassword());
+    ASSERT_EQ(testUser, credentials.getUserName());
+    ASSERT_EQ(testPassword, credentials.getUserPassword());
 
     delete[] envVar;
 }

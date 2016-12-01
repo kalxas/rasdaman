@@ -64,11 +64,9 @@ public class NumericScalarExpr implements IParseTreeNode {
 
         if (op.equals("-")) {
             function = WcpsConstants.MSG_NUMERIC_UNARY_MINUS;
-        } else
-        if (op.equals(WcpsConstants.MSG_SQRT)) {
+        } else if (op.equals(WcpsConstants.MSG_SQRT)) {
             function = WcpsConstants.MSG_NUMERIC_SQRT;
-        } else
-        if (op.equals(WcpsConstants.MSG_ABS)) {
+        } else if (op.equals(WcpsConstants.MSG_ABS)) {
             function = WcpsConstants.MSG_NUMERIC_ABS;
         } else {
             log.error("Unary Operator " + op + " is not recognized.");

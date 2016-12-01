@@ -46,7 +46,7 @@ public:
      * @param password User's encrypted password.
      * @param rights The user's rights on this rasdaman instance.
      */
-    User ( std::string name, std::string password,const UserDatabaseRights& defaultDbRights,const UserAdminRights& adminRights );
+    User(std::string name, std::string password, const UserDatabaseRights& defaultDbRights, const UserAdminRights& adminRights);
 
     virtual ~User();
 
@@ -55,16 +55,16 @@ public:
      * this rasdaman instance.
      */
     UserAdminRights getAdminRights() const;
-    void setAdminRights ( const UserAdminRights& adminRights );
+    void setAdminRights(const UserAdminRights& adminRights);
 
     const std::string& getName() const;
-    void setName ( const std::string& name );
+    void setName(const std::string& name);
 
     const std::string& getPassword() const;
-    void setPassword ( const std::string& password );
+    void setPassword(const std::string& password);
 
     const UserDatabaseRights& getDefaultDbRights() const;
-    void setDefaultDbRights ( const UserDatabaseRights& defaultDbRights );
+    void setDefaultDbRights(const UserDatabaseRights& defaultDbRights);
 
     /**
      * @brief Create a User object from its protobuf representation.
@@ -73,7 +73,7 @@ public:
      * @param user protobuf representation of the User
      * @return rasmgr::User
      */
-    static User parseFromProto ( const UserProto& user );
+    static User parseFromProto(const UserProto& user);
 
 
     /**
@@ -82,7 +82,7 @@ public:
      * @param user Object to serialize.
      * @return rasmgr::UserProto
      */
-    static UserProto serializeToProto ( const User& user );
+    static UserProto serializeToProto(const User& user);
 
 private:
     std::string name;

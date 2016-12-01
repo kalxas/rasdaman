@@ -174,7 +174,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
         OId end(target.getCounter() + range, target.getType());
         while (it != theEnd)
         {
-            if (target <= (const OId&) (*it).first && (*it).first <= (const OId&) end)
+            if (target <= (const OId&)(*it).first && (*it).first <= (const OId&) end)
             {
                 (*it).second->setPersistent(false);
             }
@@ -234,7 +234,7 @@ BLOBTile::readFromDb() throw (r_Error)
     SQLiteQuery query("SELECT DataFormat FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (query.nextRow())
     {
-        dataFormat = static_cast<r_Data_Format> (query.nextColumnInt());
+        dataFormat = static_cast<r_Data_Format>(query.nextColumnInt());
         currentFormat = dataFormat;
     }
     else
@@ -273,7 +273,9 @@ BLOBTile::readFromDb() throw (r_Error)
 #ifdef DEBUG
     LTRACE << "tile contents:";
     for (int a = 0; a < size; a++)
-        LTRACE << " " << hex << (int) (cells[a]);
+    {
+        LTRACE << " " << hex << (int)(cells[a]);
+    }
     LTRACE << dec;
 #endif
 

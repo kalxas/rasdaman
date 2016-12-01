@@ -51,12 +51,12 @@
 using namespace std;
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     r_Dimension dim = 3;
     r_Minterval iv(dim);
     r_Dimension i;
-    double *iterMin, *iterMax, *iterStep;
+    double* iterMin, *iterMax, *iterStep;
     int typeLength = 1;
     long totalSize = typeLength;
     long totalSteps = 1;
@@ -77,21 +77,21 @@ int main(int argc, char *argv[])
     iterMin = new double[dim];
     iterMax = new double[dim];
     iterStep = new double[dim];
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         int steps;
 
         iterStep[i] = stepBy;
         iterMin[i] = 0;
-        iterMax[i] = (1<<(4+i)) - 1;
+        iterMax[i] = (1 << (4 + i)) - 1;
         iv << r_Sinterval((r_Range)(iterMin[i]), (r_Range)(iterMax[i]));
         totalSize *= (r_Range)(iterMax[i]) - (r_Range)(iterMin[i]) + 1;
         steps = (int)((iterMax[i] - iterMin[i]) / iterStep[i]);
         totalSteps *= (steps + 1);
-        iterMax[i] = iterMin[i] + (steps + 0.5)*iterStep[i]; // rounding effects
+        iterMax[i] = iterMin[i] + (steps + 0.5) * iterStep[i]; // rounding effects
     }
 
-    char *srcData = new char[totalSize];
+    char* srcData = new char[totalSize];
 
     cout << "Total size: 0x" << hex << totalSize
          << ", base address " << (void*)srcData << endl;
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     long steps = 0;
     while (!iter.isDone())
     {
-        char *cell = iter.nextCell();
+        char* cell = iter.nextCell();
 
         if (cell + typeLength > srcData + totalSize)
         {
@@ -112,7 +112,9 @@ int main(int argc, char *argv[])
 
     cout << dec << "Did " << steps << " steps out of " << totalSteps << endl;
     if (steps != totalSteps)
+    {
         cout << "!!! WRONG NUMBER OF STEPS !!!" << endl;
+    }
 
     delete [] srcData;
 

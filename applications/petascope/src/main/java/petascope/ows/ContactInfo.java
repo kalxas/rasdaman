@@ -37,7 +37,7 @@ public class ContactInfo {
     private String contactInstructions;
 
     // Constructor
-    ContactInfo () {
+    ContactInfo() {
         contactAddress = new Address();
         voicePhone = new ArrayList<String>();
         facsimilePhone = new ArrayList<String>();
@@ -79,9 +79,9 @@ public class ContactInfo {
     // Methods
     public boolean isEmpty() {
         return getVoicePhones().isEmpty() &&
-                getFacsimilePhones().isEmpty() &&
-                getAddress().getAddressMetadata().isEmpty() &&
-                getHoursOfService().isEmpty() &&
-                getInstructions().isEmpty();
+               getFacsimilePhones().isEmpty() &&
+               getAddress().getAddressMetadata().isEmpty() &&
+               getHoursOfService().isEmpty() &&
+               getInstructions().isEmpty();
     }
 }

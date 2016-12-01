@@ -29,11 +29,11 @@ import petascope.util.WcpsConstants;
 
 /**
  * Subset containing mixed trim/slicing
- * 
+ *
  * @author Dimitar Misev
  */
 public class TrimSliceExpr implements IParseTreeNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(TrimSliceExpr.class);
 
     CoverageExpr expr;
@@ -44,7 +44,7 @@ public class TrimSliceExpr implements IParseTreeNode {
         expr = ce;
         subsets = new LinkedList<IParseTreeNode>();
     }
-    
+
     public void add(IParseTreeNode n) {
         log.trace("Add subset.");
         subsets.add(n);

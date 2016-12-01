@@ -41,12 +41,12 @@ public class RangeElement implements Cloneable {
     public RangeElement(String name, String type, String uom) throws WCPSException {
         if ((name == null) || (type == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid range element: element name and type cannot be null.");
+                                    "Invalid range element: element name and type cannot be null.");
         }
 
         if (name.equals("")) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid range element: element name cannot be empty.");
+                                    "Invalid range element: element name cannot be empty.");
         }
 
         if (!(type.equals(WcpsConstants.MSG_BOOLEAN) || type.equals(WcpsConstants.MSG_CHAR) || type.equals(WcpsConstants.MSG_UNSIGNED_CHAR)
@@ -55,7 +55,7 @@ public class RangeElement implements Cloneable {
                 || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
                 || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX + "2"))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid range element: invalid element type:" + type);
+                                    "Invalid range element: invalid element type:" + type);
         }
 
         this.name = name;
@@ -69,9 +69,9 @@ public class RangeElement implements Cloneable {
     public RangeElement clone() {
         try {
             return new RangeElement(
-                    new String(name),
-                    new String(type),
-                    new String(uom));
+                       new String(name),
+                       new String(type),
+                       new String(uom));
         } catch (WCPSException ime) {
             throw new RuntimeException("Invalid metadata while cloning RangeElement. This is a software bug in WCPS.", ime);
         }
@@ -110,21 +110,21 @@ public class RangeElement implements Cloneable {
     }
 
     public static boolean isComplex(String type) {
-        return type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX+ "2");
+        return type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX + "2");
 
     }
 
     public boolean isIntegral() {
         return type.equals(WcpsConstants.MSG_CHAR) || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT)
-                || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
-                || type.equals(WcpsConstants.MSG_UNSIGNED_LONG);
+               || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
+               || type.equals(WcpsConstants.MSG_UNSIGNED_LONG);
 
     }
 
     public static boolean isIntegral(String type) {
         return type.equals(WcpsConstants.MSG_CHAR) || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT)
-                || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
-                || type.equals(WcpsConstants.MSG_UNSIGNED_LONG);
+               || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
+               || type.equals(WcpsConstants.MSG_UNSIGNED_LONG);
 
     }
 
@@ -140,19 +140,19 @@ public class RangeElement implements Cloneable {
 
     public boolean isNumeric() {
         return type.equals(WcpsConstants.MSG_CHAR) || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT)
-                || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
-                || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
-                || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX)
-                || type.equals(WcpsConstants.MSG_COMPLEX + "2");
+               || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
+               || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
+               || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX)
+               || type.equals(WcpsConstants.MSG_COMPLEX + "2");
 
     }
 
     public static boolean isNumeric(String type) {
         return type.equals(WcpsConstants.MSG_CHAR) || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT)
-                || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
-                || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
-                || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX)
-                || type.equals(WcpsConstants.MSG_COMPLEX + "2");
+               || type.equals(WcpsConstants.MSG_INT) || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
+               || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
+               || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX)
+               || type.equals(WcpsConstants.MSG_COMPLEX + "2");
 
     }
 
@@ -163,7 +163,7 @@ public class RangeElement implements Cloneable {
                 || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
                 || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX + "2"))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid range element: invalid element type:" + type);
+                                    "Invalid range element: invalid element type:" + type);
         }
 
         this.type = type;

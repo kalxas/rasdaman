@@ -35,53 +35,53 @@ import petascope.HTTPRequest;
  * @author Ernesto Rodriguez <ernesto4160@gmail.com>
  */
 
-public class PerformWCS2RasdamanQuery implements Runnable{
+public class PerformWCS2RasdamanQuery implements Runnable {
 
     //Request string that will be sent
     public final String REQUEST =
-            "service=WCS&"
-            + "Request=GetCoverage&"
-            + "version=2.0.0&"
-            + "CoverageId=mr&"
-            + "subset=i(0,200)&"
-            + "subset=j(0,200)&";
+        "service=WCS&"
+        + "Request=GetCoverage&"
+        + "version=2.0.0&"
+        + "CoverageId=mr&"
+        + "subset=i(0,200)&"
+        + "subset=j(0,200)&";
 
     private final ProtocolExtension pext;
     private final DbMetadataSource meta;
     private Exception e;
     private boolean done;
 
-    public PerformWCS2RasdamanQuery(ProtocolExtension pext, DbMetadataSource meta){
+    public PerformWCS2RasdamanQuery(ProtocolExtension pext, DbMetadataSource meta) {
 
         this.pext = pext;
         this.meta = meta;
         this.done = false;
     }
 
-    public boolean isDone(){
+    public boolean isDone() {
 
         return this.done;
     }
 
-    public Exception exception(){
+    public Exception exception() {
 
         return this.e;
     }
 
-    public void run(){
+    public void run() {
 
-        this.done=false;
+        this.done = false;
 
         try {
 
             HTTPRequest request = new HTTPRequest("", "", "", REQUEST);
-            pext.handle(request,meta);
+            pext.handle(request, meta);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             this.e = e;
         }
 
-        this.done=true;
+        this.done = true;
     }
 }

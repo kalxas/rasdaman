@@ -36,7 +36,7 @@ import petascope.wcs2.parsers.Request;
  * @param <T>
  */
 public abstract class AbstractRequestHandler<T extends Request> implements RequestHandler<T> {
-    
+
     protected final DbMetadataSource meta;
 
     public AbstractRequestHandler(DbMetadataSource meta) {
@@ -66,9 +66,9 @@ public abstract class AbstractRequestHandler<T extends Request> implements Reque
 
         // schemaLocation
         root.addAttribute(
-                new Attribute(PREFIX_XSI + ":" + ATT_SCHEMA_LOCATION, NAMESPACE_XSI,
+            new Attribute(PREFIX_XSI + ":" + ATT_SCHEMA_LOCATION, NAMESPACE_XSI,
                           NAMESPACE_WCS  + " " + SCHEMA_LOCATION_WCS)
-                );
+        );
 
         return new Document(root);
     }

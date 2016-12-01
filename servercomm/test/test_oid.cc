@@ -58,21 +58,21 @@ RMINITGLOBALS('C')
 extern char* myExecArgv0 = "";
 
 static void
-insertObj( char* dbName, OId o, char* cn )
+insertObj(char* dbName, OId o, char* cn)
 {
-    MDDBaseType* mddType  = (MDDBaseType*)TypeFactory::mapMDDType( "GreyImage" );
-    r_Minterval domain( "[0:9,0:9]" );
+    MDDBaseType* mddType  = (MDDBaseType*)TypeFactory::mapMDDType("GreyImage");
+    r_Minterval domain("[0:9,0:9]");
 
     //  cout << " " << o << "," << cn << " ... " << flush;
 
-    PersMDDObj* obj = new PersMDDObj( mddType, domain, dbName, o );
-    PersMDDColl objsSet( cn );
-    objsSet.insert( obj );
+    PersMDDObj* obj = new PersMDDObj(mddType, domain, dbName, o);
+    PersMDDColl objsSet(cn);
+    objsSet.insert(obj);
     delete obj;
 }
 
 
-static void removeObj( char* dbName, char* collName, OId o )
+static void removeObj(char* dbName, char* collName, OId o)
 {
     // open collection
     PersMDDColl* coll = 0;
@@ -81,12 +81,12 @@ static void removeObj( char* dbName, char* collName, OId o )
     cout << endl << "SCAN (y/n) ?" << flush;
     cin >> answer;
 
-    if( answer == 'y' )
+    if (answer == 'y')
     {
-        coll = new PersMDDColl( collName );
+        coll = new PersMDDColl(collName);
         MDDCollIter* collIter = coll->createIterator();
         MDDObj* mddObj;
-        for( collIter->reset(); collIter->notDone(); collIter->advance() )
+        for (collIter->reset(); collIter->notDone(); collIter->advance())
         {
             mddObj = collIter->getElement();
             /*
@@ -114,12 +114,12 @@ static void removeObj( char* dbName, char* collName, OId o )
         cout << endl << "SCAN end" << endl;
     }
 
-    coll = new PersMDDColl( collName );
+    coll = new PersMDDColl(collName);
 
-    if( coll )
+    if (coll)
     {
-        cout <<"o == " << o << " dbName == " << dbName << endl;
-        coll->remove( o, dbName );
+        cout << "o == " << o << " dbName == " << dbName << endl;
+        coll->remove(o, dbName);
 
         coll->releaseAll();
         delete coll;
@@ -127,31 +127,37 @@ static void removeObj( char* dbName, char* collName, OId o )
 }
 
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
 
 int
-main( int ac, char** av)
+main(int ac, char** av)
 {
     int optionValueIndex;
     char dbName[255];
     char collName[255];
 
-    if( ac < 3 || checkArguments( ac, av, "-h", optionValueIndex ) )
+    if (ac < 3 || checkArguments(ac, av, "-h", optionValueIndex))
     {
         cout << "Usage:   test_oid base_name collection_name [options]" << endl << endl;
         cout << "Options: -h  ... this help" << endl;
@@ -159,8 +165,8 @@ main( int ac, char** av)
         return 0;
     }
 
-    strcpy( dbName, av[1] );
-    strcpy( collName, av[2] );
+    strcpy(dbName, av[1]);
+    strcpy(collName, av[2]);
 
     // variables representing O2 database, ta and session
     DatabaseIf database;
@@ -172,46 +178,52 @@ main( int ac, char** av)
 
     // connect to the database
     cout << "Connecting to database " << dbName << "..." << flush;
-    database.open( dbName );
+    database.open(dbName);
     cout << "OK" << endl;
 
     // create collection with one object
     cout << "Create collection ... " << flush;
-    ta.begin( &database );
+    ta.begin(&database);
     cout << "getting type ... " << flush;
-    CollectionType* collType = (CollectionType*)TypeFactory::mapSetType( "GreySet" );
+    CollectionType* collType = (CollectionType*)TypeFactory::mapSetType("GreySet");
     cout << "getting oid ... " << flush;
     OId oidColl;
-    if( !OId::allocateMDDCollOId(  &oidColl ) ) cout << oidColl << " ... " << flush;
-    PersMDDColl* pc = PersMDDColl::createRoot( collName, oidColl, collType, &database );
+    if (!OId::allocateMDDCollOId(&oidColl))
+    {
+        cout << oidColl << " ... " << flush;
+    }
+    PersMDDColl* pc = PersMDDColl::createRoot(collName, oidColl, collType, &database);
     delete pc;
     cout << "comitting ... " << flush;
     ta.commit();
     cout << "OK" << endl;
 
     cout << "Insert object into collection ... " << flush;
-    ta.begin( &database );
+    ta.begin(&database);
     cout << "getting oid ... " << flush;
     OId oidMDD;
-    if( !OId::allocateMDDOId(  &oidMDD ) ) cout << oidMDD << " ... " << flush;
+    if (!OId::allocateMDDOId(&oidMDD))
+    {
+        cout << oidMDD << " ... " << flush;
+    }
     cout << "inserting ..." << flush;
-    insertObj( dbName, oidMDD, collName );
+    insertObj(dbName, oidMDD, collName);
     cout << "comitting ... " << flush;
     ta.commit();
     cout << "OK" << endl;
 
     cout << "Remove object again ... " << flush;
-    ta.begin( &database );
+    ta.begin(&database);
     cout << "removing oid " << oidMDD << " ... " << flush;
-    removeObj( dbName, collName, oidMDD );
+    removeObj(dbName, collName, oidMDD);
     cout << "comitting ... " << flush;
     ta.commit();
     cout << "OK" << endl;
 
     cout << "Delete collection ... " << flush;
-    ta.begin( &database );
+    ta.begin(&database);
     cout << "destroying ... " << flush;
-    PersMDDColl::destroyRoot( collName, &database );
+    PersMDDColl::destroyRoot(collName, &database);
     cout << "comitting ... " << flush;
     ta.commit();
     cout << "OK" << endl;

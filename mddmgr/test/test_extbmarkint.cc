@@ -76,8 +76,8 @@ extern char* myExecArgv0 = "";
 RMINITGLOBALS('C')
 
 static char* O2DBName;
-char *collName;
-char defaultCollName[]= "ObjsContainer";
+char* collName;
+char defaultCollName[] = "ObjsContainer";
 
 TransactionIf ta;
 
@@ -86,13 +86,13 @@ TransactionIf ta;
 */
 
 // 2 - Populate collection with MDD objects
-static void testConstructors( OId o,
-                              int numberFramesTile,
-                              int f,  // first frame
-                              int n ); // number frames
+static void testConstructors(OId o,
+                             int numberFramesTile,
+                             int f,  // first frame
+                             int n);  // number frames
 
 // 3 - Retrieves an MDD collection with name cn and prints contents:
-static void testAccessing( char* cn );
+static void testAccessing(char* cn);
 
 
 /*************************************************************
@@ -105,35 +105,40 @@ static void testAccessing( char* cn );
  * Description...: none
  ************************************************************/
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
     // variables representing O2 database, ta and session
     DatabaseIf database;
 
 
 
-    if( argc < 2 )
+    if (argc < 2)
     {
         cout << "Usage: test_extbmarkint <database> [collName] [oid] [frames] " << endl;
         return -1;
     }
-    O2DBName = strdup( argv[1] );
-    if ( argc >= 3 ) collName = strdup( argv[2] );
+    O2DBName = strdup(argv[1]);
+    if (argc >= 3)
+    {
+        collName = strdup(argv[2]);
+    }
     else
+    {
         collName = defaultCollName;
+    }
 
     int numberFramesTile = 3; // 9
-    OId o( double( 2)); //
-    if( argc >= 4 )
+    OId o(double(2));   //
+    if (argc >= 4)
     {
         int oid;
-        o = OId( double( atoi( argv[3] )));
+        o = OId(double(atoi(argv[3])));
         cout << "OId " << o << endl;
     }
-    if( argc >= 5 )
+    if (argc >= 5)
     {
-        numberFramesTile = atoi( argv[4] );
-        cout << "Number of frames per tile "<< numberFramesTile << endl;
+        numberFramesTile = atoi(argv[4]);
+        cout << "Number of frames per tile " << numberFramesTile << endl;
     }
 
     // don't forget to initialize before using AdminIf!
@@ -147,31 +152,31 @@ main( int argc, char** argv)
     int errorDBOpen;
     try
     {
-        errorDBOpen =  database.open( O2DBName );
+        errorDBOpen =  database.open(O2DBName);
     }
-    catch( ...)
+    catch (...)
     {
         cout << "Caught Exception " << endl;
         errorDBOpen = -6;
     }
-    if ( errorDBOpen < 0 )
+    if (errorDBOpen < 0)
     {
         cout << "Database doesn't exist. Create it new ... " << endl;
         cout << "Creating new database " << O2DBName
              << "..." << endl;
-        database.create( O2DBName, "TestSMSchema" );
+        database.create(O2DBName, "TestSMSchema");
         cout << "Connecting to database " << O2DBName
              << "..." << endl;
         try
         {
-            errorDBOpen =  database.open( O2DBName );
+            errorDBOpen =  database.open(O2DBName);
         }
-        catch(...)
+        catch (...)
         {
             errorDBOpen = -6;
         }
     }
-    if ( errorDBOpen < 0 )
+    if (errorDBOpen < 0)
     {
         cout << "Failed at opening newly created database " << errorDBOpen << endl;
         cout << "Exiting " << endl;
@@ -183,13 +188,16 @@ main( int argc, char** argv)
     unsigned totalNumberFrames = 200; /* 2000 */
 
     // The first 2000 frames
-    for( int i = 0; i < totalNumberFrames ; i+= numberFramesTile*30 )
+    for (int i = 0; i < totalNumberFrames ; i += numberFramesTile * 30)
     {
-        ta.begin( &database );
+        ta.begin(&database);
         cout << endl << "Populate collection " << i << " ..." << endl;
-        int numberFrames = numberFramesTile*30;
-        if ( i+numberFrames > totalNumberFrames ) numberFrames = totalNumberFrames-i;
-        testConstructors( o, numberFramesTile, i, numberFrames );
+        int numberFrames = numberFramesTile * 30;
+        if (i + numberFrames > totalNumberFrames)
+        {
+            numberFrames = totalNumberFrames - i;
+        }
+        testConstructors(o, numberFramesTile, i, numberFrames);
 
         /*
             cout <<"Transaction abort (A/a) or commit (default)? ";
@@ -202,9 +210,9 @@ main( int argc, char** argv)
             else
             {
         */
-        ta.commit( );
+        ta.commit();
 
-        cout <<"End of transaction commit... "<<endl;
+        cout << "End of transaction commit... " << endl;
 //    }
     }
 
@@ -212,13 +220,16 @@ main( int argc, char** argv)
     const int lastFrame = 2400; // 5120
 
     // The last frames up to lastFrame
-    for( i = 2121 ; i < lastFrame ; i+= numberFramesTile*30 ) // 2121
+    for (i = 2121 ; i < lastFrame ; i += numberFramesTile * 30)   // 2121
     {
-        ta.begin( &database );
+        ta.begin(&database);
         cout << endl << "Populate collection " << i << " ..." << endl;
-        int numberFrames = numberFramesTile*30;
-        if ( i+numberFrames > lastFrame ) numberFrames = lastFrame-i;
-        testConstructors( o, numberFramesTile, i, numberFrames );
+        int numberFrames = numberFramesTile * 30;
+        if (i + numberFrames > lastFrame)
+        {
+            numberFrames = lastFrame - i;
+        }
+        testConstructors(o, numberFramesTile, i, numberFrames);
 
         /*
             cout <<"Transaction abort (A/a) or commit (default)? ";
@@ -231,7 +242,7 @@ main( int argc, char** argv)
             else
             {
         */
-        ta.commit( );
+        ta.commit();
         /*
               cout <<"End of transaction commit... "<<endl;
             }
@@ -239,19 +250,22 @@ main( int argc, char** argv)
     }
 
 
-    ta.begin(&database );
+    ta.begin(&database);
     // read coll and print contents
     cout << endl << "Read collection " << collName << " and print contents..." << endl;
-    testAccessing( collName );
-    ta.commit( );
-    cout <<"End of transaction commit... "<<endl;
+    testAccessing(collName);
+    ta.commit();
+    cout << "End of transaction commit... " << endl;
 
     cout << endl << "Ending O2 session..." << endl;
-    database.close( );
+    database.close();
     delete myAdmin;
 
-    free( O2DBName );
-    if ( collName != defaultCollName ) free( collName );
+    free(O2DBName);
+    if (collName != defaultCollName)
+    {
+        free(collName);
+    }
     return 0;
 
 }
@@ -263,63 +277,65 @@ main( int argc, char** argv)
  *    testConstructors( char* collName )
  *
  ************************************************************/
-static void testConstructors( OId o,
-                              int numberFramesTile,
-                              int f,  // first frame
-                              int n ) // number frames
+static void testConstructors(OId o,
+                             int numberFramesTile,
+                             int f,  // first frame
+                             int n)  // number frames
 {
 
     const BaseType* mddType;
 
-    cout << "....testConstructors"<< endl;
+    cout << "....testConstructors" << endl;
 
     try
     {
 
-        PersMDDObj* accessedObj = new PersMDDObj( O2DBName, o );
-        int typeSize= accessedObj->getCellType( )->getSize( );
-        cout << "currDom  " << accessedObj->getCurrentDomain( ) << endl;
+        PersMDDObj* accessedObj = new PersMDDObj(O2DBName, o);
+        int typeSize = accessedObj->getCellType()->getSize();
+        cout << "currDom  " << accessedObj->getCurrentDomain() << endl;
         accessedObj->printStatus();
 
         EOId eoid;
-        if ( accessedObj->getEOId( &eoid ) ==0 )
-            cout <<"EOId: " << eoid;
+        if (accessedObj->getEOId(&eoid) == 0)
+        {
+            cout << "EOId: " << eoid;
+        }
         cout << endl << endl;
-        mddType = accessedObj->getCellType( );
+        mddType = accessedObj->getCellType();
 
-        r_Minterval firstTile( 3 );
-        firstTile << r_Sinterval( long ( 0 ), long ( numberFramesTile-1 ) )
-                  << r_Sinterval( long ( 0 ), long ( 79 ) )
-                  << r_Sinterval( long ( 0 ), long ( 119 ) );
+        r_Minterval firstTile(3);
+        firstTile << r_Sinterval(long (0), long (numberFramesTile - 1))
+                  << r_Sinterval(long (0), long (79))
+                  << r_Sinterval(long (0), long (119));
 
-        r_Minterval secondTile( 3 );
-        secondTile << r_Sinterval( long ( 0 ) , long ( numberFramesTile-1 ) )
-                   << r_Sinterval( long ( 80 ), long ( 159 ) )
-                   << r_Sinterval( long ( 0 ) , long ( 119 ) );
+        r_Minterval secondTile(3);
+        secondTile << r_Sinterval(long (0) , long (numberFramesTile - 1))
+                   << r_Sinterval(long (80), long (159))
+                   << r_Sinterval(long (0) , long (119));
 
-        for ( int j = f; j < f+n ; j+=numberFramesTile )
+        for (int j = f; j < f + n ; j += numberFramesTile)
         {
             r_Minterval dom1 = firstTile;
             r_Minterval dom2 = secondTile;
-            r_Point desl( (r_Range) j, 0, 0 );
-            dom1.translate( desl );
-            dom2.translate( desl );
-            if ( dom1[0].high( ) >= f+n )
+            r_Point desl((r_Range) j, 0, 0);
+            dom1.translate(desl);
+            dom2.translate(desl);
+            if (dom1[0].high() >= f + n)
             {
-                dom1[0].set_high( long( f+n-1) );
-                dom2[0].set_high( long( f+n-1) );
+                dom1[0].set_high(long(f + n - 1));
+                dom2[0].set_high(long(f + n - 1));
             }
             cout << "dom1" << dom1 << " dom2 " << dom2
-                 << " type " << mddType->getTypeName( ) << endl;
+                 << " type " << mddType->getTypeName() << endl;
 
-            int sz1 = dom1.cell_count( ) * typeSize;
+            int sz1 = dom1.cell_count() * typeSize;
             char* cells1 = new char[sz1];
-            PersTile* tile1 = new PersTile( dom1, mddType, cells1);
+            PersTile* tile1 = new PersTile(dom1, mddType, cells1);
             accessedObj->insertTile(tile1);
 
-            int sz2 = dom2.cell_count( ) * typeSize;
+            int sz2 = dom2.cell_count() * typeSize;
             char* cells2 = new char[sz2];
-            PersTile* tile2 = new PersTile( dom2, mddType, cells2 );
+            PersTile* tile2 = new PersTile(dom2, mddType, cells2);
 
             accessedObj->insertTile(tile2);
             // accessedObj->printStatus( );
@@ -328,7 +344,7 @@ static void testConstructors( OId o,
         delete accessedObj;
 
     }
-    catch ( r_Error& errObj)
+    catch (r_Error& errObj)
     {
         cout << "Error caught when opening object" << endl;
     }
@@ -340,15 +356,15 @@ static void testConstructors( OId o,
  * Function......: testAccessing( char* cn )
  ************************************************************/
 
-static void testAccessing( char* cn )
+static void testAccessing(char* cn)
 {
     PersMDDObj* accessedObj;
 
-    cout << "....testAccessing collection "<< cn << endl;
+    cout << "....testAccessing collection " << cn << endl;
 
     try
     {
-        PersMDDColl objsSet( cn );
+        PersMDDColl objsSet(cn);
 
         // To test PersMDDColl::printStatus( )
         // objsSet.printStatus( );
@@ -357,23 +373,25 @@ static void testAccessing( char* cn )
         // MDDCollIter methods :
 
         cout << "Iterating through the collection with PersMDDCollIter " << endl;
-        MDDCollIter* objsIt = objsSet.createIterator( );
+        MDDCollIter* objsIt = objsSet.createIterator();
 
-        for( int i = 1 ; objsIt->notDone( ); i++, objsIt->advance( ))
+        for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
         {
-            cout << i<<". MDD object in set:" << endl;
+            cout << i << ". MDD object in set:" << endl;
             accessedObj = (PersMDDObj*) objsIt->getElement();
             accessedObj->printStatus();
             EOId eoid;
-            if ( accessedObj->getEOId( &eoid ) ==0 )
-                cout <<"EOId: " << eoid;
+            if (accessedObj->getEOId(&eoid) == 0)
+            {
+                cout << "EOId: " << eoid;
+            }
         }
         delete objsIt;
-        objsSet.releaseAll( );
+        objsSet.releaseAll();
     }
-    catch ( r_Error& errObj)
+    catch (r_Error& errObj)
     {
-        cout <<"Error caught ................."<< endl;
+        cout << "Error caught ................." << endl;
     }
 }
 

@@ -47,26 +47,26 @@
 
 template class r_Ref<r_Object>;
 template class r_Ref<r_Minterval>;
-template class r_Collection<r_Transaction::GenRefElement *>;
-template class r_Set<r_Transaction::GenRefElement *>;
-template class r_Iterator<r_GMarray *>;
-template class r_Iterator<r_Ref<r_GMarray > >;
-template class r_Collection<r_Ref<r_GMarray> >;
-template class r_Collection<r_GMarray *>;
-template class r_Set<r_GMarray *>;
-template class r_Iterator<r_Ref<r_Object> >;
+template class r_Collection<r_Transaction::GenRefElement*>;
+template class r_Set<r_Transaction::GenRefElement*>;
+template class r_Iterator<r_GMarray*>;
+template class r_Iterator<r_Ref<r_GMarray>>;
+template class r_Collection<r_Ref<r_GMarray>>;
+template class r_Collection<r_GMarray*>;
+template class r_Set<r_GMarray*>;
+template class r_Iterator<r_Ref<r_Object>>;
 template class r_IterType<r_Attribute>;
-template class r_Collection<r_Ref<r_Object> >;
-template class r_Set<r_Ref<r_Object> >;
+template class r_Collection<r_Ref<r_Object>>;
+template class r_Set<r_Ref<r_Object>>;
 template class r_Iterator<r_Ref_Any>;
 template class r_Ref<r_GMarray>;
 template class r_Collection<r_Ref_Any>;
 template class std::vector<r_Minterval>;
-template class r_Iterator<r_Transaction::GenRefElement *>;
-template class r_Set<r_Ref<r_GMarray> >;
-template class r_Ref<r_Set<r_Ref<r_GMarray> > >;
-template class r_Set<r_Ref_Any>;
-template class r_Marray<r_ULong>;
-template class r_Marray<r_Char>;
+template class r_Iterator<r_Transaction::GenRefElement*>;
+template class r_Set<r_Ref<r_GMarray>>;
+template class r_Ref<r_Set<r_Ref<r_GMarray>>>;
+                     template class r_Set<r_Ref_Any>;
+                     template class r_Marray<r_ULong>;
+                     template class r_Marray<r_Char>;
 
 #endif

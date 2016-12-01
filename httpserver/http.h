@@ -35,16 +35,16 @@ rasdaman GmbH.
 
 struct KeywordKey
 {
-    char *Keyword;
+    char* Keyword;
     int   Key;
 };
 
 struct HTTPError
 {
     int   Code;
-    char *Reason;
-    char *Message_en;
-    char *Message_de;
+    char* Reason;
+    char* Message_en;
+    char* Message_de;
 };
 
 /*  HTTP Message structure
@@ -52,18 +52,18 @@ struct HTTPError
 
 struct HTTPMsg
 {
-    char *Head;
-    char *Body;
+    char* Head;
+    char* Body;
     int   BodySize;
 };
 
 
 struct URLComps
 {
-    char *Protocol;
-    char *Servername;
-    char *Path;
-    char *Extra;
+    char* Protocol;
+    char* Servername;
+    char* Path;
+    char* Extra;
 };
 
 
@@ -76,7 +76,7 @@ struct Version
 
 struct RequestLine
 {
-    char *Vanilla;
+    char* Vanilla;
     int   Method;
     struct URLComps URL;
     struct Version  Version;
@@ -84,17 +84,17 @@ struct RequestLine
 
 struct StatusLine
 {
-    char *Vanilla;
+    char* Vanilla;
     struct Version  Version;
     int   Status;
-    char *Reason;
+    char* Reason;
 };
 
 struct MsgHeader
 {
-    struct MsgHeader *Next;
+    struct MsgHeader* Next;
     int   Field;
-    char *Content;
+    char* Content;
 };
 
 
@@ -104,14 +104,14 @@ struct MsgHeader
 struct ReqInfo
 {
     int                State;
-    char              *HeadBuff;
+    char*              HeadBuff;
     size_t             HeadSize;
-    char              *BodyBuff;
+    char*              BodyBuff;
     size_t             BodySize;
     struct RequestLine Line;
-    struct MsgHeader  *First;
-    struct MsgHeader  *Last;
-    char              *Body;
+    struct MsgHeader*  First;
+    struct MsgHeader*  Last;
+    char*              Body;
 };
 
 /*  Data Structure for HTTP Response
@@ -120,14 +120,14 @@ struct ReqInfo
 struct RespInfo
 {
     int                State;
-    char              *HeadBuff;
+    char*              HeadBuff;
     size_t             HeadSize;
-    char              *BodyBuff;
+    char*              BodyBuff;
     size_t             BodySize;
     struct StatusLine  Line;
-    struct MsgHeader  *First;
-    struct MsgHeader  *Last;
-    char              *Body;
+    struct MsgHeader*  First;
+    struct MsgHeader*  Last;
+    char*              Body;
 };
 
 #endif  /*  _HTTP_H not defined  */

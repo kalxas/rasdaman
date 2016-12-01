@@ -46,7 +46,7 @@ rasdaman GmbH.
 
 int main()
 {
-    int v,x,y,z,d;
+    int v, x, y, z, d;
 
     v = 100;
     x = 200;
@@ -58,23 +58,23 @@ int main()
     cout << "Collection Examples" << endl;
     cout << "====================" << endl << endl;
 
-    cout << "Creating r_Collection of type int." <<endl;
-    r_Collection< r_Ref_Any > a;
-    r_Iterator< r_Ref_Any >   iter;
+    cout << "Creating r_Collection of type int." << endl;
+    r_Collection<r_Ref_Any> a;
+    r_Iterator<r_Ref_Any>   iter;
 
     cout << "Cardinality of empty collection 'a': " << a.cardinality() << endl << endl;
 
     cout << "Now inserting four elements:" << endl << "v = 100" << endl;
-    a.insert_element( &v );
+    a.insert_element(&v);
 
     cout << "x = 200" << endl;
-    a.insert_element( &x );
+    a.insert_element(&x);
 
     cout << "y = 100 (should work in collections)" << endl;
-    a.insert_element( &y );
+    a.insert_element(&y);
 
     cout << "z = 300" << endl;
-    a.insert_element( &z );
+    a.insert_element(&z);
 
     cout << "Cardinality of collection 'a' after four inserts: " << a.cardinality() << endl << endl;
 
@@ -104,13 +104,13 @@ int main()
 //        cout << (*iter) << ", " << flush;
     cout << endl;
 
-    cout << "Testing assignment operator on r_Collections." << endl << "(creating r_Collection 'b' that is equal to 'a'.)" <<endl;
-    r_Collection< r_Ref_Any > b;
+    cout << "Testing assignment operator on r_Collections." << endl << "(creating r_Collection 'b' that is equal to 'a'.)" << endl;
+    r_Collection<r_Ref_Any> b;
     b = a;
     cout << "Cardinality of 'b': " << b.cardinality() << endl << endl;
 
-    cout << "Testing copy constructor of r_Collection." << endl << "(creating r_Collection 'c' that is equal to 'a'.)" <<endl;
-    r_Collection< r_Ref_Any > c(a);
+    cout << "Testing copy constructor of r_Collection." << endl << "(creating r_Collection 'c' that is equal to 'a'.)" << endl;
+    r_Collection<r_Ref_Any> c(a);
     cout << "Cardinality of 'c': " << c.cardinality() << endl << endl;
 
     cout << "Now removing all elements from 'a'." << endl;

@@ -54,8 +54,8 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
     @Override
     public boolean canParse(HTTPRequest request) {
         boolean canParse = request.getRequestString() != null
-                && request.getRequestString().startsWith("<")
-                && XMLUtil.isFirstTag(request.getRequestString(), getOperationName());
+                           && request.getRequestString().startsWith("<")
+                           && XMLUtil.isFirstTag(request.getRequestString(), getOperationName());
         log.trace("XMLParser<{}> {} parse the request", getOperationName(), canParse ? "can" : "cannot");
         return canParse;
     }
@@ -67,7 +67,7 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
 
             String service = root.getAttributeValue(ATT_SERVICE);
             String version = root.getAttributeValue(ATT_VERSION);
-            if ((null==service) || (!service.equals(BaseRequest.SERVICE))
+            if ((null == service) || (!service.equals(BaseRequest.SERVICE))
                     || (version != null && !version.matches(BaseRequest.VERSION))) {
                 throw new WCSException(ExceptionCode.VersionNegotiationFailed, "Service/Version not supported.");
             }
@@ -75,8 +75,8 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
             return root;
         } catch (ParsingException ex) {
             throw new WCSException(ExceptionCode.XmlNotValid.locator(
-                    "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
-                    ex.getMessage(), ex);
+                                       "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
+                                   ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new WCSException(ExceptionCode.XmlNotValid, ex.getMessage(), ex);
         }
@@ -98,12 +98,12 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
         // validate
         try {
             validator.validate(requestStream);
-        } catch(SAXException e) {
-            throw new WCSException(ExceptionCode.XmlNotValid,"The structure of the provided input is not valid.");
-        } catch(NullPointerException e) {
+        } catch (SAXException e) {
+            throw new WCSException(ExceptionCode.XmlNotValid, "The structure of the provided input is not valid.");
+        } catch (NullPointerException e) {
             throw new WCSException(ExceptionCode.InvalidRequest, "The received XML document is empty.");
-        } catch(IOException e) {
-            throw new WCSException(ExceptionCode.WcsError,"A fatal error ocurred while validating the input schema.");
+        } catch (IOException e) {
+            throw new WCSException(ExceptionCode.WcsError, "A fatal error ocurred while validating the input schema.");
         }
     }
 }

@@ -46,7 +46,7 @@ static const char rcsid[] = "@(#)rasgeo, InitError: $Id: rasgeo_error.cc,v 1.1 2
 #include <easylogging++.h>
 
 /// error object, carrying int error code
-InitError::InitError( int e )
+InitError::InitError(int e)
 {
     LDEBUG << "Exception: " << e << " for this=" << this;
     errorCode = e;
@@ -61,7 +61,7 @@ InitError::~InitError()
 const char*
 InitError::what()
 {
-    const char *errorMsg;
+    const char* errorMsg;
     LDEBUG << "error code is: " << errorCode;
     switch (errorCode)
     {
@@ -129,9 +129,13 @@ InitError::what()
 
     // check for buffer overflow
     if (strlen(MODULE_TAG) + 3 + strlen(ERROR_TEXT) + strlen(errorMsg) + 1 > ERRTEXT_BUFSIZ)
-        sprintf( errorText, "%s%03d%s", MODULE_TAG, errorCode, "(error message too long, cannot display)" );
+    {
+        sprintf(errorText, "%s%03d%s", MODULE_TAG, errorCode, "(error message too long, cannot display)");
+    }
     else
-        sprintf( errorText, "%s%03d%s%s", MODULE_TAG, errorCode, ERROR_TEXT, errorMsg );
+    {
+        sprintf(errorText, "%s%03d%s%s", MODULE_TAG, errorCode, ERROR_TEXT, errorMsg);
+    }
 
     return errorText;
 } // what()

@@ -167,10 +167,14 @@ signalHandler(int sig)
 
     // no repeated signals
     if (handleSignal)
+    {
         handleSignal = false;
+    }
 
     if (sig == SIGCONT || sig == SIGTSTP || sig == SIGTTIN || sig == SIGTTOU || sig == SIGWINCH)
+    {
         return;
+    }
     else
     {
         LDEBUG << "fatal signal, exiting.";

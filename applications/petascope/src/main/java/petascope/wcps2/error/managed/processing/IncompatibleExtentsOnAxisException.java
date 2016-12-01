@@ -29,9 +29,9 @@ import petascope.exceptions.ExceptionCode;
 public class IncompatibleExtentsOnAxisException extends WCPSProcessingError {
     public IncompatibleExtentsOnAxisException(String firstCovName, String secondCovName, int axisNumber) {
         super(ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
-                .replace("$axisNumber", String.valueOf(axisNumber)), ExceptionCode.WcpsError);
+              .replace("$axisNumber", String.valueOf(axisNumber)), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Coverages '$firstCov' and " +
-                                                "'$secondCov' don't have the same extent on axis '$axisNumber'.";
+            "'$secondCov' don't have the same extent on axis '$axisNumber'.";
 }

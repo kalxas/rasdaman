@@ -55,8 +55,8 @@ public interface FormatExtension extends  Extension {
     String FORMAT_ID_JP2 = "jpeg2000";
     String FORMAT_ID_OPENJP2 = "jp2openjpeg";
     String FORMAT_ID_PNG = "png";
-    String FORMAT_ID_NETCDF = "netcdf";   
-    
+    String FORMAT_ID_NETCDF = "netcdf";
+
 
     /**
      * Check if this format extension is the right one for req
@@ -78,7 +78,7 @@ public interface FormatExtension extends  Extension {
      * @throws SecoreException
      */
     Response handle(GetCoverageRequest req, DbMetadataSource meta)
-            throws PetascopeException, WCSException, SecoreException;
+    throws PetascopeException, WCSException, SecoreException;
 
     /**
      * @return the mime-type of the particular format handled by this extension

@@ -51,13 +51,13 @@ TransactionIf::getDatabaseIf()
 }
 
 void
-TransactionIf::begin( DatabaseIf* currBase, bool readOnly ) throw ( r_Error )
+TransactionIf::begin(DatabaseIf* currBase, bool readOnly) throw (r_Error)
 {
     try
     {
         currBase->baseDBMSOpen();
     }
-    catch(r_Error& err)
+    catch (r_Error& err)
     {
         currBase->baseDBMSClose();
         throw err;

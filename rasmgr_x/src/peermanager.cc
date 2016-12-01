@@ -48,19 +48,19 @@ PeerManager::PeerManager()
 PeerManager::~PeerManager()
 {}
 
-void PeerManager::defineInPeer(const std::string &peerHostName)
+void PeerManager::defineInPeer(const std::string& peerHostName)
 {
-    if(peerHostName.empty())
+    if (peerHostName.empty())
     {
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
     // Check for duplicates
-    for(const auto& inPeer: this->inPeers)
+    for (const auto& inPeer : this->inPeers)
     {
-        if(inPeer->getHostName() == peerHostName)
+        if (inPeer->getHostName() == peerHostName)
         {
             throw InPeerAlreadyExistsException(peerHostName);
         }
@@ -71,19 +71,19 @@ void PeerManager::defineInPeer(const std::string &peerHostName)
     this->inPeers.push_back(peer);
 }
 
-void PeerManager::removeInPeer(const std::string &peerHostName)
+void PeerManager::removeInPeer(const std::string& peerHostName)
 {
-    if(peerHostName.empty())
+    if (peerHostName.empty())
     {
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
     bool removed = false;
-    for(auto inPeer = this->inPeers.begin(); inPeer!= this->inPeers.end(); ++inPeer)
+    for (auto inPeer = this->inPeers.begin(); inPeer != this->inPeers.end(); ++inPeer)
     {
-        if((*inPeer)->getHostName() == peerHostName)
+        if ((*inPeer)->getHostName() == peerHostName)
         {
             this->inPeers.erase(inPeer);
             removed = true;
@@ -92,25 +92,25 @@ void PeerManager::removeInPeer(const std::string &peerHostName)
         }
     }
 
-    if(!removed)
+    if (!removed)
     {
         throw InexistentInPeerException(peerHostName);
     }
 }
 
-void PeerManager::defineOutPeer(const std::string &peerHostName, const boost::uint32_t port)
+void PeerManager::defineOutPeer(const std::string& peerHostName, const boost::uint32_t port)
 {
-    if(peerHostName.empty())
+    if (peerHostName.empty())
     {
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
     // Check for duplicates
-    for(const auto& outPeer: this->outPeers)
+    for (const auto& outPeer : this->outPeers)
     {
-        if(outPeer->getHostName() == peerHostName)
+        if (outPeer->getHostName() == peerHostName)
         {
             throw OutPeerAlreadyExistsException(peerHostName, port);
         }
@@ -121,22 +121,22 @@ void PeerManager::defineOutPeer(const std::string &peerHostName, const boost::ui
     this->outPeers.push_back(peer);
 }
 
-void PeerManager::removeOutPeer(const std::string &peerHostName)
+void PeerManager::removeOutPeer(const std::string& peerHostName)
 {
-    if(peerHostName.empty())
+    if (peerHostName.empty())
     {
         throw InvalidArgumentException("Invalid peer host name.");
     }
 
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
     bool removed = false;
-    for(auto outPeer = this->outPeers.begin(); outPeer!= this->outPeers.end(); ++outPeer)
+    for (auto outPeer = this->outPeers.begin(); outPeer != this->outPeers.end(); ++outPeer)
     {
-        if((*outPeer)->getHostName() == peerHostName)
+        if ((*outPeer)->getHostName() == peerHostName)
         {
             // If the peer is busy, throw an exception
-            if((*outPeer)->isBusy())
+            if ((*outPeer)->isBusy())
             {
                 throw ResourceBusyException("The peer has active client sessions.");
             }
@@ -148,19 +148,19 @@ void PeerManager::removeOutPeer(const std::string &peerHostName)
         }
     }
 
-    if(!removed)
+    if (!removed)
     {
         throw InexistentOutPeerException(peerHostName);
     }
 }
 
-bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientServerSession &out_reply)
+bool PeerManager::tryGetRemoteServer(const ClientServerRequest& request, ClientServerSession& out_reply)
 {
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
-    for(const auto& outpeer:this->outPeers)
+    for (const auto& outpeer : this->outPeers)
     {
-        if(outpeer->tryGetRemoteServer(request, out_reply))
+        if (outpeer->tryGetRemoteServer(request, out_reply))
         {
             RemoteClientSession clientSession(out_reply.clientSessionId, out_reply.dbSessionId);
 
@@ -174,23 +174,23 @@ bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientS
     return false;
 }
 
-bool PeerManager::isRemoteClientSession(const RemoteClientSession &clientSession)
+bool PeerManager::isRemoteClientSession(const RemoteClientSession& clientSession)
 {
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
     string sessionKey = this->remoteClientSessionToString(clientSession);
 
-    return this->remoteSessions.find(sessionKey)!=this->remoteSessions.end();
+    return this->remoteSessions.find(sessionKey) != this->remoteSessions.end();
 }
 
-void PeerManager::releaseServer(const RemoteClientSession &clientSession)
+void PeerManager::releaseServer(const RemoteClientSession& clientSession)
 {
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
     string sessionKey = this->remoteClientSessionToString(clientSession);
 
     auto session = this->remoteSessions.find(sessionKey);
-    if(session!=this->remoteSessions.end())
+    if (session != this->remoteSessions.end())
     {
         session->second->releaseServer(clientSession);
         this->remoteSessions.erase(session);
@@ -199,11 +199,11 @@ void PeerManager::releaseServer(const RemoteClientSession &clientSession)
 
 PeerMgrProto PeerManager::serializeToProto()
 {
-    unique_lock<mutex> lock ( this->mut );
+    unique_lock<mutex> lock(this->mut);
 
     PeerMgrProto result;
 
-    for(const auto& outPeer: this->outPeers)
+    for (const auto& outPeer : this->outPeers)
     {
         OutPeerProto outPeerProto;
         outPeerProto.set_host_name(outPeer->getHostName());
@@ -212,7 +212,7 @@ PeerMgrProto PeerManager::serializeToProto()
         result.add_outpeers()->CopyFrom(outPeerProto);
     }
 
-    for(const auto& inPeer: this->inPeers)
+    for (const auto& inPeer : this->inPeers)
     {
         InPeerProto inPeerProto;
         inPeerProto.set_host_name(inPeer->getHostName());
@@ -223,9 +223,9 @@ PeerMgrProto PeerManager::serializeToProto()
     return result;
 }
 
-std::string PeerManager::remoteClientSessionToString(const RemoteClientSession &clientSession)
+std::string PeerManager::remoteClientSessionToString(const RemoteClientSession& clientSession)
 {
     return clientSession.getClientSessionId()
-           +":"+clientSession.getDbSessionId();
+           + ":" + clientSession.getDbSessionId();
 }
 }

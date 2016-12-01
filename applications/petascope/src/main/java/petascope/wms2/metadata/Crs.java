@@ -60,7 +60,7 @@ public class Crs implements ISerializableMetadataObject, IPersistentMetadataObje
      * Empty constructor to be used by the persistence provider
      */
     protected Crs() {
-        
+
     }
 
     /**

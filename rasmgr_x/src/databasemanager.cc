@@ -63,10 +63,10 @@ void DatabaseManager::defineDatabase(const std::string& dbHostName,
     bool dbExists = false;
 
     //Check if there already is a database with this name in the list
-    for(std::list<boost::shared_ptr<Database> >::iterator it = this->databases.begin();
-            it!=this->databases.end(); ++it)
+    for (std::list<boost::shared_ptr<Database>>::iterator it = this->databases.begin();
+            it != this->databases.end(); ++it)
     {
-        if((*it)->getDbName()==databaseName)
+        if ((*it)->getDbName() == databaseName)
         {
             db = (*it);
             dbExists  = true;
@@ -75,7 +75,7 @@ void DatabaseManager::defineDatabase(const std::string& dbHostName,
     }
 
     //Create new database if it does not exist
-    if(!dbExists)
+    if (!dbExists)
     {
         db.reset(new Database(databaseName));
     }
@@ -87,24 +87,24 @@ void DatabaseManager::defineDatabase(const std::string& dbHostName,
     databases.push_back(db);
 }
 
-void DatabaseManager::changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp)
+void DatabaseManager::changeDatabase(const std::string& oldDbName, const DatabasePropertiesProto& newDbProp)
 {
     unique_lock<mutex> lock(this->mut);
-    bool changedDb=false;
+    bool changedDb = false;
 
     //Check if there already is a database with this name in the list
-    for(std::list<boost::shared_ptr<Database> >::iterator it = this->databases.begin();
-            it!=this->databases.end(); ++it)
+    for (std::list<boost::shared_ptr<Database>>::iterator it = this->databases.begin();
+            it != this->databases.end(); ++it)
     {
-        if((*it)->getDbName()==oldDbName)
+        if ((*it)->getDbName() == oldDbName)
         {
-            if((*it)->isBusy())
+            if ((*it)->isBusy())
             {
-		throw DbBusyException((*it)->getDbName());
+                throw DbBusyException((*it)->getDbName());
             }
             else
             {
-                if(newDbProp.has_n_name())
+                if (newDbProp.has_n_name())
                 {
                     (*it)->setDbName(newDbProp.n_name());
                 }
@@ -115,13 +115,13 @@ void DatabaseManager::changeDatabase(const std::string &oldDbName, const Databas
         }
     }
 
-    if(!changedDb)
+    if (!changedDb)
     {
-	throw InexistentDatabaseException(oldDbName);
+        throw InexistentDatabaseException(oldDbName);
     }
 }
 
-void DatabaseManager::removeDatabase(const std::string &databaseHostName, const std::string& databaseName)
+void DatabaseManager::removeDatabase(const std::string& databaseHostName, const std::string& databaseName)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -132,14 +132,14 @@ void DatabaseManager::removeDatabase(const std::string &databaseHostName, const 
 
     dbHost->removeDbFromHost(databaseName);
 
-    LDEBUG<<"Removed database \""+databaseName+"\" from database host name \""+databaseHostName+"\"";
+    LDEBUG << "Removed database \"" + databaseName + "\" from database host name \"" + databaseHostName + "\"";
 
-    for(std::list<boost::shared_ptr<Database> >::iterator it = this->databases.begin();
-            it!=this->databases.end(); ++it)
+    for (std::list<boost::shared_ptr<Database>>::iterator it = this->databases.begin();
+            it != this->databases.end(); ++it)
     {
-        if((*it)->getDbName()==databaseName)
+        if ((*it)->getDbName() == databaseName)
         {
-            LDEBUG<<"Removed database from list of active databases.";
+            LDEBUG << "Removed database from list of active databases.";
             this->databases.remove(*it);
 
             break;
@@ -153,13 +153,13 @@ DatabaseMgrProto DatabaseManager::serializeToProto()
 
     unique_lock<mutex> lock(this->mut);
 
-    list<shared_ptr<DatabaseHost> > dbhList=this->dbHostManager->getDatabaseHostList();
+    list<shared_ptr<DatabaseHost>> dbhList = this->dbHostManager->getDatabaseHostList();
 
-    for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
+    for (list<shared_ptr<DatabaseHost>>::iterator it = dbhList.begin(); it != dbhList.end(); ++it)
     {
-        DatabaseHostProto dbhProto = DatabaseHost::serializeToProto( *(*it));
+        DatabaseHostProto dbhProto = DatabaseHost::serializeToProto(*(*it));
 
-        for(int i=0; i<dbhProto.databases_size(); i++)
+        for (int i = 0; i < dbhProto.databases_size(); i++)
         {
             DatabaseMgrProto::DbAndDbHostPair* p =  result.add_databases();
 

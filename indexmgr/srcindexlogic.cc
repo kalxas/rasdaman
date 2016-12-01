@@ -69,7 +69,7 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point& mddDomainExtent, const r_P
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
-        normalized = static_cast<r_Range>((mddDomainExtent[dim]/tileConfigExtent[dim])) - 1;
+        normalized = static_cast<r_Range>((mddDomainExtent[dim] / tileConfigExtent[dim])) - 1;
         //cout << "mdd domain extent [" << dim << "]  " << mddDomainExtent[dim] << endl;
         //cout << "tile config extent [" << dim << "] " << tileConfigExtent[dim] << endl;
         //cout << "division                           " << mddDomainExtent[dim]/tileConfigExtent[dim] << endl;
@@ -95,7 +95,7 @@ SRCIndexLogic::computeNormalizedPoint(const r_Point& toNormalize, const r_Point&
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
-        normalizedPoint[dim] = static_cast<r_Range>((toNormalize[dim] - mddDomainOrigin[dim])/tileConfigExtent[dim]);
+        normalizedPoint[dim] = static_cast<r_Range>((toNormalize[dim] - mddDomainOrigin[dim]) / tileConfigExtent[dim]);
     }
     LTRACE << "computeNormalizedPoint(" << toNormalize << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << normalizedPoint;
     return normalizedPoint;
@@ -202,8 +202,8 @@ SRCIndexLogic::computeTiledDomain(const r_Minterval& completeDomain, const r_Poi
         high = currSi.high();
         mddOrigin = mddDomainOrigin[dim];
         tileExtent = tileConfigExtent[dim];
-        offsetlow = (low - mddOrigin)%tileExtent;
-        offsethigh = (high - mddOrigin)%tileExtent;
+        offsetlow = (low - mddOrigin) % tileExtent;
+        offsethigh = (high - mddOrigin) % tileExtent;
         //this has to be revised if we support border tiles
         retval[dim] = r_Sinterval(low - offsetlow, high - offsethigh + tileExtent - 1);
         LTRACE << "mdd interval " << currSi << " offset low " << offsetlow << " offset high " << offsethigh << " tile extent " << tileExtent;
@@ -280,7 +280,7 @@ SRCIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const Stor
 }
 
 bool
-SRCIndexLogic::removeObject(__attribute__ ((unused)) IndexDS* ixDS, __attribute__ ((unused)) const KeyObject& objToRemove,__attribute__ ((unused)) const StorageLayout& sl)
+SRCIndexLogic::removeObject(__attribute__((unused)) IndexDS* ixDS, __attribute__((unused)) const KeyObject& objToRemove, __attribute__((unused)) const StorageLayout& sl)
 {
     LTRACE << "removeObject(" << objToRemove << ")";
     return true;

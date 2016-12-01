@@ -58,10 +58,10 @@ createNormalizedDomain(const r_Point& mddDomainExtent, const r_Point& tileConfig
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
-        normalized = (r_Range)(mddDomainExtent[dim]/tileConfigExtent[dim]) - 1;
+        normalized = (r_Range)(mddDomainExtent[dim] / tileConfigExtent[dim]) - 1;
         cout << "mdd domain extent [" << dim << "]  " << mddDomainExtent[dim] << endl;
         cout << "tile config extent [" << dim << "] " << tileConfigExtent[dim] << endl;
-        cout << "division                           " << mddDomainExtent[dim]/tileConfigExtent[dim] << endl;
+        cout << "division                           " << mddDomainExtent[dim] / tileConfigExtent[dim] << endl;
         if ((normalized + 1)* tileConfigExtent[dim] != mddDomainExtent[dim])
         {
             cout << "got you" << endl;
@@ -79,7 +79,7 @@ createNormalizedPoint(const r_Point& toNormalize, const r_Point& tileConfigExten
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
-        normalizedPoint[dim] = (r_Range)((toNormalize[dim] - mddDomainOrigin[dim])/tileConfigExtent[dim]);
+        normalizedPoint[dim] = (r_Range)((toNormalize[dim] - mddDomainOrigin[dim]) / tileConfigExtent[dim]);
     }
     return normalizedPoint;
 }

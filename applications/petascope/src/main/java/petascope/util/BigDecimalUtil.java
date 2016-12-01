@@ -95,10 +95,10 @@ public class BigDecimalUtil {
         return BigDecimalUtil.stripDecimalZeros(result);
     }
 
-    public static int listContains(List<BigDecimal> list, BigDecimal value){
+    public static int listContains(List<BigDecimal> list, BigDecimal value) {
         int counter = 0;
-        for(BigDecimal element : list){
-            if(element.compareTo(value) == 0){
+        for (BigDecimal element : list) {
+            if (element.compareTo(value) == 0) {
                 return counter;
             }
             counter++;

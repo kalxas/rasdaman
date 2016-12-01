@@ -82,13 +82,13 @@ public:
      * currently registered with this rasmgr.
      * @return
      */
-    virtual std::list<boost::shared_ptr<DatabaseHost> > getDatabaseHostList() const;
+    virtual std::list<boost::shared_ptr<DatabaseHost>> getDatabaseHostList() const;
 
 
     virtual DatabaseHostMgrProto serializeToProto();
 
 private:
-    std::list< boost::shared_ptr<DatabaseHost> > hostList;
+    std::list<boost::shared_ptr<DatabaseHost>> hostList;
     boost::mutex mut;
 };
 

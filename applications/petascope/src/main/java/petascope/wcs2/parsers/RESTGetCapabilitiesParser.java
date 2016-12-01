@@ -38,14 +38,14 @@ public class RESTGetCapabilitiesParser extends RESTParser<GetCapabilitiesRequest
      * Parses an HTTPRequest into a GetCapabilities request
      * @param request the http request
      * @return the get coverage request
-     * @throws WCSException 
+     * @throws WCSException
      */
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
         RESTUrl rUrl = new RESTUrl(request.getUrlPath());
         return new GetCapabilitiesRequest(
-                ListUtil.head(rUrl.getByKey("acceptversions")),
-                ListUtil.head(rUrl.getByKey("acceptformats")),
-                ListUtil.head(rUrl.getByKey("acceptlanguages")));
+                   ListUtil.head(rUrl.getByKey("acceptversions")),
+                   ListUtil.head(rUrl.getByKey("acceptformats")),
+                   ListUtil.head(rUrl.getByKey("acceptlanguages")));
     }
 
     public String getOperationName() {

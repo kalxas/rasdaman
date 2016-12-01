@@ -35,7 +35,7 @@ rasdaman GmbH.
 /*
  * Release ClientBase
  */
-void releaseClientBase(struct ClientBase *cb)
+void releaseClientBase(struct ClientBase* cb)
 {
     // free Host
     free(cb->Host.Name);
@@ -49,8 +49,8 @@ void releaseClientBase(struct ClientBase *cb)
     // free Request
     free(cb->Request.HeadBuff);
     free(cb->Request.BodyBuff);
-    struct MsgHeader *dummy = NULL;
-    while(cb->Request.First != NULL)
+    struct MsgHeader* dummy = NULL;
+    while (cb->Request.First != NULL)
     {
         dummy = cb->Request.First->Next;
         //free(cb->Request.First->Content);
@@ -107,7 +107,7 @@ void releaseClientBase(struct ClientBase *cb)
 ******************************************************************************
 *
 */
-void HandleRequest( struct ClientBase *Client )
+void HandleRequest(struct ClientBase* Client)
 {
     struct ToDoArgs ToDo;
     int             RespState;
@@ -116,63 +116,63 @@ void HandleRequest( struct ClientBase *Client )
     ToDo.Which.Code = REALLY_NOTHING;
     Client->Comm.ConnStatus = CONN_OPEN;
 
-    while( Client->Comm.ConnStatus == CONN_OPEN )
+    while (Client->Comm.ConnStatus == CONN_OPEN)
     {
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): Reading Request.");
-        GetRequest( Client );
+        GetRequest(Client);
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): Parsing Request.");
-        ParseReqHeader( &Client->Request );
+        ParseReqHeader(&Client->Request);
 
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): Interpreting Request.");
-        InterpreteRequest( Client, &ToDo );
-        switch( ToDo.What )
+        InterpreteRequest(Client, &ToDo);
+        switch (ToDo.What)
         {
         case DO_SEND_RESPONSE:
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing InterpreteRequest.");
-            InterpretePOSTRequest( Client );
+            InterpretePOSTRequest(Client);
 
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing CreateRasResponse.");
-            CreateRasResponse( &Client->Comm, Client );
+            CreateRasResponse(&Client->Comm, Client);
             /*
                 LogMsg( LG_SERVER, DEBUG, "DEBUG:   SendResponse() for Request: \"%s\".",
                     Client->Request.Line.Vanilla );
             */
 
-            SendHTTPMsg( Client->SockFD, &Client->Response );
-            WriteAccessLog( Client );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): SEND_RESPONSE done.");
+            SendHTTPMsg(Client->SockFD, &Client->Response);
+            WriteAccessLog(Client);
+            LogMsg(LG_SERVER, DEBUG, "DEBUG: HandleRequest(): SEND_RESPONSE done.");
             break;
 
         case DO_SEND_ERROR:
-            LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing SEND_ERROR." );
+            LogMsg(LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing SEND_ERROR.");
             Client->RespStatus = ToDo.Which.Code;
-            LogMsg( LG_SERVER, DEBUG, "DEBUG:   CreateHTTPError( %d, -, %p )...",
-                    Client->RespStatus, &Client->Response );
-            CreateHTTPError( Client->RespStatus, &Client->Comm, &Client->Response );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG:   CreateHTTPError() done." );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG:   SendResponse()..." );
-            SendResponse( Client );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG:   SendResponse() done." );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG:   Write*Log()..." );
-            WriteAccessLog( Client );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG:   WriteLog() done." );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): SEND_ERROR done.");
+            LogMsg(LG_SERVER, DEBUG, "DEBUG:   CreateHTTPError( %d, -, %p )...",
+                   Client->RespStatus, &Client->Response);
+            CreateHTTPError(Client->RespStatus, &Client->Comm, &Client->Response);
+            LogMsg(LG_SERVER, DEBUG, "DEBUG:   CreateHTTPError() done.");
+            LogMsg(LG_SERVER, DEBUG, "DEBUG:   SendResponse()...");
+            SendResponse(Client);
+            LogMsg(LG_SERVER, DEBUG, "DEBUG:   SendResponse() done.");
+            LogMsg(LG_SERVER, DEBUG, "DEBUG:   Write*Log()...");
+            WriteAccessLog(Client);
+            LogMsg(LG_SERVER, DEBUG, "DEBUG:   WriteLog() done.");
+            LogMsg(LG_SERVER, DEBUG, "DEBUG: HandleRequest(): SEND_ERROR done.");
             break;
 
         case DO_SHUTDOWN:
-            LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing SHUTDOWN.");
-            close( Client->SockFD );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): SHUTDOWN done.");
+            LogMsg(LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing SHUTDOWN.");
+            close(Client->SockFD);
+            LogMsg(LG_SERVER, DEBUG, "DEBUG: HandleRequest(): SHUTDOWN done.");
             break;
 
         default:
-            LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing UNDEFINED ACTION.");
-            ErrorMsg( E_PRIV, ERROR, "ERROR: HandleRequest(): Undefined action!" );
+            LogMsg(LG_SERVER, DEBUG, "DEBUG: HandleRequest(): doing UNDEFINED ACTION.");
+            ErrorMsg(E_PRIV, ERROR, "ERROR: HandleRequest(): Undefined action!");
             Client->RespStatus = STATUS_Internal_Server_Error;
-            CreateHTTPError( Client->RespStatus, &Client->Comm, &Client->Response );
-            SendResponse( Client );
-            WriteAccessLog( Client );
-            LogMsg( LG_SERVER, DEBUG, "DEBUG: HandleRequest(): UNDEFINED ACTION done.");
+            CreateHTTPError(Client->RespStatus, &Client->Comm, &Client->Response);
+            SendResponse(Client);
+            WriteAccessLog(Client);
+            LogMsg(LG_SERVER, DEBUG, "DEBUG: HandleRequest(): UNDEFINED ACTION done.");
             break;
         }
         releaseClientBase(Client);

@@ -42,11 +42,12 @@ rasdaman GmbH.
  ************************************************************/
 
 #ifndef QTSIMPLECASEOP_HH
-#define	QTSIMPLECASEOP_HH
+#define QTSIMPLECASEOP_HH
 
 #include "qlparser/qtcaseop.hh"
 
-class QtSimpleCaseOp: public QtCaseOp {
+class QtSimpleCaseOp: public QtCaseOp
+{
 public:
     /// constructor taking the operation list
     QtSimpleCaseOp(QtOperationList* opList);
@@ -55,4 +56,4 @@ public:
     virtual ~QtSimpleCaseOp();
 };
 
-#endif	/* QTSIMPLECASEOP_HH */
+#endif  /* QTSIMPLECASEOP_HH */

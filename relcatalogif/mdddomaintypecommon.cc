@@ -86,7 +86,9 @@ MDDDomainType::operator=(const MDDDomainType& old)
 {
     // Gracefully handle self assignment
     if (this == &old)
+    {
         return *this;
+    }
     MDDBaseType::operator=(old);
     if (myDomain)
     {
@@ -143,7 +145,7 @@ MDDDomainType::getDomain() const
 }
 
 void
-MDDDomainType::print_status( ostream& s ) const
+MDDDomainType::print_status(ostream& s) const
 {
     s << "\tr_Marray" << "<" << myBaseType->getTypeName() << ", ";
     myDomain->print_status(s);
@@ -154,7 +156,9 @@ MDDDomainType::~MDDDomainType()
 {
     validate();
     if (myDomain)
+    {
         delete myDomain;
+    }
     myDomain = 0;
 }
 
@@ -218,7 +222,7 @@ MDDDomainType::compatibleWith(const Type* aType) const
     }
     else
     {
-       LERROR << "MDDDomainType::compatibleWith() was passed a type that is not an marray type (" << aType->getName();
+        LERROR << "MDDDomainType::compatibleWith() was passed a type that is not an marray type (" << aType->getName();
     }
     return retval;
 }

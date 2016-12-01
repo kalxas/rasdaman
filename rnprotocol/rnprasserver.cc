@@ -56,18 +56,25 @@ const char* RnpRasserver::commandNames[cmd_HowMany] =
 
 const char* RnpRasserver::getParameterTypeName(RnpQuark pType) const throw()
 {
-    if(0<= pType && pType < pmt_HowMany) return parameterTypeNames[pType];
+    if (0 <= pType && pType < pmt_HowMany)
+    {
+        return parameterTypeNames[pType];
+    }
     return undefValue;
 }
 
 const char* RnpRasserver::getCommandName(RnpQuark cmd) const throw()
 {
-    const char *result = NULL;
+    const char* result = NULL;
 
-    if(0<= cmd && cmd < cmd_HowMany)
+    if (0 <= cmd && cmd < cmd_HowMany)
+    {
         result = commandNames[cmd];
+    }
     else
+    {
         result = undefValue;
+    }
 
     LDEBUG << "RnpRasserver::getCommandName( " << cmd << " ) -> " << result;
     return result;

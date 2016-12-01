@@ -61,7 +61,7 @@ char* QtMDDConfig::getTypeStructure() const
     return NULL;
 }
 
-bool QtMDDConfig::equal( __attribute__ ((unused)) const QtData* p) const
+bool QtMDDConfig::equal(__attribute__((unused)) const QtData* p) const
 {
     bool eq = false;
     return eq;

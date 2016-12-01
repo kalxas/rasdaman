@@ -93,7 +93,7 @@ void parse(int argc, char* argv[])
     colect_name = argv[3];
 }
 
-r_ULong init(const r_Point& pnt )
+r_ULong init(const r_Point& pnt)
 {
     return (long)(rand() % MAX_SALES);
 }
@@ -101,7 +101,7 @@ r_ULong init(const r_Point& pnt )
 void insert_datacube()
 {
 
-    r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > >  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
     // r_Ref< r_Marray<r_ULong> >                 cube[TOTAL_CUBES];
     r_Minterval                                   domain, block_config;
     r_Storage_Layout*                             dsl[TOTAL_CUBES];
@@ -142,9 +142,9 @@ void insert_datacube()
     int year;
     int month;
     decomp[0] << 1;
-    for ( year = 0; year < YEARS ; year++)
+    for (year = 0; year < YEARS ; year++)
     {
-        for (month = 0; month < 12; month++ )
+        for (month = 0; month < 12; month++)
         {
             decomp[0] << ix + daysMonth[month];
             ix += daysMonth[month];
@@ -172,9 +172,9 @@ void insert_datacube()
 
     ix = 0;
     decomp1[0] << 1;
-    for ( year = 0; year < YEARS ; year++)
+    for (year = 0; year < YEARS ; year++)
     {
-        for (month = 0; month < 12; month++ )
+        for (month = 0; month < 12; month++)
         {
             decomp1[0] << ix + daysMonth[month];
             ix += daysMonth[month];
@@ -208,12 +208,12 @@ void insert_datacube()
     dsl[9] = new r_Storage_Layout(til_dir1_64k);
 
 
-    for (int i= 0 ; i< TOTAL_CUBES ; i++)
+    for (int i = 0 ; i < TOTAL_CUBES ; i++)
     {
         r_Database db;
         r_Transaction trans;
         // The main phase of the database creation
-        r_Ref< r_Marray<r_ULong> > cube1;
+        r_Ref<r_Marray<r_ULong>> cube1;
 
         db.set_servername(server_name);
 
@@ -242,7 +242,7 @@ void insert_datacube()
                 cout << "*Failed*" << endl;
                 cout << "Creating the set... " << flush;
 
-                cube_set = new(&db, "ULong_3D_Set") r_Set< r_Ref< r_Marray<r_ULong> > >;
+                cube_set = new(&db, "ULong_3D_Set") r_Set<r_Ref<r_Marray<r_ULong>>>;
                 db.set_object_name(*cube_set, colect_name);
             }
 
@@ -266,25 +266,31 @@ void insert_datacube()
 
             cout << " ... Ok" << endl;
 
-            cout << "  Cube[" << i+1 << "]:  " << oid[i] << endl;
-            cout << "  Spatial domain: " << cube1->spatial_domain( ) << endl;
-            cout << "  Type length: " << cube1->get_type_length( ) << endl;
+            cout << "  Cube[" << i + 1 << "]:  " << oid[i] << endl;
+            cout << "  Spatial domain: " << cube1->spatial_domain() << endl;
+            cout << "  Type length: " << cube1->get_type_length() << endl;
             cout << "  Storage Layout:  ";
             r_Bytes tileSize = ((r_Size_Tiling*) dsl[i]->get_tiling())->get_tile_size();
-            if( i < 4 )
+            if (i < 4)
+            {
                 cout << "regular; tile size " << tileSize << endl;
+            }
             else
             {
                 cout << "directional; tile size " << tileSize << endl;
                 cout << "Dir decompose:  ";
-                for ( int j = 0; j < 3 ; j++ )
+                for (int j = 0; j < 3 ; j++)
                 {
-                    for ( int k = 0; k < 3 ; k++)
+                    for (int k = 0; k < 3 ; k++)
                     {
-                        if ( i < 8 )
-                            decomp[k].print_status(cout );
+                        if (i < 8)
+                        {
+                            decomp[k].print_status(cout);
+                        }
                         else
-                            decomp1[k].print_status( cout );
+                        {
+                            decomp1[k].print_status(cout);
+                        }
                     }
                 }
                 cout << endl;

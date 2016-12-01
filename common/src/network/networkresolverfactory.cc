@@ -38,7 +38,7 @@
 namespace common
 {
 
-boost::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResolver(const std::string &host, boost::uint32_t port)
+boost::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResolver(const std::string& host, boost::uint32_t port)
 {
     boost::shared_ptr<AbstractNetworkResolver> resolver;
 
@@ -59,12 +59,12 @@ boost::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkRes
 
     if (res->ai_family == AF_INET)
     {
-        struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+        struct sockaddr_in* ipv4 = (struct sockaddr_in*)res->ai_addr;
         resolver.reset(new IPv4Resolver(ipv4->sin_addr, port));
     }
     else if (res->ai_family == AF_INET6)
     {
-        struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
+        struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)res->ai_addr;
         resolver.reset(new IPv6Resolver(ipv6->sin6_addr, port));
     }
     else

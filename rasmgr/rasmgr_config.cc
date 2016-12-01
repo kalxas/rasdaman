@@ -65,47 +65,47 @@ using namespace std;
 #include "raslib/log_config.hh"
 #include <easylogging++.h>
 
-extern bool hostCmp( const char *h1, const char *h2);
+extern bool hostCmp(const char* h1, const char* h2);
 
 
 Configuration::Configuration():
-    cmlInter      (CommandLineParser::getInstance()),
-    cmlHelp       (cmlInter.addFlagParameter('h', RASMGRCMD_HELP, "print this help")),
-    cmlHostName   (cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
-    cmlPort       (cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
-    cmlPollFrequ  (cmlInter.addLongParameter(CommandLineParser::noShortName, "poll", "<poll> polling timeout (in seconds) for rasmgr listen port", DEFAULT_POLLING_FREQUENCY )),
-    cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
-    cmlQuiet      (cmlInter.addFlagParameter( 'q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
+    cmlInter(CommandLineParser::getInstance()),
+    cmlHelp(cmlInter.addFlagParameter('h', RASMGRCMD_HELP, "print this help")),
+    cmlHostName(cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
+    cmlPort(cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
+    cmlPollFrequ(cmlInter.addLongParameter(CommandLineParser::noShortName, "poll", "<poll> polling timeout (in seconds) for rasmgr listen port", DEFAULT_POLLING_FREQUENCY)),
+    cmlName(cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
+    cmlQuiet(cmlInter.addFlagParameter('q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
 #ifdef RMANDEBUG    // was: NO_OFFICIAL_RELEASE
-    cmlTest       (cmlInter.addFlagParameter(CommandLineParser::noShortName, "test", "test mode")),
-    cmlDSup       (cmlInter.addFlagParameter(CommandLineParser::noShortName, "dsup", "debug mode")),
-    cmlRandTest   (cmlInter.addFlagParameter(CommandLineParser::noShortName, "rgt",  "random generator test")),
-    cmlRth        (cmlInter.addFlagParameter(CommandLineParser::noShortName, "rth", "disable rthl test")),
-    cmlMultiWT    (cmlInter.addFlagParameter(CommandLineParser::noShortName, "amw", "allow multiple write transactions")),
+    cmlTest(cmlInter.addFlagParameter(CommandLineParser::noShortName, "test", "test mode")),
+    cmlDSup(cmlInter.addFlagParameter(CommandLineParser::noShortName, "dsup", "debug mode")),
+    cmlRandTest(cmlInter.addFlagParameter(CommandLineParser::noShortName, "rgt",  "random generator test")),
+    cmlRth(cmlInter.addFlagParameter(CommandLineParser::noShortName, "rth", "disable rthl test")),
+    cmlMultiWT(cmlInter.addFlagParameter(CommandLineParser::noShortName, "amw", "allow multiple write transactions")),
 #endif          // RMANDEBUG
-    cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log"))
+    cmlLog(cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log"))
 {
 
-    int ghnResult = gethostname(hostName, sizeof(hostName) );
+    int ghnResult = gethostname(hostName, sizeof(hostName));
     if (ghnResult != 0) // cannot get hostname?
     {
         int ghnErrno = errno;
         LERROR << "Error: cannot get hostname of my machine: error " << ghnErrno << "; will use '" << DEFAULT_HOSTNAME << "' as heuristic.";
-        strcpy( hostName, DEFAULT_HOSTNAME );
+        strcpy(hostName, DEFAULT_HOSTNAME);
     }
-    strcpy(publicHostName,hostName);
-    listenPort=DEFAULT_PORT;
+    strcpy(publicHostName, hostName);
+    listenPort = DEFAULT_PORT;
 
     pollFrequency = DEFAULT_POLLING_FREQUENCY;
 
-    configFileName[0]=0;
+    configFileName[0] = 0;
 
     if (sizeof(configFileName) < strlen(CONFDIR) + strlen(RASMGR_CONF_FILE) + 2)
     {
         LERROR << "Error: configuration path length exceeds system limits: '" << CONFDIR << "/" << RASMGR_CONF_FILE << "'";
         return;
     }
-    sprintf( configFileName, "%s/%s", CONFDIR, RASMGR_CONF_FILE );
+    sprintf(configFileName, "%s/%s", CONFDIR, RASMGR_CONF_FILE);
     altConfigFileName[0] = '\0';
 
     testModus    = false;
@@ -129,8 +129,10 @@ bool Configuration::readConfigFile()
 
     std::ifstream ifs(configFileName);      // open config file
 
-    if(ifs)
+    if (ifs)
+    {
         fileIsOpen = true;
+    }
     else
     {
         LDEBUG << "Configuration::readConfigFile: cannot open config file." ;
@@ -143,10 +145,10 @@ bool Configuration::readConfigFile()
     {
         authorization.startConfigFile();
 
-        while( ! ifs.eof() )        // was: while(1), I simplified this
+        while (! ifs.eof())         // was: while(1), I simplified this
             // processRequest() will get an additional empty line at eof, but this is harmless
         {
-            ifs.getline(inBuffer,MAXMSG);
+            ifs.getline(inBuffer, MAXMSG);
             // if(!strlen(inBuffer) && ifs.eof())   // FIXME: what happens if last line in file is empty?
             // {
             // LDEBUG << "Configuration::readConfigFile: strlen(inBuffer)=" << strlen(inBuffer) << ", eof=" << ifs.eof();
@@ -154,7 +156,7 @@ bool Configuration::readConfigFile()
             // }
 
             LDEBUG << "Configuration::readConfigFile: processing line: " << inBuffer ;
-            rascontrol.processRequest(inBuffer,outBuffer);
+            rascontrol.processRequest(inBuffer, outBuffer);
         }
 
         authorization.endConfigFile();
@@ -163,14 +165,16 @@ bool Configuration::readConfigFile()
     }
 
     if (result == true && fileIsOpen)
+    {
         LDEBUG << "ok";
+    }
 
     return true;
 }
 
 // return name of alternate config file;
 // takes value from preceding saveAltConfigFile() call.
-const char *Configuration::getAltConfigFileName()
+const char* Configuration::getAltConfigFileName()
 {
     return altConfigFileName;
 }
@@ -179,7 +183,7 @@ const char *Configuration::getAltConfigFileName()
 bool Configuration::saveConfigFile()
 {
     std::ofstream ofs(configFileName);
-    if(!ofs)
+    if (!ofs)
     {
         return false;
     }
@@ -190,72 +194,92 @@ bool Configuration::saveConfigFile()
 
     int i;
     //serverhosts
-    for(i=0; i<hostmanager.countHosts(); i++)
+    for (i = 0; i < hostmanager.countHosts(); i++)
     {
-        ServerHost &xx=hostmanager[i];
+        ServerHost& xx = hostmanager[i];
 
-        if(i > 0)
-            ofs<<"define host "<<xx.getName()<<" -net "<<xx.getNetworkName()<<" -port "<<xx.getListenPort()<<std::endl;
+        if (i > 0)
+        {
+            ofs << "define host " << xx.getName() << " -net " << xx.getNetworkName() << " -port " << xx.getListenPort() << std::endl;
+        }
         else
         {
             //by default the master RasMgr is init with the hostname as name => if we have to we change it here
-            if( ! hostCmp(xx.getName(),config.getHostName()) )
-                ofs << "change host "<<config.getHostName()<<" -name "<<xx.getName()<<std::endl;
+            if (! hostCmp(xx.getName(), config.getHostName()))
+            {
+                ofs << "change host " << config.getHostName() << " -name " << xx.getName() << std::endl;
+            }
 
-            if(xx.useLocalHost()==false)
-                ofs<<"change host "<<xx.getName()<<" -uselocalhost off"<<std::endl;
+            if (xx.useLocalHost() == false)
+            {
+                ofs << "change host " << xx.getName() << " -uselocalhost off" << std::endl;
+            }
         }
     }
     //databaseHosts
-    for(i=0; i<dbHostManager.countHosts(); i++)
+    for (i = 0; i < dbHostManager.countHosts(); i++)
     {
-        DatabaseHost &xx=dbHostManager[i];
-        ofs<<"define dbh "<<xx.getName()<<" -connect "<<xx.getConnectionString();
+        DatabaseHost& xx = dbHostManager[i];
+        ofs << "define dbh " << xx.getName() << " -connect " << xx.getConnectionString();
         if (strlen(xx.getUser()) > 0)
-            ofs<<" -user " << xx.getUser();
+        {
+            ofs << " -user " << xx.getUser();
+        }
         if (strlen(xx.getPasswd()) > 0)
-            ofs<<" -passwd " << xx.getPasswd();
-        ofs<<std::endl;
+        {
+            ofs << " -passwd " << xx.getPasswd();
+        }
+        ofs << std::endl;
     }
     //rasservers
-    for(i=0; i<rasManager.countServers(); i++)
+    for (i = 0; i < rasManager.countServers(); i++)
     {
-        RasServer &xx=rasManager[i];
+        RasServer& xx = rasManager[i];
 
-        ofs<<"define srv "<<xx.getName()<<" -host "<<xx.getHostName()<<" -type "<<xx.getType();
-        if(xx.getType()==SERVERTYPE_FLAG_HTTP)
-            ofs<<" -port "<<xx.getPort();
+        ofs << "define srv " << xx.getName() << " -host " << xx.getHostName() << " -type " << xx.getType();
+        if (xx.getType() == SERVERTYPE_FLAG_HTTP)
+        {
+            ofs << " -port " << xx.getPort();
+        }
         else
-            ofs<<" -port 0x"<<std::hex<<xx.getPort()<<std::dec;
-        if(xx.isConnectedToDBHost())
-            ofs<<" -dbh "<<xx.getDBHostName();
-        ofs<<std::endl;
+        {
+            ofs << " -port 0x" << std::hex << xx.getPort() << std::dec;
+        }
+        if (xx.isConnectedToDBHost())
+        {
+            ofs << " -dbh " << xx.getDBHostName();
+        }
+        ofs << std::endl;
 
-        ofs<<"change srv "<<xx.getName()<<" -countdown "<<xx.getCountDown();
+        ofs << "change srv " << xx.getName() << " -countdown " << xx.getCountDown();
 
-        if(strcmp(xx.getExecutableName(),RASEXECUTABLE))
-            ofs<<" -exec "<<xx.getExecutableName();
+        if (strcmp(xx.getExecutableName(), RASEXECUTABLE))
+        {
+            ofs << " -exec " << xx.getExecutableName();
+        }
 
-        ofs<<" -autorestart "<<(xx.isAutoRestart() ? "on":"off")<<" -xp "<<xx.getExtraParams()<<std::endl;
+        ofs << " -autorestart " << (xx.isAutoRestart() ? "on" : "off") << " -xp " << xx.getExtraParams() << std::endl;
     }
 
     //databases
-    for(i=0; i<dbManager.countDatabases(); i++)
+    for (i = 0; i < dbManager.countDatabases(); i++)
     {
-        Database &xx=dbManager[i];
+        Database& xx = dbManager[i];
 
-        for(int j=0; j<xx.countConnectionsToDBHosts(); j++)
+        for (int j = 0; j < xx.countConnectionsToDBHosts(); j++)
         {
-            ofs<<"define db "<<xx.getName()<<" -dbh "<<xx.getDBHostName(j)<<std::endl;
+            ofs << "define db " << xx.getName() << " -dbh " << xx.getDBHostName(j) << std::endl;
         }
     }
     unsigned int j;
-    for(j=0; j<outpeers.size(); j++) {
-        ofs<<"define outpeer "<<outpeers[j]<<" -port "<<outports[j]<<std::endl;
+    for (j = 0; j < outpeers.size(); j++)
+    {
+        ofs << "define outpeer " << outpeers[j] << " -port " << outports[j] << std::endl;
     }
-    
-    for(j=0; j<inpeers.size(); j++) {
-        ofs<<"define inpeer "<<inpeers[j]<<std::endl;
+
+    for (j = 0; j < inpeers.size(); j++)
+    {
+        ofs << "define inpeer " << inpeers[j] << std::endl;
     }
 
     ofs.close();        // this was missing, therefore sometimes the config file was cleared -- PB 2003-jun-06
@@ -278,13 +302,13 @@ bool Configuration::saveAltConfigFile()
     char origFileName[ sizeof(configFileName) ];        // temp copy of origFileName
 
     // save original file name
-    (void) strcpy( origFileName, configFileName );
+    (void) strcpy(origFileName, configFileName);
 
     // build temp file by appending a unique string
-    (void) strcpy( altConfigFileName, configFileName );
-    (void) strcat( altConfigFileName, ".XXXXXX" );       // 6 * 'X', see man mkstemp()
+    (void) strcpy(altConfigFileName, configFileName);
+    (void) strcat(altConfigFileName, ".XXXXXX");         // 6 * 'X', see man mkstemp()
 
-    int altFile = mkstemp( altConfigFileName );         // replaces the Xs by unique string
+    int altFile = mkstemp(altConfigFileName);           // replaces the Xs by unique string
     if (altFile < 0)                                    // error in creating file name
     {
         int tempError = errno;
@@ -296,22 +320,24 @@ bool Configuration::saveAltConfigFile()
     {
         // now we have a valid + open file, but we can't use it like that, because we open down below.
         // so close it again, being happy that we have a valid file name. bad hack, though.
-        int closeResult = close( altFile );
+        int closeResult = close(altFile);
         if (closeResult != 0)
+        {
             LDEBUG << "Configuration::saveAltConfigFile: error in temporary closing file, ignoring that.";
+        }
     }
 
     if (result == true)
     {
-        (void) strcpy( configFileName, altConfigFileName ); // set file to be written to alternate name
+        (void) strcpy(configFileName, altConfigFileName);   // set file to be written to alternate name
         result = saveConfigFile();                      // save file, name has been substituted successfully
-        (void) strcpy( configFileName, origFileName );  // restore original config file name
+        (void) strcpy(configFileName, origFileName);    // restore original config file name
     }
 
     return result;
 }
 
-bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((unused)) char **envp)
+bool Configuration::interpretArguments(int argc, char** argv, __attribute__((unused)) char** envp)
 {
     bool result = true;
     //errorCode=0;
@@ -321,7 +347,7 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         LERROR << "Error parsing command line: " << err.what();
         printHelp();
@@ -331,23 +357,25 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
     initLogFiles();
 
     verbose = true;         // by default, be verbose
-    if( (result==true) && cmlQuiet.isPresent() )
+    if ((result == true) && cmlQuiet.isPresent())
     {
         // debugOutput = true;          // done via the above macro
         verbose = false;            // only minimum messages
         result = true;
     }
 
-    if( (result==true) && cmlHelp.isPresent() )
+    if ((result == true) && cmlHelp.isPresent())
     {
         printHelp();
         result = false;
     }
 
-    if( (result==true) && cmlHostName.isPresent() )
+    if ((result == true) && cmlHostName.isPresent())
     {
         if (sizeof(hostName) > strlen(cmlHostName.getValueAsString()))
-            strcpy(publicHostName,cmlHostName.getValueAsString());
+        {
+            strcpy(publicHostName, cmlHostName.getValueAsString());
+        }
         else
         {
             LDEBUG << "Error: host name exceeds length limit of " << sizeof(hostName) << " characters.";
@@ -355,26 +383,26 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
         }
     }
 
-    if( (result==true) && cmlPort.isPresent() )
+    if ((result == true) && cmlPort.isPresent())
     {
         try
         {
             listenPort = cmlPort.getValueAsLong();
         }
-        catch(CmlException& err)
+        catch (CmlException& err)
         {
             LDEBUG << "Error converting port parameter " << cmlPort.getLongName() << " to integer: " << err.what();
             result = false;
         }
     }
 
-    if( (result==true) && cmlPollFrequ.isPresent() )
+    if ((result == true) && cmlPollFrequ.isPresent())
     {
         try
         {
             pollFrequency = cmlPollFrequ.getValueAsLong();
         }
-        catch(CmlException& err)
+        catch (CmlException& err)
         {
             LDEBUG << "Error converting " << cmlPollFrequ.getLongName() << " to integer: " << err.what();
             result = false;
@@ -388,12 +416,12 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
 
 #ifdef RMANDEBUG    // was: NO_OFFICIAL_RELEASE
     testModus = cmlTest.isPresent();
-    debugSupport=cmlDSup.isPresent();
-    rtHlTest=cmlRth.isPresent();
+    debugSupport = cmlDSup.isPresent();
+    rtHlTest = cmlRth.isPresent();
 
-    if( (result==true) && cmlRandTest.isPresent() )
+    if ((result == true) && cmlRandTest.isPresent())
     {
-        LINFO << "Random generator test..." << (randomGenerator.insideTest() ? "PASSED":"FAILED" );
+        LINFO << "Random generator test..." << (randomGenerator.insideTest() ? "PASSED" : "FAILED");
         result = false;
     }
 
@@ -504,7 +532,9 @@ void Configuration::initLogFiles()
     else
     {
         if (RMInit::logFileOut.is_open())
+        {
             RMInit::logFileOut.close();
+        }
 
         RMInit::logFileOut.open(logFileName, ios::out | ios::app);
         RMInit::logOut.rdbuf(RMInit::logFileOut.rdbuf());
@@ -513,7 +543,7 @@ void Configuration::initLogFiles()
     }
 }
 
-const char * Configuration::makeLogFileName(const char *desExt)
+const char* Configuration::makeLogFileName(const char* desExt)
 {
     static char buffer[ FILENAME_MAX ];
     int pid = getpid();

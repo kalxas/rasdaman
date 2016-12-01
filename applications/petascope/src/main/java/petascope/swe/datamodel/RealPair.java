@@ -44,7 +44,7 @@ public class RealPair {
      *   </restriction>
      * </simpleType>
      */
-    private final Pair<BigDecimal,BigDecimal> interval;
+    private final Pair<BigDecimal, BigDecimal> interval;
 
     // constructor
     /**

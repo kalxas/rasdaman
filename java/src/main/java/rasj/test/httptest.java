@@ -25,23 +25,18 @@ package rasj.test;
 import rasj.*;
 import rasj.clientcommhttp.*;
 
-public class httptest
-{
+public class httptest {
 
- public static void main(String[] args)
-    {
+    public static void main(String[] args) {
 
 
-     System.err.println("Start ...");
-     RasHttpRequest test = new RasHttpRequest();
-     try
-       {
-       test.execute("http://maitai.akglocal.de:8080/","SELECT img[0:200,0:200] FROM lva AS img");
-       }
-     catch( RasQueryExecutionFailedException e)
-	 {
-       System.err.println(e.getMessage());
-	 }
+        System.err.println("Start ...");
+        RasHttpRequest test = new RasHttpRequest();
+        try {
+            test.execute("http://maitai.akglocal.de:8080/", "SELECT img[0:200,0:200] FROM lva AS img");
+        } catch (RasQueryExecutionFailedException e) {
+            System.err.println(e.getMessage());
+        }
 
 
 

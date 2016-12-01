@@ -26,7 +26,7 @@ namespace rasmgr
 {
 
 ServerGroupDuplicateException::ServerGroupDuplicateException(const std::string& serverGroupName)
-    : common::LogicException("Server group "+ serverGroupName + " already defined.")
+    : common::LogicException("Server group " + serverGroupName + " already defined.")
 {}
 
 ServerGroupDuplicateException::~ServerGroupDuplicateException() throw()

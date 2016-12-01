@@ -35,7 +35,7 @@ rasdaman GmbH.
 class r_TmpFile
 {
 public:
-    
+
     /// constructor creates a temporary file
     r_TmpFile() throw (r_Error);
     /// destructor removes the temporary file
@@ -50,7 +50,7 @@ public:
     char* readData(long& dataSize) throw (r_Error);
 
 private:
-    
+
     void initTmpFile() throw (r_Error);
     std::string fileName;
     int fd;

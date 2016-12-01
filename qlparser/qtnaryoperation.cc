@@ -55,41 +55,43 @@ QtNaryOperation::QtNaryOperation()
 }
 
 
-QtNaryOperation::QtNaryOperation( QtNode* node )
-    :  QtOperation( node ),
+QtNaryOperation::QtNaryOperation(QtNode* node)
+    :  QtOperation(node),
        operationList(NULL)
 {
 }
 
 
-QtNaryOperation::QtNaryOperation( QtOperationList* opList )
+QtNaryOperation::QtNaryOperation(QtOperationList* opList)
     :  QtOperation(),
-       operationList( opList )
+       operationList(opList)
 {
-    if( operationList )
+    if (operationList)
     {
         QtOperationList::iterator iter;
 
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++)
-            (*iter)->setParent( this );
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
+        {
+            (*iter)->setParent(this);
+        }
     }
 }
 
 
 QtNaryOperation::~QtNaryOperation()
 {
-    if( operationList )
+    if (operationList)
     {
         QtOperationList::iterator iter;
 
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++)
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
             delete *iter;
-            *iter=NULL;
+            *iter = NULL;
         }
 
         delete operationList;
-        operationList=NULL;
+        operationList = NULL;
     }
 }
 
@@ -104,39 +106,39 @@ QtNaryOperation::simplify()
     bool success = (operationList != NULL);
     QtOperationList::iterator iter;
 
-    if( success )
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++)
+    if (success)
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
             if ((*iter) == NULL)
             {
                 success = false;
                 break;
             }
 
-    if( success )
+    if (success)
     {
         // Test, if all operands are of const type.
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++)
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
             if ((*iter)->getNodeType() != QT_CONST)
             {
                 success = false;
                 break;
             }
 
-        if( success )
+        if (success)
         {
             // evaluate the self node with no input list
-            QtData* newConst = this->evaluate( NULL );
+            QtData* newConst = this->evaluate(NULL);
 
-            if( newConst )
+            if (newConst)
             {
                 // create a new constant node and fill it with newConst
-                QtConst* newNode = new QtConst( newConst );
+                QtConst* newNode = new QtConst(newConst);
 
                 // set its data stream type
-                newNode->checkType( NULL );
+                newNode->checkType(NULL);
 
                 // link it to the parent
-                getParent()->setInput( this, newNode );
+                getParent()->setInput(this, newNode);
 
                 // delete the self node and its descendants
                 delete this;
@@ -148,12 +150,12 @@ QtNaryOperation::simplify()
 
 
 bool
-QtNaryOperation::equalMeaning( QtNode* node )
+QtNaryOperation::equalMeaning(QtNode* node)
 {
     bool result;
-    result=false;
+    result = false;
 
-    if( getNodeType() == node->getNodeType() )
+    if (getNodeType() == node->getNodeType())
     {
         QtNaryOperation* naryNode;
         naryNode = static_cast<QtNaryOperation*>(node); // by force
@@ -165,17 +167,17 @@ QtNaryOperation::equalMeaning( QtNode* node )
         QtOperationList::iterator iter, iter2;
 
         result = true;
-        for( iter =operationList->begin(), iter2 =operationList2->begin();
-                iter!=operationList->end() && iter2!=operationList2->end();
-                iter++, iter2++ )
-            if (!( (*iter)->equalMeaning( *iter2 ) ))
+        for (iter = operationList->begin(), iter2 = operationList2->begin();
+                iter != operationList->end() && iter2 != operationList2->end();
+                iter++, iter2++)
+            if (!((*iter)->equalMeaning(*iter2)))
             {
-                result=false;
+                result = false;
                 break;
             }
 
         // input lists must have the same length
-        result &= ( iter==operationList->end() && iter2==operationList2->end() );
+        result &= (iter == operationList->end() && iter2 == operationList2->end());
     };
 
     return result;
@@ -184,30 +186,32 @@ QtNaryOperation::equalMeaning( QtNode* node )
 
 
 QtNode::QtNodeList*
-QtNaryOperation::getChilds( QtChildType flag )
+QtNaryOperation::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
-    QtNodeList* subList=NULL;
+    QtNodeList* resultList = NULL;
+    QtNodeList* subList = NULL;
 
-    if( operationList )
+    if (operationList)
     {
 
         QtOperationList::iterator iter;
 
         resultList = new QtNodeList();
 
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
-            if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
+            if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
             {
-                subList = (*iter)->getChilds( flag );
+                subList = (*iter)->getChilds(flag);
                 resultList->splice(resultList->begin(), *subList);
                 delete subList;
-                subList=NULL;
+                subList = NULL;
             };
 
-            if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-                resultList->push_back( *iter );
+            if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+            {
+                resultList->push_back(*iter);
+            }
         }
     }
     return resultList;
@@ -215,51 +219,56 @@ QtNaryOperation::getChilds( QtChildType flag )
 
 
 bool
-QtNaryOperation::getOperands( QtDataList* inputList, QtDataList* &operandList )
+QtNaryOperation::getOperands(QtDataList* inputList, QtDataList*& operandList)
 {
     bool success = (operationList != 0);
 
     // Test, if all operands are available.
     QtOperationList::iterator iter;
 
-    if( success )
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++)
+    if (success)
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
             if ((*iter) == NULL)
             {
-                success=false;
+                success = false;
                 break;
             }
 
-    if( success )
+    if (success)
     {
         // get the operands
-        operandList = new QtDataList( operationList->size() );
+        operandList = new QtDataList(operationList->size());
 
-        unsigned int pos=0;
+        unsigned int pos = 0;
 
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++)
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
-            if( *iter )
-                (*operandList)[pos] = (*iter)->evaluate( inputList );
+            if (*iter)
+            {
+                (*operandList)[pos] = (*iter)->evaluate(inputList);
+            }
 
             pos++;
         }
 
         // Test, if all operands are valid.
-        for( pos=0; pos<operandList->size(); pos++ )
+        for (pos = 0; pos < operandList->size(); pos++)
             if ((*operandList)[pos] == NULL)
             {
-                success=false;
+                success = false;
                 break;
             }
 
-        if( !success )
+        if (!success)
         {
             // if not all operands are valid, delete the old ones
             QtDataList::iterator dataIter;
 
-            for( dataIter=operandList->begin(); dataIter!=operandList->end(); dataIter++ )
-                if( (*dataIter) ) (*dataIter)->deleteRef();
+            for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
+                if ((*dataIter))
+                {
+                    (*dataIter)->deleteRef();
+                }
 
             delete operandList;
             operandList = NULL;
@@ -268,7 +277,9 @@ QtNaryOperation::getOperands( QtDataList* inputList, QtDataList* &operandList )
         }
     }
     else
+    {
         LERROR << "Error: QtNaryOperation::getOperands() - at least one operand branch is invalid.";
+    }
 
     return success;
 }
@@ -284,19 +295,22 @@ QtNaryOperation::getSpelling()
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
 
-    result.append( "(" );
+    result.append("(");
 
     if (operationList)
     {
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
-            if( iter!=operationList->begin() ) result.append( "," );
+            if (iter != operationList->begin())
+            {
+                result.append(",");
+            }
 
-            result.append( (*iter)->getSpelling() );
+            result.append((*iter)->getSpelling());
         }
     }
 
-    result.append( ")" );
+    result.append(")");
 
     LTRACE << "Result:" << result.c_str();
 
@@ -306,18 +320,20 @@ QtNaryOperation::getSpelling()
 
 
 void
-QtNaryOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtNaryOperation::setInput(QtOperation* inputOld, QtOperation* inputNew)
 {
     QtOperationList::iterator iter;
 
-    for( iter=operationList->begin(); iter!=operationList->end(); iter++)
+    for (iter = operationList->begin(); iter != operationList->end(); iter++)
     {
-        if( *iter == inputOld )
+        if (*iter == inputOld)
         {
             (*iter) =  inputNew;
 
-            if( inputNew )
-                inputNew->setParent( this );
+            if (inputNew)
+            {
+                inputNew->setParent(this);
+            }
         }
     }
 }
@@ -331,44 +347,46 @@ QtNaryOperation::getAreaType()
 }
 
 void
-QtNaryOperation::optimizeLoad( QtTrimList* trimList )
+QtNaryOperation::optimizeLoad(QtTrimList* trimList)
 {
     // delete trimList
     // release( trimList->begin(), trimList->end() );
-    for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+    for (QtNode::QtTrimList::iterator iter = trimList->begin(); iter != trimList->end(); iter++)
     {
         delete *iter;
-        *iter=NULL;
+        *iter = NULL;
     }
     delete trimList;
-    trimList=NULL;
+    trimList = NULL;
 
-    if( operationList )
+    if (operationList)
     {
         QtOperationList::iterator iter;
 
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++)
-            if( *iter )
-                (*iter)->optimizeLoad( new QtNode::QtTrimList );
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
+            if (*iter)
+            {
+                (*iter)->optimizeLoad(new QtNode::QtTrimList);
+            }
     }
 }
 
 
 void
-QtNaryOperation::printTree( int tab, ostream& s, QtChildType mode )
+QtNaryOperation::printTree(int tab, ostream& s, QtChildType mode)
 {
-    if( mode != QT_DIRECT_CHILDS )
+    if (mode != QT_DIRECT_CHILDS)
     {
-        if( operationList )
+        if (operationList)
         {
             QtOperationList::iterator iter;
             int no;
 
-            for( no=1, iter=operationList->begin(); iter!=operationList->end(); iter++, no++ )
-                if( *iter )
+            for (no = 1, iter = operationList->begin(); iter != operationList->end(); iter++, no++)
+                if (*iter)
                 {
                     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input" << no << ": " << endl;
-                    (*iter)->printTree( tab+2, s, mode );
+                    (*iter)->printTree(tab + 2, s, mode);
                 }
         }
     }
@@ -377,26 +395,35 @@ QtNaryOperation::printTree( int tab, ostream& s, QtChildType mode )
 
 
 void
-QtNaryOperation::printAlgebraicExpression( ostream& s )
+QtNaryOperation::printAlgebraicExpression(ostream& s)
 {
     s << "(";
 
-    if( operationList )
+    if (operationList)
     {
         QtOperationList::iterator iter;
 
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
-            if( iter!=operationList->begin() ) s << ",";
+            if (iter != operationList->begin())
+            {
+                s << ",";
+            }
 
-            if( *iter )
-                (*iter)->printAlgebraicExpression( s );
+            if (*iter)
+            {
+                (*iter)->printAlgebraicExpression(s);
+            }
             else
+            {
                 s << "<nn>";
+            }
         }
     }
     else
+    {
         s << "<nn>";
+    }
 
     s << ")";
 }

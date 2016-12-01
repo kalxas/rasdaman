@@ -108,9 +108,13 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
     {
         LINFO << "r_GMarray::r_GMarray(" << initDomain << ", " << initLength << ", ";
         if (storage_layout == NULL)
+        {
             LINFO << "no storage layout) ";
+        }
         else
+        {
             LINFO << *storage_layout << ") ";
+        }
         if (error == 1)
         {
             LFATAL << "domain is not initialised";
@@ -125,14 +129,14 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
     data_size = domain.cell_count() * initLength;
     if (initialize)
     {
-      data = new char[ data_size ];
-      memset(data, 0, data_size);
+        data = new char[ data_size ];
+        memset(data, 0, data_size);
     }
 }
 
 
 
-r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
+r_GMarray::r_GMarray(const r_GMarray& obj) throw(r_Error)
     : r_Object(obj, 1),
       domain(obj.spatial_domain()),
       data(0),
@@ -152,14 +156,18 @@ r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
 
     // clone the storage layout object
     if (obj.storage_layout)
+    {
         storage_layout = obj.storage_layout->clone();
+    }
     else
+    {
         LWARNING << "copy constructor no storage layout";
+    }
 }
 
 
 
-r_GMarray::r_GMarray(r_GMarray &obj) throw(r_Error)
+r_GMarray::r_GMarray(r_GMarray& obj) throw(r_Error)
     : r_Object(obj, 1),
       domain(obj.spatial_domain()),
       data(obj.data),
@@ -177,9 +185,13 @@ r_GMarray::r_GMarray(r_GMarray &obj) throw(r_Error)
 
     // clone the storage layout object
     if (obj.storage_layout)
+    {
         storage_layout = obj.storage_layout->clone();
+    }
     else
+    {
         LWARNING << "copy constructor (no data) no storage layout";
+    }
 }
 
 
@@ -219,10 +231,10 @@ r_GMarray::r_deactivate()
 
 
 const char*
-r_GMarray::operator[] (const r_Point& point) const
+r_GMarray::operator[](const r_Point& point) const
 throw(r_Edim_mismatch, r_Eindex_violation)
 {
-    return &(data[ domain.cell_offset(point)*type_length ]);
+    return &(data[ domain.cell_offset(point) * type_length ]);
 }
 
 
@@ -235,7 +247,7 @@ r_GMarray::get_storage_layout() const
 
 
 void
-r_GMarray::set_storage_layout(r_Storage_Layout *stl) throw(r_Error)
+r_GMarray::set_storage_layout(r_Storage_Layout* stl) throw(r_Error)
 {
     if (!stl->is_compatible(domain, type_length))
     {
@@ -246,7 +258,9 @@ r_GMarray::set_storage_layout(r_Storage_Layout *stl) throw(r_Error)
     }
 
     if (storage_layout != NULL)
+    {
         delete storage_layout;
+    }
 
     storage_layout = stl;
 }
@@ -281,7 +295,9 @@ r_GMarray::operator=(const r_GMarray& marray)
         // this has to be changed to a clone() function in future
         if (marray.storage_layout)
             // storage_layout = new r_Storage_Layout(*marray.storage_layout);
+        {
             storage_layout = marray.storage_layout->clone();
+        }
 
         domain         = marray.domain;
         type_length    = marray.type_length;
@@ -334,16 +350,24 @@ r_GMarray::print_status(std::ostream& s) const
     s << "  Type Structure........: " << (get_type_structure() ? get_type_structure() : "<nn>") << endl;
     s << "  Type Schema...........: " << std::flush;
     if (typeSchema)
+    {
         typeSchema->print_status(s);
+    }
     else
+    {
         s << "<nn>" << std::flush;
+    }
     s << endl;
     s << "  Domain................: " << domain << endl;
     s << "  Base Type Schema......: " << std::flush;
     if (baseTypeSchema)
+    {
         baseTypeSchema->print_status(s);
+    }
     else
+    {
         s << "<nn>" << std::flush;
+    }
     s << endl;
     s << "  Base Type Length......: " << type_length << endl;
     s << "  Data format.......... : " << current_format << endl;
@@ -368,10 +392,12 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
 
         // initialize point
         for (i = 0; i < domain.dimension(); i++)
+        {
             p << domain[i].low();
+        }
 
         // iterate over all cells
-        while(!done)
+        while (!done)
         {
             //
             // print cell
@@ -383,19 +409,27 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
             if (hexoutput)
             {
                 for (r_Bytes j = 0; j < type_length; j++)
+                {
                     s << std::hex << static_cast<unsigned int>(static_cast<unsigned char>((cell[j])));
+                }
             }
             else
             {
-                if(baseTypeSchema) baseTypeSchema->print_value(cell,  s );
-                else s << "<nn>" << std::flush;
+                if (baseTypeSchema)
+                {
+                    baseTypeSchema->print_value(cell,  s);
+                }
+                else
+                {
+                    s << "<nn>" << std::flush;
+                }
             }
 
             s << "   ";
 
             // increment coordinate
             i = 0;
-            while(++p[i] > domain[i].high())
+            while (++p[i] > domain[i].high())
             {
                 s << endl;
                 p[i] = domain[i].low();
@@ -406,7 +440,10 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
                     break;
                 }
             }
-            if (i > 1) s << endl;
+            if (i > 1)
+            {
+                s << endl;
+            }
         }
     }
     else
@@ -416,13 +453,21 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
         // print cell
         if ((hexoutput) || (!baseTypeSchema))
         {
-            for (unsigned int j=0; j<type_length; j++)
+            for (unsigned int j = 0; j < type_length; j++)
+            {
                 s << std::hex << static_cast<unsigned int>(static_cast<unsigned char>((data[j])));
+            }
         }
         else
         {
-            if(baseTypeSchema) baseTypeSchema->print_value(data,  s );
-            else s << "<nn>" << std::flush;
+            if (baseTypeSchema)
+            {
+                baseTypeSchema->print_value(data,  s);
+            }
+            else
+            {
+                s << "<nn>" << std::flush;
+            }
         }
         s << endl;
     }
@@ -448,12 +493,12 @@ r_GMarray* r_GMarray::intersect(r_Minterval where) const
     tile->set_array(obj_data);
     tile->set_array_size(where.cell_count() * tlength);
 
-    r_Bytes block_length = where[num_dims-1].high() - where[num_dims-1].low() + 1;
-    r_Bytes total = where.cell_count()/block_length;
+    r_Bytes block_length = where[num_dims - 1].high() - where[num_dims - 1].low() + 1;
+    r_Bytes total = where.cell_count() / block_length;
 
     for (r_Area cell = 0; cell < total; cell++)
     {
-        r_Point p = where.cell_point(cell*block_length);
+        r_Point p = where.cell_point(cell * block_length);
 
         char* dest_off = obj_data;
         const char* source_off = get_array();

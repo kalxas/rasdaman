@@ -43,103 +43,103 @@ import secore.util.StringUtil;
  */
 public class CrsCompoundHandlerTest extends BaseTest {
 
-  private static CrsCompoundHandler handler;
+    private static CrsCompoundHandler handler;
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    Config.getInstance();
-    handler = new CrsCompoundHandler();
-    StringUtil.SERVICE_URI = Constants.LOCAL_URI;
-    resetDb();
-  }
-
-  /**
-   * Test of handle method, of class CrsCombineHandler.
-   */
-  @Test
-  public void testExpandOrFormatParameter() throws Exception {
-    System.out.println("testExpandOrFormatParameter");
-    String uri = "local/crs-compound?"
-        + "1=local/crs/EPSG/0/4326?expand=full&"
-        + "2=local/crs/EPSG/0/4440?format=gml";
-    ResolveRequest request = new ResolveRequest(uri);
-
-    Boolean isCorrect = false;
-    try {
-      ResolveResponse result = handler.handle(request);
-    } catch (SecoreException e) {
-
-      // If it throws an exception then the test is correct
-      String ex = e.getMessage();
-
-      String expResult = "Compound CRS is not allowed to add expand/format parameter(s).";
-      if (ex.contains(expResult)) {
-        isCorrect = true;
-      }
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        Config.getInstance();
+        handler = new CrsCompoundHandler();
+        StringUtil.SERVICE_URI = Constants.LOCAL_URI;
+        resetDb();
     }
 
-    // If it can handle correctly then res will contains the error message
-    assertTrue(isCorrect);
-  }
+    /**
+     * Test of handle method, of class CrsCombineHandler.
+     */
+    @Test
+    public void testExpandOrFormatParameter() throws Exception {
+        System.out.println("testExpandOrFormatParameter");
+        String uri = "local/crs-compound?"
+                     + "1=local/crs/EPSG/0/4326?expand=full&"
+                     + "2=local/crs/EPSG/0/4440?format=gml";
+        ResolveRequest request = new ResolveRequest(uri);
 
-  /**
-   * Test of handle method, of class CrsCombineHandler.
-   */
+        Boolean isCorrect = false;
+        try {
+            ResolveResponse result = handler.handle(request);
+        } catch (SecoreException e) {
+
+            // If it throws an exception then the test is correct
+            String ex = e.getMessage();
+
+            String expResult = "Compound CRS is not allowed to add expand/format parameter(s).";
+            if (ex.contains(expResult)) {
+                isCorrect = true;
+            }
+        }
+
+        // If it can handle correctly then res will contains the error message
+        assertTrue(isCorrect);
+    }
+
+    /**
+     * Test of handle method, of class CrsCombineHandler.
+     */
 //  @Ignore
-  @Test
-  public void testHandleParameterizedCrs() throws Exception {
-    System.out.println("testHandleParameterizedCrs");
-    String uri = "local/crs-compound?"
-        + "1=local/crs?authority=AUTO%26version=1.3%26code=42001%26lon=10&"
-        + "2=local/crs/EPSG/0/4440";
-    ResolveRequest req = new ResolveRequest(uri);
-    ResolveResponse res = handler.handle(req);
+    @Test
+    public void testHandleParameterizedCrs() throws Exception {
+        System.out.println("testHandleParameterizedCrs");
+        String uri = "local/crs-compound?"
+                     + "1=local/crs?authority=AUTO%26version=1.3%26code=42001%26lon=10&"
+                     + "2=local/crs/EPSG/0/4440";
+        ResolveRequest req = new ResolveRequest(uri);
+        ResolveResponse res = handler.handle(req);
 //    putData("AUTO+4440.exp", res.getData());
-    String expResult = getData("AUTO+4440.exp");
-    assertEquals(expResult, res.getData());
-  }
+        String expResult = getData("AUTO+4440.exp");
+        assertEquals(expResult, res.getData());
+    }
 
-  /**
-   * Test of handle method, of class CrsCombineHandler.
-   */
+    /**
+     * Test of handle method, of class CrsCombineHandler.
+     */
 //  @Ignore
-  @Test
-  public void testHandle() throws Exception {
-    System.out.println("testHandle");
-    String uri = "local/crs-compound?"
-        + "1=local/crs/EPSG/0/4326&"
-        + "2=local/crs/EPSG/0/4440";
-    ResolveRequest req = new ResolveRequest(uri);
-    ResolveResponse res = handler.handle(req);
+    @Test
+    public void testHandle() throws Exception {
+        System.out.println("testHandle");
+        String uri = "local/crs-compound?"
+                     + "1=local/crs/EPSG/0/4326&"
+                     + "2=local/crs/EPSG/0/4440";
+        ResolveRequest req = new ResolveRequest(uri);
+        ResolveResponse res = handler.handle(req);
 //    putData("4326+4440.exp", res.getData());
-    String expResult = getData("4326+4440.exp");
-    assertEquals(expResult, res.getData());
-  }
+        String expResult = getData("4326+4440.exp");
+        assertEquals(expResult, res.getData());
+    }
 
-  /**
-   * Test of handle method, of class CrsCombineHandler.
-   */
+    /**
+     * Test of handle method, of class CrsCombineHandler.
+     */
 //  @Ignore
-  @Test
-  public void testHandle2() throws Exception {
-    System.out.println("testHandle2");
-    String uri = TEST_HOST + "/crs-compound?"
-        + "1=local/crs/EPSG/0/4326&"
-        + "2=local/crs/EPSG/0/4440";
-    ResolveResponse res = Resolver.resolve(new URL(uri));
+    @Test
+    public void testHandle2() throws Exception {
+        System.out.println("testHandle2");
+        String uri = TEST_HOST + "/crs-compound?"
+                     + "1=local/crs/EPSG/0/4326&"
+                     + "2=local/crs/EPSG/0/4440";
+        ResolveResponse res = Resolver.resolve(new URL(uri));
 //    putData("4326+4440.exp2", res.getData());
-    String expResult = getData("4326+4440.exp2");
-    assertEquals(expResult, res.getData());
-  }
+        String expResult = getData("4326+4440.exp2");
+        assertEquals(expResult, res.getData());
+    }
 
-  /**
-   * Test of getOperation method, of class CrsCombineHandler.
-   */
-  @Test
-  public void testGetOperation() {
-    String expResult = "crs-compound";
-    String result = handler.getOperation();
-    assertEquals(expResult, result);
-  }
+    /**
+     * Test of getOperation method, of class CrsCombineHandler.
+     */
+    @Test
+    public void testGetOperation() {
+        String expResult = "crs-compound";
+        String result = handler.getOperation();
+        assertEquals(expResult, result);
+    }
 
 }

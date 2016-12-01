@@ -36,9 +36,9 @@ import petascope.util.XMLUtil;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public abstract class BaseTestCase {
-    
+
     private static final Logger log = LoggerFactory.getLogger(BaseTestCase.class);
-    
+
     public static final String PETASCOPE_PATH =  getPetascopePath();
     public static final String TESTDATA_PATH = PETASCOPE_PATH +  "src/test/java/testdata";
     public static final String DB_SETTINGS = PETASCOPE_PATH +  "db/settings.properties";
@@ -104,7 +104,7 @@ public abstract class BaseTestCase {
             return "";
         }
     }
-    
+
     public static Document toDoc(String file) {
         try {
             return XMLUtil.buildDocument(new File(file));
@@ -113,6 +113,6 @@ public abstract class BaseTestCase {
         }
         return null;
     }
-    
-    
+
+
 }

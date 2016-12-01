@@ -43,7 +43,7 @@ r_IterType<T>::r_IterType(T* newLastElem, T* newElems, T* newCurrPos)
 }
 
 template<class T>
-r_IterType<T>::r_IterType( const r_IterType<T>& iter )
+r_IterType<T>::r_IterType(const r_IterType<T>& iter)
     : lastElem(iter.lastElem), myElems(iter.myElems), currPos(iter.currPos)
 {
 }
@@ -55,7 +55,7 @@ r_IterType<T>::~r_IterType()
 }
 
 template<class T> r_IterType<T>&
-r_IterType<T>::operator=( const r_IterType<T>& iter )
+r_IterType<T>::operator=(const r_IterType<T>& iter)
 {
     lastElem = iter.lastElem;
     myElems = iter.myElems;
@@ -64,13 +64,13 @@ r_IterType<T>::operator=( const r_IterType<T>& iter )
 }
 
 template<class T> bool
-r_IterType<T>::operator==( const r_IterType<T>& otherIter )
+r_IterType<T>::operator==(const r_IterType<T>& otherIter)
 {
     return currPos == otherIter.currPos;
 }
 
 template<class T> bool
-r_IterType<T>::operator!=( const r_IterType<T>& otherIter )
+r_IterType<T>::operator!=(const r_IterType<T>& otherIter)
 {
     return currPos != otherIter.currPos;
 }
@@ -83,9 +83,9 @@ r_IterType<T>::operator++()
 }
 
 template<class T> r_IterType<T>
-r_IterType<T>::operator++( int )
+r_IterType<T>::operator++(int)
 {
-    r_IterType<T> result( *this );
+    r_IterType<T> result(*this);
     operator++();
     return result;
 }

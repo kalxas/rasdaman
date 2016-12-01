@@ -51,17 +51,17 @@ public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> 
     private SchemaFactory schemaFactory;
     private final String WCS2_GETCAP_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsGetCapabilities.xsd";
 
-    public XMLGetCapabilitiesParser(){
-        if(ConfigManager.XML_VALIDATION){
+    public XMLGetCapabilitiesParser() {
+        if (ConfigManager.XML_VALIDATION) {
             try {
                 log.debug("Loading XML schema definition from " + WCS2_GETCAP_SCHEMA + "...");
                 schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 schema = schemaFactory.newSchema(new URL(WCS2_GETCAP_SCHEMA));
                 log.debug("Done.");
-            } catch(SAXException e) {
-                log.error("Could not initialize the GetCapabilities XML Schema validator. Schema validation will be disabled.",e);
-            } catch(MalformedURLException e) {
-                log.error("Could not initialize the GetCapabilities XML Schema validator. Schema validation will be disabled.",e);
+            } catch (SAXException e) {
+                log.error("Could not initialize the GetCapabilities XML Schema validator. Schema validation will be disabled.", e);
+            } catch (MalformedURLException e) {
+                log.error("Could not initialize the GetCapabilities XML Schema validator. Schema validation will be disabled.", e);
             }
         }
     }
@@ -70,7 +70,7 @@ public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> 
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
 
         // input XML validation
-        if(ConfigManager.XML_VALIDATION){
+        if (ConfigManager.XML_VALIDATION) {
             validateInput(request.getRequestString(), schema);
         }
 
@@ -78,9 +78,9 @@ public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> 
         Element root = parseInput(request.getRequestString());
 
         return new GetCapabilitiesRequest(
-                childrenToString(firstChildRecursive(root, LABEL_ACCEPT_VERSIONS)),
-                childrenToString(firstChildRecursive(root, LABEL_ACCEPT_FORMATS)),
-                childrenToString(firstChildRecursive(root, LABEL_ACCEPT_LANGUAGES)));
+                   childrenToString(firstChildRecursive(root, LABEL_ACCEPT_VERSIONS)),
+                   childrenToString(firstChildRecursive(root, LABEL_ACCEPT_FORMATS)),
+                   childrenToString(firstChildRecursive(root, LABEL_ACCEPT_LANGUAGES)));
     }
 
     private String childrenToString(Element e) {

@@ -35,7 +35,7 @@ namespace rasmgr
  * @brief The OutPeerAlreadyExistsException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tries to create a peer with the same identiefier as an existing one.
  */
-class OutPeerAlreadyExistsException:public common::LogicException
+class OutPeerAlreadyExistsException: public common::LogicException
 {
 public:
     /**

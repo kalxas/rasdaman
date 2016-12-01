@@ -40,67 +40,84 @@ rasdaman GmbH.
 
 TesterConf::TesterConf()
 {
-    strcpy(rasmgrHost,"localhost");
+    strcpy(rasmgrHost, "localhost");
     rasmgrPort = RASMGRPORT;
 
     commandListFile[0] =  EOS_CHAR;
     testFile[0] =  EOS_CHAR;
 
-    strcpy(logFile,"rasmgrtest.log");
+    strcpy(logFile, "rasmgrtest.log");
 
-    workModus=WKMUNKNOWN;
+    workModus = WKMUNKNOWN;
     quiet = false;
 }
 
-bool TesterConf::interpretArguments(int argc, char **argv)
+bool TesterConf::interpretArguments(int argc, char** argv)
 {
-    if(argc < 2)
+    if (argc < 2)
     {
         printHelp();
         return false;
     }
 
-    if(argv[1][0] != '-') strcpy(rasmgrHost,argv[1]);
+    if (argv[1][0] != '-')
+    {
+        strcpy(rasmgrHost, argv[1]);
+    }
 
     int optionValueIndex;
 
-    if( checkArguments( argc, argv, "-h", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-h", optionValueIndex))
     {
         printHelp();
         return false;
     }
 
-    if(checkArguments( argc, argv, "-port", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-port", optionValueIndex))
     {
-        if(optionValueIndex)
-            rasmgrPort = strtoul(argv[optionValueIndex],(char**)NULL,10);
+        if (optionValueIndex)
+        {
+            rasmgrPort = strtoul(argv[optionValueIndex], (char**)NULL, 10);
+        }
     }
-    if(checkArguments( argc, argv, "-cf", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-cf", optionValueIndex))
     {
-        if(optionValueIndex)
-            strcpy(commandListFile,argv[optionValueIndex]);
-    }
-
-    if(checkArguments( argc, argv, "-tf", optionValueIndex ) )
-    {
-        if(optionValueIndex)
-            strcpy(testFile,argv[optionValueIndex]);
+        if (optionValueIndex)
+        {
+            strcpy(commandListFile, argv[optionValueIndex]);
+        }
     }
 
-    if(checkArguments( argc, argv, "-lf", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-tf", optionValueIndex))
     {
-        if(optionValueIndex)
-            strcpy(logFile,argv[optionValueIndex]);
+        if (optionValueIndex)
+        {
+            strcpy(testFile, argv[optionValueIndex]);
+        }
     }
 
-    if(checkArguments( argc, argv, "-quiet", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-lf", optionValueIndex))
+    {
+        if (optionValueIndex)
+        {
+            strcpy(logFile, argv[optionValueIndex]);
+        }
+    }
+
+    if (checkArguments(argc, argv, "-quiet", optionValueIndex))
     {
         quiet = true;
     }
 
-    if( commandListFile[0] && testFile[0]) workModus = WKMCREATE;
+    if (commandListFile[0] && testFile[0])
+    {
+        workModus = WKMCREATE;
+    }
 
-    else if(testFile[0]) workModus = WKMTSLANG;
+    else if (testFile[0])
+    {
+        workModus = WKMTSLANG;
+    }
 
     return true;
 }
@@ -138,13 +155,13 @@ bool TesterConf::beQuiet()
 
 void TesterConf::printHelp()
 {
-    cout<<"Usage: rasmgrtest mainhost [options]"<<endl;
-    cout<<"\tmainhost       ... the hostname  where the master RasMgr runs"<<endl;
-    cout<<"\t-port          ... the listen port of the master RasMgr (default: "<<RASMGRPORT<<") "<<endl;
-    cout<<"\t-cf <file>     ... command list file, from which the test file should be created"<<endl;
-    cout<<"                     (if none the test file is used to test the RasMgr)"<<endl;
-    cout<<"\t-tf <file>     ... test file"<<endl;
-    cout<<"\t-lf <file>     ... log file (default rasmgrtest.log)"<<endl;
-    cout<<endl;
+    cout << "Usage: rasmgrtest mainhost [options]" << endl;
+    cout << "\tmainhost       ... the hostname  where the master RasMgr runs" << endl;
+    cout << "\t-port          ... the listen port of the master RasMgr (default: " << RASMGRPORT << ") " << endl;
+    cout << "\t-cf <file>     ... command list file, from which the test file should be created" << endl;
+    cout << "                     (if none the test file is used to test the RasMgr)" << endl;
+    cout << "\t-tf <file>     ... test file" << endl;
+    cout << "\t-lf <file>     ... log file (default rasmgrtest.log)" << endl;
+    cout << endl;
 }
 

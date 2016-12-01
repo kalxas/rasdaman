@@ -62,6 +62,6 @@ RasdamanConnector* rasconn;
 void showEraseHelp();
 int erasePSMetaData(RasdamanHelper2& helper);
 int eraseNMMetaData(RasdamanHelper2& helper);
-void crash_handler (int sig, siginfo_t* info, void * ucontext);
+void crash_handler(int sig, siginfo_t* info, void* ucontext);
 
 #endif /* RASERASE_HH_ */

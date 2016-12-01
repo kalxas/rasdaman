@@ -62,13 +62,13 @@ private:
 public:
     // Constructors
     QtMDDConfig();
-    QtMDDConfig( int tilingType, int tileSize, int borderThreshold,
-                 double interestThreshold, QtOperation* tileCfg,
-                 QtNode::QtOperationList* box,std::vector<r_Dir_Decompose>* dDecomp,
-                 int indexType);
-    QtMDDConfig( int tilingType, int tileSize, int borderThreshold,
-                 double interestThreshold, QtOperation* tileCfg,
-                 QtNode::QtOperationList* box,std::vector<r_Dir_Decompose>* dDecomp);
+    QtMDDConfig(int tilingType, int tileSize, int borderThreshold,
+                double interestThreshold, QtOperation* tileCfg,
+                QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp,
+                int indexType);
+    QtMDDConfig(int tilingType, int tileSize, int borderThreshold,
+                double interestThreshold, QtOperation* tileCfg,
+                QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp);
     QtMDDConfig(int index);
 
     // Getters

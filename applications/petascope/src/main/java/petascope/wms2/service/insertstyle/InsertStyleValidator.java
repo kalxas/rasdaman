@@ -45,10 +45,10 @@ public class InsertStyleValidator implements Validator<InsertStyleRequest> {
         if (request.getStyleName() == null) {
             throw new WMSEmptyStyleName();
         }
-        if(request.getStyleAbstract() == null){
+        if (request.getStyleAbstract() == null) {
             throw new WMSInvalidStyleAbstract();
         }
-        if(request.getLayerName() == null){
+        if (request.getLayerName() == null) {
             throw new WMSInvalidLayerException("");
         }
     }

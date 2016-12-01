@@ -62,7 +62,8 @@ bool udfEnabled = true;
 
 _INITIALIZE_EASYLOGGINGPP
 
-namespace blobfs {
+namespace blobfs
+{
 
 class TestBlobFS
 {
@@ -70,7 +71,7 @@ class TestBlobFS
 public:
 
     TestBlobFS()
-    : config("", "", "", true)
+        : config("", "", "", true)
     {
     }
 
@@ -241,7 +242,7 @@ public:
             struct stat status;
             EXPECT_TRUE(BlobFile::fileExists(expectedFilePath));
         }
-        catch(r_Error & err)
+        catch (r_Error& err)
         {
             TEST_FAIL();
         }
@@ -401,7 +402,7 @@ public:
 
         BlobFS::getInstance().insertTransaction->transactionLock->clearTransactionLock();
         string lockFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
-                BlobFSTransactionLock::TRANSACTION_LOCK;
+                              BlobFSTransactionLock::TRANSACTION_LOCK;
         int fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
 
@@ -427,12 +428,12 @@ public:
         // create fake (unlocked) commit lock simulating crash in the server during the commit
         BlobFS::getInstance().insertTransaction->transactionLock->clearCommitLock();
         string lockFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
-                BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK;
+                              BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK;
         int fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
         BlobFS::getInstance().insertTransaction->transactionLock->clearTransactionLock();
         string lockTransactionFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
-                BlobFSTransactionLock::TRANSACTION_LOCK;
+                                         BlobFSTransactionLock::TRANSACTION_LOCK;
         fd = open(lockTransactionFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
 
@@ -461,12 +462,12 @@ public:
         // create fake (unlocked) commit lock simulating crash in the server during the commit
         BlobFS::getInstance().insertTransaction->transactionLock->clearCommitLock();
         string lockFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
-                BlobFSTransactionLock::TRANSACTION_ABORT_LOCK;
+                              BlobFSTransactionLock::TRANSACTION_ABORT_LOCK;
         int fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
         BlobFS::getInstance().insertTransaction->transactionLock->clearTransactionLock();
         string lockTransactionFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
-                BlobFSTransactionLock::TRANSACTION_LOCK;
+                                         BlobFSTransactionLock::TRANSACTION_LOCK;
         fd = open(lockTransactionFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
 
@@ -494,8 +495,8 @@ public:
         ta.begin(&db);
 
         BlobFSConfig tmpConfig(BlobFS::getInstance().config.rootPath,
-             BlobFS::getInstance().config.tilesPath,
-             BlobFS::getInstance().config.transactionsPath, true);
+                               BlobFS::getInstance().config.tilesPath,
+                               BlobFS::getInstance().config.transactionsPath, true);
         config = tmpConfig;
     }
 
@@ -524,7 +525,7 @@ private:
 
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifndef BASEDB_SQLITE
     cerr << "testsuite runs only on SQLite / Filestorage rasdaman." << endl;

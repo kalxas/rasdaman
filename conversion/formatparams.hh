@@ -36,21 +36,21 @@ rasdaman GmbH.
 //@ManMemo: Module {\bf conversion}
 
 /*@Doc:
- * Conversion format <-> rasdaman array can be controlled via format parameters, 
+ * Conversion format <-> rasdaman array can be controlled via format parameters,
  * handled by this class which parses a JSON string and populates common parameter values.
- * 
+ *
  * Full documentation at http://rasdaman.org/wiki/CommonFormatsInterface
  */
 class r_Format_Params
 {
 public:
-    
+
     r_Format_Params();
-    
+
     /**
      * Parse the input format parameters into a JSON object and get the values for
      * parameters common across multiple converters.
-     * 
+     *
      * @param paramsStr a format parameters string.
      * @param mandatory if true and parsing the format parameters string into JSON
      * fails, than an error is thrown, otherwise just a warning is printed.
@@ -58,132 +58,132 @@ public:
      * key/value format parameter string, so then JSON is not mandatory.
      */
     bool parse(const std::string& paramsStr, bool mandatory = false) throw (r_Error);
- 
+
     /// If parse fails, this method allows to get the error message.
     std::string getParseErrorMsg() const;
-    
+
     /// get the JSON params
     Json::Value getParams() const;
-    
+
     /**
      * @return true if the parameters have been parsed.
      */
     bool isValidJson() const;
-    
+
     /// get paths to files to be decoded
     std::vector<std::string> getFilePaths() const;
-    
+
     /// set the paths to files to be decoded
     void setFilePaths(const std::vector<std::string>& filePaths);
 
     /// get the path to a file to be decoded
     std::string getFilePath() const;
-    
+
     /// (subset of) variable names to be decoded from the input file
     std::vector<std::string> getVariables() const;
-    
+
     /// (subset of) band ids (0-indexed) to be decoded from the input file
     std::vector<int> getBandIds() const;
-    
+
     /// subset region to be decoded from the input file, instead of the whole file
     r_Minterval getSubsetDomain() const;
 
     /// sets subset region to be decoded from the input file, instead of the whole file
     void setSubsetDomain(const r_Minterval& domain);
-    
+
     /// extra format parameters, e.g. compression type; convertor-dependent
-    std::vector< std::pair<std::string, std::string> > getFormatParameters() const;
-    
+    std::vector<std::pair<std::string, std::string>> getFormatParameters() const;
+
     /// extra format parameters, e.g. compression type; convertor-dependent
     void addFormatParameter(const std::string& key, const std::string& val);
-    
+
     /// Configuration options (string key/value pairs); details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
-    std::vector< std::pair<std::string, std::string> > getConfigOptions() const;
-    
+    std::vector<std::pair<std::string, std::string>> getConfigOptions() const;
+
     /// indicate dimensions (0-indexed) to be transposed
     std::pair<int, int> getTranspose() const;
-    
+
     /// true if transposing dimensions is requested
     bool isTranspose() const;
-    
+
     /// nodata values, if there is more than 1 they are applied correspondingly to each band.
     std::vector<double> getNodata() const;
     /// nodata values, if there is more than 1 they are applied correspondingly to each band.
     void addNodata(double val);
-    
+
     /// extra metadata
     std::string getMetadata() const;
     /// extra metadata
     void setMetadata(const std::string& metadata);
-    
+
     /// extra metadata represented as a vector of key/value pairs
-    std::vector< std::pair<std::string, std::string> > getMetadataKeyValues() const;
-    
+    std::vector<std::pair<std::string, std::string>> getMetadataKeyValues() const;
+
     /// coordinate reference system
     std::string getCrs() const;
     /// coordinate reference system
     void setCrs(const std::string& crs);
-    
+
     /// min X geo bound
     double getXmin() const;
     /// min X geo bound
     void setXmin(double val);
-    
+
     /// max X geo bound
     double getXmax() const;
     /// max X geo bound
     void setXmax(double val);
-    
+
     /// min Y geo bound
     double getYmin() const;
     /// min Y geo bound
     void setYmin(double val);
-    
+
     /// max Y geo bound
     double getYmax() const;
     /// max Y geo bound
     void setYmax(double val);
-    
+
 private:
-    
+
     void parseJson() throw (r_Error);
     void parseTranspose() throw (r_Error);
     void parseVariables() throw (r_Error);
     void parseFilepaths() throw (r_Error);
-    void parseStringKeyValuesList(const std::string& key, std::vector< std::pair<std::string, std::string> >& targetVector) throw (r_Error);
+    void parseStringKeyValuesList(const std::string& key, std::vector<std::pair<std::string, std::string>>& targetVector) throw (r_Error);
     void parseSubsetDomain() throw (r_Error);
     void parseNodata() throw (r_Error);
     void parseMetadata() throw (r_Error);
     void parseGeoReference() throw (r_Error);
-    
+
     Json::Value params;
-    
+
     std::string parseErrorMsg;
-    
+
     /// specifying a path to file to be decoded
     std::vector<std::string> filePaths;
-    
+
     /// (subset of) variable names to be decoded from the input file
     std::vector<std::string> variables;
-    
+
     /// subset region to be decoded from the input file, instead of the whole file
     r_Minterval subsetDomain;
-    
+
     /// (subset of) band ids (0-indexed) to be decoded from the input file
     std::vector<int> bandIds;
-    
+
     /// extra format parameters, e.g. compression type; convertor-dependent
-    std::vector< std::pair<std::string, std::string> > formatParameters;
-    
+    std::vector<std::pair<std::string, std::string>> formatParameters;
+
     /// Configuration options (string key/value pairs); details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
-    std::vector< std::pair<std::string, std::string> > configOptions;
-    
+    std::vector<std::pair<std::string, std::string>> configOptions;
+
     /// indicate dimensions (0-indexed) to be transposed
     std::pair<int, int> transposePair;
-    
+
     /// true if transposing dimensions is requested
     bool transpose;
-    
+
     /// coordinate reference system
     std::string crs;
     /// min X geo bound
@@ -197,13 +197,13 @@ private:
 
     /// extra metadata
     std::string metadata;
-    
+
     /// extra metadata represented as a vector of key/value pairs
-    std::vector< std::pair<std::string, std::string> > metadataKeyValues;
-    
+    std::vector<std::pair<std::string, std::string>> metadataKeyValues;
+
     /// nodata values, if there is more than 1 they are applied correspondingly to each band.
     std::vector<double> nodata;
-    
+
 };
 
 #endif

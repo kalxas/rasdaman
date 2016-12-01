@@ -256,9 +256,9 @@ public:
     static const std::string ANONYMOUS_CELL_TYPE_PREFIX;
 
     // Maps syntax types to internal type names (e.g. char -> Char)
-    static std::string getInternalTypeFromSyntaxType(const std::string &syntaxTypeName);
+    static std::string getInternalTypeFromSyntaxType(const std::string& syntaxTypeName);
     // Maps internal types to syntax types (e.g. Char -> char)
-    static std::string getSyntaxTypeFromInternalType(const std::string &internalTypeName);
+    static std::string getSyntaxTypeFromInternalType(const std::string& internalTypeName);
 
 protected:
     TypeFactory();
@@ -277,7 +277,7 @@ private:
     pointer to instance for Singleton pattern.
     */
 
-    static std::vector<Type*> *theTempTypes;
+    static std::vector<Type*>* theTempTypes;
     /*@Doc:
     a vector containing pointers to temporary allocated types.
     */

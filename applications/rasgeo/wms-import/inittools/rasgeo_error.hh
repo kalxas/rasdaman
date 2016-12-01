@@ -59,13 +59,13 @@ class InitError // : public std::exception
 public:
 
     /// constructor receiving an error number
-    InitError( int e );
+    InitError(int e);
 
     /// destructor
     virtual ~InitError();
 
     /// get an error description
-    virtual const char * what();
+    virtual const char* what();
 
 private:
     /// error information

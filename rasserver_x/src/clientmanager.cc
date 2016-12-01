@@ -68,11 +68,11 @@ ClientManager::~ClientManager()
     }
     catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
     }
     catch (...)
     {
-        LERROR<<"ClientManager destructor has failed";
+        LERROR << "ClientManager destructor has failed";
     }
 }
 
@@ -109,7 +109,7 @@ void ClientManager::resetLiveliness(std::string clientUUID)
     }
 }
 
-void ClientManager::cleanQueryStreamedResult(const std::string &requestUUID)
+void ClientManager::cleanQueryStreamedResult(const std::string& requestUUID)
 {
     this->queryStreamedResultList.erase(requestUUID);
 }
@@ -121,7 +121,7 @@ void ClientManager::addQueryStreamedResult(const std::string& requestUUID, const
 
 shared_ptr<ClientQueryStreamedResult> ClientManager::getQueryStreamedResult(const std::string& requestUUID)
 {
-    map<string, shared_ptr<ClientQueryStreamedResult> >::iterator queryResult = this->queryStreamedResultList.find(requestUUID);
+    map<string, shared_ptr<ClientQueryStreamedResult>>::iterator queryResult = this->queryStreamedResultList.find(requestUUID);
 
     if (queryResult == this->queryStreamedResultList.end())
     {
@@ -139,10 +139,10 @@ size_t ClientManager::getClientQueueSize()
 void ClientManager::evaluateClientStatus()
 {
     map<string, Timer>::iterator it;
-    map<string, Timer >::iterator toErase;
+    map<string, Timer>::iterator toErase;
 
-    map<string, shared_ptr<ClientQueryStreamedResult> >::iterator resultIt;
-    map<string, shared_ptr<ClientQueryStreamedResult> >::iterator toEraseResult;
+    map<string, shared_ptr<ClientQueryStreamedResult>>::iterator resultIt;
+    map<string, shared_ptr<ClientQueryStreamedResult>>::iterator toEraseResult;
 
     boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(ALIVE_PERIOD);
 
@@ -153,7 +153,7 @@ void ClientManager::evaluateClientStatus()
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if(!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            if (!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
             {
                 set<string> deadClients;
 
@@ -162,9 +162,9 @@ void ClientManager::evaluateClientStatus()
 
                 while (it != this->clientList.end())
                 {
-                    toErase=it;
+                    toErase = it;
                     ++it;
-                    if(toErase->second.hasExpired())
+                    if (toErase->second.hasExpired())
                     {
                         boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(clientsLock);
                         this->clientList.erase(toErase);
@@ -179,7 +179,7 @@ void ClientManager::evaluateClientStatus()
                 }
 
                 resultIt = this->queryStreamedResultList.begin();
-                while(resultIt != this->queryStreamedResultList.end())
+                while (resultIt != this->queryStreamedResultList.end())
                 {
                     toEraseResult = resultIt;
                     resultIt++;
@@ -193,12 +193,12 @@ void ClientManager::evaluateClientStatus()
         }
         catch (std::exception& ex)
         {
-            LERROR<<"Client management thread has failed";
-            LERROR<<ex.what();
+            LERROR << "Client management thread has failed";
+            LERROR << ex.what();
         }
         catch (...)
         {
-            LERROR<<"Client management thread failed for unknown reason.";
+            LERROR << "Client management thread failed for unknown reason.";
         }
     }
 }

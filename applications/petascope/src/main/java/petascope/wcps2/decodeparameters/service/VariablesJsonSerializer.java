@@ -39,7 +39,7 @@ public class VariablesJsonSerializer extends JsonSerializer<List<Variable>> {
     @Override
     public void serialize(List<Variable> variables, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
         jsonGenerator.writeStartObject();
-        for(Variable variable: variables){
+        for (Variable variable : variables) {
             jsonGenerator.writeObjectField(variable.getName(), variable);
         }
         jsonGenerator.writeEndObject();

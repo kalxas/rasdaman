@@ -42,146 +42,146 @@ import org.w3c.dom.Node;
  * @author Dimitar Misev
  */
 public class XMLDiff {
-  
-  private static Logger log = LoggerFactory.getLogger(XMLDiff.class);
-  
-  private static final IgnoreNamedElementsDifferenceListener diffListener;
 
-  private static final ErrorListener silentErrorListener = new ErrorListener() {
-    public void warning(TransformerException exception) throws TransformerException {
-    }
+    private static Logger log = LoggerFactory.getLogger(XMLDiff.class);
 
-    public void error(TransformerException exception) throws TransformerException {
-    }
+    private static final IgnoreNamedElementsDifferenceListener diffListener;
 
-    public void fatalError(TransformerException exception) throws TransformerException {
-    }
-  };
+    private static final ErrorListener silentErrorListener = new ErrorListener() {
+        public void warning(TransformerException exception) throws TransformerException {
+        }
 
-  /**
-   * Setup the diff engine
-   */
-  static {
-    diffListener = new IgnoreNamedElementsDifferenceListener();
-    diffListener.addIgnoreAttribute("href", "id");
-    diffListener.addIgnoreElements("identifier", "metaDataProperty", "scope");
-    
-    
-    XMLUnit.setIgnoreDiffBetweenTextAndCDATA(true);
-    XMLUnit.setIgnoreAttributeOrder(true);
-    XMLUnit.setIgnoreComments(true);
-    XMLUnit.setIgnoreWhitespace(true);
-    XMLUnit.setNormalizeWhitespace(true);
+        public void error(TransformerException exception) throws TransformerException {
+        }
+
+        public void fatalError(TransformerException exception) throws TransformerException {
+        }
+    };
+
+    /**
+     * Setup the diff engine
+     */
+    static {
+        diffListener = new IgnoreNamedElementsDifferenceListener();
+        diffListener.addIgnoreAttribute("href", "id");
+        diffListener.addIgnoreElements("identifier", "metaDataProperty", "scope");
+
+
+        XMLUnit.setIgnoreDiffBetweenTextAndCDATA(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
+        XMLUnit.setIgnoreComments(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setNormalizeWhitespace(true);
 //    XMLUnit.setNormalize(true);
 
-    XMLUnit.getSAXParserFactory().setNamespaceAware(false);
-    XMLUnit.getSAXParserFactory().setValidating(false);
+        XMLUnit.getSAXParserFactory().setNamespaceAware(false);
+        XMLUnit.getSAXParserFactory().setValidating(false);
 
-    DocumentBuilderFactory factory = XMLUnit.getControlDocumentBuilderFactory();
-    factory.setCoalescing(true);
-    factory.setExpandEntityReferences(false);
-    factory.setIgnoringComments(true);
-    factory.setIgnoringElementContentWhitespace(true);
-    factory.setNamespaceAware(false);
-    factory.setValidating(false);
-    XMLUnit.setControlDocumentBuilderFactory(factory);
-    XMLUnit.setTestDocumentBuilderFactory(factory);
-    XMLUnit.getTransformerFactory().setErrorListener(silentErrorListener);
-  }
-
-  /**
-   * Perform a diff on two XML strings.
-   *
-   * @param xml1
-   * @param xml2
-   * @return true if same, false otherwise
-   */
-  public static Result equals(String xml1, String xml2) throws SecoreException {
-    Diff diff = null;
-    try {
-      diff = new Diff(xml1, xml2);
-      diff.overrideDifferenceListener(diffListener);
-    } catch (Exception ex) {
-      throw new SecoreException(ExceptionCode.XmlNotValid, "Failed comparing the XML definitions.", ex);
-    }
-    return new Result(diff);
-  }
-  
-  /**
-   * Wrapper for the comparison result, adds method to create the XML result
-   */
-  public static class Result {
-    private final Diff diff;
-    
-    public Result(Diff diff) {
-      this.diff = diff;
-    }
-    
-    public String toXML() {
-      boolean equal = diff.identical();
-      
-      String ret = "  <equal>" + equal + "</equal>";
-      if (!equal) {
-        StringBuffer buf = new StringBuffer();
-        diff.appendMessage(buf);
-        ret = ret + "\n  <reason>\n  <![CDATA[" + buf.toString() + "  ]]>\n  </reason>";
-      }
-      ret = "<comparisonResult xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n" + ret + "\n</comparisonResult>";
-      return ret;
+        DocumentBuilderFactory factory = XMLUnit.getControlDocumentBuilderFactory();
+        factory.setCoalescing(true);
+        factory.setExpandEntityReferences(false);
+        factory.setIgnoringComments(true);
+        factory.setIgnoringElementContentWhitespace(true);
+        factory.setNamespaceAware(false);
+        factory.setValidating(false);
+        XMLUnit.setControlDocumentBuilderFactory(factory);
+        XMLUnit.setTestDocumentBuilderFactory(factory);
+        XMLUnit.getTransformerFactory().setErrorListener(silentErrorListener);
     }
 
-    public Diff getDiff() {
-      return diff;
+    /**
+     * Perform a diff on two XML strings.
+     *
+     * @param xml1
+     * @param xml2
+     * @return true if same, false otherwise
+     */
+    public static Result equals(String xml1, String xml2) throws SecoreException {
+        Diff diff = null;
+        try {
+            diff = new Diff(xml1, xml2);
+            diff.overrideDifferenceListener(diffListener);
+        } catch (Exception ex) {
+            throw new SecoreException(ExceptionCode.XmlNotValid, "Failed comparing the XML definitions.", ex);
+        }
+        return new Result(diff);
     }
-  }
+
+    /**
+     * Wrapper for the comparison result, adds method to create the XML result
+     */
+    public static class Result {
+        private final Diff diff;
+
+        public Result(Diff diff) {
+            this.diff = diff;
+        }
+
+        public String toXML() {
+            boolean equal = diff.identical();
+
+            String ret = "  <equal>" + equal + "</equal>";
+            if (!equal) {
+                StringBuffer buf = new StringBuffer();
+                diff.appendMessage(buf);
+                ret = ret + "\n  <reason>\n  <![CDATA[" + buf.toString() + "  ]]>\n  </reason>";
+            }
+            ret = "<comparisonResult xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n" + ret + "\n</comparisonResult>";
+            return ret;
+        }
+
+        public Diff getDiff() {
+            return diff;
+        }
+    }
 }
 
 /**
  * Custom difference listener, to allow ignoring irrelevant elements/attributes.
- * 
+ *
  * @author Dimitar Misev
  */
 class IgnoreNamedElementsDifferenceListener implements DifferenceListener {
-  
-  private static Logger log = LoggerFactory.getLogger(IgnoreNamedElementsDifferenceListener.class);
 
-  private Set<String> ignoreElements = new HashSet<String>();
-  private Set<String> ignoreAttributes = new HashSet<String>();
+    private static Logger log = LoggerFactory.getLogger(IgnoreNamedElementsDifferenceListener.class);
 
-  public int differenceFound(Difference difference) {
-    if (difference.getId() == DifferenceConstants.TEXT_VALUE_ID) {
-      String elName = difference.getControlNodeDetail().getNode().getParentNode().getNodeName();
-      if (ignoreElements.contains(elName)) {
-        log.trace("Ignoring element " + elName);
-        return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
-      }
-    } else if (difference.getId() == DifferenceConstants.ATTR_VALUE_ID) {
-      String xpath = difference.getControlNodeDetail().getXpathLocation();
-      String attName = xpath.substring(xpath.lastIndexOf("@") + 1);
-      if (ignoreAttributes.contains(attName)) {
-        log.trace("Ignoring attribute " + attName);
-        return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
-      }
+    private Set<String> ignoreElements = new HashSet<String>();
+    private Set<String> ignoreAttributes = new HashSet<String>();
+
+    public int differenceFound(Difference difference) {
+        if (difference.getId() == DifferenceConstants.TEXT_VALUE_ID) {
+            String elName = difference.getControlNodeDetail().getNode().getParentNode().getNodeName();
+            if (ignoreElements.contains(elName)) {
+                log.trace("Ignoring element " + elName);
+                return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
+            }
+        } else if (difference.getId() == DifferenceConstants.ATTR_VALUE_ID) {
+            String xpath = difference.getControlNodeDetail().getXpathLocation();
+            String attName = xpath.substring(xpath.lastIndexOf("@") + 1);
+            if (ignoreAttributes.contains(attName)) {
+                log.trace("Ignoring attribute " + attName);
+                return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
+            }
+        }
+
+        log.debug("Difference found: " + difference.getDescription());
+        log.debug("           XPath: " + difference.getControlNodeDetail().getXpathLocation());
+
+        return DifferenceListener.RETURN_ACCEPT_DIFFERENCE;
     }
 
-    log.debug("Difference found: " + difference.getDescription());
-    log.debug("           XPath: " + difference.getControlNodeDetail().getXpathLocation());
-    
-    return DifferenceListener.RETURN_ACCEPT_DIFFERENCE;
-  }
+    public void skippedComparison(Node node, Node node1) {
+    }
 
-  public void skippedComparison(Node node, Node node1) {
-  }
-  
-  public void addIgnoreAttribute(String... attributeNames) {
-    for (String att : attributeNames) {
-      ignoreAttributes.add(att);
+    public void addIgnoreAttribute(String... attributeNames) {
+        for (String att : attributeNames) {
+            ignoreAttributes.add(att);
+        }
     }
-  }
-  
-  public void addIgnoreElements(String... elementNames) {
-    for (String el : elementNames) {
-      ignoreElements.add(el);
+
+    public void addIgnoreElements(String... elementNames) {
+        for (String el : elementNames) {
+            ignoreElements.add(el);
+        }
     }
-  }
 }

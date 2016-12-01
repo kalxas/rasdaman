@@ -43,11 +43,11 @@ public class GetCoverageHandler extends AbstractRequestHandler<GetCoverageReques
 
     @Override
     public Response handle(GetCoverageRequest request)
-            throws PetascopeException, WCSException, SecoreException {
+    throws PetascopeException, WCSException, SecoreException {
         FormatExtension formatExtension = ExtensionsRegistry.getFormatExtension(request);
         if (formatExtension == null) {
             throw new WCSException(ExceptionCode.NoApplicableCode,
-                    "No appropriate format extension was found that can handle the request for format : " + request.getFormat());
+                                   "No appropriate format extension was found that can handle the request for format : " + request.getFormat());
         }
         try {
             return formatExtension.handle(request, meta);

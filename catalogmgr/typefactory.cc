@@ -107,7 +107,7 @@ map<string, string> TypeFactory::createInternalTypeSyntaxTypeMap()
     map<string, string> syntaxTypeInternalTypeMap = createSyntaxTypeInternalTypeMap();
 
     for (map<string, string>::iterator mapIt = syntaxTypeInternalTypeMap.begin();
-         mapIt != syntaxTypeInternalTypeMap.end(); ++mapIt)
+            mapIt != syntaxTypeInternalTypeMap.end(); ++mapIt)
     {
         internalTypeSyntaxTypeMap.insert(std::make_pair(mapIt->second, mapIt->first));
     }
@@ -115,7 +115,7 @@ map<string, string> TypeFactory::createInternalTypeSyntaxTypeMap()
     return internalTypeSyntaxTypeMap;
 }
 
-string TypeFactory::getInternalTypeFromSyntaxType(const std::string &syntaxTypeName)
+string TypeFactory::getInternalTypeFromSyntaxType(const std::string& syntaxTypeName)
 {
     string result = syntaxTypeName;
     map<string, string>::const_iterator it = syntaxTypeInternalTypeMap.find(syntaxTypeName);
@@ -127,7 +127,7 @@ string TypeFactory::getInternalTypeFromSyntaxType(const std::string &syntaxTypeN
     return result;
 }
 
-string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTypeName)
+string TypeFactory::getSyntaxTypeFromInternalType(const std::string& internalTypeName)
 {
     string result = internalTypeName;
     map<string, string>::const_iterator it = internalTypeSyntaxTypeMap.find(internalTypeName);
@@ -141,12 +141,12 @@ string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTyp
 
 // all atomic types given back by mapType()
 // for managing the memory of temporary types
-std::vector<Type*> *TypeFactory::theTempTypes = 0;
+std::vector<Type*>* TypeFactory::theTempTypes = 0;
 
 TypeFactory*
 TypeFactory::instance()
 {
-    if(myInstance == 0)
+    if (myInstance == 0)
     {
         myInstance = new TypeFactory;
     }
@@ -164,7 +164,7 @@ TypeFactory::mapType(const char* typeName)
         {
             resultType = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, typeName));
         }
-        catch   (r_Error)
+        catch (r_Error)
         {
             resultType = 0;
         }
@@ -232,7 +232,7 @@ TypeFactory::mapSetType(const char* typeName)
     {
         resultType = static_cast<SetType*>(ObjectBroker::getObjectByName(OId::SETTYPEOID, typeName));
     }
-    catch   (r_Error)
+    catch (r_Error)
     {
         resultType = 0;
     }
@@ -276,7 +276,7 @@ TypeFactory::mapMDDType(const char* typeName)
     {
         resultType = ObjectBroker::getMDDTypeByName(typeName);
     }
-    catch   (...)
+    catch (...)
     {
         resultType = 0;
     }
@@ -350,7 +350,9 @@ TypeFactory::initialize()
 {
     // to initailize the typefactory
     if (!theTempTypes)
+    {
         theTempTypes = new std::vector<Type*>;
+    }
 }
 
 void
@@ -359,7 +361,7 @@ TypeFactory::freeTempTypes()
     // delete all temporary types
     if (theTempTypes)
     {
-        for(std::vector<Type*>::iterator iter = theTempTypes->begin(); iter != theTempTypes->end(); iter++)
+        for (std::vector<Type*>::iterator iter = theTempTypes->begin(); iter != theTempTypes->end(); iter++)
         {
             delete *iter;
             *iter = 0;
@@ -509,7 +511,7 @@ TypeFactory::deleteSetType(const char* typeName)
         }
         else
         {
-            LINFO << "set type: " << typeName <<" cannot be deleted: instance existing";
+            LINFO << "set type: " << typeName << " cannot be deleted: instance existing";
         }
     }
     else
@@ -560,11 +562,11 @@ TypeFactory::ensurePersistence(Type* type)
     Type* ttype = 0;
 
     // deleting type if it is in the list of tempTypes
-    if(theTempTypes)
+    if (theTempTypes)
     {
-        for(iter = theTempTypes->begin(); iter < theTempTypes->end(); iter++)
+        for (iter = theTempTypes->begin(); iter < theTempTypes->end(); iter++)
         {
-            if(*iter == type)
+            if (*iter == type)
             {
                 theTempTypes->erase(iter);
             }
@@ -587,7 +589,9 @@ TypeFactory::ensurePersistence(Type* type)
             ist.advance();
         }
         if (!retval)
+        {
             retval = addStructType(static_cast<const StructType*>(type));
+        }
     }
     break;
     case MDDTYPE:
@@ -604,7 +608,9 @@ TypeFactory::ensurePersistence(Type* type)
             imd.advance();
         }
         if (!retval)
+        {
             retval = addMDDType(static_cast<const MDDType*>(type));
+        }
     }
     break;
     case SETTYPE:
@@ -621,7 +627,9 @@ TypeFactory::ensurePersistence(Type* type)
             ise.advance();
         }
         if (!retval)
+        {
             retval = addSetType(static_cast<const SetType*>(type));
+        }
     }
     break;
     case ULONG:
@@ -662,7 +670,9 @@ TypeFactory::ensurePersistence(Type* type)
         break;
     }
     if (!type->isPersistent())
+    {
         delete type;
+    }
     return retval;
 }
 

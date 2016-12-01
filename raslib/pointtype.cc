@@ -31,7 +31,7 @@ r_Point_Type::r_Point_Type()
 {
 }
 
-r_Point_Type::r_Point_Type( const r_Point_Type& oldObj )
+r_Point_Type::r_Point_Type(const r_Point_Type& oldObj)
     : r_Type(oldObj)
 {
 }
@@ -39,7 +39,7 @@ r_Point_Type::r_Point_Type( const r_Point_Type& oldObj )
 r_Type*
 r_Point_Type::clone() const
 {
-    return new r_Point_Type( *this );
+    return new r_Point_Type(*this);
 }
 
 r_Type::r_Type_Id
@@ -49,18 +49,18 @@ r_Point_Type::type_id() const
 }
 
 void
-r_Point_Type::convertToLittleEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells)
+r_Point_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells)
 const
 {
 }
 
 void
-r_Point_Type::convertToBigEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
+r_Point_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Point_Type::print_status( std::ostream& s ) const
+r_Point_Type::print_status(std::ostream& s) const
 {
     s << "point";
 }
@@ -75,7 +75,7 @@ r_Point_Type::isPointType() const
     return true;
 }
 
-std::ostream &operator<<( std::ostream &str, const r_Point_Type &type )
+std::ostream& operator<<(std::ostream& str, const r_Point_Type& type)
 {
     type.print_status(str);
     return str;

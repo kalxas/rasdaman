@@ -33,17 +33,16 @@ import java.util.List;
 * call is made to any of the <code>List</code> methods.
 * An instance of a class implementing this interface can be obtained
 * by calling the method <code>Implementation.newDArray</code>.
-* @author	David Jordan (as Java Editor of the Object Data Management Group)
+* @author   David Jordan (as Java Editor of the Object Data Management Group)
 * @version ODMG 3.0
 */
 // @see java.lang.UnsupportedOperationException
 
-public interface DArray extends org.odmg.DCollection, java.util.List
-{
-/**
-* Resize the array to have <code>newSize</code> elements.
-* @param	newSize	The new size of the array.
-*/
-	public void resize(int newSize);
+public interface DArray extends org.odmg.DCollection, java.util.List {
+    /**
+    * Resize the array to have <code>newSize</code> elements.
+    * @param    newSize The new size of the array.
+    */
+    public void resize(int newSize);
 }
 

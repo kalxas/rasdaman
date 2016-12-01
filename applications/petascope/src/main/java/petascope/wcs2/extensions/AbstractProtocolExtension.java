@@ -48,14 +48,14 @@ public abstract class AbstractProtocolExtension implements  ProtocolExtension {
 
     @Override
     public Response handle(HTTPRequest request, DbMetadataSource meta)
-            throws PetascopeException, WCSException, SecoreException {
+    throws PetascopeException, WCSException, SecoreException {
         RequestParser parser = ParsersRegistry.getParser(request);
         if (parser == null) {
             throw new WCSException(ExceptionCode.NoApplicableCode, "No suitable parser found.");
         } else {
             log.debug("Found parser {}", parser.getClass().getSimpleName());
         }
-        Request req = parser.parse(request);        
+        Request req = parser.parse(request);
         if (req == null) {
             throw new WCSException(ExceptionCode.InternalComponentError, "Error parsing the request.");
         } else {
@@ -73,7 +73,7 @@ public abstract class AbstractProtocolExtension implements  ProtocolExtension {
     @Override
     public boolean equals(Object o) {
         return o instanceof ProtocolExtension &&
-                ((ProtocolExtension)o).getExtensionIdentifier().equals(this.getExtensionIdentifier());
+               ((ProtocolExtension)o).getExtensionIdentifier().equals(this.getExtensionIdentifier());
     }
 
     @Override

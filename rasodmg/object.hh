@@ -68,14 +68,14 @@ public:
     r_Object();
 
     /// constructor getting objType
-    r_Object( unsigned short objType ) throw(r_Error);
+    r_Object(unsigned short objType) throw(r_Error);
     /**
       {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
       This is needed for oid allocation and propably dropped in future.
     */
 
     /// copy constructor
-    r_Object( const r_Object&, unsigned short objType=0 ) throw(r_Error);
+    r_Object(const r_Object&, unsigned short objType = 0) throw(r_Error);
     /**
       {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
       This is needed for oid allocation and propably dropped in future.
@@ -88,19 +88,19 @@ public:
     inline void mark_modified();
 
     /// new operator for transient objects
-    void* operator new( size_t size );
+    void* operator new(size_t size);
 
     /// new operator for persistent objects
-    void* operator new( size_t size, r_Database *database, const char* type_name = 0 );
+    void* operator new(size_t size, r_Database* database, const char* type_name = 0);
 
     /// new operator for transient objects carrying type information
-    void* operator new( size_t size, const char* type_name );
+    void* operator new(size_t size, const char* type_name);
 
     /// delete operator
-    void operator delete( void* obj_ptr );
+    void operator delete(void* obj_ptr);
 
     /// set object type by name
-    inline void set_type_by_name( const char* name ) throw(r_Error);
+    inline void set_type_by_name(const char* name) throw(r_Error);
     /**
       With this method a type name has to be given by the user for each
       object which he wants to make persistent. The type name is the name
@@ -113,7 +113,7 @@ public:
     */
 
     /// set object type by name
-    inline void set_type_structure( const char* name ) throw(r_Error);
+    inline void set_type_structure(const char* name) throw(r_Error);
 
     /// get object type name
     inline const char* get_type_name() const;
@@ -150,9 +150,9 @@ public:
 
     ///
     /// inserts an object into the database
-    virtual void insert_obj_into_db()=0;
+    virtual void insert_obj_into_db() = 0;
     /// inserts an object into a specific collection in the database
-    virtual void insert_obj_into_db( const char* )=0;
+    virtual void insert_obj_into_db(const char*) = 0;
     /// updates an object in database
     virtual void update_obj_in_db();
     /// load an object from the database
@@ -162,7 +162,7 @@ public:
 
     ///
     /// initialize oid of the object
-    void initialize_oid( const r_OId& initOId );
+    void initialize_oid(const r_OId& initOId);
 
     ///
     /// it is called when an object comes into transient memory
@@ -175,26 +175,26 @@ public:
 
     ///
     /// test object status returns 1 if it matches
-    int test_status( ObjectStatus status );
+    int test_status(ObjectStatus status);
     /// gets the status of the object
     inline ObjectStatus get_status() const;
 
     ///
     /// set object name. object name should contain only [a-zA-Z0-9_]
-    inline void set_object_name( const char* name ) throw(r_Error);
+    inline void set_object_name(const char* name) throw(r_Error);
     /// get object name
     inline const char* get_object_name() const;
 
     ///
     /// new operator for activating an object (status = read)
-    void* operator new( size_t size, r_Database *database, ObjectStatus status, const r_OId& oid );
+    void* operator new(size_t size, r_Database* database, ObjectStatus status, const r_OId& oid);
 
     ///
     //@}
 
 protected:
     /// test object type returns 1 if it matches
-    int test_type( ObjectType type );
+    int test_type(ObjectType type);
 
     /// stores object name if it has one
     char* object_name;

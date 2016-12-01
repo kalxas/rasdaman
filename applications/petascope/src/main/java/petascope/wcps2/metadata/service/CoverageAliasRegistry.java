@@ -41,7 +41,7 @@ public class CoverageAliasRegistry {
         this.coverageMappings = new LinkedHashMap<String, ArrayList<String>>();
     }
 
-    public void addCoverageMapping(String coverageAlias, String coverageName){
+    public void addCoverageMapping(String coverageAlias, String coverageName) {
         ArrayList<String> values = coverageMappings.get(coverageAlias);
         if (values != null) {
             // If key -> value exist then just add new coverage name to value
@@ -59,7 +59,7 @@ public class CoverageAliasRegistry {
     */
     public String getCoverageName(String alias) {
         String coverageName = null;
-        if(coverageMappings.get(alias) != null) {
+        if (coverageMappings.get(alias) != null) {
             coverageName = coverageMappings.get(alias).get(0);
         }
 

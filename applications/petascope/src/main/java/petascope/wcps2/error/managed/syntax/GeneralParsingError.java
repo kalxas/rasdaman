@@ -29,19 +29,19 @@ package petascope.wcps2.error.managed.syntax;
  */
 public class GeneralParsingError extends WCPSSyntaxError {
 
-  @Override
-  public boolean canHandle() {
-    return true;
-  }
+    @Override
+    public boolean canHandle() {
+        return true;
+    }
 
-  @Override
-  public String getErrorMessage() {
-    String error = ERROR_TEMPLATE.replace("$line", Integer.toString(line))
-        .replace("$charPositionInLine", Integer.toString(charPositionInLine))
-        .replace("$offendingSymbol", offendingSymbol.toString())
-        .replace("$parserMessage", message);
-    return error;
-  }
+    @Override
+    public String getErrorMessage() {
+        String error = ERROR_TEMPLATE.replace("$line", Integer.toString(line))
+                       .replace("$charPositionInLine", Integer.toString(charPositionInLine))
+                       .replace("$offendingSymbol", offendingSymbol.toString())
+                       .replace("$parserMessage", message);
+        return error;
+    }
 
-  public static final String ERROR_TEMPLATE = "A parsing error occurred at position=$line:$charPositionInLine. Offending symbol is=$offendingSymbol. Parser message=$parserMessage.";
+    public static final String ERROR_TEMPLATE = "A parsing error occurred at position=$line:$charPositionInLine. Offending symbol is=$offendingSymbol. Parser message=$parserMessage.";
 }

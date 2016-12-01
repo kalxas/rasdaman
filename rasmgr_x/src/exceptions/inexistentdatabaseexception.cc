@@ -25,8 +25,8 @@
 namespace rasmgr
 {
 
-InexistentDatabaseException::InexistentDatabaseException(const std::string &dbName)
-    :common::MissingResourceException("The database "+dbName+" does not exist.")
+InexistentDatabaseException::InexistentDatabaseException(const std::string& dbName)
+    : common::MissingResourceException("The database " + dbName + " does not exist.")
 {}
 
 InexistentDatabaseException::~InexistentDatabaseException() throw()

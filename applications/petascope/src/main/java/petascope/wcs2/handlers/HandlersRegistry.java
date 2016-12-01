@@ -51,13 +51,13 @@ public class HandlersRegistry {
             return new DescribeCoverageHandler(meta);
         } else if (request instanceof GetCoverageRequest) {
             return new GetCoverageHandler(meta);
-        } else if (request instanceof ProcessCoverageRequest){
+        } else if (request instanceof ProcessCoverageRequest) {
             return new ProcessCoverageHandler(meta);
-        } else if(request instanceof InsertCoverageRequest) {
+        } else if (request instanceof InsertCoverageRequest) {
             return new InsertCoverageHandler(meta);
-        } else if(request instanceof DeleteCoverageRequest) {
+        } else if (request instanceof DeleteCoverageRequest) {
             return new DeleteCoverageHandler(meta);
-        } else if(request instanceof UpdateCoverageRequest) {
+        } else if (request instanceof UpdateCoverageRequest) {
             return new UpdateCoverageHandler(meta);
         }
 

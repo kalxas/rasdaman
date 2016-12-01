@@ -43,12 +43,12 @@ rasdaman GmbH.
 #define MAXFILENAME 200
 
 // This is the base class for every programs configuration class
-class TesterConf:public ConfigurationBase
+class TesterConf: public ConfigurationBase
 {
 public:
     TesterConf();
 
-    bool interpretArguments(int argc, char **argv);
+    bool interpretArguments(int argc, char** argv);
 
     const char* getRasMgrHost();
     int         getRasMgrPort();

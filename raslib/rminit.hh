@@ -91,7 +91,7 @@ class RMInit : public RM_Class
 {
 public:
     /// constructor
-    RMInit( char applicationType );
+    RMInit(char applicationType);
 
     /// destructor
     ~RMInit();
@@ -139,7 +139,7 @@ public:
 
 private:
     /// check the option string for the occurance of an option and return its value if available
-    int checkOptionString( const char* optString, const char* option, char* &value );
+    int checkOptionString(const char* optString, const char* option, char*& value);
     /**
       The method searches for an option of type {\tt -option value } in the option string specified.
       It returns 1 if the option is in the string, otherwise 0. If a value is given for the option
@@ -171,11 +171,11 @@ private:
 // Note: At some point it may be useful to reimplement this mess.
 
 #define RMINITGLOBALS( appMode )  std::ostream RMInit::logOut(std::cout.rdbuf()); \
-                                  std::ostream RMInit::dbgOut(std::cout.rdbuf()); \
-                                  std::ostream RMInit::bmOut(std::cout.rdbuf()); \
-                                  std::ofstream RMInit::logFileOut; \
-                                  std::ofstream RMInit::dbgFileOut; \
-                                  std::ofstream RMInit::bmFileOut; \
-                                  RMInit rmInit( appMode );
+    std::ostream RMInit::dbgOut(std::cout.rdbuf()); \
+    std::ostream RMInit::bmOut(std::cout.rdbuf()); \
+    std::ofstream RMInit::logFileOut; \
+    std::ofstream RMInit::dbgFileOut; \
+    std::ofstream RMInit::bmFileOut; \
+    RMInit rmInit( appMode );
 
 #endif

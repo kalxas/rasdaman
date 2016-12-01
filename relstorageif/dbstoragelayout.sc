@@ -43,45 +43,45 @@ rasdaman GmbH.
 #include <easylogging++.h>
 
 DBStorageLayout::DBStorageLayout()
-: DBObject(),
-indexType(StorageLayout::DefaultIndexType),
-indexSize(StorageLayout::DefaultIndexSize),
-tilingScheme(StorageLayout::DefaultTilingScheme),
-tileSize(StorageLayout::DefaultTileSize),
-tileConfiguration(new DBMinterval()),
-dataFormat(StorageLayout::DefaultDataFormat),
-pctMin(StorageLayout::DefaultMinimalTileSize),
-pctMax(StorageLayout::DefaultPCTMax),
-_supportsTileSize(false),
-_supportsPCTMin(false),
-_supportsPCTMax(false),
-_supportsIndexSize(false),
-_supportsIndexType(false),
-_supportsTiling(false),
-_supportsTileConfiguration(false),
-_supportsDataFormat(false)
+    : DBObject(),
+      indexType(StorageLayout::DefaultIndexType),
+      indexSize(StorageLayout::DefaultIndexSize),
+      tilingScheme(StorageLayout::DefaultTilingScheme),
+      tileSize(StorageLayout::DefaultTileSize),
+      tileConfiguration(new DBMinterval()),
+      dataFormat(StorageLayout::DefaultDataFormat),
+      pctMin(StorageLayout::DefaultMinimalTileSize),
+      pctMax(StorageLayout::DefaultPCTMax),
+      _supportsTileSize(false),
+      _supportsPCTMin(false),
+      _supportsPCTMax(false),
+      _supportsIndexSize(false),
+      _supportsIndexType(false),
+      _supportsTiling(false),
+      _supportsTileConfiguration(false),
+      _supportsDataFormat(false)
 {
     objecttype = OId::STORAGEOID;
 }
 
 DBStorageLayout::DBStorageLayout(const OId& id) throw (r_Error)
-: DBObject(id),
-indexType(StorageLayout::DefaultIndexType),
-indexSize(StorageLayout::DefaultIndexSize),
-tilingScheme(StorageLayout::DefaultTilingScheme),
-tileSize(StorageLayout::DefaultTileSize),
-tileConfiguration(new DBMinterval()),
-dataFormat(StorageLayout::DefaultDataFormat),
-pctMin(StorageLayout::DefaultMinimalTileSize),
-pctMax(StorageLayout::DefaultPCTMax),
-_supportsTileSize(false),
-_supportsPCTMin(false),
-_supportsPCTMax(false),
-_supportsIndexSize(false),
-_supportsIndexType(false),
-_supportsTiling(false),
-_supportsTileConfiguration(false),
-_supportsDataFormat(false)
+    : DBObject(id),
+      indexType(StorageLayout::DefaultIndexType),
+      indexSize(StorageLayout::DefaultIndexSize),
+      tilingScheme(StorageLayout::DefaultTilingScheme),
+      tileSize(StorageLayout::DefaultTileSize),
+      tileConfiguration(new DBMinterval()),
+      dataFormat(StorageLayout::DefaultDataFormat),
+      pctMin(StorageLayout::DefaultMinimalTileSize),
+      pctMax(StorageLayout::DefaultPCTMax),
+      _supportsTileSize(false),
+      _supportsPCTMin(false),
+      _supportsPCTMax(false),
+      _supportsIndexSize(false),
+      _supportsIndexType(false),
+      _supportsTiling(false),
+      _supportsTileConfiguration(false),
+      _supportsDataFormat(false)
 {
     objecttype = OId::STORAGEOID;
     readFromDb();
@@ -92,57 +92,91 @@ DBStorageLayout::printStatus(unsigned int level, std::ostream& stream) const
 {
     char* indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2; j++)
+    {
         indent[j] = ' ';
+    }
     indent[level * 2] = '\0';
 
     stream << indent;
     stream << "DBStorageLayout:" << endl;
     if (supportsTileSize())
+    {
         stream << "\tTileSize\t\t\t:";
+    }
     else
+    {
         stream << "\tTileSize (Def.)\t\t\t:";
+    }
     stream << getTileSize() << endl;
     stream << indent;
     if (supportsPCTMin())
+    {
         stream << "\tPCTMin\t\t:";
+    }
     else
+    {
         stream << "\tPCTMin (Def.)\t\t\t:";
+    }
     stream << getPCTMin() << endl;
     stream << indent;
     if (supportsPCTMax())
+    {
         stream << "\tPCTMax\t\t:";
+    }
     else
+    {
         stream << "\tPCTMax (Def.)\t\t\t:";
+    }
     stream << getPCTMax() << endl;
     stream << indent;
     if (supportsIndexSize())
+    {
         stream << "\tIndexSize\t\t:";
+    }
     else
+    {
         stream << "\tIndexSize (Def.)\t\t:";
+    }
     stream << getIndexSize() << endl;
     stream << indent;
     if (supportsIndexType())
+    {
         stream << "\tIndexType\t\t\t:";
+    }
     else
+    {
         stream << "\tIndexType (Def.)\t\t:";
+    }
     stream << getIndexType() << endl;
     stream << indent;
     if (supportsTilingScheme())
+    {
         stream << "\tTilingScheme\t\t\t:";
+    }
     else
+    {
         stream << "\tTilingScheme (Def.)\t\t:";
+    }
     stream << getTilingScheme() << endl;
     stream << indent;
     if (supportsTileConfiguration())
+    {
         stream << "\tTileConfiguration\t\t:";
+    }
     else
+    {
         stream << "\tTileConfiguration (Def.)\t:";
+    }
     stream << getTileConfiguration() << endl;
     stream << indent;
     if (supportsDataFormat())
+    {
         stream << "\tDataFormat\t\t\t:";
+    }
     else
+    {
         stream << "\tDataFormat (Def.)\t\t:";
+    }
     stream << getDataFormat() << endl;
     stream << indent;
 
@@ -454,7 +488,7 @@ DBStorageLayout::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "DBStorageLayout::readFromDb() - storage id: "
-                << storageid1 << " not found in the database.";
+               << storageid1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd storage data not found in the database.");
     }
 

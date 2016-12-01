@@ -59,15 +59,15 @@ r_Sinterval::r_Sinterval()
 }
 
 
-r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
+r_Sinterval::r_Sinterval(char* stringRep) throw(r_Eno_interval)
     : lower_bound(0),
       upper_bound(0),
       low_fixed(false),
       high_fixed(false)
 {
-    if(!stringRep)
+    if (!stringRep)
     {
-        LFATAL << "r_Sinterval::r_Sinterval(" << (stringRep?stringRep: "NULL") << ")";
+        LFATAL << "r_Sinterval::r_Sinterval(" << (stringRep ? stringRep : "NULL") << ")";
         throw r_Eno_interval();
     }
 
@@ -78,8 +78,10 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
     std::istringstream str(stringRep);
 
     str >> charToken;
-    if(charToken == '*')
+    if (charToken == '*')
+    {
         set_low('*');
+    }
     else
     {
         str.putback(charToken);
@@ -88,21 +90,23 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
     }
 
     str >> charToken;
-    if(charToken != ':')
+    if (charToken != ':')
     {
         // error
-        lower_bound=0;
-        upper_bound=0;
-        low_fixed=false;
-        high_fixed=false;
+        lower_bound = 0;
+        upper_bound = 0;
+        low_fixed = false;
+        high_fixed = false;
 
         LFATAL << "r_Sinterval::r_Sinterval(" << stringRep << ") string doesn't have the pattern a:b";
         throw r_Eno_interval();
     }
 
     str >> charToken;
-    if(charToken == '*')
+    if (charToken == '*')
+    {
         set_high('*');
+    }
     else
     {
         str.putback(charToken);
@@ -112,13 +116,13 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
 }
 
 
-r_Sinterval::r_Sinterval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interval )
+r_Sinterval::r_Sinterval(r_Range newLow, r_Range newHigh) throw(r_Eno_interval)
     : lower_bound(newLow),
       upper_bound(newHigh),
       low_fixed(true),
       high_fixed(true)
 {
-    if( newLow > newHigh )
+    if (newLow > newHigh)
     {
         LFATAL << "r_Sinterval::r_Sinterval(" << newLow << ", " << newHigh << ") not a interval";
         throw r_Eno_interval();
@@ -126,7 +130,7 @@ r_Sinterval::r_Sinterval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interva
 }
 
 
-r_Sinterval::r_Sinterval( char, r_Range newHigh )
+r_Sinterval::r_Sinterval(char, r_Range newHigh)
     : lower_bound(0),
       upper_bound(newHigh),
       low_fixed(false),
@@ -135,7 +139,7 @@ r_Sinterval::r_Sinterval( char, r_Range newHigh )
 }
 
 
-r_Sinterval::r_Sinterval( r_Range newLow, char )
+r_Sinterval::r_Sinterval(r_Range newLow, char)
     : lower_bound(newLow),
       upper_bound(0),
       low_fixed(true),
@@ -144,7 +148,7 @@ r_Sinterval::r_Sinterval( r_Range newLow, char )
 }
 
 
-r_Sinterval::r_Sinterval( char, char)
+r_Sinterval::r_Sinterval(char, char)
     : lower_bound(0),
       upper_bound(0),
       low_fixed(false),
@@ -154,20 +158,28 @@ r_Sinterval::r_Sinterval( char, char)
 
 
 bool
-r_Sinterval::operator==( const r_Sinterval& interval ) const
+r_Sinterval::operator==(const r_Sinterval& interval) const
 {
-    bool returnValue=true;
+    bool returnValue = true;
 
     if (low_fixed)
+    {
         returnValue = interval.low_fixed && lower_bound == interval.lower_bound;
+    }
     else
-        returnValue = !interval.low_fixed;//other is fixed -> false
+    {
+        returnValue = !interval.low_fixed;    //other is fixed -> false
+    }
     if (returnValue)
     {
-        if( high_fixed )
+        if (high_fixed)
+        {
             returnValue = interval.high_fixed && upper_bound == interval.upper_bound;
+        }
         else
+        {
             returnValue = !interval.high_fixed;
+        }
     }
 
     return returnValue;
@@ -176,9 +188,9 @@ r_Sinterval::operator==( const r_Sinterval& interval ) const
 
 
 bool
-r_Sinterval::operator!=( const r_Sinterval& interval ) const
+r_Sinterval::operator!=(const r_Sinterval& interval) const
 {
-    return !operator==( interval );
+    return !operator==(interval);
 }
 
 r_Range
@@ -186,7 +198,7 @@ r_Sinterval::get_extent() const throw(r_Error)
 {
     r_Range ext;
 
-    if(!low_fixed || !high_fixed)
+    if (!low_fixed || !high_fixed)
     {
         LFATAL << "r_Sinterval::get_extent() low or high are not fixed (" << *this << ")";
         throw r_Error(INTERVALOPEN);
@@ -198,9 +210,9 @@ r_Sinterval::get_extent() const throw(r_Error)
 }
 
 void
-r_Sinterval::set_low ( r_Range newLow  ) throw( r_Eno_interval )
+r_Sinterval::set_low(r_Range newLow) throw(r_Eno_interval)
 {
-    if( high_fixed && newLow > upper_bound )
+    if (high_fixed && newLow > upper_bound)
     {
         LFATAL << "r_Sinterval::set_low(" << newLow << ") not an interval (" << *this << ")";
         throw r_Eno_interval();
@@ -212,9 +224,9 @@ r_Sinterval::set_low ( r_Range newLow  ) throw( r_Eno_interval )
 
 
 void
-r_Sinterval::set_high( r_Range newHigh ) throw( r_Eno_interval )
+r_Sinterval::set_high(r_Range newHigh) throw(r_Eno_interval)
 {
-    if( low_fixed && newHigh < lower_bound )
+    if (low_fixed && newHigh < lower_bound)
     {
         LFATAL << "r_Sinterval::set_high(" << newHigh << ") not an interval (" << *this << ")";
         throw r_Eno_interval();
@@ -226,9 +238,9 @@ r_Sinterval::set_high( r_Range newHigh ) throw( r_Eno_interval )
 
 
 void
-r_Sinterval::set_interval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interval )
+r_Sinterval::set_interval(r_Range newLow, r_Range newHigh) throw(r_Eno_interval)
 {
-    if( newLow > newHigh )
+    if (newLow > newHigh)
     {
         LFATAL << "r_Sinterval::set_interval(" << newLow << ", " << newHigh << ") not an interval (" << *this << ")";
         throw r_Eno_interval();
@@ -242,7 +254,7 @@ r_Sinterval::set_interval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interv
 
 
 void
-r_Sinterval::set_interval( char, r_Range newHigh )
+r_Sinterval::set_interval(char, r_Range newHigh)
 {
     lower_bound = 0;
     upper_bound = newHigh;
@@ -252,7 +264,7 @@ r_Sinterval::set_interval( char, r_Range newHigh )
 
 
 void
-r_Sinterval::set_interval( r_Range newLow, char )
+r_Sinterval::set_interval(r_Range newLow, char)
 {
     lower_bound = newLow;
     upper_bound = 0;
@@ -262,7 +274,7 @@ r_Sinterval::set_interval( r_Range newLow, char )
 
 
 void
-r_Sinterval::set_interval( char, char )
+r_Sinterval::set_interval(char, char)
 {
     lower_bound = 0;
     upper_bound = 0;
@@ -272,9 +284,9 @@ r_Sinterval::set_interval( char, char )
 
 
 bool
-r_Sinterval::intersects_with( const r_Sinterval& interval ) const
+r_Sinterval::intersects_with(const r_Sinterval& interval) const
 {
-    int classnr = classify( *this, interval );
+    int classnr = classify(*this, interval);
 
     return classnr !=  1 && classnr !=  6 && classnr != 16 && classnr != 21 &&
            classnr != 26 && classnr != 31 && classnr != 34 && classnr != 37;
@@ -282,67 +294,67 @@ r_Sinterval::intersects_with( const r_Sinterval& interval ) const
 
 
 r_Sinterval&
-r_Sinterval::union_of( const r_Sinterval& interval1, const r_Sinterval& interval2  ) throw( r_Eno_interval )
+r_Sinterval::union_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
 {
-    *this = calc_union( interval1, interval2 );
+    *this = calc_union(interval1, interval2);
 
     return *this;
 }
 
 
 r_Sinterval&
-r_Sinterval::union_with( const r_Sinterval& interval ) throw( r_Eno_interval )
+r_Sinterval::union_with(const r_Sinterval& interval) throw(r_Eno_interval)
 {
-    *this = calc_union( interval, *this );
+    *this = calc_union(interval, *this);
 
     return *this;
 }
 
 
 r_Sinterval&
-r_Sinterval::operator+=( const r_Sinterval& interval ) throw( r_Eno_interval )
+r_Sinterval::operator+=(const r_Sinterval& interval) throw(r_Eno_interval)
 {
-    *this = calc_union( interval, *this );
+    *this = calc_union(interval, *this);
 
     return *this;
 }
 
 
 r_Sinterval
-r_Sinterval::create_union( const r_Sinterval& interval ) const throw( r_Eno_interval )
+r_Sinterval::create_union(const r_Sinterval& interval) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    result = calc_union( interval, *this );
+    result = calc_union(interval, *this);
 
     return result;
 }
 
 
 r_Sinterval
-r_Sinterval::operator+( const r_Sinterval& interval ) const throw( r_Eno_interval )
+r_Sinterval::operator+(const r_Sinterval& interval) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    result = calc_union( interval, *this );
+    result = calc_union(interval, *this);
 
     return result;
 }
 
 
 r_Sinterval&
-r_Sinterval::difference_of( const r_Sinterval& interval1, const r_Sinterval& interval2  ) throw( r_Eno_interval )
+r_Sinterval::difference_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
 {
-    *this = calc_difference( interval1, interval2 );
+    *this = calc_difference(interval1, interval2);
 
     return *this;
 }
 
 
 r_Sinterval&
-r_Sinterval::difference_with( const r_Sinterval& interval ) throw( r_Eno_interval )
+r_Sinterval::difference_with(const r_Sinterval& interval) throw(r_Eno_interval)
 {
-    *this = calc_difference( interval, *this );
+    *this = calc_difference(interval, *this);
 
     return *this;
 }
@@ -350,143 +362,151 @@ r_Sinterval::difference_with( const r_Sinterval& interval ) throw( r_Eno_interva
 
 
 r_Sinterval&
-r_Sinterval::operator-=( const r_Sinterval& interval ) throw( r_Eno_interval )
+r_Sinterval::operator-=(const r_Sinterval& interval) throw(r_Eno_interval)
 {
-    *this = calc_difference( interval, *this );
+    *this = calc_difference(interval, *this);
 
     return *this;
 }
 
 
 r_Sinterval
-r_Sinterval::create_difference( const r_Sinterval& interval ) const throw( r_Eno_interval )
+r_Sinterval::create_difference(const r_Sinterval& interval) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    result = calc_difference( interval, *this );
+    result = calc_difference(interval, *this);
 
     return result;
 }
 
 
 r_Sinterval
-r_Sinterval::operator-( const r_Sinterval& interval ) const throw( r_Eno_interval )
+r_Sinterval::operator-(const r_Sinterval& interval) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    result = calc_difference( interval, *this );
+    result = calc_difference(interval, *this);
 
     return result;
 }
 
 
 r_Sinterval&
-r_Sinterval::intersection_of( const r_Sinterval& interval1, const r_Sinterval& interval2  ) throw( r_Eno_interval )
+r_Sinterval::intersection_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
 {
-    *this = calc_intersection( interval1, interval2 );
+    *this = calc_intersection(interval1, interval2);
 
     return *this;
 }
 
 
 r_Sinterval&
-r_Sinterval::intersection_with( const r_Sinterval& interval ) throw( r_Eno_interval )
+r_Sinterval::intersection_with(const r_Sinterval& interval) throw(r_Eno_interval)
 {
-    *this = calc_intersection( interval, *this );
+    *this = calc_intersection(interval, *this);
 
     return *this;
 }
 
 
 r_Sinterval&
-r_Sinterval::operator*=( const r_Sinterval& interval )  throw( r_Eno_interval )
+r_Sinterval::operator*=(const r_Sinterval& interval)  throw(r_Eno_interval)
 {
-    *this = calc_intersection( interval, *this );
+    *this = calc_intersection(interval, *this);
 
     return *this;
 }
 
 
 r_Sinterval
-r_Sinterval::create_intersection( const r_Sinterval& interval ) const throw( r_Eno_interval )
+r_Sinterval::create_intersection(const r_Sinterval& interval) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    result = calc_intersection( interval, *this );
+    result = calc_intersection(interval, *this);
 
     return result;
 }
 
 
 r_Sinterval
-r_Sinterval::operator*( const r_Sinterval& interval ) const throw( r_Eno_interval )
+r_Sinterval::operator*(const r_Sinterval& interval) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    result = calc_intersection( interval, *this );
+    result = calc_intersection(interval, *this);
 
     return result;
 }
 
 
 r_Sinterval&
-r_Sinterval::closure_of( const r_Sinterval& interval1, const r_Sinterval& interval2  ) throw( r_Eno_interval )
+r_Sinterval::closure_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
 {
-    *this = calc_closure( interval1, interval2 );
+    *this = calc_closure(interval1, interval2);
 
     return *this;
 }
 
 
 r_Sinterval&
-r_Sinterval::closure_with( const r_Sinterval& interval ) throw( r_Eno_interval )
+r_Sinterval::closure_with(const r_Sinterval& interval) throw(r_Eno_interval)
 {
-    *this = calc_closure( interval, *this );
+    *this = calc_closure(interval, *this);
 
     return *this;
 }
 
 
 r_Sinterval
-r_Sinterval::create_closure( const r_Sinterval& interval ) const throw( r_Eno_interval )
+r_Sinterval::create_closure(const r_Sinterval& interval) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    result = calc_closure( interval, *this );
+    result = calc_closure(interval, *this);
 
     return result;
 }
 
 
 void
-r_Sinterval::print_status( std::ostream& s ) const
+r_Sinterval::print_status(std::ostream& s) const
 {
-    if( low_fixed )
+    if (low_fixed)
+    {
         s << lower_bound;
+    }
     else
+    {
         s << "*";
+    }
 
     s << ":";
 
-    if( high_fixed )
+    if (high_fixed)
+    {
         s << upper_bound;
+    }
     else
+    {
         s << "*";
+    }
 }
 
 
 r_Bytes
-r_Sinterval::get_storage_size( ) const
+r_Sinterval::get_storage_size() const
 {
-    return ( 2 * ( sizeof( r_Range ) + sizeof(bool) ) );
+    return (2 * (sizeof(r_Range) + sizeof(bool)));
 }
 
 r_Sinterval
-r_Sinterval::calc_union( const r_Sinterval& a, const r_Sinterval& b ) const throw( r_Eno_interval )
+r_Sinterval::calc_union(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    switch( classify( a, b ) )
+    switch (classify(a, b))
     {
     case  2:
     case  7:
@@ -500,15 +520,23 @@ r_Sinterval::calc_union( const r_Sinterval& a, const r_Sinterval& b ) const thro
     case 36:
         // result = [a1:b2]
 
-        if( a.is_low_fixed() )
-            result.set_low( a.low() );
+        if (a.is_low_fixed())
+        {
+            result.set_low(a.low());
+        }
         else
+        {
             result.set_low('*');
+        }
 
-        if( b.is_high_fixed() )
-            result.set_high( b.high() );
+        if (b.is_high_fixed())
+        {
+            result.set_high(b.high());
+        }
         else
+        {
             result.set_high('*');
+        }
 
         break;
 
@@ -524,15 +552,23 @@ r_Sinterval::calc_union( const r_Sinterval& a, const r_Sinterval& b ) const thro
     case 39:
         // result = [b1:a2]
 
-        if( b.is_low_fixed() )
-            result.set_low( b.low() );
+        if (b.is_low_fixed())
+        {
+            result.set_low(b.low());
+        }
         else
+        {
             result.set_low('*');
+        }
 
-        if( a.is_high_fixed() )
-            result.set_high( a.high() );
+        if (a.is_high_fixed())
+        {
+            result.set_high(a.high());
+        }
         else
+        {
             result.set_high('*');
+        }
 
         break;
 
@@ -578,11 +614,11 @@ r_Sinterval::calc_union( const r_Sinterval& a, const r_Sinterval& b ) const thro
 
 
 r_Sinterval
-r_Sinterval::calc_difference( const r_Sinterval& a, const r_Sinterval& b ) const throw( r_Eno_interval )
+r_Sinterval::calc_difference(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    switch( classify( a, b ) )
+    switch (classify(a, b))
     {
     case  2:
     case  9:
@@ -595,15 +631,23 @@ r_Sinterval::calc_difference( const r_Sinterval& a, const r_Sinterval& b ) const
     case 49:
         // result = [a1:b1]
 
-        if( a.is_low_fixed() )
-            result.set_low( a.low() );
+        if (a.is_low_fixed())
+        {
+            result.set_low(a.low());
+        }
         else
+        {
             result.set_low('*');
+        }
 
-        if( b.is_low_fixed() )
-            result.set_high( b.low() );
+        if (b.is_low_fixed())
+        {
+            result.set_high(b.low());
+        }
         else
+        {
             result.set_high('*');
+        }
 
         break;
 
@@ -635,15 +679,23 @@ r_Sinterval::calc_difference( const r_Sinterval& a, const r_Sinterval& b ) const
     case 48:
         // result = [b2:a2]
 
-        if( b.is_high_fixed() )
-            result.set_low( b.high() );
+        if (b.is_high_fixed())
+        {
+            result.set_low(b.high());
+        }
         else
+        {
             result.set_low('*');
+        }
 
-        if( a.is_high_fixed() )
-            result.set_high( a.high() );
+        if (a.is_high_fixed())
+        {
+            result.set_high(a.high());
+        }
         else
+        {
             result.set_high('*');
+        }
 
         break;
 
@@ -659,11 +711,11 @@ r_Sinterval::calc_difference( const r_Sinterval& a, const r_Sinterval& b ) const
 
 
 r_Sinterval
-r_Sinterval::calc_intersection( const r_Sinterval& a, const r_Sinterval& b ) const throw( r_Eno_interval )
+r_Sinterval::calc_intersection(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
 {
     r_Sinterval result;
 
-    switch( classify( a, b ) )
+    switch (classify(a, b))
     {
     case  4:
     case 18:
@@ -671,15 +723,23 @@ r_Sinterval::calc_intersection( const r_Sinterval& a, const r_Sinterval& b ) con
     case 39:
         // result = [a1:b2]
 
-        if( a.is_low_fixed() )
-            result.set_low( a.low() );
+        if (a.is_low_fixed())
+        {
+            result.set_low(a.low());
+        }
         else
+        {
             result.set_low('*');
+        }
 
-        if( b.is_high_fixed() )
-            result.set_high( b.high() );
+        if (b.is_high_fixed())
+        {
+            result.set_high(b.high());
+        }
         else
+        {
             result.set_high('*');
+        }
 
         break;
 
@@ -689,15 +749,23 @@ r_Sinterval::calc_intersection( const r_Sinterval& a, const r_Sinterval& b ) con
     case 36:
         // result = [b1:a2]
 
-        if( b.is_low_fixed() )
-            result.set_low( b.low() );
+        if (b.is_low_fixed())
+        {
+            result.set_low(b.low());
+        }
         else
+        {
             result.set_low('*');
+        }
 
-        if( a.is_high_fixed() )
-            result.set_high( a.high() );
+        if (a.is_high_fixed())
+        {
+            result.set_high(a.high());
+        }
         else
+        {
             result.set_high('*');
+        }
 
         break;
 
@@ -741,10 +809,14 @@ r_Sinterval::calc_intersection( const r_Sinterval& a, const r_Sinterval& b ) con
     case 35:
         // result = [a2:a2]
 
-        if( a.is_high_fixed() )
-            result.set_interval( a.high(), a.high() );
+        if (a.is_high_fixed())
+        {
+            result.set_interval(a.high(), a.high());
+        }
         else
-            result.set_interval( '*', '*' );
+        {
+            result.set_interval('*', '*');
+        }
 
         break;
 
@@ -754,10 +826,14 @@ r_Sinterval::calc_intersection( const r_Sinterval& a, const r_Sinterval& b ) con
     case 38:
         // result = [b2:b2]
 
-        if( b.is_high_fixed() )
-            result.set_interval( b.high(), b.high() );
+        if (b.is_high_fixed())
+        {
+            result.set_interval(b.high(), b.high());
+        }
         else
-            result.set_interval( '*', '*' );
+        {
+            result.set_interval('*', '*');
+        }
 
         break;
 
@@ -771,19 +847,27 @@ r_Sinterval::calc_intersection( const r_Sinterval& a, const r_Sinterval& b ) con
 
 
 r_Sinterval
-r_Sinterval::calc_closure( const r_Sinterval& a, const r_Sinterval& b ) const throw( r_Eno_interval )
+r_Sinterval::calc_closure(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
 {
     r_Sinterval closure;
 
-    if( !a.is_low_fixed() || !b.is_low_fixed() )
+    if (!a.is_low_fixed() || !b.is_low_fixed())
+    {
         closure.set_low('*');
+    }
     else
-        closure.set_low( std::min( a.low(), b.low() ) );
+    {
+        closure.set_low(std::min(a.low(), b.low()));
+    }
 
-    if( !a.is_high_fixed() || !b.is_high_fixed() )
+    if (!a.is_high_fixed() || !b.is_high_fixed())
+    {
         closure.set_high('*');
+    }
     else
-        closure.set_high( std::max( a.high(), b.high() ) );
+    {
+        closure.set_high(std::max(a.high(), b.high()));
+    }
 
     return closure;
 }
@@ -803,183 +887,287 @@ r_Sinterval::calc_closure( const r_Sinterval& a, const r_Sinterval& b ) const th
  ************************************************************/
 
 int
-r_Sinterval::classify( const r_Sinterval& a, const r_Sinterval& b ) const
+r_Sinterval::classify(const r_Sinterval& a, const r_Sinterval& b) const
 {
     int classification = 0;
 
-    if( a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && b.is_high_fixed() )
+    if (a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && b.is_high_fixed())
     {
         // classification 1..13
 
-        if( a.low() < b.low() )
+        if (a.low() < b.low())
         {
-            if( a.high() < b.high() )
+            if (a.high() < b.high())
             {
-                if( a.high() < b.low() )
+                if (a.high() < b.low())
+                {
                     classification = 1;
-                else if( a.high() == b.low() )
+                }
+                else if (a.high() == b.low())
+                {
                     classification = 7;
+                }
                 else
+                {
                     classification = 2;
+                }
             }
-            else  if( a.high() == b.high() )
+            else  if (a.high() == b.high())
+            {
                 classification = 9;
+            }
             else
+            {
                 classification = 3;
+            }
         }
-        else if( a.low() == b.low() )
+        else if (a.low() == b.low())
         {
-            if( a.high() < b.high() )
+            if (a.high() < b.high())
+            {
                 classification = 12;
-            else  if( a.high() == b.high() )
+            }
+            else  if (a.high() == b.high())
+            {
                 classification = 11;
+            }
             else
+            {
                 classification = 10;
+            }
         }
-        else if( a.high() < b.high() )
+        else if (a.high() < b.high())
+        {
             classification = 5;
-        else if( a.high() == b.high() )
+        }
+        else if (a.high() == b.high())
+        {
             classification = 13;
+        }
         else
         {
-            if( a.low() < b.high() )
+            if (a.low() < b.high())
+            {
                 classification = 4;
-            else if( a.low() == b.high() )
+            }
+            else if (a.low() == b.high())
+            {
                 classification = 8;
+            }
             else
+            {
                 classification = 6;
+            }
         }
     }
-    else if( a.is_low_fixed() && !a.is_high_fixed() && b.is_low_fixed() && b.is_high_fixed() )
+    else if (a.is_low_fixed() && !a.is_high_fixed() && b.is_low_fixed() && b.is_high_fixed())
     {
         // classification 14..18
 
-        if( a.low() < b.low() )
+        if (a.low() < b.low())
+        {
             classification = 14;
-        else if( a.low() == b.low() )
+        }
+        else if (a.low() == b.low())
+        {
             classification = 15;
+        }
         else
         {
-            if( b.high() < a.low() )
+            if (b.high() < a.low())
+            {
                 classification = 16;
-            else if( b.high() == a.low() )
+            }
+            else if (b.high() == a.low())
+            {
                 classification = 17;
+            }
             else
+            {
                 classification = 18;
+            }
         }
     }
-    else if( !a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && b.is_high_fixed() )
+    else if (!a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && b.is_high_fixed())
     {
         // classification 19..23
 
-        if( a.high() > b.high() )
+        if (a.high() > b.high())
+        {
             classification = 19;
-        else if( a.high() == b.high() )
+        }
+        else if (a.high() == b.high())
+        {
             classification = 20;
+        }
         else
         {
-            if( a.high() < b.low() )
+            if (a.high() < b.low())
+            {
                 classification = 21;
-            else if( a.high() == b.low() )
+            }
+            else if (a.high() == b.low())
+            {
                 classification = 22;
+            }
             else
+            {
                 classification = 23;
+            }
         }
     }
-    else if( a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && !b.is_high_fixed() )
+    else if (a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && !b.is_high_fixed())
     {
         // classification 24..28
 
-        if( b.low() < a.low() )
+        if (b.low() < a.low())
+        {
             classification = 24;
-        else if( b.low() == a.low() )
+        }
+        else if (b.low() == a.low())
+        {
             classification = 25;
+        }
         else
         {
-            if( a.high() < b.low() )
+            if (a.high() < b.low())
+            {
                 classification = 26;
-            else if( a.high() == b.low() )
+            }
+            else if (a.high() == b.low())
+            {
                 classification = 27;
+            }
             else
+            {
                 classification = 28;
+            }
         }
     }
-    else if( a.is_low_fixed() && a.is_high_fixed() && !b.is_low_fixed() && b.is_high_fixed() )
+    else if (a.is_low_fixed() && a.is_high_fixed() && !b.is_low_fixed() && b.is_high_fixed())
     {
         // classification 29..33
 
-        if( b.high() > a.high() )
+        if (b.high() > a.high())
+        {
             classification = 29;
-        else if( b.high() == a.high() )
+        }
+        else if (b.high() == a.high())
+        {
             classification = 30;
+        }
         else
         {
-            if( b.high() < a.low() )
+            if (b.high() < a.low())
+            {
                 classification = 31;
-            else if( b.high() == a.low() )
+            }
+            else if (b.high() == a.low())
+            {
                 classification = 32;
+            }
             else
+            {
                 classification = 33;
+            }
         }
     }
-    else if( !a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && !b.is_high_fixed() )
+    else if (!a.is_low_fixed() && a.is_high_fixed() && b.is_low_fixed() && !b.is_high_fixed())
     {
         // classification 34..36
 
-        if( a.high() < b.low() )
+        if (a.high() < b.low())
+        {
             classification = 34;
-        else if( a.high() == b.low() )
+        }
+        else if (a.high() == b.low())
+        {
             classification = 35;
+        }
         else
+        {
             classification = 36;
+        }
     }
-    else if( a.is_low_fixed() && !a.is_high_fixed() && !b.is_low_fixed() && b.is_high_fixed() )
+    else if (a.is_low_fixed() && !a.is_high_fixed() && !b.is_low_fixed() && b.is_high_fixed())
     {
         // classification 37..39
 
-        if( b.high() < a.low() )
+        if (b.high() < a.low())
+        {
             classification = 37;
-        else if( b.high() == a.low() )
+        }
+        else if (b.high() == a.low())
+        {
             classification = 38;
+        }
         else
+        {
             classification = 39;
+        }
     }
-    else if( !a.is_low_fixed() && a.is_high_fixed() && !b.is_low_fixed() && b.is_high_fixed() )
+    else if (!a.is_low_fixed() && a.is_high_fixed() && !b.is_low_fixed() && b.is_high_fixed())
     {
         // classification 40..42
 
-        if( a.high() < b.high() )
+        if (a.high() < b.high())
+        {
             classification = 40;
-        else if( a.high() == b.high() )
+        }
+        else if (a.high() == b.high())
+        {
             classification = 41;
+        }
         else
+        {
             classification = 42;
+        }
     }
-    else if( a.is_low_fixed() && !a.is_high_fixed() && b.is_low_fixed() && !b.is_high_fixed() )
+    else if (a.is_low_fixed() && !a.is_high_fixed() && b.is_low_fixed() && !b.is_high_fixed())
     {
         // classification 43..45
 
-        if( a.low() < b.low() )
+        if (a.low() < b.low())
+        {
             classification = 43;
-        else if( a.low() == b.low() )
+        }
+        else if (a.low() == b.low())
+        {
             classification = 44;
+        }
         else
+        {
             classification = 45;
+        }
     }
-    else  if( !a.is_low_fixed() && !a.is_high_fixed() &&  b.is_low_fixed() &&  b.is_high_fixed() )
+    else  if (!a.is_low_fixed() && !a.is_high_fixed() &&  b.is_low_fixed() &&  b.is_high_fixed())
+    {
         classification = 46;
-    else  if(  a.is_low_fixed() &&  a.is_high_fixed() && !b.is_low_fixed() && !b.is_high_fixed() )
+    }
+    else  if (a.is_low_fixed() &&  a.is_high_fixed() && !b.is_low_fixed() && !b.is_high_fixed())
+    {
         classification = 47;
-    else  if( !a.is_low_fixed() && !a.is_high_fixed() && !b.is_low_fixed() &&  b.is_high_fixed() )
+    }
+    else  if (!a.is_low_fixed() && !a.is_high_fixed() && !b.is_low_fixed() &&  b.is_high_fixed())
+    {
         classification = 48;
-    else  if( !a.is_low_fixed() && !a.is_high_fixed() &&  b.is_low_fixed() && !b.is_high_fixed() )
+    }
+    else  if (!a.is_low_fixed() && !a.is_high_fixed() &&  b.is_low_fixed() && !b.is_high_fixed())
+    {
         classification = 49;
-    else  if( !a.is_low_fixed() &&  a.is_high_fixed() && !b.is_low_fixed() && !b.is_high_fixed() )
+    }
+    else  if (!a.is_low_fixed() &&  a.is_high_fixed() && !b.is_low_fixed() && !b.is_high_fixed())
+    {
         classification = 50;
-    else  if(  a.is_low_fixed() && !a.is_high_fixed() && !b.is_low_fixed() && !b.is_high_fixed() )
+    }
+    else  if (a.is_low_fixed() && !a.is_high_fixed() && !b.is_low_fixed() && !b.is_high_fixed())
+    {
         classification = 51;
+    }
     else //   !a.is_low_fixed() && !a.is_high_fixed() && !b.is_low_fixed() && !b.is_high_fixed()
+    {
         classification = 52;
+    }
 
     return classification;
 }
@@ -1004,9 +1192,9 @@ r_Sinterval::get_string_representation() const
 /*************************************************************
  * Method name...: operator<<( std::ostream& s, r_Sinterval& d )
  ************************************************************/
-std::ostream& operator<<( std::ostream& s, const r_Sinterval& d )
+std::ostream& operator<<(std::ostream& s, const r_Sinterval& d)
 {
-    d.print_status( s );
+    d.print_status(s);
     return s;
 }
 

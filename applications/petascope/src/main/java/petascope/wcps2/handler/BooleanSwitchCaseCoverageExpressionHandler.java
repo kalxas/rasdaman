@@ -50,12 +50,12 @@ public class BooleanSwitchCaseCoverageExpressionHandler {
         String rightCoverageExprStr = rightCoverageExpr.getRasql();
 
         String rasql = TEMPLATE.replace("$leftCoverageExpr", leftCoverageExprStr)
-                               .replace("$operand", operand)
-                               .replace("$rightCoverageExpr", rightCoverageExprStr);
+                       .replace("$operand", operand)
+                       .replace("$rightCoverageExpr", rightCoverageExprStr);
 
         //create the resulting metadata from both of coverageExpression (choose 1 of 2)
         WcpsCoverageMetadata metadata = metadataService.getResultingMetadata(leftCoverageExpr.getMetadata(),
-                                                                             rightCoverageExpr.getMetadata());
+                                        rightCoverageExpr.getMetadata());
 
         return new WcpsResult(metadata, rasql);
     }

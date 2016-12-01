@@ -55,7 +55,7 @@
 
 using namespace std;
 
-void testType( const char* stringType )
+void testType(const char* stringType)
 {
     r_Type* type = NULL;
 
@@ -63,18 +63,18 @@ void testType( const char* stringType )
 
     try
     {
-        type = r_Type::get_any_type( stringType );
+        type = r_Type::get_any_type(stringType);
     }
-    catch( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         cout << errorObj.what() << endl << endl;
     }
 
     cout << "  Type: ";
 
-    if( type )
+    if (type)
     {
-        type->print_status( cout );
+        type->print_status(cout);
         cout << endl;
         cout << type->type_id() << endl;
     }
@@ -165,33 +165,33 @@ int main()
 {
     cout << "Creating definining primitive types ..." << endl;
     r_Primitive_Type myBool("Bool", r_Primitive_Type::BOOL);
-    myBool.print_status( cout );
+    myBool.print_status(cout);
     cout << endl;
     r_Primitive_Type myULong("ULong", r_Primitive_Type::ULONG);
-    myULong.print_status( cout );
+    myULong.print_status(cout);
     cout << endl;
 
     r_Primitive_Type tmp = myBool;
-    tmp.print_status( cout );
+    tmp.print_status(cout);
     cout << endl;
 
-    r_Attribute tmpAtt("tmpAtt",tmp );
-    tmpAtt.print_status( cout );
+    r_Attribute tmpAtt("tmpAtt", tmp);
+    tmpAtt.print_status(cout);
     cout << endl;
 
     cout << "Creating a struct out of them ..." << endl;
     r_Attribute myAttrs[2];
-    myAttrs[0] = r_Attribute("Attr1", myBool );
-    myAttrs[1] = r_Attribute("Attr2", myULong );
+    myAttrs[0] = r_Attribute("Attr1", myBool);
+    myAttrs[1] = r_Attribute("Attr2", myULong);
 
     r_Structure_Type myStruct("aStruct", 2, myAttrs);
-    myStruct.print_status( cout );
+    myStruct.print_status(cout);
     cout << endl;
 
     cout << "Iterating attributes of struct:" << endl;
     r_Structure_Type::attribute_iterator
     iter(myStruct.defines_attribute_begin());
-    while(iter != myStruct.defines_attribute_end())
+    while (iter != myStruct.defines_attribute_end())
     {
         cout << "  Name of Attribute: " << (*iter).name() << endl;
         cout << "  Offset of Attribute: " << (*iter).offset() << endl;
@@ -219,8 +219,8 @@ int main()
     testType("struct{ char, octet, ulong, short }");
 
     testType("struct{ char elem1, octet elem2, ulong elem3, short elem4 }");
-    testType("struct{ char red, char green, char blue }" );
-    testType("struct{char red, char green, char blue}" );
+    testType("struct{ char red, char green, char blue }");
+    testType("struct{char red, char green, char blue}");
 
     testType("struct{ struct{ char, char, char }, ulong }");
     testType("struct{ struct{ char elem1, char elem2, char elem3 } record, ulong value }");
@@ -230,10 +230,10 @@ int main()
     testType("marray< char  green>");
     testType("marray< struct{ char red} >");
 
-    testType("marray< struct{char red, char green, char blue} >" );
+    testType("marray< struct{char red, char green, char blue} >");
 
     testType("set< marray< char > >");
-    testType("set< marray< struct{ char red, char green, char blue } > >" );
+    testType("set< marray< struct{ char red, char green, char blue } > >");
 
     testType("interval");
     testType("minterval");
@@ -266,18 +266,18 @@ int main()
 
     try
     {
-        type = r_Type::get_any_type( stringType );
+        type = r_Type::get_any_type(stringType);
     }
-    catch( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         cout << errorObj.what() << endl << endl;
     }
 
     cout << "  Type: ";
 
-    if( type )
+    if (type)
     {
-        type->print_status( cout );
+        type->print_status(cout);
     }
     else
     {
@@ -290,7 +290,7 @@ int main()
     cout << "Erzeugen einer Kopie und Ausgabe..." << endl;
     r_Marray_Type  my_marray((r_Base_Type&) type);
 
-    my_marray.print_status( cout );
+    my_marray.print_status(cout);
 
     cout << endl;
     //  cout  << my_marray.getBaseType() <<  endl;
@@ -299,7 +299,7 @@ int main()
 
     r_Type* type2 = r_Type::get_any_type("struct{ short band1, char band2 }");
 
-    if( type2->isBaseType() )
+    if (type2->isBaseType())
     {
         r_Base_Type* baseType2 = (r_Base_Type*)type2;
 
@@ -317,9 +317,9 @@ int main()
 
     structType structValue = { 1, 2 };
 
-    r_Structure structObject( (const char*)&structValue, (const r_Structure_Type*)type2 );
+    r_Structure structObject((const char*)&structValue, (const r_Structure_Type*)type2);
 
-    structObject.print_status( cout );
+    structObject.print_status(cout);
 
     cout << endl;
 

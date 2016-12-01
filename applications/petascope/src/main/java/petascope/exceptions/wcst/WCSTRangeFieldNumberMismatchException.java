@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
 public class WCSTRangeFieldNumberMismatchException extends WCSTException {
     public WCSTRangeFieldNumberMismatchException(int currentCoverageBands, int inputCoverageBands) {
         super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$currentCoverageBands", String.valueOf(currentCoverageBands))
-                .replace("$inputCoverageBands", String.valueOf(inputCoverageBands)));
+              .replace("$inputCoverageBands", String.valueOf(inputCoverageBands)));
     }
 
     private static final String EXCEPTION_TEXT = "The number of bands (swe:field elements) of target coverage (found $currentCoverageBands) " +

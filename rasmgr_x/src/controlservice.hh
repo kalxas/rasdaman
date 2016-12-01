@@ -38,14 +38,14 @@ class ControlCommandExecutor;
  * @brief The ControlService class Service for executing rascontrol commands from
  * a rascontrol client that connects to rasmgr.
  */
-class ControlService:public ::rasnet::service::RasMgrRasCtrlService::Service
+class ControlService: public ::rasnet::service::RasMgrRasCtrlService::Service
 {
 public:
     ControlService(boost::shared_ptr<ControlCommandExecutor> commandExecutor);
 
     virtual ~ControlService();
 
-    virtual grpc::Status ExecuteCommand(grpc::ServerContext *context, const rasnet::service::RasCtrlRequest *request, rasnet::service::RasCtrlResponse *response) override;
+    virtual grpc::Status ExecuteCommand(grpc::ServerContext* context, const rasnet::service::RasCtrlRequest* request, rasnet::service::RasCtrlResponse* response) override;
 
 private:
     boost::shared_ptr<ControlCommandExecutor> commandExecutor;

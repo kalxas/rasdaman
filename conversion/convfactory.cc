@@ -48,9 +48,9 @@ rasdaman GmbH.
 #include "gdal.hh"
 
 
-bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
+bool r_Convertor_Factory::is_supported(r_Data_Format fmt)
 {
-    bool retval=false;
+    bool retval = false;
     switch (fmt)
     {
     case r_TIFF:
@@ -59,19 +59,19 @@ bool r_Convertor_Factory::is_supported( r_Data_Format fmt )
     case r_NETCDF:
     case r_GRIB:
     case r_GDAL:
-        retval=true;
+        retval = true;
         break;
     default:
-        retval=false;
+        retval = false;
         break;
     }
 
     return retval;
 }
 
-r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
+r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
 {
-    r_Convertor *result = NULL;
+    r_Convertor* result = NULL;
 
     switch (fmt)
     {
@@ -102,16 +102,16 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     default:
         LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);
-        throw(err);
+        throw (err);
     }
 
     return result;
 }
 
 
-r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, const r_Minterval &interv, int type ) throw(r_Error)
+r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, int type) throw(r_Error)
 {
-    r_Convertor *result = NULL;
+    r_Convertor* result = NULL;
 
     switch (fmt)
     {
@@ -142,7 +142,7 @@ r_Convertor *r_Convertor_Factory::create( r_Data_Format fmt, const char *src, co
     default:
         LFATAL << "Error: in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);
-        throw(err);
+        throw (err);
     }
 
     return result;

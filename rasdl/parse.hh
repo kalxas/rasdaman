@@ -74,19 +74,19 @@ public:
     Parse_info();
 
     ///
-    Parse_info( long lineNo, int columnNo, const char* fileName, const char* tokenName );
+    Parse_info(long lineNo, int columnNo, const char* fileName, const char* tokenName);
 
     ///
-    Parse_info( YWhere &where, const char* tokenName );
+    Parse_info(YWhere& where, const char* tokenName);
 
     /// copy constructor
-    Parse_info( const Parse_info& obj );
+    Parse_info(const Parse_info& obj);
 
     /// destructor
     ~Parse_info();
 
     /// assignment operator
-    const Parse_info& operator=( const Parse_info& obj );
+    const Parse_info& operator=(const Parse_info& obj);
 
     ///
     long        line;
@@ -132,12 +132,12 @@ public:
     ///
     virtual ~Parse_atom();
     ///
-    virtual   void   output(FILE*)const=0;
+    virtual   void   output(FILE*)const = 0;
     ///
-    virtual void insertData() const throw( r_Equery_execution_failed );
+    virtual void insertData() const throw(r_Equery_execution_failed);
 
     ///
-    void setParseInfo( const Parse_info &token );
+    void setParseInfo(const Parse_info& token);
 
     ///
     const Parse_info& getParseInfo();
@@ -145,12 +145,12 @@ public:
     ///
     enum Kind
     {
-        Atom,Type,
+        Atom, Type,
         Typedefinition,
         Typereference,
 
         Composite,
-        Struct,Union,Interface,
+        Struct, Union, Interface,
 
         Function,
         Operation,
@@ -162,18 +162,18 @@ public:
         Enum,
 
         Atomic,
-        Any,Void,Boolean,Float,Integer,Char,Octet,Complex1,Complex2,String,
+        Any, Void, Boolean, Float, Integer, Char, Octet, Complex1, Complex2, String,
 
         Atomic_template,
-        Domain,Set,MDD
+        Domain, Set, MDD
     };
 
     ///
     Kind            kind;
     ///
-    const char      *name;
+    const char*      name;
     ///
-    YSymbol         *symbol;
+    YSymbol*         symbol;
 
     /// definition of corresponding token
     Parse_info parseInfo;
@@ -201,7 +201,7 @@ public:
     Parse_type(char*);
 
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 
     /// this type is defined as forward   {should be moved into YSymbol}
     bool   forward;
@@ -245,10 +245,10 @@ public:
     virtual void output(FILE*)const;
 
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 
     ///
-    const Parse_type   *type;
+    const Parse_type*   type;
 };
 
 
@@ -269,7 +269,7 @@ public:
     Parse_composite();
 
     ///
-    enum Access_mode {Private,Public,Protected};
+    enum Access_mode {Private, Public, Protected};
 
     ///
     class Element : public Parse_atom
@@ -285,19 +285,19 @@ public:
         ///
         bool         readonly;
         ///
-        const Parse_type   *type;
+        const Parse_type*   type;
         ///
         Access_mode   access;
 
         ///
-        Element      *next;
+        Element*      next;
     };
 
     ///
-    Element   *elements;
+    Element*   elements;
 };
 
-void print_access_mode(FILE*stream,Parse_composite::Access_mode access);
+void print_access_mode(FILE* stream, Parse_composite::Access_mode access);
 
 //@ManMemo: Module: {\bf rasdl}
 
@@ -318,9 +318,9 @@ public:
     ///
     virtual void output(FILE*)const;
     ///
-    virtual void insertData() const throw( r_Equery_execution_failed );
+    virtual void insertData() const throw(r_Equery_execution_failed);
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 };
 
 
@@ -346,7 +346,7 @@ public:
     virtual void output(FILE*)const;
 
     ///
-    enum Lifetime {persistend,transient,undefined};
+    enum Lifetime {persistend, transient, undefined};
 
     ///
 
@@ -362,12 +362,12 @@ public:
         virtual void output(FILE*)const;
 
         ///
-        Parse_interface   *base_class;
+        Parse_interface*   base_class;
         ///
         Access_mode           access;
 
         ///
-        Base_class         *next;
+        Base_class*         next;
     };
 
     ///
@@ -384,23 +384,23 @@ public:
         virtual   void   output(FILE*)const;
 
         ///
-        Parse_operation   *function;
+        Parse_operation*   function;
 
         ///
         Access_mode               access;
 
         ///
-        Method                  *next;
+        Method*                  next;
     };
 
     ///
-    Base_class         *base_classes;
+    Base_class*         base_classes;
     ///
     Lifetime            lifetime;
     ///
-    Method            *methods;
+    Method*            methods;
     ///
-    void                 *relationships;
+    void*                 relationships;
 };
 
 
@@ -436,18 +436,18 @@ public:
         virtual   void   output(FILE*)const;
 
         ///
-        Parse_typereference      *type;
+        Parse_typereference*      type;
         ///
-        enum   {In,Out,Unknown}   state;
+        enum   {In, Out, Unknown}   state;
 
         ///
-        Parameter               *next;
+        Parameter*               next;
     };
 
     ///
-    Parameter            *parameters;
+    Parameter*            parameters;
     ///
-    Parse_typereference   *return_type;
+    Parse_typereference*   return_type;
 };
 
 
@@ -468,7 +468,7 @@ public:
     Parse_operation();
 
     ///
-    Parse_interface   *scope_class;
+    Parse_interface*   scope_class;
 };
 
 
@@ -491,7 +491,7 @@ public:
     virtual void output(FILE*)const;
 
     ///
-    const Parse_type   *type;
+    const Parse_type*   type;
 };
 
 
@@ -535,9 +535,9 @@ public:
     ///
     virtual void output(FILE*)const;
     ///
-    virtual void insertData() const throw( r_Equery_execution_failed );
+    virtual void insertData() const throw(r_Equery_execution_failed);
     ///
-    const Parse_type   *type;
+    const Parse_type*   type;
 };
 
 
@@ -550,7 +550,7 @@ public:
 /**
   * \ingroup Rasdls
   */
-class Parse_enum : public Parse_typedefinition,public Parse_number
+class Parse_enum : public Parse_typedefinition, public Parse_number
 {
 public:
     ///
@@ -570,15 +570,15 @@ public:
         virtual void output(FILE*)const;
 
         ///
-        const char    *name;
+        const char*    name;
         ///
         int         value;
         ///
-        Enumerator   *next;
+        Enumerator*   next;
     };
 
     ///
-    Enumerator   *enumerators;
+    Enumerator*   enumerators;
 };
 
 
@@ -663,7 +663,7 @@ public:
 /**
   * \ingroup Rasdls
   */
-class Parse_float : public Parse_atomic,public Parse_number
+class Parse_float : public Parse_atomic, public Parse_number
 {
 public:
     ///
@@ -671,10 +671,10 @@ public:
     ///
     virtual void output(FILE*)const;
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 
     ///
-    enum {Double,Single}   accurance;
+    enum {Double, Single}   accurance;
 };
 
 
@@ -688,7 +688,7 @@ public:
 /**
   * \ingroup Rasdls
   */
-class Parse_int : public Parse_atomic,public Parse_number
+class Parse_int : public Parse_atomic, public Parse_number
 {
 public:
     ///
@@ -696,12 +696,12 @@ public:
     ///
     virtual void output(FILE*)const;
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 
     ///
-    enum {Short,Long}       width;
+    enum {Short, Long}       width;
     ///
-    enum {Unsigned,Signed}   sign;
+    enum {Unsigned, Signed}   sign;
 };
 
 
@@ -715,13 +715,13 @@ public:
 /**
   * \ingroup Rasdls
   */
-class Parse_octet : public Parse_atomic,public Parse_number
+class Parse_octet : public Parse_atomic, public Parse_number
 {
 public:
     ///
     Parse_octet();
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 };
 
 //@ManMemo: Module: {\bf rasdl}
@@ -730,26 +730,26 @@ public:
 /**
   * \ingroup Rasdls
   */
-class Parse_complex1 : public Parse_atomic,public Parse_number
+class Parse_complex1 : public Parse_atomic, public Parse_number
 {
 public:
     ///
     Parse_complex1();
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 };
 
 
 /**
   * \ingroup Rasdls
   */
-class Parse_complex2 : public Parse_atomic,public Parse_number
+class Parse_complex2 : public Parse_atomic, public Parse_number
 {
 public:
     ///
     Parse_complex2();
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 };
 
 
@@ -764,13 +764,13 @@ public:
 /**
   * \ingroup Rasdls
   */
-class Parse_char : public Parse_atomic,public Parse_number
+class Parse_char : public Parse_atomic, public Parse_number
 {
 public:
     ///
     Parse_char();
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 };
 
 
@@ -783,13 +783,13 @@ public:
 /**
   * \ingroup Rasdls
   */
-class Parse_boolean : public Parse_atomic,public Parse_number
+class Parse_boolean : public Parse_atomic, public Parse_number
 {
 public:
     ///
     Parse_boolean();
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 };
 
 
@@ -808,7 +808,7 @@ public:
     ///
     Parse_atomic_templates();
     ///
-    const Parse_type   *base_type;
+    const Parse_type*   base_type;
 };
 
 
@@ -829,7 +829,7 @@ public:
     ///
     virtual void output(FILE*)const;
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 
     /// null values
     r_Minterval* nullValues;
@@ -855,7 +855,7 @@ public:
     virtual void output(FILE*)const;
 
     ///
-    virtual const CType* getType( const char* typeName = NULL ) const;
+    virtual const CType* getType(const char* typeName = NULL) const;
 
     ///
     r_Minterval* domain;

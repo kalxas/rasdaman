@@ -48,55 +48,55 @@ public:
     YSymbolTable();
 
     /// get the corresponding symbol to name
-    const YSymbol  *get_symbol(const char*name)const;
+    const YSymbol*  get_symbol(const char* name)const;
     /// creates a symbol in the current scoped
-    bool scoped_symbol(YSymbol**result,const char*name,const YWhere&where);
+    bool scoped_symbol(YSymbol** result, const char* name, const YWhere& where);
     /// get the symbol that defines this scope
-    const YSymbol  *get_defining_symbol   ()const;
+    const YSymbol*  get_defining_symbol()const;
 
     /// search only current scope
-    bool     search_scope         (const char*,YSymbol*&)const;
+    bool     search_scope(const char*, YSymbol*&)const;
     /// search current scope and all abov
-    bool     search_scopes        (const char*,YSymbol*&)const;
+    bool     search_scopes(const char*, YSymbol*&)const;
     /// search me all scopes above me, and not myself
-    bool     search_scopes_above  (const YSymbol*,YSymbol*&)const;
+    bool     search_scopes_above(const YSymbol*, YSymbol*&)const;
     /// search a specified scope of a symbol
-    bool     search_my_scope      (const char*,const YSymbol*,YSymbol*&)const;
+    bool     search_my_scope(const char*, const YSymbol*, YSymbol*&)const;
     /// search the global_scope
-    bool     search_global_scope  (const char*,YSymbol*&)const;
+    bool     search_global_scope(const char*, YSymbol*&)const;
 
     ///
-    void     insert_symbol        (YSymbol*)const;
+    void     insert_symbol(YSymbol*)const;
 
     ///
     void           push_scope(YSymbol*);
 
     ///
-    const YSymbol  *pop_scope();
+    const YSymbol*  pop_scope();
 
     ///
     struct Scope
     {
-        void output(FILE*out) const;
+        void output(FILE* out) const;
         void insertData() const;
 
-        struct Scope      *up;
-        struct Scope      *next,*son;
+        struct Scope*      up;
+        struct Scope*      next, *son;
 
-        YSymbol            *symbols;
-        YSymbol            *last_symbol;      // last symbol defined in list {to assure correct order of symbols}
+        YSymbol*            symbols;
+        YSymbol*            last_symbol;      // last symbol defined in list {to assure correct order of symbols}
 
-        const YSymbol      *owner;            // which symbol is the owner of this scope
+        const YSymbol*      owner;            // which symbol is the owner of this scope
     };
 
     ///
-    Scope      *scope;
+    Scope*      scope;
 
     ///
-    Scope      *global_scope;
+    Scope*      global_scope;
 
     ///
-    inline bool  search_this_scope (const char*,const Scope*,YSymbol*&)const;
+    inline bool  search_this_scope(const char*, const Scope*, YSymbol*&)const;
 
 };
 
@@ -110,7 +110,7 @@ public:
 struct YLiteral
 {
     ///
-    enum Literal_type {dLfloat,dLinteger,dLchar,dLbool,dLstring} type;
+    enum Literal_type {dLfloat, dLinteger, dLchar, dLbool, dLstring} type;
 
     ///
     union
@@ -120,7 +120,7 @@ struct YLiteral
         ///
         long        Integer;
         ///
-        const char   *String;
+        const char*   String;
         ///
         char        Character;
         ///
@@ -140,7 +140,7 @@ struct YConstant
     ///
     YLiteral      value;
     ///
-    Parse_type   *type;
+    Parse_type*   type;
 };
 
 
@@ -165,9 +165,9 @@ public:
     YSymbol(const char*);
 
     ///
-    const char                *get_name()const
+    const char*                get_name()const
     {
-        return(name);
+        return (name);
     };
 
     /// defined where
@@ -177,15 +177,15 @@ public:
 
 private:
     ///
-    const char                 *name;
+    const char*                 name;
 
 public:
     ///
-    YSymbol                         *next;
+    YSymbol*                         next;
     ///
-    const YSymbolTable::Scope      *scope;
+    const YSymbolTable::Scope*      scope;
     ///
-    const YSymbolTable::Scope      *defines;
+    const YSymbolTable::Scope*      defines;
 
     ///
     enum YSymbol_type {   dParse_Type,
@@ -198,14 +198,14 @@ public:
     union
     {
         ///
-        Parse_type                   *Type;
+        Parse_type*                   Type;
         ///
-        Parse_composite::Element   *Attribute;
+        Parse_composite::Element*   Attribute;
         ///
         YConstant                  constant;
 
         ///
-        Parse_enum::Enumerator      *enumerator;
+        Parse_enum::Enumerator*      enumerator;
     };
 };
 #endif

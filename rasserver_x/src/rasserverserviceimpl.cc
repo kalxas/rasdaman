@@ -35,13 +35,13 @@ RasServerServiceImpl::RasServerServiceImpl(::boost::shared_ptr<rasserver::Client
 }
 
 
-grpc::Status rasserver::RasServerServiceImpl::AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response)
+grpc::Status rasserver::RasServerServiceImpl::AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response)
 {
     grpc::Status result = grpc::Status::OK;
 
-    LDEBUG<<"Allocating client with data:"<<request->SerializeAsString();
+    LDEBUG << "Allocating client with data:" << request->SerializeAsString();
 
-    if(!clientManager->allocateClient(request->clientid(), request->sessionid()))
+    if (!clientManager->allocateClient(request->clientid(), request->sessionid()))
     {
         result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS, "The client is already allocated to this server");
     }
@@ -51,12 +51,12 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(grpc::ServerContext
         rasServerEntry.compat_connectNewClient(request->capabilities().c_str());
     }
 
-    LDEBUG<<"Allocated client with data:"<<request->SerializeAsString();
+    LDEBUG << "Allocated client with data:" << request->SerializeAsString();
 
     return grpc::Status::OK;
 }
 
-grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response)
+grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(grpc::ServerContext* context, const rasnet::service::DeallocateClientReq* request, rasnet::service::Void* response)
 {
     this->clientManager->deallocateClient(request->clientid(), request->sessionid());
     RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
@@ -65,16 +65,16 @@ grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(grpc::ServerConte
     return grpc::Status::OK;
 }
 
-grpc::Status rasserver::RasServerServiceImpl::Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response)
+grpc::Status rasserver::RasServerServiceImpl::Close(grpc::ServerContext* context, const rasnet::service::CloseServerReq* request, rasnet::service::Void* response)
 {
     //TODO: Implement a clean exit
-    LDEBUG<<"Closing server.";
+    LDEBUG << "Closing server.";
     exit(EXIT_SUCCESS);
 }
 
-grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response)
+grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response)
 {
-    LDEBUG<<"Starting GetClientStatus of client:"<<request->SerializeAsString();
+    LDEBUG << "Starting GetClientStatus of client:" << request->SerializeAsString();
 
     if (this->clientManager->isAlive(request->clientid()))
     {
@@ -85,14 +85,14 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContex
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
     }
 
-    LDEBUG<<"Finish GetClientStatus of client:"<<request->SerializeAsString();
+    LDEBUG << "Finish GetClientStatus of client:" << request->SerializeAsString();
 
     return grpc::Status::OK;
 }
 
-grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response)
+grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response)
 {
-    LDEBUG<<"GetServerStatus";
+    LDEBUG << "GetServerStatus";
     response->set_clientqueuesize(this->clientManager->getClientQueueSize());
     return grpc::Status::OK;
 }

@@ -53,7 +53,7 @@ public class InvalidSubsettingException extends WCPSProcessingError {
      */
     public InvalidSubsettingException(String axisName, ParsedSubset<String> subset, String exceptionMessage) {
         super(subset.isTrimming() ? exceptionMessage.replace("$subsetDomainType", "subsetting").replace("$subsetBound", subset.getLowerLimit() + ":" + subset.getUpperLimit()).replace("$axis", axisName)
-                : exceptionMessage.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName), ExceptionCode.InvalidSubsetting);
+              : exceptionMessage.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName), ExceptionCode.InvalidSubsetting);
     }
 
     private static final String ERROR_TEMPLATE = "Invalid subsetting coordinates '$lowerBound:$upperBound' for axis '$axis'.";

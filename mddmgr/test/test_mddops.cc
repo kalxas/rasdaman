@@ -57,7 +57,7 @@ RMINITGLOBALS('C')
 static char O2BenchDBName[] = "DemoBase";
 static char O2BenchSchemaName[] = "RasDaSchema";
 
-static void testOperations( DatabaseIf myDB );
+static void testOperations(DatabaseIf myDB);
 
 BaseType* myType;
 static long myCell = 0;
@@ -73,7 +73,7 @@ static long myCell = 0;
  ************************************************************/
 
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
     // variables representing O2 database, ta and session
     DatabaseIf database;
@@ -90,9 +90,9 @@ main( int argc, char** argv)
     // connect to the database
     cout << "Connecting to database " << O2BenchDBName
          << "..." << endl;
-    database.open( O2BenchDBName );
+    database.open(O2BenchDBName);
 
-    testOperations( database );
+    testOperations(database);
 
     cout << "Ending O2 session..." << endl;
     database.close();
@@ -144,9 +144,9 @@ printAllTiles(const MDDObj* mdd)
  ************************************************************/
 
 MDDObj*
-execBinaryOp( Ops::OpType op,
-              const MDDObj* op1, const r_Minterval& areaOp1,
-              const MDDObj* op2, const r_Minterval& areaOp2 )
+execBinaryOp(Ops::OpType op,
+             const MDDObj* op1, const r_Minterval& areaOp1,
+             const MDDObj* op2, const r_Minterval& areaOp2)
 {
     // contains all tiles of op1
     vector<Tile*>* allTilesOp1;
@@ -175,7 +175,7 @@ execBinaryOp( Ops::OpType op,
     // calculate translations
     r_Point originOp1 = areaOp1.get_origin();
     r_Point originOp2 = areaOp2.get_origin();
-    for(r_Dimension i = 0; i<areaOp1.dimension(); i++)
+    for (r_Dimension i = 0; i < areaOp1.dimension(); i++)
     {
         offset12[i] = originOp2[i] - originOp1[i];
         offset21[i] = originOp1[i] - originOp2[i];
@@ -183,7 +183,7 @@ execBinaryOp( Ops::OpType op,
 
     // create MDDObj for result (type has later to be
     // retrieved from one of the operands)
-    mddres = new PersMDDObj( areaOp1, "ULong" );
+    mddres = new PersMDDObj(areaOp1, "ULong");
 
     // get all tiles in relevant area of MDD op1
     allTilesOp1 = op1->intersect(areaOp1);
@@ -245,8 +245,8 @@ execBinaryOp( Ops::OpType op,
 // function for creating demo tiles
 
 Tile*
-create2DTile( long xmin, long xmax, long ymin, long ymax,
-              BaseType* type )
+create2DTile(long xmin, long xmax, long ymin, long ymax,
+             BaseType* type)
 {
     // is copied anyway in constructor
     unsigned long cell = 0x10000L;
@@ -258,40 +258,40 @@ create2DTile( long xmin, long xmax, long ymin, long ymax,
     cout << "  Domain of Tile ";
     dom.print_status();
     cout << endl;
-    return new PersTile( dom, type, (char*)&cell);
+    return new PersTile(dom, type, (char*)&cell);
 }
 
-static void testOperations( DatabaseIf myDB )
+static void testOperations(DatabaseIf myDB)
 {
     Tile* aTile;
     ULongType ulongtype;
     BaseType* type = &ulongtype;
     MDDObj* res;
 
-    r_Sinterval limits1(1l,10l);
-    r_Sinterval limits2(1l,10l);
+    r_Sinterval limits1(1l, 10l);
+    r_Sinterval limits2(1l, 10l);
     r_Minterval dom(2);
     dom << limits1 << limits2;
 
-    r_Sinterval oplimits1(2l,9l);
-    r_Sinterval oplimits2(2l,9l);
+    r_Sinterval oplimits1(2l, 9l);
+    r_Sinterval oplimits2(2l, 9l);
     r_Minterval opdom(2);
     opdom << oplimits1 << oplimits2;
 
-    r_Sinterval limits21(11l,20l);
-    r_Sinterval limits22(11l,20l);
+    r_Sinterval limits21(11l, 20l);
+    r_Sinterval limits22(11l, 20l);
     r_Minterval dom2(2);
     dom2 << limits21 << limits22;
 
-    r_Sinterval oplimits21(12l,19l);
-    r_Sinterval oplimits22(12l,19l);
+    r_Sinterval oplimits21(12l, 19l);
+    r_Sinterval oplimits22(12l, 19l);
     r_Minterval opdom2(2);
     opdom2 << oplimits21 << oplimits22;
 
     // create MDD Object for 1st operand
     cout << "MDD Op1" << endl;
 
-    PersMDDObj* mddop1 = new PersMDDObj( dom, "ULong" );
+    PersMDDObj* mddop1 = new PersMDDObj(dom, "ULong");
 
     cout << "  Tile 1 [ 1:5, 1:10 ] " << endl;
     aTile = create2DTile(1, 5, 1, 10, type);
@@ -310,7 +310,7 @@ static void testOperations( DatabaseIf myDB )
     // create MDD Object for 2nd operand
     cout << "MDD Op2" << endl;
 
-    PersMDDObj* mddop2 = new PersMDDObj( dom2, "ULong" );
+    PersMDDObj* mddop2 = new PersMDDObj(dom2, "ULong");
 
     cout << "  Tile 1 [ 11:17, 11:15 ] " << endl;
     aTile = create2DTile(11, 17, 11, 15, type);

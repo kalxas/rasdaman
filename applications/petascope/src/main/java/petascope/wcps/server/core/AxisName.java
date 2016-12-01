@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.util.WcpsConstants;
 
 public class AxisName extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(AxisName.class);
 
     private String name;

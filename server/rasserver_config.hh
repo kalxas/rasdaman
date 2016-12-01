@@ -81,47 +81,47 @@ private:
     void initLogFiles();
     void deprecated(CommandLineParameter*);
 
-    const char* makeLogFileName(const char *srvName,const char *desExt);
+    const char* makeLogFileName(const char* srvName, const char* desExt);
 
     // Parameters
-    CommandLineParameter *cmlHelp;
-    CommandLineParameter *cmlRsn;
-    CommandLineParameter *cmlPort;
-    CommandLineParameter *cmlMgr;
-    CommandLineParameter *cmlMgrPort;
-    CommandLineParameter *cmlMgrSync;
+    CommandLineParameter* cmlHelp;
+    CommandLineParameter* cmlRsn;
+    CommandLineParameter* cmlPort;
+    CommandLineParameter* cmlMgr;
+    CommandLineParameter* cmlMgrPort;
+    CommandLineParameter* cmlMgrSync;
 
-    CommandLineParameter *cmlTransBuffer;
-    CommandLineParameter *cmlTimeOut;
-    CommandLineParameter *cmlMgmntInt;
-    CommandLineParameter *cmlHttp;
-    CommandLineParameter *cmlRnp;
-    CommandLineParameter *cmlRasnet;
+    CommandLineParameter* cmlTransBuffer;
+    CommandLineParameter* cmlTimeOut;
+    CommandLineParameter* cmlMgmntInt;
+    CommandLineParameter* cmlHttp;
+    CommandLineParameter* cmlRnp;
+    CommandLineParameter* cmlRasnet;
 
-    CommandLineParameter *cmlLockMgrOn;
+    CommandLineParameter* cmlLockMgrOn;
 
-    CommandLineParameter *cmlOptLevel;
-    CommandLineParameter *cmlConnectStr;
-    CommandLineParameter *cmlUserStr;
-    CommandLineParameter *cmlPasswdStr;
-    CommandLineParameter *cmlLog;
+    CommandLineParameter* cmlOptLevel;
+    CommandLineParameter* cmlConnectStr;
+    CommandLineParameter* cmlUserStr;
+    CommandLineParameter* cmlPasswdStr;
+    CommandLineParameter* cmlLog;
 
-    CommandLineParameter *cmlTileSize;
-    CommandLineParameter *cmlPctMin;
-    CommandLineParameter *cmlPctMax;
-    CommandLineParameter *cmlUseTC;
-    CommandLineParameter *cmlTileConf;
-    CommandLineParameter *cmlTiling;
-    CommandLineParameter *cmlIndex;
-    CommandLineParameter *cmlIndexSize;
-    
-    CommandLineParameter *cmlCacheLimit;
+    CommandLineParameter* cmlTileSize;
+    CommandLineParameter* cmlPctMin;
+    CommandLineParameter* cmlPctMax;
+    CommandLineParameter* cmlUseTC;
+    CommandLineParameter* cmlTileConf;
+    CommandLineParameter* cmlTiling;
+    CommandLineParameter* cmlIndex;
+    CommandLineParameter* cmlIndexSize;
+
+    CommandLineParameter* cmlCacheLimit;
 
     // Server id parameter required by rasnet
-    CommandLineParameter *cmlNewServerId;
+    CommandLineParameter* cmlNewServerId;
 #ifdef RMANDEBUG
-    CommandLineParameter *cmlDbg;
-    CommandLineParameter *cmlDbgLevel;
+    CommandLineParameter* cmlDbg;
+    CommandLineParameter* cmlDbgLevel;
 #endif
     const char* myExecutable;
 
@@ -153,7 +153,7 @@ private:
     const char* tilingName;
     const char* indexType;
     int         indexSize;
-    
+
     long        cacheLimit;
 
     // server id, required by rasnet

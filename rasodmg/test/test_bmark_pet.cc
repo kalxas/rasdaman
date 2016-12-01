@@ -87,10 +87,10 @@ void parse(int argc, char* argv[])
     colect_name = argv[3];
 }
 
-void insert_datacube( )
+void insert_datacube()
 {
 
-    r_Ref< r_Set< r_Ref< r_Marray<r_Short> > > >  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_Short>>>>  cube_set;
     r_Minterval                                   domain[TOTAL_CUBES];
     r_Storage_Layout*                      dsl[TOTAL_CUBES];
     r_OId                                         oid[TOTAL_CUBES];
@@ -98,7 +98,7 @@ void insert_datacube( )
     for (int i = 0; i < TOTAL_CUBES; i++)
     {
         domain[i] = r_Minterval(3);
-        domain[i] << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X - 1 )
+        domain[i] << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X - 1)
                   << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Y - 1)
                   << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Z - 1);
     }
@@ -153,11 +153,11 @@ void insert_datacube( )
     r_Database db;
     db.set_servername(server_name);
 
-    for ( int i=0; i< TOTAL_CUBES ; i++)
+    for (int i = 0; i < TOTAL_CUBES ; i++)
     {
         r_Transaction trans;
 
-        r_Ref< r_Marray<r_Short> > cube;
+        r_Ref<r_Marray<r_Short>> cube;
 
         try
         {
@@ -184,23 +184,23 @@ void insert_datacube( )
                 cout << "Creating the set... " << flush;
 
                 cube_set =
-                    new(&db, "ShortSet3") r_Set< r_Ref< r_Marray<r_Short> > >;
+                    new(&db, "ShortSet3") r_Set<r_Ref<r_Marray<r_Short>>>;
 
                 db.set_object_name(*cube_set, colect_name);
             }
 
             cout << "Ok" << endl;
             cout << "Creating the datacube... " << flush;
-            r_Minterval newDomain( domain[i]);
+            r_Minterval newDomain(domain[i]);
             cube =
                 new(&db, "ShortCube") r_Marray<r_Short>(newDomain, dsl[i]);
 
             cube_set->insert_element(cube);
 
-            cout << "Cube[" << i+1 << "]:  " << cube->get_oid() << endl;
-            cout << "Spatial domain: " << cube->spatial_domain( ) <<endl;
+            cout << "Cube[" << i + 1 << "]:  " << cube->get_oid() << endl;
+            cout << "Spatial domain: " << cube->spatial_domain() << endl;
             cout << "Storage Layout " << endl;
-            dsl[i]->print_status( );
+            dsl[i]->print_status();
 
             cout << "*" << flush;
             cout << " ... Ok" << endl;
@@ -230,7 +230,7 @@ void insert_datacube( )
 int main(int argc, char* argv[])
 {
     parse(argc, argv);
-    insert_datacube( );
+    insert_datacube();
     return 0;
 }
 

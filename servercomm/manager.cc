@@ -79,8 +79,8 @@ extern int noTimeOut;
 #include <easylogging++.h>
 
 extern "C" {
-    void garbageCollection( int );
-    void garbageCollectionDummy ( int );
+    void garbageCollection(int);
+    void garbageCollectionDummy(int);
 }
 
 
@@ -104,30 +104,39 @@ static OIdRes              rpcOidRes              = { 0, 0 };
 static GetTypeStructureRes rpcGetTypeStructureRes = { 0, 0 };
 static ObjectTypeRes       procResult             = { 0, 0 };
 
-extern char *secureResultBufferForRPC;
+extern char* secureResultBufferForRPC;
 
 void freeDynamicRPCData()
 {
     // rpcserverstat
-    if( rpcServerStatRes.clientTable.clientTable_len )
+    if (rpcServerStatRes.clientTable.clientTable_len)
     {
-        for( unsigned int i=0; i<rpcServerStatRes.clientTable.clientTable_len; i++ )
+        for (unsigned int i = 0; i < rpcServerStatRes.clientTable.clientTable_len; i++)
         {
-            free( rpcServerStatRes.clientTable.clientTable_val[i].clientIdText );
-            free( rpcServerStatRes.clientTable.clientTable_val[i].userName );
-            free( rpcServerStatRes.clientTable.clientTable_val[i].baseName );
+            free(rpcServerStatRes.clientTable.clientTable_val[i].clientIdText);
+            free(rpcServerStatRes.clientTable.clientTable_val[i].userName);
+            free(rpcServerStatRes.clientTable.clientTable_val[i].baseName);
         }
 
-        free( rpcServerStatRes.clientTable.clientTable_val );
+        free(rpcServerStatRes.clientTable.clientTable_val);
 
         rpcServerStatRes.clientTable.clientTable_len = 0;
         rpcServerStatRes.clientTable.clientTable_val = 0;
     }
 
     // rpcexecutequery
-    if( rpcExecuteQueryRes.token )         free( rpcExecuteQueryRes.token );
-    if( rpcExecuteQueryRes.typeName )      free( rpcExecuteQueryRes.typeName );
-    if( rpcExecuteQueryRes.typeStructure ) free( rpcExecuteQueryRes.typeStructure );
+    if (rpcExecuteQueryRes.token)
+    {
+        free(rpcExecuteQueryRes.token);
+    }
+    if (rpcExecuteQueryRes.typeName)
+    {
+        free(rpcExecuteQueryRes.typeName);
+    }
+    if (rpcExecuteQueryRes.typeStructure)
+    {
+        free(rpcExecuteQueryRes.typeStructure);
+    }
     rpcExecuteQueryRes.token         = 0;
     rpcExecuteQueryRes.status        = 0;
     rpcExecuteQueryRes.errorNo       = 0;
@@ -137,30 +146,51 @@ void freeDynamicRPCData()
     rpcExecuteQueryRes.typeStructure = 0;
 
     // rpcgetnextmdd, rpcgetmddbyoid
-    if( rpcGetMDDRes.domain )        free( rpcGetMDDRes.domain );
-    if( rpcGetMDDRes.typeName )      free( rpcGetMDDRes.typeName );
-    if( rpcGetMDDRes.typeStructure ) free( rpcGetMDDRes.typeStructure );
-    if( rpcGetMDDRes.oid )           free( rpcGetMDDRes.oid );
+    if (rpcGetMDDRes.domain)
+    {
+        free(rpcGetMDDRes.domain);
+    }
+    if (rpcGetMDDRes.typeName)
+    {
+        free(rpcGetMDDRes.typeName);
+    }
+    if (rpcGetMDDRes.typeStructure)
+    {
+        free(rpcGetMDDRes.typeStructure);
+    }
+    if (rpcGetMDDRes.oid)
+    {
+        free(rpcGetMDDRes.oid);
+    }
     rpcGetMDDRes.typeStructure = 0;
     rpcGetMDDRes.typeName      = 0;
     rpcGetMDDRes.domain        = 0;
     rpcGetMDDRes.oid           = 0;
 
     // rpcgetnextelement
-    if( rpcGetElementRes.data.confarray_val ) free( rpcGetElementRes.data.confarray_val );
+    if (rpcGetElementRes.data.confarray_val)
+    {
+        free(rpcGetElementRes.data.confarray_val);
+    }
     rpcGetElementRes.data.confarray_val = 0;
 
     // rpcgetnexttile
-    if( rpcGetTileRes.marray )
+    if (rpcGetTileRes.marray)
     {
-        if( rpcGetTileRes.marray->domain ) free( rpcGetTileRes.marray->domain );
+        if (rpcGetTileRes.marray->domain)
+        {
+            free(rpcGetTileRes.marray->domain);
+        }
         // if( rpcGetTileRes.marray->data   ) free( rpcGetTileRes.marray->data );
-        free( rpcGetTileRes.marray );
+        free(rpcGetTileRes.marray);
         rpcGetTileRes.marray = 0;
     }
 
     // rpcexecuteupdate
-    if( rpcExecuteUpdateRes.token ) free( rpcExecuteUpdateRes.token );
+    if (rpcExecuteUpdateRes.token)
+    {
+        free(rpcExecuteUpdateRes.token);
+    }
     rpcExecuteUpdateRes.token    = 0;
     rpcExecuteUpdateRes.status   = 0;
     rpcExecuteUpdateRes.errorNo  = 0;
@@ -168,49 +198,81 @@ void freeDynamicRPCData()
     rpcExecuteUpdateRes.columnNo = 0;
 
     // rpcgetcollbyname, rpcgetcollbyoid
-    if( rpcGetCollRes.typeName )      free( rpcGetCollRes.typeName );
-    if( rpcGetCollRes.typeStructure ) free( rpcGetCollRes.typeStructure );
-    if( rpcGetCollRes.oid )           free( rpcGetCollRes.oid );
-    if( rpcGetCollRes.collName )      free( rpcGetCollRes.collName );
+    if (rpcGetCollRes.typeName)
+    {
+        free(rpcGetCollRes.typeName);
+    }
+    if (rpcGetCollRes.typeStructure)
+    {
+        free(rpcGetCollRes.typeStructure);
+    }
+    if (rpcGetCollRes.oid)
+    {
+        free(rpcGetCollRes.oid);
+    }
+    if (rpcGetCollRes.collName)
+    {
+        free(rpcGetCollRes.collName);
+    }
     rpcGetCollRes.oid           = 0;
     rpcGetCollRes.typeStructure = 0;
     rpcGetCollRes.typeName      = 0;
     rpcGetCollRes.collName      = 0;
 
     // rpcgetcolloidsbyname, rpcgetcolloidsbyoid
-    if( rpcGetCollOidsRes.typeName )      free( rpcGetCollOidsRes.typeName );
-    if( rpcGetCollOidsRes.typeStructure ) free( rpcGetCollOidsRes.typeStructure );
-    if( rpcGetCollOidsRes.oid )           free( rpcGetCollOidsRes.oid );
-    if( rpcGetCollOidsRes.collName )      free( rpcGetCollOidsRes.collName );
+    if (rpcGetCollOidsRes.typeName)
+    {
+        free(rpcGetCollOidsRes.typeName);
+    }
+    if (rpcGetCollOidsRes.typeStructure)
+    {
+        free(rpcGetCollOidsRes.typeStructure);
+    }
+    if (rpcGetCollOidsRes.oid)
+    {
+        free(rpcGetCollOidsRes.oid);
+    }
+    if (rpcGetCollOidsRes.collName)
+    {
+        free(rpcGetCollOidsRes.collName);
+    }
     rpcGetCollOidsRes.oid           = 0;
     rpcGetCollOidsRes.typeStructure = 0;
     rpcGetCollOidsRes.typeName      = 0;
     rpcGetCollOidsRes.collName      = 0;
 
-    if( rpcGetCollOidsRes.oidTable.oidTable_len )
+    if (rpcGetCollOidsRes.oidTable.oidTable_len)
     {
-        for( unsigned int i=0; i<rpcGetCollOidsRes.oidTable.oidTable_len; i++ )
-            free( rpcGetCollOidsRes.oidTable.oidTable_val[i].oid );
+        for (unsigned int i = 0; i < rpcGetCollOidsRes.oidTable.oidTable_len; i++)
+        {
+            free(rpcGetCollOidsRes.oidTable.oidTable_val[i].oid);
+        }
 
-        free( rpcGetCollOidsRes.oidTable.oidTable_val );
+        free(rpcGetCollOidsRes.oidTable.oidTable_val);
 
         rpcGetCollOidsRes.oidTable.oidTable_len = 0;
         rpcGetCollOidsRes.oidTable.oidTable_val = 0;
     }
 
     // rpcgetnewoid
-    if( rpcOidRes.oid ) free( rpcOidRes.oid );
+    if (rpcOidRes.oid)
+    {
+        free(rpcOidRes.oid);
+    }
     rpcOidRes.oid = 0;
 
     // rpcgettypestructure
-    if( rpcGetTypeStructureRes.typeStructure ) free( rpcGetTypeStructureRes.typeStructure );
+    if (rpcGetTypeStructureRes.typeStructure)
+    {
+        free(rpcGetTypeStructureRes.typeStructure);
+    }
     rpcGetTypeStructureRes.typeStructure = 0;
 
     // execute all pending callbacks. Redirect alarm signal first to make sure no
     // reentrancy is possible!
-    signal( SIGALRM, garbageCollectionDummy );
+    signal(SIGALRM, garbageCollectionDummy);
     ServerComm::actual_servercomm->callback_mgr.executePending();
-    signal( SIGALRM, garbageCollection );
+    signal(SIGALRM, garbageCollection);
 }
 
 
@@ -246,7 +308,7 @@ extern "C"
 */
 
 ServerVersionRes*
-RPCFUNCTIONDEF( rpcgetserverversion_1, int* )
+RPCFUNCTIONDEF(rpcgetserverversion_1, int*)
 {
     freeDynamicRPCData();
 
@@ -270,7 +332,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcshutdown_1, int* )
+RPCFUNCTIONDEF(rpcshutdown_1, int*)
 {
     rpcDummy = 0;
     freeDynamicRPCData();
@@ -294,7 +356,7 @@ extern "C"
 */
 
 ServerStatRes*
-RPCFUNCTIONDEF( rpcserverstat_1, int* )
+RPCFUNCTIONDEF(rpcserverstat_1, int*)
 {
     secureResultBufferForRPC = (char*)&rpcServerStatRes;
 
@@ -305,11 +367,11 @@ RPCFUNCTIONDEF( rpcserverstat_1, int* )
 
     // log server status
 #ifdef RMANDEBUG
-    sc->printServerStatus( RMInit::dbgOut );
+    sc->printServerStatus(RMInit::dbgOut);
 #endif
 
     // get server status
-    sc->getServerStatus( rpcServerStatRes );
+    sc->getServerStatus(rpcServerStatRes);
 
     return &rpcServerStatRes;
 }
@@ -328,7 +390,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpckilltableentry_1, unsigned long* killId )
+RPCFUNCTIONDEF(rpckilltableentry_1, unsigned long* killId)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
     rpcDummy = 0;
@@ -343,29 +405,33 @@ RPCFUNCTIONDEF( rpckilltableentry_1, unsigned long* killId )
 
     LINFO << " Kill specific table entry request received for client ID " << kId << ".";
 
-    if( sc && !sc->clientTbl.empty() )
+    if (sc && !sc->clientTbl.empty())
     {
 
         list<ServerComm::ClientTblElt*>::iterator iter;
         iter = sc->clientTbl.begin();
 
-        while ( *iter != NULL )
+        while (*iter != NULL)
         {
-            if( (*iter)->clientId == kId )
+            if ((*iter)->clientId == kId)
             {
                 LINFO << "ID " << (*iter)->clientId << " found, deleting...";
 
-                sc->deleteClientTblEntry( (*iter)->clientId );
+                sc->deleteClientTblEntry((*iter)->clientId);
 
                 // if this dead client has locked the transaction semaphor, unlock it
-                if( sc->transactionActive == kId )
+                if (sc->transactionActive == kId)
+                {
                     sc->transactionActive = 0;
+                }
 
                 // client IDs are unique, so this was the only one...
                 break;
             }
             else
+            {
                 iter++;
+            }
         }
         // The following is a necessary dummy command for ONC RPC for not
         // misinterpreting the above break command as a return
@@ -386,7 +452,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcalive_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcalive_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
     rpcDummy = 0;
@@ -398,7 +464,7 @@ RPCFUNCTIONDEF( rpcalive_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->aliveSignal( cci );
+    rpcDummy = sc->aliveSignal(cci);
 
     // Return the result
     return &rpcDummy;
@@ -418,7 +484,7 @@ extern "C"
 */
 
 OpenDBRes*
-RPCFUNCTIONDEF( rpcopendb_1, OpenDBParams* params )
+RPCFUNCTIONDEF(rpcopendb_1, OpenDBParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcOpenDBRes;
 
@@ -428,7 +494,7 @@ RPCFUNCTIONDEF( rpcopendb_1, OpenDBParams* params )
 
     char             client[256];
     client[0] = '\0';
-    strcat( client, "unknown" );
+    strcat(client, "unknown");
 
     const char* dbName   = params->dbName;
     const char* userName = params->userName;
@@ -444,30 +510,34 @@ RPCFUNCTIONDEF( rpcopendb_1, OpenDBParams* params )
 
     // Create a new client table element and initialize it.
     ServerComm::ClientTblElt* contextStore;
-    contextStore = new ServerComm::ClientTblElt( client, ++(sc->clientCount) );
+    contextStore = new ServerComm::ClientTblElt(client, ++(sc->clientCount));
 
     // give the client id back to to client via the pointer variable
     *clientId    = sc->clientCount;
     // Put the context information in the static control list
-    sc->clientTbl.push_back( contextStore );
+    sc->clientTbl.push_back(contextStore);
 
     // LINFO << "assigned id " << *clientId;
 
     // check acces permission
 
-    rpcOpenDBRes.status=accessControl.crunchCapability(params->capability);
+    rpcOpenDBRes.status = accessControl.crunchCapability(params->capability);
     //
     // Open the database: (only if acces control is OK)
     //
-    if(rpcOpenDBRes.status==0)
-        rpcOpenDBRes.status = sc->openDB( *clientId, dbName, userName );
+    if (rpcOpenDBRes.status == 0)
+    {
+        rpcOpenDBRes.status = sc->openDB(*clientId, dbName, userName);
+    }
 
     rpcOpenDBRes.clientID = *clientId;
     delete clientId;
 
     // If database is not successfully opened, the client table entry is deleted again.
-    if( rpcOpenDBRes.status != 0 )
-        sc->deleteClientTblEntry( rpcOpenDBRes.clientID );
+    if (rpcOpenDBRes.status != 0)
+    {
+        sc->deleteClientTblEntry(rpcOpenDBRes.clientID);
+    }
 
     return &rpcOpenDBRes;
 }
@@ -486,7 +556,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcclosedb_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcclosedb_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -499,10 +569,12 @@ RPCFUNCTIONDEF( rpcclosedb_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->closeDB( cci );
+    rpcDummy = sc->closeDB(cci);
 
-    if( rpcDummy == 0 )
-        sc->deleteClientTblEntry( cci );
+    if (rpcDummy == 0)
+    {
+        sc->deleteClientTblEntry(cci);
+    }
 
     return &rpcDummy;
 }
@@ -520,7 +592,7 @@ extern "C"
   object on the client system to create a database on a RasDaMan server.
 */
 unsigned short*
-RPCFUNCTIONDEF( rpccreatedb_1, char** name )
+RPCFUNCTIONDEF(rpccreatedb_1, char** name)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -535,7 +607,7 @@ RPCFUNCTIONDEF( rpccreatedb_1, char** name )
 
     // Call the corresponding method. (createDB doesn't actually return something
     // other than 0, so this can be used in later extensions)
-    rpcDummy = sc->createDB( dbname );
+    rpcDummy = sc->createDB(dbname);
 
     // Return the result
     return &rpcDummy;
@@ -553,7 +625,7 @@ extern "C"
   object on the client system to destroy a database on a RasDaMan server.
 */
 unsigned short*
-RPCFUNCTIONDEF( rpcdestroydb_1, char** name )
+RPCFUNCTIONDEF(rpcdestroydb_1, char** name)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -568,7 +640,7 @@ RPCFUNCTIONDEF( rpcdestroydb_1, char** name )
 
     // Call the corresponding method. (createDB doesn't actually return something
     // other than 0, so this can be used in later extensions)
-    rpcDummy = sc->destroyDB( dbname );
+    rpcDummy = sc->destroyDB(dbname);
 
     // Return the result
     return &rpcDummy;
@@ -589,7 +661,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcbeginta_1, BeginTAParams* params )
+RPCFUNCTIONDEF(rpcbeginta_1, BeginTAParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -602,8 +674,10 @@ RPCFUNCTIONDEF( rpcbeginta_1, BeginTAParams* params )
     rpcDummy = accessControl.crunchCapability(params->capability);
 
     // Call the corresponding method. (only if acces control is OK)
-    if(rpcDummy==0)
-        rpcDummy = sc->beginTA( params->clientID, params->readOnly );
+    if (rpcDummy == 0)
+    {
+        rpcDummy = sc->beginTA(params->clientID, params->readOnly);
+    }
 
     // Return the result
     return &rpcDummy;
@@ -624,7 +698,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpccommitta_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpccommitta_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -637,7 +711,7 @@ RPCFUNCTIONDEF( rpccommitta_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->commitTA( cci );
+    rpcDummy = sc->commitTA(cci);
 
     // Return the result
     return &rpcDummy;
@@ -658,7 +732,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcabortta_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcabortta_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -671,7 +745,7 @@ RPCFUNCTIONDEF( rpcabortta_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->abortTA( cci );
+    rpcDummy = sc->abortTA(cci);
 
     // Return the result
     return &rpcDummy;
@@ -692,7 +766,7 @@ extern "C"
 */
 
 ExecuteQueryRes*
-RPCFUNCTIONDEF( rpcexecutequery_1, ExecuteQueryParams* params )
+RPCFUNCTIONDEF(rpcexecutequery_1, ExecuteQueryParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcExecuteQueryRes;
 
@@ -703,9 +777,9 @@ RPCFUNCTIONDEF( rpcexecutequery_1, ExecuteQueryParams* params )
     freeDynamicRPCData();
 
     // prevent RPC from NULL pointers in case of exceptions
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
     rpcExecuteQueryRes.token         = prev1;
     rpcExecuteQueryRes.typeName      = prev2;
     rpcExecuteQueryRes.typeStructure = prev3;
@@ -714,17 +788,35 @@ RPCFUNCTIONDEF( rpcexecutequery_1, ExecuteQueryParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    returnValue = sc->executeQuery( callingClientId, static_cast<const char*>(query), rpcExecuteQueryRes );
+    returnValue = sc->executeQuery(callingClientId, static_cast<const char*>(query), rpcExecuteQueryRes);
 
     // if no exception was thrown we are here, first check if the pointers have changed
-    if( rpcExecuteQueryRes.token         != prev1 ) free(prev1);
-    if( rpcExecuteQueryRes.typeName      != prev2 ) free(prev2);
-    if( rpcExecuteQueryRes.typeStructure != prev3 ) free(prev3);
+    if (rpcExecuteQueryRes.token         != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcExecuteQueryRes.typeName      != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcExecuteQueryRes.typeStructure != prev3)
+    {
+        free(prev3);
+    }
 
     // than check if the pointers are NULL
-    if( !rpcExecuteQueryRes.token )         rpcExecuteQueryRes.token         = strdup("");
-    if( !rpcExecuteQueryRes.typeName )      rpcExecuteQueryRes.typeName      = strdup("");
-    if( !rpcExecuteQueryRes.typeStructure ) rpcExecuteQueryRes.typeStructure = strdup("");
+    if (!rpcExecuteQueryRes.token)
+    {
+        rpcExecuteQueryRes.token         = strdup("");
+    }
+    if (!rpcExecuteQueryRes.typeName)
+    {
+        rpcExecuteQueryRes.typeName      = strdup("");
+    }
+    if (!rpcExecuteQueryRes.typeStructure)
+    {
+        rpcExecuteQueryRes.typeStructure = strdup("");
+    }
 
     // set missing parts of return structure
     rpcExecuteQueryRes.status     = returnValue;
@@ -747,7 +839,7 @@ extern "C"
 */
 
 GetMDDRes*
-RPCFUNCTIONDEF( rpcgetnextmdd_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcgetnextmdd_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcGetMDDRes;
 
@@ -757,10 +849,10 @@ RPCFUNCTIONDEF( rpcgetnextmdd_1, unsigned long* callingClientId )
     freeDynamicRPCData();
 
     // prevent RPC from NULL pointers
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
-    char *prev4 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
+    char* prev4 = strdup("");
 
     rpcGetMDDRes.typeName      = prev1;
     rpcGetMDDRes.typeStructure = prev2;
@@ -773,22 +865,40 @@ RPCFUNCTIONDEF( rpcgetnextmdd_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method and return the result
-    rpcGetMDDRes.status = sc->getNextMDD( *callingClientId, mddDomain,
-                                          rpcGetMDDRes.typeName,
-                                          rpcGetMDDRes.typeStructure, oid,
-                                          rpcGetMDDRes.currentFormat );
+    rpcGetMDDRes.status = sc->getNextMDD(*callingClientId, mddDomain,
+                                         rpcGetMDDRes.typeName,
+                                         rpcGetMDDRes.typeStructure, oid,
+                                         rpcGetMDDRes.currentFormat);
     rpcGetMDDRes.domain = mddDomain.get_string_representation();
-    rpcGetMDDRes.oid    = oid.get_string_representation() ? strdup( oid.get_string_representation() ) : strdup("");
+    rpcGetMDDRes.oid    = oid.get_string_representation() ? strdup(oid.get_string_representation()) : strdup("");
 
     // if no exceptions...
-    if( rpcGetMDDRes.typeName      != prev1 ) free(prev1);
-    if( rpcGetMDDRes.typeStructure != prev2 ) free(prev2);
-    if( rpcGetMDDRes.domain        != prev3 ) free(prev3);
-    if( rpcGetMDDRes.oid           != prev4 ) free(prev4);
+    if (rpcGetMDDRes.typeName      != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcGetMDDRes.typeStructure != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcGetMDDRes.domain        != prev3)
+    {
+        free(prev3);
+    }
+    if (rpcGetMDDRes.oid           != prev4)
+    {
+        free(prev4);
+    }
 
     // prevent RPC from NULL pointers
-    if( !rpcGetMDDRes.typeName      ) rpcGetMDDRes.typeName      = strdup("");
-    if( !rpcGetMDDRes.typeStructure ) rpcGetMDDRes.typeStructure = strdup("");
+    if (!rpcGetMDDRes.typeName)
+    {
+        rpcGetMDDRes.typeName      = strdup("");
+    }
+    if (!rpcGetMDDRes.typeStructure)
+    {
+        rpcGetMDDRes.typeStructure = strdup("");
+    }
     // the other 2 are not null
 
     return &rpcGetMDDRes;
@@ -809,7 +919,7 @@ extern "C"
 */
 
 GetElementRes*
-RPCFUNCTIONDEF( rpcgetnextelement_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcgetnextelement_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcGetElementRes;
 
@@ -821,8 +931,8 @@ RPCFUNCTIONDEF( rpcgetnextelement_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method and return the result
-    rpcGetElementRes.status = sc->getNextElement( *callingClientId, rpcGetElementRes.data.confarray_val,
-                              rpcGetElementRes.data.confarray_len );
+    rpcGetElementRes.status = sc->getNextElement(*callingClientId, rpcGetElementRes.data.confarray_val,
+                              rpcGetElementRes.data.confarray_len);
 
     return &rpcGetElementRes;
 }
@@ -841,19 +951,19 @@ extern "C"
 */
 
 GetMDDRes*
-RPCFUNCTIONDEF( rpcgetmddbyoid_1, OIdSpecParams* params )
+RPCFUNCTIONDEF(rpcgetmddbyoid_1, OIdSpecParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcGetMDDRes;
 
     r_Minterval mddDomain;
-    r_OId       oid( params->oid );
+    r_OId       oid(params->oid);
 
     freeDynamicRPCData();
     // prevent RPC from NULL pointers if exception occur
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
-    char *prev4 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
+    char* prev4 = strdup("");
 
     rpcGetMDDRes.typeName      = prev1;
     rpcGetMDDRes.typeStructure = prev2;
@@ -866,21 +976,39 @@ RPCFUNCTIONDEF( rpcgetmddbyoid_1, OIdSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method and return the result
-    rpcGetMDDRes.status = sc->getMDDByOId( params->clientID, oid, mddDomain,
-                                           rpcGetMDDRes.typeName,
-                                           rpcGetMDDRes.typeStructure,
-                                           rpcGetMDDRes.currentFormat  );
+    rpcGetMDDRes.status = sc->getMDDByOId(params->clientID, oid, mddDomain,
+                                          rpcGetMDDRes.typeName,
+                                          rpcGetMDDRes.typeStructure,
+                                          rpcGetMDDRes.currentFormat);
     rpcGetMDDRes.domain = mddDomain.get_string_representation();
-    rpcGetMDDRes.oid    = oid.get_string_representation() ? strdup( oid.get_string_representation() ) : strdup("");
+    rpcGetMDDRes.oid    = oid.get_string_representation() ? strdup(oid.get_string_representation()) : strdup("");
 
     // prevent RPC from NULL pointers
-    if( rpcGetMDDRes.typeName      != prev1) free(prev1);
-    if( rpcGetMDDRes.typeStructure != prev2) free(prev2);
-    if( rpcGetMDDRes.domain        != prev3 ) free(prev3);
-    if( rpcGetMDDRes.oid           != prev4 ) free(prev4);
+    if (rpcGetMDDRes.typeName      != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcGetMDDRes.typeStructure != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcGetMDDRes.domain        != prev3)
+    {
+        free(prev3);
+    }
+    if (rpcGetMDDRes.oid           != prev4)
+    {
+        free(prev4);
+    }
 
-    if( !rpcGetMDDRes.typeName      ) rpcGetMDDRes.typeName      = strdup("");
-    if( !rpcGetMDDRes.typeStructure ) rpcGetMDDRes.typeStructure = strdup("");
+    if (!rpcGetMDDRes.typeName)
+    {
+        rpcGetMDDRes.typeName      = strdup("");
+    }
+    if (!rpcGetMDDRes.typeStructure)
+    {
+        rpcGetMDDRes.typeStructure = strdup("");
+    }
     // the other 2 are not null
 
     return &rpcGetMDDRes;
@@ -901,14 +1029,14 @@ extern "C"
 */
 
 GetTileRes*
-RPCFUNCTIONDEF( rpcgetnexttile_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcgetnexttile_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcGetTileRes;
 
     freeDynamicRPCData();
 
     // fake data for security
-    RPCMarray *secureRpcMarray = static_cast<RPCMarray*>(mymalloc(sizeof(RPCMarray)));
+    RPCMarray* secureRpcMarray = static_cast<RPCMarray*>(mymalloc(sizeof(RPCMarray)));
     secureRpcMarray->domain = strdup("");
     secureRpcMarray->cellTypeLength = 1;
     secureRpcMarray->currentFormat = 1;
@@ -918,7 +1046,7 @@ RPCFUNCTIONDEF( rpcgetnexttile_1, unsigned long* callingClientId )
 
     rpcGetTileRes.marray = secureRpcMarray;
 
-    RPCMarray *tempRpcMarray;
+    RPCMarray* tempRpcMarray;
 
     accessControl.wantToRead();
 
@@ -926,7 +1054,7 @@ RPCFUNCTIONDEF( rpcgetnexttile_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method and return the result
-    rpcGetTileRes.status = sc->getNextTile( *callingClientId, &tempRpcMarray); //&rpcGetTileRes.marray );
+    rpcGetTileRes.status = sc->getNextTile(*callingClientId, &tempRpcMarray);  //&rpcGetTileRes.marray );
     // if this throws, secure... is nice initialized
 
     rpcGetTileRes.marray = tempRpcMarray;
@@ -948,7 +1076,7 @@ extern "C"
 /**
 */
 unsigned short*
-RPCFUNCTIONDEF( rpcendtransfer_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcendtransfer_1, unsigned long* callingClientId)
 {
     unsigned long cci = *callingClientId;
 
@@ -960,7 +1088,7 @@ RPCFUNCTIONDEF( rpcendtransfer_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->endTransfer( cci );
+    rpcDummy = sc->endTransfer(cci);
 
     // Return the result
     return &rpcDummy;
@@ -976,7 +1104,7 @@ extern "C"
 /**
 */
 unsigned short*
-RPCFUNCTIONDEF( rpcinitexecuteupdate_1, unsigned long* callingClientId )
+RPCFUNCTIONDEF(rpcinitexecuteupdate_1, unsigned long* callingClientId)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -991,7 +1119,7 @@ RPCFUNCTIONDEF( rpcinitexecuteupdate_1, unsigned long* callingClientId )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->initExecuteUpdate( cci );
+    rpcDummy = sc->initExecuteUpdate(cci);
 
     // Return the result
     return &rpcDummy;
@@ -1012,7 +1140,7 @@ extern "C"
 */
 
 ExecuteUpdateRes*
-RPCFUNCTIONDEF( rpcexecuteupdate_1, ExecuteQueryParams* params )
+RPCFUNCTIONDEF(rpcexecuteupdate_1, ExecuteQueryParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcExecuteUpdateRes;
 
@@ -1023,7 +1151,7 @@ RPCFUNCTIONDEF( rpcexecuteupdate_1, ExecuteQueryParams* params )
     freeDynamicRPCData();
 
     // prevent RPC from NULL pointers
-    char *prev1 = strdup("");
+    char* prev1 = strdup("");
     rpcExecuteUpdateRes.token = prev1;
 
     accessControl.wantToWrite();
@@ -1032,21 +1160,27 @@ RPCFUNCTIONDEF( rpcexecuteupdate_1, ExecuteQueryParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    returnValue = sc->executeUpdate( callingClientId, static_cast<const char*>(query), rpcExecuteUpdateRes );
+    returnValue = sc->executeUpdate(callingClientId, static_cast<const char*>(query), rpcExecuteUpdateRes);
 
     // set missing parts of return structure
     rpcExecuteUpdateRes.status     = returnValue;
 
     // prevent RPC from NULL pointers
-    if( rpcExecuteUpdateRes.token != prev1 ) free(prev1);
+    if (rpcExecuteUpdateRes.token != prev1)
+    {
+        free(prev1);
+    }
 
-    if( !rpcExecuteUpdateRes.token )         rpcExecuteUpdateRes.token         = strdup("");
+    if (!rpcExecuteUpdateRes.token)
+    {
+        rpcExecuteUpdateRes.token         = strdup("");
+    }
 
     return &rpcExecuteUpdateRes;
 }
 
 ExecuteQueryRes*
-RPCFUNCTIONDEF( rpcexecuteinsert_1, ExecuteQueryParams* params )
+RPCFUNCTIONDEF(rpcexecuteinsert_1, ExecuteQueryParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcExecuteQueryRes;
 
@@ -1057,9 +1191,9 @@ RPCFUNCTIONDEF( rpcexecuteinsert_1, ExecuteQueryParams* params )
     freeDynamicRPCData();
 
     // prevent RPC from NULL pointers
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
     rpcExecuteQueryRes.token         = prev1;
     rpcExecuteQueryRes.typeName      = prev2;
     rpcExecuteQueryRes.typeStructure = prev3;
@@ -1070,17 +1204,35 @@ RPCFUNCTIONDEF( rpcexecuteinsert_1, ExecuteQueryParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    returnValue = sc->executeInsert( callingClientId, static_cast<const char*>(query), rpcExecuteQueryRes );
+    returnValue = sc->executeInsert(callingClientId, static_cast<const char*>(query), rpcExecuteQueryRes);
 
     // if no exception was thrown we are here, first check if the pointers have changed
-    if( rpcExecuteQueryRes.token         != prev1 ) free(prev1);
-    if( rpcExecuteQueryRes.typeName      != prev2 ) free(prev2);
-    if( rpcExecuteQueryRes.typeStructure != prev3 ) free(prev3);
+    if (rpcExecuteQueryRes.token         != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcExecuteQueryRes.typeName      != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcExecuteQueryRes.typeStructure != prev3)
+    {
+        free(prev3);
+    }
 
     // than check if the pointers are NULL
-    if( !rpcExecuteQueryRes.token )         rpcExecuteQueryRes.token         = strdup("");
-    if( !rpcExecuteQueryRes.typeName )      rpcExecuteQueryRes.typeName      = strdup("");
-    if( !rpcExecuteQueryRes.typeStructure ) rpcExecuteQueryRes.typeStructure = strdup("");
+    if (!rpcExecuteQueryRes.token)
+    {
+        rpcExecuteQueryRes.token         = strdup("");
+    }
+    if (!rpcExecuteQueryRes.typeName)
+    {
+        rpcExecuteQueryRes.typeName      = strdup("");
+    }
+    if (!rpcExecuteQueryRes.typeStructure)
+    {
+        rpcExecuteQueryRes.typeStructure = strdup("");
+    }
 
     // set missing parts of return structure
     rpcExecuteQueryRes.status     = returnValue;
@@ -1097,7 +1249,7 @@ extern "C"
 /**
 */
 unsigned short*
-RPCFUNCTIONDEF( rpcstartinserttransmdd_1, InsertTransMDDParams* params )
+RPCFUNCTIONDEF(rpcstartinserttransmdd_1, InsertTransMDDParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1105,7 +1257,7 @@ RPCFUNCTIONDEF( rpcstartinserttransmdd_1, InsertTransMDDParams* params )
     //  const char* collName          = params->collName; // not used
     const char* typeName          = params->typeName;
     unsigned long typeLength      = params->typeLength;
-    r_Minterval mddDomain( params->domain );
+    r_Minterval mddDomain(params->domain);
 
     freeDynamicRPCData();
 
@@ -1115,7 +1267,7 @@ RPCFUNCTIONDEF( rpcstartinserttransmdd_1, InsertTransMDDParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->startInsertTransMDD( callingClientId, mddDomain, typeLength, typeName );
+    rpcDummy = sc->startInsertTransMDD(callingClientId, mddDomain, typeLength, typeName);
 
     // Return the result
     return &rpcDummy;
@@ -1131,7 +1283,7 @@ extern "C"
 /**
 */
 unsigned short*
-RPCFUNCTIONDEF( rpcstartinsertpersmdd_1, InsertPersMDDParams* params )
+RPCFUNCTIONDEF(rpcstartinsertpersmdd_1, InsertPersMDDParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1139,8 +1291,8 @@ RPCFUNCTIONDEF( rpcstartinsertpersmdd_1, InsertPersMDDParams* params )
     const char* collName          = params->collName;
     const char* typeName          = params->typeName;
     unsigned long typeLength      = params->typeLength;
-    r_Minterval mddDomain( params->domain );
-    r_OId       oid( params->oid );
+    r_Minterval mddDomain(params->domain);
+    r_OId       oid(params->oid);
 
     freeDynamicRPCData();
 
@@ -1150,7 +1302,7 @@ RPCFUNCTIONDEF( rpcstartinsertpersmdd_1, InsertPersMDDParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->startInsertPersMDD( callingClientId, static_cast<const char*>(collName), mddDomain, typeLength, typeName, oid );
+    rpcDummy = sc->startInsertPersMDD(callingClientId, static_cast<const char*>(collName), mddDomain, typeLength, typeName, oid);
 
     // Return the result
     return &rpcDummy;
@@ -1166,7 +1318,7 @@ extern "C"
 /**
 */
 unsigned short*
-RPCFUNCTIONDEF( rpcinserttile_1, InsertTileParams* params )
+RPCFUNCTIONDEF(rpcinserttile_1, InsertTileParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1178,7 +1330,7 @@ RPCFUNCTIONDEF( rpcinserttile_1, InsertTileParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->insertTile( params->clientID, params->isPersistent, params->marray );
+    rpcDummy = sc->insertTile(params->clientID, params->isPersistent, params->marray);
 
     // Return the result
     return &rpcDummy;
@@ -1195,7 +1347,7 @@ extern "C"
 /**
 */
 unsigned short*
-RPCFUNCTIONDEF( rpcendinsertmdd_1, EndInsertMDDParams* params )
+RPCFUNCTIONDEF(rpcendinsertmdd_1, EndInsertMDDParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1207,7 +1359,7 @@ RPCFUNCTIONDEF( rpcendinsertmdd_1, EndInsertMDDParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->endInsertMDD( params->clientID, params->isPersistent );
+    rpcDummy = sc->endInsertMDD(params->clientID, params->isPersistent);
 
     // Return the result
     return &rpcDummy;
@@ -1228,7 +1380,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcinsertmdd_1, InsertMDDParams* params )
+RPCFUNCTIONDEF(rpcinsertmdd_1, InsertMDDParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1237,7 +1389,7 @@ RPCFUNCTIONDEF( rpcinsertmdd_1, InsertMDDParams* params )
     const char*   typeName        = params->typeName;
     RPCMarray*    rpcMarray       = params->marray;
 
-    r_OId oid( params->oid );
+    r_OId oid(params->oid);
 
     freeDynamicRPCData();
 
@@ -1247,7 +1399,7 @@ RPCFUNCTIONDEF( rpcinsertmdd_1, InsertMDDParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->insertMDD( callingClientId, collName, rpcMarray, typeName, oid );
+    rpcDummy = sc->insertMDD(callingClientId, collName, rpcMarray, typeName, oid);
 
     return &rpcDummy;
 }
@@ -1267,7 +1419,7 @@ extern "C"
 */
 
 GetCollRes*
-RPCFUNCTIONDEF( rpcgetcollbyname_1, NameSpecParams* params )
+RPCFUNCTIONDEF(rpcgetcollbyname_1, NameSpecParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcGetCollRes;
 
@@ -1275,10 +1427,10 @@ RPCFUNCTIONDEF( rpcgetcollbyname_1, NameSpecParams* params )
 
     freeDynamicRPCData();
 
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
-    char *prev4 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
+    char* prev4 = strdup("");
     rpcGetCollRes.typeName      = prev1;
     rpcGetCollRes.typeStructure = prev2;
     rpcGetCollRes.oid           = prev3;
@@ -1293,21 +1445,39 @@ RPCFUNCTIONDEF( rpcgetcollbyname_1, NameSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcGetCollRes.status        = sc->getCollByName( callingClientId, collName,
+    rpcGetCollRes.status        = sc->getCollByName(callingClientId, collName,
                                   rpcGetCollRes.typeName,
-                                  rpcGetCollRes.typeStructure, oid );
+                                  rpcGetCollRes.typeStructure, oid);
 
-    rpcGetCollRes.oid      = oid.get_string_representation() ? strdup( oid.get_string_representation() ) : strdup("");
-    rpcGetCollRes.collName = params->name                    ? strdup( params->name )                    : strdup("");
+    rpcGetCollRes.oid      = oid.get_string_representation() ? strdup(oid.get_string_representation()) : strdup("");
+    rpcGetCollRes.collName = params->name                    ? strdup(params->name)                    : strdup("");
 
     // prevent RPC from NULL pointers
-    if( rpcGetCollRes.typeName      != prev1) free(prev1);
-    if( rpcGetCollRes.typeStructure != prev2) free(prev2);
-    if( rpcGetCollRes.oid           != prev3) free(prev3);
-    if( rpcGetCollRes.collName      != prev4) free(prev4);
+    if (rpcGetCollRes.typeName      != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcGetCollRes.typeStructure != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcGetCollRes.oid           != prev3)
+    {
+        free(prev3);
+    }
+    if (rpcGetCollRes.collName      != prev4)
+    {
+        free(prev4);
+    }
 
-    if( !rpcGetCollRes.typeName      ) rpcGetCollRes.typeName      = strdup("");
-    if( !rpcGetCollRes.typeStructure ) rpcGetCollRes.typeStructure = strdup("");
+    if (!rpcGetCollRes.typeName)
+    {
+        rpcGetCollRes.typeName      = strdup("");
+    }
+    if (!rpcGetCollRes.typeStructure)
+    {
+        rpcGetCollRes.typeStructure = strdup("");
+    }
 
     // Return the result
     return &rpcGetCollRes;
@@ -1328,19 +1498,19 @@ extern "C"
 */
 
 GetCollRes*
-RPCFUNCTIONDEF( rpcgetcollbyoid_1, OIdSpecParams* params )
+RPCFUNCTIONDEF(rpcgetcollbyoid_1, OIdSpecParams* params)
 {
 
     secureResultBufferForRPC = (char*)&rpcGetCollRes;
 
-    r_OId       oid( params->oid );
+    r_OId       oid(params->oid);
 
     freeDynamicRPCData();
     // prevent RPC from NULL pointers
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
-    char *prev4 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
+    char* prev4 = strdup("");
     rpcGetCollRes.typeName      = prev1;
     rpcGetCollRes.typeStructure = prev2;
     rpcGetCollRes.collName      = prev3;
@@ -1354,20 +1524,41 @@ RPCFUNCTIONDEF( rpcgetcollbyoid_1, OIdSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcGetCollRes.status        = sc->getCollByOId( callingClientId, oid, rpcGetCollRes.typeName,
-                                  rpcGetCollRes.typeStructure, rpcGetCollRes.collName );
+    rpcGetCollRes.status        = sc->getCollByOId(callingClientId, oid, rpcGetCollRes.typeName,
+                                  rpcGetCollRes.typeStructure, rpcGetCollRes.collName);
 
-    rpcGetCollRes.oid = oid.get_string_representation() ? strdup( oid.get_string_representation() ) : strdup("");
+    rpcGetCollRes.oid = oid.get_string_representation() ? strdup(oid.get_string_representation()) : strdup("");
 
     // prevent RPC from NULL pointers
-    if( rpcGetCollRes.typeName      != prev1) free(prev1);
-    if( rpcGetCollRes.typeStructure != prev2) free(prev2);
-    if( rpcGetCollRes.collName      != prev3) free(prev3);
-    if( rpcGetCollRes.oid           != prev4) free(prev4);
+    if (rpcGetCollRes.typeName      != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcGetCollRes.typeStructure != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcGetCollRes.collName      != prev3)
+    {
+        free(prev3);
+    }
+    if (rpcGetCollRes.oid           != prev4)
+    {
+        free(prev4);
+    }
 
-    if( !rpcGetCollRes.typeName      ) rpcGetCollRes.typeName      = strdup("");
-    if( !rpcGetCollRes.typeStructure ) rpcGetCollRes.typeStructure = strdup("");
-    if( !rpcGetCollRes.collName      ) rpcGetCollRes.collName      = strdup("");
+    if (!rpcGetCollRes.typeName)
+    {
+        rpcGetCollRes.typeName      = strdup("");
+    }
+    if (!rpcGetCollRes.typeStructure)
+    {
+        rpcGetCollRes.typeStructure = strdup("");
+    }
+    if (!rpcGetCollRes.collName)
+    {
+        rpcGetCollRes.collName      = strdup("");
+    }
     // oid is not null,
 
     // Return the result
@@ -1388,7 +1579,7 @@ extern "C"
 */
 
 GetCollOIdsRes*
-RPCFUNCTIONDEF( rpcgetcolloidsbyname_1, NameSpecParams* params )
+RPCFUNCTIONDEF(rpcgetcolloidsbyname_1, NameSpecParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcGetCollOidsRes;
 
@@ -1396,10 +1587,10 @@ RPCFUNCTIONDEF( rpcgetcolloidsbyname_1, NameSpecParams* params )
 
     freeDynamicRPCData();
 
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
-    char *prev4 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
+    char* prev4 = strdup("");
     rpcGetCollOidsRes.typeName      = prev1;
     rpcGetCollOidsRes.typeStructure = prev2;
     rpcGetCollOidsRes.collName      = prev3;
@@ -1414,22 +1605,43 @@ RPCFUNCTIONDEF( rpcgetcolloidsbyname_1, NameSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcGetCollOidsRes.status        = sc->getCollOIdsByName( callingClientId, collName, rpcGetCollOidsRes.typeName,
+    rpcGetCollOidsRes.status        = sc->getCollOIdsByName(callingClientId, collName, rpcGetCollOidsRes.typeName,
                                       rpcGetCollOidsRes.typeStructure, oid,
-                                      rpcGetCollOidsRes.oidTable.oidTable_val, rpcGetCollOidsRes.oidTable.oidTable_len );
+                                      rpcGetCollOidsRes.oidTable.oidTable_val, rpcGetCollOidsRes.oidTable.oidTable_len);
 
-    rpcGetCollOidsRes.oid      = oid.get_string_representation() ? strdup( oid.get_string_representation() ) : strdup("");
-    rpcGetCollOidsRes.collName = params->name                    ? strdup( params->name )                    : strdup("");
+    rpcGetCollOidsRes.oid      = oid.get_string_representation() ? strdup(oid.get_string_representation()) : strdup("");
+    rpcGetCollOidsRes.collName = params->name                    ? strdup(params->name)                    : strdup("");
 
     // prevent RPC from NULL pointers
-    if( rpcGetCollOidsRes.typeName      != prev1 ) free(prev1);
-    if( rpcGetCollOidsRes.typeStructure != prev2 ) free(prev2);
-    if( rpcGetCollOidsRes.collName      != prev3 ) free(prev3);
-    if( rpcGetCollRes.oid               != prev4) free(prev4);
+    if (rpcGetCollOidsRes.typeName      != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcGetCollOidsRes.typeStructure != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcGetCollOidsRes.collName      != prev3)
+    {
+        free(prev3);
+    }
+    if (rpcGetCollRes.oid               != prev4)
+    {
+        free(prev4);
+    }
 
-    if( !rpcGetCollOidsRes.typeName      ) rpcGetCollOidsRes.typeName      = strdup("");
-    if( !rpcGetCollOidsRes.typeStructure ) rpcGetCollOidsRes.typeStructure = strdup("");
-    if( !rpcGetCollOidsRes.collName      ) rpcGetCollOidsRes.collName      = strdup("");
+    if (!rpcGetCollOidsRes.typeName)
+    {
+        rpcGetCollOidsRes.typeName      = strdup("");
+    }
+    if (!rpcGetCollOidsRes.typeStructure)
+    {
+        rpcGetCollOidsRes.typeStructure = strdup("");
+    }
+    if (!rpcGetCollOidsRes.collName)
+    {
+        rpcGetCollOidsRes.collName      = strdup("");
+    }
     // oid is not null
 
     // Return the result
@@ -1451,18 +1663,18 @@ extern "C"
 */
 
 GetCollOIdsRes*
-RPCFUNCTIONDEF( rpcgetcolloidsbyoid_1, OIdSpecParams* params )
+RPCFUNCTIONDEF(rpcgetcolloidsbyoid_1, OIdSpecParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcGetCollOidsRes;
 
-    r_OId       oid( params->oid );
+    r_OId       oid(params->oid);
 
     freeDynamicRPCData();
 
-    char *prev1 = strdup("");
-    char *prev2 = strdup("");
-    char *prev3 = strdup("");
-    char *prev4 = strdup("");
+    char* prev1 = strdup("");
+    char* prev2 = strdup("");
+    char* prev3 = strdup("");
+    char* prev4 = strdup("");
     rpcGetCollOidsRes.typeName      = prev1;
     rpcGetCollOidsRes.typeStructure = prev2;
     rpcGetCollOidsRes.collName      = prev3;
@@ -1476,24 +1688,45 @@ RPCFUNCTIONDEF( rpcgetcolloidsbyoid_1, OIdSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcGetCollOidsRes.status = sc->getCollOIdsByOId(  callingClientId, oid,
+    rpcGetCollOidsRes.status = sc->getCollOIdsByOId(callingClientId, oid,
                                rpcGetCollOidsRes.typeName,
                                rpcGetCollOidsRes.typeStructure,
                                rpcGetCollOidsRes.oidTable.oidTable_val,
                                rpcGetCollOidsRes.oidTable.oidTable_len,
-                               rpcGetCollOidsRes.collName );
+                               rpcGetCollOidsRes.collName);
 
-    rpcGetCollOidsRes.oid = oid.get_string_representation() ? strdup( oid.get_string_representation() ) : strdup("");
+    rpcGetCollOidsRes.oid = oid.get_string_representation() ? strdup(oid.get_string_representation()) : strdup("");
 
     // prevent RPC from NULL pointers
-    if( rpcGetCollOidsRes.typeName      != prev1 ) free(prev1);
-    if( rpcGetCollOidsRes.typeStructure != prev2 ) free(prev2);
-    if( rpcGetCollOidsRes.collName      != prev3 ) free(prev3);
-    if( rpcGetCollRes.oid               != prev4)  free(prev4);
+    if (rpcGetCollOidsRes.typeName      != prev1)
+    {
+        free(prev1);
+    }
+    if (rpcGetCollOidsRes.typeStructure != prev2)
+    {
+        free(prev2);
+    }
+    if (rpcGetCollOidsRes.collName      != prev3)
+    {
+        free(prev3);
+    }
+    if (rpcGetCollRes.oid               != prev4)
+    {
+        free(prev4);
+    }
 
-    if( !rpcGetCollOidsRes.typeName      ) rpcGetCollOidsRes.typeName      = strdup("");
-    if( !rpcGetCollOidsRes.typeStructure ) rpcGetCollOidsRes.typeStructure = strdup("");
-    if( !rpcGetCollOidsRes.collName      ) rpcGetCollOidsRes.collName      = strdup("");
+    if (!rpcGetCollOidsRes.typeName)
+    {
+        rpcGetCollOidsRes.typeName      = strdup("");
+    }
+    if (!rpcGetCollOidsRes.typeStructure)
+    {
+        rpcGetCollOidsRes.typeStructure = strdup("");
+    }
+    if (!rpcGetCollOidsRes.collName)
+    {
+        rpcGetCollOidsRes.collName      = strdup("");
+    }
 
     // Return the result
     return &rpcGetCollOidsRes;
@@ -1514,7 +1747,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcinsertcoll_1, InsertCollParams* params )
+RPCFUNCTIONDEF(rpcinsertcoll_1, InsertCollParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1526,13 +1759,13 @@ RPCFUNCTIONDEF( rpcinsertcoll_1, InsertCollParams* params )
 
     accessControl.wantToWrite();
 
-    r_OId oid( params->oid );
+    r_OId oid(params->oid);
 
     // Get a pointer to the actual servercomm object.
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->insertColl( callingClientId, collName, typeName, oid );
+    rpcDummy = sc->insertColl(callingClientId, collName, typeName, oid);
 
     // Return the result
     return &rpcDummy;
@@ -1552,7 +1785,7 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcdeletecollbyname_1, NameSpecParams* params )
+RPCFUNCTIONDEF(rpcdeletecollbyname_1, NameSpecParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1567,7 +1800,7 @@ RPCFUNCTIONDEF( rpcdeletecollbyname_1, NameSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->deleteCollByName( callingClientId, collName );
+    rpcDummy = sc->deleteCollByName(callingClientId, collName);
 
     // Return the result
     return &rpcDummy;
@@ -1587,12 +1820,12 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcdeleteobjbyoid_1, OIdSpecParams* params )
+RPCFUNCTIONDEF(rpcdeleteobjbyoid_1, OIdSpecParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
     unsigned long callingClientId = params->clientID;
-    r_OId         oid( params->oid );
+    r_OId         oid(params->oid);
 
     freeDynamicRPCData();
 
@@ -1602,7 +1835,7 @@ RPCFUNCTIONDEF( rpcdeleteobjbyoid_1, OIdSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->deleteObjByOId( callingClientId, oid );
+    rpcDummy = sc->deleteObjByOId(callingClientId, oid);
 
     // Return the result
     return &rpcDummy;
@@ -1622,13 +1855,13 @@ extern "C"
 */
 
 unsigned short*
-RPCFUNCTIONDEF( rpcremoveobjfromcoll_1, RemoveObjFromCollParams* params )
+RPCFUNCTIONDEF(rpcremoveobjfromcoll_1, RemoveObjFromCollParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
     unsigned long callingClientId = params->clientID;
     const char*   collName        = params->collName;
-    r_OId         oid( params->oid );
+    r_OId         oid(params->oid);
 
     freeDynamicRPCData();
 
@@ -1638,7 +1871,7 @@ RPCFUNCTIONDEF( rpcremoveobjfromcoll_1, RemoveObjFromCollParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->removeObjFromColl( callingClientId, collName, oid );
+    rpcDummy = sc->removeObjFromColl(callingClientId, collName, oid);
 
     // Return the result
     return &rpcDummy;
@@ -1656,7 +1889,7 @@ extern "C"
 */
 
 ObjectTypeRes*
-RPCFUNCTIONDEF( rpcgetobjecttype_1, OIdSpecParams* params )
+RPCFUNCTIONDEF(rpcgetobjecttype_1, OIdSpecParams* params)
 {
     secureResultBufferForRPC = (char*)&procResult;
 
@@ -1669,9 +1902,9 @@ RPCFUNCTIONDEF( rpcgetobjecttype_1, OIdSpecParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    r_OId oid( params->oid );
+    r_OId oid(params->oid);
 
-    procResult.status = sc->getObjectType( params->clientID, oid, procResult.objType );
+    procResult.status = sc->getObjectType(params->clientID, oid, procResult.objType);
 
     // Return the result
     return &procResult;
@@ -1689,13 +1922,13 @@ extern "C"
 */
 
 OIdRes*
-RPCFUNCTIONDEF( rpcgetnewoid_1, NewOIdParams* params )
+RPCFUNCTIONDEF(rpcgetnewoid_1, NewOIdParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcOidRes;
 
     freeDynamicRPCData();
 
-    char *prev1   = strdup("");
+    char* prev1   = strdup("");
     rpcOidRes.oid = prev1;
 
     accessControl.wantToWrite();
@@ -1706,8 +1939,8 @@ RPCFUNCTIONDEF( rpcgetnewoid_1, NewOIdParams* params )
     // Call the corresponding method.
     r_OId oid;
 
-    rpcOidRes.status = sc->getNewOId( params->clientID, params->objType, oid );
-    rpcOidRes.oid    = oid.get_string_representation() ? strdup( oid.get_string_representation() ) : strdup("");
+    rpcOidRes.status = sc->getNewOId(params->clientID, params->objType, oid);
+    rpcOidRes.oid    = oid.get_string_representation() ? strdup(oid.get_string_representation()) : strdup("");
     free(prev1);
 
     // Return the result
@@ -1718,34 +1951,34 @@ RPCFUNCTIONDEF( rpcgetnewoid_1, NewOIdParams* params )
 // Callback for callback manager, performs actual garbage collection.
 // The context points to the ServerComm object (see registering call in
 // garbageCollection() )
-static void callback_garbage_collection(void *context)
+static void callback_garbage_collection(void* context)
 {
-    ServerComm *sc = static_cast<ServerComm*>(context);
+    ServerComm* sc = static_cast<ServerComm*>(context);
 
-    if( sc && !sc->clientTbl.empty() )
+    if (sc && !sc->clientTbl.empty())
     {
         LTRACE << "Garbage Collection ... ";
 
 #ifdef RMANDEBUG
-        sc->printServerStatus( RMInit::dbgOut );
+        sc->printServerStatus(RMInit::dbgOut);
 #endif
 
         if (!noTimeOut)
         {
             list<ServerComm::ClientTblElt*>::iterator iter;
             iter = sc->clientTbl.begin();
-            unsigned long now = static_cast<long unsigned int>(time( NULL ));
+            unsigned long now = static_cast<long unsigned int>(time(NULL));
 
             LTRACE << "checking " << sc->clientTbl.size() << " clients...";
-            while ( iter != sc->clientTbl.end() )
+            while (iter != sc->clientTbl.end())
             {
-                if( now - (*iter)->lastActionTime >= sc->clientTimeout )
+                if (now - (*iter)->lastActionTime >= sc->clientTimeout)
                 {
                     LINFO << "Message: Found timed-out client with id " << (*iter)->clientId
-                                   << " (" << (*iter)->clientIdText << ", "
-                                   << now - (*iter)->lastActionTime << "s)...";
+                          << " (" << (*iter)->clientIdText << ", "
+                          << now - (*iter)->lastActionTime << "s)...";
 
-                    if( sc->deleteClientTblEntry( (*iter)->clientId ) == 0 )
+                    if (sc->deleteClientTblEntry((*iter)->clientId) == 0)
                     {
                         LINFO << "deleted.";
 
@@ -1761,7 +1994,9 @@ static void callback_garbage_collection(void *context)
                     }
                 }
                 else
+                {
                     iter++;
+                }
             }
         }
         LTRACE << "garbage collection done.";
@@ -1773,7 +2008,7 @@ static void callback_garbage_collection(void *context)
 extern "C"
 #endif
 void
-garbageCollection( int )
+garbageCollection(int)
 {
     // Get a pointer to the actual servercomm object.
     ServerComm* sc = ServerComm::actual_servercomm;
@@ -1786,10 +2021,10 @@ garbageCollection( int )
     sc->callback_mgr.registerUniqueCallback(callback_garbage_collection, static_cast<void*>(sc));
 
     // Re-initialize the signal handler to point to this function
-    signal( SIGALRM, garbageCollection);
+    signal(SIGALRM, garbageCollection);
 
     // Reset the alarm
-    alarm( static_cast<unsigned int>(sc->garbageCollectionInterval) );
+    alarm(static_cast<unsigned int>(sc->garbageCollectionInterval));
 }
 
 
@@ -1797,12 +2032,12 @@ garbageCollection( int )
 extern "C"
 #endif
 void
-garbageCollectionDummy( int )
+garbageCollectionDummy(int)
 {
     /* Dummy garbage collection function for avoiding reentrance of the callback manager.
        Does nothing but reinstall the signal. */
-    signal( SIGALRM, garbageCollection);
-    alarm( static_cast<unsigned int>(ServerComm::actual_servercomm->garbageCollectionInterval) );
+    signal(SIGALRM, garbageCollection);
+    alarm(static_cast<unsigned int>(ServerComm::actual_servercomm->garbageCollectionInterval));
 }
 
 
@@ -1810,13 +2045,13 @@ garbageCollectionDummy( int )
 extern "C"
 #endif
 GetTypeStructureRes*
-RPCFUNCTIONDEF( rpcgettypestructure_1, GetTypeStructureParams* params )
+RPCFUNCTIONDEF(rpcgettypestructure_1, GetTypeStructureParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcGetTypeStructureRes;
 
     freeDynamicRPCData();
 
-    char *prev1 = strdup("");
+    char* prev1 = strdup("");
     rpcGetTypeStructureRes.typeStructure = prev1;
 
     accessControl.wantToRead();
@@ -1825,13 +2060,19 @@ RPCFUNCTIONDEF( rpcgettypestructure_1, GetTypeStructureParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcGetTypeStructureRes.status = sc->getTypeStructure( params->clientID, params->typeName,
-                                    params->typeType, rpcGetTypeStructureRes.typeStructure );
+    rpcGetTypeStructureRes.status = sc->getTypeStructure(params->clientID, params->typeName,
+                                    params->typeType, rpcGetTypeStructureRes.typeStructure);
 
     // prevent RPC from NULL pointers
-    if( rpcGetTypeStructureRes.typeStructure != prev1 ) free(prev1);
+    if (rpcGetTypeStructureRes.typeStructure != prev1)
+    {
+        free(prev1);
+    }
 
-    if( !rpcGetTypeStructureRes.typeStructure ) rpcGetTypeStructureRes.typeStructure = strdup("");
+    if (!rpcGetTypeStructureRes.typeStructure)
+    {
+        rpcGetTypeStructureRes.typeStructure = strdup("");
+    }
 
     // Return the result
     return &rpcGetTypeStructureRes;
@@ -1843,7 +2084,7 @@ RPCFUNCTIONDEF( rpcgettypestructure_1, GetTypeStructureParams* params )
 extern "C"
 #endif
 int*
-RPCFUNCTIONDEF( rpcgetserverendian_1, int * )
+RPCFUNCTIONDEF(rpcgetserverendian_1, int*)
 {
     freeDynamicRPCData();
 
@@ -1863,14 +2104,14 @@ RPCFUNCTIONDEF( rpcgetserverendian_1, int * )
 extern "C"
 #endif
 unsigned short*
-RPCFUNCTIONDEF( rpcsetservertransfer_1, SetServerTransferParams* params )
+RPCFUNCTIONDEF(rpcsetservertransfer_1, SetServerTransferParams* params)
 {
     freeDynamicRPCData();
     secureResultBufferForRPC = (char*)&rpcDummy;
 
     ServerComm* sc = ServerComm::actual_servercomm;
 
-    rpcDummy = static_cast<unsigned short>(sc->setTransferMode( params->clientID, params->format, params->formatParams ));
+    rpcDummy = static_cast<unsigned short>(sc->setTransferMode(params->clientID, params->format, params->formatParams));
 
     return &rpcDummy;
 }
@@ -1879,8 +2120,8 @@ RPCFUNCTIONDEF( rpcsetservertransfer_1, SetServerTransferParams* params )
 #ifdef LINUX
 extern "C"
 #endif
-GetExtendedErrorInfo *
-RPCFUNCTIONDEF( rpcgeterrorinfo_1, __attribute__ ((unused)) void * params )
+GetExtendedErrorInfo*
+RPCFUNCTIONDEF(rpcgeterrorinfo_1, __attribute__((unused)) void* params)
 {
     freeDynamicRPCData();
 
@@ -1895,7 +2136,7 @@ RPCFUNCTIONDEF( rpcgeterrorinfo_1, __attribute__ ((unused)) void * params )
 extern "C"
 #endif
 unsigned short*
-RPCFUNCTIONDEF( rpcsetserverstorage_1, SetServerTransferParams* params )
+RPCFUNCTIONDEF(rpcsetserverstorage_1, SetServerTransferParams* params)
 {
     secureResultBufferForRPC = (char*)&rpcDummy;
 
@@ -1903,7 +2144,7 @@ RPCFUNCTIONDEF( rpcsetserverstorage_1, SetServerTransferParams* params )
 
     ServerComm* sc = ServerComm::actual_servercomm;
 
-    rpcDummy = static_cast<unsigned short>(sc->setStorageMode(params->clientID, params->format, params->formatParams ));
+    rpcDummy = static_cast<unsigned short>(sc->setStorageMode(params->clientID, params->format, params->formatParams));
 
     return &rpcDummy;
 }

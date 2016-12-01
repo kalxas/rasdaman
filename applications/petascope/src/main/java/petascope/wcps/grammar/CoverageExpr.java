@@ -69,9 +69,9 @@ public class CoverageExpr implements IParseTreeNode {
         String result = "";
 
         if (function.equals(WcpsConstants.MSG_COVERAGE) ||
-            function.equals(WcpsConstants.MSG_NAN)) {
+                function.equals(WcpsConstants.MSG_NAN)) {
             result = "<" + function + ">" + coverageName + "</" +
-                    function + ">";
+                     function + ">";
         } else if (function.equals(WcpsConstants.MSG_BINARY_OP)) {
             formatOperation();
             result = "<" + op + ">" + e1.toXML() + e2.toXML() + "</" + op + ">";

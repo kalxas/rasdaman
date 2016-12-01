@@ -114,7 +114,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                     {
                                         collection = db.lookup_object(collName);
                                     }
-                                    catch   (r_Error& obj)
+                                    catch (r_Error& obj)
                                     {
                                         RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collName << ": " << obj.what() << endl;
                                         retval = COLLECTIONINACCESSIBLE;
@@ -124,7 +124,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                     {
                                         r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
                                         //stl->set_storage_format(storageFormat, storageFormatParams);
-                                        mddObject = new (&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
+                                        mddObject = new(&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
                                         retval = initGMarray(mddObject, filePointer, inputFormat, mddDomain, inputFormatParams);
                                         if (retval == 0)
                                         {
@@ -132,7 +132,9 @@ SystemInsert::doStuff(int argc, const char** argv)
                                             ta.commit();
                                         }
                                         else
+                                        {
                                             ta.abort();
+                                        }
                                     }
                                     else
                                     {
@@ -161,7 +163,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         {
                                             collection = db.lookup_object(collOId);
                                         }
-                                        catch   (r_Error& obj)
+                                        catch (r_Error& obj)
                                         {
                                             RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collOId << ": " << obj.what() << endl;
                                             retval = COLLECTIONINACCESSIBLE;
@@ -171,7 +173,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         {
                                             r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
                                             //stl->set_storage_format(dataFormat, dataFormatParams);
-                                            mddObject = new (&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
+                                            mddObject = new(&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
                                             retval = initGMarray(mddObject, filePointer, inputFormat, mddDomain, inputFormatParams);
                                             if (retval == 0)
                                             {
@@ -179,7 +181,9 @@ SystemInsert::doStuff(int argc, const char** argv)
                                                 ta.commit();
                                             }
                                             else
+                                            {
                                                 ta.abort();
+                                            }
                                         }
                                         else
                                         {
@@ -202,7 +206,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         openTransaction();
                                         r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
                                         //stl->set_storage_format(storageFormat, storageFormatParams);
-                                        mddObject = new (&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
+                                        mddObject = new(&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
                                         retval = initGMarray(mddObject, filePointer, inputFormat, mddDomain, inputFormatParams);
                                         if (retval == 0)
                                         {
@@ -210,7 +214,9 @@ SystemInsert::doStuff(int argc, const char** argv)
                                             ta.commit();
                                         }
                                         else
+                                        {
                                             ta.abort();
+                                        }
                                         db.close();
                                     }
                                     catch (r_Error& obj)
@@ -250,7 +256,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                             {
                                 collection = db.lookup_object(collOId);
                             }
-                            catch   (r_Error& obj)
+                            catch (r_Error& obj)
                             {
                                 RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collOId << ": " << obj.what() << endl;
                                 retval = COLLECTIONINACCESSIBLE;
@@ -304,7 +310,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                 {
                                     collection = db.lookup_object(collName);
                                 }
-                                catch   (r_Error& obj)
+                                catch (r_Error& obj)
                                 {
                                     RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collName << ": " << obj.what() << endl;
                                     retval = COLLECTIONINACCESSIBLE;
@@ -362,7 +368,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                             openTransaction();
                             try
                             {
-                                collection = new (&db, setTypeName) r_Set< r_Ref< r_GMarray > >;
+                                collection = new(&db, setTypeName) r_Set<r_Ref<r_GMarray>>;
                                 if (collNameDef)
                                 {
                                     //object.cc insert in db will throw r_error without name

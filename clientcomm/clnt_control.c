@@ -27,62 +27,62 @@ rasdaman GmbH.
 
 #include <stdio.h>
 
-void client_control(CLIENT *cl, unsigned int rq, char *in)
+void client_control(CLIENT* cl, unsigned int rq, char* in)
 {
     clnt_control(cl, rq, in);
 }
 
-void client_destroy(CLIENT *cl)
+void client_destroy(CLIENT* cl)
 {
     clnt_destroy(cl);
 }
 
-CLIENT* client_create(char *host, u_long prog, u_long vers, char *prot)
+CLIENT* client_create(char* host, u_long prog, u_long vers, char* prot)
 {
     return clnt_create(host, prog, vers, prot);
 }
 
-extern void xdr_free(xdrproc_t proc, char *objp );
+extern void xdr_free(xdrproc_t proc, char* objp);
 
-void xdrfree( ntxdr_Type xdrType, char *objp )
+void xdrfree(ntxdr_Type xdrType, char* objp)
 {
-    switch( xdrType )
+    switch (xdrType)
     {
     case ntxdr_ExecuteQueryRes:
-        xdr_free( xdr_ExecuteQueryRes, objp );
+        xdr_free(xdr_ExecuteQueryRes, objp);
         break;
     case ntxdr_ExecuteUpdateRes:
-        xdr_free( xdr_ExecuteUpdateRes, objp );
+        xdr_free(xdr_ExecuteUpdateRes, objp);
         break;
     case ntxdr_GetMDDRes:
-        xdr_free( xdr_GetMDDRes, objp );
+        xdr_free(xdr_GetMDDRes, objp);
         break;
     case ntxdr_GetTileRes:
-        xdr_free( xdr_GetTileRes, objp );
+        xdr_free(xdr_GetTileRes, objp);
         break;
     case ntxdr_GetCollRes:
-        xdr_free( xdr_GetCollRes, objp );
+        xdr_free(xdr_GetCollRes, objp);
         break;
     case ntxdr_GetCollOIdsRes:
-        xdr_free( xdr_GetCollOIdsRes, objp );
+        xdr_free(xdr_GetCollOIdsRes, objp);
         break;
     case ntxdr_OIdRes:
-        xdr_free( xdr_OIdRes, objp );
+        xdr_free(xdr_OIdRes, objp);
         break;
     case ntxdr_ObjectTypeRes:
-        xdr_free( xdr_ObjectTypeRes, objp );
+        xdr_free(xdr_ObjectTypeRes, objp);
         break;
     case ntxdr_GetTypeStructureRes:
-        xdr_free( xdr_GetTypeStructureRes, objp );
+        xdr_free(xdr_GetTypeStructureRes, objp);
         break;
     case ntxdr_GetElementRes:
-        xdr_free( xdr_GetElementRes, objp );
+        xdr_free(xdr_GetElementRes, objp);
         break;
     case ntxdr_ServerStatRes:
-        xdr_free( xdr_ServerStatRes, objp );
+        xdr_free(xdr_ServerStatRes, objp);
         break;
     default:
-        printf( "Error: xdr_free of a unknown type." );
+        printf("Error: xdr_free of a unknown type.");
     }
 }
 

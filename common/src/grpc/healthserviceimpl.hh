@@ -16,7 +16,7 @@ namespace common
  * The client can optionally set the service name it wants to query for health status.
  * The suggested format of service name is package_names.ServiceName
  */
-class HealthServiceImpl:public HealthService::Service
+class HealthServiceImpl: public HealthService::Service
 {
 public:
     HealthServiceImpl();
@@ -53,7 +53,7 @@ public:
      * @param response
      * @return
      */
-    virtual grpc::Status Check(grpc::ServerContext *context, const HealthCheckRequest *request, HealthCheckResponse *response);
+    virtual grpc::Status Check(grpc::ServerContext* context, const HealthCheckRequest* request, HealthCheckResponse* response);
 
 private:
     boost::mutex mutex;

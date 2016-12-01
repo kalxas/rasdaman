@@ -40,66 +40,66 @@ using namespace std;
 
 
 ParseInfo::ParseInfo()
-    : errorNo( 0 ),
-      lineNo( 0 ),
-      columnNo( 0 ),
-      token( "" )
+    : errorNo(0),
+      lineNo(0),
+      columnNo(0),
+      token("")
 {
 }
 
 ParseInfo::ParseInfo(const ParseInfo& old)
-    : errorNo( 0 ),
-      lineNo( 0 ),
-      columnNo( 0 ),
-      token( "" )
+    : errorNo(0),
+      lineNo(0),
+      columnNo(0),
+      token("")
 {
-    errorNo=old.errorNo;
-    lineNo=old.lineNo;
-    columnNo=old.columnNo;
-    token=old.token;
+    errorNo = old.errorNo;
+    lineNo = old.lineNo;
+    columnNo = old.columnNo;
+    token = old.token;
 }
 
-ParseInfo::ParseInfo( const char* initToken, unsigned int initLineNo, unsigned initColumnNo )
-    : errorNo( 0 ),
-      lineNo( initLineNo ),
-      columnNo( initColumnNo ),
-      token( "" )
+ParseInfo::ParseInfo(const char* initToken, unsigned int initLineNo, unsigned initColumnNo)
+    : errorNo(0),
+      lineNo(initLineNo),
+      columnNo(initColumnNo),
+      token("")
 {
-    if(initToken)
+    if (initToken)
     {
-        token=initToken;
+        token = initToken;
     }
 }
 
 
 
-ParseInfo::ParseInfo( unsigned long initErrorNo, const char* initToken, unsigned int initLineNo, unsigned initColumnNo )
-    : errorNo( initErrorNo ),
-      lineNo( initLineNo ),
-      columnNo( initColumnNo ),
-      token( "" )
+ParseInfo::ParseInfo(unsigned long initErrorNo, const char* initToken, unsigned int initLineNo, unsigned initColumnNo)
+    : errorNo(initErrorNo),
+      lineNo(initLineNo),
+      columnNo(initColumnNo),
+      token("")
 {
-    if(initToken)
+    if (initToken)
     {
-        token=initToken;
+        token = initToken;
     }
 }
 
 ParseInfo&
 ParseInfo::operator=(const ParseInfo& old)
 {
-    if(this != &old)
+    if (this != &old)
     {
-        errorNo=old.errorNo;
-        lineNo=old.lineNo;
-        columnNo=old.columnNo;
-        token=old.token;
+        errorNo = old.errorNo;
+        lineNo = old.lineNo;
+        columnNo = old.columnNo;
+        token = old.token;
     }
     return *this;
 }
 
 void
-ParseInfo::printStatus( ostream& s ) const
+ParseInfo::printStatus(ostream& s) const
 {
     s << "Error number: " << errorNo << " Token: " << token.c_str() << " Line: " << lineNo << " Column: " << columnNo << endl;
 }

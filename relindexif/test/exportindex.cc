@@ -73,17 +73,17 @@ main(int argc, char** argv)
     int retval = 0;
     bool import = false;
     const char* fileName = NULL;
-    CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
-    CommandLineParameter &clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
-    CommandLineParameter &clp_import    = cmlInter.addStringParameter('i', "import", "import data");
+    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
+    CommandLineParameter& clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
+    CommandLineParameter& clp_import    = cmlInter.addStringParameter('i', "import", "import data");
 
-    CommandLineParameter &clp_connect   = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
-    CommandLineParameter &clp_oid       = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
+    CommandLineParameter& clp_connect   = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
+    CommandLineParameter& clp_oid       = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
     try
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cmlInter.printHelp();
         cout << "Error parsing command line:" << endl;

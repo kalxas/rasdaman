@@ -124,7 +124,7 @@ void parse(int argc, char* argv[])
     filename    = argv[4];
     cube_i      = atoi(argv[5]);
 
-    if ((cube_i<0) || (cube_i>7))
+    if ((cube_i < 0) || (cube_i > 7))
     {
         cout << "Invalid datacube. Must be in 0..7" << endl;
         exit(0);
@@ -145,7 +145,9 @@ void read_data()
         exit(1);
     }
     else
+    {
         cout << "done." << endl;
+    }
 
     cout << "Reading parameters... ";
 
@@ -190,7 +192,7 @@ void read_data()
 void insert_datacube()
 {
 
-    r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > >  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
     r_Minterval                                   domain;
 
     domain = r_Minterval(3);
@@ -239,17 +241,21 @@ void insert_datacube()
     dsl[0] = new r_Storage_Layout(&til_reg);
     dsl[1] = new r_Storage_Layout(&til_stat);
 
-    if (cube_i<4)
+    if (cube_i < 4)
+    {
         use = dsl[0];
+    }
     else
+    {
         use = dsl[1];
+    }
 
     // Create cube
 
     r_Database db;
     db.set_servername(server_name);
     r_Transaction trans;
-    r_Ref< r_Marray<r_ULong> > cube;
+    r_Ref<r_Marray<r_ULong>> cube;
 
     try
     {
@@ -276,7 +282,7 @@ void insert_datacube()
             cout << "Creating the set... " << flush;
 
             cube_set =
-                new(&db, "RGB_3D_Set") r_Set< r_Ref< r_Marray<RGBPixel> > >;
+                new(&db, "RGB_3D_Set") r_Set<r_Ref<r_Marray<RGBPixel>>>;
 
             db.set_object_name(*cube_set, colect_name);
         }

@@ -63,11 +63,11 @@ public class IndexExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
         String tag1 = "<" + op + ">",
-                tag2 = "</" + op + ">";
+               tag2 = "</" + op + ">";
 
         if (function.equals(WcpsConstants.MSG_CONSTANT)) {
             result = "<" + WcpsConstants.MSG_NUMERIC_CONSTANT + ">" + constant + "</" +
-                    WcpsConstants.MSG_NUMERIC_CONSTANT + ">";
+                     WcpsConstants.MSG_NUMERIC_CONSTANT + ">";
         } else if (function.equals(WcpsConstants.MSG_OP1)) {
             result = tag1 + e1.toXML() + tag2;
         } else if (function.equals(WcpsConstants.MSG_OP2)) {

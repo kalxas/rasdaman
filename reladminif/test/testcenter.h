@@ -34,13 +34,13 @@ rasdaman GmbH.
 #ifndef _TESTCENTER_H_
 
 /// program exit codes
-#define RC_OK		0
-#define RC_USAGE	2
-#define RC_ERROR	-1
+#define RC_OK       0
+#define RC_USAGE    2
+#define RC_ERROR    -1
 
 /// protocol output, must be canonical for automatic & regression testing
-#define TEST_OK		"OK"
-#define TEST_ERROR	"ERROR"
+#define TEST_OK     "OK"
+#define TEST_ERROR  "ERROR"
 
 #define _TESTCENTER_H_
 #endif _TESTCENTER_H_

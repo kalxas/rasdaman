@@ -220,8 +220,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasMInterval
-{
+public class RasMInterval {
     static final String rcsid = "@(#)Package rasj, class RasMInterval: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasMInterval.java,v 1.15 2003/12/10 21:04:23 rasdev Exp $";
 
     /** array for storing the intervals */
@@ -237,84 +236,75 @@ public class RasMInterval
      * Constructor getting dimensionality for stream initializing.
      * @param dim the dimensionality of this MInterval
      **/
-    public RasMInterval(int dim)
-    {
-	dimensionality = dim;
-	streamInitCnt = 0;
-	intervals = new RasSInterval[dimensionality];
+    public RasMInterval(int dim) {
+        dimensionality = dim;
+        streamInitCnt = 0;
+        intervals = new RasSInterval[dimensionality];
 
-	for(int i=0; i<dim; i++)
-	    intervals[i] = new RasSInterval();
+        for (int i = 0; i < dim; i++) {
+            intervals[i] = new RasSInterval();
+        }
     }
 
     /**
      * Constructor taking a string representation (for example "[1:255, 1:200]").
      * @param mIntStr a string specifying the MInterval
      **/
-    public RasMInterval(String mIntStr) throws RasResultIsNoIntervalException
-    {
-	dimensionality = 1;
-	streamInitCnt = 0;
+    public RasMInterval(String mIntStr) throws RasResultIsNoIntervalException {
+        dimensionality = 1;
+        streamInitCnt = 0;
 
-	if(mIntStr.trim().charAt(0) != '[')
-	    {
-		// error
-		dimensionality = 0;
-		return;
-	    }
+        if (mIntStr.trim().charAt(0) != '[') {
+            // error
+            dimensionality = 0;
+            return;
+        }
 
-	/** for parsing the string */
+        /** for parsing the string */
 
-	StringTokenizer strTok = new StringTokenizer(mIntStr.trim(), "[:,]");
-	String strCurTok = null;
+        StringTokenizer strTok = new StringTokenizer(mIntStr.trim(), "[:,]");
+        String strCurTok = null;
 
-	/** calculate dimensionality */
-	dimensionality = strTok.countTokens()/2;
+        /** calculate dimensionality */
+        dimensionality = strTok.countTokens() / 2;
 
-	intervals = new RasSInterval[ dimensionality ];
+        intervals = new RasSInterval[ dimensionality ];
 
 
-	for(int i=0; i<dimensionality; i++)
-	    {
-                RasSInterval sint = new RasSInterval();
+        for (int i = 0; i < dimensionality; i++) {
+            RasSInterval sint = new RasSInterval();
 
-		strCurTok = strTok.nextToken();
+            strCurTok = strTok.nextToken();
 
-		if(strCurTok.equals("*"))
-		    {
-			sint.setLow('*');
-		    }
-		else
-		    {
-			sint.setLow(Long.parseLong(strCurTok.trim()));
-		    }
+            if (strCurTok.equals("*")) {
+                sint.setLow('*');
+            } else {
+                sint.setLow(Long.parseLong(strCurTok.trim()));
+            }
 
 
-		strCurTok = strTok.nextToken();
+            strCurTok = strTok.nextToken();
 
-		if(strCurTok.equals("*"))
-		    {
-			sint.setHigh('*');
-		    }
-		else
-		    {
-			sint.setHigh(Long.parseLong(strCurTok.trim()));
-		    }
+            if (strCurTok.equals("*")) {
+                sint.setHigh('*');
+            } else {
+                sint.setHigh(Long.parseLong(strCurTok.trim()));
+            }
 
-		intervals[i] = sint;
-	    }
+            intervals[i] = sint;
+        }
     }
 
     /**
      * Method for stream initialization with intervals.
      * @param newInterval the interval that has to be streamed
      **/
-    public void stream(final RasSInterval newInterval) throws RasStreamInputOverflowException
-    {
-	if(streamInitCnt >= dimensionality)
-	    throw new RasStreamInputOverflowException();
+    public void stream(final RasSInterval newInterval) throws RasStreamInputOverflowException {
+        if (streamInitCnt >= dimensionality) {
+            throw new RasStreamInputOverflowException();
+        }
 
-	intervals[streamInitCnt++] = newInterval;
+        intervals[streamInitCnt++] = newInterval;
 
     }
 
@@ -322,24 +312,23 @@ public class RasMInterval
      * Method for stream initialization with point intervals.
      * @param p the point interval that has to be streamed
      **/
-    public void stream(long p) throws RasStreamInputOverflowException, RasResultIsNoIntervalException
-    {
-	if(streamInitCnt >= dimensionality)
-	    throw new RasStreamInputOverflowException();
+    public void stream(long p) throws RasStreamInputOverflowException, RasResultIsNoIntervalException {
+        if (streamInitCnt >= dimensionality) {
+            throw new RasStreamInputOverflowException();
+        }
 
-	intervals[streamInitCnt++] =  new RasSInterval(p, p);
+        intervals[streamInitCnt++] =  new RasSInterval(p, p);
 
     }
 
     /**
      * Default constructor.
      **/
-    public RasMInterval()
-    {
-	dimensionality = 0;
-	streamInitCnt = 0;
+    public RasMInterval() {
+        dimensionality = 0;
+        streamInitCnt = 0;
 
-	intervals = null;
+        intervals = null;
     }
 
     /**
@@ -347,14 +336,14 @@ public class RasMInterval
      * @param mInterval the MInterval that is to be copied
      **/
     public RasMInterval(final RasMInterval mInterval)
-	throws RasStreamInputOverflowException, RasIndexOutOfBoundsException
-    {
-	dimensionality = mInterval.dimension();
-	streamInitCnt  = mInterval.streamInitCnt;
-	intervals      = new RasSInterval[ dimensionality ];
+    throws RasStreamInputOverflowException, RasIndexOutOfBoundsException {
+        dimensionality = mInterval.dimension();
+        streamInitCnt  = mInterval.streamInitCnt;
+        intervals      = new RasSInterval[ dimensionality ];
 
-	for(int i=0; i<dimensionality; i++)
-	    intervals[i] = new RasSInterval(mInterval.item(i));
+        for (int i = 0; i < dimensionality; i++) {
+            intervals[i] = new RasSInterval(mInterval.item(i));
+        }
     }
 
     /**
@@ -362,35 +351,33 @@ public class RasMInterval
      * @param mInterval the MInterval to be intersected
      **/
     public boolean intersectsWith(final RasMInterval mInterval)
-	throws RasDimensionMismatchException, RasIndexOutOfBoundsException
-    {
-	boolean result = true;
+    throws RasDimensionMismatchException, RasIndexOutOfBoundsException {
+        boolean result = true;
 
-	if(dimensionality != mInterval.dimension())
-	    throw new RasDimensionMismatchException( dimensionality, mInterval.dimension());
+        if (dimensionality != mInterval.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mInterval.dimension());
+        }
 
-	/** none of the interval pairs are allowed to be disjoint */
-        for(int i=0; i<dimensionality; i++)
-        {
-            if(0 == intervals[i].intersectsWith(mInterval.item(i)) || -1 == intervals[i].intersectsWith(mInterval.item(i)))
-            {
-              result = false;
-              break;
+        /** none of the interval pairs are allowed to be disjoint */
+        for (int i = 0; i < dimensionality; i++) {
+            if (0 == intervals[i].intersectsWith(mInterval.item(i)) || -1 == intervals[i].intersectsWith(mInterval.item(i))) {
+                result = false;
+                break;
             }
         }
-	return result;
+        return result;
     }
 
     /**
      * Read access the i-th interval.
      * @param i the dimension to be read
      **/
-    public RasSInterval item(int i) throws RasIndexOutOfBoundsException
-    {
-	if(i < 0 || i >= dimensionality)
-	    throw new RasIndexOutOfBoundsException(0, dimensionality-1, i);
+    public RasSInterval item(int i) throws RasIndexOutOfBoundsException {
+        if (i < 0 || i >= dimensionality) {
+            throw new RasIndexOutOfBoundsException(0, dimensionality - 1, i);
+        }
 
-	return intervals[i];
+        return intervals[i];
     }
 
     /**
@@ -398,36 +385,36 @@ public class RasMInterval
      * @param i the dimension that is to be accessed
      * @param value the interval that is to be assigned to the specified dimension
      **/
-    public void setItem(int i, RasSInterval value) throws RasIndexOutOfBoundsException
-    {
-	if(i < 0 || i >= dimensionality)
-	    throw new RasIndexOutOfBoundsException(0, dimensionality-1, i);
-	intervals[i] = value;
+    public void setItem(int i, RasSInterval value) throws RasIndexOutOfBoundsException {
+        if (i < 0 || i >= dimensionality) {
+            throw new RasIndexOutOfBoundsException(0, dimensionality - 1, i);
+        }
+        intervals[i] = value;
     }
 
     /*
      * set MInterval
     public final RasMInterval setTo(final RasMInterval mInterval)
-	throws RasStreamInputOverflowException, RasIndexOutOfBoundsException
+    throws RasStreamInputOverflowException, RasIndexOutOfBoundsException
     {
-	if(this != mInterval)
-	    {
-		if((intervals != null) && dimensionality != mInterval.dimension())
-		    {
-			intervals = null;
-		    }
+    if(this != mInterval)
+        {
+        if((intervals != null) && dimensionality != mInterval.dimension())
+            {
+            intervals = null;
+            }
 
-		dimensionality = mInterval.dimension();
-		streamInitCnt  = mInterval.streamInitCnt;
+        dimensionality = mInterval.dimension();
+        streamInitCnt  = mInterval.streamInitCnt;
 
-		if(intervals == null)
-		    intervals = new RasSInterval[ dimensionality ];
+        if(intervals == null)
+            intervals = new RasSInterval[ dimensionality ];
 
-		for(int i=0; i<dimensionality; i++)
-		    intervals[i] = new RasSInterval(mInterval.item(i));
-	    }
+        for(int i=0; i<dimensionality; i++)
+            intervals[i] = new RasSInterval(mInterval.item(i));
+        }
 
-	return this;
+    return this;
     }
     */
 
@@ -438,25 +425,24 @@ public class RasMInterval
      * @param mint the MInterval that is compared to this MInterval
      * @return true if the two MIntervals are equal
      **/
-    public boolean equals(final RasMInterval mint)
-    {
-	boolean returnValue = false;
+    public boolean equals(final RasMInterval mint) {
+        boolean returnValue = false;
 
-	try {
-	    if(dimensionality == mint.dimensionality)
-		{
-		    returnValue = true;
+        try {
+            if (dimensionality == mint.dimensionality) {
+                returnValue = true;
 
-		    for(int i=0; i<dimensionality && returnValue ; i++)
-			returnValue &= (intervals[i] == mint.item(i));
-		}
+                for (int i = 0; i < dimensionality && returnValue ; i++) {
+                    returnValue &= (intervals[i] == mint.item(i));
+                }
+            }
 
-	    return returnValue;
-	}
+            return returnValue;
+        }
 
-	catch(RasIndexOutOfBoundsException e) {
-	    return false;
-	}
+        catch (RasIndexOutOfBoundsException e) {
+            return false;
+        }
     }
 
     /**
@@ -464,9 +450,8 @@ public class RasMInterval
      * @param mint the MInterval that is compared to this MInterval
      * @return true if the two MIntervals are not equal
      **/
-    public boolean notEquals(final RasMInterval mint)
-    {
-	return !equals(mint);
+    public boolean notEquals(final RasMInterval mint) {
+        return !equals(mint);
     }
 
     /**
@@ -479,23 +464,22 @@ public class RasMInterval
      * <TR><TD ALIGN=RIGHT><B>0</B></TD><TD> if the point is not covered</TD></TR>
      * </TABLE>
      **/
-    public final int covers(RasPoint pnt)
-    {
-	if (dimensionality != pnt.dimension())
-	    return -1;
-	try {
-	    for (int i = 0; i < pnt.dimension(); i++)
-		{
-		    if ((intervals[i].isLowFixed() && pnt.item(i) < intervals[i].low()) ||
-			(intervals[i].isHighFixed() && pnt.item(i) > intervals[i].high()))
-			return 0;
-		}
-	    return 1;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // This cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","covers(RasPoint pnt)",e.getMessage());
-	}
+    public final int covers(RasPoint pnt) {
+        if (dimensionality != pnt.dimension()) {
+            return -1;
+        }
+        try {
+            for (int i = 0; i < pnt.dimension(); i++) {
+                if ((intervals[i].isLowFixed() && pnt.item(i) < intervals[i].low()) ||
+                        (intervals[i].isHighFixed() && pnt.item(i) > intervals[i].high())) {
+                    return 0;
+                }
+            }
+            return 1;
+        } catch (RasIndexOutOfBoundsException e) {
+            // This cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "covers(RasPoint pnt)", e.getMessage());
+        }
     }
 
     /**
@@ -507,85 +491,81 @@ public class RasMInterval
      * <TR><TD ALIGN=RIGHT><B>1</B></TD><TD> if the point is covered by this MInterval</TD></TR>
      * <TR><TD ALIGN=RIGHT><B>0</B></TD><TD> if the point is not covered</TD></TR>
      **/
-    public int covers(RasMInterval inter2)
-    {
-	if(dimensionality != inter2.dimension())
-	    return -1;
+    public int covers(RasMInterval inter2) {
+        if (dimensionality != inter2.dimension()) {
+            return -1;
+        }
 
-	try {
-	    for (int i = 0; i < dimensionality ; i++)
-		{
-		    if (
-			( intervals[i].isLowFixed() &&
-			  (!(inter2.item(i).isLowFixed()) ||
-			   intervals[i].low() > inter2.item(i).low()  // both lows fixed here
-			   )
-			  )  ||     // end of lows check
-			( intervals[i].isHighFixed() &&
-			  (!(inter2.item(i).isHighFixed()) ||
-			   intervals[i].high() < inter2.item(i).high()  // both highs fixed here
-			   )
-			  )
-			)
-			return 0;
-		}
-	    return 1;
-	}
-	catch( RasIndexOutOfBoundsException e) {
-	    // this can not occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","covers(RasMInterval inter2)",e.getMessage());
-	}
+        try {
+            for (int i = 0; i < dimensionality ; i++) {
+                if (
+                    (intervals[i].isLowFixed() &&
+                     (!(inter2.item(i).isLowFixed()) ||
+                      intervals[i].low() > inter2.item(i).low()  // both lows fixed here
+                     )
+                    )  ||     // end of lows check
+                    (intervals[i].isHighFixed() &&
+                     (!(inter2.item(i).isHighFixed()) ||
+                      intervals[i].high() < inter2.item(i).high()  // both highs fixed here
+                     )
+                    )
+                ) {
+                    return 0;
+                }
+            }
+            return 1;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this can not occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "covers(RasMInterval inter2)", e.getMessage());
+        }
     }
 
     /**
      * Gets the dimensionality of this MInterval.
      * @return the dimensionality of this MInterval
      **/
-    public int dimension()
-    {
-	return dimensionality;
+    public int dimension() {
+        return dimensionality;
     }
 
     /**
      * Gets the point with the lowest coordinates in every dimension.
      * @return the origin of this MInterval (the point with the lowest coordinates)
      **/
-    public RasPoint getOrigin()
-    {
-	try {
-	    int i;
-	    RasPoint pt = new RasPoint(dimensionality);
+    public RasPoint getOrigin() {
+        try {
+            int i;
+            RasPoint pt = new RasPoint(dimensionality);
 
-	    for(i=0; i<dimensionality; i++)
-		pt.stream(intervals[i].low());
+            for (i = 0; i < dimensionality; i++) {
+                pt.stream(intervals[i].low());
+            }
 
-	    return pt;
-	}
-	catch(RasStreamInputOverflowException e) {
-	    // This cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","getOrigin()",e.getMessage());
-	}
+            return pt;
+        } catch (RasStreamInputOverflowException e) {
+            // This cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "getOrigin()", e.getMessage());
+        }
     }
 
     /**
      * Gets the point with the highest coordinates in every dimension.
      * @return the point with the highest coordinates in this MInterval
      **/
-    public RasPoint getHigh()
-    {
-	try {
-	    int i;
-	    RasPoint pt = new RasPoint(dimensionality);
+    public RasPoint getHigh() {
+        try {
+            int i;
+            RasPoint pt = new RasPoint(dimensionality);
 
-	    for(i=0; i<dimensionality; i++)
-		pt.stream(intervals[i].high());
+            for (i = 0; i < dimensionality; i++) {
+                pt.stream(intervals[i].high());
+            }
 
-	    return pt;
-	}
-	catch(RasStreamInputOverflowException e) {
-	    // This cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","getHigh()",e.getMessage());
-	}
+            return pt;
+        } catch (RasStreamInputOverflowException e) {
+            // This cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "getHigh()", e.getMessage());
+        }
     }
 
     /**
@@ -593,22 +573,21 @@ public class RasMInterval
      * of this MInterval ( i.e. high() - low() ) in each dimension.
      * @return the size of this MInterval
      **/
-    public RasPoint getExtent()
-    {
-	try {
-	    int i;
-	    RasPoint pt = new RasPoint(dimensionality);
+    public RasPoint getExtent() {
+        try {
+            int i;
+            RasPoint pt = new RasPoint(dimensionality);
 
-	    for(i=0; i<dimensionality; i++)
-		pt.stream(intervals[i].high() - intervals[i].low() + 1);
+            for (i = 0; i < dimensionality; i++) {
+                pt.stream(intervals[i].high() - intervals[i].low() + 1);
+            }
 
-	    return pt;
-	}
-	catch(RasStreamInputOverflowException e) {
-	    // This cannot occur (theoretically)
-	    System.err.println("Error in method RasMInterval.getExtent()");
-	    return null;
-	}
+            return pt;
+        } catch (RasStreamInputOverflowException e) {
+            // This cannot occur (theoretically)
+            System.err.println("Error in method RasMInterval.getExtent()");
+            return null;
+        }
     }
 
     /**
@@ -634,57 +613,50 @@ public class RasMInterval
      * @param b the MInterval to be checked
      * @return true if the two intervalls are mergeable
      **/
-    public boolean isMergeable(final RasMInterval b)
-    {
-	final RasMInterval a = this;                    // An alias to this object
+    public boolean isMergeable(final RasMInterval b) {
+        final RasMInterval a = this;                    // An alias to this object
 
-	// The blocks must have the same dimensionality to be mergeable
-	if (a.dimensionality != b.dimensionality)
-	    return false;
+        // The blocks must have the same dimensionality to be mergeable
+        if (a.dimensionality != b.dimensionality) {
+            return false;
+        }
 
-	// Count the number of adjacent frontiers
-	int onesDifferences = 0;
+        // Count the number of adjacent frontiers
+        int onesDifferences = 0;
 
-	// Is Mergeable variable
-	boolean isMerg = true;
+        // Is Mergeable variable
+        boolean isMerg = true;
 
-	// For all dimensions
-	try {
-	    for (int i=0; i<dimensionality; i++)
-		{
-		    if (a.item(i).low() != b.item(i).low())                  // Diferente origins
-			{
-			    if ((a.item(i).low() == b.item(i).high()+1) ||   // If borders are adjacent
-				(b.item(i).low() == a.item(i).high()+1))
-				{
-				    ++onesDifferences;                       // Update counter
-				}
-			    else
-				{
-				    isMerg = false;                          // Else non-mergeable blocks
-				    break;
-				}
-			}
-		    else                                                     // Same origins
-			{
-			    if (a.item(i).high() != b.item(i).high())        // Check ending
-				{
-				    isMerg = false;                          // Not the same, can't be
-				    break;                                   //   mergeable
-				}
-			}
-		}
+        // For all dimensions
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                if (a.item(i).low() != b.item(i).low()) {                // Diferente origins
+                    if ((a.item(i).low() == b.item(i).high() + 1) || // If borders are adjacent
+                            (b.item(i).low() == a.item(i).high() + 1)) {
+                        ++onesDifferences;                       // Update counter
+                    } else {
+                        isMerg = false;                          // Else non-mergeable blocks
+                        break;
+                    }
+                } else {                                                 // Same origins
+                    if (a.item(i).high() != b.item(i).high()) {      // Check ending
+                        isMerg = false;                          // Not the same, can't be
+                        break;                                   //   mergeable
+                    }
+                }
+            }
 
-	    if (isMerg && (onesDifferences!=1))            // Only one adjacent borded
-		isMerg = false;                                   //   allowed
+            if (isMerg && (onesDifferences != 1)) {        // Only one adjacent borded
+                isMerg = false;    //   allowed
+            }
 
-	    return isMerg;                                  // Return result
-	}
+            return isMerg;                                  // Return result
+        }
 
-	catch(RasIndexOutOfBoundsException e) {
-	    // This cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","isMergeable()",e.getMessage());
-	}
+        catch (RasIndexOutOfBoundsException e) {
+            // This cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "isMergeable()", e.getMessage());
+        }
 
     }
 
@@ -700,27 +672,25 @@ public class RasMInterval
      * @return the current MInterval
      **/
     public RasMInterval translate(RasPoint t)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	int i;
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        int i;
 
-	if(dimensionality != t.dimension())
-	    throw new RasDimensionMismatchException(dimensionality, t.dimension());
-
-	try {
-
-	    for(i=0; i<dimensionality; i++)
-		{
-		    intervals[i].setInterval(intervals[i].low() + t.item(i),
-					     intervals[i].high() + t.item(i));
-		}
+        if (dimensionality != t.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, t.dimension());
         }
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannor occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","translate()",e.getMessage());
-	}
 
-	return this;
+        try {
+
+            for (i = 0; i < dimensionality; i++) {
+                intervals[i].setInterval(intervals[i].low() + t.item(i),
+                                         intervals[i].high() + t.item(i));
+            }
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannor occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "translate()", e.getMessage());
+        }
+
+        return this;
     }
 
 
@@ -735,24 +705,23 @@ public class RasMInterval
      * @return the new MInterval
      **/
     public RasMInterval createTranslation(RasPoint t)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != t.dimension())
-	    throw new RasDimensionMismatchException(dimensionality, t.dimension());
-
-	RasMInterval result = new RasMInterval(dimensionality);
-
-	try {
-	    for(int i=0; i<dimensionality; i++)
-		result.intervals[i].setInterval(intervals[i].low() + t.item(i),
-						intervals[i].high() + t.item(i));
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != t.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, t.dimension());
         }
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createTranslation()",e.getMessage());
-	}
 
-	return result;
+        RasMInterval result = new RasMInterval(dimensionality);
+
+        try {
+            for (int i = 0; i < dimensionality; i++)
+                result.intervals[i].setInterval(intervals[i].low() + t.item(i),
+                                                intervals[i].high() + t.item(i));
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createTranslation()", e.getMessage());
+        }
+
+        return result;
     }
 
     /**
@@ -765,30 +734,28 @@ public class RasMInterval
      * @return the current MInterval (representing the union of mint1 and mint2)
      **/
     public RasMInterval unionOf(final RasMInterval mint1, final RasMInterval mint2)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(mint1.dimension() != mint2.dimension())
-	    throw new RasDimensionMismatchException( mint1.dimension(), mint2.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (mint1.dimension() != mint2.dimension()) {
+            throw new RasDimensionMismatchException(mint1.dimension(), mint2.dimension());
+        }
 
-	// cleanup + initializing of this
+        // cleanup + initializing of this
 
-	dimensionality = mint1.dimension();
-	streamInitCnt  = dimensionality;
-	intervals      = new RasSInterval[ dimensionality ];
+        dimensionality = mint1.dimension();
+        streamInitCnt  = dimensionality;
+        intervals      = new RasSInterval[ dimensionality ];
 
-	try {
+        try {
 
-	    for(int i=0; i<dimensionality; i++)
-            {
-              intervals[i] = new RasSInterval();
-              intervals[i].unionOf(mint1.item(i), mint2.item(i));
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i] = new RasSInterval();
+                intervals[i].unionOf(mint1.item(i), mint2.item(i));
             }
-	    return this;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","unionOf()",e.getMessage());
-	}
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "unionOf()", e.getMessage());
+        }
 
     }
 
@@ -800,21 +767,21 @@ public class RasMInterval
      * @return the current MInterval (after the union with mint)
      **/
     public RasMInterval unionWith(final RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException( dimensionality, mint.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	try {
+        try {
 
-	    for(int i=0; i<dimensionality; i++)
-		intervals[i].unionWith(mint.item(i));
-	    return this;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","unionWith()",e.getMessage());
-	}
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i].unionWith(mint.item(i));
+            }
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "unionWith()", e.getMessage());
+        }
 
     }
 
@@ -826,9 +793,8 @@ public class RasMInterval
      * @return the current MInterval after adding mint
      **/
     public RasMInterval addToSelf(final RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	return unionWith(mint);
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        return unionWith(mint);
     }
 
 
@@ -839,25 +805,24 @@ public class RasMInterval
      * @return the union of this MInterval and mint
      **/
     public RasMInterval createUnion(final RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException( dimensionality, mint.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	RasMInterval result = new RasMInterval(dimensionality);
-	try {
-	    for(int i=0; i<dimensionality; i++)
-		result.stream(intervals[i].createUnion(mint.item(i)));
-	    return result;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createUnion()",e.getMessage());
-	}
-	catch(RasStreamInputOverflowException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createUnion()",e.getMessage());
-	}
+        RasMInterval result = new RasMInterval(dimensionality);
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                result.stream(intervals[i].createUnion(mint.item(i)));
+            }
+            return result;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createUnion()", e.getMessage());
+        } catch (RasStreamInputOverflowException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createUnion()", e.getMessage());
+        }
 
     }
 
@@ -870,9 +835,8 @@ public class RasMInterval
      * @return the current MInterval after adding mint
      **/
     public RasMInterval add(final RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	return createUnion(mint);
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        return createUnion(mint);
     }
 
 
@@ -885,30 +849,28 @@ public class RasMInterval
      * @return the current MInterval (representing the difference of mint1 and mint2)
      **/
     public RasMInterval differenceOf(final RasMInterval mint1, final RasMInterval mint2)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(mint1.dimension() != mint2.dimension())
-	    throw new RasDimensionMismatchException( mint1.dimension(), mint2.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (mint1.dimension() != mint2.dimension()) {
+            throw new RasDimensionMismatchException(mint1.dimension(), mint2.dimension());
+        }
 
-	// cleanup + initializing of this
+        // cleanup + initializing of this
 
-	dimensionality = mint1.dimension();
-	streamInitCnt  = dimensionality;
-	intervals      = new RasSInterval[ dimensionality ];
+        dimensionality = mint1.dimension();
+        streamInitCnt  = dimensionality;
+        intervals      = new RasSInterval[ dimensionality ];
 
-	try {
+        try {
 
-	    for(int i=0; i<dimensionality; i++)
-            {
-              intervals[i] = new RasSInterval();
-              intervals[i].differenceOf(mint1.item(i), mint2.item(i));
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i] = new RasSInterval();
+                intervals[i].differenceOf(mint1.item(i), mint2.item(i));
             }
-	    return this;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","differenceOf()",e.getMessage());
-	}
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "differenceOf()", e.getMessage());
+        }
     }
 
     /**
@@ -919,22 +881,20 @@ public class RasMInterval
      * @return the current MInterval (representing the difference of this MInterval and mint)
      **/
     public RasMInterval differenceWith(final RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	try {
-	    for(int i=0; i<dimensionality; i++)
-            {
-              intervals[i].differenceWith(mint.item(i));
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i].differenceWith(mint.item(i));
             }
-	    return this;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","differenceWith()",e.getMessage());
-	}
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "differenceWith()", e.getMessage());
+        }
     }
 
     /**
@@ -945,9 +905,8 @@ public class RasMInterval
      * @return the difference of this MInterval and mint2
      **/
     public RasMInterval diffFromSelf(RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	return differenceWith(mint);
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        return differenceWith(mint);
     }
 
     /**
@@ -957,26 +916,25 @@ public class RasMInterval
      * @return the difference of this MInterval and mint
      **/
     public RasMInterval  createDifference(RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	RasMInterval result = new RasMInterval(dimensionality);
+        RasMInterval result = new RasMInterval(dimensionality);
 
-	try {
-	    for(int i=0; i<dimensionality; i++)
-		result.stream(intervals[i].createDifference(mint.item(i)));
-	    return result;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createDifference()",e.getMessage());
-	}
-	catch(RasStreamInputOverflowException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createDifference()",e.getMessage());
-	}
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                result.stream(intervals[i].createDifference(mint.item(i)));
+            }
+            return result;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createDifference()", e.getMessage());
+        } catch (RasStreamInputOverflowException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createDifference()", e.getMessage());
+        }
 
     }
 
@@ -988,9 +946,8 @@ public class RasMInterval
      * @return the difference of this MInterval and mint
      **/
     public RasMInterval diff(RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	return createDifference(mint);
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        return createDifference(mint);
     }
 
 
@@ -1005,29 +962,27 @@ public class RasMInterval
      * @return the current MInterval (representing the intersection of mint1 and mint2)
      **/
     public RasMInterval intersectionOf(RasMInterval mint1, RasMInterval mint2)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(mint1.dimension() != mint2.dimension())
-	    throw new RasDimensionMismatchException( mint1.dimension(), mint2.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (mint1.dimension() != mint2.dimension()) {
+            throw new RasDimensionMismatchException(mint1.dimension(), mint2.dimension());
+        }
 
-	// cleanup + initializing of this
+        // cleanup + initializing of this
 
-	dimensionality = mint1.dimension();
-	streamInitCnt  = dimensionality;
-	intervals      = new RasSInterval[ dimensionality ];
+        dimensionality = mint1.dimension();
+        streamInitCnt  = dimensionality;
+        intervals      = new RasSInterval[ dimensionality ];
 
-	try {
-	    for(int i=0; i<dimensionality; i++)
-            {
-              intervals[i] = new RasSInterval();
-              intervals[i].intersectionOf(mint1.item(i), mint2.item(i));
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i] = new RasSInterval();
+                intervals[i].intersectionOf(mint1.item(i), mint2.item(i));
             }
-	    return this;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","intersectionOf()",e.getMessage());
-	}
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "intersectionOf()", e.getMessage());
+        }
 
     }
 
@@ -1039,20 +994,20 @@ public class RasMInterval
      * @return the current MInterval (representing the intersection of this MInterval and mint)
      **/
     public RasMInterval intersectionWith(RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	try {
-	    for(int i=0; i<dimensionality; i++)
-		intervals[i].intersectionWith(mint.item(i));
-	    return this;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","intersectionWith()",e.getMessage());
-	}
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i].intersectionWith(mint.item(i));
+            }
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "intersectionWith()", e.getMessage());
+        }
     }
 
     /**
@@ -1063,9 +1018,8 @@ public class RasMInterval
      * @return the intersection of this MInterval and mint
      **/
     public RasMInterval multWithSelf(RasMInterval mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	return intersectionWith(mint);
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        return intersectionWith(mint);
     }
 
 
@@ -1075,26 +1029,25 @@ public class RasMInterval
      * @param mint the MInterval used for calculating the intersection with the current MInterval
      * @return the intersection of this MInterval and mint
      **/
-    public RasMInterval createIntersection (RasMInterval  mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException( dimensionality, mint.dimension());
+    public RasMInterval createIntersection(RasMInterval  mint)
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	RasMInterval result = new RasMInterval(dimensionality);
-	try {
-	    for(int i=0; i<dimensionality; i++)
-		result.stream(intervals[i].createIntersection(mint.item(i)));
-	    return result;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createIntersection()",e.getMessage());
-	}
-	catch(RasStreamInputOverflowException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createIntersection()",e.getMessage());
-	}
+        RasMInterval result = new RasMInterval(dimensionality);
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                result.stream(intervals[i].createIntersection(mint.item(i)));
+            }
+            return result;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createIntersection()", e.getMessage());
+        } catch (RasStreamInputOverflowException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createIntersection()", e.getMessage());
+        }
     }
 
     /**
@@ -1105,9 +1058,8 @@ public class RasMInterval
      * @return the intersection of this MInterval and mint
      **/
     public RasMInterval mult(final RasMInterval  mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	return createIntersection(mint);
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        return createIntersection(mint);
     }
 
 
@@ -1121,31 +1073,28 @@ public class RasMInterval
      * @return the current MInterval (representing the closure of mint1 and mint2)
      **/
     public RasMInterval closureOf(RasMInterval mint1, RasMInterval mint2)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
 
-	if(mint1.dimension() != mint2.dimension())
-	    throw new RasDimensionMismatchException( mint1.dimension(), mint2.dimension());
+        if (mint1.dimension() != mint2.dimension()) {
+            throw new RasDimensionMismatchException(mint1.dimension(), mint2.dimension());
+        }
 
-	// cleanup + initializing of this
+        // cleanup + initializing of this
 
-	dimensionality = mint1.dimension();
-	streamInitCnt  = dimensionality;
+        dimensionality = mint1.dimension();
+        streamInitCnt  = dimensionality;
         intervals = new RasSInterval[ dimensionality ];
 
-	try
-        {
-	    for(int i=0; i<dimensionality; i++)
-            {
-              intervals[i] = new RasSInterval();
-              intervals[i].closureOf(mint1.item(i), mint2.item(i));
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i] = new RasSInterval();
+                intervals[i].closureOf(mint1.item(i), mint2.item(i));
             }
-	    return this;
-	}
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","closureOf()",e.getMessage());
-	}
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "closureOf()", e.getMessage());
+        }
     }
 
     /**
@@ -1156,21 +1105,20 @@ public class RasMInterval
      * @return the current MInterval (representing the closure of this MInterval and mint)
      **/
     public RasMInterval closureWith(final RasMInterval  mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException( dimensionality, mint.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	try
-	    {
-		for(int i=0; i<dimensionality; i++)
-		    intervals[i].closureWith(mint.item(i));
-		return this;
-	    }
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","closureWith()",e.getMessage());
-	}
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                intervals[i].closureWith(mint.item(i));
+            }
+            return this;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "closureWith()", e.getMessage());
+        }
     }
 
     /**
@@ -1180,27 +1128,25 @@ public class RasMInterval
      * @return the closure of this MInterval and mint
      **/
     public RasMInterval  createClosure(RasMInterval  mint)
-	throws RasDimensionMismatchException, RasResultIsNoIntervalException
-    {
-	if(dimensionality != mint.dimension())
-	    throw new RasDimensionMismatchException( dimensionality, mint.dimension());
+    throws RasDimensionMismatchException, RasResultIsNoIntervalException {
+        if (dimensionality != mint.dimension()) {
+            throw new RasDimensionMismatchException(dimensionality, mint.dimension());
+        }
 
-	RasMInterval result = new RasMInterval(dimensionality);
+        RasMInterval result = new RasMInterval(dimensionality);
 
-	try
-	    {
-		for(int i=0; i<dimensionality; i++)
-		    result.stream(intervals[i].createClosure(mint.item(i)));
-		return result;
-	    }
-	catch(RasIndexOutOfBoundsException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createClosure()",e.getMessage());
-	}
-	catch(RasStreamInputOverflowException e) {
-	    // this cannot occur (theoretically)
-	    throw new RasClientInternalException("RasMInterval","createClosure()",e.getMessage());
-	}
+        try {
+            for (int i = 0; i < dimensionality; i++) {
+                result.stream(intervals[i].createClosure(mint.item(i)));
+            }
+            return result;
+        } catch (RasIndexOutOfBoundsException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createClosure()", e.getMessage());
+        } catch (RasStreamInputOverflowException e) {
+            // this cannot occur (theoretically)
+            throw new RasClientInternalException("RasMInterval", "createClosure()", e.getMessage());
+        }
 
     }
 
@@ -1209,42 +1155,42 @@ public class RasMInterval
     /**
      * Calculates the number of cells.
      **/
-    long cellCount()
-    {
-	long cellCount=1;
+    long cellCount() {
+        long cellCount = 1;
 
-	for(int i=0; i<dimensionality; i++)
-	    cellCount *= intervals[i].high() - intervals[i].low() + 1;
+        for (int i = 0; i < dimensionality; i++) {
+            cellCount *= intervals[i].high() - intervals[i].low() + 1;
+        }
 
-	return cellCount;
+        return cellCount;
     }
 
     /**
      * Calculates the offset in cells for one dimensional (linear) access to
      * the given point (dimension ordering is high first).
      **/
-    long cellOffset( final RasPoint point)
-	throws RasIndexOutOfBoundsException
-    {
-	int i = 0;
-	long offset = 0;
+    long cellOffset(final RasPoint point)
+    throws RasIndexOutOfBoundsException {
+        int i = 0;
+        long offset = 0;
 
-	// calculate offset
-	for(i = 0; i < dimensionality - 1; i++)
-	    {
-		if(point.item(i) < intervals[i].low() || point.item(i) > intervals[i].high())
-		    throw new RasIndexOutOfBoundsException(intervals[i].low(), intervals[i].high(), point.item(i) );
+        // calculate offset
+        for (i = 0; i < dimensionality - 1; i++) {
+            if (point.item(i) < intervals[i].low() || point.item(i) > intervals[i].high()) {
+                throw new RasIndexOutOfBoundsException(intervals[i].low(), intervals[i].high(), point.item(i));
+            }
 
-		offset = (offset + point.item(i) - intervals[i].low()) * (intervals[i+1].high() - intervals[i+1].low() + 1);
-	    }
+            offset = (offset + point.item(i) - intervals[i].low()) * (intervals[i + 1].high() - intervals[i + 1].low() + 1);
+        }
 
-	// now i = dimensionality - 1
-	if(point.item(i) < intervals[i].low() || point.item(i) > intervals[i].high())
-	    throw new RasIndexOutOfBoundsException(intervals[i].low(), intervals[i].high(), point.item(i) );
+        // now i = dimensionality - 1
+        if (point.item(i) < intervals[i].low() || point.item(i) > intervals[i].high()) {
+            throw new RasIndexOutOfBoundsException(intervals[i].low(), intervals[i].high(), point.item(i));
+        }
 
-	offset += point.item(i) - intervals[i].low();
+        offset += point.item(i) - intervals[i].low();
 
-	return offset;
+        return offset;
     }
 
     /**
@@ -1254,79 +1200,76 @@ public class RasMInterval
      * valued which means that the highest dimension
      * is stored in a sequence.
      **/
-    RasPoint cellPoint(long offset) throws RasResultIsNoCellException
-    {
-	int i;
-	long factor=1;
-	RasPoint pt = new RasPoint(dimensionality);
+    RasPoint cellPoint(long offset) throws RasResultIsNoCellException {
+        int i;
+        long factor = 1;
+        RasPoint pt = new RasPoint(dimensionality);
 
-	try {
+        try {
 
-	    if(offset >= cellCount())
-		throw new RasResultIsNoCellException();
+            if (offset >= cellCount()) {
+                throw new RasResultIsNoCellException();
+            }
 
-	    for(i=0; i<dimensionality; i++)
-		factor *= intervals[i].high() - intervals[i].low() + 1;
+            for (i = 0; i < dimensionality; i++) {
+                factor *= intervals[i].high() - intervals[i].low() + 1;
+            }
 
-	    for(i=0; i<dimensionality; i++)
-		{
-		    factor /= intervals[i].high() - intervals[i].low() + 1;
-		    pt.stream(intervals[i].low() + (offset - (offset%factor))/factor);
-		    offset %= factor;
-		}
+            for (i = 0; i < dimensionality; i++) {
+                factor /= intervals[i].high() - intervals[i].low() + 1;
+                pt.stream(intervals[i].low() + (offset - (offset % factor)) / factor);
+                offset %= factor;
+            }
 
-	    return pt;
-	}
-	catch( RasStreamInputOverflowException e ) {
-	    // this cannot occur (theoretically)
-	    System.err.println("Error in method RasMInterval.cellPoint().");
-	    return null;
-	}
+            return pt;
+        } catch (RasStreamInputOverflowException e) {
+            // this cannot occur (theoretically)
+            System.err.println("Error in method RasMInterval.cellPoint().");
+            return null;
+        }
     }
 
     // delete the specified dimension
-    void deleteDimension(int dim) throws RasException
-    {
-	if(dim < 0 || dim >= dimensionality)
-	    throw new RasIndexOutOfBoundsException(0, dimensionality-1, dim);
+    void deleteDimension(int dim) throws RasException {
+        if (dim < 0 || dim >= dimensionality) {
+            throw new RasIndexOutOfBoundsException(0, dimensionality - 1, dim);
+        }
 
-	dimensionality -= 1;
-	streamInitCnt = dimensionality;
-	RasSInterval[] newIntervals = new RasSInterval[ dimensionality ];
+        dimensionality -= 1;
+        streamInitCnt = dimensionality;
+        RasSInterval[] newIntervals = new RasSInterval[ dimensionality ];
 
-	for(int i=0, j=0; i<dimensionality; i++, j++)
-	    {
-		if(i==dim) j++;
-		newIntervals[i] = intervals[j];
-	    }
+        for (int i = 0, j = 0; i < dimensionality; i++, j++) {
+            if (i == dim) {
+                j++;
+            }
+            newIntervals[i] = intervals[j];
+        }
 
-	intervals = newIntervals;
+        intervals = newIntervals;
     }
 
     // calculate the size of the storage space occupied
-    long getStorageSize()
-    {
-	long sz = 26;  //18 + 2 * 4
+    long getStorageSize() {
+        long sz = 26;  //18 + 2 * 4
 
-	if (dimensionality > 0)
-	    sz += dimensionality * 18;
+        if (dimensionality > 0) {
+            sz += dimensionality * 18;
+        }
 
-	return sz;
+        return sz;
     }
 
     /** gives back the string representation */
-    public String toString()
-    {
-	String retString = "";
-	if(dimensionality > 0)
-	    {
-		for(int i=0; i<dimensionality-1; i++)
-		    {
-			retString = retString + intervals[i].toString() + ",";
-		    }
-		retString = retString + intervals[dimensionality-1].toString();
-	    }
+    public String toString() {
+        String retString = "";
+        if (dimensionality > 0) {
+            for (int i = 0; i < dimensionality - 1; i++) {
+                retString = retString + intervals[i].toString() + ",";
+            }
+            retString = retString + intervals[dimensionality - 1].toString();
+        }
 
-	return "[" + retString  + "]";
+        return "[" + retString  + "]";
     }
 }

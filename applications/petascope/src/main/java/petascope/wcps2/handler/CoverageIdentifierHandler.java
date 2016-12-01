@@ -29,7 +29,7 @@ import petascope.wcps2.result.WcpsResult;
  * identifier($c))
  * <code>
  * for c in (mr), d in (rgb) return identifier(c)
- * </code> 
+ * </code>
  * <code>
  * mr
  * </code>

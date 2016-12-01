@@ -70,7 +70,9 @@ const r_Complex_Type&
 r_Complex_Type::operator=(const r_Complex_Type& oldObj)
 {
     if (this == &oldObj)
+    {
         return *this;
+    }
 
     r_Primitive_Type::operator =(oldObj);
     imOff = oldObj.imOff;
@@ -88,12 +90,12 @@ r_Complex_Type::get_re(const char* cell) const throw(r_Error)
 {
     double res = 0;
 
-    if( (typeId != r_Type::COMPLEXTYPE1) &&
-            (typeId != r_Type::COMPLEXTYPE2) )
+    if ((typeId != r_Type::COMPLEXTYPE1) &&
+            (typeId != r_Type::COMPLEXTYPE2))
     {
         LFATAL << "r_Complex_Type::get_re(cell) type not a complex1 or complex2";
-        r_Error err( r_Error::r_Error_TypeInvalid );
-        throw( err );
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
     }
 
 
@@ -103,7 +105,7 @@ r_Complex_Type::get_re(const char* cell) const throw(r_Error)
         res = *(r_Float*)const_cast<char*>(cell);
         break;
     case COMPLEXTYPE2:
-        res = *(r_Double *)const_cast<char*>(cell);
+        res = *(r_Double*)const_cast<char*>(cell);
         break;
     default:
         LTRACE << "get_re(...) bad typeId " << typeId;
@@ -117,12 +119,12 @@ r_Complex_Type::get_im(const char* cell) const throw(r_Error)
 {
     double res = 0;
 
-    if( (typeId != r_Type::COMPLEXTYPE1) &&
-            (typeId != r_Type::COMPLEXTYPE2) )
+    if ((typeId != r_Type::COMPLEXTYPE1) &&
+            (typeId != r_Type::COMPLEXTYPE2))
     {
         LFATAL << "r_Complex_Type::get_im(cell) type not a complex1 or complex2";
-        r_Error err( r_Error::r_Error_TypeInvalid );
-        throw( err );
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
     }
 
     switch (typeId)
@@ -146,19 +148,19 @@ r_Complex_Type::get_im(const char* cell) const throw(r_Error)
 void
 r_Complex_Type::set_re(char* cell, r_Double re) throw(r_Error)
 {
-    r_Float ref=0.;
-    if( (typeId != r_Type::COMPLEXTYPE1) &&
-            (typeId != r_Type::COMPLEXTYPE2) )
+    r_Float ref = 0.;
+    if ((typeId != r_Type::COMPLEXTYPE1) &&
+            (typeId != r_Type::COMPLEXTYPE2))
     {
         LFATAL << "r_Complex_Type::set_re(cell, re) type not a complex1 or complex2";
-        r_Error err( r_Error::r_Error_TypeInvalid );
-        throw( err );
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
     }
 
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        ref=re;
+        ref = re;
         memmove(cell, &ref, imOff);
         break;
     case COMPLEXTYPE2:
@@ -173,20 +175,20 @@ r_Complex_Type::set_re(char* cell, r_Double re) throw(r_Error)
 void
 r_Complex_Type::set_im(char* cell, r_Double im) throw(r_Error)
 {
-    r_Float imf= 0.;
+    r_Float imf = 0.;
 
-    if( (typeId != r_Type::COMPLEXTYPE1) &&
-            (typeId != r_Type::COMPLEXTYPE2) )
+    if ((typeId != r_Type::COMPLEXTYPE1) &&
+            (typeId != r_Type::COMPLEXTYPE2))
     {
         LFATAL << "r_Complex_Type::set_im(cell, im) type not a complex1 or complex2";
-        r_Error err( r_Error::r_Error_TypeInvalid );
-        throw( err );
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
     }
 
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        imf=im;
+        imf = im;
         memmove((cell + imOff), &imf, imOff);
         break;
     case COMPLEXTYPE2:
@@ -279,7 +281,7 @@ r_Complex_Type::isComplexType() const
     return true;
 }
 
-std::ostream &operator<<( std::ostream &str, const r_Complex_Type &type )
+std::ostream& operator<<(std::ostream& str, const r_Complex_Type& type)
 {
     type.print_status(str);
     return str;

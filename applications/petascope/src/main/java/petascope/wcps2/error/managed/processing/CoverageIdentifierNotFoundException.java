@@ -31,27 +31,27 @@ import petascope.exceptions.ExceptionCode;
  * </code>
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
- * 
+ *
  */
 public class CoverageIdentifierNotFoundException extends WCPSProcessingError {
-/**
- * Constructor for the class
- *
- * @param coverageVariableName the coverage variable name that was provided
- */
-public CoverageIdentifierNotFoundException(String coverageVariableName) {
-    super(ERROR_TEMPLATE.replace("$coverageVariableName", coverageVariableName), ExceptionCode.WcpsError);
-    this.coverageVariableName = coverageVariableName;
-}
+    /**
+     * Constructor for the class
+     *
+     * @param coverageVariableName the coverage variable name that was provided
+     */
+    public CoverageIdentifierNotFoundException(String coverageVariableName) {
+        super(ERROR_TEMPLATE.replace("$coverageVariableName", coverageVariableName), ExceptionCode.WcpsError);
+        this.coverageVariableName = coverageVariableName;
+    }
 
-/**
- * Getter for the axis name
- * @return
- */
-public String getCoverageVariableName() {
-    return coverageVariableName;
-}
+    /**
+     * Getter for the axis name
+     * @return
+     */
+    public String getCoverageVariableName() {
+        return coverageVariableName;
+    }
 
-private final String coverageVariableName;
-private static final String ERROR_TEMPLATE = "Coverage identifier not found from coverage variable name '$coverageVariableName'.";
+    private final String coverageVariableName;
+    private static final String ERROR_TEMPLATE = "Coverage identifier not found from coverage variable name '$coverageVariableName'.";
 }

@@ -26,7 +26,7 @@ rasdaman GmbH.
 namespace common
 {
 InvalidArgumentException::InvalidArgumentException(const std::string& whatArg)
-    :LogicException(whatArg)
+    : LogicException(whatArg)
 {}
 
 InvalidArgumentException::~InvalidArgumentException() throw()

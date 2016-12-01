@@ -45,11 +45,11 @@ QtComplexData::QtComplexData()
 
 
 
-QtComplexData::QtComplexData( QtComplexData::QtScalarDataList* &scalarDataList )
+QtComplexData::QtComplexData(QtComplexData::QtScalarDataList*& scalarDataList)
     : QtScalarData()
 {
     char                          elementName[256];
-    unsigned int                  i=0;
+    unsigned int                  i = 0;
     std::list<QtScalarData*>::iterator iter;
 
     // Take care of dynamic memory management:
@@ -58,32 +58,32 @@ QtComplexData::QtComplexData( QtComplexData::QtScalarDataList* &scalarDataList )
     // all complex types have to be deleted because they are constructed temporarily.
 
     // create a new struct type
-    StructType* structType = new StructType( "", scalarDataList->size() );
+    StructType* structType = new StructType("", scalarDataList->size());
 
     // add type elements, the first element inserted has no 0, the second no 1, and so on
-    for( iter=scalarDataList->begin(), i=0; iter!=scalarDataList->end(); iter++, i++ )
+    for (iter = scalarDataList->begin(), i = 0; iter != scalarDataList->end(); iter++, i++)
     {
-        sprintf( elementName, "%d", i );
-        structType->addElement( elementName, (*iter)->getValueType() );
+        sprintf(elementName, "%d", i);
+        structType->addElement(elementName, (*iter)->getValueType());
     }
 
     // add type to typeFactory
-    TypeFactory::addTempType( structType );
+    TypeFactory::addTempType(structType);
 
     valueBuffer = new char[ structType->getSize() ];
     valueType   = structType;
 
     // copy data
-    for( iter=scalarDataList->begin(), i=0; iter!=scalarDataList->end(); iter++, i++ )
+    for (iter = scalarDataList->begin(), i = 0; iter != scalarDataList->end(); iter++, i++)
     {
-        char* destination = (static_cast<char*>(valueBuffer)) + structType->getOffset( i );
+        char* destination = (static_cast<char*>(valueBuffer)) + structType->getOffset(i);
 
-        memcpy( destination, (*iter)->getValueBuffer(), (*iter)->getValueType()->getSize() );
+        memcpy(destination, (*iter)->getValueBuffer(), (*iter)->getValueType()->getSize());
     }
 
     // delete the list of type elements
     // release( scalarDataList->begin(), scalarDataList->end() );
-    for( iter=scalarDataList->begin(); iter!=scalarDataList->end(); iter++ )
+    for (iter = scalarDataList->begin(); iter != scalarDataList->end(); iter++)
     {
         (*iter)->deleteRef();
     }
@@ -93,17 +93,17 @@ QtComplexData::QtComplexData( QtComplexData::QtScalarDataList* &scalarDataList )
 
 
 
-QtComplexData::QtComplexData( const QtComplexData& obj )
-    : QtScalarData( obj )
+QtComplexData::QtComplexData(const QtComplexData& obj)
+    : QtScalarData(obj)
 {
 }
 
 
 
 void
-QtComplexData::printStatus( ostream& stream ) const
+QtComplexData::printStatus(ostream& stream) const
 {
     stream << "complex, " << std::flush;
-    QtScalarData::printStatus( stream );
+    QtScalarData::printStatus(stream);
     stream << std::endl;
 }

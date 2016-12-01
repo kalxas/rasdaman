@@ -25,7 +25,7 @@ rasdaman GmbH.
  * INCLUDE: rm.hh
  *
  * PURPOSE:
- *	Artificially created to manipulate hierarchy tree.
+ *  Artificially created to manipulate hierarchy tree.
  *
  * COMMENTS:
  *

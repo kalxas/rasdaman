@@ -52,20 +52,20 @@ class labelManager
 {
 public:
 
-    labelManager(const char *resourceFile);
+    labelManager(const char* resourceFile);
     ~labelManager(void);
-    char *lookup(const char *symbol);
+    char* lookup(const char* symbol);
     // These two should be handled with care.
     int numberOfLabels(void);
-    char *returnLabelNumber(unsigned int index);
+    char* returnLabelNumber(unsigned int index);
 
 
 private:
 
     void sortResources(int from, int to);
 
-    char *buffer;
-    char **lineTable;
+    char* buffer;
+    char** lineTable;
     unsigned int lines;
     char badSymbol[4];
 };

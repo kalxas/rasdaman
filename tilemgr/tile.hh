@@ -124,7 +124,7 @@ public:
       tilesVec} has to overlap with {\tt resDom}.
     */
     /// constructs Tile as projection of {\tt projTile}.
-    Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Dimension, std::less<r_Dimension> >* projDim);
+    Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Dimension, std::less<r_Dimension>>* projDim);
     /*@Doc:
       Constructs a new Tile out of the projection of Tile {\tt
       projTile} with the dimensions given in {\tt projDim} projected
@@ -209,7 +209,7 @@ public:
     //@}
 
     /// printed output for testing.
-    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
     /*@Doc:
        Prints the contents of the Tile on stream. Prints every cell in
        the Tile with the {\tt printCell} function of the \Ref{BaseType}.
@@ -259,9 +259,9 @@ public:
     */
 
     /// carries out binary function with self as result.
-    void execBinaryOp(  BinaryOp* myOp, const r_Minterval& areaRes,
-                        const Tile* op1Tile, const r_Minterval& areaOp1,
-                        const Tile* op2Tile, const r_Minterval& areaOp2);
+    void execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes,
+                      const Tile* op1Tile, const r_Minterval& areaOp1,
+                      const Tile* op2Tile, const r_Minterval& areaOp2);
     /*@Doc:
       The binary function {\tt myOp} is applied to all cells of the tiles
       {\tt op1Tile} and {\tt op2Tile} in the respective areas. The
@@ -271,9 +271,9 @@ public:
     */
 
     /// carries out binary function with self as result.
-    virtual void execConstOp(   BinaryOp* myOp, const r_Minterval& areaRes,
-                                const Tile* opTile, const r_Minterval& areaOp,
-                                const char* cell, int constPos = 1);
+    virtual void execConstOp(BinaryOp* myOp, const r_Minterval& areaRes,
+                             const Tile* opTile, const r_Minterval& areaOp,
+                             const char* cell, int constPos = 1);
     /*@Doc:
       The binary function {\tt op} is applied to all cells of the tile
       {\tt op1Tile} and the constant {\tt cell} in the area {\tt
@@ -301,7 +301,7 @@ public:
       operation execution functions.
     */
     /// executes scaling operation.
-    virtual void execScaleOp(   const Tile* opTile, const r_Minterval& areaOp);
+    virtual void execScaleOp(const Tile* opTile, const r_Minterval& areaOp);
     /*@Doc:
       The tile {\tt opTile} is scaled down in each dimension by the
       corresponding element in vector {\tt scaleFactors}. The result
@@ -316,9 +316,9 @@ public:
     /// return spatial domain of result tile for scaling in areaScaled.
     /// return 0 if the result tile will be empty.
     /// (the same function, but with implicit origin (0,0,...0) and working fine!)
-    int scaleGetDomain( const r_Minterval& areaOp,
-                        const std::vector<double>& scaleFactors,
-                        r_Minterval& areaScaled);
+    int scaleGetDomain(const r_Minterval& areaOp,
+                       const std::vector<double>& scaleFactors,
+                       r_Minterval& areaScaled);
 
     /*@Doc:
       Return result domain in areaScaled if scaling using the factors in
@@ -333,7 +333,7 @@ public:
     virtual ~Tile();
 
     /// copy a subcube from one tile to another
-    virtual void copyTile(const r_Minterval& areaRes, const Tile *opTile, const r_Minterval& areaOp);
+    virtual void copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp);
     /*@Doc:
       The part of opTile covered by areaOp is copied to areaRes of this tile. Identical in functionality to execUnaryOp(OP_IDENTITY, ...) but much faster.
       Requires matching base types and matching domains.
@@ -385,9 +385,13 @@ Tile::Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom)
 
     // init contents
     if (RMInit::useTileContainer)
+    {
         blobTile = new InlineTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
+    }
     else
+    {
         blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
+    }
 
     // insert all tiles in the result tile
     tileIt = tilesVec->begin();
@@ -396,7 +400,7 @@ Tile::Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom)
         currDom = (*tileIt)->getDomain();
         currDom.intersection_with(resDom);
 
-        copyTile(currDom, (&**tileIt), currDom);
+        copyTile(currDom, (&** tileIt), currDom);
 
         tileIt++;
     }

@@ -56,8 +56,8 @@ QtOperationIterator::QtOperationIterator()
 }
 
 
-QtOperationIterator::QtOperationIterator( QtNode* node )
-    : QtIterator( node )
+QtOperationIterator::QtOperationIterator(QtNode* node)
+    : QtIterator(node)
 {
     operationTreeList = new QtOperationList();
 }
@@ -67,131 +67,152 @@ QtOperationIterator::~QtOperationIterator()
 {
     // release( operationTreeList->begin(), operationTreeList->end() );
     QtOperationList::iterator iter;
-    for( iter = operationTreeList->begin(); iter!=operationTreeList->end(); iter++ )
+    for (iter = operationTreeList->begin(); iter != operationTreeList->end(); iter++)
     {
         delete *iter;
-        *iter=NULL;
+        *iter = NULL;
     }
     delete operationTreeList;
-    operationTreeList=NULL;
+    operationTreeList = NULL;
 }
 
 
 QtNode::QtNodeList*
-QtOperationIterator::getChilds( QtChildType flag )
+QtOperationIterator::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
-    QtNodeList* subList=NULL;
+    QtNodeList* resultList = NULL;
+    QtNodeList* subList = NULL;
 
     QtOperationList::iterator iter;
 
-    resultList = QtIterator::getChilds( flag );
+    resultList = QtIterator::getChilds(flag);
 
 #ifdef DEBUG
     LTRACE << "1. childs from stream subtree ";
     list<QtNode*>::iterator debugIter;
-    for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
-        (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+    for (debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
+    {
+        (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+    }
 #endif
 
-        for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++ )
+    for (iter = operationTreeList->begin(); iter != operationTreeList->end(); iter++)
+    {
+        if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
         {
-            if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
-            {
-                subList = (*iter)->getChilds( flag ) ;
+            subList = (*iter)->getChilds(flag) ;
 
 #ifdef DEBUG
-                LTRACE << "2. childs from operation subtree (without direct childs) ";
-                list<QtNode*>::iterator debugIter;
-                if (subList) for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ )
-                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
-#endif
-
-                    // remove all elements in subList and insert them at the beginning of resultList
-                    if (subList) resultList->splice( resultList->begin(), *subList );
-
-#ifdef DEBUG
-                LTRACE << "3. merge of the lists ";
-                list<QtNode*>::iterator debugIter;
-                for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
-                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
-
-                LTRACE << "4. old list (must be empty)";
-                list<QtNode*>::iterator debugIter;
-                if (subList) for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ )
-                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
-#endif
-
-                        // delete temporary subList
-                        delete subList;
-                subList=NULL;
-            };
-
-            // add nodes of next level
-            if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-                resultList->push_back( *iter );
-
-#ifdef DEBUG
-            LTRACE << "4. current child list including direct childs ";
+            LTRACE << "2. childs from operation subtree (without direct childs) ";
             list<QtNode*>::iterator debugIter;
-            for( debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
-                (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+            if (subList) for (debugIter = subList->begin(); debugIter != subList->end(); debugIter++)
+                {
+                    (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+                }
 #endif
 
-            };
+            // remove all elements in subList and insert them at the beginning of resultList
+            if (subList)
+            {
+                resultList->splice(resultList->begin(), *subList);
+            }
+
+#ifdef DEBUG
+            LTRACE << "3. merge of the lists ";
+            list<QtNode*>::iterator debugIter;
+            for (debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
+            {
+                (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+            }
+
+            LTRACE << "4. old list (must be empty)";
+            list<QtNode*>::iterator debugIter;
+            if (subList) for (debugIter = subList->begin(); debugIter != subList->end(); debugIter++)
+                {
+                    (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+                }
+#endif
+
+            // delete temporary subList
+            delete subList;
+            subList = NULL;
+        };
+
+        // add nodes of next level
+        if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+        {
+            resultList->push_back(*iter);
+        }
+
+#ifdef DEBUG
+        LTRACE << "4. current child list including direct childs ";
+        list<QtNode*>::iterator debugIter;
+        for (debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
+        {
+            (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+        }
+#endif
+
+    };
 
     return resultList;
 }
 
 
 void
-QtOperationIterator::printTree( int tab, ostream& s, QtChildType mode )
+QtOperationIterator::printTree(int tab, ostream& s, QtChildType mode)
 {
     QtOperationList::iterator iter;
 
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOperationIterator Object: type " << flush;
-    dataStreamType.printStatus( s );
+    dataStreamType.printStatus(s);
     s << getEvaluationTime();
     s << endl;
 
-    if( mode != QtNode::QT_DIRECT_CHILDS )
+    if (mode != QtNode::QT_DIRECT_CHILDS)
     {
-        if( operationTreeList->empty() )
+        if (operationTreeList->empty())
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no operation" << endl;
+        }
         else
-            for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++ )
+            for (iter = operationTreeList->begin(); iter != operationTreeList->end(); iter++)
             {
                 s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "operation: " << endl;
-                (*iter)->printTree( tab + 2, s, mode );
+                (*iter)->printTree(tab + 2, s, mode);
             }
     }
 
-    QtIterator::printTree( tab, s, mode );
+    QtIterator::printTree(tab, s, mode);
 }
 
 
 
 void
-QtOperationIterator::printAlgebraicExpression( ostream& s )
+QtOperationIterator::printAlgebraicExpression(ostream& s)
 {
     s << "op<";
 
-    if( operationTreeList )
+    if (operationTreeList)
     {
-        for( unsigned int i=0; i<operationTreeList->size(); i++ )
+        for (unsigned int i = 0; i < operationTreeList->size(); i++)
         {
-            (*operationTreeList)[i]->printAlgebraicExpression( s );
+            (*operationTreeList)[i]->printAlgebraicExpression(s);
 
-            if( i < operationTreeList->size()-1 )
+            if (i < operationTreeList->size() - 1)
+            {
                 s << ", ";
+            }
         }
     }
     else
+    {
         s << "no ops";
+    }
 
     s << ">";
 
-    QtIterator::printAlgebraicExpression( s );
+    QtIterator::printAlgebraicExpression(s);
 }
 
 
@@ -203,39 +224,44 @@ QtOperationIterator::next()
 
     QtDataList* returnValue = NULL;
 
-    if( inputs )
+    if (inputs)
     {
-        QtDataList* nextTupel=NULL;
-        QtDataList* resultList=NULL;
+        QtDataList* nextTupel = NULL;
+        QtDataList* resultList = NULL;
 
         // create a composed tupel of type QtDataList of the next elements of the input streams
         // right now, just take the QtDataList vector of the first input stream
         nextTupel = (*inputs)[0]->next();
 
-        if( nextTupel )
+        if (nextTupel)
         {
             QtOperationList::iterator iter;
             vector<QtData*>::iterator dataIter;
 
-            resultList = new QtDataList( operationTreeList->size() );
+            resultList = new QtDataList(operationTreeList->size());
 
-            unsigned int pos=0;
+            unsigned int pos = 0;
 
-            for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++)
+            for (iter = operationTreeList->begin(); iter != operationTreeList->end(); iter++)
             {
                 // send them through the operand tree
 
                 try
                 {
-                    if( *iter )
-                        (*resultList)[pos] = (*iter)->evaluate( nextTupel );
+                    if (*iter)
+                    {
+                        (*resultList)[pos] = (*iter)->evaluate(nextTupel);
+                    }
                 }
-                catch(...)
+                catch (...)
                 {
                     // Delete the tupel vector received by next(). Just tupel elements which are not
                     // further referenced are deleted.
-                    for( dataIter=nextTupel->begin(); dataIter!=nextTupel->end(); dataIter++ )
-                        if( (*dataIter) ) (*dataIter)->deleteRef();
+                    for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+                        if ((*dataIter))
+                        {
+                            (*dataIter)->deleteRef();
+                        }
 
                     for (QtDataList::iterator deleteIter = resultList->begin(); deleteIter != resultList->end(); deleteIter++)
                     {
@@ -255,19 +281,22 @@ QtOperationIterator::next()
 
             // Delete the tupel vector received by next(). Just tupel elements which are not
             // further referenced are deleted.
-            for( dataIter=nextTupel->begin(); dataIter!=nextTupel->end(); dataIter++ )
-                if( (*dataIter) ) (*dataIter)->deleteRef();
+            for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+                if ((*dataIter))
+                {
+                    (*dataIter)->deleteRef();
+                }
 
             // ... and now the vector itself
             delete nextTupel;
-            nextTupel=NULL;
+            nextTupel = NULL;
 
             returnValue = resultList;
         }
     }
-    
+
     pauseTimer();
-    
+
     return returnValue;
 }
 
@@ -280,14 +309,16 @@ QtOperationIterator::checkType()
 
     QtTypeTuple inputTypeTuple;
 
-    getInputTypeTuple( inputTypeTuple );
+    getInputTypeTuple(inputTypeTuple);
 
     // type check of operation trees
     QtOperationList::iterator iter;
 
-    for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++ )
-        if( *iter )
-            dataStreamType.concat( (*iter)->checkType( &inputTypeTuple ) );
+    for (iter = operationTreeList->begin(); iter != operationTreeList->end(); iter++)
+        if (*iter)
+        {
+            dataStreamType.concat((*iter)->checkType(&inputTypeTuple));
+        }
 
     return dataStreamType;
 }

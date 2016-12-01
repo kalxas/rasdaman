@@ -26,7 +26,7 @@ import org.junit.runners.Suite;
 
 /**
  * Class for running all JOMDoc tests.
- * 
+ *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 @RunWith(Suite.class)

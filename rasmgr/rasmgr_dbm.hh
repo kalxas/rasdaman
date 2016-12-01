@@ -47,14 +47,14 @@ public:
     DatabaseHost();
     ~DatabaseHost();
 
-    void  init(const char* hostName,const char *connectString,const char* userString,const char* passwdString);
+    void  init(const char* hostName, const char* connectString, const char* userString, const char* passwdString);
 
     const char* getName();
     const char* getConnectionString();
     const char* getUser();
     const char* getPasswd();
-    void  changeConnectionString(const char *connectString);
-    void  changeName(const char *newName);
+    void  changeConnectionString(const char* connectString);
+    void  changeName(const char* newName);
     void  regStartServer();
     void  regDownServer();
     //void  incrConnServers();
@@ -83,13 +83,13 @@ class DatabaseHostManager
 public:
     DatabaseHostManager();
     ~DatabaseHostManager();
-    bool insertNewHost(const char* hostName,const char* connectString,const char* userString,const char* passwdString);
+    bool insertNewHost(const char* hostName, const char* connectString, const char* userString, const char* passwdString);
     bool removeHost(const char* hostName);
     int  countHosts();
     DatabaseHost& operator[](int);
     DatabaseHost& operator[](const char* hostName);
     bool reset();
-    bool acceptChangeName(const char *oldName,const char *newName);
+    bool acceptChangeName(const char* oldName, const char* newName);
 private:
     bool testUniqueness(const char* hostName);
     list<DatabaseHost> hostList;
@@ -116,8 +116,8 @@ public:
     const char* getName();
     void  changeName(const char* databaseName);
 
-    static const char* getDescriptionHeader(char *destBuffer);
-    const char* getDescription(char *destBuffer);
+    static const char* getDescriptionHeader(char* destBuffer);
+    const char* getDescription(char* destBuffer);
 
     bool  connectToDBHost(const char* hostName);
     bool  disconnectFromDBHost(const char* hostName);
@@ -125,9 +125,9 @@ public:
     int   countConnectionsToDBHosts();
     const char* getDBHostName(int);
 
-    bool  connectToRasServer(const char *serverName);
-    bool  disconnectFromRasServer(const char *serverName);
-    bool  isConnectedToRasServer(const char *serverName);
+    bool  connectToRasServer(const char* serverName);
+    bool  disconnectFromRasServer(const char* serverName);
+    bool  isConnectedToRasServer(const char* serverName);
     int   countConnectionsToRasServers();
     const char* getRasServerName(int);
 
@@ -146,8 +146,8 @@ public:
 
     bool isValid();
 private:
-    bool checkConnection(DatabaseHost &);
-    bool checkConnection(RasServer &);
+    bool checkConnection(DatabaseHost&);
+    bool checkConnection(RasServer&);
     char databaseName[100];
     list<DatabaseHost*> hostPtrList;
     list<RasServer*>    rasPtrList;
@@ -174,7 +174,7 @@ public:
     Database& operator[](const char*);
     void disconnectAllDatabasesFromDBH(const char* dbhName);
     bool reset();
-    bool acceptChangeName(const char *oldName,const char *newName);
+    bool acceptChangeName(const char* oldName, const char* newName);
 private:
     bool testUniqueness(const char* dbName);
     list<Database> dtbList;

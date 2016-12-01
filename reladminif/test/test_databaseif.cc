@@ -60,15 +60,15 @@ RMINITGLOBALS('C')
 #define ELLIPSIS "..."
 /// test macro for checking error condition, printing result, and aborting on error
 #define CHECK(p)  { cout << "CHECKING " << "p"; \
-            if (!(p)) \
-            {   cout << TEST_ERROR << endl; \
-                return false; \
-            } \
-            else \
-            { \
-                cout << TEST_OK << endl; \
-            } \
-          }
+        if (!(p)) \
+        {   cout << TEST_ERROR << endl; \
+            return false; \
+        } \
+        else \
+        { \
+            cout << TEST_OK << endl; \
+        } \
+    }
 
 /// ObjectBroker: dummy class to satisfy linker; real ObjectBroker functionality never used here.
 class ObjectBroker
@@ -104,10 +104,10 @@ char globalDbPasswd[255] = {0};
 /// true    if all tests succeeded
 /// false   if some test failed
 
-bool doTest( const char *dbname )
+bool doTest(const char* dbname)
 {
     bool result = false;        // overall test result
-    DatabaseIf *db = NULL;      // our test candidate
+    DatabaseIf* db = NULL;      // our test candidate
 
     try             // capture eny eventual exception for reporting
     {
@@ -116,42 +116,42 @@ bool doTest( const char *dbname )
         cout << "DatabaseIf constructor" << ELLIPSIS << flush;
         db = new DatabaseIf();
         cout << "new state is: " << *db;
-        CHECK( db != NULL );
+        CHECK(db != NULL);
 
         cout << "create" << ELLIPSIS << endl;
-        db->createDB( dbname, NULL, NULL );
-        CHECK( db->isConnected() );
-        CHECK( db->isOpen() );
+        db->createDB(dbname, NULL, NULL);
+        CHECK(db->isConnected());
+        CHECK(db->isOpen());
 
         cout << "db open" << ELLIPSIS << endl;
-        db->open( dbname );
-        CHECK( db->isConnected() );
-        CHECK( db->isOpen() );
+        db->open(dbname);
+        CHECK(db->isConnected());
+        CHECK(db->isOpen());
 
         cout << "db close" << ELLIPSIS << endl;
         db->close();
-        CHECK( db->isConnected() );
-        CHECK( db->isOpen() );
+        CHECK(db->isConnected());
+        CHECK(db->isOpen());
 
         cout << "db destroy" << ELLIPSIS << endl;
-        db->destroyDB( dbname );
-        CHECK( db->isConnected() );
-        CHECK( db->isOpen() );
+        db->destroyDB(dbname);
+        CHECK(db->isConnected());
+        CHECK(db->isOpen());
 
         result = true;
     }
     // FIXME: what else should be caught explicitly?
-    catch(r_Error& myErr)
+    catch (r_Error& myErr)
     {
         cout << "caught r_Error exception #" << myErr.get_errorno() << ": " << myErr.what() << endl;
         result = false;
     }
-    catch(bad_alloc)
+    catch (bad_alloc)
     {
         cout << "caught bad_alloc exception" << endl;
         result = false;
     }
-    catch(...)
+    catch (...)
     {
         cout << "caught unknown exception" << endl;
         result = false;
@@ -161,29 +161,31 @@ bool doTest( const char *dbname )
 }
 
 int
-main(int argc, char *argv[])
+main(int argc, char* argv[])
 {
-    const char *progName = argv[0]; // name of this test program
+    const char* progName = argv[0]; // name of this test program
 
     int RManDebug2 = 5;     // debug trace settings
     int RManModule = 1;     // dito
 
     char* dbName = "RASBASE";   // default database name
     int result = RC_ERROR;      // overall test exit code
-    char *resultText = NULL;    // overall test status string
+    char* resultText = NULL;    // overall test status string
 
     // --- parameter evaluation, launch msg
     if (argc == 2)
+    {
         dbName = argv[1];
+    }
     else if (argc > 2)
     {
         cout << "usage: " << progName << " [dbname]" << endl;
-        return( RC_USAGE );
+        return (RC_USAGE);
     }
     cout << progName << ", generated on " << COMPDATE << " for rasdaman version " << RMANVERSION << " and base DBMS " << BASEDBSTRING << "; using database '" << dbName << "'" << endl;
 
     // --- all is fine, let's do the test
-    bool allFine = doTest( dbName );
+    bool allFine = doTest(dbName);
 
     if (allFine)
     {
@@ -199,6 +201,6 @@ main(int argc, char *argv[])
     // --- done, epilogue
     cout << progName << ": overall test result is " << resultText << endl;
 
-    return( result );
+    return (result);
 }
 

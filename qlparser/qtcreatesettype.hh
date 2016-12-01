@@ -43,19 +43,19 @@ public:
      * @param nullValuesNode - null values if any
      */
 
-    QtCreateSetType(const std::string &typeName, const std::string &mddTypeName, QtOperation *nullValuesNode = NULL);
+    QtCreateSetType(const std::string& typeName, const std::string& mddTypeName, QtOperation* nullValuesNode = NULL);
 
     virtual QtData* evaluate();
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
     virtual void checkType();
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     virtual QtNodeType getNodeType() const;
 
 private:
     std::string typeName;
     std::string mddTypeName;
-    QtOperation *nullValuesNode;
+    QtOperation* nullValuesNode;
 
     static const QtNodeType nodeType;
 };

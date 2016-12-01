@@ -55,7 +55,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
     private String newIteratorName;
 
     public ConstructCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException, SecoreException {
+    throws WCPSException, SecoreException {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
@@ -156,16 +156,16 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
 
             CellDomainElement cellDomain = new CellDomainElement(ai.getLow().toString(), ai.getHigh().toString(), order);
             DomainElement domain = new DomainElement(
-                    new BigDecimal(ai.getLow()),
-                    new BigDecimal(ai.getHigh()),
-                    axisName,
-                    axisType,
-                    CrsUtil.PURE_UOM,
-                    crs.get(0),
-                    order,
-                    BigInteger.valueOf(ai.getHigh().intValue()-ai.getLow().intValue()+1),
-                    !axisType.equals(AxisTypes.Y_AXIS),
-                    false); // FIXME uom = null
+                new BigDecimal(ai.getLow()),
+                new BigDecimal(ai.getHigh()),
+                axisName,
+                axisType,
+                CrsUtil.PURE_UOM,
+                crs.get(0),
+                order,
+                BigInteger.valueOf(ai.getHigh().intValue() - ai.getLow().intValue() + 1),
+                !axisType.equals(AxisTypes.Y_AXIS),
+                false); // FIXME uom = null
             cellDomainList.add(cellDomain);
             domainList.add(domain);
             order += 1;
@@ -173,18 +173,18 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
 
         // "unsigned int" is default datatype
         rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
-        Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
+        Set<Pair<String, String>> emptyMetadata = new HashSet<Pair<String, String>>();
         CoverageMetadata metadata = new CoverageMetadata(
-                coverageName,
-                XMLSymbols.LABEL_GRID_COVERAGE,
-                "", // native format
-                emptyMetadata,
-                crs,
-                cellDomainList,
-                domainList,
-                Pair.of(BigInteger.ZERO, ""),
-                rangeList
-                );
+            coverageName,
+            XMLSymbols.LABEL_GRID_COVERAGE,
+            "", // native format
+            emptyMetadata,
+            crs,
+            cellDomainList,
+            domainList,
+            Pair.of(BigInteger.ZERO, ""),
+            rangeList
+        );
         // Let the top-level query know the full metadata about us
         xq.getMetadataSource().addDynamicMetadata(covName, metadata);
         info = new CoverageInfo(metadata);

@@ -42,7 +42,7 @@ public class Address {
     private Set<String> emailAddresses;
 
     // Constructor
-    Address () {
+    Address() {
         deliveryPoints = new HashSet<String>();
         emailAddresses = new HashSet<String>();
     }

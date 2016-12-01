@@ -45,7 +45,7 @@ rasdaman GmbH.
 #define MAXNAMELENGTH_CONST 200
 unsigned int DBNamedObject::MAXNAMELENGTH = MAXNAMELENGTH_CONST;
 
-const char* DBNamedObject::defaultName="unamed object\0";
+const char* DBNamedObject::defaultName = "unamed object\0";
 
 void
 DBNamedObject::printStatus(unsigned int level, std::ostream& stream) const
@@ -134,11 +134,13 @@ DBNamedObject::setName(const char* newname)
     {
         LTRACE << "myName\t:" << myName;
         free(myName);
-        myName=NULL;
+        myName = NULL;
     }
     unsigned int len = strlen(newname);
     if (len > MAXNAMELENGTH)
+    {
         len = MAXNAMELENGTH;
+    }
     myName = static_cast<char*>(mymalloc((len + 1) * sizeof(char)));
     myNameSize = (len + 1) * sizeof(char);
     strncpy(myName, newname, len);
@@ -152,13 +154,17 @@ DBNamedObject::setName(const short length, const char* data)
     {
         LTRACE << "myName\t:" << myName;
         free(myName);
-        myName=NULL;
+        myName = NULL;
     }
     unsigned int len = 0;
     if (static_cast<unsigned int>(length) > MAXNAMELENGTH)
+    {
         len = MAXNAMELENGTH;
+    }
     else
+    {
         len = static_cast<unsigned int>(length);
+    }
     myName = static_cast<char*>(mymalloc((len + 1) * sizeof(char)));
     myNameSize = (len + 1) * sizeof(char);
     strncpy(myName, data, len);

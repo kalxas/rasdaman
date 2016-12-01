@@ -54,7 +54,7 @@ rasdaman GmbH.
 
 
 // aux function to avoid a compiler warning (see 'man strftime')
-size_t my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm)
+size_t my_strftime(char* s, size_t max, const char* fmt, const struct tm* tm)
 {
     return strftime(s, max, fmt, tm);
 }
@@ -68,10 +68,12 @@ const char* now()
 
     time_t t = time(NULL);      // get time
     struct tm* tm = localtime(&t);  // break down time
-    strfResult = my_strftime( timestring, sizeof(timestring), "[%F %T]", tm );  // format time
+    strfResult = my_strftime(timestring, sizeof(timestring), "[%F %T]", tm);    // format time
     if (strfResult == 0)        // bad luck? then take fallback message
-        (void) strncpy( timestring, "[-no time available-]", sizeof(timestring) );
-    return( timestring );
+    {
+        (void) strncpy(timestring, "[-no time available-]", sizeof(timestring));
+    }
+    return (timestring);
 }
 
 const int RnpRasDaManComm::NoClient = -1;
@@ -89,9 +91,9 @@ RnpRasDaManComm::~RnpRasDaManComm() throw()
 }
 
 // we need our implementation because of r_Error, but we will go for the default when r_Error is AkgException
-void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__ ((unused)) RnpServerJob *callingJob) throw()
+void RnpRasDaManComm::processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__((unused)) RnpServerJob* callingJob) throw()
 {
-    RMTimer requestTime("RnpRasDaManComm","request");
+    RMTimer requestTime("RnpRasDaManComm", "request");
 
     LDEBUG << now() << " request from " << callingJob->getClientHostAddress().getStringAddress();
 
@@ -112,16 +114,16 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
 
     decoder.getFirstFragment();
     bool wasError = false;
-    for(int fragment=0; fragment < decoder.countFragments(); fragment++)
+    for (int fragment = 0; fragment < decoder.countFragments(); fragment++)
     {
-        if(wasError == false)
+        if (wasError == false)
         {
             try
             {
                 decodeFragment();
             }
             // DBMS connection lost? then need to disconnect client to allow to resync
-            catch(r_Ebase_dbms &edb)
+            catch (r_Ebase_dbms& edb)
             {
                 LERROR << "Error: base DBMS reports: " << edb.what();
                 wasError = true;
@@ -139,7 +141,7 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
                 }
 #endif // 0
             }
-            catch(r_Error &ex)
+            catch (r_Error& ex)
             {
                 LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
                 wasError = true;
@@ -164,13 +166,13 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
                 }
 #endif // 0
             }
-            catch(exception &ex)
+            catch (exception& ex)
             {
                 LERROR << "Error: request terminated with general exception: " << ex.what();
                 wasError = true;
                 answerSTLException(ex);
             }
-            catch(...)
+            catch (...)
             {
                 LERROR << "Error: request terminated with generic exception.";
                 wasError = true;
@@ -190,7 +192,7 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
 
 RnpServerJob* RnpRasDaManComm::createJobs(int howMany)
 {
-    LDEBUG << "RNP: creating "<<howMany<<" RnpRasserverJob's";
+    LDEBUG << "RNP: creating " << howMany << " RnpRasserverJob's";
     return new RnpRasserverJob[howMany];
 }
 
@@ -201,9 +203,9 @@ void RnpRasDaManComm::setTimeoutInterval(int seconds)
 
 void RnpRasDaManComm::checkForTimeout()
 {
-    if(clientID != NoClient)
+    if (clientID != NoClient)
     {
-        if(clientTimer.checkForTimeout())
+        if (clientTimer.checkForTimeout())
         {
             LDEBUG << "Client 0x" << hex << clientID << dec << " has timed out.";
             LERROR << "Client has timed out, connection being freed.";
@@ -211,14 +213,16 @@ void RnpRasDaManComm::checkForTimeout()
         }
     }
     else
+    {
         rasmgrComm.informRasmgrServerStillAvailable();
+    }
 }
 
 
-void RnpRasDaManComm::decodeFragment() throw( r_Error )
+void RnpRasDaManComm::decodeFragment() throw(r_Error)
 {
 #ifdef RMANBENCHMARK
-    RMTimer requestTime("RnpRasDaManComm","request");
+    RMTimer requestTime("RnpRasDaManComm", "request");
 #endif
 
     try // somewhere during cmd execution there can be exceptions; we pass them thru
@@ -227,13 +231,13 @@ void RnpRasDaManComm::decodeFragment() throw( r_Error )
 
         RnpQuark command = decoder.getCommand();
 
-        RnpRasserver *hook = new RnpRasserver;
-        LDEBUG << "fragmentCounter=" << fragmentCounter << ", command is " << hook->getCommandName( command );
+        RnpRasserver* hook = new RnpRasserver;
+        LDEBUG << "fragmentCounter=" << fragmentCounter << ", command is " << hook->getCommandName(command);
 
         // first parameter has to be the clientID
-        verifyClientID( command );
+        verifyClientID(command);
 
-        switch(command)
+        switch (command)
         {
         case RnpRasserver::cmd_connect:
             executeConnect();
@@ -328,9 +332,9 @@ void RnpRasDaManComm::decodeFragment() throw( r_Error )
         case RnpRasserver::cmd_setformat:
             executeSetFormat();
             break;
-            // --- until here the compatible ones ---
+        // --- until here the compatible ones ---
 
-            // -- the secret, unofficial ones --
+        // -- the secret, unofficial ones --
         case RnpRasserver::cmd_createcollection:
             executeCreateCollection();
             break;
@@ -356,18 +360,18 @@ void RnpRasDaManComm::decodeFragment() throw( r_Error )
         clientTimer.markAction();
 #ifdef RMANBENCHMARK
         LINFO << now() << " request " << hook->getCommandName(command) << " completed in "
-                    << requestTime.getTime() << " usecs.";
+              << requestTime.getTime() << " usecs.";
 #endif
 
     }
-    catch (r_Error &e)          // any rasdaman error is passed through
+    catch (r_Error& e)          // any rasdaman error is passed through
     {
         throw;              // pass on
     }
 
     catch (...)             // any other error is "unexpected", by def
     {
-        throw( r_Error( 10000 ) );  // unexpected internal error - FIXME: can we be more precise?
+        throw (r_Error(10000));     // unexpected internal error - FIXME: can we be more precise?
     }
 
 }
@@ -378,9 +382,9 @@ void RnpRasDaManComm::executeConnect()
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
-    const char *capability = decoder.getDataAsString();
+    const char* capability = decoder.getDataAsString();
 
-    LDEBUG << "capability: "<<capability;
+    LDEBUG << "capability: " << capability;
 
     // a new connect requires to drop any eventually preexisting connection first -- PB 2005-sep-02
     // if (clientID != NoClient)        // any previous un-disconnected activity?
@@ -420,7 +424,7 @@ void RnpRasDaManComm::executeOpenDB()
     decoder.getNextParameter();
     const char* databaseName = decoder.getDataAsString();
 
-    LDEBUG << "Execute open DB, database="<< databaseName;
+    LDEBUG << "Execute open DB, database=" << databaseName;
 
     rasserver.compat_openDB(databaseName);
 
@@ -443,9 +447,9 @@ void RnpRasDaManComm::executeBeginTA()
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
-    bool rw = decoder.getDataAsInteger() ? true:false;
+    bool rw = decoder.getDataAsInteger() ? true : false;
 
-    LDEBUG << "executeBeginTA  transaction: "<<(rw ? "rw":"ro");
+    LDEBUG << "executeBeginTA  transaction: " << (rw ? "rw" : "ro");
 
     rasserver.compat_beginTA(rw);
 
@@ -493,13 +497,13 @@ void RnpRasDaManComm::executeQueryHttp()
     const void* httpParams = decoder.getData();
     int      httpParamsLen = decoder.getDataLength();
     // LDEBUG << "httpParamsLen=" << httpParamsLen;
-    char *resultBuffer = 0;
+    char* resultBuffer = 0;
     int resultLen = rasserver.compat_executeQueryHttp(static_cast<const char*>(httpParams), httpParamsLen, resultBuffer);
     // LDEBUG << "resultLen=" << resultLen;
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
 
-    if(resultLen && resultBuffer)
+    if (resultLen && resultBuffer)
     {
         encoder.adjustBufferSize(resultLen);
         encoder.addOpaqueParameter(RnpRasserver::pmt_httpqanswer, resultBuffer, resultLen);
@@ -517,10 +521,10 @@ void RnpRasDaManComm::executeGetNewOId()
 
     int objType = decoder.getDataAsInteger();
 
-    r_OId oid = rasserver.compat_getNewOId( static_cast<unsigned short>(objType) );
+    r_OId oid = rasserver.compat_getNewOId(static_cast<unsigned short>(objType));
     const char* cOId = oid.get_string_representation();
 
-    LDEBUG << "executeGetNewOId objType = "<<objType<<"  oid="<<cOId;
+    LDEBUG << "executeGetNewOId objType = " << objType << "  oid=" << cOId;
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, cOId);
@@ -537,8 +541,8 @@ void RnpRasDaManComm::executeQueryRpc()
 
     decoder.getNextParameter();
 
-    const char *query = decoder.getDataAsString();
-    LDEBUG << "query="<<query;
+    const char* query = decoder.getDataAsString();
+    LDEBUG << "query=" << query;
 
     ExecuteQueryRes queryResult;
     INITPTR(queryResult.token);
@@ -551,14 +555,14 @@ void RnpRasDaManComm::executeQueryRpc()
     SECUREPTR(queryResult.typeStructure);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
-    encoder.addInt32Parameter( RnpRasserver::pmt_returnstatus,status);
+    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
-    encoder.addInt32Parameter( RnpRasserver::pmt_errorno,   queryResult.errorNo);
-    encoder.addInt32Parameter( RnpRasserver::pmt_lineno,    queryResult.lineNo);
-    encoder.addInt32Parameter( RnpRasserver::pmt_columnno,  queryResult.columnNo);
-    encoder.addStringParameter(RnpRasserver::pmt_errortoken,queryResult.token);
+    encoder.addInt32Parameter(RnpRasserver::pmt_errorno,   queryResult.errorNo);
+    encoder.addInt32Parameter(RnpRasserver::pmt_lineno,    queryResult.lineNo);
+    encoder.addInt32Parameter(RnpRasserver::pmt_columnno,  queryResult.columnNo);
+    encoder.addStringParameter(RnpRasserver::pmt_errortoken, queryResult.token);
     encoder.addStringParameter(RnpRasserver::pmt_typename,  queryResult.typeName);
-    encoder.addStringParameter(RnpRasserver::pmt_typestructure,queryResult.typeStructure);
+    encoder.addStringParameter(RnpRasserver::pmt_typestructure, queryResult.typeStructure);
     encoder.endFragment();
 
     FREEPTR(queryResult.token);
@@ -570,16 +574,18 @@ void RnpRasDaManComm::executeGetNextElement()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-    char *buffer = NULL;
+    char* buffer = NULL;
     unsigned int  bufferSize;
 
-    int status = rasserver.compat_getNextElement(buffer,bufferSize);
+    int status = rasserver.compat_getNextElement(buffer, bufferSize);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
-    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
+    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
-    if(buffer != NULL)
+    if (buffer != NULL)
+    {
         encoder.addOpaqueParameter(RnpRasserver::pmt_skalarobject, buffer, static_cast<int>(bufferSize));
+    }
 
     encoder.endFragment();
 
@@ -593,7 +599,7 @@ void RnpRasDaManComm::executeEndTransfer()
     int status = rasserver.compat_endTransfer();
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
-    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
+    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
     encoder.endFragment();
 }
@@ -614,7 +620,7 @@ void RnpRasDaManComm::executeGetNextMDD()
     int status = rasserver.compat_getNextMDD(mddDomain, typeName, typeStructure, oid, currentFormat);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
-    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
+    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
     encoder.addStringParameter(RnpRasserver::pmt_oidstring,     mddDomain.get_string_representation());
     encoder.addStringParameter(RnpRasserver::pmt_typename,      typeName);
@@ -631,20 +637,20 @@ void RnpRasDaManComm::executeGetNextTile()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-    RPCMarray *tempRpcMarray;
+    RPCMarray* tempRpcMarray;
 
     int status = rasserver.compat_getNextTile(&tempRpcMarray);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
-    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
+    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
 
-    if(tempRpcMarray != 0)
+    if (tempRpcMarray != 0)
     {
         encoder.addStringParameter(RnpRasserver::pmt_domain,        tempRpcMarray->domain);
-        encoder.addInt32Parameter( RnpRasserver::pmt_typelength,    tempRpcMarray->cellTypeLength);
-        encoder.addInt32Parameter( RnpRasserver::pmt_currentformat, tempRpcMarray->currentFormat);
-        encoder.addInt32Parameter( RnpRasserver::pmt_storageformat, tempRpcMarray->storageFormat);
+        encoder.addInt32Parameter(RnpRasserver::pmt_typelength,    tempRpcMarray->cellTypeLength);
+        encoder.addInt32Parameter(RnpRasserver::pmt_currentformat, tempRpcMarray->currentFormat);
+        encoder.addInt32Parameter(RnpRasserver::pmt_storageformat, tempRpcMarray->storageFormat);
 
         encoder.adjustBufferSize(static_cast<int>(tempRpcMarray->data.confarray_len));
         encoder.addOpaqueParameter(RnpRasserver::pmt_tiledata,      tempRpcMarray->data.confarray_val, static_cast<int>(tempRpcMarray->data.confarray_len));
@@ -676,18 +682,21 @@ void RnpRasDaManComm::executeUpdateQuery()
 
     int status = rasserver.compat_ExecuteUpdateQuery(query, returnStructure);
 
-    const char *token = returnStructure.token != NULL ? returnStructure.token : "";
+    const char* token = returnStructure.token != NULL ? returnStructure.token : "";
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
-    encoder.addInt32Parameter( RnpRasserver::pmt_returnstatus, status);
+    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
-    encoder.addInt32Parameter( RnpRasserver::pmt_errorno,     returnStructure.errorNo);
-    encoder.addInt32Parameter( RnpRasserver::pmt_lineno,      returnStructure.lineNo);
-    encoder.addInt32Parameter( RnpRasserver::pmt_columnno,    returnStructure.columnNo);
-    encoder.addStringParameter(RnpRasserver::pmt_errortoken,  token );
+    encoder.addInt32Parameter(RnpRasserver::pmt_errorno,     returnStructure.errorNo);
+    encoder.addInt32Parameter(RnpRasserver::pmt_lineno,      returnStructure.lineNo);
+    encoder.addInt32Parameter(RnpRasserver::pmt_columnno,    returnStructure.columnNo);
+    encoder.addStringParameter(RnpRasserver::pmt_errortoken,  token);
     encoder.endFragment();
 
-    if(returnStructure.token) free(returnStructure.token);
+    if (returnStructure.token)
+    {
+        free(returnStructure.token);
+    }
 }
 
 void RnpRasDaManComm::executeInsertQuery()
@@ -697,7 +706,7 @@ void RnpRasDaManComm::executeInsertQuery()
     decoder.getNextParameter();
     const char* query   = decoder.getDataAsString();
 
-    LDEBUG << "query="<<query;
+    LDEBUG << "query=" << query;
 
     ExecuteQueryRes queryResult;
     INITPTR(queryResult.token);
@@ -710,14 +719,14 @@ void RnpRasDaManComm::executeInsertQuery()
     SECUREPTR(queryResult.typeStructure);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
-    encoder.addInt32Parameter( RnpRasserver::pmt_returnstatus,status);
+    encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
-    encoder.addInt32Parameter( RnpRasserver::pmt_errorno,   queryResult.errorNo);
-    encoder.addInt32Parameter( RnpRasserver::pmt_lineno,    queryResult.lineNo);
-    encoder.addInt32Parameter( RnpRasserver::pmt_columnno,  queryResult.columnNo);
-    encoder.addStringParameter(RnpRasserver::pmt_errortoken,queryResult.token);
+    encoder.addInt32Parameter(RnpRasserver::pmt_errorno,   queryResult.errorNo);
+    encoder.addInt32Parameter(RnpRasserver::pmt_lineno,    queryResult.lineNo);
+    encoder.addInt32Parameter(RnpRasserver::pmt_columnno,  queryResult.columnNo);
+    encoder.addStringParameter(RnpRasserver::pmt_errortoken, queryResult.token);
     encoder.addStringParameter(RnpRasserver::pmt_typename,  queryResult.typeName);
-    encoder.addStringParameter(RnpRasserver::pmt_typestructure,queryResult.typeStructure);
+    encoder.addStringParameter(RnpRasserver::pmt_typestructure, queryResult.typeStructure);
     encoder.endFragment();
 
     FREEPTR(queryResult.token);
@@ -761,7 +770,7 @@ void RnpRasDaManComm::executeInsertTile()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-    RPCMarray *rpcMarray = new RPCMarray;
+    RPCMarray* rpcMarray = new RPCMarray;
 
     decoder.getNextParameter();
     int persistent   = decoder.getDataAsInteger();
@@ -813,11 +822,11 @@ void RnpRasDaManComm::executeGetTypeStructure()
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
-    const char *typeName = decoder.getDataAsString();
+    const char* typeName = decoder.getDataAsString();
     decoder.getNextParameter();
     int         typeType = decoder.getDataAsInteger();
 
-    char *typeStructure=NULL;
+    char* typeStructure = NULL;
 
     int status = rasserver.compat_GetTypeStructure(typeName, typeType, typeStructure);
 
@@ -827,7 +836,7 @@ void RnpRasDaManComm::executeGetTypeStructure()
     encoder.addStringParameter(RnpRasserver::pmt_typestructure, typeStructure ? typeStructure : "");
     encoder.endFragment();
 
-    if(typeStructure)
+    if (typeStructure)
     {
         free(typeStructure);
     }
@@ -840,13 +849,13 @@ void RnpRasDaManComm::executeStartInsertPersMDD()
     decoder.getNextParameter();
     const char* collName   = decoder.getDataAsString();
     decoder.getNextParameter();
-    r_Minterval mddDomain( decoder.getDataAsString() );
+    r_Minterval mddDomain(decoder.getDataAsString());
     decoder.getNextParameter();
     int         typeLength = decoder.getDataAsInteger();
     decoder.getNextParameter();
     const char* typeName   = decoder.getDataAsString();
     decoder.getNextParameter();
-    r_OId       oid( decoder.getDataAsString() );
+    r_OId       oid(decoder.getDataAsString());
 
     int status = rasserver.compat_StartInsertPersMDD(collName, mddDomain, typeLength, typeName, oid);
 
@@ -865,9 +874,9 @@ void RnpRasDaManComm::executeInsertMDD()
     decoder.getNextParameter();
     const char* typeName  = decoder.getDataAsString();
     decoder.getNextParameter();
-    r_OId       oid( decoder.getDataAsString() );
+    r_OId       oid(decoder.getDataAsString());
 
-    RPCMarray *rpcMarray = new RPCMarray;
+    RPCMarray* rpcMarray = new RPCMarray;
 
     decoder.getNextParameter();
     rpcMarray->domain = const_cast<char*>(decoder.getDataAsString());
@@ -883,7 +892,7 @@ void RnpRasDaManComm::executeInsertMDD()
     int         length = decoder.getDataLength();
 
     rpcMarray->data.confarray_val = static_cast<char*>(mymalloc(static_cast<size_t>(length)));
-    memcpy(rpcMarray->data.confarray_val, buffer,static_cast<size_t>(length));
+    memcpy(rpcMarray->data.confarray_val, buffer, static_cast<size_t>(length));
     rpcMarray->data.confarray_len = static_cast<u_int>(length);
 
     int status = rasserver.compat_InsertMDD(collName, rpcMarray, typeName, oid);
@@ -903,7 +912,7 @@ void RnpRasDaManComm::executeInsertCollection()
     decoder.getNextParameter();
     const char* typeName  = decoder.getDataAsString();
     decoder.getNextParameter();
-    r_OId       oid( decoder.getDataAsString() );
+    r_OId       oid(decoder.getDataAsString());
 
     int status = rasserver.compat_InsertCollection(collName, typeName, oid);
 
@@ -933,7 +942,7 @@ void RnpRasDaManComm::executeDeleteObjByOId()
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
-    r_OId       oid( decoder.getDataAsString() );
+    r_OId       oid(decoder.getDataAsString());
 
     int status = rasserver.compat_DeleteObjByOId(oid);
 
@@ -950,7 +959,7 @@ void RnpRasDaManComm::executeRemoveObjFromColl()
     decoder.getNextParameter();
     const char* collName  = decoder.getDataAsString();
     decoder.getNextParameter();
-    r_OId  oid( decoder.getDataAsString() );
+    r_OId  oid(decoder.getDataAsString());
 
     int status = rasserver.compat_RemoveObjFromColl(collName, oid);
 
@@ -971,7 +980,7 @@ void RnpRasDaManComm::executeGetCollection()
     int status = 0;
 
     decoder.getNextParameter();
-    if(decoder.getParameterType() == RnpRasserver::pmt_collname)
+    if (decoder.getParameterType() == RnpRasserver::pmt_collname)
     {
         collName = strdup(decoder.getDataAsString());
         status = rasserver.compat_GetCollectionByName(collName, typeName, typeStructure, oid);
@@ -1010,7 +1019,7 @@ void RnpRasDaManComm::executeGetCollectionOIds()
     int status = 0;
 
     decoder.getNextParameter();
-    if(decoder.getParameterType() == RnpRasserver::pmt_collname)
+    if (decoder.getParameterType() == RnpRasserver::pmt_collname)
     {
         collName = strdup(decoder.getDataAsString());
         status = rasserver.compat_GetCollectionOidsByName(collName, typeName, typeStructure, oid, oidTable, oidTableSize);
@@ -1028,8 +1037,8 @@ void RnpRasDaManComm::executeGetCollectionOIds()
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, oid.get_string_representation());
     encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
 
-    if(oidTable)
-        for(unsigned int i=0; i<oidTableSize; i++)
+    if (oidTable)
+        for (unsigned int i = 0; i < oidTableSize; i++)
         {
             encoder.adjustBufferSize(strlen(oidTable[i].oid));
             encoder.addStringParameter(RnpRasserver::pmt_oidstring, oidTable[i].oid);
@@ -1054,7 +1063,7 @@ void RnpRasDaManComm::executeGetObjectType()
     r_OId oid(oidstring);
     unsigned short objType;
 
-    int status=rasserver.compat_GetObjectType(oid, objType);
+    int status = rasserver.compat_GetObjectType(oid, objType);
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
@@ -1076,10 +1085,14 @@ void RnpRasDaManComm::executeSetFormat()
 
     int status = 0;
 
-    if(whichFormat == 1)
+    if (whichFormat == 1)
+    {
         status = rasserver.compat_SetTransferFormat(format, params);
+    }
     else
+    {
         status = rasserver.compat_SetStorageFormat(format, params);
+    }
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
@@ -1108,13 +1121,13 @@ void RnpRasDaManComm::executeCreateMDD()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-    const char *collName         = getNextAsString(RnpRasserver::pmt_collname);
-    const char *mddTypeName      = getNextAsString(RnpRasserver::pmt_typename);
-    const char *definitionDomain = getNextAsString(RnpRasserver::pmt_domain);
+    const char* collName         = getNextAsString(RnpRasserver::pmt_collname);
+    const char* mddTypeName      = getNextAsString(RnpRasserver::pmt_typename);
+    const char* definitionDomain = getNextAsString(RnpRasserver::pmt_domain);
     bool rcindex = false;
-    const char *tileDomain = 0;
+    const char* tileDomain = 0;
 
-    if(decoder.getNextParameter())
+    if (decoder.getNextParameter())
     {
         rcindex = decoder.getDataAsInteger() ? true : false;
         tileDomain = getNextAsString(RnpRasserver::pmt_domain);
@@ -1131,9 +1144,9 @@ void RnpRasDaManComm::executeExtendMDD()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-    const char *oidstring    = getNextAsString(RnpRasserver::pmt_oidstring);
-    const char *stripeDomain = getNextAsString(RnpRasserver::pmt_domain);
-    const char *tileDomain   = getNextAsString(RnpRasserver::pmt_domain);
+    const char* oidstring    = getNextAsString(RnpRasserver::pmt_oidstring);
+    const char* stripeDomain = getNextAsString(RnpRasserver::pmt_domain);
+    const char* tileDomain   = getNextAsString(RnpRasserver::pmt_domain);
 
     r_OId mddOId = r_OId(oidstring);
 
@@ -1148,8 +1161,8 @@ void RnpRasDaManComm::executeGetTileDomains()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-    const char *oidstring    = getNextAsString(RnpRasserver::pmt_oidstring);
-    const char *stripeDomain = getNextAsString(RnpRasserver::pmt_domain);
+    const char* oidstring    = getNextAsString(RnpRasserver::pmt_oidstring);
+    const char* stripeDomain = getNextAsString(RnpRasserver::pmt_domain);
 
     r_OId mddOId = r_OId(oidstring);
 
@@ -1157,9 +1170,9 @@ void RnpRasDaManComm::executeGetTileDomains()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
 
-    for(unsigned int i=0; i < result.size(); i++)
+    for (unsigned int i = 0; i < result.size(); i++)
     {
-        const char *domain = result[i].get_string_representation();
+        const char* domain = result[i].get_string_representation();
         encoder.addStringParameter(RnpRasserver::pmt_domain, domain);
 
         free(static_cast<void*>(const_cast<char*>(domain)));
@@ -1192,11 +1205,11 @@ void RnpRasDaManComm::disconnectClient()
 }
 
 
-void RnpRasDaManComm::verifyClientID( RnpQuark command ) throw (r_Error)
+void RnpRasDaManComm::verifyClientID(RnpQuark command) throw (r_Error)
 {
     decoder.getFirstParameter();
 
-    if(decoder.getParameterType() != RnpRasserver::pmt_clientid)
+    if (decoder.getParameterType() != RnpRasserver::pmt_clientid)
     {
         LFATAL << "Error: unidentified client.";
         throw r_Error(820); // sorry, I know, symbolic constants
@@ -1206,25 +1219,25 @@ void RnpRasDaManComm::verifyClientID( RnpQuark command ) throw (r_Error)
     LDEBUG << "RnpRasDaManComm::verifyClientID: clientID 0x" << hex << clientID << dec << ", verClientID 0x" << hex << verClientID << dec;
 
     // it's our client, it's OK
-    if(clientID == verClientID)
+    if (clientID == verClientID)
     {
         return;
     }
 
     // connect cmd is OK too
-    if(command == RnpRasserver::cmd_connect)
+    if (command == RnpRasserver::cmd_connect)
     {
         return;
     }
 
     // new client, first request, it's probably connect, so OK
-    if(clientID == NoClient && fragmentCounter == 1)
+    if (clientID == NoClient && fragmentCounter == 1)
     {
         return;
     }
 
     // new client, same message, a new request, it's also OK (he is allowed to put more fragments in a request!)
-    if(clientID != NoClient && fragmentCounter > 1 && requestCounter == 1 && verClientID == 0)
+    if (clientID != NoClient && fragmentCounter > 1 && requestCounter == 1 && verClientID == 0)
     {
         return;
     }
@@ -1244,15 +1257,15 @@ int  RnpRasDaManComm::makeNewClientID()
 
     int result = (timeNow & 0xFFFFFF) + (counter << 24);
 
-    counter = (counter+1) & 0x7F;
+    counter = (counter + 1) & 0x7F;
 
     LDEBUG << "RnpRasDaManComm::makeNewClientID() -> 0x" << hex << result << " (counter now: " << counter << ")";
     return  result;
 }
 
-void RnpRasDaManComm::answerr_Error(r_Error &err)
+void RnpRasDaManComm::answerr_Error(r_Error& err)
 {
-    const char *errText = err.serialiseError();
+    const char* errText = err.serialiseError();
 
     LDEBUG << "Error in response: (" << errText << ") " << err.what();
 
@@ -1261,7 +1274,7 @@ void RnpRasDaManComm::answerr_Error(r_Error &err)
     encoder.addStringParameter(RnpRasserver::pmt_rErrorString, errText);
 
     // add descriptive text -- PB 2003-nov-24
-    encoder.addStringParameter(RnpRasserver::pmt_rErrorString, err.what() );
+    encoder.addStringParameter(RnpRasserver::pmt_rErrorString, err.what());
 
     encoder.endFragment();
 
@@ -1347,7 +1360,10 @@ void ClientTimer::markAction()
 
 bool ClientTimer::checkForTimeout()
 {
-    if(enabled == false) return false;
+    if (enabled == false)
+    {
+        return false;
+    }
 
     time_t now = time(NULL);
 

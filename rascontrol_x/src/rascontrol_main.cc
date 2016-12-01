@@ -57,19 +57,19 @@ int main(int argc, char** argv)
     try
     {
 
-        if(config.parseCommandLineParameters(argc, argv)==false)
+        if (config.parseCommandLineParameters(argc, argv) == false)
         {
             return EXIT_FAILURE;
         }
 
-        if(!config.getLogConfigFile().empty())
+        if (!config.getLogConfigFile().empty())
         {
-            std::string configFile=config.getLogConfigFile();
+            std::string configFile = config.getLogConfigFile();
             easyloggingpp::Configurations conf(configFile.c_str());
             easyloggingpp::Loggers::reconfigureAllLoggers(conf);
         }
 
-        if(!config.isQuietMode())
+        if (!config.isQuietMode())
         {
             std::cout << "rascontrol: rasdaman server remote control utility. rasdaman " << RMANVERSION << "." << std::endl;
             std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
@@ -85,19 +85,19 @@ int main(int argc, char** argv)
             std::cout << "- openssl 0.96c (C) 1998-2002 The OpenSSL Project, (C) 1995-1998 Eric A. Young, Tim J. Hudson" << std::endl;
         }
 
-        if(config.isHelpRequested())
+        if (config.isHelpRequested())
         {
             config.displayHelp();
             return EXIT_SUCCESS;
         }
 
-        if(common::Crypto::isMessageDigestAvailable(DEFAULT_DIGEST)==false)
+        if (common::Crypto::isMessageDigestAvailable(DEFAULT_DIGEST) == false)
         {
-            std::cout<<"Error: Message Digest "<<DEFAULT_DIGEST<<" not available."<<std::endl;
+            std::cout << "Error: Message Digest " << DEFAULT_DIGEST << " not available." << std::endl;
             return EXIT_FAILURE;
         }
 
-        if(config.getLoginMode() == rascontrol::RasControlConfig::LGIINTERACTIV)
+        if (config.getLoginMode() == rascontrol::RasControlConfig::LGIINTERACTIV)
         {
             userCredentials.interactiveLogin();
         }
@@ -111,13 +111,13 @@ int main(int argc, char** argv)
         control.start();
 
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
         std::cout << ex.what() << std::endl;
         return EXIT_FAILURE;
 
     }
-    catch(...)
+    catch (...)
     {
         std::cout << "rascontrol failed for an unknown reason."
                   << " Please contact the administrator with instructions to reproduce the failure" << std::endl;

@@ -25,7 +25,7 @@
 namespace common
 {
 MissingResourceException::MissingResourceException(const std::string& whatArg)
-    :RuntimeException(whatArg)
+    : RuntimeException(whatArg)
 {
 }
 

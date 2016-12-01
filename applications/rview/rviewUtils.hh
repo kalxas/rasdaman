@@ -113,9 +113,9 @@ enum rviewBaseType
 #define MAXIMUM_DIMENSIONS  4
 
 // String names for objects / sets over the various basetypes.
-extern char *rviewBaseTypes[];
-extern char *rviewTypeNames[][MAXIMUM_DIMENSIONS];
-extern char *rviewSetNames[][MAXIMUM_DIMENSIONS];
+extern char* rviewBaseTypes[];
+extern char* rviewTypeNames[][MAXIMUM_DIMENSIONS];
+extern char* rviewSetNames[][MAXIMUM_DIMENSIONS];
 
 // Base type to image type mapping
 extern int rviewImageTypes[];
@@ -289,14 +289,14 @@ enum rviewUserEvent
 // The frame list item used but the frameManager.
 typedef struct frame_list
 {
-    rviewFrame *frame;
-    frame_list *next;
+    rviewFrame* frame;
+    frame_list* next;
 } frame_list;
 
 // An MDD object and some flags
 typedef struct mdd_frame
 {
-    r_Ref < r_GMarray > mdd;
+    r_Ref <r_GMarray> mdd;
     unsigned int flags;
 } mdd_frame;
 
@@ -305,33 +305,33 @@ typedef struct mdd_frame
 // strObjs != NULL ==> collection of strings
 typedef struct collection_desc
 {
-    char *collName;
-    char *collType;
-    char *collInfo;
+    char* collName;
+    char* collType;
+    char* collInfo;
     int number;
-    mdd_frame *mddObjs;
-    char **strObjs;
+    mdd_frame* mddObjs;
+    char** strObjs;
 } collection_desc;
 
 // User event used in rviewFrames / frameManager
 typedef struct user_event
 {
     rviewUserEvent type;
-    void *data;
+    void* data;
 } user_event;
 
 // Keyword to identifier lookup structure
 typedef struct keyword_to_ident
 {
     int ident;
-    char *keyword;
+    char* keyword;
 } keyword_to_ident;
 
 // same with a const char *
 typedef struct keyword_to_ident_c
 {
     int ident;
-    const char *keyword;
+    const char* keyword;
 } keyword_to_ident_c;
 
 
@@ -342,42 +342,42 @@ typedef struct keyword_to_ident_c
  */
 
 // Free all memory allocated by a filled collection descriptor
-void rviewDeleteCollection(collection_desc *coll);
+void rviewDeleteCollection(collection_desc* coll);
 
 // Generic event handler. Calls the frame manager:
-void rviewEventHandler(wxObject &obj, wxEvent &evt);
+void rviewEventHandler(wxObject& obj, wxEvent& evt);
 
 // Parse a projection string and return its dimensionality
-extern int rviewParseProjection(const r_Minterval &interv, r_Point &pt1, r_Point &pt2, const char *projString, unsigned int *freeDims=NULL, r_Point *mapIndex=NULL);
+extern int rviewParseProjection(const r_Minterval& interv, r_Point& pt1, r_Point& pt2, const char* projString, unsigned int* freeDims = NULL, r_Point* mapIndex = NULL);
 
 // Return an object's base type as integer identifier
-extern rviewBaseType rviewGetBasetype(r_Object *obj);
+extern rviewBaseType rviewGetBasetype(r_Object* obj);
 
 // Prints the contents of a cell with a given RasDaMan base type into the buffer, returns number
 // of characters written.
-extern int rviewPrintTypedCell(const r_Type *baseType, char *buffer, char *data, int numberBase);
+extern int rviewPrintTypedCell(const r_Type* baseType, char* buffer, char* data, int numberBase);
 
 // Quicksorts a char *[]
-extern void rviewQuicksortStrings(char *array[], int from, int to);
+extern void rviewQuicksortStrings(char* array[], int from, int to);
 
 // Init character lookup tables
 extern void rviewInitCharacterTables(void);
 
 // Look up a keyword in a sorted (!) keyword_to_ident array
-extern int rviewLookupKeyword(const char *key, const keyword_to_ident_c *kti, int tabsize, bool caseSensitive);
+extern int rviewLookupKeyword(const char* key, const keyword_to_ident_c* kti, int tabsize, bool caseSensitive);
 
 // Checks if colourspace mapping is possible for a given base type
 // and sets up some variables if so.
 class colourspaceMapper;
 struct colourspace_params_s;
-extern int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper **csmap, r_Ref<r_GMarray> &mddObj, bool fullRange=FALSE, r_Minterval *domain=NULL, int w=0, int *newPitch=NULL, int *newDepth=NULL, int *newPad=NULL, int *virtualPitch=NULL, const struct colourspace_params_s *cp=NULL);
+extern int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper** csmap, r_Ref<r_GMarray>& mddObj, bool fullRange = FALSE, r_Minterval* domain = NULL, int w = 0, int* newPitch = NULL, int* newDepth = NULL, int* newPad = NULL, int* virtualPitch = NULL, const struct colourspace_params_s* cp = NULL);
 
 // Smart number conversions: also understand 0x prefix
-extern long asctol(const char *str);
-extern int  asctoi(const char *str);
-extern double   asctof(const char *str);
-extern long stringtol(const char *str, char **endptr=NULL);
-extern double   stringtof(const char *str, char **endptr=NULL);
+extern long asctol(const char* str);
+extern int  asctoi(const char* str);
+extern double   asctof(const char* str);
+extern long stringtol(const char* str, char** endptr = NULL);
+extern double   stringtof(const char* str, char** endptr = NULL);
 
 
 
@@ -388,23 +388,23 @@ class DynamicString
 public:
 
     DynamicString(void);
-    DynamicString(const DynamicString &ds);
-    DynamicString(const char *str);
+    DynamicString(const DynamicString& ds);
+    DynamicString(const char* str);
     ~DynamicString(void);
 
-    DynamicString &first(const char *str, unsigned int num);
-    DynamicString &operator=(const DynamicString &ds);
-    DynamicString &operator=(const char *str);
-    bool operator==(const DynamicString &ds) const;
-    bool operator==(const char *str) const;
+    DynamicString& first(const char* str, unsigned int num);
+    DynamicString& operator=(const DynamicString& ds);
+    DynamicString& operator=(const char* str);
+    bool operator==(const DynamicString& ds) const;
+    bool operator==(const char* str) const;
 
-    const char *ptr(void) const;
-    operator const char*(void) const;
+    const char* ptr(void) const;
+    operator const char* (void) const;
 
 
 private:
 
-    char *myString;
+    char* myString;
 
     static const char emptyString[];
 };
@@ -417,13 +417,13 @@ class DynamicStack
 {
 public:
 
-    DynamicStack(unsigned int gran=8);
-    DynamicStack(const DynamicStack<T> &src);
+    DynamicStack(unsigned int gran = 8);
+    DynamicStack(const DynamicStack<T>& src);
     ~DynamicStack(void);
 
-    int push(const T &item);
-    int pop(T &item);
-    int peek(T &item) const;
+    int push(const T& item);
+    int pop(T& item);
+    int peek(T& item) const;
     unsigned int getNumber(void) const;
 
 
@@ -432,7 +432,7 @@ protected:
     int ensureFree(void);
 
     unsigned int number, max, granularity;
-    T *stack;
+    T* stack;
 };
 
 
@@ -483,7 +483,7 @@ class rviewFrame: public wxFrame
 {
 public:
 
-    rviewFrame(wxFrame *parent, char *title, int x, int y, int w, int h);
+    rviewFrame(wxFrame* parent, char* title, int x, int y, int w, int h);
     virtual ~rviewFrame(void);
 
     // When the checkobj(...) method is called the frame checks whether
@@ -491,7 +491,7 @@ public:
     // the broadcast by returning a value != 0. This is used in frame manager
     // broadcasts. You should not try to get involved with derived classes
     // at this point.
-    int checkobj(wxObject &obj);
+    int checkobj(wxObject& obj);
 
     // When the label() method is called the derived frame class
     // has to relabel all its widgets
@@ -503,28 +503,28 @@ public:
     // functions are separated because the Frame manager broadcast call
     // has to be re-entrant and we'll get huge problems if the frame
     // list changes during the loop.
-    virtual int process(wxObject &obj, wxEvent &evt) = 0;
+    virtual int process(wxObject& obj, wxEvent& evt) = 0;
 
     // The userEvent method is called to notify frames of events like
     // the mdd object a frame displays being deleted.
-    virtual int userEvent(const user_event &ue);
+    virtual int userEvent(const user_event& ue);
 
     // Called when the frame is to be killed. May be overloaded, but normally
     // doesn't have to be.
     virtual int requestQuit(int level);
 
     // Called for mouse events of some logical child. Normally ignored.
-    virtual void childMouseEvent(wxWindow *child, wxMouseEvent &mevt);
+    virtual void childMouseEvent(wxWindow* child, wxMouseEvent& mevt);
 
     // The setParent(parent) function makes this frame a (logical) child
     // of parent. This will remove the frame from the parent's child frame
     // list when it's deleted.
-    void setParent(rviewFrame *parent);
-    void registerChild(rviewFrame *child);
-    void deregisterChild(rviewFrame *child);
+    void setParent(rviewFrame* parent);
+    void registerChild(rviewFrame* child);
+    void deregisterChild(rviewFrame* child);
 
     // Returns the name of this class
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
 
     // Returns the identifier of this frame
     virtual rviewFrameType getFrameType(void) const;
@@ -538,8 +538,8 @@ public:
 protected:
 
     // For keeping track of child frames
-    rviewFrameMgr *frames;
-    rviewFrame *parentFrame;
+    rviewFrameMgr* frames;
+    rviewFrame* parentFrame;
     int frameWidth, frameHeight;
 
 
@@ -547,7 +547,7 @@ protected:
 private:
 
     // Used internally by the checkobj() member function.
-    int checkobj_rec(wxWindow *whence, wxObject &obj);
+    int checkobj_rec(wxWindow* whence, wxObject& obj);
 };
 
 
@@ -568,8 +568,8 @@ public:
     rviewFrameMgr(bool delChild);
     ~rviewFrameMgr(void);
 
-    void registerFrame(rviewFrame *client);
-    void deregisterFrame(rviewFrame *client);
+    void registerFrame(rviewFrame* client);
+    void deregisterFrame(rviewFrame* client);
     int numberOfFrames(void) const;
     void setDeleteMode(bool delChild);
 
@@ -578,15 +578,15 @@ public:
     // member functions (e.g. process) can stop the iteration by
     // claiming the call.
     void labelAll(void);
-    void broadcastEvent(wxObject &obj, wxEvent &evt);
+    void broadcastEvent(wxObject& obj, wxEvent& evt);
     int broadcastQuit(int level);
-    int broadcastUserEvent(const user_event &ue);
+    int broadcastUserEvent(const user_event& ue);
 
 
 protected:
 
-    frame_list *frameList;
-    frame_list *tailList;
+    frame_list* frameList;
+    frame_list* tailList;
     int listLength;
     bool deleteChildren;
 };
@@ -603,14 +603,14 @@ class rviewMultiline
 {
 public:
 
-    rviewMultiline(wxPanel *Panel, int X, int Y, int H, int Lines);
-    rviewMultiline(wxPanel *Panel, const char *Message, int X, int Y, int W, int H, int Lines);
+    rviewMultiline(wxPanel* Panel, int X, int Y, int H, int Lines);
+    rviewMultiline(wxPanel* Panel, const char* Message, int X, int Y, int W, int H, int Lines);
     ~rviewMultiline(void);
 
     // Returns the height used by the messages
     int getMessageHeight(void) const;
 
-    void rebuild(const char *Message, int W);
+    void rebuild(const char* Message, int W);
 
     // 10 * number of pixels used per character
     static const int multiline_ppc10;
@@ -618,10 +618,10 @@ public:
 
 protected:
 
-    void setupVariables(wxPanel *Panel, int X, int Y, int H, int Lines);
+    void setupVariables(wxPanel* Panel, int X, int Y, int H, int Lines);
 
-    wxPanel *parent;
-    wxMessageOutput **msg;
+    wxPanel* parent;
+    wxMessageOutput** msg;
     int lines;
     int x, y, lHeight;
 };
@@ -637,34 +637,34 @@ class rviewText : public wxTextCtrl
 {
 public:
 
-    rviewText(wxPanel *parent, const char *value=NULL, char *label="", int x=-1, int y=-1, int w=-1, int h=-1);
-    rviewText(long style, wxPanel *parent, const char *value=NULL, char *label="", int x=-1, int y=-1, int w=-1, int h=-1);
-    rviewText(wxPanel *parent, const DynamicString &value, char *label="", int x=-1, int y=-1, int w=-1, int h=-1);
-    rviewText(wxPanel *parent, int value, char *label="", int x=-1, int y=-1, int w=-1, int h=-1);
-    rviewText(wxPanel *parent, long value, char *label="", int x=-1, int y=-1, int w=-1, int h=-1);
-    rviewText(wxPanel *parent, double value, bool sciForm=FALSE, char *label="", int x=-1, int y=-1, int w=-1, int h=-1);
+    rviewText(wxPanel* parent, const char* value = NULL, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1);
+    rviewText(long style, wxPanel* parent, const char* value = NULL, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1);
+    rviewText(wxPanel* parent, const DynamicString& value, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1);
+    rviewText(wxPanel* parent, int value, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1);
+    rviewText(wxPanel* parent, long value, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1);
+    rviewText(wxPanel* parent, double value, bool sciForm = FALSE, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1);
 
-    void SetValue(char *value);
-    void SetValue(const char *value);
-    void SetValue(const DynamicString &value);
+    void SetValue(char* value);
+    void SetValue(const char* value);
+    void SetValue(const DynamicString& value);
     void SetValue(int value);
     void SetValue(unsigned int value);
     void SetValue(long value);
-    void SetValue(double value, bool sciFrom=FALSE);
+    void SetValue(double value, bool sciFrom = FALSE);
 
-    char *GetValue(void);
-    void GetValue(DynamicString &value);
-    void GetValue(int &value);
-    void GetValue(long &value);
-    void GetValue(float &value);
-    void GetValue(double &value);
+    char* GetValue(void);
+    void GetValue(DynamicString& value);
+    void GetValue(int& value);
+    void GetValue(long& value);
+    void GetValue(float& value);
+    void GetValue(double& value);
 };
 
 class rviewButton : public wxButton
 {
 public:
 
-    rviewButton(wxPanel *parent, char *label="", int x=-1, int y=-1, int w=-1, int h=-1, long style=0);
+    rviewButton(wxPanel* parent, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1, long style = 0);
 };
 
 // BUG IN wxCoice: NEVER CREATE A (wx|rview)Choice ITEM WITH AN EMPTY LABEL!
@@ -672,37 +672,37 @@ class rviewChoice : public wxChoice
 {
 public:
 
-    rviewChoice(wxPanel *parent, int n, char *choices[], char *label="X", int x=-1, int y=-1, int w=-1, int h=-1, long style=0);
+    rviewChoice(wxPanel* parent, int n, char* choices[], char* label = "X", int x = -1, int y = -1, int w = -1, int h = -1, long style = 0);
     // this is kind of a hack to fix wxWindows' lack of const
-    rviewChoice(wxPanel *parent, int n, const char *choices[], char *label="X", int x=-1, int y=-1, int w=-1, int h=-1, long style=0);
+    rviewChoice(wxPanel* parent, int n, const char* choices[], char* label = "X", int x = -1, int y = -1, int w = -1, int h = -1, long style = 0);
 };
 
 class rviewCheckBox : public wxCheckBox
 {
 public:
 
-    rviewCheckBox(wxPanel *parent, char *label="", int x=-1, int y=-1, int w=-1, int h=-1);
+    rviewCheckBox(wxPanel* parent, char* label = "", int x = -1, int y = -1, int w = -1, int h = -1);
 };
 
 class rviewRadioButton : public wxRadioButton
 {
 public:
 
-    rviewRadioButton(wxPanel *parent, char *label="", bool value=FALSE, int x=-1, int y=-1, int w=-1, int h=-1);
+    rviewRadioButton(wxPanel* parent, char* label = "", bool value = FALSE, int x = -1, int y = -1, int w = -1, int h = -1);
 };
 
 class rviewScrollBar : public wxScrollBar
 {
 public:
 
-    rviewScrollBar(wxPanel *parent, int x=-1, int y=-1, int w=-1, int h=-1, long style=wxHORIZONTAL);
+    rviewScrollBar(wxPanel* parent, int x = -1, int y = -1, int w = -1, int h = -1, long style = wxHORIZONTAL);
 };
 
 class rviewSlider : public wxSlider
 {
 public:
 
-    rviewSlider(wxPanel *parent, int value, int min_val, int max_val, int width, char *label="", int x=-1, int y=-1, long style=wxHORIZONTAL);
+    rviewSlider(wxPanel* parent, int value, int min_val, int max_val, int width, char* label = "", int x = -1, int y = -1, long style = wxHORIZONTAL);
 };
 
 
@@ -717,7 +717,7 @@ public:
 class rviewSpecialSlider : public wxGLCanvas
 {
 public:
-    rviewSpecialSlider(rviewFrame *logParent, wxPanel *parent, int val, int min, int max, int width=-1, const char *label=NULL);
+    rviewSpecialSlider(rviewFrame* logParent, wxPanel* parent, int val, int min, int max, int width = -1, const char* label = NULL);
     ~rviewSpecialSlider(void);
 
     int GetMax(void) const;
@@ -727,17 +727,17 @@ public:
     void SetValue(int val);
     bool PositionInWell(float posx, float posy);
 
-    virtual void SetLabel(const char *label);
+    virtual void SetLabel(const char* label);
     virtual void OnPaint(void);
-    virtual void OnEvent(wxMouseEvent &mevt);
+    virtual void OnEvent(wxMouseEvent& mevt);
 
 
 protected:
-    void getWellVert(int &y0, int &y1);
-    void getBarParams(float &posx, float &posy, float &height);
-    int calcNewValue(float posx, float posy, int &val, bool checky=FALSE);
+    void getWellVert(int& y0, int& y1);
+    void getBarParams(float& posx, float& posy, float& height);
+    int calcNewValue(float posx, float posy, int& val, bool checky = FALSE);
     void redrawCore(float x, float y, float bheight);
-    void getUpdateInterval(float oldx, float newx, float &clipx, float &clipw);
+    void getUpdateInterval(float oldx, float newx, float& clipx, float& clipw);
     void updateWell(float oldx, float newx, float posy, float bheight);
     wxColour background;
     wxColour foreground;
@@ -754,7 +754,7 @@ protected:
     int cwidth, cheight;
     float textx, texty;
     DynamicString myLabel;
-    rviewFrame *logicalParent;
+    rviewFrame* logicalParent;
     static const int dflt_width;
     static const int dflt_height;
     static const int dflt_border;
@@ -772,7 +772,7 @@ class rviewDialog: public rviewFrame
 {
 public:
 
-    rviewDialog(const char *title, const char *message, int buttonNo, const char *buttons[]);
+    rviewDialog(const char* title, const char* message, int buttonNo, const char* buttons[]);
     virtual ~rviewDialog(void);
     void OnSize(int w, int h);
 
@@ -780,9 +780,9 @@ public:
 
     // implementations of the rviewFrame virtual functions
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // constants
@@ -804,11 +804,11 @@ public:
 
 protected:
 
-    wxPanel *panel;
-    char **buttonText;
+    wxPanel* panel;
+    char** buttonText;
     //wxTextWindow *msg;
-    rviewMultiline *msg;
-    rviewButton **but;
+    rviewMultiline* msg;
+    rviewButton** but;
     int buttonNumber;
     int buttonPressed;
 };
@@ -824,23 +824,23 @@ class rviewErrorbox: public rviewDialog
 public:
 
     // Default error-box: a message and an OK button.
-    rviewErrorbox(const char *message);
-    rviewErrorbox(const char *title, const char *message, int buttonNo, const char *buttons[]);
+    rviewErrorbox(const char* message);
+    rviewErrorbox(const char* title, const char* message, int buttonNo, const char* buttons[]);
     ~rviewErrorbox(void);
     int activate(void);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // creating errorboxes with formatted text
-    static rviewErrorbox *newErrorbox(const char *message, const char *classname=NULL, const char *funcname=NULL);
-    static rviewErrorbox *newErrorbox(const char *title, const char *message, int buttonNo, const char *buttons[], const char *classname=NULL, const char *funcname=NULL);
-    static int reportError(const char *message, const char *classname=NULL, const char *funcname=NULL);
-    static int reportError(const char *title, const char *message, int buttonNo, const char *buttons[], const char *classname=NULL, const char *funcname=NULL);
+    static rviewErrorbox* newErrorbox(const char* message, const char* classname = NULL, const char* funcname = NULL);
+    static rviewErrorbox* newErrorbox(const char* title, const char* message, int buttonNo, const char* buttons[], const char* classname = NULL, const char* funcname = NULL);
+    static int reportError(const char* message, const char* classname = NULL, const char* funcname = NULL);
+    static int reportError(const char* title, const char* message, int buttonNo, const char* buttons[], const char* classname = NULL, const char* funcname = NULL);
 
 private:
 
-    static char *buildErrorMessage(const char *message, const char *classname, const char *funcname);
+    static char* buildErrorMessage(const char* message, const char* classname, const char* funcname);
 };
 
 
@@ -854,12 +854,12 @@ class rviewProgress: public rviewDialog
 public:
 
     // Progress reporter (mostly used by database)
-    rviewProgress(const char *message);
+    rviewProgress(const char* message);
     ~rviewProgress(void);
 
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 };
 
@@ -876,18 +876,18 @@ class rviewResult: public rviewFrame
 public:
 
     rviewResult(void);
-    rviewResult(collection_desc *collection);
+    rviewResult(collection_desc* collection);
     ~rviewResult(void);
-    void setCollection(collection_desc *collection);
+    void setCollection(collection_desc* collection);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
-    int userEvent(const user_event &ue);
+    int process(wxObject& obj, wxEvent& evt);
+    int userEvent(const user_event& ue);
 
     void OnSize(int w, int h);
     void OnMenuCommand(int id);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // constants
@@ -919,31 +919,31 @@ protected:
     void openViewer(int item);
     int updateSelection(void);
     void configureGrey(void);
-    int parseResampleString(const char *resStr, double *values);
+    int parseResampleString(const char* resStr, double* values);
     int resampleSelection(void);
-    char *mddDescriptorString(std::ostream &memstr, int number);
+    char* mddDescriptorString(std::ostream& memstr, int number);
     void convertSelectedItems(void);
     // for printing information on time-consuming operations like scaling.
     void operationPrologue(void);
-    void operationEpilogue(const char *opname);
+    void operationEpilogue(const char* opname);
 
-    collection_desc *coll;
+    collection_desc* coll;
 
-    char *selectedItems;  // bitfield
+    char* selectedItems;  // bitfield
     int lastSelected;
     int cbfactor; // number of units a checkbox is bigger than the size set
 
-    wxGroupBox *group;
-    wxMessage *collName, *collType, *collInfo;
-    rviewChoice *choice;
-    wxPanel *panel;
-    wxListBox *list;
-    wxMenuBar *mBar;
-    rviewText *resampText;
-    rviewChoice *scaleMode;
-    rviewButton *resampBut;
+    wxGroupBox* group;
+    wxMessage* collName, *collType, *collInfo;
+    rviewChoice* choice;
+    wxPanel* panel;
+    wxListBox* list;
+    wxMenuBar* mBar;
+    rviewText* resampText;
+    rviewChoice* scaleMode;
+    rviewButton* resampBut;
 
-    rviewTypeMan *typeManager;
+    rviewTypeMan* typeManager;
 };
 
 
@@ -960,11 +960,11 @@ public:
     ~rviewAbout(void);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
 
     void OnSize(int w, int h);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // constants
@@ -986,9 +986,9 @@ protected:
 
     void deleteLabels(void);
 
-    wxPanel *panel;
-    rviewButton *okBut;
-    wxMessage **labels;
+    wxPanel* panel;
+    rviewButton* okBut;
+    wxMessage** labels;
     int numlines;
 };
 
@@ -1001,18 +1001,18 @@ class rviewStringSet: public rviewFrame
 {
 public:
 
-    rviewStringSet(collection_desc *desc);
+    rviewStringSet(collection_desc* desc);
     ~rviewStringSet(void);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
     void OnSize(int w, int h);
 
     int getNumItems(void);
-    void addItem(const char *string);
-    char *getItem(int number);
+    void addItem(const char* string);
+    char* getItem(int number);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // constants
@@ -1032,10 +1032,10 @@ public:
 
 protected:
 
-    wxPanel *panel;
-    wxListBox *list;
-    rviewButton *dismiss;
-    wxMessage *collName, *collType, *collInfo;
+    wxPanel* panel;
+    wxListBox* list;
+    rviewButton* dismiss;
+    wxMessage* collName, *collType, *collInfo;
 };
 
 
@@ -1048,8 +1048,8 @@ protected:
  *  Global variables
  */
 
-extern labelManager *lman;
-extern rviewFrameMgr *frameManager;
+extern labelManager* lman;
+extern rviewFrameMgr* frameManager;
 extern unsigned char lowerCaseTable[256];
 
 

@@ -62,8 +62,8 @@ public class ServiceOrchestrator {
         logger.info("Controller {} selected to handle the request {}.", controller == null ? "DEFAULT" : controller, rawRequest);
         if (controller == null) {
             return ExceptionResponseFactory.getExceptionResponse(
-                new WMSInvalidOperationRequestException("We could not interpret your request. Make sure the request " +
-                    "is WMS valid. This is what we received: " + rawRequest.toString()), null);
+                       new WMSInvalidOperationRequestException("We could not interpret your request. Make sure the request " +
+                               "is WMS valid. This is what we received: " + rawRequest.toString()), null);
         }
         Response response = controller.getResponse(rawRequest);
         final long endTime = System.currentTimeMillis();
@@ -86,10 +86,10 @@ public class ServiceOrchestrator {
         }
         return ExceptionResponseFactory.getExceptionResponse(exception, null).toBytes();
     }
-    
+
     /**
      * Return the initialized metadata object provider to connect to WMS database
-     * @return 
+     * @return
      */
     public PersistentMetadataObjectProvider getPersistentProvider() {
         return this.persistentMetadataObjectProvider;
@@ -113,10 +113,10 @@ public class ServiceOrchestrator {
         configManager = initializer.getConfigManager();
         persistentMetadataObjectProvider = initializer.getPersistentMetadataObjectProvider();
         controllerRegistry = new ControllerRegistry(initializer.getConfigManager(),
-            persistentMetadataObjectProvider,
-            initializer.getCacheEngine(),
-            initializer.getRasdamanService()
-        );
+                persistentMetadataObjectProvider,
+                initializer.getCacheEngine(),
+                initializer.getRasdamanService()
+                                                   );
     }
 
     private void checkVersionOfRequest(WMSGetRequest request) {

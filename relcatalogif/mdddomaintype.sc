@@ -53,7 +53,7 @@ MDDDomainType::insertInDb() throw (r_Error)
     long long domainid;
     char mddtypename[VARCHAR_MAXLEN];
 
-    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof (mddtypename));
+    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename));
     DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
     mddbasetypeid = obj->getOId();
     mddtypeid = myOId.getCounter();
@@ -69,7 +69,7 @@ MDDDomainType::readFromDb() throw (r_Error)
     long long mddtypeid;
     long long mddbasetypeid;
     long long domainid;
-    char *mddtypename;
+    char* mddtypename;
 
     mddtypeid = myOId.getCounter();
     mddbasetypeid = 0;
@@ -85,7 +85,7 @@ MDDDomainType::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "MDDDomainType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database.";
+               << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 

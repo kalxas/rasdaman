@@ -40,7 +40,7 @@ import petascope.wcps2.result.WcpsResult;
  */
 public class ReturnClauseHandler {
 
-    public static WcpsResult handle(WcpsResult processingExpr){
+    public static WcpsResult handle(WcpsResult processingExpr) {
         String template = TEMPLATE_RASQL.replace("$processingExpression", processingExpr.getRasql());
         WcpsCoverageMetadata metadata = processingExpr.getMetadata();
         WcpsResult result = new WcpsResult(metadata, template);

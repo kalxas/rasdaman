@@ -28,7 +28,7 @@ rasdaman GmbH.
  * <pre>
  *
  * PURPOSE:
- * This exception is thrown if a {@link rasj.RasPrimitiveType primitive type} is accessed by a method 
+ * This exception is thrown if a {@link rasj.RasPrimitiveType primitive type} is accessed by a method
  * having the wrong type.
  * @see rasj.RasPrimitiveType
  * @version $Revision: 1.7 $
@@ -40,8 +40,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasTypeInvalidException extends RasException
-{
+public class RasTypeInvalidException extends RasException {
     static final String rcsid = "@(#)Package rasj, class RasTypeInvalidException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasTypeInvalidException.java,v 1.7 2003/12/19 16:22:27 rasdev Exp $";
 
     // the base type
@@ -56,38 +55,37 @@ public class RasTypeInvalidException extends RasException
      * @param baseType the type of the base type
      * @param accessType the type of the access method that caused the error
      **/
-    protected RasTypeInvalidException(String baseType, String accessType)
-    {
-	super(RasGlobalDefs.TYPE_INVALID);
-	bType = ( (baseType==null) ? "(null)" : baseType );
-	aType = ( (accessType==null) ? "(null)" : accessType );
+    protected RasTypeInvalidException(String baseType, String accessType) {
+        super(RasGlobalDefs.TYPE_INVALID);
+        bType = ((baseType == null) ? "(null)" : baseType);
+        aType = ((accessType == null) ? "(null)" : accessType);
     }
 
     /**
      * Returns the error message.
      * @return the error message.
      **/
-    public String getMessage()
-    {
-	int i;
+    public String getMessage() {
+        int i;
 
-	if(super.getMessage() == null)
-	    {
-		String msg = RasErrorTexts.getErrorMessage(errNo);
+        if (super.getMessage() == null) {
+            String msg = RasErrorTexts.getErrorMessage(errNo);
 
-		StringBuffer buf = new StringBuffer(msg);
-		i = msg.indexOf( RasGlobalDefs.KEYWORD_ATYPE );
-		if(i != -1)
-		    buf.replace(i, i+RasGlobalDefs.KEYWORD_ATYPE.length(), String.valueOf(bType));
-		msg = buf.toString();
-		i = msg.indexOf( RasGlobalDefs.KEYWORD_BTYPE );
-		if(i != -1)
-		    buf.replace(i, i+RasGlobalDefs.KEYWORD_BTYPE.length(), String.valueOf(aType));
-		msg = buf.toString();
-		return msg;
-	    }
-        else
-	    return super.getMessage();
+            StringBuffer buf = new StringBuffer(msg);
+            i = msg.indexOf(RasGlobalDefs.KEYWORD_ATYPE);
+            if (i != -1) {
+                buf.replace(i, i + RasGlobalDefs.KEYWORD_ATYPE.length(), String.valueOf(bType));
+            }
+            msg = buf.toString();
+            i = msg.indexOf(RasGlobalDefs.KEYWORD_BTYPE);
+            if (i != -1) {
+                buf.replace(i, i + RasGlobalDefs.KEYWORD_BTYPE.length(), String.valueOf(aType));
+            }
+            msg = buf.toString();
+            return msg;
+        } else {
+            return super.getMessage();
+        }
     }
 
 }

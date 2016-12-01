@@ -69,43 +69,43 @@ r_Stat_Tiling::DEF_INTERESTING_THR  = 0.20;
 r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     :   r_Dimension_Tiling(0, 0)
 {
-    if(!encoded)
+    if (!encoded)
     {
-        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << (encoded?encoded: "NULL") << ")";
+        LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << (encoded ? encoded : "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    r_Dimension tileD=0;
+    r_Dimension tileD = 0;
     std::vector<r_Access> vectAccessInfo;
-    r_Access*    accessInfo=NULL;
-    r_Minterval* accessInterv=NULL;
-    r_ULong      accessTimes=0;
-    r_Bytes tileS=0, lenToConvert=0, lenInToConvert=0;
-    r_Area borderTH=0;
-    r_Double interestTH=0.;
-    const char *pStart=NULL, *pEnd=NULL, *pRes=NULL, *pTemp=NULL;
-    char *pToConvert=NULL;
-    const char *pInRes=NULL, *pInEnd=NULL;
-    char *pInToConvert=NULL;
+    r_Access*    accessInfo = NULL;
+    r_Minterval* accessInterv = NULL;
+    r_ULong      accessTimes = 0;
+    r_Bytes tileS = 0, lenToConvert = 0, lenInToConvert = 0;
+    r_Area borderTH = 0;
+    r_Double interestTH = 0.;
+    const char* pStart = NULL, *pEnd = NULL, *pRes = NULL, *pTemp = NULL;
+    char* pToConvert = NULL;
+    const char* pInRes = NULL, *pInEnd = NULL;
+    char* pInToConvert = NULL;
 
-    pStart=encoded;
-    pEnd=pStart+strlen(pStart);
-    pTemp=pStart;
+    pStart = encoded;
+    pEnd = pStart + strlen(pStart);
+    pTemp = pStart;
 
-    pRes=strstr(pTemp,TCOLON);
-    if(!pRes)
+    pRes = strstr(pTemp, TCOLON);
+    if (!pRes)
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
 //deal with dimension
-    lenToConvert=pRes-pTemp;
-    pToConvert=new char[lenToConvert+1];
-    memcpy(pToConvert,pTemp, lenToConvert);
-    pToConvert[lenToConvert]='\0';
+    lenToConvert = pRes - pTemp;
+    pToConvert = new char[lenToConvert + 1];
+    memcpy(pToConvert, pTemp, lenToConvert);
+    pToConvert[lenToConvert] = '\0';
 
-    tileD=strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
     if (!tileD)
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\", is not a number.";
@@ -115,8 +115,10 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 
 //skip COLON && free buffer
     delete[] pToConvert;
-    if(pRes != (pEnd-1))
+    if (pRes != (pEnd - 1))
+    {
         pRes++;
+    }
     else
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pStart << "\", end of stream.";
@@ -124,47 +126,49 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     }
 
 //deal with access informations
-    pTemp=pRes;
-    pRes=strstr(pTemp, TCOLON);
-    if(!pRes)
+    pTemp = pRes;
+    pRes = strstr(pTemp, TCOLON);
+    if (!pRes)
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    while(pRes)
+    while (pRes)
     {
         //is access info?
-        if(*pTemp!=*LSQRBRA)
+        if (*pTemp != *LSQRBRA)
+        {
             break;
+        }
 
         //copy substring in buffer
-        lenToConvert=pRes-pTemp;
-        pToConvert=new char[lenToConvert+1];
+        lenToConvert = pRes - pTemp;
+        pToConvert = new char[lenToConvert + 1];
         memcpy(pToConvert, pTemp, lenToConvert);
-        pToConvert[lenToConvert]='\0';
+        pToConvert[lenToConvert] = '\0';
 
         //deal with access Interval
-        pInEnd=pToConvert+strlen(pToConvert);
-        pInRes=strstr(pToConvert, RSQRBRA);
-        if(!pInRes)
+        pInEnd = pToConvert + strlen(pToConvert);
+        pInRes = strstr(pToConvert, RSQRBRA);
+        if (!pInRes)
         {
             LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access information from \"" << pToConvert << "\".";
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
 
-        lenInToConvert=pInRes-pToConvert+1; //1 for ]
-        pInToConvert=new char[lenInToConvert+1];
+        lenInToConvert = pInRes - pToConvert + 1; //1 for ]
+        pInToConvert = new char[lenInToConvert + 1];
         memcpy(pInToConvert, pToConvert, lenInToConvert);
-        pInToConvert[lenInToConvert]='\0';
+        pInToConvert[lenInToConvert] = '\0';
 
         try
         {
-            accessInterv=new r_Minterval(pInToConvert);
+            accessInterv = new r_Minterval(pInToConvert);
             delete [] pInToConvert;
         }
-        catch(r_Error &err)
+        catch (r_Error& err)
         {
             LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access interval \"" << pInToConvert << "\" from \"" << pToConvert << "\".";
             LFATAL << "Error " << err.get_errorno() << " : " << err.what();
@@ -174,16 +178,18 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         }
 
         //deal with access Times
-        pInRes=strstr(pInRes, TCOMMA);
-        if(!pInRes)
+        pInRes = strstr(pInRes, TCOMMA);
+        if (!pInRes)
         {
             LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not specified.";
             delete[] pInToConvert;
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
-        if(pInRes!=(pEnd-1))
+        if (pInRes != (pEnd - 1))
+        {
             pInRes++;
+        }
         else
         {
             LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not specified.";
@@ -191,8 +197,8 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
-        accessTimes=strtol(pInRes, (char**)NULL, DefaultBase);
-        if(!accessTimes)
+        accessTimes = strtol(pInRes, (char**)NULL, DefaultBase);
+        if (!accessTimes)
         {
             LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not a number.";
             delete[] pInToConvert;
@@ -200,7 +206,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
 
-        accessInfo=new r_Access(*accessInterv, accessTimes);
+        accessInfo = new r_Access(*accessInterv, accessTimes);
         vectAccessInfo.push_back(*accessInfo);
         delete accessInfo;
         delete accessInterv;
@@ -208,8 +214,10 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         //skip COLON && free buffer
         delete[] pToConvert;
 
-        if(pRes != (pEnd-1))
+        if (pRes != (pEnd - 1))
+        {
             pRes++;
+        }
         else
         {
             LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access informations, end of stream.";
@@ -217,21 +225,21 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         }
 
         //deal with next item
-        pTemp=pRes;
-        pRes=strstr(pTemp, TCOLON);
+        pTemp = pRes;
+        pRes = strstr(pTemp, TCOLON);
     }
 
-    if(vectAccessInfo.empty())
+    if (vectAccessInfo.empty())
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access informations, no access informations specified.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
 //deal with borderTH
-    lenToConvert=pRes-pTemp;
-    pToConvert=new char[lenToConvert+1];
+    lenToConvert = pRes - pTemp;
+    pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
-    pToConvert[lenToConvert]='\0';
+    pToConvert[lenToConvert] = '\0';
 
     borderTH = static_cast<r_Area>(strtol(pToConvert, (char**)NULL, DefaultBase));
     if (!borderTH)
@@ -243,8 +251,10 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 
 //skip COLON && free buffer
     delete[] pToConvert;
-    if(pRes != (pEnd-1))
+    if (pRes != (pEnd - 1))
+    {
         pRes++;
+    }
     else
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold, end of stream.";
@@ -252,21 +262,21 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     }
 
 //deal with interestTH
-    pTemp=pRes;
-    pRes=strstr(pTemp,TCOLON);
-    if(!pRes)
+    pTemp = pRes;
+    pRes = strstr(pTemp, TCOLON);
+    if (!pRes)
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
 //copy substring into buffer
-    lenToConvert=pRes-pTemp;
-    pToConvert=new char[lenToConvert+1];
+    lenToConvert = pRes - pTemp;
+    pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
-    pToConvert[lenToConvert]='\0';
+    pToConvert[lenToConvert] = '\0';
 
-    interestTH=strtod(pToConvert, (char**)NULL);
+    interestTH = strtod(pToConvert, (char**)NULL);
     if (!interestTH)
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\".";
@@ -289,8 +299,10 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 
 //skip COLON && free buffer
     delete[] pToConvert;
-    if(pRes != (pEnd-1))
+    if (pRes != (pEnd - 1))
+    {
         pRes++;
+    }
     else
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size, end of stream.";
@@ -298,8 +310,8 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     }
 
 //deal with tilesize
-    pTemp=pRes;
-    tileS=strtol(pTemp, (char**)NULL, DefaultBase);
+    pTemp = pRes;
+    tileS = strtol(pTemp, (char**)NULL, DefaultBase);
     if (!tileS)
     {
         LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size \"" << pToConvert << "\", not a number.";
@@ -339,9 +351,9 @@ r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_
         if ((*areas_it).get_pattern().dimension() != dim)
         {
             LFATAL << "r_Stat_Tiling::r_Stat_Tiling(" << dim << ", " << &stat_info
-                           << ", " << ts << ", " << border_threshold << ", " << interesting_threshold
-                           << ") dimension (" << dim << ") does not match dimension of access patterns ("
-                           << (*areas_it).get_pattern().dimension() << ")";
+                   << ", " << ts << ", " << border_threshold << ", " << interesting_threshold
+                   << ") dimension (" << dim << ") does not match dimension of access patterns ("
+                   << (*areas_it).get_pattern().dimension() << ")";
             throw r_Edim_mismatch(dim, (*areas_it).get_pattern().dimension());
         }
         total_accesses += (*areas_it).get_times();
@@ -350,7 +362,7 @@ r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_
     LTRACE << "Defining interest areas... ";
 
     // Mininum number of accesses for being interesting
-    r_ULong critical_accesses = static_cast<r_ULong>(interesting_thr*total_accesses);
+    r_ULong critical_accesses = static_cast<r_ULong>(interesting_thr * total_accesses);
 
     iareas.clear();
     for (areas_it = stat_info.begin(); areas_it != stat_info.end(); areas_it++)
@@ -479,7 +491,7 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const t
         LFATAL << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen << ") tile size (" << tile_size << ") is smaller than type length (" << typelen << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
-#ifdef _VISUALIZE_2D_DECOMP_                           // User wants a visual 
+#ifdef _VISUALIZE_2D_DECOMP_                           // User wants a visual
     static int count;                                    // Number of decomps
     ++count;                                             // Update num decomps
     // of the 2D decomp.
@@ -507,18 +519,20 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const t
     {
         // Use interest areas for tiling the domain
 
-        r_Interest_Tiling* tiling=NULL;
+        r_Interest_Tiling* tiling = NULL;
 
         try
         {
-            tiling=new r_Interest_Tiling(dimension, iareas, get_tile_size(), r_Interest_Tiling::SUB_TILING);
+            tiling = new r_Interest_Tiling(dimension, iareas, get_tile_size(), r_Interest_Tiling::SUB_TILING);
             result = tiling->compute_tiles(domain, typelen);
             delete tiling;
         }
-        catch(r_Error& err)
+        catch (r_Error& err)
         {
-            if(tiling)
+            if (tiling)
+            {
                 delete tiling;
+            }
             throw;
         }
     }
@@ -533,7 +547,9 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const t
         std::vector<r_Minterval>::iterator it(*result);
         it.seek_begin();
         for (; it.not_done(); it++)
+        {
             (*vis) << (*it);
+        }
 
         vis->set_pen(255, 255, 0);
 
@@ -542,7 +558,9 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const t
         std::vector<r_Minterval>::iterator it2(ia);
         it2.seek_begin();
         for (; it2.not_done(); it2++)
+        {
             (*vis) << (*it2);
+        }
 
         delete vis;
     }
@@ -624,12 +642,12 @@ bool r_Access::is_near(const r_Access& other, r_ULong border_threshold) const th
 void r_Access::merge_with(const r_Access& other)
 {
     interval.closure_with(other.interval);
-    times+= other.times;
+    times += other.times;
 }
 
 void r_Access::print_status(std::ostream& os) const
 {
-    os << "{" << times <<"x: " << interval << "}";
+    os << "{" << times << "x: " << interval << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const r_Access& access)

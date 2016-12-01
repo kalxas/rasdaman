@@ -63,10 +63,10 @@ public class EncodedCoverageExpr implements IParseTreeNode {
 
         if (store) {
             result = "<" + WcpsConstants.MSG_ENCODE + " " + WcpsConstants.MSG_STORE +
-                    "=\"" + WcpsConstants.MSG_TRUE + "\">";
+                     "=\"" + WcpsConstants.MSG_TRUE + "\">";
         } else {
             result = "<" + WcpsConstants.MSG_ENCODE + " " + WcpsConstants.MSG_STORE +
-                    "=\"" + WcpsConstants.MSG_FALSE + "\">";
+                     "=\"" + WcpsConstants.MSG_FALSE + "\">";
         }
 
         result += expr.toXML();
@@ -74,7 +74,7 @@ public class EncodedCoverageExpr implements IParseTreeNode {
 
         if (extraParams != null) {
             result += "<" + WcpsConstants.MSG_EXTRA_PARAMETERS + ">" + extraParams + "</" +
-                    WcpsConstants.MSG_EXTRA_PARAMETERS + ">";
+                      WcpsConstants.MSG_EXTRA_PARAMETERS + ">";
         }
 
         result += "</" + WcpsConstants.MSG_ENCODE + ">";

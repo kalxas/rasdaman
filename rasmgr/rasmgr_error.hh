@@ -43,7 +43,7 @@ class RCError
 {
 public:
     RCError();
-    virtual const char* getString(char *destBuffer)=0;
+    virtual const char* getString(char* destBuffer) = 0;
 
 };
 
@@ -54,9 +54,9 @@ class RCErrorUnexpToken : public RCError
 {
 public:
     RCErrorUnexpToken(const char*);
-    const char* getString(char *destBuffer);
+    const char* getString(char* destBuffer);
 private:
-    const char *pcc;
+    const char* pcc;
 };
 
 /**
@@ -66,7 +66,7 @@ class RCErrorNoPermission : public RCError
 {
 public:
     RCErrorNoPermission();
-    const char* getString(char *destBuffer);
+    const char* getString(char* destBuffer);
 private:
 };
 
@@ -77,9 +77,9 @@ class RCErrorInvalidName : public RCError
 {
 public:
     RCErrorInvalidName(const char*);
-    const char* getString(char *destBuffer);
+    const char* getString(char* destBuffer);
 private:
-    const char *pcc;
+    const char* pcc;
 };
 
 /**
@@ -89,9 +89,9 @@ class RCErrorMissingParam : public RCError
 {
 public:
     RCErrorMissingParam(const char*);
-    const char* getString(char *destBuffer);
+    const char* getString(char* destBuffer);
 private:
-    const char *pcc;
+    const char* pcc;
 };
 
 /**
@@ -101,9 +101,9 @@ class RCErrorIncorNumberValue : public RCError
 {
 public:
     RCErrorIncorNumberValue(const char*);
-    const char* getString(char *destBuffer);
+    const char* getString(char* destBuffer);
 private:
-    const char *pcc;
+    const char* pcc;
 };
 
 #endif

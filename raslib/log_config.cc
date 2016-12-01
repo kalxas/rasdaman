@@ -70,7 +70,7 @@ bool LogConfiguration::existsConfigFile()
 // configure easylogging in the client: to standard output, LDEBUG and LTRACE disabled
 void LogConfiguration::configClientLogging()
 {
-    if(existsConfigFile())
+    if (existsConfigFile())
     {
         easyloggingpp::Configurations defaultConf(configFilePath);
         easyloggingpp::Loggers::setDefaultConfigurations(defaultConf, true);
@@ -82,24 +82,24 @@ void LogConfiguration::configClientLogging()
         easyloggingpp::Configurations defaultConf;
         defaultConf.setToDefault();
         defaultConf.set(easyloggingpp::Level::All,
-                easyloggingpp::ConfigurationType::Format, "[%level] - %log");
+                        easyloggingpp::ConfigurationType::Format, "[%level] - %log");
         defaultConf.set(easyloggingpp::Level::Info,
-                easyloggingpp::ConfigurationType::Format, " [%level] - %log");
+                        easyloggingpp::ConfigurationType::Format, " [%level] - %log");
         defaultConf.set(easyloggingpp::Level::Warning,
-                easyloggingpp::ConfigurationType::Format, " [%level] - %log");
+                        easyloggingpp::ConfigurationType::Format, " [%level] - %log");
         defaultConf.set(easyloggingpp::Level::Debug,
-                easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
+                        easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
         defaultConf.set(easyloggingpp::Level::Trace,
-                easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
+                        easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
 
         defaultConf.set(easyloggingpp::Level::All,
-                easyloggingpp::ConfigurationType::ToFile, "false");
+                        easyloggingpp::ConfigurationType::ToFile, "false");
         defaultConf.set(easyloggingpp::Level::All,
-                easyloggingpp::ConfigurationType::ToStandardOutput, "true");
+                        easyloggingpp::ConfigurationType::ToStandardOutput, "true");
         defaultConf.set(easyloggingpp::Level::Debug,
-                easyloggingpp::ConfigurationType::Enabled, "false");
+                        easyloggingpp::ConfigurationType::Enabled, "false");
         defaultConf.set(easyloggingpp::Level::Trace,
-                easyloggingpp::ConfigurationType::Enabled, "false");
+                        easyloggingpp::ConfigurationType::Enabled, "false");
 
         easyloggingpp::Loggers::setDefaultConfigurations(defaultConf, true);
         easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
@@ -111,11 +111,11 @@ void LogConfiguration::configClientLogging()
 // configure easylogging in the server: to file, LDEBUG and LTRACE disabled
 void LogConfiguration::configServerLogging(const char* logFileName)
 {
-    if(existsConfigFile())
+    if (existsConfigFile())
     {
         easyloggingpp::Configurations defaultConf(configFilePath);
         defaultConf.set(easyloggingpp::Level::All ,
-            easyloggingpp::ConfigurationType::Filename, logFileName);
+                        easyloggingpp::ConfigurationType::Filename, logFileName);
         easyloggingpp::Loggers::setDefaultConfigurations(defaultConf, true);
         easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
         defaultConf.clear();
@@ -125,22 +125,22 @@ void LogConfiguration::configServerLogging(const char* logFileName)
         easyloggingpp::Configurations defaultConf;
         defaultConf.setToDefault();
         defaultConf.set(easyloggingpp::Level::All ,
-            easyloggingpp::ConfigurationType::Filename, logFileName);
+                        easyloggingpp::ConfigurationType::Filename, logFileName);
         defaultConf.set(easyloggingpp::Level::All,
-                easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
+                        easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
         defaultConf.set(easyloggingpp::Level::Info,
-                easyloggingpp::ConfigurationType::Format, " [%level] - %datetime: %log");
+                        easyloggingpp::ConfigurationType::Format, " [%level] - %datetime: %log");
         defaultConf.set(easyloggingpp::Level::Warning,
-                easyloggingpp::ConfigurationType::Format, " [%level] - %datetime, %loc: %log");
+                        easyloggingpp::ConfigurationType::Format, " [%level] - %datetime, %loc: %log");
 
         defaultConf.set(easyloggingpp::Level::All,
-                easyloggingpp::ConfigurationType::ToFile, "true");
+                        easyloggingpp::ConfigurationType::ToFile, "true");
         defaultConf.set(easyloggingpp::Level::All,
-                easyloggingpp::ConfigurationType::ToStandardOutput, "false");
+                        easyloggingpp::ConfigurationType::ToStandardOutput, "false");
         defaultConf.set(easyloggingpp::Level::Debug,
-                easyloggingpp::ConfigurationType::Enabled, "false");
+                        easyloggingpp::ConfigurationType::Enabled, "false");
         defaultConf.set(easyloggingpp::Level::Trace,
-                easyloggingpp::ConfigurationType::Enabled, "false");
+                        easyloggingpp::ConfigurationType::Enabled, "false");
 
         easyloggingpp::Loggers::setDefaultConfigurations(defaultConf, true);
         easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);

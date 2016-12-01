@@ -52,26 +52,38 @@ rasdaman GmbH.
 #include "rasodmg/set.hh"
 #include "rasodmg/marray.hh"
 
-int main( int ac, char** av )
+int main(int ac, char** av)
 {
     char servername[255];
     char baseName[255];
     char collName[255];
 
-    if( ac>1 )
-        strcpy( servername, av[1] );
+    if (ac > 1)
+    {
+        strcpy(servername, av[1]);
+    }
     else
-        strcpy( servername, "hpwibas5" );
+    {
+        strcpy(servername, "hpwibas5");
+    }
 
-    if( ac > 2 )
-        strcpy( baseName, av[2] );
+    if (ac > 2)
+    {
+        strcpy(baseName, av[2]);
+    }
     else
-        strcpy( baseName, "RasDaBase" );
+    {
+        strcpy(baseName, "RasDaBase");
+    }
 
-    if( ac > 3 )
-        strcpy( collName, av[3] );
+    if (ac > 3)
+    {
+        strcpy(collName, av[3]);
+    }
     else
-        strcpy( collName, "Images" );
+    {
+        strcpy(collName, "Images");
+    }
 
     cout << endl << endl;
     cout << "ODMG conformant insertion of Marrays" << endl;
@@ -79,18 +91,18 @@ int main( int ac, char** av )
 
     r_Database db;
     r_Transaction ta;
-    r_Ref< r_Set< r_Ref< r_Marray<int> > > > image_set;
-    r_Ref< r_Marray<int> >                   image;
+    r_Ref<r_Set<r_Ref<r_Marray<int>>>> image_set;
+    r_Ref<r_Marray<int>>                   image;
     r_Minterval                              domain;
 
-    domain = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) 10 )
-                            << r_Sinterval((r_Range) 0, (r_Range) 10 );
+    domain = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) 10)
+             << r_Sinterval((r_Range) 0, (r_Range) 10);
 
-    db.set_servername( servername );
+    db.set_servername(servername);
 
     cout << "Opening Database on " << servername << "... ";
     cout.flush();
-    db.open( baseName );
+    db.open(baseName);
     cout << "OK" << endl;
 
     cout << "Starting Transaction ... ";
@@ -102,20 +114,20 @@ int main( int ac, char** av )
     cout.flush();
 
     // create the set
-    image_set = new( &db ) r_Set< r_Ref< r_Marray<int> > >;
+    image_set = new(&db) r_Set<r_Ref<r_Marray<int>>>;
 
     // create a name for the set
-    db.set_object_name( *image_set, collName );
+    db.set_object_name(*image_set, collName);
 
     // create first image
-    image = new( &db ) r_Marray<int>( domain, 0 );
+    image = new(&db) r_Marray<int>(domain, 0);
 
     // put in into the persistent list
-    image_set->insert_element( image );
+    image_set->insert_element(image);
 
     //
     // *** POW! CONNECTION BREAKDOWN! ***
     //
     cout << endl << "*** POW! CONNECTION BREAKDOWN! ***" << endl;
-    exit( 0 );
+    exit(0);
 }

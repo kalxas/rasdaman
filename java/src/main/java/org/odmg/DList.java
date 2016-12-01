@@ -35,21 +35,21 @@ package org.odmg;
 * interface are supported by an ODMG implementation of <code>DList</code>,
 * the exception <code>UnsupportedOperationException</code> is not thrown when a
 * call is made to any of the <code>List</code> methods.
-* @author	David Jordan (as Java Editor of the Object Data Management Group)
+* @author   David Jordan (as Java Editor of the Object Data Management Group)
 * @version ODMG 3.0
 */
 // * @see com.sun.java.util.collections.UnsupportedOperationException
 
 public interface DList extends DCollection, java.util.List {
-/**
-* Creates a new <code>DList</code> object that contains the contents of this
-* <code>DList</code> object concatenated
-* with the contents of the <code>otherList</code> object.
-* @param	otherList	The list whose elements are placed at the end of the list
-* returned by this method.
-* @return	A new <code>DList</code> that is the concatenation of this list and
-* the list referenced by <code>otherList</code>.
-*/
-	public DList concat(DList otherList);
+    /**
+    * Creates a new <code>DList</code> object that contains the contents of this
+    * <code>DList</code> object concatenated
+    * with the contents of the <code>otherList</code> object.
+    * @param    otherList   The list whose elements are placed at the end of the list
+    * returned by this method.
+    * @return   A new <code>DList</code> that is the concatenation of this list and
+    * the list referenced by <code>otherList</code>.
+    */
+    public DList concat(DList otherList);
 }
 

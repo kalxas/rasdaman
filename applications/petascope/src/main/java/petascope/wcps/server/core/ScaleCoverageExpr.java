@@ -99,10 +99,10 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                     // pc NOTE[MERGE]: using order of CellDomainElement as axis label: otherwise need to restore labels in CellDomainElement?
                     try {
                         DimensionIntervalElement die = new DimensionIntervalElement(
-                                covInfo.getDomainElement(cde.getOrder()).getNativeCrs(),
-                                cde.getLoInt(),
-                                cde.getHiInt(),
-                                axisLabel
+                            covInfo.getDomainElement(cde.getOrder()).getNativeCrs(),
+                            cde.getLoInt(),
+                            cde.getHiInt(),
+                            axisLabel
                         );
                         axisList.add(die);
 
@@ -173,8 +173,8 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             ++scaleId;
 
             coverageInfo.setCellDimension(axisId,
-                    new CellDomainElement(axisLo, axisHi, order)
-                    );
+                                          new CellDomainElement(axisLo, axisHi, order)
+                                         );
             order += 1;
         }
 

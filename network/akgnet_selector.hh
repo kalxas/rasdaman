@@ -53,7 +53,7 @@ public:
     Selector() throw();
 
     /// Sets the timeout interval
-    void setTimeout(int sec,int milisec) throw();
+    void setTimeout(int sec, int milisec) throw();
 
     /// Disables the timeout
     void disableTimeout() throw();
@@ -91,7 +91,7 @@ private:
 
     struct timeval tvinit;
     struct timeval tv;
-    timeval *tvptr;
+    timeval* tvptr;
 
 };
 

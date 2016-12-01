@@ -43,7 +43,7 @@ public class AxisIteratorAliasRegistry {
         this.axisIteratorMappings = new LinkedHashMap<String, AxisIterator>();
     }
 
-    public void addAxisIteratorAliasMapping(String axisIteratorAlias, AxisIterator axisIterator){
+    public void addAxisIteratorAliasMapping(String axisIteratorAlias, AxisIterator axisIterator) {
         AxisIterator value = axisIteratorMappings.get(axisIteratorAlias);
         if (value != null) {
             // throw an exception when redefine the axis iterator alias
@@ -56,7 +56,7 @@ public class AxisIteratorAliasRegistry {
 
     public AxisIterator getAxisIterator(String axisIteratorAlias) {
         AxisIterator axisIterator = null;
-        if(axisIteratorMappings.get(axisIteratorAlias) != null) {
+        if (axisIteratorMappings.get(axisIteratorAlias) != null) {
             axisIterator = axisIteratorMappings.get(axisIteratorAlias);
         }
 

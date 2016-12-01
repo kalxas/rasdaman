@@ -48,10 +48,10 @@ using rasmgr::UserDatabaseRightsProto;
 using rasmgr::UserMgrProto;
 using rasmgr::test::TestUtil;
 
-class UserManagerTest:public ::testing::Test
+class UserManagerTest: public ::testing::Test
 {
 protected:
-    UserManagerTest():userName("userName"),password("password")
+    UserManagerTest(): userName("userName"), password("password")
     {}
 
     UserProto createUser()
@@ -102,7 +102,7 @@ TEST_F(UserManagerTest, defineUserSucceedsWhenUserIsValid)
     ASSERT_NO_THROW(userManager.defineUser(user));
 
     proto = userManager.serializeToProto();
-    ASSERT_EQ(1,proto.users_size());
+    ASSERT_EQ(1, proto.users_size());
     ASSERT_EQ(userName, proto.users(0).name());
 
     //Fail due to duplication
@@ -208,7 +208,7 @@ TEST_F(UserManagerTest, changeUserSucceeds)
 
     //Test that the change was valid.
     boost::shared_ptr<User> out_user;
-    ASSERT_TRUE(userManager.tryGetUser(newUserName,out_user));
+    ASSERT_TRUE(userManager.tryGetUser(newUserName, out_user));
     ASSERT_EQ(newUserName, out_user->getName());
     ASSERT_EQ(newPassword, out_user->getPassword());
 

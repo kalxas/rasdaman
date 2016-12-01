@@ -63,7 +63,7 @@ using std::ostringstream;
 r_Error::errorInfo* r_Error::textList = NULL;
 /// has error text file been loaded, i.e., is table filled?
 bool r_Error::errorTextsLoaded = false;
-std::list<std::pair<std::pair<int,char>, char*> > *r_Error::errorTexts;
+std::list<std::pair<std::pair<int, char>, char*>>* r_Error::errorTexts;
 
 r_Error::r_Error()
     :   theKind(r_Error_General),
@@ -81,7 +81,7 @@ r_Error::r_Error(const r_Error& err)
 {
     if (err.errorText)
     {
-        errorText = new char[ strlen(err.errorText)+1 ];
+        errorText = new char[ strlen(err.errorText) + 1 ];
         strcpy(errorText, err.errorText);
     }
 }
@@ -97,7 +97,9 @@ r_Error::r_Error(kind the_kind, unsigned int newErrorNo)
 r_Error::~r_Error() throw()
 {
     if (errorText)
+    {
         delete[] errorText;
+    }
 }
 
 
@@ -126,7 +128,7 @@ r_Error::operator=(const r_Error& obj)
 
         if (obj.errorText)
         {
-            errorText = new char[ strlen(obj.errorText)+1 ];
+            errorText = new char[ strlen(obj.errorText) + 1 ];
             strcpy(errorText, obj.errorText);
         }
     }
@@ -158,7 +160,7 @@ r_Error::getAnyError(char* serErr)
     // first read the attributes of r_Error to find out which subclass it is
     // (stored in errNum).
     newTheKind = static_cast<r_Error::kind>(strtol(serErr, &currChar, 10));
-    newErrNum = strtol(currChar+1, &currChar, 10);
+    newErrNum = strtol(currChar + 1, &currChar, 10);
 
     if (newTheKind != r_Error_SerialisableException)
     {
@@ -170,9 +172,10 @@ r_Error::getAnyError(char* serErr)
         switch (newErrNum)
         {
         case 206:
-            retVal = new r_Ebase_dbms(newTheKind, newErrNum, currChar+1);
+            retVal = new r_Ebase_dbms(newTheKind, newErrNum, currChar + 1);
             break;
-        default: break;
+        default:
+            break;
         }
     }
     return retVal;
@@ -193,17 +196,19 @@ void r_Error::initTextTable()
     int result;             // sscanf() result
 
     if (r_Error::errorTexts == NULL)
-        r_Error::errorTexts = new list<pair<pair<int,char>,char*> >();
+    {
+        r_Error::errorTexts = new list<pair<pair<int, char>, char*>>();
+    }
 
     // determine file path + name
-    int filenameLength = snprintf( errorFileName, FILENAME_MAX, "%s/%s", SHARE_DATA_DIR, ERRORTEXT_FILE );
-    if (filenameLength < FILENAME_MAX )
+    int filenameLength = snprintf(errorFileName, FILENAME_MAX, "%s/%s", SHARE_DATA_DIR, ERRORTEXT_FILE);
+    if (filenameLength < FILENAME_MAX)
     {
         //LINFO << "Using error text file: " << errorFileName;
     }
     else
     {
-        errorFileName[FILENAME_MAX-1] = '\0';   // force-terminate string before printing
+        errorFileName[FILENAME_MAX - 1] = '\0'; // force-terminate string before printing
         cerr << "Warning: error text file path longer than allowed by OS, likely file will not be found: " << errorFileName << endl;
     }
 
@@ -224,20 +229,20 @@ void r_Error::initTextTable()
     {
         // read entries from file
         numOfEntries = 0;   // just for displaying, currently not used otherwise
-        while ( ! errortexts.eof() )
+        while (! errortexts.eof())
         {
-            getline( errortexts, line );
-            char *errText = static_cast<char*>(mymalloc( line.length() + 1 ));
+            getline(errortexts, line);
+            char* errText = static_cast<char*>(mymalloc(line.length() + 1));
             if (errText == NULL)
             {
                 LFATAL << "Fatal error: cannot allocate error text table line #" << numOfEntries;
-                throw r_Error( r_Error::r_Error_MemoryAllocation );
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
             // general line format is (aside of comments and empty lines): ddd^f^text...
-            result = sscanf( line.c_str(), "%d^%c^%[^\n]s\n", &errNo, &errKind, errText );
+            result = sscanf(line.c_str(), "%d^%c^%[^\n]s\n", &errNo, &errKind, errText);
             if (result == 3)    // consider only lines that match given structure
             {
-                r_Error::errorTexts->push_back( pair<pair<int,char>,char*> (pair<int,char>( errNo, errKind ), errText) );
+                r_Error::errorTexts->push_back(pair<pair<int, char>, char*> (pair<int, char>(errNo, errKind), errText));
                 numOfEntries++;
             }
             else
@@ -256,18 +261,22 @@ void r_Error::initTextTable()
 void r_Error::freeTextTable()
 {
     if (!r_Error::errorTexts)
+    {
         return;
+    }
 
-    list<pair<pair<int,char>, char*> >::iterator iter = r_Error::errorTexts->begin();
-    list<pair<pair<int,char>, char*> >::iterator end = r_Error::errorTexts->end();
+    list<pair<pair<int, char>, char*>>::iterator iter = r_Error::errorTexts->begin();
+    list<pair<pair<int, char>, char*>>::iterator end = r_Error::errorTexts->end();
 
     if (errorTextsLoaded)       // have we initialized the table previously?
     {
         // yes -> free each string
-        while ( iter != end  )
+        while (iter != end)
         {
             if (iter->second)
-                free( iter->second );
+            {
+                free(iter->second);
+            }
             iter->second = NULL;
             ++iter;
         }
@@ -461,7 +470,9 @@ r_Error::setErrorTextOnKind()
     }
 
     if (errorText)
+    {
         delete[] errorText;
+    }
 
     char preText[] = "Exception: ";
 
@@ -475,7 +486,7 @@ r_Error::setErrorTextOnKind()
 void
 r_Error::setErrorTextOnNumber()
 {
-    char *result = NULL;    // ptr to error text constructed
+    char* result = NULL;    // ptr to error text constructed
 
     // delete old error text, if any
     if (errorText)
@@ -489,25 +500,33 @@ r_Error::setErrorTextOnNumber()
     {
         // yes, we have a list -> search
         // search through list to find entry
-        list<pair<pair<int,char>, char*> >::iterator iter = r_Error::errorTexts->begin();
-        list<pair<pair<int,char>, char*> >::iterator end = r_Error::errorTexts->end();
+        list<pair<pair<int, char>, char*>>::iterator iter = r_Error::errorTexts->begin();
+        list<pair<pair<int, char>, char*>>::iterator end = r_Error::errorTexts->end();
         bool found = false;
-        while ( iter != end  && ! found )
+        while (iter != end  && ! found)
         {
             if (iter->first.first == static_cast<int>(errorNo))
+            {
                 found = true;
+            }
             else
+            {
                 iter++;
+            }
         }
 
         if (found)
+        {
             result = iter->second;
-        else {
-	    char str[] = "(no explanation text available for this error code.)";
-	    result = str;
-	}
+        }
+        else
+        {
+            char str[] = "(no explanation text available for this error code.)";
+            result = str;
+        }
     }
-    else {   // no, there is no spoon -err- list
+    else     // no, there is no spoon -err- list
+    {
         char str[] = "(no explanation text available - cannot find/load file with standard error messages.)";
         result = str;
     }
@@ -516,10 +535,12 @@ r_Error::setErrorTextOnNumber()
     if (errorText == NULL)
     {
         LFATAL << "Error: cannot allocate error text.";
-        throw r_Error( r_Error::r_Error_MemoryAllocation );
+        throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     else
+    {
         strcpy(errorText, result);
+    }
 
     return;
 }
@@ -573,9 +594,13 @@ r_Error::resetErrorText()
 {
     // If no error number is specified use the error kind for the text.
     if (errorNo)
+    {
         setErrorTextOnNumber();
+    }
     else
+    {
         setErrorTextOnKind();
+    }
 }
 
 
@@ -607,8 +632,8 @@ r_Eindex_violation::resetErrorText()
 {
     setErrorTextOnNumber();
 
-    setTextParameter("$low",     low    );
-    setTextParameter("$high",   high    );
+    setTextParameter("$low",     low);
+    setTextParameter("$high",   high);
     setTextParameter("$index", index);
 }
 
@@ -659,7 +684,7 @@ r_Equery_execution_failed::r_Equery_execution_failed(unsigned int errorno, unsig
 {
     LDEBUG << "r_Error::r_Equery_execution_failed() - errorno=" << errorno;
 
-    token = new char[strlen(initToken)+1];
+    token = new char[strlen(initToken) + 1];
     strcpy(token, initToken);
 
     resetErrorText();
@@ -667,7 +692,7 @@ r_Equery_execution_failed::r_Equery_execution_failed(unsigned int errorno, unsig
 
 
 
-r_Equery_execution_failed::r_Equery_execution_failed(const r_Equery_execution_failed &err)
+r_Equery_execution_failed::r_Equery_execution_failed(const r_Equery_execution_failed& err)
     : r_Error(err),
       lineNo(0),
       columnNo(0)
@@ -677,7 +702,7 @@ r_Equery_execution_failed::r_Equery_execution_failed(const r_Equery_execution_fa
     lineNo   = err.lineNo;
     columnNo = err.columnNo;
 
-    token = new char[strlen(err.token)+1];
+    token = new char[strlen(err.token) + 1];
     strcpy(token, err.token);
 }
 
@@ -686,7 +711,9 @@ r_Equery_execution_failed::r_Equery_execution_failed(const r_Equery_execution_fa
 r_Equery_execution_failed::~r_Equery_execution_failed() throw()
 {
     if (token)
+    {
         delete[] token;
+    }
 }
 
 
@@ -779,40 +806,46 @@ r_Ebase_dbms::r_Ebase_dbms(kind newTheKind, unsigned long newErrNum, const char*
     // const char* currChar = myStr;
     char* tmpBuf = NULL;                // temp copy of myStr
     char* currChar = NULL;              // ptr iterating over tmpBuf
-    tmpBuf = strdup( myStr );
+    tmpBuf = strdup(myStr);
     currChar = tmpBuf;              // initialize char ptr to begin of buffer
 
     // read the attributes of r_Ebase_dbms from the string already partially parsed by
     // r_Error::getAnyError(char* serErr)
     dbmsErrNum = strtol(currChar, &currChar, 10);
     // of course \t is part of the string, so we trick a little
-    char* tmpPtr = strchr((static_cast<char*>(currChar))+1, '\t');
-    if (tmpPtr==NULL)               // no trailing information found?
+    char* tmpPtr = strchr((static_cast<char*>(currChar)) + 1, '\t');
+    if (tmpPtr == NULL)             // no trailing information found?
     {
-        baseDBMS = strdup( "unknown" );
-        dbmsErrTxt = strdup( "unknown" );
+        baseDBMS = strdup("unknown");
+        dbmsErrTxt = strdup("unknown");
     }
     else                        // yes -> analyse it
     {
         *tmpPtr = '\0';             // terminate item for strdup()
-        baseDBMS = strdup(currChar+1);      // extract item (db name) from string
+        baseDBMS = strdup(currChar + 1);    // extract item (db name) from string
         *tmpPtr = '\t';             // re-substitute EOS with tab
-        currChar = strchr(currChar+1, '\t');    // search for tab as item delimiter
-        dbmsErrTxt = strdup(currChar+1);    // extract final item which is error text
+        currChar = strchr(currChar + 1, '\t');  // search for tab as item delimiter
+        dbmsErrTxt = strdup(currChar + 1);  // extract final item which is error text
     }
     buildWhat();
 
-    free( tmpBuf );                 // allocated in strdup() -- PB 2005-jan-14
+    free(tmpBuf);                   // allocated in strdup() -- PB 2005-jan-14
 }
 
 r_Ebase_dbms::~r_Ebase_dbms() throw()
 {
     if (whatTxt)
+    {
         free(whatTxt);
+    }
     if (dbmsErrTxt)
+    {
         free(dbmsErrTxt);
+    }
     if (baseDBMS)
+    {
         free(baseDBMS);
+    }
 }
 
 const r_Ebase_dbms&
@@ -824,7 +857,10 @@ r_Ebase_dbms::operator=(const r_Ebase_dbms& obj)
 
         if (obj.baseDBMS)
         {
-            if (baseDBMS) free(baseDBMS);
+            if (baseDBMS)
+            {
+                free(baseDBMS);
+            }
             baseDBMS = static_cast<char*>(mymalloc(strlen(obj.baseDBMS) + 1));
             strcpy(baseDBMS, obj.baseDBMS);
         }
@@ -834,7 +870,10 @@ r_Ebase_dbms::operator=(const r_Ebase_dbms& obj)
         }
         if (obj.dbmsErrTxt)
         {
-            if (dbmsErrTxt) free(dbmsErrTxt);
+            if (dbmsErrTxt)
+            {
+                free(dbmsErrTxt);
+            }
             dbmsErrTxt = static_cast<char*>(mymalloc(strlen(obj.dbmsErrTxt) + 1));
             strcpy(dbmsErrTxt, obj.dbmsErrTxt);
         }
@@ -852,8 +891,10 @@ r_Ebase_dbms::buildWhat()
 {
     // Ok, we have to build the error message for this class. The problem is that ressource
     // allocation is involved here!
-    if(whatTxt)
+    if (whatTxt)
+    {
         free(whatTxt);
+    }
     // assumes 10 digits for errNum
     whatTxt = static_cast<char*>(mymalloc(strlen(baseDBMS) + strlen(dbmsErrTxt) + 12));
     strcpy(whatTxt, baseDBMS);
@@ -887,7 +928,7 @@ r_Ebase_dbms::serialiseError()
 }
 
 r_Eno_permission::r_Eno_permission()
-    :r_Error(r_Error_AccesDenied,NO_PERMISSION_FOR_OPERATION)
+    : r_Error(r_Error_AccesDenied, NO_PERMISSION_FOR_OPERATION)
 {
     LDEBUG << "r_Error::r_Eno_permission()";
     resetErrorText();
@@ -901,7 +942,7 @@ r_Ememory_allocation::r_Ememory_allocation(): r_Error(r_Error_MemoryAllocation, 
 }
 
 r_Ecapability_refused::r_Ecapability_refused()
-    :r_Error(r_Error_AccesDenied,CAPABILITY_REFUSED)
+    : r_Error(r_Error_AccesDenied, CAPABILITY_REFUSED)
 {
     LDEBUG << "r_Error::r_Ecapability_refused()";
     resetErrorText();

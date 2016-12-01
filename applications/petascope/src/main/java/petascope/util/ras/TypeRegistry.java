@@ -85,12 +85,12 @@ public class TypeRegistry {
         return typeRegistry;
     }
 
-    private String generateStructStructure(List<String> bandBaseTypes){
+    private String generateStructStructure(List<String> bandBaseTypes) {
         String output = "";
         int count = 0;
-        for(String i : bandBaseTypes){
+        for (String i : bandBaseTypes) {
             output += getRandomTypeName() + " " + i + " ";
-            if(count < bandBaseTypes.size() - 1){
+            if (count < bandBaseTypes.size() - 1) {
                 output += ",";
             }
             count++;
@@ -98,23 +98,22 @@ public class TypeRegistry {
         return output;
     }
 
-    private String generateNullValuesRepresentation(List<NilValue> nullValues){
+    private String generateNullValuesRepresentation(List<NilValue> nullValues) {
         String result = "";
-        if(!nullValues.isEmpty()){
+        if (!nullValues.isEmpty()) {
             String values = "";
             int count = 0;
-            for (NilValue nullValue: nullValues) {
+            for (NilValue nullValue : nullValues) {
                 String val = nullValue.getValue();
                 //check if i is an interval, if not (and is a single value), make it an interval, as there is a bug in
                 // rasdaman which prevents adding single values as null values
-                if (val.contains(":")){
+                if (val.contains(":")) {
                     values += val;
-                }
-                else {
+                } else {
                     values += val + ":" + val;
                 }
                 //add "," on all but last dim
-                if(count < nullValues.size() - 1){
+                if (count < nullValues.size() - 1) {
                     values += ",";
                 }
                 count++;
@@ -124,11 +123,11 @@ public class TypeRegistry {
         return result;
     }
 
-    private String expandDimensions(int numberOfDimensions){
+    private String expandDimensions(int numberOfDimensions) {
         StringBuilder result = new StringBuilder();
-        for (int i = 0 ; i < numberOfDimensions; i++){
+        for (int i = 0 ; i < numberOfDimensions; i++) {
             result.append("a" + String.valueOf(i));
-            if(i < numberOfDimensions - 1){
+            if (i < numberOfDimensions - 1) {
                 result.append(",");
             }
         }
@@ -143,28 +142,28 @@ public class TypeRegistry {
         if (bandBaseTypes.size() == 1) {
             //simple types
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
-                    .replace("$typeStructure", bandBaseTypes.get(0))
-                    .replace("$dimensions", expandDimensions(numberOfDimensions));
+                                 .replace("$typeStructure", bandBaseTypes.get(0))
+                                 .replace("$dimensions", expandDimensions(numberOfDimensions));
             //create the marray type
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         } else {
             //struct types
             String structName = getRandomTypeName();
             String queryStruct = QUERY_CREATE_STRUCT_TYPE.replace("$structTypeName", structName)
-                    .replace("$structStructure", generateStructStructure(bandBaseTypes));
+                                 .replace("$structStructure", generateStructStructure(bandBaseTypes));
             //create the struct type
             RasUtil.executeRasqlQuery(queryStruct, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
             //marray type
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
-                    .replace("$typeStructure", structName)
-                    .replace("$dimensions", expandDimensions(numberOfDimensions));
+                                 .replace("$typeStructure", structName)
+                                 .replace("$dimensions", expandDimensions(numberOfDimensions));
             //create it
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }
 
         String querySet = QUERY_CREATE_SET_TYPE.replace("$typeName", setName)
-                .replace("$marrayTypeName", marrayName)
-                .replace("$nullValues", generateNullValuesRepresentation(nullValues));
+                          .replace("$marrayTypeName", marrayName)
+                          .replace("$nullValues", generateNullValuesRepresentation(nullValues));
         //create it
         RasUtil.executeRasqlQuery(querySet, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         this.reinitialize();
@@ -217,7 +216,7 @@ public class TypeRegistry {
         Object result = RasUtil.executeRasqlQuery(QUERY_SET_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         String[] fullStringResult = queryResult.toString().split("\0");
-        for(String setLine : fullStringResult){
+        for (String setLine : fullStringResult) {
             String setName = parseSetName(setLine);
             String marrayName = parseSetMarrayName(setLine);
             String nilValues = parseSetNullValues(setLine);
@@ -226,44 +225,43 @@ public class TypeRegistry {
         }
     }
 
-    private String parseSetNullValues(String setLine){
+    private String parseSetNullValues(String setLine) {
         String[] parts = setLine.split("NULL VALUES \\[");
-        if(parts.length < 2){ //no nil values
+        if (parts.length < 2) { //no nil values
             return "";
         }
         String[] nilParts = parts[1].split("]");
-        if(nilParts.length < 1){ //invalid line
+        if (nilParts.length < 1) { //invalid line
             return "";
         }
         return nilParts[0].trim();
     }
 
-    private String parseSetName(String setLine){
+    private String parseSetName(String setLine) {
         String[] parts = setLine.split("CREATE TYPE ");
-        if(parts.length < 2){ //invalid line
+        if (parts.length < 2) { //invalid line
             return "";
         }
         String[] setNameParts = parts[1].split(" ");
-        if(setNameParts.length < 1){ //invalid line
+        if (setNameParts.length < 1) { //invalid line
             return "";
         }
         return setNameParts[0].trim();
     }
 
-    private String parseSetMarrayName(String setLine){
+    private String parseSetMarrayName(String setLine) {
         String result;
         String[] parts = setLine.split("AS SET \\(");
-        if(parts.length < 2){ //invalid line
+        if (parts.length < 2) { //invalid line
             return "";
         }
         String[] marrayNameParts = parts[1].split("\\)");
-        if(parts.length < 1){ //invalid line
+        if (parts.length < 1) { //invalid line
             return "";
         }
-        if(marrayNameParts[0].contains("NULL VALUES")){
+        if (marrayNameParts[0].contains("NULL VALUES")) {
             result = marrayNameParts[0].split("NULL VALUES")[0].trim();
-        }
-        else {
+        } else {
             result = marrayNameParts[0].trim();
         }
         return result;
@@ -273,7 +271,7 @@ public class TypeRegistry {
         Object result = RasUtil.executeRasqlQuery(QUERY_MARRAY_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         String[] fullStringResult = queryResult.toString().split("\0");
-        for(String marrayLine: fullStringResult){
+        for (String marrayLine : fullStringResult) {
             String marrayName = parseMarrayName(marrayLine);
             String marrayStructure = parseMarrayStructure(marrayLine);
             marrayTypeDefinitions.put(marrayName, marrayStructure);
@@ -284,31 +282,31 @@ public class TypeRegistry {
         Object result = RasUtil.executeRasqlQuery(QUERY_STRUCT_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         String[] fullStringResult = queryResult.toString().split("\0");
-        for(String i: fullStringResult){
+        for (String i : fullStringResult) {
             String[] parts = i.split("CREATE TYPE ");
             String typeName = "";
             String typeStructure = "";
-            if(parts.length > 1){
+            if (parts.length > 1) {
                 String[] nameParts = parts[1].split(" ");
-                if(nameParts.length > 0){
+                if (nameParts.length > 0) {
                     typeName = nameParts[0].trim();
                 }
             }
             String[] structParts = i.split("AS");
-            if(structParts.length > 1){
-                typeStructure = "struct " + structParts[1].trim().replace("(", "{").replace(")","}");
+            if (structParts.length > 1) {
+                typeStructure = "struct " + structParts[1].trim().replace("(", "{").replace(")", "}");
             }
             structTypeDefinitions.put(typeName, typeStructure);
         }
     }
 
-    private String parseMarrayName(String marrayLine){
+    private String parseMarrayName(String marrayLine) {
         String[] parts = marrayLine.split("CREATE TYPE ");
-        if(parts.length < 2){ //invalid line
+        if (parts.length < 2) { //invalid line
             return "";
         }
         String[] marrayParts = parts[1].split(" ");
-        if(marrayParts.length < 1){ //invalid line
+        if (marrayParts.length < 1) { //invalid line
             return "";
         }
         return marrayParts[0];
@@ -316,12 +314,12 @@ public class TypeRegistry {
 
     private String parseMarrayStructure(String marrayLine) throws RasdamanException {
         String[] parts = marrayLine.split("AS");
-        if(parts.length < 2){ //invalid line
+        if (parts.length < 2) { //invalid line
             return "";
         }
         String marrayStructure = parts[1].trim();
         String[] marrayStructureParts = marrayStructure.split("MDARRAY");
-        if(marrayStructureParts.length < 2){ //invalid line
+        if (marrayStructureParts.length < 2) { //invalid line
             return "";
         }
         //marrayStructureParts[0] is the type or structure name, marrayStructureParts[1] is the dimensionality
@@ -329,10 +327,9 @@ public class TypeRegistry {
     }
 
     private String expandStructureType(String typeName) throws RasdamanException {
-        if(structTypeDefinitions.keySet().contains(typeName)){
+        if (structTypeDefinitions.keySet().contains(typeName)) {
             return structTypeDefinitions.get(typeName);
-        }
-        else {
+        } else {
             return typeName;
         }
     }
@@ -388,15 +385,15 @@ public class TypeRegistry {
                     String baseType = StringUtils.join(baseTypeParts, "");
                     String[] nullParts = setTypeNullValues.get(entry.getKey()).split(",");
                     List<NilValue> nullValues = new ArrayList<NilValue>();
-                    for (String val: nullParts){
+                    for (String val : nullParts) {
                         if (!val.isEmpty()) {
                             //if the value that is parsed is an interval with the same limits (e.g. 5:5), add only 1
                             //value. This is needed because currently there is a bug when creating types via rasql,
                             //which doesn't allow single values to be specified. However, petascope needs to display single
                             //values when presenting the output to the user.
-                            if (val.contains(":")){
+                            if (val.contains(":")) {
                                 String[] parts = val.split(":");
-                                if (parts.length == 2 & parts[0].equals(parts[1])){
+                                if (parts.length == 2 & parts[0].equals(parts[1])) {
                                     val = parts[0];
                                 }
                             }
@@ -443,15 +440,15 @@ public class TypeRegistry {
         @Override
         public String toString() {
             return "TypeRegistryEntry{" +
-                    "baseType='" + baseType + '\'' +
-                    ", domainType='" + domainType + '\'' +
-                    ", nullValues='" + nullValues.toString() + "'" +
-                    '}';
+                   "baseType='" + baseType + '\'' +
+                   ", domainType='" + domainType + '\'' +
+                   ", nullValues='" + nullValues.toString() + "'" +
+                   '}';
         }
 
         public Boolean equals(TypeRegistryEntry another) {
             return another.getBaseType().equals(this.baseType) &&
-                    another.getDomainType().equals(this.domainType);
+                   another.getDomainType().equals(this.domainType);
         }
 
         public List<NilValue> getNullValues() {

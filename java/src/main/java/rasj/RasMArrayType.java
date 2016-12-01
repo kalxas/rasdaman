@@ -42,8 +42,7 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
-public class RasMArrayType extends RasType
-{
+public class RasMArrayType extends RasType {
     static final String rcsid = "@(#)Package rasj, class RasMArrayType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasMArrayType.java,v 1.8 2003/12/19 16:22:27 rasdev Exp $";
 
     private RasBaseType baseType;
@@ -51,39 +50,35 @@ public class RasMArrayType extends RasType
     /**
      * Default constructor.
      **/
-    public RasMArrayType()
-    {
-	super();
-	baseType = null;
+    public RasMArrayType() {
+        super();
+        baseType = null;
     }
 
     /**
      * Constructor getting the type of th new MArray.
      * @param newBaseType the type of the new MArray
      **/
-    public RasMArrayType(RasBaseType newBaseType)
-    {
-	super("RAS_MARRAY");
-	typeID = RasGlobalDefs.RAS_MARRAY;
-	baseType = newBaseType;
+    public RasMArrayType(RasBaseType newBaseType) {
+        super("RAS_MARRAY");
+        typeID = RasGlobalDefs.RAS_MARRAY;
+        baseType = newBaseType;
     }
 
     /**
      * Retrieves the base type of this MArray.
      * @return the base type of this MArray
      **/
-    public RasBaseType getBaseType()
-    {
-	return baseType;
+    public RasBaseType getBaseType() {
+        return baseType;
     }
 
     /**
      * Returns a string representing this object.
      * @return the string representation of this object
      **/
-    public String toString()
-    {
-	return super.toString() + "BaseType of MArray: \n" + baseType + "\n ";
+    public String toString() {
+        return super.toString() + "BaseType of MArray: \n" + baseType + "\n ";
     }
 
 

@@ -42,7 +42,7 @@ class RasMgrTester
 public:
     RasMgrTester();
     ~RasMgrTester();
-    void setRasMgrHost(const char *rasmgrHost, int port);
+    void setRasMgrHost(const char* rasmgrHost, int port);
     bool mayWeDoTest();
 
     // load command from string
@@ -56,7 +56,7 @@ public:
 
     // load expected from file, until delim, without it
     // if delim==0, until EOF
-    bool loadExpected(std::ifstream&,char delim);
+    bool loadExpected(std::ifstream&, char delim);
 
     bool sendCommandGetAnswer();
 
@@ -73,13 +73,13 @@ public:
 private:
     // STL ifstream::getline() drops the '\n', but let's a '\r' live
     // so this function clears this stupid '\r'
-    void clearCR(char *line);
-    void clearFinalCRLF(char *string);
+    void clearCR(char* line);
+    void clearFinalCRLF(char* string);
     UserLogin  userLogin;
     RasMgrClientComm rasmgrClient;
 
-    char *command;
-    char *expected;
+    char* command;
+    char* expected;
 
 };
 #endif

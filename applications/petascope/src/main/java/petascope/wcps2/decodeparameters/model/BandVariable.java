@@ -26,8 +26,8 @@ package petascope.wcps2.decodeparameters.model;
  *
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
-public class BandVariable implements Variable{
-    
+public class BandVariable implements Variable {
+
     private String type;
     private BandVariableMetadata metadata;
     private String name;
@@ -57,8 +57,8 @@ public class BandVariable implements Variable{
 
     public void setMetadata(BandVariableMetadata metadata) {
         this.metadata = metadata;
-    }    
-    
+    }
+
     public void setName(String name) {
         this.name = name;
     }

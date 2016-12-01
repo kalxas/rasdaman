@@ -117,9 +117,9 @@ public class PersistenceConfig {
     /**
      * All metadata classes. If a new metadata class is added it should be listed here for it to be initialized
      */
-    private final Class[] metadataClasses = new Class[]{Attribution.class, AuthorityURL.class,
+    private final Class[] metadataClasses = new Class[] {Attribution.class, AuthorityURL.class,
             BoundingBox.class, ContactInformation.class, Crs.class, DataURL.class, EXGeographicBoundingBox.class, ExceptionFormat.class,
             GetCapabilitiesFormat.class, GetMapFormat.class, Layer.class, LegendURL.class, MetadataURL.class, Service.class,
             ServiceKeyword.class, Style.class, RasdamanLayer.class, Dimension.class
-    };
+                                                        };
 }

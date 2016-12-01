@@ -48,7 +48,7 @@ public:
     QtAtomicData();
 
     /// constructor getting signed integer data
-    QtAtomicData( r_Long value, unsigned short byteLength );
+    QtAtomicData(r_Long value, unsigned short byteLength);
     /**
       The value for {\tt byteLength} specifies the type of the constant.
 
@@ -60,7 +60,7 @@ public:
     */
 
     /// constructor getting unsigned integer data
-    QtAtomicData( r_ULong value, unsigned short byteLength );
+    QtAtomicData(r_ULong value, unsigned short byteLength);
     /**
       The value for {\tt byteLength} specifies the type of the constant.
 
@@ -72,10 +72,10 @@ public:
     */
 
     /// constructor getting boolean data
-    QtAtomicData( bool value );
+    QtAtomicData(bool value);
 
     /// constructor getting float data
-    QtAtomicData( double value, unsigned short byteLength );
+    QtAtomicData(double value, unsigned short byteLength);
     /**
       The value for {\tt byteLength} specifies the type of the constant.
 
@@ -89,7 +89,7 @@ public:
     QtAtomicData(double valRe, double valIm, unsigned short size);
 
     /// copy constructor
-    QtAtomicData( const QtAtomicData& obj );
+    QtAtomicData(const QtAtomicData& obj);
 
     /// destructor
     virtual ~QtAtomicData();
@@ -104,7 +104,7 @@ public:
     double getDoubleValue() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus( std::ostream& stream = std::cout ) const;
+    virtual void printStatus(std::ostream& stream = std::cout) const;
 };
 
 #include "qlparser/qtatomicdata.icc"

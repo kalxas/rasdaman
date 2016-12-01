@@ -37,12 +37,12 @@ public class RasUtil {
         ByteBuffer buffer = ByteBuffer.wrap(array.getArray());
         buffer.order(ByteOrder.BIG_ENDIAN);
         RasBaseType type = array.getBaseTypeSchema();
-        int size = (int) (array.getArraySize() / array.getTypeLength());
+        int size = (int)(array.getArraySize() / array.getTypeLength());
         return parseArray(buffer, size, type);
     }
 
     public static Object[] parseArray(ByteBuffer buffer, int size, RasBaseType type)
-            throws  RasException {
+    throws  RasException {
         RasBaseType[] types;
         if (type.isStructType()) {
             types = ((RasStructureType) type).getBaseTypes();
@@ -56,66 +56,66 @@ public class RasUtil {
 
         for (int i = 0; i < typeSize; ++i) {
             switch (types[i].getTypeID()) {
-                case RasGlobalDefs.RAS_BYTE:
-                case RasGlobalDefs.RAS_CHAR:
-                    result[i] = new short[size];
-                    break;
-                case RasGlobalDefs.RAS_BOOLEAN:
-                    result[i] = new boolean[size];
-                    break;
-                case RasGlobalDefs.RAS_INT:
-                case RasGlobalDefs.RAS_LONG:
-                case RasGlobalDefs.RAS_USHORT:
-                    result[i] = new int[size];
-                    break;
-                case RasGlobalDefs.RAS_ULONG:
-                    result[i] = new long[size];
-                    break;
-                case RasGlobalDefs.RAS_SHORT:
-                    result[i] = new short[size];
-                    break;
-                case RasGlobalDefs.RAS_FLOAT:
-                    result[i] = new float[size];
-                    break;
-                case RasGlobalDefs.RAS_DOUBLE:
-                    result[i] = new double[size];
-                    break;
-                default:
-                    throw new RasException("Unknown base type:\n" + type);
+            case RasGlobalDefs.RAS_BYTE:
+            case RasGlobalDefs.RAS_CHAR:
+                result[i] = new short[size];
+                break;
+            case RasGlobalDefs.RAS_BOOLEAN:
+                result[i] = new boolean[size];
+                break;
+            case RasGlobalDefs.RAS_INT:
+            case RasGlobalDefs.RAS_LONG:
+            case RasGlobalDefs.RAS_USHORT:
+                result[i] = new int[size];
+                break;
+            case RasGlobalDefs.RAS_ULONG:
+                result[i] = new long[size];
+                break;
+            case RasGlobalDefs.RAS_SHORT:
+                result[i] = new short[size];
+                break;
+            case RasGlobalDefs.RAS_FLOAT:
+                result[i] = new float[size];
+                break;
+            case RasGlobalDefs.RAS_DOUBLE:
+                result[i] = new double[size];
+                break;
+            default:
+                throw new RasException("Unknown base type:\n" + type);
             }
         }
 
         for (int j = 0; j < size; ++j) {
             for (int i = 0; i < typeSize; ++i) {
                 switch (types[i].getTypeID()) {
-                    case RasGlobalDefs.RAS_BYTE:
-                        ((short[]) result[i])[j] = (short) buffer.get();
-                        break;
-                    case RasGlobalDefs.RAS_CHAR:
-                        ((short[]) result[i])[j] = (short) signedToUnsigned(buffer.get(), 8);
-                        break;
-                    case RasGlobalDefs.RAS_BOOLEAN:
-                        ((boolean[]) result[i])[j] = (buffer.get() != 0);
-                        break;
-                    case RasGlobalDefs.RAS_INT:
-                    case RasGlobalDefs.RAS_LONG:
-                        ((int[]) result[i])[j] = buffer.getInt();
-                        break;
-                    case RasGlobalDefs.RAS_ULONG:
-                        ((long[]) result[i])[j] = signedToUnsigned(buffer.getInt(), 32);
-                        break;
-                    case RasGlobalDefs.RAS_SHORT:
-                        ((short[]) result[i])[j] = buffer.getShort();
-                        break;
-                    case RasGlobalDefs.RAS_USHORT:
-                        ((int[]) result[i])[j] = (int) signedToUnsigned(buffer.getShort(), 16);
-                        break;
-                    case RasGlobalDefs.RAS_FLOAT:
-                        ((float[]) result[i])[j] = buffer.getFloat();
-                        break;
-                    case RasGlobalDefs.RAS_DOUBLE:
-                        ((double[]) result[i])[j] = buffer.getDouble();
-                        break;
+                case RasGlobalDefs.RAS_BYTE:
+                    ((short[]) result[i])[j] = (short) buffer.get();
+                    break;
+                case RasGlobalDefs.RAS_CHAR:
+                    ((short[]) result[i])[j] = (short) signedToUnsigned(buffer.get(), 8);
+                    break;
+                case RasGlobalDefs.RAS_BOOLEAN:
+                    ((boolean[]) result[i])[j] = (buffer.get() != 0);
+                    break;
+                case RasGlobalDefs.RAS_INT:
+                case RasGlobalDefs.RAS_LONG:
+                    ((int[]) result[i])[j] = buffer.getInt();
+                    break;
+                case RasGlobalDefs.RAS_ULONG:
+                    ((long[]) result[i])[j] = signedToUnsigned(buffer.getInt(), 32);
+                    break;
+                case RasGlobalDefs.RAS_SHORT:
+                    ((short[]) result[i])[j] = buffer.getShort();
+                    break;
+                case RasGlobalDefs.RAS_USHORT:
+                    ((int[]) result[i])[j] = (int) signedToUnsigned(buffer.getShort(), 16);
+                    break;
+                case RasGlobalDefs.RAS_FLOAT:
+                    ((float[]) result[i])[j] = buffer.getFloat();
+                    break;
+                case RasGlobalDefs.RAS_DOUBLE:
+                    ((double[]) result[i])[j] = buffer.getDouble();
+                    break;
                 }
             }
         }
@@ -124,8 +124,8 @@ public class RasUtil {
     }
 
     public static RasGMArray createArray(Object[] data, int size, RasBaseType type)
-            throws RasException {
-        ByteBuffer buffer = ByteBuffer.allocate((int) (size * type.getSize()));
+    throws RasException {
+        ByteBuffer buffer = ByteBuffer.allocate((int)(size * type.getSize()));
         RasBaseType[] types;
         if (type.isStructType()) {
             types = ((RasStructureType) type).getBaseTypes();
@@ -137,33 +137,33 @@ public class RasUtil {
             for (int j = 0; j < types.length; ++j) {
                 Object array = data[j];
                 switch (types[j].getTypeID()) {
-                    case RasGlobalDefs.RAS_CHAR:
-                    case RasGlobalDefs.RAS_BOOLEAN:
-                        buffer.put(((byte[]) array)[i]);
-                        break;
-                    case RasGlobalDefs.RAS_BYTE:
-                        buffer.put((byte) ((int[]) array)[i]);
-                    case RasGlobalDefs.RAS_INT:
-                    case RasGlobalDefs.RAS_LONG:
-                        buffer.putInt((int) ((long[]) array)[i]);
-                        break;
-                    case RasGlobalDefs.RAS_ULONG:
-                        buffer.putInt((int) unsignedToSigned(((long[]) array)[i], 32));
-                        break;
-                    case RasGlobalDefs.RAS_SHORT:
-                        buffer.putShort((short) ((int[]) array)[i]);
-                        break;
-                    case RasGlobalDefs.RAS_USHORT:
-                        buffer.putShort((short) unsignedToSigned(((int[]) array)[i], 16));
-                        break;
-                    case RasGlobalDefs.RAS_FLOAT:
-                        buffer.putFloat(((float[]) array)[i]);
-                        break;
-                    case RasGlobalDefs.RAS_DOUBLE:
-                        buffer.putDouble(((double[]) array)[i]);
-                        break;
-                    default:
-                        throw new RasException("Unknown base type:\n" + type);
+                case RasGlobalDefs.RAS_CHAR:
+                case RasGlobalDefs.RAS_BOOLEAN:
+                    buffer.put(((byte[]) array)[i]);
+                    break;
+                case RasGlobalDefs.RAS_BYTE:
+                    buffer.put((byte)((int[]) array)[i]);
+                case RasGlobalDefs.RAS_INT:
+                case RasGlobalDefs.RAS_LONG:
+                    buffer.putInt((int)((long[]) array)[i]);
+                    break;
+                case RasGlobalDefs.RAS_ULONG:
+                    buffer.putInt((int) unsignedToSigned(((long[]) array)[i], 32));
+                    break;
+                case RasGlobalDefs.RAS_SHORT:
+                    buffer.putShort((short)((int[]) array)[i]);
+                    break;
+                case RasGlobalDefs.RAS_USHORT:
+                    buffer.putShort((short) unsignedToSigned(((int[]) array)[i], 16));
+                    break;
+                case RasGlobalDefs.RAS_FLOAT:
+                    buffer.putFloat(((float[]) array)[i]);
+                    break;
+                case RasGlobalDefs.RAS_DOUBLE:
+                    buffer.putDouble(((double[]) array)[i]);
+                    break;
+                default:
+                    throw new RasException("Unknown base type:\n" + type);
                 }
             }
         }
@@ -180,32 +180,33 @@ public class RasUtil {
             RasBaseType[] types = rst.getBaseTypes();
             int size = types.length;
             Object[] result = new Object[size];
-            for (int i = 0; i < size; ++i)
+            for (int i = 0; i < size; ++i) {
                 result[i] = parseElement(buffer, types[i]);
+            }
             return result;
 
         } else {
             switch (type.getTypeID()) {
-                case RasGlobalDefs.RAS_BYTE:
-                case RasGlobalDefs.RAS_CHAR:
-                    return signedToUnsigned(buffer.get(), 8);
-                case RasGlobalDefs.RAS_BOOLEAN:
-                    return buffer.get() != 0;
-                case RasGlobalDefs.RAS_INT:
-                case RasGlobalDefs.RAS_LONG:
-                    return buffer.getInt();
-                case RasGlobalDefs.RAS_ULONG:
-                    return signedToUnsigned(buffer.getInt(), 32);
-                case RasGlobalDefs.RAS_SHORT:
-                    return buffer.getShort();
-                case RasGlobalDefs.RAS_USHORT:
-                    return signedToUnsigned(buffer.getShort(), 16);
-                case RasGlobalDefs.RAS_FLOAT:
-                    return buffer.getFloat();
-                case RasGlobalDefs.RAS_DOUBLE:
-                    return buffer.getDouble();
-                default:
-                    throw new RasException("Unknown base type:\n" + type);
+            case RasGlobalDefs.RAS_BYTE:
+            case RasGlobalDefs.RAS_CHAR:
+                return signedToUnsigned(buffer.get(), 8);
+            case RasGlobalDefs.RAS_BOOLEAN:
+                return buffer.get() != 0;
+            case RasGlobalDefs.RAS_INT:
+            case RasGlobalDefs.RAS_LONG:
+                return buffer.getInt();
+            case RasGlobalDefs.RAS_ULONG:
+                return signedToUnsigned(buffer.getInt(), 32);
+            case RasGlobalDefs.RAS_SHORT:
+                return buffer.getShort();
+            case RasGlobalDefs.RAS_USHORT:
+                return signedToUnsigned(buffer.getShort(), 16);
+            case RasGlobalDefs.RAS_FLOAT:
+                return buffer.getFloat();
+            case RasGlobalDefs.RAS_DOUBLE:
+                return buffer.getDouble();
+            default:
+                throw new RasException("Unknown base type:\n" + type);
             }
         }
     }

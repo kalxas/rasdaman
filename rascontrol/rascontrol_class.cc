@@ -69,82 +69,93 @@ extern UserLogin userLogin;
 
 EditLine::EditLine()
 {
-    line[0]= EOS_CHAR;
+    line[0] = EOS_CHAR;
 
 #ifdef READLINELIB
-    using_history ();
-    rl_bind_key ('\t', rl_insert);
+    using_history();
+    rl_bind_key('\t', rl_insert);
 #endif
 }
 EditLine::~EditLine()
 {
 }
 
-const char *EditLine::interactiveCommand(const char *prompt)
+const char* EditLine::interactiveCommand(const char* prompt)
 {
 #ifdef READLINELIB
-    char *rasp=rl_gets (prompt);
+    char* rasp = rl_gets(prompt);
 
 #else
-    std::cout<<prompt<<std::flush;
-    char *rasp=fgets(line,MAXMSG-1,stdin);
+    std::cout << prompt << std::flush;
+    char* rasp = fgets(line, MAXMSG - 1, stdin);
 
 #endif
 
-    if(rasp==0) return 0;
+    if (rasp == 0)
+    {
+        return 0;
+    }
     strcpy(line, rasp);
     return line;
 
 }
 
-const char *EditLine::fromStdinCommand(const char* prompt)
+const char* EditLine::fromStdinCommand(const char* prompt)
 {
-    if(prompt) std::cout<<prompt<<std::flush;
-    char *rasp=fgets(line,MAXMSG-1,stdin);
+    if (prompt)
+    {
+        std::cout << prompt << std::flush;
+    }
+    char* rasp = fgets(line, MAXMSG - 1, stdin);
 
-    if(rasp==0)
+    if (rasp == 0)
     {
         return 0;
     }
 
     int i;
-    for(i=0; line[i]; i++)
+    for (i = 0; line[i]; i++)
     {
-        if(line[i]=='\r' || line[i]=='\n')
+        if (line[i] == '\r' || line[i] == '\n')
         {
-            line[i]=0;
+            line[i] = 0;
             break;
         }
     }
 
-    for(i=0; line[i]; i++)
+    for (i = 0; line[i]; i++)
     {
-        if(line[i]==' ' || line[i]=='\t') continue;
+        if (line[i] == ' ' || line[i] == '\t')
+        {
+            continue;
+        }
         break;
     }
-    return line +i;
+    return line + i;
 }
 
-char * EditLine::rl_gets(const char *prompt)
+char* EditLine::rl_gets(const char* prompt)
 {
 #ifdef READLINELIB
-    static char *line_read = (char *)NULL;
+    static char* line_read = (char*)NULL;
 
     /* If the buffer has already been allocated, return the memory
     to the free pool. */
 
     if (line_read)
     {
-        free (line_read);
-        line_read = (char *)NULL;
+        free(line_read);
+        line_read = (char*)NULL;
     }
 
     /* Get a line from the user. */
-    line_read = readline (const_cast<char*>(prompt));
+    line_read = readline(const_cast<char*>(prompt));
 
     /* If the line has any text in it, save it on the history. */
     if (line_read && *line_read)
-        add_history (line_read);
+    {
+        add_history(line_read);
+    }
 
     return (line_read);
 #else
@@ -155,37 +166,37 @@ char * EditLine::rl_gets(const char *prompt)
 
 //################ Config ##################################
 RascontrolConfig::RascontrolConfig() :
-    cmlInter        (CommandLineParser::getInstance()),
-    cmlHelp         (cmlInter.addFlagParameter('h',"help", "this help")),
-    cmlHost         (cmlInter.addStringParameter(CommandLineParser::noShortName,"host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
-    cmlPort         (cmlInter.addLongParameter(CommandLineParser::noShortName,"port", "<nnnn> rasmgr port",DEFAULT_PORT)),
-    cmlLogin        (cmlInter.addFlagParameter('l',"login", "just login prompt, used to set the environment variable RASLOGIN")),
+    cmlInter(CommandLineParser::getInstance()),
+    cmlHelp(cmlInter.addFlagParameter('h', "help", "this help")),
+    cmlHost(cmlInter.addStringParameter(CommandLineParser::noShortName, "host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
+    cmlPort(cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<nnnn> rasmgr port", DEFAULT_PORT)),
+    cmlLogin(cmlInter.addFlagParameter('l', "login", "just login prompt, used to set the environment variable RASLOGIN")),
 //#ifdef NO_OFFICIAL_RELEASE
-    cmlHist         (cmlInter.addStringParameter(CommandLineParser::noShortName, "hist", "<file-name> used to store your commands in file, as help for batch file.")),
+    cmlHist(cmlInter.addStringParameter(CommandLineParser::noShortName, "hist", "<file-name> used to store your commands in file, as help for batch file.")),
 //#endif
-    cmlPrompt       (cmlInter.addStringParameter(CommandLineParser::noShortName, "prompt", "<nnn> change rascontrol prompt as following:\n\t\t 0 - prompt '>'\n\t\t 1 - prompt 'rasc>'\n\t\t 2 - prompt 'user:host>'","2")),
-    cmlTestLogin    (cmlInter.addFlagParameter('t',"testlogin", "test if environment variable RASLOGIN is OK to login")),
-    cmlInteractive  (cmlInter.addFlagParameter('e',"interactive", "interactive mode, login from environment variable RASLOGIN")),
-    cmlQuiet        (cmlInter.addFlagParameter('q',"quiet", "quiet, don't print header (default on for -login and -testlogin)")),
-    cmlExecute      (cmlInter.addFlagParameter('x',"execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')"))
+    cmlPrompt(cmlInter.addStringParameter(CommandLineParser::noShortName, "prompt", "<nnn> change rascontrol prompt as following:\n\t\t 0 - prompt '>'\n\t\t 1 - prompt 'rasc>'\n\t\t 2 - prompt 'user:host>'", "2")),
+    cmlTestLogin(cmlInter.addFlagParameter('t', "testlogin", "test if environment variable RASLOGIN is OK to login")),
+    cmlInteractive(cmlInter.addFlagParameter('e', "interactive", "interactive mode, login from environment variable RASLOGIN")),
+    cmlQuiet(cmlInter.addFlagParameter('q', "quiet", "quiet, don't print header (default on for -login and -testlogin)")),
+    cmlExecute(cmlInter.addFlagParameter('x', "execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')"))
 {
     workModus = WKMINTERACTIV;
-    loginModus= LGIINTERACTIV;
+    loginModus = LGIINTERACTIV;
 
 // done by default value of command line parameters
 //    strcpy(rasmgrHost, cmlHost.getValueAsString());
 //    rasmgrPort = cmlPort.getValueAsLong();
 
     reqHist = false;
-    strcpy(histFileName,"rascontrol.hist");
+    strcpy(histFileName, "rascontrol.hist");
 
-    promptType=PROMPTFULL;
-    prompt[0]= EOS_CHAR;
-    command[0]= EOS_CHAR;
-    quiet =false;
+    promptType = PROMPTFULL;
+    prompt[0] = EOS_CHAR;
+    command[0] = EOS_CHAR;
+    quiet = false;
 }
 
-bool RascontrolConfig::interpretArguments(int argc, char **argv)
+bool RascontrolConfig::interpretArguments(int argc, char** argv)
 {
     //FIXME workarround for batch mode commands given to rascontrol
     //in current version it is generated an error if a parameter has many values:
@@ -194,10 +205,10 @@ bool RascontrolConfig::interpretArguments(int argc, char **argv)
     string shortX = string("") + CommandLineParser::ShortSign + cmlExecute.getShortName();
     string longX  = string("") + CommandLineParser::LongSign  + cmlExecute.getLongName();
 
-    for(lastArg = 1; lastArg<argc; lastArg++)
+    for (lastArg = 1; lastArg < argc; lastArg++)
     {
-        if( (strcmp(argv[lastArg], shortX.c_str())==0) ||
-                (strcmp(argv[lastArg], longX.c_str())==0) )
+        if ((strcmp(argv[lastArg], shortX.c_str()) == 0) ||
+                (strcmp(argv[lastArg], longX.c_str()) == 0))
         {
             lastArg++;
             break;
@@ -208,12 +219,16 @@ bool RascontrolConfig::interpretArguments(int argc, char **argv)
 
     try
     {
-        if(lastArg != argc)
+        if (lastArg != argc)
+        {
             cmlInter.processCommandLine(lastArg, argv);
+        }
         else
+        {
             cmlInter.processCommandLine(argc, argv);
+        }
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
@@ -221,7 +236,7 @@ bool RascontrolConfig::interpretArguments(int argc, char **argv)
 
 
 
-    if( cmlHelp.isPresent() )
+    if (cmlHelp.isPresent())
     {
         //we stop processing
         return true;
@@ -231,7 +246,7 @@ bool RascontrolConfig::interpretArguments(int argc, char **argv)
     {
         rasmgrPort = cmlPort.getValueAsLong();
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
@@ -239,52 +254,64 @@ bool RascontrolConfig::interpretArguments(int argc, char **argv)
 
     strcpy(rasmgrHost, cmlHost.getValueAsString());
 
-    if( cmlLogin.isPresent() )
+    if (cmlLogin.isPresent())
     {
         workModus = WKMLOGIN;
         quiet = true;
     }
 
-    if( cmlQuiet.isPresent() )
+    if (cmlQuiet.isPresent())
     {
         quiet = true;
     }
 
-    if( cmlTestLogin.isPresent() )
+    if (cmlTestLogin.isPresent())
     {
-        if(workModus==WKMINTERACTIV)
+        if (workModus == WKMINTERACTIV)
         {
             workModus = WKMTESTLOGIN;
             loginModus = LGIENVIRONM;
         }
-        else return paramError();
+        else
+        {
+            return paramError();
+        }
         quiet = true;
     }
 
-    if( cmlInteractive.isPresent() )
+    if (cmlInteractive.isPresent())
     {
-        if(workModus==WKMINTERACTIV) loginModus = LGIENVIRONM;
-        else return paramError();
+        if (workModus == WKMINTERACTIV)
+        {
+            loginModus = LGIENVIRONM;
+        }
+        else
+        {
+            return paramError();
+        }
     }
 
-    if( cmlExecute.isPresent() )
+    if (cmlExecute.isPresent())
     {
-        if(workModus==WKMINTERACTIV)
+        if (workModus == WKMINTERACTIV)
         {
             loginModus = LGIENVIRONM;
             workModus  = WKMBATCH;
 
-            for(int i=lastArg; i<argc; i++)
+            for (int i = lastArg; i < argc; i++)
             {
-                strcat(command,argv[i]);
-                strcat(command," ");
+                strcat(command, argv[i]);
+                strcat(command, " ");
             }
         }
-        else return paramError();
+        else
+        {
+            return paramError();
+        }
     }
 
 //#ifdef NO_OFFICIAL_RELEASE
-    if( cmlHist.isPresent() )
+    if (cmlHist.isPresent())
     {
         reqHist = true;
         strcpy(histFileName, cmlHist.getValueAsString());
@@ -295,26 +322,29 @@ bool RascontrolConfig::interpretArguments(int argc, char **argv)
     {
         promptType = cmlPrompt.getValueAsLong();
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
     }
 
-    if(promptType<PROMPTSING || promptType>PROMPTFULL) promptType=PROMPTFULL;
+    if (promptType < PROMPTSING || promptType > PROMPTFULL)
+    {
+        promptType = PROMPTFULL;
+    }
 
     return true;
 }
 
 bool RascontrolConfig::paramError()
 {
-    std::cout<<"Invalid parameter combination in command line!"<<std::endl;
+    std::cout << "Invalid parameter combination in command line!" << std::endl;
     return false;
 }
 
 void RascontrolConfig::printHelp()
 {
-    std::cout <<"Usage: " << std::endl << "\trascontrol\t["
+    std::cout << "Usage: " << std::endl << "\trascontrol\t["
               << CommandLineParser::LongSign << cmlHelp.getLongName()  << "]["
               << CommandLineParser::LongSign << cmlHost.getLongName()  << "<mainhost>]["
               << CommandLineParser::LongSign << cmlPort.getLongName()  << " <nn>]["
@@ -330,7 +360,7 @@ void RascontrolConfig::printHelp()
               << std::endl;
     std::cout << "Option description:" << std::endl;
     cmlInter.printHelp();
-    std::cout<<std::endl;
+    std::cout << std::endl;
 }
 
 int RascontrolConfig::getWorkModus()
@@ -370,20 +400,24 @@ const char* RascontrolConfig::getHistFileName()
 }
 const char* RascontrolConfig::getPrompt()
 {
-    if(prompt[0]!= EOS_CHAR) return prompt;
+    if (prompt[0] != EOS_CHAR)
+    {
+        return prompt;
+    }
 
-    switch(promptType)
+    switch (promptType)
     {
     case PROMPTSING :
-        strcpy(prompt,"> ");
+        strcpy(prompt, "> ");
         break;
     case PROMPTRASC :
-        strcpy(prompt,"rasc> ");
+        strcpy(prompt, "rasc> ");
         break;
     case PROMPTFULL :
-        sprintf(prompt,"%s:%s> ",userLogin.getUserName(),rasmgrHost);
+        sprintf(prompt, "%s:%s> ", userLogin.getUserName(), rasmgrHost);
         break;
-    default: break;
+    default:
+        break;
     }
     return prompt;
 }
@@ -394,47 +428,49 @@ const char* RascontrolConfig::getCommand()
 
 void RascontrolConfig::printDebugInfo()
 {
-    std::cout<<"Working modus:.";
-    switch(workModus)
+    std::cout << "Working modus:.";
+    switch (workModus)
     {
     case WKMUNKNOWN     :
-        std::cout<<"unknown";
+        std::cout << "unknown";
         break;
     case WKMINTERACTIV  :
-        std::cout<<"interactiv";
+        std::cout << "interactiv";
         break;
     case WKMBATCH       :
-        std::cout<<"batch";
+        std::cout << "batch";
         break;
     case WKMLOGIN       :
-        std::cout<<"login";
+        std::cout << "login";
         break;
-    default: break;
+    default:
+        break;
     }
 
-    std::cout<<std::endl<<"Login modus:...";
-    switch(loginModus)
+    std::cout << std::endl << "Login modus:...";
+    switch (loginModus)
     {
     case LGIUNKNOWN     :
-        std::cout<<"unknown";
+        std::cout << "unknown";
         break;
     case LGIINTERACTIV  :
-        std::cout<<"interactiv";
+        std::cout << "interactiv";
         break;
     case LGIENVIRONM    :
-        std::cout<<"environm";
+        std::cout << "environm";
         break;
-    default: break;
+    default:
+        break;
     }
 
-    std::cout<<std::endl<<"Rasmgr:........"<<rasmgrHost<<":"<<rasmgrPort;
+    std::cout << std::endl << "Rasmgr:........" << rasmgrHost << ":" << rasmgrPort;
 
-    std::cout<<std::endl<<"History:......."<<(reqHist ? histFileName : "not requested");
+    std::cout << std::endl << "History:......." << (reqHist ? histFileName : "not requested");
 
-    std::cout<<std::endl<<"Prompt:........"<<getPrompt();
+    std::cout << std::endl << "Prompt:........" << getPrompt();
 
-    std::cout<<std::endl<<"Command:......."<<command;
+    std::cout << std::endl << "Command:......." << command;
 
-    std::cout<<std::endl;
+    std::cout << std::endl;
 }
 

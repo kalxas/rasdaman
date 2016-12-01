@@ -60,7 +60,7 @@ public class UpdateServiceProviderMetadata extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
 
         // Create a session object if it is already not created.
         HttpSession session = request.getSession();
@@ -234,9 +234,9 @@ public class UpdateServiceProviderMetadata extends HttpServlet {
             // init Db Metadatasource
             // NOTE: When submit data, also need to reload MetadataSource
             dbMetadataSource = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                    ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER,
-                    ConfigManager.METADATA_PASS, false);
+                                                    ConfigManager.METADATA_URL,
+                                                    ConfigManager.METADATA_USER,
+                                                    ConfigManager.METADATA_PASS, false);
 
             // 1. Get Service Metadata (Provider, Identification)
             ServiceMetadata sMeta = dbMetadataSource.getServiceMetadata();
@@ -267,7 +267,7 @@ public class UpdateServiceProviderMetadata extends HttpServlet {
     @Override
     @SuppressWarnings("empty-statement")
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -281,7 +281,7 @@ public class UpdateServiceProviderMetadata extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         processRequest(request, response);
     }
 

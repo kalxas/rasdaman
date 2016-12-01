@@ -87,7 +87,7 @@ public class GetCapabilitiesValidator implements Validator<GetCapabilitiesReques
      * @throws petascope.wms2.service.exception.error.WMSInvalidUpdateSequenceException
      */
     private void validateUpdateSequenceNumber(@Nullable String clientUpdateSequenceString)
-            throws SQLException, WMSCurrentUpdateSequenceException, WMSInvalidUpdateSequenceException {
+    throws SQLException, WMSCurrentUpdateSequenceException, WMSInvalidUpdateSequenceException {
         if (clientUpdateSequenceString != null) {
             long updateSequence = persistentMetadataObjectProvider.getLayer().countOf();
             long clientUpdateSequence = Long.parseLong(clientUpdateSequenceString);

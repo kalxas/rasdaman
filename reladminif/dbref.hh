@@ -76,7 +76,7 @@ public:
     Default constructor. Object must be assigned a value before the first dereferencing.
     */
 
-    DBRef(const OId &id);
+    DBRef(const OId& id);
     /*@Doc:
     Id-constructor, binds smart pointer to object with the given id (must only be unique
     within class T, not within all classes derived from DbObject).
@@ -88,12 +88,12 @@ public:
     within class T, not within all classes derived from DbObject).
     */
 
-    DBRef(const DBRef<T> &src);
+    DBRef(const DBRef<T>& src);
     /*@Doc:
     Copy-constructor, binds smart pointer to the same object src is bound to.
     */
 
-    DBRef(T *ptr);
+    DBRef(T* ptr);
     /*@Doc:
     Object-constructor, binds smart pointer explicitly to the object ptr.
     */
@@ -109,7 +109,7 @@ public:
     Returns true if me.operator==(other) returns -1
     */
 
-    int operator==(const DBRef<T> &src) const;
+    int operator==(const DBRef<T>& src) const;
     /*@Doc:
     Comparison operator:
     Returns:
@@ -126,49 +126,49 @@ public:
         -1 if this is initialised and src is not initialised
     */
 
-    DBRef<T> &operator=(const DBRef<T> &src);
+    DBRef<T>& operator=(const DBRef<T>& src);
     /*@Doc:
     Assignment operator: removes old binding and rebinds to the same object managed by src.
     */
 
-    DBRef<T> &operator=(T *ptr);
+    DBRef<T>& operator=(T* ptr);
     /*@Doc:
     Assignment operator: removes old binding and rebinds to object ptr.
     */
 
-    T *operator->(void) throw (r_Error);
+    T* operator->(void) throw (r_Error);
     /*@Doc:
     Dereferencing operator -> for accessing the managed object's members.
     */
 
-    const T *operator->(void) const throw (r_Error);
+    const T* operator->(void) const throw (r_Error);
     /*@Doc:
     Dereferencing operator -> for accessing the managed object's members.
     */
 
-    T &operator*(void) throw (r_Error);
+    T& operator*(void) throw (r_Error);
     /*@Doc:
     Dereferencing operator * for accessing the managed object.
     */
 
-    const T &operator*(void) const throw (r_Error);
+    const T& operator*(void) const throw (r_Error);
     /*@Doc:
     Dereferencing operator * for accessing the managed object.
     */
 
 #ifndef __GNUG__
-    T &operator[](int idx) const throw (r_Error);
+    T& operator[](int idx) const throw (r_Error);
     /*@Doc:
     Dereferencing operator [] for accessing array objects.
     */
 #endif
 
-    T *ptr(void) throw (r_Error);
+    T* ptr(void) throw (r_Error);
     /*@Doc:
     Returns pointer to managed object.
     */
 
-    const T *ptr(void) const throw (r_Error);
+    const T* ptr(void) const throw (r_Error);
     /*@Doc:
     Returns pointer to managed object.
     */
@@ -239,21 +239,21 @@ public:
     cast operator.  checks it the objects type is of OId::MDDRCIXOID.
     */
 
-    operator IndexDS*() const throw (r_Error);
+    operator IndexDS* () const throw (r_Error);
     /*@Doc:
     cast operator.  checks it the objects type is of any valid index.
     */
 
-    operator HierIndexDS*() const throw (r_Error);
+    operator HierIndexDS* () const throw (r_Error);
     /*@Doc:
     cast operator.  checks it the objects type is of any valid hierarchical index.
     */
 
-    operator T*() throw (r_Error);
+    operator T* () throw (r_Error);
     /*@Doc:
     */
 
-    operator const T*() const throw (r_Error);
+    operator const T* () const throw (r_Error);
     /*@Doc:
     */
 
@@ -280,7 +280,7 @@ public:
 private:
 
 
-    mutable T *object;
+    mutable T* object;
     /*@Doc:
     Pointer to the managed object or 0 if no binding exists.
     */
@@ -299,7 +299,7 @@ private:
     static bool pointerCaching;
 };
 
-template <class T> bool operator< (const DBRef<T> &me, const DBRef<T> &him);
+template <class T> bool operator< (const DBRef<T>& me, const DBRef<T>& him);
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__

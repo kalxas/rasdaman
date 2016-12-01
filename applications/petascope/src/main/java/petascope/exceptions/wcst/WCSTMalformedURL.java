@@ -25,7 +25,7 @@ import petascope.exceptions.ExceptionCode;
  *
  * @author rasdaman
  */
-public class WCSTMalformedURL extends WCSTException{
+public class WCSTMalformedURL extends WCSTException {
     public WCSTMalformedURL() {
         super(ExceptionCode.WCSTMalformedURL, EXCEPTION_TEXT);
     }

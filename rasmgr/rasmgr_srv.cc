@@ -45,27 +45,27 @@ rasdaman GmbH.
 #define INITIAL_COUNTDOWN 1000
 RasServer::RasServer()
 {
-    serverName[0]=0;
-    extraParam[0]=0;
-    ptrServerHost=NULL;
-    ptrDatabaseHost=NULL;
+    serverName[0] = 0;
+    extraParam[0] = 0;
+    ptrServerHost = NULL;
+    ptrDatabaseHost = NULL;
     //connStr[0]=0;
-    available=isup=isstarting=false;
-    valid=false;
-    downReq=false;
+    available = isup = isstarting = false;
+    valid = false;
+    downReq = false;
     initialCountDown = INITIAL_COUNTDOWN;
     currentCountDown = INITIAL_COUNTDOWN; // asa doreste management
 
-    writeTransaction=false; // no clearTransaction!!
-    readTransaction=false;
+    writeTransaction = false; // no clearTransaction!!
+    readTransaction = false;
     connDatabase = NULL;
 
-    activityExpected=false;
+    activityExpected = false;
     crashCount = 0;
     activityCounter = 0;    // will be changed in init()
 
     autorestart = true;
-    strcpy(executableName,RASEXECUTABLE);
+    strcpy(executableName, RASEXECUTABLE);
 }
 
 RasServer::~RasServer()
@@ -79,7 +79,7 @@ const char* RasServer::getName()
 
 const char* RasServer::getHostName()
 {
-    if(ptrServerHost)
+    if (ptrServerHost)
     {
         return ptrServerHost->getName();
     }
@@ -88,7 +88,7 @@ const char* RasServer::getHostName()
 
 const char* RasServer::getHostNetwName()
 {
-    if(ptrServerHost)
+    if (ptrServerHost)
     {
         return ptrServerHost->getNetworkName();
     }
@@ -104,33 +104,33 @@ char  RasServer::getType()
     return serverType;
 }
 
-void  RasServer::changeName(const char *newName)
+void  RasServer::changeName(const char* newName)
 {
 // FIXME: input parameter validity check!
-    strncpy( serverName, newName, sizeof(serverName) );
+    strncpy(serverName, newName, sizeof(serverName));
 }
 
 void RasServer::changeType(const char newType) // char not char*!!
 // FIXME: input parameter validity check!
 {
-    serverType=newType;
+    serverType = newType;
 }
 
 void  RasServer::changePort(long newPort)
 {
-    listenPort=newPort;
+    listenPort = newPort;
 }
 
-void  RasServer::changeExtraParam(const char *xParam)
+void  RasServer::changeExtraParam(const char* xParam)
 // FIXME: input parameter validity check!
 {
-    strncpy(extraParam,xParam,sizeof(extraParam) );
+    strncpy(extraParam, xParam, sizeof(extraParam));
 }
 
 void  RasServer::changeCountDown(int newCountDown)
 {
-    initialCountDown=newCountDown;
-    currentCountDown=newCountDown;
+    initialCountDown = newCountDown;
+    currentCountDown = newCountDown;
 }
 
 void RasServer::changeAutoRestart(bool x)
@@ -147,16 +147,16 @@ int RasServer::getCountDown()
     return initialCountDown;
 }
 
-void  RasServer::init(const char *srvName,const char* hostName,char newServerType,long newListenPort)
+void  RasServer::init(const char* srvName, const char* hostName, char newServerType, long newListenPort)
 {
-    strcpy(this->serverName,srvName);
+    strcpy(this->serverName, srvName);
 
-    ptrServerHost=&hostmanager[hostName];// should be valid!
+    ptrServerHost = &hostmanager[hostName]; // should be valid!
 
-    isinternal=ptrServerHost->isInternal();
-    available=isup=false;
-    this->serverType=newServerType;
-    this->listenPort=newListenPort;
+    isinternal = ptrServerHost->isInternal();
+    available = isup = false;
+    this->serverType = newServerType;
+    this->listenPort = newListenPort;
 
     // RNP servers start with first action connectToDBMS() as opposed to the others,
     // therefore set counter appropriately. -- PB 2002-nov-23
@@ -176,7 +176,7 @@ void  RasServer::init(const char *srvName,const char* hostName,char newServerTyp
         break;
     }
 
-    valid=true;
+    valid = true;
 }
 
 bool RasServer::isValid()
@@ -202,9 +202,9 @@ bool RasServer::isAvailable()
 bool RasServer::forceAvailable()
 {
     // this function is just for advanced system debug, not for production work
-    if(isup)
+    if (isup)
     {
-        available=true;
+        available = true;
         clearPendingTransaction();
         return true;
     }
@@ -213,7 +213,7 @@ bool RasServer::forceAvailable()
 
 void RasServer::setNotAvailable()
 {
-    available=false;
+    available = false;
     regularSignalCounter = MAXREGULARCOUNTER;
 }
 
@@ -222,51 +222,66 @@ bool RasServer::isAutoRestart()
     return autorestart;
 }
 
-char* RasServer::getDescriptionHeader(char *destBuffer)
+char* RasServer::getDescriptionHeader(char* destBuffer)
 {
-    sprintf(destBuffer,"    %-20s %s   %-20s %-20s %-4s %-2s     %s   %s","Server Name","Type","Host","Db Host","Stat","Av","Acc","Crc");
+    sprintf(destBuffer, "    %-20s %s   %-20s %-20s %-4s %-2s     %s   %s", "Server Name", "Type", "Host", "Db Host", "Stat", "Av", "Acc", "Crc");
     return destBuffer;
 }
 
-char* RasServer::getDescription(char *destBuffer)
+char* RasServer::getDescription(char* destBuffer)
 {
-    char *sType=const_cast<char*>("(none)");
-    if(serverType==SERVERTYPE_FLAG_RPC)
-        sType=const_cast<char*>("(RPC) ");
-    if(serverType==SERVERTYPE_FLAG_HTTP)
-        sType=const_cast<char*>("(HTTP)");
-    if(serverType==SERVERTYPE_FLAG_RNP)
-        sType=const_cast<char*>("(RNP) ");
+    char* sType = const_cast<char*>("(none)");
+    if (serverType == SERVERTYPE_FLAG_RPC)
+    {
+        sType = const_cast<char*>("(RPC) ");
+    }
+    if (serverType == SERVERTYPE_FLAG_HTTP)
+    {
+        sType = const_cast<char*>("(HTTP)");
+    }
+    if (serverType == SERVERTYPE_FLAG_RNP)
+    {
+        sType = const_cast<char*>("(RNP) ");
+    }
 
-    const char* sUp= isup ? "UP  ":"DOWN";
+    const char* sUp = isup ? "UP  " : "DOWN";
 
-    const char* sAv= available ? "YES":"NO ";
+    const char* sAv = available ? "YES" : "NO ";
 
-    const char* host= ptrServerHost->getName();//"(internal)";
+    const char* host = ptrServerHost->getName(); //"(internal)";
 
     const char* dbHost = getDBHostName();
 
     //if(isinternal==false)
     //  { host=ptrServerHost->getName();
     //  }
-    sprintf(destBuffer,"%-20s %s %-20s %-20s %s %s %6ld    %2d",serverName,sType,host,dbHost,sUp,sAv,activityCounter,crashCount);
+    sprintf(destBuffer, "%-20s %s %-20s %-20s %s %s %6ld    %2d", serverName, sType, host, dbHost, sUp, sAv, activityCounter, crashCount);
 
     return destBuffer;
 }
 
-char* RasServer::getDescriptionPortHeader(char *destBuffer)
+char* RasServer::getDescriptionPortHeader(char* destBuffer)
 {
-    sprintf(destBuffer,"    %-20s %s   %-20s %-10s  %-3s   %-3s","Server Name","Type","Host","  Port","Ars","  Icd");
+    sprintf(destBuffer, "    %-20s %s   %-20s %-10s  %-3s   %-3s", "Server Name", "Type", "Host", "  Port", "Ars", "  Icd");
 
     return destBuffer;
 }
 
-char* RasServer::getDescriptionPort(char *destBuffer)
+char* RasServer::getDescriptionPort(char* destBuffer)
 {
-    char *sType=const_cast<char*>("(none)");
-    if(serverType==SERVERTYPE_FLAG_RPC) sType=const_cast<char*>("(RPC) ");
-    if(serverType==SERVERTYPE_FLAG_HTTP) sType=const_cast<char*>("(HTTP)");
-    if(serverType==SERVERTYPE_FLAG_RNP) sType=const_cast<char*>("(RNP) ");
+    char* sType = const_cast<char*>("(none)");
+    if (serverType == SERVERTYPE_FLAG_RPC)
+    {
+        sType = const_cast<char*>("(RPC) ");
+    }
+    if (serverType == SERVERTYPE_FLAG_HTTP)
+    {
+        sType = const_cast<char*>("(HTTP)");
+    }
+    if (serverType == SERVERTYPE_FLAG_RNP)
+    {
+        sType = const_cast<char*>("(RNP) ");
+    }
 
 //    const char* sUp= isup ? "UP  ":"DOWN";
 
@@ -274,49 +289,57 @@ char* RasServer::getDescriptionPort(char *destBuffer)
 
     const char* host = ptrServerHost->getName();
 
-    const char *ars = autorestart ? "on":"off";
+    const char* ars = autorestart ? "on" : "off";
 
-    if(serverType==SERVERTYPE_FLAG_RPC)
-        sprintf(destBuffer,"%-20s %s %-20s %#10lx  %-3s   %3d/%-3d",serverName,sType,host,listenPort,ars,currentCountDown,initialCountDown);
+    if (serverType == SERVERTYPE_FLAG_RPC)
+    {
+        sprintf(destBuffer, "%-20s %s %-20s %#10lx  %-3s   %3d/%-3d", serverName, sType, host, listenPort, ars, currentCountDown, initialCountDown);
+    }
     else
-        sprintf(destBuffer,"%-20s %s %-20s %10ld  %-3s   %3d/%-3d",serverName,sType,host,listenPort,ars,currentCountDown,initialCountDown);
+    {
+        sprintf(destBuffer, "%-20s %s %-20s %10ld  %-3s   %3d/%-3d", serverName, sType, host, listenPort, ars, currentCountDown, initialCountDown);
+    }
     //countdown=%d InitialCountDown,
     return destBuffer;
 }
 
-char* RasServer::getDescriptionExecHeader(char *destBuffer)
+char* RasServer::getDescriptionExecHeader(char* destBuffer)
 {
-    sprintf(destBuffer,"    %-20s  %-10s  Executable      Extraparameters","Server Name","Host");
+    sprintf(destBuffer, "    %-20s  %-10s  Executable      Extraparameters", "Server Name", "Host");
 
     return destBuffer;
 }
 
-char* RasServer::getDescriptionExec(char *destBuffer)
+char* RasServer::getDescriptionExec(char* destBuffer)
 {
 
     const char* host = ptrServerHost->getName();
 
-    sprintf(destBuffer,"%-20s %-10s   %-15s %s",serverName,host,executableName,extraParam);
+    sprintf(destBuffer, "%-20s %-10s   %-15s %s", serverName, host, executableName, extraParam);
 
     return destBuffer;
 }
 
-bool RasServer::connectToDBHost(const char *dbHostName)//, const char *connString)
+bool RasServer::connectToDBHost(const char* dbHostName)//, const char *connString)
 {
-    if(ptrDatabaseHost)
+    if (ptrDatabaseHost)
+    {
         return false;
-    DatabaseHost &dbh=dbHostManager[dbHostName];
+    }
+    DatabaseHost& dbh = dbHostManager[dbHostName];
 
-    if(dbh.isValid()==false)
+    if (dbh.isValid() == false)
+    {
         return false;
+    }
 
     ptrDatabaseHost = &dbh;
     //removed dbh.incrConnServers();
     //strcpy(connStr,connString);
 
-    for(int i=0; i<dbManager.countDatabases(); i++)
+    for (int i = 0; i < dbManager.countDatabases(); i++)
     {
-        if(dbManager[i].isConnectedToDBHost(dbHostName))
+        if (dbManager[i].isConnectedToDBHost(dbHostName))
         {
             dbManager[i].connectToRasServer(serverName);
         }
@@ -326,44 +349,56 @@ bool RasServer::connectToDBHost(const char *dbHostName)//, const char *connStrin
 
 bool RasServer::disconnectFromDBHost()
 {
-    if(isup)
+    if (isup)
+    {
         return false;
-    if(ptrDatabaseHost==NULL)
+    }
+    if (ptrDatabaseHost == NULL)
+    {
         return false;
+    }
 
-    const char *dbHostname=ptrDatabaseHost->getName();
+    const char* dbHostname = ptrDatabaseHost->getName();
 
-    for(int i=0; i<dbManager.countDatabases(); i++)
+    for (int i = 0; i < dbManager.countDatabases(); i++)
     {
         dbManager[i].disconnectFromRasServer(serverName);
     }
 
     // removed ptrDatabaseHost->decrConnServers();
-    ptrDatabaseHost=NULL;
+    ptrDatabaseHost = NULL;
 
     return true;
 }
 
 const char* RasServer::getDBHostName()
 {
-    if(ptrDatabaseHost)
+    if (ptrDatabaseHost)
+    {
         return ptrDatabaseHost->getName();
+    }
     return "noDBHost!";
 }
 
 bool RasServer::isConnectedToDBHost()
 {
-    if(ptrDatabaseHost)
+    if (ptrDatabaseHost)
+    {
         return true;
+    }
     return false;
 }
 
-void RasServer::changeExecutableName(const char *newExecutable)
+void RasServer::changeExecutableName(const char* newExecutable)
 {
-    if(newExecutable == NULL)
-        strcpy(executableName,RASEXECUTABLE);
+    if (newExecutable == NULL)
+    {
+        strcpy(executableName, RASEXECUTABLE);
+    }
     else
-        strcpy(executableName,newExecutable);
+    {
+        strcpy(executableName, newExecutable);
+    }
 }
 
 const char* RasServer::getExecutableName()
@@ -371,28 +406,36 @@ const char* RasServer::getExecutableName()
     return executableName;
 }
 
-int RasServer::startServerInDebugger(char *command)
+int RasServer::startServerInDebugger(char* command)
 {
-    if(ptrDatabaseHost==NULL)
+    if (ptrDatabaseHost == NULL)
+    {
         return RASSERVER_NODATABASEHOST;
+    }
 
-    if(ptrServerHost->isUp()==false)
+    if (ptrServerHost->isUp() == false)
+    {
         return RASSERVER_SRVNOTUP;
+    }
 
-    downReq=false;
-    const char *sTypeString= serverType==SERVERTYPE_FLAG_HTTP ? "--http":"";
+    downReq = false;
+    const char* sTypeString = serverType == SERVERTYPE_FLAG_HTTP ? "--http" : "";
 
-    const char *rasmgrHost = ptrServerHost->useLocalHost() ? "localhost" : config.getHostName();
-    sprintf(command,                "%s --rsn %s %s --lport %ld ",executableName,serverName,sTypeString,listenPort);
-    sprintf(command+strlen(command),"--mgr %s --mgrport %d --connect %s ",rasmgrHost,config.getListenPort(),ptrDatabaseHost->getConnectionString());
+    const char* rasmgrHost = ptrServerHost->useLocalHost() ? "localhost" : config.getHostName();
+    sprintf(command,                "%s --rsn %s %s --lport %ld ", executableName, serverName, sTypeString, listenPort);
+    sprintf(command + strlen(command), "--mgr %s --mgrport %d --connect %s ", rasmgrHost, config.getListenPort(), ptrDatabaseHost->getConnectionString());
     if (strlen(ptrDatabaseHost->getUser()) > 0)
-        sprintf(command+strlen(command),"-u %s ",ptrDatabaseHost->getUser());
+    {
+        sprintf(command + strlen(command), "-u %s ", ptrDatabaseHost->getUser());
+    }
     if (strlen(ptrDatabaseHost->getPasswd()) > 0)
-        sprintf(command+strlen(command),"-p %s ",ptrDatabaseHost->getPasswd());
-    sprintf(command+strlen(command),"--sync %s %s",authorization.getSyncroString(),extraParam);
+    {
+        sprintf(command + strlen(command), "-p %s ", ptrDatabaseHost->getPasswd());
+    }
+    sprintf(command + strlen(command), "--sync %s %s", authorization.getSyncroString(), extraParam);
 
-    currentCountDown=initialCountDown;
-    activityExpected=true;
+    currentCountDown = initialCountDown;
+    activityExpected = true;
     activityCounter = 0;
 
     LDEBUG << "RasServer::startServerInDebugger() -> " << command;
@@ -401,28 +444,38 @@ int RasServer::startServerInDebugger(char *command)
 
 int RasServer::startServer()
 {
-    if(ptrDatabaseHost==NULL)
+    if (ptrDatabaseHost == NULL)
+    {
         return RASSERVER_NODATABASEHOST;
+    }
 
-    if(ptrServerHost->isUp()==false)
+    if (ptrServerHost->isUp() == false)
+    {
         return RASSERVER_SRVNOTUP;
+    }
 
-    downReq=false;
-    const char *sTypeString= serverType==SERVERTYPE_FLAG_HTTP ? "--http" : "";
-    sTypeString= serverType==SERVERTYPE_FLAG_RNP ? "--rnp" : sTypeString;
+    downReq = false;
+    const char* sTypeString = serverType == SERVERTYPE_FLAG_HTTP ? "--http" : "";
+    sTypeString = serverType == SERVERTYPE_FLAG_RNP ? "--rnp" : sTypeString;
 
-    const char *rasmgrHost = ptrServerHost->useLocalHost() ? "localhost" : config.getHostName();
-    char command[ARG_MAX+1];
+    const char* rasmgrHost = ptrServerHost->useLocalHost() ? "localhost" : config.getHostName();
+    char command[ARG_MAX + 1];
 
-    const char *SPRINTF_FORMAT;
+    const char* SPRINTF_FORMAT;
     unsigned int userOptLen = strlen(ptrDatabaseHost->getUser()), passOptLen = strlen(ptrDatabaseHost->getPasswd());
     if (userOptLen > 0)
         if (passOptLen > 0)
+        {
             SPRINTF_FORMAT = "%s %s %s --rsn %s %s --lport %ld --mgr %s --mgrport %ld --connect %s -u %s -p %s %s";
+        }
         else
+        {
             SPRINTF_FORMAT = "%s %s %s --rsn %s %s --lport %ld --mgr %s --mgrport %ld --connect %s -u %s %s";
+        }
     else
+    {
         SPRINTF_FORMAT = "%s %s %s --rsn %s %s --lport %ld --mgr %s --mgrport %ld --connect %s %s";
+    }
 
     // check for buffer oflo
     unsigned int commandLen =
@@ -444,16 +497,16 @@ int RasServer::startServer()
 
     if (userOptLen > 0)
         if (passOptLen > 0)
-            sprintf(command, SPRINTF_FORMAT, serverName,executableName,executableName,serverName,sTypeString,
-                    listenPort, rasmgrHost,config.getListenPort(),ptrDatabaseHost->getConnectionString(),ptrDatabaseHost->getUser(),ptrDatabaseHost->getPasswd(),extraParam);
+            sprintf(command, SPRINTF_FORMAT, serverName, executableName, executableName, serverName, sTypeString,
+                    listenPort, rasmgrHost, config.getListenPort(), ptrDatabaseHost->getConnectionString(), ptrDatabaseHost->getUser(), ptrDatabaseHost->getPasswd(), extraParam);
         else
-            sprintf(command, SPRINTF_FORMAT, serverName,executableName,executableName,serverName,sTypeString,
-                    listenPort, rasmgrHost,config.getListenPort(),ptrDatabaseHost->getConnectionString(),ptrDatabaseHost->getUser(),extraParam);
+            sprintf(command, SPRINTF_FORMAT, serverName, executableName, executableName, serverName, sTypeString,
+                    listenPort, rasmgrHost, config.getListenPort(), ptrDatabaseHost->getConnectionString(), ptrDatabaseHost->getUser(), extraParam);
     else
-        sprintf(command, SPRINTF_FORMAT, serverName,executableName,executableName,serverName,sTypeString,
-                listenPort, rasmgrHost,config.getListenPort(),ptrDatabaseHost->getConnectionString(),extraParam);
+        sprintf(command, SPRINTF_FORMAT, serverName, executableName, executableName, serverName, sTypeString,
+                listenPort, rasmgrHost, config.getListenPort(), ptrDatabaseHost->getConnectionString(), extraParam);
 
-    if(isinternal)
+    if (isinternal)
     {
         LDEBUG << "launching local server, command=" << command;
         localServerManager.startNewServer(command);
@@ -461,32 +514,36 @@ int RasServer::startServer()
     else
     {
         LDEBUG << "connecting to remote rasmgr";
-        int socket=ptrServerHost->getConnectionSocket();
-        if(socket<0)
+        int socket = ptrServerHost->getConnectionSocket();
+        if (socket < 0)
+        {
             return RASSERVER_NOREMOTERASMGR;
+        }
 
-        char message[MAXMSG]="POST exec HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
+        char message[MAXMSG] = "POST exec HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
 
-        sprintf(message+strlen(message),"%lu\r\n\r\n%s",strlen(command)+1,command);
+        sprintf(message + strlen(message), "%lu\r\n\r\n%s", strlen(command) + 1, command);
 
-        int nbytes=write(socket,message,strlen(message)+1);
+        int nbytes = write(socket, message, strlen(message) + 1);
 
         close(socket);
-        if(nbytes<0)
+        if (nbytes < 0)
+        {
             return RASSERVER_INCOMPLETESEND;
+        }
     }
 
-    currentCountDown=initialCountDown;
-    activityExpected=true;
-    isstarting=true;
+    currentCountDown = initialCountDown;
+    activityExpected = true;
+    isstarting = true;
     activityCounter = 0;
     return RASSERVER_OK;
 }
 int RasServer::downServer(bool forced)
 {
-    if(available==false && (forced == false || isstarting==true) )
+    if (available == false && (forced == false || isstarting == true))
     {
-        downReq=true;
+        downReq = true;
         //LERROR<<"Down request, but working"<<std::endl;
         return RASSERVER_OK;
     }
@@ -495,25 +552,29 @@ int RasServer::downServer(bool forced)
 int RasServer::downNow()
 {
     //LINFO << "Down server";
-    if(isinternal)
+    if (isinternal)
     {
         localServerManager.sendTerminateSignal(serverName);
     }
     else
     {
-        int socket=ptrServerHost->getConnectionSocket();
-        if(socket<0)
+        int socket = ptrServerHost->getConnectionSocket();
+        if (socket < 0)
+        {
             return RASSERVER_CANNOTSTARTSRV;
+        }
 
-        char message[MAXMSG]="POST downserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
+        char message[MAXMSG] = "POST downserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
 
-        sprintf(message+strlen(message),"%lu\r\n\r\n%s",strlen(serverName)+1,serverName);
+        sprintf(message + strlen(message), "%lu\r\n\r\n%s", strlen(serverName) + 1, serverName);
 
-        int nbytes=write(socket,message,strlen(message)+1);
+        int nbytes = write(socket, message, strlen(message) + 1);
 
         close(socket);
-        if(nbytes<0)
-            return RASSERVER_NOREMOTERASMGR; // FIXME: should be RASSERVER_INCOMPLETESEND?
+        if (nbytes < 0)
+        {
+            return RASSERVER_NOREMOTERASMGR;    // FIXME: should be RASSERVER_INCOMPLETESEND?
+        }
     }
 
     //ptrServerHost->regDownServer();
@@ -522,113 +583,123 @@ int RasServer::downNow()
 }
 int RasServer::killServer()
 {
-    if(isup)
+    if (isup)
     {
         ptrServerHost->regDownServer();
-        if(ptrDatabaseHost)
+        if (ptrDatabaseHost)
+        {
             ptrDatabaseHost->regDownServer();
-        isup=available=0;
-        activityExpected=false;
+        }
+        isup = available = 0;
+        activityExpected = false;
     }
-    if(isinternal)
+    if (isinternal)
     {
         localServerManager.killServer(serverName);
     }
     else
     {
-        int socket=ptrServerHost->getConnectionSocket();
-        if(socket<0)
+        int socket = ptrServerHost->getConnectionSocket();
+        if (socket < 0)
+        {
             return RASSERVER_CANNOTSTARTSRV;
+        }
 
-        char message[MAXMSG]="POST killserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
+        char message[MAXMSG] = "POST killserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
 
-        sprintf(message+strlen(message),"%lu\r\n\r\n%s",strlen(serverName)+1,serverName);
+        sprintf(message + strlen(message), "%lu\r\n\r\n%s", strlen(serverName) + 1, serverName);
 
-        int nbytes=write(socket,message,strlen(message)+1);
+        int nbytes = write(socket, message, strlen(message) + 1);
 
         close(socket);
-        if(nbytes<0)
-            return RASSERVER_NOREMOTERASMGR; // FIXME: should be RASSERVER_INCOMPLETESEND?
+        if (nbytes < 0)
+        {
+            return RASSERVER_NOREMOTERASMGR;    // FIXME: should be RASSERVER_INCOMPLETESEND?
+        }
     }
 
     return RASSERVER_OK;
 }
 
-void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCount)
+void RasServer::changeStatus(int newStatus, __attribute__((unused)) long infCount)
 {
-    if(activityExpected==false && newStatus==SERVER_AVAILABLE)
+    if (activityExpected == false && newStatus == SERVER_AVAILABLE)
     {
         LERROR << "Error: Server intruder detected in server '" << serverName << "' (trying to manually start rasserver?)";
         return;
     }
 
-    if(newStatus == SERVER_REGULARSIG)
+    if (newStatus == SERVER_REGULARSIG)
     {
-        LDEBUG << "RasServer::changeStatus: SERVER_REGULARSIG from "<<serverName<<", newStatus=" << newStatus;
+        LDEBUG << "RasServer::changeStatus: SERVER_REGULARSIG from " << serverName << ", newStatus=" << newStatus;
 
-        if(available == false)
+        if (available == false)
         {
-            LDEBUG << "RasServer::changeStatus: "<<serverName<<" not available, SERVER_REGULARSIG ok, regularSignalCounter="<<regularSignalCounter;
+            LDEBUG << "RasServer::changeStatus: " << serverName << " not available, SERVER_REGULARSIG ok, regularSignalCounter=" << regularSignalCounter;
             regularSignalCounter--;
-            if(regularSignalCounter > 0)
+            if (regularSignalCounter > 0)
             {
                 return;
             }
             newStatus = SERVER_AVAILABLE;
-            LDEBUG << "rasmgr: Dead client detected, server "<<serverName<<" is set free again.";
+            LDEBUG << "rasmgr: Dead client detected, server " << serverName << " is set free again.";
         }
         else
         {
             return;
         }
     }
-    bool wasup=isup;
+    bool wasup = isup;
 
-    bool crashed=   (newStatus == SERVER_CRASHED) ? true:false;
+    bool crashed = (newStatus == SERVER_CRASHED) ? true : false;
 
-    isup=available= (newStatus == SERVER_AVAILABLE) ? true:false;
+    isup = available = (newStatus == SERVER_AVAILABLE) ? true : false;
 
     LDEBUG << "RasServer::changeStatus: wasup=" << wasup << ", isup=" << isup;
 
-    if(wasup==false && isup==true)
+    if (wasup == false && isup == true)
     {
         ptrServerHost->regStartServer();
-        if(ptrDatabaseHost)
+        if (ptrDatabaseHost)
+        {
             ptrDatabaseHost->regStartServer();
-        isstarting=false;
+        }
+        isstarting = false;
     }
-    if(wasup==true  && isup==false)
+    if (wasup == true  && isup == false)
     {
         //then, ok, I'm down
         ptrServerHost->regDownServer();
-        if(ptrDatabaseHost)
+        if (ptrDatabaseHost)
+        {
             ptrDatabaseHost->regDownServer();
-        activityExpected=false;
+        }
+        activityExpected = false;
     }
 
     clearPendingTransaction(); // when the server talks to RasMgr, is always clear, without client
 
-    if(available)
+    if (available)
     {
         activityCounter++; // just a counter
     }
 
-    if(downReq && available)
+    if (downReq && available)
     {
-        downReq=false;
-        available=false; //until it's really down it shouldn't get any clients
+        downReq = false;
+        available = false; //until it's really down it shouldn't get any clients
         LDEBUG << "RasServer::changeStatus: srv down request, available - setting to unavailable and shutting down. ";
         downNow();
     }
 
-    if(crashed)
+    if (crashed)
     {
         crashCount++;
         LDEBUG << "server has crashed, current crash count is " << crashCount << ", activity count is " << activityCounter;
         // restart if "work has started already" (see init() comment on different counting wrt. server types)
         // changed by PB 2003-nov-23
         // if(activityCounter && autorestart)
-        if (activityCounter>1 && autorestart)
+        if (activityCounter > 1 && autorestart)
         {
             // a crashed server doesn't autorestart if it crashes before starting work.
             LDEBUG << "auto restart activated, restarting.";
@@ -637,25 +708,25 @@ void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCou
     }
 
     // commented out due to some error
-    if(initialCountDown)
+    if (initialCountDown)
     {
         LDEBUG << "rasmgr: initialCountDown is " << initialCountDown;
-        if(available)
+        if (available)
         {
             LDEBUG << "rasmgr: " << serverName << " is available.";
             currentCountDown--;
-            if(currentCountDown==0)
+            if (currentCountDown == 0)
             {
-                available=false;
-                LDEBUG << "rasmgr: Countdown reached for "<<serverName<< ", shutting down.";
+                available = false;
+                LDEBUG << "rasmgr: Countdown reached for " << serverName << ", shutting down.";
                 downNow();
             }
         }
-        if(wasup==true && isup==false && currentCountDown==0)
+        if (wasup == true && isup == false && currentCountDown == 0)
         {
             LDEBUG << "rasmgr: wasup==true && isup==false && currentCountDown==0";
-            LDEBUG << "rasmgr: Restart after countdown for server "<<serverName<< ".";
-            currentCountDown=initialCountDown;
+            LDEBUG << "rasmgr: Restart after countdown for server " << serverName << ".";
+            currentCountDown = initialCountDown;
             startServer();
         }
     }
@@ -665,26 +736,30 @@ void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCou
 void RasServer::startWriteTransaction(Database& dataBase)
 {
     dataBase.startWriteTransaction();
-    writeTransaction=true;
-    connDatabase=&dataBase;
+    writeTransaction = true;
+    connDatabase = &dataBase;
 }
 
 void RasServer::startReadTransaction(Database& dataBase)
 {
     dataBase.startReadTransaction();
-    readTransaction=true;
-    connDatabase=&dataBase;
+    readTransaction = true;
+    connDatabase = &dataBase;
 }
 
 void RasServer::clearPendingTransaction()
 {
-    if(connDatabase)
-        if(writeTransaction)
+    if (connDatabase)
+        if (writeTransaction)
+        {
             connDatabase->endWriteTransaction();
-    if(readTransaction )
+        }
+    if (readTransaction)
+    {
         connDatabase->endReadTransaction();
-    writeTransaction=false;
-    readTransaction =false;
+    }
+    writeTransaction = false;
+    readTransaction = false;
     connDatabase = NULL;
 }
 //**********************************************************************
@@ -695,17 +770,21 @@ RasServerManager::~RasServerManager()
 {
 }
 
-bool RasServerManager::insertNewServer(const char *srvName,const char* hostName,char serverType,long listenPort)
+bool RasServerManager::insertNewServer(const char* srvName, const char* hostName, char serverType, long listenPort)
 {
     bool result = true;
 
-    if(testUniqueness(srvName)==false)
+    if (testUniqueness(srvName) == false)
+    {
         result = false;
+    }
 
-    if( result == true && hostmanager[hostName].isValid()==false)
+    if (result == true && hostmanager[hostName].isValid() == false)
+    {
         result = false;
+    }
 
-    if(result == true && serverType!=SERVERTYPE_FLAG_RPC && serverType!=SERVERTYPE_FLAG_HTTP && serverType!=SERVERTYPE_FLAG_RNP)
+    if (result == true && serverType != SERVERTYPE_FLAG_RPC && serverType != SERVERTYPE_FLAG_HTTP && serverType != SERVERTYPE_FLAG_RNP)
     {
         LDEBUG << "RasServerManager::insertNewServer: server " << srvName << " has illegal type " << serverType;
         result = false;
@@ -715,22 +794,24 @@ bool RasServerManager::insertNewServer(const char *srvName,const char* hostName,
     {
         RasServer tempRasServer;
         srvList.push_back(tempRasServer);
-        RasServer &refRasServer=srvList.back();
-        refRasServer.init(srvName,hostName,serverType,listenPort);
+        RasServer& refRasServer = srvList.back();
+        refRasServer.init(srvName, hostName, serverType, listenPort);
     }
 
     return result;
 }
 
-bool RasServerManager::removeServer(const char *srvName)
+bool RasServerManager::removeServer(const char* srvName)
 {
-    list<RasServer>::iterator iter=srvList.begin();
-    for(unsigned int i=0; i<srvList.size(); i++)
+    list<RasServer>::iterator iter = srvList.begin();
+    for (unsigned int i = 0; i < srvList.size(); i++)
     {
-        if(strcmp(iter->getName(),srvName)==0)
+        if (strcmp(iter->getName(), srvName) == 0)
         {
-            if(iter->isUp())
+            if (iter->isUp())
+            {
                 return false;
+            }
 
             iter->disconnectFromDBHost(); //it's not up, so it fails only if it is not connected at all
 
@@ -744,11 +825,13 @@ bool RasServerManager::removeServer(const char *srvName)
 
 bool RasServerManager::testUniqueness(const char* srvName)
 {
-    list<RasServer>::iterator iter=srvList.begin();
-    for(unsigned int i=0; i<srvList.size(); i++)
+    list<RasServer>::iterator iter = srvList.begin();
+    for (unsigned int i = 0; i < srvList.size(); i++)
     {
-        if(strcmp(iter->getName(),srvName)==0)
+        if (strcmp(iter->getName(), srvName) == 0)
+        {
             return false;
+        }
         iter++;
     }
     return true;
@@ -756,19 +839,23 @@ bool RasServerManager::testUniqueness(const char* srvName)
 
 RasServer& RasServerManager::operator[](int x)  // FIXME: check against upper limit
 {
-    list<RasServer>::iterator iter=srvList.begin();
-    for(int i=0; i<x; i++)
+    list<RasServer>::iterator iter = srvList.begin();
+    for (int i = 0; i < x; i++)
+    {
         iter++;
+    }
     return *iter;
 }
 
 RasServer& RasServerManager::operator[](const char* srvName)    // FIXME: check against upper limit
 {
-    list<RasServer>::iterator iter=srvList.begin();
-    for(unsigned int i=0; i<srvList.size(); i++)
+    list<RasServer>::iterator iter = srvList.begin();
+    for (unsigned int i = 0; i < srvList.size(); i++)
     {
-        if(strcmp(iter->getName(),srvName)==0)
+        if (strcmp(iter->getName(), srvName) == 0)
+        {
             return *iter;
+        }
 
         iter++;
     }
@@ -789,49 +876,56 @@ int  RasServerManager::countServers()
 // return values of changeServerStatus:
 #define SERVERSTATUS_OK 0
 #define SERVERSTATUS_ERR -1
-int RasServerManager::changeServerStatus(char *reqMessage)
+int RasServerManager::changeServerStatus(char* reqMessage)
 {
     char serverName[50];
     int  newstatus;
     long infCount;
 
-    sscanf(reqMessage,"%s %d %ld",serverName,&newstatus,&infCount);
-    LDEBUG << "RasServerManager::changeServerStatus: Trying to change status of "<<serverName<<" to "<<newstatus;
-    RasServer &r=operator[](serverName);
+    sscanf(reqMessage, "%s %d %ld", serverName, &newstatus, &infCount);
+    LDEBUG << "RasServerManager::changeServerStatus: Trying to change status of " << serverName << " to " << newstatus;
+    RasServer& r = operator[](serverName);
 
-    if(r.isValid()==false)
+    if (r.isValid() == false)
     {
         LERROR << "Error: Unexpected message from rasserver '" << serverName << "'; new status is " << newstatus;
         return SERVERSTATUS_ERR;
     }
 
-    r.changeStatus(newstatus,infCount);
+    r.changeStatus(newstatus, infCount);
     return SERVERSTATUS_OK;
 }
 
-void RasServerManager::disconnectAllServersFromDBH(const char *dbhName)
+void RasServerManager::disconnectAllServersFromDBH(const char* dbhName)
 {
-    list<RasServer>::iterator iter=srvList.begin();
-    for(unsigned int i=0; i<srvList.size(); i++,iter++)
+    list<RasServer>::iterator iter = srvList.begin();
+    for (unsigned int i = 0; i < srvList.size(); i++, iter++)
     {
-        const char *cDbhName=iter->getDBHostName();
+        const char* cDbhName = iter->getDBHostName();
 
-        if(cDbhName==NULL)
+        if (cDbhName == NULL)
+        {
             continue;
+        }
 
-        if(strcmp(cDbhName,dbhName)==0) iter->disconnectFromDBHost();
+        if (strcmp(cDbhName, dbhName) == 0)
+        {
+            iter->disconnectFromDBHost();
+        }
     }
 
 }
 
 int RasServerManager::countUpServers()
 {
-    int count=0;
-    list<RasServer>::iterator iter=srvList.begin();
-    for(unsigned int i=0; i<srvList.size(); i++)
+    int count = 0;
+    list<RasServer>::iterator iter = srvList.begin();
+    for (unsigned int i = 0; i < srvList.size(); i++)
     {
-        if(iter->isUp())
+        if (iter->isUp())
+        {
             count++;
+        }
         iter++;
     }
 
@@ -843,10 +937,10 @@ int RasServerManager::countUpServers()
 void RasServerManager::printStatus()
 {
     char buff[100];
-    list<RasServer>::iterator iter=srvList.begin();
+    list<RasServer>::iterator iter = srvList.begin();
 
     LDEBUG << "RasServerManager::printStatus. current status is:";
-    for(unsigned int i=0; i<srvList.size(); i++)
+    for (unsigned int i = 0; i < srvList.size(); i++)
     {
         iter->getDescription(buff);
         LDEBUG << "\t" << i << ": " << buff;
@@ -858,23 +952,27 @@ void RasServerManager::printStatus()
 bool RasServerManager::reset()
 {
     // test modus only
-    if(config.isTestModus()==false)
-        return false;
-
-    list<RasServer>::iterator iter=srvList.begin();
-    for(unsigned int i=0; i<srvList.size(); i++, iter++)
+    if (config.isTestModus() == false)
     {
-        if(iter->isUp())
-            return false;
+        return false;
     }
 
-    iter=srvList.begin();
-    for(unsigned int i=0; i<srvList.size(); i++, iter++)
+    list<RasServer>::iterator iter = srvList.begin();
+    for (unsigned int i = 0; i < srvList.size(); i++, iter++)
+    {
+        if (iter->isUp())
+        {
+            return false;
+        }
+    }
+
+    iter = srvList.begin();
+    for (unsigned int i = 0; i < srvList.size(); i++, iter++)
     {
         iter->disconnectFromDBHost(); //it's not up, so it fails only if it is not connected at all
     }
 
-    while(srvList.size())
+    while (srvList.size())
     {
         srvList.pop_front();
     }
@@ -882,10 +980,12 @@ bool RasServerManager::reset()
 
 }
 
-bool RasServerManager::acceptChangeName(const char *oldName,const char *newName)
+bool RasServerManager::acceptChangeName(const char* oldName, const char* newName)
 {
-    if(strcmp(oldName,newName)==0)
-        return true; // if someone really wants to change a name with the same,
+    if (strcmp(oldName, newName) == 0)
+    {
+        return true;    // if someone really wants to change a name with the same,
+    }
     return testUniqueness(newName);
 }
 

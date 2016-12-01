@@ -120,11 +120,11 @@ const keyword_to_ident_c rviewQuery::fontWeightTab[] =
 
 
 
-rviewQuery::rviewQuery(rviewDatabase *db, char *query) : rviewFrame(NULL, NULL, 0, 0, query_width, query_height)
+rviewQuery::rviewQuery(rviewDatabase* db, char* query) : rviewFrame(NULL, NULL, 0, 0, query_width, query_height)
 {
     int w, h;
-    const char *b;
-    char *d;
+    const char* b;
+    char* d;
     char buffer[STRINGSIZE];
     int fontSize, fontName, fontStyle, fontWeight;
     const int fontNameSize = sizeof(fontNameTab) / sizeof(keyword_to_ident);
@@ -137,12 +137,19 @@ rviewQuery::rviewQuery(rviewDatabase *db, char *query) : rviewFrame(NULL, NULL, 
     CreateStatusLine(1);
 
     mbar = NULL;
-    for (w=0; w<3; w++) mbarMenus[w] = NULL;
+    for (w = 0; w < 3; w++)
+    {
+        mbarMenus[w] = NULL;
+    }
 
     if (::wxDirExists((char*)(prefs->queryPath.ptr())))
+    {
         hotPath = prefs->queryPath;
+    }
     else
+    {
         hotPath = ".";
+    }
 
     // Read font from prefs
     b = prefs->queryFont;
@@ -152,8 +159,14 @@ rviewQuery::rviewQuery(rviewDatabase *db, char *query) : rviewFrame(NULL, NULL, 
     fontWeight = wxNORMAL;
     while (*b != 0)
     {
-        while ((*b == ' ') || (*b == ',')) b++;
-        if (*b == 0) break;
+        while ((*b == ' ') || (*b == ','))
+        {
+            b++;
+        }
+        if (*b == 0)
+        {
+            break;
+        }
         d = buffer;
         while ((*b != ' ') && (*b != ',') && (*b != 0))
         {
@@ -161,17 +174,28 @@ rviewQuery::rviewQuery(rviewDatabase *db, char *query) : rviewFrame(NULL, NULL, 
         }
         *d++ = 0;
         w = atoi(buffer);
-        if (w != 0) fontSize = w;
+        if (w != 0)
+        {
+            fontSize = w;
+        }
         else
         {
             if ((w = rviewLookupKeyword(buffer, fontNameTab, fontNameSize, FALSE)) >= 0)
+            {
                 fontName = w;
+            }
             else if ((w = rviewLookupKeyword(buffer, fontStyleTab, fontStyleSize, FALSE)) >= 0)
+            {
                 fontStyle = w;
+            }
             else if ((w = rviewLookupKeyword(buffer, fontWeightTab, fontWeightSize, FALSE)) >= 0)
+            {
                 fontWeight = w;
+            }
             else
+            {
                 cerr << "Bad identifier in font string: " << buffer << endl;
+            }
         }
     }
     //cout << "size " << fontSize << ", name " << fontName << ", style " << fontStyle << ", weight " << fontWeight << endl;
@@ -186,9 +210,9 @@ rviewQuery::rviewQuery(rviewDatabase *db, char *query) : rviewFrame(NULL, NULL, 
     qwindowID = queryCounter++;
     updateID = -1;    // no update object
 
-    w -= 2*query_border;
+    w -= 2 * query_border;
     h -= query_bottom;
-    twin = new wxTextWindow((wxWindow*)this, query_border, query_border, w, h - 2*query_border, wxBORDER | wxNATIVE_IMPL);
+    twin = new wxTextWindow((wxWindow*)this, query_border, query_border, w, h - 2 * query_border, wxBORDER | wxNATIVE_IMPL);
 
     twin->SetFont(font);
 
@@ -224,7 +248,7 @@ rviewQuery::~rviewQuery(void)
 }
 
 
-const char *rviewQuery::getFrameName(void) const
+const char* rviewQuery::getFrameName(void) const
 {
     return "rviewQuery";
 }
@@ -240,22 +264,25 @@ void rviewQuery::OnSize(int w, int h)
     int x, y;
 
     GetClientSize(&x, &y);
-    if ((frameWidth == x) && (frameHeight == y)) return;
+    if ((frameWidth == x) && (frameHeight == y))
+    {
+        return;
+    }
     frameWidth = x;
     frameHeight = y;
 
-    x -= 2*query_border;
+    x -= 2 * query_border;
     y -= query_bottom;
-    twin->SetSize(query_border, query_border, x, y - 2*query_border);
+    twin->SetSize(query_border, query_border, x, y - 2 * query_border);
 
     panel->SetSize(query_border, y, x, query_bottom);
 
     y = (query_bottom - query_bheight) / 2;
 
-    x = (x - 3*query_bwidth) / 3;
-    butClear->SetSize(x/2, y, query_bwidth, query_bheight);
-    butExec->SetSize((3*x)/2 + query_bwidth, y, query_bwidth, query_bheight);
-    butUpdt->SetSize((5*x)/2 + 2*query_bwidth, y, query_bwidth, query_bheight);
+    x = (x - 3 * query_bwidth) / 3;
+    butClear->SetSize(x / 2, y, query_bwidth, query_bheight);
+    butExec->SetSize((3 * x) / 2 + query_bwidth, y, query_bwidth, query_bheight);
+    butUpdt->SetSize((5 * x) / 2 + 2 * query_bwidth, y, query_bwidth, query_bheight);
 
     // doesn't work, unfortunately
     /*if (mbar != NULL)
@@ -285,38 +312,38 @@ void rviewQuery::OnMenuCommand(int id)
     {
     case MENU_QUERY_FILE_OPEN:
     case MENU_QUERY_FILE_SAVE:
-    {
-        char *name, *aux;
-        char *prefDir = (char*)(hotPath.ptr());
-        char filter[16];
+{
+char *name, *aux;
+char *prefDir = (char*)(hotPath.ptr());
+char filter[16];
 
-        sprintf(filter, "*%s", query_extension);
-        if (::wxDirExists(prefDir)) name = prefDir;
-        else name = ".";
-        name = ::wxFileSelector(lman->lookup((id == MENU_QUERY_FILE_OPEN) ? "titleQueryLoad" : "titleQuerySave"), name, NULL, NULL, filter, 0 , this);
-        if (name != NULL)
-        {
-            aux = ::wxFileNameFromPath(name);
-            if (strlen(aux) > 0)
-            {
-                if (id == MENU_QUERY_FILE_OPEN)
-                {
-                    LTRACE << "loadQuery()";
-                    loadQuery(name);
-                }
-                else
-                {
-                    LTRACE << "saveQuery()";
-                    saveQuery(name);
-                }
-                hotPath = ::wxPathOnly(name);
-                prefs->queryPath = hotPath;
-                prefs->markModified();
-                buildMenubar();
-            }
-        }
+sprintf(filter, "*%s", query_extension);
+if (::wxDirExists(prefDir)) name = prefDir;
+else name = ".";
+name = ::wxFileSelector(lman->lookup((id == MENU_QUERY_FILE_OPEN) ? "titleQueryLoad" : "titleQuerySave"), name, NULL, NULL, filter, 0 , this);
+if (name != NULL)
+{
+aux = ::wxFileNameFromPath(name);
+if (strlen(aux) > 0)
+{
+    if (id == MENU_QUERY_FILE_OPEN)
+    {
+        LTRACE << "loadQuery()";
+        loadQuery(name);
     }
-    break;
+    else
+    {
+        LTRACE << "saveQuery()";
+        saveQuery(name);
+    }
+    hotPath = ::wxPathOnly(name);
+    prefs->queryPath = hotPath;
+    prefs->markModified();
+    buildMenubar();
+}
+}
+}
+break;
     case MENU_QUERY_FILE_EXIT:
         this->Close(TRUE);
         break;

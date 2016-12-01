@@ -47,34 +47,34 @@ class r_Conv_HDF : public r_Convertor
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_HDF( const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error);
+    r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error);
     /// constructor using convert_type_e shortcut
-    r_Conv_HDF( const char *src, const r_Minterval &interv, int tp ) throw(r_Error);
+    r_Conv_HDF(const char* src, const r_Minterval& interv, int tp) throw(r_Error);
     /// destructor
-    ~r_Conv_HDF( void );
+    ~r_Conv_HDF(void);
 
     /// convert to HDF
-    virtual r_Conv_Desc &convertTo( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error);
     /// convert from HDF
-    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
     /// cloning
-    virtual r_Convertor *clone( void ) const;
+    virtual r_Convertor* clone(void) const;
     /// identification
-    virtual const char *get_name( void ) const;
-    virtual r_Data_Format get_data_format( void ) const;
+    virtual const char* get_name(void) const;
+    virtual r_Data_Format get_data_format(void) const;
 
 
 private:
     /// init HDF module
-    void initHDF( void );
+    void initHDF(void);
     /// variables
     int datatype, datasize;
     /// parameters
     int skiphuff;
     int quality;
-    char *compType;
+    char* compType;
     static const convert_string_t compNames[];
     static const int MaxSwapBufferSize;
 };

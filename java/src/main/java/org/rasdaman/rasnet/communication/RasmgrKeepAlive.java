@@ -144,7 +144,7 @@ public class RasmgrKeepAlive {
 
                         //If this throws an exception, let it fail.
                         rasmgrService.withDeadlineAfter(Constants.SERVICE_CALL_TIMEOUT, TimeUnit.MILLISECONDS)
-                                .keepAlive(keepAliveReq);
+                        .keepAlive(keepAliveReq);
                     }
                 }
             } catch (InterruptedException ex) {

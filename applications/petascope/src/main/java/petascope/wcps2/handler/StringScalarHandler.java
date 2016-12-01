@@ -32,6 +32,6 @@ import petascope.wcps2.result.WcpsResult;
 public class StringScalarHandler {
 
     public static WcpsResult handle(String scalar) {
-        return new WcpsResult(null, scalar.substring(1, scalar.length()-1));
+        return new WcpsResult(null, scalar.substring(1, scalar.length() - 1));
     }
 }

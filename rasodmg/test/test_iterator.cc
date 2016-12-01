@@ -45,26 +45,26 @@ rasdaman GmbH.
 
 int main()
 {
-    int i,status;
+    int i, status;
 
     i = 0;
-    
+
     r_Minterval domainV(1);
     domainV << r_Sinterval((r_Range) 0, (r_Range) 100);
     r_GMarray* v = new r_GMarray(domainV, 1);
-    
+
     r_Minterval domainX(1);
     domainX << r_Sinterval((r_Range) 0, (r_Range) 200);
     r_GMarray* x = new r_GMarray(domainX, 1);
-    
+
     r_Minterval domainY(1);
     domainY << r_Sinterval((r_Range) 0, (r_Range) 300);
     r_GMarray* y = new r_GMarray(domainY, 1);
-    
+
     r_Minterval domainZ(1);
     domainZ << r_Sinterval((r_Range) 0, (r_Range) 400);
     r_GMarray* z = new r_GMarray(domainZ, 1);
-    
+
     r_GMarray* next = new r_GMarray();
 
     status = 5;
@@ -73,23 +73,31 @@ int main()
     cout << "Iterator Examples" << endl;
     cout << "===================" << endl << endl;
 
-    cout << "Creating r_Collection of type int." <<endl;
+    cout << "Creating r_Collection of type int." << endl;
     r_Collection<r_GMarray*> a;
 
-    cout << "Creating an iterator of an empty collection." <<endl;
+    cout << "Creating an iterator of an empty collection." << endl;
     r_Iterator<r_GMarray*> iterEmpty = a.create_iterator();
-    if( iterEmpty.not_done() )
+    if (iterEmpty.not_done())
+    {
         cout << "Iterator says that iteration is not done." << endl << endl;
+    }
     else
+    {
         cout << "Iterator says that iteration is done." << endl << endl;
+    }
 
     cout << "Now inserting four elements:" << endl << "v = 100" << endl;
     a.insert_element(v);
     r_Iterator<r_GMarray*> iterTest = a.create_iterator();
-    if( iterTest.not_done() )
+    if (iterTest.not_done())
+    {
         cout << "Iterator says that iteration is not done." << endl << endl;
+    }
     else
+    {
         cout << "Iterator says that iteration is done." << endl << endl;
+    }
 
     cout << "x = 200" << endl;
     a.insert_element(x);
@@ -117,7 +125,7 @@ int main()
     iter.advance();
     cout << "Iterator points to element: " << iter.get_element() << endl << endl
          << "Regetting this element and advancing iterator (next function)." << endl;
-    status = iter.next( next );
+    status = iter.next(next);
     cout << "Element is " << next << "." << endl;
     cout << "Iterator points to element: " << iter.get_element() << endl << endl
          << "Resetting iterator." << endl;
@@ -144,15 +152,17 @@ int main()
     r_Iterator<r_GMarray*> iter3 = a.create_iterator();
     r_Iterator<r_GMarray*> iter4 = a.create_iterator();
 
-    for ( ; iter.not_done(); iter++ )
-        for ( iter2.reset(); iter2.not_done(); iter2++ )
-            for ( iter3.reset(); iter3.not_done(); iter3++ )
-                for ( iter4.reset(); iter4.not_done(); iter4++ )
-                    if ( !(iter4.is_equal(iter3) ||
+    for (; iter.not_done(); iter++)
+        for (iter2.reset(); iter2.not_done(); iter2++)
+            for (iter3.reset(); iter3.not_done(); iter3++)
+                for (iter4.reset(); iter4.not_done(); iter4++)
+                    if (!(iter4.is_equal(iter3) ||
                             iter4.is_equal(iter2) ||
                             iter4.is_equal(iter)  ||
                             iter3.is_equal(iter2) ||
                             iter3.is_equal(iter)  ||
-                            iter2.is_equal(iter) ) )
+                            iter2.is_equal(iter)))
+                    {
                         cout << *iter << " " << *iter2 << " " << *iter3 << " " << *iter4 << endl;
+                    }
 }

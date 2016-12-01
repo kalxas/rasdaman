@@ -28,12 +28,12 @@ import petascope.wcs2.parsers.Request;
 
 /**
  * Handles a {@link Request}
- * 
+ *
  * @author Dimitar Misev
  * @param <T>
  */
 public interface RequestHandler<T> {
-    
+
     String GET_CAPABILITIES = "GetCapabilities";
     String DESCRIBE_COVERAGE = "DescribeCoverage";
     String GET_COVERAGE = "GetCoverage";

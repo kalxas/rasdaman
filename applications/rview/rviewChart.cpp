@@ -96,14 +96,14 @@ const int rviewChart::chart_totaly = rviewDisplay::display_cheight + rviewChart:
 
 
 
-chartCanvas::chartCanvas(wxWindow *parent, int x, int y, int w, int h, long style) : wxCanvas(parent, x, y, w, h, style)
+chartCanvas::chartCanvas(wxWindow* parent, int x, int y, int w, int h, long style) : wxCanvas(parent, x, y, w, h, style)
 {
     brush.SetStyle(wxSOLID);
     brush.SetColour((char)0x80, (char)0x80, (char)0x80);
     back.SetStyle(wxSOLID);
     back.SetColour((char)0xe0, (char)0xe0, (char)0xe0);
     pen.SetStyle(wxSOLID);
-    pen.SetColour(0,0,0);
+    pen.SetColour(0, 0, 0);
     SetBackground(&back);
     font = new wxFont(12, wxROMAN, wxNORMAL, wxNORMAL);
     scroll = 0;
@@ -118,7 +118,7 @@ chartCanvas::~chartCanvas(void)
 
 
 
-void chartCanvas::setData(mdd_frame *mf, rviewBaseType bt)
+void chartCanvas::setData(mdd_frame* mf, rviewBaseType bt)
 {
     mddObj = mf->mdd;
     dimMDD = (int)(mddObj->spatial_domain().dimension());
@@ -139,7 +139,7 @@ void chartCanvas::setData(mdd_frame *mf, rviewBaseType bt)
 
 
 
-int chartCanvas::setProjection(r_Point &p1, r_Point &p2)
+int chartCanvas::setProjection(r_Point& p1, r_Point& p2)
 {
     int i, j;
     char buffer[STRINGSIZE];
@@ -151,8 +151,8 @@ int chartCanvas::setProjection(r_Point &p1, r_Point &p2)
     min = 0.0;
     max = 1.0;
 
-    useInterv= r_Minterval(dimMDD);
-    for (i=0; i<dimMDD; i++)
+    useInterv = r_Minterval(dimMDD);
+    for (i = 0; i < dimMDD; i++)
     {
         useInterv << r_Sinterval(pt1[i], pt2[i]);
     }
@@ -166,12 +166,27 @@ int chartCanvas::setProjection(r_Point &p1, r_Point &p2)
 
     // Determine format to use for numbering the vertical axis
     taux = fabs(min);
-    if (taux <= pow(10.,(double)-chcanv_exponents)) i = chcanv_exponents;
-    else i = (int)(log(taux)/log(10.));
+    if (taux <= pow(10., (double) - chcanv_exponents))
+    {
+        i = chcanv_exponents;
+    }
+    else
+    {
+        i = (int)(log(taux) / log(10.));
+    }
     taux = fabs(max);
-    if (taux <= pow(10.,(double)-chcanv_exponents)) j = chcanv_exponents;
-    else j = (int)(log(taux)/log(10.));
-    if (i < j) i = j;
+    if (taux <= pow(10., (double) - chcanv_exponents))
+    {
+        j = chcanv_exponents;
+    }
+    else
+    {
+        j = (int)(log(taux) / log(10.));
+    }
+    if (i < j)
+    {
+        i = j;
+    }
     if (abs(i) >= chcanv_exponents)
     {
         strcpy(format, "%g");
@@ -192,11 +207,16 @@ int chartCanvas::setProjection(r_Point &p1, r_Point &p2)
         GetTextExtent(buffer, &twidth, &theight);
         sprintf(buffer, format, max);
         GetTextExtent(buffer, &taux, &theight);
-        if (twidth < taux) twidth = taux;
-        coleft = (int)(twidth + chcanv_colength/2);
+        if (twidth < taux)
+        {
+            twidth = taux;
+        }
+        coleft = (int)(twidth + chcanv_colength / 2);
     }
     else
+    {
         coleft = chcanv_cospace;
+    }
 
     return coleft;
 }
@@ -216,29 +236,29 @@ void chartCanvas::setVars(int s, double cs, int ds, bool cy, rviewChartMode cm)
 
 // Recurring redraw body
 #define _REDCHARTBAR(wd, pm) \
-  value = (long)(scale * ((*mddPtr)[prun])pm); \
-  if (value < 0) \
-  { \
-    top = orgy; bot = top - (float)value; \
-  } \
-  else \
-  { \
-    top = orgy - (float)value; bot = orgy; \
-  } \
-  if (top < 0) top = 0; if (bot > height) bot = height; \
-  cdc->DrawRect(posx, chcanv_cospace + top, wd, bot - top);
+    value = (long)(scale * ((*mddPtr)[prun])pm); \
+    if (value < 0) \
+    { \
+        top = orgy; bot = top - (float)value; \
+    } \
+    else \
+    { \
+        top = orgy - (float)value; bot = orgy; \
+    } \
+    if (top < 0) top = 0; if (bot > height) bot = height; \
+    cdc->DrawRect(posx, chcanv_cospace + top, wd, bot - top);
 
 #define _REDCHARTBARLOOP(wd, pm) \
-  for (prun[dim]=pt1[dim]+startOff; prun[dim] <= pt1[dim] + endOff; prun[dim]++, posx+=stepx) \
-  { \
-    _REDCHARTBAR(wd, pm); \
-  }
+    for (prun[dim]=pt1[dim]+startOff; prun[dim] <= pt1[dim] + endOff; prun[dim]++, posx+=stepx) \
+    { \
+        _REDCHARTBAR(wd, pm); \
+    }
 
 #define REDCHARTBAR(type) \
-  r_Ref <r_Marray <type> > mddPtr = (r_Ref < r_Marray <type> >)(mddObj); \
-  _REDCHARTBARLOOP(stepx, +0);
+    r_Ref <r_Marray <type> > mddPtr = (r_Ref < r_Marray <type> >)(mddObj); \
+    _REDCHARTBARLOOP(stepx, +0);
 
-void chartCanvas::redrawBar(wxDC *cdc, int height, int dim, int startOff, int endOff, float scale, float posx, float stepx, float orgy)
+void chartCanvas::redrawBar(wxDC* cdc, int height, int dim, int startOff, int endOff, float scale, float posx, float stepx, float orgy)
 {
     float top, bot;
     r_Point prun = pt1;
@@ -248,8 +268,8 @@ void chartCanvas::redrawBar(wxDC *cdc, int height, int dim, int startOff, int en
     {
     case rbt_bool:
     {
-        r_Ref <r_Marray <r_Boolean> > mddPtr = (r_Ref < r_Marray <r_Boolean> >)(mddObj);
-        for (prun[dim]=pt1[dim]+startOff; prun[dim] <= pt1[dim]+endOff; prun[dim]++, posx+= stepx)
+        r_Ref <r_Marray <r_Boolean>> mddPtr = (r_Ref <r_Marray <r_Boolean>>)(mddObj);
+        for (prun[dim] = pt1[dim] + startOff; prun[dim] <= pt1[dim] + endOff; prun[dim]++, posx += stepx)
         {
             // This can only be 0 or 1, so don't bother with the sign
             value = (long)(scale * (*mddPtr)[prun]);
@@ -289,17 +309,17 @@ void chartCanvas::redrawBar(wxDC *cdc, int height, int dim, int startOff, int en
     break;
     case rbt_rgb:
     {
-        r_Ref <r_Marray <RGBPixel> > mddPtr = (r_Ref < r_Marray <RGBPixel> >)(mddObj);
+        r_Ref <r_Marray <RGBPixel>> mddPtr = (r_Ref <r_Marray <RGBPixel>>)(mddObj);
         double oldPosx = posx;
 
         cdc->SetBrush(&brush_r);
-        _REDCHARTBARLOOP(stepx/3, .red);
+        _REDCHARTBARLOOP(stepx / 3, .red);
         cdc->SetBrush(&brush_g);
-        posx = oldPosx + stepx/3;
-        _REDCHARTBARLOOP(stepx/3, .green);
+        posx = oldPosx + stepx / 3;
+        _REDCHARTBARLOOP(stepx / 3, .green);
         cdc->SetBrush(&brush_b);
-        posx = oldPosx + 2*stepx/3;
-        _REDCHARTBARLOOP(stepx/3, .blue);
+        posx = oldPosx + 2 * stepx / 3;
+        _REDCHARTBARLOOP(stepx / 3, .blue);
         cdc->SetBrush(&brush);
     }
     break;
@@ -321,25 +341,28 @@ void chartCanvas::redrawBar(wxDC *cdc, int height, int dim, int startOff, int en
 
 
 #define _REDCHARTLINELOOP(pm) \
-  prun[dim] = pt1[dim] + startOff; \
-  lastVal = chcanv_cospace + orgy - scale * (((*mddPtr)[prun])pm); \
-  for (prun[dim]++ ; prun[dim]<=pt1[dim]+endOff; prun[dim]++, posx += stepx) \
-  { \
-    newVal = chcanv_cospace + orgy - scale * (((*mddPtr)[prun])pm); \
-    cdc->DrawLine(posx, lastVal, posx+stepx, newVal); \
-    lastVal = newVal; \
-  }
+    prun[dim] = pt1[dim] + startOff; \
+    lastVal = chcanv_cospace + orgy - scale * (((*mddPtr)[prun])pm); \
+    for (prun[dim]++ ; prun[dim]<=pt1[dim]+endOff; prun[dim]++, posx += stepx) \
+    { \
+        newVal = chcanv_cospace + orgy - scale * (((*mddPtr)[prun])pm); \
+        cdc->DrawLine(posx, lastVal, posx+stepx, newVal); \
+        lastVal = newVal; \
+    }
 
 #define REDCHARTLINE(type) \
-  r_Ref<r_Marray<type> > mddPtr = (r_Ref<r_Marray<type> >)(mddObj); \
-  _REDCHARTLINELOOP(+0);
+    r_Ref<r_Marray<type> > mddPtr = (r_Ref<r_Marray<type> >)(mddObj); \
+    _REDCHARTLINELOOP(+0);
 
-void chartCanvas::redrawLine(wxDC *cdc, int dim, int startOff, int endOff, float scale, float posx, float stepx, float orgy)
+void chartCanvas::redrawLine(wxDC* cdc, int dim, int startOff, int endOff, float scale, float posx, float stepx, float orgy)
 {
     r_Point prun = pt1;
     float newVal, lastVal;
 
-    if (pt1[dim] + endOff < pt2[dim]) endOff++;
+    if (pt1[dim] + endOff < pt2[dim])
+    {
+        endOff++;
+    }
 
     switch (baseType)
     {
@@ -380,16 +403,16 @@ void chartCanvas::redrawLine(wxDC *cdc, int dim, int startOff, int endOff, float
     break;
     case rbt_rgb:
     {
-        r_Ref<r_Marray<RGBPixel> > mddPtr = (r_Ref<r_Marray<RGBPixel> >)(mddObj);
+        r_Ref<r_Marray<RGBPixel>> mddPtr = (r_Ref<r_Marray<RGBPixel>>)(mddObj);
         double oldPosx = posx;
 
         cdc->SetPen(&pen_r);
         _REDCHARTLINELOOP(.red);
         cdc->SetPen(&pen_g);
-        posx = oldPosx + stepx/3;
+        posx = oldPosx + stepx / 3;
         _REDCHARTLINELOOP(.green);
         cdc->SetPen(&pen_b);
-        posx = oldPosx + 2*stepx/3;
+        posx = oldPosx + 2 * stepx / 3;
         _REDCHARTLINELOOP(.blue);
         cdc->SetPen(&pen);
     }
@@ -412,21 +435,21 @@ void chartCanvas::redrawLine(wxDC *cdc, int dim, int startOff, int endOff, float
 
 
 #define _REDCHARTSPLINELOOP(pm) \
-  for (prun[dim]=pt1[dim]+startOff; prun[dim]<=pt1[dim]+endOff; prun[dim]++, posx+=stepx, i++) \
-  { \
-    vertices[i].x = posx; \
-    vertices[i].y = chcanv_cospace + orgy - scale * (((*mddPtr)[prun])pm); \
-    LTRACE << "_REDCHARTSPLINELOOP(pm) V: " << vertices[i].x << ',' << vertices[i].y; \
-    vlist.Append(vertices + i); \
-  }
+    for (prun[dim]=pt1[dim]+startOff; prun[dim]<=pt1[dim]+endOff; prun[dim]++, posx+=stepx, i++) \
+    { \
+        vertices[i].x = posx; \
+        vertices[i].y = chcanv_cospace + orgy - scale * (((*mddPtr)[prun])pm); \
+        LTRACE << "_REDCHARTSPLINELOOP(pm) V: " << vertices[i].x << ',' << vertices[i].y; \
+        vlist.Append(vertices + i); \
+    }
 
 #define REDCHARTSPLINE(type) \
-  r_Ref<r_Marray<type> > mddPtr = (r_Ref<r_Marray<type> >)(mddObj); \
-  _REDCHARTSPLINELOOP(+0);
+    r_Ref<r_Marray<type> > mddPtr = (r_Ref<r_Marray<type> >)(mddObj); \
+    _REDCHARTSPLINELOOP(+0);
 
-void chartCanvas::redrawSpline(wxDC *cdc, int dim, int startOff, int endOff, float scale, float posx, float stepx, float orgy)
+void chartCanvas::redrawSpline(wxDC* cdc, int dim, int startOff, int endOff, float scale, float posx, float stepx, float orgy)
 {
-    wxPoint *vertices;
+    wxPoint* vertices;
     wxList vlist;
     wxPoint point;
     r_Point prun = pt1;
@@ -443,7 +466,10 @@ void chartCanvas::redrawSpline(wxDC *cdc, int dim, int startOff, int endOff, flo
         posx -= stepx;
     }
     endOff += 2;
-    if (pt1[dim] + endOff > pt2[dim]) endOff = pt2[dim] - pt1[dim];
+    if (pt1[dim] + endOff > pt2[dim])
+    {
+        endOff = pt2[dim] - pt1[dim];
+    }
 
     if ((vertices = new wxPoint[endOff - startOff + 1]) == NULL)
     {
@@ -499,20 +525,20 @@ void chartCanvas::redrawSpline(wxDC *cdc, int dim, int startOff, int endOff, flo
     break;
     case rbt_rgb:
     {
-        r_Ref<r_Marray<RGBPixel> > mddPtr = (r_Ref<r_Marray<RGBPixel> >) (mddObj);
+        r_Ref<r_Marray<RGBPixel>> mddPtr = (r_Ref<r_Marray<RGBPixel>>)(mddObj);
         double oldPosx = posx;
         cdc->SetPen(&pen_r);
         _REDCHARTSPLINELOOP(.red);
         cdc->DrawSpline(&vlist);
         vlist.Clear();
         cdc->SetPen(&pen_g);
-        posx = oldPosx + stepx/3;
+        posx = oldPosx + stepx / 3;
         i = 0;
         _REDCHARTSPLINELOOP(.green);
         cdc->DrawSpline(&vlist);
         vlist.Clear();
         cdc->SetPen(&pen_b);
-        posx = oldPosx + 2*stepx/3;
+        posx = oldPosx + 2 * stepx / 3;
         i = 0;
         _REDCHARTSPLINELOOP(.blue);
     }
@@ -535,7 +561,9 @@ void chartCanvas::redrawSpline(wxDC *cdc, int dim, int startOff, int endOff, flo
     cdc->DrawSpline(&vlist);
 
     if (baseType == rbt_rgb)
+    {
         cdc->SetPen(&pen);
+    }
 
     cdc->DestroyClippingRegion();
 
@@ -552,20 +580,26 @@ void chartCanvas::OnPaint(void)
     int w, h, dim, i, x;
     float scale, orgy, posx, stepx, cm, y;
     float twidth, theight;
-    wxCanvasDC *cdc;
+    wxCanvasDC* cdc;
     r_Range startOff, endOff;
     char buffer[STRINGSIZE];
     bool redrawAll = FALSE;
 
     //cout << "chartCanvas::OnPaint()" << endl;
-    for (dim=0; dim<dimMDD; dim++) if (pt1[dim] != pt2[dim]) break;
-    if (dim >= dimMDD) return;
+    for (dim = 0; dim < dimMDD; dim++) if (pt1[dim] != pt2[dim])
+        {
+            break;
+        }
+    if (dim >= dimMDD)
+    {
+        return;
+    }
 
     GetClientSize(&w, &h);
     // Reserve space for co system
-    h -= 2*chcanv_cospace;
+    h -= 2 * chcanv_cospace;
 
-    if (fabs(max-min) < 10*DBL_MIN)
+    if (fabs(max - min) < 10 * DBL_MIN)
     {
         scale = (float)h;
         orgy = h;
@@ -573,9 +607,12 @@ void chartCanvas::OnPaint(void)
     else
     {
         scale = ((float)h) / (max - min);
-        orgy = max*scale;
+        orgy = max * scale;
     }
-    if (scale <= 0) return;
+    if (scale <= 0)
+    {
+        return;
+    }
 
     cdc = GetDC();
     cdc->BeginDrawing();
@@ -602,15 +639,26 @@ void chartCanvas::OnPaint(void)
     // It's important to use for, not while here, due to continue in the loop body
     for (; upd ; upd++)
     {
-        if (!redrawAll) upd.GetRect(&rect);
+        if (!redrawAll)
+        {
+            upd.GetRect(&rect);
+        }
 
         // Leave space to the left for co-system
         startOff = (x + rect.x - coleft) / step;
-        if (startOff < 0) startOff = 0;
+        if (startOff < 0)
+        {
+            startOff = 0;
+        }
         if (pt1[dim] + startOff > pt2[dim])
+        {
             continue;
+        }
         endOff = (x + rect.x - coleft + rect.width + step - 1) / step;
-        if (pt1[dim] + endOff > pt2[dim]) endOff = (r_Range)(pt2[dim] - pt1[dim]);
+        if (pt1[dim] + endOff > pt2[dim])
+        {
+            endOff = (r_Range)(pt2[dim] - pt1[dim]);
+        }
         posx = startOff * stepx + coleft;
 
         switch (cmode)
@@ -632,37 +680,40 @@ void chartCanvas::OnPaint(void)
         if (cosys)
         {
             // co-system
-            y = (min*max < 0) ? orgy : h;
+            y = (min * max < 0) ? orgy : h;
             // Only draw visible portion of horizontal line to avoid overflows
-            cdc->DrawLine(coleft + startOff * stepx, chcanv_cospace + y, coleft + (endOff+1)*stepx, chcanv_cospace + y);
+            cdc->DrawLine(coleft + startOff * stepx, chcanv_cospace + y, coleft + (endOff + 1)*stepx, chcanv_cospace + y);
 
             // vertical axis
-            if (coleft + chcanv_colength/2 >= rect.x)
+            if (coleft + chcanv_colength / 2 >= rect.x)
             {
                 cdc->DrawLine(coleft, chcanv_cospace, coleft, chcanv_cospace + h);
                 i = (int)(min / costep);
-                for (cm=i*costep; cm <= (float)max; cm += costep)
+                for (cm = i * costep; cm <= (float)max; cm += costep)
                 {
-                    posx = orgy - cm*scale;
-                    if (posx > h) continue;
+                    posx = orgy - cm * scale;
+                    if (posx > h)
+                    {
+                        continue;
+                    }
                     posx += chcanv_cospace;
-                    cdc->DrawLine(coleft - chcanv_colength/2, posx, coleft + chcanv_colength/2, posx);
+                    cdc->DrawLine(coleft - chcanv_colength / 2, posx, coleft + chcanv_colength / 2, posx);
                     sprintf(buffer, format, cm);
                     cdc->GetTextExtent(buffer, &twidth, &theight);
-                    cdc->DrawText(buffer, coleft - chcanv_colength/2 - twidth, posx - theight/2);
+                    cdc->DrawText(buffer, coleft - chcanv_colength / 2 - twidth, posx - theight / 2);
                 }
             }
 
             // horizontal axis
-            i = startOff/datastep;
+            i = startOff / datastep;
             i *= datastep;
             for (; i <= endOff; i += datastep)
             {
-                posx = i*stepx + coleft;
-                cdc->DrawLine(posx, chcanv_cospace + y - chcanv_colength, posx, chcanv_cospace + y + chcanv_colength/2);
+                posx = i * stepx + coleft;
+                cdc->DrawLine(posx, chcanv_cospace + y - chcanv_colength, posx, chcanv_cospace + y + chcanv_colength / 2);
                 sprintf(buffer, "%ld", i + pt1[dim]);
                 cdc->GetTextExtent(buffer, &twidth, &theight);
-                cdc->DrawText(buffer, posx - twidth/2, y + chcanv_cospace + chcanv_colength/2);
+                cdc->DrawText(buffer, posx - twidth / 2, y + chcanv_cospace + chcanv_colength / 2);
             }
         }
     }
@@ -678,30 +729,33 @@ void chartCanvas::OnPaint(void)
 
 
 
-const char *rviewChart::view_StepSize = "stepSize";
-const char *rviewChart::view_Markers = "markers";
-const char *rviewChart::view_ScrollPos = "scrollPos";
-const char *rviewChart::view_CoSys = "coordSys";
-const char *rviewChart::view_ChartMode = "chartMode";
+const char* rviewChart::view_StepSize = "stepSize";
+const char* rviewChart::view_Markers = "markers";
+const char* rviewChart::view_ScrollPos = "scrollPos";
+const char* rviewChart::view_CoSys = "coordSys";
+const char* rviewChart::view_ChartMode = "chartMode";
 
-rviewChart::rviewChart(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, chart_ctrly, flags)
+rviewChart::rviewChart(mdd_frame* mf, unsigned int flags) : rviewDisplay(mf, chart_ctrly, flags)
 {
     int w, h, i;
-    char *b;
+    char* b;
 
     LTRACE << "rviewChart()";
 
     // Chart mode defaults, put into prefs later
     cmode = prefs->chartMode;
-    if ((cmode != rcm_bar) && (cmode != rcm_line) && (cmode != rcm_spline)) cmode = rcm_bar;
+    if ((cmode != rcm_bar) && (cmode != rcm_line) && (cmode != rcm_spline))
+    {
+        cmode = rcm_bar;
+    }
     step = prefs->chartStep;
     cosys = prefs->chartCosys;
     datastep = prefs->chartMarkx;
     costep = prefs->chartMarky;
 
     GetClientSize(&w, &h);
-    w -= 2*display_cnvborder;
-    h -= 2*display_cnvborder + chart_totaly;
+    w -= 2 * display_cnvborder;
+    h -= 2 * display_cnvborder + chart_totaly;
     canvas = new chartCanvas((wxWindow*)this, display_cnvborder, display_cnvborder + chart_totaly, w, h);
 
     stText = new rviewText(ctrlPanel, step);
@@ -716,7 +770,7 @@ rviewChart::rviewChart(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, cha
 
     b = projString;
     b += sprintf(b, "*:*");
-    for (i=1; i<dimMDD; i++)
+    for (i = 1; i < dimMDD; i++)
     {
         b += sprintf(b, ", %ld", interv[i].low());
     }
@@ -745,7 +799,7 @@ int rviewChart::openViewer(void)
     if (rviewDisplay::openViewer() == 0)
     {
         int w, h;
-        wxMenu *modes;
+        wxMenu* modes;
         char buffer[STRINGSIZE];
 
         modes = new wxMenu;
@@ -761,8 +815,8 @@ int rviewChart::openViewer(void)
         GetClientSize(&w, &h);
         label();
 
-        frameWidth=-1;
-        frameHeight=-1;
+        frameWidth = -1;
+        frameHeight = -1;
 
         OnSize(w, h);
 
@@ -774,7 +828,7 @@ int rviewChart::openViewer(void)
 }
 
 
-const char *rviewChart::getFrameName(void) const
+const char* rviewChart::getFrameName(void) const
 {
     return "rviewChart";
 }
@@ -848,21 +902,21 @@ void rviewChart::OnSize(int w, int h)
     LTRACE << "OnSize(" << w << ", " << h << " )";
 
     GetClientSize(&x, &y);
-    i = 2*display_border + chart_totaly + 2*chartCanvas::chcanv_cospace;
+    i = 2 * display_border + chart_totaly + 2 * chartCanvas::chcanv_cospace;
     if (y < i)
     {
         y = i;
         SetClientSize(x, i);
     }
-    x -= 2*display_border;
-    i = x - 3*chart_twidth - chart_cwidth;
+    x -= 2 * display_border;
+    i = x - 3 * chart_twidth - chart_cwidth;
     j = display_border + display_cheight;
-    stText->SetSize(display_border + i/8, j, chart_twidth - display_border, chart_theight);
-    coText->SetSize(display_border + (3*i)/8 + chart_twidth, j, chart_twidth - display_border, chart_theight);
-    dataText->SetSize(display_border + (5*i)/8 + 2*chart_twidth, j, chart_twidth - display_border, chart_theight);
-    csBox->SetSize(display_border + (7*i)/8 + 3*chart_twidth, j, chart_cwidth, chart_cheight);
+    stText->SetSize(display_border + i / 8, j, chart_twidth - display_border, chart_theight);
+    coText->SetSize(display_border + (3 * i) / 8 + chart_twidth, j, chart_twidth - display_border, chart_theight);
+    dataText->SetSize(display_border + (5 * i) / 8 + 2 * chart_twidth, j, chart_twidth - display_border, chart_theight);
+    csBox->SetSize(display_border + (7 * i) / 8 + 3 * chart_twidth, j, chart_cwidth, chart_cheight);
 
-    y -= 2*display_border + chart_totaly;
+    y -= 2 * display_border + chart_totaly;
     canvas->SetSize(display_border, display_border + chart_totaly, x, y);
     rviewDisplay::OnSize(w, h);
 }
@@ -900,12 +954,14 @@ void rviewChart::OnMenuCommand(int id)
         newProjection();
     }
     else
+    {
         rviewDisplay::OnMenuCommand(id);
+    }
 }
 
 
 
-int rviewChart::process(wxObject &obj, wxEvent &evt)
+int rviewChart::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
     int h;
@@ -974,12 +1030,18 @@ int rviewChart::newProjection(void)
     }
 
     dim = -1;
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         if (pt1[i] != pt2[i])
         {
-            if (dim < 0) dim = i;
-            else dim = dimMDD;
+            if (dim < 0)
+            {
+                dim = i;
+            }
+            else
+            {
+                dim = dimMDD;
+            }
         }
     }
     if ((dim < 0) || (dim >= dimMDD))
@@ -992,9 +1054,13 @@ int rviewChart::newProjection(void)
     i = canvas->setProjection(pt1, pt2);  // returns coleft
 
     if (scroll >= 0)
+    {
         scroll = canvas->GetScrollPos(wxHORIZONTAL);
+    }
     else
+    {
         scroll = 0;
+    }
 
     canvas->SetScrollbars(display_scrstep, 0, (int)(((pt2[dim] - pt1[dim] + 1)*step + i + display_scrstep - 1) / display_scrstep), 0, display_pgstep, 0, scroll);
     //canvas->GetVirtualSize(&dim, &i);
@@ -1004,7 +1070,7 @@ int rviewChart::newProjection(void)
 }
 
 
-int rviewChart::saveView(FILE *fp)
+int rviewChart::saveView(FILE* fp)
 {
     int status = rviewDisplay::saveView(fp);
 
@@ -1021,7 +1087,7 @@ int rviewChart::saveView(FILE *fp)
 }
 
 
-int rviewChart::readView(const char *key, const char *value)
+int rviewChart::readView(const char* key, const char* value)
 {
     int status = rviewDisplay::readView(key, value);
 

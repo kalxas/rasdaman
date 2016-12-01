@@ -49,8 +49,8 @@ void showEraseHelp()
     cout << endl << "raserase v1.0" << endl << endl;
 
     cout << "Usage: raserase {--coll <collection> [--oid <OID>] | --coverage <coverage_name>} "
-              "[--conn <connection file>] "
-              "[--ps-metadata]" << endl << endl;
+         "[--conn <connection file>] "
+         "[--ps-metadata]" << endl << endl;
 
     cout << " --coll        name of rasdaman collection to delete" << endl;
     cout << " --conn        connection file specifying rasdaman and postgres DB " << endl;
@@ -65,7 +65,7 @@ void showEraseHelp()
 
 
 void
-crash_handler (__attribute__ ((unused))int sig, __attribute__ ((unused))siginfo_t* info, void * ucontext)
+crash_handler(__attribute__((unused))int sig, __attribute__((unused))siginfo_t* info, void* ucontext)
 {
     print_stacktrace(ucontext);
 
@@ -77,7 +77,7 @@ crash_handler (__attribute__ ((unused))int sig, __attribute__ ((unused))siginfo_
     exit(SEGFAULT_EXIT_CODE);
 }
 
-    _INITIALIZE_EASYLOGGINGPP
+_INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     installSigSegvHandler(crash_handler);
 
 
-    SET_OUTPUT( true );
+    SET_OUTPUT(true);
     const string ctx = "raserase::main()";
     rasconn = NULL;
 
@@ -107,48 +107,48 @@ int main(int argc, char** argv)
 
     // parse command line arguments
     int arg = 1;
-    while (arg < argc-1)
+    while (arg < argc - 1)
     {
         string theArg = argv[arg];
         transform(theArg.begin(), theArg.end(),
-                       theArg.begin(), ::tolower);
+                  theArg.begin(), ::tolower);
 
         if (theArg == "--coll")
         {
-            collname = argv[arg+1];
+            collname = argv[arg + 1];
             if (collname.empty())
             {
                 cerr << ctx
-                << ": missing parameter for --coll: please "
-                << "specify a target collection!" << endl;
+                     << ": missing parameter for --coll: please "
+                     << "specify a target collection!" << endl;
                 return EXIT_FAILURE;
             }
         }
         else if (theArg == "--oid")
         {
-            oid = atof(argv[arg+1]);
+            oid = atof(argv[arg + 1]);
             if (oid <= 0)
             {
                 cerr << ctx << ": invalid OID specified!"
-                << endl;
+                     << endl;
                 return EXIT_FAILURE;
             }
         }
         else if (theArg == "--conn")
         {
-            connfile = argv[arg+1];
+            connfile = argv[arg + 1];
             if (access(connfile.c_str(), R_OK) != 0)
             {
                 cerr << ctx
-                << ": invalid parameter for --conn: could "
-                << "not access connection file '" << connfile << "'!"
-                << endl;
+                     << ": invalid parameter for --conn: could "
+                     << "not access connection file '" << connfile << "'!"
+                     << endl;
                 return EXIT_FAILURE;
             }
         }
         else if (theArg == "--coverage")
         {
-            coverage = argv[arg+1];
+            coverage = argv[arg + 1];
         }
         else if (theArg == "--ps-metadata")
         {
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
         arg++;
     }
 
-    string lastarg = argv[argc-1];
+    string lastarg = argv[argc - 1];
     if (lastarg == "--help")
     {
         showEraseHelp();
@@ -181,8 +181,8 @@ int main(int argc, char** argv)
         if (access(connfile.c_str(), R_OK) != 0)
         {
             cerr << ctx
-            << ": could not access connection file '"
-            << connfile << "'!" << endl;
+                 << ": could not access connection file '"
+                 << connfile << "'!" << endl;
             return EXIT_FAILURE;
         }
     }
@@ -205,8 +205,8 @@ int main(int argc, char** argv)
     if (collname.empty() && coverage.empty())
     {
         cerr << ctx
-        << ": please specify a collection or image (coverage) to delete!"
-        << endl;
+             << ": please specify a collection or image (coverage) to delete!"
+             << endl;
         showEraseHelp();
         return EXIT_FAILURE;
     }
@@ -220,29 +220,29 @@ int main(int argc, char** argv)
             if (oid < 0)
             {
                 cerr << ctx
-                << ": couldn't find an image referred to as '"
-                << coverage << "' in the data base!"
-                << endl;
+                     << ": couldn't find an image referred to as '"
+                     << coverage << "' in the data base!"
+                     << endl;
                 return EXIT_SUCCESS;
             }
 
             collname = helper.getCollectionNameFromOID(oid);
-         }
+        }
 
         if (helper.doesCollectionExist(collname) == -1)
         {
             cerr << ctx
-            << ": couldn't find collection '" << collname
-            << "' in the data base!"
-            << endl;
+                 << ": couldn't find collection '" << collname
+                 << "' in the data base!"
+                 << endl;
             return EXIT_SUCCESS;
         }
 
         if (!helper.deletePSMetadata(collname, oid))
         {
             cerr << ctx
-            << ": couldn't delete petascope metadata!"
-            << endl;
+                 << ": couldn't delete petascope metadata!"
+                 << endl;
             //return EXIT_FAILURE;
         }
 
@@ -250,19 +250,23 @@ int main(int argc, char** argv)
         {
             // drop either image or collection
             if (oid == -1)
+            {
                 helper.dropCollection(collname);
+            }
             else
+            {
                 helper.dropImage(collname, oid);
+            }
         }
     }
-    catch(r_Error& re)
+    catch (r_Error& re)
     {
         if (rasconn)
         {
             delete rasconn;
         }
         cerr << ctx << ": "
-        << re.what() << endl;
+             << re.what() << endl;
         return EXIT_FAILURE;
     }
 

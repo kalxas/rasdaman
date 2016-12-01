@@ -112,24 +112,24 @@ int         serverListenPort = 0;
 ServerComm* server = NULL;
 
 void
-crash_handler( int sig, siginfo_t* info, void * ucontext);
+crash_handler(int sig, siginfo_t* info, void* ucontext);
 
 /**
  * Invoked on SIGUSR1 signal, this handler prints the stack trace and then kills
  * the server process with SIGKILL. This is used in crash testing of rasserver.
  */
 void
-test_handler( int sig, siginfo_t* info, void * ucontext);
+test_handler(int sig, siginfo_t* info, void* ucontext);
 
 /**
   * This function is called when a SIGTERM signal is received by the process.
   * The function is placed here because it affects the global behavior of the process.
   */
-void rasnetTerminationHandler(int sig, siginfo_t* info, void * ucontext);
+void rasnetTerminationHandler(int sig, siginfo_t* info, void* ucontext);
 
 
 void
-crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
+crash_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
     print_stacktrace(ucontext);
     if (TileCache::cacheLimit > 0)
@@ -137,7 +137,9 @@ crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo
         TileCache::clear();
     }
     if (server != NULL)
+    {
         delete server;
+    }
     server = NULL;
     LINFO << "rasserver terminated.";
 
@@ -145,7 +147,7 @@ crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo
 }
 
 void
-test_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
+test_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
     LINFO << "test handler caught signal SIGUSR1";
     print_stacktrace(ucontext);
@@ -157,26 +159,26 @@ test_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_
   * This function is called when a SIGTERM signal is received by the process.
   * The function is placed here because it affects the global behavior of the process.
   */
-void rasnetTerminationHandler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
+void rasnetTerminationHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
-    LINFO<<"Exiting server process.";
+    LINFO << "Exiting server process.";
 
     exit(EXIT_SUCCESS);
 }
 
 _INITIALIZE_EASYLOGGINGPP
 
-int main ( int argc, char** argv )
+int main(int argc, char** argv)
 {
     installSigSegvHandler(crash_handler);
     installSigHandler(test_handler, SIGUSR1);
 
-    SET_OUTPUT( true );     // enable debug output, if compiled so
+    SET_OUTPUT(true);       // enable debug output, if compiled so
 
     //print startup text (this line will still go into forking rasmgr's log!)
     cout << "Spawned rasserver " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << "." << endl;
 
-    if(configuration.parseCommandLine(argc, argv) == false)
+    if (configuration.parseCommandLine(argc, argv) == false)
     {
         LERROR << "Error: cannot parse command line.";
         return RC_ERROR;
@@ -195,7 +197,7 @@ int main ( int argc, char** argv )
 
     LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.";
 
-    if(initialization() == false )
+    if (initialization() == false)
     {
         LERROR << "Error during initialization. aborted.";
         return RC_ERROR;
@@ -206,7 +208,7 @@ int main ( int argc, char** argv )
     //
 
     LINFO << "Installing signal handler for ignoring broken pipe signal...";
-    signal( SIGPIPE, SIG_IGN );
+    signal(SIGPIPE, SIG_IGN);
     LINFO << "ok";
 
     int returnCode = 0;
@@ -214,19 +216,19 @@ int main ( int argc, char** argv )
     {
         LDEBUG << "selecting server type...";
 
-        if(configuration.isRnpServer())
+        if (configuration.isRnpServer())
         {
             LDEBUG << "startRnpServer()...";
             startRnpServer();
             LDEBUG << "startRnpServer() done.";
         }
-        else if(configuration.isHttpServer())
+        else if (configuration.isHttpServer())
         {
             LDEBUG << "initializing HttpServer()...";
-            server = new HttpServer( clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
+            server = new HttpServer(clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 #ifdef RMANRASNET
-        else if(configuration.isRasnetServer())
+        else if (configuration.isRasnetServer())
         {
             installSigHandler(rasnetTerminationHandler, SIGTERM);
 
@@ -238,42 +240,46 @@ int main ( int argc, char** argv )
         else
         {
             LDEBUG << "initializing ServerComm() (ie: RPC)...";
-            server = new ServerComm( clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
+            server = new ServerComm(clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 
         // in case of HTTP or RPC server: launch previously generated object
-        if(server)
+        if (server)
         {
             LDEBUG << "server->startRpcServer()...";
             server->startRpcServer();
             LDEBUG << "server->startRpcServer() done.";
         }
     }
-    catch ( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         LDEBUG << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
         LERROR << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
         returnCode = RC_ERROR;
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error encounter: " << ex.what();
         LDEBUG << "std::exception: " << ex.what();
         returnCode = RC_ERROR;
     }
-    catch(...)
+    catch (...)
     {
         LDEBUG << "rasserver: general exception";
         LERROR << "rasserver: general exception";
         returnCode = RC_ERROR;
     }
 
-    if(server)
+    if (server)
+    {
         delete server;
+    }
     server = NULL;
 
-    if( dbSchema )
-        free( dbSchema );
+    if (dbSchema)
+    {
+        free(dbSchema);
+    }
     dbSchema = NULL;
 
     LINFO << "rasserver terminated.";
@@ -289,32 +295,41 @@ bool initialization()
 
     LINFO << "Server " << serverName << " of type ";
 
-    if(configuration.isRnpServer())
+    if (configuration.isRnpServer())
+    {
         LINFO << "RNP, listening on port " << serverListenPort;
-    else if(configuration.isHttpServer())
+    }
+    else if (configuration.isHttpServer())
+    {
         LINFO << "HTTP, listening on port " << serverListenPort;
+    }
     else
-        LINFO << "RPC, registered with prognum 0x" << hex <<serverListenPort << dec;
+    {
+        LINFO << "RPC, registered with prognum 0x" << hex << serverListenPort << dec;
+    }
 
     //  globalConnectId         = configuration.getDbConnectionID();
-    strcpy(globalConnectId,configuration.getDbConnectionID());
+    strcpy(globalConnectId, configuration.getDbConnectionID());
     LINFO << ", connecting to " << BASEDBSTRING << " as '" << globalConnectId <<  "'";
 
-    strcpy(globalDbUser,configuration.getDbUser());
+    strcpy(globalDbUser, configuration.getDbUser());
     if (strlen(configuration.getDbUser()) > 0)
     {
         LINFO << ", user " << globalDbUser;
     }
-    strcpy(globalDbPasswd,configuration.getDbPasswd());
+    strcpy(globalDbPasswd, configuration.getDbPasswd());
 
     rasmgrHost = configuration.getRasmgrHost();
     rasmgrPort = configuration.getRasmgrPort();
 
     LINFO << "Verifying rasmgr host name: " << rasmgrHost << "...";
-    if(!gethostbyname(rasmgrHost))
+    if (!gethostbyname(rasmgrHost))
     {
         LINFO << "failed";
-        if(!configuration.isLogToStdOut())  LINFO << "failed";
+        if (!configuration.isLogToStdOut())
+        {
+            LINFO << "failed";
+        }
         return false;
     }
     LINFO << "ok";
@@ -322,10 +337,12 @@ bool initialization()
     maxTransferBufferSize = static_cast<unsigned int>(configuration.getMaxTransferBufferSize());
 
     clientTimeOut = static_cast<unsigned int>(configuration.getTimeout());
-    if(clientTimeOut == 0)
+    if (clientTimeOut == 0)
+    {
         noTimeOut = 1;
+    }
 
-    managementInterval = clientTimeOut/4;
+    managementInterval = clientTimeOut / 4;
 
     //tilesize
     StorageLayout::DefaultTileSize = static_cast<unsigned int>(configuration.getDefaultTileSize());
@@ -345,18 +362,18 @@ bool initialization()
 
 #ifdef RMANDEBUG
     RManDebug = configuration.getDebugLevel();
-    LINFO<<"Debug level: " << RManDebug;
+    LINFO << "Debug level: " << RManDebug;
 #endif
 
     try
     {
         StorageLayout::DefaultTileConfiguration = r_Minterval(configuration.getDefaultTileConfig());
     }
-    catch(r_Error& err)
+    catch (r_Error& err)
     {
         LERROR << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval";
         LERROR << "Error " << err.get_errorno() << " : " << err.what();
-        if(!configuration.isLogToStdOut())
+        if (!configuration.isLogToStdOut())
         {
             LERROR << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval";
             LERROR << "Error " << err.get_errorno() << " : " << err.what();
@@ -366,15 +383,17 @@ bool initialization()
     LINFO << "Default Tile Conf: " << StorageLayout::DefaultTileConfiguration;
 
     // Tiling
-    r_Tiling_Scheme tmpTS=get_tiling_scheme_from_name(configuration.getTilingScheme());
+    r_Tiling_Scheme tmpTS = get_tiling_scheme_from_name(configuration.getTilingScheme());
 
-    if(tmpTS != r_Tiling_Scheme_NUMBER)
+    if (tmpTS != r_Tiling_Scheme_NUMBER)
+    {
         StorageLayout::DefaultTilingScheme = tmpTS;
+    }
 
-    if((tmpTS != r_NoTiling) && (tmpTS != r_RegularTiling) && (tmpTS != r_AlignedTiling))
+    if ((tmpTS != r_NoTiling) && (tmpTS != r_RegularTiling) && (tmpTS != r_AlignedTiling))
     {
         LERROR << "Error: unsupported tiling strategy: " << configuration.getTilingScheme();
-        if(configuration.isLogToStdOut())
+        if (configuration.isLogToStdOut())
         {
             LERROR << "Error: unsupported tiling strategy: " << configuration.getTilingScheme();
         }
@@ -387,8 +406,10 @@ bool initialization()
 
     // Index
     r_Index_Type tmpIT = get_index_type_from_name(configuration.getIndexType());
-    if ( tmpIT != r_Index_Type_NUMBER)
+    if (tmpIT != r_Index_Type_NUMBER)
+    {
         StorageLayout::DefaultIndexType = tmpIT;
+    }
     LINFO << "Default Index    : " << StorageLayout::DefaultIndexType;
 
     //use tilecontainer

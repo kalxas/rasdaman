@@ -42,8 +42,7 @@ package rasj.odmg;
  *
  * @author Peter Zoller
  */
-public abstract class RasODMGGlobal
-{
+public abstract class RasODMGGlobal {
     // client requests allowed
     public static final int commOpenDB      = 1;
     public static final int commCloseDB     = 2;

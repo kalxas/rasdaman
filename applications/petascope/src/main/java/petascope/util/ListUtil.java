@@ -181,13 +181,13 @@ public class ListUtil {
     }
 
     public static <T> List<T> toList(T... e) {
-         List<T> ret = new ArrayList<T>();
-         if (e != null) {
-             for (T o : e) {
+        List<T> ret = new ArrayList<T>();
+        if (e != null) {
+            for (T o : e) {
                 ret.add(o);
             }
-         }
-         return ret;
+        }
+        return ret;
     }
 
     /**
@@ -239,13 +239,13 @@ public class ListUtil {
     public static <T extends Number> int minIndex(List<T> a, T el) {
 
         if (el.getClass().equals(BigDecimal.class)) {
-            for (int i=0; i < a.size(); i++) {
+            for (int i = 0; i < a.size(); i++) {
                 if (((BigDecimal)a.get(i)).compareTo((BigDecimal)el) >= 0) {
                     return i;
                 }
             }
         } else {
-            for (int i=0; i < a.size(); i++) {
+            for (int i = 0; i < a.size(); i++) {
                 if (a.get(i).doubleValue() >= el.doubleValue()) {
                     return i;
                 }
@@ -253,7 +253,7 @@ public class ListUtil {
         }
 
         // "el" was outside bounds
-        return a.size()-1;
+        return a.size() - 1;
     }
 
 
@@ -287,9 +287,9 @@ public class ListUtil {
     public static <T> String printList(List<T> l, String FS) {
         String out = "";
         StringBuilder sb = new StringBuilder(out);
-        if (l.size()>0) {
+        if (l.size() > 0) {
             boolean isBigDecimal = l.get(0).getClass().equals(BigDecimal.class);
-            for (int i=0; i<l.size()-1; i++) {
+            for (int i = 0; i < l.size() - 1; i++) {
                 if (isBigDecimal) {
                     sb.append(BigDecimalUtil.stripDecimalZeros((BigDecimal)l.get(i)));
                 } else {
@@ -298,10 +298,10 @@ public class ListUtil {
                 sb.append(FS);
             }
             if (isBigDecimal) {
-                    sb.append(BigDecimalUtil.stripDecimalZeros((BigDecimal)l.get(l.size()-1)));
-                } else {
-                    sb.append(l.get(l.size()-1));
-                }
+                sb.append(BigDecimalUtil.stripDecimalZeros((BigDecimal)l.get(l.size() - 1)));
+            } else {
+                sb.append(l.get(l.size() - 1));
+            }
         }
         return sb.toString();
     }

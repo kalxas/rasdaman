@@ -77,21 +77,23 @@ extern struct ServerBase Server;
 *
 */
 
-rc_t InitChild( struct ClientBase *Client )
+rc_t InitChild(struct ClientBase* Client)
 {
-    char *UnknownIP = const_cast<char*>("0.0.0.0");
+    char* UnknownIP = const_cast<char*>("0.0.0.0");
 
     /* Init ClientBase  */
-    strcpy( Client->Host.IPAddrString, inet_ntoa( Client->Socket.sin_addr ) );
-    if( Client->Host.IPAddrString == NULL )
-        strcpy( Client->Host.IPAddrString, UnknownIP );
-    Client->Host.IPAddress = inet_addr( Client->Host.IPAddrString );
+    strcpy(Client->Host.IPAddrString, inet_ntoa(Client->Socket.sin_addr));
+    if (Client->Host.IPAddrString == NULL)
+    {
+        strcpy(Client->Host.IPAddrString, UnknownIP);
+    }
+    Client->Host.IPAddress = inet_addr(Client->Host.IPAddrString);
 
     Client->Comm.ConnStatus      = CONN_UNDEFINED;
-    InitHTTPMsg( &Client->Response );
-    InitReqInfo( &Client->Request );
+    InitHTTPMsg(&Client->Response);
+    InitReqInfo(&Client->Request);
 
-    return( OK );
+    return (OK);
 }
 
 
@@ -127,18 +129,20 @@ rc_t InitChild( struct ClientBase *Client )
 *
 */
 
-pid_t NewChild( struct ChildBase *List, struct FDsets *PDSets, struct ClientBase *Client )
+pid_t NewChild(struct ChildBase* List, struct FDsets* PDSets, struct ClientBase* Client)
 {
-    struct ChildBase *Child;
+    struct ChildBase* Child;
 
-    Child = static_cast<struct ChildBase*>(mymalloc( sizeof( struct ChildBase ) ));
-    if( Child == NULL )  // Failure? => QUIT.
-        ErrorMsg( E_SYS, FAIL, "FAIL:  NewChild(): malloc() failed!" );
+    Child = static_cast<struct ChildBase*>(mymalloc(sizeof(struct ChildBase)));
+    if (Child == NULL)   // Failure? => QUIT.
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  NewChild(): malloc() failed!");
+    }
 
     // Open pipe
-    if( pipe( Child->PD ) < 0 )
+    if (pipe(Child->PD) < 0)
     {
-        ErrorMsg( E_SYS, ERROR, "ERROR: NewChild(): pipe() failed." );
+        ErrorMsg(E_SYS, ERROR, "ERROR: NewChild(): pipe() failed.");
         Child->PipeStatus = PIPE_CLOSED;
     }
     else
@@ -148,69 +152,79 @@ pid_t NewChild( struct ChildBase *List, struct FDsets *PDSets, struct ClientBase
 
     Child->PId = fork();
 
-    if( Child->PId < 0 )  // fork() Error? => QUIT.
-        ErrorMsg( E_SYS, FAIL, "FAIL:  NewChild(): fork() failed!" );
+    if (Child->PId < 0)   // fork() Error? => QUIT.
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  NewChild(): fork() failed!");
+    }
 
-    if( Child->PId > 0 )  // parent process?
+    if (Child->PId > 0)   // parent process?
     {
         // Add Pipe-Descriptors to PipeSets
-        if( Child->PipeStatus == PIPE_OPEN )
+        if (Child->PipeStatus == PIPE_OPEN)
         {
-            FD_SET( Child->PD[0], &PDSets->Read );
-            if( Child->PD[0] > PDSets->MaxFD )
+            FD_SET(Child->PD[0], &PDSets->Read);
+            if (Child->PD[0] > PDSets->MaxFD)
+            {
                 PDSets->MaxFD = Child->PD[0];
-            close( Child->PD[1] );
+            }
+            close(Child->PD[1]);
         }
         // Add Child to List
-        AddChild( List, Child );
+        AddChild(List, Child);
     }
     else  // child process
     {
-        InitChild( Client );
+        InitChild(Client);
         // Remember PD to parent
         Client->Pipe = Child->PD[1];
-        close( Child->PD[0] );
-        free( Child );
+        close(Child->PD[0]);
+        free(Child);
     }
 
-    return( Child->PId );
+    return (Child->PId);
 }
 
 
-void CleanupChild( struct ChildBase *List, struct FDsets *PDSets, pid_t PId )
+void CleanupChild(struct ChildBase* List, struct FDsets* PDSets, pid_t PId)
 {
-    struct ChildBase *Ptr;
-    struct ChildBase *Tmp = NULL;
+    struct ChildBase* Ptr;
+    struct ChildBase* Tmp = NULL;
 
-    LogMsg( LG_SERVER, DEBUG, "DEBUG: Begin CleanupChild ..." );
+    LogMsg(LG_SERVER, DEBUG, "DEBUG: Begin CleanupChild ...");
 
-    if(PDSets == NULL)
-        LogMsg( LG_SERVER, DEBUG, "DEBUG: ########### PDSets is NULL!" );
-    if(PId == static_cast<pid_t>(0))
-        LogMsg( LG_SERVER, DEBUG, "DEBUG: ########### ChildPid is NULL!" );
-    if(List == NULL)
-        LogMsg( LG_SERVER, DEBUG, "DEBUG: ########### ChildBase is NULL!" );
-
-    if( List->PId > 0 )
+    if (PDSets == NULL)
     {
-        for( Ptr = List; Ptr->next != List; Ptr = Ptr->next )
+        LogMsg(LG_SERVER, DEBUG, "DEBUG: ########### PDSets is NULL!");
+    }
+    if (PId == static_cast<pid_t>(0))
+    {
+        LogMsg(LG_SERVER, DEBUG, "DEBUG: ########### ChildPid is NULL!");
+    }
+    if (List == NULL)
+    {
+        LogMsg(LG_SERVER, DEBUG, "DEBUG: ########### ChildBase is NULL!");
+    }
+
+    if (List->PId > 0)
+    {
+        for (Ptr = List; Ptr->next != List; Ptr = Ptr->next)
         {
-            if( Ptr->next->PId == PId )
+            if (Ptr->next->PId == PId)
             {
                 Tmp = Ptr->next;
                 break;
             }
         }
         // Close pipe
-        close( Tmp->PD[0] );
+        close(Tmp->PD[0]);
         // Remove Pipe-Descriptors from PipeSets
-        FD_CLR( Tmp->PD[0], &PDSets->Read );
-        RemChild( List, Tmp );
+        FD_CLR(Tmp->PD[0], &PDSets->Read);
+        RemChild(List, Tmp);
     }
 }
 
 
-void AddChild( struct ChildBase *List, struct ChildBase *Child )
+void AddChild(struct ChildBase* List, struct ChildBase* Child)
 {
     Child->next = List->next;
     Child->prev = List;
@@ -220,28 +234,32 @@ void AddChild( struct ChildBase *List, struct ChildBase *Child )
 }
 
 
-void RemChild( struct ChildBase *List, struct ChildBase *Child )
+void RemChild(struct ChildBase* List, struct ChildBase* Child)
 {
     Child->prev->next = Child->next;
     Child->next->prev = Child->prev;
     List->PId--;
-    free( Child );
+    free(Child);
 }
 
 
-struct ChildBase *GetChild( struct ChildBase *List, pid_t PId )
+struct ChildBase* GetChild(struct ChildBase* List, pid_t PId)
 {
-    struct ChildBase *Ptr;
+    struct ChildBase* Ptr;
 
-    if( List->PId > 0 )
+    if (List->PId > 0)
     {
-        for( Ptr = List; Ptr->next != List; Ptr = Ptr->next )
+        for (Ptr = List; Ptr->next != List; Ptr = Ptr->next)
         {
-            if( Ptr->next->PId == PId )
-                return( Ptr->next );
+            if (Ptr->next->PId == PId)
+            {
+                return (Ptr->next);
+            }
         }
-        return( NULL );
+        return (NULL);
     }
     else
-        return( NULL );
+    {
+        return (NULL);
+    }
 }

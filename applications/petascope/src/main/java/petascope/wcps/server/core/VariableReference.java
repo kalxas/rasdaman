@@ -28,7 +28,7 @@ import org.w3c.dom.*;
 import petascope.util.WcpsConstants;
 
 public class VariableReference extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(VariableReference.class);
 
     private String name;

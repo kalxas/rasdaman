@@ -37,12 +37,12 @@ DBObjectIdIterator<T>::DBObjectIdIterator(const DBObjectIdIterator<T>& oidlist)
 }
 
 template<class T>
-DBObjectIdIterator<T>::DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBRef<T> > >& oidlist)
+DBObjectIdIterator<T>::DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBRef<T>>>& oidlist)
     :   mySet(NULL),
         counter(0)
 {
     LTRACE << "DBObjectIdIterator(OIdSet)";
-    mySet = const_cast<std::set<DBRef<T>, std::less<DBRef<T> > >*>(&oidlist);
+    mySet = const_cast<std::set<DBRef<T>, std::less<DBRef<T>>>*>(&oidlist);
     myIter = mySet->begin();
 }
 

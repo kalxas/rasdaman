@@ -5,8 +5,8 @@
 
 const QtNode::QtNodeType QtCreateCellType::nodeType = QtNode::QT_CREATE_CELL_TYPE;
 
-QtCreateCellType::QtCreateCellType(const std::string &typeName2, QtNode::QtOperationList *typeAttributes2)
-    :typeName(typeName2), typeAttributes(typeAttributes2)
+QtCreateCellType::QtCreateCellType(const std::string& typeName2, QtNode::QtOperationList* typeAttributes2)
+    : typeName(typeName2), typeAttributes(typeAttributes2)
 {
 }
 
@@ -57,7 +57,7 @@ void QtCreateCellType::checkType()
 
 }
 
-void QtCreateCellType::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
+void QtCreateCellType::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCreateCellType Object" << std::endl;
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  CREATE TYPE " << typeName << " UNDER STRUCT { ";
@@ -78,7 +78,7 @@ void QtCreateCellType::printTree(int tab, std::ostream &s, __attribute__ ((unuse
 }
 
 
-void QtCreateCellType::printAlgebraicExpression(std::ostream &s)
+void QtCreateCellType::printAlgebraicExpression(std::ostream& s)
 {
     s << "command <";
     s << "  CREATE TYPE " << typeName << " UNDER STRUCT { ";

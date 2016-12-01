@@ -38,8 +38,7 @@ import rasj.*;
 import rasj.global.*;
 import org.odmg.*;
 
-public class RasObject implements RasGlobalDefs
-{
+public class RasObject implements RasGlobalDefs {
     static final String rcsid = "@(#)Package rasj.odmg, class RasObject: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasObject.java,v 1.9 2003/12/10 21:04:30 rasdev Exp $";
 
     /**
@@ -65,180 +64,163 @@ public class RasObject implements RasGlobalDefs
     /**
      * default constructor
      */
-    public RasObject()
-    {
-	objectName = "";
-	typeName = "";
-	status = 0;
-	lock = 0;
-	oid = new RasOID();
-	type = 0;
+    public RasObject() {
+        objectName = "";
+        typeName = "";
+        status = 0;
+        lock = 0;
+        oid = new RasOID();
+        type = 0;
     }
 
-    public RasObject(int objType)
-    {
-	objectName = "";
-	typeName = "";
-	status = 0;
-	lock = 0;
-	oid = new RasOID();
-	type = objType;
+    public RasObject(int objType) {
+        objectName = "";
+        typeName = "";
+        status = 0;
+        lock = 0;
+        oid = new RasOID();
+        type = objType;
     }
 
-    public RasObject(RasObject obj, int objType)
-    {
-	objectName = "";
-	typeName = "";
-	status = 0;
-	lock = 0;
-	oid = new RasOID();
-	type = objType;
+    public RasObject(RasObject obj, int objType) {
+        objectName = "";
+        typeName = "";
+        status = 0;
+        lock = 0;
+        oid = new RasOID();
+        type = objType;
     }
 
     /**
      * get oid
      */
-    public RasOID getOID()
-    {
+    public RasOID getOID() {
         return oid;
     }
 
-     /**
-     * set oid
-     */
-    public void setOID(RasOID o)
-    {
+    /**
+    * set oid
+    */
+    public void setOID(RasOID o) {
         oid = o;
     }
 
     /**
      * set object name
      */
-    public void setObjectName(String name) throws RasInvalidNameException
-    {
-	verifyName(name);
-	
-	objectName = name;
-    }
-
-    /**
-     * set object type
-     */
-    public void setObjectType(int t)
-    {
-	type = t;
-    }
-
-    /**
-     * set object type
-     */
-    public void setObjectTypeName(String name) throws RasInvalidNameException
-    {
+    public void setObjectName(String name) throws RasInvalidNameException {
         verifyName(name);
-	
-	typeName = name;
+
+        objectName = name;
+    }
+
+    /**
+     * set object type
+     */
+    public void setObjectType(int t) {
+        type = t;
+    }
+
+    /**
+     * set object type
+     */
+    public void setObjectTypeName(String name) throws RasInvalidNameException {
+        verifyName(name);
+
+        typeName = name;
     }
 
     /**
      * set object type structure
      */
-    public void setTypeStructure(String structure)
-    {
-	typeStructure = structure;
+    public void setTypeStructure(String structure) {
+        typeStructure = structure;
     }
 
     /**
      * get type Structure
      */
-    public String getTypeStructure()
-    {
-	return typeStructure;
+    public String getTypeStructure() {
+        return typeStructure;
     }
 
     /**
      * get object name
      */
-    public String getObjectName()
-    {
-	return objectName;
+    public String getObjectName() {
+        return objectName;
     }
 
     /**
      * get object status
      */
-    public int getStatus()
-    {
-	return status;
+    public int getStatus() {
+        return status;
     }
 
 
     /**
      * get object type
      */
-    public int getObjectType()
-    {
-	return type;
+    public int getObjectType() {
+        return type;
     }
 
     /**
      * get object typeName
      */
-    public String getObjectTypeName()
-    {
-	return typeName;
+    public String getObjectTypeName() {
+        return typeName;
     }
 
     /**
      * set object status
      */
-    public void setStatus(int newStatus)
-    {
-	status = newStatus;
+    public void setStatus(int newStatus) {
+        status = newStatus;
     }
 
     /**
      * get object lock
      */
-    public int getLock()
-    {
-	return lock;
+    public int getLock() {
+        return lock;
     }
 
     /**
      * set object lock
      */
-    public void setLock(int lockMode)
-    {
-	lock = lockMode;
+    public void setLock(int lockMode) {
+        lock = lockMode;
     }
 
-    public void rasDeactivate()
-    {
-	objectName = "";
-	status = 0;
-	lock = 0;
-	oid.rasDeactivate();
+    public void rasDeactivate() {
+        objectName = "";
+        status = 0;
+        lock = 0;
+        oid.rasDeactivate();
     }
 
-    public RasType getTypeSchema()
-    {
-	return RasType.getAnyType(typeStructure);
+    public RasType getTypeSchema() {
+        return RasType.getAnyType(typeStructure);
     }
 
-    
-    private void verifyName(String name) throws RasInvalidNameException
-      {
-        for(int i = 0;i < name.length(); i++)
-	  {
-	    char c = name.charAt(i);
-	    	    
-	    if(c == '_' || Character.isLetter(c)) continue;
-	    
-	    if(Character.isDigit(c) && i > 0) continue;
-	    
-	    throw new RasInvalidNameException(name);
-	   }
-       }
+
+    private void verifyName(String name) throws RasInvalidNameException {
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+
+            if (c == '_' || Character.isLetter(c)) {
+                continue;
+            }
+
+            if (Character.isDigit(c) && i > 0) {
+                continue;
+            }
+
+            throw new RasInvalidNameException(name);
+        }
+    }
 
 }
 

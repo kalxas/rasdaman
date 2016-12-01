@@ -62,7 +62,7 @@ public class SetMetaDataExpr implements IParseTreeNode {
 
     // Set Interpolation Default
     public SetMetaDataExpr(String op, CoverageExpr expr, InterpolationMethod param,
-            String field) {
+                           String field) {
         function = op;
         this.expr = expr;
         this.param = param;
@@ -71,7 +71,7 @@ public class SetMetaDataExpr implements IParseTreeNode {
 
     // Set Interpolation Set
     public SetMetaDataExpr(String op, CoverageExpr expr, InterpolationMethodList param,
-            String field) {
+                           String field) {
         function = op;
         this.expr = expr;
         this.param = param;
@@ -86,7 +86,7 @@ public class SetMetaDataExpr implements IParseTreeNode {
             result += expr.toXML();
 
             result = "<" + WcpsConstants.MSG_SET_IDENTIFIER + ">" + result + "</" +
-                    WcpsConstants.MSG_SET_IDENTIFIER + ">";
+                     WcpsConstants.MSG_SET_IDENTIFIER + ">";
         } else if (function.equalsIgnoreCase(WcpsConstants.MSG_SET_CRSSET)) {
             result += expr.toXML();
 
@@ -109,7 +109,7 @@ public class SetMetaDataExpr implements IParseTreeNode {
             result += param.toXML();
 
             result = "<" + WcpsConstants.MSG_SET_INTERPOLATION_DEFAULT + ">" + result
-                    + "</" + WcpsConstants.MSG_SET_INTERPOLATION_DEFAULT + ">";
+                     + "</" + WcpsConstants.MSG_SET_INTERPOLATION_DEFAULT + ">";
         } else if (function.equalsIgnoreCase(WcpsConstants.MSG_SET_INTERPOLATION_SET)) {
             result += expr.toXML();
             result += "<" + WcpsConstants.MSG_FIELD + ">" + field + "</" + WcpsConstants.MSG_FIELD + ">";

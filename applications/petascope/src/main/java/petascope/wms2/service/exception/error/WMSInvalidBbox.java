@@ -38,15 +38,15 @@ public class WMSInvalidBbox extends WMSException {
     public WMSInvalidBbox(@NotNull String bbox) {
         super(ERROR_MESSAGE.replace("$bbox", bbox));
     }
-    
+
     /**
      * Constructor for the class with the detail error
      * @param bbox
-     * @param detailError 
+     * @param detailError
      */
     public WMSInvalidBbox(@NotNull String bbox, @NotNull String detailError) {
         super(ERROR_MESSAGE_DETAIL.replace("$bbox", bbox)
-                                  .replace("$detailError", detailError));
+              .replace("$detailError", detailError));
     }
 
     @NotNull

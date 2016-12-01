@@ -55,7 +55,7 @@ static char O2BenchSchemaName[] = "TestSMSchema";
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
 
-static void ClearDB( d_Database &DB );
+static void ClearDB(d_Database& DB);
 static void testAccessing();
 static void testConstructors();
 static void testSearch();
@@ -72,7 +72,7 @@ static void testSearch();
  ************************************************************/
 
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
     // variables representing O2 database, ta and session
     d_Session  session;
@@ -100,9 +100,9 @@ main( int argc, char** argv)
     // create root collection
     cout << "Creating root collection..." << endl;
     ta.begin();
-    database.create_persistent_root( "IndexContainer",
-                                     "d_List<d_Ref<DBClusterIx>>",
-                                     OL_CONSTANT);
+    database.create_persistent_root("IndexContainer",
+                                    "d_List<d_Ref<DBClusterIx>>",
+                                    OL_CONSTANT);
     ta.commit();
 
     // create indexes and put them in IndexContainer
@@ -143,7 +143,7 @@ static void testConstructors()
     ULongType anyType;
     char anyCell[4];
 
-    cout << "....testConstructors"<< endl;
+    cout << "....testConstructors" << endl;
 
     // read root object
     d_List<DBMDDObjIxId> indexList("IndexContainer");
@@ -151,22 +151,22 @@ static void testConstructors()
     // create Index Object
     cout << "    indexObj1" << endl;
 
-    cout << "       tile 1 = nil, 10-12, 20-24 "<< endl;
-    r_Sinterval limits1Obj1(10l,12l);
-    r_Sinterval limits2Obj1(20l,24l);
+    cout << "       tile 1 = nil, 10-12, 20-24 " << endl;
+    r_Sinterval limits1Obj1(10l, 12l);
+    r_Sinterval limits2Obj1(20l, 24l);
     r_Minterval dom(2);
     dom << limits1Obj1 << limits2Obj1;
-    PersTile* tile1Obj1 = new PersTile( dom, &anyType, (const char*) anyCell);
+    PersTile* tile1Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
 
-    cout << "       tile 2 = nil, 0-400, 22-24 "<< endl;
-    dom[0].set_interval(0l,400l);
-    dom[1].set_interval(22l,24l);
-    PersTile* tile2Obj1 = new PersTile( dom, &anyType, (const char*) anyCell);
+    cout << "       tile 2 = nil, 0-400, 22-24 " << endl;
+    dom[0].set_interval(0l, 400l);
+    dom[1].set_interval(22l, 24l);
+    PersTile* tile2Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
 
-    cout << "       tile 3 = nil, 0-600, 10-1000 "<< endl;
-    dom[0].set_interval(0l,600l);
-    dom[1].set_interval(10l,1000l);
-    PersTile* tile3Obj1 = new PersTile( dom, &anyType, (const char*) anyCell);
+    cout << "       tile 3 = nil, 0-600, 10-1000 " << endl;
+    dom[0].set_interval(0l, 600l);
+    dom[1].set_interval(10l, 1000l);
+    PersTile* tile3Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
 
     vector<PersTile*> newTiles;
     newTiles.push_back(tile1Obj1);
@@ -178,21 +178,21 @@ static void testConstructors()
 
     // create DBclusterix Object
 
-    cout << "    indexObj2 "<< endl;
-    cout << "       tile 1 = nil, 0-19, 20-59, 30-59 "<< endl;
-    r_Sinterval limits1Obj2(0l,19l);
-    r_Sinterval limits2Obj2(20l,59l);
-    r_Sinterval limits3Obj2(30l,59l);
+    cout << "    indexObj2 " << endl;
+    cout << "       tile 1 = nil, 0-19, 20-59, 30-59 " << endl;
+    r_Sinterval limits1Obj2(0l, 19l);
+    r_Sinterval limits2Obj2(20l, 59l);
+    r_Sinterval limits3Obj2(30l, 59l);
     r_Minterval dom2(3);
     dom2 << limits1Obj2 << limits2Obj2 << limits3Obj2;
-    PersTile* tile1Obj2 = new PersTile( dom2, &anyType,  (const char*) anyCell);
+    PersTile* tile1Obj2 = new PersTile(dom2, &anyType, (const char*) anyCell);
     indexObj2 = new ClusterIx(tile1Obj2);
 
-    cout << "       tile 2 = nil, 20-39, 60-79, 60-89 "<< endl;
-    dom2[0].set_interval(20l,39l);
-    dom2[1].set_interval(60l,79l);
-    dom2[2].set_interval(60l,89l);
-    PersTile* tile2Obj2 = new PersTile( dom2, &anyType, (const char*) anyCell);
+    cout << "       tile 2 = nil, 20-39, 60-79, 60-89 " << endl;
+    dom2[0].set_interval(20l, 39l);
+    dom2[1].set_interval(60l, 79l);
+    dom2[2].set_interval(60l, 89l);
+    PersTile* tile2Obj2 = new PersTile(dom2, &anyType, (const char*) anyCell);
     indexObj2->insertTile(tile2Obj2);
     indexList.insert_element_last(indexObj2->getDBMDDObjIxId());
 
@@ -212,19 +212,19 @@ static void testAccessing()
 {
     DBMDDObjIxId accessedIndex;
 
-    cout << "....testAccessing"<<endl;
+    cout << "....testAccessing" << endl;
 
     // read root object
-    d_List< DBMDDObjIxId > indexList("IndexContainer");
+    d_List<DBMDDObjIxId> indexList("IndexContainer");
     // used for iterating
-    d_Iterator< DBMDDObjIxId > indexIt = indexList.create_iterator();
+    d_Iterator<DBMDDObjIxId> indexIt = indexList.create_iterator();
 
-    for( int i = 1 ; indexIt.not_done(); i++, indexIt.advance())
+    for (int i = 1 ; indexIt.not_done(); i++, indexIt.advance())
     {
         accessedIndex = indexIt.get_element();
-        cout << "    --"<<i<<". index object in list:" << endl;
+        cout << "    --" << i << ". index object in list:" << endl;
         accessedIndex->printStatus();
-        cout<<endl;
+        cout << endl;
     }
 
 }
@@ -243,16 +243,16 @@ static void testSearch()
     DBMDDObjIxId accessedIndex;
     ULongType anyType;
 
-    cout << "....testSearch"<<endl;
+    cout << "....testSearch" << endl;
 
     // read root object
-    d_List< DBMDDObjIxId > indexList("IndexContainer");
+    d_List<DBMDDObjIxId> indexList("IndexContainer");
     // used for iterating
-    d_Iterator< DBMDDObjIxId > indexIt = indexList.create_iterator();
+    d_Iterator<DBMDDObjIxId> indexIt = indexList.create_iterator();
 
-    for( int i = 0 ; indexIt.not_done(); i++, indexIt.advance())
+    for (int i = 0 ; indexIt.not_done(); i++, indexIt.advance())
     {
-        vector< Tile* >* entriesList;
+        vector<Tile*>* entriesList;
 
         accessedIndex = indexIt.get_element();
 
@@ -261,20 +261,20 @@ static void testSearch()
             r_Minterval searchInt1(2);
             r_Minterval searchInt2(3);
 
-            cout << "    -- " << i+1 << ". index object in list. Search for:";
+            cout << "    -- " << i + 1 << ". index object in list. Search for:";
             switch (i)
             {
             case 0:
-                searchInt1[0].set_interval(10l,20l);
-                searchInt1[1].set_interval(10l,30l);
+                searchInt1[0].set_interval(10l, 20l);
+                searchInt1[1].set_interval(10l, 30l);
                 cout << " 10-20, 10-30" << endl;
                 entriesList = accessedIndex->intersect(searchInt1, &anyType);
                 break;
             case 1:
-                searchInt2[0].set_interval(10l,20l);
-                searchInt2[1].set_interval(10l,30l);
-                searchInt2[2].set_interval(40l,50l);
-                cout << " 10-20, 10-30, 40-50" <<endl;
+                searchInt2[0].set_interval(10l, 20l);
+                searchInt2[1].set_interval(10l, 30l);
+                searchInt2[2].set_interval(40l, 50l);
+                cout << " 10-20, 10-30, 40-50" << endl;
                 entriesList = accessedIndex->intersect(searchInt2, &anyType);
                 break;
             default:
@@ -295,8 +295,10 @@ static void testSearch()
 
                 cout << "   PersTile printStatus";
                 cout << "    domain == " << dimensionality << ": ";
-                for (int i = 0; i <dimensionality; i++)
-                    cout << tileInterval[i].low() << "-" << tileInterval[i].high() <<", ";
+                for (int i = 0; i < dimensionality; i++)
+                {
+                    cout << tileInterval[i].low() << "-" << tileInterval[i].high() << ", ";
+                }
                 cout << endl;
 
                 entryIt++;
@@ -304,10 +306,12 @@ static void testSearch()
         }
 
         // release(entriesList->begin(), entriesList->end());
-        for( vector<Tile*>::iterator entIt = entriesList->begin();
+        for (vector<Tile*>::iterator entIt = entriesList->begin();
                 entIt != entriesList->end();
-                entIt++ )
+                entIt++)
+        {
             delete *entIt;
+        }
 
         delete entriesList;
 
@@ -324,7 +328,7 @@ static void testSearch()
  *                 existed) and recreates an empty base
  ************************************************************/
 
-static void ClearDB( d_Database &DB )
+static void ClearDB(d_Database& DB)
 {
     d_Transaction trans;
     trans.begin();
@@ -332,12 +336,12 @@ static void ClearDB( d_Database &DB )
     cout << "Destroying " << O2BenchDBName << endl;
 
     // destroy the database in case it already exists
-    DB.destroy( O2BenchDBName );
+    DB.destroy(O2BenchDBName);
 
     // and create a new one
-    cout << "Creating " << O2BenchDBName <<" on schema "
+    cout << "Creating " << O2BenchDBName << " on schema "
          << O2BenchSchemaName << endl;
-    DB.create( O2BenchDBName, O2BenchSchemaName );
+    DB.create(O2BenchDBName, O2BenchSchemaName);
 
     trans.commit();
 }

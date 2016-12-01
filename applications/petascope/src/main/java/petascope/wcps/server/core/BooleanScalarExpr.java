@@ -33,9 +33,9 @@ import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.*;
 
 public class BooleanScalarExpr extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(BooleanScalarExpr.class);
-    
+
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
         WcpsConstants.MSG_BOOLEAN_CONSTANT.toLowerCase(),
@@ -75,16 +75,16 @@ public class BooleanScalarExpr extends AbstractRasNode {
             simple = true;
             value = node.getFirstChild().getNodeValue();
         } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_AND)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_OR)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_XOR)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSTHAN)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_OR)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_XOR)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSTHAN)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
             // Logical operations
             if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_AND)
                     || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_OR)
@@ -97,8 +97,7 @@ public class BooleanScalarExpr extends AbstractRasNode {
                 first = new BooleanScalarExpr(child, xq);
                 child = child.getNextSibling();
                 second = new BooleanScalarExpr(child, xq);
-            } else // Boolean Comparison operations between numbers or strings
-            {
+            } else { // Boolean Comparison operations between numbers or strings
                 if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSTHAN) || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
                         || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATERTHAN) || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
                         || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC) || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
@@ -153,10 +152,12 @@ public class BooleanScalarExpr extends AbstractRasNode {
             throw new WCPSException("Unexpected Binary Expression node : " + node.getNodeName());
         }
         log.trace("Boolean Scalar Expr SUCCESS: " + node.getNodeName());
-        
+
         // Keep children for XML tree crawling
         super.children.add(first);
-        if (second != null) super.children.add(second); // "!" operation is unary
+        if (second != null) {
+            super.children.add(second);    // "!" operation is unary
+        }
     }
 
     public String toRasQL() {

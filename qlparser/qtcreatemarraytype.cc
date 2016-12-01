@@ -6,13 +6,13 @@
 
 const QtNode::QtNodeType QtCreateMarrayType::nodeType = QtNode::QT_CREATE_MDD_TYPE;
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::string cellTypeName2, QtOperation *domainNode2)
+QtCreateMarrayType::QtCreateMarrayType(const std::string& typeName2, const std::string cellTypeName2, QtOperation* domainNode2)
     : typeName(typeName2), typeAttributes(NULL), domainNode(domainNode2)
 {
     this->cellTypeName = TypeFactory::getInternalTypeFromSyntaxType(cellTypeName2);
 }
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, QtNode::QtOperationList *typeAttributes2, QtOperation *domainNode2)
+QtCreateMarrayType::QtCreateMarrayType(const std::string& typeName2, QtNode::QtOperationList* typeAttributes2, QtOperation* domainNode2)
     : typeName(typeName2), typeAttributes(typeAttributes2), domainNode(domainNode2)
 {
     this->cellTypeName = TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX + this->typeName;
@@ -79,14 +79,14 @@ void QtCreateMarrayType::checkType()
     }
 }
 
-void QtCreateMarrayType::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
+void QtCreateMarrayType::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCreateMarrayType Object" << std::endl;
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  CREATE TYPE " << typeName << " UNDER MARRAY { " << cellTypeName << " }, ";
     domainNode->printTree(tab + 1, s);
 }
 
-void QtCreateMarrayType::printAlgebraicExpression(std::ostream &s)
+void QtCreateMarrayType::printAlgebraicExpression(std::ostream& s)
 {
     s << "command <";
     s << "CREATE TYPE " << typeName << " UNDER MARRAY { " << cellTypeName << " }, ";

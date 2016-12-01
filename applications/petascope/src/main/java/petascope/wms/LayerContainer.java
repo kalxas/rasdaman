@@ -27,7 +27,7 @@
  * A quick solution fo replacing a TreeMap which holded the layer definitions
  * needed because we want to get the layers in the same order they where defined
  * not in alfabetical order.
- * 
+ *
  * </pre>
  *********************************************************** */
 
@@ -35,65 +35,57 @@ package petascope.wms;
 
 import java.util.Vector;
 
-class LayerDefinition
-{
+class LayerDefinition {
     String layerName = null;
     WmsCapabilities.WmsLayer layerInfo = null;
-    
-    LayerDefinition(String ln , WmsCapabilities.WmsLayer li)
-    {
+
+    LayerDefinition(String ln , WmsCapabilities.WmsLayer li) {
         layerName = ln;
         layerInfo = li;
     }
 }
 
-public class LayerContainer
-{
-    
+public class LayerContainer {
+
     Vector layers = null;
-    
-    LayerContainer()
-    {
+
+    LayerContainer() {
         layers = new Vector();
     }
-    
-    void add(String layerName, WmsCapabilities.WmsLayer layerInfo)
-    {
+
+    void add(String layerName, WmsCapabilities.WmsLayer layerInfo) {
         LayerDefinition ld = new LayerDefinition(layerName, layerInfo);
-        
+
         layers.add(ld);
     }
-    
-    int getLayerCounter()
-    {
+
+    int getLayerCounter() {
         return layers.size();
     }
-    
-    String getLayerName(int x)
-    {
+
+    String getLayerName(int x) {
         LayerDefinition ld = (LayerDefinition)layers.get(x);
-        
+
         return ld.layerName;
     }
-    
-    WmsCapabilities.WmsLayer getLayerInfo(int x)
-    {
+
+    WmsCapabilities.WmsLayer getLayerInfo(int x) {
         LayerDefinition ld = (LayerDefinition)layers.get(x);
-        
+
         return ld.layerInfo;
     }
-    
-    WmsCapabilities.WmsLayer getLayerInfo(String x)
-    {
+
+    WmsCapabilities.WmsLayer getLayerInfo(String x) {
         LayerDefinition ld = null;
-        
-        for(int i=0;i<layers.size();i++)
-        {
+
+        for (int i = 0; i < layers.size(); i++) {
             ld = (LayerDefinition)layers.get(i);
-            
-            if(ld.layerName.equals(x)) return ld.layerInfo;
+
+            if (ld.layerName.equals(x)) {
+                return ld.layerInfo;
+            }
         }
-        
+
         return null;
     }
 }

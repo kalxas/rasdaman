@@ -23,7 +23,7 @@ rasdaman GmbH.
 /*************************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  *
@@ -36,115 +36,109 @@ package rasj.rnp;
 
 import java.util.*;
 import java.io.*;
-   
 
-public class RnpMessageHeader
-       {
-        int  protocolId;
-        byte messageEndianness;
-        byte desiredEndianness;
-        byte majorVersion;
-        byte minorVersion;
-        int  totalMessageLength;
-        int  nrFragments;
-        int  serverType;
-        int  authInfoStart;
-        int  authInfoLength;
-        int  comprInfoStart;
-        int  comprInfoLength;
-        int  dataStart;
-        int  dataLength;
-        //int  _unused[5];
-	
-	public static final int length = 64;
-	
-        RnpMessageHeader(int nServerType)
-	    {
-	    protocolId = Rnp.rnpProtocolId;
-            messageEndianness  = 0; // big endianness
-            desiredEndianness  = 0; // big also
-            majorVersion       = 1;
-            minorVersion       = 0;
-            totalMessageLength = length;
-            nrFragments        = 0;
-            serverType         = nServerType;
-            authInfoStart      = 0;
-            authInfoLength     = 0;
-            comprInfoStart     = 0;
-            comprInfoLength    = 0;
-            dataStart          = length;
-            dataLength         = 0;
-	    }
-	   
-	int  countFragments()
-	    { 
-	    return nrFragments;
-	    }
-	
-	void print()
-	    {
-	    System.out.println("RNP Header");
-	    System.out.println(" totalLength=" + totalMessageLength);
-	    System.out.println(" nrFragments=" + nrFragments);
-	    System.out.println("  serverType=" + serverType);
-	    System.out.println("   dataStart=" + dataStart);
-    	    System.out.println("  dataLength=" + dataLength);
-	    System.out.println("");
-	    }
-	   
-	void write(DataOutputStream dataStream) throws IOException
-	  {
-	    dataStream.writeInt(protocolId);
-	    dataStream.writeByte(messageEndianness);
-	    dataStream.writeByte(desiredEndianness);
-	    dataStream.writeByte(majorVersion);
-	    dataStream.writeByte(minorVersion);
-	    
-	    dataStream.writeInt(totalMessageLength);
-	    dataStream.writeInt(nrFragments);
-	    dataStream.writeInt(serverType);
-	    dataStream.writeInt(authInfoStart);
-	    dataStream.writeInt(authInfoLength);
-	    dataStream.writeInt(comprInfoStart);
-	    dataStream.writeInt(comprInfoLength);
-	    dataStream.writeInt(dataStart);
-	    dataStream.writeInt(dataLength);
-	    
-	    // the unused 5 ints
-	    dataStream.writeInt(0);
-	    dataStream.writeInt(0);
-	    dataStream.writeInt(0);
-	    dataStream.writeInt(0);
-	    dataStream.writeInt(0);
-	    
-	   }
-	
-	void read(DataInputStream dataStream) throws IOException, RnpException
-	  {
-	    protocolId         = dataStream.readInt();
-	    messageEndianness  = dataStream.readByte();
-	    desiredEndianness  = dataStream.readByte();
-	    majorVersion       = dataStream.readByte();
-	    minorVersion       = dataStream.readByte();
-	    
-	    totalMessageLength = dataStream.readInt();
-	    nrFragments        = dataStream.readInt();
-	    serverType         = dataStream.readInt();
-	    authInfoStart      = dataStream.readInt();
-	    authInfoLength     = dataStream.readInt();
-	    comprInfoStart     = dataStream.readInt();
-	    comprInfoLength    = dataStream.readInt();
-	    dataStart          = dataStream.readInt();
-	    dataLength         = dataStream.readInt();
-	    
-	    // the unused 5 ints
-	    dataStream.readInt();
-	    dataStream.readInt();
-	    dataStream.readInt();
-	    dataStream.readInt();
-	    dataStream.readInt();
-	    
-	    //verify();
-	   }
-	}
+
+public class RnpMessageHeader {
+    int  protocolId;
+    byte messageEndianness;
+    byte desiredEndianness;
+    byte majorVersion;
+    byte minorVersion;
+    int  totalMessageLength;
+    int  nrFragments;
+    int  serverType;
+    int  authInfoStart;
+    int  authInfoLength;
+    int  comprInfoStart;
+    int  comprInfoLength;
+    int  dataStart;
+    int  dataLength;
+    //int  _unused[5];
+
+    public static final int length = 64;
+
+    RnpMessageHeader(int nServerType) {
+        protocolId = Rnp.rnpProtocolId;
+        messageEndianness  = 0; // big endianness
+        desiredEndianness  = 0; // big also
+        majorVersion       = 1;
+        minorVersion       = 0;
+        totalMessageLength = length;
+        nrFragments        = 0;
+        serverType         = nServerType;
+        authInfoStart      = 0;
+        authInfoLength     = 0;
+        comprInfoStart     = 0;
+        comprInfoLength    = 0;
+        dataStart          = length;
+        dataLength         = 0;
+    }
+
+    int  countFragments() {
+        return nrFragments;
+    }
+
+    void print() {
+        System.out.println("RNP Header");
+        System.out.println(" totalLength=" + totalMessageLength);
+        System.out.println(" nrFragments=" + nrFragments);
+        System.out.println("  serverType=" + serverType);
+        System.out.println("   dataStart=" + dataStart);
+        System.out.println("  dataLength=" + dataLength);
+        System.out.println("");
+    }
+
+    void write(DataOutputStream dataStream) throws IOException {
+        dataStream.writeInt(protocolId);
+        dataStream.writeByte(messageEndianness);
+        dataStream.writeByte(desiredEndianness);
+        dataStream.writeByte(majorVersion);
+        dataStream.writeByte(minorVersion);
+
+        dataStream.writeInt(totalMessageLength);
+        dataStream.writeInt(nrFragments);
+        dataStream.writeInt(serverType);
+        dataStream.writeInt(authInfoStart);
+        dataStream.writeInt(authInfoLength);
+        dataStream.writeInt(comprInfoStart);
+        dataStream.writeInt(comprInfoLength);
+        dataStream.writeInt(dataStart);
+        dataStream.writeInt(dataLength);
+
+        // the unused 5 ints
+        dataStream.writeInt(0);
+        dataStream.writeInt(0);
+        dataStream.writeInt(0);
+        dataStream.writeInt(0);
+        dataStream.writeInt(0);
+
+    }
+
+    void read(DataInputStream dataStream) throws IOException, RnpException {
+        protocolId         = dataStream.readInt();
+        messageEndianness  = dataStream.readByte();
+        desiredEndianness  = dataStream.readByte();
+        majorVersion       = dataStream.readByte();
+        minorVersion       = dataStream.readByte();
+
+        totalMessageLength = dataStream.readInt();
+        nrFragments        = dataStream.readInt();
+        serverType         = dataStream.readInt();
+        authInfoStart      = dataStream.readInt();
+        authInfoLength     = dataStream.readInt();
+        comprInfoStart     = dataStream.readInt();
+        comprInfoLength    = dataStream.readInt();
+        dataStart          = dataStream.readInt();
+        dataLength         = dataStream.readInt();
+
+        // the unused 5 ints
+        dataStream.readInt();
+        dataStream.readInt();
+        dataStream.readInt();
+        dataStream.readInt();
+        dataStream.readInt();
+
+        //verify();
+    }
+}
 

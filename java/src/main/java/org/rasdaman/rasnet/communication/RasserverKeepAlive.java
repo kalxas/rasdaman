@@ -155,7 +155,7 @@ public class RasserverKeepAlive {
 
                         //If this throws an exception, let it fail.
                         rasserverService.withDeadlineAfter(Constants.SERVICE_CALL_TIMEOUT, TimeUnit.MILLISECONDS)
-                                .keepAlive(keepAliveReq);
+                        .keepAlive(keepAliveReq);
                     }
                 }
             } catch (InterruptedException ex) {

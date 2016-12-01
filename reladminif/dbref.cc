@@ -73,7 +73,7 @@ DBRef<T>::DBRef(void)
 
 
 template <class T>
-DBRef<T>::DBRef(const OId &id)
+DBRef<T>::DBRef(const OId& id)
     :   object(0),
         objId(id),
         pointerValid(false)
@@ -93,7 +93,7 @@ DBRef<T>::DBRef(long long id)
 
 
 template <class T>
-DBRef<T>::DBRef(const DBRef<T> &src)
+DBRef<T>::DBRef(const DBRef<T>& src)
     :   object(0),
         objId(src.objId),
         pointerValid(src.pointerValid)
@@ -119,7 +119,7 @@ DBRef<T>::DBRef(const DBRef<T> &src)
 
 
 template <class T>
-DBRef<T>::DBRef(T *newPtr)
+DBRef<T>::DBRef(T* newPtr)
     :   object(newPtr),
         objId(DBOBJID_NONE),
         pointerValid(true)
@@ -143,7 +143,9 @@ template <class T>
 DBRef<T>::~DBRef(void)
 {
     if ((object != 0) && pointerCaching)
+    {
         object->decrementReferenceCount();
+    }
     object = 0;
 }
 
@@ -155,13 +157,13 @@ bool DBRef<T>::operator<(const DBRef<T>& other) const
 }
 
 template <class T>
-bool operator< (const DBRef<T> &me, const DBRef<T> &him)
+bool operator< (const DBRef<T>& me, const DBRef<T>& him)
 {
-    return me.operator<(him);
+    return me.operator < (him);
 }
 
 template <class T>
-int DBRef<T>::operator==(const DBRef<T> &src) const
+int DBRef<T>::operator==(const DBRef<T>& src) const
 {
     int retval = 0;
     if (isInitialised())
@@ -178,9 +180,13 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                         if (src.object->isPersistent())
                         {
                             if (object->getOId() < src.object->getOId())
+                            {
                                 retval = -1;
+                            }
                             else if (object->getOId() > src.object->getOId())
+                            {
                                 retval = +1;
+                            }
                             //else == -> 0
                         }
                         else     //src is transient
@@ -197,7 +203,9 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                         else
                         {
                             if (object->getOId() > src.objId)
+                            {
                                 retval = +1;
+                            }
                             //else == -> 0
                         }
                     }
@@ -213,9 +221,13 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                         else     //src is transient
                         {
                             if (object < src.object)
+                            {
                                 retval = -1;
+                            }
                             else if (object > src.object)
+                            {
                                 retval = +1;
+                            }
                             //else == -> 0
                         }
                     }
@@ -238,7 +250,9 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                         else
                         {
                             if (objId > src.object->getOId())
+                            {
                                 retval = +1;
+                            }
                             //else == -> 0
                         }
 
@@ -257,7 +271,9 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                     else
                     {
                         if (objId > src.objId)
+                        {
                             retval = +1;
+                        }
                         //else == -> 0
                     }
                 }
@@ -281,7 +297,7 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
 
 
 template <class T>
-DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
+DBRef<T>& DBRef<T>::operator=(const DBRef<T>& src)
 {
     if ((object != 0) && pointerCaching)
     {
@@ -301,7 +317,9 @@ DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
     else
     {
         if (object && pointerValid)
+        {
             objId = object->getOId();
+        }
     }
 
     return *this;
@@ -309,10 +327,12 @@ DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
 
 
 template<class T>
-DBRef<T> &DBRef<T>::operator=(T *newPtr)
+DBRef<T>& DBRef<T>::operator=(T* newPtr)
 {
     if ((object != 0) && pointerCaching)
+    {
         object->decrementReferenceCount();
+    }
 
     object = newPtr;
     if (object == 0)
@@ -331,7 +351,7 @@ DBRef<T> &DBRef<T>::operator=(T *newPtr)
 
 
 template <class T>
-T &DBRef<T>::operator *(void) throw ( r_Error )
+T& DBRef<T>::operator *(void) throw (r_Error)
 {
     if (is_null())
     {
@@ -346,7 +366,7 @@ T &DBRef<T>::operator *(void) throw ( r_Error )
 
 
 template <class T>
-const T &DBRef<T>::operator *(void) const throw ( r_Error )
+const T& DBRef<T>::operator *(void) const throw (r_Error)
 {
     if (is_null())
     {
@@ -363,7 +383,7 @@ const T &DBRef<T>::operator *(void) const throw ( r_Error )
 #ifndef __GNUG__
 
 template <class T>
-T &DBRef<T>::operator[](int idx) const throw(r_Error)
+T& DBRef<T>::operator[](int idx) const throw(r_Error)
 {
 
     if (is_null())
@@ -380,7 +400,7 @@ T &DBRef<T>::operator[](int idx) const throw(r_Error)
 #endif
 
 template <class T>
-T *DBRef<T>::operator->(void) throw(r_Error)
+T* DBRef<T>::operator->(void) throw(r_Error)
 {
     if (is_null())
     {
@@ -395,7 +415,7 @@ T *DBRef<T>::operator->(void) throw(r_Error)
 
 
 template <class T>
-const T *DBRef<T>::operator->(void) const throw(r_Error)
+const T* DBRef<T>::operator->(void) const throw(r_Error)
 {
     if (is_null())
     {
@@ -410,7 +430,7 @@ const T *DBRef<T>::operator->(void) const throw(r_Error)
 
 
 template <class T>
-T *DBRef<T>::ptr(void) throw(r_Error)
+T* DBRef<T>::ptr(void) throw(r_Error)
 {
     if (is_null())
     {
@@ -425,7 +445,7 @@ T *DBRef<T>::ptr(void) throw(r_Error)
 
 
 template <class T>
-const T *DBRef<T>::ptr(void) const throw(r_Error)
+const T* DBRef<T>::ptr(void) const throw(r_Error)
 {
     if (is_null())
     {
@@ -446,7 +466,7 @@ OId DBRef<T>::getObjId()
 
 
 template <class T>
-DBRef<T>::operator T*() throw (r_Error)
+DBRef<T>::operator T* () throw (r_Error)
 {
     if (is_null())
     {
@@ -461,7 +481,7 @@ DBRef<T>::operator T*() throw (r_Error)
 
 
 template <class T>
-DBRef<T>::operator const T*() const throw (r_Error)
+DBRef<T>::operator const T* () const throw (r_Error)
 {
     if (is_null())
     {
@@ -479,7 +499,9 @@ template <class T>
 OId DBRef<T>::getOId(void) const
 {
     if (object && pointerCaching)
-        (static_cast<DBRef<T> >(*this)).objId = object->getOId();
+    {
+        (static_cast<DBRef<T>>(*this)).objId = object->getOId();
+    }
     return objId;
 }
 
@@ -512,13 +534,17 @@ void DBRef<T>::delete_object(void)
 template <class T>
 bool DBRef<T>::isInitialised() const
 {
-    bool retval=false;
+    bool retval = false;
     if (object)
-        retval=true;
+    {
+        retval = true;
+    }
     else
     {
         if (objId.getType() != OId::INVALID)
-            retval=true;
+        {
+            retval = true;
+        }
     }
     return retval;
 }
@@ -526,9 +552,11 @@ bool DBRef<T>::isInitialised() const
 template <class T>
 bool DBRef<T>::is_valid(void) const
 {
-    bool retval=false;
+    bool retval = false;
     if (!is_null())
-        retval=true;
+    {
+        retval = true;
+    }
     return retval;
 }
 
@@ -697,7 +725,7 @@ DBRef<T>::operator DBRef<DBRCIndexDS>() const throw (r_Error)
 
 
 template <class T>
-DBRef<T>::operator HierIndexDS*() const throw (r_Error)
+DBRef<T>::operator HierIndexDS* () const throw (r_Error)
 {
     if (object && pointerCaching)
     {
@@ -728,7 +756,7 @@ DBRef<T>::operator HierIndexDS*() const throw (r_Error)
 
 
 template <class T>
-DBRef<T>::operator IndexDS*() const throw (r_Error)
+DBRef<T>::operator IndexDS* () const throw (r_Error)
 {
     if (object && pointerCaching)
     {
@@ -790,9 +818,13 @@ bool DBRef<T>::is_null(void) const
             catch (r_Error& err)
             {
                 if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
+                {
                     retval = true;
+                }
                 else
+                {
                     throw;
+                }
             }
         }
     }
@@ -813,9 +845,13 @@ bool DBRef<T>::is_null(void) const
                 catch (r_Error& err)
                 {
                     if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
+                    {
                         retval = true;
+                    }
                     else
+                    {
                         throw;
+                    }
                 }
             }
             else

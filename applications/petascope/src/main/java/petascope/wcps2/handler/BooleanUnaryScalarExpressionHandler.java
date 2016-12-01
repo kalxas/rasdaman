@@ -40,7 +40,7 @@ public class BooleanUnaryScalarExpressionHandler {
 
     public static WcpsResult handle(String operand, WcpsResult scalarExpression) {
         return new WcpsResult(scalarExpression.getMetadata(), TEMPLATE.replace("$operand", operand)
-                             .replace("$scalarExpression", scalarExpression.getRasql()));
+                              .replace("$scalarExpression", scalarExpression.getRasql()));
     }
 
     private static final String TEMPLATE = "$operand($scalarExpression)";

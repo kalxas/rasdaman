@@ -59,19 +59,19 @@ extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtMDDAccess::nodeType = QT_MDD_ACCESS;
 
-QtMDDAccess::QtMDDAccess( const string& collectionNameNew )
+QtMDDAccess::QtMDDAccess(const string& collectionNameNew)
     :  QtONCStream(),
-       collectionName( collectionNameNew ),
+       collectionName(collectionNameNew),
        mddColl(NULL),
        mddIter(NULL)
 {
 }
 
 
-QtMDDAccess::QtMDDAccess( const string& collectionNameNew, const string& initName )
+QtMDDAccess::QtMDDAccess(const string& collectionNameNew, const string& initName)
     :  QtONCStream(),
-       collectionName( collectionNameNew ),
-       iteratorName( initName ),
+       collectionName(collectionNameNew),
+       iteratorName(initName),
        mddColl(NULL),
        mddIter(NULL)
 {
@@ -91,10 +91,10 @@ QtMDDAccess::open()
     startTimer("QtMDDAccess");
 
     // delete an existing iterator
-    if( mddIter )
+    if (mddIter)
     {
         delete mddIter;
-        mddIter=NULL;
+        mddIter = NULL;
     }
 
     // create the iterator
@@ -104,7 +104,7 @@ QtMDDAccess::open()
     //  mddIter->getElement()->printStatus();
 
     mddIter->reset();
-    
+
     pauseTimer();
 }
 
@@ -116,7 +116,7 @@ QtMDDAccess::next()
     QtDataList* returnValue = NULL;
     MDDObj* ptr = NULL;
 
-    if( mddColl && mddIter && mddIter->notDone() )
+    if (mddColl && mddIter && mddIter->notDone())
     {
         //
         // create a list with a pointer to the next element of the mdd collection
@@ -128,8 +128,8 @@ QtMDDAccess::next()
         {
             if (ptr)
             {
-                LockManager *lockmanager = LockManager::Instance();
-                std::vector< boost::shared_ptr<Tile> >* tiles = ptr->getTiles();
+                LockManager* lockmanager = LockManager::Instance();
+                std::vector<boost::shared_ptr<Tile>>* tiles = ptr->getTiles();
                 lockmanager->lockTiles(tiles);
                 delete tiles;
             }
@@ -145,7 +145,7 @@ QtMDDAccess::next()
             }
         }
 
-        QtMDD*  elem = new QtMDD( ptr, iteratorName );
+        QtMDD*  elem = new QtMDD(ptr, iteratorName);
 
 
         // create the list
@@ -156,7 +156,7 @@ QtMDDAccess::next()
 
         // if mddColl is not persistent delete thist from
         // collection to avoid multiple destruction
-        if(!mddColl->isPersistent())
+        if (!mddColl->isPersistent())
         {
             mddColl->remove(ptr);
             mddIter->reset();
@@ -171,7 +171,7 @@ QtMDDAccess::next()
     }
 
     pauseTimer();
-    
+
     return returnValue;
 }
 
@@ -180,12 +180,12 @@ void
 QtMDDAccess::close()
 {
     // delete the mdd iterator
-    if( mddIter )
+    if (mddIter)
     {
         delete mddIter;
-        mddIter=NULL;
+        mddIter = NULL;
     }
-    
+
     stopTimer();
 }
 
@@ -193,15 +193,18 @@ QtMDDAccess::close()
 void
 QtMDDAccess::reset()
 {
-    if( mddIter ) mddIter->reset();
+    if (mddIter)
+    {
+        mddIter->reset();
+    }
 }
 
 
 void
-QtMDDAccess::printTree( int tab, ostream& s, QtChildType /*mode*/ )
+QtMDDAccess::printTree(int tab, ostream& s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMDDAccess Object: type " << flush;
-    dataStreamType.printStatus( s );
+    dataStreamType.printStatus(s);
     s << getEvaluationTime();
     s << endl;
 
@@ -212,7 +215,7 @@ QtMDDAccess::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 
 
 void
-QtMDDAccess::printAlgebraicExpression( ostream& s )
+QtMDDAccess::printAlgebraicExpression(ostream& s)
 {
     s << collectionName.c_str() << " as " << iteratorName.c_str() << flush;
 }
@@ -230,16 +233,18 @@ QtMDDAccess::checkType()
 
     try
     {
-        mddColl = MDDColl::getMDDCollection( collectionName.c_str() );
+        mddColl = MDDColl::getMDDCollection(collectionName.c_str());
 
-        if( currentClientTblElt )
+        if (currentClientTblElt)
         {
             if (mddColl->isPersistent())
             {
-                if( !(currentClientTblElt->persMDDCollections) )
+                if (!(currentClientTblElt->persMDDCollections))
+                {
                     currentClientTblElt->persMDDCollections = new vector<MDDColl*>();
+                }
 
-                currentClientTblElt->persMDDCollections->push_back( static_cast<MDDColl*>(mddColl) );
+                currentClientTblElt->persMDDCollections->push_back(static_cast<MDDColl*>(mddColl));
             }
             else
             {
@@ -251,7 +256,7 @@ QtMDDAccess::checkType()
             LERROR << "Internal Error in QtMDDAccess::open(): No client context available";
         }
     }
-    catch(...)
+    catch (...)
     {
         LFATAL << "Error: QtMDDAccess::open() collection: " << collectionName.c_str() << " is unknown";
         parseInfo.setErrorNo(355);
@@ -260,13 +265,15 @@ QtMDDAccess::checkType()
 
     CollectionType* collType = const_cast<CollectionType*>(mddColl->getCollectionType());
 
-    if( !collType )
+    if (!collType)
+    {
         LERROR << "Internal error in QtMDDAccess::checkType() - no collection type available";
+    }
 
-    dataStreamType = QtTypeTuple( 1 );
+    dataStreamType = QtTypeTuple(1);
 
-    dataStreamType.tuple[0].setType( collType->getMDDType() );
-    dataStreamType.tuple[0].setName( iteratorName.c_str() );
+    dataStreamType.tuple[0].setType(collType->getMDDType());
+    dataStreamType.tuple[0].setName(iteratorName.c_str());
 
     return dataStreamType;
 }

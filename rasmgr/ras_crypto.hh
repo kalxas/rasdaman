@@ -41,9 +41,9 @@ rasdaman GmbH.
 // to use this functions you have to link libcrypto ( parameter -lcrypto in gcc command line)
 
 
-bool testIsMessageDigestAvailable(const char *mdName);
+bool testIsMessageDigestAvailable(const char* mdName);
 
-int messageDigest(const char *input,char *output,const char *mdName);
+int messageDigest(const char* input, char* output, const char* mdName);
 
 
 #endif

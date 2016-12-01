@@ -29,21 +29,20 @@ import petascope.wcps2.result.WcpsMetadataResult;
  * Return Meta value.
  * @author <a href="mailto:bphamhuux@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WcpsMetaExecutor implements WcpsExecutor<WcpsMetadataResult>{
+public class WcpsMetaExecutor implements WcpsExecutor<WcpsMetadataResult> {
 
-    public WcpsMetaExecutor()
-    {
+    public WcpsMetaExecutor() {
     }
-    
+
     /**
      * Get result from Meta value.
      * @param wcpsMetaResult
-     * @return 
+     * @return
      */
     public byte[] execute(WcpsMetadataResult wcpsMetaResult) throws WCSException {
         byte[] result;
         result = wcpsMetaResult.getResult().getBytes();
         return result;
-    }    
+    }
 
 }

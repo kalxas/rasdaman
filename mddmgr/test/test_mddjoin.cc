@@ -54,7 +54,7 @@ RMINITGLOBALS('C')
 static char O2BenchDBName[] = "NorbertBase";
 static char O2BenchSchemaName[] = "NorbertSchema";
 
-static void testOperations( DatabaseIf myDB );
+static void testOperations(DatabaseIf myDB);
 
 static BaseType* myType;
 static BaseType* boolType;
@@ -70,7 +70,7 @@ static BaseType* boolType;
  ************************************************************/
 
 int
-main( int /* argc */, char** argv)
+main(int /* argc */, char** argv)
 {
     // variables representing O2 database, ta and session
     DatabaseIf database;
@@ -83,14 +83,14 @@ main( int /* argc */, char** argv)
     // connect to the database
     cout << "Connecting to database " << O2BenchDBName
          << "..." << endl;
-    database.open( O2BenchDBName );
+    database.open(O2BenchDBName);
     ta.begin(&database);
 
     // only possible after AdminIf::instance on Sun!
     myType = TypeFactory::mapType("ULong");
     boolType = TypeFactory::mapType("Bool");
 
-    testOperations( database );
+    testOperations(database);
 
     ta.commit();
     cout << "Ending O2 session..." << endl;
@@ -142,7 +142,7 @@ printAllTiles(const MDDObj* mdd)
  *                 in root collection.
  ************************************************************/
 
-static void testOperations( DatabaseIf /* myDB */)
+static void testOperations(DatabaseIf /* myDB */)
 {
     unsigned long cell = 1000;
 
@@ -157,16 +157,16 @@ static void testOperations( DatabaseIf /* myDB */)
 
     cout << "Creating Tile: ";
     r_Minterval bigDom =
-        r_Minterval(3) << r_Sinterval(1l,10l) << r_Sinterval(1l,10l)
-        << r_Sinterval(1l,10l);
+        r_Minterval(3) << r_Sinterval(1l, 10l) << r_Sinterval(1l, 10l)
+        << r_Sinterval(1l, 10l);
     bigDom.print_status();
     cout << endl;
 
     bigTile = new PersTile(bigDom, type, (char*)&cell);
 
     r_Minterval smallDom
-    = r_Minterval(3) << r_Sinterval(1l,6l) << r_Sinterval(1l,6l)
-      << r_Sinterval(1l,6l);
+        = r_Minterval(3) << r_Sinterval(1l, 6l) << r_Sinterval(1l, 6l)
+          << r_Sinterval(1l, 6l);
 
     cout << "Splitting it into ";
     smallDom.print_status();
@@ -189,10 +189,10 @@ static void testOperations( DatabaseIf /* myDB */)
     cout << "Joining the Tiles again:" << endl;
 
     r_Minterval proj =
-        r_Minterval(3) << r_Sinterval(2l,9l) << r_Sinterval(2l,9l)
-        << r_Sinterval(2l,9l);
+        r_Minterval(3) << r_Sinterval(2l, 9l) << r_Sinterval(2l, 9l)
+        << r_Sinterval(2l, 9l);
 
-    res = new TransTile(result, proj );
+    res = new TransTile(result, proj);
 
     cout << "  Result MDD equals original MDD: ";
     boolTile = new TransTile(res->getDomain(), boolType);
@@ -209,11 +209,11 @@ static void testOperations( DatabaseIf /* myDB */)
     cout << "Checking if Tile are equal: ";
     cout << (int)(*(boolTile->execCondenseOp(Ops::OP_ALL,
                     res->getDomain(),
-                    &init ))) << endl;
+                    &init))) << endl;
 
     cout << "Creating a trimmed, projected 2-D Tile out of the Tile:" << endl;
-    set<r_Dimension, less<r_Dimension> >* projSet =
-        new set<r_Dimension, less<r_Dimension> >;
+    set<r_Dimension, less<r_Dimension>>* projSet =
+                                         new set<r_Dimension, less<r_Dimension>>;
     projSet->insert(1);
 
     r_Minterval projDom =

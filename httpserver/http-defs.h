@@ -184,9 +184,9 @@ rasdaman GmbH.
 /* Language Keys:
  */
 
-    /*  These numbers are intentionally choosen:  */
-    /*    Space left for upgrades.                */
-    /*  See also:  ISP 639 / Version 1            */
+/*  These numbers are intentionally choosen:  */
+/*    Space left for upgrades.                */
+/*  See also:  ISP 639 / Version 1            */
 
 #define    LANG_UNKNOWN                 0
 #define    LANG_DE                      22

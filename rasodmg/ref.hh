@@ -70,28 +70,28 @@ public:
     r_Ref_Any();
 
     /// copy constructor
-    r_Ref_Any( const r_Ref_Any& );
+    r_Ref_Any(const r_Ref_Any&);
 
     /// constructor for creating a reference with an oid
-    r_Ref_Any( const r_OId& initOId );
+    r_Ref_Any(const r_OId& initOId);
     /**
       Dereferencing the self object results in loading the object with {\tt initOId}.
     */
 
     /// constructor getting a pointer to a persistent capable object
-    r_Ref_Any( r_Object* );
+    r_Ref_Any(r_Object*);
 
     /// constructor getting a general pointer
-    r_Ref_Any( void* );
+    r_Ref_Any(void*);
 
     /// destructor deletes referenced object from main memory and database
     ~r_Ref_Any();
 
     /// assignment operator for assigning a \Ref{r_Ref_Any} pointer
-    r_Ref_Any& operator=( const r_Ref_Any& );
+    r_Ref_Any& operator=(const r_Ref_Any&);
 
     /// assignment operator for assigning a pointer to a persistent capable object
-    r_Ref_Any& operator=( r_Object* );
+    r_Ref_Any& operator=(r_Object*);
 
     /// delete from main memory
     void destroy();
@@ -104,23 +104,23 @@ public:
     ///
 
     ///
-    operator const void*() const;
+    operator const void* () const;
     ///
-    operator void*();
+    operator void* ();
     ///
-    operator r_Point*();
+    operator r_Point* ();
     ///
-    operator r_Sinterval*();
+    operator r_Sinterval* ();
     ///
-    operator r_Minterval*();
+    operator r_Minterval* ();
     ///
-    operator r_OId*();
+    operator r_OId* ();
     ///
-    operator r_Scalar*();
+    operator r_Scalar* ();
     ///
-    operator r_Structure*();
+    operator r_Structure* ();
     ///
-    operator r_Primitive*();
+    operator r_Primitive* ();
 
     ///
     //@}
@@ -140,13 +140,13 @@ public:
     ///
 
     ///
-    int operator==( const r_Ref_Any& ) const;
+    int operator==(const r_Ref_Any&) const;
     ///
-    int operator!=( const r_Ref_Any& ) const;
+    int operator!=(const r_Ref_Any&) const;
     /// compares the memory pointer (does not load the object)
-    int operator==( const r_Object* ) const;
+    int operator==(const r_Object*) const;
     /// compares the memory pointer (does not load the object)
-    int operator!=( const r_Object* ) const;
+    int operator!=(const r_Object*) const;
 
     ///
     //@}
@@ -158,7 +158,7 @@ public:
     //@{
     ///
     /// constructor getting oid and memory pointer
-    r_Ref_Any( const r_OId&, r_Object* );
+    r_Ref_Any(const r_OId&, r_Object*);
     ///
     inline unsigned int is_oid_valid() const;
     /// get memory pointer (without loading the object)
@@ -202,16 +202,16 @@ public:
     r_Ref();
 
     /// constructor for r_Ref_Any objects
-    r_Ref( const r_Ref_Any& );
+    r_Ref(const r_Ref_Any&);
 
     /// constructor for creating a reference with an oid
-    r_Ref( const r_OId& initOId );
+    r_Ref(const r_OId& initOId);
     /**
       Dereferencing the self object results in loading the object with {\tt initOId}.
     */
 
     /// copy constructor
-    r_Ref( const r_Ref<T>& );
+    r_Ref(const r_Ref<T>&);
 
     /// destructor deletes referenced object from main memory and database
     ~r_Ref();
@@ -223,22 +223,22 @@ public:
     // operator const r_Ref_Any() const;
 
     /// assignment operator for assigning a \Ref{r_Ref_Any}
-    r_Ref<T>& operator=( const r_Ref_Any& );
+    r_Ref<T>& operator=(const r_Ref_Any&);
 
     /// assignment operator for assigning a C pointer
-    r_Ref<T>& operator=( T* );
+    r_Ref<T>& operator=(T*);
 
     // assignment operator for assigning a r_Ref pointer
     // r_Ref<T>& operator=( r_Ref<T>& );
 
     /// assignment operator for assigning a r_Ref pointer
-    r_Ref<T>& operator=( const r_Ref<T>& );
+    r_Ref<T>& operator=(const r_Ref<T>&);
 
     /// dereference operator (error kinds: r_Error_RefNull, r_Error_RefInvalid)
     const T& operator*() const throw (r_Error);
 
     /// dereference operator (error kinds: r_Error_RefNull, r_Error_RefInvalid)
-    T& operator*() throw( r_Error );
+    T& operator*() throw(r_Error);
     /**
       If the memory pointer is zero and the oid is valid, the object is loaded from the server
       and a reference to the object in memory is returned.
@@ -247,7 +247,7 @@ public:
     const T* operator->() const throw (r_Error);
 
     /// operator for dereferencing the reference (error kinds: r_Error_RefNull, r_Error_RefInvalid)
-    T* operator->() throw( r_Error );
+    T* operator->() throw(r_Error);
     /**
       If the memory pointer is zero and the oid is valid, the object is loaded from the server
       and the new memory location is returned.
@@ -256,7 +256,7 @@ public:
     const T* ptr() const throw (r_Error);
 
     /// method for dereferencing the reference (error kinds: r_Error_RefNull, r_Error_RefInvalid)
-    T* ptr() throw( r_Error );
+    T* ptr() throw(r_Error);
     /**
       If the memory pointer is zero and the oid is valid, the object is loaded from the server
       and the new memory location is returned.
@@ -276,13 +276,13 @@ public:
     ///
 
     ///
-    int operator==( const r_Ref<T>& refR ) const;
+    int operator==(const r_Ref<T>& refR) const;
     ///
-    int operator!=( const r_Ref<T>& refR ) const;
+    int operator!=(const r_Ref<T>& refR) const;
     /// compares the memory pointer (does not load the object)
-    int operator==( const T* ) const;
+    int operator==(const T*) const;
     /// compares the memory pointer (does not load the object)
-    int operator!=( const T* ) const;
+    int operator!=(const T*) const;
 
     ///
     //@}
@@ -300,10 +300,10 @@ public:
     //@{
     ///
     /// constructor getting memory pointer
-    r_Ref( T* );
+    r_Ref(T*);
 
     /// constructor getting oid and memory pointer
-    r_Ref( const r_OId&, T* );
+    r_Ref(const r_OId&, T*);
 
     /// get memory pointer (without loading the object)
     T* get_memory_ptr() const;

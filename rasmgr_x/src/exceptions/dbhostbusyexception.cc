@@ -26,7 +26,7 @@ namespace rasmgr
 {
 
 DbHostBusyException::DbHostBusyException(const std::string& dbHostName)
-    :common::ResourceBusyException("The database host "+dbHostName+" is busy and its properties cannot be changed.")
+    : common::ResourceBusyException("The database host " + dbHostName + " is busy and its properties cannot be changed.")
 {}
 
 DbHostBusyException::~DbHostBusyException() throw()

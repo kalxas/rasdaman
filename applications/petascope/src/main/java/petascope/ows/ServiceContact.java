@@ -34,7 +34,7 @@ public class ServiceContact {
     private String role;
 
     // Constructor
-    ServiceContact () {
+    ServiceContact() {
         contactInfo = new ContactInfo();
     }
 

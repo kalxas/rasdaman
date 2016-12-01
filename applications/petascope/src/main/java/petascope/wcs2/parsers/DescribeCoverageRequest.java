@@ -49,6 +49,6 @@ public class DescribeCoverageRequest extends BaseRequest {
     @Override
     public String toString() {
         return VALUE_DESCRIBECOVERAGE + ": " +
-                KVPSymbols.KEY_COVERAGEID + "s=" + ListUtil.ltos(coverageIds,",");
+               KVPSymbols.KEY_COVERAGEID + "s=" + ListUtil.ltos(coverageIds, ",");
     }
 }

@@ -82,7 +82,7 @@ public:
     DatabaseMgrProto serializeToProto();
 private:
     boost::shared_ptr<DatabaseHostManager> dbHostManager; /*!< Reference to the database host manager*/
-    std::list<boost::shared_ptr<Database> > databases;
+    std::list<boost::shared_ptr<Database>> databases;
 
     boost::mutex mut;  /*!< Mutex used to synchronize access to this object.*/
 };

@@ -50,7 +50,7 @@ public class GetCapabilitiesFormat implements ISerializableMetadataObject, IPers
     /**
      * Empty constructor to be used by the persistence provider
      */
-    protected GetCapabilitiesFormat(){}
+    protected GetCapabilitiesFormat() {}
 
     /**
      * Returns the path to the template corresponding to this metadata object

@@ -68,7 +68,7 @@ public class CoverageMetadata implements Cloneable {
     private String coverageType;
     private String nativeFormat;
     private List<String> crsUris; // 1+ single CRS URIs
-    private Set<Pair<String,String>> extraMetadata; // {metadata_type,metadata_value}
+    private Set<Pair<String, String>> extraMetadata; // {metadata_type,metadata_value}
     private List<RangeElement> range;
     private List<AbstractSimpleComponent> sweComponents;
     Pair<BigInteger, String> rasdamanCollection;
@@ -89,17 +89,17 @@ public class CoverageMetadata implements Cloneable {
 
     // Constructor overload: when domain is given by origin plus offset-vector
     public CoverageMetadata(
-            String                        coverageName,
-            String                        coverageType,
-            String                        nativeFormat,
-            Set<Pair<String,String>>      extraMeta,
-            List<Pair<CrsDefinition.Axis,String>> crsAxes, // axis -> URI
-            List<CellDomainElement>       cellDomain,
-            List<BigDecimal>              gridOrigin,
-            LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes, // offsetVector -> coefficients (must be LinkedHash: preserve order of insertion)
-            Pair<BigInteger, String>      rasdamanCollection,
-            List<Pair<RangeElement,Quantity>> rangeElementQuantities
-            ) throws PetascopeException, SecoreException {
+        String                        coverageName,
+        String                        coverageType,
+        String                        nativeFormat,
+        Set<Pair<String, String>>      extraMeta,
+        List<Pair<CrsDefinition.Axis, String>> crsAxes, // axis -> URI
+        List<CellDomainElement>       cellDomain,
+        List<BigDecimal>              gridOrigin,
+        LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes, // offsetVector -> coefficients (must be LinkedHash: preserve order of insertion)
+        Pair<BigInteger, String>      rasdamanCollection,
+        List<Pair<RangeElement, Quantity>> rangeElementQuantities
+    ) throws PetascopeException, SecoreException {
         this.gridOrigin = gridOrigin;
         this.gridAxes = gridAxes;
         // Build domain elements from origin and vectors
@@ -108,14 +108,14 @@ public class CoverageMetadata implements Cloneable {
         Iterator<CellDomainElement> cDom   = cellDomain.iterator();
         int axisOrder = 0;
 
-        for (Entry<List<BigDecimal>,BigDecimal> axis : gridAxes.entrySet()) {
+        for (Entry<List<BigDecimal>, BigDecimal> axis : gridAxes.entrySet()) {
             // Check consistency: (vectors || CRS axis) [rotated grids not yet supported]
             List<Integer> axisNonZeroIndices = Vectors.nonZeroComponentsIndices(
-                    axis.getKey().toArray(new BigDecimal[axis.getKey().size()])
-                    );
+                                                   axis.getKey().toArray(new BigDecimal[axis.getKey().size()])
+                                               );
             if (axisNonZeroIndices.size() > 1) {
                 throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
-                        axis.getKey() + " offset vector: currently only CRS-aligned offset-vectors are supported.");
+                                             axis.getKey() + " offset vector: currently only CRS-aligned offset-vectors are supported.");
             }
 
             // Get the correspondent CRS axis definition
@@ -137,13 +137,13 @@ public class CoverageMetadata implements Cloneable {
             BigDecimal sspaceShift    = WcsUtil.getSampleSpaceShift(resolution, isIrregular, crsAxis.getCrsDefinition().getCode(), coverageType);
             BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0)).add(sspaceShift);
             //the grid can also have negative values, case in which axisLo is not in the origin, but it needs to shift to the lowest point on this axis
-            if (cEl.getLoInt() < 0 && !coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)){
+            if (cEl.getLoInt() < 0 && !coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
                 //jump back resolution * number of negative pixels
                 //number of negative pixels is -1 * lower bound of domain
                 int negativePixels = -1 * cEl.getLoInt();
                 axisLo = axisLo.subtract(BigDecimal.valueOf(negativePixels).multiply(resolution));
             }
-            BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt()-cEl.getLoInt()));
+            BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt() - cEl.getLoInt()));
             BigDecimal axisHi;
             if (!isIrregular) {
                 // use the resolution: for Indexed CRSs, the formula is different than non-indexed CRSs (+1 term in the denominator)
@@ -162,17 +162,17 @@ public class CoverageMetadata implements Cloneable {
             }
 
             domEl = new DomainElement(
-                    axisLo.compareTo(axisHi) <= 0 ? axisLo : axisHi,    // offset-vector can be negative,
-                    axisLo.compareTo(axisHi) <= 0 ? axisHi : axisLo,    // then (axisLo>axisHi)
-                    crsAxis.getAbbreviation(),
-                    crsAxis.getType(),
-                    crsAxis.getUoM(),
-                    crsUri,
-                    axisOrder,
-                    gridAxisPoints,
-                    resolution.compareTo(BigDecimal.ZERO) > 0,
-                    isIrregular
-                    );
+                axisLo.compareTo(axisHi) <= 0 ? axisLo : axisHi,    // offset-vector can be negative,
+                axisLo.compareTo(axisHi) <= 0 ? axisHi : axisLo,    // then (axisLo>axisHi)
+                crsAxis.getAbbreviation(),
+                crsAxis.getType(),
+                crsAxis.getUoM(),
+                crsUri,
+                axisOrder,
+                gridAxisPoints,
+                resolution.compareTo(BigDecimal.ZERO) > 0,
+                isIrregular
+            );
             domEl.setAxisDef(crsAxes.get(axisNonZeroIndices.get(0)).fst); // added utilities from domain elements
             if (isIrregular) {
                 // Set the offset vector: DomainElement can compute it only if the axis is regular (max-min/cells)
@@ -186,73 +186,73 @@ public class CoverageMetadata implements Cloneable {
         // Extract WCPS range elements and quantities
         List<RangeElement> rangeEls = new ArrayList<RangeElement>(rangeElementQuantities.size());
         sweComponents = new ArrayList<AbstractSimpleComponent>(rangeElementQuantities.size());
-        for (Pair<RangeElement,Quantity> rangeQuantity : rangeElementQuantities) {
+        for (Pair<RangeElement, Quantity> rangeQuantity : rangeElementQuantities) {
             rangeEls.add(rangeQuantity.fst);
             sweComponents.add(rangeQuantity.snd);
         }
 
         //construct the list of unique crs uris, in the order of the geo axes
         List<String> uris   = new ArrayList<String>();
-        for(Pair<CrsDefinition.Axis, String> crsAxis: crsAxes){
-            if(!uris.contains(crsAxis.snd)){
+        for (Pair<CrsDefinition.Axis, String> crsAxis : crsAxes) {
+            if (!uris.contains(crsAxis.snd)) {
                 uris.add(crsAxis.snd);
             }
         }
 
         // fill up the metadata
         setupMetadata(
-                coverageName,
-                coverageType,
-                nativeFormat,
-                extraMeta,
-                uris,
-                cellDomain,
-                domainElements,
-                rasdamanCollection,
-                rangeEls
-            );
+            coverageName,
+            coverageType,
+            nativeFormat,
+            extraMeta,
+            uris,
+            cellDomain,
+            domainElements,
+            rasdamanCollection,
+            rangeEls
+        );
     }
 
     // Constructor : domain is given as WCPS domainElement
     // TODO : domain/cellDomain coupling must be changed for irregular and rotated grids.
     public CoverageMetadata(
-            String                   coverageName,
-            String                   coverageType,
-            String                   nativeFormat,
-            Set<Pair<String,String>> extraMeta,
-            List<String>             crsUris,
-            List<CellDomainElement>  cellDomain,
-            List<DomainElement>      domain,
-            Pair<BigInteger, String> rasdamanCollection,
-            List<RangeElement>       rangeElements
-            ) throws PetascopeException, SecoreException {
+        String                   coverageName,
+        String                   coverageType,
+        String                   nativeFormat,
+        Set<Pair<String, String>> extraMeta,
+        List<String>             crsUris,
+        List<CellDomainElement>  cellDomain,
+        List<DomainElement>      domain,
+        Pair<BigInteger, String> rasdamanCollection,
+        List<RangeElement>       rangeElements
+    ) throws PetascopeException, SecoreException {
 
         // use helper so that constructor overload do not need to call this() as first command
         setupMetadata(
-                coverageName,
-                coverageType,
-                nativeFormat,
-                extraMeta,
-                crsUris,
-                cellDomain,
-                domain,
-                rasdamanCollection,
-                rangeElements
-                );
+            coverageName,
+            coverageType,
+            nativeFormat,
+            extraMeta,
+            crsUris,
+            cellDomain,
+            domain,
+            rasdamanCollection,
+            rangeElements
+        );
     }
 
     // Constrctor for Multi* Coverage
 
     public CoverageMetadata(String coverageName,
-            String coverageType,
-            String nativeFormat,
-            Set<Pair<String,String>> extraMeta,
-            List<Pair<CrsDefinition.Axis,String>> crsAxes, // axis -> URI
-            List<CellDomainElement> cellDomain,
-            List<Pair<RangeElement,Quantity>> rangeElementQuantities,
-            ArrayList<BigDecimal> covLowerLeft,
-            ArrayList<BigDecimal> covUpperRight
-            ) throws WCPSException{
+                            String coverageType,
+                            String nativeFormat,
+                            Set<Pair<String, String>> extraMeta,
+                            List<Pair<CrsDefinition.Axis, String>> crsAxes, // axis -> URI
+                            List<CellDomainElement> cellDomain,
+                            List<Pair<RangeElement, Quantity>> rangeElementQuantities,
+                            ArrayList<BigDecimal> covLowerLeft,
+                            ArrayList<BigDecimal> covUpperRight
+                           ) throws WCPSException {
 
         crsUris = new ArrayList<String>();
         this.coverageName = coverageName;
@@ -265,7 +265,7 @@ public class CoverageMetadata implements Cloneable {
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
         List<DomainElement> domainList = new LinkedList<DomainElement>();
 
-        for(int i=0; i < crsAxes.size(); i++){
+        for (int i = 0; i < crsAxes.size(); i++) {
             // Get CRS
             String crsUri = crsAxes.get(i).snd;
             // Build the list of CRS URIs
@@ -275,17 +275,17 @@ public class CoverageMetadata implements Cloneable {
 
             // Build domain metadata
             cellDomainList.add(new CellDomainElement("1", "1", 0));
-            domainList.add( new DomainElement(
-                covLowerLeft.get(i),
-                covUpperRight.get(i),
-                crsAxes.get(i).fst.getAbbreviation(),
-                crsAxes.get(i).fst.getType(),
-                crsAxes.get(i).fst.getUoM(),
-                crsUri,
-                0,
-                BigInteger.ONE,
-                true, true)
-                );
+            domainList.add(new DomainElement(
+                               covLowerLeft.get(i),
+                               covUpperRight.get(i),
+                               crsAxes.get(i).fst.getAbbreviation(),
+                               crsAxes.get(i).fst.getType(),
+                               crsAxes.get(i).fst.getUoM(),
+                               crsUri,
+                               0,
+                               BigInteger.ONE,
+                               true, true)
+                          );
         }
 
         // "unsigned int" is default datatype
@@ -297,7 +297,7 @@ public class CoverageMetadata implements Cloneable {
         // Extract WCPS range elements and quantities
         range = new ArrayList<RangeElement>(rangeElementQuantities.size());
         sweComponents = new ArrayList<AbstractSimpleComponent>(rangeElementQuantities.size());
-        for (Pair<RangeElement,Quantity> rangeQuantity : rangeElementQuantities) {
+        for (Pair<RangeElement, Quantity> rangeQuantity : rangeElementQuantities) {
             range.add(rangeQuantity.fst);
             sweComponents.add(rangeQuantity.snd);
         }
@@ -305,16 +305,16 @@ public class CoverageMetadata implements Cloneable {
 
     // constructor's helper
     private void setupMetadata(
-            String                   coverageName,
-            String                   coverageType,
-            String                   nativeFormat,
-            Set<Pair<String,String>> extraMeta,
-            List<String>             crsUris,
-            List<CellDomainElement>  cellDomain,
-            List<DomainElement>      domain,
-            Pair<BigInteger, String> rasdamanCollection,
-            List<RangeElement>       rangeElements
-            ) throws PetascopeException, SecoreException {
+        String                   coverageName,
+        String                   coverageType,
+        String                   nativeFormat,
+        Set<Pair<String, String>> extraMeta,
+        List<String>             crsUris,
+        List<CellDomainElement>  cellDomain,
+        List<DomainElement>      domain,
+        Pair<BigInteger, String> rasdamanCollection,
+        List<RangeElement>       rangeElements
+    ) throws PetascopeException, SecoreException {
 
         this.coverageName = coverageName;
         this.coverageType = coverageType;
@@ -325,33 +325,33 @@ public class CoverageMetadata implements Cloneable {
 
         // Check if some value is missing
         if (
-                coverageName  == null ||
-                coverageType  == null ||
-                nativeFormat  == null ||
-                cellDomain    == null ||
-                domain        == null ||
-                rangeElements == null ||
-                crsUris       == null) {
+            coverageName  == null ||
+            coverageType  == null ||
+            nativeFormat  == null ||
+            cellDomain    == null ||
+            domain        == null ||
+            rangeElements == null ||
+            crsUris       == null) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata,
-                    "Either coverage name, type, format, (Cell-)domain, range type/set, or CRS be null for coverage " + coverageName);
+                                         "Either coverage name, type, format, (Cell-)domain, range type/set, or CRS be null for coverage " + coverageName);
         }
 
         // CellDomain
         if (cellDomain.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid cell domain: At least "
-                    + "one element is required for coverage " + coverageName);
+                                         + "one element is required for coverage " + coverageName);
         }
         this.cellDomain = cellDomain;
 
         // Domain axes: consitency checks
         if (domain.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid domain: At least "
-                    + "one element is required for coverage " + coverageName);
+                                         + "one element is required for coverage " + coverageName);
         } else {
 
             if (domain.size() != cellDomain.size()) {
                 throw new PetascopeException(ExceptionCode.InvalidMetadata, "Domain and cell domain "
-                        + "must have equal number of elements for coverage " + coverageName);
+                                             + "must have equal number of elements for coverage " + coverageName);
             }
 
             Iterator<DomainElement>     i  = domain.iterator();
@@ -368,19 +368,19 @@ public class CoverageMetadata implements Cloneable {
                     // TODO: use .contains() in place of .equals to let aliases on axis types.
                     if (previous.getLabel().equals(next.getLabel())) {
                         throw new PetascopeException(ExceptionCode.InvalidMetadata, "Duplicate domain "
-                                + "element name encountered for coverage " + coverageName);
+                                                     + "element name encountered for coverage " + coverageName);
                     }
                     if (previous.getType().equals(AxisTypes.ELEV_AXIS) && next.getType().equals(AxisTypes.ELEV_AXIS)) {
                         throw new PetascopeException(ExceptionCode.InvalidMetadata, "Domain can contain"
-                                + " at most one elevation axis for coverage " + coverageName);
+                                                     + " at most one elevation axis for coverage " + coverageName);
                     }
                     if (previous.getType().equals(AxisTypes.X_AXIS) && next.getType().equals(AxisTypes.X_AXIS)) {
                         throw new PetascopeException(ExceptionCode.InvalidMetadata, "Domain can contain"
-                                + " at most one x axis for coverage " + coverageName);
+                                                     + " at most one x axis for coverage " + coverageName);
                     }
                     if (previous.getType().equals(AxisTypes.Y_AXIS) && next.getType().equals(AxisTypes.Y_AXIS)) {
                         throw new PetascopeException(ExceptionCode.InvalidMetadata, "Domain can contain"
-                                + " at most one y axis for coverage " + coverageName);
+                                                     + " at most one y axis for coverage " + coverageName);
                     }
                 }
             }
@@ -390,7 +390,7 @@ public class CoverageMetadata implements Cloneable {
         // Range
         if (rangeElements.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "At least one range element is "
-                    + "required for coverage " + coverageName);
+                                         + "required for coverage " + coverageName);
         }
         this.range = new ArrayList<RangeElement>(rangeElements.size());
         Iterator<RangeElement> ir = rangeElements.iterator();
@@ -401,7 +401,7 @@ public class CoverageMetadata implements Cloneable {
             while (j.hasNext()) {
                 if (j.next().getName().equals(next.getName())) {
                     throw new PetascopeException(ExceptionCode.InvalidMetadata, "Duplicate range element"
-                            + " name encountered for coverage " + coverageName);
+                                                 + " name encountered for coverage " + coverageName);
                 }
             }
 
@@ -442,10 +442,10 @@ public class CoverageMetadata implements Cloneable {
             Iterator<RangeElement> j = range.iterator();
 
             // Extra metadata
-            Iterator<Pair<String,String>> extraMetaIt = extraMetadata.iterator();
-            Set<Pair<String,String>> cloneMetadata = new HashSet<Pair<String,String>>(extraMetadata.size());
+            Iterator<Pair<String, String>> extraMetaIt = extraMetadata.iterator();
+            Set<Pair<String, String>> cloneMetadata = new HashSet<Pair<String, String>>(extraMetadata.size());
             while (extraMetaIt.hasNext()) {
-                Pair<String,String> metadataPair = extraMetaIt.next();
+                Pair<String, String> metadataPair = extraMetaIt.next();
                 cloneMetadata.add(Pair.of(metadataPair.fst, metadataPair.snd));
             }
 
@@ -455,30 +455,30 @@ public class CoverageMetadata implements Cloneable {
             }
 
             return new CoverageMetadata(
-                    coverageName.toString(),
-                    coverageType.toString(),
-                    nativeFormat.toString(),
-                    cloneMetadata,
-                    cloneUris,
-                    cloneCellDomain,
-                    cloneDom,
-                    Pair.of(rasdamanCollection.fst, rasdamanCollection.snd),
-                    cloneRange
-                    );
+                       coverageName.toString(),
+                       coverageType.toString(),
+                       nativeFormat.toString(),
+                       cloneMetadata,
+                       cloneUris,
+                       cloneCellDomain,
+                       cloneDom,
+                       Pair.of(rasdamanCollection.fst, rasdamanCollection.snd),
+                       cloneRange
+                   );
         } catch (PetascopeException ime) {
             throw new RuntimeException("Invalid metadata while cloning "
-                    + "Metadata. This is a software bug in WCPS.", ime);
+                                       + "Metadata. This is a software bug in WCPS.", ime);
         } catch (SecoreException sEx) {
             log.error("SECORE error while cloning: ", sEx.getMessage());
             return new CoverageMetadata();
         }
     }
 
-    public LinkedHashMap<List<BigDecimal>, BigDecimal> getGridAxes(){
+    public LinkedHashMap<List<BigDecimal>, BigDecimal> getGridAxes() {
         return gridAxes;
     }
 
-    public List<BigDecimal> getGridOrigin(){
+    public List<BigDecimal> getGridOrigin() {
         return gridOrigin;
     }
 
@@ -521,7 +521,7 @@ public class CoverageMetadata implements Cloneable {
     public Iterator<NilValue> getNullSetIterator() {
         return nullSet.iterator();
     }
-    
+
     public void setNullSet(List<NilValue> nullValues) {
         this.nullSet = new HashSet<NilValue>(nullValues);
     }
@@ -560,16 +560,16 @@ public class CoverageMetadata implements Cloneable {
      * (1 null value mean all bands have same null value, list of null values mean each value is null value for the corresponding band only)
      * @return
      */
-    public List<NilValue> getAllUniqueNullValues(){
+    public List<NilValue> getAllUniqueNullValues() {
         List<NilValue> uniqueNullValues = new ArrayList<NilValue>();
         //iterate over the swe quantities
         Iterator<AbstractSimpleComponent> sweIterator = this.getSweComponentsIterator();
-        while (sweIterator.hasNext()){
+        while (sweIterator.hasNext()) {
             Iterator<NilValue> nilIterator = sweIterator.next().getNilValuesIterator();
-            while (nilIterator.hasNext()){
-                NilValue currentNull = nilIterator.next();                
+            while (nilIterator.hasNext()) {
+                NilValue currentNull = nilIterator.next();
                 //add the nilValue to the null list if it is not in already
-                if (!uniqueNullValues.contains(currentNull) && !currentNull.getValue().isEmpty()){
+                if (!uniqueNullValues.contains(currentNull) && !currentNull.getValue().isEmpty()) {
                     uniqueNullValues.add(currentNull);
                 }
             }
@@ -656,13 +656,13 @@ public class CoverageMetadata implements Cloneable {
      */
     public CellDomainElement getCellDomainByOrder(int order) throws PetascopeException {
         CellDomainElement ret = null;
-        for(CellDomainElement i : cellDomain){
-            if(i.getOrder() == order){
+        for (CellDomainElement i : cellDomain) {
+            if (i.getOrder() == order) {
                 ret = i;
                 break;
             }
         }
-        if(ret == null){
+        if (ret == null) {
             throw new PetascopeException(ExceptionCode.NoSuchField, "No cell domain with order " + order + " for coverage " + getCoverageName());
         }
         return ret;
@@ -689,7 +689,7 @@ public class CoverageMetadata implements Cloneable {
         return null;
     }
 
-        public int getDomainIndexByName(String name) {
+    public int getDomainIndexByName(String name) {
         Iterator<DomainElement> i = domain.iterator();
         for (int index = 0; i.hasNext(); index++) {
             if (i.next().getLabel().equals(name)) {
@@ -718,7 +718,7 @@ public class CoverageMetadata implements Cloneable {
     public List<DomainElement> getDomainsByNames(List<String> names) {
         List<DomainElement> domElements = new ArrayList<DomainElement>(names.size());
         for (String domainName : names) {
-                domElements.add(getDomainByName(domainName));
+            domElements.add(getDomainByName(domainName));
         }
         return domElements;
     }
@@ -772,8 +772,8 @@ public class CoverageMetadata implements Cloneable {
      * @return The set of (optional) extra metadata for this coverage (eg GMLCOV, OWS, etc.)
      * Pair of metadata type, metadata value
      */
-    public Set<Pair<String,String>> getExtraMetadata() {
-        return (null==extraMetadata ? new HashSet<Pair<String,String>>() : extraMetadata);
+    public Set<Pair<String, String>> getExtraMetadata() {
+        return (null == extraMetadata ? new HashSet<Pair<String, String>>() : extraMetadata);
     }
 
     /**
@@ -788,7 +788,7 @@ public class CoverageMetadata implements Cloneable {
      */
     public Set<String> getExtraMetadata(String metadataType) {
         Set<String> selectedExtraMetadata = null;
-        if(extraMetadata != null) {
+        if (extraMetadata != null) {
             selectedExtraMetadata = new HashSet<String>();
             for (Pair<String, String> metadataPair : extraMetadata) {
                 if (metadataPair.fst.equals(metadataType)) {
@@ -813,25 +813,29 @@ public class CoverageMetadata implements Cloneable {
      * The rasdaman collection type information in the form mddType:collectionType.
      * @return rasdaman type information.
      */
-    public String getRasdamanCollectionType() { return this.rasdamanCollectionType; }
+    public String getRasdamanCollectionType() {
+        return this.rasdamanCollectionType;
+    }
 
     /**
      * Setter for the collectionType attribute.
      * @param collectiontype the rasdaman collection type in the form mddType:collectiontype.
      */
-    public void setRasdamanCollectionType(String collectiontype) { this.rasdamanCollectionType = collectiontype; }
+    public void setRasdamanCollectionType(String collectiontype) {
+        this.rasdamanCollectionType = collectiontype;
+    }
 
     /**
      * Gets the number of bands of this coverage.
      * @return number of bands for this coverage.
      */
-    public int getNumberOfBands(){
+    public int getNumberOfBands() {
         return this.sweComponents.size();
     }
     /*
      * setters
      */
-    public void setRasdamanCollection(Pair<BigInteger, String> rasdamanCollection){
+    public void setRasdamanCollection(Pair<BigInteger, String> rasdamanCollection) {
         this.rasdamanCollection = rasdamanCollection;
     }
 
@@ -839,7 +843,7 @@ public class CoverageMetadata implements Cloneable {
         this.coverageId = id;
     }
 
-    public void setMetadata(Set<Pair<String,String>> metadata) {
+    public void setMetadata(Set<Pair<String, String>> metadata) {
         this.extraMetadata = metadata;
     }
 
@@ -917,8 +921,9 @@ public class CoverageMetadata implements Cloneable {
     public String getTimePeriodBeginning() {
         // Extract the specified domain from cellDomain object, if it exists
         for (DomainElement axis : domain) {
-            if (AxisTypes.T_AXIS.equals(axis.getType()))
+            if (AxisTypes.T_AXIS.equals(axis.getType())) {
                 return axis.getMinValue().toString();
+            }
         }
         log.warn("Requesting time info on " + coverageName + ", which is missing.");
         return null;
@@ -931,8 +936,9 @@ public class CoverageMetadata implements Cloneable {
     public String getTimePeriodEnd() {
         // Extract the specified domain from cellDomain object, if it exists
         for (DomainElement axis : domain) {
-            if (AxisTypes.T_AXIS.equals(axis.getType()))
+            if (AxisTypes.T_AXIS.equals(axis.getType())) {
                 return axis.getMaxValue().toString();
+            }
         }
         log.warn("Requesting time info on " + coverageName + ", which is missing.");
         return null;
@@ -962,7 +968,7 @@ public class CoverageMetadata implements Cloneable {
         // Extract the specified domain from cellDomain object, if it exists
         for (DomainElement axis : domain) {
             if (AxisTypes.T_AXIS.equals(axis.getType())) {
-                BigInteger big = BigInteger.valueOf(getCellDomain(axis.getOrder()).getHiInt()-getCellDomain(axis.getOrder()).getLoInt());
+                BigInteger big = BigInteger.valueOf(getCellDomain(axis.getOrder()).getHiInt() - getCellDomain(axis.getOrder()).getLoInt());
                 return big.longValue();
             }
         }
@@ -1055,31 +1061,29 @@ public class CoverageMetadata implements Cloneable {
             String[] stringOriginPoints = GMLParserUtil.parseGridOrigin(gridType);
             gridAxes = GMLParserUtil.parseGridAxes(gridType, stringOriginPoints.length);
             //transform origin points into actual coordinates
-            for(int i = 0; i < stringOriginPoints.length; i++){
+            for (int i = 0; i < stringOriginPoints.length; i++) {
                 //check if time
-                if(stringOriginPoints[i].contains("\"")){
-                    if(crsAxes.size() > i) {
+                if (stringOriginPoints[i].contains("\"")) {
+                    if (crsAxes.size() > i) {
                         String datumOrigin = crsAxes.get(i).fst.getCrsDefinition().getDatumOrigin();
                         String uom = crsAxes.get(i).fst.getUoM();
                         Double numericCoordinate = TimeUtil.countOffsets(datumOrigin, stringOriginPoints[i], uom, 1D); //don't normalize here, absolute time value needed
                         originPoints.add(new BigDecimal(numericCoordinate));
                     }
-                }
-                else{
+                } else {
                     //numeric
                     originPoints.add(new BigDecimal(stringOriginPoints[i]));
                 }
             }
-        }
-        else{
+        } else {
             // Simple GridCoverage type: geometry is not defined:
             // [#760] Assign IndexCrs and versor-vectors to a GridCoverage by default (needed for BBOX, which is WCS Req.1)
             int dimensionNo = cellDomainElements.size();
             String uri = ConfigManager.SECORE_URLS.get(0) + '/' +
-                    CrsUtil.KEY_RESOLVER_CRS + '/' +
-                    CrsUtil.OGC_AUTH + '/' +
-                    CrsUtil.CRS_DEFAULT_VERSION + '/' +
-                    CrsUtil.INDEX_CRS_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, "" + dimensionNo);
+                         CrsUtil.KEY_RESOLVER_CRS + '/' +
+                         CrsUtil.OGC_AUTH + '/' +
+                         CrsUtil.CRS_DEFAULT_VERSION + '/' +
+                         CrsUtil.INDEX_CRS_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, "" + dimensionNo);
             log.debug("Assigning " + uri + " CRS to " + id + "by default.");
             CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
             for (CrsDefinition.Axis axis : crsDef.getAxes()) {
@@ -1100,7 +1104,7 @@ public class CoverageMetadata implements Cloneable {
         String extraMetadata = GMLParserUtil.parseExtraMetadata(root);
         //wrap it in the required data structure
         Set<Pair<String, String>> extraMetadataStructure = null;
-        if(extraMetadata != null) {
+        if (extraMetadata != null) {
             extraMetadataStructure = new HashSet<Pair<String, String>>();
             extraMetadataStructure.add(Pair.of(DbMetadataSource.EXTRAMETADATA_TYPE_GMLCOV, extraMetadata));
         }
@@ -1122,7 +1126,7 @@ public class CoverageMetadata implements Cloneable {
         // operations, when a new coverage is to be written, the coefficients must be carried in the model. Thus I am
         // adding them in the respective domain elements, after the object is created.
         HashMap<Integer, List<BigDecimal>> coefficients = GMLParserUtil.parseAxesCoefficients(gridType);
-        for(DomainElement domainElement : result.getDomainList()){
+        for (DomainElement domainElement : result.getDomainList()) {
             domainElement.setCoefficients(coefficients.get(domainElement.getOrder()));
         }
         return result;

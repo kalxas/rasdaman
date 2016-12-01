@@ -47,7 +47,9 @@ r_Collection_Type::r_Collection_Type(const r_Collection_Type& oldObj) throw (r_E
         elementType(NULL)
 {
     if (oldObj.elementType)
+    {
         elementType = oldObj.elementType->clone();
+    }
     else
     {
         LFATAL << "r_Collection_Type::r_Collection_Type( oldObj ) the element type is NULL.";
@@ -66,13 +68,17 @@ r_Collection_Type::operator=(const r_Collection_Type& oldObj) throw (r_Error)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
+    {
         return *this;
+    }
 
     r_Type::operator=(oldObj);
     delete elementType;
     elementType = NULL;
     if (oldObj.elementType)
+    {
         elementType = oldObj.elementType->clone();
+    }
     else
     {
         LFATAL << "r_Collection_Type::operator=( oldObj ) the element type is NULL.";
@@ -111,12 +117,12 @@ r_Collection_Type::type_id() const
 }
 
 void
-r_Collection_Type::convertToLittleEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
+r_Collection_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Collection_Type::convertToBigEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
+r_Collection_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
@@ -133,11 +139,13 @@ r_Collection_Type::print_status(std::ostream& s) const
 r_Collection_Type::~r_Collection_Type()
 {
     if (elementType)
+    {
         delete elementType;
+    }
     elementType = NULL;
 }
 
-std::ostream &operator<<( std::ostream &str, const r_Collection_Type &type )
+std::ostream& operator<<(std::ostream& str, const r_Collection_Type& type)
 {
     type.print_status(str);
     return str;

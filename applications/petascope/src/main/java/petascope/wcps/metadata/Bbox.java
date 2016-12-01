@@ -67,7 +67,7 @@ public class Bbox implements Cloneable {
     private Double minX, maxX, minY, maxY, minZ, maxZ;
 
     public Bbox(String crs, List<DomainElement> domains, String coverage)
-            throws WCPSException, WCSException, PetascopeException, SecoreException {
+    throws WCPSException, WCSException, PetascopeException, SecoreException {
 
         this.domains = new ArrayList();
         this.domains.addAll(domains);
@@ -80,8 +80,8 @@ public class Bbox implements Cloneable {
         // Raw Bounding-box
         for (DomainElement el : domains) {
             if ((el.getMinValue() == null) || (el.getMaxValue() == null)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid bounding box: null element encountered.");
+                throw new WCPSException(ExceptionCode.InvalidMetadata,
+                                        "Invalid bounding box: null element encountered.");
             }
             minValues.add(el.getMinValue());
             maxValues.add(el.getMaxValue());
@@ -106,7 +106,7 @@ public class Bbox implements Cloneable {
         double lowY  = 0D;
         double highX = 0D;
         double highY = 0D;
-        String crsSourceX="", crsSourceY="";
+        String crsSourceX = "", crsSourceY = "";
         for (DomainElement el : domains) {
             Double min = el.getMinValue().doubleValue();
             Double max = el.getMaxValue().doubleValue();
@@ -122,7 +122,7 @@ public class Bbox implements Cloneable {
                 }
                 minX = min;
                 maxX = max;
-            // Y AXIS
+                // Y AXIS
             } else if (el.getType().equals(AxisTypes.Y_AXIS)) {
                 crsSourceY = el.getNativeCrs();
                 if (CrsUtil.CrsUri.areEquivalent(crsSourceY, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
@@ -144,7 +144,7 @@ public class Bbox implements Cloneable {
         if (!crsSourceX.isEmpty() && !crsSourceY.isEmpty()) {
             if (!CrsUtil.CrsUri.areEquivalent(crsSourceX, crsSourceY)) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        "Invalid bounding box: X and Y axis have different CRS:" + crsSourceX + "<->" + crsSourceY);
+                                        "Invalid bounding box: X and Y axis have different CRS:" + crsSourceX + "<->" + crsSourceY);
             }
         }
 
@@ -173,8 +173,10 @@ public class Bbox implements Cloneable {
     @Override
     public String toString() {
         String extents = "";
-        for (int i=0; i<minValues.size(); i++) {
-            if (i > 0) extents += ", ";
+        for (int i = 0; i < minValues.size(); i++) {
+            if (i > 0) {
+                extents += ", ";
+            }
             extents += types.get(i) + "(" + getMinValue(i) + ", " + getMaxValue(i) + ")";
         }
         return "CRS '" + getCrsName() + "' { Bounding Box [" + extents + "] }";
@@ -184,7 +186,7 @@ public class Bbox implements Cloneable {
      * @return the minValues of a specified axis.
      */
     public BigDecimal getMinValue(String axisName) {
-        for (int i=0; i<names.size(); i++) {
+        for (int i = 0; i < names.size(); i++) {
             if (names.get(i).equals(axisName)) {
                 return getMinValue(i);
             }
@@ -199,7 +201,7 @@ public class Bbox implements Cloneable {
      * @return the maxValue of a specified axis.
      */
     public BigDecimal getMaxValue(String axisName) {
-        for (int i=0; i<names.size(); i++) {
+        for (int i = 0; i < names.size(); i++) {
             if (names.get(i).equals(axisName)) {
                 return getMaxValue(i);
             }
@@ -216,7 +218,7 @@ public class Bbox implements Cloneable {
      * @return the i-order of axisName
      */
     public Integer getIndex(String axisName) {
-        for (int i=0; i<names.size(); i++) {
+        for (int i = 0; i < names.size(); i++) {
             if (names.get(i).equals(axisName)) {
                 return i;
             }
@@ -246,16 +248,18 @@ public class Bbox implements Cloneable {
                 if (dom.getType().equals(AxisTypes.X_AXIS) ||
                         dom.getType().equals(AxisTypes.Y_AXIS)) {
                     crsUris.add(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE));
-                } else
+                } else {
                     crsUris.add(dom.getNativeCrs());
+                }
             }
 
             // Build the compound CRS:
             String ccrs = CrsUtil.CrsUri.createCompound(crsUris);
             return ccrs;
 
-        } else
+        } else {
             return hasWgs84Bbox ? CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE) : "";
+        }
     }
 
     /**
@@ -293,9 +297,9 @@ public class Bbox implements Cloneable {
         return wgs84maxLat;
     }
 
-   /**
-     * @return Whether a WGS84 bounding box has been computed for this object.
-     */
+    /**
+      * @return Whether a WGS84 bounding box has been computed for this object.
+      */
     public Boolean hasWgs84Bbox() {
         return hasWgs84Bbox;
     }
@@ -315,8 +319,9 @@ public class Bbox implements Cloneable {
         for (DomainElement domain : domains) {
             if (domain.getType().equals(AxisTypes.X_AXIS)
                     || domain.getType().equals(AxisTypes.Y_AXIS)
-                    || domain.getType().equals(AxisTypes.ELEV_AXIS))
+                    || domain.getType().equals(AxisTypes.ELEV_AXIS)) {
                 counter += 1;
+            }
         }
         return counter;
     }
@@ -339,7 +344,9 @@ public class Bbox implements Cloneable {
         BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
-            if (i>0) output += " ";
+            if (i > 0) {
+                output += " ";
+            }
             tmp = getMinValue(i);
             // Fill possible space between date and time in timestamp with "T" (ISO:8601)
             // Disable: breaks XML schema (requires xs:double)
@@ -357,7 +364,9 @@ public class Bbox implements Cloneable {
         BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < axisLabels.length; i++) {
-            if (i>0) output += " ";
+            if (i > 0) {
+                output += " ";
+            }
             tmp = getMinValue(axisLabels[i]);
             // Fill possible space between date and time in timestamp with "T" (ISO:8601)
             // Disable: breaks XML schema (requires xs:double)
@@ -373,10 +382,14 @@ public class Bbox implements Cloneable {
         BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
-            if (i>0) output += " ";
-            if (getType(i).equals(AxisTypes.X_AXIS)) output += getWgs84minLon(); else
-            if (getType(i).equals(AxisTypes.Y_AXIS)) output += getWgs84minLat();
-            else {
+            if (i > 0) {
+                output += " ";
+            }
+            if (getType(i).equals(AxisTypes.X_AXIS)) {
+                output += getWgs84minLon();
+            } else if (getType(i).equals(AxisTypes.Y_AXIS)) {
+                output += getWgs84minLat();
+            } else {
                 tmp = getMinValue(i);
                 // Fill possible space between date and time in timestamp with "T" (ISO:8601)
                 // Disable: breaks XML schema (requires xs:double)
@@ -392,7 +405,9 @@ public class Bbox implements Cloneable {
         BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
-            if (i>0) output += " ";
+            if (i > 0) {
+                output += " ";
+            }
             tmp = getMaxValue(i);
             // Fill possible space between date and time in timestamp with "T" (ISO:8601)
             // Disable: breaks XML schema (requires xs:double)
@@ -408,7 +423,9 @@ public class Bbox implements Cloneable {
         BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < axisLabels.length; i++) {
-            if (i>0) output += " ";
+            if (i > 0) {
+                output += " ";
+            }
             tmp = getMaxValue(axisLabels[i]);
             // Fill possible space between date and time in timestamp with "T" (ISO:8601)
             // Disable: breaks XML schema (requires xs:double)
@@ -424,10 +441,14 @@ public class Bbox implements Cloneable {
         BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
-            if (i>0) output += " ";
-            if (getType(i).equals(AxisTypes.X_AXIS)) output += getWgs84maxLon(); else
-            if (getType(i).equals(AxisTypes.Y_AXIS)) output += getWgs84maxLat();
-            else {
+            if (i > 0) {
+                output += " ";
+            }
+            if (getType(i).equals(AxisTypes.X_AXIS)) {
+                output += getWgs84maxLon();
+            } else if (getType(i).equals(AxisTypes.Y_AXIS)) {
+                output += getWgs84maxLat();
+            } else {
                 tmp = getMaxValue(i);
                 // Fill possible space between date and time in timestamp with "T" (ISO:8601)
                 // Disable: breaks XML schema (requires xs:double)

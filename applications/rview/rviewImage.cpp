@@ -139,10 +139,10 @@ const int rviewImageSetup::imgset_bheight = 40;
 const int rviewImageSetup::imgset_chowidth = 130;
 const int rviewImageSetup::imgset_choheight = 30;
 const int rviewImageSetup::imgset_width = 400;
-const int rviewImageSetup::imgset_height = rviewImageSetup::imgset_renheight + rviewImageSetup::imgset_voxheight + rviewImageSetup::imgset_hgtheight + rviewImageSetup::imgset_bheight + 5*rviewImageSetup::imgset_border + rview_window_extra_height;
+const int rviewImageSetup::imgset_height = rviewImageSetup::imgset_renheight + rviewImageSetup::imgset_voxheight + rviewImageSetup::imgset_hgtheight + rviewImageSetup::imgset_bheight + 5 * rviewImageSetup::imgset_border + rview_window_extra_height;
 
 
-const char *rviewImageSetup::normalKernelSizes[] =
+const char* rviewImageSetup::normalKernelSizes[] =
 {
     "0",
     "1",
@@ -159,12 +159,12 @@ const keyword_to_ident_c rviewImageSetup::normalKernelTypes[] =
     {0, NULL}
 };
 
-rviewImageSetup::rviewImageSetup(rview_image_setup *ris, rviewRenderImage *parentWin) : rviewFrame(NULL, lman->lookup("titleImgSetup"), 0, 0, imgset_width, imgset_height)
+rviewImageSetup::rviewImageSetup(rview_image_setup* ris, rviewRenderImage* parentWin) : rviewFrame(NULL, lman->lookup("titleImgSetup"), 0, 0, imgset_width, imgset_height)
 {
     char buffer[STRINGSIZE];
     int w, h, x, y, off, posx, posy;
-    char **ktypes;
-    char *b;
+    char** ktypes;
+    char* b;
     int i;
 
     parent = parentWin;
@@ -173,7 +173,7 @@ rviewImageSetup::rviewImageSetup(rview_image_setup *ris, rviewRenderImage *paren
 
     GetClientSize(&w, &h);
     panel = new wxPanel((wxWindow*)this, 0, 0, w, h);
-    w -= 2*imgset_border;
+    w -= 2 * imgset_border;
     posx = imgset_border;
     posy = imgset_border;
     renderGroup = new wxGroupBox(panel, "", posx, posy, w, imgset_renheight);
@@ -182,12 +182,12 @@ rviewImageSetup::rviewImageSetup(rview_image_setup *ris, rviewRenderImage *paren
     posy += imgset_voxheight + imgset_border;
     heightGroup = new wxGroupBox(panel, "", posx, posy, w, imgset_hgtheight);
 
-    w -= 2*imgset_border;
+    w -= 2 * imgset_border;
     y = imgset_border;
     posx += imgset_border;
     renderGroup->GetClientSize(&x, &h);
     off = y + imgset_renheight - h;
-    h = (h - 5*imgset_theight) / 5;
+    h = (h - 5 * imgset_theight) / 5;
 
     zproWidget = new rviewText(panel);
     clipzWidget = new rviewText(panel);
@@ -203,9 +203,9 @@ rviewImageSetup::rviewImageSetup(rview_image_setup *ris, rviewRenderImage *paren
     wgtThreshWidget = new rviewText(panel);
     wgtQuantWidget = new rviewText(panel);
     kernelSize = new rviewChoice(panel, 4, (char**)normalKernelSizes, lman->lookup("imgSetKernSize"));
-    ktypes = new char *[3];
+    ktypes = new char* [3];
     b = buffer;
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
         ktypes[i] = b;
         b += 1 + sprintf(b, "%s", lman->lookup(normalKernelTypes[i].keyword));
@@ -225,8 +225,8 @@ rviewImageSetup::rviewImageSetup(rview_image_setup *ris, rviewRenderImage *paren
 
     updateSettings(*ris);
 
-    frameWidth=-1;
-    frameHeight=-1;
+    frameWidth = -1;
+    frameHeight = -1;
 
     OnSize(imgset_width, imgset_height);
     OnSize(imgset_width, imgset_height);
@@ -249,7 +249,7 @@ rviewImageSetup::~rviewImageSetup(void)
 }
 
 
-const char *rviewImageSetup::getFrameName(void) const
+const char* rviewImageSetup::getFrameName(void) const
 {
     return "rviewImageSetup";
 }
@@ -266,10 +266,10 @@ void rviewImageSetup::unlinkParent(void)
 }
 
 
-void rviewImageSetup::updateSettings(const rview_image_setup &ris)
+void rviewImageSetup::updateSettings(const rview_image_setup& ris)
 {
     char buffer[STRINGSIZE];
-    char *b;
+    char* b;
     int i;
 
     zproWidget->SetValue((long)(ris.zpro));
@@ -294,7 +294,7 @@ void rviewImageSetup::updateSettings(const rview_image_setup &ris)
     {
         kernelSize->SetSelection(ris.kernelSize);
     }
-    for (i=0; normalKernelTypes[i].keyword != NULL; i++)
+    for (i = 0; normalKernelTypes[i].keyword != NULL; i++)
     {
         if (normalKernelTypes[i].ident == ris.kernelType)
         {
@@ -303,21 +303,39 @@ void rviewImageSetup::updateSettings(const rview_image_setup &ris)
         }
     }
     b = buffer;
-    if ((ris.lightsDir & RVIEW_LIGHTDIR_LEFT) != 0) *b++ = 'l';
-    else if ((ris.lightsDir & RVIEW_LIGHTDIR_RIGHT) != 0) *b++ = 'r';
-    if ((ris.lightsDir & RVIEW_LIGHTDIR_DOWN) != 0) *b++ = 'd';
-    else if ((ris.lightsDir & RVIEW_LIGHTDIR_UP) != 0) *b++ = 'u';
-    if ((ris.lightsDir & RVIEW_LIGHTDIR_FRONT) != 0) *b++ = 'f';
-    else if ((ris.lightsDir & RVIEW_LIGHTDIR_BACK) != 0) *b++ = 'b';
+    if ((ris.lightsDir & RVIEW_LIGHTDIR_LEFT) != 0)
+    {
+        *b++ = 'l';
+    }
+    else if ((ris.lightsDir & RVIEW_LIGHTDIR_RIGHT) != 0)
+    {
+        *b++ = 'r';
+    }
+    if ((ris.lightsDir & RVIEW_LIGHTDIR_DOWN) != 0)
+    {
+        *b++ = 'd';
+    }
+    else if ((ris.lightsDir & RVIEW_LIGHTDIR_UP) != 0)
+    {
+        *b++ = 'u';
+    }
+    if ((ris.lightsDir & RVIEW_LIGHTDIR_FRONT) != 0)
+    {
+        *b++ = 'f';
+    }
+    else if ((ris.lightsDir & RVIEW_LIGHTDIR_BACK) != 0)
+    {
+        *b++ = 'b';
+    }
     *b++ = '\0';
     lightsDir->SetValue(buffer);
 }
 
 
 
-int rviewImageSetup::parseLightDirection(const char *dir)
+int rviewImageSetup::parseLightDirection(const char* dir)
 {
-    char *b;
+    char* b;
     int val;
 
     b = (char*)dir;
@@ -358,9 +376,15 @@ void rviewImageSetup::readNewSetup(void)
     long val;
 
     val = asctoi(zproWidget->GetValue());
-    if (val > 0) imgSetup->zpro = (unsigned long)val;
+    if (val > 0)
+    {
+        imgSetup->zpro = (unsigned long)val;
+    }
     val = asctoi(clipzWidget->GetValue());
-    if (val > 0) imgSetup->clipz = (unsigned long)val;
+    if (val > 0)
+    {
+        imgSetup->clipz = (unsigned long)val;
+    }
     imgSetup->useLights = useLights->GetValue();
     imgSetup->lightsAngle = atof(lightsAngle->GetValue());
     imgSetup->lightsScintAngle = atof(lightsScintAngle->GetValue());
@@ -372,7 +396,10 @@ void rviewImageSetup::readNewSetup(void)
     imgSetup->weightThreshold = asctof(wgtThreshWidget->GetValue());
     imgSetup->useRgbBrightness = useRgbBrightness->GetValue();
     val = asctoi(wgtQuantWidget->GetValue());
-    if (val >= 0) imgSetup->weightQuantisation = (int)val;
+    if (val >= 0)
+    {
+        imgSetup->weightQuantisation = (int)val;
+    }
     imgSetup->kernelSize = kernelSize->GetSelection();
     imgSetup->kernelType = normalKernelTypes[kernelType->GetSelection()].ident;
     imgSetup->useVoxCol = useVoxCol->GetValue();
@@ -423,19 +450,19 @@ void rviewImageSetup::OnSize(int w, int h)
     GetClientSize(&width, &height);
 
     //need to resize?
-    if (( imgset_width != width) || ( imgset_height != height))
+    if ((imgset_width != width) || (imgset_height != height))
     {
         frameWidth =  imgset_width;
         frameHeight =  imgset_height;
-        width=  imgset_width;
+        width =  imgset_width;
         height =  imgset_height;
         SetClientSize(width, height);
         return;
     }
 
     panel->SetSize(0, 0, width, height);
-    width -= 2*imgset_border;
-    height -= 2*imgset_border;
+    width -= 2 * imgset_border;
+    height -= 2 * imgset_border;
     posx = imgset_border;
     posy = imgset_border;
     renderGroup->SetSize(posx, posy, width, imgset_renheight);
@@ -444,33 +471,33 @@ void rviewImageSetup::OnSize(int w, int h)
     posy += imgset_voxheight + imgset_border;
     heightGroup->SetSize(posx, posy, width, imgset_hgtheight);
 
-    width -= 2*imgset_border;
+    width -= 2 * imgset_border;
     y = imgset_border;
     posx += imgset_border;
     posy += imgset_border;
     renderGroup->GetClientSize(&x, &height);
     off = y + imgset_renheight - height;
-    height = (height - 5*imgset_theight) / 5;
-    posy = off + height/2;
-    zproWidget->SetSize(posx, posy, width/2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
-    clipzWidget->SetSize(posx + width/2, posy, width/2, imgset_theight, wxTE_PROCESS_ENTER);
+    height = (height - 5 * imgset_theight) / 5;
+    posy = off + height / 2;
+    zproWidget->SetSize(posx, posy, width / 2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
+    clipzWidget->SetSize(posx + width / 2, posy, width / 2, imgset_theight, wxTE_PROCESS_ENTER);
     posy += height + imgset_theight;
-    useLights->SetSize(posx, posy, width/2, imgset_theight);
+    useLights->SetSize(posx, posy, width / 2, imgset_theight);
     posy += height + imgset_theight;
-    lightsAngle->SetSize(posx, posy, width/2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
-    lightsScintAngle->SetSize(posx + width/2, posy, width/2, imgset_theight, wxTE_PROCESS_ENTER);
+    lightsAngle->SetSize(posx, posy, width / 2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
+    lightsScintAngle->SetSize(posx + width / 2, posy, width / 2, imgset_theight, wxTE_PROCESS_ENTER);
     posy += height + imgset_theight;
-    lightsAmbient->SetSize(posx, posy, width/2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
-    lightsGain->SetSize(posx + width/2, posy, width/2, imgset_theight, wxTE_PROCESS_ENTER);
+    lightsAmbient->SetSize(posx, posy, width / 2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
+    lightsGain->SetSize(posx + width / 2, posy, width / 2, imgset_theight, wxTE_PROCESS_ENTER);
     posy += height + imgset_theight;
-    lightsDir->SetSize(posx, posy, width/2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
-    lightsDist->SetSize(posx + width/2, posy, width/2, imgset_theight, wxTE_PROCESS_ENTER);
+    lightsDir->SetSize(posx, posy, width / 2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
+    lightsDist->SetSize(posx + width / 2, posy, width / 2, imgset_theight, wxTE_PROCESS_ENTER);
 
     y += imgset_renheight + imgset_border;
     voxelGroup->GetClientSize(&x, &height);
     off = y + imgset_voxheight - height;
-    height = (height - 5*imgset_theight - imgset_chkheight - imgset_choheight) / 6;
-    posy = off + height/2;
+    height = (height - 5 * imgset_theight - imgset_chkheight - imgset_choheight) / 6;
+    posy = off + height / 2;
     pixThreshLowWidget->SetSize(posx, posy, width, imgset_theight, wxTE_PROCESS_ENTER);
     posy += height + imgset_theight;
     pixThreshHighWidget->SetSize(posx, posy, width, imgset_theight, wxTE_PROCESS_ENTER);
@@ -480,10 +507,10 @@ void rviewImageSetup::OnSize(int w, int h)
     wgtQuantWidget->SetSize(posx, posy, width, imgset_theight, wxTE_PROCESS_ENTER);
     posy += height + imgset_theight;
     kernelSize->SetSize(posx, posy, imgset_chowidth, imgset_choheight);
-    kernelType->SetSize(width - imgset_chowidth - 3*imgset_border, posy, imgset_chowidth, imgset_choheight);
+    kernelType->SetSize(width - imgset_chowidth - 3 * imgset_border, posy, imgset_chowidth, imgset_choheight);
     posy += height + imgset_theight;
-    useVoxCol->SetSize(posx, posy, width/2, imgset_theight);
-    useRgbBrightness->SetSize(posx + width/2, posy, width/2, imgset_theight);
+    useVoxCol->SetSize(posx, posy, width / 2, imgset_theight);
+    useRgbBrightness->SetSize(posx + width / 2, posy, width / 2, imgset_theight);
     posy += height + imgset_chkheight;
     voxColour->SetSize(posx, posy, width, imgset_theight);
 
@@ -491,19 +518,19 @@ void rviewImageSetup::OnSize(int w, int h)
     heightGroup->GetClientSize(&x, &height);
     off = y + imgset_hgtheight - height;
     height = (height - imgset_theight);
-    posy = off + height/2;
-    gridSize->SetSize(posx, posy, width/2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
-    scaleHeight->SetSize(posx + width/2, posy, width/2, imgset_theight, wxTE_PROCESS_ENTER);
+    posy = off + height / 2;
+    gridSize->SetSize(posx, posy, width / 2 - imgset_border, imgset_theight, wxTE_PROCESS_ENTER);
+    scaleHeight->SetSize(posx + width / 2, posy, width / 2, imgset_theight, wxTE_PROCESS_ENTER);
 
     y += imgset_hgtheight + imgset_border;
-    off = (width - 2*imgset_bwidth) / 2;
-    okBut->SetSize(posx + off/2, y, imgset_bwidth, imgset_bheight);
-    cancelBut->SetSize(posx + (3*off)/2 + imgset_bwidth, y, imgset_bwidth, imgset_bheight);
+    off = (width - 2 * imgset_bwidth) / 2;
+    okBut->SetSize(posx + off / 2, y, imgset_bwidth, imgset_bheight);
+    cancelBut->SetSize(posx + (3 * off) / 2 + imgset_bwidth, y, imgset_bwidth, imgset_bheight);
 }
 
 
 
-int rviewImageSetup::process(wxObject &obj, wxEvent &evt)
+int rviewImageSetup::process(wxObject& obj, wxEvent& evt)
 {
     int type;
 
@@ -513,13 +540,19 @@ int rviewImageSetup::process(wxObject &obj, wxEvent &evt)
         if (&obj == (wxObject*)okBut)
         {
             readNewSetup();
-            if (parent != NULL) parent->closeEditor(TRUE);
+            if (parent != NULL)
+            {
+                parent->closeEditor(TRUE);
+            }
             return 1;
         }
         else if (&obj == (wxObject*)cancelBut)
         {
             memcpy(imgSetup, &oldSetup, sizeof(rview_image_setup));
-            if (parent != NULL) parent->closeEditor(TRUE);
+            if (parent != NULL)
+            {
+                parent->closeEditor(TRUE);
+            }
             return 1;
         }
     }
@@ -528,24 +561,42 @@ int rviewImageSetup::process(wxObject &obj, wxEvent &evt)
         int setFlags = -1;
 
         if ((&obj == (wxObject*)zproWidget) || (&obj == (wxObject*)clipzWidget) ||
-                (&obj == (wxObject*)useLights)) setFlags = 0;
+                (&obj == (wxObject*)useLights))
+        {
+            setFlags = 0;
+        }
         // These only require an update of the view-window when voxel mode is on.
         else if ((&obj == (wxObject*)pixThreshLowWidget) || (&obj == (wxObject*)pixThreshHighWidget) ||
                  (&obj == (wxObject*)wgtThreshWidget) || (&obj == (wxObject*)wgtQuantWidget) ||
-                 (&obj == (wxObject*)useRgbBrightness)) setFlags = RVIEW_IFLAG_VOXEL;
+                 (&obj == (wxObject*)useRgbBrightness))
+        {
+            setFlags = RVIEW_IFLAG_VOXEL;
+        }
         // These only require an update of the view-window when lights are on.
         else if ((&obj == (wxObject*)useVoxCol) || (&obj == (wxObject*)lightsAngle) ||
                  (&obj == (wxObject*)lightsScintAngle) || (&obj == (wxObject*)lightsAmbient) ||
                  (&obj == (wxObject*)lightsGain) || (&obj == (wxObject*)lightsDir) ||
-                 (&obj == (wxObject*)lightsDist)) setFlags = RVIEW_IFLAG_LIGHT;
+                 (&obj == (wxObject*)lightsDist))
+        {
+            setFlags = RVIEW_IFLAG_LIGHT;
+        }
         // These only require an update of the view-window when height mode is on
-        else if ((&obj == (wxObject*)gridSize) || (&obj == (wxObject*)scaleHeight)) setFlags = RVIEW_IFLAG_HEIGHT;
+        else if ((&obj == (wxObject*)gridSize) || (&obj == (wxObject*)scaleHeight))
+        {
+            setFlags = RVIEW_IFLAG_HEIGHT;
+        }
         // Mixed modes
-        else if (&obj == (wxObject*)voxColour) setFlags = RVIEW_IFLAG_LIGHT | RVIEW_IFLAG_HEIGHT;
+        else if (&obj == (wxObject*)voxColour)
+        {
+            setFlags = RVIEW_IFLAG_LIGHT | RVIEW_IFLAG_HEIGHT;
+        }
         if (setFlags >= 0)
         {
             readNewSetup();
-            if (parent != NULL) parent->updateSettings(setFlags);
+            if (parent != NULL)
+            {
+                parent->updateSettings(setFlags);
+            }
             return 1;
         }
     }
@@ -554,7 +605,10 @@ int rviewImageSetup::process(wxObject &obj, wxEvent &evt)
         if ((&obj == (wxObject*)kernelSize) || (&obj == (wxObject*)kernelType))
         {
             readNewSetup();
-            if (parent != NULL) parent->updateSettings(TRUE);
+            if (parent != NULL)
+            {
+                parent->updateSettings(TRUE);
+            }
             return 1;
         }
     }
@@ -577,19 +631,19 @@ const int rendererControl::rctrl_rwidth = 30;
 const int rendererControl::rctrl_rheight = 30;
 const int rendererControl::rctrl_sheight = 50;
 const int rendererControl::rctrl_width = 300;
-const int rendererControl::rctrl_height = 5*rendererControl::rctrl_border + 3*rendererControl::rctrl_sheight + rendererControl::rctrl_bheight + rview_window_extra_height;
+const int rendererControl::rctrl_height = 5 * rendererControl::rctrl_border + 3 * rendererControl::rctrl_sheight + rendererControl::rctrl_bheight + rview_window_extra_height;
 
-rendererControl::rendererControl(float drx, float dry, float drz, int mode, rviewRenderImage *parentWin) : rviewFrame(NULL, lman->lookup("titleRendererCtrl"), 0, 0, rctrl_width, rctrl_height)
+rendererControl::rendererControl(float drx, float dry, float drz, int mode, rviewRenderImage* parentWin) : rviewFrame(NULL, lman->lookup("titleRendererCtrl"), 0, 0, rctrl_width, rctrl_height)
 {
     int w;
 
     parent = parentWin;
     active = mode;
     panel = new wxPanel((wxWindow*)this, 0, 0, rctrl_width, rctrl_height);
-    w = rctrl_width - 2*rctrl_border;
-    rotx = new rviewSlider(panel, 1000*drx, -1000, 1000, w, lman->lookup("textRotX"));
-    roty = new rviewSlider(panel, 1000*dry, -1000, 1000, w, lman->lookup("textRotY"));
-    rotz = new rviewSlider(panel, 1000*drz, -1000, 1000, w, lman->lookup("textRotZ"));
+    w = rctrl_width - 2 * rctrl_border;
+    rotx = new rviewSlider(panel, 1000 * drx, -1000, 1000, w, lman->lookup("textRotX"));
+    roty = new rviewSlider(panel, 1000 * dry, -1000, 1000, w, lman->lookup("textRotY"));
+    rotz = new rviewSlider(panel, 1000 * drz, -1000, 1000, w, lman->lookup("textRotZ"));
 
     resetX = new rviewButton(panel, "0");
     resetY = new rviewButton(panel, "0");
@@ -619,7 +673,7 @@ rendererControl::~rendererControl(void)
 }
 
 
-const char *rendererControl::getFrameName(void) const
+const char* rendererControl::getFrameName(void) const
 {
     return "rendererControl";
 }
@@ -642,22 +696,22 @@ void rendererControl::OnSize(int w, int h)
 
     GetClientSize(&x, &y);
     panel->SetSize(0, 0, x, y, wxSIZE_ALLOW_MINUS_ONE);
-    dx = (x - 2*rctrl_bwidth) / 2;
+    dx = (x - 2 * rctrl_bwidth) / 2;
     dy = (rctrl_sheight - rctrl_rheight) / 2;
-    x -= 3*rctrl_border + rctrl_rwidth;
+    x -= 3 * rctrl_border + rctrl_rwidth;
     y = rctrl_border;
     rotx->SetSize(rctrl_border, y, x, rctrl_sheight);
-    resetX->SetSize(2*rctrl_border + x, y+dy, rctrl_rwidth, rctrl_rheight);
+    resetX->SetSize(2 * rctrl_border + x, y + dy, rctrl_rwidth, rctrl_rheight);
     y += rctrl_border + rctrl_sheight;
     roty->SetSize(rctrl_border, y, x, rctrl_sheight);
-    resetY->SetSize(2*rctrl_border + x, y+dy, rctrl_rwidth, rctrl_rheight);
+    resetY->SetSize(2 * rctrl_border + x, y + dy, rctrl_rwidth, rctrl_rheight);
     y += rctrl_border + rctrl_sheight;
     rotz->SetSize(rctrl_border, y, x, rctrl_sheight);
-    resetZ->SetSize(2*rctrl_border + x, y+dy, rctrl_rwidth, rctrl_rheight);
+    resetZ->SetSize(2 * rctrl_border + x, y + dy, rctrl_rwidth, rctrl_rheight);
     y += rctrl_border + rctrl_sheight;
 
-    actionBut->SetSize(dx/2, y, rctrl_bwidth, rctrl_bheight);
-    closeBut->SetSize((3*dx)/2 + rctrl_bwidth, y, rctrl_bwidth, rctrl_bheight);
+    actionBut->SetSize(dx / 2, y, rctrl_bwidth, rctrl_bheight);
+    closeBut->SetSize((3 * dx) / 2 + rctrl_bwidth, y, rctrl_bwidth, rctrl_bheight);
 }
 
 
@@ -697,7 +751,7 @@ void rendererControl::updateParameters(void)
 }
 
 
-int rendererControl::process(wxObject &obj, wxEvent &evt)
+int rendererControl::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -719,17 +773,26 @@ int rendererControl::process(wxObject &obj, wxEvent &evt)
         }
         else if (&obj == (wxObject*)closeBut)
         {
-            if (parent != NULL) parent->closeRendererControls();
+            if (parent != NULL)
+            {
+                parent->closeRendererControls();
+            }
             return 1;
         }
         else if ((&obj == (wxObject*)resetX) || (&obj == (wxObject*)resetY) || (&obj == (wxObject*)resetZ))
         {
             if (&obj == (wxObject*)resetX)
+            {
                 rotx->SetValue(0);
+            }
             else if (&obj == (wxObject*)resetY)
+            {
                 roty->SetValue(0);
+            }
             else if (&obj == (wxObject*)resetZ)
+            {
                 rotz->SetValue(0);
+            }
 
             updateParameters();
             return 1;
@@ -752,7 +815,7 @@ const int rendererCurrentView::rcview_theight = 30;
 const int rendererCurrentView::rcview_width = 180;
 const int rendererCurrentView::rcview_height = 220;
 
-rendererCurrentView::rendererCurrentView(const vertex_fp &angles, long off, double scale, rviewRenderImage *parentWin) :
+rendererCurrentView::rendererCurrentView(const vertex_fp& angles, long off, double scale, rviewRenderImage* parentWin) :
     rviewFrame(NULL, lman->lookup("titleRendererView"), 0, 0, rcview_width, rcview_height)
 {
     parent = parentWin;
@@ -792,7 +855,7 @@ rendererCurrentView::~rendererCurrentView(void)
 }
 
 
-const char *rendererCurrentView::getFrameName(void) const
+const char* rendererCurrentView::getFrameName(void) const
 {
     return "rendererCurrentView";
 }
@@ -818,17 +881,20 @@ void rendererCurrentView::OnSize(int w, int h)
 
     panel->SetSize(0, 0, w, h, wxSIZE_ALLOW_MINUS_ONE);
 
-    x -= 2*rcview_border;
+    x -= 2 * rcview_border;
     rotx->SetSize(rcview_border, rcview_border, x, rcview_theight);
     roty->SetSize(rcview_border, rcview_border + rcview_theight, x, rcview_theight);
-    rotz->SetSize(rcview_border, rcview_border + 2*rcview_theight, x, rcview_theight);
-    zoff->SetSize(rcview_border, rcview_border + 3*rcview_theight, x, rcview_theight);
-    cubeScale->SetSize(rcview_border, rcview_border + 4*rcview_theight, x, rcview_theight);
+    rotz->SetSize(rcview_border, rcview_border + 2 * rcview_theight, x, rcview_theight);
+    zoff->SetSize(rcview_border, rcview_border + 3 * rcview_theight, x, rcview_theight);
+    cubeScale->SetSize(rcview_border, rcview_border + 4 * rcview_theight, x, rcview_theight);
 
-    x -= 2*rcview_bwidth;
-    if (x < 0) x = 0;
-    applyButton->SetSize(rcview_border + x/4, 3*rcview_border + 5*rcview_theight, rcview_bwidth, rcview_bheight);
-    closeButton->SetSize(rcview_border + (3*x)/4 + rcview_bwidth, 3*rcview_border + 5*rcview_theight, rcview_bwidth, rcview_bheight);
+    x -= 2 * rcview_bwidth;
+    if (x < 0)
+    {
+        x = 0;
+    }
+    applyButton->SetSize(rcview_border + x / 4, 3 * rcview_border + 5 * rcview_theight, rcview_bwidth, rcview_bheight);
+    closeButton->SetSize(rcview_border + (3 * x) / 4 + rcview_bwidth, 3 * rcview_border + 5 * rcview_theight, rcview_bwidth, rcview_bheight);
 }
 
 
@@ -844,7 +910,7 @@ void rendererCurrentView::label(void)
 }
 
 
-int rendererCurrentView::process(wxObject &obj, wxEvent &evt)
+int rendererCurrentView::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -870,7 +936,7 @@ int rendererCurrentView::process(wxObject &obj, wxEvent &evt)
 }
 
 
-void rendererCurrentView::updateView(const vertex_fp &angles, long off, double scale)
+void rendererCurrentView::updateView(const vertex_fp& angles, long off, double scale)
 {
     rotx->SetValue((double)angles.x);
     roty->SetValue((double)angles.y);
@@ -901,18 +967,18 @@ void rendererCurrentView::updateParameters(void)
 /*
  *  pixmapCanvas class. For displaying wxPixmaps
  */
-pixmapCanvas::pixmapCanvas(rviewImage *parent, int x, int y, int w, int h, long style) : wxCanvas((wxWindow*)parent, x, y, w, h, style)
+pixmapCanvas::pixmapCanvas(rviewImage* parent, int x, int y, int w, int h, long style) : wxCanvas((wxWindow*)parent, x, y, w, h, style)
 {
     pixmap = NULL;
     font = NULL;
     parentWin = parent;
     myDC = (wxDC*)GetDC();
     brush.SetStyle(wxSOLID);
-    brush.SetColour(0,0,0);
+    brush.SetColour(0, 0, 0);
     border.SetStyle(wxSOLID);
-    border.SetColour(0,0,0);
+    border.SetColour(0, 0, 0);
     bpen.SetStyle(wxSOLID);
-    bpen.SetColour(0,0,0);
+    bpen.SetColour(0, 0, 0);
     // Pen used for frames
     fpen.SetStyle(wxSOLID);
     fpen.SetColour((char)0xff, (char)0xff, (char)0xff);
@@ -940,7 +1006,7 @@ pixmapCanvas::~pixmapCanvas(void)
 }
 
 
-void pixmapCanvas::setPixmap(wxPixmap *pmap)
+void pixmapCanvas::setPixmap(wxPixmap* pmap)
 {
     pixmap = pmap;
     pixWidth = pmap->getWidth();
@@ -957,10 +1023,22 @@ void pixmapCanvas::setPixmap(wxPixmap *pmap)
         }
         else
         {
-            if (rect_x0 >= pixWidth) rect_x0 = pixWidth-1;
-            if (rect_x1 >= pixWidth) rect_x1 = pixWidth-1;
-            if (rect_y0 >= pixHeight) rect_y0 = pixHeight-1;
-            if (rect_y1 >= pixHeight) rect_y1 = pixHeight-1;
+            if (rect_x0 >= pixWidth)
+            {
+                rect_x0 = pixWidth - 1;
+            }
+            if (rect_x1 >= pixWidth)
+            {
+                rect_x1 = pixWidth - 1;
+            }
+            if (rect_y0 >= pixHeight)
+            {
+                rect_y0 = pixHeight - 1;
+            }
+            if (rect_y1 >= pixHeight)
+            {
+                rect_y1 = pixHeight - 1;
+            }
         }
     }
 }
@@ -979,18 +1057,36 @@ void pixmapCanvas::adjustBoxToRatio(void)
         int width, height;
 
         width = rect_x1 - rect_x0;
-        if (width < 0) width = -width;
+        if (width < 0)
+        {
+            width = -width;
+        }
         height = (int)(width * aspectRatio);
-        if (rect_y1 < rect_y0) height = -height;
+        if (rect_y1 < rect_y0)
+        {
+            height = -height;
+        }
         rect_y1 = rect_y0 + height;
         if ((rect_y1 < 0) || (rect_y1 >= pixHeight))
         {
-            if (rect_y1 < 0) rect_y1 = 0;
-            else rect_y1 = pixHeight-1;
+            if (rect_y1 < 0)
+            {
+                rect_y1 = 0;
+            }
+            else
+            {
+                rect_y1 = pixHeight - 1;
+            }
             height = rect_y1 - rect_y0;
-            if (height < 0) height = -height;
+            if (height < 0)
+            {
+                height = -height;
+            }
             width = (int)(height / aspectRatio);
-            if (rect_x1 < rect_x0) width = -width;
+            if (rect_x1 < rect_x0)
+            {
+                width = -width;
+            }
             rect_x1 = rect_x0 + width;
         }
     }
@@ -1002,7 +1098,10 @@ void pixmapCanvas::ToggleDragBox(bool clearMode)
     int minx, miny, maxx, maxy;
 
     // Drag box defined?
-    if (rect_x0 < 0) return;
+    if (rect_x0 < 0)
+    {
+        return;
+    }
 
     if (rect_x0 < rect_x1)
     {
@@ -1037,7 +1136,7 @@ void pixmapCanvas::ToggleDragBox(bool clearMode)
         ominy = miny + offY;
         omaxx = maxx + offX;
         omaxy = maxy + offY;
-        SetClippingRegion((float)ominx, (float)ominy, omaxx-ominx+1.0, omaxy-ominy+1.0);
+        SetClippingRegion((float)ominx, (float)ominy, omaxx - ominx + 1.0, omaxy - ominy + 1.0);
         IntDrawLine(ominx, ominy, omaxx - 1, ominy);
         IntDrawLine(omaxx, ominy, omaxx, omaxy - 1);
         IntDrawLine(omaxx, omaxy, ominx + 1, omaxy);
@@ -1045,7 +1144,10 @@ void pixmapCanvas::ToggleDragBox(bool clearMode)
         DestroyClippingRegion();
     }
 
-    if ((rect_x0 == rect_x1) && (rect_y0 == rect_y1) && !clearMode) return;
+    if ((rect_x0 == rect_x1) && (rect_y0 == rect_y1) && !clearMode)
+    {
+        return;
+    }
 
     // Is the old rectangle to be removed or the new one to be plotted?
     // This makes a difference with the text!
@@ -1090,7 +1192,7 @@ void pixmapCanvas::ToggleDragBox(bool clearMode)
         textBBox.width = (int)twidth;
         textBBox.height = (int)theight;
         DrawRectangle(posx, posy, twidth, theight);
-        DrawText(buffer, posx + rviewImage::image_dragtspace/2, posy + rviewImage::image_dragtspace/2);
+        DrawText(buffer, posx + rviewImage::image_dragtspace / 2, posy + rviewImage::image_dragtspace / 2);
         SetBrush(NULL);
     }
     SetPen(NULL);
@@ -1120,14 +1222,38 @@ void pixmapCanvas::SetDragBox(int x0, int y0, int x1, int y1)
         return;
     }
     adjustBoxToRatio();
-    if (rect_x0 < 0) rect_x0 = 0;
-    if (rect_x0 >= pixWidth) rect_x0 = pixWidth-1;
-    if (rect_y0 < 0) rect_y0 = 0;
-    if (rect_y0 >= pixHeight) rect_y0 = pixHeight-1;
-    if (rect_x1 < 0) rect_x1 = 0;
-    if (rect_x1 >= pixWidth) rect_x1 = pixWidth-1;
-    if (rect_y1 < 0) rect_y1 = 0;
-    if (rect_y1 >= pixHeight) rect_y1 = pixHeight-1;
+    if (rect_x0 < 0)
+    {
+        rect_x0 = 0;
+    }
+    if (rect_x0 >= pixWidth)
+    {
+        rect_x0 = pixWidth - 1;
+    }
+    if (rect_y0 < 0)
+    {
+        rect_y0 = 0;
+    }
+    if (rect_y0 >= pixHeight)
+    {
+        rect_y0 = pixHeight - 1;
+    }
+    if (rect_x1 < 0)
+    {
+        rect_x1 = 0;
+    }
+    if (rect_x1 >= pixWidth)
+    {
+        rect_x1 = pixWidth - 1;
+    }
+    if (rect_y1 < 0)
+    {
+        rect_y1 = 0;
+    }
+    if (rect_y1 >= pixHeight)
+    {
+        rect_y1 = pixHeight - 1;
+    }
 
     ToggleDragBox(FALSE);
 }
@@ -1139,9 +1265,12 @@ bool pixmapCanvas::HasDragBox(void) const
 }
 
 
-bool pixmapCanvas::GetDragBox(int &x0, int &y0, int &x1, int &y1) const
+bool pixmapCanvas::GetDragBox(int& x0, int& y0, int& x1, int& y1) const
 {
-    if ((rect_x0 < 0) || (rect_x0 == rect_x1)) return FALSE;
+    if ((rect_x0 < 0) || (rect_x0 == rect_x1))
+    {
+        return FALSE;
+    }
 
     // output sorted: x0 < x1, y0 < y1
     if (rect_x0 < rect_x1)
@@ -1171,16 +1300,31 @@ bool pixmapCanvas::GetDragBox(int &x0, int &y0, int &x1, int &y1) const
 
 void pixmapCanvas::UpdateDragBox(int x1, int y1)
 {
-    if (rect_x0 < 0) return;
+    if (rect_x0 < 0)
+    {
+        return;
+    }
 
     ToggleDragBox(TRUE);
 
     rect_x1 = x1 - offX;
-    if (rect_x1 < 0) rect_x1 = 0;
-    if (rect_x1 >= pixWidth) rect_x1 = pixWidth-1;
+    if (rect_x1 < 0)
+    {
+        rect_x1 = 0;
+    }
+    if (rect_x1 >= pixWidth)
+    {
+        rect_x1 = pixWidth - 1;
+    }
     rect_y1 = y1 - offY;
-    if (rect_y1 < 0) rect_y1 = 0;
-    if (rect_y1 >= pixHeight) rect_y1 = pixHeight-1;
+    if (rect_y1 < 0)
+    {
+        rect_y1 = 0;
+    }
+    if (rect_y1 >= pixHeight)
+    {
+        rect_y1 = pixHeight - 1;
+    }
 
     adjustBoxToRatio();
 
@@ -1197,34 +1341,34 @@ void pixmapCanvas::UpdateDragBox(int x1, int y1)
     mapY = y1 - scrollY * rviewDisplay::display_scrstep;
     // Autoscroll?
     GetClientSize(&width, &height);
-    if (width >= 2*rviewImage::image_draghotzone)
+    if (width >= 2 * rviewImage::image_draghotzone)
     {
         if (mapX < rviewImage::image_draghotzone)
         {
-            scrollX -= (rviewImage::image_draghotzone - mapX + rviewDisplay::display_scrstep-1) / rviewDisplay::display_scrstep;
+            scrollX -= (rviewImage::image_draghotzone - mapX + rviewDisplay::display_scrstep - 1) / rviewDisplay::display_scrstep;
             if (scrollX >= 0)
             {
                 SetScrollPos(wxHORIZONTAL, scrollX);
-                x1 = rviewImage::image_draghotzone + (x1-mapX);
+                x1 = rviewImage::image_draghotzone + (x1 - mapX);
                 WarpPointer(x1, y1);
             }
         }
         else if (mapX > (width - rviewImage::image_draghotzone))
         {
-            scrollX += (mapX - width + rviewImage::image_draghotzone + rviewDisplay::display_scrstep-1) / rviewDisplay::display_scrstep;
+            scrollX += (mapX - width + rviewImage::image_draghotzone + rviewDisplay::display_scrstep - 1) / rviewDisplay::display_scrstep;
             if (scrollX <= GetScrollRange(wxHORIZONTAL))
             {
                 SetScrollPos(wxHORIZONTAL, scrollX);
-                x1 = (width - rviewImage::image_draghotzone) + (x1-mapX);
+                x1 = (width - rviewImage::image_draghotzone) + (x1 - mapX);
                 WarpPointer(x1, y1);
             }
         }
     }
-    if (height >= 2*rviewImage::image_draghotzone)
+    if (height >= 2 * rviewImage::image_draghotzone)
     {
         if (mapY < rviewImage::image_draghotzone)
         {
-            scrollY -= (rviewImage::image_draghotzone - mapY + rviewDisplay::display_scrstep-1) / rviewDisplay::display_scrstep;
+            scrollY -= (rviewImage::image_draghotzone - mapY + rviewDisplay::display_scrstep - 1) / rviewDisplay::display_scrstep;
             if (scrollY >= 0)
             {
                 SetScrollPos(wxVERTICAL, scrollY);
@@ -1233,11 +1377,11 @@ void pixmapCanvas::UpdateDragBox(int x1, int y1)
         }
         else if (mapY > (height - rviewImage::image_draghotzone))
         {
-            scrollY += (mapY - height + rviewImage::image_draghotzone + rviewDisplay::display_scrstep-1) / rviewDisplay::display_scrstep;
+            scrollY += (mapY - height + rviewImage::image_draghotzone + rviewDisplay::display_scrstep - 1) / rviewDisplay::display_scrstep;
             if (scrollY <= GetScrollRange(wxVERTICAL))
             {
                 SetScrollPos(wxVERTICAL, scrollY);
-                WarpPointer(x1, height-rviewImage::image_draghotzone + scrollY * rviewDisplay::display_scrstep);
+                WarpPointer(x1, height - rviewImage::image_draghotzone + scrollY * rviewDisplay::display_scrstep);
             }
         }
     }
@@ -1247,22 +1391,41 @@ void pixmapCanvas::UpdateDragBox(int x1, int y1)
 
 void pixmapCanvas::AdjustDragBox(int x1, int y1)
 {
-    if (rect_x0 < 0) SetDragBox(x1, y1, x1, y1);
+    if (rect_x0 < 0)
+    {
+        SetDragBox(x1, y1, x1, y1);
+    }
     else
     {
         ToggleDragBox(TRUE);
 
         x1 = x1 - offX;// + rviewDisplay::display_scrstep * GetScrollPos(wxHORIZONTAL);
-        if (x1 < 0) x1 = 0;
-        if (x1 >= pixWidth) x1 = pixWidth-1;
+        if (x1 < 0)
+        {
+            x1 = 0;
+        }
+        if (x1 >= pixWidth)
+        {
+            x1 = pixWidth - 1;
+        }
         y1 = y1 - offY;// + rviewDisplay::display_scrstep * GetScrollPos(wxVERTICAL);
-        if (y1 < 0) y1 = 0;
-        if (y1 >= pixHeight) y1 = pixHeight-1;
+        if (y1 < 0)
+        {
+            y1 = 0;
+        }
+        if (y1 >= pixHeight)
+        {
+            y1 = pixHeight - 1;
+        }
 
         if (abs(x1 - rect_x0) < abs(x1 - rect_x1))
+        {
             rect_x0 = rect_x1;
+        }
         if (abs(y1 - rect_y0) < abs(y1 - rect_y1))
+        {
             rect_y0 = rect_y1;
+        }
         rect_x1 = x1;
         rect_y1 = y1;
 
@@ -1295,12 +1458,12 @@ void pixmapCanvas::paintCore(int x, int y)
         if (offX > 0)
         {
             DrawRectangle(0.0, 0.0, bordx, height);
-            DrawRectangle(bordx + pixWidth, 0.0, bordx+1, height);
+            DrawRectangle(bordx + pixWidth, 0.0, bordx + 1, height);
         }
         if (offY > 0)
         {
             DrawRectangle(bordx, 0.0, (float)pixWidth, bordy);
-            DrawRectangle(bordx, bordy + pixHeight, (float)pixWidth, bordy+1);
+            DrawRectangle(bordx, bordy + pixHeight, (float)pixWidth, bordy + 1);
         }
         SetPen(NULL);
         SetBrush(NULL);
@@ -1323,9 +1486,15 @@ void pixmapCanvas::OnPaint(void)
     y = rviewDisplay::display_scrstep * GetScrollPos(wxVERTICAL);
 
     offX = (w - pixWidth) / 2;
-    if (offX < 0) offX = 0;
+    if (offX < 0)
+    {
+        offX = 0;
+    }
     offY = (h - pixHeight) / 2;
-    if (offY < 0) offY = 0;
+    if (offY < 0)
+    {
+        offY = 0;
+    }
 
     BeginDrawing();
 
@@ -1351,10 +1520,16 @@ void pixmapCanvas::updateDisplay(bool borders)
         y = rviewDisplay::display_scrstep * GetScrollPos(wxVERTICAL);
 
         GetClientSize(&cw, &ch);
-        offX = (cw - pixWidth)/2;
-        if (offX < 0) offX = 0;
-        offY = (ch - pixHeight)/2;
-        if (offY < 0) offY = 0;
+        offX = (cw - pixWidth) / 2;
+        if (offX < 0)
+        {
+            offX = 0;
+        }
+        offY = (ch - pixHeight) / 2;
+        if (offY < 0)
+        {
+            offY = 0;
+        }
         pixmap->invalidatePixmap();
         if (borders)
         {
@@ -1377,7 +1552,7 @@ void pixmapCanvas::updateDisplay(bool borders)
 
 
 
-void pixmapCanvas::OnEvent(wxMouseEvent &mevt)
+void pixmapCanvas::OnEvent(wxMouseEvent& mevt)
 {
     parentWin->processMouseEvent(mevt);
 }
@@ -1411,17 +1586,17 @@ const int rviewImage::image_draghotzone = 32;
 const int rviewImage::image_ctrly = 60;
 const int rviewImage::image_totaly = rviewDisplay::display_cheight + rviewImage::image_ctrly;
 
-const char *rviewImage::view_ScrollPos = "scrollPos";
-const char *rviewImage::view_UseCspace = "useCspace";
-const char *rviewImage::view_CspaceFull = "cspaceFull";
-const char *rviewImage::view_CspaceProj = "cspaceProj";
-const char *rviewImage::view_CspaceMeans = "cspaceMeans";
-const char *rviewImage::view_CspaceSigmas = "cspaceSigmas";
-const char *rviewImage::view_CspaceType = "cspaceType";
-const char *rviewImage::view_CspaceRange = "cspaceRange";
-const char *rviewImage::view_ScaleValue = "scaleValue";
+const char* rviewImage::view_ScrollPos = "scrollPos";
+const char* rviewImage::view_UseCspace = "useCspace";
+const char* rviewImage::view_CspaceFull = "cspaceFull";
+const char* rviewImage::view_CspaceProj = "cspaceProj";
+const char* rviewImage::view_CspaceMeans = "cspaceMeans";
+const char* rviewImage::view_CspaceSigmas = "cspaceSigmas";
+const char* rviewImage::view_CspaceType = "cspaceType";
+const char* rviewImage::view_CspaceRange = "cspaceRange";
+const char* rviewImage::view_ScaleValue = "scaleValue";
 
-rviewImage::rviewImage(mdd_frame *mf, int es, unsigned int flags) : rviewDisplay(mf, es+image_ctrly, flags)
+rviewImage::rviewImage(mdd_frame* mf, int es, unsigned int flags) : rviewDisplay(mf, es + image_ctrly, flags)
 {
     LTRACE << "rviewImage()";
 
@@ -1451,7 +1626,10 @@ rviewImage::rviewImage(mdd_frame *mf, int es, unsigned int flags) : rviewDisplay
     r_Minterval newInterv(dimMDD);
     //for (i=0; i<dimMDD; i++) newInterv << r_Sinterval(4*mddObj->spatial_domain()[i].low(), 4*mddObj->spatial_domain()[i].high());
     //mdd_objectScaleInter(mddObj, mddPtr, newInterv, baseType);
-    for (i=0; i<dimMDD; i++) newInterv << r_Sinterval((r_Range)(0.5*mddObj->spatial_domain()[i].low()), (r_Range)(0.5*mddObj->spatial_domain()[i].high()));
+    for (i = 0; i < dimMDD; i++)
+    {
+        newInterv << r_Sinterval((r_Range)(0.5 * mddObj->spatial_domain()[i].low()), (r_Range)(0.5 * mddObj->spatial_domain()[i].high()));
+    }
     mdd_objectScaleAverage(mddObj, mddPtr, newInterv, baseType);
     mddObj.destroy();
     mddObj = mddPtr;
@@ -1465,9 +1643,18 @@ rviewImage::~rviewImage(void)
 {
     LTRACE << "~rviewImage()";
 
-    if (cspar != NULL) delete cspar;
-    if (csmap != NULL) delete csmap;
-    if (csInterv != NULL) delete csInterv;
+    if (cspar != NULL)
+    {
+        delete cspar;
+    }
+    if (csmap != NULL)
+    {
+        delete csmap;
+    }
+    if (csInterv != NULL)
+    {
+        delete csInterv;
+    }
     delete pixmap;
 }
 
@@ -1479,13 +1666,15 @@ int rviewImage::openViewer(void)
     LTRACE << "openViewer()";
 
     if (!objectInitializedOK)
+    {
         return -1;
+    }
 
     // init lower level stuff like the menu bar
     rviewDisplay::openViewer();
 
-    wxMenu *config;
-    wxMenu *submenu;
+    wxMenu* config;
+    wxMenu* submenu;
     char buffer[STRINGSIZE];
 
     config = new wxMenu;
@@ -1520,14 +1709,19 @@ int rviewImage::openViewer(void)
     // We're not allowed to call setCspaceProjMode before a projection is set
     // in the init... functions
     doProjRangeCspace = (prefs->rgbSpace == 3);
-    if (modeNeedsCspace(baseType)) doValToCspace = TRUE;
+    if (modeNeedsCspace(baseType))
+    {
+        doValToCspace = TRUE;
+    }
 
     mousex = -1.0;
     mousey = -1.0;
     mousebut = 0;
 
     if (showScaleSlider())
+    {
         scaleSlider = new rviewSlider(ctrlPanel, (int)scaleValue, 0, 500, image_swidth, lman->lookup("textScale"));
+    }
 
     if (rviewCheckInitCspace(baseType, NULL, mddObj) != 0)
     {
@@ -1581,8 +1775,8 @@ int rviewImage::openViewer(void)
     GetClientSize(&w, &h);
 
 
-    w -= 2*display_cnvborder;
-    h -= 2*display_cnvborder + totalCtrlHeight;
+    w -= 2 * display_cnvborder;
+    h -= 2 * display_cnvborder + totalCtrlHeight;
     pcanv = new pixmapCanvas(this, display_cnvborder, display_cnvborder + totalCtrlHeight, w, h);
 
     scrollx = -1;
@@ -1604,8 +1798,8 @@ int rviewImage::openViewer(void)
 
     if (rviewImageTypes[baseType] == RVIEW_IMGTYPE_MONO)
     {
-        palette[0] = wxColour(0,0,0);
-        palette[1] = wxColour(255,255,255);
+        palette[0] = wxColour(0, 0, 0);
+        palette[1] = wxColour(255, 255, 255);
     }
     pixmap = new wxPixmap((wxWindow*)pcanv, pixWidth, pixHeight, pixDepth, pixPad, imgData, getPixmapFlags(), ((rviewImageTypes[baseType] == RVIEW_IMGTYPE_MONO) ? palette : NULL));
     pcanv->setPixmap(pixmap);
@@ -1640,7 +1834,7 @@ void rviewImage::openViewerEpilogue(rviewFrameType ft)
 }
 
 
-int rviewImage::freeDimsFromProjection(int &dim1, int &dim2, r_Point *map)
+int rviewImage::freeDimsFromProjection(int& dim1, int& dim2, r_Point* map)
 {
     // Apply the projection string
     if (rviewParseProjection(getVirtualDomain(), pt1, pt2, projString, &freeDims, map) != dimMDD)
@@ -1649,8 +1843,14 @@ int rviewImage::freeDimsFromProjection(int &dim1, int &dim2, r_Point *map)
         return -1;
     }
     // Check whether there are more or less than 2 free dimensions.
-    for (dim1=0; dim1<dimMDD; dim1++) if ((freeDims & (1<<dim1)) != 0) break;
-    for (dim2=dim1+1; dim2<dimMDD; dim2++) if ((freeDims & (1<<dim2)) != 0) break;
+    for (dim1 = 0; dim1 < dimMDD; dim1++) if ((freeDims & (1 << dim1)) != 0)
+        {
+            break;
+        }
+    for (dim2 = dim1 + 1; dim2 < dimMDD; dim2++) if ((freeDims & (1 << dim2)) != 0)
+        {
+            break;
+        }
     if ((dim1 >= dimMDD) || (dim2 >= dimMDD))
     {
         rviewErrorbox::reportError(lman->lookup("errorProjectFree"), rviewImage::getFrameName(), "freeDimsFromProjection");
@@ -1670,7 +1870,7 @@ void rviewImage::projectObjectHook(void)
 }
 
 
-const char *rviewImage::getFrameName(void) const
+const char* rviewImage::getFrameName(void) const
 {
     return "rviewImage";
 }
@@ -1681,7 +1881,7 @@ rviewFrameType rviewImage::getFrameType(void) const
 }
 
 
-int rviewImage::fileMenuInitHook(wxMenu *menu)
+int rviewImage::fileMenuInitHook(wxMenu* menu)
 {
     menu->Append(MENU_DISP_DATA_SAVETIFF, "");
     return 1;
@@ -1705,7 +1905,7 @@ void rviewImage::configureCspace(bool state)
 }
 
 
-int rviewImage::configMenuInitHook(wxMenu *menu)
+int rviewImage::configMenuInitHook(wxMenu* menu)
 {
     return 0;
 }
@@ -1719,7 +1919,10 @@ void rviewImage::configureMode(void)
 {
     bool csranges;
 
-    if (modeNeedsCspace(baseType)) doValToCspace = TRUE;
+    if (modeNeedsCspace(baseType))
+    {
+        doValToCspace = TRUE;
+    }
 
     csranges = cspaceRangeHook((cspaceForType && doValToCspace));
 
@@ -1738,18 +1941,20 @@ void rviewImage::setCspaceProjMode(bool pm)
 {
     if (pm)
     {
-        int i=0;
+        int i = 0;
         r_Minterval tempInterv(dimMDD);
 
-        if(!csInterv)
+        if (!csInterv)
+        {
             csInterv = new r_Minterval(dimMDD);
+        }
 
-        for (i=0; i<dimMDD; i++)
+        for (i = 0; i < dimMDD; i++)
         {
             tempInterv << r_Sinterval((r_Range)pt1[i], (r_Range)pt2[i]);
         }
 
-        *csInterv=tempInterv;
+        *csInterv = tempInterv;
     }
 
     doProjRangeCspace = pm;
@@ -1759,7 +1964,9 @@ void rviewImage::setCspaceProjMode(bool pm)
 void rviewImage::label(void)
 {
     if (scaleSlider != NULL)
+    {
         scaleSlider->SetLabel(lman->lookup("textScale"));
+    }
 
     mBar->SetLabelTop(fixedNumberOfMenus, lman->lookup("menImgSetup"));
     mBar->SetLabel(MENU_IMAGE_SETUP_CSPACE, lman->lookup("menCspaceTitle"));
@@ -1781,12 +1988,12 @@ void rviewImage::label(void)
 
 
 
-char *rviewImage::movieNewFrame(void)
+char* rviewImage::movieNewFrame(void)
 {
     return NULL;
 }
 
-int rviewImage::process(wxObject &obj, wxEvent &evt)
+int rviewImage::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -1808,14 +2015,18 @@ int rviewImage::process(wxObject &obj, wxEvent &evt)
                 return 1;
             }
             if (&obj == (wxObject*)playBack)
+            {
                 playDirection = -1;
+            }
             else if (&obj == (wxObject*)playFwd)
+            {
                 playDirection = 1;
+            }
 
             // Only enter the loop if we didn't have playback before to avoid reentrancy.
             if ((oldDirection == 0) && (playDirection != 0))
             {
-                char *data, *lastData;
+                char* data, *lastData;
 
                 LTRACE << "process() Playback start " << playDirection;
                 do
@@ -1834,7 +2045,10 @@ int rviewImage::process(wxObject &obj, wxEvent &evt)
                         updatePixmap(lastData, data);
                         ::wxYield();
                         // Order is _vitally _ important here. Check _after_ the call to ::wxYield()!
-                        if (playDirection == 0) break;
+                        if (playDirection == 0)
+                        {
+                            break;
+                        }
                     }
                     // Allow for one NULL cycle after playback (ensures no infinite loops if playback
                     // dimension is only 1 element wide.
@@ -1842,13 +2056,17 @@ int rviewImage::process(wxObject &obj, wxEvent &evt)
                     if (playDirection != 0)
                     {
                         if (mBar->Checked(MENU_IMAGE_MOVIE_ONCE))
+                        {
                             playDirection = 0;
+                        }
                         else if (mBar->Checked(MENU_IMAGE_MOVIE_START))
                         {
                             advanceProjection(-playDirection, display_advmode_reset);
                         }
                         else
+                        {
                             playDirection = -playDirection;
+                        }
                     }
                 }
                 while (playDirection != 0);
@@ -1876,26 +2094,38 @@ bool rviewImage::showScaleSlider(void) const
     return TRUE;
 }
 
-void rviewImage::rotateObject(wxMouseEvent &mevt)
+void rviewImage::rotateObject(wxMouseEvent& mevt)
 {
 }
 
-void rviewImage::processMouseEvent(wxMouseEvent &mevt)
+void rviewImage::processMouseEvent(wxMouseEvent& mevt)
 {
     LTRACE << "processMouseEvent()";
 
-    int newbut=0;
+    int newbut = 0;
 
-    if (mevt.ControlDown()) newbut = MOUSE_CONTROL;
+    if (mevt.ControlDown())
+    {
+        newbut = MOUSE_CONTROL;
+    }
     else if (!canRotateObject())
     {
         mousebut = 0;
         return;
     }
 
-    if (mevt.leftDown) newbut |= MOUSE_LEFT;
-    if (mevt.middleDown) newbut |= MOUSE_MIDDLE;
-    if (mevt.rightDown) newbut |= MOUSE_RIGHT;
+    if (mevt.leftDown)
+    {
+        newbut |= MOUSE_LEFT;
+    }
+    if (mevt.middleDown)
+    {
+        newbut |= MOUSE_MIDDLE;
+    }
+    if (mevt.rightDown)
+    {
+        newbut |= MOUSE_RIGHT;
+    }
 
     if (((newbut & MOUSE_CONTROL) == 0) && canRotateObject())
     {
@@ -1934,11 +2164,14 @@ void rviewImage::processMouseEvent(wxMouseEvent &mevt)
 }
 
 
-void rviewImage::updatePixmap(char *oldData, char *newData)
+void rviewImage::updatePixmap(char* oldData, char* newData)
 {
     LTRACE << "updatePixmap()";
 
-    if (pixmap == NULL) return;
+    if (pixmap == NULL)
+    {
+        return;
+    }
 
     if (oldData != newData)
     {
@@ -1956,9 +2189,13 @@ int rviewImage::getPixmapFlags(void)
     if (prefs->imgDither)
     {
         if (prefs->ditherBest)
+        {
             pixflags |= WX_PIXFLAG_DITHER;
+        }
         else
+        {
             pixflags |= WX_PIXFLAG_FASTDITHER;
+        }
     }
     return pixflags;
 }
@@ -1968,7 +2205,7 @@ int rviewImage::getPixmapFlags(void)
 void rviewImage::OnSize(int w, int h)
 {
     int x, y, pos;
-    bool resize=false;
+    bool resize = false;
 
     LTRACE << "OnSize " << w << ", " << h;
 
@@ -1978,27 +2215,37 @@ void rviewImage::OnSize(int w, int h)
         GetClientSize(&x, &y);
 
         if ((frameWidth == w) && (frameHeight == h))
+        {
             return;
+        }
 
         frameWidth = w;
         frameHeight = h;
 
-        x -= 2*display_cnvborder;
-        y -= 2*display_cnvborder + totalCtrlHeight;
+        x -= 2 * display_cnvborder;
+        y -= 2 * display_cnvborder + totalCtrlHeight;
         pcanv->SetSize(display_cnvborder, display_cnvborder + totalCtrlHeight, x, y);
 
         // Ctrl panel items
         if (scaleSlider != NULL)
+        {
             scaleSlider->SetSize(display_border, image_totaly - image_sheight, x, image_sheight);
+        }
 
-        pos = x - 3*image_pbwidth - display_border + 2*display_cnvborder;
+        pos = x - 3 * image_pbwidth - display_border + 2 * display_cnvborder;
         // Buttons might not be present
         if (playBack != NULL)
+        {
             playBack->SetSize(pos, display_cheight, image_pbwidth, image_pbheight);
+        }
         if (playStop != NULL)
+        {
             playStop->SetSize(pos + image_pbwidth, display_cheight, image_pbwidth, image_pbheight);
+        }
         if (playFwd != NULL)
-            playFwd->SetSize(pos + 2*image_pbwidth, display_cheight, image_pbwidth, image_pbheight);
+        {
+            playFwd->SetSize(pos + 2 * image_pbwidth, display_cheight, image_pbwidth, image_pbheight);
+        }
     }
 
     rviewDisplay::OnSize(w, h);
@@ -2013,8 +2260,8 @@ void rviewImage::OnMenuCommand(int id)
     {
     case MENU_DISP_DATA_SAVETIFF:
     {
-        char *file;
-        char *prefDir = (char*)(prefs->filePath.ptr());
+        char* file;
+        char* prefDir = (char*)(prefs->filePath.ptr());
         file = ::wxFileSelector(lman->lookup("saveTIFF"), (::wxDirExists(prefDir)) ? prefDir : NULL, NULL, NULL, "*", 0, this);
         if (file != NULL)
         {
@@ -2089,12 +2336,15 @@ void rviewImage::OnMenuCommand(int id)
 // Refuse to be killed if animation is in progress
 bool rviewImage::OnClose(void)
 {
-    if (playDirection != 0) return FALSE;
+    if (playDirection != 0)
+    {
+        return FALSE;
+    }
     return TRUE;
 }
 
 
-int rviewImage::userEvent(const user_event &ue)
+int rviewImage::userEvent(const user_event& ue)
 {
     LTRACE << "userEvent()";
 
@@ -2130,21 +2380,29 @@ void rviewImage::resizeImage(void)
     int x, y, sx, sy;
 
     if (scrollx >= 0)
+    {
         scrollx = pcanv->GetScrollPos(wxHORIZONTAL);
+    }
     else
+    {
         scrollx = 0;
+    }
 
     if (scrolly >= 0)
+    {
         scrolly = pcanv->GetScrollPos(wxVERTICAL);
+    }
     else
+    {
         scrolly = 0;
+    }
 
     pcanv->GetVirtualSize(&x, &y);
     sx = (pixWidth + display_scrstep - 1) / display_scrstep;
     sy = (pixHeight + display_scrstep - 1) / display_scrstep;
 
     // Only update the canvas size if this is absolutely necessary to avoid flicker.
-    if ((x != display_scrstep*sx) || (y != display_scrstep*sy))
+    if ((x != display_scrstep * sx) || (y != display_scrstep * sy))
     {
         pcanv->SetScrollbars(display_scrstep, display_scrstep, sx, sy, display_pgstep, display_pgstep, scrollx, scrolly);
     }
@@ -2171,7 +2429,7 @@ void rviewImage::deleteViewCspace(void)
 }
 
 
-int rviewImage::saveView(FILE *fp)
+int rviewImage::saveView(FILE* fp)
 {
     int status = rviewDisplay::saveView(fp);
 
@@ -2206,7 +2464,7 @@ int rviewImage::saveView(FILE *fp)
 }
 
 
-int rviewImage::readView(const char *key, const char *value)
+int rviewImage::readView(const char* key, const char* value)
 {
     int status = rviewDisplay::readView(key, value);
 
@@ -2280,7 +2538,7 @@ int rviewImage::readView(const char *key, const char *value)
         }
         else if (strcmp(key, view_ScaleValue) == 0)
         {
-            scaleValue = 100*atof(value);
+            scaleValue = 100 * atof(value);
             return 1;
         }
         return 0;
@@ -2297,7 +2555,9 @@ void rviewImage::loadViewFinished(void)
     pcanv->SetScrollPos(wxVERTICAL, scrolly);
 
     if (scaleSlider != NULL)
+    {
         scaleSlider->SetValue((int)scaleValue);
+    }
 
     mBar->Check(MENU_IMAGE_CSPACE_ON, doValToCspace);
     mBar->Check(MENU_IMAGE_CSPACE_FULL, doFullRangeCspace);
@@ -2315,7 +2575,7 @@ void rviewImage::loadViewFinished(void)
 /*
  *  Flat image base class members
  */
-rviewFlatBaseImage::rviewFlatBaseImage(mdd_frame *mf, int es, unsigned int flags) : rviewImage(mf, es, flags)
+rviewFlatBaseImage::rviewFlatBaseImage(mdd_frame* mf, int es, unsigned int flags) : rviewImage(mf, es, flags)
 {
     LTRACE << "rviewFlatImage()";
 }
@@ -2339,7 +2599,7 @@ int rviewFlatBaseImage::openViewer(void)
 }
 
 
-const char *rviewFlatBaseImage::getFrameName(void) const
+const char* rviewFlatBaseImage::getFrameName(void) const
 {
     return "rviewFlatBaseImage";
 }
@@ -2354,9 +2614,12 @@ int rviewFlatBaseImage::newProjection(void)
 {
     LTRACE << "newProjection()";
 
-    char *data, *lastData = imgData;
+    char* data, *lastData = imgData;
 
-    if ((data = projectImage()) == NULL) return -1;
+    if ((data = projectImage()) == NULL)
+    {
+        return -1;
+    }
 
     updatePixmap(lastData, data);
 
@@ -2364,10 +2627,10 @@ int rviewFlatBaseImage::newProjection(void)
 }
 
 
-char *rviewFlatBaseImage::initMode(void)
+char* rviewFlatBaseImage::initMode(void)
 {
-    int i=0, j=0, w=0, h=0;
-    char *data=0;
+    int i = 0, j = 0, w = 0, h = 0;
+    char* data = 0;
 
     LTRACE << "initMode()";
 
@@ -2375,7 +2638,7 @@ char *rviewFlatBaseImage::initMode(void)
     // last value used.
     data = projString;
     data += sprintf(data, "*:*, *:*");
-    for (i=2; i<dimMDD; i++)
+    for (i = 2; i < dimMDD; i++)
     {
         data += sprintf(data, ", %ld", interv[i].low());
     }
@@ -2390,12 +2653,18 @@ char *rviewFlatBaseImage::initMode(void)
     // client size (i.e. without the scrollbars)
     GetSize(&i, &j);
     pcanv->GetClientSize(&w, &h);
-    w = pixWidth + (i-w);
-    h = pixHeight + (j-h);
+    w = pixWidth + (i - w);
+    h = pixHeight + (j - h);
 
     // Limit the size of the window to the values specified in prefs.
-    if (w > prefs->maxDWidth) w = prefs->maxDWidth;
-    if (h > prefs->maxDHeight) h = prefs->maxDHeight;
+    if (w > prefs->maxDWidth)
+    {
+        w = prefs->maxDWidth;
+    }
+    if (h > prefs->maxDHeight)
+    {
+        h = prefs->maxDHeight;
+    }
 
     // ... then set the window size.
     SetSize(-1, -1, w, h);
@@ -2406,14 +2675,17 @@ char *rviewFlatBaseImage::initMode(void)
 }
 
 
-char *rviewFlatBaseImage::projectImage(void)
+char* rviewFlatBaseImage::projectImage(void)
 {
     int dim1, dim2;
 
     LTRACE << "projectImage()";
 
     mapIndex = r_Point(dimMDD);
-    if (freeDimsFromProjection(dim1, dim2, &mapIndex) != 0) return NULL;
+    if (freeDimsFromProjection(dim1, dim2, &mapIndex) != 0)
+    {
+        return NULL;
+    }
 
     projectObjectHook();
 
@@ -2427,9 +2699,15 @@ char *rviewFlatBaseImage::projectImage(void)
     penv.bt = baseType;
     penv.doCspace = doValToCspace;
     penv.scale = scaleValue / 100;
-    if (penv.scale <= 0) penv.scale = 0.01;
+    if (penv.scale <= 0)
+    {
+        penv.scale = 0.01;
+    }
 
-    if (rviewPrepareFlatProjection(penv) != 0) return NULL;
+    if (rviewPrepareFlatProjection(penv) != 0)
+    {
+        return NULL;
+    }
 
     if (doValToCspace)
     {
@@ -2449,7 +2727,9 @@ char *rviewFlatBaseImage::projectImage(void)
         deleteViewCspace();
     }
     else
+    {
         penv.cspaceState = 0;
+    }
 
     penv.csmap = csmap;
 
@@ -2469,7 +2749,10 @@ char *rviewFlatBaseImage::projectImage(void)
         }
     }
 
-    if (rviewPerformFlatProjection(penv, imgData) != 0) return NULL;
+    if (rviewPerformFlatProjection(penv, imgData) != 0)
+    {
+        return NULL;
+    }
 
     resizeImage();
 
@@ -2483,7 +2766,7 @@ char *rviewFlatBaseImage::projectImage(void)
  *  Standard flat images
  */
 
-rviewFlatImage::rviewFlatImage(mdd_frame *mf, unsigned int flags) : rviewFlatBaseImage(mf, 0, flags)
+rviewFlatImage::rviewFlatImage(mdd_frame* mf, unsigned int flags) : rviewFlatBaseImage(mf, 0, flags)
 {
     LTRACE << "rviewFlatImage()";
 }
@@ -2504,11 +2787,11 @@ void rviewFlatImage::OnSize(int w, int h)
 
         GetClientSize(&x, &y);
 
-        if(x < 6*image_bwidth)
+        if (x < 6 * image_bwidth)
         {
-            x= 6*image_bwidth;
-            frameWidth=x;
-            frameHeight=y;
+            x = 6 * image_bwidth;
+            frameWidth = x;
+            frameHeight = y;
             SetClientSize(x, y);
             return;
         }
@@ -2528,7 +2811,7 @@ int rviewFlatImage::openViewer(void)
 }
 
 
-const char *rviewFlatImage::getFrameName(void) const
+const char* rviewFlatImage::getFrameName(void) const
 {
     return "rviewFlatImage";
 }
@@ -2550,7 +2833,7 @@ bool rviewFlatImage::moviePossible(void) const
 }
 
 
-char *rviewFlatImage::movieNewFrame(void)
+char* rviewFlatImage::movieNewFrame(void)
 {
     return projectImage();
 }
@@ -2562,7 +2845,7 @@ void rviewFlatImage::label(void)
 }
 
 
-int rviewFlatImage::process(wxObject &obj, wxEvent &evt)
+int rviewFlatImage::process(wxObject& obj, wxEvent& evt)
 {
     LTRACE << "process()";
 
@@ -2579,12 +2862,16 @@ int rviewFlatImage::process(wxObject &obj, wxEvent &evt)
 }
 
 
-char *rviewFlatImage::initMode(void)
+char* rviewFlatImage::initMode(void)
 {
     if (playBack != NULL)
+    {
         playBack->Enable(TRUE);
+    }
     if (playFwd != NULL)
+    {
         playFwd->Enable(TRUE);
+    }
 
     return rviewFlatBaseImage::initMode();
 }
@@ -2600,30 +2887,30 @@ char *rviewFlatImage::initMode(void)
  *  Rendered image class members
  */
 
-const char *rviewRenderImage::view_ZProject = "zProject";
-const char *rviewRenderImage::view_ZClip = "zClip";
-const char *rviewRenderImage::view_PixThreshLow = "pixThreshLow";
-const char *rviewRenderImage::view_PixThreshHigh = "pixThreshHigh";
-const char *rviewRenderImage::view_WeightThresh = "weightThresh";
-const char *rviewRenderImage::view_WeightQuant = "weightQuant";
-const char *rviewRenderImage::view_UseRGBBright = "useRgbBright";
-const char *rviewRenderImage::view_UseLighting = "useLighting";
-const char *rviewRenderImage::view_LightAmbient = "lightAmbient";
-const char *rviewRenderImage::view_LightGain = "lightGain";
-const char *rviewRenderImage::view_LightAngle = "lightAngle";
-const char *rviewRenderImage::view_LightScint = "lightScintAngle";
-const char *rviewRenderImage::view_LightDir = "lightDirection";
-const char *rviewRenderImage::view_LightDist = "lightDistance";
-const char *rviewRenderImage::view_KernelSize = "kernelSize";
-const char *rviewRenderImage::view_KernelType = "kernelType";
-const char *rviewRenderImage::view_UseVoxColour = "useVoxColour";
-const char *rviewRenderImage::view_VoxColour = "voxColour";
-const char *rviewRenderImage::view_GridSize = "gridSize";
-const char *rviewRenderImage::view_ScaleHeight = "scaleHeight";
-const char *rviewRenderImage::view_Rotation = "rotation";
-const char *rviewRenderImage::view_ZOffset = "zOffset";
+const char* rviewRenderImage::view_ZProject = "zProject";
+const char* rviewRenderImage::view_ZClip = "zClip";
+const char* rviewRenderImage::view_PixThreshLow = "pixThreshLow";
+const char* rviewRenderImage::view_PixThreshHigh = "pixThreshHigh";
+const char* rviewRenderImage::view_WeightThresh = "weightThresh";
+const char* rviewRenderImage::view_WeightQuant = "weightQuant";
+const char* rviewRenderImage::view_UseRGBBright = "useRgbBright";
+const char* rviewRenderImage::view_UseLighting = "useLighting";
+const char* rviewRenderImage::view_LightAmbient = "lightAmbient";
+const char* rviewRenderImage::view_LightGain = "lightGain";
+const char* rviewRenderImage::view_LightAngle = "lightAngle";
+const char* rviewRenderImage::view_LightScint = "lightScintAngle";
+const char* rviewRenderImage::view_LightDir = "lightDirection";
+const char* rviewRenderImage::view_LightDist = "lightDistance";
+const char* rviewRenderImage::view_KernelSize = "kernelSize";
+const char* rviewRenderImage::view_KernelType = "kernelType";
+const char* rviewRenderImage::view_UseVoxColour = "useVoxColour";
+const char* rviewRenderImage::view_VoxColour = "voxColour";
+const char* rviewRenderImage::view_GridSize = "gridSize";
+const char* rviewRenderImage::view_ScaleHeight = "scaleHeight";
+const char* rviewRenderImage::view_Rotation = "rotation";
+const char* rviewRenderImage::view_ZOffset = "zOffset";
 
-rviewRenderImage::rviewRenderImage(mdd_frame *mf, int es, unsigned int flags) : rviewImage(mf, es, flags)
+rviewRenderImage::rviewRenderImage(mdd_frame* mf, int es, unsigned int flags) : rviewImage(mf, es, flags)
 {
     LTRACE << "rviewRenderImage()";
 
@@ -2694,32 +2981,32 @@ rviewRenderImage::~rviewRenderImage(void)
         rcurview->unlinkParent();
         rcurview->Close(TRUE);
     }
-    if(geomData)
+    if (geomData)
     {
         delete [] geomData;
-        geomData=0;
+        geomData = 0;
     }
 
-    if(geomUse)
+    if (geomUse)
     {
         delete [] geomUse;
-        geomUse=0;
+        geomUse = 0;
     }
-    if(rot)
+    if (rot)
     {
         delete [] rot;
-        rot=0;
+        rot = 0;
     }
 
-    if(graphEnv)
+    if (graphEnv)
     {
         delete graphEnv;
-        graphEnv=0;
+        graphEnv = 0;
     }
 }
 
 
-const char *rviewRenderImage::getFrameName(void) const
+const char* rviewRenderImage::getFrameName(void) const
 {
     return "rviewRenderImage";
 }
@@ -2730,7 +3017,7 @@ rviewFrameType rviewRenderImage::getFrameType(void) const
 }
 
 
-int rviewRenderImage::configMenuInitHook(wxMenu *menu)
+int rviewRenderImage::configMenuInitHook(wxMenu* menu)
 {
     menu->Append(MENU_IMAGE_SETUP_RENDER, "");
     menu->Append(MENU_IMAGE_SETUP_RCONTROL, "");
@@ -2739,7 +3026,7 @@ int rviewRenderImage::configMenuInitHook(wxMenu *menu)
 }
 
 
-int rviewRenderImage::viewMenuInitHook(wxMenu *menu)
+int rviewRenderImage::viewMenuInitHook(wxMenu* menu)
 {
     menu->Append(MENU_DISP_VIEW_SHOW, "");
     return 1;
@@ -2760,9 +3047,12 @@ int rviewRenderImage::newProjection(void)
 {
     LTRACE << "newProjection()";
 
-    char *data, *lastData = imgData;
+    char* data, *lastData = imgData;
 
-    if ((data = setupGraphEnv()) == NULL) return -1;
+    if ((data = setupGraphEnv()) == NULL)
+    {
+        return -1;
+    }
     fillBuffer();
 
     updatePixmap(lastData, data);
@@ -2782,7 +3072,7 @@ void rviewRenderImage::updateCurrentView(void)
 }
 
 
-int rviewRenderImage::process(wxObject &obj, wxEvent &evt)
+int rviewRenderImage::process(wxObject& obj, wxEvent& evt)
 {
     LTRACE << "process()";
 
@@ -2792,7 +3082,10 @@ int rviewRenderImage::process(wxObject &obj, wxEvent &evt)
     {
         scaleValue = (double)(scaleSlider->GetValue());
         cubeScale = scaleValue / 100.0;
-        if (cubeScale < 0.01) cubeScale = 0.01;
+        if (cubeScale < 0.01)
+        {
+            cubeScale = 0.01;
+        }
         fillBuffer();
         pcanv->updateDisplay(TRUE);
         updateCurrentView();
@@ -2805,7 +3098,9 @@ int rviewRenderImage::process(wxObject &obj, wxEvent &evt)
         {
             rendererPlayback = 0;
             if (rcontrol != NULL)
+            {
                 rcontrol->setActiveMode(0);
+            }
 
             return 1;
         }
@@ -2821,7 +3116,7 @@ bool rviewRenderImage::canRotateObject(void) const
 }
 
 
-void rviewRenderImage::rotateObject(wxMouseEvent &mevt)
+void rviewRenderImage::rotateObject(wxMouseEvent& mevt)
 {
     float pos;
 
@@ -2860,7 +3155,7 @@ void rviewRenderImage::OnSize(int w, int h)
     // Fully initialized yet?
     if ((initPhaseFinished) && ((oldwidth != frameWidth) || (oldheight != frameHeight)))
     {
-        char *data, *lastData = imgData;
+        char* data, *lastData = imgData;
 
         if ((data = setupGraphEnv()) != NULL)
         {
@@ -2929,9 +3224,13 @@ void rviewRenderImage::updateSettings(int setFlags)
     bool doUpt = FALSE;
 
     if (setFlags == 0)
+    {
         doUpt = TRUE;
+    }
     else
+    {
         doUpt = doUpdate(setFlags);
+    }
 
     if (doUpt)
     {
@@ -2942,12 +3241,15 @@ void rviewRenderImage::updateSettings(int setFlags)
 
 bool rviewRenderImage::OnClose(void)
 {
-    if (rendererPlayback != 0) return FALSE;
+    if (rendererPlayback != 0)
+    {
+        return FALSE;
+    }
     return rviewImage::OnClose();
 }
 
 
-int rviewRenderImage::userEvent(const user_event &ue)
+int rviewRenderImage::userEvent(const user_event& ue)
 {
     LTRACE << "userEvent()";
 
@@ -3011,15 +3313,18 @@ void rviewRenderImage::setAutoRotation(float rx, float ry, float rz)
     drz = rz;
 
     // No re-entrancy
-    if (rendererPlayback != 0) return;
+    if (rendererPlayback != 0)
+    {
+        return;
+    }
 
     rendererPlayback = 1;
 
     while (rendererPlayback != 0)
     {
-        rotateCube(0, M_PI*drx/10);
-        rotateCube(1, M_PI*dry/10);
-        rotateCube(2, M_PI*drz/10);
+        rotateCube(0, M_PI * drx / 10);
+        rotateCube(1, M_PI * dry / 10);
+        rotateCube(2, M_PI * drz / 10);
         updateCurrentView();
         newProjection();
         ::wxYield();
@@ -3027,30 +3332,33 @@ void rviewRenderImage::setAutoRotation(float rx, float ry, float rz)
 }
 
 
-void rviewRenderImage::setCurrentView(const vertex_fp &angles, long off, double scale)
+void rviewRenderImage::setCurrentView(const vertex_fp& angles, long off, double scale)
 {
     anglesToMatrix(angles);
     zoff = off;
     cubeScale = scale;
-    scaleSlider->SetValue((int)(100*cubeScale));
+    scaleSlider->SetValue((int)(100 * cubeScale));
 
     newProjection();
 }
 
 
-char *rviewRenderImage::initMode(void)
+char* rviewRenderImage::initMode(void)
 {
     int i;
-    char *data;
+    char* data;
 
     LTRACE << "initMode()";
 
     // Scaling factor for the data cube.
     cubeScale = scaleValue / 100.0;
-    if (cubeScale < 0.01) cubeScale = 0.01;
+    if (cubeScale < 0.01)
+    {
+        cubeScale = 0.01;
+    }
 
     // Init rotation matrix
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
         rot[i].x = 0.0;
         rot[i].y = 0.0;
@@ -3064,7 +3372,10 @@ char *rviewRenderImage::initMode(void)
 
     data = setupGraphEnv();
 
-    if (initPhaseFinished) fillBuffer();
+    if (initPhaseFinished)
+    {
+        fillBuffer();
+    }
 
     // Do not update the pixmap here! That's done by the calling procedure, if necessary
 
@@ -3074,7 +3385,7 @@ char *rviewRenderImage::initMode(void)
 }
 
 
-char *rviewRenderImage::setupGraphEnv(void)
+char* rviewRenderImage::setupGraphEnv(void)
 {
     int w, h;
 
@@ -3092,9 +3403,9 @@ char *rviewRenderImage::setupGraphEnv(void)
 
     graphEnv->zpro = setup.zpro;
     graphEnv->clipz = setup.clipz;
-    graphEnv->clipl = -pixWidth/2;
+    graphEnv->clipl = -pixWidth / 2;
     graphEnv->clipr = graphEnv->clipl + pixWidth - 1;
-    graphEnv->clipd = -pixHeight/2;
+    graphEnv->clipd = -pixHeight / 2;
     graphEnv->clipu = graphEnv->clipd + pixHeight - 1;
     graphEnv->midx = -graphEnv->clipl;
     graphEnv->midy = graphEnv->clipu;
@@ -3105,7 +3416,7 @@ char *rviewRenderImage::setupGraphEnv(void)
 }
 
 
-void rviewRenderImage::rotateCube(int axis, float angle, vertex_fp *matrix)
+void rviewRenderImage::rotateCube(int axis, float angle, vertex_fp* matrix)
 {
     real_t c, s;
     vertex_fp h;
@@ -3156,22 +3467,40 @@ void rviewRenderImage::rotateCube(int axis, float angle)
 }
 
 
-void rviewRenderImage::getLightPos(vertex_fp *lpos)
+void rviewRenderImage::getLightPos(vertex_fp* lpos)
 {
     lpos->x = 0;
     lpos->y = 0;
     lpos->z = 0;
-    if ((setup.lightsDir & RVIEW_LIGHTDIR_LEFT) != 0) lpos->x = -1.0;
-    else if ((setup.lightsDir & RVIEW_LIGHTDIR_RIGHT) != 0) lpos->x = 1.0;
-    if ((setup.lightsDir & RVIEW_LIGHTDIR_DOWN) != 0) lpos->y = -1.0;
-    else if ((setup.lightsDir & RVIEW_LIGHTDIR_UP) != 0) lpos->y = 1.0;
-    if ((setup.lightsDir & RVIEW_LIGHTDIR_FRONT) != 0) lpos->z = -1.0;
-    else if ((setup.lightsDir & RVIEW_LIGHTDIR_BACK) != 0) lpos->z = 1.0;
+    if ((setup.lightsDir & RVIEW_LIGHTDIR_LEFT) != 0)
+    {
+        lpos->x = -1.0;
+    }
+    else if ((setup.lightsDir & RVIEW_LIGHTDIR_RIGHT) != 0)
+    {
+        lpos->x = 1.0;
+    }
+    if ((setup.lightsDir & RVIEW_LIGHTDIR_DOWN) != 0)
+    {
+        lpos->y = -1.0;
+    }
+    else if ((setup.lightsDir & RVIEW_LIGHTDIR_UP) != 0)
+    {
+        lpos->y = 1.0;
+    }
+    if ((setup.lightsDir & RVIEW_LIGHTDIR_FRONT) != 0)
+    {
+        lpos->z = -1.0;
+    }
+    else if ((setup.lightsDir & RVIEW_LIGHTDIR_BACK) != 0)
+    {
+        lpos->z = 1.0;
+    }
     if (setup.lightsDir != 0)
     {
         double h;
 
-        h = ((double) setup.lightsDist) /sqrt((lpos->x * lpos->x) + (lpos->y * lpos->y) + (lpos->z * lpos->z));
+        h = ((double) setup.lightsDist) / sqrt((lpos->x * lpos->x) + (lpos->y * lpos->y) + (lpos->z * lpos->z));
         lpos->x *= h;
         lpos->y *= h;
         lpos->z *= h;
@@ -3184,16 +3513,16 @@ void rviewRenderImage::getLightPos(vertex_fp *lpos)
 #define SIGN(x) ((x > 0) ? 1 : -1)
 
 #define PRINT_MATRIX(mat) { \
-  for (unsigned int i=0; i<3; i++) \
-    cout << i << ": " << (mat)[i].x << ", " << (mat)[i].y << ", " << (mat)[i].z << endl; \
-  }
+        for (unsigned int i=0; i<3; i++) \
+            cout << i << ": " << (mat)[i].x << ", " << (mat)[i].y << ", " << (mat)[i].z << endl; \
+    }
 
-void rviewRenderImage::matrixToAngles(vertex_fp &angles) const
+void rviewRenderImage::matrixToAngles(vertex_fp& angles) const
 {
     vertex_fp matrix[3];
 
     // make copy of rotation matrix for working
-    memcpy(&matrix, rot, 3*sizeof(vertex_fp));
+    memcpy(&matrix, rot, 3 * sizeof(vertex_fp));
 
     // Successively rotate it back to identity. Getting this right is a major headache;
     // one must bear in mind that rot[] are row-vectors and that atan() only returns
@@ -3204,9 +3533,12 @@ void rviewRenderImage::matrixToAngles(vertex_fp &angles) const
     }
     else
     {
-        angles.z = -((matrix[0].x == 0.0) ? SIGN(matrix[1].x) * M_PI/2 : atan(matrix[1].x / matrix[0].x));
+        angles.z = -((matrix[0].x == 0.0) ? SIGN(matrix[1].x) * M_PI / 2 : atan(matrix[1].x / matrix[0].x));
     }
-    if (matrix[0].x < 0) angles.z += M_PI;
+    if (matrix[0].x < 0)
+    {
+        angles.z += M_PI;
+    }
     if (angles.z != 0.0)
     {
         rotateCube(2, -angles.z, matrix);
@@ -3219,7 +3551,7 @@ void rviewRenderImage::matrixToAngles(vertex_fp &angles) const
     }
     else
     {
-        angles.y = -((matrix[0].x == 0.0) ? -SIGN(matrix[2].x) * M_PI/2 : -atan(matrix[2].x / matrix[0].x));
+        angles.y = -((matrix[0].x == 0.0) ? -SIGN(matrix[2].x) * M_PI / 2 : -atan(matrix[2].x / matrix[0].x));
         rotateCube(1, -angles.y, matrix);
         //cout << "ROTy" << endl; PRINT_MATRIX(matrix);
     }
@@ -3230,9 +3562,12 @@ void rviewRenderImage::matrixToAngles(vertex_fp &angles) const
     }
     else
     {
-        angles.x = -((matrix[1].y == 0.0) ? SIGN(matrix[2].y) * M_PI/2 : atan(matrix[2].y / matrix[1].y));
+        angles.x = -((matrix[1].y == 0.0) ? SIGN(matrix[2].y) * M_PI / 2 : atan(matrix[2].y / matrix[1].y));
     }
-    if (matrix[1].y < 0) angles.x += M_PI;
+    if (matrix[1].y < 0)
+    {
+        angles.x += M_PI;
+    }
     if (angles.x != 0.0)
     {
         rotateCube(0, -angles.x, matrix);
@@ -3245,7 +3580,7 @@ void rviewRenderImage::matrixToAngles(vertex_fp &angles) const
     rotateCube(2, angles.z, matrix);
     unsigned int i;
     double res;
-    for (i=0, res=0.0; i<3; i++)
+    for (i = 0, res = 0.0; i < 3; i++)
     {
         cout << "REC " << i << ": " << matrix[i].x << ", " << matrix[i].y << ", " << matrix[i].z
              << " vs. " << rot[i].x << ", " << rot[i].y << ", " << rot[i].z << endl;
@@ -3256,11 +3591,11 @@ void rviewRenderImage::matrixToAngles(vertex_fp &angles) const
 }
 
 
-void rviewRenderImage::anglesToMatrix(const vertex_fp &angles)
+void rviewRenderImage::anglesToMatrix(const vertex_fp& angles)
 {
     unsigned int i;
 
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
         rot[i].x = 0.0;
         rot[i].y = 0.0;
@@ -3276,7 +3611,7 @@ void rviewRenderImage::anglesToMatrix(const vertex_fp &angles)
 }
 
 
-int rviewRenderImage::saveView(FILE *fp)
+int rviewRenderImage::saveView(FILE* fp)
 {
     int status = rviewImage::saveView(fp);
 
@@ -3314,7 +3649,7 @@ int rviewRenderImage::saveView(FILE *fp)
 }
 
 
-int rviewRenderImage::readView(const char *key, const char *value)
+int rviewRenderImage::readView(const char* key, const char* value)
 {
     int status = rviewImage::readView(key, value);
 
@@ -3449,7 +3784,9 @@ void rviewRenderImage::loadViewFinished(void)
     rviewImage::loadViewFinished();
 
     if (setupWindow != NULL)
+    {
         setupWindow->updateSettings(setup);
+    }
 
     if (rcurview != NULL)
     {
@@ -3468,17 +3805,17 @@ void rviewRenderImage::loadViewFinished(void)
  */
 
 #define FILL_BACKGROUND_CORE(type) \
-  type value, *imgSrcPtr; \
-  int fbcx, fbcy; \
-  imgSrcPtr = (type*)(graphEnv->dest); value = (type)minVal; \
-  for (fbcy=0; fbcy < pixHeight; fbcy++) \
-  { \
-    for (fbcx=0; fbcx < pixWidth; fbcx++) \
+    type value, *imgSrcPtr; \
+    int fbcx, fbcy; \
+    imgSrcPtr = (type*)(graphEnv->dest); value = (type)minVal; \
+    for (fbcy=0; fbcy < pixHeight; fbcy++) \
     { \
-      imgSrcPtr[fbcx] = value; \
-    } \
-    imgSrcPtr = (type*)(((char*)imgSrcPtr) + virtualPitch); \
-  }
+        for (fbcx=0; fbcx < pixWidth; fbcx++) \
+        { \
+            imgSrcPtr[fbcx] = value; \
+        } \
+        imgSrcPtr = (type*)(((char*)imgSrcPtr) + virtualPitch); \
+    }
 
 void rviewRenderImage::fillBackgroundCore(rviewBaseType bt, double minVal)
 {
@@ -3531,7 +3868,7 @@ void rviewRenderImage::fillBackgroundCore(rviewBaseType bt, double minVal)
     }
 }
 
-void rviewRenderImage::fillBufferBackground(bool doCspace, bool &cspaceOK, r_Ref<r_GMarray> &obj, colourspaceMapper **csm, r_Minterval *csdom, rviewBaseType bt, bool fullRange, double *useMinVal)
+void rviewRenderImage::fillBufferBackground(bool doCspace, bool& cspaceOK, r_Ref<r_GMarray>& obj, colourspaceMapper** csm, r_Minterval* csdom, rviewBaseType bt, bool fullRange, double* useMinVal)
 {
     LTRACE << "fillBufferBackground()";
 
@@ -3560,54 +3897,54 @@ void rviewRenderImage::fillBufferBackground(bool doCspace, bool &cspaceOK, r_Ref
 // Macro for colourspace translation from/to various basetypes
 // Fill in inverse order because source type may be smaller than destination type
 #define TRANSLATE_TO_COLOURSPACE15(type) \
-   type *imgSrcPtr; \
-   long value; \
-   for (j=0; j<pixHeight; j++, imgLine+=pixPitch) \
-   { \
-     imgPtrS = ((unsigned short*)imgLine) + pixWidth-1; imgSrcPtr = ((type*)imgLine) + pixWidth-1; \
-     for (i=0; i<pixWidth; i++, imgPtrS--, imgSrcPtr--) \
-     { \
-       value = (long)(*imgSrcPtr); if (value > maxValL) value = maxValL; \
-       value -= minValL; if (value < 0) value = 0; \
-       *imgPtrS = IntToRGBTab15[value]; \
-     } \
-   }
+    type *imgSrcPtr; \
+    long value; \
+    for (j=0; j<pixHeight; j++, imgLine+=pixPitch) \
+    { \
+        imgPtrS = ((unsigned short*)imgLine) + pixWidth-1; imgSrcPtr = ((type*)imgLine) + pixWidth-1; \
+        for (i=0; i<pixWidth; i++, imgPtrS--, imgSrcPtr--) \
+        { \
+            value = (long)(*imgSrcPtr); if (value > maxValL) value = maxValL; \
+            value -= minValL; if (value < 0) value = 0; \
+            *imgPtrS = IntToRGBTab15[value]; \
+        } \
+    }
 
 // Fill in ascending order here because the destination type may be smaller than the source type
 #define TRANSLATE_TO_COLOURSPACE32(type, minval, maxval, scale) \
-  type value, *imgSrcPtr; \
-  char *imgSrcBase = (char*)imgLine; \
-  if (IntToRGBTab24 == NULL) \
-  { \
-    for (j=0; j<pixHeight; j++, imgLine+=pixPitch, imgSrcBase+=virtualPitch) \
+    type value, *imgSrcPtr; \
+    char *imgSrcBase = (char*)imgLine; \
+    if (IntToRGBTab24 == NULL) \
     { \
-      imgPtrL = (unsigned long*)imgLine; imgSrcPtr = (type*)imgSrcBase; \
-      for (i=0; i<pixWidth; i++, imgPtrL++, imgSrcPtr++) \
-      { \
-    *imgPtrL = csmap->ValToCS24((double)(*imgSrcPtr) - minVal); \
-      } \
+        for (j=0; j<pixHeight; j++, imgLine+=pixPitch, imgSrcBase+=virtualPitch) \
+        { \
+            imgPtrL = (unsigned long*)imgLine; imgSrcPtr = (type*)imgSrcBase; \
+            for (i=0; i<pixWidth; i++, imgPtrL++, imgSrcPtr++) \
+            { \
+                *imgPtrL = csmap->ValToCS24((double)(*imgSrcPtr) - minVal); \
+            } \
+        } \
     } \
-  } \
-  else \
-  { \
-    for (j=0; j<pixHeight; j++, imgLine+=pixPitch, imgSrcBase+=virtualPitch) \
+    else \
     { \
-      imgPtrL = (unsigned long*)imgLine; imgSrcPtr = (type*)imgSrcBase; \
-      for (i=0; i<pixWidth; i++, imgPtrL++, imgSrcPtr++) \
-      { \
-    value = *imgSrcPtr; if (value > maxval) value = maxval; \
-    value -= minval; if (value < 0) value = 0; \
-    *imgPtrL = IntToRGBTab24[(unsigned long)(value * scale)]; \
-      } \
-    } \
-  }
+        for (j=0; j<pixHeight; j++, imgLine+=pixPitch, imgSrcBase+=virtualPitch) \
+        { \
+            imgPtrL = (unsigned long*)imgLine; imgSrcPtr = (type*)imgSrcBase; \
+            for (i=0; i<pixWidth; i++, imgPtrL++, imgSrcPtr++) \
+            { \
+                value = *imgSrcPtr; if (value > maxval) value = maxval; \
+                value -= minval; if (value < 0) value = 0; \
+                *imgPtrL = IntToRGBTab24[(unsigned long)(value * scale)]; \
+            } \
+        } \
+    }
 
-void rviewRenderImage::translateBufferToCspace(rviewBaseType bt, double *useMinVal, double *useMaxVal)
+void rviewRenderImage::translateBufferToCspace(rviewBaseType bt, double* useMinVal, double* useMaxVal)
 {
     double minVal;
-    unsigned char *imgLine;
-    unsigned short *IntToRGBTab15, *imgPtrS;
-    unsigned long *IntToRGBTab24, *imgPtrL;
+    unsigned char* imgLine;
+    unsigned short* IntToRGBTab15, *imgPtrS;
+    unsigned long* IntToRGBTab24, *imgPtrL;
     double maxVal, scalingFactor;
     long minValL, maxValL;
     int i, j;
@@ -3676,14 +4013,23 @@ void rviewRenderImage::translateBufferToCspace(rviewBaseType bt, double *useMinV
 }
 
 
-int rviewRenderImage::setupEnvBase(int w, int h, r_Ref<r_GMarray> &mdd, colourspaceMapper **csm, r_Minterval *csdom)
+int rviewRenderImage::setupEnvBase(int w, int h, r_Ref<r_GMarray>& mdd, colourspaceMapper** csm, r_Minterval* csdom)
 {
     int needDepth, newPitch, newPad, newVirtPitch;
 
-    needDepth = 8*baseSize;
-    if ((rviewImageTypes[baseType] == RVIEW_IMGTYPE_NONE) && (doValToCspace)) needDepth = 32;
-    if (rviewImageTypes[baseType] == RVIEW_IMGTYPE_HIGH) needDepth = 15;
-    if (rviewImageTypes[baseType] == RVIEW_IMGTYPE_GREY12) needDepth = 12;
+    needDepth = 8 * baseSize;
+    if ((rviewImageTypes[baseType] == RVIEW_IMGTYPE_NONE) && (doValToCspace))
+    {
+        needDepth = 32;
+    }
+    if (rviewImageTypes[baseType] == RVIEW_IMGTYPE_HIGH)
+    {
+        needDepth = 15;
+    }
+    if (rviewImageTypes[baseType] == RVIEW_IMGTYPE_GREY12)
+    {
+        needDepth = 12;
+    }
     newPad = 64;
     newPitch = (w * baseSize + 7) & ~7;
     newVirtPitch = newPitch;
@@ -3732,10 +4078,10 @@ int rviewRenderImage::setupEnvBase(int w, int h, r_Ref<r_GMarray> &mdd, coloursp
  *  Volume image renderer members
  */
 
-const char *rviewVolumeImage::view_VolumeMode = "volumeMode";
-const char *rviewVolumeImage::view_UseBBox = "useBBox";
+const char* rviewVolumeImage::view_VolumeMode = "volumeMode";
+const char* rviewVolumeImage::view_UseBBox = "useBBox";
 
-rviewVolumeImage::rviewVolumeImage(mdd_frame *mf, unsigned int flags) : rviewRenderImage(mf, 0, flags)
+rviewVolumeImage::rviewVolumeImage(mdd_frame* mf, unsigned int flags) : rviewRenderImage(mf, 0, flags)
 {
     LTRACE << "rviewVolumeImage()";
 
@@ -3746,7 +4092,10 @@ rviewVolumeImage::rviewVolumeImage(mdd_frame *mf, unsigned int flags) : rviewRen
     initVoxParams = FALSE;
     // Mode defaults
     imode = prefs->imgMode;
-    if ((imode != rim_surf) && (imode != rim_voxel)) imode = rim_surf;
+    if ((imode != rim_surf) && (imode != rim_voxel))
+    {
+        imode = rim_surf;
+    }
 
     if (prefs->imgVoxForType != 0)
     {
@@ -3817,7 +4166,7 @@ int rviewVolumeImage::openViewer(void)
         int madd = rviewRenderImage::menuBarInitHook();
 
         // then add my own
-        wxMenu *modes;
+        wxMenu* modes;
         char buffer[STRINGSIZE];
         modes = new wxMenu;
         modes->Append(MENU_IMAGE_MODE_SURF, "", NULL, TRUE);
@@ -3848,7 +4197,7 @@ int rviewVolumeImage::openViewer(void)
 
 rviewVolumeImage::~rviewVolumeImage(void)
 {
-    LTRACE << ,"~rviewVolumeImage()";
+    LTRACE << , "~rviewVolumeImage()";
 
     closeViewer();
     delete texDesc;
@@ -3856,7 +4205,7 @@ rviewVolumeImage::~rviewVolumeImage(void)
 }
 
 
-const char *rviewVolumeImage::getFrameName(void) const
+const char* rviewVolumeImage::getFrameName(void) const
 {
     return "rviewVolumeImage";
 }
@@ -3886,7 +4235,7 @@ void rviewVolumeImage::label(void)
 }
 
 
-int rviewVolumeImage::process(wxObject &obj, wxEvent &evt)
+int rviewVolumeImage::process(wxObject& obj, wxEvent& evt)
 {
     LTRACE << "process()";
 
@@ -3951,19 +4300,27 @@ void rviewVolumeImage::OnSize(int w, int h)
     rviewRenderImage::OnSize(w, h);
 
     if (boundingBox != NULL)
-        boundingBox->SetSize(w + 2*display_cnvborder - 3*display_border - 4*display_pbwidth, display_border, image_bbwidth, image_bbheight);
+    {
+        boundingBox->SetSize(w + 2 * display_cnvborder - 3 * display_border - 4 * display_pbwidth, display_border, image_bbwidth, image_bbheight);
+    }
 }
 
 
 bool rviewVolumeImage::doUpdate(int flags)
 {
-    if (((flags & RVIEW_IFLAG_VOXEL) != 0) && (imode == rim_voxel)) return TRUE;
-    if (((flags & RVIEW_IFLAG_LIGHT) != 0) && setup.useLights) return TRUE;
+    if (((flags & RVIEW_IFLAG_VOXEL) != 0) && (imode == rim_voxel))
+    {
+        return TRUE;
+    }
+    if (((flags & RVIEW_IFLAG_LIGHT) != 0) && setup.useLights)
+    {
+        return TRUE;
+    }
     return FALSE;
 }
 
 
-char *rviewVolumeImage::initMode(void)
+char* rviewVolumeImage::initMode(void)
 {
     // Initialise the projection string. Use a static default for now, later on use the
     // last value used.
@@ -3973,7 +4330,9 @@ char *rviewVolumeImage::initMode(void)
     setModeDimension(3);
 
     if (boundingBox != NULL)
+    {
         boundingBox->Enable(TRUE);
+    }
 
     texDesc->dimx = interv[0].high() - interv[0].low() + 1;
     texDesc->dimy = interv[1].high() - interv[1].low() + 1;
@@ -3984,30 +4343,32 @@ char *rviewVolumeImage::initMode(void)
 }
 
 
-char *rviewVolumeImage::setupEnvironment(int w, int h)
+char* rviewVolumeImage::setupEnvironment(int w, int h)
 {
     int i, offset;
 
     if (setupEnvBase(w, h, mddObj, &csmap, csInterv) != 0)
+    {
         return NULL;
+    }
 
     // These values change for each projection
     texDesc->widthx = pt2[0] - pt1[0] + 1;
     texDesc->widthy = pt2[1] - pt1[1] + 1;
     texDesc->widthz = pt2[2] - pt1[2] + 1;
 
-    r_Ref<r_Marray<r_Char> > tempMdd = (r_Ref<r_Marray<r_Char> >) mddObj;
+    r_Ref<r_Marray<r_Char>> tempMdd = (r_Ref<r_Marray<r_Char>>) mddObj;
     // Do it like this to avoid having to check all base types
     r_Point paux = r_Point(dimMDD);
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         paux[i] = interv[i].low();
     }
-    offset = ((int)(&((*tempMdd)[pt1]) - &((*tempMdd)[paux]))) * baseSize;
+    offset = ((int)(&((*tempMdd)[pt1]) - & ((*tempMdd)[paux]))) * baseSize;
 
     texDesc->data = (void*)((char*)(tempMdd->get_array()) + offset);
 
-    for (i=0; i<4; i++)
+    for (i = 0; i < 4; i++)
     {
         geomData[i].x = 0;
         geomData[i].y = 0;
@@ -4039,7 +4400,7 @@ void rviewVolumeImage::fillBuffer(void)
     graphEnv->zpro = setup.zpro;
     graphEnv->clipz = setup.clipz;
 
-    for (i=1; i<4; i++)
+    for (i = 1; i < 4; i++)
     {
         // Make sure we don't get zero length vectors
         // (only a problem with strongly deformed ``cubes'', like planes)
@@ -4083,7 +4444,10 @@ void rviewVolumeImage::fillBuffer(void)
                 setup.pixelThresholdHigh = csmap->getMaxVal();
                 setup.weightThreshold = (setup.pixelThresholdHigh - setup.pixelThresholdLow) / 4;
                 setup.voxColour = csmap->getMaxVal();
-                if (setupWindow != NULL) setupWindow->updateSettings(setup);
+                if (setupWindow != NULL)
+                {
+                    setupWindow->updateSettings(setup);
+                }
             }
             initVoxParams = FALSE;
         }
@@ -4132,7 +4496,7 @@ void rviewVolumeImage::fillBuffer(void)
 }
 
 
-int rviewVolumeImage::saveView(FILE *fp)
+int rviewVolumeImage::saveView(FILE* fp)
 {
     int status = rviewRenderImage::saveView(fp);
 
@@ -4143,7 +4507,7 @@ int rviewVolumeImage::saveView(FILE *fp)
 }
 
 
-int rviewVolumeImage::readView(const char *key, const char *value)
+int rviewVolumeImage::readView(const char* key, const char* value)
 {
     int status = rviewRenderImage::readView(key, value);
 
@@ -4177,7 +4541,9 @@ void rviewVolumeImage::loadViewFinished(void)
 
     // if we're in voxel mode, the parameters loaded are OK, don't overwrite them in fillBuffer()!
     if (imode == rim_voxel)
+    {
         initVoxParams = FALSE;
+    }
 }
 
 
@@ -4185,7 +4551,7 @@ void rviewVolumeImage::loadViewFinished(void)
 /*
  *  Height field rendered images members
  */
-rviewHeightImage::rviewHeightImage(mdd_frame *mf, unsigned int flags) : rviewRenderImage(mf, 0, flags)
+rviewHeightImage::rviewHeightImage(mdd_frame* mf, unsigned int flags) : rviewRenderImage(mf, 0, flags)
 {
     LTRACE << "rviewHeightImage()";
 
@@ -4253,7 +4619,7 @@ int rviewHeightImage::openViewer(void)
 }
 
 
-const char *rviewHeightImage::getFrameName(void) const
+const char* rviewHeightImage::getFrameName(void) const
 {
     return "rviewHeightImage";
 }
@@ -4285,10 +4651,13 @@ int rviewHeightImage::newProjection(void)
 {
     LTRACE << "newProjection()";
 
-    char *data, *lastData = imgData;
+    char* data, *lastData = imgData;
 
     meshDesc->srcData = NULL;
-    if ((data = setupGraphEnv()) == NULL) return -1;
+    if ((data = setupGraphEnv()) == NULL)
+    {
+        return -1;
+    }
     fillBuffer();
 
     updatePixmap(lastData, data);
@@ -4303,20 +4672,28 @@ bool rviewHeightImage::moviePossible(void) const
 }
 
 
-char *rviewHeightImage::movieNewFrame(void)
+char* rviewHeightImage::movieNewFrame(void)
 {
-    char *data;
+    char* data;
 
     if ((data = setupGraphEnv()) != NULL)
+    {
         fillBuffer();
+    }
     return data;
 }
 
 
 bool rviewHeightImage::doUpdate(int flags)
 {
-    if ((flags & RVIEW_IFLAG_LIGHT) != 0) return TRUE;
-    if ((flags & RVIEW_IFLAG_HEIGHT) != 0) return TRUE;
+    if ((flags & RVIEW_IFLAG_LIGHT) != 0)
+    {
+        return TRUE;
+    }
+    if ((flags & RVIEW_IFLAG_HEIGHT) != 0)
+    {
+        return TRUE;
+    }
     return FALSE;
 }
 
@@ -4325,13 +4702,15 @@ void rviewHeightImage::redrawSettingsChanged(void)
 {
     if (depthForHeightfield() != pixDepth)
     {
-        char *data = NULL, *lastData = imgData;
+        char* data = NULL, *lastData = imgData;
         data = setupGraphEnv();
         fillBuffer();
         updatePixmap(lastData, data);
     }
     else
+    {
         rviewRenderImage::redrawSettingsChanged();
+    }
 }
 
 
@@ -4342,7 +4721,7 @@ void rviewHeightImage::label(void)
 }
 
 
-int rviewHeightImage::process(wxObject &obj, wxEvent &evt)
+int rviewHeightImage::process(wxObject& obj, wxEvent& evt)
 {
     LTRACE << "process()";
 
@@ -4351,7 +4730,9 @@ int rviewHeightImage::process(wxObject &obj, wxEvent &evt)
     if (type == wxEVENT_TYPE_BUTTON_COMMAND)
     {
         if (&obj == (wxObject*)playStop)
+        {
             playDirection = 0;
+        }
         // do not intercept the call (return 1), however, because the renderer
         // might also rotate the object, which'll be handled on rviewRenderImage
         // level.
@@ -4375,16 +4756,16 @@ int rviewHeightImage::requestQuit(int level)
 }
 
 
-char *rviewHeightImage::initMode(void)
+char* rviewHeightImage::initMode(void)
 {
     int i;
-    char *b;
+    char* b;
 
     LTRACE << "initMode()";
 
     b = projString;
     b += sprintf(b, "*:*, *:*");
-    for (i=2; i<dimMDD; i++)
+    for (i = 2; i < dimMDD; i++)
     {
         b += sprintf(b, ", %ld", interv[i].low());
     }
@@ -4392,7 +4773,7 @@ char *rviewHeightImage::initMode(void)
     project->SetValue(projString);
     setModeDimension(2);
 
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         mddDesc->dims[i] = interv[i].high() - interv[i].low() + 1;
         mddDesc->widths[i] = mddDesc->dims[i];
@@ -4409,7 +4790,7 @@ int rviewHeightImage::depthForHeightfield(void) const
 }
 
 
-char *rviewHeightImage::setupEnvironment(int w, int h)
+char* rviewHeightImage::setupEnvironment(int w, int h)
 {
     int i, needDepth, newPitch, newPad, offset, newVirtPitch;
 
@@ -4447,19 +4828,19 @@ char *rviewHeightImage::setupEnvironment(int w, int h)
     }
     graphEnv->lineadd = virtualPitch;
 
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         mddDesc->widths[i] = pt2[i] - pt1[i] + 1;
     }
 
-    r_Ref<r_Marray<r_Char> > tempMdd = (r_Ref<r_Marray<r_Char> >) mddObj;
+    r_Ref<r_Marray<r_Char>> tempMdd = (r_Ref<r_Marray<r_Char>>) mddObj;
     r_Point paux(dimMDD);
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         paux[i] = interv[i].low();
     }
 
-    offset = ((int)(&((*tempMdd)[pt1]) - &((*tempMdd)[paux]))) * baseSize;
+    offset = ((int)(&((*tempMdd)[pt1]) - & ((*tempMdd)[paux]))) * baseSize;
 
     mddDesc->data = (void*)((char*)(tempMdd->get_array()) + offset);
 
@@ -4487,13 +4868,16 @@ void rviewHeightImage::fillBuffer(void)
     scaleHeight = cubeScale * setup.scaleHeight;
     graphEnv->zpro = setup.zpro;
     graphEnv->clipz = setup.clipz;
-    memcpy(geomUse+1, rot, 3*sizeof(vertex_fp));
+    memcpy(geomUse + 1, rot, 3 * sizeof(vertex_fp));
 
     // Calculate the coordinates of the center point of the base diagonal for
     // centering the rotation
     int dimx, dimz;
 
-    if (RenderHeightGetDomain(mddDesc, &dimx, &dimz, NULL, NULL) != 0) return;
+    if (RenderHeightGetDomain(mddDesc, &dimx, &dimz, NULL, NULL) != 0)
+    {
+        return;
+    }
 
     geomUse[0].x = -0.5 * gridScale * (dimx * rot[0].x + dimz * rot[0].z);
     geomUse[0].y =  0.0;
@@ -4527,7 +4911,7 @@ void rviewHeightImage::fillBuffer(void)
 
     if (useCspace && cspaceOK)
     {
-        double useMaxVal=255;
+        double useMaxVal = 255;
         translateBufferToCspace(rbt_char, &useMinVal, &useMaxVal);
     }
 
@@ -4543,10 +4927,10 @@ void rviewHeightImage::fillBuffer(void)
 
 const double rviewScaledImage::scaleStep = 2.0;
 
-const char *rviewScaledImage::view_CurrentBox = "currentBox";
-const char *rviewScaledImage::view_BoxScale = "boxScale";
+const char* rviewScaledImage::view_CurrentBox = "currentBox";
+const char* rviewScaledImage::view_BoxScale = "boxScale";
 
-rviewScaledImage::rviewScaledImage(collection_desc *cd, r_Fast_Base_Scale *scaler, unsigned int flags) : rviewFlatBaseImage(cd->mddObjs, 0, flags)
+rviewScaledImage::rviewScaledImage(collection_desc* cd, r_Fast_Base_Scale* scaler, unsigned int flags) : rviewFlatBaseImage(cd->mddObjs, 0, flags)
 {
     LTRACE << "rviewScaledImage()";
 
@@ -4561,7 +4945,7 @@ rviewScaledImage::rviewScaledImage(collection_desc *cd, r_Fast_Base_Scale *scale
     thisView.dim2 = 1;
     thisView.low = r_Point(dimMDD);
     thisView.high = r_Point(dimMDD);
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         thisView.low[i] = fullDomain[i].low();
         thisView.high[i] = fullDomain[i].high();
@@ -4582,7 +4966,9 @@ rviewScaledImage::~rviewScaledImage(void)
     // I own the scaler object!
     delete scaleObject;
     if (loadedView != NULL)
+    {
         delete loadedView;
+    }
 }
 
 
@@ -4640,19 +5026,19 @@ void rviewScaledImage::OnSize(int w, int h)
 
         GetClientSize(&x, &y);
 
-        if(x < 6*image_bwidth)
+        if (x < 6 * image_bwidth)
         {
-            x= 6*image_bwidth;
-            frameWidth=x;
-            frameHeight=y;
+            x = 6 * image_bwidth;
+            frameWidth = x;
+            frameHeight = y;
             SetClientSize(x, y);
             return;
         }
 
-        x -= 2*display_border;
+        x -= 2 * display_border;
         scaleString->SetSize(display_border, image_totaly - image_theight, image_twidth, image_theight);
-        step = (x - image_twidth - 4*image_bwidth) / 4;
-        posx = image_twidth + display_border + step/2;
+        step = (x - image_twidth - 4 * image_bwidth) / 4;
+        posx = image_twidth + display_border + step / 2;
         posy = image_totaly - image_bheight;
         zoomBoxBut->SetSize(posx, posy, image_bwidth, image_bheight);
         posx += step + image_bwidth;
@@ -4678,9 +5064,13 @@ void rviewScaledImage::OnSize(int w, int h)
         if ((vw < w) || (vh < h))
         {
             if (vw < w)
+            {
                 thisView.high[thisView.dim1] = (r_Range)(thisView.low[thisView.dim1] + w);
+            }
             if (vh < h)
+            {
                 thisView.high[thisView.dim2] = (r_Range)(thisView.low[thisView.dim2] + h);
+            }
 
             newView();
         }
@@ -4694,9 +5084,13 @@ double rviewScaledImage::getLastScale(void) const
     view_desc_t lastView;
 
     if (viewHistory.peek(lastView) == 0)
+    {
         return lastView.scale;
+    }
     else
+    {
         return initialScale;
+    }
 }
 
 
@@ -4720,15 +5114,19 @@ void rviewScaledImage::scaleViewBy(double scale)
         h = (int)(h / thisView.scale);
         // extend the viewbox to the maximum size of the canvas
         if (thisView.high[thisView.dim1] - thisView.low[thisView.dim1] < w)
+        {
             thisView.high[thisView.dim1] = (r_Range)(thisView.low[thisView.dim1] + w);
+        }
         if (thisView.high[thisView.dim2] - thisView.low[thisView.dim2] < h)
+        {
             thisView.high[thisView.dim2] = (r_Range)(thisView.low[thisView.dim2] + h);
+        }
         // no clipping necessary here, will be done in newView()
     }
 }
 
 
-int rviewScaledImage::process(wxObject &obj, wxEvent &evt)
+int rviewScaledImage::process(wxObject& obj, wxEvent& evt)
 {
     LTRACE << "process()";
 
@@ -4743,7 +5141,9 @@ int rviewScaledImage::process(wxObject &obj, wxEvent &evt)
                 newView();
             }
             if (viewHistory.getNumber() == 0)
+            {
                 lastZoomBut->Enable(FALSE);
+            }
 
             return 1;
         }
@@ -4759,7 +5159,7 @@ int rviewScaledImage::process(wxObject &obj, wxEvent &evt)
         {
             viewHistory.push(thisView);
             lastZoomBut->Enable(TRUE);
-            scaleViewBy(1/scaleStep);
+            scaleViewBy(1 / scaleStep);
             newView();
             return 1;
         }
@@ -4774,9 +5174,9 @@ int rviewScaledImage::process(wxObject &obj, wxEvent &evt)
                 lastZoomBut->Enable(TRUE);
                 pcanv->GetDragBox(x0, y0, x1, y1);
                 relScale = (thisView.high[thisView.dim1] - thisView.low[thisView.dim1]) / ((double)(pixmap->getWidth()));
-                thisView.high[thisView.dim1] = thisView.low[thisView.dim1] + (r_Range)(x1*relScale);
+                thisView.high[thisView.dim1] = thisView.low[thisView.dim1] + (r_Range)(x1 * relScale);
                 thisView.low[thisView.dim1] += (r_Range)(x0 * relScale);
-                thisView.high[thisView.dim2] = thisView.low[thisView.dim2] + (r_Range)(y1*relScale);
+                thisView.high[thisView.dim2] = thisView.low[thisView.dim2] + (r_Range)(y1 * relScale);
                 thisView.low[thisView.dim2] += (r_Range)(y0 * relScale);
                 thisView.scale *= ((double)(pixmap->getWidth())) / (x1 - x0);
                 newView();
@@ -4805,16 +5205,25 @@ int rviewScaledImage::process(wxObject &obj, wxEvent &evt)
 
 
 // Intercept the mouse event.
-void rviewScaledImage::processMouseEvent(wxMouseEvent &mevt)
+void rviewScaledImage::processMouseEvent(wxMouseEvent& mevt)
 {
     LTRACE << "processMouseEvent()";
 
     int newbut = 0;
     bool newBoxState;
 
-    if (mevt.leftDown) newbut |= MOUSE_LEFT;
-    if (mevt.middleDown) newbut |= MOUSE_MIDDLE;
-    if (mevt.rightDown) newbut |= MOUSE_RIGHT;
+    if (mevt.leftDown)
+    {
+        newbut |= MOUSE_LEFT;
+    }
+    if (mevt.middleDown)
+    {
+        newbut |= MOUSE_MIDDLE;
+    }
+    if (mevt.rightDown)
+    {
+        newbut |= MOUSE_RIGHT;
+    }
 
     // Drag a box
     if ((newbut & MOUSE_LEFT) != 0)
@@ -4852,7 +5261,7 @@ void rviewScaledImage::processMouseEvent(wxMouseEvent &mevt)
 }
 
 
-const char *rviewScaledImage::getFrameName(void) const
+const char* rviewScaledImage::getFrameName(void) const
 {
     return "rviewPrescaledFrame";
 }
@@ -4881,36 +5290,38 @@ void rviewScaledImage::projectionStringForView(void)
     LTRACE << "projectionStringView()";
 
     int i;
-    char *b = projString;
+    char* b = projString;
 
-    for (i=0; i<thisView.dim1; i++)
+    for (i = 0; i < thisView.dim1; i++)
     {
         b += sprintf(b, "%ld, ", thisView.low[i]);
     }
     b += sprintf(b, "%ld:%ld, ", thisView.low[i], thisView.high[i]);
     i++;
-    for (; i<thisView.dim2; i++)
+    for (; i < thisView.dim2; i++)
     {
         b += sprintf(b, "%ld, ", thisView.low[i]);
     }
     b += sprintf(b, "%ld:%ld, ", thisView.low[i], thisView.high[i]);
     i++;
-    for (; i<dimMDD; i++)
+    for (; i < dimMDD; i++)
     {
         b += sprintf(b, "%ld, ", thisView.low[i]);
     }
     if (b != projString)
+    {
         b[-2] = '\0';
+    }
 }
 
 
-char *rviewScaledImage::initMode(void)
+char* rviewScaledImage::initMode(void)
 {
     return rviewFlatBaseImage::initMode();
 }
 
 
-const r_Minterval &rviewScaledImage::getVirtualDomain(void) const
+const r_Minterval& rviewScaledImage::getVirtualDomain(void) const
 {
 
     return fullDomain;
@@ -4922,14 +5333,14 @@ void rviewScaledImage::projectObjectHook(void)
     LTRACE << "projectObjectHook()";
     int i, j;
 
-    for (i=0; i<(int)dimMDD; i++)
+    for (i = 0; i < (int)dimMDD; i++)
     {
         thisView.low[i] = pt1[i];
         thisView.high[i] = pt2[i];
     }
-    for (i=0, j=0; i<(int)dimMDD; i++)
+    for (i = 0, j = 0; i < (int)dimMDD; i++)
     {
-        if ((freeDims & (1<<i)) != 0)
+        if ((freeDims & (1 << i)) != 0)
         {
             if (j == 0)
             {
@@ -4937,14 +5348,16 @@ void rviewScaledImage::projectObjectHook(void)
                 j++;
             }
             else
+            {
                 thisView.dim2 = i;
+            }
         }
     }
 
     r_Minterval projFull(dimMDD);
     r_Minterval projScaled;
 
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         // shift point into full domain's origin...
         projFull << r_Sinterval(fullDomain[i].low(), fullDomain[i].low() + (pt2[i] - pt1[i]));
@@ -4954,15 +5367,27 @@ void rviewScaledImage::projectObjectHook(void)
     {
         //cout << projFull << ", " << projScaled << ", " << interv << endl;
         // for now just make sure we're not outside the range...
-        for (i=0; i<dimMDD; i++)
+        for (i = 0; i < dimMDD; i++)
         {
             r_Range offset = pt1[i] - fullDomain[i].low();
             pt1[i] = projScaled[i].low() + offset;
-            if (pt1[i] < interv[i].low()) pt1[i] = interv[i].low();
-            if (pt1[i] > interv[i].high()) pt1[i] = interv[i].high();
+            if (pt1[i] < interv[i].low())
+            {
+                pt1[i] = interv[i].low();
+            }
+            if (pt1[i] > interv[i].high())
+            {
+                pt1[i] = interv[i].high();
+            }
             pt2[i] = projScaled[i].high() + offset;
-            if (pt2[i] < interv[i].low()) pt2[i] = interv[i].low();
-            if (pt2[i] > interv[i].high()) pt2[i] = interv[i].high();
+            if (pt2[i] < interv[i].low())
+            {
+                pt2[i] = interv[i].low();
+            }
+            if (pt2[i] > interv[i].high())
+            {
+                pt2[i] = interv[i].high();
+            }
         }
         //cout << "Translated " << pt1 << ", " << pt2 << endl;
     }
@@ -4973,18 +5398,20 @@ void rviewScaledImage::projectObjectHook(void)
 }
 
 
-char *rviewScaledImage::projectImage(void)
+char* rviewScaledImage::projectImage(void)
 {
     return rviewFlatBaseImage::projectImage();
 }
 
 
-bool rviewScaledImage::compareViews(const view_desc_t &v1, const view_desc_t &v2)
+bool rviewScaledImage::compareViews(const view_desc_t& v1, const view_desc_t& v2)
 {
     LTRACE << "compareViews()";
     if ((v1.scale == v2.scale) && (v1.dim1 == v2.dim1) && (v1.dim2 == v2.dim2)
             && (v1.low == v2.low) && (v1.high == v2.high))
+    {
         return TRUE;
+    }
 
     return FALSE;
 }
@@ -5019,12 +5446,16 @@ void rviewScaledImage::newView(bool loadImage)
     zoomBoxBut->Enable(boxState);
 
     // Clip rectangle to actual domain. Ratio already ensured by canvas
-    for (i=0; i<(int)dimMDD; i++)
+    for (i = 0; i < (int)dimMDD; i++)
     {
         if (thisView.low[i] < fullDomain[i].low())
+        {
             thisView.low[i] = fullDomain[i].low();
+        }
         if (thisView.high[i] > fullDomain[i].high())
+        {
             thisView.high[i] = fullDomain[i].high();
+        }
     }
 
     if (!dontLoad)    // or loadImage?
@@ -5033,7 +5464,7 @@ void rviewScaledImage::newView(bool loadImage)
         r_Minterval scaledDom;
         int i;
 
-        for (i=0; i<(int)dimMDD; i++)
+        for (i = 0; i < (int)dimMDD; i++)
         {
             orgIv << r_Sinterval(thisView.low[i], thisView.high[i]);
         }
@@ -5064,20 +5495,20 @@ void rviewScaledImage::newView(bool loadImage)
 }
 
 
-int rviewScaledImage::saveView(FILE *fp)
+int rviewScaledImage::saveView(FILE* fp)
 {
     int status = rviewFlatBaseImage::saveView(fp);
 
-    long *boxdesc = new long[2*dimMDD + 2];
+    long* boxdesc = new long[2 * dimMDD + 2];
 
     boxdesc[0] = (long)(thisView.dim1);
     boxdesc[1] = (long)(thisView.dim2);
-    for (unsigned int i=0; i<dimMDD; i++)
+    for (unsigned int i = 0; i < dimMDD; i++)
     {
-        boxdesc[2+i] = (long)(thisView.low[i]);
-        boxdesc[2+i+dimMDD] = (long)(thisView.high[i]);
+        boxdesc[2 + i] = (long)(thisView.low[i]);
+        boxdesc[2 + i + dimMDD] = (long)(thisView.high[i]);
     }
-    writeViewParam(fp, view_CurrentBox, 2*dimMDD + 2, boxdesc);
+    writeViewParam(fp, view_CurrentBox, 2 * dimMDD + 2, boxdesc);
     writeViewParam(fp, view_BoxScale, thisView.scale);
 
     delete [] boxdesc;
@@ -5086,7 +5517,7 @@ int rviewScaledImage::saveView(FILE *fp)
 }
 
 
-int rviewScaledImage::readView(const char *key, const char *value)
+int rviewScaledImage::readView(const char* key, const char* value)
 {
     int status = rviewFlatBaseImage::readView(key, value);
 
@@ -5094,9 +5525,9 @@ int rviewScaledImage::readView(const char *key, const char *value)
     {
         if (strcmp(key, view_CurrentBox) == 0)
         {
-            long *boxdesc = new long[2*dimMDD + 2];
+            long* boxdesc = new long[2 * dimMDD + 2];
 
-            if (readVector(value, 2*dimMDD + 2, boxdesc) == 0)
+            if (readVector(value, 2 * dimMDD + 2, boxdesc) == 0)
             {
                 ensureLoadedView();
 
@@ -5105,10 +5536,10 @@ int rviewScaledImage::readView(const char *key, const char *value)
                 // why do I always forget these !*&@^$()&^ dim constructors...???
                 loadedView->low = r_Point(dimMDD);
                 loadedView->high = r_Point(dimMDD);
-                for (unsigned int i=0; i<dimMDD; i++)
+                for (unsigned int i = 0; i < dimMDD; i++)
                 {
-                    loadedView->low[i] = (r_Range)(boxdesc[2+i]);
-                    loadedView->high[i] = (r_Range)(boxdesc[2+i+dimMDD]);
+                    loadedView->low[i] = (r_Range)(boxdesc[2 + i]);
+                    loadedView->high[i] = (r_Range)(boxdesc[2 + i + dimMDD]);
                 }
             }
             delete [] boxdesc;
@@ -5171,86 +5602,86 @@ void rviewScaledImage::ensureLoadedView(void)
 
 // A macro for recurring code in projectImage
 #define PROJECT_HEADER(type) \
-  if (penv.pt1[penv.dim1] == penv.pt2[penv.dim1]) stepx=0; \
-  else \
-  { \
-    prun[penv.dim1]=penv.pt1[penv.dim1]+1; \
-    prun[penv.dim2]=penv.pt1[penv.dim2]; \
-    stepx = &((*mddPtr)[prun]) - &((*mddPtr)[penv.pt1]); \
-  } \
-  if (penv.pt1[penv.dim2] == penv.pt2[penv.dim2]) stepy=0; \
-  else \
-  { \
-    prun[penv.dim1]=penv.pt1[penv.dim1]; \
-    prun[penv.dim2]=penv.pt1[penv.dim2]+1; \
-    stepy = &((*mddPtr)[prun]) - &((*mddPtr)[penv.pt1]); \
-  } \
-  scalestepx = stepx * (int)(1 / penv.scale); \
-  scalestepy = stepy * (int)(1 / penv.scale); \
-  fracstepx = ((int)((1<<IMAGE_FIXPREC) / penv.scale)) & ((1<<IMAGE_FIXPREC)-1); \
-  fracstepy = ((int)((1<<IMAGE_FIXPREC) / penv.scale)) & ((1<<IMAGE_FIXPREC)-1); \
-  imgLine = (type*)(&((*mddPtr)[penv.pt1]));
+    if (penv.pt1[penv.dim1] == penv.pt2[penv.dim1]) stepx=0; \
+    else \
+    { \
+        prun[penv.dim1]=penv.pt1[penv.dim1]+1; \
+        prun[penv.dim2]=penv.pt1[penv.dim2]; \
+        stepx = &((*mddPtr)[prun]) - &((*mddPtr)[penv.pt1]); \
+    } \
+    if (penv.pt1[penv.dim2] == penv.pt2[penv.dim2]) stepy=0; \
+    else \
+    { \
+        prun[penv.dim1]=penv.pt1[penv.dim1]; \
+        prun[penv.dim2]=penv.pt1[penv.dim2]+1; \
+        stepy = &((*mddPtr)[prun]) - &((*mddPtr)[penv.pt1]); \
+    } \
+    scalestepx = stepx * (int)(1 / penv.scale); \
+    scalestepy = stepy * (int)(1 / penv.scale); \
+    fracstepx = ((int)((1<<IMAGE_FIXPREC) / penv.scale)) & ((1<<IMAGE_FIXPREC)-1); \
+    fracstepy = ((int)((1<<IMAGE_FIXPREC) / penv.scale)) & ((1<<IMAGE_FIXPREC)-1); \
+    imgLine = (type*)(&((*mddPtr)[penv.pt1]));
 
 #define PROJECT_IMAGE_INCREMENTX \
-  imgPtr += scalestepx; fracx += fracstepx; \
-  if (fracx >= (1<<IMAGE_FIXPREC)) \
-  { \
-    imgPtr += stepx; fracx &= ((1<<IMAGE_FIXPREC)-1); \
-  }
+    imgPtr += scalestepx; fracx += fracstepx; \
+    if (fracx >= (1<<IMAGE_FIXPREC)) \
+    { \
+        imgPtr += stepx; fracx &= ((1<<IMAGE_FIXPREC)-1); \
+    }
 
 #define PROJECT_IMAGE_INCREMENTY \
-  imgLine += scalestepy; fracy += fracstepy; \
-  if (fracy >= (1<<IMAGE_FIXPREC)) \
-  { \
-    imgLine += stepy; fracy &= ((1<<IMAGE_FIXPREC)-1); \
-  }
+    imgLine += scalestepy; fracy += fracstepy; \
+    if (fracy >= (1<<IMAGE_FIXPREC)) \
+    { \
+        imgLine += stepy; fracy &= ((1<<IMAGE_FIXPREC)-1); \
+    }
 
 // A macro for colourspace translators
 // Do not terminate this macro with a semicolon when using it!
 #define PROJECT_IMAGE_START(type) \
-  r_Marray<type> *mddPtr = (r_Marray<type>*) (penv.mddPtr); \
-  type *imgLine, *imgPtr; \
-  PROJECT_HEADER(type); \
-  for (h=0; h<penv.height; h++, destLine.c+=penv.pitch) \
-  { \
-    for (w=0, imgPtr=imgLine, destPtr.c=destLine.c, fracx=0; w<penv.width; w++)
+    r_Marray<type> *mddPtr = (r_Marray<type>*) (penv.mddPtr); \
+    type *imgLine, *imgPtr; \
+    PROJECT_HEADER(type); \
+    for (h=0; h<penv.height; h++, destLine.c+=penv.pitch) \
+    { \
+        for (w=0, imgPtr=imgLine, destPtr.c=destLine.c, fracx=0; w<penv.width; w++)
 
 #define PROJECT_IMAGE_BASE(type) \
-  PROJECT_IMAGE_START(type) \
+    PROJECT_IMAGE_START(type) \
     { \
-      PROJECT_IMAGE_TRANSFER_PIXEL(type); \
-      PROJECT_IMAGE_INCREMENTX; \
+        PROJECT_IMAGE_TRANSFER_PIXEL(type); \
+        PROJECT_IMAGE_INCREMENTX; \
     } \
     PROJECT_IMAGE_INCREMENTY; \
-  }
+    }
 
 #define PROJECT_COLOURSPACE32(type, minval, maxval, scale) \
-  if ((IntToRGBTab24 = penv.csmap->getCSTab24()) == NULL) \
-  { \
-    PROJECT_IMAGE_START(type) \
+    if ((IntToRGBTab24 = penv.csmap->getCSTab24()) == NULL) \
     { \
-        *destPtr.l++ = penv.csmap->ValToCS24((double)(*imgPtr) - minVal); \
-        PROJECT_IMAGE_INCREMENTX; \
-      } \
-      PROJECT_IMAGE_INCREMENTY; \
+        PROJECT_IMAGE_START(type) \
+        { \
+            *destPtr.l++ = penv.csmap->ValToCS24((double)(*imgPtr) - minVal); \
+            PROJECT_IMAGE_INCREMENTX; \
+        } \
+        PROJECT_IMAGE_INCREMENTY; \
     } \
-  } \
-  else \
-  { \
-    PROJECT_IMAGE_START(type) \
+    } \
+    else \
     { \
-        type value; \
-        value = *imgPtr; \
-        if (value > maxval) value = maxval; value -= minval; if (value < 0) value = 0;\
-        *destPtr.l++ = IntToRGBTab24[(unsigned long)(value * scale)]; \
-        PROJECT_IMAGE_INCREMENTX; \
-      } \
-      PROJECT_IMAGE_INCREMENTY; \
+        PROJECT_IMAGE_START(type) \
+        { \
+            type value; \
+            value = *imgPtr; \
+            if (value > maxval) value = maxval; value -= minval; if (value < 0) value = 0;\
+            *destPtr.l++ = IntToRGBTab24[(unsigned long)(value * scale)]; \
+            PROJECT_IMAGE_INCREMENTX; \
+        } \
+        PROJECT_IMAGE_INCREMENTY; \
     } \
-  }
+    }
 
 
-int rviewPrepareFlatProjection(rviewFlatProjEnv &penv)
+int rviewPrepareFlatProjection(rviewFlatProjEnv& penv)
 {
     int baseSize = penv.mddPtr->get_type_length();
 
@@ -5293,7 +5724,7 @@ int rviewPrepareFlatProjection(rviewFlatProjEnv &penv)
     default:
         penv.pitch = (penv.width * baseSize + 3) & ~3;
         penv.pad = 32;
-        penv.depth = 8*baseSize;
+        penv.depth = 8 * baseSize;
         break;
     }
 
@@ -5309,16 +5740,16 @@ int rviewPrepareFlatProjection(rviewFlatProjEnv &penv)
 }
 
 
-int rviewPerformFlatProjection(rviewFlatProjEnv &penv, char *data)
+int rviewPerformFlatProjection(rviewFlatProjEnv& penv, char* data)
 {
     int stepx, stepy, scalestepx, scalestepy;
     int fracstepx, fracstepy, fracx, fracy;
     union
     {
-        char *c;
-        short *s;
-        RGBPixel *r;
-        long *l;
+        char* c;
+        short* s;
+        RGBPixel* r;
+        long* l;
     } destPtr, destLine;
     r_Point prun;
     int w, h;
@@ -5333,8 +5764,8 @@ int rviewPerformFlatProjection(rviewFlatProjEnv &penv, char *data)
         double minVal, maxVal;
         long minValL, maxValL;
         double scalingFactor;
-        unsigned short *IntToRGBTab15;
-        unsigned long *IntToRGBTab24;
+        unsigned short* IntToRGBTab15;
+        unsigned long* IntToRGBTab24;
 
         minVal = penv.csmap->getMinVal();
         minValL = (long)minVal;
@@ -5402,13 +5833,13 @@ int rviewPerformFlatProjection(rviewFlatProjEnv &penv, char *data)
         {
         case RVIEW_IMGTYPE_MONO:
         {
-            r_Marray<r_Boolean> *mddPtr = (r_Marray<r_Boolean> *)(penv.mddPtr);
-            r_Boolean *imgLine, *imgPtr;
+            r_Marray<r_Boolean>* mddPtr = (r_Marray<r_Boolean>*)(penv.mddPtr);
+            r_Boolean* imgLine, *imgPtr;
             char val;
             int mask;
 
             PROJECT_HEADER(r_Boolean);
-            for (h=0; h<penv.height; h++, destLine.c+=penv.pitch)
+            for (h = 0; h < penv.height; h++, destLine.c += penv.pitch)
             {
 #if (WX_PIXMAP_SRC_BITORDER == 0)
                 mask = 1;
@@ -5416,9 +5847,12 @@ int rviewPerformFlatProjection(rviewFlatProjEnv &penv, char *data)
                 mask = 0x80;
 #endif
                 val = 0;
-                for (w=0, imgPtr=imgLine, destPtr.c=destLine.c, fracx=0; w<penv.width; w++)
+                for (w = 0, imgPtr = imgLine, destPtr.c = destLine.c, fracx = 0; w < penv.width; w++)
                 {
-                    if (*imgPtr) val |= mask;
+                    if (*imgPtr)
+                    {
+                        val |= mask;
+                    }
 #if (WX_PIXMAP_SRC_BITORDER == 0)
                     mask <<= 1;
                     if (mask == 0x100)

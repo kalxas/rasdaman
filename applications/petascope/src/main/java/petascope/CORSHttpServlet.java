@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
  * Servlet allowing CORS requests.
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class CORSHttpServlet extends HttpServlet{
+public class CORSHttpServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

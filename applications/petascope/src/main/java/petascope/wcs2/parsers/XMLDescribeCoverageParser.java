@@ -53,17 +53,17 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
     private SchemaFactory schemaFactory;
     private final String WCS2_DESCRCOV_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd";
 
-    public XMLDescribeCoverageParser(){
-        if(ConfigManager.XML_VALIDATION){
+    public XMLDescribeCoverageParser() {
+        if (ConfigManager.XML_VALIDATION) {
             try {
                 log.debug("Loading XML schema definition from " + WCS2_DESCRCOV_SCHEMA + "...");
                 schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 schema = schemaFactory.newSchema(new URL(WCS2_DESCRCOV_SCHEMA));
                 log.debug("Done.");
-            } catch(SAXException e) {
-                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.",e);
-            } catch(MalformedURLException e) {
-                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.",e);
+            } catch (SAXException e) {
+                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.", e);
+            } catch (MalformedURLException e) {
+                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.", e);
             }
         }
     }
@@ -72,14 +72,14 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
 
         // input XML validation
-        if(ConfigManager.XML_VALIDATION){
+        if (ConfigManager.XML_VALIDATION) {
             validateInput(request.getRequestString(), schema);
         }
 
         // parsing
         Element root = parseInput(request.getRequestString());
         List<Element> coverageIds = collectAll(root, PREFIX_WCS,
-                LABEL_COVERAGE_ID, CTX_WCS);
+                                               LABEL_COVERAGE_ID, CTX_WCS);
         if (coverageIds.isEmpty()) {
             log.error("Missing required " + LABEL_COVERAGE_ID + " element in request.");
             throw new WCSException(ExceptionCode.InvalidRequest, "A DescribeCoverage request must specify at least one " + KEY_COVERAGEID + ".");

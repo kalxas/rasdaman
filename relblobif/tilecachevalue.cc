@@ -32,7 +32,7 @@ rasdaman GmbH.
 using namespace std;
 
 CacheValue::CacheValue(char* newData, r_Bytes newSize, bool newUpdate, OId& newOId, long newBlobOid, void* tile, r_Data_Format newDataformat) :
-data(newData), update(newUpdate), size(newSize), myOId(newOId), blobOid(newBlobOid), dataFormat(newDataformat)
+    data(newData), update(newUpdate), size(newSize), myOId(newOId), blobOid(newBlobOid), dataFormat(newDataformat)
 {
     referencingTiles.insert(tile);
 }

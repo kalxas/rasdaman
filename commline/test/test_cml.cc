@@ -29,40 +29,44 @@ using std::cout;
 using std::endl;
 
 //set to 1 for testing invalid options
-const int TESTOPT=0;
+const int TESTOPT = 0;
 
 int
 main(int argc, char** argv)
 {
     CommandLineParser& cmlInter = CommandLineParser::getInstance();
 
-    if(TESTOPT)
-        cout<<"------ Defining Test options -----"<<endl;
+    if (TESTOPT)
+    {
+        cout << "------ Defining Test options -----" << endl;
+    }
 
     //defines options
     try
     {
-        CommandLineParameter& a = cmlInter.addFlagParameter('r',"resistent", "r desc");
-        CommandLineParameter& b = cmlInter.addFlagParameter('g',"ab", "ab desc");
-        CommandLineParameter& c = cmlInter.addStringParameter('f',"file", "<filename f desc");
-        CommandLineParameter& d = cmlInter.addStringParameter('s',"server", "server> s desc");
-        CommandLineParameter& e = cmlInter.addStringParameter(CommandLineParser::noShortName,"ts", "<ts> test -");
+        CommandLineParameter& a = cmlInter.addFlagParameter('r', "resistent", "r desc");
+        CommandLineParameter& b = cmlInter.addFlagParameter('g', "ab", "ab desc");
+        CommandLineParameter& c = cmlInter.addStringParameter('f', "file", "<filename f desc");
+        CommandLineParameter& d = cmlInter.addStringParameter('s', "server", "server> s desc");
+        CommandLineParameter& e = cmlInter.addStringParameter(CommandLineParser::noShortName, "ts", "<ts> test -");
         CommandLineParameter& f = cmlInter.addStringParameter('t', CommandLineParser::noLongName, "<tl> test --", "test --");
 
-        if(TESTOPT)
+        if (TESTOPT)
+        {
             CommandLineParameter& g = cmlInter.addStringParameter(CommandLineParser::noShortName, CommandLineParser::noLongName, "<tl> - --");
+        }
 
     }
-    catch(CmlException& e)
+    catch (CmlException& e)
     {
         cout << "Erorr:" << e.what() << endl;
         return 1;
     }
 
-    cout<<"------ Test options -----"<<endl;
+    cout << "------ Test options -----" << endl;
     cmlInter.printHelp();
 
-    cout<<"------ Correct Start -----"<<endl;
+    cout << "------ Correct Start -----" << endl;
     cmlInter.testProcessCommandLine("-r --ab --file testFile -s serverName");
     cmlInter.testProcessCommandLine("-r --ab --file testFile              ");
     cmlInter.testProcessCommandLine("-r --ab                 -s serverName");
@@ -77,10 +81,10 @@ main(int argc, char** argv)
     cmlInter.testProcessCommandLine(" ");
     cmlInter.testProcessCommandLine("	");
 
-    cout<<"------ Multiple Options Start -----"<<endl;
+    cout << "------ Multiple Options Start -----" << endl;
     cmlInter.testProcessCommandLine("-f F1 -f F2 --file F3 --file F4");
 
-    cout<<"------ Errors Start -----"<<endl;
+    cout << "------ Errors Start -----" << endl;
     cmlInter.testProcessCommandLine("-r -r --resistent --resistent");   // multiple flags not allowed
     cmlInter.testProcessCommandLine("-r --ab --file testFile -s");
     cmlInter.testProcessCommandLine("-r --ab -file testFile");
@@ -95,7 +99,7 @@ main(int argc, char** argv)
     cmlInter.testProcessCommandLine("-r --");
     cmlInter.testProcessCommandLine("-r -- ab --file testFile -s serverName");
 
-    cout<<"------ Test End -----"<<endl;
+    cout << "------ Test End -----" << endl;
 
     return 0;
 }

@@ -12,7 +12,7 @@ namespace test
 class MockAccessRights : public rasmgr::AccessRights
 {
 public:
-    MOCK_CONST_METHOD1(canAccessDb, bool(const std::string& ));
+    MOCK_CONST_METHOD1(canAccessDb, bool(const std::string&));
 };
 }
 }

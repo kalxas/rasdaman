@@ -37,7 +37,7 @@ public class BigDecimalUtilTest {
     /**
      * Triple of i) label of the test -- included in case of error, ii) BigDecimalUtil.divide() inputs, iii) expected output}.
      */
-    private List<Triple<String,bdDivideInputs,BigDecimal>> assertEqualsInOut;
+    private List<Triple<String, bdDivideInputs, BigDecimal>> assertEqualsInOut;
 
     public BigDecimalUtilTest() {}
 
@@ -45,37 +45,37 @@ public class BigDecimalUtilTest {
     public void setUp() {
 
         // init
-        assertEqualsInOut = new ArrayList<Triple<String,bdDivideInputs,BigDecimal>>();
+        assertEqualsInOut = new ArrayList<Triple<String, bdDivideInputs, BigDecimal>>();
 
         // asserts
         assertEqualsInOut.add(Triple.of(
-                "integer/integer = integer",
-                new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(1)),
-                BigDecimal.valueOf(3)));
+                                  "integer/integer = integer",
+                                  new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(1)),
+                                  BigDecimal.valueOf(3)));
         assertEqualsInOut.add(Triple.of(
-                "integer/integer = decimal",
-                new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(2)),
-                BigDecimal.valueOf(1.5)));
+                                  "integer/integer = decimal",
+                                  new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(2)),
+                                  BigDecimal.valueOf(1.5)));
         assertEqualsInOut.add(Triple.of(
-                "integer/decimal = integer",
-                new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(1.5)),
-                BigDecimal.valueOf(2)));
-                assertEqualsInOut.add(Triple.of(
-                "integer/decimal = decimal",
-                new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(2)),
-                BigDecimal.valueOf(1.5)));
+                                  "integer/decimal = integer",
+                                  new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(1.5)),
+                                  BigDecimal.valueOf(2)));
         assertEqualsInOut.add(Triple.of(
-                "decimal/decimal = decimal",
-                new bdDivideInputs(BigDecimal.valueOf(3.46), BigDecimal.valueOf(1.73)),
-                BigDecimal.valueOf(2)));
+                                  "integer/decimal = decimal",
+                                  new bdDivideInputs(BigDecimal.valueOf(3), BigDecimal.valueOf(2)),
+                                  BigDecimal.valueOf(1.5)));
         assertEqualsInOut.add(Triple.of(
-                "decimal/decimal = integer",
-                new bdDivideInputs(BigDecimal.valueOf(3.6), BigDecimal.valueOf(0.5)),
-                BigDecimal.valueOf(7.2)));
+                                  "decimal/decimal = decimal",
+                                  new bdDivideInputs(BigDecimal.valueOf(3.46), BigDecimal.valueOf(1.73)),
+                                  BigDecimal.valueOf(2)));
         assertEqualsInOut.add(Triple.of(
-                "ZERO/decimal",
-                new bdDivideInputs(BigDecimal.ZERO, BigDecimal.valueOf(0.12345678987654321)),
-                BigDecimal.ZERO));
+                                  "decimal/decimal = integer",
+                                  new bdDivideInputs(BigDecimal.valueOf(3.6), BigDecimal.valueOf(0.5)),
+                                  BigDecimal.valueOf(7.2)));
+        assertEqualsInOut.add(Triple.of(
+                                  "ZERO/decimal",
+                                  new bdDivideInputs(BigDecimal.ZERO, BigDecimal.valueOf(0.12345678987654321)),
+                                  BigDecimal.ZERO));
     }
 
     /**
@@ -88,7 +88,7 @@ public class BigDecimalUtilTest {
 
         BigDecimal givenQuotient;
 
-        for (Triple<String,bdDivideInputs,BigDecimal> input : assertEqualsInOut) {
+        for (Triple<String, bdDivideInputs, BigDecimal> input : assertEqualsInOut) {
             // lo < hi
             givenQuotient = BigDecimalUtil.divide(input.snd.dividend, input.snd.divisor);
             assertEquals(input.fst, input.trd, givenQuotient);

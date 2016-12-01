@@ -97,9 +97,13 @@ bool
 KeyObject::isInitialised() const
 {
     if (transobject)
+    {
         return true;
+    }
     if (persobject.isInitialised())
+    {
         return true;
+    }
     return false;
 }
 

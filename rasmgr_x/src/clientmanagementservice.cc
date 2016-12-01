@@ -54,14 +54,14 @@ using grpc::Status;
 using std::string;
 
 ClientManagementService::ClientManagementService(boost::shared_ptr<ClientManager> clientManager)
-    :clientManager(clientManager)
+    : clientManager(clientManager)
 {}
 
 ClientManagementService::~ClientManagementService()
 {}
 
 
-grpc::Status ClientManagementService::Connect(grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response)
+grpc::Status ClientManagementService::Connect(grpc::ServerContext* context, const rasnet::service::ConnectReq* request, rasnet::service::ConnectRepl* response)
 {
     grpc::Status status = Status::OK;
     /**
@@ -70,7 +70,7 @@ grpc::Status ClientManagementService::Connect(grpc::ServerContext *context, cons
      */
     try
     {
-        LDEBUG<<"Started connecting client";
+        LDEBUG << "Started connecting client";
         std::string out_clientUUID;
 
         //Create the ClientCredentials object used for authentication.
@@ -85,18 +85,18 @@ grpc::Status ClientManagementService::Connect(grpc::ServerContext *context, cons
         response->set_clientuuid(out_clientUUID);
         response->set_keepalivetimeout(this->clientManager->getConfig().getClientLifeTime());
 
-        LDEBUG<<"Finished connecting client with ID:"
-              <<response->clientuuid();
+        LDEBUG << "Finished connecting client with ID:"
+               << response->clientuuid();
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
         status  = GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="Connect request failed for unknown reason.";
-        LERROR<<failureReason;
+        string failureReason = "Connect request failed for unknown reason.";
+        LERROR << failureReason;
 
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
@@ -104,30 +104,30 @@ grpc::Status ClientManagementService::Connect(grpc::ServerContext *context, cons
     return status;
 }
 
-grpc::Status ClientManagementService::Disconnect(grpc::ServerContext *context, const rasnet::service::DisconnectReq *request, rasnet::service::Void *response)
+grpc::Status ClientManagementService::Disconnect(grpc::ServerContext* context, const rasnet::service::DisconnectReq* request, rasnet::service::Void* response)
 {
     grpc::Status status = Status::OK;
 
     try
     {
-        LDEBUG<<"Started disconnecting client with ID:"
-              <<request->clientuuid();
+        LDEBUG << "Started disconnecting client with ID:"
+               << request->clientuuid();
 
         this->clientManager->disconnectClient(request->clientuuid());
 
-        LDEBUG<<"Finished disconnecting client with ID:"
-              <<request->clientuuid();
+        LDEBUG << "Finished disconnecting client with ID:"
+               << request->clientuuid();
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
 
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="Disconnect request failed for unknown reason";
-        LERROR<<failureReason;
+        string failureReason = "Disconnect request failed for unknown reason";
+        LERROR << failureReason;
 
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
@@ -135,7 +135,7 @@ grpc::Status ClientManagementService::Disconnect(grpc::ServerContext *context, c
     return status;
 }
 
-grpc::Status ClientManagementService::OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response)
+grpc::Status ClientManagementService::OpenDb(grpc::ServerContext* context, const rasnet::service::OpenDbReq* request, rasnet::service::OpenDbRepl* response)
 {
     string clientId = request->clientuuid();
     string dbName = request->databasename();
@@ -149,23 +149,23 @@ grpc::Status ClientManagementService::OpenDb(grpc::ServerContext *context, const
         //The session is initialized by the call
         this->clientManager->openClientDbSession(clientId, dbName, session);
 
-        LDEBUG_IF(clientId!=session.clientSessionId)<<"Opened remote database session for client with ID:"<<clientId;
+        LDEBUG_IF(clientId != session.clientSessionId) << "Opened remote database session for client with ID:" << clientId;
 
         response->set_clientsessionid(session.clientSessionId);
         response->set_dbsessionid(session.dbSessionId);
         response->set_port(session.serverPort);
         response->set_serverhostname(session.serverHostName);
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
 
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="Open Database request failed for unknown reason.";
-        LERROR<<failureReason;
+        string failureReason = "Open Database request failed for unknown reason.";
+        LERROR << failureReason;
 
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
@@ -173,34 +173,34 @@ grpc::Status ClientManagementService::OpenDb(grpc::ServerContext *context, const
     return status;
 }
 
-grpc::Status ClientManagementService::CloseDb(grpc::ServerContext *context, const rasnet::service::CloseDbReq *request, rasnet::service::Void *response)
+grpc::Status ClientManagementService::CloseDb(grpc::ServerContext* context, const rasnet::service::CloseDbReq* request, rasnet::service::Void* response)
 {
     grpc::Status status;
 
     try
     {
-        LDEBUG<<"Started closing database session: "
-              <<request->dbsessionid()
-              <<"by client with ID"
-              <<request->clientid();
+        LDEBUG << "Started closing database session: "
+               << request->dbsessionid()
+               << "by client with ID"
+               << request->clientid();
 
         this->clientManager->closeClientDbSession(request->clientuuid(), request->dbsessionid());
 
-        LDEBUG<<"Finished closing database session: "
-              <<request->dbsessionid()
-              <<"by client with ID"
-              <<request->clientid();
+        LDEBUG << "Finished closing database session: "
+               << request->dbsessionid()
+               << "by client with ID"
+               << request->clientid();
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
 
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="Close Database request failed with unknown exception";
-        LERROR<<failureReason;
+        string failureReason = "Close Database request failed with unknown exception";
+        LERROR << failureReason;
 
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
@@ -208,28 +208,28 @@ grpc::Status ClientManagementService::CloseDb(grpc::ServerContext *context, cons
     return status;
 }
 
-grpc::Status ClientManagementService::KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *response)
+grpc::Status ClientManagementService::KeepAlive(grpc::ServerContext* context, const rasnet::service::KeepAliveReq* request, rasnet::service::Void* response)
 {
     grpc::Status status = Status::OK;
 
     try
     {
-        LDEBUG<<"Start processing Keep Alive message from client with ID:"<<request->clientuuid();
+        LDEBUG << "Start processing Keep Alive message from client with ID:" << request->clientuuid();
 
         this->clientManager->keepClientAlive(request->clientuuid());
 
-        LDEBUG<<"Finished processing Keep Alive message from client with ID:"<<request->clientuuid();
+        LDEBUG << "Finished processing Keep Alive message from client with ID:" << request->clientuuid();
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
 
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="KeepAlive request failed with unknown exception";
-        LERROR<<failureReason;
+        string failureReason = "KeepAlive request failed with unknown exception";
+        LERROR << failureReason;
 
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }

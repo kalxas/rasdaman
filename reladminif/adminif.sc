@@ -52,7 +52,7 @@ extern char globalConnectId[PATH_MAX];
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN] = "SQLite";
 
 // global connection variable
-sqlite3 *sqliteConn = NULL;
+sqlite3* sqliteConn = NULL;
 
 /**
  * Check if a counter value matches the actual column value in the respective table.

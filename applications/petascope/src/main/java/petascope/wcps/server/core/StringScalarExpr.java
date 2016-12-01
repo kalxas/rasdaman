@@ -84,7 +84,9 @@ public class StringScalarExpr extends AbstractRasNode {
     public String getValue() {
         if (op.equalsIgnoreCase(WcpsConstants.MSG_CONSTANT)) {
             return string;
-        } else return "";
+        } else {
+            return "";
+        }
     }
 
     public boolean isSingleValue() {

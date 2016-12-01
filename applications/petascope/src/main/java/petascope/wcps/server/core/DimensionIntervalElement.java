@@ -69,7 +69,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
      * @throws SecoreException
      */
     public DimensionIntervalElement(Node node, XmlQuery xq, CoverageInfo covInfo)
-            throws WCPSException, SecoreException {
+    throws WCPSException, SecoreException {
 
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
@@ -233,7 +233,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         if (counter == 2 && crs != null) {
             if (domain1.isSingleValue() && domain2.isSingleValue()) {
                 log.debug("[Transformed] requested subsettingCrs is '{}', should match now native CRS '{}'",
-                        crs.getName(), meta.getBbox().getCrsName());
+                          crs.getName(), meta.getBbox().getCrsName());
                 try {
                     // Convert to pixel coordinates
                     String val1 = domain1.getSingleValue();
@@ -335,11 +335,11 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 if (hi.valueIsString() && TimeUtil.isValidTimestamp(hi.toRasQL())) {
                     // other end of interval is a timestamp: need to make a uniform subset
                     lo.setSingleValue(StringUtil.quote(
-                        TimeUtil.coordinate2timestamp(
-                            domEl.getMinValue().multiply(domEl.getScalarResolution()).doubleValue(),
-                            domEl.getCrsDef().getDatumOrigin(),
-                            domEl.getUom())
-                        ));
+                                          TimeUtil.coordinate2timestamp(
+                                              domEl.getMinValue().multiply(domEl.getScalarResolution()).doubleValue(),
+                                              domEl.getCrsDef().getDatumOrigin(),
+                                              domEl.getUom())
+                                      ));
                 } else {
                     lo.setSingleValue(domEl.getMinValue().toString());
                 }
@@ -348,11 +348,11 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 if (lo.valueIsString() && TimeUtil.isValidTimestamp(lo.toRasQL())) {
                     // other end of interval is a timestamp: need to make a uniform subset
                     hi.setSingleValue(StringUtil.quote(
-                        TimeUtil.coordinate2timestamp(
-                            domEl.getMaxValue().multiply(domEl.getScalarResolution()).doubleValue(),
-                            domEl.getCrsDef().getDatumOrigin(),
-                            domEl.getUom())
-                        ));
+                                          TimeUtil.coordinate2timestamp(
+                                              domEl.getMaxValue().multiply(domEl.getScalarResolution()).doubleValue(),
+                                              domEl.getCrsDef().getDatumOrigin(),
+                                              domEl.getUom())
+                                      ));
                 } else {
                     hi.setSingleValue(domEl.getMaxValue().toString());
                 }

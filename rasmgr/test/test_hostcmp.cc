@@ -41,7 +41,7 @@ using namespace std;
 
 #include <iostream>
 
-extern int hostCmp( const char *h1, const char *h2 );
+extern int hostCmp(const char* h1, const char* h2);
 
 int main(int argc, char** argv)
 {
@@ -51,6 +51,6 @@ int main(int argc, char** argv)
         return -2;
     }
 
-    cout << argv[0] << ": hostCmp( " << argv[1] << ", " << argv[2] << " ) -> " << (hostCmp( argv[1], argv[2]) ? "true" : "false") << endl;
+    cout << argv[0] << ": hostCmp( " << argv[1] << ", " << argv[2] << " ) -> " << (hostCmp(argv[1], argv[2]) ? "true" : "false") << endl;
     return 0;
 }

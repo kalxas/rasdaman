@@ -42,7 +42,7 @@ rasdaman GmbH.
 
 struct ServerBase     Server;
 
-struct Logging       *LogBase = &Server.Log;
+struct Logging*       LogBase = &Server.Log;
 
 /****** main/main ************************************************************
 *
@@ -79,44 +79,46 @@ struct Logging       *LogBase = &Server.Log;
 *
 */
 
-extern int init_httpserver( int argc, char *argv[] )
+extern int init_httpserver(int argc, char* argv[])
 {
     pid_t ChildPId;          /* -> Server.ChildInfo   */
 
     LINFO << "Initialising parameters for HTTP server... ";
-    Initialize( argc, argv, &Server );
+    Initialize(argc, argv, &Server);
 
     LINFO << "Initialising server socket for HTTP server... ";
-    listen( Server.SockFD, 5 );
+    listen(Server.SockFD, 5);
     LINFO << "Waiting for client calls... ";
 
 #ifdef PURIFY
-    purify_printf( "Server Startup Finnished." );
+    purify_printf("Server Startup Finnished.");
     purify_new_leaks();
 #endif
 
     /*   // this is a quick hack for testing */
     /*   return 0; */
-    for(;;)
+    for (;;)
     {
-        Accept( Server.SockFD, &Server.Client );
+        Accept(Server.SockFD, &Server.Client);
 
-        strcpy( Server.Client.Host.IPAddrString, inet_ntoa( Server.Client.Socket.sin_addr ) );
+        strcpy(Server.Client.Host.IPAddrString, inet_ntoa(Server.Client.Socket.sin_addr));
 
-        if( Server.Client.Host.IPAddrString == NULL )
-            strcpy( Server.Client.Host.IPAddrString, "0.0.0.0" );
+        if (Server.Client.Host.IPAddrString == NULL)
+        {
+            strcpy(Server.Client.Host.IPAddrString, "0.0.0.0");
+        }
 
-        Server.Client.Host.IPAddress = inet_addr( Server.Client.Host.IPAddrString );
+        Server.Client.Host.IPAddress = inet_addr(Server.Client.Host.IPAddrString);
         Server.Client.Comm.ConnStatus      = CONN_UNDEFINED;
-        InitHTTPMsg( &Server.Client.Response );
-        InitReqInfo( &Server.Client.Request );
+        InitHTTPMsg(&Server.Client.Response);
+        InitReqInfo(&Server.Client.Request);
 
-        LogMsg( LG_SERVER, INFO, "INFO:  ====== Connection from %s accepted...",
-                Server.Client.Host.IPAddrString );
-        HandleRequest( &Server.Client );
-        LogMsg( LG_SERVER, INFO, "INFO:  ====== EOT. Disconnecting." );
+        LogMsg(LG_SERVER, INFO, "INFO:  ====== Connection from %s accepted...",
+               Server.Client.Host.IPAddrString);
+        HandleRequest(&Server.Client);
+        LogMsg(LG_SERVER, INFO, "INFO:  ====== EOT. Disconnecting.");
 
-        close( Server.Client.SockFD );
+        close(Server.Client.SockFD);
 
     }
     // otherwise Exit(OK) should have been called
@@ -160,31 +162,34 @@ extern int init_httpserver( int argc, char *argv[] )
 *
 */
 
-int Exit( int RC )
+int Exit(int RC)
 {
     int i;
 
     //  for( i = 0; i < NUM_SUBSERVER; i++ )
     //    close( SubServer[i].SockFD );
-    close( Server.SockFD );
+    close(Server.SockFD);
 
-    if( getpid() == Server.PId )  /*  Is this the parent process?  */
+    if (getpid() == Server.PId)   /*  Is this the parent process?  */
     {
-        unlink( Server.PidFile );
-        LogMsg( LG_SERVER, DEBUG, "DEBUG: Main process exiting (RC=%d)...", RC );
-        LogMsg( LG_SERVER, INFO,
-                "INFO:  ========= %s terminated. ============", DAEMONNAME );
+        unlink(Server.PidFile);
+        LogMsg(LG_SERVER, DEBUG, "DEBUG: Main process exiting (RC=%d)...", RC);
+        LogMsg(LG_SERVER, INFO,
+               "INFO:  ========= %s terminated. ============", DAEMONNAME);
     }
     else
     {
-        LogMsg( LG_SERVER, DEBUG, "DEBUG: Exiting (RC=%d)...", RC );
+        LogMsg(LG_SERVER, DEBUG, "DEBUG: Exiting (RC=%d)...", RC);
     }
 
-    CloseLog( &Server.Log );
+    CloseLog(&Server.Log);
 
     free(Server.Directory);
 
-    if(RC != OK) throw r_Error( r_Error::r_Error_General );
+    if (RC != OK)
+    {
+        throw r_Error(r_Error::r_Error_General);
+    }
     return RC;
 }
 

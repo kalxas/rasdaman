@@ -50,9 +50,9 @@ rasdaman GmbH.
 class HierIndexDS   :   public IndexDS
 {
 public:
-    HierIndexDS():IndexDS() {}
+    HierIndexDS(): IndexDS() {}
 
-    HierIndexDS(const OId& id):IndexDS(id) {}
+    HierIndexDS(const OId& id): IndexDS(id) {}
 
     virtual double getOccupancy() const = 0;
     /*@Doc:

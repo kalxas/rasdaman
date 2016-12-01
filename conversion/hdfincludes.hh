@@ -28,12 +28,12 @@
  * BUGS:
  *
  * AUTHORS:
- * 	Alex Dumitru <alex@flanche.net>
- * 	Vlad Mericariu <vlad@flanche.net>
+ *  Alex Dumitru <alex@flanche.net>
+ *  Vlad Mericariu <vlad@flanche.net>
  *
  ************************************************************/
 #ifndef HDFINCLUDES_H
-#define	HDFINCLUDES_H
+#define HDFINCLUDES_H
 
 #include "config.h"
 
@@ -72,4 +72,4 @@
 
 #endif
 
-#endif	/* HDFINCLUDES_H */
+#endif  /* HDFINCLUDES_H */

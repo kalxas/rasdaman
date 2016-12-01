@@ -32,7 +32,7 @@
 _INITIALIZE_EASYLOGGINGPP
 using namespace std;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     easyloggingpp::Configurations defaultConf;
     defaultConf.setToDefault();

@@ -45,7 +45,7 @@ using namespace std;
 
 
 
-FastCollectionCreator::FastCollectionCreator(const char *collName, const char *collTypeName)
+FastCollectionCreator::FastCollectionCreator(const char* collName, const char* collTypeName)
 {
     collectionName     = collName;
 
@@ -58,13 +58,13 @@ r_OId FastCollectionCreator::createCollection()
 
     // allocate a new OId
     EOId eOId;
-    EOId::allocateEOId( eOId, OId::MDDCOLLOID );
-    r_OId oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+    EOId::allocateEOId(eOId, OId::MDDCOLLOID);
+    r_OId oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
 
-    CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType( collectionTypeName )));
+    CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType(collectionTypeName)));
 
     LINFO << "Creating collection " << collectionName << " with type " << collectionTypeName << "...";
-    if( collType )
+    if (collType)
     {
         try
         {
@@ -72,7 +72,7 @@ r_OId FastCollectionCreator::createCollection()
             delete coll;
             LINFO << "OK";
         }
-        catch( r_Error& obj )
+        catch (r_Error& obj)
         {
             if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
             {
@@ -94,29 +94,33 @@ r_OId FastCollectionCreator::createCollection()
     return oid;
 }
 
-void FastCollectionCreator::verifyName( const char* name ) throw(r_Error)
+void FastCollectionCreator::verifyName(const char* name) throw(r_Error)
 {
-    if(!name)
+    if (!name)
     {
         LFATAL << "FastCollectionCreator::verifyName() name is null!";
         throw r_Error(INVALIDOBJECTNAME);
     }
 
-    const char* cptr=name;
+    const char* cptr = name;
 
     //check if the name contains only [a-zA-Z0-9_]
-    while(*cptr)
+    while (*cptr)
     {
-        if( ((*cptr >= 'a') && (*cptr <='z')) ||
-                ((*cptr >= 'A') && (*cptr <='Z')) ||
-                ((*cptr >= '0') && (*cptr <='9')) ||
-                (*cptr == '_')            )
+        if (((*cptr >= 'a') && (*cptr <= 'z')) ||
+                ((*cptr >= 'A') && (*cptr <= 'Z')) ||
+                ((*cptr >= '0') && (*cptr <= '9')) ||
+                (*cptr == '_'))
+        {
             cptr++;
+        }
         else
+        {
             break;
+        }
     }
 
-    if(*cptr)
+    if (*cptr)
     {
         //invalid character in object name
         LFATAL << "FastCollectionCreator::verifyName(" << name << ") invalid name!";
@@ -137,7 +141,10 @@ FastMDDCreator::FastMDDCreator()
 
 FastMDDCreator::~FastMDDCreator()
 {
-    if(comprData) free(comprData);
+    if (comprData)
+    {
+        free(comprData);
+    }
 }
 
 void FastMDDCreator::setCollectionName(const char* collName)
@@ -164,61 +171,71 @@ void FastMDDCreator::verifyCompatibility(MDDColl* collection) throw (r_Error)
     char* collTypeStructure = collection->getCollectionType()->getTypeStructure();
     //LINFO << "collTypeStructure=" << collTypeStructure;
 
-    const MDDType* mddType = TypeFactory::mapMDDType( mddTypeName.c_str() );
-    if(mddType == NULL) throw r_Error(MDDTYPE_NULL);
+    const MDDType* mddType = TypeFactory::mapMDDType(mddTypeName.c_str());
+    if (mddType == NULL)
+    {
+        throw r_Error(MDDTYPE_NULL);
+    }
 
     char* mddTypeStructure  = mddType->getTypeStructure();
     //LINFO << "mddTypeStructure=" << mddTypeStructure;
 
 
-    if(mddType->compatibleWithDomain( &definitionInterval ))
+    if (mddType->compatibleWithDomain(&definitionInterval))
     {
         //LINFO << "compatibil with domain: " << definitionInterval;
     }
-    else throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
+    else
+    {
+        throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
+    }
     //LFATAL << "incompatibil with domain";
 
-    if(collection->getCollectionType()->compatibleWith( mddType ))
+    if (collection->getCollectionType()->compatibleWith(mddType))
     {
         //LINFO << "compatibil with collection";
     }
     else
+    {
         throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
+    }
     //LFATAL << "incompatibil with collection";
 
-    free( collTypeStructure );
-    free( mddTypeStructure );
+    free(collTypeStructure);
+    free(mddTypeStructure);
 }
 
-r_OId FastMDDCreator::createMDD(const char *domain)
+r_OId FastMDDCreator::createMDD(const char* domain)
 {
     definitionInterval = r_Minterval(domain);
 
-    MDDColl* collection = MDDColl::getMDDCollection( collectionName.c_str() );
+    MDDColl* collection = MDDColl::getMDDCollection(collectionName.c_str());
 
     verifyCompatibility(collection);
 
-    const MDDType* mddType    = TypeFactory::mapMDDType( mddTypeName.c_str() );
+    const MDDType* mddType    = TypeFactory::mapMDDType(mddTypeName.c_str());
     MDDBaseType*  mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
     //allocate oid-ul;
     EOId eOId;
-    EOId::allocateEOId( eOId, OId::MDDOID );
+    EOId::allocateEOId(eOId, OId::MDDOID);
 
-    mddOId = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+    mddOId = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
 
     StorageLayout ms;
     ms.setTileSize(StorageLayout::DefaultTileSize);
     ms.setIndexType(StorageLayout::DefaultIndexType);
     ms.setTilingScheme(StorageLayout::DefaultTilingScheme);
     if (definitionInterval.dimension() == StorageLayout::DefaultTileConfiguration.dimension())
+    {
         ms.setTileConfiguration(StorageLayout::DefaultTileConfiguration);
+    }
 
     mymdd = new MDDObj(mddBaseType, definitionInterval, eOId.getOId(), ms);
 
     cellSize = static_cast<int>(mymdd->getCellType()->getSize());
 
-    collection->insert( mymdd );
+    collection->insert(mymdd);
 
     collection->releaseAll();
 
@@ -227,23 +244,23 @@ r_OId FastMDDCreator::createMDD(const char *domain)
     return mddOId;
 }
 
-r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
+r_OId FastMDDCreator::createRCxMDD(const char* domain, const char* tileDomain)
 {
     definitionInterval = r_Minterval(domain);
     r_Minterval tileInterval = r_Minterval(tileDomain);
 
-    MDDColl* collection = MDDColl::getMDDCollection( collectionName.c_str() );
+    MDDColl* collection = MDDColl::getMDDCollection(collectionName.c_str());
 
     verifyCompatibility(collection);
 
-    const MDDType* mddType    = TypeFactory::mapMDDType( mddTypeName.c_str() );
+    const MDDType* mddType    = TypeFactory::mapMDDType(mddTypeName.c_str());
     MDDBaseType*  mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
     //allocate oid-ul;
     EOId eOId;
-    EOId::allocateEOId( eOId, OId::MDDOID );
+    EOId::allocateEOId(eOId, OId::MDDOID);
 
-    mddOId = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+    mddOId = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
 
     StorageLayout ms;
     ms.setTileSize(tileInterval.cell_count() * mddBaseType->getBaseType()->getSize());
@@ -256,7 +273,7 @@ r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
 
     cellSize = static_cast<int>(mymdd->getCellType()->getSize());
 
-    collection->insert( mymdd );
+    collection->insert(mymdd);
 
     collection->releaseAll();
 
@@ -264,26 +281,26 @@ r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
     return mddOId;
 }
 
-vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId2, const char *stripeDomain)
+vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId2, const char* stripeDomain)
 {
-    mymdd = new MDDObj( OId(mddOId2.get_local_oid()) );
+    mymdd = new MDDObj(OId(mddOId2.get_local_oid()));
 
     r_Minterval stripeInterval(stripeDomain);
 
-    vector< boost::shared_ptr<Tile> >* tiles = mymdd->intersect(stripeInterval);
+    vector<boost::shared_ptr<Tile>>* tiles = mymdd->intersect(stripeInterval);
 
     vector<r_Minterval> result;
 
-    for(unsigned int i=0; i < tiles->size(); i++)
+    for (unsigned int i = 0; i < tiles->size(); i++)
     {
-        result.push_back( (*tiles)[i]->getDomain());
+        result.push_back((*tiles)[i]->getDomain());
     }
     delete tiles;
     delete mymdd;
     return result;
 }
 
-void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const char *tileDomain)
+void FastMDDCreator::addStripe(r_OId _mddOId, const char* stripeDomain, const char* tileDomain)
 {
     mddOId = _mddOId;
 
@@ -291,7 +308,7 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
     r_Minterval tileInterval(tileDomain);
 
 
-    mymdd = new MDDObj( OId(mddOId.get_local_oid()) );
+    mymdd = new MDDObj(OId(mddOId.get_local_oid()));
     cellSize = static_cast<int>(mymdd->getCellType()->getSize());
     const BaseType* baseType = mymdd->getMDDBaseType()->getBaseType();
 
@@ -306,24 +323,24 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
 
         createCompressedTileData(currentSlInterval, baseType);
 
-        Tile* tile = new Tile( currentSlInterval, baseType, comprData, static_cast<r_Bytes>(comprDataSize), storageFormat);
+        Tile* tile = new Tile(currentSlInterval, baseType, comprData, static_cast<r_Bytes>(comprDataSize), storageFormat);
         tile->setPersistent(true);
 
-        mymdd->insertTile( tile );
+        mymdd->insertTile(tile);
     }
 
     delete mymdd;
 }
 
 
-void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attribute__ ((unused)) const BaseType* baseType)
+void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attribute__((unused)) const BaseType* baseType)
 {
     static unsigned int lastSize = 0;
     unsigned int uncompressedSize = tileInterval.cell_count() * static_cast<unsigned int>(cellSize);
 
-    if(comprData)
+    if (comprData)
     {
-        if(lastSize == uncompressedSize)
+        if (lastSize == uncompressedSize)
         {
             return;
         }
@@ -338,12 +355,12 @@ void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, __attri
     r_Data_Format comprMode = storageFormat; ;
 
     char* dataPtr = static_cast<char*>(mymalloc(uncompressedSize));
-    memset(dataPtr,0,uncompressedSize);
+    memset(dataPtr, 0, uncompressedSize);
 
     r_ULong newSize = uncompressedSize;
     comprData = dataPtr;
     comprDataSize = static_cast<int>(newSize);
 
-    lastSize= uncompressedSize;
+    lastSize = uncompressedSize;
 }
 

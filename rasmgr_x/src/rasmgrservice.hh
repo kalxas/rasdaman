@@ -38,14 +38,14 @@ class ServerManager;
  * @brief The RasmgrService class represents a GRPC service that is offered by a rasmgr
  * to other rasmgrs. It allows a remote rasmgr to acquire and release servers from clients.
  */
-class RasmgrService:public rasnet::service::RasmgrRasmgrService::Service
+class RasmgrService: public rasnet::service::RasmgrRasmgrService::Service
 {
 public:
     RasmgrService(boost::shared_ptr<ClientManager> clientManager);
 
     virtual ~RasmgrService();
 
-    virtual grpc::Status TryGetRemoteServer(grpc::ServerContext *context, const rasnet::service::GetRemoteServerRequest *request, rasnet::service::GetRemoteServerReply *response);
+    virtual grpc::Status TryGetRemoteServer(grpc::ServerContext* context, const rasnet::service::GetRemoteServerRequest* request, rasnet::service::GetRemoteServerReply* response);
 
     virtual ::grpc::Status ReleaseServer(::grpc::ServerContext* context, const ::rasnet::service::ReleaseServerRequest* request, ::rasnet::service::Void* response);
 

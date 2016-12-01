@@ -111,7 +111,7 @@ public class WcsServer {
                 marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new PetascopeXmlNamespaceMapper());
                 marshaller.setProperty("jaxb.formatted.output", true);
                 marshaller.setProperty("jaxb.schemaLocation", "http://www.opengis.net/wcs/1.1 http://schemas.opengis.net/wcs/1.1.0/wcsGetCapabilities.xsd "
-                        + "http://www.opengis.net/wcs/1.1/ows http://schemas.opengis.net/wcs/1.1.0/owsGetCapabilities.xsd");
+                                       + "http://www.opengis.net/wcs/1.1/ows http://schemas.opengis.net/wcs/1.1.0/owsGetCapabilities.xsd");
 
                 marshaller.marshal(cap, xmlStreamWriter);
             } catch (final Exception e) {
@@ -135,7 +135,7 @@ public class WcsServer {
      * WcsServer GetCoverage operation
      */
     public String GetCoverage(String stringXml, Wcps wcps)
-            throws WCSException, PetascopeException, SecoreException {
+    throws WCSException, PetascopeException, SecoreException {
         String output = "Default output. ";
 
         try {
@@ -198,7 +198,7 @@ public class WcsServer {
                 marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new PetascopeXmlNamespaceMapper());
                 marshaller.setProperty("jaxb.formatted.output", true);
                 marshaller.setProperty("jaxb.schemaLocation", "http://www.opengis.net/wcs/1.1 http://schemas.opengis.net/wcs/1.1.0/wcsDescribeCoverage.xsd "
-                        + "http://www.opengis.net/wcs/1.1/ows http://schemas.opengis.net/wcs/1.1.0/owcsAll.xsd");
+                                       + "http://www.opengis.net/wcs/1.1/ows http://schemas.opengis.net/wcs/1.1.0/owcsAll.xsd");
 
                 marshaller.marshal(covs, xmlStreamWriter);
             } catch (final Exception e) {

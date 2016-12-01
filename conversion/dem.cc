@@ -56,30 +56,30 @@ using namespace std;
 #include <easylogging++.h>
 
 
-const r_Dimension r_Conv_DEM::srcIntervDim=1;
-const r_Dimension r_Conv_DEM::destIntervDim=2;
-const r_ULong     r_Conv_DEM::paramMin=6;
-const char*       r_Conv_DEM::paramSep=",";
-const char*       r_Conv_DEM::paramEq="=";
-const char*       r_Conv_DEM::paramFlipX="flipx";
-const char*       r_Conv_DEM::paramFlipY="flipy";
-const char*       r_Conv_DEM::paramStartX="startx";
-const char*       r_Conv_DEM::paramEndX="endx";
-const char*       r_Conv_DEM::paramResX="resx";
-const char*       r_Conv_DEM::paramStartY="starty";
-const char*       r_Conv_DEM::paramEndY="endy";
-const char*       r_Conv_DEM::paramResY="resy";
+const r_Dimension r_Conv_DEM::srcIntervDim = 1;
+const r_Dimension r_Conv_DEM::destIntervDim = 2;
+const r_ULong     r_Conv_DEM::paramMin = 6;
+const char*       r_Conv_DEM::paramSep = ",";
+const char*       r_Conv_DEM::paramEq = "=";
+const char*       r_Conv_DEM::paramFlipX = "flipx";
+const char*       r_Conv_DEM::paramFlipY = "flipy";
+const char*       r_Conv_DEM::paramStartX = "startx";
+const char*       r_Conv_DEM::paramEndX = "endx";
+const char*       r_Conv_DEM::paramResX = "resx";
+const char*       r_Conv_DEM::paramStartY = "starty";
+const char*       r_Conv_DEM::paramEndY = "endy";
+const char*       r_Conv_DEM::paramResY = "resy";
 
 const r_Double r_Conv_DEM::NULL_DB = 0.;
 const r_Double r_Conv_DEM::ZERO_DB = FLT_MIN;
 const r_Double r_Conv_DEM::ZERO_DEM = 0.;
 
-r_Conv_DEM::~r_Conv_DEM( void )
+r_Conv_DEM::~r_Conv_DEM(void)
 {
     //nothing to care for
 }
 
-void r_Conv_DEM::initGeoBBox( r_GeoBBox& cBBox )
+void r_Conv_DEM::initGeoBBox(r_GeoBBox& cBBox)
 {
     //flipy is selected by default
     cBBox.flipy = 1;
@@ -113,7 +113,7 @@ bool
 r_Conv_DEM::decodeOptions(const char* options,
                           r_GeoBBox& cBBox) throw()
 {
-    LINFO  << "r_Conv_DEM::decodeOptions(" << (options?options:"NULL") << ")";
+    LINFO  << "r_Conv_DEM::decodeOptions(" << (options ? options : "NULL") << ")";
 
     r_Parse_Params parseParams;
 
@@ -129,45 +129,45 @@ r_Conv_DEM::decodeOptions(const char* options,
     parseParams.add(paramResY,   &cBBox.resy,   r_Parse_Params::param_type_double);
 
     //process options
-    r_Long processRet=parseParams.process(options);
-    if(processRet < static_cast<int>(paramMin))
+    r_Long processRet = parseParams.process(options);
+    if (processRet < static_cast<int>(paramMin))
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: Some required options are missing!";
         return false;
     }
 
     //check if start,res,end are present
-    if(cBBox.startx == DBL_MAX)
+    if (cBBox.startx == DBL_MAX)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: startx is not present!";
         return false;
     }
 
-    if(cBBox.starty == DBL_MAX)
+    if (cBBox.starty == DBL_MAX)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: starty is not present!";
         return false;
     }
 
-    if(cBBox.endx == DBL_MAX)
+    if (cBBox.endx == DBL_MAX)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: endx is not present!";
         return false;
     }
 
-    if(cBBox.endy == DBL_MAX)
+    if (cBBox.endy == DBL_MAX)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: endy is not present!";
         return false;
     }
 
-    if(cBBox.resx == DBL_MAX)
+    if (cBBox.resx == DBL_MAX)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: resx is not present!";
         return false;
     }
 
-    if(cBBox.resy == DBL_MAX)
+    if (cBBox.resy == DBL_MAX)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: resy is not present!";
         return false;
@@ -175,26 +175,26 @@ r_Conv_DEM::decodeOptions(const char* options,
 
 
     //check res
-    if(!cBBox.resx)
+    if (!cBBox.resx)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: resx is zero!";
         return false;
     }
 
-    if(!cBBox.resy)
+    if (!cBBox.resy)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: resy is zero!";
         return false;
     }
 
     //check start >= end
-    if(cBBox.startx >= cBBox.endx )
+    if (cBBox.startx >= cBBox.endx)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Error: startx >= endx!";
         return false;
     }
 
-    if(cBBox.starty >= cBBox.endy)
+    if (cBBox.starty >= cBBox.endy)
     {
         LERROR  << "r_Conv_DEM::decodeOptions(...) Erorr: starty >= endy!";
         return false;
@@ -202,14 +202,14 @@ r_Conv_DEM::decodeOptions(const char* options,
 
     //show parsed options
     LINFO   << "r_Conv_DEM::decodeOptions(...) parsed options:\n"
-                    << " " << paramFlipX  << paramEq << cBBox.flipx
-                    << " " << paramFlipY  << paramEq << cBBox.flipy  << "\n"
-                    << " " << paramStartX << paramEq << cBBox.startx
-                    << " " << paramEndX   << paramEq << cBBox.endx
-                    << " " << paramResX   << paramEq << cBBox.resx   << "\n"
-                    << " " << paramStartY << paramEq << cBBox.starty
-                    << " " << paramEndY   << paramEq << cBBox.endy
-                    << " " << paramResY   << paramEq << cBBox.resy;
+            << " " << paramFlipX  << paramEq << cBBox.flipx
+            << " " << paramFlipY  << paramEq << cBBox.flipy  << "\n"
+            << " " << paramStartX << paramEq << cBBox.startx
+            << " " << paramEndX   << paramEq << cBBox.endx
+            << " " << paramResX   << paramEq << cBBox.resx   << "\n"
+            << " " << paramStartY << paramEq << cBBox.starty
+            << " " << paramEndY   << paramEq << cBBox.endy
+            << " " << paramResY   << paramEq << cBBox.resy;
     return true;
 }
 
@@ -239,28 +239,28 @@ r_Conv_DEM::checkLimits() throw(r_Error)
 {
     //show processed data
     LINFO   << "r_Conv_DEM::checkLimits() processed data:\n"
-                    << " minx=" << min.x  << " miny=" << min.y << " minh=" << min.h << "\n"
-                    << " maxx=" << max.x  << " maxy=" << max.y << " maxh=" << max.h;
+            << " minx=" << min.x  << " miny=" << min.y << " minh=" << min.h << "\n"
+            << " maxx=" << max.x  << " maxy=" << max.y << " maxh=" << max.h;
     // printf( "r_Conv_DEM::checkLimits() processed data: minx=%8G, miny=%8G, minh=%8G, maxx=%8G, maxy=%8G, maxh=%8G\n", min.x, min.y, min.h, max.x, max.y, max.h );
 
-    if(collBBox.startx > min.x)
+    if (collBBox.startx > min.x)
     {
         LFATAL << "r_Conv_DEM::checkLimits() startx( " << collBBox.startx << ") > min.x (" << min.x << " )!";
         throw r_Error();
     }
-    if(collBBox.endx < max.x)
+    if (collBBox.endx < max.x)
     {
         LFATAL << "r_Conv_DEM::checkLimits() endx( " << collBBox.endx << ") < max.x (" << max.x << " )!";
         throw r_Error();
     }
 
-    if(collBBox.starty > min.y)
+    if (collBBox.starty > min.y)
     {
         LFATAL << "r_Conv_DEM::checkLimits() starty( " << collBBox.starty << ")  > min.y (" << min.y << " )!";
         throw r_Error();
     }
 
-    if(collBBox.endy < max.y)
+    if (collBBox.endy < max.y)
     {
         LFATAL << "r_Conv_DEM::checkLimits() endy( " << collBBox.endy << ") < max.y (" << max.y << " )!";
         throw r_Error();
@@ -272,20 +272,20 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 {
     istringstream iFile(desc.src);
     string currStrRow;
-    r_Long rowNo=0;
+    r_Long rowNo = 0;
     r_Double noResx, noResy;
     DEMRow currRow, prevRow;
 
-    min.x=min.y=min.h=DBL_MAX;
-    max.x=max.y=max.h=-DBL_MAX;
+    min.x = min.y = min.h = DBL_MAX;
+    max.x = max.y = max.h = -DBL_MAX;
     demRows.clear();
 
     //process the lines
-    while(!iFile.eof())
+    while (!iFile.eof())
     {
         getline(iFile, currStrRow);
         rowNo++;
-        if(currStrRow.empty())
+        if (currStrRow.empty())
         {
             // LDEBUG << "r_Conv_DEM::readFromSrcStream() skipping empty line " << rowNo;
             continue;
@@ -300,7 +300,7 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 
             //decode x
             icurrRow >> currRow.x;
-            if(!icurrRow)
+            if (!icurrRow)
             {
                 LERROR << "Error in r_Conv_DEM::readFromSrcStream():: unable to decode x in line " << rowNo << ", skipping line: " << currStrRow;
                 continue;
@@ -308,7 +308,7 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 
             //decode y
             icurrRow >> currRow.y;
-            if(!icurrRow)
+            if (!icurrRow)
             {
                 LERROR << "Error in r_Conv_DEM::readFromSrcStream():: unable to decode y in line " << rowNo << ", skipping line: " << currStrRow;
                 continue;
@@ -316,7 +316,7 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 
             //decode h
             icurrRow >> currRow.h;
-            if(!icurrRow)
+            if (!icurrRow)
             {
                 LERROR << "Error in r_Conv_DEM::readFromSrcStream():: unable to decode h in line " << rowNo << ", skipping line: " << currStrRow;
                 continue;
@@ -324,8 +324,10 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 
             //update to support NULL value: 0. (real value) goes in FLT_MIN(db value)
             //because 0.(db value) represent NULL(real value). When we do export we skip NULL values.
-            if(currRow.h == ZERO_DEM)
-                currRow.h=ZERO_DB;
+            if (currRow.h == ZERO_DEM)
+            {
+                currRow.h = ZERO_DB;
+            }
 
             //FIXME we ignore this check, because it may happen to have a incomplet dem
             /*
@@ -347,12 +349,12 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
             */
 
             //compute min, max for x,y,z
-            min.x=std::min<r_Double>(min.x, currRow.x);
-            min.y=std::min<r_Double>(min.y, currRow.y);
-            min.h=std::min<r_Double>(min.h, currRow.h);
-            max.x=std::max<r_Double>(max.x, currRow.x);
-            max.y=std::max<r_Double>(max.y, currRow.y);
-            max.h=std::max<r_Double>(max.h, currRow.h);
+            min.x = std::min<r_Double>(min.x, currRow.x);
+            min.y = std::min<r_Double>(min.y, currRow.y);
+            min.h = std::min<r_Double>(min.h, currRow.h);
+            max.x = std::max<r_Double>(max.x, currRow.x);
+            max.y = std::max<r_Double>(max.y, currRow.y);
+            max.h = std::max<r_Double>(max.h, currRow.h);
 
             //store currRow
             demRows.push_back(currRow);
@@ -360,7 +362,7 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 
     }//end reading src stream
 
-    if(demRows.empty())
+    if (demRows.empty())
     {
         // LDEBUG << "r_Conv_DEM::readFromSrcStream() desc.src stream empty.";
         throw r_Error();
@@ -376,131 +378,139 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 void
 r_Conv_DEM::readToSrcStream() throw(r_Error)
 {
-    r_Long x=0, y=0;
-    r_Long xlow=0, ylow=0;
-    r_Long xhigh=0, yhigh=0;
+    r_Long x = 0, y = 0;
+    r_Long xlow = 0, ylow = 0;
+    r_Long xhigh = 0, yhigh = 0;
     DEMRow currRow;
-    r_Bytes typeSize=0;
-    r_Long offset=0;
-    char* buffer=NULL;
+    r_Bytes typeSize = 0;
+    r_Long offset = 0;
+    char* buffer = NULL;
 
     //initialize
-    xlow=desc.srcInterv[0].low();
-    ylow=desc.srcInterv[1].low();
+    xlow = desc.srcInterv[0].low();
+    ylow = desc.srcInterv[1].low();
 
-    xhigh=desc.srcInterv[0].high();
-    yhigh=desc.srcInterv[1].high();
+    xhigh = desc.srcInterv[0].high();
+    yhigh = desc.srcInterv[1].high();
 
     //compute min & max
     if (collBBox.flipx)
     {
-        min.x=collBBox.endx - xhigh*collBBox.resx;
-        max.x=collBBox.endx - xlow*collBBox.resx;
+        min.x = collBBox.endx - xhigh * collBBox.resx;
+        max.x = collBBox.endx - xlow * collBBox.resx;
     }
     else
     {
-        min.x=collBBox.startx + xlow*collBBox.resx;
-        max.x=collBBox.startx + xhigh*collBBox.resx;
+        min.x = collBBox.startx + xlow * collBBox.resx;
+        max.x = collBBox.startx + xhigh * collBBox.resx;
     }
 
-    if(collBBox.flipy)
+    if (collBBox.flipy)
     {
-        min.y=collBBox.endy - yhigh*collBBox.resy;
-        max.y=collBBox.endy - ylow*collBBox.resy;
+        min.y = collBBox.endy - yhigh * collBBox.resy;
+        max.y = collBBox.endy - ylow * collBBox.resy;
     }
     else
     {
-        min.y=collBBox.starty + ylow*collBBox.resy;
-        max.y=collBBox.starty + yhigh*collBBox.resy;
+        min.y = collBBox.starty + ylow * collBBox.resy;
+        max.y = collBBox.starty + yhigh * collBBox.resy;
     }
 
-    min.h=DBL_MAX;
-    max.h=-DBL_MAX;
+    min.h = DBL_MAX;
+    max.h = -DBL_MAX;
 
     //check limits
     checkLimits();
 
     //prepare container
     demRows.clear();
-    typeSize=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->size();
-    buffer=new char[typeSize];
-    if(!buffer)
+    typeSize = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->size();
+    buffer = new char[typeSize];
+    if (!buffer)
     {
         LFATAL << "r_Conv_DEM::readToSrcStream() unable to claim memory !";
         throw  r_Ememory_allocation();
     }
-    for(y=ylow; y<=yhigh; y++)
+    for (y = ylow; y <= yhigh; y++)
     {
-        if(collBBox.flipy)
-            currRow.y=collBBox.endy - y*collBBox.resy;
-        else
-            currRow.y=collBBox.starty + y*collBBox.resy;
-
-        for(x=xlow; x<=xhigh; x++)
+        if (collBBox.flipy)
         {
-            if(collBBox.flipx)
-                currRow.x=collBBox.endx - x*collBBox.resx;
+            currRow.y = collBBox.endy - y * collBBox.resy;
+        }
+        else
+        {
+            currRow.y = collBBox.starty + y * collBBox.resy;
+        }
+
+        for (x = xlow; x <= xhigh; x++)
+        {
+            if (collBBox.flipx)
+            {
+                currRow.x = collBBox.endx - x * collBBox.resx;
+            }
             else
-                currRow.x=collBBox.startx + x*collBBox.resx;
-            offset=desc.srcInterv.cell_offset(r_Point(x,y))*typeSize;
+            {
+                currRow.x = collBBox.startx + x * collBBox.resx;
+            }
+            offset = desc.srcInterv.cell_offset(r_Point(x, y)) * typeSize;
             memcpy(buffer, &desc.src[offset], typeSize);
 
-            switch(desc.srcType->type_id())
+            switch (desc.srcType->type_id())
             {
             case r_Type::BOOL:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_boolean(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_boolean(buffer);
                 break;
             case r_Type::CHAR:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_char(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_char(buffer);
                 break;
             case r_Type::OCTET:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_octet(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_octet(buffer);
                 break;
             case r_Type::SHORT:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_short(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_short(buffer);
                 break;
             case r_Type::USHORT:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_ushort(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_ushort(buffer);
                 break;
             case r_Type::LONG:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_long(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_long(buffer);
                 break;
             case r_Type::ULONG:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_ulong(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_ulong(buffer);
                 break;
             case r_Type::FLOAT:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_float(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_float(buffer);
                 break;
             case r_Type::DOUBLE:
-                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_double(buffer);
+                currRow.h = (static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_double(buffer);
                 break;
             default:
                 //write message to log
                 LFATAL << "r_Conv_DEM::readToSrcStream() srcType (" << desc.srcType->type_id() <<  ") unsupported !";
                 //clean up
-                if(buffer)
+                if (buffer)
                 {
                     delete[] buffer;
-                    buffer=NULL;
+                    buffer = NULL;
                 }
                 //report error
                 throw r_Error();
                 break;
             }
-            min.h=std::min<r_Double>(min.h, currRow.h);
-            max.h=std::max<r_Double>(max.h, currRow.h);
+            min.h = std::min<r_Double>(min.h, currRow.h);
+            max.h = std::max<r_Double>(max.h, currRow.h);
             demRows.push_back(currRow);
         }
     }
 
     //clean up
-    if(buffer)
+    if (buffer)
     {
         delete[] buffer;
-        buffer=NULL;
+        buffer = NULL;
     }
 
-    if(demRows.empty())
+    if (demRows.empty())
     {
         LFATAL << "r_Conv_DEM::readToSrcStream() src stream is empty !";
         throw r_Error();
@@ -516,34 +526,42 @@ r_Conv_DEM::writeFromDestStream() throw(r_Error)
     DEMRowVec::const_iterator iter, iterEnd;
     r_Long xdim, ydim, offset;
     r_Point currPt(destIntervDim);
-    r_Bytes typeSize=0;
+    r_Bytes typeSize = 0;
 
 
     //FIXME here we should modify for other type support
-    if(desc.destType->type_id() != r_Type::DOUBLE)
+    if (desc.destType->type_id() != r_Type::DOUBLE)
     {
         LFATAL << "r_Conv_DEM::writeFromDestStream() destType (" << desc.destType->type_id()
-                       << ") is not " << r_Type::DOUBLE << " !";
+               << ") is not " << r_Type::DOUBLE << " !";
         throw r_Error();
     }
 
-    xdim=desc.destInterv[0].get_extent();
-    ydim=desc.destInterv[1].get_extent();
-    iter=demRows.begin();
-    iterEnd=demRows.end();
-    typeSize=(static_cast<r_Primitive_Type*>(desc.destType))->size();
+    xdim = desc.destInterv[0].get_extent();
+    ydim = desc.destInterv[1].get_extent();
+    iter = demRows.begin();
+    iterEnd = demRows.end();
+    typeSize = (static_cast<r_Primitive_Type*>(desc.destType))->size();
 
     //FIXME correction for strange effect of r_Long cast with 1e-6
-    while(iter != iterEnd)
+    while (iter != iterEnd)
     {
-        if(collBBox.flipx)
-            currPt[0]=(collBBox.endx - iter->x)/collBBox.resx + 1e-6;
+        if (collBBox.flipx)
+        {
+            currPt[0] = (collBBox.endx - iter->x) / collBBox.resx + 1e-6;
+        }
         else
-            currPt[0]=(iter->x - collBBox.startx)/collBBox.resx + 1e-6;
-        if(collBBox.flipy)
-            currPt[1]=(collBBox.endy - iter->y)/collBBox.resy + 1e-6;
+        {
+            currPt[0] = (iter->x - collBBox.startx) / collBBox.resx + 1e-6;
+        }
+        if (collBBox.flipy)
+        {
+            currPt[1] = (collBBox.endy - iter->y) / collBBox.resy + 1e-6;
+        }
         else
-            currPt[1]=(iter->y - collBBox.starty)/collBBox.resy + 1e-6;
+        {
+            currPt[1] = (iter->y - collBBox.starty) / collBBox.resy + 1e-6;
+        }
         (static_cast<r_Primitive_Type*>(desc.destType))->set_double(&desc.dest[desc.destInterv.cell_offset(currPt)*typeSize], iter->h);
         ++iter;
     }
@@ -557,25 +575,27 @@ r_Conv_DEM::writeToDestStream(ofstream& oFile) throw(r_Error)
     DEMRowVec::const_iterator iter, iterEnd;
     r_Double currH;
 
-    if(!oFile.is_open())
+    if (!oFile.is_open())
     {
         LFATAL << "r_Conv_DEM::writeToDestStream() oFile is not opened !";
         throw r_Error();
     }
     oFile.setf(std::ios::fixed);
 
-    iter=demRows.begin();
-    iterEnd=demRows.end();
-    while(iter != iterEnd)
+    iter = demRows.begin();
+    iterEnd = demRows.end();
+    while (iter != iterEnd)
     {
         //update to support NULL value: 0. (real value) goes in FLT_MIN(db value)
         //because 0.(db value) represent NULL(real value). When we do export we skip NULL values.
         currH = iter->h;
-        if(currH != NULL_DB)
+        if (currH != NULL_DB)
         {
             //FIXME we have to implement different here when we change server scale algorithm
-            if(currH == ZERO_DB)
+            if (currH == ZERO_DB)
+            {
                 currH = ZERO_DEM;
+            }
             oFile << iter->x << "\t" << iter->y << "\t" << currH << endl;
         }
         ++iter;
@@ -585,14 +605,14 @@ r_Conv_DEM::writeToDestStream(ofstream& oFile) throw(r_Error)
 r_Conv_Desc&
 r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
 {
-    bool hasSrcType=true;
+    bool hasSrcType = true;
 
-    LINFO << "r_Conv_DEM::convertFrom(" << (options?options:"NULL") << ")";
+    LINFO << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL") << ")";
 
-    if(!desc.srcType)
+    if (!desc.srcType)
     {
-        desc.srcType=get_external_type(desc.baseType);
-        hasSrcType=false;
+        desc.srcType = get_external_type(desc.baseType);
+        hasSrcType = false;
     }
 
     try
@@ -601,35 +621,35 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
         LINFO  << "r_Conv_DEM::convertFrom(...) src type=" << desc.srcType->type_id();
 
         //check options
-        if(!decodeOptions(options, collBBox))
+        if (!decodeOptions(options, collBBox))
         {
-            LFATAL << "Error in r_Conv_DEM::convertFrom(): illegal option string: " << (options?options:"(null)");
+            LFATAL << "Error in r_Conv_DEM::convertFrom(): illegal option string: " << (options ? options : "(null)");
             throw r_Error();
         }
 
         //check desc.srcInterv.dimension
-        if(desc.srcInterv.dimension() != srcIntervDim)
+        if (desc.srcInterv.dimension() != srcIntervDim)
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options?options:"NULL")
-                           << ") desc.srcInterv dimension (" << desc.srcInterv.dimension()
-                           << " != " << srcIntervDim << " !";
+            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+                   << ") desc.srcInterv dimension (" << desc.srcInterv.dimension()
+                   << " != " << srcIntervDim << " !";
             throw r_Error();
         }
 
         //check srcType
-        if(!desc.srcType->isPrimitiveType())
+        if (!desc.srcType->isPrimitiveType())
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options?options:"NULL")
-                           << ") desc.srcType (" << desc.srcType->type_id()
-                           << ") not supported, only primitive types !";
+            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+                   << ") desc.srcType (" << desc.srcType->type_id()
+                   << ") not supported, only primitive types !";
             throw r_Error();
         }
 
-        if(desc.srcType->isComplexType())
+        if (desc.srcType->isComplexType())
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options?options:"NULL")
-                           << ") desc.srcType (" << desc.srcType->type_id()
-                           << ") not supported !";
+            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+                   << ") desc.srcType (" << desc.srcType->type_id()
+                   << ") not supported !";
             throw r_Error();
         }
 
@@ -641,18 +661,18 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
         desc.destInterv = r_Minterval(destIntervDim);
 
         //FIXME correction for strange efect of r_Long cast with 1e-6
-        if(collBBox.flipx)
-            desc.destInterv << r_Sinterval(static_cast<r_Range>((collBBox.endx - max.x)/collBBox.resx + 1e-6),
-                                           static_cast<r_Range>((collBBox.endx - min.x)/collBBox.resx + 1e-6));
+        if (collBBox.flipx)
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((collBBox.endx - max.x) / collBBox.resx + 1e-6),
+                                           static_cast<r_Range>((collBBox.endx - min.x) / collBBox.resx + 1e-6));
         else
-            desc.destInterv << r_Sinterval(static_cast<r_Range>((min.x - collBBox.startx)/collBBox.resx + 1e-6),
-                                           static_cast<r_Range>((max.x - collBBox.startx)/collBBox.resx + 1e-6));
-        if(collBBox.flipy)
-            desc.destInterv << r_Sinterval(static_cast<r_Range>((collBBox.endy - max.y)/collBBox.resy + 1e-6),
-                                           static_cast<r_Range>((collBBox.endy - min.y)/collBBox.resy + 1e-6));
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((min.x - collBBox.startx) / collBBox.resx + 1e-6),
+                                           static_cast<r_Range>((max.x - collBBox.startx) / collBBox.resx + 1e-6));
+        if (collBBox.flipy)
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((collBBox.endy - max.y) / collBBox.resy + 1e-6),
+                                           static_cast<r_Range>((collBBox.endy - min.y) / collBBox.resy + 1e-6));
         else
-            desc.destInterv << r_Sinterval(static_cast<r_Range>((min.y - collBBox.starty)/collBBox.resy + 1e-6),
-                                           static_cast<r_Range>((max.y - collBBox.starty)/collBBox.resy + 1e-6));
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((min.y - collBBox.starty) / collBBox.resy + 1e-6),
+                                           static_cast<r_Range>((max.y - collBBox.starty) / collBBox.resy + 1e-6));
 
         LINFO  << "r_Conv_DEM::convertFrom(...) dest interval=" << desc.destInterv;
 
@@ -662,10 +682,10 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
 
         //--claim memory for result
         desc.dest = static_cast<char*>(mystore.storage_alloc(desc.destInterv.cell_count() * (static_cast<r_Primitive_Type*>(desc.destType))->size()));
-        if(desc.dest==NULL)
+        if (desc.dest == NULL)
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options?options:"NULL")
-                           << ") unable to claim memory !";
+            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+                   << ") unable to claim memory !";
             throw  r_Ememory_allocation();
         }
         memset(desc.dest, 0, desc.destInterv.cell_count() * (static_cast<r_Primitive_Type*>(desc.destType))->size());
@@ -673,27 +693,27 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
         //--write parsed data in desc.dest
         writeFromDestStream();
     }
-    catch(r_Error& err)
+    catch (r_Error& err)
     {
         //cleanup
-        if(!hasSrcType)
+        if (!hasSrcType)
         {
             delete desc.srcType;
-            desc.srcType=NULL;
+            desc.srcType = NULL;
         }
 
         //desc.destType
-        if(desc.destType)
+        if (desc.destType)
         {
             delete desc.destType;
-            desc.destType=NULL;
+            desc.destType = NULL;
         }
 
         //desc.dest
-        if(desc.dest)
+        if (desc.dest)
         {
             mystore.storage_free(desc.dest);
-            desc.dest=NULL;
+            desc.dest = NULL;
         }
 
         //report error
@@ -701,17 +721,17 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
     }
 
     //cleanup
-    if(!hasSrcType)
+    if (!hasSrcType)
     {
         delete desc.srcType;
-        desc.srcType=NULL;
+        desc.srcType = NULL;
     }
 
     //return result
     return desc;
 }
 
-r_Conv_Desc &r_Conv_DEM::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_DEM::convertFrom(r_Format_Params options) throw(r_Error)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
@@ -720,44 +740,46 @@ r_Conv_Desc &r_Conv_DEM::convertFrom(r_Format_Params options) throw(r_Error)
 r_Conv_Desc&
 r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 {
-    bool hasSrcType=true;
+    bool hasSrcType = true;
 
-    char pTempFileName[] ="demtempXXXXXX";   // name of temp file
+    char pTempFileName[] = "demtempXXXXXX";  // name of temp file
     string tempFileName;        // duplicate of temp file name -- heaven knows why
     ofstream oFile;         // for writing out file
-    FILE* pFile=NULL;       // for reading back file
-    size_t lenFile=0;       // size of file as read
+    FILE* pFile = NULL;     // for reading back file
+    size_t lenFile = 0;     // size of file as read
     int tempFD;             // for the temp file
 
-    LINFO << "r_Conv_DEM::convertTo(" << (options?options:"NULL") << ")";
+    LINFO << "r_Conv_DEM::convertTo(" << (options ? options : "NULL") << ")";
 
     try
     {
-        if(!desc.srcType)
+        if (!desc.srcType)
         {
-            desc.srcType=get_external_type(desc.baseType);
-            hasSrcType=false;
+            desc.srcType = get_external_type(desc.baseType);
+            hasSrcType = false;
         }
 
         LINFO  << "r_Conv_DEM::convertTo(...) src interval=" << desc.srcInterv;
         LINFO  << "r_Conv_DEM::convertTo(...) src type=" << desc.srcType->type_id();
 
         //check options
-        if(!decodeOptions(options, collBBox))
-            throw r_Error();
-
-        if(!desc.srcType->isPrimitiveType())
+        if (!decodeOptions(options, collBBox))
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options?options:"NULL")
-                           << ") desc.srcType (" << desc.srcType->type_id()
-                           << ") not supported, only primitive types !";
             throw r_Error();
         }
-        if(desc.srcType->isComplexType())
+
+        if (!desc.srcType->isPrimitiveType())
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options?options:"NULL")
-                           << ") desc.srcType (" << desc.srcType->type_id()
-                           << ") not supported !";
+            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+                   << ") desc.srcType (" << desc.srcType->type_id()
+                   << ") not supported, only primitive types !";
+            throw r_Error();
+        }
+        if (desc.srcType->isComplexType())
+        {
+            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+                   << ") desc.srcType (" << desc.srcType->type_id()
+                   << ") not supported !";
             throw r_Error();
         }
 
@@ -768,21 +790,21 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
         //--create the temp file
         //FIXME for multithread application
         tempFD = mkstemp(pTempFileName);
-        if(tempFD == -1)
+        if (tempFD == -1)
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options?options:"NULL")
-                           << ") desc.srcType (" << desc.srcType->type_id()
-                           << ") unable to generate a tempory file !";
+            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+                   << ") desc.srcType (" << desc.srcType->type_id()
+                   << ") unable to generate a tempory file !";
             throw r_Error();
         }
 
-        tempFileName=pTempFileName;
+        tempFileName = pTempFileName;
         oFile.open(tempFileName.c_str());
-        if(!oFile.is_open())
+        if (!oFile.is_open())
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options?options:"NULL")
-                           << ") desc.srcType (" << desc.srcType->type_id()
-                           << ") unable to open the tempory file !";
+            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+                   << ") desc.srcType (" << desc.srcType->type_id()
+                   << ") unable to open the tempory file !";
             throw r_Error();
         }
 
@@ -805,7 +827,7 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
         if (!lenFile)
         {
             LFATAL << "r_Conv_DEM::convertTo(): source contains only NULL values.";
-            throw r_Error( E_DEM_EMPTY );
+            throw r_Error(E_DEM_EMPTY);
         }
 
         //--creating the resulting type
@@ -820,10 +842,10 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 
         //--claim memory for desc.dest
         desc.dest = static_cast<char*>(mystore.storage_alloc(lenFile));
-        if(desc.dest==NULL)
+        if (desc.dest == NULL)
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options?options:"NULL")
-                           << ") unable to claim memory !";
+            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+                   << ") unable to claim memory !";
             throw r_Ememory_allocation();
         }
         memset(desc.dest, 0, lenFile);
@@ -834,35 +856,35 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 
         //clean up
         fclose(pFile);
-        pFile=NULL;
+        pFile = NULL;
         remove(pTempFileName);
     }
-    catch(r_Error& err)
+    catch (r_Error& err)
     {
         //cleanup
-        if(!hasSrcType)
+        if (!hasSrcType)
         {
             delete desc.srcType;
-            desc.srcType=NULL;
+            desc.srcType = NULL;
         }
 
         //desc.destType
-        if(desc.destType)
+        if (desc.destType)
         {
             delete desc.destType;
-            desc.destType=NULL;
+            desc.destType = NULL;
         }
 
         //desc.dest
-        if(desc.dest)
+        if (desc.dest)
         {
             mystore.storage_free(desc.dest);
-            desc.dest=NULL;
+            desc.dest = NULL;
         }
 
         // close & remove file, if not done previously
         fclose(pFile);
-        pFile=NULL;
+        pFile = NULL;
         remove(pTempFileName);
 
         //rethrow error
@@ -870,10 +892,10 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
     }
 
     //clean up
-    if(!hasSrcType)
+    if (!hasSrcType)
     {
         delete desc.srcType;
-        desc.srcType=NULL;
+        desc.srcType = NULL;
     }
 
     //return result

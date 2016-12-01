@@ -28,7 +28,7 @@ import petascope.util.XMLSymbols;
  *
  * @author rasdaman
  */
-public class WCSTMissingGridType extends WCSTException{
+public class WCSTMissingGridType extends WCSTException {
     public WCSTMissingGridType() {
         super(ExceptionCode.WCSTMissingGridType, EXCEPTION_TEXT);
     }

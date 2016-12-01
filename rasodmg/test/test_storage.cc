@@ -61,29 +61,31 @@ rasdaman GmbH.
 
 static int INIT = 0;
 
-r_ULong initWithCounter( const r_Point& /*pt*/ )
+r_ULong initWithCounter(const r_Point& /*pt*/)
 {
     return INIT++;
 }
 
 
-r_ULong initWithCrossfoot( const r_Point& pt )
+r_ULong initWithCrossfoot(const r_Point& pt)
 {
-    r_ULong value=0;
+    r_ULong value = 0;
 
-    for( r_Dimension i=0; i< pt.dimension(); i++ )
+    for (r_Dimension i = 0; i < pt.dimension(); i++)
+    {
         value += pt[i];
+    }
 
     return value;
 }
 
 
-r_ULong initWithCoordinates( const r_Point& pt )
+r_ULong initWithCoordinates(const r_Point& pt)
 {
-    r_ULong value=0;
-    int     factor=1;
+    r_ULong value = 0;
+    int     factor = 1;
 
-    for( int i=pt.dimension()-1; i >= 0; i-- )
+    for (int i = pt.dimension() - 1; i >= 0; i--)
     {
         value  += factor * pt[i];
         factor *= 100;
@@ -94,18 +96,24 @@ r_ULong initWithCoordinates( const r_Point& pt )
 
 
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
@@ -113,14 +121,14 @@ int checkArguments( int argc, char** argv, const char* searchText, int& optionVa
 
 
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
     char serverName[255];
     char baseName[255];
     char collName[255];
     int  optionValueIndex;
 
-    if( argc < 4 || checkArguments( argc, argv, "-h", optionValueIndex ) )
+    if (argc < 4 || checkArguments(argc, argv, "-h", optionValueIndex))
     {
         cout << "Usage:   test_storage server_name base_name collection_name [options]" << endl << endl;
         cout << "Options: -h  ... this help" << endl;
@@ -130,9 +138,9 @@ int main( int argc, char** argv )
         return 0;
     }
 
-    strcpy( serverName, argv[1] );
-    strcpy( baseName, argv[2] );
-    strcpy( collName, argv[3] );
+    strcpy(serverName, argv[1]);
+    strcpy(baseName, argv[2]);
+    strcpy(collName, argv[3]);
 
     cout << endl << endl;
     cout << "ODMG conformant insertion of Marrays" << endl;
@@ -140,28 +148,28 @@ int main( int argc, char** argv )
 
     r_Database db;
     r_Transaction ta;
-    r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > > image_set;
-    r_Ref< r_Marray<r_ULong> >                   image1, image2, image3, image4;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>> image_set;
+    r_Ref<r_Marray<r_ULong>>                   image1, image2, image3, image4;
     r_Minterval                                  domain, domain2;
 
-    domain  = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) 100 )
-                             << r_Sinterval((r_Range) 0, (r_Range) 100 );
+    domain  = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) 100)
+              << r_Sinterval((r_Range) 0, (r_Range) 100);
 
     // Default storage layout
     r_Storage_Layout* sl1 = new r_Storage_Layout;
-    cout << "sl1 " << *sl1 <<endl;
+    cout << "sl1 " << *sl1 << endl;
 
     // Default tiling with a different tile size than the previous one:
-    r_Size_Tiling* til2 = new r_Size_Tiling( 40000 );
-    r_Storage_Layout* sl2 = new r_Storage_Layout( til2 );
+    r_Size_Tiling* til2 = new r_Size_Tiling(40000);
+    r_Storage_Layout* sl2 = new r_Storage_Layout(til2);
     //, r_Storage_Layout::No_Compression );
-    cout << "sl2 " << *sl2 <<endl;
+    cout << "sl2 " << *sl2 << endl;
 
     // Aligned Tiling
-    r_Aligned_Tiling* til3 = new r_Aligned_Tiling( r_Minterval("[0:1,0:2]"), 3200 );
+    r_Aligned_Tiling* til3 = new r_Aligned_Tiling(r_Minterval("[0:1,0:2]"), 3200);
     // cout << *til3;
-    r_Storage_Layout* sl3 = new r_Storage_Layout( til3 );
-    cout << "sl3 " << *sl3 <<endl;
+    r_Storage_Layout* sl3 = new r_Storage_Layout(til3);
+    cout << "sl3 " << *sl3 << endl;
 
     // Directional Tiling
     vector<r_Dir_Decompose> decompVec;
@@ -170,9 +178,9 @@ int main( int argc, char** argv )
     decompII << 0 << 10 << 20 << 40 << 60 << 70 << 100;
     decompVec.push_back(decompI);
     decompVec.push_back(decompII);
-    r_Dir_Tiling* til4 = new r_Dir_Tiling( 2, decompVec );
-    r_Storage_Layout* sl4 = new r_Storage_Layout( til4 );
-    cout << "sl4 " << *sl4 <<endl;
+    r_Dir_Tiling* til4 = new r_Dir_Tiling(2, decompVec);
+    r_Storage_Layout* sl4 = new r_Storage_Layout(til4);
+    cout << "sl4 " << *sl4 << endl;
 
     // FIXME adapt this to test also statistical, interest and no tiling
     /*
@@ -211,12 +219,12 @@ int main( int argc, char** argv )
     */
 
 
-    db.set_servername( serverName );
+    db.set_servername(serverName);
 
     try
     {
         cout << "Opening Database " << baseName << " on " << serverName << "... " << flush;
-        db.open( baseName );
+        db.open(baseName);
         cout << "OK" << endl;
 
         cout << "Starting Transaction ... " << flush;
@@ -227,9 +235,9 @@ int main( int argc, char** argv )
 
         try
         {
-            image_set = db.lookup_object( collName );
+            image_set = db.lookup_object(collName);
         }
-        catch( r_Error &obj )
+        catch (r_Error& obj)
         {
             cout << "FAILED" << endl;
             // cout << obj.what() << endl;
@@ -241,10 +249,10 @@ int main( int argc, char** argv )
             cout << "Create the set ... " << flush;
 
             // create the set
-            image_set = new( &db, "ULongSet" ) r_Set< r_Ref< r_Marray<r_ULong> > >;
+            image_set = new(&db, "ULongSet") r_Set<r_Ref<r_Marray<r_ULong>>>;
 
             // create a name for the persistent set in order to be able to look it up again
-            db.set_object_name( *image_set, collName );
+            db.set_object_name(*image_set, collName);
         }
 
         cout << "OK" << endl;
@@ -252,26 +260,26 @@ int main( int argc, char** argv )
         cout << "Creating four images ... " <<  flush;
 
         // create first image
-        image1 = new( &db, "ULongImage" ) r_Marray<r_ULong>( domain, (r_ULong)0, sl1 );
+        image1 = new(&db, "ULongImage") r_Marray<r_ULong>(domain, (r_ULong)0, sl1);
 
         // create second image
-        image2 = new( &db, "ULongImage" ) r_Marray<r_ULong>( domain, &initWithCrossfoot, sl2 );
+        image2 = new(&db, "ULongImage") r_Marray<r_ULong>(domain, &initWithCrossfoot, sl2);
 
         // create third image
-        image3 = new( &db, "ULongImage" ) r_Marray<r_ULong>( domain, &initWithCounter, sl3 );
+        image3 = new(&db, "ULongImage") r_Marray<r_ULong>(domain, &initWithCounter, sl3);
 
         // create fourth image
-        image4 = new( &db, "ULongImage" ) r_Marray<r_ULong>( domain, &initWithCoordinates, sl4 );
+        image4 = new(&db, "ULongImage") r_Marray<r_ULong>(domain, &initWithCoordinates, sl4);
 
         cout << "OK" << endl;
 
         cout << "Inserting them into the set " << collName << " ... " << flush;
 
         // insert the images
-        image_set->insert_element( image1 );
-        image_set->insert_element( image2 );
-        image_set->insert_element( image3 );
-        image_set->insert_element( image4 );
+        image_set->insert_element(image1);
+        image_set->insert_element(image2);
+        image_set->insert_element(image3);
+        image_set->insert_element(image4);
 
         cout << "OK" << endl;
 
@@ -283,7 +291,7 @@ int main( int argc, char** argv )
         db.close();
         cout << "OK" << endl;
     }
-    catch( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         cerr << errorObj.what() << endl;
         return -1;

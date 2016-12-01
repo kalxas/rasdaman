@@ -221,24 +221,24 @@ bool quietLog = false;
 // logging mechanism that respects 'quiet' flag:
 #define INFO(a) { if (!quietLog) std::cout << a; }
 
-int  optionValueIndex=0;
+int  optionValueIndex = 0;
 
-const char *serverName = DEFAULT_SERV;
+const char* serverName = DEFAULT_SERV;
 r_ULong serverPort = DEFAULT_PORT;
-const char *baseName = DEFAULT_DB;
+const char* baseName = DEFAULT_DB;
 
-const char *user = DEFAULT_USER;
-const char *passwd = DEFAULT_PASSWD;
+const char* user = DEFAULT_USER;
+const char* passwd = DEFAULT_PASSWD;
 
-const char *fileName = NULL;
-const char *queryString=NULL;
+const char* fileName = NULL;
+const char* queryString = NULL;
 
 bool output = false;
 bool displayType = false;
 
 OUTPUT_TYPE outputType = DEFAULT_OUT;
 
-const char *outFileMask = DEFAULT_OUTFILE;
+const char* outFileMask = DEFAULT_OUTFILE;
 
 r_Minterval mddDomain;
 bool mddDomainDef = false;
@@ -248,7 +248,7 @@ bool mddTypeNameDef = false;
 
 // query result set.
 // we define it here because on empty results the set seems to be corrupt which kills the default destructor
-r_Set< r_Ref_Any > result_set;
+r_Set<r_Ref_Any> result_set;
 
 // end of globals
 
@@ -267,170 +267,202 @@ void
 openTransaction(bool readwrite) throw (r_Error);
 
 void
-closeTransaction( bool doCommit ) throw (r_Error);
+closeTransaction(bool doCommit) throw (r_Error);
 
 void
-printScalar( const r_Scalar& scalar );
+printScalar(const r_Scalar& scalar);
 
 void
 printResult() throw(RasqlError);
 
 r_Marray_Type*
-getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError, r_Error);
+getTypeFromDatabase(const char* mddTypeName2) throw(RasqlError, r_Error);
 
 void
-doStuff( int argc, char** argv ) throw (RasqlError, r_Error);
+doStuff(int argc, char** argv) throw (RasqlError, r_Error);
 
 void
-crash_handler (int sig, siginfo_t* info, void * ucontext);
+crash_handler(int sig, siginfo_t* info, void* ucontext);
 
 
 
 void
 parseParams(int argc, char** argv) throw (RasqlError, r_Error)
 {
-    CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
+    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
 
-    CommandLineParameter &clp_help      = cmlInter.addFlagParameter( PARAM_HELP_FLAG, PARAM_HELP, HELP_HELP );
+    CommandLineParameter& clp_help      = cmlInter.addFlagParameter(PARAM_HELP_FLAG, PARAM_HELP, HELP_HELP);
 
-    CommandLineParameter &clp_query         = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY );
-    CommandLineParameter &clp_file      = cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE );
+    CommandLineParameter& clp_query         = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    CommandLineParameter& clp_file      = cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
 
-    CommandLineParameter &clp_content   = cmlInter.addFlagParameter( CommandLineParser::noShortName, PARAM_CONTENT, HELP_CONTENT );
-    CommandLineParameter &clp_out       = cmlInter.addStringParameter( CommandLineParser::noShortName, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR );
-    CommandLineParameter &clp_outfile   = cmlInter.addStringParameter( CommandLineParser::noShortName, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE );
-    CommandLineParameter &clp_mddDomain     = cmlInter.addStringParameter( CommandLineParser::noShortName, PARAM_DOMAIN, HELP_DOMAIN );
-    CommandLineParameter &clp_mddType       = cmlInter.addStringParameter( CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE );
-    CommandLineParameter &clp_type      = cmlInter.addFlagParameter( CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE );
+    CommandLineParameter& clp_content   = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_CONTENT, HELP_CONTENT);
+    CommandLineParameter& clp_out       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
+    CommandLineParameter& clp_outfile   = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
+    CommandLineParameter& clp_mddDomain     = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_DOMAIN, HELP_DOMAIN);
+    CommandLineParameter& clp_mddType       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
+    CommandLineParameter& clp_type      = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE);
 
-    CommandLineParameter &clp_server    = cmlInter.addStringParameter( PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_SERV );
-    CommandLineParameter &clp_port      = cmlInter.addStringParameter( PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, DEFAULT_PORT_STR);
-    CommandLineParameter &clp_database      = cmlInter.addStringParameter( PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DB );
-    CommandLineParameter &clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER );
-    CommandLineParameter &clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD );
-    CommandLineParameter &clp_quiet     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET );
+    CommandLineParameter& clp_server    = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_SERV);
+    CommandLineParameter& clp_port      = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, DEFAULT_PORT_STR);
+    CommandLineParameter& clp_database      = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DB);
+    CommandLineParameter& clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
+    CommandLineParameter& clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
+    CommandLineParameter& clp_quiet     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
 
 #ifdef DEBUG
-    CommandLineParameter &clp_debug     = cmlInter.addFlagParameter( CommandLineParser::noShortName, PARAM_DEBUG, HELP_DEBUG );
+    CommandLineParameter& clp_debug     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DEBUG, HELP_DEBUG);
 #endif
 
     try
     {
         cmlInter.processCommandLine(argc, argv);
 
-        if (cmlInter.isPresent( PARAM_HELP_FLAG ) || argc == 1)
+        if (cmlInter.isPresent(PARAM_HELP_FLAG) || argc == 1)
         {
             cout << "usage: " << argv[0] << " [--query querystring|-q querystring] [options]" << endl;
             cout << "options:" << endl;
             cmlInter.printHelp();
-            exit( EXIT_USAGE );      //  FIXME: exit no good style!!
+            exit(EXIT_USAGE);        //  FIXME: exit no good style!!
         }
 
         // check mandatory parameters ====================================================
 
         // evaluate mandatory parameter collection --------------------------------------
-        if (cmlInter.isPresent( PARAM_QUERY ))
-            queryString = cmlInter.getValueAsString( PARAM_QUERY );
+        if (cmlInter.isPresent(PARAM_QUERY))
+        {
+            queryString = cmlInter.getValueAsString(PARAM_QUERY);
+        }
         else
-            throw RasqlError( NOQUERY );
+        {
+            throw RasqlError(NOQUERY);
+        }
 
         // check optional parameters ====================================================
 
         // evaluate optional parameter file --------------------------------------
-        if (cmlInter.isPresent( PARAM_FILE ))
-            fileName = cmlInter.getValueAsString( PARAM_FILE );
+        if (cmlInter.isPresent(PARAM_FILE))
+        {
+            fileName = cmlInter.getValueAsString(PARAM_FILE);
+        }
 
         // evaluate optional parameter server --------------------------------------
-        if (cmlInter.isPresent( PARAM_SERV ))
-            serverName = cmlInter.getValueAsString( PARAM_SERV );
+        if (cmlInter.isPresent(PARAM_SERV))
+        {
+            serverName = cmlInter.getValueAsString(PARAM_SERV);
+        }
 
         // evaluate optional parameter port --------------------------------------
-        if (cmlInter.isPresent( PARAM_PORT ))
-            serverPort = cmlInter.getValueAsLong( PARAM_PORT );
+        if (cmlInter.isPresent(PARAM_PORT))
+        {
+            serverPort = cmlInter.getValueAsLong(PARAM_PORT);
+        }
 
         // evaluate optional parameter database --------------------------------------
-        if (cmlInter.isPresent( PARAM_DB ))
-            baseName = cmlInter.getValueAsString( PARAM_DB );
+        if (cmlInter.isPresent(PARAM_DB))
+        {
+            baseName = cmlInter.getValueAsString(PARAM_DB);
+        }
 
         // evaluate optional parameter user --------------------------------------
-        if (cmlInter.isPresent( PARAM_USER ))
-            user = cmlInter.getValueAsString( PARAM_USER );
+        if (cmlInter.isPresent(PARAM_USER))
+        {
+            user = cmlInter.getValueAsString(PARAM_USER);
+        }
 
         // evaluate optional parameter passwd --------------------------------------
-        if (cmlInter.isPresent( PARAM_PASSWD ))
-            passwd = cmlInter.getValueAsString( PARAM_PASSWD );
+        if (cmlInter.isPresent(PARAM_PASSWD))
+        {
+            passwd = cmlInter.getValueAsString(PARAM_PASSWD);
+        }
 
         // evaluate optional parameter content --------------------------------------
-        if (cmlInter.isPresent( PARAM_CONTENT ))
-            output = true;
-
-        // evaluate optional parameter type --------------------------------------
-        if (cmlInter.isPresent( PARAM_TYPE ))
-            displayType = true;
-
-        // evaluate optional parameter hex --------------------------------------
-        if (cmlInter.isPresent( PARAM_OUT ))
+        if (cmlInter.isPresent(PARAM_CONTENT))
         {
             output = true;
-            const char* val = cmlInter.getValueAsString( PARAM_OUT );
-            if (val !=0 && strcmp( val, PARAM_OUT_STRING ) == 0)
+        }
+
+        // evaluate optional parameter type --------------------------------------
+        if (cmlInter.isPresent(PARAM_TYPE))
+        {
+            displayType = true;
+        }
+
+        // evaluate optional parameter hex --------------------------------------
+        if (cmlInter.isPresent(PARAM_OUT))
+        {
+            output = true;
+            const char* val = cmlInter.getValueAsString(PARAM_OUT);
+            if (val != 0 && strcmp(val, PARAM_OUT_STRING) == 0)
+            {
                 outputType = OUT_STRING;
-            else if (val !=0 && strcmp( val, PARAM_OUT_FILE ) == 0)
+            }
+            else if (val != 0 && strcmp(val, PARAM_OUT_FILE) == 0)
+            {
                 outputType = OUT_FILE;
-            else if (val !=0 && strcmp( val, PARAM_OUT_FORMATTED ) == 0)
+            }
+            else if (val != 0 && strcmp(val, PARAM_OUT_FORMATTED) == 0)
+            {
                 outputType = OUT_FORMATTED;
-            else if (val !=0 && strcmp( val, PARAM_OUT_HEX ) == 0)
+            }
+            else if (val != 0 && strcmp(val, PARAM_OUT_HEX) == 0)
+            {
                 outputType = OUT_HEX;
-            else if (val !=0 && strcmp( val, PARAM_OUT_NONE ) == 0)
+            }
+            else if (val != 0 && strcmp(val, PARAM_OUT_NONE) == 0)
+            {
                 outputType = OUT_NONE;
+            }
             else
-                throw RasqlError( ILLEGALOUTPUTTYPE );
+            {
+                throw RasqlError(ILLEGALOUTPUTTYPE);
+            }
         }
 
         // evaluate optional parameter outfile --------------------------------------
-        if (cmlInter.isPresent( PARAM_OUTFILE ))
+        if (cmlInter.isPresent(PARAM_OUTFILE))
         {
-            outFileMask = cmlInter.getValueAsString( PARAM_OUTFILE );
+            outFileMask = cmlInter.getValueAsString(PARAM_OUTFILE);
             outputType = OUT_FILE;
         }
 
         // evaluate optional parameter domain --------------------------------------
-        if ( cmlInter.isPresent( PARAM_DOMAIN ) )
+        if (cmlInter.isPresent(PARAM_DOMAIN))
         {
             try
             {
-                mddDomain = r_Minterval(cmlInter.getValueAsString( PARAM_DOMAIN ));
+                mddDomain = r_Minterval(cmlInter.getValueAsString(PARAM_DOMAIN));
                 mddDomainDef = true;
             }
-            catch ( r_Error& e )            // Minterval constructor had syntax problems
+            catch (r_Error& e)              // Minterval constructor had syntax problems
             {
-                throw RasqlError( NOVALIDDOMAIN );
+                throw RasqlError(NOVALIDDOMAIN);
             }
         }
 
         // evaluate optional parameter MDD type name --------------------------------------
-        if (cmlInter.isPresent( PARAM_MDDTYPE ))
+        if (cmlInter.isPresent(PARAM_MDDTYPE))
         {
-            mddTypeName = cmlInter.getValueAsString( PARAM_MDDTYPE );
+            mddTypeName = cmlInter.getValueAsString(PARAM_MDDTYPE);
             mddTypeNameDef = true;
         }
 
         // evaluate optional parameter 'quiet' --------------------------------------------
-        if (cmlInter.isPresent( PARAM_QUIET ))
+        if (cmlInter.isPresent(PARAM_QUIET))
         {
             quietLog = true;
         }
 
 #ifdef DEBUG
         // evaluate optional parameter MDD type name --------------------------------------
-        SET_OUTPUT( cmlInter.isPresent( PARAM_DEBUG ) );
+        SET_OUTPUT(cmlInter.isPresent(PARAM_DEBUG));
 #endif
 
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cerr << err.what() << endl;
-        throw RasqlError( ERRORPARSINGCOMMANDLINE );
+        throw RasqlError(ERRORPARSINGCOMMANDLINE);
     }
 } // parseParams()
 
@@ -440,14 +472,14 @@ openDatabase() throw (r_Error)
 {
     if (! dbIsOpen)
     {
-        INFO( "opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush );
+        INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
         db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification(user, passwd);
         LDEBUG << "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << user << ", passwd=" << passwd << "...";
         db.open(baseName);
         LDEBUG << "ok";
         dbIsOpen = true;
-        INFO( "ok" << endl << flush );
+        INFO("ok" << endl << flush);
     }
 } // openDatabase()
 
@@ -486,7 +518,7 @@ openTransaction(bool readwrite) throw (r_Error)
 } // openTransaction()
 
 void
-closeTransaction( bool doCommit ) throw (r_Error)
+closeTransaction(bool doCommit) throw (r_Error)
 {
     if (taIsOpen)
     {
@@ -507,93 +539,103 @@ closeTransaction( bool doCommit ) throw (r_Error)
     return;
 } // closeTransaction()
 
-void printScalar( const r_Scalar& scalar )
+void printScalar(const r_Scalar& scalar)
 {
-    switch( scalar.get_type()->type_id() )
+    switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        INFO( ( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f" ) << flush );
+        INFO(((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f") << flush);
         break;
 
     case r_Type::CHAR:
-        INFO( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char()) << flush );
+        INFO(static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char()) << flush);
         break;
 
     case r_Type::OCTET:
-        INFO( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet()) << flush );
+        INFO(static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet()) << flush);
         break;
 
     case r_Type::SHORT:
-        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short() << flush );
+        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short() << flush);
         break;
 
     case r_Type::USHORT:
-        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort() << flush );
+        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort() << flush);
         break;
 
     case r_Type::LONG:
-        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long() << flush );
+        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long() << flush);
         break;
 
     case r_Type::ULONG:
-        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong() << flush );
+        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong() << flush);
         break;
 
     case r_Type::FLOAT:
-        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush );
+        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush);
         break;
 
     case r_Type::DOUBLE:
-        INFO( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush );
+        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush);
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        INFO( "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")" << flush );
+        INFO("(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")" << flush);
         break;
 
     case r_Type::STRUCTURETYPE:
     {
         r_Structure* structValue = static_cast<r_Structure*>(&const_cast<r_Scalar&>(scalar));
-        INFO( "{ " << flush );
-        for( unsigned int i=0; i<structValue->count_elements(); i++ )
+        INFO("{ " << flush);
+        for (unsigned int i = 0; i < structValue->count_elements(); i++)
         {
-            printScalar( (*structValue)[i] );
-            if( i < structValue->count_elements()-1 )
-                INFO( ", " << flush );
+            printScalar((*structValue)[i]);
+            if (i < structValue->count_elements() - 1)
+            {
+                INFO(", " << flush);
+            }
         }
-        INFO( " }" << endl );
+        INFO(" }" << endl);
     }
     break;
     default:
-        INFO( "scalar type " << scalar.get_type()->type_id() <<  "  not supported!" << endl );
+        INFO("scalar type " << scalar.get_type()->type_id() <<  "  not supported!" << endl);
         break;
     }
 } // printScalar()
 
 
 // result_set should be parameter, but is global -- see def for reason
-void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
+void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
 {
-    INFO( "Query result collection has " << result_set.cardinality() << " element(s):" << endl );
+    INFO("Query result collection has " << result_set.cardinality() << " element(s):" << endl);
 
     if (displayType)
     {
         cout << "  Oid...................: " << result_set.get_oid() << endl;
         cout << "  Type Structure........: "
-             << ( result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>" ) << endl;
+             << (result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>") << endl;
         cout << "  Type Schema...........: " << flush;
-        if( result_set.get_type_schema() )
-            result_set.get_type_schema()->print_status( cout );
+        if (result_set.get_type_schema())
+        {
+            result_set.get_type_schema()->print_status(cout);
+        }
         else
+        {
             cout << "(no name)" << flush;
+        }
         cout << endl;
         cout << "  Number of entries.....: " << result_set.cardinality() << endl;
         cout << "  Element Type Schema...: " << flush;
-        if( result_set.get_element_type_schema() )
-            result_set.get_element_type_schema()->print_status( cout );
+        if (result_set.get_element_type_schema())
+        {
+            result_set.get_element_type_schema()->print_status(cout);
+        }
         else
+        {
             cout << "(no name)" << flush;
+        }
         cout << endl;
     }
 
@@ -605,14 +647,14 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             cout << **iter2 << endl;
     */
 
-    r_Iterator< r_Ref_Any > iter = result_set.create_iterator();
+    r_Iterator<r_Ref_Any> iter = result_set.create_iterator();
     // iter.not_done() seems to behave wrongly on empty set, therefore this additional check -- PB 2003-aug-16
-    for ( unsigned int i=1 ; i<=result_set.cardinality() && iter.not_done(); iter++, i++ )
+    for (unsigned int i = 1 ; i <= result_set.cardinality() && iter.not_done(); iter++, i++)
     {
-        switch( result_set.get_element_type_schema()->type_id() )
+        switch (result_set.get_element_type_schema()->type_id())
         {
         case r_Type::MARRAYTYPE:
-            switch ( outputType )
+            switch (outputType)
             {
             case OUT_NONE:
                 break;
@@ -620,9 +662,11 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
-                INFO( "  Result object " << i << ": " );
+                INFO("  Result object " << i << ": ");
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
+                {
                     cout << theStuff[cnt];
+                }
                 cout << endl;
             }
             break;
@@ -630,23 +674,25 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
-                INFO( "  Result object " << i << ": " );
+                INFO("  Result object " << i << ": ");
                 cout << hex;
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
+                {
                     cout << setw(2) << static_cast<unsigned short>(0xff & theStuff[cnt]) << " ";
+                }
                 cout << dec << endl;
             }
             break;
             case OUT_FORMATTED:
-                INFO( "  Result object " << i << ":" << endl );
+                INFO("  Result object " << i << ":" << endl);
                 // for (int cnt = 0; cnt < numCells; cnt++)
-                printScalar( *(r_Ref<r_Scalar>(*iter)) );
+                printScalar(*(r_Ref<r_Scalar>(*iter)));
                 cout << endl;
                 break;
             case OUT_FILE:
             {
                 char defFileName[FILENAME_MAX];
-                (void) snprintf( defFileName, sizeof(defFileName)-1, outFileMask, i );
+                (void) snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, i);
                 LDEBUG << "filename for #" << i << " is " << defFileName;
 
                 // special treatment only for DEFs
@@ -654,54 +700,54 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                 switch (mafmt)
                 {
                 case r_TIFF:
-                    strcat( defFileName, ".tif" );
+                    strcat(defFileName, ".tif");
                     break;
                 case r_JP2:
-                    strcat( defFileName, ".jp2" );
+                    strcat(defFileName, ".jp2");
                     break;
                 case r_JPEG:
-                    strcat( defFileName, ".jpg" );
+                    strcat(defFileName, ".jpg");
                     break;
                 case r_HDF:
-                    strcat( defFileName, ".hdf" );
+                    strcat(defFileName, ".hdf");
                     break;
                 case r_PNG:
-                    strcat( defFileName, ".png" );
+                    strcat(defFileName, ".png");
                     break;
                 case r_BMP:
-                    strcat( defFileName, ".bmp" );
+                    strcat(defFileName, ".bmp");
                     break;
                 case r_NETCDF:
-                    strcat( defFileName, ".nc" );
+                    strcat(defFileName, ".nc");
                     break;
                 case r_CSV:
-                    strcat( defFileName, ".csv" );
+                    strcat(defFileName, ".csv");
                     break;
                 case r_JSON:
-                    strcat( defFileName, ".json" );
+                    strcat(defFileName, ".json");
                     break;
                 case r_DEM:
-                    strcat( defFileName, ".dem" );
+                    strcat(defFileName, ".dem");
                     break;
                 default:
-                    strcat( defFileName, ".unknown" );
+                    strcat(defFileName, ".unknown");
                     break;
                 }
 
-                INFO( "  Result object " << i << ": going into file " << defFileName << "..." << flush );
-                FILE *tfile = fopen( defFileName, "wb" );
-                if(tfile==NULL)
+                INFO("  Result object " << i << ": going into file " << defFileName << "..." << flush);
+                FILE* tfile = fopen(defFileName, "wb");
+                if (tfile == NULL)
                 {
                     throw RasqlError(NOFILEWRITEPERMISSION);
                 }
                 size_t count = r_Ref<r_GMarray>(*iter)->get_array_size();
-                if(fwrite(static_cast<void*>(r_Ref<r_GMarray>(*iter)->get_array()), 1, count, tfile ) != count)
+                if (fwrite(static_cast<void*>(r_Ref<r_GMarray>(*iter)->get_array()), 1, count, tfile) != count)
                 {
                     fclose(tfile);
                     throw RasqlError(UNABLETOWRITETOFILE);
                 };
                 fclose(tfile);
-                INFO( "ok." << endl );
+                INFO("ok." << endl);
             }
             break;
             default:
@@ -711,28 +757,28 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             break;
 
         case r_Type::POINTTYPE:
-            INFO( "  Result element " << i << ": " );
+            INFO("  Result element " << i << ": ");
             cout << *(r_Ref<r_Point>(*iter)) << endl;
             break;
 
         case r_Type::SINTERVALTYPE:
-            INFO( "  Result element " << i << ": " );
+            INFO("  Result element " << i << ": ");
             cout << *(r_Ref<r_Sinterval>(*iter)) << endl;
             break;
 
         case r_Type::MINTERVALTYPE:
-            INFO( "  Result element " << i << ": " );
+            INFO("  Result element " << i << ": ");
             cout << *(r_Ref<r_Minterval>(*iter)) << endl;
             break;
 
         case r_Type::OIDTYPE:
-            INFO( "  Result element " << i << ": " );
+            INFO("  Result element " << i << ": ");
             cout << *(r_Ref<r_OId>(*iter)) << endl;
             break;
 
         default:
-            INFO( "  Result element " << i << ": " << flush );
-            printScalar( *(r_Ref<r_Scalar>(*iter)) );
+            INFO("  Result element " << i << ": " << flush);
+            printScalar(*(r_Ref<r_Scalar>(*iter)));
             cout << endl;
             // or simply
             // r_Ref<r_Scalar>(*iter)->print_status( cout );
@@ -747,9 +793,9 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
  * throws r_Error upon general database comm error
  * needs an open transaction
  */
-r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError, r_Error)
+r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2) throw(RasqlError, r_Error)
 {
-    r_Marray_Type *retval = NULL;
+    r_Marray_Type* retval = NULL;
     char* typeStructure = NULL;
 
     // first, try to get type structure from database using a separate r/o transaction
@@ -767,7 +813,7 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError
             // earlier code tried this one below, but I feel we better are strict -- PB 2003-jul-06
             // strcpy(typeStructure, mddTypeName2);
             // LDEBUG << "using instead: " << typeStructure;
-            throw RasqlError( MDDTYPEINVALID );
+            throw RasqlError(MDDTYPEINVALID);
         }
         else    // unanticipated error
         {
@@ -793,7 +839,7 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError
             delete tempType;
             tempType = NULL;
             retval = NULL;
-            throw RasqlError( MDDTYPEINVALID );
+            throw RasqlError(MDDTYPEINVALID);
         }
     }
     catch (r_Error& err)
@@ -808,64 +854,68 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError
     return retval;
 } // getTypeFromDatabase()
 
-void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char** argv ) throw (RasqlError, r_Error)
+void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) throw (RasqlError, r_Error)
 {
-    char *fileContents = NULL;                       // contents of file satisfying "$1" parameter in query
-    r_Set< r_GMarray* >* fileContentsChunked = NULL; // file contents partitioned into smaller chunks
+    char* fileContents = NULL;                       // contents of file satisfying "$1" parameter in query
+    r_Set<r_GMarray*>* fileContentsChunked = NULL; // file contents partitioned into smaller chunks
     r_Ref<r_GMarray> fileMDD = NULL;    // MDD to satisfy a "$1" parameter
-    r_Marray_Type *mddType = NULL;      // this MDD's type
+    r_Marray_Type* mddType = NULL;      // this MDD's type
 
-    r_OQL_Query query( queryString );
+    r_OQL_Query query(queryString);
     LDEBUG << "query is: " << query.get_query();
 
-    if ( fileName != NULL )
+    if (fileName != NULL)
     {
-        openTransaction( false );
+        openTransaction(false);
 
         // if no type name was specified then assume byte string (for encoded files)
-        if ( ! mddTypeNameDef )
+        if (! mddTypeNameDef)
+        {
             mddTypeName = MDD_STRINGTYPE;
+        }
 
-        INFO( "fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush );
-        mddType = getTypeFromDatabase( mddTypeName );
-        closeTransaction( true );
-        INFO( "ok" << endl );
+        INFO("fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush);
+        mddType = getTypeFromDatabase(mddTypeName);
+        closeTransaction(true);
+        INFO("ok" << endl);
 
-        INFO( "reading file " << fileName << "..." << flush );
-        FILE* fileD = fopen( fileName, "r" );
+        INFO("reading file " << fileName << "..." << flush);
+        FILE* fileD = fopen(fileName, "r");
         if (fileD == NULL)
-            throw RasqlError( FILEINACCESSIBLE );
+        {
+            throw RasqlError(FILEINACCESSIBLE);
+        }
 
-        fseek( fileD, 0, SEEK_END );
-        long size = ftell( fileD );
+        fseek(fileD, 0, SEEK_END);
+        long size = ftell(fileD);
         LDEBUG << "file size is " << size << " bytes";
 
-        if(size==0)
+        if (size == 0)
         {
-            throw RasqlError( FILEEMPTY );
+            throw RasqlError(FILEEMPTY);
         }
 
         // if no domain specified (this is the case with encoded files), then set to byte stream
-        if ( ! mddDomainDef )
+        if (! mddDomainDef)
         {
-            mddDomain = r_Minterval( 1 ) << r_Sinterval (static_cast<r_Range>(0), static_cast<r_Range>(size)-1 );
+            mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(size) - 1);
             LDEBUG << "domain set to " << mddDomain;
 
             // compute tiles
-            r_Storage_Layout *storage_layout = new r_Storage_Layout(new r_Aligned_Tiling(1));
+            r_Storage_Layout* storage_layout = new r_Storage_Layout(new r_Aligned_Tiling(1));
             std::vector<r_Minterval>* tiles = storage_layout->decomposeMDD(mddDomain, 1);
 
             // read data in each tile chunk
             long offset = 0;
-            fileContentsChunked = new r_Set< r_GMarray* >();
+            fileContentsChunked = new r_Set<r_GMarray*>();
             std::vector<r_Minterval>::iterator chunkIt;
             for (chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
             {
                 r_Minterval chunkDom = *chunkIt;
                 r_Area chunkSize = chunkDom.cell_count();
                 char* chunkData = new char[chunkSize];
-                fseek( fileD, offset, SEEK_SET );
-                size_t rsize = fread( chunkData, 1, chunkSize, fileD );
+                fseek(fileD, offset, SEEK_SET);
+                size_t rsize = fread(chunkData, 1, chunkSize, fileD);
                 r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, false);
                 chunkMDD->set_array(chunkData);
                 fileContentsChunked->insert_element(chunkMDD);
@@ -886,121 +936,133 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
         }
         else if (size != static_cast<long>(mddDomain.cell_count()) * static_cast<long>(mddType->base_type().size()))
         {
-            throw RasqlError( FILESIZEMISMATCH );
+            throw RasqlError(FILESIZEMISMATCH);
         }
         else
         {
             try
             {
                 fileContents = new char[size];
-                fseek( fileD, 0, SEEK_SET );
-                size_t rsize = fread( fileContents, 1, static_cast<size_t>(size), fileD );
+                fseek(fileD, 0, SEEK_SET);
+                size_t rsize = fread(fileContents, 1, static_cast<size_t>(size), fileD);
             }
-            catch(std::bad_alloc)
+            catch (std::bad_alloc)
             {
                 LDEBUG << "Unable to claim memory: " << size << " Bytes";
-                throw RasqlError( UNABLETOCLAIMRESOURCEFORFILE );
+                throw RasqlError(UNABLETOCLAIMRESOURCEFORFILE);
             }
         }
 
-        fclose( fileD );
+        fclose(fileD);
 
-        INFO( "ok" << endl );
+        INFO("ok" << endl);
 
         LDEBUG << "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName;
-        fileMDD = new (mddTypeName) r_GMarray( mddDomain, mddType->base_type().size(), 0, false );
-        fileMDD->set_type_schema( mddType );
-        fileMDD->set_array_size( mddDomain.cell_count() * mddType->base_type().size() );
+        fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, false);
+        fileMDD->set_type_schema(mddType);
+        fileMDD->set_array_size(mddDomain.cell_count() * mddType->base_type().size());
         if (fileContents != NULL)
         {
-            fileMDD->set_array( fileContents );
+            fileMDD->set_array(fileContents);
         }
         else
         {
-            fileMDD->set_tiled_array( fileContentsChunked );
+            fileMDD->set_tiled_array(fileContentsChunked);
         }
 
         query << *fileMDD;
 
         LDEBUG << "constants are:";
-        r_Set<r_GMarray *> * myConstSet = const_cast<r_Set<r_GMarray *> *>(query.get_constants());
-        r_Iterator< r_GMarray *> iter = myConstSet->create_iterator();
+        r_Set<r_GMarray*>* myConstSet = const_cast<r_Set<r_GMarray*> *>(query.get_constants());
+        r_Iterator<r_GMarray*> iter = myConstSet->create_iterator();
         int i;
-        for ( i=1, iter.reset(); iter.not_done(); iter++, i++ )
+        for (i = 1, iter.reset(); iter.not_done(); iter++, i++)
         {
-            r_Ref< r_GMarray > myConstant = *iter;
-            INFO( "  constant " << i << ": " );
-            myConstant->print_status( cout );
+            r_Ref<r_GMarray> myConstant = *iter;
+            INFO("  constant " << i << ": ");
+            myConstant->print_status(cout);
 // the following can be used for sporadic debugging of input files, but beware: is very verbose!
 #if 0
             cout << "  Contents: " << hex;
-            const char *a = myConstant->get_array();
-            for (int m=0; m < myConstant->get_array_size(); m++)
-                cout << (unsigned short) (a[m] & 0xFF) << " ";
+            const char* a = myConstant->get_array();
+            for (int m = 0; m < myConstant->get_array_size(); m++)
+            {
+                cout << (unsigned short)(a[m] & 0xFF) << " ";
+            }
             cout << dec << endl;
 #endif
         }
     }
 
-    if( query.is_insert_query() )
+    if (query.is_insert_query())
     {
-        openTransaction( true );
+        openTransaction(true);
 
         r_Marray<r_ULong>* mddConst = NULL;
 
-        INFO( "Executing insert query..." << flush );
+        INFO("Executing insert query..." << flush);
         // third param is just to differentiate from retrieval
-        r_oql_execute( query, result_set, 1 );
-        INFO( "ok" << endl );
+        r_oql_execute(query, result_set, 1);
+        INFO("ok" << endl);
 
         // generate output only if explicitly requested
-        if( output )
-            printResult( /* result_set */);
+        if (output)
+        {
+            printResult(/* result_set */);
+        }
 
-        if( mddConst )
+        if (mddConst)
+        {
             delete mddConst;
+        }
 
-        closeTransaction( true );
+        closeTransaction(true);
     }
-    else if ( query.is_update_query() )
+    else if (query.is_update_query())
     {
-        openTransaction( true );
+        openTransaction(true);
 
         r_Marray<r_ULong>* mddConst = NULL;
 
-        INFO( "Executing update query..." << flush );
-        r_oql_execute( query );
-        INFO( "ok" << endl );
+        INFO("Executing update query..." << flush);
+        r_oql_execute(query);
+        INFO("ok" << endl);
 
-        if( mddConst )
+        if (mddConst)
+        {
             delete mddConst;
+        }
 
-        closeTransaction( true );
+        closeTransaction(true);
     }
     else // retrieval query
     {
-        openTransaction( false );
+        openTransaction(false);
 
         // should be defined here, but is global; see def for reason
         // r_Set< r_Ref_Any > result_set;
 
-        INFO( "Executing retrieval query..." << flush );
-        r_oql_execute( query, result_set );
-        INFO( "ok" << endl );
+        INFO("Executing retrieval query..." << flush);
+        r_oql_execute(query, result_set);
+        INFO("ok" << endl);
 
         // generate output only if explicitly requested
-        if( output )
-            printResult( /* result_set */ );
+        if (output)
+        {
+            printResult(/* result_set */);
+        }
 
-        closeTransaction( true );
+        closeTransaction(true);
     }
 
     if (fileContents != NULL)
+    {
         delete [] fileContents;
+    }
 }
 
 void
-crash_handler (__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
+crash_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
     print_stacktrace(ucontext);
     // clean up connection in case of segfault
@@ -1017,20 +1079,20 @@ int main(int argc, char** argv)
     LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
     defaultConf.configClientLogging();
 
-    SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
+    SET_OUTPUT(false);          // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status
 
     installSigSegvHandler(crash_handler);
     try
     {
-        parseParams( argc, argv );
+        parseParams(argc, argv);
 
         // put INFO after parsing parameters to respect a '--quiet'
-        INFO( argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << "." << endl );
+        INFO(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << "." << endl);
 
         openDatabase();
-        doStuff( argc, argv );
+        doStuff(argc, argv);
         closeDatabase();
         retval = EXIT_SUCCESS;
     }
@@ -1055,22 +1117,22 @@ int main(int argc, char** argv)
         retval = EXIT_FAILURE;
     }
 
-    if (retval != EXIT_SUCCESS && (dbIsOpen || taIsOpen) )
+    if (retval != EXIT_SUCCESS && (dbIsOpen || taIsOpen))
     {
         try
         {
-            INFO( "aborting transaction..." << flush );
-            closeTransaction( false );  // abort transaction and close database, ignore any further exceptions
-            INFO( "ok" << endl );
+            INFO("aborting transaction..." << flush);
+            closeTransaction(false);    // abort transaction and close database, ignore any further exceptions
+            INFO("ok" << endl);
             closeDatabase();
         }
-        catch(...)
+        catch (...)
         {
-            LDEBUG<<"Ignoring cleanup exceptions.";
+            LDEBUG << "Ignoring cleanup exceptions.";
         }
     }
 
-    INFO( argv[0] << " done." << endl );
+    INFO(argv[0] << " done." << endl);
     return retval;
 } // main()
 

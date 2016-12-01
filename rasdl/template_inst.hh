@@ -78,6 +78,6 @@ template class r_IterType<r_Attribute>;
 template class SymbolTable<int>;
 
 template std::ostream& operator<< (const std::vector<KeyObject>&, std::ostream&);
-template std::ostream& operator<< (std::ostream &, const std::vector<KeyObject>&);
-template std::ostream& operator<< (std::ostream &, const std::vector<double>&);
+template std::ostream& operator<< (std::ostream&, const std::vector<KeyObject>&);
+template std::ostream& operator<< (std::ostream&, const std::vector<double>&);
 

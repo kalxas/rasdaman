@@ -36,8 +36,8 @@ public:
      * @param userName User name
      * @param passwordHash Password hash
      */
-    ClientCredentials(const std::string& userName="",
-                      const std::string& passwordHash="");
+    ClientCredentials(const std::string& userName = "",
+                      const std::string& passwordHash = "");
 
     /**
      * Destroy an instance of the ClientCredentials object

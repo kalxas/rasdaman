@@ -1,8 +1,8 @@
 //moved to mddobjix
 //
 /**
- *	@file persmddobjix.hh
+ *  @file persmddobjix.hh
  *
- *	@ingroup indexmgr
+ *  @ingroup indexmgr
  *
  */

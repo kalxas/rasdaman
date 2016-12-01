@@ -26,8 +26,8 @@
 namespace rasmgr
 {
 
-InexistentOutPeerException::InexistentOutPeerException(const std::string &hostName)
-    :common::MissingResourceException("No outpeer with host name" + hostName + " found. ")
+InexistentOutPeerException::InexistentOutPeerException(const std::string& hostName)
+    : common::MissingResourceException("No outpeer with host name" + hostName + " found. ")
 {}
 
 InexistentOutPeerException::~InexistentOutPeerException() throw()

@@ -12,7 +12,7 @@ namespace rasmgr
 namespace test
 {
 
-class DummyRasmgrService:public rasnet::service::RasmgrRasmgrService::Service
+class DummyRasmgrService: public rasnet::service::RasmgrRasmgrService::Service
 {
 public:
     DummyRasmgrService():
@@ -23,10 +23,10 @@ public:
     {
     }
 
-    grpc::Status TryGetRemoteServer(grpc::ServerContext *context, const rasnet::service::GetRemoteServerRequest *request, rasnet::service::GetRemoteServerReply *response)
+    grpc::Status TryGetRemoteServer(grpc::ServerContext* context, const rasnet::service::GetRemoteServerRequest* request, rasnet::service::GetRemoteServerReply* response)
     {
-        LDEBUG<<"Trying";
-        if(request->user_name()=="gooduser")
+        LDEBUG << "Trying";
+        if (request->user_name() == "gooduser")
         {
             response->set_client_session_id(clientId);
             response->set_db_session_id(dbSessionId);
@@ -41,7 +41,7 @@ public:
         }
     }
 
-    grpc::Status ReleaseServer(grpc::ServerContext *context, const rasnet::service::ReleaseServerRequest *request, rasnet::service::Void *response)
+    grpc::Status ReleaseServer(grpc::ServerContext* context, const rasnet::service::ReleaseServerRequest* request, rasnet::service::Void* response)
     {
         return grpc::Status::OK;
     }

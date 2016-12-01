@@ -42,7 +42,7 @@ RasMgrTester::RasMgrTester()
 {
 
     command = new char[MAXCOMMAND];
-    expected= new char[MAXMSGRASCONTROL];
+    expected = new char[MAXMSGRASCONTROL];
 
 }
 RasMgrTester::~RasMgrTester()
@@ -51,24 +51,27 @@ RasMgrTester::~RasMgrTester()
     delete[] expected;
 }
 
-void RasMgrTester::setRasMgrHost(const char *rasmgrHost, int rasmgrPort)
+void RasMgrTester::setRasMgrHost(const char* rasmgrHost, int rasmgrPort)
 {
     rasmgrClient.setRasMgrHost(rasmgrHost, rasmgrPort); // The first argument is the RasMgr host
     userLogin.quickLogin();
-    rasmgrClient.setUserIdentification(userLogin.getUserName(),userLogin.getEncrPass());
+    rasmgrClient.setUserIdentification(userLogin.getUserName(), userLogin.getEncrPass());
 }
 
 bool RasMgrTester::mayWeDoTest()
 {
     int result = 0;                             // COMM_* values
-    const char *modus = NULL;
+    const char* modus = NULL;
 
-    result = rasmgrClient.sendMessageGetAnswer( RASMGRCMD_LIST_MODUS, &modus );
-    const char *expect = "RasMGR running as master in test modus";
-    if(modus == NULL) return false; //if connection refused, no rasmgr running
+    result = rasmgrClient.sendMessageGetAnswer(RASMGRCMD_LIST_MODUS, &modus);
+    const char* expect = "RasMGR running as master in test modus";
+    if (modus == NULL)
+    {
+        return false;    //if connection refused, no rasmgr running
+    }
     //cout<<"A:"<<modus<<endl;
     //cout<<"E:"<<expect <<endl;
-    if(strcasecmp(modus,expect)!=0)
+    if (strcasecmp(modus, expect) != 0)
     {
         //cout<<"RasMgr is not running in test modus, so we can't do the test!"<<endl;
         return false;
@@ -76,66 +79,71 @@ bool RasMgrTester::mayWeDoTest()
     return true;
 }
 
-bool RasMgrTester::loadCommand(const char *x)
+bool RasMgrTester::loadCommand(const char* x)
 {
-    strncpy(command,x,100);
+    strncpy(command, x, 100);
     return true;
 }
-bool RasMgrTester::loadCommand(std::ifstream &ifs)
+bool RasMgrTester::loadCommand(std::ifstream& ifs)
 {
     command[0] =  EOS_CHAR;
-    ifs.getline(command,MAXCOMMAND);
+    ifs.getline(command, MAXCOMMAND);
     clearCR(command);
-    return command[0] ? true:false;
+    return command[0] ? true : false;
 }
 
-bool RasMgrTester::loadExpected(const char *x)
+bool RasMgrTester::loadExpected(const char* x)
 {
-    strncpy(expected,x,MAXMSGRASCONTROL);
+    strncpy(expected, x, MAXMSGRASCONTROL);
     clearFinalCRLF(expected);
     return true;
 }
-bool RasMgrTester::loadExpected(std::ifstream &ifs,char delim)
+bool RasMgrTester::loadExpected(std::ifstream& ifs, char delim)
 {
     int i;
-    const std::streamoff off=-1;
-    for(i=0; i<MAXMSGRASCONTROL; i++)
+    const std::streamoff off = -1;
+    for (i = 0; i < MAXMSGRASCONTROL; i++)
     {
         char c;
-        ifs.read(&c,1);
-        if(!ifs) break;
+        ifs.read(&c, 1);
+        if (!ifs)
+        {
+            break;
+        }
 
-        if(c==delim)
+        if (c == delim)
         {
             ifs.seekg(off, std::ios::cur);
             break;
         }
-        expected[i]=c;
+        expected[i] = c;
     }
-    expected[i]=0;
+    expected[i] = 0;
 
     clearFinalCRLF(expected);
 
-    return strlen(expected) ? true:false;
+    return strlen(expected) ? true : false;
 }
 
 bool RasMgrTester::sendCommandGetAnswer()
 {
     int result = 0;                             // COMM_* values
-    const char *r = NULL;
+    const char* r = NULL;
 
-    result = rasmgrClient.sendMessageGetAnswer(command, &r );
-    if(r == NULL)
+    result = rasmgrClient.sendMessageGetAnswer(command, &r);
+    if (r == NULL)
+    {
         return false;
+    }
 
     return true;
 }
 
 bool RasMgrTester::isAnswerOK()
 {
-    const char *r=rasmgrClient.getBody();
+    const char* r = rasmgrClient.getBody();
 
-    return  strcasecmp(r,expected)==0 ? true:false;
+    return  strcasecmp(r, expected) == 0 ? true : false;
 }
 const char* RasMgrTester::getCommand()
 {
@@ -152,35 +160,50 @@ const char* RasMgrTester::getAnswer()
     return rasmgrClient.getBody();
 }
 
-bool RasMgrTester::saveCommand(std::ofstream &ofs)
+bool RasMgrTester::saveCommand(std::ofstream& ofs)
 {
-    ofs<<command<<endl;
+    ofs << command << endl;
     return true;
 }
-bool RasMgrTester::saveExpected(std::ofstream &ofs)
+bool RasMgrTester::saveExpected(std::ofstream& ofs)
 {
-    ofs<<expected<<endl;
+    ofs << expected << endl;
     return true;
 }
-bool RasMgrTester::saveAnswer(std::ofstream &ofs)
+bool RasMgrTester::saveAnswer(std::ofstream& ofs)
 {
-    ofs<<rasmgrClient.getBody()<<endl;
+    ofs << rasmgrClient.getBody() << endl;
     return true;
 }
 
-void  RasMgrTester::clearCR(char *line)
+void  RasMgrTester::clearCR(char* line)
 {
     // This func clears the CR from the end of the line read by getline
     int len = strlen(line);
-    if(len==0) return;
-    if(line[len-1]=='\r') line[len-1]=0;
+    if (len == 0)
+    {
+        return;
+    }
+    if (line[len - 1] == '\r')
+    {
+        line[len - 1] = 0;
+    }
 }
-void  RasMgrTester::clearFinalCRLF(char *string)
+void  RasMgrTester::clearFinalCRLF(char* string)
 {
     // reading the expected answer from a file can bring and ending CRLF, which has to be removed
     int len = strlen(string);
-    if(len<2) return;
-    if(string[len-1]=='\r' || string[len-1]=='\n') string[len-1]=0;
-    if(string[len-2]=='\r' || string[len-2]=='\n') string[len-2]=0;
+    if (len < 2)
+    {
+        return;
+    }
+    if (string[len - 1] == '\r' || string[len - 1] == '\n')
+    {
+        string[len - 1] = 0;
+    }
+    if (string[len - 2] == '\r' || string[len - 2] == '\n')
+    {
+        string[len - 2] = 0;
+    }
 }
 

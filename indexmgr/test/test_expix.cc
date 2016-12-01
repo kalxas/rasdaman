@@ -67,7 +67,7 @@ extern char* myExecArgv0 = "";
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
 
-static void ClearDB( d_Database &DB );
+static void ClearDB(d_Database& DB);
 static void testAccessing();
 
 static void testTransDirIx();
@@ -85,7 +85,7 @@ static void testDirIx();
  ************************************************************/
 
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
 
     // variables representing O2 database, ta and session
@@ -128,7 +128,7 @@ main( int argc, char** argv)
 
     cout << "Testing DirIx..." << endl;
     ta.begin();
-    testDirIx( );
+    testDirIx();
     ta.commit();
 
     cout << endl;
@@ -141,50 +141,50 @@ main( int argc, char** argv)
 
 
 void
-testTransDirIx( )
+testTransDirIx()
 {
 
-    cout << "....testTransDirIx"<< endl;
+    cout << "....testTransDirIx" << endl;
 
-    TransDirIx* ti = new TransDirIx( 2 );
-    cout << "TransDirIx just created: "<< endl;
-    ti->printStatus( );
+    TransDirIx* ti = new TransDirIx(2);
+    cout << "TransDirIx just created: " << endl;
+    ti->printStatus();
 
     ULongType anyType;
     char anyCell[4];
 
     TransTile* ttArray[12];
 
-    for( long j = 0; j < 12 ; j++)
+    for (long j = 0; j < 12 ; j++)
     {
         r_Minterval dom(2);
-        dom << r_Sinterval( j, j+ 5 ) << r_Sinterval( j , j+5 );
-        TransTile* tt = new TransTile( dom, (BaseType* ) &anyType, anyCell );
+        dom << r_Sinterval(j, j + 5) << r_Sinterval(j , j + 5);
+        TransTile* tt = new TransTile(dom, (BaseType*) &anyType, anyCell);
         ttArray[j] = tt;
     }
 
-    for( j = 0; j < 10 ; j++)
+    for (j = 0; j < 10 ; j++)
     {
-        cout << "Insert Tile Last " << ttArray[j]->getDomain( ) << endl;
-        ti->insertObjectLast( ttArray[j] );
-        ti->printStatus( );
+        cout << "Insert Tile Last " << ttArray[j]->getDomain() << endl;
+        ti->insertObjectLast(ttArray[j]);
+        ti->printStatus();
     }
 
-    cout << "Insert Tile pos  5 " << ttArray[10]->getDomain( ) << endl;
-    ti->insertObject( ttArray[10], 5 );
-    ti->printStatus( );
+    cout << "Insert Tile pos  5 " << ttArray[10]->getDomain() << endl;
+    ti->insertObject(ttArray[10], 5);
+    ti->printStatus();
 
-    cout << "Insert Tile First " << ttArray[11]->getDomain( ) << endl;
-    ti->insertObjectFirst( ttArray[11] );
-    ti->printStatus( );
+    cout << "Insert Tile First " << ttArray[11]->getDomain() << endl;
+    ti->insertObjectFirst(ttArray[11]);
+    ti->printStatus();
 
     delete ti;
 }
 
 void
-testDirIx( )
+testDirIx()
 {
-    cout << "....testDirIx"<< endl;
+    cout << "....testDirIx" << endl;
 
     ULongType anyType;
     char anyCell[4];
@@ -200,8 +200,8 @@ testDirIx( )
     // MDDObjIx* /* DirIx< TransDirIx >* */ di  = new DirIx< TransDirIx >( t );
     // DirIx< PersDirIx >* di = new DirIx< PersDirIx >( t );
     MDDStorage ms1;
-    ms1.setIndexType( MDDStorage::DirTilesIx );
-    PersMDDObjIx* di = new PersMDDObjIx(  2, &anyType, &ms1 );
+    ms1.setIndexType(MDDStorage::DirTilesIx);
+    PersMDDObjIx* di = new PersMDDObjIx(2, &anyType, &ms1);
     // TransMDDObjIx* di = new TransMDDObjIx(  2, 0 );
 
     // char index1[] =  "TransMDDObjIx* RegDirIx<TransDirIx>";
@@ -210,8 +210,8 @@ testDirIx( )
     // TransMDDObjIx* di1 = new TransMDDObjIx( 2, 1 );
     // DirIx< TransDirIx >* di1  = new DirIx< TransDirIx >( t );
     MDDStorage ms;
-    ms.setIndexType( MDDStorage::RegDirIx );
-    PersMDDObjIx* di1 = new PersMDDObjIx( 2, &anyType, &ms );
+    ms.setIndexType(MDDStorage::RegDirIx);
+    PersMDDObjIx* di1 = new PersMDDObjIx(2, &anyType, &ms);
 
     cout << "Comparison of      Index  " << index << endl;
     cout << "with               Index1 " << index1 << endl;
@@ -225,66 +225,69 @@ testDirIx( )
     // di->printStatus( );
 
 
-    cout <<"Random insertion of tiles into the indexe(s) ..." << endl;
+    cout << "Random insertion of tiles into the indexe(s) ..." << endl;
     Tile* ttArray[NumTiles];
     Tile* tt1Array[NumTiles];
     unsigned alreadyUsed[NumTiles];
 
     long j = 0;
 
-    for( long k = 0; k < sqrtnumTiles ; k++ )
+    for (long k = 0; k < sqrtnumTiles ; k++)
     {
-        for( long l = 0; l < sqrtnumTiles ; l++)
+        for (long l = 0; l < sqrtnumTiles ; l++)
         {
             r_Minterval dom(2);
             // dom << r_Sinterval( k*5 , k*5+5-1 ) << r_Sinterval( l*5 , l*5+5-1 );
-            dom << r_Sinterval( k , k ) << r_Sinterval( l , l );
+            dom << r_Sinterval(k , k) << r_Sinterval(l , l);
 
             // Tile* tt = new TransTile( dom, (BaseType* ) &anyType, anyCell );
-            Tile* tt = new PersTile( dom, (const BaseType* ) &anyType, anyCell );
+            Tile* tt = new PersTile(dom, (const BaseType*) &anyType, anyCell);
             // Tile* tt1 = new TransTile( dom, (BaseType* ) &anyType, anyCell );
-            Tile* tt1 = new PersTile( dom, (const BaseType* ) &anyType, anyCell );
+            Tile* tt1 = new PersTile(dom, (const BaseType*) &anyType, anyCell);
 
             ttArray[j] = tt;
             tt1Array[j] = tt1;
-            alreadyUsed[j]=0;
+            alreadyUsed[j] = 0;
             j++;
         }
     }
 
-    cout <<" j "<< j << endl;
+    cout << " j " << j << endl;
 
-    for( j = 0; j < NumTiles ; j++)
+    for (j = 0; j < NumTiles ; j++)
     {
-        int ixToUse = rand( ) % NumTiles;
-        if ( alreadyUsed[ ixToUse ] )
+        int ixToUse = rand() % NumTiles;
+        if (alreadyUsed[ ixToUse ])
         {
             // calculate another index;
             ixToUse = 0;
-            for( int i = 0; !ixToUse && i < NumTiles; i++ )
+            for (int i = 0; !ixToUse && i < NumTiles; i++)
             {
-                if ( !alreadyUsed[i] ) ixToUse = i;
+                if (!alreadyUsed[i])
+                {
+                    ixToUse = i;
+                }
             }
         }
         alreadyUsed[ ixToUse ] = 1;
         cout << "Insert Tile ttArray[ " << ixToUse << " ] : ";
-        cout << ttArray[ixToUse]->getDomain( ) << endl;
+        cout << ttArray[ixToUse]->getDomain() << endl;
 
         // Index
-        di->insertTile( ttArray[ ixToUse ] );
+        di->insertTile(ttArray[ ixToUse ]);
         // Index 1
-        di1->insertTile( tt1Array[ ixToUse ] );
+        di1->insertTile(tt1Array[ ixToUse ]);
         // di->printStatus( );
     }
 
-    cout << index << " contents: "<< endl;
-    di->printStatus( );
+    cout << index << " contents: " << endl;
+    di->printStatus();
 
-    cout << index1 << " contents: "<< endl;
-    di1->printStatus( );
+    cout << index1 << " contents: " << endl;
+    di1->printStatus();
     cout << endl;
 
-    r_Minterval cd = di->getCurrentDomain( );
+    r_Minterval cd = di->getCurrentDomain();
 
     r_Minterval badQuery1("[33:43,139:149]");
     // not bad r_Minterval badQuery1("[65:75,32:42]");
@@ -305,24 +308,24 @@ testDirIx( )
     // test extreme cases: no intersection at all with the current domain
     r_Minterval badQuery7("[170:172,140:140]");
 
-    for( int i = 0; i < NumIntersections; i++ )
+    for (int i = 0; i < NumIntersections; i++)
     {
         Timer time;
         Timer time1;
-        RMTimer* rtime = new RMTimer( "DirIx", "intersect" );
-        RMTimer* rtime1 = new RMTimer( "RegDirIx", "intersect" );
-        r_Minterval intRegion( 2 );
-        long l1 = cd.get_origin( )[0];
-        long l2 = cd.get_origin( )[1];
-        long h1 = cd.get_high( )[0];
-        long h2 = cd.get_high( )[1];
-        long length1 = h1 - l1 +1;
-        long length2 = h2 - l2 +1;
-        l1 = l1 + rand( ) % length1;
-        l2 = l2 + rand( ) % length2;
-        h1 = l1 + (rand( )  % (h1-l1+1) );
-        h2 = l2 + (rand( )  % (h2-l2+1) );
-        intRegion << r_Sinterval( l1,h1) << r_Sinterval( l2,h2);
+        RMTimer* rtime = new RMTimer("DirIx", "intersect");
+        RMTimer* rtime1 = new RMTimer("RegDirIx", "intersect");
+        r_Minterval intRegion(2);
+        long l1 = cd.get_origin()[0];
+        long l2 = cd.get_origin()[1];
+        long h1 = cd.get_high()[0];
+        long h2 = cd.get_high()[1];
+        long length1 = h1 - l1 + 1;
+        long length2 = h2 - l2 + 1;
+        l1 = l1 + rand() % length1;
+        l2 = l2 + rand() % length2;
+        h1 = l1 + (rand()  % (h1 - l1 + 1));
+        h2 = l2 + (rand()  % (h2 - l2 + 1));
+        intRegion << r_Sinterval(l1, h1) << r_Sinterval(l2, h2);
 
         /*
             if ( i == NumIntersections - 1 )
@@ -336,103 +339,121 @@ testDirIx( )
             if ( i == NumIntersections - 5 )
                intRegion = badQuery5;
         */
-        if ( i == NumIntersections - 6 )
+        if (i == NumIntersections - 6)
+        {
             intRegion = badQuery6;
-        if ( i == NumIntersections - 7 )
+        }
+        if (i == NumIntersections - 7)
+        {
             intRegion = badQuery7;
+        }
 
 
-        cout << "Intersect with "<<  intRegion << endl;
+        cout << "Intersect with " <<  intRegion << endl;
 
         // Index
-        time.start( );
-        rtime->start( );
-        vector< Tile* >* rqResult = di->intersect( intRegion );
-        rtime->stop( );
-        time.stop( );
-        if ( rqResult )
+        time.start();
+        rtime->start();
+        vector<Tile*>* rqResult = di->intersect(intRegion);
+        rtime->stop();
+        time.stop();
+        if (rqResult)
         {
             cout << index << endl << " No. of tiles, time , time/noTiles = "
-                 << rqResult->size( ) << " , "<< time << " , ";
-            if ( rqResult->size( ) )  cout << time.ellapsed_sec( )/rqResult->size( ) << endl;
+                 << rqResult->size() << " , " << time << " , ";
+            if (rqResult->size())
+            {
+                cout << time.ellapsed_sec() / rqResult->size() << endl;
+            }
         }
         else
-            cout << "No tiles intersected "<< endl;
+        {
+            cout << "No tiles intersected " << endl;
+        }
         delete rtime;
 
         // Index 1
-        time1.start( );
-        rtime1->start( );
-        vector< Tile* >* rqResult1 = di1->intersect( intRegion );
-        rtime1->stop( );
-        time1.stop( );
-        if ( rqResult1 )
+        time1.start();
+        rtime1->start();
+        vector<Tile*>* rqResult1 = di1->intersect(intRegion);
+        rtime1->stop();
+        time1.stop();
+        if (rqResult1)
         {
             cout << index1 << endl << " No. of tiles, time1, time1/noTiles = "
-                 << rqResult1->size( ) << " , "<< time1 << " , ";
-            if ( rqResult1->size( ) )  cout << time1.ellapsed_sec( )/rqResult1->size( ) << endl;
+                 << rqResult1->size() << " , " << time1 << " , ";
+            if (rqResult1->size())
+            {
+                cout << time1.ellapsed_sec() / rqResult1->size() << endl;
+            }
         }
         else
-            cout << "No tiles intersected "<< endl;
+        {
+            cout << "No tiles intersected " << endl;
+        }
         delete rtime1;
 
 
         // Index
         cout << "Result " << index << endl;
-        if ( rqResult )
+        if (rqResult)
         {
-            for( int j = 0; j < rqResult->size( ); j++)
-                cout << ( *rqResult )[j]->getDomain( ) << endl;
+            for (int j = 0; j < rqResult->size(); j++)
+            {
+                cout << (*rqResult)[j]->getDomain() << endl;
+            }
             delete rqResult;
         }
 
         // Index1
         cout << "Result " << index1 << endl;
-        if ( rqResult1 )
+        if (rqResult1)
         {
-            for( j  = 0; j < rqResult1->size( ); j++)
-                cout << ( *rqResult1 )[j]->getDomain( ) << endl;
+            for (j  = 0; j < rqResult1->size(); j++)
+            {
+                cout << (*rqResult1)[j]->getDomain() << endl;
+            }
             delete rqResult1;
         }
         cout << endl;
     }
 
-    for( i = 0; i < NumIntersections; i++ )
+    for (i = 0; i < NumIntersections; i++)
     {
         Timer time;
         Timer time1;
         r_Point pnt(2);
-        RMTimer* rtime = new RMTimer( "DirIx", "Point query" );
-        RMTimer* rtime1 = new RMTimer( "RegDirIx", "Point query" );
-        long l1 = cd.get_origin( )[0];
-        long l2 = cd.get_origin( )[1];
-        long length1 = cd.get_high( )[0] - l1;
-        long length2 = cd.get_high( )[1] - l2;
-        l1 = l1 + rand( ) % length1;
-        l2 = l2 + rand( ) % length2;
+        RMTimer* rtime = new RMTimer("DirIx", "Point query");
+        RMTimer* rtime1 = new RMTimer("RegDirIx", "Point query");
+        long l1 = cd.get_origin()[0];
+        long l2 = cd.get_origin()[1];
+        long length1 = cd.get_high()[0] - l1;
+        long length2 = cd.get_high()[1] - l2;
+        l1 = l1 + rand() % length1;
+        l2 = l2 + rand() % length2;
         pnt << l1 << l2;
 
-        cout << "Point query with "<<  pnt << endl;
+        cout << "Point query with " <<  pnt << endl;
 
 
         // Index
-        time.start( );
-        rtime->start( );
-        Tile* rqResult = di->containPointQuery( pnt );
-        rtime->stop( );
-        time.stop( );
+        time.start();
+        rtime->start();
+        Tile* rqResult = di->containPointQuery(pnt);
+        rtime->stop();
+        time.stop();
         cout << index << " tile, time   = "
-             << rqResult->getDomain( ) << " , "<< time << endl;
+             << rqResult->getDomain() << " , " << time << endl;
         delete rtime;
 
         // Index 1
-        time1.start( );
-        rtime1->start( );
-        Tile* rqResult1 = di1->containPointQuery( pnt );
-        rtime1->stop( );
-        time1.stop( );
+        time1.start();
+        rtime1->start();
+        Tile* rqResult1 = di1->containPointQuery(pnt);
+        rtime1->stop();
+        time1.stop();
         cout << index1 << " tile, time1  = "
-             << rqResult1->getDomain( ) << " , "<< time1 << endl;
+             << rqResult1->getDomain() << " , " << time1 << endl;
         delete rtime1;
 
         cout << endl;
@@ -454,19 +475,19 @@ static void testAccessing()
 {
     DBMDDObjIxId accessedIndex;
 
-    cout << "....testAccessing"<<endl;
+    cout << "....testAccessing" << endl;
 
     // read root object
-    d_List< DBMDDObjIxId > indexList("IndexContainer");
+    d_List<DBMDDObjIxId> indexList("IndexContainer");
     // used for iterating
-    d_Iterator< DBMDDObjIxId > indexIt = indexList.create_iterator();
+    d_Iterator<DBMDDObjIxId> indexIt = indexList.create_iterator();
 
-    for( int i = 1 ; indexIt.not_done(); i++, indexIt.advance())
+    for (int i = 1 ; indexIt.not_done(); i++, indexIt.advance())
     {
         accessedIndex = indexIt.get_element();
-        cout << "    --"<<i<<". index object in list:" << endl;
+        cout << "    --" << i << ". index object in list:" << endl;
         accessedIndex->printStatus();
-        cout<<endl;
+        cout << endl;
     }
 
 }
@@ -482,7 +503,7 @@ static void testAccessing()
  *                 existed) and recreates an empty base
  ************************************************************/
 
-static void ClearDB( d_Database &DB )
+static void ClearDB(d_Database& DB)
 {
     d_Transaction trans;
     trans.begin();
@@ -490,12 +511,12 @@ static void ClearDB( d_Database &DB )
     cout << "Destroying " << O2BenchDBName << endl;
 
     // destroy the database in case it already exists
-    DB.destroy( O2BenchDBName );
+    DB.destroy(O2BenchDBName);
 
     // and create a new one
-    cout << "Creating " << O2BenchDBName <<" on schema "
+    cout << "Creating " << O2BenchDBName << " on schema "
          << O2BenchSchemaName << endl;
-    DB.create( O2BenchDBName, O2BenchSchemaName );
+    DB.create(O2BenchDBName, O2BenchSchemaName);
 
     trans.commit();
 }

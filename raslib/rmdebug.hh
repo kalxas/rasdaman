@@ -50,32 +50,32 @@ extern int RManBenchmark;
 #ifdef RMANDEBUG
 
 #define RMDBGIF( levell, module, cls, text ) \
-  if (RMDebug::debugOutput( levell, module, cls )) { text }
+    if (RMDebug::debugOutput( levell, module, cls )) { text }
 
 #define RMDBGENTER( levell, module, cls, text ) \
-  RMCounter rmCounter(levell, module, cls); \
-  if (RMDebug::debugOutput( levell, module, cls )) { \
-    LTRACE << "ENTER  ";  LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
-  }
+    RMCounter rmCounter(levell, module, cls); \
+    if (RMDebug::debugOutput( levell, module, cls )) { \
+        LTRACE << "ENTER  ";  LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
+    }
 
 #define RMDBGMIDDLE( levell, module, cls, text ) \
-  if (RMDebug::debugOutput( levell, module, cls )) { \
-    LTRACE << "MIDDLE "; LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
-  }
+    if (RMDebug::debugOutput( levell, module, cls )) { \
+        LTRACE << "MIDDLE "; LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
+    }
 
 #define RMDBGONCE( levell, module, cls, text ) \
-  RMCounter rmCounter(levell, module, cls); \
-  if (RMDebug::debugOutput(levell, module, cls)) \
-  { \
-    LTRACE << "ONCE   "; LTRACE << cls << " "; \
-    RMDebug::indentLine(); \
-    LTRACE << text; \
-  }
+    RMCounter rmCounter(levell, module, cls); \
+    if (RMDebug::debugOutput(levell, module, cls)) \
+    { \
+        LTRACE << "ONCE   "; LTRACE << cls << " "; \
+        RMDebug::indentLine(); \
+        LTRACE << text; \
+    }
 
 #define RMDBGEXIT( levell, module, cls, text ) \
-  if (RMDebug::debugOutput( levell, module, cls )) { \
-    LTRACE << "EXIT   "; LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
-  }
+    if (RMDebug::debugOutput( levell, module, cls )) { \
+        LTRACE << "EXIT   "; LTRACE << cls << " "; RMDebug::indentLine(); LTRACE << text; \
+    }
 
 #define RMDBCLASS( t1, t2, t3, t4, t5 ) RMDebug localRMDebug = RMDebug( t1, t2, t3, t4, t5 );
 
@@ -172,7 +172,10 @@ public:
     /// indent by the amount specified by level
     static inline void indentLine(void)
     {
-        for (int i=0; i<level; i++) LTRACE << "  ";
+        for (int i = 0; i < level; i++)
+        {
+            LTRACE << "  ";
+        }
     }
 
     /// return whether debug output should happen for the given module, class

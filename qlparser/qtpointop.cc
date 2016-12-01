@@ -56,52 +56,55 @@ using namespace std;
 
 const QtNode::QtNodeType QtPointOp::nodeType = QT_POINTOP;
 
-QtPointOp::QtPointOp( QtOperationList* opList )
-    :  QtNaryOperation( opList )
+QtPointOp::QtPointOp(QtOperationList* opList)
+    :  QtNaryOperation(opList)
 {
 }
 
 
 
 QtData*
-QtPointOp::evaluate( QtDataList* inputList )
+QtPointOp::evaluate(QtDataList* inputList)
 {
     startTimer("QtPointOp");
 
     QtData*     returnValue = NULL;
     QtDataList* operandList = NULL;
 
-    if( getOperands( inputList, operandList ) )
+    if (getOperands(inputList, operandList))
     {
         vector<QtData*>::iterator dataIter;
-        bool              goOn=true;
+        bool              goOn = true;
 
-        if( operandList )
+        if (operandList)
         {
             // first check operand types
-            for( dataIter=operandList->begin(); dataIter!=operandList->end() && goOn; dataIter++ )
-                if (!( (*dataIter)->getDataType() == QT_SHORT || (*dataIter)->getDataType() == QT_USHORT ||
+            for (dataIter = operandList->begin(); dataIter != operandList->end() && goOn; dataIter++)
+                if (!((*dataIter)->getDataType() == QT_SHORT || (*dataIter)->getDataType() == QT_USHORT ||
                         (*dataIter)->getDataType() == QT_LONG  || (*dataIter)->getDataType() == QT_ULONG  ||
-                        (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR ))
+                        (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR))
                 {
-                    goOn=false;
+                    goOn = false;
                     break;
                 }
 
-            if( !goOn )
+            if (!goOn)
             {
                 LFATAL << "Error: QtPointOp::evaluate() - operands of point expression must be of type integer.";
 
                 parseInfo.setErrorNo(410);
 
                 // delete the old operands
-                if( operandList )
+                if (operandList)
                 {
-                    for( dataIter=operandList->begin(); dataIter!=operandList->end(); dataIter++ )
-                        if( (*dataIter) ) (*dataIter)->deleteRef();
+                    for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
+                        if ((*dataIter))
+                        {
+                            (*dataIter)->deleteRef();
+                        }
 
                     delete operandList;
-                    operandList=NULL;
+                    operandList = NULL;
                 }
 
                 throw parseInfo;
@@ -110,13 +113,13 @@ QtPointOp::evaluate( QtDataList* inputList )
             //
             // create a QtPointData object and fill it
             //
-            r_Point pt( operandList->size() );
+            r_Point pt(operandList->size());
             r_Minterval* nullValues = NULL;
 
-            for( dataIter=operandList->begin(); dataIter!=operandList->end(); dataIter++ )
-                if( (*dataIter)->getDataType() == QT_SHORT ||
+            for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
+                if ((*dataIter)->getDataType() == QT_SHORT ||
                         (*dataIter)->getDataType() == QT_LONG  ||
-                        (*dataIter)->getDataType() == QT_OCTET )
+                        (*dataIter)->getDataType() == QT_OCTET)
                 {
                     pt << (static_cast<QtAtomicData*>(*dataIter))->getSignedValue();
                     nullValues = (static_cast<QtAtomicData*>(*dataIter))->getNullValues();
@@ -126,21 +129,24 @@ QtPointOp::evaluate( QtDataList* inputList )
                     pt << (static_cast<QtAtomicData*>(*dataIter))->getUnsignedValue();
                     nullValues = (static_cast<QtAtomicData*>(*dataIter))->getNullValues();
                 }
-            returnValue = new QtPointData( pt );
+            returnValue = new QtPointData(pt);
             returnValue->setNullValues(nullValues);
 
             // delete the old operands
-            if( operandList )
+            if (operandList)
             {
-                for( dataIter=operandList->begin(); dataIter!=operandList->end(); dataIter++ )
-                    if( (*dataIter) ) (*dataIter)->deleteRef();
+                for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
+                    if ((*dataIter))
+                    {
+                        (*dataIter)->deleteRef();
+                    }
 
                 delete operandList;
-                operandList=NULL;
+                operandList = NULL;
             }
         }
     }
-    
+
     stopTimer();
 
     return returnValue;
@@ -149,21 +155,21 @@ QtPointOp::evaluate( QtDataList* inputList )
 
 
 void
-QtPointOp::printTree( int tab, std::ostream& s, QtChildType mode )
+QtPointOp::printTree(int tab, std::ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtPointOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << std::endl;
 
-    QtNaryOperation::printTree( tab, s, mode );
+    QtNaryOperation::printTree(tab, s, mode);
 }
 
 
 
 void
-QtPointOp::printAlgebraicExpression( std::ostream& s )
+QtPointOp::printAlgebraicExpression(std::ostream& s)
 {
     s << "[";
 
-    QtNaryOperation::printAlgebraicExpression( s );
+    QtNaryOperation::printAlgebraicExpression(s);
 
     s << "]";
 }
@@ -171,19 +177,19 @@ QtPointOp::printAlgebraicExpression( std::ostream& s )
 
 
 const QtTypeElement&
-QtPointOp::checkType( QtTypeTuple* typeTuple )
+QtPointOp::checkType(QtTypeTuple* typeTuple)
 {
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     QtOperationList::iterator iter;
     bool              opTypesValid = true;
 
-    for( iter=operationList->begin(); iter!=operationList->end() && opTypesValid; iter++ )
+    for (iter = operationList->begin(); iter != operationList->end() && opTypesValid; iter++)
     {
-        const QtTypeElement& type = (*iter)->checkType( typeTuple );
+        const QtTypeElement& type = (*iter)->checkType(typeTuple);
 
         // valid types: integers
-        if (!(  type.getDataType() == QT_SHORT    ||
+        if (!(type.getDataType() == QT_SHORT    ||
                 type.getDataType() == QT_LONG     ||
                 type.getDataType() == QT_OCTET    ||
                 type.getDataType() == QT_USHORT   ||
@@ -195,14 +201,14 @@ QtPointOp::checkType( QtTypeTuple* typeTuple )
         }
     }
 
-    if( !opTypesValid )
+    if (!opTypesValid)
     {
         LFATAL << "Error: QtPointOp::checkType() - operand of point expression must be of type integer.";
         parseInfo.setErrorNo(410);
         throw parseInfo;
     }
 
-    dataStreamType.setDataType( QT_POINT );
+    dataStreamType.setDataType(QT_POINT);
 
     return dataStreamType;
 }

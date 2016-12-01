@@ -245,7 +245,7 @@ protected:
         Based on the Base DBMS DBMDDSet class from relmddif.
     */
 
-    typedef std::map<DBMDDObj*, MDDObj*, std::less<DBMDDObj*> > MDDObjMap;
+    typedef std::map<DBMDDObj*, MDDObj*, std::less<DBMDDObj*>> MDDObjMap;
     mutable MDDObjMap mddCache;
     /**
     The mdd objs that are instantiated may not be twice in memory.  Therefore it has to be checked if an mdd obj was already created for a specific dbmddobj.

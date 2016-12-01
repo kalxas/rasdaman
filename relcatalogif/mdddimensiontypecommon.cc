@@ -84,7 +84,9 @@ MDDDimensionType::operator=(const MDDDimensionType& old)
 {
     // Gracefully handle self assignment
     if (this == &old)
+    {
         return *this;
+    }
     MDDBaseType::operator=(old);
     myDimension = old.myDimension;
     return *this;
@@ -145,7 +147,7 @@ char* MDDDimensionType::getNewTypeStructure() const
 }
 
 void
-MDDDimensionType::print_status( ostream& s ) const
+MDDDimensionType::print_status(ostream& s) const
 {
     s << "\tr_Marray" << "<" << myBaseType->getTypeName() << "\t, " << myDimension << ">";
 }
@@ -165,7 +167,7 @@ int
 MDDDimensionType::compatibleWith(const Type* aType) const
 {
     int retval = 0;
-    if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE )
+    if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
     {
         LTRACE << "not a domain- or dimensiontype";
         retval = 0;
@@ -173,7 +175,7 @@ MDDDimensionType::compatibleWith(const Type* aType) const
     else
     {
         // check BaseType first
-        if( ! (myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType())) )
+        if (!(myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType())))
         {
             LTRACE << "basetypes are not compatible";
             retval = 0;
@@ -181,17 +183,17 @@ MDDDimensionType::compatibleWith(const Type* aType) const
         else
         {
             // check dimensionality
-            if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDIMENSIONTYPE )
+            if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDIMENSIONTYPE)
             {
                 LTRACE << "check for dimension equality";
                 retval = (myDimension == (static_cast<MDDDimensionType*>(const_cast<Type*>(aType)))->getDimension());
             }
             else
             {
-                if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDOMAINTYPE )
+                if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDOMAINTYPE)
                 {
                     LTRACE << "check for dimension equality";
-                    retval = ( (const_cast<MDDDimensionType*>(this))->myDimension == (static_cast<MDDDomainType*>(const_cast<Type*>(aType)))->getDomain()->dimension() );
+                    retval = ((const_cast<MDDDimensionType*>(this))->myDimension == (static_cast<MDDDomainType*>(const_cast<Type*>(aType)))->getDomain()->dimension());
                 }
             }
         }

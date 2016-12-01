@@ -44,16 +44,17 @@ QtSimpleCaseOp::QtSimpleCaseOp(QtOperationList* opList): QtCaseOp(opList) {}
 /**
  * Destructor override.
  */
-QtSimpleCaseOp::~QtSimpleCaseOp() {
+QtSimpleCaseOp::~QtSimpleCaseOp()
+{
     //iterate through the operation list and mark the common
     //operand for the equality operation as deleted in all but the first
     //equality.
     // the conditions are on even positions in the operation list, except for the last operation
-    for(size_t i = 0; i < operationList->size(); ++i)
+    for (size_t i = 0; i < operationList->size(); ++i)
     {
         if (i > 0 && i % 2 == 0 && i != operationList->size() - 1)
         {
             ((QtCaseEquality*) operationList->at(i))->setCommonOperadDeleted(true);
-       }
+        }
     }
 }

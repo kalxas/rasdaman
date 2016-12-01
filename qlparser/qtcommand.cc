@@ -57,32 +57,32 @@ const string QtCommand::tmpMddTypePrefix = string("autoMdd-");
 const string QtCommand::tmpSetTypePrefix = string("autoSet-");
 
 
-QtCommand::QtCommand( QtCommandType initCommand, const std::string& initCollection, const std::string& initType )
+QtCommand::QtCommand(QtCommandType initCommand, const std::string& initCollection, const std::string& initType)
     : QtExecute(),
-      command( initCommand ),
-      collectionName( initCollection ),
-      typeName( initType ),
-      childNode( NULL )
+      command(initCommand),
+      collectionName(initCollection),
+      typeName(initType),
+      childNode(NULL)
 {
 }
 
 
 
-QtCommand::QtCommand( QtCommandType initCommand, const std::string& initCollection )
+QtCommand::QtCommand(QtCommandType initCommand, const std::string& initCollection)
     : QtExecute(),
-      command( initCommand ),
-      collectionName( initCollection ),
-      childNode( NULL )
+      command(initCommand),
+      collectionName(initCollection),
+      childNode(NULL)
 {
 }
 
 
 
-QtCommand::QtCommand( QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection)
+QtCommand::QtCommand(QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection)
     : QtExecute(),
-      command( initCommand ),
-      collectionName( initCollection ),
-      childNode( collection )
+      command(initCommand),
+      collectionName(initCollection),
+      childNode(collection)
 {
 }
 
@@ -97,7 +97,7 @@ void QtCommand::dropCollection(string collectionName2)
             parseInfo.setErrorNo(957);
             throw parseInfo;
         }
-        
+
         // if this collection was created using a SELECT INTO statement, then delete the temporary datatypes as well
         string setName = tmpSetTypePrefix + collectionName2;
         string mddName = tmpMddTypePrefix + collectionName2;
@@ -158,9 +158,9 @@ OId QtCommand::createCollection(string collectionName2, string typeName2)
 string QtCommand::getSelectedDataType(vector<QtData*>* data)
 {
     char* typestr       = NULL;
-    QtData *firstResult = NULL;
+    QtData* firstResult = NULL;
     vector<QtData*>::iterator dataIter = data->begin();
-    
+
     if (data->size() > 0)
     {
         // take first element from the list of results
@@ -176,8 +176,8 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
 
     LTRACE << "getSelectedDataType() - type structure of the SELECT sub-query results: " << typestr;
 
-    MDDType *mddType = NULL;
-    SetType *setType = NULL;
+    MDDType* mddType = NULL;
+    SetType* setType = NULL;
 
     string setTypeName = tmpSetTypePrefix + collectionName;
     string mddTypeName = tmpMddTypePrefix + collectionName;
@@ -193,7 +193,9 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
         r_Minterval newDomain(dimensions);
         r_Sinterval interval;
         for (r_Dimension i = 0; i < dimensions; i++)
+        {
             newDomain << interval;
+        }
 
         mddType = new MDDDomainType(mddTypeName.c_str(), baseType, newDomain);
         LTRACE << "getSelectedDataType() - new mdd type: " << mddType->getTypeStructure();
@@ -216,10 +218,10 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionNam
     vector<QtData*>::iterator it;
     for (it = data->begin(); it != data->end(); it++)
     {
-        QtData *elemToInsert = *it;
-        QtInsert *insertNode = new QtInsert(collectionName2, elemToInsert);
-        
-        QueryTree *query = new QueryTree(insertNode);
+        QtData* elemToInsert = *it;
+        QtInsert* insertNode = new QtInsert(collectionName2, elemToInsert);
+
+        QueryTree* query = new QueryTree(insertNode);
         try
         {
             LINFO << "inserting into new collection...";
@@ -249,7 +251,7 @@ bool QtCommand::collectionExists(string collectionName2)
 {
     try
     {
-        MDDColl *coll = MDDColl::getMDDCollection(collectionName2.c_str());
+        MDDColl* coll = MDDColl::getMDDCollection(collectionName2.c_str());
         if (coll)
         {
             delete coll;
@@ -287,10 +289,10 @@ QtCommand::evaluate()
 
         try
         {
-            /* 
+            /*
              * 1/4: Evaluate SELECT sub-query: construct a new query tree and execute it to get the results.
              */
-            QueryTree *selectTree = new QueryTree(childNode);
+            QueryTree* selectTree = new QueryTree(childNode);
 
             vector<QtData*>* data = NULL;
             try
@@ -315,7 +317,7 @@ QtCommand::evaluate()
                 LFATAL << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
                 throw;
             }
-            
+
 
             if (data == NULL)
             {
@@ -333,19 +335,19 @@ QtCommand::evaluate()
             }
             else
             {
-                /* 
+                /*
                  * 2/4: Create a new datatypes for the collection, by looking at the first result
                  */
                 string collectionType = getSelectedDataType(data);
 
-                /* 
+                /*
                  * 3/4: Create a new collection.
                  */
                 createCollection(collectionName, collectionType);
                 LTRACE << "evaluate() - created collection " << collectionName << " with type " << collectionType;
             }
 
-            /* 
+            /*
              * 4/4: Insert the data into the new collection
              */
             insertIntoCollection(data, collectionName);
@@ -366,7 +368,7 @@ QtCommand::evaluate()
             LFATAL << "Error: cannot allocate memory.";
             throw;
         }
-        catch (ParseInfo &e)
+        catch (ParseInfo& e)
         {
             LFATAL << "Error: ";
             e.printStatus(RMInit::logOut);
@@ -377,7 +379,8 @@ QtCommand::evaluate()
             LFATAL << "Error: caught unknown exception while evaluation SELECT INTO query, re-throwing.";
             throw;
         }
-    default: break;
+    default:
+        break;
     }
 
     stopTimer();
@@ -388,25 +391,25 @@ QtCommand::evaluate()
 
 
 void
-QtCommand::printTree( int tab, std::ostream& s, __attribute__ ((unused)) QtChildType mode )
+QtCommand::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCommand Object" << std::endl;
 
-    switch( command )
+    switch (command)
     {
     case QT_DROP_COLLECTION:
         s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  drop collection("   << collectionName.c_str() << ")";
         break;
     case QT_CREATE_COLLECTION:
-        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  create collection(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  create collection(" << collectionName.c_str() << ", " << typeName.c_str() << ")";
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
-        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  select into(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  select into(" << collectionName.c_str() << ", " << typeName.c_str() << ")";
         break;
     default:
         s << "<command unknown>";
     }
-    
+
     s << getEvaluationTime();
 
     s << std::endl;
@@ -415,22 +418,22 @@ QtCommand::printTree( int tab, std::ostream& s, __attribute__ ((unused)) QtChild
 
 
 void
-QtCommand::printAlgebraicExpression( std::ostream& s )
+QtCommand::printAlgebraicExpression(std::ostream& s)
 {
     s << "command<";
 
-    switch( command )
+    switch (command)
     {
     case QT_DROP_COLLECTION:
         s << "drop collection("   << collectionName.c_str() << ")";
         break;
     case QT_CREATE_COLLECTION:
-        s << "create collection(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
+        s << "create collection(" << collectionName.c_str() << ", " << typeName.c_str() << ")";
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
         s << "select ";
         childNode->printAlgebraicExpression(s);
-        s << " into " << collectionName.c_str() << ", " << typeName.c_str() <<")";
+        s << " into " << collectionName.c_str() << ", " << typeName.c_str() << ")";
         break;
     default:
         s << "unknown";

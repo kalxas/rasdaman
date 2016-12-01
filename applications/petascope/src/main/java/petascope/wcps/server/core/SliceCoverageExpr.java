@@ -43,7 +43,7 @@ import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.CoverageInfo;
 
 public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(SliceCoverageExpr.class);
 
     private List<DimensionPointElement> axisList;
@@ -55,7 +55,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
 
     public SliceCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         log.trace(node.getNodeName());
-        
+
         Node child = node.getFirstChild();
         String nodeName;
 
@@ -95,8 +95,8 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         }
 
         // Add children to let the XML query be re-traversed
-        super.children.addAll(axisList);     
-        
+        super.children.addAll(axisList);
+
         dims = coverageInfo.getNumDimensions();
         log.trace("Number of dimensions: " + dims);
         dimNames = new String[dims];
@@ -119,11 +119,10 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             slicingPosStr = axis.getSlicingPosition();
             // NOTE: in case get slicing position is domain or imageCrsDomain it will return interval in "(lo,high)"
             // need to convert interval into pixel coordinates
-            if(slicingPosStr.matches("\\(.*,.*\\)"))
-            {
+            if (slicingPosStr.matches("\\(.*,.*\\)")) {
                 slicingPosStr = convertDomainIntervalToPixelInterval(slicingPosStr, axis, xq);
             }
-            
+
             dimNames[axisId] = slicingPosStr;
             // Slicing position can be a constant number or a variable reference
             try {
@@ -133,9 +132,9 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             }
             log.trace("Slice at axis id: " + axisId + ", axis name: " + axis.getAxisName() + ", slicing position: " + slicingPosInt);
             coverageInfo.setCellDimension(
-                    axisId,
-                    new CellDomainElement(slicingPosInt, slicingPosInt, order)
-                    );
+                axisId,
+                new CellDomainElement(slicingPosInt, slicingPosInt, order)
+            );
             order += 1;
         }
     }
@@ -148,7 +147,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
     @Override
     public String toRasQL() {
         Pair<String[], String> res = computeRasQL();
-        
+
         String ret = "(" + res.snd + ") [";
         for (int j = 0; j < res.fst.length; ++j) {
             if (j > 0) {
@@ -161,7 +160,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         ret += "]";
         return ret;
     }
-    
+
     public Pair<String[], String> computeRasQL() {
         Pair<String[], String> res = null;
         IRasNode c = coverageExprType.getChild();
@@ -179,29 +178,29 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         for (int i = 0; i < dims; i++) {
             b[i] = WcsUtil.min(a[i], dimNames[i]);
         }
-        
+
         return Pair.of(b, res.snd);
     }
-    
-    /**  
+
+    /**
      * @return How many dimensions are specified in this slice expression
      */
     public int numberOfDimensions() {
         return dims;
     }
-    
+
     /**
      * @return The list of axes names specified in this slice expression
      */
     public List<String> getDimensionsNames() {
         return new ArrayList(Arrays.asList(dimNames));
     }
-    
-    /** 
+
+    /**
      * Utility to check whether a specified axis is involved in this slice expression
      * @param axisName  The name of the axis (specified in the request)
      * @return True is `axisName` is sliced here.
-     */    
+     */
     public boolean slicesDimension(String axisName) {
         for (DimensionPointElement slice : axisList) {
             if (slice.getAxisName().equals(axisName)) {
@@ -210,30 +209,30 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         }
         return false;
     }
-    
+
     /**
-     * 
+     *
      * @param domainInterval: Domain Interval, e.g (Lat[lo]:Lat[hi]) in CRS degree
      * @param axis: Axis Name, e.g (Lat)
      * @param xq: XML Query
      * @return Returns Pixel Interval from Domain Interval, e.g (Lat[lo]:Lat[hi]) -> (lo:hi) in grid integer
      * @throws WCPSException
-     * @throws PetascopeException 
+     * @throws PetascopeException
      */
     public String convertDomainIntervalToPixelInterval(String domainInterval, DimensionPointElement axis, XmlQuery xq) throws WCPSException {
         String tmp = domainInterval;
         tmp = tmp.substring(tmp.indexOf("(") + 1, tmp.indexOf(")"));
         tmp = tmp.replace(",", ":");
         String[] domainTmp = tmp.split(":");
-        
+
         // Convert to pixel coordinates
         String val1 = domainTmp[0];
-        String val2 = domainTmp[1];            
-        String thisAxisName = axis.getAxisName();        
+        String val2 = domainTmp[1];
+        String thisAxisName = axis.getAxisName();
 
         CoverageMetadata meta = null;
         try {
-           meta = xq.getMetadataSource().read(getCoverageInfo().getCoverageName());
+            meta = xq.getMetadataSource().read(getCoverageInfo().getCoverageName());
         } catch (Exception ex) {
             log.error(ex.getMessage());
             throw new WCPSException(ex.getMessage(), ex);
@@ -243,8 +242,8 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
 
         IDynamicMetadataSource dmeta = xq.getMetadataSource();
         if (dmeta instanceof DynamicMetadataSource &&
-            ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
-            dbMeta = (DbMetadataSource) ((DynamicMetadataSource)dmeta).getMetadataSource();
+                ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
+            dbMeta = (DbMetadataSource)((DynamicMetadataSource)dmeta).getMetadataSource();
         }
 
         // Return lo:hi pixel interval
@@ -255,7 +254,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             throw new WCPSException(ex.getExceptionCode(), ex.getExceptionText());
         }
         domainInterval = pCoord[0] + ":" + pCoord[1];
-        
+
         return domainInterval;
     }
 }

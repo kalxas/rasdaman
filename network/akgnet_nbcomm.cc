@@ -55,8 +55,8 @@ time_t akg::NbJob::getTimeoutInterval() throw()
 }
 
 //####################################################
-akg::NbJob::NbJob(FileDescriptor &fd) throw()
-    :fdRef(fd)
+akg::NbJob::NbJob(FileDescriptor& fd) throw()
+    : fdRef(fd)
 {
     status           = wks_notdefined;
     selectorPtr      = NULL;
@@ -76,24 +76,24 @@ akg::NbJob::workingStatus akg::NbJob::getStatus()  throw()
 bool akg::NbJob::isOperationPending() throw()
 {
     return (status != wks_notdefined &&
-            status != wks_accepting) ? true:false;
+            status != wks_accepting) ? true : false;
 }
 
 bool akg::NbJob::isAccepting() throw()
 {
-    return status == wks_accepting ? true:false;
+    return status == wks_accepting ? true : false;
 }
 bool akg::NbJob::isReading() throw()
 {
-    return status == wks_reading ? true:false;
+    return status == wks_reading ? true : false;
 }
 bool akg::NbJob::isWriting() throw()
 {
-    return status == wks_writing ? true:false;
+    return status == wks_writing ? true : false;
 }
 bool akg::NbJob::isProcessing() throw()
 {
-    return status == wks_processing ? true:false;
+    return status == wks_processing ? true : false;
 }
 
 bool akg::NbJob::readPartialMessage() throw()
@@ -104,7 +104,7 @@ bool akg::NbJob::readPartialMessage() throw()
 
     int nbytes = currentBufferPtr->read(fdRef);
 
-    if(nbytes>0)
+    if (nbytes > 0)
     {
         LDEBUG << "..read socket(" << fdRef() << ") " << nbytes;
         return validateMessage();
@@ -113,7 +113,7 @@ bool akg::NbJob::readPartialMessage() throw()
     else
     {
         int saveerrno = fdRef.getErrno();
-        switch(saveerrno)
+        switch (saveerrno)
         {
         case EINTR:  //LDEBUG << "EINTR, retry please";
             break;
@@ -121,9 +121,9 @@ bool akg::NbJob::readPartialMessage() throw()
         case EAGAIN: //LDEBUG << "EAGAIN, retry please";
             break;
 
-            //case 0:      LDEBUG << "Premature End-of-file";
-            // executeOnReadError() ???
-            //       break;
+        //case 0:      LDEBUG << "Premature End-of-file";
+        // executeOnReadError() ???
+        //       break;
 
         default:
             LDEBUG << "Read error " << saveerrno;
@@ -141,11 +141,11 @@ bool akg::NbJob::writePartialMessage() throw()
     action();
     int nbytes = currentBufferPtr->write(fdRef);
 
-    if(nbytes>0)
+    if (nbytes > 0)
     {
         LDEBUG << "..write socket(" << fdRef() << ") " << nbytes;
 
-        if(currentBufferPtr->getNotSendedSize()==0)
+        if (currentBufferPtr->getNotSendedSize() == 0)
         {
             LDEBUG << "Write ready";
             executeOnWriteReady();
@@ -155,7 +155,7 @@ bool akg::NbJob::writePartialMessage() throw()
     else
     {
         int saveerrno = fdRef.getErrno();
-        switch(saveerrno)
+        switch (saveerrno)
         {
         case EINTR:  //LDEBUG << "EINTR, retry please";
             break;
@@ -163,8 +163,8 @@ bool akg::NbJob::writePartialMessage() throw()
         case EAGAIN: //LDEBUG << "EAGAIN, retry please";
             break;
 
-            //case 0:      LDEBUG << "Premature partner hang up"; //?? valabil la write
-            //       break;
+        //case 0:      LDEBUG << "Premature partner hang up"; //?? valabil la write
+        //       break;
 
         default:
             LDEBUG << "Write error " << saveerrno;
@@ -177,8 +177,14 @@ bool akg::NbJob::writePartialMessage() throw()
 
 bool akg::NbJob::cleanUpIfTimeout() throw()
 {
-    if(fdRef.isOpen() == false ) return false;
-    if(lastActionTime + timeOutInterv > currentTime) return false;
+    if (fdRef.isOpen() == false)
+    {
+        return false;
+    }
+    if (lastActionTime + timeOutInterv > currentTime)
+    {
+        return false;
+    }
 
     LDEBUG << "Client socket " << fdRef() << " timeout";
     clearConnection();
@@ -191,7 +197,7 @@ bool akg::NbJob::cleanUpIfTimeout() throw()
 
 void akg::NbJob::clearConnection() throw()
 {
-    if(fdRef.isOpen() && selectorPtr)
+    if (fdRef.isOpen() && selectorPtr)
     {
         selectorPtr->clearRead(fdRef());
         selectorPtr->clearWrite(fdRef());
@@ -214,7 +220,10 @@ void akg::NbJob::executeOnAccept() throw()
 }
 bool akg::NbJob::setReading() throw()
 {
-    if(selectorPtr == NULL) return false;
+    if (selectorPtr == NULL)
+    {
+        return false;
+    }
     selectorPtr->setRead(fdRef());
     status = wks_reading;
     return true;
@@ -222,7 +231,10 @@ bool akg::NbJob::setReading() throw()
 
 bool akg::NbJob::setWriting() throw()
 {
-    if(selectorPtr == NULL) return false;
+    if (selectorPtr == NULL)
+    {
+        return false;
+    }
     selectorPtr->setWrite(fdRef());
     status = wks_writing;
     return true;
@@ -235,11 +247,11 @@ int akg::NbJob::getErrno() throw()
 
 //##################################################################
 akg::NbServerJob::NbServerJob()  throw()
-    :NbJob(serverSocket)
+    : NbJob(serverSocket)
 {
 }
 
-void akg::NbServerJob::initOnAttach(Selector *pSelector) throw()
+void akg::NbServerJob::initOnAttach(Selector* pSelector) throw()
 {
     selectorPtr = pSelector;
 }
@@ -250,13 +262,16 @@ akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listen
     LDEBUG << "Am intrat in accepting";
     assert(currentBufferPtr != NULL);
 
-    if(status != wks_accepting) return acs_Iambusy;
+    if (status != wks_accepting)
+    {
+        return acs_Iambusy;
+    }
     action();
 
-    if(serverSocket.acceptFrom(listenSocket) == false)
+    if (serverSocket.acceptFrom(listenSocket) == false)
     {
         int saveerrno = serverSocket.getErrno();
-        if(saveerrno==EAGAIN)
+        if (saveerrno == EAGAIN)
         {
             LDEBUG << "No pending connections";
         }
@@ -300,13 +315,13 @@ void akg::NbServerJob::readyToWriteAnswer() throw()
 //##################################################################
 
 akg::NbClientJob::NbClientJob() throw()
-    :NbJob(clientSocket)
+    : NbJob(clientSocket)
 {
 }
 
-bool akg::NbClientJob::connectToServer(const char* serverHost,int serverPort) throw()
+bool akg::NbClientJob::connectToServer(const char* serverHost, int serverPort) throw()
 {
-    if(clientSocket.open(serverHost,serverPort))
+    if (clientSocket.open(serverHost, serverPort))
     {
         clientSocket.setNonBlocking(true);
         selectorPtr->setWrite(clientSocket());
@@ -317,11 +332,11 @@ bool akg::NbClientJob::connectToServer(const char* serverHost,int serverPort) th
     return false;
 }
 
-void akg::NbClientJob::initOnAttach(Selector *pselector) throw()
+void akg::NbClientJob::initOnAttach(Selector* pselector) throw()
 {
     selectorPtr = pselector;
 
-    if(status == wks_writing)
+    if (status == wks_writing)
     {
         selectorPtr->setWrite(clientSocket());
     }
@@ -359,42 +374,57 @@ akg::NbCommunicator::NbCommunicator(int newMaxJobs)
 
 bool akg::NbCommunicator::initJobs(int newMaxJobs)
 {
-    if(jobPtr != NULL) return false;
+    if (jobPtr != NULL)
+    {
+        return false;
+    }
     maxJobs = newMaxJobs;
     jobPtr  = new JobPtr[maxJobs];
 
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
-        jobPtr[i]=0;
+        jobPtr[i] = 0;
     }
     return true;
 }
 
 akg::NbCommunicator::~NbCommunicator() throw()
 {
-    if(jobPtr != NULL) delete[] jobPtr;
+    if (jobPtr != NULL)
+    {
+        delete[] jobPtr;
+    }
 }
 
-bool akg::NbCommunicator::attachJob(NbJob &newJob) throw()
+bool akg::NbCommunicator::attachJob(NbJob& newJob) throw()
 {
     int freeSlot  = -1;
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i]== &newJob) return false; // job e in lista
-        if(jobPtr[i]== NULL && freeSlot ==-1 ) freeSlot = i;
+        if (jobPtr[i] == &newJob)
+        {
+            return false;    // job e in lista
+        }
+        if (jobPtr[i] == NULL && freeSlot == -1)
+        {
+            freeSlot = i;
+        }
     }
-    if(freeSlot ==-1 ) return false;
+    if (freeSlot == -1)
+    {
+        return false;
+    }
 
-    jobPtr[freeSlot]= &newJob;
+    jobPtr[freeSlot] = &newJob;
     newJob.initOnAttach(&selector);
     return true;
 }
 
-bool akg::NbCommunicator::deattachJob(NbJob &oldJob) throw()
+bool akg::NbCommunicator::deattachJob(NbJob& oldJob) throw()
 {
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i]== &oldJob)
+        if (jobPtr[i] == &oldJob)
         {
             jobPtr[i] = NULL;
             oldJob.clearConnection();
@@ -407,23 +437,38 @@ bool akg::NbCommunicator::deattachJob(NbJob &oldJob) throw()
 
 bool akg::NbCommunicator::mayExit() throw()
 {
-    if(exitRequest == false) return false;
+    if (exitRequest == false)
+    {
+        return false;
+    }
 
     closeSocket(listenSocket); // we don't accept requests any more
 
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i] == NULL) continue;
-        if(jobPtr[i]->isOperationPending()) return false; // no, we have pending
+        if (jobPtr[i] == NULL)
+        {
+            continue;
+        }
+        if (jobPtr[i]->isOperationPending())
+        {
+            return false;    // no, we have pending
+        }
     }
     return true; // ok, we may exit
 }
 
 bool akg::NbCommunicator::runServer() throw()
 {
-    if(listenPort == 0) return false;
+    if (listenPort == 0)
+    {
+        return false;
+    }
 
-    if(initListenSocket(listenPort,true) == false) return false;
+    if (initListenSocket(listenPort, true) == false)
+    {
+        return false;
+    }
 
     return mainLoop();
 }
@@ -435,21 +480,27 @@ bool akg::NbCommunicator::runClient() throw()
 
 bool akg::NbCommunicator::mainLoop() throw()
 {
-    exitRequest=false;
+    exitRequest = false;
 
-    while( mayExit() == false)
+    while (mayExit() == false)
     {
         LDEBUG << "Waiting for calls";
 
-        if(executeBeforeSelect() == false) return false;
+        if (executeBeforeSelect() == false)
+        {
+            return false;
+        }
 
         int rasp = selector();
 
         akg::NbJob::setCurrentTime();
 
-        if(executeAfterSelect() == false) return false;
+        if (executeAfterSelect() == false)
+        {
+            return false;
+        }
 
-        if(rasp > 0)
+        if (rasp > 0)
         {
             LDEBUG << "Ringing";
             // first this, to increase the chance to free a client
@@ -459,13 +510,16 @@ bool akg::NbCommunicator::mainLoop() throw()
             processJobs();
             lookForTimeout(); // important!
         }
-        if(rasp == 0)
+        if (rasp == 0)
         {
             LDEBUG << "Timeout";
             lookForTimeout();
-            if(executeOnTimeout() == false) return false;
+            if (executeOnTimeout() == false)
+            {
+                return false;
+            }
         }
-        if(rasp < 0)
+        if (rasp < 0)
         {
             LDEBUG << "select error: " << strerror(errno);
         }
@@ -477,13 +531,16 @@ void akg::NbCommunicator::processJobs() throw()
 {
     LDEBUG << "process Jobs - entering";
 
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i]==NULL) continue;
+        if (jobPtr[i] == NULL)
+        {
+            continue;
+        }
 
         JobPtr& currentJob = jobPtr[i];
 
-        if(currentJob->isProcessing())
+        if (currentJob->isProcessing())
         {
             LDEBUG << "job " << i << " is processing";
 
@@ -496,9 +553,12 @@ void akg::NbCommunicator::lookForTimeout() throw()
 {
     LDEBUG << "Looking for timeout";
 
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i]==NULL) continue;
+        if (jobPtr[i] == NULL)
+        {
+            continue;
+        }
 
         jobPtr[i]->cleanUpIfTimeout();
     }
@@ -508,16 +568,19 @@ void akg::NbCommunicator::dispatchWriteRequest() throw()
 {
     LDEBUG << "Dispatch writing";
     int i;
-    for(i=0; i<maxJobs; i++)
+    for (i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i]==NULL) continue;
+        if (jobPtr[i] == NULL)
+        {
+            continue;
+        }
 
         JobPtr& currentJob = jobPtr[i];
 
-        if(currentJob->isWriting())
+        if (currentJob->isWriting())
         {
             LDEBUG << "job " << i << ' ' << currentJob->getSocket() << " is active";
-            if(selector.isWrite(currentJob->getSocket()))
+            if (selector.isWrite(currentJob->getSocket()))
             {
                 LDEBUG << "...and may write ";
                 currentJob->writePartialMessage();
@@ -530,16 +593,19 @@ void akg::NbCommunicator::dispatchReadRequest() throw()
 {
     LDEBUG << "Dispatch reading";
     int i;
-    for(i=0; i<maxJobs; i++)
+    for (i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i]==NULL) continue;
+        if (jobPtr[i] == NULL)
+        {
+            continue;
+        }
 
         JobPtr& currentJob = jobPtr[i];
 
-        if(currentJob->isReading())
+        if (currentJob->isReading())
         {
             LDEBUG << "job " << i << ' ' << currentJob->getSocket() << " is active";
-            if(selector.isRead(currentJob->getSocket()))
+            if (selector.isRead(currentJob->getSocket()))
             {
                 LDEBUG << "... and has message";
                 currentJob->readPartialMessage();
@@ -552,24 +618,33 @@ void akg::NbCommunicator::connectNewClients() throw()
 {
     LDEBUG << "connect listenSocket=" << listenSocket();
 
-    if(selector.isRead(listenSocket()) == false) return;
+    if (selector.isRead(listenSocket()) == false)
+    {
+        return;
+    }
 
     LDEBUG << "Client is calling";
 
     akg::NbJob::acceptStatus status;
 
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
-        if(jobPtr[i] == NULL) continue;
+        if (jobPtr[i] == NULL)
+        {
+            continue;
+        }
 
         JobPtr& currentJob = jobPtr[i];
 
-        if(currentJob->isAccepting())
+        if (currentJob->isAccepting())
         {
             // we try to connect as much pending connections as possible
             status = currentJob->acceptConnection(listenSocket);
 
-            if(status == akg::NbJob::acs_nopending  ) break;
+            if (status == akg::NbJob::acs_nopending)
+            {
+                break;
+            }
             // there is no pending request,
             LDEBUG << "Connected client " << i << " on socket " << currentJob->getSocket();
         }

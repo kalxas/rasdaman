@@ -62,15 +62,15 @@ public class ParsedSubset<CoordinateType> {
     public CoordinateType getLowerLimit() {
         return lowerLimit;
     }
-    
+
     /**
      * Setter for the lower limit of interval
-     * @param lowerLimit 
+     * @param lowerLimit
      */
     public void setLowerLimit(CoordinateType lowerLimit) {
         this.lowerLimit = lowerLimit;
     }
-    
+
     /**
      * Getter for the upper limit of the interval
      *
@@ -79,10 +79,10 @@ public class ParsedSubset<CoordinateType> {
     public CoordinateType getUpperLimit() {
         return upperLimit;
     }
-    
+
     /**
      * Setter for the upper limit of interval
-     * @param upperLimit 
+     * @param upperLimit
      */
     public void setUpperLimit(CoordinateType upperLimit) {
         this.upperLimit = upperLimit;
@@ -163,16 +163,16 @@ public class ParsedSubset<CoordinateType> {
                 return false;
             }
             boolean isFirstDimensionNumeric = (NumberUtils.isNumber(lowerLimit.toString())
-                    || lowerLimit.toString().equals(WHOLE_DIMENSION_SYMBOL)
-                    || lowerLimit.toString().contains("-"));
+                                               || lowerLimit.toString().equals(WHOLE_DIMENSION_SYMBOL)
+                                               || lowerLimit.toString().contains("-"));
             boolean isSecondDimensionNumeric = (NumberUtils.isNumber(upperLimit.toString())
-                    || upperLimit.toString().equals(WHOLE_DIMENSION_SYMBOL)
-                    || upperLimit.toString().contains("-"));
+                                                || upperLimit.toString().equals(WHOLE_DIMENSION_SYMBOL)
+                                                || upperLimit.toString().contains("-"));
             return isFirstDimensionNumeric && isSecondDimensionNumeric;
         } else {
             boolean isNumeric = (NumberUtils.isNumber(slicingCoordinate.toString())
-                    || slicingCoordinate.toString().equals(WHOLE_DIMENSION_SYMBOL)
-                    || slicingCoordinate.toString().contains("-"));
+                                 || slicingCoordinate.toString().equals(WHOLE_DIMENSION_SYMBOL)
+                                 || slicingCoordinate.toString().contains("-"));
             return isNumeric;
         }
     }
@@ -184,7 +184,7 @@ public class ParsedSubset<CoordinateType> {
      */
     private boolean isFullInterval() {
         return lowerLimit.toString().equals(WHOLE_DIMENSION_SYMBOL)
-                && upperLimit.toString().equals(WHOLE_DIMENSION_SYMBOL);
+               && upperLimit.toString().equals(WHOLE_DIMENSION_SYMBOL);
     }
 
     private CoordinateType lowerLimit;

@@ -45,7 +45,7 @@ import petascope.wms2.service.base.Request;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class InsertWCSLayerRequest  extends Request{
+public class InsertWCSLayerRequest  extends Request {
     /**
      * Constructor for the class
      */

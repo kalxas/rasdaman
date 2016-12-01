@@ -56,17 +56,17 @@ public class Vectors {
         // check dimensions
         if (v1.length != v2.length) {
             throw new PetascopeException(ExceptionCode.InternalComponentError,
-                    "Trying to compute a dot-product on vector of different dimensions.");
+                                         "Trying to compute a dot-product on vector of different dimensions.");
         }
         // check same class
         if (!v1.getClass().getName().equals(v2.getClass().getName())) {
             throw new PetascopeException(ExceptionCode.InternalComponentError,
-                    "Trying to compute a dot-product on vector of different numeric types.");
+                                         "Trying to compute a dot-product on vector of different numeric types.");
         }
 
         Number dotProduct = v1.getClass().equals(BigDecimal.class) ? new BigDecimal(0) : new Double(0D);
 
-        for (int i=0; i<v1.length; i++) {
+        for (int i = 0; i < v1.length; i++) {
             if (v1.getClass().equals(BigDecimal.class)) {
                 dotProduct = ((BigDecimal)dotProduct).add((BigDecimal)v1[i]).multiply((BigDecimal)v2[i]);
             } else {
@@ -91,7 +91,7 @@ public class Vectors {
         Number[] vOut = s.getClass().equals(BigDecimal.class) ? new BigDecimal[v.length] : new Double[v.length];
 
         // mulitply each component
-        for (int i=0; i<v.length; i++) {
+        for (int i = 0; i < v.length; i++) {
             if (s.getClass().equals(BigDecimal.class)) {
                 // Force explicitly to 0 (if v[i]==0) otherwise 0*<non-zero scalenumber> = "0.0"
                 vOut[i] = ((BigDecimal)v[i]).doubleValue() == 0 ? BigDecimal.ZERO : ((BigDecimal)v[i]).multiply((BigDecimal)s);
@@ -124,16 +124,16 @@ public class Vectors {
         int j; //
 
         // pair-wise check on each combination of input vectors
-        for (i=0; i<vectors.size()-1; i++) {
-            for (j=i+1; j<vectors.size(); j++) {
+        for (i = 0; i < vectors.size() - 1; i++) {
+            for (j = i + 1; j < vectors.size(); j++) {
 
                 // List to array
                 Number[] v1 = vectors.get(i).get(0).getClass().equals(BigDecimal.class)
-                        ? ((ArrayList<BigDecimal>)vectors.get(i)).toArray(new BigDecimal[vectors.get(i).size()])
-                        :     ((ArrayList<Double>)vectors.get(i)).toArray(new Double[vectors.get(i).size()]);
+                              ? ((ArrayList<BigDecimal>)vectors.get(i)).toArray(new BigDecimal[vectors.get(i).size()])
+                              : ((ArrayList<Double>)vectors.get(i)).toArray(new Double[vectors.get(i).size()]);
                 Number[] v2 = vectors.get(j).get(0).getClass().equals(BigDecimal.class)
-                        ? ((ArrayList<BigDecimal>)vectors.get(j)).toArray(new BigDecimal[vectors.get(j).size()])
-                        :     ((ArrayList<Double>)vectors.get(j)).toArray(new Double[vectors.get(j).size()]);
+                              ? ((ArrayList<BigDecimal>)vectors.get(j)).toArray(new BigDecimal[vectors.get(j).size()])
+                              : ((ArrayList<Double>)vectors.get(j)).toArray(new Double[vectors.get(j).size()]);
 
                 if (dotProduct(v1, v2).doubleValue() != 0) {
                     log.debug("Vectors " + toString(v1) + " and " + toString(v2) + " are not orthogonal.");
@@ -181,14 +181,14 @@ public class Vectors {
         // check consistency
         if (unitIndex >= dimension) {
             throw new PetascopeException(ExceptionCode.InternalComponentError,
-                    "Trying to create a " + dimension + "D unit-vector with " + unitIndex + " as non-zero component.");
+                                         "Trying to create a " + dimension + "D unit-vector with " + unitIndex + " as non-zero component.");
         }
 
         BigDecimal[] unitVector = new BigDecimal[dimension];
 
         // build the unit vector
-        for (int i=0; i<dimension; i++) {
-            unitVector[i] = (i==unitIndex) ? BigDecimal.ONE : BigDecimal.ZERO;
+        for (int i = 0; i < dimension; i++) {
+            unitVector[i] = (i == unitIndex) ? BigDecimal.ONE : BigDecimal.ZERO;
         }
 
         return unitVector;
@@ -218,7 +218,7 @@ public class Vectors {
         // init
         Number[] vOut = new Number[a.length];
 
-        for (int i=0; i<a.length; i++) {
+        for (int i = 0; i < a.length; i++) {
             if (b.getClass().equals(BigDecimal.class)) {
                 vOut[i] = ((BigDecimal)a[i]).add((BigDecimal)b);
             } else {
@@ -228,18 +228,18 @@ public class Vectors {
 
         return (T[])vOut;
     }
-    
+
     /**
      * Add a scalar to each component of a numeric list.
      * @param <T>
      * @param a
      * @param b
-     * @return 
+     * @return
      */
     public static <T extends Number> List<T> add(List<T> a, T b) {
-        Number[] aa = a.toArray((T[]) Array.newInstance(b.getClass(),0));
+        Number[] aa = a.toArray((T[]) Array.newInstance(b.getClass(), 0));
         List<Number> aaa = Arrays.asList(aa);
-        Number[] aaaa =  add((T[])aaa.toArray(),b);
+        Number[] aaaa =  add((T[])aaa.toArray(), b);
         return Arrays.asList((T[])aaaa);
         //return Arrays.asList((add((T[])a.toArray(), b));
     }

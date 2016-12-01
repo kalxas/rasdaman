@@ -83,9 +83,9 @@ NullValuesHandler::setNullValuesCount(unsigned long count)
 
 
 void
-NullValuesHandler::cloneNullValues( const NullValuesHandler* obj )
+NullValuesHandler::cloneNullValues(const NullValuesHandler* obj)
 {
-    if( this != obj )
+    if (this != obj)
     {
         nullValues = obj->nullValues;
         nullValuesCount = obj->nullValuesCount;

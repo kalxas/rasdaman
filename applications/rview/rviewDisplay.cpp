@@ -84,26 +84,26 @@ rasdaman GmbH.
 class rviewDisplayPanel : public wxPanel
 {
 public:
-    rviewDisplayPanel(rviewDisplay *parent, int posx, int posy, int width, int height);
-    virtual void OnEvent(wxMouseEvent &mevt);
-    virtual void OnItemEvent(wxItem *item, wxMouseEvent &mevt);
+    rviewDisplayPanel(rviewDisplay* parent, int posx, int posy, int width, int height);
+    virtual void OnEvent(wxMouseEvent& mevt);
+    virtual void OnItemEvent(wxItem* item, wxMouseEvent& mevt);
 };
 
-rviewDisplayPanel::rviewDisplayPanel(rviewDisplay *parent, int posx, int posy, int width, int height) :
+rviewDisplayPanel::rviewDisplayPanel(rviewDisplay* parent, int posx, int posy, int width, int height) :
     wxPanel((wxWindow*)parent, posx, posy, width, height)
 {
 }
 
-void rviewDisplayPanel::OnEvent(wxMouseEvent &mevt)
+void rviewDisplayPanel::OnEvent(wxMouseEvent& mevt)
 {
-    rviewDisplay *disp = (rviewDisplay*)(GetParent());
+    rviewDisplay* disp = (rviewDisplay*)(GetParent());
     disp->childMouseEvent(this, mevt);
     wxPanel::OnEvent(mevt);
 }
 
-void rviewDisplayPanel::OnItemEvent(wxItem *item, wxMouseEvent &mevt)
+void rviewDisplayPanel::OnItemEvent(wxItem* item, wxMouseEvent& mevt)
 {
-    rviewDisplay *disp = (rviewDisplay*)(GetParent());
+    rviewDisplay* disp = (rviewDisplay*)(GetParent());
     disp->childMouseEvent(item, mevt);
     wxPanel::OnItemEvent(item, mevt);
 }
@@ -127,7 +127,7 @@ const int rviewDisplay::display_pjheight = 50;
 const int rviewDisplay::display_pjwidth = 100;
 const int rviewDisplay::display_pbwidth = 40;
 const int rviewDisplay::display_pbheight = 30;
-const int rviewDisplay::display_minwidth = 4*(rviewDisplay::display_pbwidth + rviewDisplay::display_border);
+const int rviewDisplay::display_minwidth = 4 * (rviewDisplay::display_pbwidth + rviewDisplay::display_border);
 
 // flags
 const int rviewDisplay::display_flag_standalone = 1;
@@ -136,12 +136,12 @@ const int rviewDisplay::display_flag_update = 2;
 // others
 const int rviewDisplay::fixedNumberOfMenus = 2;
 const unsigned int rviewDisplay::viewBuffSize = 1024;
-const char *rviewDisplay::viewFileExtension = "*.rvw";
+const char* rviewDisplay::viewFileExtension = "*.rvw";
 
-const char *rviewDisplay::view_HeaderLine = "# rView viewer snapshot";
-const char *rviewDisplay::view_ViewerType = "viewerName";
-const char *rviewDisplay::view_ProjString = "projString";
-const char *rviewDisplay::view_WindowSize = "windowSize";
+const char* rviewDisplay::view_HeaderLine = "# rView viewer snapshot";
+const char* rviewDisplay::view_ViewerType = "viewerName";
+const char* rviewDisplay::view_ProjString = "projString";
+const char* rviewDisplay::view_WindowSize = "windowSize";
 
 
 
@@ -150,24 +150,30 @@ const char *rviewDisplay::view_WindowSize = "windowSize";
  */
 
 // The global display counter.
-int rviewDisplay::displayCounter=0;
+int rviewDisplay::displayCounter = 0;
 
-rviewDisplay::rviewDisplay(mdd_frame *mf, int es, unsigned int flags) : rviewFrame(NULL, "", 0, 0, display_width, display_height)
+rviewDisplay::rviewDisplay(mdd_frame* mf, int es, unsigned int flags) : rviewFrame(NULL, "", 0, 0, display_width, display_height)
 {
     int x, y, pw;
-    r_Object *mo;
+    r_Object* mo;
     char buffer[STRINGSIZE];
 
     if ((flags & display_flag_standalone & display_flag_update) != 0)
+    {
         LTRACE << "rviewDisplay() [UA]";
-        else if ((flags & display_flag_standalone) != 0)
-            LTRACE << "rviewDisplay() [A]";
-            else if ((flags & display_flag_update) != 0)
-                LTRACE << "rviewDisplay() [U]";
+    }
+    else if ((flags & display_flag_standalone) != 0)
+    {
+        LTRACE << "rviewDisplay() [A]";
+    }
+    else if ((flags & display_flag_update) != 0)
+    {
+        LTRACE << "rviewDisplay() [U]";
+    }
 
-                // Override by derived classes if an error occurs.
-                // Can't use virtual functions in constructors!
-                objectInitializedOK = TRUE;
+    // Override by derived classes if an error occurs.
+    // Can't use virtual functions in constructors!
+    objectInitializedOK = TRUE;
     closeViewerCalled = FALSE;
 
     displayFlags = flags;
@@ -204,9 +210,12 @@ rviewDisplay::rviewDisplay(mdd_frame *mf, int es, unsigned int flags) : rviewFra
     ctrlPanel = new rviewDisplayPanel(this, 0, 0, x, totalCtrlHeight);
     ctrlPanel->SetLabelPosition(wxVERTICAL);
 
-    x -= 2*display_border;
+    x -= 2 * display_border;
     pw = x;
-    if (pw > display_pjwidth) pw = display_pjwidth;
+    if (pw > display_pjwidth)
+    {
+        pw = display_pjwidth;
+    }
     project = new rviewText(ctrlPanel);
     projBut = new rviewButton(ctrlPanel);
     projMinus = new rviewButton(ctrlPanel, "-");
@@ -218,8 +227,8 @@ rviewDisplay::rviewDisplay(mdd_frame *mf, int es, unsigned int flags) : rviewFra
     sprintf(buffer, "%s: %s", lman->lookup("textBaseType"), rviewBaseTypes[baseType]);
     typeMsg->SetLabel(buffer);
 
-    frameWidth=-1;
-    frameWidth=-1;
+    frameWidth = -1;
+    frameWidth = -1;
 }
 
 
@@ -232,7 +241,9 @@ rviewDisplay::~rviewDisplay(void)
         ue.type = usr_update_closed;
         ue.data = (void*)(&mddObj);
         if (frameManager != NULL)
+        {
             frameManager->broadcastUserEvent(ue);
+        }
     }
     // If standalone free all memory.
     if ((displayFlags & display_flag_standalone) != 0)
@@ -265,7 +276,7 @@ void rviewDisplay::closeViewer(void)
 }
 
 
-const char *rviewDisplay::getFrameName(void) const
+const char* rviewDisplay::getFrameName(void) const
 {
     return "rviewDisplay";
 }
@@ -276,7 +287,7 @@ rviewFrameType rviewDisplay::getFrameType(void) const
 }
 
 
-const r_Minterval &rviewDisplay::getVirtualDomain(void) const
+const r_Minterval& rviewDisplay::getVirtualDomain(void) const
 {
     return interv;
 }
@@ -293,7 +304,7 @@ int rviewDisplay::openViewer(void)
 
     mBar = new wxMenuBar;
 
-    wxMenu *menu = new wxMenu;
+    wxMenu* menu = new wxMenu;
     menu->Append(MENU_DISP_DATA_INSERT, "");
     menu->Append(MENU_DISP_DATA_INSERTPRO, "");
     menu->Append(MENU_DISP_DATA_SAVE, "");
@@ -369,7 +380,7 @@ void rviewDisplay::newDBState(bool dbstate)
 }
 
 
-int rviewDisplay::process(wxObject &obj, wxEvent &evt)
+int rviewDisplay::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -403,14 +414,23 @@ void rviewDisplay::OnSize(int w, int h)
     {
         project->GetTextExtent((const char*)(lman->lookup("textProjString")), &tw, &th, NULL, NULL, wxSWISS_FONT, FALSE);
         minw = display_minwidth + ((int)tw);
-        if (minw < minViewX) minw = minViewX;
+        if (minw < minViewX)
+        {
+            minw = minViewX;
+        }
         minh = totalCtrlHeight + minViewY + mbarHeight;
         if ((w < minw) || (h < minh))
         {
             // Avoid infinite loops / reentrancy
             displayOperation = TRUE;
-            if (w < minw) w = minw;
-            if (h < minh) h = minh;
+            if (w < minw)
+            {
+                w = minw;
+            }
+            if (h < minh)
+            {
+                h = minh;
+            }
             //cout << "resize display frame to " << w << ", " << h << " / min " << minViewX << ", " << minViewY << endl;
             SetSize(-1, -1, w, h);
             displayOperation = FALSE;
@@ -420,15 +440,15 @@ void rviewDisplay::OnSize(int w, int h)
     GetClientSize(&x, &y);
 
     ctrlPanel->SetSize(0, 0, x, totalCtrlHeight);
-    pos = x - 3*display_pbwidth - display_border;
-    pw = pos - 3*display_border - display_pbwidth;
-    x -= 2*display_border;
+    pos = x - 3 * display_pbwidth - display_border;
+    pw = pos - 3 * display_border - display_pbwidth;
+    x -= 2 * display_border;
     project->SetSize(display_border, display_border, pw, display_pjheight);
     y = display_border + (display_pjheight - display_pbheight);
-    projBut->SetSize(2*display_border + pw, y, display_pbwidth, display_pbheight);
+    projBut->SetSize(2 * display_border + pw, y, display_pbwidth, display_pbheight);
     projMinus->SetSize(pos, y, display_pbwidth, display_pbheight);
-    advance->SetSize(pos + display_pbwidth, y - display_border, display_pbwidth, 4*display_pbheight/3);
-    projPlus->SetSize(pos + 2*display_pbwidth, y, display_pbwidth, display_pbheight);
+    advance->SetSize(pos + display_pbwidth, y - display_border, display_pbwidth, 4 * display_pbheight / 3);
+    projPlus->SetSize(pos + 2 * display_pbwidth, y, display_pbwidth, display_pbheight);
 
     // Default label font seems to be swiss font. Changing it doesn't appear to
     // have any effect.
@@ -450,26 +470,28 @@ void rviewDisplay::OnMenuCommand(int id)
         r_Minterval useInterv(dimMDD);
         int i;
 
-        for (i=0; i<dimMDD; i++)
+        for (i = 0; i < dimMDD; i++)
+        {
             useInterv << r_Sinterval((r_Range)pt1[i], (r_Range)pt2[i]);
+        }
 
         rmanClientApp::theApp()->insertMDD(mddObj, NULL, &useInterv);
     }
     break;
     case MENU_DISP_DATA_SAVE:
     {
-        char *prefDir = (char*)(prefs->filePath.ptr());
-        char *s = wxFileSelector(lman->lookup("saveData"), (::wxDirExists(prefDir)) ? prefDir : NULL, NULL, NULL, "*", 0, this);
+        char* prefDir = (char*)(prefs->filePath.ptr());
+        char* s = wxFileSelector(lman->lookup("saveData"), (::wxDirExists(prefDir)) ? prefDir : NULL, NULL, NULL, "*", 0, this);
 
         if (s)
         {
-            FILE *fp;
+            FILE* fp;
             size_t dataSize = (size_t)baseSize;
             int i;
 
             prefs->filePath = ::wxPathOnly(s);
 
-            for (i=0; i<dimMDD; i++)
+            for (i = 0; i < dimMDD; i++)
             {
                 dataSize *= (interv[i].high() - interv[i].low() + 1);
             }
@@ -510,7 +532,7 @@ void rviewDisplay::OnMenuCommand(int id)
 
 
 
-int rviewDisplay::userEvent(const user_event &ue)
+int rviewDisplay::userEvent(const user_event& ue)
 {
     if (ue.type == usr_mdd_dying)
     {
@@ -547,12 +569,12 @@ int rviewDisplay::newProjection(void)
     return 0;
 }
 
-int rviewDisplay::fileMenuInitHook(wxMenu *menu)
+int rviewDisplay::fileMenuInitHook(wxMenu* menu)
 {
     return 0;
 }
 
-int rviewDisplay::viewMenuInitHook(wxMenu *menu)
+int rviewDisplay::viewMenuInitHook(wxMenu* menu)
 {
     return 0;
 }
@@ -565,18 +587,33 @@ int rviewDisplay::menuBarInitHook(void)
 
 
 // Support function for advanceProjection
-const char *rviewDisplay::skipIndexMapping(const char *s)
+const char* rviewDisplay::skipIndexMapping(const char* s)
 {
-    const char *b, *d;
+    const char* b, *d;
 
-    b = s+1;
-    while ((*b == ' ') || (*b == '\t')) b++;
+    b = s + 1;
+    while ((*b == ' ') || (*b == '\t'))
+    {
+        b++;
+    }
     d = b;
-    while ((*b >= '0') && (*b <= '9')) b++;
-    if (b == d) return NULL;
-    while ((*b == ' ') || (*b == '\t')) b++;
-    if (*b != ']') return NULL;
-    return b+1;
+    while ((*b >= '0') && (*b <= '9'))
+    {
+        b++;
+    }
+    if (b == d)
+    {
+        return NULL;
+    }
+    while ((*b == ' ') || (*b == '\t'))
+    {
+        b++;
+    }
+    if (*b != ']')
+    {
+        return NULL;
+    }
+    return b + 1;
 }
 
 /*
@@ -587,16 +624,18 @@ const char *rviewDisplay::skipIndexMapping(const char *s)
  */
 int rviewDisplay::advanceProjection(int direction, int advmode)
 {
-    const char *b, *d;
+    const char* b, *d;
     int cordnt;
     r_Range value;
     char tailbuff[STRINGSIZE];
-    unsigned int freeDims=0;
-    const char **dimDescs;
+    unsigned int freeDims = 0;
+    const char** dimDescs;
     const r_Minterval useIv = getVirtualDomain();
 
-    if ((dimDescs = new const char*[dimMDD]) == NULL)
+    if ((dimDescs = new const char* [dimMDD]) == NULL)
+    {
         return 0;
+    }
 
     // Find free dimensions in projection string
     strcpy(projString, project->GetValue());
@@ -605,26 +644,44 @@ int rviewDisplay::advanceProjection(int direction, int advmode)
     while (*b != '\0')
     {
         cordnt = 0; // indicates it's a number
-        while ((*b == ' ') || (*b == '\t')) b++;
-        if (*b == '\0') break;
-        if (value < dimMDD) dimDescs[value] = b;
+        while ((*b == ' ') || (*b == '\t'))
+        {
+            b++;
+        }
+        if (*b == '\0')
+        {
+            break;
+        }
+        if (value < dimMDD)
+        {
+            dimDescs[value] = b;
+        }
         if (*b == '*')  // not a number
         {
             b++;
-            cordnt=1;
+            cordnt = 1;
         }
         else
         {
-            if ((*b == '-') || (*b == '+')) b++;
+            if ((*b == '-') || (*b == '+'))
+            {
+                b++;
+            }
             d = b;
-            while ((*b >= '0') && (*b <= '9')) b++;
+            while ((*b >= '0') && (*b <= '9'))
+            {
+                b++;
+            }
             if (b == d)
             {
                 delete [] dimDescs;
                 return 0;
             }
         }
-        while (*b == ' ') b++;
+        while (*b == ' ')
+        {
+            b++;
+        }
         if (*b == '[')
         {
             if ((b = skipIndexMapping(b)) == NULL)
@@ -636,20 +693,35 @@ int rviewDisplay::advanceProjection(int direction, int advmode)
         else if (*b == ':')
         {
             b++;
-            while ((*b == ' ') || (*b == '\t')) b++;
-            if (*b == '*') b++;
+            while ((*b == ' ') || (*b == '\t'))
+            {
+                b++;
+            }
+            if (*b == '*')
+            {
+                b++;
+            }
             else
             {
-                if ((*b == '-') || (*b == '+')) b++;
+                if ((*b == '-') || (*b == '+'))
+                {
+                    b++;
+                }
                 d = b;
-                while ((*b >= '0') && (*b <= '9')) b++;
+                while ((*b >= '0') && (*b <= '9'))
+                {
+                    b++;
+                }
                 if (b == d)
                 {
                     delete [] dimDescs;
                     return 0;
                 }
             }
-            while ((*b == ' ') || (*b == '\t')) b++;
+            while ((*b == ' ') || (*b == '\t'))
+            {
+                b++;
+            }
             if (*b == '[')
             {
                 if ((b = skipIndexMapping(b)) == NULL)
@@ -661,10 +733,16 @@ int rviewDisplay::advanceProjection(int direction, int advmode)
         }
         else if (cordnt == 0)
         {
-            freeDims |= (1<<value);
+            freeDims |= (1 << value);
         }
-        while ((*b == ' ') || (*b == '\t')) b++;
-        if (*b == ',') b++;
+        while ((*b == ' ') || (*b == '\t'))
+        {
+            b++;
+        }
+        if (*b == ',')
+        {
+            b++;
+        }
         value++;
     }
     if ((value != dimMDD) || (freeDims == 0))
@@ -674,12 +752,15 @@ int rviewDisplay::advanceProjection(int direction, int advmode)
     }
     cordnt = atoi(advance->GetValue());
     // Is the specified coordinate a free one?
-    if ((cordnt < 0) || (cordnt >= dimMDD) || ((freeDims & (1<<cordnt)) == 0))
+    if ((cordnt < 0) || (cordnt >= dimMDD) || ((freeDims & (1 << cordnt)) == 0))
     {
-        for (cordnt=0; cordnt < (int)(8*sizeof(unsigned int)); cordnt++)
+        for (cordnt = 0; cordnt < (int)(8 * sizeof(unsigned int)); cordnt++)
         {
             // freeDims is != 0  here.
-            if ((freeDims & (1<<cordnt)) != 0) break;
+            if ((freeDims & (1 << cordnt)) != 0)
+            {
+                break;
+            }
         }
         sprintf(tailbuff, "%d", cordnt);
         advance->SetValue(tailbuff);
@@ -688,22 +769,34 @@ int rviewDisplay::advanceProjection(int direction, int advmode)
     value = atoi(b);
 
     // Save tail
-    if (cordnt < dimMDD-1)
-        sprintf(tailbuff, ", %s", dimDescs[cordnt+1]);
+    if (cordnt < dimMDD - 1)
+    {
+        sprintf(tailbuff, ", %s", dimDescs[cordnt + 1]);
+    }
     else
+    {
         tailbuff[0] = '\0';
+    }
 
     // update the coordinate according to the advancement mode
     if (advmode == display_advmode_relative)
+    {
         value += direction;
+    }
     else if (advmode == display_advmode_absolute)
+    {
         value = direction;
+    }
     else if (advmode == display_advmode_reset)
     {
         if (direction <= 0)
+        {
             value = useIv[cordnt].low();
+        }
         else
+        {
             value = useIv[cordnt].high();
+        }
     }
 
     if ((value >= useIv[cordnt].low()) && (value <= useIv[cordnt].high()))
@@ -720,10 +813,10 @@ int rviewDisplay::advanceProjection(int direction, int advmode)
 
 
 
-void rviewDisplay::setDisplayTitle(const char *title)
+void rviewDisplay::setDisplayTitle(const char* title)
 {
     char titleString[STRINGSIZE];
-    char *b;
+    char* b;
 
     if (title != NULL)
     {
@@ -737,12 +830,16 @@ void rviewDisplay::setDisplayTitle(const char *title)
         *b++ = ' ';
         *b++ = '[';
         if ((displayFlags & display_flag_standalone) != 0)
+        {
             b += sprintf(b, "StAln");
+        }
         if ((displayFlags & display_flag_update) != 0)
         {
             b += sprintf(b, "U");
             if (qwindowID != -1)
+            {
                 b += sprintf(b, "d%dq%d", displayID, qwindowID);
+            }
             *b++ = ' ';
         }
         *b++ = ']';
@@ -793,11 +890,11 @@ void rviewDisplay::setMinimumViewerSize(int w, int h)
 
 int rviewDisplay::doSaveView(void)
 {
-    char *name = ::wxFileSelector(lman->lookup("saveView"), (char*)(::wxDirExists(prefs->filePath.ptr()) ? prefs->filePath.ptr() : NULL), NULL, NULL, (char*)viewFileExtension);
+    char* name = ::wxFileSelector(lman->lookup("saveView"), (char*)(::wxDirExists(prefs->filePath.ptr()) ? prefs->filePath.ptr() : NULL), NULL, NULL, (char*)viewFileExtension);
 
     if (name != NULL)
     {
-        FILE *fp = fopen(name, "w");
+        FILE* fp = fopen(name, "w");
         if (fp != NULL)
         {
             fprintf(fp, "%s\n\n", view_HeaderLine);
@@ -813,11 +910,11 @@ int rviewDisplay::doSaveView(void)
 
 int rviewDisplay::doLoadView(void)
 {
-    char *name = ::wxFileSelector(lman->lookup("loadView"), (char*)(::wxDirExists(prefs->filePath.ptr()) ? prefs->filePath.ptr() : NULL), NULL, NULL, (char*)viewFileExtension);
+    char* name = ::wxFileSelector(lman->lookup("loadView"), (char*)(::wxDirExists(prefs->filePath.ptr()) ? prefs->filePath.ptr() : NULL), NULL, NULL, (char*)viewFileExtension);
 
     if (name != NULL)
     {
-        FILE *fp = fopen(name, "r");
+        FILE* fp = fopen(name, "r");
         if (fp != NULL)
         {
             int status = parseViewFile(fp);
@@ -832,9 +929,9 @@ int rviewDisplay::doLoadView(void)
 }
 
 
-int rviewDisplay::parseViewFile(FILE *fp)
+int rviewDisplay::parseViewFile(FILE* fp)
 {
-    char *buffer = new char[viewBuffSize];
+    char* buffer = new char[viewBuffSize];
     unsigned int line = 0;
     int status = -1;
 
@@ -842,21 +939,32 @@ int rviewDisplay::parseViewFile(FILE *fp)
     {
         int len = strlen(buffer);
         line++;
-        if (strncmp(view_HeaderLine, buffer, len-1) == 0)
+        if (strncmp(view_HeaderLine, buffer, len - 1) == 0)
         {
             while (!feof(fp))
             {
                 if (fgets(buffer, viewBuffSize, fp) == NULL)
+                {
                     break;
+                }
                 line++;
-                char *b = buffer;
-                while (isspace((unsigned int)(*b))) b++;
+                char* b = buffer;
+                while (isspace((unsigned int)(*b)))
+                {
+                    b++;
+                }
                 if (*b != '\0')
                 {
-                    char *key = b;
-                    while (isalnum((unsigned int)(*b))) b++;
-                    char *kend = b;
-                    while (isspace((unsigned int)(*b))) b++;
+                    char* key = b;
+                    while (isalnum((unsigned int)(*b)))
+                    {
+                        b++;
+                    }
+                    char* kend = b;
+                    while (isspace((unsigned int)(*b)))
+                    {
+                        b++;
+                    }
                     if (*b != '=')
                     {
                         cerr << "Missing '=' at line " << line << endl;
@@ -865,9 +973,15 @@ int rviewDisplay::parseViewFile(FILE *fp)
                     {
                         *kend = '\0';
                         b++;
-                        while (isspace((unsigned int)(*b))) b++;
+                        while (isspace((unsigned int)(*b)))
+                        {
+                            b++;
+                        }
                         len = strlen(b);
-                        while ((len > 0) && (isspace((unsigned int)(b[len-1])))) b[--len] = '\0';
+                        while ((len > 0) && (isspace((unsigned int)(b[len - 1]))))
+                        {
+                            b[--len] = '\0';
+                        }
                         //cout << "key " << key << ", value " << b << endl;
                         if (readView(key, b) < 0)
                         {
@@ -891,91 +1005,117 @@ void rviewDisplay::loadViewFinished(void)
 }
 
 
-void rviewDisplay::writeViewKey(FILE *fp, const char *key)
+void rviewDisplay::writeViewKey(FILE* fp, const char* key)
 {
     fprintf(fp, "%s\t=\t", key);
 }
 
 
-void rviewDisplay::writeViewParam(FILE *fp, const char *key, const char *value)
+void rviewDisplay::writeViewParam(FILE* fp, const char* key, const char* value)
 {
     fprintf(fp, "%s\t=\t%s\n", key, value);
 }
 
 
-void rviewDisplay::writeViewParam(FILE *fp, const char *key, long value)
+void rviewDisplay::writeViewParam(FILE* fp, const char* key, long value)
 {
     fprintf(fp, "%s\t=\t%ld\n", key, value);
 }
 
 
-void rviewDisplay::writeViewParam(FILE *fp, const char *key, double value)
+void rviewDisplay::writeViewParam(FILE* fp, const char* key, double value)
 {
     fprintf(fp, "%s\t=\t%.15f\n", key, value);
 }
 
 
-void rviewDisplay::writeViewParam(FILE *fp, const char *key, unsigned int num, const long *values)
+void rviewDisplay::writeViewParam(FILE* fp, const char* key, unsigned int num, const long* values)
 {
     fprintf(fp, "%s\t=\t%ld", key, values[0]);
-    for (unsigned int i=1; i<num; i++)
+    for (unsigned int i = 1; i < num; i++)
+    {
         fprintf(fp, ", %ld", values[i]);
+    }
     fprintf(fp, "\n");
 }
 
 
-void rviewDisplay::writeViewParam(FILE *fp, const char *key, unsigned int num, const double *values)
+void rviewDisplay::writeViewParam(FILE* fp, const char* key, unsigned int num, const double* values)
 {
     fprintf(fp, "%s\t=\t%.15f", key, values[0]);
-    for (unsigned int i=1; i<num; i++)
+    for (unsigned int i = 1; i < num; i++)
+    {
         fprintf(fp, ", %.15f", values[i]);
+    }
     fprintf(fp, "\n");
 }
 
 
-int rviewDisplay::readVector(const char *value, unsigned int num, long *values)
+int rviewDisplay::readVector(const char* value, unsigned int num, long* values)
 {
     unsigned int i = 0;
-    const char *b, *rest;
+    const char* b, *rest;
 
     b = value;
     while (i < num)
     {
-        while (isspace((unsigned int)(*b))) b++;
+        while (isspace((unsigned int)(*b)))
+        {
+            b++;
+        }
         values[i] = strtol(b, (char**)&rest, 10);
         if (rest == b)
+        {
             return -1;
+        }
         b = rest;
         i++;
-        while (isspace((unsigned int)(*b))) b++;
-        if (*b == ',') b++;
+        while (isspace((unsigned int)(*b)))
+        {
+            b++;
+        }
+        if (*b == ',')
+        {
+            b++;
+        }
     }
     return 0;
 }
 
 
-int rviewDisplay::readVector(const char *value, unsigned int num, double *values)
+int rviewDisplay::readVector(const char* value, unsigned int num, double* values)
 {
     unsigned int i = 0;
-    const char *b, *rest;
+    const char* b, *rest;
 
     b = value;
     while (i < num)
     {
-        while (isspace((unsigned int)(*b))) b++;
+        while (isspace((unsigned int)(*b)))
+        {
+            b++;
+        }
         values[i] = strtod(b, (char**)&rest);
         if (rest == b)
+        {
             return -1;
+        }
         b = rest;
         i++;
-        while (isspace((unsigned int)(*b))) b++;
-        if (*b == ',') b++;
+        while (isspace((unsigned int)(*b)))
+        {
+            b++;
+        }
+        if (*b == ',')
+        {
+            b++;
+        }
     }
     return 0;
 }
 
 
-int rviewDisplay::saveView(FILE *fp)
+int rviewDisplay::saveView(FILE* fp)
 {
     writeViewParam(fp, view_ViewerType, getFrameName());
     writeViewParam(fp, view_ProjString, projString);
@@ -988,7 +1128,7 @@ int rviewDisplay::saveView(FILE *fp)
 }
 
 
-int rviewDisplay::readView(const char *key, const char *value)
+int rviewDisplay::readView(const char* key, const char* value)
 {
     if (strcmp(key, view_ViewerType) == 0)
     {

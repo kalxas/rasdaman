@@ -4,8 +4,8 @@
 
 const QtNode::QtNodeType QtDropType::nodeType = QtNode::QT_DROP_TYPE;
 
-QtDropType::QtDropType(const std::string &typeName2)
-    :typeName(typeName2)
+QtDropType::QtDropType(const std::string& typeName2)
+    : typeName(typeName2)
 {
 }
 
@@ -15,27 +15,27 @@ QtData* QtDropType::evaluate()
     // here we are sure that the type exists in the database (checkType passed)
     switch (dropType)
     {
-        case CELL_TYPE:
-        {
-            TypeFactory::deleteStructType(this->typeName.c_str());
-            break;
-        }
-        case MDD_TYPE:
-        {
-            TypeFactory::deleteMDDType(this->typeName.c_str());
-            break;
-        }
-        case SET_TYPE:
-        {
-            TypeFactory::deleteSetType(this->typeName.c_str());
-            break;
-        }
-        default:
-        {
-            parseInfo.setErrorNo(968);
-            parseInfo.setToken(this->typeName.c_str());
-            throw parseInfo;
-        }
+    case CELL_TYPE:
+    {
+        TypeFactory::deleteStructType(this->typeName.c_str());
+        break;
+    }
+    case MDD_TYPE:
+    {
+        TypeFactory::deleteMDDType(this->typeName.c_str());
+        break;
+    }
+    case SET_TYPE:
+    {
+        TypeFactory::deleteSetType(this->typeName.c_str());
+        break;
+    }
+    default:
+    {
+        parseInfo.setErrorNo(968);
+        parseInfo.setToken(this->typeName.c_str());
+        throw parseInfo;
+    }
     }
     return returnValue;
 }
@@ -64,14 +64,14 @@ void QtDropType::checkType()
     }
 }
 
-void QtDropType::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
+void QtDropType::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDropType Object" << std::endl;
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  DROP TYPE " << typeName;
 }
 
 
-void QtDropType::printAlgebraicExpression(std::ostream &s)
+void QtDropType::printAlgebraicExpression(std::ostream& s)
 {
     s << "command <";
     s << "DROP TYPE " << typeName;

@@ -150,7 +150,7 @@ public:
     constructs a new DBTile of size newSize filled with the contents of newCells.
     the newCells are copied.
     */
-    
+
     DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new DBTile of size newSize filled with the contents of newCells.

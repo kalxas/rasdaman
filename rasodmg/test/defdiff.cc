@@ -60,64 +60,64 @@ rasdaman GmbH.
 
 const char* diffFileName = "defdiff.tif";
 
-const char* paramPrgHelp="--help";
-bool defPrgHelp=false;
-char* prgHelp=NULL;
+const char* paramPrgHelp = "--help";
+bool defPrgHelp = false;
+char* prgHelp = NULL;
 
-const char* paramSrcFileName="--srcfilename";
-bool defSrcFileName=false;
-char* srcFileName=NULL;
+const char* paramSrcFileName = "--srcfilename";
+bool defSrcFileName = false;
+char* srcFileName = NULL;
 
-const char* paramSrcFormat="--srcformat";
-bool defSrcFormat=false;
-char* srcFormatc=NULL;
-r_Data_Format srcFormat=r_Array;
+const char* paramSrcFormat = "--srcformat";
+bool defSrcFormat = false;
+char* srcFormatc = NULL;
+r_Data_Format srcFormat = r_Array;
 
-const char* paramSrcFormatParams="--srcformatparams";
-bool defSrcFormatParams=false;
-char *srcFormatParams=NULL;
+const char* paramSrcFormatParams = "--srcformatparams";
+bool defSrcFormatParams = false;
+char* srcFormatParams = NULL;
 
-const char* paramDestFileName="--destfilename";
-bool defDestFileName=false;
-char *destFileName=NULL;
+const char* paramDestFileName = "--destfilename";
+bool defDestFileName = false;
+char* destFileName = NULL;
 
-const char* paramDestFormat="--destformat";
-bool defDestFormat=false;
-char *destFormatc=NULL;
-r_Data_Format destFormat=r_Array;
+const char* paramDestFormat = "--destformat";
+bool defDestFormat = false;
+char* destFormatc = NULL;
+r_Data_Format destFormat = r_Array;
 
-const char* paramDestFormatParams="--destformatparams";
-bool defDestFormatParams=false;
-char *destFormatParams=NULL;
+const char* paramDestFormatParams = "--destformatparams";
+bool defDestFormatParams = false;
+char* destFormatParams = NULL;
 
 //structures used for parseParam
-const int paramsNo=7;
+const int paramsNo = 7;
 
-const char *paramsName[paramsNo]= { paramPrgHelp, paramSrcFileName, paramSrcFormat, paramSrcFormatParams,
-                                    paramDestFileName, paramDestFormat, paramDestFormatParams
-                                  };
+const char* paramsName[paramsNo] = { paramPrgHelp, paramSrcFileName, paramSrcFormat, paramSrcFormatParams,
+                                     paramDestFileName, paramDestFormat, paramDestFormatParams
+                                   };
 
-bool *paramsPresent[paramsNo]= { &defPrgHelp, &defSrcFileName, &defSrcFormat, &defSrcFormatParams,
-                                 &defDestFileName, &defDestFormat, &defDestFormatParams
+bool* paramsPresent[paramsNo] = { &defPrgHelp, &defSrcFileName, &defSrcFormat, &defSrcFormatParams,
+                                  &defDestFileName, &defDestFormat, &defDestFormatParams
+                                };
+
+char** paramsValue[paramsNo] = { &prgHelp, &srcFileName, &srcFormatc, &srcFormatParams,
+                                 &destFileName, &destFormatc, &destFormatParams
                                };
-
-char **paramsValue[paramsNo]= { &prgHelp, &srcFileName, &srcFormatc, &srcFormatParams,
-                                &destFileName, &destFormatc, &destFormatParams
-                              };
 
 void printStatus()
 {
     cout << "defdiff parameters list:" << endl;
-    for (int i=0; i<paramsNo; i++)
+    for (int i = 0; i < paramsNo; i++)
         cout << "--Name='" << paramsName[i]
-             << "' Present=" << ((*paramsPresent[i])? "true": "false")
-             << " Value='" << (*paramsValue[i]?*paramsValue[i]: "null")  << "'" <<  endl;
+             << "' Present=" << ((*paramsPresent[i]) ? "true" : "false")
+             << " Value='" << (*paramsValue[i] ? *paramsValue[i] : "null")  << "'" <<  endl;
 }
 
 void printUsage()
 {
-    char* fileNameSrc="test.bmp";
-    char* fileNameDest="test.tiff";
+    char* fileNameSrc = "test.bmp";
+    char* fileNameDest = "test.tiff";
 
     cout << "defdiff v 0.1 - RasDaMan Data Exchange Format Difference Utility" << endl;
     cout << "Description: Returns " << EXIT_SUCCESS << " for succes, otherwise " << EXIT_FAILURE << endl;
@@ -135,51 +135,55 @@ void printUsage()
     cout << "                                              for you DEF from conversion), default NULL" << endl;
     cout << "        " << paramPrgHelp << "             ... this help" << endl;
     cout << "For example:" << endl;
-    cout << "defdiff " << paramSrcFileName << " " << fileNameSrc << " " << paramSrcFormat << " " << format_name_bmp <<" "
-         << paramDestFileName << " " << fileNameDest  << " " << paramDestFormat <<" " << format_name_tiff << endl;
+    cout << "defdiff " << paramSrcFileName << " " << fileNameSrc << " " << paramSrcFormat << " " << format_name_bmp << " "
+         << paramDestFileName << " " << fileNameDest  << " " << paramDestFormat << " " << format_name_tiff << endl;
     cout << "Report bugs to liviu.coman@active�knowledge.com" << endl;
 
 }
 
 int checkParam(int& paramIndex, char** param)
 {
-    int i=0;
-    while(i<paramsNo)
+    int i = 0;
+    while (i < paramsNo)
     {
-        if(!strcmp(param[paramIndex], paramsName[i]))
+        if (!strcmp(param[paramIndex], paramsName[i]))
+        {
             break;
+        }
         i++;
     }
 
-    if(i==paramsNo)
+    if (i == paramsNo)
     {
         cout << "checkParam(...) error processing parameters: parameter "
              << param[paramIndex] << " is unknown!" << endl;
         return EXIT_FAILURE;
     }
-    if(*paramsPresent[i])
+    if (*paramsPresent[i])
     {
         cout << "checkParam(...) error processing parameters: parameter "
              << param[paramIndex] << " is present more than once!" << endl;
         return EXIT_FAILURE;
     }
 
-    if(paramsName[i]!=paramPrgHelp)
+    if (paramsName[i] != paramPrgHelp)
     {
-        *paramsPresent[i]=true;
+        *paramsPresent[i] = true;
         paramIndex++;
-        *paramsValue[i]=param[paramIndex];
+        *paramsValue[i] = param[paramIndex];
     }
     else
-        *paramsPresent[i]=true;
+    {
+        *paramsPresent[i] = true;
+    }
 
     return EXIT_SUCCESS;
 }
 
 int parseParams(int argc, char** argv)
 {
-    int argIndex=0;
-    if (argc==1)
+    int argIndex = 0;
+    if (argc == 1)
     {
         cout << "parseParams(...) parameters " << paramSrcFileName << " <src-file> and "
              << paramDestFileName << " <dest-file> are mandatatory!" << endl;
@@ -187,19 +191,25 @@ int parseParams(int argc, char** argv)
     }
     else
     {
-        argIndex=1;
-        while(argIndex<argc)
+        argIndex = 1;
+        while (argIndex < argc)
         {
-            if(checkParam(argIndex, argv)!=EXIT_SUCCESS)
+            if (checkParam(argIndex, argv) != EXIT_SUCCESS)
+            {
                 break;
+            }
             argIndex++;
         }
-        if(argIndex<argc)
+        if (argIndex < argc)
+        {
             return EXIT_FAILURE;
+        }
 
         //check rule
-        if((defSrcFileName && defDestFileName) || (defPrgHelp))
+        if ((defSrcFileName && defDestFileName) || (defPrgHelp))
+        {
             return EXIT_SUCCESS;
+        }
         else
         {
             cout << "parseParams(...) parameters " << paramSrcFileName << " <src-file> and "
@@ -211,20 +221,20 @@ int parseParams(int argc, char** argv)
 
 int validateParams()
 {
-    if(defSrcFormat)
+    if (defSrcFormat)
     {
         srcFormat = get_data_format_from_name(srcFormatc);
-        if((srcFormat!=r_Array) &&
+        if ((srcFormat != r_Array) &&
                 (!r_Convertor_Factory::is_supported(srcFormat)))
         {
             cout << "validateParams() conversion of " << srcFormatc << " not supported" << endl;
             return EXIT_FAILURE;
         }
     }
-    if(defDestFormat)
+    if (defDestFormat)
     {
         destFormat = get_data_format_from_name(destFormatc);
-        if((destFormat!=r_Array) &&
+        if ((destFormat != r_Array) &&
                 (!r_Convertor_Factory::is_supported(destFormat)))
         {
             cout << "validateParams() conversion " << destFormatc << " not supported" << endl;
@@ -237,81 +247,83 @@ int validateParams()
 
 int compareDEFs()
 {
-    char *dataSrc=NULL, *dataDest=NULL;
-    r_ULong dataSrcSize=0, dataDestSize=0;
-    r_ULong arraySrcSize=0, arrayDestSize=0;
-    r_Bytes basetypeSrcSize=0, basetypeDestSize=0;
+    char* dataSrc = NULL, *dataDest = NULL;
+    r_ULong dataSrcSize = 0, dataDestSize = 0;
+    r_ULong arraySrcSize = 0, arrayDestSize = 0;
+    r_Bytes basetypeSrcSize = 0, basetypeDestSize = 0;
     r_convDesc descSrc, descDest;
-    r_Type::r_Type_Id basetypeSrcId=r_Type::UNKNOWNTYPE, basetypeDestId=r_Type::UNKNOWNTYPE;
+    r_Type::r_Type_Id basetypeSrcId = r_Type::UNKNOWNTYPE, basetypeDestId = r_Type::UNKNOWNTYPE;
 
 //init conversion result data
     initConvDesc(descSrc);
     initConvDesc(descDest);
 
 //read files
-    if(readFile(srcFileName, &dataSrc, dataSrcSize)!=EXIT_SUCCESS)
+    if (readFile(srcFileName, &dataSrc, dataSrcSize) != EXIT_SUCCESS)
+    {
         return EXIT_FAILURE;
+    }
 
-    if(readFile(destFileName, &dataDest, dataDestSize)!=EXIT_SUCCESS)
+    if (readFile(destFileName, &dataDest, dataDestSize) != EXIT_SUCCESS)
     {
         delete [] dataSrc;
-        dataSrc=NULL;
+        dataSrc = NULL;
         return EXIT_FAILURE;
     }
 
 //convert if necessary
-    if(srcFormat !=r_Array)
+    if (srcFormat != r_Array)
     {
         r_Minterval srcIv(1);
-        r_Type* srcType=NULL;
+        r_Type* srcType = NULL;
 
-        srcIv << r_Sinterval((r_Range)0, (r_Range)(dataSrcSize -1));
-        srcType=r_Convertor::get_external_type(r_Convertor::ctype_char);
+        srcIv << r_Sinterval((r_Range)0, (r_Range)(dataSrcSize - 1));
+        srcType = r_Convertor::get_external_type(r_Convertor::ctype_char);
 
-        if(convertFrom(srcFormat, srcFormatParams, dataSrc,
-                       srcIv, srcType, descSrc) != EXIT_SUCCESS)
+        if (convertFrom(srcFormat, srcFormatParams, dataSrc,
+                        srcIv, srcType, descSrc) != EXIT_SUCCESS)
         {
             delete srcType;
-            srcType=NULL;
+            srcType = NULL;
             delete [] dataSrc;
-            dataSrc=NULL;
+            dataSrc = NULL;
             delete [] dataDest;
-            dataDest=NULL;
+            dataDest = NULL;
             return EXIT_FAILURE;
         }
         else
         {
             //we don't need this anymore
             delete [] dataSrc;
-            dataSrc=NULL;
+            dataSrc = NULL;
             delete srcType;
-            srcType=NULL;
+            srcType = NULL;
         }
     }
 
-    if(destFormat !=r_Array)
+    if (destFormat != r_Array)
     {
         r_Minterval destIv(1);
-        r_Type* destType=NULL;
+        r_Type* destType = NULL;
 
-        destIv << r_Sinterval((r_Range)0, (r_Range)(dataDestSize -1));
-        destType=r_Convertor::get_external_type(r_Convertor::ctype_char);
+        destIv << r_Sinterval((r_Range)0, (r_Range)(dataDestSize - 1));
+        destType = r_Convertor::get_external_type(r_Convertor::ctype_char);
 
-        if(convertFrom(destFormat, destFormatParams, dataDest,
-                       destIv, destType, descDest) != EXIT_SUCCESS)
+        if (convertFrom(destFormat, destFormatParams, dataDest,
+                        destIv, destType, descDest) != EXIT_SUCCESS)
         {
             delete destType;
-            destType=NULL;
+            destType = NULL;
             delete [] dataDest;
-            dataDest=NULL;
-            if(srcFormat==r_Array)
+            dataDest = NULL;
+            if (srcFormat == r_Array)
             {
                 delete [] dataSrc;
-                dataSrc=NULL;
+                dataSrc = NULL;
             }
             else
             {
-                dataSrc=NULL;
+                dataSrc = NULL;
                 cleanConvDesc(descSrc);
             }
 
@@ -321,15 +333,15 @@ int compareDEFs()
         {
             //we don't need this anymore
             delete [] dataDest;
-            dataDest=NULL;
+            dataDest = NULL;
             delete destType;
-            destType=NULL;
+            destType = NULL;
         }
     }
 
 //check domain
-    if((srcFormat!=r_Array) &&
-            (destFormat!=r_Array) &&
+    if ((srcFormat != r_Array) &&
+            (destFormat != r_Array) &&
             (descSrc.destInterv != descDest.destInterv))
     {
         cout << "compareDEFs() source domain " << descSrc.destInterv << " != destination domain " << descDest.destInterv << endl;
@@ -339,57 +351,61 @@ int compareDEFs()
     }
 
 //check if celltype is a basetype
-    if((srcFormat!=r_Array) &&
+    if ((srcFormat != r_Array) &&
             (!descSrc.destType->isBaseType()))
     {
         cout << "compareDEFs() source type " << basetypeSrcId << " is not a base type" << endl;
-        if(destFormat==r_Array)
+        if (destFormat == r_Array)
         {
             delete [] dataDest;
-            dataDest=NULL;
+            dataDest = NULL;
         }
         else
+        {
             cleanConvDesc(descDest);
+        }
         cleanConvDesc(descSrc);
         return EXIT_FAILURE;
     }
 
-    if((destFormat!=r_Array) &&
+    if ((destFormat != r_Array) &&
             (!descDest.destType->isBaseType()))
     {
         cout << "compareDEFs() destination type " << basetypeDestId << " is not a base type" << endl;
-        if(srcFormat==r_Array)
+        if (srcFormat == r_Array)
         {
             delete [] dataSrc;
-            dataSrc=NULL;
+            dataSrc = NULL;
         }
         else
+        {
             cleanConvDesc(descSrc);
+        }
         cleanConvDesc(descDest);
         return EXIT_FAILURE;
     }
 
 //stoare info about types
-    if(srcFormat!=r_Array)
+    if (srcFormat != r_Array)
     {
-        basetypeSrcId=descSrc.destType->type_id();
-        basetypeSrcSize=((r_Base_Type*)descSrc.destType)->size();
+        basetypeSrcId = descSrc.destType->type_id();
+        basetypeSrcSize = ((r_Base_Type*)descSrc.destType)->size();
     }
-    if(destFormat!=r_Array)
+    if (destFormat != r_Array)
     {
-        basetypeDestId=descDest.destType->type_id();
-        basetypeDestSize=((r_Base_Type*)descDest.destType)->size();
+        basetypeDestId = descDest.destType->type_id();
+        basetypeDestSize = ((r_Base_Type*)descDest.destType)->size();
     }
 
-    if((srcFormat!=r_Array) &&
-            (destFormat!=r_Array))
+    if ((srcFormat != r_Array) &&
+            (destFormat != r_Array))
     {
         //FIXME basetypeSrcId!=basetypeDestId to powerfull
-        if(basetypeSrcId!=basetypeDestId)
+        if (basetypeSrcId != basetypeDestId)
             cout << "compareDEFs() warning: source type " << basetypeSrcId
                  << " != destination type " << basetypeDestId << endl;
 
-        if(basetypeSrcSize!=basetypeDestSize)
+        if (basetypeSrcSize != basetypeDestSize)
         {
             cout << "comparetDEFs() source type " << descSrc.destType->name() << " != destination type " << descDest.destType->name() << endl;
             cout << "source type size" << basetypeSrcSize << " != destination type size" << basetypeDestSize << endl;
@@ -398,9 +414,9 @@ int compareDEFs()
             return EXIT_FAILURE;
         }
 
-        if((basetypeSrcId == r_Type::STRUCTURETYPE) &&
+        if ((basetypeSrcId == r_Type::STRUCTURETYPE) &&
                 (basetypeDestId == r_Type::STRUCTURETYPE) &&
-                (compareStructure((r_Structure_Type*)descSrc.destType, (r_Structure_Type*)descDest.destType) !=EXIT_SUCCESS))
+                (compareStructure((r_Structure_Type*)descSrc.destType, (r_Structure_Type*)descDest.destType) != EXIT_SUCCESS))
         {
             cout << "compareDEFs() source structure type != destination structure type" << endl;
             cout << "Source type is: " << (*(r_Structure_Type*)(descSrc.destType)) << endl;
@@ -411,75 +427,83 @@ int compareDEFs()
         }
     }
 
-    if(srcFormat!=r_Array)
+    if (srcFormat != r_Array)
     {
-        arraySrcSize=descSrc.destInterv.cell_count() * basetypeSrcSize;
-        dataSrc=descSrc.dest;
+        arraySrcSize = descSrc.destInterv.cell_count() * basetypeSrcSize;
+        dataSrc = descSrc.dest;
     }
     else
-        arraySrcSize=dataSrcSize;
-
-    if(destFormat!=r_Array)
     {
-        arrayDestSize=descDest.destInterv.cell_count() * basetypeDestSize;
-        dataDest=descDest.dest;
+        arraySrcSize = dataSrcSize;
+    }
+
+    if (destFormat != r_Array)
+    {
+        arrayDestSize = descDest.destInterv.cell_count() * basetypeDestSize;
+        dataDest = descDest.dest;
     }
     else
-        arrayDestSize=dataDestSize;
+    {
+        arrayDestSize = dataDestSize;
+    }
 
-    if(arraySrcSize!=arrayDestSize)
+    if (arraySrcSize != arrayDestSize)
     {
         cout << "compareDEFs() source data size " << arraySrcSize << " != " << " destination data size " << arrayDestSize << endl;
         delete [] dataSrc;
-        dataSrc=NULL;
+        dataSrc = NULL;
         delete [] dataDest;
-        dataDest=NULL;
+        dataDest = NULL;
         cleanConvDesc(descSrc);
         cleanConvDesc(descDest);
         return EXIT_FAILURE;
     }
 
-    if(memcmp(dataSrc, dataDest, arraySrcSize))
+    if (memcmp(dataSrc, dataDest, arraySrcSize))
     {
         cout << "compareDEFs() source and destination data are different" << endl;
         r_convDesc descDiff;
-        r_ULong diffSize=0;
+        r_ULong diffSize = 0;
         initConvDesc(descDiff);
         //do diff
-        for(int i=0; i< arraySrcSize; i++)
-            dataDest[i]-=dataSrc[i];
-        if(convertTo(r_TIFF, NULL, dataDest, descDest.destInterv,
-                     descDest.destType, descDiff) != EXIT_SUCCESS)
+        for (int i = 0; i < arraySrcSize; i++)
+        {
+            dataDest[i] -= dataSrc[i];
+        }
+        if (convertTo(r_TIFF, NULL, dataDest, descDest.destInterv,
+                      descDest.destType, descDiff) != EXIT_SUCCESS)
         {
             cout << "compareDEFs() error building the difference tiff file" << endl;;
         }
         else
         {
-            diffSize=descDiff.destInterv.cell_count() * ((r_Base_Type*)descDiff.destType)->size();
-            if(writeFile(diffFileName, (const char**)&descDiff.dest, diffSize)!=EXIT_SUCCESS)
-                cout << "compareDEFs() error building the difference tiff file" << endl;;
+            diffSize = descDiff.destInterv.cell_count() * ((r_Base_Type*)descDiff.destType)->size();
+            if (writeFile(diffFileName, (const char**)&descDiff.dest, diffSize) != EXIT_SUCCESS)
+            {
+                cout << "compareDEFs() error building the difference tiff file" << endl;
+            };
             cleanConvDesc(descDiff);
         }
 
         //clean up
-        if(srcFormat==r_Array)
+        if (srcFormat == r_Array)
         {
             delete [] dataSrc;
-            dataSrc=NULL;
+            dataSrc = NULL;
         }
         else
         {
-            dataSrc=NULL;
+            dataSrc = NULL;
             cleanConvDesc(descSrc);
         }
-        if(destFormat==r_Array)
+        if (destFormat == r_Array)
         {
             delete [] dataDest;
-            dataDest=NULL;
+            dataDest = NULL;
         }
         else
         {
-            dataDest=NULL;
+            dataDest = NULL;
             cleanConvDesc(descDest);
         }
         return EXIT_FAILURE;
@@ -488,24 +512,24 @@ int compareDEFs()
     cout << "compareDEFs() source and destination data are identic" << endl;
 
 //clean up
-    if(srcFormat==r_Array)
+    if (srcFormat == r_Array)
     {
         delete [] dataSrc;
-        dataSrc=NULL;
+        dataSrc = NULL;
     }
     else
     {
-        dataSrc=NULL;
+        dataSrc = NULL;
         cleanConvDesc(descSrc);
     }
-    if(destFormat==r_Array)
+    if (destFormat == r_Array)
     {
         delete [] dataDest;
-        dataDest=NULL;
+        dataDest = NULL;
     }
     else
     {
-        dataDest=NULL;
+        dataDest = NULL;
         cleanConvDesc(descDest);
     }
 
@@ -514,21 +538,23 @@ int compareDEFs()
 
 int processRequest()
 {
-    if(validateParams() != EXIT_SUCCESS)
+    if (validateParams() != EXIT_SUCCESS)
+    {
         return EXIT_FAILURE;
+    }
     return compareDEFs();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    if(parseParams(argc, argv)!=EXIT_SUCCESS)
+    if (parseParams(argc, argv) != EXIT_SUCCESS)
     {
         printUsage();
         return EXIT_FAILURE;
     }
     else
     {
-        if(!defPrgHelp)
+        if (!defPrgHelp)
         {
 #ifdef RMANDEBUG
             printStatus();

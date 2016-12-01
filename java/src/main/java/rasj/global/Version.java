@@ -35,8 +35,7 @@ rasdaman GmbH.
 
 package rasj.global;
 
-public class Version
-{
+public class Version {
     // version information
     public static final String VERSION = "6.1test";
 

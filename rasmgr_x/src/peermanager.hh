@@ -109,11 +109,11 @@ public:
 private:
     boost::mutex mut;/*!< Mutex used to synchronize access to the resources managed by this class.*/
 
-    std::list<boost::shared_ptr<InPeer> > inPeers;
+    std::list<boost::shared_ptr<InPeer>> inPeers;
 
-    std::list<boost::shared_ptr<OutPeer> > outPeers;
+    std::list<boost::shared_ptr<OutPeer>> outPeers;
 
-    std::map<std::string, boost::shared_ptr<OutPeer> > remoteSessions;/*!< Mapping between a string identifying a remote session and the peer on which the remote session is active*/
+    std::map<std::string, boost::shared_ptr<OutPeer>> remoteSessions;/*!< Mapping between a string identifying a remote session and the peer on which the remote session is active*/
 
     /**
      * @brief remoteClientSessionToString Generate a string uniquely identifying a remote session from a RemoteClientSession struct.

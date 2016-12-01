@@ -86,7 +86,7 @@ const int rviewStringViewer::strview_totaly = rviewStringViewer::strview_ctrly +
 
 
 
-rviewStringViewer::rviewStringViewer(mdd_frame *mf, unsigned int flags) :
+rviewStringViewer::rviewStringViewer(mdd_frame* mf, unsigned int flags) :
     rviewDisplay(mf, strview_ctrly, flags)
 {
     LTRACE << "rviewStringViewer()";
@@ -105,7 +105,7 @@ rviewStringViewer::rviewStringViewer(mdd_frame *mf, unsigned int flags) :
 
 int rviewStringViewer::openViewer(void)
 {
-    LTRACE <<"openViewer()";
+    LTRACE << "openViewer()";
 
     if (dimMDD == 1)
     {
@@ -144,7 +144,7 @@ int rviewStringViewer::openViewer(void)
 }
 
 
-const char *rviewStringViewer::getFrameName(void) const
+const char* rviewStringViewer::getFrameName(void) const
 {
     return "rviewStringViewer";
 }
@@ -173,7 +173,7 @@ void rviewStringViewer::OnSize(int w, int h)
 
     GetClientSize(&x, &y);
 
-    msgString->SetSize(display_border, display_border + display_cheight, x - 2*display_border, strview_msgheight);
+    msgString->SetSize(display_border, display_border + display_cheight, x - 2 * display_border, strview_msgheight);
 
     rviewDisplay::OnSize(w, h);
 }
@@ -182,8 +182,8 @@ void rviewStringViewer::OnSize(int w, int h)
 int rviewStringViewer::newProjection(void)
 {
     unsigned int len, i;
-    const char *b;
-    char *newMsg;
+    const char* b;
+    char* newMsg;
 
     mapIndex = r_Point(dimMDD);
     if (rviewParseProjection(getVirtualDomain(), pt1, pt2, projString, &freeDims, &mapIndex) != dimMDD)
@@ -200,12 +200,16 @@ int rviewStringViewer::newProjection(void)
     newMsg = new char[len + 1];
     b = mddObj->get_array() + pt1[0];
     // make sure the message is printable
-    for (i=0; i<len; i++)
+    for (i = 0; i < len; i++)
     {
         if (isprint(b[i]))
+        {
             newMsg[i] = b[i];
+        }
         else
+        {
             newMsg[i] = ' ';
+        }
     }
     newMsg[i] = '\0';
     //cout << "MSG: " << newMsg << endl;

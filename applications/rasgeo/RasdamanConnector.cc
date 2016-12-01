@@ -38,11 +38,11 @@ RasdamanConnector::RasdamanConnector()
 }
 
 RasdamanConnector::RasdamanConnector(int rasport, int pgport,
-        std::string hostname,
-        std::string RasDbName, std::string PetaDbName,
-        std::string RasDbuser, std::string RasDbPasswd,
-        std::string RasUser, std::string RasPasswd,
-        std::string PetaUser, std::string PetaPasswd) :
+                                     std::string hostname,
+                                     std::string RasDbName, std::string PetaDbName,
+                                     std::string RasDbuser, std::string RasDbPasswd,
+                                     std::string RasUser, std::string RasPasswd,
+                                     std::string PetaUser, std::string PetaPasswd) :
     m_iRasPort(rasport), m_iPgPort(pgport),
     m_sHostName(hostname), m_RasDbName(RasDbName),
     m_PetaDbName(PetaDbName), m_RasDbUser(RasDbuser),
@@ -79,7 +79,9 @@ RasdamanConnector::~RasdamanConnector()
 #endif
 
     if (m_db.get_status() == r_Database::not_open)
+    {
         return;
+    }
     m_db.close();
 }
 
@@ -110,33 +112,57 @@ int RasdamanConnector::parseConfig(std::string configfile) throw (r_Error)
     {
         pos = linestr.find("=", 0);
         if (pos == std::string::npos)
+        {
             continue;
+        }
 
         key = removeWhiteSpaces(linestr.substr(0, pos));
-        value = removeWhiteSpaces(linestr.substr(pos+1, linestr.size()-1));
+        value = removeWhiteSpaces(linestr.substr(pos + 1, linestr.size() - 1));
 
         if (key == "host")
+        {
             this->m_sHostName = value;
+        }
         else if (key == "rasport")
+        {
             this->m_iRasPort = atoi(value.c_str());
+        }
         else if (key == "pgport")
+        {
             this->m_iPgPort = atoi(value.c_str());
+        }
         else if (key == "rasdbname")
+        {
             this->m_RasDbName = value;
+        }
         else if (key == "petadbname")
+        {
             this->m_PetaDbName = value;
+        }
         else if (key == "rasuser")
+        {
             this->m_RasDbUser = value;
+        }
         else if (key == "raspassword")
+        {
             this->m_RasDbPasswd = value;
+        }
         else if (key == "rasloginuser")
+        {
             this->m_RasUser = value;
+        }
         else if (key == "petauser")
+        {
             this->m_PetaUser = value;
+        }
         else if (key == "rasloginpassword")
+        {
             this->m_RasPasswd = value;
+        }
         else if (key == "petapassword")
+        {
             this->m_PetaPasswd = value;
+        }
     }
 
     return 1;
@@ -146,20 +172,22 @@ std::string RasdamanConnector::removeWhiteSpaces(std::string str)
 {
     std::string::size_type pos;
     bool found = true;
-    while(found)
+    while (found)
     {
         if (str.find(" ") != std::string::npos)
         {
             pos = str.find(" ");
-            str.erase(pos,1);
+            str.erase(pos, 1);
         }
         else if (str.find("\t") != std::string::npos)
         {
             pos = str.find("\t");
-            str.erase(pos,1);
+            str.erase(pos, 1);
         }
         else
+        {
             found = false;
+        }
     }
 
     return str;
@@ -170,7 +198,9 @@ void RasdamanConnector::connect()
     // connect to RASBASE the rasdaman way (i.e. via rasmgr)
     if (m_db.get_status() != r_Database::read_only &&
             m_db.get_status() != r_Database::read_write)
+    {
         m_db.open(m_RasDbName.c_str());
+    }
 
     // get a direct connection to the petascope data base, but, before
     // we do anything, check, whether there is already a connection alive
@@ -180,7 +210,7 @@ void RasdamanConnector::connect()
         if (PQstatus(this->m_petaconn) != CONNECTION_OK)
         {
             std::cerr << ctx << "connect(): "
-            << "connection with '" << this->getPetaDbName() << "' failed!" << std::endl;
+                      << "connection with '" << this->getPetaDbName() << "' failed!" << std::endl;
         }
     }
 
@@ -193,7 +223,7 @@ void RasdamanConnector::connect()
         if (PQstatus(this->m_rasconn) != CONNECTION_OK)
         {
             std::cerr << ctx << "connect(): "
-            << "connection with '" << this->getRasDbName() << "' failed!" << std::endl;
+                      << "connection with '" << this->getRasDbName() << "' failed!" << std::endl;
         }
     }
 #endif
@@ -202,7 +232,9 @@ void RasdamanConnector::connect()
 void RasdamanConnector::disconnect()
 {
     if (m_db.get_status() != r_Database::not_open)
+    {
         m_db.close();
+    }
 
     PQfinish(this->m_petaconn);
 #ifdef BASEDB_PGSQL
@@ -213,18 +245,26 @@ void RasdamanConnector::disconnect()
 const PGconn* RasdamanConnector::getPetaConnection()
 {
     if (PQstatus(this->m_petaconn) != CONNECTION_OK)
+    {
         return 0;
+    }
     else
+    {
         return this->m_petaconn;
+    }
 }
 
 const PGconn* RasdamanConnector::getRasConnection()
 {
 #ifdef BASEDB_PGSQL
     if (PQstatus(this->m_rasconn) != CONNECTION_OK)
+    {
         return 0;
+    }
     else
+    {
         return this->m_rasconn;
+    }
 #else
     // store rat table in petascopedb, rather than RASBASE in case SQLite backend is used
     return this->m_petaconn;

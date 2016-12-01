@@ -114,7 +114,7 @@ public class RangeSubsettingExtension implements Extension {
      * @param elementName
      * @return True if this is the root of an XML RangeSubsetting extension.
      */
-      public static boolean isXMLRangeSubsettingExtension(String elementName) {
+    public static boolean isXMLRangeSubsettingExtension(String elementName) {
         return elementName.equalsIgnoreCase(LABEL_RANGESUBSET);
     }
 
@@ -131,7 +131,7 @@ public class RangeSubsettingExtension implements Extension {
         // check
         if (!isXMLRangeSubsettingExtension(rangeElem.getLocalName())) {
             throw new WCSException(ExceptionCode.InternalComponentError,
-                    "The parser was expecting a" + XMLSymbols.LABEL_RANGESUBSET + " element, " + rangeElem.getLocalName() + " given");
+                                   "The parser was expecting a" + XMLSymbols.LABEL_RANGESUBSET + " element, " + rangeElem.getLocalName() + " given");
         }
 
         // loop through the listed rangeItems
@@ -146,7 +146,7 @@ public class RangeSubsettingExtension implements Extension {
                         Elements components = currentChild.getChildElements();
                         if (components.size() != 2) {
                             throw new WCSException(ExceptionCode.InternalComponentError,
-                                    "A RangeInterval element needs to have exactly one startComponent and one endComponent");
+                                                   "A RangeInterval element needs to have exactly one startComponent and one endComponent");
                         }
                         String startComponent = null, endComponent = null;
                         for (int j = 0; j < components.size(); j++) {
@@ -158,7 +158,7 @@ public class RangeSubsettingExtension implements Extension {
                         }
                         if (startComponent == null || endComponent == null) {
                             throw new WCSException(ExceptionCode.InternalComponentError,
-                                    "A RangeInterval element needs to have exactly one startComponent and one endComponent");
+                                                   "A RangeInterval element needs to have exactly one startComponent and one endComponent");
                         }
                         gcRequest.getRangeSubset().addRangeItem(new RangeInterval(startComponent, endComponent));
 
@@ -190,8 +190,8 @@ public class RangeSubsettingExtension implements Extension {
     public static void parseGetCoverageRESTRequest(RESTUrl rUrl, GetCoverageRequest request) throws WCSException {
         if (rUrl.existsKey(RANGESUBSET_REST_PARAMNAME) && !rUrl.getByKey(RANGESUBSET_REST_PARAMNAME).isEmpty()) {
             List<String> rangeParams = new ArrayList<String>(Arrays.asList(
-                    rUrl.getByKey(RANGESUBSET_REST_PARAMNAME).get(0).split(RESTParser.ENUMERATOR_SEPARATOR)));
-            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams,RANGESUBSET_REST_RANGE_SEPARATOR, request);
+                        rUrl.getByKey(RANGESUBSET_REST_PARAMNAME).get(0).split(RESTParser.ENUMERATOR_SEPARATOR)));
+            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams, RANGESUBSET_REST_RANGE_SEPARATOR, request);
         }
     }
 

@@ -39,29 +39,27 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasResultIsNoIntervalException extends RasException 
-{
-  static final String rcsid = "@(#)Package rasj, class RasResultIsNoIntervalException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasResultIsNoIntervalException.java,v 1.6 2003/12/10 21:04:23 rasdev Exp $";
+public class RasResultIsNoIntervalException extends RasException {
+    static final String rcsid = "@(#)Package rasj, class RasResultIsNoIntervalException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasResultIsNoIntervalException.java,v 1.6 2003/12/10 21:04:23 rasdev Exp $";
 
     /**
      * Standard constructor.
      **/
-  protected RasResultIsNoIntervalException()
-	{
+    protected RasResultIsNoIntervalException() {
         super(RasGlobalDefs.RESULT_IS_NO_INTERVAL);
-	}
+    }
 
     /**
      * Returns the error message.
      * @return the error message.
      **/
-    public String getMessage()
-    {
-	if(super.getMessage() == null)
-	    return RasErrorTexts.getErrorMessage(errNo);
-        else
-	    return super.getMessage();
+    public String getMessage() {
+        if (super.getMessage() == null) {
+            return RasErrorTexts.getErrorMessage(errNo);
+        } else {
+            return super.getMessage();
+        }
     }
-  
+
 }
 

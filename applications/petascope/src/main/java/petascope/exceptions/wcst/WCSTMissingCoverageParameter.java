@@ -27,7 +27,7 @@ import petascope.exceptions.ExceptionCode;
  *
  * @author rasdaman
  */
-public class WCSTMissingCoverageParameter extends WCSTException{
+public class WCSTMissingCoverageParameter extends WCSTException {
     public WCSTMissingCoverageParameter() {
         super(ExceptionCode.WCSTMissingCoverageParameter, EXCEPTION_TEXT);
     }

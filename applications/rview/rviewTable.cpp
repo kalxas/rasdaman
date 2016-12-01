@@ -94,7 +94,7 @@ const int rviewTable::table_totaly = rviewDisplay::display_cheight + rviewTable:
 
 
 
-textCanvas::textCanvas(wxWindow *parent, int x, int y, int w, int h, long style) : wxCanvas(parent, x, y, w, h, style)
+textCanvas::textCanvas(wxWindow* parent, int x, int y, int w, int h, long style) : wxCanvas(parent, x, y, w, h, style)
 {
     wxColour fc(0x10, 0x10, 0x10);
     wxColour bc(0xf0, 0xf0, 0xf0);
@@ -126,7 +126,7 @@ textCanvas::~textCanvas(void)
 }
 
 
-void textCanvas::setData(mdd_frame *mf, rviewBaseType bt, unsigned int bs)
+void textCanvas::setData(mdd_frame* mf, rviewBaseType bt, unsigned int bs)
 {
     mddObj = mf->mdd;
     dimMDD = (int)(mddObj->spatial_domain().dimension());
@@ -142,26 +142,40 @@ void textCanvas::setStep(int sx, int sy)
 }
 
 
-void textCanvas::setProjection(r_Point &p1, r_Point &p2, unsigned int fd, r_Point *mapIndex)
+void textCanvas::setProjection(r_Point& p1, r_Point& p2, unsigned int fd, r_Point* mapIndex)
 {
     pt1 = p1;
     pt2 = p2;
     freeDims = fd;
-    for (dim1=0; dim1<dimMDD; dim1++) if ((freeDims & (1<<dim1)) != 0) break;
-    for (dim2=dim1+1; dim2<dimMDD; dim2++) if ((freeDims & (1<<dim2)) != 0) break;
+    for (dim1 = 0; dim1 < dimMDD; dim1++) if ((freeDims & (1 << dim1)) != 0)
+        {
+            break;
+        }
+    for (dim2 = dim1 + 1; dim2 < dimMDD; dim2++) if ((freeDims & (1 << dim2)) != 0)
+        {
+            break;
+        }
 
     if (dim1 >= dimMDD)
+    {
         dim1 = -1;
+    }
     else if (mapIndex != NULL)
+    {
         dim1 = (*mapIndex)[dim1];
+    }
     if (dim2 >= dimMDD)
+    {
         dim2 = -1;
+    }
     else if (mapIndex != NULL)
+    {
         dim2 = (*mapIndex)[dim2];
+    }
 }
 
 
-void textCanvas::setCoSys(bool cs, int &cl, int &ct)
+void textCanvas::setCoSys(bool cs, int& cl, int& ct)
 {
     cosys = cs;
 
@@ -179,7 +193,7 @@ void textCanvas::setCoSys(bool cs, int &cl, int &ct)
         }
         else
         {
-            sprintf(buffer, "%ld", (abs(pt1[dim2]) > abs(pt2[dim2])) ? pt1[dim2] :pt2[dim2]);
+            sprintf(buffer, "%ld", (abs(pt1[dim2]) > abs(pt2[dim2])) ? pt1[dim2] : pt2[dim2]);
             GetTextExtent(buffer, &twidth, &theight);
             coleft = (int)twidth + txcanv_cospace;
         }
@@ -203,7 +217,7 @@ void textCanvas::OnPaint(void)
     wxRect rect;
     int w, h, x, y;
     r_Point prun = pt1;
-    wxCanvasDC *cdc;
+    wxCanvasDC* cdc;
     r_Range startOffX, endOffX, startOffY, endOffY;
     float posx, posy;
     char textbuff[STRINGSIZE];
@@ -211,7 +225,10 @@ void textCanvas::OnPaint(void)
 
     //cout << "textCanvas::OnPaint()" << endl;
 
-    if (dim1 < 0) return;
+    if (dim1 < 0)
+    {
+        return;
+    }
 
     GetClientSize(&w, &h);
 
@@ -243,15 +260,27 @@ void textCanvas::OnPaint(void)
     // Use for, not while, because of continue in loop body
     for (; upd ; upd++)
     {
-        if (!redrawAll) upd.GetRect(&rect);
+        if (!redrawAll)
+        {
+            upd.GetRect(&rect);
+        }
 
         // cdc->SetClippingRegion(rect.x, rect.y, rect.width, rect.height);
         // Calculate the range to plot.
         startOffX = (x + rect.x - txcanv_border - coleft) / stepx;
-        if (startOffX < 0) startOffX = 0;
-        if (pt1[dim1] + startOffX > pt2[dim1]) continue;
+        if (startOffX < 0)
+        {
+            startOffX = 0;
+        }
+        if (pt1[dim1] + startOffX > pt2[dim1])
+        {
+            continue;
+        }
         endOffX = (x + rect.x + rect.width - txcanv_border  - coleft + stepx - 1) / stepx;
-        if (endOffX > pt2[dim1] - pt1[dim1]) endOffX = pt2[dim1] - pt1[dim1];
+        if (endOffX > pt2[dim1] - pt1[dim1])
+        {
+            endOffX = pt2[dim1] - pt1[dim1];
+        }
         if (dim2 < 0)
         {
             startOffY = 0;
@@ -260,18 +289,27 @@ void textCanvas::OnPaint(void)
         else
         {
             startOffY = (y + rect.y - txcanv_border - cotop) / stepy;
-            if (startOffY < 0) startOffY = 0;
-            if (pt1[dim2] + startOffY > pt2[dim2]) continue;
+            if (startOffY < 0)
+            {
+                startOffY = 0;
+            }
+            if (pt1[dim2] + startOffY > pt2[dim2])
+            {
+                continue;
+            }
             endOffY = (y + rect.y + rect.height - txcanv_border - cotop + stepy - 1) / stepy;
-            if (endOffY > pt2[dim2] - pt1[dim2]) endOffY = pt2[dim2] - pt1[dim2];
+            if (endOffY > pt2[dim2] - pt1[dim2])
+            {
+                endOffY = pt2[dim2] - pt1[dim2];
+            }
         }
 
         //cout << "table: " << rect.x << ':' << rect.y << ':' << rect.width << ':' << rect.height << " -- " << startOffX << ':' << endOffX << ':' << startOffY << ':' << endOffY << endl;
 
         posy = (float)(startOffY * stepy + txcanv_border + cotop);
-        r_Ref<r_Marray<r_Char> > mddPtr = (r_Ref<r_Marray<r_Char> >)mddObj;
-        r_Char *srcBase;
-        const r_Type *tp;
+        r_Ref<r_Marray<r_Char>> mddPtr = (r_Ref<r_Marray<r_Char>>)mddObj;
+        r_Char* srcBase;
+        const r_Type* tp;
 
         if ((tp = mddPtr->get_base_type_schema()) == NULL)
         {
@@ -283,7 +321,7 @@ void textCanvas::OnPaint(void)
         if (dim2 < 0)
         {
             posx = (float)(startOffX * stepx + txcanv_border + coleft);
-            for (prun[dim1]=pt1[dim1]+startOffX; prun[dim1]<=pt1[dim1]+endOffX; prun[dim1]++, posx+=stepx)
+            for (prun[dim1] = pt1[dim1] + startOffX; prun[dim1] <= pt1[dim1] + endOffX; prun[dim1]++, posx += stepx)
             {
                 long offset;
 
@@ -294,10 +332,10 @@ void textCanvas::OnPaint(void)
         }
         else
         {
-            for (prun[dim2]=pt1[dim2]+startOffY; prun[dim2]<=pt1[dim2]+endOffY; prun[dim2]++, posy+=stepy)
+            for (prun[dim2] = pt1[dim2] + startOffY; prun[dim2] <= pt1[dim2] + endOffY; prun[dim2]++, posy += stepy)
             {
                 posx = (float)(startOffX * stepx + txcanv_border + coleft);
-                for (prun[dim1]=pt1[dim1]+startOffX; prun[dim1]<=pt1[dim1]+endOffX; prun[dim1]++, posx+=stepx)
+                for (prun[dim1] = pt1[dim1] + startOffX; prun[dim1] <= pt1[dim1] + endOffX; prun[dim1]++, posx += stepx)
                 {
                     long offset;
 
@@ -321,21 +359,21 @@ void textCanvas::OnPaint(void)
             }
             if (startOffY == 0)
             {
-                cdc->DrawLine(txcanv_border + coleft + startOffX * stepx, cotop, txcanv_border + coleft + (endOffX+1)*stepx, cotop);
+                cdc->DrawLine(txcanv_border + coleft + startOffX * stepx, cotop, txcanv_border + coleft + (endOffX + 1)*stepx, cotop);
             }
             if (dim2 >= 0)
             {
                 if (startOffX == 0)
                 {
-                    cdc->DrawLine(coleft, txcanv_border + cotop + startOffY * stepy, coleft, txcanv_border + cotop + (endOffY+1) * stepy);
+                    cdc->DrawLine(coleft, txcanv_border + cotop + startOffY * stepy, coleft, txcanv_border + cotop + (endOffY + 1) * stepy);
                 }
                 if (startOffY == 0)
                 {
                     cdc->DrawLine(coleft, txcanv_border, coleft, txcanv_border + cotop);
                 }
-                posx = txcanv_cospace/2;
+                posx = txcanv_cospace / 2;
                 posy = startOffY * stepy + txcanv_border + cotop;
-                for (i=startOffY; i<=endOffY; i++, posy+=stepy)
+                for (i = startOffY; i <= endOffY; i++, posy += stepy)
                 {
                     sprintf(textbuff, "%ld", pt1[dim2] + i);
                     cdc->DrawText(textbuff, posx, posy);
@@ -343,8 +381,8 @@ void textCanvas::OnPaint(void)
             }
 
             posx = startOffX * stepx + txcanv_border + coleft;
-            posy = txcanv_cospace/2;
-            for (i=startOffX; i<=endOffX; i++, posx+=stepx)
+            posy = txcanv_cospace / 2;
+            for (i = startOffX; i <= endOffX; i++, posx += stepx)
             {
                 sprintf(textbuff, "%ld", pt1[dim1] + i);
                 cdc->DrawText(textbuff, posx, posy);
@@ -357,7 +395,7 @@ void textCanvas::OnPaint(void)
 }
 
 
-void textCanvas::CalcTextExtent(char *b, float &width, float &height)
+void textCanvas::CalcTextExtent(char* b, float& width, float& height)
 {
     SetFont(font);
     GetTextExtent(b, &width, &height);
@@ -365,7 +403,7 @@ void textCanvas::CalcTextExtent(char *b, float &width, float &height)
 }
 
 
-void textCanvas::EstimateCellSize(int &width, int &height)
+void textCanvas::EstimateCellSize(int& width, int& height)
 {
     char buffer[STRINGSIZE];
     float twidth, theight;
@@ -374,13 +412,13 @@ void textCanvas::EstimateCellSize(int &width, int &height)
     switch (numberBase)
     {
     case 8:
-        sprintf(buffer+2, "%o", 255);
+        sprintf(buffer + 2, "%o", 255);
         break;
     case 16:
-        sprintf(buffer+2, "%x", 255);
+        sprintf(buffer + 2, "%x", 255);
         break;
     default:
-        sprintf(buffer+2, "%d", 255);
+        sprintf(buffer + 2, "%d", 255);
         break;
     }
     CalcTextExtent(buffer, twidth, theight);
@@ -405,15 +443,15 @@ void textCanvas::setNumberBase(int newBase)
  *  Class to display tables
  */
 
-const char *rviewTable::view_StepSize = "stepSize";
-const char *rviewTable::view_ScrollPos = "scrollPos";
-const char *rviewTable::view_CoSys = "coordSys";
-const char *rviewTable::view_NumBase = "numberBase";
+const char* rviewTable::view_StepSize = "stepSize";
+const char* rviewTable::view_ScrollPos = "scrollPos";
+const char* rviewTable::view_CoSys = "coordSys";
+const char* rviewTable::view_NumBase = "numberBase";
 
-rviewTable::rviewTable(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, table_ctrly, flags)
+rviewTable::rviewTable(mdd_frame* mf, unsigned int flags) : rviewDisplay(mf, table_ctrly, flags)
 {
     int w, h, i;
-    char *b;
+    char* b;
 
     LTRACE << "rviewTable()";
 
@@ -424,8 +462,8 @@ rviewTable::rviewTable(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, tab
     numberBase = prefs->tableMode;
 
     GetClientSize(&w, &h);
-    w -= 2*display_cnvborder;
-    h -= 2*display_cnvborder + table_totaly;
+    w -= 2 * display_cnvborder;
+    h -= 2 * display_cnvborder + table_totaly;
     canvas = new textCanvas((wxWindow*)this, display_cnvborder, display_cnvborder + table_totaly, w, h);
     canvas->setData(mf, baseType, baseSize);
 
@@ -444,11 +482,11 @@ rviewTable::rviewTable(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, tab
     // Init projection string
     b = projString;
     b += sprintf(b, "*:*");
-    if (dimMDD>1)
+    if (dimMDD > 1)
     {
         b += sprintf(b, ", *:*");
     }
-    for (i=2; i<dimMDD; i++)
+    for (i = 2; i < dimMDD; i++)
     {
         b += sprintf(b, ", %ld", interv[i].low());
     }
@@ -471,7 +509,7 @@ int rviewTable::openViewer(void)
     if (rviewDisplay::openViewer() == 0)
     {
         int w, h;
-        wxMenu *men;
+        wxMenu* men;
         char buffer[STRINGSIZE];
 
         GetClientSize(&w, &h);
@@ -487,8 +525,8 @@ int rviewTable::openViewer(void)
 
         label();
 
-        frameWidth=-1;
-        frameHeight=-1;
+        frameWidth = -1;
+        frameHeight = -1;
 
         OnSize(w, h);
         OnSize(w, h);
@@ -519,7 +557,7 @@ void rviewTable::checkModeMenu(void)
 }
 
 
-const char *rviewTable::getFrameName(void) const
+const char* rviewTable::getFrameName(void) const
 {
     return "rviewTable";
 }
@@ -535,7 +573,7 @@ int rviewTable::getViewerType(void) const
 }
 
 
-void rviewTable::EstimateCellSize(int &width, int &height)
+void rviewTable::EstimateCellSize(int& width, int& height)
 {
     int w, h;
     char buffer[STRINGSIZE];
@@ -595,13 +633,13 @@ void rviewTable::OnSize(int w, int h)
     int x, y, i, j;
 
     GetClientSize(&x, &y);
-    x -= 2*display_border;
-    i = x - 2*table_twidth - table_cwidth;
-    j = 2*display_border + display_cheight;
-    sxText->SetSize(display_border + i/6, j, table_twidth, table_theight);
-    syText->SetSize(display_border + (3*i)/6 + table_twidth, j, table_twidth, table_theight);
-    csBox->SetSize(display_border + (5*i)/6 + 2*table_twidth, j, table_cwidth, table_cheight);
-    y -= 2*display_border + table_totaly;
+    x -= 2 * display_border;
+    i = x - 2 * table_twidth - table_cwidth;
+    j = 2 * display_border + display_cheight;
+    sxText->SetSize(display_border + i / 6, j, table_twidth, table_theight);
+    syText->SetSize(display_border + (3 * i) / 6 + table_twidth, j, table_twidth, table_theight);
+    csBox->SetSize(display_border + (5 * i) / 6 + 2 * table_twidth, j, table_cwidth, table_cheight);
+    y -= 2 * display_border + table_totaly;
 
     canvas->SetSize(display_border, display_border + table_totaly, x, y);
 
@@ -646,7 +684,7 @@ void rviewTable::OnMenuCommand(int id)
 
 
 
-int rviewTable::process(wxObject &obj, wxEvent &evt)
+int rviewTable::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
     int i, j;
@@ -692,8 +730,14 @@ int rviewTable::newProjection(void)
         return -1;
     }
 
-    for (dim1=0; dim1<dimMDD; dim1++) if ((freeDims & (1<<dim1)) != 0) break;
-    for (dim2=dim1+1; dim2<dimMDD; dim2++) if ((freeDims & (1<<dim2)) != 0) break;
+    for (dim1 = 0; dim1 < dimMDD; dim1++) if ((freeDims & (1 << dim1)) != 0)
+        {
+            break;
+        }
+    for (dim2 = dim1 + 1; dim2 < dimMDD; dim2++) if ((freeDims & (1 << dim2)) != 0)
+        {
+            break;
+        }
     if (dim1 >= dimMDD)
     {
         rviewErrorbox::reportError(lman->lookup("errorProjectFree"), rviewTable::getFrameName(), "newProjection");
@@ -730,23 +774,31 @@ void rviewTable::newTableSize(void)
     canvas->setCoSys(cosys, cl, ct);
 
     if (scrollx >= 0)
+    {
         scrollx = canvas->GetScrollPos(wxHORIZONTAL);
+    }
     else
+    {
         scrollx = 0;
+    }
 
     if (scrolly >= 0)
+    {
         scrolly = canvas->GetScrollPos(wxVERTICAL);
+    }
     else
+    {
         scrolly = 0;
+    }
 
-    newstepx = (int)((fieldsx*stepx + 2*display_border + cl + display_scrstep - 1) / display_scrstep);
-    newstepy = (int)((fieldsy*stepy + 2*display_border + ct + display_scrstep - 1) / display_scrstep);
+    newstepx = (int)((fieldsx * stepx + 2 * display_border + cl + display_scrstep - 1) / display_scrstep);
+    newstepy = (int)((fieldsy * stepy + 2 * display_border + ct + display_scrstep - 1) / display_scrstep);
 
     canvas->SetScrollbars(display_scrstep, display_scrstep, newstepx, newstepy, display_pgstep, display_pgstep, scrollx, scrolly);
 }
 
 
-int rviewTable::saveView(FILE *fp)
+int rviewTable::saveView(FILE* fp)
 {
     int status = rviewDisplay::saveView(fp);
 
@@ -764,7 +816,7 @@ int rviewTable::saveView(FILE *fp)
 }
 
 
-int rviewTable::readView(const char *key, const char *value)
+int rviewTable::readView(const char* key, const char* value)
 {
     int status = rviewDisplay::readView(key, value);
 

@@ -105,20 +105,20 @@ rasdaman GmbH.
 
 // auxData interpreted as double[2] containing min, max, initialised externally
 template<class T>
-int objectRange_temp(T *dest, const T *src, const mdd_function_desc *mfd, int dim, int datastep, void *auxData)
+int objectRange_temp(T* dest, const T* src, const mdd_function_desc* mfd, int dim, int datastep, void* auxData)
 {
-    long *pos;
-    char *srcdata;
-    T **srcptr;
+    long* pos;
+    char* srcdata;
+    T** srcptr;
     int i, j;
     double min, max, val;
 
     pos = new long[dim];
     srcptr = new T *[dim];
 
-    srcdata = objectCalcStart((const char *)src, mfd, dim);
+    srcdata = objectCalcStart((const char*)src, mfd, dim);
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         pos[i] = mfd[i].useLow;
         srcptr[i] = (T*)srcdata;
@@ -129,21 +129,33 @@ int objectRange_temp(T *dest, const T *src, const mdd_function_desc *mfd, int di
 
     do
     {
-        val = (double)(*srcptr[dim-1]);
-        if (val < min) min = val;
-        if (val > max) max = val;
-        i = dim-1;
+        val = (double)(*srcptr[dim - 1]);
+        if (val < min)
+        {
+            min = val;
+        }
+        if (val > max)
+        {
+            max = val;
+        }
+        i = dim - 1;
         while (i >= 0)
         {
             pos[i]++;
             srcptr[i] = (T*)(((char*)(srcptr[i])) + mfd[i].srcoff);
-            if (pos[i] <= mfd[i].useHigh) break;
+            if (pos[i] <= mfd[i].useHigh)
+            {
+                break;
+            }
             pos[i] = mfd[i].useLow;
             i--;
         }
         if (i >= 0)
         {
-            for (j=i+1; j<dim; j++) srcptr[j] = srcptr[i];
+            for (j = i + 1; j < dim; j++)
+            {
+                srcptr[j] = srcptr[i];
+            }
         }
     }
     while (i >= 0);
@@ -159,38 +171,38 @@ int objectRange_temp(T *dest, const T *src, const mdd_function_desc *mfd, int di
 
 
 // Additional template code for objectScaleInter template
-inline void objectScaleInterICore(double *srcf, double *destf, double pos, int idx1, int idx2)
+inline void objectScaleInterICore(double* srcf, double* destf, double pos, int idx1, int idx2)
 {
     destf[idx1] = srcf[idx1] + pos * (srcf[idx2] - srcf[idx1]);
 }
 
 template<class T>
-int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, int dim, int datastep, void *auxData)
+int objectScaleInter_temp(T* dest, const T* src, const mdd_function_desc* mfd, int dim, int datastep, void* auxData)
 {
-    double *pos, *f, *fwork;
-    long *lastpos;
-    long *ipos;
-    long *dp;
-    char **srcptr;
-    char *srcbase;
+    double* pos, *f, *fwork;
+    long* lastpos;
+    long* ipos;
+    long* dp;
+    char** srcptr;
+    char* srcbase;
     long offset;
     int i, j, k;
     int slowOffset;
-    T *srcdata, *destdata;
-    long *cubeoff = (long*)auxData;
+    T* srcdata, *destdata;
+    long* cubeoff = (long*)auxData;
 
-    f = new double[(1<<dim)];
-    fwork = new double[(1<<dim)];
+    f = new double[(1 << dim)];
+    fwork = new double[(1 << dim)];
     pos = new double[dim];
     ipos = new long[dim];
     lastpos = new long[dim];
-    srcptr = new char*[dim];
+    srcptr = new char* [dim];
     dp = new long[dim];
 
     // Calculate the starting point
     srcbase = objectCalcStart((const char*)src, mfd, dim);
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         pos[i] = (double)(mfd[i].useLow);
         lastpos[i] = mfd[i].useLow;
@@ -204,8 +216,8 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
     // in its own loop for efficiency reasons.
     do
     {
-        pos[dim-1] = (double)(mfd[dim-1].useLow);
-        dp[dim-1] = mfd[dim-1].newLow;
+        pos[dim - 1] = (double)(mfd[dim - 1].useLow);
+        dp[dim - 1] = mfd[dim - 1].newLow;
 
         // slowOffset determines whether the fast table-lookup offset or the slower dimension looping
         // offset calculation can be used. Table-lookup is always possible as long as the current
@@ -213,7 +225,7 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
         // has to be updated, not recalculated, because there is only a (new) overflow possible in the
         // innermost loop-dimension.
         slowOffset = 0;
-        for (i=0; i<dim; i++)
+        for (i = 0; i < dim; i++)
         {
             ipos[i] = (long)(pos[i]);
             // Check for high rather than useHigh because we only get problems if its > high.
@@ -224,17 +236,20 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
             }
         }
 
-        srcbase = srcptr[dim-1];
+        srcbase = srcptr[dim - 1];
 
         if (slowOffset != 0)
         {
-            for (i=0; i<(1<<dim); i++)
+            for (i = 0; i < (1 << dim); i++)
             {
                 offset = 0;
-                for (j=0; j<dim; j++)
+                for (j = 0; j < dim; j++)
                 {
                     // Check against high, not useHigh (see above)
-                    if (((i & (1<<j)) != 0) && (ipos[j] < mfd[j].high)) offset += mfd[j].srcoff;
+                    if (((i & (1 << j)) != 0) && (ipos[j] < mfd[j].high))
+                    {
+                        offset += mfd[j].srcoff;
+                    }
                 }
                 srcdata = (T*)(srcbase + offset);
                 f[i] = (double)(*srcdata);
@@ -243,27 +258,27 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
         }
         else
         {
-            for (i=0; i<(1<<dim); i++)
+            for (i = 0; i < (1 << dim); i++)
             {
                 srcdata = (T*)(srcbase + cubeoff[i]);
                 f[i] = (double)(*srcdata);
             }
         }
 
-        lastpos[dim-1] = (long)(pos[dim-1]);
+        lastpos[dim - 1] = (long)(pos[dim - 1]);
         // Innermost loop
-        for (k = mfd[dim-1].newHigh - mfd[dim-1].newLow + 1; k>0; k--)
+        for (k = mfd[dim - 1].newHigh - mfd[dim - 1].newLow + 1; k > 0; k--)
         {
             // n-linear interpolation
-            for (j=0; j<(1<<dim); j+=2)
+            for (j = 0; j < (1 << dim); j += 2)
             {
-                objectScaleInterICore(f, fwork, (double)(pos[0] - ipos[0]), j, j+1);
+                objectScaleInterICore(f, fwork, (double)(pos[0] - ipos[0]), j, j + 1);
             }
-            for (i=1; i<dim; i++)
+            for (i = 1; i < dim; i++)
             {
-                for (j=0; j<(1<<dim); j+=(1<<(i+1)))
+                for (j = 0; j < (1 << dim); j += (1 << (i + 1)))
                 {
-                    objectScaleInterICore(fwork, fwork, (double)(pos[i] - ipos[i]), j, j + (1<<i));
+                    objectScaleInterICore(fwork, fwork, (double)(pos[i] - ipos[i]), j, j + (1 << i));
                 }
             }
             // We go in sequential order (highest coordinate first)
@@ -271,32 +286,38 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
             destdata = (T*)(((char*)destdata) + datastep);
 
             // end of innermost loop
-            pos[dim-1] += mfd[dim-1].step;
-            offset = (long)(pos[dim-1]);
-            if (offset != lastpos[dim-1])
+            pos[dim - 1] += mfd[dim - 1].step;
+            offset = (long)(pos[dim - 1]);
+            if (offset != lastpos[dim - 1])
             {
-                offset -= lastpos[dim-1];
-                lastpos[dim-1] = (long)(pos[dim-1]);
+                offset -= lastpos[dim - 1];
+                lastpos[dim - 1] = (long)(pos[dim - 1]);
                 // Check against high, not useHigh
-                if (lastpos[dim-1] <= mfd[dim-1].high)
+                if (lastpos[dim - 1] <= mfd[dim - 1].high)
                 {
-                    srcbase += offset*mfd[dim-1].srcoff;
-                    ipos[dim-1] = lastpos[dim-1];
+                    srcbase += offset * mfd[dim - 1].srcoff;
+                    ipos[dim - 1] = lastpos[dim - 1];
                 }
                 // high, not useHigh
-                if (lastpos[dim-1] >= mfd[dim-1].high) slowOffset = 1;
-                offset = (1<<(dim-1));
-                memcpy(f, f + offset, offset*sizeof(double));
+                if (lastpos[dim - 1] >= mfd[dim - 1].high)
+                {
+                    slowOffset = 1;
+                }
+                offset = (1 << (dim - 1));
+                memcpy(f, f + offset, offset * sizeof(double));
 
                 if (slowOffset != 0)
                 {
-                    for (i=(1<<(dim-1)); i<(1<<dim); i++)
+                    for (i = (1 << (dim - 1)); i < (1 << dim); i++)
                     {
                         offset = 0;
-                        for (j=0; j<dim-1; j++)
+                        for (j = 0; j < dim - 1; j++)
                         {
                             // high, not useHigh
-                            if (((i & (1<<j)) != 0) && (ipos[j] < mfd[j].high)) offset += mfd[j].srcoff;
+                            if (((i & (1 << j)) != 0) && (ipos[j] < mfd[j].high))
+                            {
+                                offset += mfd[j].srcoff;
+                            }
                         }
                         srcdata = (T*)(srcbase + offset);
                         f[i] = (double)(*srcdata);
@@ -305,15 +326,15 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
                 }
                 else
                 {
-                    for (i=(1<<(dim-1)); i<(1<<dim); i++)
+                    for (i = (1 << (dim - 1)); i < (1 << dim); i++)
                     {
-                        srcdata = (T*)(srcbase + cubeoff[i - (1<<(dim-1))]);
+                        srcdata = (T*)(srcbase + cubeoff[i - (1 << (dim - 1))]);
                         f[i] = (double)(*srcdata);
                     }
                 }
             }
         }
-        i = dim-2;
+        i = dim - 2;
         while (i >= 0)
         {
             dp[i]++;
@@ -326,11 +347,14 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
                 // high, not useHigh
                 if (lastpos[i] <= mfd[i].high)
                 {
-                    srcptr[i] += offset*mfd[i].srcoff;
+                    srcptr[i] += offset * mfd[i].srcoff;
                     ipos[i] = lastpos[i];
                 }
             }
-            if (dp[i] <= mfd[i].newHigh) break;
+            if (dp[i] <= mfd[i].newHigh)
+            {
+                break;
+            }
             dp[i] = mfd[i].newLow;
             pos[i] = (double)(mfd[i].useLow);
             lastpos[i] = mfd[i].useLow;
@@ -338,7 +362,10 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
         }
         if (i >= 0)
         {
-            for (j=i+1; j<dim; j++) srcptr[j] = srcptr[i];
+            for (j = i + 1; j < dim; j++)
+            {
+                srcptr[j] = srcptr[i];
+            }
         }
     }
     while (i >= 0);
@@ -358,15 +385,15 @@ int objectScaleInter_temp(T *dest, const T *src, const mdd_function_desc *mfd, i
 
 
 template<class T>
-int objectScaleAverage_temp(T *dest, const T *src, const mdd_function_desc *mfd, int dim, int datastep, void *aux)
+int objectScaleAverage_temp(T* dest, const T* src, const mdd_function_desc* mfd, int dim, int datastep, void* aux)
 {
-    long *pos, *subpos, *dp;
-    T **srcptr, **subptr;
+    long* pos, *subpos, *dp;
+    T** srcptr, **subptr;
     long lastpos, number;
     double avg;
     int i, j;
-    T *destdata;
-    char *srcdata;
+    T* destdata;
+    char* srcdata;
 
     pos = new long[dim];
     subpos = new long[dim];
@@ -376,7 +403,7 @@ int objectScaleAverage_temp(T *dest, const T *src, const mdd_function_desc *mfd,
 
     srcdata = objectCalcStart((const char*)src, mfd, dim);
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         pos[i] = (mfd[i].useLow << MDD_FIXPREC);
         dp[i] = mfd[i].newLow;
@@ -392,42 +419,51 @@ int objectScaleAverage_temp(T *dest, const T *src, const mdd_function_desc *mfd,
         avg = 0;
         number = 0;
         // init subcube iteration
-        for (i=0; i<dim; i++)
+        for (i = 0; i < dim; i++)
         {
             subpos[i] = pos[i];
-            subptr[i] = srcptr[dim-1];    // no mistake!
+            subptr[i] = srcptr[dim - 1];  // no mistake!
         }
         do
         {
-            avg += (double)(*(subptr[dim-1]));
+            avg += (double)(*(subptr[dim - 1]));
             number++;
-            i = dim-1;
+            i = dim - 1;
             while (i >= 0)
             {
-                subpos[i] += (1<<MDD_FIXPREC);
+                subpos[i] += (1 << MDD_FIXPREC);
                 subptr[i] = (T*)(((char*)(subptr[i])) + mfd[i].srcoff);
-                if ((subpos[i] >> MDD_FIXPREC) < ((pos[i] + mfd[i].lstep) >> MDD_FIXPREC)) break;
+                if ((subpos[i] >> MDD_FIXPREC) < ((pos[i] + mfd[i].lstep) >> MDD_FIXPREC))
+                {
+                    break;
+                }
                 subpos[i] = pos[i];
                 i--;
             }
             if (i >= 0)
             {
-                for (j=i+1; j<dim; j++) subptr[j] = subptr[i];
+                for (j = i + 1; j < dim; j++)
+                {
+                    subptr[j] = subptr[i];
+                }
             }
         }
         while (i >= 0);
 
-        *destdata = (T)(avg/number);
+        *destdata = (T)(avg / number);
         destdata = (T*)(((char*)destdata) + datastep);
 
-        i = dim-1;
+        i = dim - 1;
         do
         {
             dp[i]++;
             lastpos = (pos[i] >> MDD_FIXPREC);
             pos[i] += mfd[i].lstep;
             srcptr[i] = (T*)(((char*)(srcptr[i])) + ((pos[i] >> MDD_FIXPREC) - lastpos) * mfd[i].srcoff);
-            if (dp[i] <= mfd[i].newHigh) break;
+            if (dp[i] <= mfd[i].newHigh)
+            {
+                break;
+            }
             dp[i] = mfd[i].newLow;
             pos[i] = (mfd[i].useLow << MDD_FIXPREC);
             i--;
@@ -435,7 +471,10 @@ int objectScaleAverage_temp(T *dest, const T *src, const mdd_function_desc *mfd,
         while (i >= 0);
         if (i >= 0)
         {
-            for (j=i+1; j<dim; j++) srcptr[j] = srcptr[i];
+            for (j = i + 1; j < dim; j++)
+            {
+                srcptr[j] = srcptr[i];
+            }
         }
     }
     while (i >= 0);
@@ -452,13 +491,13 @@ int objectScaleAverage_temp(T *dest, const T *src, const mdd_function_desc *mfd,
 
 
 template<class T>
-int objectScaleSimple_temp(T *dest, const T *src, const mdd_function_desc *mfd, int dim, int datastep, void *aux)
+int objectScaleSimple_temp(T* dest, const T* src, const mdd_function_desc* mfd, int dim, int datastep, void* aux)
 {
-    long *pos, *dp;
+    long* pos, *dp;
     long lastpos;
-    T **srcptr;
-    T *destdata;
-    char *srcdata;
+    T** srcptr;
+    T* destdata;
+    char* srcdata;
     int i, j;
 
     pos = new long[dim];
@@ -467,7 +506,7 @@ int objectScaleSimple_temp(T *dest, const T *src, const mdd_function_desc *mfd, 
 
     srcdata = objectCalcStart((const char*)src, mfd, dim);
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         pos[i] = (mfd[i].useLow << MDD_FIXPREC);
         dp[i] = mfd[i].newLow;
@@ -477,23 +516,29 @@ int objectScaleSimple_temp(T *dest, const T *src, const mdd_function_desc *mfd, 
 
     do
     {
-        *destdata = *(srcptr[dim-1]);
+        *destdata = *(srcptr[dim - 1]);
         destdata = (T*)(((char*)destdata) + datastep);
-        i=dim-1;
+        i = dim - 1;
         while (i >= 0)
         {
             dp[i]++;
             lastpos = (pos[i] >> MDD_FIXPREC);
             pos[i] += mfd[i].lstep;
-            srcptr[i] = (T*)(((char*)srcptr[i]) + ((pos[i] >> MDD_FIXPREC) - lastpos)*mfd[i].srcoff);
-            if (dp[i] <= mfd[i].newHigh) break;
+            srcptr[i] = (T*)(((char*)srcptr[i]) + ((pos[i] >> MDD_FIXPREC) - lastpos) * mfd[i].srcoff);
+            if (dp[i] <= mfd[i].newHigh)
+            {
+                break;
+            }
             dp[i] = mfd[i].newLow;
             pos[i] = (mfd[i].useLow << MDD_FIXPREC);
             i--;
         }
         if (i >= 0)
         {
-            for (j=i+1; j<dim; j++) srcptr[j] = srcptr[i];
+            for (j = i + 1; j < dim; j++)
+            {
+                srcptr[j] = srcptr[i];
+            }
         }
     }
     while (i >= 0);
@@ -519,7 +564,7 @@ int objectScaleSimple_temp(T *dest, const T *src, const mdd_function_desc *mfd, 
 // Sadly, this is necessary with VisualC...
 #define DECLARE_MDD_FUNC(f) \
 //  template int f<r_Boolean> MDD_FUNCTION_SIGNATURE(r_Boolean); \
-template int f<r_Char> MDD_FUNCTION_SIGNATURE(r_Char); 
+template int f<r_Char> MDD_FUNCTION_SIGNATURE(r_Char);
 \
 template int f<r_Octet> MDD_FUNCTION_SIGNATURE(r_Octet);
 \
@@ -543,13 +588,13 @@ DECLARE_MDD_FUNC(objectRange_temp);
 
 
 // Calculate the starting point in the source cube
-char *objectCalcStart(const char *src, const mdd_function_desc *mfd, int dim)
+char* objectCalcStart(const char* src, const mdd_function_desc* mfd, int dim)
 {
     int i;
-    char *d;
+    char* d;
 
     d = (char*)src;
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         d += (mfd[i].useLow - mfd[i].low) * mfd[i].srcoff;
     }
@@ -562,32 +607,35 @@ char *objectCalcStart(const char *src, const mdd_function_desc *mfd, int dim)
  */
 
 #define CAST_MDDPTR(t, src) \
-  r_Ref<r_Marray<t> > mddPtr = (r_Ref<r_Marray<t> >)(src)
+    r_Ref<r_Marray<t> > mddPtr = (r_Ref<r_Marray<t> >)(src)
 
 
-int mdd_createSubcube(r_Ref<r_GMarray> srcMdd, r_Ref<r_GMarray> &newMdd, r_Minterval *domain, r_Database *db)
+int mdd_createSubcube(r_Ref<r_GMarray> srcMdd, r_Ref<r_GMarray>& newMdd, r_Minterval* domain, r_Database* db)
 {
     r_Dimension dim;
-    char *destdata, *srcdata;
+    char* destdata, *srcdata;
     r_Ref<r_GMarray> newMddPtr;
     r_Minterval interv;
     r_Minterval newInterv;
     int tpsize;
     int i, j;
     long length;
-    mdd_function_desc *mfd;
-    long *pos;
-    char **srcptr;
+    mdd_function_desc* mfd;
+    long* pos;
+    char** srcptr;
 
     interv = srcMdd->spatial_domain();
     dim = interv.dimension();
 
-    if (dim < 1) return 0;
+    if (dim < 1)
+    {
+        return 0;
+    }
 
     tpsize = srcMdd->get_type_length();
 
     newInterv = r_Minterval(dim);
-    for (i=0; i<(int)dim; i++)
+    for (i = 0; i < (int)dim; i++)
     {
         if (domain == NULL)
         {
@@ -610,32 +658,38 @@ int mdd_createSubcube(r_Ref<r_GMarray> srcMdd, r_Ref<r_GMarray> &newMdd, r_Minte
     srcdata = objectCalcStart(srcMdd->get_array(), mfd, (int)dim);
 
     pos = new long[dim];
-    srcptr = new char *[dim];
+    srcptr = new char* [dim];
 
-    for (i=0; i<(int)dim; i++)
+    for (i = 0; i < (int)dim; i++)
     {
         pos[i] = mfd[i].useLow;
         srcptr[i] = srcdata;
     }
 
     // Lenght of one strip of data to copy
-    length = (mfd[dim-1].useHigh - mfd[dim-1].useLow + 1) * tpsize;
+    length = (mfd[dim - 1].useHigh - mfd[dim - 1].useLow + 1) * tpsize;
     do
     {
-        memcpy(destdata, srcptr[dim-1], length);
+        memcpy(destdata, srcptr[dim - 1], length);
         destdata += length;
-        i = (int)dim-2;
+        i = (int)dim - 2;
         while (i >= 0)
         {
             pos[i]++;
             srcptr[i] += mfd[i].srcoff;
-            if (pos[i] <= mfd[i].useHigh) break;
+            if (pos[i] <= mfd[i].useHigh)
+            {
+                break;
+            }
             pos[i] = mfd[i].useLow;
             i--;
         }
         if (i >= 0)
         {
-            for (j=i+1; j<(int)dim; j++) srcptr[j] = srcptr[i];
+            for (j = i + 1; j < (int)dim; j++)
+            {
+                srcptr[j] = srcptr[i];
+            }
         }
     }
     while (i >= 0);
@@ -652,45 +706,63 @@ int mdd_createSubcube(r_Ref<r_GMarray> srcMdd, r_Ref<r_GMarray> &newMdd, r_Minte
 
 
 // Support functions for (recursive) member-by-member resampling of a data cube via interpolation
-int mdd_objectFunctionPrim(const mdd_function_pointers *mfp, r_Primitive_Type *primType, const char *src, char *dest, const mdd_function_desc *mfd, int dim, int tpsize, void *auxData)
+int mdd_objectFunctionPrim(const mdd_function_pointers* mfp, r_Primitive_Type* primType, const char* src, char* dest, const mdd_function_desc* mfd, int dim, int tpsize, void* auxData)
 {
     switch (primType->type_id())
     {
     case r_Primitive_Type::BOOL:
         if (mfp->mddf_bool != NULL)
-            mfp->mddf_bool((r_Boolean*)dest, (const r_Boolean *)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_bool((r_Boolean*)dest, (const r_Boolean*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::CHAR:
         if (mfp->mddf_char != NULL)
-            mfp->mddf_char((r_Char*)dest, (const r_Char *)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_char((r_Char*)dest, (const r_Char*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::OCTET:
         if (mfp->mddf_octet != NULL)
-            mfp->mddf_octet((r_Octet *)dest, (const r_Octet*)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_octet((r_Octet*)dest, (const r_Octet*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::SHORT:
         if (mfp->mddf_short != NULL)
-            mfp->mddf_short((r_Short *)dest, (const r_Short*)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_short((r_Short*)dest, (const r_Short*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::USHORT:
         if (mfp->mddf_ushort != NULL)
-            mfp->mddf_ushort((r_UShort *)dest, (const r_UShort*)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_ushort((r_UShort*)dest, (const r_UShort*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::LONG:
         if (mfp->mddf_long != NULL)
-            mfp->mddf_long((r_Long *)dest, (const r_Long*)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_long((r_Long*)dest, (const r_Long*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::ULONG:
         if (mfp->mddf_ulong != NULL)
-            mfp->mddf_ulong((r_ULong *)dest, (const r_ULong*)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_ulong((r_ULong*)dest, (const r_ULong*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::FLOAT:
         if (mfp->mddf_float != NULL)
-            mfp->mddf_float((r_Float *)dest, (const r_Float*)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_float((r_Float*)dest, (const r_Float*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     case r_Primitive_Type::DOUBLE:
         if (mfp->mddf_double != NULL)
-            mfp->mddf_double((r_Double *)dest, (const r_Double*)src, mfd, dim, tpsize, auxData);
+        {
+            mfp->mddf_double((r_Double*)dest, (const r_Double*)src, mfd, dim, tpsize, auxData);
+        }
         break;
     default:
         return 0;
@@ -700,11 +772,11 @@ int mdd_objectFunctionPrim(const mdd_function_pointers *mfp, r_Primitive_Type *p
 
 
 // Support functions for (recursive) member-by-member resampling of a data cube via interpolation
-int mdd_objectFunctionStruct(const mdd_function_pointers *mfp, r_Structure_Type *structType, const char *src, char *dest, const mdd_function_desc *mfd, int dim, int tpsize, void *auxData)
+int mdd_objectFunctionStruct(const mdd_function_pointers* mfp, r_Structure_Type* structType, const char* src, char* dest, const mdd_function_desc* mfd, int dim, int tpsize, void* auxData)
 {
-    r_Type *newType;
+    r_Type* newType;
     unsigned long offset;
-    char *inc, *outc;
+    char* inc, *outc;
 
     r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
     while (iter != structType->defines_attribute_end())
@@ -716,12 +788,12 @@ int mdd_objectFunctionStruct(const mdd_function_pointers *mfp, r_Structure_Type 
 
         if (newType->isStructType())
         {
-            r_Structure_Type *newStructType = (r_Structure_Type*)newType;
+            r_Structure_Type* newStructType = (r_Structure_Type*)newType;
             mdd_objectFunctionStruct(mfp, newStructType, inc, outc, mfd, dim, tpsize, auxData);
         }
         else
         {
-            r_Primitive_Type *newPrimType = (r_Primitive_Type*)newType;
+            r_Primitive_Type* newPrimType = (r_Primitive_Type*)newType;
             mdd_objectFunctionPrim(mfp, newPrimType, inc, outc, mfd, dim, tpsize, auxData);
         }
         delete newType;
@@ -731,26 +803,26 @@ int mdd_objectFunctionStruct(const mdd_function_pointers *mfp, r_Structure_Type 
 }
 
 
-int mdd_objectFunctionType(const mdd_function_pointers *mfp, const r_Type *baseType, const char *src, char *dest, const mdd_function_desc *mfd, int dim, int tpsize, void *auxData)
+int mdd_objectFunctionType(const mdd_function_pointers* mfp, const r_Type* baseType, const char* src, char* dest, const mdd_function_desc* mfd, int dim, int tpsize, void* auxData)
 {
     if (((r_Type*)baseType)->isStructType())
     {
-        r_Structure_Type *structType = (r_Structure_Type*)baseType;
+        r_Structure_Type* structType = (r_Structure_Type*)baseType;
         return mdd_objectFunctionStruct(mfp, structType, src, dest, mfd, dim, tpsize, auxData);
     }
     else
     {
-        r_Primitive_Type *primType = (r_Primitive_Type*)baseType;
+        r_Primitive_Type* primType = (r_Primitive_Type*)baseType;
         return mdd_objectFunctionPrim(mfp, primType, src, dest, mfd, dim, tpsize, auxData);
     }
 }
 
 
-char *mdd_objectFunctionInitMdd(r_Ref<r_GMarray> mddPtr, r_Ref<r_GMarray> &newMddPtr, r_Minterval &newInterv, int tpsize, r_Dimension dim, r_Database *db)
+char* mdd_objectFunctionInitMdd(r_Ref<r_GMarray> mddPtr, r_Ref<r_GMarray>& newMddPtr, r_Minterval& newInterv, int tpsize, r_Dimension dim, r_Database* db)
 {
-    char *destdata;
-    const char *b;
-    r_Storage_Layout *store;
+    char* destdata;
+    const char* b;
+    r_Storage_Layout* store;
 
     if (mddPtr->get_storage_layout() != NULL)
     {
@@ -759,11 +831,11 @@ char *mdd_objectFunctionInitMdd(r_Ref<r_GMarray> mddPtr, r_Ref<r_GMarray> &newMd
     else
     {
         r_Minterval tileInterv(dim);
-        r_Aligned_Tiling *dfltTiling;
+        r_Aligned_Tiling* dfltTiling;
         int dim, i;
 
         dim = newInterv.dimension();
-        for (i=0; i<dim; i++)
+        for (i = 0; i < dim; i++)
         {
             tileInterv << r_Sinterval((r_Range)0, (r_Range)256);
         }
@@ -777,29 +849,35 @@ char *mdd_objectFunctionInitMdd(r_Ref<r_GMarray> mddPtr, r_Ref<r_GMarray> &newMd
     }
     else
     {
-        newMddPtr = new (db) r_GMarray(newInterv, tpsize, store);
+        newMddPtr = new(db) r_GMarray(newInterv, tpsize, store);
     }
 
     destdata = newMddPtr->get_array();
     newMddPtr->set_current_format(mddPtr->get_current_format());
-    if ((b = mddPtr->get_type_name()) != NULL) newMddPtr->set_type_by_name(b);
-    if ((b = mddPtr->get_type_structure()) != NULL) newMddPtr->set_type_structure(b);
+    if ((b = mddPtr->get_type_name()) != NULL)
+    {
+        newMddPtr->set_type_by_name(b);
+    }
+    if ((b = mddPtr->get_type_structure()) != NULL)
+    {
+        newMddPtr->set_type_structure(b);
+    }
 
     return destdata;
 }
 
 
-mdd_function_desc *mdd_objectFunctionInitData(r_Minterval &interv, r_Minterval &useInterv, r_Minterval &newInterv, int tpsize, unsigned int flags)
+mdd_function_desc* mdd_objectFunctionInitData(r_Minterval& interv, r_Minterval& useInterv, r_Minterval& newInterv, int tpsize, unsigned int flags)
 {
     int i, offset;
     r_Dimension dim;
-    mdd_function_desc *mfd;
+    mdd_function_desc* mfd;
 
     dim = interv.dimension();
     mfd = new mdd_function_desc[dim];
 
     // Calculate scaling factors
-    for (i=0; i<(int)dim; i++)
+    for (i = 0; i < (int)dim; i++)
     {
         mfd[i].low = interv[i].low();
         mfd[i].high = interv[i].high();
@@ -818,13 +896,13 @@ mdd_function_desc *mdd_objectFunctionInitData(r_Minterval &interv, r_Minterval &
             else
             {
                 double h = ((double)(mfd[i].useHigh - mfd[i].useLow + 1)) / (mfd[i].newHigh - mfd[i].newLow + 1);
-                mfd[i].lstep = (long)(h * (1<<MDD_FIXPREC));
+                mfd[i].lstep = (long)(h * (1 << MDD_FIXPREC));
             }
         }
     }
 
     offset = tpsize;
-    for (i=(int)dim-1; i>=0; i--)
+    for (i = (int)dim - 1; i >= 0; i--)
     {
         mfd[i].srcoff = offset;
         offset *= (mfd[i].high - mfd[i].low + 1);
@@ -835,22 +913,25 @@ mdd_function_desc *mdd_objectFunctionInitData(r_Minterval &interv, r_Minterval &
 
 
 
-int mdd_objectRange(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, double &min, double &max)
+int mdd_objectRange(r_Ref<r_GMarray> mddPtr, r_Minterval& useInterv, double& min, double& max)
 {
     r_Dimension dim;
     double minmax[2];
     r_Ref<r_GMarray> newMddPtr;   // Dummy...
     r_Minterval newInterv;    // Dummy...
     r_Minterval interv;
-    const r_Type *baseType;
+    const r_Type* baseType;
     int tpsize;
-    mdd_function_desc *mfd;
+    mdd_function_desc* mfd;
     mdd_function_pointers mfp;
 
     interv = mddPtr->spatial_domain();
     dim = interv.dimension();
 
-    if (dim < 1) return 0;
+    if (dim < 1)
+    {
+        return 0;
+    }
 
     if ((baseType = mddPtr->get_base_type_schema()) == NULL)
     {
@@ -880,23 +961,26 @@ int mdd_objectRange(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, double &min
 
 
 // Scale an object using n-linear interpolation (recommended for magnification)
-int mdd_objectScaleInter(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref<r_GMarray> &newMdd, r_Minterval &newInterv)
+int mdd_objectScaleInter(r_Ref<r_GMarray> mddPtr, r_Minterval& useInterv, r_Ref<r_GMarray>& newMdd, r_Minterval& newInterv)
 {
     r_Dimension dim;
     r_Minterval interv;
     r_Ref<r_GMarray> newMddPtr;
-    mdd_function_desc *mfd;
+    mdd_function_desc* mfd;
     int i, j;
-    long *cubeoff;
-    char *srcdata, *destdata;
+    long* cubeoff;
+    char* srcdata, *destdata;
     int tpsize;
     long offset;
-    const r_Type *baseType;
+    const r_Type* baseType;
     mdd_function_pointers mfp;
 
     interv = mddPtr->spatial_domain();
     dim = interv.dimension();
-    if ((dim < 1) || (dim != newInterv.dimension())) return 0;
+    if ((dim < 1) || (dim != newInterv.dimension()))
+    {
+        return 0;
+    }
 
     // Type information available?
     if ((baseType = mddPtr->get_base_type_schema()) == NULL)
@@ -908,13 +992,15 @@ int mdd_objectScaleInter(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref<
     tpsize = mddPtr->get_type_length();
 
     if ((destdata = mdd_objectFunctionInitMdd(mddPtr, newMddPtr, newInterv, tpsize, dim)) == NULL)
+    {
         return 0;
+    }
 
     MDD_INIT_FUNCTIONS(mfp, objectScaleInter_temp);
 
     // create temporary arrays
     mfd = mdd_objectFunctionInitData(interv, useInterv, newInterv, tpsize, MDD_OBJECT_INIT_FPSTEP);
-    cubeoff = new long[(1<<dim)];
+    cubeoff = new long[(1 << dim)];
 
     // Debugging
     /*T *srchigh;
@@ -925,12 +1011,15 @@ int mdd_objectScaleInter(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref<
     srcdata = (char*)(mddPtr->get_array());
 
     // Precalculate cube-offsets for more speed in inner loop
-    for (i=0; i<(1<<dim); i++)
+    for (i = 0; i < (1 << dim); i++)
     {
         offset = 0;
-        for (j=0; j<(int)dim; j++)
+        for (j = 0; j < (int)dim; j++)
         {
-            if ((i & (1<<j)) != 0) offset += mfd[j].srcoff;
+            if ((i & (1 << j)) != 0)
+            {
+                offset += mfd[j].srcoff;
+            }
         }
         cubeoff[i] = offset;
     }
@@ -947,21 +1036,24 @@ int mdd_objectScaleInter(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref<
 
 
 // Scale an object by averaging cell values -- recommended for scaling down
-int mdd_objectScaleAverage(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref<r_GMarray> &newMdd, r_Minterval &newInterv)
+int mdd_objectScaleAverage(r_Ref<r_GMarray> mddPtr, r_Minterval& useInterv, r_Ref<r_GMarray>& newMdd, r_Minterval& newInterv)
 {
     r_Dimension dim;
     r_Minterval interv;
     r_Ref<r_GMarray> newMddPtr;
-    mdd_function_desc *mfd;
-    char *srcdata, *destdata;
+    mdd_function_desc* mfd;
+    char* srcdata, *destdata;
     int tpsize;
-    const r_Type *baseType;
+    const r_Type* baseType;
     mdd_function_pointers mfp;
 
     interv = mddPtr->spatial_domain();
     dim = interv.dimension();
 
-    if ((dim < 1) || (dim != newInterv.dimension())) return 0;
+    if ((dim < 1) || (dim != newInterv.dimension()))
+    {
+        return 0;
+    }
 
     if ((baseType = mddPtr->get_base_type_schema()) == NULL)
     {
@@ -972,7 +1064,9 @@ int mdd_objectScaleAverage(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Re
     tpsize = mddPtr->get_type_length();
 
     if ((destdata = mdd_objectFunctionInitMdd(mddPtr, newMddPtr, newInterv, tpsize, dim)) == NULL)
+    {
         return 0;
+    }
 
     MDD_INIT_FUNCTIONS(mfp, objectScaleAverage_temp);
 
@@ -990,21 +1084,24 @@ int mdd_objectScaleAverage(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Re
 }
 
 
-int mdd_objectScaleSimple(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref<r_GMarray> &newMdd, r_Minterval &newInterv)
+int mdd_objectScaleSimple(r_Ref<r_GMarray> mddPtr, r_Minterval& useInterv, r_Ref<r_GMarray>& newMdd, r_Minterval& newInterv)
 {
     r_Dimension dim;
     r_Minterval interv;
     r_Ref<r_GMarray> newMddPtr;
-    mdd_function_desc *mfd;
-    char *srcdata, *destdata;
+    mdd_function_desc* mfd;
+    char* srcdata, *destdata;
     int tpsize;
-    const r_Type *baseType;
+    const r_Type* baseType;
     mdd_function_pointers mfp;
 
     interv = mddPtr->spatial_domain();
     dim = interv.dimension();
 
-    if ((dim < 1) || (dim != newInterv.dimension())) return 0;
+    if ((dim < 1) || (dim != newInterv.dimension()))
+    {
+        return 0;
+    }
 
     if ((baseType = mddPtr->get_base_type_schema()) == NULL)
     {
@@ -1015,7 +1112,9 @@ int mdd_objectScaleSimple(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref
     tpsize = mddPtr->get_type_length();
 
     if ((destdata = mdd_objectFunctionInitMdd(mddPtr, newMddPtr, newInterv, tpsize, dim)) == NULL)
+    {
         return 0;
+    }
 
     MDD_INIT_FUNCTIONS(mfp, objectScaleSimple_temp);
 
@@ -1033,10 +1132,10 @@ int mdd_objectScaleSimple(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref
 }
 
 
-int mdd_objectChangeEndianness(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, r_Ref<r_GMarray> *newMdd, r_Minterval *newInterv)
+int mdd_objectChangeEndianness(r_Ref<r_GMarray> mddPtr, r_Minterval& useInterv, r_Ref<r_GMarray>* newMdd, r_Minterval* newInterv)
 {
-    char *srcdata;
-    const r_Base_Type *baseType;
+    char* srcdata;
+    const r_Base_Type* baseType;
     r_Ref<r_GMarray> newMddPtr;   // only used in "new" mode
     r_Minterval dom, *iterDom;
     int tpsize;
@@ -1055,17 +1154,19 @@ int mdd_objectChangeEndianness(r_Ref<r_GMarray> mddPtr, r_Minterval &useInterv, 
 
     if (newMdd == NULL)
     {
-        r_Endian::swap_array( baseType, dom, dom, srcdata, srcdata );
+        r_Endian::swap_array(baseType, dom, dom, srcdata, srcdata);
     }
     else
     {
-        void *destdata;
+        void* destdata;
         r_Dimension dim = dom.dimension();
 
         if ((destdata = mdd_objectFunctionInitMdd(mddPtr, newMddPtr, *newInterv, tpsize, dim)) == NULL)
+        {
             return 0;
+        }
 
-        r_Endian::swap_array( baseType, dom, *newInterv, *newInterv, *newInterv, srcdata, destdata );
+        r_Endian::swap_array(baseType, dom, *newInterv, *newInterv, *newInterv, srcdata, destdata);
     }
 
     if (newMdd != NULL)

@@ -33,7 +33,7 @@
 
 namespace rascontrol
 {
-RasControl::RasControl(RasControlConfig& config, const UserCredentials& userCredentials):config(config),userCredentials(userCredentials)
+RasControl::RasControl(RasControlConfig& config, const UserCredentials& userCredentials): config(config), userCredentials(userCredentials)
 {
     boost::shared_ptr<ControlRasMgrRasnet> rasnet(new ControlRasMgrRasnet(this->userCredentials, this->config));
 
@@ -42,7 +42,7 @@ RasControl::RasControl(RasControlConfig& config, const UserCredentials& userCred
 
 void RasControl::start()
 {
-    switch(config.getWorkMode())
+    switch (config.getWorkMode())
     {
     case RasControlConfig::WKMINTERACTIV:
     {
@@ -82,66 +82,66 @@ void RasControl::startInteractiveMode()
     bool recordHistory = config.isHistoryRequested();
     std::string serverReply;
     std::string command;
-    bool done=false;
+    bool done = false;
     std::string prompt = this->config.getPrompt(this->userCredentials.getUserName());
 
     try
     {
         this->comm->executeLogin(serverReply);
-        std::cout<<"    "<<serverReply<<std::endl;
+        std::cout << "    " << serverReply << std::endl;
 
-        if(recordHistory)
+        if (recordHistory)
         {
-            LINFO<<"Using history file." << config.getHistoryFileName();
-            history.open(config.getHistoryFileName().c_str(),std::ios::out|std::ios::trunc);
+            LINFO << "Using history file." << config.getHistoryFileName();
+            history.open(config.getHistoryFileName().c_str(), std::ios::out | std::ios::trunc);
         }
 
-        while(!done)
+        while (!done)
         {
-            LINFO<<"Entering new request cycle."<<prompt;
+            LINFO << "Entering new request cycle." << prompt;
 
             const char* commandLine = this->editLine.interactiveCommand(prompt.c_str());
-            if(commandLine == NULL || strlen(commandLine)==0)
+            if (commandLine == NULL || strlen(commandLine) == 0)
             {
                 continue;
             }
 
             command = std::string(commandLine);
 
-            LINFO<<"Received command"<<command;
-            if(recordHistory)
+            LINFO << "Received command" << command;
+            if (recordHistory)
             {
-                history<<command<<std::endl;
+                history << command << std::endl;
             }
 
-            if(this->comm->isExitCommand(command))
+            if (this->comm->isExitCommand(command))
             {
-                LINFO<<"Closing rascontrol.";
-                done=true;
+                LINFO << "Closing rascontrol.";
+                done = true;
             }
             else
             {
                 this->comm->executeCommand(command, serverReply);
 
-                if(!serverReply.empty())
+                if (!serverReply.empty())
                 {
-                    std::cout<<"    "<<serverReply<<std::endl;
+                    std::cout << "    " << serverReply << std::endl;
                 }
             }
 
-            LINFO<<"Exiting request cycle.";
+            LINFO << "Exiting request cycle.";
         }
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        std::cerr<<"Failed to connect to rasmgr. Reason:"<<ex.what();
+        std::cerr << "Failed to connect to rasmgr. Reason:" << ex.what();
     }
-    catch(...)
+    catch (...)
     {
-        std::cerr<<"rascontrol::startInteractiveMode failed for an unknown reason.";
+        std::cerr << "rascontrol::startInteractiveMode failed for an unknown reason.";
     }
 
-    if(recordHistory)
+    if (recordHistory)
     {
         history.close();
     }
@@ -157,15 +157,15 @@ void RasControl::startBatchMode()
     bool done = false;
     std::string command;
     std::string serverReply;
-    std::string prompt = redirStdin ? "": this->config.getPrompt(this->userCredentials.getUserName());
+    std::string prompt = redirStdin ? "" : this->config.getPrompt(this->userCredentials.getUserName());
 
-    LINFO<<"Starting batch mode";
+    LINFO << "Starting batch mode";
 
-    if( redirStdout )
+    if (redirStdout)
     {
         printCommand =  true;
     }
-    else if(redirStdin)
+    else if (redirStdin)
     {
         printCommand =  true;
     }
@@ -173,9 +173,9 @@ void RasControl::startBatchMode()
 
     try
     {
-        while(!done)
+        while (!done)
         {
-            if(fromCommandLine)
+            if (fromCommandLine)
             {
                 //After executing this command we exit.
                 command = config.getCommand();
@@ -184,7 +184,7 @@ void RasControl::startBatchMode()
             else
             {
                 const char* commandLine = this->editLine.fromStdinCommand(prompt.c_str());
-                if(commandLine == NULL)
+                if (commandLine == NULL)
                 {
                     throw InvalidRasctrlCommandException();
                 }
@@ -194,10 +194,10 @@ void RasControl::startBatchMode()
                 }
             }
 
-            LINFO<<"Command:"<<command;
-            if(command.empty())
+            LINFO << "Command:" << command;
+            if (command.empty())
             {
-                if(fromCommandLine)
+                if (fromCommandLine)
                 {
                     throw InvalidRasctrlCommandException();
                 }
@@ -207,40 +207,40 @@ void RasControl::startBatchMode()
                 }
             }
 
-            if(printCommand == true)
+            if (printCommand == true)
             {
-                std::cout<<config.getPrompt()<<command<<std::endl;
+                std::cout << config.getPrompt() << command << std::endl;
             }
 
-            if(this->comm->isExitCommand(command))
+            if (this->comm->isExitCommand(command))
             {
                 done = true;
-                LINFO<<"Exiting command processing loop.";
+                LINFO << "Exiting command processing loop.";
             }
             else
             {
                 this->comm->executeCommand(command, serverReply);
 
-                if(!serverReply.empty())
+                if (!serverReply.empty())
                 {
-                    std::cout<<"    "<<serverReply<<std::endl;
+                    std::cout << "    " << serverReply << std::endl;
                 }
             }
         }
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        std::cerr<<"Failed to connect to rasmgr. Reason:"<<ex.what();
+        std::cerr << "Failed to connect to rasmgr. Reason:" << ex.what();
     }
-    catch(...)
+    catch (...)
     {
-        std::cerr<<"rascontrol::startBatchMode failed for an unknown reason.";
+        std::cerr << "rascontrol::startBatchMode failed for an unknown reason.";
     }
 }
 
 void RasControl::startLoginOnlyMode()
 {
-    std::cout<<this->userCredentials.getUserName()<<':'<<this->userCredentials.getUserPassword()<<std::endl;
+    std::cout << this->userCredentials.getUserName() << ':' << this->userCredentials.getUserPassword() << std::endl;
 }
 
 void RasControl::startTestLogin()
@@ -250,15 +250,15 @@ void RasControl::startTestLogin()
     {
         this->comm->executeLogin(serverReply);
 
-        std::cout<<serverReply;
+        std::cout << serverReply;
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        std::cerr<<ex.what();
+        std::cerr << ex.what();
     }
-    catch(...)
+    catch (...)
     {
-        std::cerr<<"rascontrol::startTestLogin failed for an unknown reason.";
+        std::cerr << "rascontrol::startTestLogin failed for an unknown reason.";
     }
 }
 }

@@ -27,130 +27,130 @@ import net.opengis.ows.v_1_0_0.ExceptionType;
 /**
  * This exception can return an error report, that can be marshalled into a
  * standard compliant XML structure describing the error that has happened.
- * 
+ *
  * @author Mihaela Rusu
  * @author Dimitar Misev
  */
 public class SecoreException extends Exception {
 
-  private ExceptionCode code;
-  private ExceptionType type;
-  private ExceptionReport report;
+    private ExceptionCode code;
+    private ExceptionType type;
+    private ExceptionReport report;
 
-  private SecoreException() {
-  }
-
-  /**
-   * Construct a new exception
-   *
-   * @param exceptionCode exception code, if it's null then UnknownError is used.
-   */
-  public SecoreException(ExceptionCode exceptionCode) {
-    this(exceptionCode, null, null);
-  }
-
-  /**
-   * Construct a new exception
-   *
-   * @param exceptionCode exception code, if it's null then UnknownError is used.
-   * @param exceptionText exception message
-   */
-  public SecoreException(ExceptionCode exceptionCode, String exceptionText) {
-    this(exceptionCode, exceptionText, null);
-  }
-
-  /**
-   * Construct a new exception
-   *
-   * @param exceptionCode exception code, if it's null then UnknownError is used.
-   * @param ex original exception
-   */
-  public SecoreException(ExceptionCode exceptionCode, Exception ex) {
-    this(exceptionCode, ex.getLocalizedMessage(), ex);
-  }
-
-  /**
-   * Construct a new exception
-   *
-   * @param exceptionCode exception code (must not be null)
-   * @param exceptionText exception message
-   * @param ex original exception
-   */
-  public SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
-    this(exceptionCode, exceptionText, ex, Config.VERSION, Config.LANGUAGE);
-  }
-
-  /**
-   * Construct a new exception
-   *
-   * @param exceptionCode exception code, if it's null then UnknownError is used.
-   * @param exceptionText exception message
-   * @param ex original exception
-   * @param version
-   * @param language
-   */
-  protected SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception ex, String version, String language) {
-    super(exceptionText, ex);
-    if (exceptionCode == null) {
-      exceptionCode = ExceptionCode.UnknownError;
+    private SecoreException() {
     }
-    code = exceptionCode;
 
-    report = new ExceptionReport();
-    report.setLanguage(language);
-    report.setVersion(version);
-
-    type = new ExceptionType();
-    type.setExceptionCode(exceptionCode.getExceptionCode());
-    type.setLocator(exceptionCode.getLocator());
-    if (exceptionText != null) {
-      type.getExceptionText().add(exceptionText);
-    } else if (exceptionCode.getDescription() != null) {
-      type.getExceptionText().add(exceptionCode.getDescription());
+    /**
+     * Construct a new exception
+     *
+     * @param exceptionCode exception code, if it's null then UnknownError is used.
+     */
+    public SecoreException(ExceptionCode exceptionCode) {
+        this(exceptionCode, null, null);
     }
-    report.getException().add(type);
-  }
 
-  /**
-   * @return Return the error code.
-   */
-  public ExceptionCode getExceptionCode() {
-    return code;
-  }
+    /**
+     * Construct a new exception
+     *
+     * @param exceptionCode exception code, if it's null then UnknownError is used.
+     * @param exceptionText exception message
+     */
+    public SecoreException(ExceptionCode exceptionCode, String exceptionText) {
+        this(exceptionCode, exceptionText, null);
+    }
 
-  /**
-   * @return Return the detailed error message.
-   */
-  public String getExceptionText() {
-    return StringUtil.ltos(type.getExceptionText(), Constants.NEW_LINE_CHAR);
-  }
+    /**
+     * Construct a new exception
+     *
+     * @param exceptionCode exception code, if it's null then UnknownError is used.
+     * @param ex original exception
+     */
+    public SecoreException(ExceptionCode exceptionCode, Exception ex) {
+        this(exceptionCode, ex.getLocalizedMessage(), ex);
+    }
 
-  /**
-   * Retrieves a data structure that can be later marshalled into a XML
-   * ExceptionReport" document.
-   *
-   * @return ExceptionReport object
-   */
-  public ExceptionReport getReport() {
-    return report;
-  }
+    /**
+     * Construct a new exception
+     *
+     * @param exceptionCode exception code (must not be null)
+     * @param exceptionText exception message
+     * @param ex original exception
+     */
+    public SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
+        this(exceptionCode, exceptionText, ex, Config.VERSION, Config.LANGUAGE);
+    }
 
-  /**
-   * Adds text to this exception's detail message.
-   *
-   * @param msg
-   */
-  public void appendExceptionText(String msg) {
-    type.getExceptionText().add(msg);
-  }
+    /**
+     * Construct a new exception
+     *
+     * @param exceptionCode exception code, if it's null then UnknownError is used.
+     * @param exceptionText exception message
+     * @param ex original exception
+     * @param version
+     * @param language
+     */
+    protected SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception ex, String version, String language) {
+        super(exceptionText, ex);
+        if (exceptionCode == null) {
+            exceptionCode = ExceptionCode.UnknownError;
+        }
+        code = exceptionCode;
 
-  @Override
-  public String getMessage() {
-    return getExceptionText();
-  }
+        report = new ExceptionReport();
+        report.setLanguage(language);
+        report.setVersion(version);
 
-  @Override
-  public String toString() {
-    return type.getExceptionCode() + ": " + getMessage();
-  }
+        type = new ExceptionType();
+        type.setExceptionCode(exceptionCode.getExceptionCode());
+        type.setLocator(exceptionCode.getLocator());
+        if (exceptionText != null) {
+            type.getExceptionText().add(exceptionText);
+        } else if (exceptionCode.getDescription() != null) {
+            type.getExceptionText().add(exceptionCode.getDescription());
+        }
+        report.getException().add(type);
+    }
+
+    /**
+     * @return Return the error code.
+     */
+    public ExceptionCode getExceptionCode() {
+        return code;
+    }
+
+    /**
+     * @return Return the detailed error message.
+     */
+    public String getExceptionText() {
+        return StringUtil.ltos(type.getExceptionText(), Constants.NEW_LINE_CHAR);
+    }
+
+    /**
+     * Retrieves a data structure that can be later marshalled into a XML
+     * ExceptionReport" document.
+     *
+     * @return ExceptionReport object
+     */
+    public ExceptionReport getReport() {
+        return report;
+    }
+
+    /**
+     * Adds text to this exception's detail message.
+     *
+     * @param msg
+     */
+    public void appendExceptionText(String msg) {
+        type.getExceptionText().add(msg);
+    }
+
+    @Override
+    public String getMessage() {
+        return getExceptionText();
+    }
+
+    @Override
+    public String toString() {
+        return type.getExceptionCode() + ": " + getMessage();
+    }
 }

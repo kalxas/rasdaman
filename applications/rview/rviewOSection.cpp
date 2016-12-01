@@ -86,10 +86,10 @@ const int rviewOSectionImage::osection_bheight = 30;
 
 
 
-static void outputGeomData(const vertex_fp *v)
+static void outputGeomData(const vertex_fp* v)
 {
     unsigned int j;
-    for (j=0; j<4; j++)
+    for (j = 0; j < 4; j++)
     {
         cout << '(' << v[j].x << ',' << v[j].y << ',' << v[j].z << ')';
     }
@@ -102,16 +102,16 @@ static void outputGeomData(const vertex_fp *v)
 
 const unsigned int rviewOSectionImage::numSections = 3;
 
-const char *rviewOSectionImage::sliderLabels[rviewOSectionImage::numSections] =
+const char* rviewOSectionImage::sliderLabels[rviewOSectionImage::numSections] =
 {
     "textSliceX",
     "textSliceY",
     "textSliceZ"
 };
 
-const char *rviewOSectionImage::view_Thickness = "thickness";
-const char *rviewOSectionImage::view_MidPoint = "midPoint";
-const char *rviewOSectionImage::view_UseBBox = "useBBox";
+const char* rviewOSectionImage::view_Thickness = "thickness";
+const char* rviewOSectionImage::view_MidPoint = "midPoint";
+const char* rviewOSectionImage::view_UseBBox = "useBBox";
 
 /*
  *  The actual viewer class
@@ -139,7 +139,7 @@ struct rviewOSectionImage::section_part_s
 };
 
 
-rviewOSectionImage::rviewOSectionImage(mdd_frame *mf, unsigned int flags) :
+rviewOSectionImage::rviewOSectionImage(mdd_frame* mf, unsigned int flags) :
     rviewRenderImage(mf, osection_ctrly, flags)
 {
     secmap = NULL;
@@ -151,18 +151,18 @@ rviewOSectionImage::rviewOSectionImage(mdd_frame *mf, unsigned int flags) :
     unsigned int i, j;
 
     secmap = new section_map_t[numSections];
-    memset(secmap, 0, numSections*sizeof(section_map_t));
+    memset(secmap, 0, numSections * sizeof(section_map_t));
     currentSection = numSections + 1;
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         secmap[i].x = i;
-        secmap[i].y = (i >= 2) ? i-2 : i+1;
-        secmap[i].z = (i >= 1) ? i-1 : i+2;
+        secmap[i].y = (i >= 2) ? i - 2 : i + 1;
+        secmap[i].z = (i >= 1) ? i - 1 : i + 2;
     }
 
     intersection = r_Point(dimMDD);
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         intersection[i] = (interv[i].high() + interv[i].low()) / 2;
     }
@@ -175,10 +175,10 @@ rviewOSectionImage::rviewOSectionImage(mdd_frame *mf, unsigned int flags) :
     sliders = new rviewSpecialSlider*[numSections];
     sltexts = new rviewText*[numSections];
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         // little precaution against MDD with less than 2D. Proper error in openViewer()
-        j = (secmap[i].z < dimMDD) ? secmap[i].z : dimMDD-1;
+        j = (secmap[i].z < dimMDD) ? secmap[i].z : dimMDD - 1;
         //sliders[i] = new rviewSlider(ctrlPanel, intersection[j], interv[j].low(), interv[j].high(), 100, lman->lookup(sliderLabels[i]));
         sliders[i] = new rviewSpecialSlider(this, ctrlPanel, intersection[j], interv[j].low(), interv[j].high(), 100, lman->lookup(sliderLabels[i]));
         sltexts[i] = new rviewText(ctrlPanel, intersection[j]);
@@ -215,20 +215,28 @@ int rviewOSectionImage::openViewer(void)
 rviewOSectionImage::~rviewOSectionImage(void)
 {
     if (secmap != NULL)
+    {
         delete [] secmap;
+    }
 
     if (partition != NULL)
+    {
         delete [] partition;
+    }
 
     if (sliders != NULL)
+    {
         delete [] sliders;
+    }
 
     if (sltexts != NULL)
+    {
         delete [] sltexts;
+    }
 }
 
 
-const char *rviewOSectionImage::getFrameName(void) const
+const char* rviewOSectionImage::getFrameName(void) const
 {
     return "rviewOSectionImage";
 }
@@ -251,7 +259,7 @@ void rviewOSectionImage::label(void)
     setDisplayTitle(lman->lookup("titleImageOrtho"));
     boundingBox->SetLabel(lman->lookup("textBBox"));
     thickText->SetLabel(lman->lookup("textOrthoThickness"));
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         sliders[i]->SetLabel(lman->lookup(sliderLabels[i]));
     }
@@ -274,9 +282,13 @@ void rviewOSectionImage::updateSlice(unsigned int num, long value, bool useDummy
             sltexts[num]->SetValue(value);
 
             if (useDummy)
+            {
                 createDummySection(num);
+            }
             else
+            {
                 ensureSections();
+            }
 
             fillBuffer();
             updatePixmap(imgData, imgData);
@@ -288,7 +300,9 @@ void rviewOSectionImage::updateSlice(unsigned int num, long value, bool useDummy
 void rviewOSectionImage::refreshSlices(bool force)
 {
     if (force)
+    {
         flushSlices();
+    }
 
     ensureSections();
     fillBuffer();
@@ -296,7 +310,7 @@ void rviewOSectionImage::refreshSlices(bool force)
 }
 
 
-int rviewOSectionImage::process(wxObject &obj, wxEvent &evt)
+int rviewOSectionImage::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -314,7 +328,7 @@ int rviewOSectionImage::process(wxObject &obj, wxEvent &evt)
     {
         unsigned int i;
 
-        for (i=0; i<numSections; i++)
+        for (i = 0; i < numSections; i++)
         {
             if (&obj == (wxObject*)(sliders[i]))
             {
@@ -327,7 +341,7 @@ int rviewOSectionImage::process(wxObject &obj, wxEvent &evt)
     {
         unsigned int i;
 
-        for (i=0; i<numSections; i++)
+        for (i = 0; i < numSections; i++)
         {
             if (&obj == (wxObject*)(sltexts[i]))
             {
@@ -352,11 +366,11 @@ int rviewOSectionImage::process(wxObject &obj, wxEvent &evt)
 }
 
 
-void rviewOSectionImage::childMouseEvent(wxWindow *child, wxMouseEvent &mevt)
+void rviewOSectionImage::childMouseEvent(wxWindow* child, wxMouseEvent& mevt)
 {
     unsigned int i;
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         if (child == (wxWindow*)(sliders[i]))
         {
@@ -365,9 +379,13 @@ void rviewOSectionImage::childMouseEvent(wxWindow *child, wxMouseEvent &mevt)
 
             mevt.Position(&mx, &my);
             if (sliders[i]->PositionInWell(mx, my))
+            {
                 newSect = i;
+            }
             else
+            {
                 newSect = numSections + 1;
+            }
 
             if (newSect != currentSection)
             {
@@ -392,24 +410,26 @@ void rviewOSectionImage::OnSize(int w, int h)
 
     ctrlPanel->GetClientSize(&x, &y);
 
-    boundingBox->SetSize(w + 2*display_cnvborder - 3*display_border - 4*display_pbwidth, display_border, osection_chkwidth, osection_chkheight);
+    boundingBox->SetSize(w + 2 * display_cnvborder - 3 * display_border - 4 * display_pbwidth, display_border, osection_chkwidth, osection_chkheight);
 
-    x -= 2*display_border;
+    x -= 2 * display_border;
     orgy = totalCtrlHeight - osection_ctrly + display_border;
     width = x - osection_rcwidth - osection_twidth;
     if (width < 100)
+    {
         width = 100;
+    }
 
     posx = display_border;
     posy = orgy;
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         sliders[i]->SetSize(posx, posy, width - display_border, osection_sheight);
         sltexts[i]->SetSize(posx + width, posy + display_border, osection_twidth, osection_sheight);
         posy += osection_sheight;
     }
 
-    posx = x - osection_rcwidth + 3*display_border/2;
+    posx = x - osection_rcwidth + 3 * display_border / 2;
     posy = orgy;
     thickText->SetSize(posx, posy, osection_rcwidth, osection_theight);
 }
@@ -421,7 +441,7 @@ bool rviewOSectionImage::doUpdate(int flags)
 }
 
 
-char *rviewOSectionImage::initMode(void)
+char* rviewOSectionImage::initMode(void)
 {
     sprintf(projString, "*:*, *:*, *:*");
     project->SetValue(projString);
@@ -433,10 +453,12 @@ char *rviewOSectionImage::initMode(void)
 }
 
 
-char *rviewOSectionImage::setupEnvironment(int w, int h)
+char* rviewOSectionImage::setupEnvironment(int w, int h)
 {
     if (setupEnvBase(w, h, getCsmapArray(), &csmap, csInterv) != 0)
+    {
         return NULL;
+    }
 
     return imgData;
 }
@@ -458,33 +480,33 @@ void rviewOSectionImage::fillBuffer(void)
     fillBufferBackground(doValToCspace, cspaceOK, getCsmapArray(), &csmap, csInterv, baseType, doFullRangeCspace);
 
     real_t ztranslate = graphEnv->zpro + zoff;
-    for (i=0; i<numPartitions; i++)
+    for (i = 0; i < numPartitions; i++)
     {
-        vertex_fp *v = &(partition[i].grav);
+        vertex_fp* v = &(partition[i].grav);
         partition[i].distance = sqrt((v->x * v->x) + (v->y * v->y) + ((v->z + ztranslate) * (v->z + ztranslate)));
     }
 
     // finally sort it by the distance to the observer
     // this is basically at most 12 entries, so there's no point in using complicated sorting techniques
-    for (i=0; i<numPartitions-1; i++)
+    for (i = 0; i < numPartitions - 1; i++)
     {
-        for (j=i; j<numPartitions; j++)
+        for (j = i; j < numPartitions; j++)
         {
             if (partition[j].distance > partition[i].distance)
             {
                 section_part_t aux;
-                memcpy(&aux, partition+i, sizeof(section_part_t));
-                memcpy(partition+i, partition+j, sizeof(section_part_t));
-                memcpy(partition+j, &aux, sizeof(section_part_t));
+                memcpy(&aux, partition + i, sizeof(section_part_t));
+                memcpy(partition + i, partition + j, sizeof(section_part_t));
+                memcpy(partition + j, &aux, sizeof(section_part_t));
             }
         }
     }
     //cout << "PARTITIONS " << numPartitions << endl;
-    for (i=0; i<numPartitions; i++)
+    for (i = 0; i < numPartitions; i++)
     {
         if (sectionValid(partition[i].section))
         {
-            tex_desc *td = &(partition[i].td);
+            tex_desc* td = &(partition[i].td);
             if ((td->floatType != 0) && (csmap != NULL))
             {
                 td->minVal = csmap->getMinVal();
@@ -500,7 +522,7 @@ void rviewOSectionImage::fillBuffer(void)
             {
                 render_desc renderDesc;
                 vertex_fp from, to;
-                vertex_fp *ax1, *ax2;
+                vertex_fp* ax1, *ax2;
 
                 renderDesc.graphEnv = graphEnv;
                 renderDesc.texDesc = td;
@@ -531,7 +553,7 @@ void rviewOSectionImage::fillBuffer(void)
 }
 
 
-int rviewOSectionImage::makeMinterval(unsigned int num, r_Minterval &dom)
+int rviewOSectionImage::makeMinterval(unsigned int num, r_Minterval& dom)
 {
     r_Range low, high;
     r_Sinterval aux[3];
@@ -542,12 +564,16 @@ int rviewOSectionImage::makeMinterval(unsigned int num, r_Minterval &dom)
     aux[secmap[num].y] = interv[secmap[num].y];
     // projection dimension
     map = secmap[num].z;
-    low = intersection[map] - thickness/2;
+    low = intersection[map] - thickness / 2;
     high = low + thickness - 1;
     if (low < interv[map].low())
+    {
         low = interv[map].low();
+    }
     if (high > interv[map].high())
+    {
         high = interv[map].high();
+    }
     aux[map] = r_Sinterval(low, high);
 
     dom << aux[0] << aux[1] << aux[2];
@@ -561,13 +587,15 @@ int rviewOSectionImage::performPartition(void)
 {
     LTRACE << "performPartition()";
     unsigned int i, j;
-    section_part_t *part = partition;
+    section_part_t* part = partition;
     r_Point midpoint(dimMDD);
 
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
+    {
         midpoint[i] = (interv[i].high() + interv[i].low() + 1) / 2;
+    }
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         if (sectionValid(i))
         {
@@ -587,13 +615,17 @@ int rviewOSectionImage::performPartition(void)
             {
                 // yes, now clip it
                 if (low < pt1[map])
+                {
                     low = pt1[map];
+                }
                 if (high > pt2[map])
+                {
                     high = pt2[map];
+                }
 
                 r_Sinterval ziv(low, high);
 
-                for (j=0; j<4; j++)
+                for (j = 0; j < 4; j++)
                 {
                     r_Sinterval auxdom[3];
 
@@ -603,11 +635,11 @@ int rviewOSectionImage::performPartition(void)
                     if ((j & 1) == 0)
                     {
                         low = pt1[map];
-                        high = intersection[map] - thickness/2;
+                        high = intersection[map] - thickness / 2;
                     }
                     else
                     {
-                        low = intersection[map] + thickness/2;
+                        low = intersection[map] + thickness / 2;
                         high = pt2[map];
                     }
                     // the current projection string might project some of these partitions away
@@ -616,9 +648,13 @@ int rviewOSectionImage::performPartition(void)
                         // this can still happen if the intersection point is outside the current projection
                         // domain for the still visible quadrant.
                         if (low < pt1[map])
+                        {
                             low = pt1[map];
+                        }
                         if (high > pt2[map])
+                        {
                             high = pt2[map];
+                        }
 
                         auxdom[map] = r_Sinterval(low, high);
 
@@ -626,11 +662,11 @@ int rviewOSectionImage::performPartition(void)
                         if ((j & 2) == 0)
                         {
                             low = pt1[map];
-                            high = intersection[map] - thickness/2;
+                            high = intersection[map] - thickness / 2;
                         }
                         else
                         {
-                            low = intersection[map] + thickness/2;
+                            low = intersection[map] + thickness / 2;
                             high = pt2[map];
                         }
                         // ditto
@@ -638,9 +674,13 @@ int rviewOSectionImage::performPartition(void)
                         {
                             // see above
                             if (low < pt1[map])
+                            {
                                 low = pt1[map];
+                            }
                             if (high > pt2[map])
+                            {
                                 high = pt2[map];
+                            }
 
                             r_Minterval dom(dimMDD);  // domain of quadrant in absolute coordinates
 
@@ -648,9 +688,9 @@ int rviewOSectionImage::performPartition(void)
                             dom << auxdom[0] << auxdom[1] << auxdom[2];
 
                             // now calculate the descriptor for this domain
-                            tex_desc *td = &(part->td);
+                            tex_desc* td = &(part->td);
                             part->section = i;
-                            const r_Minterval &pardom = getSectionParent(i);
+                            const r_Minterval& pardom = getSectionParent(i);
                             td->dimx = pardom[0].high() - pardom[0].low() + 1;
                             td->dimy = pardom[1].high() - pardom[1].low() + 1;
                             td->dimz = pardom[2].high() - pardom[2].low() + 1;
@@ -663,7 +703,7 @@ int rviewOSectionImage::performPartition(void)
                             part->quadrant = j;
                             //cout << "DOM " << dom << ", PARENT " << pardom << ", OFFSET " << part->offset << ", size " << pardom.cell_count() << endl;
 
-                            vertex_fp *v, *w;
+                            vertex_fp* v, *w;
 
                             // this rotates the subcube's origin. The total origin is 0 for now.
                             // use gr[1] as temporary workspace for the unrotated origin
@@ -683,7 +723,7 @@ int rviewOSectionImage::performPartition(void)
                             part->grav.x = part->gr[0].x;
                             part->grav.y = part->gr[0].y;
                             part->grav.z = part->gr[0].z;
-                            for (k=1; k<4; k++)
+                            for (k = 1; k < 4; k++)
                             {
                                 geomUse[k].x = 0;
                                 geomUse[k].y = 0;
@@ -693,7 +733,7 @@ int rviewOSectionImage::performPartition(void)
                             geomUse[2].y = td->widthy;
                             geomUse[3].z = td->widthz;
 
-                            for (k=1; k<4; k++)
+                            for (k = 1; k < 4; k++)
                             {
                                 v = &(part->gr[k]);
                                 w = &(geomUse[k]);
@@ -718,7 +758,7 @@ int rviewOSectionImage::performPartition(void)
 
     // sorting isn't done here because it depends on the exact current perspective view.
 #ifdef DEBUG
-    for (i=0; i<numPartitions; i++)
+    for (i = 0; i < numPartitions; i++)
     {
         LDEBUG  << i << ": " << partition[i].grav.z << ' ';
         outputGeomData(&(partition[i].gr[j]));
@@ -729,7 +769,7 @@ int rviewOSectionImage::performPartition(void)
 }
 
 
-int rviewOSectionImage::saveView(FILE *fp)
+int rviewOSectionImage::saveView(FILE* fp)
 {
     int status = rviewRenderImage::saveView(fp);
 
@@ -737,15 +777,17 @@ int rviewOSectionImage::saveView(FILE *fp)
     writeViewParam(fp, view_UseBBox, (long)doBoundingBox);
 
     long middle[numSections];
-    for (unsigned int i=0; i<numSections; i++)
+    for (unsigned int i = 0; i < numSections; i++)
+    {
         middle[i] = (long)(intersection[i]);
+    }
     writeViewParam(fp, view_MidPoint, numSections, middle);
 
     return status;
 }
 
 
-int rviewOSectionImage::readView(const char *key, const char *value)
+int rviewOSectionImage::readView(const char* key, const char* value)
 {
     int status = rviewRenderImage::readView(key, value);
 
@@ -766,8 +808,10 @@ int rviewOSectionImage::readView(const char *key, const char *value)
             long middle[numSections];
             if (readVector(value, numSections, middle) == 0)
             {
-                for (unsigned int i=0; i<numSections; i++)
+                for (unsigned int i = 0; i < numSections; i++)
+                {
                     intersection[i] = (r_Range)(middle[i]);
+                }
             }
             return 1;
         }
@@ -787,7 +831,7 @@ void rviewOSectionImage::loadViewFinished(void)
     unsigned char modified[numSections];
     unsigned int i;
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         long value = intersection[secmap[i].z];
         modified[i] = (value != (r_Range)(sliders[i]->GetValue()));
@@ -798,10 +842,12 @@ void rviewOSectionImage::loadViewFinished(void)
             sltexts[i]->SetValue((int)value);
         }
     }
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         if (modified[i])
+        {
             updateSlice(i, intersection[secmap[i].z], FALSE);
+        }
     }
 }
 
@@ -818,7 +864,7 @@ void rviewOSectionImage::loadViewFinished(void)
 // a section descriptor (the three slices through the volume are sections)
 struct rviewOSectionPartImage::section_desc_s
 {
-    r_GMarray *mdd;
+    r_GMarray* mdd;
     r_Range proj;
 };
 
@@ -829,10 +875,10 @@ struct rviewOSectionPartImage::section_desc_s
  *  we don't own the object to visualize but have to read descriptors from a
  *  collection first
  */
-rviewOSectionPartImage *rviewOSectionPartImage::createViewer(const char *collname, const double *loid)
+rviewOSectionPartImage* rviewOSectionPartImage::createViewer(const char* collname, const double* loid)
 {
     char queryBuffer[STRINGSIZE];
-    collection_desc *desc;
+    collection_desc* desc;
     r_Minterval dom;
     r_Dimension di;
 
@@ -843,13 +889,17 @@ rviewOSectionPartImage *rviewOSectionPartImage::createViewer(const char *collnam
     }
 
     r_Minterval queryDom(dom.dimension());
-    for (di=0; di<dom.dimension(); di++)
+    for (di = 0; di < dom.dimension(); di++)
+    {
         queryDom << r_Sinterval(dom[di].low(), dom[di].low());
+    }
 
     ostrstream memstr(queryBuffer, STRINGSIZE);
     memstr << "SELECT x" << queryDom << " FROM " << collname << " AS x";
     if (loid != NULL)
+    {
         memstr << " WHERE OID(x) = " << *loid;
+    }
     memstr << '\0';
 
     //cout << "QUERY: " << queryBuffer << endl;
@@ -859,8 +909,8 @@ rviewOSectionPartImage *rviewOSectionPartImage::createViewer(const char *collnam
         if (desc->mddObjs != NULL)
         {
             unsigned int i;
-            r_GMarray *dummyMDD;
-            const r_GMarray *mdd;
+            r_GMarray* dummyMDD;
+            const r_GMarray* mdd;
             mdd_frame dummyFrame;
 
             mdd = desc->mddObjs[0].mdd.ptr();
@@ -877,7 +927,7 @@ rviewOSectionPartImage *rviewOSectionPartImage::createViewer(const char *collnam
             dummyFrame.flags = 0;
             // the collection is useless now
             rviewDeleteCollection(desc);
-            rviewOSectionPartImage *viewer = new rviewOSectionPartImage(&dummyFrame, collname, dummyFrame.mdd->get_oid(), display_flag_standalone);
+            rviewOSectionPartImage* viewer = new rviewOSectionPartImage(&dummyFrame, collname, dummyFrame.mdd->get_oid(), display_flag_standalone);
 
             // also open it automatically
             if (viewer->openViewer() != 0)
@@ -895,11 +945,11 @@ rviewOSectionPartImage *rviewOSectionPartImage::createViewer(const char *collnam
 
 
 #define INIT_DUMMY_MDD(type, min, max) \
-   csDummy = new r_Marray<type>(dummyDom, dummySL); \
-   ((type*)(csDummy->get_array()))[0] = min; \
-   ((type*)(csDummy->get_array()))[1] = max;
+    csDummy = new r_Marray<type>(dummyDom, dummySL); \
+    ((type*)(csDummy->get_array()))[0] = min; \
+    ((type*)(csDummy->get_array()))[1] = max;
 
-rviewOSectionPartImage::rviewOSectionPartImage(mdd_frame *mf, const char *cname, const r_OId &oid, unsigned int flags) :
+rviewOSectionPartImage::rviewOSectionPartImage(mdd_frame* mf, const char* cname, const r_OId& oid, unsigned int flags) :
     rviewOSectionImage(mf, flags),
     objOId(oid),
     collName(cname)
@@ -909,8 +959,8 @@ rviewOSectionPartImage::rviewOSectionPartImage(mdd_frame *mf, const char *cname,
     // is min, the second is max. It must be kept up to date as new data is loaded.
     r_Minterval dummyDom(1);
     dummyDom << r_Sinterval((r_Range)0, (r_Range)1);
-    r_Storage_Layout *dummySL = NULL;
-    switch(baseType)
+    r_Storage_Layout* dummySL = NULL;
+    switch (baseType)
     {
     case rbt_bool:
         INIT_DUMMY_MDD(r_Boolean, 0, 1);
@@ -922,7 +972,7 @@ rviewOSectionPartImage::rviewOSectionPartImage(mdd_frame *mf, const char *cname,
         INIT_DUMMY_MDD(r_Octet, -128, 127);
         break;
 
-        // from here on the defaults are rather arbitrary...
+    // from here on the defaults are rather arbitrary...
     case rbt_short:
         INIT_DUMMY_MDD(r_Short, -4096, 4095);
         break;
@@ -946,7 +996,7 @@ rviewOSectionPartImage::rviewOSectionPartImage(mdd_frame *mf, const char *cname,
     {
         // basically no colourspace mapping is possible here, but I don't want a totally
         // uninitialized marray around, it's asking for trouble...
-        RGBPixel *ptr;
+        RGBPixel* ptr;
         csDummy = new r_Marray<RGBPixel>(dummyDom, dummySL);
         ptr = (RGBPixel*)(csDummy->get_array());
         ptr[0].red = 0;
@@ -967,8 +1017,8 @@ rviewOSectionPartImage::rviewOSectionPartImage(mdd_frame *mf, const char *cname,
     unsigned int i;
 
     sections = new section_desc_t[numSections];
-    memset(sections, 0, numSections*sizeof(section_desc_t));
-    for (i=0; i<numSections; i++)
+    memset(sections, 0, numSections * sizeof(section_desc_t));
+    for (i = 0; i < numSections; i++)
     {
         sections[i].mdd = NULL;
         // init current slice projection to impossible value
@@ -987,7 +1037,7 @@ rviewOSectionPartImage::~rviewOSectionPartImage(void)
     {
         unsigned int i;
 
-        for (i=0; i<numSections; i++)
+        for (i = 0; i < numSections; i++)
         {
             if (sections[i].mdd != NULL)
             {
@@ -1010,7 +1060,7 @@ void rviewOSectionPartImage::label(void)
 }
 
 
-int rviewOSectionPartImage::process(wxObject &obj, wxEvent &evt)
+int rviewOSectionPartImage::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -1026,7 +1076,9 @@ int rviewOSectionPartImage::process(wxObject &obj, wxEvent &evt)
                 refreshSlices(TRUE);
             }
             else
+            {
                 refreshSlices(FALSE);
+            }
 
             return 1;
         }
@@ -1035,13 +1087,15 @@ int rviewOSectionPartImage::process(wxObject &obj, wxEvent &evt)
 }
 
 
-void rviewOSectionPartImage::childMouseEvent(wxWindow *child, wxMouseEvent &mevt)
+void rviewOSectionPartImage::childMouseEvent(wxWindow* child, wxMouseEvent& mevt)
 {
     int type = mevt.GetEventType();
 
     //cout << "MOUSE EVENT " << type << endl;
     if (((type == wxEVENT_TYPE_LEFT_UP) || (type == wxEVENT_TYPE_RIGHT_UP)) && fireDragRelease->GetValue())
+    {
         refreshSlices(FALSE);
+    }
     // pass event on to bottom layer
     rviewOSectionImage::childMouseEvent(child, mevt);
 }
@@ -1067,7 +1121,7 @@ void rviewOSectionPartImage::flushSlices(void)
 {
     unsigned int i;
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         sections[i].proj = interv[secmap[i].z].low() - 1;
     }
@@ -1078,7 +1132,7 @@ int rviewOSectionPartImage::ensureSections(void)
 {
     unsigned int i;
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
     {
         if (sections[i].proj != intersection[secmap[i].z])
         {
@@ -1098,7 +1152,7 @@ int rviewOSectionPartImage::ensureSections(void)
 
             //cout << "QUERY: " << buffer << endl;
 
-            collection_desc *desc;
+            collection_desc* desc;
 
             if ((desc = rmanClientApp::theApp()->executeQuerySync(buffer, NULL, FALSE)) != NULL)
             {
@@ -1123,13 +1177,13 @@ int rviewOSectionPartImage::ensureSections(void)
 
 
 #define MAKE_DUMMY_SECTION(type, init) \
-  { \
-    sections[num].mdd = new r_Marray<type>(*domp); \
-    type *ptr = (type*)(sections[num].mdd->get_array()); \
-    for (i=0; i<numCells; i++) ptr[i] = (init); \
-  }
+    { \
+        sections[num].mdd = new r_Marray<type>(*domp); \
+        type *ptr = (type*)(sections[num].mdd->get_array()); \
+        for (i=0; i<numCells; i++) ptr[i] = (init); \
+    }
 
-int rviewOSectionPartImage::createDummySection(unsigned int num, const r_Minterval *dom)
+int rviewOSectionPartImage::createDummySection(unsigned int num, const r_Minterval* dom)
 {
     if (sections[num].mdd != NULL)
     {
@@ -1139,8 +1193,8 @@ int rviewOSectionPartImage::createDummySection(unsigned int num, const r_Minterv
 
     sections[num].proj = interv[secmap[num].z].low() - 1;
 
-    r_Minterval *usedom = NULL;
-    const r_Minterval *domp;
+    r_Minterval* usedom = NULL;
+    const r_Minterval* domp;
     unsigned long numCells, i;
 
     if (dom == NULL)
@@ -1150,7 +1204,9 @@ int rviewOSectionPartImage::createDummySection(unsigned int num, const r_Minterv
         domp = usedom;
     }
     else
+    {
         domp = dom;
+    }
 
     numCells = domp->cell_count();
 
@@ -1160,22 +1216,22 @@ int rviewOSectionPartImage::createDummySection(unsigned int num, const r_Minterv
         MAKE_DUMMY_SECTION(r_Boolean, 1);
         break;
     case rbt_char:
-        MAKE_DUMMY_SECTION(r_Char, 80 + num*32);
+        MAKE_DUMMY_SECTION(r_Char, 80 + num * 32);
         break;
     case rbt_uchar:
-        MAKE_DUMMY_SECTION(r_Octet, -48 + num*32);
+        MAKE_DUMMY_SECTION(r_Octet, -48 + num * 32);
         break;
     case rbt_short:
-        MAKE_DUMMY_SECTION(r_Short, (-48 + num*32)*256);
+        MAKE_DUMMY_SECTION(r_Short, (-48 + num * 32) * 256);
         break;
     case rbt_ushort:
-        MAKE_DUMMY_SECTION(r_UShort, (80 + num*32)*256);
+        MAKE_DUMMY_SECTION(r_UShort, (80 + num * 32) * 256);
         break;
     case rbt_long:
-        MAKE_DUMMY_SECTION(r_Long, (-48 + num*32)*0x1000000);
+        MAKE_DUMMY_SECTION(r_Long, (-48 + num * 32) * 0x1000000);
         break;
     case rbt_ulong:
-        MAKE_DUMMY_SECTION(r_ULong, (80 + num*32)*0x1000000);
+        MAKE_DUMMY_SECTION(r_ULong, (80 + num * 32) * 0x1000000);
         break;
     case rbt_float:
         MAKE_DUMMY_SECTION(r_Float, 10.0);
@@ -1186,9 +1242,9 @@ int rviewOSectionPartImage::createDummySection(unsigned int num, const r_Minterv
     case rbt_rgb:
     {
         sections[num].mdd = new r_Marray<RGBPixel>(*domp);
-        RGBPixel *ptr = (RGBPixel*)(sections[num].mdd->get_array());
-        r_Char val = 80 + 32*num;
-        for (i=0; i<numCells; i++)
+        RGBPixel* ptr = (RGBPixel*)(sections[num].mdd->get_array());
+        r_Char val = 80 + 32 * num;
+        for (i = 0; i < numCells; i++)
         {
             ptr[i].red = val;
             ptr[i].green = val;
@@ -1201,7 +1257,9 @@ int rviewOSectionPartImage::createDummySection(unsigned int num, const r_Minterv
     }
 
     if (usedom != NULL)
+    {
         delete usedom;
+    }
 
     return 0;
 }
@@ -1213,19 +1271,19 @@ bool rviewOSectionPartImage::sectionValid(unsigned int num)
 }
 
 
-const r_Minterval &rviewOSectionPartImage::getSectionDomain(unsigned int num)
+const r_Minterval& rviewOSectionPartImage::getSectionDomain(unsigned int num)
 {
     return sections[num].mdd->spatial_domain();
 }
 
 
-const r_Minterval &rviewOSectionPartImage::getSectionParent(unsigned int num)
+const r_Minterval& rviewOSectionPartImage::getSectionParent(unsigned int num)
 {
     return sections[num].mdd->spatial_domain();
 }
 
 
-char *rviewOSectionPartImage::getSectionArray(unsigned int num)
+char* rviewOSectionPartImage::getSectionArray(unsigned int num)
 {
     return sections[num].mdd->get_array();
 }
@@ -1237,7 +1295,7 @@ long rviewOSectionPartImage::getSectionProjection(unsigned int num)
 }
 
 
-r_Ref<r_GMarray> &rviewOSectionPartImage::getCsmapArray(void)
+r_Ref<r_GMarray>& rviewOSectionPartImage::getCsmapArray(void)
 {
     return csDummy;
 }
@@ -1252,7 +1310,7 @@ r_Ref<r_GMarray> &rviewOSectionPartImage::getCsmapArray(void)
  *  seamlessly with the other viewer types.
  */
 
-rviewOSectionFullImage::rviewOSectionFullImage(mdd_frame *mf, unsigned int flags) :
+rviewOSectionFullImage::rviewOSectionFullImage(mdd_frame* mf, unsigned int flags) :
     rviewOSectionImage(mf, flags)
 {
     sections = new r_Minterval[numSections];
@@ -1263,7 +1321,7 @@ rviewOSectionFullImage::~rviewOSectionFullImage(void)
 {
     closeViewer();
     delete [] sections;
-    sections=0;
+    sections = 0;
 }
 
 
@@ -1271,19 +1329,25 @@ int rviewOSectionFullImage::ensureSections(void)
 {
     unsigned int i;
 
-    for (i=0; i<numSections; i++)
+    for (i = 0; i < numSections; i++)
+    {
         makeMinterval(i, sections[i]);
+    }
 
     return 0;
 }
 
 
-int rviewOSectionFullImage::createDummySection(unsigned int num, const r_Minterval *dom)
+int rviewOSectionFullImage::createDummySection(unsigned int num, const r_Minterval* dom)
 {
     if (dom == NULL)
+    {
         makeMinterval(num, sections[num]);
+    }
     else
+    {
         sections[num] = *dom;
+    }
 
     return 0;
 }
@@ -1300,19 +1364,19 @@ bool rviewOSectionFullImage::sectionValid(unsigned int num)
 }
 
 
-const r_Minterval &rviewOSectionFullImage::getSectionDomain(unsigned int num)
+const r_Minterval& rviewOSectionFullImage::getSectionDomain(unsigned int num)
 {
     return sections[num];
 }
 
 
-const r_Minterval &rviewOSectionFullImage::getSectionParent(unsigned int num)
+const r_Minterval& rviewOSectionFullImage::getSectionParent(unsigned int num)
 {
     return interv;
 }
 
 
-char *rviewOSectionFullImage::getSectionArray(unsigned int num)
+char* rviewOSectionFullImage::getSectionArray(unsigned int num)
 {
     return mddObj->get_array();
 }
@@ -1324,7 +1388,7 @@ long rviewOSectionFullImage::getSectionProjection(unsigned int num)
 }
 
 
-r_Ref<r_GMarray> &rviewOSectionFullImage::getCsmapArray(void)
+r_Ref<r_GMarray>& rviewOSectionFullImage::getCsmapArray(void)
 {
     return mddObj;
 }

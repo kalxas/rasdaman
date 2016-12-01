@@ -47,7 +47,7 @@ r_Dir_Decompose::r_Dir_Decompose()
 
 r_Dir_Decompose::~r_Dir_Decompose()
 {
-    if ( intervals )
+    if (intervals)
     {
         delete [] intervals;
         intervals = NULL;
@@ -60,10 +60,10 @@ r_Dir_Decompose::r_Dir_Decompose(const r_Dir_Decompose& other)
     num_intervals = other.num_intervals;
     current_interval = other.current_interval;
 
-    if(other.intervals)
+    if (other.intervals)
     {
         intervals = new r_Range[num_intervals];
-        memcpy(intervals, other.intervals, num_intervals*sizeof(r_Range));
+        memcpy(intervals, other.intervals, num_intervals * sizeof(r_Range));
     }
 }
 
@@ -80,10 +80,10 @@ const r_Dir_Decompose& r_Dir_Decompose::operator=(const r_Dir_Decompose& other)
         num_intervals = other.num_intervals;
         current_interval = other.current_interval;
 
-        if(other.intervals)
+        if (other.intervals)
         {
             intervals = new r_Range[num_intervals];
-            memcpy(intervals, other.intervals, num_intervals*sizeof(r_Range));
+            memcpy(intervals, other.intervals, num_intervals * sizeof(r_Range));
         }
     }
 
@@ -94,15 +94,17 @@ r_Dir_Decompose& r_Dir_Decompose::operator<<(r_Range limit)
 {
     if (current_interval == num_intervals)
     {
-        r_Range *aux = new r_Range[num_intervals*2];
+        r_Range* aux = new r_Range[num_intervals * 2];
 
-        for (unsigned int i=0; i<num_intervals; i++)
+        for (unsigned int i = 0; i < num_intervals; i++)
+        {
             aux[i] = intervals[i];
+        }
 
         delete [] intervals;
         intervals = aux;
 
-        num_intervals*= 2;
+        num_intervals *= 2;
     }
 
     intervals[current_interval++] = limit;
@@ -114,21 +116,23 @@ r_Dir_Decompose& r_Dir_Decompose::prepend(r_Range limit)
 {
     if (current_interval == num_intervals)
     {
-        r_Range *aux = new r_Range[num_intervals*2];
+        r_Range* aux = new r_Range[num_intervals * 2];
 
-        for (unsigned int i=0; i<num_intervals; i++)
-            aux[i+1] = intervals[i];
+        for (unsigned int i = 0; i < num_intervals; i++)
+        {
+            aux[i + 1] = intervals[i];
+        }
 
         delete [] intervals;
         intervals = aux;
 
-        num_intervals*= 2;
+        num_intervals *= 2;
     }
     else
     {
-        for (int i=static_cast<int>(current_interval)-1; i>=0; i--)
+        for (int i = static_cast<int>(current_interval) - 1; i >= 0; i--)
         {
-            intervals[i+1] = intervals[i];
+            intervals[i + 1] = intervals[i];
         }
     }
     ++current_interval;
@@ -157,8 +161,10 @@ void r_Dir_Decompose::print_status(std::ostream& os) const
 {
     os << "r_Dir_Decompose[ num intervals = " << num_intervals << " current interval = " << current_interval << " intervals = {";
 
-    for (unsigned int i=0; i<current_interval; i++)
+    for (unsigned int i = 0; i < current_interval; i++)
+    {
         os << intervals[i] << " ";
+    }
 
     os << "} ]";
 }
@@ -176,7 +182,9 @@ std::ostream& operator<<(std::ostream& os, const std::vector<r_Dir_Decompose>& v
 
     unsigned int size = vec.size();
     for (unsigned int i = 0; i < size; i++)
+    {
         os << vec[i] << std::endl;
+    }
 
     os << " } ";
 
@@ -184,8 +192,8 @@ std::ostream& operator<<(std::ostream& os, const std::vector<r_Dir_Decompose>& v
 }
 
 r_Sinterval
-r_Dir_Decompose::get_total_interval( )
+r_Dir_Decompose::get_total_interval()
 {
-    return r_Sinterval( intervals[0], intervals[current_interval - 1]);
+    return r_Sinterval(intervals[0], intervals[current_interval - 1]);
 }
 

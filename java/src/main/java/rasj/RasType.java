@@ -43,8 +43,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasType
-{
+public class RasType {
     static final String rcsid = "@(#)Package rasj, class RasType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasType.java,v 1.10 2003/12/10 21:04:23 rasdev Exp $";
 
     protected String typeName;
@@ -53,56 +52,50 @@ public class RasType
     /**
      * Default constructor.
      **/
-    public RasType()
-    {
-	typeName = "";
-	typeID = 0;
+    public RasType() {
+        typeName = "";
+        typeID = 0;
     }
 
     /**
      * Constructor getting the name of the new type.
      * @param newTypeName the name of the new type
      **/
-    public RasType(String newTypeName)
-    {
-	typeName = newTypeName;
-	typeID = 0;
+    public RasType(String newTypeName) {
+        typeName = newTypeName;
+        typeID = 0;
     }
 
     /**
      * Retrieves the id of this type.
      * @return the type id
      **/
-    public int getTypeID()
-    {
-	return typeID;
+    public int getTypeID() {
+        return typeID;
     }
 
     /**
      * Retrieves the name of this type.
      * @return the type name
      **/
-    public String  getName()
-    {
-	return typeName;
+    public String  getName() {
+        return typeName;
     }
 
     /**
      * Checks if this type is a primitive or structured type.
      * @return true if this is a structured type, otherwise false
      **/
-    public boolean isStructType()
-    {
-	return false;
+    public boolean isStructType() {
+        return false;
     }
 
     /**
      * Checks if this type is a base type (primitive type or structure type).
      * @return true for a primitive or structured type, otherwise false
      **/
-    public boolean isBaseType()
-    {
-	return false;
+    public boolean isBaseType() {
+        return false;
     }
 
 
@@ -110,31 +103,24 @@ public class RasType
      * Builds the type schema from a string representation.
      * @param typeString the string representation of the type
      **/
-    public static RasType getAnyType(String typeString)
-    {
-	StringTokenizer strTok = new StringTokenizer(typeString, "{}[]<>,: ");
-	String currentStr = "";
-	RasType returnValue = null;
-	if(strTok.hasMoreTokens())
-	    {
-		currentStr = strTok.nextToken();
-		if(currentStr.equals("set"))
-		    {
-	              //System.out.println("getSet");
-		      returnValue = getSet(strTok.nextToken(""));
-		    }
-		else if(currentStr.equals("marray"))
-		    {
-                      //System.out.println("getMArray");
-		      returnValue = getMArrayType(strTok.nextToken(""));
-		    }
-		else
-		    {
-		      //System.out.println("getType");
-		      returnValue = getType(typeString);
-		    }
-	    }
-	return returnValue;
+    public static RasType getAnyType(String typeString) {
+        StringTokenizer strTok = new StringTokenizer(typeString, "{}[]<>,: ");
+        String currentStr = "";
+        RasType returnValue = null;
+        if (strTok.hasMoreTokens()) {
+            currentStr = strTok.nextToken();
+            if (currentStr.equals("set")) {
+                //System.out.println("getSet");
+                returnValue = getSet(strTok.nextToken(""));
+            } else if (currentStr.equals("marray")) {
+                //System.out.println("getMArray");
+                returnValue = getMArrayType(strTok.nextToken(""));
+            } else {
+                //System.out.println("getType");
+                returnValue = getType(typeString);
+            }
+        }
+        return returnValue;
     }
 
     // converts array of cells from NT byte order to Unix byte order.
@@ -147,151 +133,129 @@ public class RasType
     //{
     //}
 
-    private static RasType getSet(String setStr)
-    {
-	StringTokenizer setTok = new StringTokenizer(setStr, "{}[]<>,: ");
-	String currentStr = "";
-	RasType returnValue = null;
-	RasType elementType = null;
-	if(setTok.hasMoreTokens())
-	    {
-		currentStr = setTok.nextToken();
-		//Fehler falls kein <!
-		if(currentStr.equals("marray"))
-		    elementType = getMArrayType(setTok.nextToken(""));
-		else elementType = getType(setStr);
-	    }
+    private static RasType getSet(String setStr) {
+        StringTokenizer setTok = new StringTokenizer(setStr, "{}[]<>,: ");
+        String currentStr = "";
+        RasType returnValue = null;
+        RasType elementType = null;
+        if (setTok.hasMoreTokens()) {
+            currentStr = setTok.nextToken();
+            //Fehler falls kein <!
+            if (currentStr.equals("marray")) {
+                elementType = getMArrayType(setTok.nextToken(""));
+            } else {
+                elementType = getType(setStr);
+            }
+        }
 
-	returnValue = new RasCollectionType(elementType);
+        returnValue = new RasCollectionType(elementType);
 
-	return returnValue;
+        return returnValue;
     }
 
-    private static RasType getType(String typeStr)
-    {
-	StringTokenizer typeTok = new StringTokenizer(typeStr, "{}[]<>,: ");
-	String currentStr = "";
-	RasType returnValue = null;
-	if(typeTok.hasMoreTokens())
-	    {
-		currentStr = typeTok.nextToken();
-		if(currentStr.equals("struct"))
-		    {
-			//System.out.println("getStructureType");
-			returnValue = getStructureType(typeTok.nextToken(""));
-		    }
-		else if(currentStr.equals("interval"))
-		    {
-			returnValue = getSIntervalType(typeTok.nextToken(""));
-                        returnValue.typeID = RasGlobalDefs.RAS_SINTERVAL;
-		    }
-		else if(currentStr.equals("minterval"))
-		    {
-			returnValue = getMIntervalType(typeTok.nextToken(""));
-                        returnValue.typeID = RasGlobalDefs.RAS_MINTERVAL;
-		    }
-		else if(currentStr.equals("point"))
-		    {
-			returnValue = getPointType(typeTok.nextToken(""));
-                        returnValue.typeID = RasGlobalDefs.RAS_POINT;
-		    }
-		else if(currentStr.equals("oid"))
-		    {
-			returnValue = getOIDType(typeTok.nextToken(""));
-                        returnValue.typeID = RasGlobalDefs.RAS_OID;
-		    }
-		else
-		    {
-			//System.out.println("getPrimitiveType");
-			returnValue = getPrimitiveType(typeStr);
-		    }
-	    }
-	return returnValue;
+    private static RasType getType(String typeStr) {
+        StringTokenizer typeTok = new StringTokenizer(typeStr, "{}[]<>,: ");
+        String currentStr = "";
+        RasType returnValue = null;
+        if (typeTok.hasMoreTokens()) {
+            currentStr = typeTok.nextToken();
+            if (currentStr.equals("struct")) {
+                //System.out.println("getStructureType");
+                returnValue = getStructureType(typeTok.nextToken(""));
+            } else if (currentStr.equals("interval")) {
+                returnValue = getSIntervalType(typeTok.nextToken(""));
+                returnValue.typeID = RasGlobalDefs.RAS_SINTERVAL;
+            } else if (currentStr.equals("minterval")) {
+                returnValue = getMIntervalType(typeTok.nextToken(""));
+                returnValue.typeID = RasGlobalDefs.RAS_MINTERVAL;
+            } else if (currentStr.equals("point")) {
+                returnValue = getPointType(typeTok.nextToken(""));
+                returnValue.typeID = RasGlobalDefs.RAS_POINT;
+            } else if (currentStr.equals("oid")) {
+                returnValue = getOIDType(typeTok.nextToken(""));
+                returnValue.typeID = RasGlobalDefs.RAS_OID;
+            } else {
+                //System.out.println("getPrimitiveType");
+                returnValue = getPrimitiveType(typeStr);
+            }
+        }
+        return returnValue;
     }
 
-    private static RasMArrayType getMArrayType(String mArrayStr)
-    {
-	//StringTokenizer mArrayTok = new StringTokenizer(mArrayStr, "{}[]<>,: ");
+    private static RasMArrayType getMArrayType(String mArrayStr) {
+        //StringTokenizer mArrayTok = new StringTokenizer(mArrayStr, "{}[]<>,: ");
         //System.out.println("enter getMArrayType" + mArrayStr);
-	RasMArrayType returnValue = null;
-	RasBaseType baseType = null;
-	//Fehler falls kein <!
-	// get base type (structure or primitive type)
-	baseType = getBaseType(mArrayStr);
-	//System.out.println("base type: " + baseType);
-	returnValue = new RasMArrayType(baseType);
+        RasMArrayType returnValue = null;
+        RasBaseType baseType = null;
+        //Fehler falls kein <!
+        // get base type (structure or primitive type)
+        baseType = getBaseType(mArrayStr);
+        //System.out.println("base type: " + baseType);
+        returnValue = new RasMArrayType(baseType);
 
-	return returnValue;
+        return returnValue;
     }
 
 
-    private static RasBaseType getBaseType(String baseStr)
-    {
-	StringTokenizer baseTok = new StringTokenizer(baseStr, "{}[]<>,: ");
-	String currentStr = "";
+    private static RasBaseType getBaseType(String baseStr) {
+        StringTokenizer baseTok = new StringTokenizer(baseStr, "{}[]<>,: ");
+        String currentStr = "";
         //System.out.println(baseStr);
-	RasBaseType returnValue = null;
-	if(baseTok.hasMoreTokens())
-	    {
-		currentStr = baseTok.nextToken();
-		if(currentStr.equals("struct"))
-		    {
-			returnValue = getStructureType(baseTok.nextToken(""));
-		    }
-		else
-		    {
-			returnValue = getPrimitiveType(baseStr);
-			//System.out.println("getPrimitiveType");
-		    }
-	    }
+        RasBaseType returnValue = null;
+        if (baseTok.hasMoreTokens()) {
+            currentStr = baseTok.nextToken();
+            if (currentStr.equals("struct")) {
+                returnValue = getStructureType(baseTok.nextToken(""));
+            } else {
+                returnValue = getPrimitiveType(baseStr);
+                //System.out.println("getPrimitiveType");
+            }
+        }
 
-	return returnValue;
+        return returnValue;
     }
 
 
-    private static RasPrimitiveType getPrimitiveType(String primStr) throws RasTypeUnknownException
-    {
-	StringTokenizer primTok = new StringTokenizer(primStr, "{}[]<>,: ");
-	String currentStr = "";
-	RasPrimitiveType returnValue = null;
-	if(primTok.hasMoreTokens())
-	    {
-		currentStr = primTok.nextToken();
-		if(currentStr.equals("char"))
-		    returnValue = new RasPrimitiveType("RAS_CHAR", RasGlobalDefs.RAS_CHAR);
-		else if(currentStr.equals("octet"))
-		    returnValue = new RasPrimitiveType("RAS_BYTE", RasGlobalDefs.RAS_BYTE);
-		else if(currentStr.equals("short"))
-		    returnValue = new RasPrimitiveType("RAS_SHORT", RasGlobalDefs.RAS_SHORT);
-		else if(currentStr.equals("ushort"))
-		    returnValue = new RasPrimitiveType("RAS_USHORT", RasGlobalDefs.RAS_USHORT);
-		else if(currentStr.equals("long"))
-		    returnValue = new RasPrimitiveType("RAS_LONG", RasGlobalDefs.RAS_LONG);
-		else if(currentStr.equals("ulong"))
-		    returnValue = new RasPrimitiveType("RAS_ULONG", RasGlobalDefs.RAS_ULONG);
-		else if(currentStr.equals("bool"))
-		    returnValue = new RasPrimitiveType("RAS_BOOLEAN", RasGlobalDefs.RAS_BOOLEAN);
-		else if(currentStr.equals("float"))
-		    returnValue = new RasPrimitiveType("RAS_FLOAT", RasGlobalDefs.RAS_FLOAT);
-		else if(currentStr.equals("double"))
-		    returnValue = new RasPrimitiveType("RAS_DOUBLE", RasGlobalDefs.RAS_DOUBLE);
-		else
-		    throw new RasTypeUnknownException(currentStr);
-	    }
+    private static RasPrimitiveType getPrimitiveType(String primStr) throws RasTypeUnknownException {
+        StringTokenizer primTok = new StringTokenizer(primStr, "{}[]<>,: ");
+        String currentStr = "";
+        RasPrimitiveType returnValue = null;
+        if (primTok.hasMoreTokens()) {
+            currentStr = primTok.nextToken();
+            if (currentStr.equals("char")) {
+                returnValue = new RasPrimitiveType("RAS_CHAR", RasGlobalDefs.RAS_CHAR);
+            } else if (currentStr.equals("octet")) {
+                returnValue = new RasPrimitiveType("RAS_BYTE", RasGlobalDefs.RAS_BYTE);
+            } else if (currentStr.equals("short")) {
+                returnValue = new RasPrimitiveType("RAS_SHORT", RasGlobalDefs.RAS_SHORT);
+            } else if (currentStr.equals("ushort")) {
+                returnValue = new RasPrimitiveType("RAS_USHORT", RasGlobalDefs.RAS_USHORT);
+            } else if (currentStr.equals("long")) {
+                returnValue = new RasPrimitiveType("RAS_LONG", RasGlobalDefs.RAS_LONG);
+            } else if (currentStr.equals("ulong")) {
+                returnValue = new RasPrimitiveType("RAS_ULONG", RasGlobalDefs.RAS_ULONG);
+            } else if (currentStr.equals("bool")) {
+                returnValue = new RasPrimitiveType("RAS_BOOLEAN", RasGlobalDefs.RAS_BOOLEAN);
+            } else if (currentStr.equals("float")) {
+                returnValue = new RasPrimitiveType("RAS_FLOAT", RasGlobalDefs.RAS_FLOAT);
+            } else if (currentStr.equals("double")) {
+                returnValue = new RasPrimitiveType("RAS_DOUBLE", RasGlobalDefs.RAS_DOUBLE);
+            } else {
+                throw new RasTypeUnknownException(currentStr);
+            }
+        }
 
-	return returnValue;
+        return returnValue;
     }
 
 
-    private static RasStructureType getStructureType(String structStr) throws RasTypeUnknownException
-    {
+    private static RasStructureType getStructureType(String structStr) throws RasTypeUnknownException {
         // Correct structure type string:
         // [structName] { typeName0 [attrName0] (, typeNameN [attrNameN])* }
         // FIXME: doesn't work with structures inside of other structures
         int structureBegin = structStr.indexOf("{");
         int structureEnd = structStr.indexOf("}");
-        if (structureEnd < 0 || structureBegin < 0)
-        {
+        if (structureEnd < 0 || structureBegin < 0) {
             throw new RasTypeUnknownException("Incorrect structure schema");
         }
         String structName = structStr.substring(0, structureBegin).trim();
@@ -299,28 +263,22 @@ public class RasType
 
         // split structure type definition by commas between attributes
         StringTokenizer structTok = new StringTokenizer(
-            structStr.substring(structureBegin + 1,structureEnd), ",");
+            structStr.substring(structureBegin + 1, structureEnd), ",");
 
         int size = structTok.countTokens();
         RasBaseType[] baseType = new RasBaseType[size];
         String[] attributeName = new String[size];
 
-        for(int i=0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             String attribute = structTok.nextToken();
             StringTokenizer attributeTokens = new StringTokenizer(attribute, " ");
-            if (attributeTokens.countTokens() == 1) // only type is specified
-            {
+            if (attributeTokens.countTokens() == 1) { // only type is specified
                 baseType[i] = getBaseType(attributeTokens.nextToken());
                 attributeName[i] = "";
-            }
-            else if (attributeTokens.countTokens() == 2) // type and attribute name
-            {
+            } else if (attributeTokens.countTokens() == 2) { // type and attribute name
                 baseType[i] = getBaseType(attributeTokens.nextToken());
                 attributeName[i] = attributeTokens.nextToken();
-            }
-            else
-            {
+            } else {
                 throw new RasTypeUnknownException("cannot parse type " + structStr);
             }
         }
@@ -329,32 +287,27 @@ public class RasType
         return returnValue;
     }
 
-    private static RasSIntervalType getSIntervalType(String sintStr)
-    {
-	return new RasSIntervalType();
+    private static RasSIntervalType getSIntervalType(String sintStr) {
+        return new RasSIntervalType();
     }
 
-    private static RasMIntervalType getMIntervalType(String mintStr)
-    {
-	return new RasMIntervalType();
+    private static RasMIntervalType getMIntervalType(String mintStr) {
+        return new RasMIntervalType();
     }
 
-    private static RasPointType getPointType(String pointStr)
-    {
-	return new RasPointType();
+    private static RasPointType getPointType(String pointStr) {
+        return new RasPointType();
     }
 
-    private static RasOIDType getOIDType(String oidStr)
-    {
-	return new RasOIDType();
+    private static RasOIDType getOIDType(String oidStr) {
+        return new RasOIDType();
     }
 
     /**
      * @return the string represntation of this type
      **/
-    public String toString()
-    {
-	return "typeName: " + typeName + "\n typeID:  " + typeID +"\n ";
+    public String toString() {
+        return "typeName: " + typeName + "\n typeID:  " + typeID + "\n ";
     }
 
 }

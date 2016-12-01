@@ -31,7 +31,7 @@ import petascope.wms2.servlet.WMSGetRequest;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class InsertWCSLayerParser extends Parser<InsertWCSLayerRequest>{
+public class InsertWCSLayerParser extends Parser<InsertWCSLayerRequest> {
 
     /**
      * Returns true if the parser can parse this raw request, false otherwise
@@ -43,7 +43,7 @@ public class InsertWCSLayerParser extends Parser<InsertWCSLayerRequest>{
     public boolean canParse(WMSGetRequest rawRequest) {
         String requestType = rawRequest.getGetValueByKey(InsertWCSLayerRequest.getRequestParameterRequest());
         return requestType != null &&
-                requestType.equals(InsertWCSLayerRequest.getRequestType());
+               requestType.equals(InsertWCSLayerRequest.getRequestType());
     }
 
     /**

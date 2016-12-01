@@ -29,7 +29,7 @@ package petascope.wcs2.extensions;
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 
-public class WCSTExtension implements Extension{
+public class WCSTExtension implements Extension {
 
     @Override
     public String getExtensionIdentifier() {

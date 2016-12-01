@@ -52,7 +52,7 @@ MDDCollIter::MDDCollIter(MDDColl* targetColl)
 }
 
 void
-MDDCollIter::printStatus(__attribute__ ((unused)) unsigned int level, ostream& stream) const
+MDDCollIter::printStatus(__attribute__((unused)) unsigned int level, ostream& stream) const
 {
     stream << "   MDDCollIter printStatus:  " ;
 }

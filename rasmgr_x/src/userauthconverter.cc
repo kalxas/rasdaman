@@ -54,23 +54,25 @@ using google::protobuf::io::OstreamOutputStream;
 
 RandomGenerator UserAuthConverter::randomGenerator;
 
-bool UserAuthConverter::tryGetOldFormatAuthData(const std::string &oldFilePath, UserMgrProto &out_userManagerData)
+bool UserAuthConverter::tryGetOldFormatAuthData(const std::string& oldFilePath, UserMgrProto& out_userManagerData)
 {
     // Clear the output data.
     out_userManagerData.Clear();
 
     int result = RC_OK;
 
-    LDEBUG << "Inspecting authorization file '"<<oldFilePath<< "'...";
+    LDEBUG << "Inspecting authorization file '" << oldFilePath << "'...";
     std::ifstream ifs(oldFilePath.c_str());
 
-    if(!ifs)
+    if (!ifs)
+    {
         result = ERRAUTHFNOTF;
+    }
 
     if (result == RC_OK)
     {
-        int verificationResult=verifyAuthFile(ifs);
-        if(verificationResult)
+        int verificationResult = verifyAuthFile(ifs);
+        if (verificationResult)
         {
             result = verificationResult;
             LDEBUG << "Failed to verify old authentication file." << result;
@@ -80,20 +82,23 @@ bool UserAuthConverter::tryGetOldFormatAuthData(const std::string &oldFilePath, 
     if (result == RC_OK)
     {
         AuthFileHeader header;
-        ifs.read((char*)&header,sizeof(header));
+        ifs.read((char*)&header, sizeof(header));
 
         // not necessary, done by verify  if(header.fileID != AUTHFIELID) return ERRAUTHFCORR;
 
         // this is needed
-        if(!randomGenerator.setFileVersion(header.fileVersion)) return ERRAUTHFVERS;
+        if (!randomGenerator.setFileVersion(header.fileVersion))
+        {
+            return ERRAUTHFVERS;
+        }
 
         initCrypt(header.lastUserID);
 
-        for(int i=0; i<header.countUsers; i++)
+        for (int i = 0; i < header.countUsers; i++)
         {
             AuthUserRec uRec;
-            ifs.read((char*)&uRec,sizeof(uRec));
-            crypt(&uRec,sizeof(uRec));
+            ifs.read((char*)&uRec, sizeof(uRec));
+            crypt(&uRec, sizeof(uRec));
 
             UserProto user;
             user.set_name(uRec.userName);
@@ -106,9 +111,11 @@ bool UserAuthConverter::tryGetOldFormatAuthData(const std::string &oldFilePath, 
     }
 
     if (result != ERRAUTHFNOTF)
+    {
         ifs.close();
+    }
 
-    switch(result)
+    switch (result)
     {
     case RC_OK:
         LDEBUG << "ok";
@@ -117,20 +124,20 @@ bool UserAuthConverter::tryGetOldFormatAuthData(const std::string &oldFilePath, 
         LDEBUG << "Warning: User authorization file not found, using default user settings.";
         break;
     case  ERRAUTHFCORR:
-        LDEBUG<<"Error: User authorization file is corrupt, aborting.";
+        LDEBUG << "Error: User authorization file is corrupt, aborting.";
         break;
     case  ERRAUTHFWRHOST:
-        LDEBUG<<"Error: User authorization file is not for this host.";
+        LDEBUG << "Error: User authorization file is not for this host.";
         break;
     case  ERRAUTHFVERS:
-        LDEBUG<<"Error: User authorization file is incompatible due to different encryption used - see migration documentation.";
+        LDEBUG << "Error: User authorization file is incompatible due to different encryption used - see migration documentation.";
         break;
     default:                            // should not occur, internal enum mismatch
-        LDEBUG<<"Error: Internal evaluation error.";
+        LDEBUG << "Error: Internal evaluation error.";
         break;
     }
 
-    return result==RC_OK;
+    return result == RC_OK;
 }
 
 void UserAuthConverter::initCrypt(int seed)
@@ -138,72 +145,87 @@ void UserAuthConverter::initCrypt(int seed)
     randomGenerator.init(static_cast<unsigned int>(seed));
 }
 
-int UserAuthConverter::verifyAuthFile(std::ifstream &ifs)
+int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
 {
     EVP_MD_CTX mdctx;
-    const EVP_MD *md;
+    const EVP_MD* md;
     unsigned int md_len;
     unsigned char md_value[50];
 
     OpenSSL_add_all_digests();
     md = EVP_get_digestbyname("MD5");
-    if(!md)
+    if (!md)
+    {
         return false;
+    }
 
     EVP_DigestInit(&mdctx, md);
 
     AuthFileHeader header;
-    ifs.read((char*)&header,sizeof(header));
+    ifs.read((char*)&header, sizeof(header));
 
-    if(header.fileID != AUTHFILEID)
+    if (header.fileID != AUTHFILEID)
+    {
         return ERRAUTHFCORR;
+    }
 
-    if(!randomGenerator.setFileVersion(header.fileVersion))
+    if (!randomGenerator.setFileVersion(header.fileVersion))
+    {
         return ERRAUTHFVERS;
+    }
 
     initCrypt(header.lastUserID);
 
 
     unsigned char buff[MAXBUFF];
     long cpos = ifs.tellg();
-    ifs.seekg(0,std::ios::end);
-    long endpos=ifs.tellg();
-    ifs.seekg(cpos,std::ios::beg);
+    ifs.seekg(0, std::ios::end);
+    long endpos = ifs.tellg();
+    ifs.seekg(cpos, std::ios::beg);
 
-    for(;;)
+    for (;;)
     {
-        int r = endpos-cpos > MAXBUFF ? MAXBUFF : endpos-cpos;
-        if(r==0)
+        int r = endpos - cpos > MAXBUFF ? MAXBUFF : endpos - cpos;
+        if (r == 0)
+        {
             break;
+        }
 
-        ifs.read((char*)buff,r);
-        if(!ifs)
+        ifs.read((char*)buff, r);
+        if (!ifs)
+        {
             break;
+        }
 
-        cpos +=r;
+        cpos += r;
 
-        crypt(buff,r);
+        crypt(buff, r);
 
-        EVP_DigestUpdate(&mdctx,buff,static_cast<size_t>(r));
+        EVP_DigestUpdate(&mdctx, buff, static_cast<size_t>(r));
     }
 
     EVP_DigestFinal(&mdctx, md_value, &md_len);
 
-    ifs.seekg(0,std::ios::beg);
+    ifs.seekg(0, std::ios::beg);
 
-    for(unsigned int i=0; i<md_len; i++)
+    for (unsigned int i = 0; i < md_len; i++)
     {
-        if(md_value[i]!=header.messageDigest[i])
+        if (md_value[i] != header.messageDigest[i])
+        {
             return ERRAUTHFCORR;
+        }
     }
 
     return 0;
 }
 
-void UserAuthConverter::crypt(void *vbuffer, int length)
+void UserAuthConverter::crypt(void* vbuffer, int length)
 {
-    unsigned char *buff=static_cast<unsigned char*>(vbuffer);
-    for(int i=0; i<length; i++) buff[i]^=randomGenerator(); //rand();
+    unsigned char* buff = static_cast<unsigned char*>(vbuffer);
+    for (int i = 0; i < length; i++)
+    {
+        buff[i] ^= randomGenerator();    //rand();
+    }
 }
 
 UserDatabaseRightsProto UserAuthConverter::convertDbRightsToProto(int right)
@@ -213,8 +235,8 @@ UserDatabaseRightsProto UserAuthConverter::convertDbRightsToProto(int right)
     //dbR_read   = 1<<8,   // R
     //dbR_write  = 2<<8    // W
 
-    bool readRights= right & (1<<8);
-    bool writeRights= right & (2<<8);
+    bool readRights = right & (1 << 8);
+    bool writeRights = right & (2 << 8);
 
     adminRightsProto.set_read(readRights);
     adminRightsProto.set_write(writeRights);
@@ -234,7 +256,7 @@ UserAdminRightsProto UserAuthConverter::convertAdminRightsToProto(int adminRight
     */
 
     result.set_system_config_rights(adminRights & 1);
-    result.set_access_control_rights(adminRights & 2 );
+    result.set_access_control_rights(adminRights & 2);
     result.set_server_admin_rights(adminRights & 4);
     result.set_info_rights(adminRights & 8);
 

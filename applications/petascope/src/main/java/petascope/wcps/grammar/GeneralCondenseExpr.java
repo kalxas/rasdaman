@@ -59,7 +59,7 @@ public class GeneralCondenseExpr implements IParseTreeNode {
 
         if (where != null) {
             result += "<" + WcpsConstants.MSG_WHERE + ">" + where.toXML() + "</" +
-                    WcpsConstants.MSG_WHERE + ">";
+                      WcpsConstants.MSG_WHERE + ">";
         }
 
         result += using.toXML();

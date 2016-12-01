@@ -31,7 +31,7 @@ import rasj.RasGMArray;
  * @author Dimitar Misev
  */
 public abstract class AbstractRasQueryResult implements IRasQueryResult {
-    
+
     protected final Object result;
     /**
      * Prevent multiple inspections

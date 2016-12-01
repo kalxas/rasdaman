@@ -63,10 +63,10 @@ namespace rasmgr
 {
 using boost::shared_ptr;
 
-RasManager::RasManager ( rasmgr::Configuration &config )
+RasManager::RasManager(rasmgr::Configuration& config)
 {
     this->port = config.getPort();
-    RasMgrConfig::getInstance()->setRasMgrPort ( this->port );
+    RasMgrConfig::getInstance()->setRasMgrPort(this->port);
     this->running = false;
 }
 
@@ -75,7 +75,7 @@ RasManager::~RasManager()
 
 void RasManager::start()
 {
-    LINFO<<"Starting rasmanager.";
+    LINFO << "Starting rasmanager.";
 
     if (common::GrpcUtils::isPortBusy(DEFAULT_HOSTNAME, this->port))
     {
@@ -87,33 +87,33 @@ void RasManager::start()
         throw common::ResourceBusyException(error.str());
     }
 
-    shared_ptr<DatabaseHostManager> dbhManager ( new DatabaseHostManager() );
-    shared_ptr<DatabaseManager> dbManager ( new DatabaseManager ( dbhManager ) );
-    boost::shared_ptr<rasmgr::UserManager> userManager ( new rasmgr::UserManager() );
+    shared_ptr<DatabaseHostManager> dbhManager(new DatabaseHostManager());
+    shared_ptr<DatabaseManager> dbManager(new DatabaseManager(dbhManager));
+    boost::shared_ptr<rasmgr::UserManager> userManager(new rasmgr::UserManager());
 
     ServerManagerConfig serverMgrConfig;
     boost::shared_ptr<ServerFactory> serverFactory(new ServerFactoryRasNet());
     boost::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl(dbhManager, serverFactory));
-    shared_ptr<ServerManager> serverManager ( new ServerManager ( serverMgrConfig,  serverGroupFactory) );
+    shared_ptr<ServerManager> serverManager(new ServerManager(serverMgrConfig,  serverGroupFactory));
 
-    shared_ptr<PeerManager> peerManager (new PeerManager());
+    shared_ptr<PeerManager> peerManager(new PeerManager());
 
     ClientManagerConfig clientManagerConfig;
-    shared_ptr<ClientManager> clientManager ( new ClientManager ( clientManagerConfig, userManager, serverManager, peerManager));
+    shared_ptr<ClientManager> clientManager(new ClientManager(clientManagerConfig, userManager, serverManager, peerManager));
 
-    shared_ptr<RasControl> rascontrol ( new RasControl ( userManager, dbhManager, dbManager, serverManager, peerManager, this) );
+    shared_ptr<RasControl> rascontrol(new RasControl(userManager, dbhManager, dbManager, serverManager, peerManager, this));
 
-    shared_ptr<ControlCommandExecutor> commandExecutor ( new ControlCommandExecutor ( rascontrol ) );
+    shared_ptr<ControlCommandExecutor> commandExecutor(new ControlCommandExecutor(rascontrol));
 
     this->configManager.reset(new ConfigurationManager(commandExecutor, dbhManager, dbManager, peerManager, serverManager, userManager));
-    LINFO<<"Loading rasmgr configuration.";
+    LINFO << "Loading rasmgr configuration.";
     this->configManager->loadConfiguration();
-    LINFO<<"Finished loading rasmgr configuration.";
+    LINFO << "Finished loading rasmgr configuration.";
 
 
-    boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService ( new rasmgr::ServerManagementService ( serverManager ) );
-    boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
-    boost::shared_ptr<rasnet::service::RasmgrClientService::Service> clientService ( new rasmgr::ClientManagementService ( clientManager) );
+    boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService(new rasmgr::ServerManagementService(serverManager));
+    boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService(new rasmgr::ControlService(commandExecutor));
+    boost::shared_ptr<rasnet::service::RasmgrClientService::Service> clientService(new rasmgr::ClientManagementService(clientManager));
     boost::shared_ptr<rasnet::service::RasmgrRasmgrService::Service> rasmgrService(new rasmgr::RasmgrService(clientManager));
 
     //The health service will only be used to report on the health of the server.
@@ -147,12 +147,12 @@ void RasManager::start()
 
 void RasManager::stop()
 {
-    if(this->running)
+    if (this->running)
     {
         this->configManager->saveConfiguration(true);
 
         this->server->Shutdown();
-        LINFO<<"Stopping rasmanager.";
+        LINFO << "Stopping rasmanager.";
     }
 }
 

@@ -70,21 +70,20 @@ public class CrsComputer {
             return new EXGeographicBoundingBox("0", "0", "0", "0");
         }
 
-        double[] minCrsPoint = new double[]{minX, minY};
-        double[] maxCrsPoint = new double[]{maxX, maxY};
+        double[] minCrsPoint = new double[] {minX, minY};
+        double[] maxCrsPoint = new double[] {maxX, maxY};
 
         try {
             minCrsPoint = getDefaultCrsCoord(minX, minY, originalCrs);
             maxCrsPoint = getDefaultCrsCoord(maxX, maxY, originalCrs);
         } catch (FactoryException e) {
             handleExceptionFromOpenGIS(originalCrs, minX, minY, maxX, maxY);
-        }
-        catch (TransformException e){
+        } catch (TransformException e) {
             handleExceptionFromOpenGIS(originalCrs, minX, minY, maxX, maxY);
         }
 
         return new EXGeographicBoundingBox(String.valueOf(minCrsPoint[0]), String.valueOf(maxCrsPoint[0]),
-                String.valueOf(minCrsPoint[1]), String.valueOf(maxCrsPoint[1]));
+                                           String.valueOf(minCrsPoint[1]), String.valueOf(maxCrsPoint[1]));
     }
 
     /**
@@ -118,7 +117,7 @@ public class CrsComputer {
      */
     private static double[] getDefaultCrsCoord(double easting, double northing, String crs) throws TransformException, FactoryException {
         if (crs.equalsIgnoreCase(DEFAULT_CRS)) {
-            return new double[]{easting, northing};
+            return new double[] {easting, northing};
         } else {
             CRSAuthorityFactory factory = CRS.getAuthorityFactory(true);
             CoordinateReferenceSystem srcCRS = factory.createCoordinateReferenceSystem(crs);

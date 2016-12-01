@@ -73,7 +73,7 @@ const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
 #else
 
 const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
-{};
+    {};
 
 #endif
 
@@ -81,14 +81,16 @@ const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
 const int r_Conv_HDF::MaxSwapBufferSize = 0x10000;
 
 
-void r_Conv_HDF::initHDF( void )
+void r_Conv_HDF::initHDF(void)
 {
     compType = NULL;
     quality = 80;
     skiphuff = 0;
 
     if (params == NULL)
+    {
         params = new r_Parse_Params;
+    }
 
     params->add("comptype", &compType, r_Parse_Params::param_type_string);
     params->add("quality", &quality, r_Parse_Params::param_type_int);
@@ -96,7 +98,7 @@ void r_Conv_HDF::initHDF( void )
 }
 
 
-r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
+r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
     : r_Convertor(src, interv, tp, true)
 {
     initHDF();
@@ -110,7 +112,7 @@ r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, const r_Type 
 
 
 
-r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, int tp) throw(r_Error)
+r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, int tp) throw(r_Error)
     : r_Convertor(src, interv, tp)
 {
     initHDF();
@@ -129,25 +131,25 @@ r_Conv_HDF::~r_Conv_HDF(void)
 
 
 
-r_Conv_Desc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
+r_Conv_Desc& r_Conv_HDF::convertTo(const char* options) throw(r_Error)
 {
 #ifdef HAVE_HDF
     char name[] = "hdfTempXXXXXX";
-    int32 handle=0, sds_id=0, rank=0;
-    comp_coder_t comp_type=COMP_CODE_NONE;
-    int32 *dimsizes=NULL, *start=NULL;
-    size_t filesize=0;
-    int i=0, j=0;
-    FILE *fp=NULL;
+    int32 handle = 0, sds_id = 0, rank = 0;
+    comp_coder_t comp_type = COMP_CODE_NONE;
+    int32* dimsizes = NULL, *start = NULL;
+    size_t filesize = 0;
+    int i = 0, j = 0;
+    FILE* fp = NULL;
     comp_info c_info;
     int tempFD;
 
     tempFD = mkstemp(name);
-    if(tempFD==-1)
+    if (tempFD == -1)
     {
-        LFATAL << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
-                        << ") desc.srcType (" << desc.srcType->type_id()
-                        << ") unable to generate a tempory file !";
+        LFATAL << "r_Conv_hdf::convertTo(" << (options ? options : "NULL")
+               << ") desc.srcType (" << desc.srcType->type_id()
+               << ") unable to generate a tempory file !";
         throw r_Error();
     }
 
@@ -162,7 +164,7 @@ r_Conv_Desc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     start = new int32[rank];
     datatype = ConvUtil::ctypeToHdfType(desc.baseType, datasize);
 
-    for (i=0; i<rank; i++)
+    for (i = 0; i < rank; i++)
     {
         dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
         start[i] = 0;
@@ -182,7 +184,7 @@ r_Conv_Desc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     comp_type = COMP_CODE_DEFLATE;
     if (compType != NULL)
     {
-        for (i=0; compNames[i].key != NULL; i++)
+        for (i = 0; compNames[i].key != NULL; i++)
         {
             if (strcasecmp(compNames[i].key, compType) == 0)
             {
@@ -203,9 +205,9 @@ r_Conv_Desc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     SDwritedata(sds_id, start, NULL, dimsizes, (VOIDP)(desc.src));
 
     delete [] dimsizes;
-    dimsizes=NULL;
+    dimsizes = NULL;
     delete [] start;
-    start=NULL;
+    start = NULL;
 
     SDendaccess(sds_id);
 
@@ -239,29 +241,29 @@ r_Conv_Desc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     desc.destType = r_Type::get_any_type("char");
 
     return desc;
-    
+
 #else // HAVE_HDF
-    
+
     LERROR << "support for encoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
-    
+
 #endif
 }
 
 
 
-r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options) throw(r_Error)
 {
 #ifdef HAVE_HDF
-    
+
     char name[] = "HDFtempXXXXXX";
-    int32 handle=0, sds_id=0, rank=0, dtype=0, numattr=0, array_size=0;
+    int32 handle = 0, sds_id = 0, rank = 0, dtype = 0, numattr = 0, array_size = 0;
     int32 dimsizes[H4_MAX_VAR_DIMS];
-    int32 *start=NULL;
-    int dsize=0;
-    size_t filesize=0;
-    FILE *fp=NULL;
-    int i=0;
+    int32* start = NULL;
+    int dsize = 0;
+    size_t filesize = 0;
+    FILE* fp = NULL;
+    int i = 0;
     int tempFD;
 
     if (desc.srcInterv.dimension() != 1)
@@ -271,11 +273,11 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     }
 
     tempFD = mkstemp(name);
-    if(tempFD==-1)
+    if (tempFD == -1)
     {
-        LFATAL << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
-                        << ") desc.srcType (" << desc.srcType->type_id()
-                        << ") unable to generate a tempory file !";
+        LFATAL << "r_Conv_hdf::convertTo(" << (options ? options : "NULL")
+               << ") desc.srcType (" << desc.srcType->type_id()
+               << ") unable to generate a tempory file !";
         throw r_Error();
     }
 
@@ -288,7 +290,7 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     if ((i = fwrite(desc.src, 1, filesize, fp)) != filesize)
     {
         LFATAL << "r_Conv_HDF::convertFrom(): error writing to temporary file ("
-                       << i << " / " << filesize << ')';
+               << i << " / " << filesize << ')';
         throw r_Error(r_Error::r_Error_General);
     }
     fclose(fp);
@@ -317,15 +319,17 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     start = new int32[rank];
     desc.destInterv = r_Minterval(rank);
     array_size = (int32)dsize;
-    for (i=0; i<rank; i++)
+    for (i = 0; i < rank; i++)
     {
-        desc.destInterv << r_Sinterval(r_Range(0), r_Range(dimsizes[i]-1));
+        desc.destInterv << r_Sinterval(r_Range(0), r_Range(dimsizes[i] - 1));
         array_size *= dimsizes[i];
         start[i] = 0;
     }
     if (desc.srcInterv.dimension() == 2)
         // this means it was explicitly specified, so we shouldn't override it
+    {
         desc.destInterv = desc.srcInterv;
+    }
 
     if ((desc.dest = (char*)mystore.storage_alloc(array_size)) == NULL)
     {
@@ -344,7 +348,7 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     }
 
     delete [] start;
-    start=NULL;
+    start = NULL;
 
     SDendaccess(sds_id);
 
@@ -353,35 +357,35 @@ r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     remove(name);
 
     return desc;
-    
+
 #else // HAVE_HDF
-    
+
     LERROR << "support for decoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
-    
+
 #endif // HAVE_HDF
 }
 
-r_Conv_Desc &r_Conv_HDF::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_HDF::convertFrom(r_Format_Params options) throw(r_Error)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 
 
-const char *r_Conv_HDF::get_name( void ) const
+const char* r_Conv_HDF::get_name(void) const
 {
     return format_name_hdf;
 }
 
 
-r_Data_Format r_Conv_HDF::get_data_format( void ) const
+r_Data_Format r_Conv_HDF::get_data_format(void) const
 {
     return r_HDF;
 }
 
 
-r_Convertor *r_Conv_HDF::clone( void ) const
+r_Convertor* r_Conv_HDF::clone(void) const
 {
     return new r_Conv_HDF(desc.src, desc.srcInterv, desc.baseType);
 }

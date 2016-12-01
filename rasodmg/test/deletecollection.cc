@@ -70,42 +70,44 @@ static long minNo = 0;
 static long maxNo = 0;
 static ifstream fileStream;
 
-r_ULong initWithCounter( const r_Point& /*pt*/ )
+r_ULong initWithCounter(const r_Point& /*pt*/)
 {
     return INIT++;
 }
 
 
-r_Char initWithCounterChar( const r_Point& /*pt*/ )
+r_Char initWithCounterChar(const r_Point& /*pt*/)
 {
     return (r_Char) INIT++;
 }
 
 
-r_UShort initWithCounterUShort( const r_Point& /*pt*/ )
+r_UShort initWithCounterUShort(const r_Point& /*pt*/)
 {
     return (r_UShort) INIT++;
 }
 
 
 
-r_ULong initWithCrossfoot( const r_Point& pt )
+r_ULong initWithCrossfoot(const r_Point& pt)
 {
-    r_ULong value=0;
+    r_ULong value = 0;
 
-    for( r_Dimension i=0; i< pt.dimension(); i++ )
+    for (r_Dimension i = 0; i < pt.dimension(); i++)
+    {
         value += (r_ULong)pt[i];
+    }
 
     return value;
 }
 
 
-r_ULong initWithCoordinates( const r_Point& pt )
+r_ULong initWithCoordinates(const r_Point& pt)
 {
-    r_ULong value=0;
-    r_ULong factor=1;
+    r_ULong value = 0;
+    r_ULong factor = 1;
 
-    for( int i=pt.dimension()-1; i >= 0; i-- )
+    for (int i = pt.dimension() - 1; i >= 0; i--)
     {
         value  += (r_ULong)(factor * pt[i]);
         factor *= 100;
@@ -116,56 +118,64 @@ r_ULong initWithCoordinates( const r_Point& pt )
 
 
 
-r_Char initWithCurve( const r_Point& pt )
+r_Char initWithCurve(const r_Point& pt)
 {
-    r_ULong value=0;
+    r_ULong value = 0;
 
-    for( r_Dimension i=0; i < pt.dimension(); i++ )
-        value  += (r_Char)( 255* sin( .25 * (float)pt[i] ) );
+    for (r_Dimension i = 0; i < pt.dimension(); i++)
+    {
+        value  += (r_Char)(255 * sin(.25 * (float)pt[i]));
+    }
 
     return (r_Char)value;
 }
 
 
 
-r_ULong initWithColorCube( const r_Point& pt )
+r_ULong initWithColorCube(const r_Point& pt)
 {
-    r_ULong value=0;
+    r_ULong value = 0;
 
-    if( pt.dimension() == 3 )
+    if (pt.dimension() == 3)
+    {
         value = ((unsigned long)(pt[0]) << 16) + ((unsigned long)(pt[1]) << 8) + (unsigned long)(pt[2]);
+    }
 
     return value;
 }
 
 
-r_Char initWithRandomChar( const r_Point& /*pt*/ )
+r_Char initWithRandomChar(const r_Point& /*pt*/)
 {
     // rand creates numbers between 0 and 32767
     unsigned long number = rand();
-    double        factor = (maxNo - minNo)/32767.0;
+    double        factor = (maxNo - minNo) / 32767.0;
 
     return (r_Char)(minNo + (number * factor));
 }
 
-r_ULong initWithRandomULong( const r_Point& /*pt*/ )
+r_ULong initWithRandomULong(const r_Point& /*pt*/)
 {
     // rand creates numbers between 0 and 32767
     unsigned long number = rand();
-    double        factor = (maxNo - minNo)/32767.0;
+    double        factor = (maxNo - minNo) / 32767.0;
 
     return (r_ULong)(minNo + (number * factor));
 }
 
 
-r_Char initFromFile( const r_Point& /*pt*/ )
+r_Char initFromFile(const r_Point& /*pt*/)
 {
     char ch;
 
-    if( fileStream.get(ch) )
+    if (fileStream.get(ch))
+    {
         return ch;
+    }
     else
+    {
         return 0;
+    }
 }
 
 /*
@@ -232,38 +242,46 @@ r_Ref< r_Marray<r_ULong> > readFile( r_Database& db )
 */
 
 
-void printColl( r_Ref< r_Set< r_Ref< r_GMarray > > >& image_set, int output, int hexOutput )
+void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int hexOutput)
 {
     cout << "Collection" << endl;
     cout << "  Oid...................: " << image_set->get_oid() << endl;
     cout << "  Type Name.............: " << image_set->get_object_name() << endl;
     cout << "  Type Structure........: "
-         << ( image_set->get_type_structure() ? image_set->get_type_structure() : "<nn>" ) << endl;
+         << (image_set->get_type_structure() ? image_set->get_type_structure() : "<nn>") << endl;
     cout << "  Type Schema...........: " << flush;
-    if( image_set->get_type_schema() )
-        image_set->get_type_schema()->print_status( cout );
+    if (image_set->get_type_schema())
+    {
+        image_set->get_type_schema()->print_status(cout);
+    }
     else
+    {
         cout << "<nn>" << flush;
+    }
     cout << endl;
     cout << "  Number of entries.....: " << image_set->cardinality() << endl;
     cout << "  Element Type Schema...: " << flush;
-    if( image_set->get_element_type_schema() )
-        image_set->get_element_type_schema()->print_status( cout );
+    if (image_set->get_element_type_schema())
+    {
+        image_set->get_element_type_schema()->print_status(cout);
+    }
     else
+    {
         cout << "<nn>" << flush;
+    }
     cout << endl;
 
-    r_Iterator< r_Ref< r_GMarray > > iter = image_set->create_iterator();
+    r_Iterator<r_Ref<r_GMarray>> iter = image_set->create_iterator();
 
     cout << endl;
-    for ( int i=1 ; iter.not_done(); iter++, i++ )
+    for (int i = 1 ; iter.not_done(); iter++, i++)
     {
         // do not dereference the object
         cout << "Image " << i << " oid: " << (*iter).get_oid() << endl;
 
-        if( output )
+        if (output)
         {
-            (*iter)->print_status( cout, hexOutput );
+            (*iter)->print_status(cout, hexOutput);
             cout << endl;
         }
     }
@@ -272,40 +290,46 @@ void printColl( r_Ref< r_Set< r_Ref< r_GMarray > > >& image_set, int output, int
 
 
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
 
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-    int  optionValueIndex=0;
+    int  optionValueIndex = 0;
     int  testbed = 0;
-    unsigned long tileSize=0;
+    unsigned long tileSize = 0;
     r_Minterval   tileConfig;
-    int  compressed=0;
+    int  compressed = 0;
 
     char serverName[255];
     char baseName[255];
     char collName[255];
     char setTypeName[255] = "";
     char mddTypeName[255] = "";
-    char fileName[255]="";
+    char fileName[255] = "";
 
-    if( argc < 4 || checkArguments( argc, argv, "-h", optionValueIndex ) )
+    if (argc < 4 || checkArguments(argc, argv, "-h", optionValueIndex))
     {
         cout << "Usage:   test_insert3 server_name base_name collection_name [options]" << endl << endl;
         cout << "Options: -h                  ... this help" << endl;
@@ -320,28 +344,38 @@ int main( int argc, char** argv )
         return 0;
     }
 
-    strcpy( serverName, argv[1] );
-    strcpy( baseName, argv[2] );
-    strcpy( collName, argv[3] );
+    strcpy(serverName, argv[1]);
+    strcpy(baseName, argv[2]);
+    strcpy(collName, argv[3]);
 
-    if( checkArguments( argc, argv, "-settype", optionValueIndex ) && optionValueIndex )
-        strcpy( setTypeName, argv[optionValueIndex] );
+    if (checkArguments(argc, argv, "-settype", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(setTypeName, argv[optionValueIndex]);
+    }
 
-    if( checkArguments( argc, argv, "-mddtype", optionValueIndex ) && optionValueIndex )
-        strcpy( mddTypeName, argv[optionValueIndex] );
+    if (checkArguments(argc, argv, "-mddtype", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(mddTypeName, argv[optionValueIndex]);
+    }
 
-    testbed   =  checkArguments( argc, argv, "-testbed", optionValueIndex );
+    testbed   =  checkArguments(argc, argv, "-testbed", optionValueIndex);
 
-    if( checkArguments( argc, argv, "-tileconf", optionValueIndex ) && optionValueIndex )
-        tileConfig = r_Minterval( argv[optionValueIndex] );
+    if (checkArguments(argc, argv, "-tileconf", optionValueIndex) && optionValueIndex)
+    {
+        tileConfig = r_Minterval(argv[optionValueIndex]);
+    }
 
-    if( checkArguments( argc, argv, "-tilesize", optionValueIndex ) && optionValueIndex )
-        tileSize = strtoul( argv[optionValueIndex], (char **)NULL, 10 ) ;
+    if (checkArguments(argc, argv, "-tilesize", optionValueIndex) && optionValueIndex)
+    {
+        tileSize = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+    }
 
-    if( checkArguments( argc, argv, "-file", optionValueIndex ) && optionValueIndex )
-        strcpy( fileName, argv[optionValueIndex] );
+    if (checkArguments(argc, argv, "-file", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(fileName, argv[optionValueIndex]);
+    }
 
-    compressed =  checkArguments( argc, argv, "-compressed", optionValueIndex );
+    compressed =  checkArguments(argc, argv, "-compressed", optionValueIndex);
 
     cout << endl << endl;
     cout << "Insertion of one MDD into the database" << endl;
@@ -349,8 +383,8 @@ int main( int argc, char** argv )
 
     r_Database db;
     r_Transaction ta;
-    r_Ref< r_Set< r_Ref< r_GMarray > > >  image_set;
-    r_Ref< r_GMarray >                    image;
+    r_Ref<r_Set<r_Ref<r_GMarray>>>  image_set;
+    r_Ref<r_GMarray>                    image;
     r_Minterval                           domain;
     r_Dimension                           dim;
     r_Range                               low, high;
@@ -358,7 +392,7 @@ int main( int argc, char** argv )
 
     RGBPixel                              rgbValue = { 1, 2, 3 };
 
-    db.set_servername( serverName );
+    db.set_servername(serverName);
 
     try
     {
@@ -390,23 +424,23 @@ int main( int argc, char** argv )
         */
         initMode = 10;
 
-        if( initMode == 18 )
+        if (initMode == 18)
         {
-            fileStream.open( fileName );
-            if( !fileStream )
+            fileStream.open(fileName);
+            if (!fileStream)
             {
                 cout << "Error: File " << fileName << " not found." << endl;
                 exit(-1);
             }
         }
 
-        if( initMode == 0 || initMode == 5 || initMode == 17 )
+        if (initMode == 0 || initMode == 5 || initMode == 17)
         {
             cout << "Constant value : ";
             cin  >> initValue;
             cout << endl;
         }
-        if( initMode <= 7 || initMode >= 13 )
+        if (initMode <= 7 || initMode >= 13)
         {
             cout << "Number of dimensions : ";
             cin  >> dim;
@@ -414,20 +448,20 @@ int main( int argc, char** argv )
 
             domain = r_Minterval(dim);
 
-            for( r_Dimension i = 1; i<=dim ; i++ )
+            for (r_Dimension i = 1; i <= dim ; i++)
             {
                 cout << "Dimension " << setw(2) << i << " lower bound ";
                 cin  >> low;
                 cout << "             upper bound ";
                 cin  >> high;
 
-                domain << r_Sinterval( low, high );
+                domain << r_Sinterval(low, high);
             }
 
             cout << endl;
         }
 
-        if( initMode == 14 || initMode == 16 )
+        if (initMode == 14 || initMode == 16)
         {
             cout << "Minimum number : ";
             cin  >> minNo;
@@ -440,7 +474,7 @@ int main( int argc, char** argv )
 
         cout << "Opening Database " << baseName << " on " << serverName << "... ";
         cout.flush();
-        db.open( baseName );
+        db.open(baseName);
         cout << "OK" << endl;
 
         cout << "Starting Transaction ... " << flush;
@@ -449,7 +483,7 @@ int main( int argc, char** argv )
 
         cout << "Opening the set ... " << flush;
 
-        if( initMode == 10 || initMode == 11 )
+        if (initMode == 10 || initMode == 11)
         {
             //
             // get the set
@@ -457,9 +491,9 @@ int main( int argc, char** argv )
 
             try
             {
-                image_set = db.lookup_object( collName );
+                image_set = db.lookup_object(collName);
             }
-            catch( r_Error &obj )
+            catch (r_Error& obj)
             {
                 cout << "FAILED" << endl;
                 cout << obj.what() << endl;
@@ -468,35 +502,39 @@ int main( int argc, char** argv )
 
             cout << "OK" << endl;
 
-            if( initMode == 10 )
+            if (initMode == 10)
             {
                 // delete the set
 
-                if( !image_set.is_null() )
+                if (!image_set.is_null())
+                {
                     image_set.delete_object();
+                }
                 // delete image_set; (not implemented yet)
             }
             else
             {
-                int imageNo=0;
+                int imageNo = 0;
 
-                printColl( image_set, 0, 0 );
+                printColl(image_set, 0, 0);
 
                 cout << "Please enter the image number to delete: ";
                 cin  >> imageNo;
                 cout << endl;
 
-                r_Iterator< r_Ref< r_GMarray > > iter = image_set->create_iterator();
+                r_Iterator<r_Ref<r_GMarray>> iter = image_set->create_iterator();
 
-                for ( int i=1; iter.not_done() && i<imageNo; iter++, i++ );
+                for (int i = 1; iter.not_done() && i < imageNo; iter++, i++);
 
-                if( imageNo && iter.not_done() )
+                if (imageNo && iter.not_done())
                 {
-                    image_set->remove_element( *iter );
+                    image_set->remove_element(*iter);
                     cout << "MDD removed." << endl;
                 }
                 else
+                {
                     cout << "Number not valid." << endl << endl;
+                }
             }
         }
         else
@@ -507,9 +545,9 @@ int main( int argc, char** argv )
 
             try
             {
-                image_set = db.lookup_object( collName );
+                image_set = db.lookup_object(collName);
             }
-            catch( r_Error& /*obj*/ )
+            catch (r_Error& /*obj*/)
             {
                 cout << "FAILED" << endl;
                 // cout << obj.what() << endl;
@@ -520,169 +558,213 @@ int main( int argc, char** argv )
 
                 cout << "Create the set ... " << flush;
 
-                if( initMode == 5 || initMode == 7 || initMode == 13 || initMode == 14 || initMode == 18 )
+                if (initMode == 5 || initMode == 7 || initMode == 13 || initMode == 14 || initMode == 18)
                 {
-                    if( !strlen( setTypeName ) )
-                        strcpy( setTypeName, "GreySet" );
+                    if (!strlen(setTypeName))
+                    {
+                        strcpy(setTypeName, "GreySet");
+                    }
 
-                    image_set = new( &db, setTypeName  ) r_Set< r_Ref< r_Marray<r_Char> > >;
+                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_Char>>>;
                 }
-                else if( initMode == 6 )
+                else if (initMode == 6)
                 {
-                    if( !strlen( setTypeName ) )
-                        strcpy( setTypeName, "RGBSet" );
+                    if (!strlen(setTypeName))
+                    {
+                        strcpy(setTypeName, "RGBSet");
+                    }
 
-                    image_set = new( &db, setTypeName  ) r_Set< r_Ref< r_Marray<RGBPixel> > >;
+                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<RGBPixel>>>;
                 }
-                else if( initMode == 15 )
+                else if (initMode == 15)
                 {
-                    if( !strlen( setTypeName ) )
-                        strcpy( setTypeName, "UShortSet" );
+                    if (!strlen(setTypeName))
+                    {
+                        strcpy(setTypeName, "UShortSet");
+                    }
 
-                    image_set = new( &db, setTypeName  ) r_Set< r_Ref< r_Marray<r_UShort> > >;
+                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_UShort>>>;
                 }
-                else if( initMode == 17 )
+                else if (initMode == 17)
                 {
-                    if( !strlen( setTypeName ) )
-                        strcpy( setTypeName, "BoolSet" );
+                    if (!strlen(setTypeName))
+                    {
+                        strcpy(setTypeName, "BoolSet");
+                    }
 
-                    image_set = new( &db, setTypeName ) r_Set< r_Ref< r_Marray<r_Boolean> > >;
+                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_Boolean>>>;
                 }
                 else
                 {
-                    if( !strlen( setTypeName ) )
-                        strcpy( setTypeName, "ULongSet" );
+                    if (!strlen(setTypeName))
+                    {
+                        strcpy(setTypeName, "ULongSet");
+                    }
 
-                    image_set = new( &db, setTypeName  ) r_Set< r_Ref< r_Marray<r_ULong> > >;
+                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_ULong>>>;
                 }
 
                 // create a name for the persistent set in order to be able to look it up again
-                db.set_object_name( *image_set, collName );
+                db.set_object_name(*image_set, collName);
             }
 
             cout << " with type name " << setTypeName << " ... OK" << endl;
 
             cout << "OId of the set is " << image_set->get_oid() << " ... " << endl;
 
-            if( initMode <= 9 || initMode >= 13 )
+            if (initMode <= 9 || initMode >= 13)
             {
                 cout << "Creating an image ..." << flush;
 
                 // create storage layout object
                 r_Storage_Layout* stl = 0;
-                if( tileSize )
-                    stl = new r_Storage_Layout( new r_Aligned_Tiling( tileConfig, tileSize ) );
-
-                if( compressed )
+                if (tileSize)
                 {
-                    if( !stl )
-                        stl = new r_Storage_Layout();
+                    stl = new r_Storage_Layout(new r_Aligned_Tiling(tileConfig, tileSize));
+                }
 
-                    db.set_storage_format( r_ZLib );
+                if (compressed)
+                {
+                    if (!stl)
+                    {
+                        stl = new r_Storage_Layout();
+                    }
+
+                    db.set_storage_format(r_ZLib);
                 }
 
                 // create the image
-                switch( initMode )
+                switch (initMode)
                 {
                 case 0:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "ULongImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "ULongImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_ULong>( domain, (r_ULong)initValue, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, (r_ULong)initValue, stl);
                     break;
                 case 1:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "ULongImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "ULongImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_ULong>( domain, &initWithCounter, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCounter, stl);
                     break;
                 case 2:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "ULongImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "ULongImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_ULong>( domain, &initWithCoordinates, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCoordinates, stl);
                     break;
                 case 3:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "ULongImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "ULongImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_ULong>( domain, &initWithCrossfoot, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCrossfoot, stl);
                     break;
                 case 4:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "ULongImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "ULongImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_ULong>( domain, &initWithColorCube, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithColorCube, stl);
                     break;
                 case 5:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "GreyImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "GreyImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_Char>( domain, (r_Char)initValue, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, (r_Char)initValue, stl);
                     break;
                 case 6:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "RGBImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "RGBImage");
+                    }
 
-                    image = new( &db, mddTypeName  )  RGBImage( domain, rgbValue, stl );
+                    image = new(&db, mddTypeName)  RGBImage(domain, rgbValue, stl);
                     break;
                 case 7:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "GreyImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "GreyImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_Char>( domain, &initWithCurve, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initWithCurve, stl);
                     break;
                 case 13:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "GreyImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "GreyImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_Char>( domain, &initWithCounterChar, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initWithCounterChar, stl);
                     break;
                 case 14:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "GreyImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "GreyImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_Char>( domain, &initWithRandomChar, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initWithRandomChar, stl);
                     break;
                 case 15:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "UShortImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "UShortImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_UShort>( domain, &initWithCounterUShort, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_UShort>(domain, &initWithCounterUShort, stl);
                     break;
                 case 16:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "ULongImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "ULongImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_ULong>( domain, &initWithRandomULong, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithRandomULong, stl);
                     break;
                 case 17:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "BoolImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "BoolImage");
+                    }
 
-                    image = new( &db, mddTypeName ) r_Marray<r_Boolean>( domain, (r_Boolean)initValue, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_Boolean>(domain, (r_Boolean)initValue, stl);
                     break;
                 case 18:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "GreyImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "GreyImage");
+                    }
 
-                    image = new( &db, mddTypeName ) r_Marray<r_Char>( domain, &initFromFile, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initFromFile, stl);
                     break;
                 default:
-                    if( !strlen( mddTypeName ) )
-                        strcpy( mddTypeName, "ULongImage" );
+                    if (!strlen(mddTypeName))
+                    {
+                        strcpy(mddTypeName, "ULongImage");
+                    }
 
-                    image = new( &db, mddTypeName  ) r_Marray<r_ULong>( domain, (r_ULong)0, stl );
+                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, (r_ULong)0, stl);
                 }
 
                 cout << "OId of the new image is " << image->get_oid() << endl;
 
                 cout << "Inserting one image with domain " << domain << " into collection " << collName << "..." << flush;
                 // put in into the persistent list
-                image_set->insert_element( image );
+                image_set->insert_element(image);
                 cout << "OK" << endl << endl;
 
-                if( testbed )
+                if (testbed)
                 {
                     cout << endl << "Testbed output:" << endl;
                     cout << "-- Testbed: set_oid=" << image_set->get_oid() << endl;
@@ -699,7 +781,7 @@ int main( int argc, char** argv )
             ta.commit();
             cout << "OK" << endl;
         }
-        catch( r_Error &obj )
+        catch (r_Error& obj)
         {
             cerr << obj.what() << endl;
             return -1;
@@ -709,10 +791,12 @@ int main( int argc, char** argv )
         db.close();
         cout << "OK" << endl;
 
-        if( initMode == 18 )
+        if (initMode == 18)
+        {
             fileStream.close();
+        }
     }
-    catch( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         cerr << errorObj.what() << endl;
         return -1;

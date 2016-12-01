@@ -63,10 +63,11 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
         String subsetting = computeRequestSubsettingLimits(req, cov);
         String coverageData = buildCoverageData(req, cov, subsetting);
         return new Response(new String[] { descr
-                .replaceAll("\\{low\\}", lowPoint)
-                .replaceAll("\\{high\\}", highPoint)
-                .replaceAll("\\{axisLabels\\}", newAxesLabels)
-                .replaceAll("\\{coverageData\\}", coverageData) });
+                                           .replaceAll("\\{low\\}", lowPoint)
+                                           .replaceAll("\\{high\\}", highPoint)
+                                           .replaceAll("\\{axisLabels\\}", newAxesLabels)
+                                           .replaceAll("\\{coverageData\\}", coverageData)
+                                         });
     }
 
     /**
@@ -78,7 +79,7 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
      * @throws WCSException
      */
     private String computeRequestSubsettingLimits(GetCoverageRequest req, CoverageMetadata coverage)
-            throws WCSException {
+    throws WCSException {
         int dims = coverage.getDimension(), i = 0;
         String[] limits = new String[dims];
         Double[] high = new Double[dims];
@@ -86,7 +87,7 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
         String[] axesLabels = new String[dims];
         boolean[] sliced = new boolean[dims];
         boolean[] trimmed = new boolean[dims];
-        
+
         int axisIndex;
         String axis;
 
@@ -113,7 +114,7 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
             }
             if (trimmed[axisIndex] || sliced[axisIndex]) {
                 throw new WCSException(ExceptionCode.NoApplicableCode,
-                        "Already performed one subsetting operation on axis: " + axis);
+                                       "Already performed one subsetting operation on axis: " + axis);
             }
             if (subset instanceof DimensionTrim) {
                 DimensionTrim trim = (DimensionTrim) subset;
@@ -159,9 +160,9 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
      * be the coverage data of a 1-by-3 coverage, with two bands
      */
     private String buildCoverageData(GetCoverageRequest req, CoverageMetadata coverage, String subsetting)
-            throws WCSException {
+    throws WCSException {
         String coverageId = req.getCoverageId();
-        
+
         // count bands
         Iterator<RangeElement> rit = coverage.getRangeIterator();
         int bandcount = 0;
@@ -170,7 +171,7 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
             bandcount++;
         }
         log.debug("Coverage {} has {} bands", coverageId, bandcount);
-        
+
         // for all bands of the coverage, execute a rasql query
         String[][] pixels = new String[bandcount][];
         String currentBand = "";
@@ -181,10 +182,10 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
             if (bandcount == 1) {
                 currentBand = "";
             }
-            
+
             String output = "";
 //            try {
-//                output = "RasUtil.executeRasqlQuery("select csv(cov[" + subsetting + "]" + 
+//                output = "RasUtil.executeRasqlQuery("select csv(cov[" + subsetting + "]" +
 //                 currentBand + ") "  + "from " + coverageId + " as cov");
 //            } catch (RasdamanException ex) {
 //                throw new WCSException(ExceptionCode.RasdamanError, ex);

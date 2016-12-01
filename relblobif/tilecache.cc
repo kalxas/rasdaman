@@ -43,7 +43,7 @@ void TileCache::insert(KeyType key, ValueType value)
         // invalid key
         return;
     }
-    
+
     CacheValue* tileToCache = value;
     if (contains(key))
     {
@@ -57,7 +57,7 @@ void TileCache::insert(KeyType key, ValueType value)
         {
             // update referencing tiles
             tileToCache->addReferencingTiles(tile->getReferencingTiles());
-            
+
             cacheSize -= tile->getSize();
             removeValue(tile);
             if (tile->getData() == tileToCache->getData())
@@ -74,12 +74,12 @@ void TileCache::insert(KeyType key, ValueType value)
         }
         LDEBUG << "already inserted";
     }
-    
+
     cache.insert(CachePairType(key, tileToCache));
     updateValue(tileToCache);
     cacheSize += tileToCache->getSize();
     readjustCache();
-    
+
 }
 
 ValueType TileCache::get(KeyType key)
@@ -168,7 +168,7 @@ void TileCache::readjustCache()
     {
         long count = 0;
         LDEBUG << "freeing up space from cache...";
-        
+
         if (cacheSize > cacheLimit && lru.size() > 0)
         {
             CacheLRU::reverse_iterator it;

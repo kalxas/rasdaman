@@ -30,7 +30,7 @@ import petascope.exceptions.ExceptionCode;
 public class WCSTCrsGridAxesMismatch extends WCSTException {
     public WCSTCrsGridAxesMismatch(int crsAxes, int gridAxes) {
         super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$crsAxes", String.valueOf(crsAxes))
-                                                              .replace("$gridAxes", String.valueOf(gridAxes)));
+              .replace("$gridAxes", String.valueOf(gridAxes)));
     }
 
     public static final String EXCEPTION_TEXT = "The crs of the coverage has $crsAxes axes, but the coverage only has $gridAxes axes.";

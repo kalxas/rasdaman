@@ -49,7 +49,7 @@ public class ComplexConst {
 
     public String toXML() {
         return "<" + WcpsConstants.MSG_COMPLEX_CONSTANT + "><" + WcpsConstants.MSG_RE + ">" + re +
-                "</" + WcpsConstants.MSG_RE + "><" + WcpsConstants.MSG_IM + ">" + im + "</" +
-                WcpsConstants.MSG_IM + "></" + WcpsConstants.MSG_COMPLEX_CONSTANT + ">";
+               "</" + WcpsConstants.MSG_RE + "><" + WcpsConstants.MSG_IM + ">" + im + "</" +
+               WcpsConstants.MSG_IM + "></" + WcpsConstants.MSG_COMPLEX_CONSTANT + ">";
     }
 }

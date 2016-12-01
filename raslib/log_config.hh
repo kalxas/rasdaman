@@ -35,7 +35,7 @@ rasdaman GmbH.
 */
 
 #ifndef LOG_CONFIG_HH
-#define	LOG_CONFIG_HH
+#define LOG_CONFIG_HH
 
 #include <iostream>
 
@@ -71,4 +71,4 @@ private:
 };
 
 
-#endif	/* LOG_CONFIG_HH */
+#endif  /* LOG_CONFIG_HH */

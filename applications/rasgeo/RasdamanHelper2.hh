@@ -111,7 +111,7 @@ public:
      *  returns -1 otherwise
      */
     long canAppendReferencedZCoeff(double oid,
-            double coefficient);
+                                   double coefficient);
 
     /*! Queries the spatial domain of the given image
      *
@@ -122,7 +122,7 @@ public:
      */
     r_Minterval getImageSdom(const std::string& collname, double localImgOID);
 
-    r_Marray_Type *getMarrayType(const std::string& collname);
+    r_Marray_Type* getMarrayType(const std::string& collname);
 
     /*! Returns the data (pixel) type id of the given collection and band.
      *
@@ -133,7 +133,7 @@ public:
      *     \see r_Type
      */
     r_Type::r_Type_Id getBaseTypeId(const std::string& collname,
-            unsigned int band=0);
+                                    unsigned int band = 0);
 
     /*! Returns the base type name of the given collection */
     std::string getBaseTypeName(const std::string& collname);
@@ -190,7 +190,7 @@ public:
     void updateImage(const std::string& collname, double imgid,
                      char* buf, r_Point& shift, r_Minterval& sdom, bool bRowMajor2ColMajor,
                      const std::string& marraytypename)
-                     throw (r_Error);
+    throw (r_Error);
 
 
     /*! Transposes a 1D, 2D, or 3D column-major arrays into a row-major array
@@ -269,7 +269,7 @@ public:
      *    \param rtype target base type of the new image collection
      *    \param asCube when 'true', a 3D collection gets created, 2D otherwise
      */
-    void createCollection(r_Database& db, r_Ref< r_Set< r_Ref< r_GMarray > > >& imgSet,
+    void createCollection(r_Database& db, r_Ref<r_Set<r_Ref<r_GMarray>>>& imgSet,
                           r_Type::r_Type_Id rtype, bool asCube) throw (r_Error);
 
     /*! Creates a new image object
@@ -278,7 +278,7 @@ public:
      *  \param sdom pixel domain of the new image
      *  \param rtype data type of the image object
      */
-    void createMDD(r_Ref< r_GMarray >& image, r_Minterval sdom,
+    void createMDD(r_Ref<r_GMarray>& image, r_Minterval sdom,
                    r_Type::r_Type_Id rtype) throw (r_Error);
 
     /*! Returns the character (e.g. 'c') denoting the atomic base type
@@ -331,7 +331,7 @@ public:
      * \param oid The unique object identifier of the rasdaman image
      */
     void dropRAT(const std::string& collname,
-            double oid) throw(r_Error);
+                 double oid) throw(r_Error);
 
     /*! Populates the petascope database with metadata for the specified image/coverage
      *
@@ -363,14 +363,14 @@ public:
         const std::vector<bool>& axisIndexed);
 
     int writeExtraMetadata(long oid,
-            const std::string& metadata);
+                           const std::string& metadata);
 
     /*! retrieves geospatial metadata from the petascope database
      *  in default (xyz) order (defaultOrder=true); if defaultOrder=false
      *  metadata is returned in CRS order as specified upon image import
      */
-    std::vector<double> getMetaGeoDomain(double oid, bool defaultOrder=true);
-    std::vector<double> getMetaCellSize(double oid, bool defaultOrder=true);
+    std::vector<double> getMetaGeoDomain(double oid, bool defaultOrder = true);
+    std::vector<double> getMetaCellSize(double oid, bool defaultOrder = true);
     std::string getMetaCrsName(double oid);
     std::vector<std::string> getMetaCrsUris(double oid);
 
@@ -391,13 +391,13 @@ public:
      *            otherwiese false.
      */
     bool parsePGStringArray(const std::string& strar,
-            std::vector<double>& vec);
+                            std::vector<double>& vec);
 
 
     bool parseKVPString(const std::string& kvp,
-            std::vector<std::string>& keys,
-            std::vector<std::string>& values,
-            std::string sep=":");
+                        std::vector<std::string>& keys,
+                        std::vector<std::string>& values,
+                        std::string sep = ":");
 
     /* \brief Delete Petascope metadata for the specified rasdaman image
      *
@@ -418,7 +418,7 @@ public:
      *          the CRS represented by the WKT string
      */
     std::string getCRSURIfromWKT(const std::string& crsWKT,
-            unsigned char dim, std::string& epsg);
+                                 unsigned char dim, std::string& epsg);
 
     /* */
     std::vector<std::string> getCRSURIsfromCoverageId(long covid);

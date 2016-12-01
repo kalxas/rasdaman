@@ -24,7 +24,7 @@ package petascope.wcps2.metadata.model;
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public abstract class NumericSubset{
+public abstract class NumericSubset {
     public abstract String getStringRepresentation();
     public abstract String getStringRepresentationInInteger();
 }

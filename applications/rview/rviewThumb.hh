@@ -66,9 +66,9 @@ class rviewThumb;
 // for higher dimensions
 typedef struct rviewThumbPixList
 {
-    wxPixmap *pixmap;
+    wxPixmap* pixmap;
     int dimproj, projval;
-    rviewThumbPixList *next;
+    rviewThumbPixList* next;
 } rviewThumbPixList;
 
 // List holding mdd/pixmap items
@@ -77,8 +77,8 @@ typedef struct rviewThumbList
     r_Ref<r_GMarray> mdd;
     rviewBaseType baseType;
     int numPix;
-    rviewThumbPixList *pixmaps;
-    rviewThumbList *next;
+    rviewThumbPixList* pixmaps;
+    rviewThumbList* next;
 } rviewThumbList;
 
 
@@ -91,7 +91,7 @@ class thumbCanvas: public wxCanvas
 {
 public:
 
-    thumbCanvas(rviewThumb *par, int x, int y, int width, int height);
+    thumbCanvas(rviewThumb* par, int x, int y, int width, int height);
     ~thumbCanvas(void);
 
     void OnPaint(void);
@@ -101,7 +101,7 @@ public:
 protected:
 
     wxBrush brush;
-    rviewThumb *parent;
+    rviewThumb* parent;
 };
 
 
@@ -116,25 +116,25 @@ public:
     rviewThumb(void);
     ~rviewThumb(void);
 
-    int addMDD(r_Ref<r_GMarray> &newMdd);
-    int deleteMDD(r_Ref<r_GMarray> &obsMdd);
+    int addMDD(r_Ref<r_GMarray>& newMdd);
+    int deleteMDD(r_Ref<r_GMarray>& obsMdd);
     void setLayout(int width, int npl);
     void newThumbWidth(int newWidth);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
-    virtual const char *getFrameName(void) const;
+    int process(wxObject& obj, wxEvent& evt);
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     void OnSize(int w, int h);
     void OnMenuCommand(int id);
 
-    int userEvent(const user_event &ue);
+    int userEvent(const user_event& ue);
 
     // Used by canvas to get data
-    wxPixmap *getPixmapNumber(int no, char *caption);
-    void getThumbInfo(int &num, int &npl);
-    void getGridInfo(int &gx, int &gy);
+    wxPixmap* getPixmapNumber(int no, char* caption);
+    void getThumbInfo(int& num, int& npl);
+    void getGridInfo(int& gx, int& gy);
 
     // constants
     // Initial dimensions of window
@@ -171,13 +171,13 @@ public:
 
 protected:
 
-    void deletePixmapChain(rviewThumbList *tlst);
-    int pixmapsFromMDD(rviewThumbList *tlst);
-    wxPixmap *buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType baseType, int dimproject, int projval);
+    void deletePixmapChain(rviewThumbList* tlst);
+    int pixmapsFromMDD(rviewThumbList* tlst);
+    wxPixmap* buildThumbnail(r_Ref<r_GMarray>& mddObj, rviewBaseType baseType, int dimproject, int projval);
     void updateCanvasSize(void);
     void rebuildThumbnails(bool fromScratch);
-    void initForObject(r_Ref<r_GMarray> &mddObj);
-    int parseProjection(r_Ref<r_GMarray> &mddObj);
+    void initForObject(r_Ref<r_GMarray>& mddObj);
+    int parseProjection(r_Ref<r_GMarray>& mddObj);
     void configureCspace(bool mode);
 
     char projString[STRINGSIZE];
@@ -191,16 +191,16 @@ protected:
     int dimproj;      // projection dim for 3+D objects
     int projstep;     // stepping value in dimproj
     unsigned int freeDims;
-    rviewThumbList *listHead;
-    thumbCanvas *canvas;
-    wxMenuBar *mbar;
-    wxPanel *panel;
-    rviewText *thumbWidth;
-    rviewText *thumbCols;
-    rviewText *project;
-    rviewText *thumbProj, *thumbStep;
-    wxFont *font;
-    colourspaceMapper *csmap;
+    rviewThumbList* listHead;
+    thumbCanvas* canvas;
+    wxMenuBar* mbar;
+    wxPanel* panel;
+    rviewText* thumbWidth;
+    rviewText* thumbCols;
+    rviewText* project;
+    rviewText* thumbProj, *thumbStep;
+    wxFont* font;
+    colourspaceMapper* csmap;
     bool doValToCspace;
     bool doFullRangeCspace;
     bool canDoCspace;

@@ -29,7 +29,7 @@ using std::pair;
 using std::map;
 using std::string;
 
-User::User(std::string name, std::string password,const UserDatabaseRights& defaultDbRights, const UserAdminRights& adminRights) :
+User::User(std::string name, std::string password, const UserDatabaseRights& defaultDbRights, const UserAdminRights& adminRights) :
     name(name), password(password), defaultDbRights(defaultDbRights), adminRights(adminRights)
 {}
 

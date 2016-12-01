@@ -44,8 +44,8 @@ public class Axis<T> {
     private final int rasdamanOrder;
 
     public Axis(String label, NumericSubset geoBounds, NumericSubset gridBounds,
-                              AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
-                              String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder, BigDecimal origin) {
+                AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
+                String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder, BigDecimal origin) {
         this.label = label;
         this.geoBounds = geoBounds;
         this.gridBounds = gridBounds;
@@ -118,11 +118,11 @@ public class Axis<T> {
     public void setOrigin(BigDecimal origin) {
         this.origin = origin;
     }
-    
+
     @Override
     public Axis clone() {
         return new Axis(getLabel(), getGeoBounds(), getGridBounds(), getDirection(),
-                            getCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
-                            getScalarResolution(), getRasdamanOrder(), getOrigin());
+                        getCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
+                        getScalarResolution(), getRasdamanOrder(), getOrigin());
     }
 }

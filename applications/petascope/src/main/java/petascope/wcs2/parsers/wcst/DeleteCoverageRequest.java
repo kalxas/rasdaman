@@ -31,12 +31,12 @@ import petascope.util.StringUtil;
 public class DeleteCoverageRequest extends WCSTRequest {
 
     public DeleteCoverageRequest(String coverageId) {
-       this.coverageId = StringUtil.trim(coverageId);
-    }  
+        this.coverageId = StringUtil.trim(coverageId);
+    }
 
     public String getCoverageId() {
         return coverageId;
     }
-    
+
     private final String coverageId;
 }

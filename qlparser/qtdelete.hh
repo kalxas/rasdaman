@@ -54,19 +54,19 @@ public:
     virtual QtData* evaluate();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds( QtChildType flag );
+    virtual QtNodeList* getChilds(QtChildType flag);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     //@Man: Read/Write methods:
     //@{
     ///
     ///
-    void setStreamInput( QtONCStream* newInput );
+    void setStreamInput(QtONCStream* newInput);
     ///
     /// returns input
     QtONCStream* getStreamInput();

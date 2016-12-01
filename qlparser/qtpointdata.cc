@@ -43,7 +43,7 @@ using namespace std;
 // #include <iostream>
 
 
-QtPointData::QtPointData( const r_Point& point )
+QtPointData::QtPointData(const r_Point& point)
     : QtData(), pointData(point)
 {
 }
@@ -62,11 +62,11 @@ QtPointData::getDataType() const
 
 
 bool
-QtPointData::equal( const QtData* obj ) const
+QtPointData::equal(const QtData* obj) const
 {
     int returnValue = false;  // not equal by initialization
 
-    if( obj->getDataType() == QT_POINT )
+    if (obj->getDataType() == QT_POINT)
     {
         QtPointData* pt = static_cast<QtPointData*>(const_cast<QtData*>(obj));
 
@@ -88,14 +88,14 @@ QtPointData::getSpelling() const
     char*       buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
-    ostringstream bufferStream( buffer );
+    ostringstream bufferStream(buffer);
 
     bufferStream << pointData << std::ends;
 
-    result.append( std::string( buffer ) );
+    result.append(std::string(buffer));
 
     delete[] buffer;
-    buffer=NULL;
+    buffer = NULL;
     return result;
 }
 
@@ -107,9 +107,9 @@ char* QtPointData::getTypeStructure() const
 
 
 void
-QtPointData::printStatus( std::ostream& stream ) const
+QtPointData::printStatus(std::ostream& stream) const
 {
     stream << "point, value: " << std::flush;
     stream << pointData << std::flush;
-    QtData::printStatus( stream );
+    QtData::printStatus(stream);
 }

@@ -133,13 +133,13 @@ class ImportError // : public std::exception
 public:
 
     /// constructor receiving an error number
-    ImportError( unsigned int e );
+    ImportError(unsigned int e);
 
     /// destructor
     virtual ~ImportError();
 
     /// get an error description
-    virtual const char * what();
+    virtual const char* what();
 
 private:
     /// error information

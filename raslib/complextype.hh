@@ -66,6 +66,6 @@ private:
 };
 
 //@Doc: write the status of a complex type to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Complex_Type &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Complex_Type& type);
 
 #endif

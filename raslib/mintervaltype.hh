@@ -49,7 +49,7 @@ public:
     r_Minterval_Type();
 
     /// copy constructor
-    r_Minterval_Type( const r_Minterval_Type& oldObj );
+    r_Minterval_Type(const r_Minterval_Type& oldObj);
 
     /// clone operation
     virtual r_Type* clone() const;
@@ -64,7 +64,7 @@ public:
     virtual void convertToBigEndian(char* cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status( std::ostream& s = std::cout ) const;
+    virtual void print_status(std::ostream& s = std::cout) const;
 
     virtual bool isMintervalType() const;
 
@@ -73,7 +73,7 @@ public:
 };
 
 //@Doc: write the status of a minterval type to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Minterval_Type &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Minterval_Type& type);
 
 #endif
 

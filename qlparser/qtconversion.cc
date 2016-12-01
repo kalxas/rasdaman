@@ -57,13 +57,13 @@ const QtNode::QtNodeType QtConversion::nodeType = QtNode::QT_CONVERSION;
 
 QtConversion::QtConversion(QtOperation* newInput, QtConversionType
                            newConversionType, const char* paramStrArg)
-: QtUnaryOperation(newInput), conversionType(newConversionType), paramStr(paramStrArg), gdalConversion(false)
+    : QtUnaryOperation(newInput), conversionType(newConversionType), paramStr(paramStrArg), gdalConversion(false)
 {
 }
 
 QtConversion::QtConversion(QtOperation* newInput, QtConversionType
                            newConversionType, const std::string& formatArg, const char* paramStrArg)
-: QtUnaryOperation(newInput), conversionType(newConversionType), format(formatArg), paramStr(paramStrArg), gdalConversion(true)
+    : QtUnaryOperation(newInput), conversionType(newConversionType), format(formatArg), paramStr(paramStrArg), gdalConversion(true)
 {
     if (r_MimeTypes::isMimeType(format))
     {
@@ -75,9 +75,13 @@ QtConversion::QtConversion(QtOperation* newInput, QtConversionType
         gdalConversion = false;
         string internalFormat;
         if (conversionType == QT_FROMGDAL)
+        {
             internalFormat = "inv_" + format;
+        }
         else
+        {
             internalFormat = format;
+        }
         setConversionTypeByName(internalFormat);
     }
 }
@@ -103,37 +107,69 @@ QtConversion::setConversionTypeByName(string formatName)
 {
     boost::algorithm::to_lower(formatName);
     if (string("hdf") == formatName)
+    {
         conversionType = QtConversion::QT_TOHDF;
+    }
     else if (string("tiff") == formatName)
+    {
         conversionType = QtConversion::QT_TOTIFF;
+    }
     else if (string("csv") == formatName)
+    {
         conversionType = QtConversion::QT_TOCSV;
+    }
     else if (string("json") == formatName)
+    {
         conversionType = QtConversion::QT_TOJSON;
+    }
     else if (string("dem") == formatName)
+    {
         conversionType = QtConversion::QT_TODEM;
+    }
     else if (string("netcdf") == formatName)
+    {
         conversionType = QtConversion::QT_TONETCDF;
+    }
     else if (string("gdal") == formatName)
+    {
         conversionType = QtConversion::QT_TOGDAL;
+    }
     else if (string("inv_hdf") == formatName)
+    {
         conversionType = QtConversion::QT_FROMHDF;
+    }
     else if (string("inv_csv") == formatName)
+    {
         conversionType = QtConversion::QT_FROMCSV;
+    }
     else if (string("inv_json") == formatName)
+    {
         conversionType = QtConversion::QT_FROMJSON;
+    }
     else if (string("inv_tiff") == formatName)
+    {
         conversionType = QtConversion::QT_FROMTIFF;
+    }
     else if (string("inv_dem") == formatName)
+    {
         conversionType = QtConversion::QT_FROMDEM;
+    }
     else if (string("inv_netcdf") == formatName)
+    {
         conversionType = QtConversion::QT_FROMNETCDF;
+    }
     else if (string("inv_grib") == formatName)
+    {
         conversionType = QtConversion::QT_FROMGRIB;
+    }
     else if (string("inv_gdal") == formatName)
+    {
         conversionType = QtConversion::QT_FROMGDAL;
+    }
     else
+    {
         conversionType = QtConversion::QT_UNKNOWN;
+    }
 }
 
 QtData*
@@ -160,7 +196,7 @@ QtConversion::evaluate(QtDataList* inputList)
 
         if ((conversionType == QT_TOCSV || conversionType == QT_TOJSON) && operand->isScalarData())
         {
-            QtScalarData* qtScalar = static_cast<QtScalarData*> (operand);
+            QtScalarData* qtScalar = static_cast<QtScalarData*>(operand);
             r_Minterval domain = r_Minterval(2) << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
             sourceTile.reset(new Tile(domain, qtScalar->getValueType(), qtScalar->getValueBuffer(), (r_Bytes)0, r_Array));
             typeStructure = qtScalar->getTypeStructure();
@@ -171,18 +207,21 @@ QtConversion::evaluate(QtDataList* inputList)
             if (operand->getDataType() != QT_MDD)
             {
                 LERROR << "Internal error in QtConversion::evaluate() - "
-                    << "runtime type checking failed (MDD).";
+                       << "runtime type checking failed (MDD).";
 
                 // delete old operand
-                if (operand) operand->deleteRef();
+                if (operand)
+                {
+                    operand->deleteRef();
+                }
                 return 0;
             }
 #endif
 
-            QtMDD* qtMDD = static_cast<QtMDD*> (operand);
+            QtMDD* qtMDD = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
             nullValues = currentMDDObj->getNullValues();
-            vector< boost::shared_ptr<Tile> >* tiles = NULL;
+            vector<boost::shared_ptr<Tile>>* tiles = NULL;
             if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
             {
                 // get relevant tiles
@@ -238,11 +277,13 @@ QtConversion::evaluate(QtDataList* inputList)
                 convDesc = convertor->convertFrom(paramStr);
             }
         }
-        catch (r_Error &err)
+        catch (r_Error& err)
         {
             // delete old operand
             if (operand)
+            {
                 operand->deleteRef();
+            }
 
             if (err.get_kind() == r_Error::r_Error_FeatureNotSupported)
             {
@@ -276,7 +317,7 @@ QtConversion::evaluate(QtDataList* inputList)
 #endif
         }
 
-        r_Bytes convResultSize = static_cast<r_Bytes> (convDesc.destInterv.cell_count()) * static_cast<r_Bytes> (baseType->getSize());
+        r_Bytes convResultSize = static_cast<r_Bytes>(convDesc.destInterv.cell_count()) * static_cast<r_Bytes>(baseType->getSize());
 
         Tile* resultTile = new Tile(convDesc.destInterv, baseType, true, convDesc.dest, convResultSize, convFormat);
 
@@ -288,13 +329,13 @@ QtConversion::evaluate(QtDataList* inputList)
         }
 
         // create a transient MDD object for the query result
-        MDDBaseType* mddBaseType = static_cast<MDDBaseType*> (const_cast<Type*> (dataStreamType.getType()));
+        MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType()));
         MDDObj* resultMDD = new MDDObj(mddBaseType, convDesc.destInterv, nullValues);
         resultMDD->insertTile(resultTile);
 
         // create a new QtMDD object as carrier object for the transient MDD object
         returnValue = new QtMDD(resultMDD);
-        (static_cast<QtMDD*> (returnValue))->setFromConversion(true);
+        (static_cast<QtMDD*>(returnValue))->setFromConversion(true);
 
         // delete old operand
         if (operand)
@@ -314,31 +355,31 @@ QtConversion::evaluate(QtDataList* inputList)
 
 const BaseType* QtConversion::rasTypeToBaseType(r_Type* type)
 {
-    const BaseType *result = NULL;
+    const BaseType* result = NULL;
     if (type->isPrimitiveType())
     {
         result = TypeFactory::mapType(type->name());
         if (!result)
         {
             LFATAL << "no base type for ODMG primitive type '"
-                << type->name() << "' was found";
+                   << type->name() << "' was found";
             throw r_Error(BASETYPENOTSUPPORTED);
         }
     }
     else if (type->isStructType())
     {
-        r_Structure_Type *structType = static_cast<r_Structure_Type *> (const_cast<r_Type*> (type));
-        StructType *restype = new StructType("tmp_struct_type", structType->count_elements());
+        r_Structure_Type* structType = static_cast<r_Structure_Type*>(const_cast<r_Type*>(type));
+        StructType* restype = new StructType("tmp_struct_type", structType->count_elements());
         r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
         while (iter != structType->defines_attribute_end())
         {
             try
             {
                 r_Attribute attr = (*iter);
-                const r_Base_Type &attr_type = attr.type_of();
+                const r_Base_Type& attr_type = attr.type_of();
                 restype->addElement(attr.name(), rasTypeToBaseType((r_Type*) & attr_type));
             }
-            catch (r_Error &e)
+            catch (r_Error& e)
             {
                 LERROR << "failed converting band type: " << e.what();
                 delete restype;
@@ -432,20 +473,20 @@ QtConversion::equalMeaning(QtNode* node)
     if (nodeType == node->getNodeType())
     {
         QtConversion* convNode;
-        convNode = static_cast<QtConversion*> (node); // by force
+        convNode = static_cast<QtConversion*>(node);  // by force
 
         result = input->equalMeaning(convNode->getInput());
 
         result = result && conversionType == convNode->conversionType;
     };
 
-    return ( result);
+    return (result);
 }
 
 void
 QtConversion::printTree(int tab, ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(static_cast<size_t> (tab)).c_str() << "QtConversion Object: ";
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConversion Object: ";
 
     switch (conversionType)
     {
@@ -511,9 +552,13 @@ QtConversion::printAlgebraicExpression(ostream& s)
     s << conversionType << "(";
 
     if (input)
+    {
         input->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ")";
 }
@@ -545,7 +590,9 @@ QtConversion::checkType(QtTypeTuple* typeTuple)
         dataStreamType.setType(mddBaseType);
     }
     else
+    {
         LERROR << "operand branch invalid.";
+    }
 
     return dataStreamType;
 }

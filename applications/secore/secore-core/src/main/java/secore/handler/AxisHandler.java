@@ -39,32 +39,32 @@ import secore.util.Constants;
  */
 public class AxisHandler extends AbstractHandler {
 
-  private static Logger log = LoggerFactory.getLogger(AxisHandler.class);
-  
-  private static final String ELEMENT = "synonym";
-  private static final String IDENTIFIER = "identifier";
+    private static Logger log = LoggerFactory.getLogger(AxisHandler.class);
 
-  public ResolveResponse handle(ResolveRequest request) throws SecoreException {
-    log.debug("Handling resolve request...");
-    List<RequestParam> params = request.getParams();
-    
-    // NOTE: default search is fix version gml dictionary.
-    String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
-        
-    if (request.getOperation().equals(getOperation()) && params.size() == 1) {
-      String name = params.get(0).val + "";      
-      String id = resolveAttribute(ELEMENT, name, versionNumber);
-      log.debug("Retrieved the identifier '" + id + "' of the synonym for " + name);
-      String res = resolve(IDENTIFIER, id, versionNumber, Constants.ZERO);
-      log.debug("Done, returning response.");
-      return new ResolveResponse(res);
-    } else {
-      log.error("Can't handle the given parameters, exiting with error.");
-      throw new SecoreException(ExceptionCode.MissingParameterValue, "Insufficient parameters provided");
+    private static final String ELEMENT = "synonym";
+    private static final String IDENTIFIER = "identifier";
+
+    public ResolveResponse handle(ResolveRequest request) throws SecoreException {
+        log.debug("Handling resolve request...");
+        List<RequestParam> params = request.getParams();
+
+        // NOTE: default search is fix version gml dictionary.
+        String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+
+        if (request.getOperation().equals(getOperation()) && params.size() == 1) {
+            String name = params.get(0).val + "";
+            String id = resolveAttribute(ELEMENT, name, versionNumber);
+            log.debug("Retrieved the identifier '" + id + "' of the synonym for " + name);
+            String res = resolve(IDENTIFIER, id, versionNumber, Constants.ZERO);
+            log.debug("Done, returning response.");
+            return new ResolveResponse(res);
+        } else {
+            log.error("Can't handle the given parameters, exiting with error.");
+            throw new SecoreException(ExceptionCode.MissingParameterValue, "Insufficient parameters provided");
+        }
     }
-  }
 
-  public String getOperation() {
-    return OP_AXIS;
-  }
+    public String getOperation() {
+        return OP_AXIS;
+    }
 }

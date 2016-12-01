@@ -45,13 +45,13 @@ import petascope.wcs2.templates.Templates;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class SOAPProtocolExtension extends AbstractProtocolExtension {
-    
+
     private static final Logger log = LoggerFactory.getLogger(SOAPProtocolExtension.class);
-    
+
     @Override
     public boolean canHandle(HTTPRequest request) {
-        return request.getRequestString() != null && request.getRequestString().startsWith("<") 
-                && XMLUtil.isFirstTag(request.getRequestString(), "Envelope");
+        return request.getRequestString() != null && request.getRequestString().startsWith("<")
+               && XMLUtil.isFirstTag(request.getRequestString(), "Envelope");
     }
 
     @Override
@@ -61,24 +61,27 @@ public class SOAPProtocolExtension extends AbstractProtocolExtension {
             Response ret = super.handle(request, meta);
             if (ret.getXml() != null) {
                 ret = new Response(ret.getData(), new String[] { Templates.getTemplate(Templates.SOAP_MESSAGE,
-                        Pair.of("\\{body\\}", XMLUtil.removeXmlDecl(ret.getXml()[0]))) }, ret.getFormatType());
+                                   Pair.of("\\{body\\}", XMLUtil.removeXmlDecl(ret.getXml()[0])))
+                                                               }, ret.getFormatType());
             }
             return ret;
         } catch (WCSException ex) {
             log.error("WCS error", ex);
             return new Response(
-                    new String[] { Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
-                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))) },
-                    ex.getExceptionCode().getHttpErrorCode());
+                       new String[] { Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
+                                      XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex))))
+                                    },
+                       ex.getExceptionCode().getHttpErrorCode());
         } catch (Exception ex) {
             log.error("Error", ex);
             return new Response(
-                    new String[] { Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
-                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))) },
-                    ExceptionCode.DEFAULT_EXIT_CODE);
+                       new String[] { Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
+                                      XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex))))
+                                    },
+                       ExceptionCode.DEFAULT_EXIT_CODE);
         }
     }
-    
+
     /**
      * Extract the WCS request from the SOAP message.
      * @param request SOAP request.
@@ -89,10 +92,10 @@ public class SOAPProtocolExtension extends AbstractProtocolExtension {
     private String extractWcsRequest(String request) throws Exception {
         Document doc = XMLUtil.buildDocument(null, request);
         Element body = ListUtil.head(
-                XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
+                           XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
         if (body == null) {
             throw new PetascopeException(ExceptionCode.InvalidEncodingSyntax,
-                    "Missing Body from SOAP request.");
+                                         "Missing Body from SOAP request.");
         }
         Element wcsRequest = XMLUtil.firstChild(body);
         wcsRequest.detach();

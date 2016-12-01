@@ -55,27 +55,27 @@ public:
     /**
       * @brief ServerManager ServerManager Initialize a new instance of the ServerManager class.
       */
-    ServerManager (const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory );
+    ServerManager(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory);
 
     virtual ~ServerManager();
 
     /**
      * Method used to retrieve a free server. This method is NOT THREAD SAFE.
      */
-    virtual bool tryGetFreeServer(const std::string& databaseName, boost::shared_ptr<Server>& out_server );
+    virtual bool tryGetFreeServer(const std::string& databaseName, boost::shared_ptr<Server>& out_server);
 
     /**
      * Registers a rasserver when the server starts and becomes available.
      * @param serverId - Server id of the server which became available.
      */
-    virtual void registerServer ( const std::string& serverId );
+    virtual void registerServer(const std::string& serverId);
 
     /**
      * @brief defineServerGroup Define a server group that will be used to
      * automatically spawn servers.
      * @param serverGroupConfig Configuration used to initialize the server group
      */
-    virtual void defineServerGroup ( const ServerGroupConfigProto& serverGroupConfig );
+    virtual void defineServerGroup(const ServerGroupConfigProto& serverGroupConfig);
 
     /**
      * @brief changeServerGroup Change the configuration of the server group with the given name.
@@ -83,19 +83,19 @@ public:
      * @param oldServerGroupName The old name of the server group
      * @param newServerGroupConfig The new configuration that will be used by the server group
      */
-    virtual void changeServerGroup ( const std::string& oldServerGroupName, const ServerGroupConfigProto& newServerGroupConfig );
+    virtual void changeServerGroup(const std::string& oldServerGroupName, const ServerGroupConfigProto& newServerGroupConfig);
 
     /**
      * @brief removeServerGroup Remove a server group if it doesn;t have any running servers
      * @param serverGroupName
      */
-    virtual void removeServerGroup ( const std::string& serverGroupName );
+    virtual void removeServerGroup(const std::string& serverGroupName);
 
     /**
      * @brief startServerGroup
      * @param startGroup
      */
-    virtual void startServerGroup ( const StartServerGroup& startGroup );
+    virtual void startServerGroup(const StartServerGroup& startGroup);
 
     /**
      * @brief stopServerGroup Mark the server group as stopped.
@@ -103,7 +103,7 @@ public:
      * and running servers will be removed once they finish already running transactions.
      * @param serverGroupName
      */
-    virtual void stopServerGroup ( const StopServerGroup& stopGroup );
+    virtual void stopServerGroup(const StopServerGroup& stopGroup);
 
     /**
      * @brief hasRunningServers Check if there are running server groups
@@ -119,7 +119,7 @@ public:
     virtual ServerMgrProto serializeToProto();
 
 private:
-    std::list<boost::shared_ptr<ServerGroup> > serverGroupList;/*!< Server group list */
+    std::list<boost::shared_ptr<ServerGroup>> serverGroupList;/*!< Server group list */
 
     boost::shared_mutex serverGroupMutex;/*!< Mutex used to synchronize access to the list of server groups */
 

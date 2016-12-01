@@ -131,7 +131,7 @@ private:
 
     int sessionCount; /*!< Counter used to track the number of active sessions*/
     int serverCount;/*!< Counter used to track the number of server groups using this host*/
-    std::list<boost::shared_ptr<Database> > databaseList;/*!< List of databases located on this host */
+    std::list<boost::shared_ptr<Database>> databaseList;/*!< List of databases located on this host */
     mutable boost::mutex mut;/*!< Mutex used for syncrhonizing access to this object*/
 
     /**

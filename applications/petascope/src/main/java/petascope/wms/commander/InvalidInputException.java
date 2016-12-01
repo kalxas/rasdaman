@@ -25,17 +25,15 @@ package petascope.wms.commander;
 /**
  * InvalidInputException: invalid input passed from web form
  */
-public class InvalidInputException extends CommanderException
-{
+public class InvalidInputException extends CommanderException {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Constructor for ConnectionFailedException
      * @param msg String
      */
-    public InvalidInputException( String msg )
-    {
-        super( msg );
+    public InvalidInputException(String msg) {
+        super(msg);
     }
 
 }

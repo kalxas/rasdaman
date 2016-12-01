@@ -28,7 +28,7 @@ rasdaman GmbH.
 /** ***********************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  * This interface contains the methods implemented by RasOdmgImplementation and RasRnpImplementation
  *
  *
@@ -37,61 +37,60 @@ rasdaman GmbH.
  *
  * </pre>
  *********************************************************** */
- 
- public interface RasImplementationInterface extends Implementation 
-    {    
-     String getRasServer();
-     
-     int dbIsOpen();
-     
-     int getClientID();
-    
-     int getAccessMode();
-     
-     String getErrorStatus();
-    
-     Transaction newTransaction();
-    
-     Transaction currentTransaction();
-     
-     Database newDatabase();
-    
-     OQLQuery newOQLQuery();
-     
-     DList newDList();
-     
-     DBag newDBag();
-     
-     DSet newDSet();
-     
-     DArray newDArray();
-     
-     DMap newDMap();
-     
-     String getObjectId(Object obj);
 
-     Database getDatabase(Object obj);
-     
-     void openDB(String name, int accessMode)throws ODMGException;
-     
-     void closeDB() throws ODMGException;
-     
-     void beginTA();
-     
-     boolean isOpenTA();
-     
-     void commitTA();
-     
-     void abortTA();
-     
-     void setMaxRetry(int newRetry);
-     
-     int getMaxRetry();
-     
-     void setUserIdentification(String userName, String plainPass);
-     
-     Object queryRequest(String parameters) throws RasQueryExecutionFailedException;
+public interface RasImplementationInterface extends Implementation {
+    String getRasServer();
 
-     String getTypeStructure(String typename, int typetype);
-     }
-     
+    int dbIsOpen();
+
+    int getClientID();
+
+    int getAccessMode();
+
+    String getErrorStatus();
+
+    Transaction newTransaction();
+
+    Transaction currentTransaction();
+
+    Database newDatabase();
+
+    OQLQuery newOQLQuery();
+
+    DList newDList();
+
+    DBag newDBag();
+
+    DSet newDSet();
+
+    DArray newDArray();
+
+    DMap newDMap();
+
+    String getObjectId(Object obj);
+
+    Database getDatabase(Object obj);
+
+    void openDB(String name, int accessMode)throws ODMGException;
+
+    void closeDB() throws ODMGException;
+
+    void beginTA();
+
+    boolean isOpenTA();
+
+    void commitTA();
+
+    void abortTA();
+
+    void setMaxRetry(int newRetry);
+
+    int getMaxRetry();
+
+    void setUserIdentification(String userName, String plainPass);
+
+    Object queryRequest(String parameters) throws RasQueryExecutionFailedException;
+
+    String getTypeStructure(String typename, int typetype);
+}
+

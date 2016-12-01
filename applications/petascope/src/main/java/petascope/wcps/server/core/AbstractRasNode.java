@@ -29,16 +29,16 @@ import java.util.List;
  * Abstract class to host shared fields/methods of WCPS expressions classes.
  * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
-public abstract class AbstractRasNode implements IRasNode {    
+public abstract class AbstractRasNode implements IRasNode {
     /* Fields */
     protected List<IRasNode> children = new ArrayList<IRasNode>();
-    
-    /* Methods */  
+
+    /* Methods */
     // Enable crawling through the XML tree
-    public List<IRasNode> getChildren() { 
+    public List<IRasNode> getChildren() {
         return Collections.unmodifiableList(children);
     }
-    
+
     // Utility
     public boolean hasChildren() {
         return !children.isEmpty();

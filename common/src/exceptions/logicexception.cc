@@ -26,7 +26,7 @@ rasdaman GmbH.
 namespace common
 {
 LogicException::LogicException(const std::string& whatArg)
-    :Exception(whatArg)
+    : Exception(whatArg)
 {}
 
 LogicException::~LogicException() throw()

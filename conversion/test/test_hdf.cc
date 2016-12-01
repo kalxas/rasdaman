@@ -32,7 +32,7 @@ rasdaman GmbH.
 #include "raslib/template_inst.hh"
 #endif
 
-char *TypeIDToName(int tpid)
+char* TypeIDToName(int tpid)
 {
     switch (tpid)
     {
@@ -70,18 +70,18 @@ char *TypeIDToName(int tpid)
 }
 
 
-int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
+int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
 {
-    r_Primitive_Type *prim;
-    char *src, *dest;
+    r_Primitive_Type* prim;
+    char* src, *dest;
     r_Minterval destInterv;
-    r_Conv_HDF *hdf;
-    r_Type *destType;
+    r_Conv_HDF* hdf;
+    r_Type* destType;
     r_Conv_Desc desc;
     int i, j, k;
     int rank, array_size, datasize;
-    int *dimsizes, *dimsteps, *dimidx;
-    char **srcPtrs;
+    int* dimsizes, *dimsteps, *dimidx;
+    char** srcPtrs;
     int ptid, retid;
 
     if (tp->isStructType())
@@ -121,21 +121,24 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
     dimsizes = new int[rank];
     dimsteps = new int[rank];
     dimidx = new int[rank];
-    srcPtrs = new char*[rank];
-    for (i=0; i<rank; i++)
+    srcPtrs = new char* [rank];
+    for (i = 0; i < rank; i++)
     {
         dimsizes[i] = domain[i].high() - domain[i].low() + 1;
         dimidx[i] = 0;
     }
     array_size = datasize;
-    for (i=rank-1; i>=0; i--)
+    for (i = rank - 1; i >= 0; i--)
     {
         dimsteps[i] = array_size;
         array_size *= dimsizes[i];
     }
     src = new char[array_size];
 
-    for (i=0; i<rank; i++) srcPtrs[i] = src;
+    for (i = 0; i < rank; i++)
+    {
+        srcPtrs[i] = src;
+    }
 
     k = 0;
     do
@@ -173,7 +176,10 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
         do
         {
             dimidx[i]++;
-            if (dimidx[i] < dimsizes[i]) break;
+            if (dimidx[i] < dimsizes[i])
+            {
+                break;
+            }
             dimidx[i] = 0;
             i++;
         }
@@ -185,10 +191,13 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
             {
                 // Init the array with the value x_0 + x_1 + ... + x_(n-1)
                 k = dimidx[0];
-                for (j=1; j<rank; j++) k += dimidx[j];
-                for (j=i; j>0; j--)
+                for (j = 1; j < rank; j++)
                 {
-                    srcPtrs[j-1] = srcPtrs[j];;
+                    k += dimidx[j];
+                }
+                for (j = i; j > 0; j--)
+                {
+                    srcPtrs[j - 1] = srcPtrs[j];;
                 }
             }
         }
@@ -206,7 +215,7 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
         destInterv = desc.destInterv;
         destType = desc.destType;
     }
-    catch(r_Error &err)
+    catch (r_Error& err)
     {
         cerr << "Exception! " << err.what() << endl;
     }
@@ -231,10 +240,12 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
             i = 0;
             if (desc.destInterv.dimension() == rank)
             {
-                for (i=0; i<rank; i++)
+                for (i = 0; i < rank; i++)
                 {
                     if (desc.destInterv[i].high() - desc.destInterv[i].low() != domain[i].high() - domain[i].low())
+                    {
                         break;
+                    }
                 }
             }
             if (i < rank)
@@ -244,9 +255,12 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
             }
             cout << "(OK)" << endl;
 
-            for (i=0; i<array_size; i++)
+            for (i = 0; i < array_size; i++)
             {
-                if (src[i] != desc.dest[i]) break;
+                if (src[i] != desc.dest[i])
+                {
+                    break;
+                }
             }
             if (i == array_size)
             {
@@ -264,7 +278,7 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
 
             free(desc.dest);  // HDF^-1 ( HDF (X) )
         }
-        catch(r_Error &err)
+        catch (r_Error& err)
         {
             cerr << "Exception! " << err.what() << endl;
         }
@@ -273,7 +287,9 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
     delete hdf;
 
     if (dest != NULL)
-        free(dest); // HDF (X)
+    {
+        free(dest);    // HDF (X)
+    }
 
     delete [] src;    // X
 
@@ -292,10 +308,10 @@ int TestHDF(r_Minterval &domain, r_Type *tp, const char *params=NULL)
 
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     r_Minterval interv;
-    r_Type *tp;
+    r_Type* tp;
 
     // 3D data set over char
     interv = r_Minterval(3);

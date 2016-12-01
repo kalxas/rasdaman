@@ -49,7 +49,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -71,7 +71,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -93,7 +93,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
     void setExponent(double exponent);
 private:
     double exponent;
@@ -118,7 +118,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -140,7 +140,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -162,7 +162,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -184,7 +184,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -206,7 +206,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -228,7 +228,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -250,7 +250,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -272,7 +272,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -294,7 +294,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -316,7 +316,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -338,7 +338,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -360,6 +360,6 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator() (char* result, const char* op);
+    virtual void operator()(char* result, const char* op);
 };
 

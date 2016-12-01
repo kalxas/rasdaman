@@ -132,7 +132,7 @@ struct KeywordKey FieldnameKeyTable[] =
 *
 */
 
-int HTTP_GetHKey( char *Keyword )
+int HTTP_GetHKey(char* Keyword)
 {
     int cond;
     int low;
@@ -143,36 +143,44 @@ int HTTP_GetHKey( char *Keyword )
 
     low  = 0;
     high = NUM_FIELDS - 1;
-    for( i = 0; i < NUM_FIELDS; i++ )
-        check[ i ] = 0;
-
-    while( low <= high )
+    for (i = 0; i < NUM_FIELDS; i++)
     {
-        mid = ( low + high ) / 2;
-        if( ( cond = strcmp( Keyword, FieldnameKeyTable[mid].Keyword ) ) < 0 )
+        check[ i ] = 0;
+    }
+
+    while (low <= high)
+    {
+        mid = (low + high) / 2;
+        if ((cond = strcmp(Keyword, FieldnameKeyTable[mid].Keyword)) < 0)
         {
-            if( check[mid] == 0 )
+            if (check[mid] == 0)
             {
                 check[mid] = 1;
                 high = mid - 1;
             }
             else
-                return( HKEY_UNKNOWN );
+            {
+                return (HKEY_UNKNOWN);
+            }
         }
-        else if( cond > 0 )
+        else if (cond > 0)
         {
-            if( check[mid] == 0 )
+            if (check[mid] == 0)
             {
                 check[mid] = 1;
                 low = mid + 1;
             }
             else
-                return( HKEY_UNKNOWN );
+            {
+                return (HKEY_UNKNOWN);
+            }
         }
         else
-            return( FieldnameKeyTable[mid].Key );
+        {
+            return (FieldnameKeyTable[mid].Key);
+        }
     }
-    return( HKEY_UNKNOWN );
+    return (HKEY_UNKNOWN);
 }
 
 
@@ -206,14 +214,16 @@ int HTTP_GetHKey( char *Keyword )
 *
 */
 
-char *HTTP_GetFieldName( int Key )
+char* HTTP_GetFieldName(int Key)
 {
     int i;
 
-    for( i = 0; i < NUM_FIELDS; i++ )
+    for (i = 0; i < NUM_FIELDS; i++)
     {
-        if( FieldnameKeyTable[i].Key == Key )
-            return( FieldnameKeyTable[i].Keyword );
+        if (FieldnameKeyTable[i].Key == Key)
+        {
+            return (FieldnameKeyTable[i].Keyword);
+        }
     }
-    return( NULL );
+    return (NULL);
 }

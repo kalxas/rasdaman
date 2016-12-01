@@ -29,8 +29,8 @@ import petascope.exceptions.ExceptionCode;
 public class WCSTAxisCrsMismatchException extends WCSTException {
     public WCSTAxisCrsMismatchException(String axisName, String inputNativeCrs, String currentNativeCrs) {
         super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$axisName", axisName)
-                .replace("$inputNativeCrs", inputNativeCrs)
-                .replace("$currentNativeCrs", currentNativeCrs));
+              .replace("$inputNativeCrs", inputNativeCrs)
+              .replace("$currentNativeCrs", currentNativeCrs));
     }
 
     public static final String EXCEPTION_TEXT = "Native crs of axis $axisName from the input coverage (found  $inputNativeCrs) " +

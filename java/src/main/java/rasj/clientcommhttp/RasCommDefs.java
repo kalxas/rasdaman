@@ -34,21 +34,20 @@ rasdaman GmbH.
 
 package rasj.clientcommhttp;
 
-public interface RasCommDefs
-{
-  static final String rcsid = "@(#)Package rasj.clientcommhttp, class RasCommDefs: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/clientcommhttp/RasCommDefs.java,v 1.5 2003/12/10 21:04:26 rasdev Exp $";
+public interface RasCommDefs {
+    static final String rcsid = "@(#)Package rasj.clientcommhttp, class RasCommDefs: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/clientcommhttp/RasCommDefs.java,v 1.5 2003/12/10 21:04:26 rasdev Exp $";
 
- final public byte RASCLIENT = 1;
- final public byte BROWSER   = 2;
+    final public byte RASCLIENT = 1;
+    final public byte BROWSER   = 2;
 
- final public byte RESPONSE_ERROR       = 0;
- final public byte RESPONSE_MDDS        = 1;
- final public byte RESPONSE_SKALARS     = 2;
- final public byte RESPONSE_INT         = 3;
- final public byte RESPONSE_OID         = 4;
- final static byte RESPONSE_OK_NEGATIVE = 98;
- final public byte RESPONSE_OK          = 99;
+    final public byte RESPONSE_ERROR       = 0;
+    final public byte RESPONSE_MDDS        = 1;
+    final public byte RESPONSE_SKALARS     = 2;
+    final public byte RESPONSE_INT         = 3;
+    final public byte RESPONSE_OID         = 4;
+    final static byte RESPONSE_OK_NEGATIVE = 98;
+    final public byte RESPONSE_OK          = 99;
 
- final public byte BIG_ENDIAN    = 0;
- final public byte LITTLE_ENDIAN = 1;
+    final public byte BIG_ENDIAN    = 0;
+    final public byte LITTLE_ENDIAN = 1;
 }

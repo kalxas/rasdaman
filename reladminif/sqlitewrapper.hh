@@ -28,7 +28,7 @@ rasdaman GmbH.
  */
 
 #ifndef SQLITEWRAPPER_HH
-#define	SQLITEWRAPPER_HH
+#define SQLITEWRAPPER_HH
 
 #include "config.h"
 #ifdef BASEDB_SQLITE
@@ -54,7 +54,7 @@ public:
      * string and a list of parameters to be substituted with vsnprintf.
      * @param query the SQL query to be turned into an SQLite statement.
      */
-    SQLiteQuery(const char *format, ...);
+    SQLiteQuery(const char* format, ...);
 
     /**
      * Destructor
@@ -199,11 +199,11 @@ public:
      */
     sqlite3_stmt* getStatement();
 private:
-    sqlite3_stmt *stmt;
-    char *query;
+    sqlite3_stmt* stmt;
+    char* query;
     int columnCounter;
 };
 
 #endif
 
-#endif	/* SQLITEWRAPPER_HH */
+#endif  /* SQLITEWRAPPER_HH */

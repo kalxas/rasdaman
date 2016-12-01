@@ -34,7 +34,7 @@ import petascope.util.WcpsConstants;
 import petascope.wcps.metadata.CoverageInfo;
 
 public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(CoverageExpr.class);
 
     private IRasNode child;
@@ -74,7 +74,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
                 while (coverages.hasNext()) {    // Check if all the coverages are compatible
                     CoverageInfo tmp = new CoverageInfo(
-                            xq.getMetadataSource().read(
+                        xq.getMetadataSource().read(
                             coverages.next()));
 
                     if (!tmp.isCompatible(info)) {
@@ -126,8 +126,8 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
             if (child == null) {
                 if (n.equals(WcpsConstants.MSG_RANGE_CONSTRUCTOR) ||
-                    UnaryOperationCoverageExpr.NODE_NAMES.contains(n) ||
-                    BinaryOperationCoverageExpr.NODE_NAMES.contains(nodeName)) {
+                        UnaryOperationCoverageExpr.NODE_NAMES.contains(n) ||
+                        BinaryOperationCoverageExpr.NODE_NAMES.contains(nodeName)) {
                     try {
                         child = new InducedOperationCoverageExpr(node, xq);
                         log.trace("Matched induced coverage expression operation.");
@@ -151,12 +151,12 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                         log.trace("Matched subset operation.");
                     } catch (WCPSException e) {
                         if (e.getExceptionCode().equals(ExceptionCode.MissingCRS) ||
-                            e.getExceptionCode().equals(ExceptionCode.InvalidSubsetting)) {
+                                e.getExceptionCode().equals(ExceptionCode.InvalidSubsetting)) {
                             throw(e);
                         }
-                        child = null; 
+                        child = null;
                         exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
-                    } 
+                    }
                 }
             }
 
@@ -174,13 +174,13 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
         if (!simpleCoverage && (child == null)) {
             throw new WCPSException("Invalid coverage Expression, next node: "
-                    + node.getNodeName() + " - " + exMessage);
+                                    + node.getNodeName() + " - " + exMessage);
         }
 
         if (info == null) {
             info = new CoverageInfo(((ICoverageInfo) child).getCoverageInfo());
         }
-        
+
         if (!(child == null)) {
             // Keep child for XML tree crawling
             super.children.add(child);
@@ -195,13 +195,11 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
         return info;
     }
 
-    public boolean isScalarExpr()
-    {
+    public boolean isScalarExpr() {
         return scalarExpr;
     }
 
-    public ScalarExpr getScalarExpr()
-    {
+    public ScalarExpr getScalarExpr() {
         ScalarExpr r = null;
         if (scalarExpr) {
             r = (ScalarExpr) child;
@@ -221,16 +219,16 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             return child.toRasQL();
         }
     }
-    
+
     /**
      * Check if axisName is sliced from this coverage expression.
-     * 
+     *
      * @param axisName axis name
      * @return true if axis is involved in a slice operation, false otherwise
      */
     public boolean isSlicedAxis(String axisName) {
         boolean ret = false;
-        
+
         for (SliceCoverageExpr slice : slices) {
             if (slice.slicesDimension(axisName)) {
                 ret = true;

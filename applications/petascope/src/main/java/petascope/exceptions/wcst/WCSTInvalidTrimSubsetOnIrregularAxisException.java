@@ -26,7 +26,7 @@ import petascope.exceptions.ExceptionCode;
 /**
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class WCSTInvalidTrimSubsetOnIrregularAxisException extends WCSTException{
+public class WCSTInvalidTrimSubsetOnIrregularAxisException extends WCSTException {
     public WCSTInvalidTrimSubsetOnIrregularAxisException(String subset, String axisName) {
         super(ExceptionCode.InvalidSubsetting, EXCEPTION_TEXT.replace("$subset", subset).replace("$axisName", axisName));
     }

@@ -61,7 +61,7 @@ public class ProcessCoveragesRequest {
     private XmlQuery xmlQuery;
 
     public ProcessCoveragesRequest(String url, String database, Node node, IDynamicMetadataSource source, Wcps wcps)
-            throws WCPSException, SAXException, IOException, PetascopeException, SecoreException, SQLException {
+    throws WCPSException, SAXException, IOException, PetascopeException, SecoreException, SQLException {
 
         super();
         this.source = source;
@@ -124,7 +124,7 @@ public class ProcessCoveragesRequest {
         Iterator<CoverageIterator> it = this.xmlQuery.getCoverageIterator().iterator();
         Iterator<String> coverageNamesIt = it.next().getCoverages();
         //coverage_name = coverageNamesIt.next();
-        while( coverageNamesIt.hasNext() ){
+        while (coverageNamesIt.hasNext()) {
             coverage_name = coverageNamesIt.next();
         }
 
@@ -137,9 +137,9 @@ public class ProcessCoveragesRequest {
         // Get coverage subtype using coverage name
         String coverageType = source.read(coverage_name).getCoverageType();
 
-        if(coverageType.equals(WcpsConstants.MSG_MULTIPOINT_COVERAGE)){
+        if (coverageType.equals(WcpsConstants.MSG_MULTIPOINT_COVERAGE)) {
             this.postgisQuery = xmlQuery.toPostGISQuery();
-        }else{
+        } else {
             this.rasqlQuery = this.xmlQuery.toRasQL();
         }
 
@@ -159,9 +159,9 @@ public class ProcessCoveragesRequest {
 
     public boolean isPostGISQuery() {
         return postgisQuery != null && (postgisQuery.contains("BOX3D") || postgisQuery.contains("ST_MakeEnvelope")
-                || postgisQuery.contains("St_X")
-                || postgisQuery.contains("St_Y")
-                || postgisQuery.contains("St_Z"));
+                                        || postgisQuery.contains("St_X")
+                                        || postgisQuery.contains("St_Y")
+                                        || postgisQuery.contains("St_Z"));
     }
 
     public String getMime() {
@@ -181,14 +181,14 @@ public class ProcessCoveragesRequest {
     }
 
     public Object execute() throws WCPSException, PetascopeException, SecoreException, SQLException {
-        if(isPostGISQuery()){
+        if (isPostGISQuery()) {
             DbMetadataSource meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                ConfigManager.METADATA_URL,
-                ConfigManager.METADATA_USER,
-                ConfigManager.METADATA_PASS, false);
+                    ConfigManager.METADATA_URL,
+                    ConfigManager.METADATA_USER,
+                    ConfigManager.METADATA_PASS, false);
             return meta.executePostGISQuery(postgisQuery);
 
-        } else if (isRasqlQuery()){
+        } else if (isRasqlQuery()) {
             return RasUtil.executeRasqlQuery(rasqlQuery);
         }
         return null;

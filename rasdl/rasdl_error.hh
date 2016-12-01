@@ -64,13 +64,13 @@ class RasdlError // : public std::exception
 public:
 
     /// constructor receiving an error number
-    RasdlError( unsigned int e );
+    RasdlError(unsigned int e);
 
     /// destructor
     virtual ~RasdlError();
 
     /// get an error description
-    virtual const char * what();
+    virtual const char* what();
 
 private:
     /// error information

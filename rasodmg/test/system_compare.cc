@@ -139,8 +139,8 @@ SystemCompare::doCompare()
     r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
     char* typeStructure = NULL;
     r_Ref<r_GMarray> selectedMDD;
-    r_Set< r_Ref_Any > result;
-    
+    r_Set<r_Ref_Any> result;
+
     r_Type* tempType = NULL;
     r_Marray_Type* mddType = NULL;
     try
@@ -180,7 +180,7 @@ SystemCompare::doCompare()
         {
             //check if file corresponds to collection
             r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
-            r_Ref<r_GMarray> tempMDD = new (mddTypeName)r_GMarray(mddDomain, baseTypeLength, stl);
+            r_Ref<r_GMarray> tempMDD = new(mddTypeName)r_GMarray(mddDomain, baseTypeLength, stl);
             tempMDD->set_type_schema(mddType);
             FILE* filePointer = checkFile(fileName, retval);
             if (retval != 0)
@@ -197,7 +197,7 @@ SystemCompare::doCompare()
                     r_OQL_Query query(queryBufferS);
                     openTransaction(false);
                     r_oql_execute(query, result);
-                    r_Iterator< r_Ref_Any > iter = result.create_iterator();
+                    r_Iterator<r_Ref_Any> iter = result.create_iterator();
                     selectedMDD = r_Ref<r_GMarray>(*iter);
                     if (polygonDefined)
                     {
@@ -233,7 +233,9 @@ SystemCompare::doCompare()
                     ta.abort();
                 }
                 if (db.get_status() != r_Database::not_open)
+                {
                     db.close();
+                }
             }
         }
         if (scaleLevels != NULL)
@@ -244,7 +246,7 @@ SystemCompare::doCompare()
                 r_OQL_Query query(queryBufferS);
                 openTransaction(false);
                 r_oql_execute(query, result);
-                r_Iterator< r_Ref_Any > iter = result.create_iterator();
+                r_Iterator<r_Ref_Any> iter = result.create_iterator();
                 selectedMDD = r_Ref<r_GMarray>(*iter);
                 if (polygonDefined)
                 {
@@ -257,8 +259,8 @@ SystemCompare::doCompare()
                 if (retval == 0)
                 {
                     //read the scaled mdds from db and scale down the selected MDD and compare
-                    std::list<std::pair<double, char*> >::iterator iter = scaleLevels->begin();
-                    std::list<std::pair<double, char*> >::iterator end = scaleLevels->end();
+                    std::list<std::pair<double, char*>>::iterator iter = scaleLevels->begin();
+                    std::list<std::pair<double, char*>>::iterator end = scaleLevels->end();
                     r_Minterval scaledDomain;
                     r_Minterval clipDomain;
                     unsigned int length = 0;
@@ -266,7 +268,9 @@ SystemCompare::doCompare()
                     r_Point origin(maxDim);
                     double factor = 0;
                     for (r_Dimension i = 0; i < maxDim; i++)
+                    {
                         origin[i] = 0;
+                    }
                     while ((iter != end) && (retval == 0))
                     {
                         factor = iter->first;
@@ -288,7 +292,9 @@ SystemCompare::doCompare()
                 ta.abort();
             }
             if (db.get_status() != r_Database::not_open)
+            {
                 db.close();
+            }
         }
     }
     return retval;

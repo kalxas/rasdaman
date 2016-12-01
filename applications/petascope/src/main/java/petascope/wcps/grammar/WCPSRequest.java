@@ -58,7 +58,7 @@ public class WCPSRequest implements IParseTreeNode {
         String result = WcpsConstants.MSG_XML_HEADER + "\n";
 
         result +=
-                "<" + WcpsConstants.MSG_PROCESS_COVERAGE_REQUEST + " " + WcpsConstants.MSG_XMLNS + ">\n";
+            "<" + WcpsConstants.MSG_PROCESS_COVERAGE_REQUEST + " " + WcpsConstants.MSG_XMLNS + ">\n";
         result += "<" + WcpsConstants.MSG_QUERY + "><" + WcpsConstants.MSG_XML_SYNTAX + ">";
 
         result += forClause.toXML();

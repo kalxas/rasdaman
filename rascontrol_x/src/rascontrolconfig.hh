@@ -98,9 +98,9 @@ private:
      */
     enum PromptMode
     {
-        PROMPTSING=1,
-        PROMPTRASC=2,
-        PROMPTFULL=3
+        PROMPTSING = 1,
+        PROMPTRASC = 2,
+        PROMPTFULL = 3
     };
 
     std::string rasMgrHost;/*!< Name of the rasmgr host to which we want to connect.*/
@@ -118,11 +118,11 @@ private:
     std::string command;
 
     //-- parameters of this program
-    CommandLineParser    &cmlInter;
-    CommandLineParameter &cmlHelp, &cmlHost, &cmlPort, &cmlLogin;
-    CommandLineParameter &cmlHist, &cmlLogFile;
-    CommandLineParameter &cmlPrompt, &cmlTestLogin;
-    CommandLineParameter &cmlInteractive, &cmlQuiet, &cmlExecute;
+    CommandLineParser&    cmlInter;
+    CommandLineParameter& cmlHelp, &cmlHost, &cmlPort, &cmlLogin;
+    CommandLineParameter& cmlHist, &cmlLogFile;
+    CommandLineParameter& cmlPrompt, &cmlTestLogin;
+    CommandLineParameter& cmlInteractive, &cmlQuiet, &cmlExecute;
 
     /**
      * @brief paramError Display error message in case of invalid parameters.

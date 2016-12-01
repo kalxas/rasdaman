@@ -80,14 +80,14 @@ class Configuration
 public:
     Configuration();
 
-    bool interpretArguments(int argc, char **argv,char **envp);
+    bool interpretArguments(int argc, char** argv, char** envp);
     bool readConfigFile();
     bool saveOrigConfigFile();
     bool saveAltConfigFile();
-    const char *getAltConfigFileName();
-    const struct tm *getExpirationDate();
-    const char * getHostName();
-    const char * getPublicHostName();
+    const char* getAltConfigFileName();
+    const struct tm* getExpirationDate();
+    const char* getHostName();
+    const char* getPublicHostName();
     int getListenPort();
 
     int getPollFrequency();
@@ -102,12 +102,12 @@ public:
 
     // DM: logging, adapted from rasserver_config.hh
     void initLogFiles();
-    const char* makeLogFileName(const char *desExt);
-    
-    std::vector<char*> inpeers; 
+    const char* makeLogFileName(const char* desExt);
+
+    std::vector<char*> inpeers;
     std::vector<char*> outpeers;
     std::vector<int> outports;
-    
+
 private:
     void printHelp();
 
@@ -130,15 +130,15 @@ private:
     bool allowMultiWT;
 
     //interface program
-    CommandLineParser    &cmlInter;
-    CommandLineParameter &cmlHelp, &cmlHostName, &cmlPort, &cmlPollFrequ;
-    CommandLineParameter &cmlName, &cmlQuiet;
+    CommandLineParser&    cmlInter;
+    CommandLineParameter& cmlHelp, &cmlHostName, &cmlPort, &cmlPollFrequ;
+    CommandLineParameter& cmlName, &cmlQuiet;
 
 #ifdef RMANDEBUG
-    CommandLineParameter &cmlTest, &cmlDSup, &cmlRandTest, &cmlRth, &cmlMultiWT;
+    CommandLineParameter& cmlTest, &cmlDSup, &cmlRandTest, &cmlRth, &cmlMultiWT;
 #endif
 
-    CommandLineParameter &cmlLog;
+    CommandLineParameter& cmlLog;
 
     // logging variables
     bool        logToStdOut;
@@ -153,11 +153,11 @@ extern Configuration config;
 class BenchmarkTimer
 {
 public:
-    BenchmarkTimer(const char *text);
+    BenchmarkTimer(const char* text);
     ~BenchmarkTimer();
     void result();
 private:
-    int  timeval_subtract(timeval *result,timeval *x,timeval *y);
+    int  timeval_subtract(timeval* result, timeval* x, timeval* y);
 
     struct timeval start;
     struct timeval end;

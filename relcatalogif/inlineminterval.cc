@@ -93,7 +93,9 @@ InlineMinterval&
 InlineMinterval::operator=(const InlineMinterval& old)
 {
     if (this == &old)
+    {
         return *this;
+    }
     r_Minterval::operator=(old);
     return *this;
 }
@@ -102,7 +104,9 @@ InlineMinterval&
 InlineMinterval::operator=(const r_Minterval& old)
 {
     if (this == &old)
+    {
         return *this;
+    }
     r_Minterval::operator=(old);
     return *this;
 }

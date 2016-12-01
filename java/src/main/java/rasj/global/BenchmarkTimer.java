@@ -36,10 +36,9 @@ package rasj.global;
 import java.util.*;
 import java.lang.Float;
 
-public class BenchmarkTimer
-  {
-    
-       private static final String srcFileVersion = "CVS version information: $Source: /home/rasdev/CVS-repository/rasdaman/java/rasj/global/BenchmarkTimer.java,v $ $Revision: 1.1 $";
+public class BenchmarkTimer {
+
+    private static final String srcFileVersion = "CVS version information: $Source: /home/rasdev/CVS-repository/rasdaman/java/rasj/global/BenchmarkTimer.java,v $ $Revision: 1.1 $";
 
     private static final String OUTPUTPREFIX = "-- Timer ";
 
@@ -47,63 +46,56 @@ public class BenchmarkTimer
     long   startTime;
     long   endTime;
     long   totalTime;
-    
-    public BenchmarkTimer(String t)
-      {
-        text = t==null ? "(no text)" : t;
-	reset();
-       }
-       
-    public void reset()
-      {
-	startTime = 0;
-	endTime   = 0;
-	totalTime = 0;
+
+    public BenchmarkTimer(String t) {
+        text = t == null ? "(no text)" : t;
+        reset();
+    }
+
+    public void reset() {
+        startTime = 0;
+        endTime   = 0;
+        totalTime = 0;
         // Debug.talkVerbose( OUTPUTPREFIX + text + " reset.");
-       }
-       
-    public void startTimer()
-      {
-        Debug.talkSparse( OUTPUTPREFIX + text + " started.");	// level must be less than verbose to get crisp output
+    }
+
+    public void startTimer() {
+        Debug.talkSparse(OUTPUTPREFIX + text + " started.");    // level must be less than verbose to get crisp output
         startTime = System.currentTimeMillis();
-       }
-       
-    public void stopTimer()
-      {
+    }
+
+    public void stopTimer() {
         endTime = System.currentTimeMillis();
-	totalTime += endTime;
+        totalTime += endTime;
         // Debug.talkVerbose( OUTPUTPREFIX + text + " stopped.");
-       }
-       
-    public long getTotalTime()
-      {
+    }
+
+    public long getTotalTime() {
         return totalTime;
-       }
-    
-    public void print()
-      {
-        Debug.talkSparse( OUTPUTPREFIX + text + ": " + (totalTime-startTime) + " ms elapsed.");
-								// level must be less than verbose to get crisp output
-       }
+    }
+
+    public void print() {
+        Debug.talkSparse(OUTPUTPREFIX + text + ": " + (totalTime - startTime) + " ms elapsed.");
+        // level must be less than verbose to get crisp output
+    }
 
 // ----------------------------------------------------------------------------------
 
     /**
     test routine for timer
     */
-    public static void main(String a[])
-      {
-        Debug.enterVerbose( "Benchmark test start" );
-	
-	BenchmarkTimer timer = new BenchmarkTimer("Test");
-	
-	timer.startTimer();
-	for(int i=0;i<20000000;i++);
-	timer.stopTimer();
-	
-	timer.print();
-	
-        Debug.leaveVerbose( "Benchmark test stop" );
-       }
-   }
-   
+    public static void main(String a[]) {
+        Debug.enterVerbose("Benchmark test start");
+
+        BenchmarkTimer timer = new BenchmarkTimer("Test");
+
+        timer.startTimer();
+        for (int i = 0; i < 20000000; i++);
+        timer.stopTimer();
+
+        timer.print();
+
+        Debug.leaveVerbose("Benchmark test stop");
+    }
+}
+

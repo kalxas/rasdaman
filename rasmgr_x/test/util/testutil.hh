@@ -16,7 +16,8 @@ public:
         return  min + (rand() % (int)(max - min + 1));
     }
 
-    static bool randomBool(){
+    static bool randomBool()
+    {
         return rand() % 2;
     }
 };

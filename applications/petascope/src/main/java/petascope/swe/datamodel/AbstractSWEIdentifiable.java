@@ -54,7 +54,7 @@ public abstract class AbstractSWEIdentifiable {
     /**
      * Constructor with empty initialization.
      */
-    protected AbstractSWEIdentifiable () {
+    protected AbstractSWEIdentifiable() {
         label         = "";
         description   = "";
     }
@@ -63,7 +63,7 @@ public abstract class AbstractSWEIdentifiable {
      * @param lab   label
      * @param descr description
      */
-    protected AbstractSWEIdentifiable (String lab, String descr) {
+    protected AbstractSWEIdentifiable(String lab, String descr) {
         label         = lab;
         description   = descr;
     }
@@ -74,14 +74,14 @@ public abstract class AbstractSWEIdentifiable {
      * @return The identifier of this SWE object.
      */
     public String getIdentifier() {
-        return (null==identifierURI ? "" : identifierURI);
+        return (null == identifierURI ? "" : identifierURI);
     }
     /**
      * Getter method for the label element.
      * @return The label of this SWE object.
      */
     public String getLabel() {
-        // NOTE: if label value is a random string then it should not be shown when DescribeCoverage        
+        // NOTE: if label value is a random string then it should not be shown when DescribeCoverage
         if (label == null || StringUtil.isRandomString(DbMetadataSource.QUANTITY_LABEL, label)) {
             return "";
         }
@@ -92,7 +92,7 @@ public abstract class AbstractSWEIdentifiable {
      * @return The description of this SWE object.
      */
     public String getDescription() {
-        return (null==description ? "" : description);
+        return (null == description ? "" : description);
     }
 
     // methods

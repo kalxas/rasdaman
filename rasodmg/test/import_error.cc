@@ -44,16 +44,16 @@ static const char rcsid[] = "@(#)raslib, ImportError: $Id: import_error.cc,v 1.3
 #include "debug.hh"
 
 /// error object, carrying int error code
-ImportError::ImportError( unsigned int e )
+ImportError::ImportError(unsigned int e)
 {
-    TALK( "Exception: " << e );
+    TALK("Exception: " << e);
     importErrno = e;
 }
 
 /// default destructor
 ImportError::~ImportError()
 {
-    TALK( "ImportError destructor for error " << importErrno );
+    TALK("ImportError destructor for error " << importErrno);
 }
 
 /// print error message (including error code)
@@ -61,7 +61,7 @@ ImportError::~ImportError()
 const char*
 ImportError::what()
 {
-    char *errorMsg;
+    char* errorMsg;
     switch (importErrno)
     {
     case  EXCEPTIONEXECUTEQUERY:
@@ -347,9 +347,13 @@ ImportError::what()
 
     // check for buffer overflow
     if (strlen(MODULE_TAG) + 3 + strlen(ERROR_TEXT) + strlen(errorMsg) + 1 > ERRTEXT_BUFSIZ)
-        sprintf( errorText, "%s%03d%s", MODULE_TAG, importErrno, "(error message too long, cannot display)" );
+    {
+        sprintf(errorText, "%s%03d%s", MODULE_TAG, importErrno, "(error message too long, cannot display)");
+    }
     else
-        sprintf( errorText, "%s%03d%s%s", MODULE_TAG, importErrno, ERROR_TEXT, errorMsg );
+    {
+        sprintf(errorText, "%s%03d%s%s", MODULE_TAG, importErrno, ERROR_TEXT, errorMsg);
+    }
 
     return errorText;
 } // what()

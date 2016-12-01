@@ -52,7 +52,7 @@ public interface KVPSymbols {
     String VALUE_SECTIONS_COVERAGESUMMARY_ALL                 = "All";
     String KEY_OUTPUTCRS           = "outputcrs";
     String KEY_SUBSETCRS           = "subsettingcrs";
-    
+
     String KEY_GET_COVERAGE        = "GetCoverage";
     String KEY_DESCRIBE_COVERAGE   = "DescribeCoverage";
 

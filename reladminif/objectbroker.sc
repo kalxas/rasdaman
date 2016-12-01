@@ -141,7 +141,7 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
 
     MDDType* retval = 0;
     const int theMapsNo = 4;
-    DBObjectPMap * theMaps[] = {&theMDDTypes, &theMDDBaseTypes, &theMDDDimensionTypes, &theMDDDomainTypes};
+    DBObjectPMap* theMaps[] = {&theMDDTypes, &theMDDBaseTypes, &theMDDDimensionTypes, &theMDDDomainTypes};
 
     for (int i = 0; i < theMapsNo; i++)
     {
@@ -149,9 +149,9 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
         //check if there is an object with that name already in memory
         for (DBObjectPMap::iterator iter = theMap.begin(); iter != theMap.end(); iter++)
         {
-            if (strcmp(((DBNamedObject*) (*iter).second)->getName(), name) == 0)
+            if (strcmp(((DBNamedObject*)(*iter).second)->getName(), name) == 0)
             {
-                retval = (MDDType*) (*iter).second;
+                retval = (MDDType*)(*iter).second;
                 break;
             }
         }
@@ -198,7 +198,7 @@ ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
     {
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy(mddtname, const_cast<char*>(name), (size_t) sizeof (mddtname));
+    (void) strncpy(mddtname, const_cast<char*>(name), (size_t) sizeof(mddtname));
 
     SQLiteQuery query("SELECT MDDTypeOId FROM RAS_MDDTYPES WHERE MDDTypeName = '%s'", name);
     if (query.nextRow())
@@ -340,8 +340,8 @@ ObjectBroker::getOIdOfMDDSet(const char* name) throw (r_Error)
     }
     else
     {
-            LTRACE << "is not in db";
-            throw r_Error(r_Error::r_Error_ObjectUnknown);
+        LTRACE << "is not in db";
+        throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 
     return retval;

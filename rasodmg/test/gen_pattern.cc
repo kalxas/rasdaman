@@ -118,7 +118,7 @@ void parse(int argc, char** argv)
 
 void get_specification()
 {
-    char buf[BUF_SIZE+1], buf2[BUF_SIZE+1];
+    char buf[BUF_SIZE + 1], buf2[BUF_SIZE + 1];
     double perc;
 
     ifstream is(in_filename);
@@ -154,7 +154,7 @@ void get_specification()
 
     delta = new int[dim];
 
-    for (int i=0; i<dim; i++)
+    for (int i = 0; i < dim; i++)
     {
         is >> delta[i];
         cout << "*";
@@ -176,7 +176,9 @@ void get_specification()
             cout << "*";
         }
         else
+        {
             break;
+        }
     }
 
     cout << ") -Done- " << endl;
@@ -205,29 +207,35 @@ void generate_patterns()
 
         int total = (int)(ia->percent * total_patterns);
 
-        for (int i=0; i<total; i++)
+        for (int i = 0; i < total; i++)
         {
             os << "[";
 
-            for (int j=0; j<dim; j++)
+            for (int j = 0; j < dim; j++)
             {
                 long xmin = ia->iarea[j].low();
                 long xmax = ia->iarea[j].high();
-                long total = xmax-xmin;
+                long total = xmax - xmin;
 
                 if (delta[j] > total)
+                {
                     delta[j] = total;
+                }
 
-                long dxmin = (rand() % (2*delta[j] + 1)) - delta[j];
-                long dxmax = (rand() % (2*delta[j] + 1)) - delta[j];
+                long dxmin = (rand() % (2 * delta[j] + 1)) - delta[j];
+                long dxmax = (rand() % (2 * delta[j] + 1)) - delta[j];
 
                 xmin = xmin + dxmin;
                 if (xmin < (*domain)[j].low())
+                {
                     xmin = (*domain)[j].low() + ((*domain)[j].low() - xmin);
+                }
 
                 xmax = xmax + dxmax;
                 if (xmax > (*domain)[j].high())
+                {
                     xmax = (*domain)[j].high() - (xmax - (*domain)[j].high());
+                }
 
                 if (xmin > xmax)
                 {
@@ -238,8 +246,10 @@ void generate_patterns()
 
                 os << xmin << ":" << xmax;
 
-                if (j != dim-1)
+                if (j != dim - 1)
+                {
                     os << ",";
+                }
             }
 
             os << "]" << endl;

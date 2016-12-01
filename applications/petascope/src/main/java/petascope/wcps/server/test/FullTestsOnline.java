@@ -57,7 +57,7 @@ public class FullTestsOnline {
 
     public static String PetascopeURL = "http://localhost:8080/PetaScope/earthlook";
 //  public static String PetascopeURL = "http://localhost:8080/petascope/wcps/";
-//	public static String PetascopeURL = "http://kahlua.eecs.jacobs-university.de:8080/petascope/earthlook";
+//  public static String PetascopeURL = "http://kahlua.eecs.jacobs-university.de:8080/petascope/earthlook";
     // Tests are read from this folder
     static String folder = "test/testcases-wcps/";
     // How many testFiles we have to run
@@ -117,7 +117,7 @@ public class FullTestsOnline {
             tname = tname.substring(0, tname.length() - 5);
 
             if (ok[i] == true) {
-                String time = (double) (asTimes[i] / 10) / 100 + " sec";
+                String time = (double)(asTimes[i] / 10) / 100 + " sec";
                 System.out.println("*** Test '" + tname + "' ok (" + time + ")");
 //              System.out.println("\t" + queries[i]);
             } else {
@@ -145,9 +145,9 @@ public class FullTestsOnline {
         System.out.println("Tests failed: " + String.valueOf(numTests - passCount));
 
         System.out.println("\nWARNING: a test is considered to have passed when the web server does not report"
-                + " any erorrs. A human has to inspect the semantics of the result. For this, the first three lines"
-                + " of the output from the web service are printed for each test. For example, if a query involves"
-                + " encoding a coverage in JPEG format, the first line needs to look like \"����JFIF��C\"");
+                           + " any erorrs. A human has to inspect the semantics of the result. For this, the first three lines"
+                           + " of the output from the web service are printed for each test. For example, if a query involves"
+                           + " encoding a coverage in JPEG format, the first line needs to look like \"����JFIF��C\"");
     }
 
     public void runAllTests() {
@@ -201,19 +201,19 @@ public class FullTestsOnline {
                 errors[1][i] = e.getMessage();
             }
             // Step 2: Convert XML query to RasQL query, and save files
-//			try
-//			{
-//				rasqlQuery = xml.convertXmlToRasql(xmlQuery);
-//				// Save XML query to a file in output folder
-//				File rasqlFile = new File(outputFolder + tname + ".rasql");
-//				FileUtils.writeStringToFile(rasqlFile, rasqlQuery);
+//          try
+//          {
+//              rasqlQuery = xml.convertXmlToRasql(xmlQuery);
+//              // Save XML query to a file in output folder
+//              File rasqlFile = new File(outputFolder + tname + ".rasql");
+//              FileUtils.writeStringToFile(rasqlFile, rasqlQuery);
 //
-//				partialOk[2][i] = true;
-//			}
-//			catch (Exception e)
-//			{
-//				errors[2][i] = e.getMessage();
-//			}
+//              partialOk[2][i] = true;
+//          }
+//          catch (Exception e)
+//          {
+//              errors[2][i] = e.getMessage();
+//          }
             // Step 3: Send abstract syntax query to PetaScope WCPS
             try {
                 System.out.println("*** Results from abstract query :");
@@ -261,7 +261,7 @@ public class FullTestsOnline {
      * Returns a message on error and null otherwise.
      */
     public String runOneTest(String param, String query, String method)
-            throws MalformedURLException, IOException {
+    throws MalformedURLException, IOException {
 //      System.out.println("--------------------");
 //      System.out.println(query);
 //      System.out.println("\t--------------------");
@@ -320,7 +320,7 @@ public class FullTestsOnline {
                 DocumentBuilder builder = null;
                 try {
                     DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-                    domFactory.setNamespaceAware(true);		// never forget this!
+                    domFactory.setNamespaceAware(true);     // never forget this!
                     builder = domFactory.newDocumentBuilder();
                     Document doc = builder.parse(IOUtils.toInputStream(output.toString()));
                     Element rootElem = doc.getDocumentElement();
@@ -337,7 +337,7 @@ public class FullTestsOnline {
     }
 
     /** Runs the full test suite on a deployed version of PetaScope.
-     * If command-line arguments are not provided, default values are used. 
+     * If command-line arguments are not provided, default values are used.
      *
      * @param args Can contain up to three parameters, in order: PetaScopeURL testFolder, outputFolder
      */

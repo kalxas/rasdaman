@@ -111,13 +111,13 @@ public:
     StructType();
 
     /// constructor getting type name and number of elements.
-    StructType(const char* newTypeName, unsigned int numElem );
+    StructType(const char* newTypeName, unsigned int numElem);
 
     /// copy constructor.
-    StructType( const StructType& old );
+    StructType(const StructType& old);
 
     /// assignment operator.
-    StructType& operator=( const StructType& old );
+    StructType& operator=(const StructType& old);
 
     /// virtual destructor.
     virtual ~StructType();
@@ -152,13 +152,13 @@ protected:
     void calcSize();
 
     /// Array containing references to base types of elements.
-    std::vector< const BaseType* > elements;
+    std::vector<const BaseType*> elements;
 
     /// Array containing names of elements.
-    std::vector< char* > elementNames;
+    std::vector<char*> elementNames;
 
     /// Array containing offsets to elements
-    std::vector< unsigned int > elementOffsets;
+    std::vector<unsigned int> elementOffsets;
 
     /// The number of elements.
     unsigned int numElems;

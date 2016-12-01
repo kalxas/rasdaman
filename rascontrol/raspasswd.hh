@@ -56,16 +56,16 @@ rasdaman GmbH.
 using namespace std;
 
 
-const char* getPasswdKeyboard(const char*text,char*dest);
-bool  execute(const char *message);
+const char* getPasswdKeyboard(const char* text, char* dest);
+bool  execute(const char* message);
 
-class RasPasswdConfig:public ConfigurationBase
+class RasPasswdConfig: public ConfigurationBase
 {
 public:
     RasPasswdConfig();
 
     // false means program shouldn't continue
-    bool interpretArguments(int argc, char **argv);
+    bool interpretArguments(int argc, char** argv);
 
     const char* getRasMgrHost();
     int         getRasMgrPort();
@@ -79,8 +79,8 @@ private:
     int  rasmgrPort;
 
     //-- parameters of this program
-    CommandLineParser    &cmlInter;
-    CommandLineParameter &cmlHost, &cmlPort, &cmlHelp;
+    CommandLineParser&    cmlInter;
+    CommandLineParameter& cmlHost, &cmlPort, &cmlHelp;
 };
 
 #endif

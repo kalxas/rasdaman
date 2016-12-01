@@ -35,9 +35,9 @@ import petascope.wcps.metadata.CoverageInfo;
 import static petascope.util.ras.RasConstants.*;
 
 public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(BinaryOperationCoverageExpr.class);
-    
+
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
         WcpsConstants.MSG_PLUS_S,
@@ -115,7 +115,7 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
             throw new WCPSException("Unexpected binary operation : " + nodeName);
         }
         log.trace("  " + WcpsConstants.MSG_OPERATION + ": " + operation);
-        
+
         Node operand = node.getFirstChild();
         while (operand.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             operand = operand.getNextSibling();
@@ -125,7 +125,7 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
         info = new CoverageInfo(((ICoverageInfo) pair).getCoverageInfo());
         first = pair.getFirst();
         second = pair.getSecond();
-        
+
         // Keep the children to let XML tree be re-traversed
         super.children.addAll(Arrays.asList(first, second));
     }

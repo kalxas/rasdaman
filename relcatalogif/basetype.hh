@@ -110,7 +110,7 @@ public:
     //@Man: methods for getting functions (used by \Ref{Tile})
     //@{
     /// get function object for condense operation.
-    virtual CondenseOp* getCondenseOp( Ops::OpType op ) const;
+    virtual CondenseOp* getCondenseOp(Ops::OpType op) const;
     /*@Doc:
       \Ref{CondenseOp} carrying out the operation op on a cell of this
       type. The type of the result depends on the operation carried out,
@@ -118,7 +118,7 @@ public:
     */
 
     /// get function object for unary operation.
-    virtual UnaryOp* getUnaryOp( Ops::OpType op, const BaseType* optype ) const;
+    virtual UnaryOp* getUnaryOp(Ops::OpType op, const BaseType* optype) const;
     /*@Doc:
       Returns a pointer to a function object of a subclass of class
       \Ref{UnaryOp} carrying out the operation {\tt op} on a cell of
@@ -127,7 +127,7 @@ public:
     */
 
     /// get function object for binary operation.
-    virtual BinaryOp* getBinaryOp( Ops::OpType op, const BaseType* op1type, const BaseType* op2type) const;
+    virtual BinaryOp* getBinaryOp(Ops::OpType op, const BaseType* op1type, const BaseType* op2type) const;
     /*@Doc:
       Returns a pointer to a function object of a subclass of class
       \Ref{BinaryOp} carrying out the operation {\tt op} on two cells of

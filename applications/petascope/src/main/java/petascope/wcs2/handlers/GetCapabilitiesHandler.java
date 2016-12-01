@@ -93,10 +93,10 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         // Service Identification
         //
         Element serviceIdentification = Templates.getXmlTemplate(Templates.SERVICE_IDENTIFICATION,
-                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
-                ? ConfigManager.PETASCOPE_SERVLET_URL
-                : Wcs2Servlet.LOCAL_SERVLET_ADDRESS)
-                );
+                                        Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                                                ? ConfigManager.PETASCOPE_SERVLET_URL
+                                                : Wcs2Servlet.LOCAL_SERVLET_ADDRESS)
+                                                                );
         if (serviceIdentification != null) {
             // Data from petascopedb tables
             ServiceIdentification sId = sMeta.getIdentification();
@@ -148,9 +148,9 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         // Service Provider
         //
         Element serviceProvider = Templates.getXmlTemplate(Templates.SERVICE_PROVIDER,
-                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
-                ? ConfigManager.PETASCOPE_SERVLET_URL
-                : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
+                                  Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                                          ? ConfigManager.PETASCOPE_SERVLET_URL
+                                          : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (serviceProvider != null) {
             // Data from petascopedb tables
             ServiceProvider sPro = sMeta.getProvider();
@@ -185,7 +185,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             Element grandChildEl;
             // phone
             if (!sPro.getContact().getContactInfo().getVoicePhones().isEmpty() ||
-                !sPro.getContact().getContactInfo().getFacsimilePhones().isEmpty()) {
+                    !sPro.getContact().getContactInfo().getFacsimilePhones().isEmpty()) {
                 grandChildEl = new Element(PREFIX_OWS + ":" + LABEL_PHONE, NAMESPACE_OWS);
                 Element greatGrandChildEl;
                 // voice [0..*]
@@ -205,7 +205,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             }
             // address
             Element address = new Element(PREFIX_OWS + ":" + LABEL_ADDRESS, NAMESPACE_OWS);
-            for (Pair<String,String> xmlValue : sPro.getContact().getContactInfo().getAddress().getAddressMetadata()) {
+            for (Pair<String, String> xmlValue : sPro.getContact().getContactInfo().getAddress().getAddressMetadata()) {
                 grandChildEl = new Element(PREFIX_OWS + ":" + xmlValue.fst, NAMESPACE_OWS);
                 grandChildEl.appendChild(xmlValue.snd);
                 address.appendChild(grandChildEl);
@@ -243,9 +243,9 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         // Operations Metadata
         //
         Element operationsMetadata = Templates.getXmlTemplate(Templates.OPERATIONS_METADATA,
-                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
-                ? ConfigManager.PETASCOPE_SERVLET_URL
-                : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
+                                     Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                                             ? ConfigManager.PETASCOPE_SERVLET_URL
+                                             : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (operationsMetadata != null) {
             root.appendChild(operationsMetadata.copy());
         }
@@ -389,10 +389,10 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             throw new WCSException(pEx.getExceptionCode(), pEx.getExceptionText());
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
-                    "Error building capabilities document", ex);
+                                   "Error building capabilities document", ex);
         }  catch (ParsingException ex) {
             throw new WCSException(ExceptionCode.InvalidCoverageConfiguration,
-                    "Error building capabilities document: invalid OWS metadata inserted?", ex);
+                                   "Error building capabilities document: invalid OWS metadata inserted?", ex);
         }
         root.appendChild(contents);
 
@@ -400,7 +400,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             return new Response(null, new String[] { XMLUtil.serialize(ret) }, FormatExtension.MIME_XML);
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
-                    "Error serializing constructed document", ex);
+                                   "Error serializing constructed document", ex);
         }
     }
 
@@ -448,7 +448,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         // Keywords
         for (Description.KeywordsGroup kGroup : ListUtil.reverse(descr.getKeywordGroups())) {
             Element keywords = new Element(PREFIX_OWS + ":" + LABEL_KEYWORDS, NAMESPACE_OWS);
-            for (Pair<String,String> key : kGroup.getValues()) {
+            for (Pair<String, String> key : kGroup.getValues()) {
                 // Keyword
                 el = new Element(PREFIX_OWS + ":" + LABEL_KEYWORD, NAMESPACE_OWS);
                 // Value

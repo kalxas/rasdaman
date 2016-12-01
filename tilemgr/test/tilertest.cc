@@ -44,7 +44,7 @@ RMINITGLOBALS('C')
 
 
 int
-main(int argc, char *argv[])
+main(int argc, char* argv[])
 {
     vector<r_Minterval> sourceDomains;
     vector<r_Minterval> targetDomains;
@@ -95,7 +95,7 @@ main(int argc, char *argv[])
     cont9 = (char*)mymalloc(500);
     cont10 = (char*)mymalloc(500);
     cont11 = (char*)mymalloc(500);
-    outc = (char*)mymalloc(101*101);
+    outc = (char*)mymalloc(101 * 101);
     memset(cont1, 1, 500);
     memset(cont2, 2, 500);
     memset(cont3, 3, 500);
@@ -196,10 +196,14 @@ main(int argc, char *argv[])
 
     cout << "Target Tiles" << endl;
     for (targetIt = targetTiles.begin(); targetIt != targetTiles.end(); targetIt++)
+    {
         cout << (*targetIt)->getDomain() << endl;
+    }
     cout << endl << "Source Tiles" << endl;
     for (sourceIt = sourceTiles.begin(); sourceIt != sourceTiles.end(); sourceIt++)
+    {
         cout << (*sourceIt)->getDomain() << endl;
+    }
     cout << endl;
     cout << "Checking if only update, insert or update and insert" << endl;
 
@@ -216,14 +220,14 @@ main(int argc, char *argv[])
                 cout << "Target Tile " << (*targetIt)->getDomain() << " area " << targetTileArea << endl;
             }
 
-            if( (*sourceIt)->getDomain().intersects_with( (*targetIt)->getDomain() ) )
+            if ((*sourceIt)->getDomain().intersects_with((*targetIt)->getDomain()))
             {
                 cout << "Intersection" << endl;
                 intersection = true;
-                intersectUpdateDomain = (*sourceIt)->getDomain().create_intersection( (*targetIt)->getDomain() );
+                intersectUpdateDomain = (*sourceIt)->getDomain().create_intersection((*targetIt)->getDomain());
                 cout << "Updated " << intersectUpdateDomain << " on source " << (*sourceIt)->getDomain() << " and target " << (*targetIt)->getDomain() << endl;
                 updatedArea = updatedArea + intersectUpdateDomain.cell_count();
-                (*targetIt)->execUnaryOp(Ops::OP_IDENTITY, intersectUpdateDomain, *sourceIt, intersectUpdateDomain );
+                (*targetIt)->execUnaryOp(Ops::OP_IDENTITY, intersectUpdateDomain, *sourceIt, intersectUpdateDomain);
             }
         }
         if (!intersection)
@@ -269,17 +273,25 @@ main(int argc, char *argv[])
         retvalDomains = tiler.getTiledDomains();
         cout << "we have now" << endl;
         for (retvalDIt = retvalDomains.begin(); retvalDIt != retvalDomains.end(); retvalDIt++)
+        {
             cout << (*retvalDIt) << endl;
+        }
         tiler.mergeDomains();
         retvalDomains = tiler.getTiledDomains();
         cout << "we have now" << endl;
         for (retvalDIt = retvalDomains.begin(); retvalDIt != retvalDomains.end(); retvalDIt++)
+        {
             cout << (*retvalDIt) << endl;
+        }
         vector<Tile*> t = tiler.generateTransTiles(sourceTiles);
         for (retvalIt = targetTiles.begin(); retvalIt != targetTiles.end(); retvalIt++)
+        {
             output.execUnaryOp(Ops::OP_IDENTITY, (*retvalIt)->getDomain(), (*retvalIt), (*retvalIt)->getDomain());
+        }
         for (retvalIt = t.begin(); retvalIt != t.end(); retvalIt++)
+        {
             output.execUnaryOp(Ops::OP_IDENTITY, (*retvalIt)->getDomain(), (*retvalIt), (*retvalIt)->getDomain());
+        }
         RManDebug = 30;
         output.printStatus(cout);
         RManDebug = 1;

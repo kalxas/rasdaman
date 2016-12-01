@@ -86,7 +86,7 @@ public class SliceExpressionHandler {
         // NOTE: in case of coverage constant e.g: <[-1:1,-1:1],-1,0,1,....> it should not replace the interval inside the "< >"
         if (rasql.contains("<") || !rasql.contains("[")) {
             String dimensions = rasqlTranslationService.constructRasqlDomain(metadataInput.getAxes(),
-                                                                             axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+                                axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
             rasqlSubset = template.replace("$dimensionIntervalList", dimensions);
         } else {
             // update the interval of the existing expression in template string

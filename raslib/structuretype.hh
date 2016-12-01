@@ -61,11 +61,11 @@ public:
     /// default constructor.
     r_Structure_Type();
     /// constructor getting name of type and type id.
-    r_Structure_Type( const char* newTypeName, unsigned int newNumAttrs, r_Attribute* newAttrs, int offset = 0 );
+    r_Structure_Type(const char* newTypeName, unsigned int newNumAttrs, r_Attribute* newAttrs, int offset = 0);
     /// copy constructor
-    r_Structure_Type( const r_Structure_Type& oldObj );
+    r_Structure_Type(const r_Structure_Type& oldObj);
     /// assignment operator.
-    const r_Structure_Type& operator=( const r_Structure_Type& oldObj );
+    const r_Structure_Type& operator=(const r_Structure_Type& oldObj);
     /// destructor.
     virtual ~r_Structure_Type();
 
@@ -86,11 +86,11 @@ public:
     /// returns attribute iterator at end position (behind last attribute).
     attribute_iterator defines_attribute_end() const;
     /// return attribute specified by name.
-    r_Attribute resolve_attribute(const char* name) const throw( r_Error );
+    r_Attribute resolve_attribute(const char* name) const throw(r_Error);
     /// return attribute specified by number starting with zero.
-    r_Attribute resolve_attribute(unsigned int number) const throw( r_Error );
+    r_Attribute resolve_attribute(unsigned int number) const throw(r_Error);
     /// subscript operator to access attributes by index
-    r_Attribute operator[]( unsigned int number ) const throw( r_Error );
+    r_Attribute operator[](unsigned int number) const throw(r_Error);
 
     /// get number of attributes
     unsigned int count_elements() const;
@@ -102,10 +102,10 @@ public:
     virtual void convertToBigEndian(char* cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status( std::ostream& s = std::cout ) const;
+    virtual void print_status(std::ostream& s = std::cout) const;
 
     /// prints values of a structured type
-    virtual void print_value( const char* storage,  std::ostream& s = std::cout  ) const;
+    virtual void print_value(const char* storage,  std::ostream& s = std::cout) const;
 
 protected:
     unsigned int numAttrs;
@@ -113,6 +113,6 @@ protected:
 };
 
 //@Doc: write the status of a structure type to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Structure_Type &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Structure_Type& type);
 
 #endif

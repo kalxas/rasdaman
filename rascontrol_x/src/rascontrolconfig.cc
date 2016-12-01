@@ -34,23 +34,23 @@ namespace rascontrol
 using std::string;
 
 RasControlConfig::RasControlConfig() :
-    cmlInter        (CommandLineParser::getInstance()),
-    cmlHelp         (cmlInter.addFlagParameter('h',"help", "this help")),
-    cmlHost         (cmlInter.addStringParameter(CommandLineParser::noShortName,"host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
-    cmlPort         (cmlInter.addLongParameter(CommandLineParser::noShortName,"port", "<nnnn> rasmgr port",DEFAULT_PORT)),
-    cmlLogin        (cmlInter.addFlagParameter('l',"login", "just login prompt, used to set the environment variable RASLOGIN")),
-    cmlHist         (cmlInter.addStringParameter(CommandLineParser::noShortName, "hist", "<file-name> used to store your commands in file, as help for batch file.")),
-    cmlLogFile      (cmlInter.addStringParameter(CommandLineParser::noShortName, "log", "<file> easylogging configuration file.")),
-    cmlPrompt       (cmlInter.addStringParameter(CommandLineParser::noShortName, "prompt", "<nnn> change rascontrol prompt as following:\n\t\t 0 - prompt '>'\n\t\t 1 - prompt 'rasc>'\n\t\t 2 - prompt 'user:host>'","2")),
-    cmlTestLogin    (cmlInter.addFlagParameter('t',"testlogin", "test if environment variable RASLOGIN is OK to login")),
-    cmlInteractive  (cmlInter.addFlagParameter('e',"interactive", "interactive mode, login from environment variable RASLOGIN")),
-    cmlQuiet        (cmlInter.addFlagParameter('q',"quiet", "quiet, don't print header (default on for -login and -testlogin)")),
-    cmlExecute      (cmlInter.addFlagParameter('x',"execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')"))
+    cmlInter(CommandLineParser::getInstance()),
+    cmlHelp(cmlInter.addFlagParameter('h', "help", "this help")),
+    cmlHost(cmlInter.addStringParameter(CommandLineParser::noShortName, "host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
+    cmlPort(cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<nnnn> rasmgr port", DEFAULT_PORT)),
+    cmlLogin(cmlInter.addFlagParameter('l', "login", "just login prompt, used to set the environment variable RASLOGIN")),
+    cmlHist(cmlInter.addStringParameter(CommandLineParser::noShortName, "hist", "<file-name> used to store your commands in file, as help for batch file.")),
+    cmlLogFile(cmlInter.addStringParameter(CommandLineParser::noShortName, "log", "<file> easylogging configuration file.")),
+    cmlPrompt(cmlInter.addStringParameter(CommandLineParser::noShortName, "prompt", "<nnn> change rascontrol prompt as following:\n\t\t 0 - prompt '>'\n\t\t 1 - prompt 'rasc>'\n\t\t 2 - prompt 'user:host>'", "2")),
+    cmlTestLogin(cmlInter.addFlagParameter('t', "testlogin", "test if environment variable RASLOGIN is OK to login")),
+    cmlInteractive(cmlInter.addFlagParameter('e', "interactive", "interactive mode, login from environment variable RASLOGIN")),
+    cmlQuiet(cmlInter.addFlagParameter('q', "quiet", "quiet, don't print header (default on for -login and -testlogin)")),
+    cmlExecute(cmlInter.addFlagParameter('x', "execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')"))
 {
     this->workMode = WKMINTERACTIV;
     this->loginMode = LGIINTERACTIV;
     this->historyFileName = COMMAND_HISTORY_FILE;
-    this->promptMode =PROMPTFULL;
+    this->promptMode = PROMPTFULL;
     this->isHistoryRequired = false;
     this->quiet = false;
     this->isHelpReq = false;
@@ -61,7 +61,7 @@ RasControlConfig::~RasControlConfig()
 {
 }
 
-bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
+bool RasControlConfig::parseCommandLineParameters(int argc, char** argv)
 {
     //TODO-AT:FIXME workarround for batch mode commands given to rascontrol
     //in current version it is generated an error if a parameter has many values:
@@ -70,10 +70,10 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
     string shortX = string("") + CommandLineParser::ShortSign + cmlExecute.getShortName();
     string longX  = string("") + CommandLineParser::LongSign  + cmlExecute.getLongName();
 
-    for(lastArg = 1; lastArg<argc; lastArg++)
+    for (lastArg = 1; lastArg < argc; lastArg++)
     {
-        if( (strcmp(argv[lastArg], shortX.c_str())==0) ||
-                (strcmp(argv[lastArg], longX.c_str())==0) )
+        if ((strcmp(argv[lastArg], shortX.c_str()) == 0) ||
+                (strcmp(argv[lastArg], longX.c_str()) == 0))
         {
             lastArg++;
             break;
@@ -82,18 +82,22 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
 
     try
     {
-        if(lastArg != argc)
+        if (lastArg != argc)
+        {
             cmlInter.processCommandLine(lastArg, argv);
+        }
         else
+        {
             cmlInter.processCommandLine(argc, argv);
+        }
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
     }
 
-    if( cmlHelp.isPresent())
+    if (cmlHelp.isPresent())
     {
         //we stop processing
         this->isHelpReq = true;
@@ -104,35 +108,35 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
     {
         this->rasMgrPort = cmlPort.getValueAsLong();
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
     }
 
-    if(cmlLogFile.isPresent())
+    if (cmlLogFile.isPresent())
     {
         this->logConfigFile = cmlLogFile.getValueAsString();
     }
 
     this->rasMgrHost = cmlHost.getValueAsString();
 
-    if( cmlLogin.isPresent() )
+    if (cmlLogin.isPresent())
     {
         this->workMode = WKMLOGIN;
-        this->quiet= true;
+        this->quiet = true;
     }
 
-    if( cmlQuiet.isPresent() )
+    if (cmlQuiet.isPresent())
     {
-        this->quiet= true;
+        this->quiet = true;
     }
 
-    if( cmlTestLogin.isPresent() )
+    if (cmlTestLogin.isPresent())
     {
-        if(this->workMode==WKMINTERACTIV)
+        if (this->workMode == WKMINTERACTIV)
         {
-            this->workMode= WKMTESTLOGIN;
+            this->workMode = WKMTESTLOGIN;
             this->loginMode = LGIENVIRONM;
         }
         else
@@ -142,9 +146,9 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
         this->quiet = true;
     }
 
-    if( cmlInteractive.isPresent() )
+    if (cmlInteractive.isPresent())
     {
-        if(this->workMode==WKMINTERACTIV)
+        if (this->workMode == WKMINTERACTIV)
         {
             this->loginMode = LGIENVIRONM;
         }
@@ -154,14 +158,14 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
         }
     }
 
-    if( cmlExecute.isPresent() )
+    if (cmlExecute.isPresent())
     {
-        if(this->workMode==WKMINTERACTIV)
+        if (this->workMode == WKMINTERACTIV)
         {
             this->loginMode = LGIENVIRONM;
             this->workMode  = WKMBATCH;
 
-            for(int i=lastArg; i<argc; i++)
+            for (int i = lastArg; i < argc; i++)
             {
                 this->command = this->command.append(argv[i]);
                 this->command.append(" ");
@@ -173,7 +177,7 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
         }
     }
 
-    if( cmlHist.isPresent() )
+    if (cmlHist.isPresent())
     {
         this->isHistoryRequired = true;
         this->historyFileName = cmlHist.getValueAsString();
@@ -183,13 +187,13 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
     {
         this->promptMode = cmlPrompt.getValueAsLong();
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
     }
 
-    if(this->promptMode<PROMPTSING || this->promptMode>PROMPTFULL)
+    if (this->promptMode < PROMPTSING || this->promptMode > PROMPTFULL)
     {
         this->promptMode = PROMPTFULL;
     }
@@ -232,11 +236,11 @@ std::string RasControlConfig::getHistoryFileName() const
     return this->historyFileName;
 }
 
-std::string RasControlConfig::getPrompt(const std::string &userName)
+std::string RasControlConfig::getPrompt(const std::string& userName)
 {
-    if(this->prompt.empty())
+    if (this->prompt.empty())
     {
-        switch(this->promptMode)
+        switch (this->promptMode)
         {
         case PROMPTSING :
             this->prompt = "> ";
@@ -245,7 +249,7 @@ std::string RasControlConfig::getPrompt(const std::string &userName)
             this->prompt = "rasc> ";
             break;
         case PROMPTFULL :
-            this->prompt = userName +":"+this->rasMgrHost+"> ";
+            this->prompt = userName + ":" + this->rasMgrHost + "> ";
             break;
         default:
             this->prompt = "> ";
@@ -268,7 +272,7 @@ boost::uint32_t RasControlConfig::getRasMgrPort() const
 
 void RasControlConfig::displayHelp() const
 {
-    std::cout <<"Usage: " << std::endl << "\trascontrol\t["
+    std::cout << "Usage: " << std::endl << "\trascontrol\t["
               << CommandLineParser::LongSign << cmlHelp.getLongName()  << "]["
               << CommandLineParser::LongSign << cmlHost.getLongName()  << "<mainhost>]["
               << CommandLineParser::LongSign << cmlPort.getLongName()  << " <nn>]["
@@ -282,7 +286,7 @@ void RasControlConfig::displayHelp() const
               << std::endl;
     std::cout << "Option description:" << std::endl;
     cmlInter.printHelp();
-    std::cout<<std::endl;
+    std::cout << std::endl;
 }
 
 std::string RasControlConfig::getLogConfigFile() const
@@ -292,7 +296,7 @@ std::string RasControlConfig::getLogConfigFile() const
 
 bool RasControlConfig::paramError()
 {
-    std::cout<<"Invalid command line parameters!"<<std::endl;
+    std::cout << "Invalid command line parameters!" << std::endl;
     return false;
 }
 }

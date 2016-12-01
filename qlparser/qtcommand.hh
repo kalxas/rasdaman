@@ -60,22 +60,22 @@ public:
     };
 
     /// constructor getting command, collection and type name (create collection)
-    QtCommand( QtCommandType initCommand, const std::string& initCollection, const std::string& initType );
+    QtCommand(QtCommandType initCommand, const std::string& initCollection, const std::string& initType);
 
     /// constructor getting command and collection name (drop collection)
-    QtCommand( QtCommandType initCommand, const std::string& initCollection );
+    QtCommand(QtCommandType initCommand, const std::string& initCollection);
 
     /// constructor getting command, collection name and query tree node (create collection from query result)
-    QtCommand( QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection);
+    QtCommand(QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection);
 
     /// method for evaluating the node
     virtual QtData* evaluate();
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -90,7 +90,7 @@ private:
 
     /// drop a given collection
     void dropCollection(std::string collectionName);
-    
+
     /// Creates a datatype from query results. Returns the type name of the new collection.
     std::string getSelectedDataType(std::vector<QtData*>* data);
 
@@ -99,7 +99,7 @@ private:
 
     /// Returns true if a collection exists with the given name
     bool collectionExists(std::string collectionName);
-    
+
     /// command type
     QtCommandType command;
 
@@ -113,8 +113,8 @@ private:
     std::string typeName;
 
     /// query tree operation; its results will be inserted into a new collection
-    QtOperationIterator *childNode;
-    
+    QtOperationIterator* childNode;
+
     /// temporary type prefixes
     static const std::string tmpSetTypePrefix;
     static const std::string tmpMddTypePrefix;

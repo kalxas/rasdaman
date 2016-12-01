@@ -49,5 +49,5 @@ public class WMSInternalException extends WMSException {
 
     private static final String EXCEPTION_CODE = "InternalError";
     private static final String ERROR_MESSAGE = "An internal error has occurred with the following message:\n $Message\n"
-                                              + "Check the log file for more details.";
+            + "Check the log file for more details.";
 }

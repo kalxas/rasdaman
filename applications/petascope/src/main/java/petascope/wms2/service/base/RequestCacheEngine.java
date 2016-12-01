@@ -44,7 +44,7 @@ public class RequestCacheEngine {
     public RequestCacheEngine(long maxSizeOfCache) {
         this.maxSizeOfCache = maxSizeOfCache;
         currentSize = 0;
-        cache = new HashMap<WMSGetRequest, CachedResponse>((int) (maxSizeOfCache / MEDIAN_SIZE_OF_REQUEST_IN_BYTES));
+        cache = new HashMap<WMSGetRequest, CachedResponse>((int)(maxSizeOfCache / MEDIAN_SIZE_OF_REQUEST_IN_BYTES));
     }
 
     /**

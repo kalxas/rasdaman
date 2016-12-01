@@ -43,183 +43,172 @@ import java.io.*;
  * set port number with -port, the user login with -user, the password with -passwd,
  * the path to log file with -logfile, path to query file with -queryfile
  */
-public class Query
-{
+public class Query {
 
-  public static void main( String[] args )
-  {
-    String server = "localhost";
-    String port = "7001";
-    String base = "RASBASE";
-    String coll = "rockies";
-    String user = "rasguest";
-    String passwd = "rasguest";
-    String file = "";
-    String query = "";
-    String log = "";
-    String ret = "";
+    public static void main(String[] args) {
+        String server = "localhost";
+        String port = "7001";
+        String base = "RASBASE";
+        String coll = "rockies";
+        String user = "rasguest";
+        String passwd = "rasguest";
+        String file = "";
+        String query = "";
+        String log = "";
+        String ret = "";
 
-    for (int i=args.length-1; i>=0; i--)
-    {
-      //System.out.println(args[i]);
-      if (args[i].equals("-server"))
-        server = args[i+1];
-      if (args[i].equals("-port"))
-        port = args[i+1];
-      if (args[i].equals("-database"))
-        base = args[i+1];
-      if (args[i].equals("-collection"))
-        coll = args[i+1];
-      if (args[i].equals("-logfile"))
-        log = args[i+1];
-      if (args[i].equals("-user"))
-        user = args[i+1];
-      if (args[i].equals("-passwd"))
-        passwd = args[i+1];
-      if (args[i].equals("-queryfile"))
-      {
-        try
-        {
-          file = args[i+1];
-          //System.out.println(file);
-          FileReader fr = new FileReader(file);
-          BufferedReader in = new BufferedReader(fr);
-          String s;
+        for (int i = args.length - 1; i >= 0; i--) {
+            //System.out.println(args[i]);
+            if (args[i].equals("-server")) {
+                server = args[i + 1];
+            }
+            if (args[i].equals("-port")) {
+                port = args[i + 1];
+            }
+            if (args[i].equals("-database")) {
+                base = args[i + 1];
+            }
+            if (args[i].equals("-collection")) {
+                coll = args[i + 1];
+            }
+            if (args[i].equals("-logfile")) {
+                log = args[i + 1];
+            }
+            if (args[i].equals("-user")) {
+                user = args[i + 1];
+            }
+            if (args[i].equals("-passwd")) {
+                passwd = args[i + 1];
+            }
+            if (args[i].equals("-queryfile")) {
+                try {
+                    file = args[i + 1];
+                    //System.out.println(file);
+                    FileReader fr = new FileReader(file);
+                    BufferedReader in = new BufferedReader(fr);
+                    String s;
 
-          while((s = in.readLine()) != null)
-            {
-              String t = s.trim();
-              while(t.regionMatches(0, "--", 0, 2))
-              {
-                s = in.readLine();
-                t = s.trim();
-              }
-              query = query +" "+ s;
+                    while ((s = in.readLine()) != null) {
+                        String t = s.trim();
+                        while (t.regionMatches(0, "--", 0, 2)) {
+                            s = in.readLine();
+                            t = s.trim();
+                        }
+                        query = query + " " + s;
+                    }
+
+                } catch (FileNotFoundException e) {
+                    ret = ret + " Query-file not found!" + e.getMessage();
+                    System.err.println(ret);
+                } catch (IOException e) {
+                    ret = ret + " Could not read Query-file!" + e.getMessage();
+                    System.err.println(ret);
+                }
+
             }
 
         }
-        catch(FileNotFoundException e)
-        {
-          ret = ret+" Query-file not found!"+e.getMessage();
-          System.err.println(ret);
-        }
-        catch(IOException e)
-        {
-          ret = ret+" Could not read Query-file!"+e.getMessage();
-          System.err.println(ret);
-        }
 
-      }
+
+        Transaction myTa = null;
+        Database myDb = null;
+        int accessMode = Database.OPEN_READ_ONLY;
+
+        try {
+            Implementation myApp = new RasImplementation("http://" + server + ":" + port);
+            ((RasImplementation)myApp).setUserIdentification(user, passwd);
+            OQLQuery myQu = myApp.newOQLQuery();
+
+            if (query.equals("")) {
+                query = "select avg_cells(a) from " + coll + " as a";
+            }
+            //query="create collection UpdateULong1 ULongSet";
+            //query="insert into UpdateULong1 values $1";
+
+            myQu.create(query);
+
+            StringTokenizer strTok = new StringTokenizer(query, "$");
+            RasMInterval domain;
+            RasGMArray mddConst;
+            if (strTok.hasMoreTokens()) {
+                strTok.nextToken();
+            }
+
+            while (strTok.hasMoreTokens()) {
+                strTok.nextToken();
+                domain = new RasMInterval("[0:10,0:10]");
+                RasStorageLayout stl = new RasStorageLayout();
+                stl.setTileSize(100);
+                mddConst = new RasGMArray(domain, 4, stl);
+                mddConst.setObjectTypeName("ULongImage");
+                //System.out.println(mddConst);
+                myQu.bind(mddConst);
+            }
+
+            //check if is an update Query
+            if ((query.indexOf("select") == -1) &&
+                    (query.indexOf("SELECT") == -1)) {
+                accessMode = Database.OPEN_READ_WRITE;
+            }
+
+            myDb = myApp.newDatabase();
+            //System.out.println( "Opening database ..." );
+            myDb.open(base, accessMode);
+
+            //System.out.println( "Starting transaction ..." );
+            myTa = myApp.newTransaction();
+            myTa.begin();
+
+            //System.out.println( "Executing query..." );
+            DBag result = (DBag) myQu.execute();
+
+            //System.out.println( "Committing transaction ..." );
+            myTa.commit();
+
+            //System.out.println( "Closing database ..." );
+            myDb.close();
+
+            //System.out.println( " Done." );
+        } catch (RasException e) {
+            ret = ret + "RasException: " + e.getMessage();
+            System.err.println(ret);
+        } catch (org.odmg.ODMGException e) {
+            ret = ret + query + "\n Failed:\n " + e.getMessage() + "\n";
+            System.err.println(ret);
+            //System.err.println("Try to abort the transaction ...");
+            if (myTa != null) {
+                myTa.abort();
+            }
+
+            try {
+                //System.err.println("Try to close the database ...");
+                if (myDb != null) {
+                    myDb.close();
+                }
+            } catch (org.odmg.ODMGException exp) {
+                ret = ret + " Could not close the database: " + exp.getMessage();
+                System.err.println(ret);
+            }
+
+        }
+        if (!log.equals("")) {
+            try {
+                FileOutputStream fos = new FileOutputStream(log, true);
+                PrintWriter pw = new PrintWriter(fos);
+                if (ret.equals("")) {
+                    ret = "OK.";
+                }
+                pw.write(ret);
+                pw.close();
+            } catch (FileNotFoundException e) {
+                ret = ret + " Log-file not found!" + e.getMessage();
+                System.out.println(ret);
+            } catch (IOException e) {
+                ret = ret + " Could not write Log-file!" + e.getMessage();
+                System.out.println(ret);
+            }
+        }
 
     }
-
-
-      Transaction myTa = null;
-      Database myDb = null;
-      int accessMode = Database.OPEN_READ_ONLY;
-
-      try
-      {
-        Implementation myApp = new RasImplementation("http://"+server+":"+port);
-        ((RasImplementation)myApp).setUserIdentification(user, passwd);
-        OQLQuery myQu = myApp.newOQLQuery();
-
-        if(query.equals(""))
-          query="select avg_cells(a) from "+ coll+" as a";
-          //query="create collection UpdateULong1 ULongSet";
-          //query="insert into UpdateULong1 values $1";
-
-        myQu.create(query);
-
-        StringTokenizer strTok = new StringTokenizer(query, "$");
-        RasMInterval domain;
-        RasGMArray mddConst;
-        if(strTok.hasMoreTokens())
-          strTok.nextToken();
-
-        while(strTok.hasMoreTokens())
-        {
-          strTok.nextToken();
-          domain = new RasMInterval("[0:10,0:10]");
-          RasStorageLayout stl = new RasStorageLayout();
-          stl.setTileSize(100);
-          mddConst = new RasGMArray(domain, 4, stl);
-          mddConst.setObjectTypeName("ULongImage");
-          //System.out.println(mddConst);
-          myQu.bind(mddConst);
-        }
-
-        //check if is an update Query
-	if((query.indexOf("select") == -1) &&
- 	   (query.indexOf("SELECT") == -1))
-	  accessMode = Database.OPEN_READ_WRITE;
-
-        myDb = myApp.newDatabase();
-        //System.out.println( "Opening database ..." );
-        myDb.open( base, accessMode );
-
-        //System.out.println( "Starting transaction ..." );
-        myTa = myApp.newTransaction();
-        myTa.begin();
-
-        //System.out.println( "Executing query..." );
-        DBag result = (DBag) myQu.execute();
-
-        //System.out.println( "Committing transaction ..." );
-        myTa.commit();
-
-        //System.out.println( "Closing database ..." );
-        myDb.close();
-
-	//System.out.println( " Done." );
-      }
-      catch(RasException e)
-      {
-        ret = ret+"RasException: "+e.getMessage();
-        System.err.println(ret);
-      }
-      catch (org.odmg.ODMGException e)
-      {
-        ret = ret + query + "\n Failed:\n " + e.getMessage() + "\n";
-        System.err.println(ret);
-	//System.err.println("Try to abort the transaction ...");
-        if(myTa != null) myTa.abort();
-
-	try
-        {
-	    //System.err.println("Try to close the database ...");
-	  if(myDb != null) myDb.close();
-        }
-	catch ( org.odmg.ODMGException exp )
-	{
-          ret = ret+" Could not close the database: " + exp.getMessage();
-	  System.err.println(ret);
-	}
-
-      }
-      if(!log.equals(""))
-      {
-        try
-        {
-          FileOutputStream fos = new FileOutputStream(log, true);
-          PrintWriter pw = new PrintWriter(fos);
-          if(ret.equals(""))
-            ret = "OK.";
-          pw.write(ret);
-          pw.close();
-        }
-        catch(FileNotFoundException e)
-        {
-          ret = ret+" Log-file not found!"+e.getMessage();
-          System.out.println(ret);
-        }
-        catch(IOException e)
-        {
-          ret = ret+" Could not write Log-file!"+e.getMessage();
-          System.out.println(ret);
-        }
-      }
-
-  }
 
 }

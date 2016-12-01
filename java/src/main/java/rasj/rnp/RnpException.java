@@ -23,7 +23,7 @@ rasdaman GmbH.
 /*************************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  *
@@ -34,11 +34,9 @@ rasdaman GmbH.
 package rasj.rnp;
 
 
-public class RnpException extends Exception
-    {
-    public RnpException(String s)
-       { 
-       super(s);
-       }
+public class RnpException extends Exception {
+    public RnpException(String s) {
+        super(s);
     }
+}
 

@@ -29,14 +29,14 @@ import petascope.util.WcpsConstants;
  * @author Vlad Merticariu
  */
 
-public class SwitchExpr implements IParseTreeNode{
+public class SwitchExpr implements IParseTreeNode {
     LinkedList<CoverageExpr> argsList;
 
-    public SwitchExpr(){
+    public SwitchExpr() {
         argsList = new LinkedList<CoverageExpr>();
     }
 
-    public void add(CoverageExpr e){
+    public void add(CoverageExpr e) {
         argsList.add(e);
     }
 
@@ -46,25 +46,23 @@ public class SwitchExpr implements IParseTreeNode{
 
         Iterator<CoverageExpr> it = argsList.iterator();
         int pos = 0;
-        while(it.hasNext()){
+        while (it.hasNext()) {
             String currentChild = it.next().toXML();
-            if(pos == argsList.size() - 1){
+            if (pos == argsList.size() - 1) {
                 //the default result sits here
                 result += "<" + WcpsConstants.MSG_DEFAULT + ">";
                 result += "<" + WcpsConstants.MSG_RESULT + ">";
                 result += currentChild;
                 result += "</" + WcpsConstants.MSG_RESULT + ">";
                 result += "</" + WcpsConstants.MSG_DEFAULT + ">";
-            }
-            else{
-                if(pos % 2 == 0){
+            } else {
+                if (pos % 2 == 0) {
                     //conditions sit here
                     result += "<" + WcpsConstants.MSG_CASE + ">";
                     result += "<" + WcpsConstants.MSG_CONDITION + ">";
                     result += currentChild;
                     result += "</" + WcpsConstants.MSG_CONDITION + ">";
-                }
-                else{
+                } else {
                     //results sit here
                     result += "<" + WcpsConstants.MSG_RESULT + ">";
                     result += currentChild;

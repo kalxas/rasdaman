@@ -44,11 +44,11 @@ rasdaman GmbH.
 #include <easylogging++.h>
 
 #ifdef RMANBENCHMARK
-RMTimer OId::oidAlloc("OId","allocateOId");
+RMTimer OId::oidAlloc("OId", "allocateOId");
 #endif
 
 #ifdef RMANBENCHMARK
-RMTimer OId::oidResolve("OId","resolveOId");
+RMTimer OId::oidResolve("OId", "resolveOId");
 #endif
 
 long long OId::ID_MULTIPLIER = 512;
@@ -315,7 +315,9 @@ operator== (const long long one, const OId& two)
     bool retval = false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)
+    {
         retval = true;
+    }
     return retval;
 }
 
@@ -323,10 +325,12 @@ bool
 operator== (const OId& two, const long long one)
 {
 //    LTRACE << "operator==(" << two << "," << one << ")";
-    bool retval=false;
+    bool retval = false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)
-        retval=true;
+    {
+        retval = true;
+    }
     return retval;
 }
 

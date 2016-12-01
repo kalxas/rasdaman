@@ -23,7 +23,7 @@ rasdaman GmbH.
 /*************************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  * COMMENTS:
@@ -34,21 +34,20 @@ package rasj.rnp;
 
 import java.io.*;
 
-public class Rnp
-  {
+public class Rnp {
     public static final int rnpProtocolId = 0xc12d7f01; // this is swap(25112001);
-    
+
     public static final int fgt_None             = 0;
-    public static final int fgt_Command          = 1;    
+    public static final int fgt_Command          = 1;
     public static final int fgt_OkAnswer         = 2;
-    public static final int fgt_Error		 = 3;
+    public static final int fgt_Error        = 3;
     public static final int fgt_DiscardedRequest = 4;
-    
+
     public static final int dtt_None             = 0;
     public static final int dtt_Asciiz           = 1;
     public static final int dtt_Int32            = 2;
     public static final int dtt_Float32          = 3;
-    public static final int dtt_Double64         = 4;    
+    public static final int dtt_Double64         = 4;
     public static final int dtt_Opaque           = 5;
-  }
+}
 

@@ -48,9 +48,9 @@ import petascope.wcs2.handlers.Response;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class ExamplesTest extends BaseTestCase {
-    
+
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ExamplesTest.class);
-    
+
     private static final boolean RUN = true;
 
     private List<File> files;
@@ -59,7 +59,7 @@ public class ExamplesTest extends BaseTestCase {
     private PrintStream l;
 
     public ExamplesTest() throws PetascopeException, ServletException, ParserConfigurationException, SecoreException {
-        files = new ArrayList<File>(FileUtils.listFiles(new File(TESTDATA_PATH), new String[]{"in"}, false));
+        files = new ArrayList<File>(FileUtils.listFiles(new File(TESTDATA_PATH), new String[] {"in"}, false));
         Collections.sort(files, new Comparator<File>() {
 
             @Override
@@ -69,9 +69,9 @@ public class ExamplesTest extends BaseTestCase {
         });
 
         meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                ConfigManager.METADATA_URL,
-                ConfigManager.METADATA_USER,
-                ConfigManager.METADATA_PASS, false);
+                                    ConfigManager.METADATA_URL,
+                                    ConfigManager.METADATA_USER,
+                                    ConfigManager.METADATA_PASS, false);
         wcps = new Wcps(meta);
         try {
             l = new PrintStream(new File(PETASCOPE_PATH + "test.log"));
@@ -93,14 +93,14 @@ public class ExamplesTest extends BaseTestCase {
                 String fileName = IOUtil.removeExtension(file.getName());
                 String[] s = fileName.split("-");
                 l.println("REQUEST (Operation: " + s[0] + ", Protocol: " + s[1] + ")\n" + input + "\n\nRESPONSE");
-                
+
                 HTTPRequest request = new HTTPRequest("", "", "", input);
                 ProtocolExtension extension = ExtensionsRegistry.getProtocolExtension(request);
                 Response res = extension.handle(request, meta);
-                
+
                 String response = humanReadableResponse(file, res);
                 File exp = new File(IOUtil.removeExtension(file.getPath()) + ".exp");
-                
+
                 if (!RUN) {
                     FileUtils.writeStringToFile(exp, response);
                 } else {
@@ -113,16 +113,16 @@ public class ExamplesTest extends BaseTestCase {
                 log.warn("Error executing test for input file " + file.getName(), ex);
             }
         }
-        
+
         System.out.println("");
         System.out.println("---------------------------------------------------");
         System.out.println("DONE");
         System.out.println("All tests passed, please see test.log for details");
     }
-    
+
     private String humanReadableResponse(File input, Response res) throws IOException {
         String ret = "";
-        
+
         if (res.getFormatType() != null) {
             if (res.getData() != null && res.getXml() != null && res.getFormatType() != null) {
                 ret += "MEDIATYPE=multipart/mixed, FORMAT=" + res.getFormatType();
@@ -131,7 +131,7 @@ public class ExamplesTest extends BaseTestCase {
             }
             ret += "\n\n";
         }
-        
+
         if (res.getXml() != null) {
             ret += "GML:\n" + res.getXml() + "\n\n";
         }
@@ -140,7 +140,7 @@ public class ExamplesTest extends BaseTestCase {
             FileUtils.writeByteArrayToFile(output, res.getData().get(0));
             ret += "Binary data of length " + output.length() + " in " + output + "\n";
         }
-        
+
         return ret;
     }
 }

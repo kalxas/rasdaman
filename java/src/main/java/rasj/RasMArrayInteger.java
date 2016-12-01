@@ -43,24 +43,21 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
-public class RasMArrayInteger extends RasGMArray
-{
+public class RasMArrayInteger extends RasGMArray {
 
-  /** default constructor */
-  public RasMArrayInteger()
-    {
-	super();
-	typeLength = SIZE_OF_INTEGER;
+    /** default constructor */
+    public RasMArrayInteger() {
+        super();
+        typeLength = SIZE_OF_INTEGER;
     }
 
     /**
      * constructor for uninitialized MDD objects
      * @param initDomain The initial Domain of the MArray
      * */
-  public RasMArrayInteger(final RasMInterval initDomain)
-    {
-	super(initDomain, SIZE_OF_INTEGER);
-        objectData = new int[(int)(dataSize/SIZE_OF_INTEGER)];
+    public RasMArrayInteger(final RasMInterval initDomain) {
+        super(initDomain, SIZE_OF_INTEGER);
+        objectData = new int[(int)(dataSize / SIZE_OF_INTEGER)];
         data = null;
     }
 
@@ -69,128 +66,113 @@ public class RasMArrayInteger extends RasGMArray
      * @param initDomain The initial Domain of the MArray
      * @param RasStorageLayout The storage layout to be used
      */
-    public RasMArrayInteger(final RasMInterval initDomain, RasStorageLayout stl)
-    {
+    public RasMArrayInteger(final RasMInterval initDomain, RasStorageLayout stl) {
         super(initDomain, SIZE_OF_INTEGER, stl);
-        objectData = new int[(int)(dataSize/SIZE_OF_INTEGER)];
+        objectData = new int[(int)(dataSize / SIZE_OF_INTEGER)];
         data = null;
     }
 
 
-  /**
-   *  copy constructor
-   *  @param obj a copy of this object will be created
-   */
-  public RasMArrayInteger(final RasMArrayInteger obj)
-    {
-	super(obj);
-        if(obj.objectData!=null)
-        {
-          objectData = new int[(int)(obj.dataSize/SIZE_OF_INTEGER)];
-          System.arraycopy(obj.getIntArray(), 0, objectData, 0, (int)(obj.dataSize/SIZE_OF_INTEGER));
-          data = null;
+    /**
+     *  copy constructor
+     *  @param obj a copy of this object will be created
+     */
+    public RasMArrayInteger(final RasMArrayInteger obj) {
+        super(obj);
+        if (obj.objectData != null) {
+            objectData = new int[(int)(obj.dataSize / SIZE_OF_INTEGER)];
+            System.arraycopy(obj.getIntArray(), 0, objectData, 0, (int)(obj.dataSize / SIZE_OF_INTEGER));
+            data = null;
         }
     }
 
-  /**
-   * subscript operator for read access of a cell. The cell value is returned
-   * as a byte[SIZE_OF_INTEGER] array. This kind of access to a cell is significantly slower
-   * than getInt(), because each cell value has to be converted from int to a
-   * byte[SIZE_OF_INTEGER] array.
-   * The user has to take care that each Cell value is stored, before getting the next Cell.
-   */
-  public byte[] getCell(RasPoint point)
-         throws RasDimensionMismatchException, RasIndexOutOfBoundsException
-    {
-	int cellValue;
-	int tmp;
+    /**
+     * subscript operator for read access of a cell. The cell value is returned
+     * as a byte[SIZE_OF_INTEGER] array. This kind of access to a cell is significantly slower
+     * than getInt(), because each cell value has to be converted from int to a
+     * byte[SIZE_OF_INTEGER] array.
+     * The user has to take care that each Cell value is stored, before getting the next Cell.
+     */
+    public byte[] getCell(RasPoint point)
+    throws RasDimensionMismatchException, RasIndexOutOfBoundsException {
+        int cellValue;
+        int tmp;
 
-	//first test dimensionality
-	if(point.dimension() != domain.dimension())
-  	  throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+        //first test dimensionality
+        if (point.dimension() != domain.dimension()) {
+            throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+        }
 
         cellValue = ((int[])objectData)[(int)domain.cellOffset(point)];
-        for(int i=0; i<SIZE_OF_INTEGER; i++)
-        {
-          tmp = cellValue;
-          tmp >>>= (((SIZE_OF_INTEGER -1)-i)*8);
-          currentCell[i] = (byte)tmp;
+        for (int i = 0; i < SIZE_OF_INTEGER; i++) {
+            tmp = cellValue;
+            tmp >>>= (((SIZE_OF_INTEGER - 1) - i) * 8);
+            currentCell[i] = (byte)tmp;
         }
 
-	return currentCell;
+        return currentCell;
 
     }
 
-  /** subscript operator for read access of a cell. The cell value is returned as
-   * an Integer. This access method is faster then getCell(), because no conversion
-   * from int to Byte[SIZE_OF_INTEGER] has to be done.
-   */
-  public int getInt( final RasPoint point)
-         throws RasDimensionMismatchException, RasIndexOutOfBoundsException
-    {
-      // first test dimensionality
-      if(point.dimension() != domain.dimension())
-        throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+    /** subscript operator for read access of a cell. The cell value is returned as
+     * an Integer. This access method is faster then getCell(), because no conversion
+     * from int to Byte[SIZE_OF_INTEGER] has to be done.
+     */
+    public int getInt(final RasPoint point)
+    throws RasDimensionMismatchException, RasIndexOutOfBoundsException {
+        // first test dimensionality
+        if (point.dimension() != domain.dimension()) {
+            throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+        }
 
-      return ((int[])objectData)[(int)domain.cellOffset(point)];
+        return ((int[])objectData)[(int)domain.cellOffset(point)];
     }
 
-  /**
-   * get the internal representation of the array
-   */
-  public int[] getIntArray()
-    {
-      if(objectData==null)
-      {
-        ByteArrayInputStream bis = new ByteArrayInputStream(data);
-        DataInputStream dis = new DataInputStream(bis);
-        objectData = new int[data.length/SIZE_OF_INTEGER];
-        try
-        {
-          for(int j=0; j<data.length/SIZE_OF_INTEGER; j++)
-          {
-            ((int[])objectData)[j] = dis.readInt();
-          }
+    /**
+     * get the internal representation of the array
+     */
+    public int[] getIntArray() {
+        if (objectData == null) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(data);
+            DataInputStream dis = new DataInputStream(bis);
+            objectData = new int[data.length / SIZE_OF_INTEGER];
+            try {
+                for (int j = 0; j < data.length / SIZE_OF_INTEGER; j++) {
+                    ((int[])objectData)[j] = dis.readInt();
+                }
+            } catch (IOException e) {
+                throw new RasClientInternalException("RasMArrayInteger", "getIntArray()",
+                                                     "IOException while converting data to objectData array " + e.getMessage());
+            }
         }
-        catch(IOException e)
-        {
-          throw new RasClientInternalException("RasMArrayInteger", "getIntArray()",
-          "IOException while converting data to objectData array " + e.getMessage());
-        }
-      }
-      return (int[])objectData;
+        return (int[])objectData;
     }
 
-  /** get the internal representation of the array in bytes,
-   *  please use getIntArray()
-   */
-  public byte[] getArray()
-    {
-      if(data==null)
-      {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(bos);
-        try
-        {
-          for(int j=0; j<((int[])objectData).length; j++)
-            dos.writeInt(((int[])objectData)[j]);
+    /** get the internal representation of the array in bytes,
+     *  please use getIntArray()
+     */
+    public byte[] getArray() {
+        if (data == null) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(bos);
+            try {
+                for (int j = 0; j < ((int[])objectData).length; j++) {
+                    dos.writeInt(((int[])objectData)[j]);
+                }
+            } catch (IOException e) {
+                throw new RasClientInternalException("RasMArrayInteger", "getArray()",
+                                                     "IOException while converting objectData to data array " + e.getMessage());
+            }
+            data = bos.toByteArray();
         }
-        catch(IOException e)
-        {
-          throw new RasClientInternalException("RasMArrayInteger", "getArray()",
-          "IOException while converting objectData to data array " + e.getMessage());
-        }
-        data = bos.toByteArray();
-      }
-      return data;
+        return data;
     }
 
-  /** set the internal representation of the array */
-  public void setArray(int[] newData)
-    {
-      objectData = newData;
-      data = null;
-      dataSize = newData.length * SIZE_OF_INTEGER;
+    /** set the internal representation of the array */
+    public void setArray(int[] newData) {
+        objectData = newData;
+        data = null;
+        dataSize = newData.length * SIZE_OF_INTEGER;
     }
 }
 

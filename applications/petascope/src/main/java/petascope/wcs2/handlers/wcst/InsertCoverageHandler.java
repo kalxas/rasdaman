@@ -132,7 +132,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
      * @throws SecoreException
      */
     private String insertGMLCoverage(String GMLCoverage, InsertCoverageRequest request)
-            throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
+    throws WCSTCoverageNotFound, WCSTInvalidXML, PetascopeException, SecoreException {
         Boolean generateId = request.isUseNewId();
         String pixelDataType = request.getPixelDataType();
         String tiling = request.getTiling();
@@ -157,24 +157,24 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
             Element rangeSet = GMLParserUtil.parseRangeSet(xmlCoverage.getRootElement());
             String rasCollectionType;
             if (rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
-                    XMLSymbols.NAMESPACE_GML).size() != 0) {
+                                          XMLSymbols.NAMESPACE_GML).size() != 0) {
                 //tuple list given explicitly
                 //get the pixel values as rasdaman constant
                 Element dataBlock = GMLParserUtil.parseDataBlock(rangeSet);
                 org.apache.commons.lang3.tuple.Pair<String, String> collectionType
-                        = TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), nullValues, pixelDataType);
+                    = TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), nullValues, pixelDataType);
                 rasCollectionType = collectionType.getKey();
                 String rasdamanValues = GMLParserUtil.parseGMLTupleList(dataBlock, coverage.getCellDomainList(), collectionType.getValue());
                 rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
 
-                 // NOTE: collectionName could be exist in rasdaman db, then must check if it does exist -> rename it with collectionName_datetime
+                // NOTE: collectionName could be exist in rasdaman db, then must check if it does exist -> rename it with collectionName_datetime
                 try {
                     rasdamanCollectionCreator.createCollection();
-                } catch (RasdamanCollectionExistsException e) {                        
-                        collectionName = StringUtil.createRandomString(collectionName);
-                        // Retry to create collection with new collection name
-                        rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
-                        rasdamanCollectionCreator.createCollection();
+                } catch (RasdamanCollectionExistsException e) {
+                    collectionName = StringUtil.createRandomString(collectionName);
+                    // Retry to create collection with new collection name
+                    rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
+                    rasdamanCollectionCreator.createCollection();
                 }
                 rasdamanInserter = new RasdamanValuesInserter(collectionName, rasCollectionType, rasdamanValues, tiling);
                 oid = rasdamanInserter.insert();
@@ -196,12 +196,11 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
                 }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
                 //pass it to gdal to get the collection type
-                if (pixelDataType != null){
+                if (pixelDataType != null) {
                     rasCollectionType = TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), nullValues, pixelDataType).getKey();
-                }
-                else {
-                  //read it from file
-                  rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(tmpFile.getAbsolutePath(), coverage.getDimension(), nullValues);
+                } else {
+                    //read it from file
+                    rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(tmpFile.getAbsolutePath(), coverage.getDimension(), nullValues);
                 }
                 //insert it into rasdaman
                 rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
@@ -221,7 +220,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
             meta.insertNewCoverageMetadata(coverage, true);
 
             result = Templates.getTemplate(Templates.INSERT_COVERAGE_RESPONSE, new Pair<String, String>(
-                    Templates.KEY_COVERAGE_ID, coverage.getCoverageName()));
+                                               Templates.KEY_COVERAGE_ID, coverage.getCoverageName()));
 
         } catch (IOException ex) {
             Logger.getLogger(InsertCoverageHandler.class.getName()).log(Level.SEVERE, null, ex);

@@ -55,7 +55,7 @@ rasdaman GmbH.
 
 extern char* myExecArgv0 = "";
 
-static void testAccessing( const char* collName );
+static void testAccessing(const char* collName);
 
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
@@ -68,27 +68,35 @@ static void testAccessing( const char* collName );
  ************************************************************/
 
 void
-main( int ac, char** av)
+main(int ac, char** av)
 {
     char baseName[255];
     char collName[255];
 
-    if( ac > 1 )
-        strcpy( baseName, av[1] );
+    if (ac > 1)
+    {
+        strcpy(baseName, av[1]);
+    }
     else
-        strcpy( baseName, "RasDaBase" );
+    {
+        strcpy(baseName, "RasDaBase");
+    }
 
-    if( ac > 2 )
-        strcpy( collName, av[2] );
+    if (ac > 2)
+    {
+        strcpy(collName, av[2]);
+    }
     else
-        strcpy( collName, "Images" );
+    {
+        strcpy(collName, "Images");
+    }
 
     pid_t cpid;
     cout << "Parent process id is " << getpid() << endl;
 
     cpid = fork();
 
-    if( !cpid )
+    if (!cpid)
     {
         cout << "Child process id is " << getpid() << endl;
         // sleep(1);
@@ -104,12 +112,12 @@ main( int ac, char** av)
 
     // connect to the database
     cout << getpid() << " Connecting to database " << baseName << "..." << endl;
-    database.open( baseName );
+    database.open(baseName);
 
     // read coll and print contents
     cout << getpid() << " Read collection and print contents..." << endl;
     ta.begin();
-    testAccessing( collName );
+    testAccessing(collName);
     ta.commit();
 
     cout << getpid() << " closing db ... ";
@@ -134,7 +142,7 @@ main( int ac, char** av)
  * Description...: reads DirTilesIx's and shows contents
  ************************************************************/
 
-static void testAccessing( const char* collName )
+static void testAccessing(const char* collName)
 {
     PersMDDObj* accessedObj;
 

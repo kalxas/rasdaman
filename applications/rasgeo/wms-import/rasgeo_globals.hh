@@ -162,7 +162,7 @@
 
 #define INPUT_ASC   "ASC"
 #define INPUT_INT16 "int16"
-const string help_input = string( "inputformat, one of " )
+const string help_input = string("inputformat, one of ")
                           + format_name_tiff + ", " + format_name_png + ", " + format_name_bmp
                           + ", " + format_name_jpeg
                           + ", " + format_name_tor + ", " + format_name_dem + " (or " + INPUT_ASC + "), " + INPUT_INT16 + " (unsigned; low byte first)"
@@ -202,7 +202,7 @@ const string help_input = string( "inputformat, one of " )
 #define DEFAULT_TILING_STR tiling_name_sizetiling
 #define DEFAULT_TILING      131072
 
-const string help_tiling = string( "<tiling-name> tiling strategy, one of: " ) +
+const string help_tiling = string("<tiling-name> tiling strategy, one of: ") +
                            tiling_name_notiling          + ", " +
                            tiling_name_sizetiling        + ", " +
                            tiling_name_alignedtiling     + ", " +
@@ -211,7 +211,7 @@ const string help_tiling = string( "<tiling-name> tiling strategy, one of: " ) +
                            tiling_name_statisticaltiling;
 #define HELP_TILING help_tiling.c_str()
 
-const string help_tiling_p = string( "<params> parameters for tiling strategy, one of (see documentation):\n" ) +
+const string help_tiling_p = string("<params> parameters for tiling strategy, one of (see documentation):\n") +
                              "\t\t- for " + tiling_name_notiling + ": " + r_No_Tiling::description + "\n" +
                              "\t\t- for " + tiling_name_sizetiling + ": " + r_Size_Tiling::description + "\n" +
                              "\t\t- for " + tiling_name_alignedtiling + ": " + r_Aligned_Tiling::description + "\n" +

@@ -68,13 +68,13 @@ const string r_Conv_NETCDF::VALID_MAX{"valid_max"};
 const string r_Conv_NETCDF::MISSING_VALUE{"missing_value"};
 
 /// constructor using an r_Type object.
-r_Conv_NETCDF::r_Conv_NETCDF(const char *src, const r_Minterval &interv, const r_Type *tp) throw (r_Error)
+r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, const r_Type* tp) throw (r_Error)
     : r_Convert_Memory(src, interv, tp, true)
 {
 }
 
 /// constructor using convert_type_e shortcut
-r_Conv_NETCDF::r_Conv_NETCDF(const char *src, const r_Minterval &interv, int tp) throw (r_Error)
+r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, int tp) throw (r_Error)
     : r_Convert_Memory(src, interv, tp)
 {
 }
@@ -85,7 +85,7 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
 }
 
 /// convert to NETCDF
-r_Conv_Desc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
+r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options) throw (r_Error)
 {
 #ifdef HAVE_NETCDF
     if (options)
@@ -101,7 +101,7 @@ r_Conv_Desc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         LFATAL << "invalid netCDF file.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
-    
+
     // Create netCDF dimensions
     numDims = desc.srcInterv.dimension();
     dataSize = 1;
@@ -125,7 +125,7 @@ r_Conv_Desc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     }
     writeMetadata(dataFile);
     dataFile.close();
-    
+
     long fileSize = 0;
     desc.dest = tmpFileObj.readData(fileSize);
     desc.destInterv = r_Minterval(1);
@@ -143,7 +143,7 @@ r_Conv_Desc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 }
 
 /// convert from NETCDF
-r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
+r_Conv_Desc& r_Conv_NETCDF::convertFrom(const char* options) throw (r_Error)
 {
 #ifdef HAVE_NETCDF
     if (options)
@@ -157,7 +157,7 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 #endif
 }
 
-r_Conv_Desc &r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
 {
 #ifdef HAVE_NETCDF
     formatParams = options;
@@ -180,7 +180,8 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
         LFATAL << "invalid netcdf file: '" << tmpFilePath << "'.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
-    if(!formatParams.getVariables().empty()){
+    if (!formatParams.getVariables().empty())
+    {
         varNames = formatParams.getVariables();
     }
     validateDecodeOptions(dataFile);
@@ -190,7 +191,7 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
         throw r_Error(r_Error::r_Error_Conversion);
     }
     readDimSizes(dataFile);
-    
+
     if (varNames.size() == 1)
     {
         readSingleVar(dataFile);
@@ -199,7 +200,7 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
     {
         readMultipleVars(dataFile);
     }
-    
+
     return desc;
 
 #else
@@ -212,26 +213,26 @@ r_Conv_Desc &r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
 
 #ifdef HAVE_NETCDF
 
-void r_Conv_NETCDF::readDimSizes(const NcFile &dataFile) throw (r_Error)
+void r_Conv_NETCDF::readDimSizes(const NcFile& dataFile) throw (r_Error)
 {
     NcVar* var = dataFile.get_var(varNames[0].c_str());
     numDims = (size_t)var->num_dims();
-    
+
     r_Minterval subsetDomain = formatParams.getSubsetDomain();
     if (subsetDomain.dimension() != 0 && subsetDomain.dimension() != numDims)
     {
-        LERROR << "invalid 'subsetDomain' parameter '" << subsetDomain << "' of dimension " << 
-            subsetDomain.dimension() << " given, input variable is of dimension " << numDims;
+        LERROR << "invalid 'subsetDomain' parameter '" << subsetDomain << "' of dimension " <<
+               subsetDomain.dimension() << " given, input variable is of dimension " << numDims;
         throw r_Error(INVALIDFORMATPARAMETER);
     }
-    
+
     dimSizes.reserve(numDims);
     dimOffsets.reserve(numDims);
     dataSize = 1;
     desc.destInterv = r_Minterval(static_cast<r_Dimension>(numDims));
     for (size_t i = 0; i < numDims; i++)
     {
-        NcDim *dim = var->get_dim(i);
+        NcDim* dim = var->get_dim(i);
         if (subsetDomain.dimension() != 0)
         {
             dimSizes[i] = subsetDomain[i].get_extent();
@@ -243,7 +244,7 @@ void r_Conv_NETCDF::readDimSizes(const NcFile &dataFile) throw (r_Error)
             dimOffsets[i] = 0;
         }
         dataSize *= static_cast<size_t>(dimSizes[i]);
-        desc.destInterv << r_Sinterval((r_Range) dimOffsets[i], (r_Range) (dimOffsets[i] + dimSizes[i] - 1));
+        desc.destInterv << r_Sinterval((r_Range) dimOffsets[i], (r_Range)(dimOffsets[i] + dimSizes[i] - 1));
     }
 }
 
@@ -256,21 +257,23 @@ void r_Conv_NETCDF::parseDecodeOptions(const string& options) throw (r_Error)
     else
     {
         if (params == NULL)
+        {
             params = new r_Parse_Params();
-        char *varNamesParam = NULL;
+        }
+        char* varNamesParam = NULL;
         params->add(VARS_KEY, &varNamesParam, r_Parse_Params::param_type_string);
 
         int paramNo = params->process(options.c_str());
         if (paramNo == 0)
         {
             LERROR << "no variable names given, at least one variable name must be " <<
-                "specified in the format options as 'vars=var1;var2;..'";
+                   "specified in the format options as 'vars=var1;var2;..'";
             throw r_Error(r_Error::r_Error_Conversion);
         }
         if (paramNo == -1)
         {
             LERROR << "failed processing format options '" << options << "';" <<
-                " make sure options are of the format 'vars=var1;var2;..'";
+                   " make sure options are of the format 'vars=var1;var2;..'";
             throw r_Error(r_Error::r_Error_Conversion);
         }
 
@@ -285,7 +288,7 @@ void r_Conv_NETCDF::validateDecodeOptions(const NcFile& dataFile) throw (r_Error
     size_t foundVarNames = 0;
     for (int i = 0; i < dataFile.num_vars(); i++)
     {
-        NcVar *var = dataFile.get_var(i);
+        NcVar* var = dataFile.get_var(i);
         if (find(varNames.begin(), varNames.end(), string(var->name())) != varNames.end())
         {
             ++foundVarNames;
@@ -332,9 +335,10 @@ void r_Conv_NETCDF::validateJsonEncodeOptions() throw (r_Error)
         dimNames.push_back(dims[i].asString());
     }
     Json::Value vars = encodeOptions[FormatParamKeys::General::VARIABLES];
-    for (auto const& varName : vars.getMemberNames()) {
-        if (find(dimNames.begin(), dimNames.end(), varName) == dimNames.end() && 
-            !vars[varName].isMember(FormatParamKeys::Encode::NetCDF::DATA))
+    for (auto const& varName : vars.getMemberNames())
+    {
+        if (find(dimNames.begin(), dimNames.end(), varName) == dimNames.end() &&
+                !vars[varName].isMember(FormatParamKeys::Encode::NetCDF::DATA))
         {
             varNames.push_back(varName);
         }
@@ -345,9 +349,9 @@ void r_Conv_NETCDF::validateJsonEncodeOptions() throw (r_Error)
     }
 }
 
-void r_Conv_NETCDF::readSingleVar(const NcFile &dataFile) throw (r_Error)
+void r_Conv_NETCDF::readSingleVar(const NcFile& dataFile) throw (r_Error)
 {
-    NcVar *var = dataFile.get_var(varNames[0].c_str());
+    NcVar* var = dataFile.get_var(varNames[0].c_str());
     switch (var->type())
     {
     case ncByte:
@@ -388,7 +392,7 @@ void r_Conv_NETCDF::readSingleVar(const NcFile &dataFile) throw (r_Error)
     }
 }
 
-void r_Conv_NETCDF::readMultipleVars(const NcFile &dataFile) throw (r_Error)
+void r_Conv_NETCDF::readMultipleVars(const NcFile& dataFile) throw (r_Error)
 {
     size_t structSize = buildStructType(dataFile);
 
@@ -401,7 +405,7 @@ void r_Conv_NETCDF::readMultipleVars(const NcFile &dataFile) throw (r_Error)
     size_t offset = 0; // offset of the attribute within the struct type
     for (size_t i = 0; i < varNames.size(); i++)
     {
-        NcVar *var = dataFile.get_var(varNames[i].c_str());
+        NcVar* var = dataFile.get_var(varNames[i].c_str());
         switch (var->type())
         {
         case ncByte:
@@ -443,40 +447,45 @@ void r_Conv_NETCDF::readMultipleVars(const NcFile &dataFile) throw (r_Error)
     }
 }
 
-size_t r_Conv_NETCDF::buildStructType(const NcFile &dataFile) throw (r_Error)
+size_t r_Conv_NETCDF::buildStructType(const NcFile& dataFile) throw (r_Error)
 {
     size_t structSize = 0;        // size of the struct type, used for offset computations in memcpy
     size_t alignSize = 1;  // alignment of size (taken from StructType::calcSize())
 
     stringstream destType(stringstream::out); // build the struct type string
     destType << "struct { ";
-    NcVar *firstVar = dataFile.get_var(varNames[0].c_str());
+    NcVar* firstVar = dataFile.get_var(varNames[0].c_str());
     for (size_t i = 0; i < varNames.size(); i++)
     {
-        NcVar *var = dataFile.get_var(varNames[i].c_str());
-        if (numDims != var->num_dims()) {
+        NcVar* var = dataFile.get_var(varNames[i].c_str());
+        if (numDims != var->num_dims())
+        {
             LFATAL << "variable '" << varNames[i] << "' has different dimensionality from the first variable '" << varNames[0] << "'.";
             throw r_Error(r_Error::r_Error_Conversion);
         }
-        
+
         if (i > 0)
+        {
             destType << ", ";
+        }
         RasType rasType = getRasType(var);
         destType << rasType.cellType;
         structSize += rasType.cellSize;
         if (rasType.cellSize > alignSize)
+        {
             alignSize = rasType.cellSize;
+        }
 
         if (i > 0)
         {
             for (size_t j = 0; j < numDims; j++)
             {
-                NcDim *dim = var->get_dim(j);
-                NcDim *firstDim = firstVar->get_dim(j);
+                NcDim* dim = var->get_dim(j);
+                NcDim* firstDim = firstVar->get_dim(j);
                 if (dim->size() != firstDim->size())
                 {
-                    LFATAL << "variable '" << varNames[i] << "' has different dimension sizes from the first variable '" << varNames[0] << 
-                        "': dimension " << j << " expected size: " << firstDim->size() << ", got: " << dim->size() << ".";
+                    LFATAL << "variable '" << varNames[i] << "' has different dimension sizes from the first variable '" << varNames[0] <<
+                           "': dimension " << j << " expected size: " << firstDim->size() << ", got: " << dim->size() << ".";
                     throw r_Error(r_Error::r_Error_Conversion);
                 }
             }
@@ -495,44 +504,44 @@ size_t r_Conv_NETCDF::buildStructType(const NcFile &dataFile) throw (r_Error)
     return structSize;
 }
 
-r_Conv_NETCDF::RasType r_Conv_NETCDF::getRasType(NcVar *var)
+r_Conv_NETCDF::RasType r_Conv_NETCDF::getRasType(NcVar* var)
 {
     RasType ret;
     switch (var->type())
     {
     case ncByte:
     {
-        ret.cellSize = sizeof (r_Octet);
+        ret.cellSize = sizeof(r_Octet);
         ret.cellType = string("octet");
         break;
     }
     case ncChar:
     {
-        ret.cellSize = sizeof (r_Char);
+        ret.cellSize = sizeof(r_Char);
         ret.cellType = string("char");
         break;
     }
     case ncDouble:
     {
-        ret.cellSize = sizeof (r_Double);
+        ret.cellSize = sizeof(r_Double);
         ret.cellType = string("double");
         break;
     }
     case ncFloat:
     {
-        ret.cellSize = sizeof (r_Float);
+        ret.cellSize = sizeof(r_Float);
         ret.cellType = string("float");
         break;
     }
     case ncInt:
     {
-        ret.cellSize = sizeof (r_Long);
+        ret.cellSize = sizeof(r_Long);
         ret.cellType = string("long");
         break;
     }
     case ncShort:
     {
-        ret.cellSize = sizeof (r_Short);
+        ret.cellSize = sizeof(r_Short);
         ret.cellType = string("short");
         break;
     }
@@ -546,7 +555,7 @@ r_Conv_NETCDF::RasType r_Conv_NETCDF::getRasType(NcVar *var)
 }
 
 template<class T>
-void r_Conv_NETCDF::readData(NcVar *var, convert_type_e ctype) throw (r_Error)
+void r_Conv_NETCDF::readData(NcVar* var, convert_type_e ctype) throw (r_Error)
 {
     // get variable data
     desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof(T));
@@ -557,14 +566,14 @@ void r_Conv_NETCDF::readData(NcVar *var, convert_type_e ctype) throw (r_Error)
     }
     var->set_cur(dimOffsets.data());
     var->get((T*)desc.dest, dimSizes.data());
-    
+
     desc.destType = get_external_type(ctype);
 }
 
 template<class T>
-void r_Conv_NETCDF::readDataStruct(NcVar *var, size_t structSize, size_t &bandOffset) throw (r_Error)
+void r_Conv_NETCDF::readDataStruct(NcVar* var, size_t structSize, size_t& bandOffset) throw (r_Error)
 {
-    unique_ptr<T[]> data(new (nothrow) T[dataSize]);
+    unique_ptr<T[]> data(new(nothrow) T[dataSize]);
     if (!data)
     {
         LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
@@ -573,16 +582,18 @@ void r_Conv_NETCDF::readDataStruct(NcVar *var, size_t structSize, size_t &bandOf
     var->set_cur(dimOffsets.data());
     var->get(data.get(), dimSizes.data());
 
-    T *dst = (T*) (desc.dest + bandOffset);
+    T* dst = (T*)(desc.dest + bandOffset);
     unsigned int structElements = structSize / sizeof(T);
     for (unsigned int j = 0; j < dataSize; j++, dst += structElements)
+    {
         dst[0] = data[j];
+    }
 
     bandOffset += sizeof(T);
 }
-    
+
 /// write single variable data
-void r_Conv_NETCDF::writeSingleVar(NcFile &dataFile, const NcDim** dims) throw (r_Error)
+void r_Conv_NETCDF::writeSingleVar(NcFile& dataFile, const NcDim** dims) throw (r_Error)
 {
     string varName = getVariableName();
     switch (desc.baseType)
@@ -638,15 +649,15 @@ void r_Conv_NETCDF::writeSingleVar(NcFile &dataFile, const NcDim** dims) throw (
 }
 
 /// write multiple variables
-void r_Conv_NETCDF::writeMultipleVars(NcFile &dataFile, const NcDim** dims) throw (r_Error)
+void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims) throw (r_Error)
 {
-    r_Structure_Type *st = static_cast<r_Structure_Type*> (const_cast<r_Type*> (desc.srcType));
+    r_Structure_Type* st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
     if (st == NULL)
     {
         LFATAL << "MDD object type could not be cast to struct.";
         throw r_Error(r_Error::r_Error_RefInvalid);
     }
-    if (varNames.size() != static_cast<int> (st->count_elements()))
+    if (varNames.size() != static_cast<int>(st->count_elements()))
     {
         LFATAL << "mismatch in #variables between query and MDD object type.";
         throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);
@@ -655,8 +666,8 @@ void r_Conv_NETCDF::writeMultipleVars(NcFile &dataFile, const NcDim** dims) thro
     size_t structSize = 0; // size of the struct type, used for offset computation in memcpy
     for (r_Structure_Type::attribute_iterator ite(st->defines_attribute_begin()); ite != st->defines_attribute_end(); ite++)
     {
-        r_Primitive_Type *pt = static_cast<r_Primitive_Type*> (const_cast<r_Base_Type*> (&(*ite).type_of()));
-        structSize += static_cast<size_t> (pt->size());
+        r_Primitive_Type* pt = static_cast<r_Primitive_Type*>(const_cast<r_Base_Type*>(&(*ite).type_of()));
+        structSize += static_cast<size_t>(pt->size());
     }
 
     r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
@@ -715,12 +726,12 @@ void r_Conv_NETCDF::writeMultipleVars(NcFile &dataFile, const NcDim** dims) thro
             throw r_Error(r_Error::r_Error_Conversion);
         }
         }
-        r_Primitive_Type *pt = static_cast<r_Primitive_Type*> (const_cast<r_Base_Type*> (&(*iter).type_of()));
-        offset += static_cast<size_t> (pt->size());
+        r_Primitive_Type* pt = static_cast<r_Primitive_Type*>(const_cast<r_Base_Type*>(&(*iter).type_of()));
+        offset += static_cast<size_t>(pt->size());
     }
 }
 
-void r_Conv_NETCDF::writeMetadata(NcFile &dataFile) throw (r_Error)
+void r_Conv_NETCDF::writeMetadata(NcFile& dataFile) throw (r_Error)
 {
     if (encodeOptions.isNull())
     {
@@ -745,7 +756,7 @@ void r_Conv_NETCDF::writeMetadata(NcFile &dataFile) throw (r_Error)
             }
         }
     }
-    
+
     if (encodeOptions.isMember(FormatParamKeys::General::VARIABLES))
     {
         const Json::Value& vars = encodeOptions[FormatParamKeys::General::VARIABLES];
@@ -774,13 +785,13 @@ void r_Conv_NETCDF::writeMetadata(NcFile &dataFile) throw (r_Error)
                             else
                             {
                                 LWARNING << "invalid value of field '" << FormatParamKeys::Encode::NetCDF::DATA <<
-                                    "' of variable '" << dimVarName << "', expected an array.";
+                                         "' of variable '" << dimVarName << "', expected an array.";
                             }
                         }
                         else
                         {
                             LWARNING << "unknown netCDF variable type '" << jsonVar[FormatParamKeys::Encode::NetCDF::TYPE] <<
-                                "' in variable '" << dimVarName << "', expected one of: byte, char, short, int, float, double.";
+                                     "' in variable '" << dimVarName << "', expected one of: byte, char, short, int, float, double.";
                         }
                     }
                     else
@@ -816,7 +827,7 @@ void r_Conv_NETCDF::writeMetadata(NcFile &dataFile) throw (r_Error)
 #define ADD_ATTRIBUTE(v) \
     { (var != NULL) ? var->add_att(key, v) : dataFile.add_att(key, v); }
 
-void r_Conv_NETCDF::addJsonAttributes(NcFile &dataFile, const Json::Value& metadata, NcVar* var) throw (r_Error)
+void r_Conv_NETCDF::addJsonAttributes(NcFile& dataFile, const Json::Value& metadata, NcVar* var) throw (r_Error)
 {
     vector<string> m = metadata.getMemberNames();
     for (const string& keyStr : m)
@@ -846,19 +857,33 @@ void r_Conv_NETCDF::addJsonAttributes(NcFile &dataFile, const Json::Value& metad
 NcType r_Conv_NETCDF::stringToNcType(string type)
 {
     if (type == string("byte"))
+    {
         return ncByte;
+    }
     else if (type == string("char"))
+    {
         return ncChar;
+    }
     else if (type == string("short"))
+    {
         return ncShort;
+    }
     else if (type == string("int"))
+    {
         return ncInt;
+    }
     else if (type == string("float"))
+    {
         return ncFloat;
+    }
     else if (type == string("double"))
+    {
         return ncDouble;
+    }
     else
+    {
         return ncNoType;
+    }
 }
 
 void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
@@ -872,10 +897,12 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
         for (int i = 0; i < varDataSize; i++)
         {
             if (jsonArray[i].isInt())
+            {
                 data[(size_t)i] = (ncbyte) jsonArray[i].asInt();
+            }
             else
-                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." << 
-                    FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
+                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." <<
+                         FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
         }
         var->put(data.get(), varDataSize);
         break;
@@ -886,10 +913,12 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
         for (int i = 0; i < varDataSize; i++)
         {
             if (jsonArray[i].isInt())
+            {
                 data[(size_t)i] = (char) jsonArray[i].asInt();
+            }
             else
-                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." << 
-                    FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
+                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." <<
+                         FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
         }
         var->put(data.get(), varDataSize);
         break;
@@ -900,10 +929,12 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
         for (int i = 0; i < varDataSize; i++)
         {
             if (jsonArray[i].isInt())
+            {
                 data[(size_t)i] = (short) jsonArray[i].asInt();
+            }
             else
-                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." << 
-                    FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
+                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." <<
+                         FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
         }
         var->put(data.get(), varDataSize);
         break;
@@ -914,10 +945,12 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
         for (int i = 0; i < varDataSize; i++)
         {
             if (jsonArray[i].isInt())
+            {
                 data[(size_t)i] = jsonArray[i].asInt();
+            }
             else
-                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." << 
-                    FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
+                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." <<
+                         FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
         }
         var->put(data.get(), varDataSize);
         break;
@@ -928,10 +961,12 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
         for (int i = 0; i < varDataSize; i++)
         {
             if (jsonArray[i].isDouble())
+            {
                 data[(size_t)i] = (float) jsonArray[i].asFloat();
+            }
             else
-                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." << 
-                    FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
+                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." <<
+                         FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
         }
         var->put(data.get(), varDataSize);
         break;
@@ -942,10 +977,12 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
         for (int i = 0; i < varDataSize; i++)
         {
             if (jsonArray[i].isDouble())
+            {
                 data[(size_t)i] = (double) jsonArray[i].asDouble();
+            }
             else
-                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." << 
-                    FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
+                LWARNING << FormatParamKeys::General::VARIABLES << "." << var->name() << "." <<
+                         FormatParamKeys::Encode::NetCDF::DATA << "[" << i << "] has an invalid data type.";
         }
         var->put(data.get(), varDataSize);
         break;
@@ -957,10 +994,10 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
 }
 
 template <class S, class T>
-void r_Conv_NETCDF::writeData(NcFile &dataFile, string& varName, const NcDim** dims, NcType ncType,
+void r_Conv_NETCDF::writeData(NcFile& dataFile, string& varName, const NcDim** dims, NcType ncType,
                               long validMin, long validMax, const char* missingValue) throw (r_Error)
 {
-    NcVar *ncVar = dataFile.add_var(varName.c_str(), ncType, numDims, dims);
+    NcVar* ncVar = dataFile.add_var(varName.c_str(), ncType, numDims, dims);
     if (validMax != 0)
     {
         ncVar->add_att(VALID_MIN.c_str(), (T) validMin);
@@ -970,12 +1007,12 @@ void r_Conv_NETCDF::writeData(NcFile &dataFile, string& varName, const NcDim** d
     {
         ncVar->add_att(MISSING_VALUE.c_str(), missingValue);
     }
-    
-    S *val = (S* &) desc.src;
+
+    S* val = (S*&) desc.src;
     bool needToUpscaleDataType = sizeof(S) != sizeof(T);
     if (needToUpscaleDataType) // upscale data to output type
     {
-        unique_ptr<T[]> data(new (nothrow) T[dataSize]);
+        unique_ptr<T[]> data(new(nothrow) T[dataSize]);
         if (!data)
         {
             LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
@@ -994,22 +1031,22 @@ void r_Conv_NETCDF::writeData(NcFile &dataFile, string& varName, const NcDim** d
 }
 
 template <class S, class T>
-void r_Conv_NETCDF::writeDataStruct(NcFile &dataFile, string& varName, const NcDim** dims, size_t structSize, size_t bandOffset, 
+void r_Conv_NETCDF::writeDataStruct(NcFile& dataFile, string& varName, const NcDim** dims, size_t structSize, size_t bandOffset,
                                     NcType ncType, long validMin, long validMax, const char* missingValue) throw (r_Error)
 {
-    unique_ptr<T[]> buff(new (nothrow) T[dataSize]);
+    unique_ptr<T[]> buff(new(nothrow) T[dataSize]);
     if (!buff)
     {
         LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    S* src = (S*) (desc.src + bandOffset);
+    S* src = (S*)(desc.src + bandOffset);
     unsigned int structElements = structSize / sizeof(S);
     for (size_t j = 0; j < dataSize; j++, src += structElements)
     {
-        buff[j] = (T) *(src);
+        buff[j] = (T) * (src);
     }
-    NcVar *ncVar = dataFile.add_var(varName.c_str(), ncType, numDims, dims);
+    NcVar* ncVar = dataFile.add_var(varName.c_str(), ncType, numDims, dims);
     ncVar->put(buff.get(), dimSizes.data());
     if (validMax != 0)
     {
@@ -1051,12 +1088,12 @@ string r_Conv_NETCDF::getVariableName() throw (r_Error)
 
 #endif
 
-r_Convertor *r_Conv_NETCDF::clone(void) const
+r_Convertor* r_Conv_NETCDF::clone(void) const
 {
     return new r_Conv_NETCDF(desc.src, desc.srcInterv, desc.baseType);
 }
 
-const char *r_Conv_NETCDF::get_name(void) const
+const char* r_Conv_NETCDF::get_name(void) const
 {
     return format_name_netcdf;
 }

@@ -106,7 +106,7 @@ public:
      * this ServerGroup object.
      * @param value
      */
-    virtual void changeGroupConfig(const ServerGroupConfigProto &value) = 0;
+    virtual void changeGroupConfig(const ServerGroupConfigProto& value) = 0;
 
     /**
      * @brief getGroupName Get the name of this group.

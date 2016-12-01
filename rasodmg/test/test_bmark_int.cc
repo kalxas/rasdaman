@@ -91,7 +91,7 @@ void parse(int argc, char* argv[])
 void insert_datacube()
 {
 
-    r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > >  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
     r_Minterval                                   domain;
     r_Storage_Layout*                      dsl[TOTAL_CUBES];
     r_OId                                         oid[TOTAL_CUBES];
@@ -164,11 +164,11 @@ void insert_datacube()
     r_Database db;
     db.set_servername(server_name);
 
-    for (int i=0; i< TOTAL_CUBES ; i++)
+    for (int i = 0; i < TOTAL_CUBES ; i++)
     {
         r_Transaction trans;
 
-        r_Ref< r_Marray<r_ULong> > cube;
+        r_Ref<r_Marray<r_ULong>> cube;
 
         try
         {
@@ -195,7 +195,7 @@ void insert_datacube()
                 cout << "Creating the set... " << flush;
 
                 cube_set =
-                    new(&db, "RGBSet3") r_Set< r_Ref< r_Marray<RGBPixel> > >;
+                    new(&db, "RGBSet3") r_Set<r_Ref<r_Marray<RGBPixel>>>;
 
                 db.set_object_name(*cube_set, colect_name);
             }

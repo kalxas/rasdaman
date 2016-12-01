@@ -52,13 +52,13 @@ class QtIs : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtIs( QtOperation* input1, QtOperation* input2 );
+    QtIs(QtOperation* input1, QtOperation* input2);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -79,16 +79,16 @@ class QtAnd : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtAnd( QtOperation* input1, QtOperation* input2 );
+    QtAnd(QtOperation* input1, QtOperation* input2);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -109,16 +109,16 @@ class QtOr : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtOr( QtOperation* input1, QtOperation* input2 );
+    QtOr(QtOperation* input1, QtOperation* input2);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -139,13 +139,13 @@ class QtXor : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtXor( QtOperation* input1, QtOperation* input2 );
+    QtXor(QtOperation* input1, QtOperation* input2);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -166,13 +166,13 @@ class QtEqual : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtEqual( QtOperation* input1, QtOperation* input2 );
+    QtEqual(QtOperation* input1, QtOperation* input2);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -193,13 +193,13 @@ class QtLess : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtLess( QtOperation* input1, QtOperation* input2 );
+    QtLess(QtOperation* input1, QtOperation* input2);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -223,13 +223,13 @@ class QtLessEqual : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtLessEqual( QtOperation* input1, QtOperation* input2 );
+    QtLessEqual(QtOperation* input1, QtOperation* input2);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -253,13 +253,13 @@ class QtNotEqual : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtNotEqual( QtOperation* input1, QtOperation* input2 );
+    QtNotEqual(QtOperation* input1, QtOperation* input2);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -279,16 +279,16 @@ class QtOverlay : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtOverlay( QtOperation* input1, QtOperation* input2 );
+    QtOverlay(QtOperation* input1, QtOperation* input2);
 
     /// check commutativity
     bool isCommutative() const;
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -303,22 +303,22 @@ class QtBit : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtBit( QtOperation* input1, QtOperation* input2 );
+    QtBit(QtOperation* input1, QtOperation* input2);
 
     /// check commutativity
     bool isCommutative() const;
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// checkType
-    const QtTypeElement& checkType( QtTypeTuple* typeTuple );
+    const QtTypeElement& checkType(QtTypeTuple* typeTuple);
 
 private:
     /// attribute for identification of nodes
@@ -328,10 +328,10 @@ private:
 class QtConstructComplex : public QtBinaryInduce
 {
 public:
-    QtConstructComplex( QtOperation* input1, QtOperation* input2 );
+    QtConstructComplex(QtOperation* input1, QtOperation* input2);
     bool isCommutative() const;
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
     inline virtual QtNodeType getNodeType() const;
 private:
     static const QtNodeType nodeType;

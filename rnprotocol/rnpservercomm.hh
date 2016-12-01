@@ -42,7 +42,7 @@ using namespace rnp;
 
 //function prototypes:
 size_t
-my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm);
+my_strftime(char* s, size_t max, const char* fmt, const struct tm* tm);
 
 const char*
 now();
@@ -91,7 +91,7 @@ public:
 
     ~RnpRasDaManComm() throw();
 
-    void processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob *callingJob) throw();
+    void processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob* callingJob) throw();
 
     void setTimeoutInterval(int seconds);
     void checkForTimeout();
@@ -99,7 +99,7 @@ public:
 private: // inherited from RnpBaseServerComm
     RnpServerJob* createJobs(int howMany);
 
-    void decodeFragment() throw( r_Error );
+    void decodeFragment() throw(r_Error);
 
     ClientTimer  clientTimer;
 private: // the execution functions:
@@ -150,7 +150,7 @@ private: // helper functions
     void disconnectInternally();
     // reset connection, with reporting availability to rasmgr
     void disconnectClient();
-    void verifyClientID( RnpQuark command ) throw (r_Error);
+    void verifyClientID(RnpQuark command) throw (r_Error);
     int  makeNewClientID();
 
     int  clientID;         // un timestamp, de fapt!
@@ -172,7 +172,7 @@ public:
 protected:
     bool executeOnTimeout() throw();
 
-    RnpRasDaManComm *commPtr;
+    RnpRasDaManComm* commPtr;
 };
 
 #endif // RNPSERVERCOMM_HH

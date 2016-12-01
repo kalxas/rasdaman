@@ -36,46 +36,46 @@ import petascope.HTTPRequest;
   @author Ernesto Rodriguez <ernesto4160@gmail.com>
 */
 
-public class XMLDescribeCoverageSchemaTest extends BaseTestCase{
+public class XMLDescribeCoverageSchemaTest extends BaseTestCase {
 
     private XMLDescribeCoverageParser parser;
 
-    private final String invalidXML="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-	+"<wcs:DescribeCoverage  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n"
-	+"xmlns:wcs='http://www.opengis.net/wcs/2.0'\n"
-	+"xmlns:gml='http://www.opengis.net/gml/3.2'\n"
-	+"xsi:schemaLocation='http://www.opengis.net/wcs/2.0 ../../wcsAll.xsd'\n"
-	+"services=\"WCS\" version=\"2.0.0\">"
-	+"<wcs:CoverageId>NIR</wcs:CoverageId></wcs:DescribeCoverage>";
+    private final String invalidXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                      + "<wcs:DescribeCoverage  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n"
+                                      + "xmlns:wcs='http://www.opengis.net/wcs/2.0'\n"
+                                      + "xmlns:gml='http://www.opengis.net/gml/3.2'\n"
+                                      + "xsi:schemaLocation='http://www.opengis.net/wcs/2.0 ../../wcsAll.xsd'\n"
+                                      + "services=\"WCS\" version=\"2.0.0\">"
+                                      + "<wcs:CoverageId>NIR</wcs:CoverageId></wcs:DescribeCoverage>";
 
-    private final String validXML="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-	+"<wcs:DescribeCoverage  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n"
-	+"xmlns:wcs='http://www.opengis.net/wcs/2.0'\n"
-	+"xmlns:gml='http://www.opengis.net/gml/3.2'\n"
-	+"xsi:schemaLocation='http://www.opengis.net/wcs/2.0 ../../wcsAll.xsd'\n"
-	+"service=\"WCS\" version=\"2.0.0\">"
-	+"<wcs:CoverageId>NIR</wcs:CoverageId></wcs:DescribeCoverage>";
+    private final String validXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                    + "<wcs:DescribeCoverage  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n"
+                                    + "xmlns:wcs='http://www.opengis.net/wcs/2.0'\n"
+                                    + "xmlns:gml='http://www.opengis.net/gml/3.2'\n"
+                                    + "xsi:schemaLocation='http://www.opengis.net/wcs/2.0 ../../wcsAll.xsd'\n"
+                                    + "service=\"WCS\" version=\"2.0.0\">"
+                                    + "<wcs:CoverageId>NIR</wcs:CoverageId></wcs:DescribeCoverage>";
 
     @Before
     public void setUp() {
 
-        parser=new XMLDescribeCoverageParser();
+        parser = new XMLDescribeCoverageParser();
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
 
     }
 
     @Test
-    public void testValidXML() throws WCSException{
+    public void testValidXML() throws WCSException {
         HTTPRequest req = new HTTPRequest("", "", "", validXML);
         parser.parse(req);
     }
 
 
-    @Test(expected=WCSException.class)
-    public void testInvalidXML() throws WCSException{
+    @Test(expected = WCSException.class)
+    public void testInvalidXML() throws WCSException {
         HTTPRequest req = new HTTPRequest("", "", "", invalidXML);
         parser.parse(req);
     }

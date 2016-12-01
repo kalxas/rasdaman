@@ -336,7 +336,7 @@ public class GetMapRequest extends Request {
      *
      * @return the original bounding box
      */
-    public BoundingBox getOriginalBbox(){
+    public BoundingBox getOriginalBbox() {
         return originalBbox;
     }
 

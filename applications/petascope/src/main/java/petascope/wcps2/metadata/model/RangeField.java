@@ -42,7 +42,7 @@ public class RangeField {
     private final String definition;
 
     private final List<Interval<BigDecimal>> allowedValues;
-    
+
     public RangeField(String type, String name, String description, List<Double> nodata, String uom, String definition,
                       List<Interval<BigDecimal>> allowedValues) {
         this.type = type;
@@ -53,7 +53,7 @@ public class RangeField {
         this.definition = definition;
         this.allowedValues = allowedValues;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -81,7 +81,7 @@ public class RangeField {
     public String getType() {
         return type;
     }
-    
+
     public static final String TYPE = "double";
     public static final String UOM = "10^0";
 }

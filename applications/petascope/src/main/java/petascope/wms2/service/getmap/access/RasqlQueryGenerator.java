@@ -56,8 +56,8 @@ public class RasqlQueryGenerator {
     public String generateQuery() throws WMSInvalidDimensionValue, WMSInvalidBbox {
         String query = QUERY_TEMPLATE;
         query = query.replace("$Select", generateEncodeClause(generateSelectClause()))
-                     .replace("$From", generateFromClause())
-                     .replace("$Where", generateWhereClause());
+                .replace("$From", generateFromClause())
+                .replace("$Where", generateWhereClause());
         logger.info("Executing rasql query: {}", query);
         return query;
     }
@@ -71,11 +71,10 @@ public class RasqlQueryGenerator {
     private String generateEncodeClause(@NotNull String selectClause) {
         String encode = ENCODE_CLAUSE;
         encode = encode.replace("$Select", selectClause)
-                       .replace("$Format", mergedLayer.getFormat().getRasdamanFormat());
-        if(mergedLayer.isTransparent()) {
+                 .replace("$Format", mergedLayer.getFormat().getRasdamanFormat());
+        if (mergedLayer.isTransparent()) {
             encode = encode.replace("$nodata", "nodata=0");
-        }
-        else{
+        } else {
             encode = encode.replace("$nodata", "");
         }
         return encode;
@@ -90,7 +89,7 @@ public class RasqlQueryGenerator {
         List<String> oidWheres = new ArrayList<String>();
         for (RasdamanLayer layer : mergedLayer.getRasdamanLayers()) {
             String oidWhere = OID_FILTER.replace("$Col", layer.getCollectionName())
-                                        .replace("$Oid", layer.getOid().toString());
+                              .replace("$Oid", layer.getOid().toString());
             oidWheres.add(oidWhere);
         }
         return StringUtils.join(oidWheres, OID_FILTER_JOINER);
@@ -182,7 +181,7 @@ public class RasqlQueryGenerator {
     private String addStyleToSelectClause(String select, int stylePosition) {
         if (mergedLayer.getStyles().size() > stylePosition) {
             String rasqlStylePart = mergedLayer.getStyles().get(stylePosition).getRasqlQueryTransformer();
-            if(rasqlStylePart.equals("")){
+            if (rasqlStylePart.equals("")) {
                 return select;
             }
             return rasqlStylePart.replace(STYLE_SELECT_TOKEN, select);

@@ -149,11 +149,11 @@ public class ExceptionCode {
     @Override
     public String toString() {
         return "Exception Code {"
-                + "\n  exceptionCode = " + exceptionCode
-                + "\n  description = " + description
-                + "\n  locator = " + locator
-                + "\n  httpErrorCode = " + httpErrorCode
-                + "\n}";
+               + "\n  exceptionCode = " + exceptionCode
+               + "\n  description = " + description
+               + "\n  locator = " + locator
+               + "\n  httpErrorCode = " + httpErrorCode
+               + "\n}";
     }
 
     public static final ExceptionCode BadResponseHandler = new ExceptionCode("BadResponseHandler");
@@ -288,7 +288,7 @@ public class ExceptionCode {
             "The number of \"" + XMLSymbols.LABEL_OFFSET_VECTOR + "\" elements is different from the number of axes");
     public static final ExceptionCode WCSTWrongInervalFormat = new ExceptionCode("WCSTWrongIntervalFormat",
             "The number of points in at least one of the \"" + XMLSymbols.LABEL_INTERVAL + "\" elements is wrong "
-                    + "(exactly 2 expected).");
+            + "(exactly 2 expected).");
     public static final ExceptionCode WCSTWrongNumberOfTupleLists = new ExceptionCode("WCSTWrongNumberOfTupleLists",
             "The number of \"" + XMLSymbols.LABEL_TUPLELIST + "\" elements is wrong (exactly 1 expected).");
     public static final ExceptionCode WCSTWrongNumberOfPixels = new ExceptionCode("WCSTWrongNumberOfPixels",

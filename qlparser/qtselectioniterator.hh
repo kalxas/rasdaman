@@ -58,22 +58,22 @@ public:
     QtSelectionIterator();
 
     /// constructor getting a pointer to the parent
-    QtSelectionIterator( QtNode* node );
+    QtSelectionIterator(QtNode* node);
 
     /// virtual destructor
     virtual ~QtSelectionIterator();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds( QtChildType flag );
+    virtual QtNodeList* getChilds(QtChildType flag);
 
     /// method for query rewrite
-    inline virtual void setInput( QtOperation* child, QtOperation* input);
+    inline virtual void setInput(QtOperation* child, QtOperation* input);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     //@Man: Operations of the ONC protocol:
     //@{
@@ -86,7 +86,7 @@ public:
     ///
     //inline virtual void setParents();
     ///
-    inline void setConditionTree( QtOperation* operation );
+    inline void setConditionTree(QtOperation* operation);
     ///
     inline QtOperation* getConditionTree();
     //@}

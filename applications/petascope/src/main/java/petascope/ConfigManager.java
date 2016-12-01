@@ -62,7 +62,7 @@ public class ConfigManager {
     /* If the value no given in petascope.properties, this URL gets initialized
      * automatically when the first request is received.
      * Its value is used in the Capabilities response */
-    public static String PETASCOPE_SERVLET_URL="";
+    public static String PETASCOPE_SERVLET_URL = "";
 
     /*
      * settings.properties
@@ -98,9 +98,9 @@ public class ConfigManager {
 
     //Retry settings when opening a connection to rasdaman server. Ernesto Rodriguez <ernesto4160@gmail.com>
     //Time in seconds between each re-connect attempt
-    public static String RASDAMAN_RETRY_TIMEOUT="5";
+    public static String RASDAMAN_RETRY_TIMEOUT = "5";
     //Maximum number of re-connect attempts
-    public static String RASDAMAN_RETRY_ATTEMPTS="3";
+    public static String RASDAMAN_RETRY_ATTEMPTS = "3";
 
     // OGC services info
     public static String WCST_LANGUAGE  = "en";
@@ -130,8 +130,8 @@ public class ConfigManager {
     public static boolean CCIP_HACK = false;
 
     // SECORE connection settings
-    public static List<String> SECORE_URLS = Arrays.asList(new String[]{"http://localhost:8080/def"});
-    public static List<String> SECORE_VERSIONS = Arrays.asList(new String[]{"0.1.0"});
+    public static List<String> SECORE_URLS = Arrays.asList(new String[] {"http://localhost:8080/def"});
+    public static List<String> SECORE_VERSIONS = Arrays.asList(new String[] {"0.1.0"});
     // SECORE keyword used in PS_CRS table to be replaces with the first configured resolver
     public static final String SECORE_URL_KEYWORD = "%SECORE_URL%";
     // [!] Must match with what manually inserted in petascopedb (mind also global_const.sql URLs)
@@ -260,20 +260,20 @@ public class ConfigManager {
         String logFilePath = props.getProperty(LOG_FILE_PATH);
 
         // there is log file path in petascope.properties
-        if (logFilePath != null) {            
+        if (logFilePath != null) {
             File f = new File(logFilePath);
             // If the log file path is configured as absolute path, we check the write permision of Tomcat username on this file.
-            if (f.isAbsolute()) {                                                
+            if (f.isAbsolute()) {
                 if (!f.canWrite()) {
-                    log.warn("Cannot write to the petascope log file defined in petascope.properties: "  + logFilePath + ".\n" 
-                           + "Please make sure the path specified by " + LOG_FILE_PATH + " in petascope.properties is"
-                           + " a location where the system user running Tomcat has write access."
-                           + " Otherwise, the petascope log can only be found in the Tomcat log (usually catalina.out).");
+                    log.warn("Cannot write to the petascope log file defined in petascope.properties: "  + logFilePath + ".\n"
+                             + "Please make sure the path specified by " + LOG_FILE_PATH + " in petascope.properties is"
+                             + " a location where the system user running Tomcat has write access."
+                             + " Otherwise, the petascope log can only be found in the Tomcat log (usually catalina.out).");
                 }
             } else {
                 // log file path is relative, we don't know where directory user want to set the log file, so user will need to see the log in catalina.out
                 log.warn(LOG_FILE_PATH + " is set to relative path: " + logFilePath + " in petascope.properties; it is recommended to set it to an absolute path."
-                     + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
+                         + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
             }
         }
     }
@@ -364,8 +364,8 @@ public class ConfigManager {
         // check that a version is assigned to every URI, set the last version to the orphan URIs otherwise
         // NOTE: throwing an exception for a missing version is too harsh.
         if (SECORE_VERSIONS.size() < SECORE_URLS.size()) {
-            String lastVersion = SECORE_VERSIONS.get(SECORE_VERSIONS.size()-1);
-            SECORE_VERSIONS.addAll(StringUtil.repeat(lastVersion, SECORE_URLS.size()-SECORE_VERSIONS.size()));
+            String lastVersion = SECORE_VERSIONS.get(SECORE_VERSIONS.size() - 1);
+            SECORE_VERSIONS.addAll(StringUtil.repeat(lastVersion, SECORE_URLS.size() - SECORE_VERSIONS.size()));
         }
 
         //WPS 1.0.0 describeprocess and getcapabilities documents

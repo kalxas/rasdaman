@@ -61,7 +61,7 @@ r_Iterator<T>::r_Iterator()
 }
 
 template<class T>
-r_Iterator<T>::r_Iterator( const r_Iterator<T>& iter )
+r_Iterator<T>::r_Iterator(const r_Iterator<T>& iter)
 {
     collection = iter.collection;
     ptr = iter.ptr;
@@ -69,15 +69,19 @@ r_Iterator<T>::r_Iterator( const r_Iterator<T>& iter )
 }
 
 template<class T>
-r_Iterator<T>::r_Iterator( r_Collection<T>& source, int removed_objects )
+r_Iterator<T>::r_Iterator(r_Collection<T>& source, int removed_objects)
 {
     collection = &source;
     // sorry for this awful cast but there is
     // no standard conversion of r_Collection<T>::CNode* to r_Collection::CNode*
-    if( removed_objects )
+    if (removed_objects)
+    {
         ptr = static_cast<typename r_Collection<T>::CNode*>(source.removed_objects);
+    }
     else
+    {
         ptr = static_cast<typename r_Collection<T>::CNode*>(source.coll);
+    }
 
     ndone = (ptr->elem != 0);
 }
@@ -89,9 +93,9 @@ r_Iterator<T>::~r_Iterator()
 
 template<class T>
 r_Iterator<T>&
-r_Iterator<T>::operator=( const r_Iterator<T>& iter )
+r_Iterator<T>::operator=(const r_Iterator<T>& iter)
 {
-    if( this != &iter )
+    if (this != &iter)
     {
         collection = iter.collection;
         ptr        = iter.ptr;
@@ -105,23 +109,25 @@ template<class T>
 int
 r_Iterator<T>::is_equal(const r_Iterator<T>& iter) const
 {
-    if ( collection == iter.collection)
-        if ( ptr == iter.ptr )
+    if (collection == iter.collection)
+        if (ptr == iter.ptr)
+        {
             return 1;
+        }
     return 0;
 }
 
 
 template<class T>
 int
-operator==( const r_Iterator<T>& iter1, const r_Iterator<T>& iter2 )
+operator==(const r_Iterator<T>& iter1, const r_Iterator<T>& iter2)
 {
     return iter1.is_equal(iter2);
 }
 
 template<class T>
 int
-operator!=( const r_Iterator<T>& iter1, const r_Iterator<T>& iter2 )
+operator!=(const r_Iterator<T>& iter1, const r_Iterator<T>& iter2)
 {
     return !iter1.is_equal(iter2);
 }
@@ -132,23 +138,29 @@ r_Iterator<T>::operator++()
 {
     // ++prefix operator
 
-    if ( !ndone )
-        throw r_Error( r_Error::r_Error_IteratorExhausted );
-    if ( ptr->next != 0 )
+    if (!ndone)
+    {
+        throw r_Error(r_Error::r_Error_IteratorExhausted);
+    }
+    if (ptr->next != 0)
+    {
         ptr = ptr->next;
+    }
     else
+    {
         ndone = 0;
+    }
 
     return *this;
 }
 
 template<class T>
 r_Iterator<T>
-r_Iterator<T>::operator++( int )
+r_Iterator<T>::operator++(int)
 {
     // postfix++ operator
     // create a copy of this, increment the original and return the copy
-    r_Iterator<T> result( *this );
+    r_Iterator<T> result(*this);
 
     operator++();
 
@@ -158,11 +170,11 @@ r_Iterator<T>::operator++( int )
 template<class T>
 T
 r_Iterator<T>::operator*()
-throw( r_Error )
+throw(r_Error)
 {
-    if ( !ndone || ptr->elem == 0 )
+    if (!ndone || ptr->elem == 0)
     {
-        r_Error err = r_Error( r_Error::r_Error_IteratorExhausted );
+        r_Error err = r_Error(r_Error::r_Error_IteratorExhausted);
         throw err;
     }
 
@@ -174,19 +186,26 @@ throw( r_Error )
 template<class T>
 T
 r_Iterator<T>::get_element() const
-throw( r_Error )
+throw(r_Error)
 {
-    if ( !ndone || ptr->elem == 0 )
-        throw r_Error( r_Error::r_Error_IteratorExhausted );
+    if (!ndone || ptr->elem == 0)
+    {
+        throw r_Error(r_Error::r_Error_IteratorExhausted);
+    }
     else
+    {
         return *(ptr->elem);
+    }
 }
 
 template<class T>
 int
-r_Iterator<T>::next( T& element )
+r_Iterator<T>::next(T& element)
 {
-    if ( !ndone || ptr->elem == 0 ) return 0;
+    if (!ndone || ptr->elem == 0)
+    {
+        return 0;
+    }
     element = *(ptr->elem);
     advance();
     return 1;
@@ -194,12 +213,16 @@ r_Iterator<T>::next( T& element )
 
 template<class T>
 void
-r_Iterator<T>::reset( int removed_objects )
+r_Iterator<T>::reset(int removed_objects)
 {
-    if( removed_objects )
+    if (removed_objects)
+    {
         ptr = static_cast<typename r_Collection<T>::CNode*>(collection->removed_objects);
+    }
     else
+    {
         ptr = static_cast<typename r_Collection<T>::CNode*>(collection->coll);
+    }
 
     ndone = (ptr->elem != 0);
 }
@@ -208,10 +231,16 @@ template<class T>
 void
 r_Iterator<T>::advance()
 {
-    if ( !ndone )
-        throw r_Error( r_Error::r_Error_IteratorExhausted );
-    if ( ptr->next != 0 )
+    if (!ndone)
+    {
+        throw r_Error(r_Error::r_Error_IteratorExhausted);
+    }
+    if (ptr->next != 0)
+    {
         ptr = ptr->next;
+    }
     else
+    {
         ndone = 0;
+    }
 }

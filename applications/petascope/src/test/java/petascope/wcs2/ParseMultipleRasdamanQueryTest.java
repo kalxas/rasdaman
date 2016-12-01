@@ -39,7 +39,7 @@ import petascope.exceptions.rasdaman.RasdamanException;
  * @author Ernesto Rodriguez <ernesto4160@gmail.com>
  */
 
-public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
+public class ParseMultipleRasdamanQueryTest extends BaseTestCase {
 
     //The number of concurrent requests that will be preformed.
     private final int NUM_REQUESTS = 5;
@@ -65,8 +65,7 @@ public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
         // i.e: confDir = "/usr/local/rasdaman/etc/";
 
         // NO RUN THIS TEST IF DON'T CHANGE CONFIG DIRECTORY
-        if (confDir.equals(ConfigManager.CONF_DIR_DEFAULT))
-        {
+        if (confDir.equals(ConfigManager.CONF_DIR_DEFAULT)) {
             throw new Exception("Please set @confDir@ to your installation first.");
         }
 
@@ -80,10 +79,10 @@ public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
         }
 
         DbMetadataSource meta = new DbMetadataSource(
-                ConfigManager.METADATA_DRIVER,
-                ConfigManager.METADATA_URL,
-                ConfigManager.METADATA_USER,
-                ConfigManager.METADATA_PASS, false);
+            ConfigManager.METADATA_DRIVER,
+            ConfigManager.METADATA_URL,
+            ConfigManager.METADATA_USER,
+            ConfigManager.METADATA_PASS, false);
 
 
         PerformWCS2RasdamanQuery requests[] = new PerformWCS2RasdamanQuery[NUM_REQUESTS];
@@ -91,7 +90,7 @@ public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
 
         Thread threadList[] = new Thread[NUM_REQUESTS];
 
-        for(int i = 0; i < NUM_REQUESTS; i++){
+        for (int i = 0; i < NUM_REQUESTS; i++) {
 
             requests[i] = new PerformWCS2RasdamanQuery(pext, meta);
             threadList[i] = new Thread();
@@ -99,7 +98,7 @@ public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
         }
 
         // Wait all threads are finished
-        for (int i = 0; i < NUM_REQUESTS; i++){
+        for (int i = 0; i < NUM_REQUESTS; i++) {
             threadList[i].join();
         }
 

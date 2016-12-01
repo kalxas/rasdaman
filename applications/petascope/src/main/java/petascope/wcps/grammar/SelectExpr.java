@@ -48,7 +48,7 @@ public class SelectExpr implements IParseTreeNode {
 
         result += coverageExpr.toXML();
         result += "<" + WcpsConstants.MSG_FIELD + "><" + WcpsConstants.MSG_NAME + ">" +
-                field + "</" + WcpsConstants.MSG_NAME + "></" + WcpsConstants.MSG_FIELD + ">";
+                  field + "</" + WcpsConstants.MSG_NAME + "></" + WcpsConstants.MSG_FIELD + ">";
         result += "</" + WcpsConstants.MSG_FIELD_SELECT + ">";
         return result;
     }

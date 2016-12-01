@@ -81,11 +81,15 @@ SystemQuery::doStuff(int argc, char** argv)
                 db.open(baseName);
                 FILE* filePointer = checkFile(fileName, retval);
                 if (retval != 0)
+                {
                     return retval;
+                }
                 size_t dataSize = 0;
                 char* data = getData(filePointer, dataSize, retval);
-                if(retval != 0)
+                if (retval != 0)
+                {
                     return retval;
+                }
                 char* myQuery = new char[dataSize + 1];
                 memcpy(myQuery, data, dataSize);
                 delete data;
@@ -107,12 +111,12 @@ SystemQuery::doStuff(int argc, char** argv)
                             RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
                                     RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                     sleep(100); \
-                                    RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                    RMInit::dbgOut << "Continue now\n" << std::endl;);
                             r_oql_execute(q1);
                             RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                     RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                     sleep(100); \
-                                    RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                    RMInit::dbgOut << "Continue now\n" << std::endl;);
                         }
                         catch (r_Error& errorObj)
                         {
@@ -122,7 +126,9 @@ SystemQuery::doStuff(int argc, char** argv)
                         }
                     }
                     if (retval == 0)
+                    {
                         ta.commit();
+                    }
                 }
                 else
                 {
@@ -132,7 +138,7 @@ SystemQuery::doStuff(int argc, char** argv)
                     db.set_storage_format(storageFormat, storageFormatParams);
                     db.set_transfer_format(transferFormat, transferFormatParams);
                     cout << "OK" << endl;
-                    r_Set< r_Ref_Any > result_set;
+                    r_Set<r_Ref_Any> result_set;
                     cout << "Executing query ... ";
                     cout.flush();
                     try
@@ -140,14 +146,14 @@ SystemQuery::doStuff(int argc, char** argv)
                         RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
                                 RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                 sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                RMInit::dbgOut << "Continue now\n" << std::endl;);
                         r_oql_execute(q1, result_set);
                         RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                 RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                 sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                RMInit::dbgOut << "Continue now\n" << std::endl;);
                     }
-                    catch(r_Error& errorObj)
+                    catch (r_Error& errorObj)
                     {
                         cout << "FAILED" << endl << errorObj.what() << endl;
                         ta.abort();
@@ -161,16 +167,24 @@ SystemQuery::doStuff(int argc, char** argv)
                         cout << "	Type Structure........: " << (result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>") << endl;
                         cout << "	Type Schema...........: " << flush;
                         if (result_set.get_type_schema())
+                        {
                             result_set.get_type_schema()->print_status(cout);
+                        }
                         else
+                        {
                             cout << "<nn>" << flush;
+                        }
                         cout << endl;
                         cout << "	Number of entries.....: " << result_set.cardinality() << endl;
                         cout << "	Element Type Schema...: " << flush;
                         if (result_set.get_element_type_schema())
+                        {
                             result_set.get_element_type_schema()->print_status(cout);
+                        }
                         else
+                        {
                             cout << "<nn>" << flush;
+                        }
                         cout << endl;
                         if (testBed)
                         {
@@ -179,23 +193,29 @@ SystemQuery::doStuff(int argc, char** argv)
                             cout << endl;
                         }
 
-                        r_Iterator< r_Ref_Any > iter = result_set.create_iterator();
+                        r_Iterator<r_Ref_Any> iter = result_set.create_iterator();
                         cout << endl;
                         if (testBed)
+                        {
                             cout << "-- Testbed start block:" << endl;
-                        for (int i=1 ; iter.not_done(); iter++, i++)
+                        }
+                        for (int i = 1 ; iter.not_done(); iter++, i++)
                         {
                             switch (result_set.get_element_type_schema()->type_id())
                             {
                             case r_Type::MARRAYTYPE:
                             {
-                                const char *defExt=NULL;
+                                const char* defExt = NULL;
                                 r_Data_Format mafmt = r_Ref<r_GMarray>(*iter)->get_current_format();
                                 r_Data_Format tmpfmt = r_Data_Format_NUMBER;
-                                if(outputFormat)
+                                if (outputFormat)
+                                {
                                     tmpfmt = outputFormat;
+                                }
                                 else
+                                {
                                     tmpfmt = mafmt;
+                                }
                                 // special treatment only for DEFs
                                 switch (tmpfmt)
                                 {
@@ -221,7 +241,9 @@ SystemQuery::doStuff(int argc, char** argv)
                                     defExt = NULL;
                                 }
                                 if (outputFormat && (defExt == NULL))
+                                {
                                     defExt = "raw";
+                                }
                                 if (defExt == NULL)
                                 {
                                     if (printText)
@@ -229,7 +251,9 @@ SystemQuery::doStuff(int argc, char** argv)
                                         int numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                                         const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                                         for (int cnt = 0; cnt < numCells; cnt++)
+                                        {
                                             cout << theStuff[cnt];
+                                        }
                                     }
                                     else
                                     {
@@ -241,16 +265,16 @@ SystemQuery::doStuff(int argc, char** argv)
                                 else
                                 {
 
-                                    if(outputFormat && mafmt!=outputFormat)
+                                    if (outputFormat && mafmt != outputFormat)
                                     {
-                                        r_Base_Type* conversionType=NULL;
-                                        r_Minterval* mddDomain=NULL;
-                                        if(mafmt!=r_Array)
+                                        r_Base_Type* conversionType = NULL;
+                                        r_Minterval* mddDomain = NULL;
+                                        if (mafmt != r_Array)
                                         {
-                                            data=r_Ref<r_GMarray>(*iter)->get_array();
-                                            dataSize=r_Ref<r_GMarray>(*iter)->get_array_size();
-                                            mddDomain=(r_Minterval*)&(r_Ref<r_GMarray>(*iter)->spatial_domain());
-                                            conversionType=(r_Base_Type*)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
+                                            data = r_Ref<r_GMarray>(*iter)->get_array();
+                                            dataSize = r_Ref<r_GMarray>(*iter)->get_array_size();
+                                            mddDomain = (r_Minterval*) & (r_Ref<r_GMarray>(*iter)->spatial_domain());
+                                            conversionType = (r_Base_Type*)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
                                             //convert this from currentformat(DEF) to r_Array
                                             if (convertFrom(mafmt, data, dataSize, *mddDomain, conversionType, NULL) == 0)
                                             {
@@ -264,14 +288,14 @@ SystemQuery::doStuff(int argc, char** argv)
                                             else
                                             {
                                                 cout << "Error while converting to " << r_Array << " from " << mafmt << endl;
-                                                retval=CONVERSIONEXCEPTION;
+                                                retval = CONVERSIONEXCEPTION;
                                             }
                                         }
                                         //convert this from r_Array to outputFormat
-                                        data=r_Ref<r_GMarray>(*iter)->get_array();
-                                        dataSize=r_Ref<r_GMarray>(*iter)->get_array_size();
-                                        mddDomain=(r_Minterval*)&(r_Ref<r_GMarray>(*iter)->spatial_domain());
-                                        conversionType=(r_Base_Type*)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
+                                        data = r_Ref<r_GMarray>(*iter)->get_array();
+                                        dataSize = r_Ref<r_GMarray>(*iter)->get_array_size();
+                                        mddDomain = (r_Minterval*) & (r_Ref<r_GMarray>(*iter)->spatial_domain());
+                                        conversionType = (r_Base_Type*)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
                                         if (convertTo(outputFormat, data, dataSize, *mddDomain, conversionType, outputFormatParams) == 0)
                                         {
                                             r_Ref<r_GMarray>(*iter)->set_array_size(dataSize);
@@ -284,7 +308,7 @@ SystemQuery::doStuff(int argc, char** argv)
                                         else
                                         {
                                             cout << "Error while converting to " << outputFormat << " from " << r_Array << endl;
-                                            retval=CONVERSIONEXCEPTION;
+                                            retval = CONVERSIONEXCEPTION;
                                         }
                                     }
 
@@ -292,7 +316,7 @@ SystemQuery::doStuff(int argc, char** argv)
                                     sprintf(defFileName, "%s%d.%s", outputFileName, i, defExt);
                                     cout << "Marray " << i << " will write " << r_Ref<r_GMarray>(*iter)->get_array_size() << " bytes to " << defFileName << endl;
 
-                                    FILE *tfile = fopen(defFileName, "wb");
+                                    FILE* tfile = fopen(defFileName, "wb");
                                     fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, r_Ref<r_GMarray>(*iter)->get_array_size(), tfile);
                                     fclose(tfile);
                                 }
@@ -317,17 +341,23 @@ SystemQuery::doStuff(int argc, char** argv)
 
                             default:
                                 cout << "Element " << i << ": " << flush;
-                                printScalar( *(r_Ref<r_Scalar>(*iter)) );
+                                printScalar(*(r_Ref<r_Scalar>(*iter)));
                                 cout << endl;
                             }
                         }
                     }
                     if (testBed)
+                    {
                         cout << "-- Testbed end block:" << endl;
+                    }
                     if (retval == 0)
+                    {
                         ta.commit();
+                    }
                     else
+                    {
                         ta.abort();
+                    }
                 }
                 delete myQuery;
                 myQuery = 0;
@@ -350,12 +380,12 @@ SystemQuery::doStuff(int argc, char** argv)
     return retval;
 }
 
-void SystemQuery::printScalar( const r_Scalar& scalar )
+void SystemQuery::printScalar(const r_Scalar& scalar)
 {
-    switch( scalar.get_type()->type_id() )
+    switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        cout << ( ((r_Primitive*)&scalar)->get_boolean() ? "T" : "F" ) << flush;
+        cout << (((r_Primitive*)&scalar)->get_boolean() ? "T" : "F") << flush;
         break;
 
     case r_Type::CHAR:
@@ -401,11 +431,14 @@ void SystemQuery::printScalar( const r_Scalar& scalar )
 
         cout << "{ " << flush;
 
-        for( int i=0; i<structValue->count_elements(); i++ )
+        for (int i = 0; i < structValue->count_elements(); i++)
         {
-            printScalar( (*structValue)[i] );
+            printScalar((*structValue)[i]);
 
-            if( i < structValue->count_elements()-1 ) cout << ", " << flush;
+            if (i < structValue->count_elements() - 1)
+            {
+                cout << ", " << flush;
+            }
         }
         cout << " }" << endl;
     }

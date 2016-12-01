@@ -23,26 +23,38 @@ rasdaman GmbH.
 
 /**
  *  COMMENTS:
- *  	This is called from within cube_render.c to create a vertex mesh
- *  	out of the source data when rendering height fields.
+ *      This is called from within cube_render.c to create a vertex mesh
+ *      out of the source data when rendering height fields.
  */
 
-static void RENDER_MESH_NAME(vertex_fp *vert, const uint8 *src, int srcIncX, int srcIncZ, int dimx, int dimz, real_t scaleGrid, real_t scaleHeight)
+static void RENDER_MESH_NAME(vertex_fp* vert, const uint8* src, int srcIncX, int srcIncZ, int dimx, int dimz, real_t scaleGrid, real_t scaleHeight)
 {
-  union {uint8 *c; uint16 *s; uint32 *l; float *f; double *d;} srcLine, srcPtr;
-  real_t gridx, gridz;
-  real_t posx, posz;
-  int i, j;
-  vertex_fp *vp;
-
-  gridx = scaleGrid; gridz = scaleGrid; srcLine.c = (uint8*)src; vp = vert;
-  for (i=0, posx=0.0; i<dimx; i++, posx += gridx, srcLine.c += srcIncX)
-  {
-    srcPtr.c = srcLine.c;
-    for (j=0, posz=0.0; j<dimz; j++, posz += gridz, srcPtr.c += srcIncZ)
+    union
     {
-      vp->x = posx; vp->y = (real_t)(*srcPtr.RENDER_MESH_TYPE)*scaleHeight; vp->z = posz;
-      vp++;
+        uint8* c;
+        uint16* s;
+        uint32* l;
+        float* f;
+        double* d;
+    } srcLine, srcPtr;
+    real_t gridx, gridz;
+    real_t posx, posz;
+    int i, j;
+    vertex_fp* vp;
+
+    gridx = scaleGrid;
+    gridz = scaleGrid;
+    srcLine.c = (uint8*)src;
+    vp = vert;
+    for (i = 0, posx = 0.0; i < dimx; i++, posx += gridx, srcLine.c += srcIncX)
+    {
+        srcPtr.c = srcLine.c;
+        for (j = 0, posz = 0.0; j < dimz; j++, posz += gridz, srcPtr.c += srcIncZ)
+        {
+            vp->x = posx;
+            vp->y = (real_t)(*srcPtr.RENDER_MESH_TYPE) * scaleHeight;
+            vp->z = posz;
+            vp++;
+        }
     }
-  }
 }

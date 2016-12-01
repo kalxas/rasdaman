@@ -94,7 +94,9 @@ DBMinterval&
 DBMinterval::operator=(const DBMinterval& old)
 {
     if (this == &old)
+    {
         return *this;
+    }
     r_Minterval::operator=(old);
     setModified();
     return *this;
@@ -104,7 +106,9 @@ DBMinterval&
 DBMinterval::operator=(const r_Minterval& old)
 {
     if (this == &old)
+    {
         return *this;
+    }
     r_Minterval::operator=(old);
     setModified();
     return *this;
@@ -176,8 +180,8 @@ DBMinterval::updateInDb() throw (r_Error)
     else
     {
         LFATAL << "DBMinterval::updateInDb() - domain object: "
-                << domainid << " not found in the database.";
-        throw r_Ebase_dbms( SQLITE_NOTFOUND, "domain object not found in the database." );
+               << domainid << " not found in the database.";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object not found in the database.");
     }
 
     if (dimension2 < dimensionality)
@@ -269,8 +273,8 @@ DBMinterval::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "DBMinterval::readFromDb() - domain object: "
-                << domainid << " not found in the database..";
-        throw r_Ebase_dbms( SQLITE_NOTFOUND, "domain object not found in the database." );
+               << domainid << " not found in the database..";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object not found in the database.");
     }
 
     dimensionality = dimension2;
@@ -281,7 +285,7 @@ DBMinterval::readFromDb() throw (r_Error)
     for (count = 0; count < dimension2; count++)
     {
         SQLiteQuery query2("SELECT Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld",
-                          count, domainid);
+                           count, domainid);
         if (query2.nextRow())
         {
             if (!query2.currColumnNull())
@@ -306,8 +310,8 @@ DBMinterval::readFromDb() throw (r_Error)
         else
         {
             LFATAL << "DBMinterval::readFromDb() - domain object: "
-                    << domainid << " has no dimension " << count << " description in the database.";
-            throw r_Ebase_dbms( SQLITE_NOTFOUND, "domain object has no dimension description in the database." );
+                   << domainid << " has no dimension " << count << " description in the database.";
+            throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object has no dimension description in the database.");
         }
 
         streamInitCnt++;

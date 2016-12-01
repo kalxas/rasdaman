@@ -74,7 +74,7 @@ public:
     typedef vector<mddIntervalType> mddIntervalListType;
 
     /// constructor getting iterator, minterval expression, and cell expression
-    QtMarrayOp2( mddIntervalListType* & aList, QtOperation* & cellExp );
+    QtMarrayOp2(mddIntervalListType*& aList, QtOperation*& cellExp);
 
     /// destructor
     virtual ~QtMarrayOp2();
@@ -82,13 +82,13 @@ public:
     /// optimizing load access
     virtual bool concatenateIntervals();
     virtual void rewriteVars();
-    inline QtOperation *getInput() const;
+    inline QtOperation* getInput() const;
     ///
     inline const ParseInfo&     getParseInfo();
     ///
-    inline void                 setParseInfo( const ParseInfo &info );
+    inline void                 setParseInfo(const ParseInfo& info);
     ///
-    inline void                 setOldMarray( bool value );
+    inline void                 setOldMarray(bool value);
 
 protected:
     /// attribute for parser info
@@ -99,10 +99,10 @@ private:
     mddIntervalListType iterators;
 
     /// attribute storing the cellExp
-    QtOperation *qtOperation;
+    QtOperation* qtOperation;
 
     /// tree traversal
-    virtual void traverse(QtOperation *&node);
+    virtual void traverse(QtOperation*& node);
 
     /// replace Iterator name if this is false
     bool oldMarray;

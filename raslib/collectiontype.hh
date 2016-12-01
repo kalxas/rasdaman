@@ -102,7 +102,7 @@ protected:
 };
 
 //@Doc: write the status of a collection type to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Collection_Type &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Collection_Type& type);
 
 #endif
 

@@ -82,19 +82,19 @@ This class has to be changed to reflect this aability.
 */
 
 //function pointer to the static function which inserts objects
-typedef bool (*IxLogic_insertObject) (IndexDS* theIx, const KeyObject& theObj, const StorageLayout& sl);
+typedef bool (*IxLogic_insertObject)(IndexDS* theIx, const KeyObject& theObj, const StorageLayout& sl);
 
 //function pointer to the static function which removes objects
-typedef bool (*IxLogic_removeObject) (IndexDS* theIx, const KeyObject& theObj, const StorageLayout& sl);
+typedef bool (*IxLogic_removeObject)(IndexDS* theIx, const KeyObject& theObj, const StorageLayout& sl);
 
 //function pointer to the static function which gets objects from the index
-typedef void (*IxLogic_intersect) (const IndexDS* theIx, const r_Minterval& searchInterval, KeyObjectVector& objs, const StorageLayout& sl);
+typedef void (*IxLogic_intersect)(const IndexDS* theIx, const r_Minterval& searchInterval, KeyObjectVector& objs, const StorageLayout& sl);
 
 //function pointer to the static function which gets object at point
-typedef void (*IxLogic_containPointQuery) (const IndexDS* theIx, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl);
+typedef void (*IxLogic_containPointQuery)(const IndexDS* theIx, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl);
 
 //function pointer to the static function which inserts objects
-typedef void (*IxLogic_getObjects) (const IndexDS* theIx, KeyObjectVector& objs, const StorageLayout& sl);
+typedef void (*IxLogic_getObjects)(const IndexDS* theIx, KeyObjectVector& objs, const StorageLayout& sl);
 
 class MDDObjIx
 {
@@ -129,7 +129,7 @@ public:
 
     bool removeTile(boost::shared_ptr<Tile> tile);
 
-    std::vector< boost::shared_ptr<Tile> > * intersect(const r_Minterval &) const;
+    std::vector<boost::shared_ptr<Tile>>* intersect(const r_Minterval&) const;
 
     char* pointQuery(const r_Point& searchPoint);
 
@@ -137,7 +137,7 @@ public:
 
     boost::shared_ptr<Tile> containPointQuery(const r_Point& searchPoint) const;
 
-    std::vector< boost::shared_ptr<Tile> >* getTiles() const;
+    std::vector<boost::shared_ptr<Tile>>* getTiles() const;
 
     bool isPersistent() const;
 
@@ -150,7 +150,7 @@ public:
 
 protected:
 
-    void setNewLastAccess(const r_Minterval& newLastAccess, const std::vector< boost::shared_ptr<Tile> >* newLastTiles);
+    void setNewLastAccess(const r_Minterval& newLastAccess, const std::vector<boost::shared_ptr<Tile>>* newLastTiles);
 
     void setNewLastAccess(const boost::shared_ptr<Tile> newLastTile, bool te = true);
     /*@Doc:
@@ -160,7 +160,7 @@ protected:
             release all tiles
     */
 
-    std::vector< boost::shared_ptr<Tile> >* lastAccessIntersect(const r_Minterval& searchInter) const;
+    std::vector<boost::shared_ptr<Tile>>* lastAccessIntersect(const r_Minterval& searchInter) const;
 
     boost::shared_ptr<Tile> lastAccessPointQuery(const r_Point& searchPoint) const;
 
@@ -181,7 +181,7 @@ protected:
         Last searched region.
     */
 
-    std::vector< boost::shared_ptr<Tile> > lastAccessTiles;
+    std::vector<boost::shared_ptr<Tile>> lastAccessTiles;
     /*@Doc:
         Internal cache of {\tt Tile}s accessed the last time.
         Contents change everytime there is an insert, an intersect, a getTiles
@@ -258,9 +258,9 @@ protected:
         This code was commented out because it crashed
     */
 
-    RMTimer *pointQueryTimer;
-    RMTimer *intersectTimer;
-    RMTimer *getTilesTimer;
+    RMTimer* pointQueryTimer;
+    RMTimer* intersectTimer;
+    RMTimer* getTilesTimer;
 #endif
     void initializeLogicStructure();
     /**

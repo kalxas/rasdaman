@@ -63,9 +63,9 @@ public class WcpsCoverageMetadataTranslator {
                                         rangeFields, StringUtils.join(metadataList, ""), parseNodataValues(nodata));
     }
 
-    private List<RangeField> buildRangeFields(Iterator<RangeElement> rangeIterator, Iterator<AbstractSimpleComponent> sweIterator){
+    private List<RangeField> buildRangeFields(Iterator<RangeElement> rangeIterator, Iterator<AbstractSimpleComponent> sweIterator) {
         List<RangeField> rangeFields = new ArrayList<RangeField>();
-        while(rangeIterator.hasNext()) {
+        while (rangeIterator.hasNext()) {
             RangeElement rangeElement = rangeIterator.next();
             Quantity quantity = (Quantity) sweIterator.next();
 
@@ -77,23 +77,22 @@ public class WcpsCoverageMetadataTranslator {
         return rangeFields;
     }
 
-    private List<Interval<BigDecimal>> parseAllowedValues(AllowedValues allowedValues){
+    private List<Interval<BigDecimal>> parseAllowedValues(AllowedValues allowedValues) {
         List<Interval<BigDecimal>> ret = new ArrayList<Interval<BigDecimal>>();
         Iterator<RealPair> allowedValuesIterator = allowedValues.getIntervalIterator();
-        while (allowedValuesIterator.hasNext()){
+        while (allowedValuesIterator.hasNext()) {
             RealPair nextInterval = allowedValuesIterator.next();
             ret.add(new Interval<BigDecimal>(nextInterval.getMin(), nextInterval.getMax()));
         }
         return ret;
     }
 
-    private List<Double> parseNodataValues(List<NilValue> nullValues){
+    private List<Double> parseNodataValues(List<NilValue> nullValues) {
         List<Double> result = new ArrayList<Double>();
-        for (NilValue nullValue: nullValues){
+        for (NilValue nullValue : nullValues) {
             try {
                 result.add(Double.valueOf(nullValue.getValue()));
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 //failed converting to double, don't add it
                 Logger.getLogger(WcpsCoverageMetadataTranslator.class.getName()).log(Level.SEVERE, null, e);
             }
@@ -101,7 +100,7 @@ public class WcpsCoverageMetadataTranslator {
         return result;
     }
 
-    private List<Double> parseNodataValues(Iterator<NilValue> nilValueIterator){
+    private List<Double> parseNodataValues(Iterator<NilValue> nilValueIterator) {
         List<Double> ret = new ArrayList<Double>();
         while (nilValueIterator.hasNext()) {
             String number = nilValueIterator.next().getValue();
@@ -138,10 +137,10 @@ public class WcpsCoverageMetadataTranslator {
             }
 
             // Get the metadata of CRS (needed when using TimeCrs)
-            CrsDefinition crsDefinition = currentGeo.getAxisDef().getCrsDefinition();            
+            CrsDefinition crsDefinition = currentGeo.getAxisDef().getCrsDefinition();
             String axisUoM = currentGeo.getUom();
             int rasdamanOrder = currentGeo.getOrder();
-            
+
             // NOTE: this needs the "sign" of offset vector as well
             BigDecimal scalarResolution = currentGeo.getDirectionalResolution();
             // Check domainElement's type
@@ -149,9 +148,8 @@ public class WcpsCoverageMetadataTranslator {
                 // Need the iOder of axis to query coeffcients
                 result.add(new IrregularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
                                              crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
-            }
-            else{
-                
+            } else {
+
                 result.add(new RegularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
                                            crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
             }

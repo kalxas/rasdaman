@@ -45,50 +45,50 @@ import rasj.rnp.RasRNPImplementation;
  */
 public class RasStructure {
 
-  private DList elements;
-  private RasStructureType type;
+    private DList elements;
+    private RasStructureType type;
 
-  /**
-   * Constructor getting the type and input stream from which to read the
-   * values.
-     *
-   */
-  public RasStructure(RasStructureType type, DataInputStream dis)
-          throws IOException, RasResultIsNoIntervalException {
-    this.type = type;
-    this.elements = new RasList();
-    
-    RasBaseType[] bts = type.getBaseTypes();
-    for (RasBaseType bt : bts) {
-      if (bt != null) {
-        elements.add(RasRNPImplementation.getElement(dis, bt, null));
-      }
+    /**
+     * Constructor getting the type and input stream from which to read the
+     * values.
+       *
+     */
+    public RasStructure(RasStructureType type, DataInputStream dis)
+    throws IOException, RasResultIsNoIntervalException {
+        this.type = type;
+        this.elements = new RasList();
+
+        RasBaseType[] bts = type.getBaseTypes();
+        for (RasBaseType bt : bts) {
+            if (bt != null) {
+                elements.add(RasRNPImplementation.getElement(dis, bt, null));
+            }
+        }
     }
-  }
 
-  @Override
-  public String toString() {
-    StringBuilder ret = new StringBuilder("{");
-    int i = 0;
-    for (Object element : elements) {
-      if (element == null) {
-        continue;
-      }
-      if (i > 0) {
-        ret.append(",");
-      }
-      ret.append(" ").append(element.toString());
-      i = 1;
+    @Override
+    public String toString() {
+        StringBuilder ret = new StringBuilder("{");
+        int i = 0;
+        for (Object element : elements) {
+            if (element == null) {
+                continue;
+            }
+            if (i > 0) {
+                ret.append(",");
+            }
+            ret.append(" ").append(element.toString());
+            i = 1;
+        }
+        ret.append(" }");
+        return ret.toString();
     }
-    ret.append(" }");
-    return ret.toString();
-  }
 
-  public java.util.List getElements() {
-    return elements;
-  }
+    public java.util.List getElements() {
+        return elements;
+    }
 
-  public RasStructureType getType() {
-    return type;
-  }
+    public RasStructureType getType() {
+        return type;
+    }
 }

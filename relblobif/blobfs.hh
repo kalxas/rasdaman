@@ -40,7 +40,8 @@
 using blobfs::BlobData;
 using blobfs::BlobFSTransaction;
 
-namespace blobfs {
+namespace blobfs
+{
 
 /**
  * Main blob file storage class.

@@ -49,7 +49,7 @@ rasdaman GmbH.
 #define BUFFER_SIZE 4000
 
 // SQL error message max size
-const int MSG_MAXLEN=BUFFER_SIZE;
+const int MSG_MAXLEN = BUFFER_SIZE;
 
 char* error_message;
 int error_code;
@@ -65,7 +65,7 @@ bool
 is_error_code(int return_code)
 {
     return return_code > 0 &&
-            return_code <= SQLITE_NOTADB;
+           return_code <= SQLITE_NOTADB;
 }
 
 /*
@@ -73,7 +73,7 @@ is_error_code(int return_code)
  * Set global variables error_code and error_message in case of an error.
  */
 bool
-is_error(sqlite3 *sqliteConn) throw (r_Error)
+is_error(sqlite3* sqliteConn) throw (r_Error)
 {
     int sqlite_err_code = sqlite3_errcode(sqliteConn);
     bool error = is_error_code(sqlite_err_code);
@@ -86,18 +86,18 @@ is_error(sqlite3 *sqliteConn) throw (r_Error)
 }
 
 void
-failOnError(const char *stmt, sqlite3 *sqliteConn) throw (r_Error)
+failOnError(const char* stmt, sqlite3* sqliteConn) throw (r_Error)
 {
     if (is_error(sqliteConn))
     {
         LFATAL << "SQL query failed: " << stmt;
         LFATAL << "Database error, code: " << error_code << ", message: " << error_message;
-        throw r_Ebase_dbms( error_code, error_message );
+        throw r_Ebase_dbms(error_code, error_message);
     }
 }
 
 void
-warnOnError(const char *stmt, sqlite3 *sqliteConn) throw (r_Error)
+warnOnError(const char* stmt, sqlite3* sqliteConn) throw (r_Error)
 {
     if (is_error(sqliteConn))
     {

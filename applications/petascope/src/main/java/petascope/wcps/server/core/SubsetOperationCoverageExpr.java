@@ -35,9 +35,9 @@ import petascope.util.WcpsConstants;
 import petascope.wcps.metadata.CoverageInfo;
 
 public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(SubsetOperationCoverageExpr.class);
-    
+
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
         WcpsConstants.MSG_TRIM,
@@ -79,22 +79,24 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
             } catch (WCPSException ex) {
                 throw ex;
             }
-             
+
             info = ((SliceCoverageExpr) child).getCoverageInfo();
         } else {
             log.error("Failed to match SubsetOperation: " + nodeName);
             throw new WCPSException("failed to match SubsetOperation: " + nodeName);
         }
-        
+
         // Keep the children to re-traverse the XML tree
-        if (child != null) super.children.add(child);
+        if (child != null) {
+            super.children.add(child);
+        }
     }
 
     @Override
     public String toRasQL() {
         return child.toRasQL();
     }
-    
+
     Pair<String[], String> computeRasQL() {
         if (child instanceof TrimCoverageExpr) {
             return ((TrimCoverageExpr) child).computeRasQL();
@@ -104,11 +106,11 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
             return Pair.of(null, child.toRasQL());
         }
     }
-    
+
     public IRasNode getChild() {
         return child;
     }
-    
+
     @Override
     public CoverageInfo getCoverageInfo() {
         return info;

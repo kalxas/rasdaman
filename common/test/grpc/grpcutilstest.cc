@@ -32,7 +32,7 @@ namespace test
 
 TEST(GrpcUtilsTest, AddressToStringTest)
 {
-    std::string host="localhost";
+    std::string host = "localhost";
     boost::uint32_t port = 5002;
 
     ASSERT_EQ("localhost:5002", GrpcUtils::constructAddressString(host, port));

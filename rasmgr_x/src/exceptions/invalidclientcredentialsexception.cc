@@ -25,7 +25,7 @@
 namespace rasmgr
 {
 InvalidClientCredentialsException::InvalidClientCredentialsException()
-    :common::RuntimeException("The credentials provided by the client are invalid.")
+    : common::RuntimeException("The credentials provided by the client are invalid.")
 {}
 
 InvalidClientCredentialsException::~InvalidClientCredentialsException() throw()

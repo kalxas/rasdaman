@@ -26,13 +26,13 @@ rasdaman GmbH.
 /*
  * RCS:
  *   $RCSfile: types.h,v $ $Revision: 1.1 $ $State: Exp $
- *   $Locker:  $ 
+ *   $Locker:  $
  */
 
 #ifndef _TYPES_H
 #define _TYPES_H
 
-typedef struct SubServerBase   *SubServerPtr;
+typedef struct SubServerBase*   SubServerPtr;
 typedef int                     rc_t;
 
 #endif  /*  _TYPES_H not defined  */

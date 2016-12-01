@@ -58,14 +58,16 @@ bool udfEnabled = true;
 
 _INITIALIZE_EASYLOGGINGPP
 
-namespace blobfs {
+namespace blobfs
+{
 
-class TestBlobFSTransaction{
+class TestBlobFSTransaction
+{
 
 public:
 
     TestBlobFSTransaction()
-    : config(string("/tmp/rasdata"), string("/tmp/rasdata/TILES"), string("/tmp/rasdata/TRANSACTIONS"), true)
+        : config(string("/tmp/rasdata"), string("/tmp/rasdata/TILES"), string("/tmp/rasdata/TRANSACTIONS"), true)
     {
         system("rm -rf /tmp/rasdata");
         mkdir(config.rootPath.c_str(), 0770);
@@ -366,7 +368,7 @@ private:
 
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifndef BASEDB_SQLITE
     cerr << "testsuite runs only on SQLite / Filestorage rasdaman." << endl;

@@ -70,7 +70,7 @@ public class CoverageConstructorHandler {
             String alias = i.getAliasName();
             SubsetDimension subsetDimension = i.getSubsetDimension();
 
-            if (rasqlAliasName.isEmpty()){
+            if (rasqlAliasName.isEmpty()) {
                 rasqlAliasName = alias.replace(SubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
@@ -86,8 +86,8 @@ public class CoverageConstructorHandler {
 
         String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getAxes(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
         String template = TEMPLATE.replace("$iter", rasqlAliasName)
-                                  .replace("$intervals", rasqlDomain)
-                                  .replace("$values", values.getRasql());
+                          .replace("$intervals", rasqlDomain)
+                          .replace("$values", values.getRasql());
         return new WcpsResult(metadata, template);
     }
 

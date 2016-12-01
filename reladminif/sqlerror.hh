@@ -58,7 +58,7 @@ generates a new r_Ebase_dbms exception and throws it.
 */
 
 #define is_error(msg) checkk(msg, sqlca)
-int checkk(const char* msg, struct sqlca& mysql) throw( r_Error );
+int checkk(const char* msg, struct sqlca& mysql) throw(r_Error);
 /*@Doc:
 returns sqlcode, prints error messages when appropriate.
 the msg is inserted in the error message.
@@ -120,18 +120,18 @@ Display error message if SQL errors have occurred.
 #define UNDEFINED_RETVAL -10000
 #include <sqlite3.h>
 
-bool is_error(sqlite3 *db) throw (r_Error);
+bool is_error(sqlite3* db) throw (r_Error);
 /*@Doc:
 Display error message if SQL errors have occurred.
 */
 
-void failOnError(const char* msg, sqlite3 *db) throw (r_Error);
+void failOnError(const char* msg, sqlite3* db) throw (r_Error);
 /*@Doc:
  * Throw an exception when an error happens.
  * retval is an optional return value from an sqlite3_* function execution.
 */
 
-void warnOnError(const char* msg, sqlite3 *db) throw (r_Error);
+void warnOnError(const char* msg, sqlite3* db) throw (r_Error);
 /*@Doc:
  * Print a warning when an error happens.
  * retval is an optional return value from an sqlite3_* function execution.

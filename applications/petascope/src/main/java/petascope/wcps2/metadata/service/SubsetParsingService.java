@@ -70,7 +70,7 @@ public class SubsetParsingService {
     public List<SubsetDimension> getPureSubsetDimensions(List<SubsetDimension> subsetDimensions) {
         List<SubsetDimension> pureSubsetDimensions = new ArrayList<SubsetDimension>();
 
-        for (SubsetDimension subsetDimension:subsetDimensions) {
+        for (SubsetDimension subsetDimension : subsetDimensions) {
             boolean pureSubsetDimension = true;
             if (subsetDimension instanceof TrimSubsetDimension) {
                 // trim subset dimension
@@ -88,7 +88,7 @@ public class SubsetParsingService {
             }
 
             // Only add subset dimension which does not contain "$"
-            if(pureSubsetDimension) {
+            if (pureSubsetDimension) {
                 pureSubsetDimensions.add(subsetDimension);
             }
         }
@@ -105,7 +105,7 @@ public class SubsetParsingService {
     public List<SubsetDimension> getAxisIteratorSubsetDimensions(List<SubsetDimension> subsetDimensions) {
         List<SubsetDimension> pureSubsetDimensions = new ArrayList<SubsetDimension>();
 
-        for (SubsetDimension subsetDimension:subsetDimensions) {
+        for (SubsetDimension subsetDimension : subsetDimensions) {
             boolean pureSubsetDimension = false;
             if (subsetDimension instanceof TrimSubsetDimension) {
                 // trim subset dimension
@@ -123,7 +123,7 @@ public class SubsetParsingService {
             }
 
             // Only add subset dimension which does not contain "$"
-            if(pureSubsetDimension) {
+            if (pureSubsetDimension) {
                 pureSubsetDimensions.add(subsetDimension);
             }
         }
@@ -138,9 +138,9 @@ public class SubsetParsingService {
      * @param isScaleExtend if subsets are used in scale/extend, we need to check it specially
      * @return
      */
-    public List<Subset> convertToNumericSubsets(List<SubsetDimension> dimensions, WcpsCoverageMetadata metadata, boolean isScaleExtend){
+    public List<Subset> convertToNumericSubsets(List<SubsetDimension> dimensions, WcpsCoverageMetadata metadata, boolean isScaleExtend) {
         List<Subset> result = new ArrayList();
-        for (SubsetDimension subsetDimension: dimensions) {
+        for (SubsetDimension subsetDimension : dimensions) {
             result.add(convertToNumericSubset(subsetDimension, metadata, isScaleExtend));
         }
         return result;
@@ -151,9 +151,9 @@ public class SubsetParsingService {
      * @param dimensions
      * @return
      */
-    public List<Subset> convertToRawNumericSubsets(List<SubsetDimension> dimensions){
+    public List<Subset> convertToRawNumericSubsets(List<SubsetDimension> dimensions) {
         List<Subset> result = new ArrayList();
-        for(SubsetDimension subsetDimension: dimensions){
+        for (SubsetDimension subsetDimension : dimensions) {
             result.add(convertToRawNumericSubset(subsetDimension));
         }
         return result;
@@ -164,7 +164,7 @@ public class SubsetParsingService {
      * @param dimension
      * @return
      */
-    public Subset convertToRawNumericSubset(SubsetDimension dimension){
+    public Subset convertToRawNumericSubset(SubsetDimension dimension) {
         String axisName = dimension.getAxisName();
         String crs = dimension.getCrs();
         BigDecimal lowerBound = BigDecimal.ZERO;
@@ -172,7 +172,7 @@ public class SubsetParsingService {
 
         NumericSubset numericSubset = null;
         //try to parse numbers
-        try{
+        try {
             if (dimension instanceof TrimSubsetDimension) {
                 lowerBound = new BigDecimal(((TrimSubsetDimension)dimension).getLowerBound());
                 upperBound = new BigDecimal(((TrimSubsetDimension)dimension).getUpperBound());
@@ -184,8 +184,7 @@ public class SubsetParsingService {
 
                 numericSubset = new NumericSlicing(lowerBound);
             }
-        }
-        catch (NumberFormatException ex){
+        } catch (NumberFormatException ex) {
             throw new InvalidIntervalNumberFormat(lowerBound.toPlainString(), upperBound.toPlainString());
         }
         return new Subset(numericSubset, crs, axisName);
@@ -198,7 +197,7 @@ public class SubsetParsingService {
      * @param isScaleExtend if subsetDimension is used to scale or extends will need to be checked specially
      * @return
      */
-    public Subset convertToNumericSubset(SubsetDimension dimension, WcpsCoverageMetadata metadata, boolean isScaleExtend){
+    public Subset convertToNumericSubset(SubsetDimension dimension, WcpsCoverageMetadata metadata, boolean isScaleExtend) {
 
         // This needs to be added transform() if dimension has crs which is different with native axis from coverage
         String axisName = dimension.getAxisName();
@@ -257,11 +256,11 @@ public class SubsetParsingService {
      * @return
      */
     private BigDecimal convertPointToBigDecimal(boolean isTrimming, boolean isLowerPoint, Axis axis, String point,
-                                                WcpsCoverageMetadata metadata, String subsetCrs, boolean isScaleExtend) {
+            WcpsCoverageMetadata metadata, String subsetCrs, boolean isScaleExtend) {
         BigDecimal result = null;
-        if(point.equals(DimensionSubset.ASTERISK)) {
-            if(isTrimming) {
-                if(isLowerPoint) {
+        if (point.equals(DimensionSubset.ASTERISK)) {
+            if (isTrimming) {
+                if (isLowerPoint) {
                     result = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit();
                 } else {
                     result = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit();
@@ -270,8 +269,7 @@ public class SubsetParsingService {
                 // is slicing, throw exception does not support (Lat(*))
                 throw new InvalidSlicingException(axis.getLabel(), point);
             }
-        }
-        else if (numericPoint(point)) {
+        } else if (numericPoint(point)) {
             // Check if point is Numeric
             // We need to find the nearest geo coordinate which is origin of a grid cell coordinate from this coordinate
             // (e.g: pixel size is: 30 m / 1 grid pixel and geo coordinate starts with 0,
@@ -289,8 +287,8 @@ public class SubsetParsingService {
                 // regular axis
                 result = TimeConversionService.getTimeInGridPointForRegularAxis(axis, point);
             } else {
-               // irregular axis
-               result = TimeConversionService.getTimeInGridPointForIrregularAxis(axis, point);
+                // irregular axis
+                result = TimeConversionService.getTimeInGridPointForIrregularAxis(axis, point);
             }
         } else {
             // throw exception when cannot parse a slicing subset point (e.g: Lat(1 + 1)
@@ -384,7 +382,7 @@ public class SubsetParsingService {
         BigDecimal axisLowerBound = null;
         BigDecimal axisUpperBound = null;
 
-        if(axis.getGeoBounds() instanceof NumericTrimming) {
+        if (axis.getGeoBounds() instanceof NumericTrimming) {
             axisLowerBound = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit();
             axisUpperBound = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit();
         } else {
@@ -445,14 +443,14 @@ public class SubsetParsingService {
             geoMinCoordinate = ((NumericSlicing)axis.getGeoBounds()).getBound();
             geoMaxCoordinate = geoMinCoordinate;
         }
-        
+
         BigDecimal coordinateValue = new BigDecimal(point);
-        
+
         // NOTE: if point is out of axis's bound then will not need to do anything (if the subset in scale() or extend() then it is valid).
         if (!isScaleExtend) {
             validatePointInsideGeoBound(axis.getLabel(), coordinateValue, geoMinCoordinate, geoMaxCoordinate);
         }
-        
+
         // calculate the distance from the input geo coordinate and min coordinate (distance = input point - min coordinate)
         BigDecimal distanceFromOrigin = coordinateValue.subtract(geoMinCoordinate);
         // calculate the cell coordinate (cellCoordinate = distance / pixel size)
@@ -480,7 +478,7 @@ public class SubsetParsingService {
         // NOTE: if subset is used in scale/extend, then the output coordinate can be larger than the bounding box
         if (!isScaleExtend) {
             if (nearestGeoCoordinate.compareTo(geoMaxCoordinate) > 0) {
-               nearestGeoCoordinate = geoMaxCoordinate;
+                nearestGeoCoordinate = geoMaxCoordinate;
             } else if (nearestGeoCoordinate.compareTo(geoMinCoordinate) < 0) {
                 nearestGeoCoordinate = geoMinCoordinate;
             }
@@ -488,7 +486,7 @@ public class SubsetParsingService {
 
         return nearestGeoCoordinate;
     }
-    
+
     /**
      * i.e: if point is 20 and Lat's geo bound is: 30:40 then point is invalid and should throw error
      */

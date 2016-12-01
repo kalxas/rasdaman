@@ -61,7 +61,7 @@ public class JettyServer {
     public static void main(String[] args) throws Exception {
         if (args.length < 3) {
             reportError("Please provide the path to the petascope.properties file, the path to the rasdaman.war file and" +
-                    " the path to the secore def.war file as command line parameters in this specific order.");
+                        " the path to the secore def.war file as command line parameters in this specific order.");
         }
         JettyServer jettyServer = new JettyServer(args[0], args[1], args[2]);
         jettyServer.loadJettyConfiguration();

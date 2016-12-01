@@ -54,9 +54,9 @@ rasdaman GmbH.
  *  Load the resource file, parse and sort it.
  */
 
-labelManager::labelManager(const char *resourceFile)
+labelManager::labelManager(const char* resourceFile)
 {
-    FILE *fp;
+    FILE* fp;
     size_t filesize;
     int i;
     char c, *b, *upper;
@@ -76,7 +76,7 @@ labelManager::labelManager(const char *resourceFile)
     fseek(fp, 0, SEEK_END);
     filesize = ftell(fp);
 
-    if ((buffer = new char[filesize+1]) == NULL)
+    if ((buffer = new char[filesize + 1]) == NULL)
     {
         cerr << "Not enough memory for buffer!" << endl;
     }
@@ -143,7 +143,7 @@ labelManager::labelManager(const char *resourceFile)
     }
     while (b < upper);
 
-    if ((lineTable = new char*[lines]) == NULL)
+    if ((lineTable = new char* [lines]) == NULL)
     {
         cerr << "Not enough memory for lineTable!" << endl;
         delete [] buffer;
@@ -173,14 +173,14 @@ labelManager::labelManager(const char *resourceFile)
         }
         else if (c != '\n')
         {
-            lineTable[i++] = b-1;
+            lineTable[i++] = b - 1;
             do
             {
                 c = *b++;
             }
             while (c != '\n');
             // terminate all non-empty lines with '\0'
-            *(b-1) = '\0';
+            *(b - 1) = '\0';
         }
     }
     while (b < upper);
@@ -190,7 +190,7 @@ labelManager::labelManager(const char *resourceFile)
         cerr << "Fatal error: passes incompatible!" << endl;
     }
 
-    sortResources(0, lines-1);
+    sortResources(0, lines - 1);
 
     /*cout << lines << " label definitions found." << endl;
     for (i=0; i<lines; i++)
@@ -208,7 +208,7 @@ labelManager::labelManager(const char *resourceFile)
 void labelManager::sortResources(int from, int to)
 {
     int i, j;
-    char *swap, *l, *m;
+    char* swap, *l, *m;
 
     while (from < to)
     {
@@ -218,7 +218,7 @@ void labelManager::sortResources(int from, int to)
         lineTable[i] = swap;
         j = from;
 
-        for (i=from+1; i<=to; i++)
+        for (i = from + 1; i <= to; i++)
         {
             l = lineTable[from];
             m = lineTable[i];
@@ -228,7 +228,10 @@ void labelManager::sortResources(int from, int to)
                 m++;
             }
             // End of first idf reached ==> second string can at best be =, not <
-            if (*l == ':') continue;
+            if (*l == ':')
+            {
+                continue;
+            }
             // If end of second idf was reached the second string is <. Otherwise check chars.
             if ((*m == ':') || (*m < *l))
             {
@@ -245,13 +248,13 @@ void labelManager::sortResources(int from, int to)
         // Select cheaper recursion branch
         if ((j - from) < (to - j))
         {
-            sortResources(from, j-1);
-            from = j+1;
+            sortResources(from, j - 1);
+            from = j + 1;
         }
         else
         {
-            sortResources(j+1, to);
-            to = j-1;
+            sortResources(j + 1, to);
+            to = j - 1;
         }
     }
 }
@@ -265,8 +268,14 @@ void labelManager::sortResources(int from, int to)
 
 labelManager::~labelManager(void)
 {
-    if (lineTable != NULL) delete [] lineTable;
-    if (buffer != NULL) delete [] buffer;
+    if (lineTable != NULL)
+    {
+        delete [] lineTable;
+    }
+    if (buffer != NULL)
+    {
+        delete [] buffer;
+    }
 }
 
 
@@ -277,16 +286,22 @@ labelManager::~labelManager(void)
  *  this symbol doesn't exist it returns a pointer to the badSymbol-member.
  */
 
-char *labelManager::lookup(const char *symbol)
+char* labelManager::lookup(const char* symbol)
 {
     int at, step, iter;
-    char *s, *l;
+    char* s, *l;
 
-    if (lines == 0) return badSymbol;
-    at = (lines+1)/2;
-    step = (at+1)/2;
+    if (lines == 0)
+    {
+        return badSymbol;
+    }
+    at = (lines + 1) / 2;
+    step = (at + 1) / 2;
     iter = lines << 1;
-    if (at >= (int)lines) at = lines-1;
+    if (at >= (int)lines)
+    {
+        at = lines - 1;
+    }
     // Do a binary search over the sorted items
     while (iter != 0)
     {
@@ -302,10 +317,16 @@ char *labelManager::lookup(const char *symbol)
         if (((unsigned char)(*s) <= 32) || (*s == ':'))
         {
             // Both read to the end. Success.
-            if (*l == ':') return (l+1);
+            if (*l == ':')
+            {
+                return (l + 1);
+            }
             // Symbol's end reached but not label's ==> label >, i.e. step down
             at -= step;
-            if (at < 0) at = 0;
+            if (at < 0)
+            {
+                at = 0;
+            }
         }
         else
         {
@@ -313,15 +334,21 @@ char *labelManager::lookup(const char *symbol)
             if ((*l == ':') || (*l < *s))
             {
                 at += step;
-                if (at >= (int)lines) at = lines-1;
+                if (at >= (int)lines)
+                {
+                    at = lines - 1;
+                }
             }
             else
             {
                 at -= step;
-                if (at < 0) at = 0;
+                if (at < 0)
+                {
+                    at = 0;
+                }
             }
         }
-        step = (step+1)/2;
+        step = (step + 1) / 2;
         iter >>= 1;
         //cout << at << ", " << step << ", " << iter << ": " << lineTable[at] << endl;
     }
@@ -348,7 +375,7 @@ int labelManager::numberOfLabels(void)
  *  may be handy for debugging.
  */
 
-char *labelManager::returnLabelNumber(unsigned int index)
+char* labelManager::returnLabelNumber(unsigned int index)
 {
     if (index >= lines)
     {

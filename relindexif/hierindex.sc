@@ -67,21 +67,25 @@ DBHierIndex::insertInDb() throw (r_Error)
     indexsubtype2 = _isNode;
 
     if (parent.getType() == OId::INVALID)
+    {
         parentid2 = 0;
+    }
     else
+    {
         parentid2 = parent;
+    }
 
     // (1) -- set all buffers
-    r_Bytes headersize = sizeof (header);
+    r_Bytes headersize = sizeof(header);
 
     //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof (r_Range) * (size2 + 1) * dimension2;
+    r_Bytes boundssize = sizeof(r_Range) * (size2 + 1) * dimension2;
     //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof (char) * (size2 + 1) * dimension2;
+    r_Bytes fixessize = sizeof(char) * (size2 + 1) * dimension2;
     //number of bytes for ids of entries
-    r_Bytes idssize = sizeof (OId::OIdCounter) * size2;
+    r_Bytes idssize = sizeof(OId::OIdCounter) * size2;
     //number of bytes for types of entries
-    r_Bytes typessize = sizeof (char) * size2;
+    r_Bytes typessize = sizeof(char) * size2;
     //number of bytes for the dynamic data, plus 1 starter byte (see below)
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
@@ -142,7 +146,7 @@ DBHierIndex::insertInDb() throw (r_Error)
         indom = (*it).getDomain();
         indom.insertInDb(&(lowerboundsbuf[(i + 1) * dimension2]), &(upperboundsbuf[(i + 1) * dimension2]), &(lowerfixedbuf[(i + 1) * dimension2]), &(upperfixedbuf[(i + 1) * dimension2]));
         entryidsbuf[i] = (*it).getObject().getOId().getCounter();
-        entrytypesbuf[i] = (char) (*it).getObject().getOId().getType();
+        entrytypesbuf[i] = (char)(*it).getObject().getOId().getType();
         LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i + 1) * dimension2]), &(upperboundsbuf[(i + 1) * dimension2]), &(lowerfixedbuf[(i + 1) * dimension2]), &(upperfixedbuf[(i + 1) * dimension2]));
     }
 
@@ -151,7 +155,7 @@ DBHierIndex::insertInDb() throw (r_Error)
     // this is only necessary for the old format, not the new format...
 
     // write the new header
-    memcpy(&completebuffer[0], &header, sizeof (header)); //the first char must not be a \0 ??
+    memcpy(&completebuffer[0], &header, sizeof(header));  //the first char must not be a \0 ??
 
     (void) memcpy(&completebuffer[headersize], lowerboundsbuf, boundssize);
     free(lowerboundsbuf);
@@ -226,9 +230,13 @@ DBHierIndex::readFromDb() throw (r_Error)
     _isNode = indexsubtype1;
 
     if (parentid1)
+    {
         parent = OId(parentid1);
+    }
     else
+    {
         parent = OId(0, OId::INVALID);
+    }
 
     r_Bytes idssize = 0;
     r_Bytes newidssize = 0;
@@ -241,14 +249,15 @@ DBHierIndex::readFromDb() throw (r_Error)
 
     LDEBUG << "blobbuffer[0]: " << blobbuffer[0];
     if (blobbuffer[0] == 13)
-    { // old format
+    {
+        // old format
         blobformat = 8;
-        idssize = sizeof (int) * size1;
-        newidssize = sizeof (OId::OIdCounter) * size1;
+        idssize = sizeof(int) * size1;
+        newidssize = sizeof(OId::OIdCounter) * size1;
         //number of bytes for types of entries
         //number of bytes for bounds for "size" entries and mydomain
-        boundssize = sizeof (int) * (size1 + 1) * dimension1;
-        newboundssize = sizeof (r_Range) * (size1 + 1) * dimension1;
+        boundssize = sizeof(int) * (size1 + 1) * dimension1;
+        newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
         headersize = 1;
     }
     else
@@ -258,25 +267,25 @@ DBHierIndex::readFromDb() throw (r_Error)
         if (header == 1009)
         {
             blobformat = 9;
-            idssize = sizeof (OId::OIdCounter) * size1;
-            boundssize = sizeof (int) * (size1 + 1) * dimension1;
-            newboundssize = sizeof (r_Range) * (size1 + 1) * dimension1;
+            idssize = sizeof(OId::OIdCounter) * size1;
+            boundssize = sizeof(int) * (size1 + 1) * dimension1;
+            newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
         }
         else
         {
             blobformat = 10;
-            idssize = sizeof (OId::OIdCounter) * size1;
+            idssize = sizeof(OId::OIdCounter) * size1;
             //number of bytes for types of entries
-            boundssize = sizeof (r_Range) * (size1 + 1) * dimension1;
+            boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
         }
     }
 
     LDEBUG << "blobformat: " << blobformat;
 
     //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof (char) * (size1 + 1) * dimension1;
+    r_Bytes fixessize = sizeof(char) * (size1 + 1) * dimension1;
     //number of bytes for types of entries
-    r_Bytes typessize = sizeof (char) * size1;
+    r_Bytes typessize = sizeof(char) * size1;
     //number of bytes for the dynamic data
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
@@ -327,7 +336,8 @@ DBHierIndex::readFromDb() throw (r_Error)
 
     // (4) --- copy data into buffers
     if (blobformat <= 9)
-    { // for blobformat 8 and 9 were only
+    {
+        // for blobformat 8 and 9 were only
         memcpy(oldlowerboundsbuf, &completebuffer[headersize], boundssize);
         memcpy(oldupperboundsbuf, &completebuffer[boundssize + headersize], boundssize);
         // we need to copy all values over
@@ -362,7 +372,7 @@ DBHierIndex::readFromDb() throw (r_Error)
         entryidsbuf = (OId::OIdCounter*) & completebuffer[boundssize * 2 + fixessize * 2 + headersize];
     }
 
-    char *entrytypesbuf = &completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize];
+    char* entrytypesbuf = &completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize];
 
     // rebuild the attributes from the buffers
     long i = 0;
@@ -423,22 +433,26 @@ DBHierIndex::updateInDb() throw (r_Error)
     dimension4 = myDomain.dimension();
     size4 = myKeyObjects.size();
     if (parent.getType() == OId::INVALID)
+    {
         parentid4 = 0;
+    }
     else
+    {
         parentid4 = parent;
+    }
 
     // (1) --- prepare buffer
     // number of bytes for header
-    r_Bytes headersize = sizeof (header);
+    r_Bytes headersize = sizeof(header);
 
     //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof (r_Range) * (size4 + 1) * dimension4;
+    r_Bytes boundssize = sizeof(r_Range) * (size4 + 1) * dimension4;
     //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof (char) * (size4 + 1) * dimension4;
+    r_Bytes fixessize = sizeof(char) * (size4 + 1) * dimension4;
     //number of bytes for ids of entries
-    r_Bytes idssize = sizeof (OId::OIdCounter) * size4;
+    r_Bytes idssize = sizeof(OId::OIdCounter) * size4;
     //number of bytes for types of entries
-    r_Bytes typessize = sizeof (char) * size4;
+    r_Bytes typessize = sizeof(char) * size4;
     //number of bytes for the dynamic data; 1 starter byte!
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
@@ -461,7 +475,7 @@ DBHierIndex::updateInDb() throw (r_Error)
         indom = (*it).getDomain();
         indom.insertInDb(&(lowerboundsbuf[(i + 1) * dimension4]), &(upperboundsbuf[(i + 1) * dimension4]), &(lowerfixedbuf[(i + 1) * dimension4]), &(upperfixedbuf[(i + 1) * dimension4]));
         entryidsbuf[i] = (*it).getObject().getOId().getCounter();
-        entrytypesbuf[i] = (char) (*it).getObject().getOId().getType();
+        entrytypesbuf[i] = (char)(*it).getObject().getOId().getType();
         LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension4, &(lowerboundsbuf[(i + 1) * dimension4]), &(upperboundsbuf[(i + 1) * dimension4]), &(lowerfixedbuf[(i + 1) * dimension4]), &(upperfixedbuf[(i + 1) * dimension4]));
     }
 

@@ -215,10 +215,10 @@ public class DefaultMetadataConstructor {
     private final Properties properties;
     @NotNull
     private final PersistentMetadataObjectProvider persistentMetadataObjectProvider;
-    private static final String[] GET_CAPABILITIES_FORMATS = new String[]{"text/xml"};
-    private static final String[] GET_MAP_FORMATS = new String[]{"image/png", "image/jpeg", "image/tiff"};
-    private static final String[] GET_MAP_RASDAMAN_FORMATS = new String[]{"png", "jpeg", "GTiff"};
-    private static final String[] EXCEPTION_FORMATS = new String[]{"application/vnd.ogc.se_inimage", "application/vnd.ogc.se_xml", "application/vnd.ogc.se_blank"};
+    private static final String[] GET_CAPABILITIES_FORMATS = new String[] {"text/xml"};
+    private static final String[] GET_MAP_FORMATS = new String[] {"image/png", "image/jpeg", "image/tiff"};
+    private static final String[] GET_MAP_RASDAMAN_FORMATS = new String[] {"png", "jpeg", "GTiff"};
+    private static final String[] EXCEPTION_FORMATS = new String[] {"application/vnd.ogc.se_inimage", "application/vnd.ogc.se_xml", "application/vnd.ogc.se_blank"};
     @NotNull
     private static final Logger logger = LoggerFactory.getLogger(DefaultMetadataConstructor.class);
 }

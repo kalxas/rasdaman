@@ -154,7 +154,6 @@ test-driver
 petascope.log*
 .idea
 .project
-*.astylerc
 rasdaman2.creator.user
 rasdaman2.creator.user.3.2-pre1
 rasdaman2.files

@@ -29,7 +29,7 @@ import petascope.wcps.metadata.CoverageInfo;
 public class SetMetadataCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
     public SetMetadataCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
+    throws WCPSException {
         throw new WCPSException("Method not implemented");
     }
 

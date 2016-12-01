@@ -147,7 +147,7 @@ public class RasqlTranslationService {
                     result = ((NumericSlicing) gridBounds).getBound().toBigInteger().toString();
                 } else {
                     result = ((NumericTrimming) gridBounds).getLowerLimit().toBigInteger() + ":"
-                            + ((NumericTrimming) gridBounds).getUpperLimit().toBigInteger();
+                             + ((NumericTrimming) gridBounds).getUpperLimit().toBigInteger();
                 }
                 translatedDomains.add(result);
             }
@@ -168,7 +168,7 @@ public class RasqlTranslationService {
         for (SubsetDimension subsetDimension : subsetDimensions) {
             if (subsetDimension instanceof TrimSubsetDimension) {
                 results.add(((TrimSubsetDimension) subsetDimension).getLowerBound()
-                        + ":" + ((TrimSubsetDimension) subsetDimension).getUpperBound());
+                            + ":" + ((TrimSubsetDimension) subsetDimension).getUpperBound());
             } else {
                 results.add(((SliceSubsetDimension) subsetDimension).getBound());
             }
@@ -223,12 +223,12 @@ public class RasqlTranslationService {
     private String replaceAxisIteratorAliasNames(String subsetDimensionStr, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {
         List<String> axisIteratorAlias = new ArrayList<String>();
 
-		Pattern pattern = Pattern.compile("\\$.*?(?=(\\+|-|\\*|/|\\)|:|\\s|$))");
-		Matcher matcher = pattern.matcher(subsetDimensionStr);
-		while (matcher.find()) {
+        Pattern pattern = Pattern.compile("\\$.*?(?=(\\+|-|\\*|/|\\)|:|\\s|$))");
+        Matcher matcher = pattern.matcher(subsetDimensionStr);
+        while (matcher.find()) {
             // Add the found axis iterator alias name to the list
-  			axisIteratorAlias.add(matcher.group(0));
-		}
+            axisIteratorAlias.add(matcher.group(0));
+        }
 
         // replace all the axis iterator alias name with the translated rasql alias name
         // e.g: $px -> px[0]

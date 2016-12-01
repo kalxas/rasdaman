@@ -45,31 +45,31 @@ rasdaman GmbH.
 
 namespace rasmgr
 {
-ControlCommandExecutor::ControlCommandExecutor ( boost::shared_ptr<RasControl> control )
-    :grammar ( control ), rascontrol ( control )
+ControlCommandExecutor::ControlCommandExecutor(boost::shared_ptr<RasControl> control)
+    : grammar(control), rascontrol(control)
 {}
 
 ControlCommandExecutor::~ControlCommandExecutor()
 {}
 
 
-std::string ControlCommandExecutor::executeCommand ( const std::string& command, const std::string& userName, const std::string& userPass )
+std::string ControlCommandExecutor::executeCommand(const std::string& command, const std::string& userName, const std::string& userPass)
 {
     std::string resultMessage;
 
-    if ( this->canRunCommand ( userName, userPass, command ) )
+    if (this->canRunCommand(userName, userPass, command))
     {
-        resultMessage = this->sudoExecuteCommand ( command );
+        resultMessage = this->sudoExecuteCommand(command);
     }
     else
     {
-        resultMessage= "The user is not authorized to run this command.";
+        resultMessage = "The user is not authorized to run this command.";
     }
 
     return resultMessage;
 }
 
-std::string ControlCommandExecutor::sudoExecuteCommand ( const std::string& command )
+std::string ControlCommandExecutor::sudoExecuteCommand(const std::string& command)
 {
     std::string::const_iterator first = command.begin();
     std::string::const_iterator last = command.end();
@@ -77,60 +77,60 @@ std::string ControlCommandExecutor::sudoExecuteCommand ( const std::string& comm
     std::string resultMessage;
 
     //The grammar must be protected by a mutex.
-    boost::unique_lock<boost::mutex> lock ( this->mut );
+    boost::unique_lock<boost::mutex> lock(this->mut);
 
-    bool r = qi::phrase_parse ( first, last, this->grammar, boost::spirit::ascii::space, parseResult );
-    if ( r && first==last )
+    bool r = qi::phrase_parse(first, last, this->grammar, boost::spirit::ascii::space, parseResult);
+    if (r && first == last)
     {
-        resultMessage=parseResult;
-        LDEBUG<<"The result of rascontrol:"<<resultMessage;
+        resultMessage = parseResult;
+        LDEBUG << "The result of rascontrol:" << resultMessage;
     }
     else
     {
         resultMessage = "Could not execute command.";
-        LDEBUG<<resultMessage;
+        LDEBUG << resultMessage;
     }
 
     return resultMessage;
 }
 
-bool ControlCommandExecutor::canRunCommand ( const std::string& userName, const std::string& password, const std::string& command )
+bool ControlCommandExecutor::canRunCommand(const std::string& userName, const std::string& password, const std::string& command)
 {
-    bool result=false;
+    bool result = false;
 
     //The grammar must be protected by a mutex.
-    boost::unique_lock<boost::mutex> lock ( this->mut );
+    boost::unique_lock<boost::mutex> lock(this->mut);
 
-    if ( this->grammar.isInfoCommand ( command.begin(), command.end() ) )
+    if (this->grammar.isInfoCommand(command.begin(), command.end()))
     {
-        LDEBUG<<command << " is a command requesting information.";
-        result = this->rascontrol->hasInfoRights ( userName, password );
+        LDEBUG << command << " is a command requesting information.";
+        result = this->rascontrol->hasInfoRights(userName, password);
     }
-    else if ( this->grammar.isServerAdminCommand ( command.begin(), command.end() ) )
+    else if (this->grammar.isServerAdminCommand(command.begin(), command.end()))
     {
-        LDEBUG<<command << " is a command requesting a change in server status.";
-        result = this->rascontrol->hasServerAdminRights ( userName, password );
+        LDEBUG << command << " is a command requesting a change in server status.";
+        result = this->rascontrol->hasServerAdminRights(userName, password);
     }
-    else if ( this->grammar.isUserAdminCommand ( command.begin(), command.end() ) )
+    else if (this->grammar.isUserAdminCommand(command.begin(), command.end()))
     {
-        LDEBUG<<command << " is a command requesting a user administration.";
-        result = this->rascontrol->hasUserAdminRights ( userName, password );
+        LDEBUG << command << " is a command requesting a user administration.";
+        result = this->rascontrol->hasUserAdminRights(userName, password);
     }
-    else if ( this->grammar.isSystemConfigCommand ( command.begin(), command.end() ) )
+    else if (this->grammar.isSystemConfigCommand(command.begin(), command.end()))
     {
-        LDEBUG<<command << " is a command requesting system configuration.";
-        result = this->rascontrol->hasConfigRights ( userName, password );
+        LDEBUG << command << " is a command requesting system configuration.";
+        result = this->rascontrol->hasConfigRights(userName, password);
     }
-    else if ( this->grammar.isLoginCommand ( command.begin(), command.end() ) )
+    else if (this->grammar.isLoginCommand(command.begin(), command.end()))
     {
-        LDEBUG<<command << " is a a login command.";
-        result = this->rascontrol->isValidUser ( userName, password );
+        LDEBUG << command << " is a a login command.";
+        result = this->rascontrol->isValidUser(userName, password);
     }
     else
     {
         //It is safe to run any command that is not one of the commands already checked
         result = true;
-        LDEBUG<<"UNKNOWN command:"<<command;
+        LDEBUG << "UNKNOWN command:" << command;
     }
 
     return result;

@@ -25,7 +25,7 @@
 namespace common
 {
 RuntimeException::RuntimeException(const std::string& whatArg)
-    :Exception(whatArg)
+    : Exception(whatArg)
 {}
 
 RuntimeException::~RuntimeException() throw()

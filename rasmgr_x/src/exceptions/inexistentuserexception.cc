@@ -26,7 +26,7 @@ namespace rasmgr
 {
 
 InexistentUserException::InexistentUserException(const std::string& userName)
-    :common::MissingResourceException("The user "+userName+" does not exist.")
+    : common::MissingResourceException("The user " + userName + " does not exist.")
 {}
 
 InexistentUserException::~InexistentUserException() throw()

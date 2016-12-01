@@ -53,7 +53,7 @@ r_TmpFile::~r_TmpFile(void)
 void r_TmpFile::initTmpFile() throw (r_Error)
 {
     char tmpFileName[] = TMP_FILENAME_TEMPLATE;
-    if((fd = mkstemp(tmpFileName)) == INVALID_FILE_DESCRIPTOR)
+    if ((fd = mkstemp(tmpFileName)) == INVALID_FILE_DESCRIPTOR)
     {
         LERROR << "failed creating a temporary file.";
         LERROR << "reason: " << strerror(errno);
@@ -104,13 +104,13 @@ char* r_TmpFile::readData(long& dataSize) throw (r_Error)
             LERROR << "reason: " << strerror(errno);
             throw r_Error(r_Error::r_Error_General);
         }
-        
+
         ifstream file(fileName, ios::in | ios::binary);
         fileContents = (char*) malloc(static_cast<size_t>(dataSize));
         if (fileContents == NULL)
         {
-            LERROR << "failed allocating " << dataSize << 
-                " bytes for reading temporary file '" << fileName << "'.";
+            LERROR << "failed allocating " << dataSize <<
+                   " bytes for reading temporary file '" << fileName << "'.";
             throw r_Error(r_Error::r_Error_MemoryAllocation);
         }
         file.read(fileContents, dataSize);

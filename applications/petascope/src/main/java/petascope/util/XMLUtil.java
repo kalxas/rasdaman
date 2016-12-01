@@ -141,7 +141,7 @@ public class XMLUtil {
             return;
         }
         System.setProperty("javax.xml.parsers.SAXParserFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+                           "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
         factory = SAXParserFactory.newInstance();
 
         try {
@@ -246,11 +246,11 @@ public class XMLUtil {
             doc = builder.get().build(in, baseURI);
         } catch (ParsingException ex) {
             log.error(StringUtil.join("Error while building XML document: " + baseURI, ex.getMessage(),
-                    "line: " + ex.getLineNumber() + ", column: " + ex.getColumnNumber()));
+                                      "line: " + ex.getLineNumber() + ", column: " + ex.getColumnNumber()));
             throw ex;
         } catch (IOException ex) {
             log.error(StringUtil.join("Error while building XML document: " + baseURI,
-                    "Error reading from the input stream.", ex.getMessage()));
+                                      "Error reading from the input stream.", ex.getMessage()));
             throw ex;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1107,7 +1107,7 @@ public class XMLUtil {
         Element fragmentNode = docBuilder.build(new StringReader(fragment)).getRootElement();
         return (Element)fragmentNode.copy();
     }
-    
+
     /**
      * Extract the WCS request from the SOAP message.
      * @param request SOAP request.
@@ -1118,24 +1118,23 @@ public class XMLUtil {
     public static String extractWcsRequest(String request) throws Exception {
         Document doc = XMLUtil.buildDocument(null, request);
         Element body = ListUtil.head(
-                XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
+                           XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
         if (body == null) {
             throw new PetascopeException(ExceptionCode.InvalidEncodingSyntax,
-                    "Missing Body from SOAP request.");
+                                         "Missing Body from SOAP request.");
         }
         Element wcsRequest = XMLUtil.firstChild(body);
         wcsRequest.detach();
         return XMLUtil.serialize(new Document(wcsRequest));
     }
-    
+
     /**
      * Transform a non-formated XML output to formated XML with indentation
      * @param inputXML
-     * @return 
+     * @return
      */
     public static String transformXML(String inputXML) {
-        try
-        {
+        try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             // NOTE: set to 0 due to OGC cite cannot check indetation different between 2 outputs.
@@ -1149,33 +1148,30 @@ public class XMLUtil {
         }
         return null;
     }
-    
+
     /**
      * Parse the input XML and return as XML Document Object to write to String.
      * @param in
-     * @return 
+     * @return
      */
-    public static org.w3c.dom.Document parseXml(String in)
-    {
-        try
-        {
+    public static org.w3c.dom.Document parseXml(String in) {
+        try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setIgnoringElementContentWhitespace(true);
             DocumentBuilder db = dbf.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(in));
             return db.parse(is);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
-    
+
+
     /**
-     * Strip spaces between XML element tags (e.g: <var>XML_Text </var> or 
+     * Strip spaces between XML element tags (e.g: <var>XML_Text </var> or
      * <var> XML_Text1   XML_Text2 </var>) which needs to be stripped leading and trailing spaces before writing to output stream.
      * @param input
-     * @return 
+     * @return
      */
     public static String trimSpaceBetweenElements(String input) {
         return input.replaceAll(">\\s*", ">").replaceAll("\\s*<", "<");

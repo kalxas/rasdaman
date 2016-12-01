@@ -90,7 +90,7 @@ public class convertGetCoverage {
      * @param source Path to the "settings.properties" file
      */
     public convertGetCoverage(GetCoverage cov, DbMetadataSource source)
-            throws WCSException, WCPSException {
+    throws WCSException, WCPSException {
         /* Setup objects */
         wcs = cov;
         finished = false;
@@ -159,7 +159,7 @@ public class convertGetCoverage {
                     log.trace("CRS: WGS84");
                 } else {
                     throw new WCSException(ExceptionCode.InvalidParameterValue, "BoundingBox.crs. Explanation: "
-                            + "CRS '" + crsName + "' not available on this server.");
+                                           + "CRS '" + crsName + "' not available on this server.");
                 }
             } else {
                 log.debug("CRS: None specified for bounding box");
@@ -170,26 +170,26 @@ public class convertGetCoverage {
             /* BBox declarations */
             if (bbox.getLowerCorner().size() != 2) {
                 throw new WCSException(ExceptionCode.InvalidParameterValue, "LowerCorner. Explanation: "
-                        + "BoundingBox -> LowerCorner should have exactly two "
-                        + "values, not " + bbox.getLowerCorner().size());
+                                       + "BoundingBox -> LowerCorner should have exactly two "
+                                       + "values, not " + bbox.getLowerCorner().size());
             }
             if (bbox.getUpperCorner().size() != 2) {
                 throw new WCSException(ExceptionCode.InvalidParameterValue, "UpperCorner. Explanation: "
-                        + "BoundingBox -> UpperCorner should have exactly two "
-                        + "values, not " + bbox.getUpperCorner().size());
+                                       + "BoundingBox -> UpperCorner should have exactly two "
+                                       + "values, not " + bbox.getUpperCorner().size());
             }
 
             xAxisTrim = true;
             int u2 = bbox.getLowerCorner().get(0).intValue();
             int u3 = bbox.getUpperCorner().get(0).intValue();
             log.trace("Added X-axis trimming ! (DomainSubset->BoundingBox): " + u2 + " ... "
-                    + u3);
+                      + u3);
 
             yAxisTrim = true;
             int v2 = bbox.getLowerCorner().get(1).intValue();
             int v3 = bbox.getUpperCorner().get(1).intValue();
             log.trace("Added Y-axis trimming ! (DomainSubset->BoundingBox): " + v2 + " ... "
-                    + v3);
+                      + v3);
 
             /* Use bounding-box values as they are given */
             px0 = u2;
@@ -216,11 +216,11 @@ public class convertGetCoverage {
                 TimePositionType pos = (TimePositionType) one;
 
 
-                /* Default syntax is ISO 8601. 
+                /* Default syntax is ISO 8601.
                 However, we also accept direct time-axis coordinates, as a fail-back solution. */
                 timePos = parseTimePosition(pos);
                 log.trace("Added time-axis slicing ! ( DomainSubset->TemporalSubset->gml:TimePositionType): position "
-                        + timePos);
+                          + timePos);
             } else if (one instanceof net.opengis.wcs.v_1_1_0.TimePeriodType) {
                 // TemporalSubset = wcs:TimePeriodType
                 timeTrim = true;
@@ -236,7 +236,7 @@ public class convertGetCoverage {
                 time2 = parseTimePosition(pos2);
 
                 log.trace("Added time-axis trimming ! ( DomainSubset->TemporalSubset->wcs:TimePeriodType): "
-                        + time1 + " ... " + time2);
+                          + time1 + " ... " + time2);
             }
         }
     }
@@ -258,9 +258,9 @@ public class convertGetCoverage {
 
                 fields.add(field.getIdentifier().getValue());
                 log.trace("RangeSubsetType->FieldSubset->Identifier is "
-                        + field.getIdentifier().getValue());
+                          + field.getIdentifier().getValue());
                 log.trace("RangeSubsetType->FieldSubset->Interpolation is "
-                        + field.getInterpolationType());
+                          + field.getInterpolationType());
                 /* NOTE:  We ignore interpolation instructions (optional) */
                 /* NOTE:  We ignore axis subset lists (optional) */
             }
@@ -302,7 +302,7 @@ public class convertGetCoverage {
         /* WCPS does not support "store=true" */
         if (store) {
             throw new WCSException(ExceptionCode.InvalidParameterValue, "Output Store. Explanation: "
-                    + "Cannot store result image on server.");
+                                   + "Cannot store result image on server.");
         }
     }
 
@@ -318,11 +318,11 @@ public class convertGetCoverage {
         log.debug("WCS version: \"" + wcs.VERSION + "\"");
         if (!wcs.SERVICE.equalsIgnoreCase("WCS")) {
             throw new WCSException(ExceptionCode.InvalidParameterValue, "Service. Explanation: "
-                    + "Only the WCS service is supported.");
+                                   + "Only the WCS service is supported.");
         }
         if (!wcs.VERSION.equals("1.1.0")) {
             throw new WCSException(ExceptionCode.InvalidParameterValue, "Version. Explanation: "
-                    + "Only WCS Version 1.1.0 is currently supported.");
+                                   + "Only WCS Version 1.1.0 is currently supported.");
         }
 
         // First of all, error checking: is the coverage offered by the server?
@@ -332,14 +332,14 @@ public class convertGetCoverage {
         try {
             if (!meta.existsCoverageName(wcs.getIdentifier().getValue())) {
                 throw new WCSException(ExceptionCode.InvalidParameterValue, "Identifier. Explanation: "
-                        + "Coverage " + wcs.getIdentifier().getValue()
-                        + " is not served by this server.");
+                                       + "Coverage " + wcs.getIdentifier().getValue()
+                                       + " is not served by this server.");
             }
             covMeta = meta.read(wcs.getIdentifier().getValue());
         } catch (Exception e) {
             throw new WCSException(ExceptionCode.InvalidParameterValue, "Identifier. Explanation: "
-                    + "Coverage " + wcs.getIdentifier().getValue()
-                    + " is not served by this server.");
+                                   + "Coverage " + wcs.getIdentifier().getValue()
+                                   + " is not served by this server.");
         }
 
 
@@ -378,7 +378,7 @@ public class convertGetCoverage {
 
             if (timeTrim) {
                 processing = "trim( " + processing + ", {" + xAxis + ", " + yAxis + ", " + tAxis
-                        + "} )";
+                             + "} )";
             } else {
                 processing = "trim( " + processing + ", {" + xAxis + ", " + yAxis + "} )";
             }
@@ -395,8 +395,7 @@ public class convertGetCoverage {
                 String field = fields.get(0);
 
                 processing = "(" + processing + ")." + field;
-            } else // Multiple fields translate into a "range constructor" statement
-            {
+            } else { // Multiple fields translate into a "range constructor" statement
                 String newProc = "";
                 Iterator<String> it = fields.iterator();
 
@@ -421,7 +420,7 @@ public class convertGetCoverage {
     }
 
     /** Convert a time-position JAXB object into a numerical index we can use for the
-     * time subsetting. 
+     * time subsetting.
      * @param pos TimePositionType object
      * @return String representation of integer time
      * @throws WCSException if the contents of the time position is not an integer or an ISO8601 string
@@ -432,8 +431,8 @@ public class convertGetCoverage {
         log.trace("TimePosition has length " + pos.getValue().size());
         if (pos.getValue().size() != 1) {
             throw new WCSException(ExceptionCode.InvalidParameterValue, "TimePosition. Explanation: "
-                    + "The TimePosition element should have exactly one item, and not "
-                    + pos.getValue().size());
+                                   + "The TimePosition element should have exactly one item, and not "
+                                   + pos.getValue().size());
         }
         String timeStr = pos.getValue().get(0);
 
@@ -445,26 +444,26 @@ public class convertGetCoverage {
             if (ts.subtract(covMeta.getTimePeriodBeginning()) < 0
                     || TimeString.difference(covMeta.getTimePeriodEnd(), timeStr) < 0) {
                 throw new WCSException(ExceptionCode.InvalidParameterValue, "TimePosition: value " + timeStr
-                        + " is outside this coverage's time range.");
+                                       + " is outside this coverage's time range.");
             }
             String begin = covMeta.getTimePeriodBeginning();
             if (begin == null) {
                 throw new WCSException(ExceptionCode.InvalidTemporalMetadata, "Coverage '" + covMeta.getCoverageName()
-                        + "' has no time axis beginning or end in table PS_Domain.");
+                                       + "' has no time axis beginning or end in table PS_Domain.");
             }
             long diff1 = ts.subtract(begin);
             log.trace("Selected time span (ISO 8601, in ms) : " + diff1);
             long diff2 = covMeta.getTimeSpan();
             if (diff2 == -1) {
                 throw new WCSException(ExceptionCode.InvalidTemporalMetadata, "Coverage '" + covMeta.getCoverageName()
-                        + "' has no time axis beginning or end in table PS_Domain.");
+                                       + "' has no time axis beginning or end in table PS_Domain.");
             }
             log.trace("Coverage " + covMeta.getCoverageName() + " has time span (ISO 8601, in ms) : " + diff2);
             log.trace("Coverage " + covMeta.getCoverageName() + " has time indexes span  : " + covMeta.getTimeIndexesSpan());
             Double dIndex = covMeta.getTimeIndexesSpan() * diff1 * new Double(1.0) / diff2;
             if (dIndex == -1) {
                 throw new WCSException(ExceptionCode.InvalidTemporalMetadata, "Coverage '" + covMeta.getCoverageName()
-                        + "' has no time axis.");
+                                       + "' has no time axis.");
             }
             log.trace("Computed time axis index: " + dIndex);
             long timeIndex = dIndex.longValue();

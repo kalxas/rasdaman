@@ -51,7 +51,7 @@ class CallBackManager
 {
 public:
     /// constructor
-    CallBackManager(unsigned int size=1024);
+    CallBackManager(unsigned int size = 1024);
     /**
       Constructor; size is the maximum number of callback slots to
       reserve.
@@ -72,7 +72,7 @@ public:
     */
 
     /// register new callback
-    int registerCallback(callback_f function, void *context);
+    int registerCallback(callback_f function, void* context);
     /**
       Register a new callback function. Returns 0 for OK, -1 if
       the callback table had an overflow. Since it must be possible
@@ -81,14 +81,14 @@ public:
     */
 
     /// register new callback, ensuring uniqueness
-    int registerUniqueCallback(callback_f function, void *context);
+    int registerUniqueCallback(callback_f function, void* context);
     /**
       Same as registerCallback, but makes sure this callback isn't
       pending already in which case it does nothing.
     */
 
     /// remove callback
-    int removeCallback(callback_f function, void *context);
+    int removeCallback(callback_f function, void* context);
     /**
       Deregister a callback function. Returns 0 for OK, -1 for
       not found.
@@ -108,7 +108,7 @@ public:
 private:
 
     /// find a matching function/context pair
-    int findCallback(callback_f function, void *context) const;
+    int findCallback(callback_f function, void* context) const;
     /**
       Searches the pending callbacks for the one specified by the
       function parameters and returns its index if found, -1 otherwise.
@@ -118,11 +118,11 @@ private:
     typedef struct callback_desc_s
     {
         callback_f function;
-        void *context;
+        void* context;
     } callback_desc_t;
     //@}
 
-    callback_desc_t *callbacks;
+    callback_desc_t* callbacks;
 
     /// Maximum size of callback list
     unsigned int maxCallbacks;

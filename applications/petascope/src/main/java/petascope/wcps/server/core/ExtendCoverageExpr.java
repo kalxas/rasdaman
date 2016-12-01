@@ -102,7 +102,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
         DimensionIntervalElement axis;
         int axisId;
         String axisLo, axisHi;
-        int order =0;
+        int order = 0;
 
         while (i.hasNext()) {
             axis = i.next();
@@ -121,9 +121,9 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
             axisHi = axis.getHighCellCoord();
             dim[axisId] = axisLo + ":" + axisHi;
             coverageInfo.setCellDimension(
-                    axisId,
-                    new CellDomainElement(axisLo, axisHi, axisId)
-                    );
+                axisId,
+                new CellDomainElement(axisLo, axisHi, axisId)
+            );
             order += 1;
         }
     }
@@ -175,17 +175,18 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
      */
     public Double[] extendingValues(String axisName) throws NumberFormatException {
         try {
-        for (DimensionIntervalElement extend : axisList) {
-            if (extend.getAxisName().equals(axisName)) {
-                return new Double[]{
-                    Double.parseDouble(extend.getLowCoord()),
-                    Double.parseDouble(extend.getHighCoord())};
+            for (DimensionIntervalElement extend : axisList) {
+                if (extend.getAxisName().equals(axisName)) {
+                    return new Double[] {
+                               Double.parseDouble(extend.getLowCoord()),
+                               Double.parseDouble(extend.getHighCoord())
+                           };
+                }
             }
-        }
         } catch (NumberFormatException ex) {
             log.error("Cannot extend non-numerical intervals: " + ex.getMessage());
             throw ex;
         }
-        return new Double[]{};
+        return new Double[] {};
     }
 }

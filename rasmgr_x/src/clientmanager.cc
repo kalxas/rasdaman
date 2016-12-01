@@ -92,11 +92,11 @@ ClientManager::~ClientManager()
     }
     catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
     }
     catch (...)
     {
-        LERROR<<"ClientManager destructor has failed";
+        LERROR << "ClientManager destructor has failed";
     }
 }
 
@@ -110,9 +110,9 @@ void ClientManager::connectClient(const ClientCredentials& clientCredentials, st
 
     boost::shared_ptr<User> out_user;
 
-    if(this->userManager->tryGetUser(clientCredentials.getUserName(),out_user))
+    if (this->userManager->tryGetUser(clientCredentials.getUserName(), out_user))
     {
-        if(out_user->getPassword()==clientCredentials.getPasswordHash())
+        if (out_user->getPassword() == clientCredentials.getPasswordHash())
         {
             //Lock access to this area.
             unique_lock<shared_mutex> lock(this->clientsMutex);
@@ -146,7 +146,7 @@ void ClientManager::disconnectClient(const std::string& clientId)
      * 3. Remove the client data from our registry.
      */
 
-    map<string, shared_ptr<Client> >::iterator it;
+    map<string, shared_ptr<Client>>::iterator it;
     upgrade_lock<shared_mutex> lock(this->clientsMutex);
 
     it = this->clients.find(clientId);
@@ -159,11 +159,11 @@ void ClientManager::disconnectClient(const std::string& clientId)
         boost::upgrade_to_unique_lock<shared_mutex> uniqueLock(lock);
         this->clients.erase(it);
 
-        LDEBUG<<"The client with ID:\""<<clientId<<"\" has been removed from the list";
+        LDEBUG << "The client with ID:\"" << clientId << "\" has been removed from the list";
     }
     else
     {
-        LDEBUG<<"The client with ID:\""<<clientId<<"\" was not present in the active clients list";
+        LDEBUG << "The client with ID:\"" << clientId << "\" was not present in the active clients list";
     }
 }
 
@@ -172,14 +172,14 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
     shared_lock<shared_mutex> lock(this->clientsMutex);
 
     auto clientsIter = this->clients.find(clientId);
-    if(clientsIter!=this->clients.end())
+    if (clientsIter != this->clients.end())
     {
         auto client = clientsIter->second;
 
-        if(tryGetFreeLocalServer(client, dbName, out_serverSession))
+        if (tryGetFreeLocalServer(client, dbName, out_serverSession))
         {
-            LDEBUG<<"Allocated local server running on "<<out_serverSession.serverHostName<<":"<<out_serverSession.serverPort
-                  <<" to client with ID "<<out_serverSession.clientSessionId;
+            LDEBUG << "Allocated local server running on " << out_serverSession.serverHostName << ":" << out_serverSession.serverPort
+                   << " to client with ID " << out_serverSession.clientSessionId;
         }
         else
         {
@@ -187,10 +187,10 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
 
             ClientServerRequest request(client->getUser()->getName(), client->getUser()->getPassword(), dbName);
 
-            if(this->tryGetFreeRemoteServer(request, out_serverSession))
+            if (this->tryGetFreeRemoteServer(request, out_serverSession))
             {
-                LDEBUG<<"Allocated remote server running on "<<out_serverSession.serverHostName<<":"<<out_serverSession.serverPort
-                      <<" to client with ID "<<out_serverSession.clientSessionId;
+                LDEBUG << "Allocated remote server running on " << out_serverSession.serverHostName << ":" << out_serverSession.serverPort
+                       << " to client with ID " << out_serverSession.clientSessionId;
             }
             else
             {
@@ -210,12 +210,12 @@ void ClientManager::closeClientDbSession(const std::string& clientId, const std:
 
     RemoteClientSession clientSession(clientId, sessionId);
 
-    map<string, shared_ptr<Client> >::iterator it = this->clients.find(clientId);
-    if(it!=this->clients.end())
+    map<string, shared_ptr<Client>>::iterator it = this->clients.find(clientId);
+    if (it != this->clients.end())
     {
         it->second->removeDbSession(sessionId);
     }
-    else if(this->peerManager->isRemoteClientSession(clientSession))
+    else if (this->peerManager->isRemoteClientSession(clientSession))
     {
         this->peerManager->releaseServer(clientSession);
     }
@@ -227,7 +227,7 @@ void ClientManager::closeClientDbSession(const std::string& clientId, const std:
 
 void ClientManager::keepClientAlive(const std::string& clientId)
 {
-    map<string, shared_ptr<Client> >::iterator it;
+    map<string, shared_ptr<Client>>::iterator it;
 
     shared_lock<shared_mutex> lock(this->clientsMutex);
 
@@ -250,8 +250,8 @@ const ClientManagerConfig& ClientManager::getConfig()
 
 void ClientManager::evaluateClientsStatus()
 {
-    map<string, shared_ptr<Client> >::iterator it;
-    map<string, shared_ptr<Client> >::iterator toErase;
+    map<string, shared_ptr<Client>>::iterator it;
+    map<string, shared_ptr<Client>>::iterator toErase;
 
     boost::posix_time::time_duration timeToSleepFor = boost::posix_time::milliseconds(this->config.getCleanupInterval());
 
@@ -262,7 +262,7 @@ void ClientManager::evaluateClientsStatus()
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if(!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            if (!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
             {
 
                 boost::upgrade_lock<boost::shared_mutex> clientsLock(this->clientsMutex);
@@ -270,11 +270,11 @@ void ClientManager::evaluateClientsStatus()
 
                 while (it != this->clients.end())
                 {
-                    toErase=it;
+                    toErase = it;
                     ++it;
                     try
                     {
-                        if(!toErase->second->isAlive())
+                        if (!toErase->second->isAlive())
                         {
                             toErase->second->removeClientFromServers();
 
@@ -282,21 +282,21 @@ void ClientManager::evaluateClientsStatus()
                             this->clients.erase(toErase);
                         }
                     }
-                    catch(...)
+                    catch (...)
                     {
-                        LERROR<<"Evaluating status of client failed. Client ID:"<<toErase->second->getClientId();
+                        LERROR << "Evaluating status of client failed. Client ID:" << toErase->second->getClientId();
                     }
                 }
             }
         }
         catch (std::exception& ex)
         {
-            LERROR<<"Evaluating client status has failed";
-            LERROR<<ex.what();
+            LERROR << "Evaluating client status has failed";
+            LERROR << ex.what();
         }
         catch (...)
         {
-            LERROR<<"Evaluating client status has failed for an unknown reason.";
+            LERROR << "Evaluating client status has failed for an unknown reason.";
         }
     }
 }
@@ -312,14 +312,14 @@ bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, cons
      * 2. Add the session to the client manager.
      * 3. Fill the response to the client with the server's identity
      */
-    while(attemptsLeft>=1)
+    while (attemptsLeft >= 1)
     {
         unique_lock<mutex> lock(this->serverManagerMutex);
 
         boost::shared_ptr<Server> assignedServer;
 
         //Try to get a free server that contains the requested database
-        if(this->serverManager->tryGetFreeServer(dbName, assignedServer))
+        if (this->serverManager->tryGetFreeServer(dbName, assignedServer))
         {
             std::string dbSessionId;
             \
@@ -334,7 +334,7 @@ bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, cons
             foundServer = true;
             break;
         }
-        else if(attemptsLeft>1)
+        else if (attemptsLeft > 1)
         {
             // If there are still attempts left, unlock access to this region and sleep
             lock.unlock();
@@ -348,7 +348,7 @@ bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, cons
     return foundServer;
 }
 
-bool ClientManager::tryGetFreeRemoteServer(const ClientServerRequest &request, ClientServerSession &out_reply)
+bool ClientManager::tryGetFreeRemoteServer(const ClientServerRequest& request, ClientServerSession& out_reply)
 {
     return this->peerManager->tryGetRemoteServer(request, out_reply);
 }

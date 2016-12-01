@@ -71,7 +71,7 @@ public class ServiceValidator implements Validator<Request> {
     /**
      * Validates the service parameter and throws the corresponding WMS exception if invalid
      */
-    private void validateVersion(Request request){
+    private void validateVersion(Request request) {
         String clientVersion = request.getVersion();
         if (clientVersion == null) {
             //THe standard does not require anymore a validation of the version

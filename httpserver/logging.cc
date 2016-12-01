@@ -30,10 +30,10 @@ rasdaman GmbH.
 #include   "server.h"
 
 
-extern struct Logging *LogBase;
+extern struct Logging* LogBase;
 
 
-rc_t OpenLog( struct Logging *Log, __attribute__ ((unused)) char *AccessLog, __attribute__ ((unused)) char *ServerLog,__attribute__ ((unused)) char *CommLog )
+rc_t OpenLog(struct Logging* Log, __attribute__((unused)) char* AccessLog, __attribute__((unused)) char* ServerLog, __attribute__((unused)) char* CommLog)
 {
     /* removed this, we don't need this logs
     if( (Log->Mode & LF_STDERR) == LF_STDERR )  // Log to STDOUT/STDERR ?
@@ -83,11 +83,11 @@ rc_t OpenLog( struct Logging *Log, __attribute__ ((unused)) char *AccessLog, __a
     Log->Server.State = FILE_CLOSED;
     Log->Access.State = FILE_CLOSED;
     Log->Comm.State   = FILE_CLOSED;
-    return( OK );
+    return (OK);
 }
 
 
-void CloseLog( struct Logging *Log )
+void CloseLog(struct Logging* Log)
 {
     //close( Log->Server.FD );
     Log->Server.State = FILE_CLOSED;
@@ -97,7 +97,7 @@ void CloseLog( struct Logging *Log )
 
 
 
-void ErrorMsg( int errnoFlag, int ErrLevel, const char *ErrMsg, ... )
+void ErrorMsg(int errnoFlag, int ErrLevel, const char* ErrMsg, ...)
 {
     int      errno_save;
     char     ErrMsgBuffer[ MAXLINELEN ];
@@ -106,35 +106,37 @@ void ErrorMsg( int errnoFlag, int ErrLevel, const char *ErrMsg, ... )
 
     errno_save = errno;
 
-    va_start( ArgPtr, ErrMsg );
-    if( VSNPrintf( ErrMsgBuffer, MAXLINELEN, ErrMsg, ArgPtr ) < 0)
-        ErrorMsg( E_PRIV, WARN, "WARN:  Log message exceeded buffer size!" );
-    va_end( ArgPtr );
+    va_start(ArgPtr, ErrMsg);
+    if (VSNPrintf(ErrMsgBuffer, MAXLINELEN, ErrMsg, ArgPtr) < 0)
+    {
+        ErrorMsg(E_PRIV, WARN, "WARN:  Log message exceeded buffer size!");
+    }
+    va_end(ArgPtr);
 
-    StringSize = strlen( ErrMsgBuffer );
+    StringSize = strlen(ErrMsgBuffer);
     BuffSize   = MAXLINELEN - StringSize;
 
-    if( errnoFlag )
+    if (errnoFlag)
     {
-        if( SNPrintf( ErrMsgBuffer + StringSize, &BuffSize,
-                      " Reason: %s", StrError( errno_save ) ) < 0)
+        if (SNPrintf(ErrMsgBuffer + StringSize, &BuffSize,
+                     " Reason: %s", StrError(errno_save)) < 0)
         {
-            ErrorMsg( E_PRIV, WARN, "WARN:  Log message exceeded buffer size!" );
+            ErrorMsg(E_PRIV, WARN, "WARN:  Log message exceeded buffer size!");
         }
     }
-    LogMsg( LG_SERVER, ErrLevel, ErrMsgBuffer );
+    LogMsg(LG_SERVER, ErrLevel, ErrMsgBuffer);
 
-    switch( ErrLevel )
+    switch (ErrLevel)
     {
     case DUMP:
     {
         abort();              /* core dump erzeugen und beenden  */
-        exit( DUMP );         /* sollte nicht soweit kommen...   */
+        exit(DUMP);           /* sollte nicht soweit kommen...   */
     }
     break;
     case FAIL:
     {
-        exit( FAIL );         /* Ausstieg mit Status "FAIL".  */
+        exit(FAIL);           /* Ausstieg mit Status "FAIL".  */
     }
     break;
     default:
@@ -143,7 +145,7 @@ void ErrorMsg( int errnoFlag, int ErrLevel, const char *ErrMsg, ... )
 }
 
 
-void LogMsg( __attribute__ ((unused)) int SubSys,__attribute__ ((unused))  int Level, __attribute__ ((unused)) const char *Msg, ... )
+void LogMsg(__attribute__((unused)) int SubSys, __attribute__((unused))  int Level, __attribute__((unused)) const char* Msg, ...)
 {
     return;
     /*
@@ -219,32 +221,36 @@ void LogMsg( __attribute__ ((unused)) int SubSys,__attribute__ ((unused))  int L
     return;
 }
 
-rc_t LogDate( char *Buffer, int BuffSize )
+rc_t LogDate(char* Buffer, int BuffSize)
 {
-    struct tm *ltime;
+    struct tm* ltime;
     int        TZoffset;
     char       sign;
 
     size_t     strsize;
     size_t     RestSize;
 
-    ltime = Get_GMToffset( &TZoffset );
+    ltime = Get_GMToffset(&TZoffset);
 
     /* LOG Date Format:  "[dd/mmm/yyyy:HH:MM:SS {-|+}XXXX]"  */
     /*      XXXX = Timezone offset format: HHMM              */
-    sign = ( TZoffset < 0 ? '-' : '+' );
-    if( TZoffset < 0 )
+    sign = (TZoffset < 0 ? '-' : '+');
+    if (TZoffset < 0)
+    {
         TZoffset = -TZoffset;
+    }
 
-    strsize = strftime( Buffer, static_cast<size_t>(BuffSize), "[%d/%b/%Y:%H:%M:%S ", ltime );
-    if( strsize >= static_cast<size_t>(BuffSize)-6 || strsize == 0 )
-        return( ERROR );
+    strsize = strftime(Buffer, static_cast<size_t>(BuffSize), "[%d/%b/%Y:%H:%M:%S ", ltime);
+    if (strsize >= static_cast<size_t>(BuffSize) - 6 || strsize == 0)
+    {
+        return (ERROR);
+    }
     else
     {
-        RestSize = static_cast<size_t>(BuffSize)-strsize;
-        SNPrintf( Buffer+strsize, &RestSize, "%c%.2d%.2d]",
-                  sign, TZoffset/60, TZoffset%60 );
-        return( OK );
+        RestSize = static_cast<size_t>(BuffSize) - strsize;
+        SNPrintf(Buffer + strsize, &RestSize, "%c%.2d%.2d]",
+                 sign, TZoffset / 60, TZoffset % 60);
+        return (OK);
     }
 }
 
@@ -279,11 +285,11 @@ rc_t LogDate( char *Buffer, int BuffSize )
 *
 */
 
-struct tm *Get_GMToffset( int *tz )
+struct tm* Get_GMToffset(int* tz)
 {
     time_t tt = time(NULL);
     struct tm gmt;
-    struct tm *t;
+    struct tm* t;
     int days, hours, minutes;
 
     /* Assume we are never more than 24 hours away. */
@@ -294,5 +300,5 @@ struct tm *Get_GMToffset( int *tz )
              + t->tm_hour - gmt.tm_hour);
     minutes = hours * 60 + t->tm_min - gmt.tm_min;
     *tz = minutes;
-    return( t );
+    return (t);
 }

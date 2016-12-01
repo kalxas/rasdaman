@@ -51,12 +51,12 @@ public class SwitchCaseScalarValueExpression {
     public static WcpsResult handle(List<WcpsResult> booleanResults, List<WcpsResult> scalarResults) {
         List<String> translatedFields = new ArrayList();
 
-        for(int i = 0; i < booleanResults.size(); i++) {
+        for (int i = 0; i < booleanResults.size(); i++) {
             String booleanResult = booleanResults.get(i).getRasql();
             String scalarResult = scalarResults.get(i).getRasql();
 
             String result = TEMPLATE_WHEN_THEN.replace("$booleanExpr", booleanResult)
-                                              .replace("$scalarExpr", scalarResult);
+                            .replace("$scalarExpr", scalarResult);
             translatedFields.add(result);
         }
 
@@ -69,7 +69,7 @@ public class SwitchCaseScalarValueExpression {
         elseStr = TEMPLATE_ELSE.replace("$scalarExpr", scalarResult);
 
         String rasql = TEMPLATE.replace("$whenThenExpr", whenThenStr)
-                               .replace("$elseExpr", elseStr);
+                       .replace("$elseExpr", elseStr);
 
         // This is needed a coverage metadata from boolean coverage epxression
         WcpsCoverageMetadata metadata = booleanResults.get(0).getMetadata();

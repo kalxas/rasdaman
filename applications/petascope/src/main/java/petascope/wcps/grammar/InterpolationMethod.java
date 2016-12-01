@@ -41,9 +41,9 @@ public class InterpolationMethod implements IParseTreeNode {
         String result = "";
 
         result += "<" + WcpsConstants.MSG_INTERPOLATION_METHOD + ">" + interp + "</" +
-                WcpsConstants.MSG_INTERPOLATION_METHOD + ">";
+                  WcpsConstants.MSG_INTERPOLATION_METHOD + ">";
         result += "<" + WcpsConstants.MSG_NULL_RESISTANCE + ">" + resistance + "</" +
-                WcpsConstants.MSG_NULL_RESISTANCE + ">";
+                  WcpsConstants.MSG_NULL_RESISTANCE + ">";
         return result;
     }
 }

@@ -53,113 +53,113 @@ import secore.util.IOUtil;
  */
 public class GMLValidator {
 
-  private static final Logger log = LoggerFactory.getLogger(GMLValidator.class);
+    private static final Logger log = LoggerFactory.getLogger(GMLValidator.class);
 
-  /**
-   * Try to check GML definition is well-formed, if it is good then validate it
-   * against EPSG Schema XSD
-   *
-   * @param gmlDefinition String GML Definition
-   * @return error != "" if error does exist
-   *
-   */
-  public static String parseAndValidateGMLFile(String gmlDefinition) {
+    /**
+     * Try to check GML definition is well-formed, if it is good then validate it
+     * against EPSG Schema XSD
+     *
+     * @param gmlDefinition String GML Definition
+     * @return error != "" if error does exist
+     *
+     */
+    public static String parseAndValidateGMLFile(String gmlDefinition) {
 
-    // Set the gmlXSDPath to current project (secore-core)
-    String gmlXSDFile = "GML/epsg/EPSG.xsd";
+        // Set the gmlXSDPath to current project (secore-core)
+        String gmlXSDFile = "GML/epsg/EPSG.xsd";
 
-    GMLParser gmlParser = new GMLParser();
-    String ret = Constants.EMPTY;
+        GMLParser gmlParser = new GMLParser();
+        String ret = Constants.EMPTY;
 
-    // 1. First check it is well-formed first
-    try {
-      ret = gmlParser.parseGML(gmlDefinition);
-    } catch (SecoreException e) {
-      log.error(e.getMessage());
-      ret = e.getMessage();
-    }
-
-    // 2. If it is well-formed, then validate against GML Schema XSD
-    if (ret.equals(Constants.EMPTY)) {
-      ret = validateGMLDefinition(gmlDefinition, gmlXSDFile);
-    }
-    System.out.print(ret);
-    return ret;
-  }
-
-  /**
-   * Try to validate GML definition with EPSG Schema XSD
-   *
-   * @param gmlDefinition String - GML definition
-   * @param gmlXSDFile String - file path to EPSG Schema XSD in
-   * /etc/GML/EPSG.xsd
-   * @return error != "" if error does exist
-   *
-   */
-  public static String validateGMLDefinition(String gmlDefinition, String gmlXSDFile) {
-
-    // List of exceptions when validate gmlDefinition to gmlXSDFile (collect all error when validate and return in one time)
-    String error = Constants.EMPTY;
-    final List<SAXParseException> exceptions = new LinkedList<SAXParseException>();
-    try {
-      SchemaFactory factory
-          = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
-      // Important! without doing like this SAXParser could not load imported XSD in main XSD file (EPSG.xsd)
-      //URL schemaURL = Thread.currentThread().getContextClassLoader().getResource("GML/epsg/EPSG.xsd");
-      File schemaFile = IOUtil.findFile("etc/schema/GML/epsg/EPSG.xsd");
-      URL schemaURL =  schemaFile.toURI().toURL();
-      Schema schema = factory.newSchema(schemaURL);
-      Validator validator = schema.newValidator();
-
-      // Handle all errors in validating before returning to user
-      validator.setErrorHandler(new ErrorHandler() {
-        @Override
-        public void warning(SAXParseException exception) throws SAXException {
-          exceptions.add(exception);
+        // 1. First check it is well-formed first
+        try {
+            ret = gmlParser.parseGML(gmlDefinition);
+        } catch (SecoreException e) {
+            log.error(e.getMessage());
+            ret = e.getMessage();
         }
 
-        @Override
-        // Note: when GML validator has fatal error, it will return immediately and could not continue to validate
-        public void fatalError(SAXParseException exception) throws SAXException {
-          exceptions.add(exception);
+        // 2. If it is well-formed, then validate against GML Schema XSD
+        if (ret.equals(Constants.EMPTY)) {
+            ret = validateGMLDefinition(gmlDefinition, gmlXSDFile);
         }
-
-        @Override
-        public void error(SAXParseException exception) throws SAXException {
-          exceptions.add(exception);
-        }
-      });
-
-      // Validate gmlDefinition against EPSG Schema XML
-      validator.validate(new StreamSource(new StringReader(gmlDefinition)));
-
-    } catch (SAXException e) {
-      log.debug(ExceptionCode.SAXParserException + " " + e.getMessage());
-      error = ExceptionCode.SAXParserException + " " + e.getMessage();
-    } catch (IOException e) {
-      log.debug(ExceptionCode.IOConnectionError + " " + e.getMessage());
-      error = ExceptionCode.IOConnectionError + " " + e.getMessage();
+        System.out.print(ret);
+        return ret;
     }
 
-    // Now return all errors if they do exist
-    if (!exceptions.isEmpty()) {
-      for (SAXParseException ex : exceptions) {
-        // Ignore "there are multiple occurrences of ID value" due to
-        // one definition can reference to multiple definitions and all of these objects can point to 1 defintion (1 gml identifier)
-        // This is just a warning when resolve a definition
-        if (!(ex.getMessage().contains("There are multiple occurrences of ID value")
-            || (ex.getMessage().contains("is not valid with respect to its type, 'ID'")))) {
-          error += ex.getMessage() + "\n";
-        }
-      }
+    /**
+     * Try to validate GML definition with EPSG Schema XSD
+     *
+     * @param gmlDefinition String - GML definition
+     * @param gmlXSDFile String - file path to EPSG Schema XSD in
+     * /etc/GML/EPSG.xsd
+     * @return error != "" if error does exist
+     *
+     */
+    public static String validateGMLDefinition(String gmlDefinition, String gmlXSDFile) {
 
-      // check if all is just warning due to multiple occurrences of ID then it still valid
-      // else it returns error
-      if (!error.isEmpty()) {
-        error = "The GML definition is not valid, please check error below \n" + error;
-      }
+        // List of exceptions when validate gmlDefinition to gmlXSDFile (collect all error when validate and return in one time)
+        String error = Constants.EMPTY;
+        final List<SAXParseException> exceptions = new LinkedList<SAXParseException>();
+        try {
+            SchemaFactory factory
+                = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+            // Important! without doing like this SAXParser could not load imported XSD in main XSD file (EPSG.xsd)
+            //URL schemaURL = Thread.currentThread().getContextClassLoader().getResource("GML/epsg/EPSG.xsd");
+            File schemaFile = IOUtil.findFile("etc/schema/GML/epsg/EPSG.xsd");
+            URL schemaURL =  schemaFile.toURI().toURL();
+            Schema schema = factory.newSchema(schemaURL);
+            Validator validator = schema.newValidator();
+
+            // Handle all errors in validating before returning to user
+            validator.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) throws SAXException {
+                    exceptions.add(exception);
+                }
+
+                @Override
+                // Note: when GML validator has fatal error, it will return immediately and could not continue to validate
+                public void fatalError(SAXParseException exception) throws SAXException {
+                    exceptions.add(exception);
+                }
+
+                @Override
+                public void error(SAXParseException exception) throws SAXException {
+                    exceptions.add(exception);
+                }
+            });
+
+            // Validate gmlDefinition against EPSG Schema XML
+            validator.validate(new StreamSource(new StringReader(gmlDefinition)));
+
+        } catch (SAXException e) {
+            log.debug(ExceptionCode.SAXParserException + " " + e.getMessage());
+            error = ExceptionCode.SAXParserException + " " + e.getMessage();
+        } catch (IOException e) {
+            log.debug(ExceptionCode.IOConnectionError + " " + e.getMessage());
+            error = ExceptionCode.IOConnectionError + " " + e.getMessage();
+        }
+
+        // Now return all errors if they do exist
+        if (!exceptions.isEmpty()) {
+            for (SAXParseException ex : exceptions) {
+                // Ignore "there are multiple occurrences of ID value" due to
+                // one definition can reference to multiple definitions and all of these objects can point to 1 defintion (1 gml identifier)
+                // This is just a warning when resolve a definition
+                if (!(ex.getMessage().contains("There are multiple occurrences of ID value")
+                        || (ex.getMessage().contains("is not valid with respect to its type, 'ID'")))) {
+                    error += ex.getMessage() + "\n";
+                }
+            }
+
+            // check if all is just warning due to multiple occurrences of ID then it still valid
+            // else it returns error
+            if (!error.isEmpty()) {
+                error = "The GML definition is not valid, please check error below \n" + error;
+            }
+        }
+        return error;
     }
-    return error;
-  }
 }

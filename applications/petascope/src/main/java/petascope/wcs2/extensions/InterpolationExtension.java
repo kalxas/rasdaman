@@ -92,7 +92,7 @@ public class InterpolationExtension implements Extension {
      * @throws WCSException
      */
     public static void parseGetCoverageKVPRequest(Map<String, List<String>> params, GetCoverageRequest request) throws WCSException {
-        parseGetCoverageRequest(params.get(KEY_INTERPOLATION),request);
+        parseGetCoverageRequest(params.get(KEY_INTERPOLATION), request);
     }
 
     /**
@@ -107,7 +107,7 @@ public class InterpolationExtension implements Extension {
             // max 1 `interpolation' KV-pair
             if (intParams.size() > 1) {
                 throw new WCSException(ExceptionCode.InvalidRequest,
-                        "Multiple \"" + KEY_INTERPOLATION + "\" parameters in the request: must be unique.");
+                                       "Multiple \"" + KEY_INTERPOLATION + "\" parameters in the request: must be unique.");
             }
             // if set, it must be a supported one:
             else if (!supportedInterpolationTypes.contains(intParams.get(0))) {
@@ -128,7 +128,7 @@ public class InterpolationExtension implements Extension {
         // check
         if (!isXMLInterpolationExtension(intElem.getLocalName())) {
             throw new WCSException(ExceptionCode.InternalComponentError,
-                    "The parser was expecting a" + XMLSymbols.LABEL_INTERPOLATION + " element, " + intElem.getLocalName() + " given");
+                                   "The parser was expecting a" + XMLSymbols.LABEL_INTERPOLATION + " element, " + intElem.getLocalName() + " given");
         }
 
         // read the globalInterpolation param
@@ -136,8 +136,8 @@ public class InterpolationExtension implements Extension {
         Elements children = intElem.getChildElements();
         if (children.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "One <" + XMLSymbols.LABEL_GLOBAL_INTERPOLATION + "> element is required inside an <"
-                    + XMLSymbols.LABEL_INTERPOLATION + "> element.");
+                                   "One <" + XMLSymbols.LABEL_GLOBAL_INTERPOLATION + "> element is required inside an <"
+                                   + XMLSymbols.LABEL_INTERPOLATION + "> element.");
         } else {
             Element globalIntElement = children.get(0);
             if (globalIntElement.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_GLOBAL_INTERPOLATION)) {
@@ -155,7 +155,7 @@ public class InterpolationExtension implements Extension {
      * @param elementName
      * @return True if this is the root of an XML Interpolation extension.
      */
-      public static boolean isXMLInterpolationExtension(String elementName) {
+    public static boolean isXMLInterpolationExtension(String elementName) {
         return elementName.equalsIgnoreCase(LABEL_INTERPOLATION);
     }
 }

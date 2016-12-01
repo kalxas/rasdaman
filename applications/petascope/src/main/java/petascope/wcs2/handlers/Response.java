@@ -107,7 +107,7 @@ public class Response {
 
     // Encoding in Rasql
     public String getFormatType() {
-        if(formatType == null) {
+        if (formatType == null) {
             formatType = "";
         }
 

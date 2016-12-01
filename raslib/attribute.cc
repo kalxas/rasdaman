@@ -128,10 +128,10 @@ r_Attribute::get_boolean(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_boolean(data) not a boolean";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_Boolean*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_Boolean*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -143,10 +143,10 @@ r_Attribute::get_char(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_char(data) not a char";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_Char*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_Char*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -158,10 +158,10 @@ r_Attribute::get_octet(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_octet(data) not a octet";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_Octet*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_Octet*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -173,10 +173,10 @@ r_Attribute::get_short(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_short(data) not a short";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_Short*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_Short*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -188,10 +188,10 @@ r_Attribute::get_ushort(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_ushort(data) not a ushort";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_UShort*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_UShort*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -203,10 +203,10 @@ r_Attribute::get_long(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_long(data) not a long";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_Long*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_Long*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -218,10 +218,10 @@ r_Attribute::get_ulong(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_ulong(data) not a ulong";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_ULong*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_ULong*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -233,10 +233,10 @@ r_Attribute::get_float(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_float(data) not a float";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_Float*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_Float*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
 
@@ -248,13 +248,13 @@ r_Attribute::get_double(const char* cell) const throw(r_Error)
     {
         LFATAL << "r_Attribute::get_double(data) not a double";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw(err) ;
+        throw (err) ;
     }
 
-    return *((r_Double*) (const_cast<char*>(cell)+globalOffset) ) ;
+    return *((r_Double*)(const_cast<char*>(cell) + globalOffset)) ;
 }
 
-std::ostream &operator<<( std::ostream &str, const r_Attribute &type )
+std::ostream& operator<<(std::ostream& str, const r_Attribute& type)
 {
     type.print_status(str);
     return str;

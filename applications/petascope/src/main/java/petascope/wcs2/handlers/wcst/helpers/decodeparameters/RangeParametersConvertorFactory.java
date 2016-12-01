@@ -32,11 +32,10 @@ import petascope.util.IOUtil;
  */
 public class RangeParametersConvertorFactory {
 
-    public RangeParametersConvertor getConvertor(String mimeType, String rangeParameters, CoverageMetadata coverageMetadata, DbMetadataSource meta){
-        if(mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)){
+    public RangeParametersConvertor getConvertor(String mimeType, String rangeParameters, CoverageMetadata coverageMetadata, DbMetadataSource meta) {
+        if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {
             return new GribMessageConvertor(rangeParameters, coverageMetadata, meta);
-        }
-        else {
+        } else {
             return new GeneralMessageConvertor(rangeParameters);
         }
     }

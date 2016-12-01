@@ -61,40 +61,40 @@ class RasServer
 public:
     RasServer();
     ~RasServer();
-    void  init(const char *srvName,const char* hostName,char serverType,long listenPort);
-    const char *getName();
-    const char *getHostName();
-    const char *getHostNetwName();
+    void  init(const char* srvName, const char* hostName, char serverType, long listenPort);
+    const char* getName();
+    const char* getHostName();
+    const char* getHostNetwName();
     long  getPort();
     char  getType();
-    void  changeName(const char *newName);
+    void  changeName(const char* newName);
     void  changeType(const char newType); // char not char*!!
 
     void  changePort(long newPort);
-    void  changeExtraParam(const char *extraParam);
+    void  changeExtraParam(const char* extraParam);
     void  changeCountDown(int);
     void  changeAutoRestart(bool);
-    const char *getExtraParams();
+    const char* getExtraParams();
     int   getCountDown();
 
-    bool connectToDBHost(const char *dbHostName);//,const char *connString);
+    bool connectToDBHost(const char* dbHostName);//,const char *connString);
     bool disconnectFromDBHost();
-    const char *getDBHostName();
+    const char* getDBHostName();
 
-    static char* getDescriptionHeader(char *destBuffer);
-    char* getDescription(char *destBuffer);
-    static char* getDescriptionExecHeader(char *destBuffer);
-    char* getDescriptionExec(char *destBuffer);
-    static char* getDescriptionPortHeader(char *destBuffer);
-    char* getDescriptionPort(char *destBuffer);
+    static char* getDescriptionHeader(char* destBuffer);
+    char* getDescription(char* destBuffer);
+    static char* getDescriptionExecHeader(char* destBuffer);
+    char* getDescriptionExec(char* destBuffer);
+    static char* getDescriptionPortHeader(char* destBuffer);
+    char* getDescriptionPort(char* destBuffer);
 
     int  startServer();
-    int  startServerInDebugger(char *command); // test modus only
+    int  startServerInDebugger(char* command); // test modus only
 
     int  downServer(bool forced);
     int  killServer();
 
-    void changeStatus(int,long);
+    void changeStatus(int, long);
     bool isUp();
     bool isStarting();
     bool isValid();
@@ -114,7 +114,7 @@ private:
     void         clearPendingTransaction();
 
     char         serverName[ARG_MAX];
-    ServerHost   *ptrServerHost;
+    ServerHost*   ptrServerHost;
     bool         isinternal;
     char         serverType;     //'r','h'
     long         listenPort; // 'r' ->rpc prognum; 'h' ->TCP/IP port
@@ -122,7 +122,7 @@ private:
 
     char         executableName[ARG_MAX];
 
-    DatabaseHost *ptrDatabaseHost;
+    DatabaseHost* ptrDatabaseHost;
     //char         connStr[100];
 
     bool downReq;
@@ -141,7 +141,7 @@ private:
 
     bool     writeTransaction;
     bool     readTransaction;
-    Database *connDatabase;
+    Database* connDatabase;
 
     bool valid;
 };
@@ -154,20 +154,20 @@ class RasServerManager
 public:
     RasServerManager();
     ~RasServerManager();
-    bool insertNewServer(const char *srvName,const char* hostName,char serverType,long listenPort);
-    bool removeServer(const char *srvName);
+    bool insertNewServer(const char* srvName, const char* hostName, char serverType, long listenPort);
+    bool removeServer(const char* srvName);
     int  countServers();
     RasServer& operator[](int);
-    RasServer& operator[](const char*srvName);
+    RasServer& operator[](const char* srvName);
     RasServer& last();
 
-    int changeServerStatus(char *reqMessage);
-    void disconnectAllServersFromDBH(const char *dbhName);
+    int changeServerStatus(char* reqMessage);
+    void disconnectAllServersFromDBH(const char* dbhName);
 
     int  countUpServers();
     void printStatus();
     bool reset(); // test modus only
-    bool acceptChangeName(const char *oldName,const char *newName);
+    bool acceptChangeName(const char* oldName, const char* newName);
 private:
     bool testUniqueness(const char* srvName);
     list<RasServer> srvList;

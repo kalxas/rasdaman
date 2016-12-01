@@ -64,7 +64,7 @@ private:
     static const r_Range fracMask;
     static const double fixOne;
 
-    friend std::ostream& operator<<(std::ostream&,r_FixedPointNumber&);
+    friend std::ostream& operator<<(std::ostream&, r_FixedPointNumber&);
 };
 
 
@@ -84,7 +84,7 @@ class r_MiterFloat
 {
 public:
     /// Constructor getting the source tile, the source domain and the destination domain
-    inline r_MiterFloat(Tile *sourceTile, r_Minterval& sourceDomain, r_Minterval& destDomain);
+    inline r_MiterFloat(Tile* sourceTile, r_Minterval& sourceDomain, r_Minterval& destDomain);
 
     /// destructor
     inline ~r_MiterFloat();
@@ -110,14 +110,14 @@ protected:
 
         r_Range dimStep;
         r_Range scaleStep;
-        char    *cell;
+        char*    cell;
     };
 
     r_Dimension dim;
-    char        *currentCell;
-    const char  *firstCell;
+    char*        currentCell;
+    const char*  firstCell;
 
-    iter_desc   *iterDesc;
+    iter_desc*   iterDesc;
 
     bool done;
 };

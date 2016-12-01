@@ -46,14 +46,14 @@ using namespace std;
 
 #include "raslib/endian.hh"
 int
-ClientComm::changeEndianness( r_GMarray* mdd, const r_Base_Type *bt )
+ClientComm::changeEndianness(r_GMarray* mdd, const r_Base_Type* bt)
 {
-    const r_Base_Type *baseType;
-    const r_Minterval &interv = mdd->spatial_domain();
+    const r_Base_Type* baseType;
+    const r_Minterval& interv = mdd->spatial_domain();
 
     baseType = (bt == NULL) ? mdd->get_base_type_schema() : bt;
 
-    if (baseType == NULL )
+    if (baseType == NULL)
     {
         cerr << "ClientComm::changeEndianness: No base type information!" << endl;
         return 0;
@@ -66,18 +66,18 @@ ClientComm::changeEndianness( r_GMarray* mdd, const r_Base_Type *bt )
 
 
 int
-ClientComm::changeEndianness( const r_GMarray* mdd, void *newMdd, const r_Base_Type* bt )
+ClientComm::changeEndianness(const r_GMarray* mdd, void* newMdd, const r_Base_Type* bt)
 {
-    const r_Base_Type *baseType;
-    const r_Minterval &interv = mdd->spatial_domain();
+    const r_Base_Type* baseType;
+    const r_Minterval& interv = mdd->spatial_domain();
 
     // Get the base type...
     baseType = (bt == NULL) ? (const_cast<r_GMarray*>(mdd))->get_base_type_schema() : bt;
 
-    if ( baseType == NULL )
+    if (baseType == NULL)
     {
         cerr << "ClientComm::changeEndianness: No base type information!" << endl;
-        memcpy( newMdd, mdd->get_array(), mdd->get_array_size());
+        memcpy(newMdd, mdd->get_array(), mdd->get_array_size());
         return 0;
     }
 
@@ -86,39 +86,49 @@ ClientComm::changeEndianness( const r_GMarray* mdd, void *newMdd, const r_Base_T
     return 1;
 }
 
-ClientComm::ClientComm( ) throw( r_Error )
+ClientComm::ClientComm() throw(r_Error)
 {
 
 }
 
 ClientComm* ClientComm::createObject(const char* rasmgrName, int rasmgrPort)
 {
-    char *env = getenv("RMANPROTOCOL");
+    char* env = getenv("RMANPROTOCOL");
 
     CommunicationProtocol protocol = DEFAULT_PROTOCOL;
 
-    if(env != 0)
+    if (env != 0)
     {
-        if(strcmp(env,"RNP") == 0 || strcmp(env,"HTTP") == 0)   protocol = RNP;
-        if(strcmp(env,"RPC") == 0 || strcmp(env,"COMPAT") == 0) protocol = RPC;
-        if(strcmp(env, "RASNET") == 0) protocol = RASNET;
+        if (strcmp(env, "RNP") == 0 || strcmp(env, "HTTP") == 0)
+        {
+            protocol = RNP;
+        }
+        if (strcmp(env, "RPC") == 0 || strcmp(env, "COMPAT") == 0)
+        {
+            protocol = RPC;
+        }
+        if (strcmp(env, "RASNET") == 0)
+        {
+            protocol = RASNET;
+        }
         // rest is ignored
     }
 
-    switch (protocol){
-        case RNP:
-            return new RnpClientComm( rasmgrName, rasmgrPort);
-            break;
-        case RPC:
-            return new RpcClientComm(rasmgrName, rasmgrPort);
-            break;
-        case RASNET:
+    switch (protocol)
+    {
+    case RNP:
+        return new RnpClientComm(rasmgrName, rasmgrPort);
+        break;
+    case RPC:
+        return new RpcClientComm(rasmgrName, rasmgrPort);
+        break;
+    case RASNET:
 #ifdef RMANRASNET
-            return new RasnetClientComm(rasmgrName, rasmgrPort);
-            break;
+        return new RasnetClientComm(rasmgrName, rasmgrPort);
+        break;
 #endif
-        default:
-            return new RnpClientComm( rasmgrName, rasmgrPort);
+    default:
+        return new RnpClientComm(rasmgrName, rasmgrPort);
     }
 }
 

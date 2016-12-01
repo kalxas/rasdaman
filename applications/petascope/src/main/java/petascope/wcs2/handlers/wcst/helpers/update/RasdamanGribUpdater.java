@@ -32,7 +32,7 @@ import java.io.IOException;
  * Class for updating when values are received as file to be decoded using decode() rasdaman function.
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class RasdamanGribUpdater implements RasdamanUpdater{
+public class RasdamanGribUpdater implements RasdamanUpdater {
 
     String affectedCollectionName;
     String affectedCollectionOid;
@@ -63,12 +63,12 @@ public class RasdamanGribUpdater implements RasdamanUpdater{
     @Override
     public void update() throws RasdamanException, IOException {
         String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
-                .replace("$domain", affectedDomain)
-                .replace("$oid", affectedCollectionOid)
-                .replace("$shiftDomain", shiftDomain)
-                .replace("$gribMessages", rangeParameters.replace("\"", "\\\""));
+                             .replace("$domain", affectedDomain)
+                             .replace("$oid", affectedCollectionOid)
+                             .replace("$shiftDomain", shiftDomain)
+                             .replace("$gribMessages", rangeParameters.replace("\"", "\\\""));
         RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(),
-                ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+                                           ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
     }
 
     private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1, \"GRIB\", \"$gribMessages\"), $shiftDomain) WHERE oid($collection) = $oid";

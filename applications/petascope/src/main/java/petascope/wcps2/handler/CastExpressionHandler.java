@@ -43,7 +43,7 @@ public class CastExpressionHandler {
 
     public static WcpsResult handle(String rangeType, WcpsResult coverageExp) throws WCPSProcessingError {
         String template = TEMPLATE.replace("$rangeType", CastDataTypeConverter.convert(rangeType))
-                                  .replace("$coverageExp", coverageExp.getRasql());
+                          .replace("$coverageExp", coverageExp.getRasql());
         return new WcpsResult(coverageExp.getMetadata(), template);
     }
 

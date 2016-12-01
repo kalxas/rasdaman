@@ -37,7 +37,7 @@ import petascope.wcps2.result.WcpsResult;
  * return:
  * i:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1,
  * j:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1
- * 
+ *
  * for c in (mean_summer_airtemp) return crsSet(c)
  * return:
  *
@@ -53,7 +53,7 @@ public class CoverageCrsSetHandler {
         String result = "";
         List<String> list = new ArrayList<String>();
         String tmp = "";
-        for (Axis axis: coverageExpression.getMetadata().getAxes()) {
+        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             // nativeCrs (e.g: mr: Index2D, mean_summer_airtemp: EPSG:4326)
             tmp = axis.getLabel() + ":" + axis.getCrsUri();
             // gridCrs (CRS:1)

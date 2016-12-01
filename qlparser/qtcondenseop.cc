@@ -63,15 +63,15 @@ using namespace std;
 
 const QtNode::QtNodeType QtCondenseOp::nodeType = QT_CONDENSEOP;
 
-QtCondenseOp::QtCondenseOp( Ops::OpType  newOperation,
-                            const string &initIteratorName,
-                            QtOperation* mintervalExp,
-                            QtOperation* cellExp,
-                            QtOperation* condExp             )
-    :  QtBinaryOperation( mintervalExp, cellExp ),
-       iteratorName( initIteratorName ),
-       condOp( condExp ),
-       operation( newOperation )
+QtCondenseOp::QtCondenseOp(Ops::OpType  newOperation,
+                           const string& initIteratorName,
+                           QtOperation* mintervalExp,
+                           QtOperation* cellExp,
+                           QtOperation* condExp)
+    :  QtBinaryOperation(mintervalExp, cellExp),
+       iteratorName(initIteratorName),
+       condOp(condExp),
+       operation(newOperation)
 {
 }
 
@@ -79,36 +79,38 @@ QtCondenseOp::QtCondenseOp( Ops::OpType  newOperation,
 
 QtCondenseOp::~QtCondenseOp()
 {
-    if( condOp )
+    if (condOp)
     {
         delete condOp;
-        condOp=NULL;
+        condOp = NULL;
     }
 }
 
 
 
 QtNode::QtNodeList*
-QtCondenseOp::getChilds( QtChildType flag )
+QtCondenseOp::getChilds(QtChildType flag)
 {
     QtNodeList* resultList;
-    resultList = QtBinaryOperation::getChilds( flag );
-    if( condOp )
+    resultList = QtBinaryOperation::getChilds(flag);
+    if (condOp)
     {
-        if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
+        if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
         {
-            QtNodeList* subList=NULL;
-            subList = condOp->getChilds( flag );
+            QtNodeList* subList = NULL;
+            subList = condOp->getChilds(flag);
             // remove all elements in subList and insert them at the beginning in resultList
-            resultList->splice( resultList->begin(), *subList );
+            resultList->splice(resultList->begin(), *subList);
             // delete temporary subList
             delete subList;
-            subList=NULL;
+            subList = NULL;
         }
 
         // add the nodes of the current level
-        if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-            resultList->push_back( condOp );
+        if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+        {
+            resultList->push_back(condOp);
+        }
     }
 
     return resultList;
@@ -117,24 +119,24 @@ QtCondenseOp::getChilds( QtChildType flag )
 
 
 bool
-QtCondenseOp::equalMeaning( QtNode* node )
+QtCondenseOp::equalMeaning(QtNode* node)
 {
     bool result = false;
 
-    if( nodeType == node->getNodeType() )
+    if (nodeType == node->getNodeType())
     {
         QtCondenseOp* condNode;
         condNode = static_cast<QtCondenseOp*>(node); // by force
 
         // check domain and cell expression
-        result  = QtBinaryOperation::equalMeaning( condNode );
+        result  = QtBinaryOperation::equalMeaning(condNode);
 
         // check condition expression
-        result &= ( !condOp && !condNode->getCondOp() ) ||
-                  condOp->equalMeaning( condNode->getCondOp() );
+        result &= (!condOp && !condNode->getCondOp()) ||
+                  condOp->equalMeaning(condNode->getCondOp());
     };
 
-    return ( result );
+    return (result);
 }
 
 
@@ -145,55 +147,63 @@ QtCondenseOp::getSpelling()
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
-    result.append( "(" );
-    result.append( QtBinaryOperation::getSpelling() );
-    result.append( "," );
+    result.append("(");
+    result.append(QtBinaryOperation::getSpelling());
+    result.append(",");
 
-    if( condOp )
-        result.append( condOp->getSpelling() );
+    if (condOp)
+    {
+        result.append(condOp->getSpelling());
+    }
     else
-        result.append( "<nn>" );
+    {
+        result.append("<nn>");
+    }
 
-    result.append( ")" );
+    result.append(")");
 
     return result;
 }
 
 
 void
-QtCondenseOp::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtCondenseOp::setInput(QtOperation* inputOld, QtOperation* inputNew)
 {
-    QtBinaryOperation::setInput( inputOld, inputNew );
+    QtBinaryOperation::setInput(inputOld, inputNew);
 
-    if( condOp == inputOld )
+    if (condOp == inputOld)
     {
         condOp = inputNew;
 
-        if( inputNew )
-            inputNew->setParent( this );
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
     }
 }
 
 
 
 void
-QtCondenseOp::optimizeLoad( QtTrimList* trimList )
+QtCondenseOp::optimizeLoad(QtTrimList* trimList)
 {
     // delete the trimList and optimize subtrees
 
     // release( trimList->begin(), trimList->end() );
-    for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+    for (QtNode::QtTrimList::iterator iter = trimList->begin(); iter != trimList->end(); iter++)
     {
         delete *iter;
-        *iter=NULL;
+        *iter = NULL;
     }
     delete trimList;
-    trimList=NULL;
+    trimList = NULL;
 
-    QtBinaryOperation::optimizeLoad( new QtNode::QtTrimList() );
+    QtBinaryOperation::optimizeLoad(new QtNode::QtTrimList());
 
-    if( condOp )
-        condOp->optimizeLoad( new QtNode::QtTrimList() );
+    if (condOp)
+    {
+        condOp->optimizeLoad(new QtNode::QtTrimList());
+    }
 }
 
 
@@ -205,15 +215,17 @@ QtCondenseOp::simplify()
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
 
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
     QtNodeList::iterator iter;
 
-    resultList = getChilds( QT_DIRECT_CHILDS );
-    for( iter=resultList->begin(); iter!=resultList->end(); iter++ )
+    resultList = getChilds(QT_DIRECT_CHILDS);
+    for (iter = resultList->begin(); iter != resultList->end(); iter++)
+    {
         (*iter)->simplify();
+    }
 
     delete resultList;
-    resultList=NULL;
+    resultList = NULL;
 }
 
 
@@ -226,23 +238,26 @@ QtCondenseOp::isCommutative() const
 
 
 QtData*
-QtCondenseOp::evaluate( QtDataList* inputList )
+QtCondenseOp::evaluate(QtDataList* inputList)
 {
     startTimer("QtCondenseOp");
 
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
 
-    if( getOperand( inputList, operand1, 1 ) )
+    if (getOperand(inputList, operand1, 1))
     {
 
 #ifdef QT_RUNTIME_TYPE_CHECK
-        if( operand1->getDataType() != QT_MINTERVAL )
+        if (operand1->getDataType() != QT_MINTERVAL)
             LERROR << "Internal error in QtMarrayOp::evaluate() - "
-                           << "runtime type checking failed (Minterval).";
+                   << "runtime type checking failed (Minterval).";
 
         // delete old operand
-        if( operand1 ) operand1->deleteRef();
+        if (operand1)
+        {
+            operand1->deleteRef();
+        }
 
         return 0;
     }
@@ -257,11 +272,11 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     QtDataType cellType = input2->getDataStreamType().getDataType();
     if (cellType == QT_MDD)
     {
-        cellBaseType = (static_cast<MDDBaseType*> (const_cast<Type*> (input2->getDataStreamType().getType())))->getBaseType();
+        cellBaseType = (static_cast<MDDBaseType*>(const_cast<Type*>(input2->getDataStreamType().getType())))->getBaseType();
     }
     else
     {
-        cellBaseType = static_cast<BaseType*> (const_cast<Type*> (input2->getDataStreamType().getType()));
+        cellBaseType = static_cast<BaseType*>(const_cast<Type*>(input2->getDataStreamType().getType()));
     }
     const BaseType* resBaseType;
     switch (cellType)
@@ -283,51 +298,63 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     }
 
     // get operation object
-    BinaryOp* cellBinOp = Ops::getBinaryOp( operation, resBaseType, resBaseType, cellBaseType );
+    BinaryOp* cellBinOp = Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType);
 
-    try {
-        if(cellType == QT_MDD){
+    try
+    {
+        if (cellType == QT_MDD)
+        {
             returnValue = evaluateInducedOp(inputList, cellBinOp, domain);
         }
-        else{
+        else
+        {
             returnValue = evaluateScalarOp(inputList, resBaseType, cellBinOp, domain);
         }
     }
 
-    catch(...)
+    catch (...)
     {
         // free ressources
         delete cellBinOp;
-        cellBinOp=NULL;
-        if( operand1 ) operand1->deleteRef();
+        cellBinOp = NULL;
+        if (operand1)
+        {
+            operand1->deleteRef();
+        }
 
         throw;
     }
 
     // delete old operands
     delete cellBinOp;
-    cellBinOp=NULL;
-    if( operand1 ) operand1->deleteRef();
+    cellBinOp = NULL;
+    if (operand1)
+    {
+        operand1->deleteRef();
     }
+}
 
-    stopTimer();
-    return returnValue;
+stopTimer();
+return returnValue;
 }
 
 QtData*
-QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* resType, BinaryOp* cellBinOp, r_Minterval domain){
+QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* resType, BinaryOp* cellBinOp, r_Minterval domain)
+{
     // create execution object QLCondenseOp
-    QLCondenseOp* qlCondenseOp = new QLCondenseOp( input2, condOp, inputList, iteratorName,
-            resType, 0, cellBinOp );
+    QLCondenseOp* qlCondenseOp = new QLCondenseOp(input2, condOp, inputList, iteratorName,
+            resType, 0, cellBinOp);
 
     // result buffer
-    char* result=NULL;
+    char* result = NULL;
 
     // execute query engine marray operation
-    try {
-        result = Tile::execGenCondenseOp( qlCondenseOp, domain );
+    try
+    {
+        result = Tile::execGenCondenseOp(qlCondenseOp, domain);
     }
-    catch (...) {
+    catch (...)
+    {
         //free resources
         delete qlCondenseOp;
         qlCondenseOp = NULL;
@@ -337,33 +364,40 @@ QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* resType, B
     char* resultBuffer = new char[ resType->getSize() ];
 
     // copy cell content
-    memcpy( resultBuffer, result, resType->getSize() );
+    memcpy(resultBuffer, result, resType->getSize());
 
     delete qlCondenseOp;
-    qlCondenseOp=NULL;
+    qlCondenseOp = NULL;
 
     // create data object for the cell
     QtScalarData* scalarDataObj = NULL;
-    if( resType->getType() == STRUCT )
+    if (resType->getType() == STRUCT)
+    {
         scalarDataObj = new QtComplexData();
+    }
     else
+    {
         scalarDataObj = new QtAtomicData();
+    }
 
-    scalarDataObj->setValueType  ( resType );
-    scalarDataObj->setValueBuffer( resultBuffer );
+    scalarDataObj->setValueType(resType);
+    scalarDataObj->setValueBuffer(resultBuffer);
 
     // set return data object
     return scalarDataObj;
 }
 
 QtData*
-QtCondenseOp::evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Minterval domain){
+QtCondenseOp::evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Minterval domain)
+{
     QtMDD* result = NULL;
     QLInducedCondenseOp* qlInducedCondenseOp = new QLInducedCondenseOp(input2, condOp, inputList, cellBinOp, iteratorName);
-    try {
+    try
+    {
         result = QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp, domain);
     }
-    catch (...){
+    catch (...)
+    {
         //free resources
         delete qlInducedCondenseOp;
         qlInducedCondenseOp = NULL;
@@ -372,35 +406,43 @@ QtCondenseOp::evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Mi
 }
 
 void
-QtCondenseOp::printTree( int tab, ostream& s, QtChildType mode )
+QtCondenseOp::printTree(int tab, ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCondenseOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
 
-    QtBinaryOperation::printTree( tab, s, mode );
+    QtBinaryOperation::printTree(tab, s, mode);
 }
 
 
 
 void
-QtCondenseOp::printAlgebraicExpression( ostream& s )
+QtCondenseOp::printAlgebraicExpression(ostream& s)
 {
     s << "(";
 
     s << iteratorName.c_str() << ",";
 
-    if( input1 )
-        input1->printAlgebraicExpression( s );
+    if (input1)
+    {
+        input1->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ",";
 
-    if( input2 )
-        input2->printAlgebraicExpression( s );
+    if (input2)
+    {
+        input2->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ")";
 }
@@ -408,18 +450,18 @@ QtCondenseOp::printAlgebraicExpression( ostream& s )
 
 
 const QtTypeElement&
-QtCondenseOp::checkType( QtTypeTuple* typeTuple )
+QtCondenseOp::checkType(QtTypeTuple* typeTuple)
 {
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     // check operand branches
-    if( input1 && input2 )
+    if (input1 && input2)
     {
 
         // check domain expression
-        const QtTypeElement& domainExp = input1->checkType( typeTuple );
+        const QtTypeElement& domainExp = input1->checkType(typeTuple);
 
-        if( domainExp.getDataType() != QT_MINTERVAL )
+        if (domainExp.getDataType() != QT_MINTERVAL)
         {
             LFATAL << "Error: QtCondenseOp::checkType() - Can not evaluate domain expression to an minterval";
             parseInfo.setErrorNo(401);
@@ -428,22 +470,22 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
 
         // add domain iterator to the list of bounded variables
         bool newList = false;
-        if( !typeTuple )
+        if (!typeTuple)
         {
             typeTuple = new QtTypeTuple();
             newList = true;
         }
-        typeTuple->tuple.push_back( QtTypeElement( QT_POINT, iteratorName.c_str() ) );
+        typeTuple->tuple.push_back(QtTypeElement(QT_POINT, iteratorName.c_str()));
 
         //
         // check value expression
         //
 
         // get value expression type
-        const QtTypeElement& valueExp = input2->checkType( typeTuple );
+        const QtTypeElement& valueExp = input2->checkType(typeTuple);
 
         // check type
-        if( valueExp.getDataType() != QT_BOOL   && valueExp.getDataType() != QT_COMPLEX &&
+        if (valueExp.getDataType() != QT_BOOL   && valueExp.getDataType() != QT_COMPLEX &&
                 valueExp.getDataType() != QT_CHAR   && valueExp.getDataType() != QT_OCTET   &&
                 valueExp.getDataType() != QT_USHORT && valueExp.getDataType() != QT_SHORT   &&
                 valueExp.getDataType() != QT_ULONG  && valueExp.getDataType() != QT_LONG    &&
@@ -462,13 +504,13 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
         // check condition expression
         //
 
-        if( condOp )
+        if (condOp)
         {
             // get value expression type
-            const QtTypeElement& condExp = condOp->checkType( typeTuple );
+            const QtTypeElement& condExp = condOp->checkType(typeTuple);
 
             // check type
-            if( condExp.getDataType() != QT_BOOL )
+            if (condExp.getDataType() != QT_BOOL)
             {
                 LFATAL << "Error: QtCondenseOp::checkType() - Condition expression must be of type boolean";
                 parseInfo.setErrorNo(413);
@@ -478,14 +520,16 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
 
         // remove iterator again
         typeTuple->tuple.pop_back();
-        if( newList )
+        if (newList)
         {
             delete typeTuple;
             typeTuple = NULL;
         }
     }
     else
+    {
         LERROR << "Error: QtCondenseOp::checkType() - operand branch invalid.";
+    }
 
     return dataStreamType;
 }

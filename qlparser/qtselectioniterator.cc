@@ -56,8 +56,8 @@ QtSelectionIterator::QtSelectionIterator()
 }
 
 
-QtSelectionIterator::QtSelectionIterator( QtNode* node )
-    : QtIterator( node ),
+QtSelectionIterator::QtSelectionIterator(QtNode* node)
+    : QtIterator(node),
       conditionTree(NULL)
 {
 }
@@ -65,107 +65,121 @@ QtSelectionIterator::QtSelectionIterator( QtNode* node )
 
 QtSelectionIterator::~QtSelectionIterator()
 {
-    if( conditionTree )
+    if (conditionTree)
     {
         delete conditionTree;
-        conditionTree=NULL;
+        conditionTree = NULL;
     }
 }
 
 
 QtNode::QtNodeList*
-QtSelectionIterator::getChilds( QtChildType flag )
+QtSelectionIterator::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
-    QtNodeList* subList=NULL;
+    QtNodeList* resultList = NULL;
+    QtNodeList* subList = NULL;
 
-    resultList = QtIterator::getChilds( flag );
+    resultList = QtIterator::getChilds(flag);
 
 #ifdef DEBUG
     LTRACE << "1. childs from stream subtree ";
-    for(list<QtNode*>::iterator debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
-        (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+    for (list<QtNode*>::iterator debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
+    {
+        (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+    }
 #endif
 
-        if( conditionTree )
+    if (conditionTree)
+    {
+        if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
         {
-            if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
+            subList = conditionTree->getChilds(flag);
+
+#ifdef DEBUG
+            LTRACE << "2. childs from operation subtree (without direct childs) ";
+            for (list<QtNode*>::iterator debugIter = subList->begin(); debugIter != subList->end(); debugIter++)
             {
-                subList = conditionTree->getChilds( flag );
-
-#ifdef DEBUG
-                LTRACE << "2. childs from operation subtree (without direct childs) ";
-                for(list<QtNode*>::iterator debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ )
-                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+                (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+            }
 #endif
 
-                    // remove all elements in subList and insert them at the beginning in resultList
-                    resultList->splice( resultList->begin(), *subList );
+            // remove all elements in subList and insert them at the beginning in resultList
+            resultList->splice(resultList->begin(), *subList);
 
 #ifdef DEBUG
-                LTRACE << "3. merge of the lists ";
-                for(list<QtNode*>::iterator debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
-                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+            LTRACE << "3. merge of the lists ";
+            for (list<QtNode*>::iterator debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
+            {
+                (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+            }
 
 
-                LTRACE << "4. old list (must be empty)";
-                for(list<QtNode*>::iterator debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ )
-                    (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+            LTRACE << "4. old list (must be empty)";
+            for (list<QtNode*>::iterator debugIter = subList->begin(); debugIter != subList->end(); debugIter++)
+            {
+                (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+            }
 #endif
-                        // delete temporary subList
-                        delete subList;
-                subList=NULL;
-            };
+            // delete temporary subList
+            delete subList;
+            subList = NULL;
+        };
 
-            // add nodes of next level
-            if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-                resultList->push_back( conditionTree );
+        // add nodes of next level
+        if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+        {
+            resultList->push_back(conditionTree);
+        }
 
 #ifdef DEBUG
-            LTRACE << "4. current child list including direct childs ";
-            for(list<QtNode*>::iterator debugIter=resultList->begin(); debugIter!=resultList->end(); debugIter++ )
-                (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS );
+        LTRACE << "4. current child list including direct childs ";
+        for (list<QtNode*>::iterator debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
+        {
+            (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
+        }
 #endif
-            };
+    };
 
     return resultList;
 }
 
 
 void
-QtSelectionIterator::printTree( int tab, ostream& s, QtChildType mode )
+QtSelectionIterator::printTree(int tab, ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSelectionIterator Object: type " << flush;
-    dataStreamType.printStatus( s );
+    dataStreamType.printStatus(s);
     s << getEvaluationTime();
     s << endl;
 
-    if( mode != QtNode::QT_DIRECT_CHILDS )
+    if (mode != QtNode::QT_DIRECT_CHILDS)
     {
-        if( conditionTree )
+        if (conditionTree)
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "condition : " << endl;
-            conditionTree->printTree( tab + 2, s );
+            conditionTree->printTree(tab + 2, s);
         }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no condition" << endl;
+        }
     }
 
-    QtIterator::printTree( tab, s, mode );
+    QtIterator::printTree(tab, s, mode);
 }
 
 
 
 void
-QtSelectionIterator::printAlgebraicExpression( ostream& s )
+QtSelectionIterator::printAlgebraicExpression(ostream& s)
 {
     s << "sel<";
 
-    conditionTree->printAlgebraicExpression( s );
+    conditionTree->printAlgebraicExpression(s);
 
     s << ">";
 
-    QtIterator::printAlgebraicExpression( s );
+    QtIterator::printAlgebraicExpression(s);
 }
 
 
@@ -177,26 +191,28 @@ QtSelectionIterator::next()
 
     QtDataList* returnValue = NULL;
 
-    if( inputs )
+    if (inputs)
     {
         bool        nextTupelValid = false;
-        QtDataList* actualTupel=NULL;
+        QtDataList* actualTupel = NULL;
 
-        while( !nextTupelValid )
+        while (!nextTupelValid)
         {
             actualTupel = (*inputs)[0]->next();
 
-            if( actualTupel )
+            if (actualTupel)
             {
-                if( conditionTree )
+                if (conditionTree)
                 {
                     // evaluate the condition tree
-                    QtData* resultData = conditionTree->evaluate( actualTupel );
+                    QtData* resultData = conditionTree->evaluate(actualTupel);
 
-                    if( resultData )
+                    if (resultData)
                     {
-                        if( resultData->getDataType() == QT_BOOL )
+                        if (resultData->getDataType() == QT_BOOL)
+                        {
                             nextTupelValid = static_cast<bool>((static_cast<QtAtomicData*>(resultData))->getUnsignedValue());
+                        }
                         else
                         {
                             LFATAL << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool.";
@@ -206,13 +222,16 @@ QtSelectionIterator::next()
 
                         resultData->deleteRef();
 
-                        if( !nextTupelValid )
+                        if (!nextTupelValid)
                         {
                             // delete transient objects
                             vector<QtData*>::iterator iter;
 
-                            for( iter=actualTupel->begin(); iter!=actualTupel->end(); iter++)
-                                if( *iter ) (*iter)->deleteRef();
+                            for (iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+                                if (*iter)
+                                {
+                                    (*iter)->deleteRef();
+                                }
 
                             // delete vector itself
                             delete actualTupel;
@@ -221,10 +240,14 @@ QtSelectionIterator::next()
                     }
                 }
                 else
+                {
                     nextTupelValid = true;
+                }
             }
             else
+            {
                 break;
+            }
         }
 
         returnValue = actualTupel;
@@ -240,14 +263,14 @@ const QtTypeTuple&
 QtSelectionIterator::checkType()
 {
     // concatenate types of inputs
-    getInputTypeTuple( dataStreamType );
+    getInputTypeTuple(dataStreamType);
 
     // type check for condition tree
-    if( conditionTree )
+    if (conditionTree)
     {
-        const QtTypeElement& type = conditionTree->checkType( static_cast<QtTypeTuple*>(&dataStreamType) );
+        const QtTypeElement& type = conditionTree->checkType(static_cast<QtTypeTuple*>(&dataStreamType));
 
-        if( type.getDataType() != QT_BOOL )
+        if (type.getDataType() != QT_BOOL)
         {
             LFATAL << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool.";
             parseInfo.setErrorNo(359);

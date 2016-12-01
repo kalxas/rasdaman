@@ -47,7 +47,7 @@ public:
      * @param typeAttributes
      * @param domainNode
      */
-    QtCreateMarrayType(const std::string &typeName, QtNode::QtOperationList* typeAttributes, QtOperation *domainNode);
+    QtCreateMarrayType(const std::string& typeName, QtNode::QtOperationList* typeAttributes, QtOperation* domainNode);
 
     /**
      * @param typeName - Name of the type
@@ -57,9 +57,9 @@ public:
     QtCreateMarrayType(const std::string& typeName, const std::string cellTypeName, QtOperation* domainNode);
 
     virtual QtData* evaluate();
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
     virtual void checkType();
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     virtual QtNodeType getNodeType() const;
 

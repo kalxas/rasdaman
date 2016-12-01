@@ -76,23 +76,27 @@ rasdaman GmbH.
 *
 */
 
-rc_t HTTP_Date( char *Buffer, size_t BuffSize )
+rc_t HTTP_Date(char* Buffer, size_t BuffSize)
 {
     time_t         systime;
-    time_t        *time_ptr;
-    struct tm     *tm_ptr;
+    time_t*        time_ptr;
+    struct tm*     tm_ptr;
     size_t         strsize;
 
     time_ptr = &systime;
-    time( time_ptr );
+    time(time_ptr);
 
     /* HTTP Date:  "wdy, dd mmm yyyy hh:mm:ss GMT"  */
 
-    tm_ptr = gmtime( time_ptr );
-    strsize = strftime( Buffer, BuffSize, "%a, %d %b %Y %H:%M:%S GMT", tm_ptr );
-    if( strsize == BuffSize )
-        return( ERROR );
+    tm_ptr = gmtime(time_ptr);
+    strsize = strftime(Buffer, BuffSize, "%a, %d %b %Y %H:%M:%S GMT", tm_ptr);
+    if (strsize == BuffSize)
+    {
+        return (ERROR);
+    }
     else
-        return( OK );
+    {
+        return (OK);
+    }
 }
 

@@ -18,8 +18,8 @@ public class InvalidDomainInSubsettingCrsTransformException  extends WCPSProcess
      */
     public InvalidDomainInSubsettingCrsTransformException(String axisName, String subsettingCrs, String errorMessage) {
         super(ERROR_TEMPLATE.replace("$axisName", axisName)
-                            .replace("$subsettingCrs", subsettingCrs)
-                            .replace("$errorMessage", errorMessage), ExceptionCode.WcpsError);
+              .replace("$subsettingCrs", subsettingCrs)
+              .replace("$errorMessage", errorMessage), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Invalid domain on axis '$axisName' to transform with subsettingCrs '$subsettingCrs', '$errorMessage'.";

@@ -51,9 +51,9 @@ class ServerHost
 public:
     ServerHost();
     ~ServerHost();
-    void  init(const char* hostName,const char *netwName,int listenport,bool isInternal);
-    const char *getName();
-    const char *getNetworkName();
+    void  init(const char* hostName, const char* netwName, int listenport, bool isInternal);
+    const char* getName();
+    const char* getNetworkName();
     long        getListenPort();
     bool  isInternal();
     bool  checkStatus();
@@ -64,8 +64,8 @@ public:
     bool  isUp();
     bool  downHost();
 
-    static char* getDescriptionHeader(char *destBuffer);
-    char* getDescription(char *destBuffer);
+    static char* getDescriptionHeader(char* destBuffer);
+    char* getDescription(char* destBuffer);
 
     int   countDefinedServers();
     int   getConnectionSocket();
@@ -105,16 +105,16 @@ public:
     ~HostManager();
     bool insertInternalHost();
     bool checkAcceptAnotherHost();
-    bool insertNewHost(const char* hostName,const char *netwName,int listenport);
-    bool removeHost(const char *hostName);
+    bool insertNewHost(const char* hostName, const char* netwName, int listenport);
+    bool removeHost(const char* hostName);
     int  countHosts();
     int countUpHosts();
     ServerHost& operator[](int);
     ServerHost& operator[](const char* hostName);
 
-    int postSlaveMGR(char *body,char *outBuffer);
+    int postSlaveMGR(char* body, char* outBuffer);
     bool reset();
-    bool acceptChangeName(const char *oldName,const char *newName);
+    bool acceptChangeName(const char* oldName, const char* newName);
 private:
     bool testUniqueness(const char* srvName);
     list<ServerHost> hostList;

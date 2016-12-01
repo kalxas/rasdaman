@@ -42,19 +42,19 @@ using namespace std;
 const RnpQuark Rnp::rnpProtocolId = 25112001;
 
 
-const char* Rnp::endiannessNames[2]=
+const char* Rnp::endiannessNames[2] =
 {
     "big endian", "little endian"
 };
 
-const char* Rnp::fragmentTypeNames[Rnp::fgt_HowMany]=
+const char* Rnp::fragmentTypeNames[Rnp::fgt_HowMany] =
 {
     "(fgt_none)", "Command", "OkAnswer", "ErrorAnswer"
 };
 
 const char* Rnp::dataTypeNames[Rnp::dtt_HowMany] =
 {
-    "(dtt_none)", "Asciiz", "Int32","Float","Double","Opaque","NullPtr"
+    "(dtt_none)", "Asciiz", "Int32", "Float", "Double", "Opaque", "NullPtr"
 };
 
 const char* Rnp::errorTypeNames[Rnp::ert_HowMany] =
@@ -71,25 +71,37 @@ const char* Rnp::undefValue = "(undef)";
 
 const char* Rnp::getFragmentTypeName(RnpQuark fType) throw()
 {
-    if(0<= fType && fType < fgt_HowMany) return fragmentTypeNames[fType];
+    if (0 <= fType && fType < fgt_HowMany)
+    {
+        return fragmentTypeNames[fType];
+    }
     return undefValue;
 }
 
 const char* Rnp::getDataTypeName(RnpQuark dType) throw()
 {
-    if(0<= dType && dType < dtt_HowMany) return dataTypeNames[dType];
+    if (0 <= dType && dType < dtt_HowMany)
+    {
+        return dataTypeNames[dType];
+    }
     return undefValue;
 }
 
 const char* Rnp::getErrorTypeName(RnpQuark eType) throw()
 {
-    if(0<= eType && eType < ert_HowMany) return errorTypeNames[eType];
+    if (0 <= eType && eType < ert_HowMany)
+    {
+        return errorTypeNames[eType];
+    }
     return undefValue;
 }
 
 const char* Rnp::getErrorParamName(RnpQuark eName) throw()
 {
-    if(0<= eName && eName < erp_HowMany) return errorParamNames[eName];
+    if (0 <= eName && eName < erp_HowMany)
+    {
+        return errorParamNames[eName];
+    }
     return undefValue;
 }
 
@@ -104,14 +116,14 @@ Rnp::Endianness Rnp::detectHostEndianness() throw()
 
     char* ptr = (char*)&uInteger;
 
-    return *ptr==1 ? littleEndian : bigEndian;
+    return *ptr == 1 ? littleEndian : bigEndian;
 }
 
 RnpQuark Rnp::swapBytes(RnpQuark orig) throw()
 {
     RnpQuark result = orig;
 
-    char *buf = (char*)&result;
+    char* buf = (char*)&result;
 
     char tmp = buf[0];
     buf[0] = buf[3];
@@ -132,7 +144,7 @@ bool RnpHeader::isRnpMessage() const throw()
 
     RnpQuark cProtocolId = hostEndianness == Rnp::littleEndian ? protocolId : Rnp::swapBytes(protocolId);
 
-    return cProtocolId == Rnp::rnpProtocolId ? true:false;
+    return cProtocolId == Rnp::rnpProtocolId ? true : false;
 }
 
 Rnp::Endianness RnpHeader::getEndianness() const throw()
@@ -150,7 +162,10 @@ bool RnpHeader::changeEndianness(Rnp::Endianness newEndianness) throw()
 {
     Rnp::Endianness endianness = static_cast<Rnp::Endianness>(messageEndianness);
 
-    if(newEndianness == endianness) return false; // no change necessary
+    if (newEndianness == endianness)
+    {
+        return false;    // no change necessary
+    }
 
     messageEndianness = newEndianness;
 
@@ -176,14 +191,14 @@ RnpFragmentHeader* RnpHeader::getFirstFragment() const throw()
 
 RnpFragmentHeader* RnpFragmentHeader::getNextFragment() const throw()
 {
-    char *ptr = (char*)const_cast<rnp::RnpFragmentHeader*>(this);
+    char* ptr = (char*)const_cast<rnp::RnpFragmentHeader*>(this);
 
     return (RnpFragmentHeader*)(ptr + totalLength);
 }
 
 RnpParameter* RnpFragmentHeader::getFirstParameter() const throw()
 {
-    return (RnpParameter*)(const_cast<rnp::RnpFragmentHeader*>(this)+1);
+    return (RnpParameter*)(const_cast<rnp::RnpFragmentHeader*>(this) + 1);
 }
 
 void RnpFragmentHeader::changeEndianness() throw()
@@ -198,13 +213,13 @@ void RnpFragmentHeader::changeEndianness() throw()
 //############ RNP Parameter ##################################
 RnpParameter* RnpParameter::getNextParameter() const throw()
 {
-    char *ptr = (char*)const_cast<rnp::RnpParameter*>(this);
+    char* ptr = (char*)const_cast<rnp::RnpParameter*>(this);
     return (RnpParameter*)(ptr + totalLength);
 }
 
 void* RnpParameter::getData() const throw()
 {
-    return static_cast<void*>(const_cast<rnp::RnpParameter*>(this+1));
+    return static_cast<void*>(const_cast<rnp::RnpParameter*>(this + 1));
 }
 
 RnpQuark RnpParameter::getDataLength() const throw()
@@ -231,23 +246,24 @@ void RnpParameter::changeToHostEndianness() throw()
     dataLength  = Rnp::swapBytes(dataLength);
     totalLength = Rnp::swapBytes(totalLength);
 
-    RnpQuark *valPtr = static_cast<RnpQuark*>(getData());
-    switch(dataType)
+    RnpQuark* valPtr = static_cast<RnpQuark*>(getData());
+    switch (dataType)
     {
-        case Rnp::dtt_Int32:
-        case Rnp::dtt_Float32:
-        {
-            *valPtr = Rnp::swapBytes(*valPtr);
-            break;
-        }
-        case Rnp::dtt_Double64:
-        {
-            RnpQuark temp = Rnp::swapBytes(*valPtr);
-            *valPtr       = Rnp::swapBytes(*(valPtr +1));
-            *(valPtr+1)   = temp;
-            break;
-        }
-        default: break;
+    case Rnp::dtt_Int32:
+    case Rnp::dtt_Float32:
+    {
+        *valPtr = Rnp::swapBytes(*valPtr);
+        break;
+    }
+    case Rnp::dtt_Double64:
+    {
+        RnpQuark temp = Rnp::swapBytes(*valPtr);
+        *valPtr       = Rnp::swapBytes(*(valPtr + 1));
+        *(valPtr + 1)   = temp;
+        break;
+    }
+    default:
+        break;
     }
 }
 
@@ -255,23 +271,24 @@ void RnpParameter::changeToPartnerEndianness() throw()
 {
     // there is no info about the initial endianness so be careful
 
-    RnpQuark *valPtr = static_cast<RnpQuark*>(getData());
-    switch(dataType)
+    RnpQuark* valPtr = static_cast<RnpQuark*>(getData());
+    switch (dataType)
     {
-        case Rnp::dtt_Int32:
-        case Rnp::dtt_Float32:
-        {
-            *valPtr = Rnp::swapBytes(*valPtr);
-            break;
-        }
-        case Rnp::dtt_Double64:
-        {
-            RnpQuark temp = Rnp::swapBytes(*valPtr);
-            *valPtr       = Rnp::swapBytes(*(valPtr +1));
-            *(valPtr+1)   = temp;
-            break;
-        }
-        default: break;
+    case Rnp::dtt_Int32:
+    case Rnp::dtt_Float32:
+    {
+        *valPtr = Rnp::swapBytes(*valPtr);
+        break;
+    }
+    case Rnp::dtt_Double64:
+    {
+        RnpQuark temp = Rnp::swapBytes(*valPtr);
+        *valPtr       = Rnp::swapBytes(*(valPtr + 1));
+        *(valPtr + 1)   = temp;
+        break;
+    }
+    default:
+        break;
     }
     paramType   = Rnp::swapBytes(paramType);
     dataType    = Rnp::swapBytes(dataType);
@@ -295,13 +312,19 @@ RnpProtocolEncoder::RnpProtocolEncoder() throw()
 
 RnpProtocolEncoder::~RnpProtocolEncoder() throw()
 {
-    if(commBuffer != NULL && allocated == true) delete commBuffer;
+    if (commBuffer != NULL && allocated == true)
+    {
+        delete commBuffer;
+    }
     // the other pointers are not pointing to allocated memory!!
 }
 
 void RnpProtocolEncoder::setBuffer(akg::CommBuffer* buffer) throw()
 {
-    if(commBuffer != NULL && allocated == true) delete commBuffer;
+    if (commBuffer != NULL && allocated == true)
+    {
+        delete commBuffer;
+    }
 
     commBuffer = buffer;
     allocated  = false;
@@ -309,7 +332,10 @@ void RnpProtocolEncoder::setBuffer(akg::CommBuffer* buffer) throw()
 
 bool RnpProtocolEncoder::allocateBuffer(int maxMessageLength) throw()
 {
-    if(commBuffer != NULL && allocated ==true) delete commBuffer;
+    if (commBuffer != NULL && allocated == true)
+    {
+        delete commBuffer;
+    }
 
     commBuffer = new akg::CommBuffer(maxMessageLength);
     allocated = true;
@@ -333,17 +359,17 @@ bool RnpProtocolEncoder::adjustBufferSize(int differenceSize) throw()
     assert(differenceSize > 0);
 
     // we need to adjust the pointers to the new location
-    char *orig = (char*)(commBuffer->getData());
-    char *head = (char*)rnpHeader;
-    char *frag = (char*)currFragment;
-    char *para = (char*)currParameter;
+    char* orig = (char*)(commBuffer->getData());
+    char* head = (char*)rnpHeader;
+    char* frag = (char*)currFragment;
+    char* para = (char*)currParameter;
 
-    if(commBuffer->resize(commBuffer->getDataSize() + differenceSize + RNP_DEFAULTBUFFERSIZE) == true)
+    if (commBuffer->resize(commBuffer->getDataSize() + differenceSize + RNP_DEFAULTBUFFERSIZE) == true)
     {
-        char *final  = (char*)(commBuffer->getData());
+        char* final  = (char*)(commBuffer->getData());
         rnpHeader    = (RnpHeader*)(final + (head - orig));
         currFragment = (RnpFragmentHeader*)(final + (frag - orig));
-        currParameter= (RnpParameter*)(final + (para - orig));
+        currParameter = (RnpParameter*)(final + (para - orig));
         return true;
     }
 
@@ -396,7 +422,7 @@ void RnpProtocolEncoder::startMessage(RnpQuark serverType, int nCarrierHeaderSiz
     rnpHeader->dataStart          = sizeof(RnpHeader);
     rnpHeader->dataLength         = 0;
 
-    currFragment = (RnpFragmentHeader*)(rnpHeader+1);
+    currFragment = (RnpFragmentHeader*)(rnpHeader + 1);
 
 }
 
@@ -414,7 +440,7 @@ void RnpProtocolEncoder::setFinalEndianness(Rnp::Endianness endianness) throw()
     finalEndianness = endianness;
 }
 
-void RnpProtocolEncoder::startFragment(Rnp::FragmentType fType,RnpQuark command) throw()
+void RnpProtocolEncoder::startFragment(Rnp::FragmentType fType, RnpQuark command) throw()
 {
     commBuffer->reserve(sizeof(RnpFragmentHeader));
 
@@ -428,10 +454,16 @@ void RnpProtocolEncoder::startFragment(Rnp::FragmentType fType,RnpQuark command)
 
 }
 
-void RnpProtocolEncoder::addStringParameter(RnpQuark parameterType,const char* str) throw()
+void RnpProtocolEncoder::addStringParameter(RnpQuark parameterType, const char* str) throw()
 {
-    if(str != 0) addParameter(parameterType, Rnp::dtt_Asciiz, str, strlen(str)+1);
-    else         addParameter(parameterType, Rnp::dtt_NullPtr, str, 0);
+    if (str != 0)
+    {
+        addParameter(parameterType, Rnp::dtt_Asciiz, str, strlen(str) + 1);
+    }
+    else
+    {
+        addParameter(parameterType, Rnp::dtt_NullPtr, str, 0);
+    }
 }
 
 void RnpProtocolEncoder::addInt32Parameter(RnpQuark parameterType, int par) throw()
@@ -448,13 +480,19 @@ void RnpProtocolEncoder::addDouble64Parameter(RnpQuark parameterType, double par
     addParameter(parameterType, Rnp::dtt_Double64, &par, sizeof(par));
 }
 
-void RnpProtocolEncoder::addOpaqueParameter(RnpQuark parameterType, const void *buf, int size) throw()
+void RnpProtocolEncoder::addOpaqueParameter(RnpQuark parameterType, const void* buf, int size) throw()
 {
-    if(buf != 0)  addParameter(parameterType, Rnp::dtt_Opaque, buf, size);
-    else          addParameter(parameterType, Rnp::dtt_NullPtr, buf, 0);
+    if (buf != 0)
+    {
+        addParameter(parameterType, Rnp::dtt_Opaque, buf, size);
+    }
+    else
+    {
+        addParameter(parameterType, Rnp::dtt_NullPtr, buf, 0);
+    }
 }
 
-void RnpProtocolEncoder::addParameter(RnpQuark parameterType, Rnp::DataType dtt, const void *data, int length) throw()
+void RnpProtocolEncoder::addParameter(RnpQuark parameterType, Rnp::DataType dtt, const void* data, int length) throw()
 {
     commBuffer->reserve(sizeof(RnpParameter));
 
@@ -465,8 +503,14 @@ void RnpProtocolEncoder::addParameter(RnpQuark parameterType, Rnp::DataType dtt,
 
     int paddlen = currParameter->getPaddLength();
 
-    if(data != 0 ) commBuffer->read(data,length);
-    if(paddlen)    commBuffer->reserve(paddlen);
+    if (data != 0)
+    {
+        commBuffer->read(data, length);
+    }
+    if (paddlen)
+    {
+        commBuffer->reserve(paddlen);
+    }
 
     currFragment->nrParams++;
     currFragment->totalLength += currParameter->totalLength;
@@ -488,7 +532,10 @@ akg::CommBuffer* RnpProtocolEncoder::endMessage() throw()
 
 bool RnpProtocolEncoder::changeToPartnerEndianness(Rnp::Endianness newEndianness) throw()
 {
-    if(newEndianness == rnpHeader->getEndianness()) return false;
+    if (newEndianness == rnpHeader->getEndianness())
+    {
+        return false;
+    }
     // so newEndianness is the same as the message endiannes, no change necessary
 
     // don't forget that the endianness is now the host endianness so,
@@ -496,11 +543,11 @@ bool RnpProtocolEncoder::changeToPartnerEndianness(Rnp::Endianness newEndianness
 
     RnpFragmentHeader* lCurrFragment = rnpHeader->getFirstFragment();
 
-    for(int fragment=0; fragment < rnpHeader->nrFragments; fragment++)
+    for (int fragment = 0; fragment < rnpHeader->nrFragments; fragment++)
     {
 
         RnpParameter* lCurrParameter = lCurrFragment->getFirstParameter();
-        for(int parameter = 0; parameter < lCurrFragment->nrParams; parameter++)
+        for (int parameter = 0; parameter < lCurrFragment->nrParams; parameter++)
         {
             RnpParameter* nextParameter = lCurrParameter->getNextParameter();
             lCurrParameter->changeToPartnerEndianness();
@@ -528,21 +575,27 @@ RnpProtocolDecoder::RnpProtocolDecoder() throw()
     currParameter = NULL;
 }
 
-bool RnpProtocolDecoder::decode(akg::CommBuffer *buffer) throw()
+bool RnpProtocolDecoder::decode(akg::CommBuffer* buffer) throw()
 {
     // Later, throw something intelligible!
     commBuffer = buffer;
 
     rnpHeader = static_cast<RnpHeader*>(commBuffer->getData());
 
-    if(rnpHeader->isRnpMessage() == false) return false;
+    if (rnpHeader->isRnpMessage() == false)
+    {
+        return false;
+    }
 
     originalEndianness = rnpHeader->getEndianness();
 
-    if(originalEndianness == Rnp::detectHostEndianness())
+    if (originalEndianness == Rnp::detectHostEndianness())
     {
         // -- test validity of message --
-        if(testIntegrity() == false) return false;
+        if (testIntegrity() == false)
+        {
+            return false;
+        }
     }
     else
     {
@@ -556,22 +609,22 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
 {
     // could be done better...
 
-    if(rnpHeader->isRnpMessage() == false)
+    if (rnpHeader->isRnpMessage() == false)
     {
         LERROR << "Communication error: received invalid RNP header.";
         return false;
     }
 
     bool ok = true;
-    char *endOfMessage = (char*)rnpHeader + rnpHeader->getTotalLength();
-    char *endOfHeader  = (char*)rnpHeader + sizeof(RnpHeader);
+    char* endOfMessage = (char*)rnpHeader + rnpHeader->getTotalLength();
+    char* endOfHeader  = (char*)rnpHeader + sizeof(RnpHeader);
     int   maxLength    = commBuffer->getDataSize() - static_cast<int>(sizeof(RnpHeader));
     // max of every length
 
     RnpFragmentHeader* lCurrFragment = const_cast<RnpFragmentHeader*>(getFirstFragment());
-    for(int fragment=0; fragment < countFragments(); fragment++)
+    for (int fragment = 0; fragment < countFragments(); fragment++)
     {
-        if( endOfHeader <= (char*)lCurrFragment && (char*)lCurrFragment < endOfMessage)
+        if (endOfHeader <= (char*)lCurrFragment && (char*)lCurrFragment < endOfMessage)
             ;
         else
         {
@@ -580,20 +633,20 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
             break;
         }
 
-        if(lCurrFragment->totalLength > maxLength)
+        if (lCurrFragment->totalLength > maxLength)
         {
             ok = false;
             LERROR << "Communication error: RNP message corrupt: actual length (" << lCurrFragment->totalLength << ") larger than foreseen (" << maxLength << ").";
             break;
         }
 
-        char *startOfParameters = (char*)lCurrFragment + sizeof(RnpFragmentHeader);
-        char *endOfParameters   = (char*)lCurrFragment + lCurrFragment->totalLength;
+        char* startOfParameters = (char*)lCurrFragment + sizeof(RnpFragmentHeader);
+        char* endOfParameters   = (char*)lCurrFragment + lCurrFragment->totalLength;
 
         RnpParameter* lCurrParameter = const_cast<RnpParameter*>(getFirstParameter());
-        for(int parameter = 0; parameter < countParameters(); parameter++)
+        for (int parameter = 0; parameter < countParameters(); parameter++)
         {
-            if( startOfParameters <= (char*)lCurrParameter && (char*)lCurrParameter < endOfParameters)
+            if (startOfParameters <= (char*)lCurrParameter && (char*)lCurrParameter < endOfParameters)
                 ;
             else
             {
@@ -602,7 +655,7 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
                 break;
             }
 
-            if(lCurrParameter->totalLength > lCurrFragment->totalLength)
+            if (lCurrParameter->totalLength > lCurrFragment->totalLength)
             {
                 ok = false;
                 LERROR << "Communication error: RNP message corrupt: current parameter length (" << lCurrParameter->totalLength << ") larger than total fragment size (" << lCurrFragment->totalLength << ").";
@@ -612,7 +665,7 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
             lCurrParameter = const_cast<RnpParameter*>(getNextParameter());
         }
 
-        if( (char*)lCurrParameter != endOfParameters)
+        if ((char*)lCurrParameter != endOfParameters)
         {
             ok = false;
 // the counting seems to differ from the protocol specs;
@@ -622,8 +675,10 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
 #endif
         }
 
-        if(ok == false)
+        if (ok == false)
+        {
             break;
+        }
 
         // we found a valid fragment, proceed to next one
         lCurrFragment = const_cast<RnpFragmentHeader*>(getNextFragment());
@@ -634,17 +689,20 @@ bool RnpProtocolDecoder::testIntegrity() const throw()
 
 bool RnpProtocolDecoder::changeToHostEndianness() throw()
 {
-    if(rnpHeader->changeEndianness(Rnp::detectHostEndianness()) == false ) return false;
+    if (rnpHeader->changeEndianness(Rnp::detectHostEndianness()) == false)
+    {
+        return false;
+    }
     // so host endianness is the same as the message endiannes, no change necessary
 
     currFragment = const_cast<RnpFragmentHeader*>(getFirstFragment());
 
-    for(int fragment=0; fragment < countFragments(); fragment++)
+    for (int fragment = 0; fragment < countFragments(); fragment++)
     {
         currFragment->changeEndianness();
 
         currParameter = const_cast<RnpParameter*>(getFirstParameter());
-        for(int parameter = 0; parameter < countParameters(); parameter++)
+        for (int parameter = 0; parameter < countParameters(); parameter++)
         {
             currParameter->changeToHostEndianness();
 
@@ -678,7 +736,7 @@ int RnpProtocolDecoder::getMessageLength() const throw()
 
 int RnpProtocolDecoder::getMessageVersion() const throw()
 {
-    return 1000*rnpHeader->majorVersion + rnpHeader->minorVersion;
+    return 1000 * rnpHeader->majorVersion + rnpHeader->minorVersion;
 }
 
 RnpQuark RnpProtocolDecoder::countFragments() const throw()
@@ -728,14 +786,14 @@ const RnpParameter* RnpProtocolDecoder::getFirstParameter() const throw()
 {
     currParameterIdx = 0;
 
-    return currParameter = ( currParameterIdx < currFragment->nrParams ? currFragment->getFirstParameter() : 0);
+    return currParameter = (currParameterIdx < currFragment->nrParams ? currFragment->getFirstParameter() : 0);
 }
 
 const RnpParameter* RnpProtocolDecoder::getNextParameter() const throw()
 {
     currParameterIdx++;
 
-    return currParameter = ( currParameterIdx < currFragment->nrParams ? currParameter->getNextParameter() : 0);
+    return currParameter = (currParameterIdx < currFragment->nrParams ? currParameter->getNextParameter() : 0);
 }
 
 RnpQuark  RnpProtocolDecoder::getParameterType() const throw()
@@ -755,7 +813,7 @@ const void* RnpProtocolDecoder::getData() const throw()
 
 const char* RnpProtocolDecoder::getDataAsString() const throw()
 {
-    if ( !( currParameter->dataType == Rnp::dtt_Asciiz || currParameter->dataType == Rnp::dtt_NullPtr) )
+    if (!(currParameter->dataType == Rnp::dtt_Asciiz || currParameter->dataType == Rnp::dtt_NullPtr))
     {
         LDEBUG << "RnpProtocolEncoder::getDataAsString(): warning: assert will fire.";
     }
@@ -766,7 +824,7 @@ const char* RnpProtocolDecoder::getDataAsString() const throw()
 
 int RnpProtocolDecoder::getDataAsInteger() const throw()
 {
-    if ( !( currParameter->dataType == Rnp::dtt_Int32 ) )
+    if (!(currParameter->dataType == Rnp::dtt_Int32))
     {
         LDEBUG << "RnpProtocolEncoder::getDataAsInteger(): warning: assert will fire.";
     }
@@ -777,7 +835,7 @@ int RnpProtocolDecoder::getDataAsInteger() const throw()
 
 float RnpProtocolDecoder::getDataAsFloat() const throw()
 {
-    if ( !( currParameter->dataType == Rnp::dtt_Float32 ) )
+    if (!(currParameter->dataType == Rnp::dtt_Float32))
     {
         LDEBUG << "RnpProtocolEncoder::getDataAsFloat(): warning: assert will fire.";
     }
@@ -788,7 +846,7 @@ float RnpProtocolDecoder::getDataAsFloat() const throw()
 
 double RnpProtocolDecoder::getDataAsDouble() const throw()
 {
-    if ( !( currParameter->dataType == Rnp::dtt_Double64 ) )
+    if (!(currParameter->dataType == Rnp::dtt_Double64))
     {
         LDEBUG << "RnpProtocolEncoder::getDataAsDouble(): warning: assert will fire.";
     }
@@ -799,7 +857,7 @@ double RnpProtocolDecoder::getDataAsDouble() const throw()
 
 const void* RnpProtocolDecoder::getDataAsOpaque() const throw()
 {
-    if ( !( currParameter->dataType == Rnp::dtt_Opaque || currParameter->dataType == Rnp::dtt_NullPtr) )
+    if (!(currParameter->dataType == Rnp::dtt_Opaque || currParameter->dataType == Rnp::dtt_NullPtr))
     {
         LDEBUG << "RnpProtocolEncoder::getDataAsOpaque(): warning: assert will fire.";
     }
@@ -813,12 +871,12 @@ int RnpProtocolDecoder::getDataLength() const throw()
     return currParameter->getDataLength();
 }
 
-void RnpProtocolDecoder::printRnpHeader(RnpHeader *lRnpHeader) const throw()
+void RnpProtocolDecoder::printRnpHeader(RnpHeader* lRnpHeader) const throw()
 {
-    cout<<"RnpHeader ID="<<lRnpHeader->protocolId<<endl;
-    cout<<"  total fragments="<<lRnpHeader->nrFragments<<endl;
-    cout<<"  sizeof header="<<sizeof(RnpHeader)<<endl;
-    cout<<endl;
+    cout << "RnpHeader ID=" << lRnpHeader->protocolId << endl;
+    cout << "  total fragments=" << lRnpHeader->nrFragments << endl;
+    cout << "  sizeof header=" << sizeof(RnpHeader) << endl;
+    cout << endl;
 }
 
 bool RnpProtocolDecoder::isRnpMessage() const throw()

@@ -101,7 +101,7 @@ r_ULong init(const r_Point&)
 void insert_datacube()
 {
 
-    r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > >  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
     // r_Ref< r_Marray<r_ULong> >                 cube[TOTAL_CUBES];
     r_Minterval                                   domain, block_config;
     r_Storage_Layout*                             dsl[TOTAL_CUBES];
@@ -158,12 +158,12 @@ void insert_datacube()
     dsl[8] = new r_Storage_Layout(til_dir_Unlk);
 
 
-    for (int i=0; i< TOTAL_CUBES ; i++)
+    for (int i = 0; i < TOTAL_CUBES ; i++)
     {
         r_Database db;
         r_Transaction trans;
         // The main phase of the database creation
-        r_Ref< r_Marray<r_ULong> > cube1;
+        r_Ref<r_Marray<r_ULong>> cube1;
 
         db.set_servername(server_name);
 
@@ -192,7 +192,7 @@ void insert_datacube()
                 cout << "*Failed*" << endl;
                 cout << "Creating the set... " << flush;
 
-                cube_set = new(&db, "ULong_3D_Set") r_Set< r_Ref< r_Marray<r_ULong> > >;
+                cube_set = new(&db, "ULong_3D_Set") r_Set<r_Ref<r_Marray<r_ULong>>>;
                 db.set_object_name(*cube_set, colect_name);
             }
 
@@ -251,8 +251,10 @@ void insert_datacube()
     cout << "Inserted data resume" << endl;
     cout << "====================" << endl;
 
-    for (int k=0; k<TOTAL_CUBES; k++)
-      cout << "  Cube[" << k << "]:  " << oid[k] << endl;
+    for (int k = 0; k < TOTAL_CUBES; k++)
+    {
+        cout << "  Cube[" << k << "]:  " << oid[k] << endl;
+    }
 }
 
 int main(int argc, char* argv[])

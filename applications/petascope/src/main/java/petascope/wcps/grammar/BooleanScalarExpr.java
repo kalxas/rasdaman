@@ -68,13 +68,13 @@ public class BooleanScalarExpr implements IParseTreeNode {
     public String toXML() {
         if (op == null) {
             return "<" + WcpsConstants.MSG_BOOLEAN_CONSTANT + ">" + booleanConstant + "</" +
-                    WcpsConstants.MSG_BOOLEAN_CONSTANT + ">";
+                   WcpsConstants.MSG_BOOLEAN_CONSTANT + ">";
         } else if (op.equals(WcpsConstants.MSG_NOT)) {
             return "<" + WcpsConstants.MSG_BOOLEAN_NOT + ">" + left.toXML() + "</" +
-                    WcpsConstants.MSG_BOOLEAN_NOT + ">";
+                   WcpsConstants.MSG_BOOLEAN_NOT + ">";
         } else if (op.equals(WcpsConstants.MSG_BIT)) {
             return "<" + WcpsConstants.MSG_BIT + ">" + left.toXML() + right.toXML() +
-                    "</" + WcpsConstants.MSG_BIT + ">";
+                   "</" + WcpsConstants.MSG_BIT + ">";
         } else {
             if (this.left != null) {
                 node1 = this.left.toXML();

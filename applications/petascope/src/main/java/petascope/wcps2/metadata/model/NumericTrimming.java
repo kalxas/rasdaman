@@ -57,10 +57,10 @@ public class NumericTrimming extends NumericSubset {
     public String getStringRepresentation() {
         return lowerLimit.toPlainString() + ":" + upperLimit.toPlainString();
     }
-    
+
     @Override
     public String getStringRepresentationInInteger() {
-         return lowerLimit.toBigInteger().toString() + ":" + upperLimit.toBigInteger().toString();
+        return lowerLimit.toBigInteger().toString() + ":" + upperLimit.toBigInteger().toString();
     }
 
 }

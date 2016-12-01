@@ -24,7 +24,7 @@ package petascope.wcps2.error.managed.processing;
 import petascope.exceptions.ExceptionCode;
 
 /**
- * @author <a href="mailto:bphamhuu@jacbos-university.de">Bang Pham Huu</a> 
+ * @author <a href="mailto:bphamhuu@jacbos-university.de">Bang Pham Huu</a>
  */
 public class IncompatibleBandNameInSwitchCaseExpression extends WCPSProcessingError {
 

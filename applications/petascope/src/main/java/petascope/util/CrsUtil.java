@@ -135,8 +135,8 @@ public class CrsUtil {
 
     // Constructor
     public CrsUtil(String sCrs, String tCrs) throws WCSException {
-        sCrsID=null;
-        tCrsID=null;
+        sCrsID = null;
+        tCrsID = null;
 
         try {
             // TODO: allow non-EPSG CRSs.
@@ -153,10 +153,10 @@ public class CrsUtil {
                 CrsUtil.loadedTransforms.put(crssMap, transform);
             }
         } catch (NoSuchAuthorityCodeException e) {
-            log.error("Could not find CRS " + (sCrsID==null?sCrs:tCrs) + " on the EPSG db: CRS transform impossible.");
-            throw new WCSException(ExceptionCode.InvalidMetadata, "Unsopported or invalid CRS \"" + (sCrsID==null?sCrs:tCrs) + "\".");
+            log.error("Could not find CRS " + (sCrsID == null ? sCrs : tCrs) + " on the EPSG db: CRS transform impossible.");
+            throw new WCSException(ExceptionCode.InvalidMetadata, "Unsopported or invalid CRS \"" + (sCrsID == null ? sCrs : tCrs) + "\".");
         } catch (FactoryException e) {
-            log.error("Error while decoding CRS " + (sCrsID==null?sCrs:tCrs) + "\n" + e.getMessage());
+            log.error("Error while decoding CRS " + (sCrsID == null ? sCrs : tCrs) + "\n" + e.getMessage());
             throw new WCSException(ExceptionCode.InternalComponentError, "Error while instanciating new CrsUtil object.\".");
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -182,17 +182,17 @@ public class CrsUtil {
      * @return  boolean         True if a supported CRS (currently EPSG codes only).
      */
     public static boolean isSupportedCrsCode(String crsID) {
-    //   try {
-    //        // read from List e return
-    //        return crsID.equals(GRID_CRS)
-    //                || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)) //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
-    //                ||
-    //        //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
-    //        //      ...
-    //    } catch (Exception e) {
-    //        log.warn(e.getMessage());
-    //        return false;
-    //    }
+        //   try {
+        //        // read from List e return
+        //        return crsID.equals(GRID_CRS)
+        //                || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)) //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
+        //                ||
+        //        //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
+        //        //      ...
+        //    } catch (Exception e) {
+        //        log.warn(e.getMessage());
+        //        return false;
+        //    }
         return true;
     }
 
@@ -251,7 +251,7 @@ public class CrsUtil {
         // Check if the URI syntax is valid
         if (!CrsUri.isValid(givenCrsUri)) {
             log.warn(givenCrsUri + " definition seems not valid.");
-            throw new PetascopeException(ExceptionCode.InvalidMetadata, givenCrsUri + " definition seems not valid.");            
+            throw new PetascopeException(ExceptionCode.InvalidMetadata, givenCrsUri + " definition seems not valid.");
         }
 
         // Need to parse the XML
@@ -265,9 +265,9 @@ public class CrsUtil {
         String lastUri = givenCrsUri;
         for (String resolverUri : ConfigManager.SECORE_URLS) {
             String fullUri = CrsUri(resolverUri,
-                        CrsUri.getAuthority(givenCrsUri),
-                        CrsUri.getVersion(givenCrsUri),
-                        CrsUri.getCode(givenCrsUri));
+                                    CrsUri.getAuthority(givenCrsUri),
+                                    CrsUri.getVersion(givenCrsUri),
+                                    CrsUri.getCode(givenCrsUri));
             if (!crsUris.contains(fullUri)) {
                 lastUri = fullUri;
                 crsUris.add(lastUri);
@@ -322,10 +322,10 @@ public class CrsUtil {
 
                 // Init CrsDefinition, then add axes later on
                 crs = new CrsDefinition(
-                        CrsUri.getAuthority(crsUri),
-                        CrsUri.getVersion(crsUri),
-                        CrsUri.getCode(crsUri),
-                        crsType);
+                    CrsUri.getAuthority(crsUri),
+                    CrsUri.getVersion(crsUri),
+                    CrsUri.getCode(crsUri),
+                    crsType);
 
                 List<Element> axesList = XMLUtil.ch(csEl, XMLSymbols.LABEL_CRSAXIS);
 
@@ -440,24 +440,24 @@ public class CrsUtil {
                 throw new SecoreException(ExceptionCode.InvalidMetadata, ex);
             } catch (ValidityException ex) {
                 throw new SecoreException(ExceptionCode.InternalComponentError,
-                        (null==uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
+                                          (null == uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
             } catch (ParsingException ex) {
                 log.error(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
                 throw new SecoreException(ExceptionCode.InternalComponentError,
-                        (null==uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
+                                          (null == uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
             } catch (IOException ex) {
                 if (crsUri.equals(lastUri) || null != uomUrl) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            (null==uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
+                                              (null == uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
                 } else {
-                    log.warn("Connection problem with " + (null==uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
+                    log.warn("Connection problem with " + (null == uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
                     log.warn("Attempting to fetch the CRS definition via fallback resolver.");
                 }
             } catch (SecoreException ex) {
                 throw ex;
             } catch (Exception ex) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        (null==uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
+                                             (null == uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
             }
         }
 
@@ -518,7 +518,7 @@ public class CrsUtil {
         if (crsID.matches(INDEX_CRS_PATTERN)) {
             return true;
         }
-        return false;        
+        return false;
     }
 
     private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
@@ -551,7 +551,7 @@ public class CrsUtil {
         } else {
             Pattern p = Pattern.compile(CrsUri.LAST_PATH_PATTERN);
             Matcher m = p.matcher(uomPath);
-            while(m.find()) {
+            while (m.find()) {
                 if (m.groupCount() == 1) {
                     uomName = m.group(1);
                     log.debug("Extracted name of the UoM from " + uomUrl + " is " + uomName + ".");
@@ -631,7 +631,7 @@ public class CrsUtil {
     }
     // Overload for a single URI
     public static String getAxisLabel(String singleCrsUri, Integer axisOrder) throws PetascopeException, SecoreException {
-        return getAxisLabel(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})), axisOrder);
+        return getAxisLabel(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})), axisOrder);
     }
 
     /**
@@ -661,7 +661,7 @@ public class CrsUtil {
     }
     // Overload for single URI
     public static List<String> getAxesLabels(String singleCrsUri) throws PetascopeException, SecoreException {
-        return getAxesLabels(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
+        return getAxesLabels(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})));
     }
 
     /**
@@ -718,7 +718,7 @@ public class CrsUtil {
     }
     // Overload for single URI
     public static List<String> getAxesUoMs(String singleCrsUri) throws PetascopeException, SecoreException {
-        return getAxesUoMs(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
+        return getAxesUoMs(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})));
     }
 
     /**
@@ -746,7 +746,7 @@ public class CrsUtil {
     }
     // Overload for single URI
     public static Integer getTotalDimensionality(String singleCrsUri) throws PetascopeException, SecoreException {
-        return getTotalDimensionality(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
+        return getTotalDimensionality(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})));
     }
 
     /**
@@ -758,7 +758,7 @@ public class CrsUtil {
      * @throws SecoreException
      */
     public static String sliceAxesOut(List<String> crsUris, Set<String> slicedAxes)
-            throws PetascopeException, SecoreException {
+    throws PetascopeException, SecoreException {
 
         // init
         Map<Integer, String> orderedSlicedAxes = new TreeMap<Integer, String>(); // {Axis Order in Coverage --> Axis Abbreviation}
@@ -859,18 +859,18 @@ public class CrsUtil {
      */
     public static long[] convertToInternalGridIndices(CoverageMetadata covMeta, DbMetadataSource dbMeta, String axisName,
             String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
-            throws PetascopeException {
+    throws PetascopeException {
 
         // out indexes
         long[] subsetGridIndexes = new long[2];
 
         // Check the cache: signature is {coverage name, axis name, lo, hi}
         List<String> cacheKey = new ArrayList<String>(Arrays.asList(new String[] {
-            covMeta.getCoverageName(),
-            axisName,
-            stringLo,
-            stringHi
-        }));
+                    covMeta.getCoverageName(),
+                    axisName,
+                    stringLo,
+                    stringHi
+                }));
         // query the cache (for irregular axes: need to fetch the coefficients and set them in the DomainElement: no cache)
         if (gridIndexConversions.containsKey(cacheKey)
                 &&  !covMeta.getDomainByName(axisName).isIrregular()) {
@@ -917,7 +917,7 @@ public class CrsUtil {
             if (loIsNumeric ^ hiIsNumeric) { // XOR
                 log.error("(" + stringLo + "," + stringHi + ") subset is invalid.");
                 throw new PetascopeException(ExceptionCode.InvalidRequest,
-                        "(" + stringLo + "," + stringHi + ") subset requires bounds of the same domain.");
+                                             "(" + stringLo + "," + stringHi + ") subset requires bounds of the same domain.");
             }
             //~(From now on, some tests can be made on a single bound)
             boolean subsetWithTimestamps = !loIsNumeric; // = !hiIsNumeric
@@ -926,14 +926,14 @@ public class CrsUtil {
             if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringLo)) {
                 log.error("Invalid temporal subset: " + stringLo);
                 throw new WCPSException(ExceptionCode.InvalidRequest,
-                        "Subset '" + stringLo + "' is not valid nor as a number, nor as a supported time description. "
-                        + "See Date4J javadoc for supported formats.");
+                                        "Subset '" + stringLo + "' is not valid nor as a number, nor as a supported time description. "
+                                        + "See Date4J javadoc for supported formats.");
             }
             if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringHi)) {
                 log.error("Invalid temporal subset: " + stringHi);
                 throw new WCPSException(ExceptionCode.InvalidRequest,
-                        "Subset '" + stringHi + "' is not valid nor as a number, nor as a supported time description. "
-                        + "See Date4J javadoc for supported formats.");
+                                        "Subset '" + stringHi + "' is not valid nor as a number, nor as a supported time description. "
+                                        + "See Date4J javadoc for supported formats.");
             }
 
             // Check order of subset: separate treatment for temporal axis with timestamps subsets
@@ -942,7 +942,7 @@ public class CrsUtil {
                 if (!TimeUtil.isOrderedTimeSubset(stringLo, stringHi)) {
                     log.error("Temporal subset is not ordered: [" + stringLo + ", " + stringHi + "]");
                     throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                            axisName + " axis: lower bound " + stringLo + " is greater then the upper bound " + stringHi);
+                                                 axisName + " axis: lower bound " + stringLo + " is greater then the upper bound " + stringHi);
                 }
             } else {
 
@@ -954,14 +954,14 @@ public class CrsUtil {
                 if (coordHi < coordLo) {
                     log.error("Subset is not ordered: [" + coordLo + ", " + coordHi + "]");
                     throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                            axisName + " axis: lower bound " + coordLo + " is greater the upper bound " + coordHi);
+                                                 axisName + " axis: lower bound " + coordLo + " is greater the upper bound " + coordHi);
                 }
 
                 // Check intersection with extents
                 if (coordLo > domMax.doubleValue() || coordHi < domMin.doubleValue()) {
                     log.error("Subset " + "[" + coordLo + ", " + coordHi + "] is out of coverage bounds [" + domMin + ", " + domMax + "]");
                     throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                            axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
+                                                 axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
                 }
             }
 
@@ -976,7 +976,7 @@ public class CrsUtil {
                 // TODO need to find a way to solve `static` issue of dbMeta
                 if (dbMeta == null) {
                     throw new PetascopeException(ExceptionCode.InternalComponentError,
-                            "Axis " + axisName + " is irregular but is not linked to DbMetadataSource.");
+                                                 "Axis " + axisName + " is irregular but is not linked to DbMetadataSource.");
                 }
 
                 // Need to query the database (IRRSERIES table) to get the extents
@@ -1001,27 +1001,27 @@ public class CrsUtil {
                     // TODO: I need to extract all the values, not just the extremes
                     BigDecimal normalizedDomMin = BigDecimalUtil.divide(domMin, dom.getScalarResolution());
                     subsetGridIndexes = dbMeta.getIndexesFromIrregularRectilinearAxis(
-                            covMeta.getCoverageName(),
-                            covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            normalizedNumLo.subtract(normalizedDomMin),  // coefficients are relative to the origin, but subsets are not.
-                            normalizedNumHi.subtract(normalizedDomMin),  //
-                            indexMin, indexMax);
+                                            covMeta.getCoverageName(),
+                                            covMeta.getDomainIndexByName(axisName), // i-order of axis
+                                            normalizedNumLo.subtract(normalizedDomMin),  // coefficients are relative to the origin, but subsets are not.
+                                            normalizedNumHi.subtract(normalizedDomMin),  //
+                                            indexMin, indexMax);
 
                     // Retrieve the coefficients values and store them in the DomainElement
                     dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
-                            covMeta.getCoverageName(),
-                            covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            normalizedNumLo.subtract(normalizedDomMin),
-                            normalizedNumHi.subtract(normalizedDomMin)
-                            ));
+                                            covMeta.getCoverageName(),
+                                            covMeta.getDomainIndexByName(axisName), // i-order of axis
+                                            normalizedNumLo.subtract(normalizedDomMin),
+                                            normalizedNumHi.subtract(normalizedDomMin)
+                                        ));
 
                     // Add sdom lower bound
                     subsetGridIndexes[0] = subsetGridIndexes[0] + indexMin;
 
                 } catch (PetascopeException e) {
                     throw new PetascopeException(ExceptionCode.InternalComponentError,
-                            "Error while fetching cell boundaries of irregular axis '" +
-                            axisName + "' of coverage " + covMeta.getCoverageName() + ": " + e.getMessage(), e);
+                                                 "Error while fetching cell boundaries of irregular axis '" +
+                                                 axisName + "' of coverage " + covMeta.getCoverageName() + ": " + e.getMessage(), e);
                 }
 
             } else {
@@ -1035,8 +1035,8 @@ public class CrsUtil {
                     // Consistency check
                     if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
                         throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                "Translated pixel indixes of regular temporal axis (" +
-                                numLo + ":" + numHi +") exceed the allowed values.");
+                                                     "Translated pixel indixes of regular temporal axis (" +
+                                                     numLo + ":" + numHi + ") exceed the allowed values.");
                     }
 
                     // Replace timestamps with numeric subsets
@@ -1057,13 +1057,13 @@ public class CrsUtil {
                     for (String subset : (Arrays.asList(new String[] {stringLo, stringHi}))) {
                         // NOTE: on subsets.lo the /next/ integer needs to be taken : trunc(stringLo) + 1 (if it is not exact integer)
                         boolean roundUp = subset.equals(stringLo) && ((double)Double.parseDouble(subset) != (long)Double.parseDouble(subset));
-                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) + (roundUp ? 1 : 0): indexMax;
+                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) + (roundUp ? 1 : 0) : indexMax;
                         long loBound = dom.isPositiveForwards() ? indexMin : (long)Double.parseDouble(subset) + (roundUp ? 1 : 0);
                         subsetGridIndexes[count] =  domMin.longValue() + (hiBound - loBound);
                         count += 1;
                     }
                     log.debug("Subset grid indexes for input Index CRS subsets: (" +
-                            subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
+                              subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
                 } else {
 
                     /* Loop to get the pixel subset values.
@@ -1082,9 +1082,9 @@ public class CrsUtil {
                     // Get cell dimension -- Use BigDecimals to avoid finite arithmetic rounding issues of Doubles
                     //double cellWidth = dom.getResolution().doubleValue();
                     double cellWidth = BigDecimalUtil.divide(
-                            (domMax.subtract(domMin)),
-                            (BigDecimal.valueOf(indexMax+1)).subtract(BigDecimal.valueOf(indexMin)))
-                            .doubleValue();
+                                           (domMax.subtract(domMin)),
+                                           (BigDecimal.valueOf(indexMax + 1)).subtract(BigDecimal.valueOf(indexMin)))
+                                       .doubleValue();
                     //      = (dDomHi-dDomLo)/(double)((pxHi-pxLo)+1);
 
                     // Open interval on the right: take away epsilon from upper bound:
@@ -1166,8 +1166,8 @@ public class CrsUtil {
      * @return
      */
     public static String getNativeCrsByAxisName(CoverageInfo coverageInfo, String axisName) {
-        for(DomainElement element:coverageInfo.getDomains()) {
-            if(element.getLabel().equals(axisName)) {
+        for (DomainElement element : coverageInfo.getDomains()) {
+            if (element.getLabel().equals(axisName)) {
                 return element.getNativeCrs();
             }
         }
@@ -1189,21 +1189,21 @@ public class CrsUtil {
     * @param coverageMetadata
     * @return
     */
-   public static boolean isXYCoverage(List<String> axisLabels, CoverageMetadata coverageMetadata) {
-       boolean isXYOrder = true;
-       for (String axisLabel:axisLabels) {
-           DomainElement dom = coverageMetadata.getDomainByName(axisLabel);
-           if (dom.getType().equals(AxisTypes.X_AXIS)) {
-               isXYOrder = true;
-               break;
-           } else if (dom.getType().equals(AxisTypes.Y_AXIS)) {
-               isXYOrder = false;
-               break;
-           }
+    public static boolean isXYCoverage(List<String> axisLabels, CoverageMetadata coverageMetadata) {
+        boolean isXYOrder = true;
+        for (String axisLabel : axisLabels) {
+            DomainElement dom = coverageMetadata.getDomainByName(axisLabel);
+            if (dom.getType().equals(AxisTypes.X_AXIS)) {
+                isXYOrder = true;
+                break;
+            } else if (dom.getType().equals(AxisTypes.Y_AXIS)) {
+                isXYOrder = false;
+                break;
+            }
 
-       }
-       return isXYOrder;
-   }
+        }
+        return isXYOrder;
+    }
 
 
     /**
@@ -1222,9 +1222,9 @@ public class CrsUtil {
         //private static final String FORMAT_KEY    = "format";
 
         private static final String KV_PAIR = "(((?i)" + AUTHORITY_KEY  + ")=[^&]+|"  +
-                                               "((?i)" + CODE_KEY       + ")=(.+)|" +
-                                             //"((?i)" + FORMAT_KEY     + ")=[^&]+|" +  // Add 1 KV_PAIR here below when enabled.
-                                               "((?i)" + VERSION_KEY    + ")=(.+))";
+                                              "((?i)" + CODE_KEY       + ")=(.+)|" +
+                                              //"((?i)" + FORMAT_KEY     + ")=[^&]+|" +  // Add 1 KV_PAIR here below when enabled.
+                                              "((?i)" + VERSION_KEY    + ")=(.+))";
         private static final String KVP_CRS_PATTERN = "^" +
                 HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?" +
                 KV_PAIR + "&" + KV_PAIR + "&" + KV_PAIR + "$";
@@ -1255,8 +1255,8 @@ public class CrsUtil {
                     log.warn(decUri + " seems compound but only one CRS is listed.");
                 }
                 // The first element of the splitted String is the definition prefix: ignore it.
-                for (int i=0; i<splitted.length; i++) {
-                    if (i>0) {
+                for (int i = 0; i < splitted.length; i++) {
+                    if (i > 0) {
                         crss.add(splitted[i]);
                         log.debug("Found atomic CRS from compound:" + splitted[i]);
                     }
@@ -1319,7 +1319,9 @@ public class CrsUtil {
         public static boolean isKvp(String uri) {
             Pattern pKvp  = Pattern.compile(KVP_CRS_PATTERN);
             Matcher m     = pKvp.matcher(StringUtil.urldecode(uri, null));
-            while (m.find()) { return true; }
+            while (m.find()) {
+                return true;
+            }
             return false;
         }
         /**
@@ -1331,7 +1333,9 @@ public class CrsUtil {
         public static boolean isRest(String uri) {
             Pattern pRest = Pattern.compile(REST_CRS_PATTERN);
             Matcher m     = pRest.matcher(StringUtil.urldecode(uri, null));
-            while (m.find()) { return true; }
+            while (m.find()) {
+                return true;
+            }
             return false;
         }
 
@@ -1395,14 +1399,14 @@ public class CrsUtil {
             if (crsComparisons.containsKey(URLs)) {
                 // Comparison is cached
                 log.trace(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
-                         getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
-                        "comparison is cached: *no* need to ask SECORE.");
+                          getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
+                          "comparison is cached: *no* need to ask SECORE.");
                 return crsComparisons.get(URLs);
             } else {
                 // New comparison: need to ask SECORE(s)
                 log.trace(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
-                         getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
-                        "comparison is *not* cached: need to ask SECORE.");
+                          getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
+                          "comparison is *not* cached: need to ask SECORE.");
                 Boolean equal = null;
                 for (String resolverUri : ConfigManager.SECORE_URLS) {
                     try {
@@ -1419,7 +1423,7 @@ public class CrsUtil {
 
                 if (null == equal) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints. Please see server logs for further info.");
+                                              "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints. Please see server logs for further info.");
                 }
 
                 // cache the comparison
@@ -1437,7 +1441,7 @@ public class CrsUtil {
          * @throws SecoreException
          */
         private static boolean checkEquivalence(String resolverUri, String uri1, String uri2)
-                throws PetascopeException, SecoreException {
+        throws PetascopeException, SecoreException {
 
             // Escape key entities: parametrized CRS with KV pairs can clash otherwise
             try {
@@ -1453,14 +1457,14 @@ public class CrsUtil {
              */
 
             String equalityUri_given = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?" +
-                        "1=" + uri1 + "&" +
-                        "2=" + uri2;
+                                       "1=" + uri1 + "&" +
+                                       "2=" + uri2;
             String equalityUri_atResolver = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?" +
-                        "1=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri1), getVersion(uri1), getCode(uri1)) + "&" +
-                        "2=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri2), getVersion(uri2), getCode(uri2));
+                                            "1=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri1), getVersion(uri1), getCode(uri1)) + "&" +
+                                            "2=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri2), getVersion(uri2), getCode(uri2));
             Boolean equal = false;
 
-            for (String equalityUri : new String[]{equalityUri_given, equalityUri_atResolver}) {
+            for (String equalityUri : new String[] {equalityUri_given, equalityUri_atResolver}) {
                 try {
                     // Create InputStream and set the timeouts
                     URL url = new URL(equalityUri);
@@ -1489,14 +1493,14 @@ public class CrsUtil {
 
                 } catch (ValidityException ex) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            equalityUri + " returned an invalid document.", ex);
+                                              equalityUri + " returned an invalid document.", ex);
                 } catch (ParsingException ex) {
                     throw new PetascopeException(ExceptionCode.XmlNotValid.locator(
-                            "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
-                            ex.getMessage(), ex);
+                                                     "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
+                                                 ex.getMessage(), ex);
                 } catch (IOException ex) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            equalityUri + ": resolver exception: " + ex.getMessage(), ex);
+                                              equalityUri + ": resolver exception: " + ex.getMessage(), ex);
                 } catch (SecoreException ex) {
                     throw ex;
                 } catch (Exception ex) {
@@ -1641,21 +1645,21 @@ public class CrsUtil {
         public static String createCompound(List<String> crsUris) {
             String ccrsOut = "";
             switch (crsUris.size()) {
-                case 0: // no URIs: return empty string
-                    break;
-                case 1: // Only one CRS: no need to compound
-                    ccrsOut = crsUris.iterator().next();
-                    break;
-                default : // By default, use SECORE host in the CCRS URL
-                    ccrsOut = getResolverUri() + "/" +  KEY_RESOLVER_CCRS + "?";
-                    Iterator it = crsUris.iterator();
-                    for (int i = 0; i < crsUris.size(); i++) {
-                        ccrsOut += (i+1) + "=" + it.next();
-                        if (it.hasNext()) {
-                            ccrsOut += "&";
-                        }
+            case 0: // no URIs: return empty string
+                break;
+            case 1: // Only one CRS: no need to compound
+                ccrsOut = crsUris.iterator().next();
+                break;
+            default : // By default, use SECORE host in the CCRS URL
+                ccrsOut = getResolverUri() + "/" +  KEY_RESOLVER_CCRS + "?";
+                Iterator it = crsUris.iterator();
+                for (int i = 0; i < crsUris.size(); i++) {
+                    ccrsOut += (i + 1) + "=" + it.next();
+                    if (it.hasNext()) {
+                        ccrsOut += "&";
                     }
-                    break;
+                }
+                break;
             }
             return ccrsOut;
         }
@@ -1670,7 +1674,7 @@ public class CrsUtil {
          * @return buildSlicedUri("http://www.opengis.net/def/crs/EPSG/0/4327",{Lat,Long}) -> "http://www.opengis.net/def/crs/EPSG/0/4327@Lat,Long"
          */
         public static String buildSlicedUri(String singleCrsUri, List<String> leftAxesLabels)
-                throws PetascopeException, SecoreException {
+        throws PetascopeException, SecoreException {
             String slicedUri = singleCrsUri;
 
             if (leftAxesLabels.containsAll(getAxesLabels(singleCrsUri))) {
@@ -1719,12 +1723,12 @@ public class CrsUtil {
         }
         // Overload
         public static Boolean isSliced(String singleCrsUri, String axisLabel) {
-            return isSliced(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})), axisLabel);
+            return isSliced(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})), axisLabel);
         }
 
-        public static String toDbRepresentation(String crsUri){
+        public static String toDbRepresentation(String crsUri) {
             //simple
-            if(!CrsUri.isCompound(crsUri)){
+            if (!CrsUri.isCompound(crsUri)) {
                 return CrsUri.simpleUriToDbRepresentation(crsUri);
             }
             //compound
@@ -1732,9 +1736,9 @@ public class CrsUtil {
                 List<String> uris = CrsUri.decomposeUri(crsUri);
                 String result = ConfigManager.SECORE_URL_KEYWORD + "/" + CrsUtil.KEY_RESOLVER_CCRS + "?";
                 int counter = 1;
-                for(String uri : uris){
+                for (String uri : uris) {
                     result += String.valueOf(counter) + "=" + simpleUriToDbRepresentation(uri);
-                    if(counter < uris.size()){
+                    if (counter < uris.size()) {
                         result += "&";
                         counter++;
                     }
@@ -1759,7 +1763,7 @@ public class CrsUtil {
          * @param crsUri the uri of the crs.
          * @return the db form of the uri. E.g. "http://www.opengis.net/def/crs/EPSG/0/4326" -> "%SECORE_URL%/crs/EPSG/0/4326"
          */
-        private static String simpleUriToDbRepresentation(String crsUri){
+        private static String simpleUriToDbRepresentation(String crsUri) {
             String authority = CrsUri.getAuthority(crsUri);
             String code = CrsUri.getCode(crsUri);
             String version = CrsUri.getVersion(crsUri);

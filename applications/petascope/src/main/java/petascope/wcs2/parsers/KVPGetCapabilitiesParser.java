@@ -41,15 +41,15 @@ public class KVPGetCapabilitiesParser extends KVPParser<GetCapabilitiesRequest> 
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p,
-                KEY_ACCEPTVERSIONS,
-                KEY_ACCEPTFORMATS,
-                KEY_ACCEPTLANGUAGES,
-                KEY_VERSION,
-                KEY_SECTIONS);
+                            KEY_ACCEPTVERSIONS,
+                            KEY_ACCEPTFORMATS,
+                            KEY_ACCEPTLANGUAGES,
+                            KEY_VERSION,
+                            KEY_SECTIONS);
         return new GetCapabilitiesRequest(
-                get(KEY_ACCEPTVERSIONS, p),
-                get(KEY_ACCEPTFORMATS, p),
-                get(KEY_ACCEPTLANGUAGES, p));
+                   get(KEY_ACCEPTVERSIONS, p),
+                   get(KEY_ACCEPTFORMATS, p),
+                   get(KEY_ACCEPTLANGUAGES, p));
     }
 
     @Override

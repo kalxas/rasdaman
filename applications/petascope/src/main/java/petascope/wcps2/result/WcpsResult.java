@@ -30,7 +30,7 @@ import petascope.wcs2.extensions.FormatExtension;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public class WcpsResult implements VisitorResult{
+public class WcpsResult implements VisitorResult {
 
     //the rasql string resulting from the evaluation
     private String rasql;

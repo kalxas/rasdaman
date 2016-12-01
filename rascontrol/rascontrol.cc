@@ -83,20 +83,23 @@ int  interactiveWork();
 int  loginOnly();
 int  batchMode();
 int testLogin();
-bool isCommand( const char *command, const char *key);
+bool isCommand(const char* command, const char* key);
 
 _INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     // Default logging configuration
     LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
     defaultConf.configClientLogging();
 
-    if(config.interpretArguments(argc,argv)==false) return 1;
+    if (config.interpretArguments(argc, argv) == false)
+    {
+        return 1;
+    }
 
     // /*for debug only: */ config.printDebugInfo(); return 0;
-    if(config.beQuiet()==false)
+    if (config.beQuiet() == false)
     {
         std::cout << "rascontrol: rasdaman server remote control utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl;
         std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
@@ -111,71 +114,82 @@ int main(int argc, char **argv)
         std::cout << "This software contains software which is in the public domain:" << std::endl;
         std::cout << "- openssl 0.96c (C) 1998-2002 The OpenSSL Project, (C) 1995-1998 Eric A. Young, Tim J. Hudson" << std::endl;
     }
-    if(config.showHelp())
+    if (config.showHelp())
     {
         config.printHelp();
         return 0;
     }
 
-    if(testIsMessageDigestAvailable("MD5")==false)
+    if (testIsMessageDigestAvailable("MD5") == false)
     {
-        std::cout<<"Error: Message Digest MD5 not available."<<std::endl;
+        std::cout << "Error: Message Digest MD5 not available." << std::endl;
         return 2;
     }
 
-    if(!isatty(0) )
-        redirStdin =true;
-    if(!isatty(1))
-        redirStdout=true;
+    if (!isatty(0))
+    {
+        redirStdin = true;
+    }
+    if (!isatty(1))
+    {
+        redirStdout = true;
+    }
 
     httpClient.setRasMgrHost(config.getRasMgrHost(), config.getRasMgrPort());
 
-    int loginOK = (config.getLoginModus()==LGIINTERACTIV)  ? userLogin.interactiveLogin() : userLogin.environmentLogin();
+    int loginOK = (config.getLoginModus() == LGIINTERACTIV)  ? userLogin.interactiveLogin() : userLogin.environmentLogin();
 
-    if(loginOK<0)
+    if (loginOK < 0)
     {
-        std::cout<<"Login error."<<std::endl;
+        std::cout << "Login error." << std::endl;
         return LOGINERROR;
     }
 
-    httpClient.setUserIdentification(userLogin.getUserName(),userLogin.getEncrPass());
+    httpClient.setUserIdentification(userLogin.getUserName(), userLogin.getEncrPass());
 
-    int answer=NOERROR;
-    switch(config.getWorkModus())
+    int answer = NOERROR;
+    switch (config.getWorkModus())
     {
     case WKMINTERACTIV:
-        answer=interactiveWork();
+        answer = interactiveWork();
         break;
     case WKMLOGIN     :
-        answer=loginOnly();
+        answer = loginOnly();
         break;
     case WKMBATCH     :
-        answer=batchMode();
+        answer = batchMode();
         break;
     case WKMTESTLOGIN :
-        answer=testLogin();
+        answer = testLogin();
         break;
-    default: break;
+    default:
+        break;
     }
 
-    if(config.beQuiet()==false)
-        std::cout<< "rascontrol terminated." <<std::endl;
+    if (config.beQuiet() == false)
+    {
+        std::cout << "rascontrol terminated." << std::endl;
+    }
 
     return answer;
 } // main()
 
 // check whether command fits with given keyword (case insensitive), maybe after stripping leading whitespace
-bool isCommand( const char *command, const char *key)
+bool isCommand(const char* command, const char* key)
 {
     bool result;
 
     if (command == NULL || key == NULL)
+    {
         result = false;
+    }
     else
     {
         while (*command == ' ' || *command == '\t')   // skip white space; newline cannot occur
+        {
             command++;
-        result = strcasecmp( command, key );
+        }
+        result = strcasecmp(command, key);
     }
 
     return result;
@@ -184,67 +198,77 @@ bool isCommand( const char *command, const char *key)
 int interactiveWork()
 {
     int result = 0;
-    const char *answer = NULL;
+    const char* answer = NULL;
     int comm = COMM_CONT;           // COMM_* values ; should be enum
 
     std::ofstream history;
-    bool historyFile=config.histRequest();
+    bool historyFile = config.histRequest();
 
-    comm = httpClient.sendMessageGetAnswer( RASMGRCMD_HELLO, &answer );
+    comm = httpClient.sendMessageGetAnswer(RASMGRCMD_HELLO, &answer);
 
-    if(answer)
-        std::cout<<"    "<<answer<<std::endl;
-
-    if(comm==COMM_ERR)
+    if (answer)
     {
-        std::cerr <<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
+        std::cout << "    " << answer << std::endl;
+    }
+
+    if (comm == COMM_ERR)
+    {
+        std::cerr << "Cannot connect to main host " << httpClient.getRasMgrHost() << std::endl;
         return CANTCONNECT;
     }
-    if(comm==COMM_ACDN)
+    if (comm == COMM_ACDN)
     {
         //std::cout<<"Access denied."<<std::endl;
         return ACCESSDENIED;
     }
 
     // shifted here, after return, so that it always will be closed
-    if(historyFile)
+    if (historyFile)
     {
         LDEBUG << "RasControl::interactiveWork: using history file " << config.getHistFileName();
-        history.open(config.getHistFileName(),std::ios::out|std::ios::trunc);
+        history.open(config.getHistFileName(), std::ios::out | std::ios::trunc);
     }
 
     do
     {
         LDEBUG << "RasControl::interactiveWork: entering new request cycle.";
 
-        const char *command=editLine.interactiveCommand(config.getPrompt());
-        if(command == NULL || strlen(command)==0)   // empty cmd line
+        const char* command = editLine.interactiveCommand(config.getPrompt());
+        if (command == NULL || strlen(command) == 0) // empty cmd line
+        {
             continue;
+        }
 
-        if(historyFile)
-            history<<command<<std::endl;
+        if (historyFile)
+        {
+            history << command << std::endl;
+        }
 
         LDEBUG << "RasControl::interactiveWork: cmd=" << command;
 
         // send message to rasmgr & receive answer
         answer = NULL;
-        if ( (isCommand(command,"exit") == 0)
-                || (isCommand(command,"quit") == 0)
-                || (isCommand(command,"bye" ) == 0) )
+        if ((isCommand(command, "exit") == 0)
+                || (isCommand(command, "quit") == 0)
+                || (isCommand(command, "bye") == 0))
         {
             // normalize "quit", "bye" to "exit"; do so after history to maintain original cmd there
-            comm = httpClient.sendMessageGetAnswer( RASMGRCMD_EXIT, &answer );
+            comm = httpClient.sendMessageGetAnswer(RASMGRCMD_EXIT, &answer);
             comm = COMM_EXIT;           // ignore any result, we have to terminate anyway
         }
         else
         {
-            comm = httpClient.sendMessageGetAnswer( command, &answer );
+            comm = httpClient.sendMessageGetAnswer(command, &answer);
         }
 
-        if(answer!=0 && strlen(answer)>0)
-            std::cout<<"    "<<answer<<std::endl;
+        if (answer != 0 && strlen(answer) > 0)
+        {
+            std::cout << "    " << answer << std::endl;
+        }
         else
+        {
             answer = "Internal error: cannot decode rasmgr result.";
+        }
 
         // EXPERIMENTAL: close socket as early and as always as possible
         LDEBUG << "RasControl::interactiveWork: closing socket.";
@@ -253,12 +277,14 @@ int interactiveWork()
         LDEBUG << "RasControl::interactiveWork: comm=" << comm;
 
     }
-    while( comm != COMM_EXIT && comm != COMM_ACDN);     // COMM_ERR is no reason to terminate interactive session
+    while (comm != COMM_EXIT && comm != COMM_ACDN);     // COMM_ERR is no reason to terminate interactive session
 
-    if(historyFile)
+    if (historyFile)
+    {
         history.close();
+    }
 
-    switch(comm)
+    switch (comm)
     {
     case COMM_ERR:
         result = CANTCONNECT;
@@ -275,7 +301,7 @@ int interactiveWork()
 
 int loginOnly()
 {
-    std::cout<<userLogin.getUserName()<<':'<<userLogin.getEncrPass()<<std::endl;
+    std::cout << userLogin.getUserName() << ':' << userLogin.getEncrPass() << std::endl;
     // Thats all
     return NOERROR;
 }
@@ -283,76 +309,99 @@ int batchMode()
 {
     int result = 0;                             // COMM_* values
 
-    bool fromCommandLine = strlen(config.getCommand()) ? true: false;
-    const char *prompt   = !redirStdin ? config.getPrompt():"";
+    bool fromCommandLine = strlen(config.getCommand()) ? true : false;
+    const char* prompt   = !redirStdin ? config.getPrompt() : "";
 
     //std::cout<<"batch mode "<<fromCommandLine<<" comm="<<config.getCommand()<<std::endl;
 
-    int comm=0;
+    int comm = 0;
     do
     {
-        const char *command= fromCommandLine ? config.getCommand():editLine.fromStdinCommand(prompt);
+        const char* command = fromCommandLine ? config.getCommand() : editLine.fromStdinCommand(prompt);
 
         LDEBUG << "batch: Command=" << command;
 
-        if(command == NULL ) return CANTCONNECT;
-
-        if(strlen(command)==0 )
+        if (command == NULL)
         {
-            if( fromCommandLine)
-                return CANTCONNECT;
-            else
-                continue;
+            return CANTCONNECT;
         }
 
-        bool printCommand=false;
+        if (strlen(command) == 0)
+        {
+            if (fromCommandLine)
+            {
+                return CANTCONNECT;
+            }
+            else
+            {
+                continue;
+            }
+        }
 
-        if( redirStdout ) printCommand =  true;
+        bool printCommand = false;
+
+        if (redirStdout)
+        {
+            printCommand =  true;
+        }
         else
         {
-            if(redirStdin) printCommand =  true;
+            if (redirStdin)
+            {
+                printCommand =  true;
+            }
         }
 
-        if(printCommand == true)
-            std::cout<<config.getPrompt()<<command<<std::endl;
+        if (printCommand == true)
+        {
+            std::cout << config.getPrompt() << command << std::endl;
+        }
 
         // normalize "quit", "bye" to "exit"
-        const char *answer = NULL;
-        if ( (isCommand(command,"exit") == 0)
-                || (isCommand(command,"quit") == 0)
-                || (isCommand(command,"bye" ) == 0) )
+        const char* answer = NULL;
+        if ((isCommand(command, "exit") == 0)
+                || (isCommand(command, "quit") == 0)
+                || (isCommand(command, "bye") == 0))
         {
             // normalize "quit", "bye" to "exit"; do so after history to maintain original cmd there
-            comm = httpClient.sendMessageGetAnswer( RASMGRCMD_EXIT, &answer );
+            comm = httpClient.sendMessageGetAnswer(RASMGRCMD_EXIT, &answer);
             comm = COMM_EXIT;                   // ignore any result, we have to terminate anyway
         }
         else
         {
-            comm = httpClient.sendMessageGetAnswer( command, &answer );
+            comm = httpClient.sendMessageGetAnswer(command, &answer);
         }
 
-        if(answer==0 || strlen(answer)==0)
+        if (answer == 0 || strlen(answer) == 0)
+        {
             answer = "Error: cannot decode rasmgr result.";
+        }
         else
         {
-            if(comm==COMM_ERR)
-                std::cout<<"    "<<"Cannot connect to main host."<<std::endl;
-            else if(comm==COMM_ACDN)
-                std::cout<<"    "<<"Access denied by rasmgr."<<std::endl;
+            if (comm == COMM_ERR)
+            {
+                std::cout << "    " << "Cannot connect to main host." << std::endl;
+            }
+            else if (comm == COMM_ACDN)
+            {
+                std::cout << "    " << "Access denied by rasmgr." << std::endl;
+            }
             else
-                std::cout<<"    "<<answer<<std::endl;
+            {
+                std::cout << "    " << answer << std::endl;
+            }
         }
 
     }
-    while(fromCommandLine==false && redirStdin
+    while (fromCommandLine == false && redirStdin
             && comm != COMM_ERR
             && comm != COMM_ACDN
             && comm != COMM_EXIT); //process the whole  "< file"
 
-    switch(comm)
+    switch (comm)
     {
     case COMM_ERR:
-        std::cerr <<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
+        std::cerr << "Cannot connect to main host " << httpClient.getRasMgrHost() << std::endl;
         result = CANTCONNECT;
         break;
     case COMM_ACDN:
@@ -368,22 +417,22 @@ int batchMode()
 int testLogin()
 {
     int comm = 0;                             // COMM_* values
-    const char *answer = NULL;
+    const char* answer = NULL;
 
-    comm = httpClient.sendMessageGetAnswer( RASMGRCMD_HELLO, &answer );
+    comm = httpClient.sendMessageGetAnswer(RASMGRCMD_HELLO, &answer);
 
-    if(comm==COMM_ERR)
+    if (comm == COMM_ERR)
     {
-        std::cerr<<"Cannot connect to main host "<<httpClient.getRasMgrHost()<<std::endl;
+        std::cerr << "Cannot connect to main host " << httpClient.getRasMgrHost() << std::endl;
         return CANTCONNECT;
     }
-    if(comm==COMM_ACDN)
+    if (comm == COMM_ACDN)
     {
-        std::cerr<<"Acces denied."<<std::endl;
+        std::cerr << "Acces denied." << std::endl;
         return ACCESSDENIED;
     }
 
-    std::cout<<"Login OK."<<std::endl;
+    std::cout << "Login OK." << std::endl;
     return NOERROR;
 }
 

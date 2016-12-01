@@ -50,7 +50,7 @@ public class AxisSpec extends ParameterResult {
 
     public SubsetDimension getSubsetDimension() {
         return subsetDimension;
-     }
+    }
 
     public void setAxisName(String axisName) {
         this.subsetDimension.setAxisName(axisName);

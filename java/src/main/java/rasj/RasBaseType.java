@@ -30,7 +30,7 @@ rasdaman GmbH.
  * the types RasStructureType and RasPrimitiveType in the
  * representation of the RasDaMan type system.
  * <P>
- * <B>Note:</B> if a new base type is created using this class, it is only known on client-side but not 
+ * <B>Note:</B> if a new base type is created using this class, it is only known on client-side but not
  * stored within the database. If you want to introduce a new type for the RasDaMan system, you
  * should use the "rasdl" utility.
  * </P>
@@ -42,22 +42,20 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
-public class RasBaseType extends RasType
-{
+public class RasBaseType extends RasType {
     static final String rcsid = "@(#)Package rasj, class RasBaseType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasBaseType.java,v 1.6 2003/12/10 21:04:23 rasdev Exp $";
 
     /**
-     * Stores the size of type in bytes 
+     * Stores the size of type in bytes
      **/
     protected long typeSize;
 
     /**
-     * Default constructor. 
+     * Default constructor.
      **/
-    public RasBaseType()
-    {
-	super();
-	typeSize = 0;
+    public RasBaseType() {
+        super();
+        typeSize = 0;
     }
 
     /**
@@ -65,45 +63,40 @@ public class RasBaseType extends RasType
      * @param newTypeName name of the new base type
      * @param newSize size of the new base type
      **/
-    public RasBaseType(String newTypeName, long newSize)
-    {
-	super(newTypeName);
-	typeSize = newSize;
+    public RasBaseType(String newTypeName, long newSize) {
+        super(newTypeName);
+        typeSize = newSize;
     }
 
     /**
      * Retrieves the id of the type.
      * @return the id of the type
      **/
-    public int getTypeID()
-    {
-	return 0;
+    public int getTypeID() {
+        return 0;
     }
 
     /**
      * Checks if the current type is a base type (primitive type or structure type).
      * @return true if it is a base type, false otherwise.
      **/
-    public boolean isBaseType()
-    {
-	return true;
+    public boolean isBaseType() {
+        return true;
     }
 
     /**
      * Retrieves the size of the type.
      * @return the size of the base type.
      **/
-    public long getSize()
-    {
-	return typeSize;
+    public long getSize() {
+        return typeSize;
     }
 
     /**
      * Returns a string representation of this object.
      * @return a string description of this object.
      **/
-    public String toString()
-    {
-	return super.toString() + "typeSize: " + typeSize + "\n";
+    public String toString() {
+        return super.toString() + "typeSize: " + typeSize + "\n";
     }
 }

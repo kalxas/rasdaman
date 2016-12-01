@@ -32,23 +32,25 @@ import petascope.util.WcpsConstants;
 import petascope.wcps.metadata.CoverageInfo;
 
 public class RangeCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(RangeCoverageExpr.class);
 
     private CoverageInfo info = null;
     List<IRasNode> components;
 
     public RangeCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
-        
+
         log.trace(node.getNodeName());
 
         components = new ArrayList<IRasNode>();
 
-        if (node.getNodeName().equals(WcpsConstants.MSG_RANGE_CONSTRUCTOR))
+        if (node.getNodeName().equals(WcpsConstants.MSG_RANGE_CONSTRUCTOR)) {
             node = node.getFirstChild();
+        }
 
-        if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT))
-                node = node.getNextSibling();
+        if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
+            node = node.getNextSibling();
+        }
 
         while (node != null) {
             if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
@@ -63,7 +65,7 @@ public class RangeCoverageExpr extends AbstractRasNode implements ICoverageInfo 
 
             node = node.getNextSibling();
         }
-        
+
         // Keep children to let the XML tree be re-traversed
         super.children.addAll(components);
     }
@@ -75,23 +77,25 @@ public class RangeCoverageExpr extends AbstractRasNode implements ICoverageInfo 
 
     public String toRasQL() {
         String result = "(";
-        
+
         int length = components.size();
-        
+
         for (int i = 0; i < length; i++) {
-            if (i != 0)
-              result += " + ";
-            
+            if (i != 0) {
+                result += " + ";
+            }
+
             result += "(" + components.get(i).toRasQL() + ") * {";
             for (int j = 0; j < length; j++) {
-              if (j != 0) {
-                result += ",";
-              }
-              // FIXME: assumes char.. still something is better than nothing
-              if (j == i)
-                result += "1c";
-              else
-                result += "0c";
+                if (j != 0) {
+                    result += ",";
+                }
+                // FIXME: assumes char.. still something is better than nothing
+                if (j == i) {
+                    result += "1c";
+                } else {
+                    result += "0c";
+                }
             }
             result += "}";
         }

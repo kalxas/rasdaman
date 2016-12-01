@@ -106,7 +106,7 @@ public class WcsUtil {
      * @throws WCSException
      */
     public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId)
-            throws SecoreException, WCSException {
+    throws SecoreException, WCSException {
         try {
             return meta.read(coverageId);
         } catch (SecoreException ex) {
@@ -116,7 +116,7 @@ public class WcsUtil {
         } catch (Exception e) {
             e.printStackTrace();
             throw new WCSException(ExceptionCode.NoApplicableCode.locator(coverageId),
-                    "Metadata for coverage '" + coverageId + "' is not valid, reason: "  + e.getMessage());
+                                   "Metadata for coverage '" + coverageId + "' is not valid, reason: "  + e.getMessage());
         }
     }
 
@@ -194,23 +194,23 @@ public class WcsUtil {
         String output = null;
         try {
             javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.
-                    newInstance(report.getClass().getPackage().getName());
+                                                 newInstance(report.getClass().getPackage().getName());
             javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
             marshaller.setProperty("jaxb.formatted.output", true);
             marshaller.setProperty("jaxb.schemaLocation",
-                    "http://www.opengis.net/ows http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd");
+                                   "http://www.opengis.net/ows http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd");
             marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new PetascopeXmlNamespaceMapper());
             StringWriter strWriter = new StringWriter();
             marshaller.marshal(report, strWriter);
             output = strWriter.toString();
             String sub = output.substring(output.indexOf("<ows:Exception "), output.
-                    indexOf("</ows:ExceptionReport>"));
+                                          indexOf("</ows:ExceptionReport>"));
             log.debug(output);
             log.debug(sub);
             try {
                 output = Templates.getTemplate(Templates.EXCEPTION_REPORT, Pair.
-                        of("\\{exception\\}", sub));
+                                               of("\\{exception\\}", sub));
             } catch (Exception ex) {
                 log.warn("Error handling exception report template");
             }
@@ -228,7 +228,7 @@ public class WcsUtil {
     }
 
     public static String getGML(GetCoverageMetadata m, String template, DbMetadataSource meta)
-            throws WCSException, SecoreException {
+    throws WCSException, SecoreException {
 
         // TODO
         // Automatize the creation of the header: namespaces, schema locations, etc. (Mind XMLSymbols).
@@ -247,7 +247,7 @@ public class WcsUtil {
             } else {
                 log.error("Unsupported coverage type: " + m.getCoverageType());
                 throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
-                        "Unsupported coverage type: " + m.getCoverageType());
+                                       "Unsupported coverage type: " + m.getCoverageType());
             }
         } // else: "blank" domain set
 
@@ -255,58 +255,58 @@ public class WcsUtil {
         String rangeFields = "";
         for (RangeField range : m.getRangeFields()) {
             rangeFields += Templates.getTemplate(Templates.RANGE_FIELD,
-                    Pair.of("\\{" + Templates.KEY_FIELDNAME     + "\\}", range.getFieldName()),
-                    Pair.of("\\{" + Templates.KEY_SWE_COMPONENT + "\\}", range.getSWEComponent().toGML())
-            );
+                                                 Pair.of("\\{" + Templates.KEY_FIELDNAME     + "\\}", range.getFieldName()),
+                                                 Pair.of("\\{" + Templates.KEY_SWE_COMPONENT + "\\}", range.getSWEComponent().toGML())
+                                                );
         }
 
         // Coverage function and Envelope: required
         String coverageFunction = "";
         if (WcsUtil.isGrid(m.getCoverageType())) { // coverage function is for grids
             coverageFunction += "  <" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">\n" +
-                    Templates.getTemplate(Templates.GRID_FUNCTION,
-                            Pair.of("\\{" + Templates.KEY_SEQUENCE_RULE_ORDER + "\\}", getOuterInnerAxisRuleOrder(m))
-                    ) + "\n  </" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">";
+                                Templates.getTemplate(Templates.GRID_FUNCTION,
+                                        Pair.of("\\{" + Templates.KEY_SEQUENCE_RULE_ORDER + "\\}", getOuterInnerAxisRuleOrder(m))
+                                                     ) + "\n  </" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">";
         } // else: coverageFunction yet to be investigated for non-gridded coverages. Might not be necessary for multi-*.
 
 
         // Whole document: replace keywords with values
         String ret = "";
-        if (WcsUtil.isMultiPoint(m.getCoverageType())){
+        if (WcsUtil.isMultiPoint(m.getCoverageType())) {
             ret = Templates.getTemplate(template,
-                    Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
-                    Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
-                    Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
-                    Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
-                    // multipoint
-                    Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
-                    Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
-                    Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
-                    Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
+                                        Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                                        Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                                        Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                                        Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                                        // multipoint
+                                        Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
+                                        Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
+                                        Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
+                                        Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
         } else {
             // gridded coverage:
             ret = Templates.getTemplate(template,
-                    Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
-                    Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
-                    // [!] domainSet/coverageFunction have to be replaced first: they (in turn) contains keywords to be replaced
-                    // grid
-                    Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
-                    Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
-                    Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
-                    // + rectified grid
-                    Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getGridOrigin()),
-                    Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
-                    Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
-                    // + referenceable grid
-                    Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
-                    // coverage
-                    Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
-                    Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
-                    Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE       + "\\}", m.getCoverageType()),
-                    Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
-                    Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
-                    Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
-                    Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
+                                        Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                                        Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
+                                        // [!] domainSet/coverageFunction have to be replaced first: they (in turn) contains keywords to be replaced
+                                        // grid
+                                        Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
+                                        Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
+                                        Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
+                                        // + rectified grid
+                                        Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getGridOrigin()),
+                                        Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
+                                        Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
+                                        // + referenceable grid
+                                        Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
+                                        // coverage
+                                        Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                                        Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                                        Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE       + "\\}", m.getCoverageType()),
+                                        Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
+                                        Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                                        Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
+                                        Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
         }
 
         // RGBV cannot replace bounds now, see GmlFormatExtension class
@@ -327,9 +327,9 @@ public class WcsUtil {
         List<String> ccrsUri = CrsUtil.CrsUri.decomposeUri(m.getCrs());
         try {
             srsGroup =
-                    XMLSymbols.ATT_SRS_NAME + "=\"" + getSrsName(m) + "\" " +
-                            XMLSymbols.ATT_AXIS_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
-                            XMLSymbols.ATT_UOM_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri), " ") + "\" ";
+                XMLSymbols.ATT_SRS_NAME + "=\"" + getSrsName(m) + "\" " +
+                XMLSymbols.ATT_AXIS_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
+                XMLSymbols.ATT_UOM_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri), " ") + "\" ";
             //omit srsDimension if dimensionality == 0
             if (CrsUtil.getTotalDimensionality(ccrsUri) != 0) {
                 srsGroup += XMLSymbols.ATT_SRS_DIMENSION + "=\"" + CrsUtil.getTotalDimensionality(ccrsUri) + "\"";
@@ -367,9 +367,9 @@ public class WcsUtil {
      */
     public static String getBounds(String gml, GetCoverageMetadata m) {
         gml = gml.replaceAll("\\{" + Templates.KEY_LOW        + "\\}", m.getLow())
-                .replaceAll("\\{" + Templates.KEY_HIGH        + "\\}", m.getHigh())
-                .replaceAll("\\{" + Templates.KEY_LOWERCORNER + "\\}", m.getDomLow())
-                .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
+              .replaceAll("\\{" + Templates.KEY_HIGH        + "\\}", m.getHigh())
+              .replaceAll("\\{" + Templates.KEY_LOWERCORNER + "\\}", m.getDomLow())
+              .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
         return gml;
     }
 
@@ -377,11 +377,11 @@ public class WcsUtil {
      * Returns the configured GMLCOV metadata.
      * This information is returned along with <gmlcov:metadata> root element.
      * The content is extracted from petascopedb::ps_extrametadata.
-<<<<<<< HEAD
+    <<<<<<< HEAD
      *
-=======
+    =======
      * NOTE: all the extra metadata must be added inside <gmlcov:Extension> </gmlcov:Extension>
-     * e.g: 
+     * e.g:
      *  <gmlcov:metadata>
             <gmlcov:Extension>
                 <Project>This is another test file</Project>
@@ -390,7 +390,7 @@ public class WcsUtil {
                 <slices/>
             </gmlcov:Extension>
         </gmlcov:metadata>
->>>>>>> ticket:1419 - Adjustment in Petascope conformance test
+    >>>>>>> ticket:1419 - Adjustment in Petascope conformance test
      * @param m
      */
     private static String getGmlcovMetadata(GetCoverageMetadata m) {
@@ -402,11 +402,11 @@ public class WcsUtil {
         String gmlcovFormattedMetadata = "";
         for (String metadataValue : gmlcovMetadata) {
             gmlcovFormattedMetadata += "  " +
-                    "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
-                         + "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
-                             + metadataValue // containts farther XML child elements: do not escape predefined entities (up to the user)
-                         + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
-                  + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";
+                                       "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
+                                       + "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
+                                       + metadataValue // containts farther XML child elements: do not escape predefined entities (up to the user)
+                                       + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
+                                       + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";
         }
         return gmlcovFormattedMetadata;
     }
@@ -440,7 +440,7 @@ public class WcsUtil {
      */
     private static String getGmlOffsetVector(GetCoverageMetadata m, String axisName) throws WCSException, SecoreException {
         String output = Templates.getTemplate(Templates.OFFSET_VECTOR,
-                Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisName)));
+                                              Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisName)));
         return output;
     }
 
@@ -464,11 +464,11 @@ public class WcsUtil {
                     BigDecimal originalVector = m.getMetadata().getDomainByName(axisName).getDirectionalResolution();
                     BigDecimal scaledVector = originalVector.multiply(m.getScalingFactor(axisName));
                     BigDecimal[] vectorComponents = (BigDecimal[]) Vectors.scalarMultiplication(
-                            scaledVector, // axis resolution (possibly scaled via WCS extension)
-                            Vectors.unitVector( // {0,0,__,1,__,0,0}
-                                    CrsUtil.getTotalDimensionality(ccrsUri),
-                                    CrsUtil.getCrsAxisOrder(ccrsUri, axisName)
-                            ));
+                                                        scaledVector, // axis resolution (possibly scaled via WCS extension)
+                                                        Vectors.unitVector( // {0,0,__,1,__,0,0}
+                                                            CrsUtil.getTotalDimensionality(ccrsUri),
+                                                            CrsUtil.getCrsAxisOrder(ccrsUri, axisName)
+                                                        ));
                     output = ListUtil.printList(Arrays.asList(vectorComponents), " ");
                 }
             } catch (PetascopeException pEx) {
@@ -491,17 +491,17 @@ public class WcsUtil {
      * @throws petascope.exceptions.PetascopeException
      */
     public static List<String> toISODate(List<BigDecimal> coeffs, CrsDefinition crsDefinition) throws PetascopeException {
-        List<String> isoDates = new ArrayList<String>();       
+        List<String> isoDates = new ArrayList<String>();
 
         // Get the UOM in milliseconds (e.g: d is 86 400 000 millis)
-        Long milliSeconds = TimeUtil.getMillis(crsDefinition);       
-        DateTime dateTime = new DateTime(crsDefinition.getDatumOrigin());        
-        
-        for (BigDecimal coeff: coeffs) {
+        Long milliSeconds = TimeUtil.getMillis(crsDefinition);
+        DateTime dateTime = new DateTime(crsDefinition.getDatumOrigin());
+
+        for (BigDecimal coeff : coeffs) {
             // formular: Origin + (Time Coefficients * UOM in milliSeconds)
             long duration = coeff.multiply(new BigDecimal(milliSeconds)).setScale(0, RoundingMode.HALF_UP).longValue();
-            DateTime dt = dateTime.plus(duration); 
-            
+            DateTime dt = dateTime.plus(duration);
+
             // Then convert the added date to ISO 8601 datetime (Z means UTC)
             isoDates.add(dt.toString(DateTimeFormat.forPattern(TimeUtil.ISO_8061_FORMAT).withZoneUTC()));
         }
@@ -539,10 +539,10 @@ public class WcsUtil {
                 if (coeffs.isEmpty()) {
                     try {
                         domEl.setCoefficients(
-                                dbMeta.getAllCoefficients(
-                                        m.getMetadata().getCoverageName(),
-                                        m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
-                                ));
+                            dbMeta.getAllCoefficients(
+                                m.getMetadata().getCoverageName(),
+                                m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
+                            ));
                         coeffs = domEl.getCoefficients();
                     } catch (PetascopeException ex) {
                         log.error("Error while fetching the coefficients of " + domEl.getLabel());
@@ -592,7 +592,7 @@ public class WcsUtil {
      * @throws petascope.exceptions.SecoreException
      */
     public static String addCoefficients(String gml, GetCoverageMetadata m, DbMetadataSource dbMeta)
-            throws WCSException, PetascopeException, SecoreException {
+    throws WCSException, PetascopeException, SecoreException {
         String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions (rely on order)
         for (int i = 0; i < axisNames.length; i++) {
@@ -615,10 +615,10 @@ public class WcsUtil {
                 output += "\n";
             }
             output += Templates.getTemplate(Templates.GENERAL_GRID_AXIS,
-                    Pair.of("\\{" + Templates.KEY_GRIDAXISSPANNED + "\\}", axisNames[i]),
-                    Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisNames[i]))
-                    // coefficients are visible /after/ WCPS processing
-            );
+                                            Pair.of("\\{" + Templates.KEY_GRIDAXISSPANNED + "\\}", axisNames[i]),
+                                            Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisNames[i]))
+                                            // coefficients are visible /after/ WCPS processing
+                                           );
         }
         return output;
     }
@@ -777,8 +777,8 @@ public class WcsUtil {
                 List<BigDecimal> coefficients = domEl.getCoefficients();
                 // The loaded coefficients are the ones associated with points inside the input subsets
                 BigDecimal fitCoefficient = (isUpperBound) ?
-                        coefficients.get(coefficients.size() - 1) : // isUpperBound : get the last point included in the response
-                        coefficients.get(0);                     // isLowerBound : get the first point included in the response
+                                            coefficients.get(coefficients.size() - 1) : // isUpperBound : get the last point included in the response
+                                            coefficients.get(0);                     // isLowerBound : get the first point included in the response
                 // coordinate = Origin + (coefficient * offset_vector)
                 fittedCoordinateValue = domEl.getMinValue().add(domEl.getDirectionalResolution().multiply(fitCoefficient));
             } else if (CrsUtil.isGridCrs(domEl.getCrsDef().getCode()) || coverageType.equals(LABEL_GRID_COVERAGE)) {
@@ -827,8 +827,8 @@ public class WcsUtil {
      */
     public static boolean isGrid(String covType) {
         return covType.equals(XMLSymbols.LABEL_GRID_COVERAGE) ||
-                covType.equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE) ||
-                covType.equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE);
+               covType.equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE) ||
+               covType.equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE);
     }
 
     /**

@@ -73,19 +73,19 @@ main(int argc, char** argv)
     RMInit::logOut.rdbuf(cout.rdbuf());
     RMInit::dbgOut.rdbuf(cout.rdbuf());
     int retval = 0;
-    CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
-    CommandLineParameter &clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
-    CommandLineParameter &clp_connect   = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
-    CommandLineParameter &clp_mdddomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain", "the domain to do the changes in.");
-    CommandLineParameter &clp_domain    = cmlInter.addStringParameter(CommandLineParser::noShortName, "domain", "the extent to be used when selecting data from the mdd.");
-    CommandLineParameter &clp_oid       = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
-    CommandLineParameter &clp_comptype  = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "name of storage format", "Array");
-    CommandLineParameter &clp_readonly  = cmlInter.addFlagParameter('r', "readonly", "read only check");
+    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
+    CommandLineParameter& clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
+    CommandLineParameter& clp_connect   = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
+    CommandLineParameter& clp_mdddomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain", "the domain to do the changes in.");
+    CommandLineParameter& clp_domain    = cmlInter.addStringParameter(CommandLineParser::noShortName, "domain", "the extent to be used when selecting data from the mdd.");
+    CommandLineParameter& clp_oid       = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
+    CommandLineParameter& clp_comptype  = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "name of storage format", "Array");
+    CommandLineParameter& clp_readonly  = cmlInter.addFlagParameter('r', "readonly", "read only check");
     try
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cmlInter.printHelp();
         cout << "Error parsing command line:" << endl;

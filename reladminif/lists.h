@@ -40,10 +40,10 @@ class Tile;
 #include "raslib/mddtypes.hh"
 
 //used to hold oids for indexes, blobs, and dbmintervals.  no double entries
-typedef std::set< OId, std::less< double > > OIdSet;
+typedef std::set<OId, std::less<double>> OIdSet;
 
 //used to hold oids for indexes, blobs, and dbmintervals.  no double entries
-typedef std::set< const OId, std::less< double > > OIdConstSet;
+typedef std::set<const OId, std::less<double>> OIdConstSet;
 
 typedef std::vector<HierIndexDS*> HierIndexDSPVector;
 
@@ -88,19 +88,19 @@ typedef std::vector<IndexDS*> IndexPVector;
 
 typedef std::vector<Tile*> TilePVector;
 
-typedef std::map< double, DBObject*, std::less<double> > DBObjectPMap;
-typedef std::pair< double, DBObject* > DBObjectPPair;
-typedef std::pair< const double, DBObject* > ConstDBObjectPPair;
+typedef std::map<double, DBObject*, std::less<double>> DBObjectPMap;
+typedef std::pair<double, DBObject*> DBObjectPPair;
+typedef std::pair<const double, DBObject*> ConstDBObjectPPair;
 
-typedef std::map< double, const DBObject*, std::less<double> > DBObjectPConstMap;
-typedef std::pair< double, const DBObject* > DBObjectPConstPair;
-typedef std::pair< const double, const DBObject* > ConstDBObjectPConstPair;
+typedef std::map<double, const DBObject*, std::less<double>> DBObjectPConstMap;
+typedef std::pair<double, const DBObject*> DBObjectPConstPair;
+typedef std::pair<const double, const DBObject*> ConstDBObjectPConstPair;
 
-typedef std::map< double, OId, std::less<double> > OIdMap;
-typedef std::pair< const double, OId > OIdPair;
-typedef std::pair< const double, const OId > OIdConstPair;
+typedef std::map<double, OId, std::less<double>> OIdMap;
+typedef std::pair<const double, OId> OIdPair;
+typedef std::pair<const double, const OId> OIdConstPair;
 
-typedef std::map< double, r_Minterval, std::less<double> > DomainMap;
-typedef std::pair< const double, r_Minterval > DomainPair;
-typedef std::pair< const double, const r_Minterval > DomainConstPair;
+typedef std::map<double, r_Minterval, std::less<double>> DomainMap;
+typedef std::pair<const double, r_Minterval> DomainPair;
+typedef std::pair<const double, const r_Minterval> DomainConstPair;
 #endif

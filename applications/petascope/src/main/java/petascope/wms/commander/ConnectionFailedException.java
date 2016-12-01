@@ -25,17 +25,15 @@ package petascope.wms.commander;
 /**
  * ConnectionFailedException: error connecting to database
  */
-public class ConnectionFailedException extends CommanderException
-{
+public class ConnectionFailedException extends CommanderException {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Constructor for ConnectionFailedException
      * @param msg String
      */
-    public ConnectionFailedException( String msg )
-    {
-        super( msg );
+    public ConnectionFailedException(String msg) {
+        super(msg);
     }
 
 }

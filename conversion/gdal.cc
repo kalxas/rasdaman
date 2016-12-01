@@ -61,7 +61,9 @@ using namespace FormatParamKeys::Encode::GDAL;
 #define NODATA_DEFAULT_VALUE 0.0
 #endif
 
-const string r_Conv_GDAL::GDAL_KEY_METADATA{"METADATA"};
+const string r_Conv_GDAL::GDAL_KEY_METADATA
+{"METADATA"
+};
 const string r_Conv_GDAL::GDAL_KEY_NODATA_VALUES{"NODATA_VALUES"};
 const string r_Conv_GDAL::GDAL_KEY_IMAGE_STRUCTURE{"IMAGE_STRUCTURE"};
 const string r_Conv_GDAL::GDAL_KEY_PIXELTYPE{"PIXELTYPE"};
@@ -69,15 +71,15 @@ const string r_Conv_GDAL::GDAL_VAL_SIGNEDBYTE{"SIGNEDBYTE"};
 
 /// constructor using an r_Type object. Exception if the type isn't atomic.
 
-r_Conv_GDAL::r_Conv_GDAL(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
-: r_Convert_Memory(src, interv, tp, true)
+r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
+    : r_Convert_Memory(src, interv, tp, true)
 {
 }
 
 /// constructor using convert_type_e shortcut
 
-r_Conv_GDAL::r_Conv_GDAL(const char *src, const r_Minterval &interv, int tp) throw(r_Error)
-: r_Convert_Memory(src, interv, tp)
+r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp) throw(r_Error)
+    : r_Convert_Memory(src, interv, tp)
 {
 }
 
@@ -90,7 +92,7 @@ r_Conv_GDAL::~r_Conv_GDAL(void)
 
 #ifdef HAVE_GDAL
 
-r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options) throw(r_Error)
+r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
 {
     if (format.empty())
     {
@@ -105,37 +107,37 @@ r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options) throw(r_Error)
     {
         initEncodeParams(string{options});
     }
-    
+
     GDALAllRegister();
-    GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(format.c_str());
+    GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(format.c_str());
     if (driver == NULL)
     {
         LFATAL << "Unsupported format: " << format;
         throw r_Error(r_Error::r_Error_FeatureNotSupported);
     }
-    
+
     auto imageSize = getImageSize();
     unsigned int width = imageSize.first;
     unsigned int height = imageSize.second;
-    
+
     unsigned int numBands = ConvUtil::getNumberOfBands(desc.srcType);
     r_Primitive_Type* rasBandType = getBandType(desc.srcType);
     GDALDataType gdalBandType = ConvUtil::rasTypeToGdalType(rasBandType);
-    
-    GDALDriver *hMemDriver = static_cast<GDALDriver*> (GDALGetDriverByName("MEM"));
+
+    GDALDriver* hMemDriver = static_cast<GDALDriver*>(GDALGetDriverByName("MEM"));
     if (hMemDriver == NULL)
     {
         LERROR << "Could not init GDAL driver: " << CPLGetLastErrorMsg();
         throw r_Error(r_Error::r_Error_Conversion);
     }
-    GDALDataset *poDataset = hMemDriver->Create("in_memory_image", static_cast<int>(width), static_cast<int>(height), 
-                                                static_cast<int>(numBands), gdalBandType, NULL);
+    GDALDataset* poDataset = hMemDriver->Create("in_memory_image", static_cast<int>(width), static_cast<int>(height),
+                             static_cast<int>(numBands), gdalBandType, NULL);
     if (poDataset == NULL)
     {
         LERROR << "failed creating in memory GDAL dataset, error: " << CPLGetLastErrorMsg();
         throw r_Error(r_Error::r_Error_Conversion);
     }
-    
+
     r_TmpFile tmpFile;
     try
     {
@@ -145,7 +147,7 @@ r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options) throw(r_Error)
         getFormatParameters(formatParameters);
 
         string tmpFilePath = tmpFile.getFileName();
-        GDALDataset *gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
+        GDALDataset* gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
         if (!gdalResult)
         {
             LFATAL << "Failed encoding to format '" << format << "': " << CPLGetLastErrorMsg();
@@ -158,17 +160,17 @@ r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options) throw(r_Error)
     {
         GDALClose(poDataset);
     }
-    
+
     long fileSize = 0;
     desc.dest = tmpFile.readData(fileSize);
-    desc.destInterv = r_Minterval(1) << r_Sinterval(static_cast<r_Range> (0),
-                                                    static_cast<r_Range> (fileSize) - 1);
+    desc.destInterv = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0),
+                      static_cast<r_Range>(fileSize) - 1);
     desc.destType = r_Type::get_any_type("char");
-    
+
     return desc;
 }
 
-void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, r_Primitive_Type* rasBandType, 
+void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, r_Primitive_Type* rasBandType,
                               unsigned int width, unsigned int height, unsigned int numBands) throw (r_Error)
 {
     bool isBoolean = rasBandType->type_id() == r_Type::BOOL;
@@ -218,18 +220,18 @@ void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType,
 }
 
 template<typename T>
-void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, bool isBoolean, 
+void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, bool isBoolean,
                               unsigned int width, unsigned int height, unsigned int numBands) throw (r_Error)
 {
     size_t area = static_cast<size_t>(width) * static_cast<size_t>(height);
     unique_ptr<T[]> dstCells;
-    dstCells.reset(new (nothrow) T[area]);
+    dstCells.reset(new(nothrow) T[area]);
     if (!dstCells)
     {
         LFATAL << "failed allocating " << area << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    
+
     unsigned int col_offset;
     for (unsigned int band = 0; band < numBands; band++)
     {
@@ -255,16 +257,20 @@ void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType,
                 {
                     col_offset = (row + height * col) * numBands;
                     if (src[col_offset] == 1)
-                        dst[0] = static_cast<unsigned char> (255);
+                    {
+                        dst[0] = static_cast<unsigned char>(255);
+                    }
                     else
+                    {
                         dst[0] = 0;
+                    }
                 }
             }
         }
 
-        CPLErr error = poDataset->GetRasterBand((int) (band + 1))->
-            RasterIO(GF_Write, 0, 0, (int)width, (int)height, (char*) dstCells.get(), 
-                     (int)width, (int)height, gdalBandType, 0, 0);
+        CPLErr error = poDataset->GetRasterBand((int)(band + 1))->
+                       RasterIO(GF_Write, 0, 0, (int)width, (int)height, (char*) dstCells.get(),
+                                (int)width, (int)height, gdalBandType, 0, 0);
         if (error != CE_None)
         {
             LERROR << "Failed writing data to GDAL raster band: " << CPLGetLastErrorMsg();
@@ -286,14 +292,14 @@ pair<unsigned int, unsigned int> r_Conv_GDAL::getImageSize() throw (r_Error)
     if (w > numeric_limits<int>::max() || h > numeric_limits<int>::max())
     {
         LERROR << "cannot encode array of size " << w << " x " << h << ", " <<
-            "maximum support size by GDAL is " << 
-            numeric_limits<int>::max() << " x " << numeric_limits<int>::max() << ".";
+               "maximum support size by GDAL is " <<
+               numeric_limits<int>::max() << " x " << numeric_limits<int>::max() << ".";
         throw r_Error(r_Error::r_Error_Conversion);
     }
     return make_pair((unsigned int)w, (unsigned int)h);
 }
 
-r_Conv_Desc &r_Conv_GDAL::convertFrom(const char *options) throw (r_Error)
+r_Conv_Desc& r_Conv_GDAL::convertFrom(const char* options) throw (r_Error)
 {
     if (options)
     {
@@ -302,8 +308,8 @@ r_Conv_Desc &r_Conv_GDAL::convertFrom(const char *options) throw (r_Error)
     }
     return this->convertFrom(formatParams);
 }
-    
-r_Conv_Desc &r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
+
+r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
 {
     formatParams = options;
     string tmpFilePath("");
@@ -317,15 +323,15 @@ r_Conv_Desc &r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
     {
         tmpFilePath = formatParams.getFilePath();
     }
-    
+
     GDALAllRegister();
-    GDALDataset *poDataset = static_cast<GDALDataset*> (GDALOpen(tmpFilePath.c_str(), GA_ReadOnly));
+    GDALDataset* poDataset = static_cast<GDALDataset*>(GDALOpen(tmpFilePath.c_str(), GA_ReadOnly));
     if (poDataset == NULL)
     {
         LERROR << "failed opening file with GDAL, reason: " << CPLGetLastErrorMsg();
         throw r_Error(r_Error::r_Error_Conversion);
     }
-    
+
     try
     {
         vector<int> bandIds = getBandIds(poDataset);
@@ -338,7 +344,7 @@ r_Conv_Desc &r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
         GDALClose(poDataset);
         throw err;
     }
-    
+
     return desc;
 
 }
@@ -350,39 +356,39 @@ char* r_Conv_GDAL::decodeImage(GDALDataset* poDataset, const std::vector<int>& b
     int height = desc.destInterv[1].get_extent();
     int offsetX = desc.destInterv[0].low();
     int offsetY = desc.destInterv[1].low();
-    
+
     size_t tileBaseTypeSize = static_cast<size_t>(((r_Base_Type*)desc.destType)->size());
     size_t dataSize = static_cast<size_t>(width) * static_cast<size_t>(height) * tileBaseTypeSize;
     char* tileCells = (char*) mymalloc(dataSize);
-	if (tileCells == NULL)
-	{
+    if (tileCells == NULL)
+    {
         LERROR << "failed allocating " << dataSize << " bytes for decoding input file.";
-		throw r_Error(r_Error::r_Error_MemoryAllocation);
-	}
+        throw r_Error(r_Error::r_Error_MemoryAllocation);
+    }
 
-	// copy data from all GDAL bands to rasdaman
+    // copy data from all GDAL bands to rasdaman
     size_t bandOffset = 0;
     size_t bandSize = 0;
     char* bandCells = NULL;
-	for (int bandId: bandIds)
-	{
+    for (int bandId : bandIds)
+    {
         size_t bandBaseTypeSize = ConvUtil::getBandBaseTypeSize(desc.destType, bandId);
         size_t newBandSize = static_cast<size_t>(width) * static_cast<size_t>(height) * bandBaseTypeSize;
         bandCells = upsizeBufferIfNeeded(bandCells, bandSize, newBandSize);
-        
+
         GDALRasterBand* gdalBand = poDataset->GetRasterBand(bandId + 1);
         GDALDataType bandType = gdalBand->GetRasterDataType();
-        CPLErr error = gdalBand->RasterIO(GF_Read, offsetX, offsetY, width, height, 
+        CPLErr error = gdalBand->RasterIO(GF_Read, offsetX, offsetY, width, height,
                                           (void*) bandCells, width, height, bandType, 0, 0);
-		if (error != CE_None)
-		{
+        if (error != CE_None)
+        {
             LERROR << "failed decoding band " << bandId << " from the input file; reason: " << CPLGetLastErrorMsg();
-			free(bandCells);
+            free(bandCells);
             bandCells = NULL;
             free(tileCells);
             tileCells = NULL;
-			throw r_Error(r_Error::r_Error_Conversion);
-		}
+            throw r_Error(r_Error::r_Error_Conversion);
+        }
 
         bool signedByte = false;
         const char* pixelType = gdalBand->GetMetadataItem(GDAL_KEY_PIXELTYPE.c_str(), GDAL_KEY_IMAGE_STRUCTURE.c_str());
@@ -390,17 +396,17 @@ char* r_Conv_GDAL::decodeImage(GDALDataset* poDataset, const std::vector<int>& b
         {
             signedByte = string{pixelType} == GDAL_VAL_SIGNEDBYTE;
         }
-        
+
         decodeBand(bandCells, tileCells + bandOffset, tileBaseTypeSize, width, height, bandType, signedByte);
         bandOffset += bandBaseTypeSize;
-	}
-	// Free resources
+    }
+    // Free resources
     if (bandCells)
     {
         free(bandCells);
         bandCells = NULL;
     }
-    
+
     return tileCells;
 }
 
@@ -420,7 +426,7 @@ void r_Conv_GDAL::setTargetDomain(GDALDataset* poDataset) throw (r_Error)
     else
     {
         desc.destInterv = r_Minterval(2) << r_Sinterval(0ll, static_cast<r_Range>(poDataset->GetRasterXSize()) - 1)
-                                         << r_Sinterval(0ll, static_cast<r_Range>(poDataset->GetRasterYSize()) - 1);
+                          << r_Sinterval(0ll, static_cast<r_Range>(poDataset->GetRasterYSize()) - 1);
     }
 }
 
@@ -540,7 +546,7 @@ vector<int> r_Conv_GDAL::getBandIds(GDALDataset* poDataset) throw (r_Error)
 }
 
 r_Primitive_Type* r_Conv_GDAL::getBandType(const r_Type* baseType) throw (r_Error)
-{    
+{
     r_Primitive_Type* ret = NULL;
     if (baseType->isPrimitiveType()) // = one band
     {
@@ -548,14 +554,14 @@ r_Primitive_Type* r_Conv_GDAL::getBandType(const r_Type* baseType) throw (r_Erro
     }
     else if (baseType->isStructType()) // = multiple bands
     {
-        r_Structure_Type *structType = (r_Structure_Type*) baseType;
+        r_Structure_Type* structType = (r_Structure_Type*) baseType;
         r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
         while (iter != structType->defines_attribute_end())
         {
             // check the band types, they have to be of the same type
             if ((*iter).type_of().isPrimitiveType())
             {
-                r_Primitive_Type pt = static_cast<r_Primitive_Type&> (const_cast<r_Base_Type&> ((*iter).type_of()));
+                r_Primitive_Type pt = static_cast<r_Primitive_Type&>(const_cast<r_Base_Type&>((*iter).type_of()));
                 if (ret != NULL)
                 {
                     if (ret->type_id() != pt.type_id())
@@ -598,8 +604,8 @@ r_Conv_GDAL::initEncodeParams(const string& paramsIn)
         boost::algorithm::replace_all(paramsStr, "\\\'", "\'");
         boost::algorithm::replace_all(paramsStr, "\\\\", "\\");
         CPLStringList paramsList{CSLTokenizeString2(
-            paramsStr.c_str(), ";", CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES)};
-        
+                                     paramsStr.c_str(), ";", CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES)};
+
         // set xmin, xmax, .., crs, metadata
         formatParams.setXmin(getDouble(FormatParamKeys::Encode::XMIN, paramsList));
         formatParams.setXmax(getDouble(FormatParamKeys::Encode::XMAX, paramsList));
@@ -613,11 +619,11 @@ r_Conv_GDAL::initEncodeParams(const string& paramsIn)
         if (!kvPairs.empty())
         {
             CPLStringList kvPairsList{CSLTokenizeString2(
-                kvPairs.c_str(), ",", CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES)};
+                                          kvPairs.c_str(), ",", CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES)};
             for (int i = 0; i < kvPairsList.Count(); i++)
             {
                 CPLStringList kvPair{CSLTokenizeString2(
-                    kvPairsList[i], " ", CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES)};
+                                         kvPairsList[i], " ", CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES)};
                 CPLSetConfigOption(kvPair[0], kvPair[1]);
             }
         }
@@ -638,13 +644,13 @@ r_Conv_GDAL::initEncodeParams(const string& paramsIn)
                 string key{kvPair[0]};
                 string val{kvPair[1]};
                 if (key != FormatParamKeys::Encode::XMIN &&
-                    key != FormatParamKeys::Encode::XMAX &&
-                    key != FormatParamKeys::Encode::YMIN &&
-                    key != FormatParamKeys::Encode::YMAX &&
-                    key != FormatParamKeys::Encode::CRS &&
-                    key != FormatParamKeys::Encode::NODATA &&
-                    key != FormatParamKeys::Encode::METADATA &&
-                    key != FormatParamKeys::General::CONFIG_OPTIONS_LEGACY)
+                        key != FormatParamKeys::Encode::XMAX &&
+                        key != FormatParamKeys::Encode::YMIN &&
+                        key != FormatParamKeys::Encode::YMAX &&
+                        key != FormatParamKeys::Encode::CRS &&
+                        key != FormatParamKeys::Encode::NODATA &&
+                        key != FormatParamKeys::Encode::METADATA &&
+                        key != FormatParamKeys::General::CONFIG_OPTIONS_LEGACY)
                 {
                     formatParams.addFormatParameter(key, val);
                 }
@@ -654,7 +660,7 @@ r_Conv_GDAL::initEncodeParams(const string& paramsIn)
 }
 
 void
-r_Conv_GDAL::setEncodeParams(GDALDataset *poDataset)
+r_Conv_GDAL::setEncodeParams(GDALDataset* poDataset)
 {
     setMetadata(poDataset);
     setNodata(poDataset);
@@ -663,32 +669,32 @@ r_Conv_GDAL::setEncodeParams(GDALDataset *poDataset)
 }
 
 void
-r_Conv_GDAL::setMetadata(GDALDataset *poDataset)
+r_Conv_GDAL::setMetadata(GDALDataset* poDataset)
 {
     if (!formatParams.getMetadata().empty())
     {
-        if (poDataset->SetMetadataItem(GDAL_KEY_METADATA.c_str(), 
+        if (poDataset->SetMetadataItem(GDAL_KEY_METADATA.c_str(),
                                        formatParams.getMetadata().c_str()) != CE_None)
         {
-            LWARNING << "failed setting metadata '" << formatParams.getMetadata() << 
-                "', error: " << CPLGetLastErrorMsg();
+            LWARNING << "failed setting metadata '" << formatParams.getMetadata() <<
+                     "', error: " << CPLGetLastErrorMsg();
         }
     }
     else if (!formatParams.getMetadataKeyValues().empty())
     {
-        for (const pair<string, string>& kv: formatParams.getMetadataKeyValues())
+        for (const pair<string, string>& kv : formatParams.getMetadataKeyValues())
         {
             if (poDataset->SetMetadataItem(kv.first.c_str(), kv.second.c_str()) != CE_None)
             {
-                LWARNING << "failed setting metadata key '" << kv.first << "' to value '" << 
-                    kv.second << "', error: " << CPLGetLastErrorMsg();
+                LWARNING << "failed setting metadata key '" << kv.first << "' to value '" <<
+                         kv.second << "', error: " << CPLGetLastErrorMsg();
             }
         }
     }
 }
 
 void
-r_Conv_GDAL::setNodata(GDALDataset *poDataset)
+r_Conv_GDAL::setNodata(GDALDataset* poDataset)
 {
     const vector<double>& nodata = formatParams.getNodata();
     if (!nodata.empty())
@@ -706,7 +712,7 @@ r_Conv_GDAL::setNodata(GDALDataset *poDataset)
                 poDataset->GetRasterBand(band)->SetNoDataValue(nodata[0]);
                 nodataValues << nodata[0];
             }
-            else if (static_cast<int> (nodata.size()) == nBands)
+            else if (static_cast<int>(nodata.size()) == nBands)
             {
                 double value = nodata[(size_t)band - 1];
                 poDataset->GetRasterBand(band)->SetNoDataValue(value);
@@ -714,8 +720,8 @@ r_Conv_GDAL::setNodata(GDALDataset *poDataset)
             }
             else
             {
-                LWARNING << "failed setting nodata, number of nodata values (" << nodata.size() << 
-                    ") doesn't match the number of bands (" << nBands << ").";
+                LWARNING << "failed setting nodata, number of nodata values (" << nodata.size() <<
+                         ") doesn't match the number of bands (" << nBands << ").";
                 break;
             }
         }
@@ -725,12 +731,12 @@ r_Conv_GDAL::setNodata(GDALDataset *poDataset)
 }
 
 void
-r_Conv_GDAL::setGeoreference(GDALDataset *poDataset)
+r_Conv_GDAL::setGeoreference(GDALDataset* poDataset)
 {
-    if (formatParams.getXmin() != numeric_limits<double>::max() && 
-        formatParams.getXmax() != numeric_limits<double>::max() && 
-        formatParams.getYmin() != numeric_limits<double>::max() && 
-        formatParams.getYmax() != numeric_limits<double>::max())
+    if (formatParams.getXmin() != numeric_limits<double>::max() &&
+            formatParams.getXmax() != numeric_limits<double>::max() &&
+            formatParams.getYmin() != numeric_limits<double>::max() &&
+            formatParams.getYmax() != numeric_limits<double>::max())
     {
         setGeotransform(poDataset);
     }
@@ -748,7 +754,7 @@ r_Conv_GDAL::setGeoreference(GDALDataset *poDataset)
 }
 
 void
-r_Conv_GDAL::setGeotransform(GDALDataset *poDataset)
+r_Conv_GDAL::setGeotransform(GDALDataset* poDataset)
 {
     double adfGeoTransform[6];
     adfGeoTransform[0] = formatParams.getXmin();
@@ -770,7 +776,7 @@ r_Conv_GDAL::setGeotransform(GDALDataset *poDataset)
 }
 
 void
-r_Conv_GDAL::setGCPs(GDALDataset *poDataset, const Json::Value& gcpsJson) throw (r_Error)
+r_Conv_GDAL::setGCPs(GDALDataset* poDataset, const Json::Value& gcpsJson) throw (r_Error)
 {
     const string& key = GCPS;
     if (gcpsJson.isArray())
@@ -824,7 +830,7 @@ r_Conv_GDAL::setGCPs(GDALDataset *poDataset, const Json::Value& gcpsJson) throw 
                         }
                         else if (fkey == GCP_Y)
                         {
-                            gdalGcps[i].dfGCPY= value;
+                            gdalGcps[i].dfGCPY = value;
                         }
                         else if (fkey == GCP_Z)
                         {
@@ -838,7 +844,7 @@ r_Conv_GDAL::setGCPs(GDALDataset *poDataset, const Json::Value& gcpsJson) throw 
                 }
             }
         }
-        
+
         const string& wktStr = getCrsWkt();
         if (poDataset->SetGCPs((int) gcpCount, gdalGcps, wktStr.c_str()) != CE_None)
         {
@@ -866,7 +872,7 @@ string r_Conv_GDAL::getCrsWkt()
         }
         else
         {
-            char *wkt = NULL;
+            char* wkt = NULL;
             if (srs.exportToWkt(&wkt) != OGRERR_NONE)
             {
                 LWARNING << "failed exporting CRS '" << formatParams.getCrs() << "' to WKT format.";
@@ -882,7 +888,7 @@ string r_Conv_GDAL::getCrsWkt()
 }
 
 void
-r_Conv_GDAL::setColorPalette(GDALDataset *poDataset) throw (r_Error)
+r_Conv_GDAL::setColorPalette(GDALDataset* poDataset) throw (r_Error)
 {
     const Json::Value& colorPaletteJson = formatParams.getParams().get(COLOR_PALETTE, Json::Value::null);
     if (colorPaletteJson.isNull())
@@ -892,10 +898,10 @@ r_Conv_GDAL::setColorPalette(GDALDataset *poDataset) throw (r_Error)
     if (!colorPaletteJson.isObject())
     {
         LERROR << "parameter '" << COLOR_PALETTE << "' has an invalid value, expected an object " <<
-            "containing palette interpretation, color interpretation, color table.";
+               "containing palette interpretation, color interpretation, color table.";
         throw r_Error(INVALIDFORMATPARAMETER);
     }
-    
+
     // color table and palette interpretation
     const Json::Value& colorTableJson = colorPaletteJson.get(COLOR_TABLE, Json::Value::null);
     if (!colorTableJson.isNull())
@@ -954,7 +960,7 @@ r_Conv_GDAL::setColorPalette(GDALDataset *poDataset) throw (r_Error)
             }
             gdalColorTable.SetColorEntry((int) i, (const GDALColorEntry*) &gdalColorEntry);
         }
-        
+
         // set values
         for (int i = 1; i <= poDataset->GetRasterCount(); i++)
         {
@@ -1006,9 +1012,9 @@ GDALPaletteInterp r_Conv_GDAL::getPaletteInterp(const std::string& paletteInterp
     }
     else
     {
-        LERROR << "parameter '" << PALETTE_INTERP << "' has an invalid value '" << paletteInterpVal << 
-            "', expected one of: " << PALETTE_INTERP_VAL_GRAY << ", " << PALETTE_INTERP_VAL_RGB << ", " << 
-            PALETTE_INTERP_VAL_CMYK << " or " << PALETTE_INTERP_VAL_HLS;
+        LERROR << "parameter '" << PALETTE_INTERP << "' has an invalid value '" << paletteInterpVal <<
+               "', expected one of: " << PALETTE_INTERP_VAL_GRAY << ", " << PALETTE_INTERP_VAL_RGB << ", " <<
+               PALETTE_INTERP_VAL_CMYK << " or " << PALETTE_INTERP_VAL_HLS;
         throw r_Error(INVALIDFORMATPARAMETER);
     }
 }
@@ -1063,19 +1069,19 @@ r_Conv_GDAL::getString(const string& paramName, const CPLStringList& paramsList)
 
 #else // HAVE_GDAL
 
-r_Conv_Desc &r_Conv_GDAL::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc& r_Conv_GDAL::convertFrom(const char* options) throw(r_Error)
 {
     LERROR << "support for decoding with GDAL is not enabled; rasdaman should be configured with option --with-gdal to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-r_Conv_Desc &r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
+r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
 {
     LERROR << "support for decoding with GDAL is not enabled; rasdaman should be configured with option --with-gdal to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options) throw(r_Error)
+r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
 {
     LERROR << "support for encoding with GDAL is not enabled; rasdaman should be configured with option --with-gdal to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -1085,14 +1091,14 @@ r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options) throw(r_Error)
 
 /// cloning
 
-r_Convertor *r_Conv_GDAL::clone(void) const
+r_Convertor* r_Conv_GDAL::clone(void) const
 {
     return new r_Conv_GDAL(desc.src, desc.srcInterv, desc.baseType);
 }
 
 /// identification
 
-const char *r_Conv_GDAL::get_name(void) const
+const char* r_Conv_GDAL::get_name(void) const
 {
     return format_name_gdal;
 }

@@ -21,7 +21,7 @@
  */
 /*************************************************************
  * <pre>
- * CLASS:	Request
+ * CLASS:   Request
  *
  * PURPOSE:
  * Holds a query, the thread that made the request should wait on the monitor of the created instance
@@ -39,8 +39,7 @@ package petascope.wms;
 
 import org.odmg.*;
 
-class Request
-{
+class Request {
     // the query string. It contains the query that will be executted and will not be modified
     // by the connection managemenet classes.
     public final String rasQuery;

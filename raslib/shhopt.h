@@ -25,7 +25,8 @@
 #define SHHOPT_H
 
 /* constants for recognized option types. */
-typedef enum {
+typedef enum
+{
     OPT_END,               /* nothing. used as ending element. */
     OPT_FLAG,              /* no argument following. sets variable to 1. */
     OPT_STRING,            /* string argument. */
@@ -38,18 +39,19 @@ typedef enum {
 /* flags modifying the default way options are handeled. */
 #define OPT_CALLFUNC  1    /* pass argument to a function. */
 
-typedef struct {
+typedef struct
+{
     char       shortName;  /* Short option name. */
-    char       *longName;  /* Long option name, no including '--'. */
+    char*       longName;  /* Long option name, no including '--'. */
     optArgType type;       /* Option type. */
-    void       *arg;       /* Pointer to variable to fill with argument,
+    void*       arg;       /* Pointer to variable to fill with argument,
                             * or pointer to function if Type == OPT_FUNC. */
     int        flags;      /* Modifier flags. */
 } optStruct;
 
 
-void optSetFatalFunc(void (*f)(const char *, ...));
-void optParseOptions(int *argc, char *argv[],
-		     optStruct opt[], int allowNegNum);
+void optSetFatalFunc(void (*f)(const char*, ...));
+void optParseOptions(int* argc, char* argv[],
+                     optStruct opt[], int allowNegNum);
 
 #endif

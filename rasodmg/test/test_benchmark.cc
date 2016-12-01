@@ -69,24 +69,30 @@ static int qNum = 0;     // counter for current query
 RMTimer execTimer("test_benchmark", "r_oql_execute()");
 RMTimer wholeTimer("test_benchmark", "execQuery()");
 
-int checkArguments( int argc, char** argv, const char* searchText,
-                    int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText,
+                   int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
-void execQuery( char* serverName, char* baseName, char* queryBuffer )
+void execQuery(char* serverName, char* baseName, char* queryBuffer)
 {
 }
 
@@ -114,39 +120,47 @@ void execQuery(char* serverName, char* baseName, char* comment, char* query)
     r_Transaction ta;
 
     RMInit::bmOut << comment;
-    RMInit::bmOut << "Query " << (qNum/numExec)+1 << "." << (qNum%numExec)+1
+    RMInit::bmOut << "Query " << (qNum / numExec) + 1 << "." << (qNum % numExec) + 1
                   << ": " << query;
     qNum++;
 
     wholeTimer.start();
 
-    r_Set< r_Ref_Any > image_set;
-    db.set_servername( serverName );
+    r_Set<r_Ref_Any> image_set;
+    db.set_servername(serverName);
 
     try
     {
-        r_OQL_Query q1( query );
+        r_OQL_Query q1(query);
 
-        db.open( baseName );
+        db.open(baseName);
 
-        if( q1.is_update_query() )
+        if (q1.is_update_query())
+        {
             ta.begin();
+        }
         else
-            ta.begin( r_Transaction::read_only );
+        {
+            ta.begin(r_Transaction::read_only);
+        }
 
         // here the query is executed and times are taken
 
         try
         {
             execTimer.start();
-            if( q1.is_update_query() )
-                r_oql_execute( q1 );
+            if (q1.is_update_query())
+            {
+                r_oql_execute(q1);
+            }
             else
-                r_oql_execute( q1, image_set );
+            {
+                r_oql_execute(q1, image_set);
+            }
             execTimer.stop();
         }
 
-        catch( r_Error& errorObj )
+        catch (r_Error& errorObj)
         {
             execTimer.stop();
             cerr << endl << "QUERY FAILED" << endl << errorObj.what() << endl;
@@ -159,7 +173,7 @@ void execQuery(char* serverName, char* baseName, char* comment, char* query)
 
         wholeTimer.stop();
     }
-    catch( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         wholeTimer.stop();
         cerr << endl << "FAILED" << endl << errorObj.what() << endl;
@@ -168,10 +182,12 @@ void execQuery(char* serverName, char* baseName, char* comment, char* query)
 
 void execQueries(char* serverName, char* baseName, char* comment, char* query)
 {
-    if(!readEach)
+    if (!readEach)
     {
-        for(int i = 0; i < numExec; i++)
+        for (int i = 0; i < numExec; i++)
+        {
             execQuery(serverName, baseName, comment, query);
+        }
     }
     else
     {
@@ -188,14 +204,14 @@ void parseFile(ifstream& fileStream, char* serverName, char* baseName)
     char buf[256];
     char dummy;
 
-    while( fileStream.get( buf, 255, '\n' ) )
+    while (fileStream.get(buf, 255, '\n'))
     {
         // read end of line
         fileStream.get(dummy);
         // checking for empty line
-        if(buf[0] == 0)
+        if (buf[0] == 0)
         {
-            if(parseState == FIRSTCOMMENT)
+            if (parseState == FIRSTCOMMENT)
             {
                 // end of first comment, print it and switch to normal comment
                 commentStream << ends;
@@ -206,9 +222,9 @@ void parseFile(ifstream& fileStream, char* serverName, char* baseName)
             }
         }
         // checking for comment
-        else if(buf[0] == '/' && buf[1] == '/')
+        else if (buf[0] == '/' && buf[1] == '/')
         {
-            if(parseState == QUERY)
+            if (parseState == QUERY)
             {
                 // execute the query, reset buffers
                 queryStream << endl << ends;
@@ -232,7 +248,7 @@ void parseFile(ifstream& fileStream, char* serverName, char* baseName)
         }
     }
     // last query
-    if(parseState == QUERY)
+    if (parseState == QUERY)
     {
         // execute the query, reset buffers
         queryStream << endl << ends;
@@ -246,7 +262,7 @@ void parseFile(ifstream& fileStream, char* serverName, char* baseName)
     }
 }
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
     int  optionValueIndex;
     char serverName[255];
@@ -254,7 +270,7 @@ int main( int argc, char** argv )
     char fileName[255];
 
     void* help = (void*)printUsage;
-    
+
     optStruct testBenchmarkOpt[] =
     {
         /* short long           type        var/func        special    */
@@ -267,18 +283,22 @@ int main( int argc, char** argv )
     /* parse all options */
     optParseOptions(&argc, argv, testBenchmarkOpt, 0);
 
-    if( argc < 4 )
+    if (argc < 4)
+    {
         printUsage();
+    }
 
-    if(readEach)
+    if (readEach)
+    {
         numExec = readEach;
+    }
 
-    strcpy( serverName, argv[argc-3] );
-    strcpy( baseName, argv[argc-2] );
-    strcpy( fileName, argv[argc-1] );
+    strcpy(serverName, argv[argc - 3]);
+    strcpy(baseName, argv[argc - 2]);
+    strcpy(fileName, argv[argc - 1]);
 
-    ifstream fileStream( fileName );
-    if( !fileStream )
+    ifstream fileStream(fileName);
+    if (!fileStream)
     {
         cout << "Error: File not found." << endl;
         return -1;

@@ -31,7 +31,7 @@ namespace common
 {
 Timer::Timer(boost::int32_t period)
 {
-    if(period<0)
+    if (period < 0)
     {
         throw InvalidArgumentException("period");
     }

@@ -43,12 +43,12 @@ using rasmgr::DatabaseHostManager;
 using rasmgr::DatabaseHostPropertiesProto;
 using rasmgr::DatabaseHostMgrProto;
 
-class DatabaseHostManagerTest:public ::testing::Test
+class DatabaseHostManagerTest: public ::testing::Test
 {
 protected:
-    DatabaseHostManagerTest():hostName("hostName"),connectString("connectString"),
-        userName("userName"), passwdString("passwdString"),dbName("dbName"),
-        dbh(hostName,connectString, userName, passwdString),db(dbName)
+    DatabaseHostManagerTest(): hostName("hostName"), connectString("connectString"),
+        userName("userName"), passwdString("passwdString"), dbName("dbName"),
+        dbh(hostName, connectString, userName, passwdString), db(dbName)
     {}
 
     std::string hostName;
@@ -98,22 +98,22 @@ TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
 {
     DatabaseHostPropertiesProto properties;
 
-    if(rasmgr::test::TestUtil::randomBool())
+    if (rasmgr::test::TestUtil::randomBool())
     {
         properties.set_connect_string("newConnectString");
     }
 
-    if(rasmgr::test::TestUtil::randomBool())
+    if (rasmgr::test::TestUtil::randomBool())
     {
         properties.set_host_name("newHostName");
     }
 
-    if(rasmgr::test::TestUtil::randomBool())
+    if (rasmgr::test::TestUtil::randomBool())
     {
         properties.set_password("newPass");
     }
 
-    if(rasmgr::test::TestUtil::randomBool())
+    if (rasmgr::test::TestUtil::randomBool())
     {
         properties.set_user_name("newUserName");
     }
@@ -134,16 +134,16 @@ TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
 
     boost::shared_ptr<DatabaseHost> dbhResult = dbhManager.getDatabaseHostList().front();
 
-    if(properties.has_connect_string())
+    if (properties.has_connect_string())
     {
-        ASSERT_EQ(properties.connect_string(),dbhResult->getConnectString());
+        ASSERT_EQ(properties.connect_string(), dbhResult->getConnectString());
     }
     else
     {
-        ASSERT_EQ(originalDBH.connect_string(),dbhResult->getConnectString());
+        ASSERT_EQ(originalDBH.connect_string(), dbhResult->getConnectString());
     }
 
-    if(properties.has_host_name())
+    if (properties.has_host_name())
     {
         ASSERT_EQ(properties.host_name(), dbhResult->getHostName());
     }
@@ -152,7 +152,7 @@ TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
         ASSERT_EQ(originalDBH.host_name(), dbhResult->getHostName());
     }
 
-    if(properties.has_password())
+    if (properties.has_password())
     {
         ASSERT_EQ(properties.password(), dbhResult->getPasswdString());
     }
@@ -161,7 +161,7 @@ TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
         ASSERT_EQ(originalDBH.password(), dbhResult->getPasswdString());
     }
 
-    if(properties.has_user_name())
+    if (properties.has_user_name())
     {
         ASSERT_EQ(properties.user_name(), dbhResult->getUserName());
     }
@@ -218,7 +218,7 @@ TEST_F(DatabaseHostManagerTest, getAndLockDH)
     ASSERT_FALSE(dbhManager.getDatabaseHostList().front()->isBusy());
 
     // will succeed
-    ASSERT_NO_THROW(dbhResult=dbhManager.getAndLockDatabaseHost(hostName));
+    ASSERT_NO_THROW(dbhResult = dbhManager.getAndLockDatabaseHost(hostName));
 
     // because the dbh is blocked
     ASSERT_TRUE(dbhResult->isBusy());

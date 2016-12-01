@@ -61,16 +61,16 @@ rasdaman GmbH.
 
 struct HTTPRequest
 {
-    char *Database;
+    char* Database;
     int   Command;
-    char *QueryString;
+    char* QueryString;
     int   ClientType;
-    char *ClientID;
+    char* ClientID;
     int   Endianess;
     int   NumberOfQueryParams;
-    char *BinData;
+    char* BinData;
     int   BinDataSize;
-    char *Capability;
+    char* Capability;
 };
 
 union WhichArg
@@ -93,7 +93,7 @@ struct FDsets
 
 struct LogFile
 {
-    char     *Filename;
+    char*     Filename;
     int       FD;
     int       State;
 };
@@ -109,8 +109,8 @@ struct Logging
 
 struct ChildBase
 {
-    struct ChildBase *next;
-    struct ChildBase *prev;
+    struct ChildBase* next;
+    struct ChildBase* prev;
     pid_t             PId;
     int               PD[2];
     int               PipeStatus;
@@ -119,7 +119,7 @@ struct ChildBase
 
 struct Host
 {
-    char             *Name;
+    char*             Name;
     char              IPAddrString[ 16 ];
 #ifdef NO_in_addr_t
     unsigned long     IPAddress;
@@ -166,19 +166,19 @@ struct ServerBase
     /* -- Config.Information  */
     struct Host        Host;
     int                Port;
-    char              *AdminMailAddress;
-    char              *Directory;
-    char              *ConfigFile;
-    char              *PidFile;
+    char*              AdminMailAddress;
+    char*              Directory;
+    char*              ConfigFile;
+    char*              PidFile;
     //char              *CacheFile;
     size_t             MaxURLLength;
     /* -- Status Information  */
     int                Status;
-    struct ChildBase  *ChildList;
+    struct ChildBase*  ChildList;
     struct FDsets      PipeSets;
     /* -- Global Data         */
     struct Logging     Log;
-    struct CacheNode  *Cache;
+    struct CacheNode*  Cache;
     /* -- Server Socket       */
     int                SockFD;
     struct sockaddr_in Socket;

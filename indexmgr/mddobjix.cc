@@ -53,7 +53,7 @@ static const char rcsid[] = "@(#)mddobjix, MDDObjIx: $Id: mddobjix.cc,v 1.30 200
 using boost::shared_ptr;
 
 void
-MDDObjIx::setNewLastAccess(const r_Minterval& newLastAccess, const std::vector< shared_ptr<Tile> >* newLastTiles)
+MDDObjIx::setNewLastAccess(const r_Minterval& newLastAccess, const std::vector<shared_ptr<Tile>>* newLastTiles)
 {
     lastAccess = newLastAccess;
     releasePersTiles();
@@ -80,7 +80,7 @@ bool
 MDDObjIx::removeTileFromLastAccesses(shared_ptr<Tile> tileToRemove)
 {
     bool found = false;
-    std::vector< shared_ptr<Tile> >::iterator iter;
+    std::vector<shared_ptr<Tile>>::iterator iter;
     for (iter = lastAccessTiles.begin(); iter != lastAccessTiles.end() ; iter++)
     {
         if (*iter == tileToRemove)
@@ -98,19 +98,21 @@ MDDObjIx::removeTileFromLastAccesses(shared_ptr<Tile> tileToRemove)
     return found;
 }
 
-std::vector< shared_ptr<Tile> >*
-MDDObjIx::lastAccessIntersect(const r_Minterval& searchInter) const
+std::vector<shared_ptr<Tile>>*
+                           MDDObjIx::lastAccessIntersect(const r_Minterval& searchInter) const
 {
-    std::vector< shared_ptr<Tile> >* interResult = 0;
+    std::vector<shared_ptr<Tile>>* interResult = 0;
     if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchInter)))
     {
         LTRACE << "lastAccessIntersect Search in the cache ";
-        interResult = new std::vector< shared_ptr<Tile> >();
+        interResult = new std::vector<shared_ptr<Tile>>();
         interResult->reserve(10);
         for (unsigned int i = 0; i < lastAccessTiles.size(); i++)
         {
             if (lastAccessTiles[i]->getDomain().intersects_with(searchInter))
+            {
                 interResult->push_back(lastAccessTiles[i]);
+            }
         }
         if (interResult->size() == 0)
         {
@@ -177,7 +179,7 @@ MDDObjIx::getDimension() const
 void
 MDDObjIx::initializeTimerPointers()
 {
-    pointQueryTimer= new RMTimer("DirIx", "pointQuery");
+    pointQueryTimer = new RMTimer("DirIx", "pointQuery");
     intersectTimer = new RMTimer("DirIx", "intersect");
     getTilesTimer = new RMTimer("DirIx", "getTiles");
 }
@@ -204,7 +206,7 @@ MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseTy
     if (isPersistent())
     {
         r_Range temp;
-        switch(myStorageLayout.getIndexType())
+        switch (myStorageLayout.getIndexType())
         {
         case r_RPlus_Tree_Index:
             actualIx = static_cast<HierIndexDS*>(new DBHierIndex(dim.dimension(), false, true));
@@ -252,7 +254,7 @@ MDDObjIx::MDDObjIx(DBObjectId newDBIx, const StorageLayout& sl, const BaseType* 
 void
 MDDObjIx::initializeLogicStructure()
 {
-    switch(myStorageLayout.getIndexType())
+    switch (myStorageLayout.getIndexType())
     {
     case r_RPlus_Tree_Index:
     case r_Tile_Container_Index:
@@ -312,19 +314,22 @@ MDDObjIx::removeTile(shared_ptr<Tile> tileToRemove)
     return found;
 }
 
-vector< shared_ptr<Tile> >*
-MDDObjIx::intersect(const r_Minterval& searchInter) const
+vector<shared_ptr<Tile>>*
+                      MDDObjIx::intersect(const r_Minterval& searchInter) const
 {
 #ifdef RMANBENCHMARK
-    if(RManBenchmark >= 3)  intersectTimer->start();
+    if (RManBenchmark >= 3)
+    {
+        intersectTimer->start();
+    }
 #endif
 
-    vector< shared_ptr<Tile> >* result = lastAccessIntersect(searchInter);
+    vector<shared_ptr<Tile>>* result = lastAccessIntersect(searchInter);
     if (!result)
     {
         KeyObjectVector resultKeys;
         do_intersect(actualIx, searchInter, resultKeys, myStorageLayout);
-        result = new vector< shared_ptr<Tile> >();
+        result = new vector<shared_ptr<Tile>>();
         if (!resultKeys.empty())
         {
             unsigned int resSize = resultKeys.size();
@@ -342,7 +347,7 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                     if ((it = t.find(p.first)) != t.end())
                     {
                         LTRACE << "intersect(" << searchInter <<
-                        ") received double tile: " << resultKeys[i];
+                               ") received double tile: " << resultKeys[i];
                         for (unsigned int j = 0; j < resultKeys.size(); j++)
                         {
                             LTRACE << resultKeys[j];
@@ -356,8 +361,8 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                 {
                     LTRACE << "received entry " << resultKeys[i];
                     result->push_back(shared_ptr<Tile>(
-                        new Tile(resultKeys[i].getDomain(), cellBaseType,
-                                 DBTileId(resultKeys[i].getObject()))));
+                                          new Tile(resultKeys[i].getDomain(), cellBaseType,
+                                                   DBTileId(resultKeys[i].getObject()))));
                 }
             }
             else
@@ -366,17 +371,22 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                 {
                     if (resultKeys[i].getTransObject() == NULL)
                         result->push_back(shared_ptr<Tile>(
-                            new Tile(resultKeys[i].getDomain(), cellBaseType,
-                                     DBTileId(resultKeys[i].getObject()))));
+                                              new Tile(resultKeys[i].getDomain(), cellBaseType,
+                                                       DBTileId(resultKeys[i].getObject()))));
                     else
+                    {
                         result->push_back(resultKeys[i].getTransObject());
+                    }
                 }
             }
             (const_cast<MDDObjIx*>(this))->setNewLastAccess(searchInter, result);
         }
     }
 #ifdef RMANBENCHMARK
-    if(RManBenchmark >= 3) intersectTimer->stop();
+    if (RManBenchmark >= 3)
+    {
+        intersectTimer->stop();
+    }
 #endif
     return result;
 }
@@ -388,7 +398,7 @@ MDDObjIx::pointQuery(const r_Point& searchPoint)
 
     shared_ptr<Tile> resultTile = containPointQuery(searchPoint);
 
-    if(resultTile)
+    if (resultTile)
     {
         result = resultTile->getCell(searchPoint);
     }
@@ -402,7 +412,7 @@ MDDObjIx::pointQuery(const r_Point& searchPoint) const
 
     shared_ptr<Tile> resultTile = containPointQuery(searchPoint);
 
-    if(resultTile)
+    if (resultTile)
     {
         result = resultTile->getCell(searchPoint);
     }
@@ -416,7 +426,10 @@ MDDObjIx::containPointQuery(const r_Point& searchPoint) const
     shared_ptr<Tile> resultTile;
 
 #ifdef RMANBENCHMARK
-    if(RManBenchmark >= 4) pointQueryTimer->start();
+    if (RManBenchmark >= 4)
+    {
+        pointQueryTimer->start();
+    }
 #endif
     resultTile = lastAccessPointQuery(searchPoint);
     if (!resultTile)
@@ -440,23 +453,29 @@ MDDObjIx::containPointQuery(const r_Point& searchPoint) const
     }
 
 #ifdef RMANBENCHMARK
-    if (RManBenchmark >= 4) pointQueryTimer->stop();
+    if (RManBenchmark >= 4)
+    {
+        pointQueryTimer->stop();
+    }
 #endif
     return resultTile;
 }
 
-vector< shared_ptr<Tile> >*
-MDDObjIx::getTiles() const
+vector<shared_ptr<Tile>>*
+                      MDDObjIx::getTiles() const
 {
 #ifdef RMANBENCHMARK
-    if(RManBenchmark >= 3)  getTilesTimer->start();
+    if (RManBenchmark >= 3)
+    {
+        getTilesTimer->start();
+    }
 #endif
-    vector< shared_ptr<Tile> >* result = NULL;
+    vector<shared_ptr<Tile>>* result = NULL;
     KeyObjectVector resultKeys;
     do_getObjs(actualIx, resultKeys, myStorageLayout);
     if (!resultKeys.empty())
     {
-        result = new vector< shared_ptr<Tile> >();
+        result = new vector<shared_ptr<Tile>>();
         unsigned int resSize = resultKeys.size();
         result->reserve(resSize);
         if (isPersistent())
@@ -475,7 +494,7 @@ MDDObjIx::getTiles() const
                     {
                         LTRACE << resultKeys[j];
                     }
-                    throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED );
+                    throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED);
                 }
                 tmap.insert(p);
             }
@@ -483,8 +502,8 @@ MDDObjIx::getTiles() const
             for (unsigned int i = 0; i < resSize; i++)
             {
                 result->push_back(shared_ptr<Tile>(
-                    new Tile(resultKeys[i].getDomain(), cellBaseType,
-                             DBTileId(resultKeys[i].getObject()))));
+                                      new Tile(resultKeys[i].getDomain(), cellBaseType,
+                                               DBTileId(resultKeys[i].getObject()))));
             }
         }
         else
@@ -493,17 +512,22 @@ MDDObjIx::getTiles() const
             {
                 if (resultKeys[i].getTransObject() == NULL)
                     result->push_back(shared_ptr<Tile>(
-                        new Tile(resultKeys[i].getDomain(), cellBaseType,
-                                 DBTileId(resultKeys[i].getObject()))));
+                                          new Tile(resultKeys[i].getDomain(), cellBaseType,
+                                                   DBTileId(resultKeys[i].getObject()))));
                 else
+                {
                     result->push_back(resultKeys[i].getTransObject());
+                }
             }
         }
         r_Minterval emptyInterval;
         (const_cast<MDDObjIx*>(this))->setNewLastAccess(emptyInterval, result);
     }
 #ifdef RMANBENCHMARK
-    if(RManBenchmark >= 3)  getTilesTimer->stop();
+    if (RManBenchmark >= 3)
+    {
+        getTilesTimer->stop();
+    }
 #endif
     return result;
 }
@@ -523,10 +547,19 @@ MDDObjIx::~MDDObjIx()
 
 #ifdef RMANBENCHMARK
     pointQueryTimer->setOutput(0);
-    if (pointQueryTimer) delete pointQueryTimer;
+    if (pointQueryTimer)
+    {
+        delete pointQueryTimer;
+    }
     intersectTimer->setOutput(0);
-    if (intersectTimer) delete intersectTimer;
+    if (intersectTimer)
+    {
+        delete intersectTimer;
+    }
     getTilesTimer->setOutput(0);
-    if (getTilesTimer) delete getTilesTimer;
+    if (getTilesTimer)
+    {
+        delete getTilesTimer;
+    }
 #endif
 }

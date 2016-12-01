@@ -49,7 +49,7 @@ public:
     r_Point_Type();
 
     /// copy constructor
-    r_Point_Type( const r_Point_Type& oldObj );
+    r_Point_Type(const r_Point_Type& oldObj);
 
     /// clone operation
     virtual r_Type* clone() const;
@@ -64,7 +64,7 @@ public:
     virtual void convertToBigEndian(char* cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status( std::ostream& s = std::cout ) const;
+    virtual void print_status(std::ostream& s = std::cout) const;
 
     virtual bool isPointType() const;
 
@@ -73,7 +73,7 @@ public:
 };
 
 //@Doc: write the status of point type to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Point_Type &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Point_Type& type);
 
 #endif
 

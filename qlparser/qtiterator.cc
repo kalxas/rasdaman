@@ -53,8 +53,8 @@ QtIterator::QtIterator()
 }
 
 
-QtIterator::QtIterator( QtNode* node )
-    :  QtONCStream( node ),
+QtIterator::QtIterator(QtNode* node)
+    :  QtONCStream(node),
        inputs(NULL)
 {
 }
@@ -62,50 +62,52 @@ QtIterator::QtIterator( QtNode* node )
 
 QtIterator::~QtIterator()
 {
-    if( inputs )
+    if (inputs)
     {
         // delete the inputs
-        for( unsigned int i=0; i<inputs->size(); i++ )
+        for (unsigned int i = 0; i < inputs->size(); i++)
         {
-            delete (*inputs)[i];
+            delete(*inputs)[i];
             (*inputs)[i] = NULL;
         }
 
         // delete the list
         delete inputs;
-        inputs=NULL;
+        inputs = NULL;
     }
 }
 
 
 QtNode::QtNodeList*
-QtIterator::getChilds( QtChildType flag )
+QtIterator::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
     list<QtNode*>::iterator it; //default
     QtNode::QtNodeList::iterator iter;
 
     // allocate resultList
     resultList = new QtNodeList();
 
-    if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
+    if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
     {
-        for( unsigned int i=0; i<inputs->size(); i++ )
+        for (unsigned int i = 0; i < inputs->size(); i++)
         {
-            QtNodeList* subList=NULL;
-            subList = (*inputs)[i]->getChilds( flag );
+            QtNodeList* subList = NULL;
+            subList = (*inputs)[i]->getChilds(flag);
             // remove all elements in subList and insert them at the beginning in resultList
-            resultList->splice( resultList->begin(), *subList );
+            resultList->splice(resultList->begin(), *subList);
             // delete temporary subList
             delete subList;
-            subList=NULL;
+            subList = NULL;
         };
     };
 
     // add the nodes of the current level
-    if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-        for(unsigned int i=0; i<inputs->size(); i++ )
-            resultList->push_back( (*inputs)[i] );
+    if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+        for (unsigned int i = 0; i < inputs->size(); i++)
+        {
+            resultList->push_back((*inputs)[i]);
+        }
 
     return resultList;
 }
@@ -116,12 +118,14 @@ QtIterator::open()
 {
     startTimer("QtIterator");
 
-    if( inputs )
+    if (inputs)
     {
         QtONCStreamList::iterator i;
 
-        for( i=inputs->begin(); i!=inputs->end(); i++ )
+        for (i = inputs->begin(); i != inputs->end(); i++)
+        {
             (*i)->open();
+        }
     }
 }
 
@@ -129,14 +133,16 @@ QtIterator::open()
 void
 QtIterator::close()
 {
-    if( inputs )
+    if (inputs)
     {
         QtONCStreamList::iterator i;
 
-        for( i=inputs->begin(); i!=inputs->end(); i++ )
+        for (i = inputs->begin(); i != inputs->end(); i++)
+        {
             (*i)->close();
+        }
     }
-    
+
     stopTimer();
 }
 
@@ -144,29 +150,33 @@ QtIterator::close()
 void
 QtIterator::reset()
 {
-    if( inputs )
+    if (inputs)
     {
         QtONCStreamList::iterator i;
 
-        for( i=inputs->begin(); i!=inputs->end(); i++ )
+        for (i = inputs->begin(); i != inputs->end(); i++)
+        {
             (*i)->reset();
+        }
     }
 }
 
 
 void
-QtIterator::printTree( int tab, ostream& s, QtChildType mode )
+QtIterator::printTree(int tab, ostream& s, QtChildType mode)
 {
-    if( mode != QtNode::QT_DIRECT_CHILDS )
+    if (mode != QtNode::QT_DIRECT_CHILDS)
     {
-        if( inputs )
-            for( unsigned int i=0; i<inputs->size(); i++ )
+        if (inputs)
+            for (unsigned int i = 0; i < inputs->size(); i++)
             {
-                s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input " << i+1 << ": " << endl;
-                (*inputs)[i]->printTree( tab+2, s, mode );
+                s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input " << i + 1 << ": " << endl;
+                (*inputs)[i]->printTree(tab + 2, s, mode);
             }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no inputs" << endl;
+        }
 
         s << endl;
     }
@@ -175,46 +185,54 @@ QtIterator::printTree( int tab, ostream& s, QtChildType mode )
 
 
 void
-QtIterator::printAlgebraicExpression( ostream& s )
+QtIterator::printAlgebraicExpression(ostream& s)
 {
-    if( inputs )
+    if (inputs)
     {
         s << "( ";
 
-        for( unsigned int i=0; i<inputs->size(); i++ )
+        for (unsigned int i = 0; i < inputs->size(); i++)
         {
-            (*inputs)[i]->printAlgebraicExpression( s );
+            (*inputs)[i]->printAlgebraicExpression(s);
 
-            if( i < inputs->size()-1 )
+            if (i < inputs->size() - 1)
+            {
                 s << ", ";
+            }
         }
 
         s << " )";
     }
     else
+    {
         s << "(<no input>)";
+    }
 }
 
 
 
 void
-QtIterator::setStreamInput( QtONCStream* oldInput, QtONCStream* newInput )
+QtIterator::setStreamInput(QtONCStream* oldInput, QtONCStream* newInput)
 {
     QtONCStreamList::iterator iter;
-    bool            notDone=true;
+    bool            notDone = true;
 
-    for( iter=inputs->begin(); iter!=inputs->end() && notDone; iter++ )
-        if( *iter && (*iter) == oldInput )
+    for (iter = inputs->begin(); iter != inputs->end() && notDone; iter++)
+        if (*iter && (*iter) == oldInput)
         {
             *iter = newInput;
-            if( newInput )
-                newInput->setParent( this );
+            if (newInput)
+            {
+                newInput->setParent(this);
+            }
 
             notDone = false;
         }
 
-    if( notDone )
+    if (notDone)
+    {
         LERROR << "QtIterator::setStreamInput() - Error: Old input stream not found.";
+    }
 }
 
 QtIterator::QtONCStreamList*
@@ -225,23 +243,29 @@ QtIterator::getStreamInputs()
 
 
 void
-QtIterator::getInputTypeTuple( QtTypeTuple& typeTuple )
+QtIterator::getInputTypeTuple(QtTypeTuple& typeTuple)
 {
     typeTuple = QtTypeTuple(0);
 
-    if( inputs )
+    if (inputs)
     {
         QtONCStreamList::iterator inputIter;
 
-        for( inputIter=inputs->begin(); inputIter!=inputs->end(); inputIter++ )
+        for (inputIter = inputs->begin(); inputIter != inputs->end(); inputIter++)
         {
-            if( *inputIter )
-                typeTuple.concat( (*inputIter)->checkType() );
+            if (*inputIter)
+            {
+                typeTuple.concat((*inputIter)->checkType());
+            }
             else
+            {
                 LERROR << "Error: QtIterator::getInputTypeTuple() - input branch is invalid.";
+            }
         }
     }
     else
+    {
         LERROR << "Error: QtIterator::getInputTypeTuple() - inputs branch is invalid.";
+    }
 }
 

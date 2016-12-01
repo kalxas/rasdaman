@@ -55,49 +55,58 @@ const QtNode::QtNodeType QtUpdate::nodeType = QtNode::QT_UPDATE;
 
 
 
-QtUpdate::QtUpdate( QtOperation* initUpdateTarget, QtOperation* initUpdateDomain, QtOperation* initUpdateSource )
+QtUpdate::QtUpdate(QtOperation* initUpdateTarget, QtOperation* initUpdateDomain, QtOperation* initUpdateSource)
     : QtExecute(), input(NULL), nullValues(NULL),
-      updateTarget( initUpdateTarget ),
-      updateDomain( initUpdateDomain ),
-      updateSource( initUpdateSource )
+      updateTarget(initUpdateTarget),
+      updateDomain(initUpdateDomain),
+      updateSource(initUpdateSource)
 {
-    if( updateTarget ) updateTarget->setParent( this );
-    if( updateDomain ) updateDomain->setParent( this );
-    if( updateSource ) updateSource->setParent( this );
+    if (updateTarget)
+    {
+        updateTarget->setParent(this);
+    }
+    if (updateDomain)
+    {
+        updateDomain->setParent(this);
+    }
+    if (updateSource)
+    {
+        updateSource->setParent(this);
+    }
 }
 
 
 
 QtUpdate::~QtUpdate()
 {
-    if( updateTarget )
+    if (updateTarget)
     {
         delete updateTarget;
-        updateTarget=NULL;
+        updateTarget = NULL;
     }
 
-    if( updateDomain )
+    if (updateDomain)
     {
         delete updateDomain;
-        updateDomain=NULL;
+        updateDomain = NULL;
     }
 
-    if( updateSource )
+    if (updateSource)
     {
         delete updateSource;
-        updateSource=NULL;
+        updateSource = NULL;
     }
 
-    if( input )
+    if (input)
     {
         delete input;
-        input=NULL;
+        input = NULL;
     }
 
-    if ( nullValues )
+    if (nullValues)
     {
         delete nullValues;
-        nullValues=NULL;
+        nullValues = NULL;
     }
 }
 
@@ -109,7 +118,7 @@ QtUpdate::evaluate()
     startTimer("QtUpdate");
 
     // Test, if all necessary operands are available.
-    if( updateTarget && input )
+    if (updateTarget && input)
     {
         QtNode::QtDataList* nextTupel;
 
@@ -118,7 +127,7 @@ QtUpdate::evaluate()
         {
             input->open();
         }
-        catch( ... )
+        catch (...)
         {
             input->close();
             throw;
@@ -126,10 +135,12 @@ QtUpdate::evaluate()
 
         try
         {
-            while( (nextTupel = input->next()) )
+            while ((nextTupel = input->next()))
             {
                 if (updateSource)
+                {
                     evaluateTupel(nextTupel);
+                }
                 else if (nullValues)
                 {
                     evaluateNullValues(nextTupel);
@@ -138,12 +149,15 @@ QtUpdate::evaluate()
                 // delete tupel vector received by next()
                 for (vector<QtData*>::iterator dataIter = nextTupel->begin();
                         dataIter != nextTupel->end(); dataIter++)
-                    if (*dataIter) (*dataIter)->deleteRef();
+                    if (*dataIter)
+                    {
+                        (*dataIter)->deleteRef();
+                    }
                 delete nextTupel;
                 nextTupel = NULL;
             } // while
         }
-        catch( ... )
+        catch (...)
         {
             input->close();
             throw;
@@ -152,8 +166,10 @@ QtUpdate::evaluate()
         input->close();
     }
     else
+    {
         LERROR << "Error: QtUpdate::evaluate() - at least one operand branch is invalid.";
-    
+    }
+
     stopTimer();
 
     return 0;
@@ -192,7 +208,7 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
 
     QtData* operand = nullValues->evaluate(NULL);
 
-    if( operand->getDataType() != QT_MINTERVAL )
+    if (operand->getDataType() != QT_MINTERVAL)
     {
         LFATAL << "Error: QtUpdate::evaluate() - Can not evaluate domain expression to an minterval.";
         throwError(nextTupel, target, NULL, 401);
@@ -207,10 +223,10 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 {
     // mdd object to be updated
     QtData* target = updateTarget->evaluate(nextTupel);
-    
+
     // mdd object that is the source of the update
     QtData* source = updateSource->evaluate(nextTupel);
-    
+
     // check if target and source are valid
     if (!checkOperands(nextTupel, target, source))
     {
@@ -245,17 +261,23 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
         targetDomainData = updateDomain->evaluate(nextTupel);
 
         if (targetDomainData)
+        {
             targetDomain = (static_cast<QtMintervalData*>(targetDomainData))->getMintervalData();
+        }
     }
 
 #ifdef DEBUG
-        if (targetDomainData)
-           LINFO << "  target MDD, domain " << targetDomain;
-        else
-           LINFO  << "  target MDD";
-        targetMDD->printStatus(RMInit::logOut);
-        LINFO  << "  source MDD, domain " << sourceMDDDomain;
-        sourceMDD->printStatus(RMInit::logOut);
+    if (targetDomainData)
+    {
+        LINFO << "  target MDD, domain " << targetDomain;
+    }
+    else
+    {
+        LINFO  << "  target MDD";
+    }
+    targetMDD->printStatus(RMInit::logOut);
+    LINFO  << "  source MDD, domain " << sourceMDDDomain;
+    sourceMDD->printStatus(RMInit::logOut);
 #endif
 
     // 1st update strategy:
@@ -276,29 +298,35 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 
         for (unsigned int i = 0, j = 0; i < trimFlags->size(); i++)
             if ((*trimFlags)[i])
+            {
                 newSourceMDDDomain << sourceMDDDomain[j++];
+            }
             else
+            {
                 newSourceMDDDomain << targetDomain[i];
+            }
 
         sourceMDDDomain = newSourceMDDDomain;
 
         LDEBUG << "  new source update domain " << sourceMDDDomain;
     }
-    
+
     // check if you may update that are ( you should not go out of bounds for mdddomaintype )
     if (!targetObj->getMDDBaseType()->compatibleWithDomain(&sourceMDDDomain))
     {
         LFATAL << "Error: QtUpdate::evaluate() - The update domain is outside the allowed domain of the target mdd.";
         throwError(nextTupel, target, source, 953, targetDomainData);
     }
-    
+
     //
     // get all source tiles
     //
-    boost::shared_ptr< vector< boost::shared_ptr<Tile> > > srcTilePtrs(sourceObj->getTiles());
+    boost::shared_ptr<vector<boost::shared_ptr<Tile>>> srcTilePtrs(sourceObj->getTiles());
     vector<Tile*>* sourceTiles = new vector<Tile*>;
-    for (vector< boost::shared_ptr<Tile> >::iterator it = srcTilePtrs->begin(); it != srcTilePtrs->end(); ++it)
+    for (vector<boost::shared_ptr<Tile>>::iterator it = srcTilePtrs->begin(); it != srcTilePtrs->end(); ++it)
+    {
         sourceTiles->push_back(it->get());
+    }
 
 #ifdef DEBUG
     if (sourceTiles)
@@ -306,10 +334,14 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
         LDEBUG << "  there are " << sourceTiles->size() << " source tiles";
         vector<Tile*>::iterator sourceTilesIterator;
         for (sourceTilesIterator = sourceTiles->begin(); sourceTilesIterator != sourceTiles->end(); sourceTilesIterator++)
+        {
             LDEBUG << "    tile domain: " << (*sourceTilesIterator)->getDomain();
+        }
     }
     else
+    {
         LDEBUG << "  there are no source tiles";
+    }
 #endif
 
     //
@@ -332,8 +364,10 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 
     srcTilePtrs.reset(targetObj->intersect(sourceMDDDomain));
     vector<Tile*>* targetTiles = new vector<Tile*>;
-    for (vector< boost::shared_ptr<Tile> >::iterator it = srcTilePtrs->begin(); it != srcTilePtrs->end(); ++it)
+    for (vector<boost::shared_ptr<Tile>>::iterator it = srcTilePtrs->begin(); it != srcTilePtrs->end(); ++it)
+    {
         targetTiles->push_back(it->get());
+    }
 
     if (!targetTiles)
     {
@@ -365,16 +399,18 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     {
         targetTiles->push_back(*retvalIt);
     }
-    
+
     //this lives here because we don't want memory leaks because of exceptions
     //of course we seldom use this operation ( as we use copy tile most of the time )
     UnaryOp* tempOp = NULL;
     if (sourceIt != sourceTiles->end())
+    {
         tempOp = Ops::getUnaryOp(Ops::OP_IDENTITY, targetObj->getCellType(), (*sourceIt)->getType(), 0, 0);
+    }
     std::auto_ptr<UnaryOp> identityOp(tempOp);
-    
+
     const vector<bool>* trimFlags = NULL;
-    
+
     //
     // iterate over source tiles
     //
@@ -394,12 +430,18 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 
             for (unsigned int i = 0, j = 0; i < trimFlags->size(); i++)
                 if ((*trimFlags)[i])
+                {
                     updateSourceTileDomain << sourceTileDomain[j++];
+                }
                 else
+                {
                     updateSourceTileDomain << targetDomain[i];
+                }
         }
         else
+        {
             updateSourceTileDomain = sourceTileDomain;
+        }
         LDEBUG << "update source tile domain " << updateSourceTileDomain;
 
         // calculate number of cells in this area
@@ -411,12 +453,12 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
         for (targetIt = targetTiles->begin(); targetIt != targetTiles->end(); targetIt++)
         {
             r_Minterval targetTileDomain = (*targetIt)->getDomain();
-            
+
             if (!computed)
             {
                 targetTileArea = targetTileArea + sourceMDDDomain.create_intersection(targetTileDomain).cell_count();
             }
-            
+
             // if tiles are intersecting
             if (updateSourceTileDomain.intersects_with(targetTileDomain))
             {
@@ -435,23 +477,31 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 
                     for (unsigned int i = 0, j = 0; i < trimFlags->size(); i++)
                         if (!((*trimFlags)[i]))
+                        {
                             intersectSourceTileDomain.delete_dimension(j);
+                        }
                         else
+                        {
                             j++;
+                        }
                 }
 
                 LDEBUG << "    intersection after removing slices: " << intersectSourceTileDomain;
-                
+
                 LDEBUG << "    updating target tile with source tile data...";
                 if (intersectUpdateSourceTileDomain.dimension() == intersectSourceTileDomain.dimension())
+                {
                     (*targetIt)->copyTile(intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain);
+                }
                 else
+                {
                     (*targetIt)->execUnaryOp(&(*identityOp), intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain);
+                }
                 updatedArea = updatedArea + intersectUpdateSourceTileDomain.cell_count();
             }
         }
         computed = true;
-        
+
         // insert the tile
         if (!intersection)
         {
@@ -460,14 +510,18 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
             LDEBUG << "  no intersection with target tiles found, inserting new tile";
             Tile* newPersTile = new Tile(updateSourceTileDomain, targetObj->getCellType(), (*sourceIt)->getDataFormat());
             if (updateSourceTileDomain.dimension() == sourceTileDomain.dimension())
+            {
                 newPersTile->copyTile(updateSourceTileDomain, *sourceIt, sourceTileDomain);
+            }
             else
+            {
                 newPersTile->execUnaryOp(&(*identityOp), updateSourceTileDomain, *sourceIt, sourceTileDomain);
-            
+            }
+
             LDEBUG << "  update domains: target tile " << newPersTile->getDomain()
-                    << " update target at " << updateSourceTileDomain << 
-                    ", source tile " << (*sourceIt)->getDomain() 
-                    << " update with data at " << sourceTileDomain;
+                   << " update target at " << updateSourceTileDomain <<
+                   ", source tile " << (*sourceIt)->getDomain()
+                   << " update with data at " << sourceTileDomain;
 
             targetObj->insertTile(newPersTile);
             updatedArea = updatedArea + updateSourceTileDomain.cell_count();
@@ -487,11 +541,20 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     targetTiles = NULL;
 
     // delete optional operand
-    if (targetDomainData) targetDomainData->deleteRef();
+    if (targetDomainData)
+    {
+        targetDomainData->deleteRef();
+    }
 
     // delete the operands
-    if (target) target->deleteRef();
-    if (source) source->deleteRef();
+    if (target)
+    {
+        target->deleteRef();
+    }
+    if (source)
+    {
+        source->deleteRef();
+    }
 }
 
 bool
@@ -514,13 +577,20 @@ QtUpdate::checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* s
             throwError(nextTupel, target, source, 951);
         }
     }
-    else {
+    else
+    {
         LFATAL << "Error: QtUpdate::evaluate() - target or source is not provided.";
 
         // delete the operands
-        if (target) target->deleteRef();
-        if (source) source->deleteRef();
-        
+        if (target)
+        {
+            target->deleteRef();
+        }
+        if (source)
+        {
+            source->deleteRef();
+        }
+
         return false;
     }
     return true;
@@ -534,14 +604,26 @@ QtUpdate::throwError(QtNode::QtDataList* nextTupel, QtData* target, QtData* sour
     // delete tupel vector received by next()
     for (vector<QtData*>::iterator dataIter = nextTupel->begin();
             dataIter != nextTupel->end(); dataIter++)
-        if (*dataIter) (*dataIter)->deleteRef();
+        if (*dataIter)
+        {
+            (*dataIter)->deleteRef();
+        }
     delete nextTupel;
     nextTupel = NULL;
 
     // delete the operands
-    if (target) target->deleteRef();
-    if (source) source->deleteRef();
-    if (domainData) domainData->deleteRef();
+    if (target)
+    {
+        target->deleteRef();
+    }
+    if (source)
+    {
+        source->deleteRef();
+    }
+    if (domainData)
+    {
+        domainData->deleteRef();
+    }
 
     parseInfo.setErrorNo(static_cast<unsigned long>(errorNumber));
     throw parseInfo;
@@ -571,7 +653,9 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
         const vector<bool>* trimFlags = (static_cast<QtMintervalData*>(domainData))->getTrimFlags();
         for (unsigned int i = 0; i < trimFlags->size(); i++)
             if ((*trimFlags)[i])
+            {
                 updateIntervals++;
+            }
 
         if (updateIntervals != sourceMDD->getLoadDomain().dimension())
         {
@@ -595,19 +679,31 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
                         (domain[i].is_high_fixed() && (!(sourceDomain[j].is_high_fixed()) || domain[i].high() < sourceDomain[j].high())))
                 {
                     LFATAL << "Error: QtUpdate::evaluate() - source domain " <<
-                            sourceDomain << " isn't within the target domain " << domain;
+                           sourceDomain << " isn't within the target domain " << domain;
 
                     // delete tupel vector received by next()
                     for (vector<QtData*>::iterator dataIter = nextTupel->begin();
                             dataIter != nextTupel->end(); dataIter++)
-                        if (*dataIter) (*dataIter)->deleteRef();
+                        if (*dataIter)
+                        {
+                            (*dataIter)->deleteRef();
+                        }
                     delete nextTupel;
                     nextTupel = NULL;
 
                     // delete the operands
-                    if (target) target->deleteRef();
-                    if (domainData) domainData->deleteRef();
-                    if (source) source->deleteRef();
+                    if (target)
+                    {
+                        target->deleteRef();
+                    }
+                    if (domainData)
+                    {
+                        domainData->deleteRef();
+                    }
+                    if (source)
+                    {
+                        source->deleteRef();
+                    }
 
                     parseInfo.setErrorNo(967);
                     throw parseInfo;
@@ -621,71 +717,71 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
 
 
 QtNode::QtNodeList*
-QtUpdate::getChilds( QtChildType flag )
+QtUpdate::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
 
     // allocate resultList
     resultList = new QtNodeList();
 
-    if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
+    if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
     {
-        if( input )
+        if (input)
         {
-            QtNodeList* subList = input->getChilds( flag );
+            QtNodeList* subList = input->getChilds(flag);
 
             // remove all elements in subList and insert them at the beginning in resultList
-            resultList->splice( resultList->begin(), *subList );
+            resultList->splice(resultList->begin(), *subList);
 
             // delete temporary subList
             delete subList;
-            subList=NULL;
+            subList = NULL;
         }
 
-        if( updateTarget )
+        if (updateTarget)
         {
-            QtNodeList* subList = updateTarget->getChilds( flag );
+            QtNodeList* subList = updateTarget->getChilds(flag);
 
             // remove all elements in subList and insert them at the beginning in resultList
-            resultList->splice( resultList->begin(), *subList );
+            resultList->splice(resultList->begin(), *subList);
 
             // delete temporary subList
             delete subList;
-            subList=NULL;
+            subList = NULL;
         }
 
-        if( updateDomain )
+        if (updateDomain)
         {
-            QtNodeList* subList = updateDomain->getChilds( flag );
+            QtNodeList* subList = updateDomain->getChilds(flag);
 
             // remove all elements in subList and insert them at the beginning in resultList
-            resultList->splice( resultList->begin(), *subList );
+            resultList->splice(resultList->begin(), *subList);
 
             // delete temporary subList
             delete subList;
-            subList=NULL;
+            subList = NULL;
         }
 
-        if( updateSource )
+        if (updateSource)
         {
-            QtNodeList* subList = updateSource->getChilds( flag );
+            QtNodeList* subList = updateSource->getChilds(flag);
 
             // remove all elements in subList and insert them at the beginning in resultList
-            resultList->splice( resultList->begin(), *subList );
+            resultList->splice(resultList->begin(), *subList);
 
             // delete temporary subList
             delete subList;
-            subList=NULL;
+            subList = NULL;
         }
     };
 
     // add the nodes of the current level
-    if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
+    if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
     {
-        resultList->push_back( input );
-        resultList->push_back( updateTarget );
-        resultList->push_back( updateDomain );
-        resultList->push_back( updateSource );
+        resultList->push_back(input);
+        resultList->push_back(updateTarget);
+        resultList->push_back(updateDomain);
+        resultList->push_back(updateSource);
     }
 
     return resultList;
@@ -694,43 +790,51 @@ QtUpdate::getChilds( QtChildType flag )
 
 
 void
-QtUpdate::printTree( int tab, ostream& s, QtChildType mode )
+QtUpdate::printTree(int tab, ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtUpdate Object" << getEvaluationTime() << endl;
 
-    if( mode != QtNode::QT_DIRECT_CHILDS )
+    if (mode != QtNode::QT_DIRECT_CHILDS)
     {
-        if( updateTarget )
+        if (updateTarget)
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "target: " << endl;
-            updateTarget->printTree( tab + 2, s );
+            updateTarget->printTree(tab + 2, s);
 
-            if( updateDomain )
+            if (updateDomain)
             {
-                s << SPACE_STR(static_cast<size_t>(tab)+2).c_str() << "domain: " << endl;
-                updateDomain->printTree( tab + 4, s );
+                s << SPACE_STR(static_cast<size_t>(tab) + 2).c_str() << "domain: " << endl;
+                updateDomain->printTree(tab + 4, s);
             }
             else
-                s << SPACE_STR(static_cast<size_t>(tab)+2).c_str() << "no domain" << endl;
+            {
+                s << SPACE_STR(static_cast<size_t>(tab) + 2).c_str() << "no domain" << endl;
+            }
         }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no target" << endl;
+        }
 
-        if( updateSource )
+        if (updateSource)
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "source: " << endl;
-            updateSource->printTree( tab + 2, s );
+            updateSource->printTree(tab + 2, s);
         }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no source" << endl;
+        }
 
-        if( input )
+        if (input)
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input: " << endl;
-            input->printTree( tab+2, s, mode );
+            input->printTree(tab + 2, s, mode);
         }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input" << endl;
+        }
 
         s << endl;
     }
@@ -739,44 +843,56 @@ QtUpdate::printTree( int tab, ostream& s, QtChildType mode )
 
 
 void
-QtUpdate::printAlgebraicExpression( ostream& s )
+QtUpdate::printAlgebraicExpression(ostream& s)
 {
     s << "update<" << std::flush;
 
-    if( updateTarget )
-        updateTarget->printAlgebraicExpression( s );
+    if (updateTarget)
+    {
+        updateTarget->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<no target>";
+    }
 
-    if( updateDomain )
-        updateDomain->printAlgebraicExpression( s );
+    if (updateDomain)
+    {
+        updateDomain->printAlgebraicExpression(s);
+    }
 
     s << "," << std::flush;
 
-    if( updateSource )
-        updateSource->printAlgebraicExpression( s );
+    if (updateSource)
+    {
+        updateSource->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<no source>";
+    }
 
     s << ">" << std::flush;
 
-    if( input )
+    if (input)
     {
         s << "( ";
-        input->printAlgebraicExpression( s );
+        input->printAlgebraicExpression(s);
         s << " )";
     }
     else
+    {
         s << "(<no input>)" << std::flush;
+    }
 }
 
 
 
 void
-QtUpdate::setStreamInput( QtONCStream* newInput )
+QtUpdate::setStreamInput(QtONCStream* newInput)
 {
     input = newInput;
-    input->setParent( this );
+    input->setParent(this);
 }
 
 QtOperation*
@@ -809,15 +925,15 @@ void
 QtUpdate::checkType()
 {
     // check operand branches
-    if( updateTarget && input )
+    if (updateTarget && input)
     {
 
         // get input type
         QtTypeTuple inputType  = input->checkType();
 
         // check target
-        const QtTypeElement& targetType = updateTarget->checkType( &inputType );
-        if( targetType.getDataType() != QT_MDD )
+        const QtTypeElement& targetType = updateTarget->checkType(&inputType);
+        if (targetType.getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtUpdate::checkType() - update target must be an iterator variable.";
             parseInfo.setErrorNo(950);
@@ -825,10 +941,10 @@ QtUpdate::checkType()
         }
 
         // check domain
-        if( updateDomain )
+        if (updateDomain)
         {
-            const QtTypeElement& domainType = updateDomain->checkType( &inputType );
-            if( domainType.getDataType() != QT_MINTERVAL )
+            const QtTypeElement& domainType = updateDomain->checkType(&inputType);
+            if (domainType.getDataType() != QT_MINTERVAL)
             {
                 LFATAL << "Error: QtUpdate::checkType() - update domain must be of type Minterval.";
                 parseInfo.setErrorNo(961);
@@ -839,8 +955,8 @@ QtUpdate::checkType()
         // check source
         if (!nullValues)
         {
-            const QtTypeElement& sourceType = updateSource->checkType( &inputType );
-            if( sourceType.getDataType() != QT_MDD )
+            const QtTypeElement& sourceType = updateSource->checkType(&inputType);
+            if (sourceType.getDataType() != QT_MDD)
             {
                 LFATAL << "Error: QtUpdate::checkType() - update source must be an expression resulting in an MDD.";
                 parseInfo.setErrorNo(951);
@@ -874,7 +990,7 @@ QtUpdate::checkType()
                 convChildren = NULL;
             }
 
-            if( !compatible )
+            if (!compatible)
             {
                 LFATAL << "Error: QtUpdate::checkType() - update base type does not match mdd base type.";
                 parseInfo.setErrorNo(952);
@@ -883,12 +999,15 @@ QtUpdate::checkType()
         }
     }
     else
+    {
         LERROR << "Error: QtUpdate::checkType() - operand branch invalid.";
+    }
 }
 
 
 void
-QtUpdate::setNullValues(QtOperation* newNullValues) {
+QtUpdate::setNullValues(QtOperation* newNullValues)
+{
     nullValues = newNullValues;
 }
 

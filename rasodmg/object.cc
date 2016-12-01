@@ -74,15 +74,22 @@ r_Object::r_Object()
       type_name(0),
       type_structure(0),
       type_schema(0),
-      object_status( next_object_status ),
+      object_status(next_object_status),
       oid()
 {
-    if( next_object_type_name ) type_name = strdup( next_object_type_name );
+    if (next_object_type_name)
+    {
+        type_name = strdup(next_object_type_name);
+    }
 
-    if( next_object_type == persistent_object )
+    if (next_object_type == persistent_object)
+    {
         LFATAL << "Error: A peristent object is constructed with default constructor.";
+    }
     else
+    {
         object_type = transient_object;
+    }
 
     internal_obj_type = 0;
 
@@ -95,19 +102,22 @@ r_Object::r_Object()
 
 
 
-r_Object::r_Object( unsigned short objType ) throw(r_Error)
+r_Object::r_Object(unsigned short objType) throw(r_Error)
     : object_name(0),
       type_name(0),
       type_structure(0),
       type_schema(0),
-      object_status( next_object_status ),
+      object_status(next_object_status),
       oid()
 {
-    if( next_object_type_name ) type_name = strdup( next_object_type_name );
-
-    if( next_object_type == persistent_object )
+    if (next_object_type_name)
     {
-        if( r_Transaction::actual_transaction == 0 )
+        type_name = strdup(next_object_type_name);
+    }
+
+    if (next_object_type == persistent_object)
+    {
+        if (r_Transaction::actual_transaction == 0)
         {
             LFATAL << "Error: Tried to create a persistent object outside a transaction.";
             throw r_Error(r_Error::r_Error_TransactionNotOpen);
@@ -115,11 +125,11 @@ r_Object::r_Object( unsigned short objType ) throw(r_Error)
 
         object_type = persistent_object;
 
-        switch( object_status )
+        switch (object_status)
         {
         case created:
             // In case the object is newly created, get a new oid and assign it to the object.
-            oid = r_Database::actual_database->get_new_oid( objType );
+            oid = r_Database::actual_database->get_new_oid(objType);
             break;
         case read:
         case transient:
@@ -132,14 +142,20 @@ r_Object::r_Object( unsigned short objType ) throw(r_Error)
         }
 
         // Add the object to the list of persistent objects in the current transaction.
-        if( oid.is_valid() )
-            r_Transaction::actual_transaction->add_object_list( r_Ref<r_Object>( oid, this ) );
+        if (oid.is_valid())
+        {
+            r_Transaction::actual_transaction->add_object_list(r_Ref<r_Object>(oid, this));
+        }
         else
-            r_Transaction::actual_transaction->add_object_list( r_Ref<r_Object>( this ) );
+        {
+            r_Transaction::actual_transaction->add_object_list(r_Ref<r_Object>(this));
+        }
 
     }
     else
+    {
         object_type = transient_object;
+    }
 
     internal_obj_type = objType;
 
@@ -191,19 +207,22 @@ r_Object::r_Object( unsigned short objType, const char* name ) throw(r_Error)
 */
 
 
-r_Object::r_Object( const r_Object& obj, unsigned short objType ) throw(r_Error)
+r_Object::r_Object(const r_Object& obj, unsigned short objType) throw(r_Error)
     : object_name(0),
       type_name(0),
       type_structure(0),
       type_schema(0),
-      object_status( next_object_status ),
+      object_status(next_object_status),
       oid()
 {
-    if( next_object_type_name ) type_name = strdup( next_object_type_name );
-
-    if( next_object_type == persistent_object )
+    if (next_object_type_name)
     {
-        if( r_Transaction::actual_transaction == 0 )
+        type_name = strdup(next_object_type_name);
+    }
+
+    if (next_object_type == persistent_object)
+    {
+        if (r_Transaction::actual_transaction == 0)
         {
             LFATAL << "Error: Tried to create a persistent object outside a transaction.";
             throw r_Error(r_Error::r_Error_TransactionNotOpen);
@@ -211,11 +230,11 @@ r_Object::r_Object( const r_Object& obj, unsigned short objType ) throw(r_Error)
 
         object_type = persistent_object;
 
-        switch( object_status )
+        switch (object_status)
         {
         case created:
             // In case the object is newly created, get a new oid and assign it to the object.
-            oid = r_Database::actual_database->get_new_oid( objType );
+            oid = r_Database::actual_database->get_new_oid(objType);
             break;
         case read:
         case transient:
@@ -228,13 +247,19 @@ r_Object::r_Object( const r_Object& obj, unsigned short objType ) throw(r_Error)
         }
 
         // Add the object to the list of persistent objects in the actual transaction.
-        if( oid.is_valid() )
-            r_Transaction::actual_transaction->add_object_list( r_Ref<r_Object>( oid, this ) );
+        if (oid.is_valid())
+        {
+            r_Transaction::actual_transaction->add_object_list(r_Ref<r_Object>(oid, this));
+        }
         else
-            r_Transaction::actual_transaction->add_object_list( r_Ref<r_Object>( this ) );
+        {
+            r_Transaction::actual_transaction->add_object_list(r_Ref<r_Object>(this));
+        }
     }
     else
+    {
         object_type = transient_object;
+    }
 
     internal_obj_type = objType;
 
@@ -244,14 +269,20 @@ r_Object::r_Object( const r_Object& obj, unsigned short objType ) throw(r_Error)
     r_Object::next_object_type_name = 0;
     r_Object::next_object_oid       = r_OId();
 
-    if( obj.object_name )
-        object_name = strdup( obj.object_name );
+    if (obj.object_name)
+    {
+        object_name = strdup(obj.object_name);
+    }
 
-    if( obj.type_name && !type_name )
-        type_name = strdup( obj.type_name );
+    if (obj.type_name && !type_name)
+    {
+        type_name = strdup(obj.type_name);
+    }
 
-    if( obj.type_structure )
-        type_structure = strdup( obj.type_structure );
+    if (obj.type_structure)
+    {
+        type_structure = strdup(obj.type_structure);
+    }
 }
 
 void
@@ -280,8 +311,10 @@ r_Object::~r_Object()
 {
     // Free memory in the transient case. In the persistent case, r_deactivate()
     // is invoked at the commit/abort point.
-    if( test_type( transient_object ) )
+    if (test_type(transient_object))
+    {
         r_deactivate();
+    }
 
     object_status = deleted;
 
@@ -305,25 +338,25 @@ r_Object::~r_Object()
 void
 r_Object::r_deactivate()
 {
-    if( type_schema )
+    if (type_schema)
     {
         delete type_schema;
         type_schema = 0;
     }
 
-    if( object_name )
+    if (object_name)
     {
-        free( object_name );
+        free(object_name);
         object_name = 0;
     }
 
-    if( type_name )
+    if (type_name)
     {
-        free( type_name );
+        free(type_name);
         type_name = 0;
     }
 
-    if( type_structure )
+    if (type_structure)
     {
         delete [] type_structure;
         type_structure = 0;
@@ -345,14 +378,14 @@ r_Object::r_deactivate()
  *                 allocates memory for the object.
  ************************************************************/
 void*
-r_Object::operator new( size_t size )
+r_Object::operator new(size_t size)
 {
     r_Object::next_object_type      = transient_object;
     r_Object::next_object_status    = created;
     r_Object::next_object_type_name = 0;
     r_Object::next_object_oid       = r_OId();
 
-    void* a = mymalloc( size );
+    void* a = mymalloc(size);
     return a;
 }
 
@@ -371,28 +404,28 @@ r_Object::operator new( size_t size )
  *                 allocates memory for the object.
  ************************************************************/
 void*
-r_Object::operator new( size_t size, r_Database* /*database*/, const char* type_name )
+r_Object::operator new(size_t size, r_Database* /*database*/, const char* type_name)
 {
     r_Object::next_object_type      = persistent_object;
     r_Object::next_object_status    = created;
     r_Object::next_object_type_name = const_cast<char*>(type_name);
     r_Object::next_object_oid       = r_OId();
 
-    void* a = mymalloc( size );
+    void* a = mymalloc(size);
     return a;
 }
 
 
 
 void*
-r_Object::operator new( size_t size, const char* type_name )
+r_Object::operator new(size_t size, const char* type_name)
 {
     r_Object::next_object_type      = transient_object;
     r_Object::next_object_status    = created;
     r_Object::next_object_type_name = const_cast<char*>(type_name);
     r_Object::next_object_oid       = r_OId();
 
-    void* a = mymalloc( size );
+    void* a = mymalloc(size);
     return a;
 }
 
@@ -414,10 +447,12 @@ r_Object::operator new( size_t size, const char* type_name )
  *                 commits.
  ************************************************************/
 void
-r_Object::operator delete( void* obj_ptr )
+r_Object::operator delete(void* obj_ptr)
 {
-    if( r_Object::last_object_type == transient_object )
-        free( obj_ptr );
+    if (r_Object::last_object_type == transient_object)
+    {
+        free(obj_ptr);
+    }
 
     r_Object::last_object_type = no_object;
 }
@@ -435,9 +470,9 @@ r_Object::operator delete( void* obj_ptr )
  *                 in returns 1, otherwise 0.
  ************************************************************/
 int
-r_Object::test_status( ObjectStatus status )
+r_Object::test_status(ObjectStatus status)
 {
-    return ( status == object_status );
+    return (status == object_status);
 }
 
 
@@ -453,9 +488,9 @@ r_Object::test_status( ObjectStatus status )
  *                 in returns 1, otherwise 0.
  ************************************************************/
 int
-r_Object::test_type( ObjectType type )
+r_Object::test_type(ObjectType type)
 {
-    return ( type == object_type );
+    return (type == object_type);
 }
 
 
@@ -474,14 +509,14 @@ r_Object::test_type( ObjectType type )
  *   given status. Memory for the object is allocated.
  ************************************************************/
 void*
-r_Object::operator new( size_t size, r_Database* /*database*/, ObjectStatus status, const r_OId& oid )
+r_Object::operator new(size_t size, r_Database* /*database*/, ObjectStatus status, const r_OId& oid)
 {
     r_Object::next_object_type      = persistent_object;
     r_Object::next_object_status    = status;
     r_Object::next_object_type_name = 0;
     r_Object::next_object_oid       = oid;
 
-    void* a = mymalloc( size );
+    void* a = mymalloc(size);
     return a;
 }
 
@@ -490,38 +525,56 @@ r_Object::operator new( size_t size, r_Database* /*database*/, ObjectStatus stat
 const r_Type*
 r_Object::get_type_schema()
 {
-    if( !type_schema )
+    if (!type_schema)
     {
         // If type structure not known then try to get it from the server
-        if ( (type_structure == NULL) || (strlen(type_structure) == 0) )
+        if ((type_structure == NULL) || (strlen(type_structure) == 0))
         {
             ClientComm::r_Type_Type typeType = static_cast<ClientComm::r_Type_Type>(0);
 
             // we need an open database and an active transaction
-            if ( r_Database::actual_database == NULL ) return NULL;
-            else
+            if (r_Database::actual_database == NULL)
             {
-                if ( r_Database::actual_database->get_status() == r_Database::not_open )
-                    return NULL;
+                return NULL;
             }
-            if ( r_Transaction::actual_transaction == NULL) return NULL;
             else
             {
-                if ( r_Transaction::actual_transaction->get_status() != r_Transaction::active )
+                if (r_Database::actual_database->get_status() == r_Database::not_open)
+                {
                     return NULL;
+                }
+            }
+            if (r_Transaction::actual_transaction == NULL)
+            {
+                return NULL;
+            }
+            else
+            {
+                if (r_Transaction::actual_transaction->get_status() != r_Transaction::active)
+                {
+                    return NULL;
+                }
             }
 
             // set the object type and contact the database if the type name is defined.
-            if ( internal_obj_type == 1 ) typeType = ClientComm::r_MDDType_Type;
-            else if ( internal_obj_type == 2 ) typeType = ClientComm::r_SetType_Type;
-            if ( (type_name == NULL) || (strlen(type_name) == 0) || (typeType == 0) )
+            if (internal_obj_type == 1)
+            {
+                typeType = ClientComm::r_MDDType_Type;
+            }
+            else if (internal_obj_type == 2)
+            {
+                typeType = ClientComm::r_SetType_Type;
+            }
+            if ((type_name == NULL) || (strlen(type_name) == 0) || (typeType == 0))
+            {
                 return NULL;
+            }
 
             try
             {
-                type_structure = r_Database::actual_database->getComm()->getTypeStructure( type_name, typeType );
+                type_structure = r_Database::actual_database->getComm()->getTypeStructure(type_name, typeType);
             }
-            catch(r_Error& errObj)
+            catch (r_Error& errObj)
             {
                 LERROR << "r_Object::get_type_schema() failed retriving typestructure";
                 LERROR << "Error " << errObj.get_errorno() << " : " << errObj.what();
@@ -529,7 +582,7 @@ r_Object::get_type_schema()
             }
         }
 
-        type_schema = r_Type::get_any_type( type_structure );
+        type_schema = r_Type::get_any_type(type_structure);
     }
     return type_schema;
 }
@@ -555,28 +608,32 @@ r_Object::load_obj_from_db()
 void
 r_Object::delete_obj_from_db()
 {
-    if( object_name && strlen( object_name ) )
+    if (object_name && strlen(object_name))
     {
         LINFO << object_name << "... ";
 
         // delete myself from the database
-        r_Database::actual_database->getComm()->deleteCollByName( object_name );
+        r_Database::actual_database->getComm()->deleteCollByName(object_name);
     }
     else
     {
         LERROR << "no name - take oid ... ";
 
-        if( oid.get_local_oid() )
+        if (oid.get_local_oid())
             // delete myself from the database
-            r_Database::actual_database->getComm()->deleteObjByOId( oid );
+        {
+            r_Database::actual_database->getComm()->deleteObjByOId(oid);
+        }
         else
+        {
             LERROR << " no oid ... FAILED";
+        }
     }
 }
 
 
 void
-r_Object::initialize_oid( const r_OId& initOId )
+r_Object::initialize_oid(const r_OId& initOId)
 {
     oid = initOId;
 }

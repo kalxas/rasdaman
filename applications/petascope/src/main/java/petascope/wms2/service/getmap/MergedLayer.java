@@ -119,9 +119,9 @@ public final class MergedLayer {
         try {
             List<RasdamanSubset> rasdamanSubsets = new ArrayList<RasdamanSubset>(2);
             DbMetadataSource dbMetadataSource = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                ConfigManager.METADATA_URL,
-                ConfigManager.METADATA_USER,
-                ConfigManager.METADATA_PASS, false);
+                    ConfigManager.METADATA_URL,
+                    ConfigManager.METADATA_USER,
+                    ConfigManager.METADATA_PASS, false);
 
             CoverageRegistry coverageRegistry = new CoverageRegistry(dbMetadataSource);
             Coverage coverage = coverageRegistry.lookupCoverage(layers.get(0).getName());
@@ -168,12 +168,11 @@ public final class MergedLayer {
                     index += 1;
                 }
             }
-            
+
             // close the connection after using
             dbMetadataSource.closeConnection();
             return rasdamanSubsets;
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new WMSInvalidBbox(boundingBox.toString(), e.getMessage());
         }
     }
@@ -253,16 +252,16 @@ public final class MergedLayer {
         // it will need to use projection() in Rasql later with the original bounding box
         // The requested bounding box can be in XY or YX order
         this.originalBoundingBoxStr = originalBoundingBoxStrTemplate.replace("$xmin", String.valueOf(originalBoundingBox.getMinx()))
-                                                                    .replace("$ymin", String.valueOf(originalBoundingBox.getMiny()))
-                                                                    .replace("$xmax", String.valueOf(originalBoundingBox.getMaxx()))
-                                                                    .replace("$ymax", String.valueOf(originalBoundingBox.getMaxy()))
-                                                                    .replace("$crs", crs.getCrsName());
+                                      .replace("$ymin", String.valueOf(originalBoundingBox.getMiny()))
+                                      .replace("$xmax", String.valueOf(originalBoundingBox.getMaxx()))
+                                      .replace("$ymax", String.valueOf(originalBoundingBox.getMaxy()))
+                                      .replace("$crs", crs.getCrsName());
         if (isXYOrder) {
             this.originalBoundingBoxStr = originalBoundingBoxStrTemplate.replace("$xmin", String.valueOf(originalBoundingBox.getMiny()))
-                                                                    .replace("$ymin", String.valueOf(originalBoundingBox.getMinx()))
-                                                                    .replace("$xmax", String.valueOf(originalBoundingBox.getMaxy()))
-                                                                    .replace("$ymax", String.valueOf(originalBoundingBox.getMaxx()))
-                                                                    .replace("$crs", crs.getCrsName());
+                                          .replace("$ymin", String.valueOf(originalBoundingBox.getMinx()))
+                                          .replace("$xmax", String.valueOf(originalBoundingBox.getMaxy()))
+                                          .replace("$ymax", String.valueOf(originalBoundingBox.getMaxx()))
+                                          .replace("$crs", crs.getCrsName());
         }
     }
 
@@ -273,18 +272,18 @@ public final class MergedLayer {
     public String getOutputBBoxStr() {
         return this.originalBoundingBoxStr;
     }
-    
+
     /**
      * Return the projection for the transformation from nativeCrs to requestedCrs
-     * @return 
+     * @return
      */
     public String getProjectionStr() {
         return this.projectionStr;
     }
-    
+
     /**
      * When requestedCs is different with nativeCrs then need to use projection in Rasql
-     * @return 
+     * @return
      */
     public boolean projection() {
         return this.isProjection;
@@ -306,15 +305,15 @@ public final class MergedLayer {
             // NOTE: request bounding box can be in YX (EPSG:4326) or XY (EPSG:3857) order
             // We can have 2 cases:
             // + Native order is YX and request with in XY (e.g: bbox=12464999.982,-5548370.985,17393850.457,-1003203.187&crs=EPSG:3857)
-            // + Native order is XY and request with in YX (e.g: bbox=-44.525,111.975,-8.978,156.279&crs=EPSG:4326)            
-            
+            // + Native order is XY and request with in YX (e.g: bbox=-44.525,111.975,-8.978,156.279&crs=EPSG:4326)
+
             double[] srcCoords = {
-               originalBoundingBox.getMinx(),
-               originalBoundingBox.getMiny(),
-               originalBoundingBox.getMaxx(),
-               originalBoundingBox.getMaxy()
+                originalBoundingBox.getMinx(),
+                originalBoundingBox.getMiny(),
+                originalBoundingBox.getMaxx(),
+                originalBoundingBox.getMaxy()
             };
-            
+
             // If request bounding box is YX then Geotools will convert error (e.g: Lat=111.975 is invalid), need to swap
             if (isNativeXYOrder) {
                 srcCoords[0] = originalBoundingBox.getMiny();
@@ -322,9 +321,9 @@ public final class MergedLayer {
                 srcCoords[2] = originalBoundingBox.getMaxy();
                 srcCoords[3] = originalBoundingBox.getMaxx();
             }
-            
+
             transformedCoords = CrsProjectionUtil.transformBoundingBox(requestedCrsEpsgCode, nativeCrsEpsgCode,
-                                                               srcCoords);
+                                srcCoords);
 
             // if native is also XY order
             xmin = transformedCoords.get(0).doubleValue();
@@ -348,21 +347,21 @@ public final class MergedLayer {
         // transformed subsets from nativeCrs to outputCrs
         BoundingBox bbox = new BoundingBox(null, xmin, ymin, xmax, ymax, null);
         projectionStr =  projectionStrTemplate.replace("$xmin", String.valueOf(xmin))
-                                              .replace("$ymin", String.valueOf(ymin))
-                                              .replace("$xmax", String.valueOf(xmax))
-                                              .replace("$ymax", String.valueOf(ymax))
-                                              .replace("$nativeCrs", nativeCrsEpsgCode)
-                                              .replace("$outputCrs", requestedCrsEpsgCode);
+                         .replace("$ymin", String.valueOf(ymin))
+                         .replace("$xmax", String.valueOf(xmax))
+                         .replace("$ymax", String.valueOf(ymax))
+                         .replace("$nativeCrs", nativeCrsEpsgCode)
+                         .replace("$outputCrs", requestedCrsEpsgCode);
         if (!isNativeXYOrder) {
             // Lat, Long which is not the order of domains in Rasql
             projectionStr = projectionStrTemplate.replace("$xmin", String.valueOf(ymin))
-                                                 .replace("$ymin", String.valueOf(xmin))
-                                                 .replace("$xmax", String.valueOf(ymax))
-                                                 .replace("$ymax", String.valueOf(xmax))
-                                                 .replace("$nativeCrs", nativeCrsEpsgCode)
-                                                 .replace("$outputCrs", requestedCrsEpsgCode);
+                            .replace("$ymin", String.valueOf(xmin))
+                            .replace("$xmax", String.valueOf(ymax))
+                            .replace("$ymax", String.valueOf(xmax))
+                            .replace("$nativeCrs", nativeCrsEpsgCode)
+                            .replace("$outputCrs", requestedCrsEpsgCode);
         }
-                
+
         return bbox;
     }
 

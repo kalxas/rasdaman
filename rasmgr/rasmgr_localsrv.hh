@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "rasmgr.hh"
 
 
-size_t my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm);
+size_t my_strftime(char* s, size_t max, const char* fmt, const struct tm* tm);
 void catch_SIGCHLD(int);
 const char* now();
 
@@ -51,7 +51,7 @@ class LocalServer
 {
 public:
     LocalServer();
-    void  init(const char*,pid_t);
+    void  init(const char*, pid_t);
     const char* getName();
     pid_t getPID();
     bool  isValid();
@@ -71,8 +71,8 @@ public:
     ~LocalServerManager();
     bool startNewServer(const char* commandline);
     int  countStartedServers();
-    bool sendTerminateSignal(const char *serverName);
-    bool killServer(const char *serverName);
+    bool sendTerminateSignal(const char* serverName);
+    bool killServer(const char* serverName);
 
     LocalServer& operator[](int);
     LocalServer& operator[](const char* srvName);
@@ -80,7 +80,7 @@ public:
     void childSignalIn(); //only signal calls this
     void cleanChild();
 private:
-    void reportDeadServer(LocalServer &);
+    void reportDeadServer(LocalServer&);
     bool  wasSignal;
     std::list<LocalServer> srvList;
     LocalServer       protElem;

@@ -57,10 +57,10 @@ public class RasdamanValuesUpdater implements RasdamanUpdater {
     @Override
     public void update() throws RasdamanException {
         String queryString = UPDATE_TEMPLATE_VALUES.replace("$collection", affectedCollectionName)
-                .replace("$domain", affectedDomain)
-                .replace("$oid", affectedCollectionOid)
-                .replace("$values", values)
-                .replace("$shiftDomain", shiftDomain);
+                             .replace("$domain", affectedDomain)
+                             .replace("$oid", affectedCollectionOid)
+                             .replace("$values", values)
+                             .replace("$shiftDomain", shiftDomain);
         RasUtil.executeRasqlQuery(queryString, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
     }
 

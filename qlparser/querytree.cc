@@ -84,10 +84,10 @@ QueryTree::QueryTree(QtNode* root)
 
 QueryTree::~QueryTree()
 {
-    if( rootNode )
+    if (rootNode)
     {
         delete rootNode;
-        rootNode=NULL;
+        rootNode = NULL;
     }
     releaseDynamicObjects();
 }
@@ -97,9 +97,11 @@ void
 QueryTree::checkSemantics()
 {
     if (!rootNode)
+    {
         return;
+    }
 
-    switch( rootNode->getNodeType() )
+    switch (rootNode->getNodeType())
     {
     case QtNode::QT_MDD_ACCESS:
     case QtNode::QT_OPERATION_ITERATOR:
@@ -134,14 +136,14 @@ QueryTree::checkSemantics()
 vector<QtData*>*
 QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
 {
-    vector<QtData*>* returnValue=NULL;
+    vector<QtData*>* returnValue = NULL;
 
-    if( rootNode )
+    if (rootNode)
     {
-        if( rootNode->getNodeType() != QtNode::QT_MDD_ACCESS &&
+        if (rootNode->getNodeType() != QtNode::QT_MDD_ACCESS &&
                 rootNode->getNodeType() != QtNode::QT_OPERATION_ITERATOR &&
                 rootNode->getNodeType() != QtNode::QT_JOIN_ITERATOR &&
-                rootNode->getNodeType() != QtNode::QT_SELECTION_ITERATOR    )
+                rootNode->getNodeType() != QtNode::QT_SELECTION_ITERATOR)
         {
             LFATAL << "QueryTree::evaluateRetrieval() - Retrieval query must start with an ONC node.";
             ParseInfo errorInfo = rootNode->getParseInfo();
@@ -149,7 +151,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
             throw errorInfo;
         }
 
-        QtNode::QtDataList*          dataList=NULL;
+        QtNode::QtDataList*          dataList = NULL;
         QtNode::QtDataList::iterator dataIter;
         QtONCStream*                 oncRootNode = static_cast<QtONCStream*>(rootNode);
 
@@ -157,7 +159,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         {
             oncRootNode->open();
         }
-        catch( ... )
+        catch (...)
         {
             oncRootNode->close();
             LFATAL << "QueryTree::evaluateRetrieval() - rethrow exception from oncRootNode->open().";
@@ -169,22 +171,28 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
 
         try
         {
-            while( (dataList = oncRootNode->next()) )
+            while ((dataList = oncRootNode->next()))
             {
-                if( dataList->size() > 1 || (*dataList)[0] == NULL )
+                if (dataList->size() > 1 || (*dataList)[0] == NULL)
                 {
                     // Delete the tupel vector received by next(). Just tupel elements which are not
                     // further referenced are deleted.
-                    for( dataIter=dataList->begin(); dataIter!=dataList->end(); dataIter++ )
-                        if( *dataIter ) (*dataIter)->deleteRef();
+                    for (dataIter = dataList->begin(); dataIter != dataList->end(); dataIter++)
+                        if (*dataIter)
+                        {
+                            (*dataIter)->deleteRef();
+                        }
                     delete dataList;
-                    dataList=NULL;
+                    dataList = NULL;
 
-                    if( resultData )
+                    if (resultData)
                     {
                         // Delete the result vector
-                        for( dataIter=resultData->begin(); dataIter!=resultData->end(); dataIter++ )
-                            if( *dataIter ) (*dataIter)->deleteRef();
+                        for (dataIter = resultData->begin(); dataIter != resultData->end(); dataIter++)
+                            if (*dataIter)
+                            {
+                                (*dataIter)->deleteRef();
+                            }
                         delete resultData;
                         resultData = NULL;
                     }
@@ -198,28 +206,34 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
                 QtData* resultElement = (*dataList)[0];
 
                 // take the data element as result data and reset it in the tupel vector
-                resultData->push_back( resultElement );
+                resultData->push_back(resultElement);
                 (*dataList)[0] = NULL;
 
                 LTRACE << "NEXT RESULT ITEM OF THE QUERY INSERTED";
 
                 // Delete the tupel vector received by next(). Just tupel elements which are not
                 // set to zero and which are not further referenced are deleted.
-                for( dataIter=dataList->begin(); dataIter!=dataList->end(); dataIter++ )
-                    if( *dataIter ) (*dataIter)->deleteRef();
+                for (dataIter = dataList->begin(); dataIter != dataList->end(); dataIter++)
+                    if (*dataIter)
+                    {
+                        (*dataIter)->deleteRef();
+                    }
 
                 // delete the tuple vector
                 delete dataList;
-                dataList=NULL;
+                dataList = NULL;
             }
         }
-        catch(r_Error& myErr)
+        catch (r_Error& myErr)
         {
-            if( resultData )
+            if (resultData)
             {
                 // Delete the result vector
-                for( dataIter=resultData->begin(); dataIter!=resultData->end(); dataIter++ )
-                    if( *dataIter ) (*dataIter)->deleteRef();
+                for (dataIter = resultData->begin(); dataIter != resultData->end(); dataIter++)
+                    if (*dataIter)
+                    {
+                        (*dataIter)->deleteRef();
+                    }
                 delete resultData;
                 resultData = NULL;
             }
@@ -227,13 +241,16 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
             oncRootNode->close();
             throw;
         }
-        catch( ... )
+        catch (...)
         {
-            if( resultData )
+            if (resultData)
             {
                 // Delete the result vector
-                for( dataIter=resultData->begin(); dataIter!=resultData->end(); dataIter++ )
-                    if( *dataIter ) (*dataIter)->deleteRef();
+                for (dataIter = resultData->begin(); dataIter != resultData->end(); dataIter++)
+                    if (*dataIter)
+                    {
+                        (*dataIter)->deleteRef();
+                    }
                 delete resultData;
                 resultData = NULL;
             }
@@ -250,7 +267,9 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         LINFO << "Evaluated query tree:";
         rootNode->printTree(2, RMInit::logOut);
 #endif
-    } else if (infoType == QT_INFO_VERSION) {
+    }
+    else if (infoType == QT_INFO_VERSION)
+    {
         ostringstream version("");
 
 #ifdef RMANVERSION
@@ -275,7 +294,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         r_Bytes contentLength = static_cast<r_Bytes>(infoString.length());
 
         r_Minterval mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(contentLength) - 1);
-        Tile *resultTile = new Tile(mddDomain, baseType, infoString.c_str(), contentLength, r_Array);
+        Tile* resultTile = new Tile(mddDomain, baseType, infoString.c_str(), contentLength, r_Array);
 
         // create a transient MDD object for the query result
         MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
@@ -287,22 +306,22 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         returnValue = new vector<QtData*>();
         returnValue->push_back(new QtMDD(static_cast<MDDObj*>(resultMDD)));
     }
-    
+
     return returnValue;
 }
 
 
 
 vector<QtData*>*
-QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
+QueryTree::evaluateUpdate() throw (r_Error, ParseInfo)
 {
     QtData* resultElement = NULL;
     // create result collection
     vector<QtData*>* resultData = new vector<QtData*>();
 
-    if( rootNode )
+    if (rootNode)
     {
-        if( rootNode->getNodeType() != QtNode::QT_UPDATE  &&
+        if (rootNode->getNodeType() != QtNode::QT_UPDATE  &&
                 rootNode->getNodeType() != QtNode::QT_INSERT  &&
                 rootNode->getNodeType() != QtNode::QT_DELETE  &&
                 rootNode->getNodeType() != QtNode::QT_COMMAND &&
@@ -311,7 +330,7 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
                 rootNode->getNodeType() != QtNode::QT_CREATE_MDD_TYPE &&
                 rootNode->getNodeType() != QtNode::QT_CREATE_SET_TYPE &&
                 rootNode->getNodeType() != QtNode::QT_DROP_TYPE
-          )
+           )
         {
             LFATAL << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
             ParseInfo errorInfo = rootNode->getParseInfo();
@@ -338,157 +357,159 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
         rootNode->printTree(2, RMInit::logOut);
 #endif
     }
-    resultData->push_back( resultElement );
+    resultData->push_back(resultElement);
     return resultData;
 }
 
 
 
-void QueryTree::printTree( int tab, ostream& s )
+void QueryTree::printTree(int tab, ostream& s)
 {
-    if ( rootNode )
+    if (rootNode)
     {
         s <<  SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree:" << endl;
-        rootNode->printTree( tab + 2, s );
+        rootNode->printTree(tab + 2, s);
     }
     else
+    {
         s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree: Qt has no root node." << endl;
+    }
 }
 
-void QueryTree::addDynamicObject( QtNode *node )
+void QueryTree::addDynamicObject(QtNode* node)
 {
-    qtNodeList.push_back( node );
+    qtNodeList.push_back(node);
 }
 
-void QueryTree::removeDynamicObject( QtNode *node )
+void QueryTree::removeDynamicObject(QtNode* node)
 {
-    qtNodeList.remove( node );
+    qtNodeList.remove(node);
 }
 
-void QueryTree::addDynamicObject( QtData *node )
+void QueryTree::addDynamicObject(QtData* node)
 {
-    qtDataList.push_back( node );
+    qtDataList.push_back(node);
 }
 
-void QueryTree::removeDynamicObject( QtData *node )
+void QueryTree::removeDynamicObject(QtData* node)
 {
-    qtDataList.remove( node );
+    qtDataList.remove(node);
 }
 
-void QueryTree::addDynamicObject( ParseInfo *node )
+void QueryTree::addDynamicObject(ParseInfo* node)
 {
-    parseInfoList.push_back( node );
+    parseInfoList.push_back(node);
 }
 
-void QueryTree::removeDynamicObject( ParseInfo *node )
+void QueryTree::removeDynamicObject(ParseInfo* node)
 {
-    parseInfoList.remove( node );
+    parseInfoList.remove(node);
 }
 
-void QueryTree::addDynamicObject( vector<QtONCStream *> *node )
+void QueryTree::addDynamicObject(vector<QtONCStream*>* node)
 {
-    vectorList.push_back( node );
+    vectorList.push_back(node);
 }
 
-void QueryTree::removeDynamicObject( vector<QtONCStream*> *node )
+void QueryTree::removeDynamicObject(vector<QtONCStream*>* node)
 {
-    vectorList.remove( node );
+    vectorList.remove(node);
 }
 
 void QueryTree::releaseDynamicObjects()
 {
-    for( list<QtNode*>::iterator iter = qtNodeList.begin(); iter != qtNodeList.end(); iter++ )
+    for (list<QtNode*>::iterator iter = qtNodeList.begin(); iter != qtNodeList.end(); iter++)
     {
         if (*iter != NULL)
         {
             delete *iter;
-            *iter=NULL;
+            *iter = NULL;
         }
     }
 
-    for( list<QtData*>::iterator iter = qtDataList.begin(); iter != qtDataList.end(); iter++ )
+    for (list<QtData*>::iterator iter = qtDataList.begin(); iter != qtDataList.end(); iter++)
     {
         if (*iter != NULL)
         {
             delete *iter;
-            *iter=NULL;
+            *iter = NULL;
         }
     }
 
-    for( list<ParseInfo*>::iterator iter = parseInfoList.begin(); iter != parseInfoList.end(); iter++ )
+    for (list<ParseInfo*>::iterator iter = parseInfoList.begin(); iter != parseInfoList.end(); iter++)
     {
         if (*iter != NULL)
         {
             delete *iter;
-            *iter=NULL;
+            *iter = NULL;
         }
     }
 
-    for( list<vector<QtONCStream*>*>::iterator iter = vectorList.begin(); iter != vectorList.end(); iter++ )
+    for (list<vector<QtONCStream*>*>::iterator iter = vectorList.begin(); iter != vectorList.end(); iter++)
     {
         if (*iter != NULL)
         {
             delete *iter;
-            *iter=NULL;
+            *iter = NULL;
         }
     }
 
-    for( list<char *>::iterator iter = lexedCStringList.begin(); iter != lexedCStringList.end(); iter++ )
+    for (list<char*>::iterator iter = lexedCStringList.begin(); iter != lexedCStringList.end(); iter++)
     {
         if (*iter != NULL)
         {
             free(*iter);
-            *iter=NULL;
+            *iter = NULL;
         }
     }
 }
 
-void QueryTree::addDomainObject( QtDomainOperation *dop )
+void QueryTree::addDomainObject(QtDomainOperation* dop)
 {
-    dopList.push_back( dop );
+    dopList.push_back(dop);
 }
 
-void QueryTree::removeDomainObject( QtDomainOperation *dop )
+void QueryTree::removeDomainObject(QtDomainOperation* dop)
 {
-    dopList.remove( dop );
+    dopList.remove(dop);
 }
 
 void QueryTree::printDomainObjects()
 {
     list<QtDomainOperation*>::iterator iter;
-    for( iter = dopList.begin(); iter != dopList.end(); iter++ )
+    for (iter = dopList.begin(); iter != dopList.end(); iter++)
     {
         cout << endl;
-        (*iter)->printTree( 2 );
+        (*iter)->printTree(2);
     }
 }
 
 void QueryTree::releaseDomainObjects()
 {
     list<QtDomainOperation*>::iterator iter;
-    for( iter = dopList.begin(); iter != dopList.end(); iter++ )
+    for (iter = dopList.begin(); iter != dopList.end(); iter++)
     {
         delete *iter;
-        *iter=NULL;
+        *iter = NULL;
     }
 }
 
-void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *greatDomain, string *greatIterator, QtMarrayOp2::mddIntervalListType *greatList)
+void QueryTree::rewriteDomainObjects(__attribute__((unused)) r_Minterval* greatDomain, string* greatIterator, QtMarrayOp2::mddIntervalListType* greatList)
 {
 
     list<QtDomainOperation*>::iterator iter;
 
-    for( iter = dopList.begin(); iter != dopList.end(); iter++ )
+    for (iter = dopList.begin(); iter != dopList.end(); iter++)
     {
 
         // 1. get var name from iter
-        QtVariable *qtVar = (static_cast<QtVariable *>((*iter)->getInput()));
+        QtVariable* qtVar = (static_cast<QtVariable*>((*iter)->getInput()));
         string stVar = qtVar->getIteratorName();
-        const char *varname = stVar.c_str();
+        const char* varname = stVar.c_str();
 
         // 2. get position of varname in varList
         bool bcond = false;
-        QtMarrayOp2::mddIntervalListType *varList = greatList;
+        QtMarrayOp2::mddIntervalListType* varList = greatList;
         QtMarrayOp2::mddIntervalListType::iterator varIter;
         r_Long varpos = 0;
         for (varIter = varList->begin(); varIter != varList->end(); varIter++)
@@ -499,7 +520,7 @@ void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *great
                 bcond = true;
                 break;
             };
-            QtData *data = varIter->tree->evaluate(0);
+            QtData* data = varIter->tree->evaluate(0);
             r_Dimension dimension = (static_cast<QtMintervalData*>(data))->getMintervalData().dimension();
             varpos = varpos + static_cast<r_Long>(dimension);
         };
@@ -509,7 +530,7 @@ void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *great
         {
 
             // 3. set domain expression to old one incremented by varpos
-            QtNode::QtOperationList *lop = new QtNode::QtOperationList(1);
+            QtNode::QtOperationList* lop = new QtNode::QtOperationList(1);
             (*lop)[0] =
                 new QtPlus(
                 (*iter)->getMintervalOp(),
@@ -522,15 +543,15 @@ void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *great
 
             // set properly parent to new op -- DM 2013-jun-26
             QtOperation* mintervalOp = (*iter)->getMintervalOp();
-            QtOperation* newMintervalOp = new QtPointOp( lop );
+            QtOperation* newMintervalOp = new QtPointOp(lop);
             if (mintervalOp)
             {
                 newMintervalOp->setParent(*iter);
             }
-            (*iter)->setMintervalOp( newMintervalOp );
+            (*iter)->setMintervalOp(newMintervalOp);
 
             // 4. set varname to greatIterator
-            QtVariable *var1 = new QtVariable( string(*greatIterator) );
+            QtVariable* var1 = new QtVariable(string(*greatIterator));
             (*iter)->setInput(var1);
 
         }
@@ -542,9 +563,9 @@ void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *great
     }
 }
 
-void QueryTree::addCString( char *str )
+void QueryTree::addCString(char* str)
 {
-    lexedCStringList.push_back( str );
+    lexedCStringList.push_back(str);
 }
 
 

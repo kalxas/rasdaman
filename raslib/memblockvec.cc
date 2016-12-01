@@ -38,49 +38,51 @@ rasdaman GmbH.
 #include "raslib/memblockvec.hh"
 
 
-r_Memory_Block_Vector::r_Memory_Block_Vector( r_Bytes bsize, unsigned int gran )
+r_Memory_Block_Vector::r_Memory_Block_Vector(r_Bytes bsize, unsigned int gran)
 {
     blockSize = bsize;
     granularity = gran;
 
     numBlocks = 0;
     maxBlocks = granularity;
-    blocks = new void*[granularity];
+    blocks = new void* [granularity];
 }
 
-r_Memory_Block_Vector::~r_Memory_Block_Vector( void )
+r_Memory_Block_Vector::~r_Memory_Block_Vector(void)
 {
     free_data();
     delete [] blocks;
 }
 
-void* r_Memory_Block_Vector::operator[]( unsigned int idx ) const
+void* r_Memory_Block_Vector::operator[](unsigned int idx) const
 {
     if (idx >= numBlocks)
+    {
         return NULL;
+    }
 
     return blocks[idx];
 }
 
-void* r_Memory_Block_Vector::add( void )
+void* r_Memory_Block_Vector::add(void)
 {
     if (numBlocks >= maxBlocks)
     {
-        void** newBlocks = new void*[maxBlocks + granularity];
+        void** newBlocks = new void* [maxBlocks + granularity];
         memcpy(newBlocks, blocks, numBlocks * sizeof(void*));
         delete [] blocks;
         blocks = newBlocks;
         maxBlocks += granularity;
     }
     blocks[numBlocks++] = static_cast<void*>(new char[blockSize]);
-    return blocks[numBlocks-1];
+    return blocks[numBlocks - 1];
 }
 
-void r_Memory_Block_Vector::free_data( void )
+void r_Memory_Block_Vector::free_data(void)
 {
     unsigned int i;
 
-    for (i=0; i<numBlocks; i++)
+    for (i = 0; i < numBlocks; i++)
     {
         delete [] static_cast<char*>(blocks[i]);
         blocks[i] = NULL;
@@ -88,22 +90,25 @@ void r_Memory_Block_Vector::free_data( void )
     numBlocks = 0;
 }
 
-r_Bytes r_Memory_Block_Vector::get_size( r_Bytes lastFill ) const
+r_Bytes r_Memory_Block_Vector::get_size(r_Bytes lastFill) const
 {
-    return (numBlocks == 0) ? 0 : (numBlocks-1)*blockSize + lastFill;
+    return (numBlocks == 0) ? 0 : (numBlocks - 1) * blockSize + lastFill;
 }
 
-void r_Memory_Block_Vector::copy_data( void* dest, r_Bytes lastFill ) const
+void r_Memory_Block_Vector::copy_data(void* dest, r_Bytes lastFill) const
 {
     unsigned int i;
     void* destPtr = dest;
 
-    if (numBlocks == 0) return;
+    if (numBlocks == 0)
+    {
+        return;
+    }
 
-    for (i=0; i<numBlocks-1; i++)
+    for (i = 0; i < numBlocks - 1; i++)
     {
         memcpy(destPtr, blocks[i], blockSize);
         destPtr = static_cast<void*>((static_cast<char*>(destPtr)) + blockSize);
     }
-    memcpy(destPtr, blocks[numBlocks-1], lastFill);
+    memcpy(destPtr, blocks[numBlocks - 1], lastFill);
 }

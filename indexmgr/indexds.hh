@@ -51,9 +51,9 @@ rasdaman GmbH.
 class IndexDS   :   public DBObject
 {
 public:
-    IndexDS():DBObject() {}
+    IndexDS(): DBObject() {}
 
-    IndexDS(const OId& id):DBObject(id) {}
+    IndexDS(const OId& id): DBObject(id) {}
 
     virtual r_Minterval getCoveredDomain() const = 0;
     /*@Doc:

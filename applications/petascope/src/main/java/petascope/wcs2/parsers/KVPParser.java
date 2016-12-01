@@ -50,8 +50,8 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
     @Override
     public boolean canParse(HTTPRequest request) {
         boolean canParse = request.getRequestString() != null
-                && !request.getRequestString().startsWith("<")
-                && request.getRequestString().contains(getOperationName());
+                           && !request.getRequestString().startsWith("<")
+                           && request.getRequestString().contains(getOperationName());
         log.trace("KVPParser<{}> {} parse the request", getOperationName(), canParse ? "can" : "cannot");
         return canParse;
     }
@@ -102,22 +102,22 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
         checkValue(m, KEY_SERVICE, BaseRequest.SERVICE);
 
         // only section value which is set to 'CoverageSummary|Contents|All' is valid
-        if(m.containsKey("sections"))
-        {
+        if (m.containsKey("sections")) {
             String[] validCases = { KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_COVEARGE_SUMMARY
-                                   ,KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_CONTENTS
-                                   ,KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_ALL};
+                                    , KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_CONTENTS
+                                    , KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_ALL
+                                  };
             checkValue(m, KEY_SECTIONS, validCases);
         }
     }
 
-     /**
-     * This function will check value for argument in list of valid cases
-     * @param m: List arguments
-     * @param k: Argument's key which is needed to check
-     * @param vals: Argument's list of valid cases
-     * @throws WCSException
-     */
+    /**
+    * This function will check value for argument in list of valid cases
+    * @param m: List arguments
+    * @param k: Argument's key which is needed to check
+    * @param vals: Argument's list of valid cases
+    * @throws WCSException
+    */
     private void checkValue(Map<String, List<String>> m, String k, String... vals) throws WCSException {
         String v = get(k, m);
         if (v == null || (!ListUtil.toList(vals).contains(v))) {

@@ -36,7 +36,7 @@ public class Description {
     private List<KeywordsGroup> serviceKeywords;
 
     // Constructor
-    public Description () {
+    public Description() {
         serviceTitles      = new ArrayList<String>();
         serviceAbstracts   = new ArrayList<String>();
         serviceKeywords   = new ArrayList<KeywordsGroup>();
@@ -60,13 +60,13 @@ public class Description {
     public List<KeywordsGroup> getKeywordGroups() {
         return serviceKeywords.isEmpty() ? new ArrayList<KeywordsGroup>() : serviceKeywords;
     }
-    public void addKeywordGroup(List<Pair<String,String>> keyAndLang) {
+    public void addKeywordGroup(List<Pair<String, String>> keyAndLang) {
         serviceKeywords.add(new KeywordsGroup(keyAndLang));
     }
-    public void addKeywordGroup(List<Pair<String,String>> keyAndLang, String type) {
+    public void addKeywordGroup(List<Pair<String, String>> keyAndLang, String type) {
         serviceKeywords.add(new KeywordsGroup(keyAndLang, type));
     }
-    public void addKeywordGroup(List<Pair<String,String>> keyAndLang, String type, String codeSpace) {
+    public void addKeywordGroup(List<Pair<String, String>> keyAndLang, String type, String codeSpace) {
         serviceKeywords.add(new KeywordsGroup(keyAndLang, type, codeSpace));
     }
 
@@ -84,31 +84,31 @@ public class Description {
     */
     public class KeywordsGroup {
 
-        private List<Pair<String,String>> keyValues;
+        private List<Pair<String, String>> keyValues;
         private String keyType;
         private String keyTypeCodeSpace;
 
         // Constructors: at least 1 keyword required, to avoid let inconsistent keyword groups
-        KeywordsGroup (List<Pair<String,String>> keysAndLangs) {
-            keyValues = new ArrayList<Pair<String,String>>();
-            for (Pair<String,String> keyAndLang : keysAndLangs) {
+        KeywordsGroup(List<Pair<String, String>> keysAndLangs) {
+            keyValues = new ArrayList<Pair<String, String>>();
+            for (Pair<String, String> keyAndLang : keysAndLangs) {
                 keyValues.add(Pair.of(
-                        keyAndLang.fst,
-                        ((null == keyAndLang.snd) ? "" : keyAndLang.snd))
-                        );
+                                  keyAndLang.fst,
+                                  ((null == keyAndLang.snd) ? "" : keyAndLang.snd))
+                             );
             }
         }
-        KeywordsGroup (List<Pair<String,String>> keysAndLangs, String type) {
+        KeywordsGroup(List<Pair<String, String>> keysAndLangs, String type) {
             this(keysAndLangs);
             keyType = type;
         }
-        KeywordsGroup (List<Pair<String,String>> keysAndLangs, String type, String codeSpace) {
+        KeywordsGroup(List<Pair<String, String>> keysAndLangs, String type, String codeSpace) {
             this(keysAndLangs, type);
             keyTypeCodeSpace = codeSpace;
         }
 
         // Getters/Setters
-        public List<Pair<String,String>> getValues() {
+        public List<Pair<String, String>> getValues() {
             return keyValues;
         }
         public void addValue(String newKey) {
@@ -129,7 +129,7 @@ public class Description {
     // Methods
     public boolean isEmpty() {
         return serviceTitles.isEmpty() &&
-                serviceAbstracts.isEmpty() &&
-                serviceKeywords.isEmpty();
+               serviceAbstracts.isEmpty() &&
+               serviceKeywords.isEmpty();
     }
 } //~ Description

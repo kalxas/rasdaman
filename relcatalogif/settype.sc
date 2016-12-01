@@ -53,7 +53,7 @@ SetType::insertInDb() throw (r_Error)
     long long settypeid;
     long long nullvalueoid;
 
-    (void) strncpy(settypename, const_cast<char*>(getTypeName()), (size_t) sizeof (settypename));
+    (void) strncpy(settypename, const_cast<char*>(getTypeName()), (size_t) sizeof(settypename));
     settypeid = myOId.getCounter();
     mddtypeid = getMDDType()->getOId();
 
@@ -94,7 +94,7 @@ SetType::readFromDb() throw (r_Error)
     DBObject::readTimer.resume();
 #endif
     long long mddtypeid;
-    char *settypename;
+    char* settypename;
     long long settypeid;
     long long nullvalueoid;
 
@@ -111,7 +111,7 @@ SetType::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "SetType::readFromDb() - set type: "
-                << settypeid << " not found in the database.";
+               << settypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "set type object not found in the database.");
     }
     setName(settypename);

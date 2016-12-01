@@ -51,19 +51,16 @@ public class RasList extends RasCollection implements DList
     /**
      * constructor
      */
-    public RasList()
-    {
-	content = new ArrayList();
+    public RasList() {
+        content = new ArrayList();
     }
 
     /**
      * Creates a new DList object that contains the contents of this DList object concatenated with the contents of the otherList object.
      */
-    public DList concat(DList otherList)
-    {
-        for(int i=0; i<otherList.size(); i++)
-        {
-          content.add(otherList.get(i));
+    public DList concat(DList otherList) {
+        for (int i = 0; i < otherList.size(); i++) {
+            content.add(otherList.get(i));
         }
         return this;
     }
@@ -71,12 +68,10 @@ public class RasList extends RasCollection implements DList
     /**
      * Returns a view of the portion of this list between fromIndex, inclusive, and toIndex, exclusive.
      */
-    public List subList(int fromIndex, int toIndex)
-    {
+    public List subList(int fromIndex, int toIndex) {
         List l = new RasList();
-        for(int j=fromIndex; j<toIndex; j++)
-        {
-          l.add(content.get(j));
+        for (int j = fromIndex; j < toIndex; j++) {
+            l.add(content.get(j));
         }
         return l;
     }
@@ -84,16 +79,14 @@ public class RasList extends RasCollection implements DList
     /**
      * Returns a list iterator of the elements in this list (in proper sequence).
      */
-    public ListIterator listIterator()
-    {
+    public ListIterator listIterator() {
         return content.listIterator();
     }
 
     /**
      * Returns an iterator over the elements in this list in proper sequence.
      */
-    public Iterator iterator()
-    {
+    public Iterator iterator() {
         return content.iterator();
     }
 
@@ -101,16 +94,14 @@ public class RasList extends RasCollection implements DList
     /**
      * Returns a list iterator of the elements in this list (in proper sequence), starting at the specified position in the list.
      */
-    public ListIterator listIterator(int index)
-    {
+    public ListIterator listIterator(int index) {
         return content.listIterator(index);
     }
 
     /**
      * Returns the index in this list of the last occurence of the specified element, or -1 if the list does not contain this element.
      */
-    public int lastIndexOf(Object o)
-    {
+    public int lastIndexOf(Object o) {
         return content.lastIndexOf(o);
     }
 
@@ -118,65 +109,57 @@ public class RasList extends RasCollection implements DList
     /**
      * Returns the index in this list of the first occurence of the specified element, or -1 if the list does not contain this element.
      */
-    public int indexOf(Object o)
-    {
+    public int indexOf(Object o) {
         return content.indexOf(o);
     }
 
     /**
      * Removes the element at the specified position in this list.
      */
-    public Object remove(int index)
-    {
+    public Object remove(int index) {
         return content.remove(index);
     }
 
     /**
      * Appends the specified element to the end of this List.
      */
-    public boolean add(Object o)
-    {
-      return content.add(o);
+    public boolean add(Object o) {
+        return content.add(o);
     }
 
     /**
      * Inserts the specified element at the specified position in this list.
      */
-    public void add(int index, Object element)
-    {
+    public void add(int index, Object element) {
         content.add(index, element);
     }
 
     /**
      * Replaces the element at the specified position in this list with the specified element.
      */
-    public Object set(int index, Object element)
-    {
-      return content.set(index, element);
+    public Object set(int index, Object element) {
+        return content.set(index, element);
     }
 
     /**
      * Returns the element at the specified position in this list.
      */
-    public Object get(int index)
-    {
-      return content.get(index);
+    public Object get(int index) {
+        return content.get(index);
     }
 
     /**
      * Inserts all of the elements in the specified collection into this list at the specified position.
      */
-    public boolean addAll(int index, Collection c)
-    {
-      return content.addAll(index, c);
+    public boolean addAll(int index, Collection c) {
+        return content.addAll(index, c);
     }
 
     /**
      * Returns the number of elements in this List.
      */
-    public int size()
-    {
-      return content.size();
+    public int size() {
+        return content.size();
     }
 
 }

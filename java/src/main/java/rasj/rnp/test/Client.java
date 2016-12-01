@@ -23,7 +23,7 @@ rasdaman GmbH.
 /** ***********************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  * test socket communication.
  *
  *
@@ -31,74 +31,62 @@ rasdaman GmbH.
  *
  * </pre>
  *********************************************************** */
- 
+
 import java.io.*;
 import java.net.*;
 import java.lang.*;
 import java.util.*;
 
-public class Client
-{ 
-	private static final String DEFAULT_SERVER = "localhost";
-	private static final int    DEFAULT_PORT   = 7001;
+public class Client {
+    private static final String DEFAULT_SERVER = "localhost";
+    private static final int    DEFAULT_PORT   = 7001;
 
-	private static String server = DEFAULT_SERVER;
-	private static int    port   = DEFAULT_PORT;
+    private static String server = DEFAULT_SERVER;
+    private static int    port   = DEFAULT_PORT;
 
-	private static void communicate()
-	{
-                System.out.println( "server=" + server + ", port=" + port );
+    private static void communicate() {
+        System.out.println("server=" + server + ", port=" + port);
 
-		try
-		{
-			Socket socket = new Socket( server, port );
+        try {
+            Socket socket = new Socket(server, port);
 
- 			PrintStream ps = new PrintStream(socket.getOutputStream());
-			ps.print("Hello " + server + " at port " + port + " !\n" );
-			ps.flush();
-	
-			BufferedReader ds = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			System.out.println( "server delivered: '" + ds.readLine() );
+            PrintStream ps = new PrintStream(socket.getOutputStream());
+            ps.print("Hello " + server + " at port " + port + " !\n");
+            ps.flush();
 
-			ps.close();
-			ds.close();		
-			socket.close();
-			System.out.println( "socket closed." );
-		}
-		catch(UnknownHostException e2)
-		{
-			System.out.println( "host unknown: " + e2.getMessage() );
-		}
-		catch(IOException e1)
-		{
-			System.out.println( "io exception: " + e1.getMessage() );
-		}
-	}
+            BufferedReader ds = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("server delivered: '" + ds.readLine());
 
-	public static void main( String args[] )
-	{
-                System.out.println( "Socket test started." );
+            ps.close();
+            ds.close();
+            socket.close();
+            System.out.println("socket closed.");
+        } catch (UnknownHostException e2) {
+            System.out.println("host unknown: " + e2.getMessage());
+        } catch (IOException e1) {
+            System.out.println("io exception: " + e1.getMessage());
+        }
+    }
 
-		if (args.length != 0 && args.length != 2)
-                	System.out.println( "usage: java Client [server port]" );
-		else if (args.length == 2)
-		{
-			server = args[0];
-			try
-			{
-				port = Integer.parseInt( args[1] );
-			}
-			catch(NumberFormatException e)
-			{
-                		System.err.println( "Error: illegal port parameter: " + args[1] );
-				return;
-			}
-		}
+    public static void main(String args[]) {
+        System.out.println("Socket test started.");
 
-                communicate();
+        if (args.length != 0 && args.length != 2) {
+            System.out.println("usage: java Client [server port]");
+        } else if (args.length == 2) {
+            server = args[0];
+            try {
+                port = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                System.err.println("Error: illegal port parameter: " + args[1]);
+                return;
+            }
+        }
 
-                System.out.println( "Socket test done." );
-	}
+        communicate();
+
+        System.out.println("Socket test done.");
+    }
 }
 
 

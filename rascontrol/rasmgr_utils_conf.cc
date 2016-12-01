@@ -42,24 +42,30 @@ ConfigurationBase::ConfigurationBase()
 {
 }
 
-bool ConfigurationBase::interpretArguments(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv)
+bool ConfigurationBase::interpretArguments(__attribute__((unused)) int argc, __attribute__((unused)) char** argv)
 {
     return false;
 }
 
 
-int ConfigurationBase::checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int ConfigurationBase::checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
@@ -67,6 +73,6 @@ int ConfigurationBase::checkArguments( int argc, char** argv, const char* search
 
 void ConfigurationBase::printHelp()
 {
-    std::cout<<"Help not available..."<< std::endl;
+    std::cout << "Help not available..." << std::endl;
 }
 

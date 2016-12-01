@@ -40,65 +40,58 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public abstract class RasRuntimeException extends RuntimeException
-{
-  static final String rcsid = "@(#)Package rasj, class RasRuntimeException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasRuntimeException.java,v 1.4 2003/12/19 16:22:27 rasdev Exp $";
+public abstract class RasRuntimeException extends RuntimeException {
+    static final String rcsid = "@(#)Package rasj, class RasRuntimeException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasRuntimeException.java,v 1.4 2003/12/19 16:22:27 rasdev Exp $";
 
- protected int errNo = 0;
- protected String errText = null;
+    protected int errNo = 0;
+    protected String errText = null;
 
     /**
      * Standard constructor.
      **/
- protected RasRuntimeException()
-	{
-	}
+    protected RasRuntimeException() {
+    }
 
     /**
      * Constructor getting the error number.
      * @param num the RasDaMan error number
      **/
- protected RasRuntimeException( int num )
-	{
+    protected RasRuntimeException(int num) {
         errNo = num;
-	}
+    }
 
     /**
      * Constructor getting the error message.
      * @param msg the error message
      **/
- protected RasRuntimeException( String msg )
-	{
-        errText = ( (msg==null) ? "(null)" : msg );
-	}
+    protected RasRuntimeException(String msg) {
+        errText = ((msg == null) ? "(null)" : msg);
+    }
 
     /**
      * Constructor getting error number and error message.
      * @param num the RasDaMan error number
      * @param msg the error message
      **/
- protected RasRuntimeException( int num, String msg )
-	{
+    protected RasRuntimeException(int num, String msg) {
         errNo = num;
-        errText = ( (msg==null) ? "(null)" : msg );
-	}
- 
+        errText = ((msg == null) ? "(null)" : msg);
+    }
+
     /**
      * Method for retrieving the error number.
      * @return the error number
      **/
- public int getErrNo()
-	{
+    public int getErrNo() {
         return errNo;
-	}
- 
+    }
+
     /**
      * Method retrieving the error message.
      * @return the error message
      **/
- public String getMessage()
-	{
+    public String getMessage() {
         return errText;
-	}
+    }
 
 }

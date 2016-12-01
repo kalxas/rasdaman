@@ -52,17 +52,17 @@ public:
     QtComplexData();
 
     /// constructor getting a pointer to a list of \Ref{QtScalarData} objects
-    QtComplexData( QtScalarDataList* &scalarDataList );
+    QtComplexData(QtScalarDataList*& scalarDataList);
     /**
       Construct an object with \Ref{QtScalarData} elements of the list and
       destroy the list afterwards. {\ttscalarDataList} is set to zero.
     */
 
     /// copy constructor
-    QtComplexData( const QtComplexData& obj );
+    QtComplexData(const QtComplexData& obj);
 
     /// print status of the object to the specified stream
-    virtual void printStatus( std::ostream& stream = std::cout ) const;
+    virtual void printStatus(std::ostream& stream = std::cout) const;
 };
 
 #include "qlparser/qtcomplexdata.icc"

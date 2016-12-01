@@ -27,12 +27,12 @@ package petascope;
  *
  * @author <a href="alex@flanche.net">Alex Dumitru</a>
  */
-public class HTTPRequest {    
+public class HTTPRequest {
     /**
      * Constructor for the class In
-     * http://example.org/petascope/wcs/2.0/?foo=bar the components are: 
-     * - contextPath: petascope 
-     * - urlPath : wcs/2.0 
+     * http://example.org/petascope/wcs/2.0/?foo=bar the components are:
+     * - contextPath: petascope
+     * - urlPath : wcs/2.0
      * - queryString : foo=bar
      *
      * @param contextPath
@@ -96,7 +96,7 @@ public class HTTPRequest {
     /**
      * Method provided for backwards compatibility with parsers that expect the
      * whole request to be provided as a string, i.e KVP expects the query
-     * string, XML expects an XML compatible string etc In the future these 
+     * string, XML expects an XML compatible string etc In the future these
      * parsers should extract the needed information from the HTTPRequest
      *
      * @return the request string as expected by parsers
@@ -108,7 +108,7 @@ public class HTTPRequest {
     public void setRequestString(String requestString) {
         this.requestString = requestString;
     }
-    
+
 
     @Override
     public String toString() {

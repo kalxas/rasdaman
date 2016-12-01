@@ -40,7 +40,7 @@ TEST(UserTest, serializeToProto)
     User user(name, password, dbRights, userAdminRights);
     UserProto proto = User::serializeToProto(user);
 
-    ASSERT_EQ(name,proto.name());
+    ASSERT_EQ(name, proto.name());
     ASSERT_EQ(password, proto.password());
 
     ASSERT_EQ(readRights, proto.default_db_rights().read());
@@ -70,7 +70,7 @@ TEST(UserTest, parseFromProto)
     bool adminRights = TestUtil::generateRandomElement(false, true);
     bool configRights = TestUtil::generateRandomElement(false, true);
 
-    UserAdminRightsProto* userAdminRights= new UserAdminRightsProto();
+    UserAdminRightsProto* userAdminRights = new UserAdminRightsProto();
     userAdminRights->set_access_control_rights(controlRights);
     userAdminRights->set_info_rights(infoRights);
     userAdminRights->set_server_admin_rights(adminRights);
@@ -79,7 +79,7 @@ TEST(UserTest, parseFromProto)
     bool readRights = TestUtil::generateRandomElement(false, true);
     bool writeRights = TestUtil::generateRandomElement(false, true);
 
-    UserDatabaseRightsProto* userDbRights= new UserDatabaseRightsProto();
+    UserDatabaseRightsProto* userDbRights = new UserDatabaseRightsProto();
     userDbRights->set_read(readRights);
     userDbRights->set_write(writeRights);
 

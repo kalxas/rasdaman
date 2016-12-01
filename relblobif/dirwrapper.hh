@@ -36,9 +36,10 @@
 #include "raslib/error.hh"
 
 // used by DirWrapper::removeDirectory
-int removePath(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
+int removePath(const char* fpath, const struct stat* sb, int typeflag, struct FTW* ftwbuf);
 
-namespace blobfs {
+namespace blobfs
+{
 
 /**
  * Encapsulate common directory operations.

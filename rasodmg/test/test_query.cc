@@ -94,29 +94,35 @@ const int MAX_QUERY_LEN = 10240;
 
 bool printText = false;
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && (argv[i][0] != '-') )
+    if (found && i < argc && (argv[i][0] != '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
 
-void printScalar( const r_Scalar& scalar )
+void printScalar(const r_Scalar& scalar)
 {
-    switch( scalar.get_type()->type_id() )
+    switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        std::cout << ( ((r_Primitive*)&scalar)->get_boolean() ? "T" : "F" ) << std::flush;
+        std::cout << (((r_Primitive*)&scalar)->get_boolean() ? "T" : "F") << std::flush;
         break;
 
     case r_Type::CHAR:
@@ -162,11 +168,14 @@ void printScalar( const r_Scalar& scalar )
 
         std::cout << "{ " << std::flush;
 
-        for( int i=0; i<structValue->count_elements(); i++ )
+        for (int i = 0; i < structValue->count_elements(); i++)
         {
-            printScalar( (*structValue)[i] );
+            printScalar((*structValue)[i]);
 
-            if( i < structValue->count_elements()-1 ) std::cout << ", " << std::flush;
+            if (i < structValue->count_elements() - 1)
+            {
+                std::cout << ", " << std::flush;
+            }
         }
 
         std::cout << " }" << std::endl;
@@ -209,12 +218,12 @@ void printUsage(char* name)
 r_Tiling*
 getTilingScheme(r_Tiling_Scheme& tilingS, char* tilingP)
 {
-    r_Tiling* retval=NULL;
+    r_Tiling* retval = NULL;
 
     try
     {
         std::cout << "Creating tiling strategy ..." << std::flush;
-        switch(tilingS)
+        switch (tilingS)
         {
         case r_NoTiling:
             retval = new r_No_Tiling(tilingP);
@@ -237,7 +246,7 @@ getTilingScheme(r_Tiling_Scheme& tilingS, char* tilingP)
         }
         std::cout << "OK" << std::flush;
     }
-    catch(r_Error& err)
+    catch (r_Error& err)
     {
         std::cout << "FAILED" << std::endl;
         std::cout << "Error " << err.get_errorno() << " : "  << err.what() << std::endl;
@@ -246,9 +255,9 @@ getTilingScheme(r_Tiling_Scheme& tilingS, char* tilingP)
     return retval;
 }
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-    int  optionValueIndex=0;
+    int  optionValueIndex = 0;
 
     char serverName[MAX_STR_LEN] = "";
     r_ULong  serverPort = 7001;
@@ -260,9 +269,9 @@ int main( int argc, char** argv )
     char fileName[MAX_STR_LEN] = "";
 
     r_Data_Format transferFormat = r_Array;
-    char *transferFormatParams = NULL;
+    char* transferFormatParams = NULL;
     r_Data_Format storageFormat = r_Array;
-    char *storageFormatParams = NULL;
+    char* storageFormatParams = NULL;
 
     r_Tiling_Scheme tilingScheme = r_SizeTiling;
     char* tilingSchemeParams = "131072";
@@ -272,108 +281,132 @@ int main( int argc, char** argv )
     int  hexOutput = 0;
     int  testbed = 0;
 
-    r_ULong  tileSize=0;
+    r_ULong  tileSize = 0;
     r_Minterval   tileConfig;
     r_Minterval   mddDomain;
 
-    if( checkArguments( argc, argv, "-h", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-h", optionValueIndex))
     {
         printUsage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    if( checkArguments( argc, argv, "-server", optionValueIndex ) && optionValueIndex )
-        strcpy( serverName, argv[optionValueIndex] );
+    if (checkArguments(argc, argv, "-server", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(serverName, argv[optionValueIndex]);
+    }
 
-    if( checkArguments( argc, argv, "-base", optionValueIndex ) && optionValueIndex )
-        strcpy( baseName, argv[optionValueIndex] );
+    if (checkArguments(argc, argv, "-base", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(baseName, argv[optionValueIndex]);
+    }
 
-    if( checkArguments( argc, argv, "-file", optionValueIndex ) && optionValueIndex )
-        strcpy( fileName, argv[optionValueIndex] );
+    if (checkArguments(argc, argv, "-file", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(fileName, argv[optionValueIndex]);
+    }
 
-    if(!strcmp(serverName, "") ||
+    if (!strcmp(serverName, "") ||
             !strcmp(baseName,   "") ||
-            !strcmp(fileName,   "") )
+            !strcmp(fileName,   ""))
     {
         std::cerr << "Mandatory parameters are missing!" << std::endl;
         printUsage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    hexOutput =  checkArguments( argc, argv, "-hex", optionValueIndex );
-    printText =  checkArguments( argc, argv, "-text", optionValueIndex );
-    output    = !checkArguments( argc, argv, "-nooutput", optionValueIndex );
-    testbed   =  checkArguments( argc, argv, "-testbed", optionValueIndex );
+    hexOutput =  checkArguments(argc, argv, "-hex", optionValueIndex);
+    printText =  checkArguments(argc, argv, "-text", optionValueIndex);
+    output    = !checkArguments(argc, argv, "-nooutput", optionValueIndex);
+    testbed   =  checkArguments(argc, argv, "-testbed", optionValueIndex);
 
-    if( checkArguments( argc, argv, "-mdddomain", optionValueIndex ) && optionValueIndex )
-        mddDomain = r_Minterval( argv[optionValueIndex] );
-
-    if( checkArguments( argc, argv, "-tileconf", optionValueIndex ) && optionValueIndex )
-        tileConfig = r_Minterval( argv[optionValueIndex] );
-
-    if( checkArguments( argc, argv, "-tilesize", optionValueIndex ) && optionValueIndex )
-        tileSize = strtoul( argv[optionValueIndex], (char **)NULL, 10 ) ;
-
-    if( checkArguments( argc, argv, "-port", optionValueIndex ) && optionValueIndex )
-        serverPort = strtoul( argv[optionValueIndex], (char **)NULL, 10 ) ;
-
-    if( checkArguments( argc, argv, "-user", optionValueIndex ) && optionValueIndex )
-        strcpy( userName, argv[optionValueIndex] );
-
-    if( checkArguments( argc, argv, "-passwd", optionValueIndex ) && optionValueIndex )
-        strcpy( userPasswd, argv[optionValueIndex] );
-
-    if( checkArguments( argc, argv, "-transferformat", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-mdddomain", optionValueIndex) && optionValueIndex)
     {
-        transferFormat = get_data_format_from_name( argv[optionValueIndex] );
-        if(transferFormat == r_Data_Format_NUMBER)
+        mddDomain = r_Minterval(argv[optionValueIndex]);
+    }
+
+    if (checkArguments(argc, argv, "-tileconf", optionValueIndex) && optionValueIndex)
+    {
+        tileConfig = r_Minterval(argv[optionValueIndex]);
+    }
+
+    if (checkArguments(argc, argv, "-tilesize", optionValueIndex) && optionValueIndex)
+    {
+        tileSize = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+    }
+
+    if (checkArguments(argc, argv, "-port", optionValueIndex) && optionValueIndex)
+    {
+        serverPort = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+    }
+
+    if (checkArguments(argc, argv, "-user", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(userName, argv[optionValueIndex]);
+    }
+
+    if (checkArguments(argc, argv, "-passwd", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(userPasswd, argv[optionValueIndex]);
+    }
+
+    if (checkArguments(argc, argv, "-transferformat", optionValueIndex) && optionValueIndex)
+    {
+        transferFormat = get_data_format_from_name(argv[optionValueIndex]);
+        if (transferFormat == r_Data_Format_NUMBER)
         {
             std::cerr << "Invalid transfer format '" << argv[optionValueIndex] << "' switched to " << r_Array  << std::endl;
             transferFormat = r_Array;
         }
     }
 
-    if( checkArguments( argc, argv, "-transferformatparams", optionValueIndex ) && optionValueIndex )
-        transferFormatParams = argv[optionValueIndex] ;
-
-    if( checkArguments( argc, argv, "-storageformat", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-transferformatparams", optionValueIndex) && optionValueIndex)
     {
-        storageFormat = get_data_format_from_name(argv[optionValueIndex] );
-        if(storageFormat == r_Data_Format_NUMBER)
+        transferFormatParams = argv[optionValueIndex] ;
+    }
+
+    if (checkArguments(argc, argv, "-storageformat", optionValueIndex) && optionValueIndex)
+    {
+        storageFormat = get_data_format_from_name(argv[optionValueIndex]);
+        if (storageFormat == r_Data_Format_NUMBER)
         {
             std::cerr << "Invalid storage format '" << argv[optionValueIndex] << "' switched to " << r_Array  << std::endl;
             storageFormat = r_Array;
         }
     }
 
-    if( checkArguments( argc, argv, "-storageformatparams", optionValueIndex ) && optionValueIndex )
-        storageFormatParams = argv[optionValueIndex] ;
-
-    if( checkArguments( argc, argv, "-tiling", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-storageformatparams", optionValueIndex) && optionValueIndex)
     {
-        tilingScheme = get_tiling_scheme_from_name( argv[optionValueIndex] );
-        if(tilingScheme == r_Tiling_Scheme_NUMBER)
+        storageFormatParams = argv[optionValueIndex] ;
+    }
+
+    if (checkArguments(argc, argv, "-tiling", optionValueIndex) && optionValueIndex)
+    {
+        tilingScheme = get_tiling_scheme_from_name(argv[optionValueIndex]);
+        if (tilingScheme == r_Tiling_Scheme_NUMBER)
         {
             std::cerr << "Invalid tiling scheme '" << argv[optionValueIndex] << "' switched to " << r_SizeTiling << std::endl;
             tilingScheme = r_SizeTiling;
         }
-        if(tilingScheme == r_RegularTiling)
+        if (tilingScheme == r_RegularTiling)
         {
             std::cerr << "Tiling scheme '" << argv[optionValueIndex] << "' not supported, switched to " << r_SizeTiling << std::endl;
             tilingScheme = r_SizeTiling;
         }
     }
 
-    if( checkArguments( argc, argv, "-tilingparams", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-tilingparams", optionValueIndex) && optionValueIndex)
+    {
         tilingSchemeParams = argv[optionValueIndex] ;
+    }
 
 
 #ifdef __VISUALC__
-    std::ifstream fileStream( fileName, ios::nocreate );
-    if( !fileStream.is_open() )
+    std::ifstream fileStream(fileName, ios::nocreate);
+    if (!fileStream.is_open())
 #else
-    std::ifstream fileStream( fileName );
-    if( !fileStream )
+    std::ifstream fileStream(fileName);
+    if (!fileStream)
 #endif
     {
         std::cout << "Error: File not found." << std::endl;
@@ -385,7 +418,10 @@ int main( int argc, char** argv )
     queryStream << "-- " << fileName << std::endl;
 
     char ch;
-    while( fileStream.get(ch) ) queryStream.put(ch);
+    while (fileStream.get(ch))
+    {
+        queryStream.put(ch);
+    }
 
     queryStream << std::ends;
 
@@ -394,31 +430,31 @@ int main( int argc, char** argv )
     r_Database db;
     r_Transaction ta;
 
-    db.set_servername( serverName, serverPort );
-    db.set_useridentification( userName, userPasswd );
+    db.set_servername(serverName, serverPort);
+    db.set_useridentification(userName, userPasswd);
 
     try
     {
-        std::cout << "Creating query string ..."<< std::flush;
-        r_OQL_Query q1( queryStream.str().c_str() );
+        std::cout << "Creating query string ..." << std::flush;
+        r_OQL_Query q1(queryStream.str().c_str());
         std::cout << "OK" << std::endl;
         std::cout << "The query is: " << std::endl;
 
         std::cout << q1.get_query() << std::endl;
 
-        std::cout << "Opening Database " << baseName << " on " << serverName << "... "<< std::flush;
-        db.open( baseName );
+        std::cout << "Opening Database " << baseName << " on " << serverName << "... " << std::flush;
+        db.open(baseName);
         std::cout << "OK" << std::endl;
 
-        if( q1.is_update_query() )
+        if (q1.is_update_query())
         {
-            std::cout << "Starting Update Transaction ... "<< std::flush;
+            std::cout << "Starting Update Transaction ... " << std::flush;
             ta.begin();
             std::cout << "OK" << std::endl;
 
             std::cout << "Setting transfer and storage formats ... " << std::flush;
-            db.set_transfer_format( transferFormat, transferFormatParams );
-            db.set_storage_format( storageFormat, storageFormatParams );
+            db.set_transfer_format(transferFormat, transferFormatParams);
+            db.set_storage_format(storageFormat, storageFormatParams);
             std::cout << "OK" << std::endl;
 
             r_Marray<r_ULong>* mddConst = NULL;
@@ -426,15 +462,19 @@ int main( int argc, char** argv )
             r_Storage_Layout* stl = NULL;
 
 
-            std::cout << "Executing the update query ..."<< std::flush;
+            std::cout << "Executing the update query ..." << std::flush;
 
-            if( strstr( queryStream.str().c_str(), "$" ) )
+            if (strstr(queryStream.str().c_str(), "$"))
             {
                 r_Minterval domain;
-                if( mddDomain.dimension() )
+                if (mddDomain.dimension())
+                {
                     domain = mddDomain;
+                }
                 else
+                {
                     domain = r_Minterval("[0:10,0:10]");
+                }
 
                 // create storage layout object
 
@@ -442,37 +482,46 @@ int main( int argc, char** argv )
                 {
                     tilingObj = getTilingScheme(tilingScheme, tilingSchemeParams);
 
-                    stl = new r_Storage_Layout( tilingObj );
+                    stl = new r_Storage_Layout(tilingObj);
 
                     // mddConst = new( "GreyCube" ) r_Marray<r_Char>( domain, (unsigned char)0, stl );
-                    mddConst = new( "ULongImage" ) r_Marray<r_ULong>( domain, (r_ULong)9, stl );
+                    mddConst = new("ULongImage") r_Marray<r_ULong>(domain, (r_ULong)9, stl);
                     // mddConst = new( "FloatCube4" ) r_Marray<r_Float>( domain, 9ul, stl );
 
                     q1 << *mddConst;
                 }
-                catch(r_Error& errorObj)
+                catch (r_Error& errorObj)
                 {
                     std::cout << "FAILED" << std::endl;
                     std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
 
-                    if( testbed )
+                    if (testbed)
                     {
                         std::cout << "-- Testbed line: error_no=" << errorObj.get_errorno() << std::endl;
                         std::cout << std::endl;
                     }
 
-                    std::cout << "Aborting Transaction ... "<< std::flush;
+                    std::cout << "Aborting Transaction ... " << std::flush;
                     ta.abort();
                     std::cout << "OK" << std::endl;
 
-                    std::cout << "Closing Database ... "<< std::flush;
+                    std::cout << "Closing Database ... " << std::flush;
                     db.close();
 
                     std::cout << "OK" << std::endl;
 
-                    if( mddConst ) delete mddConst;
-                    else if( stl ) delete stl;
-                    else    if(tilingObj) delete tilingObj;
+                    if (mddConst)
+                    {
+                        delete mddConst;
+                    }
+                    else if (stl)
+                    {
+                        delete stl;
+                    }
+                    else    if (tilingObj)
+                    {
+                        delete tilingObj;
+                    }
 
                     return EXIT_FAILURE;
                 }
@@ -480,14 +529,14 @@ int main( int argc, char** argv )
 
             try
             {
-                r_oql_execute( q1 );
+                r_oql_execute(q1);
             }
-            catch( r_Error& errorObj )
+            catch (r_Error& errorObj)
             {
                 std::cout << "FAILED" << std::endl;
                 std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
 
-                if( testbed )
+                if (testbed)
                 {
                     std::cout << "-- Testbed line: error_no=" << errorObj.get_errorno() << std::endl;
                     std::cout << std::endl;
@@ -502,39 +551,45 @@ int main( int argc, char** argv )
 
                 std::cout << "OK" << std::endl;
 
-                if( mddConst ) delete mddConst;
+                if (mddConst)
+                {
+                    delete mddConst;
+                }
 
                 return EXIT_FAILURE;
             }
             std::cout << "OK" << std::endl;
 
-            if( mddConst ) delete mddConst;
+            if (mddConst)
+            {
+                delete mddConst;
+            }
         }
         else
         {
             std::cout << "Starting Read Only Transaction ... " << std::flush;
-            ta.begin( r_Transaction::read_only );
+            ta.begin(r_Transaction::read_only);
             std::cout << "OK" << std::endl;
 
             std::cout << "Setting transfer and storage formats ... " << std::flush;
-            db.set_transfer_format( transferFormat, transferFormatParams );
-            db.set_storage_format( storageFormat, storageFormatParams );
+            db.set_transfer_format(transferFormat, transferFormatParams);
+            db.set_storage_format(storageFormat, storageFormatParams);
             std::cout << "OK" << std::endl;
 
-            r_Set< r_Ref_Any > result_set;
+            r_Set<r_Ref_Any> result_set;
 
             std::cout << "Executing the retrieval query ..." << std::flush;
 
             try
             {
-                r_oql_execute( q1, result_set );
+                r_oql_execute(q1, result_set);
             }
-            catch( r_Error& errorObj )
+            catch (r_Error& errorObj)
             {
                 std::cout << "FAILED" << std::endl;
                 std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
 
-                if( testbed )
+                if (testbed)
                 {
                     std::cout << "-- Testbed line: error_no=" << errorObj.get_errorno() << std::endl;
                     std::cout << std::endl;
@@ -555,22 +610,30 @@ int main( int argc, char** argv )
             std::cout << "Collection" << std::endl;
             std::cout << "  Oid...................: " << result_set.get_oid() << std::endl;
             std::cout << "  Type Structure........: "
-                      << ( result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>" ) << std::endl;
+                      << (result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>") << std::endl;
             std::cout << "  Type Schema...........: " << std::flush;
-            if( result_set.get_type_schema() )
-                result_set.get_type_schema()->print_status( std::cout );
+            if (result_set.get_type_schema())
+            {
+                result_set.get_type_schema()->print_status(std::cout);
+            }
             else
+            {
                 std::cout << "<nn>" << std::flush;
+            }
             std::cout << std::endl;
             std::cout << "  Number of entries.....: " << result_set.cardinality() << std::endl;
             std::cout << "  Element Type Schema...: " << std::flush;
-            if( result_set.get_element_type_schema() )
-                result_set.get_element_type_schema()->print_status( std::cout );
+            if (result_set.get_element_type_schema())
+            {
+                result_set.get_element_type_schema()->print_status(std::cout);
+            }
             else
+            {
                 std::cout << "<nn>" << std::flush;
+            }
             std::cout << std::endl;
 
-            if( testbed )
+            if (testbed)
             {
                 std::cout << "-- Testbed line: result_type=" << result_set.get_type_structure() << std::endl;
                 std::cout << "-- Testbed line: result_elements=" << result_set.cardinality() << std::endl;
@@ -585,22 +648,24 @@ int main( int argc, char** argv )
               std::cout << **iter2 << std::endl;
             */
 
-            if( output || testbed )
+            if (output || testbed)
             {
-                r_Iterator< r_Ref_Any > iter = result_set.create_iterator();
+                r_Iterator<r_Ref_Any> iter = result_set.create_iterator();
 
                 std::cout << std::endl;
 
-                if( testbed )
-                    std::cout << "-- Testbed start block:" << std::endl;
-
-                for ( int i=1 ; iter.not_done(); iter++, i++ )
+                if (testbed)
                 {
-                    switch( result_set.get_element_type_schema()->type_id() )
+                    std::cout << "-- Testbed start block:" << std::endl;
+                }
+
+                for (int i = 1 ; iter.not_done(); iter++, i++)
+                {
+                    switch (result_set.get_element_type_schema()->type_id())
                     {
                     case r_Type::MARRAYTYPE:
                     {
-                        const char *defExt;
+                        const char* defExt;
                         r_Data_Format mafmt = r_Ref<r_GMarray>(*iter)->get_current_format();
 
                         // special treatment only for DEFs
@@ -625,7 +690,7 @@ int main( int argc, char** argv )
                             defExt = NULL;
                         }
 
-                        if( defExt == NULL )
+                        if (defExt == NULL)
                         {
                             std::cout << "Image " << i << std::endl;
                             if (printText)
@@ -633,12 +698,14 @@ int main( int argc, char** argv )
                                 int numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                                 for (int cnt = 0; cnt < numCells; cnt++)
+                                {
                                     std::cout << theStuff[cnt];
+                                }
                                 std::cout << std::endl;
                             }
                             else
                             {
-                                r_Ref<r_GMarray>(*iter)->print_status( std::cout, hexOutput );
+                                r_Ref<r_GMarray>(*iter)->print_status(std::cout, hexOutput);
                             }
                             std::cout << std::endl;
                         }
@@ -646,12 +713,12 @@ int main( int argc, char** argv )
                         {
                             char defFileName[256];
 
-                            sprintf( defFileName, "image%d.%s", i, defExt );
+                            sprintf(defFileName, "image%d.%s", i, defExt);
                             std::cout << "Image " << i << " written to " << defFileName << std::endl;
 
-                            FILE *tfile = fopen( defFileName, "wb" );
+                            FILE* tfile = fopen(defFileName, "wb");
                             fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1,
-                                   r_Ref<r_GMarray>(*iter)->get_array_size(), tfile );
+                                   r_Ref<r_GMarray>(*iter)->get_array_size(), tfile);
                             fclose(tfile);
                         }
                     }
@@ -675,15 +742,17 @@ int main( int argc, char** argv )
 
                     default:
                         std::cout << "Element " << i << ": " << std::flush;
-                        printScalar( *(r_Ref<r_Scalar>(*iter)) );
+                        printScalar(*(r_Ref<r_Scalar>(*iter)));
                         std::cout << std::endl;
                         // or simply
                         // r_Ref<r_Scalar>(*iter)->print_status( std::cout );
                     }
                 }
 
-                if( testbed )
+                if (testbed)
+                {
                     std::cout << "-- Testbed end block:" << std::endl;
+                }
 
                 std::cout << std::endl;
             }
@@ -698,13 +767,13 @@ int main( int argc, char** argv )
         db.close();
         std::cout << "OK" << std::endl;
     }
-    catch( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         std::cout << "FAILED" << std::endl;
         std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
         ta.abort();
         db.close();
-        if( testbed )
+        if (testbed)
         {
             std::cout << "-- Testbed line: error_no=" << errorObj.get_errorno() << std::endl;
             std::cout << std::endl;

@@ -57,9 +57,9 @@ class SymbolTable
 {
 public:
     /// This vector stores keys available in the map.
-    std::vector<std::string > keys;
+    std::vector<std::string> keys;
     /// This is an iterator for the vector storing the keys available in the map.
-    std::vector<std::string >::iterator keyIterator;
+    std::vector<std::string>::iterator keyIterator;
 
     /// default constructor creates an empty symbol table, calls initScope(), clears local symbols.
     SymbolTable();
@@ -70,11 +70,11 @@ public:
     //@Man: Methods for symbol manipulation
     //@{
     /// Puts value at position symbol in the table. Returns true if it succeeded, otherwise false.
-    bool    putSymbol( const std::string& symbol, T value );
+    bool    putSymbol(const std::string& symbol, T value);
     /// Get value at position symbol from the table. If symbol doesn't exist, it returns NULL.
-    T       getSymbol( const std::string& symbol );
+    T       getSymbol(const std::string& symbol);
     /// Returns true if symbol is in table.
-    bool lookupSymbol( const std::string& symbol );
+    bool lookupSymbol(const std::string& symbol);
     //@}
 
     //@Man: Methods for scope manipulation
@@ -93,13 +93,13 @@ public:
 
 private:
     /// Store symbol in map.
-    void storeSymbol( const std::string& symbol, T value ); // put only in the hash_map
+    void storeSymbol(const std::string& symbol, T value);   // put only in the hash_map
 
     /// Stores local variables.
     std::map<std::string , T>   STVars;
 
     /// Stores scopes.
-    std::vector<std::map<std::string , T> > STScopes;
+    std::vector<std::map<std::string , T>> STScopes;
 };
 
 #ifdef EARLY_TEMPLATE

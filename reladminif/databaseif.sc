@@ -55,7 +55,7 @@ using namespace std;
 
 extern char globalConnectId[PATH_MAX];
 
-extern sqlite3 *sqliteConn;
+extern sqlite3* sqliteConn;
 
 // size of ARCHITECTURE attribute in RAS_ADMIN:
 #define SIZE_ARCH_RASADMIN 20
@@ -68,7 +68,7 @@ DatabaseIf::disconnect() throw (r_Error)
         int error = sqlite3_close(sqliteConn);
         if (error != SQLITE_OK)
         {
-          warnOnError("close RASBASE connection", sqliteConn);
+            warnOnError("close RASBASE connection", sqliteConn);
         }
         sqliteConn = NULL;
     }
@@ -83,7 +83,7 @@ DatabaseIf::connect() throw (r_Error)
         if (error != SQLITE_OK)
         {
             LFATAL << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
-            throw r_Error( 830 );
+            throw r_Error(830);
         }
     }
 }
@@ -102,9 +102,9 @@ DatabaseIf::isConsistent() throw (r_Error)
 }
 
 void
-DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName,
-                     __attribute__ ((unused)) const char* schemaName,
-                     __attribute__ ((unused)) const char* volumeName) throw (r_Error)
+DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
+                     __attribute__((unused)) const char* schemaName,
+                     __attribute__((unused)) const char* volumeName) throw (r_Error)
 {
     try
     {
@@ -117,14 +117,14 @@ DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName,
         connect();
 
         {
-          SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
-          if (checkTable.nextRow())
-          {
-              LFATAL << "Database exists already.";
-              checkTable.finalize();
-              disconnect();
-              throw r_Error( 832 );
-          }
+            SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
+            if (checkTable.nextRow())
+            {
+                LFATAL << "Database exists already.";
+                checkTable.finalize();
+                disconnect();
+                throw r_Error(832);
+            }
         }
 
         // --- start table/index creation ------------------------------
@@ -352,8 +352,8 @@ DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName,
     catch (r_Error& err)
     {
         LTRACE << "create(" << dbName <<
-                    ", " << schemaName << ", " << volumeName <<
-                    ") error caught " << err.what() << " " << err.get_errorno();
+               ", " << schemaName << ", " << volumeName <<
+               ") error caught " << err.what() << " " << err.get_errorno();
         disconnect();
         throw; // rethrow exception
     }
@@ -411,7 +411,9 @@ DatabaseIf::rmanverToLong()
     string s(RMANVERSION);
     // return default version if RMANVERSION length is 0
     if (s.empty())
+    {
         return LONGVER;
+    }
     string versionstr;
     string final;
     int i;
@@ -420,7 +422,9 @@ DatabaseIf::rmanverToLong()
     size_t first = s.find_first_of("0123456789;");
     // return default version if no number found in s
     if (first == string::npos)
+    {
         return LONGVER;
+    }
     size_t last = s.find_first_of("-;");
     versionstr = s.substr(first, last - first);
 

@@ -98,7 +98,7 @@ public class GetCoverageOld {
 
         /* init XML parser */
         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-        domFactory.setNamespaceAware(true);		// never forget this!
+        domFactory.setNamespaceAware(true);     // never forget this!
         try {
             builder = domFactory.newDocumentBuilder();
         } catch (Exception e) {
@@ -177,7 +177,7 @@ public class GetCoverageOld {
                 e.printStackTrace();
 
                 throw new WCSException(ExceptionCode.NoApplicableCode, "Metadata for coverage '"
-                        + coverageId + "' is not valid.");
+                                       + coverageId + "' is not valid.");
             }
         } else {
             throw new WCSException(ExceptionCode.InvalidParameterValue, "gml:id");
@@ -243,7 +243,7 @@ public class GetCoverageOld {
                     low[axisIndex] = BigInteger.valueOf(val);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidParameterValue, "trimLow. Explanation: invalid integer number: " + list.item(0).
-                            getNodeValue());
+                                           getNodeValue());
                 }
             }
             list = evalXPathList("wcs:trimHigh/text()", trim);
@@ -253,7 +253,7 @@ public class GetCoverageOld {
                     high[axisIndex] = BigInteger.valueOf(val);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidParameterValue, "trimHigh. Explanation: invalid integer number: " + list.item(0).
-                            getNodeValue());
+                                           getNodeValue());
                 }
             }
 
@@ -283,7 +283,7 @@ public class GetCoverageOld {
                     low[axisIndex] = BigInteger.valueOf(point);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidParameterValue, "slicePoint. Explanation: invalid integer number: " + list.item(0).
-                            getNodeValue());
+                                           getNodeValue());
                 }
                 high[axisIndex] = low[axisIndex];
                 limits[axisIndex] = list.item(0).getNodeValue();
@@ -338,8 +338,8 @@ public class GetCoverageOld {
             }
 
             throw new WCSException(ExceptionCode.InternalComponentError,
-                    "Could not connect to rasdaman server at " + ConfigManager.RASDAMAN_URL
-                    + ", database " + ConfigManager.RASDAMAN_DATABASE, odmge);
+                                   "Could not connect to rasdaman server at " + ConfigManager.RASDAMAN_URL
+                                   + ", database " + ConfigManager.RASDAMAN_DATABASE, odmge);
         }
 
         Transaction tr = impl.newTransaction();
@@ -376,7 +376,7 @@ public class GetCoverageOld {
             }
 
             throw new WCSException(ExceptionCode.InternalSqlError,
-                    "Could not evaluate rasdaman query: '" + query + "'. Cause: " + qe.getMessage(), qe);
+                                   "Could not evaluate rasdaman query: '" + query + "'. Cause: " + qe.getMessage(), qe);
         }
 
         tr.commit();
@@ -466,7 +466,7 @@ public class GetCoverageOld {
                 currentBand = "";
             }
             String rasqlQuery = "select csv(cov[" + subsetting + "]" + currentBand + ") "
-                    + "from " + coverageName + " as cov";
+                                + "from " + coverageName + " as cov";
 
             // Execute RasQl query => coverage data
             log.trace("Executing query {}", rasqlQuery);

@@ -77,7 +77,7 @@ MDDObj::checkStorage(const r_Minterval& domain2) throw (r_Error)
                 LFATAL << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a domain and tile configuration with fixed domains in all dimensions.  Dimension " << i << " seems not to be fixed.";
                 throw r_Error(RCINDEXWITHINCOMPATIBLEMARRAYTYPE);
             }
-            if (mddDomainExtent[i]%tileConfigExtent[i] != 0)
+            if (mddDomainExtent[i] % tileConfigExtent[i] != 0)
             {
                 LFATAL << "MDDObj::checkStorage(" << domain2 << ") the tile configuration (" << tileConfig << ") does not fit the domain of the marray (" << domain << ").";
                 throw r_Error(TILECONFIGMARRAYINCOMPATIBLE);
@@ -146,11 +146,12 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
 }
 
 MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId) throw (r_Error)
-        : myDBMDDObj(),
-        myMDDIndex(NULL),
-        myStorageLayout(NULL)
+    : myDBMDDObj(),
+      myMDDIndex(NULL),
+      myStorageLayout(NULL)
 {
-    if (!mddType) {
+    if (!mddType)
+    {
         LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
@@ -193,7 +194,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const Stor
         myMDDIndex(NULL),
         myStorageLayout(NULL)
 {
-    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", " << ms.getDBStorageLayout().getOId() << ") " <<(r_Ptr)this;
+    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", " << ms.getDBStorageLayout().getOId() << ") " << (r_Ptr)this;
     if (!mddType)
     {
         LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
@@ -207,7 +208,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const Stor
 }
 
 void
-MDDObj::insertTile(Tile * newTile)
+MDDObj::insertTile(Tile* newTile)
 {
     insertTile(shared_ptr<Tile>(newTile));
 }
@@ -225,7 +226,9 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
 #ifdef DEBUG
     LTRACE << "storage layout returned the following domains";
     for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
+    {
         LTRACE << *domit;
+    }
     LTRACE << "end of storage layout domains";
 #endif
 
@@ -235,7 +238,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
     r_Area completeArea = 0;
     r_Minterval tempDom;
     r_Minterval tileDom = newTile->getDomain();
-    std::vector< shared_ptr<Tile> >* indexTiles = NULL;
+    std::vector<shared_ptr<Tile>>* indexTiles = NULL;
     char* newContents = NULL;
     size_t sizeOfData = 0;
     bool checkEquality = true;
@@ -306,19 +309,21 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
     {
         LTRACE << "have to delete newTile";
         if (newTile->isPersistent())
+        {
             newTile->getDBTile()->setPersistent(false);
+        }
         newTile.reset();
     }
 }
 
-std::vector< shared_ptr<Tile> >*
-MDDObj::intersect(const r_Minterval& searchInter) const
+std::vector<shared_ptr<Tile>>*
+                           MDDObj::intersect(const r_Minterval& searchInter) const
 {
-    std::vector<shared_ptr<Tile> >* retval = myMDDIndex->intersect(searchInter);
+    std::vector<shared_ptr<Tile>>* retval = myMDDIndex->intersect(searchInter);
 #ifdef DEBUG
     if (retval)
     {
-        for (std::vector< shared_ptr<Tile> >::iterator it = retval->begin(); it != retval->end(); it++)
+        for (std::vector<shared_ptr<Tile>>::iterator it = retval->begin(); it != retval->end(); it++)
         {
             LTRACE << "FOUND " << (*it)->getDomain() << " ";
 // TODO: fix with proper stream, RMInit is deprecated
@@ -329,8 +334,8 @@ MDDObj::intersect(const r_Minterval& searchInter) const
     return retval;
 }
 
-std::vector< shared_ptr<Tile> >*
-MDDObj::getTiles() const
+std::vector<shared_ptr<Tile>>*
+                           MDDObj::getTiles() const
 {
     RMTIMER("MDDObj", "getTiles");
     return  myMDDIndex->getTiles();
@@ -464,5 +469,7 @@ MDDObj::setUpdateNullValues(r_Minterval* newNullValues)
 {
     nullValues = newNullValues;
     if (newNullValues)
+    {
         myDBMDDObj->setNullValues(*nullValues);
+    }
 }

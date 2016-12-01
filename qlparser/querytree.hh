@@ -94,7 +94,7 @@ public:
     QueryTree();
 
     /// constructor getting the root of the query tree
-    QueryTree( QtNode* root );
+    QueryTree(QtNode* root);
 
     /// destructor (deletes the whole query tree)
     ~QueryTree();
@@ -111,7 +111,7 @@ public:
     */
 
     /// build in common subexpressions in the query tree
-    void insertSubexpression( vector<QtNode::QtNodeList>* nodeList );
+    void insertSubexpression(vector<QtNode::QtNodeList>* nodeList);
 
     /*@Doc:
       The method manipulates the query tree to handle common subexpressions.
@@ -130,10 +130,10 @@ public:
     */
 
     /// executes an update tree and throws a ParseInfo if query does not begin with INSERT, DELETE, UPDATE, ...
-    vector<QtData*>* evaluateUpdate() throw (r_Error,ParseInfo);
+    vector<QtData*>* evaluateUpdate() throw (r_Error, ParseInfo);
 
     /// debugging method
-    void printTree( int tab, ostream& s = cout );
+    void printTree(int tab, ostream& s = cout);
 
     //@Man: read/write methods
     //@{
@@ -142,7 +142,7 @@ public:
     ///
     inline QtNode* getRoot() const;
     ///
-    inline void setRoot( QtNode* root );
+    inline void setRoot(QtNode* root);
 
     void setInfoType(QtInfoType newInfoType);
 
@@ -154,35 +154,35 @@ public:
     ///
 
     ///
-    void addDynamicObject( QtNode* );
+    void addDynamicObject(QtNode*);
     ///
-    void removeDynamicObject( QtNode* );
+    void removeDynamicObject(QtNode*);
     ///
-    void addDynamicObject( QtData* );
+    void addDynamicObject(QtData*);
     ///
-    void removeDynamicObject( QtData* );
+    void removeDynamicObject(QtData*);
     ///
-    void addDynamicObject( ParseInfo* );
+    void addDynamicObject(ParseInfo*);
     ///
-    void removeDynamicObject( ParseInfo* );
+    void removeDynamicObject(ParseInfo*);
     ///
-    void addDynamicObject( vector<QtONCStream*>* );
+    void addDynamicObject(vector<QtONCStream*>*);
     ///
-    void removeDynamicObject( vector<QtONCStream*>* );
+    void removeDynamicObject(vector<QtONCStream*>*);
     ///
     void releaseDynamicObjects();
     ///
-    void addDomainObject( QtDomainOperation * );
+    void addDomainObject(QtDomainOperation*);
     ///
-    void removeDomainObject( QtDomainOperation * );
+    void removeDomainObject(QtDomainOperation*);
     ///
-    void rewriteDomainObjects(r_Minterval *greatDomain, std::string *greatIterator, QtMarrayOp2::mddIntervalListType *greatList);
+    void rewriteDomainObjects(r_Minterval* greatDomain, std::string* greatIterator, QtMarrayOp2::mddIntervalListType* greatList);
     ///
     void printDomainObjects();
     ///
     void releaseDomainObjects();
     ///
-    void addCString( char * );
+    void addCString(char*);
     ///
     //@}
 
@@ -194,10 +194,10 @@ private:
     QtNode* rootNode;
 
     /// used by public seeSubexpression()
-    vector<QtNode::QtNodeList>* seeSubexpression( QtNode::QtNodeList* leafList );
+    vector<QtNode::QtNodeList>* seeSubexpression(QtNode::QtNodeList* leafList);
 
     /// used by public seeSubexpression()
-    QtNode::QtNodeList* seeSubexpression( QtNode::QtNodeList* leafList, vector<QtNode::QtNodeList>* leafListsNew );
+    QtNode::QtNodeList* seeSubexpression(QtNode::QtNodeList* leafList, vector<QtNode::QtNodeList>* leafListsNew);
 
     /// attribute carrying next free number for CSE iterator
     static unsigned int nextCSENo;
@@ -235,7 +235,7 @@ private:
     */
 
     /// list of domain operations relevant to variables in an MArray.
-    std::list<QtDomainOperation *> dopList; // contains basically QtDomainOperation (everything else is evil :-) )
+    std::list<QtDomainOperation*> dopList;  // contains basically QtDomainOperation (everything else is evil :-) )
     /**
       This list is used to store elements of type \Ref{QtDomainOperation *} generated
       in the parse process for the purpose of a tree rewrite. In case of an error
@@ -243,7 +243,7 @@ private:
     */
 
     /// list of lexed c-strings
-    std::list<char *> lexedCStringList;
+    std::list<char*> lexedCStringList;
     /**
       This list is used to store elements of type char* generated during the lexing
       process and not freed yet. In case of an error this list is freed.

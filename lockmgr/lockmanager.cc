@@ -52,7 +52,7 @@ rasdaman GmbH.
 
 // Global private static pointer used to ensure a single instance of the class,
 // originally set to NULL
-LockManager * LockManager::LM_instance = NULL;
+LockManager* LockManager::LM_instance = NULL;
 
 /**
  * Private copy constructor such that it cannot be called from the outside.
@@ -62,7 +62,7 @@ LockManager * LockManager::LM_instance = NULL;
  * @param mgr
  *     object of the class as parameter of the copy constructor
  */
-LockManager::LockManager(__attribute__ ((unused)) LockManager const& mgr)
+LockManager::LockManager(__attribute__((unused)) LockManager const& mgr)
 {
     LockManager();
 }
@@ -99,7 +99,7 @@ LockManager::LockManager()
  *
  * @return a pointer to the created instance of the class
  */
-LockManager * LockManager::Instance()
+LockManager* LockManager::Instance()
 {
     RMTIMER("LockManager", "Instance");
     // Allow only one instance of class to be generated
@@ -122,9 +122,9 @@ LockManager * LockManager::Instance()
  */
 void LockManager::connect()
 {
-    const char * dbConnectionId;
-    const char * dbUser;
-    const char * dbPassword;
+    const char* dbConnectionId;
+    const char* dbUser;
+    const char* dbPassword;
     if (configuration.getDbConnectionID() != NULL)
     {
         dbConnectionId = configuration.getDbConnectionID();
@@ -133,7 +133,7 @@ void LockManager::connect()
     }
     else
     {
-        dbConnectionId = static_cast<const char *>("RASBASE:5432");
+        dbConnectionId = static_cast<const char*>("RASBASE:5432");
         dbUser = NULL;
         dbPassword = NULL;
     }
@@ -198,17 +198,17 @@ void LockManager::endTransaction()
  * @param pLockType
  *     the type of the lock which is either shared or exclusive
  */
-void LockManager::lockTileInternal(const char * pRasServerId, OId::OIdCounter pTileId, enum Lock pLockType)
+void LockManager::lockTileInternal(const char* pRasServerId, OId::OIdCounter pTileId, enum Lock pLockType)
 {
     RMTIMER("LockManager", "lockTileInternal");
     bool result = true;
-    if(pLockType == EXCLUSIVE_LOCK)
+    if (pLockType == EXCLUSIVE_LOCK)
     {
         RMTIMER("LockManager", "lockTileInternal, exclusive");
         ecpg_LockManager->lockTileExclusive(connectionName, pRasServerId, pTileId);
         result = ecpg_LockManager->isTileLockedExclusive(connectionName, pRasServerId, pTileId);
     }
-    else if(pLockType == SHARED_LOCK)
+    else if (pLockType == SHARED_LOCK)
     {
         RMTIMER("LockManager", "lockTileInternal, shared");
         ecpg_LockManager->lockTileShared(connectionName, pRasServerId, pTileId);
@@ -231,7 +231,7 @@ void LockManager::lockTileInternal(const char * pRasServerId, OId::OIdCounter pT
  * @param pTileId
  *     the id corresponding to the tile to be unlocked
  */
-void LockManager::unlockTileInternal(const char * pRasServerId, OId::OIdCounter pTileId)
+void LockManager::unlockTileInternal(const char* pRasServerId, OId::OIdCounter pTileId)
 {
     ecpg_LockManager->unlockTile(connectionName, pRasServerId, pTileId);
 }
@@ -244,7 +244,7 @@ void LockManager::unlockTileInternal(const char * pRasServerId, OId::OIdCounter 
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
  */
-void LockManager::unlockAllTilesInternal(const char * pRasServerId)
+void LockManager::unlockAllTilesInternal(const char* pRasServerId)
 {
     RMTIMER("LockManager", "unlockAllTilesInternal");
     ecpg_LockManager->unlockAllTiles(connectionName, pRasServerId);
@@ -265,13 +265,13 @@ bool LockManager::isTileLockedInternal(OId::OIdCounter pTileId, enum Lock pLockT
 {
     RMTIMER("LockManager", "isTockTiledInternal");
     bool result = true;
-    if(pLockType == EXCLUSIVE_LOCK)
+    if (pLockType == EXCLUSIVE_LOCK)
     {
-        ecpg_LockManager->isTileLockedExclusive(connectionName, (char *)NULL, pTileId);
+        ecpg_LockManager->isTileLockedExclusive(connectionName, (char*)NULL, pTileId);
     }
-    else if(pLockType == SHARED_LOCK)
+    else if (pLockType == SHARED_LOCK)
     {
-        ecpg_LockManager->isTileLockedShared(connectionName, (char *)NULL, pTileId);
+        ecpg_LockManager->isTileLockedShared(connectionName, (char*)NULL, pTileId);
     }
     return result;
 }
@@ -284,7 +284,7 @@ bool LockManager::isTileLockedInternal(OId::OIdCounter pTileId, enum Lock pLockT
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
  */
-void LockManager::clearLockTableInternal(const char *pRasServerId)
+void LockManager::clearLockTableInternal(const char* pRasServerId)
 {
     ecpg_LockManager->clearLockTable(connectionName, pRasServerId);
 }
@@ -300,34 +300,34 @@ void LockManager::clearLockTableInternal(const char *pRasServerId)
  * @param pResultRasServerId
  *      generated rasserver id returned by reference
  */
-void LockManager::generateServerId(char * pResultRasServerId)
+void LockManager::generateServerId(char* pResultRasServerId)
 {
-    char * serverName;
+    char* serverName;
     int port;
-    char * rasmgrHost;
+    char* rasmgrHost;
     int rasmgrPort;
     if (configuration.getServerName() != NULL)
     {
-        serverName = const_cast<char *>(configuration.getServerName());
+        serverName = const_cast<char*>(configuration.getServerName());
         port = configuration.getListenPort();
     }
     else
     {
-        serverName = const_cast<char *>("defaultServer");
+        serverName = const_cast<char*>("defaultServer");
         port = 0;
     }
     if (configuration.getRasmgrHost() != NULL)
     {
-        rasmgrHost = const_cast<char *>(configuration.getRasmgrHost());
+        rasmgrHost = const_cast<char*>(configuration.getRasmgrHost());
         rasmgrPort = configuration.getRasmgrPort();
     }
     else
     {
-        rasmgrHost = const_cast<char *>("defaultRasmgrHost");
+        rasmgrHost = const_cast<char*>("defaultRasmgrHost");
         rasmgrPort = 0;
     }
     int return_code = snprintf(pResultRasServerId, 255, "%s-%d-%s-%d", rasmgrHost, rasmgrPort, serverName, port);
-    if ((return_code >= 0) && (return_code<255))
+    if ((return_code >= 0) && (return_code < 255))
     {
         LDEBUG << "Lock manager, generateServerId: id = " << pResultRasServerId;
     }
@@ -377,10 +377,10 @@ enum Lock LockManager::generateLockType()
  * @return int representing -1 if first smaller and second,
  * 0 if equal and 1 if first greater than second
  */
-int LockManager::compareIds(const void * a, const void * b)
+int LockManager::compareIds(const void* a, const void* b)
 {
-    const long long *pa = static_cast<const long long *>(a);
-    const long long *pb = static_cast<const long long *>(b);
+    const long long* pa = static_cast<const long long*>(a);
+    const long long* pb = static_cast<const long long*>(b);
     if (*pa < *pb)
     {
         return -1;
@@ -409,7 +409,7 @@ int LockManager::compareIds(const void * a, const void * b)
  * @param pLockType
  *     enum type variable corresponding to the lock type (shared or exclusive)
  */
-void LockManager::lockTilesInternal(const char * pRasServerId, long long *pTileIdsToLock, int dim, enum Lock pLockType)
+void LockManager::lockTilesInternal(const char* pRasServerId, long long* pTileIdsToLock, int dim, enum Lock pLockType)
 {
     if (dim == 1)
     {
@@ -425,9 +425,9 @@ void LockManager::lockTilesInternal(const char * pRasServerId, long long *pTileI
         beginIndex = 0;
         endIndex = beginIndex;
         // identify holes (i.e., identify intervals)
-        for(int i=0; i<dim-1; i++)
+        for (int i = 0; i < dim - 1; i++)
         {
-            if (pTileIdsToLock[i+1] - pTileIdsToLock[i] > 1)
+            if (pTileIdsToLock[i + 1] - pTileIdsToLock[i] > 1)
             {
                 endIndex = i;
                 // an interval has to have at least 10 elements to use bulk locking
@@ -448,19 +448,19 @@ void LockManager::lockTilesInternal(const char * pRasServerId, long long *pTileI
                 else
                 {
                     LDEBUG << "Lock manager, lock tiles internal: performing locking one by one";
-                    for(int j=beginIndex; j<=endIndex; j++)
+                    for (int j = beginIndex; j <= endIndex; j++)
                     {
                         lockTileInternal(pRasServerId, pTileIdsToLock[j], pLockType);
                     }
                 }
-                beginIndex = i+1;
+                beginIndex = i + 1;
                 endIndex = beginIndex;
             }
         }
         // for the case of an array with consecutive tile ids and for the last consecutive block of ids within the array
-        if (endIndex < dim -1)
+        if (endIndex < dim - 1)
         {
-            endIndex = dim -1;
+            endIndex = dim - 1;
             if (endIndex - beginIndex >= 10)
             {
                 LDEBUG << "Lock manager, lock tiles internal: performing interval locking";
@@ -478,7 +478,7 @@ void LockManager::lockTilesInternal(const char * pRasServerId, long long *pTileI
             else
             {
                 LDEBUG << "Lock manager, lock tiles internal: performing locking one by one";
-                for(int j=beginIndex; j<=endIndex; j++)
+                for (int j = beginIndex; j <= endIndex; j++)
                 {
                     lockTileInternal(pRasServerId, pTileIdsToLock[j], pLockType);
                 }
@@ -526,7 +526,7 @@ void LockManager::lockTiles(long long pTileIdsToLock[], int dim)
  * @param tiles
  *     vector of tiles to be locked
  */
-void LockManager::lockTiles(std::vector< boost::shared_ptr<Tile> >* tiles)
+void LockManager::lockTiles(std::vector<boost::shared_ptr<Tile>>* tiles)
 {
     RMTIMER("LockManager", "lockTiles");
     if (tiles)
@@ -540,8 +540,8 @@ void LockManager::lockTiles(std::vector< boost::shared_ptr<Tile> >* tiles)
         // if objects consists of one tile like in mr, mr2, rgb then this for is executed once
         int dim = tiles->size();
         long long* tileIdsToLock = new long long[dim];
-        int i=0;
-        for (std::vector< boost::shared_ptr<Tile> >::iterator tileIterator=tiles->begin(); tileIterator!=tiles->end(); tileIterator++)
+        int i = 0;
+        for (std::vector<boost::shared_ptr<Tile>>::iterator tileIterator = tiles->begin(); tileIterator != tiles->end(); tileIterator++)
         {
             DBTileId dbTileId = (*tileIterator)->getDBTile();
             OId objId = dbTileId.getObjId();
@@ -566,7 +566,7 @@ void LockManager::lockTiles(std::vector< boost::shared_ptr<Tile> >* tiles)
  * @param pTile
  *     pointer to the tile to be locked
  */
-void LockManager::lockTile(Tile * pTile)
+void LockManager::lockTile(Tile* pTile)
 {
     DBTileId dbTileId = pTile->getDBTile();
     OId::OIdCounter oid = dbTileId.getObjId().getCounter();
@@ -590,7 +590,7 @@ void LockManager::lockTile(Tile * pTile)
  * @param pTile
  *     pointer to the tile to be unlocked
  */
-void LockManager::unlockTile(Tile * pTile)
+void LockManager::unlockTile(Tile* pTile)
 {
     DBTileId dbTileId = pTile->getDBTile();
     OId::OIdCounter oid = dbTileId.getObjId().getCounter();
@@ -632,7 +632,7 @@ void LockManager::unlockAllTiles()
  *     type of the lock to be checked for (shared or exclusive)
  * @return a bool value corresponding to locked or not locked
  */
-bool LockManager::isTileLocked(Tile * pTile, enum Lock lockType)
+bool LockManager::isTileLocked(Tile* pTile, enum Lock lockType)
 {
     bool locked = false;
     DBTileId dbTileId = pTile->getDBTile();
@@ -663,7 +663,7 @@ void LockManager::clearLockTable()
         endTransaction();
         LDEBUG << MSG_OK;
     }
-    catch(...)
+    catch (...)
     {
         LERROR << MSG_FAILED;
         LERROR << "Error: Unspecified exception." ;

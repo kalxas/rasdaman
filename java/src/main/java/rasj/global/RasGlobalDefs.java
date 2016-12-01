@@ -34,8 +34,7 @@ rasdaman GmbH.
 
 package rasj.global;
 
-public interface RasGlobalDefs
-{
+public interface RasGlobalDefs {
     static final String rcsid = "@(#)Package rasj, class RasGlobalDefs: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/global/RasGlobalDefs.java,v 1.23 2006/01/17 23:49:11 rasdev Exp $";
 
     // rasj version string (similar to executables startup message) -- can't we get rasdaman version info automatically?
@@ -44,7 +43,7 @@ public interface RasGlobalDefs
 
     // fastscale predefines; FIXME: should be used dynamically! -- PB 2003-jun-25
     static final int NUM_FAST_PRE_SCALE = 8;
-    static final double[] FAST_PRE_SCALE_FACTORS = {1.0/2, 1.0/4, 1.0/8, 1.0/16, 1.0/32, 1.0/64, 1.0/128, 1.0/256};
+    static final double[] FAST_PRE_SCALE_FACTORS = {1.0 / 2, 1.0 / 4, 1.0 / 8, 1.0 / 16, 1.0 / 32, 1.0 / 64, 1.0 / 128, 1.0 / 256};
     static final String[] FAST_PRE_SCALE_SUFFIXES = {"_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8"};
 
     //RasDataFormat
@@ -77,7 +76,7 @@ public interface RasGlobalDefs
     static final int RAS_BYTE = RAS_BOOLEAN + 1;
     static final int RAS_CHAR = RAS_BYTE + 1;
     static final int RAS_STRING = RAS_CHAR + 1;
-    static final int RAS_COMPLEX1 = RAS_STRING +1;
+    static final int RAS_COMPLEX1 = RAS_STRING + 1;
 
 
     //object status
@@ -137,19 +136,19 @@ public interface RasGlobalDefs
     final static int WRITE_TRANS_IN_PROGRESS  = 806;
     final static int DATABASE_NOT_DEFINED     = 807;
     final static int REQUEST_FORMAT_ERROR     = 808;
-    
+
     final static int INVALID_OBJECT_NAME_ERROR  = 1014;
 
     // time constants for retries in RasODMGImplementation.getFreeServer():
     // if we sum up we achieve a total of (.2 + .4 +...+ 3.2) = 6.3 secs maximum wait time. that looks ok.
-    final static int MAX_GETFREESERVER_ATTEMPTS   =   5;	// # of tries in total until giving up on current request
-    final static int GETFREESERVER_WAIT_INITIAL   = 100;	// first waiting period
-    final static int GETFREESERVER_WAIT_INCREMENT =   2;	// multiplication factor for subsequent wait cycles
+    final static int MAX_GETFREESERVER_ATTEMPTS   =   5;    // # of tries in total until giving up on current request
+    final static int GETFREESERVER_WAIT_INITIAL   = 100;    // first waiting period
+    final static int GETFREESERVER_WAIT_INCREMENT =   2;    // multiplication factor for subsequent wait cycles
 
     // server connection constants
-    final static int RASMGRPORT_DEFAULT = 7001;			// default port used to caontact rasmgr
+    final static int RASMGRPORT_DEFAULT = 7001;         // default port used to caontact rasmgr
     final static String GUESTIDENT_DEFAULT = "rasguest:8e70a429be359b6dace8b5b2500dedb0";
-								// default read-only user
+    // default read-only user
 
     public final static String KEYWORD_TAB     = "\t";
     public final static String KEYWORD_CLASS   = "$class";

@@ -53,12 +53,12 @@ public class RasdamanNetcdfUpdater implements RasdamanUpdater {
     @Override
     public void update() throws RasdamanException, IOException {
         String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
-                .replace("$domain", affectedDomain)
-                .replace("$oid", affectedCollectionOid)
-                .replace("$shiftDomain", shiftDomain)
-                .replace("$rangeParams", rangeParameters.replace("\"", "\\\""));
+                             .replace("$domain", affectedDomain)
+                             .replace("$oid", affectedCollectionOid)
+                             .replace("$shiftDomain", shiftDomain)
+                             .replace("$rangeParams", rangeParameters.replace("\"", "\\\""));
         RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(),
-                ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+                                           ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
     }
 
     private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1, \"NetCDF\", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";

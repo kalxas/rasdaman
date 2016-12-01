@@ -156,7 +156,7 @@ void r_Format_Params::parseFilepaths() throw (r_Error)
     }
 }
 
-void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector< std::pair<std::string, std::string> >& targetVector) throw (r_Error)
+void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<std::pair<std::string, std::string>>& targetVector) throw (r_Error)
 {
     if (params.isMember(key))
     {
@@ -185,7 +185,8 @@ void r_Format_Params::parseSubsetDomain() throw (r_Error)
         try
         {
             subsetDomain = r_Minterval(val.c_str());
-        } catch (r_Error & err)
+        }
+        catch (r_Error& err)
         {
             LERROR << "parameter '" << key << "' has an invalid value, expected a subset minterval.";
             throw r_Error(INVALIDFORMATPARAMETER);
@@ -268,9 +269,9 @@ void r_Format_Params::parseGeoReference() throw (r_Error)
         {
             const Json::Value& bbox = geoRef[keyBbox];
             if (bbox.isMember(FormatParamKeys::Encode::XMIN) &&
-                bbox.isMember(FormatParamKeys::Encode::XMAX) &&
-                bbox.isMember(FormatParamKeys::Encode::YMIN) &&
-                bbox.isMember(FormatParamKeys::Encode::YMAX))
+                    bbox.isMember(FormatParamKeys::Encode::XMAX) &&
+                    bbox.isMember(FormatParamKeys::Encode::YMIN) &&
+                    bbox.isMember(FormatParamKeys::Encode::YMAX))
             {
 
                 xmin = bbox[FormatParamKeys::Encode::XMIN].asDouble();
@@ -306,7 +307,7 @@ vector<string> r_Format_Params::getFilePaths() const
     return filePaths;
 }
 
-void r_Format_Params::setFilePaths(const std::vector<std::string> &filePathsArg)
+void r_Format_Params::setFilePaths(const std::vector<std::string>& filePathsArg)
 {
     this->filePaths = filePathsArg;
 }
@@ -326,7 +327,7 @@ vector<int> r_Format_Params::getBandIds() const
     return bandIds;
 }
 
-vector< pair<string, string> > r_Format_Params::getFormatParameters() const
+vector<pair<string, string>> r_Format_Params::getFormatParameters() const
 {
     return formatParameters;
 }
@@ -336,7 +337,7 @@ void r_Format_Params::addFormatParameter(const std::string& key, const std::stri
     formatParameters.push_back(make_pair(key, val));
 }
 
-vector< pair<string, string> > r_Format_Params::getConfigOptions() const
+vector<pair<string, string>> r_Format_Params::getConfigOptions() const
 {
     return configOptions;
 }
@@ -386,7 +387,7 @@ void r_Format_Params::setMetadata(const std::string& metadataArg)
     metadata = metadataArg;
 }
 
-vector< pair<string, string> > r_Format_Params::getMetadataKeyValues() const
+vector<pair<string, string>> r_Format_Params::getMetadataKeyValues() const
 {
     return metadataKeyValues;
 }

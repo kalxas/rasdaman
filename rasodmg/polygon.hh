@@ -81,7 +81,7 @@ public:
     double getCurrY(r_Range x) const;
 
     /// print start and end point of the edge.
-    void print_status( std::ostream& s = std::cout ) const;
+    void print_status(std::ostream& s = std::cout) const;
 
     /// returns true if the edge is parallel to the first axis
     bool isHorizontal() const;
@@ -168,10 +168,10 @@ public:
     */
 
     /// print all edges of the polygon.
-    void print_status( std::ostream& s = std::cout ) const;
+    void print_status(std::ostream& s = std::cout) const;
 
     /// Fill the 2-D array myArray according to the polygon.
-    void fillMArray( r_GMarray& myArray, bool fillInside = false, const std::string& bgr = "") const throw(r_Error);
+    void fillMArray(r_GMarray& myArray, bool fillInside = false, const std::string& bgr = "") const throw(r_Error);
     /** The polygon has to be completely in the domain of the array. Should this not be the case,
         then the polygon must be clipped according to the domain of the array. Filling is done
         so that the data in the array is overwritten byte by byte with 0 which is not inside
@@ -237,7 +237,7 @@ private:
     void fromPoints(const std::vector<r_Point>& newPoints) throw(r_Error);
 
     /// erase the area in myArray outside of the polygon for one scanline.
-    void eraseLine( r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr ) const throw(r_Error);
+    void eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr) const throw(r_Error);
 
     /// return the polygon clipped on the specified side as a list of points.
     std::vector<r_Point> clip1Side(const r_Minterval& b, r_Polygon::Side s);
@@ -264,7 +264,7 @@ private:
     r_Point currPoint;
 };
 
-extern std::ostream& operator<<( std::ostream& s, const r_Polygon& d );
+extern std::ostream& operator<<(std::ostream& s, const r_Polygon& d);
 
 // The following classes are STL function objects which can be used to make
 // sorted collection of r_Edge. In the current implementation only the first
@@ -278,7 +278,7 @@ class EdgeSortCriterion
 public:
     // This is needed for keeping a sorted set of edges (sorted by start coordinate y,
     // then start coordinate x).
-    bool operator() (const r_Edge& e1, const r_Edge& e2) const
+    bool operator()(const r_Edge& e1, const r_Edge& e2) const
     {
         return e1.getStart()[1] < e2.getStart()[1] ||
                (!(e2.getStart()[1] < e1.getStart()[1]) && e1.getStart()[0] < e2.getStart()[0]);
@@ -293,7 +293,7 @@ class ActiveEdgeSortCriterion
 public:
     // This is needed for keeping a sorted set of active edges (sorted by start coordinate x,
     // then start coordinate y).
-    bool operator() (const r_Edge& e1, const r_Edge& e2) const
+    bool operator()(const r_Edge& e1, const r_Edge& e2) const
     {
         return e1.getStart()[0] < e2.getStart()[0] ||
                (!(e2.getStart()[0] < e1.getStart()[0]) && e1.getStart()[1] < e2.getStart()[1]);

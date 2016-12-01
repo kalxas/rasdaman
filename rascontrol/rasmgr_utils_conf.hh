@@ -48,11 +48,11 @@ public:
     ConfigurationBase();
 
     // false means program shouldn't continue
-    virtual bool interpretArguments(int argc, char **argv);
+    virtual bool interpretArguments(int argc, char** argv);
 
 protected:
 
-    int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex );
+    int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex);
 
     virtual void printHelp();
 

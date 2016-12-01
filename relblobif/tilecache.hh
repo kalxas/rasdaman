@@ -36,7 +36,7 @@ typedef std::map<KeyType, ValueType> CacheType;
 
 /**
  * Manage caching of blobs.
- * 
+ *
  * @author Dimitar Misev
  */
 class TileCache
@@ -45,47 +45,47 @@ public:
     /// cache blob with key = oid
     static void insert(KeyType key, ValueType value);
     static void insert(OId& key, ValueType value);
-    
+
     /// retrieve cached blob given its oid; returns NULL in case of a miss
     static ValueType get(KeyType key);
     static ValueType get(OId& key);
-    
+
     /// check if cache contains blob with given oid
     static bool contains(KeyType key);
     static bool contains(OId& key);
-    
+
     /// remove cached blob; this triggers validateReal on the cached blob
     static ValueType remove(KeyType key);
     static ValueType remove(OId& key);
-    
+
     /// remove all blobs, effectively emptying the cache
     static void removeKey(KeyType key);
     static void removeKey(OId& key);
-    
+
     /// remove all blobs, effectively emptying the cache
     static void clear();
-    
+
     /// remove least recently used blobs from the cache, when cache size > cache limit
     static void readjustCache();
-    
+
     /// cache size limit in bytes
     static long cacheLimit;
 
 private:
     /// oid -> blob
     static CacheType cache;
-    
+
     /// list for maintaining cache lru policy
     static CacheLRU lru;
-    
+
     /// cache size
     static long cacheSize;
-    
+
     /// methods for setting the most recently used blob to value in the LRU list
     static void updateValue(ValueType value);
     /// remove value from the LRU list
     static void removeValue(ValueType value);
-    
+
     /// give the test class private access
 //    friend class TileCacheTest;
 };

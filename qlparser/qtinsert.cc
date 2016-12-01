@@ -77,18 +77,21 @@ extern ServerComm::ClientTblElt* currentClientTblElt;
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 
 QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource)
-    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(NULL), collectionName(initCollectionName) {
+    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(NULL), collectionName(initCollectionName)
+{
     source->setParent(this);
 }
 
 QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource, QtOperation* storage)
-    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(storage), collectionName(initCollectionName) {
+    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(storage), collectionName(initCollectionName)
+{
     source->setParent(this);
 }
 
 /// constructor getting name of collection and data to insert
-QtInsert::QtInsert (const std::string& initCollectionName, QtData* data )
-    : QtExecute(), source(NULL), dataToInsert(data), stgLayout(NULL), collectionName(initCollectionName) {
+QtInsert::QtInsert(const std::string& initCollectionName, QtData* data)
+    : QtExecute(), source(NULL), dataToInsert(data), stgLayout(NULL), collectionName(initCollectionName)
+{
 }
 
 QtInsert::~QtInsert()
@@ -113,7 +116,7 @@ QtData*
 QtInsert::evaluate()
 {
     startTimer("QtInsert");
-      
+
     // allocate a new oid within the current db
     OId oid;
     long long myoid = 0;
@@ -125,7 +128,8 @@ QtInsert::evaluate()
     r_Minterval* defaultCfg = NULL;
     QtData* returnValue = NULL;
 
-    if (dataToInsert) {
+    if (dataToInsert)
+    {
         sourceData = dataToInsert;
     }
     else
@@ -159,7 +163,10 @@ QtInsert::evaluate()
             LFATAL << "Error: QtInsert::evaluate() - collection name not found";
 
             // delete the operand
-            if (sourceData) sourceData->deleteRef();
+            if (sourceData)
+            {
+                sourceData->deleteRef();
+            }
 
             parseInfo.setErrorNo(355);
             throw parseInfo;
@@ -167,7 +174,10 @@ QtInsert::evaluate()
         if (!almost->isPersistent())
         {
             LFATAL << "QtInsert: User tries to insert into system table";
-            if (sourceData) sourceData->deleteRef();
+            if (sourceData)
+            {
+                sourceData->deleteRef();
+            }
 
             parseInfo.setErrorNo(355);
             throw parseInfo;
@@ -180,8 +190,8 @@ QtInsert::evaluate()
         //
         // check MDD and collection type for compatibility
         //
-        const MDDBaseType *sourceBaseType = sourceObj->getMDDBaseType();
-        const MDDType *targetMDDType = persColl->getCollectionType()->getMDDType();
+        const MDDBaseType* sourceBaseType = sourceObj->getMDDBaseType();
+        const MDDType* targetMDDType = persColl->getCollectionType()->getMDDType();
 
         int cellSize;
 #ifdef DEBUG
@@ -190,19 +200,21 @@ QtInsert::evaluate()
         LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
                << "MDD type structure........: " << mddTypeStructure << "\n"
                << "MDD domain................: " << sourceObj->getDefinitionDomain();
-        free(collTypeStructure); collTypeStructure = NULL;
-        free(mddTypeStructure); mddTypeStructure = NULL;
+        free(collTypeStructure);
+        collTypeStructure = NULL;
+        free(mddTypeStructure);
+        mddTypeStructure = NULL;
 #endif
         cellSize = static_cast<int>(sourceObj->getMDDBaseType()->getBaseType()->getSize());
-        
+
         // bug fix: "insert into" found claimed non-existing type mismatch -- PB 2003-aug-25, based on fix by K.Hahn
         // if( !persColl->getCollectionType()->compatibleWith( (Type*) sourceObj->getMDDBaseType() ) )
 //        if (!((MDDType*) sourceObj->getMDDBaseType())->compatibleWith(persColl->getCollectionType()->getMDDType())) {
-        
+
         // fix PB's bug fix (above) - the else is the old code, which is wrong but removing it
         // will break backwards compatibility - rasql always inserts GreyString data when inv_* functions are used.
         // so to fix this in QtMDD there's a flag which tells if the data is from a conversion function -- DM 2011-aug-08
-        
+
         // check if the types of the MDD to be inserted and the target collection are compatible
         bool compatible = false;
         if (dataToInsert)
@@ -221,12 +233,16 @@ QtInsert::evaluate()
             }
         }
 
-        if (!compatible) {
+        if (!compatible)
+        {
             // free resources
             persColl->releaseAll();
             delete persColl;
             persColl = NULL;
-            if (sourceData) sourceData->deleteRef(); // delete the operand
+            if (sourceData)
+            {
+                sourceData->deleteRef();    // delete the operand
+            }
 
             // return error
             LFATAL << "Error: QtInsert::evaluate() - MDD and collection types are incompatible";
@@ -241,7 +257,10 @@ QtInsert::evaluate()
             persColl->releaseAll();
             delete persColl;
             persColl = NULL;
-            if (sourceData) sourceData->deleteRef(); // delete the operand
+            if (sourceData)
+            {
+                sourceData->deleteRef();    // delete the operand
+            }
 
             // return error
             LFATAL << "Error: QtInsert::evaluate() - MDD and collection domains are incompatible";
@@ -259,13 +278,13 @@ QtInsert::evaluate()
 #else
         OId::allocateOId(oid, OId::MDDOID);
 #endif
-        // cast to external format
-        myoid = static_cast<long long>(oid);
+            // cast to external format
+            myoid = static_cast<long long>(oid);
 #ifdef DEBUG
-        LINFO << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter();
+            LINFO << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter();
 #endif
             // get all tiles
-            vector<boost::shared_ptr<Tile> >* sourceTiles = sourceObj->getTiles();
+            vector<boost::shared_ptr<Tile>>* sourceTiles = sourceObj->getTiles();
 
             // get a persistent type pointer
             MDDBaseType* persMDDType = static_cast<MDDBaseType*>(const_cast<Type*>(TypeFactory::ensurePersistence(static_cast<Type*>(const_cast<MDDBaseType*>(sourceObj->getMDDBaseType())))));
@@ -276,7 +295,9 @@ QtInsert::evaluate()
 
                 // delete dynamic data
                 if (sourceData)
+                {
                     sourceData->deleteRef();
+                }
                 delete sourceTiles;
                 sourceTiles = NULL;
                 if (nextTupel)
@@ -293,10 +314,12 @@ QtInsert::evaluate()
 
             // create a persistent MDD object
             // need a StorageLayout here
-            if(mddConfig!= NULL)
+            if (mddConfig != NULL)
             {
-                if(mddConfig->getBorderThreshold() < 0)
+                if (mddConfig->getBorderThreshold() < 0)
+                {
                     mddConfig->setBorderThreshold(r_Stat_Tiling::DEF_BORDER_THR);
+                }
             }
             r_Index_Type ri = getIndexType(mddConfig);
             StorageLayout tempStorageLayout;
@@ -308,46 +331,48 @@ QtInsert::evaluate()
             tempStorageLayout.setTileSize
             ((mddConfig != NULL && mddConfig->getTileSize() > 0) ? static_cast<unsigned int>(mddConfig->getTileSize()) :
              StorageLayout::DefaultTileSize);
-            if(mddConfig!= NULL)
+            if (mddConfig != NULL)
             {
                 tempStorageLayout.setInterestThreshold(mddConfig->getInterestThreshold());
                 tempStorageLayout.setBorderThreshold(static_cast<unsigned int>(mddConfig->getBorderThreshold()));
-                if(mddConfig->getDirDecomp() != NULL)
+                if (mddConfig->getDirDecomp() != NULL)
+                {
                     tempStorageLayout.setDirDecomp(mddConfig->getDirDecomp());
+                }
                 vector<r_Minterval>intervals = getIntervals(mddConfig);
                 tempStorageLayout.setCellSize(cellSize);
-                if(mddConfig->getTilingType() == QtMDDConfig::r_DRLDECOMP_TLG)
+                if (mddConfig->getTilingType() == QtMDDConfig::r_DRLDECOMP_TLG)
                 {
                     tempStorageLayout.resetSubTiling();
                 }
-                else if(mddConfig->getTilingType() == QtMDDConfig::r_DRLDECOMPSUBTILE_TLG)
+                else if (mddConfig->getTilingType() == QtMDDConfig::r_DRLDECOMPSUBTILE_TLG)
                 {
                     tempStorageLayout.setSubTiling();
                 }
-                if(intervals.size() > 0)
+                if (intervals.size() > 0)
                 {
                     tempStorageLayout.setBBoxes(intervals);
                 }
 
                 //uadhikari
                 r_Interest_Tiling::Tilesize_Limit AOI_tileSizeControl;
-                switch(mddConfig->getTilingType())
+                switch (mddConfig->getTilingType())
                 {
-                    case QtMDDConfig::r_AREAOFINTERESTNOLIMIT_TLG:
-                        AOI_tileSizeControl = r_Interest_Tiling::NO_LIMIT ;
-                        break;
-                    case QtMDDConfig::r_AREAOFINTERESTREGROUP_TLG:
-                        AOI_tileSizeControl = r_Interest_Tiling::REGROUP;
-                        break;
-                    case QtMDDConfig::r_AREAOFINTERESTSUBTILING_TLG:
-                        AOI_tileSizeControl = r_Interest_Tiling::SUB_TILING;
-                        break;
-                    case QtMDDConfig::r_AREAOFINTERESTREGROUPANDSUBTILING_TLG:
-                        AOI_tileSizeControl = r_Interest_Tiling::REGROUP_AND_SUBTILING;
-                        break;
-                    default: //r_AREAOFINTEREST_TLG:
-                        AOI_tileSizeControl = r_Interest_Tiling::SUB_TILING;
-                        break;
+                case QtMDDConfig::r_AREAOFINTERESTNOLIMIT_TLG:
+                    AOI_tileSizeControl = r_Interest_Tiling::NO_LIMIT ;
+                    break;
+                case QtMDDConfig::r_AREAOFINTERESTREGROUP_TLG:
+                    AOI_tileSizeControl = r_Interest_Tiling::REGROUP;
+                    break;
+                case QtMDDConfig::r_AREAOFINTERESTSUBTILING_TLG:
+                    AOI_tileSizeControl = r_Interest_Tiling::SUB_TILING;
+                    break;
+                case QtMDDConfig::r_AREAOFINTERESTREGROUPANDSUBTILING_TLG:
+                    AOI_tileSizeControl = r_Interest_Tiling::REGROUP_AND_SUBTILING;
+                    break;
+                default: //r_AREAOFINTEREST_TLG:
+                    AOI_tileSizeControl = r_Interest_Tiling::SUB_TILING;
+                    break;
                 }
                 tempStorageLayout.setTilingSizeStrategy_AOI(AOI_tileSizeControl);
             }
@@ -365,14 +390,14 @@ QtInsert::evaluate()
             persMDDObj->cloneNullValues(sourceObj);
 
             // iterate over source tiles
-            for (vector< boost::shared_ptr<Tile> >::iterator sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
+            for (vector<boost::shared_ptr<Tile>>::iterator sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
             {
                 // create a new persistent tile, copy the transient data, and insert it into the target mdd object
                 Tile* sourceTile = sourceIt->get();
-                Tile* newPersTile = new Tile(sourceTile->getDomain(), persMDDType->getBaseType(), 
-                    true, sourceTile->getContents(), sourceTile->getSize(), sourceTile->getDataFormat());
+                Tile* newPersTile = new Tile(sourceTile->getDomain(), persMDDType->getBaseType(),
+                                             true, sourceTile->getContents(), sourceTile->getSize(), sourceTile->getDataFormat());
                 persMDDObj->insertTile(newPersTile);
-                
+
                 // newPersTile takes ownership of the contents of sourceTile,
                 // so make sure sourceTile doesn't delete the contents
                 sourceTile->setContents(NULL);
@@ -390,7 +415,10 @@ QtInsert::evaluate()
             LFATAL << "Error: QtInsert::evaluate() - allocation of oid failed";
 
             // delete dynamic data
-            if (sourceData) sourceData->deleteRef();
+            if (sourceData)
+            {
+                sourceData->deleteRef();
+            }
             if (nextTupel)
             {
                 delete nextTupel;
@@ -410,11 +438,15 @@ QtInsert::evaluate()
         persColl = NULL;
     }
     else
+    {
         LERROR << "Error: QtInsert::evaluate() - insert data is invalid.";
+    }
 
     // delete source operand
     if (sourceData)
+    {
         sourceData->deleteRef();
+    }
 
     // delete dummy tupel vector
     if (nextTupel)
@@ -425,12 +457,12 @@ QtInsert::evaluate()
 
     stopTimer();
 
-   // return the generated OID
+    // return the generated OID
 #ifdef DEBUG
     LDEBUG << "QtInsert::evaluate() - returning oid:" << myoid;
 #endif
-   returnValue = new QtAtomicData( static_cast<r_Long>(myoid), static_cast<unsigned short>(sizeof(r_Long)) );
-   return returnValue;
+    returnValue = new QtAtomicData(static_cast<r_Long>(myoid), static_cast<unsigned short>(sizeof(r_Long)));
+    return returnValue;
 }
 
 QtNode::QtNodeList*
@@ -441,19 +473,25 @@ QtInsert::getChilds(QtChildType flag)
     if (source)
     {
         // allocate resultList
-        if (flag == QT_DIRECT_CHILDS){};
+        if (flag == QT_DIRECT_CHILDS) {};
 
         resultList = new QtNodeList();
 
         if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
+        {
             resultList = source->getChilds(flag);
+        }
 
         // add the nodes of the current level
         if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+        {
             resultList->push_back(source);
+        }
     }
     else
+    {
         resultList = new QtNodeList();
+    }
 
     return resultList;
 }
@@ -475,7 +513,9 @@ QtInsert::printTree(int tab, std::ostream& s, QtChildType mode)
             s << SPACE_STR(static_cast<size_t>(tab)) << "data to insert" << std::endl;
         }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no source" << std::endl;
+        }
 
         s << std::endl;
     }
@@ -487,9 +527,13 @@ QtInsert::printAlgebraicExpression(std::ostream& s)
     s << "insert<";
 
     if (source)
+    {
         source->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<no source>";
+    }
 
     s << ">";
 }
@@ -522,21 +566,26 @@ QtInsert::checkType()
     {
 
         // get input type
-        if (dataToInsert->getDataType() != QT_MDD) {
+        if (dataToInsert->getDataType() != QT_MDD)
+        {
             LFATAL << "Error: QtInsert::checkType() - inserted data must be of type r_Marray<T>";
             parseInfo.setErrorNo(960);
             throw parseInfo;
         }
     }
     else
+    {
         LERROR << "Error: QtInsert::checkType() - operand branch invalid.";
+    }
 }
 
 r_Data_Format
 QtInsert::getDataFormat(QtMDDConfig* config)
 {
     if (!config)
+    {
         return StorageLayout::DefaultDataFormat;
+    }
     int dataType = config->getStorageType();
     switch (dataType)
     {
@@ -556,8 +605,8 @@ QtInsert::getDataFormat(QtMDDConfig* config)
         return r_NETCDF;
     case QtMDDConfig::r_GDAL_STG :
         return r_GDAL;
-        //        case QtMDDConfig::r_HDF5_STG://need review
-        //            return r_HDF;
+    //        case QtMDDConfig::r_HDF5_STG://need review
+    //            return r_HDF;
     case QtMDDConfig::r_JPEG_STG :
         return r_JPEG;
     case QtMDDConfig::r_NITF_STG :
@@ -576,53 +625,93 @@ QtInsert::getDataFormat(QtMDDConfig* config)
         return r_TIFF;
     case QtMDDConfig::r_WLTCOIFLETINT_STG :
         if (config->getWltValue() == 6)
+        {
             return r_Wavelet_Coiflet6;
+        }
         if (config->getWltValue() == 12)
+        {
             return r_Wavelet_Coiflet12;
+        }
         if (config->getWltValue() == 18)
+        {
             return r_Wavelet_Coiflet18;
+        }
         if (config->getWltValue() == 24)
+        {
             return r_Wavelet_Coiflet24;
+        }
         if (config->getWltValue() == 30)
+        {
             return r_Wavelet_Coiflet30;
+        }
         return StorageLayout::DefaultDataFormat; //may be null
     case QtMDDConfig::r_WLTDAUBECHIES_STG :
         return r_Wavelet_Daubechies;
     case QtMDDConfig::r_WLTDAUBECHIESINT_STG :
         if (config->getWltValue() == 6)
+        {
             return r_Wavelet_Daub6;
+        }
         if (config->getWltValue() == 8)
+        {
             return r_Wavelet_Daub8;
+        }
         if (config->getWltValue() == 10)
+        {
             return r_Wavelet_Daub10;
+        }
         if (config->getWltValue() == 12)
+        {
             return r_Wavelet_Daub12;
+        }
         if (config->getWltValue() == 14)
+        {
             return r_Wavelet_Daub14;
+        }
         if (config->getWltValue() == 16)
+        {
             return r_Wavelet_Daub16;
+        }
         if (config->getWltValue() == 18)
+        {
             return r_Wavelet_Daub18;
+        }
         if (config->getWltValue() == 20)
+        {
             return r_Wavelet_Daub20;
+        }
         return StorageLayout::DefaultDataFormat; //may be default
     case QtMDDConfig::r_WLTHAAR_STG :
         return r_Wavelet_Haar;
     case QtMDDConfig::r_WLTLEASTINT_STG :
         if (config->getWltValue() == 8)
+        {
             return r_Wavelet_Least8;
+        }
         if (config->getWltValue() == 10)
+        {
             return r_Wavelet_Least10;
+        }
         if (config->getWltValue() == 12)
+        {
             return r_Wavelet_Least12;
+        }
         if (config->getWltValue() == 14)
+        {
             return r_Wavelet_Least14;
+        }
         if (config->getWltValue() == 16)
+        {
             return r_Wavelet_Least16;
+        }
         if (config->getWltValue() == 18)
+        {
             return r_Wavelet_Least18;
+        }
         if (config->getWltValue() == 20)
+        {
             return r_Wavelet_Least20;
+        }
     case QtMDDConfig::r_WLTQHAAR_STG :
         return r_Wavelet_QHaar;
     case QtMDDConfig::r_ZLIB_STG :
@@ -639,7 +728,9 @@ r_Index_Type
 QtInsert::getIndexType(QtMDDConfig* config)
 {
     if (!config)
+    {
         return StorageLayout::DefaultIndexType;
+    }
     int indexType = config->getIndexType();
 
     switch (indexType)
@@ -671,7 +762,9 @@ r_Tiling_Scheme
 QtInsert::getTilingScheme(QtMDDConfig* cfg)
 {
     if (!cfg)
+    {
         return StorageLayout::DefaultTilingScheme;
+    }
     int tileType = cfg->getTilingType();
     switch (tileType)
     {
@@ -708,10 +801,14 @@ QtInsert::getIntervals(QtMDDConfig* cfg)
 {
     vector<r_Minterval> intervals;
     if (!cfg)
+    {
         return intervals;
+    }
     QtNode::QtOperationList* oplist = cfg->getBboxList();
     if (!oplist)
+    {
         return intervals;
+    }
     QtNode::QtDataList* nextTupel = new QtNode::QtDataList(0);
     QtOperationList::iterator iter;
     for (iter = oplist->begin(); iter != oplist->end(); iter++)
@@ -737,7 +834,9 @@ QtInsert::getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDi
 
     QtOperation* op = cfg->getTileCfg();
     if (!op)
+    {
         return tileConfig;
+    }
     QtNode::QtDataList* nextTupel = new QtNode::QtDataList(0);
     QtData* data = op->evaluate(nextTupel);
     QtMintervalData* intervalData = static_cast<QtMintervalData*>(data);

@@ -55,8 +55,10 @@ void testFunc2(int reclevel)
     RMDebug localRMDebug = RMDebug("Class1", "testFunc2", "Module1",
                                    __FILE__, __LINE__);
 
-    if(reclevel > 1)
+    if (reclevel > 1)
+    {
         testFunc2(reclevel - 1);
+    }
 }
 
 void testFunc3(void)
@@ -75,7 +77,9 @@ void testFunc4(int reclevel)
                          __FILE__, __LINE__);
 
     if (reclevel > 1)
+    {
         testFunc4(reclevel - 1);
+    }
 }
 
 // this was used to test correctness
@@ -84,8 +88,10 @@ void oldMain()
 {
     int i, busy;
 
-    for(i = 1; i<=5; i++)
+    for (i = 1; i <= 5; i++)
+    {
         testFunc1();
+    }
 
     testFunc2(5);
 
@@ -97,18 +103,18 @@ void oldMain()
 
     cout << "The following should hold approximately: timer2 + timer3 = timer1" << endl << endl;
 
-    RMTimer* timer1 = new RMTimer("main","timer1");
-    RMTimer* timer2 = new RMTimer("main","timer2");
+    RMTimer* timer1 = new RMTimer("main", "timer1");
+    RMTimer* timer2 = new RMTimer("main", "timer2");
 
     timer2->pause();
 
-    RMTimer* timer3 = new RMTimer("main","timer3");
-    for( long busy=0; busy <= 50000000; busy++ );
+    RMTimer* timer3 = new RMTimer("main", "timer3");
+    for (long busy = 0; busy <= 50000000; busy++);
     delete timer3;
 
     timer2->resume();
 
-    for( busy=0; busy <= 30000000; busy++ );
+    for (busy = 0; busy <= 30000000; busy++);
 
     delete timer2;
     delete timer1;
@@ -122,8 +128,10 @@ double testStatic(double dummy)
 {
     RMTIMER("test_rmdebug", "testStatic");
 
-    for(int i=0; i<repeat; i++)
-        dummy = dummy*4711.4712;
+    for (int i = 0; i < repeat; i++)
+    {
+        dummy = dummy * 4711.4712;
+    }
     return dummy;
 }
 
@@ -132,15 +140,22 @@ double testDynamic(double dummy)
 #ifdef RMANBENCHMARK
     RMTimer* localRMTimer = 0;
 
-    if( RManBenchmark >= 3 )
+    if (RManBenchmark >= 3)
+    {
         localRMTimer = new RMTimer("test_rmdebug", "testDynamic");
+    }
 #endif
 
-    for(int i=0; i<repeat; i++)
-        dummy = dummy*4711.4712;
+    for (int i = 0; i < repeat; i++)
+    {
+        dummy = dummy * 4711.4712;
+    }
 
 #ifdef RMANBENCHMARK
-    if( localRMTimer ) delete localRMTimer;
+    if (localRMTimer)
+    {
+        delete localRMTimer;
+    }
 #endif
 
     return dummy;

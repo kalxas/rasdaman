@@ -59,7 +59,9 @@ DBHierIndex::DBHierIndex(const OId& id)
         currentDbRows(0)
 {
     if (id.getType() == OId::MDDHIERIXOID)
+    {
         readFromDb();
+    }
     maxSize = DBHierIndex::getOptimalSize(getDimension());
     myKeyObjects.reserve(maxSize);
 }
@@ -74,7 +76,9 @@ DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE, bool makePersistent)
 {
     objecttype = OId::MDDHIERIXOID;
     if (makePersistent)
+    {
         setPersistent(true);
+    }
 
     maxSize = getOptimalSize(dim);
     myKeyObjects.reserve(maxSize);
@@ -138,14 +142,18 @@ void
 DBHierIndex::insertObject(const KeyObject& theKey, unsigned int pos)
 {
     if (!isLeaf())
+    {
         DBHierIndexId(theKey.getObject())->setParent(this);
+    }
     if (myKeyObjects.size() == 0)
     {
         // first tile to be inserted in the index, initialize domain
         myDomain = theKey.getDomain();
     }
     else
+    {
         extendCoveredDomain(theKey.getDomain());
+    }
     myKeyObjects.insert(myKeyObjects.begin() + pos, theKey);
     LDEBUG << "now have " << myKeyObjects.size() << " objects in key object vector.";
     setModified();
@@ -291,20 +299,30 @@ void
 DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
 {
     DBObjectId t;
-    char* indent = new char[level*2 +1];
-    for (unsigned int j = 0; j < level*2 ; j++)
+    char* indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2 ; j++)
+    {
         indent[j] = ' ';
-    indent[level*2] = '\0';
+    }
+    indent[level * 2] = '\0';
 
     stream << indent << "DBHierIndex ";
     if (isRoot())
+    {
         stream << "is Root ";
+    }
     else
+    {
         stream << "Parent " << parent << " ";
+    }
     if (isLeaf())
+    {
         stream << "Leaf ";
+    }
     else
+    {
         stream << "Node ";
+    }
     DBObject::printStatus(level, stream);
     stream << " size " << myKeyObjects.size() << " domain " << myDomain << std::endl;
     int count = 0;
@@ -316,9 +334,13 @@ DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
         {
             t = DBObjectId((*i).getObject());
             if (t.is_null())
+            {
                 stream << indent << " entry is null";
+            }
             else
+            {
                 t->printStatus(level + 1, stream);
+            }
         }
         stream << std::endl;
         count++;
@@ -347,7 +369,9 @@ DBHierIndex::isOverFull() const
 {
     bool retval = false;
     if (getSize() >= maxSize)
+    {
         retval = true;
+    }
 
     LTRACE << "isOverFull() " << myOId << " maxSize " << maxSize << " size " << getSize() << " retval " << retval;
     return retval;
@@ -398,7 +422,9 @@ DBHierIndex::getOptimalSize(r_Dimension dim)
     //minimum size is 8-lucky guess(good for 1,2,3,4 dimensions)
     retval = std::max(static_cast<unsigned int>(8), useablespace / oneentry);
     if (StorageLayout::DefaultIndexSize != 0)
+    {
         retval = StorageLayout::DefaultIndexSize;
+    }
 
     LTRACE << "getOptimalSize(" << dim << ") maxSize " << retval;
     return retval;
@@ -487,7 +513,9 @@ DBHierIndex::isSameAs(const IndexDS* other) const
     bool result = false;
     if (other->isPersistent())
         if (myOId == other->getIdentifier())
+        {
             result = true;
+        }
 
     return result;
 }
@@ -549,7 +577,9 @@ DBHierIndex::getHeightToRoot() const
 
     unsigned int retval = 0;
     if (isRoot())
+    {
         retval = 0;
+    }
     else
     {
         DBHierIndexId t(parent);
@@ -567,7 +597,9 @@ DBHierIndex::getHeightToLeaf() const
 
     unsigned int retval = 0;
     if (isLeaf())
+    {
         retval = 0;
+    }
     else
     {
         DBHierIndexId t(parent);
@@ -697,7 +729,7 @@ value :
 
 // HST this might need an update for long long oid, but as the only user is
 // text/exportindex.cc, this will be done later
-// 
+//
 BinaryRepresentation
 DBHierIndex::getBinaryRepresentation() const throw (r_Error)
 {
@@ -711,9 +743,13 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
     long long parentid2 = 0;
 
     if (parent.getType() == OId::INVALID)
+    {
         parentid2 = 0;
+    }
     else
+    {
         parentid2 = parent;
+    }
 
     //INSERTINTO
 
@@ -751,10 +787,10 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
     for (unsigned int i = 0; i < size2; i++, it++)
     {
         indom = (*it).getDomain();
-        indom.insertInDb(&(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2]));
+        indom.insertInDb(&(lowerboundsbuf[(i + 1)*dimension2]), &(upperboundsbuf[(i + 1)*dimension2]), &(lowerfixedbuf[(i + 1)*dimension2]), &(upperfixedbuf[(i + 1)*dimension2]));
         entryidsbuf[i] = (*it).getObject().getOId().getCounter();
         entrytypesbuf[i] = static_cast<char>((*it).getObject().getOId().getType());
-        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2]));
+        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i + 1)*dimension2]), &(upperboundsbuf[(i + 1)*dimension2]), &(lowerfixedbuf[(i + 1)*dimension2]), &(upperfixedbuf[(i + 1)*dimension2]));
     }
 
     //write the buffers in the complete buffer
@@ -818,7 +854,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
 void
 DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_Error)
 {
-	// This format is not efficient (but also not in use..), it should be reviewed against alignment issues
+    // This format is not efficient (but also not in use..), it should be reviewed against alignment issues
     if (memcmp(brp.binaryData, BinaryRepresentation::fileTag, 5) != 0)
     {
         LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not a correct data set " << brp.binaryData;
@@ -862,9 +898,13 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     _isNode = tempc;
 
     if (parentid1)
+    {
         parent = OId(parentid1);
+    }
     else
+    {
         parent = OId(0, OId::INVALID);
+    }
 
     //number of bytes for bounds for "size" entries and mydomain
     r_Bytes boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
@@ -902,15 +942,15 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     completebuffer = NULL;
     unsigned int i = 0;
     //rebuild the attributes from the buffers
-    myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i*dimension1]));
+    myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i * dimension1]));
     LTRACE << "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
     KeyObject theKey = KeyObject(DBObjectId(), myDomain);
     for (i = 0; i < size1; i++)
     {
-        theKey.setDomain(InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1])));
+        theKey.setDomain(InlineMinterval(dimension1, &(lowerboundsbuf[(i + 1)*dimension1]), &(upperboundsbuf[(i + 1)*dimension1]), &(lowerfixedbuf[(i + 1)*dimension1]), &(upperfixedbuf[(i + 1)*dimension1])));
         theKey.setObject(OId(entryidsbuf[i], static_cast<OId::OIdType>(entrytypesbuf[i])));
         myKeyObjects.push_back(theKey);
-        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1]));
+        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i + 1)*dimension1]), &(upperboundsbuf[(i + 1)*dimension1]), &(lowerfixedbuf[(i + 1)*dimension1]), &(upperfixedbuf[(i + 1)*dimension1]));
     }
 
     delete [] upperboundsbuf;

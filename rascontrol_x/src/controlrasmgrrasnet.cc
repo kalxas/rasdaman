@@ -58,15 +58,15 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials,
     try
     {
         string serverAddress = common::GrpcUtils::constructAddressString(config.getRasMgrHost(), config.getRasMgrPort());
-        std::shared_ptr<Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()));
+        std::shared_ptr<Channel> channel(grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()));
 
         this->rasmgrService.reset(new RasMgrRasCtrlService::Stub(channel));
         this->healthService.reset(new common::HealthService::Stub(channel));
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
         //Failed to connect.
-        LERROR<<ex.what();
+        LERROR << ex.what();
 
         throw ConnectionFailedException(ex.what());
     }
@@ -88,20 +88,20 @@ std::string ControlRasMgrRasnet::processCommand(const std::string& command)
     request.set_password_hash(password);
     request.set_command(command);
 
-    if(!common::GrpcUtils::isServerAlive(this->healthService, SERVICE_CALL_TIMEOUT))
+    if (!common::GrpcUtils::isServerAlive(this->healthService, SERVICE_CALL_TIMEOUT))
     {
         throw common::ConnectionFailedException();
     }
 
     ClientContext context;
-    Status status = this->rasmgrService->ExecuteCommand( &context, request, &response);
+    Status status = this->rasmgrService->ExecuteCommand(&context, request, &response);
 
-    if(!status.ok())
+    if (!status.ok())
     {
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 
-    if(!response.message().empty())
+    if (!response.message().empty())
     {
         responseMessage = response.message();
     }

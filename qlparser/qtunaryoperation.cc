@@ -51,21 +51,23 @@ QtUnaryOperation::QtUnaryOperation()
 }
 
 
-QtUnaryOperation::QtUnaryOperation( QtOperation* inputInit )
+QtUnaryOperation::QtUnaryOperation(QtOperation* inputInit)
     :  QtOperation(),
-       input( inputInit )
+       input(inputInit)
 {
-    if( input )
-        input->setParent( this );
+    if (input)
+    {
+        input->setParent(this);
+    }
 }
 
 
 QtUnaryOperation::~QtUnaryOperation()
 {
-    if( input )
+    if (input)
     {
         delete input;
-        input=NULL;
+        input = NULL;
     }
 }
 
@@ -77,9 +79,9 @@ QtUnaryOperation::getSpelling()
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
-    result.append( "(" );
-    result.append( input->getSpelling() );
-    result.append( ")" );
+    result.append("(");
+    result.append(input->getSpelling());
+    result.append(")");
 
     return result;
 }
@@ -93,24 +95,24 @@ QtUnaryOperation::simplify()
     QtNode::simplify();
 
     // Test, if operand is available.
-    if( input )
+    if (input)
     {
         // Test, if operand is of const type.
-        if( input->getNodeType() ==  QT_CONST )
+        if (input->getNodeType() ==  QT_CONST)
         {
             // evaluate the self node with no input list
-            QtData* newConst = this->evaluate( NULL );
+            QtData* newConst = this->evaluate(NULL);
 
-            if( newConst )
+            if (newConst)
             {
                 // create a new constant node and fill it with newConst
-                QtConst* newNode = new QtConst( newConst );
+                QtConst* newNode = new QtConst(newConst);
 
                 // set its data stream type
-                newNode->checkType( NULL );
+                newNode->checkType(NULL);
 
                 // link it to the parent
-                getParent()->setInput( this, newNode );
+                getParent()->setInput(this, newNode);
 
                 // delete the self node and its descendants
                 delete this;
@@ -122,35 +124,41 @@ QtUnaryOperation::simplify()
 
 
 bool
-QtUnaryOperation::equalMeaning( QtNode* node )
+QtUnaryOperation::equalMeaning(QtNode* node)
 {
     bool result = false;
 
-    if( getNodeType() == node->getNodeType() )
+    if (getNodeType() == node->getNodeType())
     {
         QtUnaryOperation* unaryNode = static_cast<QtUnaryOperation*>(node); // by force
 
-        result = input->equalMeaning( unaryNode->getInput() );
+        result = input->equalMeaning(unaryNode->getInput());
     };
 
-    return ( result );
+    return (result);
 }
 
 
 
 QtNode::QtNodeList*
-QtUnaryOperation::getChilds( QtChildType flag )
+QtUnaryOperation::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
 
-    if( flag == QT_DIRECT_CHILDS )
+    if (flag == QT_DIRECT_CHILDS)
+    {
         resultList = new QtNodeList();
+    }
 
-    if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
-        resultList = input->getChilds( flag );
+    if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
+    {
+        resultList = input->getChilds(flag);
+    }
 
-    if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-        resultList->push_back( input );
+    if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+    {
+        resultList->push_back(input);
+    }
 
     return resultList;
 }
@@ -159,36 +167,40 @@ QtUnaryOperation::getChilds( QtChildType flag )
 QtNode::QtAreaType
 QtUnaryOperation::getAreaType()
 {
-    return( input->getAreaType() );
+    return (input->getAreaType());
 }
 
 
 void
-QtUnaryOperation::optimizeLoad( QtTrimList* trimList )
+QtUnaryOperation::optimizeLoad(QtTrimList* trimList)
 {
     // by default, pass load domain to the input
-    if( input )
-        input->optimizeLoad( trimList );
+    if (input)
+    {
+        input->optimizeLoad(trimList);
+    }
     else
     {
         delete trimList;
-        trimList=NULL;
+        trimList = NULL;
     }
 }
 
 
 void
-QtUnaryOperation::printTree( int tab, ostream& s, QtChildType mode )
+QtUnaryOperation::printTree(int tab, ostream& s, QtChildType mode)
 {
-    if( mode != QtNode::QT_DIRECT_CHILDS )
+    if (mode != QtNode::QT_DIRECT_CHILDS)
     {
-        if( input )
+        if (input)
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input: " << endl;
-            input->printTree( tab+2, s, mode );
+            input->printTree(tab + 2, s, mode);
         }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str()  << "no input" << endl;
+        }
     }
 }
 

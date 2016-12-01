@@ -97,7 +97,7 @@ input parameters:
 - resy    vertical resolution (pixel distance) in meters (float >0)
 - hstep   factor by which pixel values have to be multiplied to obtain real height in meters (float >0)
 
-An int16 file contains a sequence of sizex*sizey height values, advancing from west to east and from north to south. 
+An int16 file contains a sequence of sizex*sizey height values, advancing from west to east and from north to south.
 Each pixel consists of a 16 bit integer where the lower byte comes first in sequence (i.e., pixel value is byte[i]+byte[i+1]*256).
 There is no file header, pixels start immediately at the beginning.
 
@@ -134,7 +134,7 @@ public:
 
     r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
 
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
 
     r_Conv_Desc& convertTo(const char* options = NULL) throw (r_Error);
 
@@ -151,17 +151,17 @@ public:
     static const r_Dimension destIntervDim;
 
     /// decode convertor options
-    static bool decodeOptions( const char* options,
-                               r_GeoBBox& collBBox) throw();
+    static bool decodeOptions(const char* options,
+                              r_GeoBBox& collBBox) throw();
 
     /// encode convertor options
     static string encodeOptions(const r_GeoBBox& collBBox) throw();
 
     /// destructor
-    virtual ~r_Conv_DEM( void );
+    virtual ~r_Conv_DEM(void);
 
     /// init convertor parameters to default value
-    static void initGeoBBox( r_GeoBBox& cBBox );
+    static void initGeoBBox(r_GeoBBox& cBBox);
 
 private:
 
@@ -196,7 +196,7 @@ private:
     class DEMRow
     {
     public:
-        r_Double x,y,h;
+        r_Double x, y, h;
     };
 
     typedef vector<DEMRow> DEMRowVec;

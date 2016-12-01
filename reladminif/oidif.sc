@@ -77,7 +77,7 @@ OId::deinitialize()
             LTRACE << "do nothing is aborted";
         }
 
-        else if(loadedOk==false)
+        else if (loadedOk == false)
         {
             LTRACE << "avoiding to write uninitialized counters into DB";
         }

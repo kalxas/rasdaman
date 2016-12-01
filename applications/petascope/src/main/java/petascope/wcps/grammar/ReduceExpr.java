@@ -41,7 +41,7 @@ public class ReduceExpr implements IParseTreeNode {
     public String toXML() {
         op = op.toLowerCase();
         String result = "<" + WcpsConstants.MSG_REDUCE + "><" + op + ">" + expr.toXML() +
-                "</" + op + "></" + WcpsConstants.MSG_REDUCE + ">";
+                        "</" + op + "></" + WcpsConstants.MSG_REDUCE + ">";
 
         return result;
     }

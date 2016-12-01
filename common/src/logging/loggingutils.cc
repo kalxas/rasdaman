@@ -41,44 +41,44 @@ namespace common
 using std::string;
 
 #ifdef RMANRASNET
-void gpr_replacement_log(gpr_log_func_args *args);
-void gpr_replacement_log(gpr_log_func_args *args)
+void gpr_replacement_log(gpr_log_func_args* args);
+void gpr_replacement_log(gpr_log_func_args* args)
 {
     string prefix = "GRPC:";
     string separator = " ";
 
-    switch(args->severity)
+    switch (args->severity)
     {
     case GPR_LOG_SEVERITY_DEBUG:
     {
-        LDEBUG<<prefix<<separator
-              <<args->file<<separator
-              <<args->line<<separator
-              <<args->message;
+        LDEBUG << prefix << separator
+               << args->file << separator
+               << args->line << separator
+               << args->message;
     }
     break;
     case GPR_LOG_SEVERITY_INFO:
     {
-        LINFO<<prefix<<separator
-             <<args->file<<separator
-             <<args->line<<separator
-             <<args->message;
+        LINFO << prefix << separator
+              << args->file << separator
+              << args->line << separator
+              << args->message;
     }
     break;
     case GPR_LOG_SEVERITY_ERROR:
     {
-        LERROR<<prefix<<separator
-              <<args->file<<separator
-              <<args->line<<separator
-              <<args->message;
+        LERROR << prefix << separator
+               << args->file << separator
+               << args->line << separator
+               << args->message;
     }
     break;
     default:
     {
-        LERROR<<prefix<<separator
-              <<args->file<<separator
-              <<args->line<<separator
-              <<args->message;
+        LERROR << prefix << separator
+               << args->file << separator
+               << args->line << separator
+               << args->message;
     }
     }
 }
@@ -87,22 +87,22 @@ void gpr_replacement_log(gpr_log_func_args *args)
 
 void common::LoggingUtils::redirectGRPCLogToEasyLogging()
 {
-    #ifdef RMANRASNET
+#ifdef RMANRASNET
 
     gpr_set_log_function(gpr_replacement_log);
-    
-    #endif    
+
+#endif
 }
 
 easyloggingpp::Configurations LoggingUtils::getClientLoggingConfiguration()
 {
-    std::string configFilePath(std::string(CONFDIR)+"/"+CLIENT_LOG_CONF);
+    std::string configFilePath(std::string(CONFDIR) + "/" + CLIENT_LOG_CONF);
 
-    if(doesFileExist(configFilePath))
+    if (doesFileExist(configFilePath))
     {
         easyloggingpp::Configurations defaultConf(configFilePath);
 
-        LINFO<<"Loaded log configuration file:"<<configFilePath;
+        LINFO << "Loaded log configuration file:" << configFilePath;
 
         return defaultConf;
     }
@@ -146,11 +146,11 @@ easyloggingpp::Configurations LoggingUtils::getClientLoggingConfiguration()
 
 easyloggingpp::Configurations LoggingUtils::getServerLoggingConfiguration(const std::string& configFilePath)
 {
-    if(doesFileExist(configFilePath))
+    if (doesFileExist(configFilePath))
     {
         easyloggingpp::Configurations defaultConf(configFilePath);
 
-        LINFO<<"Loaded log configuration file:"<<configFilePath;
+        LINFO << "Loaded log configuration file:" << configFilePath;
 
         return defaultConf;
     }
@@ -164,13 +164,13 @@ easyloggingpp::Configurations LoggingUtils::getServerLoggingConfiguration(const 
 
 easyloggingpp::Configurations LoggingUtils::getServerLoggingConfiguration(const std::string& configFilePath, const std::string& outputLogFilePath)
 {
-    if(doesFileExist(configFilePath))
+    if (doesFileExist(configFilePath))
     {
         easyloggingpp::Configurations defaultConf(configFilePath);
         defaultConf.set(easyloggingpp::Level::All ,
                         easyloggingpp::ConfigurationType::Filename, outputLogFilePath);
 
-        LINFO<<"Loaded log configuration file:"<<configFilePath;
+        LINFO << "Loaded log configuration file:" << configFilePath;
 
         return defaultConf;
     }
@@ -186,7 +186,7 @@ easyloggingpp::Configurations LoggingUtils::getServerLoggingConfiguration(const 
     }
 }
 
-bool LoggingUtils::doesFileExist(const std::string &filePath)
+bool LoggingUtils::doesFileExist(const std::string& filePath)
 {
     std::ifstream f(filePath.c_str());
     if (f.good())

@@ -62,7 +62,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
 
     @Override
     public Response handle(DescribeCoverageRequest request) throws WCSException, PetascopeException, SecoreException {
-        
+
         Document ret = constructDocument(LABEL_COVERAGE_DESCRIPTIONS, NAMESPACE_WCS);
         Element root = ret.getRootElement();
 
@@ -74,9 +74,9 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
             try {
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
                 GetCoverageMetadata m = new GetCoverageMetadata(tmp, meta);
-                
+
                 //// GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
-                
+
                 decodeFormatExt.updateGetCoverageMetadata(new GetCoverageRequest(coverageId), m, meta);
 
                 // get template: currently multipoint or *grid
@@ -89,10 +89,10 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                     // Fetch the coefficients (of the irregular axes)
                     for (DomainElement domEl : m.getMetadata().getDomainList()) {
                         domEl.setCoefficients(
-                                meta.getAllCoefficients(
+                            meta.getAllCoefficients(
                                 m.getMetadata().getCoverageName(),
                                 m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
-                                ));
+                            ));
                     }
                     // Add to GML
                     descr = WcsUtil.addCoefficients(descr, m, meta);
@@ -135,7 +135,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
             return new Response(null, new String[] { serialize(ret) }, FormatExtension.MIME_XML);
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
-                    "Error serializing constructed document", ex);
+                                   "Error serializing constructed document", ex);
         }
     }
 }

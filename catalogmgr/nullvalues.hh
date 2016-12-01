@@ -53,7 +53,7 @@ public:
     ~NullValuesHandler();
 
     /// clone data from obj to this object
-    void cloneNullValues( const NullValuesHandler* obj );
+    void cloneNullValues(const NullValuesHandler* obj);
 
     /// get null values
     r_Minterval* getNullValues() const;

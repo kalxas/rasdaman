@@ -39,92 +39,91 @@ import java.util.*;
  * set the server name with -server, the database name with -database, the collection name with -collection,
  * the port number with -port, the user login with -user, the password with -passwd
  */
-public class Lookup
-{
-  public static void main(String[] args)
-  {
-    String server = "localhost";
-    String base = "RASBASE";
-    String coll = "rockies";
-    String port = "7001";
-    String user = "rasguest";
-    String passwd = "rasguest";
+public class Lookup {
+    public static void main(String[] args) {
+        String server = "localhost";
+        String base = "RASBASE";
+        String coll = "rockies";
+        String port = "7001";
+        String user = "rasguest";
+        String passwd = "rasguest";
 
-    for (int i=args.length-1; i>=0; i--)
-    {
-      //System.out.println(args[i]);
-      if (args[i].equals("-server"))
-        server = args[i+1];
-      if (args[i].equals("-database"))
-        base = args[i+1];
-      if (args[i].equals("-collection"))
-        coll = args[i+1];
-      if (args[i].equals("-port"))
-        port = args[i+1];
-      if (args[i].equals("-user"))
-        user = args[i+1];
-      if (args[i].equals("-passwd"))
-        passwd = args[i+1];
+        for (int i = args.length - 1; i >= 0; i--) {
+            //System.out.println(args[i]);
+            if (args[i].equals("-server")) {
+                server = args[i + 1];
+            }
+            if (args[i].equals("-database")) {
+                base = args[i + 1];
+            }
+            if (args[i].equals("-collection")) {
+                coll = args[i + 1];
+            }
+            if (args[i].equals("-port")) {
+                port = args[i + 1];
+            }
+            if (args[i].equals("-user")) {
+                user = args[i + 1];
+            }
+            if (args[i].equals("-passwd")) {
+                passwd = args[i + 1];
+            }
+        }
+        //System.out.println(server+base+coll+port+user+passwd);
+
+        DBag resultBag = null;
+        Object result = null;
+        Transaction myTa = null;
+        Database myDb = null;
+        OQLQuery myQu = null;
+
+        try {
+            Implementation myApp = new RasImplementation("http://" + server + ":" + port);
+            ((RasImplementation)myApp).setUserIdentification(user, passwd);
+            myDb = myApp.newDatabase();
+
+            System.out.println("Opening database ...");
+            myDb.open(base, Database.OPEN_READ_ONLY);
+
+            System.out.println("Starting transaction ...");
+            myTa = myApp.newTransaction();
+            myTa.begin();
+
+            System.out.println("Retrieving results ...");
+            myQu = myApp.newOQLQuery();
+            myQu.create("select img from " + coll + " as img");
+            resultBag = (DBag)myQu.execute();
+            if (resultBag != null) {
+                Iterator iter = resultBag.iterator();
+                while (iter.hasNext()) {
+                    result = iter.next();
+                    System.out.println(result);
+                }
+                System.out.println("All results");
+            }
+
+            System.out.println("Committing transaction ...");
+            myTa.commit();
+
+            System.out.println("Closing database ...");
+            myDb.close();
+
+        } catch (org.odmg.ODMGException e) {
+            System.out.println("An exception has occurred: " + e.getMessage());
+            System.out.println("Try to abort the transaction ...");
+            if (myTa != null) {
+                myTa.abort();
+            }
+
+            try {
+                System.out.println("Try to close the database ...");
+                if (myDb != null) {
+                    myDb.close();
+                }
+            } catch (org.odmg.ODMGException exp) {
+                System.err.println("Could not close the database: " + exp.getMessage());
+            }
+        }
+        System.out.println("Done.");
     }
-    //System.out.println(server+base+coll+port+user+passwd);
-
-    DBag resultBag = null;
-    Object result = null;
-    Transaction myTa = null;
-    Database myDb = null;
-    OQLQuery myQu = null;
-
-    try
-    {
-      Implementation myApp = new RasImplementation("http://"+server+":"+port);
-      ((RasImplementation)myApp).setUserIdentification(user, passwd);
-      myDb = myApp.newDatabase();
-
-      System.out.println("Opening database ...");
-      myDb.open(base, Database.OPEN_READ_ONLY);
-
-      System.out.println("Starting transaction ...");
-      myTa = myApp.newTransaction();
-      myTa.begin();
-
-      System.out.println("Retrieving results ...");
-      myQu = myApp.newOQLQuery();
-      myQu.create("select img from "+coll+" as img");
-      resultBag = (DBag)myQu.execute();
-      if (resultBag != null)
-      {
-	Iterator iter = resultBag.iterator();
-	while (iter.hasNext())
-	{
-          result = iter.next();
-          System.out.println(result);
-	}
-          System.out.println("All results");
-      }
-
-      System.out.println( "Committing transaction ..." );
-      myTa.commit();
-
-      System.out.println( "Closing database ..." );
-      myDb.close();
-
-    }
-    catch (org.odmg.ODMGException e)
-    {
-      System.out.println("An exception has occurred: " + e.getMessage());
-      System.out.println("Try to abort the transaction ...");
-      if(myTa != null) myTa.abort();
-
-      try
-      {
-        System.out.println("Try to close the database ...");
-	if(myDb != null) myDb.close();
-      }
-      catch ( org.odmg.ODMGException exp )
-      {
-        System.err.println("Could not close the database: " + exp.getMessage());
-      }
-    }
-    System.out.println( "Done." );
-  }
 }

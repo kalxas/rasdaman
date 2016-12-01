@@ -62,9 +62,9 @@ class QLMarrayOp: public MarrayOp
 {
 public:
     /// constructor
-    QLMarrayOp( QtOperation* newCellExpression, std::vector<QtData*>* newDataList,
-                std::string       &newIteratorName,
-                BaseType*    newResType,        unsigned int newResOff = 0    );
+    QLMarrayOp(QtOperation* newCellExpression, std::vector<QtData*>* newDataList,
+               std::string&       newIteratorName,
+               BaseType*    newResType,        unsigned int newResOff = 0);
     /**
       Constructor gets cell expression pointer, data vector for bounded variables,
       cell type, and type offset
@@ -74,7 +74,7 @@ public:
     virtual ~QLMarrayOp();
 
     /// operator that carries out the cell expression on point {\tt p}.
-    virtual void operator() ( char* result, const r_Point& p );
+    virtual void operator()(char* result, const r_Point& p);
 
 private:
     /// pointer to the cell expression
@@ -102,14 +102,14 @@ class QLCondenseOp: public GenCondenseOp
 {
 public:
     /// constructor
-    QLCondenseOp( QtOperation*     newCellExpression,
-                  QtOperation*     newCondExpression,
-                  std::vector<QtData*>* newDataList,
-                  std::string           &newIteratorName,
-                  const BaseType*        newResType,
-                  unsigned int     newResOff,
-                  BinaryOp*        newAccuOp,
-                  char*            newInitVal = 0 );
+    QLCondenseOp(QtOperation*     newCellExpression,
+                 QtOperation*     newCondExpression,
+                 std::vector<QtData*>* newDataList,
+                 std::string&           newIteratorName,
+                 const BaseType*        newResType,
+                 unsigned int     newResOff,
+                 BinaryOp*        newAccuOp,
+                 char*            newInitVal = 0);
     /**
       Constructor gets cell expression pointer, cell condition expression pointer,
       data vector for bounded variables, cell type, and type offset
@@ -119,7 +119,7 @@ public:
     virtual ~QLCondenseOp();
 
     /// operator that carries out the cell expression on point {\tt p}.
-    virtual void operator() ( const r_Point& p );
+    virtual void operator()(const r_Point& p);
 
 private:
     /// pointer to the cell expression
@@ -153,7 +153,7 @@ public:
                         std::string iteratorName);
 
     /// operator that carries out the cell expression on point {\tt p}.
-    virtual void operator() ( const r_Point& p );
+    virtual void operator()(const r_Point& p);
 
     /// executes general condense operation {\tt myOp} in area {\tt areaOp} (const)
     static QtMDD* execGenCondenseInducedOp(QLInducedCondenseOp* myOp, const r_Minterval& areaOp);

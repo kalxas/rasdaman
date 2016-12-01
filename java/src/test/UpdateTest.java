@@ -40,104 +40,104 @@ import rasj.odmg.RasBag;
 
 public class UpdateTest {
 
-  public static final String RASDAMAN_URL = "http://localhost:7001";
-  public static final String RASDAMAN_DATABASE = "RASBASE";
-  public static final String RASDAMAN_USER = "rasadmin";
-  public static final String RASDAMAN_PASS = "rasadmin";
-  public static final String TESTDATA_FILE = "../systemtest/testcases_mandatory/test_select/testdata/mr_1.png";
-  public static final String TESTDATA_TYPE = "GreyString";
-  public static final String TESTDATA_SDOM = "[0:255,0:210]";
-  public static final int TESTDATA_SIZE = 22688;
-  public static final String COLL = "my_collection";
+    public static final String RASDAMAN_URL = "http://localhost:7001";
+    public static final String RASDAMAN_DATABASE = "RASBASE";
+    public static final String RASDAMAN_USER = "rasadmin";
+    public static final String RASDAMAN_PASS = "rasadmin";
+    public static final String TESTDATA_FILE = "../systemtest/testcases_mandatory/test_select/testdata/mr_1.png";
+    public static final String TESTDATA_TYPE = "GreyString";
+    public static final String TESTDATA_SDOM = "[0:255,0:210]";
+    public static final int TESTDATA_SIZE = 22688;
+    public static final String COLL = "my_collection";
 
-  public static void main(String[] args) {
-    System.out.println("---------------------------------------");
-    System.out.println("rasj update test");
+    public static void main(String[] args) {
+        System.out.println("---------------------------------------");
+        System.out.println("rasj update test");
 
-    RasImplementation rasImpl = new RasImplementation(RASDAMAN_URL);
-    Transaction transaction = null;
-    Database rasDb = null;
+        RasImplementation rasImpl = new RasImplementation(RASDAMAN_URL);
+        Transaction transaction = null;
+        Database rasDb = null;
 
-    try {
+        try {
 
-      rasImpl.setUserIdentification(RASDAMAN_USER, RASDAMAN_PASS);
-      rasDb = rasImpl.newDatabase();
+            rasImpl.setUserIdentification(RASDAMAN_USER, RASDAMAN_PASS);
+            rasDb = rasImpl.newDatabase();
 
-      rasDb.open(RASDAMAN_DATABASE, Database.OPEN_READ_WRITE);
+            rasDb.open(RASDAMAN_DATABASE, Database.OPEN_READ_WRITE);
 
-      transaction = rasImpl.newTransaction();
-      transaction.begin();
+            transaction = rasImpl.newTransaction();
+            transaction.begin();
 
-      OQLQuery myQu = rasImpl.newOQLQuery();
-      myQu.create("create collection " + COLL + " GreySet");
-      myQu.execute();
+            OQLQuery myQu = rasImpl.newOQLQuery();
+            myQu.create("create collection " + COLL + " GreySet");
+            myQu.execute();
 
-      myQu = rasImpl.newOQLQuery();
-      myQu.create("insert into " + COLL + " values inv_png($1)");
-      myQu.bind(createMDDFromFile(TESTDATA_FILE));
-      myQu.execute();
+            myQu = rasImpl.newOQLQuery();
+            myQu.create("insert into " + COLL + " values inv_png($1)");
+            myQu.bind(createMDDFromFile(TESTDATA_FILE));
+            myQu.execute();
 
-      myQu = rasImpl.newOQLQuery();
-      myQu.create("select sdom(c) from " + COLL + " as c");
-      Object result = myQu.execute();
-      try {
-        RasBag bag = (RasBag) result;
-        Iterator it = bag.iterator();
-        while (it.hasNext()) {
-          RasMInterval res = (RasMInterval) it.next();
-          if (!res.toString().equals(TESTDATA_SDOM)) {
-            System.out.println("Test failed, expected domain " + TESTDATA_SDOM + ", got " + res);
-            System.out.println("---------------------------------------");
-            error(transaction, null);
-          } else {
-            System.out.println("Test passed.\n");
-            System.out.println("---------------------------------------");
-          }
+            myQu = rasImpl.newOQLQuery();
+            myQu.create("select sdom(c) from " + COLL + " as c");
+            Object result = myQu.execute();
+            try {
+                RasBag bag = (RasBag) result;
+                Iterator it = bag.iterator();
+                while (it.hasNext()) {
+                    RasMInterval res = (RasMInterval) it.next();
+                    if (!res.toString().equals(TESTDATA_SDOM)) {
+                        System.out.println("Test failed, expected domain " + TESTDATA_SDOM + ", got " + res);
+                        System.out.println("---------------------------------------");
+                        error(transaction, null);
+                    } else {
+                        System.out.println("Test passed.\n");
+                        System.out.println("---------------------------------------");
+                    }
+                }
+            } catch (Exception ex) {
+                error(transaction, ex);
+            }
+
+        } catch (Exception ex) {
+            error(transaction, ex);
+        } finally {
+            try {
+                if (!transaction.isOpen()) {
+                    transaction.begin();
+                }
+                OQLQuery myQu = rasImpl.newOQLQuery();
+                myQu.create("drop collection " + COLL);
+                myQu.execute();
+                transaction.commit();
+                if (transaction.isOpen()) {
+                    transaction.commit();
+                }
+                rasDb.close();
+            } catch (Exception ex) {
+            }
         }
-      } catch (Exception ex) {
-        error(transaction, ex);
-      }
 
-    } catch (Exception ex) {
-      error(transaction, ex);
-    } finally {
-      try {
-        if (!transaction.isOpen()) {
-          transaction.begin();
+    }
+
+    public static void error(Transaction transaction, Exception ex) {
+        if (ex != null) {
+            ex.printStackTrace();
         }
-        OQLQuery myQu = rasImpl.newOQLQuery();
-        myQu.create("drop collection " + COLL);
-        myQu.execute();
-        transaction.commit();
         if (transaction.isOpen()) {
-          transaction.commit();
+            transaction.abort();
         }
-        rasDb.close();
-      } catch (Exception ex) {
-      }
+        System.exit(1);
     }
 
-  }
+    public static RasGMArray createMDDFromFile(String fileName) throws Exception {
+        RasGMArray mdd = new RasGMArray(new RasMInterval("[0:" + (TESTDATA_SIZE - 1) + "]"), 1);
 
-  public static void error(Transaction transaction, Exception ex) {
-    if (ex != null) {
-      ex.printStackTrace();
+        FileInputStream fr = new FileInputStream(new File(fileName));
+        byte[] array = new byte[TESTDATA_SIZE];
+        fr.read(array);
+        mdd.setArray(array);
+        mdd.setObjectTypeName(TESTDATA_TYPE);
+
+        return mdd;
     }
-    if (transaction.isOpen()) {
-      transaction.abort();
-    }
-    System.exit(1);
-  }
-
-  public static RasGMArray createMDDFromFile(String fileName) throws Exception {
-    RasGMArray mdd = new RasGMArray(new RasMInterval("[0:" + (TESTDATA_SIZE - 1) + "]"), 1);
-
-    FileInputStream fr = new FileInputStream(new File(fileName));
-    byte[] array = new byte[TESTDATA_SIZE];
-    fr.read(array);
-    mdd.setArray(array);
-    mdd.setObjectTypeName(TESTDATA_TYPE);
-
-    return mdd;
-  }
 }

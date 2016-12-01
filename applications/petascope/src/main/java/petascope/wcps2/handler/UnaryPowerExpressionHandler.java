@@ -37,7 +37,7 @@ public class UnaryPowerExpressionHandler {
     public static WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
         // NOTE: It is implemented same as UnaryBooleanExpression with case bit
         String template = TEMPLATE.replace("$coverageExp", coverageExp.getRasql())
-                                  .replace("$scalarExp", scalarExp.getRasql());
+                          .replace("$scalarExp", scalarExp.getRasql());
 
         return new WcpsResult(coverageExp.getMetadata(), template);
     }

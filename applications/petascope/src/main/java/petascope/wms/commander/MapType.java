@@ -35,45 +35,39 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public final class MapType
-{
+public final class MapType {
     // instance fields
     private final String mapType;
-    
+
     // static field
     private static final List _VALUES = new ArrayList();
-    
+
     /** Unmodifiable view of all map types */
-    public static final List VALUES = Collections.unmodifiableList( _VALUES );
+    public static final List VALUES = Collections.unmodifiableList(_VALUES);
     // the different values of the enum
-    public static final MapType GREY = new MapType("grey");	// 8-bit int pixels
-    public static final MapType RGB  = new MapType("RGB");	// 3*8-bit int pixels
-    public static final MapType DEM  = new MapType("DEM");	// double pixels
-    
-    private MapType( String name )
-    {
+    public static final MapType GREY = new MapType("grey"); // 8-bit int pixels
+    public static final MapType RGB  = new MapType("RGB");  // 3*8-bit int pixels
+    public static final MapType DEM  = new MapType("DEM");  // double pixels
+
+    private MapType(String name) {
         this.mapType = name;
-        MapType._VALUES.add( this );
+        MapType._VALUES.add(this);
     }
-    
-    public String toString()
-    {
+
+    public String toString() {
         return mapType;
     }
-    
-    public static MapType valueOf( String i )
-    {
+
+    public static MapType valueOf(String i) {
         Iterator iter = VALUES.iterator();
-        while( iter.hasNext() )
-        {
+        while (iter.hasNext()) {
             Object obj = iter.next();
-            if( i.equalsIgnoreCase( obj.toString() ) )
-            {
+            if (i.equalsIgnoreCase(obj.toString())) {
                 return (MapType)obj;
             }
         }
-        
-        throw new IllegalArgumentException( "Illegal map type: " + i );
+
+        throw new IllegalArgumentException("Illegal map type: " + i);
     }
 
 }

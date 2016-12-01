@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 /** ******************************************************************
- * 
+ *
  * PURPOSE:
  * This interface contains the global definitions and values.
  * They are either used cross-Java-source, or even in the
@@ -33,52 +33,51 @@
 
 package petascope.wms.commander;
 
-public interface Globals
-{
+public interface Globals {
     /// Field COMMANDER_VERSION
     public static final String COMMANDER_VERSION        = "1.0";
-    
+
     /// shell used for executing the cmdr_* scripts
     public static final String MY_SHELL                 = "bash";
-    
+
     /**
      * --- web deployment file ---------------------
      * conformance requirement: WEB-INF/web.xml
      */
-    
+
     /// - Field OPTION_JDBC_DATABASE_URL
     public static final String OPTION_JDBC_DATABASE_URL = "url";
-    
+
     /// - Field OPTION_JDBC_USER
     public static final String OPTION_JDBC_USER         = "user";
-    
+
     /// - Field OPTION_JDBC_PASSWD
     public static final String OPTION_JDBC_PASSWD       = "password";
-    
+
     /// - Field OPTION_JDBC_DRIVER
     public static final String OPTION_JDBC_DRIVER       = "driver";
-    
+
     /// - Field OPTION_DEBUG
     public static final String OPTION_DEBUG             = "debug";
-    
+
     /// - Field OPTION_RASDAMAN_USER
     public static final String OPTION_RASDAMAN_USER         = "rasuser";
-    
+
     /// - Field OPTION_RASDAMAN_PASSWD
     public static final String OPTION_RASDAMAN_PASSWD       = "raspassword";
-    
+
     /// - Field OPTION_MSGFILE
     public static final String OPTION_MSGFILE           = "messageFile";
-    
+
     /// - Field OPTION_SCRIPTDIR
     public static final String OPTION_SCRIPTDIR         = "scriptDirectory";
-    
+
     /// - Field OPTION_MGRDIR
     public static final String OPTION_MGRDIR         = "RasMgrDirectory";
-    
+
     /// - Field OPTION_RASAUTH
     public static final String OPTION_RASLOGIN         = "RasLogin";
-    
+
     /**
      * default values for web.xml
      **/
@@ -90,14 +89,14 @@ public interface Globals
     public static final String DEFAULT_MSGFILE          = "./classes/rasgeo/commander/commander_msgs_en";
     public static final String DEFAULT_RASDAMAN_USER    = "rasadmin";
     public static final String DEFAULT_RASDAMAN_PASSWD  = "rasadmin";
-    public static final String DEFAULT_SCRIPTDIR        = "WEB-INF/bin";	// this path is relative to web deployment directory
-    public static final String DEFAULT_RASLOGIN         = "rasadmin:d293a15562d3e70b6fdc5ee452eaed40";	// FIXME: not really a good default
-    
+    public static final String DEFAULT_SCRIPTDIR        = "WEB-INF/bin";    // this path is relative to web deployment directory
+    public static final String DEFAULT_RASLOGIN         = "rasadmin:d293a15562d3e70b6fdc5ee452eaed40";  // FIXME: not really a good default
+
     // --- JDBC DriverManager login properties keywords ---------------------
-    
+
     public final static String PROPERTY_USER            = "user";
     public final static String PROPERTY_PASSWORD        = "password";
-    
+
     /**
      * scripts used for rasdaman access
      */
@@ -106,115 +105,115 @@ public interface Globals
     public static final String SCRIPT_COLLGET    = "cmdr_collectionnames.sh";
     public static final String SCRIPT_COLLNEWNAV = "cmdr_newnavigator.sh";
     public static final String SCRIPT_COLLDELNAV = "cmdr_delnavigator.sh";
-    
+
     // --- value of the availability parameter ------------------------------
-    
+
     /// - in case service is not sufficiently complete for operation yet
     public static final int NO_SERVICE = 0;
     /// - in case service is not available (also initial value of the param when service entered in the database)
     public static final int NOT_AVAILABLE = 1;
     /// - in case service is available
     public static final int YES_AVAILABLE = 2;
-    
+
     // --- input fields default values --------------------------------------
-    
+
     // all defaults that boil down to an empty string / null int
     public final static String DEFAULT_EMPTY = "";
-    
+
     // - service
-    public final static String DEFAULT_SERVICE_UPDATESEQUENCE 	= "0";
-    public final static int    DEFAULT_SERVICE_AVAILABILITY		= NO_SERVICE;
-    public final static String DEFAULT_SERVICE_NAME 		= "new service - please give me a name!";
-    public final static String DEFAULT_SERVICE_TITLE 		= "give me a title!";
-    public final static String DEFAULT_SERVICE_ABSTRACTTEXT 	= DEFAULT_EMPTY;
-    public final static String DEFAULT_SERVICE_KEYWORDS 		= DEFAULT_EMPTY;
-    public final static String DEFAULT_SERVICE_ACCESSCONSTRAINTS 	= "none";
-    public final static String DEFAULT_SERVICE_FEES 		= "none";
-    public final static String DEFAULT_SERVICE_HOSTNAME 		= "localhost";
-    public final static int    DEFAULT_SERVICE_PORT 		= 8000;
-    public final static String DEFAULT_SERVICE_PATH 		= "/rasgeo/servlet/rasogc/";
-    public final static String DEFAULT_SERVICE_FORMATS 		= "image/jpeg;image/tiff;image/png";
-    public final static String DEFAULT_SERVICE_BASELAYER 		= "-CHANGE-TO-BASE-LAYER-";
-    public final static String DEFAULT_SERVICE_VENDORCAPABILITIES 	= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_CONTACTPERSON	= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_CONTACTORGANIZATION	= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_ADDRESSTYPE		= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_ADDRESS		= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_CITY			= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_STATE		= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_POSTCODE		= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_COUNTRY		= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_TEL			= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_FAX			= DEFAULT_EMPTY;
-    public static final String DEFAULT_SERVICE_EMAIL		= DEFAULT_EMPTY;
-    
-    public final static String DEFAULT_SERVICE_RASSERVER 		= "localhost";
-    public final static int    DEFAULT_SERVICE_RASPORT 		= 7001;
-    public final static String DEFAULT_SERVICE_RASUSER 		= "rasguest";
-    public final static String DEFAULT_SERVICE_RASPASS 		= "rasguest";
-    public final static String DEFAULT_SERVICE_RASBASE 		= "RASBASE";
-    public final static int    DEFAULT_SERVICE_TIMEOUT 		= 60;
-    public final static int    DEFAULT_SERVICE_PRECLAIMED 		= 0;
-    public final static int    DEFAULT_SERVICE_ONDEMAND 		= 2;
-    
+    public final static String DEFAULT_SERVICE_UPDATESEQUENCE   = "0";
+    public final static int    DEFAULT_SERVICE_AVAILABILITY     = NO_SERVICE;
+    public final static String DEFAULT_SERVICE_NAME         = "new service - please give me a name!";
+    public final static String DEFAULT_SERVICE_TITLE        = "give me a title!";
+    public final static String DEFAULT_SERVICE_ABSTRACTTEXT     = DEFAULT_EMPTY;
+    public final static String DEFAULT_SERVICE_KEYWORDS         = DEFAULT_EMPTY;
+    public final static String DEFAULT_SERVICE_ACCESSCONSTRAINTS    = "none";
+    public final static String DEFAULT_SERVICE_FEES         = "none";
+    public final static String DEFAULT_SERVICE_HOSTNAME         = "localhost";
+    public final static int    DEFAULT_SERVICE_PORT         = 8000;
+    public final static String DEFAULT_SERVICE_PATH         = "/rasgeo/servlet/rasogc/";
+    public final static String DEFAULT_SERVICE_FORMATS      = "image/jpeg;image/tiff;image/png";
+    public final static String DEFAULT_SERVICE_BASELAYER        = "-CHANGE-TO-BASE-LAYER-";
+    public final static String DEFAULT_SERVICE_VENDORCAPABILITIES   = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_CONTACTPERSON    = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_CONTACTORGANIZATION  = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_ADDRESSTYPE      = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_ADDRESS      = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_CITY         = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_STATE        = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_POSTCODE     = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_COUNTRY      = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_TEL          = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_FAX          = DEFAULT_EMPTY;
+    public static final String DEFAULT_SERVICE_EMAIL        = DEFAULT_EMPTY;
+
+    public final static String DEFAULT_SERVICE_RASSERVER        = "localhost";
+    public final static int    DEFAULT_SERVICE_RASPORT      = 7001;
+    public final static String DEFAULT_SERVICE_RASUSER      = "rasguest";
+    public final static String DEFAULT_SERVICE_RASPASS      = "rasguest";
+    public final static String DEFAULT_SERVICE_RASBASE      = "RASBASE";
+    public final static int    DEFAULT_SERVICE_TIMEOUT      = 60;
+    public final static int    DEFAULT_SERVICE_PRECLAIMED       = 0;
+    public final static int    DEFAULT_SERVICE_ONDEMAND         = 2;
+
     // - layers
-    public static final String DEFAULT_LAYER_NAME 			= "new layer - please give me a name!";
-    public static final String DEFAULT_LAYER_TITLE 			= "new layer title";
-    public static final String DEFAULT_LAYER_SRS 			= "EPSG:";
-    public static final String DEFAULT_LAYER_AUTHORITY 		= DEFAULT_EMPTY;
-    public static final String DEFAULT_LAYER_LATLONBOXXMIN 		= "-999999.999";
-    public static final String DEFAULT_LAYER_LATLONBOXXMAX 		=  "999999.999";
-    public static final String DEFAULT_LAYER_LATLONBOXYMIN 		= "-999999.999";
-    public static final String DEFAULT_LAYER_LATLONBOXYMAX 		=  "999999.999";
-    public static final String DEFAULT_LAYER_BBOXXMIN 		= "-999999.999";
-    public static final String DEFAULT_LAYER_BBOXXMAX 		=  "999999.999";
-    public static final String DEFAULT_LAYER_BBOXYMIN 		= "-999999.999";
-    public static final String DEFAULT_LAYER_BBOXYMAX 		=  "999999.999";
-    public static final String DEFAULT_LAYER_ATTRIBUTIONURL 	= DEFAULT_EMPTY;
-    public static final String DEFAULT_LAYER_ATTRIBUTIONTITLE 	= DEFAULT_EMPTY;
-    public static final int    DEFAULT_LAYER_LOGOWIDTH 		= 1;
-    public static final int    DEFAULT_LAYER_LOGOHEIGHT 		= 1;
-    public static final String DEFAULT_LAYER_LOGOFORMAT 		= DEFAULT_EMPTY;
-    public static final String DEFAULT_LAYER_LOGOURL 		= DEFAULT_EMPTY;
-    public static final String DEFAULT_LAYER_FEATUREURL 		= DEFAULT_EMPTY;
-    public static final double DEFAULT_LAYER_RESOLUTION 		= 1.0;
-    public static final MapType DEFAULT_LAYER_MAPTYPE 		= MapType.RGB;
-    
+    public static final String DEFAULT_LAYER_NAME           = "new layer - please give me a name!";
+    public static final String DEFAULT_LAYER_TITLE          = "new layer title";
+    public static final String DEFAULT_LAYER_SRS            = "EPSG:";
+    public static final String DEFAULT_LAYER_AUTHORITY      = DEFAULT_EMPTY;
+    public static final String DEFAULT_LAYER_LATLONBOXXMIN      = "-999999.999";
+    public static final String DEFAULT_LAYER_LATLONBOXXMAX      =  "999999.999";
+    public static final String DEFAULT_LAYER_LATLONBOXYMIN      = "-999999.999";
+    public static final String DEFAULT_LAYER_LATLONBOXYMAX      =  "999999.999";
+    public static final String DEFAULT_LAYER_BBOXXMIN       = "-999999.999";
+    public static final String DEFAULT_LAYER_BBOXXMAX       =  "999999.999";
+    public static final String DEFAULT_LAYER_BBOXYMIN       = "-999999.999";
+    public static final String DEFAULT_LAYER_BBOXYMAX       =  "999999.999";
+    public static final String DEFAULT_LAYER_ATTRIBUTIONURL     = DEFAULT_EMPTY;
+    public static final String DEFAULT_LAYER_ATTRIBUTIONTITLE   = DEFAULT_EMPTY;
+    public static final int    DEFAULT_LAYER_LOGOWIDTH      = 1;
+    public static final int    DEFAULT_LAYER_LOGOHEIGHT         = 1;
+    public static final String DEFAULT_LAYER_LOGOFORMAT         = DEFAULT_EMPTY;
+    public static final String DEFAULT_LAYER_LOGOURL        = DEFAULT_EMPTY;
+    public static final String DEFAULT_LAYER_FEATUREURL         = DEFAULT_EMPTY;
+    public static final double DEFAULT_LAYER_RESOLUTION         = 1.0;
+    public static final MapType DEFAULT_LAYER_MAPTYPE       = MapType.RGB;
+
     // - styles
-    public static final String DEFAULT_STYLE_NAME 			= "new style - please give me a name!";
-    public static final String DEFAULT_STYLE_TITLE 			= "new style title";
-    public static final String DEFAULT_STYLE_ABSTRACT 		= "new style abstract";
-    public static final int    DEFAULT_STYLE_LEGENDWIDTH 		= 0;
-    public static final int    DEFAULT_STYLE_LEGENDHEIGHT 		= 0;
-    public static final String DEFAULT_STYLE_LEGENDURL		= DEFAULT_EMPTY;
-    public static final String DEFAULT_STYLE_SHEETURL 		= DEFAULT_EMPTY;
-    public static final String DEFAULT_STYLE_RASQLOP 		= DEFAULT_EMPTY;
-    
+    public static final String DEFAULT_STYLE_NAME           = "new style - please give me a name!";
+    public static final String DEFAULT_STYLE_TITLE          = "new style title";
+    public static final String DEFAULT_STYLE_ABSTRACT       = "new style abstract";
+    public static final int    DEFAULT_STYLE_LEGENDWIDTH        = 0;
+    public static final int    DEFAULT_STYLE_LEGENDHEIGHT       = 0;
+    public static final String DEFAULT_STYLE_LEGENDURL      = DEFAULT_EMPTY;
+    public static final String DEFAULT_STYLE_SHEETURL       = DEFAULT_EMPTY;
+    public static final String DEFAULT_STYLE_RASQLOP        = DEFAULT_EMPTY;
+
     // - pyramids
-    public static final String DEFAULT_LEVEL_COLLNAME 		= "changeMe";
-    public static final double DEFAULT_LEVEL_SCALEFACTOR 		= 1.0;
-    
+    public static final String DEFAULT_LEVEL_COLLNAME       = "changeMe";
+    public static final double DEFAULT_LEVEL_SCALEFACTOR        = 1.0;
+
     // --- KVP request parameter keys ---------------------------------------
     // conformance requirement: Javascript
-    
+
     /**
      * message tag names
      */
     public static final String REQPARAM_RASDAMANMSG  = "rasdamanMsg";
     public static final String REQPARAM_OPMSG        = "opMsg";
-    public static final String REQPARAM_STATUSMSG    = "statusText";	// FIXME: inconsistent; change here & in commander.js!
-    
+    public static final String REQPARAM_STATUSMSG    = "statusText";    // FIXME: inconsistent; change here & in commander.js!
+
     /**
      * KVP command tags and values
      */
     public static final String REQPARAM_ENTITY  = "entity";
     public static final String REQPARAM_COMMAND = "command";
-    
+
     public static final String ENT_SERVICE      = "service";
     public static final String ENT_LAYER        = "layer";
     public static final String ENT_STYLE        = "style";
     public static final String ENT_LEVEL        = "level";
-    
+
     public static final String CMD_DELETE       = "del";
     public static final String CMD_ADD          = "add";
     public static final String CMD_UPDATE       = "upd";
@@ -227,7 +226,7 @@ public interface Globals
     public static final String CMD_START_SERVER       = "srvstart";
     public static final String CMD_STOP_SERVER       = "srvstop";
     public static final String CMD_UPDATE_STATUS       = "updatestatus";
-    
+
     /**
      * KVP request parameter keys
      */
@@ -246,20 +245,20 @@ public interface Globals
     public static final String REQPARAM_SERVICE_FORMATS = "formats";
     public static final String REQPARAM_SERVICE_BASELAYER = "baseLayer";
     public static final String REQPARAM_SERVICE_VENDORCAPABILITIES = "vendorCapabilities";
-    public static final String REQPARAM_SERVICE_CONTACTPERSON	= "contactPerson";
-    public static final String REQPARAM_SERVICE_CONTACTORGANIZATION	= "contactOrganization";
-    public static final String REQPARAM_SERVICE_ADDRESSTYPE		= "addressType";
-    public static final String REQPARAM_SERVICE_ADDRESS		= "address";
-    public static final String REQPARAM_SERVICE_CITY		= "city";
-    public static final String REQPARAM_SERVICE_STATE		= "stateOrProvince";
-    public static final String REQPARAM_SERVICE_POSTCODE		= "postCode";
-    public static final String REQPARAM_SERVICE_COUNTRY		= "country";
-    public static final String REQPARAM_SERVICE_TEL			= "contactVoiceTelephone";
-    public static final String REQPARAM_SERVICE_FAX			= "contactFacsimileTelephone";
-    public static final String REQPARAM_SERVICE_EMAIL		= "contactElectronicMailAddress";
-    
-    public static final String REQPARAM_SERVERID		= "serverID";
-    
+    public static final String REQPARAM_SERVICE_CONTACTPERSON   = "contactPerson";
+    public static final String REQPARAM_SERVICE_CONTACTORGANIZATION = "contactOrganization";
+    public static final String REQPARAM_SERVICE_ADDRESSTYPE     = "addressType";
+    public static final String REQPARAM_SERVICE_ADDRESS     = "address";
+    public static final String REQPARAM_SERVICE_CITY        = "city";
+    public static final String REQPARAM_SERVICE_STATE       = "stateOrProvince";
+    public static final String REQPARAM_SERVICE_POSTCODE        = "postCode";
+    public static final String REQPARAM_SERVICE_COUNTRY     = "country";
+    public static final String REQPARAM_SERVICE_TEL         = "contactVoiceTelephone";
+    public static final String REQPARAM_SERVICE_FAX         = "contactFacsimileTelephone";
+    public static final String REQPARAM_SERVICE_EMAIL       = "contactElectronicMailAddress";
+
+    public static final String REQPARAM_SERVERID        = "serverID";
+
     // - layer parameters
     public static final String REQPARAM_LAYER_LAYERID = "layerId";
     public static final String REQPARAM_LAYER_LAYERDETAILS = "layerDetailsId";
@@ -286,12 +285,12 @@ public interface Globals
     public static final String REQPARAM_LAYER_FEATUREURL = "fUrl";
     public static final String REQPARAM_LAYER_RESOLUTION = "resolution";
     public static final String REQPARAM_LAYER_MAPTYPE = "mapType";
-    
+
     // - servicelayer param
     public static final String REQPARAM_SERVICELAYER_SERVICEID = "serviceid";
     public static final String REQPARAM_SERVICELAYER_LAYERID = "layerid";
     public static final String REQPARAM_SERVICELAYER_LAYERSEQ = "layerseq";
-    
+
     // - style
     public static final String REQPARAM_STYLE_LAYERID = "layerId";
     public static final String REQPARAM_STYLE_STYLEID = "styleId";
@@ -304,7 +303,7 @@ public interface Globals
     public static final String REQPARAM_LEGEND_HEIGHT = "lHeight";
     public static final String REQPARAM_LEGEND_URL = "lUrl";
     public static final String REQPARAM_RASQL_OPERATION_FRAGMENT = "rasqlOp";
-    
+
     // - pyramid level param
     public static final String REQPARAM_LEVEL_LEVELSID = "levelsId";
     public static final String REQPARAM_LEVEL_LEVELID = "levelId";
@@ -312,23 +311,23 @@ public interface Globals
     public static final String REQPARAM_LEVEL_COLLNAME = "collName";
     public static final String REQPARAM_LEVEL_SCALEFACTOR = "scaleFactor";
     public static final String REQPARAM_LEVEL_NUM = "levelNum";
-    
+
     /**
      * message components used for AJAX result communication
      */
     public static final String REQPARAM_MSG_SUFFIX   = "Error";
-    public static final String REQPARAM_INDEX  ="index";
-    
-    
+    public static final String REQPARAM_INDEX  = "index";
+
+
     // --- table and attribute names ------------------------------
     // conformance requirement: database schema
-    
+
     public static final String COMMON_TABLE_PREFIX            = "PS_";
-    
+
     // - table Rasgeo_Services
     public static final String TABLE_SERVICE                  = COMMON_TABLE_PREFIX + "Services";
     public static final String TABLE_SERVICE_SERVICEID        = "serviceId";
-    public static final String TABLE_SERVICE_AVAILABILITY	  = "availability";
+    public static final String TABLE_SERVICE_AVAILABILITY     = "availability";
     public static final String TABLE_SERVICE_UPDATESEQUENCE   = "updateSequence";
     public static final String TABLE_SERVICE_NAME             = "name";
     public static final String TABLE_SERVICE_TITLE            = "title";
@@ -342,19 +341,19 @@ public interface Globals
     public static final String TABLE_SERVICE_FORMATS          = "formats";
     public static final String TABLE_SERVICE_BASELAYERNAME    = "baseLayerName";
     public static final String TABLE_SERVICE_VENDORCAPABILITIES = "vendorCapabilities";
-    public static final String TABLE_SERVICE_CONTACTPERSON		= "contactPerson";
-    public static final String TABLE_SERVICE_CONTACTORGANIZATION	= "contactOrganization";
-    public static final String TABLE_SERVICE_ADDRESSTYPE		= "addressType";
-    public static final String TABLE_SERVICE_ADDRESS		= "address";
-    public static final String TABLE_SERVICE_CITY			= "city";
-    public static final String TABLE_SERVICE_STATE			= "stateOrProvince";
-    public static final String TABLE_SERVICE_POSTCODE		= "postCode";
-    public static final String TABLE_SERVICE_COUNTRY		= "country";
-    public static final String TABLE_SERVICE_TEL			= "contactVoiceTelephone";
-    public static final String TABLE_SERVICE_FAX			= "contactFacsimileTelephone";
-    public static final String TABLE_SERVICE_EMAIL			= "contactElectronicMailAddress";
+    public static final String TABLE_SERVICE_CONTACTPERSON      = "contactPerson";
+    public static final String TABLE_SERVICE_CONTACTORGANIZATION    = "contactOrganization";
+    public static final String TABLE_SERVICE_ADDRESSTYPE        = "addressType";
+    public static final String TABLE_SERVICE_ADDRESS        = "address";
+    public static final String TABLE_SERVICE_CITY           = "city";
+    public static final String TABLE_SERVICE_STATE          = "stateOrProvince";
+    public static final String TABLE_SERVICE_POSTCODE       = "postCode";
+    public static final String TABLE_SERVICE_COUNTRY        = "country";
+    public static final String TABLE_SERVICE_TEL            = "contactVoiceTelephone";
+    public static final String TABLE_SERVICE_FAX            = "contactFacsimileTelephone";
+    public static final String TABLE_SERVICE_EMAIL          = "contactElectronicMailAddress";
     public static final String TABLE_SERVICE_DBCONNECTION     = "dbConnection";
-    
+
     // - table Rasgeo_Layers
     public static final String TABLE_LAYER                    = COMMON_TABLE_PREFIX + "Layers";
     public static final String TABLE_LAYER_LAYERID = "layerId";
@@ -379,13 +378,13 @@ public interface Globals
     public static final String TABLE_LAYER_FEATUREURL = "featureURL";
     public static final String TABLE_LAYER_RESOLUTION = "resolution";
     public static final String TABLE_LAYER_MAPTYPE = "maptype";
-    
+
     // - table Rasgeo_ServiceLayer
     public static final String TABLE_SERVICELAYER = COMMON_TABLE_PREFIX + "ServiceLayer";
     public static final String TABLE_SERVICELAYER_SERVICEID = "serviceId";
     public static final String TABLE_SERVICELAYER_LAYERID = "layerId";
     public static final String TABLE_SERVICELAYER_LAYERSEQ = "layerSeq";
-    
+
     // - table Rasgeo_DatabaseConnections
     public static final String TABLE_DATABASECONNECTION = COMMON_TABLE_PREFIX + "DatabaseConnections";
     public static final String TABLE_DATABASECONNECTION_CONNECTIONID = "connectionId";
@@ -397,7 +396,7 @@ public interface Globals
     public static final String TABLE_DATABASECONNECTION_SERVERTIMEOUT = "serverTimeOut";
     public static final String TABLE_DATABASECONNECTION_SERVERCONNECTIONSPRECLAIMED = "serverConnectionsPreclaimed";
     public static final String TABLE_DATABASECONNECTION_SERVERCONNECTIONSONDEMAND = "serverConnectionsOnDemand";
-    
+
     // - table Rasgeo_Styles
     public static final String TABLE_STYLES             = COMMON_TABLE_PREFIX + "Styles";
     public static final String TABLE_STYLES_STYLEID = "styleId";
@@ -411,25 +410,25 @@ public interface Globals
     public static final String TABLE_STYLES_LEGENDURL = "legendURL";
     public static final String TABLE_STYLES_SHEETURL = "sheetURL";
     public static final String TABLE_STYLES_RASQLOP = "rasqlOp";
-    
+
     // - table Rasgeo_PyramidLevels
     public static final String TABLE_PYRAMIDLEVELS = COMMON_TABLE_PREFIX + "PyramidLevels";
     public static final String TABLE_PYRAMIDLEVELS_LEVELID = "levelId";
     public static final String TABLE_PYRAMIDLEVELS_LAYERID = "layerId";
     public static final String TABLE_PYRAMIDLEVELS_COLLNAME = "collectionName";
     public static final String TABLE_PYRAMIDLEVELS_SCALEFACTOR = "scaleFactor";
-    
+
     // text constants in HTML file
     public static final String HTML_TITLE           = "rasgeo commander";
     public static final String HTML_SERVICE_DETAILS = "service details";
     public static final String HTML_LAYER_DETAILS   = "layer details";
     public static final String HTML_LEVEL_TITLE     = "pyramid level";
     public static final String HTML_COLON           = ":";
-    
+
     /**
      * names used by JavaScript code (commander.js etc.) - KEEP IN SYNC!
      */
-    
+
     // file names used for HTML: JS, CSS
     public static final String COMMANDER_JS = "commander.js";
     public static final String MGRCOMMANDER_JS = "rasmgrcommander.js";
@@ -439,9 +438,9 @@ public interface Globals
     public static final String GLOBALS_JS   = "globals.js";
     public static final String DTREE_JS     = "dtree.js";
     public static final String TOOLTIPS_JS  = "wz_tooltip.js";
-    
+
     public static final String CSS_FILE     = "commander.css";
-    
+
     // CSS names
     public static final String CSS_DTREE = "dtree";
     public static final String CSS_ITEMTABLE = "itemTable";
@@ -450,8 +449,8 @@ public interface Globals
     public static final String CSS_ITEMERROR = "itemError";
     public static final String CSS_ITEMOK = "itemOk";
     public static final String CSS_NAME = "name";
-    
-    
+
+
     // CSS stypes
     public static final String CSS_SRV_TABLE = "srv_table";
     public static final String CSS_SRV_ODD_ROW = "srv_odd_row";
@@ -460,14 +459,14 @@ public interface Globals
     public static final String CSS_SRV_STOPPED = "srv_stopped";
     public static final String CSS_SRV_BUSY = "srv_busy";
     public static final String CSS_SRV_ERROR = "srv_error";
-    
+
     /// - node id of tree root in HTML page
     public static final String JS_SERVICE_TREE_ROOT = "root";
     public static final int JS_SERVICE_TREE_ROOT_ID = -1;
-    
+
     /// name of JS variable holding foldable tree (keep in sync with commander.js!)
     public static final String NODE_VARNAME = "d";
-    
+
     // HTML constants for text and POST variables, etc.
     public static final String HTML_SERVICES = "list of services defined";
     public static final String HTML_SERVICE  = "service";
@@ -512,7 +511,7 @@ public interface Globals
     public static final String HTML_SERVICE_VENDOR_TEXT = "vendor capabilities";
     public static final String HTML_SERVICE_VENDOR_EXPLAIN = "Human-readable description of additional vendor-specific functionality (optional).";
     public static final String FORM_SERVICE_VENDOR = "OGCVendorCapabilities";
-    
+
     public static final String HTML_SERVICE_CONTACTPERSON_TEXT = "contact person";
     public static final String HTML_SERVICE_CONTACTPERSON_EXPLAIN = "Name of contact person for this service.";
     public static final String FORM_SERVICE_CONTACTPERSON = "contactPerson";
@@ -546,7 +545,7 @@ public interface Globals
     public static final String HTML_SERVICE_EMAIL_TEXT = "contact email";
     public static final String HTML_SERVICE_EMAIL_EXPLAIN = "Contact email of service responsible.";
     public static final String FORM_SERVICE_EMAIL = "contactElectronicMailAddress";
-    
+
     public static final String HTML_SERVICE_DBCONN_TEXT = "database connection";
     public static final String HTML_SERVICE_DBCONN_EXPLAIN = "(internal)";
     public static final String FORM_SERVICE_DBCONN = "RasConnection";
@@ -574,7 +573,7 @@ public interface Globals
     public static final String HTML_SERVICE_CONNDMD_TEXT = "rasdaman ad-hoc connections";
     public static final String HTML_SERVICE_CONNDMD_EXPLAIN = "Rasdaman connections acquired on demand, beyond the preclaimed pool (mandatory).";
     public static final String FORM_SERVICE_CONNDMD = "RasConnDemand";
-    
+
     // layer
     public static final String HTML_LAYERS = "list of layers";
     public static final String HTML_LAYER  = "layer";
@@ -644,9 +643,9 @@ public interface Globals
     // public static final String HTML_LAYER_MAPTYPE_EXPLAIN = "Map type, one of: grey (for greyscale maps), RGB (for color maps), DEM (for Digital Elevation Data), or thematic (for thematic maps) - (mandatory).";
     public static final String HTML_LAYER_MAPTYPE_EXPLAIN = "Map type, one of: grey (for greyscale maps), RGB (for color maps), DEM (for Digital Elevation Data) - (mandatory).";
     public static final String FORM_LAYER_MAPTYPE = "MapType";
-    public static final String HTML_LAYER_MAPTYPE_OPTIONS = "HTML_LAYER_MAPTYPE_OPTIONS";	// name of JS variable holding list
+    public static final String HTML_LAYER_MAPTYPE_OPTIONS = "HTML_LAYER_MAPTYPE_OPTIONS";   // name of JS variable holding list
     // public static final String[] HTML_LAYER_MAPTYPE_OPTIONS = { "RGB", "grey", "DEM" };
-    
+
     // Style
     public static final String HTML_STYLES = "list of styles";
     public static final String HTML_STYLE  = "style";
@@ -675,7 +674,7 @@ public interface Globals
     public static final String HTML_STYLE_RASQLOP_TEXT = "rasql operation fragment";
     public static final String HTML_STYLE_RASQLOP_EXPLAIN = "Query fragment specifying how to obtain an RGB image out of the map. Use only induced operations, any bounding box selection and scaling will be added automatically; it is highly recommended to thoroughly test a query fragment manually before going operational (mandatory).";
     public static final String FORM_STYLE_RASQLOP = "RasqlOp";
-    
+
     // level
     public static final String HTML_LEVELS = "list of pyramid levels";
     public static final String FORM_LEVEL_ID = "levelId";
@@ -685,7 +684,7 @@ public interface Globals
     public static final String HTML_LEVEL_SCALEFACTOR_TEXT = "collection relative scale factor";
     public static final String HTML_LEVEL_SCALEFACTOR_EXPLAIN = "Scale factor relative to the original map. The original map has a scale factor of 1 by definition, upper pyramid layers have a factor greater than 1; no factor should appear more than once, otherwise WMS behavior is undefined (mandatory).";
     public static final String FORM_LEVEL_SCALEFACTOR = "ScaleFactor";
-    
+
     // ------ file & service paths ---------------------------------------
     /**
      * Field SERVICE_ACTION_URL
@@ -693,22 +692,22 @@ public interface Globals
      * Afterwards, HTML forms will have their action parameter set to this
      */
     public static final String SERVICE_ACTION_URL     = "/commander";
-    
+
     // URL path for aux files for apache (until I know how to load via Tomcat)
     public static final String HTTP_PATH = "";
-    public static final String IMAGES_PATH = HTTP_PATH + "images/";		// image directory
-    
+    public static final String IMAGES_PATH = HTTP_PATH + "images/";     // image directory
+
     /**
      * light bulbs for service status indication
      * CAVEAT: keep consistent with lightbulb handling in commander.js!
      **/
-    public static final String LIGHTBULB_RED    = IMAGES_PATH + "lightbulb_red.gif";	// red = not sane, not activated
-    public static final String LIGHTBULB_YELLOW = IMAGES_PATH + "lightbulb_yellow.gif";	// yellow = sane, not activated
-    public static final String LIGHTBULB_GREEN  = IMAGES_PATH + "lightbulb_green.gif";	// green = sane, activated
-    
-    public static final int IMG_WIDTH  = 12;	// width of lightbulb image
-    public static final int IMG_HEIGHT = 12;	// height of lightbulb image
-    
+    public static final String LIGHTBULB_RED    = IMAGES_PATH + "lightbulb_red.gif";    // red = not sane, not activated
+    public static final String LIGHTBULB_YELLOW = IMAGES_PATH + "lightbulb_yellow.gif"; // yellow = sane, not activated
+    public static final String LIGHTBULB_GREEN  = IMAGES_PATH + "lightbulb_green.gif";  // green = sane, activated
+
+    public static final int IMG_WIDTH  = 12;    // width of lightbulb image
+    public static final int IMG_HEIGHT = 12;    // height of lightbulb image
+
     /**
      * string templates for HTML id names
      */
@@ -717,34 +716,34 @@ public interface Globals
     public static final String ID_HIDDEN_TEMPLATE = "_hidden";
     public static final String ID_PARAM_TEMPLATE = "_param";
     public static final String ID_SERVICE_AVAIL_TEMPLATE = "available_";
-    
+
     /**
      * id for top-level error message field
      */
     public static final String GLOBAL_MSG_ID = "globalMsgText";
-    
+
     /**
      * key names for JSON response
      */
     public static final String JSON_ITEMLIST = "itemlist";
     public static final String JSON_ITEMCOUNT = "itemcount";
-    
+
     /**
      * invalid database key result
      */
     public static final int NO_KEY = -1;
-    
+
     /**
      * rasdaman max collection name length
      */
     public static final int RASDAMAN_MAXNAMELEN = 100;     // FIXME: actual value?
-    
+
     /**
      * error flag
      */
     public static final String MSG_OK        = "Ok";
     public static final String MSG_NOT_OK    = "notOk";
-    
+
     /**
      * settings for auto pyramid creation
      */

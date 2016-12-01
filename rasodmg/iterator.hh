@@ -68,9 +68,9 @@ public:
     /// default constructor
     r_Iterator();
     /// copy constructor
-    r_Iterator( const r_Iterator<T>& iter );
+    r_Iterator(const r_Iterator<T>& iter);
     /// constructor getting the collection on which to iterate (used for {\tt r_Collection::create_iterator()})
-    r_Iterator( r_Collection<T>& source, int removed_objects=0 );
+    r_Iterator(r_Collection<T>& source, int removed_objects = 0);
     /**
       Creates an iterator which points to the first element of the element collection. If
       {\tt removed_objects} ist set to 1, the iterator points to the first element of
@@ -81,18 +81,18 @@ public:
     ~r_Iterator();
 
     /// assignment operator
-    r_Iterator<T>& operator=( const r_Iterator<T>& iter );
+    r_Iterator<T>& operator=(const r_Iterator<T>& iter);
     /// comparisons: equal if they point to the same element in the same collection,
     /// not equal if they point to different collections or elements
-    int is_equal( const r_Iterator<T>& iter ) const;
+    int is_equal(const r_Iterator<T>& iter) const;
 
     /// prefix incrementor
     r_Iterator<T>& operator++();
     /// postfix incrementor
-    r_Iterator<T>  operator++( int );
+    r_Iterator<T>  operator++(int);
 
     /// re-initialize the iterator to the start of iteration for the same collection
-    void reset( int removed_objects=0 );
+    void reset(int removed_objects = 0);
     /**
       Resets the iterator to point to the first element of the element collection. If
       {\tt removed_objects} ist set to 1, the iterator points to the first element of
@@ -105,15 +105,15 @@ public:
     void advance();
 
     /// the dereference operator gets the actual element
-    T    operator*() throw( r_Error );
+    T    operator*() throw(r_Error);
     /// gets the actual element
-    T    get_element() const throw( r_Error );
+    T    get_element() const throw(r_Error);
 
     /// gets the actual element, advances one element, and returns whether iteration is complete or not
-    int  next( T& element );
+    int  next(T& element);
 
     /// replaces the actual element (can only be used with r_List)
-    void replace_element( const T& element );
+    void replace_element(const T& element);
 
 private:
     /// flag for end of iteration

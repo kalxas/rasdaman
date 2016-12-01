@@ -52,7 +52,7 @@ public class DimensionPointElement extends AbstractRasNode {
     private long coord;
 
     public DimensionPointElement(Node node, XmlQuery xq, CoverageInfo covInfo)
-            throws WCPSException, SecoreException {
+    throws WCPSException, SecoreException {
 
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();

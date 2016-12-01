@@ -84,25 +84,25 @@ public:
 
     static void terminate(void);
 
-    static int isTIFF(const char *filename);
-    static int loadTIFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char *params=NULL);
-    static int saveTIFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char *params=NULL);
-    static int PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *params=NULL);
-    static int isVFF(const char *filename);
-    static int loadVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char *params=NULL);
-    static int saveVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char *params=NULL);
+    static int isTIFF(const char* filename);
+    static int loadTIFF(const char* filename, r_Ref<r_GMarray>& mddPtr, const char* params = NULL);
+    static int saveTIFF(const char* filename, r_Ref<r_GMarray>& mddPtr, const char* params = NULL);
+    static int PixmapToTIFF(wxPixmap* pixmap, const char* filename, const char* params = NULL);
+    static int isVFF(const char* filename);
+    static int loadVFF(const char* filename, r_Ref<r_GMarray>& mddPtr, const char* params = NULL);
+    static int saveVFF(const char* filename, r_Ref<r_GMarray>& mddPtr, const char* params = NULL);
 
 
 private:
 
     static void ensureParams(void);
-    static void processParams(const char *params);
+    static void processParams(const char* params);
 
-    static r_Parse_Params *dfltParams;
-    static char *tiffCompStr;
+    static r_Parse_Params* dfltParams;
+    static char* tiffCompStr;
     static int tiffCompression;
 
-    static const char *getExtension(const char *filename);
+    static const char* getExtension(const char* filename);
 
     // tiff compression keywords
     static const char param_KeyTiffComp[];

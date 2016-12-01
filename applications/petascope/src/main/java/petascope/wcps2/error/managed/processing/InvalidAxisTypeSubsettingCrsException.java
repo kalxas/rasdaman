@@ -26,7 +26,7 @@ import petascope.exceptions.ExceptionCode;
 /**
  * Error message for using subsettingCrs in not geo-referenced/grid axis
  *
- * @author <a href="mailto:bphamhuu@jacbos-university.de">Bang Pham Huu</a> 
+ * @author <a href="mailto:bphamhuu@jacbos-university.de">Bang Pham Huu</a>
  */
 public class InvalidAxisTypeSubsettingCrsException extends WCPSProcessingError {
     /**
@@ -35,9 +35,9 @@ public class InvalidAxisTypeSubsettingCrsException extends WCPSProcessingError {
      * @param axisName axis name of subsettingCrs
      * @param subsettingCrs
      */
-    public InvalidAxisTypeSubsettingCrsException (String axisName, String subsettingCrs) {
+    public InvalidAxisTypeSubsettingCrsException(String axisName, String subsettingCrs) {
         super(ERROR_TEMPLATE.replace("$axisName", axisName).replace("$subsettingCrs", subsettingCrs), ExceptionCode.WcpsError);
     }
-    
+
     private static final String ERROR_TEMPLATE = "subsettingCrs '$subsettingCrs' is not supported on axis '$axisName'.";
 }

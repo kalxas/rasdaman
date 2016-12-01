@@ -32,24 +32,24 @@ import static org.junit.Assert.*;
  */
 public class ConfigTest {
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    assertFalse(Config.getInstance().getUsername().equals(""));
-  }
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        assertFalse(Config.getInstance().getUsername().equals(""));
+    }
 
-  /**
-   * Test of getPassword method, of class Config.
-   */
-  @Test
-  public void testGetPassword() {
-    assertFalse(Config.getInstance().getPassword().equals(""));
-  }
+    /**
+     * Test of getPassword method, of class Config.
+     */
+    @Test
+    public void testGetPassword() {
+        assertFalse(Config.getInstance().getPassword().equals(""));
+    }
 
-  /**
-   * Test of getUsername method, of class Config.
-   */
-  @Test
-  public void testGetUsername() {
-    assertFalse(Config.getInstance().getUsername().equals(""));
-  }
+    /**
+     * Test of getUsername method, of class Config.
+     */
+    @Test
+    public void testGetUsername() {
+        assertFalse(Config.getInstance().getUsername().equals(""));
+    }
 }

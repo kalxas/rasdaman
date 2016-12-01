@@ -47,14 +47,14 @@ EOId::print_status(std::ostream& s) const
 }
 
 std::ostream&
-operator<<(std::ostream& s, const EOId& d )
+operator<<(std::ostream& s, const EOId& d)
 {
     s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
     return s;
 }
 
 std::ostream&
-operator<<(std::ostream& s, EOId& d )
+operator<<(std::ostream& s, EOId& d)
 {
     s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
     return s;
@@ -147,11 +147,13 @@ bool
 EOId::operator==(const EOId& one) const
 {
     LTRACE << "operator==(" << one << ")";
-    bool retval=false;
-    if(OId::operator==(one))
-        if(systemName == one.systemName)
-            if(databaseName == one.databaseName)
-                retval=true;
+    bool retval = false;
+    if (OId::operator==(one))
+        if (systemName == one.systemName)
+            if (databaseName == one.databaseName)
+            {
+                retval = true;
+            }
     return retval;
 }
 
@@ -166,7 +168,7 @@ EOId&
 EOId::operator=(const EOId& old)
 {
     LTRACE << "operator=(" << old << ")";
-    if(this != &old)
+    if (this != &old)
     {
         OId::operator=(old);
         systemName = old.systemName;
@@ -179,13 +181,19 @@ bool
 EOId::operator<(const EOId& old) const
 {
     LTRACE << "operator<(" << old << ")";
-    bool retval=false;
+    bool retval = false;
     if (OId::operator<(old))
-        retval=true;
+    {
+        retval = true;
+    }
     if (!retval && (databaseName < old.databaseName))
-        retval=true;
+    {
+        retval = true;
+    }
     if (!retval && (systemName < old.systemName))
-        retval=true;
+    {
+        retval = true;
+    }
     return retval;
 }
 
@@ -193,13 +201,19 @@ bool
 EOId::operator>(const EOId& old) const
 {
     LTRACE << "operator>(" << old << ")";
-    bool retval=false;
+    bool retval = false;
     if (OId::operator>(old))
-        retval=true;
+    {
+        retval = true;
+    }
     if (!retval && (databaseName > old.databaseName))
-        retval=true;
+    {
+        retval = true;
+    }
     if (!retval && (systemName > old.systemName))
-        retval=true;
+    {
+        retval = true;
+    }
     return retval;
 }
 
@@ -207,11 +221,15 @@ bool
 EOId::operator<=(const EOId& old) const
 {
     LTRACE << "operator<=(" << old << ")";
-    bool retval=false;
+    bool retval = false;
     if (operator<(old))
-        retval=true;
+    {
+        retval = true;
+    }
     if (!retval && (operator==(old)))
-        retval=true;
+    {
+        retval = true;
+    }
     return retval;
 }
 
@@ -219,11 +237,15 @@ bool
 EOId::operator>=(const EOId& old) const
 {
     LTRACE << "operator<=(" << old << ")";
-    bool retval=false;
+    bool retval = false;
     if (operator>(old))
-        retval=true;
+    {
+        retval = true;
+    }
     if (!retval && (operator==(old)))
-        retval=true;
+    {
+        retval = true;
+    }
     return retval;
 }
 

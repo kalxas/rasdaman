@@ -36,9 +36,9 @@ boost::shared_ptr<RasMgrConfig> RasMgrConfig::getInstance()
     boost::unique_lock<boost::mutex> lock(RasMgrConfig::instanceMutex);
     if (!instance)
     {
-        LDEBUG<<"Started RasMgrConfig initialization";
+        LDEBUG << "Started RasMgrConfig initialization";
         instance.reset(new RasMgrConfig());
-        LDEBUG<<"Finished RasMgrConfig initialization";
+        LDEBUG << "Finished RasMgrConfig initialization";
     }
 
     return RasMgrConfig::instance;

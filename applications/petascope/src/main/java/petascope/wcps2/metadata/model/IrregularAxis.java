@@ -30,8 +30,8 @@ import petascope.core.CrsDefinition;
 public class IrregularAxis extends Axis {
 
     public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset gridBounds,
-                        AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
-                        String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder, BigDecimal origin) {
+                         AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
+                         String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder, BigDecimal origin) {
         super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, origin);
 
     }

@@ -89,7 +89,7 @@ public class Wcs2Servlet extends HttpServlet {
 
         try {
             meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER, ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER, ConfigManager.METADATA_PASS, false);
+                                        ConfigManager.METADATA_USER, ConfigManager.METADATA_PASS, false);
         } catch (Exception e) {
             log.error("Error initializing metadata database", e);
             throw new ServletException("Metadata database initialization error", e);
@@ -119,8 +119,9 @@ public class Wcs2Servlet extends HttpServlet {
     }
 
     private void setServletURL(HttpServletRequest req) {
-        if("".equals(ConfigManager.PETASCOPE_SERVLET_URL) )
+        if ("".equals(ConfigManager.PETASCOPE_SERVLET_URL)) {
             ConfigManager.PETASCOPE_SERVLET_URL = req.getRequestURL().toString();
+        }
     }
 
     @Override
@@ -161,7 +162,7 @@ public class Wcs2Servlet extends HttpServlet {
                 }
 
                 log.debug("Petascope Request: \n------START REQUEST--------\n"
-                        + request + "\n------END REQUEST------\n");
+                          + request + "\n------END REQUEST------\n");
 
                 handleWcs2Request(request, res, req);
             } catch (WCSException e) {
@@ -173,7 +174,7 @@ public class Wcs2Servlet extends HttpServlet {
             } catch (Exception e) {
                 log.error("Runtime error : {}", e.getMessage());
                 throw new WCSException(ExceptionCode.RuntimeError,
-                        "Runtime error while processing request", e);
+                                       "Runtime error while processing request", e);
             }
         } catch (WCSException e) {
             printError(res, request, e);
@@ -190,35 +191,35 @@ public class Wcs2Servlet extends HttpServlet {
      * @throws WCSException in case of I/O error, or if the server is unable to handle the request
      */
     private void handleWcs2Request(String input, HttpServletResponse response, HttpServletRequest srvRequest)
-            throws WCSException, PetascopeException, SecoreException {
+    throws WCSException, PetascopeException, SecoreException {
         try {
             HTTPRequest request = this.parseUrl(srvRequest, input);
             log.info("Handling WCS 2.0 request");
             ProtocolExtension pext = ExtensionsRegistry.getProtocolExtension(request);
             if (pext == null) {
                 throw new WCSException(ExceptionCode.NoApplicableCode,
-                        "No protocol binding extension that can handle this request was found ");
+                                       "No protocol binding extension that can handle this request was found ");
             }
             log.info("Protocol binding extension found: {}", pext.
-                    getExtensionIdentifier());
+                     getExtensionIdentifier());
             Response res = pext.handle(request, meta);
 
             OutputStream os = response.getOutputStream();
             response.setStatus(res.getExitCode());
             if (res.getData() != null) {
                 MultipartResponse multi = new MultipartResponse(response);
-                for(int i = 0; i < res.getData().size(); i++) {                    
-                    if(res.getXml() != null) {
+                for (int i = 0; i < res.getData().size(); i++) {
+                    if (res.getXml() != null) {
                         multi.startPart(FormatExtension.MIME_GML);
                         IOUtils.write(res.getXml()[i], os);
                         multi.endPart();
                     }
-                
+
                     // Return multiple coverages
                     multi.startPart(res.getFormatType());
                     IOUtils.write(res.getData().get(i), os);
                     multi.endPart();
-                }                
+                }
                 multi.finish();
             } else {
                 try {
@@ -306,7 +307,7 @@ public class Wcs2Servlet extends HttpServlet {
             pathInfo = srvRequest.getPathInfo().substring(1);
         }
         HTTPRequest srvReq = new HTTPRequest(contextPath,
-                pathInfo, srvRequest.getQueryString(), request);
+                                             pathInfo, srvRequest.getQueryString(), request);
         return srvReq;
     }
 }

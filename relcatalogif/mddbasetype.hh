@@ -99,7 +99,7 @@ public:
     returns base type.
     */
 
-    virtual void print_status( ostream& s ) const;
+    virtual void print_status(ostream& s) const;
     /*@Doc:
     writes the state of the object to the specified stream:
     \tr_Marray < myBaseType->getTypeName() \t>

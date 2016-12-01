@@ -45,7 +45,7 @@ public class CoverageInfo {
     private final Bbox bbox;
     private final boolean gridded;
     //empty constructor
-    public CoverageInfo(){
+    public CoverageInfo() {
         cellDomains = null;
         domains = null;
         coverageName = null;
@@ -110,15 +110,15 @@ public class CoverageInfo {
 
                 if (!me.getHi().equals(you.getHi())) {
                     log.error("High values don't match: "
-                        + me.getHi().toString() + ", "
-                        + you.getHi().toString());
+                              + me.getHi().toString() + ", "
+                              + you.getHi().toString());
                     return false;
                 }
 
                 if (!me.getLo().equals(you.getLo())) {
                     log.error("Low values do not match: "
-                        + me.getLo().toString() + ", "
-                        + you.getLo().toString());
+                              + me.getLo().toString() + ", "
+                              + you.getLo().toString());
                     return false;
                 }
             }
@@ -135,8 +135,8 @@ public class CoverageInfo {
 
                 if (!me.getLabel().equals(you.getLabel())) {
                     log.error("Domain element names don't match: '"
-                        + me.getLabel() + "' " + WcpsConstants.MSG_AND + " '"
-                        + you.getLabel() + "'.");
+                              + me.getLabel() + "' " + WcpsConstants.MSG_AND + " '"
+                              + you.getLabel() + "'.");
                     return false;
                 }
 
@@ -165,7 +165,7 @@ public class CoverageInfo {
     public String getCoverageCrs() {
         return coverageCrs;
     }
-    
+
     public void setCoverageCrs(String coverageCrs) {
         this.coverageCrs = coverageCrs;
     }

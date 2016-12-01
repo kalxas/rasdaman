@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import petascope.util.WcpsConstants;
 
 public class RangeField extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(RangeField.class);
 
     private String type;
@@ -48,7 +48,7 @@ public class RangeField extends AbstractRasNode {
 
         if (nodeName.equals(WcpsConstants.MSG_TYPE)) {
             String rangeType = node.getTextContent();
-            if(rangeType.equals(WcpsConstants.MSG_NULL)){
+            if (rangeType.equals(WcpsConstants.MSG_NULL)) {
                 throw new WCPSException("Invalid RangeField type");
             }
             this.type = rangeType;
@@ -59,19 +59,19 @@ public class RangeField extends AbstractRasNode {
     public String toRasQL() {
         String result = this.type.toLowerCase();
 
-        if(result.equals(WcpsConstants.MSG_BOOLEAN)){
+        if (result.equals(WcpsConstants.MSG_BOOLEAN)) {
             result = WcpsConstants.MSG_BOOL;
-        }else if(result.equals(WcpsConstants.MSG_CHAR)){
+        } else if (result.equals(WcpsConstants.MSG_CHAR)) {
             result = WcpsConstants.MSG_OCTET;
-        }else if(result.equals(WcpsConstants.MSG_UNSIGNED_CHAR)){
+        } else if (result.equals(WcpsConstants.MSG_UNSIGNED_CHAR)) {
             result = WcpsConstants.MSG_CHAR;
-        }else if(result.equals(WcpsConstants.MSG_INT)){
+        } else if (result.equals(WcpsConstants.MSG_INT)) {
             result = WcpsConstants.MSG_LONG;
-        }else if(result.equals(WcpsConstants.MSG_UNSIGNED_INT)){
+        } else if (result.equals(WcpsConstants.MSG_UNSIGNED_INT)) {
             result = WcpsConstants.MSG_UNSIGNED_LONG;
-        }else if(result.equals(WcpsConstants.MSG_UNSIGNED_LONG)){
+        } else if (result.equals(WcpsConstants.MSG_UNSIGNED_LONG)) {
             result = WcpsConstants.MSG_LONG;
-        }else if(result.equals(WcpsConstants.MSG_COMPLEX + "2")) {
+        } else if (result.equals(WcpsConstants.MSG_COMPLEX + "2")) {
             result = WcpsConstants.MSG_COMPLEX + "d";
         }
         //short, unsigned short and complex have identity mapping

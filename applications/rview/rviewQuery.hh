@@ -59,18 +59,18 @@ class rviewQuery: public rviewFrame
 {
 public:
 
-    rviewQuery(rviewDatabase *db, char *query=NULL);
+    rviewQuery(rviewDatabase* db, char* query = NULL);
     ~rviewQuery(void);
 
     void OnSize(int w, int h);
     void OnMenuCommand(int id);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
 
-    int userEvent(const user_event &ue);
+    int userEvent(const user_event& ue);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // Returns the query window ID
@@ -81,23 +81,23 @@ public:
 protected:
 
     void buildMenubar(void);
-    bool loadQuery(char *file);
-    bool saveQuery(char *file);
+    bool loadQuery(char* file);
+    bool saveQuery(char* file);
     void newDBState(bool newState);
     void updateTitle(void);
 
-    wxTextWindow *twin;
-    wxMenuBar *mbar;
-    wxMenu *mbarMenus[3];
-    wxPanel *panel;
-    rviewButton *butClear, *butExec, *butUpdt;
-    wxFont *font;
+    wxTextWindow* twin;
+    wxMenuBar* mbar;
+    wxMenu* mbarMenus[3];
+    wxPanel* panel;
+    rviewButton* butClear, *butExec, *butUpdt;
+    wxFont* font;
     int hotNumber;
     DynamicString hotPath;
     DynamicString lastHotPath;
-    rviewDatabase *queryDb;
+    rviewDatabase* queryDb;
     // For update queries
-    rviewDisplay *updateDisplay;
+    rviewDisplay* updateDisplay;
     r_Ref<r_GMarray> updateMddObj;
     int qwindowID;
     int updateID;

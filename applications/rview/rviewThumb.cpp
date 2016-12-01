@@ -113,7 +113,7 @@ const int rviewThumb::thumb_prjwidth = 60;
 /*
  *  The thumbnail canvas class
  */
-thumbCanvas::thumbCanvas(rviewThumb *par, int x, int y, int width, int height) : wxCanvas((wxWindow*)par, x, y, width, height, 0)
+thumbCanvas::thumbCanvas(rviewThumb* par, int x, int y, int width, int height) : wxCanvas((wxWindow*)par, x, y, width, height, 0)
 {
     parent = par;
     brush.SetStyle(wxSOLID);
@@ -134,7 +134,7 @@ void thumbCanvas::OnPaint(void)
 {
     int thumbs, thumbsperline;
     int gridX, gridY;
-    wxPixmap *thumbnail;
+    wxPixmap* thumbnail;
     wxUpdateIterator upd(this);
     //wxRect rect;
     int startx, starty, endx, endy, w, h, posx, posy;
@@ -146,7 +146,10 @@ void thumbCanvas::OnPaint(void)
     parent->getThumbInfo(thumbs, thumbsperline);
     parent->getGridInfo(gridX, gridY);
 
-    if ((thumbs <= 0) || (thumbsperline <= 0) || (gridX <= 0) || (gridY <= 0)) return;
+    if ((thumbs <= 0) || (thumbsperline <= 0) || (gridX <= 0) || (gridY <= 0))
+    {
+        return;
+    }
 
     GetClientSize(&w, &h);
 
@@ -162,14 +165,32 @@ void thumbCanvas::OnPaint(void)
 
     maxy = (thumbs + thumbsperline - 1) / thumbsperline;
 
-    if ((startx >= thumbsperline) || (endx < 0)) return;
-    if ((starty >= maxy) || (endy < 0)) return;
+    if ((startx >= thumbsperline) || (endx < 0))
+    {
+        return;
+    }
+    if ((starty >= maxy) || (endy < 0))
+    {
+        return;
+    }
 
-    if (startx < 0) startx = 0;
-    if (endx >= thumbsperline) endx = thumbsperline-1;
+    if (startx < 0)
+    {
+        startx = 0;
+    }
+    if (endx >= thumbsperline)
+    {
+        endx = thumbsperline - 1;
+    }
 
-    if (starty < 0) starty = 0;
-    if (endy >= maxy) endy = maxy - 1;
+    if (starty < 0)
+    {
+        starty = 0;
+    }
+    if (endy >= maxy)
+    {
+        endy = maxy - 1;
+    }
 
     BeginDrawing();
 
@@ -232,22 +253,37 @@ void thumbCanvas::updateDisplay(void)
 rviewThumb::rviewThumb(void) : rviewFrame(NULL, "", 0, 0, thumb_width, thumb_height)
 {
     int x, y, tw, py;
-    wxMenu *menu;
-    wxMenu *setup;
-    wxMenu *submenu;
+    wxMenu* menu;
+    wxMenu* setup;
+    wxMenu* submenu;
     char buffer[STRINGSIZE];
 
     thumbsperline = 4;
-    if (prefs->thumbCols > 0) thumbsperline = prefs->thumbCols;
+    if (prefs->thumbCols > 0)
+    {
+        thumbsperline = prefs->thumbCols;
+    }
     projstep = 1;
-    if (prefs->thumbProjstep > 0) projstep = prefs->thumbProjstep;
+    if (prefs->thumbProjstep > 0)
+    {
+        projstep = prefs->thumbProjstep;
+    }
     doValToCspace = (prefs->rgbSpace != 0);
     doFullRangeCspace = (prefs->rgbSpace == 2);
     dimproj = prefs->thumbProjdim;
     imgWidth = 100;
-    if (prefs->thumbWidth > 0) imgWidth = prefs->thumbWidth;
-    if (imgWidth < thumb_minwidth) imgWidth = thumb_minwidth;
-    if (imgWidth > thumb_maxwidth) imgWidth = thumb_maxwidth;
+    if (prefs->thumbWidth > 0)
+    {
+        imgWidth = prefs->thumbWidth;
+    }
+    if (imgWidth < thumb_minwidth)
+    {
+        imgWidth = thumb_minwidth;
+    }
+    if (imgWidth > thumb_maxwidth)
+    {
+        imgWidth = thumb_maxwidth;
+    }
 
     thumbs = 0;
     numPixmaps = 0;
@@ -281,11 +317,11 @@ rviewThumb::rviewThumb(void) : rviewFrame(NULL, "", 0, 0, thumb_width, thumb_hei
     panel = new wxPanel((wxWindow*)this, 0, thumb_border, x, thumb_cheight);
     panel->SetLabelPosition(wxVERTICAL);
 
-    x -= 2*thumb_border;
-    y -= 2*thumb_border + thumb_cheight;
+    x -= 2 * thumb_border;
+    y -= 2 * thumb_border + thumb_cheight;
     canvas = new thumbCanvas(this, thumb_border, thumb_border + thumb_cheight, x, y);
 
-    tw = (x - 4*thumb_border - 2*thumb_prjwidth) / 3;
+    tw = (x - 4 * thumb_border - 2 * thumb_prjwidth) / 3;
     py = thumb_border;
     projString[0] = '\0';
     project = new rviewText(panel);
@@ -298,8 +334,8 @@ rviewThumb::rviewThumb(void) : rviewFrame(NULL, "", 0, 0, thumb_width, thumb_hei
 
     label();
 
-    frameWidth=-1;
-    frameHeight=-1;
+    frameWidth = -1;
+    frameHeight = -1;
 
     OnSize(x, y);
     OnSize(x, y);
@@ -314,9 +350,9 @@ rviewThumb::~rviewThumb(void)
     if (thumbs != 0)
     {
         int i;
-        rviewThumbList *tlst = listHead;
+        rviewThumbList* tlst = listHead;
 
-        for (i=0; i<thumbs; i++)
+        for (i = 0; i < thumbs; i++)
         {
             deletePixmapChain(tlst);
 
@@ -326,7 +362,10 @@ rviewThumb::~rviewThumb(void)
             delete listHead;
         }
     }
-    if (csmap != NULL) delete csmap;
+    if (csmap != NULL)
+    {
+        delete csmap;
+    }
 }
 
 
@@ -341,11 +380,11 @@ void rviewThumb::configureCspace(bool mode)
 
 
 // Deletes all the pixmaps for one MDD object
-void rviewThumb::deletePixmapChain(rviewThumbList *tlst)
+void rviewThumb::deletePixmapChain(rviewThumbList* tlst)
 {
     if (tlst->pixmaps != NULL)
     {
-        rviewThumbPixList *tplst, *tplast;
+        rviewThumbPixList* tplst, *tplast;
 
         tplst = tlst->pixmaps;
         while (tplst != NULL)
@@ -353,7 +392,10 @@ void rviewThumb::deletePixmapChain(rviewThumbList *tlst)
             //cout << "   delete " << (void*)tplst << endl;
             tplast = tplst;
             tplst = tplst->next;
-            if (tplast->pixmap != NULL) delete tplast->pixmap;
+            if (tplast->pixmap != NULL)
+            {
+                delete tplast->pixmap;
+            }
             delete tplast;
             numPixmaps--;
         }
@@ -364,9 +406,9 @@ void rviewThumb::deletePixmapChain(rviewThumbList *tlst)
 
 
 // Creates a pixmap chain for a given MDD object
-int rviewThumb::pixmapsFromMDD(rviewThumbList *tlst)
+int rviewThumb::pixmapsFromMDD(rviewThumbList* tlst)
 {
-    rviewThumbPixList *newPixmap, *lastPixmap;
+    rviewThumbPixList* newPixmap, *lastPixmap;
     int i, projval;
     bool pixLoop;
 
@@ -409,7 +451,7 @@ int rviewThumb::pixmapsFromMDD(rviewThumbList *tlst)
                 return 0;
             }
         }
-        catch (r_Error &errObj)
+        catch (r_Error& errObj)
         {
             cerr << errObj.what() << endl;
             return 0;
@@ -427,7 +469,10 @@ int rviewThumb::pixmapsFromMDD(rviewThumbList *tlst)
         if (dimproj >= 0)
         {
             projval += projstep;
-            if (projval <= pt2[dimproj]) pixLoop = TRUE;
+            if (projval <= pt2[dimproj])
+            {
+                pixLoop = TRUE;
+            }
         }
 
     }
@@ -438,16 +483,19 @@ int rviewThumb::pixmapsFromMDD(rviewThumbList *tlst)
 
 
 
-int rviewThumb::addMDD(r_Ref<r_GMarray> &newMdd)
+int rviewThumb::addMDD(r_Ref<r_GMarray>& newMdd)
 {
-    rviewThumbList *newItem;
+    rviewThumbList* newItem;
     int i;
-    r_Object *mo;
+    r_Object* mo;
     bool oldCstate;
 
     LTRACE << "addMDD(...)";
 
-    if ((newItem = new rviewThumbList) == NULL) return 0;
+    if ((newItem = new rviewThumbList) == NULL)
+    {
+        return 0;
+    }
 
     oldCstate = canDoCspace;
 
@@ -473,7 +521,9 @@ int rviewThumb::addMDD(r_Ref<r_GMarray> &newMdd)
 
     // If it was true before it's true now.
     if (oldCstate)
+    {
         canDoCspace = TRUE;
+    }
     else
     {
         // Otherwise try the transition FALSE -> TRUE
@@ -492,9 +542,12 @@ int rviewThumb::addMDD(r_Ref<r_GMarray> &newMdd)
     }
     else
     {
-        rviewThumbList *tlst = listHead;
+        rviewThumbList* tlst = listHead;
 
-        for (i=1; i<thumbs; i++) tlst = tlst->next;
+        for (i = 1; i < thumbs; i++)
+        {
+            tlst = tlst->next;
+        }
 
         tlst->next = newItem;
     }
@@ -507,9 +560,9 @@ int rviewThumb::addMDD(r_Ref<r_GMarray> &newMdd)
 }
 
 
-int rviewThumb::deleteMDD(r_Ref<r_GMarray> &obsMdd)
+int rviewThumb::deleteMDD(r_Ref<r_GMarray>& obsMdd)
 {
-    rviewThumbList *last, *tlst;
+    rviewThumbList* last, *tlst;
     int i;
 
     LTRACE << "deleteMDD(...)";
@@ -517,9 +570,12 @@ int rviewThumb::deleteMDD(r_Ref<r_GMarray> &obsMdd)
     last = NULL;
     tlst = listHead;
 
-    for (i=0; i<thumbs; i++)
+    for (i = 0; i < thumbs; i++)
     {
-        if (tlst->mdd == obsMdd) break;
+        if (tlst->mdd == obsMdd)
+        {
+            break;
+        }
         last = tlst;
         tlst = tlst->next;
     }
@@ -541,15 +597,18 @@ int rviewThumb::deleteMDD(r_Ref<r_GMarray> &obsMdd)
         // Removing a thumbnail means a new layout and new bounding boxes
         maxHeight = 0;
         tlst = listHead;
-        for (i=0; i<thumbs; i++)
+        for (i = 0; i < thumbs; i++)
         {
             int ph;
-            rviewThumbPixList *tplst = tlst->pixmaps;
+            rviewThumbPixList* tplst = tlst->pixmaps;
 
             while (tplst != NULL)
             {
                 ph = tplst->pixmap->getHeight();
-                if (ph > maxHeight) maxHeight = ph;
+                if (ph > maxHeight)
+                {
+                    maxHeight = ph;
+                }
                 tplst = tplst->next;
             }
             tlst = tlst->next;
@@ -596,7 +655,7 @@ void rviewThumb::label(void)
 }
 
 
-int rviewThumb::process(wxObject &obj, wxEvent &evt)
+int rviewThumb::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -657,7 +716,10 @@ int rviewThumb::process(wxObject &obj, wxEvent &evt)
                     {
                         if (dimproj >= 0)
                         {
-                            if ((pt1[dimproj] == oldFrom) && (pt2[dimproj] == oldTo)) fromScratch = TRUE;
+                            if ((pt1[dimproj] == oldFrom) && (pt2[dimproj] == oldTo))
+                            {
+                                fromScratch = TRUE;
+                            }
                         }
                     }
                     rebuildThumbnails(fromScratch);
@@ -675,7 +737,10 @@ int rviewThumb::process(wxObject &obj, wxEvent &evt)
                 projstep = 1;
                 thumbProj->SetValue("1");
             }
-            if ((dimMDD > 2) && (oldStep != projstep)) rebuildThumbnails(TRUE);
+            if ((dimMDD > 2) && (oldStep != projstep))
+            {
+                rebuildThumbnails(TRUE);
+            }
 
             return 1;
         }
@@ -695,7 +760,7 @@ int rviewThumb::process(wxObject &obj, wxEvent &evt)
 }
 
 
-const char *rviewThumb::getFrameName(void) const
+const char* rviewThumb::getFrameName(void) const
 {
     return "rviewThumb";
 }
@@ -711,7 +776,7 @@ void rviewThumb::OnSize(int w, int h)
     int x, y, tw, py, px;
 
     GetClientSize(&x, &y);
-    if((x < thumb_width) || (y < thumb_height))
+    if ((x < thumb_width) || (y < thumb_height))
     {
         frameWidth = x;
         frameHeight = y;
@@ -720,21 +785,21 @@ void rviewThumb::OnSize(int w, int h)
     }
 
     panel->SetSize(0, thumb_border, x, thumb_cheight);
-    x -= 2*thumb_border;
-    y -= 2*thumb_border + thumb_cheight;
+    x -= 2 * thumb_border;
+    y -= 2 * thumb_border + thumb_cheight;
     canvas->SetSize(thumb_border, thumb_border + thumb_cheight, x, y);
 
-    tw = (x - 2*thumb_prjwidth - 2*thumb_twidth - 6*thumb_border);
+    tw = (x - 2 * thumb_prjwidth - 2 * thumb_twidth - 6 * thumb_border);
     py = thumb_border;
     px = thumb_border;
     project->SetSize(px, py, tw , thumb_theight);
-    px +=thumb_border + tw;
+    px += thumb_border + tw;
     thumbProj->SetSize(px, py, thumb_prjwidth, thumb_theight);
-    px +=thumb_prjwidth + thumb_border;
+    px += thumb_prjwidth + thumb_border;
     thumbStep->SetSize(px, py, thumb_prjwidth, thumb_theight);
-    px +=thumb_prjwidth + thumb_border;
+    px += thumb_prjwidth + thumb_border;
     thumbWidth->SetSize(px, py, thumb_twidth, thumb_theight);
-    px +=thumb_twidth + thumb_border;
+    px += thumb_twidth + thumb_border;
     thumbCols->SetSize(px, py, thumb_twidth, thumb_theight);
 }
 
@@ -751,13 +816,16 @@ void rviewThumb::OnMenuCommand(int id)
         break;
     case MENU_THUMB_CSPACE_ON:
     {
-        rviewThumbList *tlst = listHead;
+        rviewThumbList* tlst = listHead;
         int i;
 
         // Don't allow switching off cspace mapping if at least one object is float/double.
-        for (i=0; i<thumbs; i++)
+        for (i = 0; i < thumbs; i++)
         {
-            if ((tlst->baseType == rbt_float) || (tlst->baseType == rbt_double)) break;
+            if ((tlst->baseType == rbt_float) || (tlst->baseType == rbt_double))
+            {
+                break;
+            }
             tlst = tlst->next;
         }
         if (i < thumbs)
@@ -787,7 +855,7 @@ void rviewThumb::OnMenuCommand(int id)
 }
 
 
-int rviewThumb::userEvent(const user_event &ue)
+int rviewThumb::userEvent(const user_event& ue)
 {
     if (ue.type == usr_mdd_dying)
     {
@@ -807,13 +875,16 @@ int rviewThumb::userEvent(const user_event &ue)
 
 // Return the pixmap with number no and write a textual description into
 // caption which has to be at least STRINGSIZE bytes large.
-wxPixmap *rviewThumb::getPixmapNumber(int no, char *caption)
+wxPixmap* rviewThumb::getPixmapNumber(int no, char* caption)
 {
-    rviewThumbList *tlst = listHead;
+    rviewThumbList* tlst = listHead;
     int major, minor;
-    wxPixmap *retPix = NULL;
+    wxPixmap* retPix = NULL;
 
-    if (no >= numPixmaps) return NULL;
+    if (no >= numPixmaps)
+    {
+        return NULL;
+    }
 
     // major = number of MDD object, minor = number of pixmap for this object
     major = 0;
@@ -824,7 +895,7 @@ wxPixmap *rviewThumb::getPixmapNumber(int no, char *caption)
         minor = 0;
         if (no < tlst->numPix)
         {
-            rviewThumbPixList *tplst = tlst->pixmaps;
+            rviewThumbPixList* tplst = tlst->pixmaps;
             while ((tplst != NULL) && (no > 0))
             {
                 tplst = tplst->next;
@@ -860,21 +931,21 @@ wxPixmap *rviewThumb::getPixmapNumber(int no, char *caption)
 
     if (retPix != NULL)
     {
-        sprintf(caption, "MDD %d [%d]", major, minor*projstep);
+        sprintf(caption, "MDD %d [%d]", major, minor * projstep);
     }
 
     return retPix;
 }
 
 
-void rviewThumb::getThumbInfo(int &num, int &npl)
+void rviewThumb::getThumbInfo(int& num, int& npl)
 {
     num = numPixmaps;
     npl = thumbsperline;
 }
 
 
-void rviewThumb::getGridInfo(int &gx, int &gy)
+void rviewThumb::getGridInfo(int& gx, int& gy)
 {
     gx = gridX;
     gy = gridY;
@@ -912,9 +983,9 @@ void rviewThumb::updateCanvasSize(void)
 
 
 // Init internal variables (e.g. projection-related) according to a sample object
-void rviewThumb::initForObject(r_Ref<r_GMarray> &mddObj)
+void rviewThumb::initForObject(r_Ref<r_GMarray>& mddObj)
 {
-    char *data;
+    char* data;
     int i;
     r_Minterval interv;
 
@@ -927,21 +998,33 @@ void rviewThumb::initForObject(r_Ref<r_GMarray> &mddObj)
     }
     else
     {
-        if ((dimproj == -1) || (dimproj >= dimMDD)) freeDims = 3;
+        if ((dimproj == -1) || (dimproj >= dimMDD))
+        {
+            freeDims = 3;
+        }
         else
         {
-            if (dimproj == 0) freeDims = 6;
-            else if (dimproj == 1) freeDims = 5;
-            else freeDims = 3;
+            if (dimproj == 0)
+            {
+                freeDims = 6;
+            }
+            else if (dimproj == 1)
+            {
+                freeDims = 5;
+            }
+            else
+            {
+                freeDims = 3;
+            }
         }
     }
     pt1 = r_Point(dimMDD);
     pt2 = r_Point(dimMDD);
     data = projString;
-    for (i=0; i<dimMDD; i++)
+    for (i = 0; i < dimMDD; i++)
     {
         pt1[i] = interv[i].low();
-        if ((freeDims & (1<<i)) == 0)
+        if ((freeDims & (1 << i)) == 0)
         {
             data += sprintf(data, "%d, ", interv[i].low());
             pt2[i] = interv[i].low();
@@ -959,7 +1042,7 @@ void rviewThumb::initForObject(r_Ref<r_GMarray> &mddObj)
 
 
 // Parse the projection string and set up all internal variables that depend on it.
-int rviewThumb::parseProjection(r_Ref<r_GMarray> &mddObj)
+int rviewThumb::parseProjection(r_Ref<r_GMarray>& mddObj)
 {
     int x, h;
 
@@ -975,18 +1058,26 @@ int rviewThumb::parseProjection(r_Ref<r_GMarray> &mddObj)
     dimproj = -1;
     dim1 = -1;
     dim2 = -1;
-    for (x=0; x<dimMDD; x++)
+    for (x = 0; x < dimMDD; x++)
     {
-        if ((freeDims & (1<<x)) != 0)
+        if ((freeDims & (1 << x)) != 0)
         {
             if (dim1 < 0)
+            {
                 dim1 = x;
+            }
             else if (dim2 < 0)
+            {
                 dim2 = x;
+            }
             else if (dimproj < 0)
+            {
                 dimproj = x;
+            }
             else
+            {
                 break;
+            }
         }
     }
     if (x < dimMDD)
@@ -1035,10 +1126,10 @@ int rviewThumb::parseProjection(r_Ref<r_GMarray> &mddObj)
 
 
 
-wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType baseType, int dimproject, int projval)
+wxPixmap* rviewThumb::buildThumbnail(r_Ref<r_GMarray>& mddObj, rviewBaseType baseType, int dimproject, int projval)
 {
-    char *data;
-    wxPixmap *pixmap;
+    char* data;
+    wxPixmap* pixmap;
     wxColour palette[2];
     int baseSize;
     int x;
@@ -1054,7 +1145,9 @@ wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType bas
 
     // Only data with at least 2 dimensions is allowed
     if (objdim < 2)
+    {
         return NULL;
+    }
 
     // Check if all the thumbnails have the same number of dimensions
     if (dimMDD != objdim)
@@ -1066,12 +1159,24 @@ wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType bas
     // the objects in this collection don't have a uniform spatial domain.
     ptlow = r_Point(dimMDD);
     pthigh = r_Point(dimMDD);
-    for (x=0; x<dimMDD; x++)
+    for (x = 0; x < dimMDD; x++)
     {
-        if (pt1[x] >= thisInterv[x].low()) ptlow[x] = pt1[x];
-        else ptlow[x] = thisInterv[x].low();
-        if (pt2[x] <= thisInterv[x].high()) pthigh[x] = pt2[x];
-        else pthigh[x] = thisInterv[x].high();
+        if (pt1[x] >= thisInterv[x].low())
+        {
+            ptlow[x] = pt1[x];
+        }
+        else
+        {
+            ptlow[x] = thisInterv[x].low();
+        }
+        if (pt2[x] <= thisInterv[x].high())
+        {
+            pthigh[x] = pt2[x];
+        }
+        else
+        {
+            pthigh[x] = thisInterv[x].high();
+        }
     }
     //cout << "Corners " << pt1 << ", " << pt2 << endl;
     //cout << "low " << ptlow << ", high " << pthigh << endl;
@@ -1102,30 +1207,44 @@ wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType bas
     }
     srcWidth = (int)(pthigh[dim1] - ptlow[dim1] + 1);
     //cout << "srcWidth " << srcWidth << endl;
-    if (srcWidth < 1) srcWidth = 1;
+    if (srcWidth < 1)
+    {
+        srcWidth = 1;
+    }
     penv.scale = ((double)imgWidth) / srcWidth;
     //cout << "dimproject " << dimproject << ", projval " << projval
     //     << ", scale " << penv.scale << endl;
     //cout << "penv " << penv.pt1 << ", " << penv.pt2 << endl;
 
-    if (rviewPrepareFlatProjection(penv) != 0) return NULL;
+    if (rviewPrepareFlatProjection(penv) != 0)
+    {
+        return NULL;
+    }
 
     if (rviewImageTypes[baseType] == RVIEW_IMGTYPE_MONO)
     {
-        palette[0] = wxColour(0,0,0);
-        palette[1] = wxColour(255,255,255);
+        palette[0] = wxColour(0, 0, 0);
+        palette[1] = wxColour(255, 255, 255);
     }
 
     // Colourspace mapping possible for this object?
-    if (rviewCheckInitCspace(baseType, NULL, mddObj) != 0) canDoCspace = TRUE;
+    if (rviewCheckInitCspace(baseType, NULL, mddObj) != 0)
+    {
+        canDoCspace = TRUE;
+    }
 
     if (doValToCspace)
     {
         penv.cspaceState = rviewCheckInitCspace(baseType, &csmap, mddObj, doFullRangeCspace, NULL, penv.width, &penv.pitch, &penv.depth, &penv.pad);
-        if (csmap != NULL) mbar->Enable(MENU_THUMB_CSPACE_EDIT, TRUE);
+        if (csmap != NULL)
+        {
+            mbar->Enable(MENU_THUMB_CSPACE_EDIT, TRUE);
+        }
     }
     else
+    {
         penv.cspaceState = 0;
+    }
 
     penv.csmap = csmap;
 
@@ -1133,7 +1252,9 @@ wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType bas
       return NULL;*/
 
     if ((data = (char*)malloc(penv.pitch * penv.height)) == NULL)
+    {
         return NULL;
+    }
 
     if (rviewPerformFlatProjection(penv, data) != 0)
     {
@@ -1151,7 +1272,10 @@ wxPixmap *rviewThumb::buildThumbnail(r_Ref<r_GMarray> &mddObj, rviewBaseType bas
 
 void rviewThumb::newThumbWidth(int newWidth)
 {
-    if (newWidth == imgWidth) return;
+    if (newWidth == imgWidth)
+    {
+        return;
+    }
     imgWidth = newWidth;
 
     rebuildThumbnails(FALSE);
@@ -1162,8 +1286,8 @@ void rviewThumb::newThumbWidth(int newWidth)
 void rviewThumb::rebuildThumbnails(bool fromScratch)
 {
     int i, j;
-    rviewThumbList *tlst;
-    rviewThumbPixList *tplst;
+    rviewThumbList* tlst;
+    rviewThumbPixList* tplst;
 
     //cout << "rebuildThumbnails " << fromScratch << endl;
 
@@ -1172,12 +1296,12 @@ void rviewThumb::rebuildThumbnails(bool fromScratch)
     if (fromScratch)
     {
         // Delete all thumbnail pixmaps, including the chain structure
-        for (i=0; i<thumbs; i++, tlst = tlst->next)
+        for (i = 0; i < thumbs; i++, tlst = tlst->next)
         {
             deletePixmapChain(tlst);
         }
         maxHeight = 0;
-        for (i=0, tlst=listHead; i<thumbs; i++, tlst=tlst->next)
+        for (i = 0, tlst = listHead; i < thumbs; i++, tlst = tlst->next)
         {
             if (pixmapsFromMDD(tlst) == 0)
             {
@@ -1188,18 +1312,21 @@ void rviewThumb::rebuildThumbnails(bool fromScratch)
     else
     {
         // 1) Delete all the thumbnail pixmaps, but leave the chain intact!
-        for (i=0; i<thumbs; i++, tlst = tlst->next)
+        for (i = 0; i < thumbs; i++, tlst = tlst->next)
         {
             tplst = tlst->pixmaps;
             while (tplst != NULL)
             {
-                if (tplst->pixmap != NULL) delete tplst->pixmap;
+                if (tplst->pixmap != NULL)
+                {
+                    delete tplst->pixmap;
+                }
                 tplst->pixmap = NULL;
                 tplst = tplst->next;
             }
         }
         // 2) Create new ones. Doing this in two passes is better for the memory allocation
-        for (i=0, tlst=listHead; i<thumbs; i++, tlst = tlst->next)
+        for (i = 0, tlst = listHead; i < thumbs; i++, tlst = tlst->next)
         {
             tplst = tlst->pixmaps;
             while (tplst != NULL)
@@ -1216,7 +1343,7 @@ void rviewThumb::rebuildThumbnails(bool fromScratch)
     // Now adapt the maximum height
     maxHeight = 0;
     tlst = listHead;
-    for (i=0; i<thumbs; i++, tlst=tlst->next)
+    for (i = 0; i < thumbs; i++, tlst = tlst->next)
     {
         tplst = tlst->pixmaps;
         while (tplst != NULL)
@@ -1224,7 +1351,10 @@ void rviewThumb::rebuildThumbnails(bool fromScratch)
             if (tplst->pixmap != NULL)
             {
                 j = tplst->pixmap->getHeight();
-                if (j > maxHeight) maxHeight = j;
+                if (j > maxHeight)
+                {
+                    maxHeight = j;
+                }
             }
             tplst = tplst->next;
         }

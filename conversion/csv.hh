@@ -50,36 +50,37 @@ class r_Conv_CSV : public r_Convertor
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_CSV( const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error);
+    r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error);
     /// constructor using convert_type_e shortcut
-    r_Conv_CSV( const char *src, const r_Minterval &interv, int tp ) throw(r_Error);
+    r_Conv_CSV(const char* src, const r_Minterval& interv, int tp) throw(r_Error);
     /// destructor
-    ~r_Conv_CSV( void );
+    ~r_Conv_CSV(void);
 
     /// convert to CSV
-    virtual r_Conv_Desc &convertTo( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error);
     /// convert from CSV
-    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
     /// cloning
-    virtual r_Convertor *clone( void ) const;
+    virtual r_Convertor* clone(void) const;
     /// identification
-    virtual const char *get_name( void ) const;
-    virtual r_Data_Format get_data_format( void ) const;
+    virtual const char* get_name(void) const;
+    virtual r_Data_Format get_data_format(void) const;
 
-    static const char *FALSE;
-    static const char *TRUE;
-    
+    static const char* FALSE;
+    static const char* TRUE;
+
 protected:
-    
+
     std::string leftParen;
     std::string rightParen;
     std::string valueSeparator;
     bool outerParens;
 
 private:
-    enum Order {
+    enum Order
+    {
         OUTER_INNER,
         INNER_OUTER
     };
@@ -90,21 +91,21 @@ private:
     /// logic for displaying values
     //    each method has argument "val" - pointer to the beginning of the record
     //    and returns pointer to the end of the read record
-    const char *printValue(std::stringstream &f, const r_Base_Type &type, const char *val);
-    const char *printStructValue(std::stringstream &f, const char *val);
-    const char *printComplexValue(std::stringstream &f, const r_Base_Type &type, const char *val);
-    const char *printPrimitiveValue(std::stringstream &f, const r_Base_Type &type, const char *val);
+    const char* printValue(std::stringstream& f, const r_Base_Type& type, const char* val);
+    const char* printStructValue(std::stringstream& f, const char* val);
+    const char* printComplexValue(std::stringstream& f, const r_Base_Type& type, const char* val);
+    const char* printPrimitiveValue(std::stringstream& f, const r_Base_Type& type, const char* val);
     /// logic for displaying nested arrays
     //     dims  - array describing how many elements are in each dimension
     //     offsets - array describing memory offset between values in each dimension
     //     dim   - number of dimensions
-    void printArray(std::stringstream &f, int *dims, size_t *offsets, int dim, const char *val,
-        const r_Base_Type &type);
+    void printArray(std::stringstream& f, int* dims, size_t* offsets, int dim, const char* val,
+                    const r_Base_Type& type);
 
     void processEncodeOptions(const std::string& options);
     void processDecodeOptions(const std::string& options);
 
-    void addStructElem(char** dest, r_Structure_Type &st, std::istringstream &str );
+    void addStructElem(char** dest, r_Structure_Type& st, std::istringstream& str);
 
     /// Description of constructStruct - Construct desc.dest when the type of the array
     // is a struct type.
@@ -120,7 +121,7 @@ private:
     Order order;
     std::string basetype;
     std::string domain;
-    
+
     static const std::string LEFT_PAREN;
     static const std::string RIGHT_PAREN;
     static const std::string SEPARATOR;
@@ -139,7 +140,7 @@ void constructPrimitive(char* dest, const char* src, unsigned int numElem);
 //      @param str - the istringstream used to read the values.
 //      @param dest - points to desc.dest.
 template<class T>
-void addElem(std::istringstream &str, char* dest);
+void addElem(std::istringstream& str, char* dest);
 
 /// Description of addCharElem - Add a value for a char attribute of the structure type
 // in desc.dest.
@@ -149,7 +150,7 @@ void addElem(std::istringstream &str, char* dest);
 // The template function addElem can't be used because in this case it reads the value
 // from the file as a character and it should be interpreted as the ASCII value of
 // a character.
-void addCharElem(std::istringstream &str, char** dest);
+void addCharElem(std::istringstream& str, char** dest);
 
 bool isValidCharacter(char c);
 

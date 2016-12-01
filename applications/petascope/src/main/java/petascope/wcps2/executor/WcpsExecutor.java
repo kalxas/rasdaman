@@ -26,16 +26,16 @@ import petascope.exceptions.WCSException;
 
 /**
  * Execute Rasql query / Meta value and return result.
- * 
+ *
  * @author <a href="mailto:bphamhuux@jacobs-university.de">Bang Pham Huu</a>
  */
 public interface WcpsExecutor<T> {
-    
+
     /**
      * Execute the Rasql query / Meta value
      * @param wcpsResult
      * @return result in byte[];
      * @throws petascope.exceptions.WCSException
      */
-     byte[] execute(T wcpsResult) throws WCSException;
+    byte[] execute(T wcpsResult) throws WCSException;
 }

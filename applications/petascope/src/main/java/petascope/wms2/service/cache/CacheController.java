@@ -33,7 +33,7 @@ import java.util.List;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
-public class CacheController extends Controller<CacheRequest,CacheParser,CacheHandler,Response> {
+public class CacheController extends Controller<CacheRequest, CacheParser, CacheHandler, Response> {
     /**
      * Constructor for the class
      *

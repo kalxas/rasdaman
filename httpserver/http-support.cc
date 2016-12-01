@@ -74,9 +74,9 @@ rasdaman GmbH.
 *
 */
 
-rc_t InitClientBase( __attribute__ ((unused)) struct ClientBase *Client )
+rc_t InitClientBase(__attribute__((unused)) struct ClientBase* Client)
 {
-    return( ERROR );
+    return (ERROR);
 }
 
 
@@ -110,7 +110,7 @@ rc_t InitClientBase( __attribute__ ((unused)) struct ClientBase *Client )
 *
 */
 
-rc_t InitReqInfo( struct ReqInfo *Request )
+rc_t InitReqInfo(struct ReqInfo* Request)
 {
     Request->HeadBuff             = NULL;
     Request->HeadSize             = 0;
@@ -126,7 +126,7 @@ rc_t InitReqInfo( struct ReqInfo *Request )
     Request->First                = NULL;
     Request->Last                 = NULL;
     Request->Body                 = NULL;
-    return( OK );
+    return (OK);
 }
 
 
@@ -160,7 +160,7 @@ rc_t InitReqInfo( struct ReqInfo *Request )
 *
 */
 
-rc_t InitRespInfo( struct RespInfo *Response )
+rc_t InitRespInfo(struct RespInfo* Response)
 {
     Response->HeadBuff            = NULL;
     Response->HeadSize            = 0;
@@ -173,7 +173,7 @@ rc_t InitRespInfo( struct RespInfo *Response )
     Response->First               = NULL;
     Response->Last                = NULL;
     Response->Body                = NULL;
-    return( OK );
+    return (OK);
 }
 
 
@@ -207,7 +207,7 @@ rc_t InitRespInfo( struct RespInfo *Response )
 *
 */
 
-void InitHTTPMsg( struct HTTPMsg *Msg )
+void InitHTTPMsg(struct HTTPMsg* Msg)
 {
     Msg->Head        = NULL;
     Msg->Body        = NULL;
@@ -245,17 +245,19 @@ void InitHTTPMsg( struct HTTPMsg *Msg )
 *
 */
 
-struct MsgHeader *NewMsgHeader( int Key, char *String )
+struct MsgHeader* NewMsgHeader(int Key, char* String)
 {
-    struct MsgHeader *NewHeader;
+    struct MsgHeader* NewHeader;
 
-    NewHeader = static_cast<struct MsgHeader*>(mymalloc( sizeof( struct MsgHeader ) ));
-    if( NewHeader == NULL )
-        return( NULL );
+    NewHeader = static_cast<struct MsgHeader*>(mymalloc(sizeof(struct MsgHeader)));
+    if (NewHeader == NULL)
+    {
+        return (NULL);
+    }
     NewHeader->Next    = NULL;
     NewHeader->Field   = Key;
     NewHeader->Content = String;
-    return( NewHeader );
+    return (NewHeader);
 }
 
 
@@ -289,21 +291,21 @@ struct MsgHeader *NewMsgHeader( int Key, char *String )
 *
 */
 
-struct MsgHeader *AppendMsgHeader( struct MsgHeader *Last, int Key, char *String )
+struct MsgHeader* AppendMsgHeader(struct MsgHeader* Last, int Key, char* String)
 {
-    struct MsgHeader *NewHeader;
+    struct MsgHeader* NewHeader;
 
-    NewHeader = NewMsgHeader( Key, String );
-    if( NewHeader == NULL )
+    NewHeader = NewMsgHeader(Key, String);
+    if (NewHeader == NULL)
     {
-        ErrorMsg( E_SYS, ERROR, "ERROR: malloc error for MsgHeader structure." );
-        return( NULL );
+        ErrorMsg(E_SYS, ERROR, "ERROR: malloc error for MsgHeader structure.");
+        return (NULL);
     }
-    if( Last != NULL )
+    if (Last != NULL)
     {
         Last->Next = NewHeader;
     }
-    return( NewHeader );
+    return (NewHeader);
 }
 
 
@@ -337,14 +339,14 @@ struct MsgHeader *AppendMsgHeader( struct MsgHeader *Last, int Key, char *String
 *
 */
 
-void DeleteMsgHeader( struct MsgHeader *First )
+void DeleteMsgHeader(struct MsgHeader* First)
 {
-    struct MsgHeader *Tmp;
+    struct MsgHeader* Tmp;
 
-    if( First != NULL )
+    if (First != NULL)
     {
         Tmp = First->Next;
-        free( First );
+        free(First);
         First = Tmp;
     }
     return;
@@ -381,22 +383,22 @@ void DeleteMsgHeader( struct MsgHeader *First )
 *
 */
 
-void PrintReqInfo( struct ReqInfo *Request )
+void PrintReqInfo(struct ReqInfo* Request)
 {
-    struct MsgHeader *Ptr;
+    struct MsgHeader* Ptr;
 
-    printf( ">> %s %s%s%s%s HTTP/%d.%d\n",
-            HTTP_GetMethodName( Request->Line.Method ),
-            Request->Line.URL.Protocol ? Request->Line.URL.Protocol : "",
-            Request->Line.URL.Servername ? Request->Line.URL.Servername : "",
-            Request->Line.URL.Path ? Request->Line.URL.Path : "",
-            Request->Line.URL.Extra ? Request->Line.URL.Extra : "",
-            Request->Line.Version.Major, Request->Line.Version.Minor );
+    printf(">> %s %s%s%s%s HTTP/%d.%d\n",
+           HTTP_GetMethodName(Request->Line.Method),
+           Request->Line.URL.Protocol ? Request->Line.URL.Protocol : "",
+           Request->Line.URL.Servername ? Request->Line.URL.Servername : "",
+           Request->Line.URL.Path ? Request->Line.URL.Path : "",
+           Request->Line.URL.Extra ? Request->Line.URL.Extra : "",
+           Request->Line.Version.Major, Request->Line.Version.Minor);
 
     Ptr = Request->First;
-    while( Ptr != NULL )
+    while (Ptr != NULL)
     {
-        printf( ">> %s: %s\n", HTTP_GetFieldName( Ptr->Field ), Ptr->Content );
+        printf(">> %s: %s\n", HTTP_GetFieldName(Ptr->Field), Ptr->Content);
         Ptr = Ptr->Next;
     }
     return;
@@ -433,19 +435,19 @@ void PrintReqInfo( struct ReqInfo *Request )
 *
 */
 
-void PrintRespInfo( struct RespInfo *Response )
+void PrintRespInfo(struct RespInfo* Response)
 {
-    struct MsgHeader *Ptr;
+    struct MsgHeader* Ptr;
 
-    printf( ">> HTTP/%d.%d %d %s\n",
-            Response->Line.Version.Major, Response->Line.Version.Minor ,
-            Response->Line.Status,
-            Response->Line.Reason );
+    printf(">> HTTP/%d.%d %d %s\n",
+           Response->Line.Version.Major, Response->Line.Version.Minor ,
+           Response->Line.Status,
+           Response->Line.Reason);
 
     Ptr = Response->First;
-    while( Ptr != NULL )
+    while (Ptr != NULL)
     {
-        printf( ">> %s: %s\n", HTTP_GetFieldName( Ptr->Field ), Ptr->Content );
+        printf(">> %s: %s\n", HTTP_GetFieldName(Ptr->Field), Ptr->Content);
         Ptr = Ptr->Next;
     }
     return;
@@ -482,23 +484,23 @@ void PrintRespInfo( struct RespInfo *Response )
 *
 */
 
-rc_t CheckSockError( int SockFD, int Level, int OptName )
+rc_t CheckSockError(int SockFD, int Level, int OptName)
 {
     int    error;
-    size_t len = sizeof( error );
+    size_t len = sizeof(error);
 
 #ifdef DECALPHA
-    if( getsockopt( SockFD, Level, OptName, (char *)&error, (int*)&len ) < 0 )
+    if (getsockopt(SockFD, Level, OptName, (char*)&error, (int*)&len) < 0)
 #else
-    if( getsockopt( SockFD, Level, OptName, (char *)&error, (socklen_t*)&len ) < 0 )
+    if (getsockopt(SockFD, Level, OptName, (char*)&error, (socklen_t*)&len) < 0)
 #endif
-        return( FAIL );
-    if( error )
+        return (FAIL);
+    if (error)
     {
         errno = error;
-        return( ERROR );
+        return (ERROR);
     }
-    return( OK );
+    return (OK);
 }
 
 

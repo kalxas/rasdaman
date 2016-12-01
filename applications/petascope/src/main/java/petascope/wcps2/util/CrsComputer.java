@@ -166,7 +166,7 @@ public class CrsComputer {
      */
     private ParsedSubset<Long> returnGridPixelIndices(ParsedSubset<Double> numericSubset) {
         return new ParsedSubset<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
-     }
+    }
 
     /**
      * Returns the translated pixel indices for numeric subsets
@@ -231,11 +231,11 @@ public class CrsComputer {
             // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
             // TODO: I need to extract all the values, not just the extremes
             long[] indexes = registry.getMetadataSource().getIndexesFromIrregularRectilinearAxis(
-                    coverage.getCoverageInfo().getCoverageName(),
-                    coverage.getCoverageInfo().getDomainIndexByName(axisName), // i-order of axis
-                    (new BigDecimal(numericSubset.getLowerLimit())).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
-                    (new BigDecimal(numericSubset.getUpperLimit())).subtract(domMin),  //
-                    pxMin, pxMax);
+                                 coverage.getCoverageInfo().getCoverageName(),
+                                 coverage.getCoverageInfo().getDomainIndexByName(axisName), // i-order of axis
+                                 (new BigDecimal(numericSubset.getLowerLimit())).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
+                                 (new BigDecimal(numericSubset.getUpperLimit())).subtract(domMin),  //
+                                 pxMin, pxMax);
 
             // Add sdom lower bound
             return new ParsedSubset<Long>(indexes[0] + pxMin, indexes[1]);
@@ -271,12 +271,11 @@ public class CrsComputer {
         //use real cell width when more that 1 pixel exists on this dimension
 
         BigDecimal cellWidth = null;
-        if(domMax.compareTo(domMin) == 0){
+        if (domMax.compareTo(domMin) == 0) {
             cellWidth = coverage.getCoverageMetadata().getDomainDirectionalResolution(axisName);
-        }
-        else {
+        } else {
             cellWidth = (domMax.subtract(domMin))
-                    .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP);
+                        .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP);
         }
 
         // Open interval on the right: take away epsilon from upper bound:
@@ -291,7 +290,7 @@ public class CrsComputer {
                 returnUpperLimit = (long) Math.ceil(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getUpperLimit()).subtract(domMin), cellWidth).doubleValue()) - 1 + pxMin;
             }
             // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            
+
             if ((domMax.compareTo(domMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(domMax.doubleValue())) {
                 returnLowerLimit = returnLowerLimit - 1;
             }
@@ -372,7 +371,7 @@ public class CrsComputer {
      *
      * @return
      */
-     private ParsedSubset<Long> getTimePixelIndicesForRegularAxis(boolean ignoreOutOfBoundsValidityCheck) {
+    private ParsedSubset<Long> getTimePixelIndicesForRegularAxis(boolean ignoreOutOfBoundsValidityCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         String axisUoM = dom.getUom();
         String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();

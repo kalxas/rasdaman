@@ -79,7 +79,9 @@ MDDType& MDDType::operator=(const MDDType& old)
 {
     // Gracefully handle self assignment
     if (this == &old)
+    {
         return *this;
+    }
     Type::operator=(old);
     myType = old.myType;
     mySubclass = old.mySubclass;
@@ -108,7 +110,7 @@ MDDType::getNewTypeStructure() const
 }
 
 void
-MDDType::print_status( ostream& s ) const
+MDDType::print_status(ostream& s) const
 {
     s << "\tr_Marray" << "<" << ">";
 }
@@ -117,14 +119,18 @@ int
 MDDType::compatibleWith(const Type* aType) const
 {
     LTRACE << "compatibleWith(" << aType->getName() << ") " << (aType->getType() != MDDTYPE);
-    if(aType->getType() != MDDTYPE)
+    if (aType->getType() != MDDTYPE)
+    {
         return 0;
+    }
     else
+    {
         return 1;
+    }
 }
 
 int
-MDDType::compatibleWithDomain(__attribute__ ((unused)) const r_Minterval* aDomain ) const
+MDDType::compatibleWithDomain(__attribute__((unused)) const r_Minterval* aDomain) const
 {
     LTRACE << "compatibleWithDomain(" << *aDomain << ") " << 1;
     return 1;

@@ -61,7 +61,7 @@ public class EncodeCrsProperties {
     private double lowY;
     private double highY;
     private String crs;
-    
+
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
 
     /* Constructors */
@@ -85,7 +85,7 @@ public class EncodeCrsProperties {
 
     public EncodeCrsProperties(String xMin, String xMax, String yMin, String yMax, String crs) {
         this(Double.parseDouble(xMin), Double.parseDouble(xMax),
-                Double.parseDouble(yMin), Double.parseDouble(yMax), crs);
+             Double.parseDouble(yMin), Double.parseDouble(yMax), crs);
     }
 
     /**
@@ -119,10 +119,10 @@ public class EncodeCrsProperties {
                     orderToName.put(info.getDomainIndexByName(dimName), dimName);
 
                     // Set the bounds of this dimension: total bbox first, then update in case of trims in the request
-                    nameToBounds.put(dimName, new Double[]{
-                        info.getDomainElement(info.getDomainIndexByName(dimName)).getMinValue().doubleValue(),
-                        info.getDomainElement(info.getDomainIndexByName(dimName)).getMaxValue().doubleValue()
-                    });
+                    nameToBounds.put(dimName, new Double[] {
+                                         info.getDomainElement(info.getDomainIndexByName(dimName)).getMinValue().doubleValue(),
+                                         info.getDomainElement(info.getDomainIndexByName(dimName)).getMaxValue().doubleValue()
+                                     });
 
                     // reduce or extend the bbox according to the subset ops applied to the coverage
                     for (IRasNode subset : subsets) {
@@ -150,7 +150,7 @@ public class EncodeCrsProperties {
             // Check dimensions is exactly 2:
             if (orderToName.size() != expectedDim) {
                 String message = "The number of output dimensions " + orderToName.size()
-                        + " does not match the expected dimensionality: " + expectedDim;
+                                 + " does not match the expected dimensionality: " + expectedDim;
                 log.error(message);
                 throw new WCPSException(ExceptionCode.InvalidRequest, message);
             }
@@ -209,14 +209,14 @@ public class EncodeCrsProperties {
         String ret = null;
         if (crs != null && !CrsUtil.GRID_CRS.equals(crs)) {
             ret = appendToExtraParams(
-                    appendToExtraParams(
-                            appendToExtraParams(
-                                    appendToExtraParams(
-                                            appendToExtraParams(extraParams, XMIN_PARAM, lowX + ""),
-                                            XMAX_PARAM, highX + ""),
-                                    YMIN_PARAM, lowY + ""),
-                            YMAX_PARAM, highY + ""),
-                    CRS_PARAM, CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs));
+                      appendToExtraParams(
+                          appendToExtraParams(
+                              appendToExtraParams(
+                                  appendToExtraParams(extraParams, XMIN_PARAM, lowX + ""),
+                                  XMAX_PARAM, highX + ""),
+                              YMIN_PARAM, lowY + ""),
+                          YMAX_PARAM, highY + ""),
+                      CRS_PARAM, CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs));
         } else {
             // return empty in case of CRS:1
             ret = appendToExtraParams(extraParams, null, null);

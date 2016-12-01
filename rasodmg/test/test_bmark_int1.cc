@@ -90,10 +90,10 @@ void parse(int argc, char* argv[])
     colect_name = argv[3];
 }
 
-void insert_datacube( )
+void insert_datacube()
 {
 
-    r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > >  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
     r_Minterval                                   domain[TOTAL_CUBES];
     r_Storage_Layout*                      dsl[TOTAL_CUBES];
     r_OId                                         oid[TOTAL_CUBES];
@@ -164,11 +164,11 @@ void insert_datacube( )
     db.set_servername(server_name);
 
     int i;
-    for ( i=0; i< TOTAL_CUBES ; i++)
+    for (i = 0; i < TOTAL_CUBES ; i++)
     {
         r_Transaction trans;
 
-        r_Ref< r_Marray<r_ULong> > cube;
+        r_Ref<r_Marray<r_ULong>> cube;
 
         try
         {
@@ -195,23 +195,23 @@ void insert_datacube( )
                 cout << "Creating the set... " << flush;
 
                 cube_set =
-                    new(&db, "RGBSet3") r_Set< r_Ref< r_Marray<RGBPixel> > >;
+                    new(&db, "RGBSet3") r_Set<r_Ref<r_Marray<RGBPixel>>>;
 
                 db.set_object_name(*cube_set, colect_name);
             }
 
             cout << "Ok" << endl;
             cout << "Creating the datacube... " << flush;
-            r_Minterval newDomain( domain[i]);
+            r_Minterval newDomain(domain[i]);
             cube =
                 new(&db, "RGBCube") r_Marray<RGBPixel>(newDomain, dsl[i]);
 
             cube_set->insert_element(cube);
 
-            cout << "Cube[" << i+1 << "]:  " << cube->get_oid() << endl;
-            cout << "Spatial domain: " << cube->spatial_domain( ) <<endl;
+            cout << "Cube[" << i + 1 << "]:  " << cube->get_oid() << endl;
+            cout << "Spatial domain: " << cube->spatial_domain() << endl;
             cout << "Storage Layout " << endl;
-            dsl[i]->print_status( );
+            dsl[i]->print_status();
 
             cout << "*" << flush;
             cout << " ... Ok" << endl;
@@ -241,7 +241,7 @@ void insert_datacube( )
 int main(int argc, char* argv[])
 {
     parse(argc, argv);
-    insert_datacube( );
+    insert_datacube();
     return 0;
 }
 

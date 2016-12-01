@@ -33,75 +33,75 @@ import static secore.util.StringUtil.uriToPath;
  */
 public class StringUtilTest {
 
-  /**
-   * Test of urldecode method, of class StringUtil.
-   */
-  @Test
-  public void testUrldecode() {
-    String encodedText = "hello%20world";
-    String expResult = "hello world";
-    String result = StringUtil.urldecode(encodedText);
-    assertEquals(expResult, result);
-  }
-
-  /**
-   * Test of getElementValue method, of class StringUtil.
-   */
-  @Test
-  public void testGetElementValue() {
-    String xml = "<hello:world>HELLO WORLD</hello:world>";
-    String elname = "world";
-    String expResult = "HELLO WORLD";
-    String result = StringUtil.getElementValue(xml, elname);
-    assertEquals(expResult, result);
-  }
-  
-  @Test
-  public void testFixLinks() {
-    String arg = "<gml:identifier codeSpace=\"OGP\">urn:ogc:def:cs:OGC:0.1:Cartesian2D</gml:identifier>";
-    String versionNumber = "0.1";
-    String result = StringUtil.fixLinks(arg, versionNumber);
-    System.out.println(result);
-    String expResult = "<gml:identifier codeSpace=\"OGP\">http://www.opengis.net/def/cs/OGC/0.1/Cartesian2D</gml:identifier>";
-    assertEquals(expResult, result);
-  }
-
-  @Test
-  public void testUrlToPath() {
-    String url = "http://localhost:8080/def/EPSG/0/4326";
-    String exp = "/def/EPSG/0/4326";
-    try {
-      String res = StringUtil.uriToPath(url);
-      assertEquals(exp, StringUtil.uriToPath(url));
-    } catch (SecoreException ex) {
-      fail(ex.toString());
+    /**
+     * Test of urldecode method, of class StringUtil.
+     */
+    @Test
+    public void testUrldecode() {
+        String encodedText = "hello%20world";
+        String expResult = "hello world";
+        String result = StringUtil.urldecode(encodedText);
+        assertEquals(expResult, result);
     }
 
-    url = "http://localhost:8080/def/EPSG/0/4326?test=2";
-    exp = "/def/EPSG/0/4326?test=2";
-    try {
-      String res = StringUtil.uriToPath(url);
-      assertEquals(exp, res);
-    } catch (SecoreException ex) {
-      fail(ex.toString());
+    /**
+     * Test of getElementValue method, of class StringUtil.
+     */
+    @Test
+    public void testGetElementValue() {
+        String xml = "<hello:world>HELLO WORLD</hello:world>";
+        String elname = "world";
+        String expResult = "HELLO WORLD";
+        String result = StringUtil.getElementValue(xml, elname);
+        assertEquals(expResult, result);
     }
 
-    url = "http://localhost:8080/def/EPSG/0/4326?test=2#324";
-    exp = "/def/EPSG/0/4326?test=2#324";
-    try {
-      String res = StringUtil.uriToPath(url);
-      assertEquals(exp, res);
-    } catch (SecoreException ex) {
-      fail(ex.toString());
+    @Test
+    public void testFixLinks() {
+        String arg = "<gml:identifier codeSpace=\"OGP\">urn:ogc:def:cs:OGC:0.1:Cartesian2D</gml:identifier>";
+        String versionNumber = "0.1";
+        String result = StringUtil.fixLinks(arg, versionNumber);
+        System.out.println(result);
+        String expResult = "<gml:identifier codeSpace=\"OGP\">http://www.opengis.net/def/cs/OGC/0.1/Cartesian2D</gml:identifier>";
+        assertEquals(expResult, result);
     }
 
-    url = "def/EPSG/0/4326?test=2";
-    exp = "def/EPSG/0/4326?test=2";
-    try {
-      String res = StringUtil.uriToPath(url);
-      assertEquals(exp, res);
-    } catch (SecoreException ex) {
-      fail(ex.toString());
+    @Test
+    public void testUrlToPath() {
+        String url = "http://localhost:8080/def/EPSG/0/4326";
+        String exp = "/def/EPSG/0/4326";
+        try {
+            String res = StringUtil.uriToPath(url);
+            assertEquals(exp, StringUtil.uriToPath(url));
+        } catch (SecoreException ex) {
+            fail(ex.toString());
+        }
+
+        url = "http://localhost:8080/def/EPSG/0/4326?test=2";
+        exp = "/def/EPSG/0/4326?test=2";
+        try {
+            String res = StringUtil.uriToPath(url);
+            assertEquals(exp, res);
+        } catch (SecoreException ex) {
+            fail(ex.toString());
+        }
+
+        url = "http://localhost:8080/def/EPSG/0/4326?test=2#324";
+        exp = "/def/EPSG/0/4326?test=2#324";
+        try {
+            String res = StringUtil.uriToPath(url);
+            assertEquals(exp, res);
+        } catch (SecoreException ex) {
+            fail(ex.toString());
+        }
+
+        url = "def/EPSG/0/4326?test=2";
+        exp = "def/EPSG/0/4326?test=2";
+        try {
+            String res = StringUtil.uriToPath(url);
+            assertEquals(exp, res);
+        } catch (SecoreException ex) {
+            fail(ex.toString());
+        }
     }
-  }
 }

@@ -23,12 +23,12 @@ rasdaman GmbH.
 /*************************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  *
  * COMMENTS:
- * 
+ *
  * </pre>
  *********************************************************** */
 package rasj.rnp;
@@ -36,67 +36,57 @@ package rasj.rnp;
 import java.io.*;
 import java.util.*;
 
-public class RnpEncoder
-    {
-     public int serverType               = 0;
-     RnpMessage message = null;
-     
-     public void startMessage(int serverType)
-         {
-	 message=new RnpMessage();
-	 message.header = new RnpMessageHeader(serverType);	
-         message.fragments = new Vector();
-         }
-     public void setEndianess()      
-         {
-	 }	
-     public void startFragment(int fragmentType, int command)
-         {       
-	 message.currentFragment = new RnpFragment(fragmentType,command);	
-	 }
-     void addFragment(RnpFragmentHeader fHeader)
-	{
+public class RnpEncoder {
+    public int serverType               = 0;
+    RnpMessage message = null;
+
+    public void startMessage(int serverType) {
+        message = new RnpMessage();
+        message.header = new RnpMessageHeader(serverType);
+        message.fragments = new Vector();
+    }
+    public void setEndianess() {
+    }
+    public void startFragment(int fragmentType, int command) {
+        message.currentFragment = new RnpFragment(fragmentType, command);
+    }
+    void addFragment(RnpFragmentHeader fHeader) {
         message.header.nrFragments++;
-	message.header.dataLength         += fHeader.totalLength;
-	message.header.totalMessageLength += fHeader.totalLength;
-	}
-		
-     void addParameterInt32(int parameterType, int data)
-        {
-        message.currentFragment.addParameterInt32(parameterType,data);
+        message.header.dataLength         += fHeader.totalLength;
+        message.header.totalMessageLength += fHeader.totalLength;
+    }
+
+    void addParameterInt32(int parameterType, int data) {
+        message.currentFragment.addParameterInt32(parameterType, data);
+    }
+
+    void addParameterFloat32(int parameterType, float data) {
+        message.currentFragment.addParameterFloat32(parameterType, data);
+    }
+
+    void addParameterDouble64(int parameterType, double data) {
+        message.currentFragment.addParameterDouble64(parameterType, data);
+    }
+
+    void addParameterString(int parameterType, String data) {
+        message.currentFragment.addParameterString(parameterType, data);
+    }
+
+    void addParameterOpaque(int parameterType, byte[] data) {
+        message.currentFragment.addParameterOpaque(parameterType, data);
+    }
+
+    void endFragment() {
+        if (message.currentFragment == null) {
+            return;    // correct "assert"
         }
-       
-    void addParameterFloat32(int parameterType, float data)
-        {
-        message.currentFragment.addParameterFloat32(parameterType,data);
-        }
-       
-    void addParameterDouble64(int parameterType, double data)
-        {
-        message.currentFragment.addParameterDouble64(parameterType,data);
-        }
-       
-    void addParameterString(int parameterType, String data)
-        {
-        message.currentFragment.addParameterString(parameterType,data);
-        }
-    
-    void addParameterOpaque(int parameterType, byte[] data)
-        {
-        message.currentFragment.addParameterOpaque(parameterType,data);
-        }
-    
-    void endFragment()
-        {
-        if(message.currentFragment == null) return; // correct "assert"
         message.fragments.add(message.currentFragment);
-	addFragment(message.currentFragment.getHeader());
+        addFragment(message.currentFragment.getHeader());
         message.currentFragment = null;
-        }
-    
-    void endMessage()
-        {
-        }	
-	
-  }
+    }
+
+    void endMessage() {
+    }
+
+}
 

@@ -53,57 +53,65 @@ rasdaman GmbH.
 #define FORMAT_UPDATE "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %.0f"
 
 
-r_Partial_Insert::r_Partial_Insert( r_Database &usedb, const char *collname, const char *mddtype, const char *settype, const r_Storage_Layout &stl ) : mydb(usedb)
+r_Partial_Insert::r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype, const char* settype, const r_Storage_Layout& stl) : mydb(usedb)
 {
     init_share(collname, mddtype, settype);
     mystl = stl.clone();
 }
 
 
-r_Partial_Insert::r_Partial_Insert( r_Database &usedb, const char *collname, const char *mddtype, const char *settype, const r_Minterval &dom, unsigned int tsize ) : mydb(usedb)
+r_Partial_Insert::r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype, const char* settype, const r_Minterval& dom, unsigned int tsize) : mydb(usedb)
 {
     init_share(collname, mddtype, settype);
-    r_Aligned_Tiling *tilingObj = new r_Aligned_Tiling(dom, tsize * dom.cell_count());
+    r_Aligned_Tiling* tilingObj = new r_Aligned_Tiling(dom, tsize * dom.cell_count());
     mystl = new r_Storage_Layout(tilingObj);
 }
 
 
-r_Partial_Insert::r_Partial_Insert( const r_Partial_Insert &src ) : mydb(src.mydb)
+r_Partial_Insert::r_Partial_Insert(const r_Partial_Insert& src) : mydb(src.mydb)
 {
     init_share(src.collName, src.mddType, src.setType);
     mystl = src.mystl->clone();
 }
 
 
-r_Partial_Insert::~r_Partial_Insert( void )
+r_Partial_Insert::~r_Partial_Insert(void)
 {
     if (collName != NULL)
+    {
         delete [] collName;
+    }
     if (mddType != NULL)
+    {
         delete [] mddType;
+    }
     if (setType != NULL)
+    {
         delete [] setType;
+    }
     if (mystl != NULL)
+    {
         delete mystl;
+    }
 }
 
 
-void r_Partial_Insert::init_share( const char *collname, const char *mddtype, const char *settype )
+void r_Partial_Insert::init_share(const char* collname, const char* mddtype, const char* settype)
 {
-    collName = new char[strlen(collname)+1];
+    collName = new char[strlen(collname) + 1];
     strcpy(collName, collname);
-    mddType = new char[strlen(mddtype)+1];
+    mddType = new char[strlen(mddtype) + 1];
     strcpy(mddType, mddtype);
-    setType = new char[strlen(settype)+1];
+    setType = new char[strlen(settype) + 1];
     strcpy(setType, settype);
     doUpdate = 0;
 }
 
-int r_Partial_Insert::update( r_GMarray *mddPtr,
-                              r_Data_Format transferFormat,
-                              const char* transferFormatParams,
-                              r_Data_Format storageFormat,
-                              const char* storageFormatParams
+int r_Partial_Insert::update(r_GMarray* mddPtr,
+                             r_Data_Format transferFormat,
+                             const char* transferFormatParams,
+                             r_Data_Format storageFormat,
+                             const char* storageFormatParams
                             )
 {
     try
@@ -111,16 +119,16 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
         mddPtr->set_storage_layout(mystl->clone());
         mddPtr->set_type_by_name(mddType);
     }
-    catch (r_Error &err)
+    catch (r_Error& err)
     {
         LERROR << "r_Partial_Insert::update(): unable to set storage_layout for the currend MDD: "
-                       << err.what();
+               << err.what();
         return -1;
     }
 
     if (doUpdate == 0)
     {
-        char *queryBuffer = new char[strlen(FORMAT_CREATE) + strlen(collName) + strlen(setType) + 1];
+        char* queryBuffer = new char[strlen(FORMAT_CREATE) + strlen(collName) + strlen(setType) + 1];
         sprintf(queryBuffer, FORMAT_CREATE, collName, setType);
         // first try creating the collection
         try
@@ -134,7 +142,7 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
             myta.commit();
             LTRACE << "update(): created new collection " << collName << " with type " << setType;
         }
-        catch (r_Error &err)
+        catch (r_Error& err)
         {
             LTRACE << "update(): can't create collection: " << err.what();
             myta.abort();
@@ -148,26 +156,26 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
             myta.begin();
             mydb.set_transfer_format(transferFormat, transferFormatParams);
             mydb.set_storage_format(storageFormat, storageFormatParams);
-            r_Ref<r_GMarray> mddp = new (&mydb, mddType) r_GMarray(*mddPtr);
-            r_Ref<r_Set<r_Ref<r_GMarray> > > mddCollPtr;
-            mddCollPtr = static_cast<r_Ref<r_Set<r_Ref<r_GMarray> > > >(mydb.lookup_object(collName));
+            r_Ref<r_GMarray> mddp = new(&mydb, mddType) r_GMarray(*mddPtr);
+            r_Ref<r_Set<r_Ref<r_GMarray>>> mddCollPtr;
+            mddCollPtr = static_cast<r_Ref<r_Set<r_Ref<r_GMarray>>>>(mydb.lookup_object(collName));
             mddCollPtr->insert_element(mddp);
             myOId = mddp->get_oid();
             myta.commit();
             LTRACE << "update(): reated root object OK, oid = " << myOId;
             doUpdate = 1;
         }
-        catch (r_Error &err)
+        catch (r_Error& err)
         {
             LERROR << "r_Partial_Insert::update(): unable to create root object: "
-                           << err.what();
+                   << err.what();
             myta.abort();
             return -1;
         }
     }
     else
     {
-        char *queryBuffer = new char[strlen(FORMAT_UPDATE) + strlen(collName) + 32];
+        char* queryBuffer = new char[strlen(FORMAT_UPDATE) + strlen(collName) + 32];
         sprintf(queryBuffer, FORMAT_UPDATE, collName, myOId.get_local_oid());
 
         // try the update
@@ -183,10 +191,10 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
             myta.commit();
             LTRACE << "update(): update object OK";
         }
-        catch (r_Error &err)
+        catch (r_Error& err)
         {
             LERROR << "r_Partial_Insert::update(): failed to update marray: "
-                           << err.what();
+                   << err.what();
             myta.abort();
             delete [] queryBuffer;
             return -1;

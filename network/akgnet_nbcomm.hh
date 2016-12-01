@@ -105,7 +105,7 @@ public:
     /** Pure function to do initialization when attached to a Selector
         Don't throw!
     */
-    virtual void initOnAttach(Selector *pselector) throw() =0;
+    virtual void initOnAttach(Selector* pselector) throw() = 0;
 
     /** Pure function to do initialization when accepting a connection
         Returns:
@@ -116,7 +116,7 @@ public:
       the 'currentBufferPtr' is initialized. This would be a software error
         Don't throw!
     */
-    virtual acceptStatus acceptConnection(ListenSocket& listenSocket) throw() =0;
+    virtual acceptStatus acceptConnection(ListenSocket& listenSocket) throw() = 0;
 
     /** Reads as much data as it can. After every read it calls the
         'validateMessage()' function and returns whatever this function returns.
@@ -158,26 +158,26 @@ public:
     knows how to continue with this job
     Don't throw!
     */
-    virtual void processRequest() throw() =0;
+    virtual void processRequest() throw() = 0;
     //######################################
 protected:
     /// called after every read, returns 'true' if the message is all here
-    virtual bool validateMessage() throw() =0;
+    virtual bool validateMessage() throw() = 0;
 
     /// called when client is accepted, default does nothing
     virtual void executeOnAccept() throw();
 
     /// called when message is written
-    virtual void executeOnWriteReady() throw() =0;
+    virtual void executeOnWriteReady() throw() = 0;
 
     /// called when timeout, it has to set the status apropriate and do other cleanup
-    virtual void specificCleanUpOnTimeout() throw() =0;
+    virtual void specificCleanUpOnTimeout() throw() = 0;
 
     /// called when a read error occurs, usual a message and clean up
-    virtual void executeOnReadError() throw() =0;
+    virtual void executeOnReadError() throw() = 0;
 
     /// called when a write error occurs, usual a message and clean up
-    virtual void executeOnWriteError() throw() =0;
+    virtual void executeOnWriteError() throw() = 0;
     //######################################
 protected:
     /// Protected constructor, taking a FileDescriptor, usually a Socket
@@ -193,16 +193,16 @@ protected:
     /** Reference to a FileDescriptor, usually a Socket. It has to be provided by the
         derived class
     */
-    FileDescriptor  &fdRef;
+    FileDescriptor&  fdRef;
 
     /** Pointer to a Selector, which has to be provided by the Server object
         to which this job is attached
     */
-    Selector        *selectorPtr;
+    Selector*        selectorPtr;
 
     /** Pointer to a CommBuffer, which has to be provided by the derived class
     */
-    CommBuffer      *currentBufferPtr;
+    CommBuffer*      currentBufferPtr;
 
     // for timeout
     time_t lastActionTime;
@@ -230,7 +230,7 @@ public:
     /** The version for servers, it just initializes the 'Selector*'
         It doesn't have to be overloaded, it's OK for servers
     */
-    void initOnAttach(Selector *pselector) throw();
+    void initOnAttach(Selector* pselector) throw();
 
     /** The version for servers
         It doesn't have to be overloaded, it's OK for most servers
@@ -272,7 +272,7 @@ public:
     connection to the server succeded!
         It doesn't have to be overloaded, it's OK for most clients
     */
-    void initOnAttach(Selector *pselector) throw();
+    void initOnAttach(Selector* pselector) throw();
 
     /** The version for clients. It just returns 'acs_Iambusy' since
         clients don't accept connections
@@ -349,9 +349,9 @@ protected:
       */
     virtual bool executeOnTimeout() throw();
 private:
-    typedef NbJob *JobPtr;
+    typedef NbJob* JobPtr;
 
-    JobPtr *jobPtr;
+    JobPtr* jobPtr;
     int     maxJobs;
 
     /** The main loop of the communication: it waits for clients, dispatches them to the

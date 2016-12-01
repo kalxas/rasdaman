@@ -38,13 +38,13 @@ import petascope.wcps.metadata.DomainElement;
 
 /**
  * Handle crsTransform() in WCPS
- * 
- * e.g: 
+ *
+ * e.g:
  * crsTransform(c[ansi(148654)]
  * ,{ E:"http://www.opengis.net/def/crs/EPSG/0/3542", N:"http://www.opengis.net/def/crs/EPSG/0/3542"}, {})
  * then will convert the 2D coverage with outputCrs (3542) instead of nativeCRS (e.g: 32633, 4326)
  * NOTE: It cannot convert any coverage which is not 2D and native CRS should be geo-referenced CRS (not GridAxis).
- * 
+ *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 
@@ -52,21 +52,21 @@ import petascope.wcps.metadata.DomainElement;
  *  through 'project' function.
  */
 public class CrsTransformCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static final boolean ENTERPRISE = true;
     private static Logger log = LoggerFactory.getLogger(CrsTransformCoverageExpr.class);
-    
+
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo;
-    
-    // NOTE: if coverage has compoundCrs 
+
+    // NOTE: if coverage has compoundCrs
     // (e.g: http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/EPSG/0/32633&2=http://localhost:8080/def/crs/OGC/0/AnsiDate)
     // Only store the geo-referenced CRS (http://localhost:8080/def/crs/EPSG/0/32633)
     private String sourceCrsName;
     private String targetCrsName;
     private String bbox; // geo bbox
     private FieldInterpolationElement fieldInterp;
- 
+
     private List<DimensionIntervalElement> axisList;
     private String[] dimNames;
     private int dims;
@@ -113,21 +113,21 @@ public class CrsTransformCoverageExpr extends AbstractRasNode implements ICovera
                 }
             }
         }
-        
+
         // Add children to let the XML query be re-traversed
-        super.children.addAll(axisList);  
-        
+        super.children.addAll(axisList);
+
         EncodeCrsProperties encodeCrsProperties = new EncodeCrsProperties((CoverageExpr)coverageExprType, 2);
         if (coverageInfo != null) {
             // Build the whole string (dimensions of reqBounds are already checked inside getRequestBounds)
             if (coverageInfo.getBbox() != null) {
                 // NOTE: only get CRS for axis which is geo-referenced (not time, high, pressure,...)
-                for(DomainElement element:coverageInfo.getDomains()) {
-                    if(element.getType().equals(AxisTypes.X_AXIS)) {
+                for (DomainElement element : coverageInfo.getDomains()) {
+                    if (element.getType().equals(AxisTypes.X_AXIS)) {
                         sourceCrsName = element.getNativeCrs();
                         break;
                     }
-                }                
+                }
                 encodeCrsProperties.setCrs(sourceCrsName);
             }
         }
@@ -157,15 +157,15 @@ public class CrsTransformCoverageExpr extends AbstractRasNode implements ICovera
     private String computeSourceCrsName() {
         //all axises have the same crsName, only accept 2D CRS, to be updated after CrsUtil.getGmlDefinition() is available
         return CrsUtil.CrsUri.getAuthority(sourceCrsName) +
-                ":" +
-                CrsUtil.CrsUri.getCode(sourceCrsName);
+               ":" +
+               CrsUtil.CrsUri.getCode(sourceCrsName);
     }
 
     private String computeTargetCrsName() {
-        //all axises have the same crsName, only accept 2D CRS, to be updated after CrsUtil.getGmlDefinition() is available   
+        //all axises have the same crsName, only accept 2D CRS, to be updated after CrsUtil.getGmlDefinition() is available
         return CrsUtil.CrsUri.getAuthority(targetCrsName) +
-                ":" +
-                CrsUtil.CrsUri.getCode(targetCrsName);
+               ":" +
+               CrsUtil.CrsUri.getCode(targetCrsName);
     }
- 
+
 }

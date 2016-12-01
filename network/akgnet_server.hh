@@ -70,7 +70,7 @@ public:
     for processing. It should'n throw, it has to handle
     correcty every exception
      */
-    virtual bool runServer() throw() =0;
+    virtual bool runServer() throw() = 0;
     //*************************
 
     /// Instructs the server to leave the loop (runServer())
@@ -85,7 +85,7 @@ public:
     /** Sets the timeout, how much time the selector should
         wait for incomming requests
     */
-    void setTimeout(int sec,int milisec) throw();
+    void setTimeout(int sec, int milisec) throw();
 
     /// Disables timeout, means wait unlimited
     void disableTimeout() throw();
@@ -147,11 +147,11 @@ protected:
         process and write the answer, because afterwards
     the socket is closed. Don't throw!
     */
-    virtual void executeRequest(ServerSocket&) throw() =0;
+    virtual void executeRequest(ServerSocket&) throw() = 0;
 
     /** Pure function to execute on timeout. Don't throw!
     */
-    virtual void executeTimeout() throw() =0;
+    virtual void executeTimeout() throw() = 0;
     //************************************************
 private:
     ServerSocket serverSocket;

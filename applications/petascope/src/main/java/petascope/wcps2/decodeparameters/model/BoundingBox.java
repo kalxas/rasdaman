@@ -26,7 +26,7 @@ package petascope.wcps2.decodeparameters.model;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class BoundingBox {
-    
+
     private double xmin;
     private double ymin;
     private double xmax;

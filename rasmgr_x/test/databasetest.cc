@@ -110,7 +110,7 @@ TEST(DatabaseTest, removeClientSession)
     ASSERT_TRUE(db.isBusy());
 
     int deletedSessionsCount;
-    ASSERT_NO_THROW(deletedSessionsCount=db.removeClientSession(clientId, sessionId));
+    ASSERT_NO_THROW(deletedSessionsCount = db.removeClientSession(clientId, sessionId));
 
     ASSERT_EQ(1, deletedSessionsCount);
 

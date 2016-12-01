@@ -36,7 +36,7 @@ namespace rasmgr
  *  It reports errors that arise because a user tries to create a peer with the same identiefier as an existing one.
  */
 
-class InPeerAlreadyExistsException:public common::LogicException
+class InPeerAlreadyExistsException: public common::LogicException
 {
 public:
     /**

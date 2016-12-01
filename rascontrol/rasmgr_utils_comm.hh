@@ -77,26 +77,26 @@ public:
     RasMgrClientComm();
     ~RasMgrClientComm();
 
-    void setRasMgrHost(const char *rasmgrHost, int rasmgrPort);
+    void setRasMgrHost(const char* rasmgrHost, int rasmgrPort);
     const char* getRasMgrHost();
-    void setUserIdentification(const char *userName, const char *encrPass);
+    void setUserIdentification(const char* userName, const char* encrPass);
 
     int openSocket();
     void closeSocket();
 
-    int sendMessage(const char *message);
-    int sendMessageGetAnswer(const char *message, const char **responsePtr);
+    int sendMessage(const char* message);
+    int sendMessageGetAnswer(const char* message, const char** responsePtr);
     const char* readMessage();
     const char* getHeader();
     const char* getBody();
 
 private:
-    int writeWholeMessage(int socket,char *destBuffer,int buffSize);
-    int readWholeMessage(int socket,char *destBuffer,int buffSize);
-    const char *stripBlanks(const char*);
+    int writeWholeMessage(int socket, char* destBuffer, int buffSize);
+    int readWholeMessage(int socket, char* destBuffer, int buffSize);
+    const char* stripBlanks(const char*);
 
     char answerMessage[MAXMSGRASCONTROL];
-    char *answerBody;
+    char* answerBody;
 
     char userName[MAXUSERNAME];
     char encrPass[MAXENCRPASS];
@@ -115,8 +115,8 @@ public:
     int interactiveLogin();
     int environmentLogin();
     int quickLogin();
-    const char *getUserName();
-    const char *getEncrPass();
+    const char* getUserName();
+    const char* getEncrPass();
 private:
 
     char userName[MAXUSERNAME];

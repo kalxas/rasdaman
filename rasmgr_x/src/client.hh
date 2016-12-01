@@ -105,7 +105,7 @@ private:
     boost::shared_mutex timerMutex; /*! Mutex used to synchronize access to the timer */
     common::Timer timer;/*! Timer for keeping track of the life of the client */
 
-    std::map<std::string, boost::weak_ptr<Server> > assignedServers; /*! Map between sessionIds and the server assigned for the session*/
+    std::map<std::string, boost::weak_ptr<Server>> assignedServers; /*! Map between sessionIds and the server assigned for the session*/
     boost::shared_mutex assignedServersMutex; /*! Mutex used to synchronize access to the list of servers*/
 
     /**

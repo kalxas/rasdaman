@@ -63,10 +63,10 @@ public class TypeResolverUtil {
      * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
      */
     public static Pair<String, String> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, List<NilValue> nullValues, String pixelDataType) throws PetascopeException {
-        if(pixelDataType == null){
+        if (pixelDataType == null) {
             pixelDataType = GDT_Float32;
         }
-        if(!GDAL_TYPES_TO_RAS_TYPES.containsKey(pixelDataType)){
+        if (!GDAL_TYPES_TO_RAS_TYPES.containsKey(pixelDataType)) {
             throw new WCSTUnknownPixelTypeException(pixelDataType);
         }
         //assume band type char on every band
@@ -122,10 +122,10 @@ public class TypeResolverUtil {
                         for (Integer j = 0; j < baseTypeByBand.length; j++) {
                             //fix rasdaman type bug, where ushort and ulong are printed by rasdl, but not accepted as input.
                             // Instead rasdl wants "unsigned short" or "unsigned long"
-                            if(baseTypeByBand[j].contains("ushort")){
+                            if (baseTypeByBand[j].contains("ushort")) {
                                 baseTypeByBand[j] = "unsigned short";
                             }
-                            if(baseTypeByBand[j].contains("ulong")){
+                            if (baseTypeByBand[j].contains("ulong")) {
                                 baseTypeByBand[j] = "unsigned long";
                             }
                             if (!baseTypeByBand[j].contains(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(j)))) {
@@ -134,7 +134,7 @@ public class TypeResolverUtil {
                         }
                         //if all good check for nils
                         if (allBandsMatch) {
-                            if(nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
+                            if (nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
                                 return i.getKey();
                             }
                         }
@@ -143,7 +143,7 @@ public class TypeResolverUtil {
                     //1 band
                     baseType = i.getValue().getBaseType();
                     if (gdalBandTypes.size() == 1 && baseType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))) {
-                        if(nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
+                        if (nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
                             return i.getKey();
                         }
                     }

@@ -31,33 +31,33 @@ import secore.util.StringUtil;
  * @author Dimitar Misev
  */
 public class DbManagerTest {
-  
-  /**
-   * Test of getInstance method, of class DbManager.
-   */
-  @Test
-  public void testGetInstance() throws SecoreException {
-    assertNotNull(DbManager.getInstance().getDb());
-  }
 
-  @Test
-  public void testQuery() throws Exception {
-    String query =
+    /**
+     * Test of getInstance method, of class DbManager.
+     */
+    @Test
+    public void testGetInstance() throws SecoreException {
+        assertNotNull(DbManager.getInstance().getDb());
+    }
+
+    @Test
+    public void testQuery() throws Exception {
+        String query =
             "declare namespace gml = \"" + StringUtil.getGmlNamespace() + "\";\n"
-          + "let $d := doc('" + DbManager.FIX_GML_COLLECTION_NAME + "')\n"
-          + "return $d//gml:identifier[contains(text(), '/crs/EPSG/0/4326')]";
-    
-    String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
-    String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
-    assertTrue(result.matches("<gml:identifier [^>]+>.+/crs/EPSG/0/4326</gml:identifier>"));
-  }
+            + "let $d := doc('" + DbManager.FIX_GML_COLLECTION_NAME + "')\n"
+            + "return $d//gml:identifier[contains(text(), '/crs/EPSG/0/4326')]";
 
-  @Test
-  public void testDocumentNames() throws Exception {
-    String query =
-           "for $doc in collection() return base-uri($doc)";
-    String versionNumber = DbManager.FIX_USER_VERSION_NUMBER;
-    String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
-    assertEquals("userdb/userdb.xml", result);
-  }
+        String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
+        String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
+        assertTrue(result.matches("<gml:identifier [^>]+>.+/crs/EPSG/0/4326</gml:identifier>"));
+    }
+
+    @Test
+    public void testDocumentNames() throws Exception {
+        String query =
+            "for $doc in collection() return base-uri($doc)";
+        String versionNumber = DbManager.FIX_USER_VERSION_NUMBER;
+        String result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
+        assertEquals("userdb/userdb.xml", result);
+    }
 }

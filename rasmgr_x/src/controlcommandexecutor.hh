@@ -53,7 +53,7 @@ public:
      * @param userPass Password of the user requesting that this command is executed
      * @return Message that will be displayed to the user.
      */
-    std::string executeCommand(const std::string& command,const std::string& userName, const std::string& userPass);
+    std::string executeCommand(const std::string& command, const std::string& userName, const std::string& userPass);
 
     /**
      * Execute a rascontrol command with super-user privilege.

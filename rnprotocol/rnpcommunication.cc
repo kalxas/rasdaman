@@ -49,12 +49,12 @@ RnpClientJob::RnpClientJob() throw()
 
 void RnpClientJob::init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newClientComm) throw()
 {
-    if ( ! ( transmitterBuffer != 0 ) )
+    if (!(transmitterBuffer != 0))
     {
         LDEBUG << "RnpClientJob::init(): warning: assert will fire.";
     }
     assert(transmitterBuffer != 0);
-    if ( ! ( newClientComm != 0 ) )
+    if (!(newClientComm != 0))
     {
         LDEBUG << "RnpClientJob::init(): warning: assert will fire.";
     }
@@ -66,7 +66,7 @@ void RnpClientJob::init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newCli
     clientCommPtr    = newClientComm;
     invalidFormat    = false;
 
-    status=wks_notdefined;
+    status = wks_notdefined;
 }
 
 void RnpClientJob::clearAnswerBuffer() throw()
@@ -97,13 +97,13 @@ bool RnpClientJob::validateMessage() throw()
 
     currentBufferPtr = rnpReceiver.getCurrentBuffer();
 
-    if( validated == true)
+    if (validated == true)
     {
-        status=wks_processing;
+        status = wks_processing;
         return true;
     }
 
-    if(rnpReceiver.isDiscarding())
+    if (rnpReceiver.isDiscarding())
     {
         LDEBUG << "RnpClientJob::validateMessage - discarding message";
         resetState();
@@ -175,12 +175,12 @@ RnpBaseClientComm::RnpBaseClientComm(RnpQuark theServerType,  RnpTransport::Carr
 
 RnpBaseClientComm::RnpBaseClientComm(const char* theServerHost, int theServerPort, RnpQuark theServerType,  RnpTransport::CarrierProtocol theProtocol) throw()
 {
-    if ( ! ( theServerHost != 0 ) )
+    if (!(theServerHost != 0))
     {
         LDEBUG << "RnpBaseClientComm::RnpBaseClientComm(): warning: assert will fire.";
     }
     assert(theServerHost != 0);
-    if ( ! ( theServerPort > 0 ) )
+    if (!(theServerPort > 0))
     {
         LDEBUG << "RnpBaseClientComm::RnpBaseClientComm(): warning: assert will fire.";
     }
@@ -201,12 +201,12 @@ RnpBaseClientComm::~RnpBaseClientComm() throw()
 
 void RnpBaseClientComm::setConnectionParameters(const char* theServerHost, int theServerPort) throw()
 {
-    if ( ! ( theServerHost != 0 ) )
+    if (!(theServerHost != 0))
     {
         LDEBUG << "RnpBaseClientComm::setConnectionParameters(): warning: assert will fire.";
     }
     assert(theServerHost != 0);
-    if ( ! ( theServerPort > 0 ) )
+    if (!(theServerPort > 0))
     {
         LDEBUG << "RnpBaseClientComm::setConnectionParameters(): warning: assert will fire.";
     }
@@ -231,7 +231,7 @@ void RnpBaseClientComm::initDefaultCommunication() throw()
     communicatorPtr = &internalCommunicator;
 
     communicatorPtr->initJobs(1);
-    communicatorPtr->setTimeout(RNP_COMM_TIMEOUT,0);    // defined in raslib/rminit.hh -- PB 2005-sep-09
+    communicatorPtr->setTimeout(RNP_COMM_TIMEOUT, 0);   // defined in raslib/rminit.hh -- PB 2005-sep-09
 
     communicatorPtr->attachJob(clientJob);
 
@@ -248,7 +248,7 @@ void RnpBaseClientComm::startRequest(RnpQuark command, int transmitterBufferSize
 {
     transmitterBuffer.allocate(transmitterBufferSize);
 
-    clientJob.init(&transmitterBuffer,this);
+    clientJob.init(&transmitterBuffer, this);
 
     encoder.setBuffer(&transmitterBuffer);
 
@@ -258,12 +258,12 @@ void RnpBaseClientComm::startRequest(RnpQuark command, int transmitterBufferSize
 
 bool RnpBaseClientComm::sendRequestGetAnswer()
 {
-    if ( ! ( serverHost != NULL ) )
+    if (!(serverHost != NULL))
     {
         LDEBUG << "RnpBaseClientComm::sendRequestGetAnswer(): warning: assert will fire.";
     }
     assert(serverHost != NULL);
-    if ( ! ( serverPort > 0 ) )
+    if (!(serverPort > 0))
     {
         LDEBUG << "RnpBaseClientComm::sendRequestGetAnswer(): warning: assert will fire.";
     }
@@ -273,12 +273,12 @@ bool RnpBaseClientComm::sendRequestGetAnswer()
     encoder.endMessage();
 
     bool connected = false;
-    for (unsigned int retry = 0; retry < maxRetry+1 && !connected; retry++)  // NB: first attempt + RE-tries! -- PB 2005-aug-31
+    for (unsigned int retry = 0; retry < maxRetry + 1 && !connected; retry++) // NB: first attempt + RE-tries! -- PB 2005-aug-31
     {
-        connected = clientJob.connectToServer(serverHost,static_cast<int>(serverPort));
+        connected = clientJob.connectToServer(serverHost, static_cast<int>(serverPort));
     }
 
-    if(connected == false)
+    if (connected == false)
     {
 #ifdef AFTERV52
         throw RnpIOException(clientJob.getErrno());
@@ -288,11 +288,17 @@ bool RnpBaseClientComm::sendRequestGetAnswer()
 
     communicatorPtr->runClient();
 
-    if(clientJob.isAnswerOk()== false)
+    if (clientJob.isAnswerOk() == false)
     {
 #ifdef AFTERV52
-        if(clientJob.isInvalidFormat()) throw RnpInvalidFormatException();
-        else                            throw RnpIOException(clientJob.getErrno());
+        if (clientJob.isInvalidFormat())
+        {
+            throw RnpInvalidFormatException();
+        }
+        else
+        {
+            throw RnpIOException(clientJob.getErrno());
+        }
 #endif
         return false;
     }
@@ -306,7 +312,10 @@ bool RnpBaseClientComm::sendRequestGetAnswer()
 
 bool RnpBaseClientComm::checkForExceptions()
 {
-    if(decoder.getFragmentType() != Rnp::fgt_Error) return false;
+    if (decoder.getFragmentType() != Rnp::fgt_Error)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -334,7 +343,7 @@ RnpServerJob::RnpServerJob() throw()
 
 void RnpServerJob::init(RnpBaseServerComm* theServerComm) throw()
 {
-    if ( ! ( theServerComm != 0 ) )
+    if (!(theServerComm != 0))
     {
         LDEBUG << "RnpServerJob::init(): warning: assert will fire.";
     }
@@ -344,7 +353,7 @@ void RnpServerJob::init(RnpBaseServerComm* theServerComm) throw()
     currentBufferPtr = rnpReceiver.getCurrentBuffer();
     serverCommPtr    = theServerComm;
 
-    status=wks_accepting;
+    status = wks_accepting;
 }
 
 void RnpServerJob::processRequest() throw()
@@ -363,13 +372,13 @@ bool RnpServerJob::validateMessage() throw()
 
     bool validated = false;
 
-    if(rnpReceiver.validateMessage() == true)
+    if (rnpReceiver.validateMessage() == true)
     {
-        status=wks_processing;
+        status = wks_processing;
         validated = true;
     }
 
-    if(rnpReceiver.isDiscarding())
+    if (rnpReceiver.isDiscarding())
     {
         resetJob();
         validated = false;
@@ -401,7 +410,7 @@ void RnpServerJob::specificCleanUpOnTimeout() throw()
 
     currentBufferPtr->clearToRead();
 
-    status=wks_accepting;
+    status = wks_accepting;
 }
 
 void RnpServerJob::executeOnReadError() throw()
@@ -426,7 +435,7 @@ void RnpServerJob::resetJob() throw()
 
     currentBufferPtr->clearToRead();
 
-    status=wks_accepting;
+    status = wks_accepting;
 }
 
 //###################################################
@@ -446,7 +455,10 @@ RnpBaseServerComm::~RnpBaseServerComm() throw()
 
 bool RnpBaseServerComm::setServerJobs(int nrOfServerJobs) throw()
 {
-    if(communicator != 0 ) return false;
+    if (communicator != 0)
+    {
+        return false;
+    }
 
     nrServerJobs = nrOfServerJobs;
 
@@ -458,10 +470,10 @@ int RnpBaseServerComm::countServerJobs() throw()
     return nrServerJobs;
 }
 
-void RnpBaseServerComm::connectToCommunicator(NbCommunicator &theCommunicator)
+void RnpBaseServerComm::connectToCommunicator(NbCommunicator& theCommunicator)
 {
     // throws whatever 'new' throws
-    if ( ! ( communicator == NULL ) )
+    if (!(communicator == NULL))
     {
         LDEBUG << "RnpServerJob::init(): warning: assert will fire.";
     }
@@ -469,7 +481,7 @@ void RnpBaseServerComm::connectToCommunicator(NbCommunicator &theCommunicator)
 
     communicator = &theCommunicator;
 
-    for(int i=0; i < nrServerJobs; i++)
+    for (int i = 0; i < nrServerJobs; i++)
     {
         RnpServerJob* job = createJob();
 
@@ -483,9 +495,12 @@ void RnpBaseServerComm::connectToCommunicator(NbCommunicator &theCommunicator)
 
 bool RnpBaseServerComm::disconnectFromCommunicator() throw()
 {
-    if(communicator == NULL) return false;
+    if (communicator == NULL)
+    {
+        return false;
+    }
 
-    for(unsigned int i=0; i < static_cast<unsigned int>(nrServerJobs); i++)
+    for (unsigned int i = 0; i < static_cast<unsigned int>(nrServerJobs); i++)
     {
         communicator->deattachJob(*(serverJob[i]));
 
@@ -516,7 +531,7 @@ int RnpBaseServerComm::getTransmitterBufferSize() throw()
 }
 
 
-void RnpBaseServerComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__ ((unused)) RnpServerJob *callingJob) throw()
+void RnpBaseServerComm::processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__((unused)) RnpServerJob* callingJob) throw()
 {
     // use 'callingJob' to get info about the client (hostaddress, etc)
 
@@ -535,15 +550,15 @@ void RnpBaseServerComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *t
 
     decoder.getFirstFragment();
     bool wasError = false;
-    for(int fragment=0; fragment < decoder.countFragments(); fragment++)
+    for (int fragment = 0; fragment < decoder.countFragments(); fragment++)
     {
-        if(wasError == false)
+        if (wasError == false)
         {
             try
             {
                 decodeFragment();
             }
-            catch(...)
+            catch (...)
             {
                 wasError = true;
                 answerUnknownError();
@@ -558,35 +573,35 @@ void RnpBaseServerComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *t
     encoder.endMessage();
 }
 
-const char* RnpBaseServerComm::getNextAsString(__attribute__ ((unused)) RnpQuark parameterType) const
+const char* RnpBaseServerComm::getNextAsString(__attribute__((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsString();
 }
 
-int RnpBaseServerComm::getNextAsInteger(__attribute__ ((unused)) RnpQuark parameterType) const
+int RnpBaseServerComm::getNextAsInteger(__attribute__((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsInteger();
 }
 
-float RnpBaseServerComm::getNextAsFloat(__attribute__ ((unused)) RnpQuark parameterType) const
+float RnpBaseServerComm::getNextAsFloat(__attribute__((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsFloat();
 }
 
-double RnpBaseServerComm::getNextAsDouble(__attribute__ ((unused)) RnpQuark parameterType) const
+double RnpBaseServerComm::getNextAsDouble(__attribute__((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsDouble();
 }
 
-const void* RnpBaseServerComm::getNextAsOpaque(__attribute__ ((unused)) RnpQuark parameterType) const
+const void* RnpBaseServerComm::getNextAsOpaque(__attribute__((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
@@ -598,7 +613,7 @@ int RnpBaseServerComm::getCurrentParameterLength() const throw()
     return decoder.getDataLength();
 }
 
-void RnpBaseServerComm::answerSTLException(exception &ex) throw()
+void RnpBaseServerComm::answerSTLException(exception& ex) throw()
 {
     encoder.startFragment(Rnp::fgt_Error, decoder.getCommand());
     encoder.addInt32Parameter(Rnp::ert_StlException, 0);
@@ -632,7 +647,7 @@ void RnpBaseServerComm::endOkAnswer() throw()
 
 void RnpBaseServerComm::communicatorShouldExit() throw()
 {
-    if ( ! ( communicator != NULL ) )
+    if (!(communicator != NULL))
     {
         LDEBUG << "RnpServerJob::init(): warning: assert will fire.";
     }

@@ -68,16 +68,16 @@ extern struct ServerBase Server;
 *
 */
 
-sighandler Signal( int signo, __attribute__ ((unused)) sighandler x)
+sighandler Signal(int signo, __attribute__((unused)) sighandler x)
 {
     struct sigaction SigAction;
     struct sigaction OldAction;
 
     SigAction.sa_handler = static_cast<void(*)(int)>(SigHandler);
-    sigemptyset( & SigAction.sa_mask );
+    sigemptyset(& SigAction.sa_mask);
     SigAction.sa_flags = 0;
 
-    if( signo == SIGALRM )
+    if (signo == SIGALRM)
     {
 #ifdef SA_INTERRUPT
         SigAction.sa_flags |= SA_INTERRUPT;      /*  SunOS  */
@@ -90,9 +90,11 @@ sighandler Signal( int signo, __attribute__ ((unused)) sighandler x)
 #endif
     }
 
-    if( sigaction( signo, &SigAction, &OldAction ) < 0 )
-        return( SIG_ERR );
-    return( OldAction.sa_handler );
+    if (sigaction(signo, &SigAction, &OldAction) < 0)
+    {
+        return (SIG_ERR);
+    }
+    return (OldAction.sa_handler);
 }
 
 
@@ -126,66 +128,66 @@ sighandler Signal( int signo, __attribute__ ((unused)) sighandler x)
 *
 */
 
-void SigHandler( int Signal )
+void SigHandler(int Signal)
 {
     //not used(see line 169) char   Buffer[PIPE_BUFFSIZE];
     int    errno_bak;
     int    ChildStatus;
     pid_t  ChildPId;
-    struct ChildBase *Child = NULL;
+    struct ChildBase* Child = NULL;
 
     errno_bak = errno;
-    switch( Signal )
+    switch (Signal)
     {
     case SIGHUP:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGHUP'." );
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGHUP'.");
         errno = errno_bak;
-        Exit( OK );
+        Exit(OK);
         break;
 
     case SIGINT:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGINT'." );
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGINT'.");
         errno = errno_bak;
-        Exit( OK );
+        Exit(OK);
         break;
 
     case SIGQUIT:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGQUIT'." );
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGQUIT'.");
         errno = errno_bak;
-        Exit( OK );
+        Exit(OK);
         break;
 
     case SIGUSR1:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGUSR1'." );
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGUSR1'.");
         //      SaveCache( Server.Cache, Server.CacheFile );
         break;
 
     case SIGUSR2:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGUSR2'." );
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGUSR2'.");
         break;
 
     case SIGPIPE:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGPIPE'." );
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGPIPE'.");
         break;
 
     case SIGTERM:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGTERM'." );
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGTERM'.");
         errno = errno_bak;
-        Exit( OK );
+        Exit(OK);
         break;
 
     case SIGCHLD:
-        LogMsg( LG_SERVER, INFO, "INFO:  Received 'SIGCHLD'." );
-        ChildPId = waitpid( -1, &ChildStatus, WNOHANG );
-        while( ChildPId > 0 )
+        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGCHLD'.");
+        ChildPId = waitpid(-1, &ChildStatus, WNOHANG);
+        while (ChildPId > 0)
         {
-            if( WIFEXITED( ChildStatus ) )
+            if (WIFEXITED(ChildStatus))
             {
                 /*-- Has Child send a Message?  --*/
-                if( WEXITSTATUS( ChildStatus ) == NOTE )
+                if (WEXITSTATUS(ChildStatus) == NOTE)
                 {
-                    Child = GetChild( Server.ChildList, ChildPId );
-                    if( Child != NULL )
+                    Child = GetChild(Server.ChildList, ChildPId);
+                    if (Child != NULL)
                     {
                         /*
                         bzero( Buffer, PIPE_BUFFSIZE );
@@ -194,39 +196,41 @@ void SigHandler( int Signal )
                         */
                     }
                 }
-                LogMsg( LG_SERVER, DEBUG,
-                        "DEBUG: Child <%d> exited normally with status %d.",
-                        ChildPId, WEXITSTATUS( ChildStatus ) );
+                LogMsg(LG_SERVER, DEBUG,
+                       "DEBUG: Child <%d> exited normally with status %d.",
+                       ChildPId, WEXITSTATUS(ChildStatus));
             }
-            else if( WIFSIGNALED( ChildStatus ) )
+            else if (WIFSIGNALED(ChildStatus))
             {
-                LogMsg( LG_SERVER, DEBUG,
-                        "DEBUG: Child <%d> exited abnormally, signal number = %d.",
-                        ChildPId, WTERMSIG( ChildStatus ) );
+                LogMsg(LG_SERVER, DEBUG,
+                       "DEBUG: Child <%d> exited abnormally, signal number = %d.",
+                       ChildPId, WTERMSIG(ChildStatus));
             }
-            else if( WIFSTOPPED( ChildStatus ) )
+            else if (WIFSTOPPED(ChildStatus))
             {
-                LogMsg( LG_SERVER, DEBUG,
-                        "DEBUG: Child <%d> is stopped, signal number = %d.",
-                        ChildPId, WSTOPSIG( ChildStatus ) );
+                LogMsg(LG_SERVER, DEBUG,
+                       "DEBUG: Child <%d> is stopped, signal number = %d.",
+                       ChildPId, WSTOPSIG(ChildStatus));
             }
             else
             {
-                LogMsg( LG_SERVER, WARN,
-                        "WARN:  Something strange with Child <%d> (Status: %d).",
-                        ChildPId, ChildStatus );
+                LogMsg(LG_SERVER, WARN,
+                       "WARN:  Something strange with Child <%d> (Status: %d).",
+                       ChildPId, ChildStatus);
             }
 
-            CleanupChild( Server.ChildList, &Server.PipeSets, ChildPId );
-            ChildPId = waitpid( -1, &ChildStatus, WNOHANG );
+            CleanupChild(Server.ChildList, &Server.PipeSets, ChildPId);
+            ChildPId = waitpid(-1, &ChildStatus, WNOHANG);
 
         }
-        if( ChildPId == -1 && errno != ECHILD )
-            ErrorMsg( E_SYS, WARN, "WARN:  waitpid() returned an Error.", errno );
-        LogMsg( LG_SERVER, DEBUG, "DEBUG: Exiting Signal Handler ..." );
+        if (ChildPId == -1 && errno != ECHILD)
+        {
+            ErrorMsg(E_SYS, WARN, "WARN:  waitpid() returned an Error.", errno);
+        }
+        LogMsg(LG_SERVER, DEBUG, "DEBUG: Exiting Signal Handler ...");
         break;
     default:
-        ErrorMsg( E_PRIV, ERROR, "ERROR: Signal %d couldn't be handled!", Signal );
+        ErrorMsg(E_PRIV, ERROR, "ERROR: Signal %d couldn't be handled!", Signal);
         break;
     }
     errno = errno_bak;
@@ -264,25 +268,41 @@ void SigHandler( int Signal )
 *
 */
 
-rc_t InitSigHandler( void )
+rc_t InitSigHandler(void)
 {
-    if( Signal( SIGHUP, SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (HUP)." );
-    if( Signal( SIGINT,  SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (INT)." );
-    if( Signal( SIGQUIT, SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (QUIT)." );
-    if( Signal( SIGTERM, SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (TERM)." );
-    if( Signal( SIGCHLD, SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (CHLD)." );
-    if( Signal( SIGUSR1, SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (USR1)." );
-    if( Signal( SIGUSR2, SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (USR2)." );
+    if (Signal(SIGHUP, SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (HUP).");
+    }
+    if (Signal(SIGINT,  SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (INT).");
+    }
+    if (Signal(SIGQUIT, SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (QUIT).");
+    }
+    if (Signal(SIGTERM, SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (TERM).");
+    }
+    if (Signal(SIGCHLD, SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (CHLD).");
+    }
+    if (Signal(SIGUSR1, SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (USR1).");
+    }
+    if (Signal(SIGUSR2, SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (USR2).");
+    }
 
-    if( Signal( SIGPIPE, SigHandler ) == SIG_ERR )
-        ErrorMsg( E_SYS, ERROR, "ERROR: Installing Signal Handler (PIPE)." );
-    return( OK );
+    if (Signal(SIGPIPE, SigHandler) == SIG_ERR)
+    {
+        ErrorMsg(E_SYS, ERROR, "ERROR: Installing Signal Handler (PIPE).");
+    }
+    return (OK);
 }
 

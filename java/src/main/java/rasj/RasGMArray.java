@@ -45,8 +45,7 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
-public class RasGMArray extends RasObject implements RasGlobalDefs
-{
+public class RasGMArray extends RasObject implements RasGlobalDefs {
     static final String rcsid = "@(#)Package rasj, class RasGMArray: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasGMArray.java,v 1.26 2003/12/10 21:04:23 rasdev Exp $";
 
     /** spatial domain */
@@ -76,17 +75,16 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
     /**
      * Default constructor.
      **/
-    public RasGMArray()
-    {
-	super(RAS_MARRAY);
-	data = null;
+    public RasGMArray() {
+        super(RAS_MARRAY);
+        data = null;
         objectData = null;
-	currentCell = null;
-	dataSize = 0;
+        currentCell = null;
+        dataSize = 0;
         domain = null;
-	typeLength = 0;
-	currentFormat = RAS_ARRAY;
-	storageLayout = new RasStorageLayout();
+        typeLength = 0;
+        currentFormat = RAS_ARRAY;
+        storageLayout = new RasStorageLayout();
     }
 
     /**
@@ -94,21 +92,20 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * @param initDomain The initial Domain of the GMArray
      * @param cellTypeLength The length of the cell type used
      */
-    public RasGMArray(final RasMInterval initDomain, long cellTypeLength)
-    {
-	super(RAS_MARRAY);
-	data = null;
+    public RasGMArray(final RasMInterval initDomain, long cellTypeLength) {
+        super(RAS_MARRAY);
+        data = null;
         objectData = null;
-	dataSize = 0;
-	domain = initDomain;
-	typeLength = cellTypeLength;
-	currentFormat = RAS_ARRAY;
-	storageLayout = new RasStorageLayout();
+        dataSize = 0;
+        domain = initDomain;
+        typeLength = cellTypeLength;
+        currentFormat = RAS_ARRAY;
+        storageLayout = new RasStorageLayout();
 
-	// If dimensionality is zero, just one scalar value is stored.
-	dataSize = ((domain.dimension() != 0) ? domain.cellCount() : 1) * typeLength;
-	data = new byte[(int)dataSize];
-	currentCell = new byte[(int)cellTypeLength];
+        // If dimensionality is zero, just one scalar value is stored.
+        dataSize = ((domain.dimension() != 0) ? domain.cellCount() : 1) * typeLength;
+        data = new byte[(int)dataSize];
+        currentCell = new byte[(int)cellTypeLength];
     }
 
     /**
@@ -117,21 +114,20 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * @param cellTypeLength The length of the cell type used
      * @param RasStorageLayout The storage layout to be used
      */
-    public RasGMArray(final RasMInterval initDomain,  long cellTypeLength, RasStorageLayout stl)
-    {
-	super(RAS_MARRAY);
-	data = null;
+    public RasGMArray(final RasMInterval initDomain,  long cellTypeLength, RasStorageLayout stl) {
+        super(RAS_MARRAY);
+        data = null;
         objectData = null;
-	dataSize = 0;
-	domain = initDomain;
-	typeLength = cellTypeLength;
-	currentFormat = RAS_ARRAY;
-	storageLayout = stl;
+        dataSize = 0;
+        domain = initDomain;
+        typeLength = cellTypeLength;
+        currentFormat = RAS_ARRAY;
+        storageLayout = stl;
 
-	// If dimensionality is zero, just one scalar value is stored.
-	dataSize = ((domain.dimension() != 0) ? domain.cellCount() : 1) * typeLength;
-	data = new byte[(int)dataSize];
-	currentCell = new byte[(int)cellTypeLength];
+        // If dimensionality is zero, just one scalar value is stored.
+        dataSize = ((domain.dimension() != 0) ? domain.cellCount() : 1) * typeLength;
+        data = new byte[(int)dataSize];
+        currentCell = new byte[(int)cellTypeLength];
     }
 
 
@@ -139,21 +135,20 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * Copy constructor.
      * @param obj a copy of this object will be created
      **/
-    public RasGMArray(final RasGMArray obj)
-    {
-	super(obj, RAS_MARRAY);
-        if(data!=null)
-        {
-          System.arraycopy(obj.getArray(), 0, data, 0, (int)obj.dataSize);
-          objectData = null;
+    public RasGMArray(final RasGMArray obj) {
+        super(obj, RAS_MARRAY);
+        if (data != null) {
+            System.arraycopy(obj.getArray(), 0, data, 0, (int)obj.dataSize);
+            objectData = null;
         }
-	dataSize = obj.getArraySize();
-	domain = obj.spatialDomain();
-	typeLength = obj.typeLength;
-	currentFormat = obj.currentFormat;
-	storageLayout = new RasStorageLayout(obj.storageLayout);
-	if(obj.typeLength != 0)
-          currentCell = new byte[(int)obj.typeLength];
+        dataSize = obj.getArraySize();
+        domain = obj.spatialDomain();
+        typeLength = obj.typeLength;
+        currentFormat = obj.currentFormat;
+        storageLayout = new RasStorageLayout(obj.storageLayout);
+        if (obj.typeLength != 0) {
+            currentCell = new byte[(int)obj.typeLength];
+        }
     }
 
     /**
@@ -161,41 +156,36 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * @param mArray the values of this MArray will be copied
      * @return itself (after having copied the values from mArray)
      **/
-    public RasGMArray setTo(final RasGMArray mArray)
-    {
-	if(this != mArray)
-	    {
-		if(data != null)
-		    {
-			data = null;
-		    }
+    public RasGMArray setTo(final RasGMArray mArray) {
+        if (this != mArray) {
+            if (data != null) {
+                data = null;
+            }
 
-		if (mArray.data != null)
-		    {
-			dataSize = mArray.dataSize;
-			data = mArray.data;
-		    }
-                if (mArray.objectData != null)
-		    {
-			dataSize = mArray.dataSize;
-			objectData = mArray.objectData;
-		    }
+            if (mArray.data != null) {
+                dataSize = mArray.dataSize;
+                data = mArray.data;
+            }
+            if (mArray.objectData != null) {
+                dataSize = mArray.dataSize;
+                objectData = mArray.objectData;
+            }
 
-		if(storageLayout != null)
-		    {
-			storageLayout = null;
-		    }
+            if (storageLayout != null) {
+                storageLayout = null;
+            }
 
 
-		// this has to be changed to a clone() function in future
-		if(mArray.storageLayout != null)
-		    storageLayout = new RasStorageLayout(mArray.storageLayout);
+            // this has to be changed to a clone() function in future
+            if (mArray.storageLayout != null) {
+                storageLayout = new RasStorageLayout(mArray.storageLayout);
+            }
 
-		domain        = mArray.domain;
-		typeLength    = mArray.typeLength;
-		currentFormat = mArray.currentFormat;
-	    }
-	return this;
+            domain        = mArray.domain;
+            typeLength    = mArray.typeLength;
+            currentFormat = mArray.currentFormat;
+        }
+        return this;
     }
 
     /**
@@ -207,16 +197,17 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * @param point the coordinates of the requested cell
      * @return a byte array representing the value of the requested cell.
      **/
-    public byte[] getCell(RasPoint point) throws RasDimensionMismatchException, RasIndexOutOfBoundsException
-    {
-	// first test dimensionality
-	if(point.dimension() != domain.dimension())
-  	  throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
-	if(typeLength == 0)
-	  return null;
+    public byte[] getCell(RasPoint point) throws RasDimensionMismatchException, RasIndexOutOfBoundsException {
+        // first test dimensionality
+        if (point.dimension() != domain.dimension()) {
+            throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+        }
+        if (typeLength == 0) {
+            return null;
+        }
 
-	System.arraycopy(data, (int)(domain.cellOffset(point)*typeLength), currentCell, 0, (int)typeLength);
-	return currentCell;
+        System.arraycopy(data, (int)(domain.cellOffset(point) * typeLength), currentCell, 0, (int)typeLength);
+        return currentCell;
 
     }
 
@@ -224,21 +215,20 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * Returns the storage layout object of this MDD.
      * @return the storage layout object
      **/
-    public final RasStorageLayout getStorageLayout()
-    {
-	return storageLayout;
+    public final RasStorageLayout getStorageLayout() {
+        return storageLayout;
     }
 
     /**
      * Sets the storage layout object and checks compatibility with the domain.
      * @param stl the new storage layout
      */
-    public void setStorageLayout(RasStorageLayout stl) throws RasDimensionMismatchException
-    {
-	if (!stl.isCompatible(domain))
-	    throw new RasDimensionMismatchException(domain.dimension(),stl.getSpatialDomain().dimension());
-        else
-	    storageLayout = stl;
+    public void setStorageLayout(RasStorageLayout stl) throws RasDimensionMismatchException {
+        if (!stl.isCompatible(domain)) {
+            throw new RasDimensionMismatchException(domain.dimension(), stl.getSpatialDomain().dimension());
+        } else {
+            storageLayout = stl;
+        }
     }
 
     /**
@@ -247,48 +237,45 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * @param where the interval that is used for the intersection
      * @return the result of the intersection of this GMArray with the parameter interval
      */
-    public RasGMArray intersectionWith(RasMInterval where)
-    {
-	RasGMArray tile = new RasGMArray();
+    public RasGMArray intersectionWith(RasMInterval where) {
+        RasGMArray tile = new RasGMArray();
 
-	try {
-	    RasMInterval objDomain = spatialDomain();
-	    int numDims = objDomain.dimension();
-	    long tlength = getTypeLength();
+        try {
+            RasMInterval objDomain = spatialDomain();
+            int numDims = objDomain.dimension();
+            long tlength = getTypeLength();
 
-	    byte[] objData = new byte[(int)(where.cellCount() * tlength)];
-	    tile.setSpatialDomain(where);
-	    tile.setTypeLength(tlength);
-	    tile.setArray(objData);
-	    tile.setArraySize(where.cellCount() * tlength);
+            byte[] objData = new byte[(int)(where.cellCount() * tlength)];
+            tile.setSpatialDomain(where);
+            tile.setTypeLength(tlength);
+            tile.setArray(objData);
+            tile.setArraySize(where.cellCount() * tlength);
 
-	    long blockLength =
-		where.item(numDims-1).high() - where.item(numDims-1).low() + 1;
-	    long total = where.cellCount()/blockLength;
+            long blockLength =
+                where.item(numDims - 1).high() - where.item(numDims - 1).low() + 1;
+            long total = where.cellCount() / blockLength;
 
-	    byte[] dest = objData;
-	    byte[] source = getArray();
-	    int blength = (int)(blockLength * tlength);
+            byte[] dest = objData;
+            byte[] source = getArray();
+            int blength = (int)(blockLength * tlength);
 
-	    for (long cell=0; cell<total; cell++)
-		{
-		    RasPoint p = where.cellPoint(cell*blockLength);
+            for (long cell = 0; cell < total; cell++) {
+                RasPoint p = where.cellPoint(cell * blockLength);
 
-		    System.arraycopy(source, (int)(objDomain.cellOffset(p) * tlength), dest,
-				     (int)(where.cellOffset(p) * tlength), blength);
-		}
+                System.arraycopy(source, (int)(objDomain.cellOffset(p) * tlength), dest,
+                                 (int)(where.cellOffset(p) * tlength), blength);
+            }
 
-	    return tile;
-	}
+            return tile;
+        }
 
-	catch(RasIndexOutOfBoundsException e1) {
-	    // this canno toccur (theoretically)
-	    throw new RasClientInternalException("RasGMArray","intersectionWith()",e1.getMessage());
-	}
-	catch(RasResultIsNoCellException e2) {
-	    // this canno toccur (theoretically)
-            throw new RasClientInternalException("RasGMArray","intersectionWith()",e2.getMessage());
-	}
+        catch (RasIndexOutOfBoundsException e1) {
+            // this canno toccur (theoretically)
+            throw new RasClientInternalException("RasGMArray", "intersectionWith()", e1.getMessage());
+        } catch (RasResultIsNoCellException e2) {
+            // this canno toccur (theoretically)
+            throw new RasClientInternalException("RasGMArray", "intersectionWith()", e2.getMessage());
+        }
 
     }
 
@@ -298,45 +285,40 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * Gets the spatial domain.
      * @return the spatial domain of this GMArray
      **/
-    public final RasMInterval spatialDomain()
-    {
-	return domain;
+    public final RasMInterval spatialDomain() {
+        return domain;
     }
 
     /**
      * Gets the internal representation of this GMAarray (the byte array).
      * @return the byte array representing this GMArray
      **/
-    public byte[] getArray()
-    {
-	return data;
+    public byte[] getArray() {
+        return data;
     }
 
     /**
      * Gets the size of the internal representation of this GMArray (in bytes).
      * @return the size of this GMArray
      **/
-    public final long getArraySize()
-    {
-	return dataSize;
+    public final long getArraySize() {
+        return dataSize;
     }
 
     /**
      * Gets the length of cell type (in bytes).
      * @return the cell type length
      **/
-    public final long getTypeLength()
-    {
-	return typeLength;
+    public final long getTypeLength() {
+        return typeLength;
     }
 
     /**
      * Gets the current data format (RAS_ARRAY).
      * @return the current data format
      **/
-    public final int getCurrentFormat()
-    {
-	return currentFormat;
+    public final int getCurrentFormat() {
+        return currentFormat;
     }
 
 
@@ -345,17 +327,15 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * Sets the spatial domain.
      * @param dom the new spatial domain of this GMArray
      **/
-    public void setSpatialDomain(final RasMInterval dom)
-    {
-	domain = dom;
+    public void setSpatialDomain(final RasMInterval dom) {
+        domain = dom;
     }
 
     /**
      * Sets the internal representation of the GMArray.
      * @param newData the new byte array representing the contents of this GMArray
      **/
-    public void setArray(byte[] newData)
-    {
+    public void setArray(byte[] newData) {
         data = newData;
         dataSize = newData.length;
         objectData = null;
@@ -365,29 +345,26 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
      * Sets the size of the internal representation (in bytes).
      * @param newValue the size of the internal representation (the byte array)
      **/
-    public void setArraySize(long newValue)
-    {
-	dataSize = newValue;
+    public void setArraySize(long newValue) {
+        dataSize = newValue;
     }
 
     /**
      * Sets the length of the cell type (in bytes).
      * @param newValue the cell type length
      **/
-    public void setTypeLength(long newValue)
-    {
-	typeLength = newValue;
-	/* Now create the byte array object used for returning cell values */
-	currentCell = new byte[(int)newValue];
+    public void setTypeLength(long newValue) {
+        typeLength = newValue;
+        /* Now create the byte array object used for returning cell values */
+        currentCell = new byte[(int)newValue];
     }
 
     /**
      * Sets the current data format.
      * @param newFormat the new data format
      **/
-    public void setCurrentFormat(int newFormat)
-    {
-	currentFormat = newFormat;
+    public void setCurrentFormat(int newFormat) {
+        currentFormat = newFormat;
     }
 
     // Methods for database communication (internal use only)
@@ -395,119 +372,115 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
     /* inserts an object into the database
     public void insertObjIntoDB()
     {
-	// Nothing is done in that case. RasMArray objects can just be inserted as elements
-	// of a collection which invokes RasGMArray.insertObjIntoDB(String collName)
-	// of the RasMArray objects.
+    // Nothing is done in that case. RasMArray objects can just be inserted as elements
+    // of a collection which invokes RasGMArray.insertObjIntoDB(String collName)
+    // of the RasMArray objects.
 
-	//RasDatabase.currentDatabase.communication.insertSingleMDDObj(this);
-	System.out.println(" do nothing ");
+    //RasDatabase.currentDatabase.communication.insertSingleMDDObj(this);
+    System.out.println(" do nothing ");
     }
     */
 
     /* inserts myself into a specific collection in the database
     public void insertObjIntoDB(String collName) throws RasException
     {
-	// Insert myself in database only if I have a type name, otherwise
-	// an exception is thrown.
-	if(!typeName)
-	  {
-	  throw new RasErrorDatabaseClassUndefined();
-	  }
-	//RasDatabase.currentDatabase.communication.insertMDD(collName, this);
+    // Insert myself in database only if I have a type name, otherwise
+    // an exception is thrown.
+    if(!typeName)
+      {
+      throw new RasErrorDatabaseClassUndefined();
+      }
+    //RasDatabase.currentDatabase.communication.insertMDD(collName, this);
     }
     */
 
     /** gets the String representation */
-    public String toString()
-    {
-	String tileDomain = "";
+    public String toString() {
+        String tileDomain = "";
 
-	RasType typeSchema = (RasType)(((RasGMArray)this).getTypeSchema());
-	RasBaseType baseTypeSchema = (RasBaseType)(((RasGMArray)this).getBaseTypeSchema());
+        RasType typeSchema = (RasType)(((RasGMArray)this).getTypeSchema());
+        RasBaseType baseTypeSchema = (RasBaseType)(((RasGMArray)this).getBaseTypeSchema());
 
-	if(storageLayout.getSpatialDomain() == null)
-	    tileDomain = getTilingDomain(domain,typeLength);
-        else
-	    tileDomain = storageLayout.getSpatialDomain().toString();
+        if (storageLayout.getSpatialDomain() == null) {
+            tileDomain = getTilingDomain(domain, typeLength);
+        } else {
+            tileDomain = storageLayout.getSpatialDomain().toString();
+        }
 
-	String s = "\n" + getClass().getName();
-	s = s + "\n"
-	    + "  Oid...................: " + getOID() + "\n"
+        String s = "\n" + getClass().getName();
+        s = s + "\n"
+            + "  Oid...................: " + getOID() + "\n"
             + "  Object Name...........: " + getObjectName() + "\n"
             + "  Object Type...........: " + getObjectType() + "\n"
-  	    + "  Object Type Name......: " + getObjectTypeName() + "\n"
-	    + "  Type Structure........: " + ((getTypeStructure() != null) ? getTypeStructure() : "<nn>") + "\n"
-	    + "  Type Schema...........: " + ((typeSchema != null) ? typeSchema.toString() : "<nn>") + "\n"
-	    + "  Domain................: " + domain + "\n"
+            + "  Object Type Name......: " + getObjectTypeName() + "\n"
+            + "  Type Structure........: " + ((getTypeStructure() != null) ? getTypeStructure() : "<nn>") + "\n"
+            + "  Type Schema...........: " + ((typeSchema != null) ? typeSchema.toString() : "<nn>") + "\n"
+            + "  Domain................: " + domain + "\n"
             + "  TilingDomain..........: " + tileDomain + "\n"
             + "  TileSize..............: " + storageLayout.getTileSize() + " bytes\n"
-	    + "  Base Type Schema......: " + ((baseTypeSchema != null) ? baseTypeSchema.toString() : "<nn>") + "\n"
-	    + "  Base Type Length......: " + typeLength + "\n"
-	    + "  Data format...........: " + currentFormat + "\n"
-	    + "  Data size (bytes).....: " + dataSize + "\n";
+            + "  Base Type Schema......: " + ((baseTypeSchema != null) ? baseTypeSchema.toString() : "<nn>") + "\n"
+            + "  Base Type Length......: " + typeLength + "\n"
+            + "  Data format...........: " + currentFormat + "\n"
+            + "  Data size (bytes).....: " + dataSize + "\n";
 
-      return s;
+        return s;
     }
 
-     /** gets the String for testing */
-    public String toTestString()
-    {
-	String tileDomain = "";
+    /** gets the String for testing */
+    public String toTestString() {
+        String tileDomain = "";
 
-	RasType typeSchema = (RasType)(((RasGMArray)this).getTypeSchema());
-	RasBaseType baseTypeSchema = (RasBaseType)(((RasGMArray)this).getBaseTypeSchema());
+        RasType typeSchema = (RasType)(((RasGMArray)this).getTypeSchema());
+        RasBaseType baseTypeSchema = (RasBaseType)(((RasGMArray)this).getBaseTypeSchema());
 
-	if(storageLayout.getSpatialDomain() == null)
-	    tileDomain = getTilingDomain(domain,typeLength);
-        else
-	    tileDomain = storageLayout.getSpatialDomain().toString();
+        if (storageLayout.getSpatialDomain() == null) {
+            tileDomain = getTilingDomain(domain, typeLength);
+        } else {
+            tileDomain = storageLayout.getSpatialDomain().toString();
+        }
 
-	StringBuffer buffer = new StringBuffer(getArray().length * 4); // for most elements 3 characters and a space
-	buffer.append("\n" + getClass().getName());
-	buffer.append("\n"
-	    //+ "  Oid...................: " + getOID() + "\n"
-            + "  Object Name...........: " + getObjectName() + "\n"
-            + "  Object Type...........: " + getObjectType() + "\n"
-  	    + "  Object Type Name......: " + getObjectTypeName() + "\n"
-	    + "  Type Structure........: " + ((getTypeStructure() != null) ? getTypeStructure() : "<nn>") + "\n"
-	    + "  Type Schema...........: " + ((typeSchema != null) ? typeSchema.toString() : "<nn>") + "\n"
-	    + "  Domain................: " + domain + "\n"
-            + "  TilingDomain..........: " + tileDomain + "\n"
-            + "  TileSize..............: " + storageLayout.getTileSize() + " bytes\n"
-	    + "  Base Type Schema......: " + ((baseTypeSchema != null) ? baseTypeSchema.toString() : "<nn>") + "\n"
-	    + "  Base Type Length......: " + typeLength + "\n"
-	    + "  Data format...........: " + currentFormat + "\n"
-	    + "  Data size (bytes).....: " + dataSize + "\n"
-	    );
+        StringBuffer buffer = new StringBuffer(getArray().length * 4); // for most elements 3 characters and a space
+        buffer.append("\n" + getClass().getName());
+        buffer.append("\n"
+                      //+ "  Oid...................: " + getOID() + "\n"
+                      + "  Object Name...........: " + getObjectName() + "\n"
+                      + "  Object Type...........: " + getObjectType() + "\n"
+                      + "  Object Type Name......: " + getObjectTypeName() + "\n"
+                      + "  Type Structure........: " + ((getTypeStructure() != null) ? getTypeStructure() : "<nn>") + "\n"
+                      + "  Type Schema...........: " + ((typeSchema != null) ? typeSchema.toString() : "<nn>") + "\n"
+                      + "  Domain................: " + domain + "\n"
+                      + "  TilingDomain..........: " + tileDomain + "\n"
+                      + "  TileSize..............: " + storageLayout.getTileSize() + " bytes\n"
+                      + "  Base Type Schema......: " + ((baseTypeSchema != null) ? baseTypeSchema.toString() : "<nn>") + "\n"
+                      + "  Base Type Length......: " + typeLength + "\n"
+                      + "  Data format...........: " + currentFormat + "\n"
+                      + "  Data size (bytes).....: " + dataSize + "\n"
+                     );
 
-            //print bytes, just for testing!!!
-            for(int j=0; j < getArray().length; j++)
-            {
-              buffer.append(" " + getArray()[j]);
-            }
+        //print bytes, just for testing!!!
+        for (int j = 0; j < getArray().length; j++) {
+            buffer.append(" " + getArray()[j]);
+        }
 
-      return buffer.toString();
+        return buffer.toString();
     }
 
     /**
      * Returns the base type schema of this GMArray.
      * @return the base type schema
      **/
-    public RasBaseType getBaseTypeSchema()
-    {
-	RasType type = getTypeSchema();
-	RasBaseType baseType = null;
+    public RasBaseType getBaseTypeSchema() {
+        RasType type = getTypeSchema();
+        RasBaseType baseType = null;
 
-	if (type != null)
-	    {
-		if (type.getTypeID() == RasGlobalDefs.RAS_MARRAY)
-		    {
-			RasMArrayType mArrayType = (RasMArrayType)type;
-			baseType = (mArrayType.getBaseType());
-		    }
-	    }
+        if (type != null) {
+            if (type.getTypeID() == RasGlobalDefs.RAS_MARRAY) {
+                RasMArrayType mArrayType = (RasMArrayType)type;
+                baseType = (mArrayType.getBaseType());
+            }
+        }
 
-	return baseType;
+        return baseType;
     }
 
 
@@ -515,16 +488,16 @@ public class RasGMArray extends RasObject implements RasGlobalDefs
 
     // calculates the tiling domain based on the original MDD, the type length and the tileSize
     // of the MDD's storageLayout.
-    private String getTilingDomain(final RasMInterval originalDomain, final long typeLength)
-    {
-	long tileSize = storageLayout.getTileSize();
-	int dim = originalDomain.dimension();
-	double tmp = 1.0/dim;
-	int size=(int)(Math.pow((double)(tileSize / typeLength),tmp))-1;
-	String retVal = "0:"+String.valueOf(size);
-	for(int x=1; x<dim; x++)
-	    retVal = retVal + ",0:" + size;
-	return "["+retVal+"]";
+    private String getTilingDomain(final RasMInterval originalDomain, final long typeLength) {
+        long tileSize = storageLayout.getTileSize();
+        int dim = originalDomain.dimension();
+        double tmp = 1.0 / dim;
+        int size = (int)(Math.pow((double)(tileSize / typeLength), tmp)) - 1;
+        String retVal = "0:" + String.valueOf(size);
+        for (int x = 1; x < dim; x++) {
+            retVal = retVal + ",0:" + size;
+        }
+        return "[" + retVal + "]";
     }
 
 }

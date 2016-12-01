@@ -42,12 +42,12 @@ public class RequestUtil {
      * @param queryString The KVP query string (i.e. what is after "?" in the request url).
      * @return A map of the form param => value.
      */
-    public static Map<String, String> parseKVPRequestParams(String queryString) {        
+    public static Map<String, String> parseKVPRequestParams(String queryString) {
         //split query string into parameters
         Map<String, String> params = new HashMap<String, String>();
         // In case of XML POST request then queryString is null
         if (queryString == null) {
-          return params;
+            return params;
         }
         String[] queryParts = queryString.split(KVPParamSeparator);
         for (String queryComponent : queryParts) {
@@ -62,7 +62,7 @@ public class RequestUtil {
         }
         return params;
     }
-    
+
 
     /**
      * The separator between parameters in a KVP request, e.g.

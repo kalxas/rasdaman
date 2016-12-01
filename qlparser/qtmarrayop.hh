@@ -50,30 +50,30 @@ class QtMarrayOp : public QtBinaryOperation
 {
 public:
     /// constructor getting iterator, minterval expression, and cell expression
-    QtMarrayOp( const std::string& initIteratorName, QtOperation* mintervalExp, QtOperation* cellExp );
+    QtMarrayOp(const std::string& initIteratorName, QtOperation* mintervalExp, QtOperation* cellExp);
 
     /// returns FALSE saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
 
     /// optimizing load access
-    void optimizeLoad( QtTrimList* trimList );
+    void optimizeLoad(QtTrimList* trimList);
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes

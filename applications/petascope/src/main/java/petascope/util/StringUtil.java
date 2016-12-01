@@ -200,7 +200,7 @@ public class StringUtil {
         // fix ticket 466
         // if (contentType == null || (contentType.equals("application/x-www-form-urlencoded") && encodedText.indexOf(" ") == -1)) {
         if (contentType == null
-            || (contentType.toLowerCase().startsWith(MIME_URLENCODED) && encodedText.indexOf(" ") == -1)) {
+                || (contentType.toLowerCase().startsWith(MIME_URLENCODED) && encodedText.indexOf(" ") == -1)) {
             try {
                 encodedText = encodedText.replaceAll("\\+", "%2B"); // ticket:456
                 decoded = URLDecoder.decode(encodedText, ENCODING_UTF8);
@@ -217,11 +217,11 @@ public class StringUtil {
             return text;
         }
     }
-    
+
     /**
      * Create a readable random string from the input string, which combine the current dateTime and a random number
      * @param label
-     * @return 
+     * @return
      */
     public static String createRandomString(String label) {
         String dateTime = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date());
@@ -229,13 +229,13 @@ public class StringUtil {
         String randomNumber = String.valueOf(random.nextInt(10000) + 1);
         return label + "_" + dateTime + "_" + randomNumber;
     }
-    
+
     /**
      * Check if a string which has the pattern of random string (contains dd_mm_yy_hh_mm_ss_randomNumber)
      * example: label_2016_09_09_13_56_33_5132
      * @param prefixLabel (e.g: label)
      * @param randomString (e.g: label_2016_09_09_13_56_33_5132)
-     * @return 
+     * @return
      */
     public static boolean isRandomString(String prefixLabel, String randomString) {
         String regex = prefixLabel + "_[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+";
@@ -270,13 +270,13 @@ public class StringUtil {
      * sent in hexadecimal notation (like <i>%xx</i>) are
      * converted to ASCII characters.
      *
-     * @param s		a string containing the query to be parsed
+     * @param s     a string containing the query to be parsed
      *
-     * @return		a <code>HashTable</code> object built
-     * 			from the parsed key-value pairs
+     * @return      a <code>HashTable</code> object built
+     *          from the parsed key-value pairs
      *
-     * @exception IllegalArgumentException	if the query string
-     *						is invalid
+     * @exception IllegalArgumentException  if the query string
+     *                      is invalid
      *
      */
     public static Map<String, List<String>> parseQuery(String s) {
@@ -296,7 +296,7 @@ public class StringUtil {
             }
             String key = parseName(pair.substring(0, pos), sb).toLowerCase();
             List<String> val = stol(parseName(pair.substring(pos + 1, pair.
-                    length()), sb));
+                                              length()), sb));
             if (ret.containsKey(key)) {
                 ret.get(key).addAll(val);
             } else {
@@ -313,28 +313,28 @@ public class StringUtil {
         sb.setLength(0);
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            switch (c) {                
-                case '%':
-                    try {
-                        sb.append((char) Integer.parseInt(s.substring(i + 1, i + 3),
-                                16));
-                        i += 2;
-                    } catch (NumberFormatException e) {
-                        // XXX
-                        // need to be more specific about illegal arg
-                        throw new IllegalArgumentException();
-                    } catch (StringIndexOutOfBoundsException e) {
-                        String rest = s.substring(i);
-                        sb.append(rest);
-                        if (rest.length() == 2) {
-                            i++;
-                        }
+            switch (c) {
+            case '%':
+                try {
+                    sb.append((char) Integer.parseInt(s.substring(i + 1, i + 3),
+                                                      16));
+                    i += 2;
+                } catch (NumberFormatException e) {
+                    // XXX
+                    // need to be more specific about illegal arg
+                    throw new IllegalArgumentException();
+                } catch (StringIndexOutOfBoundsException e) {
+                    String rest = s.substring(i);
+                    sb.append(rest);
+                    if (rest.length() == 2) {
+                        i++;
                     }
+                }
 
-                    break;
-                default:
-                    sb.append(c);
-                    break;
+                break;
+            default:
+                sb.append(c);
+                break;
             }
         }
         return sb.toString();
@@ -344,7 +344,7 @@ public class StringUtil {
      * Replaces all <tt>'&'</tt> characters with <tt>'&amp;'</tt>
      * @param aString
      */
-    private static String escapeAmpersands(String aString){
+    private static String escapeAmpersands(String aString) {
         return aString.replace("&", "&" + XMLSymbols.PREDEFINED_ENTITY_AMPERSAND + ";");
     }
 
@@ -352,7 +352,7 @@ public class StringUtil {
      * Replaces all <tt>'\''</tt> characters with <tt>'&apos;'</tt>
      * @param aString
      */
-    private static String escapeApostrophes(String aString){
+    private static String escapeApostrophes(String aString) {
         return aString.replace("'", "&" + XMLSymbols.PREDEFINED_ENTITY_APOSTROPHE + ";");
     }
 
@@ -360,7 +360,7 @@ public class StringUtil {
      * Replaces all <tt>'<'</tt> characters with <tt>'&lt;'</tt>
      * @param aString
      */
-    private static String escapeLessThanSigns(String aString){
+    private static String escapeLessThanSigns(String aString) {
         return aString.replace("<", "&" + XMLSymbols.PREDEFINED_ENTITY_LESSTHAN_SIGN + ";");
     }
 
@@ -368,7 +368,7 @@ public class StringUtil {
      * Replaces all <tt>'>'</tt> characters with <tt>'&gt;'</tt>
      * @param aString
      */
-    private static String escapeGreaterThanSigns(String aString){
+    private static String escapeGreaterThanSigns(String aString) {
         return aString.replace(">", "&" + XMLSymbols.PREDEFINED_ENTITY_GREATERTHAN_SIGN + ";");
     }
 
@@ -376,7 +376,7 @@ public class StringUtil {
      * Replaces all <tt>'\"'</tt> characters with <tt>'&quot;'</tt>
      * @param aString
      */
-    private static String escapeQuotes(String aString){
+    private static String escapeQuotes(String aString) {
         return aString.replace("\"", "&" + XMLSymbols.PREDEFINED_ENTITY_QUOTES + ";");
     }
 
@@ -385,7 +385,7 @@ public class StringUtil {
      * http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
      * @param aString
      */
-    public static String escapeXmlPredefinedEntities(String aString){
+    public static String escapeXmlPredefinedEntities(String aString) {
         String escapedString;
 
         escapedString = escapeAmpersands(aString);
@@ -444,22 +444,22 @@ public class StringUtil {
     public static List<String> repeat(String value, int times) {
         List<String> outList = new ArrayList<String>(times);
 
-        for (int i=0; i<times; i++) {
+        for (int i = 0; i < times; i++) {
             outList.add(value);
         }
 
         return outList;
     }
-    
+
     /**
      * Clean all the empty, null elements in string array
      * @param v
-     * @return 
+     * @return
      */
     public static String[] clean(final String[] v) {
         List<String> list = new ArrayList<String>(Arrays.asList(v));
         list.removeAll(Collections.singleton(null));
         list.removeAll(Collections.singleton(""));
         return list.toArray(new String[list.size()]);
-    }    
+    }
 }

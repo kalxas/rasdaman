@@ -130,7 +130,7 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
             addBoundingBox(coverageMetadata, persistentWmsLayer);
             //add extra dimensions if the coverage is more than 2d
             //but first remove any existing ones in case this is an update
-            if(persistentWmsLayer.getDimensions() != null && !persistentWmsLayer.getDimensions().isEmpty()){
+            if (persistentWmsLayer.getDimensions() != null && !persistentWmsLayer.getDimensions().isEmpty()) {
                 persistentMetadataObjectProvider.getDimension().delete(persistentWmsLayer.getDimensions());
             }
             addExtraDimensions(coverageMetadata.getDomainList(), 2, persistentWmsLayer);
@@ -182,8 +182,8 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
         Integer width = cellDomainList.get(0).getHiInt() - cellDomainList.get(1).getLoInt() + 1;
         Integer height = cellDomainList.get(1).getHiInt() - cellDomainList.get(1).getLoInt() + 1;
         RasdamanLayer rasdamanLayer = new RasdamanLayer(coverageMetadata.getRasdamanCollection().snd,
-            coverageMetadata.getRasdamanCollection().fst,
-            1, xOrder, yOrder, width, height, persistentWmsLayer);
+                coverageMetadata.getRasdamanCollection().fst,
+                1, xOrder, yOrder, width, height, persistentWmsLayer);
         //persist the layer
         persistentMetadataObjectProvider.getRasdamanLayer().create(rasdamanLayer);
     }
@@ -219,8 +219,8 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
             for (Integer i = dimensionOffset; i < wcsDimensions.size(); i++) {
                 DomainElement wcsDimension = wcsDimensions.get(i);
                 Dimension wmsDimension = new Dimension(wcsDimension.getLabel(), wcsDimension.getUom(), null,
-                    wcsDimension.getMinValue().toString(), true, false, false,
-                    wcsDimension.getMinValue() + "/" + wcsDimension.getMaxValue(), wcsDimension.getOrder(), persistentWmsLayer);
+                                                       wcsDimension.getMinValue().toString(), true, false, false,
+                                                       wcsDimension.getMinValue() + "/" + wcsDimension.getMaxValue(), wcsDimension.getOrder(), persistentWmsLayer);
                 //persist it
                 persistentMetadataObjectProvider.getDimension().create(wmsDimension);
             }
@@ -240,9 +240,9 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
     private CoverageMetadata getCoverageMetadata(String wcsCoverageId) throws SecoreException, PetascopeException {
         //init metadata source
         DbMetadataSource metadataSource = new DbMetadataSource(petascope.ConfigManager.METADATA_DRIVER,
-            petascope.ConfigManager.METADATA_URL,
-            petascope.ConfigManager.METADATA_USER,
-            petascope.ConfigManager.METADATA_PASS, false);
+                petascope.ConfigManager.METADATA_URL,
+                petascope.ConfigManager.METADATA_USER,
+                petascope.ConfigManager.METADATA_PASS, false);
         //get the coverage that is needed
         return metadataSource.read(wcsCoverageId);
     }

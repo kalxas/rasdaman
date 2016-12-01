@@ -109,7 +109,7 @@ typedef struct mdd_function_desc
 // constant pointers, or the variable pointers will be interpreted as constant
 // ones too. No joke.
 #define MDD_FUNCTION_SIGNATURE(type) \
-  (type *dest, const type *src, const mdd_function_desc *mfd, int dim, int datastep, void *auxData)
+    (type *dest, const type *src, const mdd_function_desc *mfd, int dim, int datastep, void *auxData)
 
 typedef int (*mdd_func_bool)MDD_FUNCTION_SIGNATURE(r_Boolean);
 typedef int (*mdd_func_char)MDD_FUNCTION_SIGNATURE(r_Char);
@@ -138,31 +138,31 @@ typedef struct mdd_function_pointers
 // Init a mdd_function_pointers structure with a mdd function template (therefore the
 // same function name for all members)
 #define MDD_INIT_FUNCTIONS(mfp, tf) \
-  mfp.mddf_bool = (mdd_func_bool)tf; \
-  mfp.mddf_char = (mdd_func_char)tf; \
-  mfp.mddf_octet = (mdd_func_octet)tf; \
-  mfp.mddf_short = (mdd_func_short)tf; \
-  mfp.mddf_ushort = (mdd_func_ushort)tf; \
-  mfp.mddf_long = (mdd_func_long)tf; \
-  mfp.mddf_ulong = (mdd_func_ulong)tf; \
-  mfp.mddf_float = (mdd_func_float)tf; \
-  mfp.mddf_double = (mdd_func_double)tf;
+    mfp.mddf_bool = (mdd_func_bool)tf; \
+    mfp.mddf_char = (mdd_func_char)tf; \
+    mfp.mddf_octet = (mdd_func_octet)tf; \
+    mfp.mddf_short = (mdd_func_short)tf; \
+    mfp.mddf_ushort = (mdd_func_ushort)tf; \
+    mfp.mddf_long = (mdd_func_long)tf; \
+    mfp.mddf_ulong = (mdd_func_ulong)tf; \
+    mfp.mddf_float = (mdd_func_float)tf; \
+    mfp.mddf_double = (mdd_func_double)tf;
 
 
 
 // 2) Support functions
-extern char *objectCalcStart(const char *src, const mdd_function_desc *mfd, int dim);
+extern char* objectCalcStart(const char* src, const mdd_function_desc* mfd, int dim);
 
 // execute mdd functions over arbitrary objects
-extern int mdd_objectFunctionPrim(const mdd_function_pointers *mfp, r_Primitive_Type *primType, const char *src, char *dest, const mdd_function_desc *mfd, int dim, int tpsize, void *auxData);
-extern int mdd_objectFunctionStruct(const mdd_function_pointers *mfp, r_Structure_Type *structType, const char *src, char *dest, const mdd_function_desc *mfd, int dim, int tpsize, void *auxData);
-extern int mdd_objectFunctionType(const mdd_function_pointers *mfp, const r_Type *baseType, const char *src, char *dest, const mdd_function_desc *mfd, int dim, int tpsize, void *auxData);
+extern int mdd_objectFunctionPrim(const mdd_function_pointers* mfp, r_Primitive_Type* primType, const char* src, char* dest, const mdd_function_desc* mfd, int dim, int tpsize, void* auxData);
+extern int mdd_objectFunctionStruct(const mdd_function_pointers* mfp, r_Structure_Type* structType, const char* src, char* dest, const mdd_function_desc* mfd, int dim, int tpsize, void* auxData);
+extern int mdd_objectFunctionType(const mdd_function_pointers* mfp, const r_Type* baseType, const char* src, char* dest, const mdd_function_desc* mfd, int dim, int tpsize, void* auxData);
 
 // Initialising mdd functions
 #define MDD_OBJECT_INIT_NEWIV   1
 #define MDD_OBJECT_INIT_FPSTEP  (2 | MDD_OBJECT_INIT_NEWIV)
-extern char *mdd_objectFunctionInitMdd(r_Ref<r_GMarray> mddPtr, r_Ref<r_GMarray> &newMddPtr, r_Minterval &newInterv, int tpsize, r_Dimension dim, r_Database *db=NULL);
-extern mdd_function_desc *mdd_objectFunctionInitData(r_Minterval &interv, r_Minterval &useInterv, r_Minterval &newInterv, int tpsize, unsigned int flags=0);
+extern char* mdd_objectFunctionInitMdd(r_Ref<r_GMarray> mddPtr, r_Ref<r_GMarray>& newMddPtr, r_Minterval& newInterv, int tpsize, r_Dimension dim, r_Database* db = NULL);
+extern mdd_function_desc* mdd_objectFunctionInitData(r_Minterval& interv, r_Minterval& useInterv, r_Minterval& newInterv, int tpsize, unsigned int flags = 0);
 
 
 
@@ -172,17 +172,17 @@ extern mdd_function_desc *mdd_objectFunctionInitData(r_Minterval &interv, r_Mint
 /*
  *  Wrapper functions for mdd function templates
  */
-int mdd_objectRange(r_Ref<r_GMarray> mddObj, r_Minterval &useInterv, double &min, double &max);
+int mdd_objectRange(r_Ref<r_GMarray> mddObj, r_Minterval& useInterv, double& min, double& max);
 
-int mdd_createSubcube(r_Ref<r_GMarray> srcMdd, r_Ref<r_GMarray> &newMdd, r_Minterval *domain, r_Database *db);
+int mdd_createSubcube(r_Ref<r_GMarray> srcMdd, r_Ref<r_GMarray>& newMdd, r_Minterval* domain, r_Database* db);
 
-int mdd_objectScaleInter(r_Ref<r_GMarray> srcMdd, r_Minterval &useInterv, r_Ref<r_GMarray> &newMdd, r_Minterval &newInterv);
+int mdd_objectScaleInter(r_Ref<r_GMarray> srcMdd, r_Minterval& useInterv, r_Ref<r_GMarray>& newMdd, r_Minterval& newInterv);
 
-int mdd_objectScaleAverage(r_Ref<r_GMarray> srcMdd, r_Minterval &useInterv, r_Ref<r_GMarray> &newMdd, r_Minterval &newInterv);
+int mdd_objectScaleAverage(r_Ref<r_GMarray> srcMdd, r_Minterval& useInterv, r_Ref<r_GMarray>& newMdd, r_Minterval& newInterv);
 
-int mdd_objectScaleSimple(r_Ref<r_GMarray> srcMdd, r_Minterval &useInterv, r_Ref<r_GMarray> &newMdd, r_Minterval &newInterv);
+int mdd_objectScaleSimple(r_Ref<r_GMarray> srcMdd, r_Minterval& useInterv, r_Ref<r_GMarray>& newMdd, r_Minterval& newInterv);
 
-int mdd_objectChangeEndianness(r_Ref<r_GMarray> srcMdd, r_Minterval &useInterv, r_Ref<r_GMarray> *newMdd=NULL, r_Minterval *newInterv=NULL);
+int mdd_objectChangeEndianness(r_Ref<r_GMarray> srcMdd, r_Minterval& useInterv, r_Ref<r_GMarray>* newMdd = NULL, r_Minterval* newInterv = NULL);
 
 #if (defined(EARLY_TEMPLATE) && defined(__EXECUTABLE__))
 #include "rviewMDD.cpp"

@@ -30,7 +30,7 @@ public:
 
     virtual ~ConfigurationManager();
 
-    void saveConfiguration(bool backup=false);
+    void saveConfiguration(bool backup = false);
 
     /**
      * @brief loadConfiguration Load the configuration stored in rasmgr.auth and rasmgr.conf
@@ -62,11 +62,12 @@ private:
     bool isDirty_;
 
     void loadRasMgrConf();
-    void saveRasMgrConf(bool backup=false);
+    void saveRasMgrConf(bool backup = false);
 
     void saveDatabaseHosts(std::ofstream& out);
     void saveDatabases(std::ofstream& out);
-    void saveServers(std::ofstream& out);\
+    void saveServers(std::ofstream& out);
+    \
     void savePeers(std::ofstream& out);
 };
 }

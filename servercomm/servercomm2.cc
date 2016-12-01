@@ -67,7 +67,7 @@ static const char rcsid[] = "@(#)servercomm2, ServerComm: $Id: servercomm2.cc,v 
 extern int _rpcpmstart;
 
 // function prototype with C linkage
-extern "C" int gethostname(char *name, int namelen);
+extern "C" int gethostname(char* name, int namelen);
 #else  // HPUX
 #include <rpc/rpc.h>
 #endif
@@ -116,7 +116,7 @@ extern "C" int gethostname(char *name, int namelen);
 // include and extern declarations for the query parsing
 #include "qlparser/querytree.hh"
 #include "relcatalogif/structtype.hh"
-extern int           yyparse(void *);
+extern int           yyparse(void*);
 extern void          yyreset();
 #ifdef NOPRE
 char* ppInBuf = 0;
@@ -149,9 +149,9 @@ extern char*         iterParseString;
 extern unsigned long maxTransferBufferSize;
 extern char*         dbSchema;
 
-MDDColl*      mddConstants=0;
+MDDColl*      mddConstants = 0;
 
-ServerComm::ClientTblElt* currentClientTblElt=0;
+ServerComm::ClientTblElt* currentClientTblElt = 0;
 
 // Once again a function prototype. The first one is for the RPC dispatcher
 // function located in the server stub file rpcif_svc.c and the second one
@@ -159,8 +159,8 @@ ServerComm::ClientTblElt* currentClientTblElt=0;
 extern "C"
 {
     // static void rpcif_1( struct svc_req*, register SVCXPRT* );
-    char* rpcif_1( struct svc_req*, register SVCXPRT* );
-    void garbageCollection( int );
+    char* rpcif_1(struct svc_req*, register SVCXPRT*);
+    void garbageCollection(int);
 }
 
 // This is needed in httpserver.cc
@@ -170,8 +170,8 @@ char globalHTTPSetTypeStructure[4096];
 const char* ServerComm::HTTPCLIENT = "HTTPClient";
 
 ///ensureTileFormat returns the following:
-const int ServerComm::ENSURE_TILE_FORMAT_OK=0;
-const int ServerComm::ENSURE_TILE_FORMAT_BAD=-1;
+const int ServerComm::ENSURE_TILE_FORMAT_OK = 0;
+const int ServerComm::ENSURE_TILE_FORMAT_BAD = -1;
 
 /*************************************************************************
  * Method name...: openDB( unsigned long callingClientId,
@@ -179,18 +179,18 @@ const int ServerComm::ENSURE_TILE_FORMAT_BAD=-1;
  *                         const char*   userName )
  ************************************************************************/
 unsigned short
-ServerComm::openDB( unsigned long callingClientId,
-                    const char* dbName,
-                    const char* userName )
+ServerComm::openDB(unsigned long callingClientId,
+                   const char* dbName,
+                   const char* userName)
 {
-    unsigned short returnValue=0;
+    unsigned short returnValue = 0;
 #ifdef DEBUG
     LINFO << "Request: 'open DB', name = " << dbName << "'...";
 #endif
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // release transfer collection/iterator
         context->releaseTransferStructures();
@@ -198,16 +198,16 @@ ServerComm::openDB( unsigned long callingClientId,
         // open the database
         try
         {
-            context->database.open( dbName );
+            context->database.open(dbName);
         }
-        catch(r_Error& err)
+        catch (r_Error& err)
         {
-            if(err.get_kind() == r_Error::r_Error_DatabaseUnknown)
+            if (err.get_kind() == r_Error::r_Error_DatabaseUnknown)
             {
                 LERROR << "Error: database does not exist.";
                 returnValue = 2;
             }
-            else if(err.get_kind() == r_Error::r_Error_DatabaseOpen)
+            else if (err.get_kind() == r_Error::r_Error_DatabaseOpen)
             {
                 // ignore re-open to be fault tolerant -- PB 2004-dec-16
                 // LERROR << "Error: database is already open.";
@@ -221,16 +221,16 @@ ServerComm::openDB( unsigned long callingClientId,
             }
         }
 
-        if( returnValue == 0 )
+        if (returnValue == 0)
         {
             // database was successfully opened, so assign db and user name
             delete[] context->baseName;
-            context->baseName = new char[strlen( dbName )+1];
-            strcpy( context->baseName, dbName );
+            context->baseName = new char[strlen(dbName) + 1];
+            strcpy(context->baseName, dbName);
 
             delete[] context->userName;
-            context->userName = new char[strlen( userName )+1];
-            strcpy( context->userName, userName );
+            context->userName = new char[strlen(userName) + 1];
+            strcpy(context->userName, userName);
 #ifdef DEBUG
             LINFO << MSG_OK;
 #endif
@@ -239,7 +239,7 @@ ServerComm::openDB( unsigned long callingClientId,
         context->release();
 
         // ignore "already open" error to be more fault tolerant -- PB 2004-dec-16
-        if( returnValue == 3 )
+        if (returnValue == 3)
         {
             LWARNING << "Warning: database already open for user '" << userName << "', ignoring command.";
             returnValue = 0;
@@ -259,7 +259,7 @@ ServerComm::openDB( unsigned long callingClientId,
  * Method name...: closeDB( unsigned long callingClientId )
  ************************************************************************/
 unsigned short
-ServerComm::closeDB( unsigned long callingClientId )
+ServerComm::closeDB(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
@@ -267,15 +267,15 @@ ServerComm::closeDB( unsigned long callingClientId )
     LDEBUG << "Request: 'close DB'...";
 #endif
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // release transfer collection/iterator
         context->releaseTransferStructures();
 
         // If the current transaction belongs to this client, abort it.
-        if( transactionActive == callingClientId )
+        if (transactionActive == callingClientId)
         {
             LWARNING << "Warning: transaction is open; aborting this transaction...";
 
@@ -289,7 +289,7 @@ ServerComm::closeDB( unsigned long callingClientId )
         // reset database name
         delete[] context->baseName;
         context->baseName = new char[5];
-        strcpy( context->baseName, "none" );
+        strcpy(context->baseName, "none");
 
         returnValue = 0;
 
@@ -300,7 +300,7 @@ ServerComm::closeDB( unsigned long callingClientId )
 #endif
 
 #ifdef DEBUG
-    LINFO << MSG_OK;
+        LINFO << MSG_OK;
 #endif
     }
     else
@@ -317,7 +317,7 @@ ServerComm::closeDB( unsigned long callingClientId )
  * Method name...: createDB( char* name )
  ************************************************************************/
 unsigned short
-ServerComm::createDB( char* name )
+ServerComm::createDB(char* name)
 {
     unsigned short returnValue;
 
@@ -332,23 +332,23 @@ ServerComm::createDB( char* name )
     // create the database
     try
     {
-        tempDbIf->createDB( name, dbSchema );
+        tempDbIf->createDB(name, dbSchema);
 #ifdef DEBUG
-    LINFO << MSG_OK;
+        LINFO << MSG_OK;
 #endif
     }
-    catch(r_Error& myErr)
+    catch (r_Error& myErr)
     {
 #ifdef DEBUG
         LERROR << "Error: exception " << myErr.get_errorno() << ": " << myErr.what();
 #endif
     }
-    catch(std::bad_alloc)
+    catch (std::bad_alloc)
     {
         LERROR << "Error: cannot allocate memory.";
         throw;
     }
-    catch(...)
+    catch (...)
     {
         LERROR << "Error: Unspecified exception.";
     }
@@ -367,7 +367,7 @@ ServerComm::createDB( char* name )
  * Method name...: destroyDB( char* name )
  ************************************************************************/
 unsigned short
-ServerComm::destroyDB( char* name )
+ServerComm::destroyDB(char* name)
 {
     // Note: why no check for client id here? -- PB 2005-aug-25
 
@@ -384,7 +384,7 @@ ServerComm::destroyDB( char* name )
     // tempTaIf->begin(tempDbIf);
 
     // destroy the database
-    tempDbIf->destroyDB( name );
+    tempDbIf->destroyDB(name);
 
     // commit the temporary transaction
     // tempTaIf->commit();
@@ -404,23 +404,23 @@ ServerComm::destroyDB( char* name )
  * Method name...: beginTA( unsigned long callingClientId )
  ************************************************************************/
 unsigned short
-ServerComm::beginTA( unsigned long callingClientId,
-                     unsigned short readOnly )
+ServerComm::beginTA(unsigned long callingClientId,
+                    unsigned short readOnly)
 {
     unsigned short returnValue;
 
 #ifdef DEBUG
-    LINFO << "Request: 'begin TA', mode = " << ( readOnly ? "read" : "write" ) << "...";
+    LINFO << "Request: 'begin TA', mode = " << (readOnly ? "read" : "write") << "...";
 #endif
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context == 0 )
+    if (context == 0)
     {
         LERROR << "Error: client not registered.";
         returnValue = 1;
     }
-    else if ( transactionActive )
+    else if (transactionActive)
     {
         LERROR << "Error: transaction already active.";
         returnValue = 2;
@@ -432,18 +432,20 @@ ServerComm::beginTA( unsigned long callingClientId,
         context->releaseTransferStructures();
 
 #ifdef RMANBENCHMARK
-        if( RManBenchmark > 0 )
+        if (RManBenchmark > 0)
+        {
             context->taTimer = new RMTimer("ServerComm", "transaction");
+        }
 #endif
         try
         {
             // start the transaction
-            context->transaction.begin( &(context->database), readOnly );
+            context->transaction.begin(&(context->database), readOnly);
 #ifdef DEBUG
             LINFO << MSG_OK;
 #endif
         }
-        catch(r_Error& err)
+        catch (r_Error& err)
         {
 #ifdef DEBUG
             LFATAL << "Error: exception " << err.get_errorno() << ": " << err.what();
@@ -467,30 +469,32 @@ ServerComm::beginTA( unsigned long callingClientId,
  * Method name...: commitTA( unsigned long callingClientId )
  ************************************************************************/
 unsigned short
-ServerComm::commitTA( unsigned long callingClientId )
+ServerComm::commitTA(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
 #ifdef DEBUG
     LINFO << "Request: 'commit TA'...";
 #endif
 
-    if( context != 0 )
+    if (context != 0)
     {
 
 #ifdef RMANBENCHMARK
         RMTimer* commitTimer = 0;
-        if( RManBenchmark > 0 )
+        if (RManBenchmark > 0)
+        {
             commitTimer = new RMTimer("ServerComm", "commit");
+        }
 #endif
 
         // release transfer collection/iterator within the transaction they are created
         context->releaseTransferStructures();
         if (configuration.isLockMgrOn())
         {
-            LockManager *lockmanager = LockManager::Instance();
+            LockManager* lockmanager = LockManager::Instance();
             lockmanager->unlockAllTiles();
         }
 
@@ -503,7 +507,10 @@ ServerComm::commitTA( unsigned long callingClientId )
         returnValue = 0;
 
 #ifdef RMANBENCHMARK
-        if( commitTimer ) delete commitTimer;
+        if (commitTimer)
+        {
+            delete commitTimer;
+        }
 #endif
 
         context->release();
@@ -519,8 +526,10 @@ ServerComm::commitTA( unsigned long callingClientId )
     }
 
 #ifdef RMANBENCHMARK
-    if( context->taTimer )
+    if (context->taTimer)
+    {
         delete context->taTimer;
+    }
     context->taTimer = 0;
 #endif
 
@@ -533,7 +542,7 @@ ServerComm::commitTA( unsigned long callingClientId )
  * Method name...: abortTA( unsigned long callingClientId )
  ************************************************************************/
 unsigned short
-ServerComm::abortTA( unsigned long callingClientId )
+ServerComm::abortTA(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
@@ -541,9 +550,9 @@ ServerComm::abortTA( unsigned long callingClientId )
     LINFO << "Request: 'abort TA'...";
 #endif
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // release transfer collection/iterator within the transaction they are created
         context->releaseTransferStructures();
@@ -552,7 +561,7 @@ ServerComm::abortTA( unsigned long callingClientId )
         context->transaction.abort();
         if (configuration.isLockMgrOn())
         {
-            LockManager *lockmanager = LockManager::Instance();
+            LockManager* lockmanager = LockManager::Instance();
             lockmanager->unlockAllTiles();
         }
 
@@ -574,7 +583,10 @@ ServerComm::abortTA( unsigned long callingClientId )
     }
 
 #ifdef RMANBENCHMARK
-    if( context->taTimer ) delete context->taTimer;
+    if (context->taTimer)
+    {
+        delete context->taTimer;
+    }
     context->taTimer = 0;
 #endif
 
@@ -590,16 +602,16 @@ ServerComm::abortTA( unsigned long callingClientId )
  *  true    iff a transaction is open
  ************************************************************************/
 bool
-ServerComm::isTAOpen( __attribute__ ((unused)) unsigned long callingClientId )
+ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
 {
 #ifdef DEBUG
-        LINFO << "Request: 'is TA open'...";
+    LINFO << "Request: 'is TA open'...";
 #endif
 
     bool returnValue = transactionActive;
 
 #ifdef DEBUG
-    LINFO << MSG_OK << (transactionActive?"yes.":"no.");
+    LINFO << MSG_OK << (transactionActive ? "yes." : "no.");
 #endif
 
     return returnValue;
@@ -608,18 +620,18 @@ ServerComm::isTAOpen( __attribute__ ((unused)) unsigned long callingClientId )
 
 
 unsigned short
-ServerComm::insertColl( unsigned long callingClientId,
-                        const char*   collName,
-                        const char*   typeName,
-                        r_OId&        oid       )
+ServerComm::insertColl(unsigned long callingClientId,
+                       const char*   collName,
+                       const char*   typeName,
+                       r_OId&        oid)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'insert collection', collection name = '" << collName << "', type = '" << typeName << "'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer structures
         context->releaseTransferStructures();
@@ -629,9 +641,9 @@ ServerComm::insertColl( unsigned long callingClientId,
         //
 
         // get collection type
-        CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType( typeName )));
+        CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType(typeName)));
 
-        if( collType )
+        if (collType)
         {
             try
             {
@@ -639,7 +651,7 @@ ServerComm::insertColl( unsigned long callingClientId,
                 delete coll;
                 LINFO << MSG_OK;
             }
-            catch( r_Error& obj )
+            catch (r_Error& obj)
             {
                 if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
                 {
@@ -687,16 +699,16 @@ ServerComm::insertColl( unsigned long callingClientId,
  *                                      const char*   collName )
  ************************************************************************/
 unsigned short
-ServerComm::deleteCollByName( unsigned long callingClientId,
-                              const char*   collName         )
+ServerComm::deleteCollByName(unsigned long callingClientId,
+                             const char*   collName)
 {
     unsigned short returnValue;
 
     LINFO << "Request: 'delete collection by name', name = '" << collName << "'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer structures
         context->releaseTransferStructures();
@@ -737,27 +749,27 @@ ServerComm::deleteCollByName( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::deleteObjByOId( unsigned long callingClientId,
-                            r_OId&        oid              )
+ServerComm::deleteObjByOId(unsigned long callingClientId,
+                           r_OId&        oid)
 {
     unsigned short returnValue;
 
     LINFO << "Request: 'delete MDD by OID', oid = '" << oid << "'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer structures
         context->releaseTransferStructures();
 
         // determine type of object
-        OId oidIf( oid.get_local_oid() );
+        OId oidIf(oid.get_local_oid());
 
         LTRACE << "OId of object " << oidIf;
         OId::OIdType objType = oidIf.getType();
 
-        switch( objType )
+        switch (objType)
         {
         case OId::MDDOID:
             // FIXME: why not deleted?? -- PB 2005-aug-27
@@ -804,22 +816,22 @@ ServerComm::deleteObjByOId( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::removeObjFromColl( unsigned long callingClientId,
-                               const char*   collName,
-                               r_OId&        oid              )
+ServerComm::removeObjFromColl(unsigned long callingClientId,
+                              const char*   collName,
+                              r_OId&        oid)
 {
     unsigned short returnValue;
 
     LINFO << "Request: 'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer structures
         context->releaseTransferStructures();
 
-        OId oidIf( oid.get_local_oid() );
+        OId oidIf(oid.get_local_oid());
 
         LTRACE << "mdd object oid " << oidIf;
 
@@ -831,7 +843,7 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
             coll = MDDColl::getMDDCollection(collName);
             LTRACE << "retrieved mdd coll";
         }
-        catch(r_Error& obj)
+        catch (r_Error& obj)
         {
             // collection name invalid
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
@@ -851,19 +863,19 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
             }
             coll = NULL;
         }
-        catch(std::bad_alloc)
+        catch (std::bad_alloc)
         {
             LERROR << "Error: cannot allocate memory.";
             throw;
         }
-        catch(...)
+        catch (...)
         {
             // collection name invalid
             LERROR << "Error: unspecified exception.";
             returnValue = 2;
         }
 
-        if( coll )
+        if (coll)
         {
             if (coll->isPersistent())
             {
@@ -900,21 +912,21 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::insertMDD( unsigned long  callingClientId,
-                       const char*    collName,
-                       RPCMarray*     rpcMarray,
-                       const char*    typeName,
-                       r_OId&         oid              )
+ServerComm::insertMDD(unsigned long  callingClientId,
+                      const char*    collName,
+                      RPCMarray*     rpcMarray,
+                      const char*    typeName,
+                      r_OId&         oid)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'insert MDD type', type = '" << typeName << "', collection = '" << collName << "'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
     r_Data_Format myDataFmt = r_Array;
     r_Data_Format myCurrentFmt = r_Array;
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer structures
         context->releaseTransferStructures();
@@ -924,23 +936,25 @@ ServerComm::insertMDD( unsigned long  callingClientId,
         //
 
         // Determine the type of the MDD to be inserted.
-        const MDDType* mddType = TypeFactory::mapMDDType( typeName );
-        if( mddType )
+        const MDDType* mddType = TypeFactory::mapMDDType(typeName);
+        if (mddType)
         {
-            if( mddType->getSubtype() != MDDType::MDDONLYTYPE )
+            if (mddType->getSubtype() != MDDType::MDDONLYTYPE)
             {
                 //
                 // open the collection
                 //
 
-                MDDColl* collection=0;
+                MDDColl* collection = 0;
                 MDDColl* almost = 0;
 
                 try
                 {
-                    almost = MDDColl::getMDDCollection( collName );
+                    almost = MDDColl::getMDDCollection(collName);
                     if (almost->isPersistent())
+                    {
                         collection = static_cast<MDDColl*>(almost);
+                    }
                     else
                     {
                         LFATAL << "Error: inserting into system collection is illegal.";
@@ -948,7 +962,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
                 }
-                catch(std::bad_alloc)
+                catch (std::bad_alloc)
                 {
                     LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
@@ -963,7 +977,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                     context->release(); //!!!
                     throw;
                 }
-                catch(...)
+                catch (...)
                 {
                     returnValue = 5;
                     LERROR << "Error: unspecific exception during collection read.";
@@ -975,7 +989,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 // check MDD and collection type for compatibility
                 //
 
-                r_Minterval   domain( rpcMarray->domain );
+                r_Minterval   domain(rpcMarray->domain);
 
 #ifdef DEBUG
                 char* collTypeStructure = collection->getCollectionType()->getTypeStructure();
@@ -983,11 +997,11 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
                        << "MDD type structure........: " << mddTypeStructure << "\n"
                        << "MDD domain................: " << domain;
-                free( collTypeStructure );
-                free( mddTypeStructure );
+                free(collTypeStructure);
+                free(mddTypeStructure);
 #endif
 
-                if( !mddType->compatibleWithDomain( &domain ) )
+                if (!mddType->compatibleWithDomain(&domain))
                 {
                     // free resources
                     collection->releaseAll();
@@ -1002,7 +1016,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                     return returnValue;
                 }
 
-                if( !collection->getCollectionType()->compatibleWith( mddType ) )
+                if (!collection->getCollectionType()->compatibleWith(mddType))
                 {
                     // free resources
                     collection->releaseAll();
@@ -1033,19 +1047,21 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 unsigned long byteCount  = domain.cell_count() * rpcMarray->cellTypeLength;
                 //r_Data_Format storageFormat = (r_Data_Format)(rpcMarray->storageFormat);
 
-                MDDObj*   mddObj=0;
+                MDDObj*   mddObj = 0;
                 StorageLayout ms;
                 ms.setTileSize(StorageLayout::DefaultTileSize);
                 ms.setIndexType(StorageLayout::DefaultIndexType);
                 ms.setTilingScheme(StorageLayout::DefaultTilingScheme);
                 if (domain.dimension() == StorageLayout::DefaultTileConfiguration.dimension())
+                {
                     ms.setTileConfiguration(StorageLayout::DefaultTileConfiguration);
+                }
 
                 try
                 {
                     mddObj = new MDDObj(mddBaseType, domain, OId(oid.get_local_oid()), ms);
                 }
-                catch(std::bad_alloc)
+                catch (std::bad_alloc)
                 {
                     LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
@@ -1059,7 +1075,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                     context->release(); //!!!
                     throw;
                 }
-                catch(...)
+                catch (...)
                 {
                     returnValue = 6;
                     LERROR << "Error: unspecific exception during creation of persistent object.";
@@ -1072,17 +1088,17 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 myDataFmt = static_cast<r_Data_Format>(rpcMarray->storageFormat);
                 myCurrentFmt = static_cast<r_Data_Format>(rpcMarray->currentFormat);
                 LTRACE  << "oid " << oid
-                                << ", domain " << domain
-                                << ", cell length " << rpcMarray->cellTypeLength
-                                << ", data size " << dataSize
-                                << ", rpc storage " << myDataFmt
-                                << ", rpc transfer " << myCurrentFmt << " ";
+                        << ", domain " << domain
+                        << ", cell length " << rpcMarray->cellTypeLength
+                        << ", data size " << dataSize
+                        << ", rpc storage " << myDataFmt
+                        << ", rpc transfer " << myCurrentFmt << " ";
 
                 // store in the specified storage format; the current tile format afterwards will be the
                 // requested format if all went well, but use the (new) current format to be sure.
                 // Don't repack here, however, because it might be retiled before storage.
-                if(ensureTileFormat(myCurrentFmt, myDataFmt, domain,
-                                    baseType, dataPtr, dataSize, 0, 1, context->storageFormatParams) != ENSURE_TILE_FORMAT_OK)
+                if (ensureTileFormat(myCurrentFmt, myDataFmt, domain,
+                                     baseType, dataPtr, dataSize, 0, 1, context->storageFormatParams) != ENSURE_TILE_FORMAT_OK)
                 {
                     //FIXME returnValue
                     returnValue = 6;
@@ -1095,34 +1111,44 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
                 // if compressed, getMDDData is != 0
                 if (myCurrentFmt != r_Array)
+                {
                     getMDDData = dataSize;
+                }
 
                 // This should check the compressed size rather than the raw data size
-                if( RMInit::tiling && dataSize > StorageLayout::DefaultTileSize )
+                if (RMInit::tiling && dataSize > StorageLayout::DefaultTileSize)
                 {
-                    r_Range edgeLength = static_cast<r_Range>(floor(exp((1/static_cast<r_Double>(domain.dimension()))*
-                                                            log(static_cast<r_Double>(StorageLayout::DefaultTileSize)/rpcMarray->cellTypeLength))));
+                    r_Range edgeLength = static_cast<r_Range>(floor(exp((1 / static_cast<r_Double>(domain.dimension())) *
+                                         log(static_cast<r_Double>(StorageLayout::DefaultTileSize) / rpcMarray->cellTypeLength))));
 
-                    if (edgeLength <1)
-                        edgeLength=1;
+                    if (edgeLength < 1)
+                    {
+                        edgeLength = 1;
+                    }
 
-                    r_Minterval tileDom( domain.dimension() );
-                    for( unsigned int i=0; i<tileDom.dimension(); i++ )
-                        tileDom << r_Sinterval( static_cast<r_Range>(0), static_cast<r_Range>(edgeLength-1) );
+                    r_Minterval tileDom(domain.dimension());
+                    for (unsigned int i = 0; i < tileDom.dimension(); i++)
+                    {
+                        tileDom << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(edgeLength - 1));
+                    }
 
                     Tile* entireTile = 0;
                     myCurrentFmt = r_Array;
-                    entireTile = new Tile( domain, baseType, true, dataPtr, getMDDData, myDataFmt );
+                    entireTile = new Tile(domain, baseType, true, dataPtr, getMDDData, myDataFmt);
 
-                    vector< Tile *>* tileSet = entireTile->splitTile( tileDom );
+                    vector<Tile*>* tileSet = entireTile->splitTile(tileDom);
                     if (entireTile->isPersistent())
+                    {
                         entireTile->setPersistent(0);
+                    }
                     delete entireTile;
 
                     LINFO << "creating " << tileSet->size() << " tile(s)...";
 
-                    for( vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++ )
-                        mddObj->insertTile( *iter );
+                    for (vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++)
+                    {
+                        mddObj->insertTile(*iter);
+                    }
 
                     // delete the vector again
                     delete tileSet;
@@ -1131,14 +1157,14 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 {
                     Tile* tile = 0;
 
-                    tile = new Tile( domain, baseType, true, dataPtr, getMDDData, myDataFmt );
+                    tile = new Tile(domain, baseType, true, dataPtr, getMDDData, myDataFmt);
                     LTRACE << "insertTile created new TransTile (" << myDataFmt << "), ";
 
                     LTRACE << "one tile...";
-                    mddObj->insertTile( tile );
+                    mddObj->insertTile(tile);
                 }
 
-                collection->insert( mddObj );
+                collection->insert(mddObj);
 
                 // free transient memory
                 collection->releaseAll();
@@ -1176,32 +1202,36 @@ ServerComm::insertMDD( unsigned long  callingClientId,
 
 
 unsigned short
-ServerComm::insertTileSplitted( unsigned long  callingClientId,
-                                int            isPersistent,
-                                RPCMarray*     rpcMarray,
-                                r_Minterval*   tileSize)
+ServerComm::insertTileSplitted(unsigned long  callingClientId,
+                               int            isPersistent,
+                               RPCMarray*     rpcMarray,
+                               r_Minterval*   tileSize)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'insert tile'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         BaseType* baseType = NULL;
 
-        if( isPersistent )
+        if (isPersistent)
+        {
             baseType = const_cast<BaseType*>(context->assembleMDD->getCellType());
+        }
         else
+        {
             baseType = const_cast<BaseType*>(context->transferMDD->getCellType());
+        }
 
         // The type of the tile has to be the one of the MDD.
         // type check missing
 
-        if( baseType != NULL )
+        if (baseType != NULL)
         {
-            r_Minterval   domain( rpcMarray->domain );
+            r_Minterval   domain(rpcMarray->domain);
             char*         dataPtr  = rpcMarray->data.confarray_val;
             r_Bytes       dataSize = (r_Bytes) rpcMarray->data.confarray_len;
             // reset data area from rpc structure so that it is not deleted
@@ -1215,8 +1245,8 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             LTRACE << "insertTileSplitted - rpc transfer format : " << myCurrentFmt;
             // store in specified storage format; use (new) current format afterwards
             // Don't repack here because of possible retiling.
-            if(ensureTileFormat(myCurrentFmt, myDataFmt, domain,
-                                baseType, dataPtr, dataSize, 0, 1, context->storageFormatParams) != ENSURE_TILE_FORMAT_OK)
+            if (ensureTileFormat(myCurrentFmt, myDataFmt, domain,
+                                 baseType, dataPtr, dataSize, 0, 1, context->storageFormatParams) != ENSURE_TILE_FORMAT_OK)
             {
                 //FIXME returnValue
                 returnValue = 1;
@@ -1227,26 +1257,28 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             }
 
             if (myCurrentFmt != r_Array)
+            {
                 getMDDData = dataSize;
+            }
 
             Tile* tile = 0;
 
             LTRACE << "insertTile created new TransTile (" << myDataFmt << "), ";
             myDataFmt = r_Array;
-            tile = new Tile( domain, baseType, true, dataPtr, getMDDData, myDataFmt );
+            tile = new Tile(domain, baseType, true, dataPtr, getMDDData, myDataFmt);
 
             // for java clients only: check endianness and split tile if necessary
-            if(strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0)
+            if (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0)
             {
                 // check endianess
                 r_Endian::r_Endianness serverEndian = r_Endian::get_endianness();
-                if(serverEndian != r_Endian::r_Endian_Big)
+                if (serverEndian != r_Endian::r_Endian_Big)
                 {
                     LTRACE << "changing endianness...";
 
                     // we have to swap the endianess
-                    char *tpstruct;
-                    r_Base_Type *useType;
+                    char* tpstruct;
+                    r_Base_Type* useType;
                     tpstruct = baseType->getTypeStructure();
                     useType = static_cast<r_Base_Type*>(r_Type::get_any_type(tpstruct));
 
@@ -1261,14 +1293,18 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
                 }
 
                 // Split the tile!
-                vector< Tile *>* tileSet = tile->splitTile( *tileSize );
+                vector<Tile*>* tileSet = tile->splitTile(*tileSize);
                 LTRACE << "inserting split tile...";
-                for( vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++ )
+                for (vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++)
                 {
-                    if( isPersistent )
-                        context->assembleMDD->insertTile( *iter );
+                    if (isPersistent)
+                    {
+                        context->assembleMDD->insertTile(*iter);
+                    }
                     else
-                        context->transferMDD->insertTile( *iter );
+                    {
+                        context->transferMDD->insertTile(*iter);
+                    }
                 }
                 // delete the vector again
                 delete tile;
@@ -1281,10 +1317,14 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
                 //insert one single tile
                 // later, we should take into consideration the default server tile-size!
                 LTRACE << "inserting single tile...";
-                if( isPersistent )
-                    context->assembleMDD->insertTile( tile );
+                if (isPersistent)
+                {
+                    context->assembleMDD->insertTile(tile);
+                }
                 else
-                    context->transferMDD->insertTile( tile );
+                {
+                    context->transferMDD->insertTile(tile);
+                }
                 //do not access tile again, because it was already deleted in insertTile
             }
             //
@@ -1294,7 +1334,9 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             LINFO << MSG_OK;
         }
         else
+        {
             LERROR << "Error: tile and MDD base type do not match.";
+        }
 
         context->release();
     }
@@ -1309,9 +1351,9 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
 
 
 unsigned short
-ServerComm::insertTile( unsigned long  callingClientId,
-                        int            isPersistent,
-                        RPCMarray*     rpcMarray )
+ServerComm::insertTile(unsigned long  callingClientId,
+                       int            isPersistent,
+                       RPCMarray*     rpcMarray)
 {
     // no log here, is done in RNP comm.
 
@@ -1322,39 +1364,39 @@ ServerComm::insertTile( unsigned long  callingClientId,
 
 
 unsigned short
-ServerComm::startInsertPersMDD( unsigned long  callingClientId,
-                                const char*    collName,
-                                r_Minterval    &domain,
-                                unsigned long  typeLength,
-                                const char*    typeName,
-                                r_OId&         oid          )
+ServerComm::startInsertPersMDD(unsigned long  callingClientId,
+                               const char*    collName,
+                               r_Minterval&    domain,
+                               unsigned long  typeLength,
+                               const char*    typeName,
+                               r_OId&         oid)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'start inserting persistent MDD type', type = '" << typeName
-                   << "', collection = '" << collName << "', domain = " << domain << ", cell size = " << typeLength
-                   << ", " << domain.cell_count()*typeLength << "...";
+          << "', collection = '" << collName << "', domain = " << domain << ", cell size = " << typeLength
+          << ", " << domain.cell_count()*typeLength << "...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer structures
         context->releaseTransferStructures();
 
         // Determine the type of the MDD to be inserted.
-        const MDDType* mddType = TypeFactory::mapMDDType( typeName );
+        const MDDType* mddType = TypeFactory::mapMDDType(typeName);
 
-        if( mddType )
+        if (mddType)
         {
-            if( mddType->getSubtype() != MDDType::MDDONLYTYPE )
+            if (mddType->getSubtype() != MDDType::MDDONLYTYPE)
             {
                 MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
                 try
                 {
                     // store PersMDDColl for insert operation at the end of the transfer
-                    context->transferColl = MDDColl::getMDDCollection( collName );
+                    context->transferColl = MDDColl::getMDDCollection(collName);
                     if (!context->transferColl->isPersistent())
                     {
                         LFATAL << "Error: inserting into system collection is illegal.";
@@ -1370,13 +1412,13 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                     context->release(); //!!!
                     throw;
                 }
-                catch(std::bad_alloc)
+                catch (std::bad_alloc)
                 {
                     LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
                     throw;
                 }
-                catch(...)
+                catch (...)
                 {
                     returnValue = 5;
                     LERROR << "Error: unspecific exception while opening collection.";
@@ -1395,11 +1437,11 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
                        << "MDD type structure........: " << mddTypeStructure << "\n"
                        << "MDD domain................: " << domain;
-                free( collTypeStructure );
-                free( mddTypeStructure );
+                free(collTypeStructure);
+                free(mddTypeStructure);
 #endif
 
-                if( !mddType->compatibleWithDomain( &domain ) )
+                if (!mddType->compatibleWithDomain(&domain))
                 {
                     // free resources
                     context->transferColl->releaseAll();
@@ -1415,7 +1457,7 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                     return returnValue;
                 }
 
-                if( !context->transferColl->getCollectionType()->compatibleWith( mddType ) )
+                if (!context->transferColl->getCollectionType()->compatibleWith(mddType))
                 {
                     // free resources
                     context->transferColl->releaseAll();
@@ -1440,10 +1482,12 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 ms.setIndexType(StorageLayout::DefaultIndexType);
                 ms.setTilingScheme(StorageLayout::DefaultTilingScheme);
                 if (domain.dimension() == StorageLayout::DefaultTileConfiguration.dimension())
+                {
                     ms.setTileConfiguration(StorageLayout::DefaultTileConfiguration);
+                }
                 try
                 {
-                    context->assembleMDD = new MDDObj( mddBaseType, domain, OId( oid.get_local_oid() ), ms );
+                    context->assembleMDD = new MDDObj(mddBaseType, domain, OId(oid.get_local_oid()), ms);
                 }
                 catch (r_Error& err)
                 {
@@ -1453,13 +1497,13 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                     context->release(); //!!!
                     throw;
                 }
-                catch(std::bad_alloc)
+                catch (std::bad_alloc)
                 {
                     LFATAL << "Error: cannot allocate memory.";
                     context->release(); //!!!
                     throw;
                 }
-                catch(...)
+                catch (...)
                 {
                     returnValue = 6;
                     LERROR << "Error: unspecific exception during creation of persistent object.";
@@ -1501,11 +1545,11 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
  *                               ExecuteQueryRes &returnStructure )
  ************************************************************************/
 unsigned short
-ServerComm::executeQuery( unsigned long callingClientId,
-                          const char* query,
-                          ExecuteQueryRes &returnStructure )
+ServerComm::executeQuery(unsigned long callingClientId,
+                         const char* query,
+                         ExecuteQueryRes& returnStructure)
 {
-    unsigned short returnValue=0;
+    unsigned short returnValue = 0;
 
     // set all to zero as default. They are not really applicable here.
     returnStructure.errorNo       = 0;
@@ -1514,9 +1558,9 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
     LINFO << "Request: '" << query << "'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
 #ifdef RMANBENCHMARK
         Tile::relTimer.start();
@@ -1526,7 +1570,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
 #endif
 
 #ifdef PURIFY
-        purify_printf( "%s\n", query );
+        purify_printf("%s\n", query);
 #endif
 
         mddConstants     = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
@@ -1548,7 +1592,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
         int parserRet = 0;
 
         udfEnabled = 0; // Forced for RNP, but only temporary...
-        if(udfEnabled)
+        if (udfEnabled)
         {
             //
             // preprocess
@@ -1574,32 +1618,34 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
         LINFO << "parsing...";
 
-        parserRet=yyparse(0);
-        if((ppRet == 0) && (parserRet == 0))
+        parserRet = yyparse(0);
+        if ((ppRet == 0) && (parserRet == 0))
         {
             try
             {
 #ifdef DEBUG
-                qtree->printTree( 2, RMInit::logOut);
+                qtree->printTree(2, RMInit::logOut);
 #endif
 
                 LINFO << "checking semantics...";
                 qtree->checkSemantics();
 
 #ifdef DEBUG
-                qtree->printTree( 2, RMInit::logOut );
+                qtree->printTree(2, RMInit::logOut);
 #endif
 
 #ifdef RMANBENCHMARK
-                if( RManBenchmark > 0 )
+                if (RManBenchmark > 0)
+                {
                     context->evaluationTimer = new RMTimer("ServerComm", "evaluation");
+                }
 #endif
                 //qtree->checkSemantics();
                 //qtree->printTree( 2, std::cout );
                 LINFO << "evaluating...";
                 context->transferData = qtree->evaluateRetrieval();
             }
-            catch( ParseInfo& info )
+            catch (ParseInfo& info)
             {
                 // this is the old error handling which has been here for quite some time
                 // dealing with errors when release data
@@ -1611,18 +1657,19 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 returnStructure.errorNo    = info.getErrorNo();
                 returnStructure.lineNo     = info.getLineNo();
                 returnStructure.columnNo   = info.getColumnNo();
-                returnStructure.token      = strdup( info.getToken().c_str() );
+                returnStructure.token      = strdup(info.getToken().c_str());
 
-                info.printStatus( RMInit::logOut );
+                info.printStatus(RMInit::logOut);
             }
-            catch( r_Ebase_dbms& myErr )
+            catch (r_Ebase_dbms& myErr)
             {
                 LERROR << "Error: base DBMS exception: " << myErr.what();
 
                 // release data
                 context->releaseTransferStructures();
                 context->release(); //!!!
-                if (mddConstants) {
+                if (mddConstants)
+                {
                     mddConstants->releaseAll();
                     delete mddConstants;
                     mddConstants = NULL;
@@ -1637,7 +1684,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                 throw;
             }
-            catch( r_Error& myErr )
+            catch (r_Error& myErr)
             {
 #ifdef DEBUG
                 LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();
@@ -1646,7 +1693,8 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 // release data
                 context->releaseTransferStructures();
                 context->release(); //!!!
-                if (mddConstants) {
+                if (mddConstants)
+                {
                     mddConstants->releaseAll();
                     delete mddConstants;
                     mddConstants = NULL;
@@ -1661,14 +1709,15 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                 throw;
             }
-            catch(std::bad_alloc)
+            catch (std::bad_alloc)
             {
                 LERROR << "Error: cannot allocate memory.";
 
                 // release data
                 context->releaseTransferStructures();
                 context->release(); //!!!
-                if (mddConstants) {
+                if (mddConstants)
+                {
                     mddConstants->releaseAll();
                     delete mddConstants;
                     mddConstants = NULL;
@@ -1681,13 +1730,14 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                 throw;
             }
-            catch(...)
+            catch (...)
             {
                 LERROR << "Error: unspecific exception.";
 
                 context->releaseTransferStructures();
                 context->release(); //!!!
-                if (mddConstants) {
+                if (mddConstants)
+                {
                     mddConstants->releaseAll();
                     delete mddConstants;
                     mddConstants = NULL;
@@ -1703,9 +1753,9 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 throw;
             }
 
-            if( returnValue == 0 )
+            if (returnValue == 0)
             {
-                if( context->transferData != 0 )
+                if (context->transferData != 0)
                 {
                     // create the transfer iterator
                     context->transferDataIter    = new vector<QtData*>::iterator;
@@ -1717,24 +1767,24 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                     // The type of first result object is used to determine the type of the result
                     // collection.
-                    if( *(context->transferDataIter) != context->transferData->end() )
+                    if (*(context->transferDataIter) != context->transferData->end())
                     {
                         QtData* firstElement = (**(context->transferDataIter));
 
-                        if( firstElement->getDataType() == QT_MDD )
+                        if (firstElement->getDataType() == QT_MDD)
                         {
                             QtMDD* mddObj = static_cast<QtMDD*>(firstElement);
                             const BaseType* baseType = mddObj->getMDDObject()->getCellType();
                             r_Minterval     domain   = mddObj->getLoadDomain();
 
-                            MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), domain );
-                            SetType* setType = new SetType( "tmp", mddType );
+                            MDDType* mddType = new MDDDomainType("tmp", const_cast<BaseType*>(baseType), domain);
+                            SetType* setType = new SetType("tmp", mddType);
 
-                            returnStructure.typeName      = strdup( setType->getTypeName() );
+                            returnStructure.typeName      = strdup(setType->getTypeName());
                             returnStructure.typeStructure = setType->getTypeStructure();  // no copy
 
-                            TypeFactory::addTempType( setType );
-                            TypeFactory::addTempType( mddType );
+                            TypeFactory::addTempType(setType);
+                            TypeFactory::addTempType(mddType);
 
                             // print total data size
                             long totalReturnedSize = 0;
@@ -1756,9 +1806,9 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                             // hack set type
                             char* elementType = firstElement->getTypeStructure();
-                            returnStructure.typeStructure = static_cast<char*>(mymalloc( strlen(elementType) + 6 ));
-                            sprintf( returnStructure.typeStructure, "set<%s>", elementType );
-                            free( elementType );
+                            returnStructure.typeStructure = static_cast<char*>(mymalloc(strlen(elementType) + 6));
+                            sprintf(returnStructure.typeStructure, "set<%s>", elementType);
+                            free(elementType);
                             LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).";
                         }
 
@@ -1782,20 +1832,20 @@ ServerComm::executeQuery( unsigned long callingClientId,
         }
         else
         {
-            if(ppRet)
+            if (ppRet)
             {
                 LINFO << MSG_OK << ",result is empty.";
                 returnValue = 2;         // evaluation ok, no elements
             }
             else    // parse error
             {
-                if( parseError )
+                if (parseError)
                 {
                     returnStructure.errorNo    = parseError->getErrorNo();
                     returnStructure.lineNo     = parseError->getLineNo();
                     returnStructure.columnNo   = parseError->getColumnNo();
-                    returnStructure.token      = strdup( parseError->getToken().c_str() );
-                    parseError->printStatus( RMInit::logOut );
+                    returnStructure.token      = strdup(parseError->getToken().c_str());
+                    parseError->printStatus(RMInit::logOut);
 
                     delete parseError;
                     parseError = 0;
@@ -1814,7 +1864,8 @@ ServerComm::executeQuery( unsigned long callingClientId,
         parseQueryTree      = 0;
         currentClientTblElt = 0;
         delete qtree;
-        if (mddConstants) {
+        if (mddConstants)
+        {
             mddConstants->releaseAll();
             delete mddConstants;
             mddConstants = NULL;
@@ -1828,41 +1879,53 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
         // Evaluation timer can not be stopped because some time spent in the transfer
         // module is added to this phase.
-        if( context->evaluationTimer )
+        if (context->evaluationTimer)
+        {
             context->evaluationTimer->pause();
+        }
 
-        if( RManBenchmark > 0 )
+        if (RManBenchmark > 0)
+        {
             context->transferTimer = new RMTimer("ServerComm", "transfer");
+        }
 #endif
 
         // In case of an error or the result set is empty, no endTransfer()
         // is called by the client.
         // Therefore, some things have to be release here.
-        if( returnValue >= 2)
+        if (returnValue >= 2)
         {
 #ifdef RMANBENCHMARK
             Tile::opTimer.stop();
             Tile::relTimer.stop();
-            if( context->evaluationTimer )
+            if (context->evaluationTimer)
+            {
                 delete context->evaluationTimer;
+            }
             context->evaluationTimer = 0;
 
-            if( context->transferTimer )
+            if (context->transferTimer)
+            {
                 delete context->transferTimer;
+            }
             context->transferTimer = 0;
 
             RMTimer* releaseTimer = 0;
 
-            if( RManBenchmark > 0 )
+            if (RManBenchmark > 0)
+            {
                 releaseTimer = new RMTimer("ServerComm", "release");
+            }
 #endif
 
             // release transfer collection/iterator
             context->releaseTransferStructures();
 
 #ifdef RMANBENCHMARK
-            if( releaseTimer )
+            if (releaseTimer)
+            {
                 delete releaseTimer;
+            }
 #endif
         }
         context->release();
@@ -1879,27 +1942,27 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::initExecuteUpdate( unsigned long callingClientId )
+ServerComm::initExecuteUpdate(unsigned long callingClientId)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'initialize update'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer structures
         context->releaseTransferStructures();
 
-        MDDType* mddType = new MDDType( "tmp" );
-        SetType* setType = new SetType( "tmp", mddType );
+        MDDType* mddType = new MDDType("tmp");
+        SetType* setType = new SetType("tmp", mddType);
 
-        TypeFactory::addTempType( mddType );
-        TypeFactory::addTempType( setType );
+        TypeFactory::addTempType(mddType);
+        TypeFactory::addTempType(setType);
 
         // create a transient collection for storing MDD constants
-        context->transferColl = new MDDColl( setType );
+        context->transferColl = new MDDColl(setType);
 
         context->release();
 
@@ -1917,32 +1980,32 @@ ServerComm::initExecuteUpdate( unsigned long callingClientId )
 
 
 unsigned short
-ServerComm::startInsertTransMDD( unsigned long callingClientId,
-                                 r_Minterval   &domain, unsigned long typeLength,
-                                 const char*   typeName )
+ServerComm::startInsertTransMDD(unsigned long callingClientId,
+                                r_Minterval&   domain, unsigned long typeLength,
+                                const char*   typeName)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'insert MDD', type '"
-                   << typeName <<"', domain " << domain << ", cell length " << typeLength  << ", "
-                   << domain.cell_count()*typeLength << " bytes...";
+          << typeName << "', domain " << domain << ", cell length " << typeLength  << ", "
+          << domain.cell_count()*typeLength << " bytes...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         LTRACE << "startInsertTransMDD(...) TRANSFER " << context->transferFormat << ", EXACT " << (bool)context->exactFormat;
 
         // Determine the type of the MDD to be inserted.
-        const MDDType* mddType = TypeFactory::mapMDDType( typeName );
+        const MDDType* mddType = TypeFactory::mapMDDType(typeName);
 
-        if( mddType )
+        if (mddType)
         {
-            if( mddType->getSubtype() != MDDType::MDDONLYTYPE )
+            if (mddType->getSubtype() != MDDType::MDDONLYTYPE)
             {
                 MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
-                if( !mddType->compatibleWithDomain( &domain ) )
+                if (!mddType->compatibleWithDomain(&domain))
                 {
                     // return error
                     returnValue = 3;
@@ -1954,7 +2017,7 @@ ServerComm::startInsertTransMDD( unsigned long callingClientId,
                 }
 
                 // create for further insertions
-                context->transferMDD = new MDDObj( mddBaseType, domain );
+                context->transferMDD = new MDDObj(mddBaseType, domain);
 
                 LINFO << MSG_OK;
             }
@@ -1984,8 +2047,8 @@ ServerComm::startInsertTransMDD( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::endInsertMDD( unsigned long callingClientId,
-                          int isPersistent )
+ServerComm::endInsertMDD(unsigned long callingClientId,
+                         int isPersistent)
 {
     unsigned short returnValue = 0;
 
@@ -1993,14 +2056,14 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
     LINFO << "Request: 'end insert MDD'...";
 #endif
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
-        if( isPersistent )
+        if (isPersistent)
         {
             // we are finished with this MDD Object, so insert it into the collection
-            context->transferColl->insert( context->assembleMDD );
+            context->transferColl->insert(context->assembleMDD);
 
             // reset assembleMDD, because otherwise it is tried to be freed
             context->assembleMDD = 0;
@@ -2013,7 +2076,7 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
         else
         {
             // we are finished with this MDD Object, so insert it into the collection
-            context->transferColl->insert( context->transferMDD );
+            context->transferColl->insert(context->transferMDD);
 
             // reset transferMDD
             context->transferMDD = 0;
@@ -2040,9 +2103,9 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::executeUpdate( unsigned long callingClientId,
-                           const char* query,
-                           ExecuteUpdateRes &returnStructure )
+ServerComm::executeUpdate(unsigned long callingClientId,
+                          const char* query,
+                          ExecuteUpdateRes& returnStructure)
 {
     LINFO << "Request: '" << query << "'...";
 
@@ -2055,12 +2118,12 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 
     unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
 #ifdef PURIFY
-        purify_printf( "%s\n", query );
+        purify_printf("%s\n", query);
 #endif
 
         //
@@ -2075,7 +2138,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 
         int ppRet = 0;
         udfEnabled = false; // forced for RNP tests
-        if(udfEnabled)
+        if (udfEnabled)
         {
             //
             // preprocess
@@ -2085,10 +2148,14 @@ ServerComm::executeUpdate( unsigned long callingClientId,
             ppreset();
             ppRet = ppparse();
 
-            if(ppOutBuf)
+            if (ppOutBuf)
+            {
                 LTRACE << "new query: '" << ppOutBuf << "'";
+            }
             else
+            {
                 LTRACE << "new query: empty.";
+            }
 
             // initialize the input string parameters
             beginParseString = ppOutBuf;
@@ -2104,12 +2171,12 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 
         LINFO << "parsing...";
 
-        if( ppRet == 0 && yyparse(0) == 0 )
+        if (ppRet == 0 && yyparse(0) == 0)
         {
             try
             {
 #ifdef DEBUG
-                qtree->printTree( 2, RMInit::logOut );
+                qtree->printTree(2, RMInit::logOut);
 #endif
 
                 LINFO << "checking semantics...";
@@ -2117,12 +2184,14 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                 qtree->checkSemantics();
 
 #ifdef DEBUG
-                qtree->printTree( 2, RMInit::logOut );
+                qtree->printTree(2, RMInit::logOut);
 #endif
 
 #ifdef RMANBENCHMARK
-                if( RManBenchmark > 0 )
+                if (RManBenchmark > 0)
+                {
                     context->evaluationTimer = new RMTimer("ServerComm", "evaluation");
+                }
 #endif
 
                 LINFO << "evaluating...";
@@ -2135,7 +2204,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 
                 LINFO << MSG_OK;
             }
-            catch( ParseInfo& info )
+            catch (ParseInfo& info)
             {
                 // release data
                 context->releaseTransferStructures();
@@ -2146,11 +2215,11 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                 returnStructure.errorNo    = info.getErrorNo();
                 returnStructure.lineNo     = info.getLineNo();
                 returnStructure.columnNo   = info.getColumnNo();
-                returnStructure.token      = strdup( info.getToken().c_str() );
+                returnStructure.token      = strdup(info.getToken().c_str());
 
-                info.printStatus( RMInit::logOut );
+                info.printStatus(RMInit::logOut);
             }
-            catch(r_Error &err)
+            catch (r_Error& err)
             {
                 context->releaseTransferStructures();
                 context->release();
@@ -2162,21 +2231,21 @@ ServerComm::executeUpdate( unsigned long callingClientId,
         }
         else
         {
-            if(ppRet)
+            if (ppRet)
             {
                 LINFO << MSG_OK;
                 returnValue = 0;
             }
             else    // parse error
             {
-                if( parseError )
+                if (parseError)
                 {
                     returnStructure.errorNo    = parseError->getErrorNo();
                     returnStructure.lineNo     = parseError->getLineNo();
                     returnStructure.columnNo   = parseError->getColumnNo();
-                    returnStructure.token      = strdup( parseError->getToken().c_str() );
+                    returnStructure.token      = strdup(parseError->getToken().c_str());
 
-                    parseError->printStatus( RMInit::logOut );
+                    parseError->printStatus(RMInit::logOut);
                     delete parseError;
                     parseError = 0;
                 }
@@ -2215,7 +2284,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 
 #ifdef RMANBENCHMARK
     // stop evaluation timer
-    if( context->evaluationTimer )
+    if (context->evaluationTimer)
     {
         delete context->evaluationTimer;
         context->evaluationTimer = 0;
@@ -2229,9 +2298,9 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 }
 
 unsigned short
-ServerComm::executeInsert ( unsigned long callingClientId,
-                           const char* query,
-                           ExecuteQueryRes &returnStructure )
+ServerComm::executeInsert(unsigned long callingClientId,
+                          const char* query,
+                          ExecuteQueryRes& returnStructure)
 {
     LINFO << "Request: '" << query << "'...";
 
@@ -2244,12 +2313,12 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
     unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
 #ifdef PURIFY
-        purify_printf( "%s\n", query );
+        purify_printf("%s\n", query);
 #endif
 
         //
@@ -2264,7 +2333,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
         int ppRet = 0;
         udfEnabled = false; // forced for RNP tests
-        if(udfEnabled)
+        if (udfEnabled)
         {
             //
             // preprocess
@@ -2274,10 +2343,14 @@ ServerComm::executeInsert ( unsigned long callingClientId,
             ppreset();
             ppRet = ppparse();
 
-            if(ppOutBuf)
+            if (ppOutBuf)
+            {
                 LTRACE << "new query: '" << ppOutBuf << "'";
+            }
             else
+            {
                 LTRACE << "new query: empty.";
+            }
 
             // initialize the input string parameters
             beginParseString = ppOutBuf;
@@ -2293,12 +2366,12 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
         LINFO << "parsing...";
 
-        if( ppRet == 0 && yyparse(0) == 0 )
+        if (ppRet == 0 && yyparse(0) == 0)
         {
             try
             {
 #ifdef DEBUG
-                qtree->printTree( 2, RMInit::logOut );
+                qtree->printTree(2, RMInit::logOut);
 #endif
 
                 LINFO << "checking semantics...";
@@ -2306,19 +2379,21 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                 qtree->checkSemantics();
 
 #ifdef DEBUG
-                qtree->printTree( 2, RMInit::logOut );
+                qtree->printTree(2, RMInit::logOut);
 #endif
 
 #ifdef RMANBENCHMARK
-                if( RManBenchmark > 0 )
+                if (RManBenchmark > 0)
+                {
                     context->evaluationTimer = new RMTimer("ServerComm", "evaluation");
+                }
 #endif
 
                 LINFO << "evaluating...";
 
                 context->transferData = qtree->evaluateUpdate();
             }
-            catch( ParseInfo& info )
+            catch (ParseInfo& info)
             {
                 // release data
                 context->releaseTransferStructures();
@@ -2329,11 +2404,11 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                 returnStructure.errorNo    = info.getErrorNo();
                 returnStructure.lineNo     = info.getLineNo();
                 returnStructure.columnNo   = info.getColumnNo();
-                returnStructure.token      = strdup( info.getToken().c_str() );
+                returnStructure.token      = strdup(info.getToken().c_str());
 
-                info.printStatus( RMInit::logOut );
+                info.printStatus(RMInit::logOut);
             }
-            catch(r_Error &err)
+            catch (r_Error& err)
             {
                 context->releaseTransferStructures();
                 context->release();
@@ -2343,9 +2418,9 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                 throw;
             }
 
-             if( returnValue == 0 )
+            if (returnValue == 0)
             {
-                if( context->transferData != 0 )
+                if (context->transferData != 0)
                 {
                     // create the transfer iterator
                     context->transferDataIter    = new vector<QtData*>::iterator;
@@ -2357,24 +2432,24 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
                     // The type of first result object is used to determine the type of the result
                     // collection.
-                    if( *(context->transferDataIter) != context->transferData->end() )
+                    if (*(context->transferDataIter) != context->transferData->end())
                     {
                         QtData* firstElement = (**(context->transferDataIter));
 
-                        if( firstElement->getDataType() == QT_MDD )
+                        if (firstElement->getDataType() == QT_MDD)
                         {
                             QtMDD* mddObj = static_cast<QtMDD*>(firstElement);
                             const BaseType* baseType = mddObj->getMDDObject()->getCellType();
                             r_Minterval     domain   = mddObj->getLoadDomain();
 
-                            MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), domain );
-                            SetType* setType = new SetType( "tmp", mddType );
+                            MDDType* mddType = new MDDDomainType("tmp", const_cast<BaseType*>(baseType), domain);
+                            SetType* setType = new SetType("tmp", mddType);
 
-                            returnStructure.typeName      = strdup( setType->getTypeName() );
+                            returnStructure.typeName      = strdup(setType->getTypeName());
                             returnStructure.typeStructure = setType->getTypeStructure();  // no copy
 
-                            TypeFactory::addTempType( setType );
-                            TypeFactory::addTempType( mddType );
+                            TypeFactory::addTempType(setType);
+                            TypeFactory::addTempType(mddType);
                         }
                         else
                         {
@@ -2384,9 +2459,9 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
                             // hack set type
                             char* elementType = firstElement->getTypeStructure();
-                            returnStructure.typeStructure = static_cast<char*>(mymalloc( strlen(elementType) + 6 ));
-                            sprintf( returnStructure.typeStructure, "set<%s>", elementType );
-                            free( elementType );
+                            returnStructure.typeStructure = static_cast<char*>(mymalloc(strlen(elementType) + 6));
+                            sprintf(returnStructure.typeStructure, "set<%s>", elementType);
+                            free(elementType);
                         }
 
                         strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
@@ -2411,20 +2486,20 @@ ServerComm::executeInsert ( unsigned long callingClientId,
         }
         else
         {
-            if(ppRet)
+            if (ppRet)
             {
                 LINFO << MSG_OK;
                 returnValue = 2;
             }
             else    // parse error
             {
-                if( parseError )
+                if (parseError)
                 {
                     returnStructure.errorNo    = parseError->getErrorNo();
                     returnStructure.lineNo     = parseError->getLineNo();
                     returnStructure.columnNo   = parseError->getColumnNo();
-                    returnStructure.token      = strdup( parseError->getToken().c_str() );
-                    parseError->printStatus( RMInit::logOut );
+                    returnStructure.token      = strdup(parseError->getToken().c_str());
+                    parseError->printStatus(RMInit::logOut);
 
                     delete parseError;
                     parseError = 0;
@@ -2449,7 +2524,8 @@ ServerComm::executeInsert ( unsigned long callingClientId,
         // In case of an error or the result set is empty, no endTransfer()
         // is called by the client.
         // Therefore, some things have to be release here.
-        if (returnValue >= 2) {
+        if (returnValue >= 2)
+        {
             context->releaseTransferStructures();
         }
         context->release();
@@ -2472,7 +2548,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
 #ifdef RMANBENCHMARK
     // stop evaluation timer
-    if( context->evaluationTimer )
+    if (context->evaluationTimer)
     {
         delete context->evaluationTimer;
         context->evaluationTimer = 0;
@@ -2489,19 +2565,19 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::getCollByName( unsigned long callingClientId,
-                           const char*   collName,
-                           char*         &typeName,
-                           char*         &typeStructure,
-                           r_OId         &oid             )
+ServerComm::getCollByName(unsigned long callingClientId,
+                          const char*   collName,
+                          char*&         typeName,
+                          char*&         typeStructure,
+                          r_OId&         oid)
 {
     LINFO << "Request: 'get collection by name', name = " << collName << "'...";
 
-    unsigned short returnValue=0;
+    unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         //
         // create the actual transfer collenction
@@ -2513,10 +2589,10 @@ ServerComm::getCollByName( unsigned long callingClientId,
         // create the transfer collection
         try
         {
-            context->transferColl = MDDColl::getMDDCollection( collName );
+            context->transferColl = MDDColl::getMDDCollection(collName);
             LTRACE << "retrieved mdd collection";
         }
-        catch(std::bad_alloc)
+        catch (std::bad_alloc)
         {
             LFATAL << "Error: cannot allocate memory.";
             context->release(); //!!!
@@ -2530,13 +2606,13 @@ ServerComm::getCollByName( unsigned long callingClientId,
             context->release(); //!!!
             throw;
         }
-        catch(...)
+        catch (...)
         {
             returnValue = 2;  // collection name invalid
             LERROR << "Error: unspecific exception.";
         }
 
-        if( returnValue == 0 )
+        if (returnValue == 0)
         {
             // create the transfer iterator
             context->transferCollIter = context->transferColl->createIterator();
@@ -2545,19 +2621,21 @@ ServerComm::getCollByName( unsigned long callingClientId,
             // set typeName and typeStructure
             CollectionType* collectionType = const_cast<CollectionType*>(context->transferColl->getCollectionType());
 
-            if( collectionType )
+            if (collectionType)
             {
-                typeName      = strdup( collectionType->getTypeName() );
+                typeName      = strdup(collectionType->getTypeName());
                 typeStructure = collectionType->getTypeStructure();  // no copy !!!
 
                 // set oid in case of a persistent collection
-                if( context->transferColl->isPersistent() )
+                if (context->transferColl->isPersistent())
                 {
                     EOId eOId;
                     if (context->transferColl->isPersistent())
                     {
                         if (context->transferColl->getEOId(eOId) == true)
-                            oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+                        {
+                            oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                        }
                     }
                 }
                 LINFO << MSG_OK;
@@ -2569,7 +2647,7 @@ ServerComm::getCollByName( unsigned long callingClientId,
                 typeStructure = strdup("");
             }
 
-            if( !context->transferCollIter->notDone() )
+            if (!context->transferCollIter->notDone())
             {
                 LINFO << MSG_OK << ", result empty.";
                 returnValue = 1;
@@ -2597,28 +2675,28 @@ ServerComm::getCollByName( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::getCollByOId( unsigned long callingClientId,
-                          r_OId         &oid,
-                          char*         &typeName,
-                          char*         &typeStructure,
-                          char*         &collName       )
+ServerComm::getCollByOId(unsigned long callingClientId,
+                         r_OId&         oid,
+                         char*&         typeName,
+                         char*&         typeStructure,
+                         char*&         collName)
 {
     LINFO << "Request: 'get collection by OID', oid = " << oid << "...";
 
-    unsigned short returnValue=0;
+    unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer collection/iterator
         context->releaseTransferStructures();
 
         // check type and existence of oid
-        OId oidIf( oid.get_local_oid() );
+        OId oidIf(oid.get_local_oid());
         OId::OIdType objType = oidIf.getType();
 
-        if( objType == OId::MDDCOLLOID )
+        if (objType == OId::MDDCOLLOID)
         {
             //
             // get collection
@@ -2630,7 +2708,7 @@ ServerComm::getCollByOId( unsigned long callingClientId,
                 context->transferColl = MDDColl::getMDDCollection(oidIf);
                 LTRACE << "  ok";
             }
-            catch(std::bad_alloc)
+            catch (std::bad_alloc)
             {
                 LFATAL << "Error: cannot allocate memory.";
                 throw;
@@ -2642,7 +2720,7 @@ ServerComm::getCollByOId( unsigned long callingClientId,
 #endif
                 throw;
             }
-            catch(...)  // not found (?)
+            catch (...) // not found (?)
             {
                 returnValue = 2;
                 LERROR << "Error: unspecific exception.";
@@ -2652,7 +2730,7 @@ ServerComm::getCollByOId( unsigned long callingClientId,
             // create the actual transfer collenction
             //
 
-            if( returnValue == 0 )
+            if (returnValue == 0)
             {
                 // get collection name
                 collName = strdup(context->transferColl->getName());
@@ -2664,18 +2742,20 @@ ServerComm::getCollByOId( unsigned long callingClientId,
                 // set typeName and typeStructure
                 CollectionType* collectionType = const_cast<CollectionType*>(context->transferColl->getCollectionType());
 
-                if( collectionType )
+                if (collectionType)
                 {
-                    typeName      = strdup( collectionType->getTypeName() );
+                    typeName      = strdup(collectionType->getTypeName());
                     typeStructure = collectionType->getTypeStructure();  // no copy !!!
 
                     // set oid in case of a persistent collection
-                    if( context->transferColl->isPersistent() )
+                    if (context->transferColl->isPersistent())
                     {
                         EOId eOId;
 
                         if (context->transferColl->getEOId(eOId) == true)
-                            oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+                        {
+                            oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                        }
                     }
                     LINFO << MSG_OK;
                 }
@@ -2686,7 +2766,7 @@ ServerComm::getCollByOId( unsigned long callingClientId,
                     typeStructure = strdup("");
                 }
 
-                if( !context->transferCollIter->notDone() )
+                if (!context->transferCollIter->notDone())
                 {
                     LINFO << MSG_OK << ", result empty.";
                     returnValue = 1;
@@ -2721,21 +2801,21 @@ ServerComm::getCollByOId( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::getCollOIdsByName( unsigned long callingClientId,
-                               const char*   collName,
-                               char*         &typeName,
-                               char*         &typeStructure,
-                               r_OId         &oid,
-                               RPCOIdEntry*  &oidTable,
-                               unsigned int  &oidTableSize     )
+ServerComm::getCollOIdsByName(unsigned long callingClientId,
+                              const char*   collName,
+                              char*&         typeName,
+                              char*&         typeStructure,
+                              r_OId&         oid,
+                              RPCOIdEntry*&  oidTable,
+                              unsigned int&  oidTableSize)
 {
     LINFO << "Request: 'get collection OIds by name', name = " << collName << "'...";
 
-    unsigned short returnValue=0;
+    unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         //
         // get collection
@@ -2747,7 +2827,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
         try
         {
             LTRACE << "retrieving collection " << collName;
-            almost = MDDColl::getMDDCollection( collName );
+            almost = MDDColl::getMDDCollection(collName);
             LTRACE << "retrieved collection " << collName;
             if (!almost->isPersistent())
             {
@@ -2761,7 +2841,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
                 coll = static_cast<MDDColl*>(almost);
             }
         }
-        catch(std::bad_alloc)
+        catch (std::bad_alloc)
         {
             LFATAL << "Error: cannot allocate memory.";
             throw;
@@ -2774,7 +2854,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
 #endif
             returnValue = 2;  // collection name invalid
         }
-        catch(...)
+        catch (...)
         {
             LTRACE << "caught exception";
             returnValue = 2;  // collection name invalid
@@ -2782,21 +2862,23 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
         }
         LTRACE << "after exception catching";
 
-        if( returnValue == 0 )
+        if (returnValue == 0)
         {
             // set typeName and typeStructure
             CollectionType* collectionType = const_cast<CollectionType*>(coll->getCollectionType());
 
-            if( collectionType )
+            if (collectionType)
             {
-                typeName      = strdup( collectionType->getTypeName() );
+                typeName      = strdup(collectionType->getTypeName());
                 typeStructure = collectionType->getTypeStructure();  // no copy !!!
 
                 // set oid
                 EOId eOId;
 
                 if (coll->getEOId(eOId) == true)
-                    oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+                {
+                    oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                }
             }
             else
             {
@@ -2805,33 +2887,39 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
                 typeStructure = strdup("");
             }
 
-            if( coll->getCardinality() )
+            if (coll->getCardinality())
             {
                 // create iterator
                 MDDCollIter* collIter = coll->createIterator();
                 int          i;
 
                 oidTableSize = coll->getCardinality();
-                oidTable     = static_cast<RPCOIdEntry*>(mymalloc( sizeof(RPCOIdEntry) * oidTableSize ));
+                oidTable     = static_cast<RPCOIdEntry*>(mymalloc(sizeof(RPCOIdEntry) * oidTableSize));
 
                 LDEBUG << oidTableSize << " elements..." ;
 
-                for( collIter->reset(), i=0; collIter->notDone(); collIter->advance(), i++ )
+                for (collIter->reset(), i = 0; collIter->notDone(); collIter->advance(), i++)
                 {
                     MDDObj* mddObj = collIter->getElement();
 
-                    if( mddObj->isPersistent() )
+                    if (mddObj->isPersistent())
                     {
                         EOId eOId;
 
-                        if( (static_cast<MDDObj*>(mddObj))->getEOId( &eOId ) == 0 )
-                            oidTable[i].oid = strdup( r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() ).get_string_representation() );
+                        if ((static_cast<MDDObj*>(mddObj))->getEOId(&eOId) == 0)
+                        {
+                            oidTable[i].oid = strdup(r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId()).get_string_representation());
+                        }
                         else
+                        {
                             oidTable[i].oid = strdup("");
+                        }
                         mddObj = 0;
                     }
                     else
+                    {
                         oidTable[i].oid = strdup("");
+                    }
                 }
 
                 delete collIter;
@@ -2864,27 +2952,27 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::getCollOIdsByOId( unsigned long callingClientId,
-                              r_OId         &oid,
-                              char*         &typeName,
-                              char*         &typeStructure,
-                              RPCOIdEntry*  &oidTable,
-                              unsigned int  &oidTableSize,
-                              char*         &collName        )
+ServerComm::getCollOIdsByOId(unsigned long callingClientId,
+                             r_OId&         oid,
+                             char*&         typeName,
+                             char*&         typeStructure,
+                             RPCOIdEntry*&  oidTable,
+                             unsigned int&  oidTableSize,
+                             char*&         collName)
 {
     LINFO << "Request: 'get collection OIDs by OId', oid = " << oid << "...";
 
-    unsigned short returnValue=0;
+    unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // check type and existence of oid
-        OId oidIf( oid.get_local_oid() );
+        OId oidIf(oid.get_local_oid());
         OId::OIdType objType = oidIf.getType();
 
-        if( objType == OId::MDDCOLLOID )
+        if (objType == OId::MDDCOLLOID)
         {
             //
             // get collection
@@ -2898,7 +2986,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                 coll = MDDColl::getMDDCollection(oidIf);
                 LTRACE << "retrieved mdd coll";
             }
-            catch(std::bad_alloc)
+            catch (std::bad_alloc)
             {
                 LFATAL << "Error: cannot allocate memory.";
                 throw;
@@ -2910,15 +2998,17 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
 #endif
                 returnValue = 2;  // collection name invalid
                 if (err.get_kind() != r_Error::r_Error_RefNull)
+                {
                     throw;
+                }
             }
-            catch(...)
+            catch (...)
             {
                 returnValue = 2;  // collection name invalid
                 LERROR << "Error: unknown collection name.";
             }
 
-            if( returnValue == 0 )
+            if (returnValue == 0)
             {
                 // get collection name
                 collName = strdup(coll->getName());
@@ -2926,16 +3016,18 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                 // set typeName and typeStructure
                 CollectionType* collectionType = const_cast<CollectionType*>(coll->getCollectionType());
 
-                if( collectionType )
+                if (collectionType)
                 {
-                    typeName      = strdup( collectionType->getTypeName() );
+                    typeName      = strdup(collectionType->getTypeName());
                     typeStructure = collectionType->getTypeStructure();  // no copy !!!
 
                     // set oid
                     EOId eOId;
 
                     if (coll->getEOId(eOId) == true)
-                        oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+                    {
+                        oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                    }
                 }
                 else
                 {
@@ -2944,32 +3036,38 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                     typeStructure = strdup("");
                 }
 
-                if( coll->getCardinality() )
+                if (coll->getCardinality())
                 {
                     // create iterator
                     MDDCollIter* collIter = coll->createIterator();
                     int          i;
 
                     oidTableSize = coll->getCardinality();
-                    oidTable     = static_cast<RPCOIdEntry*>(mymalloc( sizeof(RPCOIdEntry) * oidTableSize ));
+                    oidTable     = static_cast<RPCOIdEntry*>(mymalloc(sizeof(RPCOIdEntry) * oidTableSize));
 
                     LDEBUG << oidTableSize << " elements..." ;
 
-                    for( collIter->reset(), i=0; collIter->notDone(); collIter->advance(), i++ )
+                    for (collIter->reset(), i = 0; collIter->notDone(); collIter->advance(), i++)
                     {
                         MDDObj* mddObj = collIter->getElement();
 
-                        if( mddObj->isPersistent() )
+                        if (mddObj->isPersistent())
                         {
                             EOId eOId;
 
-                            if( (static_cast<MDDObj*>(mddObj))->getEOId( &eOId ) == 0 )
-                                oidTable[i].oid = strdup( r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() ).get_string_representation() );
+                            if ((static_cast<MDDObj*>(mddObj))->getEOId(&eOId) == 0)
+                            {
+                                oidTable[i].oid = strdup(r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId()).get_string_representation());
+                            }
                             else
+                            {
                                 oidTable[i].oid = strdup("");
+                            }
                         }
                         else
+                        {
                             oidTable[i].oid = strdup("");
+                        }
                     }
 
                     delete collIter;
@@ -3010,26 +3108,26 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::getNextMDD( unsigned long   callingClientId,
-                        r_Minterval     &mddDomain,
-                        char*           &typeName,
-                        char*           &typeStructure,
-                        r_OId           &oid,
-                        unsigned short  &currentFormat     )
+ServerComm::getNextMDD(unsigned long   callingClientId,
+                       r_Minterval&     mddDomain,
+                       char*&           typeName,
+                       char*&           typeStructure,
+                       r_OId&           oid,
+                       unsigned short&  currentFormat)
 {
 #ifdef DEBUG
-        LINFO << "Request (continuing): 'get next MDD'...";
+    LINFO << "Request (continuing): 'get next MDD'...";
 #endif
 
     unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         try
         {
-            if( context->transferData && context->transferDataIter && *(context->transferDataIter) != context->transferData->end() )
+            if (context->transferData && context->transferDataIter && *(context->transferDataIter) != context->transferData->end())
             {
                 //
                 // convert the mdd to transfer to rpc data structures
@@ -3050,21 +3148,27 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 
 #ifdef RMANBENCHMARK
                 // pause transfer timer and resume evaluation timer
-                if( context->transferTimer   )
+                if (context->transferTimer)
+                {
                     context->transferTimer->pause();
-                if( context->evaluationTimer )
+                }
+                if (context->evaluationTimer)
+                {
                     context->evaluationTimer->resume();
+                }
 #endif
 
-                if( mddObj->getCurrentDomain() == mddData->getLoadDomain() )
+                if (mddObj->getCurrentDomain() == mddData->getLoadDomain())
                 {
                     // This is a hack. The mddObj is a part of context->transferDataIter and it will
                     // not be deleted until the end of transaction, so storing raw pointers is safe.
                     // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
-                    boost::scoped_ptr< vector< boost::shared_ptr<Tile> > > tiles( mddObj->getTiles() );
+                    boost::scoped_ptr<vector<boost::shared_ptr<Tile>>> tiles(mddObj->getTiles());
                     context->transTiles = new vector<Tile*>();
-                    for ( size_t i = 0; i < tiles->size(); ++i )
-                        context->transTiles->push_back( (*tiles)[i].get() );
+                    for (size_t i = 0; i < tiles->size(); ++i)
+                    {
+                        context->transTiles->push_back((*tiles)[i].get());
+                    }
                 }
                 else
                 {
@@ -3077,30 +3181,34 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                     // This is a hack. The mddObj is a part of context->transferDataIter and it will
                     // not be deleted until the end of transaction, so storing raw pointers is safe.
                     // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
-                    boost::scoped_ptr< vector< boost::shared_ptr<Tile> > > tiles( mddObj->intersect( mddData->getLoadDomain() ) );
+                    boost::scoped_ptr<vector<boost::shared_ptr<Tile>>> tiles(mddObj->intersect(mddData->getLoadDomain()));
                     context->transTiles = new vector<Tile*>();
-                    for ( size_t i = 0; i < tiles->size(); ++i )
-                        context->transTiles->push_back( (*tiles)[i].get() );
+                    for (size_t i = 0; i < tiles->size(); ++i)
+                    {
+                        context->transTiles->push_back((*tiles)[i].get());
+                    }
 
                     // iterate over the tiles
-                    for( vector<Tile*>::iterator iter = context->transTiles->begin(); iter != context->transTiles->end(); iter++ )
+                    for (vector<Tile*>::iterator iter = context->transTiles->begin(); iter != context->transTiles->end(); iter++)
                     {
                         // get relevant area of source tile
-                        r_Minterval sourceTileDomain( mddData->getLoadDomain().create_intersection( (*iter)->getDomain() ) );
+                        r_Minterval sourceTileDomain(mddData->getLoadDomain().create_intersection((*iter)->getDomain()));
 
-                        if( sourceTileDomain != (*iter)->getDomain() )
+                        if (sourceTileDomain != (*iter)->getDomain())
                         {
                             // create a new transient tile and copy the transient data
-                            Tile* newTransTile = new Tile( sourceTileDomain, mddObj->getCellType() );
-                            newTransTile->copyTile( sourceTileDomain, *iter, sourceTileDomain );
+                            Tile* newTransTile = new Tile(sourceTileDomain, mddObj->getCellType());
+                            newTransTile->copyTile(sourceTileDomain, *iter, sourceTileDomain);
 
                             // replace the tile in the list with the new one
                             *iter = newTransTile;
 
                             // add the new tile to deleteableTiles
-                            if( !(context->deletableTiles) )
+                            if (!(context->deletableTiles))
+                            {
                                 context->deletableTiles = new vector<Tile*>();
-                            context->deletableTiles->push_back( newTransTile );
+                            }
+                            context->deletableTiles->push_back(newTransTile);
                         }
                     }
                 }
@@ -3111,15 +3219,21 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 // are got.
                 char* benchmarkPointer;
 
-                for( vector<Tile*>::iterator benchmarkIter = context->transTiles->begin();
-                        benchmarkIter != context->transTiles->end(); benchmarkIter++ )
+                for (vector<Tile*>::iterator benchmarkIter = context->transTiles->begin();
+                        benchmarkIter != context->transTiles->end(); benchmarkIter++)
+                {
                     benchmarkPointer = (*benchmarkIter)->getContents();
+                }
 
                 // pause evaluation timer and resume transfer timer
-                if( context->evaluationTimer )
+                if (context->evaluationTimer)
+                {
                     context->evaluationTimer->pause();
-                if( context->transferTimer   )
+                }
+                if (context->transferTimer)
+                {
                     context->transferTimer->resume();
+                }
 #endif
 
                 // initialize tile iterator
@@ -3137,40 +3251,50 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 typeName      = strdup("");
 
                 // create a temporary mdd type for the moment being
-                r_Minterval typeDomain( mddData->getLoadDomain() );
-                MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), typeDomain );
-                TypeFactory::addTempType( mddType );
+                r_Minterval typeDomain(mddData->getLoadDomain());
+                MDDType* mddType = new MDDDomainType("tmp", const_cast<BaseType*>(baseType), typeDomain);
+                TypeFactory::addTempType(mddType);
 
                 typeStructure = mddType->getTypeStructure();  // no copy !!!
 
                 // I'm not sure about this code...
 #if 0
                 // determine data format from the 1st tile
-                if( context->transTiles->size() && (*(context->transTiles))[0]->getDataFormat() == r_TIFF )
+                if (context->transTiles->size() && (*(context->transTiles))[0]->getDataFormat() == r_TIFF)
+                {
                     currentFormat = r_TIFF;
+                }
                 else
+                {
                     currentFormat = r_Array;
+                }
 #else
                 if (context->transTiles->size())
+                {
                     currentFormat = (*(context->transTiles))[0]->getDataFormat();
+                }
                 else
+                {
                     currentFormat = r_Array;
+                }
 #endif
 
                 // set oid in case of persistent MDD objects
-                if( mddObj->isPersistent() )
+                if (mddObj->isPersistent())
                 {
                     EOId eOId;
 
-                    if( (static_cast<MDDObj*>(mddObj))->getEOId( &eOId ) == 0 )
-                        oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+                    if ((static_cast<MDDObj*>(mddObj))->getEOId(&eOId) == 0)
+                    {
+                        oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                    }
                 }
 
                 //
                 //
                 //
 
-                if( context->transTiles->size() > 0 )
+                if (context->transTiles->size() > 0)
                 {
 #ifdef DEBUG
                     LINFO << MSG_OK << ", " << context->transTiles->size() << " more tile(s)";
@@ -3187,7 +3311,7 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
             }
             else
             {
-                if( context->transferDataIter && *(context->transferDataIter) == context->transferData->end() )
+                if (context->transferDataIter && *(context->transferDataIter) == context->transferData->end())
                 {
                     returnValue = 1;  // nothing left in the collection
 #ifdef DEBUG
@@ -3208,25 +3332,25 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 
             context->release();
         }
-        catch( r_Ebase_dbms& myErr )
+        catch (r_Ebase_dbms& myErr)
         {
             LFATAL << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
             returnValue = 42;
             throw;
         }
-        catch( r_Error& myErr )
+        catch (r_Error& myErr)
         {
 #ifdef DEBUG
             LFATAL << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();
 #endif
             throw;
         }
-        catch(std::bad_alloc)
+        catch (std::bad_alloc)
         {
             LFATAL << "Error: cannot allocate memory.";
             throw;
         }
-        catch(...)
+        catch (...)
         {
             LERROR << "Error: unspecified exception.";
         }
@@ -3241,8 +3365,8 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 }
 
 void
-ServerComm::getNextStructElement( char*     &buffer,
-                            BaseType*       baseType)
+ServerComm::getNextStructElement(char*&     buffer,
+                                 BaseType*       baseType)
 {
     switch (baseType->getType())
     {
@@ -3251,46 +3375,46 @@ ServerComm::getNextStructElement( char*     &buffer,
         r_UShort tmp = *(r_UShort*) buffer;
         *(r_UShort*) buffer = r_Endian::swap(tmp);
     }
-        break;
+    break;
 
     case SHORT:
     {
         r_Short tmp = *(r_Short*) buffer;
         *(r_Short*) buffer = r_Endian::swap(tmp);
     }
-        break;
+    break;
 
     case LONG:
     {
         r_Long tmp = *(r_Long*) buffer;
         *(r_Long*) buffer = r_Endian::swap(tmp);
     }
-        break;
+    break;
 
     case ULONG:
     {
         r_ULong tmp = *(r_ULong*) buffer;
         *(r_ULong*) buffer = r_Endian::swap(tmp);
     }
-        break;
+    break;
 
     case FLOAT:
     {
         uint32_t value = bswap_32(*(uint32_t*) buffer);
         // use memcpy because older (<4.5?) gcc versions
         // choke if we assign to buffer directly
-        memcpy(buffer, &value, sizeof (uint32_t));
+        memcpy(buffer, &value, sizeof(uint32_t));
     }
-        break;
+    break;
 
     case DOUBLE:
     {
         uint64_t value = bswap_64(*(uint64_t*) buffer);
         // use memcpy because older (<4.5?) gcc versions
         // choke if we assign to buffer directly
-        memcpy(buffer, &value, sizeof (uint64_t));
+        memcpy(buffer, &value, sizeof(uint64_t));
     }
-        break;
+    break;
 
     case STRUCT:
     {
@@ -3305,7 +3429,7 @@ ServerComm::getNextStructElement( char*     &buffer,
             buffer += elemTypeSize;
         }
     }
-        break;
+    break;
 
     default:
         break;
@@ -3314,9 +3438,9 @@ ServerComm::getNextStructElement( char*     &buffer,
 }
 
 unsigned short
-ServerComm::getNextElement( unsigned long   callingClientId,
-                            char*           &buffer,
-                            unsigned int    &bufferSize)
+ServerComm::getNextElement(unsigned long   callingClientId,
+                           char*&           buffer,
+                           unsigned int&    bufferSize)
 {
 #ifdef DEBUG
     LINFO << "Request (continuing): 'get next element'...";
@@ -3324,14 +3448,14 @@ ServerComm::getNextElement( unsigned long   callingClientId,
 
     unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         LTRACE << "getNextElement(...) TRANSFER " << context->transferFormat << ", EXACT " << (bool)context->exactFormat;
 
-        if( context->transferData && context->transferDataIter &&
-                *(context->transferDataIter) != context->transferData->end() )
+        if (context->transferData && context->transferDataIter &&
+                *(context->transferDataIter) != context->transferData->end())
         {
 
             //
@@ -3344,67 +3468,67 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             {
                 QtData*  dataObj = **(context->transferDataIter);
 
-                switch( dataObj->getDataType() )
+                switch (dataObj->getDataType())
                 {
                 case QT_STRING:
                 {
                     QtStringData* stringDataObj       = static_cast<QtStringData*>(dataObj);
                     bufferSize = stringDataObj->getStringData().length() + 1;
-                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
-                    memcpy( buffer, stringDataObj->getStringData().c_str(), bufferSize );
+                    buffer     = static_cast<char*>(mymalloc(bufferSize));
+                    memcpy(buffer, stringDataObj->getStringData().c_str(), bufferSize);
                 }
                 break;
                 case QT_INTERVAL:
                 {
                     QtIntervalData*  intervalDataObj  = static_cast<QtIntervalData*>(dataObj);
                     char*            stringData       = intervalDataObj->getIntervalData().get_string_representation();
-                    bufferSize = strlen( stringData ) + 1;
-                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
-                    memcpy( buffer, stringData, bufferSize );
-                    free( stringData );
+                    bufferSize = strlen(stringData) + 1;
+                    buffer     = static_cast<char*>(mymalloc(bufferSize));
+                    memcpy(buffer, stringData, bufferSize);
+                    free(stringData);
                 }
                 break;
                 case QT_MINTERVAL:
                 {
                     QtMintervalData* mintervalDataObj = static_cast<QtMintervalData*>(dataObj);
                     char*            stringData       = mintervalDataObj->getMintervalData().get_string_representation();
-                    bufferSize = strlen( stringData ) + 1;
-                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
-                    memcpy( buffer, stringData, bufferSize );
-                    free( stringData );
+                    bufferSize = strlen(stringData) + 1;
+                    buffer     = static_cast<char*>(mymalloc(bufferSize));
+                    memcpy(buffer, stringData, bufferSize);
+                    free(stringData);
                 }
                 break;
                 case QT_POINT:
                 {
                     QtPointData* pointDataObj         = static_cast<QtPointData*>(dataObj);
                     char*            stringData       = pointDataObj->getPointData().get_string_representation();
-                    bufferSize = strlen( stringData ) + 1;
-                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
-                    memcpy( buffer, stringData, bufferSize );
+                    bufferSize = strlen(stringData) + 1;
+                    buffer     = static_cast<char*>(mymalloc(bufferSize));
+                    memcpy(buffer, stringData, bufferSize);
 
-                    free( stringData );
+                    free(stringData);
                 }
                 break;
                 default:
-                    if( dataObj->isScalarData() )
+                    if (dataObj->isScalarData())
                     {
                         QtScalarData* scalarDataObj = static_cast<QtScalarData*>(dataObj);
                         bufferSize = scalarDataObj->getValueType()->getSize();
-                        buffer     = static_cast<char*>(mymalloc( bufferSize ));
-                        memcpy( buffer, scalarDataObj->getValueBuffer(), bufferSize );
+                        buffer     = static_cast<char*>(mymalloc(bufferSize));
+                        memcpy(buffer, scalarDataObj->getValueBuffer(), bufferSize);
                         // server endianess
                         r_Endian::r_Endianness serverEndian = r_Endian::get_endianness();
 
                         // change endianess if necessary
                         // currently only one client is active at one time
                         //  if((context->clientId == 1) && (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) &&  (serverEndian != r_Endian::r_Endian_Big))
-                        if( (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
+                        if ((strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
                         {
 #ifdef DEBUG
                             LINFO << "changing endianness...";
 #endif
                             // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
-                            switch(scalarDataObj->getDataType())
+                            switch (scalarDataObj->getDataType())
                             {
                             case QT_USHORT:
                             {
@@ -3470,14 +3594,14 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                             break;
 
                             default:
-                            break;
+                                break;
                             }
                         }
                     }
                     break;
                 }
             }
-            catch( r_Ebase_dbms& myErr)
+            catch (r_Ebase_dbms& myErr)
             {
                 LFATAL << "Error: base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
                 throw;
@@ -3493,7 +3617,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             // increment list iterator
             (*(context->transferDataIter))++;
 
-            if( *(context->transferDataIter) != context->transferData->end() )
+            if (*(context->transferDataIter) != context->transferData->end())
             {
                 returnValue = 0;
 #ifdef DEBUG
@@ -3510,7 +3634,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
         }
         else
         {
-            if( context->transferDataIter && *(context->transferDataIter) == context->transferData->end() )
+            if (context->transferDataIter && *(context->transferDataIter) == context->transferData->end())
             {
                 returnValue = 1;  // nothing left in the collection
                 LDEBUG << "nothing left..." << MSG_OK;
@@ -3541,12 +3665,12 @@ ServerComm::getNextElement( unsigned long   callingClientId,
 
 
 unsigned short
-ServerComm::getMDDByOId( unsigned long   callingClientId,
-                         r_OId           &oid,
-                         r_Minterval     &mddDomain,
-                         char*           &typeName,
-                         char*           &typeStructure,
-                         unsigned short  &currentFormat   )
+ServerComm::getMDDByOId(unsigned long   callingClientId,
+                        r_OId&           oid,
+                        r_Minterval&     mddDomain,
+                        char*&           typeName,
+                        char*&           typeStructure,
+                        unsigned short&  currentFormat)
 {
 #ifdef DEBUG
     LINFO << "Request: 'get MDD by OId', oid = " << oid << "...";
@@ -3554,25 +3678,25 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
 
     unsigned short returnValue = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         // delete old transfer collection/iterator
         context->releaseTransferStructures();
 
         // check type and existence of oid
-        OId oidIf( oid.get_local_oid() );
+        OId oidIf(oid.get_local_oid());
         OId::OIdType objType = oidIf.getType();
 
-        if( objType == OId::MDDOID )
+        if (objType == OId::MDDOID)
         {
             // get MDD object
             try
             {
-                context->transferMDD = new MDDObj( oidIf );
+                context->transferMDD = new MDDObj(oidIf);
             }
-            catch(std::bad_alloc)
+            catch (std::bad_alloc)
             {
                 LFATAL << "Error: cannot allocate memory.";
                 context->release();
@@ -3586,13 +3710,13 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 context->release();
                 throw;
             }
-            catch(...)
+            catch (...)
             {
                 returnValue = 2;
                 LERROR << "Error: unspecified exception.";
             }
 
-            if( !returnValue )
+            if (!returnValue)
             {
                 //
                 // convert the mdd to transfer to rpc data structures
@@ -3607,10 +3731,12 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 // This is a hack. The mddObj is a part of context->transferDataIter and it will
                 // not be deleted until the end of transaction, so storing raw pointers is safe.
                 // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
-                boost::scoped_ptr< vector< boost::shared_ptr<Tile> > > tiles( context->transferMDD->getTiles() );
+                boost::scoped_ptr<vector<boost::shared_ptr<Tile>>> tiles(context->transferMDD->getTiles());
                 context->transTiles  = new vector<Tile*>;
                 for (size_t i = 0; i < tiles->size(); ++i)
+                {
                     context->transTiles->push_back((*tiles)[i].get());
+                }
                 context->tileIter    = new vector<Tile*>::iterator;
                 *(context->tileIter) = context->transTiles->begin();
 
@@ -3626,39 +3752,49 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 typeName      = strdup("");
 
                 // create a temporary mdd type for the moment being
-                MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), context->transferMDD->getCurrentDomain() );
-                TypeFactory::addTempType( mddType );
+                MDDType* mddType = new MDDDomainType("tmp", const_cast<BaseType*>(baseType), context->transferMDD->getCurrentDomain());
+                TypeFactory::addTempType(mddType);
 
                 typeStructure = mddType->getTypeStructure();  // no copy !!!
 
                 // I'm not sure about this code either
 #if 0
                 // determine data format from the 1st tile
-                if( context->transTiles->size() && (*(context->transTiles))[0]->getDataFormat() == r_TIFF )
+                if (context->transTiles->size() && (*(context->transTiles))[0]->getDataFormat() == r_TIFF)
+                {
                     currentFormat = r_TIFF;
+                }
                 else
+                {
                     currentFormat = r_Array;
+                }
 #else
                 if (context->transTiles->size())
+                {
                     currentFormat = (*(context->transTiles))[0]->getDataFormat();
+                }
                 else
+                {
                     currentFormat = r_Array;
+                }
 #endif
 
                 // set oid in case of persistent MDD objects
-                if( context->transferMDD->isPersistent() )
+                if (context->transferMDD->isPersistent())
                 {
                     EOId eOId;
 
-                    if( (static_cast<MDDObj*>(context->transferMDD))->getEOId( &eOId ) == 0 )
-                        oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+                    if ((static_cast<MDDObj*>(context->transferMDD))->getEOId(&eOId) == 0)
+                    {
+                        oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                    }
                 }
 
                 //
                 //
                 //
 
-                if( context->transTiles->size() > 0 )
+                if (context->transTiles->size() > 0)
                 {
 #ifdef DEBUG
                     LINFO << MSG_OK << ", got " << context->transTiles->size() << " tile(s).";
@@ -3698,8 +3834,8 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
 
 
 unsigned short
-ServerComm::getNextTile( unsigned long   callingClientId,
-                         RPCMarray**     rpcMarray )
+ServerComm::getNextTile(unsigned long   callingClientId,
+                        RPCMarray**     rpcMarray)
 {
 #ifdef DEBUG
     LINFO << "Request (continuing): 'get next tile',...";
@@ -3713,11 +3849,11 @@ ServerComm::getNextTile( unsigned long   callingClientId,
     // initialize the result parameter for failure cases
     *rpcMarray = 0;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
-        if( context->transTiles && context->tileIter )
+        if (context->transTiles && context->tileIter)
         {
             Tile* resultTile = **(context->tileIter);
             r_Minterval mddDomain = resultTile->getDomain();
@@ -3725,9 +3861,9 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             unsigned long totalSize;
 
             // allocate memory for the output parameter rpcMarray
-            *rpcMarray = static_cast<RPCMarray*>(mymalloc( sizeof( RPCMarray ) ));
+            *rpcMarray = static_cast<RPCMarray*>(mymalloc(sizeof(RPCMarray)));
 
-            if ( context->bytesToTransfer == 0 )
+            if (context->bytesToTransfer == 0)
             {
                 // free old data
                 if (context->encodedData != NULL)
@@ -3739,7 +3875,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             }
 
             // note: transfer compression affects the current format, not the storage format.
-            if ( context->encodedData == NULL )
+            if (context->encodedData == NULL)
             {
                 totalSize = resultTile->getCompressedSize();
                 //this is bad because useTransData is char* although it is not modified
@@ -3762,14 +3898,14 @@ ServerComm::getNextTile( unsigned long   callingClientId,
 
             transSize = totalSize;
 
-            if( totalSize > maxTransferBufferSize )
+            if (totalSize > maxTransferBufferSize)
             {
                 // if there is the rest of a tile to transfer, do it!
-                if( context->bytesToTransfer )
+                if (context->bytesToTransfer)
                 {
                     LDEBUG << " resuming block transfer...";
                     transOffset = totalSize - context->bytesToTransfer;
-                    if( context->bytesToTransfer > maxTransferBufferSize )
+                    if (context->bytesToTransfer > maxTransferBufferSize)
                     {
                         transSize = maxTransferBufferSize;
                         statusValue = 1;
@@ -3791,7 +3927,9 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                 }
             }
             else    // resultTile->getSize() <= maxTransferBufferSize
+            {
                 statusValue = 3;
+            }
 
             context->totalTransferedSize += transSize;
 
@@ -3809,35 +3947,35 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             (*rpcMarray)->cellTypeLength = resultTile->getType()->getSize();
 
             // increment iterator only if tile is transferred completely
-            if( statusValue > 1 )
+            if (statusValue > 1)
             {
                 context->totalRawSize += resultTile->getSize();
                 (*context->tileIter)++;
             }
 
             // delete tile vector and increment transfer collection iterator if tile iterator is exhausted
-            if( (*context->tileIter) == context->transTiles->end() )
+            if ((*context->tileIter) == context->transTiles->end())
             {
 
                 // delete tile vector transTiles (tiles are deleted when the object is deleted)
-                if( context->transTiles )
+                if (context->transTiles)
                 {
                     delete context->transTiles;
                     context->transTiles = 0;
                 }
 
                 // delete tile iterator
-                if( context->tileIter )
+                if (context->tileIter)
                 {
                     delete context->tileIter;
                     context->tileIter = 0;
                 }
 
-                if( context->transferDataIter )
+                if (context->transferDataIter)
                 {
                     (*(context->transferDataIter))++;
 
-                    if( *(context->transferDataIter) != context->transferData->end() )
+                    if (*(context->transferDataIter) != context->transferData->end())
                     {
                         returnValue = 1;
 #ifdef DEBUG
@@ -3874,7 +4012,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             }
             else
             {
-                if( statusValue == 1 )   // at least one block in actual tile is left
+                if (statusValue == 1)    // at least one block in actual tile is left
                 {
 #ifdef DEBUG
                     LINFO << MSG_OK << ", some block(s) left.";
@@ -3910,7 +4048,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
 
 
 unsigned short
-ServerComm::endTransfer( unsigned long client )
+ServerComm::endTransfer(unsigned long client)
 {
     unsigned short returnValue = 0;
 
@@ -3918,27 +4056,38 @@ ServerComm::endTransfer( unsigned long client )
     LINFO << "Client " << client << " called: endTransfer...";
 #endif
 
-    ClientTblElt* context = getClientContext( client );
+    ClientTblElt* context = getClientContext(client);
 
-    if( context )
+    if (context)
     {
 #ifdef RMANBENCHMARK
         Tile::relTimer.stop();
         Tile::opTimer.stop();
-        if( context->evaluationTimer ) delete context->evaluationTimer;
+        if (context->evaluationTimer)
+        {
+            delete context->evaluationTimer;
+        }
         context->evaluationTimer = 0;
-        if( context->transferTimer ) delete context->transferTimer;
+        if (context->transferTimer)
+        {
+            delete context->transferTimer;
+        }
         context->transferTimer = 0;
         RMTimer* releaseTimer = 0;
 
-        if( RManBenchmark > 0 )
+        if (RManBenchmark > 0)
+        {
             releaseTimer = new RMTimer("ServerComm", "release");
+        }
 #endif
         // release transfer collection/iterator
         context->releaseTransferStructures();
 
 #ifdef RMANBENCHMARK
-        if( releaseTimer ) delete releaseTimer;
+        if (releaseTimer)
+        {
+            delete releaseTimer;
+        }
 #endif
 
         context->release();
@@ -3962,7 +4111,7 @@ ServerComm::endTransfer( unsigned long client )
  * Method name...: aliveSignal( unsigned long client )
  ************************************************************************/
 unsigned short
-ServerComm::aliveSignal( unsigned long client )
+ServerComm::aliveSignal(unsigned long client)
 {
     unsigned short returnValue = 0;
 
@@ -3970,12 +4119,12 @@ ServerComm::aliveSignal( unsigned long client )
     LINFO << "Client " << client << " called: endTransfer...";
 #endif
 
-    ClientTblElt* context = getClientContext( client );
+    ClientTblElt* context = getClientContext(client);
 
-    if( context )
+    if (context)
     {
         // set the time of the client's last action to now
-        context->lastActionTime = static_cast<unsigned long>(time( NULL ));
+        context->lastActionTime = static_cast<unsigned long>(time(NULL));
 
         returnValue = 1;
 
@@ -3996,27 +4145,31 @@ ServerComm::aliveSignal( unsigned long client )
 
 
 unsigned short
-ServerComm::getNewOId( unsigned long callingClientId,
-                       unsigned short objType,
-                       r_OId& oid )
+ServerComm::getNewOId(unsigned long callingClientId,
+                      unsigned short objType,
+                      r_OId& oid)
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'get new OId for " << (objType==1?"MDD":"collection") << " type'...";
+    LINFO << "Request: 'get new OId for " << (objType == 1 ? "MDD" : "collection") << " type'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
         EOId eOId;
 
-        if( objType == 1 )
-            EOId::allocateEOId( eOId, OId::MDDOID );
+        if (objType == 1)
+        {
+            EOId::allocateEOId(eOId, OId::MDDOID);
+        }
         else // objType == 2
-            EOId::allocateEOId( eOId, OId::MDDCOLLOID );
+        {
+            EOId::allocateEOId(eOId, OId::MDDCOLLOID);
+        }
 
         LTRACE << "allocated " << eOId;
-        oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
+        oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
 
         context->release();
 
@@ -4034,23 +4187,23 @@ ServerComm::getNewOId( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::getObjectType( unsigned long callingClientId,
-                           r_OId& oid,
-                           unsigned short &objType )
+ServerComm::getObjectType(unsigned long callingClientId,
+                          r_OId& oid,
+                          unsigned short& objType)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'get object type by OID', oid = " << oid << "...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
-    if( context != 0 )
+    if (context != 0)
     {
-        OId oidIf( oid.get_local_oid() );
+        OId oidIf(oid.get_local_oid());
 
         objType = oidIf.getType();
 
-        if( objType == OId::INVALID )
+        if (objType == OId::INVALID)
         {
             // oid not found
             LERROR << "Error: no type for this oid.";
@@ -4058,7 +4211,7 @@ ServerComm::getObjectType( unsigned long callingClientId,
         }
         else
         {
-            LINFO << "type is " << (objType==1?"MDD":"collection") << "..." << MSG_OK;
+            LINFO << "type is " << (objType == 1 ? "MDD" : "collection") << "..." << MSG_OK;
         }
 
         context->release();
@@ -4075,59 +4228,71 @@ ServerComm::getObjectType( unsigned long callingClientId,
 
 
 unsigned short
-ServerComm::getTypeStructure( unsigned long  callingClientId,
-                              const char* typeName,
-                              unsigned short typeType,
-                              char* &typeStructure )
+ServerComm::getTypeStructure(unsigned long  callingClientId,
+                             const char* typeName,
+                             unsigned short typeType,
+                             char*& typeStructure)
 {
     unsigned short returnValue = 0;
 
     LINFO << "Request: 'get type structure', type = '" << typeName << "'...";
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
     if (context == 0)
     {
         LERROR << "Error: client not registered.";
         returnValue = 1;
     }
 
-    if (returnValue==0 && !transactionActive)
+    if (returnValue == 0 && !transactionActive)
     {
         LERROR << "Error: no transaction open.";
         returnValue = 1;
     }
 
-    if (returnValue==0)
+    if (returnValue == 0)
     {
-        if( typeType == 1 )
+        if (typeType == 1)
         {
             // get collection type
-            CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType( const_cast<char*>(typeName) )));
+            CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType(const_cast<char*>(typeName))));
 
-            if( collType )
-                typeStructure = collType->getTypeStructure(); // no copy
+            if (collType)
+            {
+                typeStructure = collType->getTypeStructure();    // no copy
+            }
             else
+            {
                 returnValue = 2;
+            }
         }
-        else if( typeType == 2 )
+        else if (typeType == 2)
         {
             // get MDD type
-            const MDDType* mddType = TypeFactory::mapMDDType( typeName );
+            const MDDType* mddType = TypeFactory::mapMDDType(typeName);
 
-            if( mddType )
-                typeStructure = mddType->getTypeStructure(); // no copy
+            if (mddType)
+            {
+                typeStructure = mddType->getTypeStructure();    // no copy
+            }
             else
+            {
                 returnValue = 2;
+            }
         }
         else    // base type not implemented
         {
             returnValue = 2;
         }
 
-        if( returnValue == 2 )
+        if (returnValue == 2)
+        {
             LERROR << "Error: unknown type.";
+        }
         else
+        {
             LINFO << MSG_OK;
+        }
 
         context->release();
     }
@@ -4137,9 +4302,9 @@ ServerComm::getTypeStructure( unsigned long  callingClientId,
 
 
 unsigned short
-ServerComm::setTransferMode( unsigned long callingClientId,
-                             unsigned short format,
-                             const char* formatParams )
+ServerComm::setTransferMode(unsigned long callingClientId,
+                            unsigned short format,
+                            const char* formatParams)
 {
 #ifdef DEBUG
     LINFO << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'...";
@@ -4147,7 +4312,7 @@ ServerComm::setTransferMode( unsigned long callingClientId,
 
     unsigned short retval = 1;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
     if (context != 0)
     {
@@ -4161,7 +4326,7 @@ ServerComm::setTransferMode( unsigned long callingClientId,
         }
         if (formatParams != NULL)
         {
-            context->transferFormatParams = new char[strlen(formatParams)+1];
+            context->transferFormatParams = new char[strlen(formatParams) + 1];
             strcpy(context->transferFormatParams, formatParams);
             // extract any occurrences of ``exactformat''
             context->clientParams->process(context->transferFormatParams);
@@ -4187,9 +4352,9 @@ ServerComm::setTransferMode( unsigned long callingClientId,
 }
 
 unsigned short
-ServerComm::setStorageMode( unsigned long callingClientId,
-                            __attribute__ ((unused)) unsigned short format,
-                            const char* formatParams )
+ServerComm::setStorageMode(unsigned long callingClientId,
+                           __attribute__((unused)) unsigned short format,
+                           const char* formatParams)
 {
 #ifdef DEBUG
     LINFO << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "...";
@@ -4197,7 +4362,7 @@ ServerComm::setStorageMode( unsigned long callingClientId,
 
     unsigned short retval = 1;
 
-    ClientTblElt* context = getClientContext( callingClientId );
+    ClientTblElt* context = getClientContext(callingClientId);
 
     if (context != 0)
     {
@@ -4210,7 +4375,7 @@ ServerComm::setStorageMode( unsigned long callingClientId,
         }
         if (formatParams != NULL)
         {
-            context->storageFormatParams = new char[strlen(formatParams)+1];
+            context->storageFormatParams = new char[strlen(formatParams) + 1];
             strcpy(context->storageFormatParams, formatParams);
         }
         context->storageFormat = fmt;
@@ -4234,15 +4399,15 @@ ServerComm::setStorageMode( unsigned long callingClientId,
 }
 
 int
-ServerComm::ensureTileFormat( __attribute__ ((unused)) r_Data_Format &hasFmt,
-                              __attribute__ ((unused)) r_Data_Format needFmt,
-                              __attribute__ ((unused)) const r_Minterval &dom,
-                              __attribute__ ((unused)) const BaseType *type,
-                              __attribute__ ((unused)) char *&data,
-                              __attribute__ ((unused)) r_Bytes &size,
-                              __attribute__ ((unused)) int repack,
-                              __attribute__ ((unused)) int owner,
-                              __attribute__ ((unused)) const char *params )
+ServerComm::ensureTileFormat(__attribute__((unused)) r_Data_Format& hasFmt,
+                             __attribute__((unused)) r_Data_Format needFmt,
+                             __attribute__((unused)) const r_Minterval& dom,
+                             __attribute__((unused)) const BaseType* type,
+                             __attribute__((unused)) char*& data,
+                             __attribute__((unused)) r_Bytes& size,
+                             __attribute__((unused)) int repack,
+                             __attribute__((unused)) int owner,
+                             __attribute__((unused)) const char* params)
 {
     int status = ENSURE_TILE_FORMAT_OK;
 

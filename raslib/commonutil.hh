@@ -35,7 +35,7 @@
  * Print stack trace.
  * @param fault_address address where the segfault happened.
  */
-void print_stacktrace(void *ucontext);
+void print_stacktrace(void* ucontext);
 
 
 
@@ -46,20 +46,21 @@ void print_stacktrace(void *ucontext);
  */
 
 void
-installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ));
+installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t*, void*));
 
 void
-installSigHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ), int signal);
+installSigHandler(void (*cleanUpHandler)(int, siginfo_t*, void*), int signal);
 
 
 /* This structure mirrors the one found in /usr/include/asm/ucontext.h
-	defined here because /include/asm might not always be the path*/
-typedef struct _sig_ucontext {
- unsigned long     uc_flags;
- struct ucontext   *uc_link;
- stack_t           uc_stack;
- struct sigcontext uc_mcontext;
- sigset_t          uc_sigmask;
+    defined here because /include/asm might not always be the path*/
+typedef struct _sig_ucontext
+{
+    unsigned long     uc_flags;
+    struct ucontext*   uc_link;
+    stack_t           uc_stack;
+    struct sigcontext uc_mcontext;
+    sigset_t          uc_sigmask;
 } sig_ucontext_t;
 
 
@@ -68,7 +69,7 @@ typedef struct _sig_ucontext {
  * TODO: add support for other architectures
  */
 
-void* getFaultAddress(sig_ucontext_t * uc);
+void* getFaultAddress(sig_ucontext_t* uc);
 
 /**
  * Read the contents of fp, and return it as a string. The returned result
@@ -133,7 +134,7 @@ public:
         friend std::ostream& operator<<(std::ostream& ss, const StackTraceEntry& si)
         {
             ss << "[" << si.m_index << "] " << si.m_location << (si.m_demangled.empty() ? "" : ":") << si.m_demangled
-                << (si.m_hex.empty() ? "" : "+") << si.m_hex << si.m_addr;
+               << (si.m_hex.empty() ? "" : "+") << si.m_hex << si.m_addr;
             return ss;
         }
     private:
@@ -176,7 +177,8 @@ private:
         int size = backtrace(stack, kMaxStack);
         char** strings = backtrace_symbols(stack, size);
         if (size > kStackStart)
-        { // Skip StackTrace c'tor and generateNew
+        {
+            // Skip StackTrace c'tor and generateNew
             for (int i = kStackStart; i < size; ++i)
             {
                 char* mangName = NULL;
@@ -186,17 +188,17 @@ private:
                 {
                     switch (*c)
                     {
-                        case '(':
-                            mangName = c;
-                            break;
-                        case '+':
-                            hex = c;
-                            break;
-                        case ')':
-                            addr = c;
-                            break;
-                        default:
-                            break;
+                    case '(':
+                        mangName = c;
+                        break;
+                    case '+':
+                        hex = c;
+                        break;
+                    case ')':
+                        addr = c;
+                        break;
+                    default:
+                        break;
                     }
                 }
                 // Perform demangling if parsed properly

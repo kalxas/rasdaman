@@ -161,13 +161,13 @@ public:
     r_Error();
 
     /// copy constructor
-    r_Error( const r_Error& );
+    r_Error(const r_Error&);
 
     /// constructor getting the kind
-    r_Error( kind the_kind, unsigned int newErrorNo = 0 );
+    r_Error(kind the_kind, unsigned int newErrorNo = 0);
 
     /// constructor getting an error number
-    r_Error( unsigned int errorno );
+    r_Error(unsigned int errorno);
 
     /// destructor
     virtual ~r_Error() throw();
@@ -176,7 +176,7 @@ public:
     virtual const char* what() const throw();
 
     /// assignment operator
-    const r_Error& operator=( const r_Error& obj );
+    const r_Error& operator=(const r_Error& obj);
 
     //@Man: Read/Write methods:
     //@{
@@ -207,10 +207,10 @@ public:
     static void freeTextTable();
 
     /// replace the specified parameter by the integer value
-    void setTextParameter( const char* parameterName, int value );
+    void setTextParameter(const char* parameterName, int value);
 
     /// replace the specified parameter by the string value
-    void setTextParameter( const char* parameterName, const char* value );
+    void setTextParameter(const char* parameterName, const char* value);
 
 protected:
     /// set error text according to the actual error kind
@@ -236,7 +236,7 @@ protected:
     unsigned int errorNo;
 
 private:
-    static errorInfo *textList;
+    static errorInfo* textList;
 
     /*
      * list of error codes, contining numerical error code, error flag char
@@ -244,7 +244,7 @@ private:
      * It is modelled as nested pairs to allow using standard classes.
      * Filled from file.
      */
-    static std::list<std::pair<std::pair<int,char>, char*> > *errorTexts;
+    static std::list<std::pair<std::pair<int, char>, char*>>* errorTexts;
     static bool errorTextsLoaded;
 
 };
@@ -295,7 +295,7 @@ class r_Eindex_violation : public r_Error
 {
 public:
     /// constructor getting lower and upper bound, and the index
-    r_Eindex_violation( r_Range dlow, r_Range dhigh, r_Range dindex );
+    r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex);
 
 protected:
     /// reset error text
@@ -326,7 +326,7 @@ class r_Edim_mismatch : public r_Error
 {
 public:
     /// constructor getting two dimensionalities
-    r_Edim_mismatch( r_Dimension pdim1, r_Dimension pdim2 );
+    r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2);
 
 protected:
     /// reset error text
@@ -397,10 +397,10 @@ class r_Equery_execution_failed : public r_Error
 {
 public:
     /// default constructor
-    r_Equery_execution_failed( unsigned int errorno, unsigned int lineno, unsigned int columnno, const char* token );
+    r_Equery_execution_failed(unsigned int errorno, unsigned int lineno, unsigned int columnno, const char* token);
 
     /// copy constructor
-    r_Equery_execution_failed( const r_Equery_execution_failed &err );
+    r_Equery_execution_failed(const r_Equery_execution_failed& err);
 
     /// destructor
     ~r_Equery_execution_failed() throw();
@@ -445,7 +445,7 @@ class r_Elimits_mismatch : public r_Error
 {
 public:
     /// constructor getting two limits on the same interval
-    r_Elimits_mismatch( r_Range lim1, r_Range lim2 );
+    r_Elimits_mismatch(r_Range lim1, r_Range lim2);
 
 protected:
     /// reset error text
@@ -474,19 +474,19 @@ class r_Ebase_dbms : public r_Error
 {
 public:
     /// constructor.
-    r_Ebase_dbms( const long& newErrNum, const char* newErrTxt );
+    r_Ebase_dbms(const long& newErrNum, const char* newErrTxt);
 
     /// copy constructor
-    r_Ebase_dbms( const r_Ebase_dbms& oldErr );
+    r_Ebase_dbms(const r_Ebase_dbms& oldErr);
 
     /// constructor reading from a char* containing serialised representation.
-    r_Ebase_dbms( kind newTheKind, unsigned long newErrNum, const char* myStr );
+    r_Ebase_dbms(kind newTheKind, unsigned long newErrNum, const char* myStr);
 
     /// destructor
     ~r_Ebase_dbms() throw();
 
     /// assignment operator
-    const r_Ebase_dbms& operator=( const r_Ebase_dbms& obj );
+    const r_Ebase_dbms& operator=(const r_Ebase_dbms& obj);
 
     // overloads from r_Error
     virtual const char* what() const throw();

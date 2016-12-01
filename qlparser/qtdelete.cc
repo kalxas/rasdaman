@@ -54,10 +54,10 @@ QtDelete::QtDelete()
 
 QtDelete::~QtDelete()
 {
-    if( input )
+    if (input)
     {
         delete input;
-        input=NULL;
+        input = NULL;
     }
 }
 
@@ -68,14 +68,14 @@ QtDelete::evaluate()
 {
     startTimer("QtDelete");
 
-    QtNode::QtDataList* nextTupel=NULL;
+    QtNode::QtDataList* nextTupel = NULL;
 
     // open input stream
     try
     {
         input->open();
     }
-    catch( ... )
+    catch (...)
     {
         input->close();
         throw;
@@ -83,21 +83,24 @@ QtDelete::evaluate()
 
     try
     {
-        while( (nextTupel = input->next()) )
+        while ((nextTupel = input->next()))
         {
             QtData* target = (*nextTupel)[0];
 
             // check delete target
-            if( target->getDataType() != QT_MDD )
+            if (target->getDataType() != QT_MDD)
             {
                 LERROR << "Error: QtDelete::evaluate() - delete target must be an expression resulting in an r_Marray<>";
 
                 // delete tupel vector received by next()
                 vector<QtData*>::iterator dataIter;
-                for( dataIter=nextTupel->begin(); dataIter!=nextTupel->end(); dataIter++ )
-                    if( *dataIter ) (*dataIter)->deleteRef();
+                for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+                    if (*dataIter)
+                    {
+                        (*dataIter)->deleteRef();
+                    }
                 delete nextTupel;
-                nextTupel=NULL;
+                nextTupel = NULL;
 
                 parseInfo.setErrorNo(951);
                 throw parseInfo;
@@ -107,42 +110,47 @@ QtDelete::evaluate()
             MDDObj* targetObj = targetMDD->getMDDObject();
 
             // get leaf of ONC input
-            QtNodeList*  leafList = input->getChilds( QtNode::QT_LEAF_NODES );
+            QtNodeList*  leafList = input->getChilds(QtNode::QT_LEAF_NODES);
             QtMDDAccess* inputLeaf = NULL;
             // take the last QtMDDAccess object from the list assuming that it is the right one
-            for( std::list<QtNode*>::iterator iter=leafList->begin(); iter!=leafList->end(); iter++ )
-                if( (*iter)->getNodeType() == QT_MDD_ACCESS )
+            for (std::list<QtNode*>::iterator iter = leafList->begin(); iter != leafList->end(); iter++)
+                if ((*iter)->getNodeType() == QT_MDD_ACCESS)
+                {
                     inputLeaf = static_cast<QtMDDAccess*>(*iter);
+                }
             delete leafList;
-            leafList=NULL;
+            leafList = NULL;
 
             // delete the MDD object
-            if( inputLeaf )
+            if (inputLeaf)
             {
-                inputLeaf->getMDDColl()->remove( targetObj );
+                inputLeaf->getMDDColl()->remove(targetObj);
                 LINFO << "deleted...";
             }
 
-            if(targetMDD && targetObj && !targetObj->isPersistent()){};
-            targetMDD->setLifetime( QtData::QT_TRANSIENT );
+            if (targetMDD && targetObj && !targetObj->isPersistent()) {};
+            targetMDD->setLifetime(QtData::QT_TRANSIENT);
 
             // delete tupel vector received by next()
             vector<QtData*>::iterator dataIter;
-            for( dataIter=nextTupel->begin(); dataIter!=nextTupel->end(); dataIter++ )
-                if( *dataIter ) (*dataIter)->deleteRef();
+            for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+                if (*dataIter)
+                {
+                    (*dataIter)->deleteRef();
+                }
             delete nextTupel;
-            nextTupel=NULL;
+            nextTupel = NULL;
         } // while
 
     }
-    catch( ... )
+    catch (...)
     {
         input->close();
         throw;
     }
 
     input->close();
-    
+
     stopTimer();
 
     return NULL;
@@ -151,25 +159,31 @@ QtDelete::evaluate()
 
 
 QtNode::QtNodeList*
-QtDelete::getChilds( QtChildType flag )
+QtDelete::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList=NULL;
+    QtNodeList* resultList = NULL;
 
-    if( input )
+    if (input)
     {
         // allocate resultList
-        if( flag == QT_DIRECT_CHILDS ){};
+        if (flag == QT_DIRECT_CHILDS) {};
         resultList = new QtNodeList();
 
-        if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
-            resultList = input->getChilds( flag );
+        if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
+        {
+            resultList = input->getChilds(flag);
+        }
 
         // add the nodes of the current level
-        if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-            resultList->push_back( input );
+        if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+        {
+            resultList->push_back(input);
+        }
     }
     else
+    {
         resultList = new QtNodeList();
+    }
 
     return resultList;
 }
@@ -177,19 +191,21 @@ QtDelete::getChilds( QtChildType flag )
 
 
 void
-QtDelete::printTree( int tab, std::ostream& s, QtChildType mode )
+QtDelete::printTree(int tab, std::ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDelete Object" << getEvaluationTime() << std::endl;
 
-    if( mode != QtNode::QT_DIRECT_CHILDS )
+    if (mode != QtNode::QT_DIRECT_CHILDS)
     {
-        if( input )
+        if (input)
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input: " << std::endl;
-            input->printTree( tab+2, s, mode );
+            input->printTree(tab + 2, s, mode);
         }
         else
+        {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input" << std::endl;
+        }
 
         s << std::endl;
     }
@@ -198,27 +214,29 @@ QtDelete::printTree( int tab, std::ostream& s, QtChildType mode )
 
 
 void
-QtDelete::printAlgebraicExpression( std::ostream& s )
+QtDelete::printAlgebraicExpression(std::ostream& s)
 {
     s << "delete";
 
-    if( input )
+    if (input)
     {
         s << "( ";
-        input->printAlgebraicExpression( s );
+        input->printAlgebraicExpression(s);
         s << " )";
     }
     else
+    {
         s << "(<no input>)";
+    }
 }
 
 
 
 void
-QtDelete::setStreamInput( QtONCStream* newInput )
+QtDelete::setStreamInput(QtONCStream* newInput)
 {
     input = newInput;
-    input->setParent( this );
+    input->setParent(this);
 }
 
 QtONCStream*
@@ -232,13 +250,13 @@ void
 QtDelete::checkType()
 {
     // check operand branches
-    if( input )
+    if (input)
     {
 
         // get input type
         QtTypeTuple inputType  = input->checkType();
 
-        if( inputType.tuple[0].getDataType() != QT_MDD )
+        if (inputType.tuple[0].getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtDelete::checkType() - delete target must be an expression resulting in an r_Marray<>";
             parseInfo.setErrorNo(951);
@@ -246,7 +264,9 @@ QtDelete::checkType()
         }
     }
     else
+    {
         LFATAL << "Error: QtDelete::checkType() - operand branch invalid.";
+    }
 
 }
 

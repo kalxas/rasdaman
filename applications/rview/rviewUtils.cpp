@@ -127,7 +127,7 @@ const int rview_choice_sub_width = 32;
 #endif
 
 // String names of base types
-char *rviewBaseTypes[] =
+char* rviewBaseTypes[] =
 {
     "none",
     "Boolean",
@@ -143,7 +143,7 @@ char *rviewBaseTypes[] =
 };
 
 // String names of objects of baseType x and dimension y (-> rviewBaseType)
-char *rviewTypeNames[][MAXIMUM_DIMENSIONS] =
+char* rviewTypeNames[][MAXIMUM_DIMENSIONS] =
 {
     {"?", "?", "?", "?"},
     {"BoolString", "BoolImage", "BoolCube", "BoolCube4"},
@@ -159,7 +159,7 @@ char *rviewTypeNames[][MAXIMUM_DIMENSIONS] =
 };
 
 // The same for sets
-char *rviewSetNames[][MAXIMUM_DIMENSIONS] =
+char* rviewSetNames[][MAXIMUM_DIMENSIONS] =
 {
     {"?", "?", "?", "?"},
     {"BoolSet1", "BoolSet", "BoolSet3", "BoolSet4"},
@@ -181,9 +181,9 @@ unsigned char lowerCaseTable[256];
 
 
 // Various support classes
-rviewFrameMgr *frameManager = NULL;
+rviewFrameMgr* frameManager = NULL;
 
-labelManager *lman = NULL;
+labelManager* lman = NULL;
 
 
 
@@ -195,18 +195,27 @@ labelManager *lman = NULL;
  */
 
 // Frees all memory allocated by a collection descriptor.
-void rviewDeleteCollection(collection_desc *coll)
+void rviewDeleteCollection(collection_desc* coll)
 {
     if (coll != NULL)
     {
         int i;
-        collection_desc *ptr = coll;
+        collection_desc* ptr = coll;
 
-        if (coll->collName != NULL) delete [] coll->collName;
-        if (coll->collType != NULL) delete [] coll->collType;
-        if (coll->collInfo != NULL) delete [] coll->collInfo;
+        if (coll->collName != NULL)
+        {
+            delete [] coll->collName;
+        }
+        if (coll->collType != NULL)
+        {
+            delete [] coll->collType;
+        }
+        if (coll->collInfo != NULL)
+        {
+            delete [] coll->collInfo;
+        }
 
-        for (i=0; i<coll->number; i++)
+        for (i = 0; i < coll->number; i++)
         {
             if (coll->mddObjs != NULL)
             {
@@ -223,8 +232,14 @@ void rviewDeleteCollection(collection_desc *coll)
                 }
             }
         }
-        if (coll->mddObjs != NULL) delete [] coll->mddObjs;
-        if (coll->strObjs != NULL) delete [] coll->strObjs;
+        if (coll->mddObjs != NULL)
+        {
+            delete [] coll->mddObjs;
+        }
+        if (coll->strObjs != NULL)
+        {
+            delete [] coll->strObjs;
+        }
 
         delete coll;
     }
@@ -235,29 +250,41 @@ void rviewDeleteCollection(collection_desc *coll)
 /*
  *  Support function for rviewParseProjection
  */
-static const char *rviewParseIndexMapping(const char *s, int idx, int dims, r_Point *mapIndex)
+static const char* rviewParseIndexMapping(const char* s, int idx, int dims, r_Point* mapIndex)
 {
-    const char *b, *d;
+    const char* b, *d;
     r_Range value;
 
-    b = s+1;
+    b = s + 1;
     if (mapIndex == NULL)
     {
         cerr << "Mode doesn't support reordering of dimensions." << endl;
     }
 
     value = (r_Range)strtol(b, (char**)&d, 0);
-    if (b == d) return NULL;
+    if (b == d)
+    {
+        return NULL;
+    }
 
     if ((value < 0) || (value >= (r_Range)dims))
     {
         cerr << "Bad dimension index " << value << endl;
         value = (r_Range)idx;
     }
-    if (mapIndex != NULL) (*mapIndex)[idx] = value;
+    if (mapIndex != NULL)
+    {
+        (*mapIndex)[idx] = value;
+    }
 
-    while ((*d == ' ') || (*d == '\t')) d++;
-    if (*d == ']') return d+1;
+    while ((*d == ' ') || (*d == '\t'))
+    {
+        d++;
+    }
+    if (*d == ']')
+    {
+        return d + 1;
+    }
     return NULL;
 }
 
@@ -268,13 +295,16 @@ static const char *rviewParseIndexMapping(const char *s, int idx, int dims, r_Po
  *  number of dimension of projection string for success, 0 for an error.
  */
 
-int rviewParseProjection(const r_Minterval &interv, r_Point &pt1, r_Point &pt2, const char *projString, unsigned int *freeDims, r_Point *mapIndex)
+int rviewParseProjection(const r_Minterval& interv, r_Point& pt1, r_Point& pt2, const char* projString, unsigned int* freeDims, r_Point* mapIndex)
 {
     int dims, i;
-    const char *b, *d;
+    const char* b, *d;
     r_Range value;
 
-    if (freeDims != NULL) *freeDims = 0;
+    if (freeDims != NULL)
+    {
+        *freeDims = 0;
+    }
     dims = interv.dimension();
     pt1 = r_Point(dims);
     pt2 = r_Point(dims);
@@ -283,11 +313,26 @@ int rviewParseProjection(const r_Minterval &interv, r_Point &pt1, r_Point &pt2, 
     i = 0;
     while (*b != '\0')
     {
-        while ((*b == ' ') || (*b == '\t')) b++;
-        if (*b == ',') b++;
-        while ((*b == ' ') || (*b == '\t')) b++;
-        if (*b == '\0') break;
-        if (i >= dims) return 0;
+        while ((*b == ' ') || (*b == '\t'))
+        {
+            b++;
+        }
+        if (*b == ',')
+        {
+            b++;
+        }
+        while ((*b == ' ') || (*b == '\t'))
+        {
+            b++;
+        }
+        if (*b == '\0')
+        {
+            break;
+        }
+        if (i >= dims)
+        {
+            return 0;
+        }
         if (*b == '*')
         {
             pt1[i] = interv[i].low();
@@ -298,23 +343,44 @@ int rviewParseProjection(const r_Minterval &interv, r_Point &pt1, r_Point &pt2, 
         {
             value = (r_Range)strtol(b, (char**)&d, 0);
             // no valid number found?
-            if (b == d) return 0;
+            if (b == d)
+            {
+                return 0;
+            }
             b = d;
-            if ((value < interv[i].low()) || (value > interv[i].high())) return 0;
+            if ((value < interv[i].low()) || (value > interv[i].high()))
+            {
+                return 0;
+            }
             pt1[i] = value;
             pt2[i] = value;
         }
-        if (mapIndex != NULL) (*mapIndex)[i] = i;
-        while ((*b == ' ') || (*b == '\t')) b++;
+        if (mapIndex != NULL)
+        {
+            (*mapIndex)[i] = i;
+        }
+        while ((*b == ' ') || (*b == '\t'))
+        {
+            b++;
+        }
         if (*b == '[')  // Explicit index-mapping?
         {
-            if ((b = rviewParseIndexMapping(b, i, dims, mapIndex)) == NULL) return 0;
+            if ((b = rviewParseIndexMapping(b, i, dims, mapIndex)) == NULL)
+            {
+                return 0;
+            }
         }
         else if (*b == ':') // the upper boundaries follow after a colon.
         {
-            if (freeDims != NULL) *freeDims |= (1<<i);
+            if (freeDims != NULL)
+            {
+                *freeDims |= (1 << i);
+            }
             b++;
-            if (*b == '\0') break;
+            if (*b == '\0')
+            {
+                break;
+            }
             if (*b == '*')
             {
                 value = interv[i].high();
@@ -323,15 +389,27 @@ int rviewParseProjection(const r_Minterval &interv, r_Point &pt1, r_Point &pt2, 
             else
             {
                 value = (r_Range)strtol(b, (char**)&d, 0);
-                if (b == d) return 0;
+                if (b == d)
+                {
+                    return 0;
+                }
                 b = d;
-                if ((value < interv[i].low()) || (value > interv[i].high())) return 0;
+                if ((value < interv[i].low()) || (value > interv[i].high()))
+                {
+                    return 0;
+                }
             }
             pt2[i] = value;
-            while ((*b == ' ') || (*b == '\t')) b++;
+            while ((*b == ' ') || (*b == '\t'))
+            {
+                b++;
+            }
             if (*b == '[')
             {
-                if ((b = rviewParseIndexMapping(b, i, dims, mapIndex)) == NULL) return 0;
+                if ((b = rviewParseIndexMapping(b, i, dims, mapIndex)) == NULL)
+                {
+                    return 0;
+                }
             }
         }
         i++;
@@ -346,32 +424,40 @@ int rviewParseProjection(const r_Minterval &interv, r_Point &pt1, r_Point &pt2, 
 /*
  *  Determine the base type of an MDD object, returning a simple identifier.
  */
-rviewBaseType rviewGetBasetype(r_Object *obj)
+rviewBaseType rviewGetBasetype(r_Object* obj)
 {
     rviewBaseType baseType;
-    const r_Type *bt;
+    const r_Type* bt;
 
     baseType = rbt_none;
 
     // New type schema...
     bt = obj->get_type_schema();
     if (bt->type_id() == r_Type::MARRAYTYPE)
+    {
         bt = ((r_GMarray*)obj)->get_base_type_schema();
+    }
     else if (bt->type_id() == r_Type::COLLECTIONTYPE)
+    {
         bt = ((r_Collection<r_Ref_Any>*)obj)->get_element_type_schema();
+    }
 
     if (bt != NULL)
     {
         if (((r_Type*)bt)->isStructType())
         {
             if (((r_Base_Type*)bt)->size() == 3)
+            {
                 baseType = rbt_rgb;
+            }
             else
+            {
                 baseType = rbt_none;
+            }
         }
         else
         {
-            r_Primitive_Type *pt = (r_Primitive_Type *)bt;
+            r_Primitive_Type* pt = (r_Primitive_Type*)bt;
 
             switch (pt->type_id())
             {
@@ -410,12 +496,21 @@ rviewBaseType rviewGetBasetype(r_Object *obj)
     }
     else
     {
-        char *name = (char*)(obj->get_type_name());
+        char* name = (char*)(obj->get_type_name());
         if (name != NULL)
         {
-            if (strcmp(name, "GreyImage") == 0) baseType = rbt_char;
-            else if (strcmp(name, "BoolImage") == 0) baseType = rbt_bool;
-            else if (strcmp(name, "RGBImage") == 0) baseType = rbt_rgb;
+            if (strcmp(name, "GreyImage") == 0)
+            {
+                baseType = rbt_char;
+            }
+            else if (strcmp(name, "BoolImage") == 0)
+            {
+                baseType = rbt_bool;
+            }
+            else if (strcmp(name, "RGBImage") == 0)
+            {
+                baseType = rbt_rgb;
+            }
         }
     }
     return baseType;
@@ -429,9 +524,9 @@ rviewBaseType rviewGetBasetype(r_Object *obj)
  */
 
 // For internal use only
-static void printPrimitiveCell(r_Primitive_Type *primType, char **buff, char *data, int numberBase)
+static void printPrimitiveCell(r_Primitive_Type* primType, char** buff, char* data, int numberBase)
 {
-    char *b = *buff;
+    char* b = *buff;
 
     switch (numberBase)
     {
@@ -542,11 +637,11 @@ static void printPrimitiveCell(r_Primitive_Type *primType, char **buff, char *da
 }
 
 // For internal use only
-void printStructuredCell(r_Structure_Type *structType, char **buff, char *data, int numberBase)
+void printStructuredCell(r_Structure_Type* structType, char** buff, char* data, int numberBase)
 {
-    r_Type *newType;
+    r_Type* newType;
     unsigned long off;
-    char *b;
+    char* b;
 
     b = *buff;
     *b++ = '{';
@@ -558,12 +653,12 @@ void printStructuredCell(r_Structure_Type *structType, char **buff, char *data, 
 
         if (newType->isStructType())
         {
-            r_Structure_Type *newStructType = (r_Structure_Type*)newType;
+            r_Structure_Type* newStructType = (r_Structure_Type*)newType;
             printStructuredCell(newStructType, &b, data + off, numberBase);
         }
         else
         {
-            r_Primitive_Type *newPrimType = (r_Primitive_Type*)newType;
+            r_Primitive_Type* newPrimType = (r_Primitive_Type*)newType;
             printPrimitiveCell(newPrimType, &b, data + off, numberBase);
         }
         delete newType;
@@ -575,18 +670,18 @@ void printStructuredCell(r_Structure_Type *structType, char **buff, char *data, 
     *buff = b;
 }
 
-int rviewPrintTypedCell(const r_Type *baseType, char *buffer, char *data, int numberBase)
+int rviewPrintTypedCell(const r_Type* baseType, char* buffer, char* data, int numberBase)
 {
-    char *b = buffer;
+    char* b = buffer;
 
     if (((r_Type*)baseType)->isStructType())
     {
-        r_Structure_Type *structType = (r_Structure_Type*)baseType;
+        r_Structure_Type* structType = (r_Structure_Type*)baseType;
         printStructuredCell(structType, &b, data, numberBase);
     }
     else
     {
-        r_Primitive_Type *primType = (r_Primitive_Type*)baseType;
+        r_Primitive_Type* primType = (r_Primitive_Type*)baseType;
         printPrimitiveCell(primType, &b, data, numberBase);
     }
     return (int)(b - buffer);
@@ -601,17 +696,17 @@ int rviewPrintTypedCell(const r_Type *baseType, char *buffer, char *data, int nu
 
 #define QUICKSORT_STRING_SWAP(x,y)  h=array[x]; array[x]=array[y]; array[y]=h;
 
-void rviewQuicksortStrings(char *array[], int from, int to)
+void rviewQuicksortStrings(char* array[], int from, int to)
 {
     while (from < to)
     {
         int i, j;
-        char *h;
+        char* h;
 
-        j = (from+to)/2;
+        j = (from + to) / 2;
         QUICKSORT_STRING_SWAP(from, j);
-        j=from;
-        for (i=from+1; i<=to; i++)
+        j = from;
+        for (i = from + 1; i <= to; i++)
         {
             if (strcmp(array[i], array[from]) < 0)
             {
@@ -621,15 +716,15 @@ void rviewQuicksortStrings(char *array[], int from, int to)
         }
         QUICKSORT_STRING_SWAP(from, j);
 
-        if ((j-from) < (to-j))
+        if ((j - from) < (to - j))
         {
-            rviewQuicksortStrings(array, from, j-1);
-            from = j+1;
+            rviewQuicksortStrings(array, from, j - 1);
+            from = j + 1;
         }
         else
         {
-            rviewQuicksortStrings(array, j+1, to);
-            to = j-1;
+            rviewQuicksortStrings(array, j + 1, to);
+            to = j - 1;
         }
     }
 }
@@ -643,44 +738,50 @@ void rviewInitCharacterTables(void)
 {
     int i;
 
-    for (i=0; i<256; i++) lowerCaseTable[i] = tolower(i);
+    for (i = 0; i < 256; i++)
+    {
+        lowerCaseTable[i] = tolower(i);
+    }
 }
 
 
 
 #define LOOKUP_KEYWORD_CORE \
-  while (count != 0) \
-  { \
-    b = (const unsigned char*)(kti[pos].keyword); \
-    d = (const unsigned char*)key; \
-    while (TRANSLATE_CHARACTER(b) == TRANSLATE_CHARACTER(d)) \
+    while (count != 0) \
     { \
-      if (*b == 0) break; b++; d++; \
-    } \
-    if ((*b == 0) && (*d == 0)) return kti[pos].ident; \
-    if (TRANSLATE_CHARACTER(b) >= TRANSLATE_CHARACTER(d)) \
-    { \
-      pos -= step; if (pos < 0) pos = 0; \
-    } \
-    else \
-    { \
-      pos += step; if (pos >= tabsize) pos = tabsize - 1; \
-    } \
-    step = (step+1) >> 1; count >>= 1; \
-  }
+        b = (const unsigned char*)(kti[pos].keyword); \
+        d = (const unsigned char*)key; \
+        while (TRANSLATE_CHARACTER(b) == TRANSLATE_CHARACTER(d)) \
+        { \
+            if (*b == 0) break; b++; d++; \
+        } \
+        if ((*b == 0) && (*d == 0)) return kti[pos].ident; \
+        if (TRANSLATE_CHARACTER(b) >= TRANSLATE_CHARACTER(d)) \
+        { \
+            pos -= step; if (pos < 0) pos = 0; \
+        } \
+        else \
+        { \
+            pos += step; if (pos >= tabsize) pos = tabsize - 1; \
+        } \
+        step = (step+1) >> 1; count >>= 1; \
+    }
 
 /*
  *  Lookup a keyword in a SORTED keyword_to_ident table. Case sensitivity
  *  is optional but has to match the sorting order of the table, of course.
  */
-int rviewLookupKeyword(const char *key, const keyword_to_ident_c *kti, int tabsize, bool caseSensitive)
+int rviewLookupKeyword(const char* key, const keyword_to_ident_c* kti, int tabsize, bool caseSensitive)
 {
     int pos, step, count;
-    const unsigned char *b, *d;
+    const unsigned char* b, *d;
 
     count = tabsize;
     pos = (tabsize + 1) >> 1;
-    if (pos >= tabsize) pos = tabsize - 1;
+    if (pos >= tabsize)
+    {
+        pos = tabsize - 1;
+    }
     step = (pos + 1) >> 1;
     if (caseSensitive)
     {
@@ -702,7 +803,7 @@ int rviewLookupKeyword(const char *key, const keyword_to_ident_c *kti, int tabsi
 /* Helper function making sure min/max of the init structure is used by the
    colourspace mapper */
 
-static void rviewEnsureCspaceRange(colourspaceMapper *csmap, const colourspace_params *cp)
+static void rviewEnsureCspaceRange(colourspaceMapper* csmap, const colourspace_params* cp)
 {
     // make sure the min/max values are taken from the init structure as well
     if (cp != NULL)
@@ -730,7 +831,7 @@ static void rviewEnsureCspaceRange(colourspaceMapper *csmap, const colourspace_p
  *  If cmap == NULL the function just returns 0 or 1. If the int*
  *  arguments are not NULL they're set up correctly on exit too.
  */
-int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper **csmap, r_Ref<r_GMarray> &mddObj, bool fullRange, r_Minterval *domain, int w, int *newPitch, int *newDepth, int *newPad, int *virtualPitch, const colourspace_params *cp)
+int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper** csmap, r_Ref<r_GMarray>& mddObj, bool fullRange, r_Minterval* domain, int w, int* newPitch, int* newDepth, int* newPad, int* virtualPitch, const colourspace_params* cp)
 {
     colourspace_params par;
 
@@ -740,41 +841,55 @@ int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper **csmap, r_Re
     case rbt_uchar:
     case rbt_short:
     case rbt_ushort:
-        if (csmap == NULL) return 1;
+        if (csmap == NULL)
+        {
+            return 1;
+        }
         if (*csmap == NULL)
         {
-            memcpy(&par, (cp == NULL) ? &(prefs->csp) : cp, sizeof(colourspace_params));
+            memcpy(&par, (cp == NULL) ? & (prefs->csp) : cp, sizeof(colourspace_params));
             *csmap = new colourspaceMapper(mddObj, baseType, &par, fullRange, domain);
         }
         else
+        {
             (*csmap)->bindMapper(mddObj, baseType, fullRange, domain, cp);
+        }
 
         rviewEnsureCspaceRange(*csmap, cp);
 
         // always call this and let the mapper sort out whether it has to update
         (*csmap)->buildCSTab15();
-        if (newPitch == NULL) return 1;
-        if (*newPad < 32) *newPad = 32;
+        if (newPitch == NULL)
+        {
+            return 1;
+        }
+        if (*newPad < 32)
+        {
+            *newPad = 32;
+        }
         *newDepth = 15;
         switch (*newPad)
         {
         case 32:
-            *newPitch = (w*2 + 3) & ~3;
+            *newPitch = (w * 2 + 3) & ~3;
             break;
         case 64:
-            *newPitch = (w*2 + 7) & ~7;
+            *newPitch = (w * 2 + 7) & ~7;
             break;
         case 128:
-            *newPitch = (w*2 + 15) & ~15;
+            *newPitch = (w * 2 + 15) & ~15;
             break;
         case 256:
-            *newPitch = (w*2 + 31) & ~31;
+            *newPitch = (w * 2 + 31) & ~31;
             break;
         default:
             cerr << "Bad pad " << *newPad << endl;
             return 0;
         }
-        if (virtualPitch != NULL) *virtualPitch = *newPitch;
+        if (virtualPitch != NULL)
+        {
+            *virtualPitch = *newPitch;
+        }
         return 1;
         break;
     case rbt_long:
@@ -784,22 +899,33 @@ int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper **csmap, r_Re
     {
         int baseWidth;
 
-        baseWidth = 4*w;
+        baseWidth = 4 * w;
 
-        if (csmap == NULL) return 1;
+        if (csmap == NULL)
+        {
+            return 1;
+        }
         if (*csmap == NULL)
         {
-            memcpy(&par, (cp == NULL) ? &(prefs->csp) : cp, sizeof(colourspace_params));
+            memcpy(&par, (cp == NULL) ? & (prefs->csp) : cp, sizeof(colourspace_params));
             *csmap = new colourspaceMapper(mddObj, baseType, &par, fullRange, domain);
         }
         else
+        {
             (*csmap)->bindMapper(mddObj, baseType, fullRange, domain, cp);
+        }
 
         rviewEnsureCspaceRange(*csmap, cp);
 
         (*csmap)->buildCSTab24();
-        if (newPitch == NULL) return 1;
-        if (*newPad < 32) *newPad = 32;
+        if (newPitch == NULL)
+        {
+            return 1;
+        }
+        if (*newPad < 32)
+        {
+            *newPad = 32;
+        }
         *newDepth = 32;
         switch (*newPad)
         {
@@ -820,7 +946,9 @@ int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper **csmap, r_Re
             return 0;
         }
         if (virtualPitch != NULL)
-            *virtualPitch = (baseType == rbt_double) ? 2*(*newPitch) : (*newPitch);
+        {
+            *virtualPitch = (baseType == rbt_double) ? 2 * (*newPitch) : (*newPitch);
+        }
         return 1;
     }
     break;
@@ -837,27 +965,30 @@ int rviewCheckInitCspace(rviewBaseType baseType, colourspaceMapper **csmap, r_Re
  *  prefix and convert the number correctly.
  */
 
-long asctol(const char *str)
+long asctol(const char* str)
 {
     return stringtol(str, NULL);
 }
 
-int asctoi(const char *str)
+int asctoi(const char* str)
 {
     return (int)stringtol(str, NULL);
 }
 
-double asctof(const char *str)
+double asctof(const char* str)
 {
     return stringtof(str, NULL);
 }
 
-long stringtol(const char *str, char **endptr)
+long stringtol(const char* str, char** endptr)
 {
-    const char *b = str;
+    const char* b = str;
     long value;
 
-    while (isspace((unsigned int)(*b))) b++;
+    while (isspace((unsigned int)(*b)))
+    {
+        b++;
+    }
     if ((b[0] == '0') && ((b[1] == 'x') || (b[1] == 'X')))
     {
         b += 2;
@@ -867,16 +998,22 @@ long stringtol(const char *str, char **endptr)
     {
         value = strtol(b, endptr, 10);
     }
-    if ((endptr != NULL) && ((const char*)(*endptr) == b)) *endptr = (char*)str;
+    if ((endptr != NULL) && ((const char*)(*endptr) == b))
+    {
+        *endptr = (char*)str;
+    }
     return value;
 }
 
-double stringtof(const char *str, char **endptr)
+double stringtof(const char* str, char** endptr)
 {
-    const char *b = str;
+    const char* b = str;
     double value;
 
-    while (isspace((unsigned int)(*b))) b++;
+    while (isspace((unsigned int)(*b)))
+    {
+        b++;
+    }
     if ((b[0] == '0') && ((b[1] == 'x') || (b[1] == 'X')))
     {
         b += 2;
@@ -886,7 +1023,10 @@ double stringtof(const char *str, char **endptr)
     {
         value = strtod(b, endptr);
     }
-    if ((endptr != NULL) && ((const char*)(*endptr) == b)) *endptr = (char*)str;
+    if ((endptr != NULL) && ((const char*)(*endptr) == b))
+    {
+        *endptr = (char*)str;
+    }
     return value;
 }
 
@@ -906,7 +1046,7 @@ DynamicString::DynamicString(void)
     myString = NULL;
 }
 
-DynamicString::DynamicString(const DynamicString &ms)
+DynamicString::DynamicString(const DynamicString& ms)
 {
     if (ms.myString == NULL)
     {
@@ -920,7 +1060,7 @@ DynamicString::DynamicString(const DynamicString &ms)
 }
 
 
-DynamicString::DynamicString(const char *str)
+DynamicString::DynamicString(const char* str)
 {
     if (str == NULL)
     {
@@ -936,11 +1076,14 @@ DynamicString::DynamicString(const char *str)
 
 DynamicString::~DynamicString(void)
 {
-    if (myString != NULL) delete [] myString;
+    if (myString != NULL)
+    {
+        delete [] myString;
+    }
 }
 
 
-DynamicString &DynamicString::first(const char *str, unsigned int num)
+DynamicString& DynamicString::first(const char* str, unsigned int num)
 {
     if (myString != NULL)
     {
@@ -950,7 +1093,10 @@ DynamicString &DynamicString::first(const char *str, unsigned int num)
     if (num != 0)
     {
         unsigned int len = strlen(str);
-        if (len > num) len = num;
+        if (len > num)
+        {
+            len = num;
+        }
         myString = new char[len + 1];
         strncpy(myString, str, len);
         myString[len] = '\0';
@@ -959,7 +1105,7 @@ DynamicString &DynamicString::first(const char *str, unsigned int num)
 }
 
 
-DynamicString &DynamicString::operator=(const DynamicString &ms)
+DynamicString& DynamicString::operator=(const DynamicString& ms)
 {
     if (myString != NULL)
     {
@@ -975,7 +1121,7 @@ DynamicString &DynamicString::operator=(const DynamicString &ms)
 }
 
 
-DynamicString &DynamicString::operator=(const char *str)
+DynamicString& DynamicString::operator=(const char* str)
 {
     if (myString != NULL)
     {
@@ -991,25 +1137,28 @@ DynamicString &DynamicString::operator=(const char *str)
 }
 
 
-const char *DynamicString::ptr(void) const
+const char* DynamicString::ptr(void) const
 {
-    if (myString == NULL) return emptyString;
+    if (myString == NULL)
+    {
+        return emptyString;
+    }
     return myString;
 }
 
-DynamicString::operator const char*(void) const
+DynamicString::operator const char* (void) const
 {
     return ptr();
 }
 
 
-bool DynamicString::operator==(const DynamicString &str) const
+bool DynamicString::operator==(const DynamicString& str) const
 {
     return (strcmp(ptr(), str.ptr()) == 0);
 }
 
 
-bool DynamicString::operator==(const char *str) const
+bool DynamicString::operator==(const char* str) const
 {
     return (strcmp(ptr(), str) == 0);
 }
@@ -1026,10 +1175,12 @@ bool DynamicString::operator==(const char *str) const
  *  of its children it claims the event, thus aborting the broadcast.
  */
 
-void rviewEventHandler(wxObject &obj, wxEvent &evt)
+void rviewEventHandler(wxObject& obj, wxEvent& evt)
 {
     if (frameManager != NULL)
+    {
         frameManager->broadcastEvent(obj, evt);
+    }
     //cout << endl;
 }
 
@@ -1044,12 +1195,14 @@ void rviewEventHandler(wxObject &obj, wxEvent &evt)
  *  (window/frame) classes from it.
  */
 
-rviewFrame::rviewFrame(wxFrame *parent, char *title, int x, int y, int w, int h) : wxFrame(parent, title, x, y, w, h)
+rviewFrame::rviewFrame(wxFrame* parent, char* title, int x, int y, int w, int h) : wxFrame(parent, title, x, y, w, h)
 {
     LTRACE << "rviewFrame( " << this << ", ...)";
 
     if (frameManager != NULL)
+    {
         frameManager->registerFrame(this);
+    }
 
     parentFrame = NULL;
     // Init the size with illegal values to make sure the first OnSize gets through
@@ -1067,7 +1220,9 @@ rviewFrame::~rviewFrame(void)
     delete frames;
 
     if (frameManager != NULL)
+    {
         frameManager->deregisterFrame(this);
+    }
 
     if (parentFrame != NULL)
     {
@@ -1076,7 +1231,7 @@ rviewFrame::~rviewFrame(void)
 }
 
 
-const char *rviewFrame::getFrameName(void) const
+const char* rviewFrame::getFrameName(void) const
 {
     return "rviewFrame";
 }
@@ -1087,20 +1242,20 @@ rviewFrameType rviewFrame::getFrameType(void) const
 }
 
 
-void rviewFrame::setParent(rviewFrame *parent)
+void rviewFrame::setParent(rviewFrame* parent)
 {
     parentFrame = parent;
 }
 
 
-void rviewFrame::registerChild(rviewFrame *child)
+void rviewFrame::registerChild(rviewFrame* child)
 {
     child->setParent(this);
     frames->registerFrame(child);
 }
 
 
-void rviewFrame::deregisterChild(rviewFrame *child)
+void rviewFrame::deregisterChild(rviewFrame* child)
 {
     frames->deregisterFrame(child);
     child->setParent(NULL);
@@ -1125,7 +1280,7 @@ int rviewFrame::requestQuit(int level)
 
 
 // Called on a user event
-int rviewFrame::userEvent(const user_event &ue)
+int rviewFrame::userEvent(const user_event& ue)
 {
     // Default action: nothing. Overload function in derived class if you're
     // interested in user messages.
@@ -1134,7 +1289,7 @@ int rviewFrame::userEvent(const user_event &ue)
 
 
 // Called by the rviewFrameMgr object to determine which frame receives an event
-int rviewFrame::checkobj(wxObject &obj)
+int rviewFrame::checkobj(wxObject& obj)
 {
     return checkobj_rec((wxWindow*)this, obj);
 }
@@ -1142,19 +1297,25 @@ int rviewFrame::checkobj(wxObject &obj)
 
 // Used internally by rviewFrame::checkobj(); don't access directly. Checks
 // recursively all the children of a given frame against obj.
-int rviewFrame::checkobj_rec(wxWindow *whence, wxObject &obj)
+int rviewFrame::checkobj_rec(wxWindow* whence, wxObject& obj)
 {
-    if (&obj == (wxObject*)whence) return 1;
+    if (&obj == (wxObject*)whence)
+    {
+        return 1;
+    }
     else
     {
         int i, n;
-        wxList *list;
+        wxList* list;
 
         list = whence->GetChildren();
         n = list->Number();
-        for (i=0; i<n; i++)
+        for (i = 0; i < n; i++)
         {
-            if (checkobj_rec((wxWindow*)(list->Nth(i)->Data()), obj) != 0) return 1;
+            if (checkobj_rec((wxWindow*)(list->Nth(i)->Data()), obj) != 0)
+            {
+                return 1;
+            }
         }
     }
     return 0;
@@ -1170,7 +1331,7 @@ bool rviewFrame::OnClose(void)
 }
 
 
-void rviewFrame::childMouseEvent(wxWindow *child, wxMouseEvent &mevt)
+void rviewFrame::childMouseEvent(wxWindow* child, wxMouseEvent& mevt)
 {
     // by default this is ignored.
 }
@@ -1205,7 +1366,7 @@ rviewFrameMgr::rviewFrameMgr(bool delChild)
 rviewFrameMgr::~rviewFrameMgr(void)
 {
     int i;
-    frame_list *list, *last;
+    frame_list* list, *last;
 
     // Deletes all the frames and their children
     // Unlink all frames first! Otherwise there'll be trouble because the Frame Manager
@@ -1213,7 +1374,7 @@ rviewFrameMgr::~rviewFrameMgr(void)
     // they will deregister there which will screw up the Frame Manager's frame list
     // _during the loop_ and hence crash.
     list = frameList;
-    for (i=0; i<listLength; i++)
+    for (i = 0; i < listLength; i++)
     {
         last = list;
         list = list->next;
@@ -1231,9 +1392,9 @@ rviewFrameMgr::~rviewFrameMgr(void)
 }
 
 
-void rviewFrameMgr::registerFrame(rviewFrame *client)
+void rviewFrameMgr::registerFrame(rviewFrame* client)
 {
-    frame_list *entry;
+    frame_list* entry;
 
     //cout << "frameManager::registerFrame(" << (void*)client << ")" << endl;
     if ((entry = new frame_list) == NULL)
@@ -1261,15 +1422,15 @@ void rviewFrameMgr::registerFrame(rviewFrame *client)
 }
 
 
-void rviewFrameMgr::deregisterFrame(rviewFrame *client)
+void rviewFrameMgr::deregisterFrame(rviewFrame* client)
 {
     int i;
-    frame_list *list, *last;
+    frame_list* list, *last;
 
     //cout << "frameManager::deregisterFrame(" << (void*)client << ")" << endl;
     list = frameList;
     last = NULL;
-    for (i=0; i<listLength; i++)
+    for (i = 0; i < listLength; i++)
     {
         if (list->frame == client)
         {
@@ -1286,10 +1447,16 @@ void rviewFrameMgr::deregisterFrame(rviewFrame *client)
                 last->next = list;
             }
             listLength--;
-            if (last == NULL) tailList = NULL;
+            if (last == NULL)
+            {
+                tailList = NULL;
+            }
             else
             {
-                while (last->next != NULL) last = last->next;
+                while (last->next != NULL)
+                {
+                    last = last->next;
+                }
                 tailList = last;
             }
             //cout << "Frame manager: Removed frame from list. New length = " << listLength << endl;
@@ -1320,11 +1487,11 @@ void rviewFrameMgr::setDeleteMode(bool delChild)
 void rviewFrameMgr::labelAll(void)
 {
     int i;
-    frame_list *list;
+    frame_list* list;
 
     //cout << "frameManager::labelAll()" << endl;
     list = frameList;
-    for (i=0; i<listLength; i++)
+    for (i = 0; i < listLength; i++)
     {
         list->frame->label();
         list = list->next;
@@ -1338,10 +1505,10 @@ void rviewFrameMgr::labelAll(void)
  *  a value != 0. Warning: this function has to be re-entrant!
  */
 
-void rviewFrameMgr::broadcastEvent(wxObject &obj, wxEvent &evt)
+void rviewFrameMgr::broadcastEvent(wxObject& obj, wxEvent& evt)
 {
     int i;
-    frame_list *list;
+    frame_list* list;
 
     // Note: the broadcast has to go in two steps, first determining which frame
     // knows the object, then terminating the loop and calling the object as the
@@ -1349,7 +1516,7 @@ void rviewFrameMgr::broadcastEvent(wxObject &obj, wxEvent &evt)
     // crash badly if the frame list changed during the loop.
     //cout << "frameManager::broadcastEvent()" << endl;
     list = frameList;
-    for (i=0; i<listLength; i++)
+    for (i = 0; i < listLength; i++)
     {
         //cout << "Broadcast to " << (void*)(list->frame) << endl;
         if (list->frame->checkobj(obj) != 0)
@@ -1382,17 +1549,23 @@ void rviewFrameMgr::broadcastEvent(wxObject &obj, wxEvent &evt)
 int rviewFrameMgr::broadcastQuit(int level)
 {
     int i, status;
-    frame_list *list;
+    frame_list* list;
 
     list = frameList->next;
     status = 1;
-    for (i=1; i<listLength; i++)
+    for (i = 1; i < listLength; i++)
     {
         //if (level > 0) cout << "delete " << (void*)list << endl;
-        if (list->frame->requestQuit(level) != 0) status = 0;
+        if (list->frame->requestQuit(level) != 0)
+        {
+            status = 0;
+        }
         list = list->next;
     }
-    if (level == 0) return status;
+    if (level == 0)
+    {
+        return status;
+    }
 
     //cout << "Hard quit OK" << endl;
     return 1;
@@ -1404,14 +1577,14 @@ int rviewFrameMgr::broadcastQuit(int level)
  *  Broadcast a user event to all frames.
  */
 
-int rviewFrameMgr::broadcastUserEvent(const user_event &ue)
+int rviewFrameMgr::broadcastUserEvent(const user_event& ue)
 {
     int i, status;
-    frame_list *list;
+    frame_list* list;
 
     list = frameList;
     status = 0;
-    for (i=0; i<listLength; i++)
+    for (i = 0; i < listLength; i++)
     {
         //cout << "broadcast to " << (void*)(list->frame) << endl;
         status += list->frame->userEvent(ue);
@@ -1430,7 +1603,7 @@ int rviewFrameMgr::broadcastUserEvent(const user_event &ue)
 
 const int rviewMultiline::multiline_ppc10 = 63;
 
-void rviewMultiline::setupVariables(wxPanel *Panel, int X, int Y, int H, int Lines)
+void rviewMultiline::setupVariables(wxPanel* Panel, int X, int Y, int H, int Lines)
 {
     int i;
 
@@ -1441,7 +1614,10 @@ void rviewMultiline::setupVariables(wxPanel *Panel, int X, int Y, int H, int Lin
         cerr << "rviewMultiline::setupVariables(): " << lman->lookup("errorMemory") << endl;
         return;
     }
-    for (i=0; i<lines; i++) msg[i] = NULL;
+    for (i = 0; i < lines; i++)
+    {
+        msg[i] = NULL;
+    }
 
     x = X;
     y = Y;
@@ -1449,13 +1625,13 @@ void rviewMultiline::setupVariables(wxPanel *Panel, int X, int Y, int H, int Lin
 }
 
 
-rviewMultiline::rviewMultiline(wxPanel *Panel, int X, int Y, int H, int Lines)
+rviewMultiline::rviewMultiline(wxPanel* Panel, int X, int Y, int H, int Lines)
 {
     setupVariables(Panel, X, Y, H, Lines);
 }
 
 
-rviewMultiline::rviewMultiline(wxPanel *Panel, const char *Message, int X, int Y, int W, int H, int Lines)
+rviewMultiline::rviewMultiline(wxPanel* Panel, const char* Message, int X, int Y, int W, int H, int Lines)
 {
     setupVariables(Panel, X, Y, H, Lines);
 
@@ -1471,16 +1647,19 @@ rviewMultiline::~rviewMultiline(void)
 }
 
 
-void rviewMultiline::rebuild(const char *Message, int W)
+void rviewMultiline::rebuild(const char* Message, int W)
 {
     int length, i, cpl, pos;
-    char *buffer, *b, *base;
+    char* buffer, *b, *base;
 
-    if (msg == NULL) return;
+    if (msg == NULL)
+    {
+        return;
+    }
 
     //cout << "rviewMultiline::rebuild()" << endl;
 
-    cpl = (10*W) / multiline_ppc10;
+    cpl = (10 * W) / multiline_ppc10;
 
     if ((buffer = new char[cpl + 1]) == NULL)
     {
@@ -1491,14 +1670,23 @@ void rviewMultiline::rebuild(const char *Message, int W)
     length = strlen(Message);
     base = (char*)Message;
 
-    for (i=0, pos=y; (length > 0) && (i<lines); i++, pos+=lHeight)
+    for (i = 0, pos = y; (length > 0) && (i < lines); i++, pos += lHeight)
     {
         if (length > cpl)
         {
             b = base + cpl;
-            while ((*b > 32) && (b > base)) b--;
-            if (b <= base) b = base + cpl;
-            else b++;
+            while ((*b > 32) && (b > base))
+            {
+                b--;
+            }
+            if (b <= base)
+            {
+                b = base + cpl;
+            }
+            else
+            {
+                b++;
+            }
         }
         else
         {
@@ -1519,7 +1707,7 @@ void rviewMultiline::rebuild(const char *Message, int W)
         length -= (int)(b - base);
         base = b;
     }
-    while (i<lines)
+    while (i < lines)
     {
         if (msg[i] != NULL)
         {
@@ -1537,8 +1725,11 @@ int rviewMultiline::getMessageHeight(void) const
 {
     int i;
 
-    for (i=0; i<lines; i++) if (msg[i] == NULL) break;
-    return(i*lHeight);
+    for (i = 0; i < lines; i++) if (msg[i] == NULL)
+        {
+            break;
+        }
+    return (i * lHeight);
 }
 
 
@@ -1547,20 +1738,20 @@ int rviewMultiline::getMessageHeight(void) const
  *  More convenient interface to standard widgets
  */
 
-rviewText::rviewText(wxPanel *parent, const char *value, char *label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, (char*)value, x, y, w, h, wxTE_PROCESS_ENTER)
+rviewText::rviewText(wxPanel* parent, const char* value, char* label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, (char*)value, x, y, w, h, wxTE_PROCESS_ENTER)
 {
 }
 
-rviewText::rviewText(long style, wxPanel *parent,  const char *value, char *label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, (char*)value, x, y, w, h, style)
+rviewText::rviewText(long style, wxPanel* parent,  const char* value, char* label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, (char*)value, x, y, w, h, style)
 {
 }
 
-rviewText::rviewText(wxPanel *parent, const DynamicString &value, char *label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
+rviewText::rviewText(wxPanel* parent, const DynamicString& value, char* label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
 {
     wxText::SetValue((char*)value.ptr());
 }
 
-rviewText::rviewText(wxPanel *parent, int value, char *label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
+rviewText::rviewText(wxPanel* parent, int value, char* label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
 {
     char buffer[32];
     sprintf(buffer, "%d", value);
@@ -1568,7 +1759,7 @@ rviewText::rviewText(wxPanel *parent, int value, char *label, int x, int y, int 
 }
 
 
-rviewText::rviewText(wxPanel *parent, long value, char *label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
+rviewText::rviewText(wxPanel* parent, long value, char* label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
 {
     char buffer[32];
     sprintf(buffer, "%ld", value);
@@ -1576,24 +1767,24 @@ rviewText::rviewText(wxPanel *parent, long value, char *label, int x, int y, int
 }
 
 
-rviewText::rviewText(wxPanel *parent, double value, bool sciForm, char *label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
+rviewText::rviewText(wxPanel* parent, double value, bool sciForm, char* label, int x, int y, int w, int h) : wxText(parent, (wxFunction)rviewEventHandler, label, NULL, x, y, w, h, wxTE_PROCESS_ENTER)
 {
     char buffer[32];
     sprintf(buffer, (sciForm) ? "%g" : "%f", value);
     wxText::SetValue(buffer);
 }
 
-void rviewText::SetValue(char *value)
+void rviewText::SetValue(char* value)
 {
     wxText::SetValue(value);
 }
 
-void rviewText::SetValue(const char *value)
+void rviewText::SetValue(const char* value)
 {
     wxText::SetValue((char*)value);
 }
 
-void rviewText::SetValue(const DynamicString &value)
+void rviewText::SetValue(const DynamicString& value)
 {
     wxText::SetValue((char*)value.ptr());
 }
@@ -1626,64 +1817,64 @@ void rviewText::SetValue(double value, bool sciForm)
     wxText::SetValue(buffer);
 }
 
-char *rviewText::GetValue(void)
+char* rviewText::GetValue(void)
 {
     return wxText::GetValue();
 }
 
-void rviewText::GetValue(DynamicString &value)
+void rviewText::GetValue(DynamicString& value)
 {
     value = wxText::GetValue();
 }
 
-void rviewText::GetValue(int &value)
+void rviewText::GetValue(int& value)
 {
     value = asctoi(wxText::GetValue());
 }
 
-void rviewText::GetValue(long &value)
+void rviewText::GetValue(long& value)
 {
     value = asctol(wxText::GetValue());
 }
 
-void rviewText::GetValue(float &value)
+void rviewText::GetValue(float& value)
 {
     value = asctof(wxText::GetValue());
 }
 
-void rviewText::GetValue(double &value)
+void rviewText::GetValue(double& value)
 {
     value = asctof(wxText::GetValue());
 }
 
 
 
-rviewButton::rviewButton(wxPanel *parent, char *label, int x, int y, int w, int h, long style) : wxButton(parent, (wxFunction)rviewEventHandler, label, x, y, w, h, style)
+rviewButton::rviewButton(wxPanel* parent, char* label, int x, int y, int w, int h, long style) : wxButton(parent, (wxFunction)rviewEventHandler, label, x, y, w, h, style)
 {
 }
 
-rviewChoice::rviewChoice(wxPanel *parent, int n, char *choices[], char *label, int x, int y, int w, int h, long style) : wxChoice(parent, (wxFunction)rviewEventHandler, label, x, y, w, h, n, choices, style)
+rviewChoice::rviewChoice(wxPanel* parent, int n, char* choices[], char* label, int x, int y, int w, int h, long style) : wxChoice(parent, (wxFunction)rviewEventHandler, label, x, y, w, h, n, choices, style)
 {
 }
 
 // hacked version to make up for wxWindows' lack of const
-rviewChoice::rviewChoice(wxPanel *parent, int n, const char *choices[], char *label, int x, int y, int w, int h, long style) : wxChoice(parent, (wxFunction)rviewEventHandler, label, x, y, w, h, n, (char**)choices, style)
+rviewChoice::rviewChoice(wxPanel* parent, int n, const char* choices[], char* label, int x, int y, int w, int h, long style) : wxChoice(parent, (wxFunction)rviewEventHandler, label, x, y, w, h, n, (char**)choices, style)
 {
 }
 
-rviewCheckBox::rviewCheckBox(wxPanel *parent, char *label, int x, int y, int w, int h) : wxCheckBox(parent, (wxFunction)rviewEventHandler, label, x, y, w, h)
+rviewCheckBox::rviewCheckBox(wxPanel* parent, char* label, int x, int y, int w, int h) : wxCheckBox(parent, (wxFunction)rviewEventHandler, label, x, y, w, h)
 {
 }
 
-rviewRadioButton::rviewRadioButton(wxPanel *parent, char *label, bool value, int x, int y, int w, int h) : wxRadioButton(parent, (wxFunction)rviewEventHandler, label, value, x, y, w, h)
+rviewRadioButton::rviewRadioButton(wxPanel* parent, char* label, bool value, int x, int y, int w, int h) : wxRadioButton(parent, (wxFunction)rviewEventHandler, label, value, x, y, w, h)
 {
 }
 
-rviewScrollBar::rviewScrollBar(wxPanel *parent, int x, int y, int w, int h, long style) : wxScrollBar(parent, (wxFunction)rviewEventHandler, x, y, w, h, style)
+rviewScrollBar::rviewScrollBar(wxPanel* parent, int x, int y, int w, int h, long style) : wxScrollBar(parent, (wxFunction)rviewEventHandler, x, y, w, h, style)
 {
 }
 
-rviewSlider::rviewSlider(wxPanel *parent, int value, int min_val, int max_val, int width, char *label, int x, int y, long style) : wxSlider(parent, (wxFunction)rviewEventHandler, label, value, min_val, max_val, x, y, style)
+rviewSlider::rviewSlider(wxPanel* parent, int value, int min_val, int max_val, int width, char* label, int x, int y, long style) : wxSlider(parent, (wxFunction)rviewEventHandler, label, value, min_val, max_val, x, y, style)
 {
 }
 
@@ -1696,15 +1887,15 @@ rviewSlider::rviewSlider(wxPanel *parent, int value, int min_val, int max_val, i
 const int rviewSpecialSlider::dflt_barwidth = 30;
 const int rviewSpecialSlider::dflt_barheight = 10;
 const int rviewSpecialSlider::dflt_width = 200;
-const int rviewSpecialSlider::dflt_height = rviewSpecialSlider::dflt_barheight + 2*rviewSpecialSlider::dflt_border;
+const int rviewSpecialSlider::dflt_height = rviewSpecialSlider::dflt_barheight + 2 * rviewSpecialSlider::dflt_border;
 const int rviewSpecialSlider::dflt_border = 4;
 
-rviewSpecialSlider::rviewSpecialSlider(rviewFrame *logParent, wxPanel *parent, int val, int min, int max, int width, const char *label) :
-    wxCanvas(parent, -1, -1, (width==-1) ? dflt_width : width, dflt_height, wxRETAINED),
-    background(0x00,0x00,0x00),
-    foreground(0x00,0xff,0x00),
-    wellground(0xff,0xff,0xff),
-    outline(0x00,0x00,0x00),
+rviewSpecialSlider::rviewSpecialSlider(rviewFrame* logParent, wxPanel* parent, int val, int min, int max, int width, const char* label) :
+    wxCanvas(parent, -1, -1, (width == -1) ? dflt_width : width, dflt_height, wxRETAINED),
+    background(0x00, 0x00, 0x00),
+    foreground(0x00, 0xff, 0x00),
+    wellground(0xff, 0xff, 0xff),
+    outline(0x00, 0x00, 0x00),
     labelColour(*(parent->GetLabelColour())),
     bback(background, wxTRANSPARENT),
     bfore(foreground, wxSOLID),
@@ -1713,7 +1904,7 @@ rviewSpecialSlider::rviewSpecialSlider(rviewFrame *logParent, wxPanel *parent, i
     labelFont(12, wxROMAN, wxNORMAL, wxNORMAL),
     myLabel(label)
 {
-    wxBrush *dcb;
+    wxBrush* dcb;
     logicalParent = logParent;
     border = dflt_border;
     barwidth = dflt_barwidth;
@@ -1722,7 +1913,9 @@ rviewSpecialSlider::rviewSpecialSlider(rviewFrame *logParent, wxPanel *parent, i
     vmin = min;
     vmax = max;
     if (vmax <= vmin)
-        vmax = vmin+1;
+    {
+        vmax = vmin + 1;
+    }
     dcb = ((wxPanel*)GetParent())->GetDC()->GetBackground();
     bback = wxBrush(dcb->GetColour(), dcb->GetStyle());
     SetBackground(&bback);
@@ -1756,9 +1949,13 @@ void rviewSpecialSlider::SetRange(int min, int max)
         vmin = min;
         vmax = max;
         if (value < vmin)
+        {
             value = vmin;
+        }
         if (value > vmax)
+        {
             value = vmax;
+        }
         Refresh(TRUE);
     }
 }
@@ -1776,7 +1973,7 @@ void rviewSpecialSlider::SetValue(int val)
     }
 }
 
-void rviewSpecialSlider::SetLabel(const char *label)
+void rviewSpecialSlider::SetLabel(const char* label)
 {
     myLabel = label;
     GetDC()->GetTextExtent(myLabel.ptr(), &textx, &texty);
@@ -1791,42 +1988,50 @@ bool rviewSpecialSlider::PositionInWell(float posx, float posy)
     getWellVert(y0, y1);
     if (((float)y0 <= posy) && (posy <= (float)y1))
     {
-        if ((posx >= textx + 2*border) && (posx <= (float(cwidth - border))))
+        if ((posx >= textx + 2 * border) && (posx <= (float(cwidth - border))))
+        {
             return TRUE;
+        }
     }
     return FALSE;
 }
 
 
-void rviewSpecialSlider::getWellVert(int &y0, int &y1)
+void rviewSpecialSlider::getWellVert(int& y0, int& y1)
 {
-    y0 = cheight - 2*border - barheight;
+    y0 = cheight - 2 * border - barheight;
     if (y0 < 0)
+    {
         y0 = 0;
+    }
     y0 += border;
     y1 = cheight - border;
     if (y1 < y0)
+    {
         y1 = y0;
+    }
 }
 
-void rviewSpecialSlider::getBarParams(float &posx, float &posy, float &height)
+void rviewSpecialSlider::getBarParams(float& posx, float& posy, float& height)
 {
     int y0, y1;
 
     GetClientSize(&cwidth, &cheight);
 
-    posx = (float)((cwidth - 3*border - barwidth - textx) * (value-vmin)) / (vmax - vmin);
+    posx = (float)((cwidth - 3 * border - barwidth - textx) * (value - vmin)) / (vmax - vmin);
     if (posx < 0)
+    {
         posx = 0;
+    }
     /*cout << "cwidth " << cwidth << ", textx " << textx << ", value " << value << ", border " << border
          << ", barwidth " << barwidth << ", vmin " << vmin << ", vmax " << vmax << ", posx " << posx << endl;*/
-    posx += (float)(2*border + textx);
+    posx += (float)(2 * border + textx);
     getWellVert(y0, y1);
     posy = (float)y0;
     height = (float)(y1 - y0);
 }
 
-int rviewSpecialSlider::calcNewValue(float posx, float posy, int &val, bool checky)
+int rviewSpecialSlider::calcNewValue(float posx, float posy, int& val, bool checky)
 {
     int y0, y1;
 
@@ -1835,14 +2040,20 @@ int rviewSpecialSlider::calcNewValue(float posx, float posy, int &val, bool chec
     getWellVert(y0, y1);
     if (!checky || ((float)y0 <= posy) && (posy <= (float)y1))
     {
-        float rem = (float)(cwidth - 3*border - barwidth - textx);
+        float rem = (float)(cwidth - 3 * border - barwidth - textx);
         if (rem < 1.0)
+        {
             rem = 1.0;
-        val = (int)((((posx - 2*border - textx) * (vmax - vmin)) / rem) + 0.5) + vmin;
+        }
+        val = (int)((((posx - 2 * border - textx) * (vmax - vmin)) / rem) + 0.5) + vmin;
         if (val < vmin)
+        {
             val = vmin;
+        }
         if (val > vmax)
+        {
             val = vmax;
+        }
 
         return 0;
     }
@@ -1850,7 +2061,7 @@ int rviewSpecialSlider::calcNewValue(float posx, float posy, int &val, bool chec
 }
 
 
-void rviewSpecialSlider::getUpdateInterval(float oldx, float newx, float &clipx, float &clipw)
+void rviewSpecialSlider::getUpdateInterval(float oldx, float newx, float& clipx, float& clipw)
 {
     if (oldx < newx)
     {
@@ -1873,7 +2084,7 @@ void rviewSpecialSlider::updateWell(float oldx, float newx, float posy, float bh
     //cout << "CLIP " << clipx << ", " << posy << ", " << clipw << ", " << bheight << endl;
     // need to enlarge the clipping region somewhat to make sure everything is redrawn
     BeginDrawing();
-    SetClippingRegion(clipx, 0, clipw+2, cheight);
+    SetClippingRegion(clipx, 0, clipw + 2, cheight);
     //Clear();
     redrawCore(newx, posy, bheight);
     DestroyClippingRegion();
@@ -1893,14 +2104,14 @@ void rviewSpecialSlider::redrawCore(float x, float y, float bheight)
 
     SetPen(&outlinePen);
     SetBrush(&bwell);
-    DrawRectangle(textx + border, y-border, (float)cwidth - textx - border, bheight + 2*border);
+    DrawRectangle(textx + border, y - border, (float)cwidth - textx - border, bheight + 2 * border);
     SetBrush(&bfore);
     DrawRectangle(x, y, (float)barwidth, bheight);
 
     // then draw the current value on top
     sprintf(number, "%d", value);
     GetDC()->GetTextExtent(number, &extx, &exty);
-    nx = x + (barwidth - extx)/2;
+    nx = x + (barwidth - extx) / 2;
     ny = y - exty - border;
     SetPen(NULL);
     // must use a non-transparent brush. Finally found the right one!
@@ -1929,7 +2140,7 @@ void rviewSpecialSlider::OnPaint(void)
     EndDrawing();
 }
 
-void rviewSpecialSlider::OnEvent(wxMouseEvent &mevt)
+void rviewSpecialSlider::OnEvent(wxMouseEvent& mevt)
 {
     int type = mevt.GetEventType();
     float barx, bary, bheight;
@@ -1943,19 +2154,23 @@ void rviewSpecialSlider::OnEvent(wxMouseEvent &mevt)
         if (mx < barx)
         {
             if (calcNewValue(barx - barwidth, my, newVal, TRUE) != 0)
+            {
                 newVal = value;
+            }
         }
         else if (mx > barx + barwidth)
         {
             if (calcNewValue(barx + barwidth, my, newVal, TRUE) != 0)
+            {
                 newVal = value;
+            }
         }
     }
     else if (type == wxEVENT_TYPE_MOTION)
     {
         if (mevt.LeftIsDown() || mevt.RightIsDown())
         {
-            if (calcNewValue(mx - barwidth/2, my, newVal, FALSE) != 0)
+            if (calcNewValue(mx - barwidth / 2, my, newVal, FALSE) != 0)
             {
                 newVal = value;
             }
@@ -1999,24 +2214,30 @@ const int rviewDialog::dialog_lheight = 20;
 
 // The strings passed to this function may be labels (first char is a backslash)
 // or explicit text.
-rviewDialog::rviewDialog(const char *title, const char *message, int buttonNo, const char *buttons[]):
+rviewDialog::rviewDialog(const char* title, const char* message, int buttonNo, const char* buttons[]):
     rviewFrame(NULL, "", 0, 0, dialog_width, dialog_height)
 {
     int i, x, y;
-    char *string;
+    char* string;
 
     panel = NULL;
     buttonNumber = 0;
     buttonPressed = 0;
 
-    buttonText = new char *[buttonNo + 2];
+    buttonText = new char* [buttonNo + 2];
     but = new rviewButton *[buttonNo];
 
     if ((buttonText == NULL) || (but == NULL))
     {
         cerr << "rviewDialog::rviewDialog(): " << lman->lookup("errorMemory") << endl;
-        if (buttonText != NULL) delete [] buttonText;
-        if (but != NULL) delete [] but;
+        if (buttonText != NULL)
+        {
+            delete [] buttonText;
+        }
+        if (but != NULL)
+        {
+            delete [] but;
+        }
         return;
     }
 
@@ -2024,14 +2245,14 @@ rviewDialog::rviewDialog(const char *title, const char *message, int buttonNo, c
 
     buttonText[0] = (char*)title;
     buttonText[1] = (char*)message;
-    for (i=0; i<buttonNumber; i++)
+    for (i = 0; i < buttonNumber; i++)
     {
         but[i] = NULL;
-        buttonText[i+2] = (char*)buttons[i];
+        buttonText[i + 2] = (char*)buttons[i];
     }
 
     // Only memorize those strings that are a label identifier (first char a backslash)
-    for (i=0; i<2+buttonNumber; i++)
+    for (i = 0; i < 2 + buttonNumber; i++)
     {
         if (buttonText[i] != NULL)
         {
@@ -2041,12 +2262,15 @@ rviewDialog::rviewDialog(const char *title, const char *message, int buttonNo, c
             {
                 // We remove the backslash but need one additional char for the
                 // line terminator ==> strlen -1 + 1.
-                if ((string = new char[strlen(buttonText[i]) + ((i==1) ? 1 : 0)]) == NULL)
+                if ((string = new char[strlen(buttonText[i]) + ((i == 1) ? 1 : 0)]) == NULL)
                 {
                     cerr << "rviewDialog::rviewDialog(): " << lman->lookup("errorMemory") << endl;
                     while (--i >= 0)
                     {
-                        if (buttonText[i] != NULL) delete [] buttonText[i];
+                        if (buttonText[i] != NULL)
+                        {
+                            delete [] buttonText[i];
+                        }
                     }
                     delete [] buttonText;
                     buttonText = NULL;
@@ -2055,11 +2279,14 @@ rviewDialog::rviewDialog(const char *title, const char *message, int buttonNo, c
                     buttonNumber = 0;
                     return;
                 }
-                strcpy(string, buttonText[i] + ((i==1) ? 0 : 1));
+                strcpy(string, buttonText[i] + ((i == 1) ? 0 : 1));
                 buttonText[i] = string;
                 //cout << "buttonText[" << i << "] = " << buttonText[i] << endl;
             }
-            else buttonText[i] = NULL;
+            else
+            {
+                buttonText[i] = NULL;
+            }
         }
     }
 
@@ -2079,7 +2306,7 @@ rviewDialog::rviewDialog(const char *title, const char *message, int buttonNo, c
     }
 
     // Now handle all buttons.
-    for (i=0; i<buttonNumber; i++)
+    for (i = 0; i < buttonNumber; i++)
     {
         but[i] = new rviewButton(panel);
         if (buttons[i][0] != '\\')
@@ -2088,7 +2315,7 @@ rviewDialog::rviewDialog(const char *title, const char *message, int buttonNo, c
         }
         else    // do this for the button size.
         {
-            but[i]->SetLabel(lman->lookup(buttons[i]+1));
+            but[i]->SetLabel(lman->lookup(buttons[i] + 1));
         }
     }
 
@@ -2108,7 +2335,10 @@ rviewDialog::~rviewDialog(void)
     // Widgets that were created as children of other wx items are deleted by those items.
     // They mustn't be destroyed here!
 
-    if (msg != NULL) delete msg;
+    if (msg != NULL)
+    {
+        delete msg;
+    }
     //if (panel != NULL) delete panel;
 
     if (but != NULL)
@@ -2119,16 +2349,19 @@ rviewDialog::~rviewDialog(void)
 
     if (buttonText != NULL)
     {
-        for (i=0; i<2+buttonNumber; i++)
+        for (i = 0; i < 2 + buttonNumber; i++)
         {
-            if (buttonText[i] != NULL) delete [] buttonText[i];
+            if (buttonText[i] != NULL)
+            {
+                delete [] buttonText[i];
+            }
         }
         delete [] buttonText;
     }
 }
 
 
-const char *rviewDialog::getFrameName(void) const
+const char* rviewDialog::getFrameName(void) const
 {
     return "rviewDialog";
 }
@@ -2146,31 +2379,43 @@ void rviewDialog::OnSize(int w, int h)
     LTRACE << "OnSize( " << x << ", " << h << " )";
 
     GetClientSize(&x, &y);
-    if ((frameWidth == x) && (frameHeight == y)) return;
+    if ((frameWidth == x) && (frameHeight == y))
+    {
+        return;
+    }
     frameWidth = x;
     frameHeight = y;
 
-    x -= 2*dialog_border;
+    x -= 2 * dialog_border;
     y -= dialog_border;
     panel->SetSize(0, 0, x, y);
 
     if (buttonText[1][0] == '\\')
-        msg->rebuild(lman->lookup(buttonText[1]+1), x);
+    {
+        msg->rebuild(lman->lookup(buttonText[1] + 1), x);
+    }
     else
+    {
         msg->rebuild(buttonText[1], x);
+    }
 
     // Space out the buttons on the available space.
-    if (buttonNumber == 0) return;
-
-    empty = (x - buttonNumber*dialog_buttonsx) / buttonNumber;
-    if(empty <0 )
-        empty=0;
-
-    pos = empty/2;
-
-    for (i=0; i<buttonNumber; i++)
+    if (buttonNumber == 0)
     {
-        but[i]->SetSize(pos, y - (dialog_bheight + dialog_buttonsy)/2, dialog_buttonsx, dialog_buttonsy);
+        return;
+    }
+
+    empty = (x - buttonNumber * dialog_buttonsx) / buttonNumber;
+    if (empty < 0)
+    {
+        empty = 0;
+    }
+
+    pos = empty / 2;
+
+    for (i = 0; i < buttonNumber; i++)
+    {
+        but[i]->SetSize(pos, y - (dialog_bheight + dialog_buttonsy) / 2, dialog_buttonsx, dialog_buttonsy);
         pos += empty + dialog_buttonsx;
     }
 }
@@ -2192,15 +2437,19 @@ void rviewDialog::label(void)
 
     // The message is always stored.
     if (buttonText[1][0] == '\\')
-        msg->rebuild(lman->lookup(buttonText[1]+1), x);
-    else
-        msg->rebuild(buttonText[1], x);
-
-    for (i=0; i<buttonNumber; i++)
     {
-        if (buttonText[2+i] != NULL)
+        msg->rebuild(lman->lookup(buttonText[1] + 1), x);
+    }
+    else
+    {
+        msg->rebuild(buttonText[1], x);
+    }
+
+    for (i = 0; i < buttonNumber; i++)
+    {
+        if (buttonText[2 + i] != NULL)
         {
-            but[i]->SetLabel(lman->lookup(buttonText[2+i]));
+            but[i]->SetLabel(lman->lookup(buttonText[2 + i]));
         }
     }
 }
@@ -2212,23 +2461,29 @@ void rviewDialog::label(void)
  *  Process events which are broadcast by the frame manager.
  */
 
-int rviewDialog::process(wxObject &obj, wxEvent &evt)
+int rviewDialog::process(wxObject& obj, wxEvent& evt)
 {
     int i, type;
 
     //cout << "rviewDialog::process()" << endl;
-    for (i=0; i<buttonNumber; i++)
+    for (i = 0; i < buttonNumber; i++)
     {
-        if (&obj == (wxObject*)but[i]) break;
+        if (&obj == (wxObject*)but[i])
+        {
+            break;
+        }
     }
 
-    if (i >= buttonNumber) return 0;
+    if (i >= buttonNumber)
+    {
+        return 0;
+    }
 
     type = evt.GetEventType();
 
     if (type == wxEVENT_TYPE_BUTTON_COMMAND)
     {
-        buttonPressed = i+1;
+        buttonPressed = i + 1;
     }
     else
     {
@@ -2264,16 +2519,16 @@ int rviewDialog::GetButton(void)
  *  (an intrinsically modal special case of a dialog box)
  */
 
-char *rviewErrorboxDefaultButton[1] = {"\\textOK"};
+char* rviewErrorboxDefaultButton[1] = {"\\textOK"};
 
-rviewErrorbox::rviewErrorbox(const char *message): rviewDialog("\\errorFrom", message, 1, (const char**)rviewErrorboxDefaultButton)
+rviewErrorbox::rviewErrorbox(const char* message): rviewDialog("\\errorFrom", message, 1, (const char**)rviewErrorboxDefaultButton)
 {
     //place this in log file
     cerr << lman->lookup("errorFrom") << ' ' << message << endl;
 }
 
 
-rviewErrorbox::rviewErrorbox(const char *title, const char *message, int buttonNo, const char *buttons[]): rviewDialog(title, message, buttonNo, buttons)
+rviewErrorbox::rviewErrorbox(const char* title, const char* message, int buttonNo, const char* buttons[]): rviewDialog(title, message, buttonNo, buttons)
 {
     //place this in log file
     cerr << lman->lookup("errorFrom") << ' ' << message << endl;
@@ -2286,7 +2541,7 @@ rviewErrorbox::~rviewErrorbox(void)
 }
 
 
-const char *rviewErrorbox::getFrameName(void) const
+const char* rviewErrorbox::getFrameName(void) const
 {
     return "rviewErrorbox";
 }
@@ -2302,16 +2557,19 @@ int rviewErrorbox::activate(void)
     int pressed;
 
     MakeModal(TRUE);
-    while ((pressed = GetButton()) == 0) ::wxYield();
+    while ((pressed = GetButton()) == 0)
+    {
+        ::wxYield();
+    }
     MakeModal(FALSE);
     return pressed;
 }
 
 
 // static member functions
-char *rviewErrorbox::buildErrorMessage(const char *message, const char *classname, const char *funcname)
+char* rviewErrorbox::buildErrorMessage(const char* message, const char* classname, const char* funcname)
 {
-    char *buffer, *b;
+    char* buffer, *b;
     int bsize = strlen(message) + 1;
 
     if (classname != NULL)
@@ -2320,7 +2578,9 @@ char *rviewErrorbox::buildErrorMessage(const char *message, const char *classnam
 
         // funcname is ignored unless class name is given
         if (funcname != NULL)
+        {
             bsize += strlen(funcname) + 3;    // "::"
+        }
     }
 
     buffer = new char[bsize];
@@ -2331,7 +2591,9 @@ char *rviewErrorbox::buildErrorMessage(const char *message, const char *classnam
         b += sprintf(b, "%s", classname);
 
         if (funcname != NULL)
+        {
             b += sprintf(b, "::%s", funcname);
+        }
 
         b += sprintf(b, ": ");
     }
@@ -2341,10 +2603,10 @@ char *rviewErrorbox::buildErrorMessage(const char *message, const char *classnam
 }
 
 
-rviewErrorbox *rviewErrorbox::newErrorbox(const char *message, const char *classname, const char *funcname)
+rviewErrorbox* rviewErrorbox::newErrorbox(const char* message, const char* classname, const char* funcname)
 {
-    char *msg;
-    rviewErrorbox *box;
+    char* msg;
+    rviewErrorbox* box;
 
     msg = buildErrorMessage(message, classname, funcname);
     box = new rviewErrorbox(msg);
@@ -2354,10 +2616,10 @@ rviewErrorbox *rviewErrorbox::newErrorbox(const char *message, const char *class
 }
 
 
-rviewErrorbox *rviewErrorbox::newErrorbox(const char *title, const char *message, int buttonNo, const char *buttons[], const char *classname, const char *funcname)
+rviewErrorbox* rviewErrorbox::newErrorbox(const char* title, const char* message, int buttonNo, const char* buttons[], const char* classname, const char* funcname)
 {
-    char *msg;
-    rviewErrorbox *box;
+    char* msg;
+    rviewErrorbox* box;
 
     msg = buildErrorMessage(message, classname, funcname);
     box = new rviewErrorbox(msg);
@@ -2367,9 +2629,9 @@ rviewErrorbox *rviewErrorbox::newErrorbox(const char *title, const char *message
 }
 
 
-int rviewErrorbox::reportError(const char *message, const char *classname, const char *funcname)
+int rviewErrorbox::reportError(const char* message, const char* classname, const char* funcname)
 {
-    rviewErrorbox *box;
+    rviewErrorbox* box;
     int but;
 
     box = newErrorbox(message, classname, funcname);
@@ -2380,9 +2642,9 @@ int rviewErrorbox::reportError(const char *message, const char *classname, const
 }
 
 
-int rviewErrorbox::reportError(const char *title, const char *message, int buttonNo, const char *buttons[], const char *classname, const char *funcname)
+int rviewErrorbox::reportError(const char* title, const char* message, int buttonNo, const char* buttons[], const char* classname, const char* funcname)
 {
-    rviewErrorbox *box;
+    rviewErrorbox* box;
     int but;
 
     box = newErrorbox(title, message, buttonNo, buttons, classname, funcname);
@@ -2400,14 +2662,14 @@ int rviewErrorbox::reportError(const char *title, const char *message, int butto
  *  rviewProgress members
  */
 
-rviewProgress::rviewProgress(const char *message): rviewDialog("\\messageFrom", message, 1, (const char**)rviewErrorboxDefaultButton)
+rviewProgress::rviewProgress(const char* message): rviewDialog("\\messageFrom", message, 1, (const char**)rviewErrorboxDefaultButton)
 {
     int x, y;
 
     LTRACE << "rviewProgress( " << lman->lookup("messageFrom") << message << " )";
 
     GetSize(&x, &y);
-    y = 2*dialog_border + msg->getMessageHeight() + dialog_bheight;
+    y = 2 * dialog_border + msg->getMessageHeight() + dialog_bheight;
     SetSize(-1, -1, x, y);
 
     // Have to do this to make sure you actually see anything in the window
@@ -2416,7 +2678,10 @@ rviewProgress::rviewProgress(const char *message): rviewDialog("\\messageFrom", 
     ::wxYield();
     // Wait 300ms
     ::wxStartTimer();
-    while (::wxGetElapsedTime(FALSE) < 300) ::wxYield();
+    while (::wxGetElapsedTime(FALSE) < 300)
+    {
+        ::wxYield();
+    }
 }
 
 
@@ -2428,7 +2693,7 @@ rviewProgress::~rviewProgress(void)
 }
 
 
-int rviewProgress::process(wxObject &obj, wxEvent &evt)
+int rviewProgress::process(wxObject& obj, wxEvent& evt)
 {
     if (rviewDialog::process(obj, evt) != 0)
     {
@@ -2439,7 +2704,7 @@ int rviewProgress::process(wxObject &obj, wxEvent &evt)
 }
 
 
-const char *rviewProgress::getFrameName(void) const
+const char* rviewProgress::getFrameName(void) const
 {
     return "rviewProgress";
 }
@@ -2478,7 +2743,7 @@ rviewResult::rviewResult(void): rviewFrame(NULL, "", result_x, result_y, result_
     Show(FALSE);
 }
 
-rviewResult::rviewResult(collection_desc *collection): rviewFrame(NULL, "", result_x, result_y, result_width, result_height)
+rviewResult::rviewResult(collection_desc* collection): rviewFrame(NULL, "", result_x, result_y, result_width, result_height)
 {
     setupVariables();
     setCollection(collection);
@@ -2490,19 +2755,22 @@ rviewResult::~rviewResult(void)
     LTRACE << "rviewResult() " << this;
 
     int i;
-    collection_desc *ptr = coll;
+    collection_desc* ptr = coll;
     user_event ue;
 
     // give all viewers a chance to clean up
     ue.type = usr_mdd_dying;
-    for (i=0; i<coll->number; i++)
+    for (i = 0; i < coll->number; i++)
     {
-        ue.data = (void*)&(coll->mddObjs[i].mdd);
+        ue.data = (void*) & (coll->mddObjs[i].mdd);
         frames->broadcastUserEvent(ue);
     }
 
     // All the widgets are deleted automatically.
-    if (selectedItems != NULL) delete [] selectedItems;
+    if (selectedItems != NULL)
+    {
+        delete [] selectedItems;
+    }
     if (typeManager != NULL)
     {
         typeManager->unlinkParent();
@@ -2513,7 +2781,7 @@ rviewResult::~rviewResult(void)
 }
 
 
-const char *rviewResult::getFrameName(void) const
+const char* rviewResult::getFrameName(void) const
 {
     return "rviewResult";
 }
@@ -2524,7 +2792,7 @@ rviewFrameType rviewResult::getFrameType(void) const
 }
 
 
-void rviewResult::setCollection(collection_desc *collection)
+void rviewResult::setCollection(collection_desc* collection)
 {
     int x, y, i;
     char res_string[STRINGSIZE];
@@ -2539,7 +2807,7 @@ void rviewResult::setCollection(collection_desc *collection)
     coll = collection;
 
     // Init flags
-    for (i=0; i<coll->number; i++)
+    for (i = 0; i < coll->number; i++)
     {
         coll->mddObjs[i].flags = 0;
     }
@@ -2549,12 +2817,15 @@ void rviewResult::setCollection(collection_desc *collection)
     list = new wxListBox(panel, (wxFunction)&rviewEventHandler, "", wxMULTIPLE, result_border, result_border + result_header, x, y - result_header, 0, NULL, wxALWAYS_SB | wxLB_MULTIPLE);
 
     ostrstream memstr(res_string, STRINGSIZE);
-    for (i=0; i<coll->number; i++)
+    for (i = 0; i < coll->number; i++)
     {
         list->Append(mddDescriptorString(memstr, i));
     }
 
-    if (selectedItems != NULL) delete [] selectedItems;
+    if (selectedItems != NULL)
+    {
+        delete [] selectedItems;
+    }
     i = (coll->number + 7) >> 3;
     if ((selectedItems = new char[i]) == NULL)
     {
@@ -2578,9 +2849,9 @@ void rviewResult::setCollection(collection_desc *collection)
 
 
 
-char *rviewResult::mddDescriptorString(ostrstream &memstr, int number)
+char* rviewResult::mddDescriptorString(ostrstream& memstr, int number)
 {
-    r_GMarray *mdd = coll->mddObjs[number].mdd.ptr();
+    r_GMarray* mdd = coll->mddObjs[number].mdd.ptr();
     r_Data_Format fmt = mdd->get_current_format();
 
     memstr.width(3);
@@ -2670,13 +2941,16 @@ void rviewResult::OnSize(int w, int h)
         LTRACE << "OnSize( " << w << ", " << h << " )";
 
         GetClientSize(&x, &y);
-        if ((frameWidth == x) && (frameHeight == y)) return;
+        if ((frameWidth == x) && (frameHeight == y))
+        {
+            return;
+        }
         frameWidth = x;
         frameHeight = y;
 
         panel->SetClientSize(x, y);
-        x -= 2*result_border;
-        y -= 2*result_border;
+        x -= 2 * result_border;
+        y -= 2 * result_border;
 
         if (list != NULL)
             list->SetSize(result_border,
@@ -2691,39 +2965,39 @@ void rviewResult::OnSize(int w, int h)
                            x,
                            result_header);
             //group->GetClientSize(&x, &y);
-            x -= 2*result_border;
-            y -=2*result_border;
+            x -= 2 * result_border;
+            y -= 2 * result_border;
             if (collName != NULL)
-                collName->SetSize(2*result_border,
+                collName->SetSize(2 * result_border,
                                   result_lheight + result_border,
                                   x,
                                   result_lheight);
             if (collType != NULL)
-                collType->SetSize(2*result_border,
-                                  2*result_lheight + result_border,
+                collType->SetSize(2 * result_border,
+                                  2 * result_lheight + result_border,
                                   x,
                                   result_lheight);
             if (collInfo != NULL)
-                collInfo->SetSize(2*result_border,
-                                  3*result_lheight + result_border,
+                collInfo->SetSize(2 * result_border,
+                                  3 * result_lheight + result_border,
                                   x,
                                   result_lheight);
             if (choice != NULL)
-                choice->SetSize(2*result_border,
-                                4*result_lheight + result_border,
+                choice->SetSize(2 * result_border,
+                                4 * result_lheight + result_border,
                                 result_cwidth - cbfactor,
                                 result_lheight);
         }
-        scaleMode->SetSize(3*result_border/2,
-                           6*result_lheight + result_border,
-                           result_cwidth - 2*cbfactor,
+        scaleMode->SetSize(3 * result_border / 2,
+                           6 * result_lheight + result_border,
+                           result_cwidth - 2 * cbfactor,
                            result_lheight);
-        resampText->SetSize(3*result_border/2 + result_cwidth - cbfactor,
-                            6*result_lheight + result_border,
+        resampText->SetSize(3 * result_border / 2 + result_cwidth - cbfactor,
+                            6 * result_lheight + result_border,
                             result_twidth,
                             result_theight);
-        resampBut->SetSize(3*result_border/2 + result_cwidth - cbfactor/2 + result_twidth,
-                           6*result_lheight + result_border,
+        resampBut->SetSize(3 * result_border / 2 + result_cwidth - cbfactor / 2 + result_twidth,
+                           6 * result_lheight + result_border,
                            result_bwidth,
                            result_bheight);
     }
@@ -2736,9 +3010,12 @@ void rviewResult::openViewer(int itemNo)
 
     LTRACE << "openViewer( " << itemNo << " )";
 
-    if ((itemNo < 0) || (itemNo >= coll->number)) return;
+    if ((itemNo < 0) || (itemNo >= coll->number))
+    {
+        return;
+    }
 
-    rviewDisplay *newDisplay=NULL;
+    rviewDisplay* newDisplay = NULL;
 
     switch (prefs->lastDisplay)
     {
@@ -2814,7 +3091,9 @@ void rviewResult::openViewer(int itemNo)
     if (newDisplay != NULL)
     {
         if (newDisplay->openViewer() != 0)
+        {
             newDisplay->Close(TRUE);
+        }
         else
         {
             coll->mddObjs[itemNo].flags |= newDisplay->getViewerType();
@@ -2833,32 +3112,35 @@ void rviewResult::openViewer(int itemNo)
  */
 int rviewResult::updateSelection(void)
 {
-    int i, changes, sel=-1;
+    int i, changes, sel = -1;
     char val;
 
-    if (selectedItems == NULL) return -1;
+    if (selectedItems == NULL)
+    {
+        return -1;
+    }
 
     changes = 0;
-    for (i=0; i<coll->number; i++)
+    for (i = 0; i < coll->number; i++)
     {
-        val = selectedItems[i>>3] & (1<<(i&7));
+        val = selectedItems[i >> 3] & (1 << (i & 7));
         if (list->Selected(i))
         {
             if (val == 0)
             {
-                sel=i;
+                sel = i;
                 changes++;
             }
-            selectedItems[i>>3] |= (1<<(i&7));
+            selectedItems[i >> 3] |= (1 << (i & 7));
         }
         else
         {
             if (val != 0)
             {
-                sel=i;
+                sel = i;
                 changes++;
             }
-            selectedItems[i>>3] &= ~(1<<(i&7));
+            selectedItems[i >> 3] &= ~(1 << (i & 7));
         }
     }
     if (changes > 1)
@@ -2880,7 +3162,7 @@ void rviewResult::operationPrologue(void)
 }
 
 
-void rviewResult::operationEpilogue(const char *opname)
+void rviewResult::operationEpilogue(const char* opname)
 {
     int elapsed = ::wxGetElapsedTime();
 
@@ -2897,21 +3179,33 @@ void rviewResult::operationEpilogue(const char *opname)
 }
 
 
-int rviewResult::parseResampleString(const char *resStr, double *values)
+int rviewResult::parseResampleString(const char* resStr, double* values)
 {
     int i;
-    const char *b;
+    const char* b;
 
     b = resStr;
     i = 0;
     while (*b != 0)
     {
-        while ((*b == ' ') || (*b == '\t')) b++;
-        if (*b == ',') b++;
+        while ((*b == ' ') || (*b == '\t'))
+        {
+            b++;
+        }
+        if (*b == ',')
+        {
+            b++;
+        }
         if (*b != 0)
         {
-            if (values != NULL) values[i] = atof(b);
-            while ((*b != ' ') && (*b != '\t') && (*b != ',') && (*b != 0)) b++;
+            if (values != NULL)
+            {
+                values[i] = atof(b);
+            }
+            while ((*b != ' ') && (*b != '\t') && (*b != ',') && (*b != 0))
+            {
+                b++;
+            }
             i++;
         }
     }
@@ -2922,17 +3216,17 @@ int rviewResult::parseResampleString(const char *resStr, double *values)
 int rviewResult::resampleSelection(void)
 {
     int i, j, res;
-    double *scale;
+    double* scale;
     r_Dimension dim;
     r_Minterval oldInterv, useInterv, newInterv;
     r_Ref<r_GMarray> newMdd;
     rviewBaseType baseType;
     char buffer[STRINGSIZE];
     user_event usr;
-    char *valStr;
+    char* valStr;
     int dimString;
     int smode;
-    const char *operation=NULL;
+    const char* operation = NULL;
 
     ostrstream memstr(buffer, STRINGSIZE);
 
@@ -2941,10 +3235,16 @@ int rviewResult::resampleSelection(void)
     scale = new double[dimString];
     parseResampleString(valStr, scale);
 
-    for (i=0; i<dimString; i++)
+    for (i = 0; i < dimString; i++)
     {
-        if (scale[i] <= 0.0) return 0;
-        if (scale[i] != 1.0) break;
+        if (scale[i] <= 0.0)
+        {
+            return 0;
+        }
+        if (scale[i] != 1.0)
+        {
+            break;
+        }
     }
 
     smode = scaleMode->GetSelection();
@@ -2952,7 +3252,7 @@ int rviewResult::resampleSelection(void)
     operationPrologue();
 
     res = 0;
-    for (i=0; i<coll->number; i++)
+    for (i = 0; i < coll->number; i++)
     {
         if (list->Selected(i))
         {
@@ -2963,15 +3263,15 @@ int rviewResult::resampleSelection(void)
             dim = oldInterv.dimension();
             newInterv = r_Minterval(dim);
             useInterv = r_Minterval(dim);
-            for (j=0; j<(int)dim; j++)
+            for (j = 0; j < (int)dim; j++)
             {
                 double h;
 
                 // Use the entire source object for scaling
                 useInterv << oldInterv[j];
-                h = (j < dimString) ? scale[j] : scale[dimString-1];
+                h = (j < dimString) ? scale[j] : scale[dimString - 1];
                 totalScale *= h;
-                newInterv << r_Sinterval((r_Range)(oldInterv[j].low()), (r_Range)(oldInterv[j].low() + h*(oldInterv[j].high() - oldInterv[j].low() + 1) - 1));
+                newInterv << r_Sinterval((r_Range)(oldInterv[j].low()), (r_Range)(oldInterv[j].low() + h * (oldInterv[j].high() - oldInterv[j].low() + 1) - 1));
             }
             if (smode == 0)   // resampling mode
             {
@@ -3001,7 +3301,7 @@ int rviewResult::resampleSelection(void)
                 coll->mddObjs[i].mdd = newMdd;
                 res++;
                 list->SetString(i, mddDescriptorString(memstr, i));
-                selectedItems[i>>3] &= ~(1<<(i&7));
+                selectedItems[i >> 3] &= ~(1 << (i & 7));
             }
         }
     }
@@ -3016,7 +3316,7 @@ int rviewResult::resampleSelection(void)
 }
 
 
-int rviewResult::process(wxObject &obj, wxEvent &evt)
+int rviewResult::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -3036,7 +3336,10 @@ int rviewResult::process(wxObject &obj, wxEvent &evt)
                 if (!list->Selected(lastSelected))
                 {
                     list->SetSelection(lastSelected, TRUE);
-                    if (selectedItems != NULL) selectedItems[lastSelected>>3] |= (1<<(lastSelected&7));
+                    if (selectedItems != NULL)
+                    {
+                        selectedItems[lastSelected >> 3] |= (1 << (lastSelected & 7));
+                    }
                 }
                 openViewer(lastSelected);
             }
@@ -3074,18 +3377,21 @@ int rviewResult::process(wxObject &obj, wxEvent &evt)
 
 
 
-int rviewResult::userEvent(const user_event &ue)
+int rviewResult::userEvent(const user_event& ue)
 {
     if (ue.type == usr_viewer_closed)
     {
-        mdd_frame *mf = (mdd_frame*)(ue.data);
+        mdd_frame* mf = (mdd_frame*)(ue.data);
         int i;
 
         //{FILE *fp=fopen("xxx", "a+"); fprintf(fp, "Received viewer closed %p --- %p, %d\n", mf->mdd.ptr(), coll->mddObjs[0].mdd.ptr(), mf->flags); fclose(fp);}
-        for (i=0; i<coll->number; i++)
+        for (i = 0; i < coll->number; i++)
         {
             // must compare pointers, comparing r_Refs has strange effects on Win
-            if (mf->mdd.ptr() == coll->mddObjs[i].mdd.ptr()) break;
+            if (mf->mdd.ptr() == coll->mddObjs[i].mdd.ptr())
+            {
+                break;
+            }
         }
         if (i < coll->number)
         {
@@ -3095,7 +3401,10 @@ int rviewResult::userEvent(const user_event &ue)
     }
     else if (ue.type == usr_child_closed)
     {
-        if (ue.data == (void*)typeManager) typeManager = NULL;
+        if (ue.data == (void*)typeManager)
+        {
+            typeManager = NULL;
+        }
         return 1;
     }
     else if (ue.type == usr_typeman_convert)
@@ -3125,7 +3434,7 @@ void rviewResult::convertSelectedItems(void)
 
     operationPrologue();
 
-    for (itemNo=0; itemNo < coll->number; itemNo++)
+    for (itemNo = 0; itemNo < coll->number; itemNo++)
     {
         if ((list->Selected(itemNo)) && (!coll->mddObjs[itemNo].mdd.is_null()))
         {
@@ -3158,9 +3467,9 @@ void rviewResult::convertSelectedItems(void)
 void rviewResult::setupVariables(void)
 {
     int x, y;
-    char *displayModes[RVIEW_RESDISP_NUMBER];
-    char *scaleModes[2];
-    wxMenu *mbarMenus[2];
+    char* displayModes[RVIEW_RESDISP_NUMBER];
+    char* scaleModes[2];
+    wxMenu* mbarMenus[2];
     char buffer[STRINGSIZE];
 
     coll = NULL;
@@ -3199,19 +3508,19 @@ void rviewResult::setupVariables(void)
 
     GetClientSize(&x, &y);
     panel = new wxPanel((wxWindow*)this, 0, 0, x, y);
-    x -= 2*result_border;
-    y -= 2*result_border;
+    x -= 2 * result_border;
+    y -= 2 * result_border;
 
     // Create a group box surrounding the collection-items
     group = new wxGroupBox(panel, "", 0, 0, x, result_header, wxBORDER);
-    x -= 2*result_border;
-    y -= 2*result_border;
+    x -= 2 * result_border;
+    y -= 2 * result_border;
     // Create the message widget showing the collection name
-    collName = new wxMessage(panel, "", 2*result_border, result_lheight + 2*result_border, x, result_lheight, 0, "message");
+    collName = new wxMessage(panel, "", 2 * result_border, result_lheight + 2 * result_border, x, result_lheight, 0, "message");
     // The same for the collection base type
-    collType = new wxMessage(panel, "", 2*result_border, 2*result_lheight + 2*result_border, x, result_lheight, 0, "message");
+    collType = new wxMessage(panel, "", 2 * result_border, 2 * result_lheight + 2 * result_border, x, result_lheight, 0, "message");
     // The info string
-    collInfo = new wxMessage(panel, "", 2*result_border, 3*result_lheight + 2*result_border, x, result_lheight, 0, "message");
+    collInfo = new wxMessage(panel, "", 2 * result_border, 3 * result_lheight + 2 * result_border, x, result_lheight, 0, "message");
 
     // And the choice item for the display modes.
     // In contrast to the menu stuff non-persistent objects are OK here.
@@ -3251,7 +3560,7 @@ void rviewResult::OnMenuCommand(int id)
     {
     case MENU_RSLT_ITEM_OPENALL:
     {
-        for (int i=0; i<coll->number; i++)
+        for (int i = 0; i < coll->number; i++)
         {
             openViewer(i);
         }
@@ -3260,10 +3569,10 @@ void rviewResult::OnMenuCommand(int id)
     case MENU_RSLT_ITEM_THUMBALL:
     {
         int i;
-        rviewThumb *thumb;
+        rviewThumb* thumb;
 
         thumb = new rviewThumb;
-        for (i=0; i<coll->number; i++)
+        for (i = 0; i < coll->number; i++)
         {
             thumb->addMDD(coll->mddObjs[i].mdd);
         }
@@ -3277,27 +3586,33 @@ void rviewResult::OnMenuCommand(int id)
     break;
     case MENU_RSLT_SLCT_SLCTALL:
     {
-        for (int i=0; i<coll->number; i++)
+        for (int i = 0; i < coll->number; i++)
         {
             if (!list->Selected(i))
             {
                 list->SetSelection(i, TRUE);
             }
         }
-        if (selectedItems != NULL) memset(selectedItems, 0xff, (coll->number + 7) >> 3);
+        if (selectedItems != NULL)
+        {
+            memset(selectedItems, 0xff, (coll->number + 7) >> 3);
+        }
         configureGrey();
     }
     break;
     case MENU_RSLT_SLCT_CLEAR:
     {
-        for (int i=0; i<coll->number; i++)
+        for (int i = 0; i < coll->number; i++)
         {
             if (list->Selected(i))
             {
                 list->SetSelection(i, FALSE);
             }
         }
-        if (selectedItems != NULL) memset(selectedItems, 0, (coll->number + 7) >> 3);
+        if (selectedItems != NULL)
+        {
+            memset(selectedItems, 0, (coll->number + 7) >> 3);
+        }
         configureGrey();
     }
     break;
@@ -3305,10 +3620,12 @@ void rviewResult::OnMenuCommand(int id)
     {
         int i;
 
-        for (i=0; i<coll->number; i++)
+        for (i = 0; i < coll->number; i++)
         {
             if (list->Selected(i))
+            {
                 openViewer(i);
+            }
         }
     }
     break;
@@ -3316,19 +3633,24 @@ void rviewResult::OnMenuCommand(int id)
     {
         int i;
 
-        for (i=0; i<coll->number; i++)
+        for (i = 0; i < coll->number; i++)
         {
-            if (list->Selected(i)) break;
+            if (list->Selected(i))
+            {
+                break;
+            }
         }
         if (i < coll->number)
         {
-            rviewThumb *thumb;
+            rviewThumb* thumb;
 
             thumb = new rviewThumb;
-            for (i=0; i<coll->number; i++)
+            for (i = 0; i < coll->number; i++)
             {
                 if (list->Selected(i))
+                {
                     thumb->addMDD(coll->mddObjs[i].mdd);
+                }
             }
             registerChild((rviewFrame*)thumb);
         }
@@ -3341,10 +3663,16 @@ void rviewResult::OnMenuCommand(int id)
 
         do
         {
-            for (itemNo=0; itemNo < coll->number; itemNo++)
-                if (list->Selected(itemNo)) break;
+            for (itemNo = 0; itemNo < coll->number; itemNo++)
+                if (list->Selected(itemNo))
+                {
+                    break;
+                }
 
-            if (itemNo >= coll->number) break;
+            if (itemNo >= coll->number)
+            {
+                break;
+            }
             list->Delete(itemNo);
             // Notify all open display frames that a particular mdd object will die
             usr.type = usr_mdd_dying;
@@ -3355,12 +3683,15 @@ void rviewResult::OnMenuCommand(int id)
                 coll->mddObjs[itemNo].mdd.destroy();
             }
             (coll->number)--;
-            for (j=itemNo; j<coll->number; j++)
+            for (j = itemNo; j < coll->number; j++)
             {
-                coll->mddObjs[j] = coll->mddObjs[j+1];
+                coll->mddObjs[j] = coll->mddObjs[j + 1];
                 // Don't forget to copy the selection too
-                selectedItems[j>>3] &= ~(1<<(j&7));
-                if ((selectedItems[(j+1)>>3] & (1<<((j+1)&7))) != 0) selectedItems[j>>3] |= (1<<(j&7));
+                selectedItems[j >> 3] &= ~(1 << (j & 7));
+                if ((selectedItems[(j + 1) >> 3] & (1 << ((j + 1) & 7))) != 0)
+                {
+                    selectedItems[j >> 3] |= (1 << (j & 7));
+                }
             }
         }
         while (1);
@@ -3395,7 +3726,7 @@ void rviewResult::OnMenuCommand(int id)
         if (typeManager == NULL)
         {
             int itemNo;
-            const r_Type *sampleType = NULL;
+            const r_Type* sampleType = NULL;
 
             for (itemNo = 0; itemNo < coll->number; itemNo++)
             {
@@ -3413,7 +3744,9 @@ void rviewResult::OnMenuCommand(int id)
             if (sampleType != NULL)
             {
                 if (typeManager == NULL)
+                {
                     typeManager = new rviewTypeMan(this, sampleType);
+                }
             }
         }
         break;
@@ -3431,11 +3764,14 @@ void rviewResult::configureGrey(void)
     int i;
 
     mBar->Enable(MENU_RSLT_ITEM_OPENALL, (coll->number > 0));
-    mBar->Enable(MENU_RSLT_ITEM_THUMBALL, (coll->number> 0));
+    mBar->Enable(MENU_RSLT_ITEM_THUMBALL, (coll->number > 0));
 
-    for (i=0; i<coll->number; i++)
+    for (i = 0; i < coll->number; i++)
     {
-        if (list->Selected(i)) break;
+        if (list->Selected(i))
+        {
+            break;
+        }
     }
     bool enable = (i < coll->number);
 
@@ -3480,11 +3816,14 @@ rviewAbout::rviewAbout(void) : rviewFrame(NULL, "", -1, -1, about_width, about_h
 rviewAbout::~rviewAbout(void)
 {
     // the messages themselves will be sorted out by the panel destructor.
-    if (labels != NULL) delete [] labels;
+    if (labels != NULL)
+    {
+        delete [] labels;
+    }
 }
 
 
-const char *rviewAbout::getFrameName(void) const
+const char* rviewAbout::getFrameName(void) const
 {
     return "rviewAbout";
 }
@@ -3501,7 +3840,10 @@ void rviewAbout::deleteLabels(void)
     {
         int i;
 
-        for (i=0; i<numlines; i++) delete labels[i];
+        for (i = 0; i < numlines; i++)
+        {
+            delete labels[i];
+        }
         delete [] labels;
         labels = NULL;
         numlines = 0;
@@ -3527,8 +3869,8 @@ void rviewAbout::label(void)
 
         numlines = number;
         labels = new wxMessage *[numlines];
-        x -= 2*about_border;
-        for (i=0; i<number; i++)
+        x -= 2 * about_border;
+        for (i = 0; i < number; i++)
         {
             sprintf(lineName, "rviewAboutLine%d", i);
             labels[i] = new wxMessage(panel, lman->lookup(lineName), about_border, y, x, about_mheight, 0, "message");
@@ -3539,7 +3881,7 @@ void rviewAbout::label(void)
 }
 
 
-int rviewAbout::process(wxObject &obj, wxEvent &evt)
+int rviewAbout::process(wxObject& obj, wxEvent& evt)
 {
     if ((&obj == (wxObject*)okBut) && (evt.GetEventType() == wxEVENT_TYPE_BUTTON_COMMAND))
     {
@@ -3557,19 +3899,19 @@ void rviewAbout::OnSize(int w, int h)
     GetClientSize(&x, &y);
 
     panel->SetSize(0, 0, x, y);
-    x -= 2*about_border;
+    x -= 2 * about_border;
     y = about_border;
     if (panel != NULL)
     {
-        for (int i=0; i<numlines; i++)
+        for (int i = 0; i < numlines; i++)
         {
             labels[i]->SetSize(about_border, y, x, about_mheight);
             y += about_mheight;
         }
     }
     x -= about_bwidth;
-    y += (about_pheight - about_bheight)/2;
-    okBut->SetSize(x/2, y, about_bwidth, about_bheight);
+    y += (about_pheight - about_bheight) / 2;
+    okBut->SetSize(x / 2, y, about_bwidth, about_bheight);
 }
 
 
@@ -3588,7 +3930,7 @@ const int rviewStringSet::strset_bwidth = 70;
 const int rviewStringSet::strset_bheight = 40;
 const int rviewStringSet::strset_mheight = 20;
 
-rviewStringSet::rviewStringSet(collection_desc *desc) : rviewFrame(NULL, "", -1, -1, strset_width, strset_height)
+rviewStringSet::rviewStringSet(collection_desc* desc) : rviewFrame(NULL, "", -1, -1, strset_width, strset_height)
 {
     int w, h;
     char buffer[STRINGSIZE];
@@ -3620,7 +3962,7 @@ rviewStringSet::~rviewStringSet(void)
 }
 
 
-const char *rviewStringSet::getFrameName(void) const
+const char* rviewStringSet::getFrameName(void) const
 {
     return "rviewStringSet";
 }
@@ -3646,19 +3988,19 @@ void rviewStringSet::OnSize(int w, int h)
 
     GetClientSize(&x, &y);
     panel->SetSize(0, 0, x, y);
-    head = 3*(strset_mheight + strset_border);
-    x -= 2*strset_border;
-    y -= 2*strset_border;
+    head = 3 * (strset_mheight + strset_border);
+    x -= 2 * strset_border;
+    y -= 2 * strset_border;
     collName->SetSize(strset_border, strset_border, x, strset_mheight);
-    collType->SetSize(strset_border, strset_mheight + 2*strset_border, x, strset_mheight);
-    collInfo->SetSize(strset_border, 2*strset_mheight + 3*strset_border, x, strset_mheight);
+    collType->SetSize(strset_border, strset_mheight + 2 * strset_border, x, strset_mheight);
+    collInfo->SetSize(strset_border, 2 * strset_mheight + 3 * strset_border, x, strset_mheight);
 
     list->SetSize(strset_border, strset_border + head, x, y - head - strset_reserve);
-    dismiss->SetSize((x - strset_bwidth) / 2, y + 2*strset_border - (strset_reserve + strset_bheight) / 2, strset_bwidth, strset_bheight);
+    dismiss->SetSize((x - strset_bwidth) / 2, y + 2 * strset_border - (strset_reserve + strset_bheight) / 2, strset_bwidth, strset_bheight);
 }
 
 
-int rviewStringSet::process(wxObject &obj, wxEvent &evt)
+int rviewStringSet::process(wxObject& obj, wxEvent& evt)
 {
     if (&obj == (wxObject*)dismiss)
     {
@@ -3675,13 +4017,13 @@ int rviewStringSet::getNumItems(void)
 }
 
 
-void rviewStringSet::addItem(const char *string)
+void rviewStringSet::addItem(const char* string)
 {
     list->Append((char*)string);
 }
 
 
-char *rviewStringSet::getItem(int number)
+char* rviewStringSet::getItem(int number)
 {
     return list->GetString(number);
 }
@@ -3724,7 +4066,7 @@ DynamicStack<T>::DynamicStack(unsigned int gran)
 
 
 template<class T>
-DynamicStack<T>::DynamicStack(const DynamicStack<T> &src)
+DynamicStack<T>::DynamicStack(const DynamicStack<T>& src)
 {
     number = 0;
     max = 0;
@@ -3732,14 +4074,16 @@ DynamicStack<T>::DynamicStack(const DynamicStack<T> &src)
     {
         granularity = src.granularity;
         max = src.max;
-        memset(stack, 0, max*sizeof(T));
+        memset(stack, 0, max * sizeof(T));
         number = src.number;
 
         unsigned int i;
 
         // use loop for class safety
-        for (i=0; i<number; i++)
-            new(stack + i) T(src.stack[i]);   // placement new
+        for (i = 0; i < number; i++)
+        {
+            new(stack + i) T(src.stack[i]);    // placement new
+        }
     }
 }
 
@@ -3749,27 +4093,37 @@ DynamicStack<T>::~DynamicStack(void)
 {
     unsigned int i;
 
-    for (i=0; i<number; i++)
-        stack[i].~T();  // direct destructor call
+    for (i = 0; i < number; i++)
+    {
+        stack[i].~T();    // direct destructor call
+    }
 
     if (stack != NULL)
+    {
         free(stack);
+    }
 }
 
 
 template<class T>
-int DynamicStack<T>::push(const T &item)
+int DynamicStack<T>::push(const T& item)
 {
-    if (ensureFree() != 0) return -1;
+    if (ensureFree() != 0)
+    {
+        return -1;
+    }
     new(stack + number++) T(item);    // placement new
     return 0;
 }
 
 
 template<class T>
-int DynamicStack<T>::pop(T &item)
+int DynamicStack<T>::pop(T& item)
 {
-    if (number == 0) return -1;
+    if (number == 0)
+    {
+        return -1;
+    }
     item = stack[--number];   // assignment
     stack[number].~T();       // direct destructor call
     return 0;
@@ -3777,10 +4131,13 @@ int DynamicStack<T>::pop(T &item)
 
 
 template<class T>
-int DynamicStack<T>::peek(T &item) const
+int DynamicStack<T>::peek(T& item) const
 {
-    if (number == 0) return -1;
-    item = stack[number-1];   // assignment
+    if (number == 0)
+    {
+        return -1;
+    }
+    item = stack[number - 1]; // assignment
     return 0;
 }
 

@@ -61,7 +61,7 @@ public class MetadataURL implements ISerializableMetadataObject, IPersistentMeta
     /**
      * Empty constructor to be used by the persistence provider
      */
-    protected MetadataURL(){}
+    protected MetadataURL() {}
 
     /**
      * Returns the path to the template corresponding to this metadata object

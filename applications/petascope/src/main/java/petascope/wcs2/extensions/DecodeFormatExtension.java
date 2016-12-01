@@ -60,12 +60,14 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
 
     public static final Set<String> SUPPORTED_FORMATS = new HashSet<String>(Arrays.asList(MIME_GML, MIME_PNG, MIME_TIFF, MIME_JP2, MIME_NETCDF));
     // this will store the map from MIME type to file extesion (e.g: application/netcdf -> file extension .nc)
-    private static final Map<String, String> MIME_TO_FILE_EXTENSION = new HashMap<String, String>() {{
-                                                                                    put(MIME_NETCDF, "nc");
-                                                                           }};
-    
+    private static final Map<String, String> MIME_TO_FILE_EXTENSION = new HashMap<String, String>() {
+        {
+            put(MIME_NETCDF, "nc");
+        }
+    };
+
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
-        /* Member */
+    /* Member */
 
     /**
      * GDAL configuration option to enable custom GML box to be included in the file.
@@ -97,7 +99,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             throw new WCSException(ExceptionCode.InvalidParameterValue, mimeType + " MIME type cannot be handled.");
         }
     }
-     
+
     /**
      * Constructor for registering formats and also used while handling multipart requests
      * as two base requests
@@ -145,7 +147,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         // check if mime is supported
         String encodeType = ExtensionsRegistry.mimeToIdentifier.get(req.getFormat());
         this.mimeType = req.getFormat();
-        
+
         // validate the request
         if (encodeType == null) {
             // e.g: format=image/NotSupport
@@ -169,12 +171,12 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         Response image = this.getImageResponse(request, meta);
         // return multipart response
         String xml = gml.getXml()[0].replace("{coverageData}",
-                                                "<File>"
-                                                    + "<fileName>" + "file" + "</fileName>"
-                                                    + "<fileStructure>Record Interleaved</fileStructure>"
-                                                    + "<mimeType>" + request.getFormat() + "</mimeType>"
-                                                + "</File>");
-        multipartResponse = new Response(image.getData(), new String[]{xml}, request.getFormat(), image.getCoverageID());
+                                             "<File>"
+                                             + "<fileName>" + "file" + "</fileName>"
+                                             + "<fileStructure>Record Interleaved</fileStructure>"
+                                             + "<mimeType>" + request.getFormat() + "</mimeType>"
+                                             + "</File>");
+        multipartResponse = new Response(image.getData(), new String[] {xml}, request.getFormat(), image.getCoverageID());
         multipartResponse.setMultipart(true);
         return multipartResponse;
     }
@@ -232,7 +234,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             }
 
 
-            return new Response(null, new String[]{gml}, FormatExtension.MIME_XML, m.getCoverageId());
+            return new Response(null, new String[] {gml}, FormatExtension.MIME_XML, m.getCoverageId());
             // TODO : use XOM serializer (current problem: license header is trimmed to one line and namespaces need to be added)
             //Builder xmlBuilder = new Builder();
             //try {
@@ -247,7 +249,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             //}
         } else {
             throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
-                    "The coverage type '" + m.getCoverageType() + "' is not supported.");
+                                   "The coverage type '" + m.getCoverageType() + "' is not supported.");
         }
     }
 
@@ -281,14 +283,14 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             // validate the request in netCDF format
             if (!(WcsUtil.isGrid(m.getCoverageType()))) {
                 throw new WCSException(ExceptionCode.NoApplicableCode, "The Netcdf format extension "
-                        + "only supports " + XMLSymbols.LABEL_GRID_COVERAGE + ", " + XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE + ", "
-                                           + XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE);
+                                       + "only supports " + XMLSymbols.LABEL_GRID_COVERAGE + ", " + XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE + ", "
+                                       + XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE);
             }
         } else {
             // validate the request in image format (tiff, jpeg, png)
             if (m.getGridDimension() != 2 || m.hasIrregularAxis() || !(WcsUtil.isGrid(m.getCoverageType()))) {
                 throw new WCSException(ExceptionCode.InvalidRequest, "The " + request.getFormat() + " format extension "
-                                     + "only supports regularly gridded coverages with exactly two dimensions");
+                                       + "only supports regularly gridded coverages with exactly two dimensions");
             }
         }
 
@@ -343,7 +345,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             } else {
                 log.error("JVM cannot write to the default directory for tmp files " + gmlFile.getAbsolutePath());
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                            "Cannot write temporary file " + gmlFile.getAbsolutePath() + " for GML box in GMLJP2 encoding.");
+                                             "Cannot write temporary file " + gmlFile.getAbsolutePath() + " for GML box in GMLJP2 encoding.");
             }
 
             // Set the configuration option for GDAL
@@ -412,10 +414,11 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      * @throws PetascopeException
      */
     protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m)
-            throws WCSException, PetascopeException {
+    throws WCSException, PetascopeException {
         //return gml without {coverageData} replaced for multipart requests
-        if (request.isMultiPart())
+        if (request.isMultiPart()) {
             return gml;
+        }
         RasQueryResult res = new RasQueryResult(executeWcsRequest(request, m, meta, FORMAT_ID_CSV, null).fst);
         if (!res.getMdds().isEmpty()) {
             String data = new String(res.getMdds().get(0));
@@ -433,7 +436,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
      * @throws WCSException
      */
     private Response handleMultiPoint(GetCoverageRequest req, String coverageName, DbMetadataSource meta, GetCoverageMetadata m)
-            throws WCSException, SecoreException {
+    throws WCSException, SecoreException {
         CoverageMetadata cov = m.getMetadata();
         String ret = WcsUtil.getGML(m, Templates.COVERAGE, meta);
         String pointMembers = "";
@@ -445,11 +448,11 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
 
             List<CellDomainElement> cellDomainList = cov.getCellDomainList();
 
-                /* check for subsetting */
+            /* check for subsetting */
             List<DimensionSubset> subsets = req.getSubsets();
             if (!subsets.isEmpty()) {
 
-                    /* subsetting ON: get coverage metadata */
+                /* subsetting ON: get coverage metadata */
                 ListIterator<DimensionSubset> listIterator = subsets.
                         listIterator();
                 while (listIterator.hasNext()) {
@@ -492,7 +495,7 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
         } catch (PetascopeException ex) {
             log.error("Error", ex);
         }
-        return new Response(new String[]{sb.toString()});
+        return new Response(new String[] {sb.toString()});
     }
 
     @Override
@@ -523,11 +526,11 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
     public String getMimeType() {
         return mimeType;
     }
-    
+
     /**
      * Return the file name extension from MIME type (e.g: application/netcdf -> nc)
      * @param mimeType
-     * @return 
+     * @return
      */
     public static String getFileExtension(String mimeType) {
         return MIME_TO_FILE_EXTENSION.get(mimeType.trim());

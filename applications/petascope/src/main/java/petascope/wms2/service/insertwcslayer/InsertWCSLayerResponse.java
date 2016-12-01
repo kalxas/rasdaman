@@ -32,7 +32,7 @@ import petascope.wms2.service.exception.error.WMSException;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class InsertWCSLayerResponse extends Response{
+public class InsertWCSLayerResponse extends Response {
 
     /**
      * Class constructor.

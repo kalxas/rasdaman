@@ -57,12 +57,12 @@ const char* CommandLineParserVersion = "1.0 (c) 2003 Dr. Peter Baumann";
 char*
 dupString(const char* cc)
 {
-    if(cc)
+    if (cc)
     {
         // strdup uses malloc, we would like to avoid it
-        char *dup = new char[strlen(cc)+1];
+        char* dup = new char[strlen(cc) + 1];
         // new throws? we hope
-        strcpy(dup,cc);
+        strcpy(dup, cc);
         return dup;
     }
 
@@ -70,7 +70,7 @@ dupString(const char* cc)
 }
 
 CmlException::CmlException(const string& whatString)
-    :problem(whatString)
+    : problem(whatString)
 {
 }
 
@@ -102,9 +102,11 @@ CommandLineParameter::CommandLineParameter(char newShortName, const char* newLon
     : longName(NULL), defaultValue(NULL), descriptionText(NULL), paramDescription(NULL)
 {
 
-    if((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName))
+    if ((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName))
             && (!newLongName || !strcmp(newLongName, CommandLineParser::noLongName)))
-        throw CmlException(string("") + "Invalid option: shortName='" + newShortName + "' longName='" + (newLongName? newLongName: "NULL") + "'");
+    {
+        throw CmlException(string("") + "Invalid option: shortName='" + newShortName + "' longName='" + (newLongName ? newLongName : "NULL") + "'");
+    }
 
     shortName    = newShortName;
     longName     = dupString(newLongName);
@@ -123,9 +125,11 @@ CommandLineParameter::CommandLineParameter(char newShortName, const char* newLon
     : longName(NULL), defaultValue(NULL), descriptionText(NULL), paramDescription(NULL)
 {
 
-    if((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName))
+    if ((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName))
             && (!newLongName || !strcmp(newLongName, CommandLineParser::noLongName)))
-        throw CmlException(string("") + "Invalid option: shortName='" + newShortName + "' longName='" + (newLongName? newLongName: "NULL") + "'");
+    {
+        throw CmlException(string("") + "Invalid option: shortName='" + newShortName + "' longName='" + (newLongName ? newLongName : "NULL") + "'");
+    }
 
     shortName    = newShortName;
     longName     = dupString(newLongName);
@@ -135,7 +139,7 @@ CommandLineParameter::CommandLineParameter(char newShortName, const char* newLon
     // convert default to ASCII, for uniform handling
     stringstream s;
     s << newDefaultValue;
-    defaultValue = dupString( s.str().c_str() );
+    defaultValue = dupString(s.str().c_str());
 
     shNameString[0] = newShortName;
     shNameString[1] = 0;
@@ -146,85 +150,100 @@ CommandLineParameter::CommandLineParameter(char newShortName, const char* newLon
 
 const char* CommandLineParameter::calledName()
 {
-    const char* retval=NULL;
+    const char* retval = NULL;
 
-    if(shortName == CommandLineParser::noShortName)
+    if (shortName == CommandLineParser::noShortName)
+    {
         retval = longName;
-    else if(!strcmp(longName, CommandLineParser::noLongName))
+    }
+    else if (!strcmp(longName, CommandLineParser::noLongName))
+    {
         retval = shNameString;
+    }
     else
+    {
         retval = (wasLongName && longName) ? longName : shNameString;
+    }
     return retval;
 }
 
 void CommandLineParameter::reset()
 {
-    present=false;
-    wasLongName=false;
+    present = false;
+    wasLongName = false;
 }
 
 
 CommandLineParameter::~CommandLineParameter()
 {
-    if(longName)
+    if (longName)
+    {
         delete[] longName;
+    }
 
-    if(defaultValue)
+    if (defaultValue)
+    {
         delete[] defaultValue;
+    }
 
     // paramDescription and descriptionText point both to the same string
     // but depends on the context which has to be deleted
-    if(paramDescription)
+    if (paramDescription)
     {
         delete[] paramDescription;
         paramDescription = NULL;
         descriptionText = NULL;
     }
-    if(descriptionText)
+    if (descriptionText)
+    {
         delete[] descriptionText;
+    }
 }
 
-void CommandLineParameter::setDescription(const char *desc)
+void CommandLineParameter::setDescription(const char* desc)
 {
     // cleaning the previous paramDescription
     // paramDescription and descriptionText point both to the same string
     // but depends on the context which has to be deleted
-    if(paramDescription)
+    if (paramDescription)
     {
         delete[] paramDescription;
         paramDescription = NULL;
         descriptionText = NULL;
     }
-    if(descriptionText) delete[] descriptionText;
-
-    if(desc==NULL)
+    if (descriptionText)
     {
-        paramDescription=NULL;
-        descriptionText =NULL;
+        delete[] descriptionText;
+    }
+
+    if (desc == NULL)
+    {
+        paramDescription = NULL;
+        descriptionText = NULL;
     }
     else
     {
         paramDescription = dupString(desc);
 
         // if the string is "<text> line1...", for options with parameters
-        if(paramDescription[0]==descOpen)
+        if (paramDescription[0] == descOpen)
         {
             int len = strlen(paramDescription);
-            int i=0;
-            for(i=0; i<len; i++)
+            int i = 0;
+            for (i = 0; i < len; i++)
             {
-                if((paramDescription[i]==descClose) && (i<len-1))
+                if ((paramDescription[i] == descClose) && (i < len - 1))
                 {
-                    paramDescription[i+1]=0;
-                    descriptionText = paramDescription+i+2;
+                    paramDescription[i + 1] = 0;
+                    descriptionText = paramDescription + i + 2;
                     break;
                 }
             }
 
-            if(i>=len-1) // I didn't find descClose
+            if (i >= len - 1) // I didn't find descClose
             {
-                descriptionText=paramDescription;
-                paramDescription=NULL;
+                descriptionText = paramDescription;
+                paramDescription = NULL;
             }
         }
         else
@@ -238,20 +257,28 @@ void CommandLineParameter::setDescription(const char *desc)
 
 bool CommandLineParameter::doesMatch(char c)
 {
-    if(shortName==CommandLineParser::noShortName)
+    if (shortName == CommandLineParser::noShortName)
+    {
         return false;
-    return shortName==c ? true:false;
+    }
+    return shortName == c ? true : false;
 }
 
 bool CommandLineParameter::doesMatch(const char* s)
 {
-    if(longName==NULL)
+    if (longName == NULL)
+    {
         return false;
-    if(s == NULL)
+    }
+    if (s == NULL)
+    {
         return false;
-    if(!strcmp(longName, CommandLineParser::noLongName))
+    }
+    if (!strcmp(longName, CommandLineParser::noLongName))
+    {
         return false;
-    return strcmp(longName,s)==0 ? true:false;
+    }
+    return strcmp(longName, s) == 0 ? true : false;
 }
 
 char CommandLineParameter::getShortName() const
@@ -265,25 +292,31 @@ const char* CommandLineParameter::getLongName() const
 }
 
 /// print help text, composed from the option descriptions passwd to cml
-ostream& CommandLineParameter::printHelp(ostream &os)
+ostream& CommandLineParameter::printHelp(ostream& os)
 {
-    if(descriptionText == NULL)
+    if (descriptionText == NULL)
+    {
         return os;
+    }
 
-    static const unsigned int longNameLen=30;
-    static const unsigned int longParamLen=30;
+    static const unsigned int longNameLen = 30;
+    static const unsigned int longParamLen = 30;
 
     os << CommandLineParameter::descIndent;
 
-    if(isalnum(shortName) && (shortName != CommandLineParser::noShortName))
-        os<< CommandLineParser::ShortSign <<shortName;
+    if (isalnum(shortName) && (shortName != CommandLineParser::noShortName))
+    {
+        os << CommandLineParser::ShortSign << shortName;
+    }
     // we want a flush left display, don't adjust short/long params each -- PB 2003-jul-05
     // else
     //    os << "  ";
 
-    if((isalnum(shortName) && (shortName != CommandLineParser::noShortName)) &&
+    if ((isalnum(shortName) && (shortName != CommandLineParser::noShortName)) &&
             (longName && strcmp(longName, CommandLineParser::noLongName)))
+    {
         os << ", ";
+    }
     // we want a flush left display, don't adjust short/long params each -- PB 2003-jul-05
     // else
     //    os << "  ";
@@ -292,7 +325,7 @@ ostream& CommandLineParameter::printHelp(ostream &os)
     // os.setf(ios::left);
     // os << setw(longNameLen);
 
-    if(longName && strcmp(longName, CommandLineParser::noLongName))
+    if (longName && strcmp(longName, CommandLineParser::noLongName))
     {
         string s;
         s += CommandLineParser::LongSign;
@@ -300,7 +333,9 @@ ostream& CommandLineParameter::printHelp(ostream &os)
         os << s.c_str();
     }
     else
+    {
         os << "";
+    }
 
     // separator between param name and value
     os << CommandLineParameter::descSep;
@@ -310,22 +345,30 @@ ostream& CommandLineParameter::printHelp(ostream &os)
     // os << setw(longParamLen);
 
     // param value, such as "<database>"
-    if(paramDescription)
+    if (paramDescription)
+    {
         os << paramDescription;
+    }
 
     // separator between param value and default
-    if(defaultValue)
+    if (defaultValue)
+    {
         os << CommandLineParameter::descTab;
+    }
 
     // print default, if any: "(default: 42)"
-    if(defaultValue)
+    if (defaultValue)
+    {
         os << CommandLineParameter::descLeftDefault << defaultTitle << defaultValue << CommandLineParameter::descRightDefault;
+    }
 
     // in a second line, print description text (2*indent)
-    if(descriptionText)
+    if (descriptionText)
+    {
         os << CommandLineParameter::descLineSep << CommandLineParameter::descIndent << CommandLineParameter::descIndent << descriptionText;
+    }
 
-    os<<flush;
+    os << flush;
 
     return os;
 }
@@ -333,7 +376,7 @@ ostream& CommandLineParameter::printHelp(ostream &os)
 //#####################################################################
 
 FlagParameter::FlagParameter(char nShortName, const char* nLongName) throw(CmlException)
-    :CommandLineParameter(nShortName,nLongName,(const char*)NULL)
+    : CommandLineParameter(nShortName, nLongName, (const char*)NULL)
 {
 }
 
@@ -358,16 +401,20 @@ bool FlagParameter::isPresent()
 
 bool FlagParameter::setPresent(char c)  throw(CmlException)
 {
-    if(c && c==shortName)
+    if (c && c == shortName)
     {
-        if(present==true)
+        if (present == true)
         {
-            if(wasLongName==true)
+            if (wasLongName == true)
+            {
                 throw CmlException(string("") + "Parameter '" + longName + "' clashes with parameter '" + shortName + "'");
+            }
             else
+            {
                 throw CmlException(string("") + "Parameter '" + shortName + "' was already present");
+            }
         }
-        present=true;
+        present = true;
         return true;
     }
     return false;
@@ -375,17 +422,21 @@ bool FlagParameter::setPresent(char c)  throw(CmlException)
 
 bool FlagParameter::setPresent(const char* s) throw(CmlException)
 {
-    if(longName != NULL && !strcmp(longName,s))
+    if (longName != NULL && !strcmp(longName, s))
     {
-        if(present==true)
+        if (present == true)
         {
-            if(wasLongName==true)
+            if (wasLongName == true)
+            {
                 throw CmlException(string("") + "Parameter '" + longName + "' was already present");
+            }
             else
+            {
                 throw CmlException(string("") + "Parameter '" + longName + "' clashes with parameter '" + shortName + "'");
+            }
         }
-        wasLongName=true;
-        present=true;
+        wasLongName = true;
+        present = true;
         return true;
     }
     return false;
@@ -406,24 +457,28 @@ double FlagParameter::getValueAsDouble() throw(CmlException)
     throw CmlException("Flag parameter can't return a 'double' value");
 }
 
-ostream& FlagParameter::printStatus(ostream &os)
+ostream& FlagParameter::printStatus(ostream& os)
 {
-    if(present)
-        os<<"option '"<<calledName()<<"' present";
+    if (present)
+    {
+        os << "option '" << calledName() << "' present";
+    }
     else
-        os<<"option '"<<calledName()<<"' missing";
+    {
+        os << "option '" << calledName() << "' missing";
+    }
 
     return os;
 }
 //#####################################################################
 StringParameter::StringParameter(char nShortName, const char* nLongName, const char* newDefaultValue) throw(CmlException)
-    :CommandLineParameter(nShortName,nLongName,newDefaultValue)
+    : CommandLineParameter(nShortName, nLongName, newDefaultValue)
 {
     value.clear();
 }
 
 StringParameter::StringParameter(char nShortName, const char* nLongName, long newDefaultValue) throw(CmlException)
-    :CommandLineParameter(nShortName,nLongName,newDefaultValue)
+    : CommandLineParameter(nShortName, nLongName, newDefaultValue)
 {
     value.clear();
 }
@@ -435,9 +490,9 @@ StringParameter::~StringParameter()
 
 bool StringParameter::setPresent(char c)  throw(CmlException)
 {
-    if(c && c==shortName)
+    if (c && c == shortName)
     {
-        present=true;
+        present = true;
         return true;
     }
     return false;
@@ -445,10 +500,10 @@ bool StringParameter::setPresent(char c)  throw(CmlException)
 
 bool StringParameter::setPresent(const char* s) throw(CmlException)
 {
-    if(longName != NULL && !strcmp(longName,s))
+    if (longName != NULL && !strcmp(longName, s))
     {
-        wasLongName=true;
-        present=true;
+        wasLongName = true;
+        present = true;
         return true;
     }
     return false;
@@ -456,7 +511,7 @@ bool StringParameter::setPresent(const char* s) throw(CmlException)
 
 bool StringParameter::isPresent()
 {
-    return ( ! value.empty() );
+    return (! value.empty());
 }
 
 void StringParameter::reset()
@@ -482,67 +537,79 @@ bool StringParameter::needsValue()
 
 bool StringParameter::takeValue(const char* s)
 {
-    char *aux = dupString(s);
-    value.push_back( aux );
+    char* aux = dupString(s);
+    value.push_back(aux);
     return true;
 }
 
 void StringParameter::popValue()
 {
-    if ( ! value.empty() )
+    if (! value.empty())
+    {
         value.pop_front();
+    }
 }
 
 const char* StringParameter::getValueAsString() throw(CmlException)
 {
-    return ( !value.empty() ? value.front() : defaultValue );
+    return (!value.empty() ? value.front() : defaultValue);
 }
 
 long   StringParameter::getValueAsLong()   throw(CmlException)
 {
-    const char *r = ( !value.empty() ? value.front() : defaultValue );
+    const char* r = (!value.empty() ? value.front() : defaultValue);
 
-    if(r == NULL)
+    if (r == NULL)
+    {
         throw CmlException(string("") + "No value for parameter '" + calledName() + "'");
+    }
 
-    char *endptr;
+    char* endptr;
 
-    long result = strtol( r, &endptr, 0);
+    long result = strtol(r, &endptr, 0);
 
-    if( *endptr != 0 )
+    if (*endptr != 0)
+    {
         throw CmlException(string("") + "Invalid integer value for parameter '" + calledName() + "'");
+    }
 
     return result;
 }
 
 double StringParameter::getValueAsDouble() throw(CmlException)
 {
-    const char *r = ( !value.empty() ? value.front() : defaultValue );
+    const char* r = (!value.empty() ? value.front() : defaultValue);
 
-    if(r == NULL)
+    if (r == NULL)
+    {
         throw CmlException(string("") + "No value for parameter '" + calledName() + "'");
+    }
 
-    char *endptr;
+    char* endptr;
 
-    double result = strtod( r, &endptr);
+    double result = strtod(r, &endptr);
 
-    if( *endptr != 0 )
+    if (*endptr != 0)
+    {
         throw CmlException(string("") + "Invalid double value for parameter '" + calledName() + "'");
+    }
 
     return result;
 }
 
-ostream& StringParameter::printStatus(ostream &os)
+ostream& StringParameter::printStatus(ostream& os)
 {
-    if(value.empty())
-        os<<"option '"<<calledName()<<"' empty.";
+    if (value.empty())
+    {
+        os << "option '" << calledName() << "' empty.";
+    }
     else
     {
-        os<<"option '"<<calledName()<<"' present: ";
+        os << "option '" << calledName() << "' present: ";
         list<char*>::iterator iter = value.begin();
-        while ( iter != value.end() )
+        while (iter != value.end())
         {
-            os<< "'" << (*iter ? *iter : "(null)") << "' ";
+            os << "'" << (*iter ? *iter : "(null)") << "' ";
             iter++;
         }
     }
@@ -559,8 +626,10 @@ CommandLineParser* CommandLineParser::myself = NULL;
 
 CommandLineParser& CommandLineParser::getInstance()
 {
-    if(myself == NULL)
+    if (myself == NULL)
+    {
         myself = new CommandLineParser;
+    }
     return *myself;
 }
 
@@ -573,35 +642,37 @@ CommandLineParser::CommandLineParser()
 CommandLineParser::~CommandLineParser()
 {
     delete myself;
-    myself=NULL;
+    myself = NULL;
 
-    lastParameter=NULL;
+    lastParameter = NULL;
 
     list<CommandLineParameter*>::iterator iter = cmlParameter.begin();
-    for(unsigned int i=0; i<cmlParameter.size(); i++,iter++)
+    for (unsigned int i = 0; i < cmlParameter.size(); i++, iter++)
+    {
         delete *iter;
+    }
 }
 
 
-CommandLineParameter& CommandLineParser::addFlagParameter(char shortName, const char *longName, const char *description) throw(CmlException)
+CommandLineParameter& CommandLineParser::addFlagParameter(char shortName, const char* longName, const char* description) throw(CmlException)
 {
-    CommandLineParameter *cp = new FlagParameter(shortName,longName);
+    CommandLineParameter* cp = new FlagParameter(shortName, longName);
     cp->setDescription(description);
     cmlParameter.push_back(cp);
     return *cp;
 }
 
-CommandLineParameter& CommandLineParser::addStringParameter(char shortName, const char* longName, const char *description, const char* newDefaultValue) throw(CmlException)
+CommandLineParameter& CommandLineParser::addStringParameter(char shortName, const char* longName, const char* description, const char* newDefaultValue) throw(CmlException)
 {
-    CommandLineParameter *cp = new StringParameter(shortName,longName,newDefaultValue);
+    CommandLineParameter* cp = new StringParameter(shortName, longName, newDefaultValue);
     cp->setDescription(description);
     cmlParameter.push_back(cp);
     return *cp;
 }
 
-CommandLineParameter& CommandLineParser::addLongParameter(char shortName, const char* longName, const char *description, long newDefaultValue) throw(CmlException)
+CommandLineParameter& CommandLineParser::addLongParameter(char shortName, const char* longName, const char* description, long newDefaultValue) throw(CmlException)
 {
-    CommandLineParameter *cp = new StringParameter(shortName,longName,newDefaultValue);
+    CommandLineParameter* cp = new StringParameter(shortName, longName, newDefaultValue);
     cp->setDescription(description);
     cmlParameter.push_back(cp);
     return *cp;
@@ -609,100 +680,120 @@ CommandLineParameter& CommandLineParser::addLongParameter(char shortName, const 
 
 bool CommandLineParser::isPresent(char shortName) throw(CmlException)
 {
-    StringParameter *sp;
-    FlagParameter *fp;
+    StringParameter* sp;
+    FlagParameter* fp;
     bool result = false;
 
-    CommandLineParameter &cml = getParameter(shortName);
+    CommandLineParameter& cml = getParameter(shortName);
     if ((sp = dynamic_cast<StringParameter*>(&cml)))
+    {
         result = sp->isPresent();
+    }
     else if ((fp = dynamic_cast<FlagParameter*>(&cml)))
+    {
         result = fp->isPresent();
+    }
     return result;
 }
 
 bool CommandLineParser::isPresent(const char* longName) throw(CmlException)
 {
-    StringParameter *sp;
-    FlagParameter *fp;
+    StringParameter* sp;
+    FlagParameter* fp;
     bool result = false;
 
-    CommandLineParameter &cml = getParameter(longName);
+    CommandLineParameter& cml = getParameter(longName);
     if ((sp = dynamic_cast<StringParameter*>(&cml)))
+    {
         result = sp->isPresent();
+    }
     else if ((fp = dynamic_cast<FlagParameter*>(&cml)))
+    {
         result = fp->isPresent();
+    }
     return result;
 }
 
 const char* CommandLineParser::getValueAsString(char shortName) throw(CmlException)
 {
-    CommandLineParameter &cml = getParameter(shortName);
+    CommandLineParameter& cml = getParameter(shortName);
     return cml.getValueAsString();
 }
 
 long CommandLineParser::getValueAsLong(char shortName) throw(CmlException)
 {
-    CommandLineParameter &cml = getParameter(shortName);
+    CommandLineParameter& cml = getParameter(shortName);
     return cml.getValueAsLong();
 }
 
 double CommandLineParser::getValueAsDouble(char shortName) throw(CmlException)
 {
-    CommandLineParameter &cml = getParameter(shortName);
+    CommandLineParameter& cml = getParameter(shortName);
     return cml.getValueAsDouble();
 }
 
 const char* CommandLineParser::getValueAsString(const char* longName) throw(CmlException)
 {
-    CommandLineParameter &cml = getParameter(longName);
+    CommandLineParameter& cml = getParameter(longName);
     return cml.getValueAsString();
 }
 
 long CommandLineParser::getValueAsLong(const char* longName)   throw(CmlException)
 {
-    CommandLineParameter &cml = getParameter(longName);
+    CommandLineParameter& cml = getParameter(longName);
     return cml.getValueAsLong();
 }
 
 double CommandLineParser::getValueAsDouble(const char* longName) throw(CmlException)
 {
-    CommandLineParameter &cml = getParameter(longName);
+    CommandLineParameter& cml = getParameter(longName);
     return cml.getValueAsDouble();
 }
 
 
 void CommandLineParser::processCommandLine(int argc, char** argv) throw(CmlException)
 {
-    for(int i=1; i<argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        char *nextToken=argv[i];
+        char* nextToken = argv[i];
 
 //  bool sw1 = (nextToken[0]=='-') ? true:false;        // token starts with "-"
 //  bool sw2 = (sw1 && nextToken[1]=='-') ? true:false; // token starts with "--"
 
-        bool sw1 = (!strncmp(nextToken, ShortSign, strlen(ShortSign))) ? true:false; // token starts with ShortSign
-        bool sw2 = (!strncmp(nextToken, LongSign, strlen(LongSign))) ? true:false;   // token starts with LongSign
+        bool sw1 = (!strncmp(nextToken, ShortSign, strlen(ShortSign))) ? true : false; // token starts with ShortSign
+        bool sw2 = (!strncmp(nextToken, LongSign, strlen(LongSign))) ? true : false; // token starts with LongSign
 
         //check only for ShortSign/LongSign
-        if(sw1 && !strcmp(nextToken, ShortSign))
+        if (sw1 && !strcmp(nextToken, ShortSign))
+        {
             throw CmlException(string("") + "Syntax error: '" + ShortSign + "' with no parameter in command line");
-        if(sw2 && !strcmp(nextToken, LongSign))
+        }
+        if (sw2 && !strcmp(nextToken, LongSign))
+        {
             throw CmlException(string("") + "Syntax error: '" + LongSign  + "' with no parameter in command line");
+        }
 
-        if(nextTokenIsValue)
+        if (nextTokenIsValue)
+        {
             setValue(nextToken);
-        else if(sw2)
+        }
+        else if (sw2)
+        {
             longNameParameter(nextToken);
-        else if(sw1)
+        }
+        else if (sw1)
+        {
             shortNameParameter(nextToken);
+        }
         else
         {
             throw CmlException(string("") + "Syntax error: unexpected token '" + nextToken + "' in command line");
         }
     }
-    if(nextTokenIsValue)
+    if (nextTokenIsValue)
+    {
         throw CmlException(string("") + "Syntax error: missing value for parameter '" + lastParameter->calledName() + "' in command line");
+    }
 }
 
 
@@ -710,9 +801,9 @@ CommandLineParameter& CommandLineParser::getParameter(char shortName) throw(CmlE
 {
     list<CommandLineParameter*>::iterator iter = cmlParameter.begin();
 
-    for(unsigned int i=0; i<cmlParameter.size(); i++,iter++)
+    for (unsigned int i = 0; i < cmlParameter.size(); i++, iter++)
     {
-        if( (*iter)->doesMatch(shortName) )
+        if ((*iter)->doesMatch(shortName))
         {
             return *(*iter);
         }
@@ -724,9 +815,9 @@ CommandLineParameter& CommandLineParser::getParameter(const char* longName) thro
 {
     list<CommandLineParameter*>::iterator iter = cmlParameter.begin();
 
-    for(unsigned int i=0; i<cmlParameter.size(); i++,iter++)
+    for (unsigned int i = 0; i < cmlParameter.size(); i++, iter++)
     {
-        if( (*iter)->doesMatch(longName) )
+        if ((*iter)->doesMatch(longName))
         {
             return *(*iter);
         }
@@ -737,47 +828,47 @@ CommandLineParameter& CommandLineParser::getParameter(const char* longName) thro
 
 void CommandLineParser::setValue(const char* value) throw(CmlException)
 {
-    if(lastParameter == NULL)
+    if (lastParameter == NULL)
     {
         throw CmlException("internal error: setValue - lastParameter==null");
     }
     lastParameter->takeValue(value);
-    nextTokenIsValue=false;
+    nextTokenIsValue = false;
 }
 
-void CommandLineParser::longNameParameter(const char *nextToken) throw(CmlException)
+void CommandLineParser::longNameParameter(const char* nextToken) throw(CmlException)
 {
     const char* longName = nextToken + strlen(LongSign); // sari peste LongSign (former "--")
 
-    CommandLineParameter &cml = getParameter(longName);
+    CommandLineParameter& cml = getParameter(longName);
     cml.setPresent(longName);
-    if(cml.needsValue())
+    if (cml.needsValue())
     {
         lastParameter = &cml;
-        nextTokenIsValue=true;
+        nextTokenIsValue = true;
     }
 }
 
-void CommandLineParser::shortNameParameter(const char *nextToken) throw(CmlException)
+void CommandLineParser::shortNameParameter(const char* nextToken) throw(CmlException)
 {
     int tokenLength = strlen(nextToken);
 
-    for(int i=strlen(ShortSign); i<tokenLength; i++) //former i=1 for '-'
+    for (int i = strlen(ShortSign); i < tokenLength; i++) //former i=1 for '-'
     {
         char shortName = nextToken[i];
-        CommandLineParameter &cml = getParameter(shortName);
+        CommandLineParameter& cml = getParameter(shortName);
         cml.setPresent(shortName);
 
-        if(cml.needsValue())
+        if (cml.needsValue())
         {
-            if(i==tokenLength-1)
+            if (i == tokenLength - 1)
             {
                 lastParameter = &cml;
-                nextTokenIsValue=true;
+                nextTokenIsValue = true;
             }
             else
             {
-                const char *value = nextToken + i+1;
+                const char* value = nextToken + i + 1;
                 cml.takeValue(value);
             }
             break;
@@ -788,12 +879,12 @@ void CommandLineParser::shortNameParameter(const char *nextToken) throw(CmlExcep
 
 void CommandLineParser::printHelp()
 {
-    std::list<CommandLineParameter*>::const_iterator iter=cmlParameter.begin();
-    std::list<CommandLineParameter*>::const_iterator iterEnd=cmlParameter.end();
-    for(; iter!=iterEnd; ++iter)
+    std::list<CommandLineParameter*>::const_iterator iter = cmlParameter.begin();
+    std::list<CommandLineParameter*>::const_iterator iterEnd = cmlParameter.end();
+    for (; iter != iterEnd; ++iter)
     {
-        CommandLineParameter* ptr=*iter;
-        ptr->printHelp( std::cout );
+        CommandLineParameter* ptr = *iter;
+        ptr->printHelp(std::cout);
         std::cout << std::endl;
     }
     return;
@@ -801,33 +892,33 @@ void CommandLineParser::printHelp()
 
 void CommandLineParser::printStatus()
 {
-    std::list<CommandLineParameter*>::const_iterator iter=cmlParameter.begin();
-    std::list<CommandLineParameter*>::const_iterator iterEnd=cmlParameter.end();
+    std::list<CommandLineParameter*>::const_iterator iter = cmlParameter.begin();
+    std::list<CommandLineParameter*>::const_iterator iterEnd = cmlParameter.end();
 
-    for(; iter!=iterEnd; ++iter)
+    for (; iter != iterEnd; ++iter)
     {
-        CommandLineParameter* ptr=*iter;
-        ptr->printStatus( std::cout ) << std::endl;
+        CommandLineParameter* ptr = *iter;
+        ptr->printStatus(std::cout) << std::endl;
     }
 
-    std::cout <<std::endl;
+    std::cout << std::endl;
 
 }
 
-bool CommandLineParser::testProcessCommandLine(const char *testCml)
+bool CommandLineParser::testProcessCommandLine(const char* testCml)
 {
-    std::list<CommandLineParameter*>::const_iterator iter=cmlParameter.begin();
-    std::list<CommandLineParameter*>::const_iterator iterEnd=cmlParameter.end();
+    std::list<CommandLineParameter*>::const_iterator iter = cmlParameter.begin();
+    std::list<CommandLineParameter*>::const_iterator iterEnd = cmlParameter.end();
     string test;
     string::size_type posStart, posEnd;
     const char* spaceSep = " \t\v\f\n\r";
     const char* prgName = "program";
     std::vector<std::string> argList;
-    char  **argv=NULL;
-    unsigned int argc=0, i=0, n=0;
-    static unsigned int counter=1;
+    char**  argv = NULL;
+    unsigned int argc = 0, i = 0, n = 0;
+    static unsigned int counter = 1;
 
-    if(!testCml)
+    if (!testCml)
     {
         std::cout << "Error: test_cml is null" << endl;
         printStatus();
@@ -837,63 +928,71 @@ bool CommandLineParser::testProcessCommandLine(const char *testCml)
     std::cout << "Test " << counter << " commandline='" << testCml << "'" << std::endl;
 
     //converting to argc, argv
-    test=testCml;
-    posEnd=0;
-    while(true)
+    test = testCml;
+    posEnd = 0;
+    while (true)
     {
-        posStart=test.find_first_not_of(spaceSep, posEnd);
-        if(posStart != string::npos)
+        posStart = test.find_first_not_of(spaceSep, posEnd);
+        if (posStart != string::npos)
         {
-            posEnd=test.find_first_of(spaceSep, posStart);
-            if(posEnd != string::npos)
+            posEnd = test.find_first_of(spaceSep, posStart);
+            if (posEnd != string::npos)
             {
-                std::cout << "arg " << argList.size() + 1 << "='" << test.substr(posStart, posEnd-posStart) << "'" << std::endl;
-                argList.push_back(test.substr(posStart, posEnd-posStart));
+                std::cout << "arg " << argList.size() + 1 << "='" << test.substr(posStart, posEnd - posStart) << "'" << std::endl;
+                argList.push_back(test.substr(posStart, posEnd - posStart));
             }
             else //last element
             {
-                std::cout << "arg " << argList.size() + 1 << "='" << test.substr(posStart, test.size()-posStart) << "'" << std::endl;
-                argList.push_back(test.substr(posStart, test.size()-posStart));
+                std::cout << "arg " << argList.size() + 1 << "='" << test.substr(posStart, test.size() - posStart) << "'" << std::endl;
+                argList.push_back(test.substr(posStart, test.size() - posStart));
                 break;
             }
         }
         else
+        {
             break;
+        }
     }
 
     //build argv in C style
-    n=argList.size();
+    n = argList.size();
     argc = n + 1;
-    argv=new char*[ argc ];
+    argv = new char* [ argc ];
     argv[0] = dupString(prgName);
-    for(i=0; i <  n; i++)
+    for (i = 0; i <  n; i++)
+    {
         argv[i + 1] = dupString(argList[i].c_str());
+    }
 
     std::cout << "Test " << counter++ << " output:" << std::endl;
 
     try
     {
         //reset all options
-        for(; iter!=iterEnd; ++iter)
+        for (; iter != iterEnd; ++iter)
         {
             (*iter)->reset();
         }
         //process commandline
         processCommandLine(static_cast<int>(argc), argv);
     }
-    catch(CmlException &e)
+    catch (CmlException& e)
     {
-        std::cout<<"Error: "<<e.what()<<std::endl;
-        for(i=0; i < argc; i++)
+        std::cout << "Error: " << e.what() << std::endl;
+        for (i = 0; i < argc; i++)
+        {
             delete [] argv[i];
+        }
         delete[] argv;
 
         printStatus();
         return false;
     }
 
-    for(i=0; i < argc; i++)
+    for (i = 0; i < argc; i++)
+    {
         delete [] argv[i];
+    }
     delete[] argv;
 
     printStatus();

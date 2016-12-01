@@ -58,14 +58,14 @@ public class WcsWsdlServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         log.debug("WCPS: invoked with GET");
         printUsage(response);
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         log.error("WCSWSDL : POST not suppported");
         throw new IOException();
     }
@@ -81,7 +81,7 @@ public class WcsWsdlServlet extends HttpServlet {
     }
 
     private void printError(HttpServletResponse response, String message, Exception e)
-            throws IOException {
+    throws IOException {
         log.error("WCSWSDL: error");
         log.error("WCSWSDL: setting response mimetype to text/html; charset=utf-8");
         response.setContentType("text/html; charset=utf-8");
@@ -91,7 +91,7 @@ public class WcsWsdlServlet extends HttpServlet {
         PrintWriter out = new PrintWriter(response.getOutputStream());
 
         out.println(
-                "<html><head><title>Wcs WSDL</title></head><body>");
+            "<html><head><title>Wcs WSDL</title></head><body>");
         out.println("<h1>An error has occured</h1>");
         out.println("<p>" + message + "</p>");
         log.error("StackTrace:", e);

@@ -112,48 +112,48 @@ public class TimeString {
         int NumberOfSymbols = TString.length();
 
         switch (NumberOfSymbols) {
-            case 24:
-                DTF = ISODateTimeFormat.dateTime();
-                Millis = DTF.parseMillis(TString);
+        case 24:
+            DTF = ISODateTimeFormat.dateTime();
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            case 22:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
-                Millis = DTF.parseMillis(TString);
+            break;
+        case 22:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            case 19:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
-                Millis = DTF.parseMillis(TString);
+            break;
+        case 19:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            case 16:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm");
-                Millis = DTF.parseMillis(TString);
+            break;
+        case 16:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm");
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            case 13:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH");
-                Millis = DTF.parseMillis(TString);
+            break;
+        case 13:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH");
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            case 10:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd");
-                Millis = DTF.parseMillis(TString);
+            break;
+        case 10:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd");
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            case 7:
-                DTF = DateTimeFormat.forPattern("yyyy-MM");
-                Millis = DTF.parseMillis(TString);
+            break;
+        case 7:
+            DTF = DateTimeFormat.forPattern("yyyy-MM");
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            case 4:
-                DTF = DateTimeFormat.forPattern("yyyy");
-                Millis = DTF.parseMillis(TString);
+            break;
+        case 4:
+            DTF = DateTimeFormat.forPattern("yyyy");
+            Millis = DTF.parseMillis(TString);
 
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown DateTime format.");
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown DateTime format.");
         }
 
         return Millis;
@@ -172,48 +172,48 @@ public class TimeString {
         System.out.println("Parsing date '" + str + "', with length " + str.length());
 
         switch (NumberOfSymbols) {
-            case 24:
-                DTF = ISODateTimeFormat.dateTime();
-                date = DTF.parseDateTime(str);
+        case 24:
+            DTF = ISODateTimeFormat.dateTime();
+            date = DTF.parseDateTime(str);
 
-                break;
-            case 22:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
-                date = DTF.parseDateTime(str);
+            break;
+        case 22:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
+            date = DTF.parseDateTime(str);
 
-                break;
-            case 19:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
-                date = DTF.parseDateTime(str);
+            break;
+        case 19:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+            date = DTF.parseDateTime(str);
 
-                break;
-            case 16:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm");
-                date = DTF.parseDateTime(str);
+            break;
+        case 16:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm");
+            date = DTF.parseDateTime(str);
 
-                break;
-            case 13:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH");
-                date = DTF.parseDateTime(str);
+            break;
+        case 13:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH");
+            date = DTF.parseDateTime(str);
 
-                break;
-            case 10:
-                DTF = DateTimeFormat.forPattern("yyyy-MM-dd");
-                date = DTF.parseDateTime(str);
+            break;
+        case 10:
+            DTF = DateTimeFormat.forPattern("yyyy-MM-dd");
+            date = DTF.parseDateTime(str);
 
-                break;
-            case 7:
-                DTF = DateTimeFormat.forPattern("yyyy-MM");
-                date = DTF.parseDateTime(str);
+            break;
+        case 7:
+            DTF = DateTimeFormat.forPattern("yyyy-MM");
+            date = DTF.parseDateTime(str);
 
-                break;
-            case 4:
-                DTF = DateTimeFormat.forPattern("yyyy");
-                date = DTF.parseDateTime(str);
+            break;
+        case 4:
+            DTF = DateTimeFormat.forPattern("yyyy");
+            date = DTF.parseDateTime(str);
 
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown DateTime format.");
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown DateTime format.");
         }
 
         return date;

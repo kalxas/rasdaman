@@ -92,8 +92,8 @@ rasdaman GmbH.
 
 
 
-r_Parse_Params *rviewIO::dfltParams = NULL;
-char *rviewIO::tiffCompStr = NULL;
+r_Parse_Params* rviewIO::dfltParams = NULL;
+char* rviewIO::tiffCompStr = NULL;
 int rviewIO::tiffCompression = COMPRESSION_DEFLATE;
 
 // Base type structure formats
@@ -138,7 +138,7 @@ void rviewIO::ensureParams(void)
 }
 
 
-void rviewIO::processParams(const char *params)
+void rviewIO::processParams(const char* params)
 {
     ensureParams();
     dfltParams->process(params);
@@ -146,15 +146,25 @@ void rviewIO::processParams(const char *params)
     if (tiffCompStr != NULL)
     {
         if (strcasecmp(tiffCompStr, param_TiffCompNone) == 0)
+        {
             tiffCompression = COMPRESSION_NONE;
+        }
         else if (strcasecmp(tiffCompStr, param_TiffCompPack) == 0)
+        {
             tiffCompression = COMPRESSION_PACKBITS;
+        }
         else if (strcasecmp(tiffCompStr, param_TiffCompLZW) == 0)
+        {
             tiffCompression = COMPRESSION_LZW;
+        }
         else if (strcasecmp(tiffCompStr, param_TiffCompZLib) == 0)
+        {
             tiffCompression = COMPRESSION_DEFLATE;
+        }
         else if (strcasecmp(tiffCompStr, param_TiffCompJPEG) == 0)
+        {
             tiffCompression = COMPRESSION_JPEG;
+        }
     }
 }
 
@@ -175,36 +185,40 @@ void rviewIO::terminate(void)
 }
 
 
-const char *rviewIO::getExtension(const char *filename)
+const char* rviewIO::getExtension(const char* filename)
 {
-    const char *b, *ext;
+    const char* b, *ext;
 
     b = filename;
     ext = NULL;
     while (*b != '\0')
     {
         if (*b == '.')
-            ext = b+1;
+        {
+            ext = b + 1;
+        }
         b++;
     }
     return ext;
 }
 
-int rviewIO::isTIFF(const char *filename)
+int rviewIO::isTIFF(const char* filename)
 {
-    const char *ext = getExtension(filename);
+    const char* ext = getExtension(filename);
 
     // no extension ==> unrecognized
     if (ext != NULL)
     {
         if ((strcasecmp(ext, "tif") == 0) || (strcasecmp(ext, "tiff") == 0))
+        {
             return 1;
+        }
     }
     return 0;
 }
 
 
-int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char *params)
+int rviewIO::loadTIFF(const char* filename, r_Ref<r_GMarray>& mddObj, const char* params)
 {
     LTRACE << "loadTIFF()";
 
@@ -215,11 +229,13 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
     r_Minterval interv(2);
     r_Point prun(2);
     tdata_t buffer;
-    unsigned char *b;
-    char structure[STRINGSIZE]="";
+    unsigned char* b;
+    char structure[STRINGSIZE] = "";
 
     if ((tif = TIFFOpen(filename, "r")) == NULL)
+    {
         return RVIEW_IO_NOTFOUND;
+    }
 
     TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &width);
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &height);
@@ -228,13 +244,16 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
     TIFFGetField(tif, TIFFTAG_PLANARCONFIG, &planarc);
     TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photom);
 
-    if ((width < 1) || (height < 1)) return 0;
+    if ((width < 1) || (height < 1))
+    {
+        return 0;
+    }
 
     LTRACE << "loadTIFF() Width " << width << ", height " << height << ", bps " << bps << ", spp " << spp << ", planarconfig " << planarc;
 
     depth = bps * spp;
 
-    interv << r_Sinterval(r_Range(0), r_Range(width-1)) << r_Sinterval(r_Range(0), r_Range(height-1));
+    interv << r_Sinterval(r_Range(0), r_Range(width - 1)) << r_Sinterval(r_Range(0), r_Range(height - 1));
 
     if ((buffer = _TIFFmalloc(TIFFScanlineSize(tif))) == NULL)
     {
@@ -246,10 +265,10 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
     {
     case 1:
     {
-        r_Ref<r_Marray<r_Boolean> > mddPtr = new r_Marray<r_Boolean>(interv);
-        r_Boolean *imgLine, *imgPtr;
+        r_Ref<r_Marray<r_Boolean>> mddPtr = new r_Marray<r_Boolean>(interv);
+        r_Boolean* imgLine, *imgPtr;
         r_Boolean min, max;
-        char val=0;
+        char val = 0;
         int mask;
 
         // Adjust the photometric interpretation. Later on 0 will be interpreted as black.
@@ -263,10 +282,10 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
             min = 0;
             max = 1;
         }
-        stepx = &((*mddPtr)[r_Point(1,0)]) - &((*mddPtr)[r_Point(0,0)]);
-        stepy = &((*mddPtr)[r_Point(0,1)]) - &((*mddPtr)[r_Point(0,0)]);
+        stepx = &((*mddPtr)[r_Point(1, 0)]) - &((*mddPtr)[r_Point(0, 0)]);
+        stepy = &((*mddPtr)[r_Point(0, 1)]) - &((*mddPtr)[r_Point(0, 0)]);
         imgLine = (r_Boolean*)(mddPtr->get_array());
-        for (y=0; y<height; y++, imgLine += stepy)
+        for (y = 0; y < height; y++, imgLine += stepy)
         {
             if (planarc == PLANARCONFIG_CONTIG)
             {
@@ -279,7 +298,7 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
 #endif
             imgPtr = imgLine;
             b = (unsigned char*)buffer;
-            for (x=0; x<width; x++, imgPtr += stepx)
+            for (x = 0; x < width; x++, imgPtr += stepx)
             {
 #ifdef FILLORDER_MSB2LSB
                 if (mask == 0)
@@ -300,9 +319,9 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
 #endif
             }
         }
-        mddPtr->set_type_by_name(rviewTypeNames[rbt_bool][2-1]);
+        mddPtr->set_type_by_name(rviewTypeNames[rbt_bool][2 - 1]);
         // Init base structure (hack, but better than leaving it undefined)
-        sprintf(structure, structure_format_mono, width-1, height-1);
+        sprintf(structure, structure_format_mono, width - 1, height - 1);
         mddObj = (r_Ref<r_GMarray>)mddPtr;
     }
     break;
@@ -310,26 +329,32 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
     {
         int paletteIsGrey = 0;
 
-        uint16 *reds, *greens, *blues;
+        uint16* reds, *greens, *blues;
 
         TIFFGetField(tif, TIFFTAG_COLORMAP, &reds, &greens, &blues);
         if (photom == PHOTOMETRIC_PALETTE)
         {
-            for (x=0; x<256; x++)
+            for (x = 0; x < 256; x++)
             {
-                if ((reds[x] != greens[x]) || (greens[x] != blues[x])) break;
+                if ((reds[x] != greens[x]) || (greens[x] != blues[x]))
+                {
+                    break;
+                }
             }
-            if (x >= 256) paletteIsGrey = 1;
+            if (x >= 256)
+            {
+                paletteIsGrey = 1;
+            }
         }
         if ((photom == PHOTOMETRIC_PALETTE) && (paletteIsGrey == 0))
         {
-            r_Ref<r_Marray<RGBPixel> > mddPtr = new r_Marray<RGBPixel>(interv);
-            RGBPixel *imgLine, *imgPtr;
+            r_Ref<r_Marray<RGBPixel>> mddPtr = new r_Marray<RGBPixel>(interv);
+            RGBPixel* imgLine, *imgPtr;
 
-            stepx = &((*mddPtr)[r_Point(1,0)]) - &((*mddPtr)[r_Point(0,0)]);
-            stepy = &((*mddPtr)[r_Point(0,1)]) - &((*mddPtr)[r_Point(0,0)]);
+            stepx = &((*mddPtr)[r_Point(1, 0)]) - &((*mddPtr)[r_Point(0, 0)]);
+            stepy = &((*mddPtr)[r_Point(0, 1)]) - &((*mddPtr)[r_Point(0, 0)]);
             imgLine = (RGBPixel*)(mddPtr->get_array());
-            for (y=0; y<height; y++, imgLine += stepy)
+            for (y = 0; y < height; y++, imgLine += stepy)
             {
                 if (planarc == PLANARCONFIG_CONTIG)
                 {
@@ -337,44 +362,53 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
                 }
                 imgPtr = imgLine;
                 b = (unsigned char*)buffer;
-                for (x=0; x<width; x++, imgPtr += stepx, b++)
+                for (x = 0; x < width; x++, imgPtr += stepx, b++)
                 {
                     imgPtr->red = (reds[*b] >> 8);
                     imgPtr->green = (greens[*b] >> 8);
                     imgPtr->blue = (blues[*b] >> 8);
                 }
             }
-            mddPtr->set_type_by_name(rviewTypeNames[rbt_rgb][2-1]);
-            sprintf(structure, structure_format_rgb, width-1, height-1);
+            mddPtr->set_type_by_name(rviewTypeNames[rbt_rgb][2 - 1]);
+            sprintf(structure, structure_format_rgb, width - 1, height - 1);
             mddObj = (r_Ref<r_GMarray>)mddPtr;
         }
         else
         {
-            r_Ref<r_Marray<r_Char> > mddPtr = new r_Marray<r_Char>(interv);
-            r_Char *imgLine, *imgPtr;
+            r_Ref<r_Marray<r_Char>> mddPtr = new r_Marray<r_Char>(interv);
+            r_Char* imgLine, *imgPtr;
             r_Char transTab[256];
 
             if (paletteIsGrey != 0)
             {
-                for (x=0; x<256; x++) transTab[x] = (reds[x] >> 8);
+                for (x = 0; x < 256; x++)
+                {
+                    transTab[x] = (reds[x] >> 8);
+                }
             }
             else
             {
                 // Build a translation table depending on the photometric interpretation
                 if (photom == PHOTOMETRIC_MINISWHITE)
                 {
-                    for (x=0; x<256; x++) transTab[x] = 255-x;
+                    for (x = 0; x < 256; x++)
+                    {
+                        transTab[x] = 255 - x;
+                    }
                 }
                 else    // default to minisblack
                 {
-                    for (x=0; x<256; x++) transTab[x] = x;
+                    for (x = 0; x < 256; x++)
+                    {
+                        transTab[x] = x;
+                    }
                 }
             }
 
-            stepx = &((*mddPtr)[r_Point(1,0)]) - &((*mddPtr)[r_Point(0,0)]);
-            stepy = &((*mddPtr)[r_Point(0,1)]) - &((*mddPtr)[r_Point(0,0)]);
+            stepx = &((*mddPtr)[r_Point(1, 0)]) - &((*mddPtr)[r_Point(0, 0)]);
+            stepy = &((*mddPtr)[r_Point(0, 1)]) - &((*mddPtr)[r_Point(0, 0)]);
             imgLine = (r_Char*)(mddPtr->get_array());
-            for (y=0; y<height; y++, imgLine += stepy)
+            for (y = 0; y < height; y++, imgLine += stepy)
             {
                 if (planarc == PLANARCONFIG_CONTIG)
                 {
@@ -382,27 +416,27 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
                 }
                 imgPtr = imgLine;
                 b = (unsigned char*)buffer;
-                for (x=0; x<width; x++, imgPtr += stepx, b++)
+                for (x = 0; x < width; x++, imgPtr += stepx, b++)
                 {
                     *imgPtr = transTab[*b];
                 }
             }
-            mddPtr->set_type_by_name(rviewTypeNames[rbt_char][2-1]);
-            sprintf(structure, structure_format_grey, width-1, height-1);
+            mddPtr->set_type_by_name(rviewTypeNames[rbt_char][2 - 1]);
+            sprintf(structure, structure_format_grey, width - 1, height - 1);
             mddObj = (r_Ref<r_GMarray>)mddPtr;
         }
     }
     break;
     case 24:
     {
-        r_Ref<r_Marray<RGBPixel> > mddPtr = new r_Marray<RGBPixel>(interv);
-        RGBPixel *imgLine, *imgPtr;
+        r_Ref<r_Marray<RGBPixel>> mddPtr = new r_Marray<RGBPixel>(interv);
+        RGBPixel* imgLine, *imgPtr;
 
-        stepx = &((*mddPtr)[r_Point(1,0)]) - &((*mddPtr)[r_Point(0,0)]);
-        stepy = &((*mddPtr)[r_Point(0,1)]) - &((*mddPtr)[r_Point(0,0)]);
+        stepx = &((*mddPtr)[r_Point(1, 0)]) - &((*mddPtr)[r_Point(0, 0)]);
+        stepy = &((*mddPtr)[r_Point(0, 1)]) - &((*mddPtr)[r_Point(0, 0)]);
         imgLine = (RGBPixel*)(mddPtr->get_array());
         //cout << "stepx=" << stepx << ", stepy=" << stepy << endl;
-        for (y=0; y<height; y++, imgLine += stepy)
+        for (y = 0; y < height; y++, imgLine += stepy)
         {
             if (planarc == PLANARCONFIG_CONTIG)
             {
@@ -410,15 +444,15 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
             }
             imgPtr = imgLine;
             b = (unsigned char*)buffer;
-            for (x=0; x<width; x++, imgPtr += stepx, b+=3)
+            for (x = 0; x < width; x++, imgPtr += stepx, b += 3)
             {
                 imgPtr->red = b[0];
                 imgPtr->green = b[1];
                 imgPtr->blue = b[2];
             }
         }
-        mddPtr->set_type_by_name(rviewTypeNames[rbt_rgb][2-1]);
-        sprintf(structure, structure_format_rgb, width-1, height-1);
+        mddPtr->set_type_by_name(rviewTypeNames[rbt_rgb][2 - 1]);
+        sprintf(structure, structure_format_rgb, width - 1, height - 1);
         mddObj = (r_Ref<r_GMarray>)mddPtr;
     }
     break;
@@ -427,7 +461,9 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
     }
 
     if (structure[0] != 0)
+    {
         mddObj->set_type_structure(structure);
+    }
 
     _TIFFfree(buffer);
 
@@ -437,7 +473,7 @@ int rviewIO::loadTIFF(const char *filename, r_Ref<r_GMarray> &mddObj, const char
 }
 
 
-int rviewIO::saveTIFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char *params)
+int rviewIO::saveTIFF(const char* filename, r_Ref<r_GMarray>& mddPtr, const char* params)
 {
     cout << "rviewIO::saveTIFF() not implemented" << endl;
     return RVIEW_IO_UNSUPP;
@@ -449,12 +485,12 @@ int rviewIO::saveTIFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char
  *  Save a wxPixmap as a TIFF image
  */
 
-int rviewIO::PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *params)
+int rviewIO::PixmapToTIFF(wxPixmap* pixmap, const char* filename, const char* params)
 {
-    TIFF *tif;
+    TIFF* tif;
     int depth, pitch;
     uint32 width, height;
-    uint8 *srcLine;
+    uint8* srcLine;
     uint32 i;
 
     depth = pixmap->getDepth();
@@ -490,7 +526,7 @@ int rviewIO::PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *pa
     {
     case 1:
     {
-        wxColour *pal;
+        wxColour* pal;
 
         pal = pixmap->getPalette();
         if (pal == NULL)
@@ -499,7 +535,7 @@ int rviewIO::PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *pa
         }
         else
         {
-            if ((int)(pal[0].Red()+pal[0].Green()+pal[0].Blue()) < (int)(pal[1].Red()+pal[1].Green()+pal[1].Blue()))
+            if ((int)(pal[0].Red() + pal[0].Green() + pal[0].Blue()) < (int)(pal[1].Red() + pal[1].Green() + pal[1].Blue()))
             {
                 TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
             }
@@ -510,15 +546,18 @@ int rviewIO::PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *pa
         }
         TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 1);
         TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
-        for (i=0; i<height; i++, srcLine += pitch)
+        for (i = 0; i < height; i++, srcLine += pitch)
         {
-            if (TIFFWriteScanline(tif, (tdata_t)srcLine, i, 0) < 0) break;
+            if (TIFFWriteScanline(tif, (tdata_t)srcLine, i, 0) < 0)
+            {
+                break;
+            }
         }
     }
     break;
     case 8:
     {
-        wxColour *pal;
+        wxColour* pal;
 
         pal = pixmap->getPalette();
         TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
@@ -532,41 +571,47 @@ int rviewIO::PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *pa
             uint16 reds[256], greens[256], blues[256];
 
             TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE);
-            for (i=0; i<256; i++)
+            for (i = 0; i < 256; i++)
             {
                 reds[i] = ((pal[i].Red() << 16) - 1) / 255;
                 greens[i] = ((pal[i].Green() << 16) - 1) / 255;
-                blues[i] = ((pal[i].Blue() << 16) -1) / 255;
+                blues[i] = ((pal[i].Blue() << 16) - 1) / 255;
             }
             TIFFSetField(tif, TIFFTAG_COLORMAP, reds, greens, blues);
         }
-        for (i=0; i<height; i++, srcLine += pitch)
+        for (i = 0; i < height; i++, srcLine += pitch)
         {
-            if (TIFFWriteScanline(tif, (tdata_t)srcLine, i, 0) < 0) break;
+            if (TIFFWriteScanline(tif, (tdata_t)srcLine, i, 0) < 0)
+            {
+                break;
+            }
         }
     }
     break;
     case 15:
     {
         uint32 j;
-        uint8 *destLine, *destPtr;
-        uint16 *srcPtr;
+        uint8* destLine, *destPtr;
+        uint16* srcPtr;
 
-        destLine = new uint8[3*width];
+        destLine = new uint8[3 * width];
         TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
         TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
         TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-        for (i=0; i<height; i++, srcLine += pitch)
+        for (i = 0; i < height; i++, srcLine += pitch)
         {
             destPtr = destLine;
             srcPtr = (uint16*)srcLine;
-            for (j=0; j<width; j++, srcPtr++, destPtr+=3)
+            for (j = 0; j < width; j++, srcPtr++, destPtr += 3)
             {
                 destPtr[0] = (*srcPtr & 0x1f) << 3;
                 destPtr[1] = (*srcPtr & 0x3e0) >> 2;
                 destPtr[2] = (*srcPtr & 0x7c00) >> 7;
             }
-            if (TIFFWriteScanline(tif, (tdata_t)destLine, i, 0) < 0) break;
+            if (TIFFWriteScanline(tif, (tdata_t)destLine, i, 0) < 0)
+            {
+                break;
+            }
         }
         delete [] destLine;
     }
@@ -576,33 +621,39 @@ int rviewIO::PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *pa
         TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
         TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
         TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-        for (i=0; i<height; i++, srcLine += pitch)
+        for (i = 0; i < height; i++, srcLine += pitch)
         {
-            if (TIFFWriteScanline(tif, (tdata_t)srcLine, i, 0) < 0) break;
+            if (TIFFWriteScanline(tif, (tdata_t)srcLine, i, 0) < 0)
+            {
+                break;
+            }
         }
     }
     break;
     case 32:
     {
         uint32 j;
-        uint8 *destLine, *destPtr;
-        uint32 *srcPtr;
+        uint8* destLine, *destPtr;
+        uint32* srcPtr;
 
-        destLine = new uint8[3*width];
+        destLine = new uint8[3 * width];
         TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
         TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
         TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-        for (i=0; i<height; i++, srcLine += pitch)
+        for (i = 0; i < height; i++, srcLine += pitch)
         {
             destPtr = destLine;
             srcPtr = (uint32*)srcLine;
-            for (j=0; j<width; j++, srcPtr++, destPtr+=3)
+            for (j = 0; j < width; j++, srcPtr++, destPtr += 3)
             {
                 destPtr[0] = (*srcPtr & 0xff);
                 destPtr[1] = (*srcPtr >> 8) & 0xff;
                 destPtr[2] = (*srcPtr >> 16) & 0xff;
             }
-            if (TIFFWriteScanline(tif, (tdata_t)destLine, i, 0) < 0) break;
+            if (TIFFWriteScanline(tif, (tdata_t)destLine, i, 0) < 0)
+            {
+                break;
+            }
         }
         delete [] destLine;
     }
@@ -629,28 +680,30 @@ int rviewIO::PixmapToTIFF(wxPixmap *pixmap, const char *filename, const char *pa
 }
 
 
-int rviewIO::isVFF(const char *filename)
+int rviewIO::isVFF(const char* filename)
 {
-    const char *ext = getExtension(filename);
+    const char* ext = getExtension(filename);
 
     if (ext != NULL)
     {
         if (strcasecmp(ext, "vff") == 0)
+        {
             return 1;
+        }
     }
     return 0;
 }
 
 
-int rviewIO::loadVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char *params)
+int rviewIO::loadVFF(const char* filename, r_Ref<r_GMarray>& mddPtr, const char* params)
 {
 #ifdef RVIEW_USE_VFF
-    FILE *fp;
+    FILE* fp;
 
     if ((fp = fopen(filename, "rb")) != NULL)
     {
         unsigned long vffSize;
-        char *vffData;
+        char* vffData;
 
         fseek(fp, 0, SEEK_END);
         vffSize = ftell(fp);
@@ -660,7 +713,7 @@ int rviewIO::loadVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char 
         fclose(fp);
 
         r_Minterval dom(1);
-        dom << r_Sinterval((r_Range)0, (r_Range)vffSize-1);
+        dom << r_Sinterval((r_Range)0, (r_Range)vffSize - 1);
 
         r_Conv_VFF vff(vffData, dom, r_Convertor::ctype_char);
         r_Storage_Man_CPP sman;
@@ -671,8 +724,8 @@ int rviewIO::loadVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char 
             delete [] vffData;
             if (desc.destInterv.dimension() == 3)
             {
-                const char *fmtString = NULL;
-                const char *nameString = NULL;
+                const char* fmtString = NULL;
+                const char* nameString = NULL;
 
                 // Hmm... we seem to lack a set_type_schema() method...
                 switch (desc.destType->type_id())
@@ -718,7 +771,7 @@ int rviewIO::loadVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char 
             delete [] desc.dest;
             return RVIEW_IO_FORMAT;
         }
-        catch (r_Error &err)
+        catch (r_Error& err)
         {
             cerr << "rviewIO::loadVFF(): " << err.what() << endl;
             delete [] vffData;
@@ -732,7 +785,7 @@ int rviewIO::loadVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char 
 }
 
 
-int rviewIO::saveVFF(const char *filename, r_Ref<r_GMarray> &mddPtr, const char *params)
+int rviewIO::saveVFF(const char* filename, r_Ref<r_GMarray>& mddPtr, const char* params)
 {
     cout << "rviewIO::saveVFF() not implemented" << endl;
     return RVIEW_IO_UNSUPP;

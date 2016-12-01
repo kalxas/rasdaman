@@ -66,13 +66,13 @@ public class MetaDataExpr implements IParseTreeNode {
 
             if (field != null) {
                 result += "<" + WcpsConstants.MSG_AXIS + ">" + field + "</" +
-                        WcpsConstants.MSG_AXIS + ">";
+                          WcpsConstants.MSG_AXIS + ">";
             }
 
             result += "</" + WcpsConstants.MSG_IMAGE_CRSDOMAIN + ">";
         } else if (function.equalsIgnoreCase(WcpsConstants.MSG_DOMAIN)) {
             result = "<" + WcpsConstants.MSG_DOMAIN_METADATA_CAMEL + ">" + param.toXML() + "</" +
-                    WcpsConstants.MSG_DOMAIN_METADATA_CAMEL + ">";
+                     WcpsConstants.MSG_DOMAIN_METADATA_CAMEL + ">";
         } else if (function.equalsIgnoreCase(WcpsConstants.MSG_INTERPOLATION_DEFAULT)) {
             result += "<" + WcpsConstants.MSG_INTERPOLATION_DEFAULT + ">";
             result += expr.toXML();
@@ -84,8 +84,8 @@ public class MetaDataExpr implements IParseTreeNode {
             result += "<" + WcpsConstants.MSG_NAME + ">" + param + "</" + WcpsConstants.MSG_PARAM + ">";
             result += "</" + WcpsConstants.MSG_INTERPOLATION_SET + ">";
         } else if (function.equalsIgnoreCase(WcpsConstants.MSG_IDENTIFIER)
-                || function.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS) || function.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)
-                || function.equalsIgnoreCase(WcpsConstants.MSG_NULL_SET)) {
+                   || function.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS) || function.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)
+                   || function.equalsIgnoreCase(WcpsConstants.MSG_NULL_SET)) {
             result += "<" + function + ">";
             result += expr.toXML();
             result += "</" + function + ">";

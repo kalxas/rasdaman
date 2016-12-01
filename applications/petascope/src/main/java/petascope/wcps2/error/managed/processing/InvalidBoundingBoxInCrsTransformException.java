@@ -18,8 +18,8 @@ public class InvalidBoundingBoxInCrsTransformException  extends WCPSProcessingEr
      */
     public InvalidBoundingBoxInCrsTransformException(String boundingBox, String outputCrs, String errorMessage) {
         super(ERROR_TEMPLATE.replace("$boundingBox", boundingBox)
-                            .replace("$outputCrs", outputCrs)
-                            .replace("$errorMessage", errorMessage), ExceptionCode.WcpsError);
+              .replace("$outputCrs", outputCrs)
+              .replace("$errorMessage", errorMessage), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Invalid bounding box '$boundingBox' in CRS transform with outputCrs '$outputCrs', $errorMessage.";

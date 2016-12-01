@@ -32,7 +32,7 @@ namespace rasmgr
  *  It reports errors that arise because a user tries to create a database with the same identiefier as an existing one
  * on the same database host.
  */
-class DatabaseAlreadyExistsException:public common::LogicException
+class DatabaseAlreadyExistsException: public common::LogicException
 {
 public:
     /**

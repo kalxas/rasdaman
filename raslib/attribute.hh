@@ -129,6 +129,6 @@ protected:
 };
 
 //@Doc: write the status of a attribute to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Attribute &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Attribute& type);
 
 #endif

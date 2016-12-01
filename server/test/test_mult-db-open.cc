@@ -92,43 +92,43 @@ const char* passwd          = DEFAULT_PASSWD;
 void
 openDatabase() throw (r_Error)
 {
-    ENTER( "openDatabase" );
+    ENTER("openDatabase");
 
     if (! dbIsOpen)
     {
         cout << "Opening database " <<  database  << " at " << server << ":" << port << "..." << flush;
         db.set_servername(server, port);
-        db.set_useridentification( user, passwd);
-        TALK( "database was closed, opening database=" <<  database  << ", server=" << server << ", port=" << port << ", user=" <<  user << ", passwd=" << passwd << "..." );
-        db.open( database );
-        TALK( "done" );
+        db.set_useridentification(user, passwd);
+        TALK("database was closed, opening database=" <<  database  << ", server=" << server << ", port=" << port << ", user=" <<  user << ", passwd=" << passwd << "...");
+        db.open(database);
+        TALK("done");
         dbIsOpen = true;
         cout << "ok" << endl << flush;
     }
 
-    LEAVE( "openDatabase" );
+    LEAVE("openDatabase");
 }
 
 void
 closeDatabase() throw (r_Error)
 {
-    ENTER( "closeDatabase" );
+    ENTER("closeDatabase");
 
     if (dbIsOpen)
     {
-        TALK( "database was open, closing it" );
+        TALK("database was open, closing it");
         db.close();
         dbIsOpen = false;
     }
 
-    LEAVE( "closeDatabase" );
+    LEAVE("closeDatabase");
     return;
 }
 
 
 int main(int argc, char** argv)
 {
-    SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
+    SET_OUTPUT(false);          // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_FAILURE;
 

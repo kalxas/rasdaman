@@ -54,24 +54,24 @@ class r_Conv_GDAL : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_GDAL(const char *src, const r_Minterval &interv, const r_Type *tp) throw (r_Error);
+    r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Type* tp) throw (r_Error);
     /// constructor using convert_type_e shortcut
-    r_Conv_GDAL(const char *src, const r_Minterval &interv, int tp) throw (r_Error);
+    r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp) throw (r_Error);
     /// destructor
     ~r_Conv_GDAL(void);
 
     /// convert to format
-    virtual r_Conv_Desc &convertTo(const char *options = NULL) throw (r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw (r_Error);
     /// convert from format
-    virtual r_Conv_Desc &convertFrom(const char *options = NULL) throw (r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
 
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
 
     /// cloning
-    virtual r_Convertor *clone(void) const;
+    virtual r_Convertor* clone(void) const;
 
     /// identification
-    virtual const char *get_name(void) const;
+    virtual const char* get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
 private:
@@ -80,7 +80,7 @@ private:
 
     /**
      * Transforms the rasdaman array desc.src array to a GDAL dataset.
-     * 
+     *
      * @param poDataset the target GDAL dataset
      * @param gdalBandType band type, they have to be all equal
      * @param isBoolean indicate if the rasdaman data is boolean
@@ -95,7 +95,7 @@ private:
 
     /**
      * Transforms the rasdaman array desc.src array of a given band base type T to a GDAL dataset.
-     * 
+     *
      * @param poDataset the target GDAL dataset
      * @param gdalBandType band type, they have to be all equal
      * @param isBoolean indicate if the rasdaman data is boolean
@@ -126,7 +126,7 @@ private:
 
     /**
      * Copy and transform a single band data read with GDAL to an internal rasdaman array.
-     * 
+     *
      * @param bandCells source GDAL band data
      * @param tileCells target internal rasdaman array, this is in pixel interleaved format and
      *                  it is assumed to be properly offset to the current band.
@@ -141,7 +141,7 @@ private:
 
     /**
      * Copy and transform a single band data read with GDAL to an internal rasdaman array.
-     * 
+     *
      * @param bandCells source GDAL band data
      * @param tileCells target internal rasdaman array, this is in pixel interleaved format and
      *                  it is assumed to be properly offset to the current band.
@@ -154,7 +154,7 @@ private:
 
     /**
      * Determine the band ids (0-indexed) to be imported.
-     * 
+     *
      * @param poDataset the dataset read with GDAL
      * @return if the format parameters specify the bands to be imported than those
      * are returned, otherwise the returned vector contains 0..bandNo-1, i.e.
@@ -183,7 +183,7 @@ private:
 
     /**
      * Initialize the format parameters (third parameter of the encode function).
-     * 
+     *
      * @param params JSON or old-style key/value pairs
      */
     void initEncodeParams(const std::string& params);
@@ -191,38 +191,38 @@ private:
     /**
      * Transfer format parameters (third parameter of the encode function) to the
      * output gdalDataSet.
-     * 
+     *
      * @param gdalDataSet GDAL dataset to be written
      */
-    void setEncodeParams(GDALDataset *gdalDataSet);
-    void setMetadata(GDALDataset *gdalDataSet);
-    void setNodata(GDALDataset *gdalDataSet);
-    void setGeoreference(GDALDataset *gdalDataSet);
-    void setGeotransform(GDALDataset *gdalDataSet);
-    void setGCPs(GDALDataset *gdalDataSet, const Json::Value& gcpsJson) throw (r_Error);
-    void setColorPalette(GDALDataset *gdalDataSet) throw (r_Error);
-    
+    void setEncodeParams(GDALDataset* gdalDataSet);
+    void setMetadata(GDALDataset* gdalDataSet);
+    void setNodata(GDALDataset* gdalDataSet);
+    void setGeoreference(GDALDataset* gdalDataSet);
+    void setGeotransform(GDALDataset* gdalDataSet);
+    void setGCPs(GDALDataset* gdalDataSet, const Json::Value& gcpsJson) throw (r_Error);
+    void setColorPalette(GDALDataset* gdalDataSet) throw (r_Error);
+
     /**
      * @return the crs specified in the format parameters in WKT format, or NULL
      * otherwise.
      */
     std::string getCrsWkt();
-    
+
     /**
      * @param paletteInterpVal one of Gray, RGB, CMYK, HSL.
      * @return the corresponding GDAL enum
      */
     GDALPaletteInterp getPaletteInterp(const std::string& paletteInterpVal) throw (r_Error);
-    
+
     /**
-     * @param stringList this parameter is populated with a list of key/value 
+     * @param stringList this parameter is populated with a list of key/value
      * format parameters.
      */
     void getFormatParameters(CPLStringList& stringList);
 
     /**
      * Convert the value of a given parameter to double.
-     * 
+     *
      * @param paramName parameter name
      * @param paramsList a list of key/value parameter pairs
      * @return the value of paramName as a double, a DBL_MAX otherwise.
@@ -231,7 +231,7 @@ private:
 
     /**
      * Convert the value of a given parameter to string.
-     * 
+     *
      * @param paramName parameter name
      * @param paramsList a list of key/value parameter pairs
      * @return the value of paramName as a string, an empty string otherwise.

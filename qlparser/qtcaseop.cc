@@ -24,11 +24,11 @@ rasdaman GmbH.
 /*************************************************************
  *
  *
- * PURPOSE: 
- *      Class implementation. For further information see qlparser/qtcaseop.hh     
- *  
+ * PURPOSE:
+ *      Class implementation. For further information see qlparser/qtcaseop.hh
+ *
  * COMMENTS:
- * 
+ *
  ************************************************************/
 
 #include "config.h"
@@ -72,11 +72,12 @@ const QtNode::QtNodeType QtCaseOp::nodeType = QT_CASEOP;
 
 /**
  * Class constructor
- * 
+ *
  * @param opList - the arguments of the operation
  */
 QtCaseOp::QtCaseOp(QtOperationList* opList)
-: QtNaryOperation(opList), inducedCase(false), baseType(NULL) {
+    : QtNaryOperation(opList), inducedCase(false), baseType(NULL)
+{
     conditionList = new QtOperationList();
 }
 
@@ -88,12 +89,12 @@ QtCaseOp::~QtCaseOp()
 /**
  * Divides the operand list into several sublists for easier manipulation:
  * - conditions -> evaluated;
- * - results -> not evaluated; if the result is a base type, its evaluation is added to the 
- * scalarCacheList. If array operation (expression), the mdd objects are evaluated and 
- * added to the cache list. This is necessary to avoid multiple reads of the same 
- * mdd object from db. 
+ * - results -> not evaluated; if the result is a base type, its evaluation is added to the
+ * scalarCacheList. If array operation (expression), the mdd objects are evaluated and
+ * added to the cache list. This is necessary to avoid multiple reads of the same
+ * mdd object from db.
  * - a default result -> not evaluated.
- * 
+ *
  * @param inputList - the list of inputs to be passed to QtOperation evaluate()
  * @param cacheList - the list of cached array values
  * @param scalarCache - the list of cached scalar values
@@ -102,47 +103,65 @@ QtCaseOp::~QtCaseOp()
  * @param defaultResult - the default result
  */
 void
-QtCaseOp::getCaseOperands(QtDataList* inputList, std::vector< std::pair <QtOperation*, QtDataList*> >* cacheList,
-        std::vector<std::pair <QtOperation*, QtData* > >* scalarCache,
-        QtDataList* conditionList2, QtOperationList* resultList, QtOperation* &defaultResult) {
+QtCaseOp::getCaseOperands(QtDataList* inputList, std::vector<std::pair <QtOperation*, QtDataList*>>* cacheList,
+                          std::vector<std::pair <QtOperation*, QtData*>>* scalarCache,
+                          QtDataList* conditionList2, QtOperationList* resultList, QtOperation*& defaultResult)
+{
     QtOperationList::iterator iter;
     r_Minterval definitionDomain;
     bool definitionDomainIsSet = false;
     unsigned int pos = 0;
-    for (iter = operationList->begin(); (iter != (operationList->end())); iter++) {
+    for (iter = operationList->begin(); (iter != (operationList->end())); iter++)
+    {
         //else is specified
-        if (pos == operationList->size() - 1) {
+        if (pos == operationList->size() - 1)
+        {
             //we are on the last element, so the default result
-            if ((*iter)->getDataStreamType().getDataType() == QT_MDD) {
+            if ((*iter)->getDataStreamType().getDataType() == QT_MDD)
+            {
                 addMddsToCache(inputList, (*iter), cacheList);
                 defaultResult = *iter;
-            } else {
+            }
+            else
+            {
                 defaultResult = *iter;
                 scalarCache->push_back(std::make_pair(*iter, (*iter)->evaluate(inputList)));
             }
-        } else {
-            if (pos % 2) {
-                //we got results here  
+        }
+        else
+        {
+            if (pos % 2)
+            {
+                //we got results here
                 //if expression, evaluate the mdds, but not the entire expression
-                if ((*iter)->getDataStreamType().getDataType() == QT_MDD) {
+                if ((*iter)->getDataStreamType().getDataType() == QT_MDD)
+                {
                     addMddsToCache(inputList, (*iter), cacheList);
                     resultList->push_back((*iter));
                 }//if base type, evaluate it and add it to the cache list
-                else {
+                else
+                {
                     resultList->push_back(*iter);
                     scalarCache->push_back(std::make_pair(*iter, (*iter)->evaluate(inputList)));
                 }
-            } else {
+            }
+            else
+            {
                 //we got conditions here
                 this->conditionList->push_back(*iter);
                 QtData* cond = (*iter)->evaluate(inputList);
                 conditionList2->push_back(cond);
-                if (cond->getDataType() == QT_MDD) {
-                    if (!definitionDomainIsSet) {
+                if (cond->getDataType() == QT_MDD)
+                {
+                    if (!definitionDomainIsSet)
+                    {
                         definitionDomain = (static_cast<QtMDD*>(cond))->getMDDObject()->getDefinitionDomain();
                         definitionDomainIsSet = true;
-                    } else {
-                        if (definitionDomain != (static_cast<QtMDD*>(cond))->getMDDObject()->getDefinitionDomain()) {
+                    }
+                    else
+                    {
+                        if (definitionDomain != (static_cast<QtMDD*>(cond))->getMDDObject()->getDefinitionDomain())
+                        {
                             ;
                             //operand and condition mdds should have the same domain
                             LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
@@ -162,14 +181,15 @@ QtCaseOp::getCaseOperands(QtDataList* inputList, std::vector< std::pair <QtOpera
  * The conditions are evaluated and, for each point which evaluates to true, the
  * result is copied in the resulting array. All the conditions must have the same
  * dimensionality and tiling.
- * 
- * @param inputList - the input list to be passed to further evaluations 
+ *
+ * @param inputList - the input list to be passed to further evaluations
  * @return A raster array consisting of the results.
  */
 QtData*
-QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
-    std::vector< std::pair <QtOperation*, QtDataList*> >* cacheList = new std::vector< std::pair <QtOperation*, QtDataList*> >();
-    std::vector< std::pair <QtOperation*, QtData*> >* scalarCacheList = new std::vector< std::pair <QtOperation*, QtData*> >();
+QtCaseOp::evaluateInducedOp(QtDataList* inputList)
+{
+    std::vector<std::pair <QtOperation*, QtDataList*>>* cacheList = new std::vector<std::pair <QtOperation*, QtDataList*>>();
+    std::vector<std::pair <QtOperation*, QtData*>>* scalarCacheList = new std::vector<std::pair <QtOperation*, QtData*>>();
     QtDataList* conditionList2 = new QtDataList();
     QtOperationList* resultList = new QtOperationList();
     QtOperation* defaultResult = NULL;
@@ -180,36 +200,44 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
     MDDObj* focusCondMdd = (static_cast<QtMDD*>(*(conditionList2->begin())))->getMDDObject();
     MDDObj* focusMdd = new MDDObj((static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType()))), focusCondMdd->getDefinitionDomain());
     //add tiles
-    std::vector< boost::shared_ptr<Tile> >* tiles = new std::vector< boost::shared_ptr<Tile> >;
-    std::vector< boost::shared_ptr<Tile> >* focusCondTiles = focusCondMdd->getTiles();
+    std::vector<boost::shared_ptr<Tile>>* tiles = new std::vector<boost::shared_ptr<Tile>>;
+    std::vector<boost::shared_ptr<Tile>>* focusCondTiles = focusCondMdd->getTiles();
     if (focusCondTiles == NULL)
-        focusCondTiles = new std::vector< boost::shared_ptr<Tile> >;
-    std::vector< boost::shared_ptr<Tile> >::iterator tileIter;
-    for (tileIter = focusCondTiles->begin(); tileIter != focusCondTiles->end(); tileIter++) {
+    {
+        focusCondTiles = new std::vector<boost::shared_ptr<Tile>>;
+    }
+    std::vector<boost::shared_ptr<Tile>>::iterator tileIter;
+    for (tileIter = focusCondTiles->begin(); tileIter != focusCondTiles->end(); tileIter++)
+    {
         tiles->push_back(boost::shared_ptr<Tile>(new Tile((*tileIter)->getDomain(), this->baseType)));
     }
     //iterate through all the tiles of the focus mdd object
     vector<QtData*>::iterator condIter;
     QtOperationList::iterator resultIter;
     unsigned int tilePos = 0;
-    for (tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++) {
+    for (tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+    {
         //declare a watchdog for the changes
         std::vector<bool> changedCells((*tileIter)->getDomain().cell_count());
         //iterate through conditions and check whether the point needs to be changed
         unsigned int condPos = 0;
         for (condIter = conditionList2->begin(), resultIter = resultList->begin();
                 condIter != conditionList2->end() && resultIter != resultList->end();
-                condIter++, resultIter++) {
+                condIter++, resultIter++)
+        {
             MDDObj* condMdd = (static_cast<QtMDD*>(*condIter))->getMDDObject();
-            boost::shared_ptr< std::vector< boost::shared_ptr<Tile> > > condTiles(condMdd->getTiles());
+            boost::shared_ptr<std::vector<boost::shared_ptr<Tile>>> condTiles(condMdd->getTiles());
             boost::shared_ptr<Tile> condTile = condTiles->at(tilePos);
             std::vector<Tile*>* cachedTiles = new std::vector<Tile*>();
             //if the result is an mdd then fetch the cached tiles as well
-            if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD) {
+            if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD)
+            {
                 QtDataList* cachedData = getCachedData((*resultIter), cacheList);
-                for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++) {
+                for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++)
+                {
                     boost::shared_ptr<Tile> aTile = getCorrespondingTile((static_cast<QtMDD*>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
-                    if (aTile == NULL) {
+                    if (aTile == NULL)
+                    {
                         LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
                         parseInfo.setErrorNo(427);
                         throw parseInfo;
@@ -222,13 +250,17 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
             std::vector<r_Miter*>* defaultIter = new std::vector<r_Miter*>();
             //if on last conditions, use the same iteration for default results
             std::vector<Tile*>* cachedDefaultTiles = new std::vector<Tile*>();
-            if (condPos == conditionList2->size() - 1) {
-                if (defaultResult->getDataStreamType().getDataType() == QT_MDD) {
+            if (condPos == conditionList2->size() - 1)
+            {
+                if (defaultResult->getDataStreamType().getDataType() == QT_MDD)
+                {
                     QtDataList* cachedData = getCachedData(defaultResult, cacheList);
-                    for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++) {
+                    for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++)
+                    {
                         boost::shared_ptr<Tile> theTile = getCorrespondingTile((static_cast<QtMDD*>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
                         Tile* aTile = new Tile(*theTile);
-                        if (aTile == NULL) {
+                        if (aTile == NULL)
+                        {
                             LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
                             parseInfo.setErrorNo(427);
                             throw parseInfo;
@@ -240,10 +272,13 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
             }
             std::vector<r_Miter*>* cacheIterators = new std::vector<r_Miter*>();
             //if there are cached tiles, iterate through them at the same time
-            if (cachedTiles->size()) {
-                for (std::vector<Tile*>::iterator i = cachedTiles->begin(); i != cachedTiles->end(); i++) {
+            if (cachedTiles->size())
+            {
+                for (std::vector<Tile*>::iterator i = cachedTiles->begin(); i != cachedTiles->end(); i++)
+                {
                     cacheIterators->push_back(new r_Miter(&(condTile->getDomain()), &((*i)->getDomain()), (*i)->getType()->getSize(), (*i)->getContents()));
-                    if (!(*i)->getDomain().covers(condTile->getDomain())) {
+                    if (!(*i)->getDomain().covers(condTile->getDomain()))
+                    {
                         LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
                         delete cacheIterators;
                         parseInfo.setErrorNo(426);
@@ -252,54 +287,74 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                 }
             }
             unsigned int cellCount = 0;
-            while (!condTileIter.isDone()) {
+            while (!condTileIter.isDone())
+            {
                 char* condPoint = condTileIter.nextCell();
                 std::vector<char*>* cachedPoints = new std::vector<char*>();
                 std::vector<char*>* cachedDefaultPoint = new std::vector<char*>();
-                if (cachedTiles->size()) {
-                    for (std::vector<r_Miter*>::iterator i = cacheIterators->begin(); i != cacheIterators->end(); i++) {
+                if (cachedTiles->size())
+                {
+                    for (std::vector<r_Miter*>::iterator i = cacheIterators->begin(); i != cacheIterators->end(); i++)
+                    {
                         cachedPoints->push_back((*i)->nextCell());
                     }
                 }
-                if (defaultIter->size()) {
-                    for (std::vector<r_Miter*>::iterator i = defaultIter->begin(); i != defaultIter->end(); i++) {
+                if (defaultIter->size())
+                {
+                    for (std::vector<r_Miter*>::iterator i = defaultIter->begin(); i != defaultIter->end(); i++)
+                    {
                         cachedDefaultPoint->push_back((*i)->nextCell());
                     }
 
                 }
-                if (static_cast<long>(*(condPoint)) == 1 && !changedCells.at(cellCount)) {
+                if (static_cast<long>(*(condPoint)) == 1 && !changedCells.at(cellCount))
+                {
                     changedCells.at(cellCount) = true;
                     QtData* localResult = NULL;
                     //for MDDs, evaluate point by point
-                    if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD) {
+                    if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD)
+                    {
                         localResult = evaluateCellByCell(inputList, *resultIter, cachedTiles, cachedPoints);
-                    } else { //for base types
+                    }
+                    else     //for base types
+                    {
                         localResult = getCachedScalar((*resultIter), scalarCacheList);
                     }
-                    if (localResult->getDataType() != QT_COMPLEX) {
+                    if (localResult->getDataType() != QT_COMPLEX)
+                    {
                         (*tileIter)->setCell(cellCount, (static_cast<QtAtomicData*>(localResult))->getValueBuffer());
-                    } else {
+                    }
+                    else
+                    {
                         (*tileIter)->setCell(cellCount, (static_cast<QtComplexData*>(localResult))->getValueBuffer());
                     }
                 }//on the last condition iteration, also plug in the default
-                else if ((condPos == conditionList2->size() - 1) && !changedCells.at(cellCount)) {
+                else if ((condPos == conditionList2->size() - 1) && !changedCells.at(cellCount))
+                {
                     //put default result
                     QtData* localResult = NULL;
-                    if (defaultResult->getDataStreamType().getDataType() == QT_MDD) {
+                    if (defaultResult->getDataStreamType().getDataType() == QT_MDD)
+                    {
                         localResult = evaluateCellByCell(inputList, defaultResult, cachedDefaultTiles, cachedDefaultPoint);
-                    } else {
+                    }
+                    else
+                    {
                         //for base types
                         localResult = getCachedScalar(defaultResult, scalarCacheList);
                     }
-                    if (localResult->getDataType() != QT_COMPLEX) {
+                    if (localResult->getDataType() != QT_COMPLEX)
+                    {
                         (*tileIter)->setCell(cellCount, (static_cast<QtAtomicData*>(localResult))->getValueBuffer());
-                    } else {
+                    }
+                    else
+                    {
                         (*tileIter)->setCell(cellCount, (static_cast<QtComplexData*>(localResult))->getValueBuffer());
                     }
                 }
                 cellCount++;
                 //if done cleanup
-                if(cellCount == condTile->getDomain().cell_count()){
+                if (cellCount == condTile->getDomain().cell_count())
+                {
                     std::vector<char*>::iterator i;
                     delete cachedPoints;
                     delete cachedDefaultPoint;
@@ -307,30 +362,39 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
             }
             condPos++;
             //if done cleanup
-            if (condPos == conditionList2->size()) {
+            if (condPos == conditionList2->size())
+            {
                 std::vector<Tile*>::iterator i;
-                for (i = cachedTiles->begin(); i != cachedTiles->end(); i++) {
-                    if ((*i)) {
-                        delete (*i);
+                for (i = cachedTiles->begin(); i != cachedTiles->end(); i++)
+                {
+                    if ((*i))
+                    {
+                        delete(*i);
                     }
                 }
                 delete cachedTiles;
-                for (i = cachedDefaultTiles->begin(); i != cachedDefaultTiles->end(); i++) {
-                    if ((*i)) {
-                        delete (*i);
+                for (i = cachedDefaultTiles->begin(); i != cachedDefaultTiles->end(); i++)
+                {
+                    if ((*i))
+                    {
+                        delete(*i);
                     }
                 }
                 delete cachedDefaultTiles;
                 std::vector<r_Miter*>::iterator j;
-                for (j = cacheIterators->begin(); j != cacheIterators->end(); j++) {
-                    if ((*j)) {
-                        delete (*j);
+                for (j = cacheIterators->begin(); j != cacheIterators->end(); j++)
+                {
+                    if ((*j))
+                    {
+                        delete(*j);
                     }
                 }
                 delete cacheIterators;
-                for (j = defaultIter->begin(); j != defaultIter->end(); j++) {
-                    if ((*j)) {
-                        delete (*j);
+                for (j = defaultIter->begin(); j != defaultIter->end(); j++)
+                {
+                    if ((*j))
+                    {
+                        delete(*j);
                     }
                 }
                 delete defaultIter;
@@ -339,8 +403,10 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
         tilePos++;
     }
     //cleanup
-    for (condIter = conditionList2->begin(); condIter != conditionList2->end(); condIter++) {
-        if (*condIter) {
+    for (condIter = conditionList2->begin(); condIter != conditionList2->end(); condIter++)
+    {
+        if (*condIter)
+        {
             (*condIter)->deleteRef();
         }
     }
@@ -350,28 +416,34 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
 
     //clear the cache
     //mdd
-    std::vector< std::pair <QtOperation*, QtDataList*> >::iterator cacheIter;
+    std::vector<std::pair <QtOperation*, QtDataList*>>::iterator cacheIter;
     QtDataList::iterator dataCacheIter;
-    for (cacheIter = cacheList->begin(); cacheIter != cacheList->end(); cacheIter++) {
-        for (dataCacheIter = (*cacheIter).second->begin(); dataCacheIter != (*cacheIter).second->end(); dataCacheIter++) {
-            if (*dataCacheIter) {
+    for (cacheIter = cacheList->begin(); cacheIter != cacheList->end(); cacheIter++)
+    {
+        for (dataCacheIter = (*cacheIter).second->begin(); dataCacheIter != (*cacheIter).second->end(); dataCacheIter++)
+        {
+            if (*dataCacheIter)
+            {
                 (*dataCacheIter)->deleteRef();
             }
         }
     }
     delete cacheList;
     //scalar
-    std::vector< std::pair <QtOperation*, QtData* > >::iterator scalarCacheIter;
+    std::vector<std::pair <QtOperation*, QtData*>>::iterator scalarCacheIter;
     for (scalarCacheIter = scalarCacheList->begin(); scalarCacheIter != scalarCacheList->end();
-            scalarCacheIter++) {
-        if ((*scalarCacheIter).second) {
+            scalarCacheIter++)
+    {
+        if ((*scalarCacheIter).second)
+        {
             (*scalarCacheIter).second->deleteRef();
         }
     }
     delete scalarCacheList;
 
     //add the tiles to the mddObj
-    for (tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++) {
+    for (tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+    {
         focusMdd->insertTile(*tileIter);
     }
 
@@ -389,13 +461,15 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
  * Conditions are evaluated until one is found to be true. When this happens the
  * corresponding result is evaluated and returned.
  * Unused results, as well as unnecessary conditions, are not evaluated.
- * 
+ *
  * @param inputList - the input list to be passed to further evaluations
  */
 QtData*
-QtCaseOp::evaluate(QtDataList* inputList) {
+QtCaseOp::evaluate(QtDataList* inputList)
+{
     startTimer("QtCaseOp");
-    if (this->inducedCase) {
+    if (this->inducedCase)
+    {
         return this->evaluateInducedOp(inputList);
     }
     QtData* returnValue = NULL;
@@ -405,15 +479,19 @@ QtCaseOp::evaluate(QtDataList* inputList) {
     QtData* dataI;
     //everything is good for evaluation
     bool success = (operationList != 0);
-    for (iter = operationList->begin(); iter != operationList->end() && !foundClause; iter++) {
-        if ((*iter) == NULL) {
+    for (iter = operationList->begin(); iter != operationList->end() && !foundClause; iter++)
+    {
+        if ((*iter) == NULL)
+        {
             success = false;
             break;
         }
         //check if WHEN clause
-        if (pos % 2 == 0 && pos < operationList->size() - 1) {
+        if (pos % 2 == 0 && pos < operationList->size() - 1)
+        {
             dataI = (*iter)->evaluate(inputList);
-            if (static_cast<bool>((static_cast<QtAtomicData*>(dataI))->getUnsignedValue())) {
+            if (static_cast<bool>((static_cast<QtAtomicData*>(dataI))->getUnsignedValue()))
+            {
                 iter++;
                 dataI = (*iter)->evaluate(inputList);
                 returnValue = dataI;
@@ -421,7 +499,8 @@ QtCaseOp::evaluate(QtDataList* inputList) {
                 foundClause = true;
             }
         }//we arrived on the ELSE clause
-        else if (pos == operationList->size() - 1) {
+        else if (pos == operationList->size() - 1)
+        {
             dataI = (*iter)->evaluate(inputList);
             returnValue = dataI;
             foundAt = pos;
@@ -430,7 +509,8 @@ QtCaseOp::evaluate(QtDataList* inputList) {
     }
 
     //check if everything evaluated correctly
-    if (!success) {
+    if (!success)
+    {
         LERROR << "Error: QtCaseOp::evaluate() - at least one operand branch is invalid.";
     }
 
@@ -443,7 +523,8 @@ QtCaseOp::evaluate(QtDataList* inputList) {
  * @override QtNarryOperation::printTree
  */
 void
-QtCaseOp::printTree(int tab, ostream& s, QtChildType mode) {
+QtCaseOp::printTree(int tab, ostream& s, QtChildType mode)
+{
 
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCaseOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
     QtNaryOperation::printTree(tab, s, mode);
@@ -453,7 +534,8 @@ QtCaseOp::printTree(int tab, ostream& s, QtChildType mode) {
  * @override QtNarryOperation::printAlgebraicExpression
  */
 void
-QtCaseOp::printAlgebraicExpression(ostream& s) {
+QtCaseOp::printAlgebraicExpression(ostream& s)
+{
 
     s << "[";
 
@@ -469,55 +551,73 @@ QtCaseOp::printAlgebraicExpression(ostream& s) {
  * - all the conditions must have boolean base type;
  * - all the results must be of base types or mdds;
  * - type coercion is done between results, the types must be compatible.
- * 
+ *
  * @param typeTupe - the tuple containing the array types
  */
 const QtTypeElement&
-QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple) {
+QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple)
+{
     QtOperationList::iterator iter;
     const BaseType* resultType = NULL;
     unsigned int pos = 0;
-    for (iter = operationList->begin(); iter != operationList->end(); iter++) {
+    for (iter = operationList->begin(); iter != operationList->end(); iter++)
+    {
         (*iter)->checkType(typeTuple);
-        if (!(pos % 2) && (pos != operationList->size() - 1)) {
+        if (!(pos % 2) && (pos != operationList->size() - 1))
+        {
             //conditions should be boolean mdds
             QtTypeElement condType = (*iter)->checkType(typeTuple);
-            if (condType.getDataType() != QT_MDD) {
+            if (condType.getDataType() != QT_MDD)
+            {
                 LFATAL << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd.";
                 parseInfo.setErrorNo(428);
                 throw parseInfo;
             }
-            if ((static_cast<MDDBaseType*>(const_cast<Type*>(condType.getType())))->getBaseType()->getType() != BOOLTYPE) {
+            if ((static_cast<MDDBaseType*>(const_cast<Type*>(condType.getType())))->getBaseType()->getType() != BOOLTYPE)
+            {
                 LFATAL << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd.";
                 parseInfo.setErrorNo(428);
                 throw parseInfo;
             }
-        } else {
+        }
+        else
+        {
             QtTypeElement resType = (*iter)->checkType(typeTuple);
             //check if result types is base type
-            if (!resType.isBaseType() && resType.getDataType() != QT_MDD) {
+            if (!resType.isBaseType() && resType.getDataType() != QT_MDD)
+            {
                 LFATAL << "Error: QtCaseOp::checkInducedType() - At least one result type is not base type or mdd.";
                 parseInfo.setErrorNo(429);
                 throw parseInfo;
             }
             //make type coercion
-            if (resultType) {
+            if (resultType)
+            {
                 //differentiate between base types and mdd base types
-                if (resType.getDataType() != QT_MDD) {
+                if (resType.getDataType() != QT_MDD)
+                {
                     resultType = getResultType(resultType, static_cast<BaseType*>(const_cast<Type*>(resType.getType())));
-                } else {
+                }
+                else
+                {
                     resultType = getResultType(resultType, (static_cast<MDDBaseType*>(const_cast<Type*>(resType.getType())))->getBaseType());
                 }
-                if (!resultType) {
+                if (!resultType)
+                {
                     LFATAL << "Error: QtCaseOp::checkInducedType() - The results have incompatible types.";
                     parseInfo.setErrorNo(430);
                     throw parseInfo;
                 }
-            } else {
+            }
+            else
+            {
                 //differentiate between base types and mdd base types
-                if (resType.getDataType() != QT_MDD) {
+                if (resType.getDataType() != QT_MDD)
+                {
                     resultType = static_cast<BaseType*>(const_cast<Type*>(resType.getType()));
-                } else {
+                }
+                else
+                {
                     resultType = (static_cast<MDDBaseType*>(const_cast<Type*>(resType.getType())))->getBaseType();
                 }
             }
@@ -537,13 +637,15 @@ QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple) {
  * The following conditions have to be met by the operands:
  * - all the conditions must be of type boolean;
  * - type coercion is done between results, the types must be compatible.
- * 
- * @param typeTuple - the tuple containing the types of the arrays 
+ *
+ * @param typeTuple - the tuple containing the types of the arrays
  */
 const QtTypeElement&
-QtCaseOp::checkType(QtTypeTuple* typeTuple) {
+QtCaseOp::checkType(QtTypeTuple* typeTuple)
+{
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
-    if ((*(operationList->begin()))->checkType(typeTuple).getDataType() == QT_MDD) {
+    if ((*(operationList->begin()))->checkType(typeTuple).getDataType() == QT_MDD)
+    {
         this->inducedCase = true;
         return this->checkTypeInducedOp(typeTuple);
     }
@@ -555,31 +657,46 @@ QtCaseOp::checkType(QtTypeTuple* typeTuple) {
 
     //check if types are valid
     for (iter = operationList->begin(); (iter != operationList->end()) && whenTypesValid
-            && resultTypesValid; iter++) {
+            && resultTypesValid; iter++)
+    {
         const QtTypeElement& type = (*iter)->checkType(typeTuple);
         //check if WHEN clauses are of type boolean
-        if (pos % 2 == 0 && pos < operationList->size() - 1) {
-            if (!(type.getDataType() == QT_BOOL)) {
+        if (pos % 2 == 0 && pos < operationList->size() - 1)
+        {
+            if (!(type.getDataType() == QT_BOOL))
+            {
                 whenTypesValid = false;
             }
-        } else {
+        }
+        else
+        {
             //type coercion between result clauses
-            if (resultType) {
+            if (resultType)
+            {
                 //differentiate between base types and mdd types
-                if (type.getDataType() != QT_MDD) {
+                if (type.getDataType() != QT_MDD)
+                {
                     resultType = getResultType(resultType, static_cast<BaseType*>(const_cast<Type*>(type.getType())));
-                } else {
+                }
+                else
+                {
                     resultType = getResultType(resultType, (static_cast<MDDBaseType*>(const_cast<Type*>(type.getType())))->getBaseType());
                 }
-                if (!resultType) {
+                if (!resultType)
+                {
                     //types are incompatible
                     resultTypesValid = false;
                 }
-            } else {
+            }
+            else
+            {
                 //differentiate between base types and mdd types
-                if (type.getDataType() != QT_MDD) {
+                if (type.getDataType() != QT_MDD)
+                {
                     resultType = static_cast<BaseType*>(const_cast<Type*>(type.getType()));
-                } else {
+                }
+                else
+                {
                     resultType = (static_cast<MDDBaseType*>(const_cast<Type*>(type.getType())))->getBaseType();
                 }
             }
@@ -588,14 +705,16 @@ QtCaseOp::checkType(QtTypeTuple* typeTuple) {
     }
 
     //some when clause is not boolean
-    if (!whenTypesValid) {
+    if (!whenTypesValid)
+    {
         LFATAL << "Error: QtCaseOp::checkType() - At least one condition is not a boolean.";
         parseInfo.setErrorNo(431);
         throw parseInfo;
     }
 
     //result types are different
-    if (!resultTypesValid) {
+    if (!resultTypesValid)
+    {
         LFATAL << "Error: QtCaseOp::checkType() - The results have incompatible types.";
         parseInfo.setErrorNo(430);
         throw parseInfo;
@@ -607,77 +726,104 @@ QtCaseOp::checkType(QtTypeTuple* typeTuple) {
 
 /**
  * Type coercion for operands.
- * 
+ *
  * @param op1 - the base type of the first operand
  * @param op2 - the base type of the second operand
  * @return The resulting type if types are compatible, NULL otherwise
  */
-const BaseType* QtCaseOp::getResultType(const BaseType* op1, const BaseType* op2) {
+const BaseType* QtCaseOp::getResultType(const BaseType* op1, const BaseType* op2)
+{
 
-    if ((op1->getType() == STRUCT) || (op2->getType() == STRUCT)) {
-        if (op1->compatibleWith(op2)) {
+    if ((op1->getType() == STRUCT) || (op2->getType() == STRUCT))
+    {
+        if (op1->compatibleWith(op2))
+        {
             return op1;
-        } else {
+        }
+        else
+        {
             return NULL;
         }
     }
-    if (op1->getType() == op2->getType()) {
+    if (op1->getType() == op2->getType())
+    {
         return op1;
     }
 
 
     // if only one of operand is signed, result also has to be signed.
-    if (isSignedType(op1) && !isSignedType(op2)) {
+    if (isSignedType(op1) && !isSignedType(op2))
+    {
         // swap it, action is in next if clause
         const BaseType* dummy;
         dummy = op2;
         op2 = op1;
         op1 = dummy;
     }
-    if (!isSignedType(op1) && isSignedType(op2)) {
+    if (!isSignedType(op1) && isSignedType(op2))
+    {
         // got to get the thing with the highest precision and make sure
         // it is signed.
         if (op2->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE2 ||
                 op2->getType() == FLOAT || op2->getType() == DOUBLE || op2->getType() == LONG)
+        {
             return op2;
+        }
         if (op1->getType() == USHORT)
+        {
             return TypeFactory::mapType("Short");
+        }
         if (op2->getType() == SHORT)
+        {
             return op2;
+        }
         return TypeFactory::mapType("Octet");
     }
     // return the stronger type
     if (op1->getType() == COMPLEXTYPE2 || op2->getType() == COMPLEXTYPE2)
+    {
         return TypeFactory::mapType("Complex2");
+    }
     if (op1->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE1)
+    {
         return TypeFactory::mapType("Complex1");
+    }
     if (op1->getType() == DOUBLE || op2->getType() == DOUBLE)
+    {
         return TypeFactory::mapType("Double");
+    }
     if (op1->getType() == FLOAT || op2->getType() == FLOAT)
+    {
         return TypeFactory::mapType("Float");
+    }
     if (op1->getType() <= op2->getType())
+    {
         return op1;
+    }
     else
+    {
         return op2;
+    }
 
     return NULL;
 }
 
 /**
  * Checks if the given type is signed.
- * 
+ *
  * @param type - the type to be checked
  * @return 1 if true, 0 otherwise
  */
-int QtCaseOp::isSignedType(const BaseType* type) {
-    return ( type->getType() >= LONG && type->getType() <= COMPLEXTYPE2);
+int QtCaseOp::isSignedType(const BaseType* type)
+{
+    return (type->getType() >= LONG && type->getType() <= COMPLEXTYPE2);
 }
 
 /**
  * The method evaluated an array returning operation cell by cell. This is
  * necessary since certain operations can't be applied to whole arrays, but only
  * to those cells which are in the definition domain.
- * 
+ *
  * @param inputList - the list to be passed to the QtOperation evaluate()
  * @param currentOperation - the operation to be evaluated cell by cell
  * @param currentTiles - the current tiles on which Case operates
@@ -685,26 +831,31 @@ int QtCaseOp::isSignedType(const BaseType* type) {
  * @return the point value of the current operation
  */
 QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* currentOperation,
-        std::vector<Tile*>* currentTiles, std::vector<char*>* cachedPoints) {
+                                     std::vector<Tile*>* currentTiles, std::vector<char*>* cachedPoints)
+{
     QtData* localResult = NULL;
     std::vector<Tile*>::iterator tileIter;
     std::vector<char*>::iterator pointIter;
     QtNodeList::iterator mddVar;
-    //if the current node is an mdd var itself then it has no op applied to, so 
+    //if the current node is an mdd var itself then it has no op applied to, so
     //return the cell
-    if (currentOperation->getNodeType() == QT_MDD_VAR) {
+    if (currentOperation->getNodeType() == QT_MDD_VAR)
+    {
         QtScalarData* point = new QtScalarData();
         point->setValueBuffer(cachedPoints->at(0));
         point->setValueType(currentTiles->at(0)->getType());
         localResult = static_cast<QtData*>(point);
-    } else {
+    }
+    else
+    {
         //get the mdd vars
         QtNodeList* mddVars = currentOperation->getChild(QT_MDD_VAR, QT_ALL_NODES);
         QtNodeList* originalTree = new QtNodeList();
         QtNodeList* replacedTree = new QtNodeList();
         for (mddVar = mddVars->begin(), tileIter = currentTiles->begin(), pointIter = cachedPoints->begin();
                 mddVar != mddVars->end() && tileIter != currentTiles->end() && pointIter != cachedPoints->end();
-                mddVar++, tileIter++, pointIter++) {
+                mddVar++, tileIter++, pointIter++)
+        {
             QtScalarData* point = new QtScalarData();
             point->setValueBuffer(*pointIter);
             point->setValueType((*tileIter)->getType());
@@ -722,10 +873,12 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
 
         QtNodeList* streamsChanged = new QtNodeList();
         std::vector<QtTypeElement>* oldStreams = new std::vector<QtTypeElement>();
-        for (QtNodeList::iterator i = currentTree->begin(); i != currentTree->end(); i++) {
+        for (QtNodeList::iterator i = currentTree->begin(); i != currentTree->end(); i++)
+        {
             QtTypeElement currentDataStreamType = (static_cast<QtOperation*>(*i))->getDataStreamType();
             QtTypeElement oldDataStreamType;
-            if (currentDataStreamType.getDataType() != QT_TYPE_UNKNOWN && !currentDataStreamType.isBaseType()) {
+            if (currentDataStreamType.getDataType() != QT_TYPE_UNKNOWN && !currentDataStreamType.isBaseType())
+            {
                 oldDataStreamType = currentDataStreamType;
                 const BaseType* newOpType = (static_cast<MDDBaseType*>(const_cast<Type*>(currentDataStreamType.getType())))->getBaseType();
                 currentDataStreamType.setType(newOpType);
@@ -738,7 +891,8 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
         //restore the query tree
         QtNodeList::iterator orig, replaced;
         for (orig = originalTree->begin(), replaced = replacedTree->begin();
-                orig != originalTree->end() && replaced != replacedTree->end(); orig++, replaced++) {
+                orig != originalTree->end() && replaced != replacedTree->end(); orig++, replaced++)
+        {
             (*replaced)->getParent()->setInput(static_cast<QtOperation*>(*replaced), static_cast<QtOperation*>(*orig));
         }
         //restore the dataStreamTypes
@@ -746,7 +900,8 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
         std::vector<QtTypeElement>::iterator oldStreamIter;
         for (streamChangedIter = streamsChanged->begin(), oldStreamIter = oldStreams->begin();
                 streamChangedIter != streamsChanged->end() && oldStreamIter != oldStreams->end();
-                streamChangedIter++, oldStreamIter++) {
+                streamChangedIter++, oldStreamIter++)
+        {
             (static_cast<QtOperation*>(*streamChangedIter))->setDataStreamType((*oldStreamIter));
         }
         //cleanup
@@ -767,11 +922,14 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
  * @return a list of evaluated, cached data, corresponding to the op
  */
 QtNode::QtDataList* QtCaseOp::getCachedData(QtOperation* op,
-        std::vector< std::pair <QtOperation*, QtDataList* > >* cacheList) {
+        std::vector<std::pair <QtOperation*, QtDataList*>>* cacheList)
+{
     QtDataList* returnValue = NULL;
-    for (std::vector< std::pair <QtOperation*, QtDataList* > >::iterator i = cacheList->begin();
-            i != cacheList->end(); i++) {
-        if (op == (*i).first) {
+    for (std::vector<std::pair <QtOperation*, QtDataList*>>::iterator i = cacheList->begin();
+            i != cacheList->end(); i++)
+    {
+        if (op == (*i).first)
+        {
             returnValue = (*i).second;
             break;
         }
@@ -785,9 +943,11 @@ QtNode::QtDataList* QtCaseOp::getCachedData(QtOperation* op,
  * <parent < removedNode, currentNode> >
  * removedNode has to be re-introduced between parent and currentNode
  */
-void QtCaseOp::restoreTree() {
-    std::vector< std::pair < QtNode*, std::pair <QtNode*, QtNode*> > >::iterator i;
-    for (i = this->removedNodes.begin(); i != this->removedNodes.end(); i++) {
+void QtCaseOp::restoreTree()
+{
+    std::vector<std::pair <QtNode*, std::pair <QtNode*, QtNode*>>>::iterator i;
+    for (i = this->removedNodes.begin(); i != this->removedNodes.end(); i++)
+    {
         (static_cast<QtOperation*>((*i).first))->setInput(static_cast<QtOperation*>((*i).second.second), static_cast<QtOperation*>((*i).second.first));
         (static_cast<QtOperation*>((*i).second.second))->setParent((*i).second.first);
     }
@@ -801,10 +961,13 @@ void QtCaseOp::restoreTree() {
  * @param domain - the domain of the wanted tile
  * @return The tile corresponding to the given domain
  */
- boost::shared_ptr<Tile> QtCaseOp::getCorrespondingTile(std::vector< boost::shared_ptr<Tile> >* tiles, const r_Minterval& domain) {
+boost::shared_ptr<Tile> QtCaseOp::getCorrespondingTile(std::vector<boost::shared_ptr<Tile>>* tiles, const r_Minterval& domain)
+{
     boost::shared_ptr<Tile> returnValue;
-    for (std::vector< boost::shared_ptr<Tile> >::iterator i = tiles->begin(); i != tiles->end(); i++) {
-        if ((*i)->getDomain().covers(domain)) {
+    for (std::vector<boost::shared_ptr<Tile>>::iterator i = tiles->begin(); i != tiles->end(); i++)
+    {
+        if ((*i)->getDomain().covers(domain))
+        {
             returnValue = (*i);
             break;
         }
@@ -819,11 +982,14 @@ void QtCaseOp::restoreTree() {
  * @param scalarCacheList - the list of cached data
  * @return - the data corresponding to the operation
  */
-QtData* QtCaseOp::getCachedScalar(QtOperation* op, std::vector<std::pair<QtOperation*, QtData*> >* scalarCacheList) {
+QtData* QtCaseOp::getCachedScalar(QtOperation* op, std::vector<std::pair<QtOperation*, QtData*>>* scalarCacheList)
+{
     QtData* returnValue = NULL;
-    std::vector<std::pair<QtOperation*, QtData*> >::iterator i;
-    for (i = scalarCacheList->begin(); i != scalarCacheList->end(); i++) {
-        if (op == (*i).first) {
+    std::vector<std::pair<QtOperation*, QtData*>>::iterator i;
+    for (i = scalarCacheList->begin(); i != scalarCacheList->end(); i++)
+    {
+        if (op == (*i).first)
+        {
             returnValue = (*i).second;
             break;
         }
@@ -837,22 +1003,26 @@ QtData* QtCaseOp::getCachedScalar(QtOperation* op, std::vector<std::pair<QtOpera
  * @param cacheList - the cache list
  * @param inputList - the input list to be passed to QtOperation evaluate()
  */
-void QtCaseOp::addMddsToCache(QtDataList* inputList, QtOperation* &op, std::vector<std::pair<QtOperation*,
-        QtDataList*> >* cacheList) {
+void QtCaseOp::addMddsToCache(QtDataList* inputList, QtOperation*& op, std::vector<std::pair<QtOperation*,
+                              QtDataList*>>* cacheList)
+{
     //get all the MDD variables
     QtNodeList* mddVars = op->getChild(QT_MDD_VAR, QT_ALL_NODES);
     //if the node itself is a mdd variable add it to the list
-    if (op->getNodeType() == QT_MDD_VAR) {
+    if (op->getNodeType() == QT_MDD_VAR)
+    {
         mddVars->push_back(op);
     }
     QtDataList* correspondingMdds = new QtDataList();
-    for (QtNodeList::iterator i = mddVars->begin(); i != mddVars->end(); i++) {
+    for (QtNodeList::iterator i = mddVars->begin(); i != mddVars->end(); i++)
+    {
         //if an mdd has a domain operation applied, consider them together and
         //remove the domain op from the tree
         QtOperation* trimmedArray = static_cast<QtOperation*>(*i);
-        while (trimmedArray->getParent()->getNodeType() == QT_DOMAIN_OPERATION) {
+        while (trimmedArray->getParent()->getNodeType() == QT_DOMAIN_OPERATION)
+        {
             this->removedNodes.push_back(std::make_pair(trimmedArray->getParent()->getParent(),
-                    std::make_pair(trimmedArray->getParent(), trimmedArray)));
+                                         std::make_pair(trimmedArray->getParent(), trimmedArray)));
             trimmedArray = static_cast<QtOperation*>((trimmedArray)->getParent());
         }
         QtData* evaluatedTrimmedArray = trimmedArray->evaluate(inputList);

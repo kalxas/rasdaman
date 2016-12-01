@@ -57,7 +57,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
     private int requiredListSize = 1;
 
     public ConstantCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException, SecoreException {
+    throws WCPSException, SecoreException {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
@@ -70,7 +70,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
             if (name.equals(WcpsConstants.MSG_NAME)) {
                 covName = node.getTextContent();
                 log.trace("  " + WcpsConstants.MSG_COVERAGE + " " + covName);
-            } else if (name.equals(WcpsConstants.MSG_AXIS_ITERATOR )) {
+            } else if (name.equals(WcpsConstants.MSG_AXIS_ITERATOR)) {
                 log.trace("over: add axis iterator.");
                 AxisIterator it = new AxisIterator(node.getFirstChild(), xq, WcpsConstants.MSG_TEMP);
                 iterators.add(it);
@@ -159,16 +159,16 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
 
             CellDomainElement cellDomain = new CellDomainElement(ai.getLow().toString(), ai.getHigh().toString(), order);
             DomainElement domain = new DomainElement(
-                    new BigDecimal(ai.getLow()),
-                    new BigDecimal(ai.getHigh()),
-                    axisName,
-                    axisType,
-                    CrsUtil.PURE_UOM,
-                    crs.get(0),
-                    order,
-                    BigInteger.valueOf(ai.getHigh().intValue()-ai.getLow().intValue()+1),
-                    !axisType.equals(AxisTypes.Y_AXIS),
-                    false); // FIXME uom = null
+                new BigDecimal(ai.getLow()),
+                new BigDecimal(ai.getHigh()),
+                axisName,
+                axisType,
+                CrsUtil.PURE_UOM,
+                crs.get(0),
+                order,
+                BigInteger.valueOf(ai.getHigh().intValue() - ai.getLow().intValue() + 1),
+                !axisType.equals(AxisTypes.Y_AXIS),
+                false); // FIXME uom = null
             cellDomainList.add(cellDomain);
             domainList.add(domain);
             order += 1;
@@ -177,18 +177,18 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         // TODO: check element datatypes and their consistency
         // "unsigned int" is default datatype
         rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
-        Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
+        Set<Pair<String, String>> emptyMetadata = new HashSet<Pair<String, String>>();
         CoverageMetadata metadata = new CoverageMetadata(
-                coverageName,
-                XMLSymbols.LABEL_GRID_COVERAGE,
-                "", // native format
-                emptyMetadata, // extra-metadata
-                crs,
-                cellDomainList,
-                domainList,
-                Pair.of(BigInteger.ZERO, ""),
-                rangeList
-                );
+            coverageName,
+            XMLSymbols.LABEL_GRID_COVERAGE,
+            "", // native format
+            emptyMetadata, // extra-metadata
+            crs,
+            cellDomainList,
+            domainList,
+            Pair.of(BigInteger.ZERO, ""),
+            rangeList
+        );
         // Let the top-level query know the full metadata about us
         xq.getMetadataSource().addDynamicMetadata(covName, metadata);
         info = new CoverageInfo(metadata);

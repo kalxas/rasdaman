@@ -29,7 +29,7 @@ import org.w3c.dom.*;
 import petascope.util.WcpsConstants;
 
 public class ConstantList extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(ConstantList.class);
 
     private ArrayList<String> list;
@@ -42,7 +42,7 @@ public class ConstantList extends AbstractRasNode {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
-        
+
         log.trace(node.getNodeName());
 
         while (node != null) {

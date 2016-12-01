@@ -44,7 +44,7 @@ public class ForClauseHandler {
     public static WcpsResult handle(String coverageIterator, List<String> coverageNames,
                                     CoverageAliasRegistry coverageAliasRegistry) {
         //add the mapping in the coverageRegistry
-        for(String coverageName: coverageNames) {
+        for (String coverageName : coverageNames) {
             coverageAliasRegistry.addCoverageMapping(coverageIterator, coverageName);
         }
         String translatedCoverageIterator = coverageIterator;
@@ -59,10 +59,10 @@ public class ForClauseHandler {
         if (coverageNames.size() > 1) {
             // Multipart query
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                               .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
+                       .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
         } else {
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                               .replace("$collectionName", coverageNames.get(0));
+                       .replace("$collectionName", coverageNames.get(0));
         }
         //metadata is loaded in the return clause, no meta needed here
         WcpsResult result = new WcpsResult(null, template);

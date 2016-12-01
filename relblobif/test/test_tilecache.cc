@@ -85,8 +85,8 @@ _INITIALIZE_EASYLOGGINGPP
 
 TransactionIf ta;
 DatabaseIf db;
-ServerComm *server;
-ServerComm::ClientTblElt *r;
+ServerComm* server;
+ServerComm::ClientTblElt* r;
 ExecuteUpdateRes result;
 
 void prepareRun()
@@ -98,7 +98,7 @@ void prepareRun()
     server->addClientTblEntry(r);
     accessControl.setServerName(RASSERVER_NAME);
     server->openDB(CLIENT_ID, globalConnectId, RASADMIN_USER);
-    
+
     AdminIf* myAdmin = AdminIf::instance();
     accessControl.crunchCapability(CRUNCH_CAPABILITY);
     result.token = NULL;
@@ -119,7 +119,7 @@ void finishRun()
     delete r;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     LogConfiguration defaultConf;
     defaultConf.configClientLogging();
@@ -127,11 +127,11 @@ int main(int argc, char **argv)
     TileCache::cacheLimit = CACHE_LIMIT_READJUST;
 
     prepareRun();
-    
+
     executeQuery("drop collection test_tilecache");
     executeQuery("create collection test_tilecache GreySet3");
     executeQuery("insert into test_tilecache values marray x in [0:0,0:0,0:0] values 0c tiling regular [0:9,0:9,0:3] tile size 400 index rpt_index");
-    
+
     executeQuery("update test_tilecache as m set m[*:*,*:*,0] assign marray x in [0:19,0:9] values (char) 4");
     executeQuery("update test_tilecache as m set m[*:*,*:*,1] assign marray x in [0:19,0:9] values (char) 5");
     executeQuery("update test_tilecache as m set m[*:*,*:*,2] assign marray x in [0:19,0:9] values (char) 6");
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
     executeQuery("update test_tilecache as m set m[*:*,*:*,8] assign marray x in [0:19,0:9] values (char) 7");
     executeQuery("update test_tilecache as m set m[*:*,*:*,9] assign marray x in [0:19,0:9] values (char) 7");
     executeQuery("commit");
-    
+
     executeQuery("drop collection test_tilecache");
 
     finishRun();

@@ -54,7 +54,9 @@ r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char* format
 {
     til = new r_Size_Tiling();
     if (formatParams != NULL)
+    {
         storage_params = strdup(formatParams);
+    }
 }
 
 r_Storage_Layout::r_Storage_Layout(r_Tiling* ts, r_Data_Format init_format, const char* formatParams)
@@ -63,9 +65,13 @@ r_Storage_Layout::r_Storage_Layout(r_Tiling* ts, r_Data_Format init_format, cons
         storage_params(0)
 {
     if (til == NULL)
+    {
         til = new r_Size_Tiling();
+    }
     if (formatParams != NULL)
+    {
         storage_params = strdup(formatParams);
+    }
 }
 
 r_Storage_Layout::r_Storage_Layout(const r_Storage_Layout& sl)
@@ -74,7 +80,9 @@ r_Storage_Layout::r_Storage_Layout(const r_Storage_Layout& sl)
         storage_params(0)
 {
     if (sl.storage_params != NULL)
+    {
         storage_params = strdup(sl.storage_params);
+    }
 }
 
 r_Storage_Layout*
@@ -86,7 +94,7 @@ r_Storage_Layout::clone() const
 
 r_Storage_Layout::~r_Storage_Layout()
 {
-    if(til)
+    if (til)
     {
         delete til;
         til = NULL;
@@ -116,19 +124,21 @@ r_Storage_Layout::get_storage_format_params() const
     return storage_params;
 }
 
-r_Set< r_GMarray* >*
+r_Set<r_GMarray*>*
 r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const throw (r_Error)
 {
     r_Bytes cell_size = mar->get_type_length();
-    std::vector<r_Minterval>* tiles=NULL;
-    r_Set<r_GMarray*>* result=NULL;
+    std::vector<r_Minterval>* tiles = NULL;
+    r_Set<r_GMarray*>* result = NULL;
 
     tiles = decomposeMDD(mar->spatial_domain(), cell_size);
 
     result = new r_Set<r_GMarray*>;
 
     for (std::vector<r_Minterval>::iterator it = tiles->begin(); it != tiles->end(); it++)
+    {
         result->insert_element(mar->intersect(*it));
+    }
 
     delete tiles;
     return result;
@@ -137,7 +147,7 @@ r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const throw (r_Error)
 std::vector<r_Minterval>*
 r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_size) const throw (r_Error)
 {
-    std::vector<r_Minterval>* tiles=NULL;
+    std::vector<r_Minterval>* tiles = NULL;
 
     if (!til->is_compatible(domain, cell_size))
     {
@@ -152,7 +162,7 @@ r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_siz
     {
         tiles = til->compute_tiles(domain, cell_size);
     }
-    catch(r_Error& err)
+    catch (r_Error& err)
     {
         throw;
     }
@@ -163,12 +173,16 @@ r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_siz
 void
 r_Storage_Layout::print_status(std::ostream& os) const
 {
-    os << "r_Storage_Layout[ tiling = "<< *til << " storage format = " << storage_format << " storage parameters = ";
+    os << "r_Storage_Layout[ tiling = " << *til << " storage format = " << storage_format << " storage parameters = ";
     if (storage_params != NULL)
+    {
         os << "upps, not here";
+    }
     //os << storage_params;
     else
+    {
         os << "none defined";
+    }
     os << " ]";
 }
 

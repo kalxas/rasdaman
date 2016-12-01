@@ -58,7 +58,7 @@ public class LayerParser {
         Bbox wcsBbox = coverageMetadata.getBbox();
         String currentCrs = CrsComputer.convertCrsUriToWmsCrs(wcsBbox.getCrsName());
         EXGeographicBoundingBox exGeographicBoundingBox = CrsComputer.covertToWgs84(currentCrs,
-            wcsBbox.getMinX(), wcsBbox.getMinY(), wcsBbox.getMaxX(), wcsBbox.getMaxY());
+                wcsBbox.getMinX(), wcsBbox.getMinY(), wcsBbox.getMaxX(), wcsBbox.getMaxY());
         String layerAbstract = coverageMetadata.getAbstract();
         List<Layer> possibleLayers = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerTitle);
         final Layer retLayer;

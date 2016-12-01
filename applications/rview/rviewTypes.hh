@@ -62,13 +62,13 @@ rasdaman GmbH.
 typedef r_Marray<r_Char/*[*:*,*:*]*/>  GreyImage;
 
 /*[3,24]*//* TYPEDEF ------------------------- GreySet */
-typedef r_Set<r_Ref<GreyImage> > GreySet;
+typedef r_Set<r_Ref<GreyImage>> GreySet;
 
 /*[6,36]*//* TYPEDEF ------------------------- BoolImage */
 typedef r_Marray<r_Boolean/*[*:*,*:*]*/>  BoolImage;
 
 /*[7,24]*//* TYPEDEF ------------------------- BoolSet */
-typedef r_Set<r_Ref<BoolImage> > BoolSet;
+typedef r_Set<r_Ref<BoolImage>> BoolSet;
 
 /*[10,1]*//* STRUCT -------------------------- RGBPixel */
 struct RGBPixel
@@ -81,7 +81,7 @@ struct RGBPixel
 typedef r_Marray<RGBPixel/*[*:*,*:*]*/>  RGBImage;
 
 /*[12,23]*//* TYPEDEF ------------------------- RGBSet */
-typedef r_Set<r_Ref<RGBImage> > RGBSet;
+typedef r_Set<r_Ref<RGBImage>> RGBSet;
 
 #endif
 

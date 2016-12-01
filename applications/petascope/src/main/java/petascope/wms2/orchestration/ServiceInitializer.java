@@ -61,7 +61,7 @@ class ServiceInitializer {
     public ServiceInitializer(@Nullable String pathToConfigurationDirectory) {
         if (pathToConfigurationDirectory == null) {
             throw new IllegalArgumentException("No configuration directory path could be detected." +
-                "Please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
+                                               "Please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
         }
         this.pathToDefaultValuesFile = pathToConfigurationDirectory + "/" + WMS_SERVICE_DEFAULT_VALUES_FILE;
         this.pathToConfigurationFile = pathToConfigurationDirectory + "/" + SETTINGS_FILE;
@@ -133,13 +133,13 @@ class ServiceInitializer {
         File configFile = new File(pathToConfigurationFile);
         if (!defaultFile.exists() || !defaultFile.canRead()) {
             throw new IllegalArgumentException("The file containing the default service provider information was not found at " + defaultFile.getAbsolutePath() +
-                ". Please make sure that the file exists and is readable by the server user. If the file path listed above is wrong " +
-                "please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
+                                               ". Please make sure that the file exists and is readable by the server user. If the file path listed above is wrong " +
+                                               "please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
         }
         if (!configFile.exists() || !configFile.canRead()) {
             throw new IllegalArgumentException("The file containing the configuration options for petascope was not found at " + configFile.getAbsolutePath() +
-                ". Please make sure that the file exists and is readable by the server user. If the file path listed above is wrong " +
-                "please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
+                                               ". Please make sure that the file exists and is readable by the server user. If the file path listed above is wrong " +
+                                               "please adjust the value of <param-name>confDir</param-name> in your web.xml file (usually at $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml).");
         }
     }
 
@@ -270,7 +270,7 @@ class ServiceInitializer {
     @NotNull
     private final static String KEY_RASDAMAN_DATABASE = petascope.ConfigManager.KEY_RASDAMAN_DATABASE;
     @NotNull
-    private final static String SETTINGS_FILE = petascope.ConfigManager.SETTINGS_FILE;    
+    private final static String SETTINGS_FILE = petascope.ConfigManager.SETTINGS_FILE;
     @NotNull
     private final static String WMS_SERVICE_DEFAULT_VALUES_FILE = "wms_service.properties";
 }

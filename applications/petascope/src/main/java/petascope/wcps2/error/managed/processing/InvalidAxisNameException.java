@@ -38,6 +38,6 @@ public class InvalidAxisNameException extends WCPSProcessingError {
     public InvalidAxisNameException(String axisName) {
         super(ERROR_TEMPLATE.replace("$axisName", axisName), ExceptionCode.InvalidAxisLabel);
     }
-    
+
     private static final String ERROR_TEMPLATE = "Invalid axis name '$axisName'.";
 }

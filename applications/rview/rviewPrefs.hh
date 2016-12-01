@@ -66,20 +66,20 @@ class rviewPrefsWindow: public rviewFrame
 public:
 
     rviewPrefsWindow(void);
-    rviewPrefsWindow(rviewPrefs *Prefs);
+    rviewPrefsWindow(rviewPrefs* Prefs);
     ~rviewPrefsWindow(void);
 
-    void setPrefs(rviewPrefs *Prefs);
+    void setPrefs(rviewPrefs* Prefs);
 
     void unlinkParent(void);
 
     void OnSize(int w, int h);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
-    int userEvent(const user_event &ue);
+    int process(wxObject& obj, wxEvent& evt);
+    int userEvent(const user_event& ue);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
 
@@ -88,55 +88,55 @@ protected:
     void setupVariables(void);
     void updatePrefs(void);
     void updateAndDie(void);
-    int  findInChoices(int value, const char **choices, int number);
+    int  findInChoices(int value, const char** choices, int number);
 
-    static rviewChoice *buildFormatMenu(wxPanel *parent, int fmtNum, const char *label);
-    static void textWindowToString(DynamicString &str, wxTextWindow *twin);
+    static rviewChoice* buildFormatMenu(wxPanel* parent, int fmtNum, const char* label);
+    static void textWindowToString(DynamicString& str, wxTextWindow* twin);
 
-    rviewPrefs *editPrefs;
-    rviewPrefs *myParent;
+    rviewPrefs* editPrefs;
+    rviewPrefs* myParent;
 
-    wxPanel *panel, *butPanel;
-    rviewButton *butOK, *butCancel, *butApply;
+    wxPanel* panel, *butPanel;
+    rviewButton* butOK, *butCancel, *butApply;
     // wxGroupBox *miscGroup, *imgGroup, *renderGroup, *thumbGroup, *heightGroup;
     // wxGroupBox *chartGroup, *tableGroup, *soundGroup, *commGroup, *orthoGroup;
-    wxWindowBase *miscGroup, *imgGroup, *renderGroup, *thumbGroup, *heightGroup;
-    wxWindowBase *chartGroup, *tableGroup, *soundGroup, *commGroup, *orthoGroup;
-    rviewText *filePath, *queryPath, *queryFont;
-    rviewText *vffParams;
-    rviewText *maxDWidth, *maxDHeight;
-    rviewCheckBox *imgDither, *ditherBest;
-    rviewChoice *imgMode, *chartMode, *tableMode, *rgbSpace, *movieMode;
-    rviewCheckBox *imgBBox;
-    rviewText *imgZpro, *imgClipz, *imgPixThreshLow, *imgPixThreshHigh, *imgWgtThresh, *imgWgtQuant;
-    rviewText *imgScale;
-    rviewCheckBox *imgRgbBrightness, *imgVoxForType;
-    rviewCheckBox *imgLight;
-    rviewText *imgLightAmbient, *imgLightGain, *imgLightAngle, *imgLightScintAngle;
-    rviewChoice *imgKernSize, *imgKernType;
-    rviewCheckBox *imgUseVCol;
-    rviewText *imgVoxColour;
-    rviewText *imgLightDir, *imgLightDist;
-    rviewCheckBox *imgOrthoBBox, *imgOrthoDragRel;
-    rviewText *imgOrthoThick;
-    rviewCheckBox *chartCosys;
-    rviewText *chartStep, *chartMarkx, *chartMarky;
-    rviewCheckBox *tableCosys;
-    rviewText *tableStepx, *tableStepy;
-    rviewText *thumbProjdim, *thumbProjstep, *thumbWidth, *thumbCols;
-    rviewChoice *soundFreq, *soundLatency;
-    rviewCheckBox *soundLoop;
-    rviewText *imgHeightGrid, *imgHeightScale;
-    rviewChoice *transferFmt, *storageFmt;
-    wxTextWindow *transferParm, *storageParm;
-    wxMessage *transferMsg, *storageMsg;
-    wxScrollBar *scroll;
-    rviewButton *cstrap;
-    colourspaceMapper *csmap;
+    wxWindowBase* miscGroup, *imgGroup, *renderGroup, *thumbGroup, *heightGroup;
+    wxWindowBase* chartGroup, *tableGroup, *soundGroup, *commGroup, *orthoGroup;
+    rviewText* filePath, *queryPath, *queryFont;
+    rviewText* vffParams;
+    rviewText* maxDWidth, *maxDHeight;
+    rviewCheckBox* imgDither, *ditherBest;
+    rviewChoice* imgMode, *chartMode, *tableMode, *rgbSpace, *movieMode;
+    rviewCheckBox* imgBBox;
+    rviewText* imgZpro, *imgClipz, *imgPixThreshLow, *imgPixThreshHigh, *imgWgtThresh, *imgWgtQuant;
+    rviewText* imgScale;
+    rviewCheckBox* imgRgbBrightness, *imgVoxForType;
+    rviewCheckBox* imgLight;
+    rviewText* imgLightAmbient, *imgLightGain, *imgLightAngle, *imgLightScintAngle;
+    rviewChoice* imgKernSize, *imgKernType;
+    rviewCheckBox* imgUseVCol;
+    rviewText* imgVoxColour;
+    rviewText* imgLightDir, *imgLightDist;
+    rviewCheckBox* imgOrthoBBox, *imgOrthoDragRel;
+    rviewText* imgOrthoThick;
+    rviewCheckBox* chartCosys;
+    rviewText* chartStep, *chartMarkx, *chartMarky;
+    rviewCheckBox* tableCosys;
+    rviewText* tableStepx, *tableStepy;
+    rviewText* thumbProjdim, *thumbProjstep, *thumbWidth, *thumbCols;
+    rviewChoice* soundFreq, *soundLatency;
+    rviewCheckBox* soundLoop;
+    rviewText* imgHeightGrid, *imgHeightScale;
+    rviewChoice* transferFmt, *storageFmt;
+    wxTextWindow* transferParm, *storageParm;
+    wxMessage* transferMsg, *storageMsg;
+    wxScrollBar* scroll;
+    rviewButton* cstrap;
+    colourspaceMapper* csmap;
 
     // constants
-    static const char *soundLatencyChoices[];
-    static const char *soundFrequencyChoices[];
+    static const char* soundLatencyChoices[];
+    static const char* soundFrequencyChoices[];
 
     // Width and height of preferences window
     static const int prefs_width;
@@ -184,22 +184,22 @@ class rviewPrefs
 public:
 
     rviewPrefs(void);
-    rviewPrefs(const char *file);
-    rviewPrefs(const rviewPrefs &srcPrefs);
+    rviewPrefs(const char* file);
+    rviewPrefs(const rviewPrefs& srcPrefs);
     ~rviewPrefs(void);
 
-    int load(const char *file);
-    int save(const char *file);
+    int load(const char* file);
+    int save(const char* file);
     int edit(void);
     void editorClosed(void);
-    void closeEditor(rviewPrefs *newPrefs);
-    void updatePrefs(rviewPrefs *newPrefs);
+    void closeEditor(rviewPrefs* newPrefs);
+    void updatePrefs(rviewPrefs* newPrefs);
     void markModified(void);
 
-    static void copyPrefs(const rviewPrefs &src, rviewPrefs &dest);
+    static void copyPrefs(const rviewPrefs& src, rviewPrefs& dest);
 
-    r_Data_Format getTransferFormat( void ) const;
-    r_Data_Format getStorageFormat( void ) const;
+    r_Data_Format getTransferFormat(void) const;
+    r_Data_Format getStorageFormat(void) const;
 
     DynamicString serverName;
     int serverPort;
@@ -251,17 +251,17 @@ protected:
 
     void setupVariables(void);
     // used for getting the value of an argument when reading the prefs file.
-    char *getValue(char *b);
+    char* getValue(char* b);
     // convert long strings (including newlines) from/to external representation
-    static char *toExternal(const DynamicString &str);
-    static void fromExternal(const char *ext, DynamicString &str);
+    static char* toExternal(const DynamicString& str);
+    static void fromExternal(const char* ext, DynamicString& str);
     // read a line into the internal buffer; return a pointer to the start if successful
-    char *readLine(FILE *fp);
+    char* readLine(FILE* fp);
 
-    rviewPrefsWindow *pwin;
+    rviewPrefsWindow* pwin;
     bool prefsModified;
 
-    char *inbuff;
+    char* inbuff;
     unsigned long buffSize;
 
     static const unsigned long buffExtendGranularity;
@@ -274,6 +274,6 @@ protected:
  *  Global variables
  */
 
-extern rviewPrefs *prefs;
+extern rviewPrefs* prefs;
 
 #endif

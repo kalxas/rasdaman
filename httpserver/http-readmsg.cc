@@ -74,53 +74,59 @@ rasdaman GmbH.
 *
 */
 
-int ReadHeader( int SockFD, char **Buffer, size_t *BuffSize )
+int ReadHeader(int SockFD, char** Buffer, size_t* BuffSize)
 {
     size_t  BuffBlock = 1024;
     size_t  minbuff   = 2;
     size_t  nread     = 0;
     size_t  sumread   = 0;
-    char   *Ptr;
+    char*   Ptr;
     int     check_eol = 0;
     int     error     = FALSE;
     int     elapsed   = 0;
 
-    for(;;)
+    for (;;)
     {
-        if( *BuffSize - sumread < minbuff )
+        if (*BuffSize - sumread < minbuff)
         {
             *BuffSize += BuffBlock;
-            *Buffer = static_cast<char*>(realloc( *Buffer, *BuffSize ));
-            if( *Buffer == NULL )
+            *Buffer = static_cast<char*>(realloc(*Buffer, *BuffSize));
+            if (*Buffer == NULL)
             {
-                ErrorMsg( E_SYS, ERROR, "ERROR: ReadHeader(): malloc() failed." );
+                ErrorMsg(E_SYS, ERROR, "ERROR: ReadHeader(): malloc() failed.");
                 error = TRUE;
                 break;
             }
-            bzero( *Buffer, *BuffSize );
+            bzero(*Buffer, *BuffSize);
         }
 
         Ptr = *Buffer + sumread;
-        nread = static_cast<size_t>(read( SockFD, Ptr, 1 ));
-        if( nread == 1 )
+        nread = static_cast<size_t>(read(SockFD, Ptr, 1));
+        if (nread == 1)
         {
             elapsed = 0;          /*  Clear timeout counter  */
             sumread++;
-            if( *Ptr == '\n' )    /* Check for two consecutive "\r\n"  */
+            if (*Ptr == '\n')     /* Check for two consecutive "\r\n"  */
             {
-                if( check_eol == 1 )
-                    break;          /* if found => End-Of-Header  */
+                if (check_eol == 1)
+                {
+                    break;    /* if found => End-Of-Header  */
+                }
                 else
+                {
                     check_eol = 1;
+                }
             }
-            else if( *Ptr != '\r' )
-                check_eol = 0;
-        }
-        else if( nread == 0 )
-        {
-            if( elapsed >= 30 )
+            else if (*Ptr != '\r')
             {
-                ErrorMsg( E_PRIV, ERROR, "ERROR: ReadHeader() timed out." );
+                check_eol = 0;
+            }
+        }
+        else if (nread == 0)
+        {
+            if (elapsed >= 30)
+            {
+                ErrorMsg(E_PRIV, ERROR, "ERROR: ReadHeader() timed out.");
                 error = TRUE;
                 break;
             }
@@ -129,18 +135,18 @@ int ReadHeader( int SockFD, char **Buffer, size_t *BuffSize )
         }
         else
         {
-            if( errno != EAGAIN )
+            if (errno != EAGAIN)
             {
-                ErrorMsg( E_SYS, ERROR, "ERROR: ReadHeader(): read() failed." );
+                ErrorMsg(E_SYS, ERROR, "ERROR: ReadHeader(): read() failed.");
                 error = TRUE;
                 break;
             }
             else
             {
-                sleep( static_cast<unsigned int>(elapsed) );
-                if( elapsed >= 30 )
+                sleep(static_cast<unsigned int>(elapsed));
+                if (elapsed >= 30)
                 {
-                    ErrorMsg( E_PRIV, ERROR, "ERROR: ReadHeader() timed out." );
+                    ErrorMsg(E_PRIV, ERROR, "ERROR: ReadHeader() timed out.");
                     error = TRUE;
                     break;
                 }
@@ -149,16 +155,20 @@ int ReadHeader( int SockFD, char **Buffer, size_t *BuffSize )
             }
         }
     }
-    if( error == TRUE )
+    if (error == TRUE)
     {
-        if( *Buffer != NULL )
-            free( *Buffer );
+        if (*Buffer != NULL)
+        {
+            free(*Buffer);
+        }
         *Buffer = NULL;
         *BuffSize = 0;
-        return( RI_READ_ERROR );
+        return (RI_READ_ERROR);
     }
     else
-        return( RI_READ_OK );
+    {
+        return (RI_READ_OK);
+    }
 }
 
 
@@ -190,30 +200,30 @@ int ReadHeader( int SockFD, char **Buffer, size_t *BuffSize )
 *
 */
 
-char *ReadBody( int SockFD, size_t BuffSize )
+char* ReadBody(int SockFD, size_t BuffSize)
 {
     int     nread     = 0;
-    char   *Buffer    = NULL;
+    char*   Buffer    = NULL;
 
-    if( ( Buffer = static_cast<char*>(mymalloc( BuffSize + 1 ) )) == NULL )
+    if ((Buffer = static_cast<char*>(mymalloc(BuffSize + 1))) == NULL)
     {
-        ErrorMsg( E_SYS, ERROR, "ERROR: malloc error for HTTP-Body buffer." );
-        return( Buffer );
+        ErrorMsg(E_SYS, ERROR, "ERROR: malloc error for HTTP-Body buffer.");
+        return (Buffer);
     }
-    bzero( Buffer, BuffSize + 1);
-    nread = ReadN( SockFD, Buffer, BuffSize );
-    if( nread < 0 )
+    bzero(Buffer, BuffSize + 1);
+    nread = ReadN(SockFD, Buffer, BuffSize);
+    if (nread < 0)
     {
-        ErrorMsg( E_SYS, ERROR, "ERROR: ReadBody(): read() failed." );
-        free( Buffer );
+        ErrorMsg(E_SYS, ERROR, "ERROR: ReadBody(): read() failed.");
+        free(Buffer);
         Buffer = NULL;
-        return( Buffer );
+        return (Buffer);
     }
-    else if( nread < static_cast<int>(BuffSize) )
+    else if (nread < static_cast<int>(BuffSize))
     {
-        ErrorMsg( E_PRIV, WARN, "WARN:  MessageBody not of expected size." );
+        ErrorMsg(E_PRIV, WARN, "WARN:  MessageBody not of expected size.");
     }
-    return( Buffer );
+    return (Buffer);
 }
 
 
@@ -252,51 +262,55 @@ char *ReadBody( int SockFD, size_t BuffSize )
 *
 */
 
-rc_t ParseReqHeader( struct ReqInfo *Request )
+rc_t ParseReqHeader(struct ReqInfo* Request)
 {
-    char   *Buffer;
-    char   *Param;
+    char*   Buffer;
+    char*   Param;
     int     Key;
-    struct  MsgHeader *Header;
+    struct  MsgHeader* Header;
 
     Header = NULL;
     Buffer = Request->HeadBuff;
-    if( Request->State == RI_READ_OK )
+    if (Request->State == RI_READ_OK)
     {
-        Buffer = ParseReqLine( Buffer, Request );
+        Buffer = ParseReqLine(Buffer, Request);
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: ***  Parsed Req %s", Buffer );
-        if( Request->State == RI_PARSE_ERROR )
-            return( WARN );
+        if (Request->State == RI_PARSE_ERROR)
+        {
+            return (WARN);
+        }
     }
     else
     {
         Request->State = RI_PARSE_ERROR;
-        return( WARN );
+        return (WARN);
     }
 
-    while( Buffer != NULL && *Buffer != '\0' )
+    while (Buffer != NULL && *Buffer != '\0')
     {
         Key = -1;
         Param = NULL;
-        Buffer = ParseMsgLine( Buffer, &Key, &Param );
+        Buffer = ParseMsgLine(Buffer, &Key, &Param);
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: ***  Parsed Msg %s", Buffer );
-        if( Buffer != NULL )
+        if (Buffer != NULL)
         {
-            Header = AppendMsgHeader( Request->Last, Key, Param );
+            Header = AppendMsgHeader(Request->Last, Key, Param);
             Request->Last = Header;
         }
-        if( Request->First == NULL )
+        if (Request->First == NULL)
+        {
             Request->First = Header;
+        }
     }
-    if( Request->First == NULL )
+    if (Request->First == NULL)
     {
         Request->State = RI_PARSE_WARN;
-        return( WARN );
+        return (WARN);
     }
     else
     {
         Request->State = RI_PARSE_OK;
-        return( OK );
+        return (OK);
     }
 }
 
@@ -337,33 +351,35 @@ rc_t ParseReqHeader( struct ReqInfo *Request )
 *
 */
 
-rc_t ParseRespHeader( struct RespInfo *Response )
+rc_t ParseRespHeader(struct RespInfo* Response)
 {
-    char   *Buffer;
-    char   *Keyword;
-    char   *Param;
+    char*   Buffer;
+    char*   Keyword;
+    char*   Param;
     size_t  i;
     int     Key;
-    struct MsgHeader *Header;
+    struct MsgHeader* Header;
 
     Header = NULL;
     Buffer = Response->HeadBuff;
-    Buffer = ParseRespLine( Buffer, Response );
+    Buffer = ParseRespLine(Buffer, Response);
 
-    while( Buffer != NULL )
+    while (Buffer != NULL)
     {
         Key = -1;
         Param = NULL;
-        Buffer = ParseMsgLine( Buffer, &Key, &Param );
-        if( Buffer != NULL )
+        Buffer = ParseMsgLine(Buffer, &Key, &Param);
+        if (Buffer != NULL)
         {
-            Header = AppendMsgHeader( Response->Last, Key, Param );
+            Header = AppendMsgHeader(Response->Last, Key, Param);
             Response->Last = Header;
         }
-        if( Response->First == NULL )
+        if (Response->First == NULL)
+        {
             Response->First = Header;
+        }
     }
-    return( OK );
+    return (OK);
 }
 
 
@@ -408,14 +424,14 @@ rc_t ParseRespHeader( struct RespInfo *Response )
 *
 */
 
-char *ParseReqLine( char *Buffer, struct ReqInfo *Request )
+char* ParseReqLine(char* Buffer, struct ReqInfo* Request)
 {
     char  Tmp[ MAXLINELEN ];
-    char *NewBuffer;
-    char *Ptr;
-    char *Keyword;
-    char *URL      = NULL;
-    char *PVersion = NULL;
+    char* NewBuffer;
+    char* Ptr;
+    char* Keyword;
+    char* URL      = NULL;
+    char* PVersion = NULL;
     int   Key      = 0;
     int   PVmaj    = -1;
     int   PVmin    = -1;
@@ -424,31 +440,35 @@ char *ParseReqLine( char *Buffer, struct ReqInfo *Request )
 
     Keyword = Buffer;
 
-    for( Ptr = Buffer, i = 0; i < MAXLINELEN; Ptr++, i++ )
+    for (Ptr = Buffer, i = 0; i < MAXLINELEN; Ptr++, i++)
     {
-        if( *Ptr == '\r')
+        if (*Ptr == '\r')
+        {
             Tmp[i] = '\0';
-        else if( *Ptr == '\n' )
+        }
+        else if (*Ptr == '\n')
         {
             Tmp[i] = '\0';
             eol_found = TRUE;
             break;
         }
         else
+        {
             Tmp[i] = *Ptr;
+        }
     }
-    Tmp[i+1] = '\0';
-    if( eol_found != TRUE )
+    Tmp[i + 1] = '\0';
+    if (eol_found != TRUE)
     {
         Request->State = RI_PARSE_ERROR;
-        return( NULL );
+        return (NULL);
     }
 
-    for( Ptr = Buffer; *Ptr != '\n'; Ptr++ )
+    for (Ptr = Buffer; *Ptr != '\n'; Ptr++)
     {
-        if( *Ptr == ' ' )
+        if (*Ptr == ' ')
         {
-            if( URL == NULL )
+            if (URL == NULL)
             {
                 *Ptr = '\0';
                 URL = ++Ptr;
@@ -457,14 +477,14 @@ char *ParseReqLine( char *Buffer, struct ReqInfo *Request )
             {
                 *Ptr = '\0';
                 ++Ptr;
-                if( strcmp( "HTTP/", Ptr ) )
+                if (strcmp("HTTP/", Ptr))
                 {
                     Ptr += 5;
                     PVersion = Ptr;
                 }
             }
         }
-        else if( *Ptr == '\r' )
+        else if (*Ptr == '\r')
         {
             *Ptr = '\0';
         }
@@ -472,37 +492,37 @@ char *ParseReqLine( char *Buffer, struct ReqInfo *Request )
     *Ptr = '\0';
     NewBuffer = ++Ptr;
 
-    if( PVersion != NULL )
+    if (PVersion != NULL)
     {
-        for( Ptr = PVersion; *Ptr != '\0'; Ptr++ )
+        for (Ptr = PVersion; *Ptr != '\0'; Ptr++)
         {
-            if( *Ptr == '.' )
+            if (*Ptr == '.')
             {
                 *Ptr = '\0';
                 ++Ptr;
                 break;
             }
         }
-        PVmaj = strtol( PVersion, NULL, 10 );
-        PVmin = strtol( Ptr,      NULL, 10 );
+        PVmaj = strtol(PVersion, NULL, 10);
+        PVmin = strtol(Ptr,      NULL, 10);
     }
 
-    if( URL != NULL )
+    if (URL != NULL)
     {
-        Request->Line.Vanilla       = static_cast<char*>(mymalloc( strlen( Tmp ) + 1 ));
-        Request->Line.Method        = HTTP_GetMKey( Keyword );
+        Request->Line.Vanilla       = static_cast<char*>(mymalloc(strlen(Tmp) + 1));
+        Request->Line.Method        = HTTP_GetMKey(Keyword);
         //      SplitURL( URL, &Request->Line.URL );
         Request->Line.URL.Path      = URL;
         Request->Line.Version.Major = PVmaj;
         Request->Line.Version.Minor = PVmin;
-        strcpy( Request->Line.Vanilla, Tmp );
+        strcpy(Request->Line.Vanilla, Tmp);
         Request->State = RI_PARSE_OK;
-        return( NewBuffer );
+        return (NewBuffer);
     }
     else
     {
         Request->State = RI_PARSE_ERROR;
-        return( NULL );
+        return (NULL);
     }
 }
 
@@ -549,70 +569,80 @@ char *ParseReqLine( char *Buffer, struct ReqInfo *Request )
 *
 */
 
-char *ParseRespLine( char *Buffer, struct RespInfo *Response )
+char* ParseRespLine(char* Buffer, struct RespInfo* Response)
 {
     char  Tmp[ MAXLINELEN ];
-    char *Ptr;
-    char *Reason   = NULL;
-    char *PVersion = NULL;
-    char *Status   = NULL;
-    char *PVmaj    = NULL;
-    char *PVmin    = NULL;
+    char* Ptr;
+    char* Reason   = NULL;
+    char* PVersion = NULL;
+    char* Status   = NULL;
+    char* PVmaj    = NULL;
+    char* PVmin    = NULL;
     int   i;
 
-    for( Ptr = Buffer, i = 0; i <= MAXLINELEN - 1; Ptr++, i++ )
+    for (Ptr = Buffer, i = 0; i <= MAXLINELEN - 1; Ptr++, i++)
     {
-        if( *Ptr == '\r')
+        if (*Ptr == '\r')
+        {
             Tmp[i] = '\0';
-        else if( *Ptr == '\n' )
+        }
+        else if (*Ptr == '\n')
         {
             Tmp[i] = '\0';
             break;
         }
         else
+        {
             Tmp[i] = *Ptr;
+        }
     }
-    Tmp[i+1] = '\0';
+    Tmp[i + 1] = '\0';
 
-    Response->Line.Vanilla = static_cast<char*>(mymalloc( strlen( Tmp ) + 1 ));
-    strcpy( Response->Line.Vanilla, Tmp );
+    Response->Line.Vanilla = static_cast<char*>(mymalloc(strlen(Tmp) + 1));
+    strcpy(Response->Line.Vanilla, Tmp);
 
-    if( strcmp( "HTTP/", Buffer ) )
+    if (strcmp("HTTP/", Buffer))
     {
         PVmaj = Buffer + 5;
-        for( Ptr = PVmaj; *Ptr != ' '; Ptr++ )
+        for (Ptr = PVmaj; *Ptr != ' '; Ptr++)
         {
-            if( *Ptr == '.' )
+            if (*Ptr == '.')
             {
                 *Ptr = '\0';
                 PVmin = ++Ptr;
             }
         }
         *Ptr = '\0';
-        Response->Line.Version.Major = strtol( PVmaj, NULL, 10 );
-        Response->Line.Version.Minor = strtol( PVmin, NULL, 10 );
+        Response->Line.Version.Major = strtol(PVmaj, NULL, 10);
+        Response->Line.Version.Minor = strtol(PVmin, NULL, 10);
     }
     else
-        return( NULL );
+    {
+        return (NULL);
+    }
 
     Status = ++Ptr;
-    while( *Ptr != ' ' )
+    while (*Ptr != ' ')
+    {
         Ptr++;
+    }
     *Ptr = '\0';
-    Response->Line.Status = strtol( Status, NULL, 10 );
+    Response->Line.Status = strtol(Status, NULL, 10);
 
     Ptr++;
     Response->Line.Reason = Ptr;
 
-    while( *Ptr != '\n' )
+    while (*Ptr != '\n')
     {
-        if( *Ptr == '\r' )
+        if (*Ptr == '\r')
+        {
             *Ptr = '\0';
+        }
         Ptr++;
     }
     *Ptr = '\0';
 
-    return( ++Ptr );
+    return (++Ptr);
 }
 
 
@@ -653,43 +683,49 @@ char *ParseRespLine( char *Buffer, struct RespInfo *Response )
 *
 */
 
-char *ParseMsgLine( char *Buffer, int *Key, char **Param )
+char* ParseMsgLine(char* Buffer, int* Key, char** Param)
 {
-    char *Keyword;
-    char *Ptr;
+    char* Keyword;
+    char* Ptr;
     int   HaveKey = FALSE;
 
-    if( ( *Buffer == ' ' ) || ( *Buffer == '\t' ) )
+    if ((*Buffer == ' ') || (*Buffer == '\t'))
     {
         *Key  = HKEY_CONTINUE;
         *Param = Buffer;
 
-        for( Ptr = Buffer; *Ptr != '\n'; Ptr++ )
+        for (Ptr = Buffer; *Ptr != '\n'; Ptr++)
         {
-            if( *Ptr == '\r' )
+            if (*Ptr == '\r')
+            {
                 *Ptr = '\0';
-            else if( *Ptr == '\0' )
+            }
+            else if (*Ptr == '\0')
+            {
                 break;
+            }
         }
         *Ptr = '\0';
-        return( ++Ptr );
+        return (++Ptr);
     }
 
     Keyword = Buffer;
-    for( Ptr = Buffer; *Ptr != '\n'; Ptr++ )
+    for (Ptr = Buffer; *Ptr != '\n'; Ptr++)
     {
-        if( *Ptr == ':' )
+        if (*Ptr == ':')
         {
-            if( HaveKey == FALSE )
+            if (HaveKey == FALSE)
             {
                 HaveKey = TRUE;
                 *Ptr = '\0';
-                *Key = HTTP_GetHKey( Keyword );
-                if( *Key != HKEY_UNKNOWN )
+                *Key = HTTP_GetHKey(Keyword);
+                if (*Key != HKEY_UNKNOWN)
                 {
                     Ptr++;
-                    while( ( *Ptr == ' ' ) || ( *Ptr == '\t' ) )
+                    while ((*Ptr == ' ') || (*Ptr == '\t'))
+                    {
                         ++Ptr;
+                    }
                     *Param = Ptr;
                 }
                 else
@@ -699,17 +735,25 @@ char *ParseMsgLine( char *Buffer, int *Key, char **Param )
                 }
             }
         }
-        else if( *Ptr == '\r' )
+        else if (*Ptr == '\r')
+        {
             *Ptr = '\0';
-        else if( *Ptr == '\0' )
+        }
+        else if (*Ptr == '\0')
+        {
             break;
+        }
     }
     *Ptr = '\0';
 
-    if( *Key == -1 || HaveKey == FALSE )
-        return( NULL );
+    if (*Key == -1 || HaveKey == FALSE)
+    {
+        return (NULL);
+    }
     else
-        return( ++Ptr );
+    {
+        return (++Ptr);
+    }
 }
 
 
@@ -745,30 +789,30 @@ char *ParseMsgLine( char *Buffer, int *Key, char **Param )
 *
 */
 
-void SplitURL( char *Buffer, struct URLComps *URL )
+void SplitURL(char* Buffer, struct URLComps* URL)
 {
-    char   *NewBuffer;
+    char*   NewBuffer;
     size_t  BuffSize;
-    char   *Ptr1;
-    char   *Ptr2;
-    char   *Tmp;
+    char*   Ptr1;
+    char*   Ptr2;
+    char*   Tmp;
     int     HaveProto  = FALSE;
     int     CheckSep   = FALSE;
     int     HaveServer = FALSE;
     int     HavePath   = FALSE;
     int     HaveExtra  = FALSE;
 
-    BuffSize = strlen( Buffer ) + 4;
-    NewBuffer = static_cast<char*>(mymalloc( BuffSize ));
-    if( NewBuffer != NULL )
+    BuffSize = strlen(Buffer) + 4;
+    NewBuffer = static_cast<char*>(mymalloc(BuffSize));
+    if (NewBuffer != NULL)
     {
-        bzero( NewBuffer, BuffSize );
+        bzero(NewBuffer, BuffSize);
         Tmp = NewBuffer;
-        for( Ptr1 = Buffer, Ptr2 = NewBuffer; Ptr1 <= Buffer + BuffSize; Ptr1++, Ptr2++ )
+        for (Ptr1 = Buffer, Ptr2 = NewBuffer; Ptr1 <= Buffer + BuffSize; Ptr1++, Ptr2++)
         {
-            if( HaveProto == FALSE )
+            if (HaveProto == FALSE)
             {
-                if( *Ptr1 == ':' )
+                if (*Ptr1 == ':')
                 {
                     HaveProto = TRUE;
                     URL->Protocol = Tmp;
@@ -779,10 +823,10 @@ void SplitURL( char *Buffer, struct URLComps *URL )
                     *Ptr2 = *Ptr1;
                 }
             }
-            else if( CheckSep == FALSE )
+            else if (CheckSep == FALSE)
             {
                 CheckSep = TRUE;
-                if( *Ptr1 == '/' && *(Ptr1+1) == '/' )
+                if (*Ptr1 == '/' && *(Ptr1 + 1) == '/')
                 {
                     Ptr1++;
                 }
@@ -793,9 +837,9 @@ void SplitURL( char *Buffer, struct URLComps *URL )
                     Ptr1--;
                 }
             }
-            else if( HaveServer == FALSE )
+            else if (HaveServer == FALSE)
             {
-                if( *Ptr1 == '/' )
+                if (*Ptr1 == '/')
                 {
                     HaveServer = TRUE;
                     URL->Servername = Tmp;
@@ -807,9 +851,9 @@ void SplitURL( char *Buffer, struct URLComps *URL )
                     *Ptr2 = *Ptr1;
                 }
             }
-            else if( HavePath == FALSE )
+            else if (HavePath == FALSE)
             {
-                if( *Ptr1 == '#' || *Ptr1 == '?' )
+                if (*Ptr1 == '#' || *Ptr1 == '?')
                 {
                     HavePath = TRUE;
                     URL->Path = Tmp;
@@ -823,7 +867,7 @@ void SplitURL( char *Buffer, struct URLComps *URL )
             }
             else
             {
-                if( HaveExtra == FALSE )
+                if (HaveExtra == FALSE)
                 {
                     HaveExtra = TRUE;
                     URL->Extra = Tmp;
@@ -831,7 +875,7 @@ void SplitURL( char *Buffer, struct URLComps *URL )
                 *Ptr2 = *Ptr1;
             }
         }
-        if( HaveProto == FALSE )
+        if (HaveProto == FALSE)
         {
             URL->Path = Tmp;
         }
@@ -881,15 +925,17 @@ void SplitURL( char *Buffer, struct URLComps *URL )
 *
 */
 
-size_t GetContentLength( struct MsgHeader *Ptr )
+size_t GetContentLength(struct MsgHeader* Ptr)
 {
-    while( Ptr != NULL )
+    while (Ptr != NULL)
     {
-        if( Ptr->Field == HKEY_Content_Length )
-            return( static_cast<size_t>(strtol( Ptr->Content, NULL, 10 )) );
+        if (Ptr->Field == HKEY_Content_Length)
+        {
+            return (static_cast<size_t>(strtol(Ptr->Content, NULL, 10)));
+        }
         Ptr = Ptr->Next;
     }
-    return( 0 );
+    return (0);
 }
 
 
@@ -923,19 +969,21 @@ size_t GetContentLength( struct MsgHeader *Ptr )
 *
 */
 
-char *GetFieldContent( struct MsgHeader *Ptr, int Field, struct MsgHeader **Next )
+char* GetFieldContent(struct MsgHeader* Ptr, int Field, struct MsgHeader** Next)
 {
-    while( Ptr != NULL )
+    while (Ptr != NULL)
     {
-        if( Ptr->Field == Field )
+        if (Ptr->Field == Field)
         {
-            if( Next != NULL )
+            if (Next != NULL)
+            {
                 *Next = Ptr->Next;
-            return( Ptr->Content );
+            }
+            return (Ptr->Content);
         }
         Ptr = Ptr->Next;
     }
-    return( NULL );
+    return (NULL);
 }
 
 
@@ -966,7 +1014,7 @@ char *GetFieldContent( struct MsgHeader *Ptr, int Field, struct MsgHeader **Next
 *
 */
 
-int GetRealm( char *String )
+int GetRealm(char* String)
 {
     struct KeywordKey RealmKeyTable[] =
     {
@@ -979,37 +1027,43 @@ int GetRealm( char *String )
     };
 #define NUM_REALMS 6
 
-    char  *Buff;
-    char  *Ptr;
-    char  *Tmp;
+    char*  Buff;
+    char*  Ptr;
+    char*  Tmp;
     int    i;
 
     Ptr = String;
-    if( ( strncasecmp( "realm=", Ptr, 6 ) == 0 ) )
+    if ((strncasecmp("realm=", Ptr, 6) == 0))
     {
         Ptr = Ptr + 6;
-        if( ( Buff = static_cast<char*>(mymalloc( strlen( Ptr ) + 1 ) )) == NULL )
-            return( REALM_ERROR );
-        strcpy( Buff, Ptr );
+        if ((Buff = static_cast<char*>(mymalloc(strlen(Ptr) + 1))) == NULL)
+        {
+            return (REALM_ERROR);
+        }
+        strcpy(Buff, Ptr);
 
         /*  Kill Quotes...    */
-        if( *Ptr == '"' )
+        if (*Ptr == '"')
         {
             Ptr++;
-            Tmp = strrchr( Ptr, '"' );
-            if( Tmp != NULL )
-                *Tmp = '\0';
-        }
-        for( i = 0; i < NUM_REALMS; i++ )
-        {
-            if( strcmp( RealmKeyTable[i].Keyword, Ptr ) == 0 )
+            Tmp = strrchr(Ptr, '"');
+            if (Tmp != NULL)
             {
-                free( Buff );
-                return( RealmKeyTable[i].Key );
+                *Tmp = '\0';
             }
         }
-        return( REALM_UNKNOWN );
+        for (i = 0; i < NUM_REALMS; i++)
+        {
+            if (strcmp(RealmKeyTable[i].Keyword, Ptr) == 0)
+            {
+                free(Buff);
+                return (RealmKeyTable[i].Key);
+            }
+        }
+        return (REALM_UNKNOWN);
     }
     else
-        return( REALM_ERROR );
+    {
+        return (REALM_ERROR);
+    }
 }

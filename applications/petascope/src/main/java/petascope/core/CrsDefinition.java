@@ -45,30 +45,30 @@ public class CrsDefinition {
     // List of case-sensitive EPSG aliases of axis abbreviation of the same type (grouped in petascope.util.AxisTypes interface)
     // src: http://www.epsg-registry.org/
     public static final List<String> X_ALIASES = Arrays.asList(
-            "X",    // eg CS EPSG:6507 \
-            "E",    // eg CS EPSG:4400  |
-            "M",    // eg CS EPSG:1024  |- CARTESIAN CS
-            "E(X)", // eg CS EPSG:4496  |
-            "x",    // eg CS EPSG:4531  |
-            "e",    // eg CS EPSG:6504 /
-            "Long", // eg CS EPSG:6422 ELLISPOIDAL CS
-            "Lon",  // eg PS:1 (gdalsrsinfo)
-            "i"     // eg ImageCRS
+                "X",    // eg CS EPSG:6507 \
+                "E",    // eg CS EPSG:4400  |
+                "M",    // eg CS EPSG:1024  |- CARTESIAN CS
+                "E(X)", // eg CS EPSG:4496  |
+                "x",    // eg CS EPSG:4531  |
+                "e",    // eg CS EPSG:6504 /
+                "Long", // eg CS EPSG:6422 ELLISPOIDAL CS
+                "Lon",  // eg PS:1 (gdalsrsinfo)
+                "i"     // eg ImageCRS
             );
     public static final List<String> Y_ALIASES = Arrays.asList(
-            "Y",    // eg CS EPSG:6507 \
-            "N",    // eg CS EPSG:4400  |
-            "P",    // eg CS EPSG:1024  |- CARTESIAN CS
-            "E(Y)", // eg CS EPSG:4496  |
-            "y",    // eg CS EPSG:4531  |
-            "n",    // eg CS EPSG:6504 /
-            "Lat",  // eg CS EPSG:6422 ELLISPOIDAL CS
-            "j"     // eg ImageCRS
+                "Y",    // eg CS EPSG:6507 \
+                "N",    // eg CS EPSG:4400  |
+                "P",    // eg CS EPSG:1024  |- CARTESIAN CS
+                "E(Y)", // eg CS EPSG:4496  |
+                "y",    // eg CS EPSG:4531  |
+                "n",    // eg CS EPSG:6504 /
+                "Lat",  // eg CS EPSG:6422 ELLISPOIDAL CS
+                "j"     // eg ImageCRS
             );
     public static final List<String> ELEV_ALIASES = Arrays.asList(
-            "h",    // eg CS EPSG:6423 ELLIPSOIDAL-3D / ImageCRS
-            "H",    // eg CS EPSG:1030 |
-            "D"     // eg CS EPSG:6495 |-VERTICAL
+                "h",    // eg CS EPSG:6423 ELLIPSOIDAL-3D / ImageCRS
+                "H",    // eg CS EPSG:1030 |
+                "D"     // eg CS EPSG:6495 |-VERTICAL
             );
 
     /* Constants */
@@ -138,8 +138,8 @@ public class CrsDefinition {
     @Override
     public String toString() {
         return (version.equals(CrsUtil.CRS_DEFAULT_VERSION))
-                ? authority + ":" + code
-                : authority + ":" + code + "(" + version + ")";
+               ? authority + ":" + code
+               : authority + ":" + code + "(" + version + ")";
     }
 
     /* NOTE: "In the EPSG Dataset codes are assigned to CRSs, coordinate transformations,
@@ -148,13 +148,13 @@ public class CrsDefinition {
      */
     public boolean equals(CrsDefinition crs) {
         boolean out = (crs.getAuthority().equals(authority) &&
-                crs.getVersion().equals(version)            &&
-                crs.getCode().equals(code));
+                       crs.getVersion().equals(version)            &&
+                       crs.getCode().equals(code));
 
         // Consistency check
         if (out && !crs.getType().equals(type)) {
             log.warn("(!) Found two CRS definitions of " + this + " of different types:"
-                    + type + " != " + crs.getType());
+                     + type + " != " + crs.getType());
         }
         return out;
     }
@@ -165,14 +165,14 @@ public class CrsDefinition {
      * @return
      */
     public static String getAxisTypeByName(String axisName) {
-        for(String str : X_ALIASES) {
-            if(str.equals(axisName)) {
+        for (String str : X_ALIASES) {
+            if (str.equals(axisName)) {
                 return AxisTypes.X_AXIS;
             }
         }
 
-        for(String str : Y_ALIASES) {
-            if(str.equals(axisName)) {
+        for (String str : Y_ALIASES) {
+            if (str.equals(axisName)) {
                 return AxisTypes.Y_AXIS;
             }
         }
@@ -188,7 +188,7 @@ public class CrsDefinition {
         AxisDirection direction;
         String axisType = getAxisTypeByName(axisName);
         // If axisType == "x" -> East, axisType == "y" -> North
-        if(axisType.equals(AxisTypes.X_AXIS)) {
+        if (axisType.equals(AxisTypes.X_AXIS)) {
             direction = AxisDirection.EASTING;
         } else if (axisType.equals(AxisTypes.Y_AXIS)) {
             direction = AxisDirection.NORTHING;

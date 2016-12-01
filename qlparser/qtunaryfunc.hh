@@ -48,22 +48,22 @@ class QtIntervalLoOp : public QtUnaryOperation
 {
 public:
     /// constructor getting operand
-    QtIntervalLoOp( QtOperation* newInput );
+    QtIntervalLoOp(QtOperation* newInput);
 
     /// evaluates the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes
@@ -86,22 +86,22 @@ class QtIntervalHiOp : public QtUnaryOperation
 {
 public:
     /// constructor getting operand
-    QtIntervalHiOp( QtOperation* newInput );
+    QtIntervalHiOp(QtOperation* newInput);
 
     /// evaluates the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes
@@ -123,13 +123,13 @@ class QtSDom : public QtUnaryOperation
 {
 public:
     /// constructor getting operand
-    QtSDom( QtOperation* newInput );
+    QtSDom(QtOperation* newInput);
 
     /// evaluates the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
 
     /// optimizing load access
-    virtual void optimizeLoad( QtTrimList* trimList );
+    virtual void optimizeLoad(QtTrimList* trimList);
     /**
       The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
       message with empty triming list to its operand tree.
@@ -138,16 +138,16 @@ public:
     */
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking
-    virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes

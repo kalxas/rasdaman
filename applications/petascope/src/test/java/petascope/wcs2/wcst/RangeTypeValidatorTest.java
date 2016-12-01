@@ -137,10 +137,10 @@ public class RangeTypeValidatorTest {
         } catch (NoSuchMethodException e) {
             return 3;
         } catch (InvocationTargetException e) {
-            if(e.getTargetException() instanceof WCSTRangeFieldNumberMismatchException){
+            if (e.getTargetException() instanceof WCSTRangeFieldNumberMismatchException) {
                 return 1;
             }
-            if(e.getTargetException() instanceof WCSTRangeFieldNameMismatchException){
+            if (e.getTargetException() instanceof WCSTRangeFieldNameMismatchException) {
                 return 2;
             }
             return 3;

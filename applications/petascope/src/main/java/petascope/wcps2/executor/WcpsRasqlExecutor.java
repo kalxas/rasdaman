@@ -35,33 +35,33 @@ import petascope.wcps2.result.WcpsResult;
  */
 public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
 
-    public WcpsRasqlExecutor(){}
-    
+    public WcpsRasqlExecutor() {}
+
     /**
      * Execute the Rasql query and return result.
      * @param wcpsResult
-     * @return 
+     * @return
      */
-    public byte[] execute(WcpsResult wcpsResult) throws WCSException{
+    public byte[] execute(WcpsResult wcpsResult) throws WCSException {
         byte[] result = new byte[0];
 
         RasQueryResult res = null;
-           try {
-               res = new RasQueryResult(RasUtil.executeRasqlQuery(wcpsResult.getRasql()));
+        try {
+            res = new RasQueryResult(RasUtil.executeRasqlQuery(wcpsResult.getRasql()));
 
-               if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
-                   for (String s : res.getScalars()) {
-                       result = s.getBytes(Charset.forName("UTF-8"));
-                   }
-                   for (byte[] bs : res.getMdds()) {
-                       result = bs;
-                   }
-               } else {
+            if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
+                for (String s : res.getScalars()) {
+                    result = s.getBytes(Charset.forName("UTF-8"));
+                }
+                for (byte[] bs : res.getMdds()) {
+                    result = bs;
+                }
+            } else {
 
-               }
-           } catch (Exception ex) {
-               throw new WCSException(ExceptionCode.SemanticError, ex);
-           }
+            }
+        } catch (Exception ex) {
+            throw new WCSException(ExceptionCode.SemanticError, ex);
+        }
         return result;
     }
 }

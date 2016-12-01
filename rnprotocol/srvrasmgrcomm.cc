@@ -116,8 +116,8 @@ void SrvRasmgrComm::informRasMGR(int what)
 
     struct protoent* getprotoptr = getprotobyname("tcp");
 
-    struct hostent *hostinfo = gethostbyname(rasmgrHost);
-    if(hostinfo==NULL)
+    struct hostent* hostinfo = gethostbyname(rasmgrHost);
+    if (hostinfo == NULL)
     {
         LERROR << "Error: cannot locate rasmgr host '" << rasmgrHost << "': " << strerror(errno);
         return;
@@ -125,34 +125,34 @@ void SrvRasmgrComm::informRasMGR(int what)
 
     sockaddr_in internetSocketAddress;
     internetSocketAddress.sin_family = AF_INET;
-    internetSocketAddress.sin_port=htons(rasmgrPort);
-    internetSocketAddress.sin_addr=*(struct in_addr*)hostinfo->h_addr;
+    internetSocketAddress.sin_port = htons(rasmgrPort);
+    internetSocketAddress.sin_addr = *(struct in_addr*)hostinfo->h_addr;
 
     int sock;
 
-    bool ok=false;
-    long talkInterval=SRV_TALK_INTERVAL;
-    long maxRetry=SRV_MAX_RETRY;
-    long retry =0;
+    bool ok = false;
+    long talkInterval = SRV_TALK_INTERVAL;
+    long maxRetry = SRV_MAX_RETRY;
+    long retry = 0;
     // creating socket
-    for(retry=0; retry<maxRetry; retry++)
+    for (retry = 0; retry < maxRetry; retry++)
     {
-        sock=socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
+        sock = socket(PF_INET, SOCK_STREAM, getprotoptr->p_proto);
         //std::cout<<"Socket="<<sock<<" protocol(tcp)="<<getprotoptr->p_proto<<std::endl;
 
-        if(sock<0)
+        if (sock < 0)
         {
-            if( (retry%talkInterval) == 0)
+            if ((retry % talkInterval) == 0)
             {
-                std::cerr<< "Error: server '" << serverName << " cannot open socket to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno) << std::endl;
+                std::cerr << "Error: server '" << serverName << " cannot open socket to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno) << std::endl;
                 LERROR << "Error: server '" << serverName << " cannot open socket to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno);
             }
             continue;
         }
 
-        if(connect(sock,(struct sockaddr*)&internetSocketAddress,sizeof(internetSocketAddress)) < 0)
+        if (connect(sock, (struct sockaddr*)&internetSocketAddress, sizeof(internetSocketAddress)) < 0)
         {
-            if( (retry%talkInterval) == 0)
+            if ((retry % talkInterval) == 0)
             {
                 std::cerr << "Error: server '" << serverName << " cannot connect to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno) << std::endl;
                 LERROR << "Error: server '" << serverName << " cannot connect to rasmgr (" << retry << " attempts, still retrying): " << strerror(errno);
@@ -164,50 +164,56 @@ void SrvRasmgrComm::informRasMGR(int what)
         break;
     }
 
-    if( !ok )
+    if (!ok)
     {
-        std::cerr << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up." <<std::endl;
+        std::cerr << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up." << std::endl;
         LFATAL << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up.";
-        if(sock)
+        if (sock)
+        {
             close(sock);
-        exit( EXIT_CODE );
+        }
+        exit(EXIT_CODE);
     }
 
     // creating the HTTP message
     char message[200];
-    sprintf(message,"%s%lu\r\n\r\n%s %d %d ","POST rasservernewstatus HTTP/1.1\r\nUserAgent: RasServer/1.0\r\nContent-length: ",strlen(serverName)+3,serverName,what,0);
+    sprintf(message, "%s%lu\r\n\r\n%s %d %d ", "POST rasservernewstatus HTTP/1.1\r\nUserAgent: RasServer/1.0\r\nContent-length: ", strlen(serverName) + 3, serverName, what, 0);
 
     // writing message;
-    if(writeWholeMessage(sock,message,strlen(message)+1)<0)
+    if (writeWholeMessage(sock, message, strlen(message) + 1) < 0)
     {
         std::cerr << "Error: cannot send message to rasmgr: " << strerror(errno) << std::endl;
         LFATAL << "Error: cannot send message to rasmgr: " << strerror(errno);
         close(sock);
-        exit( EXIT_CODE );
+        exit(EXIT_CODE);
     }
     close(sock);
 }
 
 
-int SrvRasmgrComm::writeWholeMessage(int socket,char *destBuffer,int buffSize)
+int SrvRasmgrComm::writeWholeMessage(int socket, char* destBuffer, int buffSize)
 {
     // we write the whole message, including the ending '\0', which is already in
     // the buffSize provided by the caller
-    int totalLength=0;
+    int totalLength = 0;
     int writeNow;
-    while(1)
+    while (1)
     {
-        writeNow = write(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
-        if(writeNow == -1)
+        writeNow = write(socket, destBuffer + totalLength, static_cast<size_t>(buffSize - totalLength));
+        if (writeNow == -1)
         {
-            if(errno == EINTR)
-                continue; // read was interrupted by signal (on bad SO's)
+            if (errno == EINTR)
+            {
+                continue;    // read was interrupted by signal (on bad SO's)
+            }
             return -1; // another error
         }
-        totalLength+=writeNow;
+        totalLength += writeNow;
 
-        if( totalLength==buffSize )
-            break; // THE END
+        if (totalLength == buffSize)
+        {
+            break;    // THE END
+        }
     }
 
     return totalLength;

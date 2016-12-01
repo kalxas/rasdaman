@@ -26,7 +26,7 @@ namespace rasmgr
 {
 
 std::string RasCtrlGrammarConstants::login = "login";
-std::string RasCtrlGrammarConstants::exit= "exit";
+std::string RasCtrlGrammarConstants::exit = "exit";
 std::string RasCtrlGrammarConstants::bye = "bye";
 std::string RasCtrlGrammarConstants::quit = "quit";
 

@@ -185,32 +185,32 @@ using std::ostringstream;
 
 // admissible parameter values for the map types
 // (double values for compatibility with the variations done at AK)
-const char* TYPE_DOP_GREY_1 ="gray8";
-const char* TYPE_DOP_GREY_2 ="GREY";
-const char* TYPE_DOP_RGB_1  ="rgb24";
-const char* TYPE_DOP_RGB_2  ="RGB";
-const char* TYPE_TK32_1     ="tk32";
-const char* TYPE_TK32_2     ="TK";
-const char* TYPE_TK8        ="tk8";
-const char* TYPE_DEM_1      ="dem32";
-const char* TYPE_DEM_2      ="DEM";
+const char* TYPE_DOP_GREY_1 = "gray8";
+const char* TYPE_DOP_GREY_2 = "GREY";
+const char* TYPE_DOP_RGB_1  = "rgb24";
+const char* TYPE_DOP_RGB_2  = "RGB";
+const char* TYPE_TK32_1     = "tk32";
+const char* TYPE_TK32_2     = "TK";
+const char* TYPE_TK8        = "tk8";
+const char* TYPE_DEM_1      = "dem32";
+const char* TYPE_DEM_2      = "DEM";
 
 // corresponding rasdaman MDD types (cf. ~rasdaman/examples/rasdl/basictypes.dl)
-const char* MDD_DOP_GREY= "GreyImage";
+const char* MDD_DOP_GREY = "GreyImage";
 const char* MDD_DOP_RGB = "RGBImage";
 const char* MDD_TK32    = "ULongImage";
 const char* MDD_TK8 = "GreyImage";
 const char* MDD_DEM = "DoubleImage";
 
 // corresponding rasdaman MDD set types
-const char* SET_DOP_GREY= "GreySet";
+const char* SET_DOP_GREY = "GreySet";
 const char* SET_DOP_RGB = "RGBSet";
 const char* SET_TK32    = "ULongSet";
 const char* SET_TK8 = "GreySet";
 const char* SET_DEM = "DoubleSet";
 
 // cell size for each type (in bytes)
-const unsigned int SIZE_DOP_GREY= 1;
+const unsigned int SIZE_DOP_GREY = 1;
 const unsigned int SIZE_DOP_RGB = 3;
 const unsigned int SIZE_TK32    = 4;
 const unsigned int SIZE_TK8 = 1;
@@ -226,7 +226,7 @@ r_Transaction ta;
 bool dbIsOpen = false;
 bool taIsOpen = false;
 
-int  optionValueIndex=0;
+int  optionValueIndex = 0;
 
 // bbox coordinates / pixel
 long pixXmin = 0;
@@ -236,15 +236,15 @@ long pixYmax = 0;
 
 unsigned long tileEdge = DEFAULT_TILEEDGE;
 
-const char *mapName = NULL;
-const char *mapType = DEFAULT_MAPTYPE;
+const char* mapName = NULL;
+const char* mapType = DEFAULT_MAPTYPE;
 
-const char *serverName = DEFAULT_SERV;
+const char* serverName = DEFAULT_SERV;
 r_ULong serverPort = DEFAULT_PORT;
-const char *dbName = DEFAULT_DBNAME;
+const char* dbName = DEFAULT_DBNAME;
 
-const char *user = DEFAULT_USER;
-const char *passwd = DEFAULT_PASSWD;
+const char* user = DEFAULT_USER;
+const char* passwd = DEFAULT_PASSWD;
 
 
 // number of pyramid levels (excl base layer), or AUTO_LEVEL for dynamic pyramids
@@ -272,56 +272,56 @@ void
 openTransaction(bool readwrite) throw (r_Error);
 
 void
-closeTransaction( bool doCommit ) throw (r_Error);
+closeTransaction(bool doCommit) throw (r_Error);
 
 void
-getType( const char* mapType2, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP ) throw (InitError);
+getType(const char* mapType2, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP) throw (InitError);
 
 void
-extendToFit(long &dim);
+extendToFit(long& dim);
 
 void
-normalize ( long& pixXminP, long& pixXmaxP,  long& pixYminP,  long& pixYmaxP );
+normalize(long& pixXminP, long& pixXmaxP,  long& pixYminP,  long& pixYmaxP);
 
 void
-createPyramids( const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin2, long pixXmax2, long pixYmin2, long pixYmax2 ) throw (r_Error, InitError);
+createPyramids(const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin2, long pixXmax2, long pixYmin2, long pixYmax2) throw (r_Error, InitError);
 
 
 void parseParams(int argc, char** argv) throw (InitError, r_Error)
 {
     //program interface
-    CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
+    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
 
-    CommandLineParameter &cmlHelp           = cmlInter.addFlagParameter( FLAG_HELP, PARAM_HELP, HELP_HELP );
+    CommandLineParameter& cmlHelp           = cmlInter.addFlagParameter(FLAG_HELP, PARAM_HELP, HELP_HELP);
 
-    CommandLineParameter &cmlXmin       = cmlInter.addStringParameter( FLAG_XMIN, PARAM_XMIN, HELP_XMIN );
-    CommandLineParameter &cmlXmax       = cmlInter.addStringParameter( FLAG_XMAX, PARAM_XMAX, HELP_XMAX );
-    CommandLineParameter &cmlYmin       = cmlInter.addStringParameter( FLAG_YMIN, PARAM_YMIN, HELP_YMIN );
-    CommandLineParameter &cmlYmax       = cmlInter.addStringParameter( FLAG_YMAX, PARAM_YMAX, HELP_YMAX );
+    CommandLineParameter& cmlXmin       = cmlInter.addStringParameter(FLAG_XMIN, PARAM_XMIN, HELP_XMIN);
+    CommandLineParameter& cmlXmax       = cmlInter.addStringParameter(FLAG_XMAX, PARAM_XMAX, HELP_XMAX);
+    CommandLineParameter& cmlYmin       = cmlInter.addStringParameter(FLAG_YMIN, PARAM_YMIN, HELP_YMIN);
+    CommandLineParameter& cmlYmax       = cmlInter.addStringParameter(FLAG_YMAX, PARAM_YMAX, HELP_YMAX);
 
-    CommandLineParameter &cmlMapname    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MAPNAME, HELP_MAPNAME );
-    CommandLineParameter &cmlMaptype    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MAPTYPE, HELP_MAPTYPE, DEFAULT_MAPTYPE );
-    CommandLineParameter &cmlLevels     = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_LEVELS, HELP_LEVELS );
-    CommandLineParameter &cmlTileedge   = cmlInter.addLongParameter(CommandLineParser::noShortName, PARAM_TILEEDGE, HELP_TILEEDGE, DEFAULT_TILEEDGE );
-    CommandLineParameter &cmlSrvName    = cmlInter.addStringParameter( FLAG_SERV, PARAM_SERV, HELP_SERV, DEFAULT_SERV );
-    CommandLineParameter &cmlSrvPort    = cmlInter.addLongParameter(CommandLineParser::noShortName, PARAM_PORT, HELP_PORT,  DEFAULT_PORT );
-    CommandLineParameter &cmlDbName     = cmlInter.addStringParameter( FLAG_DB, PARAM_DB, HELP_DB, DEFAULT_DBNAME );
-    CommandLineParameter &cmlUsrName    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER );
-    CommandLineParameter &cmlUsrPasswd  = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD );
+    CommandLineParameter& cmlMapname    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MAPNAME, HELP_MAPNAME);
+    CommandLineParameter& cmlMaptype    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MAPTYPE, HELP_MAPTYPE, DEFAULT_MAPTYPE);
+    CommandLineParameter& cmlLevels     = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_LEVELS, HELP_LEVELS);
+    CommandLineParameter& cmlTileedge   = cmlInter.addLongParameter(CommandLineParser::noShortName, PARAM_TILEEDGE, HELP_TILEEDGE, DEFAULT_TILEEDGE);
+    CommandLineParameter& cmlSrvName    = cmlInter.addStringParameter(FLAG_SERV, PARAM_SERV, HELP_SERV, DEFAULT_SERV);
+    CommandLineParameter& cmlSrvPort    = cmlInter.addLongParameter(CommandLineParser::noShortName, PARAM_PORT, HELP_PORT,  DEFAULT_PORT);
+    CommandLineParameter& cmlDbName     = cmlInter.addStringParameter(FLAG_DB, PARAM_DB, HELP_DB, DEFAULT_DBNAME);
+    CommandLineParameter& cmlUsrName    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
+    CommandLineParameter& cmlUsrPasswd  = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
 
 #if 0 // not yet implemented
-    CommandLineParameter &cmlHindex     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_HINDEX, HELP_HINDEX );
+    CommandLineParameter& cmlHindex     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_HINDEX, HELP_HINDEX);
 #endif
 
 #ifdef DEBUG
-    CommandLineParameter &cmlDebug          = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DEBUG, HELP_DEBUG );
+    CommandLineParameter& cmlDebug          = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DEBUG, HELP_DEBUG);
 #endif
 
     try
     {
         cmlInter.processCommandLine(argc, argv);
 
-        if (cmlInter.isPresent( FLAG_HELP ) || argc == 1)
+        if (cmlInter.isPresent(FLAG_HELP) || argc == 1)
         {
             cout << "options:" << endl;
             cmlInter.printHelp();
@@ -330,98 +330,122 @@ void parseParams(int argc, char** argv) throw (InitError, r_Error)
 
 #ifdef DEBUG
         // evaluate optional parameter debug --------------------------------------
-        debug = cmlInter.isPresent( PARAM_DEBUG );
-        SET_OUTPUT( debug );
+        debug = cmlInter.isPresent(PARAM_DEBUG);
+        SET_OUTPUT(debug);
 #endif
 
         // check mandatory parameters ====================================================
 
         // evaluate mandatory parameter mapname  --------------------------------------
-        if (cmlInter.isPresent( PARAM_MAPNAME ))
-            mapName = cmlInter.getValueAsString( PARAM_MAPNAME );
+        if (cmlInter.isPresent(PARAM_MAPNAME))
+        {
+            mapName = cmlInter.getValueAsString(PARAM_MAPNAME);
+        }
         else
-            throw InitError( NOCOLLNAME );
+        {
+            throw InitError(NOCOLLNAME);
+        }
 
         // evaluate mandatory parameter xmin --------------------------------------
-        if ( cmlInter.isPresent( PARAM_XMIN ) )
+        if (cmlInter.isPresent(PARAM_XMIN))
         {
-            const char *nptr = cmlInter.getValueAsString( PARAM_XMIN );
+            const char* nptr = cmlInter.getValueAsString(PARAM_XMIN);
             if (nptr == NULL)
-                throw InitError( INVALIDFLOAT );
-            char *endptr = NULL;        // used by strtod(), receives indicator on success
-            pixXmin = ceil(strtod( nptr, &endptr ));
+            {
+                throw InitError(INVALIDFLOAT);
+            }
+            char* endptr = NULL;        // used by strtod(), receives indicator on success
+            pixXmin = ceil(strtod(nptr, &endptr));
             if (endptr == nptr || errno == ERANGE)  // strtod() conversion error
             {
-                throw InitError( INVALIDFLOAT );
+                throw InitError(INVALIDFLOAT);
             }
         }
         else
-            throw InitError( NOXMIN );
+        {
+            throw InitError(NOXMIN);
+        }
 
         // evaluate mandatory parameter xmax  --------------------------------------
-        if ( cmlInter.isPresent( PARAM_XMAX ) )
+        if (cmlInter.isPresent(PARAM_XMAX))
         {
-            const char *nptr = cmlInter.getValueAsString( PARAM_XMAX );
+            const char* nptr = cmlInter.getValueAsString(PARAM_XMAX);
             if (nptr == NULL)
-                throw InitError( INVALIDFLOAT );
-            char *endptr = NULL;        // used by strtod(), receives indicator on success
-            pixXmax = ceil(strtod( nptr, &endptr ));
+            {
+                throw InitError(INVALIDFLOAT);
+            }
+            char* endptr = NULL;        // used by strtod(), receives indicator on success
+            pixXmax = ceil(strtod(nptr, &endptr));
             if (endptr == nptr || errno == ERANGE)  // strtod() conversion error
             {
-                throw InitError( INVALIDFLOAT );
+                throw InitError(INVALIDFLOAT);
             }
         }
         else
-            throw InitError( NOXMAX );
+        {
+            throw InitError(NOXMAX);
+        }
 
         // evaluate mandatory parameter ymin  --------------------------------------
-        if ( cmlInter.isPresent( PARAM_YMIN ) )
+        if (cmlInter.isPresent(PARAM_YMIN))
         {
-            const char *nptr = cmlInter.getValueAsString( PARAM_YMIN );
+            const char* nptr = cmlInter.getValueAsString(PARAM_YMIN);
             if (nptr == NULL)
-                throw InitError( INVALIDFLOAT );
-            char *endptr = NULL;        // used by strtod(), receives indicator on success
-            pixYmin = ceil(strtod( nptr, &endptr ));
+            {
+                throw InitError(INVALIDFLOAT);
+            }
+            char* endptr = NULL;        // used by strtod(), receives indicator on success
+            pixYmin = ceil(strtod(nptr, &endptr));
             if (endptr == nptr || errno == ERANGE)  // strtod() conversion error
             {
-                throw InitError( INVALIDFLOAT );
+                throw InitError(INVALIDFLOAT);
             }
         }
         else
-            throw InitError( NOYMIN );
+        {
+            throw InitError(NOYMIN);
+        }
 
         // evaluate optional parameter levels --------------------------------------
 
-        if ( cmlInter.isPresent( PARAM_LEVELS ) )
+        if (cmlInter.isPresent(PARAM_LEVELS))
         {
-            const char* levelsString = cmlInter.getValueAsString( PARAM_LEVELS );
+            const char* levelsString = cmlInter.getValueAsString(PARAM_LEVELS);
 
-            if (strncasecmp( AUTO_LEVEL_STRING, levelsString, sizeof(AUTO_LEVEL_STRING) ) == 0)
+            if (strncasecmp(AUTO_LEVEL_STRING, levelsString, sizeof(AUTO_LEVEL_STRING)) == 0)
+            {
                 levels = AUTO_LEVEL;
+            }
             else
             {
-                const char *i;
-                char *end;
+                const char* i;
+                char* end;
                 i = levelsString;
                 do
                 {
                     double val = strtod(i, &end);
-                    if (*end==LEVEL_SEPARATOR)
-                        i = end+1;
+                    if (*end == LEVEL_SEPARATOR)
+                    {
+                        i = end + 1;
+                    }
                     else if (*end != '\0')
-                        throw InitError( INVALIDLEVEL );
+                    {
+                        throw InitError(INVALIDLEVEL);
+                    }
                     if (val < 1)
                     {
                         cout << "Error: level must be >= 1, but is: " << val << std::endl;
-                        throw InitError( INVALIDLEVEL );
+                        throw InitError(INVALIDLEVEL);
                     }
                     levelValues.push_back(val);
                 }
-                while (*end!='\0');
+                while (*end != '\0');
 
                 levels = levelValues.size();
                 if (levels < 0)
-                    throw InitError( INVALIDLEVEL );
+                {
+                    throw InitError(INVALIDLEVEL);
+                }
             }
         }
         else
@@ -432,71 +456,89 @@ void parseParams(int argc, char** argv) throw (InitError, r_Error)
 
 
         // evaluate mandatory parameter ymax --------------------------------------
-        if ( cmlInter.isPresent( PARAM_YMAX ) )
+        if (cmlInter.isPresent(PARAM_YMAX))
         {
-            const char *nptr = cmlInter.getValueAsString( PARAM_YMAX );
+            const char* nptr = cmlInter.getValueAsString(PARAM_YMAX);
             if (nptr == NULL)
-                throw InitError( INVALIDFLOAT );
-            char *endptr = NULL;        // used by strtod(), receives indicator on success
-            pixYmax = ceil(strtod( nptr, &endptr ));
+            {
+                throw InitError(INVALIDFLOAT);
+            }
+            char* endptr = NULL;        // used by strtod(), receives indicator on success
+            pixYmax = ceil(strtod(nptr, &endptr));
             if (endptr == nptr || errno == ERANGE)  // strtod() conversion error
             {
-                throw InitError( INVALIDFLOAT );
+                throw InitError(INVALIDFLOAT);
             }
         }
         else
-            throw InitError( NOYMAX );
+        {
+            throw InitError(NOYMAX);
+        }
 
         // check optional parameters ====================================================
 
         // evaluate optional parameter maptype  --------------------------------------
-        if (cmlInter.isPresent( PARAM_MAPTYPE ))
-            mapType = cmlInter.getValueAsString( PARAM_MAPTYPE );
+        if (cmlInter.isPresent(PARAM_MAPTYPE))
+        {
+            mapType = cmlInter.getValueAsString(PARAM_MAPTYPE);
+        }
 
         // evaluate optional parameter tileedge --------------------------------------
-        if ( cmlInter.isPresent( PARAM_TILEEDGE ) )
+        if (cmlInter.isPresent(PARAM_TILEEDGE))
         {
-            tileEdge = static_cast<size_t>(cmlInter.getValueAsLong( PARAM_TILEEDGE ));
+            tileEdge = static_cast<size_t>(cmlInter.getValueAsLong(PARAM_TILEEDGE));
             if (tileEdge <= 0)
-                throw InitError( INVALIDTILEEDGE );
+            {
+                throw InitError(INVALIDTILEEDGE);
+            }
         }
 
 #if 0 // not yet implemented
         // evaluate optional parameter Hindex --------------------------------------
-        useHindex = cmlInter.isPresent( PARAM_HINDEX );
+        useHindex = cmlInter.isPresent(PARAM_HINDEX);
 #endif
 
         // evaluate optional parameter server --------------------------------------
-        if (cmlInter.isPresent( PARAM_SERV ))
-            serverName = cmlInter.getValueAsString( PARAM_SERV );
+        if (cmlInter.isPresent(PARAM_SERV))
+        {
+            serverName = cmlInter.getValueAsString(PARAM_SERV);
+        }
 
         // evaluate optional parameter port --------------------------------------
-        if (cmlInter.isPresent( PARAM_PORT ))
-            serverPort = cmlInter.getValueAsLong( PARAM_PORT );
+        if (cmlInter.isPresent(PARAM_PORT))
+        {
+            serverPort = cmlInter.getValueAsLong(PARAM_PORT);
+        }
 
         // evaluate optional parameter database --------------------------------------
-        if (cmlInter.isPresent( PARAM_DB ))
-            dbName = cmlInter.getValueAsString( PARAM_DB );
+        if (cmlInter.isPresent(PARAM_DB))
+        {
+            dbName = cmlInter.getValueAsString(PARAM_DB);
+        }
 
         // evaluate optional parameter user --------------------------------------
-        if (cmlInter.isPresent( PARAM_USER ))
-            user = cmlInter.getValueAsString( PARAM_USER );
+        if (cmlInter.isPresent(PARAM_USER))
+        {
+            user = cmlInter.getValueAsString(PARAM_USER);
+        }
 
         // evaluate optional parameter passwd --------------------------------------
-        if (cmlInter.isPresent( PARAM_PASSWD ))
-            passwd = cmlInter.getValueAsString( PARAM_PASSWD );
+        if (cmlInter.isPresent(PARAM_PASSWD))
+        {
+            passwd = cmlInter.getValueAsString(PARAM_PASSWD);
+        }
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cout << err.what() << endl;
-        throw InitError( ERRORPARSINGCOMMANDLINE );
+        throw InitError(ERRORPARSINGCOMMANDLINE);
     }
 
 
     // plausi check of parameters
     if (pixXmin > pixXmax || pixYmin > pixYmax)
     {
-        throw InitError( INVALIDBBOX );
+        throw InitError(INVALIDBBOX);
     }
 
     LDEBUG << "server=" << serverName << ", port=" << serverPort << ", database=" << dbName << ", user=" << user << ", passwd=" << passwd;
@@ -514,9 +556,9 @@ openDatabase() throw (r_Error)
     {
         cout << "opening database " <<  dbName  << " at " << serverName << ":" << serverPort << "..." << flush;
         db.set_servername(serverName, static_cast<int>(serverPort));
-        db.set_useridentification( user, passwd);
+        db.set_useridentification(user, passwd);
         LDEBUG << "database was closed, opening database=" <<  dbName  << ", server=" << serverName << ", port=" << serverPort << ", user=" <<  user << ", passwd=" << passwd << "...";
-        db.open( dbName );
+        db.open(dbName);
         LDEBUG << "done";
         dbIsOpen = true;
         cout << "ok" << endl << flush;
@@ -554,17 +596,17 @@ openTransaction(bool readwrite) throw (r_Error)
         }
 
         LDEBUG << "setting transfer format to r_Array";
-        db.set_transfer_format( r_Array, "" );
+        db.set_transfer_format(r_Array, "");
 
         LDEBUG << "setting storage format to r_ZLib";
-        db.set_storage_format( r_ZLib, "" );
+        db.set_storage_format(r_ZLib, "");
 
         taIsOpen = true;
     }
 }
 
 void
-closeTransaction( bool doCommit ) throw (r_Error)
+closeTransaction(bool doCommit) throw (r_Error)
 {
     if (taIsOpen)
     {
@@ -588,44 +630,46 @@ closeTransaction( bool doCommit ) throw (r_Error)
 
 // determine database mdd and set type from input parameter
 void
-getType( const char* mapType2, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP ) throw (InitError)
+getType(const char* mapType2, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP) throw (InitError)
 {
-    if (strcasecmp( mapType2, TYPE_DOP_GREY_1 ) == 0 || strcasecmp( mapType2, TYPE_DOP_GREY_2 ) == 0)
+    if (strcasecmp(mapType2, TYPE_DOP_GREY_1) == 0 || strcasecmp(mapType2, TYPE_DOP_GREY_2) == 0)
     {
         *mddTypeP = MDD_DOP_GREY;
         *setTypeP = SET_DOP_GREY;
         *cellSizeP = SIZE_DOP_GREY;
     }
-    else if (strcasecmp( mapType2, TYPE_DOP_RGB_1 ) == 0 || strcasecmp( mapType2, TYPE_DOP_RGB_2 ) == 0)
+    else if (strcasecmp(mapType2, TYPE_DOP_RGB_1) == 0 || strcasecmp(mapType2, TYPE_DOP_RGB_2) == 0)
     {
         *mddTypeP = MDD_DOP_RGB;
         *setTypeP = SET_DOP_RGB;
         *cellSizeP = SIZE_DOP_RGB;
     }
-    else if (strcasecmp( mapType2, TYPE_TK32_1 ) == 0 || strcasecmp( mapType2, TYPE_TK32_2 ) == 0)
+    else if (strcasecmp(mapType2, TYPE_TK32_1) == 0 || strcasecmp(mapType2, TYPE_TK32_2) == 0)
     {
         *mddTypeP = MDD_TK32;
         *setTypeP = SET_TK32;
         *cellSizeP = SIZE_TK32;
     }
-    else if (strcasecmp( mapType2, TYPE_TK8 ) == 0)
+    else if (strcasecmp(mapType2, TYPE_TK8) == 0)
     {
         *mddTypeP = MDD_TK8;
         *setTypeP = SET_TK8;
         *cellSizeP = SIZE_TK8;
     }
-    else if (strcasecmp( mapType2, TYPE_DEM_1 ) == 0 || strcasecmp( mapType2, TYPE_DEM_2 ) == 0)
+    else if (strcasecmp(mapType2, TYPE_DEM_1) == 0 || strcasecmp(mapType2, TYPE_DEM_2) == 0)
     {
         *mddTypeP = MDD_DEM;
         *setTypeP = SET_DEM;
         *cellSizeP = SIZE_DEM;
     }
     else
-        throw InitError( ILLEGALMAPTYPE );
+    {
+        throw InitError(ILLEGALMAPTYPE);
+    }
 }
 
 // extends current dimension to be a multiple of tileEdge
-void extendToFit(long &dim)
+void extendToFit(long& dim)
 {
     dim ++;
     dim += (static_cast<long>(tileEdge) - dim % static_cast<long>(tileEdge)) % static_cast<long>(tileEdge);
@@ -633,7 +677,7 @@ void extendToFit(long &dim)
 }
 
 // bring everything to origin
-void normalize ( __attribute__ ((unused)) long& pixXminP,  __attribute__ ((unused))long& pixXmaxP,  __attribute__ ((unused))long& pixYminP,  __attribute__ ((unused))long& pixYmaxP )
+void normalize(__attribute__((unused)) long& pixXminP,  __attribute__((unused))long& pixXmaxP,  __attribute__((unused))long& pixYminP,  __attribute__((unused))long& pixYmaxP)
 {
     pixXmax -= pixXmin;
     pixYmax -= pixYmin;
@@ -643,7 +687,7 @@ void normalize ( __attribute__ ((unused)) long& pixXminP,  __attribute__ ((unuse
 }
 
 
-void createPyramids( const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin2, long pixXmax2, long pixYmin2, long pixYmax2 ) throw (r_Error, InitError)
+void createPyramids(const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin2, long pixXmax2, long pixYmin2, long pixYmax2) throw (r_Error, InitError)
 {
     long currentXmin;
     long currentYmin;
@@ -655,26 +699,28 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
     currentYmax = pixYmax2;
 
     // tile domain, equals lower left domain
-    r_Minterval tileDomain = r_Minterval( 2 )
-                             << r_Sinterval( static_cast<r_Range>(currentXmin), static_cast<r_Range>(currentXmin+static_cast<int>(tileEdge)-1) )
-                             << r_Sinterval( static_cast<r_Range>(currentYmin), static_cast<r_Range>(currentYmin+static_cast<int>(tileEdge)-1) );
+    r_Minterval tileDomain = r_Minterval(2)
+                             << r_Sinterval(static_cast<r_Range>(currentXmin), static_cast<r_Range>(currentXmin + static_cast<int>(tileEdge) - 1))
+                             << r_Sinterval(static_cast<r_Range>(currentYmin), static_cast<r_Range>(currentYmin + static_cast<int>(tileEdge) - 1));
 
     // query object preparations, including MDD object array
     string queryBuffer;
     unsigned long bufferSize = tileEdge * tileEdge * cellSize;
-    char *arrayBuffer = new char[ bufferSize ];
+    char* arrayBuffer = new char[ bufferSize ];
     if (arrayBuffer == NULL)
-        throw InitError( ALLOCFAIL );
-    memset( arrayBuffer, DEFAULT_CELL_VALUE, bufferSize );
+    {
+        throw InitError(ALLOCFAIL);
+    }
+    memset(arrayBuffer, DEFAULT_CELL_VALUE, bufferSize);
 
     // walk through the pyramid levels
-    for ( int currentLevel = 0;
+    for (int currentLevel = 0;
             // termination criterion:
             // - if auto: look at tile size underflow
-            (  (levels==AUTO_LEVEL && (currentXmax-currentXmin>static_cast<int>(tileEdge) || (currentYmax-currentYmin)>static_cast<int>(tileEdge)) )
-               // - if fixed level: count levels
-               || (levels!=AUTO_LEVEL && currentLevel < levels ) );
-            currentLevel++ )
+            ((levels == AUTO_LEVEL && (currentXmax - currentXmin > static_cast<int>(tileEdge) || (currentYmax - currentYmin) > static_cast<int>(tileEdge)))
+             // - if fixed level: count levels
+             || (levels != AUTO_LEVEL && currentLevel < levels));
+            currentLevel++)
     {
 
         if (levels != AUTO_LEVEL)
@@ -688,25 +734,27 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
         // prepare collection name for this layer
         string currentMapName;
         if (currentLevel == 0)          // base layer, no suffix
+        {
             currentMapName = string(mapName);
+        }
         else
         {
             char numberString[NUMSTRINGSIZE];
-            memset( numberString, '\0', NUMSTRINGSIZE );
-            sprintf( numberString, "%d", currentLevel );
+            memset(numberString, '\0', NUMSTRINGSIZE);
+            sprintf(numberString, "%d", currentLevel);
             currentMapName = string(mapName) + PYRAMID_SEPARATOR + numberString;
         }
         LDEBUG << "generating layer " << currentLevel << ", name is " << currentMapName;
 
         // domain describing complete area of MDD
-        r_Minterval definitionDomain  = r_Minterval( 2 )
-                                        << r_Sinterval( static_cast<r_Range>(currentXmin), static_cast<r_Range>(currentXmax) )
-                                        << r_Sinterval( static_cast<r_Range>(currentYmin), static_cast<r_Range>(currentYmax) );
+        r_Minterval definitionDomain  = r_Minterval(2)
+                                        << r_Sinterval(static_cast<r_Range>(currentXmin), static_cast<r_Range>(currentXmax))
+                                        << r_Sinterval(static_cast<r_Range>(currentYmin), static_cast<r_Range>(currentYmax));
         const char* definitionDomainString = definitionDomain.get_string_representation();
         // domain describing tile size, also lower left tile
-        tileDomain  = r_Minterval( 2 )
-                                  << r_Sinterval( static_cast<r_Range>(MAP_ORIGIN_X), static_cast<r_Range>(tileEdge-1) )
-                                  << r_Sinterval( static_cast<r_Range>(MAP_ORIGIN_Y), static_cast<r_Range>(tileEdge-1) );
+        tileDomain  = r_Minterval(2)
+                      << r_Sinterval(static_cast<r_Range>(MAP_ORIGIN_X), static_cast<r_Range>(tileEdge - 1))
+                      << r_Sinterval(static_cast<r_Range>(MAP_ORIGIN_Y), static_cast<r_Range>(tileEdge - 1));
         const char* tileDomainString = tileDomain.get_string_representation();
 
         // report current layer
@@ -716,17 +764,17 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
              << " and raster domain=" << definitionDomainString << endl;
 #ifndef TEST
         // generate pyramid collection
-        queryBuffer = string( "CREATE COLLECTION " ) + currentMapName + " " + setTypeName;
+        queryBuffer = string("CREATE COLLECTION ") + currentMapName + " " + setTypeName;
 
-        r_OQL_Query createQuery( queryBuffer.c_str() );
+        r_OQL_Query createQuery(queryBuffer.c_str());
         LDEBUG << "creating collection: " << createQuery.get_query();
-        r_oql_execute( createQuery );
+        r_oql_execute(createQuery);
 
         // now use "unofficial" interface to create MDD tile
         // - get internal communication object
-        ClientComm *cc = db.getComm();
+        ClientComm* cc = db.getComm();
         // - create MDD with proper index
-        r_OId newOId = (static_cast<RnpClientComm*>(cc))->createMDD( currentMapName.c_str(), mddTypeName, definitionDomainString, tileDomainString, !useHindex );
+        r_OId newOId = (static_cast<RnpClientComm*>(cc))->createMDD(currentMapName.c_str(), mddTypeName, definitionDomainString, tileDomainString, !useHindex);
         // - perform tiling of new object
         // ((RnpClientComm*)cc)->extendMDD( newOId, tileDomainString, definitionDomainString );
 
@@ -735,17 +783,17 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
         openDatabase();
         openTransaction(true);
 
-        cout << INDENT << "Mdd with oid= " << newOId.get_string_representation() << ", tiledomain=" << tileDomain << " and " << (useHindex ? "Hindex" : "RCIndex" ) << "..." << flush;
+        cout << INDENT << "Mdd with oid= " << newOId.get_string_representation() << ", tiledomain=" << tileDomain << " and " << (useHindex ? "Hindex" : "RCIndex") << "..." << flush;
 #else
-        cout << INDENT << "Mdd with tiledomain=" << tileDomain << " and " << (useHindex ? "Hindex" : "RCIndex" ) << "..." << flush;
+        cout << INDENT << "Mdd with tiledomain=" << tileDomain << " and " << (useHindex ? "Hindex" : "RCIndex") << "..." << flush;
 #endif // TEST
 
         cout << "ok" << endl;
 
         if (levels == AUTO_LEVEL)
         {
-            currentXmax = static_cast<long>(ceil( static_cast<double>(currentXmax) / AUTO_LEVEL_FACTOR));
-            currentYmax = static_cast<long>(ceil( static_cast<double>(currentYmax) / AUTO_LEVEL_FACTOR));
+            currentXmax = static_cast<long>(ceil(static_cast<double>(currentXmax) / AUTO_LEVEL_FACTOR));
+            currentYmax = static_cast<long>(ceil(static_cast<double>(currentYmax) / AUTO_LEVEL_FACTOR));
             extendToFit(currentXmax);
             extendToFit(currentYmax);
         }
@@ -764,7 +812,7 @@ int main(int argc, char** argv)
     LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
     defaultConf.configClientLogging();
 
-    SET_OUTPUT( false );            // inhibit unconditional debug output, await cmd line evaluation
+    SET_OUTPUT(false);              // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;
 
@@ -772,38 +820,42 @@ int main(int argc, char** argv)
 
     try
     {
-        parseParams( argc, argv );               // evaluate cmd line, allows to override defaults
+        parseParams(argc, argv);                 // evaluate cmd line, allows to override defaults
 
 #ifndef TEST
         // open database and transaction
         openDatabase();
         cout << "opening read-write transaction..." << flush;
-        openTransaction( true );
+        openTransaction(true);
         cout << "ok" << endl << flush;
 #endif // TEST
 
         // determine MDD and collection characteristics
-        const char *mddTypeName = "XXX"; // NULL;       // MDD name corresponding to map type indicated
-        const char *setTypeName = "GreySet"; // NULL;       // set name corresponding to map type indicated
+        const char* mddTypeName = "XXX"; // NULL;       // MDD name corresponding to map type indicated
+        const char* setTypeName = "GreySet"; // NULL;       // set name corresponding to map type indicated
         size_t cellSize = 0;        // MDD cell size in bytes
-        getType( mapType, &mddTypeName, &setTypeName, &cellSize );
+        getType(mapType, &mddTypeName, &setTypeName, &cellSize);
         LDEBUG << "mddTypeName=" << mddTypeName << ", setTypeName=" << setTypeName << ", cellSize=" << cellSize;
 
         cout << "Creating map pyramid " << mapName << " of type " << mddTypeName;
-        if (levels==AUTO_LEVEL)
+        if (levels == AUTO_LEVEL)
+        {
             cout << " with auto scale levels" << endl;
+        }
         else
+        {
             cout << " with " << levels << " scale levels" << endl;
-        printf( "Pixel domain: [%ld:%ld,%ld:%ld] \n", pixXmin, pixXmax, pixYmin, pixYmax );
+        }
+        printf("Pixel domain: [%ld:%ld,%ld:%ld] \n", pixXmin, pixXmax, pixYmin, pixYmax);
 
         normalize(pixXmin, pixXmax, pixYmin, pixYmax);
         // now do it: create pyramids, fill in objects and tiles
-        createPyramids( mddTypeName, setTypeName, cellSize, pixXmin, pixXmax, pixYmin, pixYmax );
+        createPyramids(mddTypeName, setTypeName, cellSize, pixXmin, pixXmax, pixYmin, pixYmax);
 
 
 #ifndef TEST
         cout << "committing and closing..." << flush;
-        closeTransaction( true );
+        closeTransaction(true);
         closeDatabase();
         cout << "ok" << endl;
 #endif // TEST
@@ -830,12 +882,12 @@ int main(int argc, char** argv)
     {
         // abort transaction and close database, don't care for any further exceptions
 #ifndef TEST
-        closeTransaction( false );
+        closeTransaction(false);
         closeDatabase();
 #endif // TEST
     }
 
-    cout<< argv[0] << " done." << endl;
+    cout << argv[0] << " done." << endl;
     return retval;
 } // main()
 

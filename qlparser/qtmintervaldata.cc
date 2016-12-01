@@ -42,15 +42,17 @@ using namespace std;
 #include <iostream>
 #include <cstring>
 
-QtMintervalData::QtMintervalData( const r_Minterval& minterval, vector<bool>* initTrimFlags )
-    : QtData(), mintervalData(minterval), trimFlags( initTrimFlags )
+QtMintervalData::QtMintervalData(const r_Minterval& minterval, vector<bool>* initTrimFlags)
+    : QtData(), mintervalData(minterval), trimFlags(initTrimFlags)
 {
-    if( !trimFlags )
+    if (!trimFlags)
     {
-        trimFlags = new vector<bool>( minterval.dimension() );
+        trimFlags = new vector<bool>(minterval.dimension());
 
-        for( unsigned int i=0; i<trimFlags->size(); i++ )
+        for (unsigned int i = 0; i < trimFlags->size(); i++)
+        {
             (*trimFlags)[i] = true;
+        }
     }
 }
 
@@ -58,10 +60,10 @@ QtMintervalData::QtMintervalData( const r_Minterval& minterval, vector<bool>* in
 
 QtMintervalData::~QtMintervalData()
 {
-    if( trimFlags )
+    if (trimFlags)
     {
         delete trimFlags;
-        trimFlags=NULL;
+        trimFlags = NULL;
     }
 }
 
@@ -76,11 +78,11 @@ QtMintervalData::getDataType() const
 
 
 bool
-QtMintervalData::equal( const QtData* obj ) const
+QtMintervalData::equal(const QtData* obj) const
 {
     bool returnValue = false;  // not equal by initialization
 
-    if( obj->getDataType() == QT_MINTERVAL )
+    if (obj->getDataType() == QT_MINTERVAL)
     {
         QtMintervalData* mint = static_cast<QtMintervalData*>(const_cast<QtData*>(obj));
 
@@ -88,8 +90,8 @@ QtMintervalData::equal( const QtData* obj ) const
         returnValue = (mintervalData == mint->getMintervalData());
 
         // 2. check projection flags !!!
-        if( returnValue && trimFlags && mint->getTrimFlags() )
-            for( unsigned int i=0; i<mintervalData.dimension(); i++ )
+        if (returnValue && trimFlags && mint->getTrimFlags())
+            for (unsigned int i = 0; i < mintervalData.dimension(); i++)
                 if (!((*trimFlags)[i] == (*(mint->getTrimFlags()))[i]))
                 {
                     returnValue = false;
@@ -112,26 +114,35 @@ QtMintervalData::getSpelling() const
     char*       buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
-    ostringstream bufferStream( buffer );
+    ostringstream bufferStream(buffer);
 
-    if( trimFlags )
+    if (trimFlags)
     {
         bufferStream << "[" << std::flush;
-        for( unsigned int i=0; i<mintervalData.dimension(); i++ )
+        for (unsigned int i = 0; i < mintervalData.dimension(); i++)
         {
-            if( i > 0 ) bufferStream << "'" << std::flush;
+            if (i > 0)
+            {
+                bufferStream << "'" << std::flush;
+            }
 
-            if( (*trimFlags)[i] )
+            if ((*trimFlags)[i])
+            {
                 bufferStream << mintervalData[i] << std::flush;
+            }
             else
+            {
                 bufferStream << mintervalData[i].low() << std::flush;
+            }
         }
         bufferStream << "]" << std::ends;
     }
     else
+    {
         bufferStream << mintervalData << std::ends;
+    }
 
-    result.append( std::string( buffer ) );
+    result.append(std::string(buffer));
 
     delete[] buffer;
     buffer = NULL;
@@ -149,28 +160,37 @@ char* QtMintervalData::getTypeStructure() const
 
 
 void
-QtMintervalData::printStatus( std::ostream& stream ) const
+QtMintervalData::printStatus(std::ostream& stream) const
 {
     stream << "minterval, value: " << std::flush;
 
-    if( trimFlags )
+    if (trimFlags)
     {
         stream << "[" << std::flush;
-        for( unsigned int i=0; i<mintervalData.dimension(); i++ )
+        for (unsigned int i = 0; i < mintervalData.dimension(); i++)
         {
-            if( i > 0 ) stream << "," << std::flush;
+            if (i > 0)
+            {
+                stream << "," << std::flush;
+            }
 
-            if( (*trimFlags)[i] )
+            if ((*trimFlags)[i])
+            {
                 stream << mintervalData[i] << std::flush;
+            }
             else
+            {
                 stream << mintervalData[i].low() << std::flush;
+            }
         }
         stream << "]" << std::flush;
     }
     else
+    {
         stream << mintervalData << std::flush;
+    }
 
-    QtData::printStatus( stream );
+    QtData::printStatus(stream);
 }
 
 

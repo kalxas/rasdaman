@@ -42,7 +42,7 @@ public class CellDomainElement implements Cloneable {
     public CellDomainElement(String lo, String hi, int order) throws WCPSException {
         if ((lo == null) || (hi == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid cell domain element: Bounds may not be null.");
+                                    "Invalid cell domain element: Bounds may not be null.");
         }
         log.trace(WcpsConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
 
@@ -62,7 +62,7 @@ public class CellDomainElement implements Cloneable {
 
     public boolean equals(CellDomainElement cde) {
         return lo.equals(cde.getLo())
-                && hi.equals(cde.getHi());
+               && hi.equals(cde.getHi());
     }
 
     public String getLo() {

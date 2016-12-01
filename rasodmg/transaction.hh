@@ -71,7 +71,7 @@ public:
     ~r_Transaction();
 
     /// start the transaction
-    void begin( r_TAMode mode = read_write ) throw( r_Error );
+    void begin(r_TAMode mode = read_write) throw(r_Error);
     /**
       By default, a transaction is started in write mode. If the read_only
       mode is specified, no write operations are allowed within the transaction
@@ -84,7 +84,7 @@ public:
     */
 
     /// commit transaction and make changes persistent
-    void commit() throw( r_Error );
+    void commit() throw(r_Error);
     /**
       The transaction is committed and changes are made persistent
       in the database.
@@ -115,20 +115,20 @@ public:
     static r_Transaction* actual_transaction;
 
     /// load an object (internal use only)
-    r_Ref_Any load_object( const r_OId& oid );
+    r_Ref_Any load_object(const r_OId& oid);
 
     /// possible non-r_Object values maintained by the transaction
     enum GenRefType { MINTERVAL, SINTERVAL, POINT, OID, SCALAR };
 
     /// adds a non-r_Object to the list of persistent objects
-    void add_object_list( GenRefType type, void* ref );
+    void add_object_list(GenRefType type, void* ref);
 
     ///
     //@}
 
 private:
     /// adds an object of type \Ref{r_Object} to the list of persistent objects
-    void add_object_list( const r_Ref<r_Object>& );
+    void add_object_list(const r_Ref<r_Object>&);
 
     /// current transaction state
     r_TAStatus ta_state;
@@ -137,7 +137,7 @@ private:
     r_TAMode ta_mode;
 
     /// list of \Ref{r_Object} references which have been created within the transaction
-    r_Set< r_Ref<r_Object> > object_list;
+    r_Set<r_Ref<r_Object>> object_list;
 
     // element type of non \Ref{r_Object} list maintained by the transaction
     typedef struct
@@ -147,7 +147,7 @@ private:
     } GenRefElement;
 
     /// list of non \Ref{r_Object} references which have been created within the transaction
-    r_Set< GenRefElement* > non_object_list;
+    r_Set<GenRefElement*> non_object_list;
 
     friend class r_Object;
 };

@@ -49,7 +49,7 @@ MDDType::insertInDb() throw (r_Error)
     char mddtypename[VARCHAR_MAXLEN];
 
     mddtypeid = 0;
-    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof (mddtypename));
+    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename));
     mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDTYPES ( MDDTypeOId, MDDTypeName ) VALUES (%lld, '%s')",
                                    mddtypeid, mddtypename);
@@ -63,7 +63,7 @@ MDDType::readFromDb() throw (r_Error)
     DBObject::readTimer.resume();
 #endif
     long long mddtypeid;
-    char *mddtypename;
+    char* mddtypename;
 
     mddtypeid = myOId.getCounter();
 
@@ -76,7 +76,7 @@ MDDType::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "MDDType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database.";
+               << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 

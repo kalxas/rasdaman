@@ -80,40 +80,40 @@ IOSelector::IOSelector()
     tvptr = NULL;
 }
 
-void IOSelector::setTimeout(int sec,int millisec)
+void IOSelector::setTimeout(int sec, int millisec)
 {
-    tvinit.tv_sec=sec;
-    tvinit.tv_usec=millisec * 1000;
-    tvptr=&tv; // yes, yes, &tv
+    tvinit.tv_sec = sec;
+    tvinit.tv_usec = millisec * 1000;
+    tvptr = &tv; // yes, yes, &tv
 }
 
 void IOSelector::disableTimeout()
 {
-    tvptr=NULL;
+    tvptr = NULL;
 }
 
 // add socket to the socket set watched for incoming requests
 void IOSelector::setReadSocket(int socket)
 {
-    FD_SET(socket,&watchReadFdSet);
+    FD_SET(socket, &watchReadFdSet);
 }
 
 // remove socket from read socket set
 void IOSelector::clearReadSocket(int socket)
 {
-    FD_CLR(socket,&watchReadFdSet);
+    FD_CLR(socket, &watchReadFdSet);
 }
 
 // add socket to the socket set watched for outgoing requests
 void IOSelector::setWriteSocket(int socket)
 {
-    FD_SET(socket,&watchWriteFdSet);
+    FD_SET(socket, &watchWriteFdSet);
 }
 
 // remove socket from write socket set
 void IOSelector::clearWriteSocket(int socket)
 {
-    FD_CLR(socket,&watchWriteFdSet);
+    FD_CLR(socket, &watchWriteFdSet);
 }
 
 // result = outcome of select() request:
@@ -128,15 +128,15 @@ int IOSelector::waitForRequest()
 {
     int result;
 
-    resultReadFdSet =watchReadFdSet;
-    resultWriteFdSet=watchWriteFdSet;
+    resultReadFdSet = watchReadFdSet;
+    resultWriteFdSet = watchWriteFdSet;
     // error unused
     // tv has to be reloaded every time; if tvptr is NULL it doesn't matter
     tv.tv_sec  = tvinit.tv_sec;
     tv.tv_usec = tvinit.tv_usec;
     LDEBUG << "IOSelector::waitForRequest: timeout=" << tv.tv_sec << "sec " << tv.tv_usec << "microsec.";
 
-    result = select(FD_SETSIZE,&resultReadFdSet,&resultWriteFdSet,NULL,tvptr);
+    result = select(FD_SETSIZE, &resultReadFdSet, &resultWriteFdSet, NULL, tvptr);
     if (result < 0)
     {
         LDEBUG << "IOSelector::waitForRequest: select error: " << strerror(errno);
@@ -151,17 +151,17 @@ int IOSelector::waitForRequest()
     {
         LDEBUG << "IOSelector::waitForRequest: select() successful, returned " << result;
         int isPending = 0;
-        for (int i=0; i<FD_SETSIZE && isPending==0; i++)
+        for (int i = 0; i < FD_SETSIZE && isPending == 0; i++)
         {
             // unfortunately, FD_ISSET() cannot be deployed within an if()
-            isPending = (int) FD_ISSET( i, &resultReadFdSet );
-            if ( isPending )
+            isPending = (int) FD_ISSET(i, &resultReadFdSet);
+            if (isPending)
             {
                 LDEBUG << "IOSelector::waitForRequest: input pending on socket " << i;
                 result = i;             // report this socket
             }
-            isPending = (int) FD_ISSET( i, &resultWriteFdSet );
-            if ( isPending )
+            isPending = (int) FD_ISSET(i, &resultWriteFdSet);
+            if (isPending)
             {
                 LDEBUG << "IOSelector::waitForRequest: output pending on socket " << i;
                 result = i;             // report this socket
@@ -185,42 +185,52 @@ int IOSelector::someWaitingSocket()
     int waitingSocket = 0;          // some socket waiting to be treated
     bool found = false;             // result of FD_ISSET() call
 
-    for ( int i=0; i<FD_SETSIZE && waitingSocket==0; i++ )      // walk through max all possible FDs
+    for (int i = 0; i < FD_SETSIZE && waitingSocket == 0; i++)   // walk through max all possible FDs
     {
-        lastVisited = (lastVisited == FD_SETSIZE) ? 0 : lastVisited+1;
-        found = ( (int) FD_ISSET( lastVisited, &resultReadFdSet  )
-                  + (int) FD_ISSET( lastVisited, &resultWriteFdSet ) ) > 0 ? true : false;
-        if ( found )                // cannot use FD_ISSET in if()
+        lastVisited = (lastVisited == FD_SETSIZE) ? 0 : lastVisited + 1;
+        found = ((int) FD_ISSET(lastVisited, &resultReadFdSet)
+                 + (int) FD_ISSET(lastVisited, &resultWriteFdSet)) > 0 ? true : false;
+        if (found)                  // cannot use FD_ISSET in if()
+        {
             waitingSocket = lastVisited;
+        }
     }
 
-    if ( found)
+    if (found)
+    {
         return waitingSocket;
+    }
     else
+    {
         return 0;
+    }
 }
 
 bool IOSelector::isReadSocket(int socket)
 {
-    bool result = (socket < 0) ? false: true;
+    bool result = (socket < 0) ? false : true;
     if (result == true)
-        result = FD_ISSET(socket,&resultReadFdSet);
+    {
+        result = FD_ISSET(socket, &resultReadFdSet);
+    }
     return result;
 }
 
 bool IOSelector::isWriteSocket(int socket)
 {
-    bool result = (socket < 0) ? false: true;
+    bool result = (socket < 0) ? false : true;
     if (result == true)
-        result = FD_ISSET(socket,&resultWriteFdSet);
+    {
+        result = FD_ISSET(socket, &resultWriteFdSet);
+    }
     return result;
 }
 
 void IOSelector::closeForcedAllSockets()
 {
-    for(int i=0; i<FD_SETSIZE; i++)
+    for (int i = 0; i < FD_SETSIZE; i++)
     {
-        if(FD_ISSET(i,&watchReadFdSet) || FD_ISSET(i,&watchWriteFdSet))
+        if (FD_ISSET(i, &watchReadFdSet) || FD_ISSET(i, &watchWriteFdSet))
         {
             LDEBUG << "IOSelector::closeForcedAllSockets: closing " << i;
             int result = close(i);
@@ -258,13 +268,13 @@ time_t NbJob::currentTime = 0;
 NbJob::NbJob()
 {
     socket = -1;
-    lastActionTime=0;
+    lastActionTime = 0;
     outputBuffer = 0;
     inputBuffer  = 0;
     bigError = false;
 }
 
-void NbJob::init(IOSelector *newPselector,int maxInputBuffer)
+void NbJob::init(IOSelector* newPselector, int maxInputBuffer)
 {
     this->pselector = newPselector;
     this->maxInputLength = maxInputBuffer;
@@ -283,16 +293,20 @@ void NbJob::reset()
 
 void NbJob::clearInputBuffer()
 {
-    if(inputBuffer)
+    if (inputBuffer)
+    {
         delete[] inputBuffer;
+    }
     inputBuffer = 0;
     nextReadPos = 0;
 }
 
 void NbJob::clearOutputBuffer()
 {
-    if(outputBuffer)
+    if (outputBuffer)
+    {
         delete[] outputBuffer;
+    }
     outputBuffer = 0;
     nextWritePos = 0;
 }
@@ -300,7 +314,7 @@ void NbJob::clearOutputBuffer()
 // clear connection completely, close socket
 void NbJob::clearConnection()
 {
-    if(socket > 0)
+    if (socket > 0)
     {
         pselector->clearReadSocket(socket);
         pselector->clearWriteSocket(socket);
@@ -319,7 +333,7 @@ void NbJob::clearConnection()
 // returns true if the current job is too old
 bool NbJob::processJobTimeout()
 {
-    bool result = (messageReadyTime + timeOutInterv > currentTime) ?  false:true;
+    bool result = (messageReadyTime + timeOutInterv > currentTime) ?  false : true;
     LDEBUG << "NbJob::processJobTimeout: result=" << result;
     return result;
 }
@@ -327,11 +341,11 @@ bool NbJob::processJobTimeout()
 // on timeout, reset all buffers but don't close socket
 bool NbJob::cleanUpIfTimeout()
 {
-    bool result = (socket < 0 ) || (lastActionTime + timeOutInterv > currentTime) ? false : true;
+    bool result = (socket < 0) || (lastActionTime + timeOutInterv > currentTime) ? false : true;
 
-    if (result==true)
+    if (result == true)
     {
-        LDEBUG <<"NbJob::cleanUpIfTimeout: client timeout on socket " << socket;
+        LDEBUG << "NbJob::cleanUpIfTimeout: client timeout on socket " << socket;
         closeConnection();
     }
 
@@ -346,10 +360,10 @@ bool NbJob::cleanUpIfTimeout()
 
 NbJob::acceptStatus NbJob::acceptConnection(int listenSocket)
 {
-    if(socket>0)
+    if (socket > 0)
     {
         bool result = cleanUpIfTimeout();
-        if(result == false)
+        if (result == false)
         {
             return acs_Iambusy;
             // free again
@@ -360,13 +374,13 @@ NbJob::acceptStatus NbJob::acceptConnection(int listenSocket)
 
     clearInputBuffer();
     inputBuffer = new char[maxInputLength];
-    if(inputBuffer == NULL)
+    if (inputBuffer == NULL)
     {
         return acs_outofmem;
     }
 
     struct sockaddr_in internetAddress;
-    r_Socklen_t size=sizeof(sockaddr_in);
+    r_Socklen_t size = sizeof(sockaddr_in);
 
     // extract the first pending request from the socket queue
     // NB: accept() clones the socket.
@@ -376,18 +390,18 @@ NbJob::acceptStatus NbJob::acceptConnection(int listenSocket)
 #ifndef NEVER_AGAIN
     // accept() here serves to clone the socket.
     // there shouldn't be any wait because of the select() call just passed via waitForRequest()
-    socket=accept(listenSocket,(struct sockaddr*)&internetAddress,&size);
-    int saveerrno=errno;
-    LDEBUG <<"NbJob::acceptConnection: accept() with socket " << listenSocket << " returned " << socket << ", sin_port=" << htons(internetAddress.sin_port) << ", requestor=" << inet_ntoa(internetAddress.sin_addr);
-    if(socket<0)
+    socket = accept(listenSocket, (struct sockaddr*)&internetAddress, &size);
+    int saveerrno = errno;
+    LDEBUG << "NbJob::acceptConnection: accept() with socket " << listenSocket << " returned " << socket << ", sin_port=" << htons(internetAddress.sin_port) << ", requestor=" << inet_ntoa(internetAddress.sin_addr);
+    if (socket < 0)
     {
         return acs_nopending;
     }
 
     // several flags, such as non-blocking, are not inherited accross accept() - see manual
-    int val = fcntl(socket,F_GETFL,0);
+    int val = fcntl(socket, F_GETFL, 0);
     val |= O_NONBLOCK;
-    fcntl(socket,F_SETFL,val);
+    fcntl(socket, F_SETFL, val);
 
     pselector->setReadSocket(socket);
 
@@ -431,7 +445,7 @@ void NbJob::closeSocket()
 
 void NbJob::markAction()
 {
-    lastActionTime=currentTime;
+    lastActionTime = currentTime;
 }
 
 int  NbJob::getSocket()
@@ -441,7 +455,7 @@ int  NbJob::getSocket()
 
 bool NbJob::isMessageOK()
 {
-    return  (nextReadPos > 1 && inputBuffer[nextReadPos - 1] == messageTerminator) ? true:false;
+    return (nextReadPos > 1 && inputBuffer[nextReadPos - 1] == messageTerminator) ? true : false;
 }
 
 bool NbJob::wasError()
@@ -457,42 +471,42 @@ bool NbJob::readPartialMessage()
 
     markAction();
     errno = 0;
-    int nbytes = read(socket,inputBuffer + nextReadPos, static_cast<size_t>(maxInputLength - nextReadPos));
-    LDEBUG <<"NbJob::readPartialMessage: read() with socket=" << socket << " returned " << nbytes;
+    int nbytes = read(socket, inputBuffer + nextReadPos, static_cast<size_t>(maxInputLength - nextReadPos));
+    LDEBUG << "NbJob::readPartialMessage: read() with socket=" << socket << " returned " << nbytes;
 
-    if(nbytes)  // wrote some bytes
+    if (nbytes) // wrote some bytes
     {
-        LDEBUG << "NbJob::readPartialMessage: read socket("<<socket<<") "<<nbytes<<" bytes to pos="<<nextReadPos;
+        LDEBUG << "NbJob::readPartialMessage: read socket(" << socket << ") " << nbytes << " bytes to pos=" << nextReadPos;
         nextReadPos += nbytes;
         inputBuffer[nextReadPos] = 0;
         messOK = isMessageOK();
 
-        if(messOK)
+        if (messOK)
         {
-            LDEBUG <<"NbJob::readPartialMessage: socket read completed on " << socket;
+            LDEBUG << "NbJob::readPartialMessage: socket read completed on " << socket;
             messageReadyTime = currentTime;
         }
     }
     else    // nothing written = error
     {
-        int saveerrno=errno;
-        switch(saveerrno)
+        int saveerrno = errno;
+        switch (saveerrno)
         {
         case EINTR:
-            LDEBUG <<"NbJob::readPartialMessage: read: EINTR, retry please";
+            LDEBUG << "NbJob::readPartialMessage: read: EINTR, retry please";
             break;
 
         case EAGAIN:
-            LDEBUG <<"NbJob::readPartialMessage: read: EAGAIN, retry please";
+            LDEBUG << "NbJob::readPartialMessage: read: EAGAIN, retry please";
             break;
 
         case 0:
-            LDEBUG <<"NbJob::readPartialMessage: read: Premature End-of-file";
-            bigError=true;
+            LDEBUG << "NbJob::readPartialMessage: read: Premature End-of-file";
+            bigError = true;
             break;
 
         default:
-            LDEBUG <<"NbJob::readPartialMessage: read: error " << saveerrno;
+            LDEBUG << "NbJob::readPartialMessage: read: error " << saveerrno;
             bigError = true;
             break;
         }
@@ -509,13 +523,13 @@ const char* NbJob::getMessage()
 
 // initialise answer sending, copy complete message in local buffer
 // set socket to write mode
-bool NbJob::initSendAnswer(const char *message)
+bool NbJob::initSendAnswer(const char* message)
 {
     bool result = true;
 
     markAction();
     clearInputBuffer();
-    answerLength = strlen(message)+1;
+    answerLength = strlen(message) + 1;
     outputBuffer = new char[answerLength];
     if (outputBuffer == NULL)
     {
@@ -526,7 +540,7 @@ bool NbJob::initSendAnswer(const char *message)
 
     if (result == true)
     {
-        strcpy(outputBuffer,message);
+        strcpy(outputBuffer, message);
         nextWritePos = 0;
 
         pselector->setWriteSocket(socket);
@@ -544,41 +558,41 @@ bool NbJob::writePartialMessage()
 
     markAction();
     errno = 0;
-    int nbytes = write(socket,outputBuffer + nextWritePos,static_cast<size_t>(answerLength - nextWritePos));
-    LDEBUG <<"NbJob::writePartialMessage: write() with socket=" << socket << " returned " << nbytes;
+    int nbytes = write(socket, outputBuffer + nextWritePos, static_cast<size_t>(answerLength - nextWritePos));
+    LDEBUG << "NbJob::writePartialMessage: write() with socket=" << socket << " returned " << nbytes;
 
-    if(nbytes)
+    if (nbytes)
     {
-        LDEBUG <<"NbJob::writePartialMessage: write to socket=" << socket << ", " << nbytes << " bytes to pos=" << nextWritePos << ", answerLength=" << answerLength;
+        LDEBUG << "NbJob::writePartialMessage: write to socket=" << socket << ", " << nbytes << " bytes to pos=" << nextWritePos << ", answerLength=" << answerLength;
         nextWritePos += nbytes;
 
-        if(nextWritePos == answerLength) // everything written?
+        if (nextWritePos == answerLength) // everything written?
         {
-            LDEBUG <<"NbJob::writePartialMessage: write completed.";
+            LDEBUG << "NbJob::writePartialMessage: write completed.";
             // closeConnection(); // was here, now shifted up the hierarchy -- PB 2003-jun-10
             result =  true;
         }
     }
     else
     {
-        int saveerrno=errno;
-        switch(saveerrno)
+        int saveerrno = errno;
+        switch (saveerrno)
         {
         case EINTR:
-            LDEBUG <<"NbJob::writePartialMessage: EINTR, retry please";
+            LDEBUG << "NbJob::writePartialMessage: EINTR, retry please";
             break;
 
         case EAGAIN:
-            LDEBUG <<"NbJob::writePartialMessage: EAGAIN, retry please";
+            LDEBUG << "NbJob::writePartialMessage: EAGAIN, retry please";
             break;
 
         case 0:
-            LDEBUG <<"NbJob::writePartialMessage: premature client hang up.";
-            bigError=true;
+            LDEBUG << "NbJob::writePartialMessage: premature client hang up.";
+            bigError = true;
             break;
 
         default:
-            LDEBUG <<"NbJob::writePartialMessage: error "<< strerror(saveerrno);
+            LDEBUG << "NbJob::writePartialMessage: error " << strerror(saveerrno);
             bigError = true;
             break;
         }
@@ -589,8 +603,8 @@ bool NbJob::writePartialMessage()
 // is socket still open? (actually; wrong name)
 bool NbJob::isOperationPending()
 {
-    bool result = socket > 0 ? true:false;
-    LDEBUG <<"NbJob::isOperationPending (i.e.: socket open) -> " << result;
+    bool result = socket > 0 ? true : false;
+    LDEBUG << "NbJob::isOperationPending (i.e.: socket open) -> " << result;
     return result;
 }
 
@@ -614,9 +628,9 @@ void NbServerComm::initJobs(int newMaxJobs)
     this->maxJobs = newMaxJobs;
     job = new NbJob[newMaxJobs];
 
-    for(int i=0; i<newMaxJobs; i++)
+    for (int i = 0; i < newMaxJobs; i++)
     {
-        job[i].init(&selector,MAXMSG);
+        job[i].init(&selector, MAXMSG);
     }
 }
 
@@ -628,39 +642,41 @@ NbServerComm::~NbServerComm()
 // opens the central listen socket
 bool NbServerComm::initListenSocket(int listenPort)
 {
-    struct protoent *getprotoptr = getprotobyname("tcp");
+    struct protoent* getprotoptr = getprotobyname("tcp");
 
     struct sockaddr_in name;
-    name.sin_family=AF_INET;
-    name.sin_port=htons(listenPort);        // translate listen port#
-    name.sin_addr.s_addr=htonl(INADDR_ANY);
+    name.sin_family = AF_INET;
+    name.sin_port = htons(listenPort);      // translate listen port#
+    name.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    listenSocket=socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
-    if(listenSocket < 0)
+    listenSocket = socket(PF_INET, SOCK_STREAM, getprotoptr->p_proto);
+    if (listenSocket < 0)
     {
         LDEBUG << "NbServerComm::initListenSocket: socket error: " << strerror(errno);
         exitbyerror("socket");
     }
 
     // make the socket nonblocking
-    int val =fcntl(listenSocket,F_GETFL,0);
-    val|=O_NONBLOCK;
-    fcntl(listenSocket,F_SETFL,val);
+    int val = fcntl(listenSocket, F_GETFL, 0);
+    val |= O_NONBLOCK;
+    fcntl(listenSocket, F_SETFL, val);
 
-    val =fcntl(listenSocket,F_GETFL,0);
-    if(val & O_NONBLOCK)
-        LDEBUG <<"NbServerComm::initListenSocket: socket " << listenSocket << " is nonblocking";
+    val = fcntl(listenSocket, F_GETFL, 0);
+    if (val & O_NONBLOCK)
+    {
+        LDEBUG << "NbServerComm::initListenSocket: socket " << listenSocket << " is nonblocking";
+    }
 
 #ifdef SO_REUSEADDR
     val = 1;
-    unsigned int len = sizeof( val );
-    if(setsockopt( listenSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len ))
+    unsigned int len = sizeof(val);
+    if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len))
     {
         LDEBUG << "NbServerComm::initListenSocket: cannot set address reusable using setsockopt: " << strerror(errno);
     }
 #endif
 
-    int sockResult = bind(listenSocket,(sockaddr*)&name,sizeof(name));
+    int sockResult = bind(listenSocket, (sockaddr*)&name, sizeof(name));
     LDEBUG << "NbServerComm::initListenSocket: bind() with socket=" << listenSocket << ", name.port=" << name.sin_port << " returned " << sockResult;
     if (sockResult < 0)
     {
@@ -668,10 +684,10 @@ bool NbServerComm::initListenSocket(int listenPort)
         exitbyerror("bind");
     }
 
-    int queuesize=SOMAXCONN; // the maximum number allowed by SO!!
-    sockResult = listen(listenSocket,queuesize);
-    LDEBUG <<"NbServerComm::initListenSocket: listen() with socket=" << listenSocket << ", queuesize=" << queuesize << " returned " << sockResult;
-    if(sockResult < 0)
+    int queuesize = SOMAXCONN; // the maximum number allowed by SO!!
+    sockResult = listen(listenSocket, queuesize);
+    LDEBUG << "NbServerComm::initListenSocket: listen() with socket=" << listenSocket << ", queuesize=" << queuesize << " returned " << sockResult;
+    if (sockResult < 0)
     {
         LDEBUG << "NbServerComm::initListenSocket: listen error: " << strerror(errno);
         exitbyerror("listen");
@@ -684,7 +700,7 @@ bool NbServerComm::initListenSocket(int listenPort)
 
 void NbServerComm::closeListenSocket()
 {
-    if(listenSocket>0)
+    if (listenSocket > 0)
     {
         selector.clearReadSocket(listenSocket);
         LDEBUG << "NbServerComm::closeListenSocket: closing socket " << listenSocket;
@@ -699,23 +715,27 @@ void NbServerComm::closeListenSocket()
 
 void NbServerComm::shouldExit()
 {
-    exitRequest=true;
+    exitRequest = true;
 }
 
 bool NbServerComm::mayExit()
 {
     bool result = true;
 
-    if(exitRequest==false)
+    if (exitRequest == false)
+    {
         result = false;
+    }
     else
     {
         closeListenSocket(); // we don't accept requests any more
 
-        for(int i=0; i<maxJobs && (result==true); i++)
+        for (int i = 0; i < maxJobs && (result == true); i++)
         {
-            if(job[i].isOperationPending())
-                result = false; // no, we have pending operations, don't close
+            if (job[i].isOperationPending())
+            {
+                result = false;    // no, we have pending operations, don't close
+            }
         }
     }
 
@@ -724,7 +744,7 @@ bool NbServerComm::mayExit()
 
 void NbServerComm::lookForTimeout()
 {
-    for(int i=0; i<maxJobs; i++)
+    for (int i = 0; i < maxJobs; i++)
     {
         job[i].cleanUpIfTimeout();
     }
@@ -734,12 +754,12 @@ void NbServerComm::lookForTimeout()
 void NbServerComm::dispatchWriteRequest()
 {
     int i;
-    for(i=0; i<maxJobs; i++)
+    for (i = 0; i < maxJobs; i++)
     {
-        int socket=job[i].getSocket();
-        if(socket>0)    // active job pending?
+        int socket = job[i].getSocket();
+        if (socket > 0) // active job pending?
         {
-            if(selector.isWriteSocket(socket))
+            if (selector.isWriteSocket(socket))
             {
                 LDEBUG << "flushing write job " << i << ", socket " << socket;
                 bool result = job[i].writePartialMessage();
@@ -766,12 +786,12 @@ void NbServerComm::dispatchWriteRequest()
 void NbServerComm::dispatchReadRequest()
 {
     int i;
-    for(i=0; i<maxJobs; i++)
+    for (i = 0; i < maxJobs; i++)
     {
-        int socket=job[i].getSocket();
-        if(socket>0)
+        int socket = job[i].getSocket();
+        if (socket > 0)
         {
-            if(selector.isReadSocket(socket))
+            if (selector.isReadSocket(socket))
             {
                 LDEBUG << "NbServerComm::dispatchReadRequest: flush reading job " << i << ", socket " << socket << " -- NO CLOSE!?!";
                 // result code was not queried, added it -- PB 2004-jul-16
@@ -793,9 +813,9 @@ void NbServerComm::dispatchReadRequest()
 void NbServerComm::connectNewClients()
 {
     // why only for read sockets? because we process _incoming_ requests
-    if(selector.isReadSocket(listenSocket))
+    if (selector.isReadSocket(listenSocket))
     {
-        for(int i=0; i<maxJobs; i++)
+        for (int i = 0; i < maxJobs; i++)
         {
             // we try to connect as many pending connections as possible
 
@@ -803,7 +823,7 @@ void NbServerComm::connectNewClients()
             // the accept() call inside this below will clone the socket, so we get many read sockets
             NbJob::acceptStatus status = job[i].acceptConnection(listenSocket);
 
-            if(status == NbJob::acs_nopending || status == NbJob::acs_outofmem)
+            if (status == NbJob::acs_nopending || status == NbJob::acs_outofmem)
             {
                 LDEBUG << "NbServerComm::connectNewClients: aborting, bad status:" << status;
                 break;
@@ -819,14 +839,16 @@ void NbServerComm::connectNewClients()
 
 void NbServerComm::closeForcedAllSockets()
 {
-    if(mypid != getpid())
+    if (mypid != getpid())
+    {
         selector.closeForcedAllSockets();
+    }
 }
 
 void NbServerComm::printStatus()
 {
     int i;
-    for(i=0; i<maxJobs; i++)
+    for (i = 0; i < maxJobs; i++)
     {
         LDEBUG << "NbServerComm::printStatus: connection #" << i << ":";
         job[i].printStatus();

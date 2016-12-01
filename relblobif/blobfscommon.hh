@@ -36,7 +36,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
-namespace blobfs {
+namespace blobfs
+{
 
 static const int INVALID_FILE_DESCRIPTOR = -1;
 static const int INVALID_BLOB_ID = -1;
@@ -71,9 +72,9 @@ public:
 
     inline
     BlobFSConfig(const std::string& rootPathArg, const std::string& tilesPathArg,
-                        const std::string& transactionsPathArg, bool nestedArg)
-    : rootPath(rootPathArg), tilesPath(tilesPathArg),
-      transactionsPath(transactionsPathArg), nested(nestedArg)
+                 const std::string& transactionsPathArg, bool nestedArg)
+        : rootPath(rootPathArg), tilesPath(tilesPathArg),
+          transactionsPath(transactionsPathArg), nested(nestedArg)
     {
     }
 

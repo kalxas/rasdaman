@@ -44,13 +44,13 @@ using std::chrono::system_clock;
 using std::chrono::milliseconds;
 
 
-std::string GrpcUtils::constructAddressString(const std::string &host, boost::uint32_t port)
+std::string GrpcUtils::constructAddressString(const std::string& host, boost::uint32_t port)
 {
-    return host+":"+std::to_string(port);
+    return host + ":" + std::to_string(port);
 }
 
 
-grpc::Status GrpcUtils::convertExceptionToStatus(std::exception &exception)
+grpc::Status GrpcUtils::convertExceptionToStatus(std::exception& exception)
 {
     ErrorMessage errorMessage;
 
@@ -63,7 +63,7 @@ grpc::Status GrpcUtils::convertExceptionToStatus(std::exception &exception)
     return status;
 }
 
-grpc::Status GrpcUtils::convertExceptionToStatus(const std::string &errorMessage)
+grpc::Status GrpcUtils::convertExceptionToStatus(const std::string& errorMessage)
 {
     ErrorMessage message;
 
@@ -76,15 +76,15 @@ grpc::Status GrpcUtils::convertExceptionToStatus(const std::string &errorMessage
     return status;
 }
 
-void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status)
+void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status& status)
 {
-    if(status.error_code()==grpc::StatusCode::UNKNOWN)
+    if (status.error_code() == grpc::StatusCode::UNKNOWN)
     {
         //We might be able to handle this
         ErrorMessage message;
-        if(message.ParseFromString(status.error_message()))
+        if (message.ParseFromString(status.error_message()))
         {
-            switch(message.type())
+            switch (message.type())
             {
             case ErrorMessage::STL:
             {
@@ -118,13 +118,13 @@ void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status)
         }
     }
     //Throw an exception only if the status is invalid
-    else if(!status.ok())
+    else if (!status.ok())
     {
         throw ConnectionFailedException(status.error_message());
     }
 }
 
-bool GrpcUtils::isServerAlive(const boost::shared_ptr<HealthService::Stub> &healthService, uint32_t timeoutMilliseconds)
+bool GrpcUtils::isServerAlive(const boost::shared_ptr<HealthService::Stub>& healthService, uint32_t timeoutMilliseconds)
 {
     common::HealthCheckRequest request;
     common::HealthCheckResponse response;
@@ -134,9 +134,9 @@ bool GrpcUtils::isServerAlive(const boost::shared_ptr<HealthService::Stub> &heal
     grpc::ClientContext context;
     context.set_deadline(deadline);
 
-    grpc::Status status = healthService->Check(&context,request, &response);
+    grpc::Status status = healthService->Check(&context, request, &response);
 
-    return status.ok() && response.status()==common::HealthCheckResponse::SERVING;
+    return status.ok() && response.status() == common::HealthCheckResponse::SERVING;
 }
 
 bool GrpcUtils::isPortBusy(const std::string& host, boost::uint32_t port)

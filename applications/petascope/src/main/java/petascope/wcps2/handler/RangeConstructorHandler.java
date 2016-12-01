@@ -45,15 +45,15 @@ public class RangeConstructorHandler {
 
     public static WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
         List<String> translatedFields = new ArrayList();
-        // NOTE: if range is single scalar value then metadata is NULL. If any range has a not-null metadata, the metadata is from this range.        
+        // NOTE: if range is single scalar value then metadata is NULL. If any range has a not-null metadata, the metadata is from this range.
         WcpsCoverageMetadata metadata = null;
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
-            translatedFields.add(entry.getValue().getRasql());            
+            translatedFields.add(entry.getValue().getRasql());
             if (entry.getValue().getMetadata() != null) {
                 metadata = entry.getValue().getMetadata();
             }
-        }        
-        
+        }
+
         String rasql = TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
         return new WcpsResult(metadata, rasql);
     }

@@ -40,10 +40,9 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasIndexOutOfBoundsException extends RasException
-{
+public class RasIndexOutOfBoundsException extends RasException {
     static final String rcsid = "@(#)Package rasj, class RasIndexOutOfBoundsException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasIndexOutOfBoundsException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
-   
+
     // lower bound
     private long low;
     // upper bound
@@ -57,51 +56,50 @@ public class RasIndexOutOfBoundsException extends RasException
      * @param dhigh upper bound of the object
      * @param dindex the index that caused this exception
      **/
-    protected RasIndexOutOfBoundsException(long dlow, long dhigh, long dindex )
-    {
+    protected RasIndexOutOfBoundsException(long dlow, long dhigh, long dindex) {
         super(RasGlobalDefs.INDEX_OUT_OF_BOUNDS);
-	low = dlow;
-	high = dhigh;
-	index = dindex;
+        low = dlow;
+        high = dhigh;
+        index = dindex;
     }
 
     /**
      * Returns the error message.
      * @return the error message.
      **/
-    public String getMessage()
-    {
-	int i;
+    public String getMessage() {
+        int i;
 
-	if(super.getMessage() == null)
-	    {
-		String msg = RasErrorTexts.getErrorMessage(errNo);
+        if (super.getMessage() == null) {
+            String msg = RasErrorTexts.getErrorMessage(errNo);
 
-		StringBuffer buf = new StringBuffer(msg);
-		i = msg.indexOf( RasGlobalDefs.KEYWORD_LOW );
-		if(i != -1)
-		    buf.replace(i, i+RasGlobalDefs.KEYWORD_LOW.length(), String.valueOf(low));
-		msg = buf.toString();
-		i = msg.indexOf( RasGlobalDefs.KEYWORD_HIGH );
-		if(i != -1)
-		    buf.replace(i, i+RasGlobalDefs.KEYWORD_HIGH.length(), String.valueOf(high));
-		msg = buf.toString();
-		i = msg.indexOf( RasGlobalDefs.KEYWORD_INDEX );
-		if(i != -1)
-		    buf.replace(i, i+RasGlobalDefs.KEYWORD_INDEX.length(), String.valueOf(index));
-		msg = buf.toString();
-		return msg;
-	    }
-        else
-	    return super.getMessage();
+            StringBuffer buf = new StringBuffer(msg);
+            i = msg.indexOf(RasGlobalDefs.KEYWORD_LOW);
+            if (i != -1) {
+                buf.replace(i, i + RasGlobalDefs.KEYWORD_LOW.length(), String.valueOf(low));
+            }
+            msg = buf.toString();
+            i = msg.indexOf(RasGlobalDefs.KEYWORD_HIGH);
+            if (i != -1) {
+                buf.replace(i, i + RasGlobalDefs.KEYWORD_HIGH.length(), String.valueOf(high));
+            }
+            msg = buf.toString();
+            i = msg.indexOf(RasGlobalDefs.KEYWORD_INDEX);
+            if (i != -1) {
+                buf.replace(i, i + RasGlobalDefs.KEYWORD_INDEX.length(), String.valueOf(index));
+            }
+            msg = buf.toString();
+            return msg;
+        } else {
+            return super.getMessage();
+        }
     }
 
     /**
      * Returns the lower bound of the accessed object.
      * @return the lower bound of the object
      **/
-    public long getLow()
-    {
+    public long getLow() {
         return low;
     }
 
@@ -109,17 +107,15 @@ public class RasIndexOutOfBoundsException extends RasException
      * Returns the higher bound of the accessed object.
      * @return the higher bound of the object
      **/
-    public long getHigh()
-    {
+    public long getHigh() {
         return high;
     }
 
     /**
      * Returns the index responsible for throwing this exception.
-     * @return the index that caused the exception 
+     * @return the index that caused the exception
      **/
-    public long getIndex()
-    {
+    public long getIndex() {
         return index;
     }
 

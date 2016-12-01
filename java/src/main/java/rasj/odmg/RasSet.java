@@ -51,121 +51,106 @@ public class RasSet extends RasCollection implements DSet
     /**
      * constructor
      */
-    public RasSet()
-    {
-	content = new HashSet();
+    public RasSet() {
+        content = new HashSet();
     }
 
     /**
      * Returns an iterator over the elements in this Set in proper sequence.
      */
-    public Iterator iterator()
-    {
-	return content.iterator();
+    public Iterator iterator() {
+        return content.iterator();
     }
 
     /**
      * Not implemented yet.
      */
-    public DSet difference(DSet otherSet)
-    {
-	throw new NotImplementedException();
+    public DSet difference(DSet otherSet) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public DSet intersection(DSet otherSet)
-    {
-	throw new NotImplementedException();
+    public DSet intersection(DSet otherSet) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public boolean properSubsetOf(DSet otherSet)
-    {
-	throw new NotImplementedException();
+    public boolean properSubsetOf(DSet otherSet) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public boolean properSupersetOf(DSet otherSet)
-    {
-	throw new NotImplementedException();
+    public boolean properSupersetOf(DSet otherSet) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public boolean subsetOf(DSet otherSet)
-    {
-	throw new NotImplementedException();
+    public boolean subsetOf(DSet otherSet) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public boolean supersetOf(DSet otherSet)
-    {
-	throw new NotImplementedException();
+    public boolean supersetOf(DSet otherSet) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public DSet union(DSet otherSet)
-    {
-	throw new NotImplementedException();
+    public DSet union(DSet otherSet) {
+        throw new NotImplementedException();
     }
 
     /**
      * Appends the specified element to this Bag.
      */
-    public boolean add(Object element)
-    {
-	return content.add(element);
+    public boolean add(Object element) {
+        return content.add(element);
     }
 
     /**
      * Removes all of the elements from this set.
      */
-    public void clear()
-    {
-      content.clear();
+    public void clear() {
+        content.clear();
     }
 
     /**
      * Returns true if this set contains the specified element.
      */
-    public boolean contains(Object o)
-    {
-      return content.contains(o);
+    public boolean contains(Object o) {
+        return content.contains(o);
     }
 
     /**
      * Returns true if this set contains no elements.
      */
-    public boolean isEmpty()
-    {
-      return content.isEmpty();
+    public boolean isEmpty() {
+        return content.isEmpty();
     }
 
     /**
      * Removes the given element from this set if it is present.
      */
-    public boolean remove(Object o)
-    {
-      return content.remove(o);
+    public boolean remove(Object o) {
+        return content.remove(o);
     }
 
     /**
      * Returns the number of elements in this Set.
      */
-    public int size()
-    {
-      return content.size();
+    public int size() {
+        return content.size();
     }
 
 }

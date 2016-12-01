@@ -39,15 +39,15 @@ rasdaman GmbH.
 #include "debug-srv.hh"
 #include <easylogging++.h>
 
-extern bool hostCmp( const char *h1, const char *h2);
+extern bool hostCmp(const char* h1, const char* h2);
 
 
 DatabaseHost::DatabaseHost()
 {
-    hostName[0]=0;
-    connectString[0]=0;
-    valid=false;
-    activServers=0;
+    hostName[0] = 0;
+    connectString[0] = 0;
+    valid = false;
+    activServers = 0;
 }
 DatabaseHost::~DatabaseHost()
 {
@@ -73,28 +73,36 @@ const char* DatabaseHost::getPasswd()
     return passwdString;
 }
 
-void  DatabaseHost::changeConnectionString(const char *newConnectString)
+void  DatabaseHost::changeConnectionString(const char* newConnectString)
 {
-    strcpy(this->connectString,newConnectString);
+    strcpy(this->connectString, newConnectString);
 }
-void DatabaseHost::changeName(const char *newName)
+void DatabaseHost::changeName(const char* newName)
 {
-    strcpy(hostName,newName);
+    strcpy(hostName, newName);
 }
 
-void  DatabaseHost::init(const char* newHostName,const char* newConnectString,const char* newUserString,const char* newPasswdString)
+void  DatabaseHost::init(const char* newHostName, const char* newConnectString, const char* newUserString, const char* newPasswdString)
 {
-    strcpy(this->hostName,newHostName);
-    strcpy(this->connectString,newConnectString);
+    strcpy(this->hostName, newHostName);
+    strcpy(this->connectString, newConnectString);
     if (newUserString != NULL && strlen(newUserString) > 0)
-        strcpy(this->userString,newUserString);
+    {
+        strcpy(this->userString, newUserString);
+    }
     else
+    {
         this->userString[0] = '\0';
+    }
     if (newPasswdString != NULL && strlen(newPasswdString) > 0)
-        strcpy(this->passwdString,newPasswdString);
+    {
+        strcpy(this->passwdString, newPasswdString);
+    }
     else
+    {
         this->passwdString[0] = '\0';
-    valid=true;
+    }
+    valid = true;
 }
 
 void  DatabaseHost::regStartServer()
@@ -118,7 +126,7 @@ void  DatabaseHost::regDownServer()
 bool  DatabaseHost::isBusy()
 {
     //LINFO << "DBH=" << hostName << "s=" << connServers << " d=" << connDatabases;
-    return activServers ? true:false; //(connServers + connDatabases) ? true:false;
+    return activServers ? true : false; //(connServers + connDatabases) ? true:false;
 }
 
 
@@ -129,7 +137,10 @@ bool DatabaseHost::isValid()
 
 bool DatabaseHost::prepareToBeRemoved()
 {
-    if(isBusy()) return false;
+    if (isBusy())
+    {
+        return false;
+    }
 
     //disconnect all servers from me
     rasManager.disconnectAllServersFromDBH(hostName);
@@ -149,32 +160,37 @@ DatabaseHostManager::~DatabaseHostManager()
 
 }
 
-bool DatabaseHostManager::insertNewHost(const char* hostName,const char* connectString,const char* userString,const char* passwdString)
+bool DatabaseHostManager::insertNewHost(const char* hostName, const char* connectString, const char* userString, const char* passwdString)
 {
     char tempHostName[200];
-    strcpy(tempHostName,hostName);
+    strcpy(tempHostName, hostName);
     // why?? strtolwr(tempHostName);
 
-    if(testUniqueness(tempHostName)==false) return false;
+    if (testUniqueness(tempHostName) == false)
+    {
+        return false;
+    }
 
     DatabaseHost tempDatabaseHost;
     hostList.push_back(tempDatabaseHost);
-    DatabaseHost &refDatabaseHost=hostList.back();
+    DatabaseHost& refDatabaseHost = hostList.back();
 
-    refDatabaseHost.init(tempHostName,connectString,userString,passwdString);
+    refDatabaseHost.init(tempHostName, connectString, userString, passwdString);
 
     return true;
 }
 
 bool DatabaseHostManager::removeHost(const char* hostName)
 {
-    list<DatabaseHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++)
+    list<DatabaseHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++)
     {
-        if(hostCmp(iter->getName(),hostName))
+        if (hostCmp(iter->getName(), hostName))
         {
-            if(iter->isBusy())
+            if (iter->isBusy())
+            {
                 return false;
+            }
             iter->prepareToBeRemoved();
             hostList.erase(iter);
             return true;
@@ -187,11 +203,13 @@ bool DatabaseHostManager::removeHost(const char* hostName)
 
 bool DatabaseHostManager::testUniqueness(const char* hostName)
 {
-    list<DatabaseHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++)
+    list<DatabaseHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++)
     {
-        if(hostCmp(iter->getName(),hostName))
+        if (hostCmp(iter->getName(), hostName))
+        {
             return false;
+        }
         iter++;
     }
     return true;
@@ -199,19 +217,23 @@ bool DatabaseHostManager::testUniqueness(const char* hostName)
 
 DatabaseHost& DatabaseHostManager::operator[](int x)
 {
-    list<DatabaseHost>::iterator iter=hostList.begin();
-    for(int i=0; i<x; i++)
+    list<DatabaseHost>::iterator iter = hostList.begin();
+    for (int i = 0; i < x; i++)
+    {
         iter++;
+    }
     return *iter;
 }
 DatabaseHost& DatabaseHostManager::operator[](const char* hostName)
 {
 
-    list<DatabaseHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++)
+    list<DatabaseHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++)
     {
-        if(hostCmp(iter->getName(),hostName))
+        if (hostCmp(iter->getName(), hostName))
+        {
             return *iter;
+        }
         iter++;
     }
     return protElem;
@@ -225,15 +247,18 @@ int  DatabaseHostManager::countHosts()
 
 bool DatabaseHostManager::reset()
 {
-    if(config.isTestModus()==false) return false;
+    if (config.isTestModus() == false)
+    {
+        return false;
+    }
 
-    list<DatabaseHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++,iter++)
+    list<DatabaseHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++, iter++)
     {
         iter->prepareToBeRemoved();
     }
 
-    while(hostList.size())
+    while (hostList.size())
     {
         hostList.pop_front();
     }
@@ -241,10 +266,12 @@ bool DatabaseHostManager::reset()
     return true;
 }
 
-bool DatabaseHostManager::acceptChangeName(const char *oldName,const char *newName)
+bool DatabaseHostManager::acceptChangeName(const char* oldName, const char* newName)
 {
-    if(hostCmp(oldName,newName))
-        return true; // if someone really wants to change a name with the same,
+    if (hostCmp(oldName, newName))
+    {
+        return true;    // if someone really wants to change a name with the same,
+    }
     return testUniqueness(newName);
 }
 
@@ -252,12 +279,12 @@ bool DatabaseHostManager::acceptChangeName(const char *oldName,const char *newNa
 
 Database::Database()
 {
-    databaseName[0]=0;
-    valid=false;
+    databaseName[0] = 0;
+    valid = false;
 
     traceWT = false;
-    countWriteTransactions =0;
-    countReadTransactions =0;
+    countWriteTransactions = 0;
+    countReadTransactions = 0;
 }
 Database::~Database()
 {
@@ -269,46 +296,52 @@ const char* Database::getName()
 }
 void Database::changeName(const char* newDatabaseName)
 {
-    strcpy(this->databaseName,newDatabaseName);
+    strcpy(this->databaseName, newDatabaseName);
 }
 
 void  Database::init(const char* newDatabaseName)
 {
-    strcpy(this->databaseName,newDatabaseName);
-    valid=true;
+    strcpy(this->databaseName, newDatabaseName);
+    valid = true;
 }
 bool Database::isValid()
 {
     return valid;
 }
 
-const char* Database::getDescriptionHeader(char *destBuffer)
+const char* Database::getDescriptionHeader(char* destBuffer)
 {
-    sprintf(destBuffer,"    Database Name         Open Trans.");
+    sprintf(destBuffer, "    Database Name         Open Trans.");
     return destBuffer;
 }
-const char* Database::getDescription(char *destBuffer)
+const char* Database::getDescription(char* destBuffer)
 {
-    sprintf(destBuffer,"%-20s  (%dw + %dr)",databaseName,countWriteTransactions,countReadTransactions);
+    sprintf(destBuffer, "%-20s  (%dw + %dr)", databaseName, countWriteTransactions, countReadTransactions);
     return destBuffer;
 }
 
 bool Database::connectToDBHost(const char* hostName)
 {
-    DatabaseHost &TempDBH=dbHostManager[hostName];
+    DatabaseHost& TempDBH = dbHostManager[hostName];
 
-    if(TempDBH.isValid()==false) return false; // no such hostName
+    if (TempDBH.isValid() == false)
+    {
+        return false;    // no such hostName
+    }
 
-    if(checkConnection(TempDBH)) return false; // is already connected
+    if (checkConnection(TempDBH))
+    {
+        return false;    // is already connected
+    }
 
     hostPtrList.push_back(&TempDBH);
     //removed TempDBH.incrConnDatabases();
 
     // alse connecting to servers connected to this database host
-    for(int i=0; i<rasManager.countServers(); i++)
+    for (int i = 0; i < rasManager.countServers(); i++)
     {
-        RasServer &r = rasManager[i];
-        if(hostCmp(r.getDBHostName(),hostName))
+        RasServer& r = rasManager[i];
+        if (hostCmp(r.getDBHostName(), hostName))
         {
             connectToRasServer(r.getName());
         }
@@ -319,17 +352,17 @@ bool Database::connectToDBHost(const char* hostName)
 
 bool Database::disconnectFromDBHost(const char* hostName)
 {
-    list<DatabaseHost*>::iterator iter=hostPtrList.begin();
-    for(unsigned int i=0; i<hostPtrList.size(); i++)
+    list<DatabaseHost*>::iterator iter = hostPtrList.begin();
+    for (unsigned int i = 0; i < hostPtrList.size(); i++)
     {
-        DatabaseHost *ptrDBH=*iter;
+        DatabaseHost* ptrDBH = *iter;
 
-        if(hostCmp(ptrDBH->getName(),hostName))
+        if (hostCmp(ptrDBH->getName(), hostName))
         {
-            for(int j=0; j<rasManager.countServers(); j++)
+            for (int j = 0; j < rasManager.countServers(); j++)
             {
                 // disconnectig from the RasServers connected to the same database host
-                if(hostCmp(hostName,rasManager[j].getDBHostName()))
+                if (hostCmp(hostName, rasManager[j].getDBHostName()))
                 {
                     disconnectFromRasServer(rasManager[j].getName());
                 }
@@ -346,14 +379,14 @@ bool Database::disconnectFromDBHost(const char* hostName)
 void Database::disconnectForRemove()
 {
     // this means disconnect from all database hosts
-    list<DatabaseHost*>::iterator iter=hostPtrList.begin();
-    int listsize=hostPtrList.size();
-    for(int i=0; i<listsize; i++)
+    list<DatabaseHost*>::iterator iter = hostPtrList.begin();
+    int listsize = hostPtrList.size();
+    for (int i = 0; i < listsize; i++)
     {
         //removed (*iter)->decrConnDatabases();
         iter++;
     }
-    for(int i=0; i<listsize; i++)
+    for (int i = 0; i < listsize; i++)
     {
         hostPtrList.pop_front();
     }
@@ -363,18 +396,24 @@ void Database::disconnectForRemove()
 
 bool Database::isConnectedToDBHost(const char* hostName)
 {
-    DatabaseHost &r = dbHostManager[hostName];
+    DatabaseHost& r = dbHostManager[hostName];
 
-    if(r.isValid()==false) return false;
+    if (r.isValid() == false)
+    {
+        return false;
+    }
 
     return checkConnection(r);
 }
-bool Database::checkConnection(DatabaseHost &databaseHost)
+bool Database::checkConnection(DatabaseHost& databaseHost)
 {
-    list<DatabaseHost*>::iterator iter=hostPtrList.begin();
-    for(unsigned int i=0; i<hostPtrList.size(); i++)
+    list<DatabaseHost*>::iterator iter = hostPtrList.begin();
+    for (unsigned int i = 0; i < hostPtrList.size(); i++)
     {
-        if(*iter== &databaseHost) return true;
+        if (*iter == &databaseHost)
+        {
+            return true;
+        }
 
         iter++;
     }
@@ -387,36 +426,42 @@ int Database::countConnectionsToDBHosts()
 }
 const char* Database::getDBHostName(int x)
 {
-    if( x < static_cast<int>(hostPtrList.size()) )
+    if (x < static_cast<int>(hostPtrList.size()))
     {
-        list<DatabaseHost*>::iterator iter=hostPtrList.begin();
-        for(int i=0; i<x; i++,iter++);
+        list<DatabaseHost*>::iterator iter = hostPtrList.begin();
+        for (int i = 0; i < x; i++, iter++);
         return (*iter)->getName();
     }
     return "noHost!";
 }
 
-bool Database::connectToRasServer(const char *serverName)
+bool Database::connectToRasServer(const char* serverName)
 {
-    RasServer &rasServer=rasManager[serverName];
+    RasServer& rasServer = rasManager[serverName];
 
-    if(rasServer.isValid()==false) return false; // no such serverName
+    if (rasServer.isValid() == false)
+    {
+        return false;    // no such serverName
+    }
 
-    if(checkConnection(rasServer)) return false; // is already connected
+    if (checkConnection(rasServer))
+    {
+        return false;    // is already connected
+    }
 
     rasPtrList.push_back(&rasServer);
 
     return true;
 
 }
-bool Database::disconnectFromRasServer(const char *serverName)
+bool Database::disconnectFromRasServer(const char* serverName)
 {
-    list<RasServer*>::iterator iter=rasPtrList.begin();
-    for(unsigned int i=0; i<rasPtrList.size(); i++)
+    list<RasServer*>::iterator iter = rasPtrList.begin();
+    for (unsigned int i = 0; i < rasPtrList.size(); i++)
     {
-        RasServer *ptrRas=*iter;
+        RasServer* ptrRas = *iter;
 
-        if(hostCmp(ptrRas->getName(),serverName))
+        if (hostCmp(ptrRas->getName(), serverName))
         {
             rasPtrList.erase(iter);
             return true;
@@ -426,11 +471,14 @@ bool Database::disconnectFromRasServer(const char *serverName)
     return false;
 }
 
-bool Database::isConnectedToRasServer(const char *serverName)
+bool Database::isConnectedToRasServer(const char* serverName)
 {
-    RasServer &r = rasManager[serverName];
+    RasServer& r = rasManager[serverName];
 
-    if(r.isValid()==false) return false;
+    if (r.isValid() == false)
+    {
+        return false;
+    }
 
     return checkConnection(r);
 }
@@ -442,21 +490,24 @@ int  Database::countConnectionsToRasServers()
 
 const char* Database::getRasServerName(int x)
 {
-    if( x < static_cast<int>(rasPtrList.size()) )
+    if (x < static_cast<int>(rasPtrList.size()))
     {
-        list<RasServer*>::iterator iter=rasPtrList.begin();
-        for(int i=0; i<x; i++,iter++);
+        list<RasServer*>::iterator iter = rasPtrList.begin();
+        for (int i = 0; i < x; i++, iter++);
         return (*iter)->getName();
     }
     return "noRasServer!";
 }
 
-bool Database::checkConnection(RasServer &rasServer)
+bool Database::checkConnection(RasServer& rasServer)
 {
-    list<RasServer*>::iterator iter=rasPtrList.begin();
-    for(unsigned int i=0; i<rasPtrList.size(); i++)
+    list<RasServer*>::iterator iter = rasPtrList.begin();
+    for (unsigned int i = 0; i < rasPtrList.size(); i++)
     {
-        if(*iter== &rasServer) return true;
+        if (*iter == &rasServer)
+        {
+            return true;
+        }
 
         iter++;
     }
@@ -465,23 +516,32 @@ bool Database::checkConnection(RasServer &rasServer)
 
 void Database::setTraceWriteTrans(bool how)
 {
-    traceWT=how;
+    traceWT = how;
 }
 
 void Database::startWriteTransaction()
 {
-    if(traceWT) LINFO << "  DbName=" << databaseName << " rwTrans-in";
+    if (traceWT)
+    {
+        LINFO << "  DbName=" << databaseName << " rwTrans-in";
+    }
     countWriteTransactions++;
 }
 
 void Database::endWriteTransaction()
 {
-    if(traceWT) LINFO << "  DbName=" << databaseName << " rwTrans-out";
+    if (traceWT)
+    {
+        LINFO << "  DbName=" << databaseName << " rwTrans-out";
+    }
     countWriteTransactions--;
 }
 int Database::getWriteTransactionCount()
 {
-    if(traceWT) LINFO << "  DbName=" << databaseName << " ask rwTrans? (" << countWriteTransactions << ")";
+    if (traceWT)
+    {
+        LINFO << "  DbName=" << databaseName << " ask rwTrans? (" << countWriteTransactions << ")";
+    }
     return countWriteTransactions;
 }
 
@@ -500,7 +560,7 @@ int Database::getReadTransactionCount()
 }
 bool Database::isBusy()
 {
-    return countReadTransactions+countWriteTransactions ? true:false;
+    return countReadTransactions + countWriteTransactions ? true : false;
 }
 //**********************************************************************
 DatabaseManager::DatabaseManager()
@@ -513,21 +573,24 @@ DatabaseManager::~DatabaseManager()
 
 bool DatabaseManager::insertNewDatabase(const char* databaseName)
 {
-    if(testUniqueness(databaseName)==false) return false;
+    if (testUniqueness(databaseName) == false)
+    {
+        return false;
+    }
 
     Database tempDatabase;
     dtbList.push_back(tempDatabase);
-    Database &refDatabase=dtbList.back();
+    Database& refDatabase = dtbList.back();
     refDatabase.init(databaseName);
     return true;
 }
 
 bool DatabaseManager::removeDatabase(const char* databaseName)
 {
-    list<Database>::iterator iter=dtbList.begin();
-    for(unsigned int i=0; i<dtbList.size(); i++)
+    list<Database>::iterator iter = dtbList.begin();
+    for (unsigned int i = 0; i < dtbList.size(); i++)
     {
-        if(hostCmp(iter->getName(),databaseName))
+        if (hostCmp(iter->getName(), databaseName))
         {
             iter->disconnectForRemove();
             dtbList.erase(iter);
@@ -541,11 +604,13 @@ bool DatabaseManager::removeDatabase(const char* databaseName)
 
 bool DatabaseManager::testUniqueness(const char* databaseName)
 {
-    list<Database>::iterator iter=dtbList.begin();
-    for(unsigned int i=0; i<dtbList.size(); i++)
+    list<Database>::iterator iter = dtbList.begin();
+    for (unsigned int i = 0; i < dtbList.size(); i++)
     {
-        if(hostCmp(iter->getName(),databaseName))
+        if (hostCmp(iter->getName(), databaseName))
+        {
             return false;
+        }
         iter++;
     }
     return true;
@@ -553,17 +618,22 @@ bool DatabaseManager::testUniqueness(const char* databaseName)
 
 Database& DatabaseManager::operator[](int x)
 {
-    list<Database>::iterator iter=dtbList.begin();
-    for(int i=0; i<x; i++) iter++;
+    list<Database>::iterator iter = dtbList.begin();
+    for (int i = 0; i < x; i++)
+    {
+        iter++;
+    }
     return *iter;
 }
 Database& DatabaseManager::operator[](const char* dbName)
 {
-    list<Database>::iterator iter=dtbList.begin();
-    for(unsigned int i=0; i<dtbList.size(); i++)
+    list<Database>::iterator iter = dtbList.begin();
+    for (unsigned int i = 0; i < dtbList.size(); i++)
     {
-        if(hostCmp(iter->getName(),dbName))
+        if (hostCmp(iter->getName(), dbName))
+        {
             return *iter;
+        }
 
         iter++;
     }
@@ -572,8 +642,8 @@ Database& DatabaseManager::operator[](const char* dbName)
 
 void DatabaseManager::disconnectAllDatabasesFromDBH(const char* dbhName)
 {
-    list<Database>::iterator iter=dtbList.begin();
-    for(unsigned int i=0; i<dtbList.size(); i++,iter++)
+    list<Database>::iterator iter = dtbList.begin();
+    for (unsigned int i = 0; i < dtbList.size(); i++, iter++)
     {
         iter->disconnectFromDBHost(dbhName);
     }
@@ -585,25 +655,30 @@ int  DatabaseManager::countDatabases()
 
 bool DatabaseManager::reset()
 {
-    if(config.isTestModus()==false) return false;
+    if (config.isTestModus() == false)
+    {
+        return false;
+    }
 
-    list<Database>::iterator iter=dtbList.begin();
-    for(unsigned int i=0; i<dtbList.size(); i++,iter++)
+    list<Database>::iterator iter = dtbList.begin();
+    for (unsigned int i = 0; i < dtbList.size(); i++, iter++)
     {
         iter->disconnectForRemove();
     }
 
-    while(dtbList.size())
+    while (dtbList.size())
     {
         dtbList.pop_front();
     }
     return true;
 }
 
-bool DatabaseManager::acceptChangeName(const char *oldName,const char *newName)
+bool DatabaseManager::acceptChangeName(const char* oldName, const char* newName)
 {
-    if(hostCmp(oldName,newName))
-        return true; // if someone really wants to change a name with the same,
+    if (hostCmp(oldName, newName))
+    {
+        return true;    // if someone really wants to change a name with the same,
+    }
 
     return testUniqueness(newName);
 }

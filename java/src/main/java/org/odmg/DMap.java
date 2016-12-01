@@ -29,7 +29,7 @@ package org.odmg;
 * interface are supported by an ODMG implementation of <code>DMap</code>,
 * the exception <code>UnsupportedOperationException</code> is not thrown when a
 * call is made to any of the <code>Map</code> methods.
-* @author	David Jordan (as Java Editor of the Object Data Management Group)
+* @author   David Jordan (as Java Editor of the Object Data Management Group)
 * @version ODMG 3.0
 */
 // * @see com.sun.java.util.collections.UnsupportedOperationException

@@ -33,7 +33,7 @@ public class CoverageMetadataNotInitializedException extends CoverageMetadataExc
      * @param originalCause Original cause of exception.
      */
     public CoverageMetadataNotInitializedException(Exception originalCause) {
-         super(originalCause, ERROR_TEMPLATE.replace("$e",originalCause.getMessage()));
+        super(originalCause, ERROR_TEMPLATE.replace("$e", originalCause.getMessage()));
     }
 
     public static final String ERROR_TEMPLATE = "The metadata registry could not be initialized. Please check your database connection, $e.";

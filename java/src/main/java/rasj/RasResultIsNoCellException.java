@@ -28,8 +28,8 @@ rasdaman GmbH.
  * <pre>
  *
  * PURPOSE:
- * This exception is thrown if the result of an operation is no cell. This might happen 
- * if the cast operator for casting to the base type of class r_Marray is invoked 
+ * This exception is thrown if the result of an operation is no cell. This might happen
+ * if the cast operator for casting to the base type of class r_Marray is invoked
  * on an object which is not 'zero-dimensional'.
  * @version $Revision: 1.5 $
  *
@@ -41,15 +41,13 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasResultIsNoCellException extends RasException
-{
+public class RasResultIsNoCellException extends RasException {
     static final String rcsid = "@(#)Package rasj, class RasResultIsNoCellException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasResultIsNoCellException.java,v 1.5 2003/12/10 21:04:23 rasdev Exp $";
 
     /**
      * Standard constructor.
      **/
-    protected RasResultIsNoCellException()
-    {
+    protected RasResultIsNoCellException() {
         super(RasGlobalDefs.RESULT_IS_NO_CELL);
     }
 
@@ -57,13 +55,13 @@ public class RasResultIsNoCellException extends RasException
      * Returns the error message.
      * @return the error message.
      **/
-    public String getMessage()
-    {
-	if(super.getMessage() == null)
-	    return RasErrorTexts.getErrorMessage(errNo);
-        else
-	    return super.getMessage();
+    public String getMessage() {
+        if (super.getMessage() == null) {
+            return RasErrorTexts.getErrorMessage(errNo);
+        } else {
+            return super.getMessage();
+        }
     }
-  
+
 }
 

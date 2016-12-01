@@ -89,9 +89,9 @@ void SigIntHandler(int sig);
 
 int main(int argc, char** argv, char** envp)
 {
-    SET_OUTPUT( true ); // enable debugging trace, if compiled so
+    SET_OUTPUT(true);   // enable debugging trace, if compiled so
 
-    if(testIsMessageDigestAvailable("MD5")==false)
+    if (testIsMessageDigestAvailable("MD5") == false)
     {
         LERROR << "Error: Message Digest MD5 not available.";
         return RASMGR_RESULT_NO_MD5;
@@ -99,9 +99,11 @@ int main(int argc, char** argv, char** envp)
 
     installSignalHandlers();
 
-    bool result  = config.interpretArguments(argc,argv,envp);
+    bool result  = config.interpretArguments(argc, argv, envp);
     if (result == false)
+    {
         return RASMGR_RESULT_ILL_ARGS;
+    }
 
     LINFO << "rasmgr: rasdaman server manager tool. rasdaman "
           << RMANVERSION << " -- generated on " << COMPDATE << ".\n"
@@ -115,10 +117,10 @@ int main(int argc, char** argv, char** envp)
           "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
           "GNU General Public License for more details. \n";
 
-    if(config.isTestModus())
+    if (config.isTestModus())
     {
         LINFO << "rasmgr running in test modus ";
-        LDEBUG <<", listening on port=" << config.getListenPort();
+        LDEBUG << ", listening on port=" << config.getListenPort();
     }
     else
     {
@@ -126,25 +128,25 @@ int main(int argc, char** argv, char** envp)
         LDEBUG << " with poll timeout " << config.getPollFrequency() << " seconds. ";
     }
 
-    if(config.isTestModus()==false)
+    if (config.isTestModus() == false)
     {
         LDEBUG <<  "hostname=" << config.getHostName() << ", publicHostname=" << config.getPublicHostName();
-        if(strcmp(config.getHostName(),config.getPublicHostName()) != 0)
+        if (strcmp(config.getHostName(), config.getPublicHostName()) != 0)
         {
-            LDEBUG <<"Advertised host name is "<<config.getPublicHostName();
+            LDEBUG << "Advertised host name is " << config.getPublicHostName();
         }
 
         bool resultConfig = config.readConfigFile();
         LDEBUG << "rasmgr::main: resultConfig=" << resultConfig;
-        rascontrol.setConfigDirty( false );        // all changes to config up to now come from config file, do not require save
+        rascontrol.setConfigDirty(false);          // all changes to config up to now come from config file, do not require save
 
         int resultAuth = authorization.readAuthFile();
         LDEBUG << "rasmgr::main: resultAuth=" << resultAuth ;
-        switch( resultAuth )
+        switch (resultAuth)
         {
         case RC_OK:
             LDEBUG << "rasmgr::main: auth file ok, set state to not dirty.";
-            rascontrol.setAuthDirty( false );   // auth file ok, so clean init state
+            rascontrol.setAuthDirty(false);     // auth file ok, so clean init state
             break;
         case ERRAUTHFNOTF:
             LDEBUG << "rasmgr::main: auth file not found, loading defaults.";
@@ -172,9 +174,9 @@ int main(int argc, char** argv, char** envp)
             masterCommunicator.Run();       // central request handling loop
             LDEBUG << "masterCommunicator.Run() done.";
         }
-        catch(RCError& e)
+        catch (RCError& e)
         {
-            char *errorMsg = NULL;
+            char* errorMsg = NULL;
             e.getString(errorMsg);
             LERROR << "Error: " << errorMsg;
         }
@@ -182,26 +184,26 @@ int main(int argc, char** argv, char** envp)
 // write the config file only on explicit rascontrol request "save"
 // (and at that moment), or at rascontrol "exit" to a rescue file -- PB 2003-jun-06
 #ifdef NEVER_AGAIN
-        if(!config.saveConfigFile())
+        if (!config.saveConfigFile())
         {
             LERROR << "Error saving configuration file.";
         }
 
-        if(!authorization.saveAuthFile())
+        if (!authorization.saveAuthFile())
         {
             LERROR << "Error saving user authorization file.";
         }
 #endif
     }
 
-    else if(config.isTestModus())
+    else if (config.isTestModus())
     {
         hostmanager.insertInternalHost();
         userManager.loadDefaults();
         masterCommunicator.Run();
     }
 
-    LINFO <<"rasmgr terminated.";
+    LINFO << "rasmgr terminated.";
 
     int retval = RASMGR_RESULT_OK;
     return retval;
@@ -209,7 +211,7 @@ int main(int argc, char** argv, char** envp)
 
 // danger: RMInit::logOut in interrupt???
 // handler for SIGINT and SIGTERM = call for exit
-void SigIntHandler(__attribute__ ((unused)) int sig)
+void SigIntHandler(__attribute__((unused)) int sig)
 {
     LINFO << "rasmgr received terminate signal...";
     masterCommunicator.shouldExit();
@@ -217,26 +219,29 @@ void SigIntHandler(__attribute__ ((unused)) int sig)
 
 void installSignalHandlers()
 {
-    signal (SIGINT, SigIntHandler);
-    signal (SIGTERM, SigIntHandler);
-    signal (SIGHUP, SIG_IGN);
-    signal (SIGPIPE,SIG_IGN);
-    signal (SIGTTOU,SIG_IGN); // no console, ei si?
+    signal(SIGINT, SigIntHandler);
+    signal(SIGTERM, SigIntHandler);
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGTTOU, SIG_IGN);  // no console, ei si?
 }
 
 // should be replaced by something cleaner, eventually
 void exitbyerror(const char* text)
 {
     perror(text);
-    exit( RASMGR_EXIT_FAILURE );
+    exit(RASMGR_EXIT_FAILURE);
 }
 
-char *strtolwr(char *string2)// should be somewhere in the C-library, but can't find it
+char* strtolwr(char* string2)// should be somewhere in the C-library, but can't find it
 {
-    char *t=string2;
-    for(; *t; t++)
+    char* t = string2;
+    for (; *t; t++)
     {
-        if(*t>='A' && *t<='Z') *t|='a'-'A';
+        if (*t >= 'A' && *t <= 'Z')
+        {
+            *t |= 'a' - 'A';
+        }
     }
     return string2;
 }

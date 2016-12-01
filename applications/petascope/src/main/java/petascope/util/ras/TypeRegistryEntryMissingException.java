@@ -30,14 +30,14 @@ package petascope.util.ras;
  * @author <a href="vlad@flanche.net">Vlad Merticariu</a>
  */
 public class TypeRegistryEntryMissingException extends Exception {
-  public TypeRegistryEntryMissingException() {
-  }
+    public TypeRegistryEntryMissingException() {
+    }
 
-  public TypeRegistryEntryMissingException(String message) {
-    super(message);
-  }
+    public TypeRegistryEntryMissingException(String message) {
+        super(message);
+    }
 
-  public TypeRegistryEntryMissingException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public TypeRegistryEntryMissingException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -76,7 +76,7 @@ struct KeywordKey MethodKeyTable[] =
 *
 */
 
-int HTTP_GetMKey( char *Keyword )
+int HTTP_GetMKey(char* Keyword)
 {
     int cond;
     int low;
@@ -87,37 +87,47 @@ int HTTP_GetMKey( char *Keyword )
 
     low  = 0;
     high = NUM_MKEYS - 1;
-    for( i = 0; i < NUM_MKEYS; i++ )
-        check[ i ] = 0;
-    if( !isalpha( *Keyword ) )
-        return( MKEY_NONE );
-    while( low <= high )
+    for (i = 0; i < NUM_MKEYS; i++)
     {
-        mid = ( low + high ) / 2;
-        if( ( cond = strcmp( Keyword, MethodKeyTable[mid].Keyword ) ) < 0 )
+        check[ i ] = 0;
+    }
+    if (!isalpha(*Keyword))
+    {
+        return (MKEY_NONE);
+    }
+    while (low <= high)
+    {
+        mid = (low + high) / 2;
+        if ((cond = strcmp(Keyword, MethodKeyTable[mid].Keyword)) < 0)
         {
-            if( check[mid] == 0 )
+            if (check[mid] == 0)
             {
                 check[mid] = 1;
                 high = mid - 1;
             }
             else
-                return( MKEY_UNKNOWN );
+            {
+                return (MKEY_UNKNOWN);
+            }
         }
-        else if( cond > 0 )
+        else if (cond > 0)
         {
-            if( check[mid] == 0 )
+            if (check[mid] == 0)
             {
                 check[mid] = 1;
                 low = mid + 1;
             }
             else
-                return( MKEY_UNKNOWN );
+            {
+                return (MKEY_UNKNOWN);
+            }
         }
         else
-            return( MethodKeyTable[mid].Key );
+        {
+            return (MethodKeyTable[mid].Key);
+        }
     }
-    return( MKEY_UNKNOWN );
+    return (MKEY_UNKNOWN);
 }
 
 
@@ -151,14 +161,16 @@ int HTTP_GetMKey( char *Keyword )
 *
 */
 
-char *HTTP_GetMethodName( int Key )
+char* HTTP_GetMethodName(int Key)
 {
     int i;
 
-    for( i = 0; i < NUM_MKEYS; i++ )
+    for (i = 0; i < NUM_MKEYS; i++)
     {
-        if( MethodKeyTable[i].Key == Key )
-            return( MethodKeyTable[i].Keyword );
+        if (MethodKeyTable[i].Key == Key)
+        {
+            return (MethodKeyTable[i].Keyword);
+        }
     }
-    return( NULL );
+    return (NULL);
 }

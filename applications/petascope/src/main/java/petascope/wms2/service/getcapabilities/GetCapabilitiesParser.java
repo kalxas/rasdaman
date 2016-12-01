@@ -43,7 +43,7 @@ public class GetCapabilitiesParser extends Parser<GetCapabilitiesRequest> {
     public boolean canParse(WMSGetRequest rawRequest) {
         String requestValue = rawRequest.getGetValueByKey(GetCapabilitiesRequest.getRequestParameterRequest());
         return requestValue != null &&
-                requestValue.equalsIgnoreCase(GetCapabilitiesRequest.getRequestType());
+               requestValue.equalsIgnoreCase(GetCapabilitiesRequest.getRequestType());
     }
 
     /**

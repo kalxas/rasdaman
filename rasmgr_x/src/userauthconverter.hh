@@ -52,9 +52,9 @@ private:
 
     static void initCrypt(int seed);
 
-    static int verifyAuthFile(std::ifstream &ifs);
+    static int verifyAuthFile(std::ifstream& ifs);
 
-    static void crypt(void *vbuffer,int length);
+    static void crypt(void* vbuffer, int length);
 
     static rasmgr::UserDatabaseRightsProto convertDbRightsToProto(int right);
 

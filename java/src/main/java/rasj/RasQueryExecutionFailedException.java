@@ -41,8 +41,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasQueryExecutionFailedException extends QueryInvalidException
-{
+public class RasQueryExecutionFailedException extends QueryInvalidException {
     static final String rcsid = "@(#)Package rasj, class RasQueryExecutionFailedException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasQueryExecutionFailedException.java,v 1.10 2003/12/19 16:22:27 rasdev Exp $";
 
     /**
@@ -52,7 +51,7 @@ public class RasQueryExecutionFailedException extends QueryInvalidException
 
     /**
      * line number of the error
-     */    
+     */
     private int line;
 
     /**
@@ -64,33 +63,26 @@ public class RasQueryExecutionFailedException extends QueryInvalidException
      * token that caused the error
      */
     private String token;
-    
-    public RasQueryExecutionFailedException(String string)
-    {
-        if (string==null)
-        {
-	  line = 0;
-	  column = 0;
-	  token = "(null)"; 
-        }
-        else
-        {
-            StringTokenizer tokenizer= new StringTokenizer( string, RasGlobalDefs.KEYWORD_TAB );
-	    String Ttoken=tokenizer.nextToken(); 
-	    Ttoken=tokenizer.nextToken();
-	    errNo=Integer.parseInt(Ttoken);
-	    if(tokenizer.hasMoreTokens())
-	    {
-	       line=Integer.parseInt(tokenizer.nextToken());
-	       column=Integer.parseInt(tokenizer.nextToken());
-	       token=tokenizer.nextToken(); 
-	    }
-	    else
-	    {
-	      line=0;
-	      column=0;
-	      token=""; 
-	    }    
+
+    public RasQueryExecutionFailedException(String string) {
+        if (string == null) {
+            line = 0;
+            column = 0;
+            token = "(null)";
+        } else {
+            StringTokenizer tokenizer = new StringTokenizer(string, RasGlobalDefs.KEYWORD_TAB);
+            String Ttoken = tokenizer.nextToken();
+            Ttoken = tokenizer.nextToken();
+            errNo = Integer.parseInt(Ttoken);
+            if (tokenizer.hasMoreTokens()) {
+                line = Integer.parseInt(tokenizer.nextToken());
+                column = Integer.parseInt(tokenizer.nextToken());
+                token = tokenizer.nextToken();
+            } else {
+                line = 0;
+                column = 0;
+                token = "";
+            }
         }
     }
 
@@ -101,72 +93,71 @@ public class RasQueryExecutionFailedException extends QueryInvalidException
      *@param colNo column in the query string that contains the error
      *@param tok token that caused the error
      */
-    public RasQueryExecutionFailedException( int errorNo, int lineNo, int colNo, String tok )
-    {
-	super();
-	errNo = errorNo;
+    public RasQueryExecutionFailedException(int errorNo, int lineNo, int colNo, String tok) {
+        super();
+        errNo = errorNo;
         line = lineNo;
         column = colNo;
-        token = ( (tok==null) ? "(null)" : tok );
+        token = ((tok == null) ? "(null)" : tok);
     }
 
-    public String getMessage()
-    {
-	int index;
+    public String getMessage() {
+        int index;
 
-        if(super.getMessage() == null)
+        if (super.getMessage() == null)
 
-	    {
-	    String msg = RasErrorTexts.getErrorMessage(errNo);
+        {
+            String msg = RasErrorTexts.getErrorMessage(errNo);
 
-	    StringBuffer buf = new StringBuffer(msg);
-	    index = msg.indexOf( RasGlobalDefs.KEYWORD_TOKEN );
-	    if(index != -1)
-	        buf.replace(index, index+RasGlobalDefs.KEYWORD_TOKEN.length(), token);
-	    
-	    msg = buf.toString();
-	    index = msg.indexOf( RasGlobalDefs.KEYWORD_ERRNO );
-	    if(index != -1)
-	        buf.replace(index, index+RasGlobalDefs.KEYWORD_ERRNO.length(), String.valueOf(errNo));
-	    
-	    msg = buf.toString();
-	    index = msg.indexOf( RasGlobalDefs.KEYWORD_LINENO );
-	    if(index != -1)
-	        buf.replace(index, index+RasGlobalDefs.KEYWORD_LINENO.length(), String.valueOf(line));
-	    
-	    msg = buf.toString();
-	    index = msg.indexOf( RasGlobalDefs.KEYWORD_COLNO );
-	    if(index != -1)
-	        buf.replace(index, index+RasGlobalDefs.KEYWORD_COLNO.length(), String.valueOf(column));
-	    
-	    return buf.toString();		
-	    }
-        else
-	    return super.getMessage();
+            StringBuffer buf = new StringBuffer(msg);
+            index = msg.indexOf(RasGlobalDefs.KEYWORD_TOKEN);
+            if (index != -1) {
+                buf.replace(index, index + RasGlobalDefs.KEYWORD_TOKEN.length(), token);
+            }
+
+            msg = buf.toString();
+            index = msg.indexOf(RasGlobalDefs.KEYWORD_ERRNO);
+            if (index != -1) {
+                buf.replace(index, index + RasGlobalDefs.KEYWORD_ERRNO.length(), String.valueOf(errNo));
+            }
+
+            msg = buf.toString();
+            index = msg.indexOf(RasGlobalDefs.KEYWORD_LINENO);
+            if (index != -1) {
+                buf.replace(index, index + RasGlobalDefs.KEYWORD_LINENO.length(), String.valueOf(line));
+            }
+
+            msg = buf.toString();
+            index = msg.indexOf(RasGlobalDefs.KEYWORD_COLNO);
+            if (index != -1) {
+                buf.replace(index, index + RasGlobalDefs.KEYWORD_COLNO.length(), String.valueOf(column));
+            }
+
+            return buf.toString();
+        } else {
+            return super.getMessage();
+        }
     }
 
     /**
      * returns the line number of the error
      */
-    public int getLine()
-        {
+    public int getLine() {
         return line;
-        }
+    }
 
     /**
      * return the column number of the error
      */
-    public int getColumn()
-        {
+    public int getColumn() {
         return column;
-        }
+    }
 
     /**
      * returns the token that caused the error
      */
-    public String getToken()
-        {
+    public String getToken() {
         return token;
-        }
+    }
 
-  }
+}

@@ -32,7 +32,7 @@ public class GribMessage {
     private int messageId;
     private List<GribAxis> axes;
 
-    public GribMessage(){}
+    public GribMessage() {}
 
     public int getMessageId() {
         return messageId;

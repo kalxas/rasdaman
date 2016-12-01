@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class DimensionVariable<T> implements Variable{
+public class DimensionVariable<T> implements Variable {
 
     private String type;
     private List<T> data;

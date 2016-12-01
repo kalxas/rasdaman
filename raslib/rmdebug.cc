@@ -107,20 +107,24 @@ RMDebug::RMDebug(const char* newClass, const char* newFunc, const char* newModul
 
     int useLevel = -1;
     if (myModuleNum >= 0)
+    {
         useLevel = allModuleLevels[myModuleNum];
+    }
 
     if (useLevel < 0)
+    {
         useLevel = RManDebug;
+    }
 
     myDebugOn = myDebugOn && (useLevel >= myDebugLevel);
 
-    if( myDebugOn )
+    if (myDebugOn)
     {
         indentLine();
         // output, when entering function
         LTRACE << "D: " << myClass << "::" << myFunc << " entered "
-                       << "(" << myModule << ", " << myFile << ": " << myLine
-                       << ").";
+               << "(" << myModule << ", " << myFile << ": " << myLine
+               << ").";
         // indentation
         level++;
     }
@@ -133,13 +137,13 @@ RMDebug::RMDebug(int newLevel, const char* newClass, const char* newFunc, int ne
 {
     myDebugOn = checkDebug() && (allModuleLevels[newModuleNum] >= myDebugLevel);
 
-    if ( myDebugOn )
+    if (myDebugOn)
     {
         indentLine();
         // output when entering function
         LTRACE << "D: " << myClass << "::" << myFunc << " entered "
-                       << "(" << allModuleNames[myModuleNum] << ", " << myFile << ": "
-                       << myLine << ").";
+               << "(" << allModuleNames[myModuleNum] << ", " << myFile << ": "
+               << myLine << ").";
         // indentation
         level++;
     }
@@ -147,14 +151,14 @@ RMDebug::RMDebug(int newLevel, const char* newClass, const char* newFunc, int ne
 
 RMDebug::~RMDebug(void)
 {
-    if( myDebugOn )
+    if (myDebugOn)
     {
         // indentation
         level--;
         indentLine();
         // output, when exiting function
         LTRACE << "D: " << myClass << "::" << myFunc
-                       << " exited.";
+               << " exited.";
     }
 }
 
@@ -169,7 +173,7 @@ RMDebug::loadTextFile(const char* name)
         char* result;
         f.seekg(0, std::ios::end);
         std::streampos end = f.tellg();
-        size_t resLen=static_cast<size_t>(end) + 1;
+        size_t resLen = static_cast<size_t>(end) + 1;
         result = new char[resLen];
         memset(result, 0, resLen);
         f.seekg(0, std::ios::beg);
@@ -184,15 +188,17 @@ RMDebug::loadTextFile(const char* name)
 int
 RMDebug::initRMDebug(void)
 {
-    int errmod=0;
-    int errclass=0;
+    int errmod = 0;
+    int errclass = 0;
     int j;
     const char* enVar;
     char* myPtr;
 
     // init all debug levels to global debug level
-    for (j=0; j<module_number; j++)
+    for (j = 0; j < module_number; j++)
+    {
         allModuleLevels[j] = RManDebug;
+    }
 
     // -------------------
     // reading rmdbmodules
@@ -201,33 +207,43 @@ RMDebug::initRMDebug(void)
     // environment variable overrides text file
     if ((enVar = getenv("RMDBGMODULES")) != NULL)
     {
-        debugModulesText = new char[strlen(enVar)+1];
+        debugModulesText = new char[strlen(enVar) + 1];
         strcpy(debugModulesText, enVar);
     }
     else
     {
         if ((debugModulesText = loadTextFile("rmdbmodules")) == NULL)
+        {
             errmod = -1;
+        }
     }
 
     if (debugModulesText != NULL)
     {
         // first switch off debugging info for all modules
-        for (j=0; j<module_number; j++)
+        for (j = 0; j < module_number; j++)
+        {
             allModuleLevels[j] = 0;
+        }
 
         // count number of lines (whitespace separates)
         myPtr = debugModulesText;
         while (*myPtr != '\0')
         {
-            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr)))
+            {
+                myPtr++;
+            }
             if (*myPtr != '\0')
             {
                 numDebugModules++;
-                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
+                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr)))
+                {
+                    myPtr++;
+                }
             }
         }
-        debugModules = new char*[numDebugModules];
+        debugModules = new char* [numDebugModules];
         transDebugModules = new int[numDebugModules];
         // read text
         j = 0;
@@ -236,7 +252,10 @@ RMDebug::initRMDebug(void)
         {
             int modLevel = RManDebug; // default debug level
             transDebugModules[j] = -1;
-            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr)))
+            {
+                myPtr++;
+            }
             if (*myPtr != '\0')
             {
                 debugModules[j] = myPtr;
@@ -253,16 +272,26 @@ RMDebug::initRMDebug(void)
                         }
                         myPtr = rest;
                     }
-                    else myPtr++;
+                    else
+                    {
+                        myPtr++;
+                    }
                 }
             }
-            if (*myPtr != '\0') *myPtr++ = '\0';
-            for (int i=0; i<module_number; i++)
+            if (*myPtr != '\0')
+            {
+                *myPtr++ = '\0';
+            }
+            for (int i = 0; i < module_number; i++)
             {
                 if (debugModules[j] == NULL)
+                {
                     LWARNING << "RMDebug::initRMDebug: debugModules[" << j << "] is NULL, skipping this.";
+                }
                 else if (allModuleNames[i] == NULL)
+                {
                     LWARNING << "RMDebug::initRMDebug: allModuleNames[" << i << "] is NULL, skipping this.";
+                }
                 else if (strcmp(debugModules[j], allModuleNames[i]) == 0)
                 {
                     transDebugModules[j] = i;
@@ -270,11 +299,15 @@ RMDebug::initRMDebug(void)
                 }
             }
             if (transDebugModules[j] >= 0)
+            {
                 allModuleLevels[transDebugModules[j]] = modLevel;
+            }
             j++;
         }
-        for (j=0; j<module_number; j++)
+        for (j = 0; j < module_number; j++)
+        {
             LTRACE << allModuleNames[j] << " : " << allModuleLevels[j];
+        }
     }
 
     // -------------------
@@ -283,13 +316,15 @@ RMDebug::initRMDebug(void)
 
     if ((enVar = getenv("RMDBGCLASSES")) != NULL)
     {
-        debugClassesText = new char[strlen(enVar)+1];
+        debugClassesText = new char[strlen(enVar) + 1];
         strcpy(debugClassesText, enVar);
     }
     else
     {
         if ((debugClassesText = loadTextFile("rmdbclasses")) == NULL)
+        {
             errclass = -1;
+        }
     }
 
     if (debugClassesText != NULL)
@@ -297,35 +332,56 @@ RMDebug::initRMDebug(void)
         myPtr = debugClassesText;
         while (*myPtr != '\0')
         {
-            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr)))
+            {
+                myPtr++;
+            }
             if (*myPtr != '\0')
             {
                 numDebugClasses++;
-                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
+                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr)))
+                {
+                    myPtr++;
+                }
             }
         }
-        debugClasses = new char*[numDebugClasses];
+        debugClasses = new char* [numDebugClasses];
         // read text
         j = 0;
         myPtr = debugClassesText;
         while (*myPtr != '\0')
         {
-            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr)))
+            {
+                myPtr++;
+            }
             if (*myPtr != '\0')
             {
                 debugClasses[j++] = myPtr;
-                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
-                if (*myPtr != '\0') *myPtr++ = '\0';
+                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr)))
+                {
+                    myPtr++;
+                }
+                if (*myPtr != '\0')
+                {
+                    *myPtr++ = '\0';
+                }
             }
         }
     }
-    for (j=0; j<numDebugClasses; j++)
+    for (j = 0; j < numDebugClasses; j++)
+    {
         LTRACE << debugClasses[j];
+    }
 
-    if(errmod == -1 && errclass == -1)
+    if (errmod == -1 && errclass == -1)
+    {
         return -1;
+    }
     else
+    {
         return 0;
+    }
 }
 
 int
@@ -333,39 +389,51 @@ RMDebug::checkDebug(void)
 {
     int i;
 
-    if(numDebugModules == 0 && numDebugClasses == 0)
+    if (numDebugModules == 0 && numDebugClasses == 0)
         // all classes should be debugged
+    {
         return 1;
+    }
     else
     {
         if (numDebugModules > 0)
         {
-            if(myModuleNum >= 0)
+            if (myModuleNum >= 0)
             {
                 if (allModuleLevels[myModuleNum] == 0)
+                {
                     return 0;
+                }
             }
             else
             {
                 // check if module is mentioned
-                for(i = 0; i < numDebugModules; i++)
+                for (i = 0; i < numDebugModules; i++)
                 {
-                    if(strcmp(debugModules[i], myModule) == 0)
+                    if (strcmp(debugModules[i], myModule) == 0)
                     {
                         myModuleNum = transDebugModules[i];
                         break;
                     }
                 }
-                if (i >= numDebugModules) return 0;
+                if (i >= numDebugModules)
+                {
+                    return 0;
+                }
             }
         }
-        if((numDebugClasses > 0) && (myClass != NULL))
+        if ((numDebugClasses > 0) && (myClass != NULL))
         {
             // check if class is mentioned
-            for(i = 0; i < numDebugClasses; i++)
-                if(strcmp(debugClasses[i], myClass) == 0)
+            for (i = 0; i < numDebugClasses; i++)
+                if (strcmp(debugClasses[i], myClass) == 0)
+                {
                     break;
-            if (i >= numDebugClasses) return 0;
+                }
+            if (i >= numDebugClasses)
+            {
+                return 0;
+            }
         }
     }
     return 1;
@@ -390,7 +458,7 @@ RMDebug::debugOutput(int dbgLevel, int modNum, const char* className)
             if ((numDebugClasses > 0) && (className != NULL))
             {
                 int i;
-                for (i=0; i<numDebugClasses; i++)
+                for (i = 0; i < numDebugClasses; i++)
                 {
                     if (strcmp(debugClasses[i], className) == 0)
                     {
@@ -398,9 +466,13 @@ RMDebug::debugOutput(int dbgLevel, int modNum, const char* className)
                     }
                 }
                 if (i >= numDebugClasses)
+                {
                     retval = 0;
+                }
                 else
+                {
                     retval = 1;
+                }
             }
             else
             {
@@ -414,7 +486,7 @@ RMDebug::debugOutput(int dbgLevel, int modNum, const char* className)
 RMCounter::RMCounter(int levell, int module, const char* cls)
     :   doStuff(false)
 {
-    if (RMDebug::debugOutput( levell, module, cls ))
+    if (RMDebug::debugOutput(levell, module, cls))
     {
         //LTRACE << "RMCounter() " << RMDebug::level << " ";
         doStuff = true;

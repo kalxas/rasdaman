@@ -31,25 +31,25 @@
 namespace rasmgr
 {
 /// host/domain name size (See man gethostname)
-const boost::uint32_t Configuration::HOSTNAME_SIZE= 255;
+const boost::uint32_t Configuration::HOSTNAME_SIZE = 255;
 const std::string Configuration::RASMGR_LOG_PREFIX = "rasmgr";
 const boost::uint32_t Configuration::MAXMSGOUTBUFF = 20000;
 
 Configuration::Configuration():
-    cmlInter      (CommandLineParser::getInstance()),
-    cmlHelp       (cmlInter.addFlagParameter('h', "help", "print this help")),
-    cmlHostName   (cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
-    cmlPort       (cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
-    cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
-    cmlQuiet      (cmlInter.addFlagParameter( 'q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
-    cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log"))
+    cmlInter(CommandLineParser::getInstance()),
+    cmlHelp(cmlInter.addFlagParameter('h', "help", "print this help")),
+    cmlHostName(cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
+    cmlPort(cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
+    cmlName(cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
+    cmlQuiet(cmlInter.addFlagParameter('q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
+    cmlLog(cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log"))
 {
     char hName[HOSTNAME_SIZE];
-    int ghnResult = gethostname(hName, sizeof(hName) );
+    int ghnResult = gethostname(hName, sizeof(hName));
     if (ghnResult != 0) // cannot get hostname?
     {
         int ghnErrno = errno;
-        LERROR<<"Error: cannot get hostname of my machine: error " << ghnErrno << "; will use '" << DEFAULT_HOSTNAME << "' as heuristic.";
+        LERROR << "Error: cannot get hostname of my machine: error " << ghnErrno << "; will use '" << DEFAULT_HOSTNAME << "' as heuristic.";
         this->hostName = DEFAULT_HOSTNAME;
     }
 
@@ -63,7 +63,7 @@ Configuration::~Configuration()
 
 }
 
-bool Configuration::parseCommandLineParameters(int argc, char **argv)
+bool Configuration::parseCommandLineParameters(int argc, char** argv)
 {
     bool result = true;
 
@@ -71,54 +71,54 @@ bool Configuration::parseCommandLineParameters(int argc, char **argv)
     {
         this->cmlInter.processCommandLine(argc, argv);
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
-        std::cerr<< "Error parsing command line: " << err.what();
+        std::cerr << "Error parsing command line: " << err.what();
         this->printHelp();
         result = false;
     }
 
-    if( (result==true) && cmlHelp.isPresent() )
+    if ((result == true) && cmlHelp.isPresent())
     {
         printHelp();
         result = false;
     }
 
-    if( (result==true) && cmlQuiet.isPresent() )
+    if ((result == true) && cmlQuiet.isPresent())
     {
         this->quiet = true;
         result = true;
     }
 
-    if( (result==true) && cmlPort.isPresent() )
+    if ((result == true) && cmlPort.isPresent())
     {
         try
         {
             this->port = cmlPort.getValueAsLong();
         }
-        catch(CmlException& err)
+        catch (CmlException& err)
         {
             std::cerr << "Error converting port parameter " << cmlPort.getLongName() << " to integer: " << err.what() << std::endl;
             result = false;
         }
     }
 
-    if( (result==true) && cmlLog.isPresent() )
+    if ((result == true) && cmlLog.isPresent())
     {
         try
         {
             this->logFile = cmlLog.getValueAsString();
         }
-        catch(CmlException& err)
+        catch (CmlException& err)
         {
             std::cerr << "Error converting logconf parameter " << cmlLog.getValueAsString() << " to string: " << err.what() << std::endl;
             result = false;
         }
     }
 
-    if( (result==true) && cmlHostName.isPresent() )
+    if ((result == true) && cmlHostName.isPresent())
     {
-        if(HOSTNAME_SIZE > strlen(cmlHostName.getValueAsString()))
+        if (HOSTNAME_SIZE > strlen(cmlHostName.getValueAsString()))
         {
             this->hostName = cmlHostName.getValueAsString();
         }

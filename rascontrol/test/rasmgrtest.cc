@@ -53,35 +53,44 @@ RasMgrTester rasmgrTester;
 void testCommandLanguage();
 void createTestFile();
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 
-    if(config.interpretArguments(argc,argv) == false) return 0;
-
-    if(config.getWorkModus() == WKMUNKNOWN )
+    if (config.interpretArguments(argc, argv) == false)
     {
-        cout << "And what should I do?"<<endl;
+        return 0;
+    }
+
+    if (config.getWorkModus() == WKMUNKNOWN)
+    {
+        cout << "And what should I do?" << endl;
         return 1;
     }
 
-    if(testIsMessageDigestAvailable("MD5")==false)
+    if (testIsMessageDigestAvailable("MD5") == false)
     {
-        cout<<"No MD5-Algorythm!"<<endl;
+        cout << "No MD5-Algorythm!" << endl;
         return 2;
     }
 
     rasmgrTester.setRasMgrHost(config.getRasMgrHost(), config.getRasMgrPort());
 
     // tre sa testezi modul de lucru al rasmgr, sa nu faci test cind e activ!!
-    if(rasmgrTester.mayWeDoTest()==false)
+    if (rasmgrTester.mayWeDoTest() == false)
     {
-        cout<<"Can't do test while RasMgr is not running in test modus"<<endl;
+        cout << "Can't do test while RasMgr is not running in test modus" << endl;
         return 3;
     }
 
-    if(config.getWorkModus() == WKMCREATE) createTestFile();
+    if (config.getWorkModus() == WKMCREATE)
+    {
+        createTestFile();
+    }
 
-    if(config.getWorkModus() == WKMTSLANG) testCommandLanguage();
+    if (config.getWorkModus() == WKMTSLANG)
+    {
+        testCommandLanguage();
+    }
 
     return 0;
 }
@@ -89,43 +98,49 @@ int main(int argc, char **argv)
 void createTestFile()
 {
     // preia history file si face din el testfile-ul
-    cout<<"Creating test file "<<config.getTestFile()<<" from command list file "<<config.getCommandListFile()<<endl;
+    cout << "Creating test file " << config.getTestFile() << " from command list file " << config.getCommandListFile() << endl;
     std::ifstream history(config.getCommandListFile());
-    if(!history)
+    if (!history)
     {
-        cout<<"Can't open command list file "<<config.getCommandListFile()<<endl;
+        cout << "Can't open command list file " << config.getCommandListFile() << endl;
         return;
     }
 
-    std::ofstream testofs(config.getTestFile(),ios::out|ios::trunc);
-    if(!testofs)
+    std::ofstream testofs(config.getTestFile(), ios::out | ios::trunc);
+    if (!testofs)
     {
-        cout<<"Can't open test file "<<config.getTestFile()<<endl;
+        cout << "Can't open test file " << config.getTestFile() << endl;
         return;
     }
 
-    while(rasmgrTester.loadCommand(history))
+    while (rasmgrTester.loadCommand(history))
     {
-        if(rasmgrTester.sendCommandGetAnswer()==false) break;
+        if (rasmgrTester.sendCommandGetAnswer() == false)
+        {
+            break;
+        }
 
         rasmgrTester.saveCommand(testofs);
         rasmgrTester.saveAnswer(testofs);
-        testofs<<"§§§- new command -§§§"<<endl;
+        testofs << "§§§- new command -§§§" << endl;
     }
 
-    cout<<"OK"<<endl;
+    cout << "OK" << endl;
 }
 
-void removeComments(std::ifstream &ifs)
+void removeComments(std::ifstream& ifs)
 {
-    char *line = new char[MAXCOMMAND];
+    char* line = new char[MAXCOMMAND];
 
-    for(;;)
+    for (;;)
     {
-        std::streampos poz=ifs.tellg();
-        ifs.getline(line,MAXCOMMAND);
-        if(!ifs) break;
-        if(line[0]!=TESTERCOMMENT)
+        std::streampos poz = ifs.tellg();
+        ifs.getline(line, MAXCOMMAND);
+        if (!ifs)
+        {
+            break;
+        }
+        if (line[0] != TESTERCOMMENT)
         {
             ifs.seekg(poz, std::ios::beg);
             break;
@@ -137,17 +152,17 @@ void testCommandLanguage()
 {
     bool quiet = config.beQuiet();
 
-    cout<<"Testing the command language"<<endl;
+    cout << "Testing the command language" << endl;
     std::ifstream iftestfile(config.getTestFile());
-    if(!iftestfile)
+    if (!iftestfile)
     {
-        cout<<"Can't find testfile: "<<config.getTestFile()<<endl;
+        cout << "Can't find testfile: " << config.getTestFile() << endl;
         return;
     }
-    std::ofstream logfile(config.getLogFile(),ios::out|ios::trunc);
-    if(!logfile)
+    std::ofstream logfile(config.getLogFile(), ios::out | ios::trunc);
+    if (!logfile)
     {
-        cout<<"Can't open logfile: "<<config.getLogFile()<<endl;
+        cout << "Can't open logfile: " << config.getLogFile() << endl;
         return;
     }
 
@@ -155,28 +170,40 @@ void testCommandLanguage()
     int countFailed = 0;
     int countTotal  = 0;
 
-    for(int i=0;; i++)
+    for (int i = 0;; i++)
     {
         removeComments(iftestfile);
-        if(rasmgrTester.loadCommand(iftestfile) == false) break;
-        rasmgrTester.loadExpected(iftestfile,TESTERCOMMENT);
+        if (rasmgrTester.loadCommand(iftestfile) == false)
+        {
+            break;
+        }
+        rasmgrTester.loadExpected(iftestfile, TESTERCOMMENT);
         rasmgrTester.sendCommandGetAnswer();
 
-        if(!quiet) cout   <<std::setw(3)<<i<<". "<<rasmgrTester.getCommand()<<" ... ";
-        logfile<<std::setw(3)<<i<<". "<<rasmgrTester.getCommand()<<" ... ";
-
-        if(rasmgrTester.isAnswerOK())
+        if (!quiet)
         {
-            if(!quiet) cout   <<"OK"<<endl;
-            logfile<<"OK"<<endl;
+            cout   << std::setw(3) << i << ". " << rasmgrTester.getCommand() << " ... ";
+        }
+        logfile << std::setw(3) << i << ". " << rasmgrTester.getCommand() << " ... ";
+
+        if (rasmgrTester.isAnswerOK())
+        {
+            if (!quiet)
+            {
+                cout   << "OK" << endl;
+            }
+            logfile << "OK" << endl;
             countOk++;
         }
         else
         {
-            if(!quiet) cout   <<"FAILED"<<endl;
-            logfile<<"FAILED"<<endl;
-            logfile<<"§expected:"<<endl<<rasmgrTester.getExpected()<<'*'<<endl;
-            logfile<<"$got:"<<endl<<rasmgrTester.getAnswer()<<endl;
+            if (!quiet)
+            {
+                cout   << "FAILED" << endl;
+            }
+            logfile << "FAILED" << endl;
+            logfile << "§expected:" << endl << rasmgrTester.getExpected() << '*' << endl;
+            logfile << "$got:" << endl << rasmgrTester.getAnswer() << endl;
             countFailed++;
         }
 
@@ -186,6 +213,6 @@ void testCommandLanguage()
     iftestfile.close();
     logfile.close();
 
-    cout<<"Total: "<<countTotal<<" Passed="<<countOk<<" Failed="<<countFailed<<endl;
+    cout << "Total: " << countTotal << " Passed=" << countOk << " Failed=" << countFailed << endl;
 }
 

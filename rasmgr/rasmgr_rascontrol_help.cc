@@ -44,20 +44,56 @@ rasdaman GmbH.
 
 void RasControl::helpCommand()
 {
-    const char *what = argc==1 ? RASMGRCMD_HELP:token[1].take();
+    const char* what = argc == 1 ? RASMGRCMD_HELP : token[1].take();
 
-    if     (strcasecmp(what,RASMGRCMD_LIST)==0)       listHelp();
-    else if(strcasecmp(what,RASMGRCMD_DEFINE   )==0)  defineHelp();
-    else if(strcasecmp(what,RASMGRCMD_REMOVE)==0)     removeHelp();
-    else if(strcasecmp(what,RASMGRCMD_CHANGE)==0)     changeHelp();
-    else if(strcasecmp(what,RASMGRCMD_UP)==0)         upHelp();
-    else if(strcasecmp(what,RASMGRCMD_DOWN)==0)       downHelp();
-    else if(strcasecmp(what,RASMGRCMD_SAVE)==0)       saveHelp();
-    else if(strcasecmp(what,RASMGRCMD_CHECK)==0)      checkHelp();
-    else if(strcasecmp(what,RASMGRCMD_EXIT)==0)       exitHelp();
-    else if(strcasecmp(what,RASMGRCMD_QUIT)==0)       exitHelp();
-    else if(strcasecmp(what,RASMGRCMD_BYE)==0)        exitHelp();
-    else helpHelp();
+    if (strcasecmp(what, RASMGRCMD_LIST) == 0)
+    {
+        listHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_DEFINE) == 0)
+    {
+        defineHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_REMOVE) == 0)
+    {
+        removeHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_CHANGE) == 0)
+    {
+        changeHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_UP) == 0)
+    {
+        upHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_DOWN) == 0)
+    {
+        downHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_SAVE) == 0)
+    {
+        saveHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_CHECK) == 0)
+    {
+        checkHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_EXIT) == 0)
+    {
+        exitHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_QUIT) == 0)
+    {
+        exitHelp();
+    }
+    else if (strcasecmp(what, RASMGRCMD_BYE) == 0)
+    {
+        exitHelp();
+    }
+    else
+    {
+        helpHelp();
+    }
 
     // no help for version and licence - they have no further params
 }
@@ -65,7 +101,7 @@ void RasControl::helpCommand()
 
 void RasControl::helpHelp()
 {
-    sprintf(answBuffer,"Help for rascontrol command language\r\n"
+    sprintf(answBuffer, "Help for rascontrol command language\r\n"
             "rasdaman uses the following terms:\r\n"
             "  host (server host)    - a computer running a RasManager (rasmgr), with or without currently active servers\r\n"
             "  srv  (server)         - the rasdaman server (rasserver)\r\n"
@@ -95,7 +131,7 @@ void RasControl::listHelp()
 {
     checkPermission(admR_info);
 
-    sprintf(answBuffer,"   The list command:\r\n"
+    sprintf(answBuffer, "   The list command:\r\n"
             "list srv [ s | -host h | -all ] [-p] \r\n"
             "       - list information about 'server s' or 'all servers on host h' or 'all defined servers' (default)\r\n"
             "         '-p' prints configuration information; default: runtime status information\r\n"
@@ -122,7 +158,7 @@ void RasControl::listHelp()
 
 void RasControl::defineHelp()
 {
-    sprintf(answBuffer,"  The define command:\r\n"
+    sprintf(answBuffer, "  The define command:\r\n"
             "define dbh 'dbhname' -connect 'connectstring'\r\n"
             "       - define database host with symbolic name 'dbhname'\r\n"
             "         'connectstring' is the string used to connect a client to the underlying database instance\r\n"
@@ -156,7 +192,7 @@ void RasControl::defineHelp()
 }
 void RasControl::removeHelp()
 {
-    sprintf(answBuffer,"   The remove command:\r\n"
+    sprintf(answBuffer, "   The remove command:\r\n"
             "remove dbh 'dbhname'\r\n"
             "       - remove database host 'dbhname'\r\n"
             "remove db 'dbname' -dbh 'dbhname'\r\n"
@@ -177,7 +213,7 @@ void RasControl::removeHelp()
 
 void RasControl::changeHelp()
 {
-    sprintf(answBuffer,"   The change command:\r\n"
+    sprintf(answBuffer, "   The change command:\r\n"
             "change dbh 'dbhname' [-name 'newname'] [-connect 'newconnectstring']\r\n"
             "change db 'dbname' [-name 'newname']\r\n"
             "change host 'hostname' [-name 'newname'] [-net 'newnetaddress'] [-port 'newportnumber']\r\n"
@@ -190,7 +226,7 @@ void RasControl::changeHelp()
 
 void RasControl::upHelp()
 {
-    sprintf(answBuffer,"   The up command:\r\n"
+    sprintf(answBuffer, "   The up command:\r\n"
             "up srv [ s | -host h | -all]\r\n"
             "       - start 'server s' or 'all servers on host h' or 'all defined servers'\r\n"
            );
@@ -199,7 +235,7 @@ void RasControl::upHelp()
 
 void RasControl::downHelp()
 {
-    sprintf(answBuffer,"   The down command:\r\n"
+    sprintf(answBuffer, "   The down command:\r\n"
             "down srv [ s | -host h | -all] [ -force] [-kill]\r\n"
             "       - stops 'server s' or 'all started servers on host h' or 'all started servers'\r\n"
             "         -force: stops the 'server s' without waiting to complete the current transaction (using SIGTERM)\r\n"
@@ -212,7 +248,7 @@ void RasControl::downHelp()
 
 void RasControl::checkHelp()
 {
-    sprintf(answBuffer,"   The check command\r\n"
+    sprintf(answBuffer, "   The check command\r\n"
             "check host 'hostname'\r\n"
             "        - checks the status of the slave rasmgr located on server host 'hostname'\r\n"
             "        (use this command if the master rasmgr started after the slave rasmgr for synchronising them)\r\n"
@@ -221,7 +257,7 @@ void RasControl::checkHelp()
 
 void RasControl::saveHelp()
 {
-    sprintf(answBuffer,"   The save command\r\n"
+    sprintf(answBuffer, "   The save command\r\n"
             "save\r\n"
             "    - saves the current configuration information\r\n"
             "      (upon changes the files will be saved automatically to rescue files next to the config files when exiting rasmgr)\r\n"
@@ -230,7 +266,7 @@ void RasControl::saveHelp()
 
 void RasControl::exitHelp()
 {
-    sprintf(answBuffer,"   The exit command\r\n"
+    sprintf(answBuffer, "   The exit command\r\n"
             "exit | quit | bye\r\n"
             "    - finish this rascontrol session\r\n"
            );

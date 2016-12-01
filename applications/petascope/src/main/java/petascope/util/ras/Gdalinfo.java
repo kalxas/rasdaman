@@ -49,7 +49,7 @@ public class Gdalinfo {
         Integer dimensions = 0;
         ArrayList<String> bandTypes = new ArrayList<String>();
         File f = new File(filePath);
-        if(!f.canRead()) {
+        if (!f.canRead()) {
             log.error("Failed retrieving gdalinfo for file: " + filePath);
             throw new WCSTNoReadPermissionException(filePath);
         }
@@ -67,7 +67,7 @@ public class Gdalinfo {
                     bandTypes.add(parseBandType(currentLine));
                 }
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             log.error("Failed retrieving gdalinfo for file: " + e.getMessage());
             throw e;
         }

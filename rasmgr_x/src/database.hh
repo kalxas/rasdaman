@@ -82,11 +82,11 @@ public:
 
     const std::string& getDbName() const;
 
-    void setDbName(const std::string &value);
+    void setDbName(const std::string& value);
 
 private:
     std::string dbName; /*!< Name of this database */
-    std::set<std::pair<std::string, std::string> > sessionList; /* List of <clientId,sessionId> pairs representing open sessions on the db*/
+    std::set<std::pair<std::string, std::string>> sessionList; /* List of <clientId,sessionId> pairs representing open sessions on the db*/
 };
 
 } /* namespace rasmgr */

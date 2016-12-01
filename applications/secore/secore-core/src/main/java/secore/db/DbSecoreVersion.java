@@ -97,10 +97,10 @@ public class DbSecoreVersion {
             Arrays.sort(files);
             Integer currentVersionNumber = new Integer(versionNumber);
             Integer maxNumber = 0;
-            for (File updateFile: files) {
+            for (File updateFile : files) {
                 String fileName = updateFile.getName();
                 log.debug("Checking update files name: " + fileName);
-                // Only handle correct update files (e.g: 1-insert, 2-delete, not: test.sh or 01-query.test) 
+                // Only handle correct update files (e.g: 1-insert, 2-delete, not: test.sh or 01-query.test)
                 boolean match = fileName.matches("([0-9]+)-(" + this.INSERT_FILE + "|" + this.DELETE_FILE + ")");
                 if (match) {
                     // e.g; 1-delete, 2-insert
@@ -162,12 +162,12 @@ public class DbSecoreVersion {
      */
     public String insertNewVersion() throws SecoreException {
         String query = "let $x := collection('" + DbManager.USER_DB + "') " +
-                        "return " +
-                        "   insert node " +
-                        "               <"  + this.SECORE_DB + "> " +
-                        "                    <" + this.SECORE_VERSION + ">0</" + this.SECORE_VERSION + " > " +
-                        "               </" + this.SECORE_DB + "> " +
-                        "   into $x";
+                       "return " +
+                       "   insert node " +
+                       "               <"  + this.SECORE_DB + "> " +
+                       "                    <" + this.SECORE_VERSION + ">0</" + this.SECORE_VERSION + " > " +
+                       "               </" + this.SECORE_DB + "> " +
+                       "   into $x";
         String output = baseX.queryUser(query, DbManager.FIX_USER_VERSION_NUMBER);
         // if not clear cache the version number is kept as old number when select.
         DbManager.clearCache();

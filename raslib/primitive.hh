@@ -58,10 +58,10 @@ public:
     explicit
 
     /// constructs a scalar type value
-    r_Primitive( const char* newBuffer, const r_Primitive_Type* newType );
+    r_Primitive(const char* newBuffer, const r_Primitive_Type* newType);
 
     /// copy constructor
-    r_Primitive( const r_Primitive& obj );
+    r_Primitive(const r_Primitive& obj);
 
     /// destructor
     ~r_Primitive();
@@ -70,7 +70,7 @@ public:
     virtual r_Scalar* clone() const;
 
     /// operator for assigning a primitive
-    const r_Primitive& operator= ( const r_Primitive& );
+    const r_Primitive& operator= (const r_Primitive&);
 
     /// gets the pointer to the buffer
     const char* get_buffer() const;
@@ -85,42 +85,42 @@ public:
     ///
 
     ///
-    r_Boolean get_boolean() const throw( r_Error );
+    r_Boolean get_boolean() const throw(r_Error);
     ///
-    r_Char    get_char()    const throw( r_Error );
+    r_Char    get_char()    const throw(r_Error);
     ///
-    r_Octet   get_octet()   const throw( r_Error );
+    r_Octet   get_octet()   const throw(r_Error);
     ///
-    r_Short   get_short()   const throw( r_Error );
+    r_Short   get_short()   const throw(r_Error);
     ///
-    r_UShort  get_ushort()  const throw( r_Error );
+    r_UShort  get_ushort()  const throw(r_Error);
     ///
-    r_Long    get_long()    const throw( r_Error );
+    r_Long    get_long()    const throw(r_Error);
     ///
-    r_ULong   get_ulong()   const throw( r_Error );
+    r_ULong   get_ulong()   const throw(r_Error);
     ///
-    r_Float   get_float()   const throw( r_Error );
+    r_Float   get_float()   const throw(r_Error);
     ///
-    r_Double  get_double()  const throw( r_Error );
+    r_Double  get_double()  const throw(r_Error);
 
     ///
-    void set_boolean(r_Boolean) throw( r_Error );
+    void set_boolean(r_Boolean) throw(r_Error);
     ///
-    void set_char(r_Char)       throw( r_Error );
+    void set_char(r_Char)       throw(r_Error);
     ///
-    void set_octet(r_Octet)     throw( r_Error );
+    void set_octet(r_Octet)     throw(r_Error);
     ///
-    void set_short(r_Short)     throw( r_Error );
+    void set_short(r_Short)     throw(r_Error);
     ///
-    void set_ushort(r_UShort)   throw( r_Error );
+    void set_ushort(r_UShort)   throw(r_Error);
     ///
-    void set_long(r_Long)       throw( r_Error );
+    void set_long(r_Long)       throw(r_Error);
     ///
-    void set_ulong(r_ULong)     throw( r_Error );
+    void set_ulong(r_ULong)     throw(r_Error);
     ///
-    void set_float(r_Float)     throw( r_Error );
+    void set_float(r_Float)     throw(r_Error);
     ///
-    void set_double(r_Double)   throw( r_Error );
+    void set_double(r_Double)   throw(r_Error);
 
 
     ///
@@ -137,7 +137,7 @@ private:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Primitive}.
 */
-extern std::ostream& operator<<( std::ostream& s, const r_Primitive& obj );
+extern std::ostream& operator<<(std::ostream& s, const r_Primitive& obj);
 
 #endif
 

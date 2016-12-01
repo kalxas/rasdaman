@@ -55,7 +55,7 @@ public class RangeConstructorExpr implements IParseTreeNode {
         }
 
         result = "<" + WcpsConstants.MSG_RANGE_CONSTRUCTOR + ">" + result + "</" +
-                WcpsConstants.MSG_RANGE_CONSTRUCTOR + ">";
+                 WcpsConstants.MSG_RANGE_CONSTRUCTOR + ">";
         return result;
     }
 }

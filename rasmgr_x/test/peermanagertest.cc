@@ -13,7 +13,7 @@ namespace test
 class PeerManagerTest: public ::testing::Test
 {
 protected:
-    PeerManagerTest() :peerHost("127.0.0.1"), peerPort(35000)
+    PeerManagerTest() : peerHost("127.0.0.1"), peerPort(35000)
     {
         this->service = boost::make_shared<DummyRasmgrService>();
         this->healthService = boost::make_shared<common::HealthServiceImpl>();

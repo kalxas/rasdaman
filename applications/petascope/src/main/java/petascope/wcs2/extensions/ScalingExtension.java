@@ -102,7 +102,7 @@ public class ScalingExtension implements Extension {
         // check
         if (!isXMLScalingExtension(scaleElem.getLocalName())) {
             throw new WCSException(ExceptionCode.InternalComponentError,
-                    "The parser was expecting a" + XMLSymbols.LABEL_RANGESUBSET + " element, " + scaleElem.getLocalName() + " given");
+                                   "The parser was expecting a" + XMLSymbols.LABEL_RANGESUBSET + " element, " + scaleElem.getLocalName() + " given");
         }
 
         // parse
@@ -278,11 +278,13 @@ public class ScalingExtension implements Extension {
                 int splitPos = keyvalue.indexOf("(");
                 if (splitPos != -1) {
                     axis = keyvalue.substring(0, splitPos);
-                    fact = keyvalue.substring(splitPos + 1, keyvalue.length()-1);
-                } else
+                    fact = keyvalue.substring(splitPos + 1, keyvalue.length() - 1);
+                } else {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Wrong scaling parameter format: must be axis(factor).");
-                if (request.getScaling().isPresentFactor(axis))
+                }
+                if (request.getScaling().isPresentFactor(axis)) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
+                }
                 float scaleFactor;
                 try {
                     scaleFactor = Float.parseFloat(fact);
@@ -308,11 +310,13 @@ public class ScalingExtension implements Extension {
                 int splitPos = keyvalue.indexOf("(");
                 if (splitPos != -1) {
                     axis = keyvalue.substring(0, splitPos);
-                    fact = keyvalue.substring(splitPos + 1, keyvalue.length()-1);
-                } else
+                    fact = keyvalue.substring(splitPos + 1, keyvalue.length() - 1);
+                } else {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Wrong scaling parameter format: must be axis(size).");
-                if (request.getScaling().isPresentSize(axis))
+                }
+                if (request.getScaling().isPresentSize(axis)) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
+                }
                 long scaleSize;
                 try {
                     scaleSize = (long) Double.parseDouble(fact);
@@ -338,15 +342,18 @@ public class ScalingExtension implements Extension {
                 int splitPos = keyvalue.indexOf("(");
                 if (splitPos != -1) {
                     axis = keyvalue.substring(0, splitPos);
-                    fact = keyvalue.substring(splitPos + 1, keyvalue.length()-1);
-                } else
+                    fact = keyvalue.substring(splitPos + 1, keyvalue.length() - 1);
+                } else {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Wrong scaling parameter format: must be axis(lo:hi).");
-                if (request.getScaling().isPresentExtent(axis))
+                }
+                if (request.getScaling().isPresentExtent(axis)) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
+                }
                 String shi = "", slo = "";
                 StringTokenizer st = new StringTokenizer(fact, ":");
-                if (st.countTokens() != 2)
+                if (st.countTokens() != 2) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters: must be 'lo:hi'.");
+                }
                 slo = st.nextToken();
                 shi = st.nextToken();
                 long hi, lo;
@@ -385,23 +392,23 @@ public class ScalingExtension implements Extension {
     public static BigDecimal computeScalingFactor(Scaling scaling, String dim, BigDecimal lowerBound,  BigDecimal upperBound) throws WCSException {
         BigDecimal scalingFactor = null;
         switch (scaling.getType()) {
-            case SCALE_FACTOR:
-                // SCALE-BY-FACTOR:
-                scalingFactor = new BigDecimal(Float.toString(scaling.getFactor()));
-                break;
-            case SCALE_AXIS:
-                // SCALE-AXES: divide extent by axis scaling factor
-                scalingFactor = new BigDecimal(Float.toString(scaling.getFactor(dim)));
-                break;
-            case SCALE_SIZE:
-                // SCALE-SIZE: set extent of dimension
-                scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(scaling.getSize(dim)), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
-                break;
-            case SCALE_EXTENT:
-                // SCALE-EXTENT: set extent of dimension
-                long size = scaling.getExtent(dim).snd - scaling.getExtent(dim).fst + 1;
-                scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(size), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
-                break;
+        case SCALE_FACTOR:
+            // SCALE-BY-FACTOR:
+            scalingFactor = new BigDecimal(Float.toString(scaling.getFactor()));
+            break;
+        case SCALE_AXIS:
+            // SCALE-AXES: divide extent by axis scaling factor
+            scalingFactor = new BigDecimal(Float.toString(scaling.getFactor(dim)));
+            break;
+        case SCALE_SIZE:
+            // SCALE-SIZE: set extent of dimension
+            scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(scaling.getSize(dim)), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
+            break;
+        case SCALE_EXTENT:
+            // SCALE-EXTENT: set extent of dimension
+            long size = scaling.getExtent(dim).snd - scaling.getExtent(dim).fst + 1;
+            scalingFactor = BigDecimalUtil.divide(BigDecimal.valueOf(size), upperBound.subtract(lowerBound).add(BigDecimal.ONE));
+            break;
         }
         // no valid scale if scaling factor is 0
         if (scalingFactor.equals(BigDecimal.ZERO)) {

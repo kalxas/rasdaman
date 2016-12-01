@@ -30,7 +30,7 @@ public class InvalidDomainIntervalsForAxisIteratorException extends WCPSProcessi
 
     public InvalidDomainIntervalsForAxisIteratorException(String axisIteratorVariableName, int dimension) {
         super(ERROR_TEMPLATE.replace("$axisIteratorVariableName", axisIteratorVariableName)
-                            .replace("$dimension", String.valueOf(dimension)), ExceptionCode.WcpsError);
+              .replace("$dimension", String.valueOf(dimension)), ExceptionCode.WcpsError);
     }
 
     public static final String ERROR_TEMPLATE = "Axis iterator: '$axisIteratorVariableName' can only be used with 1D domain, received: '$dimension D' domain.";

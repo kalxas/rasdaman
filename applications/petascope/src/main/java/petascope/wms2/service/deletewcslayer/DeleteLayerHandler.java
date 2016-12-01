@@ -54,12 +54,12 @@ public class DeleteLayerHandler implements Handler<DeleteLayerRequest, DeleteLay
             throw new WMSInternalException(e);
         }
     }
-    
+
     /**
      * Delete WMS layer by LayerID (CoverageID) when deleting coverage in WCS request.
      * @param layerID
      * @throws WMSException
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void DeleteLayerByID(@NotNull String layerID) throws WMSException, SQLException {
         List<Layer> layers = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerID);
@@ -67,13 +67,13 @@ public class DeleteLayerHandler implements Handler<DeleteLayerRequest, DeleteLay
         if (!layers.isEmpty()) {
             Layer layer = layers.get(0);
             try {
-                DeleteLayerContent(layer);         
+                DeleteLayerContent(layer);
             } catch (SQLException e) {
                 throw new WMSInternalException(e);
             }
         }
     }
-    
+
     /**
      * Remove any related properties of layer including itselfi n database from the layer.
      * @param layer

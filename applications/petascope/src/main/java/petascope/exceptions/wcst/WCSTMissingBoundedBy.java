@@ -27,7 +27,7 @@ import petascope.util.XMLSymbols;
  *
  * @author rasdaman
  */
-public class WCSTMissingBoundedBy extends WCSTException{
+public class WCSTMissingBoundedBy extends WCSTException {
     public WCSTMissingBoundedBy() {
         super(ExceptionCode.WCSTMissingBoundedBy, EXCEPTION_TEXT);
     }

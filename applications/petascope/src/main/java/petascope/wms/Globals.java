@@ -36,9 +36,8 @@ package petascope.wms;
  * By convention, error texts ending with a colon ":" are
  * expected to get appended detailing information.
  */
-public interface Globals
-{
-    
+public interface Globals {
+
     // --- constants ------------------------------------------------------
     /**
      * web.xml parameter names
@@ -56,52 +55,52 @@ public interface Globals
      * ReloadCapabilities request HTML response
      **/
     public static final String RELOAD_CAPABILITIES_RESPONSE = "<html><body><h1>Capabilities reload done.</h1></body></html>";
-    
+
     /**
      * wait interval for seek of free connections to rasdaman server
      **/
     public static final int FREECONNECTION_TIMEOUT = 100000; // msec (was 1000) ?
-    
+
     /**
      * default number of rasserver connections claimed
      **/
     public static final String DEFAULT_SERVER_CONNECTIONS = "1";
-    
+
     /**
      * default thresholds for server connection balancing
      **/
     // This setting should be a little under the time-out setting on the rasserver.
     // Otherwise idle connections might get severed.
-    public static final String SERVER_CONNECTION_TIMEOUT = "30";		// secs
+    public static final String SERVER_CONNECTION_TIMEOUT = "30";        // secs
     // This is the timeout for one query. If the server is under load or the query if very complex the response time will be long
     // and clients might get time-out's from their browsers saying that the server is not responding.
     // This way at least we can inform the user of the situation.
-    public static final String REQUEST_TIMEOUT           = "30000";		// msecs (was 5000)
+    public static final String REQUEST_TIMEOUT           = "30000";     // msecs (was 5000)
     // This is the sleep period of the monitor thread.
     // The monitor will adjust the number of connections and sleep for this period.
     // Too long and the server will not be able to cope with sudden spikes.
     // Too short and the server will behave eratically, opening and closing connections with no apparent reason.
-    public static final String MONITOR_INTERVAL          = "20000";		// msecs (was 2000)
+    public static final String MONITOR_INTERVAL          = "20000";     // msecs (was 2000)
     // This value is the number of queries we are confident we can solve on one thread within one REQUEST_TIMEOUT.
     // When the number of queries per thread exceeds this value the monitor will start a new thread (if possible).
-    public static final String HIGH_THRESHOLD            = "4";		// number of queries per thread
+    public static final String HIGH_THRESHOLD            = "4";     // number of queries per thread
     // This value represents the number of queries per thread when we are confident that we can close one thread
     // and that the rest of the threads can handle the additional load.
     // When the number of queries per thread is below this value the monitor will kill one of the threads (if possible).
-    public static final String LOW_THRESHOLD             = "1";		// -"-
-    
-    
+    public static final String LOW_THRESHOLD             = "1";     // -"-
+
+
     /**
      * list of all error codes
      * ATTENTION:
      * - keep consistent with error text list!
      * - be careful about numbering: identical to number in corresponding text string!
      **/
-    
+
     // this is a placeholder for followup exceptions, saying "use last exception"
     // when evaluated, the last remembered message is reported.
     public static final int ERR_Followup                        =   -1;
-    
+
     // WMS standard errors:
     public static final int ERR_OperationNotSupported           =   1;
     public static final int ERR_InvalidRequest                  =   2;
@@ -122,9 +121,9 @@ public interface Globals
     public static final int ERR_NoConnection                    = 101;
     // raswms specific errors:
     public static final int ERR_InternalException               = 200;
-    @Deprecated public static final int ERR_UnsupportedExceptionXml         = 201;	// obsolete
-    @Deprecated public static final int ERR_UnsupportedExceptionBlank       = 202;	// obsolete
-    @Deprecated public static final int ERR_UnsupportedExceptionInimage     = 203;	// obsolete
+    @Deprecated public static final int ERR_UnsupportedExceptionXml         = 201;  // obsolete
+    @Deprecated public static final int ERR_UnsupportedExceptionBlank       = 202;  // obsolete
+    @Deprecated public static final int ERR_UnsupportedExceptionInimage     = 203;  // obsolete
     public static final int ERR_FormatLost                      = 204;
     public static final int ERR_SrsNotSupportedByLayer          = 205;
     public static final int ERR_WidthNotPositive                = 206;
@@ -177,7 +176,7 @@ public interface Globals
     public static final int ERR_Bbox_X                          = 253;
     public static final int ERR_Bbox_Y                          = 254;
     public static final int ERR_Bbox_Resolution                 = 255;
-    
+
     // --- variables ------------------------------------------------------
 
 } // Globals

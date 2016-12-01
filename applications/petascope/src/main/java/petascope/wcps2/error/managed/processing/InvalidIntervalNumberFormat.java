@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
 public class InvalidIntervalNumberFormat extends WCPSProcessingError {
     public InvalidIntervalNumberFormat(String low, String high) {
         super(EXCEPTION_TEXT.replace("$low", low)
-                            .replace("$high", high), ExceptionCode.WcpsError);
+              .replace("$high", high), ExceptionCode.WcpsError);
     }
 
     private static final String EXCEPTION_TEXT = "Invalid number format in interval ($low:$high).";

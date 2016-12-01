@@ -41,14 +41,14 @@ ControlService::~ControlService()
 {}
 
 
-grpc::Status rasmgr::ControlService::ExecuteCommand(grpc::ServerContext *context, const rasnet::service::RasCtrlRequest *request, rasnet::service::RasCtrlResponse *response)
+grpc::Status rasmgr::ControlService::ExecuteCommand(grpc::ServerContext* context, const rasnet::service::RasCtrlRequest* request, rasnet::service::RasCtrlResponse* response)
 {
     grpc::Status status = grpc::Status::OK;
 
     try
     {
         std::string result;
-        if(request->user_name().empty() || request->password_hash().empty())
+        if (request->user_name().empty() || request->password_hash().empty())
         {
             result = "The user's credentials are not set";
         }
@@ -59,11 +59,11 @@ grpc::Status rasmgr::ControlService::ExecuteCommand(grpc::ServerContext *context
 
         response->set_message(result);
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
         status = common::GrpcUtils::convertExceptionToStatus("Command execution failed for an unknown reason.");
     }

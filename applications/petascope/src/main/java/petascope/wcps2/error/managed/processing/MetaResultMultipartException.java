@@ -24,11 +24,11 @@ package petascope.wcps2.error.managed.processing;
 import petascope.exceptions.ExceptionCode;
 
 /**
- * Exception that is thrown when user try to return multipart for meta result 
+ * Exception that is thrown when user try to return multipart for meta result
  * e.g:
  * for c in (mr, rgb) return imageCrsdomain(c, i)
  *
- * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a> 
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class MetaResultMultipartException extends WCPSProcessingError {
 

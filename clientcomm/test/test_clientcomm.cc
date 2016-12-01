@@ -48,10 +48,10 @@ int main()
 {
     try
     {
-        ClientComm a( "sunwibas15" );
+        ClientComm a("sunwibas15");
 
         cout << "Opening db ..." << flush;
-        a.openDB( "RolandBase" );
+        a.openDB("RolandBase");
         cout << "OK" << endl;
 
         cout << "Starting ta ..." << flush;
@@ -59,12 +59,12 @@ int main()
         cout << "OK" << endl;
 
         cout << "Getting type structure RGBImage ..." << flush;
-        char* ts = a.getTypeStructure( "RGBImage", ClientComm::r_MDDType_Type );
+        char* ts = a.getTypeStructure("RGBImage", ClientComm::r_MDDType_Type);
         cout << "OK" << endl;
 
         cout << "Type Structure " << ts << endl;
 
-        free( ts );
+        free(ts);
 
         cout << "Comitting ta ..." << flush;
         a.commitTA();
@@ -74,7 +74,7 @@ int main()
         a.closeDB();
         cout << "OK" << endl;
     }
-    catch ( ... )
+    catch (...)
     {
         cout << "Exception occured: Server or connection problems." << endl;
         return -1;

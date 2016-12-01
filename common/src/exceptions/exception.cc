@@ -25,7 +25,7 @@ rasdaman GmbH.
 
 namespace common
 {
-Exception::Exception(const std::string &whatArg):std::runtime_error(whatArg)
+Exception::Exception(const std::string& whatArg): std::runtime_error(whatArg)
 {}
 
 Exception::~Exception() throw()

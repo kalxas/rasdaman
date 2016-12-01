@@ -66,15 +66,15 @@ public class TimeUtil {
     public static final Long MILLIS_HOUR                 = MILLIS_MINUTE * 60;
     public static final Long MILLIS_DAY                  = MILLIS_HOUR * 24;
     public static final Long MILLIS_WEEK                 = MILLIS_DAY * 7;
-    public static final Long MILLIS_MEAN_JULIAN_YEAR     = (long) (MILLIS_DAY * 365.25);
-    public static final Long MILLIS_MEAN_GREGORIAN_YEAR  = (long) (MILLIS_DAY * 365.2425);
-    public static final Long MILLIS_TROPICAL_YEAR        = (long) (MILLIS_DAY * 365.24219);
+    public static final Long MILLIS_MEAN_JULIAN_YEAR     = (long)(MILLIS_DAY * 365.25);
+    public static final Long MILLIS_MEAN_GREGORIAN_YEAR  = (long)(MILLIS_DAY * 365.2425);
+    public static final Long MILLIS_TROPICAL_YEAR        = (long)(MILLIS_DAY * 365.24219);
     public static final Long MILLIS_YEAR                 = MILLIS_MEAN_JULIAN_YEAR;
     public static final Long MILLIS_MEAN_JULIAN_MONTH    = MILLIS_MEAN_JULIAN_YEAR / 12;
     public static final Long MILLIS_MEAN_GREGORIAN_MONTH = MILLIS_MEAN_GREGORIAN_YEAR / 12;
-    public static final Long MILLIS_SYNODAL_MONTH        = (long) (MILLIS_DAY * 29.53059);
+    public static final Long MILLIS_SYNODAL_MONTH        = (long)(MILLIS_DAY * 29.53059);
     public static final Long MILLIS_MONTH                = MILLIS_MEAN_JULIAN_MONTH;
-    
+
     public static final String ISO_8061_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z";
 
     // Logger
@@ -120,7 +120,7 @@ public class TimeUtil {
         timeUomsRegistry.put(UCUM_MEAN_GREGORIAN_YEAR, MILLIS_MEAN_GREGORIAN_YEAR);
         timeUomsRegistry.put(UCUM_TROPICAL_YEAR, MILLIS_TROPICAL_YEAR);
         timeUomsRegistry.put(UCUM_YEAR, MILLIS_YEAR);
-    }        
+    }
 
     /**
      * Check if the input timestamp is in an understandable format.
@@ -128,7 +128,7 @@ public class TimeUtil {
      * @param   timestamp    Timestamp string requested by the client
      * @return  True if valid ISO timestamp.
      */
-    public static boolean isValidTimestamp (String timestamp) {
+    public static boolean isValidTimestamp(String timestamp) {
         boolean isValid = true;
         try {
             // date time format valid by ISO 8601, e.g:  YYYY-MM-DDThh:mm:ss.sTZD (eg 1997-07-16T19:20:30.45+01:00)
@@ -148,7 +148,7 @@ public class TimeUtil {
      * @return  True if Lo is lower or equal than Hi
      * @throws PetascopeException
      */
-    public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) throws WCSException {
+    public static boolean isOrderedTimeSubset(String timestampLo, String timestampHi) throws WCSException {
 
         DateTime dtLo = isoFmt.parseDateTime(fix(timestampLo));
         DateTime dtHi = isoFmt.parseDateTime(fix(timestampHi));
@@ -158,7 +158,7 @@ public class TimeUtil {
         } catch (ArithmeticException ex) {
             log.error("Error while computing milliseconds between " + dtLo + " and " + dtHi + ".");
             throw new WCSException(ExceptionCode.InternalComponentError,
-                    "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
+                                   "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
         }
         return (millis.getMillis() >= 0);
     }
@@ -174,7 +174,7 @@ public class TimeUtil {
      * @throws PetascopeException
      */
     public static Double countOffsets(String timestampLo, String timestampHi, String timeResolution, Double timeVector)
-            throws PetascopeException {
+    throws PetascopeException {
 
         // local variables
         Double fractionalTimeSteps;
@@ -189,7 +189,7 @@ public class TimeUtil {
         } catch (ArithmeticException ex) {
             log.error("Error while computing milliseconds between " + dtLo + " and " + dtHi + ".");
             throw new PetascopeException(ExceptionCode.InternalComponentError,
-                    "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
+                                         "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
         }
 
         // Compute how many vectors of distance are there between dtLo and dtHi along this time CRS
@@ -197,8 +197,8 @@ public class TimeUtil {
         // Formula:
         //               fractionalTimeSteps := milliseconds(lo,hi) / [milliseconds(offset_vector)]
         // WHERE milliseconds(offset_vector) := milliseconds(timeResolution) * vector_length
-        Long vectorMillis = (long) (getMillis(timeResolution) * timeVector);
-        fractionalTimeSteps = 1D*millis.getMillis() / vectorMillis;
+        Long vectorMillis = (long)(getMillis(timeResolution) * timeVector);
+        fractionalTimeSteps = 1D * millis.getMillis() / vectorMillis;
 
         log.debug("Computed " + fractionalTimeSteps + " offset-vectors between " + dtLo + " and " + dtHi + ".");
         return fractionalTimeSteps;
@@ -238,7 +238,7 @@ public class TimeUtil {
      */
     public static String plus(String timestamp, Double coefficient, String timeResolution) throws PetascopeException {
         DateTime dt = isoFmt.parseDateTime(fix(timestamp));
-        DateTime outDt = dt.plus((long) (getMillis(timeResolution)*coefficient));
+        DateTime outDt = dt.plus((long)(getMillis(timeResolution) * coefficient));
         return outDt.toString();
     }
 
@@ -251,17 +251,17 @@ public class TimeUtil {
      * @throws PetascopeException
      */
     public static String coordinate2timestamp(Double numCoordinate, String datumOrigin, String timeResolution) throws PetascopeException {
-            return TimeUtil.plus(datumOrigin, numCoordinate, timeResolution);
+        return TimeUtil.plus(datumOrigin, numCoordinate, timeResolution);
     }
-    
+
     /**
      * Get the number of milliseconds from the UOM of CRS
      * @param crsDefinition
-     * @return 
-     * @throws petascope.exceptions.PetascopeException 
+     * @return
+     * @throws petascope.exceptions.PetascopeException
      */
     public static Long getMillis(CrsDefinition crsDefinition) throws PetascopeException {
-        String ucumAbbreviation = crsDefinition.getAxes().get(0).getUoM();        
+        String ucumAbbreviation = crsDefinition.getAxes().get(0).getUoM();
         return getMillis(ucumAbbreviation);
     }
 
@@ -273,12 +273,12 @@ public class TimeUtil {
      */
     private static Long getMillis(String ucumAbbreviation) throws PetascopeException {
         Long millis = timeUomsRegistry.get(ucumAbbreviation);
-        if (null==millis) {
+        if (null == millis) {
             throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                    "Unsupported temporal Unit of Measure [" + ucumAbbreviation + "].");
+                                         "Unsupported temporal Unit of Measure [" + ucumAbbreviation + "].");
         }
         return millis;
-    }  
+    }
 
     /**
      * Remove quotes from a timestamp, if present.

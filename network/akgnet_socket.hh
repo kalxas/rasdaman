@@ -152,7 +152,7 @@ public:
     ~ClientSocket() throw();
 
     /// Opens the connection with the given server. Returns true on succes
-    bool open(const char *serverHost,int serverPort) throw();
+    bool open(const char* serverHost, int serverPort) throw();
 private:
     /// unimplemented, objects of this type can't be copied
     ClientSocket(const ClientSocket&);

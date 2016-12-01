@@ -52,12 +52,12 @@ int akg::FileDescriptor::operator()() throw()
 
 bool akg::FileDescriptor::isOpen() throw()
 {
-    return fileDescriptor == -1 ? false:true;
+    return fileDescriptor == -1 ? false : true;
 }
 
 void akg::FileDescriptor::close() throw()
 {
-    if(isOpen())
+    if (isOpen())
     {
         ::close(fileDescriptor);
         saveErrno();
@@ -65,34 +65,46 @@ void akg::FileDescriptor::close() throw()
     fileDescriptor = -1;
 }
 
-int akg::FileDescriptor::write(const void *buffer, int count) throw()
+int akg::FileDescriptor::write(const void* buffer, int count) throw()
 {
     savedErrno = 0;
     LDEBUG << "FileDescriptor write: " << buffer << " count=" << count;
-    int nbytes = ::write(fileDescriptor,buffer,static_cast<size_t>(count));
-    if(nbytes < 0) saveErrno();
+    int nbytes = ::write(fileDescriptor, buffer, static_cast<size_t>(count));
+    if (nbytes < 0)
+    {
+        saveErrno();
+    }
     return nbytes;
 }
 
-int akg::FileDescriptor::read (void *buffer, int count) throw()
+int akg::FileDescriptor::read(void* buffer, int count) throw()
 {
     savedErrno = 0;
     LDEBUG << "FileDescriptor read: " << buffer << " count=" << count;
-    int nbytes = ::read(fileDescriptor,buffer,static_cast<size_t>(count));
-    if(nbytes < 0) saveErrno();
+    int nbytes = ::read(fileDescriptor, buffer, static_cast<size_t>(count));
+    if (nbytes < 0)
+    {
+        saveErrno();
+    }
     return nbytes;
 }
 
 bool akg::FileDescriptor::setNonBlocking(bool  nonBlocking) throw()
 {
-    if(isOpen())
+    if (isOpen())
     {
-        int val  = fcntl(fileDescriptor,F_GETFL,0);
+        int val  = fcntl(fileDescriptor, F_GETFL, 0);
 
-        if( nonBlocking) val |= O_NONBLOCK;
-        else             val &=~O_NONBLOCK;
+        if (nonBlocking)
+        {
+            val |= O_NONBLOCK;
+        }
+        else
+        {
+            val &= ~O_NONBLOCK;
+        }
 
-        fcntl(fileDescriptor,F_SETFL,val);
+        fcntl(fileDescriptor, F_SETFL, val);
         return true;
     }
 
@@ -100,10 +112,10 @@ bool akg::FileDescriptor::setNonBlocking(bool  nonBlocking) throw()
 }
 bool akg::FileDescriptor::isNonBlocking() throw()
 {
-    if(isOpen())
+    if (isOpen())
     {
-        int val = fcntl(fileDescriptor,F_GETFL,0);
-        return (val & O_NONBLOCK) ? true:false;
+        int val = fcntl(fileDescriptor, F_GETFL, 0);
+        return (val & O_NONBLOCK) ? true : false;
     }
     return false;
 }
@@ -114,7 +126,7 @@ int akg::FileDescriptor::getErrno() throw()
 }
 void akg::FileDescriptor::saveErrno() throw()
 {
-    savedErrno=errno;
+    savedErrno = errno;
 }
 
 

@@ -68,7 +68,7 @@ class colourspaceCanvas: public wxCanvas
 {
 public:
 
-    colourspaceCanvas(colourspaceFrame *parent, colourspace_params *p, int x, int y, int w, int h, long style=0);
+    colourspaceCanvas(colourspaceFrame* parent, colourspace_params* p, int x, int y, int w, int h, long style = 0);
     ~colourspaceCanvas(void);
 
     void enableOutlineSum(bool enable);
@@ -78,7 +78,7 @@ public:
 
     void OnSize(int w, int h);
     void OnPaint(void);
-    void OnEvent(wxMouseEvent &mevt);
+    void OnEvent(wxMouseEvent& mevt);
 
     // constants
     // Colourspace canvas border
@@ -89,19 +89,19 @@ public:
 
 protected:
 
-    int setupRectangle(int &from, int &to, float &x, wxRect *rect);
-    void drawOutline(double peak, double sigma, wxPen *pen, wxRect *rect);
-    void drawOutlineSum(wxPen *pen, wxRect *rect);
+    int setupRectangle(int& from, int& to, float& x, wxRect* rect);
+    void drawOutline(double peak, double sigma, wxPen* pen, wxRect* rect);
+    void drawOutlineSum(wxPen* pen, wxRect* rect);
     // Function pointer
     double (*conversionFunction)(double, double, double);
 
-    colourspaceFrame *parentObj;
-    colourspace_params *params;
+    colourspaceFrame* parentObj;
+    colourspace_params* params;
     int canvX, canvY;
     wxBrush brush;
     wxPen redPen, greenPen, bluePen, blackPen;
-    wxFont *font;
-    float *values;
+    wxFont* font;
+    float* values;
     float height, base, step;
     int cmin, cmax;
 };
@@ -114,7 +114,7 @@ class colourspaceFrame: public rviewFrame
 {
 public:
 
-    colourspaceFrame(colourspaceMapper *parent, const colourspace_params *p);
+    colourspaceFrame(colourspaceMapper* parent, const colourspace_params* p);
     ~colourspaceFrame(void);
 
     void setRange(double newMinVal, double newMaxVal);
@@ -123,13 +123,13 @@ public:
     void OnSize(int w, int h);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
 
     void updateSettings(void);
-    void updateDisplay(const colourspace_params *cp=NULL);
-    void processMouseEvent(wxMouseEvent &mevt);
+    void updateDisplay(const colourspace_params* cp = NULL);
+    void processMouseEvent(wxMouseEvent& mevt);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // constants
@@ -157,19 +157,19 @@ private:
 
     void makeUpdate(void);
 
-    colourspaceMapper *parentObj;
+    colourspaceMapper* parentObj;
     colourspace_params newParams;
     colourspace_params origParams;    // in case of immediate update
 
-    colourspaceCanvas *canvas;
-    wxPanel *panel;
-    rviewText *posR, *posG, *posB;
-    rviewText *sigR, *sigG, *sigB;
-    rviewButton *okBut, *cancelBut, *defaultBut;
-    rviewCheckBox *immediateUpdate;
-    rviewCheckBox *drawSum;
-    rviewText *minVal, *maxVal;
-    rviewChoice *csType;
+    colourspaceCanvas* canvas;
+    wxPanel* panel;
+    rviewText* posR, *posG, *posB;
+    rviewText* sigR, *sigG, *sigB;
+    rviewButton* okBut, *cancelBut, *defaultBut;
+    rviewCheckBox* immediateUpdate;
+    rviewCheckBox* drawSum;
+    rviewText* minVal, *maxVal;
+    rviewChoice* csType;
     bool doImmediateUpdate;
     bool doDrawSum;
     cspaceType cstype;
@@ -194,11 +194,11 @@ class colourspaceMapper
 {
 public:
 
-    colourspaceMapper(r_Ref<r_GMarray> &mdd, rviewBaseType bt, const colourspace_params *cp, bool fullrange=FALSE, const r_Minterval *domain=NULL, unsigned long frange=0x10000);
+    colourspaceMapper(r_Ref<r_GMarray>& mdd, rviewBaseType bt, const colourspace_params* cp, bool fullrange = FALSE, const r_Minterval* domain = NULL, unsigned long frange = 0x10000);
     ~colourspaceMapper(void);
 
-    void getObject(r_Ref<r_GMarray> &mdd, rviewBaseType &bt, bool *fullrange=NULL, r_Minterval **domain=NULL) const;
-    int bindMapper(r_Ref<r_GMarray> &mdd, rviewBaseType bt, bool fullrange=FALSE, const r_Minterval *domain=NULL, const colourspace_params *cp=NULL);
+    void getObject(r_Ref<r_GMarray>& mdd, rviewBaseType& bt, bool* fullrange = NULL, r_Minterval** domain = NULL) const;
+    int bindMapper(r_Ref<r_GMarray>& mdd, rviewBaseType bt, bool fullrange = FALSE, const r_Minterval* domain = NULL, const colourspace_params* cp = NULL);
 
     inline unsigned short ValToCS15(double value)
     {
@@ -208,19 +208,19 @@ public:
     {
         return (this->*convert24)(value);
     }
-    unsigned short *buildCSTab15(bool forceRebuild=FALSE);
-    unsigned long *buildCSTab24(bool forceRebuild=FALSE);
+    unsigned short* buildCSTab15(bool forceRebuild = FALSE);
+    unsigned long* buildCSTab24(bool forceRebuild = FALSE);
     double getMinVal(void);
     double getMaxVal(void);
     double getScalingFactor(void);
-    unsigned short *getCSTab15(void);
-    unsigned long *getCSTab24(void);
+    unsigned short* getCSTab15(void);
+    unsigned long* getCSTab24(void);
     void processRange(int rangeMode);
-    void updateProjection(const r_Minterval *domain);
-    void colourspaceChanged(const colourspace_params *newParams, bool autoUpdate=TRUE);
+    void updateProjection(const r_Minterval* domain);
+    void colourspaceChanged(const colourspace_params* newParams, bool autoUpdate = TRUE);
     void openEditor(void);
-    void closeEditor(bool activeClose=TRUE);
-    void getParameters(colourspace_params *dest);
+    void closeEditor(bool activeClose = TRUE);
+    void getParameters(colourspace_params* dest);
     void setMappingFunctions(void);
 
 
@@ -237,8 +237,8 @@ protected:
     unsigned short ValToAsymptotic15(double value);
     unsigned long  ValToAsymptotic24(double value);
     // function pointers
-    unsigned short (colourspaceMapper::*convert15)(double value);
-    unsigned long  (colourspaceMapper::*convert24)(double value);
+    unsigned short(colourspaceMapper::*convert15)(double value);
+    unsigned long (colourspaceMapper::*convert24)(double value);
 
     colourspace_params par;       // all the important parameters
     double realMinVal, realMaxVal;    // actual range of object
@@ -249,16 +249,16 @@ protected:
     double scalingFactor;
     int dimMDD;
     int tableKind;    // 15 or 24bpp tables?
-    unsigned short *IntToRGBTab15;
-    unsigned long *IntToRGBTab24;
+    unsigned short* IntToRGBTab15;
+    unsigned long* IntToRGBTab24;
     cspaceType tableType;
-    colourspaceFrame *csFrame;
+    colourspaceFrame* csFrame;
     r_Ref<r_GMarray> mddObj;
     rviewBaseType baseType;
     long projPixels;
     r_Minterval objInterv;
     r_Minterval lastInterv;
-    const r_Minterval *useInterv;
+    const r_Minterval* useInterv;
 };
 
 #endif

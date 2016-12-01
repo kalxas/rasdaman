@@ -81,29 +81,29 @@ public class GetMapParser extends Parser<GetMapRequest> {
      */
     @Override
     public GetMapRequest parse(WMSGetRequest rawRequest) throws WMSInternalException, WMSInvalidLayerException,
-                                                                WMSInvalidStyleException, WMSInvalidBbox,
-                                                                WMSInvalidWidth, WMSInvalidHeight,
-                                                                WMSInvalidCrsException, WMSInvalidDimensionValue,
-                                                                WMSInvalidFormatException {
+               WMSInvalidStyleException, WMSInvalidBbox,
+               WMSInvalidWidth, WMSInvalidHeight,
+               WMSInvalidCrsException, WMSInvalidDimensionValue,
+        WMSInvalidFormatException {
         try {
             GetMapRequestBuilder builder = new GetMapRequestBuilder();
             Crs crs = new Crs(rawRequest.getGetValueByKey(GetMapRequest.getCrsParamName()));
             GetMapRequest request = builder
-                .setLayers(getLayers(rawRequest.getGetValueByKey(GetMapRequest.getLayerParamName())))
-                .setStyles(getStyles(rawRequest.getGetValueByKey(GetMapRequest.getStyleParamName())))
-                .setCrs(crs)
-                .setBbox(getBoundingBox(rawRequest.getGetValueByKey(GetMapRequest.getBboxParamName()), crs))
-                .setWidth(getWidth(rawRequest.getGetValueByKey(GetMapRequest.getWidthParamName())))
-                .setHeight(getHeight(rawRequest.getGetValueByKey(GetMapRequest.getHeightParamName())))
-                .setFormat(getFormat(rawRequest.getGetValueByKey(GetMapRequest.getFormatParamName())))
-                .setTransparent(getTransparent(rawRequest.getGetValueByKey(GetMapRequest.getTransparentParamName())))
-                .setBackgroundColor(rawRequest.getGetValueByKey(GetMapRequest.getTransparentParamName()))
-                .setExceptionFormat(rawRequest.getGetValueByKey(GetMapRequest.getExceptionParamName()))
-                .setTime(rawRequest.getGetValueByKey(GetMapRequest.getTimeParamName()))
-                .setElevation(rawRequest.getGetValueByKey(GetMapRequest.getElevationParamName()))
-                .setDimensions(getDimensions(rawRequest))
-                .setRequest(parseBaseRequest(rawRequest))
-                .createGetMapRequest();
+                                    .setLayers(getLayers(rawRequest.getGetValueByKey(GetMapRequest.getLayerParamName())))
+                                    .setStyles(getStyles(rawRequest.getGetValueByKey(GetMapRequest.getStyleParamName())))
+                                    .setCrs(crs)
+                                    .setBbox(getBoundingBox(rawRequest.getGetValueByKey(GetMapRequest.getBboxParamName()), crs))
+                                    .setWidth(getWidth(rawRequest.getGetValueByKey(GetMapRequest.getWidthParamName())))
+                                    .setHeight(getHeight(rawRequest.getGetValueByKey(GetMapRequest.getHeightParamName())))
+                                    .setFormat(getFormat(rawRequest.getGetValueByKey(GetMapRequest.getFormatParamName())))
+                                    .setTransparent(getTransparent(rawRequest.getGetValueByKey(GetMapRequest.getTransparentParamName())))
+                                    .setBackgroundColor(rawRequest.getGetValueByKey(GetMapRequest.getTransparentParamName()))
+                                    .setExceptionFormat(rawRequest.getGetValueByKey(GetMapRequest.getExceptionParamName()))
+                                    .setTime(rawRequest.getGetValueByKey(GetMapRequest.getTimeParamName()))
+                                    .setElevation(rawRequest.getGetValueByKey(GetMapRequest.getElevationParamName()))
+                                    .setDimensions(getDimensions(rawRequest))
+                                    .setRequest(parseBaseRequest(rawRequest))
+                                    .createGetMapRequest();
             return request;
         } catch (SQLException e) {
             throw new WMSInternalException(e);
@@ -144,7 +144,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
                 if (key.startsWith(GetMapRequest.getDimensionParamName())) {
                     String dimensionName = key.replaceFirst(GetMapRequest.getDimensionParamName(), "");
                     List<Dimension> dims = persistentMetadataObjectProvider.getDimension()
-                                                                           .queryForEq(Dimension.NAME_COLUMN_NAME, dimensionName);
+                                           .queryForEq(Dimension.NAME_COLUMN_NAME, dimensionName);
                     if (dims.isEmpty()) {
                         throw new WMSInvalidDimensionValue(dimensionName);
                     }
@@ -272,11 +272,11 @@ public class GetMapParser extends Parser<GetMapRequest> {
         }
         try {
             return new BoundingBox(crs,
-                Double.parseDouble(bboxComponents[0].trim()),
-                Double.parseDouble(bboxComponents[1].trim()),
-                Double.parseDouble(bboxComponents[2].trim()),
-                Double.parseDouble(bboxComponents[3].trim()),
-                null);
+                                   Double.parseDouble(bboxComponents[0].trim()),
+                                   Double.parseDouble(bboxComponents[1].trim()),
+                                   Double.parseDouble(bboxComponents[2].trim()),
+                                   Double.parseDouble(bboxComponents[3].trim()),
+                                   null);
         } catch (NumberFormatException e) {
             throw new WMSInvalidBbox(bboxString);
         }

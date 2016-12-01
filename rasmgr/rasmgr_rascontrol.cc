@@ -64,59 +64,104 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 
 #include "debug-srv.hh"
 
-extern bool hostCmp( const char *h1, const char *h2);
+extern bool hostCmp(const char* h1, const char* h2);
 
 // function to migrate -xp parameters, only for v5.1, remove after
-void migrateExtraParams(const char *orig, char *migrated);
+void migrateExtraParams(const char* orig, char* migrated);
 
-int RasControl::processRequest(char* reqMessage, char *answMessage)
+int RasControl::processRequest(char* reqMessage, char* answMessage)
 {
     splitRequest(reqMessage);
 
-    const char *command=argc ? token[0].take() : "#";
+    const char* command = argc ? token[0].take() : "#";
 
     try
     {
-        if(command)
+        if (command)
         {
             LDEBUG << "RasControl::processRequest: command=" << command;
 
-            if     (isCommand(RASMGRCMD_HELLO))  helloCommand();
-            else if(isCommand(RASMGRCMD_HELP))   helpCommand();
-            else if(isCommand(RASMGRCMD_LIST))   listCommand();
-            else if(isCommand(RASMGRCMD_DEFINE)) defineCommand();
-            else if(isCommand(RASMGRCMD_REMOVE)) removeCommand();
-            else if(isCommand(RASMGRCMD_CHECK))  checkCommand();
-            else if(isCommand(RASMGRCMD_UP))     upCommand();
-            else if(isCommand(RASMGRCMD_DOWN))   downCommand();
-            else if(isCommand(RASMGRCMD_CHANGE)) changeCommand();
-            else if(isCommand(RASMGRCMD_SAVE))   saveCommand();
-            else if(isCommand(RASMGRCMD_EXIT))   exitCommand();
-            else if(isCommand(RASMGRCMD_RESET))  resetCommand();
+            if (isCommand(RASMGRCMD_HELLO))
+            {
+                helloCommand();
+            }
+            else if (isCommand(RASMGRCMD_HELP))
+            {
+                helpCommand();
+            }
+            else if (isCommand(RASMGRCMD_LIST))
+            {
+                listCommand();
+            }
+            else if (isCommand(RASMGRCMD_DEFINE))
+            {
+                defineCommand();
+            }
+            else if (isCommand(RASMGRCMD_REMOVE))
+            {
+                removeCommand();
+            }
+            else if (isCommand(RASMGRCMD_CHECK))
+            {
+                checkCommand();
+            }
+            else if (isCommand(RASMGRCMD_UP))
+            {
+                upCommand();
+            }
+            else if (isCommand(RASMGRCMD_DOWN))
+            {
+                downCommand();
+            }
+            else if (isCommand(RASMGRCMD_CHANGE))
+            {
+                changeCommand();
+            }
+            else if (isCommand(RASMGRCMD_SAVE))
+            {
+                saveCommand();
+            }
+            else if (isCommand(RASMGRCMD_EXIT))
+            {
+                exitCommand();
+            }
+            else if (isCommand(RASMGRCMD_RESET))
+            {
+                resetCommand();
+            }
 
 #ifdef INCLUDE_HIDDEN_COMMANDS
             // both are unofficial, PB doesn't like them, but I do
-            else if(isCommand(RASMGRCMD_GRANT))  grantCommand();
-            else if(isCommand(RASMGRCMD_REVOKE)) revokeCommand();
+            else if (isCommand(RASMGRCMD_GRANT))
+            {
+                grantCommand();
+            }
+            else if (isCommand(RASMGRCMD_REVOKE))
+            {
+                revokeCommand();
+            }
             //################
 #endif
 
-            else if(isCommand("#"))  sprintf(answBuffer," "); // comment
+            else if (isCommand("#"))
+            {
+                sprintf(answBuffer, " ");    // comment
+            }
             else
             {
-                errorInCommand("Invalid command; try HELP." );
+                errorInCommand("Invalid command; try HELP.");
                 LERROR << "Invalid command word: " << command;
             }
         }
         else
         {
             LERROR << "Error in request: " << reqMessage;
-            errorInCommand("Error in request." );
+            errorInCommand("Error in request.");
         }
     }
-    catch(RCError& e)
+    catch (RCError& e)
     {
-        strcpy(answBuffer,"Error: ");
+        strcpy(answBuffer, "Error: ");
         e.getString(answBuffer + strlen(answBuffer));
         LERROR << answBuffer;
     }
@@ -126,26 +171,26 @@ int RasControl::processRequest(char* reqMessage, char *answMessage)
 
 // set dirty flags
 // used to differentiate between config file read and real changes thru rascontrol
-void RasControl::setConfigDirty( bool isDirty )
+void RasControl::setConfigDirty(bool isDirty)
 {
     configDirty = isDirty;
 }
 
-void RasControl::setAuthDirty( bool isDirty )
+void RasControl::setAuthDirty(bool isDirty)
 {
     authDirty = isDirty;
 }
 
-int RasControl::prepareAnswer(char *answMessage)
+int RasControl::prepareAnswer(char* answMessage)
 {
-    sprintf(answMessage,"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s",strlen(answBuffer)+1,answBuffer);
-    return strlen(answMessage)+1;
+    sprintf(answMessage, "HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s", strlen(answBuffer) + 1, answBuffer);
+    return strlen(answMessage) + 1;
 }
 
 //*************************************************
 void RasControl::helloCommand()
 {
-    sprintf(answBuffer,"Hello %s, you are connected to %s",authorization.getUserName(),config.getHostName());
+    sprintf(answBuffer, "Hello %s, you are connected to %s", authorization.getUserName(), config.getHostName());
 }
 //*************************************************
 
@@ -154,28 +199,32 @@ void RasControl::exitCommand()
     bool configResult = false;
     bool authResult = false;
 
-    (void) strcpy( answBuffer, "Exiting rascontrol session." );
+    (void) strcpy(answBuffer, "Exiting rascontrol session.");
 
     if (configDirty)
+    {
         configResult = config.saveAltConfigFile();
+    }
 
     if (authDirty)
+    {
         authResult = authorization.saveAltAuthFile();
+    }
 
     sprintf(answBuffer, "Exiting rascontrol session.%s\n%s%s%s%s%s%s%s%s%s%s",
             ((argc <= 1)  ? "" : " Ignoring extra parameters."),
 
-            (!configDirty ? "" : "Configuration file was changed but not saved, storing rescue copy to " ),
-            (!configDirty ? "" : config.getAltConfigFileName() ),
-            (!configDirty ? "" : "..." ),
-            (!configDirty ? "" : (configResult ? "ok" : "failed") ),
-            (!configDirty ? "" : "\n" ),
+            (!configDirty ? "" : "Configuration file was changed but not saved, storing rescue copy to "),
+            (!configDirty ? "" : config.getAltConfigFileName()),
+            (!configDirty ? "" : "..."),
+            (!configDirty ? "" : (configResult ? "ok" : "failed")),
+            (!configDirty ? "" : "\n"),
 
-            (!authDirty   ? "" : "Authorisation file was changed but not saved, storing rescue copy to " ),
-            (!authDirty   ? "" : authorization.getAltAuthFileName() ),
-            (!authDirty   ? "" : "..." ),
-            (!authDirty   ? "" : (authResult ? "ok" : "failed") ),
-            (!authDirty   ? "" : "\n" ) );
+            (!authDirty   ? "" : "Authorisation file was changed but not saved, storing rescue copy to "),
+            (!authDirty   ? "" : authorization.getAltAuthFileName()),
+            (!authDirty   ? "" : "..."),
+            (!authDirty   ? "" : (authResult ? "ok" : "failed")),
+            (!authDirty   ? "" : "\n"));
 
     // (!configDirty ? "" : "Configuration was changed but not saved, storing rescue copy to " << config.getAltConfigFileName() << "..." << (configResult ? "ok" : "failed") << "." << endl),
     // (!authDirty   ? "" : "Authorisation was changed but not saved, storing rescue copy to " << authorization.getAltAuthFileName()   << "..." << (authResult ? "ok" : "failed") << "." << endl) );
@@ -183,26 +232,62 @@ void RasControl::exitCommand()
 
 void RasControl::listCommand()
 {
-    const char *listwhat = argc==1 ? "xxx":token[1].take();
+    const char* listwhat = argc == 1 ? "xxx" : token[1].take();
 
-    if     (strcasecmp(listwhat,RASMGRCMD_SRV)==0)      listRasServers();
-    else if(strcasecmp(listwhat,"version")==0)  listVersion();
-    else if(strcasecmp(listwhat,"modus"  )==0)  listModus();
-    else if(strcasecmp(listwhat,"inpeer"  )==0)  listInPeers();
-    else if(strcasecmp(listwhat,"outpeer"  )==0)  listOutPeers();
-    else if(strcasecmp(listwhat,RASMGRCMD_USER   )==0)  listUsers();
-    else if(strcasecmp(listwhat,RASMGRCMD_HOST)==0)     listRasHosts();
-    else if(strcasecmp(listwhat,"dbh")==0)      listDBHosts();
-    else if(strcasecmp(listwhat,"db")==0)       listDatabases();
+    if (strcasecmp(listwhat, RASMGRCMD_SRV) == 0)
+    {
+        listRasServers();
+    }
+    else if (strcasecmp(listwhat, "version") == 0)
+    {
+        listVersion();
+    }
+    else if (strcasecmp(listwhat, "modus") == 0)
+    {
+        listModus();
+    }
+    else if (strcasecmp(listwhat, "inpeer") == 0)
+    {
+        listInPeers();
+    }
+    else if (strcasecmp(listwhat, "outpeer") == 0)
+    {
+        listOutPeers();
+    }
+    else if (strcasecmp(listwhat, RASMGRCMD_USER) == 0)
+    {
+        listUsers();
+    }
+    else if (strcasecmp(listwhat, RASMGRCMD_HOST) == 0)
+    {
+        listRasHosts();
+    }
+    else if (strcasecmp(listwhat, "dbh") == 0)
+    {
+        listDBHosts();
+    }
+    else if (strcasecmp(listwhat, "db") == 0)
+    {
+        listDatabases();
+    }
 
 #ifdef INCLUDE_HIDDEN_COMMANDS
-    else if(strcasecmp(listwhat,"rights")==0) listRights();// unofficial
+    else if (strcasecmp(listwhat, "rights") == 0)
+    {
+        listRights();    // unofficial
+    }
 #endif
 
-    else if(strcasecmp(listwhat,RASMGRCMD_HELP)==0) listHelp();
+    else if (strcasecmp(listwhat, RASMGRCMD_HELP) == 0)
+    {
+        listHelp();
+    }
 
 
-    else errorInCommand("Illegal LIST modifier. Try HELP LIST." );
+    else
+    {
+        errorInCommand("Illegal LIST modifier. Try HELP LIST.");
+    }
 }
 
 void RasControl::listModus()
@@ -211,9 +296,9 @@ void RasControl::listModus()
 
     checkUnexpectedTokens();
 
-    const char *modus = config.isTestModus() ? "test"  :"normal";
+    const char* modus = config.isTestModus() ? "test"  : "normal";
 
-    sprintf(answBuffer,"rasmgr running in %s modus",modus);
+    sprintf(answBuffer, "rasmgr running in %s modus", modus);
 }
 void RasControl::listVersion()
 {
@@ -226,11 +311,11 @@ void RasControl::listVersion()
     // Version 1.3 with "list srv -x" and "-hostname" parameter
     // Version 1.4 with migration of command line options from v5.0 to v5.1
     // Version 1.5 with new cmds, bug fixes in socket communication
-    sprintf(answBuffer,"rasdaman %s (rasmgr v1.5, compiled on %s)", RMANVERSION, COMPDATE);
+    sprintf(answBuffer, "rasdaman %s (rasmgr v1.5, compiled on %s)", RMANVERSION, COMPDATE);
 
 
 #ifdef INCLUDE_HIDDEN_COMMANDS
-    strcat(answBuffer," ('inside only'-version)");
+    strcat(answBuffer, " ('inside only'-version)");
 #endif
 }
 
@@ -242,18 +327,18 @@ void RasControl::listUsers()
 
     checkUnexpectedTokens();
 
-    sprintf(answBuffer,"List of defined users:");
+    sprintf(answBuffer, "List of defined users:");
 
-    for(int i=0; i<userManager.countUsers(); i++)
+    for (int i = 0; i < userManager.countUsers(); i++)
     {
-        User &user=userManager[i];
+        User& user = userManager[i];
         //sprintf(answBuffer+strlen(answBuffer),"\r\n%d. %s (%ld)",i,u.getName(),u.getUserID());
-        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %-20s ",i+1,user.getName());
+        sprintf(answBuffer + strlen(answBuffer), "\r\n%2d. %-20s ", i + 1, user.getName());
 
-        if(isRights)
+        if (isRights)
         {
-            sprintf(answBuffer+strlen(answBuffer)," [%s]",authorization.convertAdminRights(user.getAdminRights()));
-            sprintf(answBuffer+strlen(answBuffer)," -[%s]",authorization.convertDatabRights(user.getDefaultDBRights()));
+            sprintf(answBuffer + strlen(answBuffer), " [%s]", authorization.convertAdminRights(user.getAdminRights()));
+            sprintf(answBuffer + strlen(answBuffer), " -[%s]", authorization.convertDatabRights(user.getDefaultDBRights()));
         }
     }
 }
@@ -264,10 +349,10 @@ void RasControl::listInPeers()
 
     checkUnexpectedTokens();
 
-    sprintf(answBuffer,"List of inpeers:\r\n");
-    for(unsigned int i=0; i<config.inpeers.size(); i++)
+    sprintf(answBuffer, "List of inpeers:\r\n");
+    for (unsigned int i = 0; i < config.inpeers.size(); i++)
     {
-        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %s",i+1,config.inpeers[i]);
+        sprintf(answBuffer + strlen(answBuffer), "\r\n%2d. %s", i + 1, config.inpeers[i]);
     }
 }
 
@@ -277,10 +362,10 @@ void RasControl::listOutPeers()
 
     checkUnexpectedTokens();
 
-    sprintf(answBuffer,"List of outpeers:\r\n");
-    for(unsigned int i=0; i<config.outpeers.size(); i++)
+    sprintf(answBuffer, "List of outpeers:\r\n");
+    for (unsigned int i = 0; i < config.outpeers.size(); i++)
     {
-        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %s %d",i+1,config.outpeers[i],config.outports[i]);
+        sprintf(answBuffer + strlen(answBuffer), "\r\n%2d. %s %d", i + 1, config.outpeers[i], config.outports[i]);
     }
 }
 
@@ -289,12 +374,12 @@ void RasControl::listRasHosts()
     checkPermission(admR_info);
     checkUnexpectedTokens();
 
-    sprintf(answBuffer,"List of server hosts:\r\n");
-    ServerHost::getDescriptionHeader(answBuffer+strlen(answBuffer));
-    for(int i=0; i<hostmanager.countHosts(); i++)
+    sprintf(answBuffer, "List of server hosts:\r\n");
+    ServerHost::getDescriptionHeader(answBuffer + strlen(answBuffer));
+    for (int i = 0; i < hostmanager.countHosts(); i++)
     {
-        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. ",i+1);
-        hostmanager[i].getDescription(answBuffer+strlen(answBuffer));
+        sprintf(answBuffer + strlen(answBuffer), "\r\n%2d. ", i + 1);
+        hostmanager[i].getDescription(answBuffer + strlen(answBuffer));
 
     }
 }
@@ -304,18 +389,20 @@ void RasControl::listDBHosts()
     checkPermission(admR_info);
     checkUnexpectedTokens();
 
-    sprintf(answBuffer,"List of database hosts:\r\n");
-    sprintf(answBuffer+strlen(answBuffer),"    Database Host     Connection String            Databases");
+    sprintf(answBuffer, "List of database hosts:\r\n");
+    sprintf(answBuffer + strlen(answBuffer), "    Database Host     Connection String            Databases");
 
-    for(int i=0; i<dbHostManager.countHosts(); i++)
+    for (int i = 0; i < dbHostManager.countHosts(); i++)
     {
-        DatabaseHost &dbh = dbHostManager[i];
-        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %-15s %-30s",(i+1),dbh.getName(),dbh.getConnectionString());
+        DatabaseHost& dbh = dbHostManager[i];
+        sprintf(answBuffer + strlen(answBuffer), "\r\n%2d. %-15s %-30s", (i + 1), dbh.getName(), dbh.getConnectionString());
 
-        for(int j=0; j<dbManager.countDatabases(); j++)
+        for (int j = 0; j < dbManager.countDatabases(); j++)
         {
-            if(dbManager[j].isConnectedToDBHost(dbh.getName()))
-                sprintf(answBuffer+strlen(answBuffer)," %s",dbManager[j].getName());
+            if (dbManager[j].isConnectedToDBHost(dbh.getName()))
+            {
+                sprintf(answBuffer + strlen(answBuffer), " %s", dbManager[j].getName());
+            }
         }
     }
 }
@@ -324,43 +411,61 @@ void RasControl::listDBHosts()
 void RasControl::listRasServers()
 {
     checkPermission(admR_info);
-    int answLen=0;
-    int maxAnswLen=MAXMSGOUTBUFF-100; // if there are many servers, we could get an overflow
+    int answLen = 0;
+    int maxAnswLen = MAXMSGOUTBUFF - 100; // if there are many servers, we could get an overflow
 
-    bool fports= isFlag("-p");
+    bool fports = isFlag("-p");
     bool fexec = isFlag("-x");
 
-    if(fports && fexec)
+    if (fports && fexec)
     {
         // error, not both of them together!
     }
 
 
-    const char *srvName  = getValueOf(RASMGRCMD_SRV);
-    if(srvName)
+    const char* srvName  = getValueOf(RASMGRCMD_SRV);
+    if (srvName)
     {
         checkUnexpectedTokens();
-        RasServer &serv=getServer(srvName);
+        RasServer& serv = getServer(srvName);
 
-        sprintf(answBuffer,"Status of server %s\r\n",srvName);
-        if(fports)     RasServer::getDescriptionPortHeader(answBuffer+strlen(answBuffer));
-        else if(fexec) RasServer::getDescriptionExecHeader(answBuffer+strlen(answBuffer));
-        else           RasServer::getDescriptionHeader(answBuffer+strlen(answBuffer));
-        strcat(answBuffer,"\r\n    ");
-        if(fports)     serv.getDescriptionPort(answBuffer+strlen(answBuffer));
-        else if(fexec) serv.getDescriptionExec(answBuffer+strlen(answBuffer));
-        else           serv.getDescription(answBuffer+strlen(answBuffer));
+        sprintf(answBuffer, "Status of server %s\r\n", srvName);
+        if (fports)
+        {
+            RasServer::getDescriptionPortHeader(answBuffer + strlen(answBuffer));
+        }
+        else if (fexec)
+        {
+            RasServer::getDescriptionExecHeader(answBuffer + strlen(answBuffer));
+        }
+        else
+        {
+            RasServer::getDescriptionHeader(answBuffer + strlen(answBuffer));
+        }
+        strcat(answBuffer, "\r\n    ");
+        if (fports)
+        {
+            serv.getDescriptionPort(answBuffer + strlen(answBuffer));
+        }
+        else if (fexec)
+        {
+            serv.getDescriptionExec(answBuffer + strlen(answBuffer));
+        }
+        else
+        {
+            serv.getDescription(answBuffer + strlen(answBuffer));
+        }
 
         return;
     }
 
     bool isHost = isFlag("-host");
-    const char *hostName = getValueOf("-host");
+    const char* hostName = getValueOf("-host");
     bool listAll = false;
     if (isHost)
     {
         checkUnexpectedTokens();
-        checkNotNull(hostName,"host name");
+        checkNotNull(hostName, "host name");
         getServerHost(hostName);
 
     }
@@ -374,32 +479,58 @@ void RasControl::listRasServers()
         // put the error here
     }
 
-    if(hostName == NULL) sprintf(answBuffer,"List of servers:\r\n");
-    else                 sprintf(answBuffer,"List of servers on host %s:\r\n",hostName);
-
-    if(fports)     RasServer::getDescriptionPortHeader(answBuffer+strlen(answBuffer));
-    else if(fexec) RasServer::getDescriptionExecHeader(answBuffer+strlen(answBuffer));
-    else           RasServer::getDescriptionHeader(answBuffer+strlen(answBuffer));
-    int crnt=1;
-    for(int i=0; i<rasManager.countServers(); i++)
+    if (hostName == NULL)
     {
-        answLen=strlen(answBuffer);
+        sprintf(answBuffer, "List of servers:\r\n");
+    }
+    else
+    {
+        sprintf(answBuffer, "List of servers on host %s:\r\n", hostName);
+    }
 
-        if(answLen >=maxAnswLen)
+    if (fports)
+    {
+        RasServer::getDescriptionPortHeader(answBuffer + strlen(answBuffer));
+    }
+    else if (fexec)
+    {
+        RasServer::getDescriptionExecHeader(answBuffer + strlen(answBuffer));
+    }
+    else
+    {
+        RasServer::getDescriptionHeader(answBuffer + strlen(answBuffer));
+    }
+    int crnt = 1;
+    for (int i = 0; i < rasManager.countServers(); i++)
+    {
+        answLen = strlen(answBuffer);
+
+        if (answLen >= maxAnswLen)
         {
-            sprintf(answBuffer+answLen,"\r\n(Answer too long, overflow!)");
+            sprintf(answBuffer + answLen, "\r\n(Answer too long, overflow!)");
             break;
         }
 
-        if(hostName)
-            if(!hostCmp(hostName,rasManager[i].getHostName()))
+        if (hostName)
+            if (!hostCmp(hostName, rasManager[i].getHostName()))
+            {
                 continue;
+            }
 
-        sprintf(answBuffer+answLen,"\r\n%2d. ",crnt++);
+        sprintf(answBuffer + answLen, "\r\n%2d. ", crnt++);
 
-        if(fports)     rasManager[i].getDescriptionPort(answBuffer+strlen(answBuffer));
-        else if(fexec) rasManager[i].getDescriptionExec(answBuffer+strlen(answBuffer));
-        else           rasManager[i].getDescription(answBuffer+strlen(answBuffer));
+        if (fports)
+        {
+            rasManager[i].getDescriptionPort(answBuffer + strlen(answBuffer));
+        }
+        else if (fexec)
+        {
+            rasManager[i].getDescriptionExec(answBuffer + strlen(answBuffer));
+        }
+        else
+        {
+            rasManager[i].getDescription(answBuffer + strlen(answBuffer));
+        }
     }
 
 }
@@ -410,25 +541,25 @@ void RasControl::listDatabases()
 
     const char* dbName = getValueOf("db");
 
-    if(dbName)
+    if (dbName)
     {
         checkUnexpectedTokens();
-        Database &db = getDatabase(dbName);
+        Database& db = getDatabase(dbName);
 
-        sprintf(answBuffer,"List database: %s\r\n",dbName);
-        Database::getDescriptionHeader(answBuffer+strlen(answBuffer));
-        strcat(answBuffer,"\r\n    ");
-        db.getDescription(answBuffer+strlen(answBuffer));
+        sprintf(answBuffer, "List database: %s\r\n", dbName);
+        Database::getDescriptionHeader(answBuffer + strlen(answBuffer));
+        strcat(answBuffer, "\r\n    ");
+        db.getDescription(answBuffer + strlen(answBuffer));
         return;
     }
 
     bool flagDBH = isFlag("-dbh");
     const char* dbhName = getValueOf("-dbh");
 
-    if(flagDBH)
+    if (flagDBH)
     {
         checkUnexpectedTokens();
-        checkNotNull(dbhName,"database host name");
+        checkNotNull(dbhName, "database host name");
         getDatabaseHost(dbhName);
     }
 
@@ -436,149 +567,163 @@ void RasControl::listDatabases()
     // if flagALL is not, we should generate an error message, but we list all silently
     checkUnexpectedTokens();
 
-    if(dbhName)
-        sprintf(answBuffer,"List of databases on host: %s\r\n",dbhName);
-    else sprintf(answBuffer,"List of databases:\r\n");// blanks necesary for nice output
-    Database::getDescriptionHeader(answBuffer+strlen(answBuffer));
-
-    int crnt=1;
-    for(int i=0; i<dbManager.countDatabases(); i++)
+    if (dbhName)
     {
-        Database &db=dbManager[i];
+        sprintf(answBuffer, "List of databases on host: %s\r\n", dbhName);
+    }
+    else
+    {
+        sprintf(answBuffer, "List of databases:\r\n");    // blanks necesary for nice output
+    }
+    Database::getDescriptionHeader(answBuffer + strlen(answBuffer));
 
-        if(dbhName)
+    int crnt = 1;
+    for (int i = 0; i < dbManager.countDatabases(); i++)
+    {
+        Database& db = dbManager[i];
+
+        if (dbhName)
         {
-            bool found=false;
-            for(int j=0; j < db.countConnectionsToDBHosts(); j++)
+            bool found = false;
+            for (int j = 0; j < db.countConnectionsToDBHosts(); j++)
             {
-                if(hostCmp(db.getDBHostName(j),dbhName))
+                if (hostCmp(db.getDBHostName(j), dbhName))
                 {
-                    found=true;
+                    found = true;
                     break;
                 }
             }
-            if(found == false)
+            if (found == false)
+            {
                 continue;
+            }
         }
-        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. ",crnt++);
-        db.getDescription(answBuffer+strlen(answBuffer));
+        sprintf(answBuffer + strlen(answBuffer), "\r\n%2d. ", crnt++);
+        db.getDescription(answBuffer + strlen(answBuffer));
     }
 
 }
 //******************************************************
 void RasControl::defineCommand()
 {
-    const char *what = argc==1 ? "xxx":token[1].take();
+    const char* what = argc == 1 ? "xxx" : token[1].take();
 
-    if     (strcasecmp(what,RASMGRCMD_SRV)==0)
+    if (strcasecmp(what, RASMGRCMD_SRV) == 0)
     {
         defineRasServers();
         configDirty = true;
     }
-    else if(strcasecmp(what,RASMGRCMD_HOST)==0)
+    else if (strcasecmp(what, RASMGRCMD_HOST) == 0)
     {
         defineRasHosts();
         configDirty = true;
     }
-    else if(strcasecmp(what,"dbh")==0)
+    else if (strcasecmp(what, "dbh") == 0)
     {
         defineDBHosts();
         configDirty = true;
     }
-    else if(strcasecmp(what,"db")==0)
+    else if (strcasecmp(what, "db") == 0)
     {
         defineDatabases();
         configDirty = true;
     }
-    else if(strcasecmp(what,RASMGRCMD_USER)==0)
+    else if (strcasecmp(what, RASMGRCMD_USER) == 0)
     {
         defineUsers();
         authDirty = true;
     }
-    else if(strcasecmp(what,RASMGRCMD_HELP)==0)
+    else if (strcasecmp(what, RASMGRCMD_HELP) == 0)
+    {
         defineHelp();
-    else if(strcasecmp(what,"inpeer")==0)
+    }
+    else if (strcasecmp(what, "inpeer") == 0)
     {
         defineInPeers();
         configDirty = true;
     }
-    else if(strcasecmp(what,"outpeer")==0)
+    else if (strcasecmp(what, "outpeer") == 0)
     {
         defineOutPeers();
         configDirty = true;
     }
     else
+    {
         errorInCommand("Wrong DEFINE command");
+    }
 }
 
 void RasControl::defineUsers()
 {
     checkPermission(admR_acctrl);
 
-    const char *userName  = getValueOf(RASMGRCMD_USER);
-    const char *plainPass = getValueIfFlag("-passwd");
-    const char *rString   = getValueIfFlag("-rights",true);
-    int admRights =0;
-    int dtbRights =0;
+    const char* userName  = getValueOf(RASMGRCMD_USER);
+    const char* plainPass = getValueIfFlag("-passwd");
+    const char* rString   = getValueIfFlag("-rights", true);
+    int admRights = 0;
+    int dtbRights = 0;
     checkUnexpectedTokens();
-    checkNotNull(userName,"user name");
+    checkNotNull(userName, "user name");
 
-    for(int i=0; userName[i]; i++)
-        if(userName[i]==':')
+    for (int i = 0; userName[i]; i++)
+        if (userName[i] == ':')
         {
             errorInCommand("Invalid character (':') in user name.");
             return;
         }
 
-    if(rString)
+    if (rString)
     {
-        admRights=authorization.convertAdminRights(rString);
-        dtbRights=authorization.convertDatabRights(rString);
-        if(admRights==-1 || dtbRights==-1)
+        admRights = authorization.convertAdminRights(rString);
+        dtbRights = authorization.convertDatabRights(rString);
+        if (admRights == -1 || dtbRights == -1)
         {
             errorInCommand("Unknown right in command");
             return;
         }
     }
 
-    if(userManager.insertNewUser(userName)==false)
+    if (userManager.insertNewUser(userName) == false)
     {
         errorInCommand("User name should be unique.");
         return;
     }
 
-    User &user = userManager[userName];
+    User& user = userManager[userName];
 
-    if(plainPass)  user.changePTPassword(plainPass);
-    if(rString)
+    if (plainPass)
+    {
+        user.changePTPassword(plainPass);
+    }
+    if (rString)
     {
         user.setAdminRights(admRights);
         user.setDefaultDBRights(dtbRights);
     }
 
-    sprintf(answBuffer,"Defining user %s",userName);
+    sprintf(answBuffer, "Defining user %s", userName);
 }
 
 void RasControl::defineDBHosts()
 {
     checkPermission(admR_config);
 
-    const char *dbhName=getValueOf("dbh");
-    const char *connStr=getValueOf("-connect", true);
-    const char *userStr=getValueOf("-user", true);
-    const char *passwdStr=getValueOf("-passwd", true);
+    const char* dbhName = getValueOf("dbh");
+    const char* connStr = getValueOf("-connect", true);
+    const char* userStr = getValueOf("-user", true);
+    const char* passwdStr = getValueOf("-passwd", true);
 
     checkUnexpectedTokens();
-    checkNotNull(dbhName,"database host name");
-    checkNotNull(connStr,"connection string");
+    checkNotNull(dbhName, "database host name");
+    checkNotNull(connStr, "connection string");
 
-    if(dbHostManager.insertNewHost(dbhName,connStr,userStr,passwdStr))
+    if (dbHostManager.insertNewHost(dbhName, connStr, userStr, passwdStr))
     {
-        sprintf(answBuffer,"Defining database host %s with connection string: %s",dbhName,connStr);
+        sprintf(answBuffer, "Defining database host %s with connection string: %s", dbhName, connStr);
     }
     else
     {
-        sprintf(answBuffer,"Database host %s already defined.",dbhName);
+        sprintf(answBuffer, "Database host %s already defined.", dbhName);
     }
 }
 
@@ -586,28 +731,34 @@ void RasControl::defineDatabases()
 {
     checkPermission(admR_config);
 
-    const char *dbName  = getValueOf("db");
-    const char *dbhName = getValueOf("-dbh");
+    const char* dbName  = getValueOf("db");
+    const char* dbhName = getValueOf("-dbh");
     checkUnexpectedTokens();
-    checkNotNull(dbName,"database name");
+    checkNotNull(dbName, "database name");
     // we don't accept hostless databases any more, define goes together with connect from now on
-    checkNotNull(dbhName,"database host name");
+    checkNotNull(dbhName, "database host name");
     getDatabaseHost(dbhName);// just check if valid
 
     bool defDB   = dbManager.insertNewDatabase(dbName);
-    Database &db = dbManager[dbName];
+    Database& db = dbManager[dbName];
 
     bool connDB =  db.connectToDBHost(dbhName);
 
-    if(defDB)
+    if (defDB)
     {
-        sprintf(answBuffer,"Defining database %s on database host %s",dbName,dbhName);
+        sprintf(answBuffer, "Defining database %s on database host %s", dbName, dbhName);
     }
     else
     {
         //database was already defined
-        if(connDB)    sprintf(answBuffer,"Defining a mirrored instance of database %s on database host %s.",dbName,dbhName);
-        else          sprintf(answBuffer,"Database %s already defined on database host %s.",dbName,dbhName);
+        if (connDB)
+        {
+            sprintf(answBuffer, "Defining a mirrored instance of database %s on database host %s.", dbName, dbhName);
+        }
+        else
+        {
+            sprintf(answBuffer, "Database %s already defined on database host %s.", dbName, dbhName);
+        }
     }
 
 }
@@ -616,27 +767,33 @@ void RasControl::defineRasHosts()
 {
     checkPermission(admR_config);
 
-    const char *hostName=getValueOf(RASMGRCMD_HOST);
-    const char *netName =getValueOf("-net");
-    const char *portStr =getValueOf("-port");
+    const char* hostName = getValueOf(RASMGRCMD_HOST);
+    const char* netName = getValueOf("-net");
+    const char* portStr = getValueOf("-port");
     checkUnexpectedTokens();
 
-    checkNotNull(hostName,"host name");
+    checkNotNull(hostName, "host name");
 
-    checkNotNull(netName,"-net parameter");
+    checkNotNull(netName, "-net parameter");
 
     unsigned long listenPort;
-    if(portStr) listenPort=convertToULong(portStr,"port");
-    else        listenPort=DEFAULT_PORT;
-
-    if(hostmanager.insertNewHost(hostName,netName,listenPort)==false)
+    if (portStr)
     {
-        sprintf(answBuffer,"Error: Host %s already defined.",hostName);
+        listenPort = convertToULong(portStr, "port");
+    }
+    else
+    {
+        listenPort = DEFAULT_PORT;
+    }
+
+    if (hostmanager.insertNewHost(hostName, netName, listenPort) == false)
+    {
+        sprintf(answBuffer, "Error: Host %s already defined.", hostName);
         return;
     }
     else
     {
-        sprintf(answBuffer,"Defining server host %s port=%lu",hostName,listenPort);
+        sprintf(answBuffer, "Defining server host %s port=%lu", hostName, listenPort);
     }
 }
 
@@ -645,85 +802,88 @@ void RasControl::defineRasServers()
     checkPermission(admR_config);
     bool inConfigFile = authorization.isInConfigFile();
 
-    const char *serverName=getValueOf(RASMGRCMD_SRV);
-    const char *hostName  =getValueOf("-host");
-    const char *portStr   =getValueOf("-port");
-    const char *sTypeStr  =getValueOf("-type");
-    const char *dbhName   =getValueOf("-dbh");
+    const char* serverName = getValueOf(RASMGRCMD_SRV);
+    const char* hostName  = getValueOf("-host");
+    const char* portStr   = getValueOf("-port");
+    const char* sTypeStr  = getValueOf("-type");
+    const char* dbhName   = getValueOf("-dbh");
 
-    const char *autoRestart    = getValueIfFlag("-autorestart");
-    const char *countString    = getValueIfFlag("-countdown");
-    const char *execString     = getValueIfFlag("-exec");
+    const char* autoRestart    = getValueIfFlag("-autorestart");
+    const char* countString    = getValueIfFlag("-countdown");
+    const char* execString     = getValueIfFlag("-exec");
     bool isExtra  = isFlag("-xp");
     // make the -xp string first
     char extraString[300];
-    extraString[0]=0;
+    extraString[0] = 0;
 
-    if(isExtra)
+    if (isExtra)
     {
-        bool found=false;
-        for(int i=0; i<argc; i++)
+        bool found = false;
+        for (int i = 0; i < argc; i++)
         {
-            if(!found)
+            if (!found)
             {
-                if(strcasecmp(token[i].argv,"-xp")==0) found=true;
+                if (strcasecmp(token[i].argv, "-xp") == 0)
+                {
+                    found = true;
+                }
             }
             else
             {
-                strcat(extraString,token[i].take());
-                strcat(extraString," ");
+                strcat(extraString, token[i].take());
+                strcat(extraString, " ");
             }
         }
     }
 
     checkUnexpectedTokens();
 
-    checkNotNull(serverName,"server name");
+    checkNotNull(serverName, "server name");
 
-    if(!sTypeStr)
+    if (!sTypeStr)
     {
         errorInCommand("Missing server type, specify one of r (RPC), h (HTTP) or n (RNP).");
         return;
     }
 
-    char serverType=0;
-    if(strcasecmp(sTypeStr,"r")==0)
+    char serverType = 0;
+    if (strcasecmp(sTypeStr, "r") == 0)
     {
-        serverType=SERVERTYPE_FLAG_RPC;
+        serverType = SERVERTYPE_FLAG_RPC;
     }
-    if(strcasecmp(sTypeStr,"h")==0)
+    if (strcasecmp(sTypeStr, "h") == 0)
     {
-        serverType=SERVERTYPE_FLAG_HTTP;
+        serverType = SERVERTYPE_FLAG_HTTP;
     }
-    if(strcasecmp(sTypeStr,"n")==0)
+    if (strcasecmp(sTypeStr, "n") == 0)
     {
-        serverType=SERVERTYPE_FLAG_RNP;
+        serverType = SERVERTYPE_FLAG_RNP;
     }
-    if(!serverType)
+    if (!serverType)
     {
         errorInCommand("Illegal server type, use one of [r|h|n].");
         return;
     }
 
-    checkNotNull(hostName,"host name");
-    checkNotNull(portStr,"port number");
+    checkNotNull(hostName, "host name");
+    checkNotNull(portStr, "port number");
 
-    if(inConfigFile == false)
+    if (inConfigFile == false)
     {
         // we accept connectionless servers in config file, because we do not remove
         // the connected servers when we remove a database host
-        checkNotNull(dbhName,"database host name");
+        checkNotNull(dbhName, "database host name");
         getDatabaseHost(dbhName);// just check if valid
 
     }
 
-    unsigned long listenPort=convertToULong(portStr,"port");
+    unsigned long listenPort = convertToULong(portStr, "port");
 
-    if(autoRestart)
+    if (autoRestart)
     {
-        if(strcasecmp(autoRestart,"on")==0)
+        if (strcasecmp(autoRestart, "on") == 0)
             ;
-        else if(strcasecmp(autoRestart,"off")==0)
+        else if (strcasecmp(autoRestart, "off") == 0)
             ;
         else
         {
@@ -733,105 +893,133 @@ void RasControl::defineRasServers()
     }
 
     getServerHost(hostName);// just check
-    if(rasManager.insertNewServer(serverName,hostName,serverType,static_cast<long>(listenPort))==false)
+    if (rasManager.insertNewServer(serverName, hostName, serverType, static_cast<long>(listenPort)) == false)
     {
-        sprintf(answBuffer,"Error: server name already existing.");
+        sprintf(answBuffer, "Error: server name already existing.");
         return;
     }
 
-    if(inConfigFile && !dbhName)
+    if (inConfigFile && !dbhName)
     {
-        sprintf(answBuffer,"Error: no database host specified.");
+        sprintf(answBuffer, "Error: no database host specified.");
         return;
     }
 
-    RasServer &srv = rasManager[serverName];
+    RasServer& srv = rasManager[serverName];
     srv.connectToDBHost(dbhName);
     // if ok, write what you defined
 
     // we put this options in the config file with the change srv command, so it's ok that it could return before
-    if(countString) srv.changeCountDown(convertToULong(countString,"countdown"));
+    if (countString)
+    {
+        srv.changeCountDown(convertToULong(countString, "countdown"));
+    }
 
     srv.changeExtraParam(extraString);
 
-    if(autoRestart) srv.changeAutoRestart( strcasecmp(autoRestart,"on")==0 ? true:false);
+    if (autoRestart)
+    {
+        srv.changeAutoRestart(strcasecmp(autoRestart, "on") == 0 ? true : false);
+    }
 
-    if(execString)  srv.changeExecutableName(execString);
+    if (execString)
+    {
+        srv.changeExecutableName(execString);
+    }
 
-    if(serverType==SERVERTYPE_FLAG_RPC)
-        sprintf(answBuffer,"Defining deprecated server %s of type RPC on host %s port=%#x",serverName,hostName,static_cast<unsigned int>(listenPort));
+    if (serverType == SERVERTYPE_FLAG_RPC)
+    {
+        sprintf(answBuffer, "Defining deprecated server %s of type RPC on host %s port=%#x", serverName, hostName, static_cast<unsigned int>(listenPort));
+    }
 
-    if(serverType==SERVERTYPE_FLAG_HTTP)
-        sprintf(answBuffer,"Defining deprecated server %s of type HTTP on host %s port=%lu",serverName,hostName,listenPort);
+    if (serverType == SERVERTYPE_FLAG_HTTP)
+    {
+        sprintf(answBuffer, "Defining deprecated server %s of type HTTP on host %s port=%lu", serverName, hostName, listenPort);
+    }
 
-    if(serverType==SERVERTYPE_FLAG_RNP)
-        sprintf(answBuffer,"Defining server %s of type RNP on host %s port=%lu",serverName,hostName,listenPort);
+    if (serverType == SERVERTYPE_FLAG_RNP)
+    {
+        sprintf(answBuffer, "Defining server %s of type RNP on host %s port=%lu", serverName, hostName, listenPort);
+    }
 
 }
 
 void RasControl::defineInPeers()
 {
-    const char *hostName=getValueOf("inpeer");
+    const char* hostName = getValueOf("inpeer");
     checkUnexpectedTokens();
 
-    checkNotNull(hostName,"host name");
-    
-    for (unsigned int i = 0; i < config.inpeers.size(); i++) {
-        if (hostCmp(config.inpeers[i],hostName)) { 
-            sprintf(answBuffer,"Error: Inpeer rasmanager %s already defined.",hostName);
-            return;        
-        }       
+    checkNotNull(hostName, "host name");
+
+    for (unsigned int i = 0; i < config.inpeers.size(); i++)
+    {
+        if (hostCmp(config.inpeers[i], hostName))
+        {
+            sprintf(answBuffer, "Error: Inpeer rasmanager %s already defined.", hostName);
+            return;
+        }
     }
     config.inpeers.push_back(strdup(hostName));
-    sprintf(answBuffer,"Defining inpeer rasmgr %s",hostName);
+    sprintf(answBuffer, "Defining inpeer rasmgr %s", hostName);
 }
 
 void RasControl::defineOutPeers()
 {
-    const char *hostName=getValueOf("outpeer");
-    const char *portStr =getValueOf("-port");
+    const char* hostName = getValueOf("outpeer");
+    const char* portStr = getValueOf("-port");
     checkUnexpectedTokens();
 
-    checkNotNull(hostName,"host name");
+    checkNotNull(hostName, "host name");
 
     unsigned long listenPort;
-    if(portStr) listenPort=convertToULong(portStr,"port");
-    else        listenPort=DEFAULT_PORT;
+    if (portStr)
+    {
+        listenPort = convertToULong(portStr, "port");
+    }
+    else
+    {
+        listenPort = DEFAULT_PORT;
+    }
 
-    for (unsigned int i = 0; i < config.outpeers.size(); i++) {
-        if (!strcmp(config.outpeers[i],hostName)) { 
-            sprintf(answBuffer,"Error: Outpeer rasmanager %s already defined.",hostName);
-            return;        
-        }       
+    for (unsigned int i = 0; i < config.outpeers.size(); i++)
+    {
+        if (!strcmp(config.outpeers[i], hostName))
+        {
+            sprintf(answBuffer, "Error: Outpeer rasmanager %s already defined.", hostName);
+            return;
+        }
     }
     config.outpeers.push_back(strdup(hostName));
     config.outports.push_back(listenPort);
 
-    sprintf(answBuffer,"Defining outpeer rasmgr %s port=%lu",hostName,listenPort);
-    
+    sprintf(answBuffer, "Defining outpeer rasmgr %s port=%lu", hostName, listenPort);
+
     // a small "ping" checking if the outpeer can be reached
     struct addrinfo hints, *ai;
     char port[10];
     int sockfd = 0;
     bool success = false;
     sprintf(port, "%d", config.outports[config.outports.size() - 1]);
-    memset (&hints, 0, sizeof(hints));
+    memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    if (getaddrinfo (config.outpeers[config.outpeers.size() - 1], port, &hints, &ai) != 0)
+    if (getaddrinfo(config.outpeers[config.outpeers.size() - 1], port, &hints, &ai) != 0)
+    {
         return;
+    }
 
     for (; ai; ai = ai->ai_next)
     {
-        if ((sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1) 
+        if ((sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1)
         {
             // socket error, nothing we can do at this point
             continue;
         }
 
-        if (connect(sockfd, ai->ai_addr, ai->ai_addrlen) == -1) {
+        if (connect(sockfd, ai->ai_addr, ai->ai_addrlen) == -1)
+        {
             close(sockfd);
             // can't connect, nothing we can do at this point, the notification comes afterwards if no address works
             continue;
@@ -839,11 +1027,11 @@ void RasControl::defineOutPeers()
         success = true;
         break;
     }
-    
+
     if (!success)
     {
         LDEBUG << "\nAttention! Outpeer " << config.outpeers[config.outpeers.size() - 1] << " can not be reached!\n";
-    }   
+    }
     close(sockfd);
     freeaddrinfo(ai);
 }
@@ -852,151 +1040,182 @@ void RasControl::defineOutPeers()
 //----------------------------------------
 void RasControl::removeCommand()
 {
-    const char *what = argc==1 ? "xxx":token[1].take();
+    const char* what = argc == 1 ? "xxx" : token[1].take();
 
-    if     (strcasecmp(what,RASMGRCMD_SRV)==0)  removeRasServers();
+    if (strcasecmp(what, RASMGRCMD_SRV) == 0)
+    {
+        removeRasServers();
+    }
 
-    else if(strcasecmp(what,RASMGRCMD_HOST)==0) removeRasHosts();
+    else if (strcasecmp(what, RASMGRCMD_HOST) == 0)
+    {
+        removeRasHosts();
+    }
 
-    else if(strcasecmp(what,"dbh")==0)  removeDBHosts();
+    else if (strcasecmp(what, "dbh") == 0)
+    {
+        removeDBHosts();
+    }
 
-    else if(strcasecmp(what,"db")==0)   removeDatabases();
+    else if (strcasecmp(what, "db") == 0)
+    {
+        removeDatabases();
+    }
 
-    else if(strcasecmp(what,"inpeer")==0)  removeInPeers();
+    else if (strcasecmp(what, "inpeer") == 0)
+    {
+        removeInPeers();
+    }
 
-    else if(strcasecmp(what,"outpeer")==0)   removeOutPeers();    
+    else if (strcasecmp(what, "outpeer") == 0)
+    {
+        removeOutPeers();
+    }
 
-    else if(strcasecmp(what,RASMGRCMD_USER)==0) removeUsers();
+    else if (strcasecmp(what, RASMGRCMD_USER) == 0)
+    {
+        removeUsers();
+    }
 
-    else if(strcasecmp(what,RASMGRCMD_HELP)==0) removeHelp();
+    else if (strcasecmp(what, RASMGRCMD_HELP) == 0)
+    {
+        removeHelp();
+    }
 
-    else errorInCommand("Error in REMOVE command");
+    else
+    {
+        errorInCommand("Error in REMOVE command");
+    }
 }
 
 void RasControl::removeUsers()
 {
     checkPermission(admR_acctrl);
 
-    const char *userName=getValueOf(RASMGRCMD_USER);
+    const char* userName = getValueOf(RASMGRCMD_USER);
     checkUnexpectedTokens();
 
-    checkNotNull(userName,"user name");
+    checkNotNull(userName, "user name");
 
-    User &user=getUser(userName);
+    User& user = getUser(userName);
 
-    if(user.getUserID()==0)
+    if (user.getUserID() == 0)
     {
         errorInCommand("You cannot remove the rasadmin.");
         return;
     }
 
-    if(userManager.removeUser(userName)==false)
+    if (userManager.removeUser(userName) == false)
     {
         errorInCommand("Cannot remove user, don't know why");
         return;
     }
-    sprintf(answBuffer,"User %s removed",userName);
+    sprintf(answBuffer, "User %s removed", userName);
 }
 
 void RasControl::removeRasHosts()
 {
     checkPermission(admR_config);
 
-    const char *hostName=getValueOf(RASMGRCMD_HOST);
+    const char* hostName = getValueOf(RASMGRCMD_HOST);
     checkUnexpectedTokens();
 
-    checkNotNull(hostName,"host name");
+    checkNotNull(hostName, "host name");
 
-    ServerHost &host = getServerHost(hostName);
+    ServerHost& host = getServerHost(hostName);
 
-    if(host.isInternal()==true)
+    if (host.isInternal() == true)
     {
         errorInCommand("You cannot remove the master rasmgr host.");
         return;
     }
 
-    if(hostmanager.removeHost(hostName)==false)
+    if (hostmanager.removeHost(hostName) == false)
     {
         errorInCommand("Cannot remove host, it still has defined servers.");
         return;
     }
-    sprintf(answBuffer,"Host %s removed",hostName);
+    sprintf(answBuffer, "Host %s removed", hostName);
 }
 
 void RasControl::removeRasServers()
 {
     checkPermission(admR_config);
 
-    const char *srvName=getValueOf(RASMGRCMD_SRV);
+    const char* srvName = getValueOf(RASMGRCMD_SRV);
     checkUnexpectedTokens();
 
-    checkNotNull(srvName,"server name");
+    checkNotNull(srvName, "server name");
 
-    RasServer &srv = getServer(srvName);
+    RasServer& srv = getServer(srvName);
 
-    if(srv.isUp())
+    if (srv.isUp())
     {
         errorInCommand("Cannot remove the server, it's still up.");
         return;
     }
 
-    if(rasManager.removeServer(srvName)==false)
+    if (rasManager.removeServer(srvName) == false)
     {
         errorInCommand("Cannot remove the server, is probably still up.");
         return;
     }
-    sprintf(answBuffer,"Server %s removed",srvName);
+    sprintf(answBuffer, "Server %s removed", srvName);
 }
 
 void RasControl::removeInPeers()
 {
     checkPermission(admR_config);
 
-    const char *peerName=getValueOf("inpeer");
+    const char* peerName = getValueOf("inpeer");
     checkUnexpectedTokens();
 
-    checkNotNull(peerName,"host name");
-    
+    checkNotNull(peerName, "host name");
+
     unsigned int i = 0;
-    while ((i<config.inpeers.size()) && (strcmp(config.inpeers[i],peerName)))
+    while ((i < config.inpeers.size()) && (strcmp(config.inpeers[i], peerName)))
+    {
         i++;
-    if ((i<config.inpeers.size()) && !strcmp(config.inpeers[i],peerName)) 
+    }
+    if ((i < config.inpeers.size()) && !strcmp(config.inpeers[i], peerName))
     {
         config.inpeers.erase(config.inpeers.begin() + i);
-    } 
-    else 
+    }
+    else
     {
-        sprintf(answBuffer,"No inpeer with host name %s found.",peerName);
-        return;    
-    } 
+        sprintf(answBuffer, "No inpeer with host name %s found.", peerName);
+        return;
+    }
 
-    sprintf(answBuffer,"Peer %s removed",peerName);
+    sprintf(answBuffer, "Peer %s removed", peerName);
 }
 
 void RasControl::removeOutPeers()
 {
     checkPermission(admR_config);
 
-    const char *peerName=getValueOf("outpeer");
+    const char* peerName = getValueOf("outpeer");
     checkUnexpectedTokens();
 
-    checkNotNull(peerName,"host name");
-    
-    unsigned int i = 0;
-    while ((i<config.outpeers.size()) && (strcmp(config.outpeers[i],peerName)))
-        i++;
-    if ((i<config.outpeers.size()) && !strcmp(config.outpeers[i],peerName)) 
-    {
-        config.outpeers.erase(config.outpeers.begin()+i);
-        config.outports.erase(config.outports.begin()+i);
-    } 
-    else 
-    {
-        sprintf(answBuffer,"No outpeer with host name %s found.",peerName);
-        return;    
-    } 
+    checkNotNull(peerName, "host name");
 
-    sprintf(answBuffer,"Peer %s removed",peerName);
+    unsigned int i = 0;
+    while ((i < config.outpeers.size()) && (strcmp(config.outpeers[i], peerName)))
+    {
+        i++;
+    }
+    if ((i < config.outpeers.size()) && !strcmp(config.outpeers[i], peerName))
+    {
+        config.outpeers.erase(config.outpeers.begin() + i);
+        config.outports.erase(config.outports.begin() + i);
+    }
+    else
+    {
+        sprintf(answBuffer, "No outpeer with host name %s found.", peerName);
+        return;
+    }
+
+    sprintf(answBuffer, "Peer %s removed", peerName);
 }
 
 
@@ -1004,24 +1223,24 @@ void RasControl::removeDBHosts()
 {
     checkPermission(admR_config);
 
-    const char *dbhName=getValueOf("dbh");
+    const char* dbhName = getValueOf("dbh");
     checkUnexpectedTokens();
 
-    checkNotNull(dbhName,"database host name");
+    checkNotNull(dbhName, "database host name");
 
     getDatabaseHost(dbhName);
 
-    if(dbHostManager.removeHost(dbhName)==false)
+    if (dbHostManager.removeHost(dbhName) == false)
     {
         errorInCommand("Cannot remove the database host, is probably still busy.");
         return;
     }
-    sprintf(answBuffer,"Database host %s removed",dbhName);
+    sprintf(answBuffer, "Database host %s removed", dbhName);
 
     // now remove all databases not connected to any database host
-    for(int i=0; i<dbManager.countDatabases(); i++)
+    for (int i = 0; i < dbManager.countDatabases(); i++)
     {
-        if(dbManager[i].countConnectionsToDBHosts()==0)
+        if (dbManager[i].countConnectionsToDBHosts() == 0)
         {
             dbManager.removeDatabase(dbManager[i].getName());
             i--; // you understand why
@@ -1032,38 +1251,38 @@ void RasControl::removeDatabases()
 {
     checkPermission(admR_config);
 
-    const char *dbName  = getValueOf("db");
-    const char *dbhName = getValueOf("-dbh");
+    const char* dbName  = getValueOf("db");
+    const char* dbhName = getValueOf("-dbh");
     checkUnexpectedTokens();
 
-    checkNotNull(dbName,"database name");
+    checkNotNull(dbName, "database name");
 
-    Database &db= getDatabase(dbName);
+    Database& db = getDatabase(dbName);
 
-    checkNotNull(dbhName,"database host name");
+    checkNotNull(dbhName, "database host name");
 
     getDatabaseHost(dbhName);
 
-    if(db.isBusy())
+    if (db.isBusy())
     {
         errorInCommand("Database is busy.");
         return;
     }
 
-    if(db.disconnectFromDBHost(dbhName) == false)
+    if (db.disconnectFromDBHost(dbhName) == false)
     {
-        sprintf(answBuffer,"No database %s on database host %s.",dbName,dbhName);
+        sprintf(answBuffer, "No database %s on database host %s.", dbName, dbhName);
         return;
     }
 
-    if(db.countConnectionsToDBHosts() !=0 )
+    if (db.countConnectionsToDBHosts() != 0)
     {
-        sprintf(answBuffer,"Database %s removed from database host %s",dbName,dbhName);
+        sprintf(answBuffer, "Database %s removed from database host %s", dbName, dbhName);
         // this means disconnected
     }
-    else if(dbManager.removeDatabase(dbName))
+    else if (dbManager.removeDatabase(dbName))
     {
-        sprintf(answBuffer,"Database %s removed from database host %s",dbName,dbhName);
+        sprintf(answBuffer, "Database %s removed from database host %s", dbName, dbhName);
         // this time removed completely
     }
     else
@@ -1075,49 +1294,53 @@ void RasControl::removeDatabases()
 //--------------------------------------------
 void RasControl::changeCommand()
 {
-    const char *what = argc==1 ? "xxx":token[1].take();
+    const char* what = argc == 1 ? "xxx" : token[1].take();
 
-    if     (strcasecmp(what,RASMGRCMD_USER)==0)
+    if (strcasecmp(what, RASMGRCMD_USER) == 0)
     {
         changeUser();
         authDirty = true;
     }
-    else if(strcasecmp(what,RASMGRCMD_SRV)==0)
+    else if (strcasecmp(what, RASMGRCMD_SRV) == 0)
     {
         changeRasServer();
         configDirty = true;
     }
-    else if(strcasecmp(what,"dbh")==0)
+    else if (strcasecmp(what, "dbh") == 0)
     {
         changeDBHost();
         configDirty = true;
     }
-    else if(strcasecmp(what,"db")==0)
+    else if (strcasecmp(what, "db") == 0)
     {
         changeDB();
         configDirty = true;
     }
-    else if(strcasecmp(what,RASMGRCMD_HOST)==0)
+    else if (strcasecmp(what, RASMGRCMD_HOST) == 0)
     {
         changeHost();
         configDirty = true;
     }
-    else if(strcasecmp(what,RASMGRCMD_HELP)==0)
+    else if (strcasecmp(what, RASMGRCMD_HELP) == 0)
+    {
         changeHelp();
+    }
     else
+    {
         errorInCommand("Error in CHANGE command");
+    }
 
 }
 void RasControl::changeHost()
 {
     checkPermission(admR_config);
     // we accept all this parameters, but we make all changes or none
-    const char *hostName=getValueOf(RASMGRCMD_HOST);
+    const char* hostName = getValueOf(RASMGRCMD_HOST);
 
-    const char *uselocal = getValueIfFlag("-uselocalhost");
-    const char *newName  = getValueIfFlag("-name");
-    const char *newNet   = getValueIfFlag("-net");
-    const char *newPort  = getValueIfFlag("-port");
+    const char* uselocal = getValueIfFlag("-uselocalhost");
+    const char* newName  = getValueIfFlag("-name");
+    const char* newNet   = getValueIfFlag("-net");
+    const char* newPort  = getValueIfFlag("-port");
 
     checkUnexpectedTokens();
 
@@ -1127,26 +1350,26 @@ void RasControl::changeHost()
     bool chNet    = false;
     bool chPort   = false;
 
-    checkNotNull(hostName,"server host name");
+    checkNotNull(hostName, "server host name");
 
-    ServerHost &sh= getServerHost(hostName);
+    ServerHost& sh = getServerHost(hostName);
 
-    answBuffer[0]=0;
+    answBuffer[0] = 0;
     int changes = 0;
     int port = 0;
 
-    if(uselocal)
+    if (uselocal)
     {
         chUseLoc = true;
-        if(sh.isInternal()==false)
+        if (sh.isInternal() == false)
         {
             errorInCommand("Option '-uselocalhost' is meaningfull only on master rasmgr host");
             return;
         }
         else
         {
-            if     (strcasecmp(uselocal,"on" )==0); // ok
-            else if(strcasecmp(uselocal,"off")==0); // ok
+            if (strcasecmp(uselocal, "on") == 0);      // ok
+            else if (strcasecmp(uselocal, "off") == 0); // ok
             else
             {
                 errorInCommand("Option '-uselocalhost' - wrong parameter");
@@ -1155,9 +1378,9 @@ void RasControl::changeHost()
         }
     }
 
-    if(newName)
+    if (newName)
     {
-        if(hostmanager.acceptChangeName(hostName,newName)==false)
+        if (hostmanager.acceptChangeName(hostName, newName) == false)
         {
             errorInCommand("The new name is not unique.");
             return;
@@ -1166,74 +1389,80 @@ void RasControl::changeHost()
         chName = true;
     }
 
-    if(newNet )
+    if (newNet)
     {
         chNet = true;
-        if(sh.isUp())
+        if (sh.isUp())
         {
             errorInCommand("You cannot change the network address of a RasMgr while it is up.");
             return;
         }
     }
 
-    if(newPort)
+    if (newPort)
     {
         chPort = true;
-        if(sh.isUp())
+        if (sh.isUp())
         {
             errorInCommand("You cannot change the listen port of a RasMgr while it is up.");
             return;
         }
 
-        port = convertToULong(newPort,"port");
+        port = convertToULong(newPort, "port");
     }
 
 
 
-    if(chUseLoc)
+    if (chUseLoc)
     {
         changes++;
-        sh.useLocalHost( strcasecmp(uselocal,"on") ==0 ? true : false);
+        sh.useLocalHost(strcasecmp(uselocal, "on") == 0 ? true : false);
     }
 
-    if(chName)
+    if (chName)
     {
         changes++;
         sh.changeName(newName);
     }
 
-    if(chNet)
+    if (chNet)
     {
         changes++;
         sh.changeNetName(newNet);
     }
 
-    if(chPort)
+    if (chPort)
     {
         changes++;
         sh.changeListenPort(port);
     }
 
-    if(changes) sprintf(answBuffer,"Ready");
-    else errorInCommand("Change what?");
+    if (changes)
+    {
+        sprintf(answBuffer, "Ready");
+    }
+    else
+    {
+        errorInCommand("Change what?");
+    }
 
 }
 
 void RasControl::changeDBHost()
 {
     checkPermission(admR_config);
-    const char *dbhName    = getValueOf("dbh");
-    const char *newName    = getValueIfFlag("-name");
-    const char *connString = getValueIfFlag("-connect");
+    const char* dbhName    = getValueOf("dbh");
+    const char* newName    = getValueIfFlag("-name");
+    const char* connString = getValueIfFlag("-connect");
     checkUnexpectedTokens();
 
-    checkNotNull(dbhName,"database host name");
+    checkNotNull(dbhName, "database host name");
 
-    DatabaseHost &dbh= getDatabaseHost(dbhName);
+    DatabaseHost& dbh = getDatabaseHost(dbhName);
 
-    if(newName)
+    if (newName)
     {
-        if(dbHostManager.acceptChangeName(dbhName,newName)==false)
+        if (dbHostManager.acceptChangeName(dbhName, newName) == false)
         {
             errorInCommand("The new name is not unique.");
             return;
@@ -1241,7 +1470,10 @@ void RasControl::changeDBHost()
 
         dbh.changeName(newName);
     }
-    else if(connString) dbh.changeConnectionString(connString);
+    else if (connString)
+    {
+        dbh.changeConnectionString(connString);
+    }
 
     else
     {
@@ -1249,25 +1481,25 @@ void RasControl::changeDBHost()
         return;
     }
 
-    sprintf(answBuffer,"Ready");
+    sprintf(answBuffer, "Ready");
 
 }
 
 void RasControl::changeDB()
 {
     checkPermission(admR_config);
-    const char *dbName    = getValueOf("db");
-    const char *dbNewName = getValueIfFlag("-name");
+    const char* dbName    = getValueOf("db");
+    const char* dbNewName = getValueIfFlag("-name");
 
     checkUnexpectedTokens();
 
-    checkNotNull(dbName,"database name");
+    checkNotNull(dbName, "database name");
 
-    Database &db= getDatabase(dbName);
+    Database& db = getDatabase(dbName);
 
-    if(dbNewName)
+    if (dbNewName)
     {
-        if(dbManager.acceptChangeName(dbName,dbNewName)==false)
+        if (dbManager.acceptChangeName(dbName, dbNewName) == false)
         {
             errorInCommand("The new name is not unique.");
             return;
@@ -1280,7 +1512,7 @@ void RasControl::changeDB()
         return;
     }
 
-    sprintf(answBuffer,"Ready");
+    sprintf(answBuffer, "Ready");
 
 }
 
@@ -1364,29 +1596,32 @@ void RasControl::changeRasServer()
 
     // only if "srv name": const char *newServerName  = getValueIfFlag("-name");
     // only if "srv name": const char *portString     = getValueIfFlag("-port");
-    const char *autoRestart    = getValueIfFlag("-autorestart");
-    const char *countString    = getValueIfFlag("-countdown");
-    const char *execString     = getValueIfFlag("-exec");
-    const char *dbhName        = getValueIfFlag("-dbh");
+    const char* autoRestart    = getValueIfFlag("-autorestart");
+    const char* countString    = getValueIfFlag("-countdown");
+    const char* execString     = getValueIfFlag("-exec");
+    const char* dbhName        = getValueIfFlag("-dbh");
     bool isExtra  = isFlag("-xp");
     int countChanges = 0;
     // make the -xp string first
     char extraString[300];
-    extraString[0]=0;
+    extraString[0] = 0;
 
-    if(isExtra)
+    if (isExtra)
     {
-        bool found=false;
-        for(int i=0; i<argc; i++)
+        bool found = false;
+        for (int i = 0; i < argc; i++)
         {
-            if(!found)
+            if (!found)
             {
-                if(strcasecmp(token[i].argv,"-xp")==0) found=true;
+                if (strcasecmp(token[i].argv, "-xp") == 0)
+                {
+                    found = true;
+                }
             }
             else
             {
-                strcat(extraString,token[i].take());
-                strcat(extraString," ");
+                strcat(extraString, token[i].take());
+                strcat(extraString, " ");
             }
         }
         countChanges++;
@@ -1394,16 +1629,16 @@ void RasControl::changeRasServer()
     // so we touch all tokens
 
 
-    if(dbhName)
+    if (dbhName)
     {
         getDatabaseHost(dbhName);
         countChanges++;
     }
 
-    if(autoRestart)
+    if (autoRestart)
     {
-        if(strcasecmp(autoRestart,"on")==0)       ;
-        else if(strcasecmp(autoRestart,"off")==0) ;
+        if (strcasecmp(autoRestart, "on") == 0)       ;
+        else if (strcasecmp(autoRestart, "off") == 0) ;
         else
         {
             errorInCommand("Incorect autorestart option");
@@ -1411,185 +1646,229 @@ void RasControl::changeRasServer()
         }
         countChanges++;
     }
-    if(countString) countChanges++;
-    if(execString)  countChanges++;
+    if (countString)
+    {
+        countChanges++;
+    }
+    if (execString)
+    {
+        countChanges++;
+    }
 
     // ok, the existing params are ok
 
-    const char *serverName  = getValueOf(RASMGRCMD_SRV);
-    if(serverName)
+    const char* serverName  = getValueOf(RASMGRCMD_SRV);
+    if (serverName)
     {
         // permitted only here
-        const char *newType        = getValueIfFlag("-type");
-        const char *newServerName  = getValueIfFlag("-name");
-        const char *portString     = getValueIfFlag("-port");
+        const char* newType        = getValueIfFlag("-type");
+        const char* newServerName  = getValueIfFlag("-name");
+        const char* portString     = getValueIfFlag("-port");
 
         checkUnexpectedTokens();
-        RasServer &r = getServer(serverName);
-        char serverType=0;
-        if(newType)
+        RasServer& r = getServer(serverName);
+        char serverType = 0;
+        if (newType)
         {
-            if(strcasecmp(newType,"r")==0)
+            if (strcasecmp(newType, "r") == 0)
             {
-                serverType=SERVERTYPE_FLAG_RPC;
+                serverType = SERVERTYPE_FLAG_RPC;
             }
-            if(strcasecmp(newType,"h")==0)
+            if (strcasecmp(newType, "h") == 0)
             {
-                serverType=SERVERTYPE_FLAG_HTTP;
+                serverType = SERVERTYPE_FLAG_HTTP;
             }
-            if(strcasecmp(newType,"n")==0)
+            if (strcasecmp(newType, "n") == 0)
             {
-                serverType=SERVERTYPE_FLAG_RNP;
+                serverType = SERVERTYPE_FLAG_RNP;
             }
-            if(!serverType)
+            if (!serverType)
             {
                 errorInCommand("Unknown server type.");
                 return;
             }
-            else countChanges++;
+            else
+            {
+                countChanges++;
+            }
         }
-        if(newServerName)
+        if (newServerName)
         {
-            if(r.isUp())
+            if (r.isUp())
             {
                 errorInCommand("Cannot change the name of a running server.");
                 return;
             }
-            if(rasManager.acceptChangeName(serverName,newServerName)==false)
+            if (rasManager.acceptChangeName(serverName, newServerName) == false)
             {
                 errorInCommand("The new name is not unique.");
                 return;
             }
             countChanges++;
         }
-        if(portString) countChanges++;
+        if (portString)
+        {
+            countChanges++;
+        }
         //------------
-        if(countChanges==0)
+        if (countChanges == 0)
         {
             errorInCommand("Change what?");
             return;
         }
 
-        if(newType)       r.changeType(serverType);
-        if(portString)    r.changePort(static_cast<long>(convertToULong(portString,"port")));
+        if (newType)
+        {
+            r.changeType(serverType);
+        }
+        if (portString)
+        {
+            r.changePort(static_cast<long>(convertToULong(portString, "port")));
+        }
 
-        changeRasServer(serverName,dbhName,countString,(isExtra ? extraString : NULL), autoRestart, execString);
+        changeRasServer(serverName, dbhName, countString, (isExtra ? extraString : NULL), autoRestart, execString);
 
-        if(newServerName) r.changeName(newServerName);
+        if (newServerName)
+        {
+            r.changeName(newServerName);
+        }
 
-        sprintf(answBuffer,"Ready");
+        sprintf(answBuffer, "Ready");
         return;
     }
 
-    const char *hostName = getValueOf("-host");
-    if(hostName)
+    const char* hostName = getValueOf("-host");
+    if (hostName)
     {
-        ServerHost &host=getServerHost(hostName);
+        ServerHost& host = getServerHost(hostName);
         checkUnexpectedTokens();
     }
 
     bool flagAll = isFlag("-all");
     checkUnexpectedTokens();
 
-    if(hostName == NULL && flagAll == false)
+    if (hostName == NULL && flagAll == false)
     {
         errorInCommand("No server specified");
         return;
     }
 
-    if(countChanges==0)
+    if (countChanges == 0)
     {
         errorInCommand("Change what?");
         return;
     }
 
-    for(int i=0; i<rasManager.countServers(); i++)
+    for (int i = 0; i < rasManager.countServers(); i++)
     {
         serverName = rasManager[i].getName();
-        if(hostName)
-            if(!hostCmp(hostName,rasManager[i].getHostName()))
+        if (hostName)
+            if (!hostCmp(hostName, rasManager[i].getHostName()))
+            {
                 continue;
-        changeRasServer(serverName,dbhName,countString,(isExtra ? extraString : NULL), autoRestart, execString);
+            }
+        changeRasServer(serverName, dbhName, countString, (isExtra ? extraString : NULL), autoRestart, execString);
     }
 
-    sprintf(answBuffer,"Ready");
+    sprintf(answBuffer, "Ready");
 
 }
 
-void RasControl::changeRasServer(const char *serverName, const char *dbhName, const char *countString, const char *extraString, const char *autoRestart, const char* execName)
+void RasControl::changeRasServer(const char* serverName, const char* dbhName, const char* countString, const char* extraString, const char* autoRestart, const char* execName)
 {
     // called only by by changedServer, after verification of parameters
-    RasServer &r = getServer(serverName);
+    RasServer& r = getServer(serverName);
 
-    if(dbhName)
+    if (dbhName)
     {
         r.disconnectFromDBHost();
         r.connectToDBHost(dbhName);
     }
 
-    if(countString) r.changeCountDown(convertToULong(countString,"countdown"));
+    if (countString)
+    {
+        r.changeCountDown(convertToULong(countString, "countdown"));
+    }
 
-    if(extraString) r.changeExtraParam(extraString);
+    if (extraString)
+    {
+        r.changeExtraParam(extraString);
+    }
 
-    if(autoRestart) r.changeAutoRestart( strcasecmp(autoRestart,"on")==0 ? true:false);
+    if (autoRestart)
+    {
+        r.changeAutoRestart(strcasecmp(autoRestart, "on") == 0 ? true : false);
+    }
 
-    if(execName)    r.changeExecutableName(execName);
+    if (execName)
+    {
+        r.changeExecutableName(execName);
+    }
 }
 
 void RasControl::changeUser()
 {
-    const char *userName  = getValueOf(RASMGRCMD_USER);
-    const char *newName   = getValueIfFlag("-name");
-    const char *plainPass = getValueIfFlag("-passwd");
-    const char *encrPass  = getValueIfFlag("-encrPasswd");
-    const char *rString   = getValueIfFlag("-rights",true);
+    const char* userName  = getValueOf(RASMGRCMD_USER);
+    const char* newName   = getValueIfFlag("-name");
+    const char* plainPass = getValueIfFlag("-passwd");
+    const char* encrPass  = getValueIfFlag("-encrPasswd");
+    const char* rString   = getValueIfFlag("-rights", true);
     checkUnexpectedTokens();
 
     // encr passwd has priority
-    const char *newPass   = encrPass ? encrPass:plainPass;
-    bool  takeEncrPass    = encrPass ? true:false;
+    const char* newPass   = encrPass ? encrPass : plainPass;
+    bool  takeEncrPass    = encrPass ? true : false;
 
-    bool okChName  =false;
-    bool okChPasswd=false;
-    bool okChRights=false;
+    bool okChName  = false;
+    bool okChPasswd = false;
+    bool okChRights = false;
     int admRights = 0;
     int dtbRights = 0;
 
     //for name change you need acces Control (you cannot change rasadmin)
     //for passwd change you need also acces Control, or, without, only yourself.(only rasadmin can change his passwd)
-    if(userName==0)
+    if (userName == 0)
     {
         errorInCommand("You should provide a valid user name.");
         return;
     }
-    User &u=getUser(userName);
+    User& u = getUser(userName);
 
-    if(newName!=0)
+    if (newName != 0)
     {
         checkPermission(admR_acctrl);
-        if(strcmp(userName,"rasadmin")==0)
+        if (strcmp(userName, "rasadmin") == 0)
         {
             errorInCommand("You cannot change rasadmin's name.");
             return;
         }
-        if(userManager.acceptChangeName(userName,newName)==false)
+        if (userManager.acceptChangeName(userName, newName) == false)
         {
             errorInCommand("The new name is not unique.");
             return;
         }
 
-        okChName=true;
+        okChName = true;
     }
 
-    if(newPass!=0)
+    if (newPass != 0)
     {
-        if     (strcmp(userName  ,authorization.getUserName())==0) okChPasswd=true; // may change your own passwd
-
-        else if(strcmp("rasadmin",authorization.getUserName())==0) okChPasswd=true; // rasadmin may change all passwd
-
-        else if(authorization.hasAdminRights(admR_acctrl))
+        if (strcmp(userName  , authorization.getUserName()) == 0)
         {
-            if (strcmp("rasadmin",userName)!=0) okChPasswd=true; // may change all passwd, except rasadmin's one
+            okChPasswd = true;    // may change your own passwd
+        }
+
+        else if (strcmp("rasadmin", authorization.getUserName()) == 0)
+        {
+            okChPasswd = true;    // rasadmin may change all passwd
+        }
+
+        else if (authorization.hasAdminRights(admR_acctrl))
+        {
+            if (strcmp("rasadmin", userName) != 0)
+            {
+                okChPasswd = true;    // may change all passwd, except rasadmin's one
+            }
             else
             {
                 errorInCommand("You don't have permission to change rasadmin's password.");
@@ -1603,13 +1882,13 @@ void RasControl::changeUser()
         }
 
     }
-    if(rString!=0)
+    if (rString != 0)
     {
         checkPermission(admR_acctrl);
-        admRights=authorization.convertAdminRights(rString);
-        dtbRights=authorization.convertDatabRights(rString);
+        admRights = authorization.convertAdminRights(rString);
+        dtbRights = authorization.convertDatabRights(rString);
 
-        if(admRights==-1 || dtbRights==-1)
+        if (admRights == -1 || dtbRights == -1)
         {
             errorInCommand("Unknown right in command");
             return;
@@ -1619,27 +1898,36 @@ void RasControl::changeUser()
     }
 
     // we don't talk so much, just say 'Ready'  answBuffer[0]=0;
-    int changes =0;
+    int changes = 0;
 
-    if(okChName)
+    if (okChName)
     {
         u.changeName(newName);
         //sprintf(answBuffer,"User name changed: %s is now %s\r\n",userName,newName);
         changes++;
     }
-    if(okChPasswd)
+    if (okChPasswd)
     {
-        if(answBuffer[0]!=0) strcat(answBuffer,"\r\n");
+        if (answBuffer[0] != 0)
+        {
+            strcat(answBuffer, "\r\n");
+        }
 
-        if(takeEncrPass) u.changePassword(newPass);
-        else             u.changePTPassword(newPass);
+        if (takeEncrPass)
+        {
+            u.changePassword(newPass);
+        }
+        else
+        {
+            u.changePTPassword(newPass);
+        }
         //sprintf(answBuffer+strlen(answBuffer),"Password for user %s was changed\r\n",userName);
         changes++;
     }
-    if(okChRights)
+    if (okChRights)
     {
-        User &user = u; // this is v1.1, is will not live long...
-        const char *warning = user.getUserID()!=0 ? "": (admRights=admR_full,"You cannot change rasadmin's system rights\r\n");
+        User& user = u; // this is v1.1, is will not live long...
+        const char* warning = user.getUserID() != 0 ? "" : (admRights = admR_full, "You cannot change rasadmin's system rights\r\n");
         //^sorry, trick
         user.setAdminRights(admRights);
         user.setDefaultDBRights(dtbRights);
@@ -1647,22 +1935,40 @@ void RasControl::changeUser()
         changes++;
     }
 
-    if(okChRights || okChPasswd) masterCommunicator.commitAuthFile();
+    if (okChRights || okChPasswd)
+    {
+        masterCommunicator.commitAuthFile();
+    }
 
-    if(changes==0) errorInCommand("Change what?");
-    else           strcpy(answBuffer,"Ready");
+    if (changes == 0)
+    {
+        errorInCommand("Change what?");
+    }
+    else
+    {
+        strcpy(answBuffer, "Ready");
+    }
 
 }
 //---------------------------------------------
 void RasControl::upCommand()
 {
-    const char *what = argc==1 ? "xxx":token[1].take();
+    const char* what = argc == 1 ? "xxx" : token[1].take();
 
-    if(strcasecmp(what,RASMGRCMD_SRV)==0)   upRasServers();
+    if (strcasecmp(what, RASMGRCMD_SRV) == 0)
+    {
+        upRasServers();
+    }
 
-    else if(strcasecmp(what,RASMGRCMD_HELP)==0)  upHelp();
+    else if (strcasecmp(what, RASMGRCMD_HELP) == 0)
+    {
+        upHelp();
+    }
 
-    else errorInCommand("Error in UP command");
+    else
+    {
+        errorInCommand("Error in UP command");
+    }
 
 }
 
@@ -1670,9 +1976,9 @@ void RasControl::upRasServers()
 {
     checkPermission(admR_sysup);
 
-    const char *srvName =getValueOf(RASMGRCMD_SRV);
+    const char* srvName = getValueOf(RASMGRCMD_SRV);
 
-    if(srvName) // up a specified server
+    if (srvName) // up a specified server
     {
         bool flagForce = config.isDebugSupport() ? isFlag("-force") : false;
         bool flagDebug = config.isDebugSupport() ? isFlag("-debug") : false;
@@ -1680,27 +1986,30 @@ void RasControl::upRasServers()
         checkUnexpectedTokens();
 
         LDEBUG << "server name: " << srvName;
-        RasServer &r=getServer(srvName);
+        RasServer& r = getServer(srvName);
 
         // just debug
-        if(flagForce && r.isUp())
+        if (flagForce && r.isUp())
         {
             r.forceAvailable();
-            sprintf(answBuffer,"Server forced to be available again");
+            sprintf(answBuffer, "Server forced to be available again");
             return;
         }
 
-        if(r.isUp())
+        if (r.isUp())
         {
             errorInCommand("Server is already up.");
             return;
         }
-        int rasp = flagDebug ? r.startServerInDebugger(answBuffer):r.startServer();
+        int rasp = flagDebug ? r.startServerInDebugger(answBuffer) : r.startServer();
 
-        switch(rasp)
+        switch (rasp)
         {
         case  0:
-            if(flagDebug==false) sprintf(answBuffer,"Server started");
+            if (flagDebug == false)
+            {
+                sprintf(answBuffer, "Server started");
+            }
             break;
         case -1:
             errorInCommand("Server is not connected to a database host.");
@@ -1715,26 +2024,27 @@ void RasControl::upRasServers()
         case -5:
             errorInCommand("Server host is down.");
             break;
-        default: break;
+        default:
+            break;
         }
         return;
     }
 
-    const char *hostName=getValueOf("-host");
-    if(hostName)
+    const char* hostName = getValueOf("-host");
+    if (hostName)
     {
         checkUnexpectedTokens();
 
         int rasp = upAllServersOnHost(hostName);
-        switch(rasp)
+        switch (rasp)
         {
-            //case -1: errorInCommand("Wrong server host name."); break;
+        //case -1: errorInCommand("Wrong server host name."); break;
         case -2:
             errorInCommand("Server host is down.");
             break;
 
         default:
-            sprintf(answBuffer,"Started %d servers on host %s",rasp,hostName);
+            sprintf(answBuffer, "Started %d servers on host %s", rasp, hostName);
             break;
 
         }
@@ -1743,24 +2053,24 @@ void RasControl::upRasServers()
 
     bool flagAll = isFlag("-all");
 
-    if(flagAll)
+    if (flagAll)
     {
         checkUnexpectedTokens();
 
         int countUpSrv   = 0;
         int countUpHosts = 0;
-        for(int i=0; i<hostmanager.countHosts(); i++)
+        for (int i = 0; i < hostmanager.countHosts(); i++)
         {
             int rasp = upAllServersOnHost(hostmanager[i].getName());
 
-            if(rasp>=0)
+            if (rasp >= 0)
             {
-                countUpSrv+=rasp;
+                countUpSrv += rasp;
                 countUpHosts++;
             }
 
         }
-        sprintf(answBuffer,"Started %d servers on %d hosts",countUpSrv,countUpHosts);
+        sprintf(answBuffer, "Started %d servers on %d hosts", countUpSrv, countUpHosts);
         return;
     }
 
@@ -1768,29 +2078,38 @@ void RasControl::upRasServers()
 
 }
 
-int RasControl::upAllServersOnHost(const char*hostName)
+int RasControl::upAllServersOnHost(const char* hostName)
 {
     //return value is negativ =>error
     //return value is positiv =>nr of started servers
 
-    ServerHost &sh= getServerHost(hostName);
+    ServerHost& sh = getServerHost(hostName);
 
-    if(sh.checkStatus() == false)
+    if (sh.checkStatus() == false)
     {
         //errorInCommand("Server host is down.");
         return -2;
     }
 
-    int countStart=0;
+    int countStart = 0;
     int alreadyUp       = sh.getStartedServers();
 
-    for(int i=0; i<rasManager.countServers(); i++)
+    for (int i = 0; i < rasManager.countServers(); i++)
     {
-        RasServer &r=rasManager[i];
-        if(r.isUp()) continue;
-        if(!hostCmp(hostName,r.getHostName())) continue;
+        RasServer& r = rasManager[i];
+        if (r.isUp())
+        {
+            continue;
+        }
+        if (!hostCmp(hostName, r.getHostName()))
+        {
+            continue;
+        }
 
-        if(r.startServer()==0) countStart++;
+        if (r.startServer() == 0)
+        {
+            countStart++;
+        }
     }
     // sprintf(answBuffer,"Started %d servers on host %s",countStart,hostName);
     return countStart;
@@ -1798,15 +2117,27 @@ int RasControl::upAllServersOnHost(const char*hostName)
 //--------------------------------------------------------
 void RasControl::downCommand()
 {
-    const char *what = argc==1 ? "xxx":token[1].take();
+    const char* what = argc == 1 ? "xxx" : token[1].take();
 
-    if     (strcasecmp(what,RASMGRCMD_HOST)==0)  downRasHosts();
+    if (strcasecmp(what, RASMGRCMD_HOST) == 0)
+    {
+        downRasHosts();
+    }
 
-    else if(strcasecmp(what,RASMGRCMD_SRV)==0)   downRasServers();
+    else if (strcasecmp(what, RASMGRCMD_SRV) == 0)
+    {
+        downRasServers();
+    }
 
-    else if(strcasecmp(what,RASMGRCMD_HELP)==0)  downHelp();
+    else if (strcasecmp(what, RASMGRCMD_HELP) == 0)
+    {
+        downHelp();
+    }
 
-    else errorInCommand("Error in DOWN command");
+    else
+    {
+        errorInCommand("Error in DOWN command");
+    }
 
 }
 
@@ -1814,43 +2145,49 @@ void RasControl::downRasServers()
 {
     checkPermission(admR_sysup);
 
-    const char *srvName=getValueOf(RASMGRCMD_SRV);
+    const char* srvName = getValueOf(RASMGRCMD_SRV);
 
-    if(srvName)
+    if (srvName)
     {
-        bool killFlag=isFlag("-kill");
-        bool forceFlag=isFlag("-force");
+        bool killFlag = isFlag("-kill");
+        bool forceFlag = isFlag("-force");
         checkUnexpectedTokens();
 
-        RasServer &r= getServer(srvName);
-        if(r.isUp()==false && r.isStarting()==false)
+        RasServer& r = getServer(srvName);
+        if (r.isUp() == false && r.isStarting() == false)
         {
             errorInCommand("Server is already down.");
             return;
         }
 
-        int res=killFlag ? r.killServer():r.downServer(forceFlag);
+        int res = killFlag ? r.killServer() : r.downServer(forceFlag);
 
-        if(res<0)
+        if (res < 0)
         {
             errorInCommand("Cannot contact the slave rasmgr.");
             return;
         }
 
-        if(killFlag) sprintf(answBuffer,"Server %s was killed",srvName);
-        else         sprintf(answBuffer,"Server %s is going down",srvName);
+        if (killFlag)
+        {
+            sprintf(answBuffer, "Server %s was killed", srvName);
+        }
+        else
+        {
+            sprintf(answBuffer, "Server %s is going down", srvName);
+        }
 
         return;
     }
 
-    const char *hostName=getValueOf("-host");
+    const char* hostName = getValueOf("-host");
 
-    if(hostName)
+    if (hostName)
     {
         checkUnexpectedTokens();
 
-        int rasp=downAllServersOnHost(hostName);
-        switch(rasp)
+        int rasp = downAllServersOnHost(hostName);
+        switch (rasp)
         {
 //      case -1 : errorInCommand("Error in server host name.");
 //                break;
@@ -1858,58 +2195,63 @@ void RasControl::downRasServers()
             errorInCommand("Server host is down.");
             break;
         case 0  :
-            sprintf(answBuffer,"On host %s all servers are already down",hostName);
+            sprintf(answBuffer, "On host %s all servers are already down", hostName);
             break;
         default : // means >0
-            sprintf(answBuffer,"%d servers on host %s are going down",rasp,hostName);
+            sprintf(answBuffer, "%d servers on host %s are going down", rasp, hostName);
             break;
         }
         return;
     }
 
     bool flagAll = isFlag("-all");
-    if(flagAll)
+    if (flagAll)
     {
         checkUnexpectedTokens();
 
         int countDownSrv   = 0;
         int countDownHosts = 0;
-        for(int i=0; i<hostmanager.countHosts(); i++)
+        for (int i = 0; i < hostmanager.countHosts(); i++)
         {
             int rasp = downAllServersOnHost(hostmanager[i].getName());
 
-            if(rasp>=0)
+            if (rasp >= 0)
             {
-                countDownSrv+=rasp;
+                countDownSrv += rasp;
                 countDownHosts++;
             }
 
         }
-        sprintf(answBuffer,"%d servers on %d hosts are going down",countDownSrv,countDownHosts);
+        sprintf(answBuffer, "%d servers on %d hosts are going down", countDownSrv, countDownHosts);
         return;
     }
 
     errorInCommand("Down what?");
 }
 
-int RasControl::downAllServersOnHost(const char *hostName)
+int RasControl::downAllServersOnHost(const char* hostName)
 {
-    ServerHost &sh= getServerHost(hostName);
+    ServerHost& sh = getServerHost(hostName);
 
-    if(sh.checkStatus()==false)
+    if (sh.checkStatus() == false)
     {
         //errorInCommand("Server host is down.");
         return -2;
     }
 
-    int countDownServers=0;
-    for(int i=0; i<rasManager.countServers(); i++)
+    int countDownServers = 0;
+    for (int i = 0; i < rasManager.countServers(); i++)
     {
-        RasServer &r=rasManager[i];
-        if(r.isUp()==false && r.isStarting()==false) continue;
-
-        if(!hostCmp(hostName,r.getHostName()))
+        RasServer& r = rasManager[i];
+        if (r.isUp() == false && r.isStarting() == false)
+        {
             continue;
+        }
+
+        if (!hostCmp(hostName, r.getHostName()))
+        {
+            continue;
+        }
         r.downServer(false);
         countDownServers++;
     }
@@ -1921,16 +2263,16 @@ void RasControl::downRasHosts()
     // this is the new stop command, but this version is incipient
     checkPermission(admR_sysup);
 
-    const char *hostName=getValueOf(RASMGRCMD_HOST);
+    const char* hostName = getValueOf(RASMGRCMD_HOST);
 
-    if(hostName)
+    if (hostName)
     {
         checkUnexpectedTokens();
         int rasp = downRasHost(hostName);
-        switch(rasp)
+        switch (rasp)
         {
         case  0:
-            sprintf(answBuffer,"Server host %s is going down", hostName);
+            sprintf(answBuffer, "Server host %s is going down", hostName);
             break;
 //            case -1: errorInCommand("Wrong server host name.");
 //               break;
@@ -1940,30 +2282,31 @@ void RasControl::downRasHosts()
         case -3:
             errorInCommand("Sorry, you should down all slave hosts first, the master should be the last one.");
             break;
-        default: break;
+        default:
+            break;
         }
         return;
     }
 
     bool flagAll = isFlag("-all");
 
-    if(flagAll)
+    if (flagAll)
     {
         checkUnexpectedTokens();
-        if(rasManager.countUpServers()!=0)
+        if (rasManager.countUpServers() != 0)
         {
             errorInCommand("Sorry, you should down all servers first.");
             return;
         }
 
-        for(int i=1; i<hostmanager.countHosts(); i++)
+        for (int i = 1; i < hostmanager.countHosts(); i++)
         {
             //yes, from 1, master the last!
             downRasHost(hostmanager[i].getName());
         }
         //now the master
         masterCommunicator.shouldExit();
-        sprintf(answBuffer,"All hosts are down.");
+        sprintf(answBuffer, "All hosts are down.");
         return;
     }
 
@@ -1971,23 +2314,26 @@ void RasControl::downRasHosts()
     return;
 }
 
-int RasControl::downRasHost(const char *hostName)
+int RasControl::downRasHost(const char* hostName)
 {
-    ServerHost &sh= getServerHost(hostName);
+    ServerHost& sh = getServerHost(hostName);
 
-    if(sh.getStartedServers())
+    if (sh.getStartedServers())
     {
         //errorInCommand("Sorry, you should down all servers on this host first.");
         return -2;
     }
 
-    if(sh.isInternal() && hostmanager.countUpHosts()>1)
+    if (sh.isInternal() && hostmanager.countUpHosts() > 1)
     {
         // errorInCommand("Sorry, you should down all slave hosts first, the master should be the last one.");
         return -3;
     }
 
-    if(sh.isInternal()) masterCommunicator.shouldExit();
+    if (sh.isInternal())
+    {
+        masterCommunicator.shouldExit();
+    }
     else     // later, sorry
     {
         sh.downHost();
@@ -2007,9 +2353,9 @@ void RasControl::saveCommand()
     // this has been done by the lines above: -- PB 2003-jun-08
     // masterCommunicator.commitChanges();
 
-    sprintf(answBuffer,"Saving configuration file...%s. Saving authorization file...%s.",
-            (resultConf==true ? "ok" : "failed"),
-            (resultAuth==true ? "ok" : "failed") );
+    sprintf(answBuffer, "Saving configuration file...%s. Saving authorization file...%s.",
+            (resultConf == true ? "ok" : "failed"),
+            (resultAuth == true ? "ok" : "failed"));
 }
 
 //----------------------------------------------------
@@ -2018,13 +2364,13 @@ void RasControl::resetCommand()
     checkPermission(admR_config);
     checkUnexpectedTokens();
 
-    if(config.isTestModus()==false)
+    if (config.isTestModus() == false)
     {
         errorInCommand("This operation is possible only in test modus.");
         return;
     }
 
-    if(rasManager.reset()==false)
+    if (rasManager.reset() == false)
     {
         errorInCommand("Resetting not possible, there are active servers.");
         return;
@@ -2039,21 +2385,30 @@ void RasControl::resetCommand()
     userManager.reset();
     userManager.loadDefaults();
 
-    LDEBUG <<"rasmgr was succesfully reset.";
-    sprintf(answBuffer,"rasmgr was succesfully reset.");
+    LDEBUG << "rasmgr was succesfully reset.";
+    sprintf(answBuffer, "rasmgr was succesfully reset.");
 }
 
 //-----------------------------------------
 
 void RasControl::checkCommand()
 {
-    const char *what = argc==1 ? "xxx":token[1].take();
+    const char* what = argc == 1 ? "xxx" : token[1].take();
 
-    if     (strcasecmp(what,RASMGRCMD_HOST)==0)  checkRasHosts();
+    if (strcasecmp(what, RASMGRCMD_HOST) == 0)
+    {
+        checkRasHosts();
+    }
 
-    else if(strcasecmp(what,RASMGRCMD_HELP)==0)  checkHelp();
+    else if (strcasecmp(what, RASMGRCMD_HELP) == 0)
+    {
+        checkHelp();
+    }
 
-    else errorInCommand("Error in CHECK command");
+    else
+    {
+        errorInCommand("Error in CHECK command");
+    }
 
 }
 
@@ -2061,29 +2416,29 @@ void RasControl::checkRasHosts()
 {
     checkPermission(admR_sysup);
 
-    const char *hostName=getValueOf(RASMGRCMD_HOST);
+    const char* hostName = getValueOf(RASMGRCMD_HOST);
 
-    if(hostName)
+    if (hostName)
     {
         checkUnexpectedTokens();
 
-        ServerHost &sh=getServerHost(hostName);
+        ServerHost& sh = getServerHost(hostName);
 
         sh.checkStatus();
-        sprintf(answBuffer,"The host %s is %s",sh.getName(),(sh.isUp() ? "up":"down"));
+        sprintf(answBuffer, "The host %s is %s", sh.getName(), (sh.isUp() ? "up" : "down"));
         return;
     }
 
     bool flagAll = isFlag("-all");
 
-    if(flagAll)
+    if (flagAll)
     {
         checkUnexpectedTokens();
-        for(int i=0; i<hostmanager.countHosts(); i++)
+        for (int i = 0; i < hostmanager.countHosts(); i++)
         {
             hostmanager[i].checkStatus();
         }
-        sprintf(answBuffer,"Checking status of all hosts ... done");
+        sprintf(answBuffer, "Checking status of all hosts ... done");
         return;
     }
     errorInCommand("Check what?");
@@ -2093,107 +2448,126 @@ void RasControl::checkRasHosts()
 
 
 //###---###---###---###---###---###---###---###---###---###---###
-void RasControl::errorInCommand(const char *errText)
+void RasControl::errorInCommand(const char* errText)
 {
-    sprintf(answBuffer,"Error: %s",errText);
+    sprintf(answBuffer, "Error: %s", errText);
 }
 
-bool RasControl::isCommand( const char *key )
+bool RasControl::isCommand(const char* key)
 {
-    if(argc)
-        return (strcasecmp(token[0].argv,key)==0) ? true:false;
+    if (argc)
+    {
+        return (strcasecmp(token[0].argv, key) == 0) ? true : false;
+    }
     else
-        return (strcmp("#",key)==0) ? true:false;
+    {
+        return (strcmp("#", key) == 0) ? true : false;
+    }
 }
 
 void RasControl::splitRequest(const char* reqMessage)
 {
-    argc=0;
-    commandBuffer[0]=' ';
-    strncpy(commandBuffer+1,reqMessage,MAXMSG-1);
-    commandBuffer[MAXMSG]=0;
+    argc = 0;
+    commandBuffer[0] = ' ';
+    strncpy(commandBuffer + 1, reqMessage, MAXMSG - 1);
+    commandBuffer[MAXMSG] = 0;
 
-    LDEBUG <<"RasControl::splitRequest: (a) Com="<<commandBuffer;
+    LDEBUG << "RasControl::splitRequest: (a) Com=" << commandBuffer;
 
-    char *temp = commandBuffer;
+    char* temp = commandBuffer;
 
-    for(argc=0; argc<30; argc++)
+    for (argc = 0; argc < 30; argc++)
     {
-        token[argc].set(strtok(temp," \r\n\t\0"));
-        temp=NULL;
+        token[argc].set(strtok(temp, " \r\n\t\0"));
+        temp = NULL;
 
-        if(token[argc].argv == NULL) break;
-        if(token[argc].argv[0] == '#')
+        if (token[argc].argv == NULL)
         {
-            token[argc].argv=NULL; // from here, comment
+            break;
+        }
+        if (token[argc].argv[0] == '#')
+        {
+            token[argc].argv = NULL; // from here, comment
             break;
         }
     }
 
 }
 
-bool RasControl::isFlag(const char *flag, int pos)
+bool RasControl::isFlag(const char* flag, int pos)
 {
-    if(pos<0) // doesn't matter
+    if (pos < 0) // doesn't matter
     {
-        for(int i=1; i<argc; i++) // flags are from 1->, 0 is the command itself
+        for (int i = 1; i < argc; i++) // flags are from 1->, 0 is the command itself
         {
-            if(strcasecmp(flag,token[i].argv)==0)
+            if (strcasecmp(flag, token[i].argv) == 0)
             {
-                token[i].used=true;
+                token[i].used = true;
                 return true;
             }
         }
         return false;
     }
-    if(pos>1 && pos<argc)
+    if (pos > 1 && pos < argc)
     {
-        if(strcasecmp(flag,token[pos].argv)==0)
+        if (strcasecmp(flag, token[pos].argv) == 0)
         {
-            token[pos].used=true;
+            token[pos].used = true;
             return true;
         }
     }
     return false;
 }
 
-const char * RasControl::getValueOf(const char *flag, bool acceptMinus)
+const char* RasControl::getValueOf(const char* flag, bool acceptMinus)
 {
     //no,not always if(flag[0]!='-') return NULL; // all flags start with '-'
 
-    for(int i=1; i<argc-1; i++)
+    for (int i = 1; i < argc - 1; i++)
     {
-        if(strcasecmp(flag,token[i].argv)==0)
+        if (strcasecmp(flag, token[i].argv) == 0)
         {
-            token[i].used=true;
+            token[i].used = true;
 
-            if(acceptMinus)
+            if (acceptMinus)
             {
-                if(token[i+1].argv[0]=='-' && token[i+1].argv[1]!=0) return NULL; // values don't start with '-' (we don't have minus-signs)
+                if (token[i + 1].argv[0] == '-' && token[i + 1].argv[1] != 0)
+                {
+                    return NULL;    // values don't start with '-' (we don't have minus-signs)
+                }
             }                                                              // except in void right string
             else
             {
-                if(token[i+1].argv[0]=='-') return NULL;
+                if (token[i + 1].argv[0] == '-')
+                {
+                    return NULL;
+                }
             }
-            token[i+1].used=true;
-            return token[i+1].argv;
+            token[i + 1].used = true;
+            return token[i + 1].argv;
         }
     }
 
-    if(strcasecmp(flag,token[argc-1].argv)==0) token[argc-1].used=true;
+    if (strcasecmp(flag, token[argc - 1].argv) == 0)
+    {
+        token[argc - 1].used = true;
+    }
 
     return NULL; // not found;
 }
-const char * RasControl::getValueIfFlag(const char *flag,bool acceptMinus)
+const char* RasControl::getValueIfFlag(const char* flag, bool acceptMinus)
 {
-    if(isFlag(flag)==false) return NULL;
+    if (isFlag(flag) == false)
+    {
+        return NULL;
+    }
 
-    const char *r = getValueOf(flag,acceptMinus);
+    const char* r = getValueOf(flag, acceptMinus);
 
-    if(r==NULL)
+    if (r == NULL)
     {
         static char temp[30];
-        sprintf(temp,"'%s' value",flag);
+        sprintf(temp, "'%s' value", flag);
         throw RCErrorMissingParam(temp);
     }
     return r;
@@ -2201,72 +2575,98 @@ const char * RasControl::getValueIfFlag(const char *flag,bool acceptMinus)
 
 void RasControl::checkUnexpectedTokens()
 {
-    for(int i=2; i<argc; i++)
+    for (int i = 2; i < argc; i++)
     {
-        if(token[i].used == false) throw RCErrorUnexpToken(token[i].argv);
+        if (token[i].used == false)
+        {
+            throw RCErrorUnexpToken(token[i].argv);
+        }
     }
 }
 void RasControl::checkPermission(int reqRights)
 {
-    if(authorization.hasAdminRights(reqRights)==false)
+    if (authorization.hasAdminRights(reqRights) == false)
+    {
         throw RCErrorNoPermission();
+    }
 }
 
-void RasControl::checkNotNull(const char *ptr, const char *what)
+void RasControl::checkNotNull(const char* ptr, const char* what)
 {
-    if(ptr==NULL) throw RCErrorMissingParam(what);
+    if (ptr == NULL)
+    {
+        throw RCErrorMissingParam(what);
+    }
 }
 
-RasServer& RasControl::getServer(const char *name)
+RasServer& RasControl::getServer(const char* name)
 {
-    RasServer &srv = rasManager[name];
-    if(srv.isValid()==false) throw RCErrorInvalidName("server");
+    RasServer& srv = rasManager[name];
+    if (srv.isValid() == false)
+    {
+        throw RCErrorInvalidName("server");
+    }
     return srv;
 }
-Database& RasControl::getDatabase(const char *name)
+Database& RasControl::getDatabase(const char* name)
 {
-    Database &db = dbManager[name];
-    if(db.isValid()==false) throw RCErrorInvalidName(RASMGRCMD_DATABASE);
+    Database& db = dbManager[name];
+    if (db.isValid() == false)
+    {
+        throw RCErrorInvalidName(RASMGRCMD_DATABASE);
+    }
     return db;
 }
-DatabaseHost& RasControl::getDatabaseHost(const char *name)
+DatabaseHost& RasControl::getDatabaseHost(const char* name)
 {
-    DatabaseHost &dbh = dbHostManager[name];
-    if(dbh.isValid()==false) throw RCErrorInvalidName("database host");
+    DatabaseHost& dbh = dbHostManager[name];
+    if (dbh.isValid() == false)
+    {
+        throw RCErrorInvalidName("database host");
+    }
     return dbh;
 }
-ServerHost& RasControl::getServerHost(const char *name)
+ServerHost& RasControl::getServerHost(const char* name)
 {
     LDEBUG << "RasControl::getServerHost( " << name << " )";
-    ServerHost &host = hostmanager[name];
-    if(host.isValid()==false) throw RCErrorInvalidName("server host");
+    ServerHost& host = hostmanager[name];
+    if (host.isValid() == false)
+    {
+        throw RCErrorInvalidName("server host");
+    }
     return host;
 }
-User& RasControl::getUser(const char *name)
+User& RasControl::getUser(const char* name)
 {
-    User &user = userManager[name];
-    if(user.isValid()==false) throw RCErrorInvalidName(RASMGRCMD_USER);
+    User& user = userManager[name];
+    if (user.isValid() == false)
+    {
+        throw RCErrorInvalidName(RASMGRCMD_USER);
+    }
     return user;
 }
 
-unsigned long RasControl::convertToULong(const char *stringValue,const char *what)
+unsigned long RasControl::convertToULong(const char* stringValue, const char* what)
 {
-    char *end;
-    unsigned long rasp = strtoul(stringValue,&end,0);
+    char* end;
+    unsigned long rasp = strtoul(stringValue, &end, 0);
 
-    if(strlen(end)!=0) throw RCErrorIncorNumberValue(what);
+    if (strlen(end) != 0)
+    {
+        throw RCErrorIncorNumberValue(what);
+    }
 
     return rasp;
 }
 
-void RasControl::Token::set(char *p)
+void RasControl::Token::set(char* p)
 {
     argv = p;
     used = false;
 }
 const char* RasControl::Token::take()
 {
-    used=true;
+    used = true;
     return argv;
 }
 
@@ -2277,9 +2677,9 @@ const char* RasControl::Token::take()
 
 void RasControl::listRights()
 {
-    const char *userName = getValueOf("-user");
+    const char* userName = getValueOf("-user");
 
-    if(userName==NULL)
+    if (userName == NULL)
     {
         errorInCommand("You have to provide an user name");
         //checkPermission(admR_info);
@@ -2288,34 +2688,34 @@ void RasControl::listRights()
         //                           authorization.convertGlobalInitDatabRights());
         return;
     }
-    User &user=userManager[userName];
+    User& user = userManager[userName];
 
-    if(strcmp(userName,authorization.getUserName())!=0)
+    if (strcmp(userName, authorization.getUserName()) != 0)
     {
         checkPermission(admR_info);
     }
-    if(user.isValid()==false)
+    if (user.isValid() == false)
     {
         errorInCommand("Unknown user");
         //sprintf(answBuffer,"Unknown user %s",userName);
         return;
     }
     //LINFO << "list rights of user " << userName << "  " << user.getAdminRights() << "  " << user.getDefaultDBRights();
-    sprintf(answBuffer,"List of rights defined for user %s",userName);
-    sprintf(answBuffer+strlen(answBuffer),"\r\n administrative rights: [%s]",authorization.convertAdminRights(user.getAdminRights()));
-    sprintf(answBuffer+strlen(answBuffer),"\r\n default database rights: [%s]",authorization.convertDatabRights(user.getDefaultDBRights()));
+    sprintf(answBuffer, "List of rights defined for user %s", userName);
+    sprintf(answBuffer + strlen(answBuffer), "\r\n administrative rights: [%s]", authorization.convertAdminRights(user.getAdminRights()));
+    sprintf(answBuffer + strlen(answBuffer), "\r\n default database rights: [%s]", authorization.convertDatabRights(user.getDefaultDBRights()));
 
     //sprintf(answBuffer+strlen(answBuffer),"\r\n List of defined rights on databases:");
 
 
-    for(int i=0; i<dbManager.countDatabases(); i++)
+    for (int i = 0; i < dbManager.countDatabases(); i++)
     {
-        const char *dbName=dbManager[i].getName();
+        const char* dbName = dbManager[i].getName();
 
-        if(user.isTrusteeOn(dbName))
+        if (user.isTrusteeOn(dbName))
         {
-            int rights=user.getEffectiveDatabaseRights(dbName);
-            sprintf(answBuffer+strlen(answBuffer),"\r\n database %-20s [%s]",dbName,authorization.convertDatabRights(rights));
+            int rights = user.getEffectiveDatabaseRights(dbName);
+            sprintf(answBuffer + strlen(answBuffer), "\r\n database %-20s [%s]", dbName, authorization.convertDatabRights(rights));
         }
     }
 
@@ -2325,62 +2725,67 @@ void RasControl::listRights()
 
 void RasControl::grantCommand()
 {
-    if(argc==1 || strcasecmp(token[1].argv,RASMGRCMD_HELP)==0)
+    if (argc == 1 || strcasecmp(token[1].argv, RASMGRCMD_HELP) == 0)
     {
         //grantHelp();
         return;
     }
     checkPermission(admR_acctrl);
 
-    const char *rString =  token[1].take();
+    const char* rString =  token[1].take();
 
-    const char *userName= getValueOf("-user");
+    const char* userName = getValueOf("-user");
 
-    const char *dbName  = getValueOf("-db");
+    const char* dbName  = getValueOf("-db");
 
-    bool gi=isFlag("-gi");
+    bool gi = isFlag("-gi");
 
-    int admRights=authorization.convertAdminRights(rString);
-    int dtbRights=authorization.convertDatabRights(rString);
+    int admRights = authorization.convertAdminRights(rString);
+    int dtbRights = authorization.convertDatabRights(rString);
 
-    if(admRights==-1 || dtbRights==-1)
+    if (admRights == -1 || dtbRights == -1)
     {
         errorInCommand("Unknown right in command");
         return;
     }
 
-    if(userName!=NULL)
+    if (userName != NULL)
     {
-        User &user=userManager[userName];
-        if(user.isValid()==false)
+        User& user = userManager[userName];
+        if (user.isValid() == false)
         {
             errorInCommand("Unknown user");
             return;
         }
 
-        if(dbName!=NULL)
+        if (dbName != NULL)
         {
-            if(user.setDatabaseRights(dbName,dtbRights)==false)
+            if (user.setDatabaseRights(dbName, dtbRights) == false)
+            {
                 errorInCommand("Unknown database name");
+            }
 
-            else sprintf(answBuffer,"Granted %s to user %s for database %s",rString,userName,dbName);
+            else
+            {
+                sprintf(answBuffer, "Granted %s to user %s for database %s", rString, userName, dbName);
+            }
         }
         else
         {
-            const char *warning = user.getUserID()!=0 ? "": (admRights=admR_full,"You cannot change rasadmin's system rights\r\n");
+            const char* warning = user.getUserID() != 0 ? "" : (admRights = admR_full, "You cannot change rasadmin's system rights\r\n");
             //^sorry, trick
             user.setAdminRights(admRights);
             user.setDefaultDBRights(dtbRights);
-            sprintf(answBuffer,"%sGranted [%s]-[%s] to user %s",warning,authorization.convertAdminRights(admRights),authorization.convertDatabRights(dtbRights),userName);
+            sprintf(answBuffer, "%sGranted [%s]-[%s] to user %s", warning, authorization.convertAdminRights(admRights), authorization.convertDatabRights(dtbRights), userName);
         }
     }
     else
     {
-        if(gi)
+        if (gi)
         {
             authorization.setGlobalInitAdminRights(admRights);
             authorization.setGlobalInitDatabRights(dtbRights);
-            sprintf(answBuffer,"Set global initial rights to [%s]-[%s]",authorization.convertAdminRights(admRights),authorization.convertDatabRights(dtbRights));
+            sprintf(answBuffer, "Set global initial rights to [%s]-[%s]", authorization.convertAdminRights(admRights), authorization.convertDatabRights(dtbRights));
         }
         else
         {
@@ -2392,30 +2797,35 @@ void RasControl::grantCommand()
 // removed in version 1.1
 void RasControl::revokeCommand()
 {
-    if(argc==1 || strcasecmp(token[1].argv,RASMGRCMD_HELP)==0)
+    if (argc == 1 || strcasecmp(token[1].argv, RASMGRCMD_HELP) == 0)
     {
         //revokeHelp();
         return;
     }
     checkPermission(admR_acctrl);
 
-    const char *userName= token[1].take();
+    const char* userName = token[1].take();
 
-    const char *dbName  = getValueOf("-db");
+    const char* dbName  = getValueOf("-db");
 
-    User &user=userManager[userName];
-    if(user.isValid()==false)
+    User& user = userManager[userName];
+    if (user.isValid() == false)
     {
         errorInCommand("Unknown user");
         return;
     }
 
-    if(dbName!=NULL)
+    if (dbName != NULL)
     {
-        if(user.removeDatabaseRights(dbName)==false)
+        if (user.removeDatabaseRights(dbName) == false)
+        {
             errorInCommand("Unknown database name");
+        }
 
-        else sprintf(answBuffer,"Rights of user %s for database %s revoked",userName,dbName);
+        else
+        {
+            sprintf(answBuffer, "Rights of user %s for database %s revoked", userName, dbName);
+        }
     }
     else
     {

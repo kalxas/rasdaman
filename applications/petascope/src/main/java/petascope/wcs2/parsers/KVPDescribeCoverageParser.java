@@ -42,13 +42,13 @@ public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p,
-                KEY_COVERAGEID,
-                KEY_VERSION);
+                            KEY_COVERAGEID,
+                            KEY_VERSION);
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
         List<String> coverageIds = p.get(KEY_COVERAGEID); // null if no key
         if (null == coverageIds || coverageIds.isEmpty()) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A DescribeCoverage request must specify at least one " + KEY_COVERAGEID + ".");
+                                   "A DescribeCoverage request must specify at least one " + KEY_COVERAGEID + ".");
         }
         ret.getCoverageIds().addAll(coverageIds);
         return ret;

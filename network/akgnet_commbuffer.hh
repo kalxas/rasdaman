@@ -69,7 +69,7 @@ public:
         totalSize - the total size of the buffer
     dataSize  - the size of the usefull data
     */
-    CommBuffer(void*,int totalSize,int dataSize=0) throw();
+    CommBuffer(void*, int totalSize, int dataSize = 0) throw();
 
     /// Destructor. If the internal buffer is allocated, it will be deallocated
     ~CommBuffer() throw();
@@ -87,7 +87,7 @@ public:
     dataSize  - the size of the usefull data
     Assert: externalBuffer != 0, totalSize > 0, dataSize>=0, totalSize>=dataSize
     */
-    void takeOver(void *externalBuffer,int totalSize,int dataSize=0) throw();
+    void takeOver(void* externalBuffer, int totalSize, int dataSize = 0) throw();
 
     /** Resizes the internal buffer, by allocating and copying the data.
         Returns false if the new buffer is smaller than the actual data
@@ -126,7 +126,7 @@ public:
     Returns the number of bytes red
     Assert: externalBuffer != 0, size >=0
     */
-    int   read(const void *externalBuffer,int size) throw();
+    int   read(const void* externalBuffer, int size) throw();
 
     /** Fake read, used to reserve space for future direct write
         Returns the number of bytes reserverd, which can be less
@@ -148,7 +148,7 @@ public:
     Returns the number of bytes written
     Assert: externalBuffer != 0, size >=0
     */
-    int   write(void *externalBuffer,int size) throw();
+    int   write(void* externalBuffer, int size) throw();
 
     /// Resets the buffer for reading. The data inside is discarded
     void  clearToRead() throw();
@@ -160,7 +160,7 @@ public:
 
 private:
     /// the internal buffer
-    char *data;
+    char* data;
     /// the size of the internal buffer
     int  buffSize;
     int  maxBuffSize;

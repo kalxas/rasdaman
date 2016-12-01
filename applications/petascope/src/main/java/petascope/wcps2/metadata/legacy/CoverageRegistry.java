@@ -51,7 +51,9 @@ public class CoverageRegistry {
         metadataSource = null;
     }
 
-    public CoverageRegistry(DbMetadataSource metadataSource) {this.metadataSource = metadataSource;}
+    public CoverageRegistry(DbMetadataSource metadataSource) {
+        this.metadataSource = metadataSource;
+    }
 
     /**
      * Adds an alias for a coverage (e.g. from for clauses, for coverageAlias in coverageName)
@@ -86,7 +88,7 @@ public class CoverageRegistry {
      * Returns the first coverage in the registry.
      * @return
      */
-    public Coverage getFirstCoverage(){
+    public Coverage getFirstCoverage() {
         return getCoverageByAlias(coverageMappings.keySet().iterator().next());
     }
 
@@ -126,7 +128,7 @@ public class CoverageRegistry {
         if (metadataSource == null) {
             try {
                 metadataSource = new DbMetadataSource(ConfigManager.METADATA_DRIVER, ConfigManager.METADATA_URL,
-                        ConfigManager.METADATA_USER, ConfigManager.METADATA_PASS, false);
+                                                      ConfigManager.METADATA_USER, ConfigManager.METADATA_PASS, false);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new CoverageMetadataNotInitializedException(e);

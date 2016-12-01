@@ -95,11 +95,11 @@ private:
     void initDefault() throw();
 
     /// Initializes the object from a OS 'hostent' object. Used by the constructors
-    bool init(hostent *);
+    bool init(hostent*);
 
-    char *fullHostName;
-    char *shortHostName;
-    char *strAddress;
+    char* fullHostName;
+    char* shortHostName;
+    char* strAddress;
     in_addr address;
 
     ///unimplemented

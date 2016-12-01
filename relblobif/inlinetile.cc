@@ -82,23 +82,29 @@ InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newC
 InlineTile::InlineTile(const OId& id) throw (r_Error)
     :   BLOBTile(id)
 {
-    LTRACE << "InlineTile(" << id <<")";
+    LTRACE << "InlineTile(" << id << ")";
     objecttype = OId::INLINETILEOID;
 }
 
 void
 InlineTile::printStatus(unsigned int level, std::ostream& stream) const
 {
-    char* indent = new char[level*2 +1];
-    for (unsigned int j = 0; j < level*2 ; j++)
+    char* indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2 ; j++)
+    {
         indent[j] = ' ';
-    indent[level*2] = '\0';
+    }
+    indent[level * 2] = '\0';
 
     stream << indent << "InlineTile ";
     if (isInlined())
+    {
         stream << "is Inlined at " << myIndexOId << endl;
+    }
     else
+    {
         stream << "is not Inlined " << endl;
+    }
     BLOBTile::printStatus(level + 1, stream);
     delete[] indent;
 }
@@ -107,9 +113,13 @@ void
 InlineTile::destroy()
 {
     if (isCached())
+    {
         return;
+    }
     else
+    {
         DBObject::destroy();
+    }
 }
 
 bool
@@ -123,12 +133,16 @@ InlineTile::isCached() const
         {
             //outlined
             if (getSize() > StorageLayout::DefaultMinimalTileSize)//size is ok
+            {
                 retval = false;
+            }
         }
         else     //inlined
         {
             if (getSize() < StorageLayout::DefaultPCTMax)//size is ok
+            {
                 retval = false;
+            }
         }
     }
     return retval;
@@ -221,9 +235,11 @@ InlineTile::insertInMemBlock(char* thecontents)
     LTRACE << "OId " << myOId << " size " << size << " DataFormat " << dataFormat;
 #ifdef DEBUG
     for (int i = 0; i < size; i++)
+    {
         LTRACE << (unsigned int)(cells[i]) << " ";
+    }
 #endif
-        DBObject::updateInDb();
+    DBObject::updateInDb();
     return thecontents;
 }
 

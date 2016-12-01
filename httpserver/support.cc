@@ -90,14 +90,14 @@ static int openmax = 0;
 #define    OPEN_MAX_GUESS 256   /* Falls OPEN_MAX undefiniert (dynamisch) */
 #endif                          /* ist, ist dies u.U. nicht adaequat!     */
 
-int Get_OpenMax( void )
+int Get_OpenMax(void)
 {
-    if( openmax == 0 )
+    if (openmax == 0)
     {
         errno = 0;
-        if( ( openmax = sysconf( _SC_OPEN_MAX ) ) < 0 )
+        if ((openmax = sysconf(_SC_OPEN_MAX)) < 0)
         {
-            if( errno == 0 )
+            if (errno == 0)
             {
                 openmax = OPEN_MAX_GUESS;
             }
@@ -107,13 +107,13 @@ int Get_OpenMax( void )
                 // Does it justify to break the program?
                 // Naah, I don't think so...  So we just print a note
                 // and give back our "reasonable default"...
-                ErrorMsg( E_SYS, WARN, "WARN:  sysconf error for _SC_OPEN_MAX." );
+                ErrorMsg(E_SYS, WARN, "WARN:  sysconf error for _SC_OPEN_MAX.");
                 openmax = OPEN_MAX_GUESS;
             }
         }
     }
 
-    return( openmax );
+    return (openmax);
 }
 
 
@@ -173,16 +173,16 @@ static int pathmax = 0;
 #define    PATH_MAX_GUESS 1024  /* Falls PATH_MAX undefiniert (dynamisch) */
 #endif                          /* ist, ist dies u.U. nicht adaequat!      */
 
-char *PathAlloc( size_t *size )
+char* PathAlloc(size_t* size)
 {
-    char *Ptr;
+    char* Ptr;
 
-    if( pathmax == 0 )
+    if (pathmax == 0)
     {
         errno = 0;
-        if( ( pathmax = pathconf( "/", _PC_PATH_MAX ) ) < 0 )
+        if ((pathmax = pathconf("/", _PC_PATH_MAX)) < 0)
         {
-            if( errno == 0 )
+            if (errno == 0)
             {
                 pathmax = PATH_MAX_GUESS;
             }
@@ -191,7 +191,7 @@ char *PathAlloc( size_t *size )
                 // pathconf() returned an error... strange, but...
                 // See also Get_OpenMax().
                 // We give back our "reasonable default"...
-                ErrorMsg( E_SYS, WARN, "WARN:  pathconf error for _PC_PATH_MAX." );
+                ErrorMsg(E_SYS, WARN, "WARN:  pathconf error for _PC_PATH_MAX.");
                 pathmax = PATH_MAX_GUESS;
             }
         }
@@ -203,18 +203,22 @@ char *PathAlloc( size_t *size )
         pathmax++;        /* Don't forget the "/" character...  */
     }
 
-    if( ( Ptr = static_cast<char*>(mymalloc( static_cast<size_t>(pathmax) + 1 ) )) == NULL )
+    if ((Ptr = static_cast<char*>(mymalloc(static_cast<size_t>(pathmax) + 1))) == NULL)
     {
-        if( size != NULL )
+        if (size != NULL)
+        {
             *size = 0;
-        ErrorMsg( E_SYS, ERROR, "ERROR: malloc error for pathname buffer." );
+        }
+        ErrorMsg(E_SYS, ERROR, "ERROR: malloc error for pathname buffer.");
     }
     else
     {
-        if( size != NULL )
+        if (size != NULL)
+        {
             *size = static_cast<size_t>(pathmax) + 1;
+        }
     }
-    return( Ptr );
+    return (Ptr);
 }
 
 
@@ -253,26 +257,32 @@ char *PathAlloc( size_t *size )
  *  Checks for error 'EAGAIN', in case of nonblocking IO.
  */
 
-int ReadN( register int fd, register char *ptr, register int nbytes )
+int ReadN(register int fd, register char* ptr, register int nbytes)
 {
     int nleft;
     int nread;
 
     nleft = nbytes;
-    while( nleft > 0 )
+    while (nleft > 0)
     {
-        nread = read( fd, ptr, static_cast<size_t>(nleft) );
-        if( nread < 0 )
-            if( errno != EAGAIN )
-                return( nread );              /* error, return < 0 */
+        nread = read(fd, ptr, static_cast<size_t>(nleft));
+        if (nread < 0)
+            if (errno != EAGAIN)
+            {
+                return (nread);      /* error, return < 0 */
+            }
             else
+            {
                 continue;
-        else if( nread == 0 )
-            break;                          /* EOF */
+            }
+        else if (nread == 0)
+        {
+            break;    /* EOF */
+        }
         nleft -= nread;
         ptr += nread;
     }
-    return( nbytes - nleft );             /* return >= 0 */
+    return (nbytes - nleft);              /* return >= 0 */
 }
 
 
@@ -311,26 +321,30 @@ int ReadN( register int fd, register char *ptr, register int nbytes )
  *  Checks for error 'EAGAIN', in case of nonblocking IO.
  */
 
-int WriteN( register int fd, register char *ptr, register int nbytes )
+int WriteN(register int fd, register char* ptr, register int nbytes)
 {
     long nleft;
     long nwritten = 0;
 
     nleft = nbytes;
-    while( nleft > 0 )
+    while (nleft > 0)
     {
-        nwritten = write( fd, ptr, static_cast<size_t>(nleft) );
-        if( nwritten < 0 )
+        nwritten = write(fd, ptr, static_cast<size_t>(nleft));
+        if (nwritten < 0)
         {
-            if( errno != EAGAIN )
-                return( nwritten );         /* error */
+            if (errno != EAGAIN)
+            {
+                return (nwritten);      /* error */
+            }
             else
+            {
                 continue;
+            }
         }
         nleft -= nwritten;
         ptr += nwritten;
     }
-    return( nbytes - nleft );
+    return (nbytes - nleft);
 }
 
 
@@ -368,30 +382,38 @@ int WriteN( register int fd, register char *ptr, register int nbytes )
  *  Checks for error 'EAGAIN', in case of nonblocking IO.
  */
 
-int ReadLine( register int fd, register char *ptr, register int maxlen )
+int ReadLine(register int fd, register char* ptr, register int maxlen)
 {
     int n;
     int rc;
     char c;
 
-    for( n = 1; n < maxlen; n++ )
+    for (n = 1; n < maxlen; n++)
     {
-        if( ( rc = read( fd, &c, 1 ) ) == 1 )
+        if ((rc = read(fd, &c, 1)) == 1)
         {
             *ptr++ = c;
-            if( c == '\n' )
+            if (c == '\n')
+            {
                 break;
+            }
         }
-        else if( rc == 0 )
-            if( n == 1 )
-                return( 0 );                  /* EOF, no data read */
+        else if (rc == 0)
+            if (n == 1)
+            {
+                return (0);      /* EOF, no data read */
+            }
             else
-                break;                        /* EOF, some data was read */
-        else if( errno != EAGAIN )
-            return( -1 );                 /* error */
+            {
+                break;    /* EOF, some data was read */
+            }
+        else if (errno != EAGAIN)
+        {
+            return (-1);      /* error */
+        }
     }
     *ptr = 0;
-    return( n );
+    return (n);
 }
 
 
@@ -417,58 +439,70 @@ int ReadLine( register int fd, register char *ptr, register int maxlen )
 *
 */
 
-rc_t ParseString( char *String, char *Token, ... )
+rc_t ParseString(char* String, char* Token, ...)
 {
     /* ###TODO: Das letzte Argument sollte den kompletten Reststring erhalten */
     /*          Buffer loeschen vor Austritt                                  */
     va_list  ArgPtr;
-    char    *Keyword;
-    char    *Value;
-    char    *NextToken;
-    char    *NNextToken;
-    char    *Delim = const_cast<char*>(" \t\n\r");         /* Begrenzungszeichen          */
+    char*    Keyword;
+    char*    Value;
+    char*    NextToken;
+    char*    NNextToken;
+    char*    Delim = const_cast<char*>(" \t\n\r");         /* Begrenzungszeichen          */
 
-    if( ( String[0] == '#' ) ||                           /* Kommentar,                  */
-            ( String[0] == '\n' ) ||                          /* oder Leerzeile?             */
-            ( String[0] == '\r' ) )
-        return( ERROR );                                    /*   => Zurück.                */
-
-    Keyword = strtok( String, Delim );                    /* 1. Token suchen             */
-    if( Keyword != NULL )                                 /*   Etwas gefunden?           */
+    if ((String[0] == '#') ||                             /* Kommentar,                  */
+            (String[0] == '\n') ||                            /* oder Leerzeile?             */
+            (String[0] == '\r'))
     {
-        if( Keyword[0] == '#' )                           /* Auch Kommentarzeile:        */
-            return( ERROR );                                /*   => Zurück.                */
-        strcpy( Token, Keyword );                         /* Keyword in Buffer kopieren  */
+        return (ERROR);      /*   => Zurück.                */
+    }
+
+    Keyword = strtok(String, Delim);                      /* 1. Token suchen             */
+    if (Keyword != NULL)                                  /*   Etwas gefunden?           */
+    {
+        if (Keyword[0] == '#')                            /* Auch Kommentarzeile:        */
+        {
+            return (ERROR);      /*   => Zurück.                */
+        }
+        strcpy(Token, Keyword);                           /* Keyword in Buffer kopieren  */
 
         /* Var.Arg. Liste abarbeiten bis Arg == NULL.                                    */
         /* Letztes Arg. muss NULL sein, da va_arg() nicht selbst in der Lage             */
         /* ist das letzte Argument zu erkennen.                                          */
 
-        va_start( ArgPtr, Token );                        /* VarArg initialisieren       */
-        NextToken = va_arg( ArgPtr, char * );             /* 1. zus. Argument holen.     */
-        if( NextToken != NULL)
+        va_start(ArgPtr, Token);                          /* VarArg initialisieren       */
+        NextToken = va_arg(ArgPtr, char*);                /* 1. zus. Argument holen.     */
+        if (NextToken != NULL)
         {
-            NNextToken = va_arg( ArgPtr, char * );        /* 2. zus. Arg. holen          */
-            while( NNextToken != NULL )                   /*   Argument vorhanden?       */
+            NNextToken = va_arg(ArgPtr, char*);           /* 2. zus. Arg. holen          */
+            while (NNextToken != NULL)                    /*   Argument vorhanden?       */
             {
-                Value = strtok( NULL, Delim );            /* Weiteres Token suchen       */
-                if( Value != NULL )                       /* Wort gefunden?              */
-                    strcpy( NextToken, Value );             /*   Token in Buffer kopieren  */
+                Value = strtok(NULL, Delim);              /* Weiteres Token suchen       */
+                if (Value != NULL)                        /* Wort gefunden?              */
+                {
+                    strcpy(NextToken, Value);      /*   Token in Buffer kopieren  */
+                }
                 else                                      /* Ansonsten:                  */
-                    strcpy( NextToken, "\0" );              /*   Leerstring uebergeben     */
+                {
+                    strcpy(NextToken, "\0");      /*   Leerstring uebergeben     */
+                }
                 NextToken = NNextToken;
-                NNextToken = va_arg( ArgPtr, char * );    /* Zeiger auf nächstes Arg.    */
+                NNextToken = va_arg(ArgPtr, char*);       /* Zeiger auf nächstes Arg.    */
             }
-            Value = strtok( NULL, "\n\r" );               /* Zeiger auf Reststring holen */
-            if( Value != NULL )                           /* Wenn vorhanden,             */
-                strcpy( NextToken, Value );                 /*   in letztes Arg. übergeben */
+            Value = strtok(NULL, "\n\r");                 /* Zeiger auf Reststring holen */
+            if (Value != NULL)                            /* Wenn vorhanden,             */
+            {
+                strcpy(NextToken, Value);      /*   in letztes Arg. übergeben */
+            }
             else                                          /* wenn nicht,                 */
-                strcpy( NextToken, "\0" );                  /*   Leerstring übergeben      */
+            {
+                strcpy(NextToken, "\0");      /*   Leerstring übergeben      */
+            }
         }
-        va_end( ArgPtr );                                 /* VarArg aufräumen            */
-        return( OK );                                     /* OK: Es wurde etwas gefunden */
+        va_end(ArgPtr);                                   /* VarArg aufräumen            */
+        return (OK);                                      /* OK: Es wurde etwas gefunden */
     }
-    return( ERROR );                                      /* ERROR: String war leer.     */
+    return (ERROR);                                       /* ERROR: String war leer.     */
 }
 
 
@@ -494,23 +528,27 @@ rc_t ParseString( char *String, char *Token, ... )
 *
 */
 
-int SNPrintf( char *String, size_t *Size, const char *Format, ... )
+int SNPrintf(char* String, size_t* Size, const char* Format, ...)
 {
     va_list  ArgPtr;
     int      n = 0;
 
-    if( *Size > 0 )
+    if (*Size > 0)
     {
-        va_start( ArgPtr, Format );
-        n = VSNPrintf( String, *Size, Format, ArgPtr );
-        va_end( ArgPtr );
+        va_start(ArgPtr, Format);
+        n = VSNPrintf(String, *Size, Format, ArgPtr);
+        va_end(ArgPtr);
 
-        if( n >= 0 )
+        if (n >= 0)
+        {
             *Size = *Size - static_cast<size_t>(n);
+        }
         else
+        {
             *Size = 0;
+        }
     }
-    return( n );
+    return (n);
 }
 
 
@@ -537,38 +575,46 @@ int SNPrintf( char *String, size_t *Size, const char *Format, ... )
 *
 */
 
-int VSNPrintf( char *String, size_t Size, const char *Format, va_list ArgPtr )
+int VSNPrintf(char* String, size_t Size, const char* Format, va_list ArgPtr)
 {
     int   n = 0;
-    char *Buffer = NULL;
+    char* Buffer = NULL;
 
 #ifdef NO_vsnprintf
-    if( Size == 0 )
-        n = 0;
-    else if( Size > 0 )
+    if (Size == 0)
     {
-        if( ( Buffer = (char*)mymalloc( BUFFSIZE ) ) != NULL )
+        n = 0;
+    }
+    else if (Size > 0)
+    {
+        if ((Buffer = (char*)mymalloc(BUFFSIZE)) != NULL)
         {
-            n = vsprintf( Buffer, Format, ArgPtr );
-            if( n < Size )
-                strncpy( String, Buffer, Size );
+            n = vsprintf(Buffer, Format, ArgPtr);
+            if (n < Size)
+            {
+                strncpy(String, Buffer, Size);
+            }
             else
             {
-                strncpy( String, Buffer, Size-1 );
-                *( String + Size ) = '\0';
+                strncpy(String, Buffer, Size - 1);
+                *(String + Size) = '\0';
                 n = -1;
             }
-            free( Buffer );
+            free(Buffer);
         }
         else
+        {
             n = -1;
+        }
     }
     else
+    {
         n = -1;
+    }
 #else
-    n = vsnprintf( String, Size, Format, ArgPtr );
+    n = vsnprintf(String, Size, Format, ArgPtr);
 #endif
-    return( n );
+    return (n);
 }
 
 
@@ -594,16 +640,16 @@ int VSNPrintf( char *String, size_t Size, const char *Format, va_list ArgPtr )
 *
 */
 
-char *StrError( int ErrNum )
+char* StrError(int ErrNum)
 {
 #ifdef NO_strerror
     char Buffer[20];
 
-    bzero( Buffer, 20 );
-    sprintf( Buffer, "Error %d", ErrNum );
-    return( Buffer );
+    bzero(Buffer, 20);
+    sprintf(Buffer, "Error %d", ErrNum);
+    return (Buffer);
 #else
-    return( strerror( ErrNum ) );
+    return (strerror(ErrNum));
 #endif
 }
 
@@ -629,12 +675,12 @@ char *StrError( int ErrNum )
 *
 */
 
-char *StrToLower( char *String )
+char* StrToLower(char* String)
 {
-    while( *String != '\0' )
+    while (*String != '\0')
     {
-        *String = tolower( *String );
+        *String = tolower(*String);
         String++;
     }
-    return( String );
+    return (String);
 }

@@ -39,11 +39,10 @@ public class CovToCFTranslationService {
      * @param axisLabel: the crs axis label to be translate.
      * @return the corresponding CF-compliant name, if a mapping exists, the crs axis label otherwise.
      */
-    public String getStandardName(String axisLabel){
-        if(STANDARD_NAMES.containsKey(axisLabel)){
+    public String getStandardName(String axisLabel) {
+        if (STANDARD_NAMES.containsKey(axisLabel)) {
             return STANDARD_NAMES.get(axisLabel);
-        }
-        else {
+        } else {
             return axisLabel;
         }
     }
@@ -55,11 +54,10 @@ public class CovToCFTranslationService {
      * @param defaultUnitOfMeasure: the unit of measure to be returned in case no mapping is known for the given axisLabel.
      * @return the CF-compliant unit of measure, if a mapping exists, the defaultUnitOfMeasure otherwise.
      */
-    public String getUnitOfMeasure(String axisLabel, String defaultUnitOfMeasure){
-        if(UNITS_OF_MEASURE.containsKey(axisLabel)){
+    public String getUnitOfMeasure(String axisLabel, String defaultUnitOfMeasure) {
+        if (UNITS_OF_MEASURE.containsKey(axisLabel)) {
             return UNITS_OF_MEASURE.get(axisLabel);
-        }
-        else {
+        } else {
             return defaultUnitOfMeasure;
         }
     }
@@ -69,11 +67,10 @@ public class CovToCFTranslationService {
      * @param defaultAxisType: the crs axis type.
      * @return the CF-compliant axis type.
      */
-    public String getAxisType(String axisLabel, String defaultAxisType){
-        if(AXIS_TYPES.containsKey(axisLabel)){
+    public String getAxisType(String axisLabel, String defaultAxisType) {
+        if (AXIS_TYPES.containsKey(axisLabel)) {
             return AXIS_TYPES.get(axisLabel);
-        }
-        else {
+        } else {
             return defaultAxisType.toUpperCase();
         }
     }

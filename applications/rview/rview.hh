@@ -68,24 +68,24 @@ class rviewMainFrame: public rviewFrame
 {
 public:
 
-    rviewMainFrame(wxFrame *frame, char *title, int x, int y, int w, int h);
+    rviewMainFrame(wxFrame* frame, char* title, int x, int y, int w, int h);
     ~rviewMainFrame(void);
     void OnMenuCommand(int id);
     void OnSize(int w, int h);
-    void SetDatabaseInfo(const char *srvName, int srvPort,
-                         const char *dbName, const char*usrName);
-    void GetDatabaseInfo(DynamicString &srvName, int& srvPort, DynamicString &dbName,
-                         DynamicString &usrName, DynamicString &usrPassword) const;
+    void SetDatabaseInfo(const char* srvName, int srvPort,
+                         const char* dbName, const char* usrName);
+    void GetDatabaseInfo(DynamicString& srvName, int& srvPort, DynamicString& dbName,
+                         DynamicString& usrName, DynamicString& usrPassword) const;
     void newDBState(bool newState);
     bool OnClose();
 
     // Implementations of the rviewFrame virtual functions
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
 
-    int userEvent(const user_event &ue);
+    int userEvent(const user_event& ue);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
 
     // constants
@@ -103,16 +103,16 @@ public:
 
 protected:
 
-    rviewText *server;
-    rviewText *port;
-    rviewText *database;
-    rviewText *username;
-    rviewText *userpassword;
-    rviewButton *openBut;
-    wxPanel *panel;
-    wxMenuBar *mBar;
+    rviewText* server;
+    rviewText* port;
+    rviewText* database;
+    rviewText* username;
+    rviewText* userpassword;
+    rviewButton* openBut;
+    wxPanel* panel;
+    wxMenuBar* mBar;
     bool dbOpen;
-    rviewAbout *aboutWindow;
+    rviewAbout* aboutWindow;
 };
 
 
@@ -126,14 +126,14 @@ public:
 
     rView(void);
     virtual ~rView(void);
-    wxFrame *OnInit(void);
+    wxFrame* OnInit(void);
     void OpenCloseServer(void);
     void OpenQueryWindow(void);
 
 
 private:
 
-    rviewMainFrame *mainFrame;
+    rviewMainFrame* mainFrame;
 
     static const char labels_filename[];
     static const char prefs_filename[];

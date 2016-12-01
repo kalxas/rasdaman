@@ -23,15 +23,15 @@ package secore.req;
 
 /**
  * Value in a request parameter, e.g. in
- * 
+ *
  * http://opengis.net/def/crs-compound?1=http://opengis.net/def/crs/EPSG/0/4326&
  *                                     2=http://opengis.net/def/crs/EPSG/0/4440
- * 
+ *
  * parameter values are http://opengis.net/def/crs/EPSG/0/4326 and
  * http://opengis.net/def/crs/EPSG/0/4440
  *
  * @author Dimitar Misev
  */
 public interface ParamValue {
-  
+
 }

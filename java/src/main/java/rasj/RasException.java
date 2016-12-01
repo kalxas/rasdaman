@@ -40,65 +40,58 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasException extends Exception
-{
-  static final String rcsid = "@(#)Package rasj, class RasException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
+public class RasException extends Exception {
+    static final String rcsid = "@(#)Package rasj, class RasException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
 
- protected int errNo = 0;
- protected String errText = null;
+    protected int errNo = 0;
+    protected String errText = null;
 
     /**
      * Standard constructor.
      **/
- protected RasException()
-	{
-	}
+    protected RasException() {
+    }
 
     /**
      * Constructor getting the error number.
      * @param num the RasDaMan error number
      **/
- protected RasException( int num )
-	{
+    protected RasException(int num) {
         errNo = num;
-	}
+    }
 
     /**
      * Constructor getting the error message.
      * @param msg the error message
      **/
- protected RasException( String msg )
-	{
-        errText = ( (msg==null) ? "(null)" : msg );
-	}
+    protected RasException(String msg) {
+        errText = ((msg == null) ? "(null)" : msg);
+    }
 
     /**
      * Constructor getting error number and error message.
      * @param num the RasDaMan error number
      * @param msg the error message
      **/
- protected RasException( int num, String msg )
-	{
+    protected RasException(int num, String msg) {
         errNo = num;
-        errText = ( (msg==null) ? "(null)" : msg );
-	}
- 
+        errText = ((msg == null) ? "(null)" : msg);
+    }
+
     /**
      * Method for retrieving the error number.
      * @return the error number
      **/
- public int getErrNo()
-	{
+    public int getErrNo() {
         return errNo;
-	}
- 
+    }
+
     /**
      * Method retrieving the error message.
      * @return the error message
      **/
- public String getMessage()
-	{
+    public String getMessage() {
         return errText;
-	}
+    }
 
 }

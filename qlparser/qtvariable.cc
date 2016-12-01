@@ -50,8 +50,8 @@ using namespace std;
 const QtNode::QtNodeType QtVariable::nodeType = QT_MDD_VAR;
 
 
-QtVariable::QtVariable( const string& initName )
-    :  iteratorName( initName ),
+QtVariable::QtVariable(const string& initName)
+    :  iteratorName(initName),
        loadDomain(),
        oldLoadDomain(),
        dataIndex(-1)
@@ -60,9 +60,9 @@ QtVariable::QtVariable( const string& initName )
 }
 
 
-QtVariable::QtVariable( const string& initName, const r_Minterval& initDomain )
-    :  iteratorName( initName ),
-       loadDomain( initDomain ),
+QtVariable::QtVariable(const string& initName, const r_Minterval& initDomain)
+    :  iteratorName(initName),
+       loadDomain(initDomain),
        oldLoadDomain(),
        dataIndex(-1)
 {
@@ -74,28 +74,32 @@ QtVariable::~QtVariable()
 {
     // delete STL vector including its elements
     delete domainFlag;
-    domainFlag=NULL;
+    domainFlag = NULL;
 }
 
 
 bool
-QtVariable::equalMeaning( QtNode* node )
+QtVariable::equalMeaning(QtNode* node)
 {
     bool result = false;
 
-    if( nodeType == node->getNodeType() )
+    if (nodeType == node->getNodeType())
     {
         QtVariable* mddVarNode;
 
         mddVarNode = static_cast<QtVariable*>(node); // by force
 
-        if( iteratorName.compare ( mddVarNode->getIteratorName()) == 0 )
+        if (iteratorName.compare(mddVarNode->getIteratorName()) == 0)
         {
-            if( ( loadDomain.dimension() == 0 ) ||
-                    ( (mddVarNode->getLoadDomain()).dimension() == 0 ) )
+            if ((loadDomain.dimension() == 0) ||
+                    ((mddVarNode->getLoadDomain()).dimension() == 0))
+            {
                 result = true;
-            else if( loadDomain.dimension() == (mddVarNode->getLoadDomain()).dimension() )
-                result = loadDomain.intersects_with( mddVarNode->getLoadDomain() );
+            }
+            else if (loadDomain.dimension() == (mddVarNode->getLoadDomain()).dimension())
+            {
+                result = loadDomain.intersects_with(mddVarNode->getLoadDomain());
+            }
         }
     };
 
@@ -116,9 +120,9 @@ QtVariable::getSpelling()
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
 
-    result.append( iteratorName );
+    result.append(iteratorName);
 
-    if( loadDomain.dimension() > 0)
+    if (loadDomain.dimension() > 0)
     {
         os << loadDomain << ends;
         result.append(os.str());
@@ -136,32 +140,34 @@ QtVariable::getAreaType()
 
 
 void
-QtVariable::optimizeLoad( QtTrimList* trimList )
+QtVariable::optimizeLoad(QtTrimList* trimList)
 {
-    if( !trimList->empty() )
+    if (!trimList->empty())
     {
         // get the highest specified dimension
-        r_Dimension maxDimension=0;
+        r_Dimension maxDimension = 0;
         QtTrimList::iterator i;
 
-        for( i=trimList->begin(); i!=trimList->end(); i++ )
+        for (i = trimList->begin(); i != trimList->end(); i++)
             // get the maximum
+        {
             maxDimension = maxDimension > (*i)->dimension ? maxDimension : (*i)->dimension;
+        }
 
         // create a new loadDomain object and initialize it with open bounds
-        loadDomain = r_Minterval(maxDimension+1);
+        loadDomain = r_Minterval(maxDimension + 1);
 
         delete domainFlag; // delete the old array
-        domainFlag = new vector<bool>(maxDimension+1);
+        domainFlag = new vector<bool>(maxDimension + 1);
 
-        for( unsigned int j=0; j<loadDomain.dimension(); j++ )
+        for (unsigned int j = 0; j < loadDomain.dimension(); j++)
         {
-            loadDomain[j]    = r_Sinterval('*','*');
+            loadDomain[j]    = r_Sinterval('*', '*');
             (*domainFlag)[j] = true;
         }
 
         // fill the loadDomain object with the QtTrimList specifications
-        for( i=trimList->begin(); i!=trimList->end(); i++ )
+        for (i = trimList->begin(); i != trimList->end(); i++)
         {
             loadDomain[(*i)->dimension]    = (*i)->interval;
             (*domainFlag)[(*i)->dimension] = (*i)->intervalFlag;
@@ -169,10 +175,10 @@ QtVariable::optimizeLoad( QtTrimList* trimList )
 
         // delete heap based elements
         // release( trimList->begin(), trimList->end() );
-        for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+        for (QtNode::QtTrimList::iterator iter = trimList->begin(); iter != trimList->end(); iter++)
         {
             delete *iter;
-            *iter=NULL;
+            *iter = NULL;
         }
 
         // changed from RMInit:logOut -- PB 2003-nov-20
@@ -181,13 +187,13 @@ QtVariable::optimizeLoad( QtTrimList* trimList )
 
     // delete list
     delete trimList;
-    trimList=NULL;
+    trimList = NULL;
 }
 
 
 
 QtData*
-QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
+QtVariable::evaluate(QtDataList* inputList) throw (ParseInfo)
 {
     startTimer("QtVariable");
 
@@ -195,40 +201,49 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 
     QtData* returnValue = NULL;
 
-    if( inputList /* && inputList->size() > dataIndex*/ )
+    if (inputList /* && inputList->size() > dataIndex*/)
     {
         QtData* dataObject = 0;
 
-        if( dataIndex == -1 )
+        if (dataIndex == -1)
         {
             // Search for the data object matching the iterator name
             int pos = 0;
 
-            for( QtDataList::iterator iter=inputList->begin(); iter!=inputList->end() && !dataObject; iter++ )
+            for (QtDataList::iterator iter = inputList->begin(); iter != inputList->end() && !dataObject; iter++)
             {
-                if( *iter && iteratorName == (*iter)->getIteratorName() )
+                if (*iter && iteratorName == (*iter)->getIteratorName())
+                {
                     dataObject = *iter;
+                }
                 else
+                {
                     pos++;
+                }
             }
 
-            if( dataObject ) dataIndex = pos;
+            if (dataObject)
+            {
+                dataIndex = pos;
+            }
         }
         else
             // For performance reasons, take the data element from position determined in the first run.
+        {
             dataObject = (*inputList)[static_cast<size_t>(dataIndex)];
+        }
 
-        if( !dataObject )
+        if (!dataObject)
         {
             LFATAL << "Error: QtVariable::evaluate() - collection iterator " <<
-                           iteratorName.c_str() << " is unknown.";
+                   iteratorName.c_str() << " is unknown.";
             parseInfo.setErrorNo(357);
             throw parseInfo;
         }
 
-        if( dataObject->getDataType() == QT_MDD )
+        if (dataObject->getDataType() == QT_MDD)
         {
-            if( loadDomain.dimension() == 0 )
+            if (loadDomain.dimension() == 0)
             {
                 // If no domain is specified, the load domain equals the current domain.
                 // This means that the data object is passed with an incremented reference.
@@ -251,34 +266,34 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                 // intersect actLoadDomain with defined domain
                 try
                 {
-                    actLoadDomain.intersection_of( loadDomain, currentMDDObj->getCurrentDomain() );
+                    actLoadDomain.intersection_of(loadDomain, currentMDDObj->getCurrentDomain());
                 }
-                catch( r_Edim_mismatch& )
+                catch (r_Edim_mismatch&)
                 {
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
                 }
-                catch( r_Eno_interval )
+                catch (r_Eno_interval)
                 {
                     // ticket:358
                     // Instead of throwing an exception, return an MDD initialized
                     // with null values when selecting an area that doesn't intersect
                     // with any existing tiles in the database -- DM 2013-nov-15
                     LWARNING << "Warning: specified domain " << loadDomain
-                            << " does not intersect with spatial domain of MDD, returning empty result.";
+                             << " does not intersect with spatial domain of MDD, returning empty result.";
 
                     const MDDBaseType* mddType = currentMDDObj->getMDDBaseType();
-                    
+
                     // create a transient MDD object for the query result
-                    MDDObj* resultMDD = new MDDObj( mddType, loadDomain );
+                    MDDObj* resultMDD = new MDDObj(mddType, loadDomain);
 
                     // create transient tile
-                    Tile* resTile = new Tile( loadDomain, mddType->getBaseType() );
+                    Tile* resTile = new Tile(loadDomain, mddType->getBaseType());
                     resTile->setPersistent(false);
 
                     // insert Tile in result mddObj
-                    resultMDD->insertTile( resTile );
-                    returnValue = new QtMDD( resultMDD );
+                    resultMDD->insertTile(resTile);
+                    returnValue = new QtMDD(resultMDD);
 
                     stopTimer();
                     return returnValue;
@@ -287,7 +302,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 //                    parseInfo.setErrorNo(356);
 //                    throw parseInfo;
                 }
-                catch( r_Error& err )
+                catch (r_Error& err)
                 {
                     LFATAL << "Error: QtVariable::evaluate() - general error.";
                     parseInfo.setErrorNo(350);
@@ -296,7 +311,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 
                 LTRACE << "  loadDomain......: " << actLoadDomain;
 
-                if( qtMDD->getLifetime() == QtData::QT_PERSISTENT )
+                if (qtMDD->getLifetime() == QtData::QT_PERSISTENT)
                 {
                     //
                     // Create a new QtMDD object as carrier object for the persistent MDD object
@@ -307,8 +322,8 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                     //       is not possible if the iterator variable occurs with different spatial operations.
                     //
 
-                    QtMDD* result = new QtMDD( currentMDDObj );
-                    result->setLoadDomain( actLoadDomain );
+                    QtMDD* result = new QtMDD(currentMDDObj);
+                    result->setLoadDomain(actLoadDomain);
 
                     returnValue = result;
                 }
@@ -337,35 +352,37 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
     {
         LTRACE << "Error: QtVariable::evaluate() - the input list is empty.";
     }
-    
+
     stopTimer();
-    
+
     return returnValue;
 }
 
 
 void
-QtVariable::printTree( int tab, ostream& s, QtChildType /*mode*/ )
+QtVariable::printTree(int tab, ostream& s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtVariable Object: type " << flush;
-    dataStreamType.printStatus( s );
+    dataStreamType.printStatus(s);
     s << " name |" << iteratorName.c_str() << "|" << getEvaluationTime() /* << " pos " << dataIndex */ << endl;
 
-    if( loadDomain.dimension() > 0 )
+    if (loadDomain.dimension() > 0)
     {
         s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "load domain: ";
-        loadDomain.print_status( s );
+        loadDomain.print_status(s);
         s << " - Trimflag: ";
 
-        for( unsigned int i=0; i<domainFlag->size(); i++)
+        for (unsigned int i = 0; i < domainFlag->size(); i++)
+        {
             s << (*domainFlag)[i];
+        }
         s << endl;
     }
 
-    if( oldLoadDomain.dimension() > 0 )
+    if (oldLoadDomain.dimension() > 0)
     {
         s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "old  domain: ";
-        oldLoadDomain.print_status( s );
+        oldLoadDomain.print_status(s);
         s << endl;
     };
 }
@@ -373,7 +390,7 @@ QtVariable::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 
 
 void
-QtVariable::printAlgebraicExpression( ostream& s )
+QtVariable::printAlgebraicExpression(ostream& s)
 {
     s << iteratorName.c_str() << flush;
 }
@@ -381,25 +398,27 @@ QtVariable::printAlgebraicExpression( ostream& s )
 
 
 const QtTypeElement&
-QtVariable::checkType( QtTypeTuple* typeTuple ) throw (ParseInfo)
+QtVariable::checkType(QtTypeTuple* typeTuple) throw (ParseInfo)
 {
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
-    if( typeTuple )
+    if (typeTuple)
     {
         vector<QtTypeElement>::iterator iter;
 
         // search for the type matching the variable name
-        for( iter=typeTuple->tuple.begin();
-                iter!=typeTuple->tuple.end() && dataStreamType.getDataType() == QT_TYPE_UNKNOWN;
-                iter++ )
+        for (iter = typeTuple->tuple.begin();
+                iter != typeTuple->tuple.end() && dataStreamType.getDataType() == QT_TYPE_UNKNOWN;
+                iter++)
         {
-            if( (*iter).getName() && iteratorName == string( (*iter).getName() ) )
+            if ((*iter).getName() && iteratorName == string((*iter).getName()))
+            {
                 dataStreamType = *iter;
+            }
         }
     }
 
-    if( (dataStreamType.getDataType() == QT_TYPE_UNKNOWN) )
+    if ((dataStreamType.getDataType() == QT_TYPE_UNKNOWN))
     {
         LFATAL << "Error: QtVariable::checkType() - variable " << iteratorName.c_str() << " is unknwon.";
         parseInfo.setErrorNo(357);

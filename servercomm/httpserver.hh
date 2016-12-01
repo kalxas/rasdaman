@@ -58,15 +58,15 @@ public:
     public:
 
         int      objectType;
-        char    *objectTypeName;
-        char    *typeStructure;
+        char*    objectTypeName;
+        char*    typeStructure;
         int      typeLength;
-        char    *domain;
-        char    *tileSize;
-        char    *oidString;
+        char*    domain;
+        char*    tileSize;
+        char*    oidString;
         int      dataSize;
-        char    *binData;
-        char    *stringRepresentation;
+        char*    binData;
+        char*    stringRepresentation;
 
         /// default constructor
         MDDEncoding();
@@ -78,7 +78,7 @@ public:
         void setObjectType(int type);
 
         // set objectTypeName
-        void setObjectTypeName(char *name);
+        void setObjectTypeName(char* name);
 
         // set typeStructure
         void setTypeStructure(char* type);
@@ -87,19 +87,19 @@ public:
         void setTypeLength(int len);
 
         // set domain
-        void setDomain(char *dom);
+        void setDomain(char* dom);
 
         // set oid
-        void setOID(char *o);
+        void setOID(char* o);
 
         // set tile size
-        void setTileSize(char *size);
+        void setTileSize(char* size);
 
         // set dataSize
         void setDataSize(int size);
 
         // set binData
-        void setBinData(char *data);
+        void setBinData(char* data);
 
         // print Values
         const char* toString();
@@ -117,24 +117,24 @@ public:
     HttpServer();
 
     // the acual constructor
-    HttpServer( unsigned long timeOut, unsigned long managementInterval , unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort,char* serverName);
+    HttpServer(unsigned long timeOut, unsigned long managementInterval , unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort, char* serverName);
 
     /// destructor
     virtual ~HttpServer();
 
     /// forces the server to listen for client calls
-    virtual void startRpcServer() throw( r_Error );
+    virtual void startRpcServer() throw(r_Error);
 
     /// stops the server
     virtual void stopRpcServer();
 
     /// print server status to {\tt s}
-    virtual void printServerStatus( ostream& s=cout );
+    virtual void printServerStatus(ostream& s = cout);
 
     /// Executes a retrieval query and prepare the result for HTTP transer.
-    virtual long processRequest( unsigned long callingClientId, char* baseName,
-                                 int rascommand, char* query, int binDataSize, char *binData,
-                                 int Endianess, char* &result, char *capability );
+    virtual long processRequest(unsigned long callingClientId, char* baseName,
+                                int rascommand, char* query, int binDataSize, char* binData,
+                                int Endianess, char*& result, char* capability);
     /**
        Executes a query and prepares the complete result for transfer via
        HTTP. The length of the result is returned. The first parameter is
@@ -155,13 +155,13 @@ public:
     */
 
     /// returns a pointer to the context of the calling client, 0 it there is no context
-    virtual ClientTblElt* getClientContext( unsigned long ClientId );
+    virtual ClientTblElt* getClientContext(unsigned long ClientId);
     /**
        Returns a pointer to the context of the calling client. Currently always
        the same global context is returned.
     */
 private:
-    int   doIt_httpserver( int argc, char *argv[] );
+    int   doIt_httpserver(int argc, char* argv[]);
 
 
     bool flagInformRasMgr; // used to trigger informRasMGR(SERVERAVAILABLE)

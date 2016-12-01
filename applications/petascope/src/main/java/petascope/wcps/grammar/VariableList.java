@@ -50,11 +50,11 @@ public class VariableList implements IParseTreeNode {
 
     public String toXML() {
         String result = "<" + WcpsConstants.MSG_AXIS_ITERATOR + "><" + WcpsConstants.MSG_AXIS_TYPE
-                + ">" + axisType + "</" + WcpsConstants.MSG_AXIS_TYPE + ">"
-                + "<" + WcpsConstants.MSG_ITERATORVAR + ">" + iteratorName + "</" +
-                WcpsConstants.MSG_ITERATORVAR + ">" + "<" + WcpsConstants.MSG_COORD + ">"
-                + lo + "</" + WcpsConstants.MSG_COORD + ">" + "<" + WcpsConstants.MSG_COORD
-                + ">" + hi + "</" + WcpsConstants.MSG_COORD + "></" + WcpsConstants.MSG_AXIS_ITERATOR + ">";
+                        + ">" + axisType + "</" + WcpsConstants.MSG_AXIS_TYPE + ">"
+                        + "<" + WcpsConstants.MSG_ITERATORVAR + ">" + iteratorName + "</" +
+                        WcpsConstants.MSG_ITERATORVAR + ">" + "<" + WcpsConstants.MSG_COORD + ">"
+                        + lo + "</" + WcpsConstants.MSG_COORD + ">" + "<" + WcpsConstants.MSG_COORD
+                        + ">" + hi + "</" + WcpsConstants.MSG_COORD + "></" + WcpsConstants.MSG_AXIS_ITERATOR + ">";
 
         if (next != null) {
             result += next.toXML();

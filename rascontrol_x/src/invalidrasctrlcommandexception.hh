@@ -28,7 +28,7 @@
 
 namespace rascontrol
 {
-class InvalidRasctrlCommandException:public common::Exception
+class InvalidRasctrlCommandException: public common::Exception
 {
 public:
     InvalidRasctrlCommandException();

@@ -39,7 +39,8 @@ rasdaman GmbH.
  * @param input2 the second operand.
  */
 QtCaseEquality::QtCaseEquality(QtOperation* commonOperand, QtOperation* newInput2)
-    : QtEqual(commonOperand, newInput2)  {
+    : QtEqual(commonOperand, newInput2)
+{
     commonOperandDeleted = false;
 }
 
@@ -47,7 +48,8 @@ QtCaseEquality::QtCaseEquality(QtOperation* commonOperand, QtOperation* newInput
  * Setter for the commonOperandDeleted attribute.
  * @param commonOperandDeleted
  */
-void QtCaseEquality::setCommonOperadDeleted(bool newCommonOperandDeleted){
+void QtCaseEquality::setCommonOperadDeleted(bool newCommonOperandDeleted)
+{
     this->commonOperandDeleted = newCommonOperandDeleted;
 }
 
@@ -55,8 +57,10 @@ void QtCaseEquality::setCommonOperadDeleted(bool newCommonOperandDeleted){
  * Destructor override. If the commonOperand has already been deleted, mark it
  * as NULL.
  */
-QtCaseEquality::~QtCaseEquality() {
-    if(commonOperandDeleted){
-       input1 = NULL;
+QtCaseEquality::~QtCaseEquality()
+{
+    if (commonOperandDeleted)
+    {
+        input1 = NULL;
     }
 }

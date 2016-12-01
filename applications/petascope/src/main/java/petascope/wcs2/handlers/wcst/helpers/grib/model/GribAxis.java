@@ -32,7 +32,7 @@ public class GribAxis {
     private String min;
     private String max;
 
-    public GribAxis(){}
+    public GribAxis() {}
 
     public String getType() {
         return type;

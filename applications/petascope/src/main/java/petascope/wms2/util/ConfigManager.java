@@ -92,7 +92,7 @@ public class ConfigManager {
     private static final String VERSION = "1.3.0";
 
     private static final String SCHEMA_LOCATION = "http://www.opengis.net/wms " +
-        "http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd ";
+            "http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd ";
 
     private static final String VERSION_PARAM = "version";
 

@@ -28,7 +28,7 @@ rasdaman GmbH.
  * <pre>
  *
  * PURPOSE:
- * This runtime exception is raised when the 
+ * This runtime exception is raised when the
  * {@link rasj.RasType RasType} of a query result is unknown
  * on client-side.
  * @version $Revision: 1.6 $
@@ -40,9 +40,8 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasTypeUnknownException extends RasRuntimeException
-{
-  static final String rcsid = "@(#)Package rasj, class RasDimensionMismatchException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasTypeUnknownException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
+public class RasTypeUnknownException extends RasRuntimeException {
+    static final String rcsid = "@(#)Package rasj, class RasDimensionMismatchException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasTypeUnknownException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
 
     // the unknown type
     private String rType = null;
@@ -51,33 +50,31 @@ public class RasTypeUnknownException extends RasRuntimeException
      * Standard constructor getting the type that caused the error.
      * @param type the unknown type that caused this exception
      **/
-    protected RasTypeUnknownException(String type)
-    {
-	super(RasGlobalDefs.TYPE_UNKNOWN);
-	rType = ( (type==null) ? "(null)" : type );
+    protected RasTypeUnknownException(String type) {
+        super(RasGlobalDefs.TYPE_UNKNOWN);
+        rType = ((type == null) ? "(null)" : type);
     }
 
     /**
      * Returns the error message.
      * @return the error message.
      **/
-    public String getMessage()
-    {
-	int i;
+    public String getMessage() {
+        int i;
 
-	if(super.getMessage() == null)
-	    {
-		String msg = RasErrorTexts.getErrorMessage(errNo);
+        if (super.getMessage() == null) {
+            String msg = RasErrorTexts.getErrorMessage(errNo);
 
-		StringBuffer buf = new StringBuffer(msg);
-		i = msg.indexOf( RasGlobalDefs.KEYWORD_TYPE );
-		if(i != -1)
-		    buf.replace( i, i+RasGlobalDefs.KEYWORD_TYPE.length(), String.valueOf(rType) );
-		msg = buf.toString();
-		return msg;
-	    }
-        else
-	    return super.getMessage();
+            StringBuffer buf = new StringBuffer(msg);
+            i = msg.indexOf(RasGlobalDefs.KEYWORD_TYPE);
+            if (i != -1) {
+                buf.replace(i, i + RasGlobalDefs.KEYWORD_TYPE.length(), String.valueOf(rType));
+            }
+            msg = buf.toString();
+            return msg;
+        } else {
+            return super.getMessage();
+        }
     }
 
 }

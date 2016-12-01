@@ -47,23 +47,23 @@ public:
     /// default constructor
     r_IterType();
     /// constructor used in r_Structure_Type
-    r_IterType( T* newLastElem, T* newElems );
+    r_IterType(T* newLastElem, T* newElems);
     /// constructor used in r_Structure_Type
-    r_IterType( T* newLastElem, T* newElems, T* newCurrPos );
+    r_IterType(T* newLastElem, T* newElems, T* newCurrPos);
     /// copy constructor
-    r_IterType( const r_IterType<T>& iter );
+    r_IterType(const r_IterType<T>& iter);
     /// destructor
     ~r_IterType();
     /// assignment operator
-    r_IterType<T>& operator=( const r_IterType<T>& iter );
+    r_IterType<T>& operator=(const r_IterType<T>& iter);
     /// equal comparison: equal if they point to the same element.
-    bool operator==( const r_IterType<T>& otherIter );
+    bool operator==(const r_IterType<T>& otherIter);
     /// no equal comparison: not equal if they point to different elements
-    bool operator!=( const r_IterType<T>& otherIter );
+    bool operator!=(const r_IterType<T>& otherIter);
     /// prefix incrementor
     r_IterType<T>& operator++();
     /// postfix incrementor
-    r_IterType<T> operator++( int );
+    r_IterType<T> operator++(int);
     /// the dereference operator gets the actual element
     T operator*();
 

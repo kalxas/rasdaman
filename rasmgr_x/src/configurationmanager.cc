@@ -36,14 +36,14 @@ ConfigurationManager::ConfigurationManager(boost::shared_ptr<ControlCommandExecu
         boost::shared_ptr<PeerManager> peerManager,
         boost::shared_ptr<ServerManager> serverManager,
         boost::shared_ptr<UserManager> userManager)
-    :commandExecutor_(commandExecutor),
-     dbhManager_(dbhManager),
-     dbManager_(dbManager),
-     peerManager_(peerManager),
-     serverManager_(serverManager),
-     userManager_(userManager),
-     rasmgrConfFilePath(std::string(CONFDIR)+"/"+std::string(RASMGR_CONF_FILE)),
-     isDirty_(false)
+    : commandExecutor_(commandExecutor),
+      dbhManager_(dbhManager),
+      dbManager_(dbManager),
+      peerManager_(peerManager),
+      serverManager_(serverManager),
+      userManager_(userManager),
+      rasmgrConfFilePath(std::string(CONFDIR) + "/" + std::string(RASMGR_CONF_FILE)),
+      isDirty_(false)
 {}
 
 ConfigurationManager::~ConfigurationManager()
@@ -51,9 +51,9 @@ ConfigurationManager::~ConfigurationManager()
 
 void ConfigurationManager::saveConfiguration(bool backup)
 {
-    if(backup)
+    if (backup)
     {
-        if(this->isDirty())
+        if (this->isDirty())
         {
             // Append a unique ID to the file.
             this->saveRasMgrConf(true);
@@ -78,13 +78,13 @@ void ConfigurationManager::loadConfiguration()
     {
         this->loadRasMgrConf();
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
     }
-    catch(...)
+    catch (...)
     {
-        LERROR<<"Failed to load"<<RASMGR_CONF_FILE;
+        LERROR << "Failed to load" << RASMGR_CONF_FILE;
     }
 
     this->setIsDirty(false);
@@ -102,33 +102,33 @@ void ConfigurationManager::setIsDirty(bool isDirty)
 
 void ConfigurationManager::loadRasMgrConf()
 {
-    if(rasmgrConfFilePath.length() >= PATH_MAX)
+    if (rasmgrConfFilePath.length() >= PATH_MAX)
     {
         throw runtime_error("The path to the configuration file is longer than the maximum file system path.");
     }
 
-    LDEBUG<<"Opening rasmanager configuration file:"<<rasmgrConfFilePath;
+    LDEBUG << "Opening rasmanager configuration file:" << rasmgrConfFilePath;
 
-    std::ifstream ifs (rasmgrConfFilePath);   // open config file
+    std::ifstream ifs(rasmgrConfFilePath);    // open config file
 
-    if ( !ifs )
+    if (!ifs)
     {
-        throw common::MissingResourceException(rasmgrConfFilePath );
+        throw common::MissingResourceException(rasmgrConfFilePath);
     }
     else
     {
         char inBuffer[MAX_CONTROL_COMMAND_LENGTH];
 
-        while ( !ifs.eof() )
+        while (!ifs.eof())
         {
-            ifs.getline ( inBuffer , MAX_CONTROL_COMMAND_LENGTH );
+            ifs.getline(inBuffer , MAX_CONTROL_COMMAND_LENGTH);
 
-            std::string result = commandExecutor_->sudoExecuteCommand ( std::string ( inBuffer ) );
+            std::string result = commandExecutor_->sudoExecuteCommand(std::string(inBuffer));
 
             //Only error messages are non-empty
-            if ( !result.empty() )
+            if (!result.empty())
             {
-                LERROR<<result;
+                LERROR << result;
             }
         }
     }
@@ -136,9 +136,9 @@ void ConfigurationManager::loadRasMgrConf()
 
 void ConfigurationManager::saveRasMgrConf(bool backup)
 {
-    std::string confFilePath = backup?(rasmgrConfFilePath+"."+common::UUID::generateUUID()):rasmgrConfFilePath;
+    std::string confFilePath = backup ? (rasmgrConfFilePath + "." + common::UUID::generateUUID()) : rasmgrConfFilePath;
 
-    if(confFilePath.length() >= PATH_MAX)
+    if (confFilePath.length() >= PATH_MAX)
     {
         throw runtime_error("The path to the configuration file is longer than the maximum file system path.");
     }
@@ -157,54 +157,54 @@ void ConfigurationManager::saveRasMgrConf(bool backup)
     ofs.close();
 }
 
-void ConfigurationManager::saveDatabaseHosts(std::ofstream &out)
+void ConfigurationManager::saveDatabaseHosts(std::ofstream& out)
 {
     DatabaseHostMgrProto dbhMgrData = this->dbhManager_->serializeToProto();
-    for(int i=0; i<dbhMgrData.database_hosts_size(); ++i)
+    for (int i = 0; i < dbhMgrData.database_hosts_size(); ++i)
     {
         DatabaseHostProto dbhData = dbhMgrData.database_hosts(i);
 
-        out<<"define dbh "<<dbhData.host_name()
-           <<" -connect "<<dbhData.connect_string();
-        if(!dbhData.user_name().empty())
+        out << "define dbh " << dbhData.host_name()
+            << " -connect " << dbhData.connect_string();
+        if (!dbhData.user_name().empty())
         {
-            out<<" -user "<<dbhData.user_name();
+            out << " -user " << dbhData.user_name();
         }
-        if(!dbhData.password().empty())
+        if (!dbhData.password().empty())
         {
-            out<<" -passwd "<<dbhData.password();
+            out << " -passwd " << dbhData.password();
         }
 
-        out<<std::endl;
+        out << std::endl;
     }
 }
 
-void ConfigurationManager::saveDatabases(std::ofstream &out)
+void ConfigurationManager::saveDatabases(std::ofstream& out)
 {
     DatabaseMgrProto dbManagerData = this->dbManager_->serializeToProto();
 
-    for(int i=0; i<dbManagerData.databases_size(); ++i)
+    for (int i = 0; i < dbManagerData.databases_size(); ++i)
     {
         auto databaseData = dbManagerData.databases(i);
 
-        out<<"define db "<<databaseData.database().name()
-           <<" -dbh "<<databaseData.database_host()
-           <<std::endl;
+        out << "define db " << databaseData.database().name()
+            << " -dbh " << databaseData.database_host()
+            << std::endl;
     }
 }
 
-void ConfigurationManager::saveServers(std::ofstream &out)
+void ConfigurationManager::saveServers(std::ofstream& out)
 {
     ServerMgrProto serverManagerData = this->serverManager_->serializeToProto();
-    for(int i=0; i<serverManagerData.server_groups_size(); ++i)
+    for (int i = 0; i < serverManagerData.server_groups_size(); ++i)
     {
         ServerGroupProto serverGroup = serverManagerData.server_groups(i);
-        out<<"define srv "<<serverGroup.name()
-           <<" -host "<<serverGroup.host();
+        out << "define srv " << serverGroup.name()
+            << " -host " << serverGroup.host();
 
         // Store ports in an array for sorting.
         std::vector<boost::int32_t> ports;
-        for(int j=0; j<serverGroup.ports_size(); ++j)
+        for (int j = 0; j < serverGroup.ports_size(); ++j)
         {
             ports.push_back(serverGroup.ports(j));
         }
@@ -212,15 +212,15 @@ void ConfigurationManager::saveServers(std::ofstream &out)
         //Sort the list of ports
         std::sort(ports.begin(), ports.end());
 
-        out<<" -port ";
-        for( boost::uint32_t j=0; j<ports.size(); ++j)
+        out << " -port ";
+        for (boost::uint32_t j = 0; j < ports.size(); ++j)
         {
             boost::uint32_t start = j;
             boost::uint32_t end = j;
 
-            for(boost::uint32_t k=j+1; k<ports.size(); ++k)
+            for (boost::uint32_t k = j + 1; k < ports.size(); ++k)
             {
-                if(ports[k-1] + 1 == ports[k])
+                if (ports[k - 1] + 1 == ports[k])
                 {
                     end++;
                 }
@@ -232,63 +232,63 @@ void ConfigurationManager::saveServers(std::ofstream &out)
 
             j = end;
 
-            if(start != end)
+            if (start != end)
             {
-                out<<" "<<ports[start]<<"-"<<ports[end];
+                out << " " << ports[start] << "-" << ports[end];
             }
             else
             {
-                out<<" "<<ports[start];
+                out << " " << ports[start];
             }
 
-            if(j!=ports.size()-1)
+            if (j != ports.size() - 1)
             {
-                out<<",";
+                out << ",";
             }
         }
 
-        out<<" -dbh "<<serverGroup.db_host()
-           <<" -autorestart "<<(serverGroup.autorestart()?"on":"off")
-           <<" -countdown "<<serverGroup.countdown();
+        out << " -dbh " << serverGroup.db_host()
+            << " -autorestart " << (serverGroup.autorestart() ? "on" : "off")
+            << " -countdown " << serverGroup.countdown();
 
-        if(serverGroup.has_min_alive_server_no())
+        if (serverGroup.has_min_alive_server_no())
         {
-            out<<" -alive "<<serverGroup.min_alive_server_no();
+            out << " -alive " << serverGroup.min_alive_server_no();
         }
 
-        if(serverGroup.has_min_available_server_no())
+        if (serverGroup.has_min_available_server_no())
         {
-            out<<" -available "<<serverGroup.min_available_server_no();
+            out << " -available " << serverGroup.min_available_server_no();
         }
 
-        if(serverGroup.has_max_idle_server_no())
+        if (serverGroup.has_max_idle_server_no())
         {
-            out<<" -idle "<<serverGroup.max_idle_server_no();
+            out << " -idle " << serverGroup.max_idle_server_no();
         }
-        if(serverGroup.has_server_options())
+        if (serverGroup.has_server_options())
         {
-            out<<" -xp "<<serverGroup.server_options();
+            out << " -xp " << serverGroup.server_options();
         }
 
-        out<<std::endl;
+        out << std::endl;
     }
 }
 
-void ConfigurationManager::savePeers(std::ofstream &out)
+void ConfigurationManager::savePeers(std::ofstream& out)
 {
     PeerMgrProto peerManagerData = this->peerManager_->serializeToProto();
 
-    for(int i=0; i<peerManagerData.outpeers_size(); ++i)
+    for (int i = 0; i < peerManagerData.outpeers_size(); ++i)
     {
-        out<<"define outpeer "<<peerManagerData.outpeers(i).host_name()
-           <<" -port "<<peerManagerData.outpeers(i).port()
-           <<std::endl;
+        out << "define outpeer " << peerManagerData.outpeers(i).host_name()
+            << " -port " << peerManagerData.outpeers(i).port()
+            << std::endl;
     }
 
-    for(int i=0; i<peerManagerData.inpeers_size(); ++i)
+    for (int i = 0; i < peerManagerData.inpeers_size(); ++i)
     {
-        out<<"define inpeer "<<peerManagerData.inpeers(i).host_name()
-           <<std::endl;
+        out << "define inpeer " << peerManagerData.inpeers(i).host_name()
+            << std::endl;
     }
 }
 

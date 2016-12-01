@@ -12,7 +12,7 @@ namespace rasmgr
 {
 namespace test
 {
-class UserManagerMock:public rasmgr::UserManager
+class UserManagerMock: public rasmgr::UserManager
 {
 public:
     MOCK_METHOD1(defineUser, void(const rasmgr::UserProto&));

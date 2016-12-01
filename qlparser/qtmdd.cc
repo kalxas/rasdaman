@@ -46,52 +46,64 @@ using namespace std;
 
 extern MDDColl* mddConstants;
 
-QtMDD::QtMDD( MDDObj* ptr )
+QtMDD::QtMDD(MDDObj* ptr)
     : QtData(),
-      mddObject( ptr ),
-      fromConversion( false )
+      mddObject(ptr),
+      fromConversion(false)
 {
-    if( ptr && ptr->isPersistent() )
-        setLifetime( QtData::QT_PERSISTENT );
+    if (ptr && ptr->isPersistent())
+    {
+        setLifetime(QtData::QT_PERSISTENT);
+    }
     else
-        setLifetime( QtData::QT_TRANSIENT );
+    {
+        setLifetime(QtData::QT_TRANSIENT);
+    }
 
-    if( ptr )
+    if (ptr)
+    {
         loadDomain = ptr->getDefinitionDomain();
+    }
 }
 
 
-QtMDD::QtMDD( MDDObj* ptr, string name )
-    : QtData( name ),
-      mddObject( ptr ),
-      fromConversion( false )
+QtMDD::QtMDD(MDDObj* ptr, string name)
+    : QtData(name),
+      mddObject(ptr),
+      fromConversion(false)
 {
-    if( ptr && ptr->isPersistent() )
-        setLifetime( QtData::QT_PERSISTENT );
+    if (ptr && ptr->isPersistent())
+    {
+        setLifetime(QtData::QT_PERSISTENT);
+    }
     else
-        setLifetime( QtData::QT_TRANSIENT );
+    {
+        setLifetime(QtData::QT_TRANSIENT);
+    }
 
-    if( ptr )
+    if (ptr)
+    {
         loadDomain = ptr->getCurrentDomain();
+    }
 }
 
 
-QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
-    : QtData(), mddObject(0), fromConversion( false )
+QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
+    : QtData(), mddObject(0), fromConversion(false)
 {
-    list< QtScalarData* >::iterator         elemIter;
-    QtScalarData*                           scalarElem=NULL;
+    list<QtScalarData*>::iterator         elemIter;
+    QtScalarData*                           scalarElem = NULL;
 
     //
     // evaluate domain
     //
 
-    if( mintervalOp )
+    if (mintervalOp)
     {
 
         QtData* operand = mintervalOp->evaluate(NULL);
 
-        if( operand->getDataType() != QT_MINTERVAL )
+        if (operand->getDataType() != QT_MINTERVAL)
         {
             LFATAL << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Can not evaluate domain expression to an minterval." ;
             ParseInfo errorInfo = getParseInfo();
@@ -102,48 +114,51 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
         r_Minterval domain = (static_cast<QtMintervalData*>(operand))->getMintervalData();
 
         // delete old operand
-        if( operand ) operand->deleteRef();
+        if (operand)
+        {
+            operand->deleteRef();
+        }
 
         //
         // determine base type
         //
 
-        if( literalList->size()!=0 )
+        if (literalList->size() != 0)
         {
             scalarElem = *(literalList->begin());
             const BaseType* baseType = scalarElem->getValueType();
             //used to check if the MDDs are of the same type
-            char *baseStructure = baseType->getTypeStructure();
+            char* baseStructure = baseType->getTypeStructure();
 
             //
             // allocate memory and fill it with cell values of the list
             //
             unsigned long cellCount = 0;
             unsigned long cellSize  = baseType->getSize();
-            char* cellBuffer   = static_cast<char*>(mymalloc( domain.cell_count()*cellSize ));
+            char* cellBuffer   = static_cast<char*>(mymalloc(domain.cell_count() * cellSize));
             char* bufferOffset = cellBuffer;
 
-            for( elemIter = literalList->begin(); elemIter != literalList->end(); elemIter++ )
+            for (elemIter = literalList->begin(); elemIter != literalList->end(); elemIter++)
             {
                 scalarElem = *elemIter;
                 cellCount++;
 
                 // do not write beyond array boundary
-                if( cellCount <= domain.cell_count() )
+                if (cellCount <= domain.cell_count())
                 {
-                    char *scalarElemTypeStructure = scalarElem->getTypeStructure();
-                    if( strcmp( scalarElemTypeStructure, baseStructure ) != 0 )
+                    char* scalarElemTypeStructure = scalarElem->getTypeStructure();
+                    if (strcmp(scalarElemTypeStructure, baseStructure) != 0)
                     {
                         LFATAL << "Error: QtMDD() - All cell values of an MDD must be of the same type.";
-                        free( cellBuffer );
-                        free( scalarElemTypeStructure );
-                        cellBuffer=NULL;
+                        free(cellBuffer);
+                        free(scalarElemTypeStructure);
+                        cellBuffer = NULL;
                         ParseInfo errorInfo = getParseInfo();
                         errorInfo.setErrorNo(301);
                         throw errorInfo;
                     }
-                    free( scalarElemTypeStructure );
-                    memcpy( bufferOffset, (scalarElem->getValueBuffer()), cellSize );
+                    free(scalarElemTypeStructure);
+                    memcpy(bufferOffset, (scalarElem->getValueBuffer()), cellSize);
                     bufferOffset += cellSize;
                 }
             }
@@ -152,11 +167,11 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
             // delete literal list - done by caller
             //  delete literalList;
 
-            if( cellCount != domain.cell_count() )
+            if (cellCount != domain.cell_count())
             {
                 LFATAL << "Error: QtMDD() - Number of cells specified does not match the number of cells of the given spatial domain.";
-                free( cellBuffer );
-                cellBuffer=NULL;
+                free(cellBuffer);
+                cellBuffer = NULL;
                 ParseInfo errorInfo = getParseInfo();
                 errorInfo.setErrorNo(302);
                 throw errorInfo;
@@ -165,19 +180,21 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
             //
             // create transient tile
             //
-            Tile* tile = new Tile( domain, baseType, true, cellBuffer, (r_Bytes)0, r_Array );
+            Tile* tile = new Tile(domain, baseType, true, cellBuffer, (r_Bytes)0, r_Array);
 
             //
             // create transiend mddObject and attach created tile
             //
-            MDDDimensionType* mddDimensionType = new MDDDimensionType( "tmp", baseType, domain.dimension() );
-            TypeFactory::addTempType( mddDimensionType );
-            mddObject = new MDDObj( mddDimensionType, domain );
-            mddObject->insertTile( tile );
+            MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", baseType, domain.dimension());
+            TypeFactory::addTempType(mddDimensionType);
+            mddObject = new MDDObj(mddDimensionType, domain);
+            mddObject->insertTile(tile);
             loadDomain = domain;
         }
         else
+        {
             LERROR << "Internal Error: QtMDD( domain, literalList ) - list of literal lists is empty";
+        }
     }
     else
     {
@@ -191,14 +208,14 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
 
 
 
-QtMDD::QtMDD( __attribute__ ((unused)) int constantNo )
+QtMDD::QtMDD(__attribute__((unused)) int constantNo)
     : QtData(),
-      mddObject( NULL ),
-      fromConversion( false )
+      mddObject(NULL),
+      fromConversion(false)
 {
     LTRACE << "QtMDD() - constant no " << constantNo;
 
-    if( mddConstants )
+    if (mddConstants)
     {
 
         MDDCollIter* mddIter = mddConstants->createIterator();
@@ -209,13 +226,15 @@ QtMDD::QtMDD( __attribute__ ((unused)) int constantNo )
         mddObject = mddIter->getElement();
 
         // remove it from the constant list
-        mddConstants->remove( mddObject );
+        mddConstants->remove(mddObject);
 
         delete mddIter;
         mddIter = NULL;
 
-        if( mddObject )
+        if (mddObject)
+        {
             loadDomain = mddObject->getCurrentDomain();
+        }
     }
     else
     {
@@ -229,10 +248,10 @@ QtMDD::QtMDD( __attribute__ ((unused)) int constantNo )
 
 
 
-QtMDD::QtMDD( const QtMDD& obj )
-    : QtData( obj ),
-      mddObject( obj.mddObject ),
-      fromConversion( false )
+QtMDD::QtMDD(const QtMDD& obj)
+    : QtData(obj),
+      mddObject(obj.mddObject),
+      fromConversion(false)
 {
 }
 
@@ -240,7 +259,7 @@ QtMDD::QtMDD( const QtMDD& obj )
 QtMDD::~QtMDD()
 {
     //this causes problems when passing more than one trans mddobj
-    if( mddObject && getLifetime() == QtData::QT_TRANSIENT )
+    if (mddObject && getLifetime() == QtData::QT_TRANSIENT)
     {
         LTRACE << "~QtMDD() - transient MDD object " << mddObject << " deleted";
         delete mddObject;
@@ -274,7 +293,7 @@ QtMDD::getDataType() const
 
 
 bool
-QtMDD::equal( const QtData* /*obj*/ ) const
+QtMDD::equal(const QtData* /*obj*/) const
 {
     int returnValue = false;  // not equal by initialization
 
@@ -299,30 +318,41 @@ QtMDD::getSpelling() const
 
 char* QtMDD::getTypeStructure() const
 {
-    if( mddObject )
+    if (mddObject)
+    {
         return mddObject->getMDDBaseType()->getTypeStructure();
+    }
     else
+    {
         return NULL;
+    }
 }
 
 
 
 void
-QtMDD::printStatus( ostream& stream ) const
+QtMDD::printStatus(ostream& stream) const
 {
-    if( mddObject )
+    if (mddObject)
+    {
         stream << "MDD object: load domain: " << loadDomain << ", from conversion: " << fromConversion << endl;
+    }
     else
+    {
         stream << "<no object>" << endl;
+    }
 
-    QtData::printStatus( stream );
+    QtData::printStatus(stream);
 
 #ifdef DEBUG
     mddObject->printStatus(0, stream);
 
-    vector< boost::shared_ptr<Tile> >* vec = mddObject->getTiles();
-    for( unsigned int i = 0; i<vec->size(); i++ )
+    vector<boost::shared_ptr<Tile>>* vec = mddObject->getTiles();
+    for (unsigned int i = 0; i < vec->size(); i++)
+    {
         ((*vec)[i])->printStatus();
-    delete vec; vec=NULL;
+    }
+    delete vec;
+    vec = NULL;
 #endif
 }

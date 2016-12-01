@@ -134,7 +134,7 @@ bool checkCRSOrderSequence(std::vector<double>& sequence, std::vector<int>& orde
 bool checkZCoords(std::vector<double>& coords);
 
 void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D);
-void crash_handler ( int sig,  siginfo_t* info, void * ucontext);
+void crash_handler(int sig,  siginfo_t* info, void* ucontext);
 
 /*! parses a colon (':') separated sequence of strings and appends them to the vector 'items';
  *  \param sequence string to be parsed
@@ -144,8 +144,8 @@ void crash_handler ( int sig,  siginfo_t* info, void * ucontext);
  *              valid, if a 'validator' string follows immediately
  */
 bool parseStringSequence(const std::string& sequence,
-        std::vector<std::string>& items, int nelem,
-        const std::vector<std::string>& vsep);
+                         std::vector<std::string>& items, int nelem,
+                         const std::vector<std::string>& vsep);
 void showHelp();
 
 int importImage(RasdamanHelper2& helper, GDALDataset* pDs, const string& collname, vector<double>& oids,

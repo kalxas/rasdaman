@@ -31,7 +31,7 @@ import petascope.util.WcpsConstants;
 import petascope.wcps.metadata.CoverageInfo;
 
 public class InducedOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(InducedOperationCoverageExpr.class);
 
     private IRasNode child;
@@ -40,7 +40,7 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
 
     public InducedOperationCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         String nodeName = node.getNodeName();
-        
+
         log.trace(nodeName);
 
         if (nodeName.equals(WcpsConstants.MSG_RANGE_CONSTRUCTOR)) {

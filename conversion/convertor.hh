@@ -55,13 +55,13 @@ class r_Parse_Params;
 
 typedef struct r_Conv_Desc
 {
-    const char *src;              // pointer to source data
-    char *dest;                   // pointer to destination data
+    const char* src;              // pointer to source data
+    char* dest;                   // pointer to destination data
     r_Minterval srcInterv;        // dimensions of source data
     r_Minterval destInterv;       // dimensions of destination data
     int baseType;                 // shortcut to src basetype
-    const r_Type *srcType;        // basetypes of src data
-    r_Type *destType;             // basetypes of dest data
+    const r_Type* srcType;        // basetypes of src data
+    r_Type* destType;             // basetypes of dest data
 } r_Conv_Desc;
 
 
@@ -112,72 +112,73 @@ class r_Convertor
 {
 public:
     /// default constructor (should not be used)
-    r_Convertor( void );
+    r_Convertor(void);
     /// constructor using an r_Type object
-    r_Convertor( const char *src, const r_Minterval &interv, const r_Type *tp,
-                 bool fullTypes=false) throw(r_Error);
+    r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp,
+                bool fullTypes = false) throw(r_Error);
     /// constructor using convert_type_e shortcut
-    r_Convertor( const char *src, const r_Minterval &interv, int type ) throw(r_Error);
+    r_Convertor(const char* src, const r_Minterval& interv, int type) throw(r_Error);
 
     /// destructor
-    virtual ~r_Convertor( void );
+    virtual ~r_Convertor(void);
 
     //@Man: Interface
     /// convert array to a specific format
-    virtual r_Conv_Desc &convertTo( const char *options = NULL ) throw(r_Error) = 0;
+    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error) = 0;
 
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom( const char *options = NULL ) throw(r_Error) = 0;
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error) = 0;
 
     /// convert data in a specific format to array
-    virtual r_Conv_Desc &convertFrom(r_Format_Params options) throw(r_Error) = 0;
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error) = 0;
 
 
     /// cloning
-    virtual r_Convertor *clone( void ) const = 0;
+    virtual r_Convertor* clone(void) const = 0;
 
     /// identification
-    virtual const char *get_name( void ) const = 0;
-    virtual r_Data_Format get_data_format( void ) const = 0;
-    
+    virtual const char* get_name(void) const = 0;
+    virtual r_Data_Format get_data_format(void) const = 0;
+
     /// set conversion format, used only by r_Conv_GDAL at the moment
-    virtual void set_format( const std::string& formatArg );
+    virtual void set_format(const std::string& formatArg);
 
     /// set storage handler, default is malloc/free
-    void set_storage_handler( const r_Storage_Man &newStore );
+    void set_storage_handler(const r_Storage_Man& newStore);
 
     /// get storage handler, default is malloc/free
-    const r_Storage_Man& get_storage_handler( ) const;
+    const r_Storage_Man& get_storage_handler() const;
 
     //@{ helper structure for encoding string-to-int parameters
     typedef struct convert_string_s
     {
-        const char *key;
+        const char* key;
         int id;
     } convert_string_t;
     //@}
 
     /// get a string representation of the internal type
-    static std::string type_to_string( int ctype ) throw(r_Error);
+    static std::string type_to_string(int ctype) throw(r_Error);
 
     /// get a r_Type from an internal type
-    static r_Type *get_external_type( int ctype ) throw(r_Error);
+    static r_Type* get_external_type(int ctype) throw(r_Error);
 
     /// get a internal type from a r_Type
-    static convert_type_e get_internal_type( const r_Type* type, bool fullTypes=false ) throw(r_Error);
+    static convert_type_e get_internal_type(const r_Type* type, bool fullTypes = false) throw(r_Error);
 
 protected:
     /// initialize internal structures
-    void initShare( const char *src, const r_Minterval &interv );
-    
+    void initShare(const char* src, const r_Minterval& interv);
+
     /// transpose src 2D array of size NxM to dst of size MxN
     template <class baseType>
-    void transpose(baseType *src, baseType *dst, const int N, const int M)
+    void transpose(baseType* src, baseType* dst, const int N, const int M)
     {
-        for(int n = 0; n<N*M; n++) {
-            int i = n/N;
-            int j = n%N;
-            dst[n] = src[M*j + i];
+        for (int n = 0; n < N * M; n++)
+        {
+            int i = n / N;
+            int j = n % N;
+            dst[n] = src[M * j + i];
         }
     }
 
@@ -192,18 +193,18 @@ protected:
     r_Conv_Desc desc;
 
     /// parameter parser
-    r_Parse_Params *params;
-    
+    r_Parse_Params* params;
+
     /// new-style format params
     r_Format_Params formatParams;
 
     /// storage manager
     r_Storage_Man mystore;
-    
+
     // format identifier, used only by the GDAL converter
     std::string format;
-    
-    
+
+
 };
 
 ///ostream operator for convert_type_e
@@ -218,21 +219,21 @@ class r_Convert_Memory : public r_Convertor
 {
 public:
     /// constructor using an r_Type object
-    r_Convert_Memory( const char *src, const r_Minterval &interv, const r_Type *tp,
-                      int fullTypes=0) throw(r_Error);
+    r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp,
+                     int fullTypes = 0) throw(r_Error);
     /// constructur using convert_type_e shortcut
-    r_Convert_Memory( const char *src, const r_Minterval &interv, int type ) throw(r_Error);
+    r_Convert_Memory(const char* src, const r_Minterval& interv, int type) throw(r_Error);
     /// destructor
-    virtual ~r_Convert_Memory( void );
+    virtual ~r_Convert_Memory(void);
 
 
 protected:
     /// init memfs
-    void initMemory( void ) throw(r_Error);
+    void initMemory(void) throw(r_Error);
 
     /// variables
-    memFSContext *memFS;
-    void *handle;
+    memFSContext* memFS;
+    void* handle;
 };
 
 #endif

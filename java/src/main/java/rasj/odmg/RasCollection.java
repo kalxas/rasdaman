@@ -47,56 +47,49 @@ public abstract class RasCollection extends AbstractCollection implements DColle
 {
     static final String rcsid = "@(#)Package rasj.odmg, class RasCollection: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasCollection.java,v 1.5 2003/12/19 15:42:56 rasdev Exp $";
 
-    public RasCollection()
-    {
+    public RasCollection() {
     }
 
     /**
      * Not implemented yet.
      */
-    public DCollection query(String predicate)
-    {
-	throw new NotImplementedException();
+    public DCollection query(String predicate) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public Iterator select(String predicate)
-    {
-	throw new NotImplementedException();
+    public Iterator select(String predicate) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public boolean existsElement(String predicate)
-    {
-	throw new NotImplementedException();
+    public boolean existsElement(String predicate) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public Object selectElement(String predicate)
-    {
-	throw new NotImplementedException();
+    public Object selectElement(String predicate) {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public int size()
-    {
-    	throw new NotImplementedException();
+    public int size() {
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public Iterator iterator()
-    {
-    	throw new NotImplementedException();
+    public Iterator iterator() {
+        throw new NotImplementedException();
     }
 
 }

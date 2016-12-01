@@ -31,7 +31,7 @@ r_Sinterval_Type::r_Sinterval_Type()
 {
 }
 
-r_Sinterval_Type::r_Sinterval_Type( const r_Sinterval_Type& oldObj )
+r_Sinterval_Type::r_Sinterval_Type(const r_Sinterval_Type& oldObj)
     : r_Type(oldObj)
 {
 }
@@ -39,7 +39,7 @@ r_Sinterval_Type::r_Sinterval_Type( const r_Sinterval_Type& oldObj )
 r_Type*
 r_Sinterval_Type::clone() const
 {
-    return new r_Sinterval_Type( *this );
+    return new r_Sinterval_Type(*this);
 }
 
 r_Type::r_Type_Id
@@ -55,17 +55,17 @@ r_Sinterval_Type::isSintervalType() const
 }
 
 void
-r_Sinterval_Type::convertToLittleEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
+r_Sinterval_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Sinterval_Type::convertToBigEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
+r_Sinterval_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Sinterval_Type::print_status( std::ostream& s ) const
+r_Sinterval_Type::print_status(std::ostream& s) const
 {
     s << "interval";
 }
@@ -74,7 +74,7 @@ r_Sinterval_Type::~r_Sinterval_Type()
 {
 }
 
-std::ostream &operator<<( std::ostream &str, const r_Sinterval_Type &type )
+std::ostream& operator<<(std::ostream& str, const r_Sinterval_Type& type)
 {
     type.print_status(str);
     return str;

@@ -81,17 +81,17 @@ public class UpdateCoverageValidator {
      * @throws petascope.exceptions.SecoreException
      */
     public void validate() throws WCSTSubsetDimensionMismatchException, WCSTAxisCrsMismatchException,
-            WCSTAxisLabelMismatchException, WCSTDomainSetMismatchException, WCSTAxisNumberMismatchException,
-            WCSTRangeFieldNumberMismatchException, WCSTRangeFieldNameMismatchException, WCSTResolutionNotFoundException, 
-            WCSTCrsGridAxesMismatch, PetascopeException, SecoreException {
-        validateSubsets(currentCoverage,subsets);
+               WCSTAxisLabelMismatchException, WCSTDomainSetMismatchException, WCSTAxisNumberMismatchException,
+               WCSTRangeFieldNumberMismatchException, WCSTRangeFieldNameMismatchException, WCSTResolutionNotFoundException,
+        WCSTCrsGridAxesMismatch, PetascopeException, SecoreException {
+        validateSubsets(currentCoverage, subsets);
         validateCrses(currentCoverage, inputCoverage);
         validateDomainSet(currentCoverage, inputCoverage, subsets);
         validateOffsetVectors(currentCoverage, inputCoverage);
         validateRangeType(currentCoverage, inputCoverage, rangeComponents);
-        
-        /* Disabled since the irregulat time series recipe creates 2D coverages that have 3D crses. 
-           This is not an issue as long as the slicing crs is the last one. 
+
+        /* Disabled since the irregulat time series recipe creates 2D coverages that have 3D crses.
+           This is not an issue as long as the slicing crs is the last one.
          TODO enable after fixing the time series recipes */
         //validateCrsGridAxisCorrespondence(inputCoverage);
     }
@@ -108,7 +108,7 @@ public class UpdateCoverageValidator {
         for (DimensionSubset subset : subsets) {
             if (currentCoverage.getDomainByName(subset.getDimension()) == null) {
                 log.error("Subset dimension " + subset.getDimension() + " was not found in the list of subsets of the " +
-                        "target coverage.");
+                          "target coverage.");
                 throw new WCSTSubsetDimensionMismatchException(subset.getDimension());
             }
         }
@@ -128,13 +128,13 @@ public class UpdateCoverageValidator {
             //check if the coverages have the same number of bands
             if (currentCoverage.getNumberOfBands() != inputCoverage.getNumberOfBands()) {
                 log.error("The number of bands (swe:field elements) of target coverage (found " + currentCoverage.getNumberOfBands() + " ) " +
-                        "and input coverage (found " + inputCoverage.getNumberOfBands() + ") don't match.");
+                          "and input coverage (found " + inputCoverage.getNumberOfBands() + ") don't match.");
                 throw new WCSTRangeFieldNumberMismatchException(currentCoverage.getNumberOfBands(), inputCoverage.getNumberOfBands());
             }
             //check if the names of the bands are the same
             Iterator<RangeElement> currentCovBands = currentCoverage.getRangeIterator();
             Iterator<RangeElement> inputCovBands = inputCoverage.getRangeIterator();
-            while (currentCovBands.hasNext()){
+            while (currentCovBands.hasNext()) {
                 RangeElement currentBand = currentCovBands.next();
                 RangeElement inputBand = inputCovBands.next();
                 if (!currentBand.getName().equals(inputBand.getName())) {
@@ -154,31 +154,31 @@ public class UpdateCoverageValidator {
      */
     private void validateOffsetVectors(CoverageMetadata currentCoverage, CoverageMetadata inputCoverage) throws WCSTResolutionNotFoundException {
         Iterator<Entry<List<BigDecimal>, BigDecimal>> inputCovIterator = inputCoverage.getGridAxes().entrySet().iterator();
-        
+
         // NOTE: in case of TimeSeries (e.g: 3D, offset vectors of existing coverage is 3 and offset vectors of input coverage is 2).
-        // other case they have same offset vectors (so we use inputCovIterator to iterate).       
+        // other case they have same offset vectors (so we use inputCovIterator to iterate).
         while (inputCovIterator.hasNext()) {
             Entry<List<BigDecimal>, BigDecimal> inputCovEntry = inputCovIterator.next();
             // we get the non-zero offset vector from the offset vector list (e.g: [0, 1, 0] -> 1)
             List<Integer> inputCovOffsetIndexList = Vectors.nonZeroComponentsIndices(inputCovEntry.getKey().toArray(new BigDecimal[inputCovEntry.getKey().size()]));
-            
+
             //the offset vector can have just 1 non-zero component. This has been checked already when the coverage metadata object was created.
             //no point in checking again, just asserting.
             assert inputCovOffsetIndexList.size() == 1;
-            
+
             Integer inputIndex = inputCovOffsetIndexList.get(0);
-            
+
             if (!checkIfCoverageContainsResolution(currentCoverage, inputCovEntry.getKey().get(inputIndex))) {
                 throw new WCSTResolutionNotFoundException(inputCovEntry.getKey().get(inputIndex).toPlainString());
             }
         }
     }
-    
+
     /**
      * Checks if a coverage contains an offset vector.
      * @return true if it does, false otherwise
      */
-    private boolean checkIfCoverageContainsResolution(CoverageMetadata coverageMetadata, BigDecimal resolution){
+    private boolean checkIfCoverageContainsResolution(CoverageMetadata coverageMetadata, BigDecimal resolution) {
         Iterator<Entry<List<BigDecimal>, BigDecimal>> axisIterator = coverageMetadata.getGridAxes().entrySet().iterator();
         while (axisIterator.hasNext()) {
             Entry<List<BigDecimal>, BigDecimal> axisEntry = axisIterator.next();
@@ -186,7 +186,7 @@ public class UpdateCoverageValidator {
             //the offset vector can have just 1 non-zero component. This has been checked already when the coverage metadata object was created.
             //no point in checking again, just asserting.
             assert axisOffsetIndexList.size() == 1;
-            
+
             BigDecimal nonZeroComponent = axisEntry.getKey().get(axisOffsetIndexList.get(0));
             if (nonZeroComponent.equals(resolution)) {
                 return true;
@@ -209,8 +209,8 @@ public class UpdateCoverageValidator {
             List<DomainElement> inputCoverageAxes = inputCoverage.getDomainList();
             //same number of axes
             if (currentCoverageAxes.size() != inputCoverageAxes.size()) {
-                log.error("In case of complete replacement, the number of axes of the target coverage (found " + currentCoverageAxes.size() +") must match the " +
-                        "number of axes of the input coverage (found " + inputCoverageAxes.size() +"). Use a subset parameter if partial replacement is intended.");
+                log.error("In case of complete replacement, the number of axes of the target coverage (found " + currentCoverageAxes.size() + ") must match the " +
+                          "number of axes of the input coverage (found " + inputCoverageAxes.size() + "). Use a subset parameter if partial replacement is intended.");
                 throw new WCSTAxisNumberMismatchException(currentCoverageAxes.size(), inputCoverageAxes.size());
             }
             //axes must match in all aspects, including order
@@ -219,7 +219,7 @@ public class UpdateCoverageValidator {
                 DomainElement inputAxis = inputCoverageAxes.get(i);
                 if (!currentAxis.equals(inputAxis)) {
                     log.error("In case of complete replacement, the domain set of targeted coverage and input coverage must match. Use a subset parameter if partial " +
-                            "replacement is intended.");
+                              "replacement is intended.");
                     throw new WCSTDomainSetMismatchException();
                 }
             }
@@ -248,7 +248,7 @@ public class UpdateCoverageValidator {
             if (!currentCoverageAxis.getCrsDef().equals(inputCoverageAxis.getCrsDef())) {
                 //axis need to have same native crs
                 log.error("Native crs of axis " + axisName + " from the input coverage (found " + inputCoverageAxis.getNativeCrs() + ") " +
-                        "doesn't match with one in the target coverage (found " + currentCoverageAxis.getNativeCrs() + ").");
+                          "doesn't match with one in the target coverage (found " + currentCoverageAxis.getNativeCrs() + ").");
                 throw new WCSTAxisCrsMismatchException(axisName, inputCoverageAxis.getNativeCrs(), currentCoverageAxis.getNativeCrs());
             }
         }
@@ -257,12 +257,12 @@ public class UpdateCoverageValidator {
     /**
      * Check if number of Crs axes is identical to number of Grid axes of a coverage
      * @param inputCoverage
-     * @throws WCSTCrsGridAxesMismatch 
+     * @throws WCSTCrsGridAxesMismatch
      */
     private void validateCrsGridAxisCorrespondence(CoverageMetadata inputCoverage) throws WCSTCrsGridAxesMismatch, PetascopeException, SecoreException {
         int crsAxesSize = CrsUtil.getAxesLabels(inputCoverage.getCrsUris()).size();
         int gridAxesSize = inputCoverage.getDomainList().size();
-                
+
         if (crsAxesSize != gridAxesSize) {
             throw new WCSTCrsGridAxesMismatch(crsAxesSize, gridAxesSize);
         }

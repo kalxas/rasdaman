@@ -67,7 +67,7 @@ public:
 
     //@}
 
-    void printStatus(unsigned int level = 0,std::ostream& stream = std::cout) const;
+    void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
 
     //@Man: check operations
     //@{

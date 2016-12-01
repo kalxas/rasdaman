@@ -77,7 +77,7 @@ rasdaman GmbH.
 
 
 
-rviewPrefs *prefs;
+rviewPrefs* prefs;
 
 
 enum prefsVarId
@@ -253,7 +253,7 @@ rviewPrefs::rviewPrefs(void)
 
 
 // Load-constructor
-rviewPrefs::rviewPrefs(const char *file)
+rviewPrefs::rviewPrefs(const char* file)
 {
     setupVariables();
     load(file);
@@ -261,14 +261,14 @@ rviewPrefs::rviewPrefs(const char *file)
 
 
 // Copy-constructor
-rviewPrefs::rviewPrefs(const rviewPrefs &srcPrefs)
+rviewPrefs::rviewPrefs(const rviewPrefs& srcPrefs)
 {
     setupVariables();
     copyPrefs(srcPrefs, *this);
 }
 
 
-void rviewPrefs::copyPrefs(const rviewPrefs &src, rviewPrefs &dest)
+void rviewPrefs::copyPrefs(const rviewPrefs& src, rviewPrefs& dest)
 {
     dest.serverName   = src.serverName;
     dest.serverPort   = src.serverPort;
@@ -346,26 +346,38 @@ rviewPrefs::~rviewPrefs(void)
         pwin->unlinkParent();
         pwin->Close(TRUE);
     }
-    if (inbuff != NULL) delete [] inbuff;
+    if (inbuff != NULL)
+    {
+        delete [] inbuff;
+    }
 }
 
 
 
-char *rviewPrefs::getValue(char *b)
+char* rviewPrefs::getValue(char* b)
 {
-    char *d;
+    char* d;
 
     // This shouldn't happen.
     while (*b != '=')
     {
-        if (*b == '\0') return b;
+        if (*b == '\0')
+        {
+            return b;
+        }
         b++;
     }
     b++;
-    while (isspace((unsigned int)(*b))) b++;
+    while (isspace((unsigned int)(*b)))
+    {
+        b++;
+    }
     d = b;
     // Allow only printable characters
-    while (isprint((unsigned int)(*d))) d++;
+    while (isprint((unsigned int)(*d)))
+    {
+        d++;
+    }
     // Make sure it's terminated by 0.
     *d = '\0';
     return b;
@@ -373,7 +385,7 @@ char *rviewPrefs::getValue(char *b)
 
 
 // read a line of arbitrary length from a file
-char *rviewPrefs::readLine(FILE *fp)
+char* rviewPrefs::readLine(FILE* fp)
 {
     if (inbuff == NULL)
     {
@@ -381,34 +393,36 @@ char *rviewPrefs::readLine(FILE *fp)
         inbuff = new char[buffSize];
     }
     inbuff[0] = '\0';
-    inbuff[buffSize-2] = '\0';
+    inbuff[buffSize - 2] = '\0';
     fgets(inbuff, buffSize, fp);
     unsigned long currentOff = 0;
-    char last = inbuff[buffSize-2];
+    char last = inbuff[buffSize - 2];
     while ((last != '\0') && (last != '\n') && (last != '\r'))
     {
         unsigned long newsize = buffSize + buffExtendGranularity;
-        char *newbuff;
+        char* newbuff;
 
         if ((newbuff = new char[newsize]) == NULL)
+        {
             return NULL;
-        memcpy(newbuff, inbuff, buffSize-1);
-        currentOff = buffSize-1;
+        }
+        memcpy(newbuff, inbuff, buffSize - 1);
+        currentOff = buffSize - 1;
         delete [] inbuff;
         inbuff = newbuff;
         buffSize = newsize;
         inbuff[currentOff] = '\0';
         fgets(inbuff + currentOff, buffSize - currentOff, fp);
-        last = inbuff[buffSize-2];
+        last = inbuff[buffSize - 2];
     }
     return inbuff;
 }
 
 
-int rviewPrefs::load(const char *file)
+int rviewPrefs::load(const char* file)
 {
-    FILE *fp;
-    char *b, *val;
+    FILE* fp;
+    char* b, *val;
     int number;
 
     if ((fp = fopen(file, "r")) == NULL)
@@ -420,7 +434,10 @@ int rviewPrefs::load(const char *file)
     while (!feof(fp))
     {
         b = readLine(fp);
-        while ((*b == ' ') || (*b == '\t')) b++;
+        while ((*b == ' ') || (*b == '\t'))
+        {
+            b++;
+        }
         if ((*b != '\n') && (*b != '#') && (*b != 0))
         {
             number = 0;
@@ -429,7 +446,10 @@ int rviewPrefs::load(const char *file)
                 int len;
 
                 len = strlen(prefsVarDesc[number].keyword);
-                if ((strncmp(b, prefsVarDesc[number].keyword, len) == 0) && (!isalnum(b[len]))) break;
+                if ((strncmp(b, prefsVarDesc[number].keyword, len) == 0) && (!isalnum(b[len])))
+                {
+                    break;
+                }
                 number++;
             }
             if (prefsVarDesc[number].keyword == NULL)
@@ -670,13 +690,16 @@ int rviewPrefs::load(const char *file)
 }
 
 
-int rviewPrefs::save(const char *file)
+int rviewPrefs::save(const char* file)
 {
     char backname[STRINGSIZE];
-    FILE *fp;
+    FILE* fp;
     int i;
 
-    if (!prefsModified) return 1;
+    if (!prefsModified)
+    {
+        return 1;
+    }
 
     // Make a backup copy of the old file
     sprintf(backname, "%s~", file);
@@ -684,13 +707,15 @@ int rviewPrefs::save(const char *file)
     rename(file, backname);
 
     if ((fp = fopen(file, "w")) == NULL)
+    {
         return 0;
+    }
 
     fprintf(fp, "# RasDaView preferences\n\n");
 
-    for (i=0; prefsVarDesc[i].keyword != NULL; i++)
+    for (i = 0; prefsVarDesc[i].keyword != NULL; i++)
     {
-        const char *name = prefsVarDesc[i].keyword;
+        const char* name = prefsVarDesc[i].keyword;
 
         fprintf(fp, "%s\t=\t", name);
         switch (prefsVarDesc[i].ident)
@@ -904,7 +929,7 @@ int rviewPrefs::save(const char *file)
             break;
         case PVar_ComTrParm:
         {
-            char *ext = toExternal(transferParm);
+            char* ext = toExternal(transferParm);
             fwrite(ext, 1, strlen(ext), fp);
             delete [] ext;
         }
@@ -914,7 +939,7 @@ int rviewPrefs::save(const char *file)
             break;
         case PVar_ComStParm:
         {
-            char *ext = toExternal(storageParm);
+            char* ext = toExternal(storageParm);
             fwrite(ext, 1, strlen(ext), fp);
             delete [] ext;
         }
@@ -986,9 +1011,9 @@ void rviewPrefs::setupVariables(void)
     soundLatency = 200;
     soundLoop = 0;
     csp.peak_red = 1.0;
-    csp.peak_green = 2.0/3;
-    csp.peak_blue = 1.0/3;
-    csp.sigm_red = 1.0 / (6 * sqrt( log(2.0) / log( exp(1.0) ) ) );
+    csp.peak_green = 2.0 / 3;
+    csp.peak_blue = 1.0 / 3;
+    csp.sigm_red = 1.0 / (6 * sqrt(log(2.0) / log(exp(1.0))));
     csp.sigm_green = csp.sigm_red;
     csp.sigm_blue = csp.sigm_red;
     csp.type = cst_gauss;
@@ -1019,13 +1044,13 @@ void rviewPrefs::editorClosed(void)
     pwin = NULL;
 }
 
-void rviewPrefs::updatePrefs(rviewPrefs *newPrefs)
+void rviewPrefs::updatePrefs(rviewPrefs* newPrefs)
 {
     copyPrefs(*newPrefs, *this);
     prefsModified = TRUE;
 }
 
-void rviewPrefs::closeEditor(rviewPrefs *newPrefs)
+void rviewPrefs::closeEditor(rviewPrefs* newPrefs)
 {
     LTRACE << "closeEditor( " << newPrefs << " )";
 
@@ -1056,7 +1081,7 @@ r_Data_Format rviewPrefs::getTransferFormat(void) const
 }
 
 
-r_Data_Format rviewPrefs::getStorageFormat( void ) const
+r_Data_Format rviewPrefs::getStorageFormat(void) const
 {
     r_Data_Format fmt;
 
@@ -1065,15 +1090,18 @@ r_Data_Format rviewPrefs::getStorageFormat( void ) const
 }
 
 
-char *rviewPrefs::toExternal(const DynamicString &str)
+char* rviewPrefs::toExternal(const DynamicString& str)
 {
-    const char *d = str.ptr();
+    const char* d = str.ptr();
     unsigned int numspecial = 0;
-    char *ext, *b;
+    char* ext, *b;
 
     while (*d != '\0')
     {
-        if ((*d == '\n') || (*d == '\t') || (*d == '\\')) numspecial++;
+        if ((*d == '\n') || (*d == '\t') || (*d == '\\'))
+        {
+            numspecial++;
+        }
         d++;
     }
     ext = new char[strlen(str.ptr()) + numspecial + 1];
@@ -1106,12 +1134,12 @@ char *rviewPrefs::toExternal(const DynamicString &str)
 }
 
 
-void rviewPrefs::fromExternal(const char *ext, DynamicString &str)
+void rviewPrefs::fromExternal(const char* ext, DynamicString& str)
 {
-    const char *d;
-    char *intern, *b;
+    const char* d;
+    char* intern, *b;
 
-    intern = new char[strlen(ext)+1];
+    intern = new char[strlen(ext) + 1];
     d = ext;
     b = intern;
     while (*d != '\0')
@@ -1119,7 +1147,7 @@ void rviewPrefs::fromExternal(const char *ext, DynamicString &str)
         if (*d == '\\')
         {
             d++;
-            switch(*d)
+            switch (*d)
             {
             case 'n':
                 *b++ = '\n';
@@ -1135,7 +1163,9 @@ void rviewPrefs::fromExternal(const char *ext, DynamicString &str)
             }
         }
         else
+        {
             *b++ = *d;
+        }
 
         d++;
     }
@@ -1152,7 +1182,7 @@ void rviewPrefs::fromExternal(const char *ext, DynamicString &str)
  *  rviewPrefsWindow member functions
  */
 
-const char *rviewPrefsWindow::soundLatencyChoices[] =
+const char* rviewPrefsWindow::soundLatencyChoices[] =
 {
     "100ms",
     "200ms",
@@ -1161,7 +1191,7 @@ const char *rviewPrefsWindow::soundLatencyChoices[] =
     "500ms"
 };
 
-const char *rviewPrefsWindow::soundFrequencyChoices[] =
+const char* rviewPrefsWindow::soundFrequencyChoices[] =
 {
     "8000Hz",
     "11025Hz",
@@ -1182,23 +1212,23 @@ const int rviewPrefsWindow::prefs_eheight = 50;
 const int rviewPrefsWindow::prefs_scrwidth = 16;
 const int rviewPrefsWindow::prefs_twheight = 80;
 const int rviewPrefsWindow::prefs_mheight = 30;
-const int rviewPrefsWindow::prefs_grpmsc_height = (11*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grpimg_height = (65*rviewPrefsWindow::prefs_theight)/4;
-const int rviewPrefsWindow::prefs_grpren_height = (15*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grphgt_height = (3*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grport_height = (3*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grpthb_height = (5*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grpcht_height = (5*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grptab_height = (5*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grpsnd_height = (3*rviewPrefsWindow::prefs_theight)/2;
-const int rviewPrefsWindow::prefs_grpcom_height = (7*rviewPrefsWindow::prefs_theight)/2;
+const int rviewPrefsWindow::prefs_grpmsc_height = (11 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grpimg_height = (65 * rviewPrefsWindow::prefs_theight) / 4;
+const int rviewPrefsWindow::prefs_grpren_height = (15 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grphgt_height = (3 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grport_height = (3 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grpthb_height = (5 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grpcht_height = (5 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grptab_height = (5 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grpsnd_height = (3 * rviewPrefsWindow::prefs_theight) / 2;
+const int rviewPrefsWindow::prefs_grpcom_height = (7 * rviewPrefsWindow::prefs_theight) / 2;
 const int rviewPrefsWindow::prefs_pheight = rviewPrefsWindow::prefs_grpmsc_height
         + rviewPrefsWindow::prefs_grpimg_height
         + rviewPrefsWindow::prefs_grpcht_height
         + rviewPrefsWindow::prefs_grptab_height
         + rviewPrefsWindow::prefs_grpsnd_height
         + rviewPrefsWindow::prefs_grpcom_height
-        + 6*rviewPrefsWindow::prefs_border;
+        + 6 * rviewPrefsWindow::prefs_border;
 
 
 rviewPrefsWindow::rviewPrefsWindow(void): rviewFrame(NULL, "", 0, 0, prefs_width, prefs_height)
@@ -1207,7 +1237,7 @@ rviewPrefsWindow::rviewPrefsWindow(void): rviewFrame(NULL, "", 0, 0, prefs_width
 }
 
 
-rviewPrefsWindow::rviewPrefsWindow(rviewPrefs *Prefs): rviewFrame(NULL, "", 0, 0, prefs_width, prefs_height)
+rviewPrefsWindow::rviewPrefsWindow(rviewPrefs* Prefs): rviewFrame(NULL, "", 0, 0, prefs_width, prefs_height)
 {
     setupVariables();
     setPrefs(Prefs);
@@ -1216,14 +1246,23 @@ rviewPrefsWindow::rviewPrefsWindow(rviewPrefs *Prefs): rviewFrame(NULL, "", 0, 0
 
 rviewPrefsWindow::~rviewPrefsWindow(void)
 {
-    if (csmap != NULL) delete csmap;
-    if (editPrefs != NULL) delete editPrefs;
+    if (csmap != NULL)
+    {
+        delete csmap;
+    }
+    if (editPrefs != NULL)
+    {
+        delete editPrefs;
+    }
 
-    if (myParent != NULL) myParent->editorClosed();
+    if (myParent != NULL)
+    {
+        myParent->editorClosed();
+    }
 }
 
 
-const char *rviewPrefsWindow::getFrameName(void) const
+const char* rviewPrefsWindow::getFrameName(void) const
 {
     return "rviewPrefsWindow";
 }
@@ -1240,16 +1279,16 @@ void rviewPrefsWindow::unlinkParent(void)
 }
 
 
-rviewChoice *rviewPrefsWindow::buildFormatMenu(wxPanel *parent, int fmtNum, const char *label)
+rviewChoice* rviewPrefsWindow::buildFormatMenu(wxPanel* parent, int fmtNum, const char* label)
 {
-    rviewChoice *menu;
+    rviewChoice* menu;
     r_Data_Format fmt;
     unsigned int i, numFormats;
-    char **formatNames;
+    char** formatNames;
 
-    for (numFormats=0; r_Tile_Compression::get_format_info(numFormats, fmt) != NULL; numFormats++) ;
-    formatNames = new char*[numFormats];
-    for (i=0; i<(int)numFormats; i++)
+    for (numFormats = 0; r_Tile_Compression::get_format_info(numFormats, fmt) != NULL; numFormats++) ;
+    formatNames = new char* [numFormats];
+    for (i = 0; i < (int)numFormats; i++)
     {
         formatNames[i] = (char*)r_Tile_Compression::get_format_info((unsigned int)i, fmt);
     }
@@ -1260,10 +1299,10 @@ rviewChoice *rviewPrefsWindow::buildFormatMenu(wxPanel *parent, int fmtNum, cons
     return menu;
 }
 
-void rviewPrefsWindow::setPrefs(rviewPrefs *Prefs)
+void rviewPrefsWindow::setPrefs(rviewPrefs* Prefs)
 {
     int x, y, i;
-    char *choices[4];
+    char* choices[4];
 
     myParent = Prefs;
 
@@ -1278,14 +1317,17 @@ void rviewPrefsWindow::setPrefs(rviewPrefs *Prefs)
     butApply = new rviewButton(butPanel);
 
     i = y - prefs_bottom;
-    if (i > prefs_pheight) i = prefs_pheight;
+    if (i > prefs_pheight)
+    {
+        i = prefs_pheight;
+    }
     scroll = new wxScrollBar(butPanel, (wxFunction)rviewEventHandler, x - prefs_scrwidth, 0, prefs_scrwidth, i, wxVERTICAL);
     scroll->SetValue(0);
     // Mis-documentation: you have to set the object length before the view length,
     // not the other way around.
     scroll->SetObjectLength(prefs_pheight);
     scroll->SetViewLength(i);
-    scroll->SetPageLength((3*i)/4);
+    scroll->SetPageLength((3 * i) / 4);
     //cout << "view length = " << i << ", object length = " << prefs_pheight << ", page length = " << (3*i)/4 << endl;
 
     panel = new wxPanel((wxWindow*)this, 0, 0, x, y - prefs_bottom);
@@ -1465,8 +1507,8 @@ void rviewPrefsWindow::setPrefs(rviewPrefs *Prefs)
     // Windows -- you just gotta love it. Obviously there are huge problems when
     // creating two panels in one window. Thus make sure the button panel is _below_
     // the configuration panel. That's only possible by directly using Windows calls.
-    SetWindowPos(panel->GetHWND(), HWND_BOTTOM, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
-    SetWindowPos(butPanel->GetHWND(), HWND_BOTTOM, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
+    SetWindowPos(panel->GetHWND(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    SetWindowPos(butPanel->GetHWND(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 #endif
 
     label();
@@ -1567,7 +1609,7 @@ void rviewPrefsWindow::OnSize(int w, int h)
         GetClientSize(&x, &y);
 
         //need to resize?
-        if (( prefs_width != x) || ( prefs_height != y))
+        if ((prefs_width != x) || (prefs_height != y))
         {
             frameWidth =  prefs_width;
             frameHeight =  prefs_height;
@@ -1579,21 +1621,27 @@ void rviewPrefsWindow::OnSize(int w, int h)
 
         butPanel->SetSize(0, 0, x, y);
         i = y - (prefs_bottom + prefs_bheight) / 2 - prefs_border;
-        h = (x - 3*prefs_bwidth)/3;
-        butOK->SetSize(h/2, i, prefs_bwidth, prefs_bheight);
-        butApply->SetSize(prefs_bwidth + (3*h)/2, i, prefs_bwidth, prefs_bheight);
-        butCancel->SetSize(2*prefs_bwidth + (5*h)/2, i, prefs_bwidth, prefs_bheight);
+        h = (x - 3 * prefs_bwidth) / 3;
+        butOK->SetSize(h / 2, i, prefs_bwidth, prefs_bheight);
+        butApply->SetSize(prefs_bwidth + (3 * h) / 2, i, prefs_bwidth, prefs_bheight);
+        butCancel->SetSize(2 * prefs_bwidth + (5 * h) / 2, i, prefs_bwidth, prefs_bheight);
 
         y -= prefs_bottom + prefs_border;
 
-        if (y > prefs_pheight) y = prefs_pheight;
+        if (y > prefs_pheight)
+        {
+            y = prefs_pheight;
+        }
 
         posy = scroll->GetValue();
         // If the window has grown the scrollbar value might be too big
         if (posy + y > prefs_pheight + prefs_border)
         {
             posy = prefs_pheight + prefs_border - y;
-            if (posy < 0) posy = 0;
+            if (posy < 0)
+            {
+                posy = 0;
+            }
             scroll->SetValue(posy);
         }
         posx = x - prefs_border - prefs_scrwidth;
@@ -1605,13 +1653,16 @@ void rviewPrefsWindow::OnSize(int w, int h)
 
         h = y - prefs_border;
         scroll->SetSize(posx, prefs_border, prefs_scrwidth, h);
-        if (h > prefs_pheight) h = prefs_pheight;
+        if (h > prefs_pheight)
+        {
+            h = prefs_pheight;
+        }
         scroll->SetViewLength(h);
         // Object length hasn't changed.
         //scroll->SetObjectLength(prefs_pheight);
-        scroll->SetPageLength((3*h)/4);
+        scroll->SetPageLength((3 * h) / 4);
 
-        x -= 3*prefs_border + prefs_scrwidth;
+        x -= 3 * prefs_border + prefs_scrwidth;
         //y += prefs_bottom - prefs_border;
 
         // Group boxes
@@ -1630,119 +1681,119 @@ void rviewPrefsWindow::OnSize(int w, int h)
         commGroup->SetSize(posx, gbox, x, prefs_grpcom_height);
 
         // Misc group
-        posx = 2*prefs_border;
-        x -= 2*prefs_border;
+        posx = 2 * prefs_border;
+        x -= 2 * prefs_border;
         gbox = prefs_border;
-        filePath->SetSize(posx, gbox + prefs_theight/2, x, prefs_eheight);
-        queryPath->SetSize(posx, gbox + (3*prefs_theight)/2, x, prefs_eheight);
-        queryFont->SetSize(posx, gbox + (5*prefs_theight)/2, x, prefs_eheight);
+        filePath->SetSize(posx, gbox + prefs_theight / 2, x, prefs_eheight);
+        queryPath->SetSize(posx, gbox + (3 * prefs_theight) / 2, x, prefs_eheight);
+        queryFont->SetSize(posx, gbox + (5 * prefs_theight) / 2, x, prefs_eheight);
 
-        maxDWidth->SetSize(posx, gbox + (7*prefs_theight)/2, x/2, prefs_eheight);
-        maxDHeight->SetSize(posx + x/2, gbox + (7*prefs_theight)/2, x/2, prefs_eheight);
+        maxDWidth->SetSize(posx, gbox + (7 * prefs_theight) / 2, x / 2, prefs_eheight);
+        maxDHeight->SetSize(posx + x / 2, gbox + (7 * prefs_theight) / 2, x / 2, prefs_eheight);
 
-        vffParams->SetSize(posx, gbox + (9*prefs_theight)/2, x, prefs_eheight);
+        vffParams->SetSize(posx, gbox + (9 * prefs_theight) / 2, x, prefs_eheight);
 
         // Image group
         gbox += prefs_grpmsc_height + prefs_border;
-        i = gbox + prefs_theight/2;
-        imgDither->SetSize(posx, i, x/3, prefs_chkheight);
-        ditherBest->SetSize(posx, i + prefs_chkheight, x/3, prefs_chkheight);
-        rgbSpace->SetSize(posx + x/3, i, prefs_bwidth, prefs_bheight);
-        cstrap->SetSize(posx + (2*x)/3 + prefs_border, i, prefs_bwidth, prefs_bheight);
+        i = gbox + prefs_theight / 2;
+        imgDither->SetSize(posx, i, x / 3, prefs_chkheight);
+        ditherBest->SetSize(posx, i + prefs_chkheight, x / 3, prefs_chkheight);
+        rgbSpace->SetSize(posx + x / 3, i, prefs_bwidth, prefs_bheight);
+        cstrap->SetSize(posx + (2 * x) / 3 + prefs_border, i, prefs_bwidth, prefs_bheight);
         i += prefs_theight;
         imgMode->SetSize(posx, i, prefs_bwidth, prefs_bheight);
-        movieMode->SetSize(posx + x/3, i, prefs_bwidth, prefs_bheight);
-        imgScale->SetSize(posx + (2*x)/3 + x/30, i, x/3 -x/30, prefs_eheight);
-        i = gbox + (5*prefs_theight)/2 + prefs_border;
+        movieMode->SetSize(posx + x / 3, i, prefs_bwidth, prefs_bheight);
+        imgScale->SetSize(posx + (2 * x) / 3 + x / 30, i, x / 3 - x / 30, prefs_eheight);
+        i = gbox + (5 * prefs_theight) / 2 + prefs_border;
         renderGroup->SetSize(posx, i, x, prefs_grpren_height);
         heightGroup->SetSize(posx, i + prefs_grpren_height + prefs_border, x, prefs_grphgt_height);
-        orthoGroup->SetSize(posx, i + prefs_grpren_height + prefs_grphgt_height + 2*prefs_border, x, prefs_grport_height);
-        thumbGroup->SetSize(posx, i + prefs_grpren_height + prefs_grphgt_height + prefs_grport_height + 3*prefs_border, x, prefs_grpthb_height);
+        orthoGroup->SetSize(posx, i + prefs_grpren_height + prefs_grphgt_height + 2 * prefs_border, x, prefs_grport_height);
+        thumbGroup->SetSize(posx, i + prefs_grpren_height + prefs_grphgt_height + prefs_grport_height + 3 * prefs_border, x, prefs_grpthb_height);
         // Image renderer subgroup
         posx += prefs_border;
-        x -= 2*prefs_border;
-        i += prefs_theight/2;
-        imgZpro->SetSize(posx, i, x/3, prefs_eheight);
-        imgClipz->SetSize(posx + x/3, i, x/3, prefs_eheight);
-        imgBBox->SetSize(posx + (2*x)/3 + x/40, i, x/3 - x/40, prefs_chkheight);
-        imgRgbBrightness->SetSize(posx + (2*x)/3 + x/40, i + (2*prefs_theight)/3, x/3 - x/40, prefs_chkheight);
-        imgVoxForType->SetSize(posx + (2*x)/3 + x/40, i + (4*prefs_theight)/3, x/3 - x/40, prefs_chkheight);
+        x -= 2 * prefs_border;
+        i += prefs_theight / 2;
+        imgZpro->SetSize(posx, i, x / 3, prefs_eheight);
+        imgClipz->SetSize(posx + x / 3, i, x / 3, prefs_eheight);
+        imgBBox->SetSize(posx + (2 * x) / 3 + x / 40, i, x / 3 - x / 40, prefs_chkheight);
+        imgRgbBrightness->SetSize(posx + (2 * x) / 3 + x / 40, i + (2 * prefs_theight) / 3, x / 3 - x / 40, prefs_chkheight);
+        imgVoxForType->SetSize(posx + (2 * x) / 3 + x / 40, i + (4 * prefs_theight) / 3, x / 3 - x / 40, prefs_chkheight);
         i += prefs_theight;
-        imgPixThreshLow->SetSize(posx, i, x/3, prefs_eheight);
-        imgPixThreshHigh->SetSize(posx + x/3, i, x/3, prefs_eheight);
+        imgPixThreshLow->SetSize(posx, i, x / 3, prefs_eheight);
+        imgPixThreshHigh->SetSize(posx + x / 3, i, x / 3, prefs_eheight);
         i += prefs_theight;
-        imgWgtThresh->SetSize(posx, i, x/2, prefs_eheight);
-        imgWgtQuant->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        imgWgtThresh->SetSize(posx, i, x / 2, prefs_eheight);
+        imgWgtQuant->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
         i += prefs_theight;
-        imgLight->SetSize(posx, i, x/4, prefs_bheight); // must reduce width to x/4!
-        imgKernSize->SetSize(posx + x/4, i, x/5, prefs_bheight);
-        imgKernType->SetSize(posx + 2*x/3, i, x/5, prefs_bheight);
+        imgLight->SetSize(posx, i, x / 4, prefs_bheight); // must reduce width to x/4!
+        imgKernSize->SetSize(posx + x / 4, i, x / 5, prefs_bheight);
+        imgKernType->SetSize(posx + 2 * x / 3, i, x / 5, prefs_bheight);
         i += prefs_theight;
-        imgLightAngle->SetSize(posx, i, x/3, prefs_eheight);
-        imgLightAmbient->SetSize(posx + x/3, i, x/3, prefs_eheight);
-        imgLightGain->SetSize(posx + (2*x)/3, i, x/3, prefs_eheight);
+        imgLightAngle->SetSize(posx, i, x / 3, prefs_eheight);
+        imgLightAmbient->SetSize(posx + x / 3, i, x / 3, prefs_eheight);
+        imgLightGain->SetSize(posx + (2 * x) / 3, i, x / 3, prefs_eheight);
         i += prefs_theight;
-        imgLightScintAngle->SetSize(posx, i, x/3, prefs_eheight);
-        imgLightDir->SetSize(posx + x/3, i, x/3, prefs_eheight);
-        imgLightDist->SetSize(posx + (2*x)/3, i, x/3, prefs_eheight);
+        imgLightScintAngle->SetSize(posx, i, x / 3, prefs_eheight);
+        imgLightDir->SetSize(posx + x / 3, i, x / 3, prefs_eheight);
+        imgLightDist->SetSize(posx + (2 * x) / 3, i, x / 3, prefs_eheight);
         i += prefs_theight;
-        imgUseVCol->SetSize(posx, i, x/2, prefs_eheight);
-        imgVoxColour->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        imgUseVCol->SetSize(posx, i, x / 2, prefs_eheight);
+        imgVoxColour->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
         // Image heightfield subgroup
-        i = gbox + 3*prefs_theight + prefs_grpren_height + 2*prefs_border;
-        imgHeightGrid->SetSize(posx, i, x/2, prefs_eheight);
-        imgHeightScale->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        i = gbox + 3 * prefs_theight + prefs_grpren_height + 2 * prefs_border;
+        imgHeightGrid->SetSize(posx, i, x / 2, prefs_eheight);
+        imgHeightScale->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
         // Orthosection subgroup
-        i = gbox + 3*prefs_theight + prefs_grpren_height + prefs_grphgt_height + 2*prefs_border;
-        imgOrthoBBox->SetSize(posx, i, x/3, prefs_eheight);
-        imgOrthoDragRel->SetSize(posx + x/3, i, x/3, prefs_eheight);
-        imgOrthoThick->SetSize(posx + (2*x)/3, i, x/3, prefs_eheight);
+        i = gbox + 3 * prefs_theight + prefs_grpren_height + prefs_grphgt_height + 2 * prefs_border;
+        imgOrthoBBox->SetSize(posx, i, x / 3, prefs_eheight);
+        imgOrthoDragRel->SetSize(posx + x / 3, i, x / 3, prefs_eheight);
+        imgOrthoThick->SetSize(posx + (2 * x) / 3, i, x / 3, prefs_eheight);
         // Image thumbnail subgroup
-        i = gbox + 3*prefs_theight + prefs_grpren_height + prefs_grphgt_height + prefs_grport_height + 3*prefs_border;
-        thumbProjdim->SetSize(posx, i, x/2, prefs_eheight);
-        thumbProjstep->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        i = gbox + 3 * prefs_theight + prefs_grpren_height + prefs_grphgt_height + prefs_grport_height + 3 * prefs_border;
+        thumbProjdim->SetSize(posx, i, x / 2, prefs_eheight);
+        thumbProjstep->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
         i += prefs_theight;
-        thumbWidth->SetSize(posx, i, x/2, prefs_eheight);
-        thumbCols->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        thumbWidth->SetSize(posx, i, x / 2, prefs_eheight);
+        thumbCols->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
         posx -= prefs_border;
-        x += 2*prefs_border;
+        x += 2 * prefs_border;
 
         // Chart group
         gbox += prefs_grpimg_height + prefs_border;
-        i = gbox + prefs_theight/2;
+        i = gbox + prefs_theight / 2;
         chartMode->SetSize(posx, i, prefs_bwidth, prefs_bheight);
-        chartCosys->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        chartCosys->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
         i += prefs_theight;
-        chartStep->SetSize(posx, i, x/3, prefs_eheight);
-        chartMarkx->SetSize(posx + x/3, i, x/3, prefs_eheight);
-        chartMarky->SetSize(posx + (2*x)/3, i, x/3, prefs_eheight);
+        chartStep->SetSize(posx, i, x / 3, prefs_eheight);
+        chartMarkx->SetSize(posx + x / 3, i, x / 3, prefs_eheight);
+        chartMarky->SetSize(posx + (2 * x) / 3, i, x / 3, prefs_eheight);
 
         // Table group
         gbox += prefs_grpcht_height + prefs_border;
-        i = gbox + prefs_theight/2;
+        i = gbox + prefs_theight / 2;
         tableMode->SetSize(posx, i, prefs_bwidth, prefs_bheight);
-        tableCosys->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        tableCosys->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
         i += prefs_theight;
-        tableStepx->SetSize(posx, i, x/2, prefs_eheight);
-        tableStepy->SetSize(posx + x/2, i, x/2, prefs_eheight);
+        tableStepx->SetSize(posx, i, x / 2, prefs_eheight);
+        tableStepy->SetSize(posx + x / 2, i, x / 2, prefs_eheight);
 
         // Sound group
         gbox += prefs_grptab_height + prefs_border;
-        i = gbox + prefs_theight/2;
-        h = (x - 2*prefs_border) / 3;
+        i = gbox + prefs_theight / 2;
+        h = (x - 2 * prefs_border) / 3;
         soundFreq->SetSize(posx, i, prefs_bwidth, prefs_bheight);
         soundLatency->SetSize(posx + h + prefs_border, i, prefs_bwidth, prefs_bheight);
-        soundLoop->SetSize(posx + 2*(h + prefs_border), i, h, prefs_bheight);
+        soundLoop->SetSize(posx + 2 * (h + prefs_border), i, h, prefs_bheight);
 
         // Communications box
         gbox += prefs_grpsnd_height + prefs_border;
-        i = gbox + prefs_theight/2;
+        i = gbox + prefs_theight / 2;
         h = (x - prefs_border) / 2;
         width = (prefs_bwidth > h) ? h : prefs_bwidth;
         width -= prefs_border;
         transferFmt->SetSize(posx, i, width, prefs_bheight);
         storageFmt->SetSize(posx + h + prefs_border, i, width, prefs_bheight);
-        i += prefs_bheight + 3*prefs_border;
+        i += prefs_bheight + 3 * prefs_border;
         transferMsg->SetSize(posx, i, h, prefs_mheight);
         storageMsg->SetSize(posx + h + prefs_border, i, h, prefs_mheight);
         i += prefs_mheight;
@@ -1752,9 +1803,9 @@ void rviewPrefsWindow::OnSize(int w, int h)
 }
 
 
-void rviewPrefsWindow::textWindowToString(DynamicString &str, wxTextWindow *twin)
+void rviewPrefsWindow::textWindowToString(DynamicString& str, wxTextWindow* twin)
 {
-    char *text = twin->GetContents();
+    char* text = twin->GetContents();
     str = text;
     delete [] text;
 }
@@ -1859,12 +1910,15 @@ void rviewPrefsWindow::updatePrefs(void)
 void rviewPrefsWindow::updateAndDie(void)
 {
     updatePrefs();
-    if (myParent != NULL) myParent->closeEditor(editPrefs);
+    if (myParent != NULL)
+    {
+        myParent->closeEditor(editPrefs);
+    }
     editPrefs = NULL;
 }
 
 
-int rviewPrefsWindow::process(wxObject &obj, wxEvent &evt)
+int rviewPrefsWindow::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -1878,14 +1932,20 @@ int rviewPrefsWindow::process(wxObject &obj, wxEvent &evt)
         else if (&obj == (wxObject*)butApply)
         {
             updatePrefs();
-            if (myParent != NULL) myParent->updatePrefs(editPrefs);
+            if (myParent != NULL)
+            {
+                myParent->updatePrefs(editPrefs);
+            }
             return 1;
         }
         else if (&obj == (wxObject*)butCancel)
         {
             delete editPrefs;
             editPrefs = NULL;
-            if (myParent != NULL) myParent->closeEditor(NULL);
+            if (myParent != NULL)
+            {
+                myParent->closeEditor(NULL);
+            }
             return 1;
         }
         else if (&obj == (wxObject*)cstrap)
@@ -1925,23 +1985,26 @@ void rviewPrefsWindow::setupVariables(void)
 }
 
 
-int rviewPrefsWindow::findInChoices(int value, const char **choices, int number)
+int rviewPrefsWindow::findInChoices(int value, const char** choices, int number)
 {
     int i;
     int lastval, newval;
 
     lastval = atoi(choices[0]);
-    for (i=1; i<number; i++)
+    for (i = 1; i < number; i++)
     {
         newval = atoi(choices[i]);
-        if ((lastval <= value) && (value < newval)) break;
+        if ((lastval <= value) && (value < newval))
+        {
+            break;
+        }
         lastval = newval;
     }
-    return i-1;
+    return i - 1;
 }
 
 
-int rviewPrefsWindow::userEvent(const user_event &ue)
+int rviewPrefsWindow::userEvent(const user_event& ue)
 {
     if ((ue.type == usr_cspace_changed) && (ue.data == (void*)csmap))
     {

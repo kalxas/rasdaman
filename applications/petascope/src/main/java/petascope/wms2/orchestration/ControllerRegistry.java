@@ -96,9 +96,9 @@ class ControllerRegistry {
      * @param cacheEngine                      the cache engine
      */
     private void registerGetMapController(@NotNull ConfigManager configManager,
-                                         @NotNull PersistentMetadataObjectProvider persistentMetadataObjectProvider,
-                                         @NotNull RasdamanService rasdamanService,
-                                         @NotNull RequestCacheEngine cacheEngine) {
+                                          @NotNull PersistentMetadataObjectProvider persistentMetadataObjectProvider,
+                                          @NotNull RasdamanService rasdamanService,
+                                          @NotNull RequestCacheEngine cacheEngine) {
         GetMapParser parser = new GetMapParser(persistentMetadataObjectProvider);
         GetMapHandler handler = new GetMapHandler(rasdamanService, cacheEngine);
         GetMapValidator validator = new GetMapValidator();
@@ -112,7 +112,7 @@ class ControllerRegistry {
     }
 
     private void registerDeleteLayerController(@NotNull ConfigManager configManager,
-                                               @NotNull PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
+            @NotNull PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
         DeleteLayerParser parser = new DeleteLayerParser(persistentMetadataObjectProvider);
         DeleteLayerHandler handler = new DeleteLayerHandler(persistentMetadataObjectProvider);
         ServiceValidator validator = new ServiceValidator(configManager.getVersion(), configManager.getServiceName());

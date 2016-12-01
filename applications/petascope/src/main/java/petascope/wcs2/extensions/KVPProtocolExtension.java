@@ -38,7 +38,7 @@ public class KVPProtocolExtension extends AbstractProtocolExtension {
         Boolean canHandle = request.getRequestString() != null && !request.getRequestString().startsWith("<");
         return canHandle;
     }
-    
+
     protected String get(String key, Map<String, List<String>> m) {
         if (m.containsKey(key)) {
             return m.get(key).get(0);

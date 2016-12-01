@@ -143,7 +143,7 @@ public class XmlTestOnline {
      * Returns a message on error or null otherwise.
      **/
     public String runOneTest(String param, String xml)
-            throws MalformedURLException, IOException {
+    throws MalformedURLException, IOException {
 
 //        System.out.println("--------------------");
 //        System.out.println(xml);
@@ -176,7 +176,7 @@ public class XmlTestOnline {
 
 
         BufferedReader cgiOutput = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
+            new InputStreamReader(conn.getInputStream()));
         String line1 = cgiOutput.readLine();
         String line2 = cgiOutput.readLine();
         String line3 = cgiOutput.readLine();

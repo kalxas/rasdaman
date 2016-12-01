@@ -37,7 +37,7 @@ static const char rcsid[] = "@(#)qlparser, QtData: $Id: qtdata.cc,v 1.17 2002/06
 QtData::QtData()
     : NullValuesHandler(),
       parseInfo(NULL),
-      persistent( QT_TRANSIENT ),
+      persistent(QT_TRANSIENT),
       referenceCounter(1)
 {
     LTRACE << "QtData::QtData() Obj: " << this;
@@ -45,11 +45,11 @@ QtData::QtData()
 
 
 
-QtData::QtData( const std::string name )
+QtData::QtData(const std::string name)
     : NullValuesHandler(),
       parseInfo(NULL),
-      iteratorName( name ),
-      persistent( QT_TRANSIENT ),
+      iteratorName(name),
+      persistent(QT_TRANSIENT),
       referenceCounter(1)
 {
     LTRACE << "QtData::QtData( const std::string ) Obj: " << this;
@@ -57,17 +57,19 @@ QtData::QtData( const std::string name )
 
 
 
-QtData::QtData( const QtData &obj )
+QtData::QtData(const QtData& obj)
     : NullValuesHandler(),
       parseInfo(NULL),
-      iteratorName( obj.iteratorName ),
-      persistent( obj.persistent ),
+      iteratorName(obj.iteratorName),
+      persistent(obj.persistent),
       referenceCounter(1)
 {
     LTRACE << "QtData::QtData( QtData& ) Obj: " << this;
 
-    if( obj.parseInfo )
-        parseInfo = new ParseInfo( *(obj.parseInfo) );
+    if (obj.parseInfo)
+    {
+        parseInfo = new ParseInfo(*(obj.parseInfo));
+    }
 }
 
 
@@ -76,10 +78,10 @@ QtData::~QtData()
 {
     LTRACE << "QtData::~QtData() Obj: " << this;
 
-    if( parseInfo )
+    if (parseInfo)
     {
         delete parseInfo;
-        parseInfo=NULL;
+        parseInfo = NULL;
     }
 }
 
@@ -95,24 +97,26 @@ QtData::isScalarData() const
 
 
 const QtData&
-QtData::operator=( const QtData& obj )
+QtData::operator=(const QtData& obj)
 {
     LTRACE << "QtData::operator=";
 
-    if( this != &obj )
+    if (this != &obj)
     {
         iteratorName     = obj.iteratorName;
         persistent       = obj.persistent;
         referenceCounter = 1;
 
-        if( parseInfo )
+        if (parseInfo)
         {
             delete parseInfo;
             parseInfo = NULL;
         }
 
-        if( obj.parseInfo )
-            parseInfo = new ParseInfo( *(obj.parseInfo) );
+        if (obj.parseInfo)
+        {
+            parseInfo = new ParseInfo(*(obj.parseInfo));
+        }
     }
 
     return *this;
@@ -121,11 +125,13 @@ QtData::operator=( const QtData& obj )
 
 
 void
-QtData::printStatus( std::ostream& stream ) const
+QtData::printStatus(std::ostream& stream) const
 {
-    if( iteratorName.size() )
+    if (iteratorName.size())
+    {
         stream << ", iter name: " << iteratorName.c_str() << std::flush;
+    }
 
     stream << ", ref#: " << referenceCounter
-           << ( persistent == QT_TRANSIENT ? " trans " : " pers " )  << std::flush;
+           << (persistent == QT_TRANSIENT ? " trans " : " pers ")  << std::flush;
 }

@@ -74,7 +74,7 @@ public class executeDescribeCoverage {
      * @param source Path to the "dbparams.properties" file
      */
     public executeDescribeCoverage(DescribeCoverage cap, DbMetadataSource source)
-            throws WCSException {
+    throws WCSException {
         input = cap;
         output = new CoverageDescriptions();
         finished = false;
@@ -93,7 +93,7 @@ public class executeDescribeCoverage {
         }
         if (finished == false) {
             throw new WCSException(ExceptionCode.NoApplicableCode, "Could not execute the GetCapabilities request! "
-                    + "Please see the other errors...");
+                                   + "Please see the other errors...");
         }
 
         return output;
@@ -124,7 +124,7 @@ public class executeDescribeCoverage {
         // Error checking: is the coverage available?
         if (meta.existsCoverageName(name) == false) {
             throw new WCSException(ExceptionCode.InvalidParameterValue, "Identifier. Explanation: Coverage "
-                    + name + " is not served by this server !");
+                                   + name + " is not served by this server !");
         }
 
         // Read all coverage metadata
@@ -172,7 +172,7 @@ public class executeDescribeCoverage {
             bbox.getUpperCorner().add(hiY);
         } else {
             throw new WCSException(ExceptionCode.NoApplicableCode, "Internal error: Could "
-                    + "not find " + AxisTypes.X_AXIS + " and " + AxisTypes.Y_AXIS + " cell domain extents.");
+                                   + "not find " + AxisTypes.X_AXIS + " and " + AxisTypes.Y_AXIS + " cell domain extents.");
         }
 
         /* Try to use bounding box, if available */
@@ -192,7 +192,7 @@ public class executeDescribeCoverage {
                 bboxType.getUpperCorner().add(Double.parseDouble(uppers.get(i)));
             } catch (NumberFormatException e) {
                 log.error("WCS 1.0 still requires numeric bounding boxes only: ignoring " +
-                        boundbox.getCoverageName() + "::" + boundbox.getType(i) + " axis.");
+                          boundbox.getCoverageName() + "::" + boundbox.getType(i) + " axis.");
             }
         }
         bbox = bboxType;
@@ -200,8 +200,8 @@ public class executeDescribeCoverage {
         domain = new CoverageDomainType();
         SpatialDomainType spatial = new SpatialDomainType();
         spatial.getBoundingBox().add(new JAXBElement<BoundingBoxType>(
-                new QName("http://www.opengis.net/ows", "BoundingBox", XMLConstants.DEFAULT_NS_PREFIX),
-                BoundingBoxType.class, bbox));
+                                         new QName("http://www.opengis.net/ows", "BoundingBox", XMLConstants.DEFAULT_NS_PREFIX),
+                                         BoundingBoxType.class, bbox));
         domain.setSpatialDomain(spatial);
 
 

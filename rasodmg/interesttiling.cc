@@ -89,11 +89,11 @@ public:
 const char*
 r_Interest_Tiling::description = "dimensions, areas of interest, tile size (in bytes) and tile size limit [NOLIMIT|REGROUP|SUBTILING|REGROUPSUBTILING] (ex: \"2;[0:9,0:9];[100:109,0:9];100;REGROUPSUBTILING\")";
 
-const char* r_Interest_Tiling::tilesizelimit_name_nolimit       ="NOLIMIT";
-const char* r_Interest_Tiling::tilesizelimit_name_regroup       ="REGROUP";
-const char* r_Interest_Tiling::tilesizelimit_name_subtiling     ="SUBTILING";
-const char* r_Interest_Tiling::tilesizelimit_name_regroupandsubtiling   ="REGROUPSUBTILING";
-const char* r_Interest_Tiling::all_tilesizelimit_names[r_Interest_Tiling::NUMBER]=
+const char* r_Interest_Tiling::tilesizelimit_name_nolimit       = "NOLIMIT";
+const char* r_Interest_Tiling::tilesizelimit_name_regroup       = "REGROUP";
+const char* r_Interest_Tiling::tilesizelimit_name_subtiling     = "SUBTILING";
+const char* r_Interest_Tiling::tilesizelimit_name_regroupandsubtiling   = "REGROUPSUBTILING";
+const char* r_Interest_Tiling::all_tilesizelimit_names[r_Interest_Tiling::NUMBER] =
 {
     tilesizelimit_name_nolimit,
     tilesizelimit_name_regroup,
@@ -105,9 +105,9 @@ r_Interest_Tiling::Tilesize_Limit
 r_Interest_Tiling::get_tilesize_limit_from_name(const char* name)
 {
 
-    if(!name)
+    if (!name)
     {
-        LINFO << "r_Interest_Tiling::get_tilesize_limit_from_name(" << (name?name: "NULL") << ")";
+        LINFO << "r_Interest_Tiling::get_tilesize_limit_from_name(" << (name ? name : "NULL") << ")";
         return r_Interest_Tiling::NUMBER;
     }
 
@@ -116,7 +116,9 @@ r_Interest_Tiling::get_tilesize_limit_from_name(const char* name)
     for (i = 0; i < static_cast<unsigned int>(r_Interest_Tiling::NUMBER); i++)
     {
         if (strcasecmp(name, all_tilesizelimit_names[i]) == 0)
+        {
             break;
+        }
     }
     return static_cast<r_Interest_Tiling::Tilesize_Limit>(i);
 }
@@ -124,50 +126,52 @@ r_Interest_Tiling::get_tilesize_limit_from_name(const char* name)
 const char*
 r_Interest_Tiling::get_name_from_tilesize_limit(Tilesize_Limit tsl)
 {
-    static const char* unknown="UNKNOWN";
+    static const char* unknown = "UNKNOWN";
     unsigned int idx = static_cast<unsigned int>(tsl);
 
     if (idx >= static_cast<unsigned int>(r_Interest_Tiling::NUMBER))
+    {
         return unknown;
+    }
 
     return all_tilesizelimit_names[idx];
 }
 
 r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
-    :   r_Dimension_Tiling(0,0)
+    :   r_Dimension_Tiling(0, 0)
 {
-    if(!encoded)
+    if (!encoded)
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << (encoded?encoded: "NULL") << ")";
+        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << (encoded ? encoded : "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
     std::vector<r_Minterval> vectInterestAreas;
     r_Interest_Tiling::Tilesize_Limit tileSizeLimit;
-    r_Dimension tileD=0;
-    r_Bytes tileS=0, lenToConvert=0;
-    const char *pStart=NULL, *pRes=NULL, *pTemp=NULL, *pEnd=NULL;
-    char *pToConvert=NULL;
+    r_Dimension tileD = 0;
+    r_Bytes tileS = 0, lenToConvert = 0;
+    const char* pStart = NULL, *pRes = NULL, *pTemp = NULL, *pEnd = NULL;
+    char* pToConvert = NULL;
 
 
-    pStart=encoded;
-    pEnd=pStart+strlen(pStart);
-    pTemp=pStart;
-    pRes=strstr(pTemp,TCOLON);
+    pStart = encoded;
+    pEnd = pStart + strlen(pStart);
+    pTemp = pStart;
+    pRes = strstr(pTemp, TCOLON);
 
-    if(!pRes)
+    if (!pRes)
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
 //deal with dimension
-    lenToConvert=pRes-pTemp;
-    pToConvert=new char[lenToConvert+1];
-    memcpy(pToConvert,pTemp, lenToConvert);
-    pToConvert[lenToConvert]='\0';
+    lenToConvert = pRes - pTemp;
+    pToConvert = new char[lenToConvert + 1];
+    memcpy(pToConvert, pTemp, lenToConvert);
+    pToConvert[lenToConvert] = '\0';
 
-    tileD=strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
     if (!tileD)
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\".";
@@ -177,8 +181,10 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
 
 //skip COLON && free buffer
     delete[] pToConvert;
-    if(pRes != (pEnd-1))
+    if (pRes != (pEnd - 1))
+    {
         pRes++;
+    }
     else
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, end of stream.";
@@ -186,26 +192,28 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
     }
 
 //parse interest areas
-    pTemp=pRes;
-    pRes=strstr(pTemp,TCOLON);
+    pTemp = pRes;
+    pRes = strstr(pTemp, TCOLON);
 
-    if(!pRes)
+    if (!pRes)
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    while(pRes)
+    while (pRes)
     {
         //is interest areas?
-        if(*pTemp != *LSQRBRA)
+        if (*pTemp != *LSQRBRA)
+        {
             break;
+        }
 
         //copy parsed interest area
-        lenToConvert=pRes-pTemp;
-        pToConvert=new char[lenToConvert+1];
+        lenToConvert = pRes - pTemp;
+        pToConvert = new char[lenToConvert + 1];
         memcpy(pToConvert, pTemp, lenToConvert);
-        pToConvert[lenToConvert]='\0';
+        pToConvert[lenToConvert] = '\0';
 
         //add to vector
         try
@@ -213,7 +221,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
             r_Minterval a(pToConvert);
             vectInterestAreas.push_back(a);
         }
-        catch(r_Error& err)
+        catch (r_Error& err)
         {
             LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest area from \"" << pToConvert << "\".";
             LFATAL << "Error " << err.get_errorno() << " : " << err.what();
@@ -223,8 +231,10 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
 
         //skip COLON
         delete[] pToConvert;
-        if(pRes != (pEnd-1))
+        if (pRes != (pEnd - 1))
+        {
             pRes++;
+        }
         else
         {
             LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, end of stream.";
@@ -232,23 +242,23 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
         }
 
         //try next item
-        pTemp=pRes;
-        pRes=strstr(pTemp, TCOLON);
+        pTemp = pRes;
+        pRes = strstr(pTemp, TCOLON);
     }
 
-    if(vectInterestAreas.empty())
+    if (vectInterestAreas.empty())
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, no interest areas specified.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
 //deal with tile size
-    lenToConvert=pRes-pTemp;
-    pToConvert=new char[lenToConvert+1];
+    lenToConvert = pRes - pTemp;
+    pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
-    pToConvert[lenToConvert]='\0';
+    pToConvert[lenToConvert] = '\0';
 
-    tileS=strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileS = strtol(pToConvert, (char**)NULL, DefaultBase);
     if (!tileS)
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size from \"" << pToConvert << "\".";
@@ -258,18 +268,20 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
 
 //skip COLON && free buffer
     delete[] pToConvert;
-    if(pRes != (pEnd-1))
+    if (pRes != (pEnd - 1))
+    {
         pRes++;
+    }
     else
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size limit, end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    pTemp=pRes;
+    pTemp = pRes;
 
-    tileSizeLimit=r_Interest_Tiling::get_tilesize_limit_from_name(pTemp);
-    if(tileSizeLimit==r_Interest_Tiling::NUMBER)
+    tileSizeLimit = r_Interest_Tiling::get_tilesize_limit_from_name(pTemp);
+    if (tileSizeLimit == r_Interest_Tiling::NUMBER)
     {
         LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size limit from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
@@ -317,18 +329,24 @@ r_Interest_Tiling::get_tiling_scheme() const
     return r_InterestTiling;
 }
 
-static int r_Range_comp(const void *elem1, const void *elem2)
+static int r_Range_comp(const void* elem1, const void* elem2)
 {
     r_Range e1 = *(static_cast<r_Range*>(const_cast<void*>(elem1)));
     r_Range e2 = *(static_cast<r_Range*>(const_cast<void*>(elem2)));
 
     if (e1 == e2)
+    {
         return 0;
+    }
 
     if (e1 < e2)
+    {
         return -1;
+    }
     else
+    {
         return +1;
+    }
 }
 
 std::vector<r_Dir_Decompose>*
@@ -353,30 +371,38 @@ r_Interest_Tiling::make_partition(const r_Minterval& domain) const
     {
         it = iareas.begin();                              // Reset iterator
         intervals[0] = domain[i].low();               // Input lower domain limit
-        intervals[total+1] = domain[i].high();        // Input higher domain limit
+        intervals[total + 1] = domain[i].high();      // Input higher domain limit
 
 
         for (unsigned int j = 1; j < total + 1; j += 2, ++it)          // For all possible intervals
         {
-            if ((*it)[i].low()-1 <= domain[i].low())    // Input low iarea limit
+            if ((*it)[i].low() - 1 <= domain[i].low())  // Input low iarea limit
+            {
                 intervals[j] = domain[i].low();
+            }
             else
-                intervals[j] = (*it)[i].low()-1;
+            {
+                intervals[j] = (*it)[i].low() - 1;
+            }
 
-            intervals[j+1] = (*it)[i].high();           // Input higher iarea limit
+            intervals[j + 1] = (*it)[i].high();         // Input higher iarea limit
         }
 
         // Sort the table
-        qsort(static_cast<void*>(intervals), total+2, sizeof(r_Range), r_Range_comp);
+        qsort(static_cast<void*>(intervals), total + 2, sizeof(r_Range), r_Range_comp);
 
         // Create partition using the limits table
-        for (unsigned int k=0; k<total+2; k++)               // all limits must be checked
+        for (unsigned int k = 0; k < total + 2; k++)         // all limits must be checked
         {
-            if (k == total+1)                         // if on the last limit...
-                ((*part)[i]) << intervals[k];                //   input it
+            if (k == total + 1)                       // if on the last limit...
+            {
+                ((*part)[i]) << intervals[k];    //   input it
+            }
             else                                      // else
-                if (intervals[k] != intervals[k+1])     //   if it is unique
-                    ((*part)[i]) << intervals[k];              //     input it
+                if (intervals[k] != intervals[k + 1])   //   if it is unique
+                {
+                    ((*part)[i]) << intervals[k];    //     input it
+                }
         }
     }
 
@@ -456,16 +482,22 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
                         {
                             // Check if the other area intersects it
                             if (!aux.intersects_with(*ia_it))
+                            {
                                 group_blocks = false;
+                            }
                             else
+                            {
                                 group_blocks = true;
+                            }
 
                             break;
                         }
                     }
 
                     if (!group_blocks)
+                    {
                         break;
+                    }
 
                     group_blocks = false;
 
@@ -475,15 +507,20 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
                     if ((ts_strat == REGROUP) || (ts_strat == REGROUP_AND_SUBTILING))
                     {
                         // If the resulting size isn't larger than tilesize
-                        if ((current_block.cell_count()+aux.cell_count()) * typelen
+                        if ((current_block.cell_count() + aux.cell_count()) * typelen
                                 < get_tile_size())
+                        {
                             group_blocks = true;
+                        }
                     }
                     else
+                    {
                         group_blocks = true;
+                    }
 
                     break;
-                default: break;
+                default:
+                    break;
                 }
             }
 
@@ -498,7 +535,9 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
                 ++joins;
             }
             else
+            {
                 numberOfLevels--;
+            }
         }
 
         // Update the treated list with the current block
@@ -537,7 +576,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
         throw r_Error(TILESIZETOOSMALL);
     }
 
-#ifdef _VISUALIZE_2D_DECOMP_                           // User wants a visual 
+#ifdef _VISUALIZE_2D_DECOMP_                           // User wants a visual
     static int count;                                    // Number of decomps
     ++count;                                             // Update num decomps
     // of the 2D decomp.
@@ -562,24 +601,26 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
     std::vector<r_Dir_Decompose>* part = make_partition(domain);
 
     // Perform dirtiling
-    r_Dir_Tiling *dir_tiling= NULL;
-    std::vector<r_Minterval>* dir_domain=NULL;
+    r_Dir_Tiling* dir_tiling = NULL;
+    std::vector<r_Minterval>* dir_domain = NULL;
 
     try
     {
-        dir_tiling=new r_Dir_Tiling(num_dims, *part, tile_size, r_Dir_Tiling::WITHOUT_SUBTILING);
+        dir_tiling = new r_Dir_Tiling(num_dims, *part, tile_size, r_Dir_Tiling::WITHOUT_SUBTILING);
 
         // Compute all tiles (directional tiles)
         dir_domain = dir_tiling->compute_tiles(domain, typelen);
 
         delete dir_tiling;
     }
-    catch(r_Error& err)
+    catch (r_Error& err)
     {
         delete result;
         delete part;
-        if(dir_tiling)
+        if (dir_tiling)
+        {
             delete dir_tiling;
+        }
         throw;
     }
 
@@ -597,7 +638,9 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
         for (std::vector<r_Minterval>::const_iterator interest_area = iareas.begin(); interest_area != iareas.end(); interest_area++)
         {
             if (b.block.intersects_with(*interest_area))
+            {
                 ++b.intersection_count;
+            }
         }
 
         part_domain.push_back(b);
@@ -656,7 +699,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
         blocks_vec[2] = Blocks_C;
 
         // For all the lists (Blocs_A, Blocks_B and Blocks_C)
-        for (int j=0; j<3; j++)
+        for (int j = 0; j < 3; j++)
         {
             // Reset iterator to the begin
             (*blocks_it[j]) = blocks_vec[j]->begin();
@@ -668,7 +711,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
                 {
                     // Create a specification of a regular n-dim cube grid
                     r_Minterval specs(num_dims);
-                    for (r_Dimension i=0; i<num_dims; i++)
+                    for (r_Dimension i = 0; i < num_dims; i++)
                     {
                         specs << r_Sinterval(static_cast<r_Range>(0), (**blocks_it[j])[i].high() - (**blocks_it[j])[i].low());
                     }
@@ -683,7 +726,9 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
 
 #ifdef _VISUALIZE_2D_DECOMP_
                         if (domain.dimension() == 2)
+                        {
                             (*vis) << (*it);
+                        }
 #endif
                     }
 
@@ -696,7 +741,9 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
 
 #ifdef _VISUALIZE_2D_DECOMP_
                     if (domain.dimension() == 2)
+                    {
                         (*vis) << (**blocks_it[j]);
+                    }
 #endif
                 }
             }
@@ -732,15 +779,21 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
         {
             vis->set_pen(255, 255, 0);
             for (it_A.seek_begin(); it_A.not_done(); it_A++)
+            {
                 (*vis) << *it_A;
+            }
 
             vis->set_pen(0, 255, 0);
             for (it_B.seek_begin(); it_B.not_done(); it_B++)
+            {
                 (*vis) << *it_B;
+            }
 
             vis->set_pen(0, 0, 255);
             for (it_C.seek_begin(); it_C.not_done(); it_C++)
+            {
                 (*vis) << *it_C;
+            }
         }
 #endif
     }
@@ -757,7 +810,9 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
 
 #ifdef _VISUALIZE_2D_DECOMP_
     if (domain.dimension() == 2)
+    {
         delete vis;
+    }
 #endif
 
     // Return result

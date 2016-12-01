@@ -49,7 +49,7 @@ class QtMintervalData : public QtData
 {
 public:
     /// constructor getting the minterval
-    QtMintervalData( const r_Minterval& minterval, vector<bool>* initTrimFlags = NULL );
+    QtMintervalData(const r_Minterval& minterval, vector<bool>* initTrimFlags = NULL);
 
     /// virtual destructor
     virtual ~QtMintervalData();
@@ -61,7 +61,7 @@ public:
     ///
     inline const r_Minterval&  getMintervalData() const;
     ///
-    inline void                setMintervalData( const r_Minterval& interval );
+    inline void                setMintervalData(const r_Minterval& interval);
     //
     // inline void                setMintervalData( const r_Point& point );
     ///
@@ -80,13 +80,13 @@ public:
     virtual QtDataType getDataType() const;
 
     /// compares data content
-    virtual bool equal( const QtData* obj ) const;
+    virtual bool equal(const QtData* obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus( std::ostream& stream = std::cout ) const;
+    virtual void printStatus(std::ostream& stream = std::cout) const;
 
 private:
     /// prevents from using the default constructor

@@ -83,10 +83,12 @@ DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
 void
 DBTCIndex::printStatus(unsigned int level, std::ostream& stream) const
 {
-    char* indent = new char[level*2 +1];
-    for (unsigned int j = 0; j < level*2 ; j++)
+    char* indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2 ; j++)
+    {
         indent[j] = ' ';
-    indent[level*2] = '\0';
+    }
+    indent[level * 2] = '\0';
 
     stream << indent << "DBTCIndex ";
     DBHierIndex::printStatus(level + 1, stream);
@@ -101,22 +103,32 @@ DBTCIndex::~DBTCIndex()
         if (!AdminIf::isReadOnlyTA())
         {
             if (isLeaf())
+            {
                 decideForInlining();
+            }
             if (mappingHasChanged)
+            {
                 updateTileIndexMappings();
+            }
             if (inlineTileHasChanged)
             {
                 storeTiles();
                 changeBOIdToIOId();
             }
             if (isModified())
+            {
                 DBHierIndex::updateInDb();
+            }
             if (isLeaf())
+            {
                 changeIOIdToBOId();
+            }
         }
     }
     else
+    {
         validate();
+    }
     currentDbRows = 0;
     parent = OId(0);
 }
@@ -180,7 +192,9 @@ void
 DBTCIndex::addInlineTile(InlineTile* it)
 {
     if (!_isLoaded)
+    {
         readInlineTiles();
+    }
     DBObjectPPair p(it->getOId(), it);
     inlineTiles.insert(p);
     ObjectBroker::registerTileIndexMapping(it->getOId(), myOId);
@@ -204,7 +218,9 @@ DBTCIndex::insertInDb() throw (r_Error)
     }
     DBHierIndex::insertInDb();
     if (isLeaf())
+    {
         changeIOIdToBOId();
+    }
 }
 
 void
@@ -224,16 +240,26 @@ void
 DBTCIndex::updateInDb() throw (r_Error)
 {
     if (isLeaf())
+    {
         decideForInlining();
+    }
     if (mappingHasChanged)
+    {
         updateTileIndexMappings();
+    }
     if (inlineTileHasChanged)
+    {
         storeTiles();
+    }
     if (inlineTiles.size() != 0)
+    {
         changeBOIdToIOId();
+    }
     DBHierIndex::updateInDb();
     if (isLeaf())
+    {
         changeIOIdToBOId();
+    }
 }
 
 InlineTile*
@@ -283,7 +309,9 @@ bool
 DBTCIndex::removeObject(const KeyObject& entry)
 {
     if (isLeaf())
+    {
         readyForRemoval(entry.getObject().getOId());
+    }
     bool found = DBHierIndex::removeObject(entry);
     return found;
 }
@@ -293,7 +321,9 @@ DBTCIndex::removeObject(unsigned int pos)
 {
     if (isLeaf())
         if (pos <= myKeyObjects.size())
+        {
             readyForRemoval(myKeyObjects[pos].getObject().getOId());
+        }
     bool found = DBHierIndex::removeObject(static_cast<unsigned int>(pos));
     return found;
 }

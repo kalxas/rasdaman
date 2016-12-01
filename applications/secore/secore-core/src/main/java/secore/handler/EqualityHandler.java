@@ -42,69 +42,69 @@ import secore.util.XMLDiff;
  */
 public class EqualityHandler extends AbstractHandler {
 
-  private static Logger log = LoggerFactory.getLogger(EqualityHandler.class);
-  
-  public ResolveResponse handle(ResolveRequest request) throws SecoreException {
-    log.debug("Handling resolve request...");
-    
-    List<RequestParam> params = request.getParams();
-    
-    if (request.getOperation().equals(getOperation()) && params.size() == 2) {
-      
-      List<RequestParam> components = request.getParams();
-      
-      // do some checking first, whether they are existing references
-      String def1 = EMPTY;
-      String def2 = EMPTY;
-      
-      for (RequestParam component : components) {
-        try {
-          if (!(component.val instanceof ResolveRequest)) {
-            throw new SecoreException(ExceptionCode.InvalidParameterValue,
-                "Invalid parameter value received for " + component.key + ": " + component.val);
-          }
-          String res = null;
-          ResolveRequest req = (ResolveRequest) component.val;
-          if (req.isLocal()) {
-            res = Resolver.resolve(req).getData();
-          } else {
-            res = Resolver.resolve(new URL(req.getOriginalRequest())).getData();
-          }
-          if (EMPTY.equals(res)) {
-            throw new SecoreException(ExceptionCode.NoSuchDefinition,
-                "Invalid definition received for " + component.val);
-          }
-          String id = StringUtil.getElementValue(res, IDENTIFIER_LABEL);
-          if (id == null) {
-            throw new SecoreException(ExceptionCode.XmlNotValid,
-                "Invalid definition received for " + component.val);
-          }
-          if (def1.equals(EMPTY)) {
-            def1 = res;
-          } else {
-            def2 = res;
-          }
-        } catch (Exception ex) {
-          log.error("Failed resolving definition: " + component.val, ex);
-          throw new SecoreException(ExceptionCode.NoSuchDefinition,
-              "Failed resolving definition: " + component, ex);
-        }
-      }
-      
-      log.debug("Comparing the retrieved definitions...");
-      String res = XMLDiff.equals(def1, def2).toXML();
-      log.trace(res);
-      
-      log.debug("Done, returning response.");
-      return new ResolveResponse(res);
-    } else {
-      log.error("Can't handle the given parameters, exiting with error.");
-      throw new SecoreException(ExceptionCode.MissingParameterValue, 
-          "Insufficient parameters provided");
-    }
-  }
+    private static Logger log = LoggerFactory.getLogger(EqualityHandler.class);
 
-  public String getOperation() {
-    return OP_EQUAL;
-  }
+    public ResolveResponse handle(ResolveRequest request) throws SecoreException {
+        log.debug("Handling resolve request...");
+
+        List<RequestParam> params = request.getParams();
+
+        if (request.getOperation().equals(getOperation()) && params.size() == 2) {
+
+            List<RequestParam> components = request.getParams();
+
+            // do some checking first, whether they are existing references
+            String def1 = EMPTY;
+            String def2 = EMPTY;
+
+            for (RequestParam component : components) {
+                try {
+                    if (!(component.val instanceof ResolveRequest)) {
+                        throw new SecoreException(ExceptionCode.InvalidParameterValue,
+                                                  "Invalid parameter value received for " + component.key + ": " + component.val);
+                    }
+                    String res = null;
+                    ResolveRequest req = (ResolveRequest) component.val;
+                    if (req.isLocal()) {
+                        res = Resolver.resolve(req).getData();
+                    } else {
+                        res = Resolver.resolve(new URL(req.getOriginalRequest())).getData();
+                    }
+                    if (EMPTY.equals(res)) {
+                        throw new SecoreException(ExceptionCode.NoSuchDefinition,
+                                                  "Invalid definition received for " + component.val);
+                    }
+                    String id = StringUtil.getElementValue(res, IDENTIFIER_LABEL);
+                    if (id == null) {
+                        throw new SecoreException(ExceptionCode.XmlNotValid,
+                                                  "Invalid definition received for " + component.val);
+                    }
+                    if (def1.equals(EMPTY)) {
+                        def1 = res;
+                    } else {
+                        def2 = res;
+                    }
+                } catch (Exception ex) {
+                    log.error("Failed resolving definition: " + component.val, ex);
+                    throw new SecoreException(ExceptionCode.NoSuchDefinition,
+                                              "Failed resolving definition: " + component, ex);
+                }
+            }
+
+            log.debug("Comparing the retrieved definitions...");
+            String res = XMLDiff.equals(def1, def2).toXML();
+            log.trace(res);
+
+            log.debug("Done, returning response.");
+            return new ResolveResponse(res);
+        } else {
+            log.error("Can't handle the given parameters, exiting with error.");
+            throw new SecoreException(ExceptionCode.MissingParameterValue,
+                                      "Insufficient parameters provided");
+        }
+    }
+
+    public String getOperation() {
+        return OP_EQUAL;
+    }
 }

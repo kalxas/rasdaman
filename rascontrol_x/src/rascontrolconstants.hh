@@ -31,11 +31,11 @@ namespace rascontrol
 {
 const boost::uint32_t MAXMSG = 2048; /*!< Maximum length of a rascontrol message. */
 
-const boost::uint32_t MAX_USERNAME_LENGTH=100; /*!< Maximum length of a user name */
+const boost::uint32_t MAX_USERNAME_LENGTH = 100; /*!< Maximum length of a user name */
 
-const boost::uint32_t MAX_USERPASS_LENGTH=100; /*!< Maximum length of a user password */
+const boost::uint32_t MAX_USERPASS_LENGTH = 100; /*!< Maximum length of a user password */
 
-const char EOS_CHAR ='\0'; /*!< Constant representing the end of a string */
+const char EOS_CHAR = '\0'; /*!< Constant representing the end of a string */
 
 const std::string RASLOGIN = "RASLOGIN"; /*!<  Name of RASLOGIN environment variable */
 

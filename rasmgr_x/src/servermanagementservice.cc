@@ -37,34 +37,34 @@ using std::string;
 
 ServerManagementService::ServerManagementService(shared_ptr<ServerManager> serverManager)
 {
-    this->serverManager=serverManager;
+    this->serverManager = serverManager;
 }
 
 ServerManagementService::~ServerManagementService()
 {}
 
-grpc::Status ServerManagementService::RegisterServer(grpc::ServerContext *context, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *response)
+grpc::Status ServerManagementService::RegisterServer(grpc::ServerContext* context, const rasnet::service::RegisterServerReq* request, rasnet::service::Void* response)
 {
     Status status = Status::OK;
 
     try
     {
-        LDEBUG<<"Registering server with ID:"<<request->serverid();
+        LDEBUG << "Registering server with ID:" << request->serverid();
 
         this->serverManager->registerServer(request->serverid());
 
-        LDEBUG<<"Finished registering server with ID:"<<request->serverid();
+        LDEBUG << "Finished registering server with ID:" << request->serverid();
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
 
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="Failed to register server for unknown reason.";
-        LERROR<<failureReason;
+        string failureReason = "Failed to register server for unknown reason.";
+        LERROR << failureReason;
 
         status = common::GrpcUtils::convertExceptionToStatus(failureReason);
     }

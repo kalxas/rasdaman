@@ -59,13 +59,13 @@ class r_Marray : public r_GMarray
 {
 public:
     /// function type for initialization function
-    typedef T (*r_InitFunction)(const r_Point&);
+    typedef T(*r_InitFunction)(const r_Point&);
 
     /// default constructor (no memory is allocated!)
     r_Marray() throw(r_Error);
 
     /// constructor for uninitialized MDD objects
-    r_Marray( const r_Minterval&, r_Storage_Layout* stl = 0 ) throw(r_Error);
+    r_Marray(const r_Minterval&, r_Storage_Layout* stl = 0) throw(r_Error);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_Marray} class.
@@ -74,7 +74,7 @@ public:
     */
 
     /// constructor for constant MDD objects
-    r_Marray( const r_Minterval&, const T&, r_Storage_Layout* stl = 0 ) throw(r_Error);
+    r_Marray(const r_Minterval&, const T&, r_Storage_Layout* stl = 0) throw(r_Error);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_Marray} class.
@@ -83,7 +83,7 @@ public:
     */
 
     /// constructor with initializing function
-    r_Marray( const r_Minterval&, r_InitFunction, r_Storage_Layout* stl = 0 ) throw(r_Error);
+    r_Marray(const r_Minterval&, r_InitFunction, r_Storage_Layout* stl = 0) throw(r_Error);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_Marray} class.
@@ -92,10 +92,10 @@ public:
     */
 
     /// copy constructor
-    r_Marray( const r_Marray<T>& ) throw(r_Error);
+    r_Marray(const r_Marray<T>&) throw(r_Error);
 
     /// constructor getting an object of type r_GMarray
-    r_Marray( r_GMarray& ) throw(r_Error);
+    r_Marray(r_GMarray&) throw(r_Error);
     /*
       This constructor is used for converting general \Ref{r_GMarray} objects
       to cell type safe \Ref{r_Marray} objects. Care has to be taken because
@@ -107,30 +107,30 @@ public:
     virtual ~r_Marray();
 
     /// assignment: cleanup + copy
-    const r_Marray& operator= ( const r_Marray& );
+    const r_Marray& operator= (const r_Marray&);
 
     /// subscript operator for projection in the 1st dimension
-    r_Marray<T> operator[]( long ) const
+    r_Marray<T> operator[](long) const
     throw(r_Eindex_violation);
 
     /// subscript operator for restriction/extension combination
-    r_Marray<T> operator[]( const r_Minterval& ) const
-    throw( r_Edim_mismatch );
+    r_Marray<T> operator[](const r_Minterval&) const
+    throw(r_Edim_mismatch);
 
     /// subscript operator for read access of a cell
-    const T& operator[]( const r_Point& ) const
+    const T& operator[](const r_Point&) const
     throw(r_Edim_mismatch, r_Eindex_violation);
 
     /// subscript operator for write access of a cell
-    T& operator[]( const r_Point& )
+    T& operator[](const r_Point&)
     throw(r_Edim_mismatch, r_Eindex_violation);
 
     /// cast operator for converting to base type for cell access
     operator T()
-    throw( r_Eno_cell );
+    throw(r_Eno_cell);
 
     /// writes the state of the object to the specified stream
-    virtual void print_status( std::ostream& s = cout ) const;
+    virtual void print_status(std::ostream& s = cout) const;
 };
 
 #include "rasodmg/marray.icc"

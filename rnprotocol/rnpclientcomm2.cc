@@ -77,8 +77,8 @@ void RnpClientComm::executeConnect()
     clientID = decoder.getDataAsInteger();
     LDEBUG << "executeConnect: Connected, clientID 0x" << hex << clientID << dec ;
 
-    endianServer = decoder.getDesiredEndianness() == Rnp::bigEndian ? 0: 1;
-    endianClient = Rnp::detectHostEndianness()    == Rnp::bigEndian ? 0: 1;
+    endianServer = decoder.getDesiredEndianness() == Rnp::bigEndian ? 0 : 1;
+    endianClient = Rnp::detectHostEndianness()    == Rnp::bigEndian ? 0 : 1;
 
     clearAnswer();
 }
@@ -148,7 +148,7 @@ void RnpClientComm::executeAbortTA()
     clearAnswer();
 }
 
-void RnpClientComm::turboOpenDB(const char *lDatabaseName)
+void RnpClientComm::turboOpenDB(const char* lDatabaseName)
 {
     clientID = 0;
 
@@ -158,18 +158,18 @@ void RnpClientComm::turboOpenDB(const char *lDatabaseName)
     encoder.endFragment();
     LDEBUG << "request RnpRasserver::cmd_connect with clientID 0x0, capability '" << capability << "'";
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_opendb);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_opendb);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.addStringParameter(RnpRasserver::pmt_dbname, lDatabaseName);
     encoder.endFragment();
     LDEBUG << "adding fragment RnpRasserver::cmd_opendb with db '" << lDatabaseName << "', clientID 0x" << hex << clientID << dec;
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_closedb);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_closedb);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.endFragment();
     LDEBUG << "adding fragment RnpRasserver::cmd_closedb with clientID 0x" << hex << clientID << dec;
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_disconnect);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_disconnect);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     LDEBUG << "adding fragment RnpRasserver::cmd_disconnect with clientID 0x" << hex << clientID << dec;
 
@@ -180,8 +180,8 @@ void RnpClientComm::turboOpenDB(const char *lDatabaseName)
     clientID = -1; // we will disconnect so we force it here
     LDEBUG << "RnpClientComm::turboOpenDB(): clientID set to 0x" << hex << clientID << dec;
 
-    endianServer = decoder.getDesiredEndianness() == Rnp::bigEndian ? 0: 1;
-    endianClient = Rnp::detectHostEndianness()    == Rnp::bigEndian ? 0: 1;
+    endianServer = decoder.getDesiredEndianness() == Rnp::bigEndian ? 0 : 1;
+    endianClient = Rnp::detectHostEndianness()    == Rnp::bigEndian ? 0 : 1;
 
     // open
     decoder.getNextFragment();
@@ -206,13 +206,13 @@ void RnpClientComm::turboBeginTA(bool rw)
     encoder.endFragment();
     LDEBUG << "request RnpRasserver::cmd_connect with clientID 0x" << hex << clientID << dec << ", capability '" << capability << "'";
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_opendb);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_opendb);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.addStringParameter(RnpRasserver::pmt_dbname, databaseName);
     encoder.endFragment();
     LDEBUG << "adding fragment RnpRasserver::cmd_opendb '" << databaseName << "', with clientID 0x" << hex << clientID << dec;
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_beginta);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_beginta);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.addInt32Parameter(RnpRasserver::pmt_accesmode, rw);
     LDEBUG << "adding fragment RnpRasserver::cmd_beginta with rw=" << rw << ", clientID 0x" << hex << clientID << dec;
@@ -221,8 +221,8 @@ void RnpClientComm::turboBeginTA(bool rw)
 
     clientID = decoder.getDataAsInteger();
     LDEBUG << "rceived clientID 0x" << hex << clientID << dec;
-    endianServer = decoder.getDesiredEndianness() == Rnp::bigEndian ? 0: 1;
-    endianClient = Rnp::detectHostEndianness()    == Rnp::bigEndian ? 0: 1;
+    endianServer = decoder.getDesiredEndianness() == Rnp::bigEndian ? 0 : 1;
+    endianClient = Rnp::detectHostEndianness()    == Rnp::bigEndian ? 0 : 1;
 
     // open
     decoder.getNextFragment();
@@ -242,12 +242,12 @@ void RnpClientComm::turboCommitTA()
     encoder.endFragment();
     LDEBUG << "request RnpRasserver::cmd_committa with clientID 0x" << hex << clientID << dec;
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_closedb);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_closedb);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.endFragment();
     LDEBUG << "adding fragment RnpRasserver::cmd_closedb with clientID 0x" << hex << clientID << dec;
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_disconnect);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_disconnect);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     LDEBUG << "adding fragment RnpRasserver::cmd_disconnect with clientID 0x" << hex << clientID << dec;
 
@@ -272,12 +272,12 @@ void RnpClientComm::turboAbortTA()
     encoder.endFragment();
     LDEBUG << "request RnpRasserver::cmd_abortta with clientID 0x" << hex << clientID << dec;
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_closedb);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_closedb);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.endFragment();
     LDEBUG << "adding fragment RnpRasserver::cmd_closedb with clientID 0x" << hex << clientID << dec;
 
-    encoder.startFragment(Rnp::fgt_Command,RnpRasserver::cmd_disconnect);
+    encoder.startFragment(Rnp::fgt_Command, RnpRasserver::cmd_disconnect);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     LDEBUG << "adding fragment RnpRasserver::cmd_disconnect with clientID 0x" << hex << clientID << dec;
 
@@ -298,13 +298,13 @@ void RnpClientComm::turboAbortTA()
 }
 
 //---------------------------------------------------------------------------------
-int RnpClientComm::executeStartInsertPersMDD( const char* collName, r_GMarray* mar )
+int RnpClientComm::executeStartInsertPersMDD(const char* collName, r_GMarray* mar)
 {
     startRequest(RnpRasserver::cmd_startinsPmdd);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
 
-    char *domain = mar->spatial_domain().get_string_representation();
+    char* domain = mar->spatial_domain().get_string_representation();
     encoder.addStringParameter(RnpRasserver::pmt_domain, domain);
 
     encoder.addInt32Parameter(RnpRasserver::pmt_typelength, static_cast<int>(mar->get_type_length()));
@@ -321,7 +321,7 @@ int RnpClientComm::executeStartInsertPersMDD( const char* collName, r_GMarray* m
 }
 
 // retrieval query
-int RnpClientComm::executeExecuteQuery( const char* query, r_Set< r_Ref_Any >& result ) throw( r_Error )
+int RnpClientComm::executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& result) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_queryrpc);
     encoder.adjustBufferSize(strlen(query));
@@ -346,16 +346,16 @@ int RnpClientComm::executeExecuteQuery( const char* query, r_Set< r_Ref_Any >& r
     decoder.getNextParameter();
     const char* typeStructure = decoder.getDataAsString();
 
-    if(status == 0 || status == 1)
+    if (status == 0 || status == 1)
     {
-        result.set_type_by_name( typeName );
-        result.set_type_structure( typeStructure );
+        result.set_type_by_name(typeName);
+        result.set_type_structure(typeStructure);
     }
     // status == 2 - empty result
 
-    if( status == 4 || status == 5 )
+    if (status == 4 || status == 5)
     {
-        r_Equery_execution_failed err( static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token );
+        r_Equery_execution_failed err(static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token);
         clearAnswer();
         throw err;
     }
@@ -383,12 +383,12 @@ GetElementRes* RnpClientComm::executeGetNextElement()
 
     sendRequestGetAnswer();
 
-    GetElementRes *result = new GetElementRes;
+    GetElementRes* result = new GetElementRes;
     result->data.confarray_val = NULL;
 
     result->status = decoder.getDataAsInteger();
 
-    if(decoder.countParameters() == 2)
+    if (decoder.countParameters() == 2)
     {
         decoder.getNextParameter();
         result->data.confarray_len = static_cast<u_int>(decoder.getDataLength());
@@ -404,19 +404,19 @@ GetElementRes* RnpClientComm::executeGetNextElement()
 }
 
 
-int RnpClientComm::executeInsertMDD(const char* collName, r_GMarray* mar, RPCMarray *rpcMarray)
+int RnpClientComm::executeInsertMDD(const char* collName, r_GMarray* mar, RPCMarray* rpcMarray)
 {
     int size = static_cast<int>(rpcMarray->data.confarray_len);
     startRequest(RnpRasserver::cmd_insertmdd, RNP_DEFAULTBUFFERSIZE + size);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_clientid,      clientID);
-    encoder.addStringParameter( RnpRasserver::pmt_collname,      collName);
-    encoder.addStringParameter( RnpRasserver::pmt_typename,      mar->get_type_name());
-    encoder.addStringParameter( RnpRasserver::pmt_oidstring,     mar->get_oid().get_string_representation());
-    encoder.addStringParameter( RnpRasserver::pmt_domain,        rpcMarray->domain);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_typelength,    rpcMarray->cellTypeLength);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_currentformat, rpcMarray->currentFormat);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_storageformat, rpcMarray->storageFormat);
-    encoder.addOpaqueParameter( RnpRasserver::pmt_tiledata,      rpcMarray->data.confarray_val, size);
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid,      clientID);
+    encoder.addStringParameter(RnpRasserver::pmt_collname,      collName);
+    encoder.addStringParameter(RnpRasserver::pmt_typename,      mar->get_type_name());
+    encoder.addStringParameter(RnpRasserver::pmt_oidstring,     mar->get_oid().get_string_representation());
+    encoder.addStringParameter(RnpRasserver::pmt_domain,        rpcMarray->domain);
+    encoder.addInt32Parameter(RnpRasserver::pmt_typelength,    rpcMarray->cellTypeLength);
+    encoder.addInt32Parameter(RnpRasserver::pmt_currentformat, rpcMarray->currentFormat);
+    encoder.addInt32Parameter(RnpRasserver::pmt_storageformat, rpcMarray->storageFormat);
+    encoder.addOpaqueParameter(RnpRasserver::pmt_tiledata,      rpcMarray->data.confarray_val, size);
     LDEBUG << "request RnpRasserver::cmd_insertmdd with collection '" << collName << ", ..., clientID 0x" << hex << clientID << dec;
 
     int result = sendAndReturnStatus();
@@ -424,7 +424,7 @@ int RnpClientComm::executeInsertMDD(const char* collName, r_GMarray* mar, RPCMar
     return result;
 }
 
-int RnpClientComm::executeInsertCollection( const char* collName, const char* typeName, const r_OId& oid )
+int RnpClientComm::executeInsertCollection(const char* collName, const char* typeName, const r_OId& oid)
 {
     startRequest(RnpRasserver::cmd_insertcoll);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -438,43 +438,47 @@ int RnpClientComm::executeInsertCollection( const char* collName, const char* ty
 }
 
 // common function using the dynamic parameter facility of RNP
-r_Ref_Any RnpClientComm::executeGetCollByNameOrOId ( const char* collName, const r_OId& oid ) throw( r_Error )
+r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r_OId& oid) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_getcoll);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
-    if( collName != NULL)
+    if (collName != NULL)
+    {
         encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
+    }
     else
+    {
         encoder.addStringParameter(RnpRasserver::pmt_oidstring, oid.get_string_representation());
+    }
     LDEBUG << "request RnpRasserver::cmd_getcoll with ..., clientID 0x" << hex << clientID << dec;
 
     sendRequestGetAnswer();
 
     int status  =  decoder.getDataAsInteger();
     decoder.getNextParameter();
-    const char *typeName      =  decoder.getDataAsString();
+    const char* typeName      =  decoder.getDataAsString();
     decoder.getNextParameter();
-    const char *typeStructure =  decoder.getDataAsString();
+    const char* typeStructure =  decoder.getDataAsString();
     decoder.getNextParameter();
-    const char *oidstring     =  decoder.getDataAsString();
+    const char* oidstring     =  decoder.getDataAsString();
     decoder.getNextParameter();
-    const char *collectionName=  decoder.getDataAsString();
+    const char* collectionName =  decoder.getDataAsString();
 
-    r_Set< r_Ref_Any >* set       = 0;
+    r_Set<r_Ref_Any>* set       = 0;
 
-    if( status != 0 && status != 1 )
+    if (status != 0 && status != 1)
     {
         r_Error err;
-        switch( status )
+        switch (status)
         {
         case 2:
-            err = r_Error( r_Error::r_Error_ObjectUnknown );
+            err = r_Error(r_Error::r_Error_ObjectUnknown);
             break;
         case 3:
-            err = r_Error( r_Error::r_Error_ClientUnknown );
+            err = r_Error(r_Error::r_Error_ClientUnknown);
             break;
         default:
-            err = r_Error( r_Error::r_Error_TransferFailed );
+            err = r_Error(r_Error::r_Error_TransferFailed);
             break;
         }
         clearAnswer();
@@ -482,64 +486,70 @@ r_Ref_Any RnpClientComm::executeGetCollByNameOrOId ( const char* collName, const
     }
 
     // create the set
-    r_OId rOId( oidstring );
-    set = new ( r_Database::actual_database, r_Object::read, rOId )  r_Set< r_Ref_Any >;
+    r_OId rOId(oidstring);
+    set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
 
     // initialize data elements
-    set->set_type_by_name  ( typeName );
-    set->set_type_structure( typeStructure );
-    set->set_object_name   ( collectionName );
+    set->set_type_by_name(typeName);
+    set->set_type_structure(typeStructure);
+    set->set_object_name(collectionName);
 
     clearAnswer();
 
     // get collection elements
-    if( status == 0 )
-        getMDDCollection( *set, 0 );
+    if (status == 0)
+    {
+        getMDDCollection(*set, 0);
+    }
     //  else rpcStatus == 1 -> Result collection is empty and nothing has to be got.
 
-    r_Ref_Any result = r_Ref_Any( set->get_oid(), set );
+    r_Ref_Any result = r_Ref_Any(set->get_oid(), set);
     return result;
 }
 
 
 // common function using the dynamic parameter facility of RNP
-r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId ( const char* collName, const r_OId& oid ) throw( r_Error )
+r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_getcolloids);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
-    if( collName != NULL)
+    if (collName != NULL)
+    {
         encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
+    }
     else
+    {
         encoder.addStringParameter(RnpRasserver::pmt_oidstring, oid.get_string_representation());
+    }
     LDEBUG << "request RnpRasserver::cmd_getcolloids with ..., clientID 0x" << hex << clientID << dec;
 
     sendRequestGetAnswer();
 
     int status  =  decoder.getDataAsInteger();
     decoder.getNextParameter();
-    const char *typeName      =  decoder.getDataAsString();
+    const char* typeName      =  decoder.getDataAsString();
     decoder.getNextParameter();
-    const char *typeStructure =  decoder.getDataAsString();
+    const char* typeStructure =  decoder.getDataAsString();
     decoder.getNextParameter();
-    const char *oidstring     =  decoder.getDataAsString();
+    const char* oidstring     =  decoder.getDataAsString();
     decoder.getNextParameter();
-    const char *collectionName=  decoder.getDataAsString();
+    const char* collectionName =  decoder.getDataAsString();
 
-    r_Set< r_Ref<r_GMarray> >* set = 0;
+    r_Set<r_Ref<r_GMarray>>* set = 0;
 
-    if( status != 0 && status != 1 )
+    if (status != 0 && status != 1)
     {
         r_Error err;
-        switch( status )
+        switch (status)
         {
         case 2:
-            err = r_Error( r_Error::r_Error_ObjectUnknown );
+            err = r_Error(r_Error::r_Error_ObjectUnknown);
             break;
         case 3:
-            err = r_Error( r_Error::r_Error_ClientUnknown );
+            err = r_Error(r_Error::r_Error_ClientUnknown);
             break;
         default:
-            err = r_Error( r_Error::r_Error_TransferFailed );
+            err = r_Error(r_Error::r_Error_TransferFailed);
             break;
         }
         clearAnswer();
@@ -547,26 +557,26 @@ r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId ( const char* collName, c
     }
 
     // create the set
-    r_OId rOId( oidstring );
-    set = new ( r_Database::actual_database, r_Object::read, rOId )  r_Set< r_Ref< r_GMarray > >;
+    r_OId rOId(oidstring);
+    set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
 
-    set->set_type_by_name  ( typeName );
-    set->set_type_structure( typeStructure );
-    set->set_object_name   ( collName );
+    set->set_type_by_name(typeName);
+    set->set_type_structure(typeStructure);
+    set->set_object_name(collName);
 
     // fill set with oids
-    if( status == 0 )
+    if (status == 0)
     {
-        while(decoder.getNextParameter() != 0)
+        while (decoder.getNextParameter() != 0)
         {
-            r_OId roid( decoder.getDataAsString() );
-            set->insert_element( r_Ref<r_GMarray>(roid), 1 );
+            r_OId roid(decoder.getDataAsString());
+            set->insert_element(r_Ref<r_GMarray>(roid), 1);
         }
     }
 
     clearAnswer();
 
-    r_Ref_Any result = r_Ref_Any( set->get_oid(), set );
+    r_Ref_Any result = r_Ref_Any(set->get_oid(), set);
     return result;
 }
 
@@ -610,7 +620,7 @@ GetTileRes* RnpClientComm::executeGetNextTile()
     result->marray    = new RPCMarray;
 
     result->status = decoder.getDataAsInteger();
-    if(decoder.getNextParameter() != 0)
+    if (decoder.getNextParameter() != 0)
     {
         result->marray->domain = strdup(decoder.getDataAsString());
         decoder.getNextParameter();
@@ -649,27 +659,27 @@ int RnpClientComm::executeInitUpdate()
 int RnpClientComm::executeStartInsertTransMDD(r_GMarray* mdd)
 {
     startRequest(RnpRasserver::cmd_startinsTmdd);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_clientid,   clientID);
-    encoder.addStringParameter( RnpRasserver::pmt_domain,     mdd->spatial_domain().get_string_representation());
-    encoder.addInt32Parameter(  RnpRasserver::pmt_typelength, static_cast<int>(mdd->get_type_length()));
-    encoder.addStringParameter( RnpRasserver::pmt_typename,   mdd->get_type_name());
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid,   clientID);
+    encoder.addStringParameter(RnpRasserver::pmt_domain,     mdd->spatial_domain().get_string_representation());
+    encoder.addInt32Parameter(RnpRasserver::pmt_typelength, static_cast<int>(mdd->get_type_length()));
+    encoder.addStringParameter(RnpRasserver::pmt_typename,   mdd->get_type_name());
     LDEBUG << "request RnpRasserver::cmd_startinsTmdd with ..., clientID 0x" << hex << clientID << dec;
 
     int result = sendAndReturnStatus();
     return result;
 }
 
-int RnpClientComm::executeInsertTile(bool persistent, RPCMarray *tile)
+int RnpClientComm::executeInsertTile(bool persistent, RPCMarray* tile)
 {
     int size = static_cast<int>(tile->data.confarray_len);
     startRequest(RnpRasserver::cmd_inserttile, RNP_DEFAULTBUFFERSIZE + size);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_clientid,      clientID);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_ispersistent,  persistent ? 1:0);
-    encoder.addStringParameter( RnpRasserver::pmt_domain,        tile->domain);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_typelength,    tile->cellTypeLength);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_currentformat, tile->currentFormat);
-    encoder.addInt32Parameter(  RnpRasserver::pmt_storageformat, tile->storageFormat);
-    encoder.addOpaqueParameter( RnpRasserver::pmt_tiledata,      tile->data.confarray_val, size);
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid,      clientID);
+    encoder.addInt32Parameter(RnpRasserver::pmt_ispersistent,  persistent ? 1 : 0);
+    encoder.addStringParameter(RnpRasserver::pmt_domain,        tile->domain);
+    encoder.addInt32Parameter(RnpRasserver::pmt_typelength,    tile->cellTypeLength);
+    encoder.addInt32Parameter(RnpRasserver::pmt_currentformat, tile->currentFormat);
+    encoder.addInt32Parameter(RnpRasserver::pmt_storageformat, tile->storageFormat);
+    encoder.addOpaqueParameter(RnpRasserver::pmt_tiledata,      tile->data.confarray_val, size);
     LDEBUG << "request RnpRasserver::cmd_inserttile with ..., clientID 0x" << hex << clientID << dec;
 
     int result = sendAndReturnStatus();
@@ -681,7 +691,7 @@ void RnpClientComm::executeEndInsertMDD(bool persistent)
 {
     startRequest(RnpRasserver::cmd_endinsmdd);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
-    encoder.addInt32Parameter(RnpRasserver::pmt_ispersistent, persistent ? 1:0);
+    encoder.addInt32Parameter(RnpRasserver::pmt_ispersistent, persistent ? 1 : 0);
     LDEBUG << "request RnpRasserver::cmd_endinsmdd with persistent " << persistent << ", clientID 0x" << hex << clientID << dec;
 
     sendRequestGetAnswer();
@@ -689,7 +699,7 @@ void RnpClientComm::executeEndInsertMDD(bool persistent)
 }
 
 // update
-int  RnpClientComm::executeExecuteUpdateQuery(const char *query) throw(r_Error)
+int  RnpClientComm::executeExecuteUpdateQuery(const char* query) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_updaterpc);
     encoder.adjustBufferSize(strlen(query));
@@ -710,29 +720,29 @@ int  RnpClientComm::executeExecuteUpdateQuery(const char *query) throw(r_Error)
 
     clearAnswer();
 
-    if( status == 2 || status == 3 )
+    if (status == 2 || status == 3)
     {
         LDEBUG << "Exception, status = " << status;
-        throw r_Equery_execution_failed( static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token.c_str() );
+        throw r_Equery_execution_failed(static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token.c_str());
     }
 
-    if( status == 1 )
+    if (status == 1)
     {
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_ClientUnknown );
+        throw r_Error(r_Error::r_Error_ClientUnknown);
     }
 
-    if( status > 3 )
+    if (status > 3)
     {
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_TransferFailed );
+        throw r_Error(r_Error::r_Error_TransferFailed);
     }
 
     return status;
 }
 
 // insert
-int  RnpClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref_Any >& result) throw(r_Error)
+int  RnpClientComm::executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_Any>& result) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_insertrpc);
     encoder.adjustBufferSize(strlen(query));
@@ -755,18 +765,18 @@ int  RnpClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref_An
     decoder.getNextParameter();
     const char* typeStructure = decoder.getDataAsString();
 
-    if(status == 0 || status == 1 || status == 2)
+    if (status == 0 || status == 1 || status == 2)
     {
-        result.set_type_by_name( typeName );
-        result.set_type_structure( typeStructure );
+        result.set_type_by_name(typeName);
+        result.set_type_structure(typeStructure);
     }
 
     // status == 2 - empty result
 
-    if( status == 4 || status == 5 )
+    if (status == 4 || status == 5)
     {
         LDEBUG << "Exception, status = " << status;
-        throw r_Equery_execution_failed( static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token.c_str() );
+        throw r_Equery_execution_failed(static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token.c_str());
     }
 
     clearAnswer();
@@ -774,7 +784,7 @@ int  RnpClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref_An
     return status;
 }
 
-r_OId RnpClientComm::executeGetNewOId( unsigned short objType ) throw(r_Error)
+r_OId RnpClientComm::executeGetNewOId(unsigned short objType) throw(r_Error)
 {
     //cout<<" RnpClientComm::getNewOId: not implemented"<<endl;
 
@@ -785,14 +795,14 @@ r_OId RnpClientComm::executeGetNewOId( unsigned short objType ) throw(r_Error)
 
     sendRequestGetAnswer();
 
-    r_OId oid( decoder.getDataAsString() );
+    r_OId oid(decoder.getDataAsString());
 
     clearAnswer();
 
     return oid;
 }
 
-unsigned short RnpClientComm::executeGetObjectType( const r_OId& oid ) throw(r_Error)
+unsigned short RnpClientComm::executeGetObjectType(const r_OId& oid) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_getobjecttype);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -802,24 +812,24 @@ unsigned short RnpClientComm::executeGetObjectType( const r_OId& oid ) throw(r_E
     sendRequestGetAnswer();
 
     int status = decoder.getDataAsInteger();
-    switch( status )
+    switch (status)
     {
     case 0:
         break; //OK
     case 1:
         clearAnswer();
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_ClientUnknown );
+        throw r_Error(r_Error::r_Error_ClientUnknown);
         break;
     case 2:
         clearAnswer();
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_ObjectUnknown );
+        throw r_Error(r_Error::r_Error_ObjectUnknown);
         break;
     default:
         clearAnswer();
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_TransferFailed );
+        throw r_Error(r_Error::r_Error_TransferFailed);
         break;
     }
 
@@ -831,7 +841,7 @@ unsigned short RnpClientComm::executeGetObjectType( const r_OId& oid ) throw(r_E
     return objType;
 }
 
-char* RnpClientComm::executeGetTypeStructure( const char* typeName, r_Type_Type typeType ) throw(r_Error)
+char* RnpClientComm::executeGetTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_gettypestruct);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -842,24 +852,24 @@ char* RnpClientComm::executeGetTypeStructure( const char* typeName, r_Type_Type 
     sendRequestGetAnswer();
 
     int status = decoder.getDataAsInteger();
-    switch(status)
+    switch (status)
     {
     case 0:
         break; //OK
     case 1:
         clearAnswer();
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_TransactionNotOpen );
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
         break;
     case 2:
         clearAnswer();
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
+        throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
         break;
     default:
         clearAnswer();
         LDEBUG << "Exception, status = " << status;
-        throw r_Error( r_Error::r_Error_TransferFailed );
+        throw r_Error(r_Error::r_Error_TransferFailed);
         break;
     }
 
@@ -872,12 +882,12 @@ char* RnpClientComm::executeGetTypeStructure( const char* typeName, r_Type_Type 
     return typeStructure;
 }
 
-int RnpClientComm::executeSetFormat( bool lTransferFormat, r_Data_Format format, const char* formatParams)
+int RnpClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format format, const char* formatParams)
 {
     startRequest(RnpRasserver::cmd_setformat);
-    encoder.addInt32Parameter( RnpRasserver::pmt_clientid,     clientID);
-    encoder.addInt32Parameter( RnpRasserver::pmt_whichformat,  lTransferFormat);
-    encoder.addInt32Parameter( RnpRasserver::pmt_format,       format);
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid,     clientID);
+    encoder.addInt32Parameter(RnpRasserver::pmt_whichformat,  lTransferFormat);
+    encoder.addInt32Parameter(RnpRasserver::pmt_format,       format);
     encoder.addStringParameter(RnpRasserver::pmt_formatparams, formatParams);
     LDEBUG << "request RnpRasserver::cmd_setformat with ..., clientID 0x" << hex << clientID << dec;
 
@@ -905,44 +915,49 @@ int RnpClientComm::sendAndReturnStatus() throw (r_Error)
 void RnpClientComm::sendRequestGetAnswer() throw (r_Error)
 {
     RnpBaseClientComm::setMaxRetry(RNP_MAX_RETRY);  // defined in raslib/rminit.hh -- PB 2005-sep-01
-    if(RnpBaseClientComm::sendRequestGetAnswer() == false)
+    if (RnpBaseClientComm::sendRequestGetAnswer() == false)
     {
         clearAnswer();
         LDEBUG << "Exception, sendRequestGetAnswer() == false";
-        throw r_Error( r_Error::r_Error_TransferFailed);
+        throw r_Error(r_Error::r_Error_TransferFailed);
     }
 
     detectErrors();
-    if(decoder.countParameters() > 0) decoder.getFirstParameter();
+    if (decoder.countParameters() > 0)
+    {
+        decoder.getFirstParameter();
+    }
 }
 
-void RnpClientComm::helper012d(__attribute__ ((unused)) const char* caller) throw (r_Error)
+void RnpClientComm::helper012d(__attribute__((unused)) const char* caller) throw (r_Error)
 {
     int status = sendAndReturnStatus();
 
-    switch( status )
+    switch (status)
     {
     case 0:
         break;
     case 1:
-        LDEBUG << "RnpClientComm::helper012d( " << (caller?caller:"(null)") << " ): error: status = " << status;
-        throw r_Error( r_Error::r_Error_ClientUnknown );
+        LDEBUG << "RnpClientComm::helper012d( " << (caller ? caller : "(null)") << " ): error: status = " << status;
+        throw r_Error(r_Error::r_Error_ClientUnknown);
         break;
     case 2:
-        LDEBUG << "RnpClientComm::helper012d( " << (caller?caller:"(null)") << " ): error: status = " << status;
-        throw r_Error( r_Error::r_Error_ObjectUnknown );
+        LDEBUG << "RnpClientComm::helper012d( " << (caller ? caller : "(null)") << " ): error: status = " << status;
+        throw r_Error(r_Error::r_Error_ObjectUnknown);
         break;
     default:
-        LDEBUG << "RnpClientComm::helper012d( " << (caller?caller:"(null)") << " ): error: status = " << status;
-        throw r_Error( r_Error::r_Error_General );
+        LDEBUG << "RnpClientComm::helper012d( " << (caller ? caller : "(null)") << " ): error: status = " << status;
+        throw r_Error(r_Error::r_Error_General);
         break;
     }
 }
 
 bool RnpClientComm::detectErrors()
 {
-    if(decoder.getFragmentType() != Rnp::fgt_Error)
+    if (decoder.getFragmentType() != Rnp::fgt_Error)
+    {
         return false;
+    }
 
     reassemble_r_Error() ;
 
@@ -952,12 +967,14 @@ bool RnpClientComm::detectErrors()
 void RnpClientComm::reassemble_r_Error() throw (r_Error)
 {
     decoder.getFirstParameter();
-    if(decoder.getParameterType() != Rnp::ert_Other)
+    if (decoder.getParameterType() != Rnp::ert_Other)
+    {
         return;
+    }
 
     decoder.getNextParameter();
 
-    r_Error *temp = r_Error::getAnyError(const_cast<char*>(decoder.getDataAsString()));
+    r_Error* temp = r_Error::getAnyError(const_cast<char*>(decoder.getDataAsString()));
 
     r_Error err = *temp;
 
@@ -979,11 +996,11 @@ int  RnpClientComm::getTimeoutInterval()
 
 //## unofficial functions
 
-r_OId RnpClientComm::createCollection(const char *collName, const char *collTypeName) throw(r_Error)
+r_OId RnpClientComm::createCollection(const char* collName, const char* collTypeName) throw(r_Error)
 {
     checkForRwTransaction();
     startRequest(RnpRasserver::cmd_createcollection);
-    encoder.addInt32Parameter( RnpRasserver::pmt_clientid, clientID);
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
     encoder.addStringParameter(RnpRasserver::pmt_typename, collTypeName);
     LDEBUG << "request RnpRasserver::cmd_createcollection with ..., clientID 0x" << hex << clientID << dec;
@@ -997,15 +1014,15 @@ r_OId RnpClientComm::createCollection(const char *collName, const char *collType
     return oid;
 }
 
-r_OId RnpClientComm::createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char *tileDomain, bool rcindex) throw(r_Error)
+r_OId RnpClientComm::createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char* tileDomain, bool rcindex) throw(r_Error)
 {
     checkForRwTransaction();
     startRequest(RnpRasserver::cmd_createmdd);
-    encoder.addInt32Parameter( RnpRasserver::pmt_clientid, clientID);
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
     encoder.addStringParameter(RnpRasserver::pmt_typename, mddTypeName);
     encoder.addStringParameter(RnpRasserver::pmt_domain,   definitionDomain);
-    encoder.addInt32Parameter( RnpRasserver::pmt_indextype, rcindex);
+    encoder.addInt32Parameter(RnpRasserver::pmt_indextype, rcindex);
     encoder.addStringParameter(RnpRasserver::pmt_domain,   tileDomain);
     LDEBUG << "request RnpRasserver::cmd_createmdd with collName " << collName << ", mddTypeName " << mddTypeName << ", definitionDomain " << definitionDomain << ", rcindex " << rcindex << ", tileDomain " << tileDomain << ", clientID 0x" << hex << clientID << dec;
 
@@ -1019,11 +1036,11 @@ r_OId RnpClientComm::createMDD(const char* collName, const char* mddTypeName, co
     return oid;
 }
 
-void RnpClientComm::extendMDD(r_OId mddOId, const char *stripeDomain, const char* tileDomain) throw(r_Error)
+void RnpClientComm::extendMDD(r_OId mddOId, const char* stripeDomain, const char* tileDomain) throw(r_Error)
 {
     checkForRwTransaction();
     startRequest(RnpRasserver::cmd_extendmdd);
-    encoder.addInt32Parameter( RnpRasserver::pmt_clientid, clientID);
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, mddOId.get_string_representation());
     encoder.addStringParameter(RnpRasserver::pmt_domain,   stripeDomain);
     encoder.addStringParameter(RnpRasserver::pmt_domain,   tileDomain);
@@ -1034,26 +1051,26 @@ void RnpClientComm::extendMDD(r_OId mddOId, const char *stripeDomain, const char
     clearAnswer();
 }
 
-vector<r_OId> RnpClientComm::getOIdsFromCollection( const char* collName ) throw( r_Error )
+vector<r_OId> RnpClientComm::getOIdsFromCollection(const char* collName) throw(r_Error)
 {
-    vector<r_OId> result = executeGetOIdsFromCollection ( collName, r_OId());
+    vector<r_OId> result = executeGetOIdsFromCollection(collName, r_OId());
 
     return result;
 }
 
-vector<r_OId> RnpClientComm::getOIdsFromCollection( const r_OId& oid ) throw( r_Error )
+vector<r_OId> RnpClientComm::getOIdsFromCollection(const r_OId& oid) throw(r_Error)
 {
-    vector<r_OId> result = executeGetOIdsFromCollection ( 0, oid );
+    vector<r_OId> result = executeGetOIdsFromCollection(0, oid);
 
     return result;
 }
 
-vector<r_OId> RnpClientComm::executeGetOIdsFromCollection ( const char* collName, const r_OId& oid ) throw( r_Error )
+vector<r_OId> RnpClientComm::executeGetOIdsFromCollection(const char* collName, const r_OId& oid) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_getcolloids);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     LDEBUG << "request RnpRasserver::cmd_getcolloids with clientID 0x" << hex << clientID << dec;
-    if( collName != NULL)
+    if (collName != NULL)
     {
         encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
         LDEBUG << "RnpClientComm::executeGetOIdsFromCollection() adding collName " << collName;
@@ -1069,34 +1086,34 @@ vector<r_OId> RnpClientComm::executeGetOIdsFromCollection ( const char* collName
     int status  =  decoder.getDataAsInteger();
     // we have to read all this, but we don't use them here
     decoder.getNextParameter();
-    const char *typeName      =  decoder.getDataAsString();
+    const char* typeName      =  decoder.getDataAsString();
     LDEBUG << "RnpClientComm::executeGetOIdsFromCollection() received typeName " << typeName;
     decoder.getNextParameter();
-    const char *typeStructure =  decoder.getDataAsString();
+    const char* typeStructure =  decoder.getDataAsString();
     LDEBUG << "RnpClientComm::executeGetOIdsFromCollection() received typeStructure " << typeStructure;
     decoder.getNextParameter();
-    const char *oidstring     =  decoder.getDataAsString();
+    const char* oidstring     =  decoder.getDataAsString();
     LDEBUG << "RnpClientComm::executeGetOIdsFromCollection() received oid " << oidstring;
     decoder.getNextParameter();
-    const char *collectionName=  decoder.getDataAsString();
+    const char* collectionName =  decoder.getDataAsString();
     LDEBUG << "RnpClientComm::executeGetOIdsFromCollection() received collectionName " << collectionName;
 
-    if( status != 0 && status != 1 )
+    if (status != 0 && status != 1)
     {
         r_Error err;
-        switch( status )
+        switch (status)
         {
         case 2:
             LDEBUG << "Exception, status = " << status;
-            err = r_Error( r_Error::r_Error_ObjectUnknown );
+            err = r_Error(r_Error::r_Error_ObjectUnknown);
             break;
         case 3:
             LDEBUG << "Exception, status = " << status;
-            err = r_Error( r_Error::r_Error_ClientUnknown );
+            err = r_Error(r_Error::r_Error_ClientUnknown);
             break;
         default:
             LDEBUG << "Exception, status = " << status;
-            err = r_Error( r_Error::r_Error_TransferFailed );
+            err = r_Error(r_Error::r_Error_TransferFailed);
             break;
         }
         clearAnswer();
@@ -1106,11 +1123,11 @@ vector<r_OId> RnpClientComm::executeGetOIdsFromCollection ( const char* collName
     // create the set
     vector<r_OId> result;
     // fill set with oids
-    if( status == 0 )
+    if (status == 0)
     {
-        while(decoder.getNextParameter() != 0)
+        while (decoder.getNextParameter() != 0)
         {
-            r_OId roid( decoder.getDataAsString() );
+            r_OId roid(decoder.getDataAsString());
             LDEBUG << "RnpClientComm::executeGetOIdsFromCollection() received oid set component " << roid;
 
             result.push_back(roid);
@@ -1122,7 +1139,7 @@ vector<r_OId> RnpClientComm::executeGetOIdsFromCollection ( const char* collName
     return result;
 }
 
-vector<r_Minterval> RnpClientComm::getTileDomains(r_OId mddOId, const char *stripeDomain) throw( r_Error )
+vector<r_Minterval> RnpClientComm::getTileDomains(r_OId mddOId, const char* stripeDomain) throw(r_Error)
 {
     startRequest(RnpRasserver::cmd_gettiledomains);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -1134,9 +1151,9 @@ vector<r_Minterval> RnpClientComm::getTileDomains(r_OId mddOId, const char *stri
 
     vector<r_Minterval> result;
 
-    const RnpParameter *currParam = decoder.getFirstParameter();
+    const RnpParameter* currParam = decoder.getFirstParameter();
 
-    while(currParam)
+    while (currParam)
     {
         r_Minterval interval(decoder.getDataAsString());
         LDEBUG << "RnpClientComm::getTileDomains() received minterval " << interval;

@@ -10,7 +10,7 @@ namespace rasmgr
 {
 namespace test
 {
-class ServerFactoryMock:public rasmgr::ServerFactory
+class ServerFactoryMock: public rasmgr::ServerFactory
 {
 public:
 

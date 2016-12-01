@@ -116,9 +116,9 @@ public:
     /// get the internal representation of the array for reading
     inline const char*   get_array() const;
     /// get the internal representation of the array
-    inline r_Set< r_GMarray* >*        get_tiled_array();
+    inline r_Set<r_GMarray*>*        get_tiled_array();
     /// get the internal representation of the array for reading
-    inline const r_Set< r_GMarray* >*  get_tiled_array() const;
+    inline const r_Set<r_GMarray*>*  get_tiled_array() const;
     /// get size of internal array representation in byets
     inline r_Bytes get_array_size() const;
     /// get length of cell type in bytes
@@ -136,13 +136,13 @@ public:
     //@{
     ///
     /// sets the storage layout object and checks compatibility with the domain
-    void set_storage_layout(r_Storage_Layout *) throw (r_Error);
+    void set_storage_layout(r_Storage_Layout*) throw (r_Error);
     /// set spatial domain
     inline void  set_spatial_domain(const r_Minterval& domain);
     /// set the internal representation of the array
     inline void  set_array(char*);
     /// set the internal representation of the array
-    inline void  set_tiled_array( r_Set< r_GMarray* >* newData );
+    inline void  set_tiled_array(r_Set<r_GMarray*>* newData);
     /// set size of internal memory representation in bytes
     inline void  set_array_size(r_Bytes);
     /// set length of cell type in bytes
@@ -179,7 +179,7 @@ protected:
     char* data;
 
     /// array internally sub-tiled
-    r_Set< r_GMarray* >* tiled_data;
+    r_Set<r_GMarray*>* tiled_data;
 
     /// size of internal array representation in bytes
     r_Bytes data_size;

@@ -31,7 +31,7 @@ namespace rasmgr
  * @brief The UserDbRightsException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tried to connect to a database on which he does not have rights.
  */
-class UserDbRightsException:public common::RuntimeException
+class UserDbRightsException: public common::RuntimeException
 {
 public:
     /**

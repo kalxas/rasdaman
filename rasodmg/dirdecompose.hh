@@ -84,7 +84,7 @@ public:
 
     /// Reads a new limit for the current dimension
     r_Dir_Decompose& operator<<(r_Range limit);
-    
+
     /// Reads a new limit for the current dimension and prepends it to the list of limits
     r_Dir_Decompose& prepend(r_Range limit);
 
@@ -95,10 +95,10 @@ public:
     r_Range get_partition(int number) const throw (r_Eindex_violation);
 
     /// Prints the current status of the object
-    virtual void print_status(std::ostream& os = cout ) const;
+    virtual void print_status(std::ostream& os = cout) const;
 
 protected:
-    r_Sinterval get_total_interval( );
+    r_Sinterval get_total_interval();
 
     /// Initial number of intervals of the buffer
     const static r_Dimension DEFAULT_INTERVALS;

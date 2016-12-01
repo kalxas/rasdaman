@@ -45,7 +45,7 @@ public class RasdamanGribMessage {
         this.pixelIndices = pixelIndices;
     }
 
-    public RasdamanGribMessage(){}
+    public RasdamanGribMessage() {}
 
     public int getMsgId() {
         return msgId;
@@ -71,12 +71,12 @@ public class RasdamanGribMessage {
         this.pixelIndices = pixelIndices;
     }
 
-    private String getAffectedDomain(Map<Integer, ParsedSubset<Long>> pixelIndices){
+    private String getAffectedDomain(Map<Integer, ParsedSubset<Long>> pixelIndices) {
         String domain = "[";
-        for(int i = 0; i < pixelIndices.size(); i++){
+        for (int i = 0; i < pixelIndices.size(); i++) {
             domain += String.valueOf(pixelIndices.get(i).getLowerLimit()) + ":" + String.valueOf(pixelIndices.get(i).getUpperLimit());
             //if not last, add a comma
-            if(i < pixelIndices.keySet().size() - 1){
+            if (i < pixelIndices.keySet().size() - 1) {
                 domain += ",";
             }
         }

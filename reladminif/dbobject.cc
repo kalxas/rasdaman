@@ -52,10 +52,10 @@ using namespace std;
 #include <easylogging++.h>
 
 #ifdef RMANBENCHMARK
-RMTimer DBObject::readTimer = RMTimer("DBObject","read");
-RMTimer DBObject::updateTimer = RMTimer("DBObject","update");
-RMTimer DBObject::insertTimer = RMTimer("DBObject","insert");
-RMTimer DBObject::deleteTimer = RMTimer("DBObject","delete");
+RMTimer DBObject::readTimer = RMTimer("DBObject", "read");
+RMTimer DBObject::updateTimer = RMTimer("DBObject", "update");
+RMTimer DBObject::insertTimer = RMTimer("DBObject", "insert");
+RMTimer DBObject::deleteTimer = RMTimer("DBObject", "delete");
 #endif
 
 const char*
@@ -64,15 +64,17 @@ BinaryRepresentation::fileTag = "RMAN";
 void
 DBObject::printStatus(unsigned int level, std::ostream& stream) const
 {
-    char* indent = new char[level*2 +1];
-    for (unsigned int j = 0; j < level*2 ; j++)
+    char* indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2 ; j++)
+    {
         indent[j] = ' ';
-    indent[level*2] = '\0';
+    }
+    indent[level * 2] = '\0';
 
     stream << indent;
     stream << myOId;
     delete[] indent;
-    indent=0;
+    indent = 0;
 }
 
 r_Bytes
@@ -142,16 +144,18 @@ void DBObject::incrementReferenceCount(void)
 
 void DBObject::decrementReferenceCount(void)
 {
-    LTRACE << "decrementReferenceCount() " <<referenceCount;
+    LTRACE << "decrementReferenceCount() " << referenceCount;
     referenceCount--;
     if (referenceCount == 0)
+    {
         destroy();
+    }
 }
 
 int
 DBObject::getReferenceCount(void) const
 {
-    LTRACE << "getReferenceCount() " <<referenceCount;
+    LTRACE << "getReferenceCount() " << referenceCount;
     return referenceCount;
 }
 
@@ -347,7 +351,9 @@ void
 DBObject::setModified() throw (r_Error)
 {
     if (!AdminIf::isReadOnlyTA())
+    {
         _isModified = true;
+    }
     else
     {
         LTRACE << "readonly transaction " << myOId;
@@ -432,7 +438,7 @@ DBObject::getBinaryRepresentation() const throw (r_Error)
 }
 
 void
-DBObject::setBinaryRepresentation(__attribute__ ((unused)) const BinaryRepresentation& br) throw (r_Error)
+DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation& br) throw (r_Error)
 {
     LFATAL << "setBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYIMPORTNOTSUPPORTEDFOROBJECT);

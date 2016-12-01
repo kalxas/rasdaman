@@ -76,13 +76,13 @@ public:
         specified buffer.
     Returns the number of bytes actually written
     */
-    int  write(const void *buffer, int count) throw();
+    int  write(const void* buffer, int count) throw();
 
     /** Reads the specified number of bytes into the
         specified buffer.
     Returns the number of bytes actually read
     */
-    int  read (void *buffer, int count) throw();
+    int  read(void* buffer, int count) throw();
 
     /** Sets the non-blocking mode on or off
         Returns true o succes

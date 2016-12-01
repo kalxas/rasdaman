@@ -9,7 +9,7 @@ namespace rasmgr
 {
 namespace test
 {
-class ServerGroupFactoryMock:public rasmgr::ServerGroupFactory
+class ServerGroupFactoryMock: public rasmgr::ServerGroupFactory
 {
 public:
     MOCK_METHOD1(createServerGroup, boost::shared_ptr<rasmgr::ServerGroup>(const rasmgr::ServerGroupConfigProto&));

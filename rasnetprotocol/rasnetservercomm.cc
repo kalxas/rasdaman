@@ -37,9 +37,9 @@ RasnetServerComm::RasnetServerComm(::boost::shared_ptr<rasserver::ClientManager>
     this->clientManager = clientManager;
 }
 
-RasnetServerComm::~RasnetServerComm(){}
+RasnetServerComm::~RasnetServerComm() {}
 
-grpc::Status RasnetServerComm::OpenServerDatabase(grpc::ServerContext *context, const rasnet::service::OpenServerDatabaseReq *request, rasnet::service::OpenServerDatabaseRepl *response)
+grpc::Status RasnetServerComm::OpenServerDatabase(grpc::ServerContext* context, const rasnet::service::OpenServerDatabaseReq* request, rasnet::service::OpenServerDatabaseRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -48,17 +48,17 @@ grpc::Status RasnetServerComm::OpenServerDatabase(grpc::ServerContext *context, 
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.compat_openDB(request->database_name().c_str());
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -72,7 +72,7 @@ grpc::Status RasnetServerComm::OpenServerDatabase(grpc::ServerContext *context, 
     return status;
 }
 
-grpc::Status RasnetServerComm::CloseServerDatabase(grpc::ServerContext *context, const rasnet::service::CloseServerDatabaseReq *request, rasnet::service::Void *response)
+grpc::Status RasnetServerComm::CloseServerDatabase(grpc::ServerContext* context, const rasnet::service::CloseServerDatabaseReq* request, rasnet::service::Void* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -81,17 +81,17 @@ grpc::Status RasnetServerComm::CloseServerDatabase(grpc::ServerContext *context,
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.compat_closeDB();
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -105,17 +105,17 @@ grpc::Status RasnetServerComm::CloseServerDatabase(grpc::ServerContext *context,
     return status;
 }
 
-grpc::Status RasnetServerComm::CreateDatabase(grpc::ServerContext *context, const rasnet::service::CreateDatabaseReq *request, rasnet::service::CreateDatabaseRepl *response)
+grpc::Status RasnetServerComm::CreateDatabase(grpc::ServerContext* context, const rasnet::service::CreateDatabaseReq* request, rasnet::service::CreateDatabaseRepl* response)
 {
     return grpc::Status::OK;
 }
 
-grpc::Status RasnetServerComm::DestroyDatabase(grpc::ServerContext *context, const rasnet::service::DestroyDatabaseReq *request, rasnet::service::DestroyDatabaseRepl *response)
+grpc::Status RasnetServerComm::DestroyDatabase(grpc::ServerContext* context, const rasnet::service::DestroyDatabaseReq* request, rasnet::service::DestroyDatabaseRepl* response)
 {
     return grpc::Status::OK;
 }
 
-grpc::Status RasnetServerComm::BeginTransaction(grpc::ServerContext *context, const rasnet::service::BeginTransactionReq *request, rasnet::service::BeginTransactionRepl *response)
+grpc::Status RasnetServerComm::BeginTransaction(grpc::ServerContext* context, const rasnet::service::BeginTransactionReq* request, rasnet::service::BeginTransactionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -124,17 +124,17 @@ grpc::Status RasnetServerComm::BeginTransaction(grpc::ServerContext *context, co
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.compat_beginTA(request->rw());
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -148,7 +148,7 @@ grpc::Status RasnetServerComm::BeginTransaction(grpc::ServerContext *context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::CommitTransaction(grpc::ServerContext *context, const rasnet::service::CommitTransactionReq *request, rasnet::service::CommitTransactionRepl *response)
+grpc::Status RasnetServerComm::CommitTransaction(grpc::ServerContext* context, const rasnet::service::CommitTransactionReq* request, rasnet::service::CommitTransactionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -157,17 +157,17 @@ grpc::Status RasnetServerComm::CommitTransaction(grpc::ServerContext *context, c
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.compat_commitTA();
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -181,7 +181,7 @@ grpc::Status RasnetServerComm::CommitTransaction(grpc::ServerContext *context, c
     return status;
 }
 
-grpc::Status RasnetServerComm::AbortTransaction(grpc::ServerContext *context, const rasnet::service::AbortTransactionReq *request, rasnet::service::AbortTransactionRepl *response)
+grpc::Status RasnetServerComm::AbortTransaction(grpc::ServerContext* context, const rasnet::service::AbortTransactionReq* request, rasnet::service::AbortTransactionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -190,17 +190,17 @@ grpc::Status RasnetServerComm::AbortTransaction(grpc::ServerContext *context, co
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
         rasServerEntry.compat_abortTA();
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -214,7 +214,7 @@ grpc::Status RasnetServerComm::AbortTransaction(grpc::ServerContext *context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::IsTransactionOpen(grpc::ServerContext *context, const rasnet::service::IsTransactionOpenReq *request, rasnet::service::IsTransactionOpenRepl *response)
+grpc::Status RasnetServerComm::IsTransactionOpen(grpc::ServerContext* context, const rasnet::service::IsTransactionOpenReq* request, rasnet::service::IsTransactionOpenRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -224,17 +224,17 @@ grpc::Status RasnetServerComm::IsTransactionOpen(grpc::ServerContext *context, c
         bool isOpen = rasserver.compat_isOpenTA();
         response->set_isopen(isOpen);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -248,7 +248,7 @@ grpc::Status RasnetServerComm::IsTransactionOpen(grpc::ServerContext *context, c
     return status;
 }
 
-grpc::Status RasnetServerComm::StartInsertMDD(grpc::ServerContext *context, const rasnet::service::StartInsertMDDReq *request, rasnet::service::StartInsertMDDRepl *response)
+grpc::Status RasnetServerComm::StartInsertMDD(grpc::ServerContext* context, const rasnet::service::StartInsertMDDReq* request, rasnet::service::StartInsertMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -266,17 +266,17 @@ grpc::Status RasnetServerComm::StartInsertMDD(grpc::ServerContext *context, cons
 
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -290,7 +290,7 @@ grpc::Status RasnetServerComm::StartInsertMDD(grpc::ServerContext *context, cons
     return status;
 }
 
-grpc::Status RasnetServerComm::StartInsertTransMDD(grpc::ServerContext *context, const rasnet::service::StartInsertTransMDDReq *request, rasnet::service::StartInsertTransMDDRepl *response)
+grpc::Status RasnetServerComm::StartInsertTransMDD(grpc::ServerContext* context, const rasnet::service::StartInsertTransMDDReq* request, rasnet::service::StartInsertTransMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -305,17 +305,17 @@ grpc::Status RasnetServerComm::StartInsertTransMDD(grpc::ServerContext *context,
         int statusCode = rasserver.compat_StartInsertTransMDD(domain, typeLength, typeName);
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -329,7 +329,7 @@ grpc::Status RasnetServerComm::StartInsertTransMDD(grpc::ServerContext *context,
     return status;
 }
 
-grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext *context, const rasnet::service::InsertTileReq *request, rasnet::service::InsertTileRepl *response)
+grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext* context, const rasnet::service::InsertTileReq* request, rasnet::service::InsertTileRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -337,7 +337,7 @@ grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext *context, const ra
     {
         RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-        RPCMarray *rpcMarray = new RPCMarray();
+        RPCMarray* rpcMarray = new RPCMarray();
 
         int persistent = request->persistent();
 
@@ -355,17 +355,17 @@ grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext *context, const ra
 
         delete rpcMarray;
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -379,7 +379,7 @@ grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext *context, const ra
     return status;
 }
 
-grpc::Status RasnetServerComm::EndInsertMDD(grpc::ServerContext *context, const rasnet::service::EndInsertMDDReq *request, rasnet::service::EndInsertMDDRepl *response)
+grpc::Status RasnetServerComm::EndInsertMDD(grpc::ServerContext* context, const rasnet::service::EndInsertMDDReq* request, rasnet::service::EndInsertMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -391,17 +391,17 @@ grpc::Status RasnetServerComm::EndInsertMDD(grpc::ServerContext *context, const 
 
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -415,7 +415,7 @@ grpc::Status RasnetServerComm::EndInsertMDD(grpc::ServerContext *context, const 
     return status;
 }
 
-grpc::Status RasnetServerComm::InsertCollection(grpc::ServerContext *context, const rasnet::service::InsertCollectionReq *request, rasnet::service::InsertCollectionRepl *response)
+grpc::Status RasnetServerComm::InsertCollection(grpc::ServerContext* context, const rasnet::service::InsertCollectionReq* request, rasnet::service::InsertCollectionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -430,17 +430,17 @@ grpc::Status RasnetServerComm::InsertCollection(grpc::ServerContext *context, co
         int statusCode = rasserver.compat_InsertCollection(collName, typeName, oid);
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -454,7 +454,7 @@ grpc::Status RasnetServerComm::InsertCollection(grpc::ServerContext *context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::DeleteCollectionByName(grpc::ServerContext *context, const rasnet::service::DeleteCollectionByNameReq *request, rasnet::service::DeleteCollectionByNameRepl *response)
+grpc::Status RasnetServerComm::DeleteCollectionByName(grpc::ServerContext* context, const rasnet::service::DeleteCollectionByNameReq* request, rasnet::service::DeleteCollectionByNameRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -467,17 +467,17 @@ grpc::Status RasnetServerComm::DeleteCollectionByName(grpc::ServerContext *conte
 
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -491,7 +491,7 @@ grpc::Status RasnetServerComm::DeleteCollectionByName(grpc::ServerContext *conte
     return status;
 }
 
-grpc::Status RasnetServerComm::DeleteCollectionByOid(grpc::ServerContext *context, const rasnet::service::DeleteCollectionByOidReq *request, rasnet::service::DeleteCollectionByOidRepl *response)
+grpc::Status RasnetServerComm::DeleteCollectionByOid(grpc::ServerContext* context, const rasnet::service::DeleteCollectionByOidReq* request, rasnet::service::DeleteCollectionByOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -504,17 +504,17 @@ grpc::Status RasnetServerComm::DeleteCollectionByOid(grpc::ServerContext *contex
         int statusCode = rasserver.compat_DeleteObjByOId(oid);
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -528,7 +528,7 @@ grpc::Status RasnetServerComm::DeleteCollectionByOid(grpc::ServerContext *contex
     return status;
 }
 
-grpc::Status RasnetServerComm::RemoveObjectFromCollection(grpc::ServerContext *context, const rasnet::service::RemoveObjectFromCollectionReq *request, rasnet::service::RemoveObjectFromCollectionRepl *response)
+grpc::Status RasnetServerComm::RemoveObjectFromCollection(grpc::ServerContext* context, const rasnet::service::RemoveObjectFromCollectionReq* request, rasnet::service::RemoveObjectFromCollectionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -542,17 +542,17 @@ grpc::Status RasnetServerComm::RemoveObjectFromCollection(grpc::ServerContext *c
         int statusCode = rasserver.compat_RemoveObjFromColl(collName, oid);
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -566,7 +566,7 @@ grpc::Status RasnetServerComm::RemoveObjectFromCollection(grpc::ServerContext *c
     return status;
 }
 
-grpc::Status RasnetServerComm::GetCollectionByNameOrOid(grpc::ServerContext *context, const rasnet::service::GetCollectionByNameOrOidReq *request, rasnet::service::GetCollectionByNameOrOidRepl *response)
+grpc::Status RasnetServerComm::GetCollectionByNameOrOid(grpc::ServerContext* context, const rasnet::service::GetCollectionByNameOrOidReq* request, rasnet::service::GetCollectionByNameOrOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -601,17 +601,17 @@ grpc::Status RasnetServerComm::GetCollectionByNameOrOid(grpc::ServerContext *con
         free(typeStructure);
         free(collName);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -625,7 +625,7 @@ grpc::Status RasnetServerComm::GetCollectionByNameOrOid(grpc::ServerContext *con
     return status;
 }
 
-grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(grpc::ServerContext *context, const rasnet::service::GetCollOidsByNameOrOidReq *request, rasnet::service::GetCollOidsByNameOrOidRepl *response)
+grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(grpc::ServerContext* context, const rasnet::service::GetCollOidsByNameOrOidReq* request, rasnet::service::GetCollOidsByNameOrOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -676,17 +676,17 @@ grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(grpc::ServerContext *conte
         free(collName);
         free(oidTable);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -700,7 +700,7 @@ grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(grpc::ServerContext *conte
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNextMDD(grpc::ServerContext *context, const rasnet::service::GetNextMDDReq *request, rasnet::service::GetNextMDDRepl *response)
+grpc::Status RasnetServerComm::GetNextMDD(grpc::ServerContext* context, const rasnet::service::GetNextMDDReq* request, rasnet::service::GetNextMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -726,17 +726,17 @@ grpc::Status RasnetServerComm::GetNextMDD(grpc::ServerContext *context, const ra
         free(typeStructure);
 
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -750,7 +750,7 @@ grpc::Status RasnetServerComm::GetNextMDD(grpc::ServerContext *context, const ra
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNextTile(grpc::ServerContext *context, const rasnet::service::GetNextTileReq *request, rasnet::service::GetNextTileRepl *response)
+grpc::Status RasnetServerComm::GetNextTile(grpc::ServerContext* context, const rasnet::service::GetNextTileReq* request, rasnet::service::GetNextTileRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -758,7 +758,7 @@ grpc::Status RasnetServerComm::GetNextTile(grpc::ServerContext *context, const r
     {
         RasServerEntry& rasserver = RasServerEntry::getInstance();
 
-        RPCMarray *tempRpcMarray;
+        RPCMarray* tempRpcMarray;
 
         int statusCode = rasserver.compat_getNextTile(&tempRpcMarray);
 
@@ -777,17 +777,17 @@ grpc::Status RasnetServerComm::GetNextTile(grpc::ServerContext *context, const r
             free(tempRpcMarray);
         }
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -801,7 +801,7 @@ grpc::Status RasnetServerComm::GetNextTile(grpc::ServerContext *context, const r
     return status;
 }
 
-grpc::Status RasnetServerComm::EndTransfer(grpc::ServerContext *context, const rasnet::service::EndTransferReq *request, rasnet::service::EndTransferRepl *response)
+grpc::Status RasnetServerComm::EndTransfer(grpc::ServerContext* context, const rasnet::service::EndTransferReq* request, rasnet::service::EndTransferRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -812,17 +812,17 @@ grpc::Status RasnetServerComm::EndTransfer(grpc::ServerContext *context, const r
 
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -836,7 +836,7 @@ grpc::Status RasnetServerComm::EndTransfer(grpc::ServerContext *context, const r
     return status;
 }
 
-grpc::Status RasnetServerComm::InitUpdate(grpc::ServerContext *context, const rasnet::service::InitUpdateReq *request, rasnet::service::InitUpdateRepl *response)
+grpc::Status RasnetServerComm::InitUpdate(grpc::ServerContext* context, const rasnet::service::InitUpdateReq* request, rasnet::service::InitUpdateRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -847,17 +847,17 @@ grpc::Status RasnetServerComm::InitUpdate(grpc::ServerContext *context, const ra
         int statusCode = rasserver.compat_InitUpdate();
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -876,7 +876,7 @@ grpc::Status RasnetServerComm::InitUpdate(grpc::ServerContext *context, const ra
 #define SECUREPTR(a) if(a == 0) a = strdup("")
 #define FREEPTR(a) free(a)
 
-grpc::Status RasnetServerComm::ExecuteQuery(grpc::ServerContext *context, const rasnet::service::ExecuteQueryReq *request, rasnet::service::ExecuteQueryRepl *response)
+grpc::Status RasnetServerComm::ExecuteQuery(grpc::ServerContext* context, const rasnet::service::ExecuteQueryReq* request, rasnet::service::ExecuteQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -908,17 +908,17 @@ grpc::Status RasnetServerComm::ExecuteQuery(grpc::ServerContext *context, const 
         FREEPTR(queryResult.typeName);
         FREEPTR(queryResult.typeStructure);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -932,30 +932,30 @@ grpc::Status RasnetServerComm::ExecuteQuery(grpc::ServerContext *context, const 
     return status;
 }
 
-grpc::Status RasnetServerComm::ExecuteHttpQuery(grpc::ServerContext *context, const rasnet::service::ExecuteHttpQueryReq *request, rasnet::service::ExecuteHttpQueryRepl *response)
+grpc::Status RasnetServerComm::ExecuteHttpQuery(grpc::ServerContext* context, const rasnet::service::ExecuteHttpQueryReq* request, rasnet::service::ExecuteHttpQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
     try
     {
         RasServerEntry& rasserver = RasServerEntry::getInstance();
-        char *resultBuffer = 0;
+        char* resultBuffer = 0;
         int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
 
         response->set_data(resultBuffer, resultLen);
         delete[] resultBuffer;
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -969,13 +969,13 @@ grpc::Status RasnetServerComm::ExecuteHttpQuery(grpc::ServerContext *context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::BeginStreamedHttpQuery(grpc::ServerContext *context, const rasnet::service::BeginStreamedHttpQueryReq *request, rasnet::service::StreamedHttpQueryRepl *response)
+grpc::Status RasnetServerComm::BeginStreamedHttpQuery(grpc::ServerContext* context, const rasnet::service::BeginStreamedHttpQueryReq* request, rasnet::service::StreamedHttpQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
     try
     {
         RasServerEntry& rasserver = RasServerEntry::getInstance();
-        char *resultBuffer = 0;
+        char* resultBuffer = 0;
         int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
 
         string requestUUID = UUID::generateUUID();
@@ -990,17 +990,17 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(grpc::ServerContext *conte
 
         this->clientManager->addQueryStreamedResult(requestUUID, result);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1015,7 +1015,7 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(grpc::ServerContext *conte
 
 }
 
-grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(grpc::ServerContext *context, const rasnet::service::GetNextStreamedHttpQueryReq *request, rasnet::service::StreamedHttpQueryRepl *response)
+grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(grpc::ServerContext* context, const rasnet::service::GetNextStreamedHttpQueryReq* request, rasnet::service::StreamedHttpQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
     try
@@ -1030,7 +1030,7 @@ grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(grpc::ServerContext *con
             this->clientManager->cleanQueryStreamedResult(request->uuid());
         }
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1044,7 +1044,7 @@ grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(grpc::ServerContext *con
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNextElement(grpc::ServerContext *context, const rasnet::service::GetNextElementReq *request, rasnet::service::GetNextElementRepl *response)
+grpc::Status RasnetServerComm::GetNextElement(grpc::ServerContext* context, const rasnet::service::GetNextElementReq* request, rasnet::service::GetNextElementRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1061,17 +1061,17 @@ grpc::Status RasnetServerComm::GetNextElement(grpc::ServerContext *context, cons
         response->set_status(statusCode);
         free(buffer);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1085,7 +1085,7 @@ grpc::Status RasnetServerComm::GetNextElement(grpc::ServerContext *context, cons
     return status;
 }
 
-grpc::Status RasnetServerComm::ExecuteUpdateQuery(grpc::ServerContext *context, const rasnet::service::ExecuteUpdateQueryReq *request, rasnet::service::ExecuteUpdateQueryRepl *response)
+grpc::Status RasnetServerComm::ExecuteUpdateQuery(grpc::ServerContext* context, const rasnet::service::ExecuteUpdateQueryReq* request, rasnet::service::ExecuteUpdateQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1099,7 +1099,7 @@ grpc::Status RasnetServerComm::ExecuteUpdateQuery(grpc::ServerContext *context, 
 
         int statusCode = rasserver.compat_ExecuteUpdateQuery(query, returnStructure);
 
-        const char *token = returnStructure.token != NULL ? returnStructure.token : "";
+        const char* token = returnStructure.token != NULL ? returnStructure.token : "";
 
         response->set_status(statusCode);
         response->set_errono(returnStructure.errorNo);
@@ -1109,17 +1109,17 @@ grpc::Status RasnetServerComm::ExecuteUpdateQuery(grpc::ServerContext *context, 
 
         free(returnStructure.token);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1133,7 +1133,7 @@ grpc::Status RasnetServerComm::ExecuteUpdateQuery(grpc::ServerContext *context, 
     return status;
 }
 
-grpc::Status RasnetServerComm::ExecuteInsertQuery(grpc::ServerContext *context, const rasnet::service::ExecuteInsertQueryReq *request, rasnet::service::ExecuteInsertQueryRepl *response)
+grpc::Status RasnetServerComm::ExecuteInsertQuery(grpc::ServerContext* context, const rasnet::service::ExecuteInsertQueryReq* request, rasnet::service::ExecuteInsertQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1164,17 +1164,17 @@ grpc::Status RasnetServerComm::ExecuteInsertQuery(grpc::ServerContext *context, 
         FREEPTR(queryResult.typeName);
         FREEPTR(queryResult.typeStructure);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1188,7 +1188,7 @@ grpc::Status RasnetServerComm::ExecuteInsertQuery(grpc::ServerContext *context, 
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNewOid(grpc::ServerContext *context, const rasnet::service::GetNewOidReq *request, rasnet::service::GetNewOidRepl *response)
+grpc::Status RasnetServerComm::GetNewOid(grpc::ServerContext* context, const rasnet::service::GetNewOidReq* request, rasnet::service::GetNewOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1200,17 +1200,17 @@ grpc::Status RasnetServerComm::GetNewOid(grpc::ServerContext *context, const ras
 
         response->set_oid(oid.get_string_representation());
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1224,7 +1224,7 @@ grpc::Status RasnetServerComm::GetNewOid(grpc::ServerContext *context, const ras
     return status;
 }
 
-grpc::Status RasnetServerComm::GetObjectType(grpc::ServerContext *context, const rasnet::service::GetObjectTypeReq *request, rasnet::service::GetObjectTypeRepl *response)
+grpc::Status RasnetServerComm::GetObjectType(grpc::ServerContext* context, const rasnet::service::GetObjectTypeReq* request, rasnet::service::GetObjectTypeRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1240,17 +1240,17 @@ grpc::Status RasnetServerComm::GetObjectType(grpc::ServerContext *context, const
         response->set_status(statusCode);
         response->set_object_type(objectType);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1264,7 +1264,7 @@ grpc::Status RasnetServerComm::GetObjectType(grpc::ServerContext *context, const
     return status;
 }
 
-grpc::Status RasnetServerComm::GetTypeStructure(grpc::ServerContext *context, const rasnet::service::GetTypeStructureReq *request, rasnet::service::GetTypeStructureRepl *response)
+grpc::Status RasnetServerComm::GetTypeStructure(grpc::ServerContext* context, const rasnet::service::GetTypeStructureReq* request, rasnet::service::GetTypeStructureRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1283,17 +1283,17 @@ grpc::Status RasnetServerComm::GetTypeStructure(grpc::ServerContext *context, co
 
         free(typeStructure);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1307,7 +1307,7 @@ grpc::Status RasnetServerComm::GetTypeStructure(grpc::ServerContext *context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::SetFormat(grpc::ServerContext *context, const rasnet::service::SetFormatReq *request, rasnet::service::SetFormatRepl *response)
+grpc::Status RasnetServerComm::SetFormat(grpc::ServerContext* context, const rasnet::service::SetFormatReq* request, rasnet::service::SetFormatRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1321,7 +1321,7 @@ grpc::Status RasnetServerComm::SetFormat(grpc::ServerContext *context, const ras
 
         int statusCode = 0;
 
-        if(whichFormat == 1)
+        if (whichFormat == 1)
         {
             statusCode = rasserver.compat_SetTransferFormat(format, params);
         }
@@ -1332,17 +1332,17 @@ grpc::Status RasnetServerComm::SetFormat(grpc::ServerContext *context, const ras
 
         response->set_status(statusCode);
     }
-    catch (r_Ebase_dbms &edb)
+    catch (r_Ebase_dbms& edb)
     {
         LERROR << "Error: base DBMS reports: " << edb.what();
         status = RasnetServerComm::getRErrorStatus(edb);
     }
-    catch (r_Error &ex)
+    catch (r_Error& ex)
     {
         LDEBUG << "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno();
         status = RasnetServerComm::getRErrorStatus(ex);
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1356,7 +1356,7 @@ grpc::Status RasnetServerComm::SetFormat(grpc::ServerContext *context, const ras
     return status;
 }
 
-grpc::Status RasnetServerComm::KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveRequest *request, rasnet::service::Void *response)
+grpc::Status RasnetServerComm::KeepAlive(grpc::ServerContext* context, const rasnet::service::KeepAliveRequest* request, rasnet::service::Void* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1364,7 +1364,7 @@ grpc::Status RasnetServerComm::KeepAlive(grpc::ServerContext *context, const ras
     {
         this->clientManager->resetLiveliness(request->client_uuid());
     }
-    catch (std::exception &ex)
+    catch (std::exception& ex)
     {
         LERROR << "Error: request terminated with general exception: " << ex.what();
         status = RasnetServerComm::getSTLExceptionStatus(ex);
@@ -1378,7 +1378,7 @@ grpc::Status RasnetServerComm::KeepAlive(grpc::ServerContext *context, const ras
     return status;
 }
 
-grpc::Status RasnetServerComm::getRErrorStatus(r_Error &err)
+grpc::Status RasnetServerComm::getRErrorStatus(r_Error& err)
 {
     ErrorMessage message;
     message.set_error_no(err.get_errorno());
@@ -1391,7 +1391,7 @@ grpc::Status RasnetServerComm::getRErrorStatus(r_Error &err)
     return status;
 }
 
-grpc::Status RasnetServerComm::getSTLExceptionStatus(std::exception &ex)
+grpc::Status RasnetServerComm::getSTLExceptionStatus(std::exception& ex)
 {
     ErrorMessage message;
     message.set_error_text(ex.what());

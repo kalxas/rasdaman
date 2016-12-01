@@ -25,9 +25,9 @@ import petascope.exceptions.ExceptionCode;
 
 /**
  * Error exception when get the domain($coverageExpression, axisName, crs)
- * 
+ *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
- * 
+ *
  */
 public class InvalidAxisInDomainExpressionException extends WCPSProcessingError {
     /**

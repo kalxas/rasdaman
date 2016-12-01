@@ -3,7 +3,7 @@ package rasj;
 import org.rasdaman.rasnet.communication.RasRasnetImplementation;
 import org.rasdaman.rasnet.communication.RasnetServiceFactoryImpl;
 import rasj.odmg.*;
-import rasj.global.*;		// RASJ_VERSION
+import rasj.global.*;       // RASJ_VERSION
 import rasj.rnp.*;
 import org.odmg.*;
 import rasj.clientcommhttp.*;
@@ -51,8 +51,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasImplementation implements Implementation
-    {
+public class RasImplementation implements Implementation {
     /**
      * This is the "real" Implementation object that is used. Because it contains a lot of
      * internal methods that have to be used by the rasj.odmg package, it has been put
@@ -66,10 +65,10 @@ public class RasImplementation implements Implementation
     /**
      * C/s protocol indicators.
      */
-    public static final String PROTOCOL_RNP  = "RNP" ;	// RNP protocol indicator
-    public static final String PROTOCOL_RPC  = "RPC" ;	// RPC protocol indicator
-    public static final String PROTOCOL_HTTP = "HTTP" ;	// HTTP protocol indicator
-    public static final String PROTOCOL_COMP = "COMPAT" ;	// "compatiblity", means: using RNP (legacy)
+    public static final String PROTOCOL_RNP  = "RNP" ;  // RNP protocol indicator
+    public static final String PROTOCOL_RPC  = "RPC" ;  // RPC protocol indicator
+    public static final String PROTOCOL_HTTP = "HTTP" ; // HTTP protocol indicator
+    public static final String PROTOCOL_COMP = "COMPAT" ;   // "compatiblity", means: using RNP (legacy)
     public static final String PROTOCOL_RASNET = "RASNET";
 
     public static final int TYPE_TYPE_SET       = 1;
@@ -80,58 +79,46 @@ public class RasImplementation implements Implementation
      * Standard constructor.
      * @param server - Complete URL of the RasDaMan httpserver (including port number)
      */
-    public RasImplementation(String server)
-    {
-        Debug.talkSparse(RasGlobalDefs.RASJ_VERSION );
-        Debug.talkSparse( " Using server " + server );
+    public RasImplementation(String server) {
+        Debug.talkSparse(RasGlobalDefs.RASJ_VERSION);
+        Debug.talkSparse(" Using server " + server);
 
-        String envVar = System.getProperty("RMANPROTOCOL");	// uses "-D" option
+        String envVar = System.getProperty("RMANPROTOCOL"); // uses "-D" option
 
         boolean useRNP = isRNP;
         boolean useRasnet = !isRNP;
 
-        if(envVar != null)
-          {
-            Debug.talkWarning( "environment variable RMANPROTOCOL enforces protocol " + envVar );
-	    if ( envVar.equalsIgnoreCase( PROTOCOL_RNP ) )
+        if (envVar != null) {
+            Debug.talkWarning("environment variable RMANPROTOCOL enforces protocol " + envVar);
+            if (envVar.equalsIgnoreCase(PROTOCOL_RNP)) {
                 useRNP = true;
-	    else if ( envVar.equalsIgnoreCase( PROTOCOL_RPC ) )
-            {
-	        Debug.talkCritical( "Error: protocol " + PROTOCOL_RPC + " not supported by rasj: using " + PROTOCOL_RNP + " instead." );
+            } else if (envVar.equalsIgnoreCase(PROTOCOL_RPC)) {
+                Debug.talkCritical("Error: protocol " + PROTOCOL_RPC + " not supported by rasj: using " + PROTOCOL_RNP + " instead.");
                 useRNP = true;
-            }
-            else if ( envVar.equalsIgnoreCase( PROTOCOL_HTTP ) )
+            } else if (envVar.equalsIgnoreCase(PROTOCOL_HTTP)) {
                 useRNP = false;
-            else if ( envVar.equalsIgnoreCase( PROTOCOL_COMP ) )
-            {
-	        Debug.talkCritical( "Compatibility mode specified, using " + PROTOCOL_RNP + "." );
+            } else if (envVar.equalsIgnoreCase(PROTOCOL_COMP)) {
+                Debug.talkCritical("Compatibility mode specified, using " + PROTOCOL_RNP + ".");
                 useRNP = true;
-            }
-            else if (envVar.equalsIgnoreCase(PROTOCOL_RASNET))
-            {
+            } else if (envVar.equalsIgnoreCase(PROTOCOL_RASNET)) {
                 useRNP = false;
                 useRasnet = true;
-            }
-            else
-            {
-                Debug.talkCritical( "Error: unknown protocol: " + envVar + "; using protocol " + PROTOCOL_RNP + "." );
+            } else {
+                Debug.talkCritical("Error: unknown protocol: " + envVar + "; using protocol " + PROTOCOL_RNP + ".");
                 useRNP = true;
             }
-	  }
-
-        if(useRNP)
-          {
-	    Debug.talkVerbose( "RasImplementation.constructor: using protocol " + PROTOCOL_RNP + "." );
-	    imp = new RasRNPImplementation(server);
-	  } else if(useRasnet){
-            imp = new RasRasnetImplementation(new RasnetServiceFactoryImpl(), server);
         }
-        else
-          {
-	    Debug.talkVerbose( "RasImplementation.constructor: using protocol " + PROTOCOL_HTTP + "." );
+
+        if (useRNP) {
+            Debug.talkVerbose("RasImplementation.constructor: using protocol " + PROTOCOL_RNP + ".");
+            imp = new RasRNPImplementation(server);
+        } else if (useRasnet) {
+            imp = new RasRasnetImplementation(new RasnetServiceFactoryImpl(), server);
+        } else {
+            Debug.talkVerbose("RasImplementation.constructor: using protocol " + PROTOCOL_HTTP + ".");
             imp = new RasODMGImplementation(server);
-	  }
-       } // RasImplementation()
+        }
+    } // RasImplementation()
 
     /**
      * Extended constructor, allowing to set protocol (does not query env var).
@@ -139,228 +126,196 @@ public class RasImplementation implements Implementation
      * @param server - Complete URL of the RasDaMan httpserver (including port number)
      * @param protocol - c/s communication protocol selector, one of: "RNP", "HTTP"
      */
-    public RasImplementation(String server, String protocol)
-    {
-        Debug.talkSparse( RasGlobalDefs.RASJ_VERSION );
-        Debug.talkSparse( " Using server " + server );
+    public RasImplementation(String server, String protocol) {
+        Debug.talkSparse(RasGlobalDefs.RASJ_VERSION);
+        Debug.talkSparse(" Using server " + server);
 
-        if( protocol.equalsIgnoreCase( PROTOCOL_RNP ) )
-          {
-            Debug.talkVerbose( "Using protocol " + PROTOCOL_RNP + "." );
+        if (protocol.equalsIgnoreCase(PROTOCOL_RNP)) {
+            Debug.talkVerbose("Using protocol " + PROTOCOL_RNP + ".");
             imp = new RasRNPImplementation(server);
-          }
-        else if( protocol.equalsIgnoreCase( PROTOCOL_HTTP ) )
-          {
-            Debug.talkVerbose( "Using protocol " + PROTOCOL_HTTP + "." );
+        } else if (protocol.equalsIgnoreCase(PROTOCOL_HTTP)) {
+            Debug.talkVerbose("Using protocol " + PROTOCOL_HTTP + ".");
             imp = new RasODMGImplementation(server);
-          }
-        else
-          {
-            Debug.talkCritical( "Error: unknown protocol: " + protocol + "; using " + PROTOCOL_RNP + " instead." );
+        } else {
+            Debug.talkCritical("Error: unknown protocol: " + protocol + "; using " + PROTOCOL_RNP + " instead.");
             imp = new RasRNPImplementation(server);
-          }
+        }
 
-       } // RasImplementation()
+    } // RasImplementation()
 
-     public static void setRNP()
-       {
-	 isRNP = true;
-       }
+    public static void setRNP() {
+        isRNP = true;
+    }
 
-     public static void setHTTP()
-       {
-	 isRNP = false;
-       }
+    public static void setHTTP() {
+        isRNP = false;
+    }
 
-     public boolean isDefaultRNP()
-       {
-	 Debug.talkVerbose( "RasImplementation.isDefaultRNP: RNP=" + isRNP + "." );
-         return isRNP;
-       }
+    public boolean isDefaultRNP() {
+        Debug.talkVerbose("RasImplementation.isDefaultRNP: RNP=" + isRNP + ".");
+        return isRNP;
+    }
 
     /**
      *  returns 1 if an openDB command is executed (closeDB sets it back to 0).
      */
-    public int dbIsOpen()
-       {
-         return imp.dbIsOpen();
-       }
+    public int dbIsOpen() {
+        return imp.dbIsOpen();
+    }
 
     /*
      * Create a new transaction object and associate it with the current thread.
      */
-    public Transaction newTransaction()
-      {
-         return imp.newTransaction();
-      }
+    public Transaction newTransaction() {
+        return imp.newTransaction();
+    }
 
     /**
      * Get current transaction for thread, or NULL if none.
      */
-    public Transaction currentTransaction()
-      {
-	 return imp.currentTransaction();
-      }
+    public Transaction currentTransaction() {
+        return imp.currentTransaction();
+    }
 
     /**
      * Create a new database object.
      */
-    public Database newDatabase()
-      {
-	 return imp.newDatabase();
-      }
+    public Database newDatabase() {
+        return imp.newDatabase();
+    }
 
     /**
      * Create a new query object.
      */
-    public OQLQuery newOQLQuery()
-        {
-	return imp.newOQLQuery();
-        }
+    public OQLQuery newOQLQuery() {
+        return imp.newOQLQuery();
+    }
 
     /**
      * Create a new DList object.
      */
-    public DList newDList()
-        {
-	return imp.newDList();
-        }
+    public DList newDList() {
+        return imp.newDList();
+    }
 
     /**
      * Create a new DBag object.
      */
-    public DBag newDBag()
-        {
-	return imp.newDBag();
-        }
+    public DBag newDBag() {
+        return imp.newDBag();
+    }
 
     /**
      * Create a new DSet object.
      */
-    public DSet newDSet()
-        {
+    public DSet newDSet() {
         return imp.newDSet();
-        }
+    }
 
     /**
      * Not implemented yet.
      */
-    public DArray newDArray()
-        {
-	throw new NotImplementedException();
-        }
+    public DArray newDArray() {
+        throw new NotImplementedException();
+    }
 
     /**
      * Not implemented yet.
      */
-    public DMap newDMap()
-        {
-	throw new NotImplementedException();
-        }
+    public DMap newDMap() {
+        throw new NotImplementedException();
+    }
 
     /**
      * Get a String representation of the object's identifier.
      */
-    public String getObjectId(Object obj)
-        {
-	return imp.getObjectId(obj);
-        }
+    public String getObjectId(Object obj) {
+        return imp.getObjectId(obj);
+    }
 
     /**
      * Not implemented yet.
      */
-    public Database getDatabase(Object obj)
-        {
-	throw new NotImplementedException();
-        }
+    public Database getDatabase(Object obj) {
+        throw new NotImplementedException();
+    }
 
-   /**
-    * Open database
-    */
-    public void openDB(String name, int accessMode) throws ODMGException
-        {
-	imp.openDB(name,accessMode);
-        }
+    /**
+     * Open database
+     */
+    public void openDB(String name, int accessMode) throws ODMGException {
+        imp.openDB(name, accessMode);
+    }
 
     /**
      * Closes an open database. At the moment, only one database can be open at
      * a given time and thus no parameter "database" is necessary here.
      */
-    public  void closeDB() throws ODMGException
-        {
-	imp.closeDB();
-        }
+    public  void closeDB() throws ODMGException {
+        imp.closeDB();
+    }
 
     /**
      * Begin a transaction.
      */
-    public void beginTA()throws ODMGException
-        {
-	imp.beginTA();
-        }
+    public void beginTA()throws ODMGException {
+        imp.beginTA();
+    }
 
     /**
      * Returns TRUE if a transaction is currently open.
      */
-    public boolean isOpenTA()throws ODMGException
-        {
-        Debug.talkCritical( "RasImplementation::isOpenTA: calling imp.isOpenTA()" );
-	return imp.isOpenTA();
-        }
+    public boolean isOpenTA()throws ODMGException {
+        Debug.talkCritical("RasImplementation::isOpenTA: calling imp.isOpenTA()");
+        return imp.isOpenTA();
+    }
 
     /**
      * Commit a transaction.
      */
-    public void commitTA()throws ODMGException
-        {
-	imp.commitTA();
-        }
+    public void commitTA()throws ODMGException {
+        imp.commitTA();
+    }
 
     /**
      * Abort a transaction.
      */
-    public void abortTA()throws ODMGException
-        {
-	imp.abortTA();
-        }
+    public void abortTA()throws ODMGException {
+        imp.abortTA();
+    }
 
     /**
      * Set the maximum retry parameter
      */
-    public void setMaxRetry(int newRetry)
-       {
-       imp.setMaxRetry(newRetry);
-       }
+    public void setMaxRetry(int newRetry) {
+        imp.setMaxRetry(newRetry);
+    }
 
     /**
      * Get the maximum retry parameter
      */
-    public int getMaxRetry()
-       {
-       return imp.getMaxRetry();
-       }
+    public int getMaxRetry() {
+        return imp.getMaxRetry();
+    }
 
-   /**
-    * Set user identification : name/plain password
-    * (default is rasguest/rasguest)
-    */
-   public void setUserIdentification(String userName, String plainPass)
-     {
-     imp.setUserIdentification(userName,plainPass);
-     }
+    /**
+     * Set user identification : name/plain password
+     * (default is rasguest/rasguest)
+     */
+    public void setUserIdentification(String userName, String plainPass) {
+        imp.setUserIdentification(userName, plainPass);
+    }
 
     /**
      * Set trace output threshold
      * (0 = minimal, 4 = verbose; 1 = default)
      */
-    public void setTraceThreshold( int level )
-       {
-	Debug.talkCritical( "setting trace level to " + level );
-       rasj.global.Debug.setDebugThreshold( level );
-       }
+    public void setTraceThreshold(int level) {
+        Debug.talkCritical("setting trace level to " + level);
+        rasj.global.Debug.setDebugThreshold(level);
+    }
 
-    public String getTypeStructure(String typename, int typetype)
-      {
+    public String getTypeStructure(String typename, int typetype) {
         return imp.getTypeStructure(typename, typetype);
-      }
+    }
 }

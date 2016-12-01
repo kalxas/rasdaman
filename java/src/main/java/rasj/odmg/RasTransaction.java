@@ -23,7 +23,7 @@ rasdaman GmbH.
 /** ***********************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  * COMMENTS:
@@ -44,62 +44,56 @@ import rasj.clientcommhttp.*;
  *
  * @author Peter Zoller
  */
-public class RasTransaction implements Transaction
-{
+public class RasTransaction implements Transaction {
     /**
-     * This variable holds a reference to the RasODMGImplementation object which created 
+     * This variable holds a reference to the RasODMGImplementation object which created
      * this RasDatabase object
      */
     //private RasODMGImplementation rasImplementation=null;
-    private RasImplementationInterface rasImplementation=null;
-    
+    private RasImplementationInterface rasImplementation = null;
+
     /**
      * local state keeper whether TA is open;
      * serves to optimize OQL queries: special method isOpenLocally() does not require server calls
      */
     private boolean isOpenTA = false;
 
-    public RasTransaction(RasImplementationInterface imp)
-    {
-      rasImplementation=imp;
-      isOpenTA = false;			// local state keeper, maintained by TA methods
-     }
-
-    /**
-     * Not implemented yet.
-     */
-    public void join()
-    {
-        Debug.talkCritical( "RasTransaction::join: not yet implemented." );
-	throw new NotImplementedException();
+    public RasTransaction(RasImplementationInterface imp) {
+        rasImplementation = imp;
+        isOpenTA = false;         // local state keeper, maintained by TA methods
     }
 
     /**
      * Not implemented yet.
      */
-    public void leave()
-    {
-        Debug.talkCritical( "RasTransaction::leave: not yet implemented." );
-	throw new NotImplementedException();
+    public void join() {
+        Debug.talkCritical("RasTransaction::join: not yet implemented.");
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Not implemented yet.
+     */
+    public void leave() {
+        Debug.talkCritical("RasTransaction::leave: not yet implemented.");
+        throw new NotImplementedException();
     }
 
     /**
      * Begin a transaction.
      */
-    public void begin()
-    {
-        rasImplementation.beginTA(); 
-        isOpenTA = true;		// TA is considered open if everything went fine.
+    public void begin() {
+        rasImplementation.beginTA();
+        isOpenTA = true;        // TA is considered open if everything went fine.
     }
 
     /**
      * Returns TRUE if a transaction is currently open.
      */
-    public boolean isOpen()
-    {
-        boolean result = rasImplementation.isOpenTA();  
-        Debug.talkVerbose( "RasTransaction::isOpen: result=" + result );
-        return result;  
+    public boolean isOpen() {
+        boolean result = rasImplementation.isOpenTA();
+        Debug.talkVerbose("RasTransaction::isOpen: result=" + result);
+        return result;
     }
 
     /**
@@ -107,67 +101,60 @@ public class RasTransaction implements Transaction
      * This is an optimization to save one server call within query execution,
      * it is NOT an official interface method.
      */
-    public boolean isOpenLocally()
-    {
+    public boolean isOpenLocally() {
         boolean result = isOpenTA;
-        Debug.talkVerbose( "RasTransaction::isOpenLocally: result=" + result );
+        Debug.talkVerbose("RasTransaction::isOpenLocally: result=" + result);
         return result;
     }
 
     /**
      * Commit a transaction.
      */
-    public void commit()
-    {
-        isOpenTA = false;		// if commit fails something went wrong, so consider TA closed anyway
+    public void commit() {
+        isOpenTA = false;       // if commit fails something went wrong, so consider TA closed anyway
         rasImplementation.commitTA();
     }
 
     /**
      * Abort a transaction.
      */
-    public void abort()
-    {
-        isOpenTA = false;		// if abort tails something went wrong, so consider TA closed anyway
-        rasImplementation.abortTA();    
+    public void abort() {
+        isOpenTA = false;       // if abort tails something went wrong, so consider TA closed anyway
+        rasImplementation.abortTA();
     }
 
     /**
      * Not implemented yet.
      */
-    public void checkpoint()
-    {
-        Debug.talkCritical( "RasTransaction::checkpoint: not yet implemented." );
-	throw new NotImplementedException();
+    public void checkpoint() {
+        Debug.talkCritical("RasTransaction::checkpoint: not yet implemented.");
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public void lock(Object obj, int mode) throws LockNotGrantedException
-    {
-        Debug.talkCritical( "RasTransaction::lock: not yet implemented." );
-	throw new NotImplementedException();
+    public void lock(Object obj, int mode) throws LockNotGrantedException {
+        Debug.talkCritical("RasTransaction::lock: not yet implemented.");
+        throw new NotImplementedException();
     }
 
     /**
      * Not implemented yet.
      */
-    public boolean tryLock(Object obj, int mode)
-    {
-        Debug.talkCritical( "RasTransaction::tryLock: not yet implemented." );
-	throw new NotImplementedException();
+    public boolean tryLock(Object obj, int mode) {
+        Debug.talkCritical("RasTransaction::tryLock: not yet implemented.");
+        throw new NotImplementedException();
     }
 
     /**
      * Returns the errorStatus.
      */
 
-    public String getErrorStatus()
-    {
-	String result = rasImplementation.getErrorStatus();
-        Debug.talkSparse( "RasTransaction::getErrorStatus: status=" + result );
-	return result;
+    public String getErrorStatus() {
+        String result = rasImplementation.getErrorStatus();
+        Debug.talkSparse("RasTransaction::getErrorStatus: status=" + result);
+        return result;
     }
 
 } // RasTransaction

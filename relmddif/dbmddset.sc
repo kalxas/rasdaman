@@ -47,11 +47,13 @@ rasdaman GmbH.
 #include <easylogging++.h>
 
 DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type) throw (r_Error)
-: DBNamedObject(id, name),
-collType(type)
+    : DBNamedObject(id, name),
+      collType(type)
 {
     if (name == NULL)
+    {
         setName("unnamed collection");
+    }
     if (type == NULL)
     {
         LTRACE << "DBMDDSet(" << name << ", NULL)";
@@ -72,9 +74,13 @@ collType(type)
     catch (r_Error& err)
     {
         if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
+        {
             set = NULL;
+        }
         else
+        {
             throw;
+        }
     }
     if (set)
     {
@@ -91,7 +97,7 @@ collType(type)
     if (query.nextRow())
     {
         LFATAL << "DBMDDObj::DBMDDObj() - mdd object: "
-                << testoid1 << " already exists in the database.";
+               << testoid1 << " already exists in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
     }
     else
@@ -147,7 +153,7 @@ DBMDDSet::readFromDb() throw (r_Error)
     long long mddoid2;
     long long mddcolloid2;
     long long colltypeoid2;
-    char *collname2 = NULL;
+    char* collname2 = NULL;
 
     mddcolloid2 = myOId.getCounter();
 
@@ -161,7 +167,7 @@ DBMDDSet::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "DBMDDSet::readFromDb() - set object: "
-                << mddcolloid2 << " not found in the database.";
+               << mddcolloid2 << " not found in the database.";
         if (collname2)
         {
             free(collname2);

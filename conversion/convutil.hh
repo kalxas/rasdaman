@@ -22,7 +22,7 @@ rasdaman GmbH.
  */
 
 #ifndef CONVUTIL_HH
-#define	CONVUTIL_HH
+#define CONVUTIL_HH
 
 #include "raslib/type.hh"
 #include "conversion/gdalincludes.hh"
@@ -32,46 +32,47 @@ rasdaman GmbH.
 /**
  * Helper class transforming the provided types into rasdaman types.
  */
-class ConvUtil {
+class ConvUtil
+{
 public:
-	ConvUtil();
+    ConvUtil();
 
 #ifdef HAVE_GDAL
-    
-	/**
-	 * Converts the GDALDataType to a literal rasdaman supported type.
-	 * @param dataType The GDALDataType of the current raster band.
-	 * @return A literal type supported by rasdaman.
-	 */
-	static std::string gdalTypeToRasTypeString(GDALDataType dataType);
-    
+
     /**
-	 * The type decision is made based on the GDALDataType of the bands and of the number of bands.
-     * 
+     * Converts the GDALDataType to a literal rasdaman supported type.
+     * @param dataType The GDALDataType of the current raster band.
+     * @return A literal type supported by rasdaman.
+     */
+    static std::string gdalTypeToRasTypeString(GDALDataType dataType);
+
+    /**
+     * The type decision is made based on the GDALDataType of the bands and of the number of bands.
+     *
      * @param poDataSet GDALDataSet read from the temporary file.
      * @param bandIds a vector of the band ids to be considered for the type translation (0-indexed)
      * @return an r_Type for the dataset
      */
     static r_Type* gdalTypeToRasType(GDALDataset* poDataSet, const std::vector<int>& bandIds) throw (r_Error);
-    
+
     /// convert rasdaman type to GDAL type
     static GDALDataType rasTypeToGdalType(r_Type* rasType);
-    
+
 #endif // HAVE_GDAL
-    
+
 #ifdef HAVE_HDF
     /// translate an internal type into an HDF type and return the size.
-    static int ctypeToHdfType(int intType, int &size);
-    
+    static int ctypeToHdfType(int intType, int& size);
+
     /// translate an HDF type into an internal type and return the size
-    static int hdfTypeToCtype( int hdfType, int &size );
+    static int hdfTypeToCtype(int hdfType, int& size);
 #endif
 
     /**
      * Convert format string to r_Data_Format
      */
-	static r_Data_Format getDataFormat(std::string format);
-    
+    static r_Data_Format getDataFormat(std::string format);
+
     /**
      * Get the base type size of the bandId-th band in type.
      * @param type rasdaman type, could be primitive or struct
@@ -79,16 +80,16 @@ public:
      * @return the base type size
      */
     static size_t getBandBaseTypeSize(r_Type* type, int bandId);
-    
+
     /**
      * @return the number of bands in type, 1 if type is primitive, more than 1 if struct.
      */
     static unsigned int getNumberOfBands(const r_Type* type);
 
-	virtual ~ConvUtil();
+    virtual ~ConvUtil();
 
 private:
 
 };
 
-#endif	/* CONVUTIL_HH */
+#endif  /* CONVUTIL_HH */

@@ -51,9 +51,9 @@ int main()
     r_Error::initTextTable();
     try
     {
-        throw r_Error( 10000 );
+        throw r_Error(10000);
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -63,7 +63,7 @@ int main()
     {
         throw r_Error();
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -71,9 +71,9 @@ int main()
     cout << endl << "2. Throwing r_Error( r_Error::r_Error_DatabaseUnknown )  ---------" << endl;
     try
     {
-        throw r_Error( r_Error::r_Error_DatabaseUnknown );
+        throw r_Error(r_Error::r_Error_DatabaseUnknown);
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -83,7 +83,7 @@ int main()
     {
         throw r_Eno_interval();
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -91,9 +91,9 @@ int main()
     cout << endl << "4. Throwing r_Eindex_violation( 10, 20, 25 )  --------------------" << endl;
     try
     {
-        throw r_Eindex_violation( 10, 20, 25 );
+        throw r_Eindex_violation(10, 20, 25);
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -102,9 +102,9 @@ int main()
     cout << endl << "5. Throwing r_Edim_mismatch( 2, 3 )  -----------------------------" << endl;
     try
     {
-        throw r_Edim_mismatch( 2, 3 );
+        throw r_Edim_mismatch(2, 3);
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -115,7 +115,7 @@ int main()
     {
         throw r_Einit_overflow();
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -126,7 +126,7 @@ int main()
     {
         throw r_Eno_cell();
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -134,9 +134,9 @@ int main()
     cout << endl << "8. Throwing r_Equery_execution_failed( 99, 5, 7, 'SELECT' )  -----" << endl;
     try
     {
-        throw r_Equery_execution_failed( 99, 5, 7, "SELECT" );
+        throw r_Equery_execution_failed(99, 5, 7, "SELECT");
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -145,18 +145,18 @@ int main()
     cout << endl << "8.1 Throwing (4711, 'This is a test') ----------------------------" << endl;
     try
     {
-        throw r_Ebase_dbms( 4711, "This is a test" );
+        throw r_Ebase_dbms(4711, "This is a test");
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << "Output of what() catching an r_Error &err" << endl;
         cout << err.what() << endl;
     }
     try
     {
-        throw r_Ebase_dbms( 4711, "This is a test" );
+        throw r_Ebase_dbms(4711, "This is a test");
     }
-    catch( r_Ebase_dbms &err )
+    catch (r_Ebase_dbms& err)
     {
         cout << "Output of what() catching an r_Ebase_dbms &err" << endl;
         cout << err.what() << endl;
@@ -166,9 +166,9 @@ int main()
     char* serialErr;
     try
     {
-        throw r_Ebase_dbms( 4711, "This is a test" );
+        throw r_Ebase_dbms(4711, "This is a test");
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         serialErr = err.serialiseError();
         cout << "serialised form: " << serialErr << endl;
@@ -181,16 +181,18 @@ int main()
         // if an r_Ebase_dbms is caught (core dump), it works if an r_Error is caught. Hmm, makes
         // some sense since *r_Error is not polymorphic anymore. But it should not core dump.
         // Well strange, but like this it works and this will be done only once in clientcomm.cc.
-        if(testErr->get_errorno () == 206)
+        if (testErr->get_errorno() == 206)
         {
             r_Ebase_dbms correctErr(*(r_Ebase_dbms*)testErr);
             delete testErr;
             throw correctErr;
         }
         else
+        {
             cout << "Unexpected error read from serialised representation." << endl;
+        }
     }
-    catch( r_Ebase_dbms &err )
+    catch (r_Ebase_dbms& err)
     {
         cout << "Output of what() catching an r_Ebase_dbms &err" << endl;
         cout << err.what() << endl;
@@ -199,16 +201,18 @@ int main()
     {
         cout << "Throwing error constructed from serialised form." << endl;
         r_Error* testErr = r_Error::getAnyError(serialErr);
-        if(testErr->get_errorno () == 206)
+        if (testErr->get_errorno() == 206)
         {
             r_Ebase_dbms correctErr(*(r_Ebase_dbms*)testErr);
             delete testErr;
             throw correctErr;
         }
         else
+        {
             cout << "Unexpected error read from serialised representation." << endl;
+        }
     }
-    catch( r_Error &err )
+    catch (r_Error& err)
     {
         cout << "Output of what() catching an r_Error &err" << endl;
         cout << err.what() << endl;

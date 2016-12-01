@@ -213,16 +213,16 @@ public:
     QtNode();
 
     /// constructor getting a pointer to the parent
-    QtNode( QtNode* node );
+    QtNode(QtNode* node);
 
     /// destructor
     virtual ~QtNode();
 
     /// returns weather class b is a subtype of class a
-    bool subtype( enum QtNodeType a, enum QtNodeType b );
+    bool subtype(enum QtNodeType a, enum QtNodeType b);
 
     /// return childs of the node
-    virtual QtNodeList* getChilds( QtChildType flag );
+    virtual QtNodeList* getChilds(QtChildType flag);
     /**
       The method allows different retrieval of the subtree nodes. Dependent on the content of {\tt flag}
       one of the following semantics is used:
@@ -234,14 +234,14 @@ public:
     */
 
     /// return childs of a certain class
-    QtNodeList* getChild( const QtNodeType node, QtChildType flag = QT_DIRECT_CHILDS );
+    QtNodeList* getChild(const QtNodeType node, QtChildType flag = QT_DIRECT_CHILDS);
     /**
       The method allows to specify the class of childs to be considered according to method {\tt getChilds}.
       By default, just direct childs are considered
     */
 
     /// test if the two nodes have an equal meaning in a subtree
-    virtual bool equalMeaning( QtNode* node );
+    virtual bool equalMeaning(QtNode* node);
 
     /**
       The method checks, if the two nodes have an equal meaning in a subtree.
@@ -271,25 +271,25 @@ public:
     */
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES )=0;
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES) = 0;
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout )=0;
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout) = 0;
 
     //@Man: Read/Write methods
     //@{
     ///
 
     ///
-    inline virtual void         setInput( QtOperation* inputOld, QtOperation* inputNew);
+    inline virtual void         setInput(QtOperation* inputOld, QtOperation* inputNew);
     ///
     inline QtNode*              getParent() const;
     ///
-    inline void                 setParent( QtNode* node );
+    inline void                 setParent(QtNode* node);
     ///
     inline const ParseInfo&     getParseInfo();
     ///
-    inline void                 setParseInfo( const ParseInfo &info );
+    inline void                 setParseInfo(const ParseInfo& info);
 
     ///
     //@}
@@ -340,12 +340,12 @@ protected:
     void pauseTimer();
     /// resume
     void resumeTimer();
-    
+
     /// get elapsed time if timer was started, returns a string e.g. "15 usecs"
     std::string getEvaluationTime();
 
 #ifdef RMANBENCHMARK
-    RMTimer *evaluationTimer;
+    RMTimer* evaluationTimer;
 #endif
 
 private:
@@ -363,13 +363,13 @@ private:
 
 
     ///operator overload for QtNodePair struct
-    friend bool operator<( const QtNodePair a, const QtNodePair b);
+    friend bool operator<(const QtNodePair a, const QtNodePair b);
 
     /// starting point of elements having node as base class
     static int child_range[];
 
     /// sets up the child_range[] array
-    void set_child_range(const QtNodePair *arr);
+    void set_child_range(const QtNodePair* arr);
 
     /// minim and maxim labels to determine subtypes
     static int minim[], maxim[];
@@ -381,8 +381,8 @@ private:
     void SetMinMax();
 
     /// sets min max values once child_range is set up, for subtree with x as root
-    void num_node (const QtNodePair *arr, enum QtNodeType x);
-    
+    void num_node(const QtNodePair* arr, enum QtNodeType x);
+
 #ifdef RMANBENCHMARK
     static long timerCounter;
 #endif
@@ -414,29 +414,29 @@ public:
     QtTypeElement();
 
     ///
-    QtTypeElement( const QtDataType initDataType, const char* initName = NULL );
+    QtTypeElement(const QtDataType initDataType, const char* initName = NULL);
 
     ///
-    QtTypeElement( const Type* initType, const char* initName = NULL );
+    QtTypeElement(const Type* initType, const char* initName = NULL);
 
     ///
-    QtTypeElement( const QtTypeElement& typeElement );
+    QtTypeElement(const QtTypeElement& typeElement);
 
     ///
     ~QtTypeElement();
 
     /// assignment: cleanup + copy
-    const QtTypeElement& operator= ( const QtTypeElement& );
+    const QtTypeElement& operator= (const QtTypeElement&);
 
     //@Man: Read/Write methods
     //@{
     ///
     ///
-    void  setDataType( const QtDataType newDataType );
+    void  setDataType(const QtDataType newDataType);
     ///
-    void  setType( const Type* newType );
+    void  setType(const Type* newType);
     ///
-    inline void  setName( const char* newName );
+    inline void  setName(const char* newName);
     ///
     inline  QtDataType getDataType() const;
     ///
@@ -452,7 +452,7 @@ public:
     ///
 
     /// print type
-    void printStatus( std::ostream& s = std::cout ) const;
+    void printStatus(std::ostream& s = std::cout) const;
 
 private:
     ///
@@ -480,19 +480,19 @@ class QtTypeTuple
 {
 public:
     ///
-    QtTypeTuple( unsigned int length = 0 );
+    QtTypeTuple(unsigned int length = 0);
 
     /// concatenate type tuple
-    void concat( const QtTypeTuple& typeTuple );
+    void concat(const QtTypeTuple& typeTuple);
 
     /// concatenate type element
-    void concat( const QtTypeElement& typeElement );
+    void concat(const QtTypeElement& typeElement);
 
     ///
     std::vector<QtTypeElement> tuple;
 
     /// print type
-    void printStatus( std::ostream& s = std::cout ) const;
+    void printStatus(std::ostream& s = std::cout) const;
 };
 
 #include "qlparser/qtnode.icc"

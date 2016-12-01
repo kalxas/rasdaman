@@ -74,10 +74,10 @@ public class MetadataRollbackTest {
     @Before
     public void setUp() throws IOException, PetascopeException, SecoreException {
         this.metadataSource = new DbMetadataSource(
-                ConfigManager.METADATA_DRIVER,
-                ConfigManager.METADATA_URL,
-                ConfigManager.METADATA_USER,
-                ConfigManager.METADATA_PASS, false);
+            ConfigManager.METADATA_DRIVER,
+            ConfigManager.METADATA_URL,
+            ConfigManager.METADATA_USER,
+            ConfigManager.METADATA_PASS, false);
 
         //insert the coverage
         String gmlCov = IOUtils.toString(TEST_DATASET);
@@ -125,7 +125,7 @@ public class MetadataRollbackTest {
         Assert.assertTrue(false);
     }
 
-    private String parseCoverageName(Response response){
+    private String parseCoverageName(Response response) {
         return response.getXml()[0].split("<coverageId>")[1].replace("</coverageId>", "").trim();
     }
 }

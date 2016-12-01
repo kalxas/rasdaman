@@ -25,8 +25,8 @@
 namespace rasmgr
 {
 
-UserDbRightsException::UserDbRightsException(const std::string &userName, const std::string &databaseName)
-    :common::RuntimeException("The user " + userName + " does not have rights on the database " + databaseName)
+UserDbRightsException::UserDbRightsException(const std::string& userName, const std::string& databaseName)
+    : common::RuntimeException("The user " + userName + " does not have rights on the database " + databaseName)
 {}
 
 UserDbRightsException::~UserDbRightsException() throw()

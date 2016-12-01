@@ -98,7 +98,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
                     hi = domainElement.getMaxValue().toString();
                 } else {
                     throw new WCPSException(ExceptionCode.UnsupportedCombination,
-                            "Cannot return domain metadata of this coverage for non-native CRS " + crs.getName());
+                                            "Cannot return domain metadata of this coverage for non-native CRS " + crs.getName());
                 }
             } catch (PetascopeException ex) {
                 log.error("Error while comparing input CRS and native CRS: " + ex.getMessage());
@@ -110,33 +110,34 @@ public class MetadataScalarExpr extends AbstractRasNode {
             CellDomainElement cellDomainElement = coverageInfo.getCellDomainElement(axisIndex);
             lo = cellDomainElement.getLo().toString();
             hi = cellDomainElement.getHi().toString();
-        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)){
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)) {
             int n = coverageInfo.getNumDimensions();
-            for(int i=0; i<n;i++){
+            for (int i = 0; i < n; i++) {
                 DomainElement domainElement = coverageInfo.getDomainElement(i);
                 String axName = domainElement.getLabel();
-                crss+=axName + ":";
+                crss += axName + ":";
                 List<String> crsSet = domainElement.getCrsSet();
-                for(String str : crsSet){
-                    crss+=(str + " ");
+                for (String str : crsSet) {
+                    crss += (str + " ");
                 }
                 //delete last space
-                crss = crss.substring(0,crss.length()-1);
-                if(i+1!=n) // eliminate possibility of trailing commas
-                    crss+=", ";
+                crss = crss.substring(0, crss.length() - 1);
+                if (i + 1 != n) { // eliminate possibility of trailing commas
+                    crss += ", ";
+                }
             }
-        }
-        else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_IDENTIFIER )) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_IDENTIFIER)) {
             op = WcpsConstants.MSG_IDENTIFIER;
-        }
-        else if (!nodeName.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS2) &&
+        } else if (!nodeName.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS2) &&
                    !nodeName.equalsIgnoreCase(WcpsConstants.MSG_SET_IDENTIFIER) &&
                    !nodeName.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS)) {
             throw new WCPSException("No metadata node: " + nodeName);
         }
 
         // Store the child for XML tree re-traversing
-        if (axis != null) super.children.add(axis);
+        if (axis != null) {
+            super.children.add(axis);
+        }
     }
 
     public String getLo() {
@@ -155,7 +156,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
             ret = CrsUtil.GRID_CRS;
         } else if (op.equalsIgnoreCase(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
-        } else if(op.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)){
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)) {
             ret = crss;
         }
         return ret;

@@ -53,7 +53,7 @@ MDDDimensionType::insertInDb() throw (r_Error)
 
     dimension = myDimension;
     mddtypeid = myOId.getCounter();
-    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof (mddtypename));
+    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename));
     DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
     mddbasetypeid = obj->getOId();
     LTRACE << " typeid " << mddtypeid << " name " << mddtypename << " basetypeoid " << mddbasetypeid << "dimension " << dimension;
@@ -71,7 +71,7 @@ MDDDimensionType::readFromDb() throw (r_Error)
 #endif
     long long mddtypeid;
     long long mddbasetypeid;
-    char *mddtypename;
+    char* mddtypename;
     short dimension;
 
     mddtypeid = myOId.getCounter();
@@ -89,7 +89,7 @@ MDDDimensionType::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "MDDDimensionType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database.";
+               << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 

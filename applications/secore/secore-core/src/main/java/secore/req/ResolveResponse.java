@@ -34,87 +34,87 @@ import secore.util.StringUtil;
  * @author Dimitar Misev
  */
 public class ResolveResponse {
-  
-  private static Logger log = LoggerFactory.getLogger(ResolveResponse.class);
-  
-  // regex pattern matching empty XML returned from BaseX
-  private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
-  
-  private final String data;
 
-  public ResolveResponse(String data) {
-    // Add copyright
+    private static Logger log = LoggerFactory.getLogger(ResolveResponse.class);
+
+    // regex pattern matching empty XML returned from BaseX
+    private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
+
+    private final String data;
+
+    public ResolveResponse(String data) {
+        // Add copyright
 
 // results in invalid GML, so commented out until we find a way to inject the credits
-/*
-    int ind = data.indexOf(METADATA_LABEL);
-    if (ind != -1) {
-      int end = data.indexOf(">", ind);
-      int nextStart = data.indexOf("<", end);
-      
-      String firstPart = data.substring(0, end + 1);
-      String secondPart = data.substring(end + 1);
-      String indent = data.substring(end + 1, nextStart);
-      
-      // finally recompose data
-      data = firstPart + indent + 
-          "<credits xmlns=\"http://rasdaman.org/ns\">" + COPYRIGHT + "</credits>" +
-          secondPart;
-    }
-*/
-    if (!StringUtil.emptyQueryResult(data)) {
-      if (!data.startsWith("<?xml")) {
-        data = XML_DECL + data;
-      }
+        /*
+            int ind = data.indexOf(METADATA_LABEL);
+            if (ind != -1) {
+              int end = data.indexOf(">", ind);
+              int nextStart = data.indexOf("<", end);
 
-      // add missing namespaces
-      int offset = data.indexOf("<", 1) + 1;
-      int topLevelTagEnd = data.indexOf(">", offset);
-      if (topLevelTagEnd != -1) {
-        data = addMissingNamespace(data, GMD_PREFIX, GMD_NAMESPACE, topLevelTagEnd);
-        data = addMissingNamespace(data, GCO_PREFIX, GCO_NAMESPACE, topLevelTagEnd);
-      }
+              String firstPart = data.substring(0, end + 1);
+              String secondPart = data.substring(end + 1);
+              String indent = data.substring(end + 1, nextStart);
+
+              // finally recompose data
+              data = firstPart + indent +
+                  "<credits xmlns=\"http://rasdaman.org/ns\">" + COPYRIGHT + "</credits>" +
+                  secondPart;
+            }
+        */
+        if (!StringUtil.emptyQueryResult(data)) {
+            if (!data.startsWith("<?xml")) {
+                data = XML_DECL + data;
+            }
+
+            // add missing namespaces
+            int offset = data.indexOf("<", 1) + 1;
+            int topLevelTagEnd = data.indexOf(">", offset);
+            if (topLevelTagEnd != -1) {
+                data = addMissingNamespace(data, GMD_PREFIX, GMD_NAMESPACE, topLevelTagEnd);
+                data = addMissingNamespace(data, GCO_PREFIX, GCO_NAMESPACE, topLevelTagEnd);
+            }
+        }
+
+        this.data = data;
     }
-    
-    this.data = data;
-  }
-  
-  /**
-   * Adds missing namespace to XML data
-   * @param data XML document
-   * @param prefix XML prefix
-   * @param namespace XML namespace
-   * @param topLevelTagEnd the index of the closing '>' of the top-level XML tag in data
-   * @return the same XML data with the namespace possibly added.
-   */
-  private String addMissingNamespace(String data, String prefix, String namespace, int topLevelTagEnd) {
-    String ret = data;
-    int namespaceIndex = data.indexOf(namespace);
-    if (namespaceIndex > topLevelTagEnd || namespaceIndex == -1) {
-      ret = data.substring(0, topLevelTagEnd) + " xmlns:" + prefix + "=\"" + namespace + "\"" + data.substring(topLevelTagEnd);
+
+    /**
+     * Adds missing namespace to XML data
+     * @param data XML document
+     * @param prefix XML prefix
+     * @param namespace XML namespace
+     * @param topLevelTagEnd the index of the closing '>' of the top-level XML tag in data
+     * @return the same XML data with the namespace possibly added.
+     */
+    private String addMissingNamespace(String data, String prefix, String namespace, int topLevelTagEnd) {
+        String ret = data;
+        int namespaceIndex = data.indexOf(namespace);
+        if (namespaceIndex > topLevelTagEnd || namespaceIndex == -1) {
+            ret = data.substring(0, topLevelTagEnd) + " xmlns:" + prefix + "=\"" + namespace + "\"" + data.substring(topLevelTagEnd);
+        }
+        return ret;
     }
-    return ret;
-  }
-  
-  /**
-   * Gets the GML data stored in the object
-   * Surrounds it by XML tags defining the document and declaring the required namespaces
-   * 
-   * @return the GML definition of the resource requested 
-   */
-  public String getData() {
-    return data;
-  }
-  
-  /**
-   * Check if def is not an empty XML document.
-   * @return true if not empty, false otherwise.
-   */
-  public boolean isValidDefinition() {
-    if (data != null) {
-      Matcher matcher = EMPTY_XML.matcher(data);
-      return !EMPTY.equals(data) && !matcher.matches();
+
+    /**
+     * Gets the GML data stored in the object
+     * Surrounds it by XML tags defining the document and declaring the required namespaces
+     *
+     * @return the GML definition of the resource requested
+     */
+    public String getData() {
+        return data;
     }
-    return false;
-  }
+
+    /**
+     * Check if def is not an empty XML document.
+     * @return true if not empty, false otherwise.
+     */
+    public boolean isValidDefinition() {
+        if (data != null) {
+            Matcher matcher = EMPTY_XML.matcher(data);
+            return !EMPTY.equals(data) && !matcher.matches();
+        }
+        return false;
+    }
 }

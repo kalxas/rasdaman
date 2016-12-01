@@ -48,7 +48,7 @@ public class DeleteLayerParser extends Parser<DeleteLayerRequest> {
     public boolean canParse(WMSGetRequest rawRequest) {
         String requestType = rawRequest.getGetValueByKey(DeleteLayerRequest.getRequestParameterRequest());
         return requestType != null &&
-                requestType.equals(DeleteLayerRequest.getRequestParamValue());
+               requestType.equals(DeleteLayerRequest.getRequestParamValue());
     }
 
     @Override

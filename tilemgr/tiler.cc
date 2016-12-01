@@ -60,9 +60,13 @@ r_Tiler::mergeDomains()
             }
         }
         if (merged)
+        {
             splitedDomains.push_back(tempDom);
+        }
         else
+        {
             temp.push_back(tempDom);
+        }
     }
     splitedDomains = temp;
 }
@@ -176,7 +180,9 @@ r_Tiler::computeSplitDimensions(const r_Minterval& sourceDomain) const
             }
         }
         if (tempadd)
+        {
             points.push_back(tempP);
+        }
     }
     //cout << "try end 2" << endl;
     //for (pointIt = points.begin(); pointIt != points.end(); pointIt++)
@@ -270,7 +276,7 @@ r_Tiler::splitMinterval(const r_Minterval& sourceTile, std::vector<RangePair>& p
                                     //cout<<"\t\t\t\t\tsplit low adding ["<<low+1<<":"<< high<< "]"<<endl;
                                     splitInterval1 << r_Sinterval(low + 1, high);
                                 }
-                                splitInterval2<< r_Sinterval((*pointIt).second,(*pointIt).second);
+                                splitInterval2 << r_Sinterval((*pointIt).second, (*pointIt).second);
                             }
                             else
                             {
@@ -334,7 +340,9 @@ r_Tiler::removeCoveredDomains()
             }
         }
         if (!kill)
+        {
             splitedDomains.push_back(temp);
+        }
     }
 }
 
@@ -359,7 +367,9 @@ r_Tiler::removeDoubleDomains()
             }
         }
         if (!kill)
+        {
             retval.push_back(temp);
+        }
     }
     retval.swap(splitedDomains);
 }

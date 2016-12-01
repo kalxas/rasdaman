@@ -31,7 +31,7 @@ import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.*;
 
 public class CondenseScalarExpr extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(CondenseScalarExpr.class);
 
     private CondenseOperation op;
@@ -48,7 +48,7 @@ public class CondenseScalarExpr extends AbstractRasNode {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
-        
+
         log.trace(node.getNodeName());
 
         iterators = new Vector();
@@ -72,10 +72,14 @@ public class CondenseScalarExpr extends AbstractRasNode {
             while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
             }
-            
+
             // Keep the children to let XML tree be re-traversed
-            if (where != null) super.children.add(where);
-            if (using != null) super.children.add(using);
+            if (where != null) {
+                super.children.add(where);
+            }
+            if (using != null) {
+                super.children.add(using);
+            }
         }
 
         buildAxisIteratorDomain();

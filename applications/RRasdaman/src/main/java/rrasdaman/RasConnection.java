@@ -58,7 +58,7 @@ public class RasConnection {
         impl.setUserIdentification(user, password);
         connection = impl.newDatabase();
         connection.open(dbName,
-                    mode == RasMode.READ_ONLY ? Database.OPEN_READ_ONLY : Database.OPEN_READ_WRITE);
+                        mode == RasMode.READ_ONLY ? Database.OPEN_READ_ONLY : Database.OPEN_READ_WRITE);
 
         transaction = impl.newTransaction();
         connected = true;
@@ -71,16 +71,17 @@ public class RasConnection {
     }
 
     public RasResult executeQuery(String query, List<Object> params)
-            throws RasException, ODMGException {
+    throws RasException, ODMGException {
         checkState();
 
-        if (!transaction.isOpen())
+        if (!transaction.isOpen()) {
             transaction.begin();
+        }
 
         OQLQuery oqlquery = impl.newOQLQuery();
         oqlquery.create(query);
         if (params != null) {
-            for (Object obj: params) {
+            for (Object obj : params) {
                 oqlquery.bind(obj);
             }
         }
@@ -106,8 +107,7 @@ public class RasConnection {
         List<String> colls = new ArrayList<String>();
         if (rr.bag != null) {
             Iterator iter = rr.bag.iterator();
-            while (iter.hasNext())
-            {
+            while (iter.hasNext()) {
                 RasGMArray result = (RasGMArray)iter.next();
                 byte[] bytes = result.getArray();
                 String name = new String(bytes, 0, bytes.length - 1);
@@ -136,8 +136,9 @@ public class RasConnection {
     }
 
     public String getTypeStructure(String typeName) {
-        if (!transaction.isOpen())
+        if (!transaction.isOpen()) {
             transaction.begin();
+        }
         String struct;
         try {
             opened = true;
@@ -147,8 +148,9 @@ public class RasConnection {
             transaction.begin();
             struct = impl.getTypeStructure(typeName, RasImplementation.TYPE_TYPE_MDD);
         }
-        if (struct.length() == 0)
+        if (struct.length() == 0) {
             struct = impl.getTypeStructure(typeName, RasImplementation.TYPE_TYPE_SET);
+        }
         return struct;
     }
 
@@ -161,8 +163,9 @@ public class RasConnection {
     }
 
     public void disconnect() throws RasException {
-        if (!connected)
+        if (!connected) {
             return;
+        }
         try {
             commit();
             connection.close();
@@ -186,14 +189,17 @@ public class RasConnection {
         String mode = (this.mode == RasMode.READ_ONLY) ? "READ_ONLY" : "READ_WRITE";
         String alive = connected ? "true" : "false";
         return String.format("RasConnection{ host=%s, port=%d, db=%s, user=%s, mode=%s, alive=%s }",
-                host, port, dbName, user, mode, alive);
+                             host, port, dbName, user, mode, alive);
     }
 
     void clearState(boolean success) {
         results.clear();
         if (opened) {
-            if (success) transaction.commit();
-            else         transaction.abort();
+            if (success) {
+                transaction.commit();
+            } else {
+                transaction.abort();
+            }
             opened = false;
         }
     }

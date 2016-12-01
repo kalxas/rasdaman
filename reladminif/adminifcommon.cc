@@ -65,20 +65,20 @@ bool AdminIf::readOnlyTA = false;
 
 DatabaseIf* AdminIf::myDatabaseIf = NULL;
 
-char AdminIf::systemName[SYSTEMNAME_MAXLEN+1];
-const char DEFAULT_SYSTEM_NAME[SYSTEMNAME_MAXLEN]="localhost";
+char AdminIf::systemName[SYSTEMNAME_MAXLEN + 1];
+const char DEFAULT_SYSTEM_NAME[SYSTEMNAME_MAXLEN] = "localhost";
 
 bool AdminIf::_isAborted = false;
 
 bool
 AdminIf::isAborted()
 {
-    bool retval=false;
+    bool retval = false;
 
 #ifdef READ_ONLY_RMAN
-    retval=true;
+    retval = true;
 #else
-    retval=_isAborted;
+    retval = _isAborted;
 #endif
     return retval;
 }
@@ -104,20 +104,22 @@ AdminIf::setCurrentDatabaseIf(DatabaseIf* db)
 AdminIf*
 AdminIf::instance(bool createDb)
 {
-    AdminIf* retval=NULL;
+    AdminIf* retval = NULL;
 
-    int hostResult = gethostname(systemName, sizeof(systemName) );
+    int hostResult = gethostname(systemName, sizeof(systemName));
     if (hostResult != 0)
     {
         LTRACE << "Error: cannot obtain hostname, using 'localhost'; errno=" << errno;
-        (void) strcpy( systemName, DEFAULT_SYSTEM_NAME );
+        (void) strcpy(systemName, DEFAULT_SYSTEM_NAME);
     }
-    if(!myInstance)
+    if (!myInstance)
     {
         myInstance = new AdminIf(createDb);
     }
-    if(validConnection)
-        retval=myInstance;
+    if (validConnection)
+    {
+        retval = myInstance;
+    }
 
     return retval;
 }

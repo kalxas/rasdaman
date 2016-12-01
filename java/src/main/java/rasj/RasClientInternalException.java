@@ -31,7 +31,7 @@ rasdaman GmbH.
  * This runtime exception indicates an internal error on client-side , which cannot
  * be solved by the user. In case of such an event, please send a bug message to
  * info@active-knowledge.de containing the complete error message and a precise
- * description of the actions that lead to this exception. 
+ * description of the actions that lead to this exception.
  * @version $Revision: 1.4 $
  *
  *
@@ -40,8 +40,7 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
-public class RasClientInternalException extends RasRuntimeException
-{
+public class RasClientInternalException extends RasRuntimeException {
     static final String rcsid = "@(#)Package rasj, class RasException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasClientInternalException.java,v 1.4 2003/12/19 16:22:27 rasdev Exp $";
 
     private int errNo = 0;
@@ -52,42 +51,43 @@ public class RasClientInternalException extends RasRuntimeException
     /**
      * standard constructor.
      **/
-    public RasClientInternalException(String className, String methodName, String msg)
-    {
-	errNo = RasGlobalDefs.INTERNAL_CLIENT_ERROR;
-	errText = ( (msg==null)        ? "(none)" : msg );
-	cName   = ( (className==null)  ? "(none)" : className );
-	mName   = ( (methodName==null) ? "(none)" : methodName );
+    public RasClientInternalException(String className, String methodName, String msg) {
+        errNo = RasGlobalDefs.INTERNAL_CLIENT_ERROR;
+        errText = ((msg == null)        ? "(none)" : msg);
+        cName   = ((className == null)  ? "(none)" : className);
+        mName   = ((methodName == null) ? "(none)" : methodName);
     }
 
     /**
      * Returns the error message.
      * @return the error message.
      **/
-    public String getMessage()
-    {
-	int index;
+    public String getMessage() {
+        int index;
 
-	String msg = RasErrorTexts.getErrorMessage(errNo);
+        String msg = RasErrorTexts.getErrorMessage(errNo);
 
-	StringBuffer buf = new StringBuffer(msg);
-	index = msg.indexOf( RasGlobalDefs.KEYWORD_CLASS );
-	if(index != -1)
-	    buf.replace(index, index+RasGlobalDefs.KEYWORD_CLASS.length(), cName);
-	msg = buf.toString();
- 
+        StringBuffer buf = new StringBuffer(msg);
+        index = msg.indexOf(RasGlobalDefs.KEYWORD_CLASS);
+        if (index != -1) {
+            buf.replace(index, index + RasGlobalDefs.KEYWORD_CLASS.length(), cName);
+        }
+        msg = buf.toString();
+
         buf = new StringBuffer(msg);
-	index = msg.indexOf( RasGlobalDefs.KEYWORD_METHOD );
-	if(index != -1)
-	    buf.replace(index, index+RasGlobalDefs.KEYWORD_METHOD.length(), mName);
-	msg = buf.toString();
+        index = msg.indexOf(RasGlobalDefs.KEYWORD_METHOD);
+        if (index != -1) {
+            buf.replace(index, index + RasGlobalDefs.KEYWORD_METHOD.length(), mName);
+        }
+        msg = buf.toString();
 
-	buf = new StringBuffer(msg);
-	index = msg.indexOf( RasGlobalDefs.KEYWORD_CODE );
-	if(index != -1)
-	    buf.replace(index, index+RasGlobalDefs.KEYWORD_CODE.length(), errText);
-	msg = buf.toString();
-	return msg;
+        buf = new StringBuffer(msg);
+        index = msg.indexOf(RasGlobalDefs.KEYWORD_CODE);
+        if (index != -1) {
+            buf.replace(index, index + RasGlobalDefs.KEYWORD_CODE.length(), errText);
+        }
+        msg = buf.toString();
+        return msg;
     }
 
 }

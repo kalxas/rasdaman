@@ -44,13 +44,13 @@ using namespace rnp;
   * \ingroup Rnprotocols
   */
 
-void freeGetTileRes(GetTileRes *ptr);
+void freeGetTileRes(GetTileRes* ptr);
 
 class RnpClientComm : public ClientComm, RnpBaseClientComm
 {
 public:
     /// constructor getting the host name of the rasmgr host and it's listening port (default 7001).
-    RnpClientComm( const char* rasmgrHost, int rasmgrPort = RASMGRPORT ) throw( r_Error );
+    RnpClientComm(const char* rasmgrHost, int rasmgrPort = RASMGRPORT) throw(r_Error);
 
     ~RnpClientComm() throw ();
 
@@ -61,13 +61,13 @@ public:
     ///
 
     /// open database
-    int openDB( const char* database );
+    int openDB(const char* database);
     /// close current database
     int closeDB();
     /// create a database
-    int createDB( const char* name ) throw(r_Error);
+    int createDB(const char* name) throw(r_Error);
     /// destroy a database
-    int destroyDB( const char* name ) throw(r_Error);
+    int destroyDB(const char* name) throw(r_Error);
 
     ///
     //@}
@@ -77,7 +77,7 @@ public:
     ///
 
     /// begin transaction
-    int openTA( unsigned short readOnly = 0 ) throw(r_Error);
+    int openTA(unsigned short readOnly = 0) throw(r_Error);
     /// commit current transaction
     int commitTA() throw(r_Error);
     /// abort current transaction
@@ -91,9 +91,9 @@ public:
     ///
 
     /// inserts a MDD object in an existing MDD collection on the server
-    void insertMDD( const char* collName, r_GMarray* mar ) throw( r_Error );
+    void insertMDD(const char* collName, r_GMarray* mar) throw(r_Error);
     /// gets MDD object by oid
-    r_Ref_Any getMDDByOId( const r_OId& oid ) throw( r_Error );
+    r_Ref_Any getMDDByOId(const r_OId& oid) throw(r_Error);
 
     ///
     //@}
@@ -103,21 +103,21 @@ public:
     ///
 
     /// creates an empty MDD collection on the server
-    void insertColl( const char* collName, const char* typeName, const r_OId& oid ) throw( r_Error );
+    void insertColl(const char* collName, const char* typeName, const r_OId& oid) throw(r_Error);
     /// deletes an MDD collection by name
-    void deleteCollByName( const char* collName ) throw( r_Error );
+    void deleteCollByName(const char* collName) throw(r_Error);
     /// deletes an object by oid (right now, objects are collection only)
-    void deleteObjByOId( const r_OId& oid ) throw( r_Error );
+    void deleteObjByOId(const r_OId& oid) throw(r_Error);
     /// removes an object from a collection
-    void removeObjFromColl( const char* name, const r_OId& oid ) throw ( r_Error );
+    void removeObjFromColl(const char* name, const r_OId& oid) throw (r_Error);
     /// gets collection by name
-    r_Ref_Any getCollByName( const char* name ) throw( r_Error );
+    r_Ref_Any getCollByName(const char* name) throw(r_Error);
     /// gets collection by oid
-    r_Ref_Any getCollByOId ( const r_OId& oid ) throw( r_Error );
+    r_Ref_Any getCollByOId(const r_OId& oid) throw(r_Error);
     /// gets collection references by name
-    r_Ref_Any getCollOIdsByName( const char* name ) throw( r_Error );
+    r_Ref_Any getCollOIdsByName(const char* name) throw(r_Error);
     /// gets collection references by oid
-    r_Ref_Any getCollOIdsByOId ( const r_OId& oid ) throw( r_Error );
+    r_Ref_Any getCollOIdsByOId(const r_OId& oid) throw(r_Error);
 
     ///
     //@}
@@ -127,7 +127,7 @@ public:
     ///
 
     /// query execution
-    void executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result ) throw( r_Error );
+    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result) throw(r_Error);
     /*@Doc:
       Executes a retrieval query of type \Ref{r_OQL_Query} and returns the result. Every
       MDD object of the MDD collection is fetched from the server and inserted
@@ -135,13 +135,13 @@ public:
     */
 
     /// update execution
-    void executeQuery( const r_OQL_Query& query ) throw( r_Error );
+    void executeQuery(const r_OQL_Query& query) throw(r_Error);
     /*@Doc:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
     /// insert execution
-    void executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int dummy ) throw( r_Error );
+    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) throw(r_Error);
     /*@Doc:
       Executes an insert query of type \Ref{r_OQL_Query}.
     */
@@ -154,14 +154,14 @@ public:
     ///
 
     /// get new oid
-    r_OId getNewOId( unsigned short objType ) throw(r_Error);
+    r_OId getNewOId(unsigned short objType) throw(r_Error);
 
     /// get oid type
-    unsigned short getObjectType( const r_OId& oid ) throw(r_Error);
+    unsigned short getObjectType(const r_OId& oid) throw(r_Error);
 
     /// get type structure
     /// dallocate using delete []
-    char* getTypeStructure( const char* typeName, r_Type_Type typeType ) throw(r_Error);
+    char* getTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error);
 
     ///
     //@}
@@ -170,17 +170,17 @@ public:
     unsigned long getClientID() const;
 
     /// set the preferred transfer format
-    int setTransferFormat( r_Data_Format format, const char* formatParams=NULL );
+    int setTransferFormat(r_Data_Format format, const char* formatParams = NULL);
 
     /// set the preferred storage format
-    int setStorageFormat( r_Data_Format format, const char *formatParams=NULL );
+    int setStorageFormat(r_Data_Format format, const char* formatParams = NULL);
 
 
     /// get real server name (the dinamic one, assigned by the RasMGR)
     const char* getServerName();
 
     /// user identification for RasMGR
-    void setUserIdentification(const char *userName, const char *plainTextPassword);
+    void setUserIdentification(const char* userName, const char* plainTextPassword);
 
     /// set maximum retry to get a server
     void setMaxRetry(unsigned int newMaxRetry);
@@ -196,31 +196,31 @@ public:
     // obsolete, but kept because of virtual functions in base class
     void triggerAliveSignal();
     void sendAliveSignal();
-    const char *getExtendedErrorInfo() throw(r_Error);
+    const char* getExtendedErrorInfo() throw(r_Error);
 
     void setTimeoutInterval(int seconds);
     int  getTimeoutInterval();
 
 //#### secret, unofficial functions ###########
 
-    r_OId  createCollection(const char *collName, const char *collTypeName) throw(r_Error);
+    r_OId  createCollection(const char* collName, const char* collTypeName) throw(r_Error);
 
-    r_OId  createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char *tileDomain, bool rcindex = false) throw(r_Error);
+    r_OId  createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char* tileDomain, bool rcindex = false) throw(r_Error);
 
-    void   extendMDD(r_OId mddOId, const char *stripeDomain, const char* tileDomain) throw(r_Error);
+    void   extendMDD(r_OId mddOId, const char* stripeDomain, const char* tileDomain) throw(r_Error);
 
-    vector<r_OId> getOIdsFromCollection( const char* name ) throw( r_Error );
+    vector<r_OId> getOIdsFromCollection(const char* name) throw(r_Error);
 
-    vector<r_OId> getOIdsFromCollection( const r_OId& oid ) throw( r_Error );
+    vector<r_OId> getOIdsFromCollection(const r_OId& oid) throw(r_Error);
 
-    vector<r_Minterval> getTileDomains(r_OId mddOId, const char *stripeDomain) throw( r_Error );
+    vector<r_Minterval> getTileDomains(r_OId mddOId, const char* stripeDomain) throw(r_Error);
 
 
-    void preloadTiles(r_OId mddOId, const char *tileDomain) throw(r_Error);
+    void preloadTiles(r_OId mddOId, const char* tileDomain) throw(r_Error);
 
-    int  getTileData(r_OId mddOId, const char *tileDomain, char *&data, bool preallocated = false) throw(r_Error);
+    int  getTileData(r_OId mddOId, const char* tileDomain, char*& data, bool preallocated = false) throw(r_Error);
 
-    void replaceTileData(r_OId mddOId, const char *tileDomain, const char *newData, int dataLength, const char *alfaData, int alfaLength) throw(r_Error);
+    void replaceTileData(r_OId mddOId, const char* tileDomain, const char* newData, int dataLength, const char* alfaData, int alfaLength) throw(r_Error);
 
 //#############################################
 private:
@@ -228,7 +228,7 @@ private:
     int clientID;
 
     /// the name of the rasmgr host
-    char *rasmgrHost;
+    char* rasmgrHost;
 
     /// the listening port of the rasmgr
     int  rasmgrPort;
@@ -253,36 +253,36 @@ private:
     /// requests a free server from the rasmgr
     int executeGetFreeServer(bool readwrite, bool openDB);
 
-    int readWholeMessage(int socket,char *destBuffer,int buffSize);
+    int readWholeMessage(int socket, char* destBuffer, int buffSize);
 
-    int writeWholeMessage(int socket,char *destBuffer,int buffSize);
+    int writeWholeMessage(int socket, char* destBuffer, int buffSize);
 
     // MD5 of password
-    int messageDigest(const char *input,char *output,const char *mdName);
+    int messageDigest(const char* input, char* output, const char* mdName);
 
     /// internal function for client/server protocol handling of non-MDD collection transfer
-    void getElementCollection( r_Set< r_Ref_Any >& result ) throw(r_Error);
+    void getElementCollection(r_Set<r_Ref_Any>& result) throw(r_Error);
 
     /// internal function for client/server protocol handling of MDD collection transfer
-    void getMDDCollection( r_Set< r_Ref_Any >& result, unsigned int isQuery ) throw(r_Error);
+    void getMDDCollection(r_Set<r_Ref_Any>& result, unsigned int isQuery) throw(r_Error);
 
     /// internal function for reading an MDD from the database
-    unsigned short getMDDCore( r_Ref<r_GMarray> &mdd, GetMDDRes *thisResult, unsigned int isQuery ) throw( r_Error );
+    unsigned short getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery) throw(r_Error);
 
     /// concatenate data to an array, making sure there are no overflows (used by getMDDCore())
-    int concatArrayData( const char *source, unsigned long srcSize, char *&dest,
-                         unsigned long &destSize, unsigned long &destLevel );
+    int concatArrayData(const char* source, unsigned long srcSize, char*& dest,
+                        unsigned long& destSize, unsigned long& destLevel);
 
     /// internal function for converting a \Ref{r_GMarray} into its RPC representation
-    void getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMarray,
-                                  r_Data_Format initStorageFormat = r_Array,
-                                  const r_Base_Type *bt = NULL);
+    void getMarRpcRepresentation(const r_GMarray* mar, RPCMarray*& rpcMarray,
+                                 r_Data_Format initStorageFormat = r_Array,
+                                 const r_Base_Type* bt = NULL);
 
     /// internal function for freeing data allocated by getMarRpcRepresentation()
-    void freeMarRpcRepresentation( const r_GMarray* mar, RPCMarray* rpcMarray );
+    void freeMarRpcRepresentation(const r_GMarray* mar, RPCMarray* rpcMarray);
 
     /// internal function for sending query's mdd constants to a server
-    void sendMDDConstants( const r_OQL_Query& query ) throw(r_Error);
+    void sendMDDConstants(const r_OQL_Query& query) throw(r_Error);
 
     /// endianness of client and server (0 means big endian)
     int endianServer;
@@ -295,9 +295,9 @@ private:
     /// transfer format parameters
     char* transferFormatParams;
     /// storage format parameters
-    char *storageFormatParams;
+    char* storageFormatParams;
     /// parameter object for configuration
-    r_Parse_Params *clientParams;
+    r_Parse_Params* clientParams;
 
     /// policy is compress-on-server
     int serverCompresses;
@@ -312,28 +312,28 @@ private:
     void executeBeginTA(bool rw);
     void executeCommitTA();
     void executeAbortTA();
-    int  executeExecuteQuery( const char* query, r_Set< r_Ref_Any >& result ) throw( r_Error );
+    int  executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& result) throw(r_Error);
     GetElementRes* executeGetNextElement();
     int  executeEndTransfer();
     GetMDDRes*  executeGetNextMDD();
     GetTileRes* executeGetNextTile();
-    int executeExecuteUpdateQuery(const char *query) throw(r_Error);
-    int executeExecuteUpdateQuery(const char *query, r_Set< r_Ref_Any >& result) throw(r_Error);
+    int executeExecuteUpdateQuery(const char* query) throw(r_Error);
+    int executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_Any>& result) throw(r_Error);
     int  executeStartInsertTransMDD(r_GMarray* mdd);
     int  executeInsertTile(bool persistent, RPCMarray* tile);
     void executeEndInsertMDD(bool persistent);
     int  executeInitUpdate();
-    int  executeStartInsertPersMDD( const char* collName, r_GMarray* mar );
-    int  executeInsertMDD(const char* collName, r_GMarray* mar, RPCMarray *rpcMarray);
-    int  executeInsertCollection( const char* collName, const char* typeName, const r_OId& oid );
-    r_Ref_Any executeGetCollByNameOrOId ( const char* collName, const r_OId& oid ) throw( r_Error );
-    r_Ref_Any executeGetCollOIdsByNameOrOId ( const char* collName, const r_OId& oid ) throw( r_Error );
-    int   executeSetFormat( bool transferFormat, r_Data_Format format, const char* formatParams);
-    r_OId executeGetNewOId( unsigned short objType ) throw(r_Error);
-    unsigned short executeGetObjectType( const r_OId& oid ) throw(r_Error);
-    char* executeGetTypeStructure( const char* typeName, r_Type_Type typeType ) throw(r_Error);
+    int  executeStartInsertPersMDD(const char* collName, r_GMarray* mar);
+    int  executeInsertMDD(const char* collName, r_GMarray* mar, RPCMarray* rpcMarray);
+    int  executeInsertCollection(const char* collName, const char* typeName, const r_OId& oid);
+    r_Ref_Any executeGetCollByNameOrOId(const char* collName, const r_OId& oid) throw(r_Error);
+    r_Ref_Any executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid) throw(r_Error);
+    int   executeSetFormat(bool transferFormat, r_Data_Format format, const char* formatParams);
+    r_OId executeGetNewOId(unsigned short objType) throw(r_Error);
+    unsigned short executeGetObjectType(const r_OId& oid) throw(r_Error);
+    char* executeGetTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error);
 
-    vector<r_OId> executeGetOIdsFromCollection ( const char* collName, const r_OId& oid ) throw( r_Error );
+    vector<r_OId> executeGetOIdsFromCollection(const char* collName, const r_OId& oid) throw(r_Error);
 
     void turboOpenDB(const char*);
     void turboBeginTA(bool rw);

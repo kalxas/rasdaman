@@ -77,7 +77,7 @@ int
 ppparse();
 
 int
-writeWholeMessage(int socket,char *destBuffer,int buffSize);
+writeWholeMessage(int socket, char* destBuffer, int buffSize);
 
 void
 freeDynamicRPCData();
@@ -102,7 +102,7 @@ public:
     {
     public:
         /// default constructor
-        ClientTblElt( const char* clientIdText, unsigned long clientId );
+        ClientTblElt(const char* clientIdText, unsigned long clientId);
         /**
           Default constructor that takes the information to be placed in the
         clientIdText field of the client table entry and the unique ID to
@@ -191,13 +191,13 @@ public:
         MDDObj*        transferMDD;
 
         /// std::vector storing tiles of actual MDD for transfer
-        std::vector< Tile* >* transTiles;
+        std::vector<Tile*>* transTiles;
 
         /// iterator for the std::vector above
-        std::vector< Tile* >::iterator* tileIter;
+        std::vector<Tile*>::iterator* tileIter;
 
         /// std::vector storing pointers to transient tiles
-        std::vector< Tile* >* deletableTiles;
+        std::vector<Tile*>* deletableTiles;
         /**
           The tiles referenced by these pointers are border tiles dynamically created in getNextMDD().
           They do not belong to any MDD object, and, therefore, they have to be deleted explicitly.
@@ -207,7 +207,7 @@ public:
         unsigned long bytesToTransfer;
 
         /// std::vector of persistent MDD collections in use
-        std::vector< MDDColl* >* persMDDCollections;
+        std::vector<MDDColl*>* persMDDCollections;
 
         /// object representing the actual database
         DatabaseIf     database;
@@ -225,24 +225,24 @@ public:
         RMTimer* evaluationTimer;
 
         /// parameter object
-        r_Parse_Params *clientParams;
+        r_Parse_Params* clientParams;
 
     private:
         /// empty private definition prevents of using the copy constructor
-        ClientTblElt( const ClientTblElt& ) {};
+        ClientTblElt(const ClientTblElt&) {};
     };
 
     /// default constructor
     ServerComm();
 
     /// constructor getting the client time out and the time interval for management routines, together with listen port, rasmgr host and port and the server name
-    ServerComm( unsigned long timeOut, unsigned long managementInterval , unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort, char* serverName);
+    ServerComm(unsigned long timeOut, unsigned long managementInterval , unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort, char* serverName);
 
     /// destructor
     virtual ~ServerComm();
 
     /// forces the server to listen for client calls
-    virtual void startRpcServer() throw( r_Error );
+    virtual void startRpcServer() throw(r_Error);
 
     /// stops the server
     virtual void stopRpcServer();
@@ -256,14 +256,14 @@ public:
 #define SERVER_REGULARSIG  3
 
     /// adds an entry to the client table (used in RasServerEntry)
-    void addClientTblEntry( ClientTblElt *context ) throw ( r_Error );
+    void addClientTblEntry(ClientTblElt* context) throw (r_Error);
     /**
       Adds the context entry passed to the client table.
       Throws an exception if context==NULL.
     */
 
     /// deletes an entry of the client table (must be public because it is used in the global garbage collection function)
-    unsigned short deleteClientTblEntry( unsigned long ClientId );
+    unsigned short deleteClientTblEntry(unsigned long ClientId);
     /**
       Deletes the entry of the client table corresponding to the given client id.
       If no corresponding id is found, false is returned.
@@ -273,10 +273,10 @@ public:
     void abortEveryThingNow();
 
     /// print server status with client table content to {\tt s}
-    virtual void printServerStatus( ostream& s=cout );
+    virtual void printServerStatus(ostream& s = cout);
 
     /// get server status
-    virtual void getServerStatus( ServerStatRes &returnStruct );
+    virtual void getServerStatus(ServerStatRes& returnStruct);
 
     /// the client table which holds information about the calling clients
     static std::list<ClientTblElt*>  clientTbl;
@@ -310,7 +310,7 @@ public:
     ///
 
     /// process the client's alive signal
-    virtual unsigned short aliveSignal( unsigned long client );
+    virtual unsigned short aliveSignal(unsigned long client);
     /**
       The method take the alive signal of a client and updates the last action time.
 
@@ -323,7 +323,7 @@ public:
 
     ///
     /// open database
-    virtual unsigned short openDB( unsigned long callingClientId, const char* dbName, const char* userName );
+    virtual unsigned short openDB(unsigned long callingClientId, const char* dbName, const char* userName);
     /**
       The method opens the database with {\tt dbName}. The return value means the following:
 
@@ -336,7 +336,7 @@ public:
     */
 
     /// close current database
-    virtual unsigned short closeDB( unsigned long callingClientId );
+    virtual unsigned short closeDB(unsigned long callingClientId);
     /**
       The return value has the following meaning:
       \begin{tabular}{lll}
@@ -346,14 +346,14 @@ public:
     */
 
     /// create a database
-    virtual unsigned short createDB( char* name );
+    virtual unsigned short createDB(char* name);
 
     /// destroy a database
-    virtual unsigned short destroyDB( char* name );
+    virtual unsigned short destroyDB(char* name);
 
     ///
     /// open transaction
-    virtual unsigned short beginTA( unsigned long callingClientId, unsigned short readOnly=0 );
+    virtual unsigned short beginTA(unsigned long callingClientId, unsigned short readOnly = 0);
     /**
       The return value has the following meaning:
       \begin{tabular}{lll}
@@ -365,7 +365,7 @@ public:
 
 
     /// commit current transaction
-    virtual unsigned short commitTA( unsigned long callingClientId );
+    virtual unsigned short commitTA(unsigned long callingClientId);
     /**
       The return value has the following meaning:
       \begin{tabular}{lll}
@@ -376,7 +376,7 @@ public:
 
 
     /// abort current transaction
-    virtual unsigned short abortTA( unsigned long callingClientId );
+    virtual unsigned short abortTA(unsigned long callingClientId);
     /**
       The return value has the following meaning:
       \begin{tabular}{lll}
@@ -394,11 +394,11 @@ public:
       \end{tabular}
     */
 
-    virtual bool isTAOpen( unsigned long callingClientId );
+    virtual bool isTAOpen(unsigned long callingClientId);
 
     ///
     /// executes a retrieval query and prepares the result for transfer with \Ref{getNextMDD}.
-    virtual unsigned short executeQuery( unsigned long callingClientId, const char* query, ExecuteQueryRes &returnStructure );
+    virtual unsigned short executeQuery(unsigned long callingClientId, const char* query, ExecuteQueryRes& returnStructure);
     /**
       Executes a query and puts the result in the actual transfer collection.
       The first parameter is the unique client id
@@ -436,12 +436,12 @@ public:
 
     ///
     /// get the domain of the next MDD of the actual transfer collection
-    virtual unsigned short getNextMDD( unsigned long  callingClientId,
-                                       r_Minterval    &mddDomain,
-                                       char*          &typeName,
-                                       char*          &typeStructure,
-                                       r_OId          &oid,
-                                       unsigned short &currentFormat             );
+    virtual unsigned short getNextMDD(unsigned long  callingClientId,
+                                      r_Minterval&    mddDomain,
+                                      char*&          typeName,
+                                      char*&          typeStructure,
+                                      r_OId&          oid,
+                                      unsigned short& currentFormat);
     /**
       The Method gets the domain of the next MDD of the actual transfer collection.
       The first parameter is the unique client id. The second parameter returns the
@@ -458,17 +458,17 @@ public:
     */
 
     /// get the next scalar element in the actual transfer collection.
-    virtual unsigned short getNextElement( unsigned long callingClientId,
-                                           char*         &buffer,
-                                           unsigned int  &bufferSize);
-    
+    virtual unsigned short getNextElement(unsigned long callingClientId,
+                                          char*&         buffer,
+                                          unsigned int&  bufferSize);
+
     /**
      * Called by getNextElement to help handling of struct elements. It works
      * for nested structs as well. Only used in case endianess needs changing.
      */
     virtual void getNextStructElement(
-                                           char*         &buffer,
-                                           BaseType*     baseType);
+        char*&         buffer,
+        BaseType*     baseType);
     /**
       The Method gets the next non-MDD element in the actual transfer collection.
       The first parameter is the unique client id. The second parameter returns a
@@ -484,12 +484,12 @@ public:
     */
 
     /// get an MDD by OId
-    virtual unsigned short getMDDByOId( unsigned long  callingClientId,
-                                        r_OId          &oid,
-                                        r_Minterval    &mddDomain,
-                                        char*          &typeName,
-                                        char*          &typeStructure,
-                                        unsigned short &currentFormat );
+    virtual unsigned short getMDDByOId(unsigned long  callingClientId,
+                                       r_OId&          oid,
+                                       r_Minterval&    mddDomain,
+                                       char*&          typeName,
+                                       char*&          typeStructure,
+                                       unsigned short& currentFormat);
     /**
       The Method gets an MDD by OId {\tt oid}. If the MDD is found, it is initialized as transfer
       object and can be picked up by \Ref{getNextTile} calls (tile-based transfer).
@@ -515,8 +515,8 @@ public:
     */
 
     /// get next tile of the actual MDD of the actual transfer collection
-    virtual unsigned short getNextTile( unsigned long callingClientId,
-                                        RPCMarray**   rpcMarray );
+    virtual unsigned short getNextTile(unsigned long callingClientId,
+                                       RPCMarray**   rpcMarray);
     /**
       The Method gets the next tile of the actual MDD of the actual transfer collection.
       The first parameter is the unique client id. The second parameter is the
@@ -564,7 +564,7 @@ public:
     */
 
     /// process the client's alive signal
-    virtual unsigned short endTransfer( unsigned long client );
+    virtual unsigned short endTransfer(unsigned long client);
     /**
       The method terminates a transfer session and releases all transfer structures.
 
@@ -577,7 +577,7 @@ public:
 
     ///
     /// prepares transfer of MDD constants and execution of update query
-    virtual unsigned short initExecuteUpdate( unsigned long callingClientId );
+    virtual unsigned short initExecuteUpdate(unsigned long callingClientId);
     /**
       Return values:
       \begin{tabular}{lll}
@@ -601,7 +601,7 @@ public:
     */
 
     /// executes an update query
-    virtual unsigned short executeUpdate( unsigned long callingClientId, const char* query, ExecuteUpdateRes &returnStructure );
+    virtual unsigned short executeUpdate(unsigned long callingClientId, const char* query, ExecuteUpdateRes& returnStructure);
     /**
       Executes an update query.
       The first parameter is the unique client id
@@ -618,7 +618,7 @@ public:
     */
 
     // insert query returning results
-    virtual unsigned short executeInsert( unsigned long callingClientId, const char* query, ExecuteQueryRes &returnStructure );
+    virtual unsigned short executeInsert(unsigned long callingClientId, const char* query, ExecuteQueryRes& returnStructure);
     /**
       Executes a query and puts the result in the actual transfer collection.
       The first parameter is the unique client id
@@ -657,10 +657,10 @@ public:
 
     ///
     /// prepares an MDD (transient) for transfer of tiles
-    virtual unsigned short startInsertTransMDD( unsigned long callingClientId,
-            r_Minterval   &domain,
+    virtual unsigned short startInsertTransMDD(unsigned long callingClientId,
+            r_Minterval&   domain,
             unsigned long typeLength,
-            const char*   typeName );
+            const char*   typeName);
     /**
       Creates an object for tile based transfer with method \Ref{insertTile}.
 
@@ -680,12 +680,12 @@ public:
     */
 
     /// create a new persistent MDD object for tile based transfers
-    virtual unsigned short startInsertPersMDD( unsigned long callingClientId,
+    virtual unsigned short startInsertPersMDD(unsigned long callingClientId,
             const char*   collName,
             r_Minterval&  domain,
             unsigned long typeLength,
             const char*   typeName,
-            r_OId&        oid         );
+            r_OId&        oid);
     /**
       Creates an object for tile based transfer with method \Ref{insertTile} to be
       inserted into the specified MDD collection.
@@ -721,9 +721,9 @@ public:
     */
 
     /// insert a tile into a persistent MDD object
-    virtual unsigned short insertTile( unsigned long callingClientId,
-                                       int isPersistent,
-                                       RPCMarray* rpcMarray );
+    virtual unsigned short insertTile(unsigned long callingClientId,
+                                      int isPersistent,
+                                      RPCMarray* rpcMarray);
     /**
       Inserts a tile into the current MDD object.
 
@@ -746,10 +746,10 @@ public:
 
     // inserts a tile into a persistent MDD object splitting it up according to
     // parameter tileSize
-    virtual unsigned short insertTileSplitted( unsigned long callingClientId,
+    virtual unsigned short insertTileSplitted(unsigned long callingClientId,
             int isPersistent,
             RPCMarray* rpcMarray,
-            r_Minterval* tileSize );
+            r_Minterval* tileSize);
     /**
       Splits and inserts a tile into the current MDD object.
 
@@ -770,8 +770,8 @@ public:
     */
 
     /// finnishes the MDD creation and inserts the MDD into the collection
-    virtual unsigned short endInsertMDD( unsigned long callingClientId,
-                                         int isPersistent );
+    virtual unsigned short endInsertMDD(unsigned long callingClientId,
+                                        int isPersistent);
     /**
       Parameters
       \begin{tabular}{lll}
@@ -782,10 +782,10 @@ public:
 
     ///
     /// insert object into collection
-    virtual unsigned short insertMDD( unsigned long callingClientId,
-                                      const char* collName,
-                                      RPCMarray *rpcMarray,
-                                      const char* typeName, r_OId& oid );
+    virtual unsigned short insertMDD(unsigned long callingClientId,
+                                     const char* collName,
+                                     RPCMarray* rpcMarray,
+                                     const char* typeName, r_OId& oid);
     /**
       Inserts an object into an MDD collection. It is transfered in one piece.
 
@@ -812,11 +812,11 @@ public:
 
     ///
     /// prepare an MDD collection for transfer with getNextMDD()
-    virtual unsigned short getCollByName( unsigned long callingClientId,
-                                          const char*   collName,
-                                          char*         &typeName,
-                                          char*         &typeStructure,
-                                          r_OId         &oid             );
+    virtual unsigned short getCollByName(unsigned long callingClientId,
+                                         const char*   collName,
+                                         char*&         typeName,
+                                         char*&         typeStructure,
+                                         r_OId&         oid);
     /**
       ATTENTION: This function is not used at the moment. It hast
       to be adapted to transferData.
@@ -846,11 +846,11 @@ public:
     */
 
     /// prepare an MDD collection for transfer with getNextMDD()
-    virtual unsigned short getCollByOId( unsigned long callingClientId,
-                                         r_OId         &oid,
-                                         char*         &typeName,
-                                         char*         &typeStructure,
-                                         char*         &collName       );
+    virtual unsigned short getCollByOId(unsigned long callingClientId,
+                                        r_OId&         oid,
+                                        char*&         typeName,
+                                        char*&         typeStructure,
+                                        char*&         collName);
     /**
       ATTENTION: This function is not used at the moment. It hast
       to be adapted to transferData.
@@ -876,13 +876,13 @@ public:
     */
 
     /// gets oids of the collection specified by name
-    virtual unsigned short getCollOIdsByName( unsigned long callingClientId,
+    virtual unsigned short getCollOIdsByName(unsigned long callingClientId,
             const char*   collName,
-            char*         &typeName,
-            char*         &typeStructure,
-            r_OId         &oid,
-            RPCOIdEntry*  &oidTable,
-            unsigned int  &oidTableSize     );
+            char*&         typeName,
+            char*&         typeStructure,
+            r_OId&         oid,
+            RPCOIdEntry*&  oidTable,
+            unsigned int&  oidTableSize);
     /**
       Gets the collection of oids of the collection with {\tt collName}.
 
@@ -907,13 +907,13 @@ public:
     */
 
     /// gets oids of the collection specified by name
-    virtual unsigned short getCollOIdsByOId( unsigned long callingClientId,
-            r_OId         &oid,
-            char*         &typeName,
-            char*         &typeStructure,
-            RPCOIdEntry*  &oidTable,
-            unsigned int  &oidTableSize,
-            char*         &collName       );
+    virtual unsigned short getCollOIdsByOId(unsigned long callingClientId,
+                                            r_OId&         oid,
+                                            char*&         typeName,
+                                            char*&         typeStructure,
+                                            RPCOIdEntry*&  oidTable,
+                                            unsigned int&  oidTableSize,
+                                            char*&         collName);
     /**
       Gets the collection of oids of the collection with {\tt collName}.
 
@@ -939,10 +939,10 @@ public:
 
     ///
     /// create new MDD collection
-    virtual unsigned short insertColl( unsigned long callingClientId,
-                                       const char* collName,
-                                       const char* typeName,
-                                       r_OId&      oid       );
+    virtual unsigned short insertColl(unsigned long callingClientId,
+                                      const char* collName,
+                                      const char* typeName,
+                                      r_OId&      oid);
     /**
       Creates a new MDD collection.
 
@@ -965,8 +965,8 @@ public:
 
     ///
     /// delete MDD collection
-    virtual unsigned short deleteCollByName( unsigned long callingClientId,
-            const char* collName );
+    virtual unsigned short deleteCollByName(unsigned long callingClientId,
+                                            const char* collName);
     /**
       Deletes an MDD collection. The first parameter is the unique client id
       for which the collection should be deleted. The second parameter is the
@@ -981,7 +981,7 @@ public:
     */
 
     /// delete object by oid
-    virtual unsigned short deleteObjByOId( unsigned long callingClientId, r_OId& oid );
+    virtual unsigned short deleteObjByOId(unsigned long callingClientId, r_OId& oid);
     /**
       Deletes the object with {\tt oid}.
       The first parameter is the unique client id for which the object should be
@@ -997,8 +997,8 @@ public:
 
     ///
     /// remove object specified by oid from collection specified by name
-    virtual unsigned short removeObjFromColl( unsigned long callingClientId,
-            const char* collName, r_OId& oid );
+    virtual unsigned short removeObjFromColl(unsigned long callingClientId,
+            const char* collName, r_OId& oid);
     /**
       The method removes the object with {\\t oid} from collection with {\tt collName}.
       The first parameter is the unique client id for which the object should be removed.
@@ -1014,8 +1014,8 @@ public:
 
     ///
     /// get new object identifier
-    virtual unsigned short getNewOId( unsigned long callingClientId,
-                                      unsigned short objType, r_OId& oid );
+    virtual unsigned short getNewOId(unsigned long callingClientId,
+                                     unsigned short objType, r_OId& oid);
     /**
       Creates a new oid and gives it back by the refernce parameter {\tt oid}.
       {\tt objType} determines the type of object for which that oid is allocated. The folowing
@@ -1030,8 +1030,8 @@ public:
     */
 
     /// get type of object by oid
-    virtual unsigned short getObjectType( unsigned long callingClientId,
-                                          r_OId& oid, unsigned short &objType );
+    virtual unsigned short getObjectType(unsigned long callingClientId,
+                                         r_OId& oid, unsigned short& objType);
     /**
       Determines the type of the object indicated by {\tt oid}. The type is returned by the
       reference parameter {\tt objType}. The folowing types are supported: 1 = MDD,  2 = Collection.
@@ -1045,10 +1045,10 @@ public:
     */
 
     /// get type structure of a type name
-    virtual unsigned short getTypeStructure( unsigned long  callingClientId,
-            const char* typeName,
-            unsigned short typeType,
-            char* &typeStructure);
+    virtual unsigned short getTypeStructure(unsigned long  callingClientId,
+                                            const char* typeName,
+                                            unsigned short typeType,
+                                            char*& typeStructure);
     /**
       Determines the type structure of the type specified by {\tt typeName}. The type
     either can be a set type (typeType=1), an mdd type (typeType=2), or a base type
@@ -1063,8 +1063,8 @@ public:
          */
 
     /// set the data format used for transferring data to the client
-    virtual unsigned short setTransferMode( unsigned long callingClientId,
-                                            unsigned short format, const char* formatParams );
+    virtual unsigned short setTransferMode(unsigned long callingClientId,
+                                           unsigned short format, const char* formatParams);
     /**
     Sets the data format used by the server to transfer data to the client to
     format which is of type r_Data_Format.
@@ -1078,8 +1078,8 @@ public:
          */
 
     /// set the data format for storing data into the database
-    virtual unsigned short setStorageMode( unsigned long callingClientId,
-                                           unsigned short format, const char *formatParams );
+    virtual unsigned short setStorageMode(unsigned long callingClientId,
+                                          unsigned short format, const char* formatParams);
     /**
     return values exactly like setTransferMode()
         */
@@ -1087,7 +1087,7 @@ public:
     //@}
 
     /// returns a pointer to the context of the calling client, 0 it there is no context
-    virtual ClientTblElt* getClientContext( unsigned long ClientId );
+    virtual ClientTblElt* getClientContext(unsigned long ClientId);
     /**
       Returns a pointer to the context of the calling client. This is done by
       searching the client table maintained by the server for the given client id.
@@ -1098,7 +1098,7 @@ public:
     */
 
     // get, set and clear extended error info.
-    const char *getExtendedErrorInfo();
+    const char* getExtendedErrorInfo();
 
     void setExtendedErrorInfo(const char*);
 
@@ -1111,14 +1111,14 @@ public:
 
 private:
     /// copy constructor is private and therefore can not be used
-    ServerComm( const ServerComm& );//and then why this? : clientTimeout(3600), garbageCollectionInterval(600){;};
+    ServerComm(const ServerComm&);  //and then why this? : clientTimeout(3600), garbageCollectionInterval(600){;};
 
 protected:
     /// make sure a tile has the correct data format, converting if necessary
-    static int ensureTileFormat( r_Data_Format &hasFmt, r_Data_Format needFmt,
-                                 const r_Minterval &dom, const BaseType *type,
-                                 char *&data, r_Bytes &size, int repack,
-                                 int owner, const char *params = NULL);
+    static int ensureTileFormat(r_Data_Format& hasFmt, r_Data_Format needFmt,
+                                const r_Minterval& dom, const BaseType* type,
+                                char*& data, r_Bytes& size, int repack,
+                                int owner, const char* params = NULL);
     ///returns the following:
     static const int ENSURE_TILE_FORMAT_OK;
     static const int ENSURE_TILE_FORMAT_BAD;
@@ -1126,7 +1126,7 @@ protected:
     /// pointer to the actual administration interface object
     AdminIf* admin;
 
-    char *errorText;
+    char* errorText;
 
     unsigned long listenPort;
     char*         rasmgrHost;
@@ -1140,7 +1140,7 @@ protected:
 
 
 /// indirect caller for rpcif_1
-void rpcif_1_caller(struct svc_req *rqstp,SVCXPRT *transp);
+void rpcif_1_caller(struct svc_req* rqstp, SVCXPRT* transp);
 
 
 /******************************************************************************************
@@ -1153,8 +1153,8 @@ class AccessControl
 public:
     AccessControl();
     ~AccessControl();
-    void initSyncro(const char *);
-    void setServerName(const char *serverName);
+    void initSyncro(const char*);
+    void setServerName(const char* serverName);
 
     void resetForNewClient();
     int  crunchCapability(const char*);
@@ -1166,7 +1166,7 @@ public:
     void wantToWrite();
     bool isClient();
 private:
-    int messageDigest(const char *input,char *output,const char *mdName);
+    int messageDigest(const char* input, char* output, const char* mdName);
     double initDeltaT;
     char serverName[100];
 

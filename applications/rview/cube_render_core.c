@@ -32,31 +32,31 @@ rasdaman GmbH.
  *          No comments
  */
 
-static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
+static void RENDER_CORE_NAME(int faceNo, render_desc* renderDesc)
 {
-    graph_env *ge;
-    tex_desc *td;
-    face *cface;
+    graph_env* ge;
+    tex_desc* td;
+    face* cface;
     real_t zpro;
     int line, width, i;
-    uint8 *destBase;
+    uint8* destBase;
 #if (TEXEL_BSIZE == 3)
-    uint8 *auxPtr;
+    uint8* auxPtr;
 #endif
 #if (TEXEL_BSIZE == 8)
-    uint32 *auxPtr;
+    uint32* auxPtr;
 #endif
     union
     {
-        uint8 *c;
-        uint16 *s;
-        uint32 *l;
+        uint8* c;
+        uint16* s;
+        uint32* l;
     } texture;
     union
     {
-        uint8 *c;
-        uint16 *s;
-        uint32 *l;
+        uint8* c;
+        uint16* s;
+        uint32* l;
     } dest;
 #if (TEXEL_BSIZE < 3)
     register uint32 accu_t;
@@ -66,7 +66,7 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
     int dimy, dimz, dimyz;
     real_t nom, den, h, dn, dd;
 #if (CUBE_RENDER_DEBUG > 0)
-    uint8 *high_tide_dest;
+    uint8* high_tide_dest;
     unsigned int high_tide_src;
 #endif
 
@@ -77,7 +77,7 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
 
 #if (CUBE_RENDER_DEBUG > 0)
     high_tide_dest = (uint8*)(ge->dest) + (ge->clipu - ge->clipd + 1) * (ge->lineadd);
-    high_tide_src = (renderDesc->texDesc->dimx)*(renderDesc->texDesc->dimy)*(renderDesc->texDesc->dimz);
+    high_tide_src = (renderDesc->texDesc->dimx) * (renderDesc->texDesc->dimy) * (renderDesc->texDesc->dimz);
 
     printf("Render face %d (%d, %d, %d, %d)\n",
            faceNo, cface->bBox.minx, cface->bBox.miny, cface->bBox.maxx, cface->bBox.maxy);
@@ -87,7 +87,7 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
         fflush(stdout);
     }
 #endif
-    destBase = (uint8*)(ge->dest) + (ge->midy - cface->bBox.maxy)*(ge->lineadd) + (ge->midx * renderDesc->texDesc->baseSize);
+    destBase = (uint8*)(ge->dest) + (ge->midy - cface->bBox.maxy) * (ge->lineadd) + (ge->midx * renderDesc->texDesc->baseSize);
     dimy = renderDesc->texDesc->dimy;
     dimz = renderDesc->texDesc->dimz;
     dimyz = dimy * dimz;
@@ -98,10 +98,16 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
     for (line = cface->bBox.maxy; line >= cface->bBox.miny; line--, destBase += renderDesc->graphEnv->lineadd)
     {
         RenderCubeGetScanline(line, faceNo, renderDesc, 1);
-        if (renderDesc->found == 0) continue;
+        if (renderDesc->found == 0)
+        {
+            continue;
+        }
 
         /* First trap case where everything lies outside (in theory this can happen for some lines) */
-        if ((renderDesc->left_p > ge->clipr) || (renderDesc->right_p < ge->clipl)) continue;
+        if ((renderDesc->left_p > ge->clipr) || (renderDesc->right_p < ge->clipl))
+        {
+            continue;
+        }
 
         /* Left clipping; essentially this shouldn't be (and usually isn't) necessary because we
            already clipped the left border in the main procedure, but rounding errors could still
@@ -118,7 +124,10 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
 
         dest.c = destBase + (renderDesc->left_p) * TEXEL_BSIZE;
         width = renderDesc->right_p - renderDesc->left_p + 1;
-        if (width <= 0) continue;
+        if (width <= 0)
+        {
+            continue;
+        }
         /* Compute deltaLR_g and deltaLR_t components */
         deltaLR_g.x = renderDesc->right_g.x - left_g->x;
         deltaLR_g.y = renderDesc->right_g.y - left_g->y;
@@ -145,9 +154,9 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
 #undef TEXEL_FETCH
 #undef TEXEL_STEP
 #define TEXEL_FETCH \
-  TEXEL_POINTER[((ty >> FIXPOINT_PREC) * dimz + (tz >> FIXPOINT_PREC)) * TEXEL_MULTIPLIER]
+    TEXEL_POINTER[((ty >> FIXPOINT_PREC) * dimz + (tz >> FIXPOINT_PREC)) * TEXEL_MULTIPLIER]
 #define TEXEL_STEP \
-  ty += dty; tz += dtz;
+    ty += dty; tz += dtz;
 #define TEXEL_CONST_X
 
             texture.c = (uint8*)(renderDesc->texDesc->data) + (tx >> FIXPOINT_PREC) * dimyz * TEXEL_BSIZE;
@@ -159,9 +168,9 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
 #undef TEXEL_FETCH
 #undef TEXEL_STEP
 #define TEXEL_FETCH \
-  TEXEL_POINTER[((tx >> FIXPOINT_PREC) * dimyz + (tz >> FIXPOINT_PREC)) * TEXEL_MULTIPLIER]
+    TEXEL_POINTER[((tx >> FIXPOINT_PREC) * dimyz + (tz >> FIXPOINT_PREC)) * TEXEL_MULTIPLIER]
 #define TEXEL_STEP \
-  tx += dtx; tz += dtz;
+    tx += dtx; tz += dtz;
 #define TEXEL_CONST_Y
 
             texture.c = (uint8*)(renderDesc->texDesc->data) + (ty >> FIXPOINT_PREC) * dimz * TEXEL_BSIZE;
@@ -173,9 +182,9 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
 #undef TEXEL_FETCH
 #undef TEXEL_STEP
 #define TEXEL_FETCH \
-  TEXEL_POINTER[(((tx >> FIXPOINT_PREC) * dimy + (ty >> FIXPOINT_PREC)) * dimz) * TEXEL_MULTIPLIER]
+    TEXEL_POINTER[(((tx >> FIXPOINT_PREC) * dimy + (ty >> FIXPOINT_PREC)) * dimz) * TEXEL_MULTIPLIER]
 #define TEXEL_STEP \
-  tx += dtx; ty += dty;
+    tx += dtx; ty += dty;
 #define TEXEL_CONST_Z
 
             texture.c = (uint8*)(renderDesc->texDesc->data) + (tz >> FIXPOINT_PREC) * TEXEL_BSIZE;
@@ -187,9 +196,9 @@ static void RENDER_CORE_NAME (int faceNo, render_desc *renderDesc)
 #undef TEXEL_FETCH
 #undef TEXEL_STEP
 #define TEXEL_FETCH \
-  TEXEL_POINTER[(((tx >> FIXPOINT_PREC) * dimy + (ty >> FIXPOINT_PREC)) * dimz + (tz >> FIXPOINT_PREC)) * TEXEL_MULTIPLIER]
+    TEXEL_POINTER[(((tx >> FIXPOINT_PREC) * dimy + (ty >> FIXPOINT_PREC)) * dimz + (tz >> FIXPOINT_PREC)) * TEXEL_MULTIPLIER]
 #define TEXEL_STEP \
-  tx += dtx; ty += dty; tz += dtz;
+    tx += dtx; ty += dty; tz += dtz;
 
             texture.c = (uint8*)(renderDesc->texDesc->data);
 #include "cube_render_line.c"

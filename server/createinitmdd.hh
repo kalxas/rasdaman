@@ -56,16 +56,16 @@ rasdaman GmbH.
 class FastCollectionCreator
 {
 public:
-    FastCollectionCreator(const char *collName, const char* collTypeName);
+    FastCollectionCreator(const char* collName, const char* collTypeName);
 
     r_OId createCollection();
 
 private:
     // allow only [A-Z,a-z,_]
-    void verifyName( const char* name ) throw(r_Error);
+    void verifyName(const char* name) throw(r_Error);
 
-    const char *collectionName;
-    const char *collectionTypeName;
+    const char* collectionName;
+    const char* collectionTypeName;
 
 };
 
@@ -79,17 +79,17 @@ public:
     FastMDDCreator();
     ~FastMDDCreator();
 
-    void  setCollectionName(const char *collName);
+    void  setCollectionName(const char* collName);
     void  setMDDTypeName(const char* mddTypeName);
 
-    r_OId createMDD(const char *domain);
-    r_OId createRCxMDD(const char *domain, const char *tileDomain);
+    r_OId createMDD(const char* domain);
+    r_OId createRCxMDD(const char* domain, const char* tileDomain);
 
-    void addStripe(r_OId mddOId, const char *stripeDomain, const char *tileDomain);
+    void addStripe(r_OId mddOId, const char* stripeDomain, const char* tileDomain);
 
-    vector<r_Minterval> getTileDomains(r_OId mddOId, const char *stripeDomain);
+    vector<r_Minterval> getTileDomains(r_OId mddOId, const char* stripeDomain);
 private:
-    void verifyCompatibility(MDDColl *collection) throw(r_Error);
+    void verifyCompatibility(MDDColl* collection) throw(r_Error);
 
     void createCompressedTileData(r_Minterval&, const BaseType* baseType);
 
@@ -99,15 +99,15 @@ private:
     r_Minterval definitionInterval;
 
     r_Data_Format storageFormat;
-    const char *formatParams;
+    const char* formatParams;
 
     r_OId mddOId;
     int   cellSize;
 
-    char *comprData;
+    char* comprData;
     int   comprDataSize;
 
-    MDDObj      *mymdd;
+    MDDObj*      mymdd;
 };
 
 #endif

@@ -42,7 +42,7 @@ rasdaman GmbH.
 extern unsigned long maxTransferBufferSize = 4000000;
 bool udfEnabled = true;
 extern char* dbSchema = 0;
-extern int   noTimeOut= 0;
+extern int   noTimeOut = 0;
 
 #include <iostream>      // cout
 #include <vector>
@@ -65,13 +65,13 @@ extern int   noTimeOut= 0;
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddcolliter.hh"
 
-char globalConnectId[256]="RASBASE";
+char globalConnectId[256] = "RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
 
 // init globals for server initialization
 
-extern int   yyparse(void *);
+extern int   yyparse(void*);
 extern char* myExecArgv0 = "";
 extern int   globalOptimizationLevel = 4;
 extern char* beginParseString;
@@ -85,24 +85,30 @@ extern int loadopt = 0;
 extern QueryTree* parseQueryTree;
 
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
     FILE*  inFile;
     char   baseName[255];
@@ -113,7 +119,7 @@ int main( int argc, char** argv )
     int    optionValueIndex;
     int    noOutput;
 
-    if( checkArguments( argc, argv, "-h", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-h", optionValueIndex))
     {
         cout << "Usage: test_evaluate basename queryfile [options]" << endl;
         cout << "Options: -h             ... this help" << endl;
@@ -129,18 +135,18 @@ int main( int argc, char** argv )
         return 0;
     }
 
-    strcpy( baseName, "RASBASE" );
+    strcpy(baseName, "RASBASE");
 
-    inFile = fopen( "query", "r" );
+    inFile = fopen("query", "r");
 
-    if( inFile == NULL )
+    if (inFile == NULL)
     {
         cout << "Error opening query file " << argv[2] << endl;
         return -1;
     }
 
-    fread( &query, 1, 4095, inFile );
-    fclose( inFile );
+    fread(&query, 1, 4095, inFile);
+    fclose(inFile);
 
     cout << endl << "Query:" << endl << endl << query << endl;
 
@@ -160,7 +166,7 @@ int main( int argc, char** argv )
 
     // connect to the database
     cout << "Opening database " << baseName << "... " << flush;
-    db.open( baseName );
+    db.open(baseName);
     cout << "OK" << endl;
 
     cout << "Starting transaction ... " << flush;
@@ -176,16 +182,18 @@ int main( int argc, char** argv )
 
     parseQueryTree = new QueryTree();   // create a query tree object...
 
-    if( timeTest )
-        gettimeofday (&startTime, &tzp);
+    if (timeTest)
+    {
+        gettimeofday(&startTime, &tzp);
+    }
 
     RMInit::logOut << "Parsing..." << flush;
 
-    if( yyparse(NULL) == 0 )
+    if (yyparse(NULL) == 0)
     {
         RMInit::logOut << "OK" << endl << endl;
 
-        parseQueryTree->printTree( 2, RMInit::logOut );
+        parseQueryTree->printTree(2, RMInit::logOut);
         RMInit::logOut << endl;
 
         parseQueryTree->getRoot()->printAlgebraicExpression();
@@ -199,7 +207,7 @@ int main( int argc, char** argv )
         {
             transColl = parseQueryTree->evaluateRetrieval();
         }
-        catch( ParseInfo& info )
+        catch (ParseInfo& info)
         {
             RMInit::logOut << endl << "Query Execution Error" << endl;
             info.printStatus();
@@ -210,11 +218,11 @@ int main( int argc, char** argv )
 
         RMInit::logOut << "OK" << endl << endl;
 
-        if( timeTest )
+        if (timeTest)
         {
             gettimeofday(&stopTime, &tzp);
 
-            if(startTime.tv_usec > stopTime.tv_usec)
+            if (startTime.tv_usec > stopTime.tv_usec)
             {
                 stopTime.tv_usec += 1000000;
                 stopTime.tv_sec--;
@@ -232,11 +240,11 @@ int main( int argc, char** argv )
 
         cout << "The result collection has " << collNum << " entries." << endl;
 
-        if( transColl != 0 && !noOutput )
+        if (transColl != 0 && !noOutput)
         {
             int i;
 
-            for( transIter = transColl->begin(), i=0; transIter != transColl->end(); transIter++, i++ )
+            for (transIter = transColl->begin(), i = 0; transIter != transColl->end(); transIter++, i++)
             {
                 QtData* mddObj = *transIter;
 

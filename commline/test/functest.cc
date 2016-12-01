@@ -30,7 +30,7 @@ using std::endl;
 
 int main()
 {
-    CommandLineParser &cmlp = CommandLineParser::getInstance();
+    CommandLineParser& cmlp = CommandLineParser::getInstance();
 
     try
     {
@@ -39,10 +39,10 @@ int main()
         cmlp.addFlagParameter('s', NULL, "use server for crushing system");
 
         cmlp.addStringParameter('u', "user", "<name> user name\n\t\tcucubau", "rasguest");
-        cmlp.addStringParameter( CommandLineParser::noShortName, "passwd", "<password> user password", "rasguest");
+        cmlp.addStringParameter(CommandLineParser::noShortName, "passwd", "<password> user password", "rasguest");
         cmlp.addStringParameter('d', CommandLineParser::noLongName, "<databasename> database name");
     }
-    catch(CmlException e)
+    catch (CmlException e)
     {
         cout << "Error defining options:" << endl;
         cout << e.what() << endl;

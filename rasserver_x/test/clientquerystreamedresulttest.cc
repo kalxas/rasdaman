@@ -16,7 +16,7 @@ TEST(ClientQueryStreamedResultTest, streamSmallSize)
         data[i] = (char)i;
     }
 
-    ClientQueryStreamedResult *result = new ClientQueryStreamedResult(data, dataSize, "");
+    ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, "");
     std::pair<int, char*> nextChunk = result->getNextChunk();
     ASSERT_EQ(nextChunk.first, dataSize);
     ASSERT_EQ(result->getRemainingBytesLength(), 0);
@@ -37,7 +37,7 @@ TEST(ClientQueryStreamedResultTest, streamBigSize)
         data[i] = (char)i;
     }
 
-    ClientQueryStreamedResult *result = new ClientQueryStreamedResult(data, dataSize, "");
+    ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, "");
     std::pair<int, char*> nextChunk = result->getNextChunk();
     ASSERT_EQ(nextChunk.first, ClientQueryStreamedResult::CHUNK_SIZE);
     ASSERT_EQ(result->getRemainingBytesLength(), dataSize - ClientQueryStreamedResult::CHUNK_SIZE);
@@ -65,7 +65,7 @@ TEST(ClientQueryStreamedResultTest, testZeroSize)
 
     char* data = new char[dataSize];
 
-    ClientQueryStreamedResult *result = new ClientQueryStreamedResult(data, dataSize, "");
+    ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, "");
     std::pair<int, char*> nextChunk = result->getNextChunk();
     ASSERT_EQ(nextChunk.first, 0);
     ASSERT_EQ(data, nextChunk.second);

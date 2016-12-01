@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class WMSInvalidDimensionalityException extends WMSException{
+public class WMSInvalidDimensionalityException extends WMSException {
 
     public WMSInvalidDimensionalityException(String dimensionality) {
         super(ERROR_MESSAGE.replace(DIMENSIONALITY_TOKEN, dimensionality));

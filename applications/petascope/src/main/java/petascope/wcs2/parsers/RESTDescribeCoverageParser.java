@@ -48,7 +48,7 @@ public class RESTDescribeCoverageParser extends RESTParser<DescribeCoverageReque
         ret.getCoverageIds().add(rUrl.getByIndex(RESTDescribeCoverageParser.COVERAGE_ID_PLACE).fst);
         if (null == ret.getCoverageIds() || ret.getCoverageIds().isEmpty()) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A DescribeCoverage request must specify at least one " + KEY_COVERAGEID + ".");
+                                   "A DescribeCoverage request must specify at least one " + KEY_COVERAGEID + ".");
         }
         return ret;
     }

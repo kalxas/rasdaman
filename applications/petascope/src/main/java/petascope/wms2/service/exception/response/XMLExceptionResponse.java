@@ -49,7 +49,7 @@ public class XMLExceptionResponse extends ExceptionResponse {
             return result.getBytes(getDefaultEncoding());
         } catch (Exception e) {
             throw new IllegalArgumentException("The serializer was not initialized correctly. Please check that a template exists"
-                    + "in $CATALINA_HOME/webapps/rasdaman/WEB-INF/classes/templates/wms/WMSException.tpl.xml");
+                                               + "in $CATALINA_HOME/webapps/rasdaman/WEB-INF/classes/templates/wms/WMSException.tpl.xml");
         }
     }
 }

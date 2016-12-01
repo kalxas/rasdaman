@@ -23,7 +23,7 @@ rasdaman GmbH.
 /** ***********************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  * COMMENTS:
@@ -43,91 +43,82 @@ import rasj.*;
  *
  * @author Peter Zoller
  */
-public class RasDatabase implements Database
-{
+public class RasDatabase implements Database {
     /**
-     * This variable holds a reference to the RasODMGImplementation object which created 
+     * This variable holds a reference to the RasODMGImplementation object which created
      * this RasDatabase object
      */
     //private RasODMGImplementation rasImplementation=null;
-    private RasImplementationInterface rasImplementation=null;
- 
-    public RasDatabase(RasImplementationInterface imp)
-      { 
-        Debug.enterVerbose( "RasDatabase.constructor start." );
-        rasImplementation=imp;
-        Debug.leaveVerbose( "RasDatabase.constructor done." );
-      }
+    private RasImplementationInterface rasImplementation = null;
+
+    public RasDatabase(RasImplementationInterface imp) {
+        Debug.enterVerbose("RasDatabase.constructor start.");
+        rasImplementation = imp;
+        Debug.leaveVerbose("RasDatabase.constructor done.");
+    }
 
     /**
-     * Opens a database on the RasDaMan server ( which has been specified when the 
+     * Opens a database on the RasDaMan server ( which has been specified when the
      * RasODMG bootstrap object has been initialized).
      *
      * @param name Name of the database
      * @param accessMode access mode. Available options: OPEN_READ_ONLY, OPEN_READ_WRITE, OPEN_EXCLUSIVE
      */
-    public void open(String name, int accessMode) throws ODMGException
-      {
-        Debug.enterVerbose( "RasDatabase.open start. name=" + name + ", accessmode=" + accessMode + "." );
-        rasImplementation.openDB(name,accessMode);
-        Debug.leaveVerbose( "RasDatabase.open done." );
-      }
+    public void open(String name, int accessMode) throws ODMGException {
+        Debug.enterVerbose("RasDatabase.open start. name=" + name + ", accessmode=" + accessMode + ".");
+        rasImplementation.openDB(name, accessMode);
+        Debug.leaveVerbose("RasDatabase.open done.");
+    }
 
     /**
      * Closes an open database. At the moment, only one database can be open at
      * a given time and thus no parameter "database" is necessary here.
      */
-    public void close() throws ODMGException
-      {
-        Debug.enterVerbose( "RasDatabase.close start." );
-	rasImplementation.closeDB();	
-        Debug.leaveVerbose( "RasDatabase.close done." );
-      }
+    public void close() throws ODMGException {
+        Debug.enterVerbose("RasDatabase.close start.");
+        rasImplementation.closeDB();
+        Debug.leaveVerbose("RasDatabase.close done.");
+    }
 
     /**
      * Not implemented yet.
      */
-    public void bind(Object object, String name) throws ObjectNameNotUniqueException
-      {
-        Debug.talkCritical( "RasDatabase.bind: not yet implemented." );
-	throw new NotImplementedException();
-      }
+    public void bind(Object object, String name) throws ObjectNameNotUniqueException {
+        Debug.talkCritical("RasDatabase.bind: not yet implemented.");
+        throw new NotImplementedException();
+    }
 
     /**
      * Not implemented yet.
      */
-    public Object lookup(String name) throws ObjectNameNotFoundException
-      {
-        Debug.talkCritical( "RasDatabase.lookup: not yet implemented." );
-	throw new NotImplementedException();
-      }
+    public Object lookup(String name) throws ObjectNameNotFoundException {
+        Debug.talkCritical("RasDatabase.lookup: not yet implemented.");
+        throw new NotImplementedException();
+    }
 
     /**
      * Not implemented yet.
      */
-    public void unbind(String name) throws ObjectNameNotFoundException
-      {
-        Debug.talkCritical( "RasDatabase.unbind: not yet implemented." );
-	throw new NotImplementedException();
-      }
+    public void unbind(String name) throws ObjectNameNotFoundException {
+        Debug.talkCritical("RasDatabase.unbind: not yet implemented.");
+        throw new NotImplementedException();
+    }
 
     /**
      * Not implemented yet.
      */
-    public void makePersistent(Object object)
-      {
-        Debug.talkCritical( "RasDatabase.makePersistent: not yet implemented." );
-	throw new NotImplementedException();
-      }
+    public void makePersistent(Object object) {
+        Debug.talkCritical("RasDatabase.makePersistent: not yet implemented.");
+        throw new NotImplementedException();
+    }
 
     /**
      * Not implemented yet.
      */
-    public void deletePersistent(Object object)
-      {
-        Debug.talkCritical( "RasDatabase.deletePersistent: not yet implemented." );
-	throw new NotImplementedException();
-      }
+    public void deletePersistent(Object object) {
+        Debug.talkCritical("RasDatabase.deletePersistent: not yet implemented.");
+        throw new NotImplementedException();
+    }
 
 }
 

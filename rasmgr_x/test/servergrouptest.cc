@@ -60,14 +60,14 @@ using rasmgr::test::TestUtil;
 using rasmgr::ServerGroupConfigProto;
 using rasmgr::ServerFactory;
 
-class ServerGroupTest:public ::testing::Test
+class ServerGroupTest: public ::testing::Test
 {
 protected:
     ServerGroupTest()
     {
         this->dbHostManager.reset(new DatabaseHostManagerMock());
         this->serverFactory.reset(new ServerFactoryMock());
-        this->dbHost.reset(new rasmgr::DatabaseHost("dbHost","connect","",""));
+        this->dbHost.reset(new rasmgr::DatabaseHost("dbHost", "connect", "", ""));
         this->server.reset(new MockRasServer());
     }
 
@@ -94,47 +94,47 @@ TEST_F(ServerGroupTest, constructorValidation)
 
     ServerGroupConfigProto groupConfig;
 
-    if(hasName)
+    if (hasName)
     {
         groupConfig.set_name("groupName");
     }
 
-    if(hasHost)
+    if (hasHost)
     {
         groupConfig.set_host("host");
     }
 
-    if(hasDbHost)
+    if (hasDbHost)
     {
         groupConfig.set_db_host("dbHost");
     }
 
-    if(hasPorts)
+    if (hasPorts)
     {
         groupConfig.add_ports(2034);
     }
 
-    if(hasAliveServers)
+    if (hasAliveServers)
     {
         groupConfig.set_min_alive_server_no(20);
     }
 
-    if(hasAvailableServers)
+    if (hasAvailableServers)
     {
         groupConfig.set_min_available_server_no(102);
     }
 
-    if(hasMaxServers)
+    if (hasMaxServers)
     {
         groupConfig.set_max_idle_server_no(21);
     }
 
-    if(hasAutoRestart)
+    if (hasAutoRestart)
     {
         groupConfig.set_autorestart(TestUtil::randomBool());
     }
 
-    if(hasSessionCount)
+    if (hasSessionCount)
     {
         groupConfig.set_countdown(123);
     }
@@ -143,9 +143,9 @@ TEST_F(ServerGroupTest, constructorValidation)
     ServerGroupImpl* group;
 
     // If one of these properties is not set, an exception shoulb be thrown
-    if(!hasName || !hasHost || !hasDbHost || !hasPorts)
+    if (!hasName || !hasHost || !hasDbHost || !hasPorts)
     {
-        ASSERT_ANY_THROW(group=new ServerGroupImpl(groupConfig, this->dbHostManager, this->serverFactory));
+        ASSERT_ANY_THROW(group = new ServerGroupImpl(groupConfig, this->dbHostManager, this->serverFactory));
     }
     else
     {
@@ -155,7 +155,7 @@ TEST_F(ServerGroupTest, constructorValidation)
         DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
         EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
-        ASSERT_NO_THROW(group=new ServerGroupImpl(groupConfig, this->dbHostManager, this->serverFactory));
+        ASSERT_NO_THROW(group = new ServerGroupImpl(groupConfig, this->dbHostManager, this->serverFactory));
         ASSERT_TRUE(group->isStopped());
 
         ASSERT_EQ(groupConfig.name(), group->getConfig().name());
@@ -164,7 +164,7 @@ TEST_F(ServerGroupTest, constructorValidation)
         ASSERT_EQ(groupConfig.ports_size(), group->getConfig().ports_size());
         ASSERT_EQ(rasmgr::STARTING_SERVER_LIFETIME, group->getConfig().starting_server_lifetime());
 
-        if(hasAliveServers)
+        if (hasAliveServers)
         {
             ASSERT_EQ(groupConfig.min_alive_server_no(), group->getConfig().min_alive_server_no());
         }
@@ -173,7 +173,7 @@ TEST_F(ServerGroupTest, constructorValidation)
             ASSERT_EQ(rasmgr::MIN_ALIVE_SERVER_NO, group->getConfig().min_alive_server_no());
         }
 
-        if(hasAvailableServers)
+        if (hasAvailableServers)
         {
             ASSERT_EQ(groupConfig.min_available_server_no(), group->getConfig().min_available_server_no());
         }
@@ -182,7 +182,7 @@ TEST_F(ServerGroupTest, constructorValidation)
             ASSERT_EQ(rasmgr::MIN_AVAILABLE_SERVER_NO, group->getConfig().min_available_server_no());
         }
 
-        if(hasMaxServers)
+        if (hasMaxServers)
         {
             ASSERT_EQ(groupConfig.max_idle_server_no(), group->getConfig().max_idle_server_no());
         }
@@ -191,7 +191,7 @@ TEST_F(ServerGroupTest, constructorValidation)
             ASSERT_EQ(rasmgr::MAX_IDLE_SERVER_NO, group->getConfig().max_idle_server_no());
         }
 
-        if(hasAutoRestart)
+        if (hasAutoRestart)
         {
             ASSERT_EQ(groupConfig.autorestart(), group->getConfig().autorestart());
         }
@@ -200,7 +200,7 @@ TEST_F(ServerGroupTest, constructorValidation)
             ASSERT_EQ(rasmgr::AUTORESTART_SERVER, group->getConfig().autorestart());
         }
 
-        if(hasSessionCount)
+        if (hasSessionCount)
         {
             ASSERT_EQ(groupConfig.countdown(), group->getConfig().countdown());
         }
@@ -307,13 +307,13 @@ TEST_F(ServerGroupTest, stopFailure)
     ServerGroupImpl group(groupConfig, this->dbHostManager, this->serverFactory);
 
     //If the server group is not started, nothing bad should happen.
-    KillLevel force= FORCE;
+    KillLevel force = FORCE;
     ASSERT_ANY_THROW(group.stop(force));
 }
 
 TEST_F(ServerGroupTest, stop)
 {
-    KillLevel force= FORCE;
+    KillLevel force = FORCE;
     boost::int32_t startingPort = 2034;
     boost::int32_t runningPort = 2035;
 

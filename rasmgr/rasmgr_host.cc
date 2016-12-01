@@ -54,18 +54,18 @@ typedef unsigned long r_Ptr;
 // function prototype with C linkage
 //extern "C" int gethostname(char *name, int namelen);
 
-extern bool hostCmp( const char *h1, const char *h2);
+extern bool hostCmp(const char* h1, const char* h2);
 
 
 ServerHost::ServerHost()
 {
-    hostName[0]=0;
-    netwName[0]=0;
+    hostName[0] = 0;
+    netwName[0] = 0;
     setNotUp();
-    isinternal=false;
-    valid=false;
-    startedServers=0;
-    isuseLocalHost=true;
+    isinternal = false;
+    valid = false;
+    startedServers = 0;
+    isuseLocalHost = true;
     //LDEBUG << "ServerHost::ServerHost(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid;
 }
 
@@ -99,38 +99,38 @@ bool  ServerHost::isInternal()
     return isinternal;
 }
 
-void  ServerHost::init(const char* newHostName,const char* newNetwName,int newListenPort,bool newIsinternal)
+void  ServerHost::init(const char* newHostName, const char* newNetwName, int newListenPort, bool newIsinternal)
 {
-    strcpy(this->hostName,newHostName);
-    strcpy(this->netwName,newNetwName);
+    strcpy(this->hostName, newHostName);
+    strcpy(this->netwName, newNetwName);
 
-    this->listenPort=newListenPort;
-    this->isinternal=newIsinternal;
+    this->listenPort = newListenPort;
+    this->isinternal = newIsinternal;
 
     isup = newIsinternal;
 
-    valid=true;
+    valid = true;
     LDEBUG << "ServerHost::init(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid;
 }
 
-char* ServerHost::getDescriptionHeader(char *destBuffer)
+char* ServerHost::getDescriptionHeader(char* destBuffer)
 {
-    sprintf(destBuffer,"    %-10s %-32s  %-4s  %-4s   %-10s  ulh","Host Name","Netw. Addr","Port","Stat","Servers");
+    sprintf(destBuffer, "    %-10s %-32s  %-4s  %-4s   %-10s  ulh", "Host Name", "Netw. Addr", "Port", "Stat", "Servers");
     return destBuffer;
 }
-char* ServerHost::getDescription(char *destBuffer)
+char* ServerHost::getDescription(char* destBuffer)
 {
-    const char* sUp= isup ? "UP  ":"DOWN";
-    const char* uLh= " -";
+    const char* sUp = isup ? "UP  " : "DOWN";
+    const char* uLh = " -";
     long lPort = listenPort;
 
-    if(isinternal)
+    if (isinternal)
     {
-        uLh = useLocalHost() ? "on":"off";
+        uLh = useLocalHost() ? "on" : "off";
         lPort = config.getListenPort();
     }
 
-    sprintf(destBuffer,"%-10s %-32s  %4ld  %-4s  %2d   %s",hostName,netwName,lPort,sUp,startedServers,uLh);
+    sprintf(destBuffer, "%-10s %-32s  %4ld  %-4s  %2d   %s", hostName, netwName, lPort, sUp, startedServers, uLh);
 
     return destBuffer;
 }
@@ -143,49 +143,51 @@ bool ServerHost::isUp()
 bool  ServerHost::downHost()
 {
     // you can't stop the master with this
-    if(isinternal)
+    if (isinternal)
+    {
         return false;
+    }
 
-    int socket=getConnectionSocket();
+    int socket = getConnectionSocket();
 
-    if(socket<0)
+    if (socket < 0)
     {
         setNotUp();
         //close(socket);
         return false;
     }
 
-    const char *text="POST downhost HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\n\r\nRasMGR";
+    const char* text = "POST downhost HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\n\r\nRasMGR";
 
-    int nbytes=write(socket,text,strlen(text)+1);
+    int nbytes = write(socket, text, strlen(text) + 1);
 
-    isup=false;
+    isup = false;
 
     return true;
 }
 
 bool ServerHost::checkStatus()
 {
-    if(isinternal)
+    if (isinternal)
     {
-        isup=true;
+        isup = true;
         return true;
     }
 
-    int socket=getConnectionSocket();
+    int socket = getConnectionSocket();
 
-    if(socket<0)
+    if (socket < 0)
     {
         setNotUp();
         //close(socket);
         LDEBUG << "ServerHost::checkStatus() -> false (no socket)";
         return false;
     }
-    const char *text="POST getstatus HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\n\r\nRasMGR";
+    const char* text = "POST getstatus HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\n\r\nRasMGR";
 
-    int nbytes=write(socket,text,strlen(text)+1);
+    int nbytes = write(socket, text, strlen(text) + 1);
 
-    if(nbytes<0)
+    if (nbytes < 0)
     {
         setNotUp();
         close(socket);
@@ -194,17 +196,17 @@ bool ServerHost::checkStatus()
     }
 
     char message[200];
-    nbytes=read(socket,message,200);
+    nbytes = read(socket, message, 200);
     close(socket);
-    if(nbytes<0)
+    if (nbytes < 0)
     {
         setNotUp();
         LDEBUG << "ServerHost::checkStatus() -> false (cannot read socket)" ;
         return false;
     }
 
-    char *body=strstr(message,"\r\n\r\n");
-    if(body==NULL)
+    char* body = strstr(message, "\r\n\r\n");
+    if (body == NULL)
     {
         setNotUp();
         LDEBUG << "ServerHost::checkStatus() -> false (null body)";
@@ -212,9 +214,9 @@ bool ServerHost::checkStatus()
     }
 
     int localStartedServers; //not sure that we will provide this info
-    sscanf(body,"%d ",&localStartedServers);
+    sscanf(body, "%d ", &localStartedServers);
 
-    isup=true;
+    isup = true;
 
     LDEBUG << "ServerHost::checkStatus() -> true (all done)";
     return true;
@@ -224,11 +226,13 @@ int   ServerHost::countDefinedServers()
 {
     LDEBUG << "ServerHost::countDefinedServers enter.";
 
-    int count=0;
-    for(int i=0; i<rasManager.countServers(); i++)
+    int count = 0;
+    for (int i = 0; i < rasManager.countServers(); i++)
     {
-        if(hostCmp(rasManager[i].getHostName(),hostName))
+        if (hostCmp(rasManager[i].getHostName(), hostName))
+        {
             count++;
+        }
     }
 
     LDEBUG << "ServerHost::countDefinedServers leave -> " << count;
@@ -241,38 +245,38 @@ int   ServerHost::getConnectionSocket()
 
     // create socket
     int sock;
-    struct protoent *getprotoptr;
-    getprotoptr=getprotobyname("tcp");
-    sock=socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
+    struct protoent* getprotoptr;
+    getprotoptr = getprotobyname("tcp");
+    sock = socket(PF_INET, SOCK_STREAM, getprotoptr->p_proto);
     int tempErrno = errno;
     LDEBUG << "ServerHost::getConnectionSocket socket(PF_INET,SOCK_STREAM," << getprotoptr->p_proto << ") -> " << sock;
     if (sock < 0)
     {
-        LDEBUG << "ServerHost::getConnectionSocket cannot create socket: " << strerror( tempErrno );
+        LDEBUG << "ServerHost::getConnectionSocket cannot create socket: " << strerror(tempErrno);
         return -1;
     }
 
     // init sockaddr
     sockaddr_in servername;
-    struct hostent *hostinfo;
-    servername.sin_family=AF_INET;
-    servername.sin_port=htons(listenPort);
+    struct hostent* hostinfo;
+    servername.sin_family = AF_INET;
+    servername.sin_port = htons(listenPort);
 
     // try to resolve address - either by name or IP address -- PB 2007-jun-25
     LDEBUG << "ServerHost::getConnectionSocket: trying to resolve name " << netwName << " ... ";
-    hostinfo=gethostbyname(netwName);
-    if(hostinfo==NULL)
+    hostinfo = gethostbyname(netwName);
+    if (hostinfo == NULL)
     {
         close(sock);
         LDEBUG << "ServerHost::getConnectionSocket leave (invalid hostinfo) -> -1";
         return -1;
     }
-    servername.sin_addr=*(struct in_addr*)hostinfo->h_addr;
+    servername.sin_addr = *(struct in_addr*)hostinfo->h_addr;
 
     // connect to slave-manager
-    int connectResult = connect(sock,(struct sockaddr*)&servername,sizeof(servername));
+    int connectResult = connect(sock, (struct sockaddr*)&servername, sizeof(servername));
     LDEBUG << "ServerHost::getConnectionSocket connect() to host=" << hostinfo->h_name << ", listen port=" << servername.sin_port << " -> " << connectResult;
-    if(connectResult < 0)
+    if (connectResult < 0)
     {
         close(sock);
         if (errno)
@@ -290,13 +294,13 @@ int   ServerHost::getConnectionSocket()
 
 void ServerHost::setNotUp()
 {
-    isup=false;
-    startedServers=0;
+    isup = false;
+    startedServers = 0;
 }
 
 void ServerHost::setIsUp(bool x)
 {
-    isup=x;
+    isup = x;
 }
 
 void ServerHost::regStartServer()
@@ -316,7 +320,7 @@ int ServerHost::getStartedServers()
 
 void  ServerHost::useLocalHost(bool how)
 {
-    isuseLocalHost=how;
+    isuseLocalHost = how;
 }
 
 bool  ServerHost::useLocalHost()
@@ -324,18 +328,18 @@ bool  ServerHost::useLocalHost()
     return isinternal ? isuseLocalHost : false;
 }
 
-void  ServerHost::changeName(const char *newName)
+void  ServerHost::changeName(const char* newName)
 {
-    strcpy(hostName,newName);
+    strcpy(hostName, newName);
 }
 
-void  ServerHost::changeNetName(const char *newNetName)
+void  ServerHost::changeNetName(const char* newNetName)
 {
-    strcpy(netwName,newNetName);
+    strcpy(netwName, newNetName);
 }
 void  ServerHost::changeListenPort(int newListenPort)
 {
-    listenPort=newListenPort;
+    listenPort = newListenPort;
 }
 
 //**********************************************************************
@@ -355,54 +359,60 @@ bool HostManager::insertInternalHost()
 
     ServerHost tempServerHost;
 
-    if(hostList.empty()==false)
+    if (hostList.empty() == false)
+    {
         result = false;
+    }
     else
     {
         //put the internal host, which is always defined, even if it has no servers attached
         hostList.push_back(tempServerHost);
-        ServerHost &refServerHost=hostList.back();
-        const char *myhostName=config.getHostName();
-        const char *myPublicHostName=config.getPublicHostName();
-        refServerHost.init(myhostName,myPublicHostName,-1,true);
+        ServerHost& refServerHost = hostList.back();
+        const char* myhostName = config.getHostName();
+        const char* myPublicHostName = config.getPublicHostName();
+        refServerHost.init(myhostName, myPublicHostName, -1, true);
         result = true;
     }
 
     return result;
 }
 
-bool HostManager::insertNewHost(const char* hostName,const char *netwName,int listenport)
+bool HostManager::insertNewHost(const char* hostName, const char* netwName, int listenport)
 {
     bool result = true; // function result
 
-    if(testUniqueness(hostName)==false)
+    if (testUniqueness(hostName) == false)
+    {
         result = false;
+    }
 
     if (result == true)
     {
         // FIXME: there should be only explicitly defined hosts; what are "internal" hosts? -- PB 2007-jun-26
         ServerHost tempServerHost;
 
-        if(hostList.empty())
-            insertInternalHost(); // just protection, but shouldn't be necessary
+        if (hostList.empty())
+        {
+            insertInternalHost();    // just protection, but shouldn't be necessary
+        }
 
         hostList.push_back(tempServerHost);
-        ServerHost &refServerHost=hostList.back();
-        refServerHost.init(hostName,netwName,listenport,false); //always external
+        ServerHost& refServerHost = hostList.back();
+        refServerHost.init(hostName, netwName, listenport, false); //always external
         result = true;
     }
 
     return result;
 }
 
-bool HostManager::removeHost(const char *hostName)
+bool HostManager::removeHost(const char* hostName)
 {
-    list<ServerHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++)
+    list<ServerHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++)
     {
-        if(hostCmp(iter->getName(),hostName))
+        if (hostCmp(iter->getName(), hostName))
         {
-            if(iter->countDefinedServers()>0)
+            if (iter->countDefinedServers() > 0)
             {
                 return false;
             }
@@ -418,8 +428,11 @@ bool HostManager::removeHost(const char *hostName)
 // FIXME: check for end of list
 ServerHost& HostManager::operator[](int x)
 {
-    list<ServerHost>::iterator iter=hostList.begin();
-    for(int i=0; i<x; i++) iter++;
+    list<ServerHost>::iterator iter = hostList.begin();
+    for (int i = 0; i < x; i++)
+    {
+        iter++;
+    }
 
     return *iter;
 }
@@ -429,10 +442,10 @@ ServerHost& HostManager::operator[](int x)
 //  protElem (uninitialized object, not valid) if not found
 ServerHost& HostManager::operator[](const char* hostName)
 {
-    list<ServerHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++)
+    list<ServerHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++)
     {
-        if(hostCmp(iter->getName(),hostName))
+        if (hostCmp(iter->getName(), hostName))
         {
             return *iter;
         }
@@ -449,12 +462,14 @@ int  HostManager::countHosts()
 }
 int HostManager::countUpHosts()
 {
-    int count=0;
-    list<ServerHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++)
+    int count = 0;
+    list<ServerHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++)
     {
-        if(iter->isUp())
+        if (iter->isUp())
+        {
             count++;
+        }
         iter++;
     }
     return count;
@@ -462,17 +477,19 @@ int HostManager::countUpHosts()
 
 bool HostManager::testUniqueness(const char* hostName)
 {
-    list<ServerHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++)
+    list<ServerHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++)
     {
-        if(hostCmp(iter->getName(),hostName))
+        if (hostCmp(iter->getName(), hostName))
+        {
             return false;
+        }
         iter++;
     }
     return true;
 }
 
-int HostManager::postSlaveMGR(char *body,char *outBuffer)
+int HostManager::postSlaveMGR(char* body, char* outBuffer)
 {
     char answBuffer[100];
 
@@ -480,54 +497,54 @@ int HostManager::postSlaveMGR(char *body,char *outBuffer)
     {
         // so we can break
 
-        if(body==NULL)
+        if (body == NULL)
         {
-            strcpy(answBuffer,"Missing identification, this is not a valid rasmgr."); // no rasmgr or soft error
+            strcpy(answBuffer, "Missing identification, this is not a valid rasmgr."); // no rasmgr or soft error
             break;
         }
 
         char name[100];
         int  licServ;
-        sscanf(body,"%s %d",name,&licServ);
+        sscanf(body, "%s %d", name, &licServ);
 
-        LDEBUG << "HostManager::postSlaveMGR: name="<<name<<" lics="<<licServ;
+        LDEBUG << "HostManager::postSlaveMGR: name=" << name << " lics=" << licServ;
 
-        ServerHost &sh=operator[](name);
-        if(sh.isValid()==false)
+        ServerHost& sh = operator[](name);
+        if (sh.isValid() == false)
         {
-            strcpy(answBuffer,"Unknown slave rasmgr.");
+            strcpy(answBuffer, "Unknown slave rasmgr.");
             break;
         }
 
         LDEBUG << "HostManager::postSlaveMGR: Ok, valid.";
         sh.setIsUp(true);
-        strcpy(answBuffer,"Welcome!");
+        strcpy(answBuffer, "Welcome!");
 
     }
-    while(0);
+    while (0);
 
-    sprintf(outBuffer,"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s",strlen(answBuffer)+1,answBuffer);
+    sprintf(outBuffer, "HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s", strlen(answBuffer) + 1, answBuffer);
 
-    return strlen(outBuffer)+1;
+    return strlen(outBuffer) + 1;
 }
 
 bool HostManager::reset()
 {
-    if(config.isTestModus()==false)
+    if (config.isTestModus() == false)
     {
         return false;
     }
 
-    list<ServerHost>::iterator iter=hostList.begin();
-    for(unsigned int i=0; i<hostList.size(); i++,iter++)
+    list<ServerHost>::iterator iter = hostList.begin();
+    for (unsigned int i = 0; i < hostList.size(); i++, iter++)
     {
-        if(iter->countDefinedServers()>0)
+        if (iter->countDefinedServers() > 0)
         {
             return false;
         }
     }
 
-    while(hostList.size())
+    while (hostList.size())
     {
         hostList.pop_front();
     }
@@ -535,10 +552,12 @@ bool HostManager::reset()
     return true;
 }
 
-bool HostManager::acceptChangeName(const char *oldName,const char *newName)
+bool HostManager::acceptChangeName(const char* oldName, const char* newName)
 {
-    if(hostCmp(oldName,newName))
-        return true; // if someone really wants to change a name with the same,
+    if (hostCmp(oldName, newName))
+    {
+        return true;    // if someone really wants to change a name with the same,
+    }
 
     return testUniqueness(newName);
 }

@@ -124,7 +124,7 @@ public:
     static string insidePattern;
     static bool insidePatternDef;
     static const int queryBufferLength;
-    static std::list<std::pair<double, char*> >* scaleLevels;
+    static std::list<std::pair<double, char*>>* scaleLevels;
     static int wrongBytes;
     static r_Scale_Function scaleFunction;
     static const string tilingDesc;

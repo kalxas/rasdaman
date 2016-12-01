@@ -58,7 +58,7 @@ public class ExtendExpressionHandler {
         // Only gridbound of the translated axis is needed to add in the intervalList below.
         // The coverage must keep the original axes in the coverage metadata as it does not mean coverage is translated to CRS:1.
         List<Axis> originalAxes = new ArrayList();
-        for (Axis axis:metadata.getAxes()) {
+        for (Axis axis : metadata.getAxes()) {
             originalAxes.add(axis.clone());
         }
 
@@ -67,7 +67,7 @@ public class ExtendExpressionHandler {
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getAxes(), subsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                               .replace("$intervalList", domainIntervals);
+                       .replace("$intervalList", domainIntervals);
 
         // Revert translatedAxes by originalAxes
         metadata.setAxes(originalAxes);

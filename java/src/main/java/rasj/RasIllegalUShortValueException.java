@@ -44,8 +44,7 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
-public class RasIllegalUShortValueException extends RasRuntimeException
-{
+public class RasIllegalUShortValueException extends RasRuntimeException {
     static final String rcsid = "@(#)Package rasj, class RasIllegalUShortValueException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasIllegalUShortValueException.java,v 1.4 2003/12/19 16:22:27 rasdev Exp $";
 
     // the base type
@@ -55,33 +54,31 @@ public class RasIllegalUShortValueException extends RasRuntimeException
      * Standard constructor getting the illegal short value
      * @param illegalShortValue the cell value that caused the error
      **/
-    public RasIllegalUShortValueException(int illegalUShortValue)
-    {
-	super(RasGlobalDefs.ILLEGAL_USHORT_VALUE);
-	illegalValue = illegalUShortValue;
+    public RasIllegalUShortValueException(int illegalUShortValue) {
+        super(RasGlobalDefs.ILLEGAL_USHORT_VALUE);
+        illegalValue = illegalUShortValue;
     }
 
     /**
      * Returns the error message.
      * @return the error message.
      **/
-    public String getMessage()
-    {
-	int i;
+    public String getMessage() {
+        int i;
 
-	if(super.getMessage() == null)
-	    {
-		String msg = RasErrorTexts.getErrorMessage(errNo);
+        if (super.getMessage() == null) {
+            String msg = RasErrorTexts.getErrorMessage(errNo);
 
-		StringBuffer buf = new StringBuffer(msg);
-		i = msg.indexOf( RasGlobalDefs.KEYWORD_VAL );
-		if(i != -1)
-		    buf.replace(i, i+RasGlobalDefs.KEYWORD_VAL.length(), String.valueOf(illegalValue));
-		msg = buf.toString();
-		return msg;
-	    }
-        else
-	    return super.getMessage();
+            StringBuffer buf = new StringBuffer(msg);
+            i = msg.indexOf(RasGlobalDefs.KEYWORD_VAL);
+            if (i != -1) {
+                buf.replace(i, i + RasGlobalDefs.KEYWORD_VAL.length(), String.valueOf(illegalValue));
+            }
+            msg = buf.toString();
+            return msg;
+        } else {
+            return super.getMessage();
+        }
     }
 
 }

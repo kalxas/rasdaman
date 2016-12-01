@@ -29,19 +29,19 @@ import secore.util.Constants;
  * @author Dimitar Misev
  */
 public class SimpleParamValue implements ParamValue {
-  
-  private final String val;
 
-  public SimpleParamValue(String val) {
-    this.val = val;
-  }
+    private final String val;
 
-  public String getValue() {
-    return val;
-  }
-  
-  @Override
-  public String toString() {
-    return val == null ? Constants.EMPTY : val;
-  }
+    public SimpleParamValue(String val) {
+        this.val = val;
+    }
+
+    public String getValue() {
+        return val;
+    }
+
+    @Override
+    public String toString() {
+        return val == null ? Constants.EMPTY : val;
+    }
 }

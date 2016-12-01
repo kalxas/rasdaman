@@ -41,64 +41,66 @@ public class SimultaneousConnectionsTest {
 
     @Test
     public void testQueryRasdaman() throws Exception {
-	
-	SimultaneousConnectionsTestUtil util = new SimultaneousConnectionsTestUtil();
 
-	int numThreads;
+        SimultaneousConnectionsTestUtil util = new SimultaneousConnectionsTestUtil();
 
-	try{
-	    numThreads = util.getNumberOfServers();
-	}catch(IOException e){
-	    
-	    System.out.println("Unable to determine the number of available Rasdaman "+
-			       "servers. The least representative test with "+DEFAULT_NUM_THREADS+
-			       " will be preformed.");
-	    numThreads = DEFAULT_NUM_THREADS;
-	}
+        int numThreads;
 
-	if(numThreads < DEFAULT_NUM_THREADS)
-	    throw new Exception("At least " + DEFAULT_NUM_THREADS + " rasdaman servers are needed for this test");
+        try {
+            numThreads = util.getNumberOfServers();
+        } catch (IOException e) {
 
-	RasjQuery[] queries = new RasjQuery[numThreads];
+            System.out.println("Unable to determine the number of available Rasdaman " +
+                               "servers. The least representative test with " + DEFAULT_NUM_THREADS +
+                               " will be preformed.");
+            numThreads = DEFAULT_NUM_THREADS;
+        }
 
-	System.out.println("Starting " + numThreads + " simultaneous requests through rasj.");
-	System.out.println("Rasdaman Url: " + RASDAMAN_URL);
-	System.out.println("Rasdaman Database: " + RASDAMAN_DATABASE);
-	for(int i = 0; i < queries.length; i++) {
+        if (numThreads < DEFAULT_NUM_THREADS) {
+            throw new Exception("At least " + DEFAULT_NUM_THREADS + " rasdaman servers are needed for this test");
+        }
 
-	    queries[i] = new RasjQuery();
-	    (new Thread(queries[i])).start();
-	}
+        RasjQuery[] queries = new RasjQuery[numThreads];
 
-	boolean done = false;
+        System.out.println("Starting " + numThreads + " simultaneous requests through rasj.");
+        System.out.println("Rasdaman Url: " + RASDAMAN_URL);
+        System.out.println("Rasdaman Database: " + RASDAMAN_DATABASE);
+        for (int i = 0; i < queries.length; i++) {
 
-	while(!done) {
+            queries[i] = new RasjQuery();
+            (new Thread(queries[i])).start();
+        }
 
-	    done = true;
-	    for(int i = 0; i < queries.length; i++)		
-		if(!queries[i].isDone())
-		    done = false;
-	}
+        boolean done = false;
 
-	int succ = 0;
-	for(int i = 0; i < queries.length; i++) {
+        while (!done) {
 
-	    try {		
-		throw queries[i].getResultingException();
-	    }catch(RasQueryExecutionFailedException e) {
-		e.printStackTrace();
-		System.out.println("A thread failed to query the database.");
-		System.out.println("Only "+succ+" threads completed successfully.");
-		throw e;
-	    }catch(ODMGException e) {
-		e.printStackTrace();
-		throw e;
-	    }catch(NullPointerException e) {
-		succ++;
-		//Everything went fine.
-	    }
-	}
-	
-	System.out.println("All " + numThreads + " simultaneous requests completed successfully.");
+            done = true;
+            for (int i = 0; i < queries.length; i++)
+                if (!queries[i].isDone()) {
+                    done = false;
+                }
+        }
+
+        int succ = 0;
+        for (int i = 0; i < queries.length; i++) {
+
+            try {
+                throw queries[i].getResultingException();
+            } catch (RasQueryExecutionFailedException e) {
+                e.printStackTrace();
+                System.out.println("A thread failed to query the database.");
+                System.out.println("Only " + succ + " threads completed successfully.");
+                throw e;
+            } catch (ODMGException e) {
+                e.printStackTrace();
+                throw e;
+            } catch (NullPointerException e) {
+                succ++;
+                //Everything went fine.
+            }
+        }
+
+        System.out.println("All " + numThreads + " simultaneous requests completed successfully.");
     }
 }

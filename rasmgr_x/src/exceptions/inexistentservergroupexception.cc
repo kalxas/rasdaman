@@ -26,7 +26,7 @@ namespace rasmgr
 {
 
 InexistentServerGroupException::InexistentServerGroupException(const std::string& serverId)
-    :common::MissingResourceException("The server group "+serverId+" does not exist.")
+    : common::MissingResourceException("The server group " + serverId + " does not exist.")
 {}
 
 InexistentServerGroupException::~InexistentServerGroupException() throw()

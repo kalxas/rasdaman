@@ -46,21 +46,21 @@ akg::HostAddress::HostAddress(uint32_t x)
     initDefault();
 
     address.s_addr = htonl(x);
-    struct hostent *host = gethostbyaddr((const char*)&address, sizeof(in_addr), AF_INET);
+    struct hostent* host = gethostbyaddr((const char*)&address, sizeof(in_addr), AF_INET);
     init(host);
 }
 
-akg::HostAddress::HostAddress(const char *theHostName)
+akg::HostAddress::HostAddress(const char* theHostName)
 {
     assert(theHostName != 0);
 
     initDefault();
 
-    struct hostent *host = gethostbyname (theHostName);
+    struct hostent* host = gethostbyname(theHostName);
     init(host);
 }
 
-akg::HostAddress::HostAddress(const akg::HostAddress &ha)
+akg::HostAddress::HostAddress(const akg::HostAddress& ha)
 {
     fullHostName   = new char[strlen(ha.fullHostName) + 1];
     strcpy(fullHostName, ha.fullHostName);
@@ -73,14 +73,23 @@ akg::HostAddress::HostAddress(const akg::HostAddress &ha)
 }
 akg::HostAddress::~HostAddress() throw()
 {
-    if(fullHostName)  delete[] fullHostName;
-    if(shortHostName) delete[] shortHostName;
-    if(strAddress)    delete[] strAddress;
+    if (fullHostName)
+    {
+        delete[] fullHostName;
+    }
+    if (shortHostName)
+    {
+        delete[] shortHostName;
+    }
+    if (strAddress)
+    {
+        delete[] strAddress;
+    }
 }
 
 bool akg::HostAddress::isValid() const throw()
 {
-    return address.s_addr == addrNone ? false:true;
+    return address.s_addr == addrNone ? false : true;
 }
 
 void akg::HostAddress::initDefault() throw()
@@ -92,26 +101,32 @@ void akg::HostAddress::initDefault() throw()
 }
 
 // New is supposed to throw
-bool akg::HostAddress::init(hostent *host)
+bool akg::HostAddress::init(hostent* host)
 {
-    if(host == NULL) return false;
+    if (host == NULL)
+    {
+        return false;
+    }
 
-    in_addr *ptr = (in_addr*)host->h_addr_list[0];
-    if(host->h_name == NULL || ptr == NULL) return false;
+    in_addr* ptr = (in_addr*)host->h_addr_list[0];
+    if (host->h_name == NULL || ptr == NULL)
+    {
+        return false;
+    }
 
-    fullHostName = new char[ strlen(host->h_name) +1];
-    strcpy(fullHostName,host->h_name);
+    fullHostName = new char[ strlen(host->h_name) + 1];
+    strcpy(fullHostName, host->h_name);
 
-    char *dotPos = strchr(fullHostName,'.');
-    unsigned int copyLen = dotPos ? static_cast<unsigned int>(dotPos-fullHostName) : strlen(fullHostName);
+    char* dotPos = strchr(fullHostName, '.');
+    unsigned int copyLen = dotPos ? static_cast<unsigned int>(dotPos - fullHostName) : strlen(fullHostName);
 
-    shortHostName = new char[copyLen+1];
-    strncpy(shortHostName,fullHostName,copyLen);
+    shortHostName = new char[copyLen + 1];
+    strncpy(shortHostName, fullHostName, copyLen);
     shortHostName[copyLen] = 0;
 
-    char *nta = inet_ntoa(*ptr);
+    char* nta = inet_ntoa(*ptr);
     strAddress = new char[strlen(nta) + 1];
-    strcpy(strAddress,nta);
+    strcpy(strAddress, nta);
     address = *ptr;
 
     return true;
@@ -144,12 +159,12 @@ akg::SocketAddress::SocketAddress() throw()
     clear();
 }
 
-akg::SocketAddress::SocketAddress(sockaddr_in &x) throw()
+akg::SocketAddress::SocketAddress(sockaddr_in& x) throw()
 {
     init(x);
 }
 
-void akg::SocketAddress::init(sockaddr_in &x) throw()
+void akg::SocketAddress::init(sockaddr_in& x) throw()
 {
     valid = true;
     address = x;

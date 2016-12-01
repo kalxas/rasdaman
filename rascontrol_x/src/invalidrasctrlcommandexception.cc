@@ -27,7 +27,7 @@ namespace rascontrol
 {
 
 InvalidRasctrlCommandException::InvalidRasctrlCommandException()
-    :common::Exception("The given rascontrol command is invalid.")
+    : common::Exception("The given rascontrol command is invalid.")
 {}
 
 InvalidRasctrlCommandException::~InvalidRasctrlCommandException() throw()

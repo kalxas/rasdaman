@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
 public class WCSTAxisNumberMismatchException extends WCSTException {
     public WCSTAxisNumberMismatchException(int currentCoverageAxesSize, int inputCoverageAxesSize) {
         super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$currentCoverageAxesSize", String.valueOf(currentCoverageAxesSize))
-                .replace("$inputCoverageAxesSize", String.valueOf(inputCoverageAxesSize)));
+              .replace("$inputCoverageAxesSize", String.valueOf(inputCoverageAxesSize)));
     }
 
     private final static String EXCEPTION_TEXT = "In case of complete replacement, the number of axes of the target coverage (found $currentCoverageAxesSize) must match the " +

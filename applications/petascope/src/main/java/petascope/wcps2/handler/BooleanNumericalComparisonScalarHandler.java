@@ -40,8 +40,8 @@ public class BooleanNumericalComparisonScalarHandler {
 
     public static WcpsResult handle(WcpsResult left, WcpsResult right, String operator) {
         return new WcpsResult(null, TEMPLATE.replace("$leftOperand", left.getRasql())
-                                            .replace("$operator", operator)
-                                            .replace("$rightOperand", right.getRasql()));
+                              .replace("$operator", operator)
+                              .replace("$rightOperand", right.getRasql()));
     }
 
     private static final String TEMPLATE = " $leftOperand $operator $rightOperand ";

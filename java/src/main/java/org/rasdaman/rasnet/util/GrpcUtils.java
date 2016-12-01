@@ -53,21 +53,21 @@ public class GrpcUtils {
             try {
                 Error.ErrorMessage message = Error.ErrorMessage.parseFrom(status.getDescription().getBytes(Charset.forName("UTF-8")));
                 switch (message.getType()) {
-                    case STL: {
-                        result = new RuntimeException(message.getErrorText());
-                    }
-                    break;
-                    case RERROR: {
-                        result = new ODMGRuntimeException(message.getErrorText());
-                    }
-                    break;
-                    case UNKNOWN: {
-                        result = new RuntimeException(message.getErrorText());
-                    }
-                    break;
-                    default: {
-                        result = new RuntimeException(message.getErrorText());
-                    }
+                case STL: {
+                    result = new RuntimeException(message.getErrorText());
+                }
+                break;
+                case RERROR: {
+                    result = new ODMGRuntimeException(message.getErrorText());
+                }
+                break;
+                case UNKNOWN: {
+                    result = new RuntimeException(message.getErrorText());
+                }
+                break;
+                default: {
+                    result = new RuntimeException(message.getErrorText());
+                }
                 }
             } catch (InvalidProtocolBufferException e) {
                 e.printStackTrace();
@@ -91,14 +91,14 @@ public class GrpcUtils {
      * a reply from the server before declaring it unresponsive and returning false.
      * @return  TRUE if the server responds with a valid message within the given timeout, FALSE otherwise.
      */
-    public static boolean isServerAlive(HealthServiceGrpc.HealthServiceBlockingStub healthService, int timeoutMilliseconds){
+    public static boolean isServerAlive(HealthServiceGrpc.HealthServiceBlockingStub healthService, int timeoutMilliseconds) {
         boolean isAlive = false;
         org.rasdaman.rasnet.service.HealthServiceOuterClass.HealthCheckRequest request = org.rasdaman.rasnet.service.HealthServiceOuterClass.HealthCheckRequest.newBuilder().build();
 
         try {
             healthService.withDeadlineAfter(timeoutMilliseconds, TimeUnit.MILLISECONDS).check(request);
             isAlive = true;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Debug.talkWarning(ex.getStackTrace().toString());
             Debug.talkWarning(ex.getLocalizedMessage());
         }

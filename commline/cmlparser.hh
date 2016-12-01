@@ -106,7 +106,7 @@ public:
     virtual void popValue() = 0;
 
     void virtual reset();
-    const char *calledName();
+    const char* calledName();
 
     // has a (at least one) value been assigned?
     virtual bool isPresent() = 0;
@@ -132,15 +132,15 @@ protected:
     char* defaultValue;
     char  shNameString[2];
 
-    char *descriptionText;
-    char *paramDescription;
+    char* descriptionText;
+    char* paramDescription;
 };
 
 
 class FlagParameter: public CommandLineParameter
 {
 public:
-    FlagParameter(char nShortName, const char*nLongName) throw(CmlException);
+    FlagParameter(char nShortName, const char* nLongName) throw(CmlException);
 
     bool setPresent(char c) throw(CmlException);
     bool setPresent(const char* s) throw(CmlException);
@@ -163,7 +163,7 @@ private:
     list<char*> value;
 
 public:
-    StringParameter(char nShortName, const char* nLongName, const char *newDefaultValue = NULL) throw(CmlException);
+    StringParameter(char nShortName, const char* nLongName, const char* newDefaultValue = NULL) throw(CmlException);
     StringParameter(char nShortName, const char* nLongName, long newDefaultValue = 0L) throw(CmlException);
     ~StringParameter();
 
@@ -207,8 +207,8 @@ public:
         Otherwise no <>!
     */
     CommandLineParameter& addFlagParameter(char shortName, const char* longName, const char* description) throw(CmlException);
-    CommandLineParameter& addStringParameter(char shortName, const char* longName,  const char* description, const char *newDefaultValue = NULL) throw(CmlException);
-    CommandLineParameter& addLongParameter(char shortName, const char* longName,  const char* description, long newDefaultValue = 0L ) throw(CmlException);
+    CommandLineParameter& addStringParameter(char shortName, const char* longName,  const char* description, const char* newDefaultValue = NULL) throw(CmlException);
+    CommandLineParameter& addLongParameter(char shortName, const char* longName,  const char* description, long newDefaultValue = 0L) throw(CmlException);
 
     bool isPresent(char shortName) throw(CmlException);
     bool isPresent(const char* longName) throw(CmlException);
@@ -233,7 +233,7 @@ private:
 
     list<CommandLineParameter*> cmlParameter;
 
-    CommandLineParameter *lastParameter;
+    CommandLineParameter* lastParameter;
     bool nextTokenIsValue;
 
     CommandLineParser();

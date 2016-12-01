@@ -23,7 +23,7 @@ rasdaman GmbH.
 /*************************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  *
@@ -35,59 +35,52 @@ package rasj.rnp;
 
 import java.util.*;
 import java.io.*;
-   
 
-public class RnpFragmentHeader
-          {
-          int fragmType;    //{FragmentType command, okAnswer, error}
-          int command;
-          int nrParams;
-          int totalLength;
-       
-          public static final int length = 16;
-	
-          RnpFragmentHeader(int fragmentType, int nCommand)
- 	     { 
-       	     fragmType   = fragmentType;
-	     command     = nCommand;
-	     nrParams    = 0;
-	     totalLength = length;
-	     }
-	
-	  int countParameters()
-	     { 
-	     return nrParams;
-	     }
-	
-	  void print()
-	     {
-	     System.out.print("  type=" + fragmType);
-    	     System.out.print("  Command=" + command);
-	     System.out.print("  nrParams=" + nrParams);
-	     System.out.print("  totalLength=" + totalLength);
-	     System.out.println();
-	     }
-	   
-	  void write(DataOutputStream dataStream) throws IOException
-	     {
-	     dataStream.writeInt(fragmType);
-	     dataStream.writeInt(command);
-	     dataStream.writeInt(nrParams);
-   	     dataStream.writeInt(totalLength);
-             }
-	  void read(DataInputStream dataStream) throws IOException
-	     {
-	     fragmType   = dataStream.readInt();
-	     command     = dataStream.readInt();
-	     nrParams    = dataStream.readInt();
-   	     totalLength = dataStream.readInt();
-             }
-	   
-	  void addParameter(int size)
-	     {
-	     nrParams++;
-	     totalLength += size;
-	     }   
-         }
-       
+
+public class RnpFragmentHeader {
+    int fragmType;    //{FragmentType command, okAnswer, error}
+    int command;
+    int nrParams;
+    int totalLength;
+
+    public static final int length = 16;
+
+    RnpFragmentHeader(int fragmentType, int nCommand) {
+        fragmType   = fragmentType;
+        command     = nCommand;
+        nrParams    = 0;
+        totalLength = length;
+    }
+
+    int countParameters() {
+        return nrParams;
+    }
+
+    void print() {
+        System.out.print("  type=" + fragmType);
+        System.out.print("  Command=" + command);
+        System.out.print("  nrParams=" + nrParams);
+        System.out.print("  totalLength=" + totalLength);
+        System.out.println();
+    }
+
+    void write(DataOutputStream dataStream) throws IOException {
+        dataStream.writeInt(fragmType);
+        dataStream.writeInt(command);
+        dataStream.writeInt(nrParams);
+        dataStream.writeInt(totalLength);
+    }
+    void read(DataInputStream dataStream) throws IOException {
+        fragmType   = dataStream.readInt();
+        command     = dataStream.readInt();
+        nrParams    = dataStream.readInt();
+        totalLength = dataStream.readInt();
+    }
+
+    void addParameter(int size) {
+        nrParams++;
+        totalLength += size;
+    }
+}
+
 

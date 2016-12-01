@@ -100,18 +100,18 @@ public:
 
 
 private:
-	/**
-	* The maximum number of milliseconds between two consecutive KeepAlive messages
-	* from the client. If a KeepAlive message is not received in this amount of time,
-	* the client is removed from the server.
-	*/
+    /**
+    * The maximum number of milliseconds between two consecutive KeepAlive messages
+    * from the client. If a KeepAlive message is not received in this amount of time,
+    * the client is removed from the server.
+    */
     static const int ALIVE_PERIOD = 30000; /* milliseconds */
 
     boost::scoped_ptr<boost::thread> managementThread;
 
     boost::shared_mutex clientMutex;/*! Mutex used to synchronize access to the clientList */
     std::map<std::string, common::Timer> clientList;/*! Map between a clientId and a Timer that counts down from the last ping*/
-    std::map<std::string, boost::shared_ptr<ClientQueryStreamedResult> > queryStreamedResultList; /*! Map between request id and the request result.*/
+    std::map<std::string, boost::shared_ptr<ClientQueryStreamedResult>> queryStreamedResultList; /*! Map between request id and the request result.*/
 
     boost::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
     bool isThreadRunning; /*! Flag used to stop the worker thread */

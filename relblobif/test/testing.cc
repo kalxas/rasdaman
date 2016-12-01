@@ -64,7 +64,7 @@ string Test::charPtrToString(char* ptr, unsigned int size)
 {
     char* res = (char*) malloc(size + 1);
     memcpy(res, ptr, size);
-    res[size+1] = '\0';
+    res[size + 1] = '\0';
     string ret(res);
     free(res);
     return string(res);

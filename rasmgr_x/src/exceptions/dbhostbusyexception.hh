@@ -32,7 +32,7 @@ namespace rasmgr
  *  It reports errors that arise because a user tries to modify a property of an existing database host,
  * but the modification fails because the database host is being used.
  */
-class DbHostBusyException:public common::ResourceBusyException
+class DbHostBusyException: public common::ResourceBusyException
 {
 public:
     DbHostBusyException(const std::string& dbHostName);

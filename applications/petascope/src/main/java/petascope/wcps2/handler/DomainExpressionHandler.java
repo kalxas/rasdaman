@@ -32,13 +32,13 @@ import petascope.wcps2.result.WcpsResult;
 
 /**
  * Translator class for the domain(coverageExpression, axisLabel, CRS) operation in wcps
- * 
+ *
  * <code>
  * Return intervals in nativeCrs
  *      for c in (eobstest) return domain(c[Lat(20:30)], Lat, "http://localhost:8080/def/crs/EPSG/0/4326")
  * returns (20:30)
  * </code>
- * 
+ *
  * <code>
  * Return intervals in gridCrs
  *      for c in (eobstest) return domain(c[Lat(20:30)], Lat, "CRS:1")
@@ -96,7 +96,7 @@ public class DomainExpressionHandler {
                 lowBound = ((NumericTrimming)axis.getGridBounds()).getLowerLimit().toPlainString();
                 highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
             } else if (axis.getAxisType().equals(AxisTypes.X_AXIS)
-                   || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
+                       || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
                 // geo-referenced axis , e.g: Lat, Long or Index2D(*)
                 lowBound = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit().toPlainString();
                 highBound = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit().toPlainString();
@@ -118,7 +118,7 @@ public class DomainExpressionHandler {
                 // Time - now only in grid axis
                 bound = ((NumericSlicing)axis.getGridBounds()).getBound().toPlainString();
             } else if (axis.getAxisType().equals(AxisTypes.X_AXIS)
-                   || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
+                       || axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
                 // geo-referenced axis (geoBounds), e.g: Lat, Long or Index2D(*)
                 bound = ((NumericSlicing)axis.getGeoBounds()).getBound().toPlainString();
             } else {
@@ -143,7 +143,7 @@ public class DomainExpressionHandler {
      */
     private static boolean isValid(WcpsResult coverageExpression, String axisName, String crsUri) {
         // check if axisName belonged to coverageExpression first
-        for (Axis axis:coverageExpression.getMetadata().getAxes()) {
+        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             // if coverage contains axisName then check the crsUri belonged to axis also
             if (axis.getLabel().contains(axisName)) {
                 String axisCrsCode = CrsUtil.CrsUri.getCode(axis.getCrsUri());

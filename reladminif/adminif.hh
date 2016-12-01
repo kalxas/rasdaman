@@ -69,7 +69,7 @@ before using a persistence capable class.
 
 */
 
-const int SYSTEMNAME_MAXLEN=256;
+const int SYSTEMNAME_MAXLEN = 256;
 /**
   * \defgroup Reladminifs Reladminif Classes
   */
@@ -80,7 +80,7 @@ const int SYSTEMNAME_MAXLEN=256;
 
 void
 checkCounter(const char* counterName, const char* column,
-                  const char* table, const char* tableDescr, bool& retval);
+             const char* table, const char* tableDescr, bool& retval);
 
 void
 closeDbConnection();
@@ -173,7 +173,7 @@ private:
     holds the specific name of dbms
     */
 
-    static char systemName[SYSTEMNAME_MAXLEN+1];
+    static char systemName[SYSTEMNAME_MAXLEN + 1];
     /*@Doc:
     Store the dbms name using dbmsName
     */

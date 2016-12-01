@@ -32,85 +32,96 @@ namespace rascontrol
 {
 EditLine::EditLine()
 {
-    line[0]= EOS_CHAR;
+    line[0] = EOS_CHAR;
 
 #ifdef READLINELIB
-    using_history ();
-    rl_bind_key ('\t', rl_insert);
+    using_history();
+    rl_bind_key('\t', rl_insert);
 #endif
 }
 EditLine::~EditLine()
 {
 }
 
-const char *EditLine::interactiveCommand(const char *prompt)
+const char* EditLine::interactiveCommand(const char* prompt)
 {
 #ifdef READLINELIB
-    char *rasp=rl_gets (prompt);
+    char* rasp = rl_gets(prompt);
 
 #else
-    std::cout<<prompt<<std::flush;
-    char *rasp=fgets(line,MAXMSG-1,stdin);
+    std::cout << prompt << std::flush;
+    char* rasp = fgets(line, MAXMSG - 1, stdin);
 
 #endif
 
-    if(rasp==0) return 0;
+    if (rasp == 0)
+    {
+        return 0;
+    }
     strcpy(line, rasp);
     return line;
 
 }
 
-const char *EditLine::fromStdinCommand(const char* prompt)
+const char* EditLine::fromStdinCommand(const char* prompt)
 {
-    if(prompt) std::cout<<prompt<<std::flush;
-    char *rasp=fgets(line,MAXMSG-1,stdin);
+    if (prompt)
+    {
+        std::cout << prompt << std::flush;
+    }
+    char* rasp = fgets(line, MAXMSG - 1, stdin);
 
-    if(rasp==0)
+    if (rasp == 0)
     {
         return 0;
     }
 
     int i;
-    for(i=0; line[i]; i++)
+    for (i = 0; line[i]; i++)
     {
-        if(line[i]=='\r' || line[i]=='\n')
+        if (line[i] == '\r' || line[i] == '\n')
         {
-            line[i]=0;
+            line[i] = 0;
             break;
         }
     }
 
-    for(i=0; line[i]; i++)
+    for (i = 0; line[i]; i++)
     {
-        if(line[i]==' ' || line[i]=='\t') continue;
+        if (line[i] == ' ' || line[i] == '\t')
+        {
+            continue;
+        }
         break;
     }
-    return line +i;
+    return line + i;
 }
 
-char * EditLine::rl_gets(const char *prompt)
+char* EditLine::rl_gets(const char* prompt)
 {
 #ifdef READLINELIB
-    static char *line_read = (char *)NULL;
+    static char* line_read = (char*)NULL;
 
     /* If the buffer has already been allocated, return the memory
     to the free pool. */
 
     if (line_read)
     {
-        free (line_read);
-        line_read = (char *)NULL;
+        free(line_read);
+        line_read = (char*)NULL;
     }
     char* line = strdup(prompt);
 
     /* Get a line from the user. */
-    line_read = readline (line);
+    line_read = readline(line);
 
     free(line);
 
     /* If the line has any text in it, save it on the history. */
     if (line_read && *line_read)
-        add_history (line_read);
+    {
+        add_history(line_read);
+    }
 
     return (line_read);
 #else

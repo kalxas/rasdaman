@@ -61,15 +61,15 @@ BlobFS& BlobFS::getInstance()
 }
 
 BlobFS::BlobFS() throw (r_Error)
-: config(BlobFS::getFileStorageRootPath(), string(""), string(""), true),
-  insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
+    : config(BlobFS::getFileStorageRootPath(), string(""), string(""), true),
+      insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
 {
     init();
 }
 
 BlobFS::BlobFS(const string& rasdataPathParam) throw (r_Error)
-: config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string(""), true),
-  insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
+    : config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string(""), true),
+      insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
 {
     init();
 }
@@ -81,7 +81,7 @@ void BlobFS::init() throw (r_Error)
     {
         LFATAL << "blob file storage data directory has not been specified.";
         LFATAL << "please set the environment variable RASDATA, or --with-filedatadir when configuring rasdaman.";
-        throw r_Error(static_cast<unsigned int> (FILEDATADIR_NOTFOUND));
+        throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTFOUND));
     }
 
     validateFileStorageRootPath();
@@ -192,13 +192,13 @@ const string BlobFS::getFileStorageRootPath()
     if (ret == NULL || strcmp(ret, "") == 0)
     {
 #ifdef FILEDATADIR
-        ret = const_cast<char*> (FILEDATADIR);
+        ret = const_cast<char*>(FILEDATADIR);
 #endif
         if (ret == NULL)
         {
             LFATAL << "blob file storage data directory has not been specified.";
             LFATAL << "please set the environment variable RASDATA, or --with-filedatadir when configuring rasdaman.";
-            throw r_Error(static_cast<unsigned int> (FILEDATADIR_NOTFOUND));
+            throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTFOUND));
         }
     }
     return DirWrapper::convertToCanonicalPath(string(ret));
@@ -208,7 +208,7 @@ void BlobFS::generateError(const char* message, const string& path, int errorCod
 {
     LFATAL << "Error: " << message << " - " << path;
     LFATAL << "Reason: " << strerror(errno);
-    throw r_Error(static_cast<unsigned int> (errorCode));
+    throw r_Error(static_cast<unsigned int>(errorCode));
 }
 
 void BlobFS::preRasbaseCommit() throw (r_Error)

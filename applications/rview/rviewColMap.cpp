@@ -89,7 +89,7 @@ static inline double valueToGauss(double value, double peak, double invSig)
     double h;
 
     h = (value - peak) * invSig;
-    return exp(-h*h);
+    return exp(-h * h);
 }
 
 static inline double valueToLinear(double value, double peak, double invSig)
@@ -97,11 +97,18 @@ static inline double valueToLinear(double value, double peak, double invSig)
     double h;
 
     if (value < peak)
-        h = 1.0 - invSig*(peak - value);
+    {
+        h = 1.0 - invSig * (peak - value);
+    }
     else
-        h = 1.0 - invSig*(value - peak);
+    {
+        h = 1.0 - invSig * (value - peak);
+    }
 
-    if (h < 0) h = 0;
+    if (h < 0)
+    {
+        h = 0;
+    }
 
     return h;
 }
@@ -111,12 +118,22 @@ static inline double valueToRectangle(double value, double peak, double invSig)
     double h;
 
     if (value < peak)
-        h = 1.0 - invSig*(peak - value);
+    {
+        h = 1.0 - invSig * (peak - value);
+    }
     else
-        h = 1.0 - invSig*(value - peak);
+    {
+        h = 1.0 - invSig * (value - peak);
+    }
 
-    if (h > 0) h = 1.0;
-    else h = 0.0;
+    if (h > 0)
+    {
+        h = 1.0;
+    }
+    else
+    {
+        h = 0.0;
+    }
 
     return h;
 }
@@ -125,9 +142,14 @@ static inline double valueToAsymptotic(double value, double peak, double invSig)
 {
     double h;
 
-    if (value < peak) h = 0;
+    if (value < peak)
+    {
+        h = 0;
+    }
     else
+    {
         h = 1.0 - exp((peak - value) * invSig);
+    }
 
     return h;
 }
@@ -141,14 +163,14 @@ static inline double valueToAsymptotic(double value, double peak, double invSig)
 const int colourspaceCanvas::colcanv_cborder = 8;
 const int colourspaceCanvas::colcanv_mheight = 8;
 
-colourspaceCanvas::colourspaceCanvas(colourspaceFrame *parent, colourspace_params *p, int x, int y, int w, int h, long style) : wxCanvas((wxWindow*)parent, x, y, w, h, style)
+colourspaceCanvas::colourspaceCanvas(colourspaceFrame* parent, colourspace_params* p, int x, int y, int w, int h, long style) : wxCanvas((wxWindow*)parent, x, y, w, h, style)
 {
     params = p;
     canvX = w;
     canvY = h;
     parentObj = parent;
-    canvX=100;
-    canvY=100;
+    canvX = 100;
+    canvY = 100;
     values = NULL;
 
     setDrawingFunction();
@@ -176,7 +198,10 @@ colourspaceCanvas::~colourspaceCanvas(void)
     SetFont(NULL);
     SetBackground(NULL);
     delete font;
-    if (values != NULL) delete [] values;
+    if (values != NULL)
+    {
+        delete [] values;
+    }
 }
 
 
@@ -231,9 +256,9 @@ void colourspaceCanvas::OnSize(int w, int h)
 {
     canvX = w;
     canvY = h;
-    height = (float)(canvY - 2*colcanv_cborder);
+    height = (float)(canvY - 2 * colcanv_cborder);
     base = (float)(canvY - colcanv_cborder);
-    step = 1.0 / (canvX - 2*colcanv_cborder);
+    step = 1.0 / (canvX - 2 * colcanv_cborder);
     cmin = colcanv_cborder;
     cmax = canvX - colcanv_cborder;
     if (values != NULL)
@@ -256,7 +281,7 @@ void colourspaceCanvas::OnPaint(void)
     int y = canvY - colcanv_cborder;
     float x, xhigh, markstep;
 
-    markstep = (canvX - 2*colcanv_cborder) / 10.0;
+    markstep = (canvX - 2 * colcanv_cborder) / 10.0;
     xhigh = (float)(canvX - colcanv_cborder) + 0.9;
 
     BeginDrawing();
@@ -267,7 +292,9 @@ void colourspaceCanvas::OnPaint(void)
         upd.GetRect(&rect);
 
         if (values != NULL)
-            memset(values, 0, canvX*sizeof(float));
+        {
+            memset(values, 0, canvX * sizeof(float));
+        }
 
         if (conversionFunction != NULL)
         {
@@ -276,14 +303,16 @@ void colourspaceCanvas::OnPaint(void)
             drawOutline(params->peak_blue, params->sigm_blue, &bluePen, &rect);
         }
         if (values != NULL)
+        {
             drawOutlineSum(&blackPen, &rect);
+        }
 
         SetPen(&blackPen);
         IntDrawLine(colcanv_cborder, y, canvX - colcanv_cborder, y);
 
-        for (x=(float)colcanv_cborder; x<=xhigh; x += markstep)
+        for (x = (float)colcanv_cborder; x <= xhigh; x += markstep)
         {
-            IntDrawLine((int)x, y + colcanv_mheight/2, (int)x, y - colcanv_mheight/2);
+            IntDrawLine((int)x, y + colcanv_mheight / 2, (int)x, y - colcanv_mheight / 2);
         }
         upd++;
     }
@@ -293,13 +322,13 @@ void colourspaceCanvas::OnPaint(void)
 }
 
 
-void colourspaceCanvas::OnEvent(wxMouseEvent &mevt)
+void colourspaceCanvas::OnEvent(wxMouseEvent& mevt)
 {
     parentObj->processMouseEvent(mevt);
 }
 
 
-int colourspaceCanvas::setupRectangle(int &from, int &to, float &x, wxRect *rect)
+int colourspaceCanvas::setupRectangle(int& from, int& to, float& x, wxRect* rect)
 {
     if (rect == NULL)
     {
@@ -312,18 +341,26 @@ int colourspaceCanvas::setupRectangle(int &from, int &to, float &x, wxRect *rect
         from = rect->x;
         to = from + rect->width + 1;
         if (((from < cmin) && (to < cmin)) || ((from > cmax) && (to > cmax)))
+        {
             return -1;
-        if (from < cmin) from = cmin;
-        if (to > cmax) to = cmax;
+        }
+        if (from < cmin)
+        {
+            from = cmin;
+        }
+        if (to > cmax)
+        {
+            to = cmax;
+        }
         x = (from - cmin) * step;
     }
     return 0;
 }
 
 
-void colourspaceCanvas::drawOutline(double peak, double sigma, wxPen *pen, wxRect *rect)
+void colourspaceCanvas::drawOutline(double peak, double sigma, wxPen* pen, wxRect* rect)
 {
-    float mid = (canvX - 2*colcanv_cborder) * peak + colcanv_cborder;
+    float mid = (canvX - 2 * colcanv_cborder) * peak + colcanv_cborder;
     float x, y, lastY;
     float invSigma;
     int i, j;
@@ -334,41 +371,51 @@ void colourspaceCanvas::drawOutline(double peak, double sigma, wxPen *pen, wxRec
 
     invSigma = 1.0 / sigma;
 
-    if (setupRectangle(i, j, x, rect) != 0) return;
+    if (setupRectangle(i, j, x, rect) != 0)
+    {
+        return;
+    }
 
     lastY = height * conversionFunction(x, peak, invSigma);
     if (values != NULL)
+    {
         values[i] += lastY;
+    }
 
-    for (i++, x += step; i < j; i++, x+=step)
+    for (i++, x += step; i < j; i++, x += step)
     {
         y = height * conversionFunction(x, peak, invSigma);
-        DrawLine((float)i-1, base - lastY, (float)i, base - y);
+        DrawLine((float)i - 1, base - lastY, (float)i, base - y);
         lastY = y;
         if (values != NULL)
+        {
             values[i] += y;
+        }
     }
 }
 
 
-void colourspaceCanvas::drawOutlineSum(wxPen *pen, wxRect *rect)
+void colourspaceCanvas::drawOutlineSum(wxPen* pen, wxRect* rect)
 {
     int i, j;
     float x, y, lastY;
 
     pen->SetStyle(wxSHORT_DASH);
     SetPen(pen);
-    DrawLine((float)colcanv_cborder, base - height/3, (float)(canvX - colcanv_cborder), base - height/3);
+    DrawLine((float)colcanv_cborder, base - height / 3, (float)(canvX - colcanv_cborder), base - height / 3);
     pen->SetStyle(wxSOLID);
     SetPen(pen);
 
-    if (setupRectangle(i, j, x, rect) != 0) return;
+    if (setupRectangle(i, j, x, rect) != 0)
+    {
+        return;
+    }
 
     lastY = values[i] / 3;
-    for (i++, x += step; i < j; i++, x+= step)
+    for (i++, x += step; i < j; i++, x += step)
     {
         y = values[i] / 3;
-        DrawLine((float)i-1, base - lastY, (float)i, base - y);
+        DrawLine((float)i - 1, base - lastY, (float)i, base - y);
         lastY = y;
     }
 }
@@ -392,10 +439,10 @@ const int colourspaceFrame::colspc_theight = 30;
 const int colourspaceFrame::colspc_chkheight = 20;
 const int colourspaceFrame::colspc_chwidth = colourspaceFrame::colspc_twidth - rview_choice_sub_width;
 const int colourspaceFrame::colspc_chheight = 20;
-const int colourspaceFrame::colspc_cheight = colourspaceFrame::colspc_bheight + 4*colourspaceFrame::colspc_theight + 5*colourspaceFrame::colspc_border;
+const int colourspaceFrame::colspc_cheight = colourspaceFrame::colspc_bheight + 4 * colourspaceFrame::colspc_theight + 5 * colourspaceFrame::colspc_border;
 
 
-colourspaceFrame::colourspaceFrame(colourspaceMapper *parent, const colourspace_params *p) : rviewFrame(NULL, lman->lookup("titleColourspace"), 0, 0, colspc_width, colspc_height)
+colourspaceFrame::colourspaceFrame(colourspaceMapper* parent, const colourspace_params* p) : rviewFrame(NULL, lman->lookup("titleColourspace"), 0, 0, colspc_width, colspc_height)
 {
     // defaults
     doImmediateUpdate = TRUE;
@@ -431,7 +478,7 @@ colourspaceFrame::colourspaceFrame(colourspaceMapper *parent, const colourspace_
     minVal = new rviewText(panel);
     maxVal = new rviewText(panel);
 
-    const char *cstypes[4];
+    const char* cstypes[4];
     cstypes[0] = lman->lookup("cspaceTypeGauss");
     cstypes[1] = lman->lookup("cspaceTypeLin");
     cstypes[2] = lman->lookup("cspaceTypeRect");
@@ -455,11 +502,14 @@ colourspaceFrame::colourspaceFrame(colourspaceMapper *parent, const colourspace_
 
 colourspaceFrame::~colourspaceFrame(void)
 {
-    if (parentObj != NULL) parentObj->closeEditor(FALSE);
+    if (parentObj != NULL)
+    {
+        parentObj->closeEditor(FALSE);
+    }
 }
 
 
-const char *colourspaceFrame::getFrameName(void) const
+const char* colourspaceFrame::getFrameName(void) const
 {
     return "colourspaceFrame";
 }
@@ -496,37 +546,42 @@ void colourspaceFrame::OnSize(int w, int h)
 
     GetClientSize(&x, &y);
     if ((x == frameWidth) && (y == frameHeight))
+    {
         return;
+    }
 
     frameWidth = x;
     frameHeight = y;
     y -= colspc_cheight;
-    canvX = x - 2*colspc_border;
-    canvY = y - 2*colspc_border;
+    canvX = x - 2 * colspc_border;
+    canvY = y - 2 * colspc_border;
     canvas->SetSize(colspc_border, colspc_border, canvX, canvY);
     panel->SetSize(0, y, x, colspc_cheight);
-    px = (x - 3*colspc_twidth) / 5;
-    if(px<0) px=0;
+    px = (x - 3 * colspc_twidth) / 5;
+    if (px < 0)
+    {
+        px = 0;
+    }
     py = colspc_border;
     posR->SetSize(px, py, colspc_twidth, colspc_theight);
-    posG->SetSize(2*px + colspc_twidth, py, colspc_twidth, colspc_theight);
-    posB->SetSize(3*px + 2*colspc_twidth, py, colspc_twidth, colspc_theight);
+    posG->SetSize(2 * px + colspc_twidth, py, colspc_twidth, colspc_theight);
+    posB->SetSize(3 * px + 2 * colspc_twidth, py, colspc_twidth, colspc_theight);
     py += colspc_border + colspc_theight;
     sigR->SetSize(px, py, colspc_twidth, colspc_theight);
-    sigG->SetSize(2*px + colspc_twidth, py, colspc_twidth, colspc_theight);
-    sigB->SetSize(3*px+ 2*colspc_twidth, py, colspc_twidth, colspc_theight);
+    sigG->SetSize(2 * px + colspc_twidth, py, colspc_twidth, colspc_theight);
+    sigB->SetSize(3 * px + 2 * colspc_twidth, py, colspc_twidth, colspc_theight);
     py += colspc_border + colspc_theight;
-    px = (x - 3*colspc_twidth)/4;
+    px = (x - 3 * colspc_twidth) / 4;
     immediateUpdate->SetSize(px, py, colspc_twidth, colspc_chkheight);
     drawSum->SetSize(px, py + colspc_chkheight, colspc_twidth, colspc_chkheight);
-    minVal->SetSize(2*px + colspc_twidth, py, colspc_twidth, colspc_theight);
-    maxVal->SetSize(2*px + colspc_twidth, py + colspc_theight, colspc_twidth, colspc_theight);
-    csType->SetSize(3*px + 2*colspc_twidth, py, colspc_chwidth, colspc_chheight);
-    py += colspc_border + 2*colspc_theight;
-    px = (x - 3*colspc_bwidth)/3;
-    okBut->SetSize(px/2, py, colspc_bwidth, colspc_bheight);
-    cancelBut->SetSize((3*px)/2 + colspc_bwidth, py, colspc_bwidth, colspc_bheight);
-    defaultBut->SetSize((5*px)/2 + 2*colspc_bwidth, py, colspc_bwidth, colspc_bheight);
+    minVal->SetSize(2 * px + colspc_twidth, py, colspc_twidth, colspc_theight);
+    maxVal->SetSize(2 * px + colspc_twidth, py + colspc_theight, colspc_twidth, colspc_theight);
+    csType->SetSize(3 * px + 2 * colspc_twidth, py, colspc_chwidth, colspc_chheight);
+    py += colspc_border + 2 * colspc_theight;
+    px = (x - 3 * colspc_bwidth) / 3;
+    okBut->SetSize(px / 2, py, colspc_bwidth, colspc_bheight);
+    cancelBut->SetSize((3 * px) / 2 + colspc_bwidth, py, colspc_bwidth, colspc_bheight);
+    defaultBut->SetSize((5 * px) / 2 + 2 * colspc_bwidth, py, colspc_bwidth, colspc_bheight);
 }
 
 
@@ -555,13 +610,16 @@ void colourspaceFrame::makeUpdate(void)
     canvas->Redraw();
     if (doImmediateUpdate)
     {
-        if (parentObj != NULL) parentObj->colourspaceChanged(&newParams);
+        if (parentObj != NULL)
+        {
+            parentObj->colourspaceChanged(&newParams);
+        }
         didUpdate++;
     }
 }
 
 
-int colourspaceFrame::process(wxObject &obj, wxEvent &evt)
+int colourspaceFrame::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -570,7 +628,10 @@ int colourspaceFrame::process(wxObject &obj, wxEvent &evt)
         if (&obj == (wxObject*)okBut)
         {
             updateSettings();
-            if (parentObj != NULL) parentObj->colourspaceChanged(&newParams);
+            if (parentObj != NULL)
+            {
+                parentObj->colourspaceChanged(&newParams);
+            }
             Close(TRUE);
             return 1;
         }
@@ -579,16 +640,22 @@ int colourspaceFrame::process(wxObject &obj, wxEvent &evt)
             // return to old values, but we did updates?
             if (didUpdate != 0)
             {
-                if (parentObj != NULL) parentObj->colourspaceChanged(&origParams);
+                if (parentObj != NULL)
+                {
+                    parentObj->colourspaceChanged(&origParams);
+                }
                 Close(TRUE);
                 return 1;
             }
-            if (parentObj != NULL) parentObj->closeEditor();
+            if (parentObj != NULL)
+            {
+                parentObj->closeEditor();
+            }
             return 1;
         }
         else if (&obj == (wxObject*)defaultBut)
         {
-            const colourspace_params *cp = &(prefs->csp);
+            const colourspace_params* cp = &(prefs->csp);
             newParams.peak_red = cp->peak_red;
             newParams.peak_green = cp->peak_green;
             newParams.peak_blue = cp->peak_blue;
@@ -671,7 +738,7 @@ void colourspaceFrame::updateSettings(void)
 }
 
 
-void colourspaceFrame::updateDisplay(const colourspace_params *cp)
+void colourspaceFrame::updateDisplay(const colourspace_params* cp)
 {
     if (cp != NULL)
     {
@@ -707,7 +774,7 @@ void colourspaceFrame::updateDisplay(const colourspace_params *cp)
 }
 
 
-void colourspaceFrame::processMouseEvent(wxMouseEvent &mevt)
+void colourspaceFrame::processMouseEvent(wxMouseEvent& mevt)
 {
     int type = mevt.GetEventType();
 
@@ -717,31 +784,44 @@ void colourspaceFrame::processMouseEvent(wxMouseEvent &mevt)
 
         mevt.Position(&mousex, &mousey);
         dragColour = -1;
-        delta = mousex - newParams.peak_red * (canvX -2*colourspaceCanvas::colcanv_cborder) - colourspaceCanvas::colcanv_cborder;
-        if ((delta*delta) <= MOUSE_HOTZONE * MOUSE_HOTZONE) dragColour = 0;
+        delta = mousex - newParams.peak_red * (canvX - 2 * colourspaceCanvas::colcanv_cborder) - colourspaceCanvas::colcanv_cborder;
+        if ((delta * delta) <= MOUSE_HOTZONE * MOUSE_HOTZONE)
+        {
+            dragColour = 0;
+        }
         else
         {
-            delta = mousex - newParams.peak_green * (canvX - 2*colourspaceCanvas::colcanv_cborder) - colourspaceCanvas::colcanv_cborder;
-            if ((delta*delta) <= MOUSE_HOTZONE * MOUSE_HOTZONE) dragColour = 1;
+            delta = mousex - newParams.peak_green * (canvX - 2 * colourspaceCanvas::colcanv_cborder) - colourspaceCanvas::colcanv_cborder;
+            if ((delta * delta) <= MOUSE_HOTZONE * MOUSE_HOTZONE)
+            {
+                dragColour = 1;
+            }
             else
             {
-                delta = mousex - newParams.peak_blue * (canvX - 2*colourspaceCanvas::colcanv_cborder) - colourspaceCanvas::colcanv_cborder;
-                if ((delta*delta) <= MOUSE_HOTZONE * MOUSE_HOTZONE) dragColour = 2;
+                delta = mousex - newParams.peak_blue * (canvX - 2 * colourspaceCanvas::colcanv_cborder) - colourspaceCanvas::colcanv_cborder;
+                if ((delta * delta) <= MOUSE_HOTZONE * MOUSE_HOTZONE)
+                {
+                    dragColour = 2;
+                }
             }
         }
         if (dragColour >= 0)
         {
             if (type == wxEVENT_TYPE_LEFT_DOWN)
+            {
                 mousebut = MOUSE_LEFT;
+            }
             else
+            {
                 mousebut = MOUSE_RIGHT;
+            }
         }
     }
     else if ((type == wxEVENT_TYPE_MOTION) && (mousebut != 0))
     {
         float newx, newy;
-        double *newVal=NULL;
-        rviewText *newText;
+        double* newVal = NULL;
+        rviewText* newText;
 
         mevt.Position(&newx, &newy);
 
@@ -765,9 +845,15 @@ void colourspaceFrame::processMouseEvent(wxMouseEvent &mevt)
             default:
                 return;
             }
-            *newVal = (newx - colourspaceCanvas::colcanv_cborder) / (canvX - 2*colourspaceCanvas::colcanv_cborder);
-            if (*newVal < 0.0) *newVal = 0.0;
-            if (*newVal > 1.0) *newVal = 1.0;
+            *newVal = (newx - colourspaceCanvas::colcanv_cborder) / (canvX - 2 * colourspaceCanvas::colcanv_cborder);
+            if (*newVal < 0.0)
+            {
+                *newVal = 0.0;
+            }
+            if (*newVal > 1.0)
+            {
+                *newVal = 1.0;
+            }
         }
         // right button & up/down movement: change variance
         else if ((mousebut & MOUSE_RIGHT) != 0)
@@ -789,9 +875,12 @@ void colourspaceFrame::processMouseEvent(wxMouseEvent &mevt)
             default:
                 return;
             }
-            *newVal -= 0.5 * (newy - mousey) / (canvX - 2*colourspaceCanvas::colcanv_cborder);
+            *newVal -= 0.5 * (newy - mousey) / (canvX - 2 * colourspaceCanvas::colcanv_cborder);
             // Must not let sigma become too small (floating exceptions)
-            if (*newVal < 1e-6) *newVal = 1e-6;
+            if (*newVal < 1e-6)
+            {
+                *newVal = 1e-6;
+            }
         }
 
         mousex = newx;
@@ -803,7 +892,10 @@ void colourspaceFrame::processMouseEvent(wxMouseEvent &mevt)
             canvas->Redraw();
             if (doImmediateUpdate)
             {
-                if (parentObj != NULL) parentObj->colourspaceChanged(&newParams);
+                if (parentObj != NULL)
+                {
+                    parentObj->colourspaceChanged(&newParams);
+                }
                 didUpdate++;
             }
         }
@@ -826,7 +918,7 @@ void colourspaceFrame::processMouseEvent(wxMouseEvent &mevt)
  *  Colourspace mapper class. For mapping large range integer values to RGB space
  *  baseType == rbt_none implies just the colourspace object without an associated MDD
  */
-colourspaceMapper::colourspaceMapper(r_Ref<r_GMarray> &mdd, rviewBaseType bt, const colourspace_params *cp, bool fullrange, const r_Minterval *domain, unsigned long frange)
+colourspaceMapper::colourspaceMapper(r_Ref<r_GMarray>& mdd, rviewBaseType bt, const colourspace_params* cp, bool fullrange, const r_Minterval* domain, unsigned long frange)
 {
     didRange = FALSE;
     mddObj = mdd;
@@ -857,7 +949,7 @@ colourspaceMapper::colourspaceMapper(r_Ref<r_GMarray> &mdd, rviewBaseType bt, co
     scalingFactor = 1.0;  // needed for FP types only
     tableKind = getTableForType(baseType);
 
-    tableType = (cspaceType)-1;   // initialize to some illegal value
+    tableType = (cspaceType) - 1; // initialize to some illegal value
     setMappingFunctions();
 
     processRange((rangeModeFull) ? CSPACE_RANGE_FULL : CSPACE_RANGE_ACTUAL);
@@ -886,12 +978,14 @@ int colourspaceMapper::getTableForType(rviewBaseType bt)
 }
 
 
-int colourspaceMapper::bindMapper(r_Ref<r_GMarray> &mdd, rviewBaseType bt, bool fullrange, const r_Minterval *domain, const colourspace_params *cp)
+int colourspaceMapper::bindMapper(r_Ref<r_GMarray>& mdd, rviewBaseType bt, bool fullrange, const r_Minterval* domain, const colourspace_params* cp)
 {
     bool cparChanged;
 
     if (cp == NULL)
+    {
         cparChanged = 0;
+    }
     else
         cparChanged =
             ((cp->peak_red   != par.peak_red)   || (cp->sigm_red   != par.sigm_red) ||
@@ -900,7 +994,9 @@ int colourspaceMapper::bindMapper(r_Ref<r_GMarray> &mdd, rviewBaseType bt, bool 
              (cp->type != par.type));
 
     if ((mddObj.ptr() == mdd.ptr()) && (bt == baseType) && (fullrange == rangeModeFull) && (domain == useInterv) && (cparChanged == 0))
-        return 0;   // nothing to do
+    {
+        return 0;    // nothing to do
+    }
 
     if (cparChanged)
     {
@@ -944,8 +1040,14 @@ int colourspaceMapper::bindMapper(r_Ref<r_GMarray> &mdd, rviewBaseType bt, bool 
 
 colourspaceMapper::~colourspaceMapper(void)
 {
-    if (IntToRGBTab15 != NULL) delete [] IntToRGBTab15;
-    if (IntToRGBTab24 != NULL) delete [] IntToRGBTab24;
+    if (IntToRGBTab15 != NULL)
+    {
+        delete [] IntToRGBTab15;
+    }
+    if (IntToRGBTab24 != NULL)
+    {
+        delete [] IntToRGBTab24;
+    }
 
     if (csFrame != NULL)
     {
@@ -990,7 +1092,10 @@ void colourspaceMapper::processRange(int rangeMode)
 {
     double h;
 
-    if (baseType == rbt_none) return;
+    if (baseType == rbt_none)
+    {
+        return;
+    }
 
     if (rangeMode != CSPACE_RANGE_OLD)
     {
@@ -1001,7 +1106,7 @@ void colourspaceMapper::processRange(int rangeMode)
 
         // The number of projected pixels is a measure whether a lookup table pays off.
         projPixels = lastInterv[0].high() - lastInterv[0].low() + 1;
-        for (i=1; i<dimMDD; i++)
+        for (i = 1; i < dimMDD; i++)
         {
             projPixels *= lastInterv[i].high() - lastInterv[i].low() + 1;
         }
@@ -1035,7 +1140,7 @@ void colourspaceMapper::processRange(int rangeMode)
                 par.minVal = 0.0;
                 par.maxVal = (double)ULONG_MAX;
                 break;
-                // MIN/MAX or DBL and FLT are unsigned, i.e. MIN is the smallest number > 0!
+            // MIN/MAX or DBL and FLT are unsigned, i.e. MIN is the smallest number > 0!
             case rbt_float:
                 par.minVal = (double)(-FLT_MAX);
                 par.maxVal = (double)FLT_MAX;
@@ -1078,8 +1183,11 @@ void colourspaceMapper::processRange(int rangeMode)
     {
         // Avoid overflows; min/max could be the lowest/highest values, so the difference is NaN!
         h = ((par.maxVal) / 256.0) - ((par.minVal) / 256.0);
-        if (h == 0.0) h = 1.0;
-        scalingFactor = ((par.floatRange - 1) / 256.0 ) / h;
+        if (h == 0.0)
+        {
+            h = 1.0;
+        }
+        scalingFactor = ((par.floatRange - 1) / 256.0) / h;
     }
 
     h = (par.maxVal - par.minVal);
@@ -1099,23 +1207,31 @@ void colourspaceMapper::processRange(int rangeMode)
 #endif
 
 
-void colourspaceMapper::updateProjection(const r_Minterval *domain)
+void colourspaceMapper::updateProjection(const r_Minterval* domain)
 {
     if (!rangeModeFull)
     {
-        if ((domain == NULL) && (useInterv == NULL)) return;
+        if ((domain == NULL) && (useInterv == NULL))
+        {
+            return;
+        }
         if (domain != NULL)
         {
             int i;
 
-            for (i=0; i<dimMDD; i++)
+            for (i = 0; i < dimMDD; i++)
             {
                 if ((lastInterv[i].low() != (*domain)[i].low()) ||
                         (lastInterv[i].high() != (*domain)[i].high()))
+                {
                     break;
+                }
             }
             // All equal ==> nothing to do
-            if (i >= dimMDD) return;
+            if (i >= dimMDD)
+            {
+                return;
+            }
         }
 
         didRange = FALSE;
@@ -1130,19 +1246,19 @@ void colourspaceMapper::updateProjection(const r_Minterval *domain)
  *  Shortcuts for defining convertor functions
  */
 #define CSPACE_CONVERT(returntype, funcname, convname, rgbname) \
-  returntype colourspaceMapper::funcname(double value) \
-  { \
-    unsigned int red, green, blue; \
-    blue  = (unsigned int)(255.99*convname(value, peakB, invSigB)); \
-    green = (unsigned int)(255.99*convname(value, peakG, invSigG)); \
-    red   = (unsigned int)(255.99*convname(value, peakR, invSigR)); \
-    return rgbname(red, green, blue); \
-  }
+    returntype colourspaceMapper::funcname(double value) \
+    { \
+        unsigned int red, green, blue; \
+        blue  = (unsigned int)(255.99*convname(value, peakB, invSigB)); \
+        green = (unsigned int)(255.99*convname(value, peakG, invSigG)); \
+        red   = (unsigned int)(255.99*convname(value, peakR, invSigR)); \
+        return rgbname(red, green, blue); \
+    }
 
 #define CSPACE_CONVERT15(funcname, convname) \
-  CSPACE_CONVERT(unsigned short, funcname, convname, RGBL_TO_PALETTE_SHORT)
+    CSPACE_CONVERT(unsigned short, funcname, convname, RGBL_TO_PALETTE_SHORT)
 #define CSPACE_CONVERT24(funcname, convname) \
-  CSPACE_CONVERT(unsigned long, funcname, convname, RGB_TO_PALETTE_LONG)
+    CSPACE_CONVERT(unsigned long, funcname, convname, RGB_TO_PALETTE_LONG)
 
 CSPACE_CONVERT15(ValToGauss15, valueToGauss)
 CSPACE_CONVERT24(ValToGauss24, valueToGauss)
@@ -1156,17 +1272,23 @@ CSPACE_CONVERT24(ValToAsymptotic24, valueToAsymptotic)
 
 
 
-unsigned short *colourspaceMapper::buildCSTab15(bool forceRebuild)
+unsigned short* colourspaceMapper::buildCSTab15(bool forceRebuild)
 {
     int i, j;
     double val;
 
     // Don't build a 15bpp table if it's not needed
-    if (tableKind != 0) return NULL;
+    if (tableKind != 0)
+    {
+        return NULL;
+    }
 
     if (IntToRGBTab15 != NULL)
     {
-        if ((!forceRebuild) && (tableType == par.type)) return IntToRGBTab15;
+        if ((!forceRebuild) && (tableType == par.type))
+        {
+            return IntToRGBTab15;
+        }
         delete [] IntToRGBTab15;
         IntToRGBTab15 = NULL;
     }
@@ -1176,7 +1298,7 @@ unsigned short *colourspaceMapper::buildCSTab15(bool forceRebuild)
     j = (int)((par.maxVal - par.minVal) * scalingFactor) + 1;
 
     IntToRGBTab15 = new unsigned short[j];
-    for (i=0, val=0.0; i<j; i++, val += scalingFactor)
+    for (i = 0, val = 0.0; i < j; i++, val += scalingFactor)
     {
         IntToRGBTab15[i] = ValToCS15(val);
     }
@@ -1186,32 +1308,44 @@ unsigned short *colourspaceMapper::buildCSTab15(bool forceRebuild)
 
 
 
-unsigned long *colourspaceMapper::buildCSTab24(bool forceRebuild)
+unsigned long* colourspaceMapper::buildCSTab24(bool forceRebuild)
 {
     int i, j;
     double val;
     double invScale;
 
     // Don't build a 32bpp table if it's not needed
-    if (tableKind == 0) return NULL;
+    if (tableKind == 0)
+    {
+        return NULL;
+    }
 
     if (IntToRGBTab24 != NULL)
     {
-        if ((!forceRebuild) && (tableType == par.type)) return IntToRGBTab24;
+        if ((!forceRebuild) && (tableType == par.type))
+        {
+            return IntToRGBTab24;
+        }
         delete [] IntToRGBTab24;
         IntToRGBTab24 = NULL;
     }
 
     j = (int)((par.maxVal - par.minVal) * scalingFactor) + 1;
-    if (j > COLOURSPACE_TABLE_THRESHOLD) return NULL;
+    if (j > COLOURSPACE_TABLE_THRESHOLD)
+    {
+        return NULL;
+    }
 
     // If we use the range of the current projection and there are fewer visible pixels than
     // table entries then don't build a table (or we'd sacrifice a lot of speed)
-    if ((!rangeModeFull) && (useInterv != NULL) && (j > projPixels)) return NULL;
+    if ((!rangeModeFull) && (useInterv != NULL) && (j > projPixels))
+    {
+        return NULL;
+    }
 
-    invScale = (scalingFactor == 0.0) ? 1.0 : 1/scalingFactor;
+    invScale = (scalingFactor == 0.0) ? 1.0 : 1 / scalingFactor;
     IntToRGBTab24 = new unsigned long[j];
-    for (i=0, val=0.0; i<j; i++, val += invScale)
+    for (i = 0, val = 0.0; i < j; i++, val += invScale)
     {
         IntToRGBTab24[i] = ValToCS24(val);
     }
@@ -1239,19 +1373,19 @@ double colourspaceMapper::getScalingFactor(void)
 }
 
 
-unsigned short *colourspaceMapper::getCSTab15(void)
+unsigned short* colourspaceMapper::getCSTab15(void)
 {
     return IntToRGBTab15;
 }
 
 
-unsigned long *colourspaceMapper::getCSTab24(void)
+unsigned long* colourspaceMapper::getCSTab24(void)
 {
     return IntToRGBTab24;
 }
 
 
-void colourspaceMapper::colourspaceChanged(const colourspace_params *newParams, bool autoUpdate)
+void colourspaceMapper::colourspaceChanged(const colourspace_params* newParams, bool autoUpdate)
 {
     user_event ue;
 
@@ -1260,7 +1394,9 @@ void colourspaceMapper::colourspaceChanged(const colourspace_params *newParams, 
     processRange(CSPACE_RANGE_OLD);
 
     if (csFrame != NULL)
+    {
         csFrame->updateDisplay(newParams);
+    }
 
     if (autoUpdate)
     {
@@ -1270,14 +1406,19 @@ void colourspaceMapper::colourspaceChanged(const colourspace_params *newParams, 
         ue.data = (void*)this;
         //parentFrame->userEvent(ue);
         if (frameManager != NULL)
+        {
             frameManager->broadcastUserEvent(ue);
+        }
     }
 }
 
 
 void colourspaceMapper::openEditor(void)
 {
-    if (csFrame != NULL) return;
+    if (csFrame != NULL)
+    {
+        return;
+    }
 
     csFrame = new colourspaceFrame(this, &par);
 }
@@ -1285,12 +1426,15 @@ void colourspaceMapper::openEditor(void)
 
 void colourspaceMapper::closeEditor(bool activeClose)
 {
-    if (activeClose) csFrame->Close(TRUE);
+    if (activeClose)
+    {
+        csFrame->Close(TRUE);
+    }
     csFrame = NULL;
 }
 
 
-void colourspaceMapper::getParameters(colourspace_params *dest)
+void colourspaceMapper::getParameters(colourspace_params* dest)
 {
     if (csFrame != NULL)
     {

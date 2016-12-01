@@ -39,23 +39,20 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
-public class RasMArrayByte extends RasGMArray
-{
+public class RasMArrayByte extends RasGMArray {
 
-  /** default constructor */
-  public RasMArrayByte()
-    {
-	super();
-	typeLength = SIZE_OF_BYTE;
+    /** default constructor */
+    public RasMArrayByte() {
+        super();
+        typeLength = SIZE_OF_BYTE;
     }
 
     /**
      * constructor for uninitialized MDD objects
      *  * @param initDomain The initial Domain of the MArray
      */
-  public RasMArrayByte(final RasMInterval initDomain)
-    {
-	super(initDomain, SIZE_OF_BYTE);
+    public RasMArrayByte(final RasMInterval initDomain) {
+        super(initDomain, SIZE_OF_BYTE);
     }
 
     /**
@@ -63,46 +60,44 @@ public class RasMArrayByte extends RasGMArray
     * @param initDomain The initial Domain of the MArray
     * @param RasStorageLayout The storage layout to be used
     */
-  public RasMArrayByte(final RasMInterval initDomain, RasStorageLayout stl)
-    {
+    public RasMArrayByte(final RasMInterval initDomain, RasStorageLayout stl) {
         super(initDomain, SIZE_OF_BYTE, stl);
     }
 
-  /**
-   * copy constructor
-   * @param obj a copy of this object will be created
-   */
-  public RasMArrayByte(final RasMArrayByte obj)
-    {
-	super(obj);
+    /**
+     * copy constructor
+     * @param obj a copy of this object will be created
+     */
+    public RasMArrayByte(final RasMArrayByte obj) {
+        super(obj);
     }
 
-  /**
-   * subscript operator for read access of a cell. The cell value is returned
-   * as a byte[1] array.
-   */
-  public byte[] getCell(RasPoint point)
-         throws RasDimensionMismatchException, RasIndexOutOfBoundsException
-    {
-	//first test dimensionality
-	if(point.dimension() != domain.dimension())
-  	  throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+    /**
+     * subscript operator for read access of a cell. The cell value is returned
+     * as a byte[1] array.
+     */
+    public byte[] getCell(RasPoint point)
+    throws RasDimensionMismatchException, RasIndexOutOfBoundsException {
+        //first test dimensionality
+        if (point.dimension() != domain.dimension()) {
+            throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+        }
         byte[] retValue = new byte[1];
         retValue[0] = data[(int)domain.cellOffset(point)];
-	return retValue;
+        return retValue;
     }
 
-  /** subscript operator for read access of a cell. The cell value is returned as
-   * a Byte.
-   */
-  public byte getByte(final RasPoint point)
-         throws RasDimensionMismatchException, RasIndexOutOfBoundsException
-    {
-      // first test dimensionality
-      if(point.dimension() != domain.dimension())
-        throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+    /** subscript operator for read access of a cell. The cell value is returned as
+     * a Byte.
+     */
+    public byte getByte(final RasPoint point)
+    throws RasDimensionMismatchException, RasIndexOutOfBoundsException {
+        // first test dimensionality
+        if (point.dimension() != domain.dimension()) {
+            throw new RasDimensionMismatchException(point.dimension(), domain.dimension());
+        }
 
-      return data[(int)domain.cellOffset(point)];
+        return data[(int)domain.cellOffset(point)];
     }
 
 

@@ -40,10 +40,10 @@ import petascope.wcps2.result.WcpsResult;
 public class ComplexNumberConstantHandler {
 
 
-  public static WcpsResult handle(String re, String im) {
-    return new WcpsResult(null, TEMPLATE.replace("$re", re).replace("$im", im));
-  }
+    public static WcpsResult handle(String re, String im) {
+        return new WcpsResult(null, TEMPLATE.replace("$re", re).replace("$im", im));
+    }
 
-  private final static String TEMPLATE = "complex($re, $im)";
+    private final static String TEMPLATE = "complex($re, $im)";
 
 }

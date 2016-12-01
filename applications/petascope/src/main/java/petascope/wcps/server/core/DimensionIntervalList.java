@@ -33,7 +33,7 @@ public class DimensionIntervalList {
     private ArrayList<IRasNode> list;
 
     public DimensionIntervalList(Node node, XmlQuery xq, CoverageInfo info)
-            throws WCPSException, SecoreException {
+    throws WCPSException, SecoreException {
 
         while (node != null) {
             list = new ArrayList<IRasNode>();

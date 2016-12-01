@@ -53,7 +53,7 @@ Configuration::Configuration()
 
 bool Configuration::parseCommandLine(int argc, char** argv)
 {
-    CommandLineParser &cmlInter  = CommandLineParser::getInstance();
+    CommandLineParser& cmlInter  = CommandLineParser::getInstance();
     initParameters();
 
     try
@@ -61,19 +61,19 @@ bool Configuration::parseCommandLine(int argc, char** argv)
         myExecutable = argv[0];
         cmlInter.processCommandLine(argc, argv);
 
-        if(cmlHelp->isPresent())
+        if (cmlHelp->isPresent())
         {
             printHelp();
-            exit( -2 ); // Unix code for 'help' -- PB 2005-sep-18
+            exit(-2);   // Unix code for 'help' -- PB 2005-sep-18
         }
         checkParameters();
     }
 
-    catch(CmlException &ex)
+    catch (CmlException& ex)
     {
-        cout<<"Error: " << ex.what()<<endl;
+        cout << "Error: " << ex.what() << endl;
 
-        if(!logToStdOut)
+        if (!logToStdOut)
         {
             LERROR << "Error: " << ex.what();
         }
@@ -87,7 +87,7 @@ bool Configuration::parseCommandLine(int argc, char** argv)
 
 void Configuration::initParameters()
 {
-    CommandLineParser &cmlInter  = CommandLineParser::getInstance();
+    CommandLineParser& cmlInter  = CommandLineParser::getInstance();
 
     cmlHelp     = &cmlInter.addFlagParameter('h', "help", "print this help");
 
@@ -95,7 +95,7 @@ void Configuration::initParameters()
     cmlRsn      = &cmlInter.addStringParameter(NSN, "rsn", "<srv-name> rasserver instance name");
     cmlPort     = &cmlInter.addStringParameter(NSN, "lport", "<nnnn> rasserver listen port (RPC or HTTP)");
     cmlMgr      = &cmlInter.addStringParameter(NSN, "mgr", "<mgr-host> name of RasMGR host", DEFAULT_HOSTNAME);
-    cmlMgrPort  = &cmlInter.addLongParameter(NSN, "mgrport", "<nnnn> rasmgr port", DEFAULT_PORT );
+    cmlMgrPort  = &cmlInter.addLongParameter(NSN, "mgrport", "<nnnn> rasmgr port", DEFAULT_PORT);
     cmlMgrSync  = &cmlInter.addStringParameter(NSN, "sync", ""); // deprecated
 
     cmlTransBuffer = &cmlInter.addLongParameter(NSN, "transbuffer", "<nnnn> maximal size of the transfer buffer in bytes", MAX_BUFFER_SIZE);
@@ -136,11 +136,11 @@ void Configuration::initParameters()
 
     // for systemtest use e.g.3 together with tileSize 12
     string indexsizeDesc = string("<nnnn> make the index use n nodes");
-    cmlIndexSize = &cmlInter.addLongParameter(NSN, "indexsize", indexsizeDesc.c_str(),0L);
-    
+    cmlIndexSize = &cmlInter.addLongParameter(NSN, "indexsize", indexsizeDesc.c_str(), 0L);
+
     cmlCacheLimit = &cmlInter.addLongParameter(NSN, "cachelimit", "<limit> specifies upper limit in bytes on using memory for caching", 0L);
 #ifdef RMANDEBUG
-    cmlDbg   = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out","<srv-name>.log");
+    cmlDbg   = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out", "<srv-name>.log");
     cmlDbgLevel  = &cmlInter.addLongParameter(NSN, "dl", "<nn> debug level (0-4; 0 = no / 4 = maximal debug information)", 0L);
 #endif // RMANDEBUG
 
@@ -184,14 +184,14 @@ void Configuration::checkParameters()
     tilingName = cmlTiling->getValueAsString();
     indexType  = cmlIndex->getValueAsString();
     indexSize  = cmlIndexSize->getValueAsLong();
-    
+
     cacheLimit = cmlCacheLimit->getValueAsLong();
 
     newServerId = cmlNewServerId->getValueAsString();
 #ifdef RMANDEBUG
     //  deprecated(cmlDbg);     // will certainly not remove this... -- PB 2007-may-07
     // SET_OUTPUT( cmlDbg->isPresent() );   // enable trace macros depending on --debug parameter
-    SET_OUTPUT( true );
+    SET_OUTPUT(true);
     // dbgLevel   = cmlDbgLevel->getValueAsLong();
     dbgLevel   = 4;
 #endif
@@ -200,7 +200,7 @@ void Configuration::checkParameters()
 
 void Configuration::printHelp()
 {
-    CommandLineParser &cmlInter  = CommandLineParser::getInstance();
+    CommandLineParser& cmlInter  = CommandLineParser::getInstance();
 
     cout << "Usage:   rasserver [options]" << endl;
     cout << "Options:" << endl;
@@ -214,9 +214,9 @@ void
 Configuration::initLogFiles()
 {
 
-    if( cmlLog->isPresent())
+    if (cmlLog->isPresent())
     {
-        if( strcasecmp(cmlLog->getValueAsString(), "stdout") != 0)
+        if (strcasecmp(cmlLog->getValueAsString(), "stdout") != 0)
         {
             logFileName = cmlLog->getValueAsString();
             logToStdOut = false;
@@ -230,7 +230,7 @@ Configuration::initLogFiles()
     else
     {
         // default
-        logFileName = makeLogFileName( serverName, LOG_SUFFIX );
+        logFileName = makeLogFileName(serverName, LOG_SUFFIX);
         logToStdOut = false;
     }
 
@@ -239,7 +239,7 @@ Configuration::initLogFiles()
     LogConfiguration defaultConf(CONFDIR, SERVER_LOG_CONF);
     defaultConf.configServerLogging(logFileName);
 
-    if( logToStdOut == true)
+    if (logToStdOut == true)
     {
         RMInit::logOut.rdbuf(cout.rdbuf());
         RMInit::dbgOut.rdbuf(cout.rdbuf());
@@ -248,7 +248,9 @@ Configuration::initLogFiles()
     else
     {
         if (RMInit::logFileOut.is_open())
+        {
             RMInit::logFileOut.close();
+        }
 
         RMInit::logFileOut.open(logFileName, ios::out | ios::app);
         RMInit::logOut.rdbuf(RMInit::logFileOut.rdbuf());
@@ -256,32 +258,32 @@ Configuration::initLogFiles()
         RMInit::bmOut.rdbuf(RMInit::logFileOut.rdbuf());
     }
 #ifndef RMANDEBUG
-    RMInit::dbgFileOut.open("/dev/null",ios::app);
+    RMInit::dbgFileOut.open("/dev/null", ios::app);
     RMInit::dbgOut.rdbuf(RMInit::dbgFileOut.rdbuf());
 #endif
 }
 
-const char *
-Configuration::makeLogFileName(const char *srvName,const char *desExt)
+const char*
+Configuration::makeLogFileName(const char* srvName, const char* desExt)
 {
     static char logfilePath[ FILENAME_MAX ];
-    int pid =getpid();
-    mkdir( LOGDIR, S_IRWXU + S_IRGRP+S_IXGRP + S_IROTH+S_IXOTH ); // create if not exist, rwxr-xr-x
-    int pathLen = snprintf( logfilePath, FILENAME_MAX, "%s/rasserver.%s.%06d.%s", LOGDIR, srvName, pid, desExt );
+    int pid = getpid();
+    mkdir(LOGDIR, S_IRWXU + S_IRGRP + S_IXGRP + S_IROTH + S_IXOTH);   // create if not exist, rwxr-xr-x
+    int pathLen = snprintf(logfilePath, FILENAME_MAX, "%s/rasserver.%s.%06d.%s", LOGDIR, srvName, pid, desExt);
     if (pathLen >= FILENAME_MAX)
     {
-        logfilePath[FILENAME_MAX-1] = '\0'; // force-terminate string before printing
+        logfilePath[FILENAME_MAX - 1] = '\0'; // force-terminate string before printing
         cerr << "Warning: path name longer than allowed by OS, likely log file cannot be written: " << logfilePath << endl;
     }
     return logfilePath;
 }
 
 void
-Configuration::deprecated(CommandLineParameter *cml)
+Configuration::deprecated(CommandLineParameter* cml)
 {
-    if(cml->isPresent())
+    if (cml->isPresent())
     {
-        cout<<"WARNING: parameter '"<<cml->calledName()<<"' is deprecated, will be removed in next version!"<<endl;
+        cout << "WARNING: parameter '" << cml->calledName() << "' is deprecated, will be removed in next version!" << endl;
     }
 }
 

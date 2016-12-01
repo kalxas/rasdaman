@@ -25,7 +25,7 @@
 namespace common
 {
 
-IPv6Resolver::IPv6Resolver(const in6_addr &address, boost::uint32_t port) :
+IPv6Resolver::IPv6Resolver(const in6_addr& address, boost::uint32_t port) :
     address(address), AbstractNetworkResolver(port)
 {
 

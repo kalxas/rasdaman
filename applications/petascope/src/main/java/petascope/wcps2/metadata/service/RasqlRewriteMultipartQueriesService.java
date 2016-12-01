@@ -117,7 +117,7 @@ public class RasqlRewriteMultipartQueriesService {
     // e.g: $c -> (mr, rgb)
     public boolean isMultiPart() {
         // if $c -> (mr, rgb) then size > 1 and it is multipart
-        for (ArrayList<String> coverageNames: this.coverageAliasRegistry.getCoverageMappings().values()) {
+        for (ArrayList<String> coverageNames : this.coverageAliasRegistry.getCoverageMappings().values()) {
             if (coverageNames.size() > 1) {
                 return true;
             }

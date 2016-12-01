@@ -112,7 +112,9 @@ public class GetCoverageRequest extends BaseRequest {
     public List<DimensionSubset> getSubsets() {
         return subsets;
     }
-    public void setSubsets(List<DimensionSubset> subsets) {this.subsets = subsets;}
+    public void setSubsets(List<DimensionSubset> subsets) {
+        this.subsets = subsets;
+    }
 
     /**
      * Method to check whether a CRS dimension has been sliced in this GetCoverage request.
@@ -171,7 +173,7 @@ public class GetCoverageRequest extends BaseRequest {
         return scale.isSet();
     }
 
-    public boolean hasRangeSubsetting(){
+    public boolean hasRangeSubsetting() {
         return !this.rangeSubset.isEmpty();
     }
 
@@ -179,7 +181,7 @@ public class GetCoverageRequest extends BaseRequest {
     public String toString() {
         StringBuilder ret = new StringBuilder();
         ret.append("Coverage: ").append(coverageId).append(", Subsets: ").append(ListUtil.ltos(subsets, ", "));
-        if(!this.rangeSubset.isEmpty()){
+        if (!this.rangeSubset.isEmpty()) {
             ret.append(this.rangeSubset.toString());
         }
         return ret.toString();
@@ -325,11 +327,16 @@ public class GetCoverageRequest extends BaseRequest {
 
         public int getAxesNumber() {
             switch (this.type) {
-                case SCALE_FACTOR: return 0;
-                case SCALE_AXIS: return this.fact.size();
-                case SCALE_SIZE: return this.sz.size();
-                case SCALE_EXTENT: return this.extent.size();
-                default: return 0;
+            case SCALE_FACTOR:
+                return 0;
+            case SCALE_AXIS:
+                return this.fact.size();
+            case SCALE_SIZE:
+                return this.sz.size();
+            case SCALE_EXTENT:
+                return this.extent.size();
+            default:
+                return 0;
             }
         }
 
@@ -340,9 +347,9 @@ public class GetCoverageRequest extends BaseRequest {
          */
         public boolean isScaled(String axis) {
             return getType().equals(SupportedTypes.SCALE_FACTOR)             // global scale factor
-                    || isPresentSize(axis)    // scale-to-size
-                    || isPresentExtent(axis)  // scale-to-extent
-                    || isPresentFactor(axis); // axis scale factor
+                   || isPresentSize(axis)    // scale-to-size
+                   || isPresentExtent(axis)  // scale-to-extent
+                   || isPresentFactor(axis); // axis scale factor
         }
     }
 }

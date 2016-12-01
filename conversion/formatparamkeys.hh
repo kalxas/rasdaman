@@ -39,7 +39,7 @@ static const std::string CONFIG_OPTIONS{"configOptions"};
 static const std::string CONFIG_OPTIONS_LEGACY{"config"};
 }
 
-namespace Encode 
+namespace Encode
 {
 static const std::string GEO_REFERENCE{"geoReference"};
 static const std::string BBOX{"bbox"};

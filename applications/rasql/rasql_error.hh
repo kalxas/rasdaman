@@ -58,20 +58,20 @@
 #define FILESIZEMISMATCH                8
 #define NOFILEWRITEPERMISSION           9
 #define UNABLETOWRITETOFILE             10
-#define FILEEMPTY						11
+#define FILEEMPTY                       11
 
 class RasqlError // : public std::exception
 {
 public:
 
     /// constructor receiving an error number
-    RasqlError( int e );
+    RasqlError(int e);
 
     /// destructor
     virtual ~RasqlError();
 
     /// get an error description
-    virtual const char * what();
+    virtual const char* what();
 
 private:
     /// error information

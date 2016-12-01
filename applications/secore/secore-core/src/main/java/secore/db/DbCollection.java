@@ -30,61 +30,61 @@ package secore.db;
  */
 public class DbCollection {
 
-  // the version number (e.g: gml_0, 0, 8.5, 8.92)
-  private String versionNumber;
-  // the collection name (e.g: userdb, gml_0, gml_85, gml_892)
-  private String collectionName;
+    // the version number (e.g: gml_0, 0, 8.5, 8.92)
+    private String versionNumber;
+    // the collection name (e.g: userdb, gml_0, gml_85, gml_892)
+    private String collectionName;
 
-  public DbCollection(String versionNumber, String collectionName) {
-    this.versionNumber = versionNumber;
-    this.collectionName = collectionName;
-  }
-
-  /**
-   * get version number (e.g: 8.5)
-   *
-   * @return
-   */
-  public String getVersionNumber() {
-    return versionNumber;
-  }
-
-  /**
-   * get collection name (e.g: gml_85)
-   *
-   * @return
-   */
-  public String getCollectionName() {
-    return collectionName;
-  }
-
-  public void setVersionNumber(String key) {
-    this.versionNumber = key;
-  }
-
-  public void setCollectionName(String value) {
-    this.collectionName = value;
-  }
-
-  @Override
-  public int hashCode() {
-    if (this.versionNumber == null) {
-      return (this.collectionName == null) ? 0 : this.collectionName.hashCode() + 1;
-    } else if (this.collectionName == null) {
-      return this.versionNumber.hashCode() + 2;
-    } else {
-      return this.versionNumber.hashCode() * 17 + this.collectionName.hashCode();
+    public DbCollection(String versionNumber, String collectionName) {
+        this.versionNumber = versionNumber;
+        this.collectionName = collectionName;
     }
-  }
 
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof DbCollection
-        && equals(versionNumber, ((DbCollection) obj).getVersionNumber())
-        && equals(collectionName, ((DbCollection) obj).getCollectionName());
-  }
+    /**
+     * get version number (e.g: 8.5)
+     *
+     * @return
+     */
+    public String getVersionNumber() {
+        return versionNumber;
+    }
 
-  private static boolean equals(Object x, Object y) {
-    return (x == null && y == null) || (x != null && x.equals(y));
-  }
+    /**
+     * get collection name (e.g: gml_85)
+     *
+     * @return
+     */
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setVersionNumber(String key) {
+        this.versionNumber = key;
+    }
+
+    public void setCollectionName(String value) {
+        this.collectionName = value;
+    }
+
+    @Override
+    public int hashCode() {
+        if (this.versionNumber == null) {
+            return (this.collectionName == null) ? 0 : this.collectionName.hashCode() + 1;
+        } else if (this.collectionName == null) {
+            return this.versionNumber.hashCode() + 2;
+        } else {
+            return this.versionNumber.hashCode() * 17 + this.collectionName.hashCode();
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof DbCollection
+               && equals(versionNumber, ((DbCollection) obj).getVersionNumber())
+               && equals(collectionName, ((DbCollection) obj).getCollectionName());
+    }
+
+    private static boolean equals(Object x, Object y) {
+        return (x == null && y == null) || (x != null && x.equals(y));
+    }
 }

@@ -36,7 +36,7 @@ import petascope.swe.datamodel.NilValue;
 public class WCSTTypeTest {
 
     @Test
-    public void testTypeCreation(){
+    public void testTypeCreation() {
         try {
             List<String> bandBaseTypes = new ArrayList<String>();
             bandBaseTypes.add("char");

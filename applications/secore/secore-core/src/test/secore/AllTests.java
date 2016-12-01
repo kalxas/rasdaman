@@ -42,18 +42,18 @@ import secore.req.ResolveRequestTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  RequestParamTest.class,
-  ResolveRequestTest.class,
-  ResolveResponseTest.class,
-  StringUtilTest.class,
-  ConfigTest.class,
-  DbManagerTest.class,
-  
-  GeneralHandlerTest.class,
-  ParameterizedCrsHandlerTest.class,
-  CrsCompoundHandlerTest.class,
-  EqualityHandlerTest.class,
-  IncompleteUrlHandlerTest.class
+    RequestParamTest.class,
+    ResolveRequestTest.class,
+    ResolveResponseTest.class,
+    StringUtilTest.class,
+    ConfigTest.class,
+    DbManagerTest.class,
+
+    GeneralHandlerTest.class,
+    ParameterizedCrsHandlerTest.class,
+    CrsCompoundHandlerTest.class,
+    EqualityHandlerTest.class,
+    IncompleteUrlHandlerTest.class
 })
 public class AllTests {
 }

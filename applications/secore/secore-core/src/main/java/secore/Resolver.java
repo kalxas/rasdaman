@@ -50,95 +50,95 @@ import secore.gml.GMLValidator;
  * @author Dimitar Misev
  */
 public class Resolver {
-  
-  private static Logger log = LoggerFactory.getLogger(Resolver.class);
 
-  private static List<Handler> handlers;
+    private static Logger log = LoggerFactory.getLogger(Resolver.class);
 
-  static {
-    handlers = new ArrayList<Handler>();
-    registerHandler(new EqualityHandler());
-    registerHandler(new CrsCompoundHandler());
-    registerHandler(new QueryHandler());
-    registerHandler(new ParameterizedCrsHandler());
-    registerHandler(new IncompleteUrlHandler());
-    registerHandler(new GeneralHandler());
-    registerHandler(new AxisHandler());
-  }
+    private static List<Handler> handlers;
 
-  /**
-   * Add new handler to the registry.
-   */
-  public static void registerHandler(Handler handler) {
-    handlers.add(handler);
-  }
-
-  public static List<Handler> getHandlers() {
-    return handlers;
-  }
-
-  /**
-   * Handle a request given a list of key-value pairs.
-   * 
-   * @param request contains the arguments as pairs
-   * @return the response for the given request
-   * @throws SecoreException when the resolver can not handle the given request, or in
-   *  case of a mall-formed request.
-   */
-  public static ResolveResponse resolve(ResolveRequest request) throws SecoreException {
-    List<RequestParam> args = request.getParams();
-    if (args == null) {
-      throw new SecoreException(ExceptionCode.MissingParameterValue, "No arguments provided");
+    static {
+        handlers = new ArrayList<Handler>();
+        registerHandler(new EqualityHandler());
+        registerHandler(new CrsCompoundHandler());
+        registerHandler(new QueryHandler());
+        registerHandler(new ParameterizedCrsHandler());
+        registerHandler(new IncompleteUrlHandler());
+        registerHandler(new GeneralHandler());
+        registerHandler(new AxisHandler());
     }
-    for (RequestParam arg : args) {
-      if (arg.val == null) {
-        throw new SecoreException(ExceptionCode.InvalidRequest, "Null value encountered");
-      }
-    }
-    for (Handler handler : handlers) {
-      if (handler.canHandle(request)) {
-        log.debug("Selected " + handler.getClass().getSimpleName() + " to handle the request.");
-        return handler.handle(request);
-      }
-    }
-    throw new SecoreException(ExceptionCode.OperationNotSupported.locator(request.getOriginalRequest()), 
-        "Can not resolve request: " + request.getOriginalRequest());
-  }
 
-  /**
-   * Resolve the given URI.
-   * 
-   * @param url the URI to resolve
-   * @return the response
-   * @throws SecoreException when the resolver can not handle the given request, or in
-   *  case of a malformed request.
-   */
-  public static ResolveResponse resolve(URL url) throws SecoreException {
-    BufferedReader in = null;
-    StringBuilder data = new StringBuilder(1000);
-    
-    try {
-      in = new BufferedReader(new InputStreamReader(url.openStream()));
-      String line;
-      while ((line = in.readLine()) != null) {
-        data.append(line);
-        data.append(NEW_LINE);
-      }
-    } catch (Exception e) {  
-      throw new SecoreException(ExceptionCode.IOConnectionError, "The request could not be retrieved", e);
-    } finally {
-      if (in != null) {
-        try {
-          in.close();
-        } catch (Exception e) {
-          throw new SecoreException(ExceptionCode.IOConnectionError, "The request could not be retrieved");
+    /**
+     * Add new handler to the registry.
+     */
+    public static void registerHandler(Handler handler) {
+        handlers.add(handler);
+    }
+
+    public static List<Handler> getHandlers() {
+        return handlers;
+    }
+
+    /**
+     * Handle a request given a list of key-value pairs.
+     *
+     * @param request contains the arguments as pairs
+     * @return the response for the given request
+     * @throws SecoreException when the resolver can not handle the given request, or in
+     *  case of a mall-formed request.
+     */
+    public static ResolveResponse resolve(ResolveRequest request) throws SecoreException {
+        List<RequestParam> args = request.getParams();
+        if (args == null) {
+            throw new SecoreException(ExceptionCode.MissingParameterValue, "No arguments provided");
         }
-      }
+        for (RequestParam arg : args) {
+            if (arg.val == null) {
+                throw new SecoreException(ExceptionCode.InvalidRequest, "Null value encountered");
+            }
+        }
+        for (Handler handler : handlers) {
+            if (handler.canHandle(request)) {
+                log.debug("Selected " + handler.getClass().getSimpleName() + " to handle the request.");
+                return handler.handle(request);
+            }
+        }
+        throw new SecoreException(ExceptionCode.OperationNotSupported.locator(request.getOriginalRequest()),
+                                  "Can not resolve request: " + request.getOriginalRequest());
     }
-    String ret = data.toString();
-    if (ret.endsWith(NEW_LINE)) {
-      ret = ret.substring(0, ret.length() - 1);
+
+    /**
+     * Resolve the given URI.
+     *
+     * @param url the URI to resolve
+     * @return the response
+     * @throws SecoreException when the resolver can not handle the given request, or in
+     *  case of a malformed request.
+     */
+    public static ResolveResponse resolve(URL url) throws SecoreException {
+        BufferedReader in = null;
+        StringBuilder data = new StringBuilder(1000);
+
+        try {
+            in = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                data.append(line);
+                data.append(NEW_LINE);
+            }
+        } catch (Exception e) {
+            throw new SecoreException(ExceptionCode.IOConnectionError, "The request could not be retrieved", e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                    throw new SecoreException(ExceptionCode.IOConnectionError, "The request could not be retrieved");
+                }
+            }
+        }
+        String ret = data.toString();
+        if (ret.endsWith(NEW_LINE)) {
+            ret = ret.substring(0, ret.length() - 1);
+        }
+        return new ResolveResponse(ret);
     }
-    return new ResolveResponse(ret);
-  }
 }

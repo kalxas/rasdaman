@@ -71,10 +71,10 @@ public:
     ClientQueue();
     ~ClientQueue();
 
-    void put(ClientID&, const char *dbName, char serverType, int errorCode);
+    void put(ClientID&, const char* dbName, char serverType, int errorCode);
 
     // the answer is 0 or the errorcode
-    int  canBeServed(ClientID&, const char *dbName, char serverType, bool fake);
+    int  canBeServed(ClientID&, const char* dbName, char serverType, bool fake);
 
 private:
     struct ClientEntry
@@ -90,7 +90,7 @@ private:
         bool      wasfake;
 
         ClientEntry();
-        ClientEntry(ClientID &client, const char *dbName, char serverType, int errorCode);
+        ClientEntry(ClientID& client, const char* dbName, char serverType, int errorCode);
 
         bool shouldWeCleanup(bool fake);
         void updateTime();
@@ -105,7 +105,7 @@ private:
 /**
   * \ingroup Rasmgrs
   */
-class MasterComm:public NbServerComm
+class MasterComm: public NbServerComm
 {
 public:
     MasterComm();
@@ -114,7 +114,7 @@ public:
     void commitChanges();
     void commitAuthFile();
 private:
-    bool isMessage(const char *messageStart);
+    bool isMessage(const char* messageStart);
     int  getFreeServer(bool fake, bool frompeer = false);
     const char* convertAnswerCode(int code);
     const char* askOutpeer(int peer, char* outmsg);
@@ -127,25 +127,25 @@ private:
     bool commit;
     bool commitAuthOnly;
 
-    void processJob( NbJob &currentJob );
-    int  processRequest( NbJob &currentJob );
+    void processJob(NbJob& currentJob);
+    int  processRequest(NbJob& currentJob);
 
     bool fillInBuffer(const char*);
-    char *header;
-    char *body;
+    char* header;
+    char* body;
     char inBuffer[MAXMSG];
     char outBuffer[MAXMSGOUTBUFF];
 
     bool allowMultipleWriteTransactions;
 
     ClientQueue clientQueue;
-    
+
     int currentPosition;
 };
 
-const char *getClientAddr( int mySocket );
-bool isIp(char *str);
-bool hostCmpPeer(char *h1, char *h2);
+const char* getClientAddr(int mySocket);
+bool isIp(char* str);
+bool hostCmpPeer(char* h1, char* h2);
 
 extern MasterComm masterCommunicator;
 

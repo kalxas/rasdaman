@@ -50,7 +50,7 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 #include <easylogging++.h>
 
 /// error object, carrying int error code
-RasqlError::RasqlError( int e )
+RasqlError::RasqlError(int e)
 {
     LDEBUG << "Exception: " << e;
     error_code = e;
@@ -66,7 +66,7 @@ RasqlError::~RasqlError()
 const char*
 RasqlError::what()
 {
-    const char *errorMsg;
+    const char* errorMsg;
     switch (error_code)
     {
     case  NOQUERY:
@@ -121,9 +121,13 @@ RasqlError::what()
 
     // check for buffer overflow
     if (strlen(MODULE_TAG) + 3 + strlen(ERROR_TEXT) + strlen(errorMsg) + 1 > ERRTEXT_BUFSIZ)
-        sprintf( errorText, "%s%03d%s", MODULE_TAG, error_code, "(error message too long, cannot display)" );
+    {
+        sprintf(errorText, "%s%03d%s", MODULE_TAG, error_code, "(error message too long, cannot display)");
+    }
     else
-        sprintf( errorText, "%s%03d%s%s", MODULE_TAG, error_code, ERROR_TEXT, errorMsg );
+    {
+        sprintf(errorText, "%s%03d%s%s", MODULE_TAG, error_code, ERROR_TEXT, errorMsg);
+    }
 
     return errorText;
 } // what()

@@ -114,16 +114,20 @@ SystemUpdate::doStuff(int argc, char** argv)
                                 tempDom = overlayDomain;
                                 //taken from tiling.cc r_Size_Tiling
                                 r_Dimension dim = tempDom.dimension();
-                                r_Range edgeLength = (r_Range)std::max((r_Range)floor(pow(updateBufferSize, 1/(double)dim)), 1);
+                                r_Range edgeLength = (r_Range)std::max((r_Range)floor(pow(updateBufferSize, 1 / (double)dim)), 1);
                                 if (align)
                                 {
-                                    edgeLength = edgeLength - edgeLength%align;
+                                    edgeLength = edgeLength - edgeLength % align;
                                     if (edgeLength < align)
+                                    {
                                         edgeLength = align;
+                                    }
                                 }
                                 tileDom = r_Minterval(dim);
                                 for (r_Dimension dimcnt = 0; dimcnt < dim; dimcnt++)
+                                {
                                     tileDom << r_Sinterval(0, edgeLength - 1);
+                                }
                                 iter = new r_MiterArea(&tileDom, &tempDom);
                                 RMInit::logOut << "Tiling domain " << tileDom << " complete domain " << tempDom << endl;
                                 //nextArea()
@@ -208,7 +212,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
     int retval = 0;
     char* typeStructure = NULL;
     r_Ref<r_GMarray> selectedMDD;
-    r_Set< r_Ref_Any > result;
+    r_Set<r_Ref_Any> result;
     r_Marray_Type* mddType = NULL;
     try
     {
@@ -258,10 +262,10 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
     {
         size_t baseTypeLength = mddType->base_type().size();
         r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
-        r_Ref<r_GMarray> fileMDD = new (mddTypeName)r_GMarray(mddDomain, baseTypeLength, stl);
+        r_Ref<r_GMarray> fileMDD = new(mddTypeName)r_GMarray(mddDomain, baseTypeLength, stl);
         fileMDD->set_type_schema(mddType);
         stl = new r_Storage_Layout(theTiling->clone());
-        r_Ref<r_GMarray> targetMDD = new (mddTypeName)r_GMarray(overlayDomain, baseTypeLength, stl);
+        r_Ref<r_GMarray> targetMDD = new(mddTypeName)r_GMarray(overlayDomain, baseTypeLength, stl);
         targetMDD->set_type_schema(mddType);
         if (fileName)
         {
@@ -292,7 +296,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                     RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
                             RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
                             sleep(100); \
-                            RMInit::dbgOut << "Continue now\n" << std::endl; );
+                            RMInit::dbgOut << "Continue now\n" << std::endl;);
                     bool dataFound = true;
                     try
                     {
@@ -309,18 +313,22 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                     RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                             RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
                             sleep(100); \
-                            RMInit::dbgOut << "Continue now\n" << std::endl; );
+                            RMInit::dbgOut << "Continue now\n" << std::endl;);
                     if (dataFound)
                     {
-                        r_Iterator< r_Ref_Any > iter = result.create_iterator();
+                        r_Iterator<r_Ref_Any> iter = result.create_iterator();
                         selectedMDD = r_Ref<r_GMarray>(*iter);
                         if (polygonDefined)
                         {
                             polygon.setMArray(*selectedMDD);
                             if (insidePatternSelDef)
+                            {
                                 polygon.fillMArrayInside(insidePatternSel);
+                            }
                             if (outsidePatternSelDef)
+                            {
                                 polygon.fillMArrayOutside(outsidePatternSel);
+                            }
                         }
                         if (fileName)
                         {
@@ -349,17 +357,17 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                         RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
                                 RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
                                 sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                RMInit::dbgOut << "Continue now\n" << std::endl;);
                         r_oql_execute(query);
                         RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                 RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
                                 sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                RMInit::dbgOut << "Continue now\n" << std::endl;);
                     }
                     else
                     {
-                        std::list<std::pair<double, char*> >::iterator iter = scaleLevels->begin();
-                        std::list<std::pair<double, char*> >::iterator end = scaleLevels->end();
+                        std::list<std::pair<double, char*>>::iterator iter = scaleLevels->begin();
+                        std::list<std::pair<double, char*>>::iterator end = scaleLevels->end();
                         r_Minterval scaledDomain;
                         r_Minterval clipDomain;
                         unsigned int length = 0;
@@ -367,7 +375,9 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                         r_Point origin(maxDim);
                         double factor = 0;
                         for (r_Dimension i = 0; i < maxDim; i++)
+                        {
                             origin[i] = 0;
+                        }
                         while ((iter != end) && (retval == 0))
                         {
                             factor = iter->first;
@@ -378,19 +388,21 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                                 RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
                                         RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
                                         sleep(100); \
-                                        RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                        RMInit::dbgOut << "Continue now\n" << std::endl;);
                                 r_oql_execute(query);
                                 RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                         RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
                                         sleep(100); \
-                                        RMInit::dbgOut << "Continue now\n" << std::endl; );
+                                        RMInit::dbgOut << "Continue now\n" << std::endl;);
                             }
                             else
                             {
                                 retval = scaleDomain(overlayDomain, origin, factor, scaledDomain, clipDomain, length);
                                 RMInit::logOut << "scaled: " << iter->second << " scaled domain " << scaledDomain << " clip domain " << clipDomain << " result=" << retval << endl;
                                 if (retval == 0)
+                                {
                                     retval = updateScaledMDD(targetMDD, clipDomain, scaledDomain, length, iter->second);
+                                }
                             }
                             iter++;
                         }
@@ -398,12 +410,16 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                     RMDBGIF(20, RMDebug::module_tools, "WAITCOMMIT", \
                             RMInit::dbgOut << "Waiting 100 sec before commit\n" << std::endl; \
                             sleep(100); \
-                            RMInit::dbgOut << "Continue now\n" << std::endl; );
+                            RMInit::dbgOut << "Continue now\n" << std::endl;);
                 }
                 if (retval == 0)
+                {
                     ta.commit();
+                }
                 else
+                {
                     ta.abort();
+                }
             }
             catch (r_Error& err)
             {
@@ -412,7 +428,9 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                 ta.abort();
             }
             if (db.get_status() != r_Database::not_open)
+            {
                 db.close();
+            }
         }
         fileMDD.destroy();
         targetMDD.destroy();

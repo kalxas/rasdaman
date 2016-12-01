@@ -90,12 +90,12 @@ public class UpdateCoverageRequest extends WCSTRequest {
      */
     private void validateRequestParameters() throws WCSTMissingCoverageIdException, WCSTMissingInputCoverageException {
         //coverageId is required
-        if(this.coverageId == null || this.coverageId.isEmpty()){
+        if (this.coverageId == null || this.coverageId.isEmpty()) {
             log.error("coverageId pointing to the coverage targeted by the update operation not found or empty.");
             throw new WCSTMissingCoverageIdException();
         }
         //one of inputCoverage or inputCOverageRef is required
-        if(this.inputCoverage == null && this.inputCoverageRef == null){
+        if (this.inputCoverage == null && this.inputCoverageRef == null) {
             log.error("inputCoverage and inputCoverageRef parameters missing. At least one is required.");
             throw new WCSTMissingInputCoverageException();
         }

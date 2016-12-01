@@ -53,8 +53,8 @@ using namespace std;
 
 const QtNode::QtNodeType QtIntervalOp::nodeType = QT_INTERVALOP;
 
-QtIntervalOp::QtIntervalOp( QtOperation* initInput1, QtOperation* initInput2 )
-    :  QtBinaryOperation( initInput1, initInput2 )
+QtIntervalOp::QtIntervalOp(QtOperation* initInput1, QtOperation* initInput2)
+    :  QtBinaryOperation(initInput1, initInput2)
 {
 }
 
@@ -69,34 +69,40 @@ QtIntervalOp::isCommutative() const
 
 
 QtData*
-QtIntervalOp::evaluate( QtDataList* inputList )
+QtIntervalOp::evaluate(QtDataList* inputList)
 {
     startTimer("QtIntervalOp");
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
     QtData* operand2 = NULL;
 
-    if( getOperands( inputList, operand1, operand2 ) )
+    if (getOperands(inputList, operand1, operand2))
     {
         r_Sinterval sinterval;
 
-        switch( operand1->getDataType() )
+        switch (operand1->getDataType())
         {
         case QT_LONG:
         case QT_SHORT:
         case QT_OCTET:
             try
             {
-                sinterval.set_low( static_cast<r_Range>((static_cast<QtAtomicData*>(operand1))->getSignedValue()) );
+                sinterval.set_low(static_cast<r_Range>((static_cast<QtAtomicData*>(operand1))->getSignedValue()));
             }
-            catch(...)
+            catch (...)
             {
                 LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
-                if( operand1 ) operand1->deleteRef();
-                if( operand2 ) operand2->deleteRef();
+                if (operand1)
+                {
+                    operand1->deleteRef();
+                }
+                if (operand2)
+                {
+                    operand2->deleteRef();
+                }
 
                 throw parseInfo;
             }
@@ -107,35 +113,49 @@ QtIntervalOp::evaluate( QtDataList* inputList )
         case QT_CHAR:
             try
             {
-                sinterval.set_low( static_cast<r_Range>(static_cast<QtAtomicData*>(operand1)->getUnsignedValue()) );
+                sinterval.set_low(static_cast<r_Range>(static_cast<QtAtomicData*>(operand1)->getUnsignedValue()));
             }
-            catch(...)
+            catch (...)
             {
                 LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
-                if( operand1 ) operand1->deleteRef();
-                if( operand2 ) operand2->deleteRef();
+                if (operand1)
+                {
+                    operand1->deleteRef();
+                }
+                if (operand2)
+                {
+                    operand2->deleteRef();
+                }
 
                 throw parseInfo;
             }
             break;
 
         case QT_STRING:
-            QtStringData *p;
-            p = dynamic_cast<QtStringData *>(operand1);
+            QtStringData* p;
+            p = dynamic_cast<QtStringData*>(operand1);
 
-            if (p && (p->getStringData() == string("*")) )
+            if (p && (p->getStringData() == string("*")))
+            {
                 sinterval.set_low('*');
+            }
             else
             {
                 LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
-                if( operand1 ) operand1->deleteRef();
-                if( operand2 ) operand2->deleteRef();
+                if (operand1)
+                {
+                    operand1->deleteRef();
+                }
+                if (operand2)
+                {
+                    operand2->deleteRef();
+                }
 
                 throw parseInfo;
             }
@@ -146,30 +166,42 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             parseInfo.setErrorNo(388);
 
             // delete the old operands
-            if( operand1 ) operand1->deleteRef();
-            if( operand2 ) operand2->deleteRef();
+            if (operand1)
+            {
+                operand1->deleteRef();
+            }
+            if (operand2)
+            {
+                operand2->deleteRef();
+            }
 
             throw parseInfo;
         }
 
 
-        switch( operand2->getDataType() )
+        switch (operand2->getDataType())
         {
         case QT_LONG:
         case QT_SHORT:
         case QT_OCTET:
             try
             {
-                sinterval.set_high( static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getSignedValue()) );
+                sinterval.set_high(static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getSignedValue()));
             }
-            catch(...)
+            catch (...)
             {
                 LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
-                if( operand1 ) operand1->deleteRef();
-                if( operand2 ) operand2->deleteRef();
+                if (operand1)
+                {
+                    operand1->deleteRef();
+                }
+                if (operand2)
+                {
+                    operand2->deleteRef();
+                }
 
                 throw parseInfo;
             }
@@ -180,34 +212,48 @@ QtIntervalOp::evaluate( QtDataList* inputList )
         case QT_CHAR:
             try
             {
-                sinterval.set_high( static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getUnsignedValue()) );
+                sinterval.set_high(static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getUnsignedValue()));
             }
-            catch(...)
+            catch (...)
             {
                 LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
                 parseInfo.setErrorNo(389);
                 // delete the old operands
-                if( operand1 ) operand1->deleteRef();
-                if( operand2 ) operand2->deleteRef();
+                if (operand1)
+                {
+                    operand1->deleteRef();
+                }
+                if (operand2)
+                {
+                    operand2->deleteRef();
+                }
 
                 throw parseInfo;
             }
             break;
 
         case QT_STRING:
-            QtStringData *p;
-            p = dynamic_cast<QtStringData *>(operand2);
+            QtStringData* p;
+            p = dynamic_cast<QtStringData*>(operand2);
 
-            if (p && (p->getStringData() == string("*")) )
+            if (p && (p->getStringData() == string("*")))
+            {
                 sinterval.set_high('*');
+            }
             else
             {
                 LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be '*'.";
                 parseInfo.setErrorNo(389);
 
                 // delete the old operands
-                if( operand1 ) operand1->deleteRef();
-                if( operand2 ) operand2->deleteRef();
+                if (operand1)
+                {
+                    operand1->deleteRef();
+                }
+                if (operand2)
+                {
+                    operand2->deleteRef();
+                }
 
                 throw parseInfo;
             }
@@ -218,19 +264,31 @@ QtIntervalOp::evaluate( QtDataList* inputList )
             parseInfo.setErrorNo(388);
 
             // delete the old operands
-            if( operand1 ) operand1->deleteRef();
-            if( operand2 ) operand2->deleteRef();
+            if (operand1)
+            {
+                operand1->deleteRef();
+            }
+            if (operand2)
+            {
+                operand2->deleteRef();
+            }
 
             throw parseInfo;
         }
 
-        returnValue = new QtIntervalData( sinterval );
+        returnValue = new QtIntervalData(sinterval);
 
         // delete the old operands
-        if( operand1 ) operand1->deleteRef();
-        if( operand2 ) operand2->deleteRef();
+        if (operand1)
+        {
+            operand1->deleteRef();
+        }
+        if (operand2)
+        {
+            operand2->deleteRef();
+        }
     }
-    
+
     stopTimer();
 
     return returnValue;
@@ -239,31 +297,39 @@ QtIntervalOp::evaluate( QtDataList* inputList )
 
 
 void
-QtIntervalOp::printTree( int tab, ostream& s, QtChildType mode )
+QtIntervalOp::printTree(int tab, ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
-    QtBinaryOperation::printTree( tab, s, mode );
+    QtBinaryOperation::printTree(tab, s, mode);
 }
 
 
 
 void
-QtIntervalOp::printAlgebraicExpression( ostream& s )
+QtIntervalOp::printAlgebraicExpression(ostream& s)
 {
     s << "(";
 
-    if( input1 )
-        input1->printAlgebraicExpression( s );
+    if (input1)
+    {
+        input1->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ":";
 
-    if( input2 )
-        input2->printAlgebraicExpression( s );
+    if (input2)
+    {
+        input2->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
 
     s << ")";
 }
@@ -271,16 +337,16 @@ QtIntervalOp::printAlgebraicExpression( ostream& s )
 
 
 const QtTypeElement&
-QtIntervalOp::checkType( QtTypeTuple* typeTuple )
+QtIntervalOp::checkType(QtTypeTuple* typeTuple)
 {
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     // check operand branches
-    if( input1 && input2 )
+    if (input1 && input2)
     {
 
-        const QtTypeElement& input1Type = input1->checkType( typeTuple );
-        const QtTypeElement& input2Type = input2->checkType( typeTuple );
+        const QtTypeElement& input1Type = input1->checkType(typeTuple);
+        const QtTypeElement& input2Type = input2->checkType(typeTuple);
 
         bool opTypesValid = true;
 
@@ -302,17 +368,19 @@ QtIntervalOp::checkType( QtTypeTuple* typeTuple )
                         input2Type.getDataType() == QT_USHORT ||
                         input2Type.getDataType() == QT_CHAR;
 
-        if( !opTypesValid )
+        if (!opTypesValid)
         {
             LFATAL << "Error: QtIntervalOp::evaluate() - interval bound must be of type integer or '*'.";
             parseInfo.setErrorNo(389);
             throw parseInfo;
         }
 
-        dataStreamType.setDataType( QT_INTERVAL );
+        dataStreamType.setDataType(QT_INTERVAL);
     }
     else
+    {
         LERROR << "Error: QtIntervalOp::checkType() - input branch invalid.";
+    }
 
     return dataStreamType;
 }

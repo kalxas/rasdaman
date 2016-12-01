@@ -105,7 +105,7 @@ public class GdalParameters {
 
     public GdalParameters(String xMin, String xMax, String yMin, String yMax, String crs) {
         this(Double.parseDouble(xMin), Double.parseDouble(xMax),
-                Double.parseDouble(yMin), Double.parseDouble(yMax), crs);
+             Double.parseDouble(yMin), Double.parseDouble(yMax), crs);
     }
 
     /**
@@ -140,10 +140,10 @@ public class GdalParameters {
                     orderToName.put(info.getDomainIndexByName(dimName), dimName);
 
                     // Set the bounds of this dimension: total bbox first, then update in case of trims in the request
-                    nameToBounds.put(dimName, new Double[]{
-                        info.getDomainElement(info.getDomainIndexByName(dimName)).getMinValue().doubleValue(),
-                        info.getDomainElement(info.getDomainIndexByName(dimName)).getMaxValue().doubleValue()
-                    });
+                    nameToBounds.put(dimName, new Double[] {
+                                         info.getDomainElement(info.getDomainIndexByName(dimName)).getMinValue().doubleValue(),
+                                         info.getDomainElement(info.getDomainIndexByName(dimName)).getMaxValue().doubleValue()
+                                     });
 
                     // reduce or extend the bbox according to the subset ops applied to the coverage
                     for (IRasNode subset : subsets) {
@@ -189,9 +189,7 @@ public class GdalParameters {
 
                 crs = "";
                 configOptions = new HashMap<String, String>();
-            }
-            else
-            {
+            } else {
                 // no set georeference for this coverage
                 georeferenced = false;
             }
@@ -199,8 +197,7 @@ public class GdalParameters {
     }
 
     // Check when to set georeference to coverage
-    public boolean isGeoreferenced()
-    {
+    public boolean isGeoreferenced() {
         return georeferenced;
     }
 
@@ -275,12 +272,12 @@ public class GdalParameters {
             // NOTE: crsParam can be crs=ansiDate?axis-label="time", it is not valid in Rasql then need to replace "" by empty
             String crsParam = CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs);
             ret = appendToParamList(appendToParamList(appendToParamList(appendToParamList(appendToParamList(
-                    extraParams,
-                    XMIN_PARAM, lowX + ""),
-                    XMAX_PARAM, highX + ""),
-                    YMIN_PARAM, lowY + ""),
-                    YMAX_PARAM, highY + ""),
-                    CRS_PARAM, crsParam.replace("\"", ""));
+                                        extraParams,
+                                        XMIN_PARAM, lowX + ""),
+                                    XMAX_PARAM, highX + ""),
+                                    YMIN_PARAM, lowY + ""),
+                                    YMAX_PARAM, highY + ""),
+                                    CRS_PARAM, crsParam.replace("\"", ""));
             // FIXME: pass on the WKT form of CRS definition (not AUTH:CODE) otherwise non-conventional CRSs are skipped by GDAL.
         } else {
             // return empty in case of CRS:1

@@ -57,7 +57,7 @@ class rviewDisplay: public rviewFrame
 {
 public:
 
-    rviewDisplay(mdd_frame *mf, int es, unsigned int flags=0);
+    rviewDisplay(mdd_frame* mf, int es, unsigned int flags = 0);
     virtual ~rviewDisplay(void);
 
     // must use separate call because no virtual functions beyond level i can
@@ -70,24 +70,24 @@ public:
     void closeViewer(void);
 
     virtual void label();
-    virtual int process(wxObject &obj, wxEvent &evt);
+    virtual int process(wxObject& obj, wxEvent& evt);
 
     virtual void OnSize(int w, int h);
     virtual void OnMenuCommand(int id);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
     virtual int getViewerType(void) const = 0;
 
     // Needs to process user events
-    virtual int userEvent(const user_event &ue);
+    virtual int userEvent(const user_event& ue);
     // Notify derived classes that they should get ready to die. This is needed
     // for stuff like images with movie-playback running.
     virtual void prepareToDie(void);
     // Notify derived classes that the projection has changed
     virtual int newProjection(void);
     // get the minterval to use with the projection string
-    virtual const r_Minterval &getVirtualDomain(void) const;
+    virtual const r_Minterval& getVirtualDomain(void) const;
 
     // Called when an update object has been replaced with a new one
     void noLongerUpdate(void);
@@ -137,9 +137,9 @@ public:
 protected:
 
     // to allow derived functions to add stuff to the file menu before the quit item
-    virtual int fileMenuInitHook(wxMenu *menu);
+    virtual int fileMenuInitHook(wxMenu* menu);
     // to allow derived functions to add stuff to the view menu
-    virtual int viewMenuInitHook(wxMenu *menu);
+    virtual int viewMenuInitHook(wxMenu* menu);
     // for appending menus to the menu bar
     virtual int menuBarInitHook(void);
 
@@ -148,27 +148,27 @@ protected:
     // Called by derived classes to set minimum size of viewer window
     void setMinimumViewerSize(int w, int h);
     // Advances projection (+/- buttons)
-    const char *skipIndexMapping(const char *s);
-    int advanceProjection(int direction, int advmode=display_advmode_relative);
+    const char* skipIndexMapping(const char* s);
+    int advanceProjection(int direction, int advmode = display_advmode_relative);
     void newDBState(bool dbstate);
-    void setDisplayTitle(const char *title=NULL);
+    void setDisplayTitle(const char* title = NULL);
     // view management
     int doSaveView(void);
     int doLoadView(void);
-    int parseViewFile(FILE *fp);
-    static void writeViewKey(FILE *fp, const char *key);
-    static void writeViewParam(FILE *fp, const char *key, const char *value);
-    static void writeViewParam(FILE *fp, const char *key, long value);
-    static void writeViewParam(FILE *fp, const char *key, double value);
-    static void writeViewParam(FILE *fp, const char *key, unsigned int num, const long *values);
-    static void writeViewParam(FILE *fp, const char *key, unsigned int num, const double *values);
-    static int readVector(const char *value, unsigned int num, long *values);
-    static int readVector(const char *value, unsigned int num, double *values);
+    int parseViewFile(FILE* fp);
+    static void writeViewKey(FILE* fp, const char* key);
+    static void writeViewParam(FILE* fp, const char* key, const char* value);
+    static void writeViewParam(FILE* fp, const char* key, long value);
+    static void writeViewParam(FILE* fp, const char* key, double value);
+    static void writeViewParam(FILE* fp, const char* key, unsigned int num, const long* values);
+    static void writeViewParam(FILE* fp, const char* key, unsigned int num, const double* values);
+    static int readVector(const char* value, unsigned int num, long* values);
+    static int readVector(const char* value, unsigned int num, double* values);
 
     // save the current view to a file descriptor
-    virtual int saveView(FILE *fp);
+    virtual int saveView(FILE* fp);
     // read a parameter from a view file line; returns 0 if unknown key, 1 otherwise
-    virtual int readView(const char *key, const char *value);
+    virtual int readView(const char* key, const char* value);
     // loading a new view is finished, allow updating of displays before the redraw
     virtual void loadViewFinished(void);
 
@@ -178,11 +178,11 @@ protected:
     r_Point pt1, pt2, mapIndex;
     int dimMDD, dimMode, baseSize;
     rviewBaseType baseType;
-    wxMenuBar *mBar;
-    wxPanel *ctrlPanel;
-    rviewText *project, *advance;
-    wxMessage *typeMsg;
-    rviewButton *projBut, *projPlus, *projMinus;
+    wxMenuBar* mBar;
+    wxPanel* ctrlPanel;
+    rviewText* project, *advance;
+    wxMessage* typeMsg;
+    rviewButton* projBut, *projPlus, *projMinus;
     char projString[STRINGSIZE];
     char rootTitle[STRINGSIZE];
     int extraSpace;
@@ -209,16 +209,16 @@ private:
     static int displayCounter;
 
     // file extension of view file
-    static const char *viewFileExtension;
+    static const char* viewFileExtension;
 
     // size of buffer for view loading
     static const unsigned int viewBuffSize;
 
     // view parameter keywords
-    static const char *view_HeaderLine;
-    static const char *view_ViewerType;
-    static const char *view_ProjString;
-    static const char *view_WindowSize;
+    static const char* view_HeaderLine;
+    static const char* view_ViewerType;
+    static const char* view_ProjString;
+    static const char* view_WindowSize;
 };
 
 #endif

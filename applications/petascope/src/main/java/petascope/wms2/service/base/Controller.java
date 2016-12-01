@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 public abstract class Controller<RST extends Request, PT extends Parser<RST>, HT extends Handler<RST, RPT>, RPT extends Response> {
-   
+
     /**
      * Constructor for the class
      *
@@ -93,7 +93,7 @@ public abstract class Controller<RST extends Request, PT extends Parser<RST>, HT
             return ExceptionResponseFactory.getExceptionResponse(exception, getExceptionFormat(rawRequest));
         }
     }
-    
+
     /**
      * For logging
      */

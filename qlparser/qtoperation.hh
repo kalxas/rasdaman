@@ -61,10 +61,10 @@ public:
     QtOperation();
 
     /// constructor getting a pointer to the parent
-    QtOperation( QtNode* parent );
+    QtOperation(QtNode* parent);
 
     ///for associative law
-    virtual QtOperation* getUniqueOrder( const QtNode::QtNodeType ID );
+    virtual QtOperation* getUniqueOrder(const QtNode::QtNodeType ID);
 
     /**
       The method gives back a node that has the same QtNodeType and has the lowest
@@ -72,7 +72,7 @@ public:
     */
 
     /// method for evaluating the node
-    virtual QtData* evaluate( QtDataList* inputList );
+    virtual QtData* evaluate(QtDataList* inputList);
 
     /**
       The method takes the {\tt inputList} to compute the result of the node which is returned in the end.
@@ -81,10 +81,10 @@ public:
     */
 
     /// optimizing load access
-    virtual void optimizeLoad( QtTrimList* trimList );
+    virtual void optimizeLoad(QtTrimList* trimList);
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
     /**
       The method triggers type checking of the node's subtree. If an error occurs, an exception
       is raised.
@@ -94,15 +94,15 @@ public:
     //@{
     ///
     ///
-    inline void                 setDataStreamType( const QtTypeElement& type );
+    inline void                 setDataStreamType(const QtTypeElement& type);
     ///
     inline const QtTypeElement& getDataStreamType() const;
     ///
     //@}
 
-    void printTree( int tab, std::ostream& s, QtChildType mode=QT_ALL_NODES );
+    void printTree(int tab, std::ostream& s, QtChildType mode = QT_ALL_NODES);
 
-    void printAlgebraicExpression( std::ostream& s );
+    void printAlgebraicExpression(std::ostream& s);
 
 protected:
     /// result type of the node

@@ -67,8 +67,8 @@ public class InsertStyleHandler implements Handler<InsertStyleRequest, InsertSty
                 throw new WMSInvalidLayerException(request.getLayerName());
             }
             persistenceProvider.getStyle().createIfNotExists(
-                    new Style(request.getStyleName(), request.getStyleName(), request.getStyleAbstract(), null,
-                            request.getRasqlTransformFragment(), layers.get(0))
+                new Style(request.getStyleName(), request.getStyleName(), request.getStyleAbstract(), null,
+                          request.getRasqlTransformFragment(), layers.get(0))
             );
         } catch (SQLException e) {
             throw new WMSInternalException(e);

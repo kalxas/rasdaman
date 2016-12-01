@@ -34,7 +34,7 @@ public class CrsTransformExpr implements IParseTreeNode {
     IParseTreeNode e1, e2, e3;
 
     public CrsTransformExpr(CoverageExpr expr, DimensionCrsList list1,
-            FieldInterpolationList list2) {
+                            FieldInterpolationList list2) {
         e1 = expr;
         e2 = list1;
         e3 = list2;
@@ -47,12 +47,13 @@ public class CrsTransformExpr implements IParseTreeNode {
         result += e1.toXML();
         result += e2.toXML();
         // FieldInterpolation is not mandatory
-        if (e3 != null)
+        if (e3 != null) {
             result += e3.toXML();
+        }
         // else: set default values?
 
         result = "<" + WcpsConstants.MSG_CRS_TRANSFORM + ">" + result + "</" +
-                WcpsConstants.MSG_CRS_TRANSFORM + ">";
+                 WcpsConstants.MSG_CRS_TRANSFORM + ">";
         return result;
     }
 }

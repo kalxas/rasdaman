@@ -65,11 +65,11 @@ The definition domain is stored in an extensible but inefficient way.
 class DBMDDObj  :   public DBObject
 {
 public:
-    DBMDDObj(   const MDDBaseType* type,
-                const r_Minterval& domain,
-                const DBObjectId& i,
-                const DBStorageLayoutId& s,
-                const OId& theMDDObj) throw (r_Error);
+    DBMDDObj(const MDDBaseType* type,
+             const r_Minterval& domain,
+             const DBObjectId& i,
+             const DBStorageLayoutId& s,
+             const OId& theMDDObj) throw (r_Error);
     /*@Doc:
         type: it contains the basetype which will be used to create perstiles.
         domain: the definition domain.  the extend to which the mdd object may grow.
@@ -78,10 +78,10 @@ public:
         theMDDObj: this oid may not be assigned to an mdd object yet!
     */
 
-    DBMDDObj(   const MDDBaseType* newMDDType,
-                const r_Minterval& domain,
-                const DBObjectId& newObjIx,
-                const DBStorageLayoutId& newSL);
+    DBMDDObj(const MDDBaseType* newMDDType,
+             const r_Minterval& domain,
+             const DBObjectId& newObjIx,
+             const DBStorageLayoutId& newSL);
     /*@Doc:
         newMDDType: it contains the basetype which will be used to create perstiles.
         domain: the definition domain.  the extend to which the mdd object may grow.
@@ -201,7 +201,7 @@ public:
     return null values associated with this object
     */
 
-    void setNullValues(const r_Minterval &newNullValues);
+    void setNullValues(const r_Minterval& newNullValues);
     /*@Doc:
     associate null values with this object
     */

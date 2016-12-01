@@ -32,7 +32,7 @@ import java.util.Map;
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class NetCDFExtraParams {
-    
+
     private List<String> dimensions;
     @JsonSerialize(using = VariablesJsonSerializer.class)
     private List<Variable> variables;
@@ -49,7 +49,7 @@ public class NetCDFExtraParams {
 
     private GeoReference geoReference;
 
-    
+
     public NetCDFExtraParams(List<String> dimensions, List<Variable> variables, List<Double> nodata, Map<String, String> metadata, GeoReference geoReference) {
         this.dimensions = dimensions;
         this.variables = variables;

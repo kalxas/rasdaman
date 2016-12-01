@@ -33,8 +33,8 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include <easylogging++.h>
 
-r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
-                          const r_Minterval* newImgDom ) throw(r_Error)
+r_MiterArea::r_MiterArea(const r_Minterval* newIterDom,
+                         const r_Minterval* newImgDom) throw(r_Error)
     : iterDom(newIterDom), imgDom(newImgDom), done(false)
 {
     if (imgDom->dimension() != iterDom->dimension())
@@ -44,7 +44,7 @@ r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
         throw r_Error(INTERVALSWITHDIFFERENTDIMENSION);
     }
 
-    if(!imgDom->is_origin_fixed() ||
+    if (!imgDom->is_origin_fixed() ||
             !imgDom->is_high_fixed())
     {
         //in this case we have an undefined situation
@@ -52,7 +52,7 @@ r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
         throw r_Error(INTERVALOPEN);
     }
 
-    if(!iterDom->is_origin_fixed() ||
+    if (!iterDom->is_origin_fixed() ||
             !iterDom->is_high_fixed())
     {
         //in this case we have an undefined situation
@@ -66,13 +66,13 @@ r_MiterArea::r_MiterArea( const r_Minterval* newIterDom,
     // stores the increments
     incArrIter = new incArrElem[dim];
 
-    for(r_Dimension i=0; i<dim; i++ )
+    for (r_Dimension i = 0; i < dim; i++)
     {
         // used for counting in iteration, initialize with 0
         incArrIter[i].curr = 0;
         // how often is the iterDom moved inside the imgDom
         incArrIter[i].repeat = (imgDom->get_extent()[i] / iterDom->get_extent()[i]) +
-                               ( imgDom->get_extent()[i] % iterDom->get_extent()[i] != 0 );
+                               (imgDom->get_extent()[i] % iterDom->get_extent()[i] != 0);
 
         LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat;
     }
@@ -89,7 +89,7 @@ void
 r_MiterArea::reset()
 {
     done = false;
-    for( unsigned int i=0; i<iterDom->dimension(); i++ )
+    for (unsigned int i = 0; i < iterDom->dimension(); i++)
     {
         incArrIter[i].curr = 0;
     }
@@ -100,28 +100,30 @@ r_MiterArea::nextArea()
 {
     r_Dimension i = 0;
 
-    if(done)
+    if (done)
+    {
         return retVal;
+    }
 
     r_Minterval currDom(iterDom->dimension());
 
     // calculate new result domain here
-    if(!done)
+    if (!done)
     {
-        for(i=0; i < iterDom->dimension(); i++)
+        for (i = 0; i < iterDom->dimension(); i++)
         {
-            currDom << r_Sinterval( (*imgDom)[i].low() + incArrIter[i].curr*iterDom->get_extent()[i],
-                                    (*imgDom)[i].low() + (incArrIter[i].curr+1)*iterDom->get_extent()[i]
-                                    - 1 );
+            currDom << r_Sinterval((*imgDom)[i].low() + incArrIter[i].curr * iterDom->get_extent()[i],
+                                   (*imgDom)[i].low() + (incArrIter[i].curr + 1)*iterDom->get_extent()[i]
+                                   - 1);
         }
     }
     retVal = currDom.intersection_with((*imgDom));
 
     // increment dimensions
-    for(i=0; i < iterDom->dimension(); i++)
+    for (i = 0; i < iterDom->dimension(); i++)
     {
         incArrIter[i].curr++;
-        if(incArrIter[i].curr < incArrIter[i].repeat)
+        if (incArrIter[i].curr < incArrIter[i].repeat)
         {
             // no overflow in this dimension
             break;
@@ -132,7 +134,7 @@ r_MiterArea::nextArea()
             incArrIter[i].curr = 0;
         }
     }
-    if( i == iterDom->dimension() )
+    if (i == iterDom->dimension())
     {
         // overflow in last dimension
         done = true;

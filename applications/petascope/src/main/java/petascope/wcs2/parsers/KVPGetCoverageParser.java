@@ -78,7 +78,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                 }
                 //Backward compatibility
                 else if (key.toLowerCase().startsWith(KEY_SUBSET)
-                        && !key.equalsIgnoreCase(KEY_SUBSETCRS)) {
+                         && !key.equalsIgnoreCase(KEY_SUBSETCRS)) {
                     ret.put(key + value, value);
                 }
             }
@@ -92,14 +92,14 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p,
-                KEY_COVERAGEID, KEY_VERSION, KEY_MEDIATYPE, KEY_FORMAT,
-                KEY_SUBSETCRS, KEY_OUTPUTCRS, KEY_RANGESUBSET,
-                KEY_SCALEFACTOR, KEY_SCALEAXES, KEY_SCALESIZE, KEY_SCALEEXTENT,
-                KEY_RANGESUBSET, KEY_INTERPOLATION);
+                            KEY_COVERAGEID, KEY_VERSION, KEY_MEDIATYPE, KEY_FORMAT,
+                            KEY_SUBSETCRS, KEY_OUTPUTCRS, KEY_RANGESUBSET,
+                            KEY_SCALEFACTOR, KEY_SCALEAXES, KEY_SCALESIZE, KEY_SCALEEXTENT,
+                            KEY_RANGESUBSET, KEY_INTERPOLATION);
         List<String> coverageIds = p.get(KEY_COVERAGEID); // null if no key
         if (null == coverageIds || coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A GetCoverage request can specify only one " + XMLSymbols.LABEL_COVERAGE_ID + ".");
+                                   "A GetCoverage request can specify only one " + XMLSymbols.LABEL_COVERAGE_ID + ".");
         }
         String mediaType = ListUtil.head(p.get(KEY_MEDIATYPE));
         // Test /conf/core/getCoverage-acceptable-mediaType
@@ -109,10 +109,10 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         String format = ListUtil.head(p.get(KEY_FORMAT));
         if (StringUtils.isEmpty(format)) {
             format = FormatExtension.MIME_GML;
-        }       
-        
+        }
+
         String encodeType = ExtensionsRegistry.mimeToIdentifier.get(format);
-        
+
         // e.g: format=application/xml is not valid request
         if (encodeType == null) {
             // e.g: format=image/NotSupport
@@ -133,9 +133,9 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
         // init GetCoverage request
         GetCoverageRequest ret = new GetCoverageRequest(
-                coverageIds.get(0),
-                format,
-                FormatExtension.MIME_MULTIPART.equals(mediaType)
+            coverageIds.get(0),
+            format,
+            FormatExtension.MIME_MULTIPART.equals(mediaType)
         );
 
         //Parse rangeSubset parameters if any for the RangeSubset Extension
@@ -143,41 +143,39 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
         /* CrsExt-extension parameters: */
         // subsettingCrs
-        String subCrs=null, outCrs=null;
+        String subCrs = null, outCrs = null;
         List<String> list = p.get(KEY_SUBSETCRS);
         if (list != null && list.size() > 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "Multiple \"" + KEY_SUBSETCRS + "\" parameters in the request: must be unique.");
-        }
-        else {
+                                   "Multiple \"" + KEY_SUBSETCRS + "\" parameters in the request: must be unique.");
+        } else {
             subCrs = ListUtil.head(list);
             if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs)) {
                 throw new WCSException(ExceptionCode.NotASubsettingCrs,
-                        KEY_SUBSETCRS + " " + subCrs + " is not valid.");
+                                       KEY_SUBSETCRS + " " + subCrs + " is not valid.");
             }
             if (!(subCrs == null) && !CrsUtil.isSupportedCrsCode(subCrs)) {
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
-                        KEY_SUBSETCRS + " " + subCrs + " is not supported.");
+                                       KEY_SUBSETCRS + " " + subCrs + " is not supported.");
             }
         }
         // outputCrs
         list = p.get(KEY_OUTPUTCRS);
         if (list != null && list.size() > 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "Multiple \"" + KEY_OUTPUTCRS + "\" parameters in the request: must be unique.");
-        }
-        else {
+                                   "Multiple \"" + KEY_OUTPUTCRS + "\" parameters in the request: must be unique.");
+        } else {
             outCrs = ListUtil.head(list);
             if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs)) {
                 throw new WCSException(ExceptionCode.NotAnOutputCrs,
-                        KEY_OUTPUTCRS + " " + outCrs + " is not valid.");
+                                       KEY_OUTPUTCRS + " " + outCrs + " is not valid.");
             }
             if (!(outCrs == null) && !CrsUtil.isSupportedCrsCode(outCrs)) {
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
-                        KEY_OUTPUTCRS + " " + outCrs + " is not supported.");
+                                       KEY_OUTPUTCRS + " " + outCrs + " is not supported.");
             }
         }
-        if (!(subCrs==null) || !(outCrs==null)) {
+        if (!(subCrs == null) || !(outCrs == null)) {
             ret.getCrsExt().setSubsettingCrs(subCrs);
             ret.getCrsExt().setOutputCrs(outCrs);
         }

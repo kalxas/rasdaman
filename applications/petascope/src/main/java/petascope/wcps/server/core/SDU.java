@@ -177,8 +177,8 @@ public class SDU {
 
         while (i.hasNext()) {
             string += i.next() + (i.hasNext()
-                    ? ","
-                    : "}");
+                                  ? ","
+                                  : "}");
         }
 
         return string;

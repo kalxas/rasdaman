@@ -45,7 +45,9 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj) throw (r_Error)
     :   r_Type(oldObj)
 {
     if (oldObj.baseType)
+    {
         baseType =  static_cast<r_Base_Type*>(oldObj.baseType->clone());
+    }
     else
     {
         LFATAL << "r_Marray_Type::r_Marray_Type( oldObj ) the element type is NULL.";
@@ -58,7 +60,9 @@ r_Marray_Type::operator=(const r_Marray_Type& oldObj) throw (r_Error)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
+    {
         return *this;
+    }
 
     r_Type::operator=(oldObj);
     if (baseType)
@@ -68,7 +72,9 @@ r_Marray_Type::operator=(const r_Marray_Type& oldObj) throw (r_Error)
     }
 
     if (oldObj.baseType)
+    {
         baseType = static_cast<r_Base_Type*>(oldObj.baseType->clone());
+    }
     else
     {
         LFATAL << "r_Marray_Type::operator=( oldObj ) the element type is NULL.";
@@ -103,12 +109,12 @@ r_Marray_Type::type_id() const
 }
 
 void
-r_Marray_Type::convertToLittleEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
+r_Marray_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Marray_Type::convertToBigEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
+r_Marray_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
@@ -123,10 +129,12 @@ r_Marray_Type::print_status(std::ostream& s) const
 r_Marray_Type::~r_Marray_Type()
 {
     if (baseType)
+    {
         delete baseType;
+    }
 }
 
-std::ostream &operator<<( std::ostream &str, const r_Marray_Type &type )
+std::ostream& operator<<(std::ostream& str, const r_Marray_Type& type)
 {
     type.print_status(str);
     return str;

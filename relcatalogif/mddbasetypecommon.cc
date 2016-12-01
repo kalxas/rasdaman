@@ -97,7 +97,9 @@ MDDBaseType& MDDBaseType::operator=(const MDDBaseType& old)
 {
     // Gracefully handle self assignment
     if (this == &old)
+    {
         return *this;
+    }
     MDDType::operator=(old);
     myBaseType = old.myBaseType;
     return *this;
@@ -131,7 +133,7 @@ MDDBaseType::getNewTypeStructure() const
 }
 
 void
-MDDBaseType::print_status( ostream& s ) const
+MDDBaseType::print_status(ostream& s) const
 {
     s << "\tr_Marray" << "<" << myBaseType->getTypeName() << "\t>";
 }
@@ -151,9 +153,9 @@ int
 MDDBaseType::compatibleWith(const Type* aType) const
 {
     int retval;
-    if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDBASETYPE
-     && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE
-     && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE )
+    if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDBASETYPE
+            && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE
+            && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
     {
         LTRACE << "not mddbasetype or subclass";
         retval = 0;
@@ -161,7 +163,7 @@ MDDBaseType::compatibleWith(const Type* aType) const
     else
     {
         // myBaseType has to be specified
-        if( myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType()) )
+        if (myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType()))
         {
             retval = 1;
         }
@@ -175,14 +177,14 @@ MDDBaseType::compatibleWith(const Type* aType) const
 }
 
 int
-MDDBaseType::compatibleWithDomain(const r_Minterval* aDomain ) const
+MDDBaseType::compatibleWithDomain(const r_Minterval* aDomain) const
 {
     int retval;
 
     // create an MDDDomainType with aDomain and myBaseType
-    MDDDomainType tempType( "tempType", myBaseType, *aDomain );
+    MDDDomainType tempType("tempType", myBaseType, *aDomain);
     // use normal compatibleWith
-    retval = this->compatibleWith( &tempType );
+    retval = this->compatibleWith(&tempType);
     return retval;
 }
 

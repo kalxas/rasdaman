@@ -47,38 +47,38 @@ using namespace std;
 #include "debug-srv.hh"
 #include <easylogging++.h>
 
-extern bool hostCmp( const char *h1, const char *h2);
+extern bool hostCmp(const char* h1, const char* h2);
 
 
 User::User()
 {
-    userID=-1;
-    userName[0]=0;
-    passWord[0]=0;
-    valid=false;
-    adminRight=authorization.getGlobalInitAdminRights();
-    databRight=authorization.getGlobalInitDatabRights();;
+    userID = -1;
+    userName[0] = 0;
+    passWord[0] = 0;
+    valid = false;
+    adminRight = authorization.getGlobalInitAdminRights();
+    databRight = authorization.getGlobalInitDatabRights();;
 }
 
-void User::init(long newUserID, const char *name)
+void User::init(long newUserID, const char* name)
 {
-    strcpy(userName,name);
-    this->userID=newUserID;
+    strcpy(userName, name);
+    this->userID = newUserID;
     changePTPassword(name);
-    valid=true;
+    valid = true;
 }
-void User::changeName(const char *name)
+void User::changeName(const char* name)
 {
-    strcpy(userName,name);
+    strcpy(userName, name);
 }
 
-void User::changePassword(const char *encrPass)
+void User::changePassword(const char* encrPass)
 {
-    strcpy(passWord,encrPass);
+    strcpy(passWord, encrPass);
 }
-void User::changePTPassword(const char *plainTextPass)
+void User::changePTPassword(const char* plainTextPass)
 {
-    messageDigest(plainTextPass,passWord,"MD5");
+    messageDigest(plainTextPass, passWord, "MD5");
     //LINFO<<"passwd="<<passWord<< " strlen="<<strlen(passWord);
 }
 
@@ -92,13 +92,13 @@ long User::getUserID()
     return userID;
 }
 
-bool User::isThisMe(const char *name,const char *encrPass)
+bool User::isThisMe(const char* name, const char* encrPass)
 {
     //LINFO<<"Is this me: "<<name<<'/'<<userName;
     //LINFO<<"My Pass="<<passWord;
     //LINFO<<"His one="<<encrPass;
 
-    return (strcmp(name,userName)==0 && strcmp(encrPass,passWord)==0) ? true:false;
+    return (strcmp(name, userName) == 0 && strcmp(encrPass, passWord) == 0) ? true : false;
 }
 void User::setAdminRights(int r)
 {
@@ -107,7 +107,7 @@ void User::setAdminRights(int r)
 
 bool User::hasAdminRights(int r)
 {
-    return ((adminRight & r)==r) ? true:false;
+    return ((adminRight & r) == r) ? true : false;
 }
 int  User::getAdminRights()
 {
@@ -116,19 +116,19 @@ int  User::getAdminRights()
 
 void User::setDefaultDBRights(int r)
 {
-    databRight=r;
+    databRight = r;
 }
 int  User::getDefaultDBRights()
 {
     return databRight;
 }
 
-int  User::getEffectiveDatabaseRights(const char *databName)
+int  User::getEffectiveDatabaseRights(const char* databName)
 {
-    list<UserDBRight>::iterator iter=dbRList.begin();
-    for(unsigned int i=0; i<dbRList.size(); i++)
+    list<UserDBRight>::iterator iter = dbRList.begin();
+    for (unsigned int i = 0; i < dbRList.size(); i++)
     {
-        if(strcmp(iter->ptrDatabase->getName(),databName)==0)
+        if (strcmp(iter->ptrDatabase->getName(), databName) == 0)
         {
             return iter->databRight;
         }
@@ -137,12 +137,12 @@ int  User::getEffectiveDatabaseRights(const char *databName)
     return databRight;
 }
 
-bool User::isTrusteeOn(const char *databName)
+bool User::isTrusteeOn(const char* databName)
 {
-    list<UserDBRight>::iterator iter=dbRList.begin();
-    for(unsigned int i=0; i<dbRList.size(); i++)
+    list<UserDBRight>::iterator iter = dbRList.begin();
+    for (unsigned int i = 0; i < dbRList.size(); i++)
     {
-        if(strcmp(iter->ptrDatabase->getName(),databName)==0)
+        if (strcmp(iter->ptrDatabase->getName(), databName) == 0)
         {
             return true;
         }
@@ -151,27 +151,30 @@ bool User::isTrusteeOn(const char *databName)
     return false;
 }
 
-bool User::setDatabaseRights(const char *databName,int rights)
+bool User::setDatabaseRights(const char* databName, int rights)
 {
-    Database &db=dbManager[databName];
-    if(db.isValid()==false) return false;
+    Database& db = dbManager[databName];
+    if (db.isValid() == false)
+    {
+        return false;
+    }
 
     UserDBRight ur;
-    ur.ptrDatabase=&db;
-    ur.databRight=rights;
+    ur.ptrDatabase = &db;
+    ur.databRight = rights;
 
     removeDatabaseRights(databName);
     dbRList.push_back(ur);
     return true;
 }
-bool User::removeDatabaseRights(const char *databName)
+bool User::removeDatabaseRights(const char* databName)
 {
-    list<UserDBRight>::iterator iter=dbRList.begin();
-    for(unsigned int i=0; i<dbRList.size(); i++)
+    list<UserDBRight>::iterator iter = dbRList.begin();
+    for (unsigned int i = 0; i < dbRList.size(); i++)
     {
         //if(iter->ptrDatabase==NULL) { LINFO<<"Huo!!";break;}
 
-        if(strcmp(iter->ptrDatabase->getName(),databName)==0)
+        if (strcmp(iter->ptrDatabase->getName(), databName) == 0)
         {
             dbRList.erase(iter);
             return true;
@@ -182,25 +185,25 @@ bool User::removeDatabaseRights(const char *databName)
     return false;
 }
 
-void User::loadToRec(AuthUserRec &rec)
+void User::loadToRec(AuthUserRec& rec)
 {
-    rec.userID=userID;
-    strcpy(rec.userName,userName);
-    strcpy(rec.passWord,passWord);
+    rec.userID = userID;
+    strcpy(rec.userName, userName);
+    strcpy(rec.passWord, passWord);
 
-    rec.adminRight=adminRight;
-    rec.databRight=databRight;
-    rec.countRights=static_cast<long>(dbRList.size());
+    rec.adminRight = adminRight;
+    rec.databRight = databRight;
+    rec.countRights = static_cast<long>(dbRList.size());
 }
-void User::loadFromRec(AuthUserRec &rec)
+void User::loadFromRec(AuthUserRec& rec)
 {
-    userID=rec.userID;
-    strcpy(userName,rec.userName);
-    strcpy(passWord,rec.passWord);
+    userID = rec.userID;
+    strcpy(userName, rec.userName);
+    strcpy(passWord, rec.passWord);
 
-    adminRight =rec.adminRight;
-    databRight =rec.databRight;
-    valid=true;
+    adminRight = rec.adminRight;
+    databRight = rec.databRight;
+    valid = true;
 }
 
 long User::countRights()
@@ -208,21 +211,27 @@ long User::countRights()
     return static_cast<long>(dbRList.size());
 }
 
-bool User::loadRightToRec(int x,AuthDbRRec &rec)
+bool User::loadRightToRec(int x, AuthDbRRec& rec)
 {
-    if(x>=static_cast<int>(dbRList.size())) return false;
+    if (x >= static_cast<int>(dbRList.size()))
+    {
+        return false;
+    }
 
-    list<UserDBRight>::iterator iter=dbRList.begin();
-    for(int i=0; i<x; i++) iter++;
+    list<UserDBRight>::iterator iter = dbRList.begin();
+    for (int i = 0; i < x; i++)
+    {
+        iter++;
+    }
 
-    strcpy(rec.dbName,iter->ptrDatabase->getName());
-    rec.right=iter->databRight;
+    strcpy(rec.dbName, iter->ptrDatabase->getName());
+    rec.right = iter->databRight;
     return true;
 }
 
-bool User::loadRightFromRec(AuthDbRRec &rec)
+bool User::loadRightFromRec(AuthDbRRec& rec)
 {
-    return setDatabaseRights(rec.dbName,rec.right);
+    return setDatabaseRights(rec.dbName, rec.right);
 }
 
 bool User::isValid()
@@ -234,7 +243,7 @@ bool User::isValid()
 
 UserManager::UserManager()
 {
-    lastUserID=0;
+    lastUserID = 0;
 }
 UserManager::~UserManager()
 {
@@ -244,10 +253,10 @@ void UserManager::loadDefaults()
     insertNewUser("rasadmin");
     userList.back().changePTPassword("rasadmin");
     userList.back().setAdminRights(admR_full);
-    userList.back().setDefaultDBRights(dbR_read+dbR_write);
+    userList.back().setDefaultDBRights(dbR_read + dbR_write);
 
     // if there is a license for one user only, we don't have a rasguest
-    if(userManager.insertNewUser("rasguest"))
+    if (userManager.insertNewUser("rasguest"))
     {
         userList.back().changePTPassword("rasguest");
         userList.back().setAdminRights(admR_none);
@@ -257,25 +266,28 @@ void UserManager::loadDefaults()
 }
 
 
-bool UserManager::insertNewUser(const char *userName)
+bool UserManager::insertNewUser(const char* userName)
 {
-    if(testUniqueness(userName)==false)         return false;
+    if (testUniqueness(userName) == false)
+    {
+        return false;
+    }
 
     User tempUser;
     userList.push_back(tempUser);
-    User &refUser=userList.back();
+    User& refUser = userList.back();
 
-    refUser.init(lastUserID++,userName);
+    refUser.init(lastUserID++, userName);
 
     return true;
 }
 
-bool UserManager::removeUser(const char *userName)
+bool UserManager::removeUser(const char* userName)
 {
-    list<User>::iterator iter=userList.begin();
-    for(unsigned int i=0; i<userList.size(); i++)
+    list<User>::iterator iter = userList.begin();
+    for (unsigned int i = 0; i < userList.size(); i++)
     {
-        if(strcmp(iter->getName(),userName)==0)
+        if (strcmp(iter->getName(), userName) == 0)
         {
             userList.erase(iter);
             return true;
@@ -293,28 +305,34 @@ int  UserManager::countUsers()
 
 User& UserManager::operator[](int x)
 {
-    list<User>::iterator iter=userList.begin();
-    for(int i=0; i<x; i++) iter++;
+    list<User>::iterator iter = userList.begin();
+    for (int i = 0; i < x; i++)
+    {
+        iter++;
+    }
     return *iter;
 }
 
 User& UserManager::operator[](const char* userName)
 {
-    list<User>::iterator iter=userList.begin();
+    list<User>::iterator iter = userList.begin();
     //LINFO<<"Size="<<userList.size();
-    for(unsigned int i=0; i<userList.size(); i++)
+    for (unsigned int i = 0; i < userList.size(); i++)
     {
         //LINFO<<i<<" "<<iter->getName()<<" "<<iter->isValid();
-        if(strcmp(iter->getName(),userName)==0) return *iter;
+        if (strcmp(iter->getName(), userName) == 0)
+        {
+            return *iter;
+        }
         iter++;
     }
     return protElem;
 }
 
-void UserManager::removeDatabaseRights(const char *databName)
+void UserManager::removeDatabaseRights(const char* databName)
 {
-    list<User>::iterator iter=userList.begin();
-    for(unsigned int i=0; i<userList.size(); i++)
+    list<User>::iterator iter = userList.begin();
+    for (unsigned int i = 0; i < userList.size(); i++)
     {
         iter->removeDatabaseRights(databName);
         iter++;
@@ -323,22 +341,25 @@ void UserManager::removeDatabaseRights(const char *databName)
 
 bool UserManager::testUniqueness(const char* userName)
 {
-    list<User>::iterator iter=userList.begin();
-    for(unsigned int i=0; i<userList.size(); i++)
+    list<User>::iterator iter = userList.begin();
+    for (unsigned int i = 0; i < userList.size(); i++)
     {
-        if(strcmp(iter->getName(),userName)==0) return false;
+        if (strcmp(iter->getName(), userName) == 0)
+        {
+            return false;
+        }
         iter++;
     }
     return true;
 }
 
-User& UserManager::loadUser(AuthUserRec &rec)
+User& UserManager::loadUser(AuthUserRec& rec)
 {
     removeUser(rec.userName);
 
     User tempUser;
     userList.push_back(tempUser);
-    User &refUser=userList.back();
+    User& refUser = userList.back();
 
     refUser.loadFromRec(rec);
 
@@ -350,33 +371,42 @@ long  UserManager::getLastUserID()
 }
 void  UserManager::setLastUserID(long newLastUserID)
 {
-    this->lastUserID=newLastUserID;
+    this->lastUserID = newLastUserID;
 }
 
-User* UserManager::acceptEntry(const char *name,const char *encrPass)
+User* UserManager::acceptEntry(const char* name, const char* encrPass)
 {
-    list<User>::iterator iter=userList.begin();
-    for(unsigned int i=0; i<userList.size(); i++)
+    list<User>::iterator iter = userList.begin();
+    for (unsigned int i = 0; i < userList.size(); i++)
     {
-        if(iter->isThisMe(name,encrPass)) return &(*iter);
+        if (iter->isThisMe(name, encrPass))
+        {
+            return &(*iter);
+        }
         iter++;
     }
     return NULL;
 }
 bool UserManager::reset()
 {
-    if(config.isTestModus()==false) return false;
+    if (config.isTestModus() == false)
+    {
+        return false;
+    }
 
-    while(userList.size())
+    while (userList.size())
     {
         userList.pop_front();
     }
     return true;
 }
 
-bool UserManager::acceptChangeName(const char *oldName,const char *newName)
+bool UserManager::acceptChangeName(const char* oldName, const char* newName)
 {
-    if(strcmp(oldName,newName)==0) return true; // if someone really wants to change a name with the same,
+    if (strcmp(oldName, newName) == 0)
+    {
+        return true;    // if someone really wants to change a name with the same,
+    }
 
     return testUniqueness(newName);
 }
@@ -385,39 +415,48 @@ bool UserManager::acceptChangeName(const char *oldName,const char *newName)
 
 Authorization::Authorization()
 {
-    inConfigFile=false;
+    inConfigFile = false;
 
     // get server authentication file path/name
-    int pathLen = snprintf( authFileName, FILENAME_MAX, "%s/%s", CONFDIR, RASMGR_AUTH_FILE );
+    int pathLen = snprintf(authFileName, FILENAME_MAX, "%s/%s", CONFDIR, RASMGR_AUTH_FILE);
     if (pathLen >= FILENAME_MAX)
     {
-        authFileName[FILENAME_MAX-1] = '\0';    // force-terminate string before printing
+        authFileName[FILENAME_MAX - 1] = '\0';  // force-terminate string before printing
         LWARNING << "Warning: authentication file path longer than allowed by OS, file likely cannot be accessed: " << authFileName;
     }
-    globalInitAdminRight=admR_none;
-    globalInitDatabRight=dbR_none;
+    globalInitAdminRight = admR_none;
+    globalInitDatabRight = dbR_none;
 }
 
-bool Authorization::acceptEntry(const char *header)
+bool Authorization::acceptEntry(const char* header)
 {
     char myheader[500];
-    strncpy(myheader,header,299);
-    myheader[299]=0;
-    char *auth=strstr(myheader,"Authorization:");
-    if(!auth) return false;
+    strncpy(myheader, header, 299);
+    myheader[299] = 0;
+    char* auth = strstr(myheader, "Authorization:");
+    if (!auth)
+    {
+        return false;
+    }
 
     //LDEBUG << "auth=" << auth;
 
-    char *scheme=strtok(auth+strlen("Authorization:")," ");
-    if(!scheme) return false;
+    char* scheme = strtok(auth + strlen("Authorization:"), " ");
+    if (!scheme)
+    {
+        return false;
+    }
 
-    char *uname=strtok(NULL,":");
-    char *upass=strtok(NULL," \r\n\t");
+    char* uname = strtok(NULL, ":");
+    char* upass = strtok(NULL, " \r\n\t");
 
     //LDEBUG << "Auth. scheme=" << scheme << " user=" << uname << "  pass=" << upass;
 
-    curUser=userManager.acceptEntry(uname,upass);
-    if(curUser==NULL) return false;
+    curUser = userManager.acceptEntry(uname, upass);
+    if (curUser == NULL)
+    {
+        return false;
+    }
 
     return true;
 }
@@ -431,40 +470,43 @@ const char* Authorization::getUserName()
     return curUser->getName();
 }
 
-const char* Authorization::getCapability(const char *serverName,const char *databaseName, bool readonly)
+const char* Authorization::getCapability(const char* serverName, const char* databaseName, bool readonly)
 {
     //Format of Capability (no brackets())
     //$I(userID)$E(effectivRights)$B(databaseName)$T(timeout)$N(serverName)$D(messageDigest)$K
-    int rights=curUser->getEffectiveDatabaseRights(databaseName);
+    int rights = curUser->getEffectiveDatabaseRights(databaseName);
 
-    if(readonly) rights&=~dbR_write;
+    if (readonly)
+    {
+        rights &= ~dbR_write;
+    }
 
-    const char *rString=convertDatabRights(rights);
+    const char* rString = convertDatabRights(rights);
 
-    long userID=curUser->getUserID();
+    long userID = curUser->getUserID();
 
     char capaS[300];
-    sprintf(capaS,"$I%ld$E%s$B%s$T%s$N%s",userID,rString,databaseName,getFormatedTime(180),serverName);
+    sprintf(capaS, "$I%ld$E%s$B%s$T%s$N%s", userID, rString, databaseName, getFormatedTime(180), serverName);
 
     static char capaQ[300];
-    sprintf(capaQ,"$Canci%s",capaS);
+    sprintf(capaQ, "$Canci%s", capaS);
 
     char digest[50]; // 33 is enough
-    messageDigest(capaQ,digest,"MD5");
+    messageDigest(capaQ, digest, "MD5");
 
-    sprintf(capaQ,"%s$D%s$K",capaS,digest);
+    sprintf(capaQ, "%s$D%s$K", capaS, digest);
 
     return capaQ;
 }
 
 void Authorization::startConfigFile()
 {
-    inConfigFile=true;
+    inConfigFile = true;
 }
 
 void Authorization::endConfigFile()
 {
-    inConfigFile=false;
+    inConfigFile = false;
 }
 bool Authorization::isInConfigFile()
 {
@@ -475,62 +517,74 @@ bool Authorization::saveAuthFile()
 {
 
     std::ofstream ofs(authFileName);
-    if(!ofs) return false;
+    if (!ofs)
+    {
+        return false;
+    }
 
     EVP_MD_CTX mdctx;
-    const EVP_MD *md;
+    const EVP_MD* md;
     unsigned int md_len;
     //unsigned char md_value[30];
 
     OpenSSL_add_all_digests();
     md = EVP_get_digestbyname("MD5");
-    if(!md) return false;
+    if (!md)
+    {
+        return false;
+    }
     EVP_DigestInit(&mdctx, md);
 
     AuthFileHeader header;
-    header.fileID      =AUTHFILEID;
-    header.fileVersion =AUTHFILEVERS;
-    header.headerLength=sizeof(header);
-    header.lastUserID  =userManager.getLastUserID();
-    strcpy(header.hostName,config.getHostName());
-    header.countUsers=userManager.countUsers();
-    for(int i=0; i< 35; i++) header.messageDigest[i]=0;
-    header.globalInitAdmR=authorization.getGlobalInitAdminRights();
-    header.globalInitDbsR=authorization.getGlobalInitDatabRights();
+    header.fileID      = AUTHFILEID;
+    header.fileVersion = AUTHFILEVERS;
+    header.headerLength = sizeof(header);
+    header.lastUserID  = userManager.getLastUserID();
+    strcpy(header.hostName, config.getHostName());
+    header.countUsers = userManager.countUsers();
+    for (int i = 0; i < 35; i++)
+    {
+        header.messageDigest[i] = 0;
+    }
+    header.globalInitAdmR = authorization.getGlobalInitAdminRights();
+    header.globalInitDbsR = authorization.getGlobalInitDatabRights();
 
     randomGenerator.setFileVersion(header.fileVersion);
 
-    for(int i=0; i<100; i++) header._unused[i]=0;
-    ofs.write((char*)&header,sizeof(header));
+    for (int i = 0; i < 100; i++)
+    {
+        header._unused[i] = 0;
+    }
+    ofs.write((char*)&header, sizeof(header));
 
     initcrypt(header.lastUserID);
 
-    for(int i=0; i<header.countUsers; i++)
+    for (int i = 0; i < header.countUsers; i++)
     {
-        User &u=userManager[i];
+        User& u = userManager[i];
         AuthUserRec uRec;
 
         u.loadToRec(uRec);
-        EVP_DigestUpdate(&mdctx,&uRec,sizeof(uRec));
+        EVP_DigestUpdate(&mdctx, &uRec, sizeof(uRec));
 
-        crypt(&uRec,sizeof(uRec));
-        ofs.write((char*)&uRec,sizeof(uRec));
+        crypt(&uRec, sizeof(uRec));
+        ofs.write((char*)&uRec, sizeof(uRec));
 
-        for(int j=0; j<u.countRights(); j++)
+        for (int j = 0; j < u.countRights(); j++)
         {
             AuthDbRRec dbRec;
-            u.loadRightToRec(j,dbRec);
-            EVP_DigestUpdate(&mdctx,&dbRec,sizeof(dbRec));
+            u.loadRightToRec(j, dbRec);
+            EVP_DigestUpdate(&mdctx, &dbRec, sizeof(dbRec));
 
-            crypt(&dbRec,sizeof(dbRec));
-            ofs.write((char*)&dbRec,sizeof(dbRec));
+            crypt(&dbRec, sizeof(dbRec));
+            ofs.write((char*)&dbRec, sizeof(dbRec));
         }
 
     }
 
     EVP_DigestFinal(&mdctx, header.messageDigest, &md_len);
-    ofs.seekp(0,std::ios::beg);
-    ofs.write((char*)&header,sizeof(header));
+    ofs.seekp(0, std::ios::beg);
+    ofs.write((char*)&header, sizeof(header));
     ofs.close();
 
     return true;
@@ -540,62 +594,71 @@ int Authorization::readAuthFile()
 {
     int result = RC_OK;     // enum values from rasmgr_users.hh
 
-    LDEBUG << "Inspecting authorization file '"<<authFileName<< "'...";
+    LDEBUG << "Inspecting authorization file '" << authFileName << "'...";
 
     std::ifstream ifs(authFileName);
-    if(!ifs)
+    if (!ifs)
+    {
         result = ERRAUTHFNOTF;
+    }
 
     if (result == RC_OK)
     {
-        int ver=verifyAuthFile(ifs);
-        if(ver)
+        int ver = verifyAuthFile(ifs);
+        if (ver)
+        {
             result = ver;
+        }
         LDEBUG << "Authorization::readAuthFile: verifyAuthFile returned ." << result;
     }
 
     if (result == RC_OK)
     {
         AuthFileHeader header;
-        ifs.read((char*)&header,sizeof(header));
+        ifs.read((char*)&header, sizeof(header));
 
         // not necessary, done by verify  if(header.fileID != AUTHFIELID) return ERRAUTHFCORR;
 
         // this is needed
-        if(!randomGenerator.setFileVersion(header.fileVersion)) return ERRAUTHFVERS;
+        if (!randomGenerator.setFileVersion(header.fileVersion))
+        {
+            return ERRAUTHFVERS;
+        }
 
         userManager.setLastUserID(header.lastUserID);
         authorization.setGlobalInitAdminRights(header.globalInitAdmR);
         authorization.setGlobalInitDatabRights(header.globalInitDbsR);
 
-        LDEBUG << "Authorization::readAuthFile: Auth file host="<<header.hostName<<" lastUserID="<<header.lastUserID;
+        LDEBUG << "Authorization::readAuthFile: Auth file host=" << header.hostName << " lastUserID=" << header.lastUserID;
         initcrypt(header.lastUserID);
 
-        for(int i=0; i<header.countUsers; i++)
+        for (int i = 0; i < header.countUsers; i++)
         {
             AuthUserRec uRec;
-            ifs.read((char*)&uRec,sizeof(uRec));
+            ifs.read((char*)&uRec, sizeof(uRec));
 
-            decrypt(&uRec,sizeof(uRec));
+            decrypt(&uRec, sizeof(uRec));
 
-            User &u=userManager.loadUser(uRec);
-            LDEBUG << "Authorization::readAuthFile: User "<<i<<" "<<u.getName();
+            User& u = userManager.loadUser(uRec);
+            LDEBUG << "Authorization::readAuthFile: User " << i << " " << u.getName();
 
-            for(int j=0; j<uRec.countRights; j++)
+            for (int j = 0; j < uRec.countRights; j++)
             {
                 AuthDbRRec dbRec;
-                ifs.read((char*)&dbRec,sizeof(dbRec));
+                ifs.read((char*)&dbRec, sizeof(dbRec));
 
-                decrypt(&dbRec,sizeof(dbRec));
+                decrypt(&dbRec, sizeof(dbRec));
                 u.loadRightFromRec(dbRec);
             }
         }
     }
 
     if (result != ERRAUTHFNOTF)
+    {
         ifs.close();
+    }
 
-    switch(result)
+    switch (result)
     {
     case RC_OK:
         LDEBUG << "ok";
@@ -604,47 +667,55 @@ int Authorization::readAuthFile()
         LWARNING << "Warning: User authorization file not found, using default user settings.";
         break;
     case  ERRAUTHFCORR:
-        LERROR<<"Error: User authorization file is corrupt, aborting.";
+        LERROR << "Error: User authorization file is corrupt, aborting.";
         break;
     case  ERRAUTHFWRHOST:
-        LERROR<<"Error: User authorization file is not for this host.";
+        LERROR << "Error: User authorization file is not for this host.";
         break;
     case  ERRAUTHFVERS:
-        LERROR<<"Error: User authorization file is incompatible due to different encryption used - see migration documentation.";
+        LERROR << "Error: User authorization file is incompatible due to different encryption used - see migration documentation.";
         break;
     default:                            // should not occur, internal enum mismatch
-        LERROR<<"Error: Internal evaluation error.";
+        LERROR << "Error: Internal evaluation error.";
         break;
     }
 
     return result;
 } // readAuthFile()
 
-int Authorization::verifyAuthFile(std::ifstream &ifs)
+int Authorization::verifyAuthFile(std::ifstream& ifs)
 {
     EVP_MD_CTX mdctx;
-    const EVP_MD *md;
+    const EVP_MD* md;
     unsigned int md_len;
     unsigned char md_value[50];
 
     OpenSSL_add_all_digests();
     md = EVP_get_digestbyname("MD5");
-    if(!md)
+    if (!md)
+    {
         return false;
+    }
 
     EVP_DigestInit(&mdctx, md);
 
     AuthFileHeader header;
-    ifs.read((char*)&header,sizeof(header));
+    ifs.read((char*)&header, sizeof(header));
 
-    if(header.fileID != AUTHFILEID)
+    if (header.fileID != AUTHFILEID)
+    {
         return ERRAUTHFCORR;
+    }
 
-    if(!randomGenerator.setFileVersion(header.fileVersion))
+    if (!randomGenerator.setFileVersion(header.fileVersion))
+    {
         return ERRAUTHFVERS;
+    }
 
-    if(!hostCmp(header.hostName,config.getHostName()))
+    if (!hostCmp(header.hostName, config.getHostName()))
+    {
         return ERRAUTHFWRHOST;
+    }
 
     initcrypt(header.lastUserID);
 
@@ -671,35 +742,41 @@ int Authorization::verifyAuthFile(std::ifstream &ifs)
 #define MAXBUFF 500
     unsigned char buff[MAXBUFF];
     long cpos = ifs.tellg();
-    ifs.seekg(0,std::ios::end);
-    long endpos=ifs.tellg();
-    ifs.seekg(cpos,std::ios::beg);
+    ifs.seekg(0, std::ios::end);
+    long endpos = ifs.tellg();
+    ifs.seekg(cpos, std::ios::beg);
     //LINFO<<"c="<<cpos<<"  end="<<endpos;
 
-    for(;;)
+    for (;;)
     {
-        int r = endpos-cpos > MAXBUFF ? MAXBUFF : endpos-cpos;
-        if(r==0)
-            break; //{ LINFO<<"xx"; break; }
-        ifs.read((char*)buff,r);
-        if(!ifs)
-            break; //{ LINFO<<"yy"; break; }
-        cpos +=r;
+        int r = endpos - cpos > MAXBUFF ? MAXBUFF : endpos - cpos;
+        if (r == 0)
+        {
+            break;
+        } //{ LINFO<<"xx"; break; }
+        ifs.read((char*)buff, r);
+        if (!ifs)
+        {
+            break;
+        } //{ LINFO<<"yy"; break; }
+        cpos += r;
 
-        decrypt(buff,r);
+        decrypt(buff, r);
 
-        EVP_DigestUpdate(&mdctx,buff,static_cast<size_t>(r));
+        EVP_DigestUpdate(&mdctx, buff, static_cast<size_t>(r));
         //LINFO<<"verify "<<r;
     }
 
     EVP_DigestFinal(&mdctx, md_value, &md_len);
 
-    ifs.seekg(0,std::ios::beg);
+    ifs.seekg(0, std::ios::beg);
 
-    for(unsigned int i=0; i<md_len; i++)
+    for (unsigned int i = 0; i < md_len; i++)
     {
-        if(md_value[i]!=header.messageDigest[i])
+        if (md_value[i] != header.messageDigest[i])
+        {
             return ERRAUTHFCORR;
+        }
     }
     return 0;
 }
@@ -709,15 +786,18 @@ void Authorization::initcrypt(int seed)
     //srand(seed);
     randomGenerator.init(static_cast<unsigned int>(seed));
 }
-void Authorization::crypt(void *vbuffer,int length)
+void Authorization::crypt(void* vbuffer, int length)
 {
-    unsigned char *buff=static_cast<unsigned char*>(vbuffer);
+    unsigned char* buff = static_cast<unsigned char*>(vbuffer);
     // LINFO<<" crypt length="<<length;
-    for(int i=0; i<length; i++) buff[i]^=randomGenerator(); //rand();
+    for (int i = 0; i < length; i++)
+    {
+        buff[i] ^= randomGenerator();    //rand();
+    }
 }
-void Authorization::decrypt(void *vbuffer,int length)
+void Authorization::decrypt(void* vbuffer, int length)
 {
-    crypt(vbuffer,length);
+    crypt(vbuffer, length);
 }
 
 const char* Authorization::getSyncroString()
@@ -727,21 +807,21 @@ const char* Authorization::getSyncroString()
 
 const char* Authorization::getFormatedTime(long int delta)
 {
-    time_t tmx=time(NULL)+delta;
-    tm *b=localtime(&tmx);
+    time_t tmx = time(NULL) + delta;
+    tm* b = localtime(&tmx);
     static char buffer[30];
-    sprintf(buffer,"%d:%d:%d:%d:%d:%d",b->tm_mday,b->tm_mon+1,b->tm_year+1900,b->tm_hour,b->tm_min,b->tm_sec);
+    sprintf(buffer, "%d:%d:%d:%d:%d:%d", b->tm_mday, b->tm_mon + 1, b->tm_year + 1900, b->tm_hour, b->tm_min, b->tm_sec);
     return buffer;
 }
 
 
 void Authorization::setGlobalInitAdminRights(int rights)
 {
-    globalInitAdminRight=rights;
+    globalInitAdminRight = rights;
 }
 void Authorization::setGlobalInitDatabRights(int rights)
 {
-    globalInitDatabRight=rights;
+    globalInitDatabRight = rights;
 }
 int  Authorization::getGlobalInitAdminRights()
 {
@@ -752,57 +832,57 @@ int  Authorization::getGlobalInitDatabRights()
     return globalInitDatabRight;
 }
 
-const char * Authorization::convertAdminRights(int r)
+const char* Authorization::convertAdminRights(int r)
 {
     static char buffer[20];
 
-    char C= (r & admR_config) ? 'C':'.';
-    char A= (r & admR_acctrl) ? 'A':'.';
-    char S= (r & admR_sysup ) ? 'S':'.';
-    char I= (r & admR_info  ) ? 'I':'.';
+    char C = (r & admR_config) ? 'C' : '.';
+    char A = (r & admR_acctrl) ? 'A' : '.';
+    char S = (r & admR_sysup) ? 'S' : '.';
+    char I = (r & admR_info) ? 'I' : '.';
 
-    sprintf(buffer,"%c%c%c%c",C,A,S,I);
+    sprintf(buffer, "%c%c%c%c", C, A, S, I);
     return buffer;
 }
-const char * Authorization::convertDatabRights(int r)
+const char* Authorization::convertDatabRights(int r)
 {
     static char buffer[20];
 
-    char R= (r & dbR_read)  ? 'R':'.';
-    char W= (r & dbR_write) ? 'W':'.';
+    char R = (r & dbR_read)  ? 'R' : '.';
+    char W = (r & dbR_write) ? 'W' : '.';
 
-    sprintf(buffer,"%c%c",R,W);
+    sprintf(buffer, "%c%c", R, W);
     return buffer;
 
 }
 
-const char * Authorization::convertGlobalInitAdminRights()
+const char* Authorization::convertGlobalInitAdminRights()
 {
     return convertAdminRights(globalInitAdminRight);
 }
-const char * Authorization::convertGlobalInitDatabRights()
+const char* Authorization::convertGlobalInitDatabRights()
 {
     return convertDatabRights(globalInitDatabRight);
 }
 
-int Authorization::convertAdminRights(const char *rString)
+int Authorization::convertAdminRights(const char* rString)
 {
-    int rights=admR_none;
-    for(int i=0; rString[i]; i++)
+    int rights = admR_none;
+    for (int i = 0; rString[i]; i++)
     {
-        switch(rString[i])
+        switch (rString[i])
         {
         case 'C':
-            rights|=admR_config;
+            rights |= admR_config;
             break;
         case 'A':
-            rights|=admR_acctrl;
+            rights |= admR_acctrl;
             break;
         case 'S':
-            rights|=admR_sysup;
+            rights |= admR_sysup;
             break;
         case 'I':
-            rights|=admR_info;
+            rights |= admR_info;
             break;
         case 'R':
         case 'W':
@@ -818,12 +898,12 @@ int Authorization::convertAdminRights(const char *rString)
     return rights;
 }
 
-int Authorization::convertDatabRights(const char *rString)
+int Authorization::convertDatabRights(const char* rString)
 {
-    int rights=dbR_none;
-    for(int i=0; rString[i]; i++)
+    int rights = dbR_none;
+    for (int i = 0; rString[i]; i++)
     {
-        switch(rString[i])
+        switch (rString[i])
         {
         case 'C':
         case 'A':
@@ -831,10 +911,10 @@ int Authorization::convertDatabRights(const char *rString)
         case 'I':
             break;
         case 'R':
-            rights|=dbR_read;
+            rights |= dbR_read;
             break;
         case 'W':
-            rights|=dbR_write;
+            rights |= dbR_write;
             break;
         case '[':
         case ']':
@@ -855,7 +935,7 @@ bool Authorization::hasAdminRights(int right)
 
 // return name of alternate config file;
 // takes value from preceding saveAltAuthFile() call.
-const char *Authorization::getAltAuthFileName()
+const char* Authorization::getAltAuthFileName()
 {
     return altAuthFileName;
 }
@@ -872,17 +952,17 @@ bool Authorization::saveOrigAuthFile()
 bool Authorization::saveAltAuthFile()
 {
     bool result = true;
-    const char *tempfileTemplate = ".XXXXXX";                   // 6 * 'X', see man mkstemp()
+    const char* tempfileTemplate = ".XXXXXX";                   // 6 * 'X', see man mkstemp()
     char origFileName[ sizeof(authFileName) + sizeof(tempfileTemplate) ];   // temp copy of auth file
 
     // save original file name
-    (void) strcpy( origFileName, authFileName );
+    (void) strcpy(origFileName, authFileName);
 
     // build temp file by appending a unique string
-    (void) strcpy( altAuthFileName, authFileName );
-    (void) strcat( altAuthFileName, tempfileTemplate );
+    (void) strcpy(altAuthFileName, authFileName);
+    (void) strcat(altAuthFileName, tempfileTemplate);
 
-    int altFile = mkstemp( altAuthFileName );       // replaces the Xs by some unique string; checks for FILENAME_MAX oflo
+    int altFile = mkstemp(altAuthFileName);         // replaces the Xs by some unique string; checks for FILENAME_MAX oflo
     if (altFile < 0)                    // error in creating file name
     {
         int tempError = errno;
@@ -893,17 +973,19 @@ bool Authorization::saveAltAuthFile()
     {
         // now we have a valid + open file, but we can't use it like that, because we open down below.
         // so close it again, being happy that we have a valid file name. bad hack, though.
-        int closeResult = close( altFile );
+        int closeResult = close(altFile);
         if (closeResult != 0)
+        {
             LDEBUG << "Authorization::saveAltAuthFile: error in temporary closing file, ignoring that.";
+        }
     }
 
     if (result == true)
     {
-        (void) strcpy( authFileName, altAuthFileName );     // set file to be written to alternate name
+        (void) strcpy(authFileName, altAuthFileName);       // set file to be written to alternate name
         result = saveAuthFile();                      // save file, name has been substituted successfully
         LDEBUG << "Authorization::saveAltAuthFile: save to " << authFileName << " done, result=" << result;
-        (void) strcpy( authFileName, origFileName );  // restore original auth file name
+        (void) strcpy(authFileName, origFileName);    // restore original auth file name
     }
 
     return result;

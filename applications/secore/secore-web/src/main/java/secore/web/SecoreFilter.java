@@ -45,161 +45,161 @@ import secore.util.StringUtil;
  * @author Mihaela Rusu
  */
 public final class SecoreFilter implements Filter {
-  
-  private static Logger log = LoggerFactory.getLogger(SecoreFilter.class);
-  private FilterConfig filterConfig = null;
-  public final static String CONF_DIR = "confDir";  
-  
-  @Override
-  public void init(FilterConfig filterConfig) {
-    this.filterConfig = filterConfig;
-    // We need to extract this param from web.xml before SECORE can start (i.e: it need to read the $RMANHOME/etc/secore.properties)
-    ServletContext context = this.filterConfig.getServletContext();    
-    String confDir = context.getInitParameter(CONF_DIR);
-    Config.initInstance(confDir);
-    log.info("Initializing SECORE web front-end...");
-  }
-  
-  /**
-   *
-   * @param request The servlet request we are processing
-   * @param response The servlet response we are creating
-   * @param chain The filter chain we are processing
-   *
-   * @exception IOException if an input/output error occurs
-   * @exception ServletException if a servlet error occurs
-   */
-  public void doFilter(ServletRequest request, ServletResponse response,
-      FilterChain chain)
-      throws IOException, ServletException {
-    
-    Throwable problem = null;
-    try {
-      String uri = ((HttpServletRequest) request).getRequestURI();
-      log.debug("Request URI: " + uri);
-      try {
-        if (!StringUtil.SERVICE_URI_SET) {
-          String serviceUrl = Config.getInstance().getServiceUrl();
-          if (serviceUrl == null || "".equals(serviceUrl)) {
-            String url = ((HttpServletRequest) request).getRequestURL().toString();
-            ResolveRequest req = new ResolveRequest(url);
-            serviceUrl = req.getServiceUri();
-          }
-          StringUtil.SERVICE_URI = serviceUrl;
-          StringUtil.SERVICE_URI_SET = true;
-          log.trace("Service URI: " + StringUtil.SERVICE_URI);
+
+    private static Logger log = LoggerFactory.getLogger(SecoreFilter.class);
+    private FilterConfig filterConfig = null;
+    public final static String CONF_DIR = "confDir";
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+        this.filterConfig = filterConfig;
+        // We need to extract this param from web.xml before SECORE can start (i.e: it need to read the $RMANHOME/etc/secore.properties)
+        ServletContext context = this.filterConfig.getServletContext();
+        String confDir = context.getInitParameter(CONF_DIR);
+        Config.initInstance(confDir);
+        log.info("Initializing SECORE web front-end...");
+    }
+
+    /**
+     *
+     * @param request The servlet request we are processing
+     * @param response The servlet response we are creating
+     * @param chain The filter chain we are processing
+     *
+     * @exception IOException if an input/output error occurs
+     * @exception ServletException if a servlet error occurs
+     */
+    public void doFilter(ServletRequest request, ServletResponse response,
+                         FilterChain chain)
+    throws IOException, ServletException {
+
+        Throwable problem = null;
+        try {
+            String uri = ((HttpServletRequest) request).getRequestURI();
+            log.debug("Request URI: " + uri);
+            try {
+                if (!StringUtil.SERVICE_URI_SET) {
+                    String serviceUrl = Config.getInstance().getServiceUrl();
+                    if (serviceUrl == null || "".equals(serviceUrl)) {
+                        String url = ((HttpServletRequest) request).getRequestURL().toString();
+                        ResolveRequest req = new ResolveRequest(url);
+                        serviceUrl = req.getServiceUri();
+                    }
+                    StringUtil.SERVICE_URI = serviceUrl;
+                    StringUtil.SERVICE_URI_SET = true;
+                    log.trace("Service URI: " + StringUtil.SERVICE_URI);
+                }
+            } catch (Exception ex) {
+            }
+            StringUtil.SERVLET_CONTEXT = ((HttpServletRequest) request).getContextPath();
+            if (uri.endsWith(Constants.ADMIN_FILE)) {
+                log.debug("Call " + Constants.ADMIN_FILE);
+                uri = uri.substring(0, uri.length() - Constants.ADMIN_FILE.length());
+                request.setAttribute("url", uri);
+                request.getRequestDispatcher("/WEB-INF/" + Constants.ADMIN_FILE).forward(request, response);
+            } else if (uri.endsWith(Constants.SYNONYMS_FILE)) {
+                log.debug("Call " + Constants.SYNONYMS_FILE);
+                request.getRequestDispatcher("/WEB-INF/" + Constants.SYNONYMS_FILE).forward(request, response);
+            } else if (uri.endsWith(Constants.DEMO_FILE)) {
+                log.debug("Call " + Constants.DEMO_FILE);
+                request.getRequestDispatcher("/WEB-INF/" + Constants.DEMO_FILE).forward(request, response);
+            } else if (uri.endsWith(Constants.UPDATEDB_FILE)) {
+                log.debug("Call " + Constants.UPDATEDB_FILE);
+                request.getRequestDispatcher("/WEB-INF/" + Constants.UPDATEDB_FILE).forward(request, response);
+            } else if (uri.endsWith(Constants.INDEX_FILE)) {
+                log.debug("Call " + Constants.INDEX_FILE);
+                request.getRequestDispatcher("/" + Constants.INDEX_FILE).forward(request, response);
+            } else if (uri.startsWith(StringUtil.SERVLET_CONTEXT)) {
+                request.getRequestDispatcher(uri).forward(request, response);
+            } else {
+                chain.doFilter(request, response); // Goes to default servlet.
+            }
+        } catch (Throwable t) {
+            // If an exception is thrown somewhere down the filter chain,
+            // we still want to execute our after processing, and then
+            // rethrow the problem after that.
+            problem = t;
+            t.printStackTrace();
         }
-      } catch (Exception ex) {
-      }
-      StringUtil.SERVLET_CONTEXT = ((HttpServletRequest) request).getContextPath();
-      if (uri.endsWith(Constants.ADMIN_FILE)) {
-          log.debug("Call " + Constants.ADMIN_FILE);
-          uri = uri.substring(0, uri.length() - Constants.ADMIN_FILE.length());
-          request.setAttribute("url", uri);
-          request.getRequestDispatcher("/WEB-INF/" + Constants.ADMIN_FILE).forward(request, response);
-      } else if (uri.endsWith(Constants.SYNONYMS_FILE)) {
-          log.debug("Call " + Constants.SYNONYMS_FILE);
-          request.getRequestDispatcher("/WEB-INF/" + Constants.SYNONYMS_FILE).forward(request, response);
-      } else if (uri.endsWith(Constants.DEMO_FILE)) {
-          log.debug("Call " + Constants.DEMO_FILE);
-          request.getRequestDispatcher("/WEB-INF/" + Constants.DEMO_FILE).forward(request, response);
-      } else if (uri.endsWith(Constants.UPDATEDB_FILE)) {
-          log.debug("Call " + Constants.UPDATEDB_FILE);
-          request.getRequestDispatcher("/WEB-INF/" + Constants.UPDATEDB_FILE).forward(request, response);
-      } else if (uri.endsWith(Constants.INDEX_FILE)) {
-          log.debug("Call " + Constants.INDEX_FILE);
-          request.getRequestDispatcher("/" + Constants.INDEX_FILE).forward(request, response);
-      } else if (uri.startsWith(StringUtil.SERVLET_CONTEXT)) {
-          request.getRequestDispatcher(uri).forward(request, response);
-      } else {
-          chain.doFilter(request, response); // Goes to default servlet.
-      }
-    } catch (Throwable t) {
-      // If an exception is thrown somewhere down the filter chain,
-      // we still want to execute our after processing, and then
-      // rethrow the problem after that.
-      problem = t;
-      t.printStackTrace();
-    }
-    
-    // If there was a problem, we want to rethrow it if it is
-    // a known type, otherwise log it.
-    if (problem != null) {
-      if (problem instanceof ServletException) {
-        throw (ServletException) problem;
-      }
-      if (problem instanceof IOException) {
-        throw (IOException) problem;
-      }
-      sendProcessingError(problem, response);
-    }
-  }
 
-  /**
-   * Destroy method for this filter 
-   */
-  public void destroy() {    
-  }
+        // If there was a problem, we want to rethrow it if it is
+        // a known type, otherwise log it.
+        if (problem != null) {
+            if (problem instanceof ServletException) {
+                throw(ServletException) problem;
+            }
+            if (problem instanceof IOException) {
+                throw(IOException) problem;
+            }
+            sendProcessingError(problem, response);
+        }
+    }
 
-  /**
-   * Return a String representation of this object.
-   */
-  @Override
-  public String toString() {
-    if (filterConfig == null) {
-      return ("Filter()");
+    /**
+     * Destroy method for this filter
+     */
+    public void destroy() {
     }
-    StringBuffer sb = new StringBuffer("Filter(");
-    sb.append(filterConfig);
-    sb.append(")");
-    return (sb.toString());
-  }
-  
-  private void sendProcessingError(Throwable t, ServletResponse response) {
-    String stackTrace = getStackTrace(t);    
-    
-    if (stackTrace != null && !stackTrace.equals("")) {
-      try {
-        response.setContentType("text/html");
-        PrintStream ps = new PrintStream(response.getOutputStream());
-        PrintWriter pw = new PrintWriter(ps);        
-        pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); //NOI18N
 
-        // PENDING! Localize this for next official release
-        pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");        
-        pw.print(stackTrace);        
-        pw.print("</pre></body>\n</html>"); //NOI18N
-        pw.close();
-        ps.close();
-        response.getOutputStream().close();
-      } catch (Exception ex) {
-      }
-    } else {
-      try {
-        PrintStream ps = new PrintStream(response.getOutputStream());
-        t.printStackTrace(ps);
-        ps.close();
-        response.getOutputStream().close();
-      } catch (Exception ex) {
-      }
+    /**
+     * Return a String representation of this object.
+     */
+    @Override
+    public String toString() {
+        if (filterConfig == null) {
+            return ("Filter()");
+        }
+        StringBuffer sb = new StringBuffer("Filter(");
+        sb.append(filterConfig);
+        sb.append(")");
+        return (sb.toString());
     }
-  }
-  
-  public static String getStackTrace(Throwable t) {
-    String stackTrace = null;
-    try {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw);
-      t.printStackTrace(pw);
-      pw.close();
-      sw.close();
-      stackTrace = sw.getBuffer().toString();
-    } catch (Exception ex) {
+
+    private void sendProcessingError(Throwable t, ServletResponse response) {
+        String stackTrace = getStackTrace(t);
+
+        if (stackTrace != null && !stackTrace.equals("")) {
+            try {
+                response.setContentType("text/html");
+                PrintStream ps = new PrintStream(response.getOutputStream());
+                PrintWriter pw = new PrintWriter(ps);
+                pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); //NOI18N
+
+                // PENDING! Localize this for next official release
+                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");
+                pw.print(stackTrace);
+                pw.print("</pre></body>\n</html>"); //NOI18N
+                pw.close();
+                ps.close();
+                response.getOutputStream().close();
+            } catch (Exception ex) {
+            }
+        } else {
+            try {
+                PrintStream ps = new PrintStream(response.getOutputStream());
+                t.printStackTrace(ps);
+                ps.close();
+                response.getOutputStream().close();
+            } catch (Exception ex) {
+            }
+        }
     }
-    return stackTrace;
-  }
-  
-  public void log(String msg) {
-    filterConfig.getServletContext().log(msg);    
-  }
+
+    public static String getStackTrace(Throwable t) {
+        String stackTrace = null;
+        try {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            t.printStackTrace(pw);
+            pw.close();
+            sw.close();
+            stackTrace = sw.getBuffer().toString();
+        } catch (Exception ex) {
+        }
+        return stackTrace;
+    }
+
+    public void log(String msg) {
+        filterConfig.getServletContext().log(msg);
+    }
 }

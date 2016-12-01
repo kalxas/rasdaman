@@ -71,9 +71,13 @@ DBObjectIterator<T>::not_done() const
         else
         {
             if (counter == mySet->size())
+            {
                 retval = false;
+            }
             else
+            {
                 retval = true;
+            }
         }
     }
     return retval;

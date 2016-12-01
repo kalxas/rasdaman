@@ -32,7 +32,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
 public class AxisIterator extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(AxisIterator.class);
 
     private String var, varTranslation;
@@ -43,7 +43,7 @@ public class AxisIterator extends AbstractRasNode {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
-        
+
         log.trace(node.getNodeName());
 
         while (node != null) {
@@ -70,7 +70,7 @@ public class AxisIterator extends AbstractRasNode {
                     hi = new NumericScalarExpr(node, xq);
                 } else {
                     throw new WCPSException(ExceptionCode.UnsupportedCombination,
-                            "Unknown node in AxisIterator: " + nodeName);
+                                            "Unknown node in AxisIterator: " + nodeName);
                 }
             }
 

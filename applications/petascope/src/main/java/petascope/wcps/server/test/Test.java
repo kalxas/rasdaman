@@ -42,18 +42,18 @@ public class Test {
         try {
             System.out.println("WCPS: initializing metadata database");
             DbMetadataSource meta =
-                    new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                    ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER,
-                    ConfigManager.METADATA_PASS, false);
+                new DbMetadataSource(ConfigManager.METADATA_DRIVER,
+                                     ConfigManager.METADATA_URL,
+                                     ConfigManager.METADATA_USER,
+                                     ConfigManager.METADATA_PASS, false);
             System.out.println("WCPS: initializing WCPS core");
             Wcps wcps = new Wcps(meta);
-            
+
             String query = "";
             String xmlRequest = RasUtil.abstractWCPStoXML(query);
             ProcessCoveragesRequest pc = wcps.pcPrepare(
-                    ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE,
-                    IOUtils.toInputStream(xmlRequest));
+                                             ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE,
+                                             IOUtils.toInputStream(xmlRequest));
             String rasql = pc.getRasqlQuery();
             System.out.println("DONE");
             System.out.println("rasql: " + rasql);

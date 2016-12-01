@@ -28,7 +28,7 @@ rasdaman GmbH.
  *
  * PURPOSE:
  * Centralize all keywords of the rasmgr c/s protocol
- *    
+ *
  * COMMENTS:
  * - to be completed
  *
@@ -37,32 +37,32 @@ rasdaman GmbH.
 #ifndef RASMGR_PROTOCOL_HH
 #define RASMGR_PROTOCOL_HH
 
-#define RASMGRCMD_HELLO		"Hello"
+#define RASMGRCMD_HELLO     "Hello"
 
-#define RASMGRCMD_LICENCE	"licence"
-#define RASMGRCMD_LICENSE	"license"
+#define RASMGRCMD_LICENCE   "licence"
+#define RASMGRCMD_LICENSE   "license"
 
-#define RASMGRCMD_EXIT		"exit"
-#define RASMGRCMD_QUIT		"quit"
-#define RASMGRCMD_BYE		"bye"
+#define RASMGRCMD_EXIT      "exit"
+#define RASMGRCMD_QUIT      "quit"
+#define RASMGRCMD_BYE       "bye"
 
-#define RASMGRCMD_HELP		"help"
-#define RASMGRCMD_USER		"user"
-#define RASMGRCMD_HOST		"host"
-#define RASMGRCMD_SRV		"srv"
-#define RASMGRCMD_DATABASE	"database"
-#define RASMGRCMD_LIST		"list"
-#define RASMGRCMD_DEFINE	"define"
-#define RASMGRCMD_REMOVE	"remove"
-#define RASMGRCMD_CHECK		"check"
-#define RASMGRCMD_CHANGE	"change"
-#define RASMGRCMD_SAVE		"save"
-#define RASMGRCMD_RESET		"reset"
-#define RASMGRCMD_GRANT		"grant"
-#define RASMGRCMD_REVOKE	"revoke"
+#define RASMGRCMD_HELP      "help"
+#define RASMGRCMD_USER      "user"
+#define RASMGRCMD_HOST      "host"
+#define RASMGRCMD_SRV       "srv"
+#define RASMGRCMD_DATABASE  "database"
+#define RASMGRCMD_LIST      "list"
+#define RASMGRCMD_DEFINE    "define"
+#define RASMGRCMD_REMOVE    "remove"
+#define RASMGRCMD_CHECK     "check"
+#define RASMGRCMD_CHANGE    "change"
+#define RASMGRCMD_SAVE      "save"
+#define RASMGRCMD_RESET     "reset"
+#define RASMGRCMD_GRANT     "grant"
+#define RASMGRCMD_REVOKE    "revoke"
 
-#define RASMGRCMD_UP		"up"
-#define RASMGRCMD_DOWN		"down"
+#define RASMGRCMD_UP        "up"
+#define RASMGRCMD_DOWN      "down"
 
 
 #endif // RASMGR_PROTOCOL_HH

@@ -31,39 +31,39 @@ import secore.util.SecoreException;
  * @author Dimitar Misev
  */
 public interface Handler {
-  
-  String OP_AXIS = "axis";
-  String OP_CRS = "crs";
-  String OP_CRS_COMPOUND = "crs-compound";
-  String OP_EQUAL = "equal";
-  String OP_QUERY = "query";
-  
-  /**
-   * @param request a list of key-value pairs. The value can be null, but a null
-   *  key will result in an exception.
-   * @return true if this handler can handle the given request, false otherwise
-   */
-  boolean canHandle(ResolveRequest request) throws SecoreException;
-  
-  /**
-   * In this method a specific handler tries to handle a request represented
-   * by a list of arguments. The arguments are key-value pairs, as they have
-   * been parsed from the URL that the front-end receives.
-   * <p>
-   * For example, a request for resolving the CRS with code 4326 by the EPSG
-   * authority would be represented by this list:
-   * [(crs, null), (authority, EPSG), (code, 4326)].
-   * 
-   * @param request a list of key-value pairs. The value can be null, but a null
-   *  key will result in an exception.
-   * @return the response for the given request
-   * @throws SecoreException if a problem arises while the request is being handled,
-   *  an exception is thrown
-   */
-  ResolveResponse handle(ResolveRequest request) throws SecoreException;
-  
-  /**
-   * @return this handler's operation id, e.g. crs, axis, crs-compound
-   */
-  String getOperation();
+
+    String OP_AXIS = "axis";
+    String OP_CRS = "crs";
+    String OP_CRS_COMPOUND = "crs-compound";
+    String OP_EQUAL = "equal";
+    String OP_QUERY = "query";
+
+    /**
+     * @param request a list of key-value pairs. The value can be null, but a null
+     *  key will result in an exception.
+     * @return true if this handler can handle the given request, false otherwise
+     */
+    boolean canHandle(ResolveRequest request) throws SecoreException;
+
+    /**
+     * In this method a specific handler tries to handle a request represented
+     * by a list of arguments. The arguments are key-value pairs, as they have
+     * been parsed from the URL that the front-end receives.
+     * <p>
+     * For example, a request for resolving the CRS with code 4326 by the EPSG
+     * authority would be represented by this list:
+     * [(crs, null), (authority, EPSG), (code, 4326)].
+     *
+     * @param request a list of key-value pairs. The value can be null, but a null
+     *  key will result in an exception.
+     * @return the response for the given request
+     * @throws SecoreException if a problem arises while the request is being handled,
+     *  an exception is thrown
+     */
+    ResolveResponse handle(ResolveRequest request) throws SecoreException;
+
+    /**
+     * @return this handler's operation id, e.g. crs, axis, crs-compound
+     */
+    String getOperation();
 }

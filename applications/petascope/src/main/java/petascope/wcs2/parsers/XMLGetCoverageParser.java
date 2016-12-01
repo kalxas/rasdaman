@@ -66,17 +66,17 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
     private final String WCS2_GETCOV_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsGetCoverage.xsd";
 
     // constructor
-    public XMLGetCoverageParser(){
-        if(ConfigManager.XML_VALIDATION){
+    public XMLGetCoverageParser() {
+        if (ConfigManager.XML_VALIDATION) {
             try {
                 log.debug("Loading XML schema definition from " + WCS2_GETCOV_SCHEMA + "...");
                 schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 schema = schemaFactory.newSchema(new URL(WCS2_GETCOV_SCHEMA));
                 log.debug("Done.");
-            } catch(SAXException e) {
-                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.",e);
-            } catch(MalformedURLException e) {
-                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.",e);
+            } catch (SAXException e) {
+                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.", e);
+            } catch (MalformedURLException e) {
+                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.", e);
             }
         }
     }
@@ -85,7 +85,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
 
         // input XML validation
-        if(ConfigManager.XML_VALIDATION){
+        if (ConfigManager.XML_VALIDATION) {
             validateInput(request.getRequestString(), schema);
         }
 
@@ -94,7 +94,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
         List<Element> coverageIds = collectAll(root, PREFIX_WCS, LABEL_COVERAGE_ID, CTX_WCS);
         if (coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A GetCoverage request can specify only one " + LABEL_COVERAGE_ID + ".");
+                                   "A GetCoverage request can specify only one " + LABEL_COVERAGE_ID + ".");
         }
 
         // Get params required for contructor: format and mediatype
@@ -119,9 +119,9 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
 
         // init GetCoverage request
         GetCoverageRequest ret = new GetCoverageRequest(
-                getText(coverageIds.get(0)),
-                format,
-                FormatExtension.MIME_MULTIPART.equals(mediaType)
+            getText(coverageIds.get(0)),
+            format,
+            FormatExtension.MIME_MULTIPART.equals(mediaType)
         );
 
         // parse
@@ -129,7 +129,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
         for (Element e : children) {
             String name = e.getLocalName();
             List<Element> c = ch(e);
-            if(name.equals(LABEL_EXTENSION)) {
+            if (name.equals(LABEL_EXTENSION)) {
                 this.parseExtensions(ret, c);
             }
             if (name.equals(LABEL_DIMENSION_TRIM)) {
@@ -162,7 +162,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
      * @param extensionChildren the children of the extension element
      * @throws WCSException
      */
-    private void parseExtensions(GetCoverageRequest gcRequest, List<Element> extensionChildren) throws WCSException{
+    private void parseExtensions(GetCoverageRequest gcRequest, List<Element> extensionChildren) throws WCSException {
         for (Element currentElem : extensionChildren) {
             //Parse RangeSubsetting elements
             if (RangeSubsettingExtension.isXMLRangeSubsettingExtension(currentElem.getLocalName())) {

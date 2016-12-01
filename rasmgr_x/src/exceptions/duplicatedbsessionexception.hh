@@ -31,7 +31,7 @@ namespace rasmgr
  * @brief The DuplicateDbSessionException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tried to add the same client session twice to the same database.
  */
-class DuplicateDbSessionException:public common::RuntimeException
+class DuplicateDbSessionException: public common::RuntimeException
 {
 public:
     /**

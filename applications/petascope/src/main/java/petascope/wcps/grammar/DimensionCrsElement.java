@@ -51,7 +51,7 @@ public class DimensionCrsElement implements IParseTreeNode {
 
         if (crs != null) {
             result += "<"  + WcpsConstants.MSG_SRS_NAME + ">" + StringUtil.escapeXmlPredefinedEntities(crs)
-                    + "</" + WcpsConstants.MSG_SRS_NAME + ">";
+                      + "</" + WcpsConstants.MSG_SRS_NAME + ">";
         }
 
         return result;

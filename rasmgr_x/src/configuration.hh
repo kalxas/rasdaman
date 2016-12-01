@@ -63,9 +63,9 @@ private:
     static const boost::uint32_t MAXMSGOUTBUFF;
 
     //interface program
-    CommandLineParser    &cmlInter;
-    CommandLineParameter &cmlHelp, &cmlHostName, &cmlPort;
-    CommandLineParameter &cmlName, &cmlQuiet, &cmlLog;
+    CommandLineParser&    cmlInter;
+    CommandLineParameter& cmlHelp, &cmlHostName, &cmlPort;
+    CommandLineParameter& cmlName, &cmlQuiet, &cmlLog;
 
     bool quiet;
     std::string name; /*!< symbolic name of this rasmgr  */

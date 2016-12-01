@@ -39,13 +39,13 @@ namespace common
 
 bool Crypto::isMessageDigestAvailable(const std::string& mdName)
 {
-    const EVP_MD *md;
+    const EVP_MD* md;
 
     OpenSSL_add_all_digests();
 
     md = EVP_get_digestbyname(mdName.c_str());//"MD5");
 
-    if(!md)
+    if (!md)
     {
         return false;
     }
@@ -57,10 +57,10 @@ bool Crypto::isMessageDigestAvailable(const std::string& mdName)
 }
 
 
-std::string Crypto::messageDigest(const std::string &message, const std::string &mdName)
+std::string Crypto::messageDigest(const std::string& message, const std::string& mdName)
 {
     EVP_MD_CTX mdctx;
-    const EVP_MD *md;
+    const EVP_MD* md;
     unsigned int md_len, i;
     unsigned char md_value[100];
     char output[35];
@@ -69,18 +69,18 @@ std::string Crypto::messageDigest(const std::string &message, const std::string 
 
     md = EVP_get_digestbyname(mdName.c_str());
 
-    if(!md)
+    if (!md)
     {
         throw std::runtime_error("The " + mdName + " digest is not available.");
     }
 
     EVP_DigestInit(&mdctx, md);
-    EVP_DigestUpdate(&mdctx,message.c_str(), strlen(message.c_str()));
+    EVP_DigestUpdate(&mdctx, message.c_str(), strlen(message.c_str()));
     EVP_DigestFinal(&mdctx, md_value, &md_len);
 
-    for(i = 0; i < md_len; i++)
+    for (i = 0; i < md_len; i++)
     {
-        sprintf(output+i+i,"%02x", md_value[i]);
+        sprintf(output + i + i, "%02x", md_value[i]);
     }
 
     return std::string(output);

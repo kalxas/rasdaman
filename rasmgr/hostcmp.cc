@@ -41,26 +41,38 @@ rasdaman GmbH.
 #include <cstring>
 
 bool
-hostCmp( const char *h1, const char *h2);
+hostCmp(const char* h1, const char* h2);
 
-bool hostCmp( const char *h1, const char *h2)
+bool hostCmp(const char* h1, const char* h2)
 {
     bool result = false;
 
-    if ( h1 == NULL && h2 == NULL )
+    if (h1 == NULL && h2 == NULL)
+    {
         result = true;
-    else if ( h1 == NULL )
+    }
+    else if (h1 == NULL)
+    {
         result = false;
-    else if ( h2 == NULL )
+    }
+    else if (h2 == NULL)
+    {
         result = false;
+    }
     else
     {
-        if (strlen(h1)==strlen(h2))
-            result = ( strcmp(h1,h2) == 0 );
-        else if (strlen(h1)>strlen(h2))
-            result = ( strncmp(h1,h2,strlen(h2))==0 && h1[strlen(h2)]=='.' );
+        if (strlen(h1) == strlen(h2))
+        {
+            result = (strcmp(h1, h2) == 0);
+        }
+        else if (strlen(h1) > strlen(h2))
+        {
+            result = (strncmp(h1, h2, strlen(h2)) == 0 && h1[strlen(h2)] == '.');
+        }
         else // (strlen(h1)<strlen(h2))
-            result = ( strncmp(h1,h2,strlen(h1))==0 && h2[strlen(h1)]=='.' );
+        {
+            result = (strncmp(h1, h2, strlen(h1)) == 0 && h2[strlen(h1)] == '.');
+        }
     }
 
     return result;

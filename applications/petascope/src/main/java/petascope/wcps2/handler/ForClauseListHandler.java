@@ -46,7 +46,7 @@ public class ForClauseListHandler {
 
     public static WcpsResult handle(List<WcpsResult> forClauses) {
         List<String> rasqls = new ArrayList();
-        for(WcpsResult forClause: forClauses){
+        for (WcpsResult forClause : forClauses) {
             rasqls.add(forClause.getRasql());
         }
         String template = TEMPLATE.replace("$forClausesList", StringUtils.join(rasqls, FROM_CLAUSE_SEPARATOR));

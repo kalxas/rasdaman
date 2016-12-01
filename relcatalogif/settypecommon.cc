@@ -73,7 +73,9 @@ SetType& SetType::operator=(const SetType& old)
 {
     // Gracefully handle self assignment
     if (this == &old)
+    {
         return *this;
+    }
     CollectionType::operator=(old);
     return *this;
 }

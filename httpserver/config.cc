@@ -51,7 +51,7 @@ using namespace std;
 
 #ifdef SOLARIS
 // function prototype with C linkage
-extern "C" int gethostname(char *name, int namelen);
+extern "C" int gethostname(char* name, int namelen);
 #endif
 
 extern int globalHTTPPort;
@@ -78,19 +78,19 @@ extern int globalHTTPPort;
 *
 */
 
-rc_t ReadArgs( struct ServerBase *Server, int argc, char *argv[] )
+rc_t ReadArgs(struct ServerBase* Server, int argc, char* argv[])
 {
     int   i;
     int   LogMode   = LM_VERBOSE;
-    char *Filename  = NULL;
+    char* Filename  = NULL;
 
-    for( i = 1; i < argc; ++i)
+    for (i = 1; i < argc; ++i)
     {
-        if( argv[i][0] != '-' )
+        if (argv[i][0] != '-')
         {
             break;
         }
-        switch( argv[i][1] )
+        switch (argv[i][1])
         {
         case 'D':             /* Debug-Flag setzen  */
             LogMode |= LF_STDERR;
@@ -99,11 +99,11 @@ rc_t ReadArgs( struct ServerBase *Server, int argc, char *argv[] )
             LogMode |= LF_VERB;
             break;
         case 'c':             /* Config-File im naechsten Argument */
-            if( ++i >= argc )   /* Keine weiteren Argumente? */
+            if (++i >= argc)    /* Keine weiteren Argumente? */
             {
-                printf( "Oops: Missing config filename after '-c' switch.\n" );
-                printf( "Please try again.\n" );
-                Exit( FAIL );
+                printf("Oops: Missing config filename after '-c' switch.\n");
+                printf("Please try again.\n");
+                Exit(FAIL);
             }
             else
             {
@@ -111,21 +111,21 @@ rc_t ReadArgs( struct ServerBase *Server, int argc, char *argv[] )
             }
             break;
         case 'h':
-            printf( "Usage: %s [-c <ConfigFile>] [-V] [-D]\n", argv[0] );
-            Exit( WARN );
+            printf("Usage: %s [-c <ConfigFile>] [-V] [-D]\n", argv[0]);
+            Exit(WARN);
             break;
         case '?':
-            printf( "Usage: %s [-c <ConfigFile>] [-V] [-D]\n", argv[0] );
-            Exit( WARN );
+            printf("Usage: %s [-c <ConfigFile>] [-V] [-D]\n", argv[0]);
+            Exit(WARN);
             break;
         default:              /* Kein bekanntes Argument */
-            printf( "Unknown option '%s'.\n", argv[i] );
-            Exit( FAIL );
+            printf("Unknown option '%s'.\n", argv[i]);
+            Exit(FAIL);
             break;
         }
     }
 
-    return( CheckAndSet( Server, Filename, LogMode ) );
+    return (CheckAndSet(Server, Filename, LogMode));
 }
 
 
@@ -151,7 +151,7 @@ rc_t ReadArgs( struct ServerBase *Server, int argc, char *argv[] )
 *
 */
 
-rc_t CheckAndSet( struct ServerBase *Server, __attribute__ ((unused)) char *Filename, int LogMode )
+rc_t CheckAndSet(struct ServerBase* Server, __attribute__((unused)) char* Filename, int LogMode)
 {
     rc_t  RC = 0;
 
@@ -169,7 +169,7 @@ rc_t CheckAndSet( struct ServerBase *Server, __attribute__ ((unused)) char *File
     */
     Server->Log.Mode = LogMode;
 
-    return( RC );
+    return (RC);
 }
 
 
@@ -195,30 +195,39 @@ rc_t CheckAndSet( struct ServerBase *Server, __attribute__ ((unused)) char *File
 *
 */
 
-rc_t SetServDir( struct ServerBase *Server, char *Dirname )
+rc_t SetServDir(struct ServerBase* Server, char* Dirname)
 {
-    char   *Buffer;
+    char*   Buffer;
     size_t  BuffSize;
     size_t  MaxPath;
 
-    if ( ( Buffer = PathAlloc( &BuffSize ) ) == NULL )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  Buffer allocation for pathname of server directory." );
+    if ((Buffer = PathAlloc(&BuffSize)) == NULL)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  Buffer allocation for pathname of server directory.");
+    }
     Buffer[0] = '\0';
 
     /* Platz lassen, um auch noch Filenamen + '\0' im Buffer  */
     /* unterbringen zu koennen.  */
 
-    MaxPath = BuffSize - strlen( "httpserver.conf" );
-    if( strlen( Dirname ) >= MaxPath )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  Pathname of server directory too long." );
-    Buffer = strncpy( Buffer, Dirname, MaxPath );
+    MaxPath = BuffSize - strlen("httpserver.conf");
+    if (strlen(Dirname) >= MaxPath)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  Pathname of server directory too long.");
+    }
+    Buffer = strncpy(Buffer, Dirname, MaxPath);
 
-    if( Buffer[ strlen( Buffer ) - 1 ] != '/' )
-        Buffer = strcat( Buffer, "/" );
+    if (Buffer[ strlen(Buffer) - 1 ] != '/')
+    {
+        Buffer = strcat(Buffer, "/");
+    }
 
-    if(Server->Directory) free(Server->Directory);
+    if (Server->Directory)
+    {
+        free(Server->Directory);
+    }
     Server->Directory = Buffer;
-    return( OK );
+    return (OK);
 }
 
 
@@ -245,36 +254,44 @@ rc_t SetServDir( struct ServerBase *Server, char *Dirname )
 */
 
 
-rc_t SetFilename( struct ServerBase *Server, int Type, char *Filename )
+rc_t SetFilename(struct ServerBase* Server, int Type, char* Filename)
 {
-    char   *Buffer = NULL;
+    char*   Buffer = NULL;
     size_t  BuffSize = 0;
     size_t  PathLength = 0, FileLength;
 
-    if( Filename != NULL )
+    if (Filename != NULL)
     {
-        if ( ( Buffer = PathAlloc( &BuffSize ) ) == NULL )
-            ErrorMsg( E_SYS, FAIL, "FAIL:  Buffer allocation for filename \"%s\".", Filename );
+        if ((Buffer = PathAlloc(&BuffSize)) == NULL)
+        {
+            ErrorMsg(E_SYS, FAIL, "FAIL:  Buffer allocation for filename \"%s\".", Filename);
+        }
         Buffer[0] = '\0';
 
-        if( Server->Directory != NULL )
-            PathLength = strlen( Server->Directory );
-        FileLength = strlen( Filename );
-
-        if( FileLength >= BuffSize )
-            ErrorMsg( E_SYS, FAIL, "FAIL:  Pathname of file \"%s\" too long.", Filename );
-
-        if( Filename[0] != '/' )
+        if (Server->Directory != NULL)
         {
-            if( ( PathLength + FileLength ) >= BuffSize )
-                ErrorMsg( E_SYS, FAIL, "FAIL:  Path/filename of file \"%s\" too long.", Filename );
-
-            Buffer = strncpy( Buffer, Server->Directory, BuffSize );
+            PathLength = strlen(Server->Directory);
         }
-        Buffer = strncat( Buffer, Filename, FileLength );
+        FileLength = strlen(Filename);
+
+        if (FileLength >= BuffSize)
+        {
+            ErrorMsg(E_SYS, FAIL, "FAIL:  Pathname of file \"%s\" too long.", Filename);
+        }
+
+        if (Filename[0] != '/')
+        {
+            if ((PathLength + FileLength) >= BuffSize)
+            {
+                ErrorMsg(E_SYS, FAIL, "FAIL:  Path/filename of file \"%s\" too long.", Filename);
+            }
+
+            Buffer = strncpy(Buffer, Server->Directory, BuffSize);
+        }
+        Buffer = strncat(Buffer, Filename, FileLength);
     }
 
-    switch( Type )
+    switch (Type)
     {
     case FT_CONFFILE:
         Server->ConfigFile = Buffer;
@@ -292,27 +309,29 @@ rc_t SetFilename( struct ServerBase *Server, int Type, char *Filename )
         Server->PidFile = Buffer;
         break;
     default:
-        ErrorMsg( E_SYS, ERROR, "ERROR: Unknown filetype: %d.", Type );
-        return( ERROR );
+        ErrorMsg(E_SYS, ERROR, "ERROR: Unknown filetype: %d.", Type);
+        return (ERROR);
         break;
     }
-    return( OK );
+    return (OK);
 }
 
 
-rc_t SetString( struct ServerBase *Server, int Type, char *String )
+rc_t SetString(struct ServerBase* Server, int Type, char* String)
 {
-    char   *Buffer = NULL;
+    char*   Buffer = NULL;
     size_t  BuffSize = 0;
 
-    if( String != NULL )
+    if (String != NULL)
     {
-        BuffSize = strlen( String );
-        if ( ( Buffer = static_cast<char*>(mymalloc( BuffSize+1 ) )) == NULL )
-            ErrorMsg( E_SYS, FAIL, "FAIL:  Buffer allocation for string \"%s\".", String );
-        strcpy( Buffer, String );
+        BuffSize = strlen(String);
+        if ((Buffer = static_cast<char*>(mymalloc(BuffSize + 1))) == NULL)
+        {
+            ErrorMsg(E_SYS, FAIL, "FAIL:  Buffer allocation for string \"%s\".", String);
+        }
+        strcpy(Buffer, String);
 
-        switch( Type )
+        switch (Type)
         {
         case ST_HOSTNAME:
             Server->Host.Name = Buffer;
@@ -321,14 +340,16 @@ rc_t SetString( struct ServerBase *Server, int Type, char *String )
             Server->AdminMailAddress = Buffer;
             break;
         default:
-            ErrorMsg( E_SYS, ERROR, "ERROR: Unknown stringtype: %d.", Type );
-            return( ERROR );
+            ErrorMsg(E_SYS, ERROR, "ERROR: Unknown stringtype: %d.", Type);
+            return (ERROR);
             break;
         }
-        return( OK );
+        return (OK);
     }
     else
-        return( ERROR );
+    {
+        return (ERROR);
+    }
 }
 
 
@@ -355,7 +376,7 @@ rc_t SetString( struct ServerBase *Server, int Type, char *String )
 *
 */
 
-rc_t ConfigureServer( struct ServerBase *Server )
+rc_t ConfigureServer(struct ServerBase* Server)
 {
     char* myName;
     char* rmanhome = const_cast<char*>(CONFDIR);
@@ -363,41 +384,45 @@ rc_t ConfigureServer( struct ServerBase *Server )
     int BuffSize;
     char* Buffer;
 
-    BuffSize = strlen( rmanhome );
+    BuffSize = strlen(rmanhome);
 
-    if ( ( Buffer = static_cast<char*>(mymalloc( static_cast<size_t>(BuffSize+200) ) )) == NULL )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  Buffer allocation for Server Configuration" );
-    if( gethostname( Buffer, 200 ) )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  Could not determine my Hostname" );
+    if ((Buffer = static_cast<char*>(mymalloc(static_cast<size_t>(BuffSize + 200)))) == NULL)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  Buffer allocation for Server Configuration");
+    }
+    if (gethostname(Buffer, 200))
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  Could not determine my Hostname");
+    }
 
-    myName=strdup(Buffer);
+    myName = strdup(Buffer);
 
-    strcpy(Buffer,rmanhome);
-    SetFilename( Server, FT_COMMLOG, strcat(Buffer,"/httpcomm.log") );
+    strcpy(Buffer, rmanhome);
+    SetFilename(Server, FT_COMMLOG, strcat(Buffer, "/httpcomm.log"));
 
     Server->Port = globalHTTPPort;
 
-    SetString( Server, ST_MAILADDRESS, const_cast<char*>("admin@localhost") );
+    SetString(Server, ST_MAILADDRESS, const_cast<char*>("admin@localhost"));
 
-    SetString( Server, ST_HOSTNAME, myName );
+    SetString(Server, ST_HOSTNAME, myName);
 
-    SetServDir( Server, rmanhome );
+    SetServDir(Server, rmanhome);
 
-    strcpy(Buffer,rmanhome);
-    SetFilename( Server, FT_ACCESSLOG, strcat(Buffer,"/httpaccess.log") );
+    strcpy(Buffer, rmanhome);
+    SetFilename(Server, FT_ACCESSLOG, strcat(Buffer, "/httpaccess.log"));
 
     Server->MaxURLLength = MaxURLLength;
 
-    strcpy(Buffer,rmanhome);
-    SetFilename( Server, FT_PIDFILE, strcat(Buffer,"/httpserver.pid") );
+    strcpy(Buffer, rmanhome);
+    SetFilename(Server, FT_PIDFILE, strcat(Buffer, "/httpserver.pid"));
 
-    strcpy(Buffer,rmanhome);
-    SetFilename( Server, FT_SERVERLOG, strcat(Buffer,"/httpserver.log") );
+    strcpy(Buffer, rmanhome);
+    SetFilename(Server, FT_SERVERLOG, strcat(Buffer, "/httpserver.log"));
 
     free(Buffer);
     free(myName);
 
-    return( OK );
+    return (OK);
 }
 
 
@@ -431,7 +456,7 @@ rc_t ConfigureServer( struct ServerBase *Server )
 *
 */
 
-int GetConfigKey( char *Keyword )
+int GetConfigKey(char* Keyword)
 {
     struct KeywordKey KeyTable[] =
     {
@@ -454,10 +479,12 @@ int GetConfigKey( char *Keyword )
     low  = 0;
     high = NUM_KEYS - 1;
 
-    while( low < high )
+    while (low < high)
     {
-        if( ( cond = strcmp( Keyword, KeyTable[ low ].Keyword ) ) == 0 )
-            return( KeyTable[ low ].Key );
+        if ((cond = strcmp(Keyword, KeyTable[ low ].Keyword)) == 0)
+        {
+            return (KeyTable[ low ].Key);
+        }
         low++;
     }
 

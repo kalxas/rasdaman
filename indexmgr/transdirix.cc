@@ -80,7 +80,7 @@ TransDirIx::TransDirIx(r_Dimension dim)
 }
 
 void
-TransDirIx::printStatus(__attribute__ ((unused)) unsigned int level, std::ostream& stream) const
+TransDirIx::printStatus(__attribute__((unused)) unsigned int level, std::ostream& stream) const
 {
     stream << "TransDirIx " << currDomain << endl;
     KeyObjectVector::const_iterator entryIt = tiles.begin();
@@ -105,9 +105,13 @@ TransDirIx::insertObject(const KeyObject& newKeyObject, unsigned int pos)
     else
     {
         if (tiles.size() == 0)
+        {
             currDomain = newKeyObject.getDomain();
+        }
         else
+        {
             currDomain.closure_with(newKeyObject.getDomain());
+        }
         tiles.insert(tiles.begin() + pos, newKeyObject);
     }
 }
@@ -183,7 +187,7 @@ TransDirIx::getTotalStorageSize() const
     // is "additional data" stored due to the storage structure adopted.
     // For each entry (tile), there is a domain specification, a pointer and
     // an r_Bytes size field:
-    sz += tiles.size() * (currDomain.get_storage_size() + sizeof(KeyObject) + sizeof (r_Bytes));
+    sz += tiles.size() * (currDomain.get_storage_size() + sizeof(KeyObject) + sizeof(r_Bytes));
 
     return sz;
 }
@@ -193,10 +197,10 @@ TransDirIx::~TransDirIx()
     tiles.clear();
 }
 
-std::vector< r_Minterval* >*
+std::vector<r_Minterval*>*
 TransDirIx::getObjectDomains(void) const
 {
-    std::vector< r_Minterval* >* te = new std::vector< r_Minterval* >();
+    std::vector<r_Minterval*>* te = new std::vector<r_Minterval*>();
     te->reserve(tiles.size());
     unsigned int end = tiles.size();
     for (unsigned int i = 0; i < end; i++)
@@ -228,11 +232,17 @@ bool
 TransDirIx::isSameAs(const IndexDS* ix) const
 {
     if (ix->isPersistent())
+    {
         return false;
+    }
     else if (ix == this)
+    {
         return true;
+    }
     else
+    {
         return false;
+    }
 }
 
 void

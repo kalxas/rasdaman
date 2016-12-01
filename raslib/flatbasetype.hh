@@ -56,68 +56,68 @@ class r_Flat_Base_Type
 {
 public:
     /// default constructor, shouldn't be used
-    r_Flat_Base_Type( void );
+    r_Flat_Base_Type(void);
     /// constructor receiving the (hierarchical) base type
-    r_Flat_Base_Type( const r_Base_Type *type );
+    r_Flat_Base_Type(const r_Base_Type* type);
     /// copy constructor
-    r_Flat_Base_Type( const r_Flat_Base_Type &src );
+    r_Flat_Base_Type(const r_Flat_Base_Type& src);
     /// destructor
-    ~r_Flat_Base_Type( void );
+    ~r_Flat_Base_Type(void);
 
     /// return number of primitive types
-    unsigned int get_num_types( void ) const;
+    unsigned int get_num_types(void) const;
     /// return pointer to primitive type num
     /// index violation is thrown if higher index is requested than available
-    const r_Primitive_Type *type( unsigned int num ) const throw (r_Eindex_violation);
+    const r_Primitive_Type* type(unsigned int num) const throw (r_Eindex_violation);
     /// operator returns pointer to primitive type num or NULL if invalid
     /// index violation is thrown if higher index is requested than available
-    const r_Primitive_Type *operator[]( unsigned int num ) const throw (r_Eindex_violation);
+    const r_Primitive_Type* operator[](unsigned int num) const throw (r_Eindex_violation);
     /// return offset of primitive type num
     /// index violation is thrown if higher index is requested than available
-    unsigned int offset( unsigned int num ) const throw (r_Eindex_violation);
+    unsigned int offset(unsigned int num) const throw (r_Eindex_violation);
     /// return size of entire type
-    r_Bytes size( void ) const;
+    r_Bytes size(void) const;
     /// assignment of another flat type
-    r_Flat_Base_Type &operator=( const r_Flat_Base_Type &src );
+    r_Flat_Base_Type& operator=(const r_Flat_Base_Type& src);
     /// assignment of a base type
-    r_Flat_Base_Type &operator=( const r_Base_Type *type );
+    r_Flat_Base_Type& operator=(const r_Base_Type* type);
     /// equality
-    bool operator==( const r_Flat_Base_Type &src ) const;
+    bool operator==(const r_Flat_Base_Type& src) const;
     /// print status to a stream
-    void print_status( std::ostream &str ) const;
+    void print_status(std::ostream& str) const;
 
 
 protected:
     /// shared init code
-    void init_shared( void );
+    void init_shared(void);
     /// process a base type
-    void process_type( const r_Base_Type *type );
+    void process_type(const r_Base_Type* type);
     /// copy another flat type
-    void copy_flat_type( const r_Flat_Base_Type &type );
+    void copy_flat_type(const r_Flat_Base_Type& type);
     /// free type-specific data (destructor, assignment)
-    void free_type_data( void );
+    void free_type_data(void);
 
     /// parse a structure type and return number of primitive types contained therein
-    unsigned int parse_structure_type( const r_Structure_Type *type, unsigned int number,
-                                       unsigned int offset );
+    unsigned int parse_structure_type(const r_Structure_Type* type, unsigned int number,
+                                      unsigned int offset);
     /// parse a primitive type
-    void parse_primitive_type( r_Primitive_Type *type, unsigned int number,
-                               unsigned int offset );
+    void parse_primitive_type(r_Primitive_Type* type, unsigned int number,
+                              unsigned int offset);
 
     /// the number of primitive types
     unsigned int numPrimTypes;
     /// the total size of the entire type
     r_Bytes typeSize;
     /// the primitive types
-    r_Primitive_Type **primTypes;
+    r_Primitive_Type** primTypes;
     /// the corresponding offsets
-    unsigned int *offsets;
+    unsigned int* offsets;
 };
 
 
 //@ManMemo: Module {\bf raslib}
 
 //@Doc: write the status of a flat base type to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Flat_Base_Type &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Flat_Base_Type& type);
 
 #endif

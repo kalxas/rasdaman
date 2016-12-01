@@ -74,7 +74,7 @@ rasdaman GmbH.
 
 void exitbyerror(const char* text);
 
-char *strtolwr(char*); // should be somewhere in the C-library, but can't find it
+char* strtolwr(char*); // should be somewhere in the C-library, but can't find it
 
 #ifdef RASMGR_IHC
 #define INCLUDE_HIDDEN_COMMANDS

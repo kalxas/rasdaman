@@ -103,7 +103,9 @@ void read_data()
         exit(1);
     }
     else
+    {
         cout << "done." << endl;
+    }
 
     cout << "Reading parameters... ";
 

@@ -34,8 +34,9 @@ public class RasDriver {
     private List<RasConnection> connections;
 
     public static RasDriver getInstance() {
-        if (instance == null)
+        if (instance == null) {
             instance = new RasDriver();
+        }
         return instance;
     }
 
@@ -45,7 +46,7 @@ public class RasDriver {
 
     public RasConnection createConnection(String host, Integer port, String dbName, String user,
                                           String password, RasMode mode)
-            throws ODMGException {
+    throws ODMGException {
         RasConnection conn = new RasConnection(host, port, dbName, user, password, mode, this);
         connections.add(conn);
         return conn;
@@ -56,8 +57,9 @@ public class RasDriver {
     }
 
     public void unload() throws Exception {
-        if (!connections.isEmpty())
+        if (!connections.isEmpty()) {
             throw new RasException("There are opened connections - close them first");
+        }
     }
 
     public String toString() {

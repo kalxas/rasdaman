@@ -68,7 +68,7 @@ public:
     */
 
 
-    void print_status( ostream& s ) const;
+    void print_status(ostream& s) const;
     /*@Doc:
     writes the state of the object to the specified stream:
     d_MYNAME <MYMDDTYPE->printStatus >
@@ -118,7 +118,7 @@ public:
     return null values associated with this type
     */
 
-    void setNullValues(const r_Minterval &newNullValues);
+    void setNullValues(const r_Minterval& newNullValues);
     /*@Doc:
     associate null values with this type
     */
@@ -135,7 +135,7 @@ protected:
     /*@Doc:
     */
 
-    CollectionType(const char* name,const MDDType* newMDDType);
+    CollectionType(const char* name, const MDDType* newMDDType);
     /*@Doc:
     */
 };

@@ -45,8 +45,8 @@ void* mymalloc(size_t size) // throw(bad_alloc) // FIXME: gcc3 doesn't like it, 
 // replaced this weird coding by the following below which should be semantically equivalent -- PB 2005-feb-01
     // ...except for more detailed error messages
     // FIXME: And SITF resolve this totally screwed up recursion to a while loop.
-    if(!p)
-        if(!ObjectBroker::freeMemory() || !(p = mymalloc(size)))
+    if (!p)
+        if (!ObjectBroker::freeMemory() || !(p = mymalloc(size)))
         {
             LFATAL << "mymalloc: memory allocation failed.";
             throw bad_alloc();

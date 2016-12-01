@@ -64,7 +64,7 @@ int main()
     {
         cout << "read out of range : " << a[3] << endl;
     }
-    catch( r_Eindex_violation& ex )
+    catch (r_Eindex_violation& ex)
     {
         cout << ex.what();
     }
@@ -73,22 +73,26 @@ int main()
     r_Point b = r_Point(3) << 1 << 2 << 3;
     cout << "assignment point (1,2,3) : " << b << endl << endl;
 
-    cout << "temp. obj. (1,2,3), access second coord. : " << ( r_Point(3) << 1 << 2 << 3 )[1] << endl << endl;
+    cout << "temp. obj. (1,2,3), access second coord. : " << (r_Point(3) << 1 << 2 << 3)[1] << endl << endl;
 
     a[1] = 4;
     cout << "assignment a[1]=4 to a(1,2,3) : " << a << endl << endl;
 
     r_Point c = b;
     cout << "equal operator test: " << flush;
-    if( c == b )
+    if (c == b)
+    {
         cout << "OK" << endl;
+    }
     else
+    {
         cout << "FALSE" << endl;
+    }
 
     char* stringRep = b.get_string_representation();
     cout << endl << "String representation of point " << b << ": " << stringRep << endl;
-    cout << "Result of string constructor: " << r_Point( stringRep ) << endl;
-    free( stringRep );
+    cout << "Result of string constructor: " << r_Point(stringRep) << endl;
+    free(stringRep);
 
     cout << "Result of r_Point(\"[ 0, 5, 3]\"): " << r_Point("[ 0, 5, 3]") << endl;
 }

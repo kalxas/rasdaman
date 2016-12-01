@@ -51,16 +51,18 @@
 #include "raslib/endian.hh"
 
 
-static void print_numbers(const unsigned char *data, int size)
+static void print_numbers(const unsigned char* data, int size)
 {
     int i;
 
-    for (i=0; i<size; i++)
+    for (i = 0; i < size; i++)
     {
         if ((i & 15) == 0)
         {
             if (i != 0)
+            {
                 printf("\n");
+            }
 
             printf("%04x: ", i);
         }
@@ -70,13 +72,13 @@ static void print_numbers(const unsigned char *data, int size)
     fflush(stdout);
 }
 
-static void test_endian(const char *schema, const r_Minterval &dom)
+static void test_endian(const char* schema, const r_Minterval& dom)
 {
-    r_Base_Type *type;
-    r_Primitive_Type *primType;
-    unsigned char *srcArray;
-    unsigned char *testArray;
-    unsigned char *smallArray;
+    r_Base_Type* type;
+    r_Primitive_Type* primType;
+    unsigned char* srcArray;
+    unsigned char* testArray;
+    unsigned char* smallArray;
     unsigned long size;
     unsigned long smallSize;
     unsigned long i;
@@ -90,12 +92,16 @@ static void test_endian(const char *schema, const r_Minterval &dom)
 
     srcArray = new unsigned char[size];
 
-    for (i=0; i<size; i++)
+    for (i = 0; i < size; i++)
+    {
         srcArray[i] = (unsigned char)(i & 0xff);
+    }
 
     r_Minterval iterDom(dom.dimension());
-    for (i=0; i<dom.dimension(); i++)
+    for (i = 0; i < dom.dimension(); i++)
+    {
         iterDom << r_Sinterval(dom[i].low(), (r_Range)(dom[i].low() + (dom[i].high() - dom[i].low() + 1) / 2));
+    }
 
     std::cout << "dom = " << dom << ", iterDom = " << iterDom << endl;
 
@@ -137,7 +143,7 @@ static void test_endian(const char *schema, const r_Minterval &dom)
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     r_Minterval dom(2);
 

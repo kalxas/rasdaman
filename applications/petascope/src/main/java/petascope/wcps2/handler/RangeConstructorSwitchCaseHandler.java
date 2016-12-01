@@ -54,26 +54,26 @@ public class RangeConstructorSwitchCaseHandler {
         // {red: 100, green: 100, blue: 20}
         int i = 0;
         int maxRange = fieldStructure.size();
-        
+
         List<RangeField> rangeFields = new ArrayList<RangeField>();
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
             String scalarValue = entry.getValue().getRasql();
             String scalarRange = getScalarRange(i, maxRange);
 
             String result = TEMPLATE.replace("$scalarValue", scalarValue)
-                                    .replace("$scalarRange", scalarRange);
+                            .replace("$scalarRange", scalarRange);
             translatedFields.add(result);
-            
+
             // we create range field for the coverage metadata
             RangeField rangeField = new RangeField(RangeField.TYPE, entry.getKey(), "", new ArrayList<Double>(),
                                                    RangeField.UOM, "", new ArrayList<Interval<BigDecimal>>());
             rangeFields.add(rangeField);
             i++;
         }
-                
+
         //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
-        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(), 
-                                                                 "", rangeFields, "", new ArrayList<Double>());
+        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(),
+                "", rangeFields, "", new ArrayList<Double>());
         String rasql = StringUtils.join(translatedFields, " + ");
         return new WcpsResult(metadata, rasql);
     }

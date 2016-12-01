@@ -35,7 +35,7 @@ namespace rasmgr
  * @brief The NoAvailableServerException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a free server could not be found for a client
  */
-class NoAvailableServerException:public common::ResourceBusyException
+class NoAvailableServerException: public common::ResourceBusyException
 {
 public:
     NoAvailableServerException();

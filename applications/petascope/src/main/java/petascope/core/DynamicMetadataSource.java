@@ -38,9 +38,9 @@ import petascope.exceptions.SecoreException;
  * static coverages.
  */
 public class DynamicMetadataSource implements IDynamicMetadataSource {
-    
+
     private static Logger log = LoggerFactory.getLogger(DynamicMetadataSource.class);
-    
+
     // Static coverages, served by the server at all times
     private Set<String> staticCoverageNames;
     // Dynamic coverages, built on-the-fly in a query
@@ -83,7 +83,7 @@ public class DynamicMetadataSource implements IDynamicMetadataSource {
     public String formatToMimetype(String format) {
         return metadataSource.formatToMimetype(format);
     }
-    
+
     @Override
     public String mimetypeToFormat(String mime) {
         return metadataSource.formatToMimetype(mime);
@@ -104,13 +104,13 @@ public class DynamicMetadataSource implements IDynamicMetadataSource {
         log.trace("Reading metadata for dynamic coverage: " + coverageName);
         if ((coverageName == null) || coverageName.equals("")) {
             throw new PetascopeException(ExceptionCode.InvalidRequest,
-                    "Cannot retrieve coverage with null or empty name");
+                                         "Cannot retrieve coverage with null or empty name");
         }
-        
+
         log.trace("coverages: " + this.coverages().toString());
         if (!this.coverages().contains(coverageName)) {
             throw new PetascopeException(ExceptionCode.InvalidRequest,
-                    "Coverage '" + coverageName + "' is not served by this server");
+                                         "Coverage '" + coverageName + "' is not served by this server");
         }
 
         if (dynamicCoverageNames.contains(coverageName)) {

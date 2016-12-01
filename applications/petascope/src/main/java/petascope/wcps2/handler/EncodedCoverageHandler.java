@@ -91,7 +91,7 @@ public class EncodedCoverageHandler {
         } else if (adaptedFormat.equals(FormatExtension.FORMAT_ID_CSV)) {
             // csv()
             otherParamsString = "";
-        } else if(adaptedFormat.equals(FormatExtension.FORMAT_ID_NETCDF)){
+        } else if (adaptedFormat.equals(FormatExtension.FORMAT_ID_NETCDF)) {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -119,8 +119,8 @@ public class EncodedCoverageHandler {
         //get the right template
         String template = getTemplate(adaptedFormat);
         resultRasql = template.replace("$arrayOps", coverageExpression.getRasql())
-                              .replace("$format", '"' + adaptedFormat + '"')
-                              .replace("$otherParams", otherParamsString);
+                      .replace("$format", '"' + adaptedFormat + '"')
+                      .replace("$otherParams", otherParamsString);
         WcpsResult result = new WcpsResult(coverageExpression.getMetadata(), resultRasql);
         return result;
     }
@@ -148,7 +148,7 @@ public class EncodedCoverageHandler {
         // If outputCrs is not null then should set encode in this crs
         // NOTE: crsUri can be compoundCrs (e.g: irr_cube_2), need to get only the geo-referenced axis Crs (EPSG:32633)
         String crsUri = "";
-        for (Axis axis:metadata.getXYAxes()) {
+        for (Axis axis : metadata.getXYAxes()) {
             crsUri = axis.getCrsUri();
             // e.g: scale(c, {Lat:"CRS:1"(0:20), Long:"CRS:1"(0:50) when CRS of c is 4326 then it must use as outputCRS, instead of CRS:1
             if (CrsUtil.isGridCrs(crsUri) || CrsUtil.isIndexCrs(crsUri)) {
@@ -166,8 +166,9 @@ public class EncodedCoverageHandler {
             outputCrsUri = metadata.getOutputCrsUri();
             // Also need to convert the bounding box (xmin,ymin,xmax,ymax) to outputCrsUri
             double[] srcCoords = new double[] { Double.parseDouble(xMin), Double.parseDouble(yMin),
-                Double.parseDouble(xMax), Double.parseDouble(yMax) };
-                List<BigDecimal> transformedBBox;
+                                                Double.parseDouble(xMax), Double.parseDouble(yMax)
+                                              };
+            List<BigDecimal> transformedBBox;
             try {
                 // get the transformed coordinate for the bouding box
                 transformedBBox = CrsProjectionUtil.transformBoundingBox(crsUri, outputCrsUri, srcCoords);
@@ -178,7 +179,7 @@ public class EncodedCoverageHandler {
 
             } catch (WCSException ex) {
                 String bboxStr = "xmin=" + xMin + "," + "ymin=" + yMin + ","
-                               + "xmax=" + xMax + "," + "ymax=" + yMax;
+                                 + "xmax=" + xMax + "," + "ymax=" + yMax;
                 throw new InvalidBoundingBoxInCrsTransformException(bboxStr, outputCrsUri, ex.getMessage());
             }
         } else {
@@ -196,11 +197,11 @@ public class EncodedCoverageHandler {
         String crs = CrsUtil.CrsUri.getAuthorityCode(outputCrsUri);
 
         // add the params (e.g: xmin=0,xmax=10,ymin=20,ymax=25,crs=epsg:4326)
-        for (String param: EXTRA_PARAMS) {
+        for (String param : EXTRA_PARAMS) {
             result.add(param.replace("$xmin", xMin)
-                            .replace("$ymin", yMin)
-                            .replace("$xmax", xMax)
-                            .replace("$ymax", yMax));
+                       .replace("$ymin", yMin)
+                       .replace("$xmax", xMax)
+                       .replace("$ymax", yMax));
         }
 
         // NOTE: crs here can be like: crs=OGC:AnsiDate?axis-label="time"
@@ -215,22 +216,22 @@ public class EncodedCoverageHandler {
      * Return the List of bounding box values (xmin,ymin,xmax,ymax)
      */
     private static List<String> getBoundingBox(WcpsCoverageMetadata metadata) {
-       String xMin = "", yMin = "", xMax = "", yMax = "";
+        String xMin = "", yMin = "", xMax = "", yMax = "";
 
-       List<String> bbox = new ArrayList<String>();
-       int i = 0;
+        List<String> bbox = new ArrayList<String>();
+        int i = 0;
 
-       // NOTE: axis to get bounding box is trimming and only has 2 axes for making bounding box.
-       // If no output axes (e.g: no scale($c, {}) or extend($c, {}))
-       if (metadata.getAxesBBox().isEmpty()) {
+        // NOTE: axis to get bounding box is trimming and only has 2 axes for making bounding box.
+        // If no output axes (e.g: no scale($c, {}) or extend($c, {}))
+        if (metadata.getAxesBBox().isEmpty()) {
             // Get the calculated bounding box from the coverage
-            for (Axis axis: metadata.getAxes()) {
+            for (Axis axis : metadata.getAxes()) {
                 if (axis.getGeoBounds() instanceof NumericTrimming) {
-                    if (axis.getDirection().equals(AxisDirection.EASTING)){
+                    if (axis.getDirection().equals(AxisDirection.EASTING)) {
                         xMin = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit().toString();
                         xMax = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit().toString();
                     }
-                    if (axis.getDirection().equals(AxisDirection.NORTHING)){
+                    if (axis.getDirection().equals(AxisDirection.NORTHING)) {
                         yMin = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit().toString();
                         yMax = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit().toString();
                     }
@@ -240,19 +241,19 @@ public class EncodedCoverageHandler {
                     }
                 }
             }
-       } else {
+        } else {
             // Get the bounding box from extend() or scale()
             String xCrsUri = "";
             String yCrsUri = "";
 
-            for (Axis axis: metadata.getAxesBBox()){
+            for (Axis axis : metadata.getAxesBBox()) {
                 if (axis.getGeoBounds() instanceof NumericTrimming) {
-                    if (axis.getDirection().equals(AxisDirection.EASTING)){
+                    if (axis.getDirection().equals(AxisDirection.EASTING)) {
                         xMin = ((NumericTrimming)axis.getGeoBounds()).toString();
                         xMax = ((NumericTrimming)axis.getGeoBounds()).toString();
                         xCrsUri = axis.getCrsUri();
                     }
-                    if (axis.getDirection().equals(AxisDirection.NORTHING)){
+                    if (axis.getDirection().equals(AxisDirection.NORTHING)) {
                         yMin = ((NumericTrimming)axis.getGeoBounds()).toString();
                         yMax = ((NumericTrimming)axis.getGeoBounds()).toString();
                         yCrsUri = axis.getCrsUri();
@@ -271,24 +272,24 @@ public class EncodedCoverageHandler {
             if (!xCrsUriCode.equals(yCrsUriCode)) {
                 isSameOutputCrs = false;
             }
-       }
+        }
 
-       bbox.add(xMin);
-       bbox.add(yMin);
-       bbox.add(xMax);
-       bbox.add(yMax);
+        bbox.add(xMin);
+        bbox.add(yMin);
+        bbox.add(xMax);
+        bbox.add(yMax);
 
-       isSetBoundingBox = true;
+        isSetBoundingBox = true;
 
-       // Check if the coverage can be set bounding box (e.g: geo-reference crs)
-       for (String str : bbox) {
-           if (str.equals("")) {
-               isSetBoundingBox = false;
-               break;
-           }
-       }
+        // Check if the coverage can be set bounding box (e.g: geo-reference crs)
+        for (String str : bbox) {
+            if (str.equals("")) {
+                isSetBoundingBox = false;
+                break;
+            }
+        }
 
-       return bbox;
+        return bbox;
     }
 
 
@@ -297,10 +298,10 @@ public class EncodedCoverageHandler {
      * @param operation
      * @return
      */
-    private static String getTemplate(String operation){
-        if (operation.toLowerCase().replaceAll("\"", "").equals(DEM_OPERATION)){
+    private static String getTemplate(String operation) {
+        if (operation.toLowerCase().replaceAll("\"", "").equals(DEM_OPERATION)) {
             return NON_GDAL_OPERATION_TEMPLATE
-                    .replace("$operation", DEM_OPERATION);
+                   .replace("$operation", DEM_OPERATION);
         }
         return TEMPLATE;
     }

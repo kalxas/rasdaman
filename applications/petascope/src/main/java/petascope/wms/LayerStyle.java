@@ -31,53 +31,48 @@
 
 package petascope.wms;
 
-public class LayerStyle implements Comparable<LayerStyle>
-{
+public class LayerStyle implements Comparable<LayerStyle> {
     /**
      * Name of the layer.
      **/
     protected String layer;
-    
+
     /**
      * Name of the layer's style.
      **/
     protected String style;
-    
+
     /**
      * Create a new object holding a layer name and a style name.
      * @param l layer name
      * @param s stye name
      **/
-    public LayerStyle(String l, String s)
-    {
+    public LayerStyle(String l, String s) {
         layer = l;
         style = s;
     }
-    
+
     /**
      * Return a string containing layer name ", " style
      **/
-    public String toString()
-    {
+    public String toString() {
         return "[" + layer + "." + style + "]";
     }
-    
+
     /**
      * Return a reference to the layer name
      **/
-    public String getLayer()
-    {
+    public String getLayer() {
         return layer;
     }
-    
+
     /**
      * Return a reference to the style name
      **/
-    public String getStyle()
-    {
+    public String getStyle() {
         return style;
     }
-    
+
     public int compareTo(LayerStyle ls) {
         return (this.toString().compareTo(ls.toString()));
     }

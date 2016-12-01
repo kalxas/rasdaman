@@ -45,21 +45,19 @@ import petascope.wcps2.result.WcpsResult;
 public class RangeSubsettingHandler {
 
     public static WcpsResult handle(String fieldName, WcpsResult coverageExp, WcpsCoverageMetadataService wcpsCoverageMetadataService) {
-        
+
         WcpsCoverageMetadata metadata = coverageExp.getMetadata();
-        
+
         String rangeField = fieldName.trim();
         if (!NumberUtils.isNumber(rangeField)) {
-            if (!wcpsCoverageMetadataService.checkIfRangeFieldExists(metadata, rangeField)){
+            if (!wcpsCoverageMetadataService.checkIfRangeFieldExists(metadata, rangeField)) {
                 throw new RangeFieldNotFound(rangeField);
             }
-        }
-        else {
+        } else {
             int intRangeField;
             try {
                 intRangeField = Integer.parseInt(rangeField);
-            }
-            catch(NumberFormatException ex){
+            } catch (NumberFormatException ex) {
                 //only ints supported for range subsetting
                 throw new RangeFieldNotFound(rangeField);
             }
@@ -73,10 +71,10 @@ public class RangeSubsettingHandler {
 
         String coverageExprStr = coverageExp.getRasql().trim();
         String rasql = TEMPLATE.replace("$coverageExp", coverageExprStr)
-                               .replace("$rangeFieldIndex", String.valueOf(rangeFieldIndex));
-        
+                       .replace("$rangeFieldIndex", String.valueOf(rangeFieldIndex));
+
         wcpsCoverageMetadataService.removeUnusedRangeFields(metadata, rangeFieldIndex);
-        
+
         // NOTE: we need to remove all the un-used range fields in coverageExpression's metadata
         // or it will add to netCDF extra metadata and have error in Rasql encoding.
         return new WcpsResult(coverageExp.getMetadata(), rasql);

@@ -95,7 +95,7 @@ protected:
 };
 
 //@Doc: write the status of a marray type to a stream
-extern std::ostream &operator<<( std::ostream &str, const r_Marray_Type &type );
+extern std::ostream& operator<<(std::ostream& str, const r_Marray_Type& type);
 
 #endif
 

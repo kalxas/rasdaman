@@ -89,7 +89,7 @@ public class executeGetCapabilities {
         }
         if (finished == false) {
             throw new WCSException(ExceptionCode.NoApplicableCode, "Could not execute the GetCapabilities request! "
-                    + "Please see the other errors...");
+                                   + "Please see the other errors...");
         }
         return output;
     }
@@ -125,8 +125,8 @@ public class executeGetCapabilities {
         ServiceIdentification ident = new ServiceIdentification();
         ident.setTitle("PetaScope");
         ident.setAbstract("PetaScope is a suite of OGC web-services comprising of "
-                + "WCS, WCS-T and WCPS. It has been developed at Jacobs University, and "
-                + "is mentained by the Jacobs University. Copyright Peter Baumann");
+                          + "WCS, WCS-T and WCPS. It has been developed at Jacobs University, and "
+                          + "is mentained by the Jacobs University. Copyright Peter Baumann");
         CodeType code = new CodeType();
         code.setValue("WCS");
         ident.setServiceType(code);
@@ -194,8 +194,8 @@ public class executeGetCapabilities {
         RequestMethodType post = new RequestMethodType();
         post.setType("simple");
         http.getGetOrPost().add(new JAXBElement<RequestMethodType>(
-                new QName("http://www.opengis.net/wcs/1.1/ows", "Post",
-                XMLConstants.DEFAULT_NS_PREFIX), RequestMethodType.class, post));
+                                    new QName("http://www.opengis.net/wcs/1.1/ows", "Post",
+                                              XMLConstants.DEFAULT_NS_PREFIX), RequestMethodType.class, post));
         dcp.setHTTP(http);
         op1.getDCP().add(dcp);
         DomainType paramOnlyXml = new DomainType();
@@ -268,9 +268,9 @@ public class executeGetCapabilities {
             code.setValue(covName);
             // code is encapsulated in JAXBElement "jelem"
             JAXBElement<String> jelem =
-                    new JAXBElement<String>(
-                    new QName("http://www.opengis.net/wcs/1.1", "Identifier", XMLConstants.DEFAULT_NS_PREFIX),
-                    String.class, covName);
+                new JAXBElement<String>(
+                new QName("http://www.opengis.net/wcs/1.1", "Identifier", XMLConstants.DEFAULT_NS_PREFIX),
+                String.class, covName);
             // Insert "jelem" into this coveragesummary
             sum.getRest().add(jelem);
 

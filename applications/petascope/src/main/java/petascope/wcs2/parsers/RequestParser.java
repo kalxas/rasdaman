@@ -27,12 +27,12 @@ import petascope.exceptions.WCSException;
 
 /**
  * Parse a raw WCS 2.0 operation request into an appropriate request object.
- * 
+ *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  * @param <T> type of parsed object
  */
 public interface RequestParser<T extends Request> {
-    
+
     /**
      * @param request
      * @return true if this parser can parse request, or false otherwise
@@ -47,7 +47,7 @@ public interface RequestParser<T extends Request> {
      * @throws WCSException
      */
     T parse(HTTPRequest request) throws WCSException;
-    
+
     /**
      * @return this operations name, e.g. GetCapabilities
      */

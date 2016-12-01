@@ -41,13 +41,13 @@ using grpc::Status;
 using std::string;
 
 RasmgrService::RasmgrService(boost::shared_ptr<ClientManager> clientManager)
-    :clientManager(clientManager)
+    : clientManager(clientManager)
 {}
 
 RasmgrService::~RasmgrService()
 {}
 
-grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(grpc::ServerContext *context, const rasnet::service::GetRemoteServerRequest *request, rasnet::service::GetRemoteServerReply *response)
+grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(grpc::ServerContext* context, const rasnet::service::GetRemoteServerRequest* request, rasnet::service::GetRemoteServerReply* response)
 {
     grpc::Status status = Status::OK;
 
@@ -60,7 +60,7 @@ grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(grpc::ServerContext *cont
 
         // The clientSessionId will be initialized by this method
         this->clientManager->connectClient(credentials, clientSessionId);
-        LDEBUG<<"Connected remote client with ID:"<<clientSessionId;
+        LDEBUG << "Connected remote client with ID:" << clientSessionId;
 
         // The clientServerSession will be initialized by the following method
         ClientServerSession clientServerSession;
@@ -71,17 +71,17 @@ grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(grpc::ServerContext *cont
         response->set_server_host_name(clientServerSession.serverHostName);
         response->set_server_port(clientServerSession.serverPort);
 
-        LDEBUG<<"Opened DB session for remote client with ID:"<<clientSessionId;
+        LDEBUG << "Opened DB session for remote client with ID:" << clientSessionId;
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
         status  = GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="Connect request failed for unknown reason.";
-        LERROR<<failureReason;
+        string failureReason = "Connect request failed for unknown reason.";
+        LERROR << failureReason;
 
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }
@@ -89,7 +89,7 @@ grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(grpc::ServerContext *cont
     return status;
 }
 
-grpc::Status RasmgrService::ReleaseServer(grpc::ServerContext *context, const rasnet::service::ReleaseServerRequest *request, rasnet::service::Void *response)
+grpc::Status RasmgrService::ReleaseServer(grpc::ServerContext* context, const rasnet::service::ReleaseServerRequest* request, rasnet::service::Void* response)
 {
     grpc::Status status;
 
@@ -99,16 +99,16 @@ grpc::Status RasmgrService::ReleaseServer(grpc::ServerContext *context, const ra
 
         this->clientManager->disconnectClient(request->client_session_id());
     }
-    catch(std::exception& ex)
+    catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
 
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
-    catch(...)
+    catch (...)
     {
-        string failureReason="Releasing server failed with unknown exception";
-        LERROR<<failureReason;
+        string failureReason = "Releasing server failed with unknown exception";
+        LERROR << failureReason;
 
         status = GrpcUtils::convertExceptionToStatus(failureReason);
     }

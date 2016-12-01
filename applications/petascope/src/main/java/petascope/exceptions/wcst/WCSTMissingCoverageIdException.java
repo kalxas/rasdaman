@@ -26,7 +26,7 @@ import petascope.exceptions.ExceptionCode;
 /**
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class WCSTMissingCoverageIdException extends WCSTException{
+public class WCSTMissingCoverageIdException extends WCSTException {
     public WCSTMissingCoverageIdException() {
         super(ExceptionCode.InvalidRequest, EXCEPTION_TEXT);
     }

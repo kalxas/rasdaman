@@ -48,9 +48,9 @@ public class CoverageExprPairType extends AbstractRasNode implements ICoverageIn
         } catch (WCPSException ex) {
             second = new CoverageExpr(node, xq);
         }
-        
+
         info = new CoverageInfo(((ICoverageInfo) first).getCoverageInfo());
-        if(info == null || first instanceof ScalarExpr){
+        if (info == null || first instanceof ScalarExpr) {
             info = new CoverageInfo(((ICoverageInfo) second).getCoverageInfo());
         }
     }

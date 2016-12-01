@@ -95,9 +95,9 @@ public class WcpsServlet extends HttpServlet {
 
             log.info("WCPS: initializing metadata database");
             meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                    ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER,
-                    ConfigManager.METADATA_PASS, false);
+                                        ConfigManager.METADATA_URL,
+                                        ConfigManager.METADATA_USER,
+                                        ConfigManager.METADATA_PASS, false);
             log.info("WCPS: initializing WCPS core");
 
             servletHtmlPath = getServletContext().getRealPath(servletHtmlPath);
@@ -114,14 +114,14 @@ public class WcpsServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         log.debug("WCPS: invoked with GET");
         printUsage(response);
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         log.debug("WCPS: invoked with POST");
 
         response.setHeader("Access-Control-Allow-Origin", "*");
@@ -132,7 +132,7 @@ public class WcpsServlet extends HttpServlet {
         RasqlTranslationService rasqlTranslationService = new RasqlTranslationService();
         SubsetParsingService subsetParsingService = new SubsetParsingService();
         WcpsTranslator wcpsTranslator = new WcpsTranslator(coverageRegistry, wcpsCoverageMetadataService,
-                                            rasqlTranslationService, subsetParsingService);
+                rasqlTranslationService, subsetParsingService);
 
         String query = StringUtil.urldecode(request.getParameter(WcpsConstants.MSG_QUERY), null);
 
@@ -148,7 +148,7 @@ public class WcpsServlet extends HttpServlet {
             // Handle Multipart by rewriting multiple queries if it is necessary
             // NOTE: not support multipart if return metadata value (e.g: identifier())
             RasqlRewriteMultipartQueriesService multipartService =
-                                        new RasqlRewriteMultipartQueriesService(wcpsTranslator.getCoverageAliasRegistry(), wcpsResult);
+                new RasqlRewriteMultipartQueriesService(wcpsTranslator.getCoverageAliasRegistry(), wcpsResult);
             isMultiPart = multipartService.isMultiPart();
 
             if (wcpsResult instanceof WcpsMetadataResult) {
@@ -156,9 +156,9 @@ public class WcpsServlet extends HttpServlet {
             } else {
                 // create multiple rasql queries from a Rasql query result (if it is multipart)
                 Stack<String> rasqlQueries = multipartService.rewriteQuery(wcpsTranslator.getCoverageAliasRegistry(),
-                                            ((WcpsResult)wcpsResult).getRasql());
+                                             ((WcpsResult)wcpsResult).getRasql());
                 // Run all the Rasql queries and get result
-                while(!rasqlQueries.isEmpty()) {
+                while (!rasqlQueries.isEmpty()) {
                     // Execute multiple Rasql queries with different coverageID to get List of byte arrays
                     String rasql = rasqlQueries.pop();
                     log.debug("Executing rasql query: " + rasql);
@@ -170,7 +170,7 @@ public class WcpsServlet extends HttpServlet {
 
             String mimeType = wcpsResult.getMimeType();
 
-            if(isMultiPart) {
+            if (isMultiPart) {
                 MultipartResponse multi = new MultipartResponse(response);
                 for (byte[] data : results) {
                     multi.startPart(mimeType);
@@ -210,7 +210,7 @@ public class WcpsServlet extends HttpServlet {
     }
 
     private void printError(HttpServletResponse response, String message, Exception e)
-            throws IOException {
+    throws IOException {
         log.error("WCPS: error");
         log.error("WCPS: setting response mimetype to text/html; charset=utf-8");
         response.setContentType("text/html; charset=utf-8");
@@ -220,7 +220,7 @@ public class WcpsServlet extends HttpServlet {
         PrintWriter out = new PrintWriter(response.getOutputStream());
 
         out.println(
-                "<html><head><title>Web Coverage Processing Service</title></head><body>");
+            "<html><head><title>Web Coverage Processing Service</title></head><body>");
         out.println("<h1>An error has occured</h1>");
         out.println("<p>" + message + "</p>");
         log.error("StackTrace:", e);

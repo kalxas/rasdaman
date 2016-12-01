@@ -51,7 +51,7 @@ class QtPointData : public QtData
 {
 public:
     /// constructor getting a point
-    QtPointData( const r_Point& point );
+    QtPointData(const r_Point& point);
 
     /// virtual destructor
     virtual ~QtPointData();
@@ -63,7 +63,7 @@ public:
     ///
     inline const r_Point&  getPointData() const;
     ///
-    inline void            setPointData( const r_Point& point );
+    inline void            setPointData(const r_Point& point);
 
     /// returns a null-terminated string describing the type structure
     virtual char* getTypeStructure() const;
@@ -78,13 +78,13 @@ public:
     virtual QtDataType getDataType() const;
 
     /// compares data content
-    virtual bool equal( const QtData* obj ) const;
+    virtual bool equal(const QtData* obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus( std::ostream& stream = std::cout ) const;
+    virtual void printStatus(std::ostream& stream = std::cout) const;
 
 private:
     /// attribute storing the minterval

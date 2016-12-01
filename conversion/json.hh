@@ -49,26 +49,26 @@ class r_Conv_JSON : public r_Conv_CSV
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_JSON( const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error);
+    r_Conv_JSON(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error);
     /// constructor using convert_type_e shortcut
-    r_Conv_JSON( const char *src, const r_Minterval &interv, int tp ) throw(r_Error);
+    r_Conv_JSON(const char* src, const r_Minterval& interv, int tp) throw(r_Error);
     /// destructor
-    ~r_Conv_JSON( void );
+    ~r_Conv_JSON(void);
 
     /// convert to CSV
-    virtual r_Conv_Desc &convertTo( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error);
     /// convert from CSV
-    virtual r_Conv_Desc &convertFrom( const char *options=NULL ) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
     /// cloning
-    virtual r_Convertor *clone( void ) const;
+    virtual r_Convertor* clone(void) const;
     /// identification
-    virtual const char *get_name( void ) const;
-    virtual r_Data_Format get_data_format( void ) const;
-    
+    virtual const char* get_name(void) const;
+    virtual r_Data_Format get_data_format(void) const;
+
 private:
-    
+
     void initJSON();
-    
+
     static const std::string LEFT_PAREN;
     static const std::string RIGHT_PAREN;
     static const std::string SEPARATOR;

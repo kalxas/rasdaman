@@ -96,22 +96,22 @@ public:
     EditLine();
     ~EditLine();
 
-    const char *interactiveCommand(const char *prompt);
-    const char *fromStdinCommand(const char *prompt);
+    const char* interactiveCommand(const char* prompt);
+    const char* fromStdinCommand(const char* prompt);
 
 private:
-    char *rl_gets(const char *prompt);
+    char* rl_gets(const char* prompt);
     char line[MAXMSG];
 
 };
 
-class RascontrolConfig:public ConfigurationBase
+class RascontrolConfig: public ConfigurationBase
 {
 public:
     RascontrolConfig();
 
     // false means program shouldn't continue
-    bool interpretArguments(int argc, char **argv);
+    bool interpretArguments(int argc, char** argv);
 
     int         getWorkModus();
     int         getLoginModus();
@@ -144,16 +144,16 @@ private:
     char command[100];
     bool quiet;
 
-    bool isCommand( const char *command, const char *key );
+    bool isCommand(const char* command, const char* key);
 
     //-- parameters of this program
-    CommandLineParser    &cmlInter;
-    CommandLineParameter &cmlHelp, &cmlHost, &cmlPort, &cmlLogin;
+    CommandLineParser&    cmlInter;
+    CommandLineParameter& cmlHelp, &cmlHost, &cmlPort, &cmlLogin;
 //#ifdef NO_OFFICIAL_RELEASE
-    CommandLineParameter &cmlHist;
+    CommandLineParameter& cmlHist;
 //#endif
-    CommandLineParameter &cmlPrompt, &cmlTestLogin;
-    CommandLineParameter &cmlInteractive, &cmlQuiet, &cmlExecute;
+    CommandLineParameter& cmlPrompt, &cmlTestLogin;
+    CommandLineParameter& cmlInteractive, &cmlQuiet, &cmlExecute;
 
 };
 

@@ -46,15 +46,15 @@ public:
 
     virtual ~ClientManagementService();
 
-    virtual grpc::Status Connect(grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response) override;
+    virtual grpc::Status Connect(grpc::ServerContext* context, const rasnet::service::ConnectReq* request, rasnet::service::ConnectRepl* response) override;
 
-    virtual grpc::Status Disconnect(grpc::ServerContext *context, const rasnet::service::DisconnectReq *request, rasnet::service::Void *response) override;
+    virtual grpc::Status Disconnect(grpc::ServerContext* context, const rasnet::service::DisconnectReq* request, rasnet::service::Void* response) override;
 
-    virtual grpc::Status OpenDb(grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response) override;
+    virtual grpc::Status OpenDb(grpc::ServerContext* context, const rasnet::service::OpenDbReq* request, rasnet::service::OpenDbRepl* response) override;
 
-    virtual grpc::Status CloseDb(grpc::ServerContext *context, const rasnet::service::CloseDbReq *request, rasnet::service::Void *response) override;
+    virtual grpc::Status CloseDb(grpc::ServerContext* context, const rasnet::service::CloseDbReq* request, rasnet::service::Void* response) override;
 
-    virtual grpc::Status KeepAlive(grpc::ServerContext *context, const rasnet::service::KeepAliveReq *request, rasnet::service::Void *response) override;
+    virtual grpc::Status KeepAlive(grpc::ServerContext* context, const rasnet::service::KeepAliveReq* request, rasnet::service::Void* response) override;
 
 private:
     boost::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */

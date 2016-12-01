@@ -25,7 +25,8 @@
 
 #include <string>
 
-namespace blobfs {
+namespace blobfs
+{
 
 /**
  * Encapsulate locking on a single file.

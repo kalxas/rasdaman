@@ -62,7 +62,7 @@ extern char* myExecArgv0 = "";
  * Description...: none
  ************************************************************/
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
     // variables representing O2 database, ta and session
     DatabaseIf database;
@@ -75,27 +75,27 @@ main( int argc, char** argv)
 
     // connect to the database
     cout << "Connecting to database " << O2BenchDBName << "..." << endl;
-    database.open( O2BenchDBName );
+    database.open(O2BenchDBName);
 
 
     // create indexes and put them in TestMDDObjContainer
     cout << " SplitTile..." << endl;
     ta.begin();
 
-    static BaseType* bt = TypeFactory::mapType( "Short" );
-    cout << "BaseType " << bt->getTypeName( ) << endl;
+    static BaseType* bt = TypeFactory::mapType("Short");
+    cout << "BaseType " << bt->getTypeName() << endl;
 
     r_Minterval tileDom =
-        r_Minterval(2) << r_Sinterval(0l,0l) << r_Sinterval(0l,99l);
+        r_Minterval(2) << r_Sinterval(0l, 0l) << r_Sinterval(0l, 99l);
     //r_Minterval(2) << r_Sinterval(0l,9l) << r_Sinterval(0l,9l);
     //("[0:9,0:9]");
     cout << "tileDom " << tileDom << endl;
     r_Minterval BigTileDom =
-        r_Minterval(2) << r_Sinterval(0l,39l) << r_Sinterval(0l, 99l);
+        r_Minterval(2) << r_Sinterval(0l, 39l) << r_Sinterval(0l, 99l);
     // ("[0:39,0:39]");
     cout << "BigTileDom " << BigTileDom << endl;
 
-    unsigned long  sz = bt->getSize( ) * BigTileDom.cell_count( );
+    unsigned long  sz = bt->getSize() * BigTileDom.cell_count();
 
     char* cells = new char[sz];
     /*
@@ -106,17 +106,19 @@ main( int argc, char** argv)
     }
     */
     short* typedCells = (short*) cells;
-    unsigned typedSz = BigTileDom.cell_count( );
-    for (int i = 0; i < typedSz; i++ )
+    unsigned typedSz = BigTileDom.cell_count();
+    for (int i = 0; i < typedSz; i++)
+    {
         typedCells[i] = i;
+    }
 
-    vector< Tile* >* tilesReturned;
-    TransTile* tile1Obj1 = new TransTile( BigTileDom,
-                                          (const BaseType* ) bt,
-                                          ( char*) cells, 1);
+    vector<Tile*>* tilesReturned;
+    TransTile* tile1Obj1 = new TransTile(BigTileDom,
+                                         (const BaseType*) bt,
+                                         (char*) cells, 1);
 
     cout << "Calling splitTile " << endl;
-    tilesReturned = tile1Obj1->splitTile( tileDom );
+    tilesReturned = tile1Obj1->splitTile(tileDom);
     cout << "Finished splitTile " << endl;
 
 
@@ -136,7 +138,7 @@ main( int argc, char** argv)
     delete[] cells;
 
     cout << endl << "Ending O2 session..." << endl;
-    database.close( );
+    database.close();
     delete myAdmin;
 }
 

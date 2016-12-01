@@ -40,7 +40,7 @@ public class TestSystemOverloaded extends BaseTestCase {
 
     private int numQueries = 5;
 
-    //Will be printed at the end since Rasj 
+    //Will be printed at the end since Rasj
     //provides too much output. It will
     //contain all messages found during testing.
     private String messages;
@@ -123,7 +123,7 @@ public class TestSystemOverloaded extends BaseTestCase {
             return DEFAULT_NUM_SERVERS;
         } else {
             messages += "The number of available Rasdaman servers obtained is " + numServers
-                    + " if this number is incorrect please check the RASLOGIN envoirnmental variable.\n\n";
+                        + " if this number is incorrect please check the RASLOGIN envoirnmental variable.\n\n";
             return numServers;
         }
     }

@@ -37,23 +37,29 @@ rasdaman GmbH.
 void
 DBMDDSet::printStatus(unsigned int level, std::ostream& stream) const
 {
-    char* indent = new char[level*2 +1];
-    for (unsigned int j = 0; j < level*2 ; j++)
+    char* indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2 ; j++)
+    {
         indent[j] = ' ';
-    indent[level*2] = '\0';
+    }
+    indent[level * 2] = '\0';
     DBObject::printStatus(level, stream);
     stream << indent;
     stream << "Collection Entries ";
     for (DBMDDObjIdSet::const_iterator i = mySet.begin(); i != mySet.end(); i++)
     {
         if (isPersistent())
+        {
             stream << (*i).getOId() << " ";
+        }
         else
+        {
             stream << (r_Ptr)(*i).ptr() << " ";
+        }
     }
     stream << endl;
     delete[] indent;
-    indent=0;
+    indent = 0;
 }
 
 bool
@@ -172,12 +178,16 @@ DBMDDSet::deleteDBMDDSet(const OId& oid)
         DBObject* set = ObjectBroker::getObjectByOId(oid);
         set->setPersistent(false);
     }
-    catch   (r_Error& e)
+    catch (r_Error& e)
     {
         if (e.get_kind() == r_Error::r_Error_ObjectUnknown)
+        {
             retval = false;
+        }
         else
+        {
             throw;
+        }
     }
     return retval;
 }
@@ -191,12 +201,16 @@ DBMDDSet::deleteDBMDDSet(const char* name)
         DBObject* set = ObjectBroker::getObjectByName(OId::MDDCOLLOID, name);
         set->setPersistent(false);
     }
-    catch   (r_Error& e)
+    catch (r_Error& e)
     {
         if (e.get_kind() == r_Error::r_Error_ObjectUnknown)
+        {
             retval = false;
+        }
         else
+        {
             throw;
+        }
     }
     return retval;
 }
@@ -206,7 +220,9 @@ DBMDDSet::DBMDDSet(const char* name, const CollectionType* type) throw (r_Error)
         collType(type)
 {
     if (name == NULL)
+    {
         setName("unnamed collection");
+    }
     if (type == NULL)
     {
         LTRACE << "DBMDDSet(" << name << ", NULL)";
@@ -233,12 +249,16 @@ DBMDDSet::setPersistent(bool state) throw (r_Error)
         {
             set = static_cast<DBMDDSet*>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, getName()));
         }
-        catch   (r_Error& err)
+        catch (r_Error& err)
         {
             if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
+            {
                 set = NULL;
+            }
             else
+            {
                 throw;
+            }
         }
         if (set)
         {

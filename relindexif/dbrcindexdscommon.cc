@@ -154,10 +154,12 @@ DBRCIndexDS::isValid() const
 void
 DBRCIndexDS::printStatus(unsigned int level, std::ostream& stream) const
 {
-    char* indent = new char[level*2 +1];
-    for (unsigned int j = 0; j < level*2 ; j++)
+    char* indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2 ; j++)
+    {
         indent[j] = ' ';
-    indent[level*2] = '\0';
+    }
+    indent[level * 2] = '\0';
 
     stream << indent << "DBRCIndexDS" << std::endl;
     stream << indent << " current db rows   " << currentDbRows << std::endl;
@@ -230,7 +232,9 @@ DBRCIndexDS::isSameAs(const IndexDS* other) const
 {
     if (other->isPersistent())
         if (myOId == other->getIdentifier())
+        {
             return true;
+        }
     return false;
 }
 
@@ -242,7 +246,7 @@ DBRCIndexDS::getObject(unsigned int pos) const
 }
 
 void
-DBRCIndexDS::getObjects(__attribute__ ((unused)) KeyObjectVector& objs) const
+DBRCIndexDS::getObjects(__attribute__((unused)) KeyObjectVector& objs) const
 {
     LFATAL << "DBRCIndexDS::getObjects(vec) not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

@@ -153,7 +153,7 @@ ObjectBroker::freeMemory() throw (r_Error)
         int theLucky = ObjectBroker::theBLOBTiles.size() / 2;
         DBObjectPMap::iterator it = ObjectBroker::theBLOBTiles.begin();
         for (int i = 0; i < theLucky; i++, it++);
-        delete (*it).second;
+        delete(*it).second;
         retval = true;
     }
     return retval;
@@ -186,13 +186,13 @@ ObjectBroker::init()
 
     DBObject* atomicTypes[] = {theComplex2, theComplex1, theFloat, theDouble, theOctet, theShort, theLong, theUShort, theBool, theChar, theULong};
 #ifdef DEBUG
-    if (sizeof(atomicTypes)/sizeof(DBObject*) != TypeFactory::MaxBuiltInId)
+    if (sizeof(atomicTypes) / sizeof(DBObject*) != TypeFactory::MaxBuiltInId)
     {
         LFATAL << "ObjectBroker::init() not all atomic types were added!";
         exit(1);
     }
 #endif
-    for (unsigned int a = 0; a < sizeof(atomicTypes)/sizeof(DBObject*); a++)
+    for (unsigned int a = 0; a < sizeof(atomicTypes) / sizeof(DBObject*); a++)
     {
         DBObjectPPair myPair(atomicTypes[a]->getOId(), atomicTypes[a]);
         theAtomicTypes.insert(myPair);
@@ -309,7 +309,9 @@ ObjectBroker::getObjectByOId(const OId& id) throw (r_Error)
 {
     DBObject* retval = 0;
     if (id.getType() == OId::INVALID)
+    {
         retval = 0;
+    }
     else
     {
         retval = ObjectBroker::isInMemory(id);
@@ -491,28 +493,50 @@ ObjectBroker::getOIdByName(OId::OIdType type, const char* name) throw (r_Error)
         id = getOIdOfSetType(name);
         break;
     case OId::ATOMICTYPEOID:
-        if(strcmp(name, ULongType::Name) == 0)
+        if (strcmp(name, ULongType::Name) == 0)
+        {
             id = theULong->getOId();
-        else if(strcmp(name, BoolType::Name) == 0)
+        }
+        else if (strcmp(name, BoolType::Name) == 0)
+        {
             id = theBool->getOId();
-        else if(strcmp(name, CharType::Name) == 0)
+        }
+        else if (strcmp(name, CharType::Name) == 0)
+        {
             id = theChar->getOId();
-        else if(strcmp(name, UShortType::Name) == 0)
+        }
+        else if (strcmp(name, UShortType::Name) == 0)
+        {
             id = theUShort->getOId();
-        else if(strcmp(name, LongType::Name) == 0)
+        }
+        else if (strcmp(name, LongType::Name) == 0)
+        {
             id = theLong->getOId();
-        else if(strcmp(name, ShortType::Name) == 0)
+        }
+        else if (strcmp(name, ShortType::Name) == 0)
+        {
             id = theShort->getOId();
-        else if(strcmp(name, OctetType::Name) == 0)
+        }
+        else if (strcmp(name, OctetType::Name) == 0)
+        {
             id = theOctet->getOId();
-        else if(strcmp(name, DoubleType::Name) == 0)
+        }
+        else if (strcmp(name, DoubleType::Name) == 0)
+        {
             id = theDouble->getOId();
-        else if(strcmp(name, FloatType::Name) == 0)
+        }
+        else if (strcmp(name, FloatType::Name) == 0)
+        {
             id = theFloat->getOId();
-        else if(strcmp(name, ComplexType1::Name) == 0)
+        }
+        else if (strcmp(name, ComplexType1::Name) == 0)
+        {
             id = theComplex1->getOId();
-        else if(strcmp(name, ComplexType2::Name) == 0)
+        }
+        else if (strcmp(name, ComplexType2::Name) == 0)
+        {
             id = theComplex2->getOId();
+        }
         break;
 
     default:
@@ -579,7 +603,7 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char* name) throw (r_Erro
     //no - no matching object.  try loading from db
     if (!retval)
     {
-        retval = ObjectBroker::getObjectByOId(ObjectBroker::getOIdByName(type,name));
+        retval = ObjectBroker::getObjectByOId(ObjectBroker::getOIdByName(type, name));
     }
     return retval;
 }
@@ -589,7 +613,7 @@ ObjectBroker::completelyClearMap(DBObjectPMap& theMap) throw (r_Error)
 {
     DBObjectPVector test;
     test.reserve(theMap.size());
-    for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++ )
+    for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "preparing to delete " << (*i).second->getOId() << " " << (*i).second->getOId().getType();
         (*i).second->validate();
@@ -599,7 +623,7 @@ ObjectBroker::completelyClearMap(DBObjectPMap& theMap) throw (r_Error)
     for (DBObjectPVector::iterator i2 = test.begin(); i2 != test.end(); i2++)
     {
         LTRACE << "deleting " << (*i2)->getOId() << " " << (*i2)->getOId().getType();
-        delete (*i2);
+        delete(*i2);
     }
     test.clear();
 }
@@ -702,10 +726,10 @@ ObjectBroker::loadDBStorage(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -725,10 +749,10 @@ ObjectBroker::loadSetType(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -748,10 +772,10 @@ ObjectBroker::loadMDDType(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -772,10 +796,10 @@ ObjectBroker::loadMDDBaseType(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -796,10 +820,10 @@ ObjectBroker::loadMDDDimensionType(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -820,10 +844,10 @@ ObjectBroker::loadMDDDomainType(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -844,10 +868,10 @@ ObjectBroker::loadStructType(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -868,10 +892,10 @@ ObjectBroker::loadDBMinterval(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -893,10 +917,10 @@ ObjectBroker::loadDBMDDObj(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -918,10 +942,10 @@ ObjectBroker::loadMDDSet(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -942,10 +966,10 @@ ObjectBroker::loadDBTCIndex(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -966,10 +990,10 @@ ObjectBroker::loadDBHierIndex(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }
@@ -990,10 +1014,10 @@ ObjectBroker::loadBLOBTile(const OId& id) throw (r_Error)
     catch (r_Error& error)
     {
         LTRACE << "not found in db";
-        if(retval)
+        if (retval)
         {
             delete retval;
-            retval=0;
+            retval = 0;
         }
         throw error;
     }

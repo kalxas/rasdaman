@@ -40,8 +40,8 @@ public class XMLProtocolExtension extends AbstractProtocolExtension {
 
     @Override
     public boolean canHandle(HTTPRequest request) {
-        return request.getRequestString() != null && request.getRequestString().startsWith("<") 
-                && !XMLUtil.isFirstTag(request.getRequestString(), "Envelope");
+        return request.getRequestString() != null && request.getRequestString().startsWith("<")
+               && !XMLUtil.isFirstTag(request.getRequestString(), "Envelope");
     }
 
     protected Element parseInput(String input) throws WCSException {

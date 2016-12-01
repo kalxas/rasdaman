@@ -49,7 +49,7 @@ static const char rcsid[] = "@(#)raslib, RasdlError: $Id: rasdl_error.cc,v 1.1 2
 #include "debug.hh"
 
 /// error object, carrying int error code
-RasdlError::RasdlError( unsigned int e )
+RasdlError::RasdlError(unsigned int e)
 {
     LDEBUG << "Exception: " << e;
     error_code = static_cast<int>(e);
@@ -65,7 +65,7 @@ RasdlError::~RasdlError()
 const char*
 RasdlError::what()
 {
-    const char *errorMsg;
+    const char* errorMsg;
     switch (error_code)
     {
     case  CANNOTALLOC:
@@ -117,9 +117,13 @@ RasdlError::what()
 
     // check for buffer overflow
     if (strlen(MODULE_TAG) + 3 + strlen(ERROR_TEXT) + strlen(errorMsg) + 1 > ERRTEXT_BUFSIZ)
-        sprintf( errorText, "%s%03d%s", MODULE_TAG, error_code, "(error message too long, cannot display)" );
+    {
+        sprintf(errorText, "%s%03d%s", MODULE_TAG, error_code, "(error message too long, cannot display)");
+    }
     else
-        sprintf( errorText, "%s%03d%s%s", MODULE_TAG, error_code, ERROR_TEXT, errorMsg );
+    {
+        sprintf(errorText, "%s%03d%s%s", MODULE_TAG, error_code, ERROR_TEXT, errorMsg);
+    }
 
     return errorText;
 } // what()

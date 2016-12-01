@@ -26,7 +26,7 @@ package petascope.util.ras;
  * Preform a rasdaman query through Petascope as
  * a stanalone thread. The number of queries can
  * be increased as needed.
- * 
+ *
  * @author Ernesto Rodriguez <ernesto4160@gmail.com>
  */
 
@@ -34,33 +34,33 @@ public class RasdamanQuery implements Runnable {
 
     private Exception e;
     private boolean isDone;
-    private final String QUERY = "select csv(c[0:200,0:200]) from rgb AS c";    
+    private final String QUERY = "select csv(c[0:200,0:200]) from rgb AS c";
 
-    public RasdamanQuery(){
+    public RasdamanQuery() {
 
-	this.isDone = false;
+        this.isDone = false;
     }
 
-    public boolean isDone(){
+    public boolean isDone() {
 
-	return this.isDone;
+        return this.isDone;
     }
 
-    public Exception resultingException(){
+    public Exception resultingException() {
 
-	return e;
+        return e;
     }
-    
-    public void run(){
 
-	this.isDone = false;
-	try {
-	    RasUtil.executeRasqlQuery(QUERY);
-	} catch(Exception e) {
+    public void run() {
 
-	    this.e = e;
-	}
+        this.isDone = false;
+        try {
+            RasUtil.executeRasqlQuery(QUERY);
+        } catch (Exception e) {
 
-	this.isDone = true;
+            this.e = e;
+        }
+
+        this.isDone = true;
     }
 }

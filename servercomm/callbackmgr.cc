@@ -68,7 +68,7 @@ CallBackManager::~CallBackManager(void)
 void CallBackManager::setMaximumSize(unsigned int size)
 {
     LTRACE << "setMaximumSize(" << size << ")";
-    callback_desc_t *newcb = new callback_desc_t[size];
+    callback_desc_t* newcb = new callback_desc_t[size];
 
     if (callbacks != NULL)
     {
@@ -77,7 +77,9 @@ void CallBackManager::setMaximumSize(unsigned int size)
             unsigned int copysize = (numPending > size) ? size : numPending;
             memcpy(newcb, callbacks, copysize * sizeof(callback_desc_t));
             if (copysize < numPending)
+            {
                 overflowDetected = 1;
+            }
         }
         delete [] callbacks;
     }
@@ -86,21 +88,23 @@ void CallBackManager::setMaximumSize(unsigned int size)
 }
 
 
-int CallBackManager::findCallback(callback_f function, void *context) const
+int CallBackManager::findCallback(callback_f function, void* context) const
 {
     unsigned int i;
 
     // No system calls from this function!
-    for (i=0; i<numPending; i++)
+    for (i = 0; i < numPending; i++)
     {
         if ((callbacks[i].function == function) && (callbacks[i].context == context))
+        {
             return static_cast<int>(i);
+        }
     }
     return -1;
 }
 
 
-int CallBackManager::registerCallback(callback_f function, void *context)
+int CallBackManager::registerCallback(callback_f function, void* context)
 {
     // No mallocs, debug output, system calls, ... in this function!!!
     if (numPending >= maxCallbacks)
@@ -118,16 +122,20 @@ int CallBackManager::registerCallback(callback_f function, void *context)
 }
 
 
-int CallBackManager::registerUniqueCallback(callback_f function, void *context)
+int CallBackManager::registerUniqueCallback(callback_f function, void* context)
 {
     if (findCallback(function, context) == -1)
+    {
         return registerCallback(function, context);
+    }
     else
+    {
         return -1;
+    }
 }
 
 
-int CallBackManager::removeCallback(callback_f function, void *context)
+int CallBackManager::removeCallback(callback_f function, void* context)
 {
     int i;
 
@@ -135,8 +143,10 @@ int CallBackManager::removeCallback(callback_f function, void *context)
     i = findCallback(function, context);
     if (i != -1)
     {
-        if (i < static_cast<int>(numPending)-1)
-            memmove(callbacks+i, callbacks+(i+1), (numPending-static_cast<unsigned int>(i)-1)*sizeof(callback_desc_t));
+        if (i < static_cast<int>(numPending) - 1)
+        {
+            memmove(callbacks + i, callbacks + (i + 1), (numPending - static_cast<unsigned int>(i) - 1)*sizeof(callback_desc_t));
+        }
         numPending--;
         return 0;
     }
@@ -154,7 +164,7 @@ int CallBackManager::executePending(void)
 {
     unsigned int i;
 
-    for (i=0; i<numPending; i++)
+    for (i = 0; i < numPending; i++)
     {
         LTRACE << "callback function " << i << "...";
         callbacks[i].function(callbacks[i].context);

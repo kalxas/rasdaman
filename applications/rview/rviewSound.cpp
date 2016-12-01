@@ -113,9 +113,9 @@ rasdaman GmbH.
 
 
 /* Minimum size of ulaw table */
-const int ULAW_LD_TABLE_MIN=10;
+const int ULAW_LD_TABLE_MIN = 10;
 /* log2 of the length of a linear segment in ulaw coding */
-const int ULAW_LD_LINEAR_SIZE=7;
+const int ULAW_LD_LINEAR_SIZE = 7;
 
 // general debug messages (should only enable on Unix)
 //#define SOUND_PLAYER_DEBUG
@@ -131,20 +131,20 @@ const int rviewSoundPlayer::sound_twidth = 120;
 const int rviewSoundPlayer::sound_theight = 50;
 const int rviewSoundPlayer::sound_cwidth = 120;
 const int rviewSoundPlayer::sound_cheight = 30;
-const int rviewSoundPlayer::sound_ctrly = rviewSoundPlayer::sound_bheight + rviewSoundPlayer::sound_theight + rviewSoundPlayer::sound_sheight + 5*rviewDisplay::display_border;
+const int rviewSoundPlayer::sound_ctrly = rviewSoundPlayer::sound_bheight + rviewSoundPlayer::sound_theight + rviewSoundPlayer::sound_sheight + 5 * rviewDisplay::display_border;
 const int rviewSoundPlayer::sound_width = rviewDisplay::display_width;
-const int rviewSoundPlayer::sound_height = rviewDisplay::display_cheight + rviewSoundPlayer::sound_ctrly + 2*rviewDisplay::display_border;
+const int rviewSoundPlayer::sound_height = rviewDisplay::display_cheight + rviewSoundPlayer::sound_ctrly + 2 * rviewDisplay::display_border;
 const int rviewSoundPlayer::sound_latencies = 11;
 
 
 
 
 /* Global variables and functions */
-static soundPlayer *activePlayer = NULL;
+static soundPlayer* activePlayer = NULL;
 static int inCallback = 0;
 
 #ifdef SOUND_DEBUG_FILE
-static FILE *debugfd=NULL;
+static FILE* debugfd = NULL;
 #endif
 
 
@@ -192,25 +192,25 @@ soundPlayer::soundPlayer(void)
     setupVariables();
 }
 
-soundPlayer::soundPlayer(int frq, int ch, FILE *fp, rviewSoundFormat fmt, int lat)
+soundPlayer::soundPlayer(int frq, int ch, FILE* fp, rviewSoundFormat fmt, int lat)
 {
     setupVariables();
     newSample(frq, ch, fp, fmt, lat);
 }
 
-soundPlayer::soundPlayer(int frq, int ch, const signed char *data, int len, rviewSoundFormat fmt, int lat)
+soundPlayer::soundPlayer(int frq, int ch, const signed char* data, int len, rviewSoundFormat fmt, int lat)
 {
     setupVariables();
     newSample(frq, ch, data, len, fmt, lat);
 }
 
-soundPlayer::soundPlayer(int frq, int ch, const unsigned char *data, int len, rviewSoundFormat fmt, int lat)
+soundPlayer::soundPlayer(int frq, int ch, const unsigned char* data, int len, rviewSoundFormat fmt, int lat)
 {
     setupVariables();
     newSample(frq, ch, data, len, fmt, lat);
 }
 
-soundPlayer::soundPlayer(int frq, int ch, const short *data, int len, rviewSoundFormat fmt, int lat)
+soundPlayer::soundPlayer(int frq, int ch, const short* data, int len, rviewSoundFormat fmt, int lat)
 {
     setupVariables();
     newSample(frq, ch, data, len, fmt, lat);
@@ -219,10 +219,22 @@ soundPlayer::soundPlayer(int frq, int ch, const short *data, int len, rviewSound
 soundPlayer::~soundPlayer(void)
 {
     playbackStop();
-    if (buffer != NULL) delete [] buffer;
-    if (convBuff != NULL) delete [] convBuff;
-    if (LinToUlaw != NULL) delete [] LinToUlaw;
-    if (UlawToLin != NULL) delete [] UlawToLin;
+    if (buffer != NULL)
+    {
+        delete [] buffer;
+    }
+    if (convBuff != NULL)
+    {
+        delete [] convBuff;
+    }
+    if (LinToUlaw != NULL)
+    {
+        delete [] LinToUlaw;
+    }
+    if (UlawToLin != NULL)
+    {
+        delete [] UlawToLin;
+    }
 }
 
 void soundPlayer::setupVariables(void)
@@ -239,13 +251,19 @@ void soundPlayer::setupVariables(void)
 #ifdef __VISUALC__
     waveOut = (HWAVEOUT)0;
     timerID = 0;
-    for (int i=0; i<RVIEW_SND_BUFFERS; i++) waveHdrs[i].lpData = NULL;
+    for (int i = 0; i < RVIEW_SND_BUFFERS; i++)
+    {
+        waveHdrs[i].lpData = NULL;
+    }
 #else
     audioDevice = -1;
 #endif
 
 #ifdef SOUND_DEBUG_FILE
-    if (debugfd == NULL) debugfd = fopen(SOUND_DEBUG_FILE, "w");
+    if (debugfd == NULL)
+    {
+        debugfd = fopen(SOUND_DEBUG_FILE, "w");
+    }
 #endif
 }
 
@@ -278,44 +296,62 @@ void soundPlayer::playbackStop(void)
     sampleFile = NULL;
 }
 
-int soundPlayer::newSample(int frq, int ch, FILE *fp, rviewSoundFormat fmt, int lat)
+int soundPlayer::newSample(int frq, int ch, FILE* fp, rviewSoundFormat fmt, int lat)
 {
-    if (configureDevice(frq, ch, -1, fmt, lat) != 0) return -1;
+    if (configureDevice(frq, ch, -1, fmt, lat) != 0)
+    {
+        return -1;
+    }
     sampleFile = fp;
     return 0;
 }
 
-int soundPlayer::newSample(int frq, int ch, const signed char *data, int len, rviewSoundFormat fmt, int lat)
+int soundPlayer::newSample(int frq, int ch, const signed char* data, int len, rviewSoundFormat fmt, int lat)
 {
-    if (configureDevice(frq, ch, len, fmt, lat) != 0) return -1;
+    if (configureDevice(frq, ch, len, fmt, lat) != 0)
+    {
+        return -1;
+    }
     inData = (char*)data;
     return 0;
 }
 
-int soundPlayer::newSample(int frq, int ch, const unsigned char *data, int len, rviewSoundFormat fmt, int lat)
+int soundPlayer::newSample(int frq, int ch, const unsigned char* data, int len, rviewSoundFormat fmt, int lat)
 {
-    if (configureDevice(frq, ch, len, fmt, lat) != 0) return -1;
+    if (configureDevice(frq, ch, len, fmt, lat) != 0)
+    {
+        return -1;
+    }
     inData = (char*)data;
     return 0;
 }
 
-int soundPlayer::newSample(int frq, int ch, const short *data, int len, rviewSoundFormat fmt, int lat)
+int soundPlayer::newSample(int frq, int ch, const short* data, int len, rviewSoundFormat fmt, int lat)
 {
-    if (configureDevice(frq, ch, len, fmt, lat) != 0) return -1;
+    if (configureDevice(frq, ch, len, fmt, lat) != 0)
+    {
+        return -1;
+    }
     inData = (char*)data;
     return 0;
 }
 
 int soundPlayer::playbackActive(void)
 {
-    if ((sampleFile != NULL) || (inData != NULL)) return dataOffset;
+    if ((sampleFile != NULL) || (inData != NULL))
+    {
+        return dataOffset;
+    }
 
     return -1;
 }
 
 int soundPlayer::playbackGetOffset(void)
 {
-    if ((sampleFile == NULL) && (inData == NULL)) return -1;
+    if ((sampleFile == NULL) && (inData == NULL))
+    {
+        return -1;
+    }
     return dataOffset;
 }
 
@@ -323,39 +359,48 @@ void soundPlayer::ensureUlawTable(int ulawsize)
 {
     int i, j, shift, range, sign, base, vsh;
     unsigned char val;
-    unsigned char *u;
+    unsigned char* u;
 
     if (LinToUlaw != NULL)
     {
-        if (ldUlawSize >= ulawsize) return;
+        if (ldUlawSize >= ulawsize)
+        {
+            return;
+        }
         delete [] LinToUlaw;
     }
-    if (ulawsize < ULAW_LD_TABLE_MIN) ldUlawSize = ULAW_LD_TABLE_MIN;
-    else ldUlawSize = ulawsize;
-    LinToUlaw = new unsigned char[(1<<ldUlawSize)];
+    if (ulawsize < ULAW_LD_TABLE_MIN)
+    {
+        ldUlawSize = ULAW_LD_TABLE_MIN;
+    }
+    else
+    {
+        ldUlawSize = ulawsize;
+    }
+    LinToUlaw = new unsigned char[(1 << ldUlawSize)];
 
     range = 255 << (ULAW_LD_LINEAR_SIZE + ldUlawSize - 16);
-    u = LinToUlaw + (1<<(ldUlawSize-1)) - range;
+    u = LinToUlaw + (1 << (ldUlawSize - 1)) - range;
 
-    for (i=-8; i<8; i++)
+    for (i = -8; i < 8; i++)
     {
         if (i < 0)
         {
-            shift = -1-i;
+            shift = -1 - i;
             sign = -1;
-            base = 127 - 16*shift - 15;
+            base = 127 - 16 * shift - 15;
         }
         else
         {
             shift = i;
             sign = 1;
-            base = 255 - 16*shift;
+            base = 255 - 16 * shift;
         }
         vsh = ULAW_LD_LINEAR_SIZE + ldUlawSize + shift - 20;
         if (vsh < 0)
         {
             vsh = -vsh;
-            for (j=0; j<(1<<(ULAW_LD_LINEAR_SIZE + ldUlawSize + shift - 16)); j++)
+            for (j = 0; j < (1 << (ULAW_LD_LINEAR_SIZE + ldUlawSize + shift - 16)); j++)
             {
                 val = j << vsh;
                 val = base - sign * val;
@@ -364,7 +409,7 @@ void soundPlayer::ensureUlawTable(int ulawsize)
         }
         else
         {
-            for (j=0; j<(1<<(ULAW_LD_LINEAR_SIZE + ldUlawSize + shift - 16)); j++)
+            for (j = 0; j < (1 << (ULAW_LD_LINEAR_SIZE + ldUlawSize + shift - 16)); j++)
             {
                 val = j >> vsh;
                 val = base - sign * val;
@@ -372,9 +417,9 @@ void soundPlayer::ensureUlawTable(int ulawsize)
             }
         }
     }
-    i = (1<<(ldUlawSize-1)) - range;
-    memset(LinToUlaw, LinToUlaw[i], i-1);
-    memset(LinToUlaw + (1<<ldUlawSize) - i, LinToUlaw[(1<<ldUlawSize) - i - 1], i);
+    i = (1 << (ldUlawSize - 1)) - range;
+    memset(LinToUlaw, LinToUlaw[i], i - 1);
+    memset(LinToUlaw + (1 << ldUlawSize) - i, LinToUlaw[(1 << ldUlawSize) - i - 1], i);
 
     /*for (i=0; i<(1<<(ldUlawSize-4)); i++)
     {
@@ -390,22 +435,25 @@ void soundPlayer::ensureUlawTable(int ulawsize)
 void soundPlayer::ensureLinearTable(void)
 {
     int i, j;
-    short *data;
+    short* data;
 
-    if (UlawToLin != NULL) return;
+    if (UlawToLin != NULL)
+    {
+        return;
+    }
 
     UlawToLin = new short[256];
     data = UlawToLin;
 
-    for (i=0; i<128; i++)
+    for (i = 0; i < 128; i++)
     {
         j = ((127 - i) >> 4);
-        *data++ = -((((1 << j) - 1) << ULAW_LD_LINEAR_SIZE) + ((16-(i&15)) << (j + ULAW_LD_LINEAR_SIZE - 4)));
+        *data++ = -((((1 << j) - 1) << ULAW_LD_LINEAR_SIZE) + ((16 - (i & 15)) << (j + ULAW_LD_LINEAR_SIZE - 4)));
     }
-    for (i=128; i<256; i++)
+    for (i = 128; i < 256; i++)
     {
         j = ((255 - i) >> 4);
-        *data++ = ((((1 << j) -1) << ULAW_LD_LINEAR_SIZE) + ((15-(i&15)) << (j + ULAW_LD_LINEAR_SIZE - 4)));
+        *data++ = ((((1 << j) - 1) << ULAW_LD_LINEAR_SIZE) + ((15 - (i & 15)) << (j + ULAW_LD_LINEAR_SIZE - 4)));
     }
 
     /*for (i=0; i<32; i++)
@@ -419,7 +467,7 @@ void soundPlayer::ensureLinearTable(void)
     }*/
 }
 
-char *soundPlayer::ensureConvBuff(int size)
+char* soundPlayer::ensureConvBuff(int size)
 {
     if (convBuff == NULL)
     {
@@ -438,7 +486,7 @@ char *soundPlayer::ensureConvBuff(int size)
     return convBuff;
 }
 
-char *soundPlayer::ensureSampleBuff(int size)
+char* soundPlayer::ensureSampleBuff(int size)
 {
     if (buffer == NULL)
     {
@@ -457,7 +505,7 @@ char *soundPlayer::ensureSampleBuff(int size)
     return buffer;
 }
 
-const char *soundPlayer::ensureSamplesForDevice(const char *source, int len)
+const char* soundPlayer::ensureSamplesForDevice(const char* source, int len)
 {
     int needSize;
     int needSamples;
@@ -467,7 +515,10 @@ const char *soundPlayer::ensureSamplesForDevice(const char *source, int len)
     cout << "soundPlayer::ensureSamplesForDevice" << endl;
 #endif
 
-    if (format == devFormat) return source;
+    if (format == devFormat)
+    {
+        return source;
+    }
 
     needSamples = len * channels;
     needSize = len * devSampSize;
@@ -477,131 +528,158 @@ const char *soundPlayer::ensureSamplesForDevice(const char *source, int len)
     // Device is 8 bit signed linear (mean at 0)
     if (devFormat == rsf_lin8)
     {
-        signed char *dest = (signed char*)convBuff;
+        signed char* dest = (signed char*)convBuff;
 
         if (format == rsf_ulin8)
         {
-            const unsigned char *src = (const unsigned char*)source;
+            const unsigned char* src = (const unsigned char*)source;
 
-            for (i=0; i<needSamples; i++) dest[i] = (signed char)(src[i] - 0x80);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (signed char)(src[i] - 0x80);
+            }
         }
         else if (format == rsf_ulaw8)
         {
-            const unsigned char *src = (const unsigned char*)source;
+            const unsigned char* src = (const unsigned char*)source;
 
             ensureLinearTable();
-            for (i=0; i<needSamples; i++) dest[i] = (signed char)(UlawToLin[src[i]] >> 8);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (signed char)(UlawToLin[src[i]] >> 8);
+            }
         }
         else if (format == rsf_lin16)
         {
-            const short *src = (const short *)source;
+            const short* src = (const short*)source;
 
-            for (i=0; i<needSamples; i++) dest[i] = (signed char)(src[i] >> 8);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (signed char)(src[i] >> 8);
+            }
         }
     }
     // Device is 8 bit unsigned linear (mean at 0x80)
     else if (devFormat == rsf_ulin8)
     {
-        unsigned char *dest = (unsigned char*)convBuff;
+        unsigned char* dest = (unsigned char*)convBuff;
 
         if (format == rsf_lin8)
         {
-            const signed char *src = (const signed char*)source;
+            const signed char* src = (const signed char*)source;
 
-            for (i=0; i<needSamples; i++) dest[i] = (unsigned char)(src[i]) + 0x80;
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (unsigned char)(src[i]) + 0x80;
+            }
         }
         else if (format == rsf_ulaw8)
         {
-            const unsigned char *src = (const unsigned char*)source;
+            const unsigned char* src = (const unsigned char*)source;
 
             ensureLinearTable();
-            for (i=0; i<needSamples; i++) dest[i] = (unsigned char)((UlawToLin[src[i]] >> 8) + 0x80);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (unsigned char)((UlawToLin[src[i]] >> 8) + 0x80);
+            }
         }
         else if (format == rsf_lin16)
         {
-            const short *src = (const short*)source;
+            const short* src = (const short*)source;
 
-            for (i=0; i<needSamples; i++) dest[i] = (short)((src[i] >> 8) + 0x80);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (short)((src[i] >> 8) + 0x80);
+            }
         }
     }
     // Device is 8 bit ulaw
     else if (devFormat == rsf_ulaw8)
     {
-        unsigned char *dest = (unsigned char*)convBuff;
+        unsigned char* dest = (unsigned char*)convBuff;
 
         if (format == rsf_lin8)
         {
-            const signed char *src = (const signed char*)source;
+            const signed char* src = (const signed char*)source;
             short val;
 
             ensureUlawTable(8);
 
-            for (i=0; i<needSamples; i++)
+            for (i = 0; i < needSamples; i++)
             {
                 val = (src[i] << 8);
-                dest[i] = LinToUlaw[(1<<(ldUlawSize-1)) + (val >> (16 - ldUlawSize))];
+                dest[i] = LinToUlaw[(1 << (ldUlawSize - 1)) + (val >> (16 - ldUlawSize))];
             }
         }
         else if (format == rsf_ulin8)
         {
-            const unsigned char *src = (const unsigned char*)source;
+            const unsigned char* src = (const unsigned char*)source;
             short val;
 
             ensureUlawTable(8);
 
-            for (i=0; i<needSamples; i++)
+            for (i = 0; i < needSamples; i++)
             {
                 val = (src[i] << 8) - 0x8000;
-                dest[i] = LinToUlaw[(1<<(ldUlawSize-1)) + (val >> (16 - ldUlawSize))];
+                dest[i] = LinToUlaw[(1 << (ldUlawSize - 1)) + (val >> (16 - ldUlawSize))];
             }
         }
         else if (format == rsf_lin16)
         {
-            const short *src = (const short*)source;
+            const short* src = (const short*)source;
             short val;
 
             ensureUlawTable(14);
 
-            for (i=0; i<needSamples; i++)
+            for (i = 0; i < needSamples; i++)
             {
                 val = src[i];
-                dest[i] = LinToUlaw[(1<<(ldUlawSize-1)) + (val >> (16 - ldUlawSize))];
+                dest[i] = LinToUlaw[(1 << (ldUlawSize - 1)) + (val >> (16 - ldUlawSize))];
             }
         }
     }
     // Device is 16 bit linear
     else if (devFormat == rsf_lin16)
     {
-        short *dest = (short*)convBuff;
+        short* dest = (short*)convBuff;
 
         if (format == rsf_lin8)
         {
-            const signed char *src = (const signed char*)source;
+            const signed char* src = (const signed char*)source;
 
-            for (i=0; i<needSamples; i++) dest[i] = (short)(src[i] << 8);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (short)(src[i] << 8);
+            }
         }
         else if (format == rsf_ulin8)
         {
-            const unsigned char *src = (const unsigned char*)source;
+            const unsigned char* src = (const unsigned char*)source;
 
-            for (i=0; i<needSamples; i++) dest[i] = (short)((src[i] << 8) - 0x8000);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (short)((src[i] << 8) - 0x8000);
+            }
         }
         else if (format == rsf_ulaw8)
         {
-            const unsigned char *src = (const unsigned char *)source;
+            const unsigned char* src = (const unsigned char*)source;
 
             ensureLinearTable();
-            for (i=0; i<needSamples; i++) dest[i] = (short)(UlawToLin[src[i]]);
+            for (i = 0; i < needSamples; i++)
+            {
+                dest[i] = (short)(UlawToLin[src[i]]);
+            }
         }
     }
 
     return convBuff;
 }
 
-const char *soundPlayer::ensureSamples(int &num)
+const char* soundPlayer::ensureSamples(int& num)
 {
-    const char *result;
-    char *b;
+    const char* result;
+    char* b;
 
     if (sampleFile != NULL)
     {
@@ -644,7 +722,10 @@ const char *soundPlayer::ensureSamples(int &num)
     {
         if (loopMode == 0)
         {
-            if (num + dataOffset > inLength) num = inLength - dataOffset;
+            if (num + dataOffset > inLength)
+            {
+                num = inLength - dataOffset;
+            }
             result = (char*)inData + dataOffset * sampleSize;
             dataOffset += num;
         }
@@ -658,10 +739,16 @@ const char *soundPlayer::ensureSamples(int &num)
             while (total > 0)
             {
                 dsize = inLength - dataOffset;
-                if (dsize > total) dsize = total;
+                if (dsize > total)
+                {
+                    dsize = total;
+                }
                 memcpy(b, inData + dataOffset * sampleSize, dsize * sampleSize);
                 dataOffset += dsize;
-                if (dataOffset >= inLength) dataOffset = 0;
+                if (dataOffset >= inLength)
+                {
+                    dataOffset = 0;
+                }
                 b += dsize * sampleSize;
                 total -= dsize;
             }
@@ -687,7 +774,10 @@ const char *soundPlayer::ensureSamples(int &num)
 int soundPlayer::handleOutOfData(int dataSize)
 {
     // If there is data, do nothing.
-    if (dataSize > 0) return 0;
+    if (dataSize > 0)
+    {
+        return 0;
+    }
 
 #ifdef __VISUALC__
     // On Windows we have to make sure both buffers are played to the end.
@@ -719,7 +809,7 @@ int soundPlayer::playbackSetPosition(int position)
         }
         else
         {
-            dataOffset = (position < inLength) ? position : inLength-1;
+            dataOffset = (position < inLength) ? position : inLength - 1;
         }
     }
     return oldPosition;
@@ -740,7 +830,7 @@ void soundPlayer::freeWaveHeaders(void)
 {
     int i;
 
-    for (i=0; i<RVIEW_SND_BUFFERS; i++)
+    for (i = 0; i < RVIEW_SND_BUFFERS; i++)
     {
         if (waveHdrs[i].lpData != NULL)
         {
@@ -845,9 +935,9 @@ int soundPlayer::configureDevice(int frq, int ch, int len, rviewSoundFormat fmt,
     waveFmt.wFormatTag = WAVE_FORMAT_PCM;
     waveFmt.nChannels = channels;
     waveFmt.nSamplesPerSec = frequency;
-    waveFmt.nAvgBytesPerSec = 2*channels*frequency;
-    waveFmt.nBlockAlign = 2*channels;
-    waveFmt.wBitsPerSample = 16*channels;
+    waveFmt.nAvgBytesPerSec = 2 * channels * frequency;
+    waveFmt.nBlockAlign = 2 * channels;
+    waveFmt.wBitsPerSample = 16 * channels;
     waveFmt.cbSize = 0;
 
     int i;
@@ -861,7 +951,7 @@ int soundPlayer::configureDevice(int frq, int ch, int len, rviewSoundFormat fmt,
 
     freeWaveHeaders();
 
-    for (i=0; i<RVIEW_SND_BUFFERS; i++)
+    for (i = 0; i < RVIEW_SND_BUFFERS; i++)
     {
         waveHdrs[i].lpData = (LPSTR)(new char[samplesWriteahead * devSampSize]);
         waveHdrs[i].dwBufferLength = (DWORD)(samplesWriteahead * devSampSize);
@@ -906,7 +996,10 @@ int soundPlayer::setTimerInterval(unsigned int ti)
     {
         if (timerID != 0)
         {
-            if (!KillTimer(NULL, timerID)) return 1;
+            if (!KillTimer(NULL, timerID))
+            {
+                return 1;
+            }
             timerID = 0;
         }
     }
@@ -915,8 +1008,11 @@ int soundPlayer::setTimerInterval(unsigned int ti)
         // ti is in us!
         if (timerID == 0)
         {
-            timerID = SetTimer(NULL, 1, (UINT)ti/1000, (TIMERPROC)handle_sound_timer);
-            if (timerID == 0) return 1;
+            timerID = SetTimer(NULL, 1, (UINT)ti / 1000, (TIMERPROC)handle_sound_timer);
+            if (timerID == 0)
+            {
+                return 1;
+            }
         }
     }
 
@@ -957,7 +1053,10 @@ int soundPlayer::startTimer(int ap)
     cout << "soundPlayer::startTimer" << endl;
 #endif
 
-    if (timerActive) return -1;
+    if (timerActive)
+    {
+        return -1;
+    }
 
     if (ap != 0)
     {
@@ -992,7 +1091,10 @@ int soundPlayer::startTimer(int ap)
 
 int soundPlayer::stopTimer(int ap)
 {
-    if (!timerActive) return -1;
+    if (!timerActive)
+    {
+        return -1;
+    }
 
     setTimerInterval(0);
     timerActive = FALSE;
@@ -1074,7 +1176,7 @@ void soundPlayer::writeSamples(void)
         num = samplesWriteahead;
         if (num != 0)
         {
-            const char *newSamples;
+            const char* newSamples;
 
 #ifdef SOUND_PLAYER_DEBUG
             cout << "samples " << num << ", device " << endl;
@@ -1088,7 +1190,10 @@ void soundPlayer::writeSamples(void)
                 fprintf(debugfd, "need %d, buff %d, flags %x\n", num, bsize, waveHdrs[currentHeader].dwFlags);
 #endif
                 // If the buffer is still being used we do nothing.
-                if ((waveHdrs[currentHeader].dwFlags & (WHDR_INQUEUE | WHDR_DONE)) != WHDR_DONE) return;
+                if ((waveHdrs[currentHeader].dwFlags & (WHDR_INQUEUE | WHDR_DONE)) != WHDR_DONE)
+                {
+                    return;
+                }
 #ifdef SOUND_DEBUG_FILE
                 fprintf(debugfd, "fill Buffer %d\n", currentHeader);
 #endif
@@ -1106,7 +1211,10 @@ void soundPlayer::writeSamples(void)
                 }
                 waveOutWrite(waveOut, waveHdrs + currentHeader, sizeof(WAVEHDR));
                 currentHeader++;
-                if (currentHeader >= RVIEW_SND_BUFFERS) currentHeader = 0;
+                if (currentHeader >= RVIEW_SND_BUFFERS)
+                {
+                    currentHeader = 0;
+                }
                 samplesWritten += samplesWriteahead;
 #else
                 write(audioDevice, newSamples, num * devSampSize);
@@ -1141,13 +1249,13 @@ const rviewSoundPlayer::format_desc rviewSoundPlayer::soundFormatDesc[] =
  *  rviewSoundPlayer: sound player widget, platform independent.
  */
 
-rviewSoundPlayer::rviewSoundPlayer(mdd_frame *mf, unsigned int flags) : rviewDisplay(mf, sound_ctrly, flags)
+rviewSoundPlayer::rviewSoundPlayer(mdd_frame* mf, unsigned int flags) : rviewDisplay(mf, sound_ctrly, flags)
 {
     int w, h;
     char buffer[STRINGSIZE];
-    char **latStr, **fmtStr;
+    char** latStr, **fmtStr;
     int fnumLin8, fnumUlaw8, fnumLin16;
-    char *b;
+    char* b;
     int i;
 
 #if 0
@@ -1160,15 +1268,15 @@ rviewSoundPlayer::rviewSoundPlayer(mdd_frame *mf, unsigned int flags) : rviewDis
         //#define SAMPLE_NAME "cyber.sam"
         interv << r_Sinterval(r_Range(0), r_Range(77071));
 #define SAMPLE_NAME "willy.sam"
-        r_Ref<r_Marray<r_Octet> > mddPtr = new r_Marray<r_Octet>(interv);
+        r_Ref<r_Marray<r_Octet>> mddPtr = new r_Marray<r_Octet>(interv);
         mddPtr->set_type_by_name("OctetString");
         sprintf(buffer, "marray <octet, [0:%d]>", interv[0].high());
         mddPtr->set_type_structure(buffer);
-        char *data = mddPtr->get_array();
+        char* data = mddPtr->get_array();
 #ifdef __VISUALC__
-        FILE *fp = fopen("Z:\\dehmel\\rview\\samples\\" SAMPLE_NAME, "rb");
+        FILE* fp = fopen("Z:\\dehmel\\rview\\samples\\" SAMPLE_NAME, "rb");
 #else
-        FILE *fp = fopen("samples" DIR_SEPARATOR SAMPLE_NAME, "rb");
+        FILE* fp = fopen("samples" DIR_SEPARATOR SAMPLE_NAME, "rb");
 #endif
         if (fp != NULL)
         {
@@ -1210,7 +1318,7 @@ rviewSoundPlayer::rviewSoundPlayer(mdd_frame *mf, unsigned int flags) : rviewDis
     fnumLin8 = 0;
     fnumUlaw8 = 0;
     fnumLin16 = 0;
-    for (i=0; soundFormatDesc[i].labelName != NULL; i++)
+    for (i = 0; soundFormatDesc[i].labelName != NULL; i++)
     {
         switch (soundFormatDesc[i].fmt)
         {
@@ -1227,32 +1335,40 @@ rviewSoundPlayer::rviewSoundPlayer(mdd_frame *mf, unsigned int flags) : rviewDis
             break;
         }
     }
-    fmtStr = new char *[i];
-    for (i=0; soundFormatDesc[i].labelName != NULL; i++)
+    fmtStr = new char* [i];
+    for (i = 0; soundFormatDesc[i].labelName != NULL; i++)
+    {
         fmtStr[i] = lman->lookup(soundFormatDesc[i].labelName);
+    }
     fmtWidget = new rviewChoice(ctrlPanel, i, fmtStr, lman->lookup("soundFormat"));
     delete [] fmtStr;
 
     latencies = new int[sound_latencies];
-    for (i=0; i<sound_latencies; i++) latencies[i] = 50 * (i+1);
-    latStr = new char *[sound_latencies];
+    for (i = 0; i < sound_latencies; i++)
+    {
+        latencies[i] = 50 * (i + 1);
+    }
+    latStr = new char* [sound_latencies];
     b = buffer;
-    for (i=0; i<sound_latencies; i++)
+    for (i = 0; i < sound_latencies; i++)
     {
         latStr[i] = b;
         b += 1 + sprintf(b, "%dms", latencies[i]);
     }
     latWidget = new rviewChoice(ctrlPanel, i, latStr, lman->lookup("soundLatency"));
     delete [] latStr;
-    for (i=0; i<sound_latencies-1; i++)
+    for (i = 0; i < sound_latencies - 1; i++)
     {
-        if ((latencies[i] <= latency) && (latencies[i+1] > latency)) break;
+        if ((latencies[i] <= latency) && (latencies[i + 1] > latency))
+        {
+            break;
+        }
     }
     latWidget->SetSelection(i);
 
     b = projString;
     b += sprintf(b, "*:*");
-    for (i=1; i<dimMDD; i++)
+    for (i = 1; i < dimMDD; i++)
     {
         b += sprintf(b, ", %ld", interv[i].low());
     }
@@ -1283,7 +1399,10 @@ rviewSoundPlayer::rviewSoundPlayer(mdd_frame *mf, unsigned int flags) : rviewDis
     }
     break;
     }
-    if (currentFormat >= 0) fmtWidget->SetSelection(currentFormat);
+    if (currentFormat >= 0)
+    {
+        fmtWidget->SetSelection(currentFormat);
+    }
 }
 
 
@@ -1307,8 +1426,8 @@ int rviewSoundPlayer::openViewer(void)
 
         label();
 
-        frameWidth=-1;
-        frameHeight=-1;
+        frameWidth = -1;
+        frameHeight = -1;
 
         OnSize(w, h);
         OnSize(w, h);
@@ -1328,17 +1447,17 @@ rviewSoundPlayer::~rviewSoundPlayer(void)
     if (latencies)
     {
         delete [] latencies;
-        latencies=0;
+        latencies = 0;
     }
     if (sampleBuffer)
     {
         delete [] sampleBuffer;
-        sampleBuffer=0;
+        sampleBuffer = 0;
     }
 }
 
 
-const char *rviewSoundPlayer::getFrameName(void) const
+const char* rviewSoundPlayer::getFrameName(void) const
 {
     return "rviewSoundPlayer";
 }
@@ -1388,7 +1507,7 @@ void rviewSoundPlayer::label(void)
     rviewDisplay::label();
 }
 
-int rviewSoundPlayer::process(wxObject &obj, wxEvent &evt)
+int rviewSoundPlayer::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
@@ -1453,7 +1572,7 @@ int rviewSoundPlayer::process(wxObject &obj, wxEvent &evt)
             if ((poff = player.playbackGetOffset()) >= 0)
             {
                 soff = slider->GetValue();
-                if (soff != poff/frequency)
+                if (soff != poff / frequency)
                 {
                     player.playbackSetPosition(soff * frequency);
                 }
@@ -1496,7 +1615,7 @@ void rviewSoundPlayer::OnSize(int w, int h)
     GetClientSize(&x, &y);
 
     //need to resize?
-    if (( sound_width != x) || ( sound_height != y))
+    if ((sound_width != x) || (sound_height != y))
     {
         frameWidth =  sound_width;
         frameHeight =  sound_height;
@@ -1507,7 +1626,7 @@ void rviewSoundPlayer::OnSize(int w, int h)
     }
 
 
-    d = (x - 7*display_border) / 6;
+    d = (x - 7 * display_border) / 6;
     posx = display_border;
     posy = display_border + display_cheight;
     toStart->SetSize(posx, posy, d, sound_bheight);
@@ -1523,12 +1642,12 @@ void rviewSoundPlayer::OnSize(int w, int h)
     pbLoop->SetSize(posx, posy, d, sound_bheight);
     posx = display_border;
     posy += sound_bheight + display_border;
-    d = (x - 4*display_border) / 3;
+    d = (x - 4 * display_border) / 3;
     frqWidget->SetSize(posx, posy, d, sound_theight);
-    fmtWidget->SetSize(posx + d + display_border, posy, 6*d/9, sound_cheight);
-    latWidget->SetSize(posx + 2*(d + display_border), posy, 5*d/9, sound_cheight);
-    posy += sound_theight + 2*display_border;
-    slider->SetSize(display_border, posy, x - 2*display_border, sound_theight);
+    fmtWidget->SetSize(posx + d + display_border, posy, 6 * d / 9, sound_cheight);
+    latWidget->SetSize(posx + 2 * (d + display_border), posy, 5 * d / 9, sound_cheight);
+    posy += sound_theight + 2 * display_border;
+    slider->SetSize(display_border, posy, x - 2 * display_border, sound_theight);
 }
 
 
@@ -1540,8 +1659,14 @@ int rviewSoundPlayer::newProjection(void)
     if (playbackOn)
     {
         player.playbackStop();
-        if (buildSample() != 0) return -1;
-        if (newSample() != 0) return -1;    // implicitly does playbackResume()
+        if (buildSample() != 0)
+        {
+            return -1;
+        }
+        if (newSample() != 0)
+        {
+            return -1;    // implicitly does playbackResume()
+        }
     }
     else
     {
@@ -1562,7 +1687,7 @@ void rviewSoundPlayer::prepareToDie(void)
 int rviewSoundPlayer::newSample(void)
 {
     int fmt;
-    int status=0;
+    int status = 0;
 
     LTRACE << "newSample()";
 
@@ -1576,13 +1701,13 @@ int rviewSoundPlayer::newSample(void)
         status = player.newSample(frequency, channels, (signed char*)sampleBuffer, sampleLength, rsf_lin8, latency);
         break;
     case 1:
-        status = player.newSample(frequency, channels, (unsigned char *)sampleBuffer, sampleLength, rsf_ulin8, latency);
+        status = player.newSample(frequency, channels, (unsigned char*)sampleBuffer, sampleLength, rsf_ulin8, latency);
         break;
     case 2:
-        status = player.newSample(frequency, channels, (unsigned char *)sampleBuffer, sampleLength, rsf_ulin8, latency);
+        status = player.newSample(frequency, channels, (unsigned char*)sampleBuffer, sampleLength, rsf_ulin8, latency);
         break;
     case 3:
-        status = player.newSample(frequency, channels, (short *)sampleBuffer, sampleLength, rsf_lin16, latency);
+        status = player.newSample(frequency, channels, (short*)sampleBuffer, sampleLength, rsf_lin16, latency);
         break;
     default:
     {
@@ -1609,11 +1734,11 @@ int rviewSoundPlayer::buildSample(void)
     int stepx, stepy;
     union
     {
-        char *c;
-        short *s;
+        char* c;
+        short* s;
     } src, dest, srcBase;
-    r_Ref<r_Marray<r_Char> > mddPtr = (r_Ref<r_Marray<r_Char> >)mddObj;
-    char *base;
+    r_Ref<r_Marray<r_Char>> mddPtr = (r_Ref<r_Marray<r_Char>>)mddObj;
+    char* base;
     int i;
 
     LTRACE << "buildSample()";
@@ -1627,8 +1752,14 @@ int rviewSoundPlayer::buildSample(void)
 
     dim1 = dimMDD;
     dim2 = dimMDD;
-    for (dim1=0; dim1<dimMDD; dim1++) if ((freeDims & (1<<dim1)) != 0) break;
-    for (dim2=dim1+1; dim2<dimMDD; dim2++) if ((freeDims & (1<<dim2)) != 0) break;
+    for (dim1 = 0; dim1 < dimMDD; dim1++) if ((freeDims & (1 << dim1)) != 0)
+        {
+            break;
+        }
+    for (dim2 = dim1 + 1; dim2 < dimMDD; dim2++) if ((freeDims & (1 << dim2)) != 0)
+        {
+            break;
+        }
 
     sampleLength = pt2[dim1] - pt1[dim1] + 1;
 
@@ -1643,7 +1774,7 @@ int rviewSoundPlayer::buildSample(void)
 
     r_Point paux(pt1);
     paux[dim1]++;
-    stepx = (int)(&((*mddPtr)[paux]) - &((*mddPtr)[pt1]));
+    stepx = (int)(&((*mddPtr)[paux]) - & ((*mddPtr)[pt1]));
 
     // One channel or multiple ones?
     if (dim2 >= dimMDD)
@@ -1655,7 +1786,7 @@ int rviewSoundPlayer::buildSample(void)
         {
         case 1:
         {
-            for (i=0; i<sampleLength; i++, src.c += stepx)
+            for (i = 0; i < sampleLength; i++, src.c += stepx)
             {
                 *dest.c++ = *src.c;
             }
@@ -1663,7 +1794,7 @@ int rviewSoundPlayer::buildSample(void)
         break;
         case 2:
         {
-            for (i=0; i<sampleLength; i++, src.s += stepx)
+            for (i = 0; i < sampleLength; i++, src.s += stepx)
             {
                 *dest.s++ = *src.s;
             }
@@ -1679,7 +1810,7 @@ int rviewSoundPlayer::buildSample(void)
 
         paux[dim1] = pt1[dim1];
         paux[dim2]++;
-        stepy = (int)(&((*mddPtr)[paux]) - &((*mddPtr)[pt1]));
+        stepy = (int)(&((*mddPtr)[paux]) - & ((*mddPtr)[pt1]));
 
         channels = pt2[dim2] - pt1[dim2] + 1;
         sampleBuffer = (void*)(new char[sampleLength * typeLength * channels]);
@@ -1691,9 +1822,9 @@ int rviewSoundPlayer::buildSample(void)
         {
         case 1:
         {
-            for (i=0; i<sampleLength; i++, srcBase.c += stepx)
+            for (i = 0; i < sampleLength; i++, srcBase.c += stepx)
             {
-                for (j=0, src.c = srcBase.c; j<channels; j++, src.c += stepy)
+                for (j = 0, src.c = srcBase.c; j < channels; j++, src.c += stepy)
                 {
                     *dest.c++ = *src.c;
                 }
@@ -1702,9 +1833,9 @@ int rviewSoundPlayer::buildSample(void)
         break;
         case 2:
         {
-            for (i=0; i<sampleLength; i++, srcBase.c += stepx)
+            for (i = 0; i < sampleLength; i++, srcBase.c += stepx)
             {
-                for (j=0, src.s = srcBase.s; j<channels; j++, src.s += stepy)
+                for (j = 0, src.s = srcBase.s; j < channels; j++, src.s += stepy)
                 {
                     *dest.s++ = *src.s;
                 }
@@ -1724,11 +1855,17 @@ int rviewSoundPlayer::startPlayback(void)
     int offset;
 
     // no reentrancy
-    if (playbackOn) return -1;
+    if (playbackOn)
+    {
+        return -1;
+    }
 
     if (sampleBuffer == NULL)
     {
-        if (buildSample() != 0) return -1;
+        if (buildSample() != 0)
+        {
+            return -1;
+        }
     }
 
     newSample();
@@ -1745,7 +1882,10 @@ int rviewSoundPlayer::startPlayback(void)
             lastOffset = offset;
         }
         ::wxYield();
-        if (!playbackOn) break;
+        if (!playbackOn)
+        {
+            break;
+        }
     }
     if (offset < 0)
     {
@@ -1773,14 +1913,14 @@ int rviewSoundPlayer::stopPlayback(void)
 #else
 
 // Testbed
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    FILE *infile;
-    soundPlayer *sp;
+    FILE* infile;
+    soundPlayer* sp;
 #ifdef __VISUALC__
-    char *lumpname = "samples\\death.sam";
+    char* lumpname = "samples\\death.sam";
 #else
-    char *lumpname = "samples/death.sam";
+    char* lumpname = "samples/death.sam";
 #endif
     int offset, lastOffset;
     int frequency;

@@ -58,23 +58,23 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
     public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException {
         String[] coverageIds = request.getCoverageId().split(COVERAGE_IDS_SEPARATOR);
         //check that all the ids exist
-        for (String coverageId : coverageIds){
+        for (String coverageId : coverageIds) {
             checkCoverageId(coverageId);
         }
         //delete all of them
-        for (String coverageId : coverageIds) {            
-            try {                                
+        for (String coverageId : coverageIds) {
+            try {
                 CoverageMetadata coverage = this.meta.read(coverageId);
                 // delete metadata
                 this.meta.delete(coverage);
-                
+
                 // delete WMS layer of this coverageID
                 this.deleteFromWMS(coverageId);
-                
+
                 // delete the rasdaman coverage
                 try {
                     deleteFromRasdaman(coverage);
-                } catch (RasdamanException e){
+                } catch (RasdamanException e) {
                     //rollback the metadata transaction
                     this.meta.abortAndClose();
                     throw e;
@@ -91,11 +91,11 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
                 throw new PetascopeException(ExceptionCode.InternalWMSError);
             }
         }
-        return new Response(new String[]{""});
+        return new Response(new String[] {""});
     }
 
-    private void checkCoverageId(String coverageId) throws WCSException{
-        if (!meta.existsCoverageName(coverageId)){
+    private void checkCoverageId(String coverageId) throws WCSException {
+        if (!meta.existsCoverageName(coverageId)) {
             throw new WCSException(ExceptionCode.NoSuchCoverage, coverageId);
         }
     }
@@ -104,7 +104,7 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         Pair<BigInteger, String> collection = coverage.getRasdamanCollection();
         RasUtil.deleteFromRasdaman(collection.fst, collection.snd);
     }
-    
+
     /**
      * When delete a coverage from WCS, it will need to delete the existing WMS layer as well.
      * @param coverageId the layerID from WMS service to delete
@@ -116,6 +116,6 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
     }
 
     private final static String COVERAGE_IDS_SEPARATOR = ",";
-    
+
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DeleteCoverageHandler.class);
 }

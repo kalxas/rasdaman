@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
 public class WCSTRangeFieldNameMismatchException extends WCSTException {
     public WCSTRangeFieldNameMismatchException(String currentBandName, String inputBandName) {
         super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$currentBandName", currentBandName)
-                .replace("$inputBandName", inputBandName));
+              .replace("$inputBandName", inputBandName));
     }
 
     private static final String EXCEPTION_TEXT = "Band (swe:field element) name mismatch, found $currentBandName in " +

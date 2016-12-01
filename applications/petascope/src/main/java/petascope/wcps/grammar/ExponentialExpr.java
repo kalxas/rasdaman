@@ -64,8 +64,8 @@ public class ExponentialExpr implements IParseTreeNode {
         result += coverageExpr.toXML();
         if (powerArg != null) {
             result += "<" + WcpsConstants.MSG_NUMERIC_CONSTANT + ">" +
-                    powerArg +
-                    "</" + WcpsConstants.MSG_NUMERIC_CONSTANT + ">";
+                      powerArg +
+                      "</" + WcpsConstants.MSG_NUMERIC_CONSTANT + ">";
         }
         result += "</" + expOperator + ">";
         return result;

@@ -129,7 +129,7 @@ private:
     akg::CommBuffer headerBuffer;
     akg::CommBuffer rnpMessageBuffer;
 
-    RnpHeader *rnpHeader;
+    RnpHeader* rnpHeader;
 
     RnpTransport::CarrierProtocol carrier;
     int               carrierHeaderLength;

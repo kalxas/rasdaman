@@ -62,8 +62,8 @@ using namespace std;
 #include "libpq/libpq-fs.h"     /* large object (lo) api */
 // libq-style connection ptr taken from ECPG connect (needed for libq functions):
 // (currently used by relblobif/blobtile.pgc)
-PGconn *pgConn = NULL;
-PGresult *pgResult = NULL;
+PGconn* pgConn = NULL;
+PGresult* pgResult = NULL;
 
 #define RC_OK 0
 #define RC_ERROR -1
@@ -73,66 +73,66 @@ static char pgQuery[QUERYSIZE];
 
 void exitNicely()
 {
-    PQclear( pgResult );
-    (void) PQexec( pgConn, "ROLLBACK WORK" );
-    PQfinish( pgConn );
-    exit( RC_ERROR );
+    PQclear(pgResult);
+    (void) PQexec(pgConn, "ROLLBACK WORK");
+    PQfinish(pgConn);
+    exit(RC_ERROR);
 }
 
 
 void
 disconnect()
 {
-    pgResult = PQexec( pgConn, "ROLLBACK WORK" );
+    pgResult = PQexec(pgConn, "ROLLBACK WORK");
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
         cerr << "error during disconnect: " << PQerrorMessage(pgConn) << endl << flush;
-        PQclear( pgResult );
-        exit( RC_ERROR );
+        PQclear(pgResult);
+        exit(RC_ERROR);
     }
-    PQclear( pgResult );
+    PQclear(pgResult);
 
-    PQfinish( pgConn );
+    PQfinish(pgConn);
     pgConn = NULL;
 }
 
 void
-connect( const char * db )
+connect(const char* db)
 {
     char pgConnInfo[200];
 
-    (void) snprintf( pgConnInfo, (size_t) sizeof(pgConnInfo), "dbname = %s", db );
-    pgConn = PQconnectdb( pgConnInfo );
+    (void) snprintf(pgConnInfo, (size_t) sizeof(pgConnInfo), "dbname = %s", db);
+    pgConn = PQconnectdb(pgConnInfo);
     if (PQstatus(pgConn) != CONNECTION_OK)
     {
         cerr << "error during connect: " << PQerrorMessage(pgConn) << endl << flush;
         exitNicely();
     }
 
-    pgResult = PQexec( pgConn, "BEGIN TRANSACTION" );
+    pgResult = PQexec(pgConn, "BEGIN TRANSACTION");
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
         cerr << "error during being ta: " << PQerrorMessage(pgConn) << endl << flush;
-        PQclear( pgResult );
-        exit( RC_ERROR );
+        PQclear(pgResult);
+        exit(RC_ERROR);
     }
-    PQclear( pgResult );
+    PQclear(pgResult);
 
 }
 
 // read one tuple from ras_tiles, identified by myOId, and display it (with contents if withDump==true)
 void
-readFromDb( long myOId, bool withDump )
+readFromDb(long myOId, bool withDump)
 {
     unsigned int blobOid = 0;
     short dataFormat = 0;
     unsigned long size = 0;
-    char *cells = NULL;
+    char* cells = NULL;
 
     // (1) --- access tuple
-    int result = snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT Tile, DataFormat FROM RAS_TILES WHERE BlobId = %d", myOId );
+    int result = snprintf(pgQuery, (size_t) sizeof(pgQuery), "SELECT Tile, DataFormat FROM RAS_TILES WHERE BlobId = %d", myOId);
 
-    pgResult = PQexec( pgConn, pgQuery );
+    pgResult = PQexec(pgConn, pgQuery);
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
     {
         cerr << "error during 'select': " << PQerrorMessage(pgConn) << endl << flush;
@@ -144,21 +144,21 @@ readFromDb( long myOId, bool withDump )
         exitNicely();
     }
 
-    blobOid    = atoi( PQgetvalue( pgResult, 0, 0 ) );
-    dataFormat = atoi( PQgetvalue( pgResult, 0, 1 ) );
-    PQclear( pgResult );
+    blobOid    = atoi(PQgetvalue(pgResult, 0, 0));
+    dataFormat = atoi(PQgetvalue(pgResult, 0, 1));
+    PQclear(pgResult);
 
     // (2) --- open, read, close blob
-    int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
-    size = lo_lseek( pgConn, fd, 0, SEEK_END );     // determine blob size; FIXME: more efficient method??
-    (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
-    cells = (char*) mymalloc( size * sizeof(char) );    // allocate buffer for blob
+    int fd = lo_open(pgConn, blobOid, INV_READ);        // open; manual tells no error indication
+    size = lo_lseek(pgConn, fd, 0, SEEK_END);       // determine blob size; FIXME: more efficient method??
+    (void) lo_lseek(pgConn, fd, 0, SEEK_SET);       // rewind for reading
+    cells = (char*) mymalloc(size * sizeof(char));      // allocate buffer for blob
     if (cells == NULL)
     {
         cerr << "error during malloc()" << endl << flush;
         exitNicely();
     }
-    int loResult = lo_read( pgConn, fd, cells, size );
+    int loResult = lo_read(pgConn, fd, cells, size);
     if (loResult < 0)
     {
         cerr << "error during lo_read(): " << PQerrorMessage(pgConn) << endl << flush;
@@ -169,13 +169,15 @@ readFromDb( long myOId, bool withDump )
         cerr << "error (did not get all bytes): " << PQerrorMessage(pgConn) << endl << flush;
         exitNicely();
     }
-    int ignoredPgResult = lo_close( pgConn, fd );       // close blob
+    int ignoredPgResult = lo_close(pgConn, fd);         // close blob
 
     if (withDump)
     {
         cout << "   id = " << myOId << ", dataFormat = " << dataFormat << ", bloboid = " << blobOid << ", blob length = " << size << ", contents = ";
         for (int a = 0; a < size; a++)
+        {
             cout << " " << hex << (0xff & (unsigned int)(cells[a])) << dec;
+        }
         cout << dec << endl;
     }
     else
@@ -183,22 +185,22 @@ readFromDb( long myOId, bool withDump )
         cout << "   id = " << myOId << ", dataFormat = " << dataFormat << ", bloboid = " << blobOid << ", blob length = " << size << endl;
     }
 
-    free( cells );
+    free(cells);
 }
 
 // read all tuples from ras_tiles and display them (with contents if withDump==true)
 void
-readAllFromDb( bool withDump )
+readAllFromDb(bool withDump)
 {
     unsigned int blobOid;
     long myId;
     short dataFormat;
     unsigned long size = 0;
-    char *cells = NULL;
+    char* cells = NULL;
     int rowNumber = 0;
 
     // (1) --- declare cursor
-    pgResult = PQexec( pgConn, "SELECT BlobId, Tile, DataFormat FROM RAS_TILES" );
+    pgResult = PQexec(pgConn, "SELECT BlobId, Tile, DataFormat FROM RAS_TILES");
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK && PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
         cerr << "error during 'declare cursor': " << PQerrorMessage(pgConn) << endl << flush;
@@ -207,21 +209,21 @@ readAllFromDb( bool withDump )
 
     do
     {
-        myId       = atoi( PQgetvalue( pgResult, rowNumber, 0 ) );
-        blobOid    = atoi( PQgetvalue( pgResult, rowNumber, 1 ) );
-        dataFormat = atoi( PQgetvalue( pgResult, rowNumber, 2 ) );
+        myId       = atoi(PQgetvalue(pgResult, rowNumber, 0));
+        blobOid    = atoi(PQgetvalue(pgResult, rowNumber, 1));
+        dataFormat = atoi(PQgetvalue(pgResult, rowNumber, 2));
 
         // (2) --- open, read, close blob
-        int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
-        size = lo_lseek( pgConn, fd, 0, SEEK_END );     // determine blob size; FIXME: more efficient method??
-        (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
-        cells = (char*) mymalloc( size * sizeof(char) );        // allocate buffer for blob
+        int fd = lo_open(pgConn, blobOid, INV_READ);        // open; manual tells no error indication
+        size = lo_lseek(pgConn, fd, 0, SEEK_END);       // determine blob size; FIXME: more efficient method??
+        (void) lo_lseek(pgConn, fd, 0, SEEK_SET);       // rewind for reading
+        cells = (char*) mymalloc(size * sizeof(char));          // allocate buffer for blob
         if (cells == NULL)
         {
             cerr << "error: readFromDb() - no tuples found " << endl;
             return;
         }
-        int loResult = lo_read( pgConn, fd, cells, size );
+        int loResult = lo_read(pgConn, fd, cells, size);
         if (loResult < 0)
         {
             cerr << "error: readFromDb() - no tuples found " << endl;
@@ -232,13 +234,15 @@ readAllFromDb( bool withDump )
             cerr << "error: readFromDb() - no tuples found " << endl;
             return;
         }
-        int ignoredPgResult = lo_close( pgConn, fd );       // close blob
+        int ignoredPgResult = lo_close(pgConn, fd);         // close blob
 
         if (withDump)
         {
             cout << "   id = " << myId << ", dataFormat = " << dataFormat << ", bloboid = " << blobOid << ", blob length = " << size << ", contents = ";
             for (int a = 0; a < size; a++)
+            {
                 cout << " " << hex << (0xff & (unsigned int)(cells[a])) << dec;
+            }
             cout << endl;
         }
         else
@@ -250,12 +254,12 @@ readAllFromDb( bool withDump )
     }
     while (PQresultStatus(pgResult) == PGRES_TUPLES_OK || PQresultStatus(pgResult) == PGRES_COMMAND_OK);
 
-    (void) PQexec( pgConn, "CLOSE TileLoop" );
-    PQclear( pgResult );
-    free( cells );
+    (void) PQexec(pgConn, "CLOSE TileLoop");
+    PQclear(pgResult);
+    free(cells);
 }
 
-void usage(const char *prog)
+void usage(const char* prog)
 {
     cout << "Usage: " << prog << " -d db [-i id] [-c]" << endl;
     cout << "where:" << endl;
@@ -268,7 +272,7 @@ void usage(const char *prog)
 int
 main(int argc, char* argv[])
 {
-    char *prog = argv[0];   // prog name
+    char* prog = argv[0];   // prog name
     char db[100];       // DB connect string
     int blobOid = 0;    // tuple to be dumped
     bool withDump = false;  // by default, don't dump blob contents
@@ -283,14 +287,14 @@ main(int argc, char* argv[])
         switch (c)
         {
         case 'd':
-            (void) strncpy( db, optarg, sizeof(db) );
+            (void) strncpy(db, optarg, sizeof(db));
             break;
         case 'i':
-            result = sscanf( optarg, "%d", &blobOid );
+            result = sscanf(optarg, "%d", &blobOid);
             if (result != 1)
             {
                 cerr << prog << ": positive integer expected: " << optarg << endl;
-                exit( RC_ERROR );
+                exit(RC_ERROR);
             }
             break;
         case 'c':
@@ -300,22 +304,26 @@ main(int argc, char* argv[])
         case '?':
         case ':':
             usage(prog);
-            exit( RC_OK );
+            exit(RC_OK);
             break;
         }
     }
     if (optind < argc || argc == 1)
     {
-        usage( prog );
-        exit( RC_ERROR );
+        usage(prog);
+        exit(RC_ERROR);
     }
 
-    connect( db );
+    connect(db);
 
     if (blobOid > 0)
-        readFromDb( blobOid, withDump );
+    {
+        readFromDb(blobOid, withDump);
+    }
     else
-        readAllFromDb( withDump );
+    {
+        readAllFromDb(withDump);
+    }
 
     disconnect();
 

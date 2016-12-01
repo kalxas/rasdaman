@@ -103,8 +103,8 @@ public class NumericScalarExpr extends AbstractRasNode {
             op = code(nodeName);
             value = node.getFirstChild().getNodeValue();
         } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_COMPLEX_CONSTANT)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_CONDENSE)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_REDUCE)) {
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_CONDENSE)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_REDUCE)) {
             op = code(nodeName);
             twoChildren = false;
             if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_COMPLEX_CONSTANT)) {
@@ -117,15 +117,15 @@ public class NumericScalarExpr extends AbstractRasNode {
                 first = new ReduceScalarExpr(node, xq);
             }
         } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_UNARY_MINUS)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_SQRT)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_ABS)) {
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_SQRT)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_ABS)) {
             op = code(nodeName);
             twoChildren = false;
             first = new NumericScalarExpr(node.getFirstChild(), xq);
         } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_ADD)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MINUS)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MULT)
-                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_DIV)) {
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MINUS)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MULT)
+                   || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_DIV)) {
             try {
                 op = code(nodeName);
                 twoChildren = true;
@@ -159,24 +159,23 @@ public class NumericScalarExpr extends AbstractRasNode {
 
     public String toRasQL() {
         String result = "";
-        if (twoChildren == false)
-        {
+        if (twoChildren == false) {
             if (op.equalsIgnoreCase(WcpsConstants.MSG_VARIABLE)) {
                 result = first.toRasQL();
             } else if (op.equalsIgnoreCase(WcpsConstants.MSG_VALUE)) {
                 result = value;
             } else if (op.equalsIgnoreCase("-")) {
-                    result = "-" + first.toRasQL();
+                result = "-" + first.toRasQL();
             } else if (op.equalsIgnoreCase(WcpsConstants.MSG_SQRT)) {
-                    result = RASQL_SQRT + "(" + first.toRasQL() + ")";
+                result = RASQL_SQRT + "(" + first.toRasQL() + ")";
             } else if (op.equalsIgnoreCase(WcpsConstants.MSG_CHILD)) {
                 result = first.toRasQL();
             } else if (op.equalsIgnoreCase(WcpsConstants.MSG_ABS)) {
                 result = RASQL_ABS + "(" + first.toRasQL() + ")";
             }
-        }else if (twoChildren == true) {
+        } else if (twoChildren == true) {
             result = "(" + first.toRasQL() + ")" + op
-                    + "(" + second.toRasQL() + ")";
+                     + "(" + second.toRasQL() + ")";
         } else {
             return " " + WcpsConstants.MSG_ERROR + " ";
         }

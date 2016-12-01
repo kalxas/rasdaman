@@ -39,8 +39,7 @@ import java.util.*;
 /**
  * class represents an object identifier
  */
-public class RasOID
-{
+public class RasOID {
     static final String rcsid = "@(#)Package rasj.odmg, class RasOID: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasOID.java,v 1.5 2003/12/10 21:04:30 rasdev Exp $";
 
     /**
@@ -61,92 +60,85 @@ public class RasOID
     /**
      * default constructor
      */
-    public RasOID()
-    {
-	systemName = "";
-	baseName = "";
-	localOID = 0;
+    public RasOID() {
+        systemName = "";
+        baseName = "";
+        localOID = 0;
     }
 
 
     /**
      * constructor
      */
-    public RasOID(String system, String base, double oid)
-    {
+    public RasOID(String system, String base, double oid) {
         systemName = system;
-	baseName = base;
-	localOID = oid;
+        baseName = base;
+        localOID = oid;
     }
 
     /**
      * String constructor
      */
-    public RasOID(String oidString)
-    {
+    public RasOID(String oidString) {
         StringTokenizer str = new StringTokenizer(oidString, "|");
-        if(str.hasMoreTokens())
-          systemName = str.nextToken();
-        if(str.hasMoreTokens())
-	  baseName = str.nextToken();
-        if(str.hasMoreTokens())
-	  localOID = Double.parseDouble(str.nextToken());
+        if (str.hasMoreTokens()) {
+            systemName = str.nextToken();
+        }
+        if (str.hasMoreTokens()) {
+            baseName = str.nextToken();
+        }
+        if (str.hasMoreTokens()) {
+            localOID = Double.parseDouble(str.nextToken());
+        }
     }
 
     /**
      * returns system name as a string
      */
-    public String getSystemName()
-    {
-	return systemName;
+    public String getSystemName() {
+        return systemName;
     }
 
     /**
      * returns database name as a string
      */
-    public String getBaseName()
-    {
-	return baseName;
+    public String getBaseName() {
+        return baseName;
     }
 
     /**
      * returns local oid as a double
      */
-    public double getLocalOID()
-    {
-	return localOID;
+    public double getLocalOID() {
+        return localOID;
     }
 
     /**
      * determines if oid is valid
      */
-    public boolean isValid()
-    {
-	if (localOID != 0.0)
-	    return true;
-	else
-	    return false;
+    public boolean isValid() {
+        if (localOID != 0.0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
-    public void rasDeactivate()
-    {
-	if(!systemName.equals(""))
-	    {
-		systemName = "";
-	    }
+    public void rasDeactivate() {
+        if (!systemName.equals("")) {
+            systemName = "";
+        }
 
-	if(!baseName.equals(""))
-	    {
-		baseName = "";
-	    }
+        if (!baseName.equals("")) {
+            baseName = "";
+        }
     }
 
 
     /** gets the String representation of the oid */
-    public String toString()
-    {
-	return systemName+"|"+baseName+"|"+localOID;
+    public String toString() {
+        return systemName + "|" + baseName + "|" + localOID;
     }
 
 }

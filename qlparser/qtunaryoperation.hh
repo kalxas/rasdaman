@@ -56,7 +56,7 @@ public:
     QtUnaryOperation();
 
     /// constructor getting the node to its operand
-    QtUnaryOperation( QtOperation* input );
+    QtUnaryOperation(QtOperation* input);
 
     /// virtual destructor
     virtual ~QtUnaryOperation();
@@ -68,33 +68,33 @@ public:
     virtual void simplify();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds( QtChildType flag );
+    virtual QtNodeList* getChilds(QtChildType flag);
 
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
 
     /// tests if the two nodes have an equal meaning in the query tree
-    virtual bool equalMeaning( QtNode* node );
+    virtual bool equalMeaning(QtNode* node);
 
     /// method for query rewrite
-    inline virtual void setInput( QtOperation* inputOld, QtOperation* inputNew );
+    inline virtual void setInput(QtOperation* inputOld, QtOperation* inputNew);
 
     /// optimizing load access
-    virtual void optimizeLoad( QtTrimList* trimList );
+    virtual void optimizeLoad(QtTrimList* trimList);
 
     /**
       The method passes the given {\tt trimList} list to its input tree.
     */
 
     /// debugging method
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     //@Man: Read/Write methods for the operand
     //@{
     ///
 
     ///
-    inline virtual void setInput( QtOperation* input );
+    inline virtual void setInput(QtOperation* input);
     ///
     inline QtOperation* getInput();
 

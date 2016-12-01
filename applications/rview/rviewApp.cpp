@@ -91,11 +91,11 @@ class rviewLookScaleDialog: public rviewFrame
 {
 public:
 
-    rviewLookScaleDialog(rmanClientApp *parentApp, const char *name, double scale);
+    rviewLookScaleDialog(rmanClientApp* parentApp, const char* name, double scale);
     ~rviewLookScaleDialog(void);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
     void OnSize(int w, int h);
 
     // constants
@@ -109,13 +109,13 @@ public:
 
 protected:
 
-    wxPanel *panel;
-    rviewText *collName;
-    rviewText *scaleString;
-    rviewButton *okBut;
-    rviewButton *cancelBut;
+    wxPanel* panel;
+    rviewText* collName;
+    rviewText* scaleString;
+    rviewButton* okBut;
+    rviewButton* cancelBut;
 
-    rmanClientApp *parent;
+    rmanClientApp* parent;
 };
 
 
@@ -124,10 +124,10 @@ const int rviewLookScaleDialog::lkscale_theight = 50;
 const int rviewLookScaleDialog::lkscale_bwidth = 50;
 const int rviewLookScaleDialog::lkscale_bheight = 30;
 const int rviewLookScaleDialog::lkscale_width = 300;
-const int rviewLookScaleDialog::lkscale_height = 2*rviewLookScaleDialog::lkscale_border + 2*rviewLookScaleDialog::lkscale_theight + rview_window_extra_height;
+const int rviewLookScaleDialog::lkscale_height = 2 * rviewLookScaleDialog::lkscale_border + 2 * rviewLookScaleDialog::lkscale_theight + rview_window_extra_height;
 
 
-rviewLookScaleDialog::rviewLookScaleDialog(rmanClientApp *parentApp, const char *name, double scale) : rviewFrame(NULL, lman->lookup("titleLookScaleColl"), -1, -1, lkscale_width, lkscale_height)
+rviewLookScaleDialog::rviewLookScaleDialog(rmanClientApp* parentApp, const char* name, double scale) : rviewFrame(NULL, lman->lookup("titleLookScaleColl"), -1, -1, lkscale_width, lkscale_height)
 {
     panel = new wxPanel(this, 0, 0, lkscale_width, lkscale_height);
     panel->SetLabelPosition(wxVERTICAL);
@@ -138,8 +138,8 @@ rviewLookScaleDialog::rviewLookScaleDialog(rmanClientApp *parentApp, const char 
     parent = parentApp;
     label();
 
-    frameWidth=-1;
-    frameHeight=-1;
+    frameWidth = -1;
+    frameHeight = -1;
 
     OnSize(lkscale_width, lkscale_height);
     OnSize(lkscale_width, lkscale_height);
@@ -157,10 +157,10 @@ void rviewLookScaleDialog::OnSize(int w, int h)
 
     GetClientSize(&x, &y);
     panel->SetSize(0, 0, x, y);
-    aux = x - 3*lkscale_border - lkscale_bwidth;
+    aux = x - 3 * lkscale_border - lkscale_bwidth;
     collName->SetSize(lkscale_border, lkscale_border, aux, lkscale_theight);
     scaleString->SetSize(lkscale_border, lkscale_border + lkscale_theight, aux, lkscale_theight);
-    aux += 2*lkscale_border;
+    aux += 2 * lkscale_border;
     boff = lkscale_border + lkscale_theight - lkscale_bheight;
     okBut->SetSize(aux, boff, lkscale_bwidth, lkscale_bheight);
     cancelBut->SetSize(aux, boff + lkscale_theight, lkscale_bwidth, lkscale_bheight);
@@ -175,17 +175,21 @@ void rviewLookScaleDialog::label(void)
     cancelBut->SetLabel(lman->lookup("textCancel"));
 }
 
-int rviewLookScaleDialog::process(wxObject &obj, wxEvent &evt)
+int rviewLookScaleDialog::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
-    int readAndClose=0;
+    int readAndClose = 0;
 
     if (type == wxEVENT_TYPE_TEXT_ENTER_COMMAND)
+    {
         readAndClose = 1;
+    }
     else if (type == wxEVENT_TYPE_BUTTON_COMMAND)
     {
         if (&obj == (wxObject*)okBut)
+        {
             readAndClose = 1;
+        }
         else if (&obj == (wxObject*)cancelBut)
         {
             parent->LookupScaledCollection(NULL, 0.0);
@@ -196,7 +200,7 @@ int rviewLookScaleDialog::process(wxObject &obj, wxEvent &evt)
     if (readAndClose != 0)
     {
         double scale;
-        char *b, *rest;
+        char* b, *rest;
 
         b = scaleString->GetValue();
         scale = strtod(b, &rest);
@@ -226,7 +230,7 @@ int rviewLookScaleDialog::process(wxObject &obj, wxEvent &evt)
 // Emergency exit signal handler
 void rmanAbort(int code)
 {
-    char *sig;
+    char* sig;
 
     // First things first
     rmanClientApp::theApp()->Shutdown();
@@ -267,16 +271,16 @@ void rmanAbort(int code)
  *  to other RasDaMan apps as well.
  */
 
-rmanClientApp *rmanClientApp::theclientapp = NULL;
+rmanClientApp* rmanClientApp::theclientapp = NULL;
 
-const char *rmanClientApp::vffFileName = "vff-file";
+const char* rmanClientApp::vffFileName = "vff-file";
 
-rmanClientApp::rmanClientApp(const char *homevar, const char *prefsname, const char *labelname)
+rmanClientApp::rmanClientApp(const char* homevar, const char* prefsname, const char* labelname)
 {
-    char *rvh;
-    char *b;
+    char* rvh;
+    char* b;
 #ifdef __VISUALC__
-    char *d;
+    char* d;
 #endif
     char labels[STRINGSIZE];
 
@@ -288,9 +292,13 @@ rmanClientApp::rmanClientApp(const char *homevar, const char *prefsname, const c
 
     // labels.txt is looked for in $RVIEWHOME or failing that .
     if (rvh == NULL)
+    {
         sprintf(homeDir, ".");
+    }
     else
+    {
         sprintf(homeDir, "%s", rvh);
+    }
 
     sprintf(labels, "%s"DIR_SEPARATOR"%s", homeDir, labelname);
 
@@ -305,13 +313,19 @@ rmanClientApp::rmanClientApp(const char *homevar, const char *prefsname, const c
     // Preferences are looked for in $HOME, ., $RVIEWHOME
 #ifdef __VISUALC__
     if (((b = getenv("HOMEDRIVE")) != NULL) && ((d = getenv("HOMEPATH")) != NULL))
+    {
         sprintf(prefsFile, "%s%s", b, d);
+    }
 #else
     if ((b = getenv("HOME")) != NULL)
+    {
         sprintf(prefsFile, "%s", b);
+    }
 #endif
     else
+    {
         strcpy(prefsFile, ".");
+    }
 
     // always save prefs to $HOME/.rviewrc
     sprintf(prefsSaveFile, "%s"DIR_SEPARATOR"%s", prefsFile, prefsname);
@@ -361,10 +375,13 @@ rmanClientApp::~rmanClientApp(void)
 }
 
 
-bool rmanClientApp::findPreferencesOnPath(char *path)
+bool rmanClientApp::findPreferencesOnPath(char* path)
 {
     sprintf(path + strlen(path), DIR_SEPARATOR"%s", prefsFileLeafname);
-    if (::wxFileExists(path)) return TRUE;
+    if (::wxFileExists(path))
+    {
+        return TRUE;
+    }
     path[0] = 0;
     return FALSE;
 }
@@ -376,7 +393,7 @@ int rmanClientApp::SavePreferences(void) const
 }
 
 
-rmanClientApp *rmanClientApp::theApp(void)
+rmanClientApp* rmanClientApp::theApp(void)
 {
     return theclientapp;
 }
@@ -404,11 +421,13 @@ void rmanClientApp::Shutdown(void)
 
 
 
-int rmanClientApp::OpenServer(const char *srvname, int srvport, const char *dbname,
-                              const char *usrname, const char *usrpassword)
+int rmanClientApp::OpenServer(const char* srvname, int srvport, const char* dbname,
+                              const char* usrname, const char* usrpassword)
 {
     if (database.isOpen())
+    {
         return -1;
+    }
 
     LTRACE << "OpenServer( " << srvname << ", " << dbname << "," << usrname << "," << usrpassword << " )";
 
@@ -418,7 +437,9 @@ int rmanClientApp::OpenServer(const char *srvname, int srvport, const char *dbna
 
         ue.type = usr_db_opened;
         if (frameManager != NULL)
+        {
             frameManager->broadcastUserEvent(ue);
+        }
 
         return 0;
     }
@@ -429,7 +450,9 @@ int rmanClientApp::OpenServer(const char *srvname, int srvport, const char *dbna
 int rmanClientApp::CloseServer(void)
 {
     if (!database.isOpen())
+    {
         return -1;
+    }
 
     user_event ue;
 
@@ -437,7 +460,9 @@ int rmanClientApp::CloseServer(void)
     ue.type = usr_db_closed;
 
     if (frameManager != NULL)
+    {
         frameManager->broadcastUserEvent(ue);
+    }
 
     LTRACE << "CloseServer() Database closed.";
 
@@ -446,10 +471,10 @@ int rmanClientApp::CloseServer(void)
 
 
 
-rviewFrame *rmanClientApp::OpenFile(unsigned int flags, r_Ref<r_GMarray> *newMddObj, bool resultwin)
+rviewFrame* rmanClientApp::OpenFile(unsigned int flags, r_Ref<r_GMarray>* newMddObj, bool resultwin)
 {
-    char *s;
-    char *prefPath = (char*)(prefs->filePath.ptr());
+    char* s;
+    char* prefPath = (char*)(prefs->filePath.ptr());
 
     s = wxFileSelector(lman->lookup("loadFile"), (::wxDirExists(prefPath)) ? prefPath : NULL , NULL, NULL, "*");
 
@@ -469,13 +494,16 @@ rviewFrame *rmanClientApp::OpenFile(unsigned int flags, r_Ref<r_GMarray> *newMdd
             status = rviewIO::loadTIFF(s, mddPtr, prefs->vffParams.ptr());
             if (status == RVIEW_IO_OK)
             {
-                rviewDisplay *newImage;
+                rviewDisplay* newImage;
                 mdd_frame mddObj;
                 // receiver makes a copy.
                 mddObj.mdd = mddPtr;
                 mddObj.flags = 0;
                 newImage = new rviewFlatImage(&mddObj, flags | rviewDisplay::display_flag_standalone);
-                if (newMddObj != NULL) *newMddObj = mddPtr;
+                if (newMddObj != NULL)
+                {
+                    *newMddObj = mddPtr;
+                }
                 if (newImage->openViewer() != 0)
                 {
                     delete newImage;
@@ -493,15 +521,15 @@ rviewFrame *rmanClientApp::OpenFile(unsigned int flags, r_Ref<r_GMarray> *newMdd
                 if (resultwin)
                 {
                     // load in results window
-                    rviewResult *result;
-                    const char *file = ::wxFileNameFromPath(s);
+                    rviewResult* result;
+                    const char* file = ::wxFileNameFromPath(s);
 
-                    collection_desc *cdesc = new collection_desc;
-                    cdesc->collName = new char[strlen(file)+1];
+                    collection_desc* cdesc = new collection_desc;
+                    cdesc->collName = new char[strlen(file) + 1];
                     strcpy(cdesc->collName, file);
-                    cdesc->collType = new char[strlen(mddPtr->get_type_name())+1];
+                    cdesc->collType = new char[strlen(mddPtr->get_type_name()) + 1];
                     strcpy(cdesc->collType, mddPtr->get_type_name());
-                    cdesc->collInfo = new char[strlen(vffFileName)+1];
+                    cdesc->collInfo = new char[strlen(vffFileName) + 1];
                     strcpy(cdesc->collInfo, vffFileName);
                     cdesc->number = 1;
                     cdesc->mddObjs = new mdd_frame[1];
@@ -515,12 +543,15 @@ rviewFrame *rmanClientApp::OpenFile(unsigned int flags, r_Ref<r_GMarray> *newMdd
                 else
                 {
                     // load in default viewer
-                    rviewDisplay *newImage;
+                    rviewDisplay* newImage;
                     mdd_frame mddObj;
                     mddObj.mdd = mddPtr;
                     mddObj.flags = 0;
                     newImage = new rviewVolumeImage(&mddObj, flags | rviewDisplay::display_flag_standalone);
-                    if (newMddObj != NULL) *newMddObj = mddPtr;
+                    if (newMddObj != NULL)
+                    {
+                        *newMddObj = mddPtr;
+                    }
                     if (newImage->openViewer() != 0)
                     {
                         delete newImage;
@@ -537,12 +568,15 @@ rviewFrame *rmanClientApp::OpenFile(unsigned int flags, r_Ref<r_GMarray> *newMdd
 
 int rmanClientApp::LookupCollection(void)
 {
-    collection_desc *desc;
-    char *name;
+    collection_desc* desc;
+    char* name;
 
     name = ::wxGetTextFromUser(lman->lookup("promptEnterColl"), lman->lookup("titleCollLook"), (char*)(prefs->lastColl.ptr()));
 
-    if (name == NULL) return 0;
+    if (name == NULL)
+    {
+        return 0;
+    }
 
     if ((desc = new collection_desc) == NULL)
     {
@@ -565,19 +599,21 @@ int rmanClientApp::LookupCollection(void)
 #ifdef DUMMY_MDD_OBJECT
     desc->number = 1;
     r_Minterval iv(3);
-    iv << r_Sinterval(r_Range(0),r_Range(300)) << r_Sinterval(r_Range(200),r_Range(400)) << r_Sinterval(r_Range(10), r_Range(12));
+    iv << r_Sinterval(r_Range(0), r_Range(300)) << r_Sinterval(r_Range(200), r_Range(400)) << r_Sinterval(r_Range(10), r_Range(12));
     desc->mddObjs = new mdd_frame[1];
     desc->mddObjs[0].mdd = (r_Ref <r_GMarray>) new r_Marray<DUMMY_MDD_OBJECT>(iv);
     desc->collType = new char[16];
     strcpy(desc->collType, "r_UShort");
-    r_Ref < r_Marray < DUMMY_MDD_OBJECT > > mddPtr = (r_Ref < r_Marray < DUMMY_MDD_OBJECT > >) desc->mddObjs[0].mdd;
+    r_Ref <r_Marray <DUMMY_MDD_OBJECT>> mddPtr = (r_Ref <r_Marray <DUMMY_MDD_OBJECT>>) desc->mddObjs[0].mdd;
     mddPtr->set_type_by_name("UShortImage");
     r_Point point(3);
     cout << mddPtr->spatial_domain() << endl;
-    for (point[0]=0; point[0]<=300; point[0]++)
-        for (point[1]=200; point[1]<=400; point[1]++)
-            for (point[2]=10; point[2]<=12; point[2]++)
-                (*mddPtr)[point] = ((DUMMY_MDD_OBJECT)(point[0] + point[1] + point[2])) << (8*(sizeof(DUMMY_MDD_OBJECT) - 1));
+    for (point[0] = 0; point[0] <= 300; point[0]++)
+        for (point[1] = 200; point[1] <= 400; point[1]++)
+            for (point[2] = 10; point[2] <= 12; point[2]++)
+            {
+                (*mddPtr)[point] = ((DUMMY_MDD_OBJECT)(point[0] + point[1] + point[2])) << (8 * (sizeof(DUMMY_MDD_OBJECT) - 1));
+            }
 
     if (1)
 #else
@@ -590,7 +626,7 @@ int rmanClientApp::LookupCollection(void)
           cout << "Object #" << i << ": " << desc->mddArrays[i]->spatial_domain() << endl;
         }*/
 
-        rviewResult *result = new rviewResult(desc);
+        rviewResult* result = new rviewResult(desc);
 
         return 1;
     }
@@ -605,16 +641,16 @@ int rmanClientApp::LookupCollection(void)
 
 int rmanClientApp::LookupScaledCollection(void)
 {
-    rviewLookScaleDialog *lsd = new rviewLookScaleDialog(this, (char*)(prefs->lastScColl.ptr()), prefs->imgScale);
+    rviewLookScaleDialog* lsd = new rviewLookScaleDialog(this, (char*)(prefs->lastScColl.ptr()), prefs->imgScale);
 
     return 0;
 }
 
-int rmanClientApp::LookupScaledCollection(const char *name, double scale)
+int rmanClientApp::LookupScaledCollection(const char* name, double scale)
 {
     if (name != NULL)
     {
-        collection_desc *desc;
+        collection_desc* desc;
 
 
         prefs->imgScale = scale;
@@ -636,12 +672,12 @@ int rmanClientApp::LookupScaledCollection(const char *name, double scale)
         strcpy(desc->collName, name);
         prefs->lastScColl = name;
         prefs->markModified();
-        r_Fast_Base_Scale *scaler;
+        r_Fast_Base_Scale* scaler;
 
         if ((scaler = database.lookupScaledObject(desc, scale)) != NULL)
         {
             // don't call in standalone mode, viewer sorts it out itself.
-            rviewScaledImage *image = new rviewScaledImage(desc, scaler);
+            rviewScaledImage* image = new rviewScaledImage(desc, scaler);
             if (image->openViewer() != 0)
             {
                 image->Close(TRUE);
@@ -661,16 +697,16 @@ int rmanClientApp::LookupScaledCollection(const char *name, double scale)
 
 int rmanClientApp::LookupOrthosection(void)
 {
-    char *name;
+    char* name;
 
     name = ::wxGetTextFromUser(lman->lookup("promptEnterOrtho"), lman->lookup("titleOrthoLook"), (char*)(prefs->lastOrthoColl.ptr()));
 
     if ((name != NULL) && (strlen(name) != 0))
     {
         char buffer[STRINGSIZE];
-        const char *d = name;
-        char *b = buffer;
-        const double *lp = NULL;
+        const char* d = name;
+        char* b = buffer;
+        const double* lp = NULL;
         double loid;
 
         // search the collection name for a trailing ,<local oid>
@@ -678,11 +714,14 @@ int rmanClientApp::LookupOrthosection(void)
         {
             *b++ = *d++;
         }
-        while ((b > buffer) && (isspace((unsigned int)(b[-1])))) b--;
+        while ((b > buffer) && (isspace((unsigned int)(b[-1]))))
+        {
+            b--;
+        }
         *b++ = '\0';
         if (*d == ',')
         {
-            loid = atof(d+1);
+            loid = atof(d + 1);
             lp = &loid;
         }
 
@@ -692,9 +731,9 @@ int rmanClientApp::LookupOrthosection(void)
 }
 
 
-int rmanClientApp::LookupOrthosection(const char *collname, const double *loid)
+int rmanClientApp::LookupOrthosection(const char* collname, const double* loid)
 {
-    rviewOSectionPartImage *newImage = rviewOSectionPartImage::createViewer(collname, loid);
+    rviewOSectionPartImage* newImage = rviewOSectionPartImage::createViewer(collname, loid);
 
     if (newImage == NULL)
     {
@@ -710,7 +749,7 @@ int rmanClientApp::LookupOrthosection(const char *collname, const double *loid)
 
 int rmanClientApp::CreateCollection(void)
 {
-    char *name;
+    char* name;
 
     name = ::wxGetTextFromUser(lman->lookup("promptEnterColl"), lman->lookup("titleCollCrt"), (char*)(prefs->lastOrthoColl.ptr()));
 
@@ -728,7 +767,7 @@ int rmanClientApp::CreateCollection(void)
 
 int rmanClientApp::DeleteCollection(void)
 {
-    char *name;
+    char* name;
     char buffer[STRINGSIZE];
 
     name = ::wxGetTextFromUser(lman->lookup("promptEnterColl"), lman->lookup("titleCollDel"), (char*)(prefs->lastColl.ptr()));
@@ -743,25 +782,34 @@ int rmanClientApp::DeleteCollection(void)
 
 
 
-int rmanClientApp::insertMDD(r_Ref<r_GMarray> srcMdd, char *collName, r_Minterval *domain)
+int rmanClientApp::insertMDD(r_Ref<r_GMarray> srcMdd, char* collName, r_Minterval* domain)
 {
     char useName[STRINGSIZE];
-    char *title;
+    char* title;
     int status;
 
     if (domain == NULL)
+    {
         title = lman->lookup("titleInsertMdd");
+    }
     else
+    {
         title = lman->lookup("titleInsertMddPro");
+    }
 
     if (collName == NULL)
     {
         title = ::wxGetTextFromUser(lman->lookup("promptEnterColl"), title, (char*)(prefs->lastColl.ptr()));
-        if (title == NULL) return 0;
+        if (title == NULL)
+        {
+            return 0;
+        }
         strncpy(useName, title, STRINGSIZE);
     }
     else
+    {
         strncpy(useName, collName, STRINGSIZE);
+    }
 
     if ((status = database.insertObject(useName, srcMdd, domain)) != 0)
     {
@@ -773,9 +821,9 @@ int rmanClientApp::insertMDD(r_Ref<r_GMarray> srcMdd, char *collName, r_Minterva
 
 
 
-collection_desc *rmanClientApp::executeQuerySync(char *query, r_Ref<r_GMarray> *updateMdd, bool showProgress)
+collection_desc* rmanClientApp::executeQuerySync(char* query, r_Ref<r_GMarray>* updateMdd, bool showProgress)
 {
-    collection_desc *desc;
+    collection_desc* desc;
 
     if ((desc = new collection_desc) == NULL)
     {
@@ -795,7 +843,7 @@ collection_desc *rmanClientApp::executeQuerySync(char *query, r_Ref<r_GMarray> *
     {
         char qcollName[] = "<query>";
 
-        desc->collName = new char[strlen(qcollName)+1];
+        desc->collName = new char[strlen(qcollName) + 1];
         strcpy(desc->collName, qcollName);
     }
     else
@@ -808,19 +856,19 @@ collection_desc *rmanClientApp::executeQuerySync(char *query, r_Ref<r_GMarray> *
 }
 
 
-int rmanClientApp::executeQuery(char *query, r_Ref<r_GMarray> *updateMdd)
+int rmanClientApp::executeQuery(char* query, r_Ref<r_GMarray>* updateMdd)
 {
-    collection_desc *desc;
+    collection_desc* desc;
 
     if ((desc = executeQuerySync(query, updateMdd)) != NULL)
     {
         if (desc->mddObjs != NULL)
         {
-            rviewResult *qresult = new rviewResult(desc);
+            rviewResult* qresult = new rviewResult(desc);
         }
         else
         {
-            rviewStringSet *qresult = new rviewStringSet(desc);
+            rviewStringSet* qresult = new rviewStringSet(desc);
             // rviewStringSet doesn't need the descriptor data after the
             // constructor, so we can just delete it right away
             rviewDeleteCollection(desc);
@@ -831,7 +879,7 @@ int rmanClientApp::executeQuery(char *query, r_Ref<r_GMarray> *updateMdd)
 }
 
 
-int rmanClientApp::getMinterval(r_Minterval &dom, const char *collname, const double *loid)
+int rmanClientApp::getMinterval(r_Minterval& dom, const char* collname, const double* loid)
 {
     return database.getMinterval(dom, collname, loid);
 }

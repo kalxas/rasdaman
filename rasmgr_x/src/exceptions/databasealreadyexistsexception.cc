@@ -25,8 +25,8 @@
 namespace rasmgr
 {
 
-DatabaseAlreadyExistsException::DatabaseAlreadyExistsException(const std::string &dbName, const std::string &dbHostName)
-    :common::LogicException( "Database " +dbName+" already defined on database host "+dbHostName)
+DatabaseAlreadyExistsException::DatabaseAlreadyExistsException(const std::string& dbName, const std::string& dbHostName)
+    : common::LogicException("Database " + dbName + " already defined on database host " + dbHostName)
 {
 
 }

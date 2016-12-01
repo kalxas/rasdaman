@@ -76,7 +76,7 @@ extern char* iterParseString;
 
 extern QueryTree* parseQueryTree;
 
-int main( int ac, char** av )
+int main(int ac, char** av)
 {
     FILE* inFile;
     char  baseName[255];
@@ -86,24 +86,24 @@ int main( int ac, char** av )
     // read program arguments
     //
 
-    if( ac <= 2 )
+    if (ac <= 2)
     {
         cout << "usage: test_qlparser basename queryfile" << endl;
         return -1;
     }
 
-    strcpy( baseName, av[1] );
+    strcpy(baseName, av[1]);
 
-    inFile = fopen( av[2], "r" );
+    inFile = fopen(av[2], "r");
 
-    if( inFile == NULL )
+    if (inFile == NULL)
     {
         cout << "Error opening file " << av[1] << endl;
         return -1;
     }
 
-    fread( &query, 1, 4095, inFile );
-    fclose( inFile );
+    fread(&query, 1, 4095, inFile);
+    fclose(inFile);
 
     cout << "Query:" << endl << endl << query << endl;
 
@@ -123,7 +123,7 @@ int main( int ac, char** av )
 
     // connect to the database
     cout << "Opening database " << baseName << "... " << flush;
-    db.open( baseName );
+    db.open(baseName);
     cout << "OK" << endl;
 
     cout << "Starting transaction ... " << flush;
@@ -141,10 +141,14 @@ int main( int ac, char** av )
 
     cout << endl << "Parsing ..." << flush;
 
-    if( !yyparse() )
+    if (!yyparse())
+    {
         cout << "  worked" << endl;
+    }
     else
+    {
         cout << "  failed" << endl;
+    }
 
     cout << endl;
     parseQueryTree->printTree(2);
@@ -157,9 +161,9 @@ int main( int ac, char** av )
     {
         parseQueryTree->getRoot()->simplify();
     }
-    catch( ParseInfo& info )
+    catch (ParseInfo& info)
     {
-        info.printStatus( RMInit::logOut );
+        info.printStatus(RMInit::logOut);
         cout << "FAILED" << endl;
     }
 

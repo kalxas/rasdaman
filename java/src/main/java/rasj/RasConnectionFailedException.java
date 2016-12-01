@@ -30,7 +30,7 @@ rasdaman GmbH.
  *
  * PURPOSE:
  * This exception is raised when the connection to the RasDaMan server fails. This typically happens
- * when the RasDaMan server is either not running or unable to connect to the base DBMS. Also 
+ * when the RasDaMan server is either not running or unable to connect to the base DBMS. Also
  * communication failures between RasManager and RasServer may produce this kind of exception.
  * @version $Revision: 1.8 $
  *
@@ -41,8 +41,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 
-public class RasConnectionFailedException extends ODMGRuntimeException
-{
+public class RasConnectionFailedException extends ODMGRuntimeException {
     static final String rcsid = "@(#)Package rasj.clientcommhttp, class RasConnectionFailedException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasConnectionFailedException.java,v 1.8 2003/12/19 16:22:27 rasdev Exp $";
 
     /**
@@ -60,45 +59,41 @@ public class RasConnectionFailedException extends ODMGRuntimeException
      * @param errNo the rasdaman error number
      * @param parameter optional parameter that can be inserted into the error message
      **/
-    public RasConnectionFailedException(int errNo, String parameter)
-    {
-	super();
-	errorNo = errNo;
-	param = ( (parameter==null) ? "(null)" : parameter );
+    public RasConnectionFailedException(int errNo, String parameter) {
+        super();
+        errorNo = errNo;
+        param = ((parameter == null) ? "(null)" : parameter);
     }
- 
+
     /**
      * Returns the RasDaMan error number
      */
-    public int getErrorNo()
-    {   
+    public int getErrorNo() {
         return errorNo;
-     }
-   
+    }
+
     /**
      * Returns the error message.
      **/
-    public String getMessage()
-    {
-	String msg = super.getMessage();
-	if(msg == null)
-	    {
-		msg = RasErrorTexts.getErrorMessage(errorNo);
-		int index = 0;
+    public String getMessage() {
+        String msg = super.getMessage();
+        if (msg == null) {
+            msg = RasErrorTexts.getErrorMessage(errorNo);
+            int index = 0;
 
-		// replace parameters
-		switch(errorNo)
-		    {
-		    case RasGlobalDefs.MANAGER_CONN_FAILED:
-			StringBuffer buf = new StringBuffer(msg);
-			index = msg.indexOf( RasGlobalDefs.KEYWORD_URL );
-			if(index != -1)
-			    buf.replace(index, index+RasGlobalDefs.KEYWORD_URL.length(), param);
-			msg = buf.toString();
-			break;
-		    }
-	    }
-	return msg;
+            // replace parameters
+            switch (errorNo) {
+            case RasGlobalDefs.MANAGER_CONN_FAILED:
+                StringBuffer buf = new StringBuffer(msg);
+                index = msg.indexOf(RasGlobalDefs.KEYWORD_URL);
+                if (index != -1) {
+                    buf.replace(index, index + RasGlobalDefs.KEYWORD_URL.length(), param);
+                }
+                msg = buf.toString();
+                break;
+            }
+        }
+        return msg;
     }
 
 

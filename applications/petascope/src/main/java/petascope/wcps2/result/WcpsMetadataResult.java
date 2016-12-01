@@ -32,7 +32,7 @@ public class WcpsMetadataResult implements VisitorResult {
 
     private String result;
     private String mimeType;
-     //the metadata resulting from the evaluation
+    //the metadata resulting from the evaluation
     private WcpsCoverageMetadata metadata;
 
     public WcpsMetadataResult(WcpsCoverageMetadata metadata, String result) {

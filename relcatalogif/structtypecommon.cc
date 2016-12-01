@@ -57,9 +57,11 @@ rasdaman GmbH.
 r_Bytes
 StructType::getMemorySize() const
 {
-    r_Bytes retval = DBNamedObject::getMemorySize() + sizeof(int) + sizeof(int) + sizeof(std::vector< BaseType* >) + sizeof(std::vector< unsigned int >) + sizeof(std::vector< char* >) + sizeof(int) * numElems + sizeof(BaseType*) * numElems;
+    r_Bytes retval = DBNamedObject::getMemorySize() + sizeof(int) + sizeof(int) + sizeof(std::vector<BaseType*>) + sizeof(std::vector<unsigned int>) + sizeof(std::vector<char*>) + sizeof(int) * numElems + sizeof(BaseType*) * numElems;
     for (unsigned int i = 0; i < numElems; i++)
+    {
         retval = retval + 1 + strlen(elementNames[i]);
+    }
     return retval;
 }
 
@@ -75,7 +77,7 @@ StructType::StructType()
     objecttype = OId::STRUCTTYPEOID;
 }
 
-StructType::StructType(const char* newTypeName, unsigned int numElem )
+StructType::StructType(const char* newTypeName, unsigned int numElem)
     :   CompositeType(newTypeName, 0),
         elements(numElem),
         elementNames(numElem),
@@ -132,7 +134,9 @@ StructType::operator=(const StructType& old)
     // Gracefully handle self assignment
     //FIXME memory leak with char* in elementNames and elements
     if (this == &old)
+    {
         return *this;
+    }
     CompositeType::operator=(old);
     elements = old.elements;
     elementNames = old.elementNames;
@@ -147,7 +151,9 @@ StructType::~StructType()
     ObjectBroker::deregisterDBObject(myOId);
     validate();
     for (unsigned int i = 0; i < getNumElems(); i++)
-        free(static_cast<void*>(elementNames[i]));//is ok because noone is using it
+    {
+        free(static_cast<void*>(elementNames[i]));    //is ok because noone is using it
+    }
 }
 
 /*************************************************************
@@ -165,12 +171,12 @@ StructType::~StructType()
  ************************************************************/
 
 void
-StructType::printCell( ostream& stream, const char* cell ) const
+StructType::printCell(ostream& stream, const char* cell) const
 {
     unsigned int i;
 
     stream << "\t|";
-    for(i=0; i< numElems; i++)
+    for (i = 0; i < numElems; i++)
     {
         stream << elementNames[i] << "\t: ";
         elements[i]->printCell(stream, cell + elementOffsets[i]);
@@ -189,7 +195,7 @@ StructType::getTypeStructure() const
     unsigned int i;
 
     strcpy(result, "struct { ");
-    if(numElems == 0)
+    if (numElems == 0)
     {
         newResult = static_cast<char*>(mymalloc(strlen(result) + 1 + 2));
         strcpy(newResult, result);
@@ -197,12 +203,12 @@ StructType::getTypeStructure() const
         free(result);
         return newResult;
     }
-    for(i = 0; i < numElems; i++)
+    for (i = 0; i < numElems; i++)
     {
         char* dummy = elements[i]->getTypeStructure();
         newResult = static_cast<char*>(mymalloc(strlen(result) +
-                                    strlen(elementNames[i]) +
-                                    strlen(dummy) + 1 + 3 ));
+                                                strlen(elementNames[i]) +
+                                                strlen(dummy) + 1 + 3));
         strcpy(newResult, result);
 
         strcat(newResult, dummy);
@@ -214,7 +220,7 @@ StructType::getTypeStructure() const
         free(dummy);
         result = newResult;
     }
-    newResult = static_cast<char*>(mymalloc(strlen(result) + 1 ));
+    newResult = static_cast<char*>(mymalloc(strlen(result) + 1));
     strcpy(newResult, result);
     newResult[strlen(newResult) - 2] = ' ';
     newResult[strlen(newResult) - 1] = '}';
@@ -231,7 +237,7 @@ StructType::getNewTypeStructure() const
 
     bool isFirst = true;
 
-    for(unsigned int i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         if (!isFirst)
         {
@@ -260,7 +266,9 @@ StructType::addElement(const char* elemName, const char* elemType)
     BaseType* stuff = 0;
     stuff = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, elemType));
     if (stuff == 0)
+    {
         stuff = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, elemType));
+    }
     return addElement(elemName, stuff);
 }
 
@@ -287,7 +295,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
     myElemName = static_cast<char*>(mymalloc(strlen(elemName) + 1));
     strcpy(myElemName, elemName);
 
-    if(numElems+1 > elements.size())
+    if (numElems + 1 > elements.size())
     {
         BaseType* dummyB = 0;
         char* dummyN = 0;
@@ -296,7 +304,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
         elementNames.push_back(dummyN);
         elementOffsets.push_back(dummyO);
     }
-    if(numElems == 0)
+    if (numElems == 0)
     {
         // first element
         elementOffsets[currPos] = 0;
@@ -306,48 +314,54 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
     {
         // All cases have to set currPos and numElems correctly!
         // The array has to be ordered by offsets.
-        if(newType->getType() == STRUCT)
+        if (newType->getType() == STRUCT)
         {
             unsigned int myAlign = (static_cast<StructType*>(const_cast<BaseType*>(newType)))->getAlignment();
-            if( align < myAlign )
+            if (align < myAlign)
+            {
                 align = myAlign;
+            }
             // append at the end, align offset to 4 bytes.
             currPos = numElems;
             ++numElems;
-            elementOffsets[currPos] = ((elementOffsets[currPos-1] +
-                                        elements[currPos-1]->getSize()-1)/myAlign+1)*myAlign;
+            elementOffsets[currPos] = ((elementOffsets[currPos - 1] +
+                                        elements[currPos - 1]->getSize() - 1) / myAlign + 1) * myAlign;
         }
         else
         {
-            if(newType->getSize() >= 4)
+            if (newType->getSize() >= 4)
             {
-                if(align < 4)
+                if (align < 4)
+                {
                     align = 4;
+                }
                 // append at the end, align offset to 4 bytes.
                 currPos = numElems;
                 ++numElems;
-                elementOffsets[currPos] = ((elementOffsets[currPos-1] +
-                                            elements[currPos-1]->getSize()-1)/4+1)*4;
+                elementOffsets[currPos] = ((elementOffsets[currPos - 1] +
+                                            elements[currPos - 1]->getSize() - 1) / 4 + 1) * 4;
             }
             else
             {
-                if(newType->getSize() == 2)
+                if (newType->getSize() == 2)
                 {
-                    if(align < 2)
+                    if (align < 2)
+                    {
                         align = 2;
+                    }
                     currPos = numElems;
                     numElems++;
-                    elementOffsets[currPos] = ((elementOffsets[currPos-1] +
-                                                elements[currPos-1]->getSize()-1)/2+1)*2;
+                    elementOffsets[currPos] = ((elementOffsets[currPos - 1] +
+                                                elements[currPos - 1]->getSize() - 1) / 2 + 1) * 2;
                 }
                 else
                 {
-                    if(newType->getSize() == 1)
+                    if (newType->getSize() == 1)
                     {
                         currPos = numElems;
                         numElems++;
-                        elementOffsets[currPos] = elementOffsets[currPos-1] +
-                                                  elements[currPos-1]->getSize();
+                        elementOffsets[currPos] = elementOffsets[currPos - 1] +
+                                                  elements[currPos - 1]->getSize();
                     }
                     else
                     {
@@ -372,9 +386,9 @@ StructType::getOffset(const char* elemName) const
     unsigned int i;
     unsigned int retval = 0;
     bool found = false;
-    for(i=0; i< numElems; i++)
+    for (i = 0; i < numElems; i++)
     {
-        if(strcmp(elementNames[i], elemName) == 0)
+        if (strcmp(elementNames[i], elemName) == 0)
         {
             retval = elementOffsets[i];
             found = true;
@@ -413,9 +427,9 @@ StructType::getElemType(const char* elemName) const
     const BaseType* retval = 0;
     unsigned int i;
 
-    for(i=0; i< numElems; i++)
+    for (i = 0; i < numElems; i++)
     {
-        if(strcmp(elementNames[i], elemName) == 0)
+        if (strcmp(elementNames[i], elemName) == 0)
         {
             retval = elements[i];
             break;
@@ -434,7 +448,7 @@ StructType::getElemType(const char* elemName) const
 const BaseType*
 StructType::getElemType(unsigned int num) const
 {
-    if(!(num < numElems))
+    if (!(num < numElems))
     {
         LTRACE << "ERROR in StructType::getElemType(" << num << ") offset out of bounds " << getName() << " retval " << 0;
 #ifdef DEBUG
@@ -448,7 +462,7 @@ StructType::getElemType(unsigned int num) const
 const char*
 StructType::getElemName(unsigned int num) const
 {
-    if(!(num < numElems))
+    if (!(num < numElems))
     {
         LTRACE << "ERROR in StructType::getElemName(" << num << ") offset out of bounds " << getName() << " retval " << 0;
 #ifdef DEBUG
@@ -476,13 +490,17 @@ StructType::contains(const StructType* aStruct) const
 {
     unsigned int i;
 
-    for(i=0; i< numElems; i++)
+    for (i = 0; i < numElems; i++)
     {
-        if(elements[i] == aStruct)
+        if (elements[i] == aStruct)
+        {
             return 1;
-        else if(elements[i]->getType() == STRUCT)
-            if((static_cast<StructType*>(const_cast<BaseType*>(elements[i])))->contains(aStruct))
+        }
+        else if (elements[i]->getType() == STRUCT)
+            if ((static_cast<StructType*>(const_cast<BaseType*>(elements[i])))->contains(aStruct))
+            {
                 return 1;
+            }
     }
     return 0;
 }
@@ -491,14 +509,14 @@ int
 StructType::compatibleWith(const Type* aType) const
 {
     int retval;
-    if(aType->getType() != STRUCT)
+    if (aType->getType() != STRUCT)
     {
         LTRACE << "no structtype";
         retval = 0;
     }
     else
     {
-        if(elements.size() != (static_cast<StructType*>(const_cast<Type*>(aType)))->elements.size())
+        if (elements.size() != (static_cast<StructType*>(const_cast<Type*>(aType)))->elements.size())
         {
             LTRACE << "not the same size";
             retval = 0;
@@ -511,11 +529,11 @@ StructType::compatibleWith(const Type* aType) const
             unsigned int i;
 
             retval = 1;
-            for( i = 0; i < elements.size(); i++ )
+            for (i = 0; i < elements.size(); i++)
             {
                 myBaseType = elements[i];
                 otherBaseType = (static_cast<StructType*>(const_cast<Type*>(aType)))->elements[i];
-                if(!myBaseType->compatibleWith(otherBaseType))
+                if (!myBaseType->compatibleWith(otherBaseType))
                 {
                     LTRACE << i << ". element " << otherBaseType->getName() << " does not match " << myBaseType;
                     retval = 0;
@@ -533,22 +551,22 @@ StructType::calcSize()
     unsigned int alignSize = 1;
 
     // check for alignment of size
-    for(unsigned int i=0; i< numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
-        if( elements[i]->getSize() == 4 || elements[i]->getType() == STRUCT )
+        if (elements[i]->getSize() == 4 || elements[i]->getType() == STRUCT)
         {
             alignSize = 4;
             break;
         }
         else
         {
-            if( elements[i]->getSize() == 2 )
+            if (elements[i]->getSize() == 2)
             {
                 alignSize = 2;
             }
         }
     }
     // align size to alignSize bytes (there may be unused bytes at the end!)
-    size = ((elementOffsets[numElems-1]+elements[numElems-1]->getSize()-1)/alignSize+1)*alignSize;
+    size = ((elementOffsets[numElems - 1] + elements[numElems - 1]->getSize() - 1) / alignSize + 1) * alignSize;
 }
 

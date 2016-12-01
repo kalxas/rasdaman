@@ -53,10 +53,10 @@ QtAtomicData::QtAtomicData()
 
 
 
-QtAtomicData::QtAtomicData( r_Long value, unsigned short byteLength )
+QtAtomicData::QtAtomicData(r_Long value, unsigned short byteLength)
     : QtScalarData()
 {
-    switch( byteLength )
+    switch (byteLength)
     {
     case 1:
         valueType = TypeFactory::mapType("Octet");
@@ -70,22 +70,22 @@ QtAtomicData::QtAtomicData( r_Long value, unsigned short byteLength )
 
     default:
         LERROR << "Error: QtAtomicData::QtAtomicData() - signed integer value with length "
-                       << byteLength << " is not supported.";
+               << byteLength << " is not supported.";
     }
 
-    if( valueType )
+    if (valueType)
     {
         r_Long temp = value;
         valueBuffer = new char[ valueType->getSize() ];
-        valueType->makeFromCLong( valueBuffer, &temp );
+        valueType->makeFromCLong(valueBuffer, &temp);
     }
 }
 
 
-QtAtomicData::QtAtomicData( r_ULong value, unsigned short byteLength )
+QtAtomicData::QtAtomicData(r_ULong value, unsigned short byteLength)
     : QtScalarData()
 {
-    switch( byteLength )
+    switch (byteLength)
     {
     case 1:
         valueType = TypeFactory::mapType("Char");
@@ -99,36 +99,36 @@ QtAtomicData::QtAtomicData( r_ULong value, unsigned short byteLength )
 
     default:
         LERROR << "Error: QtAtomicData::QtAtomicData() - unsigned integer value with length "
-                       << byteLength << " is not supported.";
+               << byteLength << " is not supported.";
     }
 
 
-    if( valueType )
+    if (valueType)
     {
         r_ULong temp = value;
         valueBuffer = new char[ valueType->getSize() ];
-        valueType->makeFromCULong( valueBuffer, &temp );
+        valueType->makeFromCULong(valueBuffer, &temp);
     }
 }
 
 
 
-QtAtomicData::QtAtomicData( bool value )
+QtAtomicData::QtAtomicData(bool value)
     : QtScalarData()
 {
     r_ULong valueULong = static_cast<r_ULong>(value);
 
     valueType   = TypeFactory::mapType("Bool");
     valueBuffer = new char[ valueType->getSize() ];
-    valueType->makeFromCULong( valueBuffer, &valueULong );
+    valueType->makeFromCULong(valueBuffer, &valueULong);
 }
 
 
 
-QtAtomicData::QtAtomicData( double value, unsigned short byteLength )
+QtAtomicData::QtAtomicData(double value, unsigned short byteLength)
     : QtScalarData()
 {
-    switch( byteLength )
+    switch (byteLength)
     {
     case 4:
         valueType = TypeFactory::mapType("Float");
@@ -139,22 +139,22 @@ QtAtomicData::QtAtomicData( double value, unsigned short byteLength )
 
     default:
         LERROR << "Error: QtAtomicData::QtAtomicData() - float value with length "
-                       << byteLength << " is not supported.";
+               << byteLength << " is not supported.";
     }
 
 
-    if( valueType )
+    if (valueType)
     {
         valueBuffer = new char[ valueType->getSize() ];
-        valueType->makeFromCDouble( valueBuffer, &value );
+        valueType->makeFromCDouble(valueBuffer, &value);
     }
 }
 
 
 
 
-QtAtomicData::QtAtomicData( const QtAtomicData& obj )
-    : QtScalarData( obj )
+QtAtomicData::QtAtomicData(const QtAtomicData& obj)
+    : QtScalarData(obj)
 {
 }
 
@@ -165,10 +165,12 @@ QtAtomicData::~QtAtomicData()
 r_ULong
 QtAtomicData::getUnsignedValue() const
 {
-    r_ULong value=0;
+    r_ULong value = 0;
 
-    if( valueType )
-        valueType->convertToCULong( valueBuffer, &value );
+    if (valueType)
+    {
+        valueType->convertToCULong(valueBuffer, &value);
+    }
 
     return value;
 }
@@ -178,10 +180,12 @@ QtAtomicData::getUnsignedValue() const
 r_Long
 QtAtomicData::getSignedValue() const
 {
-    r_Long value=0;
+    r_Long value = 0;
 
-    if( valueType )
-        valueType->convertToCLong( valueBuffer, &value );
+    if (valueType)
+    {
+        valueType->convertToCLong(valueBuffer, &value);
+    }
 
     return value;
 }
@@ -191,10 +195,12 @@ QtAtomicData::getSignedValue() const
 double
 QtAtomicData::getDoubleValue() const
 {
-    double value=0;
+    double value = 0;
 
-    if( valueType )
-        valueType->convertToCDouble( valueBuffer, &value );
+    if (valueType)
+    {
+        valueType->convertToCDouble(valueBuffer, &value);
+    }
 
     return value;
 }
@@ -202,11 +208,11 @@ QtAtomicData::getDoubleValue() const
 
 
 void
-QtAtomicData::printStatus( ostream& stream ) const
+QtAtomicData::printStatus(ostream& stream) const
 {
     stream << "atomic, " << flush;
 
-    QtScalarData::printStatus( stream );
+    QtScalarData::printStatus(stream);
 }
 
 
@@ -217,13 +223,17 @@ QtAtomicData::QtAtomicData(double valRe, double valIm, unsigned short size)
     double dummyRe = valRe;
     double dummyIm = valIm;
 
-    if(size == 2 * sizeof(float))
+    if (size == 2 * sizeof(float))
+    {
         valueType = TypeFactory::mapType("Complex1");
+    }
     else
+    {
         valueType = TypeFactory::mapType("Complex2");
+    }
 
     valueBuffer = new char[valueType->getSize()];
-    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType*>(valueType)))->getReOffset(), &dummyRe);
-    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType*>(valueType)))->getImOffset(), &dummyIm);
+    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType*>(const_cast<BaseType*>(valueType)))->getReOffset(), &dummyRe);
+    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType*>(const_cast<BaseType*>(valueType)))->getImOffset(), &dummyIm);
 }
 

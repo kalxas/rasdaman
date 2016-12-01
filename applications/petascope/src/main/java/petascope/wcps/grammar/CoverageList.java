@@ -45,7 +45,7 @@ public class CoverageList implements IParseTreeNode {
 
     public String toXML() {
         String result = "<" + WcpsConstants.MSG_COVERAGE_NAME + ">" + coverageName + "</"
-                + WcpsConstants.MSG_COVERAGE_NAME +">";
+                        + WcpsConstants.MSG_COVERAGE_NAME + ">";
 
         if (next != null) {
             result += next.toXML();

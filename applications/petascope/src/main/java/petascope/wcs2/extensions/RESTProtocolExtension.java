@@ -54,14 +54,12 @@ public class RESTProtocolExtension extends AbstractProtocolExtension {
         return "";
     }
 
-    public static String mapRestResourcesToCoverageOperation(String restResource){
-        if(restResource.contains("capabilities")){
+    public static String mapRestResourcesToCoverageOperation(String restResource) {
+        if (restResource.contains("capabilities")) {
             return "GetCapabilities";
-        }
-        else if(restResource.contains("coverage") && restResource.contains("description")){
+        } else if (restResource.contains("coverage") && restResource.contains("description")) {
             return "DescribeCoverage";
-        }
-        else if(restResource.contains("coverage")){
+        } else if (restResource.contains("coverage")) {
             return "GetCoverage";
         }
         return "";

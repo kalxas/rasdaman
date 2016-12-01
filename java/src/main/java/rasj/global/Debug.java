@@ -85,8 +85,7 @@ import java.lang.System;
  *
  */
 
-public class Debug
-  {
+public class Debug {
     static final String rcsid = "@(#)Package rasj.global, class Debug: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/global/Debug.java,v 1.2 2006/01/19 18:24:16 rasdev Exp $";
 
     //
@@ -94,7 +93,7 @@ public class Debug
     //
 
     /** log only critical events **/
-    public static final int CRITICAL_LEVEL = 0;	// print always
+    public static final int CRITICAL_LEVEL = 0; // print always
 
     /** log also warnings which do not really impede processing **/
     public static final int WARNING_LEVEL  = 1;
@@ -108,12 +107,12 @@ public class Debug
 
     /**
     * debug threshold default
-    **/ 
+    **/
     public static final int DEFAULT_LEVEL  = WARNING_LEVEL;
 
     /**
     * debug threshold - only levels below it are displayed:
-    **/ 
+    **/
     private static int debugThreshold = DEFAULT_LEVEL;
 
     /**
@@ -129,16 +128,14 @@ public class Debug
     /**
     * set debug threshold to control further output
     **/
-    public static void setDebugThreshold(int level)
-      {
-        if (level >= 0)
-        {
+    public static void setDebugThreshold(int level) {
+        if (level >= 0) {
             debugThreshold = level;
-            System.err.println( "Debug::setDebugThreshold: setting debug level to " + level );
+            System.err.println("Debug::setDebugThreshold: setting debug level to " + level);
+        } else {
+            System.err.println("Debug::setDebugThreshold: ignoring illegal debug level value: " + level);
         }
-        else
-            System.err.println( "Debug::setDebugThreshold: ignoring illegal debug level value: " + level );
-      }
+    }
 
     /**
     the following set of methods logs for entering/within/leaving a method.
@@ -147,83 +144,104 @@ public class Debug
     **/
 
     /** method enter msg, output only with critical level **/
-    public static void enterCritical( String what )	{ enter( CRITICAL_LEVEL, what ); }
+    public static void enterCritical(String what) {
+        enter(CRITICAL_LEVEL, what);
+    }
     /** method enter msg, output only with warning level **/
-    public static void enterWarning( String what )	{ enter( WARNING_LEVEL,  what ); }
+    public static void enterWarning(String what)  {
+        enter(WARNING_LEVEL,  what);
+    }
     /** method enter msg, output only with sparse level **/
-    public static void enterSparse( String what )	{ enter( SPARSE_LEVEL,   what ); }
+    public static void enterSparse(String what)   {
+        enter(SPARSE_LEVEL,   what);
+    }
     /** method enter msg, output only with verbose log level **/
-    public static void enterVerbose( String what )	{ enter( VERBOSE_LEVEL,  what ); }
+    public static void enterVerbose(String what)  {
+        enter(VERBOSE_LEVEL,  what);
+    }
 
     /** method leave msg, output only with critical level **/
-    public static void leaveCritical( String what )	{ leave( CRITICAL_LEVEL, what ); }
+    public static void leaveCritical(String what) {
+        leave(CRITICAL_LEVEL, what);
+    }
     /** method leave msg, output only with warning level **/
-    public static void leaveWarning( String what )	{ leave( WARNING_LEVEL,  what ); }
+    public static void leaveWarning(String what)  {
+        leave(WARNING_LEVEL,  what);
+    }
     /** method leave msg, output only with sparse level **/
-    public static void leaveSparse( String what )	{ leave( SPARSE_LEVEL,   what ); }
+    public static void leaveSparse(String what)   {
+        leave(SPARSE_LEVEL,   what);
+    }
     /** method leave msg, output only with verbose log level **/
-    public static void leaveVerbose( String what )	{ leave( VERBOSE_LEVEL,  what ); }
+    public static void leaveVerbose(String what)  {
+        leave(VERBOSE_LEVEL,  what);
+    }
 
     /** method inside msg, output only with critical level **/
-    public static void talkCritical( String what )	{ talk( CRITICAL_LEVEL, what ); }
+    public static void talkCritical(String what)  {
+        talk(CRITICAL_LEVEL, what);
+    }
     /** method inside msg, output only with warning level **/
-    public static void talkWarning( String what )	{ talk( WARNING_LEVEL,  what ); }
+    public static void talkWarning(String what)   {
+        talk(WARNING_LEVEL,  what);
+    }
     /** method inside msg, output only with sparse level **/
-    public static void talkSparse( String what )	{ talk( SPARSE_LEVEL,   what ); }
+    public static void talkSparse(String what)    {
+        talk(SPARSE_LEVEL,   what);
+    }
     /** method inside msg, output only with verbose log level **/
-    public static void talkVerbose( String what )	{ talk( VERBOSE_LEVEL,  what ); }
+    public static void talkVerbose(String what)   {
+        talk(VERBOSE_LEVEL,  what);
+    }
 
     /**
     * writes messages to the "standard" error log stream, increments indentation
     **/
-    private static void enter(int level, String what)
-      {
-        StringBuffer s = new StringBuffer(100);		// to hold indent prefix
+    private static void enter(int level, String what) {
+        StringBuffer s = new StringBuffer(100);     // to hold indent prefix
 
-        if(level <= debugThreshold)
-          {
-            indentLevel++;				// indent one more to the right
-            s.append( "rasj[" + Integer.toString(level) + "] " );	// document log level
-            for (int i=0; i<indentLevel; i++)
-                s.append( INDENT );
-            s.append( what );
-            System.err.println( s );
-          }
-      }
+        if (level <= debugThreshold) {
+            indentLevel++;              // indent one more to the right
+            s.append("rasj[" + Integer.toString(level) + "] ");     // document log level
+            for (int i = 0; i < indentLevel; i++) {
+                s.append(INDENT);
+            }
+            s.append(what);
+            System.err.println(s);
+        }
+    }
 
 
-   /**
-    * writes messages to the "standard" error log stream, decrements indentation
-    **/
-    static void leave(int level, String what)
-      {
-        StringBuffer s = new StringBuffer(100);		// to hold indent prefix
+    /**
+     * writes messages to the "standard" error log stream, decrements indentation
+     **/
+    static void leave(int level, String what) {
+        StringBuffer s = new StringBuffer(100);     // to hold indent prefix
 
-        if(level <= debugThreshold)
-          {
-            s.append( "rasj[" + Integer.toString(level) + "] " );	// document log level
-            for (int i=0; i<indentLevel; i++)
-                s.append( INDENT );
-            s.append( what );
-            System.err.println( s );
-            indentLevel--;				// indent one less, go left
-          }
-      }
+        if (level <= debugThreshold) {
+            s.append("rasj[" + Integer.toString(level) + "] ");     // document log level
+            for (int i = 0; i < indentLevel; i++) {
+                s.append(INDENT);
+            }
+            s.append(what);
+            System.err.println(s);
+            indentLevel--;              // indent one less, go left
+        }
+    }
 
     /**
     * writes messages to the "standard" error log stream; indentation unchanged
     **/
-    static void talk(int level, String what)
-      {
-        StringBuffer s = new StringBuffer(100);		// to hold indent prefix
+    static void talk(int level, String what) {
+        StringBuffer s = new StringBuffer(100);     // to hold indent prefix
 
-        if(level <= debugThreshold)
-          {
-            s.append( "rasj[" + Integer.toString( level) + "] " );	// document log level
-            for (int i=0; i<indentLevel; i++)
-                s.append( INDENT );
-            s.append( what );
-            System.err.println( s );
-          }
-      }
-  }
+        if (level <= debugThreshold) {
+            s.append("rasj[" + Integer.toString(level) + "] ");     // document log level
+            for (int i = 0; i < indentLevel; i++) {
+                s.append(INDENT);
+            }
+            s.append(what);
+            System.err.println(s);
+        }
+    }
+}

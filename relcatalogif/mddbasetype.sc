@@ -50,7 +50,7 @@ MDDBaseType::insertInDb() throw (r_Error)
     long long mddbasetypeid;
     char mddtypename[STRING_MAXLEN];
 
-    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof (mddtypename));
+    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename));
     DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
     mddbasetypeid = obj->getOId();
     mddtypeid = myOId.getCounter();
@@ -68,7 +68,7 @@ MDDBaseType::readFromDb() throw (r_Error)
 #endif
     long long mddtypeid;
     long long mddbasetypeid;
-    char *mddtypename;
+    char* mddtypename;
 
     mddtypeid = myOId.getCounter();
     mddbasetypeid = 0;
@@ -83,7 +83,7 @@ MDDBaseType::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "MDDBaseType::readFromDb() - mdd type: "
-                << mddtypeid << " not found in the database.";
+               << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 

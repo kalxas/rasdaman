@@ -48,17 +48,17 @@ r_OId::r_OId()
 {
 }
 
-r_OId::r_OId( const char* initOIdString )
+r_OId::r_OId(const char* initOIdString)
     : oidString(NULL),
       systemName(NULL),
       baseName(NULL),
       localOId(0)
 {
     // set oidString
-    if( initOIdString )
+    if (initOIdString)
     {
-        oidString = new char[ strlen(initOIdString)+1 ];
-        strcpy( oidString, initOIdString );
+        oidString = new char[ strlen(initOIdString) + 1 ];
+        strcpy(oidString, initOIdString);
 
         //
         // extract oid parts
@@ -68,34 +68,40 @@ r_OId::r_OId( const char* initOIdString )
 
         // system name
         startPtr = endPtr = oidString;
-        while( *endPtr != '|' && *endPtr != '\0' ) endPtr++;
-        if( endPtr - startPtr >= 1 )
+        while (*endPtr != '|' && *endPtr != '\0')
+        {
+            endPtr++;
+        }
+        if (endPtr - startPtr >= 1)
         {
             systemName = new char[ endPtr - startPtr + 1 ];
-            strncpy( systemName, startPtr, static_cast<size_t>(endPtr - startPtr) );
+            strncpy(systemName, startPtr, static_cast<size_t>(endPtr - startPtr));
             systemName[endPtr - startPtr] = '\0';
         }
 
-        if( *endPtr != '\0' )
+        if (*endPtr != '\0')
         {
             // base name
             endPtr++;
             startPtr = endPtr;
-            while( *endPtr != '|' && *endPtr != '\0' ) endPtr++;
-            if( endPtr - startPtr >= 1 )
+            while (*endPtr != '|' && *endPtr != '\0')
+            {
+                endPtr++;
+            }
+            if (endPtr - startPtr >= 1)
             {
                 baseName = new char[ endPtr - startPtr + 1 ];
-                strncpy( baseName, startPtr, static_cast<size_t>(endPtr - startPtr) );
+                strncpy(baseName, startPtr, static_cast<size_t>(endPtr - startPtr));
                 baseName[endPtr - startPtr] = '\0';
             }
 
-            if( *endPtr != '\0' )
+            if (*endPtr != '\0')
             {
                 // local oid
                 endPtr++;
                 startPtr = endPtr;
 
-                localOId = atof( startPtr );
+                localOId = atof(startPtr);
             }
 
         }
@@ -103,37 +109,45 @@ r_OId::r_OId( const char* initOIdString )
     }
 }
 
-r_OId::r_OId( const char* initSystemName, const char* initBaseName, double initLocalOId )
+r_OId::r_OId(const char* initSystemName, const char* initBaseName, double initLocalOId)
     : oidString(NULL),
       systemName(NULL),
       baseName(NULL),
-      localOId( initLocalOId )
+      localOId(initLocalOId)
 {
     // set members
-    if( initSystemName )
+    if (initSystemName)
     {
-        systemName= new char[ strlen(initSystemName)+1 ];
-        strcpy( systemName, initSystemName );
+        systemName = new char[ strlen(initSystemName) + 1 ];
+        strcpy(systemName, initSystemName);
     }
 
-    if( initBaseName )
+    if (initBaseName)
     {
-        baseName= new char[ strlen(initBaseName)+1 ];
-        strcpy( baseName, initBaseName );
+        baseName = new char[ strlen(initBaseName) + 1 ];
+        strcpy(baseName, initBaseName);
     }
 
     std::ostringstream oidStream;
 
     // write into the string stream
-    if( systemName )
+    if (systemName)
+    {
         oidStream << systemName << "|";
+    }
     else
+    {
         oidStream << "|";
+    }
 
-    if( baseName )
+    if (baseName)
+    {
         oidStream << baseName << "|";
+    }
     else
+    {
         oidStream << "|";
+    }
 
     oidStream << std::setprecision(50) << localOId;
 
@@ -141,28 +155,28 @@ r_OId::r_OId( const char* initSystemName, const char* initBaseName, double initL
     oidString = strdup(oidStream.str().c_str());
 }
 
-r_OId::r_OId( const r_OId& obj )
+r_OId::r_OId(const r_OId& obj)
     : oidString(NULL),
       systemName(NULL),
       baseName(NULL),
       localOId(0)
 {
-    if( obj.oidString )
+    if (obj.oidString)
     {
-        oidString= new char[ strlen(obj.oidString)+1 ];
-        strcpy( oidString, obj.oidString );
+        oidString = new char[ strlen(obj.oidString) + 1 ];
+        strcpy(oidString, obj.oidString);
     }
 
-    if( obj.systemName )
+    if (obj.systemName)
     {
-        systemName= new char[ strlen(obj.systemName)+1 ];
-        strcpy( systemName, obj.systemName );
+        systemName = new char[ strlen(obj.systemName) + 1 ];
+        strcpy(systemName, obj.systemName);
     }
 
-    if( obj.baseName )
+    if (obj.baseName)
     {
-        baseName= new char[ strlen(obj.baseName)+1 ];
-        strcpy( baseName, obj.baseName );
+        baseName = new char[ strlen(obj.baseName) + 1 ];
+        strcpy(baseName, obj.baseName);
     }
 
     localOId = obj.localOId;
@@ -176,19 +190,19 @@ r_OId::~r_OId()
 void
 r_OId::r_deactivate()
 {
-    if( oidString )
+    if (oidString)
     {
         delete[] oidString;
         oidString = NULL;
     }
 
-    if( systemName )
+    if (systemName)
     {
         delete[] systemName;
         systemName = NULL;
     }
 
-    if( baseName )
+    if (baseName)
     {
         delete[] baseName;
         baseName = NULL;
@@ -196,51 +210,53 @@ r_OId::r_deactivate()
 }
 
 void
-r_OId::print_status( std::ostream& s ) const
+r_OId::print_status(std::ostream& s) const
 {
-    if( oidString )
+    if (oidString)
+    {
         s << oidString;
+    }
 }
 
 const r_OId&
-r_OId::operator=( const r_OId& obj )
+r_OId::operator=(const r_OId& obj)
 {
-    if( this != &obj )
+    if (this != &obj)
     {
-        if( oidString )
+        if (oidString)
         {
             delete[] oidString;
             oidString = NULL;
         }
 
-        if( obj.oidString )
+        if (obj.oidString)
         {
-            oidString = new char[ strlen(obj.oidString)+1 ];
-            strcpy( oidString, obj.oidString );
+            oidString = new char[ strlen(obj.oidString) + 1 ];
+            strcpy(oidString, obj.oidString);
         }
 
-        if( systemName )
+        if (systemName)
         {
             delete[] systemName;
             systemName = NULL;
         }
 
-        if( obj.systemName )
+        if (obj.systemName)
         {
-            systemName = new char[ strlen(obj.systemName)+1 ];
-            strcpy( systemName, obj.systemName );
+            systemName = new char[ strlen(obj.systemName) + 1 ];
+            strcpy(systemName, obj.systemName);
         }
 
-        if( baseName )
+        if (baseName)
         {
             delete[] baseName;
             baseName = NULL;
         }
 
-        if( obj.baseName )
+        if (obj.baseName)
         {
-            baseName = new char[ strlen(obj.baseName)+1 ];
-            strcpy( baseName, obj.baseName );
+            baseName = new char[ strlen(obj.baseName) + 1 ];
+            strcpy(baseName, obj.baseName);
         }
 
         localOId = obj.localOId;
@@ -250,43 +266,51 @@ r_OId::operator=( const r_OId& obj )
 }
 
 bool
-r_OId::operator==( const r_OId& oid ) const
+r_OId::operator==(const r_OId& oid) const
 {
     bool equal = false;
 
-    if( oidString && oid.oidString )
-        equal = !strcmp( oidString, oid.oidString );
+    if (oidString && oid.oidString)
+    {
+        equal = !strcmp(oidString, oid.oidString);
+    }
 
     return equal;
 }
 
 bool
-r_OId::operator!=( const r_OId& oid ) const
+r_OId::operator!=(const r_OId& oid) const
 {
-    return !operator==( oid );
+    return !operator==(oid);
 }
 
 bool
-r_OId::operator> ( const r_OId& oid ) const
+r_OId::operator> (const r_OId& oid) const
 {
     int comparison = 0;
 
-    if( systemName && oid.systemName )
+    if (systemName && oid.systemName)
     {
-        comparison = strcmp( systemName, oid.systemName );
+        comparison = strcmp(systemName, oid.systemName);
 
-        if( !comparison && baseName && oid.baseName )
+        if (!comparison && baseName && oid.baseName)
         {
-            comparison = strcmp( baseName, oid.baseName );
+            comparison = strcmp(baseName, oid.baseName);
 
-            if( !comparison )
+            if (!comparison)
             {
-                if( localOId < oid.localOId )
+                if (localOId < oid.localOId)
+                {
                     comparison = -1;
-                else if( localOId == oid.localOId )
+                }
+                else if (localOId == oid.localOId)
+                {
                     comparison = 0;
+                }
                 else
+                {
                     comparison = 1;
+                }
             }
         }
     }
@@ -295,26 +319,32 @@ r_OId::operator> ( const r_OId& oid ) const
 }
 
 bool
-r_OId::operator< ( const r_OId& oid ) const
+r_OId::operator< (const r_OId& oid) const
 {
     int comparison = 0;
 
-    if( systemName && oid.systemName )
+    if (systemName && oid.systemName)
     {
-        comparison = strcmp( systemName, oid.systemName );
+        comparison = strcmp(systemName, oid.systemName);
 
-        if( !comparison && baseName && oid.baseName )
+        if (!comparison && baseName && oid.baseName)
         {
-            comparison = strcmp( baseName, oid.baseName );
+            comparison = strcmp(baseName, oid.baseName);
 
-            if( !comparison )
+            if (!comparison)
             {
-                if( localOId < oid.localOId )
+                if (localOId < oid.localOId)
+                {
                     comparison = -1;
-                else if( localOId == oid.localOId )
+                }
+                else if (localOId == oid.localOId)
+                {
                     comparison = 0;
+                }
                 else
+                {
                     comparison = 1;
+                }
             }
         }
     }
@@ -323,20 +353,20 @@ r_OId::operator< ( const r_OId& oid ) const
 }
 
 bool
-r_OId::operator>=( const r_OId& oid ) const
+r_OId::operator>=(const r_OId& oid) const
 {
-    return !operator< ( oid );
+    return !operator< (oid);
 }
 
 bool
-r_OId::operator<=( const r_OId& oid ) const
+r_OId::operator<=(const r_OId& oid) const
 {
-    return !operator> ( oid );
+    return !operator> (oid);
 }
 
-std::ostream& operator<<( std::ostream& s, const r_OId& oid )
+std::ostream& operator<<(std::ostream& s, const r_OId& oid)
 {
-    oid.print_status( s );
+    oid.print_status(s);
     return s;
 }
 

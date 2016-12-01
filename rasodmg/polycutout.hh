@@ -72,7 +72,7 @@ using std::ostream;
 class r_SegmentIterator
 {
 public:
-    r_SegmentIterator(r_Point&,r_Point&);
+    r_SegmentIterator(r_Point&, r_Point&);
     void reset();
     r_Point next();
     bool hasMore();
@@ -85,8 +85,8 @@ private:
     r_Point end;
     int cadran;
 
-    r_Range dx,dy;
-    r_Range cx,cy;
+    r_Range dx, dy;
+    r_Range cx, cy;
     int   beta;
 };
 
@@ -97,15 +97,15 @@ class r_Line
 {
 public:
     r_Line();
-    r_Line(double,double,double);
-    r_Line(r_Point&,r_Point&);
+    r_Line(double, double, double);
+    r_Line(r_Point&, r_Point&);
     double getA();
     double getB();
     double getC();
     float ecuatia(r_Point&);
 private:
-    double a,b,c;
-    friend ostream& operator<<(ostream&,r_Line&);
+    double a, b, c;
+    friend ostream& operator<<(ostream&, r_Line&);
 };
 
 
@@ -126,17 +126,17 @@ public:
     bool fillMArrayOutside(const string& bgr = "") throw(r_Error);
 
     // just for debugging
-    void print(r_Range onlyLine=-1);
+    void print(r_Range onlyLine = -1);
     void printLine(r_Range line);
 
 private:
     bool compute();
-    void eraseLine( r_Range, r_Range, r_Range y, const string& bgr ) throw(r_Error);
+    void eraseLine(r_Range, r_Range, r_Range y, const string& bgr) throw(r_Error);
 
-    r_Range imgWidth,imgHeight;
-    r_Range imgX,imgY; // - the origin of the mdd domain
+    r_Range imgWidth, imgHeight;
+    r_Range imgX, imgY; // - the origin of the mdd domain
 
-    r_GMarray *mArray;
+    r_GMarray* mArray;
 
     std::list<r_Polygon> polygons;
 
@@ -150,8 +150,8 @@ private:
 
     r_Range tableWidth;
     r_Range tableHeight;
-    TablePoint *table;
-    int        *usedCount;
+    TablePoint* table;
+    int*        usedCount;
     TablePoint& getTP(r_Range line, r_Range column);
 
     bool initTable();
@@ -164,8 +164,8 @@ private:
     void computeOneHorSegment(r_Point start, r_Point end);
     void ordonateLine(int line);
     void minimizeLine(int line);
-    void replacePoint(r_Range line,r_Range col,int inside, int cosFunc);
-    void addPoint(r_Range line,r_Range col,int inside, int cosFunc);
+    void replacePoint(r_Range line, r_Range col, int inside, int cosFunc);
+    void addPoint(r_Range line, r_Range col, int inside, int cosFunc);
 
 };
 

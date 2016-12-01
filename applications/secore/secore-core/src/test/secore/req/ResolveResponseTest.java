@@ -30,26 +30,26 @@ import static org.junit.Assert.*;
  */
 public class ResolveResponseTest {
 
-  /**
-   * Test of getData method, of class GmlResponse.
-   */
-  @Test
-  public void testGetData() {
-    System.out.println("getData");
-    String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hello>\n" +
-        "   <metaDataProperty>\n" +
-        "      <adsf/>\n" +
-        "   </metaDataProperty>\n" +
-        "</hello>";
-    ResolveResponse instance = new ResolveResponse(data);
-    String expResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        + "<hello xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\">\n" +
-        "   <metaDataProperty>\n" +
-        "      <adsf/>\n" +
-        "   </metaDataProperty>\n" +
-        "</hello>";
-    String result = instance.getData();
-    
-    assertEquals(expResult, result);
-  }
+    /**
+     * Test of getData method, of class GmlResponse.
+     */
+    @Test
+    public void testGetData() {
+        System.out.println("getData");
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hello>\n" +
+                      "   <metaDataProperty>\n" +
+                      "      <adsf/>\n" +
+                      "   </metaDataProperty>\n" +
+                      "</hello>";
+        ResolveResponse instance = new ResolveResponse(data);
+        String expResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                           + "<hello xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\">\n" +
+                           "   <metaDataProperty>\n" +
+                           "      <adsf/>\n" +
+                           "   </metaDataProperty>\n" +
+                           "</hello>";
+        String result = instance.getData();
+
+        assertEquals(expResult, result);
+    }
 }

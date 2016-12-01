@@ -33,12 +33,12 @@ namespace common
 {
 namespace test
 {
-class HealthServiceServerTest:public ::testing::Test
+class HealthServiceServerTest: public ::testing::Test
 {
 protected:
     HealthServiceServerTest()
     {
-        this->serverAddress="localhost:9000";
+        this->serverAddress = "localhost:9000";
         this->serverService = new HealthServiceImpl();
 
         grpc::ServerBuilder builder;
@@ -48,7 +48,7 @@ protected:
 
         this->server = builder.BuildAndStart();
 
-        std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()));
+        std::shared_ptr<grpc::Channel> channel(grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()));
         this->service.reset(new HealthService::Stub(channel));
     }
 

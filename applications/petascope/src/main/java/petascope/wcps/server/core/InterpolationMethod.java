@@ -32,24 +32,23 @@ public class InterpolationMethod implements Cloneable {
     private String interpolationType;
     private String nullResistance;
 
-    public InterpolationMethod(String interpolationType, String nullResistance) throws WCPSException
-            {
+    public InterpolationMethod(String interpolationType, String nullResistance) throws WCPSException {
         if ((interpolationType == null)
                 || !(interpolationType.equals(WcpsConstants.MSG_NEAREST) || interpolationType.equals(WcpsConstants.MSG_LINEAR)
-                || interpolationType.equals(WcpsConstants.MSG_CUBIC )
-                || interpolationType.equals(WcpsConstants.MSG_QUADRATIC)
-                || interpolationType.equals(WcpsConstants.MSG_NONE))) {
+                     || interpolationType.equals(WcpsConstants.MSG_CUBIC)
+                     || interpolationType.equals(WcpsConstants.MSG_QUADRATIC)
+                     || interpolationType.equals(WcpsConstants.MSG_NONE))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid interpolation method: "
-                    + interpolationType + " is not a legal interpolation type");
+                                    + interpolationType + " is not a legal interpolation type");
         }
 
         this.interpolationType = interpolationType;
 
         if ((nullResistance == null)
                 || !(nullResistance.equals(WcpsConstants.MSG_FULL) || nullResistance.equals(WcpsConstants.MSG_NONE)
-                || nullResistance.equals(WcpsConstants.MSG_HALF) || nullResistance.equals(WcpsConstants.MSG_OTHER))) {
+                     || nullResistance.equals(WcpsConstants.MSG_HALF) || nullResistance.equals(WcpsConstants.MSG_OTHER))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid interpolation method: "
-                    + nullResistance + " is not a legal null resistance");
+                                    + nullResistance + " is not a legal null resistance");
         }
 
         this.nullResistance = nullResistance;
@@ -67,7 +66,7 @@ public class InterpolationMethod implements Cloneable {
 
     public boolean equals(InterpolationMethod im) {
         return interpolationType.equals(im.interpolationType)
-                && nullResistance.equals(im.nullResistance);
+               && nullResistance.equals(im.nullResistance);
 
     }
 

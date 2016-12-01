@@ -66,7 +66,7 @@ public class CrsTransformHandler {
      * @return
      */
     public static WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, HashMap<String,
-            HashMap<String, String>> rangeInterpolations, WcpsCoverageMetadataService wcpsCoverageMetadataService) {
+                                    HashMap<String, String>> rangeInterpolations, WcpsCoverageMetadataService wcpsCoverageMetadataService) {
         checkValid(axisCrss);
         String rasql = getBoundingBox(coverageExpression, axisCrss);
 
@@ -151,7 +151,7 @@ public class CrsTransformHandler {
         String targetCRS = CrsUtil.CrsUri.getAuthorityCode(outputCrs);
 
         outputStr = TEMPLATE.replace("$COVERAGE_EXPRESSION", covRasql).replace("$BOUNDING_BOX", bbox)
-                            .replace("$SOURCE_CRS", sourceCRS).replace("$TARGET_CRS", targetCRS);
+                    .replace("$SOURCE_CRS", sourceCRS).replace("$TARGET_CRS", targetCRS);
 
         return outputStr;
     }

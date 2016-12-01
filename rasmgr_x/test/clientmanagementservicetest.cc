@@ -51,7 +51,7 @@ using ::testing::Throw;
 
 using ::grpc::Status;
 
-class ClientManagementServiceTest:public ::testing::Test
+class ClientManagementServiceTest: public ::testing::Test
 {
 protected:
     ClientManagementServiceTest()

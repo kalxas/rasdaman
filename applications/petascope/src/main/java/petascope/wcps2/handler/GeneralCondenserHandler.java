@@ -61,7 +61,7 @@ public class GeneralCondenserHandler {
                                     AxisIteratorAliasRegistry axisIteratorAliasRegistry,
                                     WcpsCoverageMetadataService wcpsCoverageMetadataService,
                                     RasqlTranslationService rasqlTranslationService, SubsetParsingService subsetParsingService) {
-         // contains subset dimension without "$"
+        // contains subset dimension without "$"
         List<SubsetDimension> pureSubsetDimensions = new ArrayList<SubsetDimension>();
         // contains subset dimension with "$"
         List<SubsetDimension> axisIteratorSubsetDimensions = new ArrayList<SubsetDimension>();
@@ -73,7 +73,7 @@ public class GeneralCondenserHandler {
             String alias = i.getAliasName();
             SubsetDimension subsetDimension = i.getSubsetDimension();
 
-            if (rasqlAliasName.isEmpty()){
+            if (rasqlAliasName.isEmpty()) {
                 rasqlAliasName = alias.replace(SubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
@@ -90,9 +90,9 @@ public class GeneralCondenserHandler {
 
         String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getAxes(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
         String template = TEMPLATE.replace("$operation", operation)
-                                  .replace("$iter", rasqlAliasName)
-                                  .replace("$intervals", rasqlDomain)
-                                  .replace("$using", using.getRasql());
+                          .replace("$iter", rasqlAliasName)
+                          .replace("$intervals", rasqlDomain)
+                          .replace("$using", using.getRasql());
 
         if (whereClause != null) {
             template = template.replace("$whereClause", whereClause.getRasql());

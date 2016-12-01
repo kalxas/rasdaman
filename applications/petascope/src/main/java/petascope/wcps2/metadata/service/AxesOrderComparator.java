@@ -30,16 +30,14 @@ import petascope.wcps2.metadata.model.Axis;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class AxesOrderComparator implements Comparator<Axis>{
+public class AxesOrderComparator implements Comparator<Axis> {
 
     public int compare(Axis o1, Axis o2) {
-        if(o1.getRasdamanOrder() < o2.getRasdamanOrder()){
+        if (o1.getRasdamanOrder() < o2.getRasdamanOrder()) {
             return -1;
-        }
-        else if(o1.getRasdamanOrder() == o2.getRasdamanOrder()) {
+        } else if (o1.getRasdamanOrder() == o2.getRasdamanOrder()) {
             return 0;
-        }
-        else{
+        } else {
             return 1;
         }
     }

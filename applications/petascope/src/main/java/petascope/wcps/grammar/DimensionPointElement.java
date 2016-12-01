@@ -53,11 +53,11 @@ public class DimensionPointElement implements IParseTreeNode {
 
         if (crs != null) {
             result += "<"  + WcpsConstants.MSG_SRS_NAME + ">" + StringUtil.escapeXmlPredefinedEntities(crs)
-                    + "</" + WcpsConstants.MSG_SRS_NAME + ">";
+                      + "</" + WcpsConstants.MSG_SRS_NAME + ">";
         }
 
         result += "<" + WcpsConstants.MSG_SLICING_POSITION + ">" + point.toXML() +
-                "</" + WcpsConstants.MSG_SLICING_POSITION + ">";
+                  "</" + WcpsConstants.MSG_SLICING_POSITION + ">";
 
         return result;
     }

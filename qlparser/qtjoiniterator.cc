@@ -57,8 +57,8 @@ QtJoinIterator::QtJoinIterator()
 }
 
 
-QtJoinIterator::QtJoinIterator( QtNode* node )
-    : QtIterator( node ),
+QtJoinIterator::QtJoinIterator(QtNode* node)
+    : QtIterator(node),
       outputStreamIsEmpty(false),
       actualTupel(NULL)
 {
@@ -69,37 +69,40 @@ QtJoinIterator::~QtJoinIterator()
 {
     vector<QtData*>::iterator i; //default
 
-    if( actualTupel )
+    if (actualTupel)
     {
         // first delete still existing data carriers
-        for( QtDataList::iterator iter=actualTupel->begin(); iter!=actualTupel->end(); iter++ )
-            if( *iter ) (*iter)->deleteRef();
+        for (QtDataList::iterator iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+            if (*iter)
+            {
+                (*iter)->deleteRef();
+            }
 
         delete actualTupel;
-        actualTupel=NULL;
+        actualTupel = NULL;
     }
 }
 
 
 void
-QtJoinIterator::printTree( int tab, ostream& s, QtChildType mode )
+QtJoinIterator::printTree(int tab, ostream& s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtJoinIterator Object: type " << flush;
-    dataStreamType.printStatus( s );
+    dataStreamType.printStatus(s);
     s << getEvaluationTime();
     s << endl;
 
-    QtIterator::printTree( tab, s, mode );
+    QtIterator::printTree(tab, s, mode);
 }
 
 
 
 void
-QtJoinIterator::printAlgebraicExpression( ostream& s )
+QtJoinIterator::printAlgebraicExpression(ostream& s)
 {
     s << "join";
 
-    QtIterator::printAlgebraicExpression( s );
+    QtIterator::printAlgebraicExpression(s);
 }
 
 
@@ -112,7 +115,7 @@ QtJoinIterator::open()
 
     outputStreamIsEmpty = false;  // initialization
 
-    if( inputs )
+    if (inputs)
     {
         // The idea of actualTupel initialization:
         //
@@ -126,18 +129,18 @@ QtJoinIterator::open()
         //       :         :         :           |        "
 
         // allocate an empty tupel, right now each input stream provides one data element
-        actualTupel = new QtDataList( inputs->size() );
+        actualTupel = new QtDataList(inputs->size());
 
         // set the first element of the tupel to NULL
         (*actualTupel)[0] = NULL;
 
         // fill the tupel, except of the first element, with the first elements of the input streams
         //the first element is filled in the ::next() method
-        for( unsigned int tupelPos=1; tupelPos<actualTupel->size(); tupelPos++ )
+        for (unsigned int tupelPos = 1; tupelPos < actualTupel->size(); tupelPos++)
         {
             QtDataList* resultList = (*inputs)[tupelPos]->next();
 
-            if( resultList )
+            if (resultList)
             {
                 // take the first data element of the input stream result
                 (*actualTupel)[tupelPos] = (*resultList)[0];
@@ -170,7 +173,7 @@ QtJoinIterator::next()
 
     QtDataList* returnValue = NULL;
 
-    if( inputs && actualTupel && !outputStreamIsEmpty )
+    if (inputs && actualTupel && !outputStreamIsEmpty)
     {
         bool        nextTupelAvailable = true;
         bool        nextTupelValid = false;
@@ -178,7 +181,7 @@ QtJoinIterator::next()
         QtDataList* resultList = NULL;
         QtONCStreamList::iterator iter;
 
-        while( !nextTupelValid && nextTupelAvailable && !outputStreamIsEmpty )
+        while (!nextTupelValid && nextTupelAvailable && !outputStreamIsEmpty)
         {
             // switch to the next tupel which means
 
@@ -186,15 +189,17 @@ QtJoinIterator::next()
             tupelPos           = 0;
             iter               = inputs->begin();
 
-            while( !nextTupelAvailable && iter!=inputs->end() )
+            while (!nextTupelAvailable && iter != inputs->end())
             {
                 resultList = (*iter)->next();
 
                 // Test, if the first input stream is empty, because this is not tested in open()
-                if( resultList == NULL && tupelPos==0 && (*actualTupel)[0] == 0 )
+                if (resultList == NULL && tupelPos == 0 && (*actualTupel)[0] == 0)
+                {
                     outputStreamIsEmpty = true;
+                }
 
-                if( resultList == NULL )
+                if (resultList == NULL)
                 {
                     (*iter)->reset();              // reset the stream ...
                     //this causes the first element of the list to be deleted - not the others
@@ -203,20 +208,22 @@ QtJoinIterator::next()
                     // if it is commented out it will break join queries
                 }
                 else
+                {
                     nextTupelAvailable = true;
+                }
 
                 //
                 // exchange the actual element in the tupel
                 //
 
                 //  delete the data carrier
-                if( (*actualTupel)[tupelPos] )
+                if ((*actualTupel)[tupelPos])
                 {
                     (*actualTupel)[tupelPos]->deleteRef();
                     (*actualTupel)[tupelPos] = NULL;
                 }
 
-                if( resultList )
+                if (resultList)
                 {
                     // take the first data element of the input stream result - copy the data carrier pointer
                     (*actualTupel)[tupelPos] = (*resultList)[0];
@@ -230,18 +237,20 @@ QtJoinIterator::next()
                 tupelPos++;
             }
 
-            if( nextTupelAvailable )
+            if (nextTupelAvailable)
+            {
                 nextTupelValid = true;
+            }
         }
 
-        if( nextTupelAvailable )
+        if (nextTupelAvailable)
         {
             // Copy the actual tupel in order to pass it as the next stream element
             // which means increase references to data elements.
-            returnValue = new QtDataList( actualTupel->size() );
+            returnValue = new QtDataList(actualTupel->size());
 
-            for( tupelPos=0; tupelPos < actualTupel->size(); tupelPos++ )
-                if( (*actualTupel)[tupelPos] )
+            for (tupelPos = 0; tupelPos < actualTupel->size(); tupelPos++)
+                if ((*actualTupel)[tupelPos])
                 {
                     (*returnValue)[tupelPos] = (*actualTupel)[tupelPos];
                     (*actualTupel)[tupelPos]->incRef();
@@ -251,9 +260,11 @@ QtJoinIterator::next()
                     // should not come here, because now the next tupel isn't valid
 
                     // delete return value again
-                    for( tupelPos=0; tupelPos < returnValue->size(); tupelPos++ )
-                        if( (*returnValue)[tupelPos] )
+                    for (tupelPos = 0; tupelPos < returnValue->size(); tupelPos++)
+                        if ((*returnValue)[tupelPos])
+                        {
                             (*returnValue)[tupelPos]->deleteRef();
+                        }
 
                     delete returnValue;
                     returnValue = NULL;
@@ -262,7 +273,7 @@ QtJoinIterator::next()
                 }
         }
     }
-    
+
     pauseTimer();
 
     return returnValue;
@@ -273,18 +284,21 @@ QtJoinIterator::next()
 void
 QtJoinIterator::close()
 {
-    if( actualTupel )
+    if (actualTupel)
     {
         // first delete still existing data carriers
-        for( QtDataList::iterator iter=actualTupel->begin(); iter!=actualTupel->end(); iter++ )
-            if( *iter ) (*iter)->deleteRef();
+        for (QtDataList::iterator iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+            if (*iter)
+            {
+                (*iter)->deleteRef();
+            }
 
         delete actualTupel;
         actualTupel = NULL;
     }
 
     QtIterator::close();
-    
+
     stopTimer();
 }
 
@@ -295,22 +309,22 @@ QtJoinIterator::reset()
     // reset the input streams
     QtIterator::reset();
 
-    if( inputs )
+    if (inputs)
     {
         // first delete still existing data carriers
-        for( QtDataList::iterator iter=actualTupel->begin(); iter!=actualTupel->end(); iter++ )
-            if( *iter )
+        for (QtDataList::iterator iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+            if (*iter)
             {
                 (*iter)->deleteRef();
                 (*iter) = NULL;
             }
 
         // fill the tupel with the first elements of the input streams except of the first element
-        for( unsigned int tupelPos=1; tupelPos<actualTupel->size(); tupelPos++ )
+        for (unsigned int tupelPos = 1; tupelPos < actualTupel->size(); tupelPos++)
         {
             QtDataList* resultList = (*inputs)[tupelPos]->next();
 
-            if( resultList )
+            if (resultList)
             {
                 // take the first data element of the input stream result
                 (*actualTupel)[tupelPos] = (*resultList)[0];
@@ -320,7 +334,9 @@ QtJoinIterator::reset()
                 resultList = NULL;
             }
             else
+            {
                 (*actualTupel)[tupelPos] = NULL;
+            }
 
         }
 
@@ -333,7 +349,7 @@ QtJoinIterator::reset()
 const QtTypeTuple&
 QtJoinIterator::checkType()
 {
-    getInputTypeTuple( dataStreamType );
+    getInputTypeTuple(dataStreamType);
 
     return dataStreamType;
 }

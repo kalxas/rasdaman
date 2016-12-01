@@ -23,7 +23,7 @@ rasdaman GmbH.
 /*************************************************************
  * <pre>
  *
- * PURPOSE: 
+ * PURPOSE:
  *
  *
  *
@@ -35,118 +35,97 @@ package rasj.rnp;
 
 import java.util.*;
 import java.io.*;
-   
 
-public class RnpFragment
-        {
-        RnpFragmentHeader header;    
-        Vector parameters;
-	int parameterIndex = 0;
-    
-        RnpFragment(int fragmentType, int command)
-            {
-            header = new RnpFragmentHeader(fragmentType, command);	
-	    parameters = new Vector();
-            }
-    
-        RnpFragmentHeader getHeader()
-            {   
-            return header;
-            }
-       
-        void addParameterInt32(int parameterType, int data)
-            {
-            addParameter(new ParameterInt32(parameterType,data));
-            }
-    
-        void addParameterFloat32(int parameterType, float data)
-            {
-            addParameter(new ParameterFloat32(parameterType,data));
-            }
-    
-        void addParameterDouble64(int parameterType, double data)
-            {
-            addParameter(new ParameterDouble64(parameterType,data));
-            }
-        void addParameterString(int parameterType, String data)
-            {
-            addParameter(new ParameterString(parameterType,data));
-            }
-    
-        void addParameterOpaque(int parameterType, byte[] data)
-            {
-            addParameter(new ParameterOpaque(parameterType,data));
-            }
-    
-        private void addParameter(RnpParameter param)
-            {
-            parameters.add(param);	
-	    header.addParameter(param.getTotalLength());
-            }   
 
-        void write(DataOutputStream dataStream) throws IOException
-            {
-            header.write(dataStream);	
-	    for(int i=0; i < header.countParameters(); i++)
-	      {
-	      RnpParameter param = (RnpParameter)parameters.get(i);	    
-	      param.write(dataStream);
-	      }
-            }
-    
-        void read(DataInputStream dataStream) throws IOException, RnpException
-            {
-            header.read(dataStream);	
-	    for(int i=0; i < header.countParameters(); i++)
-	      {
-	      RnpParameter param = RnpParameter.constructFromStream(dataStream);            
-	      parameters.add(param);
-	      }
-            }
-     
-    void print()
-            {
-            header.print();
-	    for(int i=0; i < header.countParameters(); i++)
-	      {
-  	      System.out.print(" " + i+ " ");
-	      RnpParameter param = (RnpParameter)parameters.get(i);
-	      param.print();
-	      }
-            }
-     
- 
-      int getFragmentType()
-            {
-	    return header.fragmType;
-	    }
+public class RnpFragment {
+    RnpFragmentHeader header;
+    Vector parameters;
+    int parameterIndex = 0;
 
-      int getCommand()
-            {
-	    return header.command;
-	    }
-
-      int countParameters()
-            {
-	    return header.nrParams;
-	    }
-
-      int  getFragmentLength()
-            {
-	    return header.totalLength;
-	    } 
-     
-     RnpParameter getFirstParameter()
-            {
-	     parameterIndex = 0;
-	     return (RnpParameter)parameters.get(0);
-	    }
-
-     RnpParameter getNextParameter()
-            {
-	    parameterIndex++; 	 
-	    return (RnpParameter)parameters.get(parameterIndex);
-	    }
-   
+    RnpFragment(int fragmentType, int command) {
+        header = new RnpFragmentHeader(fragmentType, command);
+        parameters = new Vector();
     }
-    
+
+    RnpFragmentHeader getHeader() {
+        return header;
+    }
+
+    void addParameterInt32(int parameterType, int data) {
+        addParameter(new ParameterInt32(parameterType, data));
+    }
+
+    void addParameterFloat32(int parameterType, float data) {
+        addParameter(new ParameterFloat32(parameterType, data));
+    }
+
+    void addParameterDouble64(int parameterType, double data) {
+        addParameter(new ParameterDouble64(parameterType, data));
+    }
+    void addParameterString(int parameterType, String data) {
+        addParameter(new ParameterString(parameterType, data));
+    }
+
+    void addParameterOpaque(int parameterType, byte[] data) {
+        addParameter(new ParameterOpaque(parameterType, data));
+    }
+
+    private void addParameter(RnpParameter param) {
+        parameters.add(param);
+        header.addParameter(param.getTotalLength());
+    }
+
+    void write(DataOutputStream dataStream) throws IOException {
+        header.write(dataStream);
+        for (int i = 0; i < header.countParameters(); i++) {
+            RnpParameter param = (RnpParameter)parameters.get(i);
+            param.write(dataStream);
+        }
+    }
+
+    void read(DataInputStream dataStream) throws IOException, RnpException {
+        header.read(dataStream);
+        for (int i = 0; i < header.countParameters(); i++) {
+            RnpParameter param = RnpParameter.constructFromStream(dataStream);
+            parameters.add(param);
+        }
+    }
+
+    void print() {
+        header.print();
+        for (int i = 0; i < header.countParameters(); i++) {
+            System.out.print(" " + i + " ");
+            RnpParameter param = (RnpParameter)parameters.get(i);
+            param.print();
+        }
+    }
+
+
+    int getFragmentType() {
+        return header.fragmType;
+    }
+
+    int getCommand() {
+        return header.command;
+    }
+
+    int countParameters() {
+        return header.nrParams;
+    }
+
+    int  getFragmentLength() {
+        return header.totalLength;
+    }
+
+    RnpParameter getFirstParameter() {
+        parameterIndex = 0;
+        return (RnpParameter)parameters.get(0);
+    }
+
+    RnpParameter getNextParameter() {
+        parameterIndex++;
+        return (RnpParameter)parameters.get(parameterIndex);
+    }
+
+}
+

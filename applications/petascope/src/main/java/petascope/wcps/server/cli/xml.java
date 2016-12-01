@@ -47,14 +47,14 @@ public class xml {
         File cwd = new File(".");
         System.out.println("Working in " + cwd.getAbsolutePath());
         String pcSchemaFileName =
-                //		"src/conf/" +
-                WcpsConstants.MSG_XML + File.separator + WcpsConstants.MSG_OGC + File.separator + WcpsConstants.MSG_WCPS
-                + File.separator + "1.0.0" + File.separator + WcpsConstants.MSG_WCPS_COVERAGES;
+            //      "src/conf/" +
+            WcpsConstants.MSG_XML + File.separator + WcpsConstants.MSG_OGC + File.separator + WcpsConstants.MSG_WCPS
+            + File.separator + "1.0.0" + File.separator + WcpsConstants.MSG_WCPS_COVERAGES;
         File pcSchemaFile = new File(pcSchemaFileName);
 
         if (!pcSchemaFile.exists()) {
             System.err.println("WCPS: could not find the WCPS ProcessCoverage schema ("
-                    + pcSchemaFileName + ")");
+                               + pcSchemaFileName + ")");
             System.exit(1);
         }
 
@@ -65,10 +65,10 @@ public class xml {
 
             dbParams.load(new FileInputStream(WcpsConstants.DBPARAM_SETTING_PROPERTIES));
             metadataSource =
-                    new DbMetadataSource(dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_DRIVER),
-                    dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_URL),
-                    dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_USER),
-                    dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_PASS), false);
+                new DbMetadataSource(dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_DRIVER),
+                                     dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_URL),
+                                     dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_USER),
+                                     dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_PASS), false);
             wcps = new Wcps(pcSchemaFile, metadataSource);
         } catch (Exception e) {
             System.err.println("WCPS: could not initialize WCPS:");
@@ -84,7 +84,7 @@ public class xml {
         }
 
         initMetadata();
-        rasserviceURL = args[0]; 
+        rasserviceURL = args[0];
         for (int i = 1; i < args.length; i++) {
             File fileIn = null;
             InputSource is = null;
@@ -94,7 +94,7 @@ public class xml {
                 is = new InputSource(new FileInputStream(fileIn));
             } catch (Exception fnfe) {
                 System.err.println("WCPS: " + args[i]
-                        + ": no such file or directory" + fnfe);
+                                   + ": no such file or directory" + fnfe);
                 System.exit(1);
             }
 
@@ -118,15 +118,15 @@ public class xml {
 
         try {
             ProcessCoveragesRequest r = wcps.pcPrepare(rasserviceURL,
-                    WcpsConstants.MSG_RASSERVICE, is);
+                                        WcpsConstants.MSG_RASSERVICE, is);
             System.err.println("Request " + i);
             String rasql = r.getRasqlQuery();
             String mime = r.getMime();
-//			result = "[" + mime + "] " + rasql;
+//          result = "[" + mime + "] " + rasql;
             result = rasql;
         } catch (Exception e) {
             System.err.println("WCPS: request " + i
-                    + " failed with the following exception:");
+                               + " failed with the following exception:");
             e.printStackTrace(System.err);
         }
 

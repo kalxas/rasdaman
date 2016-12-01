@@ -44,7 +44,7 @@ extern sqlite3* sqliteConn;
 #define SQLITE_BUSY_TIMEOUT 60000
 
 SQLiteQuery::SQLiteQuery(char q[]) :
-stmt(NULL), columnCounter(0)
+    stmt(NULL), columnCounter(0)
 {
     query = query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
@@ -53,8 +53,8 @@ stmt(NULL), columnCounter(0)
     LDEBUG << "SQL query: " << query;
 }
 
-SQLiteQuery::SQLiteQuery(const char *format, ...) :
-stmt(NULL), columnCounter(0)
+SQLiteQuery::SQLiteQuery(const char* format, ...) :
+    stmt(NULL), columnCounter(0)
 {
     char q[QUERY_MAXLEN];
     va_list args;
@@ -124,9 +124,12 @@ void SQLiteQuery::execute(int fail)
     LDEBUG << "SQL query: " << query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_step(stmt);
-    if (fail) {
+    if (fail)
+    {
         failOnError(query, sqliteConn);
-    } else {
+    }
+    else
+    {
         warnOnError(query, sqliteConn);
     }
 }

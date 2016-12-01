@@ -39,7 +39,7 @@ static const char rcsidset[] = "@(#)rasodmg, r_Set: $Id: set.cc,v 1.17 2002/08/2
 class r_GMarray;
 
 #ifdef __VISUALC__
-template class r_Set< r_GMarray *>;
+template class r_Set<r_GMarray*>;
 #endif
 
 #ifndef __GNUG__
@@ -67,8 +67,8 @@ r_Set<T>::r_Set( const char* name )
 */
 
 template<class T>
-r_Set<T>::r_Set( const r_Set<T>& set ) throw(r_Error)
-    : r_Collection<T>( set )
+r_Set<T>::r_Set(const r_Set<T>& set) throw(r_Error)
+    : r_Collection<T>(set)
 {
     this->allowsDuplicates = 0;
     this->isOrdered = 0;
@@ -81,13 +81,17 @@ r_Set<T>::~r_Set()
 
 template<class T>
 void
-r_Set<T>::insert_element( const T& element, int no_modification )
+r_Set<T>::insert_element(const T& element, int no_modification)
 {
     typename r_Collection<T>::CNode* ptr = static_cast<typename r_Collection<T>::CNode*>(this->coll);
 
-    while ( ptr->next != NULL && *(static_cast<T*>(ptr->elem)) != element )
+    while (ptr->next != NULL && *(static_cast<T*>(ptr->elem)) != element)
+    {
         ptr = ptr->next;
+    }
 
-    if ( ptr->elem == NULL || *(static_cast<T*>(ptr->elem)) != element )
-        r_Collection<T>::insert_element( element, no_modification );
+    if (ptr->elem == NULL || *(static_cast<T*>(ptr->elem)) != element)
+    {
+        r_Collection<T>::insert_element(element, no_modification);
+    }
 }

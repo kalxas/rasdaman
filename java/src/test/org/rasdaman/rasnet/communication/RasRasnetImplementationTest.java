@@ -76,9 +76,7 @@ public class RasRasnetImplementationTest {
 
                     System.out.println("Closing database ...");
                     myDb.close();
-                }
-                catch (ODMGException ex)
-                {
+                } catch (ODMGException ex) {
                     assertTrue(ex.getMessage().contains("Collection name exists already."));
                     secodnCreationFailed = true;
                 }
@@ -87,11 +85,15 @@ public class RasRasnetImplementationTest {
         } catch (org.odmg.ODMGException e) {
             System.out.println("An exception has occurred: " + e.getMessage());
             System.out.println("Try to abort the transaction ...");
-            if (myTa != null) myTa.abort();
+            if (myTa != null) {
+                myTa.abort();
+            }
 
             try {
                 System.out.println("Try to close the database ...");
-                if (myDb != null) myDb.close();
+                if (myDb != null) {
+                    myDb.close();
+                }
             } catch (org.odmg.ODMGException exp) {
                 System.err.println("Could not close the database: " + exp.getMessage());
             }

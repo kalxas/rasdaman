@@ -47,8 +47,8 @@ public class PostgisQueryResult {
         if (result instanceof ResultSet) {
             String coord = "";
             while (((ResultSet) result).next()) {
-                    coordinates.add(((ResultSet)result).getString(MULTIPOINT_COORDINATE));
-                    values.add(((ResultSet)result).getString(MULTIPOINT_VALUE));
+                coordinates.add(((ResultSet)result).getString(MULTIPOINT_COORDINATE));
+                values.add(((ResultSet)result).getString(MULTIPOINT_VALUE));
             }
         }
 
@@ -62,10 +62,10 @@ public class PostgisQueryResult {
         return values;
     }
 
-    public String toCSV(List<String> data){
+    public String toCSV(List<String> data) {
         StringBuilder csv = new StringBuilder();
         String delim = "";
-        for(String d: data){
+        for (String d : data) {
             csv.append(delim).append(d);
             delim = ",";
         }

@@ -52,7 +52,7 @@ public:
     QtScalarData();
 
     /// copy constructor
-    QtScalarData( const QtScalarData& obj );
+    QtScalarData(const QtScalarData& obj);
 
     /// virtual destructor
     virtual ~QtScalarData();
@@ -71,13 +71,13 @@ public:
     inline const BaseType* getValueType() const;
 
     /// sets the value type
-    inline void setValueType( const BaseType* newType );
+    inline void setValueType(const BaseType* newType);
 
     /// returns a pointer to the internal character representation
     inline const char* getValueBuffer() const;
 
     /// sets the value buffer
-    inline void setValueBuffer( char* buffer );
+    inline void setValueBuffer(char* buffer);
 
     /// returns a null-terminated string describing the type structure
     virtual char* getTypeStructure() const;
@@ -89,13 +89,13 @@ public:
     //@}
 
     /// compares data content
-    virtual bool equal( const QtData* obj ) const;
+    virtual bool equal(const QtData* obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus( std::ostream& stream = std::cout ) const;
+    virtual void printStatus(std::ostream& stream = std::cout) const;
 
 protected:
     /// pointer to the value type

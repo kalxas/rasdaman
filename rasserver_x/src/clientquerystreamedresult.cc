@@ -5,8 +5,8 @@ namespace rasserver
 
 const boost::uint64_t ClientQueryStreamedResult::CHUNK_SIZE;
 
-ClientQueryStreamedResult::ClientQueryStreamedResult(char *data, boost::uint64_t length, const std::string& clientUUID)
-    :data(data), length(length), clientUUID(clientUUID), offset(0)
+ClientQueryStreamedResult::ClientQueryStreamedResult(char* data, boost::uint64_t length, const std::string& clientUUID)
+    : data(data), length(length), clientUUID(clientUUID), offset(0)
 {
 
 }

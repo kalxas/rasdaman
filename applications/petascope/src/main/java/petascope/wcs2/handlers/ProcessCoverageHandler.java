@@ -58,7 +58,7 @@ import petascope.wcps2.result.WcpsResult;
  */
 public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCoverageRequest> {
 
-    private final WcpsTranslator wcpsTranslator;    
+    private final WcpsTranslator wcpsTranslator;
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(ProcessCoverageHandler.class);
 
@@ -113,10 +113,10 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
         try {
             Wcps wcps1Service = new Wcps(null, meta);
             ProcessCoveragesRequest processCoverageRequest = wcps1Service.pcPrepare(
-                ConfigManager.RASDAMAN_URL,
-                ConfigManager.RASDAMAN_DATABASE,
-                IOUtils.toInputStream(xmlRequest)
-            );
+                        ConfigManager.RASDAMAN_URL,
+                        ConfigManager.RASDAMAN_DATABASE,
+                        IOUtils.toInputStream(xmlRequest)
+                    );
 
             String query = processCoverageRequest.getRasqlQuery();
             mime = processCoverageRequest.getMime();
@@ -175,20 +175,20 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
         // Handle Multipart by rewriting multiple queries if it is necessary
         // NOTE: not support multipart if return metadata value (e.g: identifier())
         RasqlRewriteMultipartQueriesService multipartService =
-                                    new RasqlRewriteMultipartQueriesService(wcpsTranslator.getCoverageAliasRegistry(), visitorResult);
+            new RasqlRewriteMultipartQueriesService(wcpsTranslator.getCoverageAliasRegistry(), visitorResult);
         isMultiPart = multipartService.isMultiPart();
 
         if (visitorResult instanceof WcpsMetadataResult) {
             results.add(executor.execute(visitorResult));
-        } else {            
+        } else {
             WcpsResult wcpsResult = (WcpsResult)visitorResult;
             // In case of 0D, metadata is null
             if (wcpsResult.getMetadata() != null) {
                 coverageID = wcpsResult.getMetadata().getCoverageName();
-            }            
+            }
             // create multiple rasql queries from a Rasql query result (if it is multipart)
             Stack<String> rasqlQueries = multipartService.rewriteQuery(wcpsTranslator.getCoverageAliasRegistry(),
-                                                                       wcpsResult.getRasql());
+                                         wcpsResult.getRasql());
             // Run all the Rasql queries and get result
             while (!rasqlQueries.isEmpty()) {
                 // Execute multiple Rasql queries with different coverageID to get List of byte arrays

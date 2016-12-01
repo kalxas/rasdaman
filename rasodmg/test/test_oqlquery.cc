@@ -58,7 +58,7 @@ int main()
     {
         q1 << "Images d" << "<id>";
     }
-    catch( r_Error& err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -76,7 +76,7 @@ int main()
     {
         q2 << "Images d" << "<id>" << "too many";
     }
-    catch( r_Error& err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -94,7 +94,7 @@ int main()
     {
         q3 << (unsigned char)'d' << "Images" << (unsigned char)'d' << (r_Long)100l << (r_Long)20l;
     }
-    catch( r_Error& err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -109,12 +109,12 @@ int main()
 
     try
     {
-        q4 << ( r_Minterval(2) << r_Sinterval((r_Long)100l,(r_Long)199l) << r_Sinterval((r_Long)200l,(r_Long)299l) )
+        q4 << (r_Minterval(2) << r_Sinterval((r_Long)100l, (r_Long)199l) << r_Sinterval((r_Long)200l, (r_Long)299l))
            << "Images"
-           << ( r_Minterval(2) << r_Sinterval((r_Long)300l,(r_Long)399l) << r_Sinterval((r_Long)400l,(r_Long)499l) )
+           << (r_Minterval(2) << r_Sinterval((r_Long)300l, (r_Long)399l) << r_Sinterval((r_Long)400l, (r_Long)499l))
            << (r_Long)127l;
     }
-    catch( r_Error& err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }
@@ -140,7 +140,7 @@ int main()
         cout << "Parameterized query string : " << q5.get_parameterized_query() << endl;
         cout << "Query string               : " << q5.get_query() << endl << endl;
     }
-    catch( r_Error& err )
+    catch (r_Error& err)
     {
         cout << err.what() << endl;
     }

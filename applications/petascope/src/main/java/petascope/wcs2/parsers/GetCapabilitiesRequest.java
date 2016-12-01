@@ -58,9 +58,9 @@ public class GetCapabilitiesRequest extends Request {
     @Override
     public String toString() {
         return VALUE_GETCAPABILITIES + ": " +
-                KVPSymbols.KEY_ACCEPTVERSIONS  + "=" + acceptVersion + ", " +
-                KVPSymbols.KEY_ACCEPTFORMATS   + "=" + acceptFormats + ", " +
-                KVPSymbols.KEY_ACCEPTLANGUAGES + "=" + acceptLanguages;
+               KVPSymbols.KEY_ACCEPTVERSIONS  + "=" + acceptVersion + ", " +
+               KVPSymbols.KEY_ACCEPTFORMATS   + "=" + acceptFormats + ", " +
+               KVPSymbols.KEY_ACCEPTLANGUAGES + "=" + acceptLanguages;
 
     }
 }

@@ -48,14 +48,14 @@ using namespace std;
 
 typedef struct test_params_s
 {
-    r_Parse_Params *pp;
+    r_Parse_Params* pp;
     int zlevel;
     double fidelity;
-    char *lstream;
+    char* lstream;
 } test_params_t;
 
 
-static void test_params(test_params_t &params, char *str)
+static void test_params(test_params_t& params, char* str)
 {
     cout << "Processing (" << str << ") ..." << endl;
 
@@ -70,7 +70,7 @@ static void test_params(test_params_t &params, char *str)
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     r_Parse_Params pp;
     test_params_t params = {&pp, -1, -1.0, NULL};
@@ -98,7 +98,9 @@ int main(int argc, char *argv[])
     test_params(params, strdup("  foobar=\"hello, you there\", stream=\"rle\""));
 
     if (params.lstream != NULL)
+    {
         delete [] params.lstream;
+    }
 
     return 0;
 }

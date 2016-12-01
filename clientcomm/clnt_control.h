@@ -24,11 +24,11 @@ rasdaman GmbH.
 #include <rpc/rpc.h>
 
 
-void client_control(CLIENT *cl, unsigned int rq, char *in);
+void client_control(CLIENT* cl, unsigned int rq, char* in);
 
-void client_destroy(CLIENT *cl);
+void client_destroy(CLIENT* cl);
 
-CLIENT* client_create(char *host, u_long prog, u_long vers, char *prot);
+CLIENT* client_create(char* host, u_long prog, u_long vers, char* prot);
 
 typedef enum { ntxdr_ExecuteQueryRes,
                ntxdr_ExecuteUpdateRes,
@@ -43,4 +43,4 @@ typedef enum { ntxdr_ExecuteQueryRes,
                ntxdr_ServerStatRes
              } ntxdr_Type;
 
-void xdrfree( ntxdr_Type xdrType, char *objp );
+void xdrfree(ntxdr_Type xdrType, char* objp);

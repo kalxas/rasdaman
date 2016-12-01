@@ -143,7 +143,7 @@ public class GrammarTestOnline {
      * Returns a message on error or null otherwise.
      **/
     public String runOneTest(String param, String query)
-            throws MalformedURLException, IOException {
+    throws MalformedURLException, IOException {
 
 //        System.out.println("--------------------");
 //        System.out.println(query);
@@ -174,7 +174,7 @@ public class GrammarTestOnline {
         out.close();
 
         BufferedReader cgiOutput = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
+            new InputStreamReader(conn.getInputStream()));
         String line1 = cgiOutput.readLine();
         String line2 = cgiOutput.readLine();
         String line3 = cgiOutput.readLine();

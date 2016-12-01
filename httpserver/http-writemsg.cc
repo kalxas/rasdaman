@@ -77,19 +77,25 @@ extern struct HTTPError HTTPErrorTable[];
 *
 */
 
-rc_t AddField( struct MsgHeader *Ptr, int Field, char *Content )
+rc_t AddField(struct MsgHeader* Ptr, int Field, char* Content)
 {
-    struct MsgHeader *NewHeader;
+    struct MsgHeader* NewHeader;
 
-    if( Ptr != NULL )
-        while( Ptr->Next != NULL )
+    if (Ptr != NULL)
+        while (Ptr->Next != NULL)
+        {
             Ptr = Ptr->Next;
+        }
 
-    NewHeader = AppendMsgHeader( Ptr, Field, Content );
-    if( NewHeader != NULL )
-        return( OK );
+    NewHeader = AppendMsgHeader(Ptr, Field, Content);
+    if (NewHeader != NULL)
+    {
+        return (OK);
+    }
     else
-        return( WARN );
+    {
+        return (WARN);
+    }
 }
 
 
@@ -123,34 +129,42 @@ rc_t AddField( struct MsgHeader *Ptr, int Field, char *Content )
 *
 */
 
-rc_t CreateStatusLine( char *Buffer, size_t *BuffSize, int Code, int Protocol )
+rc_t CreateStatusLine(char* Buffer, size_t* BuffSize, int Code, int Protocol)
 {
     int Entry;
 
-    Entry = GetHTTPErrorTableEntry( Code );
-    switch( Protocol )
+    Entry = GetHTTPErrorTableEntry(Code);
+    switch (Protocol)
     {
     case HTTP_1_0:
     {
-        if( Entry != 0 )
-            SNPrintf( Buffer, BuffSize, "HTTP/1.0 %d %s\r\n", Code, HTTPErrorTable[Entry].Reason );
+        if (Entry != 0)
+        {
+            SNPrintf(Buffer, BuffSize, "HTTP/1.0 %d %s\r\n", Code, HTTPErrorTable[Entry].Reason);
+        }
         else
-            SNPrintf( Buffer, BuffSize, "HTTP/1.0 %d Statuscode %d\r\n", Code, Code );
-        return( OK );
+        {
+            SNPrintf(Buffer, BuffSize, "HTTP/1.0 %d Statuscode %d\r\n", Code, Code);
+        }
+        return (OK);
     }
     break;
     case HTTP_1_1:
     {
-        if( Entry != 0 )
-            SNPrintf( Buffer, BuffSize, "HTTP/1.1 %d %s\r\n", Code, HTTPErrorTable[Entry].Reason );
+        if (Entry != 0)
+        {
+            SNPrintf(Buffer, BuffSize, "HTTP/1.1 %d %s\r\n", Code, HTTPErrorTable[Entry].Reason);
+        }
         else
-            SNPrintf( Buffer, BuffSize, "HTTP/1.1 %d Statuscode %d\r\n", Code, Code );
-        return( OK );
+        {
+            SNPrintf(Buffer, BuffSize, "HTTP/1.1 %d Statuscode %d\r\n", Code, Code);
+        }
+        return (OK);
     }
     break;
     default:
     {
-        return( ERROR );
+        return (ERROR);
     }
     }
 }
@@ -186,13 +200,13 @@ rc_t CreateStatusLine( char *Buffer, size_t *BuffSize, int Code, int Protocol )
 *
 */
 
-struct HTTPMsg *CreateHTTPMsg( char *Header, char *Body, size_t BodySize )
+struct HTTPMsg* CreateHTTPMsg(char* Header, char* Body, size_t BodySize)
 {
-    struct HTTPMsg *Msg;
+    struct HTTPMsg* Msg;
 
     /*  printf( "###  CreateHTTPMsg(+)\n" );  */
-    Msg = static_cast<struct HTTPMsg*>(mymalloc( sizeof( struct HTTPMsg ) ));
-    if( Msg != NULL )
+    Msg = static_cast<struct HTTPMsg*>(mymalloc(sizeof(struct HTTPMsg)));
+    if (Msg != NULL)
     {
         /*      printf( "###      Header[%d]:\n%s", strlen( Header ), Header );  */
         /*      printf( "###      Body[%d]:\n", BodySize );  */
@@ -200,17 +214,19 @@ struct HTTPMsg *CreateHTTPMsg( char *Header, char *Body, size_t BodySize )
         Msg->Body        = Body;
         Msg->BodySize    = BodySize;
 
-        if( ( Msg->Head  = static_cast<char*>(mymalloc( strlen( Header ) + 1 ) )) != NULL )
-            strcpy( Msg->Head, Header );
+        if ((Msg->Head  = static_cast<char*>(mymalloc(strlen(Header) + 1))) != NULL)
+        {
+            strcpy(Msg->Head, Header);
+        }
         else
         {
-            free( Msg );
-            return( NULL );
+            free(Msg);
+            return (NULL);
         }
         /*      printf( "###    Done!\n" );  */
     }
     /*  printf( "###  CreateHTTPMsg(-)\n" ); */
-    return( Msg );
+    return (Msg);
 }
 
 
@@ -244,35 +260,39 @@ struct HTTPMsg *CreateHTTPMsg( char *Header, char *Body, size_t BodySize )
 *
 */
 
-rc_t SendHTTPMsg( int SockFD, struct HTTPMsg *Msg )
+rc_t SendHTTPMsg(int SockFD, struct HTTPMsg* Msg)
 {
     int Check;
 
-    if( ( Msg != NULL ) && ( Msg->Head != NULL ) )
+    if ((Msg != NULL) && (Msg->Head != NULL))
     {
-        Check = WriteN( SockFD, Msg->Head, strlen(Msg->Head) );
-        if( Check < 0 )
-            ErrorMsg( E_SYS, ERROR, "ERROR: WriteN(): write() failed." );
-        else if( Check != static_cast<int>(strlen(Msg->Head)) )
-            LogMsg( LG_SERVER, WARN,
-                    "WARN:  SendHTTPMsg(): %d of %d Bytes of Header written!",
-                    Check, strlen(Msg->Head) );
-
-        if( ( Msg->Body != NULL ) && ( Msg->BodySize > 0 ) )
+        Check = WriteN(SockFD, Msg->Head, strlen(Msg->Head));
+        if (Check < 0)
         {
-            Check = WriteN( SockFD, Msg->Body, Msg->BodySize );
-            if( Check < 0 )
-                ErrorMsg( E_SYS, ERROR, "ERROR: WriteN(): write() failed." );
-            else if( Check != Msg->BodySize )
-                LogMsg( LG_SERVER, WARN,
-                        "WARN:  SendHTTPMsg(): %d of %d Bytes of Body written!",
-                        Check, Msg->BodySize );
+            ErrorMsg(E_SYS, ERROR, "ERROR: WriteN(): write() failed.");
         }
-        return( OK );
+        else if (Check != static_cast<int>(strlen(Msg->Head)))
+            LogMsg(LG_SERVER, WARN,
+                   "WARN:  SendHTTPMsg(): %d of %d Bytes of Header written!",
+                   Check, strlen(Msg->Head));
+
+        if ((Msg->Body != NULL) && (Msg->BodySize > 0))
+        {
+            Check = WriteN(SockFD, Msg->Body, Msg->BodySize);
+            if (Check < 0)
+            {
+                ErrorMsg(E_SYS, ERROR, "ERROR: WriteN(): write() failed.");
+            }
+            else if (Check != Msg->BodySize)
+                LogMsg(LG_SERVER, WARN,
+                       "WARN:  SendHTTPMsg(): %d of %d Bytes of Body written!",
+                       Check, Msg->BodySize);
+        }
+        return (OK);
     }
     else
     {
-        return( ERROR );
+        return (ERROR);
     }
 }
 
@@ -307,9 +327,9 @@ rc_t SendHTTPMsg( int SockFD, struct HTTPMsg *Msg )
 *
 */
 
-rc_t FreeHTTPMsg( struct HTTPMsg *Ptr )
+rc_t FreeHTTPMsg(struct HTTPMsg* Ptr)
 {
-    free( Ptr->Head );
-    free( Ptr );
-    return( OK );
+    free(Ptr->Head);
+    free(Ptr);
+    return (OK);
 }

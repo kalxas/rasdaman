@@ -105,21 +105,21 @@ public:
     // Base constructor
     soundPlayer(void);
     // Constructor for input from file
-    soundPlayer(int frq, int ch, FILE *fp, rviewSoundFormat fmt, int lat=RVIEW_SND_LATENCY);
+    soundPlayer(int frq, int ch, FILE* fp, rviewSoundFormat fmt, int lat = RVIEW_SND_LATENCY);
     // Constructor for 8bit linear (default)
-    soundPlayer(int frq, int ch, const signed char *data, int len, rviewSoundFormat fmt=rsf_lin8, int lat=RVIEW_SND_LATENCY);
+    soundPlayer(int frq, int ch, const signed char* data, int len, rviewSoundFormat fmt = rsf_lin8, int lat = RVIEW_SND_LATENCY);
     // Constructor for 8bit ulaw (default)
-    soundPlayer(int frq, int ch, const unsigned char *data, int len, rviewSoundFormat fmt=rsf_ulaw8, int lat=RVIEW_SND_LATENCY);
+    soundPlayer(int frq, int ch, const unsigned char* data, int len, rviewSoundFormat fmt = rsf_ulaw8, int lat = RVIEW_SND_LATENCY);
     // Constructor for 16bit linear (default)
-    soundPlayer(int frq, int ch, const short *data, int len, rviewSoundFormat fmt=rsf_lin16, int lat=RVIEW_SND_LATENCY);
+    soundPlayer(int frq, int ch, const short* data, int len, rviewSoundFormat fmt = rsf_lin16, int lat = RVIEW_SND_LATENCY);
 
     ~soundPlayer(void);
 
     // For changing during playback
-    int newSample(int frq, int ch, FILE *fp, rviewSoundFormat fmt, int lat=RVIEW_SND_LATENCY);
-    int newSample(int frq, int ch, const signed char *data, int len, rviewSoundFormat=rsf_lin8, int lat=RVIEW_SND_LATENCY);
-    int newSample(int frq, int ch, const unsigned char *data, int len, rviewSoundFormat=rsf_ulaw8, int lat=RVIEW_SND_LATENCY);
-    int newSample(int frq, int ch, const short *data, int len, rviewSoundFormat=rsf_lin16, int lat=RVIEW_SND_LATENCY);
+    int newSample(int frq, int ch, FILE* fp, rviewSoundFormat fmt, int lat = RVIEW_SND_LATENCY);
+    int newSample(int frq, int ch, const signed char* data, int len, rviewSoundFormat = rsf_lin8, int lat = RVIEW_SND_LATENCY);
+    int newSample(int frq, int ch, const unsigned char* data, int len, rviewSoundFormat = rsf_ulaw8, int lat = RVIEW_SND_LATENCY);
+    int newSample(int frq, int ch, const short* data, int len, rviewSoundFormat = rsf_lin16, int lat = RVIEW_SND_LATENCY);
 
     int playbackGetOffset(void);
     int playbackActive(void);
@@ -139,33 +139,33 @@ public:
 protected:
 
     void setupVariables(void);
-    const char *ensureSamplesForDevice(const char *source, int len);
-    const char *ensureSamples(int &num);
+    const char* ensureSamplesForDevice(const char* source, int len);
+    const char* ensureSamples(int& num);
     int configureDevice(int frq, int ch, int len, rviewSoundFormat fmt, int lat);
     void ensureUlawTable(int ulawsize);
     void ensureLinearTable(void);
-    char *ensureConvBuff(int size);
-    char *ensureSampleBuff(int size);
+    char* ensureConvBuff(int size);
+    char* ensureSampleBuff(int size);
 
     int setTimerInterval(unsigned int ti);
-    int startTimer(int ap=1);
-    int stopTimer(int ap=1);
+    int startTimer(int ap = 1);
+    int stopTimer(int ap = 1);
     int handleOutOfData(int dataSize);
 
     rviewSoundFormat format;
     rviewSoundFormat devFormat;
     int sampleSize, devSampSize;
-    FILE *sampleFile;
+    FILE* sampleFile;
     int dataOffset, inLength;
     int frequency, channels, latency, samplesWriteahead;
     int buffSize, cbuffSize;
-    char *buffer, *convBuff;
-    const char *inData;
-    unsigned char *LinToUlaw;
-    short *UlawToLin;
+    char* buffer, *convBuff;
+    const char* inData;
+    unsigned char* LinToUlaw;
+    short* UlawToLin;
     int ldUlawSize;
     int samplesWritten;
-    soundPlayer *suspendedPlayer;
+    soundPlayer* suspendedPlayer;
     int loopMode;
     bool timerActive;
 
@@ -200,14 +200,14 @@ class rviewSoundPlayer: public rviewDisplay
 {
 public:
 
-    rviewSoundPlayer(mdd_frame *mf, unsigned int flags=0);
+    rviewSoundPlayer(mdd_frame* mf, unsigned int flags = 0);
     ~rviewSoundPlayer(void);
 
     void label(void);
-    int process(wxObject &obj, wxEvent &evt);
+    int process(wxObject& obj, wxEvent& evt);
     virtual int openViewer(void);
 
-    virtual const char *getFrameName(void) const;
+    virtual const char* getFrameName(void) const;
     virtual rviewFrameType getFrameType(void) const;
     virtual int getViewerType(void) const;
 
@@ -218,7 +218,7 @@ public:
 
     typedef struct format_desc
     {
-        const char *labelName;
+        const char* labelName;
         rviewSoundFormat fmt;
         int sampleSize;
     } format_desc;
@@ -254,15 +254,15 @@ protected:
     bool setLoopMode(bool lm);
 
     soundPlayer player;
-    rviewButton *toStart, *toEnd;
-    rviewButton *pbPause, *pbStart, *pbStop, *pbLoop;
-    rviewSlider *slider;
-    rviewText *frqWidget;
-    rviewChoice *fmtWidget, *latWidget;
+    rviewButton* toStart, *toEnd;
+    rviewButton* pbPause, *pbStart, *pbStop, *pbLoop;
+    rviewSlider* slider;
+    rviewText* frqWidget;
+    rviewChoice* fmtWidget, *latWidget;
     int frequency, channels, latency;
     int lastOffset;
-    int *latencies;
-    void *sampleBuffer;
+    int* latencies;
+    void* sampleBuffer;
     int sampleLength;
     bool paused;
     bool playbackOn;

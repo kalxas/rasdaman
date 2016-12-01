@@ -45,7 +45,7 @@ public class ReduceExpressionHandler {
 
     public static WcpsResult handle(String operator, WcpsResult reduceParameter) {
         return new WcpsResult(null, TEMPLATE.replace("$reduceOperation", operationTranslator.get(operator.toLowerCase()))
-                                            .replace("$reduceParameter", reduceParameter.getRasql()));
+                              .replace("$reduceParameter", reduceParameter.getRasql()));
     }
 
     private final static String TEMPLATE = " $reduceOperation($reduceParameter) ";

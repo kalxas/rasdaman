@@ -55,7 +55,7 @@ using namespace std;
 
 
 
-extern bool hostCmp( const char *h1, const char *h2);
+extern bool hostCmp(const char* h1, const char* h2);
 
 // rasserver error codes (see errtxts)
 // FIXME: should go into a central include file / class -- PB 2003-nov-20
@@ -89,7 +89,7 @@ extern bool hostCmp( const char *h1, const char *h2);
 
 MasterComm::MasterComm()
 {
-    commit=false;
+    commit = false;
     allowMultipleWriteTransactions = false;
     currentPosition = static_cast<int>(config.outpeers.size()) - 1;
 }
@@ -100,7 +100,7 @@ MasterComm::~MasterComm()
 
 void MasterComm::Run()
 {
-    RMTIMER( "MasterComm", "Run" );         // benchmark this routine, if enabled
+    RMTIMER("MasterComm", "Run");           // benchmark this routine, if enabled
 
     initListenSocket(config.getListenPort());       // connect/bind the central listen socket
     // using IOSelector level here!
@@ -109,52 +109,54 @@ void MasterComm::Run()
 
     allowMultipleWriteTransactions = config.allowMultipleWriteTransactions();
 
-    selector.setTimeout( config.getPollFrequency() , 0 );
+    selector.setTimeout(config.getPollFrequency() , 0);
 
     LDEBUG << "Entering server mode, prepared to receive requests.";
 
-    while(mayExit()==false)
+    while (mayExit() == false)
     {
-        LDEBUG <<"MasterComm::Run: new request cycle, status before processing is:";
+        LDEBUG << "MasterComm::Run: new request cycle, status before processing is:";
         printStatus();
 
-        if(commit)
+        if (commit)
+        {
             doCommit();
+        }
 
-        int answerLen=0;
+        int answerLen = 0;
 
-        LDEBUG <<"MasterComm::Run: (c) Waiting...";
+        LDEBUG << "MasterComm::Run: (c) Waiting...";
 
         // wait for incoming requests, using select()
-        int r=selector.waitForRequest();        // 0 is timeout, <0 error, >0 success
+        int r = selector.waitForRequest();      // 0 is timeout, <0 error, >0 success
         // again, IOSelector level here!
 
-        LDEBUG <<"MasterComm::Run: (d) It's ringing..." << r;
+        LDEBUG << "MasterComm::Run: (d) It's ringing..." << r;
 
         localServerManager.cleanChild(); // sa fie
 
-        if(r<0)                     // nothing to read
+        if (r < 0)                  // nothing to read
         {
-            LDEBUG <<"MasterComm::Run: (f1) it's a signal (or a socket failure)...";
+            LDEBUG << "MasterComm::Run: (f1) it's a signal (or a socket failure)...";
             continue;
         }
-        if(r==0)                    // timeout, nothing to read
+        if (r == 0)                 // timeout, nothing to read
         {
-            LDEBUG <<"MasterComm::Run: (f2) nothing, look for timeouts...";
+            LDEBUG << "MasterComm::Run: (f2) nothing, look for timeouts...";
             lookForTimeout();
             continue;
         }
-        if(r>0)                     // something is pending
+        if (r > 0)                  // something is pending
         {
 
-            LDEBUG <<"MasterComm::Run: (e) Got request, r=" << r << "...";
+            LDEBUG << "MasterComm::Run: (e) Got request, r=" << r << "...";
 
             // iterate over all jobs to see what we can read / reconnect (?) / write
             dispatchWriteRequest(); // first this, to increase the chance to free a client
             connectNewClients();            // wait for requests, using accept()
             dispatchReadRequest();          // now read in new requests
 
-            for(int i=0; i<maxJobs; i++)
+            for (int i = 0; i < maxJobs; i++)
             {
                 LDEBUG << "- request processing: " << i;  // fake similar entry to benchmark logger
                 // creates too large log files, so omit in production:
@@ -174,26 +176,26 @@ void MasterComm::Run()
 // Note: this is a bad hack, but I don't want to change the "answer" ret code of processRequest() unless I fully understand it -- PB 2003-jun-10
 static bool keepConnection;
 
-void MasterComm::processJob(NbJob &currentJob)
+void MasterComm::processJob(NbJob& currentJob)
 {
-    if(currentJob.isOperationPending()==false )
+    if (currentJob.isOperationPending() == false)
     {
         return;
     }
 
-    if(currentJob.wasError())               // low-level comm error
+    if (currentJob.wasError())              // low-level comm error
     {
         LDEBUG << "MasterComm::processJob: closing connection." ;
         currentJob.closeConnection();
         return;
     }
 
-    if(currentJob.isMessageOK() == false)
+    if (currentJob.isMessageOK() == false)
     {
         return;
     }
 
-    if(fillInBuffer(currentJob.getMessage())==false)    // fill msg into answer buffer header + body
+    if (fillInBuffer(currentJob.getMessage()) == false) // fill msg into answer buffer header + body
     {
         LDEBUG << "MasterComm::processJob: closing connection.";
         currentJob.closeConnection();
@@ -202,24 +204,24 @@ void MasterComm::processJob(NbJob &currentJob)
 
     // now we have the message in inBuffer, with header and body set correctly
 
-    int answer = processRequest( currentJob );
+    int answer = processRequest(currentJob);
 
     int outLen = strlen(outBuffer);
 
-    if(outLen && answer != 2) // sending the answer
+    if (outLen && answer != 2) // sending the answer
         // FIXME: what is answer==2 ? never happens! -- PB 2003-jun-10
     {
         LDEBUG << "MasterComm::processJob: init sending answer for outBuffer, set socket to write mode.";
         currentJob.initSendAnswer(outBuffer);
     }
 
-    if(outLen == 0) // no answer to send
+    if (outLen == 0) // no answer to send
     {
         LDEBUG << "MasterComm::processJob: no answer to send, closing connection.";
         currentJob.closeConnection();
     }
 
-    if( answer == 1 ) // means "delayedOperation"
+    if (answer == 1)   // means "delayedOperation"
         // FIXME: according to processRequest, delOp is 0 !!! -- PB 2003-jun-10
         // ...and 1 comes back for POST rasservernewstatus
     {
@@ -245,117 +247,144 @@ void MasterComm::processJob(NbJob &currentJob)
 
 
 // printClientAddr(): aux fct to print client address to designated stream
-const char *getClientAddr( int mySocket )
+const char* getClientAddr(int mySocket)
 {
-    const char *result = NULL;
+    const char* result = NULL;
     struct sockaddr_in s;
     socklen_t sockaddrSize = (socklen_t) sizeof(s);
-    if ( getpeername( mySocket, (struct sockaddr*)&s, &sockaddrSize ) != 0)
+    if (getpeername(mySocket, (struct sockaddr*)&s, &sockaddrSize) != 0)
+    {
         result = strerror(errno);
+    }
     else
+    {
         result = inet_ntoa(s.sin_addr);
+    }
     return result;
 }
 
 // checks if a string contains only digits, * or .
-bool isIp(char *str)
+bool isIp(char* str)
 {
-    char* c = str; 
-    while (*c != '\0') {
+    char* c = str;
+    while (*c != '\0')
+    {
         if (((*c < '0') || (*c > '9')) && (*c != '*') && (*c != '.'))
+        {
             return false;
+        }
         c++;
     }
     return true;
 }
 
 // checks if the request comes from a known inpeer
-bool hostCmpPeer(char *h1, char *h2) 
+bool hostCmpPeer(char* h1, char* h2)
 {
     bool result = false;
 
-    if ( h1 == NULL && h2 == NULL )
+    if (h1 == NULL && h2 == NULL)
+    {
         result = true;
-    else if ( h1 == NULL )
+    }
+    else if (h1 == NULL)
+    {
         result = false;
-    else if ( h2 == NULL )
+    }
+    else if (h2 == NULL)
+    {
         result = false;
+    }
     else
     {
         if (!strcmp(h1, "*"))
+        {
             result = true;
-        else 
+        }
+        else
         {
 
             char* h1token;
             char* h2token;
             char h2n[256];
             strcpy(h2n, h2);
-            if (isIp(h1) && !isIp(h2)) 
-            {            
+            if (isIp(h1) && !isIp(h2))
+            {
 
                 struct addrinfo hints, *ai;
                 char addrstr[256];
-                void *ptr = NULL;
+                void* ptr = NULL;
 
-                memset (&hints, 0, sizeof(hints));
+                memset(&hints, 0, sizeof(hints));
                 hints.ai_family = AF_UNSPEC;
 
-                if (getaddrinfo (h2, NULL, &hints, &ai) != 0)
+                if (getaddrinfo(h2, NULL, &hints, &ai) != 0)
+                {
                     return false;
+                }
 
                 for (; ai; ai = ai->ai_next)
                 {
                     if (ai->ai_family == AF_INET)
                     {
-                        ptr = &((struct sockaddr_in *) ai->ai_addr)->sin_addr;
+                        ptr = &((struct sockaddr_in*) ai->ai_addr)->sin_addr;
                         break;
                     }
                 }
-                inet_ntop (ai->ai_family, ptr, addrstr, 256);
+                inet_ntop(ai->ai_family, ptr, addrstr, 256);
                 strcpy(h2n, addrstr);
                 freeaddrinfo(ai);
-            } 
+            }
             else if (!isIp(h1) && isIp(h2))
             {
                 char hostname[256];
                 struct sockaddr_in sa;
                 if (inet_pton(AF_INET, h2, &(sa.sin_addr)) != 1)
+                {
                     return false;
-                if (getnameinfo((struct sockaddr *)&sa, sizeof(sa), hostname, 256, NULL, 0, NI_NAMEREQD)) 
+                }
+                if (getnameinfo((struct sockaddr*)&sa, sizeof(sa), hostname, 256, NULL, 0, NI_NAMEREQD))
+                {
                     return false;
+                }
                 strcpy(h2n, hostname);
             }
-            
+
             char h1n[256];
-            strcpy(h1n, h1);  
+            strcpy(h1n, h1);
             int i1 = 0, i2 = 0;
-            for (int i = 0; h1n[i]; i++) 
+            for (int i = 0; h1n[i]; i++)
                 if (h1n[i] == '.')
+                {
                     i1++;
-            for (int i = 0; h2n[i]; i++) 
+                }
+            for (int i = 0; h2n[i]; i++)
                 if (h2n[i] == '.')
-                    i2++;                    
-            if (i1 != i2) 
+                {
+                    i2++;
+                }
+            if (i1 != i2)
+            {
                 return false;
-          
+            }
+
             h1token = strrchr(h1n, '.');
             h2token = strrchr(h2n, '.');
             while ((h1token != NULL) && (h2token != NULL))
-            {                                
+            {
                 if (strcmp(h1token, ".*")  && strcmp(h1token, h2token))
                 {
                     return false;
-                }   
+                }
                 h1token[0] = '\0';
                 h2token[0] = '\0';
                 h1token = strrchr(h1n, '.');
-                h2token = strrchr(h2n, '.'); 
+                h2token = strrchr(h2n, '.');
             }
             if (strcmp(h1n, "*")  && strcmp(h1n, h2n))
             {
                 return false;
-            }            
+            }
             result = true;
         }
     }
@@ -369,10 +398,10 @@ bool hostCmpPeer(char *h1, char *h2)
 //  0 normally (?)
 //  1 for POST rasservernewstatus
 // NB: keepConnection is static above -- bad hack, see there
-int MasterComm::processRequest( NbJob &currentJob )
+int MasterComm::processRequest(NbJob& currentJob)
 {
     // inBuffer: header + body Ok, output in outBuffer, which is not initialized here
-    outBuffer[0]=0;     // mark outBuffer as empty
+    outBuffer[0] = 0;   // mark outBuffer as empty
     int answer = 0;
     // delayedOperation = 0;
 
@@ -380,27 +409,29 @@ int MasterComm::processRequest( NbJob &currentJob )
 
     // --- this is the central dispatcher for rasmgr requests, recognising and executing them.
 
-    if(isMessage("POST peerrequest"))
+    if (isMessage("POST peerrequest"))
     {
 
         LDEBUG << now() << " peer request from "
-             << getClientAddr( currentJob.getSocket() )
-             << ": " << "'get server'...";
-        
+               << getClientAddr(currentJob.getSocket())
+               << ": " << "'get server'...";
+
         bool known = false;
         char* hostName = body;
         body = strstr(body, " ");
-        *body=0; // terminate hostname (!) string "hostname body"
-        body += strlen( " " );
-        for (unsigned int i = 0; i < config.inpeers.size(); i++) {
-            if (hostCmpPeer(config.inpeers[i],hostName)) {
-                known = true;        
-            }       
-        }
-        if (known || authorization.acceptEntry(header)) 
+        *body = 0; // terminate hostname (!) string "hostname body"
+        body += strlen(" ");
+        for (unsigned int i = 0; i < config.inpeers.size(); i++)
         {
-            int rc = getFreeServer(fake, true);   
-            keepConnection = true; 
+            if (hostCmpPeer(config.inpeers[i], hostName))
+            {
+                known = true;
+            }
+        }
+        if (known || authorization.acceptEntry(header))
+        {
+            int rc = getFreeServer(fake, true);
+            keepConnection = true;
             LDEBUG << "ok";
         }
         else
@@ -410,7 +441,7 @@ int MasterComm::processRequest( NbJob &currentJob )
             LDEBUG << "denied.";
         }
     }
-    else if(isMessage("POST rasservernewstatus"))
+    else if (isMessage("POST rasservernewstatus"))
     {
         // extract server status from msg body
         char serverName[50];
@@ -418,10 +449,10 @@ int MasterComm::processRequest( NbJob &currentJob )
         long dummy = 0;
         serverName[0] = '\0';   // initialize in case sscanf() fails
 
-        int result = sscanf( body, "%s %d %ld", serverName, &newstatus, &dummy);
+        int result = sscanf(body, "%s %d %ld", serverName, &newstatus, &dummy);
         if (result == 3)                // we simply ignore malformed requests, reason see below
         {
-            const char *statusText = NULL;
+            const char* statusText = NULL;
             switch (newstatus)
             {
             case SERVER_DOWN:
@@ -443,8 +474,8 @@ int MasterComm::processRequest( NbJob &currentJob )
             if (newstatus != SERVER_REGULARSIG && newstatus != SERVER_AVAILABLE)    // don't blow up the log file with "still alive" signals
             {
                 LDEBUG << now() << " status info from server " << serverName
-                     << " @ " << getClientAddr( currentJob.getSocket() )
-                     << ": '" << statusText << "'...ok";
+                       << " @ " << getClientAddr(currentJob.getSocket())
+                       << ": '" << statusText << "'...ok";
             }
 
             keepConnection = false;         // singleton msg slave -> master
@@ -453,17 +484,17 @@ int MasterComm::processRequest( NbJob &currentJob )
         else // malformed request
         {
             LDEBUG << now() << " Error: malformed request (ignoring it) from "
-                 << getClientAddr( currentJob.getSocket() )
-                 << ": '" << body << "'";
+                   << getClientAddr(currentJob.getSocket())
+                   << ": '" << body << "'";
         }
     }
-    else if( (fake = isMessage("POST getfreeserver2")) || isMessage("POST getfreeserver"))
+    else if ((fake = isMessage("POST getfreeserver2")) || isMessage("POST getfreeserver"))
     {
         LDEBUG << now() << " client request from "
-             << getClientAddr( currentJob.getSocket() )
-             << ": " << "'get server'...";
+               << getClientAddr(currentJob.getSocket())
+               << ": " << "'get server'...";
 
-        if(authorization.acceptEntry(header))
+        if (authorization.acceptEntry(header))
         {
             int rc = getFreeServer(fake, false);   // returns std rasdaman errors -- FIXME: error ignored!
             keepConnection = (rc == MSG_OK) ? true : false; // 200 is "ok"
@@ -477,15 +508,15 @@ int MasterComm::processRequest( NbJob &currentJob )
         }
 
     }
-    else if(isMessage("POST rascontrol"))
+    else if (isMessage("POST rascontrol"))
     {
         LDEBUG << now() << " rascontrol request from "
-             << getClientAddr( currentJob.getSocket() )
-             << ": '" << body << "'...";
+               << getClientAddr(currentJob.getSocket())
+               << ": '" << body << "'...";
 
-        if(authorization.acceptEntry(header))
+        if (authorization.acceptEntry(header))
         {
-            rascontrol.processRequest(body,outBuffer);
+            rascontrol.processRequest(body, outBuffer);
             keepConnection = true;      // rascontrol connection accepted, so keep it
             LDEBUG << "ok";
         }
@@ -511,19 +542,19 @@ int MasterComm::processRequest( NbJob &currentJob )
 //  inBuffer    (global buffer) set to s; header string part properly NULL terminated in inBuffer
 //  body    (global ptr) set to beginning of message body in inBuffer
 //  header  (global ptr) set to beginning of inBuffer
-bool MasterComm::fillInBuffer(const char *s)
+bool MasterComm::fillInBuffer(const char* s)
 {
-    strcpy(inBuffer,s);
-    header=inBuffer;                // set header to begining of msg buffer
-    body=strstr(inBuffer, RASMGRPROT_DOUBLE_EOL );  // find double EOL, this is where body starts
-    if(body == NULL)                // not found? this means a protocol syntax error
+    strcpy(inBuffer, s);
+    header = inBuffer;              // set header to begining of msg buffer
+    body = strstr(inBuffer, RASMGRPROT_DOUBLE_EOL);  // find double EOL, this is where body starts
+    if (body == NULL)               // not found? this means a protocol syntax error
     {
         LDEBUG << "MasterComm::fillInBuffer: Error in rasmgr protocol encountered (2xEOL missing). msg=" << inBuffer;
         return false; // only if client is stupid
     }
 
-    *body=0;                    // terminate header (!) string
-    body+= strlen( RASMGRPROT_DOUBLE_EOL );     // let body start after this double newline
+    *body = 0;                  // terminate header (!) string
+    body += strlen(RASMGRPROT_DOUBLE_EOL);      // let body start after this double newline
 
     return true;
 }
@@ -531,52 +562,64 @@ bool MasterComm::fillInBuffer(const char *s)
 // save config and auth file; deprecated
 void MasterComm::doCommit()
 {
-    if(config.isTestModus()==false)
+    if (config.isTestModus() == false)
     {
         LDEBUG << "MasterComm::doCommit: deprecated, should not be called any longer.";
 #if 0 // now done by saveCommand() directly
-        if(commitAuthOnly==false)
+        if (commitAuthOnly == false)
         {
             LDEBUG << "Save configuration file...";
-            if(config.saveConfigFile()) LDEBUG << "OK";
-            else                        LDEBUG << "Failed";
+            if (config.saveConfigFile())
+            {
+                LDEBUG << "OK";
+            }
+            else
+            {
+                LDEBUG << "Failed";
+            }
         }
 
         LDEBUG << "Save authorization file...";
-        if(authorization.saveAuthFile()) LDEBUG << "OK";
-        else                             LDEBUG << "Failed";
+        if (authorization.saveAuthFile())
+        {
+            LDEBUG << "OK";
+        }
+        else
+        {
+            LDEBUG << "Failed";
+        }
 #endif
     }
     else
     {
-        LWARNING<<"Save requested, but not permitted during test modus!";
+        LWARNING << "Save requested, but not permitted during test modus!";
     }
-    commit=false;
+    commit = false;
 }
 
 void MasterComm::commitChanges()
 {
-    commit=true;
-    commitAuthOnly=false;
+    commit = true;
+    commitAuthOnly = false;
 }
 void MasterComm::commitAuthFile()
 {
-    commit=true;
-    commitAuthOnly=true;
+    commit = true;
+    commitAuthOnly = true;
 }
 
 int MasterComm::answerAccessDenied()
 {
     // send to rascontrol when wrong login
-    sprintf(outBuffer,"HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\nAccess denied",strlen("Access denied")+1);
-    return strlen(outBuffer)+1;
+    sprintf(outBuffer, "HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\nAccess denied", strlen("Access denied") + 1);
+    return strlen(outBuffer) + 1;
 }
 
 int MasterComm::answerAccessDeniedCode()
 {
     // send to clients requesting free server when wrong login
-    sprintf(outBuffer,"HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n802 Access denied",strlen("802 Access denied")+1);
-    return strlen(outBuffer)+1;
+    sprintf(outBuffer, "HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n802 Access denied", strlen("802 Access denied") + 1);
+    return strlen(outBuffer) + 1;
 }
 
 // input:
@@ -595,13 +638,13 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     char serverType[10];
     char serverName[100];       // name of rasserver found, if any
     char accessType[5];
-    char prevID[200]="(none)";
+    char prevID[200] = "(none)";
 
     // initialize server name
-    strcpy( serverName, "(none)" );
+    strcpy(serverName, "(none)");
 
     // extract components from body string
-    int count = sscanf(body,"%s %s %s %s",databaseName,serverType,accessType, prevID);
+    int count = sscanf(body, "%s %s %s %s", databaseName, serverType, accessType, prevID);
     if (count != 4 && count != 3)
     {
         LERROR << "Error (internal): Cannot parse msg body received from client.";
@@ -609,20 +652,22 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     }
 
     ClientID clientID;
-  
-    // if we got a previous ID then take this one
-    if(count >3)
-        clientID.init(prevID);
-    
-    LDEBUG << "GetFreeServer: db = " << databaseName << ", requested server type = " << serverType << ", access type = " << accessType << ", clientID="<<clientID<<" prevID="<< prevID;
 
-    char sType=0;                   // type of server requested, values SERVERTYPE_*
+    // if we got a previous ID then take this one
+    if (count > 3)
+    {
+        clientID.init(prevID);
+    }
+
+    LDEBUG << "GetFreeServer: db = " << databaseName << ", requested server type = " << serverType << ", access type = " << accessType << ", clientID=" << clientID << " prevID=" << prevID;
+
+    char sType = 0;                 // type of server requested, values SERVERTYPE_*
     bool writeTransaction;              // true <=> write transaction requested
 
-    int  answCode=MSG_OK;               // request answer code
-    const char *answText=MSG_OK_STR;        // string representation of above answer code
+    int  answCode = MSG_OK;             // request answer code
+    const char* answText = MSG_OK_STR;      // string representation of above answer code
 
-    char answerString[200]="";          // response string sent back to caller
+    char answerString[200] = "";        // response string sent back to caller
 
     // this loop is executed at most once, it servers only to have
     // a well-defined point of continuation upon evaluation errors
@@ -631,49 +676,59 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         // --- evaluate message body ------------------------
 
         // determine server type requested
-        if(strcasecmp(serverType,"HTTP")==0)
-            sType=SERVERTYPE_FLAG_HTTP;
-        if(strcasecmp(serverType,"RPC")==0)
-            sType=SERVERTYPE_FLAG_RPC;
-        if(strcasecmp(serverType,"RNP")==0)
-            sType=SERVERTYPE_FLAG_RNP;
-        if(sType==0)
+        if (strcasecmp(serverType, "HTTP") == 0)
+        {
+            sType = SERVERTYPE_FLAG_HTTP;
+        }
+        if (strcasecmp(serverType, "RPC") == 0)
+        {
+            sType = SERVERTYPE_FLAG_RPC;
+        }
+        if (strcasecmp(serverType, "RNP") == 0)
+        {
+            sType = SERVERTYPE_FLAG_RNP;
+        }
+        if (sType == 0)
         {
             LERROR << "Error: unknown server type: " << serverType;
-            answCode=MSG_UNKNOWNSERVERTYPE;
+            answCode = MSG_UNKNOWNSERVERTYPE;
             break;
         }
 
         // determine transaction mode
-        if (strcasecmp(accessType,"ro")==0)
-            writeTransaction=false;
-        else if (strcasecmp(accessType,"rw")==0)
-            writeTransaction=true;
+        if (strcasecmp(accessType, "ro") == 0)
+        {
+            writeTransaction = false;
+        }
+        else if (strcasecmp(accessType, "rw") == 0)
+        {
+            writeTransaction = true;
+        }
         else
         {
             LERROR << "Error: unknown transaction type: " << accessType;
-            answCode=MSG_UNKNOWNACCESSTYPE;
+            answCode = MSG_UNKNOWNACCESSTYPE;
             break;
         }
 
-        LDEBUG << "accessType=" << accessType<<" writeTransaction="<<writeTransaction;
+        LDEBUG << "accessType=" << accessType << " writeTransaction=" << writeTransaction;
 
         // --- check against database state ------------------------
 
         // does requested database exist? (i.e., is it known?)
-        Database &db=dbManager[databaseName];
-        if(db.isValid()==false)
+        Database& db = dbManager[databaseName];
+        if (db.isValid() == false)
         {
             LERROR << "Error: database not found: " << databaseName;
-            answCode=MSG_DATABASENOTFOUND;
+            answCode = MSG_DATABASENOTFOUND;
             break;
         }
 
         // if r/w TA requested: is this compatible with the database's transaction state?
-        if(writeTransaction==true && db.getWriteTransactionCount() && allowMultipleWriteTransactions == false)
+        if (writeTransaction == true && db.getWriteTransactionCount() && allowMultipleWriteTransactions == false)
         {
             LERROR << "Error: write transaction in progress, conflicts with request.";
-            answCode=MSG_WRITETRANSACTION;
+            answCode = MSG_WRITETRANSACTION;
             break;
         }
 
@@ -682,76 +737,86 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         // iterate over registered servers, try to find a free one
         // FIXME: should be "round robin" strategy wrt server hosts;
         // take last used per server host is fine to reduce swapping
-        int countSuitableServers=0;     // number of servers we can choose from
+        int countSuitableServers = 0;   // number of servers we can choose from
         LDEBUG << "starting to search for server of type " << sType << "..." ;
-        for(int i=0; i<db.countConnectionsToRasServers(); i++)
+        for (int i = 0; i < db.countConnectionsToRasServers(); i++)
         {
             // inspect next server
-            RasServer &r=rasManager[db.getRasServerName(i)]; 
+            RasServer& r = rasManager[db.getRasServerName(i)];
             LDEBUG << "  srv #" << i << ": name=" << r.getName() << ", type=" << r.getType() << ", isUp=" << r.isUp() << ", isAvailable=" << r.isAvailable();
-            if(sType == r.getType())    // type matches request?
+            if (sType == r.getType())   // type matches request?
             {
-                if(r.isUp())        // server is up?
+                if (r.isUp())       // server is up?
+                {
                     countSuitableServers++;
+                }
 
-                if(r.isAvailable()) // server is free?
+                if (r.isAvailable()) // server is free?
                 {
                     // part A: we have what you want
                     int cbs = clientQueue.canBeServed(clientID, static_cast<const char*>(databaseName), sType, fake);
                     // returns: 0=OK, otherwise rasdaman errors 801, 805 -- PB 2003-nov-20
-                    if(cbs != 0)
+                    if (cbs != 0)
                     {
-                        LDEBUG <<"MasterComm::getFreeServer: clientQueue.canBeServed(" << clientID << "," << databaseName << "," << sType << "," << fake << ") -> " << cbs;
+                        LDEBUG << "MasterComm::getFreeServer: clientQueue.canBeServed(" << clientID << "," << databaseName << "," << sType << "," << fake << ") -> " << cbs;
                         LERROR << "Error: no server available, error code: " << cbs;
                         answCode = cbs;
                         break;
                     }
-                    if( fake == false)  // server to be allocated?
+                    if (fake == false)  // server to be allocated?
                     {
                         // mark server found as unavailable to others
                         r.setNotAvailable();
                         // set transaction mode requested
-                        if(writeTransaction==true)
-                            r.startWriteTransaction(db); // nothing real happens, no error can occur
+                        if (writeTransaction == true)
+                        {
+                            r.startWriteTransaction(db);    // nothing real happens, no error can occur
+                        }
                         else
-                            r.startReadTransaction(db); // nothing real happens, no error can occur
-                        LDEBUG <<"MasterComm::getFreeServer: You have the server.";
+                        {
+                            r.startReadTransaction(db);    // nothing real happens, no error can occur
+                        }
+                        LDEBUG << "MasterComm::getFreeServer: You have the server.";
                         // answCode is same as initialised if we come here
                     }
 
                     // try to obtain host's IP (must be known, no good reason why this should fail)
                     // reason: to circumvent some problems with ill-set domain names
-                    struct hostent *hostInfo = gethostbyname( r.getHostNetwName() );
-                    char *ipString = NULL;
-                    if (hostInfo!=NULL)             // IP address found?
+                    struct hostent* hostInfo = gethostbyname(r.getHostNetwName());
+                    char* ipString = NULL;
+                    if (hostInfo != NULL)           // IP address found?
                     {
                         // solving the problem of getting the local IP
                         char* ptr;
                         int counter = 0;
-                        while ((ptr = hostInfo->h_addr_list[counter++])) {
-                            ipString = inet_ntoa(*((struct in_addr*)ptr) );
-                            if (strstr(ipString, "127.") != ipString) 
+                        while ((ptr = hostInfo->h_addr_list[counter++]))
+                        {
+                            ipString = inet_ntoa(*((struct in_addr*)ptr));
+                            if (strstr(ipString, "127.") != ipString)
+                            {
                                 break;
+                            }
                         }
-                        if (strstr(ipString, "127.") != ipString) { 
-                            // respond with this one 
+                        if (strstr(ipString, "127.") != ipString)
+                        {
+                            // respond with this one
                             LDEBUG << "responding with IP address " << ipString << " for host " << r.getHostNetwName();
-                            sprintf(answerString,"%s %ld %s ",ipString,r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );
-                        } 
+                            sprintf(answerString, "%s %ld %s ", ipString, r.getPort(), authorization.getCapability(r.getName(), databaseName, !writeTransaction));
+                        }
                         else
                         {
                             LDEBUG << "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName();
-                            sprintf(answerString,"%s %ld %s ",r.getHostNetwName(),r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );                        
+                            sprintf(answerString, "%s %ld %s ", r.getHostNetwName(), r.getPort(), authorization.getCapability(r.getName(), databaseName, !writeTransaction));
                         }
                     }
                     else    // ok, for the _unlikely_ case we just return the name as is
                     {
                         LDEBUG << "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName();
-                        sprintf(answerString,"%s %ld %s ",r.getHostNetwName(),r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );
+                        sprintf(answerString, "%s %ld %s ", r.getHostNetwName(), r.getPort(), authorization.getCapability(r.getName(), databaseName, !writeTransaction));
                     }
 
                     // remember server name
-                    strncpy( serverName, r.getName(), sizeof(serverName) );                    
+                    strncpy(serverName, r.getName(), sizeof(serverName));
                     LDEBUG << "answerString=" << answerString;
                     break;
                 }
@@ -759,69 +824,80 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         } // for
 
         // any free server found?
-        if(countSuitableServers == 0)
-        { 
+        if (countSuitableServers == 0)
+        {
             bool found = false;
             char* msg;
             char outmsg[MAXMSG];
             char newbody[MAXMSG];
-            if (!frompeer) {
-                sprintf(newbody,"%s %s", config.getPublicHostName(), body); // adding the hostname of the current rasmgr to identify ourselves
+            if (!frompeer)
+            {
+                sprintf(newbody, "%s %s", config.getPublicHostName(), body); // adding the hostname of the current rasmgr to identify ourselves
                 char* myheader = static_cast<char*>(malloc(strlen(header) + 1));
-                strcpy(myheader,header);
-                char *auth = strstr(myheader,"Authorization:"); // should be present, otherwise the client wouldn't have been accepted
-                char *value = strtok(auth+strlen("Authorization:"),"\r\n");
-                
-                sprintf(outmsg,"POST peerrequest HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nAuthorization: ras %s\r\nContent-length: %lu\r\n\r\n%s",value,strlen(newbody)+1,newbody); // Forward authorization to peer
+                strcpy(myheader, header);
+                char* auth = strstr(myheader, "Authorization:"); // should be present, otherwise the client wouldn't have been accepted
+                char* value = strtok(auth + strlen("Authorization:"), "\r\n");
+
+                sprintf(outmsg, "POST peerrequest HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nAuthorization: ras %s\r\nContent-length: %lu\r\n\r\n%s", value, strlen(newbody) + 1, newbody); // Forward authorization to peer
                 free(myheader);
                 myheader = NULL;
-                int peer = currentPosition + 1; // going round-robin over outpeers, starting with the one after the last successful one   
-                if (peer >= static_cast<int>(config.outpeers.size())) {
+                int peer = currentPosition + 1; // going round-robin over outpeers, starting with the one after the last successful one
+                if (peer >= static_cast<int>(config.outpeers.size()))
+                {
                     peer = 0;
                     currentPosition = static_cast<int>(config.outpeers.size()) - 1; // maybe some got deleted in the meantime, so to keep it correct
-                }           
-                if (config.outpeers.size() > 0)  
+                }
+                if (config.outpeers.size() > 0)
                 {
                     bool goon = true;
-                    while (goon) {                       
-                        msg = strdup(askOutpeer(peer, outmsg)); 
-                        if (strstr(msg, MSG_OK_STR) != NULL) {
-                            found = true;        
+                    while (goon)
+                    {
+                        msg = strdup(askOutpeer(peer, outmsg));
+                        if (strstr(msg, MSG_OK_STR) != NULL)
+                        {
+                            found = true;
                             currentPosition = peer;
                             goon = false;
-                        }                 
+                        }
                         peer++;
                         if (peer == (currentPosition + 1))
-                            goon = false;                    
+                        {
+                            goon = false;
+                        }
                         if (peer >= static_cast<int>(config.outpeers.size()))
+                        {
                             peer = 0;
+                        }
                     }
                 }
             }
-            if (!found) {
+            if (!found)
+            {
                 LERROR << "Error: no suitable free server available.";
                 answCode = MSG_NOSUITABLESERVER;
                 break;
-            } else if (!frompeer) {
-                char * answString = strstr(msg, RASMGRPROT_DOUBLE_EOL );  // find double EOL, this is where body starts
-                if(answString == NULL)                // not found? this means a protocol syntax error
+            }
+            else if (!frompeer)
+            {
+                char* answString = strstr(msg, RASMGRPROT_DOUBLE_EOL);    // find double EOL, this is where body starts
+                if (answString == NULL)               // not found? this means a protocol syntax error
                 {
                     LDEBUG << "MasterComm::fillInBuffer: Error in rasmgr protocol encountered (2xEOL missing). msg=" << msg;
                     LERROR << "Error: no suitable free server available.";
                     answCode = MSG_NOSUITABLESERVER;
                     break;
                 }
-                *answString=0;                    // terminate header (!) string
-                answString+= strlen( RASMGRPROT_DOUBLE_EOL );     // let body start after this double newline
+                *answString = 0;                  // terminate header (!) string
+                answString += strlen(RASMGRPROT_DOUBLE_EOL);      // let body start after this double newline
                 answCode = MSG_OK;
                 strcpy(answerString, answString);
                 break;
             }
-            
+
         }
         // no answer string provided -> no server available
         // oops?? why not uniformly check against answCode? -- PB 2003-nov-20
-        if(answerString[0]==0)
+        if (answerString[0] == 0)
         {
             LERROR << "Error: cannot find any free server; answer code: " << answCode << " -> ";
             answCode = MSG_SYSTEMOVERLOADED;
@@ -830,15 +906,17 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
         }
 
     }
-    while(0);   // see comment at start of "loop"
+    while (0);  // see comment at start of "loop"
 
     answText = convertAnswerCode(answCode);
 
-    if(answCode == MSG_OK)
-        sprintf(outBuffer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s",answCode,answText,strlen(answerString)+1,answerString);
+    if (answCode == MSG_OK)
+    {
+        sprintf(outBuffer, "HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s", answCode, answText, strlen(answerString) + 1, answerString);
+    }
     else
     {
-        sprintf(outBuffer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%d %s",400,"Error",strlen(answText)+1,answCode,answText);
+        sprintf(outBuffer, "HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%d %s", 400, "Error", strlen(answText) + 1, answCode, answText);
         clientQueue.put(clientID, static_cast<const char*>(databaseName), sType, answCode);
     }
 
@@ -855,88 +933,101 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
 //  outmsg  message to be sent to the peer
 // returns:
 //  answer  the reply from the peer
-const char* MasterComm::askOutpeer(int peer, char* outmsg) {
+const char* MasterComm::askOutpeer(int peer, char* outmsg)
+{
 
     struct protoent* getprotoptr = getprotobyname("tcp");
-    struct hostent *hostinfo = gethostbyname(config.outpeers[static_cast<unsigned long>(peer)]);
-    if(hostinfo==NULL)
+    struct hostent* hostinfo = gethostbyname(config.outpeers[static_cast<unsigned long>(peer)]);
+    if (hostinfo == NULL)
     {
-        LERROR << "Error locating RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')';
+        LERROR << "Error locating RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] << " (" << strerror(errno) << ')';
     }
 
     sockaddr_in internetSocketAddress;
 
-    internetSocketAddress.sin_family=AF_INET;
-    internetSocketAddress.sin_port=htons(config.outports[static_cast<unsigned long>(peer)]);
-    internetSocketAddress.sin_addr=*(struct in_addr*)hostinfo->h_addr;
+    internetSocketAddress.sin_family = AF_INET;
+    internetSocketAddress.sin_port = htons(config.outports[static_cast<unsigned long>(peer)]);
+    internetSocketAddress.sin_addr = *(struct in_addr*)hostinfo->h_addr;
 
     static char answer[MAXMSG];
-    sprintf(answer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s",400,"Error",8,MSG_NOSUITABLESERVER,"Error");
+    sprintf(answer, "HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s", 400, "Error", 8, MSG_NOSUITABLESERVER, "Error");
     int sock;
     bool ok = false;
-    sock = socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
-    if(sock<0)   
+    sock = socket(PF_INET, SOCK_STREAM, getprotoptr->p_proto);
+    if (sock < 0)
     {
-        LERROR << "askOutpeer: cannot open socket to RasMGR, ("<<strerror(errno)<<')';
+        LERROR << "askOutpeer: cannot open socket to RasMGR, (" << strerror(errno) << ')';
         return answer;
     }
-    
-    if(connect(sock,(struct sockaddr*)&internetSocketAddress,sizeof(internetSocketAddress)) < 0)
+
+    if (connect(sock, (struct sockaddr*)&internetSocketAddress, sizeof(internetSocketAddress)) < 0)
     {
-        LERROR <<"askOutpeer: Connection to RasMGR failed! ("<<strerror(errno)<<')';
+        LERROR << "askOutpeer: Connection to RasMGR failed! (" << strerror(errno) << ')';
         close(sock);
         return answer;
-    }     
-   
+    }
+
     int nbytes = 0;
-    int buffSize = strlen(outmsg)+1;
+    int buffSize = strlen(outmsg) + 1;
     int rwNow;
-    while(1)
+    while (1)
     {
-        rwNow = write(sock,outmsg+nbytes,static_cast<size_t>(buffSize-nbytes));
-        if(rwNow == -1)
+        rwNow = write(sock, outmsg + nbytes, static_cast<size_t>(buffSize - nbytes));
+        if (rwNow == -1)
         {
-            if(errno == EINTR) continue; // write was interrupted by signal
+            if (errno == EINTR)
+            {
+                continue;    // write was interrupted by signal
+            }
             nbytes = -1; // another error
             break;
         }
-        nbytes+=rwNow;
+        nbytes += rwNow;
 
-        if( nbytes == buffSize ) break; // THE END
+        if (nbytes == buffSize)
+        {
+            break;    // THE END
+        }
     }
 
-    if(nbytes<0)
+    if (nbytes < 0)
     {
-        LERROR << "Error writing message to RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] << " ("<<strerror(errno)<<')';
+        LERROR << "Error writing message to RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] << " (" << strerror(errno) << ')';
         close(sock);
         return answer;
     }
 
     //wait and read answer
     nbytes = 0;
-    while(1)
+    while (1)
     {
-        rwNow = read(sock,answer+nbytes,static_cast<size_t>(MAXMSG-nbytes));
-        if(rwNow == -1)
+        rwNow = read(sock, answer + nbytes, static_cast<size_t>(MAXMSG - nbytes));
+        if (rwNow == -1)
         {
-            if(errno == EINTR) continue; // read was interrupted by signal
+            if (errno == EINTR)
+            {
+                continue;    // read was interrupted by signal
+            }
             nbytes = -1; // another error
             break;
         }
-        nbytes+=rwNow;
+        nbytes += rwNow;
 
-        if(answer[nbytes-1] == 0) break; // THE END
+        if (answer[nbytes - 1] == 0)
+        {
+            break;    // THE END
+        }
     }
     close(sock);
 
-    if(nbytes<0)
+    if (nbytes < 0)
     {
-        LERROR << "Error reading answer from RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')';
-        sprintf(answer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s",400,"Error",6,MSG_NOSUITABLESERVER,"Error"); // again, as it might get changed above
+        LERROR << "Error reading answer from RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] << " (" << strerror(errno) << ')';
+        sprintf(answer, "HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s", 400, "Error", 6, MSG_NOSUITABLESERVER, "Error"); // again, as it might get changed above
         return answer;
     }
     return answer;
-    
+
 
 } // askOutpeer()
 
@@ -947,8 +1038,8 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
 //  answer  ptr to static error text
 const char* MasterComm::convertAnswerCode(int code)
 {
-    const char *answer = MSG_ILLEGAL_STR;   // return value, initialized to "illegal"
-    switch(code)
+    const char* answer = MSG_ILLEGAL_STR;   // return value, initialized to "illegal"
+    switch (code)
     {
     case MSG_OK:
         answer = MSG_OK_STR;
@@ -978,7 +1069,7 @@ const char* MasterComm::convertAnswerCode(int code)
         break;
     }
 
-    LDEBUG <<"MasterComm::convertAnswerCode: code=" << code << ", answer=" << answer;
+    LDEBUG << "MasterComm::convertAnswerCode: code=" << code << ", answer=" << answer;
     return answer;
 }
 
@@ -989,11 +1080,13 @@ const char* MasterComm::convertAnswerCode(int code)
 // returns:
 //  true        on match
 //  false       otherwise
-bool MasterComm::isMessage(const char *messageStart)
+bool MasterComm::isMessage(const char* messageStart)
 {
-    bool rasp= (strncasecmp(header,messageStart,strlen(messageStart))==0) ? true:false;
-    if(rasp)
-        LDEBUG <<"(b) Message="<<messageStart;
+    bool rasp = (strncasecmp(header, messageStart, strlen(messageStart)) == 0) ? true : false;
+    if (rasp)
+    {
+        LDEBUG << "(b) Message=" << messageStart;
+    }
 
     return rasp;
 }
@@ -1007,7 +1100,7 @@ ClientID::ClientID()
 }
 
 
-void ClientID::init(const char *stringrep)
+void ClientID::init(const char* stringrep)
 {
     idstring = stringrep;
     valid = true;
@@ -1033,9 +1126,9 @@ bool ClientID::operator!=(const ClientID& cl)
     return (idstring == cl.idstring && valid) ? false : true;
 }
 
-std::ostream& operator<<(std::ostream &os, const ClientID &cl)
+std::ostream& operator<<(std::ostream& os, const ClientID& cl)
 {
-    os<<cl.getID();
+    os << cl.getID();
     return os;
 }
 
@@ -1061,35 +1154,39 @@ ClientQueue::~ClientQueue()
 // well formed if:
 //  - valid client ID in clientID
 //  - server assignment error in errorCode
-void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, int errorCode)
+void ClientQueue::put(ClientID& clientID, const char* dbName, char serverType, int errorCode)
 {
     // --- input parameter check ---------------
 
-    if(clientID.isValid() == false)     // invalid clientID's are not put in queue
+    if (clientID.isValid() == false)    // invalid clientID's are not put in queue
+    {
         return;
+    }
 
     if (errorCode != MSG_SYSTEMOVERLOADED
             && errorCode != MSG_NOSUITABLESERVER
             && errorCode != MSG_WRITETRANSACTION)  // only these codes are put in queue
+    {
         return;
+    }
 
     // --- walk through client list to find a matching entry ---------------
 
-    ClientEntry *client = 0;        // ptr to a list entry
+    ClientEntry* client = 0;        // ptr to a list entry
 
     // iterate thru list of client requests
     LDEBUG << "iterating through list, client table size=" << clients.size();
-    for(int i=0; i<static_cast<int>(clients.size()); i++)
+    for (int i = 0; i < static_cast<int>(clients.size()); i++)
     {
         ClientEntry& curClient = clients[static_cast<unsigned int>(i)];    // list entry to be inspected
 
         // on the fly, remove first list entry if outdated or inactive
         // FIXME: what an ugly code -- PB 2003-nov-20
-        if(curClient.activ == false || curClient.isTimeout())
+        if (curClient.activ == false || curClient.isTimeout())
         {
-            if(i==0)            // do only for 1st element
+            if (i == 0)         // do only for 1st element
             {
-                LDEBUG <<"ClientQueue::put: cleaned up client "<<curClient.clientID;
+                LDEBUG << "ClientQueue::put: cleaned up client " << curClient.clientID;
                 clients.pop_front();    // remove this first element
                 i--; // set back loop ctr
             }
@@ -1097,30 +1194,30 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
         }
 
         // have an entry with matching client ID?
-        if(curClient.clientID == clientID)
+        if (curClient.clientID == clientID)
         {
             client = &clients[static_cast<unsigned int>(i)];       // remember this entry
             break;
         }
     } // for
 
-    if(client == 0)                 // no matching entry found
+    if (client == 0)                // no matching entry found
     {
         ClientEntry newClient(clientID, dbName, serverType, errorCode);
         newClient.activ = true;
         newClient.updateTime();
         clients.push_back(newClient);
-        LDEBUG <<"ClientQueue::put, new client first time, id="<<clientID;
+        LDEBUG << "ClientQueue::put, new client first time, id=" << clientID;
     }
     else                        // matching entry found
     {
         // Attention: we compare ptrs, not string contents!! -- PB 2003-nov-20
-        if(client->dbName == dbName && client->serverType == serverType)
+        if (client->dbName == dbName && client->serverType == serverType)
         {
             // wants the same thing
             client->errorCode  = errorCode;
             client->updateTime();
-            LDEBUG <<"ClientQueue::put, id=" << clientID << ", db=" << dbName << ", serverType=" << serverType << ": updated";
+            LDEBUG << "ClientQueue::put, id=" << clientID << ", db=" << dbName << ", serverType=" << serverType << ": updated";
         }
         else
         {
@@ -1130,7 +1227,7 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
             newClient.activ = true;
             newClient.updateTime();
             clients.push_back(newClient);
-            LDEBUG <<"ClientQueue::put, known client db=" << dbName << ", serverType=" << serverType << ", but different request: id="<<clientID;
+            LDEBUG << "ClientQueue::put, known client db=" << dbName << ", serverType=" << serverType << ", but different request: id=" << clientID;
         }
     }
 
@@ -1141,44 +1238,46 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
 // returns:
 //  0   ok, can be served
 //  else    rasdaman error code
-int ClientQueue::canBeServed(ClientID &clientID, const char *dbName, char serverType, bool fake)
+int ClientQueue::canBeServed(ClientID& clientID, const char* dbName, char serverType, bool fake)
 {
     // the answer is the errorcode, why it can't be served
 
-    if(clients.size() == 0)
+    if (clients.size() == 0)
+    {
         return 0;
+    }
 
-    for(int i=0; i<static_cast<int>(clients.size()); i++)
+    for (int i = 0; i < static_cast<int>(clients.size()); i++)
     {
         ClientEntry& client = clients[static_cast<unsigned int>(i)];
 
         // on the fly, clean first element if necessary
         // FIXME: this is not just as ugly as above, it also duplicates code! -- PB 2003-nov-20
-        if(client.activ == false || client.isTimeout())
+        if (client.activ == false || client.isTimeout())
         {
-            if(i==0)
+            if (i == 0)
             {
-                LDEBUG <<"ClientQueue::canBeServed  id="<<client.clientID<<" cleaned up";
+                LDEBUG << "ClientQueue::canBeServed  id=" << client.clientID << " cleaned up";
                 clients.pop_front();
                 i--;
             }
             continue;
         }
 
-        if(client.dbName == dbName && client.serverType == serverType)
+        if (client.dbName == dbName && client.serverType == serverType)
         {
             // wants the same thing
-            if(client.clientID == clientID)
+            if (client.clientID == clientID)
             {
                 // it's the same client
                 // first fake request is not cleaned up.
                 // Chances are 99.999% that the same client comes back very quickly with a true request
-                if(client.shouldWeCleanup(fake))
+                if (client.shouldWeCleanup(fake))
                 {
                     client.activ = false;
-                    if(i==0)
+                    if (i == 0)
                     {
-                        LDEBUG <<"ClientQueue::canBeServed  id="<<client.clientID<<" cleaned up, you get a server";
+                        LDEBUG << "ClientQueue::canBeServed  id=" << client.clientID << " cleaned up, you get a server";
                         clients.pop_front();
                         i--;
                     }
@@ -1187,7 +1286,7 @@ int ClientQueue::canBeServed(ClientID &clientID, const char *dbName, char server
             }
             else // it's another client
             {
-                if(client.errorCode == MSG_SYSTEMOVERLOADED || client.errorCode == MSG_NOSUITABLESERVER)
+                if (client.errorCode == MSG_SYSTEMOVERLOADED || client.errorCode == MSG_NOSUITABLESERVER)
                 {
                     // yes, only these two, 806 (Write trans in progr) is not inherited!
                     // If there would be a client waiting because of 806 then:
@@ -1230,7 +1329,7 @@ ClientQueue::ClientEntry::ClientEntry()
     wasfake    = false;
 }
 
-ClientQueue::ClientEntry::ClientEntry(ClientID &_clientID, const char *_dbName, char _serverType, int _errorCode)
+ClientQueue::ClientEntry::ClientEntry(ClientID& _clientID, const char* _dbName, char _serverType, int _errorCode)
 {
     activ      = false;
     clientID   = _clientID;
@@ -1260,12 +1359,16 @@ bool ClientQueue::ClientEntry::shouldWeCleanup(bool fake)
 {
     bool result = false;    // in dubio don't remove
 
-    if(fake == false)
-        result = true; // yes, clean up
+    if (fake == false)
+    {
+        result = true;    // yes, clean up
+    }
     else
     {
-        if(wasfake == true)
-            result = true; // clean up, there was a fake request already
+        if (wasfake == true)
+        {
+            result = true;    // clean up, there was a fake request already
+        }
         else
         {
             wasfake = true; // why?? -- PB 2003-nov-20
@@ -1290,7 +1393,7 @@ void ClientQueue::ClientEntry::updateTime()
 
     time_t now = time(NULL);
 
-    if(lastAction == 0)
+    if (lastAction == 0)
     {
         // first use
         lastAction = now;

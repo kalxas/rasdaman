@@ -27,5 +27,5 @@ public interface IRasNode {
 
     public String toRasQL();
     public List<IRasNode> getChildren();
-    public boolean hasChildren();    
+    public boolean hasChildren();
 }

@@ -56,12 +56,12 @@ public class SwitchCaseRangeConstructorExpression {
         // NOTE: if booleanResults = rangeResults -> no use of "default"
         //          booleanResults = rangeResults - 1 -> use of "default" (default return { Range })
 
-        for(int i = 0; i < booleanResults.size(); i++) {
+        for (int i = 0; i < booleanResults.size(); i++) {
             String booleanResult = booleanResults.get(i).getRasql();
             String rangeResult = rangeResults.get(i).getRasql();
 
             String result = TEMPLATE_WHEN_THEN.replace("$booleanExpr", booleanResult)
-                                              .replace("$rangeExpr", rangeResult);
+                            .replace("$rangeExpr", rangeResult);
             translatedFields.add(result);
         }
 
@@ -75,7 +75,7 @@ public class SwitchCaseRangeConstructorExpression {
 
 
         String rasql = TEMPLATE.replace("$whenThenExpr", whenThenStr)
-                               .replace("$elseExpr", elseStr);
+                       .replace("$elseExpr", elseStr);
 
         // This is needed a coverage metadata from boolean coverage epxression
         WcpsCoverageMetadata metadata = booleanResults.get(0).getMetadata();

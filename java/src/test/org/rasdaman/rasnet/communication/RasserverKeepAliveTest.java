@@ -25,7 +25,7 @@ public class RasserverKeepAliveTest {
         this.rasserverService = mock(ClientRassrvrServiceGrpc.ClientRassrvrServiceBlockingStub.class);
         this.clientUUID = "clientUUID";
         this.sessionId = "sessionId";
-        this.keepAliveService = new RasserverKeepAlive(this.rasserverService, this.clientUUID,this.sessionId,heartBeatInterval);
+        this.keepAliveService = new RasserverKeepAlive(this.rasserverService, this.clientUUID, this.sessionId, heartBeatInterval);
     }
 
     @org.junit.Test

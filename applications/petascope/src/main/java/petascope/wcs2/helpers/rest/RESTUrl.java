@@ -99,7 +99,7 @@ public class RESTUrl {
         //We have two kinds of possible values:
         //- key only: e.g. wcs in example.org/wcs/2.0/...
         //- key value pair e.g. subset in example.org/wcs/2.0/.../subset(x[0,10])
-        //  where the key is subset and the value is x[0,10]        
+        //  where the key is subset and the value is x[0,10]
         String[] urlParts = sanitizedUrlPath.split("/");
         for (int i = 0; i < urlParts.length; i++) {
             String key, value = null;
@@ -107,7 +107,7 @@ public class RESTUrl {
             if (valueStartIndex != -1) {
                 int valueEndIndex = urlParts[i].lastIndexOf(")");
                 key = urlParts[i].substring(0, valueStartIndex);
-                value = this.rollbackSlashes(urlParts[i].substring(valueStartIndex+1, valueEndIndex));
+                value = this.rollbackSlashes(urlParts[i].substring(valueStartIndex + 1, valueEndIndex));
             } else {
                 key = urlParts[i];
             }

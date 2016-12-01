@@ -45,17 +45,17 @@ Database::~Database()
 
 void Database::addClientSession(const std::string& clientId, const std::string& sessionId)
 {
-    pair<set<pair<string,string> >::iterator,bool> insertResult = this->sessionList.insert(std::make_pair(clientId,sessionId));
-    if(!insertResult.second)
+    pair<set<pair<string, string>>::iterator, bool> insertResult = this->sessionList.insert(std::make_pair(clientId, sessionId));
+    if (!insertResult.second)
     {
-        std::string sessionUID= "<"+clientId+", "+sessionId+">";
+        std::string sessionUID = "<" + clientId + ", " + sessionId + ">";
         throw DuplicateDbSessionException(this->getDbName(), sessionUID);
     }
 }
 
 int Database::removeClientSession(const std::string& clientId, const std::string& sessionId)
 {
-    pair<string,string> toRemove(clientId, sessionId);
+    pair<string, string> toRemove(clientId, sessionId);
     return this->sessionList.erase(toRemove);
 }
 
@@ -64,12 +64,12 @@ bool Database::isBusy() const
     return !this->sessionList.empty();
 }
 
-DatabaseProto Database::serializeToProto(const Database &db)
+DatabaseProto Database::serializeToProto(const Database& db)
 {
     DatabaseProto result;
     result.set_name(db.getDbName());
 
-    for(set<pair<string, string> >::iterator it = db.sessionList.begin(); it!=db.sessionList.end(); ++it)
+    for (set<pair<string, string>>::iterator it = db.sessionList.begin(); it != db.sessionList.end(); ++it)
     {
         StringPair* session = result.add_sessions();
         session->set_first(it->first);
@@ -84,14 +84,14 @@ const std::string& Database::getDbName() const
     return dbName;
 }
 
-void Database::setDbName(const std::string &value)
+void Database::setDbName(const std::string& value)
 {
-    if(isBusy())
+    if (isBusy())
     {
         throw DbBusyException(this->dbName);
     }
 
-    if(value.empty())
+    if (value.empty())
     {
         throw common::LogicException("value.empty()");
     }

@@ -19,7 +19,7 @@ class DatabaseHostManager;
 class Server;
 class ServerFactory;
 
-class ServerGroupImpl:public ServerGroup
+class ServerGroupImpl: public ServerGroup
 {
 public:
     /**
@@ -94,7 +94,7 @@ public:
      * this ServerGroup object.
      * @param value
      */
-    virtual void changeGroupConfig(const ServerGroupConfigProto &value) ;
+    virtual void changeGroupConfig(const ServerGroupConfigProto& value) ;
 
     /**
      * @brief getGroupName Get the name of this group.
@@ -111,16 +111,16 @@ private:
 
     boost::shared_ptr<ServerFactory> serverFactory;
 
-    std::list<boost::shared_ptr<Server> > runningServers;
+    std::list<boost::shared_ptr<Server>> runningServers;
 
-    std::list<boost::shared_ptr<Server> > restartingServers;/*!< List of servers that were restarted*/
+    std::list<boost::shared_ptr<Server>> restartingServers;/*!< List of servers that were restarted*/
 
     boost::shared_ptr<DatabaseHost> databaseHost;
 
     /**
      * @brief startingServers List of servers that are starting but have not yet registered
      */
-    std::map<std::string, std::pair< boost::shared_ptr<Server>, common::Timer > > startingServers;
+    std::map<std::string, std::pair<boost::shared_ptr<Server>, common::Timer>> startingServers;
 
     boost::shared_mutex groupMutex;
 
@@ -155,7 +155,7 @@ private:
 
     void stopActiveServers(KillLevel level);
 
-    void validateAndInitConfig(ServerGroupConfigProto &config);
+    void validateAndInitConfig(ServerGroupConfigProto& config);
 };
 }
 

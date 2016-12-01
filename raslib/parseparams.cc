@@ -49,7 +49,7 @@ rasdaman GmbH.
 
 const unsigned int r_Parse_Params::granularity = 4;
 
-r_Parse_Params::r_Parse_Params( void )
+r_Parse_Params::r_Parse_Params(void)
 {
     params = NULL;
     number = 0;
@@ -57,7 +57,7 @@ r_Parse_Params::r_Parse_Params( void )
 }
 
 
-r_Parse_Params::r_Parse_Params( unsigned int num )
+r_Parse_Params::r_Parse_Params(unsigned int num)
 {
     number = 0;
     maxnum = num;
@@ -65,26 +65,32 @@ r_Parse_Params::r_Parse_Params( unsigned int num )
 }
 
 
-r_Parse_Params::~r_Parse_Params( void )
+r_Parse_Params::~r_Parse_Params(void)
 {
     if (params != NULL)
+    {
         free(params);
+    }
 }
 
 
-int r_Parse_Params::add( const char *key, void *store, parse_param_type type )
+int r_Parse_Params::add(const char* key, void* store, parse_param_type type)
 {
 #ifdef DEBUG
-    LTRACE << "add('" << (key?key:"NULL") << "', " << (store?store:"NULL") << "," << type << ")";
+    LTRACE << "add('" << (key ? key : "NULL") << "', " << (store ? store : "NULL") << "," << type << ")";
 #endif
 
     if (number >= maxnum)
     {
         maxnum += granularity;
         if (params == NULL)
+        {
             params = static_cast<parse_params_t*>(mymalloc(maxnum * sizeof(parse_params_t)));
+        }
         else
+        {
             params = static_cast<parse_params_t*>(realloc(params, maxnum * sizeof(parse_params_t)));
+        }
 
         if (params == NULL)
         {
@@ -101,30 +107,30 @@ int r_Parse_Params::add( const char *key, void *store, parse_param_type type )
 }
 
 
-int r_Parse_Params::add( const std::string& key, void *store, parse_param_type type )
+int r_Parse_Params::add(const std::string& key, void* store, parse_param_type type)
 {
     return add(key.c_str(), store, type);
 }
 
 
-int r_Parse_Params::process( const char *str ) const
+int r_Parse_Params::process(const char* str) const
 {
     return this->process(str, ',', false);
 }
 
 
-int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpaces ) const
+int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpaces) const
 {
-    static const int lenBuff=256;
+    static const int lenBuff = 256;
     static char buff[lenBuff];
     int numkeys = 0;
-    const char *b = str;
+    const char* b = str;
 
-    LTRACE << "process('" << (str?str:"NULL") << ")";
+    LTRACE << "process('" << (str ? str : "NULL") << ")";
 
-    if ( (number == 0)     ||
+    if ((number == 0)     ||
             (str == NULL)     ||
-            (!strcmp(str,"")) )
+            (!strcmp(str, "")))
     {
         return 0;
     }
@@ -132,53 +138,72 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
     while (*b != '\0')
     {
         //cout << numkeys << '(' << b << ')' << std::endl;
-        while ((isspace(static_cast<unsigned int>(*b))) || (*b == separator)) b++;
-        if (*b == '\0') break;
+        while ((isspace(static_cast<unsigned int>(*b))) || (*b == separator))
+        {
+            b++;
+        }
+        if (*b == '\0')
+        {
+            break;
+        }
         if (isalpha(static_cast<unsigned int>(*b)))
         {
-            const char *key = b;
+            const char* key = b;
             unsigned int klen;
             unsigned int knum;
             int inquotes;
 
-            while (isalnum(static_cast<unsigned int>(*b))) b++;
+            while (isalnum(static_cast<unsigned int>(*b)))
+            {
+                b++;
+            }
 
             //store current item
             klen = (b - key);
-            memset(buff,0, lenBuff);
+            memset(buff, 0, lenBuff);
             memcpy(buff, key, klen);
-            for (knum=0; knum<number; knum++)
+            for (knum = 0; knum < number; knum++)
             {
                 if (strcmp(buff, params[knum].key) == 0)
+                {
                     break;
+                }
             }
             // we actually understand this key
             if (knum < number)
             {
                 int statval = 0;    // status: -1 error, 0 not found, 1 OK
 
-                while (isspace(static_cast<unsigned int>(*b))) b++;
+                while (isspace(static_cast<unsigned int>(*b)))
+                {
+                    b++;
+                }
                 if (*b == '=')
                 {
                     b++;
-                    while (isspace(static_cast<unsigned int>(*b))) b++;
+                    while (isspace(static_cast<unsigned int>(*b)))
+                    {
+                        b++;
+                    }
                     if ((*b != separator) && (*b != '\0'))
                     {
-                        const char *aux=b;
+                        const char* aux = b;
 
                         switch (params[knum].type)
                         {
                         case param_type_int:
                         {
-                            int val=0;
+                            int val = 0;
 
-                            errno=0;
+                            errno = 0;
                             val = strtol(b, const_cast<char**>(&aux), 10);
                             if ((b == aux) || errno)
+                            {
                                 statval = -1;
+                            }
                             else
                             {
-                                int *vptr = static_cast<int*>(params[knum].store);
+                                int* vptr = static_cast<int*>(params[knum].store);
                                 *vptr = val;
                                 b = aux;
                                 statval = 1;
@@ -187,15 +212,17 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
                         break;
                         case param_type_double:
                         {
-                            double val=0.;
+                            double val = 0.;
 
-                            errno=0;
+                            errno = 0;
                             val = strtod(b, const_cast<char**>(&aux));
                             if ((b == aux) || errno)
+                            {
                                 statval = -1;
+                            }
                             else
                             {
-                                double *vptr = static_cast<double*>(params[knum].store);
+                                double* vptr = static_cast<double*>(params[knum].store);
                                 *vptr = val;
                                 b = aux;
                                 statval = 1;
@@ -209,9 +236,14 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
                             if (*b == '\"')
                             {
                                 aux = ++b;
-                                while ((*b != '\"') && (*b != '\0')) b++;
+                                while ((*b != '\"') && (*b != '\0'))
+                                {
+                                    b++;
+                                }
                                 if (*b == '\0')
+                                {
                                     statval = -1;
+                                }
                                 else
                                 {
                                     vlen = (b - aux);
@@ -222,25 +254,34 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
                             else
                             {
                                 aux = b;
-                                if(withWhiteSpaces == false)
-                                    while ((!isspace(static_cast<unsigned int>(*b))) && (*b != '\0') && (*b != separator)) b++;
+                                if (withWhiteSpaces == false)
+                                    while ((!isspace(static_cast<unsigned int>(*b))) && (*b != '\0') && (*b != separator))
+                                    {
+                                        b++;
+                                    }
                                 else
-                                    while ((*b != '\0') && (*b != separator)) b++;
+                                    while ((*b != '\0') && (*b != separator))
+                                    {
+                                        b++;
+                                    }
                                 vlen = (b - aux);
                                 statval = 1;
                             }
                             if (vlen > 0)
                             {
-                                char **vptr = static_cast<char**>(params[knum].store);
+                                char** vptr = static_cast<char**>(params[knum].store);
                                 if (*vptr != NULL)
+                                {
                                     delete [] *vptr;
-                                *vptr = new char[vlen+1];
+                                }
+                                *vptr = new char[vlen + 1];
                                 strncpy(*vptr, aux, vlen);
                                 (*vptr)[vlen] = '\0';
                             }
                         }
                         break;
-                        default: break;
+                        default:
+                            break;
                         }
                     }
                 }
@@ -263,7 +304,9 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
             while (((*b != separator) || (inquotes != 0)) && (*b != '\0'))
             {
                 if (*b == '\"')
+                {
                     inquotes ^= 1;
+                }
                 b++;
             }
             if (inquotes != 0)
@@ -282,31 +325,31 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
     return numkeys;
 }
 
-    /**
-     * @return a json representation of the format parameters. This generally looks like this:
-     * 
+/**
+ * @return a json representation of the format parameters. This generally looks like this:
+ *
 {
-  // Absolute path to input file(s). This improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed;
-  // It is possible that a format could have multiple files associated to each other, so this argument is an array of filepaths.
-  "filePaths": [ "/path/to/file.tif", ... ],
+// Absolute path to input file(s). This improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed;
+// It is possible that a format could have multiple files associated to each other, so this argument is an array of filepaths.
+"filePaths": [ "/path/to/file.tif", ... ],
 
-  // Only the given subset needs to be extracted from the input file.
-  "subsetDomain": "[0:100,0:100]",
+// Only the given subset needs to be extracted from the input file.
+"subsetDomain": "[0:100,0:100]",
 
-  // Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB and has a performance penalty, so avoid if possible);
-  // The argument is an array of 0-based axis ids indicating the axes that need to be transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
-  "transpose": [0,1],
+// Indicate if x/y should be transposed or is it not relevant (comes up in netCDF and GRIB and has a performance penalty, so avoid if possible);
+// The argument is an array of 0-based axis ids indicating the axes that need to be transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
+"transpose": [0,1],
 
-  // Specify variable names, band ids (0-based), etc.
-  "datasets": [ "var1", "var2", ... ],
+// Specify variable names, band ids (0-based), etc.
+"datasets": [ "var1", "var2", ... ],
 
-  // Extra format parameters
-  "formatParameters": {
-    "key": "value",
-    ..
-  }
+// Extra format parameters
+"formatParameters": {
+"key": "value",
+..
 }
-     */
+}
+ */
 //Json::Value r_Parse_Params::toJson()
 //{
 //    Json::Value ret;
@@ -322,9 +365,9 @@ int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpac
 //    return ret;
 //}
 
-std::ostream& operator<<( std::ostream& s, const r_Parse_Params::parse_param_type& d )
+std::ostream& operator<<(std::ostream& s, const r_Parse_Params::parse_param_type& d)
 {
-    switch( d )
+    switch (d)
     {
     case r_Parse_Params::param_type_int:
         s << "param_type_int";

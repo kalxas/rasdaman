@@ -78,65 +78,69 @@ extern struct ServerBase Server;
 *
 */
 
-rc_t Accept( int SockFD, struct ClientBase *Client )
+rc_t Accept(int SockFD, struct ClientBase* Client)
 {
     short cc = 0;
     int test = -1;
 
-    if( Client == NULL )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  accept(): Client is NULL." );
-    Client->SockSize = sizeof( Client->Socket );
+    if (Client == NULL)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  accept(): Client is NULL.");
+    }
+    Client->SockSize = sizeof(Client->Socket);
 
-    while (( cc < 10 ) && ( test < 0 ))
+    while ((cc < 10) && (test < 0))
     {
 #ifdef DECALPHA
-        test  = accept( SockFD, (struct sockaddr *)&Client->Socket,
-                        (int*)&Client->SockSize );
+        test  = accept(SockFD, (struct sockaddr*)&Client->Socket,
+                       (int*)&Client->SockSize);
 #else
-        test  = accept( SockFD, (struct sockaddr *)&Client->Socket,
-                        (socklen_t*)&Client->SockSize );
+        test  = accept(SockFD, (struct sockaddr*)&Client->Socket,
+                       (socklen_t*)&Client->SockSize);
 #endif
         cc++;
-        LogMsg( LG_SERVER, DEBUG, "DEBUG: accept call # %d",cc );
+        LogMsg(LG_SERVER, DEBUG, "DEBUG: accept call # %d", cc);
     }
     Client->SockFD = test;
-    if( Client->SockFD < 0 )
-        ErrorMsg( E_SYS, FAIL, "FAIL:  accept()." );
-    return( OK );
+    if (Client->SockFD < 0)
+    {
+        ErrorMsg(E_SYS, FAIL, "FAIL:  accept().");
+    }
+    return (OK);
 }
 
 
 
 
-void GetRequest( struct ClientBase *Client )
+void GetRequest(struct ClientBase* Client)
 {
     int             flags;
 
     /*-- Try to make SockFD non-blocking;              */
     /*    if it fails, try to continue nevertheless  --*/
-    flags = fcntl( Client->SockFD, F_GETFL, 0 );
-    if( flags < 0 )
-        ErrorMsg( E_SYS, WARN,
-                  "WARN:  GetRequest(): Client Socket: fcntl() (get flags) failed." );
-    else if( fcntl( Client->SockFD, F_SETFL, flags | O_NONBLOCK ) < 0 )
-        ErrorMsg( E_SYS, WARN,
-                  "WARN:  GetRequest(): Client Socket: fcntl() (set to non-blocking) failed." );
+    flags = fcntl(Client->SockFD, F_GETFL, 0);
+    if (flags < 0)
+        ErrorMsg(E_SYS, WARN,
+                 "WARN:  GetRequest(): Client Socket: fcntl() (get flags) failed.");
+    else if (fcntl(Client->SockFD, F_SETFL, flags | O_NONBLOCK) < 0)
+        ErrorMsg(E_SYS, WARN,
+                 "WARN:  GetRequest(): Client Socket: fcntl() (set to non-blocking) failed.");
 
     /*-- Read Header of Request  */
-    Client->Request.State = ReadHeader( Client->SockFD,
-                                        &Client->Request.HeadBuff,
-                                        &Client->Request.HeadSize );
+    Client->Request.State = ReadHeader(Client->SockFD,
+                                       &Client->Request.HeadBuff,
+                                       &Client->Request.HeadSize);
     //LogMsg( LG_SERVER, DEBUG, "DEBUG: Header is:\n %s",Client->Request.HeadBuff );
 }
 
 
 
 
-void InterpreteRequest( struct ClientBase *Client, struct ToDoArgs *ToDo )
+void InterpreteRequest(struct ClientBase* Client, struct ToDoArgs* ToDo)
 {
-    struct CacheData *Data = NULL;
+    struct CacheData* Data = NULL;
 
-    switch( Client->Request.State )
+    switch (Client->Request.State)
     {
     case RI_PARSE_ERROR:
         // The request couldn't be parsed (comm. error or something similar)
@@ -149,14 +153,14 @@ void InterpreteRequest( struct ClientBase *Client, struct ToDoArgs *ToDo )
     case RI_PARSE_OK:
         // Check for Protocol Version of Client
         //   May be a HTTP/0.9 request?
-        if( Client->Request.Line.Version.Major <= 0 )
+        if (Client->Request.Line.Version.Major <= 0)
         {
             // Yes -- we don't support it, would be too much trouble ahead...
             ToDo->What       = DO_SEND_ERROR;
             ToDo->Which.Code = STATUS_HTTP_Version_Not_Supported;
             return;
         }
-        else if( Client->Request.Line.Version.Major == 1 )
+        else if (Client->Request.Line.Version.Major == 1)
         {
             Client->Comm.Protocol   = HTTP_1_0;
         }
@@ -168,18 +172,20 @@ void InterpreteRequest( struct ClientBase *Client, struct ToDoArgs *ToDo )
         }
 
         // Check for Content-Length and if available, then ReadBody()
-        Client->Request.BodySize = GetContentLength( Client->Request.First );
-        if( Client->Request.BodySize > 0 )
+        Client->Request.BodySize = GetContentLength(Client->Request.First);
+        if (Client->Request.BodySize > 0)
         {
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: InterpreteRequest() -> ReadBody()." );
-            Client->Request.BodyBuff = ReadBody( Client->SockFD, Client->Request.BodySize );
+            Client->Request.BodyBuff = ReadBody(Client->SockFD, Client->Request.BodySize);
         }
         // Get Connection Status //### currently not really...
-        if( TRUE )
+        if (TRUE)
+        {
             Client->Comm.ConnStatus = CONN_CLOSE;
+        }
 
         // Check for supported Methods
-        if( Client->Request.Line.Method != MKEY_POST )
+        if (Client->Request.Line.Method != MKEY_POST)
         {
             // No supported Method found...
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: No post request!" );
@@ -195,8 +201,8 @@ void InterpreteRequest( struct ClientBase *Client, struct ToDoArgs *ToDo )
         break;
     default:
         // Strange State...
-        ErrorMsg( E_PRIV, ERROR,
-                  "ERROR: InterpreteRequest(): Request can't be handled!" );
+        ErrorMsg(E_PRIV, ERROR,
+                 "ERROR: InterpreteRequest(): Request can't be handled!");
         Client->Comm.ConnStatus = CONN_ERROR;
         ToDo->What       = DO_SHUTDOWN;
         ToDo->Which.Code = CLOSE_CLIENT_ONLY;
@@ -206,33 +212,33 @@ void InterpreteRequest( struct ClientBase *Client, struct ToDoArgs *ToDo )
 
 
 
-char *ComposeErrorResponse( int Errno, int ClientType )
+char* ComposeErrorResponse(int Errno, int ClientType)
 {
-    char   *Msg;
-    char   *Buff;
+    char*   Msg;
+    char*   Buff;
     size_t  BuffSize = BUFFSIZE;
 
-    if( ( Msg = static_cast<char*>(mymalloc( BuffSize ) )) == NULL )
+    if ((Msg = static_cast<char*>(mymalloc(BuffSize))) == NULL)
     {
-        ErrorMsg( E_SYS, ERROR,
-                  "ERROR: ComposeErrorMsg() - malloc() error for Msg Buffer buffer." );
+        ErrorMsg(E_SYS, ERROR,
+                 "ERROR: ComposeErrorMsg() - malloc() error for Msg Buffer buffer.");
     }
     BuffSize -= 1;
     Buff = Msg;
 
-    switch( ClientType )
+    switch (ClientType)
     {
     case BROWSER:
         /* Fehlermeldungen fuer HTML-Browser */
-        SNPrintf( Buff, &BuffSize, "<BR><H1>Error %d: ", Errno );
-        Buff = Msg + strlen( Msg );
-        switch( Errno )
+        SNPrintf(Buff, &BuffSize, "<BR><H1>Error %d: ", Errno);
+        Buff = Msg + strlen(Msg);
+        switch (Errno)
         {
         case REQU_UNKNOWN_PARAMETER:
-            SNPrintf( Buff, &BuffSize, "Unknown protocol parameter." );
+            SNPrintf(Buff, &BuffSize, "Unknown protocol parameter.");
             break;
         default:
-            SNPrintf( Buff, &BuffSize, "Undefined protocol error." );
+            SNPrintf(Buff, &BuffSize, "Undefined protocol error.");
             break;
         }
         break;
@@ -240,7 +246,7 @@ char *ComposeErrorResponse( int Errno, int ClientType )
     case RASCLIENT:
     default:
         /* Fehlermeldungen fuer RasClients */
-        SNPrintf( Buff, &BuffSize, "%d+%d+%d", RESULT_ERROR, Errno, 0 );
+        SNPrintf(Buff, &BuffSize, "%d+%d+%d", RESULT_ERROR, Errno, 0);
         break;
     }
 
@@ -250,7 +256,7 @@ char *ComposeErrorResponse( int Errno, int ClientType )
 
 
 
-void SendResponse( struct ClientBase *Client )
+void SendResponse(struct ClientBase* Client)
 {
 
     /*
@@ -258,7 +264,7 @@ void SendResponse( struct ClientBase *Client )
       Client->Response.Body );
     */
 
-    SendHTTPMsg( Client->SockFD, &Client->Response );
+    SendHTTPMsg(Client->SockFD, &Client->Response);
 }
 
 
@@ -268,94 +274,100 @@ void SendResponse( struct ClientBase *Client )
  * and fills the RequestInfo struct accordingly.
  *
  *********************************************************************/
-rc_t GetHTTPRequest( char *Source, int SourceLen, struct HTTPRequest *RequestInfo)
+rc_t GetHTTPRequest(char* Source, int SourceLen, struct HTTPRequest* RequestInfo)
 {
-    char *Buffer = NULL;
-    char *Input;
+    char* Buffer = NULL;
+    char* Input;
 
-    Input = static_cast<char*>(mymalloc( static_cast<size_t>(SourceLen) + 1 ));
-    memcpy( Input, Source, static_cast<size_t>(SourceLen) );
+    Input = static_cast<char*>(mymalloc(static_cast<size_t>(SourceLen) + 1));
+    memcpy(Input, Source, static_cast<size_t>(SourceLen));
     Input[SourceLen] = '\0';
     // Read the message body and check for the post parameters
-    Buffer = strtok( Input, "=" );
-    while( Buffer != NULL )
+    Buffer = strtok(Input, "=");
+    while (Buffer != NULL)
     {
-        if( strcmp(Buffer,"Database") == 0 )
+        if (strcmp(Buffer, "Database") == 0)
         {
-            RequestInfo->Database = strdup(strtok( NULL, "&" ));
+            RequestInfo->Database = strdup(strtok(NULL, "&"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter Database is %s", RequestInfo->Database );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"QueryString") == 0 )
+        else if (strcmp(Buffer, "QueryString") == 0)
         {
-            RequestInfo->QueryString = strdup(strtok( NULL, "&" ));
+            RequestInfo->QueryString = strdup(strtok(NULL, "&"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter QueryString is %s", RequestInfo->QueryString );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"Capability") == 0 )
+        else if (strcmp(Buffer, "Capability") == 0)
         {
-            RequestInfo->Capability = strdup(strtok( NULL, "&\0" ));
+            RequestInfo->Capability = strdup(strtok(NULL, "&\0"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter Capability is %s", RequestInfo->Capability );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"ClientID") == 0 )
+        else if (strcmp(Buffer, "ClientID") == 0)
         {
-            RequestInfo->ClientID = strdup(strtok( NULL, "&" ));
+            RequestInfo->ClientID = strdup(strtok(NULL, "&"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter ClientID is %s", RequestInfo->ClientID );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"Command") == 0 )
+        else if (strcmp(Buffer, "Command") == 0)
         {
-            RequestInfo->Command = atoi( strtok( NULL, "&" ) );
+            RequestInfo->Command = atoi(strtok(NULL, "&"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter Command is %i", RequestInfo->Command );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"Endianess") == 0 )
+        else if (strcmp(Buffer, "Endianess") == 0)
         {
-            RequestInfo->Endianess = atoi( strtok( NULL, "&" ) );
+            RequestInfo->Endianess = atoi(strtok(NULL, "&"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter Endianess is %i", RequestInfo->Endianess );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"NumberOfQueryParameters") == 0 )
+        else if (strcmp(Buffer, "NumberOfQueryParameters") == 0)
         {
-            RequestInfo->NumberOfQueryParams = atoi( strtok( NULL, "&" ) );
+            RequestInfo->NumberOfQueryParams = atoi(strtok(NULL, "&"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter NumberOfQueryParams is %i", RequestInfo->NumberOfQueryParams );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"BinDataSize") == 0 )
+        else if (strcmp(Buffer, "BinDataSize") == 0)
         {
-            RequestInfo->BinDataSize = atoi( strtok( NULL, "&" ) );
+            RequestInfo->BinDataSize = atoi(strtok(NULL, "&"));
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter BinDataSize is %i", RequestInfo->BinDataSize );
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
-        else if( strcmp(Buffer,"BinData") == 0 )
+        else if (strcmp(Buffer, "BinData") == 0)
         {
             // This parameter has to be the last one!
-            RequestInfo->BinData = static_cast<char*>(mymalloc( static_cast<size_t>(RequestInfo->BinDataSize) ));
-            memcpy(RequestInfo->BinData, Source + (SourceLen-RequestInfo->BinDataSize), static_cast<size_t>(RequestInfo->BinDataSize) );
+            RequestInfo->BinData = static_cast<char*>(mymalloc(static_cast<size_t>(RequestInfo->BinDataSize)));
+            memcpy(RequestInfo->BinData, Source + (SourceLen - RequestInfo->BinDataSize), static_cast<size_t>(RequestInfo->BinDataSize));
             //set Buffer to NULL => exit this while block
             Buffer = NULL;
         }
-        else if( strcmp(Buffer,"ClientType") == 0 )
+        else if (strcmp(Buffer, "ClientType") == 0)
         {
-            Buffer = strtok( NULL, "&" );
+            Buffer = strtok(NULL, "&");
             //LogMsg( LG_SERVER, DEBUG, "DEBUG: Parameter Type is %s", Buffer );
             /* BROWSER? */
-            if( strcmp(Buffer,"BROWSER") == 0 )
+            if (strcmp(Buffer, "BROWSER") == 0)
+            {
                 RequestInfo->ClientType = 1;
+            }
             /* Rasclient? */
-            else if( strcmp(Buffer,"RASCLIENT") == 0 )
+            else if (strcmp(Buffer, "RASCLIENT") == 0)
+            {
                 RequestInfo->ClientType = 2;
+            }
             /* Sonstiges */
             else
             {
                 //LogMsg( LG_SERVER, DEBUG, "DEBUG: Unknown Parameter %s", Buffer );
                 return REQU_UNKNOWN_CLIENT;
             }
-            Buffer = strtok( NULL, "=" );
+            Buffer = strtok(NULL, "=");
         }
         else
+        {
             return REQU_UNKNOWN_PARAMETER;
+        }
     }
 
     free(Input);
@@ -370,11 +382,11 @@ rc_t GetHTTPRequest( char *Source, int SourceLen, struct HTTPRequest *RequestInf
  * The result is written into the client response structure.
  *
  **********************************************************/
-void InterpretePOSTRequest ( struct ClientBase *Client )
+void InterpretePOSTRequest(struct ClientBase* Client)
 {
     int                  result = 0;
     struct HTTPRequest   RequestInfo;
-    char                *tmp;
+    char*                tmp;
 
     /* Initialize RequestInfo */
     RequestInfo.Database = NULL;
@@ -392,9 +404,9 @@ void InterpretePOSTRequest ( struct ClientBase *Client )
     //LogMsg( LG_SERVER, DEBUG, "DEBUG: Request.BodySize is %d",Client->Request.BodySize );
 
     /* get the necessary parameters */
-    result = GetHTTPRequest( Client->Request.BodyBuff, Client->Request.BodySize, &RequestInfo );
+    result = GetHTTPRequest(Client->Request.BodyBuff, Client->Request.BodySize, &RequestInfo);
 
-    if( result == REQU_OK )
+    if (result == REQU_OK)
     {
         // here the query is actually executed
         char* queryResult;
@@ -406,7 +418,7 @@ void InterpretePOSTRequest ( struct ClientBase *Client )
         resultLen = (static_cast<HttpServer*>(scObject))->processRequest(1, RequestInfo.Database, RequestInfo.Command,
                     RequestInfo.QueryString, RequestInfo.BinDataSize,
                     RequestInfo.BinData, RequestInfo.Endianess,
-                    queryResult,RequestInfo.Capability);
+                    queryResult, RequestInfo.Capability);
 
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: ... nach processRequest." );
 
@@ -421,8 +433,8 @@ void InterpretePOSTRequest ( struct ClientBase *Client )
     else
     {
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: InterpretePostRequest(): send error response. " );
-        Client->Response.Body        = ComposeErrorResponse( result, RequestInfo.ClientType );
-        Client->Response.BodySize    = strlen( Client->Response.Body );
+        Client->Response.Body        = ComposeErrorResponse(result, RequestInfo.ClientType);
+        Client->Response.BodySize    = strlen(Client->Response.Body);
         Client->ClientType           = RequestInfo.ClientType;
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: ResponseBody is %s", Client->Response.Body );
     }
@@ -438,10 +450,10 @@ void InterpretePOSTRequest ( struct ClientBase *Client )
 
 
 
-void CreateRasResponse( struct HTTPMode *Mode, struct ClientBase *Client )
+void CreateRasResponse(struct HTTPMode* Mode, struct ClientBase* Client)
 {
-    char   *Head;
-    char   *Buff;
+    char*   Head;
+    char*   Buff;
     size_t  BuffSize = BUFFSIZE;
     char    MDate[30];
 
@@ -449,52 +461,52 @@ void CreateRasResponse( struct HTTPMode *Mode, struct ClientBase *Client )
 
     //LogMsg( LG_SERVER, DEBUG, "DEBUG: Response Header begin, malloc BUFFSIZE is %d", BUFFSIZE );
 
-    HTTP_Date( MDate, 30 );
+    HTTP_Date(MDate, 30);
 
-    if( ( Head = static_cast<char*>(mymalloc( BuffSize ) )) == NULL )
+    if ((Head = static_cast<char*>(mymalloc(BuffSize))) == NULL)
     {
-        ErrorMsg( E_SYS, ERROR,
-                  "ERROR: CreateRasResponse() - malloc() error for head buffer." );
+        ErrorMsg(E_SYS, ERROR,
+                 "ERROR: CreateRasResponse() - malloc() error for head buffer.");
     }
 
     BuffSize -= 1;
     Buff = Head;
-    bzero( Head, BuffSize );
-    CreateStatusLine( Buff, &BuffSize, STATUS_OK, Mode->Protocol );
+    bzero(Head, BuffSize);
+    CreateStatusLine(Buff, &BuffSize, STATUS_OK, Mode->Protocol);
 
     /*  General Message Header  */
-    Buff = Head + strlen( Head );
-    SNPrintf( Buff, &BuffSize, "Date: %s\r\n", MDate );
-    Buff = Head + strlen( Head );
-    SNPrintf( Buff, &BuffSize, "Connection: close\r\n" );
+    Buff = Head + strlen(Head);
+    SNPrintf(Buff, &BuffSize, "Date: %s\r\n", MDate);
+    Buff = Head + strlen(Head);
+    SNPrintf(Buff, &BuffSize, "Connection: close\r\n");
 
     /*  Response Message Header  */
-    Buff = Head + strlen( Head );
-    SNPrintf( Buff, &BuffSize, SERVERFIELD );
+    Buff = Head + strlen(Head);
+    SNPrintf(Buff, &BuffSize, SERVERFIELD);
 
     /*  Entity Message Header    */
-    Buff = Head + strlen( Head );
-    switch( Client->ClientType )
+    Buff = Head + strlen(Head);
+    switch (Client->ClientType)
     {
     case BROWSER:
-        SNPrintf( Buff, &BuffSize, "Content-Type: text/html\r\n" );
+        SNPrintf(Buff, &BuffSize, "Content-Type: text/html\r\n");
         break;
     case RASCLIENT:
-        SNPrintf( Buff, &BuffSize, "Content-Type: application/octet-stream\r\n" );
+        SNPrintf(Buff, &BuffSize, "Content-Type: application/octet-stream\r\n");
         break;
     default:
-        SNPrintf( Buff, &BuffSize, "Content-Type: application/octet-stream\r\n" );
+        SNPrintf(Buff, &BuffSize, "Content-Type: application/octet-stream\r\n");
         break;
     }
-    Buff = Head + strlen( Head );
+    Buff = Head + strlen(Head);
 
     //LogMsg( LG_SERVER, DEBUG, "DEBUG: ClientResponse BodySize is %d", Client->Response.BodySize );
 
-    SNPrintf( Buff, &BuffSize, "Content-Length: %d\r\n", Client->Response.BodySize );
-    Buff = Head + strlen( Head );
-    SNPrintf( Buff, &BuffSize, "Last-Modified: %s\r\n", MDate );
-    Buff = Head + strlen( Head );
-    SNPrintf( Buff, &BuffSize, "\r\n" );
+    SNPrintf(Buff, &BuffSize, "Content-Length: %d\r\n", Client->Response.BodySize);
+    Buff = Head + strlen(Head);
+    SNPrintf(Buff, &BuffSize, "Last-Modified: %s\r\n", MDate);
+    Buff = Head + strlen(Head);
+    SNPrintf(Buff, &BuffSize, "\r\n");
 
     Client->Response.Head = Head;
     //LogMsg( LG_SERVER, DEBUG, "DEBUG: Response Header is %s", Client->Response.Head );
@@ -503,33 +515,39 @@ void CreateRasResponse( struct HTTPMode *Mode, struct ClientBase *Client )
 
 
 
-void WriteAccessLog( struct ClientBase *Client )
+void WriteAccessLog(struct ClientBase* Client)
 {
     char TimeString[ DATE_BUFFSIZE ];
-    struct hostent *Host;
-    char  *Hostname = NULL;
+    struct hostent* Host;
+    char*  Hostname = NULL;
 
-    bzero( TimeString, DATE_BUFFSIZE );
+    bzero(TimeString, DATE_BUFFSIZE);
 
-    if( static_cast<int>(Client->Host.IPAddress) != -1 )
+    if (static_cast<int>(Client->Host.IPAddress) != -1)
     {
-        Host = gethostbyaddr( (const char *)&Client->Host.IPAddress,
-                              sizeof( Client->Host.IPAddress ), AF_INET );
-        if( Host != NULL )
+        Host = gethostbyaddr((const char*)&Client->Host.IPAddress,
+                             sizeof(Client->Host.IPAddress), AF_INET);
+        if (Host != NULL)
+        {
             Hostname = Host->h_name;
+        }
         else
+        {
             Hostname = Client->Host.IPAddrString;
+        }
     }
     else
+    {
         Hostname = Client->Host.IPAddrString;
+    }
 
-    LogDate( TimeString, DATE_BUFFSIZE );
-    LogMsg( LG_ACCESS, INFO, "%s - - %s \"%s\" %d %d\n",
-            Hostname,
-            TimeString,
-            Client->Request.Line.Vanilla,
-            Client->RespStatus,
-            Client->Response.BodySize );
+    LogDate(TimeString, DATE_BUFFSIZE);
+    LogMsg(LG_ACCESS, INFO, "%s - - %s \"%s\" %d %d\n",
+           Hostname,
+           TimeString,
+           Client->Request.Line.Vanilla,
+           Client->RespStatus,
+           Client->Response.BodySize);
 }
 
 

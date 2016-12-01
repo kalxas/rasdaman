@@ -57,28 +57,34 @@ rasdaman GmbH.
 #endif
 
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && !strchr(argv[i],'-') )
+    if (found && i < argc && !strchr(argv[i], '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
 
     int  optionValueIndex;
-    if( argc < 5 || checkArguments( argc, argv, "-h", optionValueIndex ) )
+    if (argc < 5 || checkArguments(argc, argv, "-h", optionValueIndex))
     {
         cout << "Usage:   test_alignedtiling tile_config tile_size  cell_size domain" << endl << endl;
         cout << "Options: -h  ... this help" << endl;
@@ -91,24 +97,24 @@ int main( int argc, char** argv )
 
     try
     {
-        tile_config = new r_Minterval( argv[1] );
-        domain = new r_Minterval( argv[4] );
+        tile_config = new r_Minterval(argv[1]);
+        domain = new r_Minterval(argv[4]);
     }
     catch (...)
     {
         return -1;
     }
 
-    unsigned cell_size = strtoul( argv[3], (char **)NULL, 10 );
-    unsigned long tile_size = strtoul( argv[2],  (char **)NULL, 10 );
+    unsigned cell_size = strtoul(argv[3], (char**)NULL, 10);
+    unsigned long tile_size = strtoul(argv[2], (char**)NULL, 10);
 
     cout << "Tile Config " << *tile_config << endl;
-    r_Aligned_Tiling storeOptions( *tile_config, tile_size );
+    r_Aligned_Tiling storeOptions(*tile_config, tile_size);
 
     cout << endl;
 
-    cout << "Tiling Options : ts - " << storeOptions.get_tile_size( )
-         << ", tc - " << storeOptions.get_tile_config( ) << endl;
+    cout << "Tiling Options : ts - " << storeOptions.get_tile_size()
+         << ", tc - " << storeOptions.get_tile_config() << endl;
 
     cout << "Object domain : " << *domain << ", cell size " << cell_size << endl;
 
@@ -116,8 +122,8 @@ int main( int argc, char** argv )
     r_Aligned_Tiling newSL(storeOptions);
 
     cout << "Testing copy constructor. Newly constructed object..." << endl;
-    cout << "Tiling Options : ts - " << storeOptions.get_tile_size( )
-         << ", tc - " << storeOptions.get_tile_config( ) << endl;
+    cout << "Tiling Options : ts - " << storeOptions.get_tile_size()
+         << ", tc - " << storeOptions.get_tile_config() << endl;
 
     cout << "Object domain : " << *domain << ", cell size " << cell_size << endl;
 

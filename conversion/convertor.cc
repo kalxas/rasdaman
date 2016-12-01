@@ -49,7 +49,7 @@ rasdaman GmbH.
  *  r_Convertor class
  */
 
-void r_Convertor::initShare( const char *src, const r_Minterval &interv )
+void r_Convertor::initShare(const char* src, const r_Minterval& interv)
 {
     desc.src = src;
     desc.srcInterv = interv;
@@ -61,7 +61,7 @@ void r_Convertor::initShare( const char *src, const r_Minterval &interv )
 }
 
 
-r_Convertor::r_Convertor( void )
+r_Convertor::r_Convertor(void)
 {
     desc.srcType = NULL;
     desc.destType = NULL;
@@ -72,7 +72,7 @@ r_Convertor::r_Convertor( void )
 }
 
 
-r_Convertor::r_Convertor( const char *src, const r_Minterval &interv, const r_Type *tp, bool fullTypes ) throw(r_Error)
+r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp, bool fullTypes) throw(r_Error)
 {
     initShare(src, interv);
 
@@ -85,7 +85,7 @@ r_Convertor::r_Convertor( const char *src, const r_Minterval &interv, const r_Ty
     }
 
     // Initialise desc.baseType from desc.srcType
-    desc.baseType=get_internal_type(tp, fullTypes);
+    desc.baseType = get_internal_type(tp, fullTypes);
 
     if (!fullTypes)
     {
@@ -103,13 +103,14 @@ r_Convertor::r_Convertor( const char *src, const r_Minterval &interv, const r_Ty
         case r_Type::SHORT:
             applyColorScheme<short>();
             break;
-        default: break;
+        default:
+            break;
         }
     }
 }
 
 
-r_Convertor::r_Convertor(const char *src, const r_Minterval &interv, int type) throw(r_Error)
+r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, int type) throw(r_Error)
 {
     initShare(src, interv);
 
@@ -121,38 +122,38 @@ r_Convertor::~r_Convertor(void)
 {
     // Don't delete the resulting object pointer (desc->dest) !
     //   This is the job of the external application.
-    if (params!=NULL)
+    if (params != NULL)
     {
         delete params;
-        params=NULL;
+        params = NULL;
     }
     if (destroySrc)
     {
         delete desc.src;
-        destroySrc=false;
+        destroySrc = false;
     }
 }
 
 
-void r_Convertor::set_format( const std::string& formatArg )
+void r_Convertor::set_format(const std::string& formatArg)
 {
     format = formatArg;
 }
 
 
-void r_Convertor::set_storage_handler( const r_Storage_Man &newStore )
+void r_Convertor::set_storage_handler(const r_Storage_Man& newStore)
 {
     mystore = newStore;
 }
 
 
 const r_Storage_Man&
-r_Convertor::get_storage_handler( ) const
+r_Convertor::get_storage_handler() const
 {
     return mystore;
 }
 
-std::string r_Convertor::type_to_string( int ctype ) throw(r_Error)
+std::string r_Convertor::type_to_string(int ctype) throw(r_Error)
 {
     switch (ctype)
     {
@@ -188,11 +189,11 @@ std::string r_Convertor::type_to_string( int ctype ) throw(r_Error)
     default:
         LFATAL << "Error: in conversion: unsupported type " << ctype;
         r_Error err(r_Error::r_Error_General);
-        throw(err);
+        throw (err);
     }
 }
 
-r_Type *r_Convertor::get_external_type( int ctype ) throw(r_Error)
+r_Type* r_Convertor::get_external_type(int ctype) throw(r_Error)
 {
     return r_Type::get_any_type(type_to_string(ctype).c_str());
 }
@@ -201,36 +202,40 @@ r_Type *r_Convertor::get_external_type( int ctype ) throw(r_Error)
 template <class baseType>
 void r_Convertor::applyColorScheme()
 {
-    baseType *data = (baseType*)const_cast<char*>(desc.src);
-    baseType min=data[0], max=data[0];
+    baseType* data = (baseType*)const_cast<char*>(desc.src);
+    baseType min = data[0], max = data[0];
     int i, size = desc.srcInterv.cell_count();
-    unsigned char *t, *img = new unsigned char[size*3];
-    for (i=1; i<size; ++i)
+    unsigned char* t, *img = new unsigned char[size * 3];
+    for (i = 1; i < size; ++i)
     {
         if (min > data[i])
-            min=data[i];
-        if (max < data[i])
-            max=data[i];
-    }
-    for (i=0, t=img; i<size; ++i)
-    {
-        float n = (data[i]-min)/(max-min);
-        if (n<0.5)
         {
-            *t=static_cast<unsigned char>((0.5-n)*500);
+            min = data[i];
+        }
+        if (max < data[i])
+        {
+            max = data[i];
+        }
+    }
+    for (i = 0, t = img; i < size; ++i)
+    {
+        float n = (data[i] - min) / (max - min);
+        if (n < 0.5)
+        {
+            *t = static_cast<unsigned char>((0.5 - n) * 500);
             t++;
-            *t=static_cast<unsigned char>(n*500);
+            *t = static_cast<unsigned char>(n * 500);
             t++;
-            *t=0;
+            *t = 0;
             t++;
         }
         else
         {
-            *t=0;
+            *t = 0;
             t++;
-            *t=static_cast<unsigned char>((1-n)*500);
+            *t = static_cast<unsigned char>((1 - n) * 500);
             t++;
-            *t=static_cast<unsigned char>((n-0.5)*500);
+            *t = static_cast<unsigned char>((n - 0.5) * 500);
             t++;
         }
     }
@@ -241,10 +246,12 @@ void r_Convertor::applyColorScheme()
 convert_type_e
 r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
 {
-    convert_type_e retval=ctype_void;
+    convert_type_e retval = ctype_void;
 
     if (tp == NULL)
+    {
         return retval;
+    }
 
     //check if tp is structure type
     if (tp->isStructType())
@@ -252,7 +259,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
         // make life easy and always interpret as RGB
         // add case for structs -- DM 2011-nov-10
 //        retval = ctype_rgb;
-        r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(tp));
+        r_Structure_Type* st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(tp));
         r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
         int bands = 0;
         while (iter != st->defines_attribute_end())
@@ -265,9 +272,13 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
             iter++;
         }
         if (bands != 3)
+        {
             return ctype_struct;
+        }
         else
+        {
             return ctype_rgb;
+        }
     }
     else if (tp->isComplexType())
     {
@@ -300,14 +311,14 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
                 // fixed OCTET to be int8 instead of char -- DM 2011-nov-23
                 retval = ctype_int8;
                 break;
-                // added (U)LONG -- PB 2005-apr-27
+            // added (U)LONG -- PB 2005-apr-27
             case r_Type::LONG:
                 retval = ctype_int32;
                 break;
             case r_Type::ULONG:
                 retval = ctype_uint32;
                 break;
-                // set to defined value (FIXME: still not good) -- PB 2005-apr-27
+            // set to defined value (FIXME: still not good) -- PB 2005-apr-27
             default:
                 LERROR << "Error: in conversion: unknown type " << tp->type_id() << ", setting to void.";
                 retval = ctype_rgb;
@@ -365,7 +376,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
 
 std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
 {
-    switch(cte)
+    switch (cte)
     {
     case ctype_bool:
         os << "bool";
@@ -421,50 +432,52 @@ std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
  *  r_Convert_Memory class
  */
 
-void r_Convert_Memory::initMemory( void ) throw(r_Error)
+void r_Convert_Memory::initMemory(void) throw(r_Error)
 {
     int status = -1;
 
-    memFS=NULL;
-    handle=NULL;
+    memFS = NULL;
+    handle = NULL;
 
     memFS = new memFSContext;
-    if ( memFS != NULL)
+    if (memFS != NULL)
     {
         handle = static_cast<void*>(memFS);
         if (memfs_initfs(handle) >= 0)
+        {
             status = 0;
+        }
     }
     if (status < 0)
     {
         LFATAL << "Error: cannot allocate memory for conversion.";
         r_Error err(MEMMORYALLOCATIONERROR);
-        throw(err);
+        throw (err);
     }
 }
 
 
-r_Convert_Memory::r_Convert_Memory( const char *src, const r_Minterval &interv, const r_Type *tp, int fullTypes ) throw(r_Error)
+r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp, int fullTypes) throw(r_Error)
     : r_Convertor(src, interv, tp, fullTypes)
 {
     initMemory();
 }
 
 
-r_Convert_Memory::r_Convert_Memory( const char *src, const r_Minterval &interv, int type ) throw(r_Error)
+r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, int type) throw(r_Error)
     : r_Convertor(src, interv, type)
 {
     initMemory();
 }
 
 
-r_Convert_Memory::~r_Convert_Memory( void )
+r_Convert_Memory::~r_Convert_Memory(void)
 {
     memfs_killfs(handle);
-    if(memFS!=NULL)
+    if (memFS != NULL)
     {
         delete memFS;
-        memFS=NULL;
+        memFS = NULL;
     }
-    handle=NULL;
+    handle = NULL;
 }

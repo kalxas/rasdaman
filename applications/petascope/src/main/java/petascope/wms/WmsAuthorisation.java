@@ -34,22 +34,21 @@ package petascope.wms;
 
 import petascope.exceptions.WMSException;
 
-public interface WmsAuthorisation
-{
+public interface WmsAuthorisation {
     /**
      * Pass any arguments to the authorisation class.
      * @param arguments An array of String arguments
      * @exception WMSException Is thrown if the arguments are not correct or any other error occured during initialisation.
      **/
     public void initialise(String[] arguments) throws WMSException;
-    
+
     /**
      * Authorise a specific request.
      * @param theRequest The request which has to be authorised
      * @exception WMSException Is thrown if there is a problem with the request.
      **/
     public void checkAuthorisation(WmsRequest theRequest) throws WMSException;
-    
+
     /**
      * Create a request that will be authorised.
      * @param theRequest The request which will be changed so that it will be authorised

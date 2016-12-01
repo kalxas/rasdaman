@@ -72,7 +72,7 @@ public:
     */
 
     /// opens database with name {\tt dbName}.
-    void open( const char* dbName ) throw(r_Error);
+    void open(const char* dbName) throw(r_Error);
     /*@Doc:
         Precondition: not opened, not connected, db exists
         Postcondition: open, not connected, db exists
@@ -89,7 +89,7 @@ public:
         closes currently opened database.  only frees name and sets connected/opened to false.
     */
 
-    static void createDB( const char* dbName, const char* schemaName, const char* volumeName=0 ) throw(r_Error);
+    static void createDB(const char* dbName, const char* schemaName, const char* volumeName = 0) throw(r_Error);
     /*@Doc:
         Precondition: not open, not connected, db does not exist
         Postcondition: not open, not connected, db exists
@@ -152,8 +152,8 @@ public:
     static long rmanverToLong();
     /*@Doc:
         Extract the version number from the git-describe output and
-        convert it to long by removing the dots.        
-    */	
+        convert it to long by removing the dots.
+    */
 
 protected:
     friend class TransactionIf;

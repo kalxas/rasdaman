@@ -86,29 +86,33 @@ testConstructors()
     BaseType* ulongType = TypeFactory::mapType("ULong");
     // domain of all Tiles
     r_Minterval dom =
-        r_Minterval(3) << r_Sinterval(1L,10L) << r_Sinterval(11L,20L)
-        << r_Sinterval(5L,7L);
+        r_Minterval(3) << r_Sinterval(1L, 10L) << r_Sinterval(11L, 20L)
+        << r_Sinterval(5L, 7L);
 
     // testing constructor executing section operation
     // first create a tile with the whole domain
     // char* containing data for one ULong Tile
     char* tileData = (char*)mymalloc(dom.cell_count() * ulongType->getSize());
-    for(i = 0; i < dom.cell_count() * ulongType->getSize(); i++)
+    for (i = 0; i < dom.cell_count() * ulongType->getSize(); i++)
     {
-        if(i % ulongType->getSize() == 3 )
+        if (i % ulongType->getSize() == 3)
+        {
             tileData[i] = 10;
+        }
         else
+        {
             tileData[i] = 0;
+        }
     }
 
     // transient with value
     cout << "Creating transient ULong Tile containing 10 with domain "
          << dom << ":" << endl;
-    myTile = new TransTile( dom, ulongType, tileData );
+    myTile = new TransTile(dom, ulongType, tileData);
 
     // now project it
-    set<r_Dimension, less<r_Dimension> >* projSet =
-        new set<r_Dimension, less<r_Dimension> >;
+    set<r_Dimension, less<r_Dimension>>* projSet =
+                                         new set<r_Dimension, less<r_Dimension>>;
     projSet->insert(1);
 
     r_Minterval projDom =
@@ -141,14 +145,14 @@ testUnaryOps()
 
     // domain of all Tiles
     r_Minterval dom =
-        r_Minterval(2) << r_Sinterval(1L,10L) << r_Sinterval(11L,20L);
+        r_Minterval(2) << r_Sinterval(1L, 10L) << r_Sinterval(11L, 20L);
 
     r_Minterval domOp =
-        r_Minterval(2) << r_Sinterval(1L,5L) << r_Sinterval(11L,15L);
+        r_Minterval(2) << r_Sinterval(1L, 5L) << r_Sinterval(11L, 15L);
 
     // domain of one dimensional result
     r_Minterval res1D =
-        r_Minterval(2) << r_Sinterval(1L,10L);
+        r_Minterval(2) << r_Sinterval(1L, 10L);
 
     unsigned char charVal = 20;
     char* charCell = (char*)&charVal;
@@ -167,12 +171,12 @@ testUnaryOps()
     // transient with value
     cout << "Creating Tiles for Unary Operations with domain "
          << dom << ":" << endl;
-    transULongTile = new TransTile( dom, ulongType, ulongCell );
-    transBoolTile = new TransTile( dom, boolType, boolCell );
-    persULongTile = new PersTile( dom, ulongType, ulongCell );
-    persBoolTile = new PersTile( dom, boolType, boolCell );
-    transCharTile = new TransTile( dom, charType, charCell );
-    transCharRes = new TransTile( domOp, charType, boolCell );
+    transULongTile = new TransTile(dom, ulongType, ulongCell);
+    transBoolTile = new TransTile(dom, boolType, boolCell);
+    persULongTile = new PersTile(dom, ulongType, ulongCell);
+    persBoolTile = new PersTile(dom, boolType, boolCell);
+    transCharTile = new TransTile(dom, charType, charCell);
+    transCharRes = new TransTile(domOp, charType, boolCell);
 
 
     cout << "Operations with ULong:" << endl << endl;
@@ -235,7 +239,7 @@ testUnaryOps()
 
     // Trying to get more interesting values into tile
     unsigned char val = 0;
-    for(int i = 0; i < transCharTile->getSize(); i++)
+    for (int i = 0; i < transCharTile->getSize(); i++)
     {
         transCharTile->setCell(i, (const char*)&val);
         val++;
@@ -254,10 +258,10 @@ testUnaryOps()
 
     // domain of all Tiles
     r_Minterval horSlice =
-        r_Minterval(2) << r_Sinterval(1L,10L) << r_Sinterval(15L,15L);
+        r_Minterval(2) << r_Sinterval(1L, 10L) << r_Sinterval(15L, 15L);
     r_Minterval verSlice =
-        r_Minterval(2) << r_Sinterval(5L,5L) << r_Sinterval(11L,20L);
-    Tile* transRes1D = new TransTile( res1D, charType, charCell );
+        r_Minterval(2) << r_Sinterval(5L, 5L) << r_Sinterval(11L, 20L);
+    Tile* transRes1D = new TransTile(res1D, charType, charCell);
 
     cout << "Carrying out IDENTITY to receive a 1D vertical slice" << endl;
     transRes1D->execUnaryOp(Ops::OP_IDENTITY, res1D, transCharTile, horSlice);
@@ -299,8 +303,8 @@ testBinaryOps()
 
     // domain of all Tiles
     r_Minterval dom =
-        r_Minterval(3) << r_Sinterval(1L,10L) << r_Sinterval(11L,20L)
-        << r_Sinterval(5L,7L);
+        r_Minterval(3) << r_Sinterval(1L, 10L) << r_Sinterval(11L, 20L)
+        << r_Sinterval(5L, 7L);
 
     // Tiles used for tests
     Tile* transULongTile;
@@ -315,10 +319,10 @@ testBinaryOps()
 
     cout << "Creating Tiles for Binary Operations with domain "
          << dom << ":" << endl;
-    transULongTile = new TransTile( dom, ulongType, ulongCell );
-    transBoolTile = new TransTile( dom, boolType, boolCell );
-    persULongTile = new PersTile( dom, ulongType, ulongCell );
-    persBoolTile = new PersTile( dom, boolType, boolCell );
+    transULongTile = new TransTile(dom, ulongType, ulongCell);
+    transBoolTile = new TransTile(dom, boolType, boolCell);
+    persULongTile = new PersTile(dom, ulongType, ulongCell);
+    persBoolTile = new PersTile(dom, boolType, boolCell);
 
     cout << "Creating a TransTile for the two operands..." << endl;
     TransTile ttileOp = TransTile(dom, ulongType, ulongCell);
@@ -500,7 +504,7 @@ testOpsWithConsts()
 
     // domain of all Tiles
     r_Minterval dom =
-        r_Minterval(2) << r_Sinterval(1L,5L) << r_Sinterval(1L,5L);
+        r_Minterval(2) << r_Sinterval(1L, 5L) << r_Sinterval(1L, 5L);
 
     // Tiles used for tests
     cout << "Creating Tiles with domain "
@@ -560,7 +564,7 @@ testCellAccess()
 
     // domain of all Tiles
     r_Minterval dom =
-        r_Minterval(2) << r_Sinterval(1L,10L) << r_Sinterval(1L,10L);
+        r_Minterval(2) << r_Sinterval(1L, 10L) << r_Sinterval(1L, 10L);
 
     // Tiles used for tests
     cout << "Creating Tiles with domain "
@@ -590,7 +594,7 @@ testScaleOp(void)
     unsigned long fullSize;
     float scaleBy, incrementBy, eps;
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         origin[i] = (r_Range)0;
         offset[i] = (r_Range)64;
@@ -599,36 +603,38 @@ testScaleOp(void)
     }
 
     fullSize = dom.cell_count();
-    char *tileValues = (char*)mymalloc(fullSize);
-    Tile *charTile = new TransTile(dom, charType, tileValues, fullSize);
-    Tile *nextTile = new TransTile(dom, charType);
+    char* tileValues = (char*)mymalloc(fullSize);
+    Tile* charTile = new TransTile(dom, charType, tileValues, fullSize);
+    Tile* nextTile = new TransTile(dom, charType);
     memset(charTile->getContents(), 0, dom.cell_count());
 
     vector<float> scaleFactors(dim);
 
     incrementBy = 0.05;
     eps = 1e-2;
-    for (scaleBy=incrementBy; scaleBy <= 8-eps; scaleBy += incrementBy)
+    for (scaleBy = incrementBy; scaleBy <= 8 - eps; scaleBy += incrementBy)
     {
         vector<float>::iterator iter = scaleFactors.begin();
 
         cout << "Scale " << dom << " by " << scaleBy << endl;
 
-        for (i=0; i<dim; i++, iter++)
+        for (i = 0; i < dim; i++, iter++)
+        {
             *iter = scaleBy;
+        }
 
         r_Minterval scaledDom;
         if (charTile->scaleGetDomain(dom, origin, scaleFactors, scaledDom))
         {
             unsigned long scaledSize = scaledDom.cell_count();
-            char *scaledValues = (char*)mymalloc(scaledSize);
-            Tile *scaledTile = new TransTile(scaledDom, charType, scaledValues, scaledSize);
+            char* scaledValues = (char*)mymalloc(scaledSize);
+            Tile* scaledTile = new TransTile(scaledDom, charType, scaledValues, scaledSize);
 
             r_Minterval nextScaledDom;
             if (nextTile->scaleGetDomain(nextDom, origin, scaleFactors, nextScaledDom))
             {
                 cout << "scaledDom: " << scaledDom << ", nextScaledDom: " << nextScaledDom << endl;
-                for (i=0; i<dim; i++)
+                for (i = 0; i < dim; i++)
                 {
                     if (nextScaledDom[i].low() != scaledDom[i].high() + 1)
                     {
@@ -665,7 +671,7 @@ testScaleOp(void)
  ************************************************************/
 
 int
-main( int argc , char* argv[] )
+main(int argc , char* argv[])
 {
     int i;
 
@@ -705,7 +711,7 @@ main( int argc , char* argv[] )
     // connect to the database
     cout << "Connecting to database " << O2BenchDBName
          << "..." << endl;
-    database.open( O2BenchDBName );
+    database.open(O2BenchDBName);
 
     ta.begin(&database);
 

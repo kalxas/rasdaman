@@ -107,8 +107,8 @@ bool rviewDatabase::isOpen(void)
 
 
 
-int rviewDatabase::open(const char *srvname, int srvport, const char *dbname,
-                        const char *usrname, const char *usrpassword)
+int rviewDatabase::open(const char* srvname, int srvport, const char* dbname,
+                        const char* usrname, const char* usrpassword)
 {
     int status;
 
@@ -127,13 +127,13 @@ int rviewDatabase::open(const char *srvname, int srvport, const char *dbname,
         return 0;
     }
 
-    rviewProgress *prog = new rviewProgress(lman->lookup("progOpenDb"));
+    rviewProgress* prog = new rviewProgress(lman->lookup("progOpenDb"));
 
     try
     {
         ::wxStartTimer();
 
-        dbase.set_servername(server,port);
+        dbase.set_servername(server, port);
         dbase.set_useridentification(username, userpassword);
         dbase.open(database);
 #ifdef RMANDEBUG
@@ -142,7 +142,7 @@ int rviewDatabase::open(const char *srvname, int srvport, const char *dbname,
         dbOpen = TRUE;
         status = 1;
     }
-    catch ( r_Error &errObj )
+    catch (r_Error& errObj)
     {
         /*
             char *errLab;
@@ -179,11 +179,11 @@ void rviewDatabase::close(void)
 
 
 
-int rviewDatabase::collectionToDesc(r_Set<r_Ref<r_GMarray> > &mddColl, collection_desc *desc)
+int rviewDatabase::collectionToDesc(r_Set<r_Ref<r_GMarray>>& mddColl, collection_desc* desc)
 {
     int i, collMembers;
     rviewBaseType bt = rbt_none;
-    r_Object *mo = NULL;
+    r_Object* mo = NULL;
 
     desc->number = 0;
     desc->mddObjs = NULL;
@@ -203,14 +203,14 @@ int rviewDatabase::collectionToDesc(r_Set<r_Ref<r_GMarray> > &mddColl, collectio
         return 0;
     }
 
-    r_Iterator < r_Ref <r_GMarray> >  iterator = mddColl.create_iterator();
+    r_Iterator <r_Ref <r_GMarray>>  iterator = mddColl.create_iterator();
 
-    for (i=0; i<collMembers; i++, iterator++)
+    for (i = 0; i < collMembers; i++, iterator++)
     {
         LTRACE << "collectionToDesc() MDD number " << i << ":\tDomain = " << (*iterator)->spatial_domain();
 
         // Copy each MDD object
-        desc->mddObjs[i].mdd = new r_GMarray((const r_GMarray &)(*(*iterator)));
+        desc->mddObjs[i].mdd = new r_GMarray((const r_GMarray&)(*(*iterator)));
         // oid isn't copied by copy constructor...
         desc->mddObjs[i].mdd->initialize_oid((*iterator)->get_oid());
         if (desc->mddObjs[i].mdd.is_null())
@@ -237,21 +237,21 @@ int rviewDatabase::collectionToDesc(r_Set<r_Ref<r_GMarray> > &mddColl, collectio
 
 
 
-int rviewDatabase::lookupCollection(collection_desc *desc)
+int rviewDatabase::lookupCollection(collection_desc* desc)
 {
-    r_Ref < r_Set < r_Ref <r_GMarray > > >    mddCollPtr;
+    r_Ref <r_Set <r_Ref <r_GMarray>>>    mddCollPtr;
     r_Transaction                 transaction;
     int status;
     char buffer[STRINGSIZE];
 
     status = 0;
-    rviewProgress *prog = new rviewProgress(lman->lookup("progLookup"));
+    rviewProgress* prog = new rviewProgress(lman->lookup("progLookup"));
 
     try
     {
         ::wxStartTimer();
 
-        transaction.begin( r_Transaction::read_only );
+        transaction.begin(r_Transaction::read_only);
 
         //set storage & transfer params
         if (!ensureDatabase())
@@ -276,9 +276,9 @@ int rviewDatabase::lookupCollection(collection_desc *desc)
 #endif
     }
 
-    catch ( r_Error &errObj )
+    catch (r_Error& errObj)
     {
-        const char *msg;
+        const char* msg;
 
         cerr << errObj.what() << endl;
 
@@ -316,7 +316,7 @@ int rviewDatabase::lookupCollection(collection_desc *desc)
 }
 
 
-r_Ref<r_GMarray> rviewDatabase::getScaledObject(r_Fast_Base_Scale *scaler, const r_Minterval &trimDomain, double scale)
+r_Ref<r_GMarray> rviewDatabase::getScaledObject(r_Fast_Base_Scale* scaler, const r_Minterval& trimDomain, double scale)
 {
     r_Transaction ta;
     r_Ref<r_GMarray> result;
@@ -338,7 +338,7 @@ r_Ref<r_GMarray> rviewDatabase::getScaledObject(r_Fast_Base_Scale *scaler, const
         result = scaler->get_scaled_object(trimDomain, scale, 1);
         ta.commit();
     }
-    catch(r_Error &err)
+    catch (r_Error& err)
     {
         ta.abort();
         rviewErrorbox::reportError(err.what());
@@ -348,10 +348,10 @@ r_Ref<r_GMarray> rviewDatabase::getScaledObject(r_Fast_Base_Scale *scaler, const
 }
 
 
-r_Fast_Base_Scale *rviewDatabase::lookupScaledObject(collection_desc *desc, double scale)
+r_Fast_Base_Scale* rviewDatabase::lookupScaledObject(collection_desc* desc, double scale)
 {
     r_Transaction ta;
-    r_Fast_Base_Scale *result;
+    r_Fast_Base_Scale* result;
     rviewBaseType baseType;
     char buffer[STRINGSIZE];
 
@@ -359,7 +359,7 @@ r_Fast_Base_Scale *rviewDatabase::lookupScaledObject(collection_desc *desc, doub
 
     desc->strObjs = NULL;
 
-    rviewProgress *prog = new rviewProgress(lman->lookup("progLookup"));
+    rviewProgress* prog = new rviewProgress(lman->lookup("progLookup"));
 
     try
     {
@@ -378,7 +378,7 @@ r_Fast_Base_Scale *rviewDatabase::lookupScaledObject(collection_desc *desc, doub
         baseType = rviewGetBasetype(minArray.ptr());
         minArray.destroy();
     }
-    catch(r_Error &err)
+    catch (r_Error& err)
     {
         ta.abort();
         rviewErrorbox::reportError(err.what());
@@ -437,7 +437,7 @@ r_Fast_Base_Scale *rviewDatabase::lookupScaledObject(collection_desc *desc, doub
         }
         ta.commit();
     }
-    catch(r_Error &err)
+    catch (r_Error& err)
     {
         ta.abort();
         rviewErrorbox::reportError(err.what());
@@ -475,9 +475,9 @@ r_Fast_Base_Scale *rviewDatabase::lookupScaledObject(collection_desc *desc, doub
 }
 
 
-int rviewDatabase::createCollection(const char *collName, rviewBaseType bt)
+int rviewDatabase::createCollection(const char* collName, rviewBaseType bt)
 {
-    r_Ref <r_Set <r_Ref <r_GMarray> > > mddCollPtr;
+    r_Ref <r_Set <r_Ref <r_GMarray>>> mddCollPtr;
     r_Transaction ta;
 
     try
@@ -502,13 +502,13 @@ int rviewDatabase::createCollection(const char *collName, rviewBaseType bt)
             switch (bt)
             {
             case rbt_bool:
-                mddCollPtr = new( &dbase, rviewSetNames[bt][2] ) r_Set< r_Ref< r_Marray< r_Boolean > > >;
+                mddCollPtr = new(&dbase, rviewSetNames[bt][2]) r_Set<r_Ref<r_Marray<r_Boolean>>>;
                 break;
             case rbt_char:
-                mddCollPtr = new( &dbase, rviewSetNames[bt][2] ) r_Set< r_Ref< r_Marray< r_Char > > >;
+                mddCollPtr = new(&dbase, rviewSetNames[bt][2]) r_Set<r_Ref<r_Marray<r_Char>>>;
                 break;
             case rbt_long:
-                mddCollPtr = new( &dbase, rviewSetNames[bt][2] ) r_Set< r_Ref< r_Marray< RGBPixel > > >;
+                mddCollPtr = new(&dbase, rviewSetNames[bt][2]) r_Set<r_Ref<r_Marray<RGBPixel>>>;
                 break;
             default:
                 ta.abort();
@@ -519,7 +519,7 @@ int rviewDatabase::createCollection(const char *collName, rviewBaseType bt)
 
             ta.commit();
         }
-        catch (r_Error &obj)
+        catch (r_Error& obj)
         {
             cerr << lman->lookup("errorCollCreate") << ": " << obj.what() << endl;
         }
@@ -529,9 +529,9 @@ int rviewDatabase::createCollection(const char *collName, rviewBaseType bt)
 
 
 
-int rviewDatabase::deleteCollection(const char *collName)
+int rviewDatabase::deleteCollection(const char* collName)
 {
-    r_Ref <r_Set <r_Ref <r_GMarray> > > mddCollPtr;
+    r_Ref <r_Set <r_Ref <r_GMarray>>> mddCollPtr;
     r_Transaction ta;
 
     try
@@ -559,13 +559,13 @@ int rviewDatabase::deleteCollection(const char *collName)
 
 
 
-int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r_Minterval *domain)
+int rviewDatabase::insertObject(const char* collName, r_Ref<r_GMarray> mddObj, r_Minterval* domain)
 {
-    r_Ref <r_Set <r_Ref <r_GMarray> > > mddCollPtr;
+    r_Ref <r_Set <r_Ref <r_GMarray>>> mddCollPtr;
     r_Ref <r_GMarray> mddPtr;
     r_Transaction ta;
     rviewBaseType bt;
-    r_Object *mo;
+    r_Object* mo;
     int dim, status;
 
     dim = (mddObj->spatial_domain()).dimension();
@@ -588,7 +588,7 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
         return 0;
     }
 
-    rviewProgress *prog = new rviewProgress(lman->lookup("progInsert"));
+    rviewProgress* prog = new rviewProgress(lman->lookup("progInsert"));
 
     ::wxStartTimer();
 
@@ -597,44 +597,44 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
         mddCollPtr = dbase.lookup_object(collName);
         LTRACE << "insertObject() collection cardinality: " << mddCollPtr->cardinality();
     }
-    catch (r_Error &obj)
+    catch (r_Error& obj)
     {
-        char *setName;
+        char* setName;
 
         setName = (char*)obj.what();
-        setName = rviewSetNames[bt][dim-1];
+        setName = rviewSetNames[bt][dim - 1];
 
         switch (bt)
         {
         case rbt_bool:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_Boolean> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_Boolean>>>;
             break;
         case rbt_char:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_Char> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_Char>>>;
             break;
         case rbt_uchar:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_Octet> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_Octet>>>;
             break;
         case rbt_short:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_Short> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_Short>>>;
             break;
         case rbt_ushort:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_UShort> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_UShort>>>;
             break;
         case rbt_long:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_Long> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_Long>>>;
             break;
         case rbt_ulong:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_ULong> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_ULong>>>;
             break;
         case rbt_float:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_Float> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_Float>>>;
             break;
         case rbt_double:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <r_Double> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <r_Double>>>;
             break;
         case rbt_rgb:
-            mddCollPtr = new (&dbase, setName) r_Set <r_Ref <r_Marray <RGBPixel> > >;
+            mddCollPtr = new(&dbase, setName) r_Set <r_Ref <r_Marray <RGBPixel>>>;
             break;
         default:
             cerr << "Unknown base type " << bt << endl;
@@ -655,8 +655,8 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
             prog->Close(TRUE);
             return 0;
         }
-        LTRACE << "insertObject()  Object type name " << rviewTypeNames[bt][dim-1];
-        mddPtr->set_type_by_name(rviewTypeNames[bt][dim-1]);
+        LTRACE << "insertObject()  Object type name " << rviewTypeNames[bt][dim - 1];
+        mddPtr->set_type_by_name(rviewTypeNames[bt][dim - 1]);
         mddCollPtr->insert_element(mddPtr);
 
         ta.commit();
@@ -667,7 +667,7 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
 
         status = 1;
     }
-    catch (r_Error &obj)
+    catch (r_Error& obj)
     {
         cerr << lman->lookup("errorInsertObj") << ": " << obj.what() << endl;
     }
@@ -679,7 +679,7 @@ int rviewDatabase::insertObject(const char *collName, r_Ref<r_GMarray> mddObj, r
 
 
 
-int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_GMarray> *updateMdd, bool showProgress)
+int rviewDatabase::executeQuery(collection_desc* desc, const char* qry, r_Ref<r_GMarray>* updateMdd, bool showProgress)
 {
     int status;
     char buffer[STRINGSIZE];
@@ -688,10 +688,12 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
     r_Set<r_Ref_Any> mddColl;
     int collMembers;
 
-    rviewProgress *prog = NULL;
+    rviewProgress* prog = NULL;
 
     if (showProgress)
+    {
         prog = new rviewProgress(lman->lookup("progQuery"));
+    }
 
     status = 0;
 
@@ -703,7 +705,7 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
     try
     {
         int isUpdateQuery;
-        char *mddArg;
+        char* mddArg;
         r_OQL_Query query(qry);
 
         // Do this check before starting the transaction
@@ -715,7 +717,9 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
                 {
                     rviewErrorbox::reportError(lman->lookup("errorUpdtObject"));
                     if (prog != NULL)
+                    {
                         prog->Close(TRUE);
+                    }
                     return 0;
                 }
             }
@@ -782,13 +786,13 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
             collType = mddColl.get_element_type_schema()->type_id();
             if (collType == r_Type::MARRAYTYPE)
             {
-                r_Set<r_Ref<r_GMarray> > mddArrayColl;
+                r_Set<r_Ref<r_GMarray>> mddArrayColl;
                 r_Iterator<r_Ref_Any> iterator = mddColl.create_iterator();
                 int i;
 
                 LTRACE << "executeQuery() array-collection, build new set...";
 
-                for (i=0; i<collMembers; i++, iterator++)
+                for (i = 0; i < collMembers; i++, iterator++)
                 {
                     mddArrayColl.insert_element((r_Ref<r_GMarray>)(*iterator));
                 }
@@ -796,17 +800,17 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
             }
             else
             {
-                r_Iterator<r_Ref_Any > iterator = mddColl.create_iterator();
+                r_Iterator<r_Ref_Any> iterator = mddColl.create_iterator();
                 ostrstream memstr(buffer, STRINGSIZE);
                 int i;
 
                 LTRACE << "executeQuery() non-marray collection, build table...";
 
                 desc->mddObjs = NULL;
-                desc->strObjs = new char*[collMembers];
+                desc->strObjs = new char* [collMembers];
                 desc->number = collMembers;
 
-                for (i=0; i<collMembers; i++, iterator++)
+                for (i = 0; i < collMembers; i++, iterator++)
                 {
                     memstr.width(3);
                     memstr << i << ": ";
@@ -829,14 +833,14 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
                         break;
                     }
                     memstr << '\0';
-                    desc->strObjs[i] = new char[strlen(buffer)+1];
+                    desc->strObjs[i] = new char[strlen(buffer) + 1];
                     strcpy(desc->strObjs[i], buffer);
                     //cout << "item " << i << ": " << desc->strObjs[i] << endl;
                     memstr.seekp(0);
                 }
                 (mddColl.get_type_schema())->print_status(memstr);
                 memstr << '\0';
-                desc->collType = new char[strlen(buffer)+1];
+                desc->collType = new char[strlen(buffer) + 1];
                 strcpy(desc->collType, buffer);
                 status = 1;
             }
@@ -857,7 +861,7 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
         col = -1;
     }
 
-    catch ( r_Equery_execution_failed &errObj )
+    catch (r_Equery_execution_failed& errObj)
     {
         if (errObj.get_errorno() == 0)
         {
@@ -866,7 +870,7 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
         else
         {
             char msg[1024];
-            const char *what;
+            const char* what;
 
             what = errObj.what();
             if (what != NULL) // might actually happen...
@@ -880,19 +884,21 @@ int rviewDatabase::executeQuery(collection_desc *desc, const char *qry, r_Ref<r_
         }
     }
 
-    catch (r_Error &errObj)
+    catch (r_Error& errObj)
     {
         cerr << errObj.what() << endl;
     }
 
     if (prog != NULL)
+    {
         prog->Close(TRUE);
+    }
 
     return status;
 }
 
 
-int rviewDatabase::getMinterval(r_Minterval &dom, const char *collname, const double *loid)
+int rviewDatabase::getMinterval(r_Minterval& dom, const char* collname, const double* loid)
 {
 
     r_Transaction ta;
@@ -902,7 +908,9 @@ int rviewDatabase::getMinterval(r_Minterval &dom, const char *collname, const do
 
     length = sprintf(buffer, "SELECT SDOM(x) FROM %s AS x", collname);
     if (loid != NULL)
+    {
         sprintf(buffer + length, " WHERE OID(x) = %f", *loid);
+    }
 
     try
     {
@@ -920,14 +928,16 @@ int rviewDatabase::getMinterval(r_Minterval &dom, const char *collname, const do
         r_oql_execute(query, collPtr);
         number = collPtr.cardinality();
         if (number > 1)
+        {
             cout << "rviewDatabase::getMinterval(): more than one object returned!" << endl;
+        }
 
         r_Iterator<r_Ref_Any> iterator = collPtr.create_iterator();
         dom = *((r_Ref<r_Minterval>)(*iterator));
 
         ta.commit();
     }
-    catch (r_Error &err)
+    catch (r_Error& err)
     {
         ta.abort();
         cerr << err.what() << endl;
@@ -940,9 +950,12 @@ int rviewDatabase::getMinterval(r_Minterval &dom, const char *collname, const do
 
 
 // Returns the position of the error in the last query
-int rviewDatabase::getErrorInfo(int &l, int &c) const
+int rviewDatabase::getErrorInfo(int& l, int& c) const
 {
-    if (line < 0) return 0;
+    if (line < 0)
+    {
+        return 0;
+    }
     l = line;
     c = col;
     return 1;
@@ -950,7 +963,7 @@ int rviewDatabase::getErrorInfo(int &l, int &c) const
 
 
 
-const r_Database *rviewDatabase::getDatabase(void) const
+const r_Database* rviewDatabase::getDatabase(void) const
 {
     return &dbase;
 }
@@ -972,7 +985,7 @@ int rviewDatabase::ensureDatabase(void)
                 lastTransferFormat = currentFormat;
                 lastTransferParams = prefs->transferParm;
             }
-            catch (r_Error &err)
+            catch (r_Error& err)
             {
                 cerr << err.what() << endl;
             }
@@ -986,7 +999,7 @@ int rviewDatabase::ensureDatabase(void)
                 lastStorageFormat = currentFormat;
                 lastStorageParams = prefs->storageParm;
             }
-            catch (r_Error &err)
+            catch (r_Error& err)
             {
                 cerr << err.what() << endl;
             }

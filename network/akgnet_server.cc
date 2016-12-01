@@ -58,9 +58,9 @@ int akg::GenericServer::getListenPort() throw()
     return listenPort;
 }
 
-void akg::GenericServer::setTimeout(int sec,int milisec) throw()
+void akg::GenericServer::setTimeout(int sec, int milisec) throw()
 {
-    selector.setTimeout(sec,milisec);
+    selector.setTimeout(sec, milisec);
 }
 void akg::GenericServer::disableTimeout() throw()
 {
@@ -75,9 +75,15 @@ void akg::GenericServer::shouldExit() throw()
 
 bool akg::GenericServer::initListenSocket(int port, bool nonblocking) throw()
 {
-    if(listenSocket.open(port) == false) return false;
+    if (listenSocket.open(port) == false)
+    {
+        return false;
+    }
 
-    if(nonblocking) listenSocket.setNonBlocking(true);
+    if (nonblocking)
+    {
+        listenSocket.setNonBlocking(true);
+    }
 
     selector.setRead(listenSocket());
 
@@ -85,17 +91,20 @@ bool akg::GenericServer::initListenSocket(int port, bool nonblocking) throw()
     return true;
 }
 
-bool akg::GenericServer::connectNewClient(ServerSocket &s) throw()
+bool akg::GenericServer::connectNewClient(ServerSocket& s) throw()
 {
-    if(s.acceptFrom(listenSocket)==false) return false;
+    if (s.acceptFrom(listenSocket) == false)
+    {
+        return false;
+    }
 
     selector.setRead(s());
 
     return true;
 }
-void akg::GenericServer::closeSocket(Socket &s) throw()
+void akg::GenericServer::closeSocket(Socket& s) throw()
 {
-    if(s.isOpen())
+    if (s.isOpen())
     {
         selector.clearRead(s());
         selector.clearWrite(s());
@@ -115,26 +124,26 @@ akg::BlockingServer::~BlockingServer() throw()
 
 bool akg::BlockingServer::runServer() throw()
 {
-    if(listenPort == 0)
+    if (listenPort == 0)
     {
         return false;
     }
 
-    if(initListenSocket(listenPort,false)==false)
+    if (initListenSocket(listenPort, false) == false)
     {
         return false;
     }
 
-    while(exitRequest == false)
+    while (exitRequest == false)
     {
         int rasp = selector();
         LDEBUG << "rasp=" << rasp;
-        if(rasp>0)
+        if (rasp > 0)
         {
-            if(serverSocket.isOpen())
+            if (serverSocket.isOpen())
             {
                 LDEBUG << "socket is open.";
-                if(selector.isRead(serverSocket()))
+                if (selector.isRead(serverSocket()))
                 {
                     LDEBUG << "socket is readable, executing request.";
                     executeRequest(serverSocket);
@@ -143,7 +152,7 @@ bool akg::BlockingServer::runServer() throw()
                     LDEBUG << "socket closed.";
                 }
             }
-            else if(selector.isRead(listenSocket()))
+            else if (selector.isRead(listenSocket()))
             {
                 LDEBUG << "socket not open, but readable (??\?). connecting new client.";
                 connectNewClient(serverSocket);
@@ -156,13 +165,13 @@ bool akg::BlockingServer::runServer() throw()
             }
         }
 
-        if(rasp == 0)
+        if (rasp == 0)
         {
             LDEBUG << "exec timeout";
             executeTimeout();
         }
 
-        if(rasp<0)
+        if (rasp < 0)
         {
             LDEBUG << "Internal connect error: bad selector.";
         }

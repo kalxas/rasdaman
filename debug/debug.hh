@@ -84,40 +84,40 @@ EXTERN bool debugOutput;
 
 /// ENTER(a): write trace line for entering a function (increases indentation)
 #define ENTER(a)                \
-  {                     \
-    if (debugOutput)                \
-    {                       \
-      for (int i = 0; i < indentLevel; i++) \
-          OSTREAM << INDENT;            \
-      OSTREAM << "ENTER " << a << std::endl << std::flush;  \
-      indentLevel++;                \
-    }                       \
-  }
+    {                     \
+        if (debugOutput)                \
+        {                       \
+            for (int i = 0; i < indentLevel; i++) \
+                OSTREAM << INDENT;            \
+            OSTREAM << "ENTER " << a << std::endl << std::flush;  \
+            indentLevel++;                \
+        }                       \
+    }
 
 /// LEAVE(a): write trace line for leaving a function (decreases indentation)
 #define LEAVE(a)                \
-  {                     \
-    if (debugOutput)                \
-    {                       \
-      if (indentLevel > 0 )         \
-          indentLevel--;            \
-      for (int i = 0; i < indentLevel; i++) \
-          OSTREAM << INDENT;            \
-      OSTREAM << "LEAVE " << a << std::endl << std::flush;  \
-    }                       \
-  }
+    {                     \
+        if (debugOutput)                \
+        {                       \
+            if (indentLevel > 0 )         \
+                indentLevel--;            \
+            for (int i = 0; i < indentLevel; i++) \
+                OSTREAM << INDENT;            \
+            OSTREAM << "LEAVE " << a << std::endl << std::flush;  \
+        }                       \
+    }
 
 
 /// TALK(a): write trace line from within a function (leaves indentation unchanged)
 #define TALK(a)                 \
-  {                     \
-    if (debugOutput)                \
-    {                       \
-      for (int i = 0; i < indentLevel; i++) \
-          OSTREAM << INDENT;            \
-      OSTREAM << a << std::endl << std::flush;      \
-    }                       \
-  }
+    {                     \
+        if (debugOutput)                \
+        {                       \
+            for (int i = 0; i < indentLevel; i++) \
+                OSTREAM << INDENT;            \
+            OSTREAM << a << std::endl << std::flush;      \
+        }                       \
+    }
 
 #else
 // disable all trace macros

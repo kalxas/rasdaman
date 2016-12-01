@@ -84,16 +84,16 @@ public:
     QtData();
 
     // constructor
-    QtData( const std::string name );
+    QtData(const std::string name);
 
     /// copy constructor
-    QtData( const QtData &obj );
+    QtData(const QtData& obj);
 
     /// destructor
     virtual ~QtData();
 
     /// assignement operator
-    const QtData& operator=( const QtData& obj );
+    const QtData& operator=(const QtData& obj);
 
     enum QtLifetime
     {
@@ -132,7 +132,7 @@ public:
     virtual bool isScalarData() const;
 
     /// compares data content
-    virtual bool equal( const QtData* obj ) const = 0;
+    virtual bool equal(const QtData* obj) const = 0;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const = 0;
@@ -144,11 +144,11 @@ public:
     /// get the iterator name
     inline std::string const getIteratorName() const;
     ///
-    inline void setIteratorName( const std::string & iteratorNameNew );
+    inline void setIteratorName(const std::string& iteratorNameNew);
     ///
     inline QtLifetime getLifetime() const;
     ///
-    inline void setLifetime( QtLifetime flag );
+    inline void setLifetime(QtLifetime flag);
     /// return number of references to the self object
     inline unsigned int getRefNo() const;
     /// increases the reference counter by one
@@ -162,13 +162,13 @@ public:
     ///
     inline ParseInfo getParseInfo();
     ///
-    inline void      setParseInfo( const ParseInfo &info );
+    inline void      setParseInfo(const ParseInfo& info);
 
     ///
     //@}
 
     /// print status of the object to the specified stream
-    virtual void printStatus( std::ostream& stream = std::cout ) const;
+    virtual void printStatus(std::ostream& stream = std::cout) const;
 
 protected:
     /// pointer to an optional parser info

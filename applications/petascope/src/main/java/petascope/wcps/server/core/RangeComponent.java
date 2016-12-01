@@ -31,11 +31,11 @@ import petascope.wcps.metadata.CoverageInfo;
 
 
 /**
- * This is a component of a RangeStructure. 
+ * This is a component of a RangeStructure.
  * @author Andrei Aiordachioaie
  */
 public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(RangeComponent.class);
 
     private String field = null;
@@ -46,14 +46,13 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
 
         String nodeName = node.getNodeName();
         log.trace(nodeName);
-        if (nodeName.equals(WcpsConstants.MSG_COMPONENT))
+        if (nodeName.equals(WcpsConstants.MSG_COMPONENT)) {
             node = node.getFirstChild();
-            
-        while (node != null)
-        {
+        }
+
+        while (node != null) {
             nodeName = node.getNodeName();
-            if (nodeName.equals("#" + WcpsConstants.MSG_TEXT))
-            {
+            if (nodeName.equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
                 continue;
             }
@@ -62,13 +61,10 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
                 this.field = node.getTextContent();
                 log.trace("  " + WcpsConstants.MSG_FIELD + ": " + field);
             } else {
-                try
-                {
+                try {
                     this.expr = new CoverageExpr(node, xq);
                     this.info = expr.getCoverageInfo();
-                }
-                catch (WCPSException e)
-                {
+                } catch (WCPSException e) {
                     log.error("Could not match CoverageExpr inside RangeExpr. Next node: " + nodeName);
                     throw e;
                 }
@@ -85,8 +81,9 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
     public String toRasQL() {
         String result = "";
 
-        if (this.expr != null)
+        if (this.expr != null) {
             result = expr.toRasQL();
+        }
 
         return result;
     }

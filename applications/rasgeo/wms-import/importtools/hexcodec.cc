@@ -68,47 +68,49 @@ HexCodec::convertTo(const string& figureStr) throw(ImportError)
     string errMsg;
     string::size_type sizeHexStr = 0, sizeFigStr = 0;
     string::size_type sizeHexId = 0, idxFig = 0, idxHexFig = 0;
-    string::size_type idxHex=0;
+    string::size_type idxHex = 0;
 
-    figStr=figureStr;
-    hexStr=emptyStr;
-    sizeFigStr=figStr.size();
-    sizeHexId=hexId.size();
+    figStr = figureStr;
+    hexStr = emptyStr;
+    sizeFigStr = figStr.size();
+    sizeHexId = hexId.size();
 
-    if(sizeFigStr <= sizeHexId)
+    if (sizeFigStr <= sizeHexId)
     {
         LDEBUG << "HexCodec::ConvertTo(\"" + figStr + "\"), user input is not a hexadecimal string.";
-        throw ImportError( INVALIDHEX );
+        throw ImportError(INVALIDHEX);
     }
 
     if ((tolower(figStr[0]) != hexId[0]) ||
             (tolower(figStr[1]) != hexId[1]))
     {
-        LDEBUG << "HexCodec::ConverTo(\"" + figStr + "\"), \"" + hexId +"\" is missing for user input.";
-        throw ImportError( INVALIDHEX );
+        LDEBUG << "HexCodec::ConverTo(\"" + figStr + "\"), \"" + hexId + "\" is missing for user input.";
+        throw ImportError(INVALIDHEX);
     }
 
     sizeHexStr = (sizeFigStr - sizeHexId) / hexPerByte;
-    if(sizeFigStr % hexPerByte)
+    if (sizeFigStr % hexPerByte)
+    {
         sizeHexStr++;
+    }
 
     hexStr.resize(sizeHexStr, '\0');
 
     //skip hexId tag
-    idxFig+=sizeHexId;
+    idxFig += sizeHexId;
 
     while (idxFig < sizeFigStr)
     {
         //check figure
-        idxHexFig=hexFig.find(tolower(figStr[idxFig]));
-        if(idxHexFig == string::npos)
+        idxHexFig = hexFig.find(tolower(figStr[idxFig]));
+        if (idxHexFig == string::npos)
         {
             LDEBUG << "HexCodec::ConvertTo(\"" + figStr + "\"), \"" + figStr[idxFig] + "\" from user input is not a hexadecimal figure.";
-            throw ImportError( INVALIDHEX );
+            throw ImportError(INVALIDHEX);
         }
 
         //set value figure
-        if(idxFig % hexPerByte)
+        if (idxFig % hexPerByte)
         {
 #if defined(IS_LITTLE_ENDIAN)
             hexStr[idxHex] = hexStr[idxHex] * hexBase + hexVal[idxHexFig];
@@ -118,7 +120,9 @@ HexCodec::convertTo(const string& figureStr) throw(ImportError)
             idxHex++;
         }
         else
+        {
             hexStr[idxHex] = hexVal[idxHexFig];
+        }
 
         //advance
         idxFig++;
@@ -139,7 +143,7 @@ HexCodec::convertFrom(const string& hexaStr) throw(ImportError)
     sizeFigStr = sizeHexStr * hexPerByte;
     figStr.resize(sizeFigStr, '\0');
 
-    for(idxHexStr=0, idxFigStr=0;
+    for (idxHexStr = 0, idxFigStr = 0;
             idxHexStr < sizeHexStr;
             idxHexStr++)
     {
@@ -160,7 +164,7 @@ HexCodec::convertFrom(const string& hexaStr) throw(ImportError)
 void
 HexCodec::printStatus(ostream& s)
 {
-    string::size_type i=0,n=0;
+    string::size_type i = 0, n = 0;
     s << "FigureStr: '" << figStr << "' size " << figStr.size() << endl;
     s << "HexaStr: '" << convertFrom(hexStr) << "' size " << hexStr.size() <<  endl;
 }

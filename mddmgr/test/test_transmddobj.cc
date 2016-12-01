@@ -60,10 +60,10 @@ RMINITGLOBALS('C')
 // of cell base types.
 extern char* myExecArgv0 = "";
 
-void testConstruction( );
-void testRemovetile( );
-void testIntersection( );
-void printMemInfo( );
+void testConstruction();
+void testRemovetile();
+void testIntersection();
+void printMemInfo();
 
 
 /*************************************************************
@@ -77,7 +77,7 @@ void printMemInfo( );
  ************************************************************/
 
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
     myExecArgv0 = argv[0];
     AdminIf* myAdmin = AdminIf::instance();
@@ -92,41 +92,41 @@ main( int argc, char** argv)
     int errorDBOpen;
     try
     {
-        errorDBOpen =  database.open( O2DBName );
+        errorDBOpen =  database.open(O2DBName);
     }
-    catch( ...)
+    catch (...)
     {
         cout << "Caught Exception " << endl;
         errorDBOpen = -6;
     }
-    if ( errorDBOpen < 0 )
+    if (errorDBOpen < 0)
     {
         cout << "Database doesn't exist. Create it new ... " << endl;
         cout << "Creating new database " << O2DBName
              << "..." << endl;
-        database.create( O2DBName, "TestSMSchema" );
+        database.create(O2DBName, "TestSMSchema");
         cout << "Connecting to database " << O2DBName
              << "..." << endl;
         try
         {
-            errorDBOpen =  database.open( O2DBName );
+            errorDBOpen =  database.open(O2DBName);
         }
-        catch(...)
+        catch (...)
         {
             errorDBOpen = -6;
         }
     }
-    if ( errorDBOpen < 0 )
+    if (errorDBOpen < 0)
     {
         cout << "Failed at opening newly created database " << errorDBOpen << endl;
         cout << "Exiting " << endl;
         return errorDBOpen;
     }
 
-    ta.begin( &database, 1 );
+    ta.begin(&database, 1);
 
     cout << " Main - begin " << endl;
-    printMemInfo( );
+    printMemInfo();
 
     /*
     cout << "---------- ";
@@ -137,9 +137,9 @@ main( int argc, char** argv)
     */
 
     cout << "Testing intersection for TransMDDObj: " << endl;
-    testIntersection( );
+    testIntersection();
     cout << "Testing intersection - end " << endl;
-    printMemInfo( );
+    printMemInfo();
 
 
     /*
@@ -150,24 +150,24 @@ main( int argc, char** argv)
     printMemInfo( );
     */
 
-    ta.abort( );
-    database.close( );
+    ta.abort();
+    database.close();
 
     delete myAdmin;
 
 }
 
-void testConstruction( )
+void testConstruction()
 {
     const int numTilesObj = 20;
     r_Sinterval domSinterval;
-    cout <<"here 1" << endl;
+    cout << "here 1" << endl;
     ULongType ult;
-    BaseType* anyType = new( (d_Database*)(d_Database::transient_memory) ) ULongType; //  anyType;
+    BaseType* anyType = new((d_Database*)(d_Database::transient_memory)) ULongType;   //  anyType;
 
-    cout << "here 2"<< endl;
+    cout << "here 2" << endl;
     const MDDBaseType* anyBaseType =
-        new( (d_Database*)(d_Database::transient_memory) ) MDDBaseType( "AnyType", &ult/* anyType */ );
+        new((d_Database*)(d_Database::transient_memory)) MDDBaseType("AnyType", &ult/* anyType */);
 
     // const MDDBaseType anyBaseType( "AnyType", &ult );
 
@@ -181,16 +181,16 @@ void testConstruction( )
 
 
     // initialize array of tiles
-    for (j=0; j<numTilesObj ; j++)
+    for (j = 0; j < numTilesObj ; j++)
     {
         r_Minterval dom(2);
         TransTile* tt;
 
-        domSinterval.set_interval( r_Range(j* 10), r_Range((j+1)*10-1) );
+        domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
         dom <<  domSinterval << domSinterval;
         cout << "Newly created tile domain : " << dom << "  " << endl;
         // printMemInfo();
-        tt = new TransTile( dom, anyType, anyCell );
+        tt = new TransTile(dom, anyType, anyCell);
         cout << "Tile created " << endl;
         // printMemInfo();
         tilesVect[j] = tt ;
@@ -210,19 +210,19 @@ void testConstruction( )
     cout << "Creating the transient MDD object ... " << endl;
 
     r_Minterval dom(2);
-    domSinterval.set_interval( r_Range( 0 ), r_Range( 100 ) );
-    domSinterval.set_low( '*' );
+    domSinterval.set_interval(r_Range(0), r_Range(100));
+    domSinterval.set_low('*');
     dom << domSinterval << domSinterval;
     // testMDDObj = new TransMDDObj( dom, "ULong" );
-    testMDDObj = new TransMDDObj( anyBaseType, dom );
-    for(j=0; j < numTilesObj; j++)
+    testMDDObj = new TransMDDObj(anyBaseType, dom);
+    for (j = 0; j < numTilesObj; j++)
     {
-        testMDDObj->insertTile(  tilesVect[j] );
+        testMDDObj->insertTile(tilesVect[j]);
     }
     // printMemInfo();
 
     cout << "Printing contents of the created object ... " << endl;
-    testMDDObj->printStatus( );
+    testMDDObj->printStatus();
 
     cout << "Deleting the created object ... " << endl;
     delete testMDDObj;
@@ -232,22 +232,22 @@ void testConstruction( )
 }
 
 
-void testIntersection( )
+void testIntersection()
 {
     const int numTilesObj = 20;
     r_Sinterval domSinterval;
 
     const BaseType* ulongTypeObj = TypeFactory::mapType("ULong");
 
-    char uLongCell[] = {0,1,2,3};
+    char uLongCell[] = {0, 1, 2, 3};
 
     const MDDBaseType* anyBaseType =
-        new MDDBaseType( "AnyType1", (BaseType*) ulongTypeObj );
+        new MDDBaseType("AnyType1", (BaseType*) ulongTypeObj);
 
-    TypeFactory::addTempType( (Type*) anyBaseType );
+    TypeFactory::addTempType((Type*) anyBaseType);
 
-    BaseType* bt = ( (MDDBaseType* ) anyBaseType )->getBaseType( );
-    cout << "Base type size " <<  bt->getSize( )<< endl;
+    BaseType* bt = ((MDDBaseType*) anyBaseType)->getBaseType();
+    cout << "Base type size " <<  bt->getSize() << endl;
 
 
     int j;
@@ -259,19 +259,21 @@ void testIntersection( )
 
 
     // initialize array of tiles
-    for (j=0; j<numTilesObj ; j++)
+    for (j = 0; j < numTilesObj ; j++)
     {
         r_Minterval dom(2);
         TransTile* tt;
 
-        domSinterval.set_interval( r_Range(j* 10), r_Range((j+1)*10-1) );
+        domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
         dom <<  domSinterval << domSinterval;
         cout << "Newly created tile domain : " << dom << "  " << endl;
         // printMemInfo();
-        tt = new TransTile( dom,  (BaseType*) ulongTypeObj, uLongCell );
+        tt = new TransTile(dom, (BaseType*) ulongTypeObj, uLongCell);
         cout << "Tile created " << endl;
         if (!j)
-            tt->printStatus( );
+        {
+            tt->printStatus();
+        }
         // printMemInfo();
         tilesVect[j] = tt ;
     }
@@ -290,36 +292,36 @@ void testIntersection( )
     cout << "Creating the transient MDD object ... " << endl;
 
     r_Minterval dom(2);
-    domSinterval.set_interval( r_Range( 0 ), r_Range( 100 ) );
-    domSinterval.set_low( '*' );
+    domSinterval.set_interval(r_Range(0), r_Range(100));
+    domSinterval.set_low('*');
     dom << domSinterval << domSinterval;
-    testMDDObj = new  TransMDDObj( anyBaseType, dom );
-    for(j=0; j < numTilesObj; j++)
+    testMDDObj = new  TransMDDObj(anyBaseType, dom);
+    for (j = 0; j < numTilesObj; j++)
     {
-        testMDDObj->insertTile(  tilesVect[j] );
+        testMDDObj->insertTile(tilesVect[j]);
     }
     // printMemInfo();
 
     cout << "Printing contents of the created object ... " << endl;
-    testMDDObj->printStatus( );
+    testMDDObj->printStatus();
 
     r_Minterval searchInterval(2);
-    domSinterval.set_interval( r_Range( 4 ), r_Range( 96 ) );
-    searchInterval<< domSinterval ;
-    domSinterval.set_interval( r_Range( 22 ), r_Range( 84 ) );
-    searchInterval<< domSinterval ;
-    cout << "Intersection with "<< searchInterval << " :" << endl ;
+    domSinterval.set_interval(r_Range(4), r_Range(96));
+    searchInterval << domSinterval ;
+    domSinterval.set_interval(r_Range(22), r_Range(84));
+    searchInterval << domSinterval ;
+    cout << "Intersection with " << searchInterval << " :" << endl ;
 
     vector<Tile*>* intersectResult =
-        ( testMDDObj )->intersect( searchInterval );
+        (testMDDObj)->intersect(searchInterval);
     cout << "Result of intersection:" << endl;
-    cout << "Intersect result size " << intersectResult->size( ) << endl;
-    for (int tilesIter = 0; tilesIter < intersectResult->size( ) ; tilesIter++)
+    cout << "Intersect result size " << intersectResult->size() << endl;
+    for (int tilesIter = 0; tilesIter < intersectResult->size() ; tilesIter++)
     {
         Tile* currTile;
         currTile = (*intersectResult)[tilesIter];
         cout << "Tile " << tilesIter << " domain : " ;
-        cout << currTile->getDomain( ) << endl;
+        cout << currTile->getDomain() << endl;
     }
 
     // printMemInfo();
@@ -331,15 +333,15 @@ void testIntersection( )
     // printMemInfo();
 
     cout << "Testing point query " << endl;
-    r_Point pnt1( r_Range(2) , r_Range(3) );
-    unsigned long* c1 = (unsigned long*) testMDDObj->pointQuery( pnt1 );
+    r_Point pnt1(r_Range(2) , r_Range(3));
+    unsigned long* c1 = (unsigned long*) testMDDObj->pointQuery(pnt1);
     // char* c1 = testMDDObj->pointQuery( pnt1 );
-    cout << "1. Result "<< pnt1 << ": "<< *c1 << endl;
+    cout << "1. Result " << pnt1 << ": " << *c1 << endl;
 
-    r_Point pnt2( r_Range(20) , r_Range(30) );
-    unsigned long* c2 = (unsigned long*) testMDDObj->pointQuery( pnt2 );
+    r_Point pnt2(r_Range(20) , r_Range(30));
+    unsigned long* c2 = (unsigned long*) testMDDObj->pointQuery(pnt2);
     // char* c2 = testMDDObj->pointQuery( pnt2 );
-    cout << "2. Result "<< pnt2 << ": "<<  c2 << endl;
+    cout << "2. Result " << pnt2 << ": " <<  c2 << endl;
 
     cout << "Deleting the created object ... " << endl;
     delete testMDDObj;
@@ -347,70 +349,70 @@ void testIntersection( )
 }
 
 
-void testRemovetile( )
+void testRemovetile()
 {
     const int numTilesObj = 20;
     r_Sinterval domSinterval;
-    BaseType* anyType = new( (d_Database*)(d_Database::transient_memory) )  ULongType; //  ULongType anyType;
-    char anyCell[4]= {'a','b','c','\0'};
-    int j,i;
+    BaseType* anyType = new((d_Database*)(d_Database::transient_memory))  ULongType;   //  ULongType anyType;
+    char anyCell[4] = {'a', 'b', 'c', '\0'};
+    int j, i;
     TransMDDObj* testMDDObj;
     vector<Tile*>* allTilesObj;
     vector<Tile*> tilesToDelete;
     const MDDBaseType* anyBaseType =
-        new( (d_Database*)(d_Database::transient_memory) )  MDDBaseType( "AnyType", anyType );
+        new((d_Database*)(d_Database::transient_memory))  MDDBaseType("AnyType", anyType);
 
     cout << "Creating transient tiles for the MDD object ... " << endl;
     vector<TransTile*> tilesVect;
 
     // initialize array of tiles
-    for ( j=0; j<numTilesObj ; j++)
+    for (j = 0; j < numTilesObj ; j++)
     {
         r_Minterval dom(2);
-        domSinterval.set_interval( r_Range(j* 10), r_Range((j+1)*10-1) );
+        domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
         dom <<  domSinterval << domSinterval;
         cout << "New TransTile " << endl;
-        tilesVect.push_back( new TransTile( dom, anyType, anyCell ) );
+        tilesVect.push_back(new TransTile(dom, anyType, anyCell));
         // printMemInfo( );
     }
 
     cout << "Creating the transient MDD object ... " << endl;
 
     r_Minterval dom(2);
-    domSinterval.set_interval( r_Range( 0 ), r_Range( 100 ) );
-    domSinterval.set_low( '*' );
+    domSinterval.set_interval(r_Range(0), r_Range(100));
+    domSinterval.set_low('*');
     dom << domSinterval << domSinterval;
-    testMDDObj = new TransMDDObj( anyBaseType, dom );
-    for( j=0; j < numTilesObj; j++)
+    testMDDObj = new TransMDDObj(anyBaseType, dom);
+    for (j = 0; j < numTilesObj; j++)
     {
         cout << "InsertTile " << endl ;
-        testMDDObj->insertTile( ( Tile*) tilesVect[j] );
+        testMDDObj->insertTile((Tile*) tilesVect[j]);
         // printMemInfo( );
     }
 
     cout << "Printing contents of the created object ... " << endl;
-    testMDDObj->printStatus( );
+    testMDDObj->printStatus();
 
     cout << "Getting all tiles from the object... " << endl;
-    allTilesObj = testMDDObj->getTiles( );
+    allTilesObj = testMDDObj->getTiles();
     // printMemInfo( );
 
     cout << "Removing tile 2, 4, 6, and 12 from the object... " << endl;
-    for ( i = 0; i < allTilesObj->size( ); i++)
+    for (i = 0; i < allTilesObj->size(); i++)
     {
-        if ( i==2 || i == 4 || i == 6 || i == 12 )
+        if (i == 2 || i == 4 || i == 6 || i == 12)
         {
-            tilesToDelete.push_back( (*allTilesObj)[i]);
+            tilesToDelete.push_back((*allTilesObj)[i]);
         }
     }
-    for ( i = 0; i < tilesToDelete.size( ); i++)
+    for (i = 0; i < tilesToDelete.size(); i++)
     {
         cout << " Tile is going to be removed " << endl;
-        testMDDObj->removeTile(tilesToDelete[i] );
-        cout << endl << " Value of  pointer to tile : " << tilesToDelete[i] << endl<< endl;
+        testMDDObj->removeTile(tilesToDelete[i]);
+        cout << endl << " Value of  pointer to tile : " << tilesToDelete[i] << endl << endl;
         // printMemInfo();
     }
-    testMDDObj->printStatus( );
+    testMDDObj->printStatus();
 
     cout << "Deleting the created object ... " << endl;
     // printMemInfo( );
@@ -422,7 +424,7 @@ void testRemovetile( )
 }
 
 
-void printMemInfo( )
+void printMemInfo()
 {
 
 

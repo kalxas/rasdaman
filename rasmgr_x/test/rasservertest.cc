@@ -55,29 +55,29 @@ using ::testing::Return;
 
 class MockRasServerService: public ::rasnet::service::RasServerService::Service
 {
-    grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override
+    grpc::Status AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response) override
     {
         return Status::OK;
     }
 
-    grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override
+    grpc::Status DeallocateClient(grpc::ServerContext* context, const rasnet::service::DeallocateClientReq* request, rasnet::service::Void* response) override
     {
         return Status::OK;
     }
 
-    grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override
+    grpc::Status Close(grpc::ServerContext* context, const rasnet::service::CloseServerReq* request, rasnet::service::Void* response) override
     {
         return Status::OK;
     }
 
-    grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override
+    grpc::Status GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response) override
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_ALIVE);
 
         return Status::OK;
     }
 
-    grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override
+    grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override
     {
         response->set_clientqueuesize(1);
         return Status::OK;
@@ -85,37 +85,37 @@ class MockRasServerService: public ::rasnet::service::RasServerService::Service
 }
 ;
 
-class FailingMockRasServerService:public rasnet::service::RasServerService::Service
+class FailingMockRasServerService: public rasnet::service::RasServerService::Service
 {
 public:
-    grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override
+    grpc::Status AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response) override
     {
         return Status::CANCELLED;
     }
 
-    grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override
+    grpc::Status DeallocateClient(grpc::ServerContext* context, const rasnet::service::DeallocateClientReq* request, rasnet::service::Void* response) override
     {
         return Status::CANCELLED;
     }
 
-    grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override
+    grpc::Status Close(grpc::ServerContext* context, const rasnet::service::CloseServerReq* request, rasnet::service::Void* response) override
     {
         return Status::OK;
     }
 
-    grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override
+    grpc::Status GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response) override
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
     }
 
-    grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override
+    grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override
     {
         return Status::CANCELLED;
     }
 }
 ;
 
-class RasServerTest:public ::testing::Test
+class RasServerTest: public ::testing::Test
 {
 protected:
     RasServerTest()
@@ -124,9 +124,9 @@ protected:
         this->goodPort = 50001;
         this->badPort = 50002;
 
-        boost::shared_ptr<RasServerService::Service> service (new MockRasServerService());
+        boost::shared_ptr<RasServerService::Service> service(new MockRasServerService());
 
-        boost::shared_ptr<RasServerService::Service> failService (new FailingMockRasServerService());
+        boost::shared_ptr<RasServerService::Service> failService(new FailingMockRasServerService());
 
         ServerBuilder goodServerBuilder;
         ServerBuilder failingServerBuilder;
@@ -142,7 +142,7 @@ protected:
         failingService = failingServerBuilder.BuildAndStart();
 
 
-        dbHost.reset(new rasmgr::DatabaseHost("hostName", "connectString", "user","passwd"));
+        dbHost.reset(new rasmgr::DatabaseHost("hostName", "connectString", "user", "passwd"));
 
         ServerConfig goodServerConfig(hostName, goodPort, dbHost);
         ServerConfig failingServerConfig(hostName, badPort, dbHost);

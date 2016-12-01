@@ -53,12 +53,12 @@ unsigned int  RMInit::rpcMaxRetry = 5;
 
 r_Bytes RMInit::clientTileSize = 786432;
 
-RMInit::RMInit( char initApplicationType )
-    : applicationType( initApplicationType )
+RMInit::RMInit(char initApplicationType)
+    : applicationType(initApplicationType)
 {
     char* optString;
 
-    if( applicationType == 'C' )
+    if (applicationType == 'C')
     {
         char* value;
 
@@ -68,11 +68,11 @@ RMInit::RMInit( char initApplicationType )
         //
         // set log stream
         //
-        if( optString && checkOptionString( optString, "-l", value ) )
+        if (optString && checkOptionString(optString, "-l", value))
         {
-            if( value )
+            if (value)
             {
-                logFileOut.open( value );
+                logFileOut.open(value);
                 logOut.rdbuf(logFileOut.rdbuf());
                 delete[] value;
                 value = NULL;
@@ -85,7 +85,7 @@ RMInit::RMInit( char initApplicationType )
         else
         {
             // default
-            logFileOut.open("/dev/null",ios::app);  //"client.log");
+            logFileOut.open("/dev/null", ios::app); //"client.log");
             logOut.rdbuf(logFileOut.rdbuf());
         }
 
@@ -93,11 +93,11 @@ RMInit::RMInit( char initApplicationType )
         //
         // set dbg stream
         //
-        if( optString && checkOptionString( optString, "-d", value ) )
+        if (optString && checkOptionString(optString, "-d", value))
         {
-            if( value )
+            if (value)
             {
-                dbgFileOut.open( value );
+                dbgFileOut.open(value);
                 dbgOut.rdbuf(dbgFileOut.rdbuf());
                 delete[] value;
                 value = NULL;
@@ -110,7 +110,7 @@ RMInit::RMInit( char initApplicationType )
         else
         {
             // default
-            dbgFileOut.open("/dev/null",ios::app);  //"client.dbg");
+            dbgFileOut.open("/dev/null", ios::app); //"client.dbg");
             dbgOut.rdbuf(dbgFileOut.rdbuf());
         }
 
@@ -118,11 +118,11 @@ RMInit::RMInit( char initApplicationType )
         //
         // set debug level
         //
-        if( optString && checkOptionString( optString, "-dl", value ) )
+        if (optString && checkOptionString(optString, "-dl", value))
         {
-            if( value )
+            if (value)
             {
-                RManDebug = static_cast<int>(strtoul( value, (char **)NULL, 10 ));
+                RManDebug = static_cast<int>(strtoul(value, (char**)NULL, 10));
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;
@@ -134,11 +134,11 @@ RMInit::RMInit( char initApplicationType )
         //
         // set bm stream
         //
-        if( optString && checkOptionString( optString, "-b", value ) )
+        if (optString && checkOptionString(optString, "-b", value))
         {
-            if( value )
+            if (value)
             {
-                bmFileOut.open( value );
+                bmFileOut.open(value);
                 bmOut.rdbuf(bmFileOut.rdbuf());
                 delete[] value;
                 value = NULL;
@@ -151,7 +151,7 @@ RMInit::RMInit( char initApplicationType )
         else
         {
             // default
-            bmFileOut.open("/dev/null",ios::app);  //"client.bm");
+            bmFileOut.open("/dev/null", ios::app); //"client.bm");
             bmOut.rdbuf(bmFileOut.rdbuf());
         }
 
@@ -159,11 +159,11 @@ RMInit::RMInit( char initApplicationType )
         //
         // set benchmark level
         //
-        if( optString && checkOptionString( optString, "-bl", value ) )
+        if (optString && checkOptionString(optString, "-bl", value))
         {
-            if( value )
+            if (value)
             {
-                RManBenchmark = static_cast<int>(strtoul( value, (char **)NULL, 10 ));
+                RManBenchmark = static_cast<int>(strtoul(value, (char**)NULL, 10));
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;
@@ -175,41 +175,53 @@ RMInit::RMInit( char initApplicationType )
         //
         // set tiling parameters
         //
-        if(optString)
-            tiling    = !checkOptionString( optString, "-notiling", value );
-        else
-            tiling = 1;
-
-        if( optString && checkOptionString( optString, "-tilesize", value ) )
+        if (optString)
         {
-            if( value )
+            tiling    = !checkOptionString(optString, "-notiling", value);
+        }
+        else
+        {
+            tiling = 1;
+        }
+
+        if (optString && checkOptionString(optString, "-tilesize", value))
+        {
+            if (value)
             {
-                RMInit::clientTileSize = strtoul( value, (char **)NULL, 10 );
+                RMInit::clientTileSize = strtoul(value, (char**)NULL, 10);
                 delete[] value;
                 value = NULL;
             }
         }
 
-        if(optString && checkOptionString( optString, "-useTC", value ))
+        if (optString && checkOptionString(optString, "-useTC", value))
+        {
             useTileContainer = true;
+        }
         else
+        {
             useTileContainer = false;
+        }
 
         timeOut = 3600;  // default
-        if( optString && checkOptionString( optString, "-timeout", value ) )
+        if (optString && checkOptionString(optString, "-timeout", value))
         {
-            if( value )
+            if (value)
             {
-                timeOut = strtoul( value, (char **)NULL, 10 );
+                timeOut = strtoul(value, (char**)NULL, 10);
                 delete[] value;
                 value = NULL;
             }
         }
 
-        if( optString && checkOptionString( optString, "-notimeout", value ) )
+        if (optString && checkOptionString(optString, "-notimeout", value))
+        {
             noTimeOut = 1;
+        }
         else
+        {
             noTimeOut = 0;
+        }
     }
     else    // applicationType != 'C' (i.e.: =='S')
     {
@@ -224,22 +236,22 @@ RMInit::RMInit( char initApplicationType )
     r_Error::initTextTable();
 
     // initialize user name
-    if( userName )
+    if (userName)
     {
         delete [] userName;
         userName = 0;
     }
 
     optString = getenv("USER");
-    if( optString )
+    if (optString)
     {
-        userName = new char[strlen(optString)+1];
-        strcpy( userName, optString );
+        userName = new char[strlen(optString) + 1];
+        strcpy(userName, optString);
     }
     else
     {
         userName = new char[8];
-        strcpy( userName, "unknown" );
+        strcpy(userName, "unknown");
     }
 
 #ifdef RMANDEBUG
@@ -259,7 +271,7 @@ RMInit::~RMInit()
     // free error text table
     r_Error::freeTextTable();
 
-    if( userName )
+    if (userName)
     {
         delete [] userName;
         userName = 0;
@@ -269,9 +281,9 @@ RMInit::~RMInit()
 
 
 int
-RMInit::checkOptionString( const char* optString, const char* option, char* &value )
+RMInit::checkOptionString(const char* optString, const char* option, char*& value)
 {
-    char* optPos=0;
+    char* optPos = 0;
     char* optValueStart;
     char* optValueEnd;
     int   valueLength;
@@ -280,7 +292,7 @@ RMInit::checkOptionString( const char* optString, const char* option, char* &val
 
     value = 0;
 
-    if( (optString != NULL) && (option != NULL) )
+    if ((optString != NULL) && (option != NULL))
     {
         unsigned short found = 0;
 
@@ -288,9 +300,9 @@ RMInit::checkOptionString( const char* optString, const char* option, char* &val
 
         do
         {
-            optPos = strstr( optPos, option );
+            optPos = strstr(optPos, option);
 
-            if( optPos )
+            if (optPos)
             {
                 // Check if character after option is either a space or end of string.
                 // If not, continue with search.
@@ -299,30 +311,39 @@ RMInit::checkOptionString( const char* optString, const char* option, char* &val
 
                 found = (*continuePos == ' ') || (*continuePos == '\0');
 
-                if( !found ) optPos = continuePos;
+                if (!found)
+                {
+                    optPos = continuePos;
+                }
             }
 
         }
-        while( !found && optPos != 0 );
+        while (!found && optPos != 0);
 
     }
 
-    if( optPos )
+    if (optPos)
     {
 
         optValueStart = optPos + strlen(option);                // move over option
-        while( *optValueStart == ' ' ) optValueStart++;         // move over spaces
+        while (*optValueStart == ' ')
+        {
+            optValueStart++;    // move over spaces
+        }
 
-        if( *optValueStart != '-' && *optValueStart != '\0' )
+        if (*optValueStart != '-' && *optValueStart != '\0')
         {
             optValueEnd = optValueStart;
-            while( *optValueEnd != ' ' && *optValueEnd != '\0' ) optValueEnd++; // move over option value
+            while (*optValueEnd != ' ' && *optValueEnd != '\0')
+            {
+                optValueEnd++;    // move over option value
+            }
 
             valueLength = optValueEnd - optValueStart;
-            if( valueLength )
+            if (valueLength)
             {
-                value = new char[valueLength+1];
-                strncpy( value, optValueStart, static_cast<size_t>(valueLength) );
+                value = new char[valueLength + 1];
+                strncpy(value, optValueStart, static_cast<size_t>(valueLength));
                 value[valueLength] = '\0';
             }
         }

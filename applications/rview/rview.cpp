@@ -83,7 +83,7 @@ rasdaman GmbH.
 
 
 const int rviewMainFrame::main_width = 300;
-const int rviewMainFrame::main_height = 400 + 2*rview_window_extra_height;
+const int rviewMainFrame::main_height = 400 + 2 * rview_window_extra_height;
 const int rviewMainFrame::main_border = 8;
 const int rviewMainFrame::main_theight = 50;
 const int rviewMainFrame::main_bwidth = 60;
@@ -113,7 +113,7 @@ IMPLEMENT_WXWIN_MAIN
 #include "rviewTypeMan.hh"
 static void testTypeManager(void)
 {
-    r_Type *newType = r_Type::get_any_type("struct {char red, struct {short s1, long l1}, struct {short s2, long l2}, char green, char blue, struct {float u, float v, float w}}");
+    r_Type* newType = r_Type::get_any_type("struct {char red, struct {short s1, long l1}, struct {short s2, long l2}, char green, char blue, struct {float u, float v, float w}}");
     new rviewTypeMan(NULL, newType);
     delete newType;
 }
@@ -169,7 +169,7 @@ void rviewMainFrame::label(void)
     username->SetLabel(lman->lookup("userName"));
     userpassword->SetLabel(lman->lookup("userPassword"));
 
-    openBut->SetLabel(lman->lookup( (dbOpen) ? "textClose" : "textOpen"));
+    openBut->SetLabel(lman->lookup((dbOpen) ? "textClose" : "textOpen"));
     openBut->SetSize(-1, -1, 80, 30);
 }
 
@@ -182,19 +182,19 @@ void rviewMainFrame::label(void)
  *  children it must return a value != 0.
  */
 
-int rviewMainFrame::process(wxObject &obj, wxEvent &evt)
+int rviewMainFrame::process(wxObject& obj, wxEvent& evt)
 {
     int type = evt.GetEventType();
 
     //cout << "rviewMainFrame: Received event" << endl;
 
     if ((((&obj == (wxObject*)server) || (&obj == (wxObject*)database) ||
-            (&obj == (wxObject*)username)|| (&obj == (wxObject*)userpassword) ||
+            (&obj == (wxObject*)username) || (&obj == (wxObject*)userpassword) ||
             (&obj == (wxObject*)port))
             && (type == wxEVENT_TYPE_TEXT_ENTER_COMMAND))
             || ((&obj == (wxObject*)openBut) && (type == wxEVENT_TYPE_BUTTON_COMMAND)))
     {
-        rView *app = (rView*)rmanClientApp::theApp();
+        rView* app = (rView*)rmanClientApp::theApp();
         app->OpenCloseServer();
         return 1;
     }
@@ -210,9 +210,9 @@ int rviewMainFrame::process(wxObject &obj, wxEvent &evt)
  *  widgets for server and database.
  */
 
-rviewMainFrame::rviewMainFrame(wxFrame *frame, char *title, int x, int y, int w, int h): rviewFrame(frame, title, x, y, w, h)
+rviewMainFrame::rviewMainFrame(wxFrame* frame, char* title, int x, int y, int w, int h): rviewFrame(frame, title, x, y, w, h)
 {
-    wxMenu *mbarMenus[4];
+    wxMenu* mbarMenus[4];
     char buffer[STRINGSIZE];
 
     aboutWindow = NULL;
@@ -290,7 +290,7 @@ rviewMainFrame::rviewMainFrame(wxFrame *frame, char *title, int x, int y, int w,
 }
 
 
-const char *rviewMainFrame::getFrameName(void) const
+const char* rviewMainFrame::getFrameName(void) const
 {
     return "rviewMainFrame";
 }
@@ -304,7 +304,7 @@ rviewFrameType rviewMainFrame::getFrameType(void) const
 
 void rviewMainFrame::newDBState(bool newState)
 {
-    openBut->SetLabel(lman->lookup( (newState) ? "textClose" : "textOpen"));
+    openBut->SetLabel(lman->lookup((newState) ? "textClose" : "textOpen"));
     openBut->SetSize(-1, -1, main_bwidth, main_bheight);
 #ifndef DUMMY_MDD_OBJECT
     mBar->Enable(MENU_MAIN_COLL_LOOK, newState);
@@ -322,14 +322,16 @@ void rviewMainFrame::newDBState(bool newState)
     username->SetEditable(!newState);
     userpassword->SetEditable(!newState);
     //reset to default when database is closed
-    if(!newState)
+    if (!newState)
+    {
         userpassword->SetValue("");
+    }
 
     dbOpen = newState;
 }
 
 
-int rviewMainFrame::userEvent(const user_event &ue)
+int rviewMainFrame::userEvent(const user_event& ue)
 {
     if ((ue.type == usr_db_opened) || (ue.type == usr_db_closed))
     {
@@ -379,7 +381,7 @@ void rviewMainFrame::OnMenuCommand(int id)
         break;
     case MENU_MAIN_FILE_QUERY:
     {
-        rView *app = (rView*)rmanClientApp::theApp();
+        rView* app = (rView*)rmanClientApp::theApp();
         app->OpenQueryWindow();
     }
     break;
@@ -443,7 +445,7 @@ void rviewMainFrame::OnSize(int w, int h)
     GetClientSize(&x, &y);
 
     //need to resize?
-    if (( main_width != x) || ( main_height != y))
+    if ((main_width != x) || (main_height != y))
     {
         frameWidth =  main_width;
         frameHeight =  main_height;
@@ -453,26 +455,26 @@ void rviewMainFrame::OnSize(int w, int h)
         return;
     }
 
-    x -= 2*main_border;
-    y -= 2*main_border;
+    x -= 2 * main_border;
+    y -= 2 * main_border;
     panel->SetSize(main_border, main_border, x, y);
 
-    x -= 2*main_border;
-    y -= 2*main_border;
-    d = (y - (5*main_theight + main_bheight)) / 6;
+    x -= 2 * main_border;
+    y -= 2 * main_border;
+    d = (y - (5 * main_theight + main_bheight)) / 6;
 
-    server->SetSize(main_border, main_border + d/2, x, main_theight);
-    port->SetSize(main_border, main_border + main_theight + (3*d)/2, x, main_theight);
-    database->SetSize(main_border, main_border + 2*main_theight + (5*d)/2, x, main_theight);
-    username->SetSize(main_border, main_border + 3*main_theight + (7*d)/2, x, main_theight);
-    userpassword->SetSize(main_border, main_border + 4*main_theight + (9*d)/2, x, main_theight);
+    server->SetSize(main_border, main_border + d / 2, x, main_theight);
+    port->SetSize(main_border, main_border + main_theight + (3 * d) / 2, x, main_theight);
+    database->SetSize(main_border, main_border + 2 * main_theight + (5 * d) / 2, x, main_theight);
+    username->SetSize(main_border, main_border + 3 * main_theight + (7 * d) / 2, x, main_theight);
+    userpassword->SetSize(main_border, main_border + 4 * main_theight + (9 * d) / 2, x, main_theight);
 
-    openBut->SetSize((x - main_bwidth)/2, main_border + 5*main_theight + (11*d)/2, main_bwidth, main_bheight);
+    openBut->SetSize((x - main_bwidth) / 2, main_border + 5 * main_theight + (11 * d) / 2, main_bwidth, main_bheight);
 }
 
 
 
-void rviewMainFrame::SetDatabaseInfo(const char *srvName, int srvPort, const char *dbName, const char *usrName)
+void rviewMainFrame::SetDatabaseInfo(const char* srvName, int srvPort, const char* dbName, const char* usrName)
 {
     server->SetValue(srvName);
     port->SetValue(srvPort);
@@ -483,8 +485,8 @@ void rviewMainFrame::SetDatabaseInfo(const char *srvName, int srvPort, const cha
 
 
 
-void rviewMainFrame::GetDatabaseInfo(DynamicString &srvName, int& srvPort, DynamicString &dbName,
-                                     DynamicString &usrName, DynamicString &usrPassword) const
+void rviewMainFrame::GetDatabaseInfo(DynamicString& srvName, int& srvPort, DynamicString& dbName,
+                                     DynamicString& usrName, DynamicString& usrPassword) const
 {
     server->GetValue(srvName);
     port->GetValue(srvPort);
@@ -521,7 +523,7 @@ rView::~rView(void)
  *  the rviewMainFrame constructor.
  */
 
-wxFrame *rView::OnInit(void)
+wxFrame* rView::OnInit(void)
 {
     char buffer[STRINGSIZE];
 
@@ -555,12 +557,14 @@ void rView::OpenCloseServer(void)
                                    prefs->userName, userPassword);
         prefs->markModified();
         if (OpenServer(prefs->serverName, prefs->serverPort, prefs->databaseName, prefs->userName, userPassword))
+        {
             mainFrame->newDBState(FALSE);
+        }
     }
 }
 
 
 void rView::OpenQueryWindow(void)
 {
-    rviewQuery *newQuery = new rviewQuery(&database);
+    rviewQuery* newQuery = new rviewQuery(&database);
 }

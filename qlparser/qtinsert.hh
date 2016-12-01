@@ -57,12 +57,12 @@ class QtInsert : public QtExecute
 {
 public:
     /// constructor getting name of collection and insert expression
-    QtInsert( const std::string& initCollectionName, QtOperation* initSource );
+    QtInsert(const std::string& initCollectionName, QtOperation* initSource);
 
     QtInsert(const std::string& initCollectionName, QtOperation* initSource, QtOperation* storage);
 
     /// constructor getting name of collection and data to insert
-    QtInsert (const std::string& initCollectionName, QtData* data );
+    QtInsert(const std::string& initCollectionName, QtData* data);
 
     /// virtual destructor
     virtual ~QtInsert();
@@ -71,19 +71,19 @@ public:
     virtual QtData* evaluate();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds( QtChildType flag );
+    virtual QtNodeList* getChilds(QtChildType flag);
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// method for query rewrite
-    inline virtual void setInput( QtOperation* child, QtOperation* input);
+    inline virtual void setInput(QtOperation* child, QtOperation* input);
 
     /// returns source
     QtOperation* getSource();
@@ -104,7 +104,7 @@ public:
 private:
     /// insert expression
     QtOperation* source;
- 
+
     /// insert data
     QtData* dataToInsert;
 

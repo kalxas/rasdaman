@@ -113,7 +113,7 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
         }
         return parameterMap.get(name);
     }
-    
+
     @Override
     public String getQueryString() {
         // We will need to override the super's method as the super() is encoded() queryString and it cannot parse in handlers.
@@ -124,7 +124,7 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
      * Parse query string to parameters map
      * NOTE: replace "+" with "%2B"
      */
-    private void parseQueryString() throws UnsupportedEncodingException {        
+    private void parseQueryString() throws UnsupportedEncodingException {
         // decode URL
         this.queryString = this.decodeURL(queryString);
         String[] params = this.queryString.split("&");
@@ -133,7 +133,7 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
         // Parse all the parameters and values to a hash map
         Map<String, List<String>> paramsMapTmp = new LinkedHashMap<String, List<String>>();
         parameterMap = new HashMap<String, String[]>();
-        for (String param:params) {
+        for (String param : params) {
             String[] paramTmp = param.split("=");
             // NOTE: some param like &Style= does not have value then it is empty
             String name = param.split("=")[0];
@@ -157,19 +157,19 @@ public class CustomRequestWrapper extends HttpServletRequestWrapper {
         }
 
         // Add the parsed parameters to parameters map of HTTPRequest object
-        for (Map.Entry<String, List<String>> entry: paramsMapTmp.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : paramsMapTmp.entrySet()) {
             String paramName = entry.getKey();
             int size = entry.getValue().size();
             String[] paramValues = entry.getValue().toArray(new String[size]);
             parameterMap.put(paramName, paramValues);
         }
     }
-    
+
     /**
      * Decode from KVP request
      * @param queryString
-     * @return 
-     * @throws java.io.UnsupportedEncodingException 
+     * @return
+     * @throws java.io.UnsupportedEncodingException
      */
     private String decodeURL(String queryString) throws UnsupportedEncodingException {
         // if query is not encoded then must convert the "+" to encoded character

@@ -58,33 +58,36 @@ using namespace std;
 const QtNode::QtNodeType QtConst::nodeType = QtNode::QT_CONST;
 
 
-QtConst::QtConst( QtData* newDataObj )
+QtConst::QtConst(QtData* newDataObj)
     :  QtOperation(),
-       dataObj( newDataObj )
+       dataObj(newDataObj)
 {
     // store parse info of the data object
-    setParseInfo( dataObj->getParseInfo() );
+    setParseInfo(dataObj->getParseInfo());
 }
 
 
 
 QtConst::~QtConst()
 {
-    if( dataObj ) dataObj->deleteRef();
+    if (dataObj)
+    {
+        dataObj->deleteRef();
+    }
 }
 
 
 
 bool
-QtConst::equalMeaning( QtNode* node )
+QtConst::equalMeaning(QtNode* node)
 {
     bool result = false;
 
-    if( nodeType == node->getNodeType() )
+    if (nodeType == node->getNodeType())
     {
         QtConst* constObj = static_cast<QtConst*>(node);
 
-        result = dataObj->equal( constObj->getDataObj() );
+        result = dataObj->equal(constObj->getDataObj());
     }
 
     return result;
@@ -97,7 +100,7 @@ QtConst::getSpelling()
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
-    result.append( dataObj->getSpelling() );
+    result.append(dataObj->getSpelling());
 
     return result;
 }
@@ -106,88 +109,100 @@ QtConst::getSpelling()
 QtNode::QtAreaType
 QtConst::getAreaType()
 {
-    if( dataObj && dataObj->getDataType() == QT_MDD )
+    if (dataObj && dataObj->getDataType() == QT_MDD)
+    {
         return QT_AREA_MDD;
+    }
     else
+    {
         return QT_AREA_SCALAR;
+    }
 }
 
 
 void
-QtConst::optimizeLoad( QtTrimList* trimList )
+QtConst::optimizeLoad(QtTrimList* trimList)
 {
-    if( trimList )
+    if (trimList)
     {
-        if( trimList->size() )
+        if (trimList->size())
         {
-            if( dataObj && dataObj->getDataType() == QT_MDD )
+            if (dataObj && dataObj->getDataType() == QT_MDD)
             {
                 // get the highest specified dimension
-                r_Dimension maxDimension=0;
+                r_Dimension maxDimension = 0;
                 QtTrimList::iterator i;
 
-                for( i=trimList->begin(); i!=trimList->end(); i++ )
+                for (i = trimList->begin(); i != trimList->end(); i++)
                     // get the maximum
+                {
                     maxDimension = maxDimension > (*i)->dimension ? maxDimension : (*i)->dimension;
+                }
 
                 // create a new loadDomain object and initialize it with open bounds
-                r_Minterval loadDomain(maxDimension+1);
+                r_Minterval loadDomain(maxDimension + 1);
 
                 // fill the loadDomain object with the QtTrimList specifications
-                for( i=trimList->begin(); i!=trimList->end(); i++ )
+                for (i = trimList->begin(); i != trimList->end(); i++)
+                {
                     loadDomain[(*i)->dimension]    = (*i)->interval;
+                }
 
-                (static_cast<QtMDD*>(dataObj))->setLoadDomain( loadDomain );
+                (static_cast<QtMDD*>(dataObj))->setLoadDomain(loadDomain);
             }
 
             // release( trimList->begin(), trimList->end() );
             vector<QtNode::QtTrimElement*>::iterator iter;
-            for( iter=trimList->begin(); iter!=trimList->end(); iter++ )
+            for (iter = trimList->begin(); iter != trimList->end(); iter++)
             {
                 delete *iter;
-                *iter=NULL;
+                *iter = NULL;
             }
         }
 
         delete trimList;
-        trimList=NULL;
+        trimList = NULL;
     }
 }
 
 
 QtData*
-QtConst::evaluate( QtDataList* /*inputList*/ )
+QtConst::evaluate(QtDataList* /*inputList*/)
 {
     startTimer("QtConst");
 
     QtData* returnValue = NULL;
 
-    if( dataObj )
+    if (dataObj)
     {
         dataObj->incRef();
         returnValue = dataObj;
     }
 
     stopTimer();
-    
+
     return returnValue;
 }
 
 
 
 void
-QtConst::printTree( int tab, ostream& s, QtChildType /*mode*/ )
+QtConst::printTree(int tab, ostream& s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConst Object: type " << flush;
-    dataStreamType.printStatus( s );
+    dataStreamType.printStatus(s);
     s << endl;
 
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  ";
 
-    if( dataObj )
-        dataObj->printStatus( s );
+    if (dataObj)
+    {
+        dataObj->printStatus(s);
+    }
     else
+    {
         s << "<no data object>";
+    }
 
     s << getEvaluationTime();
     s << endl;
@@ -196,63 +211,72 @@ QtConst::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 
 
 void
-QtConst::printAlgebraicExpression( ostream& s )
+QtConst::printAlgebraicExpression(ostream& s)
 {
-    if( dataObj->isScalarData() )
+    if (dataObj->isScalarData())
     {
         QtScalarData* scalarDataObj = static_cast<QtScalarData*>(dataObj);
 
-        if( scalarDataObj->getValueType() )
+        if (scalarDataObj->getValueType())
         {
             // Print the value but first cut leading blanks.
             char valueString[1024];
             // replaced deprecated ostrstream -- PB 2005-jan-14
             // ostrstream valueStream( valueString, 1024 );
-            ostringstream valueStream( valueString );
+            ostringstream valueStream(valueString);
 
-            scalarDataObj->getValueType()->printCell( valueStream, scalarDataObj->getValueBuffer() );
+            scalarDataObj->getValueType()->printCell(valueStream, scalarDataObj->getValueBuffer());
 
             valueStream << ends;
 
             char* p = valueString;
-            while( *p == ' ' ) p++;
+            while (*p == ' ')
+            {
+                p++;
+            }
 
             s << p;
         }
         else
+        {
             s << "<nn>";
+        }
     }
-    else if( dataObj->getDataType() == QT_STRING )
+    else if (dataObj->getDataType() == QT_STRING)
     {
         s << (static_cast<QtStringData*>(dataObj))->getStringData().c_str();
     }
     else
+    {
         s << "<nn>";
+    }
 }
 
 
 
 const QtTypeElement&
-QtConst::checkType( __attribute__ ((unused)) QtTypeTuple* typeTuple )
+QtConst::checkType(__attribute__((unused)) QtTypeTuple* typeTuple)
 {
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
-    if( dataObj )
+    if (dataObj)
     {
-        switch( dataObj->getDataType() )
+        switch (dataObj->getDataType())
         {
         case QT_STRING:
         case QT_INTERVAL:
         case QT_MINTERVAL:
         case QT_POINT:
-            dataStreamType.setDataType( dataObj->getDataType() );
+            dataStreamType.setDataType(dataObj->getDataType());
             break;
         case QT_MDD:
-            if( (static_cast<QtMDD*>(dataObj))->getMDDObject() )
-                dataStreamType.setType(static_cast<Type*>(const_cast<MDDBaseType*>((static_cast<QtMDD*>(dataObj))->getMDDObject()->getMDDBaseType())) );
+            if ((static_cast<QtMDD*>(dataObj))->getMDDObject())
+            {
+                dataStreamType.setType(static_cast<Type*>(const_cast<MDDBaseType*>((static_cast<QtMDD*>(dataObj))->getMDDObject()->getMDDBaseType())));
+            }
             break;
         default:
-            dataStreamType.setType( (static_cast<QtScalarData*>(dataObj))->getValueType() );
+            dataStreamType.setType((static_cast<QtScalarData*>(dataObj))->getValueType());
         }
     }
 

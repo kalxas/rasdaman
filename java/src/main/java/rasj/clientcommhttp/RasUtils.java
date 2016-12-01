@@ -44,43 +44,41 @@ import java.lang.*;
  * or converting objects to a byte array for transmission.
  *
  */
-public final class RasUtils implements RasCommDefs
-{
+public final class RasUtils implements RasCommDefs {
     static final String rcsid = "@(#)Package rasj.clientcommhttp, class RasUtils: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/clientcommhttp/RasUtils.java,v 1.5 2003/12/10 21:04:26 rasdev Exp $";
 
-    public RasUtils()
-    {
+    public RasUtils() {
     }
 
     /**
      * This method is used for turning up to 4 unsigned bytes into signed integers.
-     * 
+     *
      * @param uBytes one to four Bytes which are interpreted as an unsigned Integer
      * @param endianess determines the order of the bytes: 0 = bigendian, 1 = little endian
      */
-    public static int ubytesToInt( byte[] uBytes, byte endianess ) 
-    {
+    public static int ubytesToInt(byte[] uBytes, byte endianess) {
         int   tmpi;
         byte  tmpb;
         int   retval = 0;
 
-        for( int i = 0; i < uBytes.length; i++ )
-	    {
-		if( endianess == BIG_ENDIAN )
-		    tmpb = uBytes[uBytes.length-i-1];
-		else
-		    tmpb = uBytes[i];
+        for (int i = 0; i < uBytes.length; i++) {
+            if (endianess == BIG_ENDIAN) {
+                tmpb = uBytes[uBytes.length - i - 1];
+            } else {
+                tmpb = uBytes[i];
+            }
 
-		tmpi = 0;
-		/* Byte < 0 */
-		if( (int)tmpb < 0 )
-		    tmpi = 256 + tmpb;
-		else
-		    tmpi = tmpb;
+            tmpi = 0;
+            /* Byte < 0 */
+            if ((int)tmpb < 0) {
+                tmpi = 256 + tmpb;
+            } else {
+                tmpi = tmpb;
+            }
 
-		tmpi <<= (i*8);
-		retval += tmpi;
-	    }
+            tmpi <<= (i * 8);
+            retval += tmpi;
+        }
         return retval;
     }
 
@@ -89,19 +87,17 @@ public final class RasUtils implements RasCommDefs
      *
      * @param in BufferedInputStream to be read from ( must have been initialized before! )
      */
-    public static String readString( InputStream in )
-        throws IOException
-    {
+    public static String readString(InputStream in)
+    throws IOException {
         byte b = (byte) '\0';
         byte[] b1 = new byte[1];
         String retval = "";
 
-        while(in.read(b1) == 0);
-        while(b1[0] != b)
-	    {
-		retval =retval + (char)b1[0];
-		while(in.read(b1) == 0);
-	    }
+        while (in.read(b1) == 0);
+        while (b1[0] != b) {
+            retval = retval + (char)b1[0];
+            while (in.read(b1) == 0);
+        }
         return retval;
     }
 

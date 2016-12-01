@@ -51,13 +51,13 @@ class r_Property : public r_Meta_Object
 public:
 
     /// constructor getting name and type of property.
-    r_Property( const char* newTypeName, const r_Base_Type& newType );
+    r_Property(const char* newTypeName, const r_Base_Type& newType);
 
     /// copy constructor.
-    r_Property( const r_Property& oldObj );
+    r_Property(const r_Property& oldObj);
 
     /// assignment operator.
-    const r_Property& operator=( const r_Property& oldObj );
+    const r_Property& operator=(const r_Property& oldObj);
 
     /// destructor.
     virtual ~r_Property();

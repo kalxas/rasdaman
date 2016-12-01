@@ -42,36 +42,36 @@ namespace rascontrol
 UserCredentials::UserCredentials(const std::string& userName, const std::string& userPassword):
     userName(userName)
 {
-    this->userPassword=common::Crypto::messageDigest(userPassword, DEFAULT_DIGEST);
+    this->userPassword = common::Crypto::messageDigest(userPassword, DEFAULT_DIGEST);
 }
 
 void UserCredentials::interactiveLogin()
 {
-    std::cerr<<"Login name: ";
-    std::cin>>this->userName;
+    std::cerr << "Login name: ";
+    std::cin >> this->userName;
 
     //Remove any illegal characters
     char chars[] = " \t\r\n";
-    std::size_t found=this->userName.find_first_of(chars);
-    if (found!=std::string::npos)
+    std::size_t found = this->userName.find_first_of(chars);
+    if (found != std::string::npos)
     {
-        this->userName.erase(0,found);
+        this->userName.erase(0, found);
     }
 
     //TODO:Ticket #997 remove getpass from the code
     //TODO:Ticket #998 make it possible to choose the encryption algorithm
 
-    char *plainPass=getpass("  Password: ");
+    char* plainPass = getpass("  Password: ");
     std::string clearTextPass(plainPass);
     this->userPassword = common::Crypto::messageDigest(clearTextPass, DEFAULT_DIGEST);
 
     //Make sure we don't leave the password in the buffer
-    for(size_t i=0; i<strlen(plainPass); i++)
+    for (size_t i = 0; i < strlen(plainPass); i++)
     {
-        plainPass[i]=0;
+        plainPass[i] = 0;
     }
 
-    std::cerr<<std::endl;
+    std::cerr << std::endl;
 }
 
 void UserCredentials::environmentLogin()
@@ -79,29 +79,29 @@ void UserCredentials::environmentLogin()
     char auxUserName[rascontrol::MAX_USERNAME_LENGTH];
     unsigned int i;
 
-    char *s=getenv(RASLOGIN.c_str());
+    char* s = getenv(RASLOGIN.c_str());
 
-    if(s==NULL)
+    if (s == NULL)
     {
         throw std::runtime_error("RASLOGIN environment variable is not set.");
     }
 
-    for(i = 0; i < rascontrol::MAX_USERNAME_LENGTH-1u && *s != ':' && *s ; i++, s++)
+    for (i = 0; i < rascontrol::MAX_USERNAME_LENGTH - 1u && *s != ':' && *s ; i++, s++)
     {
-        auxUserName[i]=*s;
+        auxUserName[i] = *s;
     }
 
-    auxUserName[i]=0;
+    auxUserName[i] = 0;
 
     this->userName = std::string(auxUserName);
 
-    if(*s != ':')
+    if (*s != ':')
     {
-        throw std::runtime_error("Invalid environment variable:"+std::string(s));
+        throw std::runtime_error("Invalid environment variable:" + std::string(s));
     }
     s++;
 
-    this->userPassword=std::string(s);
+    this->userPassword = std::string(s);
 }
 
 std::string UserCredentials::getUserName() const

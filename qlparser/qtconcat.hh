@@ -20,7 +20,7 @@ rasdaman GmbH.
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
- 
+
 #ifndef _QTCONCAT__
 #define _QTCONCAT__
 
@@ -37,10 +37,10 @@ class QtConcat : public QtNaryOperation
 {
 public:
     /// constructor getting operand list and dimension
-    QtConcat( QtOperationList* opList, unsigned int dim );
+    QtConcat(QtOperationList* opList, unsigned int dim);
 
     /// test if the two nodes have an equal meaning in a subtree
-    virtual bool equalMeaning( QtNode* node );
+    virtual bool equalMeaning(QtNode* node);
 
     /// creates a unique name for a common subexpression
     virtual std::string getSpelling();
@@ -49,38 +49,38 @@ public:
     virtual void simplify();
 
     /// method for evaluating the node
-    QtData* evaluate( QtDataList* inputList );
+    QtData* evaluate(QtDataList* inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
-    
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
-    
+
     /// getter for the dimension along which the concatenation is performed
     inline unsigned int getDimension();
-    
+
     /// type coercion
     const BaseType* getResultType(const BaseType* op1, const BaseType* op2);
-    
+
     /// checks whether a type is signed or not (for type coercion)
-    int isSignedType( const BaseType* type );
+    int isSignedType(const BaseType* type);
 
 private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
-    
+
     /// the dimension along which the concatenation is performed
     unsigned int dimension;
 };

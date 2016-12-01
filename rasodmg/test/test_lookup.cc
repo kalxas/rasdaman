@@ -62,61 +62,77 @@ enum prg_mode
 
 using namespace std;
 
-int checkArguments( int argc, char** argv, const char* searchText, int& optionValueIndex )
+int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
 {
     int found = 0;
-    int i=1;
+    int i = 1;
 
-    while( !found && i<argc )
-        found = !strcmp( searchText, argv[i++] );
+    while (!found && i < argc)
+    {
+        found = !strcmp(searchText, argv[i++]);
+    }
 
-    if( found && i<argc && (argv[i][0] != '-') )
+    if (found && i < argc && (argv[i][0] != '-'))
+    {
         optionValueIndex = i;
+    }
     else
+    {
         optionValueIndex = 0;
+    }
 
     return found;
 }
 
 
 
-void printColl( r_Ref< r_Set< r_Ref< r_GMarray > > >& image_set, int output, int rgbOutput, int hexOutput )
+void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int rgbOutput, int hexOutput)
 {
     std::cout << "Collection" << std::endl;
     std::cout << "  Oid...................: " << image_set->get_oid() << std::endl;
     std::cout << "  Type Name.............: " << image_set->get_object_name() << std::endl;
     std::cout << "  Type Structure........: "
-              << ( image_set->get_type_structure() ? image_set->get_type_structure() : "<nn>" ) << std::endl;
+              << (image_set->get_type_structure() ? image_set->get_type_structure() : "<nn>") << std::endl;
     std::cout << "  Type Schema...........: " << std::flush;
-    if( image_set->get_type_schema() )
-        image_set->get_type_schema()->print_status( std::cout );
+    if (image_set->get_type_schema())
+    {
+        image_set->get_type_schema()->print_status(std::cout);
+    }
     else
+    {
         std::cout << "<nn>" << std::flush;
+    }
     std::cout << std::endl;
     std::cout << "  Number of entries.....: " << image_set->cardinality() << std::endl;
     std::cout << "  Element Type Schema...: " << std::flush;
-    if( image_set->get_element_type_schema() )
-        image_set->get_element_type_schema()->print_status( std::cout );
+    if (image_set->get_element_type_schema())
+    {
+        image_set->get_element_type_schema()->print_status(std::cout);
+    }
     else
+    {
         std::cout << "<nn>" << std::flush;
+    }
     std::cout << std::endl;
 
-    if( output )
+    if (output)
     {
-        r_Iterator< r_Ref< r_GMarray > > iter = image_set->create_iterator();
+        r_Iterator<r_Ref<r_GMarray>> iter = image_set->create_iterator();
 
         std::cout << std::endl;
 
-        for ( int i=1 ; iter.not_done(); iter++, i++ )
+        for (int i = 1 ; iter.not_done(); iter++, i++)
         {
             std::cout << "Image " << i << std::endl;
 
-            if( !rgbOutput )
-                (*iter)->print_status( std::cout, hexOutput );
+            if (!rgbOutput)
+            {
+                (*iter)->print_status(std::cout, hexOutput);
+            }
             else
             {
-                RGBImage image( **iter );
-                r_Point  pt(0,0);
+                RGBImage image(**iter);
+                r_Point  pt(0, 0);
 
                 std::cout << "[0,0] = {" << (int)image[pt].red << ","
                           << (int)image[pt].green << ","
@@ -158,116 +174,130 @@ printUsage(char* name)
     std::cout << "Report bugs to <support@active�knowledge.com>" << std::endl;
 }
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-    int  interactive=0;
-    int  output=0;
-    int  optionValueIndex=0;
+    int  interactive = 0;
+    int  output = 0;
+    int  optionValueIndex = 0;
     char key = 'a';
     int  hexOutput = 0;
     int  rgbOutput = 0;
-    prg_mode mode=USE_INVALID;
+    prg_mode mode = USE_INVALID;
     int  testbed = 0;
 
-    r_Data_Format transferFormat=r_Array;
-    char *transferFormatParams = NULL;
-    r_Data_Format storageFormat=r_Array;
-    char *storageFormatParams = NULL;
+    r_Data_Format transferFormat = r_Array;
+    char* transferFormatParams = NULL;
+    r_Data_Format storageFormat = r_Array;
+    char* storageFormatParams = NULL;
 
-    char *serverName="";
+    char* serverName = "";
     r_ULong serverPort = 7001;
-    char *baseName="";
+    char* baseName = "";
 
-    char *collName="";
-    char *oidString="";
+    char* collName = "";
+    char* oidString = "";
 
-    char *userName="rasguest";
-    char *userPasswd="rasguest";
+    char* userName = "rasguest";
+    char* userPasswd = "rasguest";
 
 #ifdef TEST_LOOKUP
     r_GMarray*       transImage = 0;
     r_Ref<r_GMarray> transImageRef = 0;
 #endif
 
-    if( checkArguments( argc, argv, "-h", optionValueIndex ) )
+    if (checkArguments(argc, argv, "-h", optionValueIndex))
     {
         printUsage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    if( checkArguments( argc, argv, "-server", optionValueIndex ) && optionValueIndex )
-        serverName=argv[optionValueIndex];
-
-    if( checkArguments( argc, argv, "-base", optionValueIndex ) && optionValueIndex )
-        baseName=argv[optionValueIndex];
-
-    if( checkArguments( argc, argv, "-setname", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-server", optionValueIndex) && optionValueIndex)
     {
-        collName=argv[optionValueIndex];
-        mode=USE_COLLNAME;
+        serverName = argv[optionValueIndex];
     }
 
-    if( checkArguments( argc, argv, "-oid", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-base", optionValueIndex) && optionValueIndex)
     {
-        oidString=argv[optionValueIndex];
-        if(mode != USE_INVALID)
+        baseName = argv[optionValueIndex];
+    }
+
+    if (checkArguments(argc, argv, "-setname", optionValueIndex) && optionValueIndex)
+    {
+        collName = argv[optionValueIndex];
+        mode = USE_COLLNAME;
+    }
+
+    if (checkArguments(argc, argv, "-oid", optionValueIndex) && optionValueIndex)
+    {
+        oidString = argv[optionValueIndex];
+        if (mode != USE_INVALID)
         {
             std::cerr << "Use -setname or -oid, not both in the same time" << std::endl;
             printUsage(argv[0]);
             return EXIT_FAILURE;
         }
-        mode=USE_OIDSTR;
+        mode = USE_OIDSTR;
     }
 
-    if(!strcmp(serverName, "") ||
+    if (!strcmp(serverName, "") ||
             !strcmp(baseName,   "") ||
-            (mode == USE_INVALID) )
+            (mode == USE_INVALID))
     {
         std::cerr << "Mandatory parameters are missing!" << std::endl;
         printUsage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    if( checkArguments( argc, argv, "-port", optionValueIndex ) && optionValueIndex )
-        serverPort = strtoul( argv[optionValueIndex], (char **)NULL, 10 ) ;
-
-    if( checkArguments( argc, argv, "-user", optionValueIndex ) && optionValueIndex )
-        strcpy( userName, argv[optionValueIndex] );
-
-    if( checkArguments( argc, argv, "-passwd", optionValueIndex ) && optionValueIndex )
-        strcpy( userPasswd, argv[optionValueIndex] );
-
-    if( checkArguments( argc, argv, "-transferformat", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-port", optionValueIndex) && optionValueIndex)
     {
-        transferFormat = get_data_format_from_name( argv[optionValueIndex] );
-        if(transferFormat == r_Data_Format_NUMBER)
+        serverPort = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+    }
+
+    if (checkArguments(argc, argv, "-user", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(userName, argv[optionValueIndex]);
+    }
+
+    if (checkArguments(argc, argv, "-passwd", optionValueIndex) && optionValueIndex)
+    {
+        strcpy(userPasswd, argv[optionValueIndex]);
+    }
+
+    if (checkArguments(argc, argv, "-transferformat", optionValueIndex) && optionValueIndex)
+    {
+        transferFormat = get_data_format_from_name(argv[optionValueIndex]);
+        if (transferFormat == r_Data_Format_NUMBER)
         {
             std::cerr << "Invalid transfer format '" << argv[optionValueIndex] << "' switched to " << r_Array << std::endl;
             transferFormat = r_Array;
         }
     }
 
-    if( checkArguments( argc, argv, "-transferformatparams", optionValueIndex ) && optionValueIndex )
-        transferFormatParams = argv[optionValueIndex] ;
-
-    if( checkArguments( argc, argv, "-storageformat", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-transferformatparams", optionValueIndex) && optionValueIndex)
     {
-        storageFormat = get_data_format_from_name(argv[optionValueIndex] );
-        if(storageFormat == r_Data_Format_NUMBER)
+        transferFormatParams = argv[optionValueIndex] ;
+    }
+
+    if (checkArguments(argc, argv, "-storageformat", optionValueIndex) && optionValueIndex)
+    {
+        storageFormat = get_data_format_from_name(argv[optionValueIndex]);
+        if (storageFormat == r_Data_Format_NUMBER)
         {
             std::cerr << "Invalid storage format '" << argv[optionValueIndex] << "' switched to " << r_Array << std::endl;
             storageFormat = r_Array;
         }
     }
 
-    if( checkArguments( argc, argv, "-storageformatparams", optionValueIndex ) && optionValueIndex )
+    if (checkArguments(argc, argv, "-storageformatparams", optionValueIndex) && optionValueIndex)
+    {
         storageFormatParams = argv[optionValueIndex] ;
+    }
 
-    interactive =  checkArguments( argc, argv, "-ia", optionValueIndex );
-    output      = !checkArguments( argc, argv, "-nooutput", optionValueIndex );
-    hexOutput   =  checkArguments( argc, argv, "-hex", optionValueIndex );
-    rgbOutput   =  checkArguments( argc, argv, "-rgb", optionValueIndex );
-    testbed     =  checkArguments( argc, argv, "-testbed", optionValueIndex );
+    interactive =  checkArguments(argc, argv, "-ia", optionValueIndex);
+    output      = !checkArguments(argc, argv, "-nooutput", optionValueIndex);
+    hexOutput   =  checkArguments(argc, argv, "-hex", optionValueIndex);
+    rgbOutput   =  checkArguments(argc, argv, "-rgb", optionValueIndex);
+    testbed     =  checkArguments(argc, argv, "-testbed", optionValueIndex);
 
     std::cout << std::endl << std::endl;
     std::cout << "ODMG conformant lookup of Marrays" << std::endl;
@@ -282,43 +312,43 @@ int main( int argc, char** argv )
     {
         std::cout << "Opening database '" << baseName << "' on  server '" << serverName << "':" << serverPort
                   << " using user '" << userName << "':'" << userPasswd << "' ... " << std::flush;
-        db.set_servername( serverName, serverPort );
-        db.set_useridentification( userName, userPasswd );
-        db.open( baseName );
+        db.set_servername(serverName, serverPort);
+        db.set_useridentification(userName, userPasswd);
+        db.open(baseName);
         std::cout << "OK" << std::endl;
 
-        while( key != 'q' )
+        while (key != 'q')
         {
             std::cout << "Starting Read Only Transaction ... " << std::flush;
-            ta.begin( r_Transaction::read_only );
+            ta.begin(r_Transaction::read_only);
             std::cout << "OK" << std::endl;
 
-            if( mode == USE_COLLNAME )
+            if (mode == USE_COLLNAME)
             {
-                r_Ref< r_Set< r_Ref< r_GMarray > > >  image_set;
+                r_Ref<r_Set<r_Ref<r_GMarray>>>  image_set;
 
                 std::cout << "Looking up collection by name " << collName << " ..." << std::flush;
-                image_set = db.lookup_object( collName );
+                image_set = db.lookup_object(collName);
                 std::cout << "OK" << std::endl;
 
-                printColl( image_set, output, rgbOutput, hexOutput );
+                printColl(image_set, output, rgbOutput, hexOutput);
             }
             else
             {
                 r_Ref<r_Object> persObject;
-                r_OId           oid( oidString );
+                r_OId           oid(oidString);
 
                 std::cout << "Looking up object by oid " << oid << " ..." << std::flush;
-                persObject = db.lookup_object( oid );
+                persObject = db.lookup_object(oid);
                 std::cout << "OK" << std::endl;
 
                 std::cout << "Object type: " << persObject->get_type_structure() << std::endl;
 
-                if( strstr( persObject->get_type_structure(), "set" ) )
+                if (strstr(persObject->get_type_structure(), "set"))
                 {
-                    r_Ref< r_Set< r_Ref< r_GMarray > > >  image_set = (r_Ref_Any) persObject;
+                    r_Ref<r_Set<r_Ref<r_GMarray>>>  image_set = (r_Ref_Any) persObject;
 
-                    printColl( image_set, output, rgbOutput, hexOutput );
+                    printColl(image_set, output, rgbOutput, hexOutput);
                 }
                 else
                 {
@@ -327,13 +357,15 @@ int main( int argc, char** argv )
                     std::cout << "MDD object with domain " << marray->spatial_domain()
                               << " and type " << marray->get_type_name() << std::endl;
 
-                    if( output )
-                        marray->print_status( std::cout );
+                    if (output)
+                    {
+                        marray->print_status(std::cout);
+                    }
 
 #ifdef TEST_LOOKUP
                     // make a copy for use after ta
-                    transImage    = new r_GMarray( (const r_GMarray&)*marray );
-                    transImageRef = new("type") r_GMarray( (const r_GMarray&)*marray );
+                    transImage    = new r_GMarray((const r_GMarray&)*marray);
+                    transImageRef = new("type") r_GMarray((const r_GMarray&)*marray);
 #endif
                 }
 
@@ -344,13 +376,15 @@ int main( int argc, char** argv )
             ta.commit();
             std::cout << "OK" << std::endl;
 
-            if( interactive )
+            if (interactive)
             {
                 std::cout << "Command (q=quit, a=again): ";
                 cin >> key;
             }
             else
+            {
                 key = 'q';
+            }
 
         }
 
@@ -359,7 +393,7 @@ int main( int argc, char** argv )
         std::cout << "OK" << std::endl;
 
     }
-    catch( r_Error& errorObj )
+    catch (r_Error& errorObj)
     {
         ta.abort();
         db.close();
@@ -368,22 +402,22 @@ int main( int argc, char** argv )
     }
 
 #ifdef TEST_LOOKUP
-    if( transImage )
+    if (transImage)
     {
         std::cout << "Transient MDD object with domain " << transImage->spatial_domain()
                   << " and type " << transImage->get_type_name() << std::endl;
 
-        transImage->print_status( std::cout, hexOutput );
+        transImage->print_status(std::cout, hexOutput);
 
         delete transImage;
     }
 
-    if( transImageRef != 0 )
+    if (transImageRef != 0)
     {
         std::cout << "Transient MDD object with domain " << transImageRef->spatial_domain()
                   << " and type " << transImageRef->get_type_name() << std::endl;
 
-        transImageRef->print_status( std::cout, hexOutput );
+        transImageRef->print_status(std::cout, hexOutput);
 
         transImageRef.destroy();
     }

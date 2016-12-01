@@ -44,23 +44,23 @@ rasdaman GmbH.
 enum AdminRight
 {
     admR_none  =  0,
-    admR_config=  1,   // C
-    admR_acctrl=  2,   // A
+    admR_config =  1,  // C
+    admR_acctrl =  2,  // A
     admR_sysup =  4,   // S   - up-down
     admR_info  =  8,   // I
-    admR_full  =255
+    admR_full  = 255
 };
 
 enum DatabRight // maybe we'll put them together one day
 {
-    dbR_none   = 0<<8,
-    dbR_read   = 1<<8,   // R
-    dbR_write  = 2<<8    // W
+    dbR_none   = 0 << 8,
+    dbR_read   = 1 << 8, // R
+    dbR_write  = 2 << 8  // W
 };
 
 struct UserDBRight
 {
-    Database *ptrDatabase;
+    Database* ptrDatabase;
     int       databRight;
 };
 
@@ -108,16 +108,16 @@ class User
 {
 public:
     User();
-    void init(long userID, const char *name);
-    void        changeName(const char *name);
-    void        changePassword(const char *encrPass);
-    void        changePTPassword(const char *plainTextPass);
+    void init(long userID, const char* name);
+    void        changeName(const char* name);
+    void        changePassword(const char* encrPass);
+    void        changePTPassword(const char* plainTextPass);
 
     const char* getName();
 
     long        getUserID();
 
-    bool isThisMe(const char *name,const char *encrPass);
+    bool isThisMe(const char* name, const char* encrPass);
 
     void setAdminRights(int rights);
     bool hasAdminRights(int rights);
@@ -127,16 +127,16 @@ public:
     void setDefaultDBRights(int);
     int  getDefaultDBRights();
 
-    int  getEffectiveDatabaseRights(const char *databName);
-    bool setDatabaseRights(const char *databName,int rights);
-    bool removeDatabaseRights(const char *databName);
-    bool isTrusteeOn(const char *databName);
+    int  getEffectiveDatabaseRights(const char* databName);
+    bool setDatabaseRights(const char* databName, int rights);
+    bool removeDatabaseRights(const char* databName);
+    bool isTrusteeOn(const char* databName);
 
     void loadToRec(AuthUserRec&);
     void loadFromRec(AuthUserRec&);
 
     long countRights();
-    bool loadRightToRec(int,AuthDbRRec&);
+    bool loadRightToRec(int, AuthDbRRec&);
     bool loadRightFromRec(AuthDbRRec&);
     bool isValid();
 private:
@@ -160,20 +160,20 @@ public:
     UserManager();
     ~UserManager();
     void loadDefaults();
-    bool insertNewUser(const char *userName);
-    bool removeUser(const char *userName);
+    bool insertNewUser(const char* userName);
+    bool removeUser(const char* userName);
     int  countUsers();
     User& operator[](int);
     User& operator[](const char* userName);
 
-    User* acceptEntry(const char *name,const char *encrPass);
-    void removeDatabaseRights(const char *databName);
+    User* acceptEntry(const char* name, const char* encrPass);
+    void removeDatabaseRights(const char* databName);
     // for loading only
     User& loadUser(AuthUserRec&);
     long getLastUserID();
     void setLastUserID(long);
     bool reset();
-    bool acceptChangeName(const char *oldName,const char *newName);
+    bool acceptChangeName(const char* oldName, const char* newName);
 private:
     bool testUniqueness(const char* userName);
     list<User> userList;
@@ -191,12 +191,12 @@ class Authorization
 {
 public:
     Authorization();
-    bool acceptEntry(const char*message);
-    const char *getUserName();
+    bool acceptEntry(const char* message);
+    const char* getUserName();
     bool hasFullAdmin();
     //bool hasConfigAdmin();
     const char* getSyncroString();
-    const char* getCapability(const char *serverName,const char *databaseName, bool readonly);
+    const char* getCapability(const char* serverName, const char* databaseName, bool readonly);
     void startConfigFile();
     void endConfigFile();
     int  readAuthFile();
@@ -208,12 +208,12 @@ public:
     void setGlobalInitDatabRights(int rights);
     int  getGlobalInitAdminRights();
     int  getGlobalInitDatabRights();
-    const char * convertGlobalInitAdminRights();
-    const char * convertGlobalInitDatabRights();
-    const char * convertAdminRights(int);
-    const char * convertDatabRights(int);
-    int  convertAdminRights(const char *);
-    int  convertDatabRights(const char *);
+    const char* convertGlobalInitAdminRights();
+    const char* convertGlobalInitDatabRights();
+    const char* convertAdminRights(int);
+    const char* convertDatabRights(int);
+    int  convertAdminRights(const char*);
+    int  convertDatabRights(const char*);
 
     bool hasAdminRights(int);
     bool isInConfigFile();
@@ -224,11 +224,11 @@ private:
     bool saveAuthFile();
 
     void initcrypt(int);
-    void crypt(void*,int);
-    void decrypt(void*,int);
+    void crypt(void*, int);
+    void decrypt(void*, int);
 
 
-    User *curUser;
+    User* curUser;
     bool inConfigFile;
     char authFileName[ FILENAME_MAX ];
     char altAuthFileName[ FILENAME_MAX ];

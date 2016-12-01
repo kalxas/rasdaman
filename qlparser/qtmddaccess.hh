@@ -56,10 +56,10 @@ class QtMDDAccess : public QtONCStream
 {
 public:
     /// constructor getting the collection name if no iterator name is specified
-    QtMDDAccess( const std::string& collectionName );
+    QtMDDAccess(const std::string& collectionName);
 
     /// constructor getting collection and iterator name
-    QtMDDAccess( const std::string& collectionName, const std::string& iteratorName );
+    QtMDDAccess(const std::string& collectionName, const std::string& iteratorName);
 
     /// destructor
     virtual ~QtMDDAccess();
@@ -77,10 +77,10 @@ public:
     //@}
 
     /// prints the tree
-    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;

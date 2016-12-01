@@ -36,13 +36,13 @@ public class MiscUtil {
     private static org.slf4j.Logger log = LoggerFactory.getLogger(MiscUtil.class);
 
     public static <T> List<T> toList(T... e) {
-         List<T> ret = new ArrayList<T>();
-         if (e != null) {
-             for (T o : e) {
+        List<T> ret = new ArrayList<T>();
+        if (e != null) {
+            for (T o : e) {
                 ret.add(o);
             }
-         }
-         return ret;
+        }
+        return ret;
     }
 
     /**
@@ -60,7 +60,7 @@ public class MiscUtil {
             // pre-order op
             List<IRasNode> children = root.getChildren();
 
-            for (int i=0; i<children.size(); i++) {
+            for (int i = 0; i < children.size(); i++) {
                 // visit children
                 targetChilds.addAll(childrenOfType(children.get(i), type));
                 // in-order op
@@ -87,7 +87,7 @@ public class MiscUtil {
             // pre-order op
             List<IRasNode> children = root.getChildren();
 
-            for (int i=0; i<children.size(); i++) {
+            for (int i = 0; i < children.size(); i++) {
                 // visit children
                 ret.addAll(childrenOfTypes(children.get(i), types));
                 // in-order op
@@ -110,7 +110,7 @@ public class MiscUtil {
      */
     public static boolean isInteger(String inputString) {
         try {
-            for (int index=0; index<inputString.length(); index++) {
+            for (int index = 0; index < inputString.length(); index++) {
                 Integer.parseInt(new Character(inputString.charAt(index)).toString());
             }
         } catch (NumberFormatException ex) {

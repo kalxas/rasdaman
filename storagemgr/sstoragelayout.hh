@@ -139,7 +139,7 @@ public:
     /*@Doc:
     Construct object with specific modes.
     */
-    
+
     StorageLayout(const StorageLayout& other);
     /*@Doc:
     Copy constructor.
@@ -218,7 +218,7 @@ public:
     //@Man: Operations
     //@{
 
-    std::vector< r_Minterval > getLayout(const r_Minterval& tileDomain);
+    std::vector<r_Minterval> getLayout(const r_Minterval& tileDomain);
     /*@Doc:
     Partition a multidimensional array according to the storage layout.
     */
@@ -262,7 +262,7 @@ public:
 
 
 protected:
-    std::vector< r_Minterval > calcRegLayout(const r_Minterval& layout) const;
+    std::vector<r_Minterval> calcRegLayout(const r_Minterval& layout) const;
     /*@Doc:
     calculate the domains which intersect the layout parameter.  as point of origin the domain specified in myLayout is used.
     */
@@ -278,18 +278,18 @@ protected:
     //@{
     ///All parameters are stored there.
     //@}
-    std::vector< r_Minterval >
+    std::vector<r_Minterval>
     calcInterestLayout(const r_Minterval& tileDomain);
 
     //@Man: Actual Parameters:
     //@{
-    std::vector< r_Minterval >
+    std::vector<r_Minterval>
     calcAlignedLayout(const r_Minterval&);
 
-    std::vector< r_Minterval >
+    std::vector<r_Minterval>
     calcDirectionalLayout(const r_Minterval&);
 
-    std::vector< r_Minterval >
+    std::vector<r_Minterval>
     calcStatisticLayout(const r_Minterval&);
 
     //@}

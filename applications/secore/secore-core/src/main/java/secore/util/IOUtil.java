@@ -38,139 +38,139 @@ import org.slf4j.LoggerFactory;
  */
 public class IOUtil {
 
-  private static Logger log = LoggerFactory.getLogger(IOUtil.class);
-  
-  // absolute path to the SECORE database dir
-  private static String secoreDbDir = null;
+    private static Logger log = LoggerFactory.getLogger(IOUtil.class);
 
-  // dafault encoding used for reading from file
-  private static final String UTF8 = "UTF-8";
+    // absolute path to the SECORE database dir
+    private static String secoreDbDir = null;
 
-  public static String getFilename(String path) {
-    int ind = path.lastIndexOf(File.separator);
-    if (ind != -1) {
-      return path.substring(ind + 1);
+    // dafault encoding used for reading from file
+    private static final String UTF8 = "UTF-8";
+
+    public static String getFilename(String path) {
+        int ind = path.lastIndexOf(File.separator);
+        if (ind != -1) {
+            return path.substring(ind + 1);
+        }
+        return path;
     }
-    return path;
-  }
 
-  /**
-   * Find a file in currentDir or its parent directories
-   *
-   * @param fileName
-   * @param currentDir
-   * @param depth limit the number of parent directories to this depth, or -1 is infinite
-   * @return the found file, or null
-   */
-  public static File findFile(String fileName, File currentDir, int depth) {
-    File ret = null;
-    int i = 0;
+    /**
+     * Find a file in currentDir or its parent directories
+     *
+     * @param fileName
+     * @param currentDir
+     * @param depth limit the number of parent directories to this depth, or -1 is infinite
+     * @return the found file, or null
+     */
+    public static File findFile(String fileName, File currentDir, int depth) {
+        File ret = null;
+        int i = 0;
 
-    while (currentDir != null && (depth == -1 || i++ < depth)) {
-      ret = new File(currentDir.getPath() + File.separator + fileName);
-      if (ret != null && ret.exists()) {
+        while (currentDir != null && (depth == -1 || i++ < depth)) {
+            ret = new File(currentDir.getPath() + File.separator + fileName);
+            if (ret != null && ret.exists()) {
+                return ret;
+            }
+            currentDir = currentDir.getParentFile();
+        }
+
+        return null;
+    }
+
+    /**
+     * Convert URL to string, removing any URI schemes.
+     */
+    public static String urlToString(URL url) throws URISyntaxException {
+        String ret = url.toString();
+        int ind = -1;
+        while ((ind = ret.indexOf(':')) != -1 &&
+                !ret.substring(0, ind).contains(File.separator)) {
+            ret = ret.substring(ind + 1);
+        }
         return ret;
-      }
-      currentDir = currentDir.getParentFile();
     }
 
-    return null;
-  }
-  
-  /**
-   * Convert URL to string, removing any URI schemes.
-   */
-  public static String urlToString(URL url) throws URISyntaxException {
-      String ret = url.toString();
-      int ind = -1;
-      while ((ind = ret.indexOf(':')) != -1 &&
-             !ret.substring(0, ind).contains(File.separator)) {
-        ret = ret.substring(ind + 1);
-      }
-      return ret;
-  }
-
-  /**
-   * Find a file in currentDir or its parent directories
-   *
-   * @param fileName
-   * @param currentDir
-   * @param depth limit the number of parent directories to this depth, or -1 is infinite
-   * @return the found file, or null
-   */
-  public static File findFile(String fileName, URL currentDir, int depth) {
-    try {
-      return findFile(fileName, new File(urlToString(currentDir)), depth);
-    } catch (URISyntaxException ex) {
-      log.warn("URI error", ex);
-      return null;
-    }
-  }
-
-  /**
-   * Find a file in the directory of this class, or it's parents (to depth of 5)
-   * 
-   * @param fileName the file to find
-   * @return the file
-   * @throws IOException in case the file was not found
-   */
-  public static File findFile(String fileName) throws IOException {
-    File f = IOUtil.findFile(fileName, IOUtil.class.getResource(Constants.IOUTIL_CLASS), 7);
-    if (f != null) {
-      return f;
-    } else {
-      throw new IOException("Failed finding file " + fileName);
-    }
-  }
-  
-  /**
-   * Determine SECORE database dir: $CATALINA_HOME/webapps/.secoredb
-   * This is where Tomcat/other servlet servers would always have access.
-   * 
-   * @return the db dir, or null in case of an error
-   */
-  public static String getDbDir() {
-    if (secoreDbDir == null) {
-      File indexFile;
-      try {
-        // get path to $CATALINA_HOME/webapps/def/index.jsp
+    /**
+     * Find a file in currentDir or its parent directories
+     *
+     * @param fileName
+     * @param currentDir
+     * @param depth limit the number of parent directories to this depth, or -1 is infinite
+     * @return the found file, or null
+     */
+    public static File findFile(String fileName, URL currentDir, int depth) {
         try {
-          indexFile = IOUtil.findFile(Constants.INDEX_FILE);
-        } catch (Exception ex) {
-          log.error("Couldn't find index file.", ex);
-          return secoreDbDir;
+            return findFile(fileName, new File(urlToString(currentDir)), depth);
+        } catch (URISyntaxException ex) {
+            log.warn("URI error", ex);
+            return null;
         }
-        // get path to $CATALINA_HOME/webapps/
-        File webappsDir = indexFile.getParentFile().getParentFile();
-        // return $CATALINA_HOME/webapps/secoredb
-        secoreDbDir = webappsDir.getAbsolutePath() +
-            File.separator + Constants.SECORE_DB_DIR;
-        File secoreDbDirFile = new File(secoreDbDir);
-        if (!secoreDbDirFile.exists()) {
-          if (!secoreDbDirFile.mkdir()) {
-            log.warn("Failed creating database directory: " + secoreDbDir);
-            secoreDbDir = null;
-          }
+    }
+
+    /**
+     * Find a file in the directory of this class, or it's parents (to depth of 5)
+     *
+     * @param fileName the file to find
+     * @return the file
+     * @throws IOException in case the file was not found
+     */
+    public static File findFile(String fileName) throws IOException {
+        File f = IOUtil.findFile(fileName, IOUtil.class.getResource(Constants.IOUTIL_CLASS), 7);
+        if (f != null) {
+            return f;
+        } else {
+            throw new IOException("Failed finding file " + fileName);
         }
-      } catch (Exception ex) {
-        log.warn("Couldn't determine the database directory for SECORE.", ex);
-      }
     }
-    return secoreDbDir;
-  }
-  
-  /**
-   * Read file and return contents as string.
-   * @param file path to file
-   * @return file contents as string
-   */
-  public static String fileToString(String file) {
-    String ret = "";
-    try {
-      ret = new Scanner(new File(file), UTF8).useDelimiter("\\A").next();
-    } catch (FileNotFoundException ex) {
-      log.error("File " + file + " not found.", ex);
+
+    /**
+     * Determine SECORE database dir: $CATALINA_HOME/webapps/.secoredb
+     * This is where Tomcat/other servlet servers would always have access.
+     *
+     * @return the db dir, or null in case of an error
+     */
+    public static String getDbDir() {
+        if (secoreDbDir == null) {
+            File indexFile;
+            try {
+                // get path to $CATALINA_HOME/webapps/def/index.jsp
+                try {
+                    indexFile = IOUtil.findFile(Constants.INDEX_FILE);
+                } catch (Exception ex) {
+                    log.error("Couldn't find index file.", ex);
+                    return secoreDbDir;
+                }
+                // get path to $CATALINA_HOME/webapps/
+                File webappsDir = indexFile.getParentFile().getParentFile();
+                // return $CATALINA_HOME/webapps/secoredb
+                secoreDbDir = webappsDir.getAbsolutePath() +
+                              File.separator + Constants.SECORE_DB_DIR;
+                File secoreDbDirFile = new File(secoreDbDir);
+                if (!secoreDbDirFile.exists()) {
+                    if (!secoreDbDirFile.mkdir()) {
+                        log.warn("Failed creating database directory: " + secoreDbDir);
+                        secoreDbDir = null;
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("Couldn't determine the database directory for SECORE.", ex);
+            }
+        }
+        return secoreDbDir;
     }
-    return ret;
-  }
+
+    /**
+     * Read file and return contents as string.
+     * @param file path to file
+     * @return file contents as string
+     */
+    public static String fileToString(String file) {
+        String ret = "";
+        try {
+            ret = new Scanner(new File(file), UTF8).useDelimiter("\\A").next();
+        } catch (FileNotFoundException ex) {
+            log.error("File " + file + " not found.", ex);
+        }
+        return ret;
+    }
 }

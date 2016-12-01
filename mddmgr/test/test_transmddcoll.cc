@@ -62,7 +62,7 @@ RMINITGLOBALS('C')
  ************************************************************/
 
 int
-main( int argc, char** argv)
+main(int argc, char** argv)
 {
     myExecArgv0 = argv[0];
 
@@ -79,25 +79,25 @@ main( int argc, char** argv)
 
     char anyCell[4];
     int i;
-    MDDColl* tCollMDDObjs = new TransMDDColl( );
+    MDDColl* tCollMDDObjs = new TransMDDColl();
 
-    cout << " Allocating new TransMDDColl ..."<<endl;
-    tCollMDDObjs = new TransMDDColl( );
-    cout << " new TransMDDColl allocated..."<<endl;
+    cout << " Allocating new TransMDDColl ..." << endl;
+    tCollMDDObjs = new TransMDDColl();
+    cout << " new TransMDDColl allocated..." << endl;
 
     cout << "Creating transient tiles for the MDD objects ... " << endl;
     vector<TransTile*>* tilesVectsArr[numObjs];
 
     // initialize array of vectors of tiles
-    for (i=0; i<numObjs; i++)
+    for (i = 0; i < numObjs; i++)
     {
         tilesVectsArr[i] = new vector<TransTile*>(numTilesObj);
-        for (int j=0; j<numTilesObj ; j++)
+        for (int j = 0; j < numTilesObj ; j++)
         {
             r_Minterval dom(2);
-            domSinterval.set_interval( r_Range(j* 10), r_Range((j+1)*10-1) );
+            domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
             dom <<  domSinterval << domSinterval;
-            (*tilesVectsArr[i])[j] = new TransTile( dom, &anyType, anyCell );
+            (*tilesVectsArr[i])[j] = new TransTile(dom, &anyType, anyCell);
         }
     }
 
@@ -105,50 +105,54 @@ main( int argc, char** argv)
     cout << "Creating transient MDD objects ... " << endl;
     TransMDDObj* MDDObjsArr[numObjs];
 
-    for ( i=0; i<numObjs; i++ )
+    for (i = 0; i < numObjs; i++)
     {
         r_Minterval dom(2);
-        domSinterval.set_interval( r_Range( i ), r_Range( 100 + i*10 ) );
-        if( i == 3 || i == 5 || i == 7 )
-            domSinterval.set_low( '*' );
-        if( i == 2 || i == 4 || i == 6 )
-            domSinterval.set_high( '*' );
+        domSinterval.set_interval(r_Range(i), r_Range(100 + i * 10));
+        if (i == 3 || i == 5 || i == 7)
+        {
+            domSinterval.set_low('*');
+        }
+        if (i == 2 || i == 4 || i == 6)
+        {
+            domSinterval.set_high('*');
+        }
         dom << domSinterval << domSinterval;
-        MDDObjsArr[i] = new TransMDDObj( dom, "ULong" );
-        for( int j=0; j < numTilesObj; j++)
+        MDDObjsArr[i] = new TransMDDObj(dom, "ULong");
+        for (int j = 0; j < numTilesObj; j++)
         {
             vector<TransTile*>* pTilesVec = tilesVectsArr[i];
-            MDDObjsArr[i]->insertTile( (*pTilesVec)[j] );
+            MDDObjsArr[i]->insertTile((*pTilesVec)[j]);
         }
     }
 
     cout << "Printing contents of created objects ... " << endl;
-    for( i = 0; i<  numObjs; i++)
+    for (i = 0; i <  numObjs; i++)
     {
-        cout << "- " << i << ". Transient MDD Object contents: " <<endl;
-        MDDObjsArr[i]->printStatus( );
+        cout << "- " << i << ". Transient MDD Object contents: " << endl;
+        MDDObjsArr[i]->printStatus();
         cout << endl;
     }
 
     cout << "Creating a transient collection of objects ... " << endl;
-    for( i = 0; i<  numObjs; i++)
+    for (i = 0; i <  numObjs; i++)
     {
         // cout << "- " << i << ". Transient MDD Object contents: " <<endl;
         tCollMDDObjs->insert(MDDObjsArr[i]);
         // cout << endl;
     }
     cout << "Contents of the Transient Collection: ... : " << endl;
-    tCollMDDObjs->printStatus( );
+    tCollMDDObjs->printStatus();
 
     cout << "Testing TransMDDCollIter ... : " << endl;
-    MDDCollIter* transIter = tCollMDDObjs->createIterator( );
+    MDDCollIter* transIter = tCollMDDObjs->createIterator();
     MDDObj* currObj;
 
-    for ( i=0; transIter->notDone( ) ; transIter->advance( ), i++)
+    for (i = 0; transIter->notDone() ; transIter->advance(), i++)
     {
-        cout << "- " << i << ". Trans. MDD Object returned by Iterator contents: " <<endl;
-        currObj = transIter->getElement( );
-        currObj->printStatus( );
+        cout << "- " << i << ". Trans. MDD Object returned by Iterator contents: " << endl;
+        currObj = transIter->getElement();
+        currObj->printStatus();
     }
 
     // delete iterator from TransMDDColl
@@ -156,7 +160,7 @@ main( int argc, char** argv)
 
     // releases all contents from the collection. It should free all the MDD
     // objects and tiles created in this program.
-    tCollMDDObjs->releaseAll( );
+    tCollMDDObjs->releaseAll();
 
     // delete transient MDD Collection
     delete tCollMDDObjs;
@@ -173,7 +177,9 @@ main( int argc, char** argv)
     // delete dynamically allocated vectors of tiles (not the tiles themselves,
     // which should have been freed by releaseAll of TransMDDColl)
     for (i = 0; i < numObjs; i++)
+    {
         delete tilesVectsArr[i];
+    }
 
     delete myAdmin;
 

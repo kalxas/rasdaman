@@ -53,7 +53,9 @@ r_Property::r_Property(const r_Property& oldObj)
     :   r_Meta_Object(oldObj)
 {
     if (oldObj.myType)
+    {
         myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
+    }
     else
     {
         LFATAL << "r_Property::r_Property(oldObj) property does not have a base type";
@@ -75,7 +77,9 @@ r_Property::operator=(const r_Property& oldObj)
         }
 
         if (oldObj.myType)
+        {
             myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
+        }
         else
         {
             LFATAL << "r_Property::operator=(oldObj) property does not have a base type";
@@ -89,7 +93,9 @@ r_Property::operator=(const r_Property& oldObj)
 r_Property::~r_Property()
 {
     if (myType)
+    {
         delete myType;
+    }
 }
 
 const r_Base_Type&

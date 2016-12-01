@@ -56,18 +56,18 @@ public class CoverageConstantHandler {
                                     SubsetParsingService subsetParsingService) {
 
         List<SubsetDimension> subsetDimensions = new ArrayList();
-        for(AxisIterator axisIterator: axisIterators){
+        for (AxisIterator axisIterator : axisIterators) {
             subsetDimensions.add(axisIterator.getSubsetDimension());
         }
         String intervals = rasqlTranslationService.constructRasqlDomainFromSubsets(subsetDimensions);
         ArrayList<String> constantsByDimension = new ArrayList<String>();
 
-        for (String constant:constantList) {
+        for (String constant : constantList) {
             constantsByDimension.add(constant);
         }
         String rasql = TEMPLATE.replace("$intervals", intervals).replace("$constants", StringUtils.join(constantsByDimension, ","));
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName,
-                subsetParsingService.convertToRawNumericSubsets(subsetDimensions));
+                                        subsetParsingService.convertToRawNumericSubsets(subsetDimensions));
         WcpsResult result = new WcpsResult(metadata, rasql);
         return result;
     }

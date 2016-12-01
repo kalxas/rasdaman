@@ -89,7 +89,7 @@ public abstract class AbstractDataComponent extends AbstractSWEIdentifiable {
      * @return The description of this SWE data component.
      */
     public String getDefinition() {
-        return (null==definitionURI ? "" : definitionURI);
+        return (null == definitionURI ? "" : definitionURI);
     }
 
     // methods

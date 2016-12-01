@@ -31,7 +31,8 @@
 
 using blobfs::BlobData;
 
-namespace blobfs {
+namespace blobfs
+{
 
 /**
  * Handles blob file storage transactions: insert, remove, update. This is a
@@ -110,7 +111,7 @@ public:
     // Return the right transaction object, based on the given transaction path;
     // Return NULL in case of invalid path.
     static BlobFSTransaction* getBlobFSTransaction(
-                            const std::string& transactionPath, BlobFSConfig& config);
+        const std::string& transactionPath, BlobFSConfig& config);
 
 protected:
 
@@ -193,7 +194,7 @@ class BlobFSInsertTransaction: public BlobFSTransaction
 {
 public:
     BlobFSInsertTransaction(BlobFSConfig& config,
-                               const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
+                            const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
 
     virtual void add(BlobData& blobData) throw (r_Error);
 
@@ -207,7 +208,7 @@ class BlobFSUpdateTransaction: public BlobFSTransaction
 {
 public:
     BlobFSUpdateTransaction(BlobFSConfig& config,
-                               const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
+                            const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
 
     virtual void add(BlobData& blobData) throw (r_Error);
 
@@ -221,7 +222,7 @@ class BlobFSRemoveTransaction: public BlobFSTransaction
 {
 public:
     BlobFSRemoveTransaction(BlobFSConfig& config,
-                               const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
+                            const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
 
     virtual void add(BlobData& blobData) throw (r_Error);
 

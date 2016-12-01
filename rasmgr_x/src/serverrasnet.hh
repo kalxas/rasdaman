@@ -49,7 +49,7 @@
 namespace rasmgr
 {
 
-class ServerRasNet:public Server
+class ServerRasNet: public Server
 {
 public:
     /**
@@ -88,7 +88,7 @@ public:
      * @param dbName name of the database which will be opened.
      * @param dbRights rights the client has on this database
      */
-    virtual void allocateClientSession(const std::string& clientId, const std::string& sessionId,const std::string& dbName, const UserDatabaseRights& dbRights);
+    virtual void allocateClientSession(const std::string& clientId, const std::string& sessionId, const std::string& dbName, const UserDatabaseRights& dbRights);
 
     /**
      * Remove the client with the given ID and session ID from the server.
@@ -177,11 +177,11 @@ private:
 
     boost::uint32_t sessionNo;
 
-    boost::shared_ptr< ::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
+    boost::shared_ptr<::rasnet::service::RasServerService::Stub> service; /*! Service stub used to communicate with the RasServer process */
 
 
     boost::shared_mutex sessionMtx; /*!Mutex used for making the object thread safe */
-    std::set<std::pair<std::string, std::string> > sessionList;
+    std::set<std::pair<std::string, std::string>> sessionList;
 
     /**
      * Get the number of clients the RasServer process currently has.
@@ -202,9 +202,9 @@ private:
     void configureClientContext(grpc::ClientContext& context);
 
     //TODO-AT: remove this
-    const char* getCapability(const char *serverName,const char *databaseName, const UserDatabaseRights& rights);
-    int messageDigest(const char *input,char *output,const char *mdName);
-    const char * convertDatabRights(const UserDatabaseRights& dbRights);
+    const char* getCapability(const char* serverName, const char* databaseName, const UserDatabaseRights& rights);
+    int messageDigest(const char* input, char* output, const char* mdName);
+    const char* convertDatabRights(const UserDatabaseRights& dbRights);
 
 };
 

@@ -71,13 +71,13 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     r_Dimension dimension = myDomain.dimension();
 
     //number of bytes for bounds in 1 minterval
-    r_Bytes boundssize = sizeof (r_Range) * dimension;
+    r_Bytes boundssize = sizeof(r_Range) * dimension;
     //number of bytes for fixes in 1 minterval
-    r_Bytes fixessize = sizeof (char) * dimension;
+    r_Bytes fixessize = sizeof(char) * dimension;
     //number of bytes for the dynamic data
-    r_Bytes completesize = sizeof (header) + sizeof (r_Dimension) + sizeof (long long)
-            + sizeof (OId::OIdCounter) + sizeof (OId::OIdCounter)
-            + boundssize * 2 + fixessize * 2;
+    r_Bytes completesize = sizeof(header) + sizeof(r_Dimension) + sizeof(long long)
+                           + sizeof(OId::OIdCounter) + sizeof(OId::OIdCounter)
+                           + boundssize * 2 + fixessize * 2;
 
     char* completebuffer = (char*) mymalloc(completesize);
     // At a later stage get rid of all the unnecessary mallocs and memcpys,
@@ -102,25 +102,25 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     // this indirection is necessary because of memory alignment of longs...
     // insert dimension
 
-    memcpy(insertionpointer, &header, sizeof (header));
-    insertionpointer = insertionpointer + sizeof (header);
+    memcpy(insertionpointer, &header, sizeof(header));
+    insertionpointer = insertionpointer + sizeof(header);
 
-    memcpy(insertionpointer, &dimension, sizeof (r_Dimension));
-    insertionpointer = insertionpointer + sizeof (r_Dimension);
+    memcpy(insertionpointer, &dimension, sizeof(r_Dimension));
+    insertionpointer = insertionpointer + sizeof(r_Dimension);
 
     // insert oid type
     long long tmpMyBaseOIdType;
     tmpMyBaseOIdType = myBaseOIdType;
-    memcpy(insertionpointer, &tmpMyBaseOIdType, sizeof (long long));
-    insertionpointer = insertionpointer + sizeof (long long);
+    memcpy(insertionpointer, &tmpMyBaseOIdType, sizeof(long long));
+    insertionpointer = insertionpointer + sizeof(long long);
 
     // insert oid counter
-    memcpy(insertionpointer, &myBaseCounter, sizeof (OId::OIdCounter));
-    insertionpointer = insertionpointer + sizeof (OId::OIdCounter);
+    memcpy(insertionpointer, &myBaseCounter, sizeof(OId::OIdCounter));
+    insertionpointer = insertionpointer + sizeof(OId::OIdCounter);
 
     // insert oid counter
-    memcpy(insertionpointer, &mySize, sizeof (OId::OIdCounter));
-    insertionpointer = insertionpointer + sizeof (OId::OIdCounter);
+    memcpy(insertionpointer, &mySize, sizeof(OId::OIdCounter));
+    insertionpointer = insertionpointer + sizeof(OId::OIdCounter);
 
     // insert domains
     memcpy(insertionpointer, lowerboundsbuf, boundssize);
@@ -198,7 +198,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     else
     {
         LFATAL << "DBHierIndex::readFromDb() - index entry: "
-                << id1 << " not found in the database.";
+               << id1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "index entry not found in the database.");
     }
 
@@ -223,7 +223,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     r_Bytes boundssize;
     r_Bytes newboundssize = 0;
 
-    (void) memcpy(&header, &completebuffer[0], sizeof (int));
+    (void) memcpy(&header, &completebuffer[0], sizeof(int));
     // if header >=1009 then this is considered to be a real header,
     // otherwise the value needs to be interpreted as a dimension
 
@@ -238,42 +238,42 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         // no header, first 4 bytes are actually the dimension;
         headersize = 0;
         dimension =  static_cast<r_Dimension>(header);
-        bytesdone = headersize + sizeof (r_Dimension);
+        bytesdone = headersize + sizeof(r_Dimension);
 
         // this is needed for correct assignment
         short tmpBaseOIdType;
-        memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof (short));
+        memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof(short));
         myBaseOIdType = (OId::OIdType) tmpBaseOIdType;
-        bytesdone += sizeof (short);
+        bytesdone += sizeof(short);
 
         int tmpBaseCounter;
-        memcpy(&tmpBaseCounter, &(completebuffer[bytesdone]), sizeof (int));
+        memcpy(&tmpBaseCounter, &(completebuffer[bytesdone]), sizeof(int));
         myBaseCounter = tmpBaseCounter;
-        bytesdone += sizeof (int);
+        bytesdone += sizeof(int);
 
         unsigned int tmpMySize;
-        memcpy(&tmpMySize, &(completebuffer[bytesdone]), sizeof (unsigned int));
+        memcpy(&tmpMySize, &(completebuffer[bytesdone]), sizeof(unsigned int));
         mySize = tmpMySize;
-        bytesdone += sizeof (unsigned int);
+        bytesdone += sizeof(unsigned int);
     }
     else
     {
         blobformat = header - 1000;
         // first 4 bytes are the header;
         headersize = 4;
-        memcpy(&dimension, &completebuffer[headersize], sizeof (r_Dimension));
-        bytesdone = headersize + sizeof (r_Dimension);
+        memcpy(&dimension, &completebuffer[headersize], sizeof(r_Dimension));
+        bytesdone = headersize + sizeof(r_Dimension);
     }
 
     if (blobformat == 8 || blobformat == 9)
     {
         // r_Range is still an int
-        boundssize = sizeof (int) * dimension; //number of bytes for bounds in 2 domains
-        newboundssize = sizeof (r_Range) * dimension; //number of bytes for bounds in 2 domains
+        boundssize = sizeof(int) * dimension;  //number of bytes for bounds in 2 domains
+        newboundssize = sizeof(r_Range) * dimension;  //number of bytes for bounds in 2 domains
     }
     else
     {
-        boundssize = sizeof (r_Range) * dimension; //number of bytes for bounds in 2 domains
+        boundssize = sizeof(r_Range) * dimension;  //number of bytes for bounds in 2 domains
     }
 
     LDEBUG << "blobformat: " << blobformat << " boundssize: " << boundssize << " dimension: " << dimension;
@@ -283,21 +283,21 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 
         // this is needed for correct assignment
         long long tmpBaseOIdType;
-        memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof (long long));
+        memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof(long long));
         myBaseOIdType = (OId::OIdType) tmpBaseOIdType;
-        bytesdone += sizeof (long long);
+        bytesdone += sizeof(long long);
 
         long long tmpBaseCounter;
-        memcpy(&myBaseCounter, &(completebuffer[bytesdone]), sizeof (OId::OIdCounter));
-        bytesdone += sizeof (OId::OIdCounter);
+        memcpy(&myBaseCounter, &(completebuffer[bytesdone]), sizeof(OId::OIdCounter));
+        bytesdone += sizeof(OId::OIdCounter);
 
-        memcpy(&mySize, &(completebuffer[bytesdone]), sizeof (OId::OIdCounter));
-        bytesdone += sizeof (OId::OIdCounter);
+        memcpy(&mySize, &(completebuffer[bytesdone]), sizeof(OId::OIdCounter));
+        bytesdone += sizeof(OId::OIdCounter);
     }
 
-    r_Bytes fixessize = sizeof (char) * dimension; //number of bytes for fixes in 2 domains
+    r_Bytes fixessize = sizeof(char) * dimension;  //number of bytes for fixes in 2 domains
     r_Bytes completesize = boundssize * 2 + fixessize * 2; //number of bytes for the dynamic data
-    char *dynamicBuffer = &completebuffer[bytesdone]; // ptr to start of dynamic part of buffer
+    char* dynamicBuffer = &completebuffer[bytesdone]; // ptr to start of dynamic part of buffer
 
     // TODO: UNCOMMENT BELOW
     // additional plausi check

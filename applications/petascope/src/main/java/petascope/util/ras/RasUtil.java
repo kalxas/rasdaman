@@ -158,12 +158,12 @@ public class RasUtil {
                         throw new RasdamanCollectionExistsException(ExceptionCode.CollectionExists, query, ex);
                     } else {
                         throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                                "Error evaluating rasdaman query: '" + query, ex);
+                                                    "Error evaluating rasdaman query: '" + query, ex);
                     }
                 } catch (Error ex) {
                     tr.abort();
                     throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                            "Requested more data than the server can handle at once.");
+                                                "Requested more data than the server can handle at once.");
                 } finally {
 
                     //Done connection with rasdaman, closing database.
@@ -188,7 +188,7 @@ public class RasUtil {
                 }
                 dbOpened = false;
                 if (!(attempts < maxAttempts)) //Throw a RasConnectionFailedException if the connection
-                //attempts exceeds the maximum connection attempts.
+                    //attempts exceeds the maximum connection attempts.
                 {
                     throw ex;
                 }
@@ -198,9 +198,9 @@ public class RasUtil {
                     Thread.sleep(timeout);
                 } catch (InterruptedException e) {
                     log.error("Thread " + Thread.currentThread().getName()
-                            + " was interrupted while searching a free server.");
+                              + " was interrupted while searching a free server.");
                     throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
-                            "Unable to get a free rasdaman server.");
+                                                "Unable to get a free rasdaman server.");
                 }
             } catch (ODMGException ex) {
 
@@ -208,16 +208,16 @@ public class RasUtil {
                 //and a connection could not be established. Return
                 //an exception indicating Rasdaman is unavailable.
                 log.error("A Rasdaman request could not be fullfilled since no "
-                        + "free Rasdaman server were available. Consider adjusting "
-                        + "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "
-                        + "or adding more Rasdaman servers.", ex);
+                          + "free Rasdaman server were available. Consider adjusting "
+                          + "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "
+                          + "or adding more Rasdaman servers.", ex);
 
                 throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
-                        "Unable to get a free rasdaman server.");
+                                            "Unable to get a free rasdaman server.");
             } catch (RasClientInternalException ex) {
                 //when no rasdaman servers are started, rasj throws this type of exception
                 throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
-                        "Unable to get a free rasdaman server.");
+                                            "Unable to get a free rasdaman server.");
             }
 
         }
@@ -285,7 +285,7 @@ public class RasUtil {
             request = rrequest.value;
         } catch (RecognitionException ex) {
             throw new WCPSException(ExceptionCode.SyntaxError,
-                    "Error parsing abstract WCPS query.", ex);
+                                    "Error parsing abstract WCPS query.", ex);
         }
 
         try {
@@ -294,7 +294,7 @@ public class RasUtil {
             log.debug("Done, xml query: " + ret);
         } catch (Exception ex) {
             throw new WCPSException(ExceptionCode.SyntaxError,
-                    "Error translating parsed abstract WCPS query to XML format.", ex);
+                                    "Error translating parsed abstract WCPS query to XML format.", ex);
         }
         return ret;
     }
@@ -315,12 +315,12 @@ public class RasUtil {
         ProcessCoveragesRequest pcReq;
         try {
             pcReq = wcps.pcPrepare(ConfigManager.RASDAMAN_URL,
-                    ConfigManager.RASDAMAN_DATABASE, IOUtils.toInputStream(query));
+                                   ConfigManager.RASDAMAN_DATABASE, IOUtils.toInputStream(query));
         } catch (WCPSException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new WCPSException(ExceptionCode.InternalComponentError,
-                    "Error translating XML WCPS query to rasql - " + ex.getMessage(), ex);
+                                    "Error translating XML WCPS query to rasql - " + ex.getMessage(), ex);
         }
         log.trace("Resulting RasQL query: [{}] {}", pcReq.getMime(), pcReq.getRasqlQuery());
         String ret = pcReq.getRasqlQuery();
@@ -452,7 +452,7 @@ public class RasUtil {
      */
     public static void createRasdamanCollection(String collectionName, String collectionType) throws RasdamanException {
         String query = TEMPLATE_CREATE_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName)
-                                                 .replace(TOKEN_COLLECTION_TYPE, collectionType);
+                       .replace(TOKEN_COLLECTION_TYPE, collectionType);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
     }
 
@@ -468,7 +468,7 @@ public class RasUtil {
         BigInteger oid = null;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
-                .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
+                       .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //get the collection oid
         String oidQuery = TEMPLATE_SELECT_OID.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
@@ -504,10 +504,10 @@ public class RasUtil {
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
 
         query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-              + "'" + TEMPLATE_INSERT_DECODE_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
+                + "'" + TEMPLATE_INSERT_DECODE_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         log.info("Executing " + query);
 
-        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
+        Process p = Runtime.getRuntime().exec(new String[] {"bash", "-c", query});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String response = "";
@@ -549,12 +549,12 @@ public class RasUtil {
         String query;
 
         query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-              + "'"
-              + orgQuery
-              + "' --file " + filePath;
+                + "'"
+                + orgQuery
+                + "' --file " + filePath;
         log.info("Executing " + query);
 
-        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", query});
+        Process p = Runtime.getRuntime().exec(new String[] {"bash", "-c", query});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String response = "";
@@ -569,9 +569,9 @@ public class RasUtil {
 
     public static void executeUpdateFileStatement(String query, String filePath, String username, String password) throws IOException, RasdamanException {
         String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-                + "'" + query + "' --file '" + filePath + "'";
+                       + "'" + query + "' --file '" + filePath + "'";
         log.info("Executing " + rasql);
-        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", rasql});
+        Process p = Runtime.getRuntime().exec(new String[] {"bash", "-c", rasql});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String response = "";
@@ -621,7 +621,7 @@ public class RasUtil {
 
         String patternTemplate = "(%s|%s)(.*?)(%s|%s(.*?))(.*?)";
         String patternStr = String.format(patternTemplate, RasConstants.RASQL_INSERT.toLowerCase(), RasConstants.RASQL_UPDATE.toLowerCase(),
-                                                           RasConstants.RASQL_DECODE.toLowerCase(), RasConstants.RASQL_INV.toLowerCase());
+                                          RasConstants.RASQL_DECODE.toLowerCase(), RasConstants.RASQL_INV.toLowerCase());
 
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(query);

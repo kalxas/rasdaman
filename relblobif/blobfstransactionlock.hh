@@ -26,7 +26,8 @@
 #include <string>
 #include "lockfile.hh"
 
-namespace blobfs {
+namespace blobfs
+{
 
 /**
  * Manage locking on a particular transaction.
@@ -57,7 +58,7 @@ public:
      * @param check use this object for checking (do not clear locks in destructor)
      */
     BlobFSTransactionLock(const std::string& fileStorageTransactionPath,
-                                   bool check = false);
+                          bool check = false);
 
     /**
      * Clears the transaction lock, which should be a general lock (A)

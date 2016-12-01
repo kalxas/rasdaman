@@ -26,7 +26,7 @@ import petascope.exceptions.ExceptionCode;
  *
  * @author rasdaman
  */
-public class WCSTUnknownUseId extends WCSTException{
+public class WCSTUnknownUseId extends WCSTException {
     public WCSTUnknownUseId() {
         super(ExceptionCode.WCSTUnknownUseId, EXCEPTION_TEXT);
     }

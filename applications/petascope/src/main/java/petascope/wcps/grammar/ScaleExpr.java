@@ -35,20 +35,17 @@ public class ScaleExpr implements IParseTreeNode {
     DimensionIntervalList intervalList;
     MetaDataExpr metadataExpr;
 
-    public ScaleExpr(CoverageExpr ce, DimensionIntervalList ail)
-    {
+    public ScaleExpr(CoverageExpr ce, DimensionIntervalList ail) {
         coverageExpr = ce;
         intervalList = ail;
     }
 
-    public ScaleExpr(CoverageExpr ce, MetaDataExpr me)
-    {
+    public ScaleExpr(CoverageExpr ce, MetaDataExpr me) {
         coverageExpr = ce;
         metadataExpr = me;
     }
 
-    public void addInterpolationList(FieldInterpolationList iml)
-    {
+    public void addInterpolationList(FieldInterpolationList iml) {
         interpMethods = iml;
     }
 
@@ -61,9 +58,10 @@ public class ScaleExpr implements IParseTreeNode {
         } else {
             result += metadataExpr.toXML();
         }
-        if (interpMethods != null)
+        if (interpMethods != null) {
             result += interpMethods.toXML();
-        
+        }
+
         result = "<" + WcpsConstants.MSG_SCALE + ">" + result + "</" + WcpsConstants.MSG_SCALE + ">";
 
         return result;

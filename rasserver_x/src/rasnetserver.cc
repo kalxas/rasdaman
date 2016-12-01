@@ -74,13 +74,13 @@ void RasnetServer::startRasnetServer()
     builder.RegisterService(clientServerService.get());
     builder.RegisterService(healthServiceImpl.get());
 
-    RasServerEntry &rasserver = RasServerEntry::getInstance();
+    RasServerEntry& rasserver = RasServerEntry::getInstance();
     rasserver.compat_connectToDBMS();
 
     this->isRunning = true;
     // Finally assemble the server.
 
-    LDEBUG<<"Starting server on:"<<serverAddress;
+    LDEBUG << "Starting server on:" << serverAddress;
     this->server = builder.BuildAndStart();
 
     // Register the server
@@ -93,8 +93,8 @@ void RasnetServer::startRasnetServer()
 
 void RasnetServer::registerServerWithRasmgr()
 {
-    std::string rasmgrAddress = GrpcUtils::constructAddressString(configuration.getRasmgrHost(), boost::uint32_t( configuration.getRasmgrPort()));;
-    std::shared_ptr<grpc::Channel> channel( grpc::CreateChannel(rasmgrAddress, grpc::InsecureChannelCredentials()));
+    std::string rasmgrAddress = GrpcUtils::constructAddressString(configuration.getRasmgrHost(), boost::uint32_t(configuration.getRasmgrPort()));;
+    std::shared_ptr<grpc::Channel> channel(grpc::CreateChannel(rasmgrAddress, grpc::InsecureChannelCredentials()));
 
     ::rasnet::service::RasMgrRasServerService::Stub rasmgrRasserverService(channel);
     boost::shared_ptr<common::HealthService::Stub> healthService(new common::HealthService::Stub(channel));
@@ -103,7 +103,7 @@ void RasnetServer::registerServerWithRasmgr()
     ::rasnet::service::RegisterServerReq request;
     request.set_serverid(configuration.getNewServerId());
 
-    if(!GrpcUtils::isServerAlive(healthService, SERVICE_CALL_TIMEOUT))
+    if (!GrpcUtils::isServerAlive(healthService, SERVICE_CALL_TIMEOUT))
     {
         throw ConnectionFailedException("rasserver failed to connect to rasmgr.");
     }
@@ -111,10 +111,10 @@ void RasnetServer::registerServerWithRasmgr()
     grpc::ClientContext context;
     grpc::Status status = rasmgrRasserverService.RegisterServer(&context, request, &response);
 
-    if(!status.ok())
+    if (!status.ok())
     {
         //TODO-GM: Throw the appropriate exception
-        LERROR<<status.error_message();
+        LERROR << status.error_message();
         throw std::runtime_error("Could not register server with rasmgr.");
     }
 }

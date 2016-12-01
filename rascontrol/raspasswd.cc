@@ -73,13 +73,13 @@ char encrNewPass2[35];
 
 _INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     // Default logging configuration
     LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
     defaultConf.configClientLogging();
 
-    cout << "raspasswd: rasdaman password utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." <<endl;
+    cout << "raspasswd: rasdaman password utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl;
     std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
               << "Rasdaman community is free software: you can redistribute it and/or modify "
               "it under the terms of the GNU General Public License as published by "
@@ -93,51 +93,63 @@ int main(int argc, char **argv)
     cout << "This software contains software which is in the public domain:" << endl;
     cout << "- openssl 0.96c (C) 1998-2002 The OpenSSL Project, (C) 1995-1998 Eric A. Young, Tim J. Hudson" << endl;
 
-    if( config.interpretArguments(argc, argv) == false) return 0;
-
-    if(testIsMessageDigestAvailable("MD5")==false)
+    if (config.interpretArguments(argc, argv) == false)
     {
-        cout<<"No MD5-Algorithm."<<endl;
+        return 0;
+    }
+
+    if (testIsMessageDigestAvailable("MD5") == false)
+    {
+        cout << "No MD5-Algorithm." << endl;
         return 2;
     }
 
-    if(userLogin.interactiveLogin()<0) return 1;
-
-    rasmgrComm.setRasMgrHost(config.getRasMgrHost(),config.getRasMgrPort());
-    rasmgrComm.setUserIdentification(userLogin.getUserName(),userLogin.getEncrPass());
-
-    if(execute( RASMGRCMD_HELLO ) == false) return 3;
-
-    getPasswdKeyboard(" Type your new password: ",encrNewPass1);
-    getPasswdKeyboard(" Retype the new password: ",encrNewPass2);
-
-    if(strcmp(encrNewPass1,encrNewPass2)!=0)
+    if (userLogin.interactiveLogin() < 0)
     {
-        cout<<"Passwords don't match."<<endl;
+        return 1;
+    }
+
+    rasmgrComm.setRasMgrHost(config.getRasMgrHost(), config.getRasMgrPort());
+    rasmgrComm.setUserIdentification(userLogin.getUserName(), userLogin.getEncrPass());
+
+    if (execute(RASMGRCMD_HELLO) == false)
+    {
+        return 3;
+    }
+
+    getPasswdKeyboard(" Type your new password: ", encrNewPass1);
+    getPasswdKeyboard(" Retype the new password: ", encrNewPass2);
+
+    if (strcmp(encrNewPass1, encrNewPass2) != 0)
+    {
+        cout << "Passwords don't match." << endl;
         return 2;
     }
 
 // cout<<"name="<<username<<" pass="<<encrPass<<endl;
 
-    sprintf(message,"change user %s -encrPasswd %s ",userLogin.getUserName(),encrNewPass1);
+    sprintf(message, "change user %s -encrPasswd %s ", userLogin.getUserName(), encrNewPass1);
 
-    if(execute(message) == false) return 3;
+    if (execute(message) == false)
+    {
+        return 3;
+    }
 
     return 0;
 }
 
-bool execute(const char *msg)
+bool execute(const char* msg)
 {
     bool result = true;             // function result
     int comm = 0;               // COMM_* values
-    const char *answer = NULL;          // rasmgr response
+    const char* answer = NULL;          // rasmgr response
 
     comm = rasmgrComm.sendMessageGetAnswer(msg, &answer);
 
-    switch(comm)
+    switch (comm)
     {
     case COMM_ERR:
-        cout << "Cannot connect to rasmgr host "<<config.getRasMgrHost() <<"." << endl;
+        cout << "Cannot connect to rasmgr host " << config.getRasMgrHost() << "." << endl;
         result = false;
         break;
     case COMM_ACDN:
@@ -152,11 +164,14 @@ bool execute(const char *msg)
     return result;
 }
 
-const char* getPasswdKeyboard(const char*text, char*dest)
+const char* getPasswdKeyboard(const char* text, char* dest)
 {
-    char *plainPass=getpass(text);
-    messageDigest(plainPass,dest,"MD5");
-    for(unsigned int i=0; i<strlen(plainPass); i++) plainPass[i]=0;
+    char* plainPass = getpass(text);
+    messageDigest(plainPass, dest, "MD5");
+    for (unsigned int i = 0; i < strlen(plainPass); i++)
+    {
+        plainPass[i] = 0;
+    }
     //cout<<endl;
     return dest;
 }
@@ -170,29 +185,29 @@ bool exitbyerror(char* text)
 
 //################ Config ##################################
 RasPasswdConfig::RasPasswdConfig() :
-    cmlInter        (CommandLineParser::getInstance()),
-    cmlHost         (cmlInter.addStringParameter(CommandLineParser::noShortName,"host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
-    cmlPort         (cmlInter.addLongParameter(CommandLineParser::noShortName,"port", "<nnnn> the rasmgr port", DEFAULT_PORT )),
-    cmlHelp         (cmlInter.addFlagParameter('h',"help","this help"))
+    cmlInter(CommandLineParser::getInstance()),
+    cmlHost(cmlInter.addStringParameter(CommandLineParser::noShortName, "host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
+    cmlPort(cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<nnnn> the rasmgr port", DEFAULT_PORT)),
+    cmlHelp(cmlInter.addFlagParameter('h', "help", "this help"))
 {
 // done by default value of commandlineparser
 //    strcpy(rasmgrHost,RASMGRHOST.c_str());
 //    rasmgrPort = RASMGRPORT;
 }
 
-bool RasPasswdConfig::interpretArguments(int argc, char **argv)
+bool RasPasswdConfig::interpretArguments(int argc, char** argv)
 {
     try
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cerr << "Command Line Parsing Error:" << endl << err.what() << endl;
         return false;
     }
 
-    if( cmlHelp.isPresent() )
+    if (cmlHelp.isPresent())
     {
         printHelp();
         return false;
@@ -202,7 +217,7 @@ bool RasPasswdConfig::interpretArguments(int argc, char **argv)
     {
         rasmgrPort = cmlPort.getValueAsLong();
     }
-    catch(CmlException& err)
+    catch (CmlException& err)
     {
         cerr << "Command Line Parsing Error:" << endl << err.what() << endl;
         return false;
@@ -215,10 +230,10 @@ bool RasPasswdConfig::interpretArguments(int argc, char **argv)
 
 void RasPasswdConfig::printHelp()
 {
-    cout << "Usage: raspasswd [options]"<<endl;
+    cout << "Usage: raspasswd [options]" << endl;
     cout << "Options:" << endl;
     cmlInter.printHelp();
-    cout<<endl;
+    cout << endl;
 }
 
 const char* RasPasswdConfig::getRasMgrHost()

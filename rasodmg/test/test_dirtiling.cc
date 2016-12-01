@@ -56,7 +56,9 @@ int main(int argc, char* argv[])
 
     // Get tile size
     if (argc == 2)
+    {
         tilesize = atoi(argv[1]);
+    }
 
     // Create a domain decomposition
 

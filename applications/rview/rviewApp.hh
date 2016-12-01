@@ -60,32 +60,32 @@ class rmanClientApp : public wxApp
 {
 public:
 
-    rmanClientApp(const char *homevar, const char *prefsname, const char *labelname);
+    rmanClientApp(const char* homevar, const char* prefsname, const char* labelname);
     virtual ~rmanClientApp(void);
 
-    int  OpenServer(const char *srvname, int srvport, const char *dbname,
-                    const char *usrname, const char *usrpassword);
+    int  OpenServer(const char* srvname, int srvport, const char* dbname,
+                    const char* usrname, const char* usrpassword);
     int  CloseServer(void);
     bool ReadDBState(void);
     int  LookupCollection(void);
     int  LookupScaledCollection(void);
-    int  LookupScaledCollection(const char *name, double scale);
+    int  LookupScaledCollection(const char* name, double scale);
     int  LookupOrthosection(void);
-    int  LookupOrthosection(const char *name, const double *loid);
+    int  LookupOrthosection(const char* name, const double* loid);
     int  CreateCollection(void);
     int  DeleteCollection(void);
-    rviewFrame *OpenFile(unsigned int flags=0, r_Ref<r_GMarray> *newMddObj=NULL, bool resultwin=FALSE);
+    rviewFrame* OpenFile(unsigned int flags = 0, r_Ref<r_GMarray>* newMddObj = NULL, bool resultwin = FALSE);
     virtual void Shutdown(void);
-    int insertMDD(r_Ref<r_GMarray> srcMdd, char *collName=NULL, r_Minterval *domain=NULL);
-    int executeQuery(char *query, r_Ref<r_GMarray> *updateMdd=NULL);
-    collection_desc *executeQuerySync(char *query, r_Ref<r_GMarray> *updateMdd=NULL, bool showProgress=TRUE);
-    int getMinterval(r_Minterval &dom, const char *collname, const double *loid=NULL);
+    int insertMDD(r_Ref<r_GMarray> srcMdd, char* collName = NULL, r_Minterval* domain = NULL);
+    int executeQuery(char* query, r_Ref<r_GMarray>* updateMdd = NULL);
+    collection_desc* executeQuerySync(char* query, r_Ref<r_GMarray>* updateMdd = NULL, bool showProgress = TRUE);
+    int getMinterval(r_Minterval& dom, const char* collname, const double* loid = NULL);
 
     int  SavePreferences(void) const;
-    bool findPreferencesOnPath(char *path);
+    bool findPreferencesOnPath(char* path);
 
     // use this call to contact the application instance
-    static rmanClientApp *theApp(void);
+    static rmanClientApp* theApp(void);
 
 protected:
 
@@ -97,8 +97,8 @@ protected:
 
 private:
 
-    static rmanClientApp *theclientapp;
-    static const char *vffFileName;
+    static rmanClientApp* theclientapp;
+    static const char* vffFileName;
 };
 
 #endif

@@ -52,20 +52,20 @@ class r_Tile_Comp_None : public r_Tile_Compression
 {
 public:
     /// constructor
-    r_Tile_Comp_None( const r_Minterval &dom, const r_Base_Type *type );
+    r_Tile_Comp_None(const r_Minterval& dom, const r_Base_Type* type);
     /// copy constructor
-    r_Tile_Comp_None( const r_Tile_Comp_None &src );
+    r_Tile_Comp_None(const r_Tile_Comp_None& src);
     /// destructor
-    ~r_Tile_Comp_None( void );
+    ~r_Tile_Comp_None(void);
     /// compress function
-    virtual void *compress( const void *data, r_ULong &size, const char *options=NULL );
+    virtual void* compress(const void* data, r_ULong& size, const char* options = NULL);
     /// decompress function
-    virtual void *decompress( const void *data, r_ULong size, const char *options=NULL );
+    virtual void* decompress(const void* data, r_ULong size, const char* options = NULL);
     /// identification
-    const char *get_name( void ) const;
-    r_Data_Format get_data_format( void ) const;
+    const char* get_name(void) const;
+    r_Data_Format get_data_format(void) const;
     /// create a copy
-    r_Tile_Compression *clone( void ) const;
+    r_Tile_Compression* clone(void) const;
 };
 
 #endif

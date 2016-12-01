@@ -53,7 +53,7 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler {
             String highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
 
             tmp = TRIMMING_TEMPLATE.replace("$lowBound", lowBound)
-                                   .replace("$highBound", highBound);
+                  .replace("$highBound", highBound);
         } else {
             // Slicing
             String bound = ((NumericSlicing)axis.getGridBounds()).getBound().toPlainString();

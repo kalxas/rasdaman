@@ -22,7 +22,7 @@
 package petascope.util;
 
 /**
- * 
+ *
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */

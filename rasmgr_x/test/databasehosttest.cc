@@ -37,12 +37,12 @@ namespace test
 using rasmgr::DatabaseHost;
 using rasmgr::Database;
 
-class DatabaseHostTest:public ::testing::Test
+class DatabaseHostTest: public ::testing::Test
 {
 protected:
-    DatabaseHostTest():hostName("hostName"),connectString("connectString"),
-        userName("userName"), passwdString("passwdString"),dbName("dbName"),
-        dbh(hostName,connectString, userName, passwdString),db(new Database(dbName))
+    DatabaseHostTest(): hostName("hostName"), connectString("connectString"),
+        userName("userName"), passwdString("passwdString"), dbName("dbName"),
+        dbh(hostName, connectString, userName, passwdString), db(new Database(dbName))
     {}
 
     std::string hostName;

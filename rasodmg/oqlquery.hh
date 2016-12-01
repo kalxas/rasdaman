@@ -85,39 +85,39 @@ public:
     r_OQL_Query();
 
     /// constructor getting the query string
-    r_OQL_Query( const char* s );
+    r_OQL_Query(const char* s);
 
     /// copy constructor
-    r_OQL_Query( const r_OQL_Query& q );
+    r_OQL_Query(const r_OQL_Query& q);
 
     /// destructor
     ~r_OQL_Query();
 
     /// assignment operator
-    const r_OQL_Query& operator=( const r_OQL_Query& q );
+    const r_OQL_Query& operator=(const r_OQL_Query& q);
 
     //@Man: Stream input operators for every parameter type:
     //@{
     ///
-    r_OQL_Query& operator<<( const char* s )   throw( r_Error );
+    r_OQL_Query& operator<<(const char* s)   throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_Char c )        throw( r_Error );
+    r_OQL_Query& operator<<(r_Char c)        throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_Short s )       throw( r_Error );
+    r_OQL_Query& operator<<(r_Short s)       throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_UShort us )     throw( r_Error );
+    r_OQL_Query& operator<<(r_UShort us)     throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_Long l )        throw( r_Error );
+    r_OQL_Query& operator<<(r_Long l)        throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_ULong ul )      throw( r_Error );
+    r_OQL_Query& operator<<(r_ULong ul)      throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_Point pt )      throw( r_Error );
+    r_OQL_Query& operator<<(r_Point pt)      throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_Sinterval in )  throw( r_Error );
+    r_OQL_Query& operator<<(r_Sinterval in)  throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_Minterval in )  throw( r_Error );
+    r_OQL_Query& operator<<(r_Minterval in)  throw(r_Error);
     ///
-    r_OQL_Query& operator<<( r_GMarray& in )   throw( r_Error );
+    r_OQL_Query& operator<<(r_GMarray& in)   throw(r_Error);
     ///
     //@}
 
@@ -137,7 +137,7 @@ public:
     /// gets the expanded query string
     inline const char* get_query() const;
     /// get mdd constants
-    inline const r_Set< r_GMarray* >* get_constants() const;
+    inline const r_Set<r_GMarray*>* get_constants() const;
     /// gets the parameterized query string
     inline const char* get_parameterized_query() const;
     ///
@@ -145,7 +145,7 @@ public:
 
 private:
     /// method replaces the next argument with the delivered valueString
-    void replaceNextArgument( const char* valueString ) throw( r_Error );
+    void replaceNextArgument(const char* valueString) throw(r_Error);
 
     /// storage for the expanded query string
     char* queryString;
@@ -154,7 +154,7 @@ private:
     char* parameterizedQueryString;
 
     /// list for MDD constants
-    r_Set< r_GMarray* >* mddConstants;
+    r_Set<r_GMarray*>* mddConstants;
 };
 
 
@@ -186,8 +186,8 @@ private:
   \end{tabular}
 */
 
-void r_oql_execute( r_OQL_Query& query, r_Set< r_Ref_Any > &result )
-throw( r_Error );
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result)
+throw(r_Error);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -198,8 +198,8 @@ throw( r_Error );
   compatibility reasons only. We suggest to use the general function
   \Ref{r_oql_execute} able to maintain query results of any type.
 */
-void r_oql_execute( r_OQL_Query& query, r_Set< r_Ref< r_GMarray > > &result )
-throw( r_Error );
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result)
+throw(r_Error);
 
 /*@Doc:
   The free standing function \Ref{r_oql_execute} is called to execute an insert query
@@ -215,8 +215,8 @@ throw( r_Error );
   transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
 */
 
-void r_oql_execute( r_OQL_Query& query, r_Set< r_Ref_Any > &result, int dummy )
-throw( r_Error );
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy)
+throw(r_Error);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -244,8 +244,8 @@ throw( r_Error );
   \end{tabular}
 */
 
-void r_oql_execute( r_OQL_Query& query )
-throw( r_Error );
+void r_oql_execute(r_OQL_Query& query)
+throw(r_Error);
 
 #include "rasodmg/oqlquery.icc"
 

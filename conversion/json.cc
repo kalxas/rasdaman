@@ -41,7 +41,7 @@ const string r_Conv_JSON::LEFT_PAREN{"["};
 const string r_Conv_JSON::RIGHT_PAREN{"]"};
 const string r_Conv_JSON::SEPARATOR{","};
 
-void r_Conv_JSON::initJSON( void )
+void r_Conv_JSON::initJSON(void)
 {
     leftParen = LEFT_PAREN;
     rightParen = RIGHT_PAREN;
@@ -50,7 +50,7 @@ void r_Conv_JSON::initJSON( void )
 }
 
 
-r_Conv_JSON::r_Conv_JSON(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
+r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
     : r_Conv_CSV(src, interv, tp)
 {
     initJSON();
@@ -58,7 +58,7 @@ r_Conv_JSON::r_Conv_JSON(const char *src, const r_Minterval &interv, const r_Typ
 
 
 
-r_Conv_JSON::r_Conv_JSON(const char *src, const r_Minterval &interv, int tp) throw(r_Error)
+r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, int tp) throw(r_Error)
     : r_Conv_CSV(src, interv, tp)
 {
     initJSON();
@@ -68,29 +68,29 @@ r_Conv_JSON::~r_Conv_JSON(void)
 {
 }
 
-r_Conv_Desc &r_Conv_JSON::convertTo( const char *options ) throw(r_Error)
+r_Conv_Desc& r_Conv_JSON::convertTo(const char* options) throw(r_Error)
 {
     return r_Conv_CSV::convertTo(options);
 }
 
-r_Conv_Desc &r_Conv_JSON::convertFrom(const char *options) throw(r_Error)
+r_Conv_Desc& r_Conv_JSON::convertFrom(const char* options) throw(r_Error)
 {
     return r_Conv_CSV::convertFrom(options);
 }
 
-const char *r_Conv_JSON::get_name( void ) const
+const char* r_Conv_JSON::get_name(void) const
 {
     return format_name_json;
 }
 
 
-r_Data_Format r_Conv_JSON::get_data_format( void ) const
+r_Data_Format r_Conv_JSON::get_data_format(void) const
 {
     return r_JSON;
 }
 
 
-r_Convertor *r_Conv_JSON::clone( void ) const
+r_Convertor* r_Conv_JSON::clone(void) const
 {
     return new r_Conv_JSON(desc.src, desc.srcInterv, desc.baseType);
 }

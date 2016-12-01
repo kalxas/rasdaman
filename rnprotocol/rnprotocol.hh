@@ -125,8 +125,8 @@ public:
 
     /** Every server has his own command set, each with parameters
         Define your own functions to get names for this elements */
-    virtual const char* getParameterTypeName(RnpQuark) const throw() =0;
-    virtual const char* getCommandName(RnpQuark)       const throw() =0;
+    virtual const char* getParameterTypeName(RnpQuark) const throw() = 0;
+    virtual const char* getCommandName(RnpQuark)       const throw() = 0;
 
     /// Helper functions for endianness
     static RnpQuark   swapBytes(RnpQuark)    throw();
@@ -333,12 +333,12 @@ public:
 
 protected:
 
-    akg::CommBuffer    *commBuffer;
+    akg::CommBuffer*    commBuffer;
 
 private:
 
     /// Helper function to add a parameter to the current fragment
-    void addParameter(RnpQuark parameterType, Rnp::DataType, const void *data, int length) throw();
+    void addParameter(RnpQuark parameterType, Rnp::DataType, const void* data, int length) throw();
 
     /// The function which does the endianness change
     bool changeToPartnerEndianness(Rnp::Endianness) throw();
@@ -347,9 +347,9 @@ private:
     int                carrierHeaderSize;
     Rnp::Endianness    finalEndianness;
 
-    RnpHeader          *rnpHeader;
-    RnpFragmentHeader  *currFragment;
-    RnpParameter       *currParameter;
+    RnpHeader*          rnpHeader;
+    RnpFragmentHeader*  currFragment;
+    RnpParameter*       currParameter;
 };
 
 /** Class for decoding a RNP message. The buffer is always an external one
@@ -446,13 +446,13 @@ public:
     int              getDataLength() const throw();
 
 private:
-    akg::CommBuffer            *commBuffer;
+    akg::CommBuffer*            commBuffer;
     Rnp::Endianness            originalEndianness;
-    mutable RnpHeader          *rnpHeader;
-    mutable RnpFragmentHeader  *currFragment;
+    mutable RnpHeader*          rnpHeader;
+    mutable RnpFragmentHeader*  currFragment;
     mutable int                currFragmentIdx;
 
-    mutable RnpParameter       *currParameter;
+    mutable RnpParameter*       currParameter;
     mutable int                currParameterIdx;
 
     /// Helper function to print a RNP header

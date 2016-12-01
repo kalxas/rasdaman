@@ -29,50 +29,50 @@ import secore.util.SecoreException;
  * @author Dimitar Misev
  */
 public interface Database {
-  
-  /**
-   * Query the database with both type of database (userdb, gmldb)
-   * @param query XQuery query
-     * @param versionNumber
-   * @return a the result as a string
-     * @throws secore.util.SecoreException
-   */
-  String queryBothDB(String query, String versionNumber) throws SecoreException;
-  
-  /**
-   * Query the EPSG database
-   * @param query XQuery query
-   * @param versionNumber (e.g: gml: 8.5, userdb: 0)
-   * @return a the result as a string
-     * @throws secore.util.SecoreException
-   */
-  String queryEpsg(String query, String versionNumber) throws SecoreException;
-  
-  /**
-   * Query the user-defined database
-   * @param query XQuery query
-   * @param versionNumber (e.g: gml: 8.5, userdb: 0)
-   * @return a the result as a string
-     * @throws secore.util.SecoreException
-   */
-  String queryUser(String query, String versionNumber) throws SecoreException;
-  
-  /**
-   * Query the user-defined database with the original input XQuery (no replace anything).
-   * If query like insert, update, delete then it has to set clearCache to true, select query is set to false.
-   * @param query
-     * @param clearCache
-   * @return
-   * @throws SecoreException 
-   */
-  String queryUser(String query, boolean clearCache) throws SecoreException;
-  
-  /**
-   * Submit query that updates the database
-   * @param query XQuery query
-   * @param db DBManager name
-   * @return a the result as a string
-     * @throws secore.util.SecoreException
-   */
-  String updateQuery(String query, String db) throws SecoreException;
+
+    /**
+     * Query the database with both type of database (userdb, gmldb)
+     * @param query XQuery query
+       * @param versionNumber
+     * @return a the result as a string
+       * @throws secore.util.SecoreException
+     */
+    String queryBothDB(String query, String versionNumber) throws SecoreException;
+
+    /**
+     * Query the EPSG database
+     * @param query XQuery query
+     * @param versionNumber (e.g: gml: 8.5, userdb: 0)
+     * @return a the result as a string
+       * @throws secore.util.SecoreException
+     */
+    String queryEpsg(String query, String versionNumber) throws SecoreException;
+
+    /**
+     * Query the user-defined database
+     * @param query XQuery query
+     * @param versionNumber (e.g: gml: 8.5, userdb: 0)
+     * @return a the result as a string
+       * @throws secore.util.SecoreException
+     */
+    String queryUser(String query, String versionNumber) throws SecoreException;
+
+    /**
+     * Query the user-defined database with the original input XQuery (no replace anything).
+     * If query like insert, update, delete then it has to set clearCache to true, select query is set to false.
+     * @param query
+       * @param clearCache
+     * @return
+     * @throws SecoreException
+     */
+    String queryUser(String query, boolean clearCache) throws SecoreException;
+
+    /**
+     * Submit query that updates the database
+     * @param query XQuery query
+     * @param db DBManager name
+     * @return a the result as a string
+       * @throws secore.util.SecoreException
+     */
+    String updateQuery(String query, String db) throws SecoreException;
 }

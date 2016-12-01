@@ -179,7 +179,7 @@ public class XmlQuery extends AbstractRasNode {
     public boolean isDynamicCoverage(String coverageName) {
         for (int i = 0; i < dynamicIterators.size(); ++i) {
             Iterator<String> iterator =
-                    ((CoverageIterator) dynamicIterators.get(i)).getCoverages();
+                ((CoverageIterator) dynamicIterators.get(i)).getCoverages();
             while (iterator.hasNext()) {
                 if (iterator.next().equals(coverageName)) {
                     return true;
@@ -232,7 +232,7 @@ public class XmlQuery extends AbstractRasNode {
         boolean whereIsNull = true;
 
         if (coverageExpr instanceof ScalarExpr &&
-            ((ScalarExpr)coverageExpr).isMetadataExpr()) {
+                ((ScalarExpr)coverageExpr).isMetadataExpr()) {
             // in this case we shouldn't make any rasql query
             result = coverageExpr.toRasQL();
         } else {
@@ -243,7 +243,7 @@ public class XmlQuery extends AbstractRasNode {
 
             // Compose list of coverages (FROM clause) and fetch the corresponendt OID
             // rasdamanColls = {{OID, name, alias},...}
-            List<Triple<BigInteger,String,String>> rasdamanColls = new ArrayList<Triple<BigInteger,String,String>>();
+            List<Triple<BigInteger, String, String>> rasdamanColls = new ArrayList<Triple<BigInteger, String, String>>();
             while (it.hasNext()) {
                 if (first) {
                     first = false;
@@ -255,11 +255,11 @@ public class XmlQuery extends AbstractRasNode {
                 // The COVERAGE name not necessarily coincide with the COLLECTION name
                 // Need to fetch coll-name and OID:
                 try {
-                rasdamanColls.add(Triple.of(
-                        meta.read(cNext.getCoverages().next()).getRasdamanCollection().fst,
-                        meta.read(cNext.getCoverages().next()).getRasdamanCollection().snd,
-                        cNext.getIteratorName()
-                        ));
+                    rasdamanColls.add(Triple.of(
+                                          meta.read(cNext.getCoverages().next()).getRasdamanCollection().fst,
+                                          meta.read(cNext.getCoverages().next()).getRasdamanCollection().snd,
+                                          cNext.getIteratorName()
+                                      ));
                 } catch (PetascopeException ex) {
                     log.error("Cannot read metadata of coverage " + cNext.getCoverages().next() + ": dynamic coverage?");
                     log.error(ex.getMessage());
@@ -268,7 +268,7 @@ public class XmlQuery extends AbstractRasNode {
                 }
 
                 // Append ``collection'' name (+ alias) to RasQL `FROM'
-                result += rasdamanColls.get(rasdamanColls.size()-1).snd + " " + RASQL_AS + " " + cNext.getIteratorName();
+                result += rasdamanColls.get(rasdamanColls.size() - 1).snd + " " + RASQL_AS + " " + cNext.getIteratorName();
             }
 
             // Add embedded WHERE conditions
@@ -278,11 +278,11 @@ public class XmlQuery extends AbstractRasNode {
             }
 
             // Add/append OID constraints (1 W*S coverage = 1 MDD) in the WHERE clause
-            for (Triple<BigInteger,String,String> rasdamanColl : rasdamanColls) {
+            for (Triple<BigInteger, String, String> rasdamanColl : rasdamanColls) {
                 result += (whereIsNull)
-                        ? " " + RASQL_WHERE + " " + RASQL_OID + "(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
-                        : " " + RASQL_AND   + " " + RASQL_OID + "(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
-                        ;
+                          ? " " + RASQL_WHERE + " " + RASQL_OID + "(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                          : " " + RASQL_AND   + " " + RASQL_OID + "(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                          ;
                 whereIsNull = false;
             }
         }
@@ -293,7 +293,7 @@ public class XmlQuery extends AbstractRasNode {
         return meta;
     }
 
-    public ArrayList<CoverageIterator> getCoverageIterator(){
+    public ArrayList<CoverageIterator> getCoverageIterator() {
         return iterators;
     }
 
@@ -316,19 +316,19 @@ public class XmlQuery extends AbstractRasNode {
         String ymax = "";
         String zmax = "";
 
-        if ( trimParams[0].split(":").length == 2 ){
+        if (trimParams[0].split(":").length == 2) {
             xmax = trimParams[0].split(":")[1];
-        } else if ( trimParams[0].split(":").length == 1 ){
+        } else if (trimParams[0].split(":").length == 1) {
             xmax = trimParams[0].split(":")[0];
         }
-        if ( trimParams[1].split(":").length == 2 ){
+        if (trimParams[1].split(":").length == 2) {
             ymax = trimParams[1].split(":")[1];
-        } else if ( trimParams[1].split(":").length == 1 ) {
+        } else if (trimParams[1].split(":").length == 1) {
             ymax = trimParams[1].split(":")[0];
         }
-        if ( trimParams[2].split(":").length == 2 ){
+        if (trimParams[2].split(":").length == 2) {
             zmax = trimParams[2].split(":")[1];
-        } else if ( trimParams[2].split(":").length == 1 ) {
+        } else if (trimParams[2].split(":").length == 1) {
             zmax = trimParams[2].split(":")[0];
         }
 
@@ -341,79 +341,79 @@ public class XmlQuery extends AbstractRasNode {
         if (xmin.equals(WcpsConstants.MSG_STAR)) {
             query = "SELECT min(St_X(" + MULTIPOINT_COORDINATE + ")) FROM " + TABLE_MULTIPOINT;
             res = meta.executePostGISQuery(query);
-            while(res.next()){
+            while (res.next()) {
                 xmin = res.getString(1);
             }
         }
         if (ymin.equals(WcpsConstants.MSG_STAR)) {
             query = "SELECT min(St_Y(" + MULTIPOINT_COORDINATE + ")) FROM " + TABLE_MULTIPOINT;
             res = meta.executePostGISQuery(query);
-            while(res.next()){
+            while (res.next()) {
                 ymin = res.getString(1);
             }
         }
         if (zmin.equals(WcpsConstants.MSG_STAR)) {
             query = "SELECT min(St_Z(" + MULTIPOINT_COORDINATE + ")) FROM " + TABLE_MULTIPOINT;
             res = meta.executePostGISQuery(query);
-            while(res.next()){
+            while (res.next()) {
                 zmin = res.getString(1);
             }
         }
-        if (xmax.equals(WcpsConstants.MSG_STAR)){
+        if (xmax.equals(WcpsConstants.MSG_STAR)) {
             query = "SELECT max(St_X(" + MULTIPOINT_COORDINATE + ")) FROM " + TABLE_MULTIPOINT;
             res = meta.executePostGISQuery(query);
-            while(res.next()){
+            while (res.next()) {
                 xmax = res.getString(1);
             }
-        } else if (xmax.equals("")){
+        } else if (xmax.equals("")) {
             xmax = xmin;
         }
 
-        if (ymax.equals(WcpsConstants.MSG_STAR)){
+        if (ymax.equals(WcpsConstants.MSG_STAR)) {
             query = "SELECT max(St_Y(" + MULTIPOINT_COORDINATE + ")) FROM " + TABLE_MULTIPOINT;
             res = meta.executePostGISQuery(query);
-            while(res.next()){
+            while (res.next()) {
                 ymax = res.getString(1);
             }
-        } else if (ymax.equals("")){
+        } else if (ymax.equals("")) {
             ymax = ymin;
         }
 
-        if (zmax.equals(WcpsConstants.MSG_STAR)){
+        if (zmax.equals(WcpsConstants.MSG_STAR)) {
             query = "SELECT max(St_Z(" + MULTIPOINT_COORDINATE + ")) FROM " + TABLE_MULTIPOINT;
             res = meta.executePostGISQuery(query);
-            while(res.next()){
+            while (res.next()) {
                 zmax = res.getString(1);
             }
-        } else if (zmax.equals("")){
+        } else if (zmax.equals("")) {
             zmax = zmin;
         }
 
         // Handling Slicing
         String selectClause = " SELECT " + TABLE_MULTIPOINT + "." + MULTIPOINT_VALUE + ",";
         String whereClause = " WHERE "
-                 + TABLE_COVERAGE + "." + COVERAGE_NAME + "='" + coverageName + "' AND "
-                 + TABLE_COVERAGE + "." + COVERAGE_ID  + " = " + TABLE_MULTIPOINT + "." + MULTIPOINT_COVERAGE_ID;
+                             + TABLE_COVERAGE + "." + COVERAGE_NAME + "='" + coverageName + "' AND "
+                             + TABLE_COVERAGE + "." + COVERAGE_ID  + " = " + TABLE_MULTIPOINT + "." + MULTIPOINT_COVERAGE_ID;
 
-        if ( xmin.equals(xmax) ) {
+        if (xmin.equals(xmax)) {
             selectClause +=     " St_Y(" + MULTIPOINT_COORDINATE + ") || ',' || St_Z(" + MULTIPOINT_COORDINATE + ") AS " + MULTIPOINT_COORDINATE;
             whereClause  += " AND St_X(" + MULTIPOINT_COORDINATE + ")=" + xmin;
-        } else if ( ymin.equals(ymax) ) {
+        } else if (ymin.equals(ymax)) {
             selectClause +=     " St_X(" + MULTIPOINT_COORDINATE + ") || ',' || St_Z(" + MULTIPOINT_COORDINATE + ") AS " + MULTIPOINT_COORDINATE;
             whereClause  += " AND St_Y(" + MULTIPOINT_COORDINATE + ")=" + ymin;
-        } else if ( zmin.equals(zmax) ) {
+        } else if (zmin.equals(zmax)) {
             selectClause +=     " St_X(" + MULTIPOINT_COORDINATE + ") || ',' || St_Y(" + MULTIPOINT_COORDINATE + ") AS " + MULTIPOINT_COORDINATE;
             whereClause  += " AND St_Z(" + MULTIPOINT_COORDINATE + ")=" + zmin;
         } else {
             selectClause += " St_X(" + MULTIPOINT_COORDINATE + ") || ',' || St_Y(" + MULTIPOINT_COORDINATE + ") || ',' "
-                        + "|| St_Z(" + MULTIPOINT_COORDINATE + ") AS " + MULTIPOINT_COORDINATE;
+                            + "|| St_Z(" + MULTIPOINT_COORDINATE + ") AS " + MULTIPOINT_COORDINATE;
             whereClause += " AND " + TABLE_MULTIPOINT + "." + MULTIPOINT_COORDINATE + " && "
-                       + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + xmax + " " + ymax + " " + zmax + ")'::box3d ";
+                           + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + xmax + " " + ymax + " " + zmax + ")'::box3d ";
         }
 
         result = selectClause +
-                " FROM " + TABLE_COVERAGE + "," + TABLE_MULTIPOINT +
-                whereClause + " ORDER BY " + TABLE_MULTIPOINT + "." + MULTIPOINT_ID;
+                 " FROM " + TABLE_COVERAGE + "," + TABLE_MULTIPOINT +
+                 whereClause + " ORDER BY " + TABLE_MULTIPOINT + "." + MULTIPOINT_ID;
 
         return result;
     }

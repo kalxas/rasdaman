@@ -34,11 +34,11 @@ import petascope.wcps.metadata.CoverageInfo;
 import static petascope.util.ras.RasConstants.*;
 
 public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(UnaryOperationCoverageExpr.class);
-    
+
     public static final Set<String> NODE_NAMES = new HashSet<String>();
-    private static final String[] NODE_NAMES_ARRAY = { 
+    private static final String[] NODE_NAMES_ARRAY = {
         WcpsConstants.MSG_UNARY_PLUS, WcpsConstants.MSG_UNARY_MINUS,
         WcpsConstants.MSG_SQRT, WcpsConstants.MSG_ABS,
         WcpsConstants.MSG_EXP, WcpsConstants.MSG_LOG,
@@ -71,12 +71,12 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
             operation = "-";
             child = new CoverageExpr(node.getFirstChild(), xq);
         } else if (nodeName.equals(WcpsConstants.MSG_SQRT) || nodeName.equals(WcpsConstants.MSG_ABS)
-                || nodeName.equals(WcpsConstants.MSG_EXP) || nodeName.equals(WcpsConstants.MSG_LOG) || nodeName.equals(WcpsConstants.MSG_LN)
-                || nodeName.equals(WcpsConstants.MSG_SIN) || nodeName.equals(WcpsConstants.MSG_COS) || nodeName.equals(WcpsConstants.MSG_TAN)
-                || nodeName.equals(WcpsConstants.MSG_SINH) || nodeName.equals(WcpsConstants.MSG_COSH)
-                || nodeName.equals(WcpsConstants.MSG_TANH) || nodeName.equals(WcpsConstants.MSG_ARCSIN)
-                || nodeName.equals(WcpsConstants.MSG_ARCCOS) || nodeName.equals(WcpsConstants.MSG_ARCTAN)
-                || nodeName.equals(WcpsConstants.MSG_NOT) || nodeName.equals(WcpsConstants.MSG_RE) || nodeName.equals(WcpsConstants.MSG_IM)) {
+                   || nodeName.equals(WcpsConstants.MSG_EXP) || nodeName.equals(WcpsConstants.MSG_LOG) || nodeName.equals(WcpsConstants.MSG_LN)
+                   || nodeName.equals(WcpsConstants.MSG_SIN) || nodeName.equals(WcpsConstants.MSG_COS) || nodeName.equals(WcpsConstants.MSG_TAN)
+                   || nodeName.equals(WcpsConstants.MSG_SINH) || nodeName.equals(WcpsConstants.MSG_COSH)
+                   || nodeName.equals(WcpsConstants.MSG_TANH) || nodeName.equals(WcpsConstants.MSG_ARCSIN)
+                   || nodeName.equals(WcpsConstants.MSG_ARCCOS) || nodeName.equals(WcpsConstants.MSG_ARCTAN)
+                   || nodeName.equals(WcpsConstants.MSG_NOT) || nodeName.equals(WcpsConstants.MSG_RE) || nodeName.equals(WcpsConstants.MSG_IM)) {
             operation = nodeName;
             child = new CoverageExpr(node.getFirstChild(), xq);
         } else if (nodeName.equals(WcpsConstants.MSG_BIT)) {
@@ -149,9 +149,11 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
 
         info = new CoverageInfo(child.getCoverageInfo());
         log.trace("  " + WcpsConstants.MSG_OPERATION + ": " + operation);
-        
+
         // Add children to let the XML query be re-traversed
-        if (child != null) super.children.add(child);        
+        if (child != null) {
+            super.children.add(child);
+        }
     }
 
     public CoverageInfo getCoverageInfo() {
@@ -168,7 +170,7 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
                 || operation.equals(WcpsConstants.MSG_NOT) || operation.equals("+") || operation.equals("-")) {
             return operation + "(" + child.toRasQL() + ")";
         } else if (operation.equals(WcpsConstants.MSG_CAST)) {
-                return "(" + params + ")(" + child.toRasQL() + ")";
+            return "(" + params + ")(" + child.toRasQL() + ")";
         } else if (operation.equals(WcpsConstants.MSG_SELECT)) {
             return "(" + child.toRasQL() + ")." + params;
         } else if (operation.equals(WcpsConstants.MSG_BIT)) {

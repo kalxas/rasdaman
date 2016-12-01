@@ -34,7 +34,7 @@ public class FieldInterpolationElement extends AbstractRasNode {
     public FieldInterpolationElement(Node node, XmlQuery xq) throws WCPSException {
 
         throw new WCPSException("Currently, our implementation does not allow specifying interpolation methods or "
-            + "null resistances for the scale operation.");
+                                + "null resistances for the scale operation.");
 
         /*
         while ((node != null) && node.getNodeName().equals("#text")) {
@@ -67,8 +67,7 @@ public class FieldInterpolationElement extends AbstractRasNode {
          */
     }
 
-    public Node getNextNode()
-    {
+    public Node getNextNode() {
         return nextNode;
     }
 

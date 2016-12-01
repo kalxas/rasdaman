@@ -99,7 +99,7 @@ public class CoverageRegistry {
         if (metadataSource == null) {
             try {
                 metadataSource = new DbMetadataSource(ConfigManager.METADATA_DRIVER, ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER, ConfigManager.METADATA_PASS, false);
+                                                      ConfigManager.METADATA_USER, ConfigManager.METADATA_PASS, false);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new CoverageMetadataNotInitializedException(e);

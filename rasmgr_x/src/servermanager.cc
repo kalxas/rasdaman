@@ -75,10 +75,10 @@ using common::UUID;
 
 
 ServerManager::ServerManager(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
-        : serverGroupFactory(serverGroupFactory), config(config)
+    : serverGroupFactory(serverGroupFactory), config(config)
 {
     this->isWorkerThreadRunning = true;
-    this->workerCleanup.reset ( new thread ( &ServerManager::workerCleanupRunner, this ) );
+    this->workerCleanup.reset(new thread(&ServerManager::workerCleanupRunner, this));
 }
 
 ServerManager::~ServerManager()
@@ -96,24 +96,24 @@ ServerManager::~ServerManager()
     }
     catch (std::exception& ex)
     {
-        LERROR<<ex.what();
+        LERROR << ex.what();
     }
     catch (...)
     {
-        LERROR<<"ServerManager destructor has failed";
+        LERROR << "ServerManager destructor has failed";
     }
 }
 
-bool ServerManager::tryGetFreeServer(const std::string &databaseName, boost::shared_ptr<Server> &out_server)
+bool ServerManager::tryGetFreeServer(const std::string& databaseName, boost::shared_ptr<Server>& out_server)
 {
     bool success = false;
-    list<shared_ptr<ServerGroup> >::iterator it;
+    list<shared_ptr<ServerGroup>>::iterator it;
 
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+    shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        if ( ( *it )->tryGetAvailableServer( databaseName, out_server ) )
+        if ((*it)->tryGetAvailableServer(databaseName, out_server))
         {
             success = true;
             break;
@@ -124,59 +124,59 @@ bool ServerManager::tryGetFreeServer(const std::string &databaseName, boost::sha
 }
 
 
-void ServerManager::registerServer ( const string& serverId )
+void ServerManager::registerServer(const string& serverId)
 {
     bool registered = false;
-    list<shared_ptr<ServerGroup> >::iterator it;
+    list<shared_ptr<ServerGroup>>::iterator it;
 
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+    shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        if ( ( ( *it )->tryRegisterServer( serverId ) ) )
+        if (((*it)->tryRegisterServer(serverId)))
         {
-            registered=true;
+            registered = true;
             break;
         }
     }
 
-    if ( !registered )
+    if (!registered)
     {
         throw InexistentServerGroupException(serverId);
     }
 }
 
-void ServerManager::defineServerGroup(const ServerGroupConfigProto &serverGroupConfig)
+void ServerManager::defineServerGroup(const ServerGroupConfigProto& serverGroupConfig)
 {
-    list<shared_ptr<ServerGroup> >::iterator it;
+    list<shared_ptr<ServerGroup>>::iterator it;
 
-    unique_lock<shared_mutex> lock ( this->serverGroupMutex );
+    unique_lock<shared_mutex> lock(this->serverGroupMutex);
 
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        if ( ( *it )->getGroupName() ==serverGroupConfig.name() )
+        if ((*it)->getGroupName() == serverGroupConfig.name())
         {
-            throw ServerGroupDuplicateException(( *it )->getGroupName());
+            throw ServerGroupDuplicateException((*it)->getGroupName());
         }
     }
 
     this->serverGroupList.push_back(this->serverGroupFactory->createServerGroup(serverGroupConfig));
 }
 
-void ServerManager::changeServerGroup(const std::string &oldServerGroupName, const ServerGroupConfigProto &newServerGroupConfig)
+void ServerManager::changeServerGroup(const std::string& oldServerGroupName, const ServerGroupConfigProto& newServerGroupConfig)
 {
-    list<shared_ptr<ServerGroup> >::iterator it;
-    bool changed=false;
+    list<shared_ptr<ServerGroup>>::iterator it;
+    bool changed = false;
 
-    unique_lock<shared_mutex> lock ( this->serverGroupMutex );
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    unique_lock<shared_mutex> lock(this->serverGroupMutex);
+    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        if ( ( *it )->getGroupName() == oldServerGroupName )
+        if ((*it)->getGroupName() == oldServerGroupName)
         {
-            if((*it)->isStopped())
+            if ((*it)->isStopped())
             {
-                ( *it )->changeGroupConfig ( newServerGroupConfig );
-                changed=true;
+                (*it)->changeGroupConfig(newServerGroupConfig);
+                changed = true;
             }
             else
             {
@@ -188,26 +188,26 @@ void ServerManager::changeServerGroup(const std::string &oldServerGroupName, con
         }
     }
 
-    if ( !changed )
+    if (!changed)
     {
         throw InexistentServerGroupException(oldServerGroupName);
     }
 }
 
-void ServerManager::removeServerGroup ( const std::string &serverGroupName )
+void ServerManager::removeServerGroup(const std::string& serverGroupName)
 {
-    list<shared_ptr<ServerGroup> >::iterator it;
-    bool removed=false;
+    list<shared_ptr<ServerGroup>>::iterator it;
+    bool removed = false;
 
-    unique_lock<shared_mutex> lock ( this->serverGroupMutex );
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    unique_lock<shared_mutex> lock(this->serverGroupMutex);
+    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        if ( ( *it )->getGroupName() == serverGroupName )
+        if ((*it)->getGroupName() == serverGroupName)
         {
-            if(( *it )->isStopped() )
+            if ((*it)->isStopped())
             {
-                this->serverGroupList.erase ( it );
-                removed=true;
+                this->serverGroupList.erase(it);
+                removed = true;
 
                 break;
             }
@@ -218,66 +218,66 @@ void ServerManager::removeServerGroup ( const std::string &serverGroupName )
         }
     }
 
-    if ( !removed )
+    if (!removed)
     {
         throw InexistentServerGroupException(serverGroupName);
     }
 }
 
-void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
+void ServerManager::startServerGroup(const StartServerGroup& startGroup)
 {
-    list<shared_ptr<ServerGroup> >::iterator it;
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+    list<shared_ptr<ServerGroup>>::iterator it;
+    shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
-    if ( startGroup.has_group_name())
+    if (startGroup.has_group_name())
     {
-        bool found=false;
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+        bool found = false;
+        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            shared_ptr<ServerGroup>  srv = ( *it );
-            if ( srv->getGroupName() == startGroup.group_name() )
+            shared_ptr<ServerGroup>  srv = (*it);
+            if (srv->getGroupName() == startGroup.group_name())
             {
                 srv->start();
-                found=true;
+                found = true;
 
                 break;
             }
         }
 
-        if ( !found )
+        if (!found)
         {
             throw InexistentServerGroupException(startGroup.group_name());
         }
     }
-    else if ( startGroup.has_host_name() )
+    else if (startGroup.has_host_name())
     {
         bool hostExists = false;
         std::string onHost = startGroup.host_name();
 
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            if ( ( *it )->getConfig().host() == onHost )
+            if ((*it)->getConfig().host() == onHost)
             {
-                hostExists=true;
-                if ( ( *it )->isStopped() )
+                hostExists = true;
+                if ((*it)->isStopped())
                 {
-                    ( *it )->start();
+                    (*it)->start();
                 }
             }
         }
 
-        if ( !hostExists )
+        if (!hostExists)
         {
-            throw common::MissingResourceException("There are no server groups defined on host \""+onHost+"\"");
+            throw common::MissingResourceException("There are no server groups defined on host \"" + onHost + "\"");
         }
     }
-    else if ( startGroup.has_all() )
+    else if (startGroup.has_all())
     {
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            if ( ( *it )->isStopped() )
+            if ((*it)->isStopped())
             {
-                ( *it )->start();
+                (*it)->start();
             }
         }
     }
@@ -287,61 +287,61 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
     }
 }
 
-void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
+void ServerManager::stopServerGroup(const StopServerGroup& stopGroup)
 {
-    list<shared_ptr<ServerGroup> >::iterator it;
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+    list<shared_ptr<ServerGroup>>::iterator it;
+    shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
-    if ( stopGroup.has_group_name() )
+    if (stopGroup.has_group_name())
     {
-        bool stopped=false;
+        bool stopped = false;
 
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            shared_ptr<ServerGroup>  srv = ( *it );
-            if ( srv->getGroupName() == stopGroup.group_name() )
+            shared_ptr<ServerGroup>  srv = (*it);
+            if (srv->getGroupName() == stopGroup.group_name())
             {
                 srv->stop(stopGroup.kill_level());
-                stopped=true;
+                stopped = true;
 
                 break;
             }
         }
 
-        if ( !stopped )
+        if (!stopped)
         {
             throw InexistentServerGroupException(stopGroup.group_name());
         }
     }
-    else if ( stopGroup.has_host_name() )
+    else if (stopGroup.has_host_name())
     {
         bool hostExists = false;
         std::string onHost = stopGroup.host_name();
 
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            if ( ( *it )->getConfig().host() ==onHost )
+            if ((*it)->getConfig().host() == onHost)
             {
-                hostExists=true;
-                if ( ! ( *it )->isStopped() )
+                hostExists = true;
+                if (!(*it)->isStopped())
                 {
-                    ( *it )->stop(stopGroup.kill_level());
+                    (*it)->stop(stopGroup.kill_level());
                 }
             }
         }
 
-        if ( !hostExists )
+        if (!hostExists)
         {
-            throw common::MissingResourceException("There are no server groups defined on host \""+onHost+"\"");
+            throw common::MissingResourceException("There are no server groups defined on host \"" + onHost + "\"");
         }
     }
-    else if ( stopGroup.has_all() )
+    else if (stopGroup.has_all())
     {
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            if ( ! ( *it )->isStopped() )
+            if (!(*it)->isStopped())
             {
-                ( *it )->stop(stopGroup.kill_level());
+                (*it)->stop(stopGroup.kill_level());
             }
         }
     }
@@ -353,14 +353,14 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
 
 bool ServerManager::hasRunningServers()
 {
-    bool found=false;
+    bool found = false;
 
-    unique_lock<shared_mutex> lock ( this->serverGroupMutex );
+    unique_lock<shared_mutex> lock(this->serverGroupMutex);
 
-    list<shared_ptr<ServerGroup> >::iterator it;
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    list<shared_ptr<ServerGroup>>::iterator it;
+    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        if( !( *it )->isStopped() )
+        if (!(*it)->isStopped())
         {
             found = true;
             break;
@@ -374,12 +374,12 @@ ServerMgrProto ServerManager::serializeToProto()
 {
     ServerMgrProto result;
 
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
-    list<shared_ptr<ServerGroup> >::iterator it;
+    shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
+    list<shared_ptr<ServerGroup>>::iterator it;
 
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        result.add_server_groups()->CopyFrom(( *it )->serializeToProto());
+        result.add_server_groups()->CopyFrom((*it)->serializeToProto());
     }
 
     return result;
@@ -396,21 +396,21 @@ void ServerManager::workerCleanupRunner()
         {
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
-            if(!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
+            if (!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
             {
 
-                shared_lock<shared_mutex> lock ( this->serverGroupMutex );
+                shared_lock<shared_mutex> lock(this->serverGroupMutex);
 
                 this->evaluateServerGroups();
             }
         }
-        catch ( std::exception& ex )
+        catch (std::exception& ex)
         {
-            LERROR<<ex.what();
+            LERROR << ex.what();
         }
-        catch ( ... )
+        catch (...)
         {
-            LERROR<<"Evaluating server groups has failed";
+            LERROR << "Evaluating server groups has failed";
         }
     }
 }
@@ -422,23 +422,23 @@ void ServerManager::evaluateServerGroups()
                     * This means that dead server entries will be removed
                     * and new servers will be started.
                     */
-    LTRACE<<"Evaluating server groups.";
-    for ( list<shared_ptr<ServerGroup> >::iterator it = this->
+    LTRACE << "Evaluating server groups.";
+    for (list<shared_ptr<ServerGroup>>::iterator it = this->
             serverGroupList.begin();
-            it!=this->serverGroupList.end();
-            ++it )
+            it != this->serverGroupList.end();
+            ++it)
     {
         try
         {
-            ( *it )->evaluateServerGroup();
+            (*it)->evaluateServerGroup();
         }
-        catch ( std::exception& e )
+        catch (std::exception& e)
         {
-            LERROR<<"Could not evaluate server in group.Reason:"<<e.what();
+            LERROR << "Could not evaluate server in group.Reason:" << e.what();
         }
-        catch ( ... )
+        catch (...)
         {
-            LERROR<<"Unexpected exception when starting server";
+            LERROR << "Unexpected exception when starting server";
         }
     }
 }

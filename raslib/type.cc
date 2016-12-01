@@ -61,7 +61,10 @@ const r_Type&
 r_Type::operator=(const r_Type& oldObj)
 {
     // Gracefully handle self assignment
-    if (this == &oldObj) return *this;
+    if (this == &oldObj)
+    {
+        return *this;
+    }
 
     r_Meta_Object::operator=(oldObj);
 
@@ -145,7 +148,7 @@ r_Type::get_any_type(const char* type_string)
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
-    switch(token)
+    switch (token)
     {
     case DLMARRAY:
         returnValue = getMarrayType(pos);
@@ -161,135 +164,138 @@ r_Type::get_any_type(const char* type_string)
 }
 
 r_Type::DLTOKEN
-r_Type::getNextToken(char* &pos, char* &identifier)
+r_Type::getNextToken(char*& pos, char*& identifier)
 {
     DLTOKEN token = DLUNKNOWN;
 
-    while(*pos == ' ') pos ++;
+    while (*pos == ' ')
+    {
+        pos ++;
+    }
 
-    if(!strncmp(pos, "marray", 6))
+    if (!strncmp(pos, "marray", 6))
     {
         token = DLMARRAY;
         pos += 6;
     }
-    else if(!strncmp(pos, "set", 3))
+    else if (!strncmp(pos, "set", 3))
     {
         token = DLSET;
         pos += 3;
     }
-    else if(!strncmp(pos, "struct", 6))
+    else if (!strncmp(pos, "struct", 6))
     {
         token = DLSTRUCT;
         pos += 6;
     }
-    else if(*pos == '[')
+    else if (*pos == '[')
     {
         token = DLLEP;
         pos += 1;
     }
-    else if(*pos == ']')
+    else if (*pos == ']')
     {
         token = DLREP;
         pos += 1;
     }
-    else if(*pos == '<')
+    else if (*pos == '<')
     {
         token = DLLAP;
         pos += 1;
     }
-    else if(*pos == '>')
+    else if (*pos == '>')
     {
         token = DLRAP;
         pos += 1;
     }
-    else if(*pos == '{')
+    else if (*pos == '{')
     {
         token = DLLCP;
         pos += 1;
     }
-    else if(*pos == '}')
+    else if (*pos == '}')
     {
         token = DLRCP;
         pos += 1;
     }
-    else if(*pos == ',')
+    else if (*pos == ',')
     {
         token = DLCOMMA;
         pos += 1;
     }
-    else if(!strncmp(pos, "octet", 5))
+    else if (!strncmp(pos, "octet", 5))
     {
         token = DLOCTET;
         pos += 5;
     }
-    else if(!strncmp(pos, "char", 4))
+    else if (!strncmp(pos, "char", 4))
     {
         token = DLCHAR;
         pos += 4;
     }
-    else if(!strncmp(pos, "ulong", 5))
+    else if (!strncmp(pos, "ulong", 5))
     {
         token = DLULONG;
         pos += 5;
     }
-    else if(!strncmp(pos, "long", 4))
+    else if (!strncmp(pos, "long", 4))
     {
         token = DLLONG;
         pos += 4;
     }
-    else if(!strncmp(pos, "short", 5))
+    else if (!strncmp(pos, "short", 5))
     {
         token = DLSHORT;
         pos += 5;
     }
-    else if(!strncmp(pos, "ushort", 6))
+    else if (!strncmp(pos, "ushort", 6))
     {
         token = DLUSHORT;
         pos += 6;
     }
-    else if(!strncmp(pos, "float", 5))
+    else if (!strncmp(pos, "float", 5))
     {
         token = DLFLOAT;
         pos += 5;
     }
-    else if(!strncmp(pos, "double", 6))
+    else if (!strncmp(pos, "double", 6))
     {
         token = DLDOUBLE;
         pos += 6;
     }
-    else if(!strncmp(pos, "bool", 4))
+    else if (!strncmp(pos, "bool", 4))
     {
         token = DLBOOL;
         pos += 4;
     }
-    else if(!strncmp(pos, "complexd", 8))
+    else if (!strncmp(pos, "complexd", 8))
     {
         token = DLCOMPLEXTYPE2;
         pos += 8;
     }
     // the order of testing it's important here
     // (complex is a proper prefix of complexd!)
-    else if(!strncmp(pos, "complex", 7))
+    else if (!strncmp(pos, "complex", 7))
     {
         token = DLCOMPLEXTYPE1;
         pos += 7;
     }
-    else if(!strncmp(pos, "interval", 8))
+    else if (!strncmp(pos, "interval", 8))
     {
         token = DLINTERVAL;
         pos += 8;
     }
-    else if(!strncmp(pos, "minterval", 9))
+    else if (!strncmp(pos, "minterval", 9))
     {
         token = DLMINTERVAL;
         pos += 9;
     }
-    else if(!strncmp(pos, "point", 5))
+    else if (!strncmp(pos, "point", 5))
     {
         token = DLPOINT;
         pos += 5;
     }
-    else if(!strncmp(pos, "oid", 3))
+    else if (!strncmp(pos, "oid", 3))
     {
         token = DLOID;
         pos += 3;
@@ -301,20 +307,26 @@ r_Type::getNextToken(char* &pos, char* &identifier)
         char* beginPos = pos;
 
         // read identifier
-        while(isalnum(*pos) || *pos == '-' || *pos == '_') pos++;
+        while (isalnum(*pos) || *pos == '-' || *pos == '_')
+        {
+            pos++;
+        }
 
-        identifier = new char[pos-beginPos+1];
-        strncpy(identifier, beginPos, static_cast<size_t>(pos-beginPos));
-        identifier[pos-beginPos] = '\0';
+        identifier = new char[pos - beginPos + 1];
+        strncpy(identifier, beginPos, static_cast<size_t>(pos - beginPos));
+        identifier[pos - beginPos] = '\0';
     }
 
-    while(*pos == ' ') pos ++;
+    while (*pos == ' ')
+    {
+        pos ++;
+    }
 
     return token;
 }
 
 r_Collection_Type*
-r_Type::getCollectionType(char* &pos)
+r_Type::getCollectionType(char*& pos)
 {
     char*   identifier = NULL;
     r_Collection_Type* returnValue = NULL;
@@ -325,7 +337,7 @@ r_Type::getCollectionType(char* &pos)
     getNextToken(pos, identifier);
 
     // get '<'
-    if(getNextToken(pos, identifier) != DLLAP)
+    if (getNextToken(pos, identifier) != DLLAP)
     {
         LFATAL << "r_Type::getCollectionType(" << pos << ") expected DLLAP";
         throw r_Error(INTERNALDLPARSEERROR);
@@ -336,7 +348,7 @@ r_Type::getCollectionType(char* &pos)
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
-    switch(token)
+    switch (token)
     {
     case DLMARRAY:
         elementType = getMarrayType(pos);
@@ -352,7 +364,7 @@ r_Type::getCollectionType(char* &pos)
 }
 
 r_Type*
-r_Type::getType(char* &pos)
+r_Type::getType(char*& pos)
 {
     DLTOKEN token = DLUNKNOWN;
     char*   identifier = 0;
@@ -363,24 +375,36 @@ r_Type::getType(char* &pos)
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
-    if(token == DLSTRUCT)
+    if (token == DLSTRUCT)
+    {
         returnValue = getStructureType(pos);
-    else if(token == DLINTERVAL)
+    }
+    else if (token == DLINTERVAL)
+    {
         returnValue = getSintervalType(pos);
-    else if(token == DLMINTERVAL)
+    }
+    else if (token == DLMINTERVAL)
+    {
         returnValue = getMintervalType(pos);
-    else if(token == DLPOINT)
+    }
+    else if (token == DLPOINT)
+    {
         returnValue = getPointType(pos);
-    else if(token == DLOID)
+    }
+    else if (token == DLOID)
+    {
         returnValue = getOidType(pos);
+    }
     else
+    {
         returnValue = getPrimitiveType(pos);
+    }
 
     return returnValue;
 }
 
 r_Marray_Type*
-r_Type::getMarrayType(char* &pos)
+r_Type::getMarrayType(char*& pos)
 {
     char*   identifier = NULL;
     r_Marray_Type* returnValue = NULL;
@@ -389,7 +413,7 @@ r_Type::getMarrayType(char* &pos)
     // get 'marray'
     getNextToken(pos, identifier);
     // get '<'
-    if(getNextToken(pos, identifier) != DLLAP)
+    if (getNextToken(pos, identifier) != DLLAP)
     {
         LFATAL << "r_Type::getMarrayType(" << pos << ") expected DLLAP";
         throw r_Error(INTERNALDLPARSEERROR);
@@ -406,7 +430,7 @@ r_Type::getMarrayType(char* &pos)
 }
 
 r_Base_Type*
-r_Type::getBaseType(char* &pos, int offset)
+r_Type::getBaseType(char*& pos, int offset)
 {
     DLTOKEN token = DLUNKNOWN;
     char*   identifier = NULL;
@@ -417,21 +441,25 @@ r_Type::getBaseType(char* &pos, int offset)
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
-    if(token == DLSTRUCT)
+    if (token == DLSTRUCT)
+    {
         returnValue = getStructureType(pos, offset);
+    }
     else
+    {
         returnValue = getPrimitiveType(pos);
+    }
 
     return returnValue;
 }
 
 r_Primitive_Type*
-r_Type::getPrimitiveType(char* &pos)
+r_Type::getPrimitiveType(char*& pos)
 {
     char*             dummy = NULL;
     r_Primitive_Type* returnValue = NULL;
 
-    switch(getNextToken(pos, dummy))
+    switch (getNextToken(pos, dummy))
     {
     case DLCHAR:
         returnValue = new r_Primitive_Type("Char", r_Type::CHAR);
@@ -477,19 +505,19 @@ r_Type::getPrimitiveType(char* &pos)
 }
 
 r_Structure_Type*
-r_Type::getStructureType(char* &pos, int offset)
+r_Type::getStructureType(char*& pos, int offset)
 {
     r_Structure_Type* returnValue = NULL;
     char*             identifier = NULL;
     DLTOKEN           token = DLUNKNOWN;
     r_Attribute*      attributes = NULL;
-    int               noAttributes=0;
+    int               noAttributes = 0;
 
     // get 'struct'
     getNextToken(pos, identifier);
 
     // get '{'
-    if(getNextToken(pos, identifier) != DLLCP)
+    if (getNextToken(pos, identifier) != DLLCP)
     {
         LFATAL << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLLCP";
         throw r_Error(INTERNALDLPARSEERROR);
@@ -497,7 +525,7 @@ r_Type::getStructureType(char* &pos, int offset)
 
     int localOffset = offset;
 
-    while(token != DLRCP)
+    while (token != DLRCP)
     {
         // get type
         r_Base_Type* type = getBaseType(pos, localOffset);
@@ -512,16 +540,20 @@ r_Type::getStructureType(char* &pos, int offset)
         noAttributes++;
         r_Attribute* oldAttributes = attributes;
         attributes = new r_Attribute[noAttributes];
-        for(int i=0; i < noAttributes-1; i++)
+        for (int i = 0; i < noAttributes - 1; i++)
+        {
             attributes[i] = oldAttributes[i];
-        if(oldAttributes)
+        }
+        if (oldAttributes)
+        {
             delete[] oldAttributes;
+        }
         oldAttributes = NULL;
 
-        if(token == DLIDENTIFIER)
+        if (token == DLIDENTIFIER)
         {
             // with identifier
-            attributes[noAttributes-1] = r_Attribute(identifier, *type);
+            attributes[noAttributes - 1] = r_Attribute(identifier, *type);
             delete[] identifier;
             identifier = NULL;
             // read next token
@@ -530,13 +562,13 @@ r_Type::getStructureType(char* &pos, int offset)
         else
         {
             // without identifier
-            attributes[noAttributes-1] = r_Attribute("", *type);
+            attributes[noAttributes - 1] = r_Attribute("", *type);
         }
 
         delete type;
         type = NULL;
 
-        if(token != DLCOMMA && token != DLRCP)
+        if (token != DLCOMMA && token != DLRCP)
         {
             LFATAL << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLRCP or DLCOMMA";
             if (attributes)
@@ -550,7 +582,7 @@ r_Type::getStructureType(char* &pos, int offset)
 
     returnValue = new r_Structure_Type("Structure", static_cast<unsigned int>(noAttributes), attributes, offset);
 
-    if(attributes)
+    if (attributes)
     {
         delete[] attributes;
         attributes = NULL;
@@ -559,7 +591,7 @@ r_Type::getStructureType(char* &pos, int offset)
 }
 
 r_Sinterval_Type*
-r_Type::getSintervalType(char* &pos)
+r_Type::getSintervalType(char*& pos)
 {
     char*             dummy = NULL;
     r_Sinterval_Type* returnValue = NULL;
@@ -572,7 +604,7 @@ r_Type::getSintervalType(char* &pos)
 }
 
 r_Minterval_Type*
-r_Type::getMintervalType(char* &pos)
+r_Type::getMintervalType(char*& pos)
 {
     char*             dummy = NULL;
     r_Minterval_Type* returnValue = NULL;
@@ -585,7 +617,7 @@ r_Type::getMintervalType(char* &pos)
 }
 
 r_Point_Type*
-r_Type::getPointType(char* &pos)
+r_Type::getPointType(char*& pos)
 {
     char*             dummy = NULL;
     r_Point_Type* returnValue = NULL;
@@ -598,7 +630,7 @@ r_Type::getPointType(char* &pos)
 }
 
 r_Oid_Type*
-r_Type::getOidType(char* &pos)
+r_Type::getOidType(char*& pos)
 {
     char*             dummy = NULL;
     r_Oid_Type* returnValue = NULL;
@@ -610,9 +642,9 @@ r_Type::getOidType(char* &pos)
     return returnValue;
 }
 
-std::ostream& operator<<( std::ostream& s, r_Type::r_Type_Id t )
+std::ostream& operator<<(std::ostream& s, r_Type::r_Type_Id t)
 {
-    switch( t )
+    switch (t)
     {
     case r_Type::ULONG:
         s << "ulong";

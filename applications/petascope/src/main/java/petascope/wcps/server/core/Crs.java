@@ -44,7 +44,7 @@ public class Crs extends AbstractRasNode {
         IDynamicMetadataSource dmeta = xq.getMetadataSource();
         if (dmeta instanceof DynamicMetadataSource &&
                 ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
-            dbMeta = (DbMetadataSource) ((DynamicMetadataSource)dmeta).getMetadataSource();
+            dbMeta = (DbMetadataSource)((DynamicMetadataSource)dmeta).getMetadataSource();
         }
     }
 
@@ -55,8 +55,8 @@ public class Crs extends AbstractRasNode {
         log.trace(node.getNodeName());
 
         if (node != null && (
-                node.getNodeName().equals(WcpsConstants.MSG_SRS_NAME) || // TODO: unify syntax to either `crs' or `srsName' in petascope.wcps.grammar
-                node.getNodeName().equals(WcpsConstants.MSG_CRS))) {
+                    node.getNodeName().equals(WcpsConstants.MSG_SRS_NAME) || // TODO: unify syntax to either `crs' or `srsName' in petascope.wcps.grammar
+                    node.getNodeName().equals(WcpsConstants.MSG_CRS))) {
             String val = node.getTextContent();
             this.crsName = val;
             //if (crsName.equals(DomainElement.IMAGE_CRS) || crsName.equals(DomainElement.WGS84_CRS)) {
@@ -72,7 +72,7 @@ public class Crs extends AbstractRasNode {
         IDynamicMetadataSource dmeta = xq.getMetadataSource();
         if (dmeta instanceof DynamicMetadataSource &&
                 ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
-            dbMeta = (DbMetadataSource) ((DynamicMetadataSource)dmeta).getMetadataSource();
+            dbMeta = (DbMetadataSource)((DynamicMetadataSource)dmeta).getMetadataSource();
         }
     }
 
@@ -88,8 +88,8 @@ public class Crs extends AbstractRasNode {
      * @throws WCPSException
      */
     public long[] convertToPixelIndices(CoverageMetadata covMeta, String axisName,
-            String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
-            throws PetascopeException {
+                                        String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
+    throws PetascopeException {
         return CrsUtil.convertToInternalGridIndices(covMeta, dbMeta, axisName, stringLo, loIsNumeric, stringHi, hiIsNumeric);
     }
     // Dummy overload (for DimensionPointElements)

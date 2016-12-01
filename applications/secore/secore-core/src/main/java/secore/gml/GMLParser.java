@@ -42,7 +42,7 @@ import secore.util.Constants;
  */
 public class GMLParser extends DefaultHandler {
 
-  private static Logger log = LoggerFactory.getLogger(Resolver.class);
+    private static Logger log = LoggerFactory.getLogger(Resolver.class);
 
     /**
      * Try to parse GML definition and return error != "" if it is not well-formed
@@ -50,8 +50,7 @@ public class GMLParser extends DefaultHandler {
      * @return "" if does not have error
      * @throws SecoreException
      */
-    public String parseGML(String gmlDefinition) throws SecoreException
-    {
+    public String parseGML(String gmlDefinition) throws SecoreException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         String error = Constants.EMPTY;
         try {

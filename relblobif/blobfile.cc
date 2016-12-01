@@ -43,7 +43,7 @@ using namespace std;
 using namespace blobfs;
 
 BlobFile::BlobFile(const string& filePathArg)
-: filePath(filePathArg), fd(INVALID_FILE_DESCRIPTOR)
+    : filePath(filePathArg), fd(INVALID_FILE_DESCRIPTOR)
 {
 }
 
@@ -94,7 +94,7 @@ void BlobFile::readData(BlobData& blob) throw (r_Error)
     {
         generateError("cannot read empty blob file", EMPTYBLOBFILE);
     }
-    blob.data = static_cast<char*> (malloc(static_cast<size_t> (blob.size)));
+    blob.data = static_cast<char*>(malloc(static_cast<size_t>(blob.size)));
     if (blob.data == NULL)
     {
         generateError("failed allocating memory for blob file", MEMMORYALLOCATIONERROR);
@@ -177,7 +177,7 @@ void BlobFile::moveFile(const std::string& fromFilePath, const std::string& toFi
         {
             errorCode = FAILEDIOOPERATION;
         }
-        throw r_Error(static_cast<unsigned int> (errorCode));
+        throw r_Error(static_cast<unsigned int>(errorCode));
     }
 }
 
@@ -212,5 +212,5 @@ void BlobFile::generateError(const char* message, int errorCode) throw (r_Error)
 {
     LFATAL << message << " - " << filePath;
     LFATAL << "reason: " << strerror(errno);
-    throw r_Error(static_cast<unsigned int> (errorCode));
+    throw r_Error(static_cast<unsigned int>(errorCode));
 }

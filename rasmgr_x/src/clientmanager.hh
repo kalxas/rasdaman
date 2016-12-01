@@ -123,7 +123,7 @@ private:
     ClientManagerConfig config;
     boost::scoped_ptr<boost::thread> managementThread; /*! Thread used to manage the list of clients and remove dead ones */
 
-    std::map<std::string, boost::shared_ptr<Client> > clients; /*! list of active clients */
+    std::map<std::string, boost::shared_ptr<Client>> clients; /*! list of active clients */
     boost::shared_mutex clientsMutex; /*! Mutex used to synchronize access to the clients object*/
     boost::mutex serverManagerMutex; /*! Mutex used to prevent a free server being assigned to two different clients when tryGetFreeServer is called*/
     boost::shared_ptr<UserManager> userManager;

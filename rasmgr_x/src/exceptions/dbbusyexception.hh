@@ -32,7 +32,7 @@ namespace rasmgr
  *  It reports errors that arise because a user tries to modify a property of an existing database,
  * but the modification fails because the database is being used.
  */
-class DbBusyException:public common::ResourceBusyException
+class DbBusyException: public common::ResourceBusyException
 {
 public:
     /**

@@ -101,13 +101,13 @@ public:
     //RNP: all made pure
 
     /// open database
-    virtual int openDB( const char* database ) = 0;
+    virtual int openDB(const char* database) = 0;
     /// close current database
     virtual int closeDB() = 0;
     /// create a database
-    virtual int createDB( const char* name ) throw(r_Error) = 0;
+    virtual int createDB(const char* name) throw(r_Error) = 0;
     /// destroy a database
-    virtual int destroyDB( const char* name ) throw(r_Error) = 0;
+    virtual int destroyDB(const char* name) throw(r_Error) = 0;
 
     ///
     //@}
@@ -117,11 +117,11 @@ public:
     ///
 
     /// begin transaction
-    virtual int openTA( unsigned short readOnly = 0 ) throw(r_Error) =0;
+    virtual int openTA(unsigned short readOnly = 0) throw(r_Error) = 0;
     /// commit current transaction
-    virtual int commitTA() throw(r_Error) =0;
+    virtual int commitTA() throw(r_Error) = 0;
     /// abort current transaction
-    virtual int abortTA() =0;
+    virtual int abortTA() = 0;
 
     ///
     //@}
@@ -131,9 +131,9 @@ public:
     ///
 
     /// inserts a MDD object in an existing MDD collection on the server
-    virtual void insertMDD( const char* collName, r_GMarray* mar ) throw( r_Error ) =0;
+    virtual void insertMDD(const char* collName, r_GMarray* mar) throw(r_Error) = 0;
     /// gets MDD object by oid
-    virtual r_Ref_Any getMDDByOId( const r_OId& oid ) throw( r_Error ) =0;
+    virtual r_Ref_Any getMDDByOId(const r_OId& oid) throw(r_Error) = 0;
 
     ///
     //@}
@@ -143,21 +143,21 @@ public:
     ///
 
     /// creates an empty MDD collection on the server
-    virtual void insertColl( const char* collName, const char* typeName, const r_OId& oid ) throw( r_Error ) =0;
+    virtual void insertColl(const char* collName, const char* typeName, const r_OId& oid) throw(r_Error) = 0;
     /// deletes an MDD collection by name
-    virtual void deleteCollByName( const char* collName ) throw( r_Error ) =0;
+    virtual void deleteCollByName(const char* collName) throw(r_Error) = 0;
     /// deletes an object by oid (right now, objects are collection only)
-    virtual void deleteObjByOId( const r_OId& oid ) throw( r_Error ) =0;
+    virtual void deleteObjByOId(const r_OId& oid) throw(r_Error) = 0;
     /// removes an object from a collection
-    virtual void removeObjFromColl( const char* name, const r_OId& oid ) throw ( r_Error ) =0;
+    virtual void removeObjFromColl(const char* name, const r_OId& oid) throw (r_Error) = 0;
     /// gets collection by name
-    virtual r_Ref_Any getCollByName( const char* name ) throw( r_Error ) =0;
+    virtual r_Ref_Any getCollByName(const char* name) throw(r_Error) = 0;
     /// gets collection by oid
-    virtual r_Ref_Any getCollByOId ( const r_OId& oid ) throw( r_Error ) =0;
+    virtual r_Ref_Any getCollByOId(const r_OId& oid) throw(r_Error) = 0;
     /// gets collection references by name
-    virtual r_Ref_Any getCollOIdsByName( const char* name ) throw( r_Error ) =0;
+    virtual r_Ref_Any getCollOIdsByName(const char* name) throw(r_Error) = 0;
     /// gets collection references by oid
-    virtual r_Ref_Any getCollOIdsByOId ( const r_OId& oid ) throw( r_Error ) =0;
+    virtual r_Ref_Any getCollOIdsByOId(const r_OId& oid) throw(r_Error) = 0;
 
     ///
     //@}
@@ -167,7 +167,7 @@ public:
     ///
 
     /// query execution
-    virtual void executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result ) throw( r_Error ) =0;
+    virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result) throw(r_Error) = 0;
     /*@Doc:
       Executes a retrieval query of type \Ref{r_OQL_Query} and returns the result. Every
       MDD object of the MDD collection is fetched from the server and inserted
@@ -175,13 +175,13 @@ public:
     */
 
     /// update execution
-    virtual void executeQuery( const r_OQL_Query& query ) throw( r_Error ) =0;
+    virtual void executeQuery(const r_OQL_Query& query) throw(r_Error) = 0;
     /*@Doc:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
     // insert returning oid, third parameter is dummy parameter
-    virtual void executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int dummy ) throw( r_Error ) = 0;
+    virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) throw(r_Error) = 0;
     /*@Doc:
       Executes an insert query of type \Ref{r_OQL_Query}.
     */
@@ -195,10 +195,10 @@ public:
     ///
 
     /// get new oid
-    virtual r_OId getNewOId( unsigned short objType ) throw(r_Error) = 0;
+    virtual r_OId getNewOId(unsigned short objType) throw(r_Error) = 0;
 
     /// get oid type
-    virtual unsigned short getObjectType( const r_OId& oid ) throw(r_Error) = 0;
+    virtual unsigned short getObjectType(const r_OId& oid) throw(r_Error) = 0;
 
     enum r_Type_Type
     {
@@ -208,15 +208,15 @@ public:
 
     /// get type structure
     /// deallocate using delete []
-    virtual char* getTypeStructure( const char* typeName, r_Type_Type typeType ) throw(r_Error) =0;
+    virtual char* getTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error) = 0;
 
     ///
     //@}
 
     /// changes endianness of MDD data
-    static int changeEndianness( r_GMarray* mdd, const r_Base_Type* bt=NULL );
+    static int changeEndianness(r_GMarray* mdd, const r_Base_Type* bt = NULL);
     /// changes the endianness of MDD data and keeps the original untouched
-    static int changeEndianness( const r_GMarray* mdd, void *newData, const r_Base_Type* bt=NULL );
+    static int changeEndianness(const r_GMarray* mdd, void* newData, const r_Base_Type* bt = NULL);
 
     /// provides read access to my clientID
     virtual unsigned long getClientID() const  = 0;
@@ -242,19 +242,19 @@ public:
     */
 
     /// set the preferred transfer format
-    virtual int setTransferFormat( r_Data_Format format, const char* formatParams=NULL ) =0;
+    virtual int setTransferFormat(r_Data_Format format, const char* formatParams = NULL) = 0;
 
     /// set the preferred storage format
-    virtual int setStorageFormat( r_Data_Format format, const char *formatParams=NULL ) =0;
+    virtual int setStorageFormat(r_Data_Format format, const char* formatParams = NULL) = 0;
 
     /// get extended error information
-    virtual const char *getExtendedErrorInfo() throw(r_Error)  =0;
+    virtual const char* getExtendedErrorInfo() throw(r_Error)  = 0;
 
     /// get real server name (the dinamic one, assigned by the RasMGR)
     const char* getServerName();
 
     /// user identification for RasMGR
-    virtual void setUserIdentification(const char *userName, const char *plainTextPassword) =0;
+    virtual void setUserIdentification(const char* userName, const char* plainTextPassword) = 0;
 
     /// set maximum retry to get a server
     virtual void setMaxRetry(unsigned int newMaxRetry) = 0;
@@ -271,11 +271,12 @@ public:
 
 protected:
     /// constructor getting nothing
-    ClientComm() throw( r_Error );
+    ClientComm() throw(r_Error);
 
 private:
 
-    enum CommunicationProtocol {
+    enum CommunicationProtocol
+    {
         RNP,
         RASNET,
         RPC

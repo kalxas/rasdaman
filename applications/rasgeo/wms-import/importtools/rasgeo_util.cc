@@ -147,7 +147,7 @@ r_Transaction RasgeoUtil::ta;
 r_Minterval RasgeoUtil::mddDomain;
 bool RasgeoUtil::mddDomainDef = false;
 
-const char *RasgeoUtil::conversionTypeName = "char";
+const char* RasgeoUtil::conversionTypeName = "char";
 
 bool RasgeoUtil::polygonDefined = false;
 r_PolygonCutOut RasgeoUtil::polygon;
@@ -182,7 +182,7 @@ bool RasgeoUtil::insidePatternDef = false;
 
 const int RasgeoUtil::queryBufferLength = 512;
 
-std::list<std::pair<double, char*> >* RasgeoUtil::scaleLevels = NULL;
+std::list<std::pair<double, char*>>* RasgeoUtil::scaleLevels = NULL;
 
 int RasgeoUtil::wrongBytes = 0;
 
@@ -252,14 +252,14 @@ RasgeoUtil::saveData(const char* fileNamePat, const char* data, r_Bytes length, 
     r_Primitive_Type* tp = new r_Primitive_Type("Char", r_Type::CHAR);
     r_Convertor* conv = r_Convertor_Factory::create(r_TIFF, data, dom, tp);
     r_convDesc desc = conv->convertTo(NULL);
-    size_t dtaSize=desc.destInterv.cell_count()*tp->size();
+    size_t dtaSize = desc.destInterv.cell_count() * tp->size();
     std::ofstream o;
 
     o.open(fileNamePat);
     if (!o.is_open())
     {
         LDEBUG << "saveData: unable to open file for writing: " << fileNamePat;
-        throw ImportError( FILEINACCESSIBLE );
+        throw ImportError(FILEINACCESSIBLE);
     }
     o.write(desc.dest, dtaSize);
     o.flush();
@@ -321,11 +321,11 @@ RasgeoUtil::openTransaction(bool readwrite) throw (r_Error)
             LDEBUG << "done";
         }
 
-        LDEBUG << "setting transfer format, format=" << transferFormat << ", params=" << (transferFormatParams?transferFormatParams:"(null)") << "...";
+        LDEBUG << "setting transfer format, format=" << transferFormat << ", params=" << (transferFormatParams ? transferFormatParams : "(null)") << "...";
         db.set_transfer_format(transferFormat, transferFormatParams);
         LDEBUG << "done";
 
-        LDEBUG << "setting storage format, format=" << storageFormat << ", params=" << (storageFormatParams?storageFormatParams:"(null)") << "...";
+        LDEBUG << "setting storage format, format=" << storageFormat << ", params=" << (storageFormatParams ? storageFormatParams : "(null)") << "...";
         db.set_storage_format(storageFormat, storageFormatParams);
         LDEBUG << "done";
 
@@ -334,7 +334,7 @@ RasgeoUtil::openTransaction(bool readwrite) throw (r_Error)
 }
 
 void
-RasgeoUtil::closeTransaction( bool doCommit ) throw (r_Error)
+RasgeoUtil::closeTransaction(bool doCommit) throw (r_Error)
 {
     if (taIsOpen)
     {
@@ -383,7 +383,7 @@ RasgeoUtil::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minter
         if (dtaSize != (tp->size() * interv.cell_count()))
         {
             LDEBUG << "base type size " << tp->size() << " cells " << interv.cell_count() << " does not match size " << dtaSize;
-            throw ImportError( BASETYPEMISMATCH );
+            throw ImportError(BASETYPEMISMATCH);
         }
     }
 
@@ -397,12 +397,14 @@ RasgeoUtil::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minter
     {
         LDEBUG << "convertor factory error: " << e.what();
         // FIXME: that's a corageous guess:
-        throw ImportError( CONVERSIONNOTSUPPORTED );
+        throw ImportError(CONVERSIONNOTSUPPORTED);
     }
 
     // check whether format requested can be served
-    if ( ! r_Convertor_Factory::is_supported( fmt ) )
-        throw ImportError( CONVERSIONNOTSUPPORTED );
+    if (! r_Convertor_Factory::is_supported(fmt))
+    {
+        throw ImportError(CONVERSIONNOTSUPPORTED);
+    }
 
     // set details of convertor
     r_Storage_Man_CPP mySM;
@@ -414,28 +416,34 @@ RasgeoUtil::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minter
     {
         desc = conv->convertFrom(options);
     }
-    catch(...)
+    catch (...)
     {
         LDEBUG << "convertor failed.";
-        throw ImportError( CONVERSIONEXCEPTION );
+        throw ImportError(CONVERSIONEXCEPTION);
     }
 
     // verify: result type is a base type? (not set etc.)
-    if ( ! desc.destType->isBaseType())
-        throw ImportError( CONVERSIONRETURNEDWRONGTYPE );
+    if (! desc.destType->isBaseType())
+    {
+        throw ImportError(CONVERSIONRETURNEDWRONGTYPE);
+    }
 
     // set type to what the convertor has recognized
     if (tp != NULL)
+    {
         delete tp;
+    }
     tp = static_cast<r_Base_Type*>(desc.destType);
 
     // record number of bytes processed
     tmpInt = desc.destInterv;
-    dtaSize=tmpInt.cell_count()*tp->size();
+    dtaSize = tmpInt.cell_count() * tp->size();
 
     // unlink source data, set ptr to result data
     if (src != NULL)
+    {
         delete [] src;
+    }
     src = desc.dest;
 
     if (conv != NULL)
@@ -446,25 +454,29 @@ RasgeoUtil::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minter
 
     // verification: compare expected data volume against actually processed data
     if (interv.dimension() == 0)
+    {
         interv = tmpInt;
+    }
     else
     {
         if (tmpInt.cell_count() != interv.cell_count())
         {
             LDEBUG << "Domains do not have the same number of cells: mdd " << interv << ", data " << tmpInt;
-            throw ImportError( DOMAINDATAMISMATCH );
+            throw ImportError(DOMAINDATAMISMATCH);
         }
         if (tmpInt.get_extent() != interv.get_extent())
         {
             LDEBUG << "Domains do not have the same extents:mdd " << interv << ", data " << tmpInt;
-            throw ImportError( DOMAINEXTENTMISMATCH );
+            throw ImportError(DOMAINEXTENTMISMATCH);
         }
     }
 
     LDEBUG << "convertFrom: domain out: " << interv << ", type out: ";
 #ifdef DEBUG
     if (debug)
+    {
         tp->print_status(cout);
+    }
 #endif
     LDEBUG << "";
 
@@ -477,7 +489,9 @@ RasgeoUtil::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterva
     LDEBUG << "convertTo: domain in: " << interv << ", type in: ";
 #ifdef DEBUG
     if (debug)
-        tp->print_status( cout );
+    {
+        tp->print_status(cout);
+    }
 #endif
     LDEBUG << "";
 
@@ -486,7 +500,7 @@ RasgeoUtil::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterva
         if (dtaSize != (tp->size() * interv.cell_count()))
         {
             LDEBUG << "base type size " << tp->size() << " cells " << interv.cell_count() << " does not match size " << dtaSize;
-            throw ImportError( BASETYPEMISMATCH );
+            throw ImportError(BASETYPEMISMATCH);
         }
     }
 
@@ -495,16 +509,20 @@ RasgeoUtil::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterva
     LDEBUG << "Conversion type          : ";
 #ifdef DEBUG
     if (debug)
-        desc.destType->print_status( cout );
+    {
+        desc.destType->print_status(cout);
+    }
 #endif
     LDEBUG << "";
-    if ( ! desc.destType->isBaseType())
-        throw ImportError( CONVERSIONEXCEPTION );
+    if (! desc.destType->isBaseType())
+    {
+        throw ImportError(CONVERSIONEXCEPTION);
+    }
 
     delete tp;
     tp = static_cast<r_Base_Type*>(desc.destType);
     dtaSize = desc.destInterv.cell_count() * tp->size(); // desc.destInterv[0].high() - desc.destInterv[0].low() + 1;
-    interv=desc.destInterv;
+    interv = desc.destInterv;
     delete src;
     src = desc.dest;
     delete conv;
@@ -513,7 +531,9 @@ RasgeoUtil::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterva
     LDEBUG << "domain out: " << interv << ", type out: ";
 #ifdef DEBUG
     if (debug)
-        tp->print_status( cout );
+    {
+        tp->print_status(cout);
+    }
 #endif
     LDEBUG << "";
 
@@ -522,14 +542,16 @@ RasgeoUtil::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterva
 
 /// read file fileName into newly allocated buffer, return buffer ptr and its size (dtaSize)
 char*
-RasgeoUtil::getFile( const char *inputFile, size_t& dtaSize ) throw (ImportError)
+RasgeoUtil::getFile(const char* inputFile, size_t& dtaSize) throw (ImportError)
 {
     char* dta = 0;
     long size = 0;
 
     FILE* fileD = fopen(inputFile, "r");
     if (fileD == NULL)
-        throw ImportError( FILEINACCESSIBLE );
+    {
+        throw ImportError(FILEINACCESSIBLE);
+    }
 
     fseek(fileD, 0, SEEK_END);
     size = ftell(fileD);
@@ -538,10 +560,10 @@ RasgeoUtil::getFile( const char *inputFile, size_t& dtaSize ) throw (ImportError
     {
         dta = new char[size];
     }
-    catch(std::bad_alloc)
+    catch (std::bad_alloc)
     {
         LDEBUG << "Unable to claim memory: " << size << " Bytes";
-        throw ImportError( UNABLETOCLAIMRESOURCEFORFILE );
+        throw ImportError(UNABLETOCLAIMRESOURCEFORFILE);
     }
 
     fseek(fileD, 0, SEEK_SET);
@@ -556,7 +578,7 @@ RasgeoUtil::getFile( const char *inputFile, size_t& dtaSize ) throw (ImportError
 void
 RasgeoUtil::readScaleLevels(const char* startPos) throw (ImportError)
 {
-    scaleLevels = new std::list<std::pair<double, char*> >();
+    scaleLevels = new std::list<std::pair<double, char*>>();
     const char* endPos = NULL;
     char* levelName = NULL;
     const char* factorName = NULL;
@@ -569,12 +591,12 @@ RasgeoUtil::readScaleLevels(const char* startPos) throw (ImportError)
     {
         // LDEBUG << "startpos=" << startPos << ", endpos=" << endPos << ", factor=" << factor;
 
-        endPos = index(startPos, SCALEITEM_SEPARATOR );
+        endPos = index(startPos, SCALEITEM_SEPARATOR);
         if (endPos == NULL)
         {
             delete scaleLevels;
             scaleLevels = NULL;
-            throw ImportError( SCALELEVELSINCORRECT );
+            throw ImportError(SCALELEVELSINCORRECT);
         }
         length = static_cast<size_t>(endPos - startPos);
         levelName = new char[length + 1];
@@ -584,19 +606,21 @@ RasgeoUtil::readScaleLevels(const char* startPos) throw (ImportError)
         factor = atof(startPos);
 
         // plausi check for each layer: name not empty, name only allowed chars, factor > 1.0
-        if ( length == 0 )
+        if (length == 0)
         {
             LDEBUG << "empty collectionname for factor " << factor;
-            throw ImportError( INVALIDSCALENAME );
+            throw ImportError(INVALIDSCALENAME);
         }
-        if ( ! allowedCollNameChar( levelName ) )
-            throw ImportError( INVALIDCOLLNAMECHAR );
+        if (! allowedCollNameChar(levelName))
+        {
+            throw ImportError(INVALIDCOLLNAMECHAR);
+        }
         if (factor < 1)
         {
             LDEBUG << "illegal scale factor for collectionname " << levelName;
             delete scaleLevels;
             scaleLevels = NULL;
-            throw ImportError( INVALIDSCALEFACTOR );
+            throw ImportError(INVALIDSCALEFACTOR);
         }
 
         LDEBUG << "Scale level " << i << ": " << levelName << ", factor=" << factor;
@@ -604,11 +628,11 @@ RasgeoUtil::readScaleLevels(const char* startPos) throw (ImportError)
         factor = 1 / factor;
         scaleLevels->push_back(std::pair<double, char*>(factor, levelName));
 
-        endPos = index(startPos, SCALELEVELS_SEPARATOR );
+        endPos = index(startPos, SCALELEVELS_SEPARATOR);
         startPos = endPos + 1;
         i++;
     }
-    while ( endPos != NULL );
+    while (endPos != NULL);
 
     return;
 }
@@ -616,7 +640,7 @@ RasgeoUtil::readScaleLevels(const char* startPos) throw (ImportError)
 /// configure MDD appropriately to hold data, read data from file into this MDD, perform necessary format conversion
 /// (DOP and DEM variant)
 void
-RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char *inputFile, r_Data_Format conversionFormat, r_Minterval& tempDataDomain, r_Marray_Type*& mddType, r_Tiling*& myTiling, const char* conversionParams) throw (r_Error, ImportError)
+RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char* inputFile, r_Data_Format conversionFormat, r_Minterval& tempDataDomain, r_Marray_Type*& mddType, r_Tiling*& myTiling, const char* conversionParams) throw (r_Error, ImportError)
 {
     char* mddData = NULL;
     size_t mddDataSize = 0;
@@ -627,7 +651,9 @@ RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char *inputFile, r_Data
 #if 0 // now explicitly set later
     const r_Base_Type* tempBaseType = (r_Base_Type*)tempMDD->get_base_type_schema();
     if (tempBaseType == NULL)
-        throw ImportError( MDDTYPEOFGMARRAYNOTINITIALISED );
+    {
+        throw ImportError(MDDTYPEOFGMARRAYNOTINITIALISED);
+    }
 #endif
     // find out base type structure according to conversion type name specified
     try
@@ -641,7 +667,7 @@ RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char *inputFile, r_Data
         LDEBUG << "Resolving conversion type: " << err.get_errorno() << " " << err.what();
         delete tempType;
         tempType = NULL;
-        throw ImportError( CONVERSIONTYPENOTABASETYPE );
+        throw ImportError(CONVERSIONTYPENOTABASETYPE);
     }
 
     // this must be a valid _base_ type
@@ -649,7 +675,7 @@ RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char *inputFile, r_Data
     {
         delete tempType;
         tempType = NULL;
-        throw ImportError( CONVERSIONTYPENOTABASETYPE );
+        throw ImportError(CONVERSIONTYPENOTABASETYPE);
     }
 
     // got it, this will be our type
@@ -657,7 +683,7 @@ RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char *inputFile, r_Data
     LDEBUG << "determined conversion type; size is " << conversionType->size();
 
     // --- now start inspecting and processing file ---------------------------
-    mddData = getFile(inputFile, mddDataSize );
+    mddData = getFile(inputFile, mddDataSize);
     LDEBUG << "file read done, got " << mddDataSize << " bytes";
 
     // --- do conversion ------------------------------------------------------
@@ -666,13 +692,13 @@ RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char *inputFile, r_Data
 
     // --- prepare MDD --------------------------------------------------------
     size_t baseTypeLength = mddType->base_type().size();
-    r_Storage_Layout* stl = new r_Storage_Layout( myTiling->clone() );
+    r_Storage_Layout* stl = new r_Storage_Layout(myTiling->clone());
 
     // don't take name from here - often it is an anonymous type!
     // mddTypeName = mddType->name();
 
     LDEBUG << "preparing MDD; domain=" << tempDataDomain << ", MDD type name=" << mddTypeName << ", base type length=" << baseTypeLength;
-    tempMDD = new (mddTypeName)r_GMarray( tempDataDomain, baseTypeLength, stl);
+    tempMDD = new(mddTypeName)r_GMarray(tempDataDomain, baseTypeLength, stl);
 
     tempMDD->set_type_schema(mddType);
     tempMDD->set_array_size(mddDataSize);
@@ -701,22 +727,30 @@ RasgeoUtil::compareGMarrays(const r_Ref<r_GMarray>& baseMDD, r_Ref<r_GMarray>& t
     LDEBUG << "topMDD  domain: " << topMDD->spatial_domain() << " type length: " << topMDD->get_type_length();
 
     if (tempDomain != topMDD->spatial_domain())
-        throw ImportError( OVERLAYDOMAINSDONOTMATCH );
+    {
+        throw ImportError(OVERLAYDOMAINSDONOTMATCH);
+    }
 
     r_Bytes typeLen = baseMDD->get_type_length();
     if (typeLen != topMDD->get_type_length())
-        throw ImportError( OVERLAYTYPESIZESDONOTMATCH );
+    {
+        throw ImportError(OVERLAYTYPESIZESDONOTMATCH);
+    }
 
     r_Area numberCells = tempDomain.cell_count();
     for (size_t elemNum = 0; elemNum < numberCells; elemNum++)
     {
         if (memcmp(&(baseMDDCells[elemNum * typeLen]), &(topMDDCells[elemNum * typeLen]), typeLen) != 0)
+        {
             wrongBytes++;
+        }
     }
-    wrongBytes*=static_cast<int>(typeLen);
+    wrongBytes *= static_cast<int>(typeLen);
 
     if (wrongBytes != 0)
-        throw ImportError( GMARRAYSARENOTEQUAL );
+    {
+        throw ImportError(GMARRAYSARENOTEQUAL);
+    }
 
     return;
 }
@@ -741,10 +775,10 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
 
     // check match of pixel types
     r_Bytes typeLen = backgroundMDD->get_type_length();
-    if ( ! ( (typeLen == foregroundMDD->get_type_length()) && (typeLen == targetMDD->get_type_length())) )
+    if (!((typeLen == foregroundMDD->get_type_length()) && (typeLen == targetMDD->get_type_length())))
     {
         LDEBUG << "type size mismatch: background has " << typeLen << ", background has " << foregroundMDD->get_type_length() << ", target has " << targetMDD->get_type_length();
-        throw ImportError( OVERLAYTYPESIZESDONOTMATCH );
+        throw ImportError(OVERLAYTYPESIZESDONOTMATCH);
     }
 
     // allocate reference pixel for transparent color, clear it to black
@@ -764,21 +798,21 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
 
             // iterate over all cells
             // the ptr below are an optimization to do 1 inc instead of 3 mult + 3 add
-            char *currentForegroundCell = foregroundMDDCells;
-            char *currentBackgroundCell = backgroundMDDCells;
-            char *currentTargetCell     = targetMDDCells;
+            char* currentForegroundCell = foregroundMDDCells;
+            char* currentBackgroundCell = backgroundMDDCells;
+            char* currentTargetCell     = targetMDDCells;
             for (size_t elemNum = 0; elemNum < backgroundDomain.cell_count(); elemNum++)
             {
                 // is fg pixel transparent?
-                if (memcmp( reference,  currentForegroundCell, typeLen) == 0)
+                if (memcmp(reference,  currentForegroundCell, typeLen) == 0)
                 {
                     // yes -> background shines through, copy it
-                    memcpy( currentTargetCell,  currentBackgroundCell, typeLen);
+                    memcpy(currentTargetCell,  currentBackgroundCell, typeLen);
                 }
                 else
                 {
                     // no -> background covered, take foreground pixel
-                    memcpy( currentTargetCell,  currentForegroundCell, typeLen);
+                    memcpy(currentTargetCell,  currentForegroundCell, typeLen);
                 }
                 currentForegroundCell   += typeLen;
                 currentBackgroundCell   += typeLen;
@@ -812,21 +846,21 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
             r_MiterDirect targetIter(static_cast<char*>(targetMDDCells), targetDomain, overlayOn, typeLen);
             while (!foregroundIter.isDone())
             {
-                char *currentForegroundCell = static_cast<char*>(foregroundIter.getData());
-                char *currentTargetCell = static_cast<char*>(targetIter.getData());
+                char* currentForegroundCell = static_cast<char*>(foregroundIter.getData());
+                char* currentTargetCell = static_cast<char*>(targetIter.getData());
                 for (size_t elemNum = 0; elemNum < static_cast<size_t>(width); elemNum++)
                 {
                     // fg transparent?
-                    if (memcmp( reference, currentForegroundCell, typeLen) != 0)
+                    if (memcmp(reference, currentForegroundCell, typeLen) != 0)
                     {
                         // no -> set target pixel to fg
-                        memcpy( currentTargetCell, currentForegroundCell, typeLen);
+                        memcpy(currentTargetCell, currentForegroundCell, typeLen);
                     }
                     currentForegroundCell += typeLen;
                     currentTargetCell += typeLen;
                 }
-                foregroundIter.id[dim-1].pos += width;
-                targetIter.id[dim-1].pos += width;
+                foregroundIter.id[dim - 1].pos += width;
+                targetIter.id[dim - 1].pos += width;
                 ++foregroundIter;
                 ++targetIter;
             }
@@ -841,10 +875,10 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
         r_Minterval overlayOn = foregroundDomain.create_intersection(backgroundDomain);
 
         // this intersection matches target?
-        if ( ! targetDomain.covers(overlayOn))
+        if (! targetDomain.covers(overlayOn))
         {
-            LDEBUG << "target domain "<< targetDomain << " does not cover background/foreground intersection " << overlayOn;
-            throw ImportError( OVERLAYDOMAINDOESNOTMATCH );
+            LDEBUG << "target domain " << targetDomain << " does not cover background/foreground intersection " << overlayOn;
+            throw ImportError(OVERLAYDOMAINDOESNOTMATCH);
         }
 
         // --- now start action ----------------------------------------------------
@@ -863,10 +897,10 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
             targetMDDCells     = static_cast<char*>(targetIter.getData());
 
             // set target pixel to background value
-            memcpy( targetMDDCells, backgroundMDDCells, cellSize);
+            memcpy(targetMDDCells, backgroundMDDCells, cellSize);
 
-            backgroundIter.id[dim-1].pos += backgroundWidth;
-            targetIter.id[dim-1].pos += backgroundWidth;
+            backgroundIter.id[dim - 1].pos += backgroundWidth;
+            targetIter.id[dim - 1].pos += backgroundWidth;
             ++backgroundIter;
             ++targetIter;
         }
@@ -892,8 +926,8 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
                     memcpy(&(targetMDDCells[elemNum * typeLen]), &(foregroundMDDCells[elemNum * typeLen]), typeLen);
                 }
             }
-            foregroundIter.id[dim-1].pos += width;
-            targetIter2.id[dim-1].pos += width;
+            foregroundIter.id[dim - 1].pos += width;
+            targetIter2.id[dim - 1].pos += width;
             ++foregroundIter;
             ++targetIter2;
         }
@@ -921,7 +955,9 @@ RasgeoUtil::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, do
     r_Range originVal = 0;
 
     if (baseDomain.dimension() != dim)
-        throw ImportError( SCALEDOMAINISNOTCORRECT );
+    {
+        throw ImportError(SCALEDOMAINISNOTCORRECT);
+    }
 
     length = floor(1.0 / factor + 0.5);
 
@@ -977,7 +1013,7 @@ RasgeoUtil::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, do
     catch (r_Error& err)
     {
         LDEBUG << "scaleDomain: scaling underflow? baseDomain=" << baseDomain << ", scaledDomain=" << scaledDomain << ", factor=" << factor << ", origin=" << origin << ": Error " << err.get_errorno() << " " << err.what();
-        throw ImportError( SCALEDOMAINPOSSIBLEUNDERFLOW );
+        throw ImportError(SCALEDOMAINPOSSIBLEUNDERFLOW);
     }
 
     return;
@@ -989,11 +1025,11 @@ RasgeoUtil::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& 
     const r_Minterval& baseDomain = baseMDD->spatial_domain();
 
     size_t tlen = baseMDD->get_type_length();
-    r_Ref<r_GMarray> scaledMDD = new (baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
+    r_Ref<r_GMarray> scaledMDD = new(baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
     const r_Type* type = scaledMDD->get_base_type_schema();
     if (type == NULL)
     {
-        throw ImportError( NOBASETYPE );
+        throw ImportError(NOBASETYPE);
     }
     LDEBUG << "base type is " << type;
 
@@ -1003,7 +1039,7 @@ RasgeoUtil::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& 
         LDEBUG << "processing primitive type";
         RasgeoUtil::fast_scale_process_primitive_type(static_cast<const r_Primitive_Type*>(type), scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
     }
-    else if ( type->isStructType())
+    else if (type->isStructType())
     {
         LDEBUG << "processing struct type";
         RasgeoUtil::fast_scale_process_structured_type(static_cast<const r_Structure_Type*>(type), scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
@@ -1011,7 +1047,7 @@ RasgeoUtil::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& 
     else                    // something invalid, we can't process that
     {
         LDEBUG << "illegal base type structure, type id: " << type->type_id();
-        throw ImportError( NOBASETYPE );
+        throw ImportError(NOBASETYPE);
     }
 
     // now perform update collection
@@ -1019,12 +1055,12 @@ RasgeoUtil::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& 
     // stream << "UPDATE " << collectionName << " AS A SET A" << downScaleDomain << " ASSIGN $1";
     // r_OQL_Query query(stream.str().c_str());
     // LDEBUG << "executing update query: " << stream.str().c_str() << "...";
-    string qs = generateImportQuery( collectionName, downScaleDomain, false, NULL );
-    r_OQL_Query query( qs.c_str() );
+    string qs = generateImportQuery(collectionName, downScaleDomain, false, NULL);
+    r_OQL_Query query(qs.c_str());
     query << *scaledMDD;
     LDEBUG << "executing update query: " << qs.c_str() << "...";
     //printf("UPDATEQUERY: %s\n", qs.c_str()); // Debug
-    executeQuery( query );
+    executeQuery(query);
     LDEBUG << "done";
 
     scaledMDD.destroy();
@@ -1037,7 +1073,7 @@ RasgeoUtil::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& 
  */
 
 void
-RasgeoUtil::fast_scale_process_primitive_type(const r_Primitive_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func) throw (ImportError)
+RasgeoUtil::fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func) throw (ImportError)
 {
     if (func == r_BitAggregation)
     {
@@ -1062,7 +1098,7 @@ RasgeoUtil::fast_scale_process_primitive_type(const r_Primitive_Type *primType, 
             break;
         default:
             LDEBUG << "bitaggregation resampling: unknown primitive type" /* << primType->type_id() */;
-            throw ImportError( UNKNOWNBASETYPE );
+            throw ImportError(UNKNOWNBASETYPE);
             break;
         }
     }
@@ -1099,14 +1135,14 @@ RasgeoUtil::fast_scale_process_primitive_type(const r_Primitive_Type *primType, 
             break;
         default:
             LDEBUG << "subsampling resampling: unknown primitive type" /* << primType->type_id() */;
-            throw ImportError( UNKNOWNBASETYPE );
+            throw ImportError(UNKNOWNBASETYPE);
             break;
         }
     }
     else    // no valid sampling method - should not appear due to parameter evaluation procedure
     {
         LDEBUG << "unknown sampling method: " << func;
-        throw ImportError( INVALIDSAMPLINGMETHOD );
+        throw ImportError(INVALIDSAMPLINGMETHOD);
     }
 
     return;
@@ -1114,13 +1150,13 @@ RasgeoUtil::fast_scale_process_primitive_type(const r_Primitive_Type *primType, 
 
 /// scale an array having a struct base type; can handle recursive structs
 void
-RasgeoUtil::fast_scale_process_structured_type(const r_Structure_Type *structType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func) throw (ImportError)
+RasgeoUtil::fast_scale_process_structured_type(const r_Structure_Type* structType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func) throw (ImportError)
 {
     r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
     // for each struct component
     while (iter != structType->defines_attribute_end())
     {
-        r_Type *newType;
+        r_Type* newType;
         unsigned long offset;
 
         newType = (*iter).type_of().clone();
@@ -1129,12 +1165,12 @@ RasgeoUtil::fast_scale_process_structured_type(const r_Structure_Type *structTyp
         // is component a struct itself?
         if (newType->isStructType())    // ...then recurse into (composite) struct component
         {
-            r_Structure_Type *newStructType = static_cast<r_Structure_Type*>(newType);
+            r_Structure_Type* newStructType = static_cast<r_Structure_Type*>(newType);
             RasgeoUtil::fast_scale_process_structured_type(newStructType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         else                // is basic type
         {
-            r_Primitive_Type *newPrimType = static_cast<r_Primitive_Type*>(newType);
+            r_Primitive_Type* newPrimType = static_cast<r_Primitive_Type*>(newType);
             RasgeoUtil::fast_scale_process_primitive_type(newPrimType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         delete newType;
@@ -1147,7 +1183,7 @@ RasgeoUtil::fast_scale_process_structured_type(const r_Structure_Type *structTyp
 /// scales array using subsampling method
 // FIXME: always iterate over the full dest domain, but not over the full src domain.
 template<class T>
-void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, bool round) throw (ImportError)
+void RasgeoUtil::fast_scale_resample_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, bool round) throw (ImportError)
 {
     r_MiterDirect destIter(static_cast<void*>(dest), destIv, destIv, type_len, 1);
     r_MiterDirect subIter(static_cast<void*>(const_cast<T*>(src)), srcIv, iterDom, type_len, 1);
@@ -1156,7 +1192,7 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
     unsigned int i;
 
     // set low bound all zero
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         subIter.id[i].low = 0;
     }
@@ -1169,7 +1205,7 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
 
         // init sub iterator
         subIter.done = 0;
-        for (i=0; i<dim; i++)
+        for (i = 0; i < dim; i++)
         {
             long rest;
 
@@ -1177,9 +1213,11 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
             subIter.id[i].data = srcIter.getData();
             rest = srcIter.id[i].high - srcIter.id[i].pos;
             if (rest >= static_cast<long>(length))
-                rest = static_cast<long>(length)-1;
+            {
+                rest = static_cast<long>(length) - 1;
+            }
             subIter.id[i].high = rest;
-            count *= rest+1;
+            count *= rest + 1;
         }
 
         // sum data
@@ -1192,9 +1230,13 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
         // average data
         // use round to nearest for averaging
         if (round)
+        {
             *(static_cast<T*>(destIter.getData())) = static_cast<T>(sum / count + 0.5);
+        }
         else
+        {
             *(static_cast<T*>(destIter.getData())) = static_cast<T>(sum / count);
+        }
         // LDEBUG << "current value: " << (long)(((const T*)(srcIter.getData())) - src) << " , " << (long)(((T*)(destIter.getData())) - dest);
         ++srcIter;
         ++destIter;
@@ -1206,7 +1248,7 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
 /// scale array using bitaggregation method
 // FIXME: always iterate over the full dest domain, but not over the full src domain.
 template<class T>
-void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length) throw (ImportError)
+void RasgeoUtil::fast_scale_aggregate_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length) throw (ImportError)
 {
     r_MiterDirect destIter(static_cast<void*>(dest), destIv, destIv, type_len, 1);
     r_MiterDirect subIter(static_cast<void*>(const_cast<T*>(src)), srcIv, iterDom, type_len);
@@ -1214,7 +1256,7 @@ void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minte
     unsigned int dim = static_cast<unsigned int>(srcIv.dimension());
     unsigned int i;
 
-    for (i=0; i<dim; i++)
+    for (i = 0; i < dim; i++)
     {
         subIter.id[i].low = 0;
     }
@@ -1225,7 +1267,7 @@ void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minte
 
         // init sub iterator
         subIter.done = 0;
-        for (i=0; i<dim; i++)
+        for (i = 0; i < dim; i++)
         {
             long rest;
 
@@ -1233,9 +1275,11 @@ void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minte
             subIter.id[i].data = srcIter.getData();
             rest = srcIter.id[i].high - srcIter.id[i].pos;
             if (rest >= static_cast<long>(length))
-                rest = static_cast<long>(length)-1;
+            {
+                rest = static_cast<long>(length) - 1;
+            }
             subIter.id[i].high = rest;
-            count *= rest+1;
+            count *= rest + 1;
         }
         while (subIter.done == 0)
         {
@@ -1252,21 +1296,23 @@ void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minte
 }
 
 /// generate a rasql update query string from collection name and oid, if oid flag says so
-const string RasgeoUtil::generateImportQuery( const char *c, r_Minterval ovl, int useOId, r_OId oid ) throw(ImportError, r_Error)
+const string RasgeoUtil::generateImportQuery(const char* c, r_Minterval ovl, int useOId, r_OId oid) throw(ImportError, r_Error)
 {
-    string myQuery = string( "UPDATE " ) + c + " AS a SET a" + ovl.get_string_representation() + " ASSIGN $1";
+    string myQuery = string("UPDATE ") + c + " AS a SET a" + ovl.get_string_representation() + " ASSIGN $1";
 
     if (useOId)                             // OId is to be used, so append WHERE clause
-        myQuery += string( " WHERE oid(a)=" ) + oid.get_string_representation();
+    {
+        myQuery += string(" WHERE oid(a)=") + oid.get_string_representation();
+    }
 
     return myQuery.c_str();
 } // generateImportQuery()
 
 /// generate a rasql select query string
 /// FIXME: why here no OID flag???
-const string RasgeoUtil::generateSelectQuery( const char *c, r_Minterval ovl ) throw (ImportError, r_Error)
+const string RasgeoUtil::generateSelectQuery(const char* c, r_Minterval ovl) throw (ImportError, r_Error)
 {
-    string result = string( "SELECT a" ) + ovl.get_string_representation() + " FROM " + c + " AS a";
+    string result = string("SELECT a") + ovl.get_string_representation() + " FROM " + c + " AS a";
 
     return result;
 } // generateSelectQuery()
@@ -1275,33 +1321,37 @@ const string RasgeoUtil::generateSelectQuery( const char *c, r_Minterval ovl ) t
 
 /// perform select query (with result), log to stdout if debug is activated
 void
-RasgeoUtil::executeQuery( r_OQL_Query& query, r_Set< r_Ref_Any > &result ) throw (r_Error, ImportError)
+RasgeoUtil::executeQuery(r_OQL_Query& query, r_Set<r_Ref_Any>& result) throw (r_Error, ImportError)
 {
     if (RasgeoUtil::debug)
+    {
         cout << "\t" << query.get_parameterized_query() << endl << flush;
-    r_oql_execute( query , result );
+    }
+    r_oql_execute(query , result);
     return;
 }
 
 /// perform update query (no result), log to stdout if debug is activated
 void
-RasgeoUtil::executeQuery( r_OQL_Query& query ) throw (r_Error, ImportError)
+RasgeoUtil::executeQuery(r_OQL_Query& query) throw (r_Error, ImportError)
 {
     if (RasgeoUtil::debug)
+    {
         cout << "\t" << query.get_parameterized_query() << endl << flush;
-    r_oql_execute( query );
+    }
+    r_oql_execute(query);
     return;
 }
 
 // --------------------------------------------------------------------------
 
 bool
-RasgeoUtil::allowedCollNameChar( const char* collName )
+RasgeoUtil::allowedCollNameChar(const char* collName)
 {
     char testChar;
     bool allowedChar = true;
 
-    for (unsigned int strPos = 0; strPos < strlen( collName) && allowedChar; strPos++)
+    for (unsigned int strPos = 0; strPos < strlen(collName) && allowedChar; strPos++)
     {
         testChar = collName[strPos];
         allowedChar = (testChar >= 'a' && testChar <= 'z') || (testChar >= 'A' && testChar <= 'Z')
@@ -1309,8 +1359,10 @@ RasgeoUtil::allowedCollNameChar( const char* collName )
         // not sure about '-', but rasdaman will complain if illegal
     }
 
-    if ( ! allowedChar )
+    if (! allowedChar)
+    {
         LDEBUG << "allowedCollNameChar: illegal char in scale collectionname name: " << testChar;
+    }
 
     return allowedChar;
 }
@@ -1319,9 +1371,9 @@ RasgeoUtil::allowedCollNameChar( const char* collName )
  * returns ptr if an MDD type with the given name exists in the database, NULL otherwise
  * throws r_Error upon general database comm error
  */
-r_Marray_Type * RasgeoUtil::getTypeFromDatabase( const char *mddTypeName ) throw(ImportError, r_Error)
+r_Marray_Type* RasgeoUtil::getTypeFromDatabase(const char* mddTypeName) throw(ImportError, r_Error)
 {
-    r_Marray_Type *retval = NULL;
+    r_Marray_Type* retval = NULL;
     char* typeStructure = NULL;
 
     // first, try to get type structure from database using a separate r/o transaction
@@ -1330,7 +1382,7 @@ r_Marray_Type * RasgeoUtil::getTypeFromDatabase( const char *mddTypeName ) throw
         openTransaction(false);
         typeStructure = db.getComm()->getTypeStructure(mddTypeName, ClientComm::r_MDDType_Type);
         LDEBUG << "type structure is " << typeStructure;
-        closeTransaction( false );  // abort
+        closeTransaction(false);    // abort
     }
     catch (r_Error& err)
     {
@@ -1341,7 +1393,7 @@ r_Marray_Type * RasgeoUtil::getTypeFromDatabase( const char *mddTypeName ) throw
             // earlier code tried this one below, but I feel we better are strict -- PB 2003-jul-06
             // strcpy(typeStructure, mddTypeName);
             // LDEBUG << "using instead: " << typeStructure;
-            throw ImportError( MDDTYPEINVALID );
+            throw ImportError(MDDTYPEINVALID);
         }
         else    // unanticipated error
         {
@@ -1367,7 +1419,7 @@ r_Marray_Type * RasgeoUtil::getTypeFromDatabase( const char *mddTypeName ) throw
             delete tempType;
             tempType = NULL;
             retval = NULL;
-            throw ImportError( MDDTYPEINVALID );
+            throw ImportError(MDDTYPEINVALID);
         }
     }
     catch (r_Error& err)
@@ -1386,7 +1438,7 @@ r_Marray_Type * RasgeoUtil::getTypeFromDatabase( const char *mddTypeName ) throw
 /*
  *
  */
-void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_Marray_Type*& mddType, r_Ref<r_GMarray>& fileMDD ) throw(ImportError, r_Error)
+void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_Marray_Type*& mddType, r_Ref<r_GMarray>& fileMDD) throw(ImportError, r_Error)
 {
     r_Set<r_Ref_Any> result;        // select query result
     r_Ref<r_GMarray> selectedMDD;       // MDD fetched from database for overlaying it
@@ -1397,7 +1449,7 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
     // prepare overlay MDD
     LDEBUG << "initializing targetMDD, tiling as above, domain " << overlayDomain;
     stl = new r_Storage_Layout(theTiling->clone());
-    targetMDD = new (mddTypeName)r_GMarray(overlayDomain, mddType->base_type().size(), stl);
+    targetMDD = new(mddTypeName)r_GMarray(overlayDomain, mddType->base_type().size(), stl);
     targetMDD->set_type_schema(mddType);
 
     if (strlen(queryStringS) == 0)      // nothing from database to be overlaid
@@ -1414,7 +1466,7 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
         RasgeoUtil::executeQuery(query, result);
         LDEBUG << "done";
 
-        r_Iterator< r_Ref_Any > iter = result.create_iterator();
+        r_Iterator<r_Ref_Any> iter = result.create_iterator();
         selectedMDD = r_Ref<r_GMarray>(*iter);
         // FIXME: what if result contains >1 elements?
         LDEBUG << "domain of database MDD is " << selectedMDD->spatial_domain();
@@ -1461,7 +1513,7 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
         r_OQL_Query query(queryString);
         query << *targetMDD;
         LDEBUG << "executing query for target MDD: " << queryString << "...";
-        executeQuery( query );
+        executeQuery(query);
         LDEBUG << "done";
 
         INFO << "ok" << endl << flush;
@@ -1470,8 +1522,8 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
     {
         INFO << LOG_INDENT << "performing database update with pyramid:" << endl << flush;
 
-        std::list<std::pair<double, char*> >::iterator iter = scaleLevels->begin();
-        std::list<std::pair<double, char*> >::iterator end = scaleLevels->end();
+        std::list<std::pair<double, char*>>::iterator iter = scaleLevels->begin();
+        std::list<std::pair<double, char*>>::iterator end = scaleLevels->end();
         r_Minterval scaledDomain;
         r_Minterval clipDomain;
         unsigned int length = 0;
@@ -1479,7 +1531,9 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
         r_Point origin(maxDim);
         double factor = 0;
         for (r_Dimension i = 0; i < maxDim; i++)
-            origin[i] = 0;      // lower bound is always 0 in rasgeo
+        {
+            origin[i] = 0;    // lower bound is always 0 in rasgeo
+        }
 
         LDEBUG << "doing pyramid construction for target MDD scale levels";
         while (iter != end) // for each pyramid level
@@ -1505,7 +1559,9 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
 
             INFO << LOG_INDENT << LOG_INDENT << "pyramid layer " << iter->second << ", factor " << factor << ", target domain " << scaledDomain << "..." << flush;
             if (underflow)
+            {
                 cout << "warning: pyramid interval underflow, skipping domain " << overlayDomain << endl << flush;
+            }
             else
             {
                 LDEBUG << "performing database update for layer " << iter->second << " with factor " << iter->first << ", scaled domain " << scaledDomain << ", " << " clip domain " << clipDomain;
@@ -1523,7 +1579,9 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
     //  selectedMDD.destroy();
 
     if (targetMDD != NULL)
+    {
         targetMDD.destroy();
+    }
 
     // if (stl != NULL)
     //  delete stl;
@@ -1537,7 +1595,7 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
  * consider tiling, alignment, pyramid
  */
 void
-RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char** argv, ImportType iType ) throw(ImportError, r_Error)
+RasgeoUtil::doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** argv, ImportType iType) throw(ImportError, r_Error)
 {
 #ifndef RMANDEBUG
     installSignalHandlers();
@@ -1555,9 +1613,11 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
     // load MDD type structure from database
     INFO << "verifying type structure against database...";
     LDEBUG << "load type definition from database";
-    r_Marray_Type *mddType = getTypeFromDatabase( mddTypeName );
+    r_Marray_Type* mddType = getTypeFromDatabase(mddTypeName);
     if (mddType == NULL)
-        throw ImportError( MDDTYPEINVALID );
+    {
+        throw ImportError(MDDTYPEINVALID);
+    }
     INFO << "ok" << endl << flush;
 
     // prepare type and storage layout
@@ -1587,7 +1647,7 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
         case IMPORTTYPE_TK:
         default:
             LDEBUG << "Error: unsupported import type: " << importType;
-            throw ImportError( ILLEGALIMPORTTYPE );
+            throw ImportError(ILLEGALIMPORTTYPE);
             break;
         }
 
@@ -1601,9 +1661,13 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
             */
             polygon.setMArray(*fileMDD);
             if (insidePatternDef)
+            {
                 polygon.fillMArrayInside(insidePattern);
+            }
             if (outsidePatternDef)
+            {
                 polygon.fillMArrayOutside(outsidePattern);
+            }
             /* should be done in r_PolygonCutOut
                                 }
                                 else
@@ -1624,17 +1688,21 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
 #if 0
         //taken from tiling.cc r_Size_Tiling
         r_Dimension dim = tempDom.dimension();
-        r_Range edgeLength = (r_Range)std::max( (r_Range)floor(pow(updateBufferSize, 1/(double)dim) ), 1);
+        r_Range edgeLength = (r_Range)std::max((r_Range)floor(pow(updateBufferSize, 1 / (double)dim)), 1);
         if (align)
         {
-            edgeLength = edgeLength - edgeLength%align;
+            edgeLength = edgeLength - edgeLength % align;
             if (edgeLength < align)
+            {
                 edgeLength = align;
+            }
             LDEBUG << "tiledImport in combination with align parameter leads to edge length " << edgeLength;
         }
         tileDom = r_Minterval(dim);
         for (r_Dimension dimcnt = 0; dimcnt < dim; dimcnt++)
+        {
             tileDom << r_Sinterval(0, edgeLength - 1);
+        }
         iter = new r_MiterArea(&tileDom, &tempDom);
 #else   // this disregards buffer size if , focuses only on align value
         // do we have to go through the MDD tile by tile (align gives edge length)?
@@ -1650,8 +1718,8 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
         {
             // sqrt(bufsize/pixsize) gives max edge length
             edgeLength = static_cast<r_Range>(std::max(
-                             static_cast<r_Range>(floor(pow(updateBufferSize / mddType->base_type().size(), 1/static_cast<double>(2.0)) )),
-                             static_cast<r_Range>(1)));
+                                                  static_cast<r_Range>(floor(pow(updateBufferSize / mddType->base_type().size(), 1 / static_cast<double>(2.0)))),
+                                                  static_cast<r_Range>(1)));
         }
         // window is 0..n-1 x 0..n-1
         tileDom = r_Minterval(2) << r_Sinterval(static_cast<r_Range>(0), edgeLength - 1) << r_Sinterval(static_cast<r_Range>(0), edgeLength - 1);
@@ -1661,7 +1729,7 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
     }
 
     INFO << "opening read-write transaction..." << flush;
-    openTransaction( true );        // start update transaction
+    openTransaction(true);          // start update transaction
     INFO << "ok" << endl << flush;
 
     do  // pass once for non-tiled, iterate for tiled update
@@ -1696,22 +1764,22 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
             if (! overlayDomain.covers(mddDomain))
             {
                 LDEBUG << "Overlay domain " << overlayDomain << " does not cover MDD domain " << mddDomain;
-                throw ImportError( OVERLAYDOMAINDOESNOTMATCH );
+                throw ImportError(OVERLAYDOMAINDOESNOTMATCH);
             }
-            selectQuery = generateSelectQuery( collName, overlayDomain );
+            selectQuery = generateSelectQuery(collName, overlayDomain);
         }
         LDEBUG << "selectQuery=" << selectQuery;
 
-        string updateQuery = generateImportQuery( collName, overlayDomain, mddOIdDef, mddOId );
+        string updateQuery = generateImportQuery(collName, overlayDomain, mddOIdDef, mddOId);
         LDEBUG << "updateQuery=" << updateQuery;
-        doImport( updateQuery.c_str(), selectQuery.c_str(), mddType, fileMDD );
+        doImport(updateQuery.c_str(), selectQuery.c_str(), mddType, fileMDD);
 
         // keep TAs small to save main mem
-        if ( taSplit )
+        if (taSplit)
         {
             INFO << LOG_INDENT << "flushing transaction..." << flush;
-            RasgeoUtil::closeTransaction( true );           // commit
-            RasgeoUtil::openTransaction( true );        // r/w
+            RasgeoUtil::closeTransaction(true);             // commit
+            RasgeoUtil::openTransaction(true);          // r/w
             INFO << "ok" << endl;
         }
 
@@ -1721,11 +1789,13 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
     // log output depending on verbosity: an eol for the progress dots
     // NB: note {} around INFO, DON'T remove!
     if (!verbose)
+    {
         cout << endl;
+    }
 
 
     INFO << "committing transaction..." << flush;
-    closeTransaction( true );       // commit changes
+    closeTransaction(true);         // commit changes
     INFO << "ok" << endl;
 
     closeDatabase();            // close database
@@ -1743,7 +1813,9 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
     }
 
     if (fileMDD != NULL)
+    {
         fileMDD.destroy();
+    }
 
     return;
 } // doStuff()
