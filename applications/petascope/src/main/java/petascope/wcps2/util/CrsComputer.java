@@ -230,11 +230,12 @@ public class CrsComputer {
         try {
             // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
             // TODO: I need to extract all the values, not just the extremes
+
             long[] indexes = registry.getMetadataSource().getIndexesFromIrregularRectilinearAxis(
                                  coverage.getCoverageInfo().getCoverageName(),
                                  coverage.getCoverageInfo().getDomainIndexByName(axisName), // i-order of axis
-                                 (new BigDecimal(numericSubset.getLowerLimit())).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
-                                 (new BigDecimal(numericSubset.getUpperLimit())).subtract(domMin),  //
+                                 (new BigDecimal(numericSubset.getLowerLimit().toString())).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
+                                 (new BigDecimal(numericSubset.getUpperLimit().toString())).subtract(domMin),  //
                                  pxMin, pxMax);
 
             // Add sdom lower bound

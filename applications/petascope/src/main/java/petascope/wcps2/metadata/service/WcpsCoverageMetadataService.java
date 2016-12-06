@@ -390,8 +390,8 @@ public class WcpsCoverageMetadataService {
                            metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
 
         // Set the correct translated grid parsed subset to axis
-        unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit()));
-        unTranslatedNumericSubset.setUpperLimit(new BigDecimal(translatedSubset.getUpperLimit()));
+        unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit().toString()));
+        unTranslatedNumericSubset.setUpperLimit(new BigDecimal(translatedSubset.getUpperLimit().toString()));
     }
 
     /**
@@ -424,8 +424,8 @@ public class WcpsCoverageMetadataService {
                            geoDomainMin, gridDomainMin, gridDomainMax);
 
         // Set the correct translated grid parsed subset to axis
-        unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit()));
-        unTranslatedNumericSubset.setUpperLimit(new BigDecimal(translatedSubset.getUpperLimit()));
+        unTranslatedNumericSubset.setLowerLimit(new BigDecimal(translatedSubset.getLowerLimit().toString()));
+        unTranslatedNumericSubset.setUpperLimit(new BigDecimal(translatedSubset.getUpperLimit().toString()));
     }
 
     /**
@@ -514,7 +514,7 @@ public class WcpsCoverageMetadataService {
                 metadata, geoDomainMin, geoDomainMax, gridDomainMin, gridDomainMax);
 
         // Set the correct translated grid parsed subset to axis
-        numericSlicingBound = new NumericSlicing(new BigDecimal(translatedSubset.getLowerLimit()));
+        numericSlicingBound = new NumericSlicing(new BigDecimal(translatedSubset.getLowerLimit().toString()));
         axis.setGridBounds(numericSlicingBound);
     }
 
@@ -559,7 +559,7 @@ public class WcpsCoverageMetadataService {
         ParsedSubset<BigInteger> translatedSubset = this.translateGridToGeoCoordinates(parsedSubset, axis,
                 geoDomainMin, gridDomainMin, gridDomainMax);
         // Set the correct translated grid parsed subset to axis
-        numericSlicingBound = new NumericSlicing(new BigDecimal(translatedSubset.getLowerLimit()));
+        numericSlicingBound = new NumericSlicing(new BigDecimal(translatedSubset.getLowerLimit().toString()));
         axis.setGeoBounds(numericSlicingBound);
     }
 

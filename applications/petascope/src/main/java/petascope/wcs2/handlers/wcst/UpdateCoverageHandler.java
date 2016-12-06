@@ -309,7 +309,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             //time
             String datumOrigin = currentDom.getCrsDef().getDatumOrigin();
             String axisUoM = currentDom.getUom();
-            normalizedSlicePoint = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, currentDom.getScalarResolution().doubleValue()));
+            normalizedSlicePoint = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, currentDom.getScalarResolution().doubleValue()).toString());
         }
         BigDecimal normalizedDomMin = BigDecimalUtil.divide(currentDom.getMinValue(), currentDom.getScalarResolution());
         BigDecimal coefficient = (normalizedSlicePoint.subtract(normalizedDomMin)).multiply(currentDom.getDirectionalResolution());

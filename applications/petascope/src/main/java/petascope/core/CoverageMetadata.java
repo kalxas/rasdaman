@@ -1073,7 +1073,7 @@ public class CoverageMetadata implements Cloneable {
                         String datumOrigin = crsAxes.get(i).fst.getCrsDefinition().getDatumOrigin();
                         String uom = crsAxes.get(i).fst.getUoM();
                         Double numericCoordinate = TimeUtil.countOffsets(datumOrigin, stringOriginPoints[i], uom, 1D); //don't normalize here, absolute time value needed
-                        originPoints.add(new BigDecimal(numericCoordinate));
+                        originPoints.add(new BigDecimal(numericCoordinate.toString()));
                     }
                 } else {
                     //numeric

@@ -1019,8 +1019,8 @@ public class CrsUtil {
 
                     if (subsetWithTimestamps) {
                         // Need to convert timestamps to TemporalCRS numeric coordinates (normalized: "how many vectors" between subset/datum)
-                        normalizedNumLo = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue()));
-                        normalizedNumHi = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue()));
+                        normalizedNumLo = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue()).toString());
+                        normalizedNumHi = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue()).toString());
                     } else {
                         // Coefficients refer to how many offset-vectors of distance is a coordinate
                         normalizedNumLo = BigDecimalUtil.divide(new BigDecimal(numLo), dom.getScalarResolution());

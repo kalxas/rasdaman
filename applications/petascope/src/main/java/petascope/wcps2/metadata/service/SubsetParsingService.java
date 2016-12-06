@@ -176,12 +176,12 @@ public class SubsetParsingService {
         //try to parse numbers
         try {
             if (dimension instanceof TrimSubsetDimension) {
-                lowerBound = new BigDecimal(((TrimSubsetDimension)dimension).getLowerBound());
-                upperBound = new BigDecimal(((TrimSubsetDimension)dimension).getUpperBound());
+                lowerBound = new BigDecimal(((TrimSubsetDimension)dimension).getLowerBound().toString());
+                upperBound = new BigDecimal(((TrimSubsetDimension)dimension).getUpperBound().toString());
 
                 numericSubset = new NumericTrimming(lowerBound, upperBound);
             } else {
-                lowerBound = new BigDecimal(((SliceSubsetDimension)dimension).getBound());
+                lowerBound = new BigDecimal(((SliceSubsetDimension)dimension).getBound().toString());
                 upperBound = lowerBound;
 
                 numericSubset = new NumericSlicing(lowerBound);
