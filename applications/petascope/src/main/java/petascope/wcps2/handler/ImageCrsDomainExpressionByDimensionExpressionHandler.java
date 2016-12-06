@@ -60,10 +60,6 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler {
             tmp = SLICING_TEMPLATE.replace("$lowBound", bound);
         }
 
-        // This is axis for bounding box
-        List<Axis> axesBBox = coverageExpression.getMetadata().getAxesBBox();
-        axesBBox.add(axis);
-
         // (0:5)
         rasql = "(" + tmp + ")";
         WcpsMetadataResult wcpsMetadataResult = new WcpsMetadataResult(coverageExpression.getMetadata(), rasql);

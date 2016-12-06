@@ -545,7 +545,7 @@ public class CrsUtil {
     public static boolean isIndexCrs(String axisCrs) {
         // strip the crsID (e.g: 4326, Index3D from a CRS URL)
         String crsID = axisCrs.substring(axisCrs.lastIndexOf("/") + 1);
-        if (crsID.matches(INDEX_CRS_PATTERN)) {
+        if (crsID.contains(INDEX_CRS_PREFIX)) {
             return true;
         }
         return false;

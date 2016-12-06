@@ -56,6 +56,10 @@ public interface FormatExtension extends  Extension {
     String FORMAT_ID_OPENJP2 = "jp2openjpeg";
     String FORMAT_ID_PNG = "png";
     String FORMAT_ID_NETCDF = "netcdf";
+    
+    // Rasql must use Jp2OpenJpeg with "codec":"jp2" to have geo-reference metadata in encoding
+    String CODEC = "codec";
+    String CODEC_JP2 = "jp2";
 
     // Metadata for JPEG2000 (jp2openjpeg driver)
     String FORMAT_ID_OPENJP2_CODEC = "codec=jp2";

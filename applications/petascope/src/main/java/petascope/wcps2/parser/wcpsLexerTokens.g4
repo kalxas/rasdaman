@@ -25,6 +25,8 @@
  *
  * @author Alex Dumitru <alex@flanche.net>
  * @author Vlad Merticariu <vlad@flanche.net>
+ * 
+ * Useful reference: https://github.com/antlr/grammars-v4
  */
 lexer grammar wcpsLexerTokens;
 FOR: ('f'|'F')('o'|'O')('r'|'R');
@@ -84,6 +86,8 @@ NAN_NUMBER_CONSTANT: ('n'|'N')('a'|'A')('n'|'N');
 OR: ('o'|'O')('r'|'R');
 OVER:('o'|'O')('v'|'V')('e'|'E')('r'|'R');
 OVERLAY: ('o'|'O')('v'|'V')('e'|'E')('r'|'R')('l'|'L')('a'|'A')('y'|'Y');
+QUOTE: '"';
+ESCAPED_QUOTE: '\\"';
 PLUS: '+';
 POWER: ('p'|'P')('o'|'O')('w'|'W');
 REAL_PART: ('r'|'R')('e'|'E');
@@ -115,7 +119,10 @@ REAL_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?;
 COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
 NAME: [a-z|A-Z]+;
 //FORMAT_NAME: replaced with STRING_LITERAL for backward compatibility with WCPS1. The regex for a valid mime type is: '"'[a-zA-Z0-9!#$&.+-^_]+'/'[a-zA-Z0-9!#$&.+-^_]+'"'
-STRING_LITERAL: '"'[a-zA-Z0-9!#$&.+-^_ ]+'"';
+FORMAT_NAME: QUOTE [a-zA-Z0-9 ]+ QUOTE;
+STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_ ]+ '"';
+// extra params in JSON format
+EXTRA_PARAMS: '"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"';
 WS: [ \n\t\r]+ -> skip;
 CRS_TRANSFORM: ('c'|'C')('r'|'R')('s'|'S')('t'|'T')('r'|'R')('a'|'A')('n'|'N')('s'|'S')('f'|'F')('o'|'O')('r'|'R')('m'|'M');
 //for testing

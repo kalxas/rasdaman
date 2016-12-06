@@ -89,6 +89,13 @@ public class AxisIterator extends AxisSpec {
     public void setAxisIteratorOrder(int axisIteratorOrder) {
         this.axisIteratorOrder = axisIteratorOrder;
     }
+    
+    
+    /**
+     * Current only support Axis Iterator on 1D interval which already translated to grid interval.
+     */
+    public static final String AXIS_NAME_DEAULT = "x";
+    public static final String CRS_DEFAULT = "Index1D";
 
     /**
      * This is the alias name of the axis iterator (e.g: $px x(0:20))

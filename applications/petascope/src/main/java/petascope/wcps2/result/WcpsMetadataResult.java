@@ -30,10 +30,10 @@ import petascope.wcs2.extensions.FormatExtension;
  */
 public class WcpsMetadataResult implements VisitorResult {
 
-    private String result;
+    private final String result;
     private String mimeType;
     //the metadata resulting from the evaluation
-    private WcpsCoverageMetadata metadata;
+    private final WcpsCoverageMetadata metadata;
 
     public WcpsMetadataResult(WcpsCoverageMetadata metadata, String result) {
         this.metadata = metadata;
@@ -48,11 +48,13 @@ public class WcpsMetadataResult implements VisitorResult {
         return metadata;
     }
 
+    @Override
     public String getMimeType() {
         return this.mimeType;
     }
 
     // Normally mimeType is null as this WCPS query does not have "encoding()"
+    @Override
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
         if (this.mimeType == null) {

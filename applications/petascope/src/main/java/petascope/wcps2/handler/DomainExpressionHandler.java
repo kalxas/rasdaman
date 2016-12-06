@@ -128,9 +128,7 @@ public class DomainExpressionHandler {
 
             result = SLICING_TEMPLATE.replace("$lowBound", bound);
         }
-
-        // NOTE: add this axis to axesBBox for bounding box
-        coverageExpression.getMetadata().getAxesBBox().add(axis);
+        
         return result;
     }
 

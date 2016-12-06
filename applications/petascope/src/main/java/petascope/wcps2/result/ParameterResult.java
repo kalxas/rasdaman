@@ -31,9 +31,11 @@ package petascope.wcps2.result;
  */
 public class ParameterResult implements VisitorResult {
 
+    @Override
     public void setMimeType(String mimeType) {
     }
 
+    @Override
     public String getMimeType() {
         return "";
     }

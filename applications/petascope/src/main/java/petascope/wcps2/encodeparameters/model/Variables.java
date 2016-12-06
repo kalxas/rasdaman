@@ -14,40 +14,35 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-package petascope.wcps2.decodeparameters.model;
+*/
+package petascope.wcps2.encodeparameters.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
+import petascope.wcps2.parameters.model.netcdf.Variable;
 
 /**
- * This class represents geo referencing parameters, as understandable by the rasdaman decode function.
- * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+ *
+ * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public class GeoReference {
-
-    private String crs;
-    private BoundingBox bbox;
-
-    public GeoReference(String crs, BoundingBox bbox) {
-        this.crs = crs;
-        this.bbox = bbox;
+public class Variables {
+    public Variables() {
+        
+    }
+    public Variables(Map<String, Variable> variableValues) {
+        this.variableValues = variableValues;
+    }
+    public void setVariableValues(Map<String, Variable> variableValues) {
+        this.variableValues = variableValues;
+    }
+    @JsonProperty("variables")
+    public Map<String, Variable> getVariableValues () {
+        return this.variableValues;
     }
 
-    public String getCrs() {
-        return crs;
-    }
-
-    public BoundingBox getBbox() {
-        return bbox;
-    }
-
-    public void setCrs(String crs) {
-        this.crs = crs;
-    }
-
-    public void setBbox(BoundingBox bbox) {
-        this.bbox = bbox;
-    }
+    private Map<String, Variable> variableValues;
 }

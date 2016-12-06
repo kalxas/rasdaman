@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.decodeparameters.model;
+package petascope.wcps2.parameters.model.netcdf;
 
 import java.util.List;
 

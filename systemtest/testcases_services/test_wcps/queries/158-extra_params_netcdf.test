@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp) return encode(c[Lat(-40:-15), Long(120:141)], "netcdf", "{ \"nodata\": [0], \"formatParameters\": {\"INTERLEAVE\": \"BAND\"} }")

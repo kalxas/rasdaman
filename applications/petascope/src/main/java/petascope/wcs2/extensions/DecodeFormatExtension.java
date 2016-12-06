@@ -49,7 +49,6 @@ import java.io.PrintWriter;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import static petascope.core.DbMetadataSource.TABLE_MULTIPOINT;
-import petascope.wcps.metadata.DomainElement;
 
 /**
  * Common class for all format extensions.

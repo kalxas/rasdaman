@@ -21,6 +21,10 @@
  */
 package petascope.wcps2.metadata.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
@@ -33,8 +37,10 @@ import petascope.wcps2.metadata.model.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +48,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import petascope.core.CrsDefinition;
 import petascope.wcps.server.core.RangeElement;
+import petascope.wcps2.encodeparameters.service.ExtraMetadataService;
 
 /**
  * This class translates different types of metadata into WcpsCoverageMetadata.
@@ -55,12 +62,14 @@ public class WcpsCoverageMetadataTranslator {
 
     public WcpsCoverageMetadata translate(CoverageMetadata metadata) {
         List<Axis> axes = buildAxes(metadata.getDomainList(), metadata.getCellDomainList());
-        List<RangeField> rangeFields = buildRangeFields(metadata.getRangeIterator(), metadata.getSweComponentsIterator());
+        List<RangeField> rangeFields = buildRangeFields(metadata.getRangeIterator(), metadata.getSweComponentsIterator());        
         Set<String> metadataList = metadata.getExtraMetadata(DbMetadataSource.EXTRAMETADATA_TYPE_GMLCOV);
+        // parse extra metadata of coverage to map
+        Map<String, String> extraMetadata = ExtraMetadataService.convertExtraMetadata(StringUtils.join(metadataList, ""));
         List<NilValue> nodata = metadata.getAllUniqueNullValues();
         return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
                                         CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
-                                        rangeFields, StringUtils.join(metadataList, ""), parseNodataValues(nodata));
+                                        rangeFields, extraMetadata, parseNodataValues(nodata));
     }
 
     private List<RangeField> buildRangeFields(Iterator<RangeElement> rangeIterator, Iterator<AbstractSimpleComponent> sweIterator) {
@@ -87,11 +96,11 @@ public class WcpsCoverageMetadataTranslator {
         return ret;
     }
 
-    private List<Double> parseNodataValues(List<NilValue> nullValues) {
-        List<Double> result = new ArrayList<Double>();
+    private List<BigDecimal> parseNodataValues(List<NilValue> nullValues) {
+        List<BigDecimal> result = new ArrayList<BigDecimal>();
         for (NilValue nullValue : nullValues) {
             try {
-                result.add(Double.valueOf(nullValue.getValue()));
+                result.add(new BigDecimal(nullValue.getValue()));
             } catch (Exception e) {
                 //failed converting to double, don't add it
                 Logger.getLogger(WcpsCoverageMetadataTranslator.class.getName()).log(Level.SEVERE, null, e);
@@ -156,5 +165,4 @@ public class WcpsCoverageMetadataTranslator {
         }
         return result;
     }
-
 }

@@ -35,7 +35,7 @@ public class WcpsResult implements VisitorResult {
     //the rasql string resulting from the evaluation
     private String rasql;
     //the metadata resulting from the evaluation
-    private WcpsCoverageMetadata metadata;
+    private final WcpsCoverageMetadata metadata;
 
     private String mimeType;
 
@@ -57,12 +57,14 @@ public class WcpsResult implements VisitorResult {
         return metadata;
     }
 
+    @Override
     public String getMimeType() {
         return this.mimeType;
     }
 
     // rasql query can be encode in multiple types (e.g: tiff, png, csv,...)
     // then need to get the correct MIME for each type
+    @Override
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
         // e.g: dem() is not MIME then will return null

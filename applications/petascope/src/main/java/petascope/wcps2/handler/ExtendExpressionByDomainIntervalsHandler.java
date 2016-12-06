@@ -21,8 +21,6 @@
  */
 package petascope.wcps2.handler;
 
-import java.util.List;
-import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
@@ -46,19 +44,6 @@ public class ExtendExpressionByDomainIntervalsHandler {
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
                        .replace("$intervalList", dimensionIntervalList);
-
-        // NOTE: it will add the output bounding box with the values from wcpsMetadataResult
-        // e.g: scale(c, imageCrsdomain(c[Lat(0:20)], Long(0:30)])) then output bounding box is "xmin=0,xmax=30,ymin=0,ymax=20"
-        WcpsCoverageMetadata metadataByMetaResult = wcpsMetadataResult.getMetadata();
-
-        // list axis bounding box of imageCrsdomain()
-        List<Axis> axesBBoxMeta = metadataByMetaResult.getAxesBBox();
-        // list axis of bounding box of coverageExpression
-        List<Axis> axesBBoxRasql = metadata.getAxesBBox();
-
-        for (Axis axis : axesBBoxMeta) {
-            axesBBoxRasql.add(axis);
-        }
 
         return new WcpsResult(metadata, rasql);
     }

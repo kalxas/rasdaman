@@ -21,6 +21,8 @@
  */
 package petascope.wcps2.parser;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.math.BigDecimal;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +38,7 @@ import java.util.*;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
+import petascope.util.StringUtil;
 import petascope.wcps2.metadata.model.RangeField;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
@@ -143,37 +146,28 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Override
     public VisitorResult visitEncodedCoverageExpressionLabel(@NotNull wcpsParser.EncodedCoverageExpressionLabelContext ctx) {
         WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
-        List<TerminalNode> params = ctx.STRING_LITERAL();
-        /**
-         * Changed for backwards compatibility with WCPS1.
-         * The change consisted in accepting a string literal as format name.
-         * In order to revert the change, uncomment the code below.
-         */
-
-        //code removed for backwards compatibility
-        //String format = ctx.FORMAT_NAME().getText();
-        //end code removed for backwards compatibility
-
-        //code added for backwards compatibility with WCPS1, where format name can be a STRING_LITERAL
-        String format = params.get(0).getText();
-        //end code added for backwards compatibility
-
-        List<String> otherParams = null;
-        if (params.size() > 1) {
-            otherParams = new ArrayList();
-            for (Integer i = 1; i < params.size(); i++) {
-                otherParams.add(params.get(i).getText());
-            }
+        // e.g: tiff
+        String formatType = StringUtil.stripQuotes(ctx.format_name().getText());
+        // NOTE: extraParam here can be:
+        // + Old style: e.g: "nodata=0"
+        // + JSON style: e.g: "{\"nodata\": [0]}" -> {"nodata": [0]}
+        String extraParams = "";
+        if (ctx.extra_params() != null) {
+            extraParams = StringUtil.stripQuotes(ctx.extra_params().getText()).replace("\\", "");
         }
-
-        // each WCPS query only return 1 MIME type
-        this.mimeType = this.coverageRegistry.getMetadataSource().formatToMimetype(format.replace("\"", ""));
-
+        
+        // e.g: tiff -> image/tiff (canonical MIME)
+        this.mimeType = this.coverageRegistry.getMetadataSource().formatToMimetype(formatType);     
+ 
         WcpsResult result = null;
         try {
-            result = EncodedCoverageHandler.handle(coverageExpression, format, otherParams, this.coverageRegistry);
+            result = EncodeCoverageHandler.handle(coverageExpression, formatType, extraParams, this.coverageRegistry);
         } catch (PetascopeException e) {
             log.error(e.getMessage(), e);
+            throw new MetadataSerializationException();
+        } catch (JsonProcessingException ex) {
+            // Cannot convert object to JSON
+            log.error(ex.getMessage(), ex);
             throw new MetadataSerializationException();
         }
         return result;
@@ -1152,19 +1146,14 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // return x in (50:80)
 
         WcpsMetadataResult wcpsMetadataResult = (WcpsMetadataResult)visit(ctx.domainIntervals());
+        String rasqlInterval = wcpsMetadataResult.getResult();
+        // remove the () from (50:80) and extract lower and upper grid bounds
+        String[] gridBounds = rasqlInterval.substring(1, rasqlInterval.length() - 1).split(":");
 
         // NOTE: it expects that "domainIntervals" will only return 1 trimming domain in this case (so only 1D)
-        SubsetDimension trimSubsetDimension = null;
-
         String coverageVariableName = ctx.coverageVariableName().getText();
-        int axesBBoxSize = wcpsMetadataResult.getMetadata().getAxesBBox().size();
-
-        if (axesBBoxSize > 1) {
-            throw new InvalidDomainIntervalsForAxisIteratorException(coverageVariableName, axesBBoxSize);
-        } else {
-            // Only has 1 D domain, then it is valid to create a TrimSubsetDimension from the metadata result
-            trimSubsetDimension = rasqlTranslationService.constructRasqlDomainFromWcpsMetadataDomainInterval(wcpsMetadataResult);
-        }
+        SubsetDimension trimSubsetDimension = new TrimSubsetDimension(AxisIterator.AXIS_NAME_DEAULT, AxisIterator.CRS_DEFAULT,
+                                                                     gridBounds[0], gridBounds[1]);
 
         AxisIterator axisIterator = new AxisIterator(coverageVariableName, trimSubsetDimension);
         return axisIterator;
@@ -1173,7 +1162,6 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
     // ULTILITY
     /* ----------------- Ultility Handlers------------------ */
-
     public String getMimeType() {
         // Get the mimeType for one WCPS query
         return mimeType;

@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp) return encode(c[Lat(-20:-20), Long(120:121)], "tiff", "{ \"nodata\": [0], \"geoReference\":{ \"bbox\":{\"xmin\":120.025,\"ymin\":-19.975,\"xmax\":121.025,\"ymax\":-19.975} }")

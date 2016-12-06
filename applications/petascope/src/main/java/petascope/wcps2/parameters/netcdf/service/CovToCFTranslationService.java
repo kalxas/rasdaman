@@ -19,9 +19,8 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.decodeparameters.service;
+package petascope.wcps2.parameters.netcdf.service;
 
-import petascope.wcps2.metadata.model.Axis;
 
 import java.util.HashMap;
 import java.util.Map;

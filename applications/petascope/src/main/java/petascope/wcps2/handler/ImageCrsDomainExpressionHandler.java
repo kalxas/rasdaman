@@ -47,7 +47,6 @@ public class ImageCrsDomainExpressionHandler {
         // just iterate the axes and get the grid bound for each axis
         String rasql = "";
         List<String> axisBounds = new ArrayList<String>();
-        List<Axis> axesBBox = coverageExpression.getMetadata().getAxesBBox();
 
         for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             // This is used to set bounding box in case of scale() or extend() with imageCrsdomain()
@@ -58,9 +57,6 @@ public class ImageCrsDomainExpressionHandler {
                 String lowBound = ((NumericTrimming)axis.getGridBounds()).getLowerLimit().toPlainString();
                 String highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
                 tmp = TRIMMING_TEMPLATE.replace("$lowBound", lowBound).replace("$highBound", highBound);
-
-                // No add slicing axis to bounding box
-                axesBBox.add(axis);
 
                 // Only add trimming domain interval to Rasql
                 // e.g: imageCrsDomain(c[t("1950-01-01"), Long(43:44), Lat(24:25)]) - return (43:44,24:25)

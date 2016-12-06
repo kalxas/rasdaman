@@ -187,7 +187,7 @@ public class RasqlTranslationService {
      */
     public SubsetDimension constructRasqlDomainFromWcpsMetadataDomainInterval(WcpsMetadataResult wcpsMetadataResult) {
         // NOTE: it only support 1D domain for the axis iterator
-        Axis axis = wcpsMetadataResult.getMetadata().getAxesBBox().get(0);
+        Axis axis = wcpsMetadataResult.getMetadata().getAxes().get(0);
         String axisName = axis.getLabel();
         String crsUri = axis.getCrsUri();
         String lowerBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();

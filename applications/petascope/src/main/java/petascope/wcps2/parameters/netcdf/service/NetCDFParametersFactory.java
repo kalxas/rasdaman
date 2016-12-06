@@ -19,131 +19,54 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.decodeparameters.service;
+package petascope.wcps2.parameters.netcdf.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import petascope.wcps2.parameters.model.netcdf.BandVariableMetadata;
+import petascope.wcps2.parameters.model.netcdf.DimensionVariable;
+import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
+import petascope.wcps2.parameters.model.netcdf.DimensionVariableMetadata;
+import petascope.wcps2.parameters.model.netcdf.Variable;
+import petascope.wcps2.parameters.model.netcdf.BandVariable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
-import petascope.util.AxisTypes;
-import petascope.wcps2.decodeparameters.model.*;
 import petascope.wcps2.metadata.model.*;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * This class will build parameters for encoding in NetCDF
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class NetCDFParametersFactory {
 
     //this key is used when the coverage metadata is not an object (xml, json) so the contents is passed as an object
     //having a single property, with this key
-    private final static String METADATA_STRING_KEY = "metadata";
-    private final XmlMapper xmlMapper;
-    private final ObjectMapper objectMapper;
     private final DbMetadataSource dbMetadataSource;
     private final CovToCFTranslationService covToCFTranslationService;
 
     public NetCDFParametersFactory(XmlMapper xmlMapper, ObjectMapper objectMapper, DbMetadataSource dbMetadataSource,
                                    CovToCFTranslationService covToCFTranslationService) {
-        this.xmlMapper = xmlMapper;
-        this.objectMapper = objectMapper;
+        
         this.dbMetadataSource = dbMetadataSource;
         this.covToCFTranslationService = covToCFTranslationService;
     }
 
     public NetCDFExtraParams getParameters(WcpsCoverageMetadata metadata) throws PetascopeException {
         List<String> dimensions = this.getDimensions(metadata.getAxes());
-        List<Variable> variables = this.getVariables(metadata);
-        String extraMetdata = metadata.getMetadata();
-        GeoReference geoReference = getGeoreference(metadata);
-        NetCDFExtraParams netCDFExtraParams = new NetCDFExtraParams(dimensions, variables, metadata.getNodata(), convertExtraMetadata(extraMetdata), geoReference);
+        List<Variable> vars = this.getVariables(metadata);
+        // variables in JSON uses as a Map: { "variableName": { object }, "variableName1": { object1 }, .... }
+        Map<String, Variable> variables = new LinkedHashMap<String, Variable>();
+        for (Variable var:vars) {
+            variables.put(var.getName(), var);
+        }
+        
+        NetCDFExtraParams netCDFExtraParams = new NetCDFExtraParams(dimensions, variables);
         return netCDFExtraParams;
-    }
-
-    private GeoReference getGeoreference(WcpsCoverageMetadata metadata) {
-        GeoReference result = null;
-        String crs = "";
-        BoundingBox boundingBox = new BoundingBox();
-        for (Axis axis : metadata.getAxes()) {
-            //for now we only add the Lat / Long axes
-            if (axis.getAxisType().equals(AxisTypes.X_AXIS)) {
-                crs = axis.getCrsDefinition().getAuthority() + ":" + axis.getCrsDefinition().getCode();
-                boundingBox.setXMin(((NumericTrimming)axis.getGeoBounds()).getLowerLimit().doubleValue());
-                boundingBox.setXMax(((NumericTrimming)axis.getGeoBounds()).getUpperLimit().doubleValue());
-            } else if (axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
-                boundingBox.setYMin(((NumericTrimming)axis.getGeoBounds()).getLowerLimit().doubleValue());
-                boundingBox.setYMax(((NumericTrimming)axis.getGeoBounds()).getUpperLimit().doubleValue());
-            }
-        }
-        result = new GeoReference(crs, boundingBox);
-        return result;
-    }
-
-    private Map<String, String> convertExtraMetadata(String extraMetadata) {
-        Map<String, String> convertedMetadata = null;
-        //remove the slices and the gmlcov:metadata closing tag if it exists
-        extraMetadata = removeMetadataSlices(extraMetadata).replace("<gmlcov:metadata />", "");
-        //convert to object
-        try {
-            //find out the type
-            if (extraMetadata.startsWith("<")) {
-                //xml
-                //the contents that the xmlMapper can read into a map must currently come from inside an outer tag, which is ignored
-                //so we are just adding them
-                convertedMetadata = xmlMapper.readValue(OUTER_TAG_START + extraMetadata + OUTER_TAG_END, Map.class);
-            } else if (extraMetadata.startsWith("{")) {
-                //json
-                convertedMetadata = objectMapper.readValue(extraMetadata, new TypeReference<Map<String, String>>() {});
-            }
-        } catch (IOException e) {
-            //failed, just give it as string
-            convertedMetadata = new HashMap<String, String>();
-            convertedMetadata.put(METADATA_STRING_KEY, extraMetadata);
-        }
-        return convertedMetadata;
-    }
-
-    private String removeMetadataSlices(String extraMetadata) {
-        String result = "";
-        //remove all \n and double spaces
-        extraMetadata = extraMetadata.replaceAll("\\s+", " ");
-        if (extraMetadata.contains("<slices>") && extraMetadata.contains("</slices>")) {
-            //xml
-            String[] extraMetadataParts = extraMetadata.split("<slices>");
-            String begin = extraMetadataParts[0];
-            String[] endParts = extraMetadataParts[1].split("</slices>");
-            String end = endParts[endParts.length - 1];
-            result = begin + end;
-        } else if (extraMetadata.contains("<slices />")) {
-            //xml, no slices
-            result = extraMetadata.replace("<slices />", "");
-        } else if (extraMetadata.contains("{ \"slices\":")) {
-            //json with slices as first element
-            String[] extraMetadataParts = extraMetadata.split("\"slices\":");
-            String begin = extraMetadataParts[0];
-            String[] endParts = extraMetadataParts[1].split("],");
-            String end = endParts[1];
-            result = begin + end;
-        } else if (extraMetadata.contains(", \"slices\"")) {
-            //json, slices not first
-            String[] extraMetadataParts = extraMetadata.split(", \"slices\":");
-            String begin = extraMetadataParts[0];
-            String[] endParts = extraMetadataParts[1].split("]");
-            String end = endParts[1];
-            result = begin + end;
-        } else {
-            //default
-            result = extraMetadata;
-        }
-        return result;
     }
 
     private List<String> getDimensions(List<Axis> axes) {
@@ -173,8 +96,8 @@ public class NetCDFParametersFactory {
     private List<BandVariable> getBandVariables(List<RangeField> bands) {
         List<BandVariable> bandVariables = new ArrayList<BandVariable>();
         for (RangeField band : bands) {
-            bandVariables.add(new BandVariable(band.getType(), new BandVariableMetadata(band.getDescription(), band.getNodata(),
-                                               band.getUom(), band.getDefinition()), band.getName()));
+            bandVariables.add(new BandVariable(band.getType(), band.getName(), new BandVariableMetadata(band.getDescription(), band.getNodata(),
+                                               band.getUom(), band.getDefinition())));
         }
         return bandVariables;
     }
@@ -237,7 +160,4 @@ public class NetCDFParametersFactory {
 
         return data;
     }
-
-    private final static String OUTER_TAG_START = "<metadata>";
-    private final static String OUTER_TAG_END = "</metadata>";
 }

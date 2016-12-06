@@ -19,74 +19,41 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.decodeparameters.model;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import petascope.wcps2.decodeparameters.service.VariablesJsonSerializer;
+package petascope.wcps2.parameters.model.netcdf;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * This class represents the netcdf parameters understandable by the rasdaman decode function.
+ * This class represents the netcdf parameters understandable by the rasdaman encode (export). decode (import) function.
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class NetCDFExtraParams {
 
     private List<String> dimensions;
-    @JsonSerialize(using = VariablesJsonSerializer.class)
-    private List<Variable> variables;
-    private List<Double> nodata;
-    private Map<String, String> metadata;
-
-    public GeoReference getGeoReference() {
-        return geoReference;
-    }
-
-    public void setGeoReference(GeoReference geoReference) {
-        this.geoReference = geoReference;
-    }
-
-    private GeoReference geoReference;
+    //@JsonSerialize(using = VariablesJsonSerializer.class)
+    // NOTE: Using custom JSON serializer as we want a list of objects in JSON not an array of objects in JSON
+    private Map<String, Variable> variables;    
 
 
-    public NetCDFExtraParams(List<String> dimensions, List<Variable> variables, List<Double> nodata, Map<String, String> metadata, GeoReference geoReference) {
+    public NetCDFExtraParams(List<String> dimensions, Map<String, Variable> variables) {
         this.dimensions = dimensions;
         this.variables = variables;
-        this.nodata = nodata;
-        this.metadata = metadata;
-        this.geoReference = geoReference;
     }
 
     public List<String> getDimensions() {
         return dimensions;
     }
 
-    public List<Variable> getVariables() {
+    public Map<String, Variable> getVariables() {
         return variables;
     }
-
-    public List<Double> getNodata() {
-        return nodata;
-    }
-
-    public Object getMetadata() {
-        return metadata;
-    }
-
+    
     public void setDimensions(List<String> dimensions) {
         this.dimensions = dimensions;
     }
 
-    public void setVariables(List<Variable> variables) {
+    public void setVariables(Map<String, Variable> variables) {
         this.variables = variables;
-    }
-
-    public void setNodata(List<Double> nodata) {
-        this.nodata = nodata;
-    }
-
-    public void setMetadata(Map<String, String> metadata) {
-        this.metadata = metadata;
     }
 }

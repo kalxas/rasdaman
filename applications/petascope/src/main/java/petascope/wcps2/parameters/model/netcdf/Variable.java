@@ -19,48 +19,14 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.decodeparameters.model;
-
-import java.util.List;
+package petascope.wcps2.parameters.model.netcdf;
 
 /**
- * This class represents the metadata for a variable representing a band in netcdf.
+ * Interface for netcdf variables.
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class BandVariableMetadata {
+public interface Variable {
 
-    private String description;
-
-    private List<Double> missing_value;
-
-    private String units;
-
-    private String definition;
-
-    public BandVariableMetadata(String description, List<Double> missing_value, String units, String definition) {
-        this.description = description;
-        this.missing_value = missing_value;
-        this.units = units;
-        this.definition = definition;
-    }
-
-    public BandVariableMetadata() {
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public List<Double> getMissing_value() {
-        return missing_value;
-    }
-
-    public String getUnits() {
-        return units;
-    }
-
-    public String getDefinition() {
-        return definition;
-    }
+    String getName();
 }

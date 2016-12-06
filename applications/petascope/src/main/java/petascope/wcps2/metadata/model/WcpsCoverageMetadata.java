@@ -21,12 +21,15 @@
  */
 package petascope.wcps2.metadata.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
 
 import java.util.List;
+import java.util.Map;
 import petascope.core.CrsDefinition;
 import petascope.util.AxisTypes;
+import petascope.util.CrsUtil;
 
 /**
  * Class that keeps information about the coverages (such as domains, CRSs
@@ -40,19 +43,16 @@ public class WcpsCoverageMetadata {
     private final String coverageName;
     private String coverageType;
     private List<Axis> axes;
-    // output bounding box of coverage, used in case of scale, extend
-    // e.g: scale(c, imageCrsdomain(c[Lat(0:20)], Long(0:30)])) then it has 2 axes (Lat(0:20), Long(0:30))
-    private List<Axis> axesBBox = new ArrayList<Axis>();
     private final String crsUri;
     // use in crsTransform()
     private String outputCrsUri;
     private final List<RangeField> rangeFields;
 
-    private List<Double> nodata;
-    private String metadata;
+    private List<BigDecimal> nodata;
+    private Map<String, String> metadata;
 
     public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri,
-                                List<RangeField> rangeFields, String metadata, List<Double> nodata) {
+                                List<RangeField> rangeFields, Map<String, String> metadata, List<BigDecimal> nodata) {
         this.crsUri = crsUri;
         this.axes = axes;
         this.coverageName = coverageName;
@@ -99,6 +99,10 @@ public class WcpsCoverageMetadata {
         throw new InvalidAxisNameException(axisName);
     }
 
+    /**
+     * Return the XY axes from coverage (e.g: 3D x,y,t then axes is x,y)
+     * @return 
+     */
     public List<Axis> getXYAxes() {
         List<Axis> axisList = new ArrayList<Axis>();
         for (Axis axis : this.axes) {
@@ -109,30 +113,35 @@ public class WcpsCoverageMetadata {
         }
         return axisList;
     }
-
+    
     /**
-     * add the axes for the bounding box (then can use later with set
-     * xmin,ymin,xmax,ymax)
-     *
-     * @return
+     * Get the geo-reference CRS which is used for X, Y axes only
+     * @return 
      */
-    public List<Axis> getAxesBBox() {
-        return this.axesBBox;
+    public String getXYCrs() {
+        // NOTE: cannot combine CRS from 1 axis with geo-referenced CRS and 1 axis is time (or IndexND)
+        // so if coverage returns with 1 axis is Lat and 1 axis is AnsiDate so the CRS for the coverage will be Index2D
+        if (this.getXYAxes().size() < 2) {            
+            return CrsUtil.INDEX_CRS_PREFIX;
+        }
+        
+        // X, Y axes have same CRS
+        return this.getXYAxes().get(0).getCrsUri();
     }
 
-    public List<Double> getNodata() {
+    public List<BigDecimal> getNodata() {
         return nodata;
     }
 
-    public void setNodata(List<Double> nodata) {
+    public void setNodata(List<BigDecimal> nodata) {
         this.nodata = nodata;
     }
 
-    public String getMetadata() {
+    public Map<String, String> getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(String metadata) {
+    public void setMetadata(Map<String, String> metadata) {
         this.metadata = metadata;
     }
 

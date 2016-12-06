@@ -19,47 +19,44 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.decodeparameters.model;
+package petascope.wcps2.parameters.model.netcdf;
 
 /**
- * This class represents a netcdf variable that corresponds to a band.
- *
- * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+ * This class represents the metadata of a netcdf variable that represents a dimension.
+ * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class BandVariable implements Variable {
+public class DimensionVariableMetadata {
+    String standard_name;
+    String units;
+    String axis;
 
-    private String type;
-    private BandVariableMetadata metadata;
-    private String name;
-
-    public BandVariable(String type, BandVariableMetadata metadata, String name) {
-        this.type = type;
-        this.metadata = metadata;
-        this.name = name;
+    public DimensionVariableMetadata(String standard_name, String units, String axis) {
+        this.standard_name = standard_name;
+        this.units = units;
+        this.axis = axis;
     }
 
-    public String getType() {
-        return type;
+    public String getStandard_name() {
+        return standard_name;
     }
 
-
-    public BandVariableMetadata getMetadata() {
-        return metadata;
+    public void setStandard_name(String standard_name) {
+        this.standard_name = standard_name;
     }
 
-    public String getName() {
-        return name;
+    public String getUnits() {
+        return units;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setUnits(String units) {
+        this.units = units;
     }
 
-    public void setMetadata(BandVariableMetadata metadata) {
-        this.metadata = metadata;
+    public String getAxis() {
+        return axis;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAxis(String axis) {
+        this.axis = axis;
     }
 }

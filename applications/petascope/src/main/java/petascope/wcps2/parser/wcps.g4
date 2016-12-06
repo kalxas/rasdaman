@@ -38,7 +38,8 @@
 grammar wcps;
 import wcpsLexerTokens;
 
-wcpsQuery : (forClauseList) (whereClause)? (returnClause)                                                               #WcpsQueryLabel;
+wcpsQuery : (forClauseList) (whereClause)? (returnClause)
+#WcpsQueryLabel;
 
 /**
  * Example:
@@ -50,14 +51,16 @@ wcpsQuery : (forClauseList) (whereClause)? (returnClause)                       
  * for $c2 in (cov2)
  * return encode($c1 + $c2, "image/png")
  */
-forClauseList: FOR (forClause) (COMMA forClause)*                                                                       #ForClauseListLabel;
+forClauseList: FOR (forClause) (COMMA forClause)*
+#ForClauseListLabel;
 
 /**
  * Example:
  * for $c in (cov1)
  */
 forClause:  coverageVariableName IN
-           (LEFT_PARENTHESIS)? COVERAGE_VARIABLE_NAME (COMMA COVERAGE_VARIABLE_NAME)* (RIGHT_PARENTHESIS)?                                      #ForClauseLabel;
+           (LEFT_PARENTHESIS)? COVERAGE_VARIABLE_NAME (COMMA COVERAGE_VARIABLE_NAME)* (RIGHT_PARENTHESIS)?
+#ForClauseLabel;
 
 /**
  * Example:
@@ -88,7 +91,8 @@ returnClause: RETURN (LEFT_PARENTHESIS)? processingExpression (RIGHT_PARENTHESIS
  * for $coverageName in someCoverage return encode($coverageName, "csv");
  *
  */
-coverageVariableName: COVERAGE_VARIABLE_NAME                                                                            #CoverageVariableNameLabel;
+coverageVariableName: COVERAGE_VARIABLE_NAME
+#CoverageVariableNameLabel;
 
 
 /**
@@ -98,7 +102,7 @@ coverageVariableName: COVERAGE_VARIABLE_NAME                                    
  */
 processingExpression: scalarExpression
                     | encodedCoverageExpression
-		    | scalarValueCoverageExpression;
+		                | scalarValueCoverageExpression;
 
 
 /**
@@ -133,13 +137,20 @@ scalarExpression: booleanScalarExpression
  *   for $c in (someCoverage) return (not(TRUE))
  * | for $c in (someCoverage) return ( 1+3 > 2-1 )
  */
-booleanScalarExpression: reduceBooleanExpression                                                                        #BooleanReduceExpression
-                       | booleanConstant                                                                                #BooleanConstantLabel
-                       | booleanUnaryOperator LEFT_PARENTHESIS? booleanScalarExpression RIGHT_PARENTHESIS?              #BooleanUnaryScalarLabel
-                       | booleanScalarExpression booleanOperator booleanScalarExpression                                #BooleanBinaryScalarLabel
-                       | numericalScalarExpression numericalComparissonOperator  numericalScalarExpression              #BooleanNumericalComparisonScalarLabel
-                       | reduceBooleanExpression                                                                        #BooleanReduceExpression
-                       | stringScalarExpression stringOperator stringScalarExpression                                   #BooleanStringComparisonScalar;
+booleanScalarExpression: reduceBooleanExpression
+                         #BooleanReduceExpression
+                       | booleanConstant
+                         #BooleanConstantLabel
+                       | booleanUnaryOperator LEFT_PARENTHESIS? booleanScalarExpression RIGHT_PARENTHESIS?
+                         #BooleanUnaryScalarLabel
+                       | booleanScalarExpression booleanOperator booleanScalarExpression
+                         #BooleanBinaryScalarLabel
+                       | numericalScalarExpression numericalComparissonOperator  numericalScalarExpression
+                         #BooleanNumericalComparisonScalarLabel
+                       | reduceBooleanExpression
+                         #BooleanReduceExpression
+                       | stringScalarExpression stringOperator stringScalarExpression
+                         #BooleanStringComparisonScalar;
 
 booleanUnaryOperator: NOT;
 
@@ -151,9 +162,11 @@ numericalComparissonOperator: GREATER_THAN | GREATER_OR_EQUAL_THAN | LOWER_THAN 
 
 stringOperator: EQUAL | NOT_EQUAL;
 
-stringScalarExpression: STRING_LITERAL                                                                                  #StringScalarExpressionLabel;
+stringScalarExpression: STRING_LITERAL
+#StringScalarExpressionLabel;
 
-starExpression: MULTIPLICATION                                                                                          #StarExpressionLabel;
+starExpression: MULTIPLICATION
+#StarExpressionLabel;
 
 
 /**
@@ -188,13 +201,18 @@ booleanSwitchCaseCombinedExpression:  booleanSwitchCaseCoverageExpression boolea
  * for c in (someCoverage) return ((avg(a) / avg(b) * 9/5) + 32)
  */
 numericalScalarExpression: numericalUnaryOperation LEFT_PARENTHESIS numericalScalarExpression RIGHT_PARENTHESIS         #NumericalUnaryScalarExpressionLabel
-                         | trigonometricOperator LEFT_PARENTHESIS numericalScalarExpression RIGHT_PARENTHESIS           #NumericalTrigonometricScalarExpressionLabel
-                         | numericalScalarExpression numericalOperator numericalScalarExpression                        #NumericalBinaryScalarExpressionLabel
-                         | condenseExpression                                                                           #NumericalCondenseExpressionLabel
-                         | (MINUS)? REAL_NUMBER_CONSTANT      
+                         | trigonometricOperator LEFT_PARENTHESIS numericalScalarExpression RIGHT_PARENTHESIS
+                           #NumericalTrigonometricScalarExpressionLabel
+                         | numericalScalarExpression numericalOperator numericalScalarExpression
+                           #NumericalBinaryScalarExpressionLabel
+                         | condenseExpression
+                           #NumericalCondenseExpressionLabel
+                         | (MINUS)? REAL_NUMBER_CONSTANT
 #NumericalRealNumberExpressionLabel
-                         | NAN_NUMBER_CONSTANT                                                                         #NumericalNanNumberExpressionLabel
-                         | complexNumberConstant                                                                        #NumericalComplexNumberConstant
+                         | NAN_NUMBER_CONSTANT
+                           #NumericalNanNumberExpressionLabel
+                         | complexNumberConstant
+                           #NumericalComplexNumberConstant
                          ;
 /**
  * Example:
@@ -212,11 +230,11 @@ trigonometricOperator: SIN | COS | TAN | SINH | COSH | TANH | ARCSIN | ARCCOS | 
  *  See the rules below;
  */
 getComponentExpression: coverageIdentifierExpression
-          	      | coverageCrsSetExpression
-		      | domainExpression
-		      | imageCrsDomainExpression
-		      | imageCrsDomainByDimensionExpression
-		      | imageCrsExpression
+          	          | coverageCrsSetExpression
+		                  | domainExpression
+		                  | imageCrsDomainExpression
+		                  | imageCrsDomainByDimensionExpression
+		                  | imageCrsExpression
                       | describeCoverageExpression;
 
 /**
@@ -300,13 +318,17 @@ describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARENTHESIS coverageVariableN
 
 domainIntervals: domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression;
 
+
+format_name: FORMAT_NAME;
+extra_params: STRING_LITERAL | EXTRA_PARAMS;
+
 /**
  * Example:
  *   encode($c, "image/tiff")
  * | encode($c, "image/png", "NODATA=0")
  */
 encodedCoverageExpression: ENCODE LEFT_PARENTHESIS
-                           coverageExpression COMMA /* FORMAT_NAME */ STRING_LITERAL (COMMA STRING_LITERAL)*
+                           coverageExpression COMMA /* FORMAT_NAME */ format_name (COMMA extra_params)?
                            RIGHT_PARENTHESIS                                                                            #EncodedCoverageExpressionLabel;
 
 /**
@@ -322,53 +344,72 @@ decodeCoverageExpression: DECODE LEFT_PARENTHESIS
 /**
  * See subclauses
  */
-coverageExpression: coverageExpression booleanOperator coverageExpression                                               #CoverageExpressionLogicLabel
-		  | coverageConstructorExpression                                                                       #CoverageExpressionConstructorLabel
-                  | coverageExpression coverageArithmeticOperator coverageExpression                                    #CoverageExpressionArithmeticLabel
-                  | coverageExpression OVERLAY coverageExpression                                                       #CoverageExpressionOverlayLabel
-                  | coverageExpression numericalComparissonOperator coverageExpression                                  #CoverageExpressionComparissonLabel
-                  | coverageVariableName                                                                                #CoverageExpressionVariableNameLabel
-                  | scalarExpression                                                                                    #CoverageExpressionScalarLabel
+coverageExpression: coverageExpression booleanOperator coverageExpression
+                    #CoverageExpressionLogicLabel
+		              | coverageConstructorExpression
+                    #CoverageExpressionConstructorLabel
+                  | coverageExpression coverageArithmeticOperator coverageExpression
+                    #CoverageExpressionArithmeticLabel
+                  | coverageExpression OVERLAY coverageExpression
+                    #CoverageExpressionOverlayLabel
+                  | coverageExpression numericalComparissonOperator coverageExpression
+                    #CoverageExpressionComparissonLabel
+                  | coverageVariableName
+                    #CoverageExpressionVariableNameLabel
+                  | scalarExpression
+                    #CoverageExpressionScalarLabel
                   | coverageConstantExpression
-#CoverageExpressionConstantLabel
-                  | decodeCoverageExpression                                                                            #CoverageExpressionDecodeLabel
-                  | coverageExpression LEFT_BRACKET dimensionPointList RIGHT_BRACKET                                    #CoverageExpressionShorthandSliceLabel
+                    #CoverageExpressionConstantLabel
+                  | decodeCoverageExpression
+                    #CoverageExpressionDecodeLabel
+                  | coverageExpression LEFT_BRACKET dimensionPointList RIGHT_BRACKET
+                    #CoverageExpressionShorthandSliceLabel
                   | SLICE LEFT_PARENTHESIS coverageExpression COMMA LEFT_BRACE dimensionPointList RIGHT_BRACE
                           RIGHT_PARENTHESIS
-#CoverageExpressionSliceLabel
-                  | coverageExpression LEFT_BRACKET dimensionIntervalList RIGHT_BRACKET                                 #CoverageExpressionShorthandTrimLabel
+                    #CoverageExpressionSliceLabel
+                  | coverageExpression LEFT_BRACKET dimensionIntervalList RIGHT_BRACKET
+                    #CoverageExpressionShorthandTrimLabel
                   | TRIM LEFT_PARENTHESIS coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE
                     RIGHT_PARENTHESIS
-#CoverageExpressionTrimCoverageLabel
+                    #CoverageExpressionTrimCoverageLabel
                   | EXTEND LEFT_PARENTHESIS coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE
                     RIGHT_PARENTHESIS
-#CoverageExpressionExtendLabel
+                    #CoverageExpressionExtendLabel
                   | EXTEND LEFT_PARENTHESIS coverageExpression COMMA LEFT_BRACE domainIntervals RIGHT_BRACE
                     RIGHT_PARENTHESIS
-+#CoverageExpressionExtendByDomainIntervalsLabel
-                  | unaryArithmeticExpression                                                                           #CoverageExpressionUnaryArithmeticLabel
-                  | trigonometricExpression                                                                             #CoverageExpressionTrigonometricLabel
-                  | exponentialExpression                                                                               #CoverageExpressionExponentialLabel
-		  | unaryPowerExpression
-#CoverageExpressionPowerLabel
-                  | unaryBooleanExpression                                                                              #CoverageExpressionUnaryBooleanLabel
-                  | castExpression                                                                                      #CoverageExpressionCastLabel
-                  | coverageExpression DOT fieldName                                                                    #CoverageExpressionRangeSubsettingLabel
-                  | rangeConstructorExpression                                                                          #CoverageExpressionRangeConstructorLabel
+                    #CoverageExpressionExtendByDomainIntervalsLabel
+                  | unaryArithmeticExpression
+                    #CoverageExpressionUnaryArithmeticLabel
+                  | trigonometricExpression
+                    #CoverageExpressionTrigonometricLabel
+                  | exponentialExpression
+                    #CoverageExpressionExponentialLabel
+		              | unaryPowerExpression
+                    #CoverageExpressionPowerLabel
+                  | unaryBooleanExpression
+                    #CoverageExpressionUnaryBooleanLabel
+                  | castExpression
+                    #CoverageExpressionCastLabel
+                  | coverageExpression DOT fieldName
+                    #CoverageExpressionRangeSubsettingLabel
+                  | rangeConstructorExpression
+                    #CoverageExpressionRangeConstructorLabel
                   | crsTransformExpression
-#CoverageExpressionCrsTransformLabel
-		  | switchCaseExpression
-#CoverageExpressionSwitchCaseLabel
-		  | domainIntervals
-#CoverageExpressionDomainIntervalsLabel
+                    #CoverageExpressionCrsTransformLabel
+		              | switchCaseExpression
+                    #CoverageExpressionSwitchCaseLabel
+		              | domainIntervals
+                    #CoverageExpressionDomainIntervalsLabel
                   | SCALE LEFT_PARENTHESIS
                     coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE (COMMA fieldInterpolationList)*
-                    RIGHT_PARENTHESIS                                                                                   #CoverageExpressionScaleLabel
-		  | SCALE LEFT_PARENTHESIS
-		    coverageExpression COMMA LEFT_BRACE domainIntervals RIGHT_BRACE
                     RIGHT_PARENTHESIS
-#CoverageExpressionScaleByDomainIntervalsLabel
-                  | LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS                                               #CoverageExpressionCoverageLabel;
+                    #CoverageExpressionScaleLabel
+		              | SCALE LEFT_PARENTHESIS
+		                coverageExpression COMMA LEFT_BRACE domainIntervals RIGHT_BRACE
+                    RIGHT_PARENTHESIS
+                    #CoverageExpressionScaleByDomainIntervalsLabel
+                  | LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+                    #CoverageExpressionCoverageLabel;
 
 
 /**
@@ -429,7 +470,8 @@ unaryArithmeticExpression:  unaryArithmeticExpressionOperator  LEFT_PARENTHESIS 
  * Query:
  *   for $c in cov return encode(sin(cos($c)), "csv")
  */
-trigonometricExpression: trigonometricOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS                    #TrigonometricExpressionLabel;
+trigonometricExpression: trigonometricOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+#TrigonometricExpressionLabel;
 
 exponentialExpressionOperator: EXP | LOG | LN;
 
@@ -439,7 +481,8 @@ exponentialExpressionOperator: EXP | LOG | LN;
  * Query:
  *   for $c in cov return encode(ln(exp($c)), "csv")
  */
-exponentialExpression: exponentialExpressionOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS              #ExponentialExpressionLabel;
+exponentialExpression: exponentialExpressionOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+#ExponentialExpressionLabel;
 
 /**
  *
@@ -458,8 +501,10 @@ unaryPowerExpression: POWER LEFT_PARENTHESIS coverageExpression COMMA numericalS
  * Query:
  *   for $c in cov return encode(NOT(BIT($c, 2)), "csv")
  */
-unaryBooleanExpression: NOT LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS                                       #NotUnaryBooleanExpressionLabel
-                      | BIT LEFT_PARENTHESIS coverageExpression COMMA numericalScalarExpression RIGHT_PARENTHESIS       #BitUnaryBooleanExpressionLabel;
+unaryBooleanExpression: NOT LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+                        #NotUnaryBooleanExpressionLabel
+                      | BIT LEFT_PARENTHESIS coverageExpression COMMA numericalScalarExpression RIGHT_PARENTHESIS
+                        #BitUnaryBooleanExpressionLabel;
 
 
 /**
@@ -474,7 +519,8 @@ rangeType: COVERAGE_VARIABLE_NAME (COVERAGE_VARIABLE_NAME)*;
  * Query:
  *   for $c in cov return encode((char) $c, "csv")
  */
-castExpression: LEFT_PARENTHESIS rangeType RIGHT_PARENTHESIS coverageExpression                                         #CastExpressionLabel;
+castExpression: LEFT_PARENTHESIS rangeType RIGHT_PARENTHESIS coverageExpression
+#CastExpressionLabel;
 
 
 fieldName: COVERAGE_VARIABLE_NAME | REAL_NUMBER_CONSTANT;
@@ -508,11 +554,14 @@ rangeConstructorSwitchCaseExpression: LEFT_BRACE
 
 
 
-dimensionPointList: dimensionPointElement (COMMA dimensionPointElement)*                                                #DimensionPointListLabel;
+dimensionPointList: dimensionPointElement (COMMA dimensionPointElement)*
+#DimensionPointListLabel;
 
-dimensionPointElement: axisName (COLON crsName)? LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS                  #DimensionPointElementLabel;
+dimensionPointElement: axisName (COLON crsName)? LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+#DimensionPointElementLabel;
 
-dimensionIntervalList: dimensionIntervalElement (COMMA dimensionIntervalElement)*                                       #DimensionIntervalListLabel;
+dimensionIntervalList: dimensionIntervalElement (COMMA dimensionIntervalElement)*
+#DimensionIntervalListLabel;
 
 dimensionIntervalElement: axisName (COLON crsName)? LEFT_PARENTHESIS
                             coverageExpression COLON coverageExpression
@@ -538,19 +587,22 @@ dimensionIntervalElement: axisName (COLON crsName)? LEFT_PARENTHESIS
 */
 crsTransformExpression: CRS_TRANSFORM LEFT_PARENTHESIS
                           coverageExpression COMMA dimensionCrsList COMMA fieldInterpolationList
-                        RIGHT_PARENTHESIS                                                                               #CrsTransformExpressionLabel;
+                        RIGHT_PARENTHESIS
+#CrsTransformExpressionLabel;
 
 
 /*
  * e.g: { Lat:"http://localhost:8080/def/crs/EPSG/0/4326", Long:"http://localhost:8080/def/crs/EPSG/0/4326"}
 */
-dimensionCrsList: LEFT_BRACE dimensionCrsElement (COMMA dimensionCrsElement)* RIGHT_BRACE                               #DimensionCrsListLabel;
+dimensionCrsList: LEFT_BRACE dimensionCrsElement (COMMA dimensionCrsElement)* RIGHT_BRACE
+#DimensionCrsListLabel;
 
 
 /*
  * e.g: Lat:"http://localhost:8080/def/crs/EPSG/0/4326"
 */
-dimensionCrsElement: axisName COLON crsName                                                                             #DimensionCrsElementLabel;
+dimensionCrsElement: axisName COLON crsName
+#DimensionCrsElementLabel;
 
 
 /*
@@ -558,7 +610,7 @@ dimensionCrsElement: axisName COLON crsName                                     
  * { red(near, "1,2,3,NULL") } OR {}
 */
 fieldInterpolationList: LEFT_BRACE fieldInterpolationListElement (COMMA fieldInterpolationListElement)* RIGHT_BRACE
-		     |	LEFT_BRACE RIGHT_BRACE;
+            		     |	LEFT_BRACE RIGHT_BRACE;
 
 
 fieldInterpolationListElement: fieldName LEFT_PARENTHESIS interpolationMethod RIGHT_PARENTHESIS
@@ -575,7 +627,8 @@ interpolationMethod: interpolationType COMMA nullResistance
 /*
  * GDAL supported interpolation methods (near, bilinear, cubic, average,...)
 */
-interpolationType: STRING_LITERAL                                                                                     #InterpolationTypeLabel;
+interpolationType: STRING_LITERAL
+#InterpolationTypeLabel;
 
 
 /*
@@ -588,7 +641,8 @@ nullResistance: STRING_LITERAL;
 
 coverageConstructorExpression: COVERAGE COVERAGE_VARIABLE_NAME
                                OVER axisIterator (COMMA axisIterator)*
-                               VALUES coverageExpression                                                                #CoverageConstructorExpressionLabel;
+                               VALUES coverageExpression
+#CoverageConstructorExpressionLabel;
 
 /**
 * $px x (Lat(0:20))
@@ -601,17 +655,21 @@ AxisIteratorImageCrsDomainByDimensionLabel
 AxisIteratorImageCrsDomainLabel
 */
 axisIterator:   coverageVariableName axisName LEFT_PARENTHESIS  domainIntervals RIGHT_PARENTHESIS
-#AxisIteratorDomainIntervalsLabel
-		| coverageVariableName dimensionIntervalElement                                                             #AxisIteratorLabel;
+                #AxisIteratorDomainIntervalsLabel
+		          | coverageVariableName dimensionIntervalElement
+                #AxisIteratorLabel;
 
 
-intervalExpression: scalarExpression COLON scalarExpression                                                             #IntervalExpressionLabel;
+intervalExpression: scalarExpression COLON scalarExpression
+#IntervalExpressionLabel;
 
 coverageConstantExpression: COVERAGE COVERAGE_VARIABLE_NAME
                             OVER axisIterator (COMMA axisIterator)*
-                            VALUE LIST LOWER_THAN constant (SEMICOLON constant)* GREATER_THAN                               #CoverageConstantExpressionLabel;
+                            VALUE LIST LOWER_THAN constant (SEMICOLON constant)* GREATER_THAN
+#CoverageConstantExpressionLabel;
 
-axisSpec: dimensionIntervalElement                                                                                         #AxisSpecLabel;
+axisSpec: dimensionIntervalElement
+#AxisSpecLabel;
 
 condenseExpression: reduceExpression
                   | generalCondenseExpression;
@@ -620,7 +678,8 @@ reduceBooleanExpressionOperator: ALL | SOME;
 
 reduceNumericalExpressionOperator: COUNT | ADD | AVG | MIN | MAX;
 
-reduceBooleanExpression: reduceBooleanExpressionOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS          #ReduceBooleanExpressionLabel;
+reduceBooleanExpression: reduceBooleanExpressionOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
+#ReduceBooleanExpressionLabel;
 
 reduceNumericalExpression: reduceNumericalExpressionOperator LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS      #ReduceNumericalExpressionLabel;
 
@@ -633,7 +692,8 @@ condenseExpressionOperator: PLUS | MULTIPLICATION | MIN | MAX | AND | OR;
 generalCondenseExpression: CONDENSE condenseExpressionOperator
                            OVER axisIterator (COMMA axisIterator)*
                            (whereClause)?
-                           USING coverageExpression                                                                       #GeneralCondenseExpressionLabel;
+                           USING coverageExpression
+#GeneralCondenseExpressionLabel;
 
 
 /*
@@ -661,8 +721,8 @@ switchCaseExpression: SWITCH CASE (LEFT_PARENTHESIS)*
 			     RETURN rangeConstructorSwitchCaseExpression)*
 
 		      DEFAULT RETURN rangeConstructorSwitchCaseExpression
-#switchCaseRangeConstructorExpressionLabel
-                     | SWITCH CASE (LEFT_PARENTHESIS)*
+          #switchCaseRangeConstructorExpressionLabel
+        | SWITCH CASE (LEFT_PARENTHESIS)*
 					booleanSwitchCaseCombinedExpression
 				   (RIGHT_PARENTHESIS)*
 				  RETURN scalarValueCoverageExpression
@@ -673,7 +733,7 @@ switchCaseExpression: SWITCH CASE (LEFT_PARENTHESIS)*
 			    RETURN scalarValueCoverageExpression)*
 
 		      DEFAULT RETURN scalarValueCoverageExpression
-#switchCaseScalarValueExpressionLabel;
+          #switchCaseScalarValueExpressionLabel;
 
 
 /**

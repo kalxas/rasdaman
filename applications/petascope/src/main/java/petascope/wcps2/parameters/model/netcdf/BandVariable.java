@@ -19,58 +19,46 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.decodeparameters.model;
+package petascope.wcps2.parameters.model.netcdf;
 
 /**
- * This class represents a bounding box as understandable by the rasdaman decode function.
+ * This class represents a netcdf variable that corresponds to a band.
+ *
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
-public class BoundingBox {
+public class BandVariable implements Variable {
 
-    private double xmin;
-    private double ymin;
-    private double xmax;
-    private double ymax;
+    private String type;
+    private String name;
+    private BandVariableMetadata metadata;    
 
-    public BoundingBox(double xmin, double ymin, double xmax, double ymax) {
-        this.xmin = xmin;
-        this.ymin = ymin;
-        this.xmax = xmax;
-        this.ymax = ymax;
+    public BandVariable(String type, String name, BandVariableMetadata metadata) {
+        this.type = type;
+        this.name = name;
+        this.metadata = metadata;        
     }
 
-    public BoundingBox() {
+    public String getType() {
+        return type;
     }
 
-    public double getXMin() {
-        return xmin;
+    public BandVariableMetadata getMetadata() {
+        return metadata;
     }
 
-    public double getYMin() {
-        return ymin;
+    public String getName() {
+        return name;
     }
 
-    public double getXMax() {
-        return xmax;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public double getYMax() {
-        return ymax;
+    public void setMetadata(BandVariableMetadata metadata) {
+        this.metadata = metadata;
     }
 
-    public void setXMin(double xmin) {
-        this.xmin = xmin;
-    }
-
-    public void setYMin(double ymin) {
-        this.ymin = ymin;
-    }
-
-    public void setXMax(double xmax) {
-        this.xmax = xmax;
-    }
-
-    public void setYMax(double ymax) {
-        this.ymax = ymax;
+    public void setName(String name) {
+        this.name = name;
     }
 }

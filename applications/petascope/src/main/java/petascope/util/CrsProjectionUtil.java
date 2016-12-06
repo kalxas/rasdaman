@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
+import petascope.wcps2.encodeparameters.model.BoundingBox;
 
 /**
  * This class will provide utility method for projecting interval in geo-referenced axis
@@ -54,14 +55,36 @@ public class CrsProjectionUtil {
         List<BigDecimal> out = new ArrayList<BigDecimal>(srcCoords.length);
 
         // xmin, ymin
-        double[] xArray = new double[] { srcCoords[0], srcCoords[1] };
-        out.addAll(transform(sourceCrs, targetCrs, xArray, false));
+        double[] xyMinArray = new double[] { srcCoords[0], srcCoords[1] };
+        out.addAll(transform(sourceCrs, targetCrs, xyMinArray, false));
 
         // xmax, ymax
-        double[] yArray = new double[] { srcCoords[2], srcCoords[3] };
-        out.addAll(transform(sourceCrs, targetCrs, yArray, false));
+        double[] xyMaxArray = new double[] { srcCoords[2], srcCoords[3] };
+        out.addAll(transform(sourceCrs, targetCrs, xyMaxArray, false));
 
         return out;
+    }
+
+    /**
+     * Transform a BoundingBox object with xmin, ymin, xmax, ymax from soureCrs to targetCrs
+     * @param sourceCrs
+     * @param targetCrs
+     * @param bbox BoundingBox
+     * @return
+     * @throws petascope.exceptions.WCSException
+     */
+    public static BoundingBox transformBoundingBox(String sourceCrs, String targetCrs, BoundingBox bbox) throws WCSException {
+        List<BigDecimal> out = new ArrayList<BigDecimal>();
+
+        // xmin, ymin
+        double[] xyMinArray = new double[] { bbox.getXMin().doubleValue(), bbox.getYMin().doubleValue() };
+        out.addAll(transform(sourceCrs, targetCrs, xyMinArray, false));
+        
+        // xmax, ymax
+        double[] xyMaxArray = new double[] { bbox.getXMax().doubleValue(), bbox.getYMax().doubleValue() };
+        out.addAll(transform(sourceCrs, targetCrs, xyMaxArray, false));
+        
+        return new BoundingBox(out.get(0), out.get(1), out.get(2), out.get(3));
     }
 
     // Methods

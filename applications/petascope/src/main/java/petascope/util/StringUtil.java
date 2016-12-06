@@ -450,6 +450,17 @@ public class StringUtil {
 
         return outList;
     }
+    
+    /**
+     * Strip the " at first and last position of input string
+     * e.g: "abcdefef" -> abcdefef
+     * @param input
+     * @return 
+     */
+    public static String stripQuotes(String input) {
+        String output = input.replaceAll("^\"|\"$", "");
+        return output;
+    }
 
     /**
      * Clean all the empty, null elements in string array

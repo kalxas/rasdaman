@@ -1,0 +1,2 @@
+for c in (test_mean_summer_airtemp) return encode(c[Lat(-20:-20), Long(120:121)], "tiff", "{ \"nodata\": [0], \"geoReference\":{\"crs\":\"EPSG:4326\"} }")
+
