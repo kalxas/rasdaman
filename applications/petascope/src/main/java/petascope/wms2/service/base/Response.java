@@ -23,6 +23,7 @@
 package petascope.wms2.service.base;
 
 import org.jetbrains.annotations.NotNull;
+import petascope.wcs2.extensions.FormatExtension;
 import petascope.wms2.service.exception.error.WMSException;
 
 import java.nio.charset.Charset;
@@ -68,6 +69,6 @@ public abstract class Response {
     @NotNull
     private static final Charset DEFAULT_ENCODING = Charset.defaultCharset();
     @NotNull
-    private static final String DEFAULT_MIME_TYPE = "text/plain";
+    private static final String DEFAULT_MIME_TYPE = FormatExtension.MIME_XML;
 
 }

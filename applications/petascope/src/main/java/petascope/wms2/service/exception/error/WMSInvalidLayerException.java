@@ -31,6 +31,13 @@ import org.jetbrains.annotations.NotNull;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class WMSInvalidLayerException extends WMSException {
+
+    /**
+     * Constructor for the class when parameter is null
+     */
+    public WMSInvalidLayerException() {
+        super("No layer parameter requested.");
+    }
     /**
      * Constructor for the class
      *
@@ -47,5 +54,5 @@ public class WMSInvalidLayerException extends WMSException {
     }
 
     private final static String EXCEPTION_CODE = "LayerNotDefined";
-    private final static String ERROR_MESSAGE = "We could not find the requested layer $Layer.";
+    private final static String ERROR_MESSAGE = "The requested layer $Layer does not exist.";
 }

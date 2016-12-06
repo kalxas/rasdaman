@@ -45,5 +45,5 @@ public class WMSDataStoreException extends WMSException {
     }
 
     private final static String EXCEPTION_CODE = "DataStoreFailure";
-    private final static String EXCEPTION_MESSAGE = "Could not retrieve the data from the data store";
+    private final static String EXCEPTION_MESSAGE = "Could not retrieve the data from the data store.";
 }

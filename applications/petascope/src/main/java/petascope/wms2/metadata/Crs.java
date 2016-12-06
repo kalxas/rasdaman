@@ -25,6 +25,7 @@ package petascope.wms2.metadata;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.jetbrains.annotations.NotNull;
+import petascope.wms2.util.ConfigManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +51,7 @@ public class Crs implements ISerializableMetadataObject, IPersistentMetadataObje
     /**
      * Constructor for the class
      *
-     * @param crs the crs name
+     * @param crs the crs name (e.g: EPSG:4326)
      */
     public Crs(@NotNull String crs) {
         this.crs = crs;
@@ -71,7 +72,7 @@ public class Crs implements ISerializableMetadataObject, IPersistentMetadataObje
     @NotNull
     @Override
     public InputStream getStreamToTemplate() {
-        return this.getClass().getResourceAsStream(PATH_TO_TEMPLATES + "Crs.tpl.xml");
+        return this.getClass().getResourceAsStream(ConfigManager.PATH_TO_TEMPLATES + "Crs.tpl.xml");
     }
 
     /**

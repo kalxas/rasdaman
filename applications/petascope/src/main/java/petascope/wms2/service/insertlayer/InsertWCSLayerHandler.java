@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.insertwcslayer;
+package petascope.wms2.service.insertlayer;
 
 import org.jetbrains.annotations.NotNull;
 import petascope.core.CoverageMetadata;
@@ -198,7 +198,7 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
     private void addBoundingBox(CoverageMetadata wcsCoverage, Layer persistentWmsLayer) throws SQLException, WMSInvalidCrsUriException, WMSInvalidBbox {
         Bbox wcsBbox = wcsCoverage.getBbox();
         //create a crs object
-        Crs crs = new Crs(CrsComputer.convertCrsUriToWmsCrs(wcsBbox.getCrsName()));
+        Crs crs = new Crs(CrsUtil.getEPSGCode(wcsBbox.getCrsName()));
         //persist it
         Crs persistentCrs = persistentMetadataObjectProvider.getCrs().createIfNotExists(crs);
         //create and persist the bbox

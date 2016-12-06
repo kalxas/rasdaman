@@ -45,5 +45,5 @@ public class WMSInvalidStyleAbstract extends WMSException {
     }
 
     private final static String EXCEPTION_CODE = "InvalidStyleAbstract";
-    private final static String ERROR_MESSAGE = "The style abstract that you provided is invalid.";
+    private final static String ERROR_MESSAGE = "The provided style abstract is invalid.";
 }

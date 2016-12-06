@@ -20,28 +20,30 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.deletewcslayer;
+package petascope.wms2.service.insertlayer;
 
-import org.jetbrains.annotations.NotNull;
-import petascope.wms2.service.base.Controller;
 import petascope.wms2.service.base.Validator;
-
-import java.util.List;
+import petascope.wms2.service.exception.error.WMSException;
+import petascope.wms2.service.exception.error.WMSMissingRequestParameter;
 
 /**
- * Controller for the delete layer request
+ * Validates an InsertWCSLayer request.
  *
- * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
+ * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class DeleteLayerController extends Controller<DeleteLayerRequest, DeleteLayerParser, DeleteLayerHandler, DeleteLayerResponse> {
+public class InsertWCSLayerValidator implements Validator<InsertWCSLayerRequest> {
     /**
      * Constructor for the class
-     *
-     * @param parser     the parser for this controller
-     * @param validators the validators for this controller
-     * @param handler    the handler for this controller
      */
-    public DeleteLayerController(@NotNull DeleteLayerParser parser, @NotNull List<Validator> validators, @NotNull DeleteLayerHandler handler) {
-        super(parser, validators, handler);
+    public InsertWCSLayerValidator() {
+
+    }
+
+    @Override
+    public void validate(InsertWCSLayerRequest request) throws WMSException {
+        //check if the wcsCoverageId is given
+        if (request.getWcsCoverageId() == null || request.getWcsCoverageId().isEmpty()) {
+            throw new WMSMissingRequestParameter(InsertWCSLayerRequest.getRequestParameterWcsCoverageId());
+        }
     }
 }

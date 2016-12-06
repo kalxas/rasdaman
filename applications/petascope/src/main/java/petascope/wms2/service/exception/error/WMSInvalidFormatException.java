@@ -31,6 +31,14 @@ import org.jetbrains.annotations.NotNull;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 public class WMSInvalidFormatException extends WMSException {
+
+    /**
+     * Constructor for the class if parameter is null
+     */
+    public WMSInvalidFormatException() {
+        super("No output format parameter requested.");
+    }
+
     /**
      * Constructor for the class
      *
@@ -47,5 +55,5 @@ public class WMSInvalidFormatException extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidFormat";
-    private static final String ERROR_MESSAGE = "The supplied format $Format is not offered by the server.";
+    private static final String ERROR_MESSAGE = "The requested output format $Format does not exist.";
 }

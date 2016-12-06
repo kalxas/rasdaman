@@ -22,6 +22,7 @@
 
 package petascope.wms2.service.exception.error;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +39,7 @@ public class WMSInternalException extends WMSException {
      * @param e the internal exception
      */
     public WMSInternalException(Exception e) {
-        super(ERROR_MESSAGE.replace("$Message", ExceptionUtils.getMessage(e)));
+        super(ERROR_MESSAGE.replace("$Message", StringEscapeUtils.escapeXml(ExceptionUtils.getMessage(e))));
     }
 
     @NotNull
@@ -49,5 +50,5 @@ public class WMSInternalException extends WMSException {
 
     private static final String EXCEPTION_CODE = "InternalError";
     private static final String ERROR_MESSAGE = "An internal error has occurred with the following message:\n $Message\n"
-            + "Check the log file for more details.";
+            + ". Check the log file for more details.";
 }

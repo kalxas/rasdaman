@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.insertwcslayer;
+package petascope.wms2.service.insertlayer;
 
 import petascope.wms2.service.base.Parser;
 import petascope.wms2.servlet.WMSGetRequest;

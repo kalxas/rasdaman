@@ -23,16 +23,18 @@
 package petascope.wms2.util;
 
 
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.WCSException;
+import petascope.util.CrsProjectionUtil;
+import petascope.util.CrsUtil;
 import petascope.wms2.metadata.EXGeographicBoundingBox;
-import petascope.wms2.service.exception.error.WMSInvalidCrsUriException;
+import petascope.wms2.service.exception.error.WMSUnsupportedCrsToTransformException;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static petascope.util.CrsProjectionUtil.validTransformation;
 
 /**
  * This class represents a crs computer that translates from geographic coordinates to pixel indices. It does this by translating
@@ -47,101 +49,36 @@ public class CrsComputer {
     /**
      * Needed for the WGS84 coordinates
      */
-    private static final String DEFAULT_CRS = "EPSG:4326";
-    /**
-     * For logging
-     */
+    private static final String DEFAULT_CRS_CODE = "EPSG:4326";
     private static Logger log = LoggerFactory.getLogger(CrsComputer.class);
 
     /**
-     * Converts a bounding box into an ExGeographinBoundingBox (WGS84 crs).
+     * Converts a bounding box into an ExGeographicBoundingBox (WGS84 crs).
      *
      * @param originalCrs the name of the original crs.
      * @param minX        the min value on the first axis.
      * @param minY        the min value on the second axis.
      * @param maxX        the max value on the first axis.
      * @param maxY        the max value on the second axis.
-     * @return the ExGeographinBoundingBox object.
+     * @return the ExGeographicBoundingBox object.
      */
-    public static EXGeographicBoundingBox covertToWgs84(String originalCrs, double minX, double minY, double maxX, double maxY) {
-        //check if the crs is not index2d
-        if (originalCrs.startsWith("OGC")) {
-            //not geo-referenced
-            return new EXGeographicBoundingBox("0", "0", "0", "0");
+    public static EXGeographicBoundingBox covertToWgs84(String originalCrs, double minX, double minY, double maxX, double maxY) throws WMSUnsupportedCrsToTransformException, WCSException {
+        // current only support coverage imported with EPSG crs (e.g: EPSG:4326, EPSG:3857,... not OGC:IndexND)
+        if (!validTransformation(CrsUtil.EPSG_AUTH)) {
+            throw new WMSUnsupportedCrsToTransformException(originalCrs);
         }
 
-        double[] minCrsPoint = new double[] {minX, minY};
-        double[] maxCrsPoint = new double[] {maxX, maxY};
-
-        try {
-            minCrsPoint = getDefaultCrsCoord(minX, minY, originalCrs);
-            maxCrsPoint = getDefaultCrsCoord(maxX, maxY, originalCrs);
-        } catch (FactoryException e) {
-            handleExceptionFromOpenGIS(originalCrs, minX, minY, maxX, maxY);
-        } catch (TransformException e) {
-            handleExceptionFromOpenGIS(originalCrs, minX, minY, maxX, maxY);
+        String originalCrsCode = CrsUtil.getEPSGCode(originalCrs);
+        if (originalCrsCode.equals(DEFAULT_CRS_CODE)) {
+            return new EXGeographicBoundingBox(String.valueOf(minX), String.valueOf(maxX),
+                                               String.valueOf(minY), String.valueOf(maxY));
         }
 
-        return new EXGeographicBoundingBox(String.valueOf(minCrsPoint[0]), String.valueOf(maxCrsPoint[0]),
-                                           String.valueOf(minCrsPoint[1]), String.valueOf(maxCrsPoint[1]));
-    }
+        double[] srcCoords = new double[] { minX, minY,maxX, maxY };
+        // transform from the native CRS of coverage (e.g: EPSG:3857 to default crs: EPSG:4326)
+        List<BigDecimal> transformedBBox = CrsProjectionUtil.transformBoundingBox(originalCrsCode, DEFAULT_CRS_CODE, srcCoords);
 
-    /**
-     * Converst a crs uri into the format used by wms (institution:number). Example:
-     * http://www.opengis.net/def/crs/EPSG/0/4326 => EPSG:4326
-     *
-     * @param crsUri the crs in uri format.
-     * @return the crs in wms format.
-     * @throws petascope.wms2.service.exception.error.WMSInvalidCrsUriException
-     */
-    public static String convertCrsUriToWmsCrs(String crsUri) throws WMSInvalidCrsUriException {
-        String[] parts = crsUri.split("/0/");
-        if (parts.length != 2) {
-            throw new WMSInvalidCrsUriException(crsUri);
-        }
-        String[] institutionParts = parts[0].split("/");
-        String institution = institutionParts[institutionParts.length - 1];
-        String crsNo = parts[1];
-        return institution + ":" + crsNo;
-    }
-
-    /**
-     * Translates the coordinates from any 2D crs to our default CRS
-     *
-     * @param easting  the easting coordinate
-     * @param northing the northing coordinate
-     * @param crs      the original crs
-     * @return the coordinates in the default crs
-     * @throws TransformException
-     * @throws FactoryException
-     */
-    private static double[] getDefaultCrsCoord(double easting, double northing, String crs) throws TransformException, FactoryException {
-        if (crs.equalsIgnoreCase(DEFAULT_CRS)) {
-            return new double[] {easting, northing};
-        } else {
-            CRSAuthorityFactory factory = CRS.getAuthorityFactory(true);
-            CoordinateReferenceSystem srcCRS = factory.createCoordinateReferenceSystem(crs);
-            CoordinateReferenceSystem dstCRS = factory.createCoordinateReferenceSystem(DEFAULT_CRS);
-            MathTransform transform = CRS.findMathTransform(srcCRS, dstCRS, true);
-            double[] srcProjec = {easting, northing};// easting, northing,
-            double[] dstProjec = {0, 0};
-            transform.transform(srcProjec, 0, dstProjec, 0, 1);
-            return dstProjec;
-        }
-    }
-
-    /***
-     * Handle exception when try to get the originalCRS from opengis
-     *
-     * @param originalCrs Name of CRS want to find
-     * @param minX        min X in bounding box
-     * @param minY        min Y in bounding box
-     * @param maxX        max X in bounding box
-     * @param maxY        max Y in bounding box
-     * @return
-     */
-    private static void handleExceptionFromOpenGIS(String originalCrs, double minX, double minY, double maxX, double maxY) {
-        log.debug("Could not find the given crs: {} in the list of CRS definitions.", originalCrs);
-        log.debug("Returning the original coordinates of the layer's bounding box: [{}, {}, {}, {}]", minX, minY, maxX, maxY);
+        return new EXGeographicBoundingBox(transformedBBox.get(0).toPlainString(), transformedBBox.get(1).toPlainString(),
+                                           transformedBBox.get(2).toPlainString(), transformedBBox.get(3).toPlainString());
     }
 }

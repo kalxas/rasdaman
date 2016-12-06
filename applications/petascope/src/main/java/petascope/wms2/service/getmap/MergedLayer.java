@@ -45,6 +45,7 @@ import petascope.util.CrsProjectionUtil;
 
 import petascope.wcps2.metadata.model.ParsedSubset;
 import static petascope.util.CrsUtil.getAxesLabels;
+import static petascope.util.CrsUtil.getAxesLabels;
 
 /**
  * A merged layer is a layer composed of other layers that were requested in the get map request. What we do is
@@ -345,7 +346,7 @@ public final class MergedLayer {
         }
 
         // transformed subsets from nativeCrs to outputCrs
-        BoundingBox bbox = new BoundingBox(null, xmin, ymin, xmax, ymax, null);
+        BoundingBox bbox = new BoundingBox(crs, xmin, ymin, xmax, ymax, null);
         projectionStr =  projectionStrTemplate.replace("$xmin", String.valueOf(xmin))
                          .replace("$ymin", String.valueOf(ymin))
                          .replace("$xmax", String.valueOf(xmax))

@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.deletewcslayer;
+package petascope.wms2.service.deletelayer;
 
 import org.jetbrains.annotations.NotNull;
 import petascope.wms2.metadata.Layer;

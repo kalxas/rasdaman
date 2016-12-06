@@ -30,6 +30,14 @@ import org.jetbrains.annotations.NotNull;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 public class WMSInvalidHeight extends WMSException {
+
+    /**
+     * Constructor for the class if parameter is null
+     */
+    public WMSInvalidHeight() {
+        super("No height parameter requested.");
+    }
+
     /**
      * Constructor for the class
      *
@@ -45,6 +53,6 @@ public class WMSInvalidHeight extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private static final String ERROR_MESSAGE = "The height provided $Height is invalid";
     private static final String EXCEPTION_CODE = "InvalidHeight";
+    private static final String ERROR_MESSAGE = "The requested height $Height is invalid.";
 }

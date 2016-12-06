@@ -30,6 +30,14 @@ import org.jetbrains.annotations.NotNull;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 public class WMSInvalidWidth extends WMSException {
+
+    /**
+     * Constructor for the class if parameter is null
+     */
+    public WMSInvalidWidth() {
+        super("No width parameter requested.");
+    }
+
     /**
      * Constructor for the class
      *
@@ -45,6 +53,6 @@ public class WMSInvalidWidth extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private static final String ERROR_MESSAGE = "The width provided $Width is invalid";
     private static final String EXCEPTION_CODE = "InvalidWidth";
+    private static final String ERROR_MESSAGE = "The requested $Width is invalid.";
 }

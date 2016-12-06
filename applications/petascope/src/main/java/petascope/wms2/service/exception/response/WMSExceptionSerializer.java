@@ -23,7 +23,9 @@
 package petascope.wms2.service.exception.response;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import petascope.wms2.service.exception.error.WMSException;
+import petascope.wms2.util.ConfigManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,12 +38,6 @@ import java.io.InputStream;
 class WMSExceptionSerializer {
 
     /**
-     * Constructor for the class
-     */
-    public WMSExceptionSerializer() {
-    }
-
-    /**
      * Serializes the wms exception into a compliant xml template
      *
      * @param exception the exception to be serialized
@@ -49,16 +45,11 @@ class WMSExceptionSerializer {
      * @throws IOException
      */
     public String serialize(WMSException exception) throws IOException {
-        InputStream stream = this.getClass().getResourceAsStream(PATH_TO_TEMPLATES + "WMSException.tpl.xml");
+        InputStream stream = this.getClass().getResourceAsStream(ConfigManager.PATH_TO_TEMPLATES + "WMSException.tpl.xml");
         String template = IOUtils.toString(stream);
         template = template.replace("$ExceptionCode$", exception.getExceptionCode());
         template = template.replace("$ExceptionText$", exception.getErrorMessage());
         return template;
     }
-
-    /**
-     * Contains the path to the xml templates relative to the classpath
-     */
-    private final static String PATH_TO_TEMPLATES = "/templates/wms/";
 
 }

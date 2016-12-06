@@ -26,6 +26,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import petascope.wms2.util.ConfigManager;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -88,7 +89,7 @@ public class ContactInformation implements ISerializableMetadataObject, IPersist
     @NotNull
     @Override
     public InputStream getStreamToTemplate() {
-        return this.getClass().getResourceAsStream(PATH_TO_TEMPLATES + "ContactInformation.tpl.xml");
+        return this.getClass().getResourceAsStream(ConfigManager.PATH_TO_TEMPLATES + "ContactInformation.tpl.xml");
     }
 
     /**

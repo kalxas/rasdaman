@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static petascope.util.CrsProjectionUtil.validTransformation;
+
 /**
  * Parser for a get map request that gets a raw wms request and returns a typed GetMap request
  *
@@ -81,13 +83,13 @@ public class GetMapParser extends Parser<GetMapRequest> {
      */
     @Override
     public GetMapRequest parse(WMSGetRequest rawRequest) throws WMSInternalException, WMSInvalidLayerException,
-               WMSInvalidStyleException, WMSInvalidBbox,
-               WMSInvalidWidth, WMSInvalidHeight,
-               WMSInvalidCrsException, WMSInvalidDimensionValue,
-        WMSInvalidFormatException {
+            WMSInvalidStyleException, WMSInvalidBbox,
+            WMSInvalidWidth, WMSInvalidHeight,
+            WMSInvalidCrsException, WMSInvalidDimensionValue,
+            WMSInvalidFormatException, WMSUnsupportedCrsToTransformException {
         try {
             GetMapRequestBuilder builder = new GetMapRequestBuilder();
-            Crs crs = new Crs(rawRequest.getGetValueByKey(GetMapRequest.getCrsParamName()));
+            Crs crs = getCrs(rawRequest.getGetValueByKey(GetMapRequest.getCrsParamName()));
             GetMapRequest request = builder
                                     .setLayers(getLayers(rawRequest.getGetValueByKey(GetMapRequest.getLayerParamName())))
                                     .setStyles(getStyles(rawRequest.getGetValueByKey(GetMapRequest.getStyleParamName())))
@@ -120,7 +122,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
      */
     private GetMapFormat getFormat(@Nullable String format) throws WMSInvalidFormatException, SQLException {
         if (format == null) {
-            throw new WMSInvalidFormatException("");
+            throw new WMSInvalidFormatException();
         }
         GetMapFormat mapFormat = persistentMetadataObjectProvider.getGetMapFormat().queryForId(format);
         if (mapFormat == null) {
@@ -184,7 +186,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
             return Integer.parseInt(width);
         } catch (NumberFormatException e) {
             if (width == null) {
-                width = "";
+                throw new WMSInvalidWidth();
             }
             throw new WMSInvalidWidth(width);
         }
@@ -203,7 +205,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
             return Integer.parseInt(height);
         } catch (NumberFormatException e) {
             if (height == null) {
-                height = "";
+                throw new WMSInvalidHeight();
             }
             throw new WMSInvalidHeight(height);
         }
@@ -217,15 +219,17 @@ public class GetMapParser extends Parser<GetMapRequest> {
      * @throws SQLException
      * @throws WMSInvalidCrsException
      */
-    private Crs getCrs(String crs) throws SQLException, WMSInvalidCrsException {
+    private Crs getCrs(String crs) throws SQLException, WMSInvalidCrsException, WMSUnsupportedCrsToTransformException {
         if (crs == null) {
-            throw new WMSInvalidCrsException("");
+            throw new WMSInvalidCrsException();
+        } else {
+            // check if crs code is EPSG
+            if (!validTransformation(crs)) {
+                throw new WMSUnsupportedCrsToTransformException(crs);
+            }
         }
-        List<Crs> metaCrses = persistentMetadataObjectProvider.getCrs().queryForEq(Crs.CRS_COLUMN_NAME, crs);
-        if (metaCrses.isEmpty()) {
-            throw new WMSInvalidCrsException(crs);
-        }
-        return metaCrses.get(0);
+        // crs parameter can be non-native CRS for requested layer. (e.g: layer's CRS is EPSG:3857 and input crs request is: EPSG:4326)
+        return new Crs(crs);
 
     }
 
@@ -240,7 +244,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
     @NotNull
     private List<Layer> getLayers(@Nullable String layersString) throws SQLException, WMSInvalidLayerException {
         if (layersString == null) {
-            return new ArrayList<Layer>();
+            throw new WMSInvalidLayerException();
         }
         String[] layerStrings = (layersString.split(","));
         List<Layer> layers = new ArrayList<Layer>(layerStrings.length);
@@ -264,7 +268,7 @@ public class GetMapParser extends Parser<GetMapRequest> {
      */
     private BoundingBox getBoundingBox(@Nullable String bboxString, Crs crs) throws WMSInvalidBbox {
         if (bboxString == null) {
-            throw new WMSInvalidBbox("");
+            throw new WMSInvalidBbox();
         }
         final String[] bboxComponents = bboxString.split(",");
         if (bboxComponents.length != 4) {

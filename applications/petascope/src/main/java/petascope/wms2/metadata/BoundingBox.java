@@ -27,6 +27,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import petascope.wms2.service.exception.error.WMSInvalidBbox;
+import petascope.wms2.util.ConfigManager;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -116,7 +117,7 @@ public class BoundingBox implements ISerializableMetadataObject, IPersistentMeta
     @NotNull
     @Override
     public InputStream getStreamToTemplate() {
-        return this.getClass().getResourceAsStream(PATH_TO_TEMPLATES + "BoundingBox.tpl.xml");
+        return this.getClass().getResourceAsStream(ConfigManager.PATH_TO_TEMPLATES + "BoundingBox.tpl.xml");
     }
 
     /**

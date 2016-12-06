@@ -30,6 +30,14 @@ import org.jetbrains.annotations.NotNull;
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
 public class WMSInvalidBbox extends WMSException {
+
+    /**
+     * Constructor for the class if parameter is null
+     */
+    public WMSInvalidBbox() {
+        super("No bbox parameter requested.");
+    }
+
     /**
      * Constructor for the class
      *
@@ -56,6 +64,6 @@ public class WMSInvalidBbox extends WMSException {
     }
 
     private final static String EXCEPTION_CODE = "InvalidBoundingBox";
-    private final static String ERROR_MESSAGE = "The requested bounding box $bbox is invalid";
-    private final static String ERROR_MESSAGE_DETAIL = "The requested bounding box $bbox is invalid due to: $detailError";
+    private final static String ERROR_MESSAGE = "The requested bounding box $bbox is invalid.";
+    private final static String ERROR_MESSAGE_DETAIL = "The requested bounding box $bbox is invalid due to: $detailError.";
 }

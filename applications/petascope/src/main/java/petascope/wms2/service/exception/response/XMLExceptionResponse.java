@@ -24,6 +24,7 @@ package petascope.wms2.service.exception.response;
 
 import org.jetbrains.annotations.NotNull;
 import petascope.wms2.service.exception.error.WMSException;
+import petascope.wms2.util.ConfigManager;
 
 /**
  * An exception response to be used when the client requests that we throw the service exceptions in xml format
@@ -49,7 +50,7 @@ public class XMLExceptionResponse extends ExceptionResponse {
             return result.getBytes(getDefaultEncoding());
         } catch (Exception e) {
             throw new IllegalArgumentException("The serializer was not initialized correctly. Please check that a template exists"
-                                               + "in $CATALINA_HOME/webapps/rasdaman/WEB-INF/classes/templates/wms/WMSException.tpl.xml");
+                                               + "in $CATALINA_HOME/webapps/rasdaman/WEB-INF/classes" + ConfigManager.PATH_TO_TEMPLATES + "WMSException.tpl.xml");
         }
     }
 }

@@ -25,6 +25,7 @@ package petascope.wms2.metadata;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.jetbrains.annotations.NotNull;
+import petascope.wms2.util.ConfigManager;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -71,7 +72,7 @@ public class MetadataURL implements ISerializableMetadataObject, IPersistentMeta
     @NotNull
     @Override
     public InputStream getStreamToTemplate() {
-        return this.getClass().getResourceAsStream(PATH_TO_TEMPLATES + "MetadataURL.tpl.xml");
+        return this.getClass().getResourceAsStream(ConfigManager.PATH_TO_TEMPLATES + "MetadataURL.tpl.xml");
     }
 
     /**

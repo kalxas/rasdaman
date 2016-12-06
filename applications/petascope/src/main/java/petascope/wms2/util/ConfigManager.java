@@ -98,4 +98,9 @@ public class ConfigManager {
 
     private static final long MAX_SIZE_OF_CACHE = 50 * 1000 * 1000; //50MB
 
+    /**
+     * Contains the path to the xml templates relative to the classpath
+     */
+    public final static String PATH_TO_TEMPLATES = "/templates/wms/";
+
 }

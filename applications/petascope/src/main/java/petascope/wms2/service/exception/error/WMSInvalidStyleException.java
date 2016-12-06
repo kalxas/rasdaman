@@ -47,5 +47,5 @@ public class WMSInvalidStyleException extends WMSException {
     }
 
     private final static String EXCEPTION_CODE = "StyleNotDefined";
-    private final static String ERROR_MESSAGE = "We could not find the requested layer $Style.";
+    private final static String ERROR_MESSAGE = "The requested style $Style does not exist.";
 }

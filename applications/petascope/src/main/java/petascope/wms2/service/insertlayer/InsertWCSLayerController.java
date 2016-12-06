@@ -20,32 +20,28 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.insertwcslayer;
+package petascope.wms2.service.insertlayer;
 
-import com.sun.istack.NotNull;
-import petascope.wms2.service.base.Response;
-import petascope.wms2.service.exception.error.WMSException;
+import petascope.wms2.service.base.Controller;
+import petascope.wms2.service.base.Validator;
+
+import java.util.List;
 
 /**
- * Class to represent an InsertWCSLayer request response. It receives the newly inserted layer's name
- * and creates the response.
+ * Controller for the InsertWCSLayer request. It parses the raw request into the typed one and handles it
+ * to return a response for the frontend.
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class InsertWCSLayerResponse extends Response {
-
+public class InsertWCSLayerController extends Controller<InsertWCSLayerRequest, InsertWCSLayerParser, InsertWCSLayerHandler, InsertWCSLayerResponse> {
     /**
-     * Class constructor.
-     * @param layerName the name of the layer that has been added.
+     * Constructor for the class
+     *
+     * @param parser     the parser for this controller
+     * @param validators the validators for this controller
+     * @param handler    the handler for this controller
      */
-    public InsertWCSLayerResponse(@NotNull final String layerName) {
-        this.layerName = layerName;
+    public InsertWCSLayerController(InsertWCSLayerParser parser, List<Validator> validators, InsertWCSLayerHandler handler) {
+        super(parser, validators, handler);
     }
-
-    @Override
-    public byte[] toBytes() throws WMSException {
-        return layerName.getBytes();
-    }
-
-    private final String layerName;
 }

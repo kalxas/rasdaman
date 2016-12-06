@@ -47,7 +47,7 @@ public class CrsProjectionUtil {
      * @param sourceCrs
      * @param targetCrs
      * @param srcCoords
-     * @return
+     * @return List<BigDecimal> of xmin, ymin, xmax, ymax
      * @throws WCSException
      */
     public static List<BigDecimal> transformBoundingBox(String sourceCrs, String targetCrs, double[] srcCoords) throws WCSException {
@@ -89,6 +89,7 @@ public class CrsProjectionUtil {
             CoordinateReferenceSystem sCrsID = CRS.decode(sourceCrsEPSGCode);
             CoordinateReferenceSystem tCrsID = CRS.decode(targetCrsEPSGCode);
             MathTransform transform = CRS.findMathTransform(sCrsID, tCrsID);
+            transform.transform(srcCoords, 0, trasfCoords, 0, 1);
 
             // Transform
             JTS.xform(transform, srcCoords, trasfCoords);
@@ -140,5 +141,16 @@ public class CrsProjectionUtil {
             log.error("Error while transforming point." + e.getMessage());
             throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point: " + e.getMessage());
         }
+    }
+
+    /**
+     * Current only support transformation between EPSG crss
+     * @param crsCode (e.g: EPSG:4326)
+     */
+    public static boolean validTransformation(String crsCode) {
+        if (!crsCode.startsWith(CrsUtil.EPSG_AUTH)) {
+            return false;
+        }
+        return true;
     }
 }

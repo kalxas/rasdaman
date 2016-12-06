@@ -53,8 +53,4 @@ interface ISerializableMetadataObject {
     @NotNull
     public Map<String, String> getTemplateVariables() throws IOException;
 
-    /**
-     * Contains the path to the xml templates relative to the classpath
-     */
-    public final static String PATH_TO_TEMPLATES = "/templates/wms/";
 }

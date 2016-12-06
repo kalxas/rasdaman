@@ -56,8 +56,8 @@ public class RasqlQueryGenerator {
     public String generateQuery() throws WMSInvalidDimensionValue, WMSInvalidBbox {
         String query = QUERY_TEMPLATE;
         query = query.replace("$Select", generateEncodeClause(generateSelectClause()))
-                .replace("$From", generateFromClause())
-                .replace("$Where", generateWhereClause());
+                     .replace("$From", generateFromClause())
+                     .replace("$Where", generateWhereClause());
         logger.info("Executing rasql query: {}", query);
         return query;
     }

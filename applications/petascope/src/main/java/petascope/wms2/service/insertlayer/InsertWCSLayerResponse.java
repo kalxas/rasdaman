@@ -20,30 +20,32 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.insertwcslayer;
+package petascope.wms2.service.insertlayer;
 
-import petascope.wms2.service.base.Validator;
+import com.sun.istack.NotNull;
+import petascope.wms2.service.base.Response;
 import petascope.wms2.service.exception.error.WMSException;
-import petascope.wms2.service.exception.error.WMSMissingRequestParameter;
 
 /**
- * Validates an InsertWCSLayer request.
+ * Class to represent an InsertWCSLayer request response. It receives the newly inserted layer's name
+ * and creates the response.
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class InsertWCSLayerValidator implements Validator<InsertWCSLayerRequest> {
-    /**
-     * Constructor for the class
-     */
-    public InsertWCSLayerValidator() {
+public class InsertWCSLayerResponse extends Response {
 
+    /**
+     * Class constructor.
+     * @param layerName the name of the layer that has been added.
+     */
+    public InsertWCSLayerResponse(@NotNull final String layerName) {
+        this.layerName = layerName;
     }
 
     @Override
-    public void validate(InsertWCSLayerRequest request) throws WMSException {
-        //check if the wcsCoverageId is given
-        if (request.getWcsCoverageId() == null || request.getWcsCoverageId().isEmpty()) {
-            throw new WMSMissingRequestParameter(InsertWCSLayerRequest.getRequestParameterWcsCoverageId());
-        }
+    public byte[] toBytes() throws WMSException {
+        return layerName.getBytes();
     }
+
+    private final String layerName;
 }

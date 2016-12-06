@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import petascope.wms2.service.exception.error.WMSInvalidDimensionValue;
 import petascope.wms2.service.getmap.access.RasdamanSubset;
+import petascope.wms2.util.ConfigManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -98,7 +99,7 @@ public class Dimension implements IPersistentMetadataObject, ISerializableMetada
     @NotNull
     @Override
     public InputStream getStreamToTemplate() {
-        return this.getClass().getResourceAsStream(PATH_TO_TEMPLATES + "Dimension.tpl.xml");
+        return this.getClass().getResourceAsStream(ConfigManager.PATH_TO_TEMPLATES + "Dimension.tpl.xml");
     }
 
     /**

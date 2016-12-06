@@ -24,8 +24,7 @@ package petascope.wcs2.handlers.wcst;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
@@ -40,7 +39,7 @@ import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.wcst.DeleteCoverageRequest;
 import petascope.wms2.orchestration.ServiceOrchestrator;
-import petascope.wms2.service.deletewcslayer.DeleteLayerHandler;
+import petascope.wms2.service.deletelayer.DeleteLayerHandler;
 import petascope.wms2.service.exception.error.WMSException;
 import petascope.wms2.servlet.WMSServlet;
 

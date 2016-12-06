@@ -20,16 +20,19 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.insertwcslayer;
+package petascope.wms2.service.insertlayer;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 import petascope.core.CoverageMetadata;
+import petascope.exceptions.WCSException;
+import petascope.util.CrsUtil;
 import petascope.wcps.metadata.Bbox;
 import petascope.wms2.metadata.EXGeographicBoundingBox;
 import petascope.wms2.metadata.Layer;
 import petascope.wms2.metadata.dao.PersistentMetadataObjectProvider;
 import petascope.wms2.service.exception.error.WMSInternalException;
+import petascope.wms2.service.exception.error.WMSUnsupportedCrsToTransformException;
 import petascope.wms2.service.exception.error.WMSInvalidCrsUriException;
 import petascope.wms2.util.CrsComputer;
 
@@ -53,12 +56,11 @@ public class LayerParser {
      * @return the layer
      * @throws WMSInternalException
      */
-    public static Layer fromWcsCoverage(CoverageMetadata coverageMetadata, PersistentMetadataObjectProvider persistentMetadataObjectProvider) throws WMSInternalException, WMSInvalidCrsUriException, TransformException, FactoryException, SQLException {
+    public static Layer fromWcsCoverage(CoverageMetadata coverageMetadata, PersistentMetadataObjectProvider persistentMetadataObjectProvider) throws WMSInternalException, WMSInvalidCrsUriException, TransformException, FactoryException, SQLException, WCSException, WMSUnsupportedCrsToTransformException {
         String layerTitle = coverageMetadata.getCoverageName();
-        Bbox wcsBbox = coverageMetadata.getBbox();
-        String currentCrs = CrsComputer.convertCrsUriToWmsCrs(wcsBbox.getCrsName());
-        EXGeographicBoundingBox exGeographicBoundingBox = CrsComputer.covertToWgs84(currentCrs,
-                wcsBbox.getMinX(), wcsBbox.getMinY(), wcsBbox.getMaxX(), wcsBbox.getMaxY());
+        Bbox wcsBbox = coverageMetadata.getBbox();        
+        EXGeographicBoundingBox exGeographicBoundingBox = CrsComputer.covertToWgs84(wcsBbox.getCrsName(),
+                                        wcsBbox.getMinX(), wcsBbox.getMinY(), wcsBbox.getMaxX(), wcsBbox.getMaxY());
         String layerAbstract = coverageMetadata.getAbstract();
         List<Layer> possibleLayers = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerTitle);
         final Layer retLayer;

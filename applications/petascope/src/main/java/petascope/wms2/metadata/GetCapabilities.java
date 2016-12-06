@@ -23,6 +23,7 @@
 package petascope.wms2.metadata;
 
 import org.jetbrains.annotations.NotNull;
+import petascope.wms2.util.ConfigManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,7 +83,7 @@ public class GetCapabilities implements ISerializableMetadataObject {
     @NotNull
     @Override
     public InputStream getStreamToTemplate() {
-        return this.getClass().getResourceAsStream(PATH_TO_TEMPLATES + "GetCapabilities.tpl.xml");
+        return this.getClass().getResourceAsStream(ConfigManager.PATH_TO_TEMPLATES + "GetCapabilities.tpl.xml");
     }
 
     /**

@@ -20,33 +20,42 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.exception.error;
+package petascope.wms2.service.deletelayer;
 
 import org.jetbrains.annotations.NotNull;
+import petascope.wms2.metadata.Layer;
+import petascope.wms2.service.base.Request;
 
 /**
- * Exception for situation when the serialization failed
+ * Request class for DeleteLayer request type
  *
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
-public class WMSSerializationFailedException extends WMSException {
+public class DeleteLayerRequest extends Request {
 
     /**
      * Constructor for the class
-     *
-     * @param templatePath the path to the template file for the serialization
+     * @param request the base request
+     * @param layer the extra layer
      */
-    public WMSSerializationFailedException(String templatePath) {
-        super(GENERAL_MESSAGE.replace("$Template", templatePath));
+    protected DeleteLayerRequest(@NotNull Request request, Layer layer) {
+        super(request);
+        this.layer = layer;
     }
 
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
+    public Layer getLayer() {
+        return layer;
     }
 
-    private static final String EXCEPTION_CODE = "SerializationError";
-    private static final String GENERAL_MESSAGE = "We could not serialize a metadata object. Please ensure that the template" +
-            "$Template is found under $CATALINA_HOME/webapps/rasdaman/templates/wms";
+    public static String getRequestParamValue() {
+        return REQUEST_PARAM_VALUE;
+    }
+
+    public static String getLayerParamName() {
+        return LAYER_PARAM_NAME;
+    }
+
+    private final Layer layer;
+    public static final String LAYER_PARAM_NAME = "layer";
+    private static final String REQUEST_PARAM_VALUE = "DeleteLayer";
 }

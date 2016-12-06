@@ -20,20 +20,20 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.insertwcslayer;
+package petascope.wms2.service.deletelayer;
 
+import org.jetbrains.annotations.NotNull;
 import petascope.wms2.service.base.Controller;
 import petascope.wms2.service.base.Validator;
 
 import java.util.List;
 
 /**
- * Controller for the InsertWCSLayer request. It parses the raw request into the typed one and handles it
- * to return a response for the frontend.
+ * Controller for the delete layer request
  *
- * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
+ * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
-public class InsertWCSLayerController extends Controller<InsertWCSLayerRequest, InsertWCSLayerParser, InsertWCSLayerHandler, InsertWCSLayerResponse> {
+public class DeleteLayerController extends Controller<DeleteLayerRequest, DeleteLayerParser, DeleteLayerHandler, DeleteLayerResponse> {
     /**
      * Constructor for the class
      *
@@ -41,7 +41,7 @@ public class InsertWCSLayerController extends Controller<InsertWCSLayerRequest, 
      * @param validators the validators for this controller
      * @param handler    the handler for this controller
      */
-    public InsertWCSLayerController(InsertWCSLayerParser parser, List<Validator> validators, InsertWCSLayerHandler handler) {
+    public DeleteLayerController(@NotNull DeleteLayerParser parser, @NotNull List<Validator> validators, @NotNull DeleteLayerHandler handler) {
         super(parser, validators, handler);
     }
 }

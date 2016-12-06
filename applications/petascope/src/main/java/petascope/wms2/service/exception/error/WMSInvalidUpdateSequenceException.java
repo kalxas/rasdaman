@@ -48,6 +48,6 @@ public class WMSInvalidUpdateSequenceException extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private static final String ERROR_MESSAGE = "The update sequence on the server is higher than the one provided: $ClientUpdateSequence. The current update sequence is; $ServerUpdateSequence";
     private static final String EXCEPTION_CODE = "InvalidUpdateSequence";
+    private static final String ERROR_MESSAGE = "The update sequence on the server is higher than the one provided: $ClientUpdateSequence. The current update sequence is; $ServerUpdateSequence";
 }

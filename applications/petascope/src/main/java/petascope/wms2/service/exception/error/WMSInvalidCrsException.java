@@ -31,6 +31,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WMSInvalidCrsException extends WMSException {
 
+    /**
+     * Constructor for the class if parameter is null
+     */
+    public WMSInvalidCrsException() {
+        super("No crs parameter requested.");
+    }
 
     /**
      * Constructor for the class
@@ -47,7 +53,6 @@ public class WMSInvalidCrsException extends WMSException {
         return EXCEPTION_CODE;
     }
 
-
-    private static final String ERROR_MESSAGE = "The request contains a CRS $CRS not offered by the server for one or more of the Layers in the request.";
     private static final String EXCEPTION_CODE = "InvalidCRS";
+    private static final String ERROR_MESSAGE = "The request contains a CRS $CRS not offered by the server for one or more of the Layers in the request.";
 }
