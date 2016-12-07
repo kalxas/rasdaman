@@ -468,8 +468,13 @@ public class SubsetParsingService {
         i.e: geo coordinate is: 45 ( 1.5 in grid coordinate, then I - 0.5 <= 1.5 < I + 0.5, result is: I = 2).
         geo coordinate is: 1 ( 0.03 in grid coordinate: then I - 0.5 <= 0.03 < I + 0.5, result is: I = 0) */
         BigInteger nearestCellCoordinate = integerPart;
-        if (fractionalPart.compareTo(new BigDecimal("0.5")) >= 0) {
+        
+        // for positive coordinate (>= 0.5 -> cell + 1)        
+        if (fractionalPart.compareTo(BigDecimal.ZERO) >= 0 && fractionalPart.compareTo(new BigDecimal("0.5")) >= 0) {
             nearestCellCoordinate = integerPart.add(BigInteger.ONE);
+        } else if (fractionalPart.compareTo(BigDecimal.ZERO) < 0 && fractionalPart.compareTo(new BigDecimal("-0.5")) <= 0) {
+            // for negative coordinate (<= -0.5 -> cell -1)
+            nearestCellCoordinate = integerPart.subtract(BigInteger.ONE);
         }
 
         // after considering to shift the current cell coordinate to nearest cell coordinate (if the fractionpart >= 0.5)
