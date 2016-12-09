@@ -110,7 +110,14 @@ public class EncodedCoverageHandler {
             } catch (JsonProcessingException e) {
                 throw new MetadataSerializationException();
             }
-        } else {
+        } else if (adaptedFormat.equals(FormatExtension.FORMAT_ID_JP2)) {
+            // NOTE: encode(c, "jpeg2000"), to keep the geo-reference metadata, must use jp2openjpeg and codec="jp2"
+            adaptedFormat = FormatExtension.FORMAT_ID_OPENJP2;
+            otherParams.add(FormatExtension.FORMAT_ID_OPENJP2_CODEC);
+            otherParams.addAll(getExtraParams(coverageExpression.getMetadata()));
+            otherParamsString = ", \"" + StringUtils.join(otherParams, ";").replace("\"", "") + "\"";
+        }
+        else {
             // get all the output parameters to encode
             otherParams.addAll(getExtraParams(coverageExpression.getMetadata()));
             otherParamsString = ", \"" + StringUtils.join(otherParams, ";").replace("\"", "") + "\"";

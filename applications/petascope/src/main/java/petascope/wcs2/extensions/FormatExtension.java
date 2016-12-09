@@ -57,6 +57,10 @@ public interface FormatExtension extends  Extension {
     String FORMAT_ID_PNG = "png";
     String FORMAT_ID_NETCDF = "netcdf";
 
+    // Metadata for JPEG2000 (jp2openjpeg driver)
+    String FORMAT_ID_OPENJP2_CODEC = "codec=jp2";
+
+
 
     /**
      * Check if this format extension is the right one for req
