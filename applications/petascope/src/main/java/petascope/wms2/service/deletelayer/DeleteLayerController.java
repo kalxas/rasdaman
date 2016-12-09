@@ -29,7 +29,7 @@ import petascope.wms2.service.base.Validator;
 import java.util.List;
 
 /**
- * Controller for the delete layer request
+ * Controller for the DeleteLayer request
  *
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
@@ -40,7 +40,7 @@ public class DeleteLayerController extends Controller<DeleteLayerRequest, Delete
      * @param parser     the parser for this controller
      * @param validators the validators for this controller
      * @param handler    the handler for this controller
-     */
+     */ 
     public DeleteLayerController(@NotNull DeleteLayerParser parser, @NotNull List<Validator> validators, @NotNull DeleteLayerHandler handler) {
         super(parser, validators, handler);
     }

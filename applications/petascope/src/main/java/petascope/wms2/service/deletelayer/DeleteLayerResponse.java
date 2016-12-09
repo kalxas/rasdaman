@@ -26,7 +26,7 @@ import petascope.wms2.service.base.Response;
 import petascope.wms2.service.exception.error.WMSException;
 
 /**
- * Response for delete layer requests
+ * Response for DeleteLayer requests
  *
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */

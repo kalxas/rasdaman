@@ -20,32 +20,33 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.exception.error;
+package petascope.wms2.service.deletestyle;
 
-import org.jetbrains.annotations.NotNull;
+import petascope.wms2.service.base.Response;
+import petascope.wms2.service.exception.error.WMSException;
 
 /**
- * Exception to be thrown when an unknown layer is requested by the client
+ * Response for DeleteStyle requests
  *
- * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
- * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WMSInvalidStyleException extends WMSException {
+public class DeleteStyleResponse extends Response {
+
     /**
      * Constructor for the class
-     *
-     * @param styleName the requested style by the client
      */
-    public WMSInvalidStyleException(@NotNull String styleName) {
-        super(ERROR_MESSAGE.replace("$Style", styleName));
+    public DeleteStyleResponse() {
     }
 
-    @NotNull
+    /**
+     * We have nothing to return. If something goes wrong the exception mechanism takes care of
+     * error reporting
+     *
+     * @return 0 bytes
+     * @throws WMSException
+     */
     @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
+    public byte[] toBytes() throws WMSException {
+        return new byte[0];
     }
-
-    private final static String EXCEPTION_CODE = "StyleNotDefined";
-    private final static String ERROR_MESSAGE = "The requested style $Style does not exist.";
 }

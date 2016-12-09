@@ -57,6 +57,9 @@ import petascope.wms2.util.ConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import petascope.wms2.service.deletestyle.DeleteStyleController;
+import petascope.wms2.service.deletestyle.DeleteStyleHandler;
+import petascope.wms2.service.deletestyle.DeleteStyleParser;
 
 /**
  * A registry of controllers that can provide the correct controller for any raw request.
@@ -85,6 +88,7 @@ class ControllerRegistry {
         registerGetMapController(configManager, persistentMetadataObjectProvider, rasdamanService, cacheEngine);
         registerInsertStyleController(configManager, persistentMetadataObjectProvider);
         registerDeleteLayerController(configManager, persistentMetadataObjectProvider);
+        registerDeleteStyleController(configManager, persistentMetadataObjectProvider);
     }
 
     /**
@@ -107,10 +111,13 @@ class ControllerRegistry {
         validators.add(validator);
         validators.add(serviceValidator);
         registerController(new GetMapController(parser, validators, handler));
-
-
     }
 
+    /**
+     * Register for DeleteLayer controller
+     * @param configManager
+     * @param persistentMetadataObjectProvider 
+     */
     private void registerDeleteLayerController(@NotNull ConfigManager configManager,
             @NotNull PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
         DeleteLayerParser parser = new DeleteLayerParser(persistentMetadataObjectProvider);
@@ -119,6 +126,21 @@ class ControllerRegistry {
         List<Validator> validators = new ArrayList<Validator>();
         validators.add(validator);
         registerController(new DeleteLayerController(parser, validators, handler));
+    }
+    
+    /**
+     * Register for DeleteStyle controller
+     * @param configManager
+     * @param persistentMetadataObjectProvider 
+     */
+    private void registerDeleteStyleController(@NotNull ConfigManager configManager,
+            @NotNull PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
+        DeleteStyleParser parser = new DeleteStyleParser(persistentMetadataObjectProvider);
+        DeleteStyleHandler handler = new DeleteStyleHandler(persistentMetadataObjectProvider);
+        ServiceValidator validator = new ServiceValidator(configManager.getVersion(), configManager.getServiceName());
+        List<Validator> validators = new ArrayList<Validator>();
+        validators.add(validator);
+        registerController(new DeleteStyleController(parser, validators, handler));
     }
 
     /**

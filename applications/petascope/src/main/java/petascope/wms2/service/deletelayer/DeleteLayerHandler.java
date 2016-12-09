@@ -33,7 +33,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Class description
+ * Handler for DeleteLayer request
  *
  * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
  */
@@ -75,7 +75,7 @@ public class DeleteLayerHandler implements Handler<DeleteLayerRequest, DeleteLay
     }
 
     /**
-     * Remove any related properties of layer including itselfi n database from the layer.
+     * Remove any related properties of layer including itself in database from the layer.
      * @param layer
      */
     private void DeleteLayerContent(Layer layer) throws SQLException {

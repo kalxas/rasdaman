@@ -120,6 +120,11 @@ public class Style implements ISerializableMetadataObject, IPersistentMetadataOb
     public String getRasqlQueryTransformer() {
         return rasqlQueryTransformer;
     }
+    
+    @NotNull
+    public String getName() {
+        return name;
+    }
 
     /**
      * Serializes the legend url field in xml format according to its template
@@ -154,7 +159,7 @@ public class Style implements ISerializableMetadataObject, IPersistentMetadataOb
 
     @NotNull
     @DatabaseField(foreign = true)
-    private Layer layer;
 
+    private Layer layer;
     public static final String NAME_COLUMN_NAME = "name";
 }

@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.deletelayer;
+package petascope.wms2.service.deletestyle;
 
 import petascope.wms2.metadata.Layer;
 import petascope.wms2.metadata.dao.PersistentMetadataObjectProvider;
@@ -32,37 +32,54 @@ import petascope.wms2.servlet.WMSGetRequest;
 
 import java.sql.SQLException;
 import java.util.List;
+import petascope.wms2.metadata.Style;
+import petascope.wms2.service.exception.error.WMSInvalidStyleException;
 
 /**
- * Parser for DeleteLayer request
+ * Parser for DeleteStyle request
  *
- * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class DeleteLayerParser extends Parser<DeleteLayerRequest> {
+public class DeleteStyleParser extends Parser<DeleteStyleRequest> {
 
-    public DeleteLayerParser(PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
+    public DeleteStyleParser(PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
         this.persistentMetadataObjectProvider = persistentMetadataObjectProvider;
     }
 
     @Override
     public boolean canParse(WMSGetRequest rawRequest) {
-        String requestType = rawRequest.getGetValueByKey(DeleteLayerRequest.getRequestParameterRequest());
+        String requestType = rawRequest.getGetValueByKey(DeleteStyleRequest.getRequestParameterRequest());
         return requestType != null &&
-               requestType.equals(DeleteLayerRequest.getRequestParamValue());
+               requestType.equals(DeleteStyleRequest.getRequestParamValue());
     }
 
     @Override
-    public DeleteLayerRequest parse(WMSGetRequest rawRequest) throws WMSException {
-        String layerStr = rawRequest.getGetValueByKey(DeleteLayerRequest.getLayerParamName());
+    public DeleteStyleRequest parse(WMSGetRequest rawRequest) throws WMSException {        
+        String layerStr = rawRequest.getGetValueByKey(DeleteStyleRequest.getLayerParamName());
+        String styleStr = rawRequest.getGetValueByKey(DeleteStyleRequest.getStyleParamName());
+        
         if (layerStr == null) {
             throw new WMSInvalidLayerException("");
+        } else if (styleStr == null) {
+            throw new WMSInvalidStyleException("");
         }
         try {
+            // Get layer containing style
             List<Layer> layer = persistentMetadataObjectProvider.getLayer().queryForEq(Layer.NAME_COLUMN_NAME, layerStr);
-            if (layer.isEmpty()) {
-                throw new WMSInvalidLayerException(layerStr);
+            Style deleteStyle = null;
+            // Iterate the styles from layer to get the style object to delete
+            for (Style style:layer.get(0).getStyles()) {
+                if (style.getName().equals(styleStr)) {
+                    deleteStyle = style;
+                    break;
+                }
             }
-            return new DeleteLayerRequest(parseBaseRequest(rawRequest), layer.get(0));
+            // Style is not found from layer so it is invalid request
+            if (deleteStyle == null) {
+                throw new WMSInvalidStyleException(styleStr);
+            }
+
+            return new DeleteStyleRequest(parseBaseRequest(rawRequest), deleteStyle);
 
         } catch (SQLException e) {
             throw new WMSInternalException(e);

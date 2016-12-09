@@ -20,32 +20,28 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wms2.service.exception.error;
+package petascope.wms2.service.deletestyle;
 
 import org.jetbrains.annotations.NotNull;
+import petascope.wms2.service.base.Controller;
+import petascope.wms2.service.base.Validator;
+
+import java.util.List;
 
 /**
- * Exception to be thrown when an unknown layer is requested by the client
+ * Controller for the DeleteStyle request
  *
- * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
- * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WMSInvalidStyleException extends WMSException {
+public class DeleteStyleController extends Controller<DeleteStyleRequest, DeleteStyleParser, DeleteStyleHandler, DeleteStyleResponse> {
     /**
      * Constructor for the class
      *
-     * @param styleName the requested style by the client
+     * @param parser     the parser for this controller
+     * @param validators the validators for this controller
+     * @param handler    the handler for this controller
      */
-    public WMSInvalidStyleException(@NotNull String styleName) {
-        super(ERROR_MESSAGE.replace("$Style", styleName));
+    public DeleteStyleController(@NotNull DeleteStyleParser parser, @NotNull List<Validator> validators, @NotNull DeleteStyleHandler handler) {
+        super(parser, validators, handler);
     }
-
-    @NotNull
-    @Override
-    public String getExceptionCode() {
-        return EXCEPTION_CODE;
-    }
-
-    private final static String EXCEPTION_CODE = "StyleNotDefined";
-    private final static String ERROR_MESSAGE = "The requested style $Style does not exist.";
 }
