@@ -27,8 +27,9 @@
             "Conventions": "'${netcdf:metadata:Conventions}'",
             "history": "\"${netcdf:metadata:history}\"",
             "title": "'${netcdf:metadata:title}'",
-            "summary": "'${netcdf:metadata:summary}'",
+            "summary": "'${netcdf:metadata:summary}'",          
             "product_version": "'${netcdf:metadata:product_version}'",
+            "test_empty_attribute": "",
             "source": "'${netcdf:metadata:source}'"
           }
         },

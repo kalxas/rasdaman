@@ -61,7 +61,11 @@ class ExtraMetadataCollector:
         """
         global_meta = {}
         for key, value in self.extra_metadata_info.global_attributes.items():
-            global_meta[key] = self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice)
+            # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
+            if str(value) != "":
+                global_meta[key] = self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice)
+            else:
+                global_meta[key] = str(value)
 
         meta_slices = []
         # if we have local metadata go ahead, otherwise stop at global metadata
