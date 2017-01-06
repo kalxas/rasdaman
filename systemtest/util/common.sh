@@ -790,6 +790,7 @@ run_test()
     #
     if [ -n "$check_script" -a -f "$check_script" ]; then
       log "custom script"
+      prepare_xml_file "$out"
       "$check_script" "$out" "$oracle"
       update_result
 
@@ -828,7 +829,7 @@ run_test()
         update_result
 
       # Note: when request in KVP, the error is throw in specific message
-      # then with submit in KVP, compare the erro page
+      # then with submit in KVP, compare the error page
       elif [ -f "$oracle"  ] || [ "$oracle" == *.error.* ]; then
 
         filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
@@ -838,6 +839,7 @@ run_test()
         if [ $? -eq 0 -a $rc -ne 0 ]; then
           # do image comparison
           log "image comparison"
+
           # here we compare the metadata and statistic values on output and oracle files directly
           gdalinfo -stats "$out" > "$output_tmp" > /dev/null
           gdalinfo -stats "$oracle" > "$oracle_tmp" > /dev/null

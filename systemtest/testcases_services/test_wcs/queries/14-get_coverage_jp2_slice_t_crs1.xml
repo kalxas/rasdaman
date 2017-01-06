@@ -11,5 +11,5 @@
     <!-- Problem: inconsistent CRS handling KVP/WCS : OGC12-167 change request #257 (Andrea Aime) -->
     <wcs:SlicePoint>"1950-01-01"</wcs:SlicePoint>
   </wcs:DimensionSlice>
-  <gml:format>image/jp2</gml:format>
+  <wcs:format>image/jp2</wcs:format>
 </wcs:GetCoverage>

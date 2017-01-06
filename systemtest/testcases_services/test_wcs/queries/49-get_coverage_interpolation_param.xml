@@ -7,7 +7,6 @@
     xmlns:int="http://www.opengis.net/wcs/interpolation/1.0"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>test_mr</wcs:CoverageId>
   <wcs:Extension>
     <scal:Scaling>
       <scal:ScaleByFactor>
@@ -18,4 +17,5 @@
       <int:globalInterpolation>http://www.opengis.net/def/interpolation/OGC/0/nearest-neighbor</int:globalInterpolation>
     </int:Interpolation>
   </wcs:Extension>
+  <wcs:CoverageId>test_mr</wcs:CoverageId>
 </wcs:GetCoverage>

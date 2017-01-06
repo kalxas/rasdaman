@@ -6,6 +6,16 @@
     xmlns:scal="http://www.opengis.net/wcs/scaling/1.0"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
+  <wcs:Extension>
+    <scal:Scaling>
+      <scal:ScaleAxesByFactor>
+        <scal:ScaleAxis>
+          <scal:axis>E</scal:axis>
+          <scal:scaleFactor>2</scal:scaleFactor>
+        </scal:ScaleAxis>
+      </scal:ScaleAxesByFactor>
+    </scal:Scaling>
+  </wcs:Extension>
   <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
   <wcs:DimensionTrim>
     <wcs:Dimension>E</wcs:Dimension>
@@ -22,14 +32,4 @@
     <wcs:TrimLow>148654.08425925925257615745067596435546875</wcs:TrimLow>
     <wcs:TrimHigh>148661.002060185186564922332763671875</wcs:TrimHigh>
   </wcs:DimensionTrim>
-  <wcs:Extension>
-    <scal:Scaling>
-      <scal:ScaleAxesByFactor>
-        <scal:ScaleAxis>
-          <scal:axis>E</scal:axis>
-          <scal:scaleFactor>2</scal:scaleFactor>
-        </scal:ScaleAxis>
-      </scal:ScaleAxesByFactor>
-    </scal:Scaling>
-  </wcs:Extension>
 </wcs:GetCoverage>

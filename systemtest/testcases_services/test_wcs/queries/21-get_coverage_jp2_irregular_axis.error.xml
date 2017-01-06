@@ -10,5 +10,5 @@
     <wcs:Dimension>j</wcs:Dimension>
     <wcs:SlicePoint>5</wcs:SlicePoint>
   </wcs:DimensionSlice>
-  <gml:format>image/jp2</gml:format>
+  <wcs:format>image/jp2</wcs:format>
 </wcs:GetCoverage>

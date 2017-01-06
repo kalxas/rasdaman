@@ -21,7 +21,6 @@
  */
 package petascope.wcs2.parsers;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,11 +100,22 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
         checkValue(m, KEY_REQUEST, getOperationName());
         checkValue(m, KEY_SERVICE, BaseRequest.SERVICE);
 
-        // only section value which is set to 'CoverageSummary|Contents|All' is valid
-        if (m.containsKey("sections")) {
-            String[] validCases = { KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_COVEARGE_SUMMARY
-                                    , KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_CONTENTS
-                                    , KVPSymbols.VALUE_SECTIONS_COVERAGESUMMARY_ALL
+        // NOTE: According to 06-121r9_OGC (7.3.3) Sections parameter can only have these values (ServiceIdentification, ServiceProvider, OperationsMetadata, Contents, Languages, All)
+        // TODO: as this "sections" parameter with GetCapabilities is optional, then we only check if the input parameters are valid and will return the XML elements as normal GetCapabilitie request
+        // To support this parameter completely, it will need to parse the specified input values of this paramater and return the XML elements accordingly.
+        // e.g: http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1&request=GetCapabilities&sections=ServiceIdentification,ServiceProvider
+        // and in the response XML of GetCapabilities, it will contain only 2 specified elements, instead of returning with all elements.
+        // <wcs:Capabilities>
+        //    <ows:ServiceIdentification>...</ows:ServiceIdentification>
+        //    <ows:ServiceProvider>...</ows:ServiceProvider>
+        // </wcs:Capabilities>
+        if (m.containsKey(KEY_SECTIONS)) {
+            String[] validCases = { KVPSymbols.VALUE_SECTIONS_SERVICE_IDENTIFICATION,
+                                    KVPSymbols.VALUE_SECTIONS_SERVICE_PROVIDER,
+                                    KVPSymbols.VALUE_SECTIONS_OPERATIONS_METADATA,
+                                    KVPSymbols.VALUE_SECTIONS_CONTENTS,
+                                    KVPSymbols.VALUE_SECTIONS_LANGUAGES,
+                                    KVPSymbols.VALUE_SECTIONS_ALL
                                   };
             checkValue(m, KEY_SECTIONS, validCases);
         }

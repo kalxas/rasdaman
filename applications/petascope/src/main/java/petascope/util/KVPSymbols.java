@@ -47,11 +47,22 @@ public interface KVPSymbols {
     String KEY_PROCESS_COVERAGES   = "ProcessCoverages";
     String KEY_QUERY               = "query";
     String VERSIONS_SEP            = ",";
-    // This supports *Coverage Summary* GetCapabilities&sections=CoverageSummary|Contents|All to return standard GetCapabilities (#153)
-    String KEY_SECTIONS                                       = "sections";
-    String VALUE_SECTIONS_COVERAGESUMMARY_COVEARGE_SUMMARY    = "CoverageSummary";
-    String VALUE_SECTIONS_COVERAGESUMMARY_CONTENTS            = "Contents";
-    String VALUE_SECTIONS_COVERAGESUMMARY_ALL                 = "All";
+    
+    // NOTE: According to 06-121r9_OGC (7.3.3) Sections parameter can only have these values (ServiceIdentification, ServiceProvider, OperationsMetadata, Contents, Languages, All)    
+    // Also, this is an optional parameter and we can just check if the value of "sections" parameter is valid then return all XML elements as a normal GetCapabilitie request.
+    // "Server implementation of the Sections parameter is optional. When a server does not
+    // implement this Sections parameter, it shall ignore this parameter if present in a
+    // GetCapabilities operation request, and shall return the complete service metadata document".
+    
+    String KEY_SECTIONS                             = "sections";
+    String VALUE_SECTIONS_SERVICE_IDENTIFICATION    = "ServiceIdentification";
+    String VALUE_SECTIONS_SERVICE_PROVIDER          = "ServiceProvider";
+    String VALUE_SECTIONS_OPERATIONS_METADATA       = "OperationsMetadata";
+    String VALUE_SECTIONS_CONTENTS                  = "Contents";
+    String VALUE_SECTIONS_LANGUAGES                 = "Languages";
+    String VALUE_SECTIONS_ALL                       = "All";
+    
+    
     String KEY_OUTPUTCRS           = "outputcrs";
     String KEY_SUBSETCRS           = "subsettingcrs";   
     String KEY_GET_CAPABILITIES    = "GetCapabilities";

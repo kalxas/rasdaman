@@ -6,6 +6,6 @@
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
   <wcs:CoverageId>test_mean_summer_airtemp</wcs:CoverageId>
-  <gml:format>application/gml+xml</gml:format>
-  <gml:mediaType>multipart/related</gml:mediaType>
+  <wcs:format>application/gml+xml</wcs:format>
+  <wcs:mediaType>multipart/related</wcs:mediaType>
 </wcs:GetCoverage>

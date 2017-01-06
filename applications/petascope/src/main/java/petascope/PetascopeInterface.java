@@ -44,6 +44,7 @@ import javax.xml.bind.JAXBException;
 
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import nu.xom.Document;
+import nu.xom.Element;
 import nu.xom.ParsingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -429,7 +430,22 @@ public class PetascopeInterface extends CORSHttpServlet {
         } else {
             // Assume this is valid WCS in XML
             Document doc = XMLUtil.buildDocument(null, request);
-            String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
+            
+            Element rootEl = doc.getRootElement();
+            
+            String version = null;
+            if (root.equals(KVPSymbols.KEY_GET_CAPABILITIES)) {
+                // NOTE: WCS 2.0.1 GetCapabilities, version is gotten from "  <ows:AcceptVersions>   <ows:Version>2.0.1</ows:Version>   </ows:AcceptVersions>"               
+                Element versionEl = XMLUtil.firstChildRecursivePattern(rootEl, XMLSymbols.LABEL_VERSION);
+                if (versionEl == null) {
+                    throw new WCSException("Missing Version element in " + KVPSymbols.KEY_GET_CAPABILITIES + " XML POST request.");
+                }
+                version = versionEl.getValue();
+            } else {
+                // meanwhile, DescribeCoverage or GetCoverage, version is gotten from attribute (e.g: <wcs:GetCoverage .... version="2.0.1">...</wcs:GetCoverage>)
+                version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
+            }
+            
             handleWcsRequest(version, root, request, httpResponse, wrapperRequest);
         }
     }

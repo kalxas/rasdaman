@@ -6,7 +6,6 @@
     xmlns:scal="http://www.opengis.net/wcs/scaling/1.0"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>test_mr</wcs:CoverageId>
   <wcs:Extension>
     <scal:Scaling>
       <scal:ScaleToSize>
@@ -17,4 +16,5 @@
       </scal:ScaleToSize>
     </scal:Scaling>
   </wcs:Extension>
+  <wcs:CoverageId>test_mr</wcs:CoverageId>
 </wcs:GetCoverage>

@@ -10,5 +10,5 @@
     <wcs:Dimension>Long</wcs:Dimension>
     <wcs:SlicePoint>50</wcs:SlicePoint>
   </wcs:DimensionSlice>
-  <gml:format>image/tiff</gml:format>
+  <wcs:format>image/tiff</wcs:format>
 </wcs:GetCoverage>

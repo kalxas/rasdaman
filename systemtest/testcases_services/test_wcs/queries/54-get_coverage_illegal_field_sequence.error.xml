@@ -6,7 +6,6 @@
     xmlns:rsub="http://www.opengis.net/wcs/range-subsetting/1.0"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
-  <wcs:CoverageId>test_rgb</wcs:CoverageId>
   <wcs:Extension>
     <rsub:rangeSubset>
       <rsub:rangeItem>
@@ -17,4 +16,5 @@
       </rsub:rangeItem>
     </rsub:rangeSubset>
   </wcs:Extension>
+  <wcs:CoverageId>test_rgb</wcs:CoverageId>
 </wcs:GetCoverage>

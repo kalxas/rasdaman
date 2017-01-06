@@ -6,5 +6,5 @@
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
   <wcs:CoverageId>test_mr</wcs:CoverageId>
-  <gml:format>image/jp2</gml:format>
+  <wcs:format>image/jp2</wcs:format>
 </wcs:GetCoverage>
