@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCSException;
 import petascope.wcps2.error.managed.processing.WCPSProcessingError;
 import petascope.wcps2.metadata.service.CoverageAliasRegistry;
 import petascope.wcps2.metadata.service.CoverageRegistry;
@@ -97,14 +98,14 @@ public class WcpsTranslator {
         parser.addErrorListener(new ParserErrorHandler());
         VisitorResult translationTree = null;
         ParseTree parseTree = null;
-        
+
         // If query cannot be parsed, it is SyntaxError Exception (needed for OGC CITE test)
         try {
             parseTree = parser.wcpsQuery();
         } catch(WCPSProcessingError ex) {
             throw new PetascopeException(ExceptionCode.SyntaxError, ex.getMessage(), ex);
         }
-        
+
         // If query can be parsed, then it can have error in handlers.
         try {
             // When the tree is parsed, it will traverse to each node to evaluate
@@ -115,9 +116,9 @@ public class WcpsTranslator {
             // Get the aliasCoverage for multipart
             this.coverageAliasRegistry = evaluator.getCoverageAliasRegistry();
         } catch (WCPSProcessingError ex) {
-            throw new PetascopeException(ex.getExceptionCode(), ex.getMessage(), ex);
+            throw new WCSException(ex.getExceptionCode(), ex.getMessage(), ex);
         } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.WcpsError, ex.getMessage(), ex);
+            throw new WCSException(ExceptionCode.WcpsError, ex.getMessage(), ex);
         }
         return translationTree;
     }

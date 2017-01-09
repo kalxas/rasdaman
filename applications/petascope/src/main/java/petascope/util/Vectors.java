@@ -99,8 +99,7 @@ public class Vectors {
                 vOut[i] = v[i].doubleValue() * s.doubleValue();
             }
         }
-
-        log.debug("scalar-multiplication of " + toString(v) + " by " + s + " is: " + toString(vOut));
+       
         return vOut;
     }
 

@@ -235,6 +235,9 @@ rasql_servlet_upload_path=/tmp/rasql_servlet_upload
 #
 log4j.rootLogger=TRACE, rollingFile, stdout
 
+# Reduce the log information from GRPC, Netty
+log4j.logger.io.grpc=WARN
+
 log4j.appender.stdout=org.apache.log4j.ConsoleAppender
 log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
 log4j.appender.stdout.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n

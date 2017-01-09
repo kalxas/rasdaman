@@ -265,7 +265,7 @@ public class CrsUtil {
      * @throws SecoreException
      */
     // (!!) Always use decomposeUri() output to feed this method: it currently understands single CRSs.
-    public static CrsDefinition getGmlDefinition(String givenCrsUri) throws PetascopeException, SecoreException {
+    public static CrsDefinition getGmlDefinition(String givenCrsUri) throws PetascopeException, SecoreException {        
         CrsDefinition crs = null;
         List<List<String>> axes = new ArrayList<List<String>>();
 
@@ -273,8 +273,7 @@ public class CrsUtil {
         givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "");
 
         // Check first if the definition is already in cache:
-        if (CrsUri.isCached(givenCrsUri)) {
-            log.trace(givenCrsUri + " definition is already in cache: do not need to fetch GML definition.");
+        if (CrsUri.isCached(givenCrsUri)) {            
             return CrsUri.getCachedDefinition(givenCrsUri);
         }
 
@@ -285,7 +284,6 @@ public class CrsUtil {
         }
 
         // Need to parse the XML
-        log.trace(givenCrsUri + " definition needs to be parsed from resolver.");
         String uom = "";
         String datumOrigin = ""; // for TemporalCRSs
 
@@ -407,7 +405,7 @@ public class CrsUtil {
                             uomName = uomAtt.getValue().split(" ")[0]; // UoM is meant as one word only
                         } else {
                             // Need to parse a new XML definition
-                            uomUrl = new URL(uomAtt.getValue());
+                            uomUrl = new URL(uomAtt.getValue());                            
                             Element uomRoot = crsDefUrlToXml(uomAtt.getValue());
                             if (uomRoot != null) {
 
@@ -505,14 +503,22 @@ public class CrsUtil {
 
         // Cache the crs definition by the CRS URI
         parsedCRSs.put(givenCrsUri, crs);
-        log.trace(givenCrsUri + " into cache for future (inter-requests) use.");
+        log.trace("CRS URI {} is added into cache for future (inter-requests) use.", givenCrsUri);
 
         return crs;
     }
 
+    /**
+     * Try to build XML elements tree from CRS URI (try with all provided SECORE configurations in petascope.properties if it still returns NULL for elements tree)
+     * @param url
+     * @return Element
+     * @throws MalformedURLException
+     * @throws IOException
+     * @throws ParsingException 
+     */
     public static Element crsDefUrlToXml(final String url) throws MalformedURLException, IOException, ParsingException {
         Element ret = crsDefUrlToDocument(url);
-        if (ret == null) {
+        if (ret == null) {            
             for (String configuredResolver : ConfigManager.SECORE_URLS) {
                 String newUrl = CrsUri.replaceResolverInUrl(url, configuredResolver);
                 ret = crsDefUrlToDocument(newUrl);
@@ -551,10 +557,17 @@ public class CrsUtil {
         return false;
     }
 
+    /**
+     * Building a XML elements tree from a CRS URI
+     * @param url
+     * @return Element
+     * @throws MalformedURLException 
+     */
     private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
         Element ret = null;
         URL uomUrl = new URL(url);
         try {
+            // Get the CRS URI definition from SECORE to build Element
             URLConnection uomCon = uomUrl.openConnection();
             uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
             uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
@@ -1331,12 +1344,11 @@ public class CrsUtil {
          */
         public static boolean isCached(String uri) throws PetascopeException, SecoreException {
             for (String cachedUri : parsedCRSs.keySet()) {
-                if (areEquivalent(cachedUri, uri)) {
-                    log.debug(uri + " CRS is already decoded in cache.");
+                if (areEquivalent(cachedUri, uri)) {                    
                     return true;
                 }
             }
-            log.debug(uri + " CRS needs to be decoded via resolver.");
+            log.trace(uri + " CRS needs to be parsed via resolver.");
             return false;
         }
 
@@ -1427,10 +1439,7 @@ public class CrsUtil {
             URLs.addAll(Arrays.asList(uri1, uri2));
 
             if (crsComparisons.containsKey(URLs)) {
-                // Comparison is cached
-                log.trace(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
-                          getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
-                          "comparison is cached: *no* need to ask SECORE.");
+                // Comparison is cached                
                 return crsComparisons.get(URLs);
             } else {
                 // New comparison: need to ask SECORE(s)
@@ -1439,8 +1448,7 @@ public class CrsUtil {
                           "comparison is *not* cached: need to ask SECORE.");
                 Boolean equal = null;
                 for (String resolverUri : ConfigManager.SECORE_URLS) {
-                    try {
-                        log.debug("Checking equivalence of CRSs via " + resolverUri + "...");
+                    try {                        
                         equal = checkEquivalence(resolverUri, uri1, uri2);
                         break; // No need to check against any resolver
                     } catch (SecoreException ex) {

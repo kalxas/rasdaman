@@ -30,20 +30,13 @@ import petascope.exceptions.ExceptionCode;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class WCPSProcessingError extends RuntimeException {
-    public WCPSProcessingError() {
-    }
 
-    public WCPSProcessingError(Throwable cause) {
-        super(cause);
+    public WCPSProcessingError() {
     }
 
     public WCPSProcessingError(String message, ExceptionCode exceptionCode) {
         super(message);
         this.exceptionCode = exceptionCode;
-    }
-
-    public WCPSProcessingError(String message, Throwable cause) {
-        super(message, cause);
     }
 
     public ExceptionCode getExceptionCode() {

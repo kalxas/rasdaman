@@ -95,9 +95,7 @@ public class SecoreServlet extends HttpServlet {
             uri += QUERY_SEPARATOR + qs;
         }
         try {
-            log.debug("Request URI: " + uri);
             ResolveRequest request = new ResolveRequest(uri);
-            log.debug("Set service URI to " + StringUtil.SERVICE_URI);
 
             // Check if last query modified the baseX (insert/update/delete definitions) then it have to clear cache both in BaseX and on Servlet
             if (DbManager.getNeedToClearCache()) {
@@ -109,12 +107,12 @@ public class SecoreServlet extends HttpServlet {
             // NOTE: use the cache instead of querying collections if URI does exist in the cache
             String data = "";
             if (cache.containsKey(uri)) {
-                log.debug("Query data from cache.");
+                log.debug("Query data from *cache* for URI request: {}", uri);
                 data = cache.get(uri);
             } else {
                 ResolveResponse res = Resolver.resolve(request);
                 data = res.getData();
-                log.debug("Query data from collections.");
+                log.debug("Query data from *collections* for URI request: {}", uri);
                 addUriToCache(uri, data);
             }
             writeResult(req, resp, data);

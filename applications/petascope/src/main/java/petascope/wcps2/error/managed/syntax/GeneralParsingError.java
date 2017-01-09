@@ -37,9 +37,9 @@ public class GeneralParsingError extends WCPSSyntaxError {
     @Override
     public String getErrorMessage() {
         String error = ERROR_TEMPLATE.replace("$line", Integer.toString(line))
-                       .replace("$charPositionInLine", Integer.toString(charPositionInLine))
-                       .replace("$offendingSymbol", offendingSymbol.toString())
-                       .replace("$parserMessage", message);
+                                     .replace("$charPositionInLine", Integer.toString(charPositionInLine))
+                                     .replace("$offendingSymbol", offendingSymbol.toString())
+                                     .replace("$parserMessage", message);
         return error;
     }
 

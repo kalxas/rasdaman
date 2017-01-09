@@ -116,8 +116,7 @@ public class ExtensionsRegistry {
      *
      * @param extension
      */
-    public static void registerExtension(Extension extension) {
-        log.info("Registered extension {}", extension);
+    public static void registerExtension(Extension extension) {        
         extensions.add(extension);
         extensionIds.add(extension.getExtensionIdentifier());
         if (extension.hasParent()) {

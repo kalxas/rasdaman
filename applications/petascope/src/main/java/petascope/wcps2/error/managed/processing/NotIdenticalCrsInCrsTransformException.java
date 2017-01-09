@@ -37,7 +37,7 @@ public class NotIdenticalCrsInCrsTransformException extends WCPSProcessingError 
      */
     public NotIdenticalCrsInCrsTransformException(String crsX, String crsY) {
         super(ERROR_TEMPLATE.replace("$CRS_X", crsX)
-              .replace("$CRS_Y", crsY), ExceptionCode.WcpsError);
+                            .replace("$CRS_Y", crsY), ExceptionCode.WcpsError);
     }
 
     private static final String ERROR_TEMPLATE = "Not identical CRS are used in crsTransform, received '$CRS_X' and '$CRS_Y'.";

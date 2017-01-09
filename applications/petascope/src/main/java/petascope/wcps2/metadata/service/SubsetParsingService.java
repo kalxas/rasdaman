@@ -293,7 +293,7 @@ public class SubsetParsingService {
                 result = TimeConversionService.getTimeInGridPointForIrregularAxis(axis, point);
             }
         } else {
-            // throw exception when cannot parse a slicing subset point (e.g: Lat(1 + 1)
+            // throw exception when cannot parse a slicing subset point (e.g: Lat(1 + 1) or Lat(a))
             throw new InvalidSlicingException(axis.getLabel(), point);
         }
 

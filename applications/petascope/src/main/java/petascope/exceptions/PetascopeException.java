@@ -116,7 +116,7 @@ public class PetascopeException extends Exception {
         report.getException().add(type);
 
         //follow parent exceptions
-        while (ex != null) {
+        /*while (ex != null) {
             ExceptionType tempType = null;
             if (ex instanceof PetascopeException) {
                 tempType = ((PetascopeException) ex).getReport().getException().get(0);
@@ -128,7 +128,7 @@ public class PetascopeException extends Exception {
             }
             report.getException().add(tempType);
             ex = (Exception) ex.getCause();
-        }
+        }*/
 
     }
 

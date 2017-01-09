@@ -522,7 +522,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 if (!req.isSliced(dim)) {
                     long lo = cel.getLoInt();
                     long hi = cel.getHiInt();
-                    long scaledExtent;
                     if (newdim.containsKey(dim)) {
                         long[] lohi = CrsUtil.convertToInternalGridIndices(covMeta.getMetadata(), dbMeta, dim,
                                 newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
@@ -533,8 +532,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     long hiAfterScale;
                     // Note: scalefactor value: 1.0 leaves the coverage unscaled, scalefactor value: between 0 and 1 scales down
                     // (reduces target domain), scalefactor value: greater than 1 scales up (enlarges target domain).
-                    BigDecimal pixels;
-                    BigDecimal fraction;
                     BigDecimal scalingFactor;
                     switch (scaling.getType()) {
                         case SCALE_FACTOR:
@@ -619,7 +616,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             proc += "})";
 
         }
-        log.trace(proc); // query after scaling
 
         if (params != null) {
             // Additional paramters (e.g. bbox/crs in case of GTiff encoding)
@@ -640,9 +636,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             wcpsQuery =  "for c in (" + req.getCoverageId() + ") return encode(" + proc + ", \"" + format + "\")";
         }
 
-        log.debug("==========================================================");
-        log.debug(wcpsQuery);
-        log.debug("==========================================================");
+        log.debug("Constructed WCPS query from WCS request:\n{}", wcpsQuery);
         return Pair.of(wcpsQuery, axes.trim());
     }
 

@@ -1035,7 +1035,6 @@ public class DbMetadataSource implements IMetadataSource {
                                 throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
                                                              "No native CRS found for this coverage.");
                             }
-                            log.debug("Decoding " + uri + " ...");
                             // If not cached, parse the SECORE-resolved definition ot this CRS
                             CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
                             for (CrsDefinition.Axis axis : crsDef.getAxes()) {
@@ -1045,7 +1044,7 @@ public class DbMetadataSource implements IMetadataSource {
                     }
 
                 }
-                log.trace("Coverage " + coverageName + " CRS decoded: it has " + crsAxes.size() + (crsAxes.size() > 1 ? " axes" : " axis") + ".");
+                log.trace("Coverage {} with CRS decoded has {} axes.", coverageName, crsAxes.size());
                 // Check CRS
                 if (crsAxes.isEmpty()) {
                     throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
@@ -1243,7 +1242,6 @@ public class DbMetadataSource implements IMetadataSource {
                             // of indexes 1 and 2 respectively:
                             rs = rAxis.getArray(RECTILINEAR_AXIS_OFFSET_VECTOR).getResultSet();
                             while (rs.next()) {
-                                log.debug("Offset-vector " + axisId + " component: " + rs.getBigDecimal(2));
                                 offsetVector.add(rs.getBigDecimal(2));
                             }
                             log.trace("Axis {} has offset-vector {}", axisId, offsetVector);
@@ -1295,7 +1293,7 @@ public class DbMetadataSource implements IMetadataSource {
                                     }
                                 }
                             }
-                            log.trace("Axis " + gridAxes.size() + " of coverage '" + coverageName +
+                            log.trace("Axis at index: " + gridAxes.size() + " of coverage '" + coverageName +
                                       "' is " + (isIrregular ? "" : "not ") + "irregular.");
 
                             // Build up the axis map
@@ -1432,7 +1430,7 @@ public class DbMetadataSource implements IMetadataSource {
                 covMeta.setDescription(covDescription);
             }
 
-            log.trace("Caching coverage metadata..");
+            log.trace("Caching coverage metadata for coverage: {}", coverageName);
             cache.put(coverageName, covMeta);
 
             /* Done with SQL statements */
@@ -2062,7 +2060,7 @@ public class DbMetadataSource implements IMetadataSource {
                 "SELECT * FROM " + TABLE_COVERAGE +
                 " WHERE " + COVERAGE_NAME + "='" + name + "'"
                 ;
-            log.debug("SQL query : " + sqlQuery);
+            log.debug("Check if metadata is available for given coverage name: {}, SQL query: {}", name, sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
             if (r.next()) {
                 result = true;

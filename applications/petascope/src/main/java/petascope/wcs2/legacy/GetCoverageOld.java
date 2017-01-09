@@ -326,7 +326,7 @@ public class GetCoverageOld {
     public String executeRasqlQuery(String query) throws WCSException {
         byte[] result = null;
 
-        Implementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
+        Implementation impl = (Implementation) new RasImplementation(ConfigManager.RASDAMAN_URL);
         Database db = impl.newDatabase();
 
         try {

@@ -150,7 +150,7 @@ public class PetascopeInterface extends CORSHttpServlet {
 
         /* Initialize WCPS Service */
         try {
-            log.info("WCPS: Initializing...");
+            log.info("WCPS 1.0 (deprecated): Initializing...");
             wcps = new Wcps(meta);
             log.info("WCPS: initialization complete.");
         } catch (Exception e) {
