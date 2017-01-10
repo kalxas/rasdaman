@@ -300,7 +300,14 @@ class WCSTExecutor(WCSTBaseExecutor):
         service_call = self.base_url + "?" + request.get_query_string()
         if output:
             log.info(service_call)
-        response = url_lib.urlopen(service_call).read()
+
+        http_response = url_lib.urlopen(service_call)
+        http_code = http_response.getcode()
+
+        response = http_response.read()
+
+        if http_code == 404 and response == "":
+            raise WCSTException(404, "Petascope does not seem to be deployed on: " + self.base_url, service_call)
 
         namespaces = ""
 
@@ -340,4 +347,5 @@ class WCSTMockExecutor(WCSTBaseExecutor):
         """
         request = self.prepare_request(request)
         service_call = self.base_url + "?" + request.get_query_string()
-        log.info("\n" + service_call + "\n")
+        log.info("\n\033[1mThis is just a mocked request, no data will be changed.\x1b[0m ");
+        log.info(service_call)
