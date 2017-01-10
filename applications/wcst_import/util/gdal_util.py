@@ -25,6 +25,9 @@ from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSUtil
 from util.gdal_field import GDALField
+from util.log import log
+import re
+import math
 
 
 class GDALGmlUtil:
@@ -173,11 +176,25 @@ class GDALGmlUtil:
                 field_name = ConfigManager.default_field_name_prefix + str(i)
 
             nil_value = str(band.GetNoDataValue()) if band.GetNoDataValue() is not None else ""
-            # Check if the nil value is an integer and remove it if not as rasdaman does not support floating null values
+            # Check if the nil value is an integer and if it is float then split it to 2 integers (e.g: -10.4 -> [-11:-10] as rasdaman does not support floating null values
             # TODO: Remove this check once rasdaman supports floating null values
-            if nil_value is not None and not nil_value.isdigit():
-                nil_value = ""
-            if nil_value == "":
+            if nil_value != "":
+                # Because gdal.GetNoDataValue() always return float number, even it is integer (e.g: -9999 then it will return -9999.0) so must check it with regex
+                int_pattern = re.compile(r'^.*\.0$')
+                int_matches = int_pattern.search(nil_value)
+                if int_matches is not None:
+                    # it is an integer
+                    nil_value = str(int(float(nil_value)))
+                else:
+                    # it is a float number then split it to 2 integers (floor:ceil)
+                    float_value =  float(nil_value)
+                    if float_value > 9223372036854775807 or float_value < -9223372036854775808:
+                        log.info("\033[1mNilValue of importing file: \x1b[0m " + str(float_value) + " is too big for integer, it will not set nilValue.")
+                        nil_value = None
+                    else:
+                        nil_value =  str(int(math.floor(float_value))) + ":" + str(int(math.ceil(float_value)))
+            else:
+                # Band does not contain any nodata_value, then check if nullvalue is specified in ingredient file
                 dfn = ConfigManager.default_null_values
                 if len(dfn) > i - 1:
                     nil_value = str(dfn[i - 1])

@@ -1,0 +1,1 @@
+select encode(c, "GTiff") from nulltest as c
