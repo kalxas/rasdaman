@@ -188,6 +188,10 @@ res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
 check_result 3 $res "custom nodata test"
 rm -f nodata*
 
+$RASQL -q 'select encode(c, "tiff") from test_tmp as c' --out file --outfile nodata > /dev/null
+check_result 0 $? "default tiff test"
+rm -f nodata*
+
 ################## test georeference ###############################
 
 $RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": [200,201,202], \"geoReference\": { \"bbox\": { \"xmin\": 0.5, \"xmax\": 30, \"ymin\": -15, \"ymax\": 50.3}, \"crs\": \"EPSG:4326\" }, \"metadata\": \"metadata test\" }") from test_tmp as c' --out file --outfile geo > /dev/null
