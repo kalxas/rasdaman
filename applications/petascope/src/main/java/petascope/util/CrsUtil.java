@@ -308,7 +308,7 @@ public class CrsUtil {
         for (String crsUri : crsUris) {
             URL uomUrl = null;
             try {
-                URL url = new URL(crsUri);
+                URL url = new URL(crsUri.replaceAll("\"", "%22"));
                 URLConnection con = url.openConnection();
                 con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
                 con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
@@ -1498,6 +1498,7 @@ public class CrsUtil {
                 try {
                     // Create InputStream and set the timeouts
                     URL url = new URL(equalityUri);
+                    url = new URL(url.toString().replaceAll("\"", "%22"));
                     URLConnection con = url.openConnection();
                     con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
                     con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);

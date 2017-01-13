@@ -115,9 +115,9 @@ public class Resolver {
      */
     public static ResolveResponse resolve(URL url) throws SecoreException {
         BufferedReader in = null;
-        StringBuilder data = new StringBuilder(1000);
-
+        StringBuilder data = new StringBuilder(1000);         
         try {
+            url = new URL(url.toString().replaceAll("\"", "%22"));
             in = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = in.readLine()) != null) {
@@ -142,3 +142,4 @@ public class Resolver {
         return new ResolveResponse(ret);
     }
 }
+
