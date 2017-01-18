@@ -32,6 +32,8 @@ from util.crs_util import CRSUtil
 
 @functools.total_ordering
 class DateTimeUtil:
+    MAX_DATE = arrow.get("9999-01-01 00:00:00")
+    MIN_DATE = arrow.get("0001-01-01 00:00:00")
     CRS_CODE_ANSI_DATE = "AnsiDate"
     CRS_CODE_UNIX_TIME = "UnixTime"
 

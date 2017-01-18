@@ -25,8 +25,9 @@
 import math
 import pygrib
 import sys
-from datetime import datetime, MINYEAR, MAXYEAR
+from lib.arrow import api as arrow
 from dateutil.parser import parse
+from util.time_util import DateTimeUtil
 
 from master.evaluator.evaluator_slice import GribMessageEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
@@ -172,13 +173,13 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                         high = axis.interval.high
                     resolution = axis.resolution
         grid_low = 0
-        grid_high = math.fabs(math.floor((high - low) / resolution))
+        grid_high = int(math.fabs(math.ceil(grid_low + (high - low) / resolution)))
 
         # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
         if not self.grid_coverage:
             if grid_high > grid_low:
                 grid_high -= 1
-        return low, high, low, int(grid_low), int(grid_high), resolution
+        return low, high, low, grid_low, grid_high, resolution
 
     def _low_high_origin_date(self, messages, axis_name):
         """
@@ -187,22 +188,23 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param str axis_name: the axis name
         :rtype: (float, float, float, int, int, float)
         """
-        low, high, resolution = datetime(MAXYEAR, 1, 1), datetime(MINYEAR, 1, 1), None
+        low, high, resolution = DateTimeUtil.MAX_DATE, DateTimeUtil.MIN_DATE, None
         grid_high = 0
         for message in messages:
             for axis in message.axes:
                 if axis.name == axis_name:
-                    date_low = parse(axis.interval.low)
+                    date_low = arrow.get(axis.interval.low)
                     if date_low < low:
                         low = date_low
                     if date_low > high:
                         high = date_low
                     if axis.interval.high:
-                        date_high = parse(axis.interval.high)
+                        date_high = arrow.get(axis.interval.high)
                         if date_high > high:
                             high = date_high
                     resolution = axis.resolution
-                    grid_high += 1
+                    if high != low:
+                        grid_high += 1
         grid_low = 0
         if grid_high > grid_low:
             grid_high -= 1
@@ -277,9 +279,12 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                 geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, low, high, origin, crs_axis)
             grid_axis = GridAxis(user_axis.order, crs_axis.label, resolution, grid_low, grid_high)
             if crs_axis.is_easting():
-                geo_axis.origin = geo_axis.low + resolution / 2
+                geo_axis.origin = geo_axis.low + float(resolution) / 2
             elif crs_axis.is_northing():
-                geo_axis.origin = geo_axis.high + resolution / 2
+                geo_axis.origin = geo_axis.high + float(resolution) / 2
+            elif not crs_axis.is_date():
+                geo_axis.origin = geo_axis.low + float(resolution) / 2
+
             axis_subsets.append(AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound), Interval(low, high)))
         return Slice(axis_subsets, FileDataProvider(grib_file, self._messages_to_dict(messages), self.MIMETYPE))
 

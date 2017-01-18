@@ -1,0 +1,67 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/OGC/0/Index2D",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_grib_regular_5_messages",
+    "paths": [
+      "test5messages.grib2"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/Index1D?axis-label=\"isobaric\"@OGC/0/AnsiDate@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "description": "'This is a test coverage'"
+          }
+        },
+        "slicer": {
+          "type": "grib",
+          "bands": [
+            {
+              "name": "band_1",
+              "description": "v-component of wind",
+              "identifier": "v-component_of_wind_isobaric"
+            }
+          ],
+          "axes": {           
+            "Lat": {
+              "min": "${grib:latitudeOfLastGridPointInDegrees} - 0.25",
+              "max": "${grib:latitudeOfFirstGridPointInDegrees} + 0.25",
+              "resolution": "-0.5",
+              "gridOrder": 3
+            },
+            "Long": {
+              "min": "${grib:longitudeOfFirstGridPointInDegrees} - 0.25",
+              "max": "${grib:longitudeOfLastGridPointInDegrees} + 0.25",
+              "resolution": "0.5",
+              "gridOrder": 2
+            }, "ansi": {
+	      "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
+              "resolution": 1,
+              "gridOrder": 1,
+              "irregular": false
+            }, "isobaric": {
+              "min": "${grib:level} - 12.5",
+              "max": "${grib:level} + 12.5",
+              "resolution": "25",
+              "gridOrder": 0
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:13, 0:10, 0:0, 0:10] TILE SIZE 4000000"
+    }
+  }
+}

@@ -75,6 +75,11 @@ class CRSAxis:
             return True
         return False
 
+    def is_date(self):
+        if self.is_uom_day() or self.is_uom_second():
+            return True
+        return False
+
 class CRSUtil:
     def __init__(self, crs_url):
         """

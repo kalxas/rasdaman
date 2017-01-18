@@ -1,0 +1,68 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/OGC/0/Index2D",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_grib_irregular_1_message",
+    "paths": [
+       "*.grib2"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/Index1D?axis-label=\"isobaric\"@OGC/0/AnsiDate@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "description": "'This is a test coverage'"
+          }
+        },
+        "slicer": {
+          "type": "grib",
+          "bands": [
+            {
+              "name": "band_1",
+              "description": "v-component of wind",
+              "identifier": "v-component_of_wind_isobaric"
+            }
+          ],
+          "axes": {           
+            "Lat": {
+              "min": "${grib:latitudeOfLastGridPointInDegrees} - 0.625",
+              "max": "${grib:latitudeOfFirstGridPointInDegrees} + 0.625",
+              "resolution": "-1.25",
+              "gridOrder": 3
+            },
+            "Long": {
+              "min": "${grib:longitudeOfFirstGridPointInDegrees} - 0.625",
+              "max": "${grib:longitudeOfLastGridPointInDegrees} + 0.625",
+              "resolution": "1.25",
+              "gridOrder": 2
+            }, "ansi": {
+	      "min": "datetime(regex_extract('${file:name}', 'output_(.*)_(.*)', 2), 'YYYYMMDD')",
+	      "max": "datetime(regex_extract('${file:name}', 'output_(.*)_(.*)', 2), 'YYYYMMDD')",
+              "resolution": 1,
+              "gridOrder": 1,
+              "irregular": true
+            }, "isobaric": {
+              "min": "${grib:level} - 0.5",
+              "max": "${grib:level} + 0.5",
+              "resolution": "1",
+              "gridOrder": 0
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:13, 0:10, 0:0, 0:10] TILE SIZE 4000000"
+    }
+  }
+}

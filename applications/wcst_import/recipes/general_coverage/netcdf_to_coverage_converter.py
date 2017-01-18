@@ -160,7 +160,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         else:
             grid_low = 0
             number_of_geopixels = user_axis.interval.high - user_axis.interval.low
-            grid_high = int(math.fabs(round(grid_low + number_of_geopixels / user_axis.resolution)))
+            grid_high = int(math.fabs(math.ceil(grid_low + number_of_geopixels / user_axis.resolution)))
 
             # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
             if not self.grid_coverage:
@@ -170,10 +170,12 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
         if crs_axis.is_easting():
-            geo_axis.origin = geo_axis.low + user_axis.resolution / 2
+            geo_axis.origin = geo_axis.low + float(user_axis.resolution) / 2
         elif crs_axis.is_northing():
-            geo_axis.origin = geo_axis.high + user_axis.resolution / 2
-        elif crs_axis.is_future():
+            geo_axis.origin = geo_axis.high + float(user_axis.resolution) / 2
+        elif not crs_axis.is_date():
+            geo_axis.origin = geo_axis.low + float(user_axis.resolution) / 2
+        elif crs_axis.is_date():
             geo_axis.origin = stringify(geo_axis.origin)
             geo_axis.low = stringify(geo_axis.low)
             if geo_axis.high is not None:
