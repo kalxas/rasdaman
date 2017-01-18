@@ -64,6 +64,12 @@ class PointPixelAdjuster:
         :param UserAxis user_axis: the axis as given by the user.
         :return: float origin
         """
+        # if axis is datetime then just return the low
+        if user_axis.type == UserAxisType.DATE:
+            user_axis.interval.low = arrow.get(user_axis.interval.low).float_timestamp
+            if user_axis.interval.high:
+                user_axis.interval.high = arrow.get(user_axis.interval.high).float_timestamp
+
         if isinstance(user_axis, RegularUserAxis):
             if user_axis.resolution > 0 or user_axis.interval.high is None:
                 # axis goes from low to high, so origin is lowest, with half a pixel shift

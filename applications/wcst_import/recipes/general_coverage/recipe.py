@@ -37,6 +37,7 @@ from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageCo
 from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
 from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
 from recipes.general_coverage.pp_netcdf_to_coverage_converter import PointPixelNetcdfToCoverageConverter
+from recipes.general_coverage.pp_grib_to_coverage_converter import PointPixelGRIBToCoverageConverter
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
@@ -198,7 +199,13 @@ class Recipe(BaseRecipe):
                     "Could not find a definition for axis " + crs_axis.label + " in the axes parameter.")
             axis = axes[crs_axis.label]
             max = axis["max"] if "max" in axis else None
-            type = axis["type"] if "type" in axis else UserAxisType.NUMBER
+            if "type" in axis:
+                type = axis["type"]
+            elif crs_axis.is_date():
+                type = UserAxisType.DATE
+            else:
+                type = UserAxisType.NUMBER
+
             order = axis["gridOrder"] if "gridOrder" in axis else default_order
             irregular = axis["irregular"] if "irregular" in axis else False
             data_bound = axis["dataBound"] if "dataBound" in axis else True
@@ -278,21 +285,6 @@ class Recipe(BaseRecipe):
                 "No valid slicer could be found, given: " + self.options['coverage']['slicer']['type'])
         return coverage
 
-    def _get_grib_coverage(self):
-        """
-        Returns a coverage that uses the grib slicer
-        :rtype: master.importer.coverage.Coverage
-        """
-        crs = self._resolve_crs(self.options['coverage']['crs'])
-        sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
-        coverage = GRIBToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
-                                           self._read_bands()[0],
-                                           self.session.get_files(), crs, self._read_axes(crs),
-                                           self.options['tiling'], self._global_metadata_fields(),
-                                           self._local_metadata_fields(), self._metadata_type(),
-                                           self.options['coverage']['grid_coverage']).to_coverage()
-        return coverage
-
     def _get_gdal_coverage(self):
         """
         Returns a coverage that uses the gdal slicer
@@ -330,6 +322,30 @@ class Recipe(BaseRecipe):
                                                  self._local_metadata_fields(), self._metadata_type(),
                                                  self.options['coverage']['grid_coverage']).to_coverage()
         return coverage
+
+    def _get_grib_coverage(self):
+        """
+        Returns a coverage that uses the grib slicer
+        :rtype: master.importer.coverage.Coverage
+        """
+        crs = self._resolve_crs(self.options['coverage']['crs'])
+        sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
+        if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
+            coverage = PointPixelGRIBToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
+                                                        self._read_bands()[0],
+                                                        self.session.get_files(), crs, self._read_axes(crs),
+                                                        self.options['tiling'], self._global_metadata_fields(),
+                                                        self._local_metadata_fields(), self._metadata_type(),
+                                                        self.options['coverage']['grid_coverage']).to_coverage()
+        else:
+            coverage = GRIBToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
+                                               self._read_bands()[0],
+                                               self.session.get_files(), crs, self._read_axes(crs),
+                                               self.options['tiling'], self._global_metadata_fields(),
+                                               self._local_metadata_fields(), self._metadata_type(),
+                                               self.options['coverage']['grid_coverage']).to_coverage()
+        return coverage
+
 
     def _get_importer(self):
         """
