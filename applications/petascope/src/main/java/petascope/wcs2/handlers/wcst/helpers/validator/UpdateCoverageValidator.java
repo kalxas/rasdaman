@@ -89,11 +89,7 @@ public class UpdateCoverageValidator {
         validateDomainSet(currentCoverage, inputCoverage, subsets);
         validateOffsetVectors(currentCoverage, inputCoverage);
         validateRangeType(currentCoverage, inputCoverage, rangeComponents);
-
-        /* Disabled since the irregulat time series recipe creates 2D coverages that have 3D crses.
-           This is not an issue as long as the slicing crs is the last one.
-         TODO enable after fixing the time series recipes */
-        //validateCrsGridAxisCorrespondence(inputCoverage);
+        validateCrsGridAxisCorrespondence(inputCoverage);
     }
 
     /**
