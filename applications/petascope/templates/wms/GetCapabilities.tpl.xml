@@ -27,6 +27,10 @@
         <Exception>
             $exceptionFormats$
         </Exception>
-        $layers$
+        <Layer>
+              <Title>Rasdaman Web Map Service</Title>
+              <Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
+                $layers$
+        </Layer>
     </Capability>
 </WMS_Capabilities>

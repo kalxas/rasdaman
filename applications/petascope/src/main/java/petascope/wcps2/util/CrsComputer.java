@@ -295,6 +295,11 @@ public class CrsComputer {
             if ((domMax.compareTo(domMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(domMax.doubleValue())) {
                 returnLowerLimit = returnLowerLimit - 1;
             }
+            
+            // This happens when max_subset = min_subset + 0.01 for example (at least for WMS)
+            if (returnLowerLimit > returnUpperLimit) {
+                returnUpperLimit = returnLowerLimit;
+            }
         } else {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
@@ -307,6 +312,11 @@ public class CrsComputer {
             // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
             if ((domMax.compareTo(domMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit() == domMin.doubleValue()) {
                 returnLowerLimit -= 1;
+            }
+            
+            // This happens when max_subset = min_subset + 0.01 for example (at least for WMS)
+            if (returnLowerLimit > returnUpperLimit) {
+                returnUpperLimit = returnLowerLimit;
             }
         }
         return new ParsedSubset<Long>(returnLowerLimit, returnUpperLimit);

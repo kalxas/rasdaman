@@ -78,7 +78,8 @@ public class CrsComputer {
         // transform from the native CRS of coverage (e.g: EPSG:3857 to default crs: EPSG:4326)
         List<BigDecimal> transformedBBox = CrsProjectionUtil.transformBoundingBox(originalCrsCode, DEFAULT_CRS_CODE, srcCoords);
 
-        return new EXGeographicBoundingBox(transformedBBox.get(0).toPlainString(), transformedBBox.get(1).toPlainString(),
-                                           transformedBBox.get(2).toPlainString(), transformedBBox.get(3).toPlainString());
+        // the EX_GeographicBoundingBox (westLong, eastLong, southLat, northLat)
+        return new EXGeographicBoundingBox(transformedBBox.get(0).toPlainString(), transformedBBox.get(2).toPlainString(),
+                                           transformedBBox.get(1).toPlainString(), transformedBBox.get(3).toPlainString());
     }
 }

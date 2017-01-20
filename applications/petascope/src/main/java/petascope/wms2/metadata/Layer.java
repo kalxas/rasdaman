@@ -140,8 +140,8 @@ public class Layer implements ISerializableMetadataObject, IPersistentMetadataOb
         this.noSubsets = noSubsets;
         this.fixedWidth = fixedWidth;
         this.fixedHeight = fixedHeight;
-        this.title = title;
         this.name = name;
+        this.title = title;        
         this.layerAbstract = layerAbstract;
         this.exBoundingBox = exBoundingBox;
         this.parentLayer = parentLayer;
@@ -180,8 +180,8 @@ public class Layer implements ISerializableMetadataObject, IPersistentMetadataOb
         ret.put("noSubsets", String.valueOf(noSubsets));
         ret.put("fixedWidth", String.valueOf(fixedWidth));
         ret.put("fixedHeight", String.valueOf(fixedHeight));
-        ret.put("title", title);
         ret.put("name", name);
+        ret.put("title", title);        
         ret.put("abstract", layerAbstract);
         ret.put("crs", serializer.serializeCollection(getCrses()));
         ret.put("EX_GeographicBoundingBox", serializer.serialize(exBoundingBox));
