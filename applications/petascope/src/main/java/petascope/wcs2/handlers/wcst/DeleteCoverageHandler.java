@@ -33,6 +33,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.exceptions.rasdaman.RasdamanCollectionDoesNotExistException;
 import petascope.util.Pair;
 import petascope.util.ras.RasUtil;
 import petascope.wcs2.handlers.AbstractRequestHandler;
@@ -62,25 +63,34 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         }
         //delete all of them
         for (String coverageId : coverageIds) {
-            try {
-                CoverageMetadata coverage = this.meta.read(coverageId);
-                // delete metadata
-                this.meta.delete(coverage);
-
-                // delete WMS layer of this coverageID
-                this.deleteFromWMS(coverageId);
-
-                // delete the rasdaman coverage
+            try {                
+                CoverageMetadata coverageMetadata = null;                
                 try {
-                    deleteFromRasdaman(coverage);
-                } catch (RasdamanException e) {
-                    //rollback the metadata transaction
-                    this.meta.abortAndClose();
-                    throw e;
+                    coverageMetadata = this.meta.read(coverageId);
+                } catch (PetascopeException e) {
+                    if (e.getExceptionCode().equals(ExceptionCode.CollectionDoesNotExist)) {
+                        // NOTE: when collection does not exist, the coverage metadata is polluted and should be removed.                                                
+                        this.deleteCoverageMetadata(coverageId);
+                        return new Response(new String[] {""});
+                    }
+                    else {
+                        throw e;
+                    }
                 }
-
-                //all went well, commit
-                this.meta.commitAndClose();
+                
+                // first, try to delete the rasdaman collection.
+                try {
+                    deleteFromRasdaman(coverageMetadata);
+                } catch (RasdamanException e) {
+                    log.error("Cannot delete collection: " + coverageMetadata.getRasdamanCollection().snd + ", error: ", e);
+                    throw new PetascopeException(ExceptionCode.InternalSqlError, e);
+                } catch (Exception ex) {
+                    log.error("Cannot delete collection: " + coverageMetadata.getRasdamanCollection().snd + ", error: ", ex);
+                    throw new PetascopeException(ExceptionCode.InternalSqlError, ex);
+                }               
+                
+                // collection is removed, try to remove coverage metadata
+                this.deleteCoverageMetadata(coverageId);
 
             } catch (SQLException e) {
                 log.error("Cannot delete coverage: " + coverageId + " from database, error: ", e);
@@ -92,13 +102,41 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
         }
         return new Response(new String[] {""});
     }
+    
+    /**
+     * Delete coverage metadata (WCS, WMS) in petascopedb
+     * @param coverageId
+     * @throws PetascopeException
+     * @throws SQLException
+     * @throws WMSException 
+     */
+    private void deleteCoverageMetadata(String coverageId) throws PetascopeException, SQLException, WMSException {
+        // delete coverage metadata when collection is deleted
+        this.meta.delete(coverageId);
 
+        // delete WMS layer of this coverageID (if possible)
+        this.deleteFromWMS(coverageId);
+
+        //all went well, commit
+        this.meta.commitAndClose();
+    }
+
+    /**
+     * Check if coverageName exists in petascopedb
+     * @param coverageId
+     * @throws WCSException 
+     */
     private void checkCoverageId(String coverageId) throws WCSException {
         if (!meta.existsCoverageName(coverageId)) {
             throw new WCSException(ExceptionCode.NoSuchCoverage, coverageId);
         }
     }
 
+    /**
+     * Delete a collection from Rasdaman
+     * @param coverage
+     * @throws RasdamanException 
+     */
     private void deleteFromRasdaman(CoverageMetadata coverage) throws RasdamanException {
         Pair<BigInteger, String> collection = coverage.getRasdamanCollection();
         RasUtil.deleteFromRasdaman(collection.fst, collection.snd);

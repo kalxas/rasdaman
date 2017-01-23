@@ -45,6 +45,7 @@ import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.WCPSException;
+import petascope.exceptions.rasdaman.RasdamanCollectionDoesNotExistException;
 import petascope.exceptions.rasdaman.RasdamanCollectionExistsException;
 import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.RASQL_VERSION;
@@ -156,6 +157,8 @@ public class RasUtil {
                     // Check if collection name exist then throw another exception
                     if (ex.getMessage().contains("CREATE: Collection name exists already.")) {
                         throw new RasdamanCollectionExistsException(ExceptionCode.CollectionExists, query, ex);
+                    } else if (ex.getMessage().contains("Collection name is unknown.")) {
+                        throw new RasdamanCollectionDoesNotExistException(ExceptionCode.CollectionDoesNotExist, query, ex);
                     } else {
                         throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
                                                     "Error evaluating rasdaman query: '" + query, ex);

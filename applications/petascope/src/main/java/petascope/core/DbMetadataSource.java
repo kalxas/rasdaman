@@ -2013,12 +2013,12 @@ public class DbMetadataSource implements IMetadataSource {
 
     /**
      * Delete a coverage from the database. The transaction is not committed.
-     * @param meta
+     * @param coverageName
      * @throws PetascopeException
+     * @throws java.sql.SQLException
      */
-    public void delete(CoverageMetadata meta) throws PetascopeException, SQLException {
-        ensureConnection();
-        String coverageName = meta.getCoverageName();
+    public void delete(String coverageName) throws PetascopeException, SQLException {
+        ensureConnection();        
         if (existsCoverageName(coverageName) == false) {
             throw new PetascopeException(ExceptionCode.ResourceError,
                                          "Cannot delete inexistent coverage: " + coverageName);
@@ -2507,7 +2507,7 @@ public class DbMetadataSource implements IMetadataSource {
             obj = RasUtil.executeRasqlQuery(rasQuery);
         } catch (RasdamanException ex) {
             log.error("Error while executing RasQL query", ex);
-            throw new PetascopeException(ExceptionCode.InternalComponentError, "Error while executing RasQL query", ex);
+            throw new PetascopeException(ex.getExceptionCode(), "Error while executing RasQL query", ex);
         }
 
         // Parse the result

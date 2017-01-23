@@ -312,6 +312,7 @@ public class ExceptionCode {
 
     public static final ExceptionCode InconsistentChange = new ExceptionCode("InconsistentChange", SC_NOT_FOUND);
     public static final ExceptionCode CollectionExists = new ExceptionCode("CollectionExists", "Collection name already exists in rasdaman.");
+    public static final ExceptionCode CollectionDoesNotExist = new ExceptionCode("CollectionDoesNotExist", "Collection name does not exist in rasdaman.");
 
     // WCS CRS-extension
     public static final ExceptionCode SubsettingCrsNotSupported = new ExceptionCode("SubsettingCrs-NotSupported",

@@ -48,7 +48,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 TEST_DATA="$SCRIPT_DIR/test_data"
 
 # Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
-COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms")
+COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms" "tmp")
 keep_coverage_by_folder_name() {
     for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"
     do
