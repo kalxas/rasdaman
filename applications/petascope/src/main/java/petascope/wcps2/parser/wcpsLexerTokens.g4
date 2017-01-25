@@ -115,6 +115,7 @@ VALUES:('v'|'V')('a'|'A')('l'|'L')('u'|'U')('e'|'E')('s'|'S');
 WHERE: ('w'|'W')('h'|'H')('e'|'E')('r'|'R')('e'|'E');
 XOR: ('x'|'X')('o'|'O')('r'|'R');
 REAL_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?;
+SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')('+'|'-')[0-9]+;
 //COVERAGE_VARIABLE_NAME: '$'[a-zA-Z0-9_]+; disabled for backwards compatibility with WCPS1
 COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
 NAME: [a-z|A-Z]+;

@@ -201,13 +201,10 @@ booleanSwitchCaseCombinedExpression:  booleanSwitchCaseCoverageExpression boolea
  * for c in (someCoverage) return ((avg(a) / avg(b) * 9/5) + 32)
  */
 numericalScalarExpression: numericalUnaryOperation LEFT_PARENTHESIS numericalScalarExpression RIGHT_PARENTHESIS         #NumericalUnaryScalarExpressionLabel
-                         | trigonometricOperator LEFT_PARENTHESIS numericalScalarExpression RIGHT_PARENTHESIS
-                           #NumericalTrigonometricScalarExpressionLabel
-                         | numericalScalarExpression numericalOperator numericalScalarExpression
-                           #NumericalBinaryScalarExpressionLabel
-                         | condenseExpression
-                           #NumericalCondenseExpressionLabel
-                         | (MINUS)? REAL_NUMBER_CONSTANT
+                         | trigonometricOperator LEFT_PARENTHESIS numericalScalarExpression RIGHT_PARENTHESIS           #NumericalTrigonometricScalarExpressionLabel
+                         | numericalScalarExpression numericalOperator numericalScalarExpression                        #NumericalBinaryScalarExpressionLabel
+                         | condenseExpression                                                                           #NumericalCondenseExpressionLabel
+                         | number     
 #NumericalRealNumberExpressionLabel
                          | NAN_NUMBER_CONSTANT
                            #NumericalNanNumberExpressionLabel
@@ -218,7 +215,7 @@ numericalScalarExpression: numericalUnaryOperation LEFT_PARENTHESIS numericalSca
  * Example:
  *  (2,5)  //the equivalent of 2 + 5i
  */
-complexNumberConstant: LEFT_PARENTHESIS (MINUS)? REAL_NUMBER_CONSTANT COMMA (MINUS)? REAL_NUMBER_CONSTANT RIGHT_PARENTHESIS               #ComplexNumberConstantLabel;
+complexNumberConstant: LEFT_PARENTHESIS REAL_NUMBER_CONSTANT COMMA REAL_NUMBER_CONSTANT RIGHT_PARENTHESIS               #ComplexNumberConstantLabel;
 numericalOperator: PLUS | MINUS | MULTIPLICATION | DIVISION;
 numericalUnaryOperation: ABSOLUTE_VALUE | SQUARE_ROOT |  REAL_PART | IMAGINARY_PART | ROUND | MINUS | PLUS;
 trigonometricOperator: SIN | COS | TAN | SINH | COSH | TANH | ARCSIN | ARCCOS | ARCTAN;
@@ -743,7 +740,12 @@ crsName: STRING_LITERAL;
 
 axisName: COVERAGE_VARIABLE_NAME;
 
+number:   (MINUS)? REAL_NUMBER_CONSTANT
+        | (MINUS)? SCIENTIFIC_NUMBER_CONSTANT;
+
+
 constant: STRING_LITERAL
         | TRUE | FALSE
-        | (MINUS)? REAL_NUMBER_CONSTANT
+        | (MINUS)? number
         | complexNumberConstant;
+

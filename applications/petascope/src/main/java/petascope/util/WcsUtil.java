@@ -535,13 +535,13 @@ public class WcsUtil {
     public static List<String> toISODate(List<BigDecimal> coeffs, CrsDefinition crsDefinition) throws PetascopeException {
         List<String> isoDates = new ArrayList<String>();
 
-        // Get the UOM in milliseconds (e.g: d is 86 400 000 millis)
+        // Get the UOM in milliseconds (e.g: ansidate uom: d is 86 400 000 millis, unixtime uom: seconds is 1000 millis)
         Long milliSeconds = TimeUtil.getMillis(crsDefinition);
         DateTime dateTime = new DateTime(crsDefinition.getDatumOrigin());
 
         for (BigDecimal coeff: coeffs) {
             // formular: Origin + (Time Coefficients * UOM in milliSeconds)
-            long duration = coeff.multiply(new BigDecimal(milliSeconds)).setScale(0, RoundingMode.HALF_UP).longValue();
+            long duration = coeff.multiply(new BigDecimal(milliSeconds)).setScale(0, RoundingMode.HALF_UP).longValue();            
             DateTime dt = dateTime.plus(duration);
 
             // Then convert the added date to ISO 8601 datetime (Z means UTC)

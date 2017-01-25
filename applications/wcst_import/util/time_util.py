@@ -97,34 +97,28 @@ class DateTimeUtil:
             dt_format_err = "auto" if dt_format is None else dt_format
             raise RuntimeException("Failed to parse the date " + datetime + " using format " + dt_format_err)
 
+
     def to_string(self):
         """
-        Returns the datetime as a string, formatted depending on the time CRS code
+        Returns the datetime as a string
         :return:
         """
         if self.CRS_CODE_ANSI_DATE in self.time_crs_code:
-            return self.to_ansi()
+            return self.to_iso_format()
         elif self.CRS_CODE_UNIX_TIME in self.time_crs_code:
-            return self.to_unix()
+            return self.to_iso_format()
         else:
             return self.to_unknown()
 
     def __str__(self):
         return self.to_string()
 
-    def to_ansi(self):
+    def to_iso_format(self):
         """
         Returns the datetime in iso format
         :return: str
         """
         return '"' + self.datetime.isoformat() + '"'
-
-    def to_unix(self):
-        """
-        Returns the datetime in unix format
-        :return: str
-        """
-        return str(self.datetime.timestamp)
 
     def to_unknown(self):
         """

@@ -277,6 +277,7 @@ public class SubsetParsingService {
             // (e.g: pixel size is: 30 m / 1 grid pixel and geo coordinate starts with 0,
             // then we have geo coordinates: 0 - 30 - 60 - 90 .... (which are equivalent to: 0, 1, 2, 3 cell coordinates))
             // NOTE: we don't need to fit to sample space if coverage is GridCoverage and axis is CRS:1
+            // OR axis type is not X, Y            
             if (needToFitToSampleSpace(subsetCrs, axis, metadata)) {
                 result = this.fitToSampleSpace(point, axis, isScaleExtend);
             } else {
@@ -419,8 +420,12 @@ public class SubsetParsingService {
             // e.g: Lat(0:20)
             crs = axis.getCrsUri();
         }
-        if (!CrsUtil.isGridCrs(crs) && !CrsUtil.isIndexCrs(crs) && !metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-            return true;
+
+        // Just don't fit to sample space when axis type is not geo-reference (e.g: time coefficient will be wrong value)        
+        if ( axis.getAxisType().equals(AxisTypes.X_AXIS) || axis.getAxisType().equals(AxisTypes.Y_AXIS) ) {
+            if (!CrsUtil.isGridCrs(crs) && !CrsUtil.isIndexCrs(crs) && !metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+                return true;
+            }
         }
         return false;
     }

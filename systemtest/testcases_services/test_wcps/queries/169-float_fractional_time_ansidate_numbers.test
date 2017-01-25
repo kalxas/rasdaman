@@ -1,0 +1,1 @@
+for c in (test_float_fractional_time_ansidate) return encode(c[ansi(1.0416666782407407)] + c[ansi(3652.9999999884258000)] + c[ansi(148658.08229166668)], "csv")

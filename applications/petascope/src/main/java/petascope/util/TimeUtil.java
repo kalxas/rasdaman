@@ -75,7 +75,8 @@ public class TimeUtil {
     public static final Long MILLIS_SYNODAL_MONTH        = (long)(MILLIS_DAY * 29.53059);
     public static final Long MILLIS_MONTH                = MILLIS_MEAN_JULIAN_MONTH;
 
-    public static final String ISO_8061_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z";
+    // NOTE: time can have fraction of seconds as well (joda time: http://joda-time.sourceforge.net/api-release/org/joda/time/format/DateTimeFormat.html)
+    public static final String ISO_8061_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z";
 
     // Logger
     private static Logger log = LoggerFactory.getLogger(TimeUtil.class);

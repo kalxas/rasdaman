@@ -262,6 +262,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitProcessingExpression(@NotNull wcpsParser.ProcessingExpressionContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void enterNumber(@NotNull wcpsParser.NumberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void exitNumber(@NotNull wcpsParser.NumberContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionRangeSubsettingLabel}.
 	 * @param ctx the parse tree
 	 */

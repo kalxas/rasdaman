@@ -22,6 +22,7 @@
  *
 """
 
+from decimal import Decimal
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
@@ -60,19 +61,18 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
     def _apply_operation(self, variable, operation):
         """
-        Applies operation on a given variable
+        Applies operation on a given variable which contains a list of values (e.g: lat = [0, 1, 2, 3,...]),
+        (e.g: find the min of time variable ${netcdf:variable:time:min})
         :param netCDF4.Variable variable: the netcdf variable
         :param str operation: the operation to apply
-        :return:
+        :return: str value: The value from the applied operation with precession
         """
-        if operation == "max":
-            return max(variable)
-        elif operation == "min":
-            return min(variable)
-        elif operation == "first":
-            return variable[0]
-        elif operation == "last":
-            return variable[-1]
+        "NOTE: min() and max() do not return a precession from number with scientific notation (e)"
+        if operation == "max" or operation == "last":
+            lastIndex = len(variable) - 1
+            return '{}'.format(variable[lastIndex])
+        elif operation == "min" or operation == "first":
+            return '{}'.format(variable[0])
         else:
             try:
                 return variable.__getattribute__(operation)
@@ -100,7 +100,7 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             if len(parts) == 2:
                 # return the entire variable translated to the string representation of a python list that can be
                 # further passed to eval()
-                return "[" + ",".join(map(lambda x: str(x), list(nc_dataset.variables[variable_name]))) + "]"
+                return "[" + ",".join(map(lambda x: '{}'.format(x), list(nc_dataset.variables[variable_name]))) + "]"
             else:
                 operation = parts[2]
                 return self._apply_operation(nc_dataset.variables[variable_name], operation)

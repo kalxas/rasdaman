@@ -1,0 +1,67 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "automated": true,
+    "track_files": false,
+    "subset_correction": true,
+    "insitu" : false,
+    "mock": false
+  },
+  "input": {
+    "coverage_id": "test_float_fractional_time_unixtime",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/UnixTime@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'This is a test coverage'"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+          "bands": [
+            {
+              "name": "band1",
+              "identifier": "band1"
+            },  {
+              "name": "band2",
+              "identifier": "band2"
+            }
+          ],
+          "axes": {
+            "unix": {
+              "min": "regex_extract('${file:name}', '(.*)_\\[(.+?)\\]\\.(.*)', 2)",
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true,
+	      "dataBound": false
+            },
+          "Long": {
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
+              "gridOrder": 1,
+              "resolution": "${gdal:resolutionX}"
+            },
+            "Lat": {
+              "min": "${gdal:minY}",
+              "max": "${gdal:maxY}",
+              "gridOrder": 2,
+              "resolution": "-${gdal:resolutionY}"
+            }
+          }
+        }
+      },
+        "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+     }
+    }
+}

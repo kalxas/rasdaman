@@ -1,0 +1,68 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_scientific_notation_time",
+    "paths": [
+      "time_scientific_notation_precision.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/UnixTime@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'This is a test'"
+          }
+        },
+        "slicer": {
+          "type": "netcdf",
+	  "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "waterlevel",
+              "variable": "waterlevel",
+              "identifier": "waterlevel",
+              "description": "waterlevels na dijk doorbraak knardijk",
+              "nilReason": "null waarde is iets niet goed"
+            }
+          ],
+          "axes": {
+            "unix": {
+              "min": "${netcdf:variable:time:min}",
+              "max": "${netcdf:variable:time:max}",
+              "directPositions": "${netcdf:variable:time}",
+              "irregular": true,
+              "gridOrder": 0
+            },
+            "Long": {
+              "min": "${netcdf:variable:x:min}",
+              "max": "${netcdf:variable:x:max}",            
+              "gridOrder": 1,
+              "resolution": 0.0014732905811623237 
+            },
+            "Lat": {
+              "min": "${netcdf:variable:y:min}",
+              "max": "${netcdf:variable:y:max}",
+              "gridOrder": 2,
+              "resolution": -0.0014732905811623237
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:5, 0:498, 0:396]"
+    }
+  }
+}
+

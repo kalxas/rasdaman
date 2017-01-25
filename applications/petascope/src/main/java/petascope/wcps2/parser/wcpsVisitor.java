@@ -173,6 +173,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitProcessingExpression(@NotNull wcpsParser.ProcessingExpressionContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#number}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNumber(@NotNull wcpsParser.NumberContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionRangeSubsettingLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

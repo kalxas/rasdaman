@@ -172,17 +172,18 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         if crs_axis.is_easting():
             geo_axis.origin = geo_axis.low + float(user_axis.resolution) / 2
         elif crs_axis.is_northing():
-            geo_axis.origin = geo_axis.high + float(user_axis.resolution) / 2
-        elif not crs_axis.is_date():
-            geo_axis.origin = geo_axis.low + float(user_axis.resolution) / 2
-        elif crs_axis.is_date():
-            geo_axis.origin = stringify(geo_axis.origin)
-            geo_axis.low = stringify(geo_axis.low)
-            if geo_axis.high is not None:
-                geo_axis.high = stringify(geo_axis.high)
-            user_axis.interval.low = stringify(user_axis.interval.low)
-            if user_axis.interval.high is not None:
-                user_axis.interval.high = stringify(user_axis.interval.high)
+            geo_axis.origin = geo_axis.high + user_axis.resolution / 2
+        elif crs_axis.is_future():
+            # When it is DateTime format, it needs to be quoted, e.g: "2006-01-01T01:01:03Z"
+            if user_axis.type == UserAxisType.DATE:
+                geo_axis.origin = stringify(geo_axis.origin)
+                geo_axis.low = stringify(geo_axis.low)
+                if geo_axis.high is not None:
+                    geo_axis.high = stringify(geo_axis.high)
+                user_axis.interval.low = stringify(user_axis.interval.low)
+                if user_axis.interval.high is not None:
+                    user_axis.interval.high = stringify(user_axis.interval.high)
+
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))
 

@@ -42,10 +42,10 @@
           ],
           "axes": {
             "ansi": {
-              "min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
+              "min": "datetime(regex_extract('${file:name}', '(.+?)(Z.+)', 1), 'YYYY-MM-DDTHH:mm:ss.SSS')",
+              "directPositions": "[datetime(regex_extract('${file:name}', '(.+?)(Z.+)', 1), 'YYYY-MM-DDTHH:mm:ss.SSS')]",
               "gridOrder": 0,
               "type": "ansidate",
-	      "directPositions":"[datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')]",
               "irregular": true,
 	      "dataBound": false
             },

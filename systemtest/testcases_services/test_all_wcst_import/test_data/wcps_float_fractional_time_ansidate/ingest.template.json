@@ -1,0 +1,66 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
+    "automated": true,
+    "track_files": false,
+    "subset_correction": true,
+    "insitu" : false,
+    "mock": false
+  },
+  "input": {
+    "coverage_id": "test_float_fractional_time_ansidate",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/UnixTime@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'This is a test coverage'"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+          "bands": [
+            {
+              "name": "band1",
+              "identifier": "band1"
+            },  {
+              "name": "band2",
+              "identifier": "band2"
+            }
+          ],
+          "axes": {
+            "unix": {
+              "min": "regex_extract('${file:name}', '(.*)_\\[(.+?)\\]\\.(.*)', 2)",
+              "gridOrder": 0,
+              "irregular": true,
+	      "dataBound": false
+            },
+          "Long": {
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
+              "gridOrder": 1,
+              "resolution": "${gdal:resolutionX}"
+            },
+            "Lat": {
+              "min": "${gdal:minY}",
+              "max": "${gdal:maxY}",
+              "gridOrder": 2,
+              "resolution": "-${gdal:resolutionY}"
+            }
+          }
+        }
+      },
+        "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+     }
+    }
+}
