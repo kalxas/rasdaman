@@ -4,6 +4,6 @@ request=GetCoverage&
 coverageId=test_irr_cube_2&
 subset=E(9.6238571,9.7292404)&
 subset=N(46.8759583,47.4257442)&
-subset=ansi(148654)&
+subset=ansi(148654.08425925925)&
 subsettingCrs=http://www.opengis.net/def/crs/EPSG/0/4326&
 format=image/tiff

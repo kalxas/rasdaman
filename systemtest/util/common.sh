@@ -838,8 +838,18 @@ run_test()
         if [ $? -eq 0 -a $rc -ne 0 ]; then
           # do image comparison
           log "image comparison"
-          gdal_translate -of GTiff -co "TILED=YES" "$out" "$output_tmp" > /dev/null
-          gdal_translate -of GTiff -co "TILED=YES" "$oracle" "$oracle_tmp" > /dev/null
+          # here we compare the metadata and statistic values on output and oracle files directly
+          gdalinfo -stats "$out" > "$output_tmp" > /dev/null
+          gdalinfo -stats "$oracle" > "$oracle_tmp" > /dev/null
+          # remove the gdalinfo tmp file
+          rm "$oracle"".aux.xml"
+          # then remove the first 3 lines (driver, filename and filename.aux)
+          echo "$(tail -n +4 $output_tmp)" > "$output_tmp"
+          echo "$(tail -n +4 $oracle_tmp)" > "$oracle_tmp"
+          # NOTE: some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
+          sed '/TOWGS84\[/d' -i "$output_tmp"
+          sed '/TOWGS84\[/d' -i "$oracle_tmp"
+
           cmp "$output_tmp" "$oracle_tmp" 2>&1
         else
           # byte comparison

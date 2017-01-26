@@ -7,6 +7,3 @@
 69-get_capabilities_sections_coverageSummary_CoverageSummary.kvp
 60-get_capabilities_covsummary.kvp
 60-get_capabilities_covsummary.xml
-77-subsettingCrs_4326_to_32633.kvp
-78-subsettingCrs_32633_to_4326.kvp
-74-crsTransfom_outputCrs.kvp
