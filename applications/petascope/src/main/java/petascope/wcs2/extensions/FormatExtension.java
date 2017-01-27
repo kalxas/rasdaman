@@ -45,9 +45,12 @@ public interface FormatExtension extends  Extension {
     String MIME_JP2 = "image/jp2";
     String MIME_PNG = "image/png";
     String MIME_NETCDF = "application/netcdf";
+    String MIME_CSV = "text/csv";
+    String MIME_JSON = "application/json";
 
     // GDAL drivers
     String FORMAT_ID_CSV = "csv";
+    String FORMAT_ID_JSON = "json";
     String FORMAT_ID_DEM = "dem";
     String FORMAT_ID_TIFF = "tiff";
     String FORMAT_ID_GEO_TIFF = "gtiff";

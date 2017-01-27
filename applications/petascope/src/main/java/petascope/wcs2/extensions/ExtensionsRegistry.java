@@ -50,6 +50,8 @@ public class ExtensionsRegistry {
     public static final String GML_ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml";
     public static final String GMLJP2_IDENTIFIER = "http://www.opengis.net/spec/GMLJP2/2.0/";
     public static final String JPEG2000_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/";
+    public static final String CSV_IDENTIFIER = "https://www.ietf.org/rfc/rfc4180.txt";
+    public static final String JSON_IDENTIFIER = "https://www.www.json.org/";
     public static final String JPEG_IDENTIFIER = "https://www.w3.org/Graphics/JPEG/";
     public static final String PNG_IDENTIFIER = "http://www.w3.org/TR/PNG/";
     public static final String KVP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp";
@@ -93,8 +95,10 @@ public class ExtensionsRegistry {
         registerExtension(new KVPProtocolExtension());
         registerExtension(new RESTProtocolExtension());
         // NOTE: application/gml+xml must be on the top of other decode format extesions as OGC Cite will request the first <supportedFormat> and it should be GML.
-        registerExtension(new DecodeFormatExtension(MIME_GML));
+        registerExtension(new DecodeFormatExtension(MIME_GML));        
+        registerExtension(new DecodeFormatExtension(MIME_JSON));
         registerExtension(new DecodeFormatExtension(MIME_NETCDF));
+        registerExtension(new DecodeFormatExtension(MIME_CSV));
         registerExtension(new DecodeFormatExtension(MIME_TIFF));
         registerExtension(new DecodeFormatExtension(MIME_JP2));
         registerExtension(new DecodeFormatExtension(MIME_PNG));
@@ -165,8 +169,12 @@ public class ExtensionsRegistry {
         // jpeg2000 does not support geo-referenced from GML file
         mimeToEncoding.put(MIME_JP2, FORMAT_ID_OPENJP2);
         mimeToEncoding.put(MIME_JPEG, FORMAT_ID_JPEG);
+        mimeToEncoding.put(MIME_CSV, FORMAT_ID_CSV);
+        mimeToEncoding.put(MIME_JSON, FORMAT_ID_JSON);
 
         mimeToIdentifier.put(MIME_GML, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
+        mimeToIdentifier.put(MIME_CSV, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
+        mimeToIdentifier.put(MIME_JSON, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
         mimeToIdentifier.put(MIME_TIFF, ExtensionsRegistry.GEOTIFF_IDENTIFIER);
         mimeToIdentifier.put(MIME_NETCDF, ExtensionsRegistry.NETCDF_IDENTIFIER);
         mimeToIdentifier.put(MIME_PNG, ExtensionsRegistry.PNG_IDENTIFIER);

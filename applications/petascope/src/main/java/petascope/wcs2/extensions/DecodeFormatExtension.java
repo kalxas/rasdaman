@@ -287,10 +287,13 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
                                        + XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE);
             }
         } else {
-            // validate the request in image format (tiff, jpeg, png)
-            if (m.getGridDimension() != 2 || m.hasIrregularAxis() || !(WcsUtil.isGrid(m.getCoverageType()))) {
-                throw new WCSException(ExceptionCode.InvalidRequest, "The " + request.getFormat() + " format extension "
-                                       + "only supports regularly gridded coverages with exactly two dimensions");
+            // encode in csv, json not need to check the dimension of the output coverage
+            if (!this.textMimeExtension()) {
+                // validate the request in image format (tiff, jpeg, png)
+                if (m.getGridDimension() != 2 || m.hasIrregularAxis() || !(WcsUtil.isGrid(m.getCoverageType()))) {
+                    throw new WCSException(ExceptionCode.InvalidRequest, "The " + request.getFormat() + " format extension "
+                                           + "only supports regularly gridded coverages with exactly two dimensions");
+                }
             }
         }
 
@@ -438,6 +441,18 @@ public class DecodeFormatExtension extends AbstractFormatExtension {
             gml = gml.replace("{" + Templates.KEY_COVERAGEDATA + "}", data);
         }
         return gml;
+    }
+    
+    /**
+     * Check if WCS request in text MIME (e.g: text/csv, application/JSON)
+     * @return 
+     */
+    private boolean textMimeExtension() {
+        if (this.mimeType.equals(MIME_CSV)
+          ||this.mimeType.equals(MIME_JSON)) {
+            return true;
+        }
+        return false;
     }
 
     /**

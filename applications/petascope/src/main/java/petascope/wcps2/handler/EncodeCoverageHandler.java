@@ -32,25 +32,17 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import petascope.exceptions.PetascopeException;
-import petascope.util.CrsUtil;
 import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcps2.parameters.netcdf.service.CovToCFTranslationService;
 import petascope.wcps2.parameters.netcdf.service.NetCDFParametersFactory;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.result.WcpsResult;
-
-import petascope.exceptions.WCSException;
-import petascope.util.CrsProjectionUtil;
 import petascope.util.JsonUtil;
 import petascope.wcps2.encodeparameters.model.GeoReference;
-import petascope.wcps2.encodeparameters.model.BoundingBox;
-import petascope.wcps2.encodeparameters.service.BoundingBoxExtractorService;
 import petascope.wcps2.encodeparameters.service.GeoReferenceService;
 import petascope.wcps2.encodeparameters.service.SerializationEncodingService;
-import petascope.wcps2.error.managed.processing.InvalidBoundingBoxInCrsTransformException;
 import petascope.wcps2.error.managed.processing.InvalidNumberOfNodataValuesException;
 import petascope.wcps2.error.managed.processing.MetadataSerializationException;
-import petascope.wcps2.error.managed.processing.NotGeoReferencedCoverageInCrsTransformException;
 import petascope.wcps2.metadata.service.CoverageRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 
@@ -128,9 +120,8 @@ public class EncodeCoverageHandler {
             // keep the arguments without need to calculate anything else
             otherParamsString = "\"" + extraParams + "\"";
             return otherParamsString;
-        } else if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_CSV)) {
-            // csv
-            otherParamsString = "";
+        } else if (!addDefaultParams(rasqlFormat)) {
+            // e.g: csv, json no add default params            
             return otherParamsString;
         } else if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_NETCDF)) {
             // netcdf (we build some netCDF parameters separately)
@@ -216,6 +207,21 @@ public class EncodeCoverageHandler {
             return NON_GDAL_OPERATION_TEMPLATE.replace("$rasqlFormat", FormatExtension.FORMAT_ID_DEM);
         }
         return TEMPLATE;
+    }
+    
+    /**
+     * Check if WCPS should add some default params (e.g: crs=;bbox=....) when encoding.
+     * NOTE: encode(c, "csv") or encode(c, "json") should not add these default parameters.
+     * @return 
+     */
+    private static boolean addDefaultParams(String rasqlFormat) {
+        if ( rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_CSV) 
+          || rasqlFormat.equalsIgnoreCase(FormatExtension.MIME_CSV) 
+          || rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_JSON) 
+          || rasqlFormat.equalsIgnoreCase(FormatExtension.MIME_JSON)) {
+            return false;
+        }
+        return true;
     }
 
     public final static String NO_DATA = "nodata";
