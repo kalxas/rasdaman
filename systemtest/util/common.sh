@@ -710,7 +710,7 @@ run_test()
       wcs)    case "$test_type" in
                 kvp)
                     QUERY=`cat $f`
-                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    # check if query contains "jpeg2000"-approx_stats and gdal supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
                       get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
@@ -838,19 +838,35 @@ run_test()
         gdalinfo "$out" &> /dev/null
         if [ $? -eq 0 -a $rc -ne 0 ]; then
           # do image comparison
-          log "image comparison"
+          output_tmp="$out"."output.tmp"
+          oracle_tmp="$out"."oracle.tmp"
+          log "image comparison, type: ""$filetype"
 
-          # here we compare the metadata and statistic values on output and oracle files directly
-          gdalinfo -stats "$out" > "$output_tmp" > /dev/null
-          gdalinfo -stats "$oracle" > "$oracle_tmp" > /dev/null
-          # remove the gdalinfo tmp file
-          rm "$oracle"".aux.xml"
-          # then remove the first 3 lines (driver, filename and filename.aux)
-          echo "$(tail -n +4 $output_tmp)" > "$output_tmp"
-          echo "$(tail -n +4 $oracle_tmp)" > "$oracle_tmp"
-          # NOTE: some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
-          sed '/TOWGS84\[/d' -i "$output_tmp"
-          sed '/TOWGS84\[/d' -i "$oracle_tmp"
+          # if oracle/output is netcdf then compare them by ncdump
+          if [[ "$filetype" =~ "NetCDF" ]]; then
+              ncdump -c "$out" > "$output_tmp"
+              ncdump -c "$oracle" > "$oracle_tmp" 
+        
+              # remove the line to 'dimensions'
+              sed -i -n '/dimensions/,$p' "$output_tmp"   
+              sed -i -n '/dimensions/,$p' "$oracle_tmp"
+          else
+              # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
+              # here we compare the metadata and statistic values on output and oracle files directly
+              gdalinfo -approx_stats "$out" > "$output_tmp"
+              gdalinfo -approx_stats "$oracle" > "$oracle_tmp"
+
+              # remove the gdalinfo tmp file
+              rm -f "$out"".aux.xml"
+              rm -f "$oracle"".aux.xml"
+
+              # then remove the first different few lines (driver, filename and filename.aux)
+              sed -i -n '/Size is/,$p' "$output_tmp"
+              sed -i -n '/Size is/,$p' "$oracle_tmp"
+              # NOTE: some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
+              sed '/TOWGS84\[/d' -i "$output_tmp"
+              sed '/TOWGS84\[/d' -i "$oracle_tmp"
+          fi
 
           cmp "$output_tmp" "$oracle_tmp" 2>&1
         else
