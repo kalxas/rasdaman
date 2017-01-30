@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="WcpsError">
+        <ows:ExceptionText>range name 'green' is duplicated.</ows:ExceptionText>
+    </ows:Exception>
+
+</ows:ExceptionReport>
+

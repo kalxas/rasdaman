@@ -1,0 +1,1 @@
+for c in (test_rgb) return encode( { testRED: c.red }, "netcdf")

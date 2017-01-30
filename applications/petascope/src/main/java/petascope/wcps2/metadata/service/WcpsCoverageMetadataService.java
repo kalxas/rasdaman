@@ -294,7 +294,11 @@ public class WcpsCoverageMetadataService {
         //deduce the crs from the crses of the axes
         // NOTE: now, just use IndexND CRS (e.g: http://.../IndexND) to set as crs for creating coverage first
         String indexNDCrsUri = CrsUtility.createIndexNDCrsUri(axes);
-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, null, null, null);
+        List<RangeField> rangeFields = new ArrayList<RangeField>();
+        RangeField rangeField = new RangeField(RangeField.TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<Double>(), RangeField.UOM, null, null);
+        rangeFields.add(rangeField);
+        
+        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, null, null);
         return result;
     }
 

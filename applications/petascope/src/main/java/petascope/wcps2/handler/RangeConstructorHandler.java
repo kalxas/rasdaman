@@ -49,14 +49,29 @@ public class RangeConstructorHandler {
         WcpsCoverageMetadata metadata = null;
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
             translatedFields.add(entry.getValue().getRasql());
-            if (entry.getValue().getMetadata() != null) {
-                metadata = entry.getValue().getMetadata();
+            WcpsCoverageMetadata metadataTmp = entry.getValue().getMetadata();            
+            if (metadataTmp != null) {
+                // coverage must contain at least 1 range and when in range expression only 1 range can be used.
+                // e.g: test_mr has 1 range (band) and can be used as { red: c }
+                // e.g: test_rgb has 3 ranges (bands) and can be used as { red: c.red } "not" { red: c }
+                // NOTE: in case of coverage constructor, it also has only 1 range
+                metadataTmp.getRangeFields().get(0).setName(entry.getKey());
+                
+                metadata = metadataTmp;
             }
         }
 
-        String rasql = TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
+        String rasql = null;
+        if (translatedFields.size() == 1) {
+            // if encode only 1 range, then it does not need to be braced
+            rasql = ONE_RANGE_TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
+        } else {
+            rasql = MULTIPLE_RANGE_TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
+        }
+
         return new WcpsResult(metadata, rasql);
     }
 
-    private static final String TEMPLATE = "{$fieldDefinitions}";
+    private static final String ONE_RANGE_TEMPLATE = "$fieldDefinitions";
+    private static final String MULTIPLE_RANGE_TEMPLATE = "{$fieldDefinitions}";
 }

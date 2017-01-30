@@ -779,9 +779,14 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         Map<String, WcpsResult> rangeConstructor = new LinkedHashMap();
         // this share same metadata between each range element (e.g: {red:, green:,...}
         for (int i = 0; i < ctx.fieldName().size(); i++) {
+            String rangeName = ctx.fieldName().get(i).getText();
+            if (rangeConstructor.get(rangeName) != null) {
+                throw new DuplcateRangeNameException(rangeName);
+            }
+            // NOTE: if rangeName already existed, it is invalid (e.g: {red: ..., green:,... red: ...}
             // this is a coverage expression
-            WcpsResult wcpsResult = (WcpsResult) visit(ctx.coverageExpression().get(i));
-            rangeConstructor.put(ctx.fieldName().get(i).getText(), wcpsResult);
+            WcpsResult wcpsResult = (WcpsResult) visit(ctx.coverageExpression().get(i));            
+            rangeConstructor.put(rangeName, wcpsResult);
         }
 
         WcpsResult result = RangeConstructorHandler.handle(rangeConstructor);

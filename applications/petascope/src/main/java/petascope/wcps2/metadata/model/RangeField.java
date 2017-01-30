@@ -31,7 +31,7 @@ public class RangeField {
 
     private final String type;
 
-    private final String name;
+    private String name;
 
     private final String description;
 
@@ -52,6 +52,10 @@ public class RangeField {
         this.uom = uom;
         this.definition = definition;
         this.allowedValues = allowedValues;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getName() {
@@ -84,4 +88,6 @@ public class RangeField {
 
     public static final String TYPE = "double";
     public static final String UOM = "10^0";
+    // used in case of creating coverage constructor
+    public static final String DEFAULT_NAME = "band1";
 }
