@@ -21,12 +21,15 @@
  */
 package petascope.wcps2.handler;
 
+import java.math.BigDecimal;
 import org.apache.commons.lang3.StringUtils;
 import petascope.wcps2.result.WcpsResult;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import petascope.swe.datamodel.NilValue;
+import petascope.wcps2.metadata.model.RangeField;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 
 /**
@@ -47,18 +50,29 @@ public class RangeConstructorHandler {
         List<String> translatedFields = new ArrayList();
         // NOTE: if range is single scalar value then metadata is NULL. If any range has a not-null metadata, the metadata is from this range.
         WcpsCoverageMetadata metadata = null;
+        
+        List<RangeField> rangeFields = new ArrayList<RangeField>();
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
-            translatedFields.add(entry.getValue().getRasql());
-            WcpsCoverageMetadata metadataTmp = entry.getValue().getMetadata();            
-            if (metadataTmp != null) {
+            translatedFields.add(entry.getValue().getRasql());            
+            WcpsCoverageMetadata rangeMetadata = entry.getValue().getMetadata();     
+            RangeField rangeField = null;
+            // e.g: { red: c.0 }
+            if (rangeMetadata != null) {
+                // we get metadata from the first range which has metadata (e.g: { red: c.0, .... } )
+                if (metadata == null) {
+                    metadata = rangeMetadata;
+                }
                 // coverage must contain at least 1 range and when in range expression only 1 range can be used.
                 // e.g: test_mr has 1 range (band) and can be used as { red: c }
                 // e.g: test_rgb has 3 ranges (bands) and can be used as { red: c.red } "not" { red: c }
                 // NOTE: in case of coverage constructor, it also has only 1 range
-                metadataTmp.getRangeFields().get(0).setName(entry.getKey());
-                
-                metadata = metadataTmp;
-            }
+                rangeField = rangeMetadata.getRangeFields().get(0);
+                rangeField.setName(entry.getKey());                                
+            } else {
+                // e.g: { red: 0 } which coverage metadata is null then need to create a range field for this case
+                rangeField = new RangeField(RangeField.TYPE, entry.getKey(), null, new ArrayList<NilValue>(), RangeField.UOM, null, null);                
+            }            
+            rangeFields.add(rangeField);
         }
 
         String rasql = null;
@@ -67,6 +81,12 @@ public class RangeConstructorHandler {
             rasql = ONE_RANGE_TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
         } else {
             rasql = MULTIPLE_RANGE_TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
+        }
+        
+        // Range expression will have metadata of the first range's metadata which is not null and contains the range list for all the specified ranges.
+        // NOTE: if metadata of range constructor is null, e.g: c.red * { red: 1; green: 2; blue: 1 } then no set range fields for it.
+        if (metadata != null) {
+            metadata.setRangeFields(rangeFields);
         }
 
         return new WcpsResult(metadata, rasql);

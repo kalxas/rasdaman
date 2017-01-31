@@ -21,6 +21,7 @@
  */
 package petascope.wcps2.parameters.model.netcdf;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -32,13 +33,13 @@ public class BandVariableMetadata {
 
     private String description;
 
-    private List<Double> missing_value;
+    private List<BigDecimal> missing_value;
 
     private String units;
 
     private String definition;
 
-    public BandVariableMetadata(String description, List<Double> missing_value, String units, String definition) {
+    public BandVariableMetadata(String description, List<BigDecimal> missing_value, String units, String definition) {
         this.description = description;
         this.missing_value = missing_value;
         this.units = units;
@@ -52,7 +53,7 @@ public class BandVariableMetadata {
         return description;
     }
 
-    public List<Double> getMissing_value() {
+    public List<BigDecimal> getMissing_value() {
         return missing_value;
     }
 

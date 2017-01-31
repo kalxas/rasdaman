@@ -21,10 +21,6 @@
  */
 package petascope.wcps2.metadata.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
@@ -37,18 +33,14 @@ import petascope.wcps2.metadata.model.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import petascope.core.CrsDefinition;
 import petascope.wcps.server.core.RangeElement;
-import petascope.wcps2.encodeparameters.service.ExtraMetadataService;
 
 /**
  * This class translates different types of metadata into WcpsCoverageMetadata.
@@ -69,7 +61,7 @@ public class WcpsCoverageMetadataTranslator {
         List<NilValue> nodata = metadata.getAllUniqueNullValues();
         return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
                                         CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
-                                        rangeFields, extraMetadata, parseNodataValues(nodata));
+                                        rangeFields, extraMetadata);
     }
 
     private List<RangeField> buildRangeFields(Iterator<RangeElement> rangeIterator, Iterator<AbstractSimpleComponent> sweIterator) {

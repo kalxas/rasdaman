@@ -71,7 +71,7 @@ public class RangeSubsettingHandler {
 
         String coverageExprStr = coverageExp.getRasql().trim();
         String rasql = TEMPLATE.replace("$coverageExp", coverageExprStr)
-                       .replace("$rangeFieldIndex", String.valueOf(rangeFieldIndex));
+                               .replace("$rangeFieldIndex", String.valueOf(rangeFieldIndex));
 
         wcpsCoverageMetadataService.removeUnusedRangeFields(metadata, rangeFieldIndex);
 

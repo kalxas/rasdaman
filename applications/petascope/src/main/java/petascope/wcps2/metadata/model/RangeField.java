@@ -38,7 +38,7 @@ public class RangeField {
 
     private final String description;
 
-    private final List<NilValue> nodata;
+    private List<NilValue> nodata;
 
     private final String uom;
 
@@ -46,8 +46,7 @@ public class RangeField {
 
     private final AllowedValues allowedValues;
 
-    public RangeField(String type, String name, String description, List<NilValue> nodata, String uom, String definition,
-                      AllowedValues allowedValues) {
+    public RangeField(String type, String name, String description, List<NilValue> nodata, String uom, String definition, AllowedValues allowedValues) {
         this.type = type;
         this.name = name;
         this.description = description;
@@ -67,6 +66,10 @@ public class RangeField {
 
     public String getDescription() {
         return description;
+    }
+    
+    public void setNodata(List<NilValue> nodata) {
+        this.nodata = nodata;
     }
 
     public List<NilValue> getNodata() {

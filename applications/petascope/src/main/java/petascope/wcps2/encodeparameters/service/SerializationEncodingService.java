@@ -32,6 +32,7 @@ import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.model.JsonExtraParams;
 import petascope.wcps2.encodeparameters.model.NoData;
 import petascope.wcps2.encodeparameters.model.Variables;
+import petascope.wcps2.handler.EncodeCoverageHandler;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcs2.extensions.FormatExtension;
@@ -97,7 +98,11 @@ public class SerializationEncodingService {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         JsonExtraParams jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
+
+        // update each range of coverage with value from passing nodata_values
+        EncodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), metadata);
         Map<String, String> extraMetadata = extraMetadataService.convertExtraMetadata(metadata.getMetadata());
+        
         // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
         if (jsonExtraParams.getMetadata() == null) {
             jsonExtraParams.setMetadata(extraMetadata);

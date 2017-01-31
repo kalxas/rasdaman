@@ -28,10 +28,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import petascope.exceptions.PetascopeException;
+import petascope.swe.datamodel.NilValue;
 import petascope.wcps2.encodeparameters.service.ExtraMetadataService;
 import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcps2.parameters.netcdf.service.CovToCFTranslationService;
@@ -44,6 +44,7 @@ import petascope.wcps2.encodeparameters.service.GeoReferenceService;
 import petascope.wcps2.encodeparameters.service.SerializationEncodingService;
 import petascope.wcps2.error.managed.processing.InvalidNumberOfNodataValuesException;
 import petascope.wcps2.error.managed.processing.MetadataSerializationException;
+import petascope.wcps2.metadata.model.RangeField;
 import petascope.wcps2.metadata.service.CoverageRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 
@@ -177,8 +178,8 @@ public class EncodeCoverageHandler {
             parseNoDataFromExtraParams(extraParams, metadata);
             jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference);
         } else {
-            // extra params is new JSON style            
-            jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, extraParams, metadata, netCDFExtraParams, geoReference);            
+            // extra params is new JSON style
+            jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, extraParams, metadata, netCDFExtraParams, geoReference);
         }
 
         // other cases (tiff, png, jpeg,...), we add other important parameters ("nodata", "geoReference")
@@ -192,7 +193,7 @@ public class EncodeCoverageHandler {
     /**
      * To support old style in encoding (e.g: "nodata=0,1,2,3"), we need to parse this string and set the values into coverage metadata.
      * In new JSON style if this value does exist, we just pass it as it is in JSON format to rasql (e.g: "...\"nodata\": [0,1,2,3]...")
-     * @param extraParams     *  
+     * @param extraParams     *
      */
     private static void parseNoDataFromExtraParams(String extraParams, WcpsCoverageMetadata metadata) {
         String str = extraParams.replace(" ", "");
@@ -214,11 +215,42 @@ public class EncodeCoverageHandler {
             if (numberOfNodata > 1 && numberOfRange != numberOfNodata) {
                 throw new InvalidNumberOfNodataValuesException(numberOfRange, numberOfNodata);
             }
-            List<BigDecimal> noDataValues = new ArrayList<BigDecimal>();
+            List<NilValue> noDataValues = new ArrayList<NilValue>();
             for (String value : values) {
-                noDataValues.add(new BigDecimal(value));
+                noDataValues.add(new NilValue(value, null));
             }
-            metadata.setNodata(noDataValues);
+           
+            // Update the nodata values in range fields as well
+            updateNoDataInRangeFileds(noDataValues, metadata);
+        }
+    }
+
+
+    /**
+     * Update the range filed's nodata value from passing nodata values as extra parameter
+     * @param noDataValues
+     * @param metadata
+     */
+    public static void updateNoDataInRangeFileds(List<NilValue> noDataValues, WcpsCoverageMetadata metadata) {
+        if (! noDataValues.isEmpty() ) {
+            // We update the range fields of coverages with the passing nodata values
+            if (noDataValues.size() == 1) {
+                // Only 1 nodata value for all bands
+                List<NilValue> nodata = new ArrayList<NilValue>();
+                nodata.add(noDataValues.get(0));
+                for (RangeField rangeField:metadata.getRangeFields()) {
+                    rangeField.setNodata(nodata);
+                }
+            } else {
+                // One nodata value for each band
+                int i = 0;
+                for (RangeField rangeField:metadata.getRangeFields()) {
+                    List<NilValue> nodata = new ArrayList<NilValue>();
+                    nodata.add(noDataValues.get(i));
+                    rangeField.setNodata(nodata);
+                    i++;
+                }
+            }
         }
     }
 

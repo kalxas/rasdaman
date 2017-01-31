@@ -28,6 +28,7 @@ import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
 import java.util.List;
 import java.util.Map;
 import petascope.core.CrsDefinition;
+import petascope.swe.datamodel.NilValue;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 
@@ -46,20 +47,16 @@ public class WcpsCoverageMetadata {
     private final String crsUri;
     // use in crsTransform()
     private String outputCrsUri;
-    private final List<RangeField> rangeFields;
-
-    private List<BigDecimal> nodata;
+    private List<RangeField> rangeFields;        
     private String metadata;
 
-
     public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri,
-                                List<RangeField> rangeFields, String metadata, List<BigDecimal> nodata) {
+                                List<RangeField> rangeFields, String metadata) {
         this.crsUri = crsUri;
         this.axes = axes;
         this.coverageName = coverageName;
         this.rangeFields = rangeFields;
-        this.metadata = metadata;
-        this.nodata = nodata;
+        this.metadata = metadata;        
         this.coverageType = coverageType;
 
     }
@@ -90,6 +87,10 @@ public class WcpsCoverageMetadata {
 
     public String getCoverageName() {
         return this.coverageName;
+    }
+    
+    public void setRangeFields(List<RangeField> rangeFields) {
+        this.rangeFields = rangeFields;
     }
 
     public List<RangeField> getRangeFields() {
@@ -139,12 +140,19 @@ public class WcpsCoverageMetadata {
         return this.getXYAxes().get(0).getCrsUri();
     }
 
-    public List<BigDecimal> getNodata() {
-        return nodata;
-    }
-
-    public void setNodata(List<BigDecimal> nodata) {
-        this.nodata = nodata;
+    /**
+     * Get nodata values from Range fields to be consistent
+     * @return 
+     */
+    public List<NilValue> getNodata() {
+        List<NilValue> nodataValues = new ArrayList<NilValue>();
+        for (RangeField rangeField: this.rangeFields) {
+            // NOTE: current only support 1 range with 1 no data value
+            if (rangeField.getNodata().size() > 0) {
+                nodataValues.add(rangeField.getNodata().get(0));
+            }            
+        }
+        return nodataValues;
     }
 
     public String getMetadata() {

@@ -1,0 +1,1 @@
+for c in ( test_rgb_nodata ) return encode(3 * 3 + 2 * 5 - 3 * 2 + 3 * 5 + (c.red * c.green * c.blue) * {red: (unsigned char) 1;green: (unsigned char) 2;blue: (unsigned char) 3},"png")

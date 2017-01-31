@@ -35,7 +35,6 @@ import petascope.wcps2.metadata.model.*;
 
 import petascope.swe.datamodel.*;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -166,17 +165,14 @@ public class NetCDFParametersFactory {
         return data;
     }
 
-    private List<Double> parseNodataValues(List<NilValue> nullValues) {
-        List<Double> result = new ArrayList<Double>();
+    private List<BigDecimal> parseNodataValues(List<NilValue> nullValues) {
+        List<BigDecimal> result = new ArrayList<BigDecimal>();
         for (NilValue nullValue : nullValues) {
             String value = nullValue.getValue();
             if (isNumber(value))
-                result.add(Double.valueOf(value));
+                result.add(new BigDecimal(value));
         }
 
         return result;
     }
-
-    private final static String OUTER_TAG_START = "<metadata>";
-    private final static String OUTER_TAG_END = "</metadata>";
 }

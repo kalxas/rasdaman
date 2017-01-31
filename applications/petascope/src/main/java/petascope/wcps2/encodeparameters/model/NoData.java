@@ -23,7 +23,9 @@ package petascope.wcps2.encodeparameters.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import petascope.swe.datamodel.NilValue;
 
 /**
  *
@@ -33,9 +35,15 @@ public class NoData {
     public NoData() {
 
     }
-    public NoData(List<BigDecimal> nodataValues) {
-        this.nodataValues = nodataValues;
-    }
+    
+    // NOTE: rasql support only encoding nodata values in json such as "nodata": [ 12, 23, 45 ] then must subtract the values only from NilValues
+    public NoData(List<NilValue> nilValues) {
+        // store the nil values of metadata
+        this.nilValues = nilValues;
+        for (NilValue nilValue:nilValues) {
+            this.nodataValues.add(new BigDecimal(nilValue.getValue()));
+        }        
+    }   
     
     @JsonProperty("nodata")
     public void setNoDataValues(List<BigDecimal> nodataValues) {
@@ -46,6 +54,13 @@ public class NoData {
     public List<BigDecimal> getNoDataValues() {
         return this.nodataValues;
     }
+    
+    public List<NilValue> getNilValues() {
+        return this.nilValues;
+    }
 
-    private List<BigDecimal> nodataValues;
+    // this list is used to build rasql query
+    private List<BigDecimal> nodataValues = new ArrayList<BigDecimal>();
+    // this list is used to store the nilValues of metadata
+    private List<NilValue> nilValues = new ArrayList<NilValue>();
 }

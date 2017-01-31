@@ -82,14 +82,16 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         self.metadata_type = metadata_type
         self.grid_coverage = grid_coverage
 
-    def _get_null_value(self):
+    def _get_null_value(self, band):
         """
-        Returns the null value for this file
+        Returns the null value for this band
+        :param band: the current file's band to get null value
         :rtype: list[RangeTypeNilValue]
         """
         if len(self.bands) < 0:
             raise RuntimeException("At least one band should be provided")
-        band = self.bands[0]
+        # NOTE: current limit 1 nilValue only to 1 band in rasdaman
+        # each band has 1 specified nilValue (e.g: band1: 10, band2: 20, band3: 5,...)
         if band.nilValues is not None:
             range_nils = []
             for nil_value in band.nilValues:
@@ -210,7 +212,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         """
         range_fields = []
         for band in self.bands:
-            range_nills = self._get_null_value()
+            range_nills = self._get_null_value(band)
             if range_nills is None and band.nilValues is not None:
                 range_nills = []
                 for nil_value in band.nilValues:

@@ -299,7 +299,7 @@ public class WcpsCoverageMetadataService {
         RangeField rangeField = new RangeField(RangeField.TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<NilValue>(), RangeField.UOM, null, null);
         rangeFields.add(rangeField);
         
-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, null, null);
+        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, null);
         return result;
     }
 

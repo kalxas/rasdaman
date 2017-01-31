@@ -69,13 +69,13 @@ public class RangeConstructorSwitchCaseHandler {
 
             // we create range field for the coverage metadata
             RangeField rangeField = new RangeField(RangeField.TYPE, entry.getKey(), "", new ArrayList<NilValue>(),
-                                                   RangeField.UOM, "", new AllowedValues(new ArrayList<RealPair>()));
+                                                   RangeField.UOM, "", null);
             rangeFields.add(rangeField);
             i++;
         }
 
         //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
-        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(), "", rangeFields, null, new ArrayList<BigDecimal>());
+        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(), "", rangeFields, null);
         String rasql = StringUtils.join(translatedFields, " + ");
         return new WcpsResult(metadata, rasql);
     }
