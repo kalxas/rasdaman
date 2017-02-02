@@ -21,7 +21,13 @@
 */
 package petascope.wcps2.encodeparameters.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -60,15 +66,6 @@ public class JsonExtraParams {
         return this.variables;
     }
 
-    public void setMetadata(Metadata metadata) {
-        this.metadata = metadata;
-    }
-
-    @JsonUnwrapped
-    public Metadata getMetadata() {
-        return this.metadata;
-    }
-
     public void setTranspose(Transpose transpose) {
         this.transpose = transpose;
     }
@@ -103,32 +100,40 @@ public class JsonExtraParams {
     public ColorPalette getColorPalette() {
         return this.colorPalette;
     }
-
-    public void setFormatParameters(FormatParameters formatParameters) {
+    
+    public void setFormatParameters(Map<String, String> formatParameters) {
         this.formatParameters = formatParameters;
     }
 
-    @JsonUnwrapped
-    public FormatParameters getFormatParameters() {
+    public Map<String, String> getFormatParameters() {
         return this.formatParameters;
     }
+    
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
 
-    public void setConfigOptions(ConfigOptions configOptions) {
+    public Map<String, String> getMetadata() {
+        return this.metadata;
+    }
+    
+    public void setConfigOptions(Map<String, String> configOptions) {
         this.configOptions = configOptions;
     }
 
-    @JsonUnwrapped
-    public ConfigOptions getConfigOptions() {
+    public Map<String, String> getConfigOptions() {
         return this.configOptions;
     }
 
     private Dimensions dimensions;
     private Variables variables;
-    private Metadata metadata;
     private Transpose transpose;
     private GeoReference geoReference;
     private NoData nodata;
     private ColorPalette colorPalette;
-    private FormatParameters formatParameters;
-    private ConfigOptions configOptions;
+    
+    private Map<String, String> formatParameters = new HashMap<String, String>();
+    private Map<String, String> metadata = new HashMap<String, String>();
+    private Map<String, String> configOptions = new HashMap<String, String>();
+    
 }

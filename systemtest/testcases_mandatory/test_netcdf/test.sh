@@ -157,7 +157,7 @@ check_output()
             if [[ -f "$SCRIPT_DIR/known_fails" ]]; then
                 # known_fails does exist
                 grep "$test_filename" "$SCRIPT_DIR""/known_fails"
-                if [[ $? -ne 0 ]]; then
+                if [[ $? -eq 0 ]]; then
                     skip_test=true;
                 fi
             fi

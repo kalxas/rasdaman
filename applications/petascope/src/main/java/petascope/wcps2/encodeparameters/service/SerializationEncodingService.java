@@ -25,14 +25,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import petascope.util.JsonUtil;
 import petascope.wcps2.encodeparameters.model.Dimensions;
-import petascope.wcps2.encodeparameters.model.FormatParameters;
 import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.model.JsonExtraParams;
-import petascope.wcps2.encodeparameters.model.Metadata;
 import petascope.wcps2.encodeparameters.model.NoData;
 import petascope.wcps2.encodeparameters.model.Variables;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
@@ -63,13 +60,13 @@ public class SerializationEncodingService {
         }
         jsonExtraParams.setNoData(new NoData(metadata.getNodata()));
         // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
-        jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));
+        if (metadata.getMetadata() != null) {
+            jsonExtraParams.setMetadata(metadata.getMetadata());
+        }
         jsonExtraParams.setGeoReference(geoReference);
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
         if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_OPENJP2)) {
-            Map<String, String> keyValues = new HashMap<String, String>();
-            keyValues.put(FormatExtension.CODEC, FormatExtension.CODEC_JP2);
-            jsonExtraParams.setFormatParameters(new FormatParameters(keyValues));
+            jsonExtraParams.getFormatParameters().put(FormatExtension.CODEC, FormatExtension.CODEC_JP2);
         }
 
         String jsonOutput = JsonUtil.serializeToPojoJson(jsonExtraParams);
@@ -96,12 +93,12 @@ public class SerializationEncodingService {
         
         // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
         if (jsonExtraParams.getMetadata() == null) {
-            jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));
+            jsonExtraParams.setMetadata(metadata.getMetadata());
         } else {
             // merge coverage extraMetadata with input extra metadata in JSON
             if (metadata.getMetadata() != null) {
                 for (Map.Entry<String, String> entry: metadata.getMetadata().entrySet()) {
-                    jsonExtraParams.getMetadata().getMetadataValues().put(entry.getKey(), entry.getValue());
+                    jsonExtraParams.getMetadata().put(entry.getKey(), entry.getValue());
                 }
             }
         }
@@ -126,13 +123,7 @@ public class SerializationEncodingService {
 
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
         if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_OPENJP2)) {
-            if (jsonExtraParams.getFormatParameters() == null) {
-                Map<String, String> keyValues = new HashMap<String, String>();
-                keyValues.put(FormatExtension.CODEC, FormatExtension.CODEC_JP2);
-                jsonExtraParams.setFormatParameters(new FormatParameters(keyValues));
-            } else {
-                jsonExtraParams.getFormatParameters().getFormatParameterValues().put(FormatExtension.CODEC, FormatExtension.CODEC_JP2);
-            }
+            jsonExtraParams.getFormatParameters().put(FormatExtension.CODEC, FormatExtension.CODEC_JP2);
         }
 
         String jsonOutput = JsonUtil.serializeToPojoJson(jsonExtraParams);
