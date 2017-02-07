@@ -65,7 +65,7 @@ public class WcpsCoverageMetadataTranslator {
         List<RangeField> rangeFields = buildRangeFields(metadata.getRangeIterator(), metadata.getSweComponentsIterator());        
         Set<String> metadataList = metadata.getExtraMetadata(DbMetadataSource.EXTRAMETADATA_TYPE_GMLCOV);
         // parse extra metadata of coverage to map
-        Map<String, String> extraMetadata = ExtraMetadataService.convertExtraMetadata(StringUtils.join(metadataList, ""));
+        String extraMetadata = StringUtils.join(metadataList, "");
         List<NilValue> nodata = metadata.getAllUniqueNullValues();
         return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
                                         CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
@@ -80,7 +80,7 @@ public class WcpsCoverageMetadataTranslator {
 
             rangeFields.add(new RangeField(rangeElement.getType(), rangeElement.getName(), quantity.getDescription(),
                                            parseNodataValues(quantity.getNilValuesIterator()), quantity.getUom(), quantity.getDefinition(),
-                                           parseAllowedValues(quantity.getAllowedValues())));
+                                           quantity.getAllowedValues()));
         }
 
         return rangeFields;
@@ -109,13 +109,11 @@ public class WcpsCoverageMetadataTranslator {
         return result;
     }
 
-    private List<Double> parseNodataValues(Iterator<NilValue> nilValueIterator) {
-        List<Double> ret = new ArrayList<Double>();
+    private List<NilValue> parseNodataValues(Iterator<NilValue> nilValueIterator) {
+        List<NilValue> ret = new ArrayList<NilValue>();
         while (nilValueIterator.hasNext()) {
-            String number = nilValueIterator.next().getValue();
-            if (NumberUtils.isNumber(number)) {
-                ret.add(Double.valueOf(number));
-            }
+            NilValue number = nilValueIterator.next();
+            ret.add(number);
         }
         return ret;
     }
@@ -152,17 +150,47 @@ public class WcpsCoverageMetadataTranslator {
 
             // NOTE: this needs the "sign" of offset vector as well
             BigDecimal scalarResolution = currentGeo.getDirectionalResolution();
+
+
             // Check domainElement's type
             if (currentGeo.isIrregular()) {
                 // Need the iOder of axis to query coeffcients
                 result.add(new IrregularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
-                                             crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
+                                             crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, getOrigin(currentGeo), currentGeo.getDirectionalResolution()));
             } else {
 
                 result.add(new RegularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
-                                           crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, currentGeo.getMinValue()));
+                                           crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, getOrigin(currentGeo), currentGeo.getDirectionalResolution()));
             }
         }
         return result;
     }
+
+    private BigDecimal getOrigin(DomainElement currentGeo){
+        BigDecimal origin;
+
+        if(currentGeo.isIrregular()) {
+            if (currentGeo.getDirectionalResolution().compareTo(BigDecimal.ZERO) > 0) {
+                // longitude with offset vector > 0, min is origin
+                origin = currentGeo.getMinValue().stripTrailingZeros();
+            } else {
+                // latitude with offset vector < 0 (max is origin)
+                origin = currentGeo.getMaxValue().stripTrailingZeros();
+            }
+        } else {
+            //if axis is regular we apply formula: origin =(geoMinValue + 0.5) * scalarResolution
+            if (currentGeo.getDirectionalResolution().compareTo(BigDecimal.ZERO) > 0) {
+                origin = currentGeo.getMinValue().add(BigDecimal.valueOf(1.0 / 2)
+                        .multiply(currentGeo.getDirectionalResolution())).stripTrailingZeros();
+            } else {
+                // e.g: origin =(geoMaxValue + 0.5) * scalarResolution
+                origin = currentGeo.getMaxValue().add(BigDecimal.valueOf(1.0 / 2)
+                        .multiply(currentGeo.getDirectionalResolution())).stripTrailingZeros();
+            }
+        }
+
+        return origin;
+    }
+
+
 }

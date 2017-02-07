@@ -21,6 +21,9 @@
  */
 package petascope.wcps2.metadata.model;
 
+import petascope.swe.datamodel.AllowedValues;
+import petascope.swe.datamodel.NilValue;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -35,16 +38,16 @@ public class RangeField {
 
     private final String description;
 
-    private final List<Double> nodata;
+    private final List<NilValue> nodata;
 
     private final String uom;
 
     private final String definition;
 
-    private final List<Interval<BigDecimal>> allowedValues;
+    private final AllowedValues allowedValues;
 
-    public RangeField(String type, String name, String description, List<Double> nodata, String uom, String definition,
-                      List<Interval<BigDecimal>> allowedValues) {
+    public RangeField(String type, String name, String description, List<NilValue> nodata, String uom, String definition,
+                      AllowedValues allowedValues) {
         this.type = type;
         this.name = name;
         this.description = description;
@@ -66,7 +69,7 @@ public class RangeField {
         return description;
     }
 
-    public List<Double> getNodata() {
+    public List<NilValue> getNodata() {
         return nodata;
     }
 
@@ -78,7 +81,7 @@ public class RangeField {
         return definition;
     }
 
-    public List<Interval<BigDecimal>> getAllowedValues() {
+    public AllowedValues getAllowedValues() {
         return allowedValues;
     }
 

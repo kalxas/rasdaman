@@ -43,8 +43,9 @@ public class ReturnClauseHandler {
     public static WcpsResult handle(WcpsResult processingExpr) {
         String template = TEMPLATE_RASQL.replace("$processingExpression", processingExpr.getRasql());
         WcpsCoverageMetadata metadata = processingExpr.getMetadata();
-        WcpsResult result = new WcpsResult(metadata, template);
-        return result;
+        processingExpr.setMetadata(metadata);
+        processingExpr.setRasql(template);
+        return processingExpr;
     }
 
     private static final String TEMPLATE_RASQL = "SELECT $processingExpression ";

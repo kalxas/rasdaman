@@ -35,7 +35,12 @@ import petascope.wcps2.result.WcpsResult;
  */
 public class WcpsExecutorFactory {
 
-    public static WcpsExecutor getExecutor(VisitorResult result) {
+    public WcpsExecutorFactory(WcpsMetaExecutor wcpsMetadataExecutor, WcpsRasqlExecutor wcpsRasqlExecutor) {
+        this.wcpsMetadataExecutor = wcpsMetadataExecutor;
+        this.wcpsRasqlExecutor = wcpsRasqlExecutor;
+    }
+
+    public WcpsExecutor getExecutor(VisitorResult result) {
         // Get result from meta value
         if (result instanceof WcpsMetadataResult) {
             return wcpsMetadataExecutor;
@@ -47,6 +52,6 @@ public class WcpsExecutorFactory {
         }
     }
 
-    private static final WcpsMetaExecutor wcpsMetadataExecutor = new WcpsMetaExecutor();
-    private static final WcpsRasqlExecutor wcpsRasqlExecutor = new WcpsRasqlExecutor();
+    private final WcpsMetaExecutor wcpsMetadataExecutor;
+    private final WcpsRasqlExecutor wcpsRasqlExecutor;
 }

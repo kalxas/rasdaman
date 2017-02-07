@@ -32,11 +32,16 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.wcps2.metadata.model.*;
+
+import petascope.swe.datamodel.*;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
 /**
  * This class will build parameters for encoding in NetCDF
@@ -96,8 +101,8 @@ public class NetCDFParametersFactory {
     private List<BandVariable> getBandVariables(List<RangeField> bands) {
         List<BandVariable> bandVariables = new ArrayList<BandVariable>();
         for (RangeField band : bands) {
-            bandVariables.add(new BandVariable(band.getType(), band.getName(), new BandVariableMetadata(band.getDescription(), band.getNodata(),
-                                               band.getUom(), band.getDefinition())));
+            bandVariables.add(new BandVariable(band.getType(), band.getName(), new BandVariableMetadata(band.getDescription(), parseNodataValues(band.getNodata()),
+                    band.getUom(), band.getDefinition())));
         }
         return bandVariables;
     }
@@ -160,4 +165,18 @@ public class NetCDFParametersFactory {
 
         return data;
     }
+
+    private List<Double> parseNodataValues(List<NilValue> nullValues) {
+        List<Double> result = new ArrayList<Double>();
+        for (NilValue nullValue : nullValues) {
+            String value = nullValue.getValue();
+            if (isNumber(value))
+                result.add(Double.valueOf(value));
+        }
+
+        return result;
+    }
+
+    private final static String OUTER_TAG_START = "<metadata>";
+    private final static String OUTER_TAG_END = "</metadata>";
 }

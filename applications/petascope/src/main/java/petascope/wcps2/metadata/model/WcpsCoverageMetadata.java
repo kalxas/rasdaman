@@ -49,10 +49,11 @@ public class WcpsCoverageMetadata {
     private final List<RangeField> rangeFields;
 
     private List<BigDecimal> nodata;
-    private Map<String, String> metadata;
+    private String metadata;
+
 
     public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri,
-                                List<RangeField> rangeFields, Map<String, String> metadata, List<BigDecimal> nodata) {
+                                List<RangeField> rangeFields, String metadata, List<BigDecimal> nodata) {
         this.crsUri = crsUri;
         this.axes = axes;
         this.coverageName = coverageName;
@@ -60,6 +61,11 @@ public class WcpsCoverageMetadata {
         this.metadata = metadata;
         this.nodata = nodata;
         this.coverageType = coverageType;
+
+    }
+
+    public Integer getGridDimension() {
+        return axes.size();
     }
 
     public void setAxes(List<Axis> axes) {
@@ -99,9 +105,13 @@ public class WcpsCoverageMetadata {
         throw new InvalidAxisNameException(axisName);
     }
 
+    public String getGridId(){
+        return getCoverageName() + "-grid";
+    }
+
     /**
      * Return the XY axes from coverage (e.g: 3D x,y,t then axes is x,y)
-     * @return 
+     * @return
      */
     public List<Axis> getXYAxes() {
         List<Axis> axisList = new ArrayList<Axis>();
@@ -137,11 +147,11 @@ public class WcpsCoverageMetadata {
         this.nodata = nodata;
     }
 
-    public Map<String, String> getMetadata() {
+    public String getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(Map<String, String> metadata) {
+    public void setMetadata(String metadata) {
         this.metadata = metadata;
     }
 
@@ -152,4 +162,5 @@ public class WcpsCoverageMetadata {
     public void setCoverageType(String coverageType) {
         this.coverageType = coverageType;
     }
+
 }

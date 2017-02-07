@@ -31,7 +31,7 @@ public class RegularAxis extends Axis {
 
     public RegularAxis(String label, NumericSubset geoBounds, NumericSubset gridBounds, AxisDirection direction,
                        String crsUri, CrsDefinition crsDefinition, String axisType, String axisUoM,
-                       BigDecimal scalarResoultion, int rasdamanOrder, BigDecimal origin) {
-        super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, scalarResoultion, rasdamanOrder, origin);
+                       BigDecimal scalarResoultion, int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
+        super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, scalarResoultion, rasdamanOrder, origin, resolution);
     }
 }

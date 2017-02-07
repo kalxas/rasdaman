@@ -53,10 +53,7 @@ public class WcpsQueryHandler {
             rasql = rasql.concat(whereClause.getRasql());
         }
 
-        //metadata is taken from the return clause
-        WcpsCoverageMetadata metadata = returnClause.getMetadata();
-
-        WcpsResult result = new WcpsResult(metadata, rasql);
-        return result;
+        returnClause.setRasql(rasql);
+        return returnClause;
     }
 }

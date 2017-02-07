@@ -21,6 +21,7 @@
  */
 package petascope.wcps2.metadata.service;
 
+import petascope.swe.datamodel.NilValue;
 import petascope.util.XMLSymbols;
 import petascope.wcps2.error.managed.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps2.error.managed.processing.IncompatibleAxesNumberException;
@@ -286,7 +287,7 @@ public class WcpsCoverageMetadataService {
             BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
 
             Axis axis = new RegularAxis(label, geoBounds, gridBounds, axisDirection, crsUri,
-                                        crsDefinition, axisType, axisUoM, scalarResolution, axesCounter, origin);
+                                        crsDefinition, axisType, axisUoM, scalarResolution, axesCounter, origin, scalarResolution);
             axesCounter++;
             axes.add(axis);
         }
@@ -295,7 +296,7 @@ public class WcpsCoverageMetadataService {
         // NOTE: now, just use IndexND CRS (e.g: http://.../IndexND) to set as crs for creating coverage first
         String indexNDCrsUri = CrsUtility.createIndexNDCrsUri(axes);
         List<RangeField> rangeFields = new ArrayList<RangeField>();
-        RangeField rangeField = new RangeField(RangeField.TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<Double>(), RangeField.UOM, null, null);
+        RangeField rangeField = new RangeField(RangeField.TYPE, RangeField.DEFAULT_NAME, null, new ArrayList<NilValue>(), RangeField.UOM, null, null);
         rangeFields.add(rangeField);
         
         WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, null, null);

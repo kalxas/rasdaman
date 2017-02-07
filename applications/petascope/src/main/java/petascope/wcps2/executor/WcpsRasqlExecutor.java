@@ -24,10 +24,17 @@ package petascope.wcps2.executor;
 
 import java.nio.charset.Charset;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.util.WcsUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
+import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.result.WcpsResult;
+import petascope.wcps2.util.GmlCovUtil;
+import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.templates.Templates;
 
 /**
  * Execute the Rasql query and return result.
@@ -35,20 +42,53 @@ import petascope.wcps2.result.WcpsResult;
  */
 public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
 
-    public WcpsRasqlExecutor() {}
+    private final GmlCovUtil gmlCovUtil;
+
+    public WcpsRasqlExecutor(GmlCovUtil gmlCovUtil){
+        this.gmlCovUtil = gmlCovUtil;
+    }
+
+
 
     /**
      * Execute the Rasql query and return result.
      * @param wcpsResult
      * @return
      */
-    public byte[] execute(WcpsResult wcpsResult) throws WCSException {
+    public byte[] execute(WcpsResult wcpsResult) throws PetascopeException, SecoreException {
+        String mimeType = wcpsResult.getMimeType();
+        if(mimeType != null && mimeType.equals(FormatExtension.MIME_XML)){
+            return buildGmlCovResult(wcpsResult.getMetadata(), wcpsResult.getRasql());
+        } else {
+            byte[] result = executeRasql(wcpsResult.getRasql());
+            return result;
+        }
+    }
+
+    private byte[] buildGmlCovResult(WcpsCoverageMetadata m, String rasql) throws PetascopeException, SecoreException {
+        byte[] arrayData = executeRasql(rasql);
+        //get the template
+        String gml = gmlCovUtil.getGML(m, Templates.COVERAGE);
+        String data = new String(arrayData);
+        data = GmlCovUtil.csv2tupleList(data);
+        //fill the template with metadata
+        //add the array data to the template
+        gml = gml.replace("{" + Templates.KEY_COVERAGEDATA + "}", data);
+
+        return gml.getBytes();
+    }
+
+    /**
+     * Handles the execution of a rasql query.
+     * @param query the rasql query to be executed
+     * @return the rasql result
+     * @throws WCSException
+     */
+    private byte[] executeRasql(String query) throws WCSException {
         byte[] result = new byte[0];
-
-        RasQueryResult res = null;
+        RasQueryResult res;
         try {
-            res = new RasQueryResult(RasUtil.executeRasqlQuery(wcpsResult.getRasql()));
-
+            res = new RasQueryResult(RasUtil.executeRasqlQuery(query));
             if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
                 for (String s : res.getScalars()) {
                     result = s.getBytes(Charset.forName("UTF-8"));
@@ -56,8 +96,6 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
                 for (byte[] bs : res.getMdds()) {
                     result = bs;
                 }
-            } else {
-
             }
         } catch (Exception ex) {
             throw new WCSException(ExceptionCode.SemanticError, ex);

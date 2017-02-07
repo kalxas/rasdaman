@@ -42,6 +42,13 @@ import petascope.wcs2.extensions.FormatExtension;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 public class SerializationEncodingService {
+
+    private ExtraMetadataService extraMetadataService;
+
+    public SerializationEncodingService(ExtraMetadataService extraMetadataService) {
+        this.extraMetadataService = extraMetadataService;
+    }
+
     /**
      * Generate Rasql extra parameters in Json string from *old style* extra params of WCPS query (e.g: "nodata=0,1,2,3")
      * @param rasqlFormat
@@ -60,8 +67,8 @@ public class SerializationEncodingService {
         }
         jsonExtraParams.setNoData(new NoData(metadata.getNodata()));
         // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
-        if (metadata.getMetadata() != null) {
-            jsonExtraParams.setMetadata(metadata.getMetadata());
+        if(metadata.getMetadata() != null) {
+            jsonExtraParams.setMetadata(extraMetadataService.convertExtraMetadata(metadata.getMetadata()));
         }
         jsonExtraParams.setGeoReference(geoReference);
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
@@ -90,14 +97,14 @@ public class SerializationEncodingService {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         JsonExtraParams jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
-        
+        Map<String, String> extraMetadata = extraMetadataService.convertExtraMetadata(metadata.getMetadata());
         // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
         if (jsonExtraParams.getMetadata() == null) {
-            jsonExtraParams.setMetadata(metadata.getMetadata());
+            jsonExtraParams.setMetadata(extraMetadata);
         } else {
             // merge coverage extraMetadata with input extra metadata in JSON
-            if (metadata.getMetadata() != null) {
-                for (Map.Entry<String, String> entry: metadata.getMetadata().entrySet()) {
+            if (metadata.getMetadata() != null && !metadata.getMetadata().isEmpty()) {
+                for (Map.Entry<String, String> entry: extraMetadata.entrySet()) {
                     jsonExtraParams.getMetadata().put(entry.getKey(), entry.getValue());
                 }
             }

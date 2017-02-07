@@ -23,6 +23,9 @@ package petascope.wcps2.handler;
 
 import java.math.BigDecimal;
 import org.apache.commons.lang3.StringUtils;
+import petascope.swe.datamodel.AllowedValues;
+import petascope.swe.datamodel.NilValue;
+import petascope.swe.datamodel.RealPair;
 import petascope.wcps2.result.WcpsResult;
 
 import java.util.ArrayList;
@@ -65,15 +68,14 @@ public class RangeConstructorSwitchCaseHandler {
             translatedFields.add(result);
 
             // we create range field for the coverage metadata
-            RangeField rangeField = new RangeField(RangeField.TYPE, entry.getKey(), "", new ArrayList<Double>(),
-                                                   RangeField.UOM, "", new ArrayList<Interval<BigDecimal>>());
+            RangeField rangeField = new RangeField(RangeField.TYPE, entry.getKey(), "", new ArrayList<NilValue>(),
+                                                   RangeField.UOM, "", new AllowedValues(new ArrayList<RealPair>()));
             rangeFields.add(rangeField);
             i++;
         }
 
         //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
-        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(),
-                                                                 "", rangeFields, null, new ArrayList<BigDecimal>());
+        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata("", "", new ArrayList<Axis>(), "", rangeFields, null, new ArrayList<BigDecimal>());
         String rasql = StringUtils.join(translatedFields, " + ");
         return new WcpsResult(metadata, rasql);
     }

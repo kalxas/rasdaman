@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import petascope.exceptions.PetascopeException;
+import petascope.wcps2.encodeparameters.service.ExtraMetadataService;
 import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcps2.parameters.netcdf.service.CovToCFTranslationService;
 import petascope.wcps2.parameters.netcdf.service.NetCDFParametersFactory;
@@ -80,9 +81,15 @@ public class EncodeCoverageHandler {
             rasqlFormat = format;
         }
 
-        // NOTE: must use JP2OpenJPEG to encode with geo-reference metadata for JPEG2000 (JP2)
+        // get the mime-type before modifying the rasqlFormat
+        String mimeType = getResultMimeType(format, rasqlFormat, coverageRegistry);
+
+        // NOTE 1: must use JP2OpenJPEG to encode with geo-reference metadata for JPEG2000 (JP2)
+        // NOTE 2: must use CSV to encode GML
         if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_JP2)) {
             rasqlFormat = FormatExtension.FORMAT_ID_OPENJP2;
+        } else if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_GML)){
+            rasqlFormat = FormatExtension.FORMAT_ID_CSV;
         }
 
         // NOTE: we have 2 cases for extra params:
@@ -92,7 +99,7 @@ public class EncodeCoverageHandler {
         //   then pass it in JSON string as rasql's encode extra parameters
         String otherParamsString = null;
         try {
-            otherParamsString = getExtraParamsFactory(coverageExpression, rasqlFormat, extraParams, coverageRegistry);
+            otherParamsString = getExtraParams(coverageExpression, rasqlFormat, extraParams, coverageRegistry);
         } catch (IOException ex) {
             throw new MetadataSerializationException();
         }
@@ -103,15 +110,28 @@ public class EncodeCoverageHandler {
                                       .replace("$format", '"' + rasqlFormat + '"')
                                       .replace("$otherParams", otherParamsString);
         WcpsResult result = new WcpsResult(coverageExpression.getMetadata(), resultRasql);
+        result.setMimeType(mimeType);
         return result;
+    }
+
+    /**
+     * Depend on the rasqlFormat type to return the correct MIME
+     * @return
+     */
+    private static String getResultMimeType(String format, String rasqlFormat, CoverageRegistry coverageRegistry){
+        String mimeType = coverageRegistry.getMetadataSource().formatToMimetype(format);
+        if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_GML)){
+            mimeType = FormatExtension.MIME_XML;
+        }
+        return mimeType;
     }
 
     /**
      * Depend on the rasqlFormat type to return the correct parameters for this MIME
      * @return
      */
-    private static String getExtraParamsFactory(WcpsResult coverageExpression, String rasqlFormat,
-                                                String extraParams, CoverageRegistry coverageRegistry) throws PetascopeException, JsonProcessingException, IOException {
+    private static String getExtraParams(WcpsResult coverageExpression, String rasqlFormat,
+                                         String extraParams, CoverageRegistry coverageRegistry) throws PetascopeException, JsonProcessingException, IOException {
         String otherParamsString = "";
         NetCDFExtraParams netCDFExtraParams = null;
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
@@ -122,6 +142,10 @@ public class EncodeCoverageHandler {
             return otherParamsString;
         } else if (!addDefaultParams(rasqlFormat)) {
             // e.g: csv, json no add default params            
+            return otherParamsString;
+        } else if(rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_GML)) {
+            rasqlFormat = FormatExtension.FORMAT_ID_CSV;
+            otherParamsString = "";
             return otherParamsString;
         } else if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_NETCDF)) {
             // netcdf (we build some netCDF parameters separately)
@@ -144,7 +168,8 @@ public class EncodeCoverageHandler {
 
         String jsonOutput = "";
         
-        SerializationEncodingService serializationEncodingService = new SerializationEncodingService();
+        ExtraMetadataService extraMetadataService = new ExtraMetadataService();
+        SerializationEncodingService serializationEncodingService = new SerializationEncodingService(extraMetadataService);
 
         // Check if extra params is in old style or new JSON style
         if (!JsonUtil.isJsonValid(extraParams)) {

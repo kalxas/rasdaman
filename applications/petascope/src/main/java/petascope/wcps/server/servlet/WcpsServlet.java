@@ -59,6 +59,8 @@ import petascope.wcps.server.core.Wcps;
 import petascope.wcps2.error.managed.processing.WCPSProcessingError;
 import petascope.wcps2.executor.WcpsExecutor;
 import petascope.wcps2.executor.WcpsExecutorFactory;
+import petascope.wcps2.executor.WcpsMetaExecutor;
+import petascope.wcps2.executor.WcpsRasqlExecutor;
 import petascope.wcps2.metadata.service.CoordinateTranslationService;
 import petascope.wcps2.metadata.service.CoverageRegistry;
 import petascope.wcps2.metadata.service.RasqlRewriteMultipartQueriesService;
@@ -69,6 +71,7 @@ import petascope.wcps2.parser.WcpsTranslator;
 import petascope.wcps2.result.VisitorResult;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
+import petascope.wcps2.util.GmlCovUtil;
 
 //important limitation: this will only return the first result if several are available.
 //The reason is that WCPS currently has no standardized way to return multiple byte streams to
@@ -87,6 +90,8 @@ public class WcpsServlet extends CORSHttpServlet {
     // String containing the HTML code for the default response
     private String defaultHtmlResponse;
     private final String WCPS_PROCESS_COVERAGE_XSD = WcpsConstants.MSG_WCPS_PROCESS_COVERAGE_XSD;
+    private WcpsExecutorFactory wcpsExecutorFactory;
+
 
     @Override
     public void init() throws ServletException {
@@ -103,6 +108,13 @@ public class WcpsServlet extends CORSHttpServlet {
 
             servletHtmlPath = getServletContext().getRealPath(servletHtmlPath);
             defaultHtmlResponse = FileUtils.readFileToString(new File(servletHtmlPath));
+
+            //initialize wcps executors
+            WcpsMetaExecutor wcpsMetaExecutor = new WcpsMetaExecutor();
+            CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
+            GmlCovUtil gmlCovUtil = new GmlCovUtil(coverageRegistry);
+            WcpsRasqlExecutor wcpsRasqlExecutor = new WcpsRasqlExecutor(gmlCovUtil);
+            wcpsExecutorFactory = new WcpsExecutorFactory(wcpsMetaExecutor, wcpsRasqlExecutor);
 
             log.info("WCPS: initialization complete");
         } catch (Exception e) {
@@ -142,7 +154,8 @@ public class WcpsServlet extends CORSHttpServlet {
         VisitorResult wcpsResult = null;
         try {
             wcpsResult = wcpsTranslator.translate(query);
-            WcpsExecutor executor = WcpsExecutorFactory.getExecutor(wcpsResult);
+
+            WcpsExecutor executor = wcpsExecutorFactory.getExecutor(wcpsResult);
 
             // Handle Multipart by rewriting multiple queries if it is necessary
             // NOTE: not support multipart if return metadata value (e.g: identifier())
@@ -188,6 +201,9 @@ public class WcpsServlet extends CORSHttpServlet {
         } catch (PetascopeException ex) {
             response.setStatus(ExceptionCode.WcpsError.getHttpErrorCode());
             printError(response, "Petascope Error: " + ex.getMessage(), ex);
+        } catch (SecoreException ex) {
+            response.setStatus(ExceptionCode.WcpsError.getHttpErrorCode());
+            printError(response, "Secore Error: " + ex.getMessage(), ex);
         } finally {
             IOUtils.closeQuietly(os);
         }

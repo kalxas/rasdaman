@@ -52,4 +52,14 @@ public class NumericSlicing extends NumericSubset {
     public String getStringRepresentationInInteger() {
         return bound.toBigInteger().toString();
     }
+
+    @Override
+    public BigDecimal getLowerLimit() {
+        return bound;
+    }
+
+    @Override
+    public BigDecimal getUpperLimit() {
+        return bound;
+    }
 }

@@ -34,12 +34,16 @@ import java.util.Map;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 public class ExtraMetadataService {
-     /**
+
+    public ExtraMetadataService() {
+    }
+
+    /**
      * Convert extra metadata of coverage from String to Map<String, String> to encode
      * @param extraMetadata
      * @return 
      */
-    public static Map<String, String> convertExtraMetadata(String extraMetadata) {
+    public Map<String, String> convertExtraMetadata(String extraMetadata) {
         XmlMapper xmlMapper = new XmlMapper();
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> convertedMetadata = null;
@@ -70,7 +74,7 @@ public class ExtraMetadataService {
      * @param extraMetadata
      * @return 
      */
-    private static String removeMetadataSlices(String extraMetadata) {
+    private String removeMetadataSlices(String extraMetadata) {
         String result = "";
         //remove all \n and double spaces
         extraMetadata = extraMetadata.replaceAll("\\s+", " ");

@@ -111,7 +111,7 @@ public class WcpsTranslator {
             // When the tree is parsed, it will traverse to each node to evaluate
             // And throw WCPSProcessingError or other kind of Exceptions if possible
             translationTree = evaluator.visit(parseTree);
-            translationTree.setMimeType(evaluator.getMimeType());
+//            translationTree.setMimeType(evaluator.getMimeType());
 
             // Get the aliasCoverage for multipart
             this.coverageAliasRegistry = evaluator.getCoverageAliasRegistry();

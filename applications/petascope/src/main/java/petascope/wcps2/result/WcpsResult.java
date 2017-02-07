@@ -35,9 +35,12 @@ public class WcpsResult implements VisitorResult {
     //the rasql string resulting from the evaluation
     private String rasql;
     //the metadata resulting from the evaluation
-    private final WcpsCoverageMetadata metadata;
+    private WcpsCoverageMetadata metadata;
 
     private String mimeType;
+
+    public WcpsResult() {
+    }
 
     public WcpsResult(WcpsCoverageMetadata metadata, String rasql) {
         this.rasql = rasql;
@@ -57,7 +60,10 @@ public class WcpsResult implements VisitorResult {
         return metadata;
     }
 
-    @Override
+    public void setMetadata(WcpsCoverageMetadata metadata) {
+        this.metadata = metadata;
+    }
+
     public String getMimeType() {
         return this.mimeType;
     }

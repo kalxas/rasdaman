@@ -37,6 +37,7 @@ public class NumericTrimming extends NumericSubset {
         this.upperLimit = upperLimit;
     }
 
+    @Override
     public BigDecimal getLowerLimit() {
         return this.lowerLimit;
     }
@@ -45,6 +46,7 @@ public class NumericTrimming extends NumericSubset {
         this.lowerLimit = lowerLimit;
     }
 
+    @Override
     public BigDecimal getUpperLimit() {
         return this.upperLimit;
     }
@@ -62,5 +64,7 @@ public class NumericTrimming extends NumericSubset {
     public String getStringRepresentationInInteger() {
         return lowerLimit.toBigInteger().toString() + ":" + upperLimit.toBigInteger().toString();
     }
+
+
 
 }

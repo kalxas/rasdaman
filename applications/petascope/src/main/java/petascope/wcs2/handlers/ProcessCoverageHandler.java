@@ -34,9 +34,12 @@ import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcps2.executor.WcpsExecutor;
 import petascope.wcps2.executor.WcpsExecutorFactory;
+import petascope.wcps2.executor.WcpsMetaExecutor;
+import petascope.wcps2.executor.WcpsRasqlExecutor;
 import petascope.wcps2.metadata.service.*;
 import petascope.wcps2.parser.WcpsTranslator;
 import petascope.wcps2.result.VisitorResult;
+import petascope.wcps2.util.GmlCovUtil;
 import petascope.wcs2.extensions.ProcessCoverageExtension;
 import petascope.wcs2.parsers.ProcessCoverageRequest;
 
@@ -59,6 +62,7 @@ import petascope.wcps2.result.WcpsResult;
 public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCoverageRequest> {
 
     private final WcpsTranslator wcpsTranslator;
+    private final WcpsExecutorFactory wcpsExecutorFactory;
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(ProcessCoverageHandler.class);
 
@@ -69,6 +73,7 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
      */
     public ProcessCoverageHandler(DbMetadataSource meta) {
         super(meta);
+
         CoverageRegistry coverageRegistry = new CoverageRegistry(meta);
         CoordinateTranslationService coordinateTranslationService = new CoordinateTranslationService(coverageRegistry);
         WcpsCoverageMetadataService wcpsCoverageMetadataService = new WcpsCoverageMetadataService(coordinateTranslationService);
@@ -76,6 +81,11 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
         SubsetParsingService subsetParsingService = new SubsetParsingService();
         wcpsTranslator = new WcpsTranslator(coverageRegistry, wcpsCoverageMetadataService,
                                             rasqlTranslationService, subsetParsingService);
+        // Initialize wcps executors
+        WcpsMetaExecutor wcpsMetaExecutor = new WcpsMetaExecutor();
+        GmlCovUtil gmlCovUtil = new GmlCovUtil(coverageRegistry);
+        WcpsRasqlExecutor wcpsRasqlExecutor = new WcpsRasqlExecutor(gmlCovUtil);
+        wcpsExecutorFactory = new WcpsExecutorFactory(wcpsMetaExecutor, wcpsRasqlExecutor);
     }
 
     /**
@@ -165,13 +175,13 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
      * @throws WCSException
      * @todo Implement it as soon as WCPS2.0 fixes are done.
      */
-    private Response handleWCPS2Request(ProcessCoverageRequest request) throws WCSException, PetascopeException {
+    private Response handleWCPS2Request(ProcessCoverageRequest request) throws WCSException, PetascopeException, SecoreException {
         String coverageID = null;
         boolean isMultiPart = false;
         List<byte[]> results = new ArrayList<byte[]>();
         String query = request.getQuery();
         VisitorResult visitorResult = wcpsTranslator.translate(query);
-        WcpsExecutor executor = WcpsExecutorFactory.getExecutor(visitorResult);
+        WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
         // Handle Multipart by rewriting multiple queries if it is necessary
         // NOTE: not support multipart if return metadata value (e.g: identifier())
         RasqlRewriteMultipartQueriesService multipartService =

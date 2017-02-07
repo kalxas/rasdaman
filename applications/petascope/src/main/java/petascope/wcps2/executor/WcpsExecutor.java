@@ -22,6 +22,8 @@
 
 package petascope.wcps2.executor;
 
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 
 /**
@@ -37,5 +39,5 @@ public interface WcpsExecutor<T> {
      * @return result in byte[];
      * @throws petascope.exceptions.WCSException
      */
-    byte[] execute(T wcpsResult) throws WCSException;
+    byte[] execute(T wcpsResult) throws PetascopeException, SecoreException;
 }

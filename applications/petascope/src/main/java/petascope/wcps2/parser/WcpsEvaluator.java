@@ -60,7 +60,6 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     private final WcpsCoverageMetadataService wcpsCoverageMetadataService;
     private final RasqlTranslationService rasqlTranslationService;
     private final SubsetParsingService subsetParsingService;
-    private String mimeType = "";
 
     /**
      * Class constructor.
@@ -155,10 +154,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         if (ctx.extra_params() != null) {
             extraParams = StringUtil.stripQuotes(ctx.extra_params().getText()).replace("\\", "");
         }
-        
-        // e.g: tiff -> image/tiff (canonical MIME)
-        this.mimeType = this.coverageRegistry.getMetadataSource().formatToMimetype(formatType);     
- 
+
         WcpsResult result = null;
         try {
             result = EncodeCoverageHandler.handle(coverageExpression, formatType, extraParams, this.coverageRegistry);
@@ -1164,13 +1160,6 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         return axisIterator;
     }
 
-
-    // ULTILITY
-    /* ----------------- Ultility Handlers------------------ */
-    public String getMimeType() {
-        // Get the mimeType for one WCPS query
-        return mimeType;
-    }
 
     // store the alias: e.g: $c -> (mr, rgb), $d -> (mr1, rgb1) which is used for handling multipart
     public CoverageAliasRegistry getCoverageAliasRegistry() {
