@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -778,7 +779,7 @@ public class DbMetadataSource implements IMetadataSource {
                 ;
             log.debug("SQL query: " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
-            coverages = new HashSet<String>(r.getFetchSize());
+            coverages = new LinkedHashSet<String>(r.getFetchSize());
             while (r.next()) {
                 coverages.add(r.getString(COVERAGE_NAME));
             }

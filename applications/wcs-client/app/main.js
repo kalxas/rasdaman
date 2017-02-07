@@ -4582,15 +4582,16 @@ var rasdaman;
             });
             return result.promise;
         };
-        WCSService.prototype.processCoverages = function (query, binaryFormat) {
+        WCSService.prototype.processCoverages = function (query) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + query.toKVP();
+            var queryStr = query.toKVP();
+            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + queryStr;
             var request = {
                 method: 'GET',
                 url: requestUrl,
                 transformResponse: null
             };
-            if (binaryFormat) {
+            if (queryStr.indexOf("png") >= 0 || queryStr.indexOf("jpeg") >= 0 || queryStr.indexOf("jpeg2000") >= 0 || queryStr.indexOf("tiff") >= 0 || queryStr.indexOf("netcdf") >= 0) {
                 request.responseType = "arraybuffer";
             }
             this.$http(request).then(function (data) {
@@ -5448,6 +5449,7 @@ var rasdaman;
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+///<reference path="../../common/_common.ts"/>
 ///<reference path="WCPSQueryResult.ts"/>
 var rasdaman;
 (function (rasdaman) {
@@ -5596,6 +5598,7 @@ var rasdaman;
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+///<reference path="../../common/_common.ts"/>
 ///<reference path="WCPSQueryResult.ts"/>
 ///<reference path="RawWCPSResult.ts"/>
 ///<reference path="ImageWCPSResult.ts"/>
@@ -5605,18 +5608,35 @@ var rasdaman;
     var WCPSResultFactory = (function () {
         function WCPSResultFactory() {
         }
-        WCPSResultFactory.getResult = function (command, data) {
+        WCPSResultFactory.getResult = function (errorHandlingService, command, data, mimeType, fileName) {
             if (command.WidgetConfiguration == null) {
-                return new rasdaman.RawWCPSResult(command, data);
+                if (mimeType == "application/json" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
+                    return new rasdaman.RawWCPSResult(command, data);
+                }
+                else {
+                    var blob = new Blob([data], { type: "application/octet-stream" });
+                    saveAs(blob, fileName);
+                    return null;
+                }
             }
             else if (command.WidgetConfiguration.Type == "diagram") {
+                this.validateResult(errorHandlingService, command.WidgetConfiguration.Type, mimeType);
                 return new rasdaman.DiagramWCPSResult(command, data);
             }
             else if (command.WidgetConfiguration.Type == "image") {
+                this.validateResult(errorHandlingService, command.WidgetConfiguration.Type, mimeType);
                 return new rasdaman.ImageWCPSResult(command, data);
             }
             else {
-                throw new rasdaman.common.IllegalArgumentException("Invalid command.");
+                errorHandlingService.notificationService.error("The input widget: " + command.WidgetConfiguration.Type + " does not exist");
+            }
+        };
+        WCPSResultFactory.validateResult = function (errorHandlingService, widgetType, mimeType) {
+            if (widgetType == "diagram" && !(mimeType == "application/json" || mimeType == "text/plain")) {
+                errorHandlingService.notificationService.error("Diagram widget can only be used with encoding 1D result in json or csv.");
+            }
+            else if (widgetType == "image" && !(mimeType == "image/png" || mimeType == "image/jpeg")) {
+                errorHandlingService.notificationService.error("Image widget can only be used with encoding 2D result in png or jpeg.");
             }
         };
         return WCPSResultFactory;
@@ -5675,10 +5695,12 @@ var rasdaman;
                     var waitingForResultsPromise = $interval(function () {
                         $scope.EditorData[indexOfResults].SecondsPassed++;
                     }, 1000);
-                    var getBinaryData = command.WidgetConfiguration ? command.WidgetConfiguration.Type == "image" : false;
-                    wcsService.processCoverages(processCoverages, getBinaryData)
+                    wcsService.processCoverages(processCoverages)
                         .then(function (data) {
-                        $scope.EditorData.push(rasdaman.WCPSResultFactory.getResult(command, data.data));
+                        var editorRow = rasdaman.WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
+                        if (editorRow != null) {
+                            $scope.EditorData.push(editorRow);
+                        }
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -5720,7 +5742,7 @@ var rasdaman;
                 },
                 {
                     Title: 'Encode as PNG',
-                    Query: 'for c in (mean_summer_airtemp) return encode(c, "png")'
+                    Query: 'image>>for c in (test_mean_summer_airtemp) return encode(c, "png")'
                 }
             ];
         };

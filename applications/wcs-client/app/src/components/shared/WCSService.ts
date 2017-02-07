@@ -139,13 +139,13 @@ module rasdaman {
         /**
          *
          * @param query wcs.ProcessCoverages query that will be serialized and sent to the server.
-         * @param binaryFormat
          * @returns {IPromise<T>}
          */
-        public processCoverages(query:wcs.ProcessCoverages, binaryFormat?:boolean):angular.IPromise<rasdaman.common.Response<any> > {
+        public processCoverages(query:wcs.ProcessCoverages):angular.IPromise<rasdaman.common.Response<any> > {
             var result = this.$q.defer();
-
-            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + query.toKVP();	    
+            var queryStr = query.toKVP();
+                        
+            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + queryStr;	    
 
             var request:angular.IRequestConfig = {
                 method: 'GET',
@@ -154,10 +154,13 @@ module rasdaman {
                 transformResponse: null
             };
 
-            if (binaryFormat) {
-                request.responseType = "arraybuffer";
+            // TODO: if have new supported binary encodings, add them here.
+            if (queryStr.indexOf("png") >= 0 || queryStr.indexOf("jpeg") >= 0 || queryStr.indexOf("jpeg2000") >= 0 || queryStr.indexOf("tiff") >= 0 || queryStr.indexOf("netcdf") >= 0)  {            
+                // This is needed to save binary file correctly
+                request.responseType = "arraybuffer"; 
             }
 
+            // send request to Petascope and get response (headers and contents)
             this.$http(request).then(function (data:any) {
                 result.resolve(data);
             }, function (error) {

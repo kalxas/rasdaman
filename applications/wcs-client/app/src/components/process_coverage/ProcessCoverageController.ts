@@ -73,13 +73,14 @@ module rasdaman {
                         $scope.EditorData[indexOfResults].SecondsPassed++;
                     }, 1000);
 
-
-                    var getBinaryData = command.WidgetConfiguration ? command.WidgetConfiguration.Type == "image" : false;
-
-                    wcsService.processCoverages(processCoverages, getBinaryData)
+                    wcsService.processCoverages(processCoverages)
                         .then(
                             (data:any)=> {
-                                $scope.EditorData.push(WCPSResultFactory.getResult(command, data.data));
+                				// depend on the result, it will return an object and display on the editor console or download the result as file without display.
+                				var editorRow = WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
+                				if (editorRow != null) {
+	                                $scope.EditorData.push(editorRow);
+                                }
                             },
                             (...args:any[])=> {
                                 errorHandlingService.handleError(args);
@@ -126,7 +127,7 @@ module rasdaman {
                 },
                 {
                     Title: 'Encode as PNG',
-                    Query: 'for c in (mean_summer_airtemp) return encode(c, "png")'
+                    Query: 'image>>for c in (test_mean_summer_airtemp) return encode(c, "png")'
                 }
                 //{
                 //    Title: 'Most basic query',

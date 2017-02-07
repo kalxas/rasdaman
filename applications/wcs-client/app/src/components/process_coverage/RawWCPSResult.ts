@@ -21,13 +21,14 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+///<reference path="../../common/_common.ts"/>
 ///<reference path="WCPSQueryResult.ts"/>
 
 module rasdaman {
     export class RawWCPSResult extends WCPSQueryResult {
         public Data:string;
 
-        public constructor(command:WCPSCommand, data:string) {
+        public constructor(command:WCPSCommand, data:any) {
             super(command);
             this.Data = data.toString();
         }
