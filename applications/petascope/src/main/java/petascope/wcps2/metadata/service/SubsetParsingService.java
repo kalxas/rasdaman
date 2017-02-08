@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.opengis.referencing.cs.AxisDirection;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.BigDecimalUtil;
@@ -233,19 +234,121 @@ public class SubsetParsingService {
         if (dimension instanceof TrimSubsetDimension) {
             // convert each slicing point of trimming subset to numeric
             // NOTE: it cannot parse expression in the axis interval (e.g: Lat(1 + 1:2 + avg(c)))
-            lowerBound = convertPointToBigDecimal(true, true, axis, ((TrimSubsetDimension)dimension).getLowerBound(),
-                                                  metadata, dimension.getCrs(), isScaleExtend);
-            upperBound = convertPointToBigDecimal(true, false, axis, ((TrimSubsetDimension)dimension).getUpperBound(),
-                                                  metadata, dimension.getCrs(), isScaleExtend);
+            lowerBound = convertPointToBigDecimal(true, true, axis, ((TrimSubsetDimension)dimension).getLowerBound());
+            upperBound = convertPointToBigDecimal(true, false, axis, ((TrimSubsetDimension)dimension).getUpperBound());
 
             numericSubset = new NumericTrimming(lowerBound, upperBound);
         } else {
             // NOTE: it cannot parse expression in the axis interval (e.g: Lat(1 + 1))
-            lowerBound = convertPointToBigDecimal(false, true, axis, ((SliceSubsetDimension)dimension).getBound(), metadata, dimension.getCrs(), isScaleExtend);
+            lowerBound = convertPointToBigDecimal(false, true, axis, ((SliceSubsetDimension)dimension).getBound());
             numericSubset = new NumericSlicing(lowerBound);
         }
 
         return new Subset(numericSubset, sourceCrs, axisName);
+    }
+
+    /**
+     * Find the nearest geo coordinate which attach to a grid cell coordinate for the input geo coordinate.
+     * e.g: 0 - 30 - 60 (geo coordinates), then input: 42 in geo coordinate will be shifted to 30 in geo coordinate.
+     * NOTE: we don't need to fit to sample space if coverage is GridCoverage and axis is CRS:1
+     * OR axis type is not X, Y     * 
+     * @param subsets e.g: c[Lat(0), Long(20:30)]
+     * @param metadata
+     */
+    public void fitToSampleSpaceRegularAxes(List<Subset> subsets, WcpsCoverageMetadata metadata) {        
+        for (Axis axis:metadata.getAxes()) {
+            for (Subset subset:subsets) {
+                // Only fit the axis if subset of axis is specified
+                if (axis.getLabel().equals(subset.getAxisName())) {
+                    String crs = axis.getCrsUri();
+                    // Just don't fit to sample space when axis type is not geo-reference (e.g: time coefficient will be wrong value)
+                    // NOTE: Not support to fit on irregular axis
+                    if ( axis instanceof RegularAxis ) {
+                        if ( axis.getAxisType().equals(AxisTypes.X_AXIS) || axis.getAxisType().equals(AxisTypes.Y_AXIS) ) {
+                            if (!CrsUtil.isGridCrs(crs) && !CrsUtil.isIndexCrs(crs) && !metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+                                // Depend on subset on axis to fit correctly
+                                if (axis.getGeoBounds() instanceof NumericTrimming) {
+                                    this.fitToSampleSpaceTrimming(axis);
+                                } else {
+                                    this.fitToSampleSpaceSlicing(axis);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Fit the slicing (geo, grid) bound on axis to the origin of correct pixel
+     * @param axis
+     */
+    private void fitToSampleSpaceSlicing(Axis axis) {
+        BigDecimal geoBound = ((NumericSlicing)axis.getGeoBounds()).getBound();
+        BigDecimal resolution = axis.getResolution();
+        BigDecimal geoOrigin = axis.getOrigin().subtract(BigDecimalUtil.divide(resolution, new BigDecimal(2)));        
+
+        // grid bound is the floor of ( (geoBound - origin) / resolution )
+        // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 then slice on 31 will return geoBound: 30
+        BigDecimal gridBound = (BigDecimalUtil.divide(geoBound.subtract(geoOrigin), resolution)).setScale(0, BigDecimal.ROUND_FLOOR);
+        geoBound = geoOrigin.add(gridBound.multiply(resolution));
+
+        // after fitting, set the correct bounds to axis
+        axis.setGeoBounds(new NumericSlicing(geoBound));
+        axis.setGridBounds(new NumericSlicing(gridBound));
+    }
+
+    /**
+     * Fit the trmimming (geo, grid) bound on axis to the origin of correct pixel
+     * @param axis
+     */
+    private void fitToSampleSpaceTrimming(Axis axis) {
+        BigDecimal geoLowerBound = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit();
+        BigDecimal geoUpperBound = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit();
+        BigDecimal gridLowerBound = null;
+        BigDecimal gridUpperBound = null;
+
+        BigDecimal resolution = axis.getResolution();
+        BigDecimal geoOrigin = axis.getOrigin().subtract(BigDecimalUtil.divide(resolution, new BigDecimal(2)));
+
+        // positive axis (origin is lower than minGeo bound)
+        if (resolution.compareTo(BigDecimal.ZERO) > 0) {
+            // grid lower bound is the floor of ( (geo lower Bound - origin) / resolution )
+            // e.g: original geo axis is: (ORIGIN) 0 --- 30 ---- 60 ---- 90 then lower trim on 31 will return geoBound: 30
+            gridLowerBound = (BigDecimalUtil.divide(geoLowerBound.subtract(geoOrigin), resolution)).setScale(0, BigDecimal.ROUND_FLOOR);
+            geoLowerBound = geoOrigin.add(gridLowerBound.multiply(resolution));
+
+            // grid upper bound is the ceiling of ( (geo upper Bound - origin) / resolution )
+            // e.g: original geo axis is: (ORIGIN) 0--- 30 ---- 60 ---- 90 then upper trim on 31 will return geoBound: 60
+            gridUpperBound = (BigDecimalUtil.divide(geoUpperBound.subtract(geoOrigin), resolution)).setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
+            geoUpperBound = geoOrigin.add(gridUpperBound.multiply(resolution));
+        } else {
+            // negative axis (origin is larger than maxGeo bound)
+
+            // grid lower bound is the floor of ( (geo upper Bound - origin) / resolution )
+            // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then upper trim on 31 will return geoBound: 60
+            gridLowerBound = (BigDecimalUtil.divide(geoUpperBound.subtract(geoOrigin), resolution)).setScale(0, BigDecimal.ROUND_FLOOR);
+            geoUpperBound = geoOrigin.add(gridLowerBound.multiply(resolution));
+
+            // grid lower bound is the ceiling of ( (geo upper Bound - origin) / resolution )
+            // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then lower trim on 31 will return geoBound: 30
+            gridUpperBound = (BigDecimalUtil.divide(geoLowerBound.subtract(geoOrigin), resolution)).setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
+            geoLowerBound = geoOrigin.add(gridUpperBound.multiply(resolution));
+        }
+
+        // this happens when trim lower and upper before fitting have same value (e.g: Lat(20:20)),
+        // after fitting upper will reduced by 1 resolution (e.g: Lat(20,19)) then need to set it back to same value.
+        if (geoUpperBound.compareTo(geoLowerBound) < 0) {
+            geoUpperBound = geoLowerBound;
+        }
+        if (gridUpperBound.compareTo(gridLowerBound) < 0) {
+            gridUpperBound = gridLowerBound;
+        }
+
+        // after fitting, set the correct bounds to axis
+        axis.setGeoBounds(new NumericTrimming(geoLowerBound, geoUpperBound));
+        axis.setGridBounds(new NumericTrimming(gridLowerBound, gridUpperBound));
     }
 
     /**
@@ -257,8 +360,7 @@ public class SubsetParsingService {
      * @param isScaleExtend is used to check whether should fit the input subsets to coverage bounding box or not (scale / extend intervals can be larger than coverage bounding box).
      * @return
      */
-    private BigDecimal convertPointToBigDecimal(boolean isTrimming, boolean isLowerPoint, Axis axis, String point,
-            WcpsCoverageMetadata metadata, String subsetCrs, boolean isScaleExtend) {
+    private BigDecimal convertPointToBigDecimal(boolean isTrimming, boolean isLowerPoint, Axis axis, String point) {
         BigDecimal result = null;
         if (point.equals(DimensionSubset.ASTERISK)) {
             if (isTrimming) {
@@ -272,18 +374,8 @@ public class SubsetParsingService {
                 throw new InvalidSlicingException(axis.getLabel(), point);
             }
         } else if (numericPoint(point)) {
-            // Check if point is Numeric
-            // We need to find the nearest geo coordinate which is origin of a grid cell coordinate from this coordinate
-            // (e.g: pixel size is: 30 m / 1 grid pixel and geo coordinate starts with 0,
-            // then we have geo coordinates: 0 - 30 - 60 - 90 .... (which are equivalent to: 0, 1, 2, 3 cell coordinates))
-            // NOTE: we don't need to fit to sample space if coverage is GridCoverage and axis is CRS:1
-            // OR axis type is not X, Y            
-            if (needToFitToSampleSpace(subsetCrs, axis, metadata)) {
-                result = this.fitToSampleSpace(point, axis, isScaleExtend);
-            } else {
-                // Grid Coverage, axis with "CRS:1"
-                result = new BigDecimal(point);
-            }
+            // Grid Coverage, axis with "CRS:1"
+            result = new BigDecimal(point);
         } else if (TimeUtil.isValidTimestamp(point)) {
             // Convert date time to numeric
             if (axis instanceof RegularAxis) {
@@ -404,99 +496,6 @@ public class SubsetParsingService {
             throw new OutOfBoundsSubsettingException(axis.getLabel(), subset, axisLowerBound.toPlainString(), axisUpperBound.toPlainString());
         }
         return true;
-    }
-
-    /**
-     * Check if an axis should be fit to sample space (only used for X-Y axis)
-     * @param subsetCrs (e.g: Lat:"CRS:1"(0:200) or can be NULL (e.g: i(0:200))
-     * @param axis
-     * @param metadata
-     * @return
-     */
-    private boolean needToFitToSampleSpace(String subsetCrs, Axis axis, WcpsCoverageMetadata metadata) {
-        // e.g: Lat:"CRS:1"(0:20)
-        String crs = subsetCrs;
-        if (crs == null) {
-            // e.g: Lat(0:20)
-            crs = axis.getCrsUri();
-        }
-
-        // Just don't fit to sample space when axis type is not geo-reference (e.g: time coefficient will be wrong value)        
-        if ( axis.getAxisType().equals(AxisTypes.X_AXIS) || axis.getAxisType().equals(AxisTypes.Y_AXIS) ) {
-            if (!CrsUtil.isGridCrs(crs) && !CrsUtil.isIndexCrs(crs) && !metadata.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Find the nearest geo coordinate which attach to a grid cell coordinate for the input geo coordinate.
-     * e.g: 0 - 30 - 60 (geo coordinates), then input: 42 in geo coordinate will be shifted to 30 in geo coordinate.
-     * @return
-     */
-    private BigDecimal fitToSampleSpace(String point, Axis axis, boolean isScaleExtend) {
-        // Minimum value of geo subsets (e.g: E(0:30) then min is 0)
-        BigDecimal geoMinCoordinate = BigDecimal.ZERO;
-        BigDecimal geoMaxCoordinate = BigDecimal.ZERO;
-
-        BigDecimal scalarResolution = axis.getScalarResolution();
-
-        // Get the max, min values of geo bound.
-        if (axis.getGeoBounds() instanceof NumericTrimming) {
-            geoMinCoordinate = ((NumericTrimming)axis.getGeoBounds()).getLowerLimit();
-            geoMaxCoordinate = ((NumericTrimming)axis.getGeoBounds()).getUpperLimit();
-        } else {
-            geoMinCoordinate = ((NumericSlicing)axis.getGeoBounds()).getBound();
-            geoMaxCoordinate = geoMinCoordinate;
-        }
-
-        BigDecimal coordinateValue = new BigDecimal(point);
-
-        // NOTE: if point is out of axis's bound then will not need to do anything (if the subset in scale() or extend() then it is valid).
-        if (!isScaleExtend) {
-            validatePointInsideGeoBound(axis.getLabel(), coordinateValue, geoMinCoordinate, geoMaxCoordinate);
-        }
-
-        // calculate the distance from the input geo coordinate and min coordinate (distance = input point - min coordinate)
-        BigDecimal distanceFromOrigin = coordinateValue.subtract(geoMinCoordinate);
-        // calculate the cell coordinate (cellCoordinate = distance / pixel size)
-        // e.g: 1 pixel = 30 in geo coordinate, distance = 45 in geo coordinate, then 45 / 30 = 1.5 cell coordinate.
-        BigDecimal cellCoordinate = BigDecimalUtil.divide(distanceFromOrigin, scalarResolution);
-        // get the fractionPart of the cellCoordinate
-        BigDecimal fractionalPart = cellCoordinate.remainder(BigDecimal.ONE);
-        // get the integerPart of the cellCoordinate
-        BigInteger integerPart = cellCoordinate.toBigInteger();
-
-        /* As Petascope used "center-based pixel" then we follow this formula:
-        Geo coordinate (x, y) is mapped to cell coordinate: (I,J) as long as I - 0.5 <= x < I + 0.5 and J - 0.5 <= y < J + 0.5
-        i.e: geo coordinate is: 45 ( 1.5 in grid coordinate, then I - 0.5 <= 1.5 < I + 0.5, result is: I = 2).
-        geo coordinate is: 1 ( 0.03 in grid coordinate: then I - 0.5 <= 0.03 < I + 0.5, result is: I = 0) */
-        BigInteger nearestCellCoordinate = integerPart;
-        
-        // for positive coordinate (>= 0.5 -> cell + 1)        
-        if (fractionalPart.compareTo(BigDecimal.ZERO) >= 0 && fractionalPart.compareTo(new BigDecimal("0.5")) >= 0) {
-            nearestCellCoordinate = integerPart.add(BigInteger.ONE);
-        } else if (fractionalPart.compareTo(BigDecimal.ZERO) < 0 && fractionalPart.compareTo(new BigDecimal("-0.5")) <= 0) {
-            // for negative coordinate (<= -0.5 -> cell -1)
-            nearestCellCoordinate = integerPart.subtract(BigInteger.ONE);
-        }
-
-        // after considering to shift the current cell coordinate to nearest cell coordinate (if the fractionpart >= 0.5)
-        // we calculate the geo coordinate of this cell coordinate (cell coordinate * pixel size)
-        BigDecimal nearestGeoCoordinate = geoMinCoordinate.add(new BigDecimal(nearestCellCoordinate).multiply(scalarResolution));
-
-        // if the calcluated geo coordinate is out of axis bound, then it is set to max or min of this bound
-        // NOTE: if subset is used in scale/extend, then the output coordinate can be larger than the bounding box
-        if (!isScaleExtend) {
-            if (nearestGeoCoordinate.compareTo(geoMaxCoordinate) > 0) {
-                nearestGeoCoordinate = geoMaxCoordinate;
-            } else if (nearestGeoCoordinate.compareTo(geoMinCoordinate) < 0) {
-                nearestGeoCoordinate = geoMinCoordinate;
-            }
-        }
-
-        return nearestGeoCoordinate;
     }
 
     /**

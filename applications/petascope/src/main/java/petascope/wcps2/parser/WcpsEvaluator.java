@@ -624,7 +624,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         WcpsResult wcpsResult = null;
         try {
-            wcpsResult = TrimExpressionHandler.handle(coverageExpr, dimensionIntList,
+            wcpsResult = SubsetExpressionHandler.handle(coverageExpr, dimensionIntList,
                          axisIteratorAliasRegistry,
                          wcpsCoverageMetadataService, rasqlTranslationService, subsetParsingService);
         } catch (PetascopeException ex) {
@@ -644,7 +644,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         WcpsResult wcpsResult = null;
         try {
-            wcpsResult = TrimExpressionHandler.handle(coverageExpr, dimensionIntList,
+            wcpsResult = SubsetExpressionHandler.handle(coverageExpr, dimensionIntList,
                          axisIteratorAliasRegistry,
                          wcpsCoverageMetadataService, rasqlTranslationService, subsetParsingService);
         } catch (PetascopeException ex) {
@@ -665,9 +665,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         WcpsResult wcpsResult = null;
         try {
-            wcpsResult = SliceExpressionHandler.handle(coverageExpr, dimensionIntervalList,
-                         axisIteratorAliasRegistry,
-                         wcpsCoverageMetadataService, rasqlTranslationService, subsetParsingService);
+            wcpsResult = SubsetExpressionHandler.handle(coverageExpr, dimensionIntervalList,
+                                                        axisIteratorAliasRegistry,
+                                                        wcpsCoverageMetadataService, rasqlTranslationService, subsetParsingService);
         } catch (PetascopeException ex) {
             // It cannot fetch the coefficient for the regular axis
             throw new IrregularAxisFetchingFailedException(ex);
@@ -686,9 +686,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult wcpsResult = null;
 
         try {
-            wcpsResult = SliceExpressionHandler.handle(coverageExpr, dimensionIntervalList,
-                         axisIteratorAliasRegistry,
-                         wcpsCoverageMetadataService, rasqlTranslationService, subsetParsingService);
+            wcpsResult = SubsetExpressionHandler.handle(coverageExpr, dimensionIntervalList,
+                                                        axisIteratorAliasRegistry,
+                                                        wcpsCoverageMetadataService, rasqlTranslationService, subsetParsingService);
         } catch (PetascopeException ex) {
             // It cannot fetch the coefficient for the regular axis
             throw new IrregularAxisFetchingFailedException(ex);

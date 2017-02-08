@@ -36,7 +36,7 @@ import petascope.wcps2.result.parameters.DimensionIntervalList;
 import petascope.wcps2.result.parameters.SubsetDimension;
 
 /**
- * Translation class for trim expression in wcps.
+ * Translation class for slice/trim expression in wcps.
  * <code>
  * $c[x(0:10),y(0:100)]
  * </code>
@@ -48,7 +48,7 @@ import petascope.wcps2.result.parameters.SubsetDimension;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
-public class TrimExpressionHandler {
+public class SubsetExpressionHandler {
 
     public static WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList,
                                     AxisIteratorAliasRegistry axisIteratorAliasRegistry,
@@ -109,6 +109,11 @@ public class TrimExpressionHandler {
         // NOTE: DimensionIntervalList with Trim expression can contain slicing as well (e.g: c[t(0), Lat(0:20), Long(30)])
         // then the slicing axis also need to be removed from coverage metadata.
         wcpsCoverageMetadataService.stripSlicingAxes(metadata, axisIteratorSubsetDimensions);
+        
+        // Fit to sample space for grid and geo bound of X-Y axes
+        // NOTE: only fit if the axis is mentioned in the subsets (e.g: if coverage has 2 axes: Lat, Long), then c[Lat(20.5)] will only fit for Lat axis
+        // don't change anything on Long axis
+        subsetParsingService.fitToSampleSpaceRegularAxes(numericSubsets, metadata);
 
         WcpsResult result = new WcpsResult(metadata, rasqlSubset);
         return result;
