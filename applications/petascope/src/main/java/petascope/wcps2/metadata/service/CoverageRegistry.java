@@ -37,6 +37,7 @@ import petascope.wcps2.error.managed.processing.CoverageMetadataException;
 import petascope.wcps2.error.managed.processing.CoverageMetadataNotInitializedException;
 import petascope.wcps2.error.managed.processing.WCPSProcessingError;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps2.metadata.model.Axis;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -163,41 +164,34 @@ public class CoverageRegistry {
         String coefficients = "";
         List<BigDecimal> coeffs;
         if (!axisName.isEmpty()) {
-
-            try {
-                coeffs = metadataSource.getAllCoefficients(
-                        m.getCoverageName(),
-                        m.getAxisByName(axisName).getRasdamanOrder() // i-order of axis
-                );
-            } catch (PetascopeException ex) {
-                log.error("Error while fetching the coefficients of " + m.getAxisByName(axisName).getLabel());
-                throw new WCSException(ex.getExceptionCode(), ex);
-            }
-
-
-            // Adjust the coefficients to the origin of the requested grid (originally they are relative to the native origin)
-            List<String> subsetLabels = CrsUtil.getAxesLabels(CrsUtil.CrsUri.decomposeUri(m.getCrsUri()));
-
-            String timeCrs = null;
-            // Check given axis is a time axis, then the coeffecients will need to be calculated into timestamp instead of numbers
-            if (m.getAxisByName(axisName).getAxisType().equals(AxisTypes.T_AXIS)) {
-                timeCrs = CrsUtil.GRID_CRS;
-            }
-
-            if (timeCrs == null) {
-                // if axis is not time axis then just get the raw coefficients
-                coefficients = ListUtil.printList(coeffs, " ");
-            } else {
-                // in case of time axis, subset low is a start number from the origin of CRS definition
-                // e.g: AnsiDate origin: 1600-12-31T00:00:00Z, start date (irr_cube_2) is: 2018-01-01T00:00:00Z, then subsetlow is: 148654 days.
-                // the coefficients for the time axis (irr_cube_2) is 0 (2008-01-01T00:00:00Z), 2 (2008-01-03T00:00:00Z), 4 (2008-01-05T00:00:00Z), 7 (2008-01-08T00:00:00Z)
-                coeffs = Vectors.add(coeffs, m.getAxisByName(axisName).getGeoBounds().getLowerLimit());
-                CrsDefinition crsDefinition = CrsUtil.getGmlDefinition(timeCrs);
-                // if axis is time axis then calculate the coefficients with the origin and uom to timestamp
-                coefficients = ListUtil.printList(toISODate(coeffs, crsDefinition), " ");
-            }
-
+            
+        try {
+            coeffs = metadataSource.getAllCoefficients(
+                    m.getCoverageName(),
+                    m.getAxisByName(axisName).getRasdamanOrder() // i-order of axis
+            );
+        } catch (PetascopeException ex) {
+            log.error("Error while fetching the coefficients of " + m.getAxisByName(axisName).getLabel());
+            throw new WCSException(ex.getExceptionCode(), ex);
         }
+
+        // Check given axis is a time axis, then the coeffecients will need to be calculated into timestamp instead of numbers
+        Axis axis = m.getAxisByName(axisName);
+        if (axis.getAxisType().equals(AxisTypes.T_AXIS)) {
+            String timeCrs = axis.getCrsUri();
+
+            // in case of time axis, subset low is a start number from the origin of CRS definition
+            // e.g: AnsiDate origin: 1600-12-31T00:00:00Z, start date (irr_cube_2) is: 2018-01-01T00:00:00Z, then subsetlow is: 148654 days.
+            // the coefficients for the time axis (irr_cube_2) is 0 (2008-01-01T00:00:00Z), 2 (2008-01-03T00:00:00Z), 4 (2008-01-05T00:00:00Z), 7 (2008-01-08T00:00:00Z)
+            coeffs = Vectors.add(coeffs, m.getAxisByName(axisName).getGeoBounds().getLowerLimit());
+            CrsDefinition crsDefinition = CrsUtil.getGmlDefinition(timeCrs);
+            // if axis is time axis then calculate the coefficients with the origin and uom to timestamp
+            coefficients = ListUtil.printList(toISODate(coeffs, crsDefinition), " ");
+        } else
+            // if axis is not time axis then just get the raw coefficients
+            coefficients = ListUtil.printList(coeffs, " ");
+        }
+        
         return coefficients;
     }
 

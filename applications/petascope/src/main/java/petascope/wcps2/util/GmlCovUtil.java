@@ -173,8 +173,9 @@ public class GmlCovUtil {
                     XMLSymbols.ATT_AXIS_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
                     XMLSymbols.ATT_UOM_LABELS + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri), " ") + "\" ";
             //omit srsDimension if dimensionality == 0
-            if (CrsUtil.getTotalDimensionality(ccrsUri) != 0) {
-                srsGroup += XMLSymbols.ATT_SRS_DIMENSION + "=\"" + CrsUtil.getTotalDimensionality(ccrsUri) + "\"";
+            int numberOfDimensions = CrsUtil.getTotalDimensionality(ccrsUri);
+            if (numberOfDimensions != 0) {
+                srsGroup += XMLSymbols.ATT_SRS_DIMENSION + "=\"" + numberOfDimensions + "\"";
             }
         } catch (PetascopeException pEx) {
             log.error("Error while retrieving CRS metadata for GML: " + pEx.getMessage());
@@ -302,8 +303,15 @@ public class GmlCovUtil {
 
     //TODO:returns the list of axis labels in the crs order
     private static List<String> getAxisLabels(WcpsCoverageMetadata m) throws SecoreException, PetascopeException {
-        String crs = m.getCrsUri();
-        return CrsUtil.getAxesLabels(crs);
+        List<String> axisLabels = new ArrayList<String>();
+        // NOTE: crs of coverage is compound CRS which need to break to component crs which is valid to parse axis labels
+        // e.g: coverage 3D: http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/EPSG/0/32633&2=http://localhost:8080/def/crs/OGC/0/AnsiDate
+        String compoundCrs = m.getCrsUri();
+        List<String> crsUris = CrsUtil.CrsUri.decomposeUri(compoundCrs);
+        for (String crsUri:crsUris) {
+            axisLabels.addAll(CrsUtil.getAxesLabels(crsUri));
+        }
+        return axisLabels;
 
     }
 
