@@ -66,10 +66,12 @@ public class SerializationEncodingService {
             jsonExtraParams.setDimensions(new Dimensions(netCDFExtraParams.getDimensions()));
             jsonExtraParams.setVariables(new Variables(netCDFExtraParams.getVariables()));
         }
-        jsonExtraParams.setNoData(new NoData(metadata.getNodata()));
-        // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
-        if(metadata.getMetadata() != null) {
-            jsonExtraParams.setMetadata(extraMetadataService.convertExtraMetadata(metadata.getMetadata()));
+        if (metadata != null) {
+            jsonExtraParams.setNoData(new NoData(metadata.getNodata()));        
+            // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
+            if (metadata.getMetadata() != null) {
+                jsonExtraParams.setMetadata(extraMetadataService.convertExtraMetadata(metadata.getMetadata()));
+            }
         }
         jsonExtraParams.setGeoReference(geoReference);
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output

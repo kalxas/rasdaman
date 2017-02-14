@@ -164,7 +164,7 @@ public class EncodeCoverageHandler {
         }
 
         // this is the most imporatant parameter which need to be built from coverage metadata
-        GeoReferenceService geoReferenceService = new GeoReferenceService();
+        GeoReferenceService geoReferenceService = new GeoReferenceService();        
         GeoReference geoReference = geoReferenceService.buildGeoReference(metadata);
 
         String jsonOutput = "";

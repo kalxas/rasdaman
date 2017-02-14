@@ -1,0 +1,1 @@
+for c in ( test_irr_cube_2 ) return encode( condense + over $t ansi(0:1) using c[ansi($t)], "png")

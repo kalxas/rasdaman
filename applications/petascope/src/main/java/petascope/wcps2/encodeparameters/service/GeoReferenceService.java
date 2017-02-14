@@ -42,41 +42,44 @@ public class GeoReferenceService {
      */
     public GeoReference buildGeoReference(WcpsCoverageMetadata metadata) {
         GeoReference geoReference = null;
-        BoundingBoxExtractorService bboxExtractorService = new BoundingBoxExtractorService();
-        String xyCrs = metadata.getXYCrs();
-        String outputCrs = metadata.getOutputCrsUri();
+        // coverage metadata is null in case such as return condense +
+        if (metadata != null) {
+            BoundingBoxExtractorService bboxExtractorService = new BoundingBoxExtractorService();
+            String xyCrs = metadata.getXYCrs();
+            String outputCrs = metadata.getOutputCrsUri();
 
-        // transformation from xyCrs to outputCrs
-        if (outputCrs != null) {
-            // NOTE: not allow to transform from CRS:1 or IndexND to a geo-referenced CRS
-            if (CrsUtil.isGridCrs(xyCrs) || CrsUtil.isIndexCrs(xyCrs)) {
-                throw new NotGeoReferencedCoverageInCrsTransformException();
-            }
-            // transform bbox
-            BoundingBox bbox = bboxExtractorService.extract(metadata);
-            try {
-                bbox = CrsProjectionUtil.transformBoundingBox(xyCrs, outputCrs, bbox);
-            } catch (WCSException ex) {
-                String bboxStr = "xmin=" + bbox.getXMin() + "," + "ymin=" + bbox.getYMin() + ","
-                               + "xmax=" + bbox.getXMax() + "," + "ymax=" + bbox.getYMax();
-                throw new InvalidBoundingBoxInCrsTransformException(bboxStr, outputCrs, ex.getMessage());
-            }
-
-            // Only get the EPSG code, e.g: http://opengis.net/def/crs/epsg/0/4326 -> epsg:4326
-            String crs = CrsUtil.CrsUri.getAuthorityCode(outputCrs);
-            geoReference = new GeoReference(bbox, crs);
-        } else {
-            // No transformation between xyCrs and outputCrs
-            if (!CrsUtil.isGridCrs(xyCrs) && !CrsUtil.isIndexCrs(xyCrs)) {
-                // xyCrs is geo-referenced CRS
+            // transformation from xyCrs to outputCrs
+            if (outputCrs != null) {
+                // NOTE: not allow to transform from CRS:1 or IndexND to a geo-referenced CRS
+                if (CrsUtil.isGridCrs(xyCrs) || CrsUtil.isIndexCrs(xyCrs)) {
+                    throw new NotGeoReferencedCoverageInCrsTransformException();
+                }
+                // transform bbox
                 BoundingBox bbox = bboxExtractorService.extract(metadata);
+                try {
+                    bbox = CrsProjectionUtil.transformBoundingBox(xyCrs, outputCrs, bbox);
+                } catch (WCSException ex) {
+                    String bboxStr = "xmin=" + bbox.getXMin() + "," + "ymin=" + bbox.getYMin() + ","
+                                   + "xmax=" + bbox.getXMax() + "," + "ymax=" + bbox.getYMax();
+                    throw new InvalidBoundingBoxInCrsTransformException(bboxStr, outputCrs, ex.getMessage());
+                }
 
                 // Only get the EPSG code, e.g: http://opengis.net/def/crs/epsg/0/4326 -> epsg:4326
-                String crs = CrsUtil.CrsUri.getAuthorityCode(xyCrs);
+                String crs = CrsUtil.CrsUri.getAuthorityCode(outputCrs);
                 geoReference = new GeoReference(bbox, crs);
+            } else {
+                // No transformation between xyCrs and outputCrs
+                if (!CrsUtil.isGridCrs(xyCrs) && !CrsUtil.isIndexCrs(xyCrs)) {
+                    // xyCrs is geo-referenced CRS
+                    BoundingBox bbox = bboxExtractorService.extract(metadata);
+
+                    // Only get the EPSG code, e.g: http://opengis.net/def/crs/epsg/0/4326 -> epsg:4326
+                    String crs = CrsUtil.CrsUri.getAuthorityCode(xyCrs);
+                    geoReference = new GeoReference(bbox, crs);
+                }
             }
         }
-
+        
         return geoReference;
     }
 }

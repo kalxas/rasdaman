@@ -126,8 +126,22 @@ for test_case in $TEST_DATA/*; do
     else
         log "Test import coverage..."
         # This test will succeed, check coverage exists later
-        python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" "$recipe_file" >> "$LOG_FILE"
+        wcst_import.sh "$recipe_file" >> "$LOG_FILE"
     fi
+
+    if [[ $? != 0 ]]; then
+        sleep 2
+        # In Debian, it can failed without reason in some test cases, try it again can make it work
+        log "First import does not succeed, try one more time..."
+        wcst_import.sh "$recipe_file" >> "$LOG_FILE"
+    fi
+    
+    if [[ $? != 0 ]]; then
+        sleep 2
+        # In Debian, it can failed without reason in some test cases, try it again can make it work
+        log "Second import does not succeed, try one more time..."
+        wcst_import.sh "$recipe_file" >> "$LOG_FILE"
+    fi    
 
     # 2 Check if wcst_import runs successfully
     if [[ $? != 0 ]]; then
