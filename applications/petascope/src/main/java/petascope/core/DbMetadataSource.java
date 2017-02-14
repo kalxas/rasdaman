@@ -356,6 +356,13 @@ public class DbMetadataSource implements IMetadataSource {
 
     /* Cache */
     private Map<String, CoverageMetadata> cache = new HashMap<String, CoverageMetadata>();
+    
+    // this is done for backwards compatibility: before version 9.3.2 the origin and coefficients
+    // resulting from time conversion were computed as BigDecimals, but written as doubles, which
+    // adds random decimals to match the precision of double
+    // this means that in order to support databases created pre 9.3.2, a small epsilon (10^-10)around the
+    // computed coefficient must be considered
+    BigDecimal EPSILON = new BigDecimal("0.0000000001");
 
     /*------------------------------------------------*/
 
@@ -2260,6 +2267,41 @@ public class DbMetadataSource implements IMetadataSource {
             closeStatement(s);
         }
     }
+    
+    
+    /**
+     * Returns the coefficients between lo and hi, with a small epsilon number (lo - epsilon, hi + epsilon) to support old imported coverage
+     * which was imported when using BigDecimal(double) containing random numbers instead of BigDecimal(double.toString()).
+     *
+     * @param covName
+     * @param iOrder
+     * @param lo
+     * @param hi
+     * @param epsilon
+     * @return 
+     */
+    private String getCoefficientsQuery(String covName,int iOrder, BigDecimal lo, BigDecimal hi, BigDecimal epsilon){
+        String sqlQuery =
+                " SELECT MIN(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," +
+                        " MAX(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," +
+                        " COUNT(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")" +
+                        " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
+                        + TABLE_GRID_AXIS           + ", "
+                        + TABLE_COVERAGE            +
+                        " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
+                        " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
+                        " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
+                        " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
+                        " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
+                        " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
+                        " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
+                        + " >= " + lo.subtract(epsilon).toString() +
+                        " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
+                        // + " < "  + stringHi  // [a,b) subsets
+                        + " <= " + hi.add(epsilon).toString()  // [a,b] subsets
+                ;
+        return sqlQuery;
+    }
 
 
     /**
@@ -2275,34 +2317,17 @@ public class DbMetadataSource implements IMetadataSource {
      * @throws PetascopeException
      */
     public long[] getIndexesFromIrregularRectilinearAxis(String covName, int iOrder, BigDecimal lo, BigDecimal hi, long min, long max)
-    throws PetascopeException {
-
+                                                        throws PetascopeException {
+ 
         long[] outCells = new long[2];
         Statement s = null;
-
+ 
         try {
             ensureConnection();
             s = conn.createStatement();
+            // try with an epsilon
 
-            String sqlQuery =
-                " SELECT MIN(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," +
-                " MAX(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," +
-                " COUNT(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")" +
-                " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
-                + TABLE_GRID_AXIS           + ", "
-                + TABLE_COVERAGE            +
-                " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
-                " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
-                " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
-                " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
-                " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
-                " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
-                " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
-                + " >= " + lo +
-                " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
-                // + " < "  + stringHi  // [a,b) subsets
-                + " <= " + hi  // [a,b] subsets
-                ;
+            String sqlQuery = getCoefficientsQuery(covName, iOrder, lo, hi, EPSILON);
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
             if (r.next()) {
@@ -2321,12 +2346,12 @@ public class DbMetadataSource implements IMetadataSource {
                                              "Could not connect to metadata source."
                                             );
             }
-
+ 
             s.close();
             s = null;
-
+ 
             return outCells;
-
+ 
         } catch (SQLException sqle) {
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                                          "Metadata database error", sqle);
@@ -2334,7 +2359,7 @@ public class DbMetadataSource implements IMetadataSource {
             closeStatement(s);
         }
     }
-
+    
     /**
      * Retrieves the coefficients of an irregular axis of a certain interval
      * @param covName  Coverage human-readable name
@@ -2368,10 +2393,10 @@ public class DbMetadataSource implements IMetadataSource {
                   + " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER + "=" + iOrder
                   + " AND " + TABLE_COVERAGE + "." + COVERAGE_NAME + "='" + covName + "'"
                   + " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
-                  + " >= " + lo
+                  + " >= "  + lo.subtract(EPSILON).toString()
                   + " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
                   // + " < "  + stringHi  // [a,b) subsets
-                  + " <= " + hi + // [a,b] subsets
+                  + " <= "  + hi.add(EPSILON).toString() + // [a,b] subsets
                   " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT;
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
