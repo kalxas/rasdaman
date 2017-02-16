@@ -33,8 +33,12 @@ rasdaman GmbH.
  *
 */
 
+
+
 #ifndef _R_CONVERTOR_
 #define _R_CONVERTOR_
+
+#include "config.h"
 
 #include "conversion/convtypes.hh"
 #include "conversion/formatparams.hh"
@@ -43,7 +47,6 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 #include "raslib/mddtypes.hh"
 #include "raslib/storageman.hh"
-
 #include <string>
 
 
@@ -63,9 +66,6 @@ typedef struct r_Conv_Desc
     const r_Type* srcType;        // basetypes of src data
     r_Type* destType;             // basetypes of dest data
 } r_Conv_Desc;
-
-
-
 //@ManMemo: Module {\bf conversion}
 
 

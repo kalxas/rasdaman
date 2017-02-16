@@ -35,7 +35,8 @@ set(CONVERSION_HEADER_FILES
         mimetypes.hh
         netcdf.hh
         tiff.hh
-        tmpfile.hh)
+        tmpfile.hh
+        transpose.hh)
 
 set_source_files_properties(csv.cc PROPERTIES COMPILE_FLAGS " -Wno-sign-conversion ")
 
@@ -53,7 +54,8 @@ add_library(conversion ${CONVERSION_HEADER_FILES}
         mimetypes.cc
         netcdf.cc
         tiff.cc
-        tmpfile.cc 
+        tmpfile.cc
+        transpose.cc 
         json.cc)
 
 set(OPTIONAL_LIBRARIES "")

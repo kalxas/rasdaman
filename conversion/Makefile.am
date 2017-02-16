@@ -35,7 +35,7 @@ AM_CXXFLAGS=@AM_CXXFLAGS@ @GDAL_CXXFLAGS@
 libconversion_a_SOURCES= convertor.cc convfactory.cc tiff.cc hdf.cc \
                          csv.cc json.cc dem.cc memfs.cc netcdf.cc \
                          convertor.hh convfactory.hh tiff.hh hdf.hh \
-                         csv.hh json.hh dem.hh memfs.hh \
+                         csv.hh json.hh dem.hh memfs.hh transpose.hh \
                          netcdf.hh grib.cc grib.hh mimetypes.cc mimetypes.hh \
-                         tmpfile.cc tmpfile.hh gdal.hh gdal.cc \
+                         tmpfile.cc tmpfile.hh gdal.hh gdal.cc transpose.cc \
                          convutil.cc convutil.hh formatparams.cc formatparams.hh

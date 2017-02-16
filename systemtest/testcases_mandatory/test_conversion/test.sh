@@ -83,6 +83,31 @@ check_user_type_file TestFLSet csv_types.dl
 drop_colls test_tmp
 
 # ------------------------------------------------------------------------------
+#function running the transposition test with the updated formats interface
+#
+function run_transpose_test()
+{
+    log ----- png and png GreySet transpose conversion ------
+
+    create_coll test_tmp GreySet
+    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' -f $TESTDATA_PATH/mr_1.png
+    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' --out file --outfile mr_1
+
+    logn "comparing images: "
+    if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
+      $GDALINFO $mr_1.png | grep 'Checksum' > mr_1.png.result
+      diff $ORACLE_PATH/mr_1.png.checksum mr_1.png.result > /dev/null
+    else
+      cmp $TESTDATA_PATH/mr_1.png mr_1.png > /dev/null
+    fi
+
+    check_result 0 $? "input and output match"
+
+    drop_colls test_tmp
+    rm -f mr_1*
+}
+
+# ------------------------------------------------------------------------------
 # function runnning the test
 #
 function run_test()
@@ -274,6 +299,9 @@ $RASQL -q 'select inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
 check_result 0 $? "user-defined base type inv_tiff test."
 
 drop_colls test_tmp
+
+################## png() and transpose #######################
+run_transpose_test
 
 ################## png() and inv_png() #######################
 run_test png inv_png png png GreySet

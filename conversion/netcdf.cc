@@ -44,6 +44,8 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 #include "formatparamkeys.hh"
 
+#include "conversion/transpose.hh"
+
 #include <easylogging++.h>
 
 #include <sstream>
@@ -92,7 +94,13 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options) throw (r_Error)
     {
         parseEncodeOptions(string{options});
     }
-
+    
+    //if selected, transpose rasdaman data prior to writing to netcdf.
+    if(formatParams.isTranspose())
+    {
+        transposeLastTwo((char*) desc.src, desc.srcInterv, (r_Type*) desc.srcType);
+    }
+    
     r_TmpFile tmpFileObj;
     string tmpFilePath = tmpFileObj.getFileName();
     NcFile dataFile(tmpFilePath.c_str(), NcFile::Replace);
@@ -107,13 +115,13 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options) throw (r_Error)
     dataSize = 1;
     dimSizes.reserve(numDims);
     unique_ptr<const NcDim*[]> dims(new const NcDim*[numDims]);
-    for (unsigned int i = 0; i < static_cast<unsigned int>(numDims); i++)
+    for (unsigned int i = 0; i < static_cast<unsigned int>(numDims); i++) 
     {
-        dimSizes[i] = desc.srcInterv[i].get_extent();
-        dataSize *= (size_t) dimSizes[i];
-        dims[i] = dataFile.add_dim(getDimensionName(i).c_str(), dimSizes[i]);
+            dimSizes[i] = desc.srcInterv[i].get_extent();
+            dataSize *= (size_t) dimSizes[i];
+            dims[i] = dataFile.add_dim(getDimensionName(i).c_str(), dimSizes[i]);
     }
-
+        
     // Write rasdaman data to netcdf variables in the dataFile
     if (desc.baseType == ctype_struct || desc.baseType == ctype_rgb)
     {
@@ -199,6 +207,12 @@ r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
     else
     {
         readMultipleVars(dataFile);
+    }
+    
+    //if selected, transposes rasdaman data after converting from netcdf
+    if(formatParams.isTranspose())
+    {
+        transposeLastTwo(desc.dest, desc.destInterv, desc.destType);
     }
 
     return desc;
@@ -332,7 +346,18 @@ void r_Conv_NETCDF::validateJsonEncodeOptions() throw (r_Error)
     Json::Value dims = encodeOptions[FormatParamKeys::Encode::NetCDF::DIMENSIONS];
     for (int i = 0; i < dims.size(); i++)
     {
-        dimNames.push_back(dims[i].asString());
+        //create the vector of dimension metadata names and swap the last two in case transposition is selected as an option
+        if(formatParams.isTranspose() && i == dims.size()-2)
+        {
+            dimNames.push_back(dims[dims.size()-1].asString());
+        }
+        else if(formatParams.isTranspose() && i == dims.size()-1)
+        {
+            dimNames.push_back(dims[dims.size()-2].asString());
+        }
+        else{
+            dimNames.push_back(dims[i].asString());
+        }
     }
     Json::Value vars = encodeOptions[FormatParamKeys::General::VARIABLES];
     for (auto const& varName : vars.getMemberNames())

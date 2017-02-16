@@ -1,0 +1,75 @@
+netcdf octet_3d_transpose {
+dimensions:
+	time = 2 ;
+	lon = 5 ;
+	lat = 10 ;
+variables:
+	byte tos(time, lon, lat) ;
+		tos:valid_min = -128b ;
+		tos:valid_max = 127b ;
+		tos:_FillValue = 1.e+20 ;
+		tos:cell_methods = "time: mean (interval: 30 minutes)" ;
+		tos:history = " At 16:37:23 on 01/11/2005: CMOR altered the data in the following ways: added 2.73150E+02 to yield output units; Cyclical dimension was output starting at a different lon;" ;
+		tos:long_name = "Sea Surface Temperature" ;
+		tos:missing_value = 1.e+20 ;
+		tos:original_name = "sosstsst" ;
+		tos:original_units = "degC" ;
+		tos:standard_name = "sea_surface_temperature" ;
+		tos:units = "K" ;
+	double lat(lat) ;
+		lat:axis = "Y" ;
+		lat:bounds = "lat_bnds" ;
+		lat:long_name = "latitude" ;
+		lat:original_units = "degrees_north" ;
+		lat:standard_name = "latitude" ;
+		lat:units = "degrees_north" ;
+	double lon(lon) ;
+		lon:axis = "X" ;
+		lon:bounds = "lon_bnds" ;
+		lon:long_name = "longitude" ;
+		lon:original_units = "degrees_east" ;
+		lon:standard_name = "longitude" ;
+		lon:units = "degrees_east" ;
+	double time(time) ;
+		time:axis = "T" ;
+		time:bounds = "time_bnds" ;
+		time:calendar = "360_day" ;
+		time:long_name = "time" ;
+		time:original_units = "seconds since 2001-1-1" ;
+		time:standard_name = "time" ;
+		time:units = "days since 2001-1-1" ;
+
+// global attributes:
+		:Conventions = "CF-1.0" ;
+		:cmor_version = 0.96 ;
+		:comment = "Test drive" ;
+		:contact = "Sebastien Denvil, sebastien.denvil@ipsl.jussieu.fr" ;
+		:experiment_id = "SRES A2 experiment" ;
+		:history = "YYYY/MM/JJ: data generated; YYYY/MM/JJ+1 data transformed At 16:37:23 on 01/11/2005, CMOR rewrote data to comply with CF standards and IPCC Fourth Assessment requirements" ;
+		:institution = "IPSL (Institut Pierre Simon Laplace, Paris, France)" ;
+		:project_id = "IPCC Fourth Assessment" ;
+		:realization = 1 ;
+		:references = "Dufresne et al, Journal of Climate, 2015, vol XX, p 136" ;
+		:source = "IPSL-CM4_v1 (2003) : atmosphere : LMDZ (IPSL-CM4_IPCC, 96x71x19), ocean ORCA2 (ipsl_cm4_v1_8, 2x2L31); sea ice LIM (ipsl_cm4_v" ;
+		:table_id = "Table O1 (13 November 2004)" ;
+		:title = "IPSL model output prepared for IPCC Fourth Assessment SRES A2 experiment" ;
+data:
+
+ tos =
+  -1, 6, 11, 16, 21, 26, 31, 36, 41, 46,
+  2, 7, 12, 17, 22, 27, 32, 37, 42, 47,
+  3, 8, 13, 18, 23, 28, 33, 38, 43, 48,
+  4, 9, 14, 19, 24, 29, 34, 39, 44, 49,
+  5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
+  51, 56, 61, 66, 71, 76, 81, 86, 91, 96,
+  52, 57, 62, 67, 72, 77, 82, 87, 92, 97,
+  53, 58, 63, 68, 73, 78, 83, 88, 93, 98,
+  54, 59, 64, 69, 74, 79, 84, 89, 94, 99,
+  55, 60, 65, 70, 75, 80, 85, 90, 95, 100 ;
+
+ lat = -79.5, -78.5, -77.5, -76.5, -75.5, -74.5, -73.5, -72.5, -71.5, -70.5 ;
+
+ lon = 1, 3, 5, 7, 9 ;
+
+ time = 15, 45 ;
+}

@@ -35,6 +35,7 @@ rasdaman GmbH.
 #include "raslib/structuretype.hh"
 #include "raslib/odmgtypes.hh"
 #include "mymalloc/mymalloc.h"
+#include "conversion/transpose.hh"
 
 #include <easylogging++.h>
 #include <limits>
@@ -107,6 +108,13 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
     {
         initEncodeParams(string{options});
     }
+    
+    //if selected, transpose rasdaman data prior to creating the gdal file.
+    if(formatParams.isTranspose())
+    {
+        char* srcChanger = (char*) desc.src;
+        transposeLastTwo(srcChanger, desc.srcInterv, (r_Type*) desc.srcType);
+    }
 
     GDALAllRegister();
     GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(format.c_str());
@@ -166,7 +174,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
     desc.destInterv = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0),
                       static_cast<r_Range>(fileSize) - 1);
     desc.destType = r_Type::get_any_type("char");
-
+    
     return desc;
 }
 
@@ -343,6 +351,12 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
     {
         GDALClose(poDataset);
         throw err;
+    }
+    
+    //if selected, transposes rasdaman data after converting from gdal
+    if(formatParams.isTranspose())
+    {
+        transposeLastTwo(desc.dest, desc.destInterv, desc.destType);
     }
 
     return desc;

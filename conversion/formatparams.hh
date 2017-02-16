@@ -182,7 +182,7 @@ private:
     std::pair<int, int> transposePair;
 
     /// true if transposing dimensions is requested
-    bool transpose;
+    bool transpose{false};
 
     /// coordinate reference system
     std::string crs;
