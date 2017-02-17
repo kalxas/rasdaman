@@ -1,0 +1,6 @@
+for c in (test_eobstest) return encode( scale((
+   condense min
+   over     $ts t( imageCrsDomain(c[t:"CRS:1"(0:5)], t) )
+   using    c[Long(-29.8:-15.4), Lat(35.6:65.0), t($ts)]
+ ) / 6, { Long:"CRS:1"(0:255), Lat:"CRS:1"(0:255) })
+, "png")

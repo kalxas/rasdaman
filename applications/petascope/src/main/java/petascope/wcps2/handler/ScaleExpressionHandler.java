@@ -61,7 +61,7 @@ public class ScaleExpressionHandler {
             originalAxes.add(axis.clone());
         }
 
-        metadata = wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
+        wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getAxes(), subsets);

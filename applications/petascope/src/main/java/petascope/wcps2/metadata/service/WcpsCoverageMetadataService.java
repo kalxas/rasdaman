@@ -39,6 +39,7 @@ import petascope.wcps.metadata.DomainElement;
 import petascope.wcps2.error.managed.processing.InvalidSubsettingException;
 import petascope.wcps2.error.managed.processing.OutOfBoundsSubsettingException;
 import petascope.wcps2.error.managed.processing.RangeFieldNotFound;
+import petascope.wcps2.result.parameters.SliceSubsetDimension;
 import petascope.wcps2.result.parameters.SubsetDimension;
 
 /**
@@ -77,7 +78,8 @@ public class WcpsCoverageMetadataService {
         //default both are null
         return null;
     }
-
+    
+    
     /**
      * Applies subsetting to a metadata object. e.g: eobstest(t(0:5),
      * Lat(-40.5:75), Long(25.5:75)) and with the trimming expression
@@ -87,11 +89,9 @@ public class WcpsCoverageMetadataService {
      * @param checkBoundary should the subset needed to check the boundary (e.g: with scale(..., {subset})) will not need to check.
      * @param metadata
      * @param subsetList
-     * @param updateAxisCrs in some cases like scale(c, {Lat:"CRS:1", Long:"CRS:1"}) it should not consider CRS:1 is CRS of axis Lat, Long of coverage.
-     * @return
      * @throws petascope.exceptions.PetascopeException
      */
-    public WcpsCoverageMetadata applySubsets(Boolean checkBoundary, WcpsCoverageMetadata metadata, List<Subset> subsetList) throws PetascopeException {
+    public void applySubsets(Boolean checkBoundary, WcpsCoverageMetadata metadata, List<Subset> subsetList) throws PetascopeException {
         checkSubsetConsistency(metadata, subsetList);
         // iterate through the subsets
         // Normally, the query will need to calculate the grid bound from geo bound
@@ -123,39 +123,38 @@ public class WcpsCoverageMetadataService {
                 }
             }
         }
-
-        return metadata;
     }
-
+    
+    
     /**
-     * Strip slicing axes from coverage's metadata then they are not included
-     * when re (slice/trim) the coverage. e.g: slice ( slice(c[t(0:5),
-     * Lat(25:70), Long(30:60)], {t(0)}), {Lat(30)} ) the output is 1D in the
-     * Long axis
-     *
+     * Apply the subset type (slicing/trimming) on the processing coverage's metadata
+     * e.g: Lat(0), Long(20:25) then coverage which has 2 original axes (Lat(0:50), Long(20:60))
+     * will has new metadata slicing: Lat(0), trimming: Long(20:25)
      * @param metadata
-     * @param axisIteratorSubsetDimensions
+     * @param subsetDimensions 
      */
-    public void stripSlicingAxes(WcpsCoverageMetadata metadata, List<SubsetDimension> axisIteratorSubsetDimensions) {
-        List<Integer> removedIndexs = new ArrayList<Integer>();
+    public void stripSlicingAxes(WcpsCoverageMetadata metadata, List<SubsetDimension> subsetDimensions) {
+        List<Integer> removeIndexes = new ArrayList<Integer>();
         int i = 0;
-        // If coverage has slicing axis (e.g: c[Lat(0), Long(20), t(0:5)]) then will strip Lat, Long from coverage c.
-        for (Axis axis : metadata.getAxes()) {
-            // If coverage has slicing axis from axisIterator (e.g: c[Lat($px), Long($py), t(0:5)])
-            // As $px and $py cannot be used to applySubset to translate to number, then it need to be removed by using the List<SubsetDimension>.
-            if (axis.getGeoBounds() instanceof NumericSlicing || this.containsAxisName(axis, axisIteratorSubsetDimensions)) {
-                removedIndexs.add(i);
+        for (Axis axis : metadata.getAxes()) {            
+            for (SubsetDimension subset:subsetDimensions) {
+                if (axis.getLabel().equals(subset.getAxisName())) {
+                   // Subset is slice then the axis should be removed from coverage's metadata
+                   if (subset instanceof SliceSubsetDimension) {
+                       removeIndexes.add(i);
+                   }
+                }
             }
             i++;
         }
-
+        
         // Remove the slicing axes from the coverage
-        int removedIndex = 0;
-        for (int index : removedIndexs) {
-            metadata.getAxes().remove(index - removedIndex);
-            removedIndex++;
+        int removeIndex = 0;
+        for (int index : removeIndexes) {
+            metadata.getAxes().remove(index - removeIndex);
+            removeIndex++;
         }
-    }
+    }       
 
     /**
      * Get the index of field name in the coverage

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="InvalidAxisLabel">
+        <ows:ExceptionText>Invalid axis name 'LAT'.</ows:ExceptionText>
+    </ows:Exception>
+
+</ows:ExceptionReport>
+

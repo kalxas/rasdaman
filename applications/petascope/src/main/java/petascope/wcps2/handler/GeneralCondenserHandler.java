@@ -90,18 +90,17 @@ public class GeneralCondenserHandler {
 
         String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getAxes(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
         String template = TEMPLATE.replace("$operation", operation)
-                          .replace("$iter", rasqlAliasName)
-                          .replace("$intervals", rasqlDomain)
-                          .replace("$using", using.getRasql());
+                                  .replace("$iter", rasqlAliasName)
+                                  .replace("$intervals", rasqlDomain)
+                                  .replace("$using", using.getRasql());
 
         if (whereClause != null) {
             template = template.replace("$whereClause", whereClause.getRasql());
         } else {
             template = template.replace("$whereClause", "");
         }
-
-        //condenser returns no coverage for now
-        return new WcpsResult(null, template);
+        
+        return new WcpsResult(using.getMetadata(), template);
     }
 
     private final static String CONDENSER_TEMP_NAME = "CONDENSE_TEMP";

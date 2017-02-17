@@ -42,6 +42,7 @@ import petascope.util.JsonUtil;
 import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.service.GeoReferenceService;
 import petascope.wcps2.encodeparameters.service.SerializationEncodingService;
+import petascope.wcps2.error.managed.processing.EncodingCoverageMetadataIsNullException;
 import petascope.wcps2.error.managed.processing.InvalidNumberOfNodataValuesException;
 import petascope.wcps2.error.managed.processing.MetadataSerializationException;
 import petascope.wcps2.metadata.model.RangeField;
@@ -161,6 +162,12 @@ public class EncodeCoverageHandler {
                                                                   coverageRegistry.getMetadataSource(), covToCFTranslationService);
             netCDFExtraParams = netCDFParametersFactory.getParameters(coverageExpression.getMetadata());
 
+        }
+        
+        // encode number or string which returns metadata is null in non csv/json will be invalid request
+        // e.g: encode(2, "png")
+        if (metadata == null) {
+            throw new EncodingCoverageMetadataIsNullException();
         }
 
         // this is the most imporatant parameter which need to be built from coverage metadata
