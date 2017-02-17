@@ -40,7 +40,7 @@ module rasdaman {
             $scope.$watch("StateInformation.ServerCapabilities", (newValue:wcs.Capabilities, oldValue:wcs.Capabilities)=> {
                 if (newValue) {
                     $scope.DescribeCoverageTab.Disabled = false;
-                    $scope.GetCoverageTab.Disabled = true;
+                    $scope.GetCoverageTab.Disabled = false;
                     $scope.ProcessCoverageTab.Disabled = !MainController.isProcessCoverageEnabled(newValue);
                     $scope.InsertCoverageTab.Disabled = !MainController.isCoverageTransactionEnabled(newValue);
                     $scope.DeleteCoverageTab.Disabled = !MainController.isCoverageTransactionEnabled(newValue);
@@ -53,13 +53,14 @@ module rasdaman {
                 $scope.GetCoverageTab.Disabled = newValue ? false : true;
             });
 
+
             $scope.Tabs = [$scope.GetCapabilitiesTab, $scope.DescribeCoverageTab, $scope.GetCoverageTab, $scope.ProcessCoverageTab, $scope.DeleteCoverageTab, $scope.InsertCoverageTab];
 
             $scope.StateInformation = {
                 ServerCapabilities: null,
-                SelectedCoverageDescriptions: null
+                SelectedCoverageDescriptions: null,
+                SelectedGetCoverageId: null
             };
-
 
             $scope.describeCoverage = function (coverageId:string) {
                 $scope.DescribeCoverageTab.Active = true;
@@ -134,7 +135,8 @@ module rasdaman {
     export interface MainControllerScope extends angular.IScope {
         StateInformation:{
             ServerCapabilities:wcs.Capabilities,
-            SelectedCoverageDescriptions:wcs.CoverageDescriptions
+            SelectedCoverageDescriptions:wcs.CoverageDescriptions,
+            SelectedGetCoverageId:string
         };
 
         Tabs:TabState[];

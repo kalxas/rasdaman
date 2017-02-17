@@ -1,5 +1,27 @@
 <div class="row top15 row-centered">
     <div class="col-sm-11 col-centered">
+        <div class="row row-centered">
+            <div class="col-sm-12 input-group input-group-lg">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-globe"></span>
+                            </span>
+                <input type="text"
+                       autocomplete
+                       ng-model="SelectedCoverageId"
+                       class="form-control"
+                       source="AvailableCoverageIds"
+                       placeholder="Input coverage ID or part of it"/>
+                           <span class="input-group-btn">
+                <button class="btn btn-default"
+                        type="button"
+                        ng-disabled="!isCoverageIdValid()"
+                        ng-click="getCoverageClickEvent()">
+                    Get Coverage
+                </button>
+            </span>
+            </div>
+        </div>
+        
         <div class="row">
             <div class="col-sm-12 col-centered">
                 <p>You have selected the coverage with ID:

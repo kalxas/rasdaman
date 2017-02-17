@@ -28,22 +28,68 @@
 
 module rasdaman {
     export class GetCoverageController {
+        //Makes the controller work as a tab.
+        private static selectedCoverageId:string;
+
         public static $inject = [
             "$scope",
+            "$rootScope",
             "$log",
             "rasdaman.WCSService",
             "Notification"
         ];
 
         public constructor($scope:GetCoverageControllerScope,
+                           $rootScope:angular.IRootScopeService,
                            $log:angular.ILogService,
                            wcsService:rasdaman.WCSService,
                            alertService:any) {
+            $scope.SelectedCoverageId = null;
+
+            $scope.isCoverageIdValid = ()=> {
+                if ($scope.StateInformation.ServerCapabilities) {
+                    var coverageSummaries = $scope.StateInformation.ServerCapabilities.Contents.CoverageSummary;
+                    for (var i = 0; i < coverageSummaries.length; ++i) {
+                        if (coverageSummaries[i].CoverageId == $scope.SelectedCoverageId) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            };
+
+            /*
+            $rootScope.$on("SelectedCoverageId", (event:angular.IAngularEvent, coverageId:string)=> {
+                $scope.SelectedCoverageId = coverageId;
+                $scope.describeCoverage();
+            }); */
+
+            $scope.$watch("StateInformation.ServerCapabilities", (capabilities:wcs.Capabilities)=> {
+                if (capabilities) {
+                    $scope.AvailableCoverageIds = [];
+                    capabilities.Contents.CoverageSummary.forEach((coverageSummary:wcs.CoverageSummary)=> {
+                        $scope.AvailableCoverageIds.push(coverageSummary.CoverageId);
+                    });
+                }
+            });
+
+            $scope.getCoverageClickEvent = function () {
+                if (!$scope.isCoverageIdValid()) {
+                    alertService.error("The entered coverage ID is invalid.");
+                    return;
+                }
+                // trigger the DescribeCoverage in DescribeCoverageController to fill the data to both DescribeCoverage and GetCoverage tabs
+                $scope.StateInformation.SelectedGetCoverageId = $scope.SelectedCoverageId;
+                $scope.$digest();
+            }
+
 
             $scope.$watch("StateInformation.SelectedCoverageDescriptions",
                 (coverageDescriptions:wcs.CoverageDescriptions)=> {
                     if (coverageDescriptions && coverageDescriptions.CoverageDescription) {
                         $scope.CoverageDescription = $scope.StateInformation.SelectedCoverageDescriptions.CoverageDescription[0];
+                        $scope.SelectedCoverageId = $scope.CoverageDescription.CoverageId;
 
                         $scope.GetCoverageTabStates = {
                             IsCoreOpen: true,
@@ -139,6 +185,10 @@ module rasdaman {
 
 
     interface GetCoverageControllerScope extends MainControllerScope {
+        AvailableCoverageIds:string[];
+        SelectedCoverageId:string;
+        isCoverageIdValid():void;
+
         CoverageDescription:wcs.CoverageDescription;
 
         Core:GetCoverageCoreModel;
@@ -148,10 +198,13 @@ module rasdaman {
 
         GetCoverageTabStates:GetCoverageTabStates;
 
+        getCoverageClickEvent():void;
+
         getCoverage():void;
     }
 
     interface GetCoverageCoreModel {
+
         Slices:wcs.DimensionSlice[];
         Trims:wcs.DimensionTrim[];
         IsTrimSelected:boolean[];

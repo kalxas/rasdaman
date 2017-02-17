@@ -77,6 +77,16 @@ module rasdaman {
                 }
             });
 
+
+            // when GetCoverage triggers get coverage id, this function will be called to fill data for both DescribeCoverage and GetCoverage tabs
+            $scope.$watch("StateInformation.SelectedGetCoverageId", (getCoverageId:string)=> {
+                if (getCoverageId) {
+                    $scope.SelectedCoverageId = getCoverageId;
+                    $scope.describeCoverage();
+                }
+            });
+
+
             $scope.describeCoverage = function () {
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
