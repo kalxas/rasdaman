@@ -89,7 +89,7 @@ then
 	exit 1
 fi
 
-$RASQL -q 'select version()' > /dev/null 2>&1
+$RASQL $RASQL_ARGS -q 'select version()' > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "$PROG: Error: failed executing a query with rasql, please install and start rasdaman first."
     exit 1

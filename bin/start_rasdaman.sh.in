@@ -49,17 +49,22 @@
 #    - need to run with an effective user id that allows to write into log/
 #    - need to have a valid rasdaman installation
 #
+
+# get script name
+MYNAME=`basename $0`
+
 # RETURN CODES
 RC_OK=0        # everything went fine
 RC_ERROR=1    # something went wrong
 
 # --- CONSTANTS -----------------------------------------------------
 
+RASMGR_PORT=7001
+# rasadmin/rasadmin
+DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+
 # sleep time to let rasmgr establish before spawning servers
 WAIT_FOR_CHILDREN=5
-
-# get script name
-MYNAME=`basename $0`
 
 # error messages:
 ERROR_PARAM="ERS001 Error: illegal parameter: $1"
@@ -110,7 +115,7 @@ rm -f nohup.out
 
 # start rasdaman server manager as demon; log will go into nohup.out
 # the manager is started in quiet mode
-nohup @bindir@rasmgr & 2>&1
+nohup @bindir@rasmgr --port $RASMGR_PORT & 2>&1
 
 # --- start servers: -------------------------------------------------
 
@@ -142,7 +147,7 @@ fi
 
 # determine rascontrol login
 if [ -z "$RASLOGIN" ]; then
-    export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+    export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 fi
 
 # ...then spawn server workers
@@ -150,11 +155,11 @@ if [ "$SERVERS" ]; then
     for SRV in $SERVERS
     do
         echo -n $MYNAME: starting server $SRV...
-        @bindir@rascontrol -e -q -x up srv $SRV || exit $!
+        @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
     done
 else
     echo $MYNAME: starting all rasdaman servers...
-    @bindir@rascontrol -e -q -x up srv -all || exit $!
+    @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv -all || exit $!
 fi
 
 

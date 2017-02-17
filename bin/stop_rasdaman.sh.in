@@ -48,6 +48,10 @@
 
 MYNAME=`basename $0`
 
+RASMGR_PORT=7001
+# rasadmin/rasadmin
+DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+
 # sleep time to let rasmgr shutdown servers first
 WAIT_FOR_CHILDREN=5
 
@@ -70,17 +74,17 @@ echo $MYNAME: terminating all rasdaman servers
 # --- stop rasdaman servers: ---------------------------------------
 
 if [ -z "$RASLOGIN" ]; then
-    export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+    export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 fi
 
 # determine a list of all currently running servers
-ALLSERVERS=`@bindir@rascontrol -e -q -x list srv | awk '{ if (\$6 == "UP") print \$2;}'`
+ALLSERVERS=`@bindir@rascontrol --port $RASMGR_PORT -e -q -x list srv | awk '{ if (\$6 == "UP") print \$2;}'`
 
 # ...and shut down all of them, forcefully (!); any open transaction will be lost
 for SRV in $ALLSERVERS
 do
     echo -n $MYNAME: terminating server $SRV...
-    @bindir@rascontrol -e -q -x down srv $SRV -kill
+    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv $SRV -kill
     echo "done."
 done
 
@@ -91,7 +95,7 @@ sleep $WAIT_FOR_CHILDREN
 
 # finally shut down the server manager
 echo -n "terminating rasdaman server manager(s)..."
-@bindir@rascontrol -e -q -x down host -all
+@bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all
 echo "done."
 
 
