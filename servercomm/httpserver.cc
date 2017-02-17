@@ -776,6 +776,10 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
 
                         // change the endianness of the entire tile for identical domains for src and dest
                         r_Endian::swap_array(useType, resultDom, resultDom, resultTile->getContents(), tempT);
+                        // deallocate old contents
+                        char* oldCells = resultTile->getContents();
+                        free(oldCells);
+                        oldCells = NULL;
                         resultTile->setContents(tempT);
 
                         delete useType;
@@ -1538,6 +1542,10 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
 
                             // change the endianness of the entire tile for identical domains for src and dest
                             r_Endian::swap_array(useType, resultDom, resultDom, resultTile->getContents(), tempT);
+                            // deallocate old contents
+                            char* oldCells = resultTile->getContents();
+                            free(oldCells);
+                            oldCells = NULL;
                             resultTile->setContents(tempT);
 
                             delete useType;

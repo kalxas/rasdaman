@@ -1286,6 +1286,11 @@ ServerComm::insertTileSplitted(unsigned long  callingClientId,
 
                     // change the endianness of the entire tile for identical domains for src and dest
                     r_Endian::swap_array(useType, domain, domain, tile->getContents(), tempT);
+                    // deallocate old contents
+                    char* oldCells = tile->getContents();
+                    free(oldCells);
+                    oldCells = NULL;
+                    // set new contents
                     tile->setContents(tempT);
 
                     delete useType;
