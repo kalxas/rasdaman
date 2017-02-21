@@ -1,7 +1,7 @@
 Package: RRasdaman
 Type: Package
 Title: R Interface to the Rasdaman Array DBMS
-Version: 9.2.1
+Version: <version number is set from Makefile>
 Date: 2015-03-05
 Author: Veranika Liaukevich
 Maintainer: Veranika Liaukevich <v.liaukevich@jacobs-university.de>

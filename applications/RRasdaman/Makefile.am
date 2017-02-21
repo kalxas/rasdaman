@@ -32,10 +32,10 @@ RM = rm -rf
 JAVAC = javac
 JAR_TOOL = jar
 SPACE = $(eval) $(eval)
+SED = sed
 
 BUILD=build
 PACKAGE_NAME=RRasdaman
-VERSION=0.9
 PACKAGE=$(PACKAGE_NAME)_$(VERSION).tar.gz
 
 .PHONY: build help check install all clean
@@ -48,11 +48,10 @@ all: build
 R_SRCS=$(wildcard R/*.R)
 RD_SRCS=$(wildcard man/*.Rd)
 TEST_SRCS=$(wildcard tests/*.R) $(wildcard tests/testthat/*.R)
-MISC_SRCS=DESCRIPTION NAMESPACE java/README
+MISC_SRCS=DESCRIPTION NAMESPACE src/main/java/README
 
-build: $(BUILD)/$(PACKAGE)
-
-$(BUILD)/$(PACKAGE): $(RRASDAMAN_JAR) $(R_SRCS) $(RD_SRCS) $(TEST_SRCS) $(MISC_SRCS)
+build:	$(RRASDAMAN_JAR) $(R_SRCS) $(RD_SRCS) $(TEST_SRCS) $(MISC_SRCS)
+	$(SED) -i -e "s/Version:.*/Version: $(VERSION)/g" DESCRIPTION
 	$(MKDIR) $(BUILD)
 	$(CD) $(BUILD) && $(RBIN) CMD build ..
 
@@ -71,8 +70,8 @@ JAVA_OUT=$(BUILD)/out
 RRASDAMAN_JAR=$(RJAVADIR)/RRasdaman.jar
 source_dirs_list=. rrasdaman
 
-DEP_JARS =../../java/dist/rasj.jar
-LIBS=$(RJAVADIR)/rasj.jar
+DEP_JARS =../../java/target/rasj-jar-with-dependencies.jar
+LIBS=$(RJAVADIR)rasj-jar-with-dependencies.jar
 
 SRCDIRS=$(addprefix $(JAVA_SRC)/, $(source_dirs_list))
 BARE_CLASSES=$(patsubst $(JAVA_SRC)/%.java,%.class,$(wildcard $(addsuffix /*.java, $(SRCDIRS))))
@@ -90,7 +89,7 @@ $(RRASDAMAN_JAR): $(LIBS) $(CLASSES)
 
 $(LIBS):
 	$(MKDIR) $(RJAVADIR)
-	test -f ../../java/dist/rasj.jar || make -C ../../java
+	test -f $(DEP_JARS) || make -C ../../java
 	$(CP) $(DEP_JARS)  $(RJAVADIR)
 
 ######## Misc ########
