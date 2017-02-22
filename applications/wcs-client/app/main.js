@@ -619,7 +619,7 @@ var rasdaman;
                 if (typeof this.jsonObject._text == "undefined") {
                     throw new common.LogicException("The object does not have a string value.");
                 }
-                return this.jsonObject._text;
+                return this.jsonObject._text.toString();
             };
             XMLSerializedObject.prototype.getChildAsSerializedObject = function (elementName) {
                 var resolvedElementName = this.resolveElementName(elementName);

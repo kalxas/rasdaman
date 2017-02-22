@@ -139,7 +139,9 @@ module rasdaman.common {
                 throw new LogicException("The object does not have a string value.");
             }
 
-            return this.jsonObject._text;
+            // with 1D coverage, lowerBound will has 1 value such as "20" and it is consider a number instead
+            // and cannot use split() later in model classes
+            return this.jsonObject._text.toString();
         }
 
         public getChildAsSerializedObject(elementName:string):rasdaman.common.ISerializedObject {
