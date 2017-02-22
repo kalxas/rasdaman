@@ -1,0 +1,1 @@
+select encode(marray px in [0:1,334:343] values condense max over i in [0:9] using (char) ((c[px[0],px[1]])), "csv") from test_rgb2 as c

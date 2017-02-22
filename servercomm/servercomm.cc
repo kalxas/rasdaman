@@ -1124,7 +1124,7 @@ ServerComm::ClientTblElt::releaseTransferStructures()
                 //          LERROR << "Internal error in releaseTransferStructures: references left, object ";
                 //        }
 
-                // Just tupel elements which are not further referenced are deleted.
+                // Just tuple elements which are not further referenced are deleted.
                 if (*dataIter)
                 {
                     (*dataIter)->deleteRef();

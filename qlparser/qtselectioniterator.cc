@@ -193,25 +193,25 @@ QtSelectionIterator::next()
 
     if (inputs)
     {
-        bool        nextTupelValid = false;
-        QtDataList* actualTupel = NULL;
+        bool        nextTupleValid = false;
+        QtDataList* actualTuple = NULL;
 
-        while (!nextTupelValid)
+        while (!nextTupleValid)
         {
-            actualTupel = (*inputs)[0]->next();
+            actualTuple = (*inputs)[0]->next();
 
-            if (actualTupel)
+            if (actualTuple)
             {
                 if (conditionTree)
                 {
                     // evaluate the condition tree
-                    QtData* resultData = conditionTree->evaluate(actualTupel);
+                    QtData* resultData = conditionTree->evaluate(actualTuple);
 
                     if (resultData)
                     {
                         if (resultData->getDataType() == QT_BOOL)
                         {
-                            nextTupelValid = static_cast<bool>((static_cast<QtAtomicData*>(resultData))->getUnsignedValue());
+                            nextTupleValid = static_cast<bool>((static_cast<QtAtomicData*>(resultData))->getUnsignedValue());
                         }
                         else
                         {
@@ -222,26 +222,26 @@ QtSelectionIterator::next()
 
                         resultData->deleteRef();
 
-                        if (!nextTupelValid)
+                        if (!nextTupleValid)
                         {
                             // delete transient objects
                             vector<QtData*>::iterator iter;
 
-                            for (iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+                            for (iter = actualTuple->begin(); iter != actualTuple->end(); iter++)
                                 if (*iter)
                                 {
                                     (*iter)->deleteRef();
                                 }
 
                             // delete vector itself
-                            delete actualTupel;
-                            actualTupel = NULL;
+                            delete actualTuple;
+                            actualTuple = NULL;
                         };
                     }
                 }
                 else
                 {
-                    nextTupelValid = true;
+                    nextTupleValid = true;
                 }
             }
             else
@@ -250,7 +250,7 @@ QtSelectionIterator::next()
             }
         }
 
-        returnValue = actualTupel;
+        returnValue = actualTuple;
     }
 
     pauseTimer();

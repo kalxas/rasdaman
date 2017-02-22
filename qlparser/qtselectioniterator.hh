@@ -45,8 +45,8 @@ rasdaman GmbH.
 
 An condition expression specified through a reference to
 an instance of the QtOperation sub-hierarchy, is evaluated for the actual input
-The boolean result determines if the tupel is passed to the output stream or not.
-So the method {\tt next()} reads tupels from its inputs until one can be
+The boolean result determines if the tuple is passed to the output stream or not.
+So the method {\tt next()} reads tuples from its inputs until one can be
 passed to its caller. The class represents the WHERE condition in the query
 
 */

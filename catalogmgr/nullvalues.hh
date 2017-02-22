@@ -50,7 +50,7 @@ public:
 
     NullValuesHandler(r_Minterval* nullValues);
 
-    ~NullValuesHandler();
+    virtual ~NullValuesHandler();
 
     /// clone data from obj to this object
     void cloneNullValues(const NullValuesHandler* obj);

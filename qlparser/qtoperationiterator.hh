@@ -45,8 +45,8 @@ rasdaman GmbH.
 /*@Doc:
 
 A QtOperationIterator takes the next element of its input streams an creates
-a tupel out of them. The operation specified through an operation tree of type
-QtOperation is evaluated for this tupel and the result is passed to its output
+a tuple out of them. The operation specified through an operation tree of type
+QtOperation is evaluated for this tuple and the result is passed to its output
 stream. The class stands for the SELECT part of a query. The operations in the
 SELECT clause are expressed through an operation tree which is attached to this
 class.

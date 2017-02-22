@@ -154,7 +154,7 @@ public:
 
     virtual OId::OIdPrimitive getIdentifier() const;
 
-    static r_Bytes BytesPerTupel;
+    static r_Bytes BytesPerTuple;
     /*@Doc:
         tuning parameter.  used to calculate the optimal size of
         an index.  this is also the number of bytes written to the

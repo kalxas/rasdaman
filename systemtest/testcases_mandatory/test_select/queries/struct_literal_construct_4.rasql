@@ -1,1 +1,1 @@
-select condense min over i in [100:110] using {c[100,i[0]], i[0]} from test_grey as c
+select condense min over i in [100:110] using {c[100,i[0]], c[i[0],100]} from test_grey as c

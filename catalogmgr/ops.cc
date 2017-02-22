@@ -1586,7 +1586,7 @@ OpNOTCULong::operator()(char* res, const char* op)
     }
     else
     {
-        longRes = longOp ^ ULONG_MAX;
+        longRes = longOp ^ std::numeric_limits<r_ULong>::max();
     }
 
     resType->makeFromCULong(res + resOff, &longRes);
@@ -1630,7 +1630,7 @@ OpNOTCLong::operator()(char* res, const char* op)
     }
     else
     {
-        longRes = longOp ^ LONG_MAX;
+        longRes = longOp ^ std::numeric_limits<r_Long>::max();
     }
 
     resType->makeFromCLong(res + resOff, &longRes);
@@ -1702,9 +1702,22 @@ BinaryOp::BinaryOp(const BaseType* newResType, const BaseType* newOp1Type,
 void
 BinaryOp::getCondenseInit(__attribute__((unused)) char* init)
 {
+    //Since this is the default, is it necessary to instantiate the type here? keep in mind for later.
     init = 0;
     // perhaps should also raise exception as operation cannot be used
     // as condenser.
+}
+
+void
+OpBinaryStruct::getCondenseInit(char* init)
+{
+    //takes the necessary initial value for each operation and adds it to the array of initial values.
+    //each function has its own initial values (depending on the fxn), and the default is 0.
+    for (unsigned int i = 0; i < numElems; i++)
+    {        
+        //int x = myStructType->getOffset(i);
+        elemOps[i]->getCondenseInit(init + myStructType->getOffset(i));
+    }
 }
 
 OpPLUSCULong::OpPLUSCULong(const BaseType* newResType, const BaseType* newOp1Type,
@@ -1880,7 +1893,7 @@ OpMIN_BINARYCULong::operator()(char* res, const char* op1, const char* op2)
 void
 OpMIN_BINARYCULong::getCondenseInit(char* init)
 {
-    r_ULong dummy = UINT_MAX;
+    r_ULong dummy = std::numeric_limits<r_ULong>::max();
 
     resType->makeFromCULong(init, &dummy);
 }
@@ -1910,7 +1923,7 @@ OpMIN_BINARYULong::operator()(char* res, const char* op1, const char* op2)
 void
 OpMIN_BINARYULong::getCondenseInit(char* init)
 {
-    r_ULong dummy = UINT_MAX;
+    r_ULong dummy = std::numeric_limits<r_ULong>::max();
 
     resType->makeFromCULong(init, &dummy);
 }
@@ -2356,7 +2369,7 @@ OpMAX_BINARYCLong::operator()(char* res, const char* op1, const char* op2)
 void
 OpMAX_BINARYCLong::getCondenseInit(char* init)
 {
-    r_Long dummy = INT_MIN;
+    r_Long dummy = std::numeric_limits<r_Long>::lowest();
 
     resType->makeFromCLong(init, &dummy);
 }
@@ -2393,7 +2406,7 @@ OpMIN_BINARYCLong::operator()(char* res, const char* op1, const char* op2)
 void
 OpMIN_BINARYCLong::getCondenseInit(char* init)
 {
-    r_Long dummy = INT_MAX;
+    r_Long dummy = std::numeric_limits<r_Long>::max();
 
     resType->makeFromCLong(init, &dummy);
 }
@@ -2745,7 +2758,7 @@ OpMAX_BINARYCDouble::operator()(char* res, const char* op1, const char* op2)
 void
 OpMAX_BINARYCDouble::getCondenseInit(char* init)
 {
-    double dummy = -INFINITY;
+    double dummy = std::numeric_limits<double>::lowest();
 
     resType->makeFromCDouble(init, &dummy);
 }
@@ -2782,7 +2795,7 @@ OpMIN_BINARYCDouble::operator()(char* res, const char* op1, const char* op2)
 void
 OpMIN_BINARYCDouble::getCondenseInit(char* init)
 {
-    double dummy = INFINITY;
+    double dummy = std::numeric_limits<double>::max();
 
     resType->makeFromCDouble(init, &dummy);
 }
@@ -3580,7 +3593,7 @@ OpMAXCLong::OpMAXCLong(const BaseType* newResType, const BaseType* newOpType,
                        unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
 {
-    r_Long myVal = INT_MIN;
+    r_Long myVal = std::numeric_limits<r_Long>::lowest();
     // initialising with neutral value
     accu = new char[resType->getSize()];
     resType->makeFromCLong(accu, &myVal);
@@ -3631,7 +3644,7 @@ OpMAXCDouble::OpMAXCDouble(const BaseType* newResType, const BaseType* newOpType
                            unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
 {
-    double myVal = (-1.0) * DBL_MAX;
+    double myVal = std::numeric_limits<double>::lowest();
     // initialising with neutral value
     accu = new char[resType->getSize()];
     // make sure accu contains a legal float
@@ -3684,7 +3697,7 @@ OpMINCULong::OpMINCULong(const BaseType* newResType, const BaseType* newOpType,
                          unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
 {
-    r_ULong myVal = UINT_MAX;
+    r_ULong myVal = std::numeric_limits<r_ULong>::max();
     // initialising with neutral value
     accu = new char[resType->getSize()];
     resType->makeFromCULong(accu, &myVal);
@@ -3735,7 +3748,7 @@ OpMINCLong::OpMINCLong(const BaseType* newResType, const BaseType* newOpType,
                        unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
 {
-    r_Long myVal = INT_MAX;
+    r_Long myVal = (int) std::numeric_limits<r_Long>::max();
     // initialising with neutral value
     accu = new char[resType->getSize()];
     resType->makeFromCLong(accu, &myVal);
@@ -3786,7 +3799,7 @@ OpMINCDouble::OpMINCDouble(const BaseType* newResType, const BaseType* newOpType
                            unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
 {
-    double myVal = DBL_MAX;
+    double myVal = std::numeric_limits<double>::max();
     // initialising with neutral value
     accu = new char[resType->getSize()];
     // make sure accu contains a legal float
@@ -4151,7 +4164,13 @@ OpBinaryStruct::OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
         equalOps[i] = NULL;
         lessOps[i] = NULL;
         assignmentOps[i] = NULL;
-        elemOps[i] = NULL;
+        
+        elemOps[i] = Ops::getBinaryOp(op, myStructType->getElemType(i),
+                                          myStructType->getElemType(i),
+                                          myStructType->getElemType(i),
+                                          newResOff + myStructType->getOffset(i),
+                                          newOp1Off + myStructType->getOffset(i),
+                                          newOp2Off + myStructType->getOffset(i));    
         if (op == Ops::OP_MIN_BINARY || op == Ops::OP_MAX_BINARY)
         {
             lessOps[i] = Ops::getBinaryOp(Ops::OP_LESS, boolType,
@@ -4170,15 +4189,6 @@ OpBinaryStruct::OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
                                                myStructType->getElemType(i),
                                                newResOff + myStructType->getOffset(i),
                                                newOp1Off + myStructType->getOffset(i));
-        }
-        else
-        {
-            elemOps[i] = Ops::getBinaryOp(op, myStructType->getElemType(i),
-                                          myStructType->getElemType(i),
-                                          myStructType->getElemType(i),
-                                          newResOff + myStructType->getOffset(i),
-                                          newOp1Off + myStructType->getOffset(i),
-                                          newOp2Off + myStructType->getOffset(i));
         }
     }
 }
@@ -4651,7 +4661,7 @@ OpMIN_BINARYChar::operator()(char* res, const char* op1, const char* op2)
 void
 OpMIN_BINARYChar::getCondenseInit(char* init)
 {
-    *init = 0;
+    *init = std::numeric_limits<r_Char>::max();
 }
 
 //--------------------------------------------
@@ -5056,13 +5066,14 @@ MarrayOp::operator()(char* result, const r_Point& p)
 
 GenCondenseOp::GenCondenseOp(const BaseType* newResType, unsigned int newResOff,
                              BinaryOp* newAccuOp, char* newInitVal)
-    : resType(newResType), resOff(newResOff), accuOp(newAccuOp), myInitVal(0)
+    : resType(newResType), resOff(newResOff), accuOp(newAccuOp), myInitVal(false), initVal(NULL)
 {
-    if (newInitVal == 0)
+    if (newInitVal == NULL || resType->getType() == STRUCT)
     {
         initVal = new char[resType->getSize()];
-        myInitVal = 1;
+        memset(initVal, '\0', resType->getSize());
         accuOp->getCondenseInit(initVal);
+        myInitVal = true;
     }
     else
     {
@@ -5084,6 +5095,7 @@ GenCondenseOp::operator()(const r_Point& p)
 {
     r_ULong sum = 0;
     char buf[8];
+    memset(buf, '\0', 8);
 
     for (unsigned int i = 0; i < p.dimension(); i++)
     {
@@ -5290,8 +5302,8 @@ void OpMAX_BINARYComplex::operator()(char* res, const char* op1, const char* op2
 
 void OpMAX_BINARYComplex::getCondenseInit(char* init)
 {
-    double dummyRe = -DBL_MAX;
-    double dummyIm = -DBL_MAX;
+    double dummyRe = std::numeric_limits<double>::lowest();
+    double dummyIm = std::numeric_limits<double>::lowest();
     resType->makeFromCDouble(init + resReOff, &dummyRe);
     resType->makeFromCDouble(init + resImOff, &dummyIm);
 }
@@ -5380,8 +5392,8 @@ void OpMIN_BINARYComplex::operator()(char* res, const char* op1, const char* op2
 
 void OpMIN_BINARYComplex::getCondenseInit(char* init)
 {
-    double dummyRe = DBL_MAX;
-    double dummyIm = DBL_MAX;
+    double dummyRe = std::numeric_limits<double>::max();
+    double dummyIm = std::numeric_limits<double>::max();
     resType->makeFromCDouble(init + resReOff, &dummyRe);
     resType->makeFromCDouble(init + resImOff, &dummyIm);
 }
@@ -5708,7 +5720,7 @@ OpMAXComplex::OpMAXComplex(const BaseType* newResType, const BaseType* newOpType
     unsigned int reOff = type->getReOffset();
     unsigned int imOff = type->getImOffset();
 
-    double myVal = -DBL_MAX;
+    double myVal = std::numeric_limits<double>::lowest();
     accu = new char[resType->getSize()];
     memset(accu, 0, resType->getSize());
     resType->makeFromCDouble(accu + reOff, &myVal);
@@ -5747,7 +5759,7 @@ OpMINComplex::OpMINComplex(const BaseType* newResType, const BaseType* newOpType
     unsigned int reOff = type->getReOffset();
     unsigned int imOff = type->getImOffset();
 
-    double myVal = DBL_MAX;
+    double myVal = std::numeric_limits<double>::max();
     accu = new char[resType->getSize()];
     memset(accu, 0, resType->getSize());
     resType->makeFromCDouble(accu + reOff, &myVal);

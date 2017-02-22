@@ -43,7 +43,7 @@ rasdaman GmbH.
 
 /*@Doc:
 
-An object of this class takes its inputs and computes a tupel for every element
+An object of this class takes its inputs and computes a tuple for every element
 of the cross product. The result is passed to the output stream.
 The class represents the FROM part of a query.
 
@@ -75,8 +75,8 @@ public:
     QtDataList* next();
     /**
       According to the producer/consumer protocol of ONC streams, the {/tt next()}
-      method has to store the last tupel of the crossproduct and update it with a new
-      element everytime it is invoked. Than it makes a copy of the tupel and pass
+      method has to store the last tuple of the crossproduct and update it with a new
+      element everytime it is invoked. Than it makes a copy of the tuple and pass
       it to the caller.
     */
     ///
@@ -107,8 +107,8 @@ private:
     {\tt open()}.
     */
 
-    /// pointer to a copy of the last passed tupel
-    QtDataList* actualTupel;
+    /// pointer to a copy of the last passed tuple
+    QtDataList* actualTuple;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

@@ -120,7 +120,7 @@ QtUpdate::evaluate()
     // Test, if all necessary operands are available.
     if (updateTarget && input)
     {
-        QtNode::QtDataList* nextTupel;
+        QtNode::QtDataList* nextTuple;
 
         // open input stream
         try
@@ -135,26 +135,26 @@ QtUpdate::evaluate()
 
         try
         {
-            while ((nextTupel = input->next()))
+            while ((nextTuple = input->next()))
             {
                 if (updateSource)
                 {
-                    evaluateTupel(nextTupel);
+                    evaluateTuple(nextTuple);
                 }
                 else if (nullValues)
                 {
-                    evaluateNullValues(nextTupel);
+                    evaluateNullValues(nextTuple);
                 }
 
-                // delete tupel vector received by next()
-                for (vector<QtData*>::iterator dataIter = nextTupel->begin();
-                        dataIter != nextTupel->end(); dataIter++)
+                // delete tuple vector received by next()
+                for (vector<QtData*>::iterator dataIter = nextTuple->begin();
+                        dataIter != nextTuple->end(); dataIter++)
                     if (*dataIter)
                     {
                         (*dataIter)->deleteRef();
                     }
-                delete nextTupel;
-                nextTupel = NULL;
+                delete nextTuple;
+                nextTuple = NULL;
             } // while
         }
         catch (...)
@@ -176,10 +176,10 @@ QtUpdate::evaluate()
 }
 
 void
-QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
+QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTuple)
 {
     // mdd object to be updated
-    QtData* target = updateTarget->evaluate(nextTupel);
+    QtData* target = updateTarget->evaluate(nextTuple);
 
     // check update target
     if (target)
@@ -187,13 +187,13 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
         if (target->getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtUpdate::evaluate() - update target must be an iterator variable.";
-            throwError(nextTupel, target, NULL, 950);
+            throwError(nextTuple, target, NULL, 950);
         }
     }
     else
     {
         LFATAL << "Error: QtUpdate::evaluate() - target is not provided.";
-        throwError(nextTupel, target, NULL, 950);
+        throwError(nextTuple, target, NULL, 950);
     }
 
     QtMDD* targetMDD = static_cast<QtMDD*>(target);
@@ -203,7 +203,7 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
     if (!targetObj->isPersistent())
     {
         LFATAL << "Error: QtUpdate::evaluate() - result of target expression must be an assignable value (l-value).";
-        throwError(nextTupel, target, NULL, 954);
+        throwError(nextTuple, target, NULL, 954);
     }
 
     QtData* operand = nullValues->evaluate(NULL);
@@ -211,7 +211,7 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
     if (operand->getDataType() != QT_MINTERVAL)
     {
         LFATAL << "Error: QtUpdate::evaluate() - Can not evaluate domain expression to an minterval.";
-        throwError(nextTupel, target, NULL, 401);
+        throwError(nextTuple, target, NULL, 401);
     }
 
     r_Minterval domain = (static_cast<QtMintervalData*>(operand))->getMintervalData();
@@ -219,16 +219,16 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
 }
 
 void
-QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
+QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
 {
     // mdd object to be updated
-    QtData* target = updateTarget->evaluate(nextTupel);
+    QtData* target = updateTarget->evaluate(nextTuple);
 
     // mdd object that is the source of the update
-    QtData* source = updateSource->evaluate(nextTupel);
+    QtData* source = updateSource->evaluate(nextTuple);
 
     // check if target and source are valid
-    if (!checkOperands(nextTupel, target, source))
+    if (!checkOperands(nextTuple, target, source))
     {
         return;
     }
@@ -243,7 +243,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     if (!targetObj->isPersistent())
     {
         LFATAL << "Error: QtUpdate::evaluate() - result of target expression must be an assignable value (l-value).";
-        throwError(nextTupel, target, source, 954);
+        throwError(nextTuple, target, source, 954);
     }
 
     // get optional domain
@@ -258,7 +258,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 
     if (updateDomain)
     {
-        targetDomainData = updateDomain->evaluate(nextTupel);
+        targetDomainData = updateDomain->evaluate(nextTuple);
 
         if (targetDomainData)
         {
@@ -288,7 +288,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     //    object, it is inserted.
 
     // In case of update domain existence, test for compatibility.
-    checkDomainCompatibility(nextTupel, target, source, targetDomainData, targetMDD, sourceMDD);
+    checkDomainCompatibility(nextTuple, target, source, targetDomainData, targetMDD, sourceMDD);
 
     // compute source MDD domain taking into account update domain
     if (targetDomainData)
@@ -315,7 +315,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     if (!targetObj->getMDDBaseType()->compatibleWithDomain(&sourceMDDDomain))
     {
         LFATAL << "Error: QtUpdate::evaluate() - The update domain is outside the allowed domain of the target mdd.";
-        throwError(nextTupel, target, source, 953, targetDomainData);
+        throwError(nextTuple, target, source, 953, targetDomainData);
     }
 
     //
@@ -558,7 +558,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 }
 
 bool
-QtUpdate::checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* source)
+QtUpdate::checkOperands(QtNode::QtDataList* nextTuple, QtData* target, QtData* source)
 {
     // Test, if the operands are valid.
     if (target && source)
@@ -567,14 +567,14 @@ QtUpdate::checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* s
         if (target->getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtUpdate::evaluate() - update target must be an iterator variable.";
-            throwError(nextTupel, target, source, 950);
+            throwError(nextTuple, target, source, 950);
         }
 
         // check update source
         if (source->getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtUpdate::evaluate() - update source must be an expression resulting in an MDD";
-            throwError(nextTupel, target, source, 951);
+            throwError(nextTuple, target, source, 951);
         }
     }
     else
@@ -598,18 +598,18 @@ QtUpdate::checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* s
 
 
 void
-QtUpdate::throwError(QtNode::QtDataList* nextTupel, QtData* target, QtData* source, int errorNumber, QtData* domainData)
+QtUpdate::throwError(QtNode::QtDataList* nextTuple, QtData* target, QtData* source, int errorNumber, QtData* domainData)
 {
 
-    // delete tupel vector received by next()
-    for (vector<QtData*>::iterator dataIter = nextTupel->begin();
-            dataIter != nextTupel->end(); dataIter++)
+    // delete tuple vector received by next()
+    for (vector<QtData*>::iterator dataIter = nextTuple->begin();
+            dataIter != nextTuple->end(); dataIter++)
         if (*dataIter)
         {
             (*dataIter)->deleteRef();
         }
-    delete nextTupel;
-    nextTupel = NULL;
+    delete nextTuple;
+    nextTuple = NULL;
 
     // delete the operands
     if (target)
@@ -631,7 +631,7 @@ QtUpdate::throwError(QtNode::QtDataList* nextTupel, QtData* target, QtData* sour
 
 
 void
-QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target,
+QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTuple, QtData* target,
                                    QtData* source, QtData* domainData,
                                    QtMDD* targetMDD, QtMDD* sourceMDD)
 {
@@ -644,7 +644,7 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
         if (domain.dimension() != targetMDD->getLoadDomain().dimension())
         {
             LFATAL << "Error: QtUpdate::evaluate() - Update domain dimensionality must match target MDD dimensionaltiy.";
-            throwError(nextTupel, target, source, 963, domainData);
+            throwError(nextTuple, target, source, 963, domainData);
         }
 
         // The number of interval dimension of the update domain has to be
@@ -660,7 +660,7 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
         if (updateIntervals != sourceMDD->getLoadDomain().dimension())
         {
             LFATAL << "Error: QtUpdate::evaluate() - Number of update intervals must match source dimensionality.";
-            throwError(nextTupel, target, source, 962, domainData);
+            throwError(nextTuple, target, source, 962, domainData);
         }
 
         // Before: Warning: Fixed bounds in update domain specifications are ignored.
@@ -681,15 +681,15 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
                     LFATAL << "Error: QtUpdate::evaluate() - source domain " <<
                            sourceDomain << " isn't within the target domain " << domain;
 
-                    // delete tupel vector received by next()
-                    for (vector<QtData*>::iterator dataIter = nextTupel->begin();
-                            dataIter != nextTupel->end(); dataIter++)
+                    // delete tuple vector received by next()
+                    for (vector<QtData*>::iterator dataIter = nextTuple->begin();
+                            dataIter != nextTuple->end(); dataIter++)
                         if (*dataIter)
                         {
                             (*dataIter)->deleteRef();
                         }
-                    delete nextTupel;
-                    nextTupel = NULL;
+                    delete nextTuple;
+                    nextTuple = NULL;
 
                     // delete the operands
                     if (target)

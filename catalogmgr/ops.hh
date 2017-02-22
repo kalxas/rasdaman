@@ -803,7 +803,7 @@ public:
                             const char* op2) = 0;
     /// returns initialization value for {\ref GenCondenseOp}.
     virtual void getCondenseInit(char* init);
-    /*@ManMemo: virtual destructor because subclasse OpBinaryStruct has
+    /*@ManMemo: virtual destructor because subclass OpBinaryStruct has
                 non-trivial destructor. */
     virtual ~BinaryOp() { };
 
@@ -836,6 +836,7 @@ public:
     /// operator to carry out operation on struct {\tt op}.
     virtual void operator()(char* res, const char* op1,
                             const char* op2);
+    virtual void getCondenseInit(char* init);
 protected:
     StructType* myStructType;
     unsigned int numElems;
@@ -2204,7 +2205,7 @@ protected:
   marray constructor operation() will also need to calculate an
   expression. Every GenCondenseOp has a binary operation which is
   used to accumulate the values. If an initVal (of type resType)
-  is given, it is used as a basis for accumulation. Otherwist a
+  is given, it is used as a basis for accumulation. Otherwise a
   default initVal is retrieved from {\tt accuOp}.
 */
 
@@ -2223,11 +2224,11 @@ public:
                   BinaryOp* newAccuOp, char* newInitVal = 0);
     /// operator to carry out operation on {\tt p}. Has a dummy implementation.
     virtual void operator()(const r_Point& p);
-    /// returns binary accumulation op (needed in class {\ref Tile}.
+    /// returns binary accumulation op (needed in class {\ref Tile}.)
     BinaryOp* getAccuOp();
-    /// returns result type (needed in class {\ref Tile}.
+    /// returns result type (needed in class {\ref Tile}.)
     const BaseType* getResultType();
-    /// returns result offset (needed in class {\ref Tile}.
+    /// returns result offset (needed in class {\ref Tile}.)
     unsigned int getResultOff();
     /// returns accumulated result.
     char* getAccuVal();
@@ -2242,7 +2243,7 @@ protected:
     // initVal is always of RasDaMan-Type restype!
     char* initVal;
     // used to flag if destructor should delete initVal
-    int myInitVal;
+    bool myInitVal;
 };
 
 

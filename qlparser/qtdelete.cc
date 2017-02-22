@@ -68,7 +68,7 @@ QtDelete::evaluate()
 {
     startTimer("QtDelete");
 
-    QtNode::QtDataList* nextTupel = NULL;
+    QtNode::QtDataList* nextTuple = NULL;
 
     // open input stream
     try
@@ -83,24 +83,24 @@ QtDelete::evaluate()
 
     try
     {
-        while ((nextTupel = input->next()))
+        while ((nextTuple = input->next()))
         {
-            QtData* target = (*nextTupel)[0];
+            QtData* target = (*nextTuple)[0];
 
             // check delete target
             if (target->getDataType() != QT_MDD)
             {
                 LERROR << "Error: QtDelete::evaluate() - delete target must be an expression resulting in an r_Marray<>";
 
-                // delete tupel vector received by next()
+                // delete tuple vector received by next()
                 vector<QtData*>::iterator dataIter;
-                for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+                for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
                     if (*dataIter)
                     {
                         (*dataIter)->deleteRef();
                     }
-                delete nextTupel;
-                nextTupel = NULL;
+                delete nextTuple;
+                nextTuple = NULL;
 
                 parseInfo.setErrorNo(951);
                 throw parseInfo;
@@ -131,15 +131,15 @@ QtDelete::evaluate()
             if (targetMDD && targetObj && !targetObj->isPersistent()) {};
             targetMDD->setLifetime(QtData::QT_TRANSIENT);
 
-            // delete tupel vector received by next()
+            // delete tuple vector received by next()
             vector<QtData*>::iterator dataIter;
-            for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+            for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
                 if (*dataIter)
                 {
                     (*dataIter)->deleteRef();
                 }
-            delete nextTupel;
-            nextTupel = NULL;
+            delete nextTuple;
+            nextTuple = NULL;
         } // while
 
     }

@@ -175,7 +175,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
             {
                 if (dataList->size() > 1 || (*dataList)[0] == NULL)
                 {
-                    // Delete the tupel vector received by next(). Just tupel elements which are not
+                    // Delete the tuple vector received by next(). Just tuple elements which are not
                     // further referenced are deleted.
                     for (dataIter = dataList->begin(); dataIter != dataList->end(); dataIter++)
                         if (*dataIter)
@@ -205,13 +205,13 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
 
                 QtData* resultElement = (*dataList)[0];
 
-                // take the data element as result data and reset it in the tupel vector
+                // take the data element as result data and reset it in the tuple vector
                 resultData->push_back(resultElement);
                 (*dataList)[0] = NULL;
 
                 LTRACE << "NEXT RESULT ITEM OF THE QUERY INSERTED";
 
-                // Delete the tupel vector received by next(). Just tupel elements which are not
+                // Delete the tuple vector received by next(). Just tuple elements which are not
                 // set to zero and which are not further referenced are deleted.
                 for (dataIter = dataList->begin(); dataIter != dataList->end(); dataIter++)
                     if (*dataIter)

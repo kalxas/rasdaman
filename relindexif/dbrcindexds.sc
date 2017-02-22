@@ -51,7 +51,7 @@ rasdaman GmbH.
 #define SQL_BYTES_PER_TUPLE 3991;
 
 r_Bytes
-DBRCIndexDS::BytesPerTupel = BYTES_PER_TUPLE;
+DBRCIndexDS::BytesPerTuple = BYTES_PER_TUPLE;
 
 void
 DBRCIndexDS::insertInDb() throw (r_Error)

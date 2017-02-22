@@ -314,7 +314,7 @@ QtCondenseOp::evaluate(QtDataList* inputList)
 
     catch (...)
     {
-        // free ressources
+        // free resources
         delete cellBinOp;
         cellBinOp = NULL;
         if (operand1)
@@ -343,7 +343,7 @@ QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* resType, B
 {
     // create execution object QLCondenseOp
     QLCondenseOp* qlCondenseOp = new QLCondenseOp(input2, condOp, inputList, iteratorName,
-            resType, 0, cellBinOp);
+            resType, 0, cellBinOp, NULL);
 
     // result buffer
     char* result = NULL;

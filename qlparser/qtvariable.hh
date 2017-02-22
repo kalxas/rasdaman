@@ -46,7 +46,7 @@ rasdaman GmbH.
 /*@Doc:
 
   The class stands for a MDD variable which corresponds to an element of the
-  tupel passed by the evaluate() method.
+  tuple passed by the evaluate() method.
 
 */
 

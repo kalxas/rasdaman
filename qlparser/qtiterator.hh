@@ -42,7 +42,7 @@ It is super class for every class capable of iterating over collections of MDD.
 It has a list of inputs of type QtONCStream, so every instance of type
 QtONCStream or of a subtype of it can serve as an input stream for a QtIterator
 object. The input streams can be combined differently, as cross product of the
-inputs in class QtSelectionIterator or as simple tupels in the order they occure
+inputs in class QtSelectionIterator or as simple tuples in the order they occure
 in the input streams in class QtOperationIterator.
 
 */

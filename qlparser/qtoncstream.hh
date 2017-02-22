@@ -48,7 +48,7 @@ This class is super class for every class supporting the ONC protocol
 which means that, first, a stream has to be opened with open(),
 then the elements are received through invoking next(),
 and at the end, the stream is closed with the close() method. The
-next() method returns a tupel of QtData or any subclass of QtData.
+next() method returns a tuple of QtData or any subclass of QtData.
 
 */
 

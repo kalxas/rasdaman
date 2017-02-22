@@ -52,7 +52,7 @@ const QtNode::QtNodeType QtJoinIterator::nodeType = QtNode::QT_JOIN_ITERATOR;
 QtJoinIterator::QtJoinIterator()
     : QtIterator(),
       outputStreamIsEmpty(false),
-      actualTupel(NULL)
+      actualTuple(NULL)
 {
 }
 
@@ -60,7 +60,7 @@ QtJoinIterator::QtJoinIterator()
 QtJoinIterator::QtJoinIterator(QtNode* node)
     : QtIterator(node),
       outputStreamIsEmpty(false),
-      actualTupel(NULL)
+      actualTuple(NULL)
 {
 }
 
@@ -69,17 +69,17 @@ QtJoinIterator::~QtJoinIterator()
 {
     vector<QtData*>::iterator i; //default
 
-    if (actualTupel)
+    if (actualTuple)
     {
         // first delete still existing data carriers
-        for (QtDataList::iterator iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+        for (QtDataList::iterator iter = actualTuple->begin(); iter != actualTuple->end(); iter++)
             if (*iter)
             {
                 (*iter)->deleteRef();
             }
 
-        delete actualTupel;
-        actualTupel = NULL;
+        delete actualTuple;
+        actualTuple = NULL;
     }
 }
 
@@ -117,9 +117,9 @@ QtJoinIterator::open()
 
     if (inputs)
     {
-        // The idea of actualTupel initialization:
+        // The idea of actualTuple initialization:
         //
-        //    tupel[0]  tupel[1]  tupel[2]  ...  |
+        //    tuple[0]  tuple[1]  tuple[2]  ...  |
         //    -----------------------------------------------------
         //       0         0         0           |  initial phase
         //       0        b1        c1           |  open
@@ -128,22 +128,22 @@ QtJoinIterator::open()
         //      a1        b2        c1           |        "
         //       :         :         :           |        "
 
-        // allocate an empty tupel, right now each input stream provides one data element
-        actualTupel = new QtDataList(inputs->size());
+        // allocate an empty tuple, right now each input stream provides one data element
+        actualTuple = new QtDataList(inputs->size());
 
-        // set the first element of the tupel to NULL
-        (*actualTupel)[0] = NULL;
+        // set the first element of the tuple to NULL
+        (*actualTuple)[0] = NULL;
 
-        // fill the tupel, except of the first element, with the first elements of the input streams
+        // fill the tuple, except of the first element, with the first elements of the input streams
         //the first element is filled in the ::next() method
-        for (unsigned int tupelPos = 1; tupelPos < actualTupel->size(); tupelPos++)
+        for (unsigned int tuplePos = 1; tuplePos < actualTuple->size(); tuplePos++)
         {
-            QtDataList* resultList = (*inputs)[tupelPos]->next();
+            QtDataList* resultList = (*inputs)[tuplePos]->next();
 
             if (resultList)
             {
                 // take the first data element of the input stream result
-                (*actualTupel)[tupelPos] = (*resultList)[0];
+                (*actualTuple)[tuplePos] = (*resultList)[0];
 
                 // delete the result vector (only the first data carriers is taken, the others are never deleted)
                 delete resultList;
@@ -153,12 +153,12 @@ QtJoinIterator::open()
             {
                 // In that case, one of the input streams is empty. Therefore, the output stream of
                 // the self object is empty either.
-                (*actualTupel)[tupelPos] = NULL;
+                (*actualTuple)[tuplePos] = NULL;
                 outputStreamIsEmpty = true;
             }
         }
 
-        // Reset the first stream again, because the first tupel element is catched when next() is
+        // Reset the first stream again, because the first tuple element is catched when next() is
         // called for the first time.
         // (*inputs)[0]->reset();
     }
@@ -173,28 +173,28 @@ QtJoinIterator::next()
 
     QtDataList* returnValue = NULL;
 
-    if (inputs && actualTupel && !outputStreamIsEmpty)
+    if (inputs && actualTuple && !outputStreamIsEmpty)
     {
-        bool        nextTupelAvailable = true;
-        bool        nextTupelValid = false;
-        unsigned int         tupelPos;
+        bool        nextTupleAvailable = true;
+        bool        nextTupleValid = false;
+        unsigned int         tuplePos;
         QtDataList* resultList = NULL;
         QtONCStreamList::iterator iter;
 
-        while (!nextTupelValid && nextTupelAvailable && !outputStreamIsEmpty)
+        while (!nextTupleValid && nextTupleAvailable && !outputStreamIsEmpty)
         {
-            // switch to the next tupel which means
+            // switch to the next tuple which means
 
-            nextTupelAvailable = false;
-            tupelPos           = 0;
+            nextTupleAvailable = false;
+            tuplePos           = 0;
             iter               = inputs->begin();
 
-            while (!nextTupelAvailable && iter != inputs->end())
+            while (!nextTupleAvailable && iter != inputs->end())
             {
                 resultList = (*iter)->next();
 
                 // Test, if the first input stream is empty, because this is not tested in open()
-                if (resultList == NULL && tupelPos == 0 && (*actualTupel)[0] == 0)
+                if (resultList == NULL && tuplePos == 0 && (*actualTuple)[0] == 0)
                 {
                     outputStreamIsEmpty = true;
                 }
@@ -209,24 +209,24 @@ QtJoinIterator::next()
                 }
                 else
                 {
-                    nextTupelAvailable = true;
+                    nextTupleAvailable = true;
                 }
 
                 //
-                // exchange the actual element in the tupel
+                // exchange the actual element in the tuple
                 //
 
                 //  delete the data carrier
-                if ((*actualTupel)[tupelPos])
+                if ((*actualTuple)[tuplePos])
                 {
-                    (*actualTupel)[tupelPos]->deleteRef();
-                    (*actualTupel)[tupelPos] = NULL;
+                    (*actualTuple)[tuplePos]->deleteRef();
+                    (*actualTuple)[tuplePos] = NULL;
                 }
 
                 if (resultList)
                 {
                     // take the first data element of the input stream result - copy the data carrier pointer
-                    (*actualTupel)[tupelPos] = (*resultList)[0];
+                    (*actualTuple)[tuplePos] = (*resultList)[0];
 
                     // delete the result vector (only the first data carrier is taken, the others are never deleted)
                     delete resultList;
@@ -234,36 +234,36 @@ QtJoinIterator::next()
                 }
 
                 iter++;
-                tupelPos++;
+                tuplePos++;
             }
 
-            if (nextTupelAvailable)
+            if (nextTupleAvailable)
             {
-                nextTupelValid = true;
+                nextTupleValid = true;
             }
         }
 
-        if (nextTupelAvailable)
+        if (nextTupleAvailable)
         {
-            // Copy the actual tupel in order to pass it as the next stream element
+            // Copy the actual tuple in order to pass it as the next stream element
             // which means increase references to data elements.
-            returnValue = new QtDataList(actualTupel->size());
+            returnValue = new QtDataList(actualTuple->size());
 
-            for (tupelPos = 0; tupelPos < actualTupel->size(); tupelPos++)
-                if ((*actualTupel)[tupelPos])
+            for (tuplePos = 0; tuplePos < actualTuple->size(); tuplePos++)
+                if ((*actualTuple)[tuplePos])
                 {
-                    (*returnValue)[tupelPos] = (*actualTupel)[tupelPos];
-                    (*actualTupel)[tupelPos]->incRef();
+                    (*returnValue)[tuplePos] = (*actualTuple)[tuplePos];
+                    (*actualTuple)[tuplePos]->incRef();
                 }
                 else
                 {
-                    // should not come here, because now the next tupel isn't valid
+                    // should not come here, because now the next tuple isn't valid
 
                     // delete return value again
-                    for (tupelPos = 0; tupelPos < returnValue->size(); tupelPos++)
-                        if ((*returnValue)[tupelPos])
+                    for (tuplePos = 0; tuplePos < returnValue->size(); tuplePos++)
+                        if ((*returnValue)[tuplePos])
                         {
-                            (*returnValue)[tupelPos]->deleteRef();
+                            (*returnValue)[tuplePos]->deleteRef();
                         }
 
                     delete returnValue;
@@ -284,17 +284,17 @@ QtJoinIterator::next()
 void
 QtJoinIterator::close()
 {
-    if (actualTupel)
+    if (actualTuple)
     {
         // first delete still existing data carriers
-        for (QtDataList::iterator iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+        for (QtDataList::iterator iter = actualTuple->begin(); iter != actualTuple->end(); iter++)
             if (*iter)
             {
                 (*iter)->deleteRef();
             }
 
-        delete actualTupel;
-        actualTupel = NULL;
+        delete actualTuple;
+        actualTuple = NULL;
     }
 
     QtIterator::close();
@@ -312,22 +312,22 @@ QtJoinIterator::reset()
     if (inputs)
     {
         // first delete still existing data carriers
-        for (QtDataList::iterator iter = actualTupel->begin(); iter != actualTupel->end(); iter++)
+        for (QtDataList::iterator iter = actualTuple->begin(); iter != actualTuple->end(); iter++)
             if (*iter)
             {
                 (*iter)->deleteRef();
                 (*iter) = NULL;
             }
 
-        // fill the tupel with the first elements of the input streams except of the first element
-        for (unsigned int tupelPos = 1; tupelPos < actualTupel->size(); tupelPos++)
+        // fill the tuple with the first elements of the input streams except of the first element
+        for (unsigned int tuplePos = 1; tuplePos < actualTuple->size(); tuplePos++)
         {
-            QtDataList* resultList = (*inputs)[tupelPos]->next();
+            QtDataList* resultList = (*inputs)[tuplePos]->next();
 
             if (resultList)
             {
                 // take the first data element of the input stream result
-                (*actualTupel)[tupelPos] = (*resultList)[0];
+                (*actualTuple)[tuplePos] = (*resultList)[0];
 
                 // delete the result vector (only the first data carriers is taken, the others are never deleted)
                 delete resultList;
@@ -335,12 +335,12 @@ QtJoinIterator::reset()
             }
             else
             {
-                (*actualTupel)[tupelPos] = NULL;
+                (*actualTuple)[tuplePos] = NULL;
             }
 
         }
 
-        (*actualTupel)[0] = NULL;  // fist tupel element is catched when next() is called for the first time
+        (*actualTuple)[0] = NULL;  // fist tuple element is catched when next() is called for the first time
     }
 }
 

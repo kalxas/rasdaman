@@ -80,7 +80,7 @@ specific data type handled by the query tree.
 class QtData : public NullValuesHandler
 {
 public:
-    // construktor
+    // constructor
     QtData();
 
     // constructor

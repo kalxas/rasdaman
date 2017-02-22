@@ -226,14 +226,14 @@ QtOperationIterator::next()
 
     if (inputs)
     {
-        QtDataList* nextTupel = NULL;
+        QtDataList* nextTuple = NULL;
         QtDataList* resultList = NULL;
 
-        // create a composed tupel of type QtDataList of the next elements of the input streams
+        // create a composed tuple of type QtDataList of the next elements of the input streams
         // right now, just take the QtDataList vector of the first input stream
-        nextTupel = (*inputs)[0]->next();
+        nextTuple = (*inputs)[0]->next();
 
-        if (nextTupel)
+        if (nextTuple)
         {
             QtOperationList::iterator iter;
             vector<QtData*>::iterator dataIter;
@@ -250,14 +250,14 @@ QtOperationIterator::next()
                 {
                     if (*iter)
                     {
-                        (*resultList)[pos] = (*iter)->evaluate(nextTupel);
+                        (*resultList)[pos] = (*iter)->evaluate(nextTuple);
                     }
                 }
                 catch (...)
                 {
-                    // Delete the tupel vector received by next(). Just tupel elements which are not
+                    // Delete the tuple vector received by next(). Just tuple elements which are not
                     // further referenced are deleted.
-                    for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+                    for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
                         if ((*dataIter))
                         {
                             (*dataIter)->deleteRef();
@@ -270,8 +270,8 @@ QtOperationIterator::next()
                     }
                     delete resultList;
                     resultList = NULL;
-                    delete nextTupel;
-                    nextTupel = NULL;
+                    delete nextTuple;
+                    nextTuple = NULL;
 
                     throw;
                 }
@@ -279,17 +279,17 @@ QtOperationIterator::next()
                 pos++;
             }
 
-            // Delete the tupel vector received by next(). Just tupel elements which are not
+            // Delete the tuple vector received by next(). Just tuple elements which are not
             // further referenced are deleted.
-            for (dataIter = nextTupel->begin(); dataIter != nextTupel->end(); dataIter++)
+            for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
                 if ((*dataIter))
                 {
                     (*dataIter)->deleteRef();
                 }
 
             // ... and now the vector itself
-            delete nextTupel;
-            nextTupel = NULL;
+            delete nextTuple;
+            nextTuple = NULL;
 
             returnValue = resultList;
         }

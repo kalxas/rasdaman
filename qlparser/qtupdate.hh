@@ -93,22 +93,22 @@ public:
     virtual void checkType();
 
 private:
-    /// evaluate one tupel of the input stream
-    void evaluateTupel(QtNode::QtDataList* nextTupel);
+    /// evaluate one tuple of the input stream
+    void evaluateTuple(QtNode::QtDataList* nextTuple);
 
     /// evaluate null values update
-    void evaluateNullValues(QtNode::QtDataList* nextTupel);
+    void evaluateNullValues(QtNode::QtDataList* nextTuple);
 
     /// check validity of operands
-    bool checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* source);
+    bool checkOperands(QtNode::QtDataList* nextTuple, QtData* target, QtData* source);
 
     /// test for update domain compatibility
-    void checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target,
+    void checkDomainCompatibility(QtNode::QtDataList* nextTuple, QtData* target,
                                   QtData* source, QtData* domainData,
                                   QtMDD* targetMDD, QtMDD* sourceMDD);
 
     /// generic method to handle errors
-    void throwError(QtNode::QtDataList* nextTupel, QtData* target,
+    void throwError(QtNode::QtDataList* nextTuple, QtData* target,
                     QtData* source, int errorNumber, QtData* domainData = NULL);
 
     /// one input stream

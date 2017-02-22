@@ -128,7 +128,7 @@ public:
 
 private:
     // those inherited from BaseType aren't useful at all for StructType
-    // made them private to preven calling them
+    // made them private to prevent calling them
     virtual r_ULong* convertToCULong(const char* cell, r_ULong* value) const;
     virtual char* makeFromCULong(char* cell, const r_ULong* value) const;
     virtual r_Long* convertToCLong(const char* cell, r_Long* value) const;

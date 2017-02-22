@@ -123,7 +123,7 @@ QtInsert::evaluate()
     QtMddCfgOp* configOp = NULL;
     QtMDDConfig* mddConfig = NULL;
     QtData* sourceData = NULL;
-    QtNode::QtDataList* nextTupel = NULL;
+    QtNode::QtDataList* nextTuple = NULL;
 
     r_Minterval* defaultCfg = NULL;
     QtData* returnValue = NULL;
@@ -135,14 +135,14 @@ QtInsert::evaluate()
     else
     {
         // empty data list for evaluation of insert expression including constant
-        nextTupel = new QtNode::QtDataList(0);
+        nextTuple = new QtNode::QtDataList(0);
         if (stgLayout)
         {
             configOp = static_cast<QtMddCfgOp*>(stgLayout);
             mddConfig = configOp->getMddConfig();
         }
         // get the operands
-        sourceData = source->evaluate(nextTupel);
+        sourceData = source->evaluate(nextTuple);
     }
 
     if (sourceData)
@@ -300,10 +300,10 @@ QtInsert::evaluate()
                 }
                 delete sourceTiles;
                 sourceTiles = NULL;
-                if (nextTupel)
+                if (nextTuple)
                 {
-                    delete nextTupel;
-                    nextTupel = NULL;
+                    delete nextTuple;
+                    nextTuple = NULL;
                 }
                 persColl->releaseAll();
                 delete persColl;
@@ -419,10 +419,10 @@ QtInsert::evaluate()
             {
                 sourceData->deleteRef();
             }
-            if (nextTupel)
+            if (nextTuple)
             {
-                delete nextTupel;
-                nextTupel = NULL;
+                delete nextTuple;
+                nextTuple = NULL;
             }
             persColl->releaseAll();
             delete persColl;
@@ -448,11 +448,11 @@ QtInsert::evaluate()
         sourceData->deleteRef();
     }
 
-    // delete dummy tupel vector
-    if (nextTupel)
+    // delete dummy tuple vector
+    if (nextTuple)
     {
-        delete nextTupel;
-        nextTupel = NULL;
+        delete nextTuple;
+        nextTuple = NULL;
     }
 
     stopTimer();
@@ -809,11 +809,11 @@ QtInsert::getIntervals(QtMDDConfig* cfg)
     {
         return intervals;
     }
-    QtNode::QtDataList* nextTupel = new QtNode::QtDataList(0);
+    QtNode::QtDataList* nextTuple = new QtNode::QtDataList(0);
     QtOperationList::iterator iter;
     for (iter = oplist->begin(); iter != oplist->end(); iter++)
     {
-        QtData* data = (*iter)->evaluate(nextTupel);
+        QtData* data = (*iter)->evaluate(nextTuple);
         QtMintervalData* intervalData = static_cast<QtMintervalData*>(data);
         r_Minterval interval = intervalData->getMintervalData();
         intervals.push_back(interval);
@@ -837,11 +837,11 @@ QtInsert::getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDi
     {
         return tileConfig;
     }
-    QtNode::QtDataList* nextTupel = new QtNode::QtDataList(0);
-    QtData* data = op->evaluate(nextTupel);
+    QtNode::QtDataList* nextTuple = new QtNode::QtDataList(0);
+    QtData* data = op->evaluate(nextTuple);
     QtMintervalData* intervalData = static_cast<QtMintervalData*>(data);
     tileConfig = intervalData->getMintervalData();
     delete data;
-    delete nextTupel;
+    delete nextTuple;
     return tileConfig;
 }

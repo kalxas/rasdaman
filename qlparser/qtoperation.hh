@@ -46,7 +46,7 @@ rasdaman GmbH.
 
 /*@Doc:
 
-QtOperation defines a method {\tt evaluate()} getting a tupel of {\tt QtData} and returning
+QtOperation defines a method {\tt evaluate()} getting a tuple of {\tt QtData} and returning
 a {\tt QtData} element. Every subclass has to redefine this method to compute its specific
 operation. Therefore, it takes its inputs which are also of type {\tt QtOperation}, and
 invokes the {\tt evaluate()} method again. The results are used as operands and the
