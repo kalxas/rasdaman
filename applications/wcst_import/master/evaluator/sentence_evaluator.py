@@ -21,13 +21,14 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from __future__ import division
 
 import re
+import decimal
 
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_functions import evaluator_utils
 from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
-
 
 class SentenceEvaluator:
     PREFIX = "${"
@@ -50,14 +51,46 @@ class SentenceEvaluator:
         :rtype: str
         """
         sentence = str(sentence)
-        expressions = re.findall("\${([a-zA-z0-9_:]*)}", sentence)
+        expressions = re.findall("\${([\w_:]*)}", sentence)
         instantiated_sentence = sentence
+        # Iterate the expression and evaluate all the possible variables
+        # e.g: grib_datetime(${grib:dataDate}, ${grib:dataTime}),
+        # then first replace grib:dataDate from dataDate in metadata and then grib:dataTime from dataTime in metadata
         for expression in expressions:
             evaluator = self.evaluator_factory.get_expression_evaluator(expression)
             expression_result = evaluator.evaluate(expression, evaluator_slice)
             instantiated_sentence = instantiated_sentence.replace(self.PREFIX + expression + self.POSTFIX,
                                                                   str(expression_result))
 
+        # check if expression can be array of coefficients or not
+        if instantiated_sentence.startswith("[") and instantiated_sentence.endswith("]"):
+            regex_matches = re.findall("([a-zA-Z])", instantiated_sentence)
+            if len(regex_matches) == 0:
+                # try to parse it manually
+                values = instantiated_sentence.split('[', 1)[1].split(']')[0].replace("'", "")
+                array = values.split(", ")
+                return array
+            else:
+                # not array of values, need to evaluate
+                return self.get_evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
+        else:
+            try:
+                # Check if expression can be decimal value or not
+                result = decimal.Decimal(instantiated_sentence)
+                return result
+            except Exception:
+                # not decimal value, need to evaluate
+                return self.get_evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
+
+
+    def get_evaluate_python_expression(self, sentence, instantiated_sentence, evaluator_utils):
+        """
+        Just call the evaluate python expression below
+        :param sentence: the input expression from ingredient file
+        :param instantiated_sentence: the expression needed to be evaluated
+        :param evaluator_utils: some local helper methods to evaluate
+        :return:
+        """
         try:
             return self.evaluate_python_expression(instantiated_sentence, evaluator_utils)
         except Exception:

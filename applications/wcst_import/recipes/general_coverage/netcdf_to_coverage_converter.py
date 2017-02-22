@@ -22,6 +22,7 @@
  *
 """
 import math
+import decimal
 
 from lib import arrow
 from master.error.runtime_exception import RuntimeException
@@ -170,9 +171,9 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
         if crs_axis.is_easting():
-            geo_axis.origin = geo_axis.low + float(user_axis.resolution) / 2
+            geo_axis.origin = geo_axis.low + decimal.Decimal( str(user_axis.resolution) ) / 2
         elif crs_axis.is_northing():
-            geo_axis.origin = geo_axis.high + user_axis.resolution / 2
+            geo_axis.origin = geo_axis.high + decimal.Decimal( str(user_axis.resolution) ) / 2
         elif crs_axis.is_future():
             # When it is DateTime format, it needs to be quoted, e.g: "2006-01-01T01:01:03Z"
             if user_axis.type == UserAxisType.DATE:

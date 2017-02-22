@@ -23,6 +23,7 @@
 """
 
 import math
+import decimal
 
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import GDALEvaluatorSlice
@@ -160,8 +161,8 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
                 grid_high = 0
             else:
                 grid_low = 0
-                number_of_geopixels = user_axis.interval.high - user_axis.interval.low
-                grid_high = int(math.fabs(math.ceil(grid_low + number_of_geopixels / user_axis.resolution)))
+                number_of_geopixels = decimal.Decimal( str(user_axis.interval.high) ) - decimal.Decimal( str(user_axis.interval.low) )
+                grid_high = int(math.fabs(math.ceil(grid_low + number_of_geopixels / decimal.Decimal(user_axis.resolution))))
 
             # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
             if not self.grid_coverage:
@@ -171,9 +172,9 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
             grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
             if crs_axis.is_easting():
-                geo_axis.origin = geo_axis.low + float(user_axis.resolution) / 2
+                geo_axis.origin = decimal.Decimal( str(geo_axis.low) ) + decimal.Decimal( str(user_axis.resolution) ) / 2
             elif crs_axis.is_northing():
-                geo_axis.origin = geo_axis.high + float(user_axis.resolution) / 2
+                geo_axis.origin = decimal.Decimal( str(geo_axis.high) ) + decimal.Decimal( str(user_axis.resolution) ) / 2
 
             axis_subsets.append(
                 AxisSubset(CoverageAxis(geo_axis, grid_axis, crs_axis.is_northing() or crs_axis.is_easting()),

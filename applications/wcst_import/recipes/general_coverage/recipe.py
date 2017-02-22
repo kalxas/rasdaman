@@ -216,6 +216,7 @@ class Recipe(BaseRecipe):
             else:
                 resolution = 1
             default_order += 1
+
             if not irregular:
                 user_axes.append(
                     RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound))

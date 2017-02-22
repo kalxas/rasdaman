@@ -22,9 +22,12 @@
  *
 """
 from lib import arrow
+from util.time_util import DateTimeUtil
 from master.helper.irregular_user_axis import IrregularUserAxis
 from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxis
+
+import decimal
 
 class AbstractToCoverageConverter:
     def __init__(self, sentence_evaluator):
@@ -57,10 +60,11 @@ class AbstractToCoverageConverter:
                                      user_axis.type, user_axis.dataBound)
 
     def _translate_number_direct_position_to_coefficients(self, origin, direct_positions):
-        return map(lambda x: float((x - origin)), direct_positions)
+        return map(lambda x: decimal.Decimal( str(x) ) - decimal.Decimal( str(origin) ), direct_positions)
 
     def _translate_seconds_date_direct_position_to_coefficients(self, origin, direct_positions):
-        return map(lambda x: (arrow.get(x).float_timestamp - origin), direct_positions)
+        return map(lambda x: (decimal.Decimal( str(arrow.get(x).float_timestamp) ) - decimal.Decimal( str(origin) )), direct_positions)
 
     def _translate_day_date_direct_position_to_coefficients(self, origin, direct_positions):
-        return map(lambda x: (arrow.get(x).float_timestamp - origin) / float(24*3600), direct_positions)
+        return map(lambda x: ( (decimal.Decimal( str(arrow.get(x).float_timestamp) )
+                              - decimal.Decimal( str(origin) ) ) / decimal.Decimal(24 * 3600) ), direct_positions)

@@ -70,11 +70,11 @@ class UserAxis:
         """
         ret = {
             "name": self.name,
-            "resolution": self.resolution,
+            "resolution": str(self.resolution),
             "min": str(self.interval.low),
             "order": str(self.order),
             "type": self.type
         }
         if self.interval.high is not None:
-            ret["max"] = self.interval.high
+            ret["max"] = str(self.interval.high)
         return ret

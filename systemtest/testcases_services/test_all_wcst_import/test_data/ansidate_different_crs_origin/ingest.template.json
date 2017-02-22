@@ -1,0 +1,77 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "automated": true,
+    "mock": false,
+    "track_files": false,
+    "subset_correction": true
+  },
+  "input": {
+    "coverage_id": "test_ansidate_different_crs_origin",
+    "paths": [
+      "input_file.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'${netcdf:metadata:title}'",
+            "Project": "'${netcdf:metadata:project}'",
+            "Creator": "'${netcdf:metadata:creator_name}'"
+          }
+        },
+        "slicer": {
+          "type": "netcdf",
+          "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "NobsSum",
+              "variable": "MODISA_nobs_sum",
+              "description": "Count of the number of observations from the MERIS sensor contributing to this bin cell",
+              "nilReason": "The nil value represents an error in the sensor.",
+              "identifier": "MERIS_nobs_sum"
+            },
+            {
+              "name": "Chlor",
+              "identifier": "chlor_a",
+              "description": "Count of the number of observations from the SeaWiFS sensor contributing to this bin cell",
+              "nilReason": "The nil value represents an error in the sensor."
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "${netcdf:variable:time:min}",
+              "max": "${netcdf:variable:time:max}",
+              "directPositions": "${netcdf:variable:time}",
+              "gridOrder": 0,
+              "type": "ansidate",
+	      "resolution": "1",
+	      "crs_origin": "1970-01-01"
+            },
+            "Long": {
+              "min": "${netcdf:variable:lon:min}",
+              "max": "${netcdf:variable:lon:max}",
+              "gridOrder": 2,
+              "resolution": "0.04166666666666666666"
+            },
+            "Lat": {
+              "min": "${netcdf:variable:lat:min}",
+              "max": "${netcdf:variable:lat:max}",
+              "gridOrder": 1,
+              "resolution": "-0.04166666666666666666"
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:0, 0:1023, 0:1023] TILE SIZE 4000000"
+    }
+  }
+}

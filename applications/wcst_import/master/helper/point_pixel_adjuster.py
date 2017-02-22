@@ -21,11 +21,15 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from unicodedata import decimal
+
 from lib import arrow
 from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxisType
 from util.log import log
 
+import decimal
+from decimal import ROUND_UP
 
 class PointPixelAdjuster:
     def __init__(self):
@@ -53,9 +57,11 @@ class PointPixelAdjuster:
             user_axis.interval.low, user_axis.interval.high = user_axis.interval.high, user_axis.interval.low
 
         if isinstance(user_axis, RegularUserAxis):
-            user_axis.interval.low -= 0.5 * abs(user_axis.resolution)
+            user_axis.interval.low = decimal.Decimal( str(user_axis.interval.low) ) \
+                                   - decimal.Decimal(0.5) * decimal.Decimal ( str(abs(user_axis.resolution)) )
             if user_axis.interval.high:
-                user_axis.interval.high += 0.5 * abs(user_axis.resolution)
+                user_axis.interval.high = decimal.Decimal( str(user_axis.interval.high) ) \
+                                        + decimal.Decimal( 0.5 ) * decimal.Decimal( str(abs(user_axis.resolution)) )
 
     @staticmethod
     def get_origin(user_axis):
@@ -73,10 +79,10 @@ class PointPixelAdjuster:
         if isinstance(user_axis, RegularUserAxis):
             if user_axis.resolution > 0 or user_axis.interval.high is None:
                 # axis goes from low to high, so origin is lowest, with half a pixel shift
-                return user_axis.interval.low + 0.5 * user_axis.resolution
+                return decimal.Decimal( str(user_axis.interval.low) ) + decimal.Decimal(0.5) * decimal.Decimal( str(user_axis.resolution) )
             else:
                 # axis goes from high to low, so origin is highest, with half pixel shift (resolution is negative)
-                return user_axis.interval.high + 0.5 * user_axis.resolution
+                return decimal.Decimal( str(user_axis.interval.high) ) + decimal.Decimal(0.5) * decimal.Decimal( str(user_axis.resolution) )
         else:
             # irregular axis, the same but without no shift
             if user_axis.resolution > 0 or user_axis.interval.high is None:
@@ -99,7 +105,7 @@ class PointPixelAdjuster:
             # number of geo-intervals over resolution
             if user_axis.type != UserAxisType.DATE:
                 grid_points = abs((user_axis.interval.high - user_axis.interval.low) / user_axis.resolution)
-                if abs(round(grid_points) - grid_points) > 0.01:
+                if abs(decimal.Decimal( str(grid_points), ROUND_UP) - grid_points) > 0.01:
                     log.warning("The computed number of grid points is not an integer for axis " + user_axis.name +
                                 ". This usually indicates that the resolution is not correct.")
                 return int(round(grid_points))
@@ -107,10 +113,12 @@ class PointPixelAdjuster:
                 time_difference = user_axis.interval.high - user_axis.interval.low
                 if crs_axis.is_uom_day():
                     # days
-                    return int(round(abs((time_difference / (24 * 3600)) / user_axis.resolution)))
+                    return int(round(abs(( decimal.Decimal( str(time_difference) ) / decimal.Decimal(24 * 3600))
+                                         / decimal.Decimal( str(user_axis.resolution) ))) )
                 else:
                     # seconds
-                    return int(round(abs(time_difference / user_axis.resolution)))
+                    return int(round(abs( decimal.Decimal( str(time_difference) )
+                                        / decimal.Decimal( str(user_axis.resolution) ))))
         else:
             # number of direct positions
             return len(user_axis.directPositions)

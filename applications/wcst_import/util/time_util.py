@@ -22,12 +22,14 @@
  *
 """
 import functools
+import decimal
 from __builtin__ import staticmethod
 
 from lib.arrow import api as arrow
 from lib.arrow.parser import ParserError
 from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSUtil
+from util.string_util import stringify
 
 
 @functools.total_ordering
@@ -211,7 +213,14 @@ class DateTimeUtil:
         time_delta_in_uom = (float(date_milli_seconds) - float(origin_date_milli_seconds)) / float(uom_milli_seconds)
         return time_delta_in_uom
 
-
+    @staticmethod
+    def get_datetime_iso(datetime):
+        """
+        Convert the datetime in decimal to ISO datetime format by arrow
+        :param datetime: decimal
+        :return: str
+        """
+        return stringify(arrow.get(datetime))
 
     __UOM_TIME_MAP_CACHE__ = {}
     __TIME_CRS_MAP_CACHE__ = {}

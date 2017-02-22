@@ -26,7 +26,9 @@ from decimal import Decimal
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
-
+import numpy
+numpy.set_printoptions(threshold='nan')
+import decimal
 
 class NetcdfExpressionEvaluator(ExpressionEvaluator):
     PREFIX = "${"
@@ -68,11 +70,16 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         :return: str value: The value from the applied operation with precession
         """
         "NOTE: min() and max() do not return a precession from number with scientific notation (e)"
+        # Get the array of decimal variable with correct precision in string, remove all the new lines and parse values
+        tmp = '{}'.format(variable[:].astype(numpy.dtype(decimal.Decimal))).replace('\r', '').replace('\n', '')
+        values = tmp.split('[', 1)[1].split(']')[0]
+        array = values.split(" ")
+
         if operation == "max" or operation == "last":
             lastIndex = len(variable) - 1
-            return '{}'.format(variable[lastIndex])
+            return array[lastIndex]
         elif operation == "min" or operation == "first":
-            return '{}'.format(variable[0])
+            return array[0]
         else:
             try:
                 return variable.__getattribute__(operation)
@@ -100,7 +107,10 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             if len(parts) == 2:
                 # return the entire variable translated to the string representation of a python list that can be
                 # further passed to eval()
-                return "[" + ",".join(map(lambda x: '{}'.format(x), list(nc_dataset.variables[variable_name]))) + "]"
+                tmp = '{}'.format(nc_dataset.variables[variable_name][:].astype(numpy.dtype(decimal.Decimal))).replace('\r', '').replace('\n', '')
+                values = tmp.split('[', 1)[1].split(']')[0]
+                array = values.split(" ")
+                return array
             else:
                 operation = parts[2]
                 return self._apply_operation(nc_dataset.variables[variable_name], operation)

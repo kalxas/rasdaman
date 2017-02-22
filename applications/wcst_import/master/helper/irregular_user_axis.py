@@ -26,7 +26,7 @@ from master.helper.user_axis import UserAxis, UserAxisType
 
 class IrregularUserAxis(UserAxis):
     def __init__(self, name, resolution, order, min, directPositions, max=None, type=UserAxisType.NUMBER,
-                 dataBound=True):
+                 dataBound=True, crs_origin=None):
         """
         An IrregularUserAxis is a UserAxis with direct positions and assumed resolution of 1.
         :param str name: The name of the axis

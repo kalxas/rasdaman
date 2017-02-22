@@ -22,6 +22,8 @@
  *
 """
 
+import decimal
+
 from collections import OrderedDict
 from time import sleep
 from config_manager import ConfigManager
@@ -164,9 +166,9 @@ class Importer:
             low = axis_subset.interval.low
             high = axis_subset.interval.high
             if ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
-                low += float(axis_subset.coverage_axis.grid_axis.resolution) / 2
+                low = decimal.Decimal(low) +  decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution) / 2
                 if high is not None:
-                    high -= float(axis_subset.coverage_axis.grid_axis.resolution) / 2
+                    high = decimal.Decimal(high) - decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution) / 2
             subsets.append(WCSTSubset(axis_subset.coverage_axis.axis.label, low, high))
         return subsets
 

@@ -34,7 +34,7 @@ from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
 from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
 from util.string_util import stringify
-
+from util.time_util import DateTimeUtil
 
 class PointPixelNetcdfToCoverageConverter(NetcdfToCoverageConverter):
     """
@@ -96,13 +96,13 @@ class PointPixelNetcdfToCoverageConverter(NetcdfToCoverageConverter):
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
         if user_axis.type == UserAxisType.DATE:
-            geo_axis.origin = stringify(arrow.get(geo_axis.origin))
-            geo_axis.low = stringify(arrow.get(geo_axis.low))
+            geo_axis.origin = DateTimeUtil.get_datetime_iso(geo_axis.origin)
+            geo_axis.low = DateTimeUtil.get_datetime_iso(geo_axis.low)
             if geo_axis.high is not None:
-                geo_axis.high = stringify(arrow.get(geo_axis.high))
-            user_axis.interval.low = stringify(arrow.get(user_axis.interval.low))
+                geo_axis.high = DateTimeUtil.get_datetime_iso(geo_axis.high)
+            user_axis.interval.low = DateTimeUtil.get_datetime_iso(user_axis.interval.low)
             if user_axis.interval.high is not None:
-                user_axis.interval.high = stringify(arrow.get(user_axis.interval.high))
+                user_axis.interval.high = DateTimeUtil.get_datetime_iso(user_axis.interval.high)
 
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))

@@ -1,0 +1,70 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_aggregated_ansidate_netcdf",
+    "paths": [
+      "input.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/3577@OGC/0/AnsiDate",
+        "metadata": {
+          "type": "xml",
+          "global": {
+          }
+        },
+        "slicer": {
+          "type": "netcdf",
+          "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "1",
+              "description": "Nadir BRDF Adjusted Reflectance 0.43-0.45 microns (Coastal Aerosol)",
+              "identifier": "b1",
+              "nilValue": "-999"
+            },
+            {
+              "name": "b2",
+              "identifier": "b2",
+              "nilValue": "-999"
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "${netcdf:variable:ansi:min} * 24 * 3600 - 11644560000.0",
+              "max": "${netcdf:variable:ansi:max} * 24 * 3600 - 11644560000.0",
+              "directPositions": "[float(x) * 24 * 3600 - 11644560000.0 for x in ${netcdf:variable:ansi}]",
+              "gridOrder": 2,
+              "irregular": true
+            },
+            "E": {
+              "min": "${netcdf:variable:E:min}",
+              "max": "${netcdf:variable:E:max}",
+              "gridOrder": 0,
+              "resolution": 10000.0
+            },
+            "N": {
+              "min": "${netcdf:variable:N:min}",
+              "max": "${netcdf:variable:N:max}",
+              "gridOrder": 1,
+              "resolution": -10000.0
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:13, 0:999, 0:999] TILE SIZE 4000000"
+    }
+  }
+}
