@@ -138,8 +138,12 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         :return:
         """
         user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label), NetcdfEvaluatorSlice(nc_file))
-
         high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
+
+        # if low < high, adjust it (used when latitude axis in netCDF is reversed)
+        if user_axis.interval.high is not None and user_axis.interval.low > user_axis.interval.high:
+            user_axis.interval.low, user_axis.interval.high = user_axis.interval.high, user_axis.interval.low
+            high = user_axis.interval.high
 
         if isinstance(user_axis, RegularUserAxis):
             geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, user_axis.interval.low,
@@ -156,12 +160,12 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
             number_of_timepixels = time_high - time_low
             # convert all the time_low, time_high, resolution from datetime (date) to seconds
             resolution = user_axis.resolution * 24 * 3600
-            grid_high = int(math.fabs(math.floor(grid_low + number_of_timepixels / resolution)))
+            grid_high = int(math.fabs(math.floor(decimal.Decimal( str(grid_low) ) + decimal.Decimal( str(number_of_timepixels) ) / resolution)))
 
         else:
             grid_low = 0
             number_of_geopixels = user_axis.interval.high - user_axis.interval.low
-            grid_high = int(math.fabs(math.ceil(grid_low + number_of_geopixels / user_axis.resolution)))
+            grid_high = int(math.fabs(math.ceil(decimal.Decimal( str(grid_low) ) + decimal.Decimal( str(number_of_geopixels) ) / user_axis.resolution)))
 
             # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
             if not self.grid_coverage:
@@ -171,9 +175,11 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
         if crs_axis.is_easting():
-            geo_axis.origin = geo_axis.low + decimal.Decimal( str(user_axis.resolution) ) / 2
+            # NOTE: longitude axis origin always point from the left -> right
+            geo_axis.origin = decimal.Decimal( str(geo_axis.low) ) + decimal.Decimal( str(user_axis.resolution) ) / 2
         elif crs_axis.is_northing():
-            geo_axis.origin = geo_axis.high + decimal.Decimal( str(user_axis.resolution) ) / 2
+            # NOTE: latitude axis origin always point from the right -> left
+            geo_axis.origin = decimal.Decimal( str(geo_axis.high) ) + decimal.Decimal( str(user_axis.resolution) ) / 2
         elif crs_axis.is_future():
             # When it is DateTime format, it needs to be quoted, e.g: "2006-01-01T01:01:03Z"
             if user_axis.type == UserAxisType.DATE:

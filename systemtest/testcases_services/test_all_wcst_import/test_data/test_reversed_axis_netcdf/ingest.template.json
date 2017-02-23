@@ -1,0 +1,69 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false,
+    "insitu": true
+  },
+  "input": {
+    "coverage_id": "test_reversed_lat_netcdf",
+    "paths": [
+      "dis_19801201_19801201.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'ERAinterim river discharge data'"
+       	  }
+        },
+        "slicer": {
+          "type": "netcdf",
+          "bands": [
+            {
+              "name": "ERAinterim discharge",
+              "variable": "dis",
+              "description": "Global ERAinterim river discharge data",
+              "nilReason": "The nil value represents no data value",
+              "nilValue": "-9999",
+              "identifier": "dis"
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "datetime(regex_extract('${file:name}', 'dis_(.*)_(.*)', 1), 'YYYYMMDD')",
+              "max": "datetime(regex_extract('${file:name}', 'dis_(.*)_(.*)', 2), 'YYYYMMDD')",
+	      "resolution": "1",
+              "gridOrder": 0,
+              "type": "ansidate",
+              "regular": true
+            },
+            "Long": {
+              "min": "${netcdf:variable:lon:min} - 0.05",
+              "max": "${netcdf:variable:lon:max} + 0.05",
+              "gridOrder": 2,
+              "resolution":"0.1"
+            },
+            "Lat": {
+              "min": "${netcdf:variable:lat:min} - 0.05",
+              "max": "${netcdf:variable:lat:max} + 0.05",
+              "gridOrder": 1,
+              "resolution": "-0.1"
+            }
+          } 
+        }
+      },
+      "tiling": "ALIGNED [0:366, 0:500, 0:500]"
+    }
+  }
+}

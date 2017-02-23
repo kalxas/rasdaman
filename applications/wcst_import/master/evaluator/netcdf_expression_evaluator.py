@@ -73,12 +73,19 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         # Get the array of decimal variable with correct precision in string, remove all the new lines and parse values
         tmp = '{}'.format(variable[:].astype(numpy.dtype(decimal.Decimal))).replace('\r', '').replace('\n', '')
         values = tmp.split('[', 1)[1].split(']')[0]
+        # list of string values
         array = values.split(" ")
+        # convert to list of decimal values
+        array = [decimal.Decimal(x) for x in array]
 
-        if operation == "max" or operation == "last":
+        if operation == "max":
+            return max(array)
+        elif operation == "min":
+            return min(array)
+        elif operation == "last":
             lastIndex = len(variable) - 1
             return array[lastIndex]
-        elif operation == "min" or operation == "first":
+        elif operation == "first":
             return array[0]
         else:
             try:
