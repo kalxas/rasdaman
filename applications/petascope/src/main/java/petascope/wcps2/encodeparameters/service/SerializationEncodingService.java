@@ -26,16 +26,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
+import org.slf4j.LoggerFactory;
 import petascope.util.JsonUtil;
 import petascope.wcps2.encodeparameters.model.Dimensions;
 import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.model.JsonExtraParams;
 import petascope.wcps2.encodeparameters.model.NoData;
 import petascope.wcps2.encodeparameters.model.Variables;
+import petascope.wcps2.error.managed.processing.DeserializationExtraParamsInJsonExcception;
 import petascope.wcps2.handler.EncodeCoverageHandler;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.handlers.ProcessCoverageHandler;
 
 /**
  *
@@ -44,6 +47,8 @@ import petascope.wcs2.extensions.FormatExtension;
  */
 public class SerializationEncodingService {
 
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(SerializationEncodingService.class);
+    
     private ExtraMetadataService extraMetadataService;
 
     public SerializationEncodingService(ExtraMetadataService extraMetadataService) {
@@ -98,10 +103,18 @@ public class SerializationEncodingService {
      */
     public String serializeExtraParamsToJson(String rasqlFormat, String extraParams, WcpsCoverageMetadata metadata,
                                              NetCDFExtraParams netCDFExtraParams, GeoReference geoReference) throws JsonProcessingException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();        
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        JsonExtraParams jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
+        
+        JsonExtraParams jsonExtraParams;
+        
+        try {
+            jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
+        } catch (Exception ex) {
+            log.error("Could not deserialize extra parameters in JSON format", ex);
+            throw new DeserializationExtraParamsInJsonExcception();
+        }
 
         // update each range of coverage with value from passing nodata_values
         EncodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), metadata);

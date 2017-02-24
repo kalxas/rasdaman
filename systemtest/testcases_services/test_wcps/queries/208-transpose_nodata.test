@@ -1,0 +1,1 @@
+for c in (test_rgb) return encode(c, "png", "{ \"transpose\": [0,1], \"nodata\": [100, 200, 260] }")

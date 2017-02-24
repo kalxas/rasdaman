@@ -14,34 +14,22 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
-*/
-package petascope.wcps2.encodeparameters.model;
+ */
+package petascope.wcps2.error.managed.processing;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
+import petascope.exceptions.ExceptionCode;
 
 /**
- *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class Transpose {
-    public Transpose() {
-        
-    }
-    public Transpose(List<Integer> tranposeValues) {
-        this.tranposeValues = tranposeValues;
-    }
-    public void setTransposeValues(List<Integer> tranposeValues) {
-        this.tranposeValues = tranposeValues;
-    }
-    @JsonProperty("tranpose")
-    public List<Integer> getTransposeValues() {
-        return this.tranposeValues;
+public class DeserializationExtraParamsInJsonExcception extends WCPSProcessingError {
+    public DeserializationExtraParamsInJsonExcception() {
+        super(EXCEPTION_TEXT, ExceptionCode.WcsError);
     }
 
-    private List<Integer> tranposeValues;
+    private final static String EXCEPTION_TEXT = "Could not deserialize extra params in JSON format.";
 }

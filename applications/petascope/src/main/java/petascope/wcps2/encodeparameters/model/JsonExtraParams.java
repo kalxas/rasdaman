@@ -23,10 +23,14 @@ package petascope.wcps2.encodeparameters.model;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,15 +70,6 @@ public class JsonExtraParams {
         return this.variables;
     }
 
-    public void setTranspose(Transpose transpose) {
-        this.transpose = transpose;
-    }
-
-    @JsonUnwrapped
-    public Transpose getTranspose() {
-        return this.transpose;
-    }
-
     public void setGeoReference(GeoReference geoReference) {
         this.geoReference = geoReference;
     }
@@ -91,6 +86,15 @@ public class JsonExtraParams {
     public NoData getNoData() {
         return this.nodata;
     }
+        
+    public void setTranspose(List<Integer> transpose) {
+        this.transpose = transpose;
+    }
+
+    @JsonUnwrapped    
+    public List<Integer> getTranspose() {
+        return this.transpose;
+    }    
 
     public void setColorPalette(ColorPalette colorPalette) {
         this.colorPalette = colorPalette;
@@ -127,11 +131,11 @@ public class JsonExtraParams {
 
     private Dimensions dimensions;
     private Variables variables;
-    private Transpose transpose;
     private GeoReference geoReference;
     private NoData nodata;
     private ColorPalette colorPalette;
-    
+        
+    private List<Integer> transpose = new ArrayList<Integer>();    
     private Map<String, String> formatParameters = new HashMap<String, String>();
     private Map<String, String> metadata = new HashMap<String, String>();
     private Map<String, String> configOptions = new HashMap<String, String>();
