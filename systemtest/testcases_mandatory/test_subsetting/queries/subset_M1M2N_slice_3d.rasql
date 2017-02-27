@@ -1,0 +1,1 @@
+select sdom(c[0:0,-500:-300,-500:-300]) from test_subsetting_3d as c

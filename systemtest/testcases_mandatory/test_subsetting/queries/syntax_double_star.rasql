@@ -1,0 +1,1 @@
+select sdom(c[10:**]) from test_subsetting_1D as c

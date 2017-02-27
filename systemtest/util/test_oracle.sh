@@ -85,6 +85,7 @@ drop_data()
   [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_COMPLEX
   [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || drop_petascope_data
   [ "$SVC_NAME" == "nullvalues" ] && drop_nullvalues_data
+  [ "$SVC_NAME" == "subsetting" ] && drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D
 }
 
 #
@@ -144,6 +145,7 @@ drop_data
 [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]
 [ "$SVC_NAME" == "select" ] && import_rasql_data "$TESTDATA_PATH"
 [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
+[ "$SVC_NAME" == "subsetting" ] && import_subsetting_data "$TESTDATA_PATH"
 if [ -e "$TESTDATA_PATH/complex.binary" ] ; then
   if [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]; then
     check_type Gauss2Set

@@ -64,6 +64,10 @@ TEST_RGB2=test_rgb2
 TEST_GREY3D=test_grey3d
 TEST_COMPLEX=test_complex
 TEST_NULL=nulltest
+TEST_SUBSETTING_1D=test_subsetting_1d		
+TEST_SUBSETTING=test_subsetting		
+TEST_SUBSETTING_SINGLE=test_subsetting_single		
+TEST_SUBSETTING_3D=test_subsetting_3d
 
 
 # ------------------------------------------------------------------------------
@@ -743,11 +747,8 @@ run_test()
       secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g'`
               get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
-      select|rasql|nullvalues|jit)
+      select|rasql|nullvalues|subsetting)
               QUERY=`cat $f`
-              if [ "$SVC_NAME" = "jit" ]; then
-                QUERY="$QUERY [opt 4]"
-              fi
               $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
 
               # if an exception was thrown, then the err file has non-zero size
@@ -869,24 +870,24 @@ run_test()
           fi
 
           cmp "$output_tmp" "$oracle_tmp" 2>&1
-        else
-          # byte comparison
+	else
+	# byte comparison
           if [[ "$filetype" == *XML* ]]; then
-              prepare_xml_file "$out"
-              # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
-              trim_indentation "$oracle"
-              trim_indentation "$out"
-              log "XML comparison"
-              # diff comparison ignoring EOLs [see ticket #551]
-              diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
-              # remove the temp files
-              rm -f "$oracle.tmp"
-              rm -f "$out.tmp"
-          else
-              log "byte comparison"
-              # diff comparison ignoring EOLs [see ticket #551]
-              diff -b "$oracle" "$out" 2>&1 > /dev/null
-          fi
+            prepare_xml_file "$out"
+            # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
+            trim_indentation "$oracle"
+            trim_indentation "$out"
+            log "XML comparison"
+            # diff comparison ignoring EOLs [see ticket #551]
+            diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
+            # remove the temp files
+            rm -f "$oracle.tmp"
+            rm -f "$out.tmp"
+	  else
+            log "byte comparison"
+            # diff comparison ignoring EOLs [see ticket #551]
+            diff -b "$oracle" "$out" 2>&1 > /dev/null
+	  fi
         fi
         update_result
 

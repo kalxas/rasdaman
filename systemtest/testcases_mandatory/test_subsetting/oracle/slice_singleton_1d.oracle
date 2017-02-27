@@ -1,0 +1,1 @@
+rasdaman error 395: Execution error 395 in line 1, column 8, near token sdom: Operand of function sdom() must be of type MDD.

@@ -1,0 +1,1 @@
+select sdom(c[0:1000,0:1000]) from test_subsetting_single as c

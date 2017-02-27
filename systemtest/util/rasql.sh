@@ -301,6 +301,58 @@ function import_nullvalues_data()
   $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" | tee -a $LOG
 }
 
+#		
+# import data used in rasql subsetting tests. Expects arguments		
+# $1 - testdata dir holding files to be imported		
+#		
+function import_subsetting_data()		
+{		
+  local TESTDATA_PATH="$1"		
+  if [ ! -d "$TESTDATA_PATH" ]; then		
+    error "testdata path $TESTDATA_PATH not found."		
+  fi		
+  if [ ! -f "$TESTDATA_PATH/mr_1.png" ]; then		
+    error "testdata file $TESTDATA_PATH/mr_1.png not found"		
+  fi		
+  if [ ! -f "$TESTDATA_PATH/rgb.png" ]; then		
+    error "testdata file $TESTDATA_PATH/rgb.png not found"		
+  fi
+  
+  if [ ! -f "$TESTDATA_PATH/101.bin" ]; then		
+	  error "tesdata file $TESTDATA_PATH/101.bin not found"		
+	fi		
+			
+  # check data types		
+  check_type GreySet1		
+  check_type GreySet		
+  check_type RGBSet		
+  check_type GreySet3		
+	 		
+  drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D		
+			
+  create_coll $TEST_SUBSETTING_1D GreySet1		
+  $RASQL -q "insert into $TEST_SUBSETTING_1D values \$1" -f "$TESTDATA_PATH/101.bin" --mdddomain "[0:100]" --mddtype GreyString > /dev/null		
+			
+  create_coll $TEST_SUBSETTING GreySet		
+  # this creates an object of size: [0:255,0:210]		
+  insert_into $TEST_SUBSETTING "$TESTDATA_PATH/mr_1.png" "" "decode"		
+	 				
+  # we extend this to an object of size: [0:755,0:710]		
+  # materializing data at: [500:755,500:710]		
+  $RASQL -q "update $TEST_SUBSETTING as m set m assign shift(decode(\$1), [500, 500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
+	 				
+  # and let's extend negative in order to test negative indexing: [-500:755,-500:710]		
+  $RASQL -q "update $TEST_SUBSETTING as m set m assign shift(decode(\$1), [-500, -500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
+	 			
+  create_coll $TEST_SUBSETTING_SINGLE RGBSet		
+  insert_into $TEST_SUBSETTING_SINGLE "$TESTDATA_PATH/rgb.png" "" "decode"		
+			
+  create_coll $TEST_SUBSETTING_3D GreySet3		
+  $RASQL -q "insert into $TEST_SUBSETTING_3D values marray i in [0:0,-500:-500,-500:-500] values 0c" --quiet > /dev/null		
+  $RASQL -q "update $TEST_SUBSETTING_3D as m set m[0,*:*,*:*] assign shift(decode(\$1), [-500, -500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
+  $RASQL -q "update $TEST_SUBSETTING_3D as m set m[1,*:*,*:*] assign shift(decode(\$1), [500, 500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
+}
+
 #
 # drop null values test data, including imported null types
 #

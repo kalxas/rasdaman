@@ -1,0 +1,1 @@
+select sdom(c[15:30,]) from test_subsetting as c

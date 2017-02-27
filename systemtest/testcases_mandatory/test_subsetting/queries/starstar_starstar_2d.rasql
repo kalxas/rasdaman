@@ -1,0 +1,1 @@
+select sdom(c[*:*,*:*]) from test_subsetting as c
