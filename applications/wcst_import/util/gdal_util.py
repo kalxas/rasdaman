@@ -178,7 +178,15 @@ class GDALGmlUtil:
             nil_value = str(band.GetNoDataValue()) if band.GetNoDataValue() is not None else ""
             # Check if the nil value is an integer and if it is float then split it to 2 integers (e.g: -10.4 -> [-11:-10] as rasdaman does not support floating null values
             # TODO: Remove this check once rasdaman supports floating null values
-            if nil_value != "":
+            is_number = False
+            if nil_value.isdigit():
+                # it avoids the "" and "nan" of nil_value
+                is_number = True
+            elif nil_value != "nan" and nil_value != "" and float(nil_value):
+                # it check the "3e+8" of nil_value
+                is_number = True
+
+            if is_number:
                 # Because gdal.GetNoDataValue() always return float number, even it is integer (e.g: -9999 then it will return -9999.0) so must check it with regex
                 int_pattern = re.compile(r'^.*\.0$')
                 int_matches = int_pattern.search(nil_value)

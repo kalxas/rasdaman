@@ -1,0 +1,77 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": true,
+        "__comment__": "[OPTIONAL] If a WCST request fails it will be retried a number of times before an error is thrown",
+    "retry": true,
+    "__comment__": "[OPTIONAL] Number of retries to be attempted."
+  },
+  "input": {
+    "coverage_id": "wcst_test_nil_value_nan",
+    "paths": [
+      "rdw05n25_b182328*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "satellite_name": "'Landsat8'",
+            "scene_identifier": "'LC8'",
+            "acquisition_date_and_time": "'2013_2014'",
+            "cloud_cover": "'20%'",
+            "type_of_sensor": "''",
+            "type_of_scene": "''",
+            "type_of_ordering": "'CloudEO Store'"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+          "bands": [
+            {
+              "name": "band_18",
+              "identifier": "band_18",
+              "description": "Mean ND57"
+            },
+            {
+              "name": "band_23",
+              "identifier": "band_23",
+              "description": "Mean ND42"
+            },
+            {
+              "name": "band_28",
+              "identifier": "band_28",
+              "description": "Mean ND32"
+            }           
+          ],
+          "axes": {
+            "Lat": {
+              "min": "${gdal:minY}",
+              "max": "${gdal:maxY}",
+              "resolution": "${gdal:resolutionY}",
+              "gridOrder": 1
+            },
+            "Long": {
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
+              "resolution": "${gdal:resolutionX}",
+              "gridOrder": 0
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:1154, 0:1154] TILE SIZE 16008300",
+      "wms_import": true
+    }
+  }
+}
