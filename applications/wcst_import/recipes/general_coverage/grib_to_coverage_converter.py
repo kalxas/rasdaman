@@ -140,10 +140,11 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         dataset = pygrib.open(self.grib_files[0].filepath)
         return [RangeTypeNilValue(self.band.nilReason, dataset.message(1)["missingValue"])]
 
-    def _messages(self, grib_file):
+    def _messages(self, grib_file, crs_axes):
         """
         Returns the message information already evaluated
         :param File grib_file: the grib file for which to return the messages
+        :param crs_axes: the list of crs_axis
         :rtype: list[GRIBMessage]
         """
         dataset = pygrib.open(grib_file.get_filepath())
@@ -175,7 +176,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                         high = axis.interval.high
                     resolution = axis.resolution
         grid_low = 0
-        grid_high = int(math.fabs(math.ceil(grid_low + decimal.Decimal(str(high - low)) / resolution)))
+        grid_high = int(math.fabs(math.ceil(decimal.Decimal( str(grid_low) )
+                  + decimal.Decimal(str(high - low)) / decimal.Decimal( str(resolution) ))))
 
         # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
         if not self.grid_coverage:
@@ -208,8 +210,10 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                     if high != low:
                         grid_high += 1
         grid_low = 0
+
         if grid_high > grid_low:
             grid_high -= 1
+
         return stringify(low.isoformat()), stringify(high.isoformat()), stringify(
             low.isoformat()), int(grid_low), int(grid_high), resolution
 
@@ -237,9 +241,10 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
             out_messages.append(message.to_json())
         return out_messages
 
-    def _metadata(self):
+    def _metadata(self, crs_axes):
         """
         Returns the metadata in the corresponding format indicated in the converter
+        :param: crs_axes: the list of crs_axis
         :rtype: str
         """
         if not self.local_metadata_fields and not self.global_metadata_fields:
@@ -247,7 +252,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
         metadata_entries = []
         for grib_file in self.grib_files:
-            for message in self._messages(grib_file):
+            for message in self._messages(grib_file, crs_axes):
                 slice = GribMessageEvaluatorSlice(message.message, grib_file)
                 metadata_entry_subsets = []
                 for axis in message.axes:
@@ -267,7 +272,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param list[CRSAxis] crs_axes: the crs axes for the coverage
         :rtype: Slice
         """
-        messages = self._messages(grib_file)
+        messages = self._messages(grib_file, crs_axes)
         axis_subsets = []
         for i in range(0, len(crs_axes)):
             crs_axis = crs_axes[i]
@@ -318,8 +323,10 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :rtype: Coverage
         """
         crs_axes = CRSUtil(self.crs).get_axes()
-        range_field = RangeTypeField(self.band.name, self.band.definition, self.band.description,
-                                     self._get_null_value())
-        coverage = Coverage(self.coverage_id, self._slices(crs_axes), [range_field], self.crs, self.DEFAULT_DATA_TYPE,
-                            self.tiling, self._metadata())
+        range_field = RangeTypeField(self.band.name, self.band.definition,
+                                     self.band.description, self._get_null_value())
+
+        coverage = Coverage(self.coverage_id, self._slices(crs_axes),
+                            [range_field], self.crs, self.DEFAULT_DATA_TYPE,
+                            self.tiling, self._metadata(crs_axes))
         return coverage

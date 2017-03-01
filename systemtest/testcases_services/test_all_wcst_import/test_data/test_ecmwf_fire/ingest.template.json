@@ -1,0 +1,76 @@
+{
+  "config": {
+	"service_url": "PETASCOPE_URL",
+        "tmp_directory": "/tmp/",
+        "crs_resolver": "SECORE_URL/",
+        "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false,
+    "insitu": false
+  },
+  "input": {
+    "coverage_id": "fire_dc_test_irregular_axis",
+    "paths": [
+      "*.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+        "coverage": {
+          "crs": "EPSG/0/4326@OGC/0/AnsiDate@OGC/0/Index1D?axis-label=\"forecast\"",
+          "metadata": {
+            "type": "xml",
+            "global": {
+              "Title": "'Drought code'"
+         	  }
+          },
+          "slicer": {
+            "type": "netcdf",
+            "bands": [
+              {
+                "name": "Drought code",
+                "variable": "dc",
+                "description": "Global Fire Forecast (GEFF) - Drought Code",
+                "nilReason": "The nil value represents no data value",
+                "nilValue": "-9999",
+                "identifier": "dc"
+              }
+            ],
+            "axes": {
+              "ansi": {
+                "min": "datetime(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 1), 'YYYYMMDD')",
+                "max": "datetime(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 1), 'YYYYMMDD')",
+  	          "resolution": "1",
+                "gridOrder": 0,
+                "type": "ansidate",
+                "regular": true
+              },
+              "Long": {
+                "min": 0,
+                "max": 360,
+                "gridOrder": 2,
+                "resolution":"0.140625"
+              },
+              "Lat": {
+                "min": -90,
+                "max": 90,
+                "gridOrder": 1,
+                "resolution": "-0.140625"
+              }, 
+              "forecast": {
+                "min": "int(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 2))",
+                "gridOrder": 3,
+   	        "dataBound": false,
+                "resolution": 1,
+                "irregular": true
+              }
+          }
+        }      
+      },
+      "tiling": "ALIGNED [0:366, 0:500, 0:500, 0:10]"
+    }
+  }
+}

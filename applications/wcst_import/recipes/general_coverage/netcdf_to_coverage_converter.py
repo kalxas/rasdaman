@@ -49,7 +49,7 @@ from master.provider.metadata.regular_axis import RegularAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
-from util.string_util import stringify
+from util.time_util import DateTimeUtil
 
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
@@ -154,18 +154,30 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
         if user_axis.type == UserAxisType.DATE:
             grid_low = 0
-            # NOTE: calculate the grid bound for the time axis as when update the boundary it will have error
+            # convert all the time_low, time_high, resolution from datetime (date) to seconds
             time_low = arrow.get(user_axis.interval.low).timestamp
             time_high = arrow.get(high).timestamp
             number_of_timepixels = time_high - time_low
-            # convert all the time_low, time_high, resolution from datetime (date) to seconds
-            resolution = user_axis.resolution * 24 * 3600
-            grid_high = int(math.fabs(math.floor(decimal.Decimal( str(grid_low) ) + decimal.Decimal( str(number_of_timepixels) ) / resolution)))
+
+            # AnsiDate
+            if crs_axis.is_uom_day:
+                resolution = user_axis.resolution * DateTimeUtil.DAY_IN_SECONDS
+            grid_high = int(math.fabs(round(decimal.Decimal( str(grid_low) )
+                                    + decimal.Decimal( str(number_of_timepixels) ) / resolution)))
 
         else:
             grid_low = 0
-            number_of_geopixels = user_axis.interval.high - user_axis.interval.low
-            grid_high = int(math.fabs(math.ceil(decimal.Decimal( str(grid_low) ) + decimal.Decimal( str(number_of_geopixels) ) / user_axis.resolution)))
+            if user_axis.interval.high is not None:
+                number_of_geopixels = decimal.Decimal(str(user_axis.interval.high)) \
+                                    - decimal.Decimal(str(user_axis.interval.low))
+            else:
+                # when dataBound is set to false, it is slicing subset
+                if user_axis.interval.high is None:
+                    number_of_geopixels = decimal.Decimal(1)
+                else:
+                    number_of_geopixels = decimal.Decimal( str(user_axis.interval.high) )\
+                                        - decimal.Decimal( str(user_axis.interval.low) )
+            grid_high = int(math.fabs(round(decimal.Decimal( str(grid_low) ) + decimal.Decimal( str(number_of_geopixels) ) / user_axis.resolution)))
 
             # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
             if not self.grid_coverage:
@@ -176,20 +188,24 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
         if crs_axis.is_easting():
             # NOTE: longitude axis origin always point from the left -> right
-            geo_axis.origin = decimal.Decimal( str(geo_axis.low) ) + decimal.Decimal( str(user_axis.resolution) ) / 2
+            geo_axis.origin = decimal.Decimal( str(geo_axis.low) ) \
+                            + decimal.Decimal( str(user_axis.resolution) ) / 2
         elif crs_axis.is_northing():
             # NOTE: latitude axis origin always point from the right -> left
-            geo_axis.origin = decimal.Decimal( str(geo_axis.high) ) + decimal.Decimal( str(user_axis.resolution) ) / 2
+            geo_axis.origin = decimal.Decimal( str(geo_axis.high) ) \
+                            + decimal.Decimal( str(user_axis.resolution) ) / 2
         elif crs_axis.is_future():
             # When it is DateTime format, it needs to be quoted, e.g: "2006-01-01T01:01:03Z"
             if user_axis.type == UserAxisType.DATE:
-                geo_axis.origin = stringify(geo_axis.origin)
-                geo_axis.low = stringify(geo_axis.low)
+                geo_axis.origin = DateTimeUtil.get_datetime_iso(geo_axis.origin)
+                geo_axis.low = DateTimeUtil.get_datetime_iso(geo_axis.low)
+
                 if geo_axis.high is not None:
-                    geo_axis.high = stringify(geo_axis.high)
-                user_axis.interval.low = stringify(user_axis.interval.low)
+                    geo_axis.high = DateTimeUtil.get_datetime_iso(geo_axis.high)
+
+                user_axis.interval.low = DateTimeUtil.get_datetime_iso(user_axis.interval.low)
                 if user_axis.interval.high is not None:
-                    user_axis.interval.high = stringify(user_axis.interval.high)
+                    user_axis.interval.high = DateTimeUtil.get_datetime_iso(user_axis.interval.high)
 
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))
@@ -205,6 +221,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         file_structure = self._file_structure()
         for i in range(0, len(crs_axes)):
             axis_subsets.append(self._axis_subset(crs_axes[i], nc_file))
+
         return Slice(axis_subsets, FileDataProvider(nc_file, file_structure))
 
     def _file_structure(self):
@@ -305,4 +322,5 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
                             self._data_type(),
                             self.tiling, self._metadata(slices))
         return coverage
+
 

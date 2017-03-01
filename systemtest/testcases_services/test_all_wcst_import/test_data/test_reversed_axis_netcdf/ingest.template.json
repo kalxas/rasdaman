@@ -1,9 +1,9 @@
 {
   "config": {
-    "service_url": "http://localhost:8080/rasdaman/ows",
-    "tmp_directory": "/tmp/",
-    "crs_resolver": "http://localhost:8080/def/",
-    "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
+	"service_url": "PETASCOPE_URL",
+        "tmp_directory": "/tmp/",
+        "crs_resolver": "SECORE_URL/",
+        "default_crs": "SECORE_URL/crs/EPSG/0/4326",
     "mock": false,
     "automated": true,
     "track_files": false,

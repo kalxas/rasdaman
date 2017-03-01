@@ -1,0 +1,67 @@
+{
+  "config": {
+	"service_url": "http://localhost:8080/rasdaman/ows",
+        "tmp_directory": "/tmp/",
+        "crs_resolver": "http://localhost:8080/def/",
+        "default_crs": "http://localhost:8080/def/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false,
+    "insitu": false
+  },
+  "input": {
+    "coverage_id": "PM10_0_no_pixelis_point4",
+    "paths": [
+      "camsaq_PM10*"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'CAMS - Particulate Matter 10 (PM10)'"
+       	  }
+        },
+        "slicer": {
+          "type": "netcdf",
+          "bands": [
+            {
+              "name": "PM10",
+              "variable": "PM10",
+              "description": "PM10 Concentration from the analysis",
+              "nilReason": "The nil value represents no data value",
+              "nilValue": "-9999",
+              "identifier": "PM10"
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "${netcdf:variable:time:min} * 3600 - 62135596800.0",
+              "max": "${netcdf:variable:time:max} * 3600 - 62135596800.0",
+	          "resolution": 0.041666666666666664,
+              "gridOrder": 0
+            },
+            "Long": {
+              "min": "30 - 0.1 / 2",
+              "max": "30.1 + 0.1 / 2",
+              "gridOrder": 2,
+              "resolution":"0.1"
+            },
+            "Lat": {
+              "min": "25 - 0.1 / 2",
+              "max": "25.1 + 0.1 / 2",
+              "gridOrder": 1,
+              "resolution": "-0.1"
+            }
+          } 
+        }
+      },
+      "tiling": "ALIGNED [0:366, 0:500, 0:500]"
+    }
+  }
+}

@@ -23,11 +23,10 @@
 """
 
 import decimal
-
+import arrow
 from collections import OrderedDict
 from time import sleep
 from config_manager import ConfigManager
-from master.error.runtime_exception import RuntimeException
 from master.importer.coverage import Coverage
 from master.importer.resumer import Resumer
 from master.importer.slice import Slice
@@ -44,6 +43,7 @@ from util.log import log
 from wcst.wcst import WCSTInsertRequest, WCSTUpdateRequest, WCSTSubset
 from wcst.wmst import WMSTFromWCSInsertRequest
 from util.crs_util import CRSUtil
+from util.time_util import DateTimeUtil
 
 
 class Importer:
@@ -165,7 +165,19 @@ class Importer:
         for axis_subset in slice.axis_subsets:
             low = axis_subset.interval.low
             high = axis_subset.interval.high
-            if ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
+            #if ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
+            if ConfigManager.subset_correction and high is not None and low != high and type(low) == str:
+                # UnixTime
+                time_seconds = 1
+                # AnsiDate (need to change from date to seconds)
+                if axis_subset.coverage_axis.axis.crs_axis.is_uom_day():
+                    time_seconds = DateTimeUtil.DAY_IN_SECONDS
+                low = decimal.Decimal(arrow.get(low).float_timestamp) + decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution * time_seconds) / 2
+                low = arrow.get(low)
+                if high is not None:
+                    high = decimal.Decimal(arrow.get(high).float_timestamp) - decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution * time_seconds) / 2
+                    high = arrow.get(high)
+            elif ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
                 low = decimal.Decimal(low) +  decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution) / 2
                 if high is not None:
                     high = decimal.Decimal(high) - decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution) / 2

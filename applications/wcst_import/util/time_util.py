@@ -79,6 +79,9 @@ class DateTimeUtil:
     ANSI_DATE_ORIGIN = "1600-12-31T00:00:00Z"
     UNIX_TIME_ORIGIN = "1970-01-01T00:00:00Z"
 
+    """" AnsiDate To UnixTime """
+    DAY_IN_SECONDS = 24 * 3600
+
     def __init__(self, datetime, dt_format=None, time_crs=None):
         """
         :param str datetime: the datetime value

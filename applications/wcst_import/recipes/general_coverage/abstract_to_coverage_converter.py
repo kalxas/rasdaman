@@ -67,4 +67,4 @@ class AbstractToCoverageConverter:
 
     def _translate_day_date_direct_position_to_coefficients(self, origin, direct_positions):
         return map(lambda x: ( (decimal.Decimal( str(arrow.get(x).float_timestamp) )
-                              - decimal.Decimal( str(origin) ) ) / decimal.Decimal(24 * 3600) ), direct_positions)
+                              - decimal.Decimal( str(origin) ) ) / decimal.Decimal(DateTimeUtil.DAY_IN_SECONDS) ), direct_positions)

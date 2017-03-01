@@ -29,6 +29,7 @@ Utility to insert coverages into rasdaman using WCST
 import json
 import sys
 import traceback
+import decimal
 
 from master.error.runtime_exception import RuntimeException
 
@@ -101,11 +102,12 @@ def read_ingredients():
 def decode_ingredients(ingredients_raw):
     """
     Decodes the raw json ingredients string into a python dict
+    NOTE: keep all the numbers as decimal to avoid losing precision (e.g: 0.041666666666666666666666 to 0.04116666666667 as float)
     :param str ingredients_raw: the raw json string
     :rtype: dict[str,dict|str|bool|int|float]
     """
     try:
-        return json.loads(ingredients_raw)
+        return json.loads(ingredients_raw, parse_float = decimal.Decimal)
     except Exception as ex:
         log.error("We could not decode the ingredients file. This is usually due to " \
                   "a problem with the json format. Please check that you have a valid json file." \

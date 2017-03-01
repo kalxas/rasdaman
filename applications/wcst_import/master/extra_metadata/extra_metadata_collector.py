@@ -62,8 +62,9 @@ class ExtraMetadataCollector:
         global_meta = {}
         for key, value in self.extra_metadata_info.global_attributes.items():
             # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
+            # output of extra metadata should be string in any cases
             if str(value) != "":
-                global_meta[key] = self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice)
+                global_meta[key] = str(self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice))
             else:
                 global_meta[key] = str(value)
 
@@ -73,6 +74,7 @@ class ExtraMetadataCollector:
             for metadata_entry in self.metadata_entries:
                 meta_values = {}
                 for meta_key, sentence in self.extra_metadata_info.slice_attributes.items():
-                    meta_values[meta_key] = self.evaluator.evaluate(sentence, metadata_entry.evalutor_slice)
+                    # output of extra metadata should be string in any cases
+                    meta_values[meta_key] = str(self.evaluator.evaluate(sentence, metadata_entry.evalutor_slice))
                 meta_slices.append(ExtraMetadataSlice(metadata_entry.slice_subset, meta_values))
         return ExtraMetadata(global_meta, meta_slices)

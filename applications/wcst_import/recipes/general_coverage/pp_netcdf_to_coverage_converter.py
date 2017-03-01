@@ -21,7 +21,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-from lib import arrow
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from master.helper.regular_user_axis import RegularUserAxis
@@ -33,7 +32,6 @@ from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
 from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
-from util.string_util import stringify
 from util.time_util import DateTimeUtil
 
 class PointPixelNetcdfToCoverageConverter(NetcdfToCoverageConverter):
@@ -66,13 +64,13 @@ class PointPixelNetcdfToCoverageConverter(NetcdfToCoverageConverter):
         :rtype AxisSubset
         """
         user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label), NetcdfEvaluatorSlice(nc_file))
-        PointPixelAdjuster.adjust_axis_bounds_to_continuous_space(user_axis)
+        PointPixelAdjuster.adjust_axis_bounds_to_continuous_space(user_axis, crs_axis)
 
         high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
 
         if isinstance(user_axis, RegularUserAxis):
             geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
-                                   PointPixelAdjuster.get_origin(user_axis), crs_axis)
+                                   PointPixelAdjuster.get_origin(user_axis, crs_axis), crs_axis)
         else:
             if user_axis.type == UserAxisType.DATE:
                 if crs_axis.is_uom_day():
@@ -85,7 +83,7 @@ class PointPixelNetcdfToCoverageConverter(NetcdfToCoverageConverter):
                 coefficients = self._translate_number_direct_position_to_coefficients(user_axis.interval.low,
                                                                                       user_axis.directPositions)
             geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
-                                     PointPixelAdjuster.get_origin(user_axis), coefficients, crs_axis)
+                                     PointPixelAdjuster.get_origin(user_axis, crs_axis), coefficients, crs_axis)
 
         grid_low = 0
         grid_high = PointPixelAdjuster.get_grid_points(user_axis, crs_axis)
@@ -98,8 +96,10 @@ class PointPixelNetcdfToCoverageConverter(NetcdfToCoverageConverter):
         if user_axis.type == UserAxisType.DATE:
             geo_axis.origin = DateTimeUtil.get_datetime_iso(geo_axis.origin)
             geo_axis.low = DateTimeUtil.get_datetime_iso(geo_axis.low)
+
             if geo_axis.high is not None:
                 geo_axis.high = DateTimeUtil.get_datetime_iso(geo_axis.high)
+
             user_axis.interval.low = DateTimeUtil.get_datetime_iso(user_axis.interval.low)
             if user_axis.interval.high is not None:
                 user_axis.interval.high = DateTimeUtil.get_datetime_iso(user_axis.interval.high)

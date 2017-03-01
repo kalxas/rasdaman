@@ -23,7 +23,6 @@
 """
 import pygrib
 
-from lib import arrow
 from master.helper.user_axis import UserAxis
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from master.helper.irregular_user_axis import IrregularUserAxis
@@ -40,7 +39,7 @@ from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageCo
 from recipes.general_coverage.grib_to_coverage_converter import GRIBMessage
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
-from util.string_util import stringify
+from util.time_util import DateTimeUtil
 
 class PointPixelGRIBToCoverageConverter(GRIBToCoverageConverter):
     """
@@ -64,10 +63,11 @@ class PointPixelGRIBToCoverageConverter(GRIBToCoverageConverter):
                                          tiling, global_metadata_fields, local_metadata_fields, metadata_type,
                                          grid_coverage)
 
-    def _messages(self, grib_file):
+    def _messages(self, grib_file, crs_axes):
         """
         Returns the message information already evaluated
         :param File grib_file: the grib file for which to return the messages
+        :param crs_axes: the list of crs axis to match with user_axis for adjusting by half pixel of min, max
         :rtype: list[GRIBMessage]
         """
         dataset = pygrib.open(grib_file.get_filepath())
@@ -76,9 +76,18 @@ class PointPixelGRIBToCoverageConverter(GRIBToCoverageConverter):
             message = dataset.message(i)
             axes = []
             for user_axis in self.user_axes:
+                # find the crs_axis which are used to evaluate the user_axis (have same name)
+                crs_axis = [item for item in crs_axes if item.label == user_axis.name]
                 evaluated_user_axis = self._user_axis(user_axis, GribMessageEvaluatorSlice(message, grib_file))
-                # Shift by half pixel for min/max of the axis
-                PointPixelAdjuster.adjust_axis_bounds_to_continuous_space(evaluated_user_axis)
+                # NOTE: interval.high of grib message is always None (as slices)
+                # Shift by half pixel for min/max of the axis and return the datetime in ISO format
+                if (user_axis.type == UserAxisType.DATE):
+                    PointPixelAdjuster.adjust_axis_bounds_for_time_axis(evaluated_user_axis, crs_axis[0])
+                    # and must translate them to dateTime
+                    evaluated_user_axis.interval.low = DateTimeUtil.get_datetime_iso(evaluated_user_axis.interval.low)
+                else:
+                    # Shift by half pixel for min/max of the axis
+                    PointPixelAdjuster.adjust_axis_bounds_to_continuous_space(evaluated_user_axis, crs_axis[0])
                 axes.append(evaluated_user_axis)
             messages.append(GRIBMessage(i, axes, message))
         return messages
@@ -90,7 +99,7 @@ class PointPixelGRIBToCoverageConverter(GRIBToCoverageConverter):
         :param list[CRSAxis] crs_axes: the crs axes for the coverage
         :rtype: Slice
         """
-        messages = self._messages(grib_file)
+        messages = self._messages(grib_file, crs_axes)
         axis_subsets = []
         for i in range(0, len(crs_axes)):
             crs_axis = crs_axes[i]
@@ -102,23 +111,26 @@ class PointPixelGRIBToCoverageConverter(GRIBToCoverageConverter):
                                                   user_axis.type, user_axis.dataBound)
 
                 geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, low, high,
-                                         PointPixelAdjuster.get_origin(user_axis_tmp),
+                                         PointPixelAdjuster.get_origin(user_axis_tmp, crs_axis),
                                          user_axis.directPositions, crs_axis)
             else:
                 user_axis_tmp = RegularUserAxis(user_axis.name, resolution, user_axis.order, low, high,
                                                 user_axis.type, user_axis.dataBound)
                 geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, low, high,
-                                       PointPixelAdjuster.get_origin(user_axis_tmp), crs_axis)
+                                       PointPixelAdjuster.get_origin(user_axis_tmp, crs_axis), crs_axis)
 
             if user_axis_tmp.type == UserAxisType.DATE:
-                geo_axis.origin = stringify(arrow.get(geo_axis.origin))
-                geo_axis.low = stringify(arrow.get(geo_axis.low))
+                geo_axis.origin = DateTimeUtil.get_datetime_iso(geo_axis.origin)
+                geo_axis.low = DateTimeUtil.get_datetime_iso(geo_axis.low)
+
                 if geo_axis.high is not None:
-                    geo_axis.high = stringify(arrow.get(geo_axis.high))
-                    user_axis_tmp.interval.low = stringify(arrow.get(user_axis_tmp.interval.low))
+                    geo_axis.high = DateTimeUtil.get_datetime_iso(geo_axis.high)
+                    user_axis_tmp.interval.low = DateTimeUtil.get_datetime_iso(user_axis_tmp.interval.low)
+
                 if user_axis.interval.high is not None:
-                    user_axis_tmp.interval.high = stringify(arrow.get(user_axis_tmp.interval.high))
+                    user_axis_tmp.interval.high = DateTimeUtil.get_datetime_iso(user_axis_tmp.interval.high)
 
             grid_axis = GridAxis(user_axis.order, crs_axis.label, resolution, grid_low, grid_high)
             axis_subsets.append(AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound), Interval(low, high)))
+
         return Slice(axis_subsets, FileDataProvider(grib_file, self._messages_to_dict(messages), self.MIMETYPE))
