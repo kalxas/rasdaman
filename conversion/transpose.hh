@@ -36,8 +36,19 @@ rasdaman GmbH.
 
 //find size of data type of an r_Type object in case it can be recast to r_Base_Type
 //e.g. srcType and destType in r_Conv_Desc
-int dataTypeSize(r_Type* base_type);
+int dataTypeSize(const r_Type* base_type);
 //transpose the last two dimensions of data via a temporary 2D object dataTemp
-void transposeLastTwo(char* data, r_Minterval& dimData, r_Type* dataType);
+void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType);
+
+//general transpose function. used to throw errors in case the transpose option,
+//and otherwise to call the transposeLastTwo function. Should also simplify
+//implementation and make it more transparent
+//in the future, one should improve upon the transpose function so that it will
+//ensure the indices are valid dimensions and if they are, transpose those two 
+//axes regardless of whether or not they are the last two. This would require
+//either a cumbersome memory computation, a vacancy tracking algorithm, or
+//a bit map to implement effectively. For now, we only need this for pictures,
+//and as such, transposeLastTwo is good enough for the time being.
+void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams) throw (r_Error);
 
 #endif /* TRANSPOSE_HH */

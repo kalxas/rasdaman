@@ -108,12 +108,10 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
     {
         initEncodeParams(string{options});
     }
-    
-    //if selected, transpose rasdaman data prior to creating the gdal file.
+    //if selected, transposes rasdaman data before converting to gdal
     if(formatParams.isTranspose())
     {
-        char* srcChanger = (char*) desc.src;
-        transposeLastTwo(srcChanger, desc.srcInterv, (r_Type*) desc.srcType);
+        transpose((char*) desc.src, desc.srcInterv, desc.srcType, formatParams.getTranspose());
     }
 
     GDALAllRegister();
@@ -353,11 +351,12 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options) throw (r_Error)
         throw err;
     }
     
+    
     //if selected, transposes rasdaman data after converting from gdal
     if(formatParams.isTranspose())
     {
-        transposeLastTwo(desc.dest, desc.destInterv, desc.destType);
-    }
+        transpose(desc.dest, desc.destInterv, (const r_Type*) desc.destType, formatParams.getTranspose());
+    }    
 
     return desc;
 

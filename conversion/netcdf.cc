@@ -96,9 +96,10 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options) throw (r_Error)
     }
     
     //if selected, transpose rasdaman data prior to writing to netcdf.
+    //requires the transpose parameters to be passed to the function.
     if(formatParams.isTranspose())
     {
-        transposeLastTwo((char*) desc.src, desc.srcInterv, (r_Type*) desc.srcType);
+        transpose((char*) desc.src, desc.srcInterv, desc.srcType, formatParams.getTranspose());
     }
     
     r_TmpFile tmpFileObj;
@@ -212,7 +213,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
     //if selected, transposes rasdaman data after converting from netcdf
     if(formatParams.isTranspose())
     {
-        transposeLastTwo(desc.dest, desc.destInterv, desc.destType);
+        transpose(desc.dest, desc.destInterv, (const r_Type*) desc.destType, formatParams.getTranspose());
     }
 
     return desc;

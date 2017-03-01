@@ -170,18 +170,6 @@ protected:
     /// initialize internal structures
     void initShare(const char* src, const r_Minterval& interv);
 
-    /// transpose src 2D array of size NxM to dst of size MxN
-    template <class baseType>
-    void transpose(baseType* src, baseType* dst, const int N, const int M)
-    {
-        for (int n = 0; n < N * M; n++)
-        {
-            int i = n / N;
-            int j = n % N;
-            dst[n] = src[M * j + i];
-        }
-    }
-
     /// convert unsupported type to rgb by applying the default color scheme
     template <class baseType>
     void applyColorScheme();

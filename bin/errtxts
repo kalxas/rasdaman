@@ -261,7 +261,6 @@
 971^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid cell type.
 972^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid dimensionality.
 973^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid marray type.
-
 #
 # 1xxx errors: General errors
 #
@@ -310,6 +309,7 @@
 # 3xxx errors: Data format conversion errors
 #
 3000^E^Format conversion error: DEM area does not contain any non-null value, empty result generated.
+3001^E^Format conversion error: Transpose format parameters do not coincide with the last two dimensions of the MDD.
 #
 # 4xxx errors: Lock manager errors
 #

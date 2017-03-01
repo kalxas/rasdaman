@@ -500,3 +500,14 @@ r_Data_Format r_Conv_GRIB::get_data_format(void) const
 {
     return r_GRIB;
 }
+
+template <class baseType>
+void r_Conv_GRIB::transpose(baseType* src, baseType* dst, const int N, const int M)
+{
+    for (int n = 0; n < N * M; n++)
+    {
+        int i = n / N;
+        int j = n % N;
+        dst[n] = src[M * j + i];
+    }
+}

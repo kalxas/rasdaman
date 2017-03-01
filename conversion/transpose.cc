@@ -33,14 +33,16 @@ rasdaman GmbH.
  *
 */
 #include "transpose.hh"
+#include "raslib/error.hh"
+#include <easylogging++.h>
 
-int dataTypeSize(r_Type* base_type){
+int dataTypeSize(const r_Type* base_type){
     //size of the data type, used for offset computation in memcpy
-    r_Base_Type* st = (r_Base_Type*)(const_cast<r_Type*> (base_type));
+    r_Base_Type* st = (r_Base_Type*)(base_type);
     return (int) st->size();
 }
 
-void transposeLastTwo(char* data, r_Minterval& dimData, r_Type* dataType) {
+void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType) {
     int sizeOfDataType = dataTypeSize(dataType);
     //the number of 2D slices we need to transpose
     unsigned int s = 1;
@@ -79,4 +81,23 @@ void transposeLastTwo(char* data, r_Minterval& dimData, r_Type* dataType) {
     delete [] dataTemp;
     //swap the index assignments in the corresponding r_Minterval
     dimData.transpose(dimData.dimension()-2, dimData.dimension()-1);
+}
+
+void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams) throw (r_Error)
+{
+    int dims = static_cast<int>(dimData.dimension());
+    int tParam0 = std::get<0>(transposeParams);
+    int tParam1 = std::get<1>(transposeParams);
+    
+    if( ( dims-1 == tParam0 || dims-1 == tParam1 ) 
+     && ( dims-2 == tParam0 || dims-2 == tParam1 ) 
+     && ( tParam0 != tParam1 ) )
+    {
+        transposeLastTwo(data, dimData, dataType);
+    }
+    else
+    {
+        LERROR << "Selected transposition dimensions do not coincide with the last two dimensions of your MDD.";
+        throw r_Error(TRANSPOSEPARAMETERSINVALID);
+    }
 }

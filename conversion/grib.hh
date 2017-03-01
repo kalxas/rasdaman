@@ -77,6 +77,9 @@ public:
     virtual r_Data_Format get_data_format(void) const;
 
 private:
+    /// transpose src 2D array of size NxM to dst of size MxN
+    template <class baseType>
+    void transpose(baseType* src, baseType* dst, const int N, const int M);
 
 #ifdef HAVE_GRIB
 

@@ -284,10 +284,16 @@ QtConversion::evaluate(QtDataList* inputList)
             {
                 operand->deleteRef();
             }
-
+            //catch an error based on the error type, if assigned to FeatureNotSupported, or the error number.
+            //in case no error number has been set (0 is the initialized value, and does not correspond to any error)
+            //we catch a default error (381 -- conversion format not supported)
             if (err.get_kind() == r_Error::r_Error_FeatureNotSupported)
             {
                 parseInfo.setErrorNo(218);
+            }
+            else if (err.get_errorno() != 0)
+            {
+                parseInfo.setErrorNo(err.get_errorno());
             }
             else
             {
