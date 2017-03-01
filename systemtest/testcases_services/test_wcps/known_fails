@@ -2,3 +2,4 @@
 53-jpeg2000-params-filling.test
 58-overlay_performance.test
 157-extra_params_json_jpeg2000.test
+212-0D_coverage_json_encode.test

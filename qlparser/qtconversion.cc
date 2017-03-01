@@ -575,7 +575,7 @@ QtConversion::checkType(QtTypeTuple* typeTuple)
         // get input type
         const QtTypeElement& inputType = input->checkType(typeTuple);
 
-        if (conversionType != QT_TOCSV && inputType.getDataType() != QT_MDD)
+        if ( conversionType != QT_TOCSV && conversionType != QT_TOJSON && inputType.getDataType() != QT_MDD )
         {
             LFATAL << "expected MDD operand in conversion operation.";
             parseInfo.setErrorNo(380);
