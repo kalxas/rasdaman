@@ -38,23 +38,23 @@ public class RasdamanDecodeUpdater implements RasdamanUpdater {
     String affectedCollectionName;
     String affectedCollectionOid;
     String affectedDomain;
-    File valuesFile;
-    String shiftDomain;
+    String shiftDomain;    
+    String rangeParameters;
 
     /**
      * Class constructor.
      * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
      * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
      * @param affectedDomain the rasdaman domain over which the update is executed.
-     * @param valuesFile the file where the cell values are stored.
      * @param shiftDomain the domain with which the array stored in the file must be shifted.
      */
-    public RasdamanDecodeUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain, File valuesFile, String shiftDomain) {
+    public RasdamanDecodeUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain, 
+                                 String shiftDomain, String rangeParameters) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
-        this.valuesFile = valuesFile;
         this.shiftDomain = shiftDomain;
+        this.rangeParameters = rangeParameters;
     }
 
     @Override
@@ -62,10 +62,16 @@ public class RasdamanDecodeUpdater implements RasdamanUpdater {
         String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)
+                             .replace("$rangeParams", rangeParameters)
                              .replace("$shiftDomain", shiftDomain);
-        RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(),
-                                           ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+        RasUtil.executeUpdateFileStatement(queryString);
     }
 
-    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1), $shiftDomain) WHERE oid($collection) = $oid";
+    // sample query:
+    // /home/rasdaman/install/bin/rasql --user rasadmin --passwd rasadmin -q 
+    // 'UPDATE test_mr SET test_mr[0:255,0:210] ASSIGN shift(decode(<[0:0] 1c>, 
+    //  "GDAL", "{\"filePaths\":[\"/home/rasdaman/mr_1.png\"]}"), [0,0]) WHERE oid(test_mr) = 6145'
+    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain "
+                                                     + "ASSIGN shift(decode(<[0:0] 1c>, "
+                                                     + "\"GDAL\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";
 }

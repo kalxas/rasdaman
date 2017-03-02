@@ -56,8 +56,7 @@ public class RasdamanFileInserter implements RasdamanInserter {
 
     @Override
     public BigInteger insert() throws RasdamanException, IOException {
-        BigInteger oid = RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype,
-                         ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, tiling);
+        BigInteger oid = RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype, tiling);
         return oid;
     }
 }

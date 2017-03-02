@@ -37,7 +37,6 @@ public class RasdamanGribUpdater implements RasdamanUpdater {
     String affectedCollectionName;
     String affectedCollectionOid;
     String affectedDomain;
-    File valuesFile;
     String rangeParameters;
     String shiftDomain;
 
@@ -46,16 +45,14 @@ public class RasdamanGribUpdater implements RasdamanUpdater {
      * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
      * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
      * @param affectedDomain the rasdaman domain over which the update is executed.
-     * @param valuesFile the file where the cell values are stored.
      * @param rangeParameters the parameters from which the grib messages can be computed.
      * @param shiftDomain the domain with which the array stored in the file must be shifted.
      */
     public RasdamanGribUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain,
-                               File valuesFile, String rangeParameters, String shiftDomain) {
+                               String rangeParameters, String shiftDomain) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
-        this.valuesFile = valuesFile;
         this.rangeParameters = rangeParameters;
         this.shiftDomain = shiftDomain;
     }
@@ -66,10 +63,18 @@ public class RasdamanGribUpdater implements RasdamanUpdater {
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)
                              .replace("$shiftDomain", shiftDomain)
-                             .replace("$gribMessages", rangeParameters.replace("\"", "\\\""));
-        RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(),
-                                           ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+                             .replace("$gribMessages", rangeParameters);
+        RasUtil.executeUpdateFileStatement(queryString);
     }
 
-    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1, \"GRIB\", \"$gribMessages\"), $shiftDomain) WHERE oid($collection) = $oid";
+    // sample query
+    // /home/rasdaman/install/bin/rasql --user rasadmin --passwd rasadmin 
+    // -q 'UPDATE test_grib_irregular_1_message SET test_grib_irregular_1_message[0:0,2:2,0:287,0:144] 
+    // ASSIGN shift(decode(<[0:0] 1c>, "GRIB", "{\"internalStructure\": 
+    //        {\"messageDomains\":[{\"msgId\":1,\"domain\":\"[0:0,0:0,0:287,0:144]\"}]},
+    //        \"filePaths\":[\"/home/rasdaman/output_20030107_20030107.grib2\"]}"), [0,2,0,0]) WHERE oid(test_grib_irregular_1_message) = 6657'
+    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain "
+                                                     + "ASSIGN shift(decode(<[0:0] 1c>, "
+                                                     + "\"GRIB\"" + ", \"$gribMessages\"), $shiftDomain) WHERE oid($collection) = $oid";            
+            
 }

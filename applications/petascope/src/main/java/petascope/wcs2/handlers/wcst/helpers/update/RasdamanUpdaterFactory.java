@@ -20,9 +20,14 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcs2.handlers.wcst.helpers.update;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import petascope.util.IOUtil;
 
 import java.io.File;
+import java.io.IOException;
+import static petascope.util.JsonUtil.EMPTY_ROOT_NODE;
 
 /**
  * Class creating the correct RasdamanUpdater object.
@@ -37,13 +42,46 @@ public class RasdamanUpdaterFactory {
         return new RasdamanValuesUpdater(collectionName, collectionOid, domain, values, shiftDomain);
     }
 
-    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, File file, String mimeType, String shiftDomain, String rangeParameters) {
+    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, File file, String mimeType,
+                                      String shiftDomain, String rangeParameters) throws IOException {
         if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {
-            return new RasdamanGribUpdater(collectionName, collectionOid, domain, file, rangeParameters, shiftDomain);
+            // Add the filePaths to the rangeParameters json string
+            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, file.getAbsolutePath());
+            return new RasdamanGribUpdater(collectionName, collectionOid, domain, rangeParameters, shiftDomain);
         } else if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)) {
-            return new RasdamanNetcdfUpdater(collectionName, collectionOid, domain, file, shiftDomain, rangeParameters);
+            // Add the filePaths to the rangeParameters json string
+            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, file.getAbsolutePath());
+            return new RasdamanNetcdfUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
         } else {
-            return new RasdamanDecodeUpdater(collectionName, collectionOid, domain, file, shiftDomain);
+            // with other kind of gdal format (tiff, png, jpeg,...) don't add any range parameters to rasql update query
+            rangeParameters = this.updateFilePathsInRangeParameters(EMPTY_ROOT_NODE, file.getAbsolutePath());
+            return new RasdamanDecodeUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
         }
     }
+    
+    
+    /**
+     * To improves ingestion performance if the data is on the same machine as the rasdaman server, as the network transport is bypassed 
+     * we add the filePaths parameter into RangeElement strings
+     * 
+     * before, we use: --file PATH_TO_FILE:
+     * rasql -q 'UPDATE A SET A[0:0,0:4318,0:8640] 
+     * ASSIGN shift(decode($1, "NetCDF", "{\"variables\": [\"MERIS_nobs_sum\", \"chlor_a\"]}"), [0,0,0]) 
+     * WHERE oid(test_ansidate_different_crs_origin_5) = 1025' --file 'PATH/test.nc'
+     * 
+     * after, we add it in rangeParameter string:
+     * rasql -q 'UPDATE A SET A[0:0,0:4318,0:8640] 
+     * ASSIGN shift(decode($1, "NetCDF", "{\"variables\": [\"MERIS_nobs_sum\", \"chlor_a\", 
+     * \"filePaths\": [\"PATH/test.nc\"] }"), [0,0,0]) 
+     * WHERE oid(test_ansidate_different_crs_origin_5) = 1025'
+     * 
+     * @return 
+     */
+    private String updateFilePathsInRangeParameters(String rangeParameters, String filePath) throws IOException {
+        ObjectNode root = (ObjectNode) new ObjectMapper().readTree(rangeParameters);
+        ArrayNode filePathsNode = root.putArray("filePaths");
+        filePathsNode.add(filePath);
+        // e.g: "...{\"filePaths\":[\"PATH/test.png\"]}..."
+        return root.toString().replace("\"", "\\\"");       
+    }     
 }

@@ -461,6 +461,7 @@ public class RasUtil {
 
     /**
      * Inserts a set of values given as an array constant in rasdaman.
+     * e.g: "INSERT INTO PM10_2 VALUES <[0:0,0:0,0:0] 0f> TILING ALIGNED [0:366, 0:500, 0:500]"
      *
      * @param collectionName
      * @param values
@@ -492,21 +493,20 @@ public class RasUtil {
      * Insert an image to an existing collection by decoding file
      * @param collectionName
      * @param filePath
-     * @param mime
-     * @param username
-     * @param tiling
-     * @param password
+     * @param mime     
+     * @param tiling     
      * @return
      * @throws petascope.exceptions.rasdaman.RasdamanException
      * @throws java.io.IOException
      */
     public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mime,
-            String username, String password, String tiling) throws RasdamanException, IOException {
+                                                        String tiling) throws RasdamanException, IOException {
         BigInteger oid = new BigInteger("0");
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
-
-        query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
+        
+        query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + 
+                " --user " + ConfigManager.RASDAMAN_ADMIN_USER + " --passwd " + ConfigManager.RASDAMAN_ADMIN_PASS + " -q "
                 + "'" + TEMPLATE_INSERT_DECODE_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         log.info("Executing " + query);
 
@@ -570,9 +570,16 @@ public class RasUtil {
         }
     }
 
-    public static void executeUpdateFileStatement(String query, String filePath, String username, String password) throws IOException, RasdamanException {
-        String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
-                       + "'" + query + "' --file '" + filePath + "'";
+    /**
+     * Update collection from file as slice
+     * @param query     
+     * @throws IOException
+     * @throws RasdamanException 
+     */
+    public static void executeUpdateFileStatement(String query) throws IOException, RasdamanException {
+        String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + ConfigManager.RASDAMAN_ADMIN_USER 
+                       + " --passwd " + ConfigManager.RASDAMAN_ADMIN_PASS + " -q "
+                       + "'" + query + "'";
         log.info("Executing " + rasql);
         Process p = Runtime.getRuntime().exec(new String[] {"bash", "-c", rasql});
         BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));

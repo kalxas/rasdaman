@@ -158,7 +158,8 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                     valuesFile = getReplacementValuesFromFile(rangeSet);
                 }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
-                String rangeParameters = GMLParserUtil.parseRangeParameters(rangeSet);
+                // e.g: netCDF test_eobstest: "{"variables": ["tg"]}",                 
+                String rangeParameters = GMLParserUtil.parseRangeParameters(rangeSet);                
 
                 //process the range parameters
                 RangeParametersConvertor convertor = parametersConvertorFactory.getConvertor(mimetype, rangeParameters, currentCoverage, meta);
@@ -200,7 +201,8 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         }
 
         return new Response(new String[] {""});
-    }
+    }   
+    
 
     /**
      * Handles the updating of the coefficients for the current coverage. It looks at the subset list and, for the

@@ -36,16 +36,14 @@ public class RasdamanNetcdfUpdater implements RasdamanUpdater {
     String affectedCollectionName;
     String affectedCollectionOid;
     String affectedDomain;
-    File valuesFile;
     String shiftDomain;
     String rangeParameters;
 
     public RasdamanNetcdfUpdater(String affectedCollectionName, String affectedCollectionOid, String affectedDomain,
-                                 File valuesFile, String shiftDomain, String rangeParameters) {
+                                 String shiftDomain, String rangeParameters) {
         this.affectedCollectionName = affectedCollectionName;
         this.affectedCollectionOid = affectedCollectionOid;
         this.affectedDomain = affectedDomain;
-        this.valuesFile = valuesFile;
         this.shiftDomain = shiftDomain;
         this.rangeParameters = rangeParameters;
     }
@@ -56,10 +54,16 @@ public class RasdamanNetcdfUpdater implements RasdamanUpdater {
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)
                              .replace("$shiftDomain", shiftDomain)
-                             .replace("$rangeParams", rangeParameters.replace("\"", "\\\""));
-        RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(),
-                                           ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
+                             .replace("$rangeParams", rangeParameters);
+        RasUtil.executeUpdateFileStatement(queryString);
     }
 
-    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1, \"NetCDF\", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";
+    // sample query
+    // /home/rasdaman/install/bin/rasql --user rasadmin --passwd rasadmin 
+    // -q 'UPDATE test_eobstest SET test_eobstest[0:5,0:100,0:231] 
+    // ASSIGN shift(decode(<[0:0] 1c>, "NetCDF", "{\"variables\":[\"tg\"], 
+    // \"filePaths\":[\"/home/rasdaman/eobs.nc\"]}"), [0,0,0]) WHERE oid(test_eobstest) = 5633'
+    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain "
+                                                     + "ASSIGN shift(decode(<[0:0] 1c>, "
+                                                     + "\"NetCDF\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";    
 }

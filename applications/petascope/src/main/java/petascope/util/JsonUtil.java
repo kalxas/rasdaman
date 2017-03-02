@@ -64,4 +64,6 @@ public class JsonUtil {
             return false;
         }
     }
+    
+    public static final String EMPTY_ROOT_NODE = "{}";
 }
