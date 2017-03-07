@@ -205,3 +205,10 @@ manuals_and_examples/manuals/doc-basedbms/
 # IDE NetBeans
 applications/secore/secore-web/nb-configuration.xml
 applications/secore/secore-web/src/main/webapp/META-INF/context.xml
+
+applications/petascope/nb-configuration.xml
+applications/secore/secore-core/javadoc/
+applications/secore/secore-web/javadoc/
+
+
+

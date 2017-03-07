@@ -23,7 +23,7 @@
 """
 
 import decimal
-import arrow
+from lib import arrow
 from collections import OrderedDict
 from time import sleep
 from config_manager import ConfigManager
