@@ -5,7 +5,7 @@
 app/assets/typings
 
 # Automatically downloaded by Bower
-app/assets/components
+app/assets/components/*/*
 
 node_modules
 
@@ -36,3 +36,4 @@ node_modules
 !app/assets/components/nvd3/build/nv.d3.min.js
 !app/assets/components/respond/dest/respond.min.js
 !app/assets/components/xmlToJSON.js/lib/xmlToJSON.js
+!app/assets/components/fileSaver/fileSaver.js
