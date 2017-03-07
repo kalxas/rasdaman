@@ -190,7 +190,7 @@ private:
      */
     template <class S, class T>
     void writeDataStruct(NcFile& dataFile, std::string& varName, const NcDim** dims, size_t structSize, size_t bandOffset, NcType ncType,
-                         long validMin, long validMax, const char* missingValue = NULL) throw (r_Error);
+                         long validMin, long validMax, const char* missingValue = NULL, size_t dimNum = 0) throw (r_Error);
 
     /**
      * @return dimension name given it's index

@@ -705,45 +705,45 @@ void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims) thro
         {
         case r_Type::OCTET:
         {
-            writeDataStruct<r_Octet, char>(dataFile, varName, dims, structSize, offset, ncByte, SCHAR_MIN, SCHAR_MAX);
+            writeDataStruct<r_Octet, char>(dataFile, varName, dims, structSize, offset, ncByte, SCHAR_MIN, SCHAR_MAX, 0, i);
             break;
         }
         case r_Type::CHAR:
         {
             // unsigned types are up-scaled to the next bigger signed type
-            writeDataStruct<r_Char, short>(dataFile, varName, dims, structSize, offset, ncShort, 0, UCHAR_MAX);
+            writeDataStruct<r_Char, short>(dataFile, varName, dims, structSize, offset, ncShort, 0, UCHAR_MAX, 0, i);
             break;
         }
         case r_Type::SHORT:
         {
-            writeDataStruct<r_Short, short>(dataFile, varName, dims, structSize, offset, ncShort, SHRT_MIN, SHRT_MAX);
+            writeDataStruct<r_Short, short>(dataFile, varName, dims, structSize, offset, ncShort, SHRT_MIN, SHRT_MAX, 0, i);
             break;
         }
         case r_Type::USHORT:
         {
             // unsigned types are up-scaled to the next bigger signed type
-            writeDataStruct<r_UShort, int>(dataFile, varName, dims, structSize, offset, ncInt, 0, USHRT_MAX);
+            writeDataStruct<r_UShort, int>(dataFile, varName, dims, structSize, offset, ncInt, 0, USHRT_MAX, 0, i);
             break;
         }
         case r_Type::LONG:
         {
-            writeDataStruct<r_Long, int>(dataFile, varName, dims, structSize, offset, ncInt, INT_MIN, INT_MAX);
+            writeDataStruct<r_Long, int>(dataFile, varName, dims, structSize, offset, ncInt, INT_MIN, INT_MAX, 0, i);
             break;
         }
         case r_Type::ULONG:
         {
             LWARNING << "cannot upscale type (UInt32 to Int32), overflow may happen.";
-            writeDataStruct<r_ULong, int>(dataFile, varName, dims, structSize, offset, ncInt, INT_MIN, INT_MAX);
+            writeDataStruct<r_ULong, int>(dataFile, varName, dims, structSize, offset, ncInt, INT_MIN, INT_MAX, 0, i);
             break;
         }
         case r_Type::FLOAT:
         {
-            writeDataStruct<r_Float, float>(dataFile, varName, dims, structSize, offset, ncFloat, 0, 0, "NaNf");
+            writeDataStruct<r_Float, float>(dataFile, varName, dims, structSize, offset, ncFloat, 0, 0, "NaNf", i);
             break;
         }
         case r_Type::DOUBLE:
         {
-            writeDataStruct<r_Double, double>(dataFile, varName, dims, structSize, offset, ncDouble, 0, 0, "NaN");
+            writeDataStruct<r_Double, double>(dataFile, varName, dims, structSize, offset, ncDouble, 0, 0, "NaN", i);
             break;
         }
         default:
@@ -812,7 +812,7 @@ void r_Conv_NETCDF::writeMetadata(NcFile& dataFile) throw (r_Error)
                             {
                                 LWARNING << "invalid value of field '" << FormatParamKeys::Encode::NetCDF::DATA <<
                                          "' of variable '" << dimVarName << "', expected an array.";
-                            }
+                            }                   
                         }
                         else
                         {
@@ -840,14 +840,14 @@ void r_Conv_NETCDF::writeMetadata(NcFile& dataFile) throw (r_Error)
             if (vars.isMember(varName))
             {
                 Json::Value jsonVar = vars[varName];
-                if (jsonVar.isMember(FormatParamKeys::Encode::METADATA))
+                if (jsonVar.isMember(FormatParamKeys::Encode::METADATA)) 
                 {
                     Json::Value jsonVarMetadata = jsonVar[FormatParamKeys::Encode::METADATA];
                     addJsonAttributes(dataFile, jsonVarMetadata, var);
                 }
             }
         }
-    }
+    }    
 }
 
 #define ADD_ATTRIBUTE(v) \
@@ -1029,7 +1029,13 @@ void r_Conv_NETCDF::writeData(NcFile& dataFile, string& varName, const NcDim** d
         ncVar->add_att(VALID_MIN.c_str(), (T) validMin);
         ncVar->add_att(VALID_MAX.c_str(), (T) validMax);
     }
-    if (missingValue != NULL)
+    if (encodeOptions.isMember(FormatParamKeys::Encode::NODATA))
+    {
+        double noDataVal = formatParams.getNodata()[0];
+        ncVar->add_att(MISSING_VALUE.c_str(), (T) noDataVal);
+        ncVar->add_att("_FillValue", (T) noDataVal);
+    }
+    else if(missingValue != NULL)
     {
         ncVar->add_att(MISSING_VALUE.c_str(), missingValue);
     }
@@ -1058,7 +1064,7 @@ void r_Conv_NETCDF::writeData(NcFile& dataFile, string& varName, const NcDim** d
 
 template <class S, class T>
 void r_Conv_NETCDF::writeDataStruct(NcFile& dataFile, string& varName, const NcDim** dims, size_t structSize, size_t bandOffset,
-                                    NcType ncType, long validMin, long validMax, const char* missingValue) throw (r_Error)
+                                    NcType ncType, long validMin, long validMax, const char* missingValue, size_t dimNum) throw (r_Error)
 {
     unique_ptr<T[]> buff(new(nothrow) T[dataSize]);
     if (!buff)
@@ -1079,7 +1085,13 @@ void r_Conv_NETCDF::writeDataStruct(NcFile& dataFile, string& varName, const NcD
         ncVar->add_att(VALID_MIN.c_str(), (T) validMin);
         ncVar->add_att(VALID_MAX.c_str(), (T) validMax);
     }
-    if (missingValue != NULL)
+    if (encodeOptions.isMember(FormatParamKeys::Encode::NODATA))
+    {
+        double noDataVal = formatParams.getNodata()[dimNum];
+        ncVar->add_att(MISSING_VALUE.c_str(), (T) noDataVal);
+        ncVar->add_att("_FillValue", (T) noDataVal);
+    }
+    else if(missingValue != NULL)
     {
         ncVar->add_att(MISSING_VALUE.c_str(), missingValue);
     }
