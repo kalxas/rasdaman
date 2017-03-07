@@ -2,5 +2,5 @@ service=WCS&
 version=2.0.1&
 request=GetCoverage&
 coverageId=test_irr_cube_2&
-subset=ansi(148654)&
+subset=ansi(148654.08425925925)&
 scalefactor=2.0

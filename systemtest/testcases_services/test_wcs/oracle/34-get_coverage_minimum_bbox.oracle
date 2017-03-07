@@ -5,8 +5,9 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_eobstest"
-    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_eobstest">
 
   <boundedBy>
     <Envelope srsName="/crs/EPSG/0/4326@Long" axisLabels="Long" uomLabels="degree" srsDimension="1">
@@ -25,11 +26,11 @@
       </limits>
       <axisLabels>Long</axisLabels>
       <origin>
-          <Point id="test_eobstest-origin" srsName="/crs/EPSG/0/4326@Long" axisLabels="Long" uomLabels="degree" srsDimension="1">
+          <Point id="test_eobstest-origin" srsName="/crs/EPSG/0/4326@Long">
               <pos>70.25</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs/EPSG/0/4326@Long" axisLabels="Long" uomLabels="degree" srsDimension="1">0.5</offsetVector>
+      <offsetVector srsName="/crs/EPSG/0/4326@Long">0.5</offsetVector>
     </RectifiedGrid>
   </domainSet>
 
@@ -54,5 +55,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:metadata>
+  <gmlcov:metadata><gmlcov:Extension><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:Extension></gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

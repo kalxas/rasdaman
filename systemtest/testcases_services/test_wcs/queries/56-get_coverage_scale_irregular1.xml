@@ -16,6 +16,6 @@
   <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
   <wcs:DimensionSlice>
     <wcs:Dimension>ansi</wcs:Dimension>
-    <wcs:SlicePoint>148654</wcs:SlicePoint>
+    <wcs:SlicePoint>148654.08425925925</wcs:SlicePoint>
   </wcs:DimensionSlice>
 </wcs:GetCoverage>

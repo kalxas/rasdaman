@@ -64,9 +64,9 @@ TEST_RGB2=test_rgb2
 TEST_GREY3D=test_grey3d
 TEST_COMPLEX=test_complex
 TEST_NULL=nulltest
-TEST_SUBSETTING_1D=test_subsetting_1d		
-TEST_SUBSETTING=test_subsetting		
-TEST_SUBSETTING_SINGLE=test_subsetting_single		
+TEST_SUBSETTING_1D=test_subsetting_1d
+TEST_SUBSETTING=test_subsetting
+TEST_SUBSETTING_SINGLE=test_subsetting_single
 TEST_SUBSETTING_3D=test_subsetting_3d
 
 
@@ -540,6 +540,7 @@ get_request_kvp() {
   # $3 is output file
   # $4 only use for SECORE as it will only GET KVP in the URL directly without encoding
   url="$1"
+  # replace the "\n" in the query to be a valid GET request without break lines
   kvpValues=`echo "$2" | tr -d '\n'`
   if [[ -z "$4" ]]; then
     echo "$url?$kvpValues"
@@ -578,7 +579,6 @@ post_request_xml() {
 #
 run_test()
 {
-
   if [ ! -f "$f" ]; then
     error "test case not found: $f"
   fi
@@ -654,9 +654,9 @@ run_test()
               case "$test_type" in
                 kvp)
                     QUERY=`cat $f`
-		                # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
                     check_query_runable "$QUERY"
-		                if [[ $? -eq 0 ]]; then
+                    if [[ $? -eq 0 ]]; then
                       get_request_kvp "$RASQL_SERVLET" "$QUERY" "$out"
                     fi
                     echo "Done."
@@ -749,26 +749,30 @@ run_test()
               ;;
       select|rasql|nullvalues|subsetting)
               QUERY=`cat $f`
-              $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
+
+              # it is in the queries/
+              current_directory=$(pwd)
+
+              # just let it return rasql_1.*
+              $RASQL -q "$QUERY" --out file > /dev/null 2> "$err"
 
               # if an exception was thrown, then the err file has non-zero size
               if [ -s "$err" ]; then
+                # output file contains the error
                 mv "$err" "$out"
-
               else
                 # move to proper output file
-                for tmpf in `ls "$out".*  2> /dev/null`; do
-                    [ -f "$tmpf" ] || continue
-                    mv "$tmpf" "$out"
-                    break
-                done
-
-                # if the result is a scalar, there will be no tmp file by rasql,
-                # here we output the Result element scalar into tmp.unknown
-                if [ ! -f "$out" ]; then
-                    $RASQL -q "$QUERY" --out string | grep Result > $out
+                result_file=$(find "$current_directory" -name "rasql_1.*")
+                # check if rasql_1.* is in queries directory
+                if [ -f "$result_file" ]; then
+                  # then move it to output folder
+                  mv "$result_file" "$out"
+                else
+                  # if the result is a scalar, there will be no result file by rasql
+                  $RASQL -q "$QUERY" --out string | grep Result > $out
                 fi
               fi
+              rm -f "$err"
               ;;
       *)      error "unknown service: $SVC_NAME"
     esac
@@ -778,132 +782,97 @@ run_test()
     #
     outfiletype=`file "$out" | awk -F ':' '{print $2;}'`
     if [ ! -f "$oracle" ]; then
-        log " -> NO ORACLE FOUND"
-        log " -> copying $out to $oracle"
-        if [[ "$outfiletype" == *XML* ]]; then
-            prepare_xml_file "$out"
-        fi
-        cp "$out" "$oracle"
+      log " -> NO ORACLE FOUND"
+      log " -> copying $out to $oracle"
+      if [[ "$outfiletype" == *XML* ]]; then
+          prepare_xml_file "$out"
+      fi
+      cp "$out" "$oracle"
     fi
 
     #
     # 2b. check result
     #
+    # If query has associated custom script then use this script first and compare the result (only XML)
     if [ -n "$check_script" -a -f "$check_script" ]; then
       log "custom script"
       prepare_xml_file "$out"
       "$check_script" "$out" "$oracle"
       update_result
-
     else
+      # check the file type of oracle
+      filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
 
-      grep "$oracle" "Stack trace" &> /dev/null
+      # 1. If oracle does exists then check if could be read by gdal or it is in text format
+      # 1.1 File exists and could be read by gdal
+      # check that oracle is gdal readable (e.g: tiff, png, jpeg,..)
+      gdalinfo "$oracle" &> /dev/null
       if [ $? -eq 0 ]; then
-        # do exception comparison
-        # NOTE: this part of code is entered only if the server returns a success code 2xx
-        #       but with an exception body, since `wget` does _not_ fetch the content of an error response.
-        #       This however is not a recommended server behaviour.
-        log "exception comparison"
-        local lineNo=$(grep -n "Stack trace" "$oracle")
-        lineNo=$(sed 's/[^0-9]*//g' <<< $lineNo)
-        head -"$lineNo" "$out" > "$output_tmp"
-        head -"$lineNo" "$oracle" > "$oracle_tmp"
+        # do image comparison
+        output_tmp="$out"."output.tmp"
+        oracle_tmp="$out"."oracle.tmp"
+        log "image comparison, type: $filetype"
+
+        # if oracle/output is netcdf then compare them by ncdump
+        if [[ "$filetype" =~ "NetCDF" ]]; then
+          ncdump -c "$out" > "$output_tmp"
+          ncdump -c "$oracle" > "$oracle_tmp"
+
+          # remove the line to 'dimensions'
+          sed -i -n '/dimensions/,$p' "$output_tmp"
+          sed -i -n '/dimensions/,$p' "$oracle_tmp"
+        else
+          # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
+          # here we compare the metadata and statistic values on output and oracle files directly
+          gdalinfo -approx_stats "$out" > "$output_tmp"
+          gdalinfo -approx_stats "$oracle" > "$oracle_tmp"
+
+          # remove the gdalinfo tmp file
+          rm -f "$out"".aux.xml"
+          rm -f "$oracle"".aux.xml"
+
+          # then remove the first different few lines (driver, filename and filename.aux)
+          sed -i -n '/Size is/,$p' "$output_tmp"
+          sed -i -n '/Size is/,$p' "$oracle_tmp"
+          # NOTE: some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
+          sed '/TOWGS84\[/d' -i "$output_tmp"
+          sed '/TOWGS84\[/d' -i "$oracle_tmp"
+        fi
+
         cmp "$output_tmp" "$oracle_tmp" 2>&1
         update_result
 
-      # check the XML error content from curl
-      elif [[ "$out" == *.error.xml* ]]; then
+      else
+        # 1.2 File exists and could not be read by gdal
+        # oracle must be in xml, csv, json
+        # (with xml need special function to extract the URL before comparison)
+        if [[ "$filetype" == *XML* ]]; then
+          prepare_xml_file "$out"
+          # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
+          trim_indentation "$oracle"
+          trim_indentation "$out"
+          log "XML comparison"
 
-        # This test is supposed to raise an exception: check wget exit code instead of the response.
-        prepare_xml_file "$out"
-        # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
-        trim_indentation "$oracle"
-        trim_indentation "$out"
+          # diff comparison ignoring EOLs [see ticket #551]
+          diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
+          update_result
 
-        log "compare error from XML request"
-        cmp "$out" "$oracle" 2>&1
-
-        # remove the temp files
-        rm -f "$oracle.tmp"
-        rm -f "$out.tmp"
-
-        update_result
-
-      # Note: when request in KVP, the error is throw in specific message
-      # then with submit in KVP, compare the error page
-      elif [ -f "$oracle"  ] || [ "$oracle" == *.error.* ]; then
-
-        filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
-        echo "$filetype" | egrep -i "(xml|ascii|text)" > /dev/null
-        rc=$?
-        gdalinfo "$out" &> /dev/null
-        if [ $? -eq 0 -a $rc -ne 0 ]; then
-          # do image comparison
-          output_tmp="$out"."output.tmp"
-          oracle_tmp="$out"."oracle.tmp"
-          log "image comparison, type: ""$filetype"
-
-          # if oracle/output is netcdf then compare them by ncdump
-          if [[ "$filetype" =~ "NetCDF" ]]; then
-              ncdump -c "$out" > "$output_tmp"
-              ncdump -c "$oracle" > "$oracle_tmp" 
-        
-              # remove the line to 'dimensions'
-              sed -i -n '/dimensions/,$p' "$output_tmp"   
-              sed -i -n '/dimensions/,$p' "$oracle_tmp"
-          else
-              # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
-              # here we compare the metadata and statistic values on output and oracle files directly
-              gdalinfo -approx_stats "$out" > "$output_tmp"
-              gdalinfo -approx_stats "$oracle" > "$oracle_tmp"
-
-              # remove the gdalinfo tmp file
-              rm -f "$out"".aux.xml"
-              rm -f "$oracle"".aux.xml"
-
-              # then remove the first different few lines (driver, filename and filename.aux)
-              sed -i -n '/Size is/,$p' "$output_tmp"
-              sed -i -n '/Size is/,$p' "$oracle_tmp"
-              # NOTE: some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
-              sed '/TOWGS84\[/d' -i "$output_tmp"
-              sed '/TOWGS84\[/d' -i "$oracle_tmp"
-          fi
-
-          cmp "$output_tmp" "$oracle_tmp" 2>&1
-	else
-	# byte comparison
-          if [[ "$filetype" == *XML* ]]; then
-            prepare_xml_file "$out"
-            # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
-            trim_indentation "$oracle"
-            trim_indentation "$out"
-            log "XML comparison"
-            # diff comparison ignoring EOLs [see ticket #551]
-            diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
-            # remove the temp files
-            rm -f "$oracle.tmp"
-            rm -f "$out.tmp"
-	  else
-            log "byte comparison"
-            # diff comparison ignoring EOLs [see ticket #551]
-            diff -b "$oracle" "$out" 2>&1 > /dev/null
-	  fi
+          # remove the temp files
+          rm -f "$oracle.tmp"
+          rm -f "$out.tmp"
+        else
+          # csv, json
+          log "byte comparison"
+          # diff comparison ignoring EOLs [see ticket #551]
+          diff -b "$oracle" "$out" 2>&1 > /dev/null
+          update_result
         fi
-        update_result
 
-      else # keep this to re-copy oracle in case it was accidentally deleted since Sec.2a (rare)
-        log " -> NO ORACLE FOUND"
-        log " -> copying $out to $oracle"
-        if [[ "$outfiletype" == *XML* ]]; then
-            prepare_xml_file "$out"
-        fi
-        cp "$out" "$oracle"
-        NUM_FAIL=$(($NUM_FAIL + 1))
-      fi
-    fi
+      fi # end of text oracle file
 
-    #rm -f "$oracle_tmp" "$output_tmp"
-  fi
+    fi # end of if not have custom script for test queries
+
+  fi # end of if not sh file
 
   #
   # run post script if present

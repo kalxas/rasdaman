@@ -11,8 +11,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577" axisLabels="unix E N" uomLabels="s metre metre" srsDimension="3">
-      <lowerCorner>1370137750.37 -1000025.0 -1000025.0 </lowerCorner>
-      <upperCorner>1387331687.45 -1000000.0 -1000000.0 </upperCorner>
+      <lowerCorner>1370137750.37 -1000025 -1000025 </lowerCorner>
+      <upperCorner>1387331687.45 -1000000 -1000000 </upperCorner>
     </Envelope>
   </boundedBy>
 

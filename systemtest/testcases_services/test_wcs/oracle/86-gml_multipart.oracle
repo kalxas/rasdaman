@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_mean_summer_airtemp">
+
+  <boundedBy>
+    <Envelope srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
+      <lowerCorner>-44.525 111.975</lowerCorner>
+      <upperCorner>-8.975 156.275</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <RectifiedGrid dimension="2" id="test_mean_summer_airtemp-grid">
+      <limits>
+        <GridEnvelope>
+          <low>0 0</low>
+          <high>885 710</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>Lat Long</axisLabels>
+      <origin>
+          <Point id="test_mean_summer_airtemp-origin" srsName="/crs/EPSG/0/4326">
+              <pos>-9 112</pos>
+          </Point>
+      </origin>
+      <offsetVector srsName="/crs/EPSG/0/4326">-0.05 0</offsetVector>
+      <offsetVector srsName="/crs/EPSG/0/4326">0 0.05</offsetVector>
+    </RectifiedGrid>
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">{coverageData}</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+      <startPoint>0 0</startPoint>
+    </GridFunction>
+  </coverageFunction>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="Gray">
+      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+  <gmlcov:metadata><gmlcov:Extension></gmlcov:Extension></gmlcov:metadata>
+</gmlcov:RectifiedGridCoverage>

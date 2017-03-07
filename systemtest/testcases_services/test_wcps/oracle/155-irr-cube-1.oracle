@@ -11,8 +11,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
-      <lowerCorner>-0.5 -0.5 0.0 </lowerCorner>
-      <upperCorner>9.5 9.5 8.0 </upperCorner>
+      <lowerCorner>-0.5 -0.5 0 </lowerCorner>
+      <upperCorner>9.5 9.5 8 </upperCorner>
     </Envelope>
   </boundedBy>
 

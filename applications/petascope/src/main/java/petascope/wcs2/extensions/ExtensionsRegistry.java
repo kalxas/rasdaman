@@ -23,6 +23,7 @@ package petascope.wcs2.extensions;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -69,11 +70,11 @@ public class ExtensionsRegistry {
 
     // NOTE: the <wcs:formatSupported> must have application/gml+xml as the first element or OGC Cite will query with binary format type
     private static final Set<Extension> extensions = new LinkedHashSet<Extension>();
-    private static final Set<String> extensionIds = new HashSet<String>();
+    private static final Set<String> extensionIds = new LinkedHashSet<String>();
 
     //these maps are used in DecodeFormatExtensison class.
-    public static final Map<String, String> mimeToIdentifier = new HashMap<String, String>();
-    public static final Map<String, String> mimeToEncoding = new HashMap<String, String>();
+    public static final Map<String, String> mimeToIdentifier = new LinkedHashMap<String, String>();
+    public static final Map<String, String> mimeToEncoding = new LinkedHashMap<String, String>();
 
     static {
         initializeMimeMaps();
@@ -172,9 +173,10 @@ public class ExtensionsRegistry {
         mimeToEncoding.put(MIME_CSV, FORMAT_ID_CSV);
         mimeToEncoding.put(MIME_JSON, FORMAT_ID_JSON);
 
+        // First encoding extension must be application/gml+xml
         mimeToIdentifier.put(MIME_GML, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
-        mimeToIdentifier.put(MIME_CSV, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
-        mimeToIdentifier.put(MIME_JSON, ExtensionsRegistry.GML_ENCODING_IDENTIFIER);
+        mimeToIdentifier.put(MIME_CSV, ExtensionsRegistry.CSV_IDENTIFIER);
+        mimeToIdentifier.put(MIME_JSON, ExtensionsRegistry.JSON_IDENTIFIER);
         mimeToIdentifier.put(MIME_TIFF, ExtensionsRegistry.GEOTIFF_IDENTIFIER);
         mimeToIdentifier.put(MIME_NETCDF, ExtensionsRegistry.NETCDF_IDENTIFIER);
         mimeToIdentifier.put(MIME_PNG, ExtensionsRegistry.PNG_IDENTIFIER);
@@ -187,10 +189,5 @@ public class ExtensionsRegistry {
      */
     public static String[] getExtensionIds() {
         return extensionIds.toArray(new String[extensionIds.size()]);
-    }
-
-    public static Set<Extension> getExtensions() {
-        return extensions;
-    }
-
+    }   
 }

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import nu.xom.Attribute;
 import nu.xom.Document;
@@ -301,23 +302,17 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 // Just update the child element
                 wcsExtension.appendChild(interpolationMetadata);
             }
-            //:~
+            //:~ 
 
             // add supported FORMATS
             //: [Req6 /req/core/serviceMetadata-structure]
-            //: [Req9 /req/core/formats-supported]
-            Set<String> mimeTypes = new LinkedHashSet<String>();
-            for (Extension extension : ExtensionsRegistry.getExtensions()) {
-                if (extension instanceof FormatExtension) {
-                    mimeTypes.add(((FormatExtension) extension).getMimeType());
-                }
-            }
-            // NOTE: reverse the FormatExtension to add the application/gml+xml as the serviceMetadata.insertChild(0) below will add application/gml+xml in the last element.
-            List<String> mimeTypesReveresed = new ArrayList<String>(mimeTypes);
-            Collections.reverse(mimeTypesReveresed);
-            for (String mimeType : mimeTypesReveresed) {
+            //: [Req9 /req/core/formats-supported]             
+            // NOTE: reverse the FormatExtension to add the application/gml+xml as the serviceMetadata.insertChild(0) below will add application/gml+xml in the last element.            
+            List<String> reversedFormats = new ArrayList<String>(ExtensionsRegistry.mimeToIdentifier.keySet());
+            Collections.reverse(reversedFormats);
+            for (String reversedFormat:reversedFormats) {
                 Element formatSupported = new Element(PREFIX_WCS + ":" + LABEL_FORMAT_SUPPORTED, NAMESPACE_WCS);
-                formatSupported.appendChild(mimeType);
+                formatSupported.appendChild(reversedFormat);
                 // Insert it on top, in case the template already contains some other fixed content
                 serviceMetadata.insertChild(formatSupported, 0);
             }

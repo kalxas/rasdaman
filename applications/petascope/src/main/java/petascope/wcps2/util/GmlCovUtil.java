@@ -193,7 +193,7 @@ public class GmlCovUtil {
         try {
             List<String> orderedAxesLabels = CrsUtil.getAxesLabels(ccrsUri);
             for(String label : orderedAxesLabels){
-                res += m.getAxisByName(label).getOrigin().toPlainString() + " ";
+                res += BigDecimalUtil.stripDecimalZeros(m.getAxisByName(label).getOrigin()).toPlainString() + " ";
             }
         } catch (PetascopeException pEx){
             log.error("Error while retrieving CRS metadata for GML: " + pEx.getMessage());
@@ -265,8 +265,8 @@ public class GmlCovUtil {
             }
         });
         for(Axis axis : axisList){
-            minGridBounds += axis.getGridBounds().getLowerLimit().toString() + " ";
-            maxGridBounds += axis.getGridBounds().getUpperLimit().toString() + " ";
+            minGridBounds += BigDecimalUtil.stripDecimalZeros(axis.getGridBounds().getLowerLimit()).toPlainString() + " ";
+            maxGridBounds += BigDecimalUtil.stripDecimalZeros(axis.getGridBounds().getUpperLimit()).toPlainString() + " ";
         }
         gml = gml.replaceAll("\\{" + Templates.KEY_LOW        + "\\}", minGridBounds)
                 .replaceAll("\\{" + Templates.KEY_HIGH        + "\\}", maxGridBounds);
@@ -290,8 +290,8 @@ public class GmlCovUtil {
         for(String label : crsAxisLabels){
             //find the corresponding axis
             Axis axis = m.getAxisByName(label);
-            minGeoBounds += axis.getGeoBounds().getLowerLimit().toString() + " ";
-            maxGeoBounds += axis.getGeoBounds().getUpperLimit().toString() + " ";
+            minGeoBounds += BigDecimalUtil.stripDecimalZeros(axis.getGeoBounds().getLowerLimit()).toPlainString() + " ";
+            maxGeoBounds += BigDecimalUtil.stripDecimalZeros(axis.getGeoBounds().getUpperLimit()).toPlainString() + " ";
         }
 
         gml = gml

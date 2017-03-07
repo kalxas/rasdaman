@@ -5,13 +5,14 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_irr_cube_2"
-    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_irr_cube_2">
 
   <boundedBy>
     <Envelope srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
-      <lowerCorner>75042.7273594 5094865.55794 148654.08425925925257615745067596435546875</lowerCorner>
-      <upperCorner>95042.7273594 5114865.55794 148661.002060185186564922332763671875</upperCorner>
+      <lowerCorner>75042.7273594 5094865.55794 148654.08425925925</lowerCorner>
+      <upperCorner>95042.7273594 5114865.55794 148661.0020601852</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -22,18 +23,18 @@
       <limits>
         <GridEnvelope>
           <low>0 34 0</low>
-          <high>3 35 3</high>
+          <high>1 35 3</high>
         </GridEnvelope>
       </limits>
       <axisLabels>E N ansi</axisLabels>
       <gmlrgrid:origin>
-        <Point id="test_irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
-          <pos>80042.7273594 5109865.55794 148654.08425925925</pos>
+        <Point id="test_irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">
+          <pos>80042.7273594 5109865.55794 "2008-01-01T02:01:20.000Z"</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">20000 0 0</gmlrgrid:offsetVector>
+          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">20000 0 0</gmlrgrid:offsetVector>
           <gmlrgrid:coefficients></gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -41,7 +42,7 @@
       </gmlrgrid:generalGridAxis>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">0 -10000 0</gmlrgrid:offsetVector>
+          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">0 -10000 0</gmlrgrid:offsetVector>
           <gmlrgrid:coefficients></gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -49,8 +50,8 @@
       </gmlrgrid:generalGridAxis>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">0 0 1</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>2008-01-01T02:01:20Z 2008-01-03T23:59:55Z 2008-01-05T01:58:30Z 2008-01-08T00:02:58Z</gmlrgrid:coefficients>
+          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients>"2008-01-01T02:01:20.000Z" "2008-01-03T23:59:55.000Z" "2008-01-05T01:58:30.000Z" "2008-01-08T00:02:58.000Z"</gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
         </gmlrgrid:GeneralGridAxis>
@@ -62,7 +63,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718</tupleList>
+      <tupleList ts="," cs=" ">9.63844 4.17907,3.11088 0.451861,7.0851 0.618615,2.35258 1.96558,9.69735 4.18183,3.10222 0.451608,7.17356 0.61854,2.52495 1.96718</tupleList>
     </DataBlock>
   </rangeSet>
 
@@ -76,11 +77,11 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="b1">
-      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>    <swe:field name="b2">
-      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata></gmlcov:metadata>
+  <gmlcov:metadata><gmlcov:Extension></gmlcov:Extension></gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

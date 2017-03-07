@@ -12,7 +12,7 @@
   <boundedBy>
     <Envelope srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
       <lowerCorner>75042.7273594 5094865.55794 148654.08425925925 </lowerCorner>
-      <upperCorner>705042.7273594 5454865.55794 148661.00206018520 </upperCorner>
+      <upperCorner>705042.7273594 5454865.55794 148661.0020601852 </upperCorner>
     </Envelope>
   </boundedBy>
 

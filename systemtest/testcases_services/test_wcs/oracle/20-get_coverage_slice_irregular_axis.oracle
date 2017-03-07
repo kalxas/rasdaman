@@ -5,8 +5,9 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_1"
-    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_irr_cube_1">
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
@@ -16,24 +17,24 @@
   </boundedBy>
 
   <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="2" id="irr_cube_1-grid"
+    <gmlrgrid:ReferenceableGridByVectors dimension="2" id="test_irr_cube_1-grid"
         
         >
       <limits>
         <GridEnvelope>
-          <low>0 3</low>
-          <high>2 5</high>
+          <low>0 4</low>
+          <high>2 6</high>
         </GridEnvelope>
       </limits>
       <axisLabels>i j</axisLabels>
       <gmlrgrid:origin>
-        <Point id="irr_cube_1-origin" srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
-          <pos>0.5 3.5</pos>
+        <Point id="test_irr_cube_1-origin" srsName="/crs/OGC/0/Index3D@i,j">
+          <pos>0.5 4.5</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</gmlrgrid:offsetVector>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D@i,j">1 0</gmlrgrid:offsetVector>
           <gmlrgrid:coefficients></gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -41,7 +42,7 @@
       </gmlrgrid:generalGridAxis>
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 1</gmlrgrid:offsetVector>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D@i,j">0 -1</gmlrgrid:offsetVector>
           <gmlrgrid:coefficients></gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -54,23 +55,23 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">503,504,513,514</tupleList>
+      <tupleList ts="," cs=" ">504,505,506,514,515,516,524,525,526</tupleList>
     </DataBlock>
   </rangeSet>
 
   <coverageFunction>
     <GridFunction>
       <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-      <startPoint>0 3</startPoint>
+      <startPoint>0 4</startPoint>
     </GridFunction>
   </coverageFunction>
 
   <gmlcov:rangeType>
     <swe:DataRecord>
-    <swe:field name="value">
-      <swe:Quantity  definition="/dataType/OGC/0/unsignedShort"><swe:label>unsigned short</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>0 65535</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+    <swe:field name="band_1">
+      <swe:Quantity ><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata><gmlcov:Extension><description>This is a test coverage</description><slices /></gmlcov:Extension></gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

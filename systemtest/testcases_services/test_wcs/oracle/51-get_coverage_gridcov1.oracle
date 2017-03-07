@@ -5,8 +5,9 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_float_4d"
-    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_float_4d">
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Index4D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
@@ -44,9 +45,9 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="value">
-      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:metadata>
+  <gmlcov:metadata><gmlcov:Extension><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:Extension></gmlcov:metadata>
 </gmlcov:GridCoverage>

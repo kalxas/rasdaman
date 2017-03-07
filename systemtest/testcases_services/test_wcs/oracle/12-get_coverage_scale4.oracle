@@ -5,8 +5,9 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_mr"
-    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_mr">
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
@@ -25,12 +26,12 @@
       </limits>
       <axisLabels>i j</axisLabels>
       <origin>
-          <Point id="test_mr-origin" srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+          <Point id="test_mr-origin" srsName="/crs/OGC/0/Index2D">
               <pos>0.5 210.5</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>
-      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 -0.09004739336492890995260663507109004739336492890996</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Index2D">1 0</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Index2D">0 -1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 
@@ -51,9 +52,9 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="value">
-      <swe:Quantity ><swe:nilValues><swe:NilValues /></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata>{  "resolution": "1",   "slices": []}</gmlcov:metadata>
+  <gmlcov:metadata><gmlcov:Extension>{  "resolution": "1",   "slices": []}</gmlcov:Extension></gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

@@ -48,7 +48,7 @@
       <name>World</name>
     </epsg:AreaOfUse>
   </domainOfValidity>
-  <scope>Horizontal component of 3D system. Used by the GPS satellite navigation system and for NATO military geodetic surveying.</scope>
+  <scope  >Horizontal component of 3D system. Used by the GPS satellite navigation system and for NATO military geodetic surveying.</scope>
   <ellipsoidalCS>
     <EllipsoidalCS id="epsg-cs-6422">
       <metaDataProperty>
@@ -95,23 +95,23 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
       <name>World Geodetic System 1984</name>
       <remarks>EPSG::6326 has been the then current realisation. No distinction is made between the original and subsequent (G730, G873, G1150 and G1674) WGS 84 frames. Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF.</remarks>
       <domainOfValidity>
-        <epsg:AreaOfUse>
-          <gmd:description >
-            <gco:CharacterString >World.</gco:CharacterString>
+        <epsg:AreaOfUse  >
+          <gmd:description>
+            <gco:CharacterString>World.</gco:CharacterString>
           </gmd:description>
-          <gmd:geographicElement >
+          <gmd:geographicElement>
             <gmd:EX_GeographicBoundingBox>
               <gmd:westBoundLongitude>
-                <gco:Decimal >-180</gco:Decimal>
+                <gco:Decimal>-180</gco:Decimal>
               </gmd:westBoundLongitude>
               <gmd:eastBoundLongitude>
-                <gco:Decimal >180</gco:Decimal>
+                <gco:Decimal>180</gco:Decimal>
               </gmd:eastBoundLongitude>
               <gmd:southBoundLatitude>
-                <gco:Decimal >-90</gco:Decimal>
+                <gco:Decimal>-90</gco:Decimal>
               </gmd:southBoundLatitude>
               <gmd:northBoundLatitude>
-                <gco:Decimal >90</gco:Decimal>
+                <gco:Decimal>90</gco:Decimal>
               </gmd:northBoundLatitude>
             </gmd:EX_GeographicBoundingBox>
           </gmd:geographicElement>
@@ -126,7 +126,7 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
           <name>World</name>
         </epsg:AreaOfUse>
       </domainOfValidity>
-      <scope>Satellite navigation.</scope>
+      <scope  >Satellite navigation.</scope>
       <anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 29/06/1994 (G730), a further 0.2m on 29/01/1997 (G873) and a further 0.06m on 20/01/2002 (G1150) and on 8/02/2012 (G1674).</anchorDefinition>
       <realizationEpoch>1984-01-01</realizationEpoch>
       <primeMeridian>

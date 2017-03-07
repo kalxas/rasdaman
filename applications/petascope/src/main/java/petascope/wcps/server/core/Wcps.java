@@ -117,7 +117,9 @@ public class Wcps {
         try {
             return new ProcessCoveragesRequest(url, database, doc, getDynamicMetadataSource(), this);
         } catch (PetascopeException ex) {
-            throw(WCPSException) ex;
+            throw (WCPSException) ex; 
+        } catch (RuntimeException ex) {
+            throw new WCPSException(ExceptionCode.RuntimeError, ex); 
         }
     }
 

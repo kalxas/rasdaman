@@ -5,8 +5,9 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_1"
-    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_irr_cube_1">
 
   <boundedBy>
     <Envelope srsName="" axisLabels="" uomLabels="" >
@@ -22,7 +23,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">525</tupleList>
+      <tupleList ts="," cs=" ">524</tupleList>
     </DataBlock>
   </rangeSet>
 
@@ -35,10 +36,10 @@
 
   <gmlcov:rangeType>
     <swe:DataRecord>
-    <swe:field name="value">
-      <swe:Quantity  definition="/dataType/OGC/0/unsignedShort"><swe:label>unsigned short</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>0 65535</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+    <swe:field name="band_1">
+      <swe:Quantity ><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-<gmlcov:metadata/>
+  <gmlcov:metadata><gmlcov:Extension><description>This is a test coverage</description><slices /></gmlcov:Extension></gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

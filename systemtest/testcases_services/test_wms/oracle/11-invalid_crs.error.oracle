@@ -3,7 +3,7 @@
                         xmlns="http://www.opengis.net/ogc"
                         
                         >
-    <ServiceException code="InvalidCRS">
-        The request contains a CRS OGC:Index2D not offered by the server for one or more of the Layers in the request.
+    <ServiceException code="UnsupportedToTransformCRS">
+        CRS transformation not supported for the requested crs: OGC:Index2D
     </ServiceException>
 </ServiceExceptionReport>

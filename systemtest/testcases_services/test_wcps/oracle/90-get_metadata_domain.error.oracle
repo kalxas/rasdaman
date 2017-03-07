@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport version="2.0.0"
-    xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
+<ows:ExceptionReport version="2.0.1"
+    
       >
     <ows:Exception exceptionCode="WcpsError">
         <ows:ExceptionText>CRS: '/crs/EPSG/0/32633' does not belong to axis 'Long'.</ows:ExceptionText>

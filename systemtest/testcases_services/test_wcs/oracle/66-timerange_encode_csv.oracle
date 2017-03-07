@@ -5,8 +5,9 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="test_eobstest"
-    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    id="test_eobstest">
 
   <boundedBy>
     <Envelope srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="Lat Long t" uomLabels="degree degree d" srsDimension="3">
@@ -25,13 +26,13 @@
       </limits>
       <axisLabels>Lat Long t</axisLabels>
       <origin>
-          <Point id="test_eobstest-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="Lat Long t" uomLabels="degree degree d" srsDimension="3">
-              <pos>50.75 60.25 127473</pos>
+          <Point id="test_eobstest-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
+              <pos>50.75 60.25 "1949-12-31T12:00:00.000Z"</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="Lat Long t" uomLabels="degree degree d" srsDimension="3">-0.5 0 0</offsetVector>
-      <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="Lat Long t" uomLabels="degree degree d" srsDimension="3">0 0.5 0</offsetVector>
-      <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="Lat Long t" uomLabels="degree degree d" srsDimension="3">0 0 1</offsetVector>
+      <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">-0.5 0 0</offsetVector>
+      <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">0 0.5 0</offsetVector>
+      <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">0 0 1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 
@@ -56,5 +57,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:metadata>
+  <gmlcov:metadata><gmlcov:Extension><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:Extension></gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>
