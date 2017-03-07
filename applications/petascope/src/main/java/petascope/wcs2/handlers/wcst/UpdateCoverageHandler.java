@@ -262,7 +262,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      */
     private int computeCoefficientOrder(CoverageMetadata currentCoverageMetadata, DomainElement currentDomain, BigDecimal coefficient, DimensionSubset subset) throws PetascopeException {
         List<BigDecimal> allCoefficients = meta.getAllCoefficients(currentCoverageMetadata.getCoverageName(), currentDomain.getOrder());
-        int currentPosition = BigDecimalUtil.listContains(allCoefficients, coefficient);
+        int currentPosition = BigDecimalUtil.listContainsCoefficient(allCoefficients, coefficient);
         //for now, we only support adding slices on top or updating existing slices
         if (currentPosition == -1 && (coefficient.compareTo(allCoefficients.get(allCoefficients.size() - 1)) == -1)) {
             //it means that the coefficient is not in the list and is smaller than the largest one
@@ -311,7 +311,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             //time
             String datumOrigin = currentDom.getCrsDef().getDatumOrigin();
             String axisUoM = currentDom.getUom();
-            normalizedSlicePoint = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, currentDom.getScalarResolution().doubleValue()).toString());
+            normalizedSlicePoint = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, currentDom.getScalarResolution()).toString());
         }
         BigDecimal normalizedDomMin = BigDecimalUtil.divide(currentDom.getMinValue(), currentDom.getScalarResolution());
         BigDecimal coefficient = (normalizedSlicePoint.subtract(normalizedDomMin)).multiply(currentDom.getDirectionalResolution());

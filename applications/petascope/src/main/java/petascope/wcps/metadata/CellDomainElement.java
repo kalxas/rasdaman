@@ -21,10 +21,12 @@
  */
 package petascope.wcps.metadata;
 
+import java.math.BigDecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.WcpsConstants;
 import petascope.wcs2.parsers.subsets.DimensionSubset;
 
@@ -75,7 +77,8 @@ public class CellDomainElement implements Cloneable {
 
     public int getHiInt() {
         try {
-            return Integer.valueOf(hi);
+            String value = BigDecimalUtil.stripDecimalZeros(new BigDecimal(hi)).toPlainString();
+            return Integer.valueOf(value);
         } catch (NumberFormatException ex) {
             log.error("Lower bound of interval is not an integer: " + hi);
             throw new RuntimeException("Lower bound of interval is not an integer: " + hi);
@@ -92,6 +95,7 @@ public class CellDomainElement implements Cloneable {
 
     public int getLoInt() {
         try {
+            String value = BigDecimalUtil.stripDecimalZeros(new BigDecimal(lo)).toPlainString();
             return Integer.valueOf(lo);
         } catch (NumberFormatException ex) {
             log.error("Lower bound of interval is not an integer: " + lo);

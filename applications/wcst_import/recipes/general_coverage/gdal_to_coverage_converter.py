@@ -42,7 +42,6 @@ from master.importer.coverage import Coverage
 from master.importer.interval import Interval
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
-from master.provider.metadata.axis import Axis
 from master.provider.metadata.coverage_axis import CoverageAxis
 from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
@@ -51,7 +50,7 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
 from util.gdal_util import GDALGmlUtil
-
+from master.helper.high_pixel_adjuster import HighPixelAjuster
 
 class GdalToCoverageConverter(AbstractToCoverageConverter):
     def __init__(self, sentence_evaluator, coverage_id, bands, gdal_files, crs, user_axes, tiling,
@@ -162,7 +161,17 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
             else:
                 grid_low = 0
                 number_of_geopixels = decimal.Decimal( str(user_axis.interval.high) ) - decimal.Decimal( str(user_axis.interval.low) )
-                grid_high = int(math.fabs(round(grid_low + number_of_geopixels / decimal.Decimal(user_axis.resolution))))
+                # number_of_grid_points = (geo_max - geo_min) / resolution
+                grid_high = grid_low + number_of_geopixels / decimal.Decimal(user_axis.resolution)
+                grid_high = HighPixelAjuster.adjust_high(grid_high)
+
+                # Negative axis, e.g: Latitude (min <--- max)
+                if user_axis.resolution < 0:
+                    grid_high = int(abs(math.floor(grid_high)))
+                else:
+                    # Positive axis, e.g: Longitude (min --> max)
+                    grid_high = int(abs(math.ceil(grid_high)))
+
 
             # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
             if not self.grid_coverage:

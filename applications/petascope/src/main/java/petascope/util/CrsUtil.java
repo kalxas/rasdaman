@@ -1032,8 +1032,8 @@ public class CrsUtil {
 
                     if (subsetWithTimestamps) {
                         // Need to convert timestamps to TemporalCRS numeric coordinates (normalized: "how many vectors" between subset/datum)
-                        normalizedNumLo = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue()).toString());
-                        normalizedNumHi = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue()).toString());
+                        normalizedNumLo = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution()).toString());
+                        normalizedNumHi = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution()).toString());
                     } else {
                         // Coefficients refer to how many offset-vectors of distance is a coordinate
                         normalizedNumLo = BigDecimalUtil.divide(new BigDecimal(numLo), dom.getScalarResolution());
@@ -1072,11 +1072,11 @@ public class CrsUtil {
                 // TODO: enable negative directions in time axis too (dom.isPositiveForwards())
                 if (subsetWithTimestamps) {
                     // Need to convert timestamps to TemporalCRS numeric coordinates
-                    Double numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, 1D); // do not normalize by vector here:
-                    Double numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, 1D); // absolute time coords needed
+                    BigDecimal numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, BigDecimal.ONE); // do not normalize by vector here:
+                    BigDecimal numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, BigDecimal.ONE); // absolute time coords needed
 
                     // Consistency check
-                    if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
+                    if (numHi.compareTo(domMin) < 0 || numLo.compareTo(domMax) > 0) {
                         throw new PetascopeException(ExceptionCode.InternalComponentError,
                                                      "Translated pixel indixes of regular temporal axis (" +
                                                      numLo + ":" + numHi + ") exceed the allowed values.");

@@ -80,6 +80,7 @@ import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.server.core.RangeElement;
+import petascope.wcps2.util.CrsComputer;
 import petascope.wcs2.parsers.BaseRequest;
 
 /**
@@ -363,7 +364,7 @@ public class DbMetadataSource implements IMetadataSource {
     // adds random decimals to match the precision of double
     // this means that in order to support databases created pre 9.3.2, a small epsilon (10^-10)around the
     // computed coefficient must be considered
-    BigDecimal EPSILON = new BigDecimal("0.0000000001");
+    
 
     /*------------------------------------------------*/
 
@@ -2328,7 +2329,7 @@ public class DbMetadataSource implements IMetadataSource {
             s = conn.createStatement();
             // try with an epsilon
 
-            String sqlQuery = getCoefficientsQuery(covName, iOrder, lo, hi, EPSILON);
+            String sqlQuery = getCoefficientsQuery(covName, iOrder, lo, hi, CrsComputer.COEFFICIENT_DECIMAL_EPSILON);
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
             if (r.next()) {
@@ -2394,10 +2395,10 @@ public class DbMetadataSource implements IMetadataSource {
                   + " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER + "=" + iOrder
                   + " AND " + TABLE_COVERAGE + "." + COVERAGE_NAME + "='" + covName + "'"
                   + " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
-                  + " >= "  + lo.subtract(EPSILON).toString()
+                  + " >= "  + lo.subtract(CrsComputer.COEFFICIENT_DECIMAL_EPSILON).toString()
                   + " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
                   // + " < "  + stringHi  // [a,b) subsets
-                  + " <= "  + hi.add(EPSILON).toString() + // [a,b] subsets
+                  + " <= "  + hi.add(CrsComputer.COEFFICIENT_DECIMAL_EPSILON).toString() + // [a,b] subsets
                   " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT;
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);

@@ -11,8 +11,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
-      <lowerCorner>148654.08425925925</lowerCorner>
-      <upperCorner>148661.0020601852</upperCorner>
+      <lowerCorner>148654.08425925925925925925925925925925925925925925925926</lowerCorner>
+      <upperCorner>148661.00206018518518518518518518518518518518518518518519</upperCorner>
     </Envelope>
   </boundedBy>
 

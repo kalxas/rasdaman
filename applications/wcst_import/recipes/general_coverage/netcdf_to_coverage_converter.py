@@ -50,6 +50,7 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
 from util.time_util import DateTimeUtil
+from master.helper.high_pixel_adjuster import HighPixelAjuster
 
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
@@ -162,8 +163,13 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
             # AnsiDate
             if crs_axis.is_uom_day:
                 resolution = user_axis.resolution * DateTimeUtil.DAY_IN_SECONDS
-            grid_high = int(math.fabs(round(decimal.Decimal( str(grid_low) )
-                                    + decimal.Decimal( str(number_of_timepixels) ) / resolution)))
+
+            grid_high = abs(decimal.Decimal(str(grid_low))
+                            + decimal.Decimal(str(number_of_timepixels)) / decimal.Decimal(str(resolution)))
+            grid_high = HighPixelAjuster.adjust_high(grid_high)
+
+            # As Time is always point to future (min -> max)
+            grid_high = abs(math.ceil(grid_high))
 
         else:
             grid_low = 0
@@ -175,9 +181,19 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
                 if user_axis.interval.high is None:
                     number_of_geopixels = decimal.Decimal(1)
                 else:
-                    number_of_geopixels = decimal.Decimal( str(user_axis.interval.high) )\
-                                        - decimal.Decimal( str(user_axis.interval.low) )
-            grid_high = int(math.fabs(round(decimal.Decimal( str(grid_low) ) + decimal.Decimal( str(number_of_geopixels) ) / user_axis.resolution)))
+                    number_of_geopixels = decimal.Decimal(str(user_axis.interval.high))\
+                                        - decimal.Decimal(str(user_axis.interval.low))
+
+            grid_high = abs(decimal.Decimal(str(grid_low))
+                            + decimal.Decimal(str(number_of_geopixels)) / decimal.Decimal(str(user_axis.resolution)))
+            grid_high = HighPixelAjuster.adjust_high(grid_high)
+
+            # Negative axis (e.g: Latitude), min <-- max
+            if user_axis.resolution < 0:
+                grid_high = int(math.floor(grid_high))
+            else:
+                # Positive axis (e.g: Longitude), min ---> max
+                grid_high = int(math.ceil(grid_high))
 
             # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
             if not self.grid_coverage:
@@ -188,12 +204,12 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
         if crs_axis.is_easting():
             # NOTE: longitude axis origin always point from the left -> right
-            geo_axis.origin = decimal.Decimal( str(geo_axis.low) ) \
-                            + decimal.Decimal( str(user_axis.resolution) ) / 2
+            geo_axis.origin = decimal.Decimal(str(geo_axis.low)) \
+                            + decimal.Decimal(str(user_axis.resolution)) / 2
         elif crs_axis.is_northing():
             # NOTE: latitude axis origin always point from the right -> left
-            geo_axis.origin = decimal.Decimal( str(geo_axis.high) ) \
-                            + decimal.Decimal( str(user_axis.resolution) ) / 2
+            geo_axis.origin = decimal.Decimal(str(geo_axis.high)) \
+                            + decimal.Decimal(str(user_axis.resolution)) / 2
         elif crs_axis.is_future():
             # When it is DateTime format, it needs to be quoted, e.g: "2006-01-01T01:01:03Z"
             if user_axis.type == UserAxisType.DATE:

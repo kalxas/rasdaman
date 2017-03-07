@@ -21,16 +21,15 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from util import list_util
 
-from decimal import Decimal
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
-import numpy
-numpy.set_printoptions(threshold='nan')
-import decimal
+
 
 class NetcdfExpressionEvaluator(ExpressionEvaluator):
+
     PREFIX = "${"
     POSTFIX = "}"
 
@@ -69,22 +68,24 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         :param str operation: the operation to apply
         :return: str value: The value from the applied operation with precession
         """
-        "NOTE: min() and max() do not return a precession from number with scientific notation (e)"
-        # Get the array of decimal variable with correct precision in string, remove all the new lines and parse values
-        tmp = '{}'.format(variable[:].astype(numpy.dtype(decimal.Decimal))).replace('\r', '').replace('\n', '')
-        values = tmp.split('[', 1)[1].split(']')[0]
-        # list of string values
-        array = values.split(" ")
-        # convert to list of decimal values
-        array = [decimal.Decimal(x) for x in array]
+        """ NOTE: min or max of list(variable) with values like [148654.08425925925,...]
+        will return 148654.084259 in float which will cause problem with calculate coefficient as the first coeffcient should be 0
+        but due to this change of min/max value, the coefficient is like 0.00000000001 (case: PML)
+        "min": "${netcdf:variable:ansi:min} * 24 * 3600 - 11644560000.0", -> return: 1199152879.98
+        "directPositions": "[float(x) * 24 * 3600 - 11644560000.0 for x in ${netcdf:variable:ansi}]", -> return 1199152880.0
+
+        So we must use the values in the list by string and split it to a list to get the same values
+        """
+        # convert list of string values list of decimal values
+        array = list_util.to_list_decimal(list(variable))
 
         if operation == "max":
             return max(array)
         elif operation == "min":
             return min(array)
         elif operation == "last":
-            lastIndex = len(variable) - 1
-            return array[lastIndex]
+            last_index = len(variable) - 1
+            return array[last_index]
         elif operation == "first":
             return array[0]
         else:
@@ -113,11 +114,9 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             variable_name = parts[1]
             if len(parts) == 2:
                 # return the entire variable translated to the string representation of a python list that can be
-                # further passed to eval()
-                tmp = '{}'.format(nc_dataset.variables[variable_name][:].astype(numpy.dtype(decimal.Decimal))).replace('\r', '').replace('\n', '')
-                values = tmp.split('[', 1)[1].split(']')[0]
-                array = values.split(" ")
-                return array
+                # further passed to eval() which should only use list of strings to evaluate (not Decimal as eval has error)
+                array_str = str(list(nc_dataset.variables[variable_name][:]))
+                return array_str
             else:
                 operation = parts[2]
                 return self._apply_operation(nc_dataset.variables[variable_name], operation)

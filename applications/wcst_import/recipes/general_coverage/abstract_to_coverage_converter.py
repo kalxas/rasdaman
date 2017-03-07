@@ -60,11 +60,21 @@ class AbstractToCoverageConverter:
                                      user_axis.type, user_axis.dataBound)
 
     def _translate_number_direct_position_to_coefficients(self, origin, direct_positions):
-        return map(lambda x: decimal.Decimal( str(x) ) - decimal.Decimal( str(origin) ), direct_positions)
+        # just translate 1 -> 1 as origin is 0 (e.g: irregular Index1D)
+        return map(lambda x: decimal.Decimal(str(x)) - decimal.Decimal(str(origin)), direct_positions)
 
     def _translate_seconds_date_direct_position_to_coefficients(self, origin, direct_positions):
-        return map(lambda x: (decimal.Decimal( str(arrow.get(x).float_timestamp) ) - decimal.Decimal( str(origin) )), direct_positions)
+        # just translate 1 -> 1 as origin is 0 (e.g: irregular UnixTime)
+        return map(lambda x: (decimal.Decimal(str(arrow.get(x).float_timestamp)) - decimal.Decimal(str(origin))), direct_positions)
 
     def _translate_day_date_direct_position_to_coefficients(self, origin, direct_positions):
-        return map(lambda x: ( (decimal.Decimal( str(arrow.get(x).float_timestamp) )
-                              - decimal.Decimal( str(origin) ) ) / decimal.Decimal(DateTimeUtil.DAY_IN_SECONDS) ), direct_positions)
+        # coefficients in AnsiDate (day) -> coefficients in UnixTime (seconds)
+        coeff_list = []
+
+        for coeff in direct_positions:
+            coeff_seconds = ((decimal.Decimal(str(arrow.get(coeff).float_timestamp)) - decimal.Decimal(str(origin)))
+                             / decimal.Decimal(DateTimeUtil.DAY_IN_SECONDS))
+            coeff_list.append(coeff_seconds)
+
+        return coeff_list
+

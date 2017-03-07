@@ -78,29 +78,6 @@ public class WcpsCoverageMetadataTranslator {
         return rangeFields;
     }
 
-    private List<Interval<BigDecimal>> parseAllowedValues(AllowedValues allowedValues) {
-        List<Interval<BigDecimal>> ret = new ArrayList<Interval<BigDecimal>>();
-        Iterator<RealPair> allowedValuesIterator = allowedValues.getIntervalIterator();
-        while (allowedValuesIterator.hasNext()) {
-            RealPair nextInterval = allowedValuesIterator.next();
-            ret.add(new Interval<BigDecimal>(nextInterval.getMin(), nextInterval.getMax()));
-        }
-        return ret;
-    }
-
-    private List<BigDecimal> parseNodataValues(List<NilValue> nullValues) {
-        List<BigDecimal> result = new ArrayList<BigDecimal>();
-        for (NilValue nullValue : nullValues) {
-            try {
-                result.add(new BigDecimal(nullValue.getValue()));
-            } catch (Exception e) {
-                //failed converting to double, don't add it
-                Logger.getLogger(WcpsCoverageMetadataTranslator.class.getName()).log(Level.SEVERE, null, e);
-            }
-        }
-        return result;
-    }
-
     private List<NilValue> parseNodataValues(Iterator<NilValue> nilValueIterator) {
         List<NilValue> ret = new ArrayList<NilValue>();
         while (nilValueIterator.hasNext()) {

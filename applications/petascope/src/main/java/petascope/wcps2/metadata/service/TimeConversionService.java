@@ -52,7 +52,7 @@ public class TimeConversionService {
 
         try {
             // Need to convert timestamps to TemporalCRS numeric coordinates
-            result = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, 1D).toString()); // do not normalize by vector here:
+            result = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, BigDecimal.ONE).toString()); // do not normalize by vector here:
         } catch (PetascopeException e) {
             throw new InvalidCalculatedBoundsSubsettingException(axisName, new ParsedSubset<String>(point));
         }
@@ -74,7 +74,7 @@ public class TimeConversionService {
 
         BigDecimal result;
         try {
-            result = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, scalarResolution.doubleValue()).toString());
+            result = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, scalarResolution).toString());
         } catch (PetascopeException e) {
             throw new InvalidCalculatedBoundsSubsettingException(axisName, new ParsedSubset<String>(point));
         }

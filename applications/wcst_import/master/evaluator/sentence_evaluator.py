@@ -30,6 +30,7 @@ from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_functions import evaluator_utils
 from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
 
+
 class SentenceEvaluator:
     PREFIX = "${"
     POSTFIX = "}"
@@ -62,46 +63,27 @@ class SentenceEvaluator:
             instantiated_sentence = instantiated_sentence.replace(self.PREFIX + expression + self.POSTFIX,
                                                                   str(expression_result))
 
-        # check if expression can be array of coefficients or not
-        if instantiated_sentence.startswith("[") and instantiated_sentence.endswith("]"):
-            regex_matches = re.findall("([a-zA-Z])", instantiated_sentence)
-            if len(regex_matches) == 0:
-                # try to parse it manually
-                values = instantiated_sentence.split('[', 1)[1].split(']')[0].replace("'", "")
-                array = values.split(", ")
-                return array
-            else:
-                # not array of values, need to evaluate
-                return self.get_evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
-        else:
-            try:
-                # Check if expression can be decimal value or not
-                result = decimal.Decimal(instantiated_sentence)
-                return result
-            except Exception:
-                # not decimal value, need to evaluate
-                return self.get_evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
-
-
-    def get_evaluate_python_expression(self, sentence, instantiated_sentence, evaluator_utils):
-        """
-        Just call the evaluate python expression below
-        :param sentence: the input expression from ingredient file
-        :param instantiated_sentence: the expression needed to be evaluated
-        :param evaluator_utils: some local helper methods to evaluate
-        :return:
-        """
         try:
-            return self.evaluate_python_expression(instantiated_sentence, evaluator_utils)
-        except Exception:
-            raise RuntimeException(
-                "The following expression could not be evaluated correctly:\nProvided Expression: {}\nInstantiated Expression: {}".format(
-                    sentence, instantiated_sentence))
+            # Check if expression can be decimal value (i.e: resolution 4.6666666666666666666) must be kept.
+            # as eval() always return float value (e.g: 4.66666666667)
+            #return self.evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
+            result = decimal.Decimal(instantiated_sentence)
+            return result
+        except:
+            # not decimal value, need to evaluate (e.g: [0, 1, 2, 3, 4] + 84200)
+            return self.evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
 
-    def evaluate_python_expression(self, expression, locals):
+    def evaluate_python_expression(self, sentence, instantiated_sentence, locals):
         """
         Evaluates the python expression according to the evaluator with the option of using a set of local functions and variables
-        :param str expression: the expression to evaluate
+        :param str sentence: the expression from ingredient file to evaluate (e.g: ${netcdf:variable:unix} + 5)
+        :param str instantiated_sentence: (e.g: [0, 1, 2, 3,...] + 5 from the sentence)
         :param dict locals: the locals to provide in the context of the evaluation
         """
-        return eval(expression, globals(), locals)
+        try:
+            return eval(instantiated_sentence, globals(), locals)
+        except Exception:
+            raise RuntimeException(
+                "The following expression could not be evaluated correctly:\n"
+                "Provided Expression: {}\n"
+                "Instantiated Expression: {}".format(sentence, instantiated_sentence))

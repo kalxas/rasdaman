@@ -165,22 +165,26 @@ class Importer:
         for axis_subset in slice.axis_subsets:
             low = axis_subset.interval.low
             high = axis_subset.interval.high
-            #if ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
+            # if ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
             if ConfigManager.subset_correction and high is not None and low != high and type(low) == str:
-                # UnixTime
+                # Time axis with type = str (e.g: "1970-01-01T02:03:06Z")
                 time_seconds = 1
                 # AnsiDate (need to change from date to seconds)
                 if axis_subset.coverage_axis.axis.crs_axis.is_uom_day():
                     time_seconds = DateTimeUtil.DAY_IN_SECONDS
-                low = decimal.Decimal(arrow.get(low).float_timestamp) + decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution * time_seconds) / 2
-                low = arrow.get(low)
+                low = decimal.Decimal(str(arrow.get(low).float_timestamp)) + decimal.Decimal(str(axis_subset.coverage_axis.grid_axis.resolution * time_seconds)) / 2
+                low = DateTimeUtil.get_datetime_iso(low)
+
                 if high is not None:
-                    high = decimal.Decimal(arrow.get(high).float_timestamp) - decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution * time_seconds) / 2
-                    high = arrow.get(high)
+                    high = decimal.Decimal(str(arrow.get(high).float_timestamp)) - decimal.Decimal(str(axis_subset.coverage_axis.grid_axis.resolution * time_seconds)) / 2
+                    high = DateTimeUtil.get_datetime_iso(high)
+
             elif ConfigManager.subset_correction and high is not None and low != high and type(low) != str:
-                low = decimal.Decimal(low) +  decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution) / 2
+                # regular axes (e.g: latitude, longitude, index1d)
+                low = decimal.Decimal(str(low)) + decimal.Decimal(str(axis_subset.coverage_axis.grid_axis.resolution)) / 2
                 if high is not None:
-                    high = decimal.Decimal(high) - decimal.Decimal(axis_subset.coverage_axis.grid_axis.resolution) / 2
+                    high = decimal.Decimal(str(high)) - decimal.Decimal(str(axis_subset.coverage_axis.grid_axis.resolution)) / 2
+
             subsets.append(WCSTSubset(axis_subset.coverage_axis.axis.label, low, high))
         return subsets
 

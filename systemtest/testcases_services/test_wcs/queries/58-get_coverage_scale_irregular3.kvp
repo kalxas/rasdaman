@@ -4,6 +4,6 @@ request=GetCoverage&
 coverageId=test_irr_cube_2&
 subset=E(80000,100000)&
 subset=N(5100000,5124000)&
-subset=ansi(148654.08425925925)&
+subset=ansi("2008-01-01T02:01:20.000Z")&
 scalesize=E(2)&
 scalesize=N(2)

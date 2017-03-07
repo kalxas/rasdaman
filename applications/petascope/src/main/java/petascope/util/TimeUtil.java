@@ -20,6 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.util;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -174,11 +175,11 @@ public class TimeUtil {
      * @return How many time units (with fractional resolution) fit into the time interval [timestampHi-timestampLo]
      * @throws PetascopeException
      */
-    public static Double countOffsets(String timestampLo, String timestampHi, String timeResolution, Double timeVector)
+    public static BigDecimal countOffsets(String timestampLo, String timestampHi, String timeResolution, BigDecimal timeVector)
     throws PetascopeException {
 
         // local variables
-        Double fractionalTimeSteps;
+        BigDecimal fractionalTimeSteps;
 
         DateTime dtLo = isoFmt.parseDateTime(fix(timestampLo));
         DateTime dtHi = isoFmt.parseDateTime(fix(timestampHi));
@@ -198,8 +199,8 @@ public class TimeUtil {
         // Formula:
         //               fractionalTimeSteps := milliseconds(lo,hi) / [milliseconds(offset_vector)]
         // WHERE milliseconds(offset_vector) := milliseconds(timeResolution) * vector_length
-        Long vectorMillis = (long)(getMillis(timeResolution) * timeVector);
-        fractionalTimeSteps = 1D * millis.getMillis() / vectorMillis;
+        Long vectorMillis = (new BigDecimal(getMillis(timeResolution)).multiply(timeVector)).longValue();
+        fractionalTimeSteps = BigDecimalUtil.divide(new BigDecimal(millis.getMillis()), new BigDecimal(vectorMillis));
 
         log.debug("Computed " + fractionalTimeSteps + " offset-vectors between " + dtLo + " and " + dtHi + ".");
         return fractionalTimeSteps;

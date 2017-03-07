@@ -95,7 +95,7 @@ public class CrsComputer {
      * @return
      */
     public ParsedSubset<Long> getPixelIndices(boolean ignoreOutOfBoundsCheck) throws WCSException {
-        double lowerNumericLimit, upperNumericLimit;
+        BigDecimal lowerNumericLimit, upperNumericLimit;
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
         if (null == cdom || null == dom) {
@@ -104,12 +104,12 @@ public class CrsComputer {
 
         try {
             subset = replaceStarsWithRealValues(dom);
-            lowerNumericLimit = Double.parseDouble(subset.getLowerLimit());
-            upperNumericLimit = Double.parseDouble(subset.getUpperLimit());
+            lowerNumericLimit = new BigDecimal(subset.getLowerLimit().toString());
+            upperNumericLimit = new BigDecimal(subset.getUpperLimit().toString());
             if (coverage.getCoverageMetadata().getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-                return returnGridPixelIndices(new ParsedSubset<Double>(lowerNumericLimit, upperNumericLimit));
+                return returnGridPixelIndices(new ParsedSubset<BigDecimal>(lowerNumericLimit, upperNumericLimit));
             } else {
-                return getNumericPixelIndices(new ParsedSubset<Double>(lowerNumericLimit, upperNumericLimit), ignoreOutOfBoundsCheck);
+                return getNumericPixelIndices(new ParsedSubset<BigDecimal>(lowerNumericLimit, upperNumericLimit), ignoreOutOfBoundsCheck);
             }
         } catch (NumberFormatException e) {
             // NOTE: in case time axis is String, e.g "1950-01-01" then it will use this method
@@ -164,8 +164,9 @@ public class CrsComputer {
      * @param numericSubset the subset interval to be translated
      * @return the translated interval
      */
-    private ParsedSubset<Long> returnGridPixelIndices(ParsedSubset<Double> numericSubset) {
-        return new ParsedSubset<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
+    private ParsedSubset<Long> returnGridPixelIndices(ParsedSubset<BigDecimal> numericSubset) {
+        return new ParsedSubset<Long>(numericSubset.getLowerLimit().longValue(), 
+                                      numericSubset.getUpperLimit().longValue());
     }
 
     /**
@@ -174,7 +175,7 @@ public class CrsComputer {
      * @param numericSubset the numeric subset to be translated
      * @return
      */
-    private ParsedSubset<Long> getNumericPixelIndices(ParsedSubset<Double> numericSubset, boolean ignoreOutOfBoundsValidityCheck) {
+    private ParsedSubset<Long> getNumericPixelIndices(ParsedSubset<BigDecimal> numericSubset, boolean ignoreOutOfBoundsValidityCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
 
         this.checkNumericSubsetValidity(numericSubset, ignoreOutOfBoundsValidityCheck);
@@ -194,12 +195,12 @@ public class CrsComputer {
      *
      * @param numericSubset the subset to be translated
      */
-    private void checkNumericSubsetValidity(ParsedSubset<Double> numericSubset, boolean ignoreOutOfBoundsValidityCheck) {
+    private void checkNumericSubsetValidity(ParsedSubset<BigDecimal> numericSubset, boolean ignoreOutOfBoundsValidityCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         BigDecimal domMin = dom.getMinValue();
         BigDecimal domMax = dom.getMaxValue();
         // Check order
-        if (numericSubset.getUpperLimit() < numericSubset.getLowerLimit()) {
+        if (numericSubset.getUpperLimit().compareTo(numericSubset.getLowerLimit()) < 0) {
             throw new UnorderedSubsetException(axisName, subset);
         }
 
@@ -207,7 +208,8 @@ public class CrsComputer {
             // ticket:1212 - no accept intersection, only query inside domain is accepted.
             // NOTE: no check if subset is used in scale, extend expression: scale(c, {...}), etend(c, {...})
             if (!subset.isSubsetScaleExtend()) {
-                if (numericSubset.getLowerLimit() < domMin.doubleValue() || numericSubset.getUpperLimit() > domMax.doubleValue()) {
+                if (numericSubset.getLowerLimit().compareTo(domMin) < 0 
+                 || numericSubset.getUpperLimit().compareTo(domMax) > 0) {
                     throw new OutOfBoundsSubsettingException(axisName, subset, domMin.doubleValue(), domMax.doubleValue());
                 }
             }
@@ -220,7 +222,7 @@ public class CrsComputer {
      * @param numericSubset the subset to be translated
      * @return
      */
-    private ParsedSubset<Long> getNumericPixelIndicesForIrregularAxes(ParsedSubset<Double> numericSubset) {
+    private ParsedSubset<Long> getNumericPixelIndicesForIrregularAxes(ParsedSubset<BigDecimal> numericSubset) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
         long pxMin = cdom.getLoInt();
@@ -252,11 +254,10 @@ public class CrsComputer {
      * @param numericSubset the numeric subset to be translated
      * @return
      */
-    private ParsedSubset<Long> getNumericPixelIndicesForRegularAxis(ParsedSubset<Double> numericSubset) {
+    private ParsedSubset<Long> getNumericPixelIndicesForRegularAxis(ParsedSubset<BigDecimal> numericSubset) {
         boolean zeroIsMin = coverage.getCoverageMetadata().getDomainDirectionalResolution(axisName).doubleValue() > 0;
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
-        String axisUoM = dom.getUom();
         // Get Domain extremes (real sdom)
         BigDecimal domMin = dom.getMinValue();
         BigDecimal domMax = dom.getMaxValue();
@@ -284,11 +285,15 @@ public class CrsComputer {
         long returnLowerLimit, returnUpperLimit;
         if (zeroIsMin) {
             // Normal linear numerical axis
-            returnLowerLimit = (long) Math.floor(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getLowerLimit()).subtract(domMin), cellWidth).doubleValue()) + pxMin;
+            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(domMin), cellWidth);
+            lowerLimit = this.shiftToNearestGridPoint(lowerLimit);
+            returnLowerLimit = (long) Math.floor(lowerLimit.doubleValue()) + pxMin;
             if (numericSubset.getUpperLimit().equals(numericSubset.getLowerLimit())) {
                 returnUpperLimit = returnLowerLimit;
             } else {
-                returnUpperLimit = (long) Math.ceil(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getUpperLimit()).subtract(domMin), cellWidth).doubleValue()) - 1 + pxMin;
+                BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(domMin), cellWidth);
+                upperLimit = this.shiftToNearestGridPoint(upperLimit);
+                returnUpperLimit = (long) Math.ceil(upperLimit.doubleValue()) - 1 + pxMin;
             }
             // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
 
@@ -303,14 +308,19 @@ public class CrsComputer {
         } else {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
-            returnLowerLimit = (long) Math.ceil(BigDecimalUtil.divide(domMax.subtract(BigDecimal.valueOf(numericSubset.getUpperLimit())), cellWidth).doubleValue()) + pxMin;
+            BigDecimal lowerLimit = BigDecimalUtil.divide(domMax.subtract(numericSubset.getUpperLimit()), cellWidth);
+            lowerLimit = this.shiftToNearestGridPoint(lowerLimit);
+            returnLowerLimit = (long) Math.ceil(lowerLimit.doubleValue()) + pxMin;
+            
             if (numericSubset.getUpperLimit().equals(numericSubset.getLowerLimit())) {
                 returnUpperLimit = returnLowerLimit;
             } else {
-                returnUpperLimit = (long) Math.floor(BigDecimalUtil.divide(domMax.subtract(BigDecimal.valueOf(numericSubset.getLowerLimit())), cellWidth).doubleValue()) - 1 + pxMin;
+                BigDecimal upperLimit = BigDecimalUtil.divide(domMax.subtract(numericSubset.getLowerLimit()), cellWidth);
+                upperLimit = this.shiftToNearestGridPoint(upperLimit);
+                returnUpperLimit = (long) Math.floor(upperLimit.doubleValue()) - 1 + pxMin;
             }
             // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if ((domMax.compareTo(domMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit() == domMin.doubleValue()) {
+            if ((domMax.compareTo(domMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit() == domMin) {
                 returnLowerLimit -= 1;
             }
             
@@ -321,6 +331,25 @@ public class CrsComputer {
         }
         return new ParsedSubset<Long>(returnLowerLimit, returnUpperLimit);
     }
+    
+    /**
+     * 
+     * We shift the BigDecimal pixel to nearest grid pixel in integer
+     * e.g: 4.9998 -> 5 and 5.00001 -> 5
+     * @param gridPoint 
+     */
+    public static BigDecimal shiftToNearestGridPoint(BigDecimal gridPoint) {        
+        // e.g: 4.999 + 0.001 > 5 then return 5
+        if ((gridPoint.add(GRID_POINT_EPSILON)).compareTo(gridPoint.setScale(0, RoundingMode.CEILING)) >= 0) {
+            return gridPoint.setScale(0, RoundingMode.CEILING);
+        } else if ((gridPoint.subtract(GRID_POINT_EPSILON)).compareTo(gridPoint.setScale(0, RoundingMode.FLOOR)) <= 0) {
+            // e.g: 5.0001 -0.0001 = 5
+            return gridPoint.setScale(0, RoundingMode.FLOOR);
+        } else{
+            return gridPoint;
+        }
+        
+    } 
 
 
     /**
@@ -366,15 +395,15 @@ public class CrsComputer {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         String axisUoM = dom.getUom();
         String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
-        double numLo = 0;
-        double numHi = 0;
+        BigDecimal numLo;
+        BigDecimal numHi;
         try {
-            numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, dom.getScalarResolution().doubleValue());
-            numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, dom.getScalarResolution().doubleValue());
+            numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, dom.getScalarResolution());
+            numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, dom.getScalarResolution());
         } catch (PetascopeException e) {
             throw new InvalidCalculatedBoundsSubsettingException(axisName, subset);
         }
-        return getNumericPixelIndicesForIrregularAxes(new ParsedSubset<Double>(numLo, numHi));
+        return getNumericPixelIndicesForIrregularAxes(new ParsedSubset<BigDecimal>(numLo, numHi));
     }
 
     /**
@@ -389,20 +418,21 @@ public class CrsComputer {
         BigDecimal domMin = dom.getMinValue();
         BigDecimal domMax = dom.getMaxValue();
 
-        double numLo = 0;
-        double numHi = 0;
+        BigDecimal numLo;
+        BigDecimal numHi;
 
         try {
             // Need to convert timestamps to TemporalCRS numeric coordinates
-            numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, 1D); // do not normalize by vector here:
-            numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, 1D); // absolute time coordinates needed.
+            numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, BigDecimal.ONE); // do not normalize by vector here:
+            numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, BigDecimal.ONE); // absolute time coordinates needed.
 
         } catch (PetascopeException e) {
             throw new InvalidCalculatedBoundsSubsettingException(axisName, subset);
         }
         // Consistency check
         // ticket:1212 - no accept intersection, only query inside domain is accepted.
-        if (!ignoreOutOfBoundsValidityCheck && (numLo < domMin.doubleValue() || numHi > domMax.doubleValue())) {
+        if (!ignoreOutOfBoundsValidityCheck && 
+            (numLo.compareTo(domMin) < 0 || numHi.compareTo(domMax) > 0)) {
             String timeUpperBound;
             String timeLowerBound;
             try {
@@ -417,9 +447,19 @@ public class CrsComputer {
             throw new OutOfBoundsSubsettingException(axisName, subset, timeLowerBound, timeUpperBound);
         }
 
-        return getNumericPixelIndicesForRegularAxis(new ParsedSubset<Double>(numLo, numHi));
+        return getNumericPixelIndicesForRegularAxis(new ParsedSubset<BigDecimal>(numLo, numHi));
     }
 
+    // To support calculation from wcst_import before using float to petascope (BigDecimal)
+    // we have to using an acceptable espilon to determine which grid point should be the result of calculation
+    // as math.ceil(), math.floor() will easily +/- by 1 grid pixel in unwanted cases, such as: 4.00001 -> 5, 3.999 -> 3
+    // so the epsilon is added to support these cases to shift to nearest integer value: 4.000001 -> 4, 3.999 -> 4
+    public static final BigDecimal GRID_POINT_EPSILON = new BigDecimal(0.01);
+    
+    // To support calculation for TimeAxis (double) before and now using BigDecimal for wcst_import
+    // we also add a very small acceptable epsilon to avoid case when coefficient does not exist
+    // e.g: coeffcient (double) in database is 0.0, calculated coefficient (BigDecimal) is 0.0000000001
+    public static final BigDecimal COEFFICIENT_DECIMAL_EPSILON = new BigDecimal("0.0000000001");
     private final String axisName;
     private final String crsName;
     private ParsedSubset<String> subset;

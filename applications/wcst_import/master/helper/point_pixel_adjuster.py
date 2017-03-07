@@ -21,7 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import math
 from unicodedata import decimal
+from master.helper.high_pixel_adjuster import HighPixelAjuster
 
 from lib import arrow
 from master.helper.regular_user_axis import RegularUserAxis
@@ -58,10 +60,10 @@ class PointPixelAdjuster:
 
             if isinstance(user_axis, RegularUserAxis):
                 user_axis.interval.low = decimal.Decimal(str(user_axis.interval.low)) \
-                                         - decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution)))
+                                         - decimal.Decimal(str(0.5)) * decimal.Decimal(str(abs(user_axis.resolution)))
                 if user_axis.interval.high:
                     user_axis.interval.high = decimal.Decimal(str(user_axis.interval.high)) \
-                                              + decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution)))
+                                              + decimal.Decimal(str(0.5)) * decimal.Decimal(str(abs(user_axis.resolution)))
 
     @staticmethod
     def adjust_axis_bounds_for_time_axis(user_axis, crs_axis):
@@ -74,19 +76,24 @@ class PointPixelAdjuster:
         if user_axis.interval.high is not None and user_axis.interval.low > user_axis.interval.high:
             user_axis.interval.low, user_axis.interval.high = user_axis.interval.high, user_axis.interval.low
 
+        # The formula for all regular axes is when "pixelIsPoint":
+        # min = min - 0.5 * resolution
+        # max = max + 0.5 * resolution
         if isinstance(user_axis, RegularUserAxis):
+            # if axis is time axis
             if crs_axis.is_uom_day():
                 user_axis.interval.low = decimal.Decimal(str(user_axis.interval.low)) \
-                                         - decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution))) * DateTimeUtil.DAY_IN_SECONDS
+                                       - decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution))) * DateTimeUtil.DAY_IN_SECONDS
                 if user_axis.interval.high:
                     user_axis.interval.high = decimal.Decimal(str(user_axis.interval.high)) \
-                                              + decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution))) * DateTimeUtil.DAY_IN_SECONDS
+                                            + decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution))) * DateTimeUtil.DAY_IN_SECONDS
             else:
+                # if axis is normal axis (lat, lon, index1d,...)
                 user_axis.interval.low = decimal.Decimal(str(user_axis.interval.low)) \
-                                         - decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution)))
+                                       - decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution)))
                 if user_axis.interval.high:
                     user_axis.interval.high = decimal.Decimal(str(user_axis.interval.high)) \
-                                              + decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution)))
+                                            + decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution)))
 
     @staticmethod
     def get_origin(user_axis, crs_axis):
@@ -102,14 +109,17 @@ class PointPixelAdjuster:
         if isinstance(user_axis, RegularUserAxis):
             if user_axis.resolution > 0 or user_axis.interval.high is None:
                 # axis goes from low to high, so origin is lowest, with half a pixel shift
-                return decimal.Decimal(str(user_axis.interval.low)) + decimal.Decimal(0.5) * decimal.Decimal(
-                    str(user_axis.resolution))
+                # min (min + 0.5*resolution) --> max
+                return decimal.Decimal(str(user_axis.interval.low))\
+                       + decimal.Decimal(0.5) * decimal.Decimal(str(user_axis.resolution))
             else:
                 # axis goes from high to low, so origin is highest, with half pixel shift (resolution is negative)
-                return decimal.Decimal(str(user_axis.interval.high)) + decimal.Decimal(0.5) * decimal.Decimal(
-                    str(user_axis.resolution))
+                # min <---- (max + 0.5*resolution) max
+                return decimal.Decimal(str(user_axis.interval.high))\
+                       + decimal.Decimal(0.5) * decimal.Decimal(str(user_axis.resolution))
         else:
-            # irregular axis, the same but without no shift
+            # irregular axis, the same but without shift
+            # normally, irregular axis points from min ---> max, so origin is min (e.g: time ansidate, unixtime)
             if user_axis.resolution > 0 or user_axis.interval.high is None:
                 return user_axis.interval.low
             else:
@@ -122,26 +132,28 @@ class PointPixelAdjuster:
             user_axis.interval.high = arrow.get(user_axis.interval.high).float_timestamp
 
         if isinstance(user_axis, RegularUserAxis):
+            # ansidate, need to calculate with day in seconds
             if crs_axis.is_uom_day:
                 if user_axis.resolution > 0 or user_axis.interval.high is None:
                     # axis goes from low to high, so origin is lowest, with half a pixel shift
-                    return decimal.Decimal(str(user_axis.interval.low)) + decimal.Decimal(0.5) * decimal.Decimal(
-                        str(user_axis.resolution)) * DateTimeUtil.DAY_IN_SECONDS
+                    return decimal.Decimal(str(user_axis.interval.low))\
+                         + decimal.Decimal(0.5) * decimal.Decimal(str(user_axis.resolution)) * DateTimeUtil.DAY_IN_SECONDS
                 else:
                     # axis goes from high to low, so origin is highest, with half pixel shift (resolution is negative)
-                    return decimal.Decimal(str(user_axis.interval.high)) + decimal.Decimal(0.5) * decimal.Decimal(
-                        str(user_axis.resolution)) * DateTimeUtil.DAY_IN_SECONDS
+                    return decimal.Decimal(str(user_axis.interval.high))\
+                        + decimal.Decimal(0.5) * decimal.Decimal(str(user_axis.resolution)) * DateTimeUtil.DAY_IN_SECONDS
             else:
+                # unix time, already in seconds
                 if user_axis.resolution > 0 or user_axis.interval.high is None:
                     # axis goes from low to high, so origin is lowest, with half a pixel shift
-                    return decimal.Decimal(str(user_axis.interval.low)) + decimal.Decimal(0.5) * decimal.Decimal(
-                        str(user_axis.resolution))
+                    return decimal.Decimal(str(user_axis.interval.low))\
+                         + decimal.Decimal(0.5) * decimal.Decimal(str(user_axis.resolution))
                 else:
                     # axis goes from high to low, so origin is highest, with half pixel shift (resolution is negative)
-                    return decimal.Decimal(str(user_axis.interval.high)) + decimal.Decimal(0.5) * decimal.Decimal(
-                        str(user_axis.resolution))
+                    return decimal.Decimal(str(user_axis.interval.high))\
+                         + decimal.Decimal(0.5) * decimal.Decimal(str(user_axis.resolution))
         else:
-            # irregular axis, the same but without no shift
+            # irregular axis, the same but without shift
             if user_axis.resolution > 0 or user_axis.interval.high is None:
                 return user_axis.interval.low
             else:
@@ -161,21 +173,38 @@ class PointPixelAdjuster:
         if isinstance(user_axis, RegularUserAxis):
             # number of geo-intervals over resolution
             if user_axis.type != UserAxisType.DATE:
-                grid_points = abs((user_axis.interval.high - user_axis.interval.low) / user_axis.resolution)
-                if abs(decimal.Decimal(str(grid_points), ROUND_UP) - grid_points) > 0.01:
+                # number_of_grid_points = (geo_max - geo_min) / resolution
+                grid_points = abs((decimal.Decimal(str(user_axis.interval.high)) - decimal.Decimal(str(user_axis.interval.low)))
+                             / decimal.Decimal(str(user_axis.resolution)))
+                # The resolution in ingredient file can have big factor to the calculation, so must take care
+                if abs(decimal.Decimal(str(grid_points), ROUND_UP) - grid_points) > HighPixelAjuster.THRES_HOLD:
                     log.warning("The computed number of grid points is not an integer for axis " + user_axis.name +
                                 ". This usually indicates that the resolution is not correct.")
-                return int(round(grid_points))
+
+                grid_points = HighPixelAjuster.adjust_high(grid_points)
+                # Negative axis (e.g: latitude) min <--- max
+                if user_axis.resolution < 0:
+                    return int(math.floor(grid_points))
+                else:
+                    # Positive axis (e.g: longitude) min ---> max
+                    return int(math.ceil(grid_points))
             else:
                 time_difference = user_axis.interval.high - user_axis.interval.low
+                # AS time always point to future (min --> max)
                 if crs_axis.is_uom_day():
-                    # days
-                    return int(round(abs((decimal.Decimal(str(time_difference)) / decimal.Decimal(DateTimeUtil.DAY_IN_SECONDS))
-                                         / decimal.Decimal(str(user_axis.resolution)))))
+                    # days ((seconds / 86400) / resolution)
+                    grid_points = abs((decimal.Decimal(str(time_difference)) / decimal.Decimal(DateTimeUtil.DAY_IN_SECONDS))
+                                     / decimal.Decimal(str(user_axis.resolution)))
+                    grid_points = HighPixelAjuster.adjust_high(grid_points)
+
+                    return int(math.ceil(grid_points))
                 else:
-                    # seconds
-                    return int(round(abs(decimal.Decimal(str(time_difference))
-                                         / decimal.Decimal(str(user_axis.resolution)))))
+                    # seconds (seconds / resolution)
+                    grid_points = abs((decimal.Decimal(str(time_difference))
+                                         / decimal.Decimal(str(user_axis.resolution))))
+                    grid_points = HighPixelAjuster.adjust_high(grid_points)
+
+                    return int(math.ceil(grid_points))
         else:
-            # number of direct positions
+            # number of direct positions (i.e: irregular axis with coefficients [0, 1, 3, 5, 8, 15])
             return len(user_axis.directPositions)

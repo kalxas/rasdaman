@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.wcps2.util.CrsComputer;
 
 /**
  * Utilities for handling BigDecimals computations and scales.
@@ -95,12 +96,26 @@ public class BigDecimalUtil {
         return BigDecimalUtil.stripDecimalZeros(result);
     }
 
-    public static int listContains(List<BigDecimal> list, BigDecimal value) {
+    /**
+     * Check if a big decimal value is inside the list
+     * NOTE: we use a very small epsilon to add, subtract to the checking value
+     * as coefficients which was persisted in double is not as same as in BigDecimal
+     * especially for time axis:
+     * Double:     148654.0842592477
+     * BigDecimal: 148654.08425924768518518518518518518518518518518518518519        
+     * @param list
+     * @param value
+     * @return 
+     */
+    public static int listContainsCoefficient(List<BigDecimal> list, BigDecimal value) {
         int counter = 0;
-        for (BigDecimal element : list) {
-            if (element.compareTo(value) == 0) {
+        for (BigDecimal coeff : list) {
+            // if value is within [coefficient - epsilon, coefficient + epsilon], then value is considered the coefficient
+            // e.g: 
+            if ((coeff.subtract(CrsComputer.COEFFICIENT_DECIMAL_EPSILON).compareTo(value) <= 0)
+                &&(coeff.add(CrsComputer.COEFFICIENT_DECIMAL_EPSILON).compareTo(value) >= 0)) {
                 return counter;
-            }
+            }            
             counter++;
         }
         return -1;

@@ -28,6 +28,7 @@ import petascope.wcps2.metadata.model.ParsedSubset;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import petascope.wcps2.util.CrsComputer;
 
 /**
  * Translate the coordinates from geo bound to grid bound for trimming/slicing and vice versa if using CRS:1 in trimming/slicing
@@ -61,10 +62,13 @@ public class CoordinateTranslationService {
         if (zeroIsMin) {
             // closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
             // e.g: Long(0:20) -> c[0:50]
-            returnLowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution)
-                                             .setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
-            returnUpperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution)
-                                             .setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
+            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution);
+            lowerLimit = CrsComputer.shiftToNearestGridPoint(lowerLimit);
+            returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
+            
+            BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution);            
+            upperLimit = CrsComputer.shiftToNearestGridPoint(upperLimit);
+            returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
 
             //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
@@ -85,10 +89,13 @@ public class CoordinateTranslationService {
             //        --- --- --- ---
             // geo:  80  60  40  20  0
             // user subset 58: count how many resolution-sized interval are between 80 and 58 (1.1), and floor it to get 1
-            returnLowerLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMax), resolution)
-                                             .setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
-            returnUpperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMax), resolution)
-                                              .setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
+            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMax), resolution);
+            lowerLimit = CrsComputer.shiftToNearestGridPoint(lowerLimit);
+            returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
+            
+            BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMax), resolution);
+            upperLimit = CrsComputer.shiftToNearestGridPoint(upperLimit);
+            returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
 
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
                 returnUpperLimit = returnLowerLimit;
