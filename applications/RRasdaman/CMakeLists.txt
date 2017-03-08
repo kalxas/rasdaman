@@ -108,6 +108,12 @@ add_dependencies(RRasdaman_create_inst RRasdaman_java)
 # TODO(vliaukevich): check for needed R packages
 find_package(R REQUIRED)
 
+# Sets the package version in the description file, fixes ticket #1502
+execute_process(
+	COMMAND sed -i -e "s/Version:.*/Version: ${PROJECT_VERSION}/g" ${R_BUILD_FOLDER}/DESCRIPTION
+	WORKING_DIRECTORY ${RRASDAMAN_R_TARGET_DIR}
+	)
+
 add_custom_command(OUTPUT "${RRASDAMAN_R_TARGET_DIR}/${RRASDAMAN_PACKAGE}"
 	DEPENDS ${R_SRCS} ${RD_SRCS} ${TEST_SRCS} ${MISC_SRCS}
 	COMMAND ${R_COMMAND} ARGS CMD  build ${R_BUILD_FOLDER}
