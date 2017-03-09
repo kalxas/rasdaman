@@ -177,7 +177,7 @@ class PointPixelAdjuster:
                 grid_points = abs((decimal.Decimal(str(user_axis.interval.high)) - decimal.Decimal(str(user_axis.interval.low)))
                              / decimal.Decimal(str(user_axis.resolution)))
                 # The resolution in ingredient file can have big factor to the calculation, so must take care
-                if abs(decimal.Decimal(str(grid_points), ROUND_UP) - grid_points) > HighPixelAjuster.THRES_HOLD:
+                if abs(decimal.Decimal(str(grid_points), ROUND_UP) - grid_points) > HighPixelAjuster.THRESHOLD:
                     log.warning("The computed number of grid points is not an integer for axis " + user_axis.name +
                                 ". This usually indicates that the resolution is not correct.")
 

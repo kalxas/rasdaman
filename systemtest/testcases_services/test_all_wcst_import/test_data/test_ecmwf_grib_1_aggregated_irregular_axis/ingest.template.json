@@ -1,0 +1,75 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false,
+    "insitu": false
+  },
+  "input": {
+    "coverage_id": "ecmwf_grib_t2m_subset",
+    "paths": [
+      "*.grib"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate?axis-label=\"reftime\"",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "Originating_or_generating_Center": "'${grib:centreDescription}'",
+            "GRIB_table_version": "'Mars Param'",
+            "Grib1_Parameter_name": "'Parameter name'",
+            "Grib1_Parameter_id": "'Parameter id'",
+            "MARS type": "'MARS type'",
+            "Type of level": "'Type of level'"
+          }
+        },
+        "slicer": {
+          "type": "grib",
+          "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "2_metre_temperature_surface",
+              "identifier": "2_metre_temperature_surface",
+              "description": "Bands description",
+	      "definition": "Bands definition",
+              "nilReason": "Nil value represents missing values.",
+	      "nilValue": "9999"
+            }
+          ],
+          "axes": {
+            "reftime": {
+              "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
+	      "max": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true,
+              "directPositions": "${grib:axis:reftime}"
+            },
+            "Long": {
+              "min": "${grib:longitudeOfFirstGridPointInDegrees}",
+              "max": "${grib:longitudeOfLastGridPointInDegrees}",
+              "gridOrder": 1,
+              "resolution": "${grib:iDirectionIncrementInDegrees}"
+            },
+            "Lat": {
+              "min": "${grib:latitudeOfLastGridPointInDegrees}",
+              "max": "${grib:latitudeOfFirstGridPointInDegrees}",
+              "gridOrder": 2,
+              "resolution": "-${grib:jDirectionIncrementInDegrees}"
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:0, 0:179, 0:90]"
+    }
+  }
+}

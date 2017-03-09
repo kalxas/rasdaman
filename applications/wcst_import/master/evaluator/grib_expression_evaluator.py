@@ -28,6 +28,8 @@ from master.evaluator.evaluator_slice import GribMessageEvaluatorSlice
 
 
 class GribExpressionEvaluator(ExpressionEvaluator):
+    FORMAT_TYPE = "grib:"
+
     def __init__(self):
         pass
 
@@ -37,7 +39,7 @@ class GribExpressionEvaluator(ExpressionEvaluator):
         :param str expression: the expression to test
         :rtype: bool
         """
-        if expression.startswith("grib:"):
+        if expression.startswith(self.FORMAT_TYPE):
             return True
         return False
 
@@ -53,9 +55,19 @@ class GribExpressionEvaluator(ExpressionEvaluator):
                 "Cannot evaluate a grib expression on something that is not a grib message. Given expression: {}".format(
                     expression))
 
-        expression = expression.replace("grib:", "")
+        # e.g: grib:dataDate, grib:axis:time
+        expression = expression.replace(self.FORMAT_TYPE, "")
         try:
-            resolved_variable = str(evaluator_slice.get_message()[expression])
-            return resolved_variable
+            # NOTE: as could not get all the aggregated values for axis in netcdf, grib needs to evaluate all messages
+            # to get the list of evaluated values
+            # Only when directPositions (grib:axis:label) are used then it can get the evaluated values from messages
+            if ":" in expression:
+                resolved_list = str(evaluator_slice.get_direct_positions())
+                return resolved_list
+            else:
+                # here it uses the Grib Message from grib file to extract variable values
+                # e.g: expression is: dataDate and value for this variable in message 1 is: 19700101
+                resolved_variable = str(evaluator_slice.get_grib_message()[expression])
+                return resolved_variable
         except Exception:
             raise RuntimeException("Could not find the given GRIB key: " + expression)

@@ -1,0 +1,82 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false,
+    "insitu": false
+  },
+  "input": {
+    "coverage_id": "ecmwf_grib_temperature_isobaric",
+    "paths": [
+      "*.grib"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/AnsiDate?axis-label=\"reftime\"@OGC/0/Index1D?axis-label=\"isobaric\"@EPSG/0/4326",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "Originating_or_generating_Center": "'${grib:centreDescription}'",
+            "GRIB_table_version": "'Mars Param'",
+            "Grib1_Parameter_name": "'Parameter name'",
+            "Grib1_Parameter_id": "'Parameter id'",
+            "MARS type": "'MARS type'",
+            "Type of level": "'Type of level'"
+          }
+        },
+        "slicer": {
+          "type": "grib",
+          "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "Temperature_isobaric",
+              "identifier": "Temperature_isobaric",
+              "description": "Bands description",
+              "nilReason": "Nil value represents missing values.",
+              "nilValue": 9999
+            }
+          ],
+          "axes": {
+            "reftime": {
+              "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
+	      "max": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true,
+	      "resolution": "1",
+              "directPositions": "${grib:axis:reftime}"
+            },
+            "Long": {
+              "min": "${grib:longitudeOfFirstGridPointInDegrees}",
+              "max": "${grib:longitudeOfLastGridPointInDegrees}",
+              "gridOrder": 2,
+              "resolution": "${grib:iDirectionIncrementInDegrees}"
+            },
+            "Lat": {
+              "min": "${grib:latitudeOfLastGridPointInDegrees}",
+              "max": "${grib:latitudeOfFirstGridPointInDegrees}",
+              "gridOrder": 3,
+              "resolution": "-${grib:jDirectionIncrementInDegrees}"
+            },
+            "isobaric": {
+              "min": "${grib:level}",
+              "max": "${grib:level}",
+              "gridOrder": 1,
+              "irregular": true,
+              "directPositions": "${grib:axis:isobraric}"
+           }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:0, 0:179, 0:90, 0:30]"
+    }
+  }
+}

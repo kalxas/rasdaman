@@ -36,7 +36,6 @@ from master.recipe.base_recipe import BaseRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
 from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
-from recipes.general_coverage.pp_grib_to_coverage_converter import PointPixelGRIBToCoverageConverter
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
@@ -327,20 +326,17 @@ class Recipe(BaseRecipe):
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
+        pixel_is_point = False
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
-            coverage = PointPixelGRIBToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
-                                                        self._read_bands()[0],
-                                                        self.session.get_files(), crs, self._read_axes(crs),
-                                                        self.options['tiling'], self._global_metadata_fields(),
-                                                        self._local_metadata_fields(), self._metadata_type(),
-                                                        self.options['coverage']['grid_coverage']).to_coverage()
-        else:
-            coverage = GRIBToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
-                                               self._read_bands()[0],
-                                               self.session.get_files(), crs, self._read_axes(crs),
-                                               self.options['tiling'], self._global_metadata_fields(),
-                                               self._local_metadata_fields(), self._metadata_type(),
-                                               self.options['coverage']['grid_coverage']).to_coverage()
+            pixel_is_point = True
+
+        coverage = GRIBToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
+                                           self._read_bands()[0],
+                                           self.session.get_files(), crs, self._read_axes(crs),
+                                           self.options['tiling'], self._global_metadata_fields(),
+                                           self._local_metadata_fields(), self._metadata_type(),
+                                           self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
+
         return coverage
 
 

@@ -57,6 +57,8 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             raise RuntimeException(
                 "Cannot evaluate a netcdf expression on something that is not a netcdf valid file. Given expression: {}".format(
                     expression))
+        # extract the axis and operation in the expression only
+        # ${netcdf:variable:E:min} -> variable:E:min
         expression = expression.replace("netcdf:", "").replace(self.PREFIX, "").replace(self.POSTFIX, "")
         return self._resolve(expression, evaluator_slice.get_dataset())
 
@@ -95,7 +97,8 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
                 # We will throw a runtime exception if this fails down the road
                 pass
         raise RuntimeException(
-            "Invalid operation on netcdf variable: " + operation + ". Currently supported: max, min, first, last or any metadata entry of the variable.")
+            "Invalid operation on netcdf variable: " + operation
+            + ". Currently supported: max, min, first, last or any metadata entry of the variable.")
 
     def _resolve(self, expression, nc_dataset):
         """
@@ -108,16 +111,22 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             # Each variable can either be used as is or have an operation applied on it.
             # With operation, parse the operation and apply it to the variable
             # Without operation (returns a list like object)
+            # e.g: expression: variable:E:min
             parts = expression.split(":")
+
             if len(parts) < 2:
+                # e.g: variable is invalid
                 raise RuntimeException("Invalid netcdf expression given: " + expression)
             variable_name = parts[1]
+
             if len(parts) == 2:
                 # return the entire variable translated to the string representation of a python list that can be
                 # further passed to eval() which should only use list of strings to evaluate (not Decimal as eval has error)
+                # e.g: variable:E
                 array_str = str(list(nc_dataset.variables[variable_name][:]))
                 return array_str
             else:
+                # e.g: variable:E:min and operation is min
                 operation = parts[2]
                 return self._apply_operation(nc_dataset.variables[variable_name], operation)
         elif expression.startswith("metadata:"):

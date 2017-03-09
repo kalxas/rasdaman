@@ -25,6 +25,13 @@ import java.util.List;
 
 /**
  * Representation of a grib message, used by jackson to map the information from json.
+ * A Grib message in wcst_import GML example (coverage with 4 axes):
+ * 
+ * {"axes": [{"name": "isobaric", "min": "887.5", "max": "912.5", "resolution": "25", "type": "number", "order": "0"}, 
+ *           {"type": "date", "order": "1", "resolution": "1", "name": "ansi", "min": "2006-11-28T06:00:00"},
+ *           {"name": "Lat", "min": "-90.25", "max": "90.25", "resolution": "-0.5", "type": "number", "order": "3"},
+ *           {"name": "Long", "min": "-0.25", "max": "359.75", "resolution": "0.5", "type": "number", "order": "2"}], 
+ * "messageId": 5}
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */

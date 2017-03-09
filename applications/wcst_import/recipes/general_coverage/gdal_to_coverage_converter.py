@@ -52,6 +52,7 @@ from util.file_obj import File
 from util.gdal_util import GDALGmlUtil
 from master.helper.high_pixel_adjuster import HighPixelAjuster
 
+
 class GdalToCoverageConverter(AbstractToCoverageConverter):
     def __init__(self, sentence_evaluator, coverage_id, bands, gdal_files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage):
@@ -121,16 +122,6 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
                                                                               self.local_metadata_fields),
                                            metadata_entries)
         return serializer.serialize(collector.collect())
-
-    def _get_user_axis_by_crs_axis_name(self, crs_axis_name):
-        """
-        Returns the user axis corresponding to
-        :param crs_axis_name: the name of the crs axis to retrieve
-        :rtype: UserAxis
-        """
-        for user_axis in self.user_axes:
-            if user_axis.name == crs_axis_name:
-                return user_axis
 
     def _slice(self, gdal_file, crs_axes):
         """

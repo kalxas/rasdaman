@@ -21,16 +21,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-
-import math
+import copy
 import pygrib
-import sys
-import decimal
-
-from lib.arrow import api as arrow
-from dateutil.parser import parse
+from lib import arrow
 from util.time_util import DateTimeUtil
-
+from util import list_util
 from master.evaluator.evaluator_slice import GribMessageEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.extra_metadata.extra_metadata_collector import ExtraMetadataCollector, ExtraMetadataEntry
@@ -39,7 +34,8 @@ from master.extra_metadata.extra_metadata_serializers import ExtraMetadataSerial
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 from master.generator.model.range_type_field import RangeTypeField
 from master.generator.model.range_type_nill_value import RangeTypeNilValue
-from master.helper.irregular_user_axis import IrregularUserAxis
+from master.helper.point_pixel_adjuster import PointPixelAdjuster
+from master.helper.user_axis import UserAxisType
 from master.helper.user_axis import UserAxis
 from master.helper.user_band import UserBand
 from master.importer.axis_subset import AxisSubset
@@ -51,10 +47,11 @@ from master.provider.metadata.coverage_axis import CoverageAxis
 from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
+from master.helper.regular_user_axis import RegularUserAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
-from util.string_util import stringify
+
 
 
 class MetadataType:
@@ -99,7 +96,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
     MIMETYPE = "application/grib"
 
     def __init__(self, sentence_evaluator, coverage_id, band, grib_files, crs, user_axes, tiling,
-                 global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage):
+                 global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage, pixel_is_point):
         """
         Converts a grib list of files to a coverage
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
@@ -113,6 +110,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param dict local_metadata_fields: the local metadata fields
         :param str metadata_type: the metadata type
         :param boolean grid_coverage: check if user want to import grid coverage
+        :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
         """
         AbstractToCoverageConverter.__init__(self, sentence_evaluator)
         self.sentence_evaluator = sentence_evaluator
@@ -126,6 +124,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         self.local_metadata_fields = local_metadata_fields
         self.metadata_type = metadata_type
         self.grid_coverage = grid_coverage
+        self.pixel_is_point = pixel_is_point
 
     def _get_null_value(self):
         """
@@ -140,104 +139,21 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         dataset = pygrib.open(self.grib_files[0].filepath)
         return [RangeTypeNilValue(self.band.nilReason, dataset.message(1)["missingValue"])]
 
-    def _messages(self, grib_file, crs_axes):
-        """
-        Returns the message information already evaluated
-        :param File grib_file: the grib file for which to return the messages
-        :param crs_axes: the list of crs_axis
-        :rtype: list[GRIBMessage]
-        """
-        dataset = pygrib.open(grib_file.get_filepath())
-        messages = []
-        for i in range(1, dataset.messages + 1):
-            message = dataset.message(i)
-            axes = []
-            for user_axis in self.user_axes:
-                axes.append(self._user_axis(user_axis, GribMessageEvaluatorSlice(message, grib_file)))
-            messages.append(GRIBMessage(i, axes, message))
-        return messages
-
-    def _low_high_origin_numeric(self, messages, axis_name):
-        """
-        Returns the low, high and the origin for an axis in the context of a grib file
-        :param list[GRIBMessage] messages: a list of messages represented by a list of user axes
-        :param str axis_name: the axis name
-        :rtype: (float, float, float, int, int, float)
-        """
-        low, high, resolution = sys.maxint, -sys.maxint - 1, None
-        for message in messages:
-            for axis in message.axes:
-                if axis.name == axis_name:
-                    if axis.interval.low < low:
-                        low = axis.interval.low
-                    if axis.interval.low > high:
-                        high = axis.interval.low
-                    if axis.interval.high is not None and axis.interval.high > high:
-                        high = axis.interval.high
-                    resolution = axis.resolution
-        grid_low = 0
-        grid_high = int(math.fabs(math.ceil(decimal.Decimal( str(grid_low) )
-                  + decimal.Decimal(str(high - low)) / decimal.Decimal( str(resolution) ))))
-
-        # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
-        if not self.grid_coverage:
-            if grid_high > grid_low:
-                grid_high -= 1
-        return decimal.Decimal( str(low) ), decimal.Decimal( str(high) ), decimal.Decimal( str(low) ), grid_low, grid_high, resolution
-
-    def _low_high_origin_date(self, messages, axis_name):
-        """
-        Returns the low, high and the origin for an axis in the context of a grib file
-        :param list[GRIBMessage] messages: a list of messages represented by a list of user axes
-        :param str axis_name: the axis name
-        :rtype: (float, float, float, int, int, float)
-        """
-        low, high, resolution = DateTimeUtil.MAX_DATE, DateTimeUtil.MIN_DATE, None
-        grid_high = 0
-        for message in messages:
-            for axis in message.axes:
-                if axis.name == axis_name:
-                    date_low = arrow.get(axis.interval.low)
-                    if date_low < low:
-                        low = date_low
-                    if date_low > high:
-                        high = date_low
-                    if axis.interval.high:
-                        date_high = arrow.get(axis.interval.high)
-                        if date_high > high:
-                            high = date_high
-                    resolution = axis.resolution
-                    if high != low:
-                        grid_high += 1
-        grid_low = 0
-
-        if grid_high > grid_low:
-            grid_high -= 1
-
-        return stringify(low.isoformat()), stringify(high.isoformat()), stringify(
-            low.isoformat()), int(grid_low), int(grid_high), resolution
-
-    def _low_high_origin(self, messages, axis_name, is_numeric):
-        """
-        Returns the low, high and origin for an axis name alongside the grid low and high
-        :param messages: the messages for which to compute
-        :param axis_name: the axis name
-        :param is_numeric: if the axis expects numeric input or string input (ansidate)
-        :rtype: (float | str, float | str, float | str, int, int, float)
-        """
-        if is_numeric:
-            return self._low_high_origin_numeric(messages, axis_name)
-        else:
-            return self._low_high_origin_date(messages, axis_name)
-
-    def _messages_to_dict(self, messages):
+    def _evaluated_messages_to_dict(self, evaluated_messages):
         """
         Converts a list of messages to json friendly data structure
-        :param list[GRIBMessage] messages: the messages to convert
+        :param list[GRIBMessage] evaluated_messages: the messages to convert
         :rtype: list[dict]
         """
         out_messages = []
-        for message in messages:
+        for message in evaluated_messages:
+            for user_axis in message.axes:
+                # Translate time axis in to ISO date as Petascope will only parse dateTime format
+                if user_axis.type == UserAxisType.DATE:
+                    user_axis.interval.low = DateTimeUtil.get_datetime_iso(user_axis.interval.low)
+                    if user_axis.interval.high is not None:
+                        user_axis.interval.high = DateTimeUtil.get_datetime_iso(user_axis.interval.high)
+
             out_messages.append(message.to_json())
         return out_messages
 
@@ -252,10 +168,10 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
         metadata_entries = []
         for grib_file in self.grib_files:
-            for message in self._messages(grib_file, crs_axes):
-                slice = GribMessageEvaluatorSlice(message.message, grib_file)
+            for evaluated_message in self._evaluated_messages(grib_file):
+                slice = GribMessageEvaluatorSlice(evaluated_message.message, grib_file)
                 metadata_entry_subsets = []
-                for axis in message.axes:
+                for axis in evaluated_message.axes:
                     metadata_entry_subsets.append(ExtraMetadataSliceSubset(axis.name, axis.interval))
                 metadata_entries.append(ExtraMetadataEntry(slice, metadata_entry_subsets))
 
@@ -264,47 +180,6 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                                                                               self.local_metadata_fields),
                                            metadata_entries)
         return serializer.serialize(collector.collect())
-
-    def _slice(self, grib_file, crs_axes):
-        """
-        Returns a slice for a grib file
-        :param File grib_file: the path to the grib file
-        :param list[CRSAxis] crs_axes: the crs axes for the coverage
-        :rtype: Slice
-        """
-        messages = self._messages(grib_file, crs_axes)
-        axis_subsets = []
-        for i in range(0, len(crs_axes)):
-            crs_axis = crs_axes[i]
-            user_axis = self._get_user_axis(messages[0], crs_axis.label)
-            low, high, origin, grid_low, grid_high, resolution = self._low_high_origin(messages, crs_axis.label,
-                                                                                       not crs_axis.is_future())
-            if isinstance(user_axis, IrregularUserAxis):
-                geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, low, high, origin, user_axis.directPositions,
-                                         crs_axis)
-            else:
-                geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, low, high, origin, crs_axis)
-            grid_axis = GridAxis(user_axis.order, crs_axis.label, resolution, grid_low, grid_high)
-            if crs_axis.is_easting():
-                geo_axis.origin = decimal.Decimal( str(geo_axis.low) ) + decimal.Decimal( str(resolution) ) / 2
-            elif crs_axis.is_northing():
-                geo_axis.origin = decimal.Decimal( str(geo_axis.high) ) + decimal.Decimal( str(resolution) ) / 2
-            elif not crs_axis.is_date():
-                geo_axis.origin = decimal.Decimal( str(geo_axis.low) ) + decimal.Decimal( str(resolution) ) / 2
-
-            axis_subsets.append(AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound), Interval(low, high)))
-        return Slice(axis_subsets, FileDataProvider(grib_file, self._messages_to_dict(messages), self.MIMETYPE))
-
-    def _get_user_axis(self, message, axis_name):
-        """
-        Returns the user axis given the crs axis name
-        :param GRIBMessage message: the grib message to extract the axis from
-        :param str axis_name: the axis name
-        :rtype: UserAxis
-        """
-        for axis in message.axes:
-            if axis.name == axis_name:
-                return axis
 
     def _slices(self, crs_axes):
         """
@@ -316,6 +191,177 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         for grib_file in self.grib_files:
             slices.append(self._slice(grib_file, crs_axes))
         return slices
+
+    def _slice(self, grib_file, crs_axes):
+        """
+        Returns a slice for a grib file
+        :param File grib_file: the path to the grib file
+        :param list[CRSAxis] crs_axes: the crs axes for the coverage
+        :rtype: Slice
+        """
+        evaluated_messages = self._evaluated_messages(grib_file)
+        axis_subsets = []
+
+        # Build slice for grib files which contains all the axes (i.e: min, max, origin, resolution of geo, grid bounds)
+        for i in range(0, len(crs_axes)):
+            crs_axis = crs_axes[i]
+            axis_subset = self._axis_subset(grib_file, evaluated_messages, crs_axis)
+            axis_subsets.append(axis_subset)
+
+        return Slice(axis_subsets, FileDataProvider(grib_file, self._evaluated_messages_to_dict(evaluated_messages), self.MIMETYPE))
+
+    def _evaluated_messages(self, grib_file):
+        """
+        Returns the evaluated_messages for all grib_messages
+        :param File grib_file: the grib file for which to return the evaluated_messages
+        :rtype: list[GRIBMessage]
+        """
+        dataset = pygrib.open(grib_file.get_filepath())
+        evaluated_messages = []
+        # Message id starts with "1"
+        for i in range(1, dataset.messages + 1):
+            grib_message = dataset.message(i)
+            axes = []
+            # Iterate all the axes and evaluate them with message
+            # e.g: Long axis: ${grib:longitudeOfFirstGridPointInDegrees}
+            #      Lat axis: ${grib:latitudeOfLastGridPointInDegrees}
+            # Message 1 return: Long: -180, Lat: 90
+            # Message 2 return: Long: -170, Lat: 80
+            # ...
+            # Message 20 return: Long: 180, Lat: -90
+            for user_axis in self.user_axes:
+                # find the crs_axis which are used to evaluate the user_axis (have same name)
+                crs_axis = self._get_crs_axis_by_user_axis_name(user_axis.name)
+
+                # NOTE: directPositions could be retrieved only when every message evaluated to get values for axis
+                # e.g: message 1 has value: 0, message 3 has value: 2, message 5 has value: 8,...message 20 value: 30
+                # then, the directPositions of axis is [0, 2, 8,...30]
+                # the syntax to retrieve directions in ingredient file is: ${grib:axis:axis_name}
+                # with axis_name is the name user defined (e.g: AnsiDate?axis-label="time" then axis name is: time)
+                evaluated_user_axis = self._user_axis(user_axis, GribMessageEvaluatorSlice(grib_message, grib_file))
+
+                # When pixelIsPoint:true then it will be adjusted by half pixels for min, max internally (recommended)
+                if self.pixel_is_point is True:
+                    PointPixelAdjuster.adjust_axis_bounds_to_continuous_space(evaluated_user_axis, crs_axis)
+                else:
+                    # translate the dateTime format to float
+                    if evaluated_user_axis.type == UserAxisType.DATE:
+                        evaluated_user_axis.interval.low = arrow.get(evaluated_user_axis.interval.low).float_timestamp
+                        if evaluated_user_axis.interval.high:
+                            evaluated_user_axis.interval.high = arrow.get(evaluated_user_axis.interval.high).float_timestamp
+                    # if low < high, adjust it
+                    if evaluated_user_axis.interval.high is not None \
+                        and evaluated_user_axis.interval.low > evaluated_user_axis.interval.high:
+                        evaluated_user_axis.interval.low, evaluated_user_axis.interval.high = evaluated_user_axis.interval.high, evaluated_user_axis.interval.low
+
+                axes.append(evaluated_user_axis)
+            evaluated_messages.append(GRIBMessage(i, axes, grib_message))
+
+        return evaluated_messages
+
+    def _axis_subset(self, grib_file, evaluated_messages, crs_axis):
+        """
+        Returns an axis subset using the given crs axis in the context of the grib file
+        :param File grib_file: the current grib file (slice) is evaluated
+        :param List[GirbMessages] evaluated_messages: all Grib messages was evaluated
+        :param CRSAxis crs_axis: the crs definition of the axis
+        :rtype AxisSubset
+        """
+        # first grib message from grib file, used to extract grib variables only
+        dataset = pygrib.open(grib_file.get_filepath())
+        first_grib_message = dataset.message(1)
+
+        # As all the messages contain same axes (but different intervals), so first message is ok to get user_axis
+        first_user_axis = self._get_user_axis_in_evaluated_message(evaluated_messages[0], crs_axis.label)
+        # NOTE: we don't want to change this user_axis belongs to messages, so clone it
+        user_axis = copy.deepcopy(first_user_axis)
+        # Then, we calculate the geo, grid bounds, origin, resolution of this axis for the slice
+        self._set_low_high(evaluated_messages, user_axis)
+
+        high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
+        origin = PointPixelAdjuster.get_origin(user_axis, crs_axis)
+
+        if isinstance(user_axis, RegularUserAxis):
+            geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, origin, crs_axis)
+        else:
+            # after all messages was evaluated, we could get the direct_positions of the axis as in netcdf
+            # then, it can evaluate the grib sentence normally, e.g: ${grib:axis:level} + 5
+            evaluating_sentence = user_axis.directPositions
+            direct_positions = self._get_axis_values(evaluated_messages, user_axis)
+            # convert all of values in the list to string then it can be evaluated
+            direct_positions = list_util.to_list_string(direct_positions)
+            evaluator_slice = GribMessageEvaluatorSlice(first_grib_message, grib_file, direct_positions)
+            user_axis.directPositions = self.sentence_evaluator.evaluate(evaluating_sentence, evaluator_slice)
+
+            # axis is datetime
+            if user_axis.type == UserAxisType.DATE:
+                if crs_axis.is_uom_day():
+                    coefficients = self._translate_day_date_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                            user_axis.directPositions)
+                else:
+                    coefficients = self._translate_seconds_date_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                                user_axis.directPositions)
+            else:
+                # number axis like Index1D
+                coefficients = self._translate_number_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                      user_axis.directPositions)
+            geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, origin,
+                                     coefficients, crs_axis)
+        grid_low = 0
+        grid_high = PointPixelAdjuster.get_grid_points(user_axis, crs_axis)
+        # NOTE: Grid Coverage uses the direct intervals as in Rasdaman
+        if not self.grid_coverage and grid_high > grid_low:
+            grid_high -= 1
+        grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
+        if user_axis.type == UserAxisType.DATE:
+            self._translate_decimal_to_datetime(user_axis, geo_axis)
+
+        return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
+                                       Interval(user_axis.interval.low, user_axis.interval.high))
+
+    def _set_low_high(self, messages, user_axis):
+        """
+        Set the (geo) low, highfor an axis in the context of a grib file
+        :param list[GRIBMessage] messages: a list of messages represented by a list of user axes
+        :param UserAxis user_axis: the user_axis need to calculate these values
+        :param CrsAxis crs_axis: the crs which is set to the axis (e.g: lat:epsg:4326, t:ansidate)
+        """
+        values = self._get_axis_values(messages, user_axis)
+        low = values[0]
+        high = values[len(values) - 1]
+
+        # If values was written in grib file from max -> min then need to swap value for low and high
+        if low > high:
+            low, high = high, low
+
+        user_axis.interval.low = low
+        user_axis.interval.high = high
+
+    def _get_axis_values(self, messages, user_axis):
+        """
+        Return all the different values from user_axis by iterating all messages from message id: 1 ... n
+        NOTE: it is also the direct_positions (i.e: the list of different values for irregular axis) from messages
+        :param list[GRIBMessage] messages: the evaluated messages
+        :param UserAxis user_axis: the irregular user_axis to get the list of positions
+        :return: list of values
+        """
+        # only store the different values of axis for all messages (i.e: find the min,.....,max value from each axis)
+        values = []
+        for message in messages:
+            for axis in message.axes:
+                if axis.name == user_axis.name:
+                    low = axis.interval.low
+                    if low not in values:
+                        values.append(low)
+                    if axis.interval.high:
+                        high = axis.interval.high
+                        if high not in values:
+                            values.append(high)
+        values.sort()
+        low = values[0]
+        high = values[len(values) - 1]
+
+        return values
 
     def to_coverage(self):
         """
@@ -330,3 +376,14 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                             [range_field], self.crs, self.DEFAULT_DATA_TYPE,
                             self.tiling, self._metadata(crs_axes))
         return coverage
+
+    def _get_user_axis_in_evaluated_message(self, message, crs_axis_name):
+        """
+        Get the user_axis from first message by axis_name
+        :param Grib_Message message: first evaulated message
+        :param Str crs_axis_name: Crs axis name (e.g: lat, lon, time)
+        :return: User_Axis user_axis
+        """
+        for user_axis in message.axes:
+            if user_axis.name == crs_axis_name:
+                return user_axis

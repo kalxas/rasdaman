@@ -454,7 +454,7 @@ public class CrsComputer {
     // we have to using an acceptable espilon to determine which grid point should be the result of calculation
     // as math.ceil(), math.floor() will easily +/- by 1 grid pixel in unwanted cases, such as: 4.00001 -> 5, 3.999 -> 3
     // so the epsilon is added to support these cases to shift to nearest integer value: 4.000001 -> 4, 3.999 -> 4
-    public static final BigDecimal GRID_POINT_EPSILON = new BigDecimal(0.01);
+    public static final BigDecimal GRID_POINT_EPSILON = new BigDecimal("0.001");
     
     // To support calculation for TimeAxis (double) before and now using BigDecimal for wcst_import
     // we also add a very small acceptable epsilon to avoid case when coefficient does not exist

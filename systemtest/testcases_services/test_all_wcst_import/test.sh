@@ -93,7 +93,7 @@ for test_case in $TEST_DATA/*; do
 
     # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-	    log "Ingesting a sample collection: $COLLECTION_NAME."
+	    logn "Ingesting a sample collection: $COLLECTION_NAME."
         rasql -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
     fi
 
@@ -107,7 +107,7 @@ for test_case in $TEST_DATA/*; do
         outputError=`python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" $recipe_file 2>&1`
         oracleError=`cat $test_case/test.oracle`
 
-        log "Checking error output is identical with oracle output..."
+        logn "Checking error output is identical with oracle output..."
 
         # 1.5 check if output contains the error message from test.oracle
         if [[ "$outputError" == *"$oracleError"* ]]; then

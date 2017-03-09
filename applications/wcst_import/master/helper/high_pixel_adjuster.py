@@ -26,7 +26,7 @@ import math
 
 
 class HighPixelAjuster():
-    THRES_HOLD = decimal.Decimal(str(0.01))
+    THRESHOLD = decimal.Decimal(str(0.001))
 
     def __init__(self):
         """
@@ -42,9 +42,9 @@ class HighPixelAjuster():
         :param decimal high_pixel: the total number of grid for an axis (geo_max - geo_min) / resolution
         :return decimal:
         """
-        if high_pixel + HighPixelAjuster.THRES_HOLD >= math.ceil(high_pixel):
+        if high_pixel + HighPixelAjuster.THRESHOLD >= math.ceil(high_pixel):
             return math.ceil(high_pixel)
-        elif high_pixel - HighPixelAjuster.THRES_HOLD <= math.floor(high_pixel):
+        elif high_pixel - HighPixelAjuster.THRESHOLD <= math.floor(high_pixel):
             return math.floor(high_pixel)
         else:
             return high_pixel

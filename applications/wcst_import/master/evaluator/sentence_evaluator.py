@@ -66,7 +66,6 @@ class SentenceEvaluator:
         try:
             # Check if expression can be decimal value (i.e: resolution 4.6666666666666666666) must be kept.
             # as eval() always return float value (e.g: 4.66666666667)
-            #return self.evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
             result = decimal.Decimal(instantiated_sentence)
             return result
         except:

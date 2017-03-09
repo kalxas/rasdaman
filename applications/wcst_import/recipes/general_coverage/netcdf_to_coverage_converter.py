@@ -48,8 +48,6 @@ from master.provider.metadata.regular_axis import RegularAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
-from util.time_util import DateTimeUtil
-
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
     def __init__(self, sentence_evaluator, coverage_id, bands, nc_files, crs, user_axes, tiling, global_metadata_fields,
@@ -158,10 +156,10 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
                 user_axis.interval.low, user_axis.interval.high = user_axis.interval.high, user_axis.interval.low
 
         high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
+        origin = PointPixelAdjuster.get_origin(user_axis, crs_axis)
 
         if isinstance(user_axis, RegularUserAxis):
-            geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
-                                   PointPixelAdjuster.get_origin(user_axis, crs_axis), crs_axis)
+            geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, origin, crs_axis)
         else:
             if user_axis.type == UserAxisType.DATE:
                 if crs_axis.is_uom_day():
@@ -173,8 +171,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
             else:
                 coefficients = self._translate_number_direct_position_to_coefficients(user_axis.interval.low,
                                                                                       user_axis.directPositions)
-            geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
-                                     PointPixelAdjuster.get_origin(user_axis, crs_axis), coefficients, crs_axis)
+            geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, origin, coefficients, crs_axis)
 
         grid_low = 0
         grid_high = PointPixelAdjuster.get_grid_points(user_axis, crs_axis)
@@ -184,17 +181,8 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
             grid_high -= 1
 
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
-
         if user_axis.type == UserAxisType.DATE:
-            geo_axis.origin = DateTimeUtil.get_datetime_iso(geo_axis.origin)
-            geo_axis.low = DateTimeUtil.get_datetime_iso(geo_axis.low)
-
-            if geo_axis.high is not None:
-                geo_axis.high = DateTimeUtil.get_datetime_iso(geo_axis.high)
-
-            user_axis.interval.low = DateTimeUtil.get_datetime_iso(user_axis.interval.low)
-            if user_axis.interval.high is not None:
-                user_axis.interval.high = DateTimeUtil.get_datetime_iso(user_axis.interval.high)
+            self._translate_decimal_to_datetime(user_axis, geo_axis)
 
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))

@@ -44,3 +44,14 @@ def to_list_decimal(input_list):
     # convert all the string values to Decimal (e.g: '0.0000000000001' -> 0.0000000000001)
     output_list = map(decimal.Decimal, output_list)
     return output_list
+
+
+def to_list_string(input_list):
+    """
+    This is used to translate a list of decimal values to list string values as eval() cannot evaluate
+    [Decimal(1), Decimal(2),...,Decimal(5)]
+    :param input_list: list of decimal values
+    :return: list string
+    """
+    output_list = [str(value) for value in input_list]
+    return output_list

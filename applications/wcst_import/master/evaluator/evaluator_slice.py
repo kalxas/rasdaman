@@ -71,21 +71,32 @@ class GDALEvaluatorSlice(FileEvaluatorSlice):
 
 
 class GribMessageEvaluatorSlice(FileEvaluatorSlice):
-    def __init__(self, message, container_file):
+    def __init__(self, grib_message, container_file, direct_positions=None):
         """
         A grib backed slice
-        :param pygrib.gribmessage message: the grib message
+        :param pygrib.gribmessage grib_message: the grib message of grib file which is used to evaluate variables
         :param File container_file: the file that contains the message
+        :param list[values] direct_positions: the list of evaluated values (only used with directPositions for irregular axis)
+               i.e: when all the messages were evaluated, now it can get the list of values [min,....max] and do some
+               addition calculation if it is necessary
         """
         FileEvaluatorSlice.__init__(self, container_file)
-        self.message = message
+        self.grib_message = grib_message
+        self.direct_positions = direct_positions
 
-    def get_message(self):
+    def get_grib_message(self):
         """
-        Returns the grib message
+        Returns the grib grib_message
         :rtype: pygrib.gribmessage
         """
-        return self.message
+        return self.grib_message
+
+    def get_direct_positions(self):
+        """
+        Return the evaluated values for irregular axis in all evaluated messages of grib file
+        :return list[values]:
+        """
+        return self.direct_positions
 
 
 class NetcdfEvaluatorSlice(FileEvaluatorSlice):
