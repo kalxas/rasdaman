@@ -110,7 +110,7 @@ QtMintervalData::getSpelling() const
     std::string result;
 
     // buffer
-    r_Dimension bufferLen = mintervalData.dimension() * 50; // on the save side for two integers per dimension plus colon and brackets
+    r_Dimension bufferLen = mintervalData.dimension() * 50; // on the safe side for two integers per dimension plus colon and brackets
     char*       buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );

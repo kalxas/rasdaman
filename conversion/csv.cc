@@ -225,23 +225,31 @@ void r_Conv_CSV::printArray(std::stringstream& f, int* dims, size_t* offsets, in
                             const char* ptr, const r_Base_Type& type)
 {
     size_t typeSize = type.size();
-    for (int i = 0; i < dims[0]; ptr += offsets[0] * typeSize, ++i)
+    
+    if(dim == 0)
     {
-        if (dim == 1)
+        printValue(f, type, ptr);
+    } 
+    else 
+    {
+        for (int i = 0; i < dims[0]; ptr += offsets[0] * typeSize, ++i) 
         {
-            printValue(f, type, ptr);
+            if (dim == 1) 
+            {
+                printValue(f, type, ptr);
+            } 
+            else 
+            {
+                f << leftParen;
+                printArray(f, dims + 1, offsets + 1, dim - 1, ptr, type);
+                f << rightParen;
+            }
+            if (i < dims[0] - 1) 
+            {
+                f << valueSeparator;
+            }
         }
-        else
-        {
-            f << leftParen;
-            printArray(f, dims + 1, offsets + 1, dim - 1, ptr, type);
-            f << rightParen;
-        }
-        if (i < dims[0] - 1)
-        {
-            f << valueSeparator;
-        }
-    }
+    }    
 }
 
 void r_Conv_CSV::processEncodeOptions(const string& options)
@@ -570,42 +578,51 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options) throw(r_Error)
     vector<size_t> offsets(rank); // offsets describe how many data cells are between
     // values of the same dimension slice
 
-    for (i = 0; i < rank; i++)
+    if (rank > 0) 
     {
-        dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
-    }
-    offsets[rank - 1] = 1;
-    for (i = rank - 1; i > 0; --i)
-    {
-        size_t dimSize = static_cast<size_t>(dimsizes[i]);
-        offsets[i - 1] = offsets[i] * dimSize;
-    }
-    if (order == r_Conv_CSV::INNER_OUTER)
-    {
-        std::reverse(dimsizes.begin(), dimsizes.end());
-        std::reverse(offsets.begin(), offsets.end());
+        for (i = 0; i < rank; i++) 
+        {
+            dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
+        }
+        
+        offsets[rank - 1] = 1;
+        
+        for (i = rank - 1; i > 0; --i) 
+        {
+            size_t dimSize = static_cast<size_t> (dimsizes[i]);
+            offsets[i - 1] = offsets[i] * dimSize;
+        }
+        
+        if (order == r_Conv_CSV::INNER_OUTER) 
+        {
+            std::reverse(dimsizes.begin(), dimsizes.end());
+            std::reverse(offsets.begin(), offsets.end());
+        }
     }
 
     const r_Base_Type* base_type = static_cast<const r_Base_Type*>(desc.srcType);
-    try
+    try 
     {
-        if (rank == 1)
+        if (rank == 0) 
+        {
+            outerParens = false;
+        } 
+        //honestly, this should be a simple else statement, but *.csv files lack outer
+        //parens while json files possess them. Ideally, both would have them, but
+        //it would require changing hundreds, possibly thousands, of oracle files in the systemtest
+        //directory to fix, so for now, we will leave this as is.
+        else if (rank == 1) 
+        {
+            outerParens = true;
+        }
+        if (outerParens) 
         {
             csvtemp << leftParen;
-            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, const_cast<char*>(desc.src), *base_type);
-            csvtemp << rightParen;
         }
-        else
+        printArray(csvtemp, &dimsizes[0], &offsets[0], rank, const_cast<char*> (desc.src), *base_type);
+        if (outerParens) 
         {
-            if (outerParens)
-            {
-                csvtemp << leftParen;
-            }
-            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, const_cast<char*>(desc.src), *base_type);
-            if (outerParens)
-            {
-                csvtemp << rightParen;
-            }
+            csvtemp << rightParen;
         }
     }
     catch (r_Error& err)

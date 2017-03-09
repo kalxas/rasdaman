@@ -939,11 +939,14 @@ r_Area
 r_Minterval::cell_count() const throw(r_Error)
 {
     r_Area cellCount = 1;
-    r_Point ptExt = get_extent();
-
-    for (r_Dimension i = 0; i < dimensionality; i++)
+    if(dimensionality != 0) 
     {
-        cellCount *= static_cast<r_Area>(ptExt[i]);
+        r_Point ptExt = get_extent();
+        
+        for (r_Dimension i = 0; i < dimensionality; i++) 
+        {
+            cellCount *= static_cast<r_Area> (ptExt[i]);
+        }
     }
 
     return cellCount;

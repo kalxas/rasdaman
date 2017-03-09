@@ -90,8 +90,8 @@ function run_transpose_test()
     log ----- png and png GreySet transpose conversion ------
 
     create_coll test_tmp GreySet
-    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' -f $TESTDATA_PATH/mr_1.png
-    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' --out file --outfile mr_1
+    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' -f $TESTDATA_PATH/mr_1.png --quiet
+    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' --out file --outfile mr_1 --quiet
 
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
@@ -105,6 +105,46 @@ function run_transpose_test()
 
     drop_colls test_tmp
     rm -f mr_1*
+}
+
+# ------------------------------------------------------------------------------
+#function running the scalar csv encoding test now that the output style should be enforced
+#
+function run_csv_scalar_test()
+{
+    log ----- csv scalar encode testing ------
+
+    $RASQL -q 'select encode(37, "csv")' --out file --outfile scalar1
+
+    logn "comparing csv scalar output with oracle: "
+    cmp $ORACLE_PATH/scalar1.csv.oracle scalar1.csv > /dev/null
+    check_result 0 $? "input and output match"
+
+    $RASQL -q 'select encode(37, "json")' --out file --outfile scalar1
+
+    logn "comparing csv scalar output with oracle: "
+    cmp $ORACLE_PATH/scalar1.json.oracle scalar1.json > /dev/null
+    check_result 0 $? "input and output match"
+
+#import data
+    create_coll test_tmp GreySet
+    $RASQL -q 'insert into test_tmp values decode($1)' -f $TESTDATA_PATH/mr_1.png --quiet
+
+    $RASQL -q 'select encode(c[100,100], "csv") from test_tmp as c' --out file --outfile scalar2 --quiet
+
+    logn "comparing csv scalar output with oracle: "
+    cmp $ORACLE_PATH/scalar2.csv.oracle scalar2.csv > /dev/null
+    check_result 0 $? "input and output match"
+
+    $RASQL -q 'select encode(c[100,100], "json") from test_tmp as c' --out file --outfile scalar2 --quiet
+
+    logn "comparing json scalar output with oracle: "
+    cmp $ORACLE_PATH/scalar2.json.oracle scalar2.json > /dev/null
+    check_result 0 $? "input and output match"
+
+#drop data
+    drop_colls test_tmp
+    rm -f scalar*
 }
 
 # ------------------------------------------------------------------------------
@@ -418,6 +458,8 @@ run_csv_test RGBSet csv_rgb2 ",\"domain=[0:0,0:1];basetype=struct{char red, char
 run_csv_test RGBSet3 csv_rgb3 ",\"domain=[0:1,0:1,0:1];basetype=struct{char red, char green, char blue}\""
 run_csv_test TestFLSet csv_testfl2 ",\"domain=[0:1,0:2];basetype=struct{ float f, long l }\""
 run_csv_test TestFLSet csv_testfl2 ',"{ \"formatParameters\": { \"domain\": \"[0:1,0:2]\", \"basetype\": \"struct{ float f, long l }\" } }"'
+
+run_csv_scalar_test
 
 ############## csv(order=inner_outer) #######
 log ----- csv with inner_outer order conversion ------

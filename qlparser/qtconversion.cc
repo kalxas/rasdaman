@@ -197,7 +197,7 @@ QtConversion::evaluate(QtDataList* inputList)
         if ((conversionType == QT_TOCSV || conversionType == QT_TOJSON) && operand->isScalarData())
         {
             QtScalarData* qtScalar = static_cast<QtScalarData*>(operand);
-            r_Minterval domain = r_Minterval(2) << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
+            r_Minterval domain = r_Minterval((r_Dimension) 0);// << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
             sourceTile.reset(new Tile(domain, qtScalar->getValueType(), qtScalar->getValueBuffer(), (r_Bytes)0, r_Array));
             typeStructure = qtScalar->getTypeStructure();
         }
