@@ -64,7 +64,16 @@ QUERIES_PATH="$SCRIPT_DIR/queries"
 ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Oracles directory not found: $ORACLE_PATH"
 OUTPUT_PATH="$SCRIPT_DIR/output"
+
+# NOTE: before running any test queries in test directory, remove all the output files to make it clean first
+if [ -d "$OUTPUT_PATH" ]; then
+    logn "Cleaning output directory... "
+    rm -rf "$OUTPUT_PATH"
+    echo "Done."
+fi
+# then create the output directory
 mkdir -p "$OUTPUT_PATH"
+
 KNOWN_FAILS="$SCRIPT_DIR/known_fails"
 
 #

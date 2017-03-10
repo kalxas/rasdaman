@@ -124,7 +124,7 @@ for test_case in $TEST_DATA/*; do
 
         continue
     else
-        log "Test import coverage..."
+        logn "Test import coverage... "
         # This test will succeed, check coverage exists later
         wcst_import.sh "$recipe_file" >> "$LOG_FILE"
     fi
@@ -132,14 +132,16 @@ for test_case in $TEST_DATA/*; do
     if [[ $? != 0 ]]; then
         sleep 2
         # In Debian, it can failed without reason in some test cases, try it again can make it work
-        log "First import does not succeed, try one more time..."
-        wcst_import.sh "$recipe_file" >> "$LOG_FILE"
+        echo ""
+        logn "First import does not succeed, try one more time... "
+        wcst_import.sh "$recipe_file" >> "$LOG_FILE"        
     fi
     
     if [[ $? != 0 ]]; then
         sleep 2
         # In Debian, it can failed without reason in some test cases, try it again can make it work
-        log "Second import does not succeed, try one more time..."
+        echo ""
+        logn "Second import does not succeed, try one more time... "
         wcst_import.sh "$recipe_file" >> "$LOG_FILE"
     fi    
 
@@ -164,7 +166,7 @@ for test_case in $TEST_DATA/*; do
 
         # 2.4.1 using WCS to check coverage does exist in Petascope
         DESCRIBE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DescribeCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
-        log "Check if coverage exists in Petascope WCS..."
+        logn "Check if coverage exists in Petascope WCS..."
         RETURN=$(get_http_return_code "$DESCRIBE_COVERAGE_URL")
         if [[ $RETURN != 200 ]]; then            
             check_failed
@@ -180,7 +182,7 @@ for test_case in $TEST_DATA/*; do
             # Return 0 means wms_import does exist in recipe file
             if [[ $? == 0 ]]; then
                 # Get page content
-                log "Test coverage does exist in Petascope WMS..."
+                logn "Test coverage does exist in Petascope WMS... "
                 content=$(wget "$PETASCOPE_URL?service=WMS&version=1.3.0&request=GetCapabilities" -q -O -)
                 if [[ $content != *$COVERAGE_ID* ]]; then                    
                     check_failed
@@ -202,7 +204,7 @@ for test_case in $TEST_DATA/*; do
                 DELETE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
                 RETURN=$(get_http_return_code "$DELETE_COVERAGE_URL")
 
-                log "Test delete coverage from Petascope WCS..."
+                logn "Test delete coverage from Petascope WCS... "
                 if [[ $RETURN != 200 ]]; then                    
                     check_failed         
                     write_to_failed_log "$test_case" "Cannot delete CoverageID in Petascope WCS."                               
@@ -215,9 +217,9 @@ for test_case in $TEST_DATA/*; do
 
     # 2.7.1 remove created collection in rasdaman
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-        log "Cleaning collection: $COLLECTION_NAME."
+        logn "Cleaning collection: $COLLECTION_NAME."
         rasql -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
-        log "Done."
+        logn "Done."
     fi
     echo -e
 

@@ -57,7 +57,7 @@ for d in */ ; do
 			# get the coverageID from template file
 			coverageID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $templateFile | awk -F'"' '{print $4}')
 
-			log "Removing coverageID: $coverageID."
+			logn "Removing coverageID: $coverageID... "
 			# remove the imported coverage
 			wget -q --spider "$WCS_ENDPOINT$coverageID"
 			check

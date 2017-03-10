@@ -380,7 +380,7 @@ check()
 # this test case is failed (and cannot check by the return of $?)
 check_failed()
 {
-  log failed.
+  echo failed.
   NUM_FAIL=$(($NUM_FAIL + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
@@ -388,7 +388,7 @@ check_failed()
 # this test case is passed (and cannot check by the return of $?)
 check_passed()
 {
-  log ok.
+  echo ok.
   NUM_SUC=$(($NUM_SUC + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
@@ -749,30 +749,28 @@ run_test()
               ;;
       select|rasql|nullvalues|subsetting)
               QUERY=`cat $f`
-
-              # it is in the queries/
-              current_directory=$(pwd)
-
-              # just let it return rasql_1.*
-              $RASQL -q "$QUERY" --out file > /dev/null 2> "$err"
+              
+              $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
 
               # if an exception was thrown, then the err file has non-zero size
               if [ -s "$err" ]; then
-                # output file contains the error
                 mv "$err" "$out"
+
               else
-                # move to proper output file
-                result_file=$(find "$current_directory" -name "rasql_1.*")
-                # check if rasql_1.* is in queries directory
-                if [ -f "$result_file" ]; then
-                  # then move it to output folder
-                  mv "$result_file" "$out"
-                else
-                  # if the result is a scalar, there will be no result file by rasql
-                  $RASQL -q "$QUERY" --out string | grep Result > $out
+                # move to proper output file (e.g: output.rasql.out.uknown to output.rasql.out)
+                for tmpf in `ls "$out".*  2> /dev/null`; do
+                    # $tmpf here is  a file in the output directory from --outfile
+                    [ -f "$tmpf" ] || continue
+                    mv "$tmpf" "$out"
+                    break
+                done
+
+                # if the result is a scalar, there will be no tmp file by rasql,
+                # here we output the Result element scalar into tmp.unknown
+                if [ ! -f "$out" ]; then
+                    $RASQL -q "$QUERY" --out string | grep Result > $out
                 fi
               fi
-              rm -f "$err"
               ;;
       *)      error "unknown service: $SVC_NAME"
     esac

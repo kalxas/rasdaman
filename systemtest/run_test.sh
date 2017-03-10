@@ -49,7 +49,7 @@ for test_case in $TEST_SEQUENCE; do
     else
         echo $PROG_TEST ... OK>>logtmp;
     fi;
-        echo "	"see detail in $test_case/log>>logtmp;
+        echo "	"see detail in $test_case/test.log>>logtmp;
 done;
 
 echo -e "\n\nTEST SUMMARY\n";
