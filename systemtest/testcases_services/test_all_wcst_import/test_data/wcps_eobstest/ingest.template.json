@@ -30,6 +30,7 @@
         },
         "slicer": {
           "type": "netcdf",
+	  "pixelIsPoint": true,
           "bands": [
             {
               "name": "tg",
@@ -49,14 +50,14 @@
               "irregular": false
             },	    
             "Lat": {
-	      "min": "25.0",
-              "max": "75.5",
+	      "min": "${netcdf:variable:latitude:min}",
+              "max": "${netcdf:variable:latitude:max}",
               "gridOrder": 1,
               "resolution": "-0.5"
             },
             "Long": {              
-              "min": "-40.5",
-              "max": "75.5",
+              "min": "${netcdf:variable:longitude:min}",
+              "max": "${netcdf:variable:longitude:max}",
               "gridOrder": 2,
               "resolution": "0.5"
             }

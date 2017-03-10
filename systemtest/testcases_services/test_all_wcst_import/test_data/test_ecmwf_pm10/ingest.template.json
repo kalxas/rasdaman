@@ -41,9 +41,9 @@
           ],
           "axes": {
             "ansi": {
-              "min": "${netcdf:variable:time:min} * 3600 - 62135596800.0",
-              "max": "${netcdf:variable:time:max} * 3600 - 62135596800.0",
-	          "resolution": 0.041666666666666664,
+              "min": "${netcdf:variable:time:min} * 3600 - 62135596800.0 - 0.020833333333333332 * 3600",
+              "max": "${netcdf:variable:time:max} * 3600 - 62135596800.0 + 0.020833333333333332 * 3600",
+              "resolution": 0.041666666666666664,
               "gridOrder": 0
             },
             "Long": {

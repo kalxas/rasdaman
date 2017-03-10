@@ -21,10 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import math
 import decimal
-
 from lib import arrow
+from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
@@ -50,12 +49,11 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from util.crs_util import CRSAxis, CRSUtil
 from util.file_obj import File
 from util.time_util import DateTimeUtil
-from master.helper.high_pixel_adjuster import HighPixelAjuster
 
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
     def __init__(self, sentence_evaluator, coverage_id, bands, nc_files, crs, user_axes, tiling, global_metadata_fields,
-                 local_metadata_fields, metadata_type, grid_coverage):
+                 local_metadata_fields, metadata_type, grid_coverage, pixel_is_point):
         """
         Converts a netcdf list of files to a coverage
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
@@ -69,6 +67,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         :param dict local_metadata_fields: the local metadata fields
         :param str metadata_type: the metadata type
         :param boolean grid_coverage: check if user want to import as grid coverage
+        :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
         """
         AbstractToCoverageConverter.__init__(self, sentence_evaluator)
         self.sentence_evaluator = sentence_evaluator
@@ -82,6 +81,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         self.local_metadata_fields = local_metadata_fields
         self.metadata_type = metadata_type
         self.grid_coverage = grid_coverage
+        self.pixel_is_point = pixel_is_point
 
     def _get_null_value(self):
         """
@@ -134,94 +134,67 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
     def _axis_subset(self, crs_axis, nc_file):
         """
         Returns an axis subset using the given crs axis in the context of the nc file
-        :param crs_axis:
-        :param nc_file:
-        :return:
+        :param CRSAxis crs_axis: the crs definition of the axis
+        :param File nc_file: the netcdf file
+        :rtype AxisSubset
         """
         user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label), NetcdfEvaluatorSlice(nc_file))
+
+        # Normally, without pixelIsPoint:true, in the ingredient needs to +/- 0.5 * resolution for each regular axis
+        # e.g: resolution for axis E is 10000, then
+        # "min": "${netcdf:variable:E:min} - 10000 / 2",
+        # "max": "${netcdf:variable:E:max} + 10000 / 2",
+        # with pixelIsPoint: true, no need to add these values as the service will do it automatically
+        if self.pixel_is_point:
+            PointPixelAdjuster.adjust_axis_bounds_to_continuous_space(user_axis, crs_axis)
+        else:
+            # No adjustment for all regular axes but still need to translate time in datetime to decimal to calculate
+            if user_axis.type == UserAxisType.DATE:
+                user_axis.interval.low = decimal.Decimal(str(arrow.get(user_axis.interval.low).float_timestamp))
+                if user_axis.interval.high:
+                    user_axis.interval.high = decimal.Decimal(str(arrow.get(user_axis.interval.high).float_timestamp))
+            # if low < high, adjust it
+            if user_axis.interval.high is not None and user_axis.interval.low > user_axis.interval.high:
+                user_axis.interval.low, user_axis.interval.high = user_axis.interval.high, user_axis.interval.low
+
         high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
 
-        # if low < high, adjust it (used when latitude axis in netCDF is reversed)
-        if user_axis.interval.high is not None and user_axis.interval.low > user_axis.interval.high:
-            user_axis.interval.low, user_axis.interval.high = user_axis.interval.high, user_axis.interval.low
-            high = user_axis.interval.high
-
         if isinstance(user_axis, RegularUserAxis):
-            geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, user_axis.interval.low,
-                                   crs_axis)
+            geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
+                                   PointPixelAdjuster.get_origin(user_axis, crs_axis), crs_axis)
         else:
-            geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, user_axis.interval.low,
-                                     [0], crs_axis)
-
-        if user_axis.type == UserAxisType.DATE:
-            grid_low = 0
-            # convert all the time_low, time_high, resolution from datetime (date) to seconds
-            time_low = arrow.get(user_axis.interval.low).timestamp
-            time_high = arrow.get(high).timestamp
-            number_of_timepixels = time_high - time_low
-
-            # AnsiDate
-            if crs_axis.is_uom_day:
-                resolution = user_axis.resolution * DateTimeUtil.DAY_IN_SECONDS
-
-            grid_high = abs(decimal.Decimal(str(grid_low))
-                            + decimal.Decimal(str(number_of_timepixels)) / decimal.Decimal(str(resolution)))
-            grid_high = HighPixelAjuster.adjust_high(grid_high)
-
-            # As Time is always point to future (min -> max)
-            grid_high = abs(math.ceil(grid_high))
-
-        else:
-            grid_low = 0
-            if user_axis.interval.high is not None:
-                number_of_geopixels = decimal.Decimal(str(user_axis.interval.high)) \
-                                    - decimal.Decimal(str(user_axis.interval.low))
-            else:
-                # when dataBound is set to false, it is slicing subset
-                if user_axis.interval.high is None:
-                    number_of_geopixels = decimal.Decimal(1)
+            if user_axis.type == UserAxisType.DATE:
+                if crs_axis.is_uom_day():
+                    coefficients = self._translate_day_date_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                            user_axis.directPositions)
                 else:
-                    number_of_geopixels = decimal.Decimal(str(user_axis.interval.high))\
-                                        - decimal.Decimal(str(user_axis.interval.low))
-
-            grid_high = abs(decimal.Decimal(str(grid_low))
-                            + decimal.Decimal(str(number_of_geopixels)) / decimal.Decimal(str(user_axis.resolution)))
-            grid_high = HighPixelAjuster.adjust_high(grid_high)
-
-            # Negative axis (e.g: Latitude), min <-- max
-            if user_axis.resolution < 0:
-                grid_high = int(math.floor(grid_high))
+                    coefficients = self._translate_seconds_date_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                                user_axis.directPositions)
             else:
-                # Positive axis (e.g: Longitude), min ---> max
-                grid_high = int(math.ceil(grid_high))
+                coefficients = self._translate_number_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                      user_axis.directPositions)
+            geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
+                                     PointPixelAdjuster.get_origin(user_axis, crs_axis), coefficients, crs_axis)
 
-            # NOTE: Grid Coverage uses the direct intervals as in Rasdaman, modify the high bound will have error in petascope
-            if not self.grid_coverage:
-                if grid_high > grid_low:
-                    grid_high -= 1
+        grid_low = 0
+        grid_high = PointPixelAdjuster.get_grid_points(user_axis, crs_axis)
+
+        # NOTE: Grid Coverage uses the direct intervals as in Rasdaman
+        if not self.grid_coverage and grid_high > grid_low:
+            grid_high -= 1
 
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
 
-        if crs_axis.is_easting():
-            # NOTE: longitude axis origin always point from the left -> right
-            geo_axis.origin = decimal.Decimal(str(geo_axis.low)) \
-                            + decimal.Decimal(str(user_axis.resolution)) / 2
-        elif crs_axis.is_northing():
-            # NOTE: latitude axis origin always point from the right -> left
-            geo_axis.origin = decimal.Decimal(str(geo_axis.high)) \
-                            + decimal.Decimal(str(user_axis.resolution)) / 2
-        elif crs_axis.is_future():
-            # When it is DateTime format, it needs to be quoted, e.g: "2006-01-01T01:01:03Z"
-            if user_axis.type == UserAxisType.DATE:
-                geo_axis.origin = DateTimeUtil.get_datetime_iso(geo_axis.origin)
-                geo_axis.low = DateTimeUtil.get_datetime_iso(geo_axis.low)
+        if user_axis.type == UserAxisType.DATE:
+            geo_axis.origin = DateTimeUtil.get_datetime_iso(geo_axis.origin)
+            geo_axis.low = DateTimeUtil.get_datetime_iso(geo_axis.low)
 
-                if geo_axis.high is not None:
-                    geo_axis.high = DateTimeUtil.get_datetime_iso(geo_axis.high)
+            if geo_axis.high is not None:
+                geo_axis.high = DateTimeUtil.get_datetime_iso(geo_axis.high)
 
-                user_axis.interval.low = DateTimeUtil.get_datetime_iso(user_axis.interval.low)
-                if user_axis.interval.high is not None:
-                    user_axis.interval.high = DateTimeUtil.get_datetime_iso(user_axis.interval.high)
+            user_axis.interval.low = DateTimeUtil.get_datetime_iso(user_axis.interval.low)
+            if user_axis.interval.high is not None:
+                user_axis.interval.high = DateTimeUtil.get_datetime_iso(user_axis.interval.high)
 
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))

@@ -168,7 +168,7 @@ class PointPixelAdjuster:
         :return: int gridPoints
         """
         # if no interval on the axis (slice), then 1 single grid point
-        if not user_axis.interval.high:
+        if user_axis.interval.high is None:
             return 1
         if isinstance(user_axis, RegularUserAxis):
             # number of geo-intervals over resolution
