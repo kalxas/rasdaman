@@ -45,7 +45,7 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="value">
-      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>

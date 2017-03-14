@@ -29,7 +29,6 @@ from master.importer.importer import Importer
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from master.recipe.base_recipe import BaseRecipe
-from master.error.validate_exception import RecipeValidationException
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil

@@ -52,5 +52,6 @@ class GdalRangeFieldsGenerator:
             if self.field_names is not None and len(self.field_names) > field_id:
                 field_name = self.field_names[field_id]
             field_id += 1
-            fields.append(RangeTypeField(field_name, "", "", nill_values, range_field.uom_code))
+            # Old recipes don't support nilReason option
+            fields.append(RangeTypeField(field_name, "", "", "", nill_values, range_field.uom_code))
         return fields

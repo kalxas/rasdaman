@@ -33,6 +33,7 @@ from master.helper.user_axis import UserAxis, UserAxisType
 from master.helper.user_band import UserBand
 from master.importer.importer import Importer
 from master.recipe.base_recipe import BaseRecipe
+from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
 from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
@@ -43,9 +44,6 @@ from util.log import log
 
 
 class Recipe(BaseRecipe):
-    GRIB_TYPE = 'grib'
-    GDAL_TYPE = 'gdal'
-    NETCDF_TYPE = "netcdf"
 
     def __init__(self, session):
         """
@@ -109,7 +107,10 @@ class Recipe(BaseRecipe):
                 raise RecipeValidationException("No resolution value given for regular axis " + name)
             if "directPositions" not in axis and "irregular" in axis and axis["irregular"]:
                 log.warning("No direct positions found for irregular axis, assuming slice.")
-                axis["directPositions"] = "[0]"
+                # NOTE: if directPositions was not specified, it means the file does not contains the irregular axis
+                # so the irregular axis must be fetched from file name and considered as slice with coefficient is [0]
+                # However, [0] could be miscalculated with arrow so set it to [None] and return [0] later
+                axis["directPositions"] = AbstractToCoverageConverter.DIRECT_POSITIONS_SLICING
 
         if "metadata" in self.options['coverage'] and "type" not in self.options['coverage']['metadata']:
             raise RecipeValidationException("No type given for the metadata parameter.")
@@ -120,8 +121,8 @@ class Recipe(BaseRecipe):
                     "No valid type given for the metadata parameter, accepted values are xml and json")
 
         if "metadata" in self.options['coverage']:
-            if ("global" not in self.options['coverage']['metadata']) and ("local" not in self.options['coverage'][
-                'metadata']):
+            if ("global" not in self.options['coverage']['metadata']) \
+                and ("local" not in self.options['coverage']['metadata']):
                 raise RecipeValidationException("No local or global metadata fields given for the metadata parameter.")
 
     def describe(self):
@@ -171,13 +172,15 @@ class Recipe(BaseRecipe):
             bands = self.options['coverage']['slicer']['bands']
             ret_bands = []
             for band in bands:
-                ret_bands.append(UserBand(self._read_or_empty_string(band, "name"),
-                                          self._read_or_empty_string(band, "definition"),
+                ret_bands.append(UserBand(
+                                          self._read_or_empty_string(band, "identifier"),
+                                          self._read_or_empty_string(band, "name"),
                                           self._read_or_empty_string(band, "description"),
+                                          self._read_or_empty_string(band, "definition"),
                                           self._read_or_empty_string(band, "nilReason"),
                                           self._read_or_empty_string(band, "nilValue").split(","),
-                                          self._read_or_empty_string(band, "uomCode"),
-                                          self._read_or_empty_string(band, "identifier")))
+                                          self._read_or_empty_string(band, "uomCode")
+                                          ))
             return ret_bands
         raise RuntimeError("Bands parameter was not checked for validity")
 
@@ -272,26 +275,27 @@ class Recipe(BaseRecipe):
         Returns the coverage to be used for the importer
         :rtype: master.importer.coverage.Coverage
         """
-        coverage = None
-        if self.options['coverage']['slicer']['type'] == self.GRIB_TYPE:
-            coverage = self._get_grib_coverage()
-        elif self.options['coverage']['slicer']['type'] == self.GDAL_TYPE:
-            coverage = self._get_gdal_coverage()
-        elif self.options['coverage']['slicer']['type'] == self.NETCDF_TYPE:
-            coverage = self._get_netcdf_coverage()
+        recipe_type = self.options['coverage']['slicer']['type']
+        if recipe_type == GdalToCoverageConverter.RECIPE_TYPE:
+            coverage = self._get_gdal_coverage(recipe_type)
+        elif recipe_type == NetcdfToCoverageConverter.RECIPE_TYPE:
+            coverage = self._get_netcdf_coverage(recipe_type)
+        elif recipe_type == GRIBToCoverageConverter.RECIPE_TYPE:
+            coverage = self._get_grib_coverage(recipe_type)
         else:
             raise RuntimeException(
-                "No valid slicer could be found, given: " + self.options['coverage']['slicer']['type'])
+                "No valid slicer could be found, given: " + recipe_type)
         return coverage
 
-    def _get_gdal_coverage(self):
+    def _get_gdal_coverage(self, recipe_type):
         """
         Returns a coverage that uses the gdal slicer
+        :param string: recipe_type the type of recipe
         :rtype: master.importer.coverage.Coverage
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
-        coverage = GdalToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
+        coverage = GdalToCoverageConverter(recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
@@ -299,9 +303,10 @@ class Recipe(BaseRecipe):
                                            self.options['coverage']['grid_coverage']).to_coverage()
         return coverage
 
-    def _get_netcdf_coverage(self):
+    def _get_netcdf_coverage(self, recipe_type):
         """
         Returns a coverage that uses the netcdf slicer
+        :param: string recipe_type the type of netcdf
         :rtype: master.importer.coverage.Coverage
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
@@ -311,7 +316,7 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = NetcdfToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
+        coverage = NetcdfToCoverageConverter(recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
                                              self.options['tiling'], self._global_metadata_fields(),
@@ -319,9 +324,10 @@ class Recipe(BaseRecipe):
                                              self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
         return coverage
 
-    def _get_grib_coverage(self):
+    def _get_grib_coverage(self, recipe_type):
         """
         Returns a coverage that uses the grib slicer
+        :param: string recipe_type the type of grib
         :rtype: master.importer.coverage.Coverage
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
@@ -330,15 +336,14 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = GRIBToCoverageConverter(sentence_evaluator, self.session.get_coverage_id(),
-                                           self._read_bands()[0],
+        coverage = GRIBToCoverageConverter(recipe_type, sentence_evaluator, self.session.get_coverage_id(),
+                                           self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
                                            self._local_metadata_fields(), self._metadata_type(),
                                            self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
 
         return coverage
-
 
     def _get_importer(self):
         """

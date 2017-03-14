@@ -27,37 +27,33 @@ from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
-from master.extra_metadata.extra_metadata_collector import ExtraMetadataCollector, ExtraMetadataEntry
-from master.extra_metadata.extra_metadata_ingredient_information import ExtraMetadataIngredientInformation
-from master.extra_metadata.extra_metadata_serializers import ExtraMetadataSerializerFactory
-from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
-from master.generator.model.range_type_field import RangeTypeField
-from master.generator.model.range_type_nill_value import RangeTypeNilValue
 from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxis, UserAxisType
 from master.helper.user_band import UserBand
 from master.importer.axis_subset import AxisSubset
-from master.importer.coverage import Coverage
 from master.importer.interval import Interval
-from master.importer.slice import Slice
-from master.provider.data.file_data_provider import FileDataProvider
 from master.provider.metadata.coverage_axis import CoverageAxis
 from master.provider.metadata.grid_axis import GridAxis
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
-from util.crs_util import CRSAxis, CRSUtil
+from util.crs_util import CRSAxis
 from util.file_obj import File
+from util.gdal_util import GDALGmlUtil
+
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
-    def __init__(self, sentence_evaluator, coverage_id, bands, nc_files, crs, user_axes, tiling, global_metadata_fields,
+    RECIPE_TYPE = "netcdf"
+
+    def __init__(self, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling, global_metadata_fields,
                  local_metadata_fields, metadata_type, grid_coverage, pixel_is_point):
         """
         Converts a netcdf list of files to a coverage
+        :param recipe_type: the type of recipe
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
         :param str coverage_id: the id of the coverage
         :param list[UserBand] bands: the name of the coverage band
-        :param list[File] nc_files: a list of grib files
+        :param list[File] files: a list of netcdf files
         :param str crs: the crs of the coverage
         :param list[UserAxis] user_axes: a list with user axes
         :param str tiling: the tiling string to be passed to wcst
@@ -67,11 +63,11 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         :param boolean grid_coverage: check if user want to import as grid coverage
         :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
         """
-        AbstractToCoverageConverter.__init__(self, sentence_evaluator)
+        AbstractToCoverageConverter.__init__(self, recipe_type, sentence_evaluator)
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.bands = bands
-        self.nc_files = nc_files
+        self.files = files
         self.crs = crs
         self.user_axes = user_axes
         self.tiling = tiling
@@ -81,53 +77,46 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         self.grid_coverage = grid_coverage
         self.pixel_is_point = pixel_is_point
 
-    def _get_null_value(self):
+    def _data_type(self):
         """
-        Returns the null value for this file
-        :rtype: list[RangeTypeNilValue]
-        """
-        if len(self.bands) < 0:
-            raise RuntimeException("At least one band should be provided.")
-        band = self.bands[0]
-        valid_user_nill = band.nilValues is not None and len(band.nilValues) > 0 and band.nilValues[0] != ''
-        null_value = band.nilValues if valid_user_nill else self._null_value()
-        if null_value is not None:
-            range_nils = [RangeTypeNilValue("", null_value)]
-            return range_nils
-        return None
-
-    def _metadata(self, slices):
-        """
-        Returns the metadata in the corresponding format indicated in the converter
-        :param list[Slice] slices: the slices of the coverage
+        Returns the data type for this netcdf dataset
         :rtype: str
         """
-        if not self.local_metadata_fields and not self.global_metadata_fields:
-            return ""
-        serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
-        metadata_entries = []
-        for coverage_slice in slices:
-            slice = NetcdfEvaluatorSlice(coverage_slice.data_provider.file)
-            metadata_entry_subsets = []
-            for axis in coverage_slice.axis_subsets:
-                metadata_entry_subsets.append(ExtraMetadataSliceSubset(axis.coverage_axis.axis.label, axis.interval))
-            metadata_entries.append(ExtraMetadataEntry(slice, metadata_entry_subsets))
+        if len(self.files) < 1:
+            raise RuntimeException("No files to import were specified.")
+        import netCDF4
+        nci = netCDF4.Dataset(self.files[0].get_filepath(), 'r')
+        netcdf_data_type = nci.variables[self.bands[0].identifier].dtype.name
 
-        collector = ExtraMetadataCollector(self.sentence_evaluator,
-                                           ExtraMetadataIngredientInformation(self.global_metadata_fields,
-                                                                              self.local_metadata_fields),
-                                           metadata_entries)
-        return serializer.serialize(collector.collect())
+        return GDALGmlUtil.data_type_to_gdal_type(netcdf_data_type)
 
-    def _get_user_axis_by_crs_axis_name(self, crs_axis_name):
+    def _file_band_nil_values(self, index):
         """
-        Returns the user axis corresponding to
-        :param crs_axis_name: the name of the crs axis to retrieve
-        :rtype: UserAxis
+        This is used to get the null values (Only 1) from the given band index if one exists when nilValue was not defined
+        in ingredient file
+        :param integer index: the current band index to get the nilValues
+        :rtype: List[RangeTypeNilValue] with only 1 element
         """
-        for user_axis in self.user_axes:
-            if user_axis.name == crs_axis_name:
-                return user_axis
+        if len(self.files) < 1:
+            raise RuntimeException("No netcdf files given for import!")
+
+        import netCDF4
+        # NOTE: all files should have same bands's metadata for each file
+        nci = netCDF4.Dataset(self.files[0].get_filepath(), 'r')
+        try:
+            nil_value = nci.variables[self.bands[index].identifier].missing_value
+        except AttributeError:
+            # if file has no missing_value attribute of variable, then try with _FillValue
+            try:
+                nil_value = nci.variables[self.bands[index].identifier]._FillValue
+            except AttributeError:
+                # so variable does not have any null property
+                nil_value = None
+
+        if nil_value is None:
+            return None
+        else:
+            return [nil_value]
 
     def _axis_subset(self, crs_axis, nc_file):
         """
@@ -177,7 +166,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         grid_high = PointPixelAdjuster.get_grid_points(user_axis, crs_axis)
 
         # NOTE: Grid Coverage uses the direct intervals as in Rasdaman
-        if not self.grid_coverage and grid_high > grid_low:
+        if self.grid_coverage is False and grid_high > grid_low:
             grid_high -= 1
 
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
@@ -186,118 +175,5 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))
-
-    def _slice(self, nc_file, crs_axes):
-        """
-        Returns a slice for a netcdf file
-        :param File nc_file: the path to the netcdf file
-        :param list[CRSAxis] crs_axes: the crs axes for the coverage
-        :rtype: Slice
-        """
-        axis_subsets = []
-        file_structure = self._file_structure()
-        for i in range(0, len(crs_axes)):
-            axis_subsets.append(self._axis_subset(crs_axes[i], nc_file))
-
-        return Slice(axis_subsets, FileDataProvider(nc_file, file_structure))
-
-    def _file_structure(self):
-        """
-        Returns the file structure
-        :rtype: dict
-        """
-        file_structure = {}
-        variables = []
-        for band in self.bands:
-            if band.identifier is not None:
-                variables.append(str(band.identifier))
-        if len(variables) > 0:
-            file_structure["variables"] = variables
-        return file_structure
-
-    def _slices(self, crs_axes):
-        """
-        Returns all the slices for this coverage
-        :param crs_axes:
-        :rtype: list[Slice]
-        """
-        slices = []
-        for nc_file in self.nc_files:
-            slices.append(self._slice(nc_file, crs_axes))
-        return slices
-
-    def _range_fields(self):
-        """
-        Returns the range fields for the coverage
-        :rtype: list[RangeTypeField]
-        """
-        range_fields = []
-        for band in self.bands:
-            range_nills = self._get_null_value()
-            if range_nills is None and band.nilValues is not None:
-                range_nills = []
-                for nil_value in band.nilValues:
-                    range_nills.append(RangeTypeNilValue("", nil_value))
-            range_fields.append(
-                RangeTypeField(band.name, band.definition, band.description, range_nills, band.uomCode))
-        return range_fields
-
-    def _data_type(self):
-        """
-        Returns the data type for this netcdf dataset
-        :rtype: str
-        """
-        if len(self.nc_files) < 1:
-            raise RuntimeException("No netcdf files given for import!")
-        import netCDF4
-        nci = netCDF4.Dataset(self.nc_files[0].get_filepath(), 'r')
-        return self.netcdf_type_to_gdal_type(nci.variables[self.bands[0].identifier].dtype.name)
-
-    def _null_value(self):
-        """
-        Returns the null value from the given dataset if one exists, None otherwise
-        :rtype:
-        """
-        if len(self.nc_files) < 1:
-            raise RuntimeException("No netcdf files given for import!")
-        try:
-            import netCDF4
-            nci = netCDF4.Dataset(self.nc_files[0].get_filepath(), 'r')
-            return nci.variables[self.bands[0].identifier]._FillValue
-        except:
-            return None
-
-    def netcdf_type_to_gdal_type(self, type):
-        """
-        In WCST we use the gdal data types, so we need a transformation from numpy netcdf types
-        :param str type: the numpy type
-        :rtype: str
-        """
-        numpy_to_gdal_dict = {
-            "uint8": 1,
-            "int8": 1,
-            "uint16": 2,
-            "int16": 3,
-            "uint32": 4,
-            "int32": 5,
-            "float32": 6,
-            "float64": 7,
-            "complex64": 10,
-            "complex128": 11,
-        }
-        import gdal
-        return gdal.GetDataTypeName(numpy_to_gdal_dict[type])
-
-    def to_coverage(self):
-        """
-        Returns the grib files as a coverage
-        :rtype: Coverage
-        """
-        crs_axes = CRSUtil(self.crs).get_axes()
-        slices = self._slices(crs_axes)
-        coverage = Coverage(self.coverage_id, slices, self._range_fields(), self.crs,
-                            self._data_type(),
-                            self.tiling, self._metadata(slices))
-        return coverage
 
 

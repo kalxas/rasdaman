@@ -3,6 +3,8 @@
 58-overlay_performance.test
 157-extra_params_json_jpeg2000.test
 153-irr_cube_3D_time_irregular.test
+# This query returns invalid gdal file
+195_encode_bands.test
 # This query returns different color paletter for bands in Centos (Red, Undefined, Undefined) instead of (Red, Green, Blue) in other VMs
 214-colorPalette_json_full_json.test
 # This query failed on VMs but not on development system (need to verify later).

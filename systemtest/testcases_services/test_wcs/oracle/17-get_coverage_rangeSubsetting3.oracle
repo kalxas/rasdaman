@@ -52,9 +52,9 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="red">
-      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues><swe:nilValue reason="">119</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>    <swe:field name="green">
-      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:nilValues><swe:NilValues><swe:nilValue reason="">208</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>

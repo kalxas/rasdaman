@@ -32,4 +32,4 @@ class RuntimeException(Exception):
         self.validation_message = validation_message
 
     def __str__(self):
-        return "RUNTIME ERROR: " + self.validation_message
+        return "Runtime error: " + self.validation_message

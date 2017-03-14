@@ -28,18 +28,11 @@ from util.time_util import DateTimeUtil
 from util import list_util
 from master.evaluator.evaluator_slice import GribMessageEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
-from master.extra_metadata.extra_metadata_collector import ExtraMetadataCollector, ExtraMetadataEntry
-from master.extra_metadata.extra_metadata_ingredient_information import ExtraMetadataIngredientInformation
-from master.extra_metadata.extra_metadata_serializers import ExtraMetadataSerializerFactory
-from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
-from master.generator.model.range_type_field import RangeTypeField
-from master.generator.model.range_type_nill_value import RangeTypeNilValue
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from master.helper.user_axis import UserAxisType
 from master.helper.user_axis import UserAxis
 from master.helper.user_band import UserBand
 from master.importer.axis_subset import AxisSubset
-from master.importer.coverage import Coverage
 from master.importer.interval import Interval
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
@@ -49,20 +42,9 @@ from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.regular_axis import RegularAxis
 from master.helper.regular_user_axis import RegularUserAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
-from util.crs_util import CRSAxis, CRSUtil
+from master.error.runtime_exception import RuntimeException
+from util.crs_util import CRSAxis
 from util.file_obj import File
-
-
-
-class MetadataType:
-    JSON = "json"
-    XML = "xml"
-
-    @staticmethod
-    def valid_type(type):
-        if type != MetadataType.JSON and type != MetadataType.XML:
-            return False
-        return True
 
 
 class GRIBMessage:
@@ -94,15 +76,17 @@ class GRIBMessage:
 class GRIBToCoverageConverter(AbstractToCoverageConverter):
     DEFAULT_DATA_TYPE = "Float64"
     MIMETYPE = "application/grib"
+    RECIPE_TYPE = "grib"
 
-    def __init__(self, sentence_evaluator, coverage_id, band, grib_files, crs, user_axes, tiling,
+    def __init__(self, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage, pixel_is_point):
         """
         Converts a grib list of files to a coverage
+        :param recipe_type: the type of recipe
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
         :param str coverage_id: the id of the coverage
-        :param UserBand band: the name of the coverage band
-        :param list[File] grib_files: a list of grib files
+        :param list[UserBand] bands: the name of the coverage band
+        :param list[File] files: a list of grib files
         :param str crs: the crs of the coverage
         :param list[UserAxis] user_axes: a list with user axes
         :param str tiling: the tiling string to be passed to wcst
@@ -112,11 +96,11 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param boolean grid_coverage: check if user want to import grid coverage
         :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
         """
-        AbstractToCoverageConverter.__init__(self, sentence_evaluator)
+        AbstractToCoverageConverter.__init__(self, recipe_type, sentence_evaluator)
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
-        self.band = band
-        self.grib_files = grib_files
+        self.bands = bands
+        self.files = files
         self.crs = crs
         self.user_axes = user_axes
         self.tiling = tiling
@@ -126,18 +110,28 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         self.grid_coverage = grid_coverage
         self.pixel_is_point = pixel_is_point
 
-    def _get_null_value(self):
+    def _file_band_nil_values(self, index):
         """
-        Returns the null value for this file
-        :rtype: list[RangeTypeNilValue]
+        This is used to get the null values (Only 1) from the given band index if one exists when nilValue was not defined
+        in ingredient file
+        :param integer index: the current band index to get the nilValues (GRIB seems only support 1 band)
+        :rtype: List[RangeTypeNilValue] with only 1 element
         """
-        if self.band.nilValues is not None:
-            range_nils = []
-            for nil_value in self.band.nilValues:
-                range_nils.append(RangeTypeNilValue("", nil_value))
-            return range_nils
-        dataset = pygrib.open(self.grib_files[0].filepath)
-        return [RangeTypeNilValue(self.band.nilReason, dataset.message(1)["missingValue"])]
+        if len(self.files) < 1:
+            raise RuntimeException("No files to import were specified.")
+
+        # NOTE: all files should have same bands's metadata
+        dataset = pygrib.open(self.files[0].filepath)
+        try:
+            nil_value = dataset.message(1)["missingValue"]
+        except KeyError:
+            # missingValue is not defined in grib file
+            nil_value = None
+
+        if nil_value is None:
+            return None
+        else:
+            return [nil_value]
 
     def _evaluated_messages_to_dict(self, evaluated_messages):
         """
@@ -156,59 +150,6 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
 
             out_messages.append(message.to_json())
         return out_messages
-
-    def _metadata(self, crs_axes):
-        """
-        Returns the metadata in the corresponding format indicated in the converter
-        :param: crs_axes: the list of crs_axis
-        :rtype: str
-        """
-        if not self.local_metadata_fields and not self.global_metadata_fields:
-            return ""
-        serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
-        metadata_entries = []
-        for grib_file in self.grib_files:
-            for evaluated_message in self._evaluated_messages(grib_file):
-                slice = GribMessageEvaluatorSlice(evaluated_message.message, grib_file)
-                metadata_entry_subsets = []
-                for axis in evaluated_message.axes:
-                    metadata_entry_subsets.append(ExtraMetadataSliceSubset(axis.name, axis.interval))
-                metadata_entries.append(ExtraMetadataEntry(slice, metadata_entry_subsets))
-
-        collector = ExtraMetadataCollector(self.sentence_evaluator,
-                                           ExtraMetadataIngredientInformation(self.global_metadata_fields,
-                                                                              self.local_metadata_fields),
-                                           metadata_entries)
-        return serializer.serialize(collector.collect())
-
-    def _slices(self, crs_axes):
-        """
-        Returns all the slices for this coverage
-        :param crs_axes:
-        :rtype: list[Slice]
-        """
-        slices = []
-        for grib_file in self.grib_files:
-            slices.append(self._slice(grib_file, crs_axes))
-        return slices
-
-    def _slice(self, grib_file, crs_axes):
-        """
-        Returns a slice for a grib file
-        :param File grib_file: the path to the grib file
-        :param list[CRSAxis] crs_axes: the crs axes for the coverage
-        :rtype: Slice
-        """
-        evaluated_messages = self._evaluated_messages(grib_file)
-        axis_subsets = []
-
-        # Build slice for grib files which contains all the axes (i.e: min, max, origin, resolution of geo, grid bounds)
-        for i in range(0, len(crs_axes)):
-            crs_axis = crs_axes[i]
-            axis_subset = self._axis_subset(grib_file, evaluated_messages, crs_axis)
-            axis_subsets.append(axis_subset)
-
-        return Slice(axis_subsets, FileDataProvider(grib_file, self._evaluated_messages_to_dict(evaluated_messages), self.MIMETYPE))
 
     def _evaluated_messages(self, grib_file):
         """
@@ -310,7 +251,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         grid_low = 0
         grid_high = PointPixelAdjuster.get_grid_points(user_axis, crs_axis)
         # NOTE: Grid Coverage uses the direct intervals as in Rasdaman
-        if not self.grid_coverage and grid_high > grid_low:
+        if self.grid_coverage is False and grid_high > grid_low:
             grid_high -= 1
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
         if user_axis.type == UserAxisType.DATE:
@@ -329,10 +270,6 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         values = self._get_axis_values(messages, user_axis)
         low = values[0]
         high = values[len(values) - 1]
-
-        # If values was written in grib file from max -> min then need to swap value for low and high
-        if low > high:
-            low, high = high, low
 
         user_axis.interval.low = low
         user_axis.interval.high = high
@@ -357,25 +294,11 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                         high = axis.interval.high
                         if high not in values:
                             values.append(high)
+
+        # make sure no values are incorrect order (i.e: max,..,min) which is not supported for coefficients
         values.sort()
-        low = values[0]
-        high = values[len(values) - 1]
 
         return values
-
-    def to_coverage(self):
-        """
-        Returns the grib files as a coverage
-        :rtype: Coverage
-        """
-        crs_axes = CRSUtil(self.crs).get_axes()
-        range_field = RangeTypeField(self.band.name, self.band.definition,
-                                     self.band.description, self._get_null_value())
-
-        coverage = Coverage(self.coverage_id, self._slices(crs_axes),
-                            [range_field], self.crs, self.DEFAULT_DATA_TYPE,
-                            self.tiling, self._metadata(crs_axes))
-        return coverage
 
     def _get_user_axis_in_evaluated_message(self, message, crs_axis_name):
         """
@@ -387,3 +310,29 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         for user_axis in message.axes:
             if user_axis.name == crs_axis_name:
                 return user_axis
+
+    def _data_type(self):
+        """
+        Returns the data type for this grib dataset
+        :rtype: str
+        """
+        # TODO: it does not have a way to get the data type of grib, yet, so use the default float64 as before
+        return self.DEFAULT_DATA_TYPE
+
+    def _slice(self, grib_file, crs_axes):
+        """
+        Returns a slice for a grib file
+        :param File grib_file: the path to the grib file
+        :param list[CRSAxis] crs_axes: the crs axes for the coverage
+        :rtype: Slice
+        """
+        evaluated_messages = self._evaluated_messages(grib_file)
+        axis_subsets = []
+
+        # Build slice for grib files which contains all the axes (i.e: min, max, origin, resolution of geo, grid bounds)
+        for i in range(0, len(crs_axes)):
+            crs_axis = crs_axes[i]
+            axis_subset = self._axis_subset(grib_file, evaluated_messages, crs_axis)
+            axis_subsets.append(axis_subset)
+
+        return Slice(axis_subsets, FileDataProvider(grib_file, self._evaluated_messages_to_dict(evaluated_messages), self.MIMETYPE))

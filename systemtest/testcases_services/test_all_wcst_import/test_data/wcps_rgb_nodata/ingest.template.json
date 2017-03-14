@@ -22,6 +22,7 @@
         "metadata": {
           "type": "json",
           "global": {
+	    "description": "'This file has 3 different nodata values for bands and they could be fetched implicitly.'",
             "resolution": "'1'"
           }
         },
@@ -29,17 +30,18 @@
           "type": "gdal",
           "bands": [
             {
+              "identifier": "red",
               "name": "red",
-              "identifier": "1",
-	      "nilValue": "100"
+	      "description": "${gdal:minY} + ${gdal:maxY}"
+	      
             }, {
+              "identifier": "red",
               "name": "green",
-              "identifier": "2",
-	      "nilValue": "12"
+	      "description": "${gdal:minX} + ${gdal:maxX}"
             }, {
+              "identifier": "red",
               "name": "blue",
-              "identifier": "3",
-	      "nilValue": "23"
+	      "description": "${gdal:maxX} + ${gdal:minX}"
             }
           ],
           "axes": {

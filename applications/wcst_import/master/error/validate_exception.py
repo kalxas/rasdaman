@@ -32,4 +32,4 @@ class RecipeValidationException(Exception):
         self.validation_message = validation_message
 
     def __str__(self):
-        return "VALIDATION ERROR: " + self.validation_message
+        return "Validation error: " + self.validation_message

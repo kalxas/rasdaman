@@ -77,7 +77,7 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="band_1">
-      <swe:Quantity ><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:description>Test values</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>

@@ -296,3 +296,25 @@ class GDALGmlUtil:
             raise RuntimeException(
                 "No tifftag " + tag + " found for " + self.gdal_file_path)
         return metadata[tag]
+
+    @staticmethod
+    def data_type_to_gdal_type(data_type):
+        """
+        In WCST we use the gdal data types, so we need a transformation from numpy netcdf types
+        :param str data_type: the numpy type of data file
+        :rtype: str
+        """
+        numpy_to_gdal_dict = {
+            "uint8": 1,
+            "int8": 1,
+            "uint16": 2,
+            "int16": 3,
+            "uint32": 4,
+            "int32": 5,
+            "float32": 6,
+            "float64": 7,
+            "complex64": 10,
+            "complex128": 11,
+        }
+        import gdal
+        return gdal.GetDataTypeName(numpy_to_gdal_dict[data_type])

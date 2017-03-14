@@ -21,23 +21,30 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from master.error.validate_exception import RecipeValidationException
+
 
 class UserBand:
-    def __init__(self, name, description, definition, nilReason="", nilValues=None, uomCode=None, identifier=None):
+    def __init__(self, identifier, name, description, definition, nilReason="", nilValues=None, uomCode=None):
         """
         Definition of a band as provided by a user in an ingredient file
+        :param str identifier: the identifier of this band in the data provider (e.g. the gdal band id or the netcdf variable name)
         :param str name: the name of the band
         :param str description: a description for the band
         :param str definition: the definition of a band
         :param str nilReason: the reason for which the value is a nil
         :param list[str] | None nilValues: a list of nil values
         :param str uomCode: the unit of measure
-        :param str identifier: the identifier of this band in the data provider (e.g. the gdal band id or the netcdf variable name)
+
         """
+        # NOTE: band identifier must be defined in ingredient file
+        self.identifier = identifier
+        if identifier is None or identifier == "":
+            raise RecipeValidationException("Band identifier of band name {} has not been specified.".format(name))
+        # band name is the name which is shown in DescribeCoverage bands (so normally band name = band identifier)
         self.name = name
         self.description = description
         self.definition = definition
         self.nilReason = nilReason
         self.nilValues = nilValues
         self.uomCode = uomCode
-        self.identifier = identifier

@@ -81,6 +81,11 @@ class GribMessageEvaluatorSlice(FileEvaluatorSlice):
                addition calculation if it is necessary
         """
         FileEvaluatorSlice.__init__(self, container_file)
+        # if no grib_message is passed, we use the first grib message from the grib file to evaluate
+        # e.g: global variables which does not change from message, grib:marsType, grib:marsClass
+        if grib_message is None:
+            dataset = pygrib.open(container_file.get_filepath())
+            grib_message = dataset.message(1)
         self.grib_message = grib_message
         self.direct_positions = direct_positions
 

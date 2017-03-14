@@ -30,3 +30,16 @@ def stringify(thing):
     :rtype: str
     """
     return '"' + str(thing) + '"'
+
+
+def is_number(value):
+    """
+    Check if string value is a number (e.g: -5, 2, 3.5, 1e+5)
+    :param string value: the value needs to check
+    :return boolean:
+    """
+    try:
+        value = float(value)
+        return True
+    except ValueError:
+        return False

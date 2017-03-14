@@ -77,7 +77,7 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="band_1">
-      <swe:Quantity ><swe:label>band_1</swe:label><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
+      <swe:Quantity ><swe:label>band_1</swe:label><swe:description>Nadir BRDF Adjusted Reflectance 0.43-0.45 microns (Coastal Aerosol)</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>    <swe:field name="band_2">
       <swe:Quantity ><swe:label>band_2</swe:label><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
     </swe:field>    <swe:field name="band_3">
