@@ -29,7 +29,7 @@ void HealthServiceImpl::clearAll()
     this->statuses.clear();
 }
 
-grpc::Status HealthServiceImpl::Check(grpc::ServerContext* context, const common::HealthCheckRequest* request, common::HealthCheckResponse* response)
+grpc::Status HealthServiceImpl::Check(__attribute__ ((unused)) grpc::ServerContext* context, const common::HealthCheckRequest* request, common::HealthCheckResponse* response)
 {
     boost::unique_lock<boost::mutex> lock(this->mutex);
 

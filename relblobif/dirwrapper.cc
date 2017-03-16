@@ -52,7 +52,8 @@ void DirWrapper::createDirectory(const string& dirPath) throw (r_Error)
     }
 }
 
-int removePath(const char* fpath, const struct stat* sb, int typeflag, struct FTW* ftwbuf)
+int removePath(const char* fpath, __attribute__ ((unused)) const struct stat* sb, 
+        __attribute__ ((unused)) int typeflag, __attribute__ ((unused)) struct FTW* ftwbuf)
 {
     int ret = remove(fpath);
     if (ret == IO_ERROR_RC)

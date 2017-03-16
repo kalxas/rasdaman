@@ -258,7 +258,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     {
         return;
     }
-    char* order_option = NULL;
+    char* order_option = NULL;    
     bool allocated = false;
     if (formatParams.parse(options))
     {
@@ -266,7 +266,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
         {
             if (configParam.first == FormatParamKeys::Encode::CSV::ORDER)
             {
-                order_option = (char*)configParam.second.c_str();
+                order_option = const_cast<char*>(configParam.second.c_str());
             }
         }
     }
@@ -685,7 +685,7 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options) throw(r_Error)
     return desc;
 }
 
-r_Conv_Desc& r_Conv_CSV::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_CSV::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }

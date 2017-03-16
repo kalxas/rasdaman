@@ -159,7 +159,7 @@ test_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t*
   * This function is called when a SIGTERM signal is received by the process.
   * The function is placed here because it affects the global behavior of the process.
   */
-void rasnetTerminationHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+void rasnetTerminationHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, __attribute__((unused)) void* ucontext)
 {
     LINFO << "Exiting server process.";
 

@@ -100,7 +100,7 @@ public:
 
     int  compat_StartInsertTransMDD(const char* domain, int typeLength, const char* typeName);
 
-    int  compat_InsertTile(int persistent, RPCMarray*);
+    int  compat_InsertTile(bool persistent, RPCMarray*);
 
     int  compat_EndInsertMDD(int persistent);
 

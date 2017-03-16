@@ -29,6 +29,7 @@ rasdaman GmbH.
  ************************************************************/
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 static const char rcsid[] = "@(#)qlparser, lexer: $Id: oql.l,v 1.64 2005/07/06 22:48:34 rasdev Exp $";
 
 #include "config.h"

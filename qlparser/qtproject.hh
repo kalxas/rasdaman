@@ -73,10 +73,10 @@ public:
     QtData* evaluateMDD(QtMDD* mdd) throw (r_Error);
 
     /// getters for the geo bounding box
-    float getMaxX() const;
-    float getMaxY() const;
     float getMinX() const;
     float getMinY() const;
+    float getMaxX() const;
+    float getMaxY() const;
     char* getTargetCrs() const;
 
     /// method for identification of nodes
@@ -108,11 +108,11 @@ private:
 #endif
 
 
-    /// attribute for identification of nodes
+    /// attributes for identification of nodes
     QtOperation* mddOp;
-    char* wktCrsIn, *wktCrsOut;
     float xmin, ymin, xmax, ymax;
-
+    char* wktCrsIn, *wktCrsOut;
+    
     std::string initialBounds;
     std::string initialCrsIn;
     std::string initialCrsOut;

@@ -111,7 +111,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
     //if selected, transposes rasdaman data before converting to gdal
     if(formatParams.isTranspose())
     {
-        transpose((char*) desc.src, desc.srcInterv, desc.srcType, formatParams.getTranspose());
+        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType, formatParams.getTranspose());
     }
 
     GDALAllRegister();
@@ -242,7 +242,7 @@ void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType,
     for (unsigned int band = 0; band < numBands; band++)
     {
         T* dst = dstCells.get();
-        T* src = ((T*) desc.src) + band;
+        T* src = (reinterpret_cast<T*>(const_cast<char*>(desc.src))) + band;
 
         if (!isBoolean)
         {
@@ -518,7 +518,7 @@ void r_Conv_GDAL::decodeBand(const char* bandCells, char* tileCells, size_t tile
 template<typename T>
 void r_Conv_GDAL::decodeBand(const char* bandCells, char* tileCells, size_t tileBaseTypeSize, int width, int height)
 {
-    T* bandPos = (T*) bandCells;
+    T* bandPos = reinterpret_cast<T*>(const_cast<char*>(bandCells));
     char* tilePos = tileCells;
     for (size_t col = 0; col < (size_t)width; col++)
     {
@@ -563,11 +563,11 @@ r_Primitive_Type* r_Conv_GDAL::getBandType(const r_Type* baseType) throw (r_Erro
     r_Primitive_Type* ret = NULL;
     if (baseType->isPrimitiveType()) // = one band
     {
-        ret = (r_Primitive_Type*) baseType;
+        ret = static_cast<r_Primitive_Type*>(const_cast<r_Type*>(baseType));
     }
     else if (baseType->isStructType()) // = multiple bands
     {
-        r_Structure_Type* structType = (r_Structure_Type*) baseType;
+        r_Structure_Type* structType = static_cast<r_Structure_Type*>(const_cast<r_Type*>(baseType));
         r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
         while (iter != structType->defines_attribute_end())
         {
@@ -815,11 +815,11 @@ r_Conv_GDAL::setGCPs(GDALDataset* poDataset, const Json::Value& gcpsJson) throw 
                 {
                     if (fkey == GCP_ID)
                     {
-                        gdalGcps[i].pszId = (char*) gcp[fkey].asCString();
+                        gdalGcps[i].pszId = const_cast<char*>(gcp[fkey].asCString());
                     }
                     else if (fkey == GCP_INFO)
                     {
-                        gdalGcps[i].pszInfo = (char*) gcp[fkey].asCString();
+                        gdalGcps[i].pszInfo = const_cast<char*>(gcp[fkey].asCString());
                     }
                     else
                     {
@@ -853,7 +853,7 @@ r_Conv_GDAL::setGCPs(GDALDataset* poDataset, const Json::Value& gcpsJson) throw 
                 }
                 if (gdalGcps[i].pszId == NULL)
                 {
-                    gdalGcps[i].pszId = (char*) boost::lexical_cast<string>(i).c_str();
+                    gdalGcps[i].pszId = const_cast<char*>(boost::lexical_cast<string>(i).c_str());
                 }
             }
         }
@@ -988,7 +988,7 @@ r_Conv_GDAL::setColorPalette(GDALDataset* poDataset) throw (r_Error)
     const Json::Value& colorInterpJson = colorPaletteJson.get(COLOR_INTERP, Json::Value::null);
     if (!colorInterpJson.isNull())
     {
-        if (!colorInterpJson.isArray() || colorInterpJson.size() != poDataset->GetRasterCount())
+        if (!colorInterpJson.isArray() || colorInterpJson.size() != static_cast<unsigned int>(poDataset->GetRasterCount()))
         {
             LERROR << "parameter '" << COLOR_INTERP << " has to be an array of " << poDataset->GetRasterCount() << " strings.";
             throw r_Error(INVALIDFORMATPARAMETER);

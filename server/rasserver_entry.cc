@@ -327,7 +327,7 @@ int RasServerEntry::compat_StartInsertTransMDD(const char* domain, int typeLengt
     return ServerComm::startInsertTransMDD(currentClientIdx, mddDomain, static_cast<unsigned int>(typeLength), typeName);
 }
 
-int RasServerEntry::compat_InsertTile(int persistent, RPCMarray* rpcMarray)
+int RasServerEntry::compat_InsertTile(bool persistent, RPCMarray* rpcMarray)
 {
     return ServerComm::insertTile(currentClientIdx, persistent, rpcMarray);
 }

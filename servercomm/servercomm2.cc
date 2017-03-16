@@ -1203,7 +1203,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 
 unsigned short
 ServerComm::insertTileSplitted(unsigned long  callingClientId,
-                               int            isPersistent,
+                               bool            isPersistent,
                                RPCMarray*     rpcMarray,
                                r_Minterval*   tileSize)
 {
@@ -1357,7 +1357,7 @@ ServerComm::insertTileSplitted(unsigned long  callingClientId,
 
 unsigned short
 ServerComm::insertTile(unsigned long  callingClientId,
-                       int            isPersistent,
+                       bool            isPersistent,
                        RPCMarray*     rpcMarray)
 {
     // no log here, is done in RNP comm.

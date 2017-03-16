@@ -47,7 +47,9 @@ RasmgrService::RasmgrService(boost::shared_ptr<ClientManager> clientManager)
 RasmgrService::~RasmgrService()
 {}
 
-grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(grpc::ServerContext* context, const rasnet::service::GetRemoteServerRequest* request, rasnet::service::GetRemoteServerReply* response)
+grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::GetRemoteServerRequest* request, 
+        rasnet::service::GetRemoteServerReply* response)
 {
     grpc::Status status = Status::OK;
 
@@ -89,7 +91,9 @@ grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(grpc::ServerContext* cont
     return status;
 }
 
-grpc::Status RasmgrService::ReleaseServer(grpc::ServerContext* context, const rasnet::service::ReleaseServerRequest* request, rasnet::service::Void* response)
+grpc::Status RasmgrService::ReleaseServer(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::ReleaseServerRequest* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status status;
 

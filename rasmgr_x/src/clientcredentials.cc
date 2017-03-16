@@ -25,11 +25,11 @@
 namespace rasmgr
 {
 
-ClientCredentials::ClientCredentials(const std::string& userName,
-                                     const std::string& passwordHash)
+ClientCredentials::ClientCredentials(const std::string& userNameArg,
+                                     const std::string& passwordHashArg)
 {
-    this->userName = userName;
-    this->passwordHash = passwordHash;
+    this->userName = userNameArg;
+    this->passwordHash = passwordHashArg;
 }
 
 ClientCredentials::~ClientCredentials()
@@ -40,9 +40,9 @@ const std::string& ClientCredentials::getPasswordHash() const
     return this->passwordHash;
 }
 
-void ClientCredentials::setPasswordHash(const std::string& passwordHash)
+void ClientCredentials::setPasswordHash(const std::string& passwordHashArg)
 {
-    this->passwordHash = passwordHash;
+    this->passwordHash = passwordHashArg;
 }
 
 const std::string& ClientCredentials::getUserName() const
@@ -50,9 +50,9 @@ const std::string& ClientCredentials::getUserName() const
     return this->userName;
 }
 
-void ClientCredentials::setUserName(const std::string& userName)
+void ClientCredentials::setUserName(const std::string& userNameArg)
 {
-    this->userName = userName;
+    this->userName = userNameArg;
 }
 
 }

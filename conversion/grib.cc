@@ -80,7 +80,7 @@ r_Conv_GRIB::~r_Conv_GRIB(void)
 
 /// convert to GRIB
 
-r_Conv_Desc& r_Conv_GRIB::convertTo(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertTo(__attribute__ ((unused)) const char* options) throw(r_Error)
 {
     LERROR << "converting to GRIB is not supported.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -155,7 +155,7 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options) throw(r_Error)
     grib_handle* h = NULL;
     grib_context* ctx = NULL; // use default context
     int err = GRIB_SUCCESS;
-    while (h = grib_handle_new_from_file(ctx, in, &err))
+    while ((h = grib_handle_new_from_file(ctx, in, &err)))
     {
         VALIDATE_MSG_ERRCODE(err, "unable to create grib file handle for message " << messageIndex);
         if (messageDomainsMap.count(messageIndex) == 0)
@@ -224,7 +224,7 @@ FILE* r_Conv_GRIB::getFileHandle() throw (r_Error)
     FILE* in = NULL;
     if (formatParams.getFilePaths().empty())
     {
-        in = fmemopen((void*) desc.src, srcSize, "r");
+        in = fmemopen(static_cast<void*>(const_cast<char*>(desc.src)), srcSize, "r");
     }
     else
     {
@@ -264,7 +264,7 @@ unordered_map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Va
     }
 
     unordered_map<int, r_Minterval> ret;
-    for (int messageIndex = 0; messageIndex < messageDomains.size(); messageIndex++)
+    for (unsigned int messageIndex = 0; messageIndex < messageDomains.size(); messageIndex++)
     {
         int msgId = messageDomains[messageIndex][FormatParamKeys::Decode::Grib::MESSAGE_ID].asInt();
         const char* msgDomain = messageDomains[messageIndex][FormatParamKeys::Decode::Grib::MESSAGE_DOMAIN].asCString();
@@ -468,13 +468,13 @@ r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain) throw (r_Er
 
 #else // !HAVE_GRIB
 
-r_Conv_Desc& r_Conv_GRIB::convertFrom(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__ ((unused)) const char* options) throw(r_Error)
 {
     LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
 {
     LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

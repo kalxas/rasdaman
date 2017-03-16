@@ -35,9 +35,9 @@ using boost::spirit::qi::string;
 using boost::spirit::ascii::space;
 using rasmgr::RasCtrlGrammarConstants;
 
-CommandExecutor::CommandExecutor(boost::shared_ptr<ControlRasMgrComm> communication)
+CommandExecutor::CommandExecutor(boost::shared_ptr<ControlRasMgrComm> communicationArg)
 {
-    this->communication = communication;
+    this->communication = communicationArg;
 }
 
 void CommandExecutor::executeCommand(const std::string& command, std::string& reply)

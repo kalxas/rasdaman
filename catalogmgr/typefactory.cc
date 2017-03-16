@@ -185,7 +185,6 @@ TypeFactory::addStructType(const StructType* type)
     else
     {
         persistentType = new StructType(const_cast<char*>(type->getTypeName()), type->getNumElems());
-        BaseType* t = 0;
         for (unsigned int i = 0; i < type->getNumElems(); i++)
         {
             switch (type->getElemType(i)->getType())
@@ -288,8 +287,6 @@ TypeFactory::addMDDType(const MDDType* type)
 {
     MDDType* persistentType = 0;
     const MDDType* retval = 0;
-    BaseType* t = 0;
-
     if (type->isPersistent())
     {
         LTRACE << "type is persistent " << type->getOId();

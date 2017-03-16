@@ -326,6 +326,12 @@ add_definitions(-DINCLUDE_DIR="${INCLUDE_DIR}/")
 add_definitions(-DSHARE_DATA_DIR="${SHARE_DATA_DIR}/")
 add_definitions(-DFILEDATADIR="${FILE_DATA_DIR}/")
 
+#Definition added for use of protobuf libraries. In particular, the protobuf libraries (correctly)
+# assume that when a variable x is not defined, it is assumed false (i.e. !x = 1); however, when
+# compiling with -Werror and -Wunused, the warning for this turns into an error, and it cannot be suppressed
+# with a pragma.
+add_definitions(-DPROTOBUF_INLINE_NOT_IN_HEADERS=0)
+
 #TODO: These do not seem safe but are kept because the old code requires them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector -fno-strict-overflow")
 

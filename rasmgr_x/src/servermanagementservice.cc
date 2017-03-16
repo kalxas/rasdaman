@@ -43,7 +43,9 @@ ServerManagementService::ServerManagementService(shared_ptr<ServerManager> serve
 ServerManagementService::~ServerManagementService()
 {}
 
-grpc::Status ServerManagementService::RegisterServer(grpc::ServerContext* context, const rasnet::service::RegisterServerReq* request, rasnet::service::Void* response)
+grpc::Status ServerManagementService::RegisterServer(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::RegisterServerReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     Status status = Status::OK;
 

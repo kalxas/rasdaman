@@ -61,19 +61,17 @@ rasdaman GmbH.
 
 const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
 {
-#ifdef HAVE_HDF
     {"none", COMP_CODE_NONE},
     {"rle", COMP_CODE_RLE},
     {"huffman", COMP_CODE_SKPHUFF},
     {"deflate", COMP_CODE_DEFLATE},
     {NULL, COMP_CODE_NONE}
-#endif
 };
 
-#else
-
-const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
-    {};
+//#else
+//
+//const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
+//    {};
 
 #endif
 
@@ -243,7 +241,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options) throw(r_Error)
     return desc;
 
 #else // HAVE_HDF
-
+    (void)options;
     LERROR << "support for encoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 
@@ -359,14 +357,14 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options) throw(r_Error)
     return desc;
 
 #else // HAVE_HDF
-
+    (void)options;
     LERROR << "support for decoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 
 #endif // HAVE_HDF
 }
 
-r_Conv_Desc& r_Conv_HDF::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_HDF::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }

@@ -25,8 +25,8 @@
 namespace common
 {
 
-IPv4Resolver::IPv4Resolver(const in_addr& address, boost::uint32_t port) :
-    AbstractNetworkResolver(port), address(address)
+IPv4Resolver::IPv4Resolver(const in_addr& addressArg, boost::uint32_t portArg) :
+    AbstractNetworkResolver(portArg), address(addressArg)
 {
 
 }

@@ -322,7 +322,7 @@ int RasnetClientComm::closeDB()
     return retval;
 }
 
-int RasnetClientComm::createDB(const char* name) throw (r_Error)
+int RasnetClientComm::createDB(__attribute__ ((unused)) const char* name) throw (r_Error)
 {
     char* errorStr = strdup("Not implemented exception;");
     r_Error* error = r_Error::getAnyError(errorStr);
@@ -332,7 +332,7 @@ int RasnetClientComm::createDB(const char* name) throw (r_Error)
     throw tmp;
 }
 
-int RasnetClientComm::destroyDB(const char* name) throw (r_Error)
+int RasnetClientComm::destroyDB(__attribute__ ((unused)) const char* name) throw (r_Error)
 {
     char* errorStr = strdup("Not implemented exception;");
     r_Error* error = r_Error::getAnyError(errorStr);
@@ -498,7 +498,7 @@ void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar) throw (r_
     delete bagOfTiles;
 }
 
-r_Ref_Any RasnetClientComm::getMDDByOId(const r_OId& oid) throw (r_Error)
+r_Ref_Any RasnetClientComm::getMDDByOId(__attribute__ ((unused)) const r_OId& oid) throw (r_Error)
 {
     LDEBUG << "Internal error: RasnetClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any().";
     return r_Ref_Any();
@@ -648,7 +648,7 @@ void RasnetClientComm::executeQuery(const r_OQL_Query& query) throw (r_Error)
     executeExecuteUpdateQuery(query.get_query());
 }
 
-void RasnetClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) throw (r_Error)
+void RasnetClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, __attribute__ ((unused)) int dummy) throw (r_Error)
 {
     checkForRwTransaction();
 
@@ -1267,7 +1267,7 @@ GetTileRes* RasnetClientComm::executeGetNextTile()
     return result;
 }
 
-void RasnetClientComm::getMarRpcRepresentation(const r_GMarray* mar, RPCMarray*& rpcMarray, r_Data_Format initStorageFormat, const r_Base_Type* baseType)
+void RasnetClientComm::getMarRpcRepresentation(const r_GMarray* mar, RPCMarray*& rpcMarray, r_Data_Format initStorageFormat, __attribute__ ((unused)) const r_Base_Type* baseType)
 {
     // allocate memory for the RPCMarray data structure and assign its fields
     rpcMarray                 = (RPCMarray*)mymalloc(sizeof(RPCMarray));
@@ -1962,7 +1962,7 @@ void RasnetClientComm::setUserIdentification(const char* userName, const char* p
     connectClient(string(userName), common::Crypto::messageDigest(string(plainTextPassword), DEFAULT_DIGEST));
 }
 
-void RasnetClientComm::setMaxRetry(unsigned int newMaxRetry)
+void RasnetClientComm::setMaxRetry(__attribute__ ((unused)) unsigned int newMaxRetry)
 {
     char* errorMsg = strdup("Not implemented exception;");
     r_Error* error = r_Error::getAnyError(errorMsg);
@@ -1982,7 +1982,7 @@ unsigned int RasnetClientComm::getMaxRetry()
     throw tmp;
 }
 
-void RasnetClientComm::setTimeoutInterval(int seconds)
+void RasnetClientComm::setTimeoutInterval(__attribute__ ((unused)) int seconds)
 {
     char* errorMsg = strdup("Not implemented exception;");
     r_Error* error = r_Error::getAnyError(errorMsg);

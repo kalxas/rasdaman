@@ -39,7 +39,9 @@ RasnetServerComm::RasnetServerComm(::boost::shared_ptr<rasserver::ClientManager>
 
 RasnetServerComm::~RasnetServerComm() {}
 
-grpc::Status RasnetServerComm::OpenServerDatabase(grpc::ServerContext* context, const rasnet::service::OpenServerDatabaseReq* request, rasnet::service::OpenServerDatabaseRepl* response)
+grpc::Status RasnetServerComm::OpenServerDatabase(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::OpenServerDatabaseReq* request, 
+        __attribute__ ((unused)) rasnet::service::OpenServerDatabaseRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -72,7 +74,9 @@ grpc::Status RasnetServerComm::OpenServerDatabase(grpc::ServerContext* context, 
     return status;
 }
 
-grpc::Status RasnetServerComm::CloseServerDatabase(grpc::ServerContext* context, const rasnet::service::CloseServerDatabaseReq* request, rasnet::service::Void* response)
+grpc::Status RasnetServerComm::CloseServerDatabase(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::CloseServerDatabaseReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -105,17 +109,23 @@ grpc::Status RasnetServerComm::CloseServerDatabase(grpc::ServerContext* context,
     return status;
 }
 
-grpc::Status RasnetServerComm::CreateDatabase(grpc::ServerContext* context, const rasnet::service::CreateDatabaseReq* request, rasnet::service::CreateDatabaseRepl* response)
+grpc::Status RasnetServerComm::CreateDatabase(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::CreateDatabaseReq* request, 
+        __attribute__ ((unused)) rasnet::service::CreateDatabaseRepl* response)
 {
     return grpc::Status::OK;
 }
 
-grpc::Status RasnetServerComm::DestroyDatabase(grpc::ServerContext* context, const rasnet::service::DestroyDatabaseReq* request, rasnet::service::DestroyDatabaseRepl* response)
+grpc::Status RasnetServerComm::DestroyDatabase(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::DestroyDatabaseReq* request, 
+        __attribute__ ((unused)) rasnet::service::DestroyDatabaseRepl* response)
 {
     return grpc::Status::OK;
 }
 
-grpc::Status RasnetServerComm::BeginTransaction(grpc::ServerContext* context, const rasnet::service::BeginTransactionReq* request, rasnet::service::BeginTransactionRepl* response)
+grpc::Status RasnetServerComm::BeginTransaction(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::BeginTransactionReq* request, 
+        __attribute__ ((unused)) rasnet::service::BeginTransactionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -148,7 +158,9 @@ grpc::Status RasnetServerComm::BeginTransaction(grpc::ServerContext* context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::CommitTransaction(grpc::ServerContext* context, const rasnet::service::CommitTransactionReq* request, rasnet::service::CommitTransactionRepl* response)
+grpc::Status RasnetServerComm::CommitTransaction(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::CommitTransactionReq* request, 
+        __attribute__ ((unused)) rasnet::service::CommitTransactionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -181,7 +193,9 @@ grpc::Status RasnetServerComm::CommitTransaction(grpc::ServerContext* context, c
     return status;
 }
 
-grpc::Status RasnetServerComm::AbortTransaction(grpc::ServerContext* context, const rasnet::service::AbortTransactionReq* request, rasnet::service::AbortTransactionRepl* response)
+grpc::Status RasnetServerComm::AbortTransaction(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::AbortTransactionReq* request, 
+        __attribute__ ((unused)) rasnet::service::AbortTransactionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -214,7 +228,9 @@ grpc::Status RasnetServerComm::AbortTransaction(grpc::ServerContext* context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::IsTransactionOpen(grpc::ServerContext* context, const rasnet::service::IsTransactionOpenReq* request, rasnet::service::IsTransactionOpenRepl* response)
+grpc::Status RasnetServerComm::IsTransactionOpen(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::IsTransactionOpenReq* request, 
+        rasnet::service::IsTransactionOpenRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -248,7 +264,9 @@ grpc::Status RasnetServerComm::IsTransactionOpen(grpc::ServerContext* context, c
     return status;
 }
 
-grpc::Status RasnetServerComm::StartInsertMDD(grpc::ServerContext* context, const rasnet::service::StartInsertMDDReq* request, rasnet::service::StartInsertMDDRepl* response)
+grpc::Status RasnetServerComm::StartInsertMDD(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::StartInsertMDDReq* request, 
+        rasnet::service::StartInsertMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -290,7 +308,9 @@ grpc::Status RasnetServerComm::StartInsertMDD(grpc::ServerContext* context, cons
     return status;
 }
 
-grpc::Status RasnetServerComm::StartInsertTransMDD(grpc::ServerContext* context, const rasnet::service::StartInsertTransMDDReq* request, rasnet::service::StartInsertTransMDDRepl* response)
+grpc::Status RasnetServerComm::StartInsertTransMDD(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::StartInsertTransMDDReq* request, 
+        rasnet::service::StartInsertTransMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -329,7 +349,9 @@ grpc::Status RasnetServerComm::StartInsertTransMDD(grpc::ServerContext* context,
     return status;
 }
 
-grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext* context, const rasnet::service::InsertTileReq* request, rasnet::service::InsertTileRepl* response)
+grpc::Status RasnetServerComm::InsertTile(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::InsertTileReq* request, 
+        rasnet::service::InsertTileRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -339,7 +361,7 @@ grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext* context, const ra
 
         RPCMarray* rpcMarray = new RPCMarray();
 
-        int persistent = request->persistent();
+        bool persistent = request->persistent();
 
         rpcMarray->domain = strdup(request->domain().c_str());
         rpcMarray->cellTypeLength = request->type_length();
@@ -379,7 +401,7 @@ grpc::Status RasnetServerComm::InsertTile(grpc::ServerContext* context, const ra
     return status;
 }
 
-grpc::Status RasnetServerComm::EndInsertMDD(grpc::ServerContext* context, const rasnet::service::EndInsertMDDReq* request, rasnet::service::EndInsertMDDRepl* response)
+grpc::Status RasnetServerComm::EndInsertMDD(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::EndInsertMDDReq* request, rasnet::service::EndInsertMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -415,7 +437,7 @@ grpc::Status RasnetServerComm::EndInsertMDD(grpc::ServerContext* context, const 
     return status;
 }
 
-grpc::Status RasnetServerComm::InsertCollection(grpc::ServerContext* context, const rasnet::service::InsertCollectionReq* request, rasnet::service::InsertCollectionRepl* response)
+grpc::Status RasnetServerComm::InsertCollection(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::InsertCollectionReq* request, rasnet::service::InsertCollectionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -454,7 +476,7 @@ grpc::Status RasnetServerComm::InsertCollection(grpc::ServerContext* context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::DeleteCollectionByName(grpc::ServerContext* context, const rasnet::service::DeleteCollectionByNameReq* request, rasnet::service::DeleteCollectionByNameRepl* response)
+grpc::Status RasnetServerComm::DeleteCollectionByName(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::DeleteCollectionByNameReq* request, rasnet::service::DeleteCollectionByNameRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -491,7 +513,7 @@ grpc::Status RasnetServerComm::DeleteCollectionByName(grpc::ServerContext* conte
     return status;
 }
 
-grpc::Status RasnetServerComm::DeleteCollectionByOid(grpc::ServerContext* context, const rasnet::service::DeleteCollectionByOidReq* request, rasnet::service::DeleteCollectionByOidRepl* response)
+grpc::Status RasnetServerComm::DeleteCollectionByOid(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::DeleteCollectionByOidReq* request, rasnet::service::DeleteCollectionByOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -528,7 +550,7 @@ grpc::Status RasnetServerComm::DeleteCollectionByOid(grpc::ServerContext* contex
     return status;
 }
 
-grpc::Status RasnetServerComm::RemoveObjectFromCollection(grpc::ServerContext* context, const rasnet::service::RemoveObjectFromCollectionReq* request, rasnet::service::RemoveObjectFromCollectionRepl* response)
+grpc::Status RasnetServerComm::RemoveObjectFromCollection(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::RemoveObjectFromCollectionReq* request, rasnet::service::RemoveObjectFromCollectionRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -566,7 +588,7 @@ grpc::Status RasnetServerComm::RemoveObjectFromCollection(grpc::ServerContext* c
     return status;
 }
 
-grpc::Status RasnetServerComm::GetCollectionByNameOrOid(grpc::ServerContext* context, const rasnet::service::GetCollectionByNameOrOidReq* request, rasnet::service::GetCollectionByNameOrOidRepl* response)
+grpc::Status RasnetServerComm::GetCollectionByNameOrOid(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::GetCollectionByNameOrOidReq* request, rasnet::service::GetCollectionByNameOrOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -625,7 +647,7 @@ grpc::Status RasnetServerComm::GetCollectionByNameOrOid(grpc::ServerContext* con
     return status;
 }
 
-grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(grpc::ServerContext* context, const rasnet::service::GetCollOidsByNameOrOidReq* request, rasnet::service::GetCollOidsByNameOrOidRepl* response)
+grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::GetCollOidsByNameOrOidReq* request, rasnet::service::GetCollOidsByNameOrOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -700,7 +722,9 @@ grpc::Status RasnetServerComm::GetCollOidsByNameOrOid(grpc::ServerContext* conte
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNextMDD(grpc::ServerContext* context, const rasnet::service::GetNextMDDReq* request, rasnet::service::GetNextMDDRepl* response)
+grpc::Status RasnetServerComm::GetNextMDD(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::GetNextMDDReq* request, 
+        rasnet::service::GetNextMDDRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -750,7 +774,9 @@ grpc::Status RasnetServerComm::GetNextMDD(grpc::ServerContext* context, const ra
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNextTile(grpc::ServerContext* context, const rasnet::service::GetNextTileReq* request, rasnet::service::GetNextTileRepl* response)
+grpc::Status RasnetServerComm::GetNextTile(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::GetNextTileReq* request, 
+        rasnet::service::GetNextTileRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -801,7 +827,8 @@ grpc::Status RasnetServerComm::GetNextTile(grpc::ServerContext* context, const r
     return status;
 }
 
-grpc::Status RasnetServerComm::EndTransfer(grpc::ServerContext* context, const rasnet::service::EndTransferReq* request, rasnet::service::EndTransferRepl* response)
+grpc::Status RasnetServerComm::EndTransfer(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::EndTransferReq* request, rasnet::service::EndTransferRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -836,7 +863,9 @@ grpc::Status RasnetServerComm::EndTransfer(grpc::ServerContext* context, const r
     return status;
 }
 
-grpc::Status RasnetServerComm::InitUpdate(grpc::ServerContext* context, const rasnet::service::InitUpdateReq* request, rasnet::service::InitUpdateRepl* response)
+grpc::Status RasnetServerComm::InitUpdate(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::InitUpdateReq* request, 
+        rasnet::service::InitUpdateRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -876,7 +905,9 @@ grpc::Status RasnetServerComm::InitUpdate(grpc::ServerContext* context, const ra
 #define SECUREPTR(a) if(a == 0) a = strdup("")
 #define FREEPTR(a) free(a)
 
-grpc::Status RasnetServerComm::ExecuteQuery(grpc::ServerContext* context, const rasnet::service::ExecuteQueryReq* request, rasnet::service::ExecuteQueryRepl* response)
+grpc::Status RasnetServerComm::ExecuteQuery(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::ExecuteQueryReq* request, 
+        rasnet::service::ExecuteQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -932,7 +963,9 @@ grpc::Status RasnetServerComm::ExecuteQuery(grpc::ServerContext* context, const 
     return status;
 }
 
-grpc::Status RasnetServerComm::ExecuteHttpQuery(grpc::ServerContext* context, const rasnet::service::ExecuteHttpQueryReq* request, rasnet::service::ExecuteHttpQueryRepl* response)
+grpc::Status RasnetServerComm::ExecuteHttpQuery(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::ExecuteHttpQueryReq* request, 
+        rasnet::service::ExecuteHttpQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -969,7 +1002,9 @@ grpc::Status RasnetServerComm::ExecuteHttpQuery(grpc::ServerContext* context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::BeginStreamedHttpQuery(grpc::ServerContext* context, const rasnet::service::BeginStreamedHttpQueryReq* request, rasnet::service::StreamedHttpQueryRepl* response)
+grpc::Status RasnetServerComm::BeginStreamedHttpQuery(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::BeginStreamedHttpQueryReq* request, 
+        rasnet::service::StreamedHttpQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
     try
@@ -1015,7 +1050,9 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(grpc::ServerContext* conte
 
 }
 
-grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(grpc::ServerContext* context, const rasnet::service::GetNextStreamedHttpQueryReq* request, rasnet::service::StreamedHttpQueryRepl* response)
+grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::GetNextStreamedHttpQueryReq* request, 
+        rasnet::service::StreamedHttpQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
     try
@@ -1044,7 +1081,9 @@ grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(grpc::ServerContext* con
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNextElement(grpc::ServerContext* context, const rasnet::service::GetNextElementReq* request, rasnet::service::GetNextElementRepl* response)
+grpc::Status RasnetServerComm::GetNextElement(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::GetNextElementReq* request, 
+        rasnet::service::GetNextElementRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1085,7 +1124,9 @@ grpc::Status RasnetServerComm::GetNextElement(grpc::ServerContext* context, cons
     return status;
 }
 
-grpc::Status RasnetServerComm::ExecuteUpdateQuery(grpc::ServerContext* context, const rasnet::service::ExecuteUpdateQueryReq* request, rasnet::service::ExecuteUpdateQueryRepl* response)
+grpc::Status RasnetServerComm::ExecuteUpdateQuery(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::ExecuteUpdateQueryReq* request, 
+        rasnet::service::ExecuteUpdateQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1133,7 +1174,9 @@ grpc::Status RasnetServerComm::ExecuteUpdateQuery(grpc::ServerContext* context, 
     return status;
 }
 
-grpc::Status RasnetServerComm::ExecuteInsertQuery(grpc::ServerContext* context, const rasnet::service::ExecuteInsertQueryReq* request, rasnet::service::ExecuteInsertQueryRepl* response)
+grpc::Status RasnetServerComm::ExecuteInsertQuery(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::ExecuteInsertQueryReq* request, 
+        rasnet::service::ExecuteInsertQueryRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1188,7 +1231,9 @@ grpc::Status RasnetServerComm::ExecuteInsertQuery(grpc::ServerContext* context, 
     return status;
 }
 
-grpc::Status RasnetServerComm::GetNewOid(grpc::ServerContext* context, const rasnet::service::GetNewOidReq* request, rasnet::service::GetNewOidRepl* response)
+grpc::Status RasnetServerComm::GetNewOid(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::GetNewOidReq* request, 
+        rasnet::service::GetNewOidRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1224,7 +1269,9 @@ grpc::Status RasnetServerComm::GetNewOid(grpc::ServerContext* context, const ras
     return status;
 }
 
-grpc::Status RasnetServerComm::GetObjectType(grpc::ServerContext* context, const rasnet::service::GetObjectTypeReq* request, rasnet::service::GetObjectTypeRepl* response)
+grpc::Status RasnetServerComm::GetObjectType(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::GetObjectTypeReq* request, 
+        rasnet::service::GetObjectTypeRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1264,7 +1311,9 @@ grpc::Status RasnetServerComm::GetObjectType(grpc::ServerContext* context, const
     return status;
 }
 
-grpc::Status RasnetServerComm::GetTypeStructure(grpc::ServerContext* context, const rasnet::service::GetTypeStructureReq* request, rasnet::service::GetTypeStructureRepl* response)
+grpc::Status RasnetServerComm::GetTypeStructure(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::GetTypeStructureReq* request, 
+        rasnet::service::GetTypeStructureRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1307,7 +1356,9 @@ grpc::Status RasnetServerComm::GetTypeStructure(grpc::ServerContext* context, co
     return status;
 }
 
-grpc::Status RasnetServerComm::SetFormat(grpc::ServerContext* context, const rasnet::service::SetFormatReq* request, rasnet::service::SetFormatRepl* response)
+grpc::Status RasnetServerComm::SetFormat(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::SetFormatReq* request, 
+        rasnet::service::SetFormatRepl* response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -1356,7 +1407,9 @@ grpc::Status RasnetServerComm::SetFormat(grpc::ServerContext* context, const ras
     return status;
 }
 
-grpc::Status RasnetServerComm::KeepAlive(grpc::ServerContext* context, const rasnet::service::KeepAliveRequest* request, rasnet::service::Void* response)
+grpc::Status RasnetServerComm::KeepAlive(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::KeepAliveRequest* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status status = grpc::Status::OK;
 

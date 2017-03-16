@@ -722,7 +722,7 @@ public:
 
     /// insert a tile into a persistent MDD object
     virtual unsigned short insertTile(unsigned long callingClientId,
-                                      int isPersistent,
+                                      bool isPersistent,
                                       RPCMarray* rpcMarray);
     /**
       Inserts a tile into the current MDD object.
@@ -747,7 +747,7 @@ public:
     // inserts a tile into a persistent MDD object splitting it up according to
     // parameter tileSize
     virtual unsigned short insertTileSplitted(unsigned long callingClientId,
-            int isPersistent,
+            bool isPersistent,
             RPCMarray* rpcMarray,
             r_Minterval* tileSize);
     /**

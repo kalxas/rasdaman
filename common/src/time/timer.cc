@@ -29,9 +29,9 @@
 
 namespace common
 {
-Timer::Timer(boost::int32_t period)
+Timer::Timer(boost::int32_t periodArg)
 {
-    if (period < 0)
+    if (periodArg < 0)
     {
         throw InvalidArgumentException("period");
     }
@@ -40,9 +40,9 @@ Timer::Timer(boost::int32_t period)
     gettimeofday(&this->current, NULL);
     timerclear(&this->timeout);
     //Get the number of full seconds
-    this->timeout.tv_sec = period / 1000;
+    this->timeout.tv_sec = periodArg / 1000;
     //Get the number of microseconds
-    this->timeout.tv_usec = (period % 1000) * 1000;
+    this->timeout.tv_usec = (periodArg % 1000) * 1000;
     timeradd(&this->start, &this->timeout, &this->end);
 }
 

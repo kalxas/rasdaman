@@ -90,8 +90,8 @@ function run_transpose_test()
     log ----- png and png GreySet transpose conversion ------
 
     create_coll test_tmp GreySet
-    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' -f $TESTDATA_PATH/mr_1.png --quiet
-    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' --out file --outfile mr_1 --quiet
+    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' -f $TESTDATA_PATH/mr_1.png --quiet > /dev/null 2>&1
+    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' --out file --outfile mr_1 --quiet > /dev/null
 
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
@@ -112,31 +112,36 @@ function run_transpose_test()
 #
 function run_csv_scalar_test()
 {
-    log ----- csv scalar encode testing ------
+    log ----- csv scalar encode no-collection test ------
 
-    $RASQL -q 'select encode(37, "csv")' --out file --outfile scalar1
+    $RASQL -q 'select encode(37, "csv")' --out file --outfile scalar1 > /dev/null 2>&1
 
     logn "comparing csv scalar output with oracle: "
-    cmp $ORACLE_PATH/scalar1.csv.oracle scalar1.csv > /dev/null
+    cmp $ORACLE_PATH/scalar1.csv.oracle scalar1.csv > /dev/null > /dev/null 2>&1
     check_result 0 $? "input and output match"
 
-    $RASQL -q 'select encode(37, "json")' --out file --outfile scalar1
+    log ----- json scalar encode no-collection test -----
+
+    $RASQL -q 'select encode(37, "json")' --out file --outfile scalar1 > /dev/null 2>&1
 
     logn "comparing csv scalar output with oracle: "
     cmp $ORACLE_PATH/scalar1.json.oracle scalar1.json > /dev/null
     check_result 0 $? "input and output match"
 
+    log ----- csv scalar encode test ------
 #import data
     create_coll test_tmp GreySet
-    $RASQL -q 'insert into test_tmp values decode($1)' -f $TESTDATA_PATH/mr_1.png --quiet
+    $RASQL -q 'insert into test_tmp values decode($1)' -f $TESTDATA_PATH/mr_1.png --quiet > /dev/null 2>&1
 
-    $RASQL -q 'select encode(c[100,100], "csv") from test_tmp as c' --out file --outfile scalar2 --quiet
+    $RASQL -q 'select encode(c[100,100], "csv") from test_tmp as c' --out file --outfile scalar2 --quiet > /dev/null 2>&1
 
     logn "comparing csv scalar output with oracle: "
     cmp $ORACLE_PATH/scalar2.csv.oracle scalar2.csv > /dev/null
     check_result 0 $? "input and output match"
 
-    $RASQL -q 'select encode(c[100,100], "json") from test_tmp as c' --out file --outfile scalar2 --quiet
+    log ----- json scalar encode test ------
+
+    $RASQL -q 'select encode(c[100,100], "json") from test_tmp as c' --out file --outfile scalar2 --quiet > /dev/null 2>&1
 
     logn "comparing json scalar output with oracle: "
     cmp $ORACLE_PATH/scalar2.json.oracle scalar2.json > /dev/null

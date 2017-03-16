@@ -58,6 +58,7 @@ public:
     /// convert to CSV
     virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error);
     /// convert from CSV
+    using r_Convertor::convertFrom;
     virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
     /// cloning
     virtual r_Convertor* clone(void) const;

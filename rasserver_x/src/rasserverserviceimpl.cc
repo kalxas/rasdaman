@@ -35,7 +35,9 @@ RasServerServiceImpl::RasServerServiceImpl(::boost::shared_ptr<rasserver::Client
 }
 
 
-grpc::Status rasserver::RasServerServiceImpl::AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response)
+grpc::Status rasserver::RasServerServiceImpl::AllocateClient(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::AllocateClientReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status result = grpc::Status::OK;
 
@@ -56,7 +58,9 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(grpc::ServerContext
     return grpc::Status::OK;
 }
 
-grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(grpc::ServerContext* context, const rasnet::service::DeallocateClientReq* request, rasnet::service::Void* response)
+grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::DeallocateClientReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     this->clientManager->deallocateClient(request->clientid(), request->sessionid());
     RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
@@ -65,14 +69,18 @@ grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(grpc::ServerConte
     return grpc::Status::OK;
 }
 
-grpc::Status rasserver::RasServerServiceImpl::Close(grpc::ServerContext* context, const rasnet::service::CloseServerReq* request, rasnet::service::Void* response)
+grpc::Status rasserver::RasServerServiceImpl::Close(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::CloseServerReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     //TODO: Implement a clean exit
     LDEBUG << "Closing server.";
     exit(EXIT_SUCCESS);
 }
 
-grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response)
+grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::ClientStatusReq* request, 
+        rasnet::service::ClientStatusRepl* response)
 {
     LDEBUG << "Starting GetClientStatus of client:" << request->SerializeAsString();
 
@@ -90,7 +98,9 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(grpc::ServerContex
     return grpc::Status::OK;
 }
 
-grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response)
+grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(__attribute__ ((unused)) grpc::ServerContext* context, 
+        __attribute__ ((unused)) const rasnet::service::ServerStatusReq* request, 
+        rasnet::service::ServerStatusRepl* response)
 {
     LDEBUG << "GetServerStatus";
     response->set_clientqueuesize(this->clientManager->getClientQueueSize());

@@ -66,8 +66,8 @@ static inline string MessageFullJavaName(bool nano, const Descriptor* desc) {
       // No java package specified.
       return "nano." + name;
     }
-    for (int i = 0; i < name.size(); ++i) {
-      if ((name[i] == '.') && (i < (name.size() - 1)) && isupper(name[i + 1])) {
+    for (unsigned int i = 0; i < name.size(); ++i) {
+      if ((name[i] == '.') && ((i+1) < name.size()) && isupper(name[i + 1])) {
         return name.substr(0, i + 1) + "nano." + name.substr(i + 1);
       }
     }
@@ -228,7 +228,7 @@ static void PrintStub(
       interface_name += "BlockingServer";
       break;
     default:
-      GRPC_CODEGEN_FAIL << "Cannot determine class name for StubType: " << type;
+      GRPC_CODEGEN_FAIL << "Cannot determine class name for StubType: " << (int) type;
   }
   bool impl;
   CallType call_type;
@@ -259,7 +259,7 @@ static void PrintStub(
       impl = true;
       break;
     default:
-      GRPC_CODEGEN_FAIL << "Cannot determine call type for StubType: " << type;
+      GRPC_CODEGEN_FAIL << "Cannot determine call type for StubType: " << (int) type;
   }
   (*vars)["interface_name"] = interface_name;
   (*vars)["impl_name"] = impl_name;
@@ -382,6 +382,8 @@ static void PrintStub(
             "$ListenableFuture$<$output_type$> $lower_method_name$(\n"
             "    $input_type$ request)");
         break;
+      default:
+        break;
     }
     if (impl) {
       // Method body for client impls
@@ -437,6 +439,8 @@ static void PrintStub(
               *vars,
               "return $calls_method$(\n"
               "    getChannel().newCall($method_field_name$, getCallOptions()), request);\n");
+          break;
+        default:
           break;
       }
       p->Outdent();
@@ -603,7 +607,7 @@ static void PrintService(const ServiceDescriptor* service,
   p->Print("}\n");
 }
 
-void PrintImports(Printer* p, bool generate_nano) {
+static void PrintImports(Printer* p, bool generate_nano) {
   p->Print(
       "import static "
       "io.grpc.stub.ClientCalls.asyncUnaryCall;\n"

@@ -41,6 +41,10 @@ std::string r_MimeTypes::getFormatName(const std::string& mimeType)
     {
         return mimeTypeToFormatName[mimeType];
     }
+    else
+    {
+        return std::string();
+    }
 }
 
 /**

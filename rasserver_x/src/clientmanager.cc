@@ -76,7 +76,7 @@ ClientManager::~ClientManager()
     }
 }
 
-bool ClientManager::allocateClient(std::string clientUUID, std::string sessionId)
+bool ClientManager::allocateClient(std::string clientUUID, __attribute__ ((unused)) std::string sessionId)
 {
     Timer timer(ALIVE_PERIOD);
 
@@ -85,7 +85,7 @@ bool ClientManager::allocateClient(std::string clientUUID, std::string sessionId
     return result.second;
 }
 
-void ClientManager::deallocateClient(std::string clientUUID, std::string sessionId)
+void ClientManager::deallocateClient(std::string clientUUID, __attribute__ ((unused)) std::string sessionId)
 {
     this->clientList.erase(clientUUID);
 }

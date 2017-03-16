@@ -99,7 +99,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options) throw (r_Error)
     //requires the transpose parameters to be passed to the function.
     if(formatParams.isTranspose())
     {
-        transpose((char*) desc.src, desc.srcInterv, desc.srcType, formatParams.getTranspose());
+        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType, formatParams.getTranspose());
     }
     
     r_TmpFile tmpFileObj;
@@ -345,7 +345,7 @@ void r_Conv_NETCDF::validateJsonEncodeOptions() throw (r_Error)
         throw r_Error(r_Error::r_Error_Conversion);
     }
     Json::Value dims = encodeOptions[FormatParamKeys::Encode::NetCDF::DIMENSIONS];
-    for (int i = 0; i < dims.size(); i++)
+    for (unsigned int i = 0; i < dims.size(); i++)
     {
         //create the vector of dimension metadata names and swap the last two in case transposition is selected as an option
         if(formatParams.isTranspose() && i == dims.size()-2)
@@ -484,7 +484,7 @@ size_t r_Conv_NETCDF::buildStructType(const NcFile& dataFile) throw (r_Error)
     for (size_t i = 0; i < varNames.size(); i++)
     {
         NcVar* var = dataFile.get_var(varNames[i].c_str());
-        if (numDims != var->num_dims())
+        if (numDims != static_cast<unsigned int>(var->num_dims()))
         {
             LFATAL << "variable '" << varNames[i] << "' has different dimensionality from the first variable '" << varNames[0] << "'.";
             throw r_Error(r_Error::r_Error_Conversion);
@@ -683,7 +683,7 @@ void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims) thro
         LFATAL << "MDD object type could not be cast to struct.";
         throw r_Error(r_Error::r_Error_RefInvalid);
     }
-    if (varNames.size() != static_cast<int>(st->count_elements()))
+    if (varNames.size() != st->count_elements())
     {
         LFATAL << "mismatch in #variables between query and MDD object type.";
         throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);
@@ -1072,7 +1072,7 @@ void r_Conv_NETCDF::writeDataStruct(NcFile& dataFile, string& varName, const NcD
         LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    S* src = (S*)(desc.src + bandOffset);
+    S* src = reinterpret_cast<S*>(const_cast<char*>(desc.src) + bandOffset);
     unsigned int structElements = structSize / sizeof(S);
     for (size_t j = 0; j < dataSize; j++, src += structElements)
     {

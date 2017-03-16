@@ -113,7 +113,7 @@ void print_stacktrace(void* ucontext)
             FILE* fp = popen(cmd, "r");
             if (fp != NULL)
             {
-                char* s = fgets(sourceFileLine, MAX_MSG_LEN, fp);
+                fgets(sourceFileLine, MAX_MSG_LEN, fp);
                 char* pos = strchr(sourceFileLine, '\n');
                 if (pos != NULL)
                 {

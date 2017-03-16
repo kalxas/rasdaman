@@ -420,7 +420,7 @@ QtRangeConstructor::checkType(QtTypeTuple* typeTuple)
             {
                 char elementName[50];
                 sprintf(elementName, "%d", i);
-                structType->addElement(elementName, ((BaseType*)inputType.getType()));
+                structType->addElement(elementName, (static_cast<BaseType*>(const_cast<Type*>( inputType.getType() ))));
             }
         }
         if (complexLit)

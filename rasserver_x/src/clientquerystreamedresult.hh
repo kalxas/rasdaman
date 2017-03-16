@@ -70,14 +70,15 @@ private:
     boost::uint64_t length;
 
     /**
+     * @brief clientUUID The client uuid which requested a char array to be split into chunks. Used for cleanup in @see clientmanager.cc
+     */
+    std::string clientUUID;
+    
+    /**
      * @brief offset The offset where the nextChunk begins.
      */
     boost::uint64_t offset;
 
-    /**
-     * @brief clientUUID The client uuid which requested a char array to be split into chunks. Used for cleanup in @see clientmanager.cc
-     */
-    std::string clientUUID;
 };
 
 } //namespace rasserver

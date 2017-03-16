@@ -13,7 +13,7 @@ class LogHelper {
   bool abort;
 
  public:
-  LogHelper(std::ostream* os, bool abort) : os(os), abort(abort) {}
+  LogHelper(std::ostream* osArg, bool abortArg) : os(osArg), abort(abortArg) {}
   ~LogHelper() {
     *os << std::endl;
     if (abort) {

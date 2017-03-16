@@ -265,7 +265,7 @@ std::string RasControlConfig::getCommand() const
     return this->command;
 }
 
-boost::uint32_t RasControlConfig::getRasMgrPort() const
+boost::uint16_t RasControlConfig::getRasMgrPort() const
 {
     return this->rasMgrPort;
 }

@@ -76,7 +76,7 @@ QtProject::~QtProject()
 #ifdef HAVE_GDAL
 void QtProject::parseNumbers(const char* str) throw (r_Error)
 {
-    char* split = strtok((char*)str, ", ");
+    char* split = strtok(const_cast<char*>(str), ", ");
     xmin = parseOneNumber(split);
     split = strtok(NULL, ", ");
     ymin = parseOneNumber(split);
@@ -278,7 +278,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
             // check the band types, they have to be of the same type
             if ((*iter).type_of().isPrimitiveType())
             {
-                r_Primitive_Type pt = (r_Primitive_Type&)(*iter).type_of();
+                const r_Primitive_Type pt = (const r_Primitive_Type&)(*iter).type_of();
                 if (bandType != NULL)
                 {
                     if (bandType->type_id() != pt.type_id())
@@ -332,7 +332,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     }
 
     // create a transient MDD object for the query result
-    MDDBaseType* mddBaseType = (MDDBaseType*) qtMDD->getMDDObject()->getMDDBaseType();
+    MDDBaseType* mddBaseType = const_cast<MDDBaseType*>(qtMDD->getMDDObject()->getMDDBaseType());
     MDDObj* resultMDD = new MDDObj(mddBaseType, resultTile->getDomain(), currentMDDObj->getNullValues());
     resultMDD->insertTile(resultTile);
 
@@ -426,7 +426,7 @@ GDALDataset* QtProject::convertTileToDataset(Tile* tile, int nBands, r_Type* ban
                 {
                     if (src[0] == 1)
                     {
-                        dst[0] = 255;
+                        dst[0] = std::numeric_limits<char>::max();
                     }
                     else
                     {
@@ -613,14 +613,14 @@ float QtProject::getMinX() const
     return xmin;
 }
 
-float QtProject::getMaxX() const
-{
-    return xmax;
-}
-
 float QtProject::getMinY() const
 {
     return ymin;
+}
+
+float QtProject::getMaxX() const
+{
+    return xmax;
 }
 
 float QtProject::getMaxY() const

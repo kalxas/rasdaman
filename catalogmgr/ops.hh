@@ -2240,10 +2240,11 @@ protected:
     const BaseType* resType;
     unsigned int resOff;
     BinaryOp* accuOp;
-    // initVal is always of RasDaMan-Type restype!
-    char* initVal;
     // used to flag if destructor should delete initVal
     bool myInitVal;
+    // initVal is always of RasDaMan-Type restype!
+    char* initVal;
+
 };
 
 

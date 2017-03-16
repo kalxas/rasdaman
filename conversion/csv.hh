@@ -61,6 +61,7 @@ public:
     /// convert from CSV
     virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
     /// convert data in a specific format to array
+    using r_Convertor::convertFrom;
     virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
     /// cloning
     virtual r_Convertor* clone(void) const;

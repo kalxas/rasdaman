@@ -43,9 +43,9 @@ public:
 protected:
     /**
      * @brief AbstractNetworkResolver Protected constructor for preventing the creation of this kind of objects.
-     * @param port The port to be checked if it is busy.
+     * @param portArg The port to be checked if it is busy.
      */
-    AbstractNetworkResolver(boost::uint32_t port);
+    AbstractNetworkResolver(boost::uint32_t portArg);
 
     /**
      * @brief port The port to be checked if it is busy.

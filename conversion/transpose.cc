@@ -38,7 +38,7 @@ rasdaman GmbH.
 
 int dataTypeSize(const r_Type* base_type){
     //size of the data type, used for offset computation in memcpy
-    r_Base_Type* st = (r_Base_Type*)(base_type);
+    r_Base_Type* st = static_cast<r_Base_Type*>(const_cast<r_Type*>(base_type));
     return (int) st->size();
 }
 
@@ -57,7 +57,7 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType) 
     char* dataTemp;
     dataTemp = new char [m*n*sizeOfDataType];
     //a loop for changing each 2D data slice
-    for (int v = 0; v < s; v++) {
+    for (unsigned int v = 0; v < s; v++) {
         //change the current 2D data slice
         for (int k = 0; k < m * n; k++) {
             //column

@@ -383,7 +383,7 @@ const BaseType* QtConversion::rasTypeToBaseType(r_Type* type)
             {
                 r_Attribute attr = (*iter);
                 const r_Base_Type& attr_type = attr.type_of();
-                restype->addElement(attr.name(), rasTypeToBaseType((r_Type*) & attr_type));
+                restype->addElement(attr.name(), rasTypeToBaseType(static_cast<r_Type*>(const_cast<r_Base_Type*>( & attr_type))));
             }
             catch (r_Error& e)
             {

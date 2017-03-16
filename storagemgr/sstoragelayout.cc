@@ -446,9 +446,9 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
     }
 
 #ifdef DEBUG
-    for (std::vector<r_Minterval>::iterator i = retval.begin(); i != retval.end(); i++)
+    for (std::vector<r_Minterval>::iterator iter = retval.begin(); iter != retval.end(); iter++)
     {
-        LTRACE << *i;
+        LTRACE << *iter;
     }
 #endif
     return retval;
@@ -553,7 +553,7 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
 
 
 r_Minterval
-StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
+StorageLayout::getDefaultTileCfg(__attribute__ ((unused)) int baseTypeSize, r_Dimension sourceDimension)
 {
     std::string newDomain = "[";
     for (unsigned int i = 0; i < sourceDimension; i++)

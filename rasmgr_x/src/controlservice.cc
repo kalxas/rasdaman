@@ -41,7 +41,9 @@ ControlService::~ControlService()
 {}
 
 
-grpc::Status rasmgr::ControlService::ExecuteCommand(grpc::ServerContext* context, const rasnet::service::RasCtrlRequest* request, rasnet::service::RasCtrlResponse* response)
+grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::RasCtrlRequest* request, 
+        rasnet::service::RasCtrlResponse* response)
 {
     grpc::Status status = grpc::Status::OK;
 

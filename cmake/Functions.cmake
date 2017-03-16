@@ -42,6 +42,10 @@ function(CompileProtobufFile PROTO_FILE DESTINATION_DIR GENERATED_SOURCES)
             COMMAND ${SED_EXECUTABLE}
             ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wshadow\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.cc"
             COMMAND ${SED_EXECUTABLE}
+            ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wunused-parameter\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.cc"
+            COMMAND ${SED_EXECUTABLE}
+            ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wsign-conversion\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.cc"
+            COMMAND ${SED_EXECUTABLE}
             ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wshadow\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.h"
 
             DEPENDS ${PROTO_FILE_PATH} ${PROTOBUF_PROTOC_EXECUTABLE})
@@ -69,6 +73,12 @@ function(CompileGRPCFile PROTO_FILE DESTINATION_DIR GENERATED_SOURCES) #GENERATE
 
             COMMAND ${SED_EXECUTABLE}
             ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wshadow\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.grpc.pb.cc"
+
+            COMMAND ${SED_EXECUTABLE}
+            ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wsign-conversion\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.grpc.pb.cc"
+
+            COMMAND ${SED_EXECUTABLE}
+            ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wunused-parameter\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.grpc.pb.cc"
 
             COMMAND ${SED_EXECUTABLE}
             ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wshadow\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.grpc.pb.h"

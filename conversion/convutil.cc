@@ -307,7 +307,7 @@ unsigned int ConvUtil::getNumberOfBands(const r_Type* type)
     unsigned int ret = 1;
     if (type->isStructType())
     {
-        ret = ((r_Structure_Type*) type)->count_elements();
+        ret = static_cast<const r_Structure_Type*>(type)->count_elements();
     }
     return ret;
 }

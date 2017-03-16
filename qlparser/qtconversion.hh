@@ -114,9 +114,9 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 
-    const char* paramStr;
-
     std::string format;
+    
+    const char* paramStr;
 
     bool gdalConversion;
 };

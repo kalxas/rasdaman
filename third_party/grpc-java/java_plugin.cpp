@@ -30,12 +30,12 @@ class JavaGrpcGenerator : public google::protobuf::compiler::CodeGenerator {
   virtual bool Generate(const google::protobuf::FileDescriptor* file,
                         const string& parameter,
                         google::protobuf::compiler::GeneratorContext* context,
-                        string* error) const {
+                        __attribute__ ((unused)) string* error) const {
     vector<pair<string, string> > options;
     google::protobuf::compiler::ParseGeneratorParameter(parameter, &options);
 
     bool generate_nano = false;
-    for (int i = 0; i < options.size(); i++) {
+    for (unsigned int i = 0; i < options.size(); i++) {
       if (options[i].first == "nano" && options[i].second == "true") {
         generate_nano = true;
       }

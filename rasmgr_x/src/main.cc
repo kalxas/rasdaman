@@ -130,7 +130,7 @@ int main(int argc, char** argv)
     return RASMGR_RESULT_OK;
 }
 
-void sigIntHandler(int sig)
+void sigIntHandler(__attribute__ ((unused)) int sig)
 {
     if (manager)
     {

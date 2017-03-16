@@ -45,7 +45,7 @@ public:
      * @param address The in_addr representation of the host.
      * @param port The port.
      */
-    IPv4Resolver(const struct in_addr& address, boost::uint32_t port);
+    IPv4Resolver(const struct in_addr& addressArg, boost::uint32_t portArg);
 
     /**
      * @brief isPortBusy Checks if the port is busy.

@@ -37,6 +37,8 @@ rasdaman GmbH.
 
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
 
 #include <string.h>
 #include <stdlib.h>

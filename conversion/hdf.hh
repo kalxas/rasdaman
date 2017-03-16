@@ -75,7 +75,9 @@ private:
     int skiphuff;
     int quality;
     char* compType;
+#ifdef HAVE_HDF
     static const convert_string_t compNames[];
+#endif
     static const int MaxSwapBufferSize;
 };
 

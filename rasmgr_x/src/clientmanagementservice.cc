@@ -61,7 +61,7 @@ ClientManagementService::~ClientManagementService()
 {}
 
 
-grpc::Status ClientManagementService::Connect(grpc::ServerContext* context, const rasnet::service::ConnectReq* request, rasnet::service::ConnectRepl* response)
+grpc::Status ClientManagementService::Connect(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::ConnectReq* request, rasnet::service::ConnectRepl* response)
 {
     grpc::Status status = Status::OK;
     /**
@@ -104,7 +104,9 @@ grpc::Status ClientManagementService::Connect(grpc::ServerContext* context, cons
     return status;
 }
 
-grpc::Status ClientManagementService::Disconnect(grpc::ServerContext* context, const rasnet::service::DisconnectReq* request, rasnet::service::Void* response)
+grpc::Status ClientManagementService::Disconnect(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::DisconnectReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status status = Status::OK;
 
@@ -135,7 +137,7 @@ grpc::Status ClientManagementService::Disconnect(grpc::ServerContext* context, c
     return status;
 }
 
-grpc::Status ClientManagementService::OpenDb(grpc::ServerContext* context, const rasnet::service::OpenDbReq* request, rasnet::service::OpenDbRepl* response)
+grpc::Status ClientManagementService::OpenDb(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::OpenDbReq* request, rasnet::service::OpenDbRepl* response)
 {
     string clientId = request->clientuuid();
     string dbName = request->databasename();
@@ -173,7 +175,9 @@ grpc::Status ClientManagementService::OpenDb(grpc::ServerContext* context, const
     return status;
 }
 
-grpc::Status ClientManagementService::CloseDb(grpc::ServerContext* context, const rasnet::service::CloseDbReq* request, rasnet::service::Void* response)
+grpc::Status ClientManagementService::CloseDb(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::CloseDbReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status status;
 
@@ -208,7 +212,9 @@ grpc::Status ClientManagementService::CloseDb(grpc::ServerContext* context, cons
     return status;
 }
 
-grpc::Status ClientManagementService::KeepAlive(grpc::ServerContext* context, const rasnet::service::KeepAliveReq* request, rasnet::service::Void* response)
+grpc::Status ClientManagementService::KeepAlive(__attribute__ ((unused)) grpc::ServerContext* context, 
+        const rasnet::service::KeepAliveReq* request, 
+        __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status status = Status::OK;
 
