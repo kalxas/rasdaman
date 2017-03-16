@@ -108,7 +108,7 @@ public class SerializationEncodingService {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         
         JsonExtraParams jsonExtraParams;
-        
+                
         try {
             jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
         } catch (Exception ex) {
@@ -131,14 +131,14 @@ public class SerializationEncodingService {
                 }
             }
         }
-        jsonExtraParams.setGeoReference(geoReference);
-
+        
         if (netCDFExtraParams != null) {
             jsonExtraParams.setDimensions(new Dimensions(netCDFExtraParams.getDimensions()));
             jsonExtraParams.setVariables(new Variables(netCDFExtraParams.getVariables()));
         }
 
         // NOTE: must consider important properties such as geoReference (crs, bbox)
+        // (i.e: if crs and bbox are not passed from WCPS, use the metadata from coverage result)
         if (jsonExtraParams.getGeoReference() == null) {
             jsonExtraParams.setGeoReference(geoReference);
         } else {

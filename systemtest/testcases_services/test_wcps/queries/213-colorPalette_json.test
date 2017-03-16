@@ -1,0 +1,1 @@
+for a in (test_world_temp) return encode ( a, "png" , "{ \"transpose\": [0,1], \"colorPalette\": { \"paletteInterp\": \"RGB\", \"colorInterp\": [ \"Red\", \"Green\", \"Blue\" ], \"colorTable\": [ [0, 0, 0, 0], [0, 0,  0, 0], [0,0,0, 0] ] }}")

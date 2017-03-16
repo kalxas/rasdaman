@@ -100,7 +100,6 @@ public class JsonExtraParams {
         this.colorPalette = colorPalette;
     }
 
-    @JsonUnwrapped
     public ColorPalette getColorPalette() {
         return this.colorPalette;
     }

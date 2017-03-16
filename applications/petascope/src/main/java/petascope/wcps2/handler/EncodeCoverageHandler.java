@@ -30,6 +30,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.LoggerFactory;
 import petascope.exceptions.PetascopeException;
 import petascope.swe.datamodel.NilValue;
 import petascope.wcps2.encodeparameters.service.ExtraMetadataService;
@@ -43,6 +44,7 @@ import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.service.GeoReferenceService;
 import petascope.wcps2.encodeparameters.service.SerializationEncodingService;
 import petascope.wcps2.error.managed.processing.EncodingCoverageMetadataIsNullException;
+import petascope.wcps2.error.managed.processing.InvalidJsonDeserializationException;
 import petascope.wcps2.error.managed.processing.InvalidNumberOfNodataValuesException;
 import petascope.wcps2.error.managed.processing.MetadataSerializationException;
 import petascope.wcps2.metadata.model.RangeField;
@@ -68,6 +70,8 @@ import petascope.wcs2.extensions.FormatExtension;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 public class EncodeCoverageHandler {
+    
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(EncodeCoverageHandler.class);
 
     public static WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams, CoverageRegistry coverageRegistry) throws PetascopeException, JsonProcessingException {
         //strip first part of the mime type because rasdaman encode function does not support mime types yet
@@ -180,14 +184,18 @@ public class EncodeCoverageHandler {
         SerializationEncodingService serializationEncodingService = new SerializationEncodingService(extraMetadataService);
 
         // Check if extra params is in old style or new JSON style
-        if (!JsonUtil.isJsonValid(extraParams)) {
+        if (JsonUtil.isJsonValid(extraParams)) {
+            // extra params is new JSON style
+            jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, extraParams, metadata, netCDFExtraParams, geoReference);
+        } else if (extraParams.contains("{") || extraParams.contains("}")) {           
+            // it is invalid JSON format and not old style (e.g: "nodata=0")
+            log.error("Extra parameters string: " + extraParams + " is not valid JSON format.");
+            throw new InvalidJsonDeserializationException();
+        } else {
             // extra params is old style (check if it has "nodata" as parameter to add to metadata)
             parseNoDataFromExtraParams(extraParams, metadata);
             jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference);
-        } else {
-            // extra params is new JSON style
-            jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, extraParams, metadata, netCDFExtraParams, geoReference);
-        }
+        }        
 
         // other cases (tiff, png, jpeg,...), we add other important parameters ("nodata", "geoReference")
         // then serialize the object to JSON
