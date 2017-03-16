@@ -123,7 +123,7 @@ NAME: [a-z|A-Z]+;
 FORMAT_NAME: QUOTE [a-zA-Z0-9 ]+ QUOTE;
 STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_ ]+ '"';
 // extra params in JSON format
-EXTRA_PARAMS: '"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"';
+EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';
 WS: [ \n\t\r]+ -> skip;
 CRS_TRANSFORM: ('c'|'C')('r'|'R')('s'|'S')('t'|'T')('r'|'R')('a'|'A')('n'|'N')('s'|'S')('f'|'F')('o'|'O')('r'|'R')('m'|'M');
 //for testing
