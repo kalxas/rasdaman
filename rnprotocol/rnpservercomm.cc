@@ -622,8 +622,8 @@ void RnpRasDaManComm::executeGetNextMDD()
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus, status);
     LDEBUG << "adding return status " << status;
-    encoder.addStringParameter(RnpRasserver::pmt_oidstring,     mddDomain.get_string_representation());
-    encoder.addStringParameter(RnpRasserver::pmt_typename,      typeName);
+    encoder.addStringParameter(RnpRasserver::pmt_oidstring, mddDomain.to_string().c_str());
+    encoder.addStringParameter(RnpRasserver::pmt_typename, typeName);
     encoder.addStringParameter(RnpRasserver::pmt_typestructure, typeStructure);
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, oid.get_string_representation() ? oid.get_string_representation() : "");
     encoder.addInt32Parameter(RnpRasserver::pmt_currentformat,  currentFormat);
@@ -1174,7 +1174,7 @@ void RnpRasDaManComm::executeGetTileDomains()
     {
         const char* domain = result[i].get_string_representation();
         encoder.addStringParameter(RnpRasserver::pmt_domain, domain);
-
+        // r_Minterval::get_string_representation() allocates memory, so it must be freed after being copied.
         free(static_cast<void*>(const_cast<char*>(domain)));
     }
 

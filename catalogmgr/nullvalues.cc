@@ -53,7 +53,7 @@ NullValuesHandler::getNullValues() const
 {
     if (nullValues != NULL)
     {
-        LDEBUG << "returning null values " << nullValues->get_string_representation();
+        LDEBUG << "returning null values " << nullValues->to_string();
     }
     return nullValues;
 }
@@ -63,7 +63,7 @@ NullValuesHandler::setNullValues(r_Minterval* newNullValues)
 {
     if (newNullValues != NULL)
     {
-        LDEBUG << "setting to " << newNullValues->get_string_representation();
+        LDEBUG << "setting to " << newNullValues->to_string();
     }
     nullValues = newNullValues;
 }

@@ -740,7 +740,7 @@ grpc::Status RasnetServerComm::GetNextMDD(__attribute__ ((unused)) grpc::ServerC
         int statusCode = rasserver.compat_getNextMDD(mddDomain, typeName, typeStructure, oid, currentFormat);
 
         response->set_status(statusCode);
-        response->set_domain(mddDomain.get_string_representation());
+        response->set_domain(mddDomain.to_string());
         response->set_type_name(typeName);
         response->set_type_structure(typeStructure);
         response->set_oid(oid.get_string_representation() ? oid.get_string_representation() : "");

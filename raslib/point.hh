@@ -138,10 +138,16 @@ public:
     char* get_string_representation() const;
     /**
       The string representation delivered by this method is allocated using {\tt malloc()} and
-      has to be free unsing {\tt free()} in the end. It can be used to construct a {\tt r_Point}
+      has to be free using {\tt free()} in the end. It can be used to construct a {\tt r_Point}
       again with a special constructor provided. The string representation is build using
       {\tt print_status()}.
     */
+    
+    /**
+     * If you want the output of {\tt get_string_representation()}, 
+     * but you do not want to worry about memory allocation/deallocation.
+     */
+    std::string to_string() const;
 
 private:
     /// array holding the point coordinates

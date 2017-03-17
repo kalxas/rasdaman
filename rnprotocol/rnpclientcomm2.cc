@@ -660,7 +660,7 @@ int RnpClientComm::executeStartInsertTransMDD(r_GMarray* mdd)
 {
     startRequest(RnpRasserver::cmd_startinsTmdd);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid,   clientID);
-    encoder.addStringParameter(RnpRasserver::pmt_domain,     mdd->spatial_domain().get_string_representation());
+    encoder.addStringParameter(RnpRasserver::pmt_domain, mdd->spatial_domain().to_string().c_str());
     encoder.addInt32Parameter(RnpRasserver::pmt_typelength, static_cast<int>(mdd->get_type_length()));
     encoder.addStringParameter(RnpRasserver::pmt_typename,   mdd->get_type_name());
     LDEBUG << "request RnpRasserver::cmd_startinsTmdd with ..., clientID 0x" << hex << clientID << dec;

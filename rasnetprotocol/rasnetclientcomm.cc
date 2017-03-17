@@ -886,7 +886,7 @@ int RasnetClientComm::executeStartInsertPersMDD(const char* collName, r_GMarray*
 
     startInsertMDDReq.set_client_id(this->clientId);
     startInsertMDDReq.set_collname(collName);
-    startInsertMDDReq.set_domain(mar->spatial_domain().get_string_representation());
+    startInsertMDDReq.set_domain(mar->spatial_domain().to_string());
     startInsertMDDReq.set_type_length(mar->get_type_length());
     startInsertMDDReq.set_type_name(mar->get_type_name());
     startInsertMDDReq.set_oid(mar->get_oid().get_string_representation());
@@ -1528,7 +1528,7 @@ int RasnetClientComm::executeStartInsertTransMDD(r_GMarray* mdd)
     StartInsertTransMDDRepl startInsertTransMDDRepl;
 
     startInsertTransMDDReq.set_client_id(this->clientId);
-    startInsertTransMDDReq.set_domain(mdd->spatial_domain().get_string_representation());
+    startInsertTransMDDReq.set_domain(mdd->spatial_domain().to_string());
     startInsertTransMDDReq.set_type_length(mdd->get_type_length());
     startInsertTransMDDReq.set_type_name(mdd->get_type_name());
 

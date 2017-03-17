@@ -224,7 +224,7 @@ QtMarrayOp::evaluate(QtDataList* inputList)
         mddres->insertTile(resTile);
 
         // create a new QtMDD object as carrier object for the transient MDD object
-        returnValue = new QtMDD(static_cast<MDDObj*>(mddres));
+        returnValue = new QtMDD(mddres);
 
         // delete old operands
         if (operand1)

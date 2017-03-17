@@ -105,7 +105,7 @@ CollectionType::compatibleWith(const Type* aType) const
 DBMinterval* CollectionType::getNullValues() const
 {
   if (nullValues != NULL) {
-    LDEBUG << "returning null values: " << nullValues->get_string_representation();
+    LDEBUG << "returning null values: " << nullValues->to_string();
   }
   return nullValues;
 }

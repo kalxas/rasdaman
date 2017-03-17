@@ -905,6 +905,15 @@ r_Minterval::get_string_representation() const
     return returnString;
 }
 
+std::string 
+r_Minterval::to_string() const
+{
+    char* stringRep = this->get_string_representation();
+    std::string returnValue(stringRep);
+    std::free(stringRep);
+    return returnValue;
+}
+
 std::string
 r_Minterval::get_named_axis_string_representation() const
 {

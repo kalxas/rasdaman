@@ -290,7 +290,7 @@ printNames()
         DBMinterval* nullValues = typePtr->getNullValues();
         if (nullValues)
         {
-            cout << " null values " << nullValues->get_string_representation();
+            cout << " null values " << nullValues->to_string();
         }
 
         cout << " " << typePtr->getTypeName() << ";" << endl;

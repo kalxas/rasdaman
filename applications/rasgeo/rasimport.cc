@@ -687,7 +687,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
         }
 
         LDEBUG << "src img size:     " << srcGeoRegion.ncols << " x " << srcGeoRegion.nrows;
-        LDEBUG << "readGDALImgDOM:   " << readGDALImgDOM.get_string_representation();
+        LDEBUG << "readGDALImgDOM:   " << readGDALImgDOM.to_string();
 
         // shift the insertGeoRegion by the user specified shiftVector; account for (geo) spatial
         // image domains with negative values: positive shift (e.g. 150:200) shifts to the north east
@@ -748,7 +748,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
                 yshift = 0;
             }
 
-            LDEBUG << "current img sdom: " << aint.get_string_representation();
+            LDEBUG << "current img sdom: " << aint.to_string();
 
             // ================================== 3D UPDATE ======================================
             if (b3D)
@@ -934,7 +934,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
             }
         }
 
-        LDEBUG << "writeShift: " << writeShift.get_string_representation();
+        LDEBUG << "writeShift: " << writeShift.to_string();
 
         // determine the new image region (valid after the src has been written into
         // the data base) by union the present image region with the region to
@@ -2195,7 +2195,7 @@ main(int argc, char** argv)
             header.zmin = shift[2];
         }
 
-        LDEBUG << "user pixel shift: " << shiftPt.get_string_representation();
+        LDEBUG << "user pixel shift: " << shiftPt.to_string();
 
 
         ///////////////////////////////////////////////////////////////////////////

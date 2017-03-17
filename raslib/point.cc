@@ -374,6 +374,15 @@ r_Point::get_string_representation() const
     return returnString;
 }
 
+std::string 
+r_Point::to_string() const
+{
+    char* stringRep = this->get_string_representation();
+    std::string returnValue(stringRep);
+    std::free(stringRep);
+    return returnValue;
+}
+
 std::ostream& operator<<(std::ostream& s, const r_Point& d)
 {
     d.print_status(s);

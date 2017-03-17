@@ -526,7 +526,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             if (nullValues)
             {
                 result.append(" NULL VALUES ");
-                result.append(nullValues->get_string_representation());
+                result.append(nullValues->to_string());
             }
 
             result.append(")");
