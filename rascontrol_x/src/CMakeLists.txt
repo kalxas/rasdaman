@@ -27,7 +27,7 @@ if (RMANRASNET)
     set(REQUIRED_LIBRARIES "")
 
     if (READLINE_FOUND)
-        add_definitions(-D READLINELIB=1)
+        add_definitions(-DREADLINELIB=1)
         set(REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
     endif (READLINE_FOUND)
 

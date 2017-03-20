@@ -40,7 +40,7 @@ if (ENABLE_JAVA)
             ${GRPC_JAVA_SOURCE_DIR}/java_generator.cpp
             ${GRPC_JAVA_SOURCE_DIR}/java_generator.h
             ${GRPC_JAVA_SOURCE_DIR}/java_plugin.cpp)
-    add_dependencies(${GRPC_JAVA_PLUGIN_EXECUTABLE} google-protobuf)
+    add_dependencies(${GRPC_JAVA_PLUGIN_EXECUTABLE} google-grpc google-protobuf)
     include_directories(${PROTOBUF_INCLUDE_DIR})
     target_link_libraries(${GRPC_JAVA_PLUGIN_EXECUTABLE}
             ${PROTOBUF_BINARY_DIR}/lib/libprotoc.a ${PROTOBUF_BINARY_DIR}/lib/libprotobuf.a)

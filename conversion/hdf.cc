@@ -200,7 +200,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options) throw(r_Error)
 
     SDsetcompress(sds_id, comp_type, &c_info);
 
-    SDwritedata(sds_id, start, NULL, dimsizes, (VOIDP)(desc.src));
+    SDwritedata(sds_id, start, NULL, dimsizes, const_cast<char*>(desc.src));
 
     delete [] dimsizes;
     dimsizes = NULL;
@@ -285,10 +285,11 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options) throw(r_Error)
         throw r_Error(r_Error::r_Error_General);
     }
     filesize = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
-    if ((i = fwrite(desc.src, 1, filesize, fp)) != filesize)
+    size_t j = 0;
+    if ((j = fwrite(desc.src, 1, filesize, fp)) != filesize)
     {
         LFATAL << "r_Conv_HDF::convertFrom(): error writing to temporary file ("
-               << i << " / " << filesize << ')';
+               << j << " / " << filesize << ')';
         throw r_Error(r_Error::r_Error_General);
     }
     fclose(fp);
@@ -337,7 +338,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options) throw(r_Error)
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 
-    if (SDreaddata(sds_id, start, NULL, dimsizes, (VOIDP)desc.dest) == FAIL)
+    if (SDreaddata(sds_id, start, NULL, dimsizes, static_cast<void*>(desc.dest)) == FAIL)
     {
         LFATAL << "r_Conv_HDF::convertFrom(): error reading data";
         SDend(handle);
