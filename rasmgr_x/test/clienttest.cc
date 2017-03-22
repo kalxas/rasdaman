@@ -36,6 +36,7 @@
 #include "rasmgr_x/src/server.hh"
 
 #include "mocks/mockrasserver.hh"
+#pragma GCC diagnostic ignored "-Wreorder"
 
 namespace rasmgr
 {
@@ -62,16 +63,16 @@ protected:
         adminRights.setServerAdminRights(true);
         adminRights.setSystemConfigRights(true);
 
-        user.reset(new rasmgr::User(userName, userPassword, dbRights, adminRights));
-
         client.reset(new Client(clientId, user, clientLifeTime));
+        
+        user.reset(new rasmgr::User(userName, userPassword, dbRights, adminRights));
     }
 
-    rasmgr::UserAdminRights adminRights;
-    rasmgr::UserDatabaseRights dbRights;
+    std::string clientId;
     std::string userName;
     std::string userPassword;
-    std::string clientId;
+    rasmgr::UserDatabaseRights dbRights;
+    rasmgr::UserAdminRights adminRights;
     std::string dbName;
     std::string sessionId;
     boost::shared_ptr<rasmgr::User> user;

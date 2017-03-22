@@ -1,57 +1,58 @@
 #include <gtest/gtest.h>
 #include "../src/clientquerystreamedresult.hh"
 #include <cstring>
+#include <boost/cstdint.hpp>
 
 namespace rasserver
 {
 namespace test
 {
-TEST(ClientQueryStreamedResultTest, streamSmallSize)
-{
-    int dataSize = 100;
+TEST(ClientQueryStreamedResultTest, streamSmallSize) {
+
+    boost::uint64_t dataSize = 100;
 
     char* data = new char[dataSize];
-    for (int i = 0; i < dataSize; ++i)
+    for (size_t i = 0; i < dataSize; ++i)
     {
         data[i] = (char)i;
     }
 
     ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, "");
-    std::pair<int, char*> nextChunk = result->getNextChunk();
-    ASSERT_EQ(nextChunk.first, dataSize);
+    DataChunk nextChunk = result->getNextChunk();
+    ASSERT_EQ(nextChunk.length, dataSize);
     ASSERT_EQ(result->getRemainingBytesLength(), 0);
-    ASSERT_STREQ(data, nextChunk.second);
+    ASSERT_STREQ(data, nextChunk.bytes);
 
     delete result;
 }
 
 TEST(ClientQueryStreamedResultTest, streamBigSize)
 {
-    int dataSize = ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE / 2; // 2.5 chunks
+    boost::uint64_t dataSize = ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE / 2; // 2.5 chunks
 
     char* data = new char[dataSize];
     char* newData = new char[dataSize];
 
-    for (int i = 0; i < dataSize; ++i)
+    for (size_t i = 0; i < dataSize; ++i)
     {
         data[i] = (char)i;
     }
 
     ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, "");
-    std::pair<int, char*> nextChunk = result->getNextChunk();
-    ASSERT_EQ(nextChunk.first, ClientQueryStreamedResult::CHUNK_SIZE);
+    DataChunk nextChunk = result->getNextChunk();
+    ASSERT_EQ(nextChunk.length, ClientQueryStreamedResult::CHUNK_SIZE);
     ASSERT_EQ(result->getRemainingBytesLength(), dataSize - ClientQueryStreamedResult::CHUNK_SIZE);
-    std::strcpy(newData, nextChunk.second);
+    std::strcpy(newData, nextChunk.bytes);
 
     nextChunk = result->getNextChunk();
-    ASSERT_EQ(nextChunk.first, ClientQueryStreamedResult::CHUNK_SIZE);
+    ASSERT_EQ(nextChunk.length, ClientQueryStreamedResult::CHUNK_SIZE);
     ASSERT_EQ(result->getRemainingBytesLength(), dataSize - ClientQueryStreamedResult::CHUNK_SIZE - ClientQueryStreamedResult::CHUNK_SIZE);
-    std::strcat(newData, nextChunk.second);
+    std::strcat(newData, nextChunk.bytes);
 
     nextChunk = result->getNextChunk();
-    ASSERT_EQ(nextChunk.first, ClientQueryStreamedResult::CHUNK_SIZE / 2);
+    ASSERT_EQ(nextChunk.length, ClientQueryStreamedResult::CHUNK_SIZE / 2);
     ASSERT_EQ(result->getRemainingBytesLength(), 0);
-    std::strcat(newData, nextChunk.second);
+    std::strcat(newData, nextChunk.bytes);
 
     ASSERT_STREQ(data, newData);
 
@@ -61,14 +62,14 @@ TEST(ClientQueryStreamedResultTest, streamBigSize)
 
 TEST(ClientQueryStreamedResultTest, testZeroSize)
 {
-    int dataSize = 0;
+    boost::uint64_t dataSize = 0;
 
     char* data = new char[dataSize];
 
     ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, "");
-    std::pair<int, char*> nextChunk = result->getNextChunk();
-    ASSERT_EQ(nextChunk.first, 0);
-    ASSERT_EQ(data, nextChunk.second);
+    DataChunk nextChunk = result->getNextChunk();
+    ASSERT_EQ(nextChunk.length, 0);
+    ASSERT_EQ(data, nextChunk.bytes);
 
     delete[] data;
 }

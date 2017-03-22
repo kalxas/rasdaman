@@ -48,11 +48,9 @@ using boost::unique_lock;
 using boost::upgrade_lock;
 using boost::upgrade_to_unique_lock;
 
-Client::Client(const string& clientId, boost::shared_ptr<User> user, boost::int32_t lifeTime)
-    : timer(lifeTime)
+Client::Client(const string& clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime)
+    : clientId(clientIdArg), user(userArg), timer(lifeTime)
 {
-    this->clientId = clientId;
-    this->user = user;
 }
 
 const string& Client::getClientId() const

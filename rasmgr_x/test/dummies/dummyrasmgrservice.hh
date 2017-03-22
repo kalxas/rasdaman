@@ -23,7 +23,9 @@ public:
     {
     }
 
-    grpc::Status TryGetRemoteServer(grpc::ServerContext* context, const rasnet::service::GetRemoteServerRequest* request, rasnet::service::GetRemoteServerReply* response)
+    grpc::Status TryGetRemoteServer(__attribute__ ((unused)) grpc::ServerContext* context, 
+    const rasnet::service::GetRemoteServerRequest* request, 
+    rasnet::service::GetRemoteServerReply* response)
     {
         LDEBUG << "Trying";
         if (request->user_name() == "gooduser")
@@ -41,7 +43,9 @@ public:
         }
     }
 
-    grpc::Status ReleaseServer(grpc::ServerContext* context, const rasnet::service::ReleaseServerRequest* request, rasnet::service::Void* response)
+    grpc::Status ReleaseServer(__attribute__ ((unused)) grpc::ServerContext* context, 
+    __attribute__ ((unused)) const rasnet::service::ReleaseServerRequest* request, 
+    __attribute__ ((unused)) rasnet::service::Void* response)
     {
         return grpc::Status::OK;
     }

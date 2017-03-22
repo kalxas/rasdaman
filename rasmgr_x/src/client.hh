@@ -50,7 +50,7 @@ public:
      * @param accessRights access rights this client has on the database
      * @param lifeTime The number of milliseconds for how long the client is alive between pings.
      */
-    Client(const std::string& clientId, boost::shared_ptr<User> user, boost::int32_t lifeTime);
+    Client(const std::string& clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime);
 
     /**
      *
@@ -101,9 +101,9 @@ public:
 private:
     std::string clientId; /*! Unique client id.*/
     boost::shared_ptr<User> user; /*! User represented by this client. */
+    common::Timer timer;/*! Timer for keeping track of the life of the client */
 
     boost::shared_mutex timerMutex; /*! Mutex used to synchronize access to the timer */
-    common::Timer timer;/*! Timer for keeping track of the life of the client */
 
     std::map<std::string, boost::weak_ptr<Server>> assignedServers; /*! Map between sessionIds and the server assigned for the session*/
     boost::shared_mutex assignedServersMutex; /*! Mutex used to synchronize access to the list of servers*/

@@ -35,6 +35,7 @@
 #include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 
 #include "rasmgr_x/src/serverrasnet.hh"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 namespace rasmgr
 {
@@ -47,7 +48,8 @@ using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
-using grpc::SynchronousService;
+//SynchronousService doesn't appear to exist. Did they mean AsynchronousService?
+//using grpc::SynchronousService;
 
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
@@ -106,6 +108,8 @@ public:
     grpc::Status GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response) override
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
+        
+        return Status::CANCELLED;
     }
 
     grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override
@@ -134,11 +138,15 @@ protected:
         std::string serverBaseAddress = "0.0.0.0";
 
         goodServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->goodPort), grpc::InsecureServerCredentials());
-        goodServerBuilder.RegisterService((SynchronousService*)service.get());
+        //was originally goodServerBuilder.RegisterService((SynchronousService*)service.get());
+        //SynchronousService no longer exists?
+        goodServerBuilder.RegisterService(service.get());
         goodService = goodServerBuilder.BuildAndStart();
 
         failingServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->badPort), grpc::InsecureServerCredentials());
-        failingServerBuilder.RegisterService((SynchronousService*)failService.get());
+        //was originally failingServerBuilder.RegisterService((SynchronousService*)failService.get());
+        //SynchronousService does not appear to exist...
+        failingServerBuilder.RegisterService(failService.get());
         failingService = failingServerBuilder.BuildAndStart();
 
 

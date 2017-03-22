@@ -99,9 +99,9 @@ protected:
 
     boost::shared_ptr<rasmgr::User> user;
 
+    std::string clientId;
     std::string userName;
     std::string userPassword;
-    std::string clientId;
     std::string dbName;
     std::string sessionId;
     ClientManagerConfig config;

@@ -28,6 +28,7 @@
 #include <boost/thread.hpp>
 
 #include "rasmgr_x/src/messages/rasmgrmess.pb.h"
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 
 namespace rasmgr
 {
