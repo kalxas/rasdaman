@@ -22,6 +22,7 @@
 
 package petascope.wms2.metadata;
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.jetbrains.annotations.NotNull;
@@ -154,7 +155,8 @@ public class Style implements ISerializableMetadataObject, IPersistentMetadataOb
     private LegendURL legendURL;
 
     @NotNull
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, dataType = DataType.LONG_STRING)
+    // LONG_STRING equals to data type "text" in postgresql
     private String rasqlQueryTransformer;
 
     @NotNull
