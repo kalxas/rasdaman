@@ -63,9 +63,9 @@ protected:
         adminRights.setServerAdminRights(true);
         adminRights.setSystemConfigRights(true);
 
-        client.reset(new Client(clientId, user, clientLifeTime));
-        
         user.reset(new rasmgr::User(userName, userPassword, dbRights, adminRights));
+                
+        client.reset(new Client(clientId, user, clientLifeTime));
     }
 
     std::string clientId;
