@@ -48,12 +48,18 @@ class Session:
         self.recipe = recipe
         self.wcs_service = config['service_url'] if "service_url" in config else None
         self.tmp_directory = config['tmp_directory'] if "tmp_directory" in config else "/tmp/"
+
         self.crs_resolver = config['crs_resolver'] if "crs_resolver" in config else None
+        self.crs_resolver = self.crs_resolver.strip()
         self.default_crs = config['default_crs'] if "default_crs" in config else None
+        self.default_crs = self.default_crs.strip()
+        self.root_url = self.config["root_url"] if "root_url" in self.config else "file://"
+        self.root_url = self.root_url.strip()
+
         self.insitu = config['insitu'] if "insitu" in config else None
         self.default_null_values = config['default_null_values'] if "default_null_values" in config else []
         self.mock = False if "mock" not in config else bool(self.config["mock"])
-        self.root_url = self.config["root_url"] if "root_url" in self.config else "file://"
+
         self.subset_correction = bool(self.config['subset_correction']) if "subset_correction" in self.config else False
         self.skip = bool(self.config['skip']) if "skip" in self.config else False
         self.retry = bool(self.config['retry']) if "retry" in self.config else False
