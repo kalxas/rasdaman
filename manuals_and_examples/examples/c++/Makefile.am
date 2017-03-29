@@ -33,10 +33,16 @@ AM_CXXFLAGS= @AM_CXXFLAGS@ -w @CLIENTCXXFLAGS@ -DLINUX -DEARLY_TEMPLATE -DONCRPC
 AM_LDFLAGS= @CLIENTLDFLAGS@
 
 bin_PROGRAMS = query
-
 query_SOURCES = query.cc
 query_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a \
         ../../../raslib/libraslib.a \
         ../../../conversion/libconversion.a ../../../network/libnetwork.a ../../../commline/libcommline.a \
-         -lnetpbm -ljpeg -lpng -ltiff -lcrypto -lm -lz
+        ../../../network/libnetwork.a
+
+if RMANRASNET
+    query_LDADD += ../../../rasnet/librasnet.a ../../../common/src/libcommon.a @GRPC_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+endif
+
+SUBDIRS= ../../../rasodmg ../../../clientcomm \
+         ../../../raslib ../../../conversion ../../../commline ../../../network
 
