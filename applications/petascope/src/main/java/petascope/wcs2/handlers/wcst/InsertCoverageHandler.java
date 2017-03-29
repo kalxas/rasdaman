@@ -24,6 +24,7 @@ package petascope.wcs2.handlers.wcst;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +36,7 @@ import nu.xom.ParsingException;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
@@ -222,12 +224,15 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
             result = Templates.getTemplate(Templates.INSERT_COVERAGE_RESPONSE, new Pair<String, String>(
                                                Templates.KEY_COVERAGE_ID, coverage.getCoverageName()));
 
-        } catch (IOException ex) {
-            Logger.getLogger(InsertCoverageHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
             throw new WCSTCoverageNotFound();
-        } catch (ParsingException ex) {
-            Logger.getLogger(InsertCoverageHandler.class.getName()).log(Level.SEVERE, null, ex);
-            throw new WCSTInvalidXML(ex.getMessage());
+        } catch (ParsingException e) {
+            log.error(e.getMessage(), e);
+            throw new WCSTInvalidXML(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            throw new PetascopeException(ExceptionCode.InternalSqlError, e);
         }
         return result;
     }

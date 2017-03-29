@@ -40,7 +40,7 @@ WCS_ENDPOINT=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=DeleteCoverage&co
 
 # This script will iterate the test data of test wcst_import and retrieve all imported coverages by folder name prefix (wcs_, wcps_, wms_)
 # then will remove the coverageName with WCS DeleteCoverage service which will remove the imported coverage and correspondent WMS layers if available.
-declare -a SERVICES=('error' 'wcs' 'wms' 'wcps')
+declare -a SERVICES=('error_ingest' 'wcs' 'wms' 'wcps')
 DATA_FOLDER="$SCRIPT_DIR/../test_all_wcst_import/test_data"
 
 # change directory to the DATA_FOLDER

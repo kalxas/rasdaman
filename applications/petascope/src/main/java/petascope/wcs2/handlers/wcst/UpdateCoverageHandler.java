@@ -64,7 +64,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import petascope.exceptions.wcst.WCSTCoverageNotFound;
 import petascope.exceptions.wcst.WCSTInvalidXML;
 import petascope.wcps2.metadata.legacy.Coverage;
@@ -184,19 +183,21 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             //All went well, commit the metadata transaction, if there were any metadata changes.
             this.meta.commitAndClose();
         } catch (IOException e) {
-            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            abortTransaction();
+            log.error(e.getMessage(), e);
             throw new WCSTCoverageNotFound();
         } catch (ParsingException e) {
-            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            abortTransaction();
+            log.error(e.getMessage(), e);            
             throw new WCSTInvalidXML(e.getMessage());
         } catch (SQLException e) {
-            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            abortTransaction();
-            throw new PetascopeException(ExceptionCode.InternalSqlError);
+            log.error(e.getMessage(), e);
+            // It aborted the transaction above when rasdaman has error, this exception is catched for committing and close transaction.
+            try {
+                this.meta.abortAndClose();
+            } catch (SQLException ex) {
+                log.error(e.getMessage(), e);
+                throw new PetascopeException(ExceptionCode.InternalSqlError, ex);
+            }            
         } catch (PetascopeException e) {
-            abortTransaction();
             throw e;
         }
 
@@ -492,14 +493,5 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         //save in a temporary file to pass to gdal and rasdaman
         File tmpFile = RemoteCoverageUtil.copyFileLocally(fileUrl);
         return tmpFile;
-    }
-
-    private void abortTransaction() throws PetascopeException {
-        try {
-            this.meta.abortAndClose();
-        } catch (SQLException e) {
-            Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
-            throw new PetascopeException(ExceptionCode.InternalSqlError);
-        }
     }
 }

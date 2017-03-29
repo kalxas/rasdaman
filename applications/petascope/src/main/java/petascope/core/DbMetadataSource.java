@@ -1478,7 +1478,7 @@ public class DbMetadataSource implements IMetadataSource {
      * @param commit Boolean value, specifying if we want to commit immediately or not
      * @throws PetascopeException
      */
-    private void write(CoverageMetadata meta, boolean commit) throws PetascopeException {
+    private void write(CoverageMetadata meta, boolean commit) throws PetascopeException, SQLException {
         String coverageName = meta.getCoverageName();
         if (existsCoverageName(coverageName)) {
             updateCoverageMetadata(meta, commit);
@@ -1503,7 +1503,7 @@ public class DbMetadataSource implements IMetadataSource {
      * @param commit Boolean value, specifying if we want to commit immediately or not
      * @throws petascope.exceptions.PetascopeException
      */
-    public void insertNewCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException {
+    public void insertNewCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException, SQLException {
         Statement s = null;
         try {
             //initialize connection
@@ -1547,6 +1547,9 @@ public class DbMetadataSource implements IMetadataSource {
                 commitAndClose();
             }
         } catch (SQLException e) {
+            // Must rollback transaction or no other request could be made
+            this.abortAndClose();
+            log.error("Failed inserting coverage metadata, error: " + e.getMessage());            
             throw new PetascopeException(ExceptionCode.InternalSqlError,
                                          "Failed inserting coverage with id " + meta.getCoverageName());
         } finally {
