@@ -82,8 +82,9 @@ public class ConfigManager {
     public static boolean METADATA_HSQLDB = false;
 
     // rasdaman connection settings
+    public static String RASDAMAN_DEFAULT_PORT = "7001";
     public static String RASDAMAN_SERVER = "localhost";
-    public static String RASDAMAN_PORT = "7001";
+    public static String RASDAMAN_PORT = "";
     public static String RASDAMAN_URL = "http://" + RASDAMAN_SERVER + ":" + RASDAMAN_PORT;
     public static String RASDAMAN_DATABASE = "RASBASE";
     public static String RASDAMAN_USER = "rasguest";
@@ -321,6 +322,13 @@ public class ConfigManager {
         // connections
         RASDAMAN_DATABASE       = get(KEY_RASDAMAN_DATABASE);
         RASDAMAN_URL            = get(KEY_RASDAMAN_URL);
+        // parse RASDAMAN_URL to get the rasmgr port (by default is http://localhost:7001)
+        try {
+            RASDAMAN_PORT           = RASDAMAN_URL.substring(RASDAMAN_URL.lastIndexOf(":") + 1, RASDAMAN_URL.length()); 
+        } catch (Exception e) {
+            // if the pattern is not correct, use the default port
+            RASDAMAN_PORT       = RASDAMAN_DEFAULT_PORT;
+        } 
         RASDAMAN_USER           = get(KEY_RASDAMAN_USER);
         RASDAMAN_PASS           = get(KEY_RASDAMAN_PASS);
         RASDAMAN_ADMIN_USER     = get(KEY_RASDAMAN_ADMIN_USER);
@@ -359,7 +367,7 @@ public class ConfigManager {
         // CCIP hack
         CCIP_HACK = Boolean.parseBoolean(get(KEY_CCIP_VERSION));
 
-        // Get rasdaman version from RasQL (see #546)
+        // Get rasdaman version from RasQL (see #546) 
         RASDAMAN_VERSION = RasUtil.getRasdamanVersion();
 
         // SECORE
