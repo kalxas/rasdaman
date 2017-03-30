@@ -25,6 +25,7 @@ import shutil
 import os
 import uuid
 from config_manager import ConfigManager
+from util.log import log
 
 
 class FileUtil:
@@ -78,3 +79,7 @@ class FileUtil:
     @staticmethod
     def get_directory_path(file_path):
         return os.path.dirname(os.path.abspath(file_path))
+
+    @staticmethod
+    def print_feedback(current_number, number_of_files, file_path):
+        log.info("Analyzing file ({}/{}): {} ...".format(current_number, number_of_files, file_path))

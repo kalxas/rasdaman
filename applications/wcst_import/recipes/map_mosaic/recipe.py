@@ -35,7 +35,7 @@ from util.gdal_util import GDALGmlUtil
 from util.log import log
 from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
-
+from util.file_util import FileUtil
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
@@ -76,9 +76,12 @@ class Recipe(BaseRecipe):
         super(Recipe, self).describe()
         log.info("\033[1mWMS Import:\x1b[0m " + str(self.options['wms_import']))
         importer = self._get_importer()
-        log.info("A couple of files have been analyzed. Check that the axis subsets are correct.")
+
+        slices = importer.get_slices_for_description()
+        number_of_files = len(slices)
+        log.info("All files have been analyzed. Please verify that the axis subsets of the first {} files above are correct.".format(number_of_files))
         index = 1
-        for slice in importer.get_slices_for_description():
+        for slice in slices:
             log.info("Slice " + str(index) + ": " + str(slice))
             index += 1
 
@@ -104,9 +107,13 @@ class Recipe(BaseRecipe):
         crs = gdal_dataset.get_crs()
         crs_axes = CRSUtil(crs).get_axes()
         slices = []
+        count = 1;
         for file in files:
+            # print which file is analyzing
+            FileUtil.print_feedback(count, len(files), file.filepath)
             subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
             slices.append(Slice(subsets, FileDataProvider(file)))
+            count += 1
         return slices
 
     def _get_coverage(self):

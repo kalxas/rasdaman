@@ -121,6 +121,7 @@ class Importer:
         :rtype: list[Slice]
         """
         slices = []
+        # If number of files < 5 print all files, or only print first 5 files
         max = ConfigManager.description_max_no_slices if ConfigManager.description_max_no_slices < len(
             self.coverage.slices) else len(self.coverage.slices)
         for i in range(0, max):

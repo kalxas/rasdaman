@@ -132,9 +132,12 @@ class Recipe(BaseRecipe):
         super(Recipe, self).describe()
         log.info("\033[1mWMS Import:\x1b[0m " + str(self.options['wms_import']))
         importer = self._get_importer()
-        log.info("A couple of files have been analyzed. Check that the axis subsets are correct.")
+
+        slices = importer.get_slices_for_description()
+        number_of_files = len(slices)
+        log.info("All files have been analyzed. Please verify that the axis subsets of the first {} files above are correct.".format(number_of_files))
         index = 1
-        for slice in importer.get_slices_for_description():
+        for slice in slices:
             log.info("Slice " + str(index) + ": " + str(slice))
             index += 1
 

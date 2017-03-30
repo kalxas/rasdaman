@@ -47,6 +47,7 @@ from master.importer.coverage import Coverage
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from util.string_util import is_number
+from util.file_util import FileUtil
 
 
 class AbstractToCoverageConverter:
@@ -298,8 +299,12 @@ class AbstractToCoverageConverter:
         :rtype: list[Slice]
         """
         slices = []
+        count = 1
         for file in self.files:
+            # print which file is analyzing
+            FileUtil.print_feedback(count, len(self.files), file.filepath)
             slices.append(self._slice(file, crs_axes))
+            count += 1
         return slices
 
     def _slice(self, file, crs_axes):
