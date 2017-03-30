@@ -1,1 +1,1 @@
-for c in (test_float_fractional_time_unixtime) return encode(c[unix("2013-06-02T01:49:10.370Z")] + c[unix("2013-06-09T01:55:19.380Z")] + c[unix("2013-11-03T19:41:57.000Z")], "csv")
+for c in (test_float_fractional_time_unixtime) return encode(c[unix("2013-06-02T01:49:10.372Z")] + c[unix("2013-06-09T01:55:19.375Z")] + c[unix("2013-10-31T01:55:01.632Z")], "csv")

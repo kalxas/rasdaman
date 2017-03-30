@@ -25,6 +25,7 @@
 import decimal
 import math
 from lib import arrow
+from util.list_util import sort_slices_by_datetime
 
 from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
 from master.evaluator.grib_expression_evaluator import GribExpressionEvaluator
@@ -305,11 +306,15 @@ class AbstractToCoverageConverter:
             FileUtil.print_feedback(count, len(self.files), file.filepath)
             slices.append(self._slice(file, crs_axes))
             count += 1
-        return slices
+        # NOTE: we want to sort all the slices by date time axis
+        # to avoid the case the later time slice is added before the sooner time slice
+        sorted_slices = sort_slices_by_datetime(slices)
+
+        return sorted_slices
 
     def _slice(self, file, crs_axes):
         """
-        Returns a slice for a netcdf file
+        Returns a slice for a file
         :param File file: the path to the importing file
         :param list[CRSAxis] crs_axes: the crs axes for the coverage
         :rtype: Slice

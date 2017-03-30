@@ -29,7 +29,7 @@ from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import GDALEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.helper.regular_user_axis import RegularUserAxis
-from master.helper.user_axis import UserAxis
+from master.helper.user_axis import UserAxis, UserAxisType
 from master.helper.user_band import UserBand
 from master.importer.axis_subset import AxisSubset
 from master.importer.interval import Interval
@@ -155,6 +155,8 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
 
         grid_axis = GridAxis(user_axis.order, crs_axis.label, user_axis.resolution, grid_low, grid_high)
         geo_axis.origin = PointPixelAdjuster.get_origin(user_axis, crs_axis)
+        if user_axis.type == UserAxisType.DATE:
+            self._translate_decimal_to_datetime(user_axis, geo_axis)
         # NOTE: current, gdal recipe supports only has 2 axes which are "bounded" (i.e: they exist as 2D axes in file)
         # and 1 or more another axes gotten (i.e: from fileName) which are not "bounded" to create 3D+ coverage.
         data_bound = crs_axis.is_northing() or crs_axis.is_easting()

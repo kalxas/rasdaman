@@ -120,7 +120,8 @@ class Recipe(BaseRecipe):
 
     def _generate_timeseries_tuples(self, limit=None):
         """
-        Generate the timeseries tuples from the original files based on the recipe
+        Generate the timeseries tuples from the original files based on the recipe.
+        And sort the files in order of time.
         :rtype: list[TimeFileTuple]
         """
         ret = []
@@ -151,6 +152,9 @@ class Recipe(BaseRecipe):
         else:
             raise RecipeValidationException("No method to get the time parameter, you should either choose "
                                             "metadata_tag or filename.")
+
+        # NOTE: we want to sort all the slices by date time axis
+        # to avoid the case the later time slice is added before the sooner time slice
         return sorted(ret)
 
     def _get_slices(self, crs):

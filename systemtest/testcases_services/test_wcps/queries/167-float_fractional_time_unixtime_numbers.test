@@ -1,1 +1,1 @@
-for c in (test_float_fractional_time_unixtime) return encode(c[unix(1370137750.37)] + c[unix(1370137750.37)] + c[unix(1370137750.37)] + c[unix(1370137750.37)] + c[unix(1370137750.37)], "csv")
+for c in (test_float_fractional_time_unixtime) return encode(c[unix(1370137750.372)] + c[unix(1370137750.372)] + c[unix(1370137750.372)] + c[unix(1370137750.372)] + c[unix(1370137750.372)], "csv")
