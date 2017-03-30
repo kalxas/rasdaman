@@ -22,12 +22,11 @@
  *
 """
 
-import urllib
-
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from session import Session
-
+from util.url_util import validate_and_read_url
+from util.url_util import url_read_exception
 
 class CoverageUtil:
     def __init__(self, coverage_id):
@@ -46,14 +45,18 @@ class CoverageUtil:
         try:
             service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
                            Session.get_WCS_VERSION_SUPPORTED() + "&coverageId=" + self.coverage_id
-            response = urllib.urlopen(service_call).read()
-            if 'exceptionCode="NoSuchCoverage' in response:
+            # Check if exception is thrown in the response
+            ret = url_read_exception(service_call, 'exceptionCode="NoSuchCoverage"')
+            if ret:
+                # exception is in the response, coverage does not exist
                 return False
             else:
+                # exception is not the in the reponse, coverage does exist
                 return True
         except Exception as ex:
             raise RuntimeException("Could not check if the coverage exists. "
-                                   "Check that the WCS service is up and running.")
+                                   "Check that the WCS service is up and running on url: {}. "
+                                   "Detail error: {}".format(self.wcs_service, str(ex)))
 
     def get_axis_labels(self):
         """
@@ -63,7 +66,10 @@ class CoverageUtil:
         try:
             service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
                            Session.get_WCS_VERSION_SUPPORTED() + "&coverageId=" + self.coverage_id
-            response = urllib.urlopen(service_call).read()
+            response = validate_and_read_url(service_call)
+
             return response.split("axisLabels=\"")[1].split('"')[0].split(" ")
         except Exception as ex:
-            raise RuntimeException("Could not retrieve the axis labels. Check that the WCS service is up and running.")
+            raise RuntimeException("Could not retrieve the axis labels. "
+                                   "Check that the WCS service is up and running on url: {}. "
+                                   "Detail error: {}".format(self.wcs_service, str(ex)))

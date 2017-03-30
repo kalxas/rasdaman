@@ -22,7 +22,7 @@
  *
 """
 from lxml import etree
-import urllib
+
 import itertools
 
 from lxml.etree import XMLSyntaxError
@@ -44,6 +44,7 @@ from util.crs_util import CRSUtil, CRSAxis
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
 from util.time_util import DateTimeUtil
+from util.url_util import validate_and_read_url
 
 
 class CoverageReader():
@@ -355,7 +356,7 @@ class CoverageReader():
                self.coverage_id + format + "&".join(subsets)
 
     def _get_coverage_data_as_array(self, data_url):
-        xmlstr = urllib.urlopen(data_url).read()
+        xmlstr = validate_and_read_url(data_url)
         root = etree.fromstring(xmlstr)
         tupleList = root.xpath("//gml:tupleList", namespaces=self._get_ns())
         return tupleList[0].text.split(",")
@@ -390,7 +391,7 @@ class CoverageReader():
             # Do this only for coverages that have more than one axis
             if len(slice.axis_subsets) > 1:
                 fu = FileUtil()
-                contents = urllib.urlopen(slice.data_provider.get_url()).read()
+                contents = validate_and_read_url(slice.data_provider.get_url())
                 file_path = fu.write_to_tmp_file(contents, "tif")
                 return GDALGmlUtil(file_path).get_band_gdal_type()
         return None
@@ -400,7 +401,7 @@ class CoverageReader():
         Gets the description from coverage_id in wcs_url
         :rtype: String
         """
-        xmlstr = urllib.urlopen(self._get_description_url()).read()
+        xmlstr = validate_and_read_url(self._get_description_url())
         # Check if coverage id does not exist in wcs_endpoint by returning an Exception
         if xmlstr.find("ExceptionReport") != -1:
             raise RuntimeException("Could not read the coverage description for coverage id: {} with url: {} ".format(self.coverage_id, self.wcs_url))

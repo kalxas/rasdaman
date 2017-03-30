@@ -22,7 +22,6 @@
  *
 """
 import os
-import urllib
 
 from master.error.runtime_exception import RuntimeException
 from master.importer.importer import Importer
@@ -30,7 +29,7 @@ from master.recipe.base_recipe import BaseRecipe
 from session import Session
 from util.coverage_reader import CoverageReader
 from util.log import log
-
+from util.url_util import validate_and_read_url
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
@@ -76,9 +75,7 @@ class Recipe(BaseRecipe):
             self.options['wms_import'] = bool(self.options['wms_import'])
 
         # Validate wcs_endpoint
-        ret = urllib.urlopen(self.options['wcs_endpoint'])
-        if ret.getcode() != 200:
-            raise RuntimeException("The given wcs_endpoint is not valid. Please check that the url is correct.")
+        validate_and_read_url(self.options['wcs_endpoint'])
 
     def describe(self):
         """

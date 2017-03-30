@@ -493,6 +493,7 @@ public class PetascopeInterface extends CORSHttpServlet {
             out.close();
         } else {
             log.trace("setting response MIME type to text/html; charset=utf-8");
+            response.setStatus(ExceptionCode.InternalComponentError.getHttpErrorCode());
             response.setContentType("text/html; charset=utf-8");
             log.trace("returning the following error message.", e);
             log.trace("end of error message");

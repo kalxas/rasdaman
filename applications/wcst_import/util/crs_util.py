@@ -22,12 +22,12 @@
  *
 """
 
-import urllib
 from lxml import etree
 import urlparse
 
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
+from url_util import validate_and_read_url
 
 
 class CRSAxis:
@@ -169,17 +169,16 @@ class CRSUtil:
             while str(index) in get_params:
                 self._parse_single_crs(get_params[str(index)][0])
                 index += 1
-        except Exception as e:
-            raise RuntimeException(
-                "We could not parse the compound crs at " + self.crs_url +
-                ". Please check that the url is correct. Detailed error: " + str(e))
+        except Exception as ex:
+            raise RuntimeException("Failed parsing the compound crs at: {}. "
+                                   "Detailed error: {}".format(self.crs_url, str(ex)))
 
     def _parse_single_crs(self, crs):
         """
         Parses the axes out of the CRS definition
         """
         try:
-            contents = str(urllib.urlopen(crs).read())
+            contents = validate_and_read_url(crs)
             root = etree.fromstring(contents)
             cselem = root.xpath("./*[contains(local-name(), 'CS')]")[0]
             xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")
@@ -203,9 +202,9 @@ class CRSUtil:
                 self.axes.append(crsAxis)
             # add to the list of individual crs to axes
             self.individual_crs_axes[crs] = axesLabels
-        except:
-            raise RuntimeException(
-                "We could not parse the crs at " + crs + ". Please check that the url is correct.")
+        except Exception as ex:
+            raise RuntimeException("Failed parsing the crs at: {}. "
+                                   "Detail error: {}".format(crs, str(ex)))
 
     def save_to_cache(self, crs, axes, individual_crs_axes):
         self.__CACHE__[crs] = {}

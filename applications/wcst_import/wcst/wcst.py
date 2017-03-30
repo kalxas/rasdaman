@@ -22,10 +22,10 @@
  *
 """
 from abc import abstractmethod
-import urllib as url_lib
 import xml.etree.ElementTree as XMLProcessor
 
 from util.log import log
+from util.url_util import validate_and_read_url
 
 
 class WCSTSubset:
@@ -300,14 +300,11 @@ class WCSTExecutor(WCSTBaseExecutor):
         service_call = self.base_url + "?" + request.get_query_string()
         if output:
             log.info(service_call)
-
-        http_response = url_lib.urlopen(service_call)
-        http_code = http_response.getcode()
-
-        response = http_response.read()
-
-        if http_code == 404 and response == "":
-            raise WCSTException(404, "Petascope does not seem to be deployed on: " + self.base_url, service_call)
+        try:
+            response = validate_and_read_url(service_call)
+        except Exception as ex:
+            raise WCSTException(404, "Failed reading response from WCS service. "
+                                     "Detailed error: {}.".format(str(ex)), service_call)
 
         namespaces = ""
 
