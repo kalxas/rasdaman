@@ -285,21 +285,11 @@ class AbstractToCoverageConverter:
                 key = key_value[0]
                 # e.g: "'${grib:marsClass}'"
                 value = key_value[1]
-                evaluate = False
-                # check if list contains "${"
-                if type(value) is list:
-                    if any(SentenceEvaluator.PREFIX in x for x in value):
-                        evaluate = True
-                elif SentenceEvaluator.PREFIX in value:
-                    # or if string contains "${"
-                    evaluate = True
-
-                if evaluate is True:
-                    # evaluate this metadata variable by eval() on the slice_file (all files should have same metadata)
-                    evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, slice_file)
-                    evaluated_value = self.sentence_evaluator.evaluate(value, evaluator_slice)
-                    # after that, the band's metadata for the current attribute is evaluated
-                    setattr(band, key, evaluated_value)
+                # evaluate this metadata variable by eval() on the slice_file (all files should have same metadata)
+                evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, slice_file)
+                evaluated_value = self.sentence_evaluator.evaluate(value, evaluator_slice)
+                # after that, the band's metadata for the current attribute is evaluated
+                setattr(band, key, evaluated_value)
 
     def _slices(self, crs_axes):
         """

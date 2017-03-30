@@ -60,10 +60,10 @@ class PointPixelAdjuster:
 
             if isinstance(user_axis, RegularUserAxis):
                 user_axis.interval.low = decimal.Decimal(str(user_axis.interval.low)) \
-                                         - decimal.Decimal(str(0.5)) * decimal.Decimal(str(abs(user_axis.resolution)))
+                                         - decimal.Decimal(str(0.5)) * abs(decimal.Decimal(str(user_axis.resolution)))
                 if user_axis.interval.high:
                     user_axis.interval.high = decimal.Decimal(str(user_axis.interval.high)) \
-                                              + decimal.Decimal(str(0.5)) * decimal.Decimal(str(abs(user_axis.resolution)))
+                                              + decimal.Decimal(str(0.5)) * abs(decimal.Decimal(str(user_axis.resolution)))
 
     @staticmethod
     def adjust_axis_bounds_for_time_axis(user_axis, crs_axis):

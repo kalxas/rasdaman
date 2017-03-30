@@ -43,15 +43,18 @@ class SentenceEvaluator:
         """
         self.evaluator_factory = evaluator_factory
 
-    def evaluate(self, sentence, evaluator_slice):
+    def evaluate(self, input_sentence, evaluator_slice):
         """
         Evaluates a sentence
-        :param str sentence: the sentence to evaluate
+        :param str input_sentence: the sentence to evaluate
         :param master.evaluator.evaluator_slice.EvaluatorSlice evaluator_slice: the slice that provides the context for
          the evaluator
         :rtype: str
         """
-        sentence = str(sentence)
+        sentence = str(input_sentence).strip()
+        if sentence == "":
+            return sentence
+
         expressions = re.findall("\${([\w_:]*)}", sentence)
         instantiated_sentence = sentence
         # Iterate the expression and evaluate all the possible variables
@@ -82,7 +85,14 @@ class SentenceEvaluator:
         try:
             return eval(instantiated_sentence, globals(), locals)
         except Exception:
-            raise RuntimeException(
-                "The following expression could not be evaluated correctly:\n"
-                "Provided Expression: {}\n"
-                "Instantiated Expression: {}".format(sentence, instantiated_sentence))
+            try:
+                # NOTE: metadata evaluation expression in string must be enquoted with single quotes in ingredient file
+                # e.g: "'Parameter id'" or "'${grib:centreDescription}'"
+                # This is backward compatibility when single quotes were missed for bands's metadata
+                enquote_instantiated_sentence = "'" + instantiated_sentence + "'"
+                return eval(enquote_instantiated_sentence, globals(), locals)
+            except Exception:
+                raise RuntimeException(
+                    "The following expression could not be evaluated:\n"
+                    "Provided Expression: {}\n"
+                    "Instantiated Expression: {}".format(sentence, instantiated_sentence))
