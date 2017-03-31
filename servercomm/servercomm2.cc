@@ -39,8 +39,6 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include <byteswap.h>
 
-static const char rcsid[] = "@(#)servercomm2, ServerComm: $Id: servercomm2.cc,v 1.121 2005/09/07 23:23:31 rasdev Exp $";
-
 // after some time please take this and everything related to it out (26.06.2001)
 #define ANDREAS_2306
 
@@ -55,6 +53,12 @@ static const char rcsid[] = "@(#)servercomm2, ServerComm: $Id: servercomm2.cc,v 
 #include <ctime>         // time
 #include <iomanip>
 #include <boost/scoped_ptr.hpp>
+
+#ifdef ENABLE_PROFILING
+#include <google/profiler.h>
+#include <gperftools/heap-profiler.h>
+#include <string>
+#endif
 
 #ifdef PURIFY
 #include <purify.h>
@@ -172,6 +176,39 @@ const char* ServerComm::HTTPCLIENT = "HTTPClient";
 ///ensureTileFormat returns the following:
 const int ServerComm::ENSURE_TILE_FORMAT_OK = 0;
 const int ServerComm::ENSURE_TILE_FORMAT_BAD = -1;
+
+/// start the gperftools profilers
+#ifdef ENABLE_PROFILING
+void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
+{
+    {
+        char tmpFileName[fileNameTemplate.size() + 1];
+        strcpy(tmpFileName, fileNameTemplate.c_str());
+
+        int fd = mkstemps(tmpFileName, 6);
+        if (fd != -1)
+        {
+            remove(tmpFileName);
+            if (cpuProfiler)
+            {
+                ProfilerStart(tmpFileName);
+                LINFO << "CPU profiler file: " << tmpFileName;
+            }
+            else
+            {
+                HeapProfilerStart(tmpFileName);
+                LINFO << "Heap profiler file: " << tmpFileName << ".????.heap";
+            }
+            
+        }
+        else
+        {
+            LERROR << "failed creating a temporary profiler file: " << tmpFileName;
+            LERROR << "reason: " << strerror(errno);
+        }
+    }
+}
+#endif
 
 /*************************************************************************
  * Method name...: openDB( unsigned long callingClientId,
@@ -1555,6 +1592,10 @@ ServerComm::executeQuery(unsigned long callingClientId,
                          ExecuteQueryRes& returnStructure)
 {
     unsigned short returnValue = 0;
+#ifdef ENABLE_PROFILING
+    startProfiler("/tmp/rasdaman_query_select.XXXXXX.pprof", true);
+    startProfiler("/tmp/rasdaman_query_select.XXXXXX.pprof", false);
+#endif
 
     // set all to zero as default. They are not really applicable here.
     returnStructure.errorNo       = 0;
@@ -1941,6 +1982,11 @@ ServerComm::executeQuery(unsigned long callingClientId,
         returnValue = 3;
     }
 
+#ifdef ENABLE_PROFILING
+    ProfilerStop();
+    HeapProfilerStop();
+#endif
+
     return returnValue;
 }
 
@@ -2113,6 +2159,11 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                           ExecuteUpdateRes& returnStructure)
 {
     LINFO << "Request: '" << query << "'...";
+
+#ifdef ENABLE_PROFILING
+    startProfiler("/tmp/rasdaman_query_update.XXXXXX.pprof", true);
+    startProfiler("/tmp/rasdaman_query_update.XXXXXX.pprof", false);
+#endif
 
 #ifdef RMANBENCHMARK
     Tile::relTimer.start();
@@ -2299,6 +2350,11 @@ ServerComm::executeUpdate(unsigned long callingClientId,
     Tile::relTimer.stop();
 #endif
 
+#ifdef ENABLE_PROFILING
+    ProfilerStop();
+    HeapProfilerStop();
+#endif
+
     return returnValue;
 }
 
@@ -2308,6 +2364,11 @@ ServerComm::executeInsert(unsigned long callingClientId,
                           ExecuteQueryRes& returnStructure)
 {
     LINFO << "Request: '" << query << "'...";
+
+#ifdef ENABLE_PROFILING
+    startProfiler("/tmp/rasdaman_query_insert.XXXXXX.pprof", true);
+    startProfiler("/tmp/rasdaman_query_insert.XXXXXX.pprof", false);
+#endif
 
 #ifdef RMANBENCHMARK
     Tile::relTimer.start();
@@ -2561,6 +2622,11 @@ ServerComm::executeInsert(unsigned long callingClientId,
 
     Tile::opTimer.stop();
     Tile::relTimer.stop();
+#endif
+
+#ifdef ENABLE_PROFILING
+    ProfilerStop();
+    HeapProfilerStop();
 #endif
 
     return returnValue;

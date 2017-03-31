@@ -264,6 +264,11 @@ if (ENABLE_BENCHMARK)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRMANBENCHMARK")
 endif ()
 
+set(ENABLE_PROFILING OFF CACHE BOOL "This feature enables profiling of queries with google-perftools..")
+if (ENABLE_PROFILING)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_PROFILING")
+endif ()
+
 set(ENABLE_STRICT OFF CACHE BOOL "Enable compiling in strict mode: warnings terminate compilation.")
 if (ENABLE_STRICT)
     # list from http://stackoverflow.com/a/9862800

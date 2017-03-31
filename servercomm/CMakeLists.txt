@@ -99,6 +99,12 @@ if (RMANRASNET)
             rasnet common_exceptions common_grpc common_logging common_time common_uuid)
 endif (RMANRASNET)
 
+
+set(OPTIONAL_LIBRARIES "")
+if (ENABLE_PROFILING)
+    set(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} profiler tcmalloc)
+endif ()
+
 add_library(servercomm ${SRC_FILES}
         "${RPCGEN_DIR}/rpcif.h"
         "${RPCGEN_DIR}/rpcif_svc.cc"
@@ -113,7 +119,7 @@ target_include_directories(servercomm PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
 
 target_include_directories(servercomm PUBLIC "${BASEDB_INCLUDE_DIR}")
 
-target_link_libraries(servercomm ${RASNET_LIBRARIES})
+target_link_libraries(servercomm ${RASNET_LIBRARIES} ${OPTIONAL_LIBRARIES})
 
 install(TARGETS servercomm
         DESTINATION ${LIB_DIR})
