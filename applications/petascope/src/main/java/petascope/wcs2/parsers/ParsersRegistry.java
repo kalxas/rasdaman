@@ -62,10 +62,7 @@ public class ParsersRegistry {
         registerParser(new RESTGetCapabilitiesParser());
         registerParser(new RESTDescribeCoverageParser());
         registerParser(new RESTGetCoverageParser());
-        //add only when writes are not disabled
-        if (!ConfigManager.DISABLE_WRITE_OPERATIONS) {
-            registerParser(new KVPWCSTParser());
-        }
+        registerParser(new KVPWCSTParser());        
     }
 
     /**

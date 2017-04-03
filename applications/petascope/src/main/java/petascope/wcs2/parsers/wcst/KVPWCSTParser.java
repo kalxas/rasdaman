@@ -33,12 +33,14 @@ import java.util.logging.Level;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.ConfigManager;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.wcst.WCSTInvalidRequestException;
 import petascope.exceptions.wcst.WCSTMalformedURL;
 import petascope.exceptions.wcst.WCSTMissingCoverageParameter;
+import petascope.exceptions.wcst.WCSTOperationNotAllowed;
 import petascope.exceptions.wcst.WCSTUnknownUseId;
 import petascope.util.RequestUtil;
 import petascope.wcps2.parser.wcpsParser;
@@ -62,12 +64,15 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
      * @param request
      * @return
      * @throws WCSException
-     * @throws java.io.UnsupportedEncodingException
      */
     @Override
     public WCSTRequest parse(HTTPRequest request) throws WCSException {
         //split query string into parameters
         Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
+        //NOTE: only when writes are not disabled for wcst (Insertcoverage, UpdateCoverage, DeleteCoverage)
+        if (ConfigManager.DISABLE_WRITE_OPERATIONS) {
+            throw new WCSTOperationNotAllowed(params.get(REQUEST));
+        }        
         //distinguish between the 3 possible request types: InsertCoverage, DeleteCoverage and UpdateCoverage
         if (params.get(REQUEST).equals(RequestHandler.INSERT_COVERAGE)) {
             //validate the request against WCS-T spec requirements

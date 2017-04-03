@@ -208,6 +208,7 @@ public class ExceptionCode {
             "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode OptionNotSupported = new ExceptionCode("OptionNotSupported",
             "Request is for an option that is not supported by this server. Locator: Identifier of option not supported", SC_NOT_IMPLEMENTED);
+    public static final ExceptionCode OperationNotAllowed = new ExceptionCode("OperationNotAllowed", "Operation not allowed.", SC_BAD_REQUEST);
     public static final ExceptionCode RasdamanRequestFailed = new ExceptionCode("RasdamanRequestFailed");
     public static final ExceptionCode RasdamanUnavailable = new ExceptionCode("RasdamanUnavailable");
     public static final ExceptionCode RasdamanError = new ExceptionCode("RasdamanError");
@@ -240,9 +241,9 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidExtent = new ExceptionCode("InvalidExtent",
             "Extent interval passed has upper bound smaller than lower bound.", SC_BAD_REQUEST);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
-            "CRS axis indicated is not an axis occurring in this coverage.", SC_BAD_REQUEST);
+            "CRS axis indicated is not an axis occurring in this coverage.", SC_BAD_REQUEST);    
     public static final ExceptionCode WCSPMissingQueryParameter = new ExceptionCode("WCSPMissingQueryParameter",
-            "No query parameter was found in the request.", SC_BAD_REQUEST);
+            "No query parameter was found in the request.", SC_BAD_REQUEST);    
     public static final ExceptionCode WCSTMissingCoverageParameter = new ExceptionCode("WCSTMissingCoverageParameter",
             "No \"coverage\" of \"coverageRef\" parameters were found in the request (at least one expected).");
     public static final ExceptionCode WCSTUnknownUseId = new ExceptionCode("WCSTUnknownUseId",

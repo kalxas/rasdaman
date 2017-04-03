@@ -108,11 +108,8 @@ public class ExtensionsRegistry {
         registerExtension(new RangeSubsettingExtension());
         registerExtension(new CRSExtension());
         registerExtension(new ScalingExtension());
-        registerExtension(new ProcessCoverageExtension());
-        //add only when writes are not disabled
-        if (!ConfigManager.DISABLE_WRITE_OPERATIONS) {
-            registerExtension(new WCSTExtension());
-        }
+        registerExtension(new ProcessCoverageExtension());        
+        registerExtension(new WCSTExtension());        
     }
 
     /**
