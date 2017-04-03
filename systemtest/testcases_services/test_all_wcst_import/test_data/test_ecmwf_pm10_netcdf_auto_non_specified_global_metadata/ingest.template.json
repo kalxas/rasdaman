@@ -11,7 +11,7 @@
     "insitu": false
   },
   "input": {
-    "coverage_id": "PM10_0_no_pixelis_point4",
+    "coverage_id": "PM10_0_no_pixelis_point4_auto_non_specified_global_metadata",
     "paths": [
       "camsaq_PM10*"
     ]
@@ -22,10 +22,7 @@
       "coverage": {
         "crs": "OGC/0/AnsiDate@EPSG/0/4326",
         "metadata": {
-          "type": "xml",
-          "global": {
-            "Title": "'CAMS - Particulate Matter 10 (PM10)'"
-       	  }
+          "type": "xml"
         },
         "slicer": {
           "type": "netcdf",

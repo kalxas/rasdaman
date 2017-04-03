@@ -22,6 +22,7 @@
  *
 """
 from config_manager import ConfigManager
+from collections import OrderedDict
 from master.error.runtime_exception import RuntimeException
 from master.error.validate_exception import RecipeValidationException
 from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
@@ -123,7 +124,10 @@ class Recipe(BaseRecipe):
         if "metadata" in self.options['coverage']:
             if ("global" not in self.options['coverage']['metadata']) \
                 and ("local" not in self.options['coverage']['metadata']):
-                raise RecipeValidationException("No local or global metadata fields given for the metadata parameter.")
+                # NOTE: if global is not specified in netCDF ingredient file, it is considered auto
+                # which means extract all the global attributes of netcdf file to create global metadata
+                if self.options['coverage']['slicer']['type'] != "netcdf":
+                    raise RecipeValidationException("No local or global metadata fields given for the metadata parameter.")
 
     def describe(self):
         """
@@ -240,6 +244,32 @@ class Recipe(BaseRecipe):
                 return self.options['coverage']['metadata']['global']
         return {}
 
+    def _netcdf_global_metadata_fields(self):
+        """
+        Returns the global metadata fields for netCDF file
+        + If global is specified in ingredient file with: "global": { ... some values ... }, then this is the global metadata
+        for the coverage
+        + If global is not specified in ingredient file or specified with "global": "auto", then all the global metadata
+        of the first file will be extracted internally to make coverage's metadata
+        :rtype: dict
+        """
+        if "metadata" in self.options['coverage']:
+            # global is defined in ingredient file
+            if "global" in self.options['coverage']['metadata']:
+                global_metadata = self.options['coverage']['metadata']['global']
+                # global_metadata is defined with { ... some values }
+                if type(global_metadata) is dict:
+                    return self.options['coverage']['metadata']['global']
+                else:
+                    # global metadata is defined with "a string"
+                    if global_metadata != "auto":
+                        raise RuntimeException("No valid global metadata attribute for netCDF slicer could be found, "
+                                               "given: " + global_metadata)
+                    else:
+                        # global metadata is defined with auto, then parse the metadata from the first file to a dict
+                        return self.__parse_netcdf_global_metadata()
+        return {}
+
     def _local_metadata_fields(self):
         """
         Returns the local metadata fields
@@ -322,7 +352,7 @@ class Recipe(BaseRecipe):
         coverage = NetcdfToCoverageConverter(recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
-                                             self.options['tiling'], self._global_metadata_fields(),
+                                             self.options['tiling'], self._netcdf_global_metadata_fields(),
                                              self._local_metadata_fields(), self._metadata_type(),
                                              self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
         return coverage
@@ -357,6 +387,22 @@ class Recipe(BaseRecipe):
             self.importer = Importer(self._get_coverage(), self.options['wms_import'],
                                      self.options['coverage']['grid_coverage'])
         return self.importer
+
+    def __parse_netcdf_global_metadata(self):
+        """
+        Parse the first file of importing netCDF files to extract the global metadata for the coverage
+        :return: dict: global_metadata
+        """
+        netcdf_files = self.session.get_files()
+        file_path = netcdf_files[0].filepath
+        import netCDF4
+        # NOTE: all files should have same bands's metadata for each file
+        dataset = netCDF4.Dataset(file_path, 'r')
+        global_metadata = OrderedDict()
+        for attr in dataset.ncattrs():
+            global_metadata[attr] = getattr(dataset, attr)
+
+        return global_metadata
 
     @staticmethod
     def get_name():

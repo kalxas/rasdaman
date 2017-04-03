@@ -84,14 +84,15 @@ class SentenceEvaluator:
         """
         try:
             return eval(instantiated_sentence, globals(), locals)
-        except Exception:
+        except Exception as e:
             try:
                 # NOTE: metadata evaluation expression in string must be enquoted with single quotes in ingredient file
                 # e.g: "'Parameter id'" or "'${grib:centreDescription}'"
                 # This is backward compatibility when single quotes were missed for bands's metadata
-                enquote_instantiated_sentence = "'" + instantiated_sentence + "'"
-                return eval(enquote_instantiated_sentence, globals(), locals)
-            except Exception:
+                # We evaluate the metadata which is assigned in locals scope, such as "\n or \' in metadata"
+                locals['instantiated_sentence'] = instantiated_sentence
+                return eval('instantiated_sentence', globals(), locals)
+            except Exception as ex2:
                 raise RuntimeException(
                     "The following expression could not be evaluated:\n"
                     "Provided Expression: {}\n"
