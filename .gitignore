@@ -196,6 +196,7 @@ systemtest/testcases_services/test_wcst_import/test_data/*/ingest.json
 systemtest/testcases_services/test_update_properties/data/
 ingest.json
 test.log.save
+systemtest/logtmp
 
 # documentation
 manuals_and_examples/manuals/doc-all/

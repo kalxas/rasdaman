@@ -104,11 +104,7 @@ cleanup()
 {
   drop_data
   print_summary
-  if [ $NUM_FAIL -ne 0 ]; then
-    exit $RC_ERROR
-  else
-    exit $RC_OK
-  fi
+  exit_script
 }
 
 # trap keyboard interrupt (control-c)

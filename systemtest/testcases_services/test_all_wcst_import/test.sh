@@ -229,4 +229,4 @@ done
 
 # print summary from util/common.sh
 print_summary
-exit $RC
+exit_script

@@ -105,4 +105,4 @@ done # end foreach files in folder
 
 # print summary from util/common.sh
 print_summary
-exit $RC
+exit_script

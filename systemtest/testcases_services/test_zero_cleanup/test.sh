@@ -67,4 +67,4 @@ done
 
 log "done."
 print_summary
-exit $RC
+exit_script

@@ -55,4 +55,4 @@ for d in */ ; do
 done
 
 log "done."
-exit $RC
+exit_script

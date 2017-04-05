@@ -64,7 +64,7 @@ do
 
   sleep 0.1
 
-  numb_connection=$(psql -c "SELECT sum(numbackends) FROM pg_stat_database;" -d $PS_DB 2>&1 | awk 'NR==3{print $1}')
+  numb_connection=$(psql -c "SELECT sum(numbackends) FROM pg_stat_database;" -d $PETASCOPE_DB 2>&1 | awk 'NR==3{print $1}')
 
   if [[ $numb_connection == "" || $numb_connection -gt 20 ]]; then
   	fixed=no

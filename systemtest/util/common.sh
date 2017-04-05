@@ -822,8 +822,8 @@ run_test()
         else
           # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
           # here we compare the metadata and statistic values on output and oracle files directly
-          gdalinfo -approx_stats "$out" > "$output_tmp"
-          gdalinfo -approx_stats "$oracle" > "$oracle_tmp"
+          gdalinfo -approx_stats "$out" > "$output_tmp" 2> /dev/null
+          gdalinfo -approx_stats "$oracle" > "$oracle_tmp" 2> /dev/null
 
           # remove the gdalinfo tmp file
           rm -f "$out"".aux.xml"
@@ -881,6 +881,18 @@ run_test()
     if [ $? -ne 0 ]; then
       log "warning: post script failed execution - $post_script"
     fi
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# exit test script with/without error code
+#
+exit_script()
+{
+  if [ $NUM_FAIL -ne 0 ]; then
+    exit $RC_ERROR
+  else
+    exit $RC_OK
   fi
 }
 
