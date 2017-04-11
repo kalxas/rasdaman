@@ -235,8 +235,8 @@ class AbstractToCoverageConverter:
                     ceil_nill_value = int(math.ceil(float(nil_value)))
 
                     if ceil_nill_value > 9223372036854775807 or floor_nill_value < -9223372036854775808:
-                        log.info("\033[1mBand: {} has NilValue: \x1b[0m {} bigger than Long type, "
-                                 "so ignore nilValue of this band.".format(band.identifier, nil_value))
+                        log.info("\033[1mThe nodata value {} of band {} has been ignored "
+                             "as it cannot be represented as a 64 bit integer.".format(nil_value, band.identifier))
                         return None
 
                     # as nilValue is integer already so only 1 nilValue

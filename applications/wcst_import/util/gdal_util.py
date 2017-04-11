@@ -179,28 +179,21 @@ class GDALGmlUtil:
             # Check if the nil value is an integer and if it is float then split it to 2 integers (e.g: -10.4 -> [-11:-10] as rasdaman does not support floating null values
             # TODO: Remove this check once rasdaman supports floating null values
             is_number = False
-            if nil_value.isdigit():
-                # it avoids the "" and "nan" of nil_value
-                is_number = True
-            elif nil_value != "nan" and nil_value != "" and float(nil_value):
-                # it check the "3e+8" of nil_value
+            if nil_value != "nan" and nil_value != "":
+                # if string is not nan or "", so just consider it is a float number
+                nil_value = float(nil_value)
                 is_number = True
 
             if is_number:
-                # Because gdal.GetNoDataValue() always return float number, even it is integer (e.g: -9999 then it will return -9999.0) so must check it with regex
-                int_pattern = re.compile(r'^.*\.0$')
-                int_matches = int_pattern.search(nil_value)
-                if int_matches is not None:
-                    # it is an integer
-                    nil_value = str(int(float(nil_value)))
+                floor_nill_value = int(math.floor(float(nil_value)))
+                ceil_nill_value = int(math.ceil(float(nil_value)))
+
+                if ceil_nill_value > 9223372036854775807 or floor_nill_value < -9223372036854775808:
+                    log.info("\033[1mThe nodata value {} of band {} has been ignored "
+                             "as it cannot be represented as a 64 bit integer.".format(nil_value, field_name))
+                    nil_value = None
                 else:
-                    # it is a float number then split it to 2 integers (floor:ceil)
-                    float_value =  float(nil_value)
-                    if float_value > 9223372036854775807 or float_value < -9223372036854775808:
-                        log.info("\033[1mNilValue of importing file: \x1b[0m " + str(float_value) + " is too big for integer, it will not set nilValue.")
-                        nil_value = None
-                    else:
-                        nil_value =  str(int(math.floor(float_value))) + ":" + str(int(math.ceil(float_value)))
+                     nil_value = str(floor_nill_value) + ":" + str(ceil_nill_value)
             else:
                 # Band does not contain any nodata_value, then check if nullvalue is specified in ingredient file
                 dfn = ConfigManager.default_null_values
