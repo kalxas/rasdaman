@@ -57,6 +57,9 @@ public class StringUtil {
 
     public static String START_DIGIT_REGEXP = "^\\d+=.+";
 
+    // substring from full uri to get the service uri (e.g: localhost:8080/def/crs/epsg/0/4326 returns localhost:8080/def/)
+    public static String SERVICE_URI_REGEXP = "(http|https)://.*?/.*?/";
+
     private static final ScriptEngineManager engineManager;
     private static final ScriptEngine engine;
 
@@ -191,7 +194,7 @@ public class StringUtil {
      * @param targetVersionNumber
      * @return
      */
-    public static String replaceVersionNumber(String s, String targetVersionNumber) {
+    public static String replaceVersionNumber(String s, String targetVersionNumber) throws SecoreException {
         String stripDef = stripDef(s);
         // e.g: crs/EPSG/0/4326
         String[] tmp = stripDef.split(REST_SEPARATOR);
@@ -230,30 +233,22 @@ public class StringUtil {
     }
 
     /**
-     * Return the service substring from a URL
-     * @param s
-     * @return (e.g: http://opengis.net/def/)
+     * Return the substring from full uri to get the service uri 
+     * (e.g: localhost:8080/def/crs/epsg/0/4326 returns localhost:8080/def/)
+     * @param uri the url
+     * @return 
      */
-    public static String getServiceUri(String s) {
-        String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
-        String ret = s;
-        if (s.contains(servletContext)) {
-            ret = s.substring(0, s.indexOf(servletContext) + servletContext.length());
-        } else if (isUrn(s)) {
-            ret = SERVICE_URI;
-            if (!ret.endsWith(REST_SEPARATOR)) {
-                ret += REST_SEPARATOR;
-            }
-            if (!ret.endsWith(servletContext)) {
-                ret += servletContext;
-            }
-        } else if (s.startsWith(LOCAL_URI)) {
-            ret = LOCAL_URI;
-        } else if (!s.startsWith(HTTP_PREFIX)) {
-            ret = Constants.EMPTY;
-        }
-        ret = wrapUri(ret);
-        return ret;
+    public static String getServiceUri(String uri) throws SecoreException {        
+        String serviceUri = null;
+        Pattern regex = Pattern.compile(SERVICE_URI_REGEXP);
+        Matcher regexMatcher = regex.matcher(uri);
+        if (regexMatcher.find()) {
+            serviceUri = regexMatcher.group();
+        } else {
+            throw new SecoreException(ExceptionCode.InvalidRequest, "The requested service URI is not valid: " + serviceUri);
+        }        
+
+        return serviceUri;
     }
 
     /**
@@ -262,7 +257,7 @@ public class StringUtil {
      *
      * @param uri a URN to be converted into a URI
      */
-    public static String convertUrnToUrl(String uri) {
+    public static String convertUrnToUrl(String uri) throws SecoreException {
         String ret = getServiceUri(uri);
 
         uri = StringUtil.stripDef(uri);
