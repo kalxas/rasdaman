@@ -62,6 +62,20 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         expression = expression.replace("netcdf:", "").replace(self.PREFIX, "").replace(self.POSTFIX, "")
         return self._resolve(expression, evaluator_slice.get_dataset())
 
+    def __calculate_netcdf_resolution(self, coordinates):
+        """
+        Calculate the resolution for regular axis when "resolution" value is specified in the ingredient file as expression
+        e.g: "resolution": "${netcdf:variable:lon:resolution}"
+        GDAL and GRIB have their specified variables to get the resolution from file whilst netCDF does not have such method
+        :param list coordinates: the list of coordinates of an axis
+        :return: decimal: the resolution of this axis
+        """
+        total = len(coordinates)
+        # (lastPoint - firstPoint) / (totalPixels - 1)
+        resolution = (coordinates[-1] - coordinates[0]) / (total - 1)
+
+        return resolution
+
     def _apply_operation(self, variable, operation):
         """
         Applies operation on a given variable which contains a list of values (e.g: lat = [0, 1, 2, 3,...]),
@@ -90,6 +104,11 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             return array[last_index]
         elif operation == "first":
             return array[0]
+        elif operation == "resolution":
+            # NOTE: only netCDF needs this expression to calculate resolution automatically
+            # for GDAL: it uses: ${gdal:resolutionX} and GRIB: ${grib:jDirectionIncrementInDegrees} respectively
+            resolution = self.__calculate_netcdf_resolution(array)
+            return resolution
         else:
             try:
                 return variable.__getattribute__(operation)
