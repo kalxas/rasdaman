@@ -460,6 +460,8 @@ public class CrsComputer {
     // we also add a very small acceptable epsilon to avoid case when coefficient does not exist
     // e.g: coeffcient (double) in database is 0.0, calculated coefficient (BigDecimal) is 0.0000000001
     public static final BigDecimal COEFFICIENT_DECIMAL_EPSILON = new BigDecimal("0.0000000001");
+    // The resolution from files can be different but only within the [axis resolution - epsilon, axis resolution + epsilon]
+    public static final BigDecimal AXIS_RESOLUTION_EPSILION = new BigDecimal("0.00000001");
     private final String axisName;
     private final String crsName;
     private ParsedSubset<String> subset;

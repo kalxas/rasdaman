@@ -36,8 +36,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.Vectors;
+import petascope.wcps2.util.CrsComputer;
 
 /**
  * Validator for the UpdateCoverage request, following the requirements of WCS-T specs.
@@ -174,7 +176,7 @@ public class UpdateCoverageValidator {
      * Checks if a coverage contains an offset vector.
      * @return true if it does, false otherwise
      */
-    private boolean checkIfCoverageContainsResolution(CoverageMetadata coverageMetadata, BigDecimal resolution) {
+    private boolean checkIfCoverageContainsResolution(CoverageMetadata coverageMetadata, BigDecimal inputResolution) {
         Iterator<Entry<List<BigDecimal>, BigDecimal>> axisIterator = coverageMetadata.getGridAxes().entrySet().iterator();
         while (axisIterator.hasNext()) {
             Entry<List<BigDecimal>, BigDecimal> axisEntry = axisIterator.next();
@@ -183,8 +185,12 @@ public class UpdateCoverageValidator {
             //no point in checking again, just asserting.
             assert axisOffsetIndexList.size() == 1;
 
-            BigDecimal nonZeroComponent = axisEntry.getKey().get(axisOffsetIndexList.get(0));
-            if (nonZeroComponent.equals(resolution)) {
+            BigDecimal axisResolution = axisEntry.getKey().get(axisOffsetIndexList.get(0));
+            
+            // NOTE: resolution from the files can be different and accept with a small epsilion
+            // e.g: 2.1111111111111111 and 2.11111111111112 or 2.111111111111110 is the same            
+            if ( (axisResolution.abs().subtract(inputResolution.abs())).abs()
+                 .compareTo(CrsComputer.AXIS_RESOLUTION_EPSILION) <= 0 ) {
                 return true;
             }
         }
