@@ -45,6 +45,13 @@ class GDALGmlUtil:
         if self.gdal_dataset is None:
             raise RuntimeException("The file at path " + gdal_file_path + " is not a valid GDAL decodable file.")
 
+    def get_filepath(self):
+        """
+        Returns the file path to current gdal file
+        :return: str
+        """
+        return self.gdal_file_path
+
     def get_offset_vectors(self):
         """
         Returns the offset vectors for the coverage calculated from the dataset

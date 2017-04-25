@@ -54,20 +54,24 @@ class FileEvaluatorSlice(EvaluatorSlice):
 
 
 class GDALEvaluatorSlice(FileEvaluatorSlice):
-    def __init__(self, gdal_dataset):
+    def __init__(self, gdal_file):
         """
-        A gdal backed slice
-        :param GDALGmlUtil gdal_dataset: the gdal dataset
+        Returns a gdal backed slice
+        :param gdal_file: the path to the gdal file
         """
-        FileEvaluatorSlice.__init__(self, File(gdal_dataset.gdal_file_path))
-        self.gdal_dataset = gdal_dataset
+        FileEvaluatorSlice.__init__(self, gdal_file)
 
     def get_dataset(self):
         """
-        Returns the gdal dataset
-        :rtype: EvaluatorGDALSlice
+        Returns the dataset of the file
+        NOTE: gdal cannot open too many files (1989 files with error too many file opens)
+        when getting dataset object and store inside list, so only open dataset when it is needed.
+        :rtype: gdal Dataset
         """
-        return self.gdal_dataset
+        if isinstance(self.get_file(), GDALGmlUtil):
+            return self.get_file()
+        else:
+            return GDALGmlUtil(self.get_file().filepath)
 
 
 class GribMessageEvaluatorSlice(FileEvaluatorSlice):

@@ -45,7 +45,7 @@ class EvaluatorSliceFactory:
 
         if recipe_type == GdalToCoverageConverter.RECIPE_TYPE:
             # NOTE: warp file to a wrapper class as old GDAL recipes
-            evaluator_slice = GDALEvaluatorSlice(GDALGmlUtil(slice_file.filepath))
+            evaluator_slice = GDALEvaluatorSlice(slice_file)
         elif recipe_type == NetcdfToCoverageConverter.RECIPE_TYPE:
             evaluator_slice = NetcdfEvaluatorSlice(slice_file)
         elif recipe_type == GRIBToCoverageConverter.RECIPE_TYPE:

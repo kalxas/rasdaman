@@ -25,6 +25,7 @@ from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
 from master.evaluator.evaluator_slice import GDALEvaluatorSlice
 from master.helper.user_band import UserBand
+from util.gdal_util import GDALGmlUtil
 
 
 class GdalExpressionEvaluator(ExpressionEvaluator):
@@ -69,7 +70,7 @@ class GdalExpressionEvaluator(ExpressionEvaluator):
             value = gdal_dataset.get_metadata_tag(expression.replace("metadata:", ""))
         else:
             user_bands = []
-            for band in gdal_dataset.get_fields_range_type():
+            for band in GDALGmlUtil.get_fields_range_type(gdal_dataset):
                 user_bands.append(UserBand(band.field_name, "", band.uom_code, "", band.nill_values))
 
             gdal_dictionary = {
