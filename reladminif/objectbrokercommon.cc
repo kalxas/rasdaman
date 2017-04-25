@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include <set>
 #include <cstring>
 #include <cstdlib>
+#include <malloc.h>
 
 #include "raslib/minterval.hh"
 #include "objectbroker.hh"
@@ -648,6 +649,10 @@ ObjectBroker::clearBroker() throw (r_Error)
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBMINTERVALOID));
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::BLOBOID));
     theTileIndexMappings.clear();
+
+    // It seems that free() doesn't always fully release the memory.
+    // The malloc_trim(0) below will attempt to release free memory from the top of the heap.
+    malloc_trim(0);
 }
 
 DBObjectPMap&
