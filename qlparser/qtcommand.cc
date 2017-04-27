@@ -57,56 +57,74 @@ const string QtCommand::tmpMddTypePrefix = string("autoMdd-");
 const string QtCommand::tmpSetTypePrefix = string("autoSet-");
 
 
-QtCommand::QtCommand(QtCommandType initCommand, const std::string& initCollection, const std::string& initType)
+QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollection, const std::string& initType)
     : QtExecute(),
       command(initCommand),
-      collectionName(initCollection),
+      collection(initCollection),
       typeName(initType),
       childNode(NULL)
 {
+	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
+  	{
+    	LFATAL << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+    	parseInfo.setErrorNo(499);
+    	throw parseInfo; 
+  	}
 }
 
 
 
-QtCommand::QtCommand(QtCommandType initCommand, const std::string& initCollection)
+QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollection)
     : QtExecute(),
       command(initCommand),
-      collectionName(initCollection),
+      collection(initCollection),
       childNode(NULL)
 {
+	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
+  	{
+    	LFATAL << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+    	parseInfo.setErrorNo(499);
+    	throw parseInfo; 
+  	}
 }
 
 
 
-QtCommand::QtCommand(QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection)
+QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollection, QtOperationIterator* collectionitr)
     : QtExecute(),
       command(initCommand),
-      collectionName(initCollection),
-      childNode(collection)
+      collection(initCollection),
+      childNode(collectionitr)
 {
+	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
+  	{
+    	LFATAL << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+    	parseInfo.setErrorNo(499);
+    	throw parseInfo; 
+  	}
 }
 
-void QtCommand::dropCollection(string collectionName2)
+void QtCommand::dropCollection(const QtCollection& collection2)
 {
     if (currentClientTblElt)
     {
         // drop the actual collection
-        if (!MDDColl::dropMDDCollection(collectionName2.c_str()))
+        if (!MDDColl::dropMDDCollection(collection2.getCollectionName().c_str()))
         {
-            LFATAL << "Error during query evaluation: collection name not found: " << collectionName.c_str();
+            LFATAL << "Error during query evaluation: collection name not found: " << collection.getCollectionName().c_str();
             parseInfo.setErrorNo(957);
             throw parseInfo;
         }
 
         // if this collection was created using a SELECT INTO statement, then delete the temporary datatypes as well
-        string setName = tmpSetTypePrefix + collectionName2;
-        string mddName = tmpMddTypePrefix + collectionName2;
+        string setName = tmpSetTypePrefix + collection2.getCollectionName();
+        string mddName = tmpMddTypePrefix + collection2.getCollectionName();
         TypeFactory::deleteTmpSetType(setName.c_str());
         TypeFactory::deleteTmpMDDType(mddName.c_str());
     }
 }
 
-OId QtCommand::createCollection(string collectionName2, string typeName2)
+OId QtCommand::createCollection(const QtCollection& collection2, string typeName2)
 {
     // allocate a new oid within the current db
     OId oid = 0;
@@ -126,7 +144,7 @@ OId QtCommand::createCollection(string collectionName2, string typeName2)
 #endif
                 try
                 {
-                    MDDColl* coll = MDDColl::createMDDCollection(collectionName2.c_str(), oid, collType);
+                    MDDColl* coll = MDDColl::createMDDCollection(collection2.getCollectionName().c_str(), oid, collType);
                     delete coll;
                     coll = NULL;
                 }
@@ -179,8 +197,8 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     MDDType* mddType = NULL;
     SetType* setType = NULL;
 
-    string setTypeName = tmpSetTypePrefix + collectionName;
-    string mddTypeName = tmpMddTypePrefix + collectionName;
+    string setTypeName = tmpSetTypePrefix + collection.getCollectionName();
+    string mddTypeName = tmpMddTypePrefix + collection.getCollectionName();
 
     if (firstResult->getDataType() == QT_MDD)
     {
@@ -213,13 +231,13 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     return string(setTypeName);
 }
 
-void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionName2)
+void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& collection2)
 {
     vector<QtData*>::iterator it;
     for (it = data->begin(); it != data->end(); it++)
     {
         QtData* elemToInsert = *it;
-        QtInsert* insertNode = new QtInsert(collectionName2, elemToInsert);
+        QtInsert* insertNode = new QtInsert(collection2.getCollectionName(), elemToInsert);
 
         QueryTree* query = new QueryTree(insertNode);
         try
@@ -247,11 +265,11 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionNam
     }
 }
 
-bool QtCommand::collectionExists(string collectionName2)
+bool QtCommand::collectionExists(const QtCollection& collection2)
 {
     try
     {
-        MDDColl* coll = MDDColl::getMDDCollection(collectionName2.c_str());
+        MDDColl* coll = MDDColl::getMDDCollection(collection2.getCollectionName().c_str());
         if (coll)
         {
             delete coll;
@@ -277,10 +295,10 @@ QtCommand::evaluate()
     switch (command)
     {
     case QT_DROP_COLLECTION:
-        dropCollection(collectionName);
+        dropCollection(collection);
         break;
     case QT_CREATE_COLLECTION:
-        createCollection(collectionName, typeName);
+        createCollection(collection, typeName);
         break;
     case QT_COMMIT:
         TileCache::clear();
@@ -329,9 +347,9 @@ QtCommand::evaluate()
                 LTRACE << "evaluate() - selected result size: " << data->size();
             }
 
-            if (collectionExists(collectionName))
+            if (collectionExists(collection))
             {
-                LWARNING << "Warning: inserting into an existing collection " << collectionName;
+                LWARNING << "Warning: inserting into an existing collection " << collection.getCollectionName();
             }
             else
             {
@@ -343,15 +361,15 @@ QtCommand::evaluate()
                 /*
                  * 3/4: Create a new collection.
                  */
-                createCollection(collectionName, collectionType);
-                LTRACE << "evaluate() - created collection " << collectionName << " with type " << collectionType;
+                createCollection(collection, collectionType);
+                LTRACE << "evaluate() - created collection " << collection.getCollectionName() << " with type " << collectionType;
             }
 
             /*
              * 4/4: Insert the data into the new collection
              */
-            insertIntoCollection(data, collectionName);
-            LTRACE << "evaluate() - data successfully inserted into collection " << collectionName;
+            insertIntoCollection(data, collection);
+            LTRACE << "evaluate() - data successfully inserted into collection " << collection.getCollectionName();
         }
         catch (r_Ebase_dbms& myErr)
         {
@@ -398,13 +416,13 @@ QtCommand::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildTy
     switch (command)
     {
     case QT_DROP_COLLECTION:
-        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  drop collection("   << collectionName.c_str() << ")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  drop collection("   << collection.getCollectionName().c_str() << ")";
         break;
     case QT_CREATE_COLLECTION:
-        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  create collection(" << collectionName.c_str() << ", " << typeName.c_str() << ")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  create collection(" << collection.getCollectionName().c_str() << ", " << typeName.c_str() << ")";
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
-        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  select into(" << collectionName.c_str() << ", " << typeName.c_str() << ")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  select into(" << collection.getCollectionName().c_str() << ", " << typeName.c_str() << ")";
         break;
     default:
         s << "<command unknown>";
@@ -425,15 +443,15 @@ QtCommand::printAlgebraicExpression(std::ostream& s)
     switch (command)
     {
     case QT_DROP_COLLECTION:
-        s << "drop collection("   << collectionName.c_str() << ")";
+        s << "drop collection("   << collection.getCollectionName().c_str() << ")";
         break;
     case QT_CREATE_COLLECTION:
-        s << "create collection(" << collectionName.c_str() << ", " << typeName.c_str() << ")";
+        s << "create collection(" << collection.getCollectionName().c_str() << ", " << typeName.c_str() << ")";
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
         s << "select ";
         childNode->printAlgebraicExpression(s);
-        s << " into " << collectionName.c_str() << ", " << typeName.c_str() << ")";
+        s << " into " << collection.getCollectionName().c_str() << ", " << typeName.c_str() << ")";
         break;
     default:
         s << "unknown";

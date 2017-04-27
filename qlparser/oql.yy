@@ -34,6 +34,7 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/oql.y,v 1.95 2006/01/03 00:21:40 rasdev Exp $";
 
 #include "config.h"
+#include "qlparser/qtcollection.hh"
 #include "qlparser/qtconversion.hh"
 #include "qlparser/qtmarrayop.hh"
 #include "qlparser/qtcondense.hh"
@@ -210,6 +211,11 @@ struct QtUpdateSpecElement
   	ParseInfo *info;
   }	tilingType;
 
+  struct {
+	QtCollection* value;
+	ParseInfo *info;
+  } qtCollection;
+
 }
 
 %token <identifierToken> Identifier TypeName
@@ -267,8 +273,10 @@ struct QtUpdateSpecElement
 %type <castTypes>	      castType
 %type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl createType dropType
 
-%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent createTypeName
-			      marrayVariable condenseVariable
+%type <qtCollection>		  namedCollection
+
+%type <identifierToken>       collectionIterator typeName attributeIdent createTypeName
+			      marrayVariable condenseVariable hostName
 
 // literal data
 %type <qtDataValue>           generalLit mddLit oidLit
@@ -321,7 +329,7 @@ commitExp: COMMIT
 	  }
 
 	  // create the command node
-	  QtCommand* commandNode = new QtCommand( QtCommand::QT_COMMIT, "dummy" );
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_COMMIT, QtCollection("dummy") );
 	  commandNode->setParseInfo( *($1.info) );
 	  
 	  // set insert node  as root of the Query Tree
@@ -342,14 +350,14 @@ createExp: CREATE COLLECTION namedCollection typeName
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
-	    FREESTACK($3)
+		FREESTACK($3)
 	    FREESTACK($4)
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
 
 	  // create the command node
-	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION, $3.value, $4.value );
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION, *($3.value), $4.value );
 	  commandNode->setParseInfo( *($1.info) );
 	  
 	  // set insert node  as root of the Query Tree
@@ -373,13 +381,13 @@ dropExp: DROP COLLECTION namedCollection
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($2)
-	    FREESTACK($3)
+			FREESTACK($3)
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
 
 	  // create the command node
-	  QtCommand* commandNode = new QtCommand( QtCommand::QT_DROP_COLLECTION, $3.value );
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_DROP_COLLECTION, *($3.value) );
 	  commandNode->setParseInfo( *($1.info) );
 	  
 	  // set insert node  as root of the Query Tree
@@ -387,7 +395,7 @@ dropExp: DROP COLLECTION namedCollection
 	  	  
 	  FREESTACK($1)
 	  FREESTACK($2)
-	  FREESTACK($3)
+	  FREESTACK($3);
 	};
 
 selectIntoExp:
@@ -403,7 +411,7 @@ selectIntoExp:
             parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
-            FREESTACK($3)
+			FREESTACK($3)
             FREESTACK($5)
             FREESTACK($7)
             QueryTree::symtab.wipe();
@@ -441,7 +449,7 @@ selectIntoExp:
 	  parseQueryTree->removeDynamicObject( $2 );
 
 	  // And finally create a QtCommand that creates the final collection
-	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, $4.value, oi );
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, *($4.value), oi );
 
 	  commandNode->setParseInfo( *($3.info) );
 	  
@@ -492,7 +500,7 @@ selectIntoExp:
 	  parseQueryTree->removeDynamicObject( $2 );
 	  
 	  // And finally create a QtCommand that creates the final collection
-	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, $4.value, oi );
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, *($4.value), oi );
 	  commandNode->setParseInfo( *($3.info) );
 	  
 	  // set QtCommand create node  as root of the Query Tree
@@ -769,14 +777,14 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
-	    FREESTACK($3)
+		FREESTACK($3)
 	    FREESTACK($4)
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
 
 	  // create an update node
-	  QtInsert* insert = new QtInsert( $3.value, $5 );
+	  QtInsert* insert = new QtInsert( *($3.value), $5 );
 	  insert->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $5 );
 	  
@@ -801,14 +809,14 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
-	    FREESTACK($3)
+		FREESTACK($3)
 	    FREESTACK($4)
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
 
 	  // create an update node
-	  QtInsert* insert = new QtInsert( $3.value, $5 ,$6);
+	  QtInsert* insert = new QtInsert( *($3.value), $5 ,$6);
 	  insert->setParseInfo( *($1.info) );
 	  parseQueryTree->removeDynamicObject( $5 );
 
@@ -2699,26 +2707,30 @@ collectionList: collectionList COMMA iteratedCollection
 
 iteratedCollection: namedCollection AS collectionIterator
 	{
-	  $$ = new QtMDDAccess( $1.value, $3.value );
+	  $$ = new QtMDDAccess( *($1.value), $3.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
+	  
+
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  FREESTACK($3)
 	}
 	| namedCollection collectionIterator
 	{
-	  $$ = new QtMDDAccess( $1.value, $2.value );
+	  $$ = new QtMDDAccess( *($1.value), $2.value );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
+
 	  FREESTACK($1)
 	  FREESTACK($2)
 	}
 	| namedCollection   
 	{
-	  $$ = new QtMDDAccess( $1.value, $1.value );
+	  $$ = new QtMDDAccess( *($1.value), $1.value->getCollectionName() );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
+
 	  FREESTACK($1)
 	};
 
@@ -2730,7 +2742,37 @@ variable: Identifier
 	  FREESTACK($1)
 	};
 
-namedCollection: Identifier;
+
+
+namedCollection: hostName COLON IntegerLit COLON Identifier
+	{
+	  $$.value = new QtCollection($1.value,$3.svalue,$5.value);
+	  $$.info = $1.info;
+
+	  string parsedToken = $1.info->getToken()+"\":"+$3.info->getToken() + ":" + $5.info->getToken();
+	  $$.info->setToken(parsedToken);
+
+	  FREESTACK($2)
+	  FREESTACK($3)
+	  FREESTACK($4)
+	  FREESTACK($5)
+	}
+	| Identifier
+	{
+	  $$.value = new QtCollection($1.value);
+	  $$.info = $1.info;  
+	}
+
+hostName: Identifier
+	{
+	  $$ = $1;
+	}
+	| StringLit			
+	{ 
+	  $$.value = $1.value; 
+	  $$.info = $1.info; 
+	};
+	       
 
 collectionIterator: Identifier;
 

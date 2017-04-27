@@ -1,6 +1,7 @@
 #ifndef __QTINSERT_HH__
 #define __QTINSERT_HH___
 
+#include "qlparser/qtcollection.hh"
 #include "qlparser/qtexecute.hh"
 #include "qlparser/qtoperation.hh"
 #include "qlparser/qtmddconfig.hh"
@@ -56,13 +57,13 @@ rasdaman GmbH.
 class QtInsert : public QtExecute
 {
 public:
-    /// constructor getting name of collection and insert expression
-    QtInsert(const std::string& initCollectionName, QtOperation* initSource);
+    /// constructor getting collection and insert expression
+    QtInsert(const QtCollection& initCollection, QtOperation* initSource);
 
-    QtInsert(const std::string& initCollectionName, QtOperation* initSource, QtOperation* storage);
+    QtInsert(const QtCollection& initCollection, QtOperation* initSource, QtOperation* storage);
 
-    /// constructor getting name of collection and data to insert
-    QtInsert(const std::string& initCollectionName, QtData* data);
+    /// constructor getting collection and data to insert
+    QtInsert(const QtCollection& initCollection, QtData* data);
 
     /// virtual destructor
     virtual ~QtInsert();
@@ -111,8 +112,8 @@ private:
     // Storage and Tiling type
     QtOperation* stgLayout;
 
-    /// collection name
-    std::string collectionName;
+    /// collection 
+    QtCollection collection;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

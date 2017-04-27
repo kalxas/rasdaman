@@ -1,6 +1,7 @@
 #ifndef __QTCOMMAND_HH__
 #define __QTCOMMAND_HH___
 
+#include "qlparser/qtcollection.hh"
 #include "qlparser/qtexecute.hh"
 #include "qlparser/qtoperationiterator.hh"
 #include "qlparser/querytree.hh"
@@ -60,13 +61,13 @@ public:
     };
 
     /// constructor getting command, collection and type name (create collection)
-    QtCommand(QtCommandType initCommand, const std::string& initCollection, const std::string& initType);
+    QtCommand(QtCommandType initCommand, const QtCollection& initCollection, const std::string& initType);
 
     /// constructor getting command and collection name (drop collection)
-    QtCommand(QtCommandType initCommand, const std::string& initCollection);
+    QtCommand(QtCommandType initCommand, const QtCollection& initCollection);
 
     /// constructor getting command, collection name and query tree node (create collection from query result)
-    QtCommand(QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection);
+    QtCommand(QtCommandType initCommand, const QtCollection& initCollection, QtOperationIterator* collection);
 
     /// method for evaluating the node
     virtual QtData* evaluate();
@@ -86,19 +87,19 @@ public:
 private:
 
     /// create a collection
-    OId createCollection(std::string collectionName, std::string typeName);
+    OId createCollection(const QtCollection& collection, std::string typeName);
 
     /// drop a given collection
-    void dropCollection(std::string collectionName);
+    void dropCollection(const QtCollection& collection);
 
     /// Creates a datatype from query results. Returns the type name of the new collection.
     std::string getSelectedDataType(std::vector<QtData*>* data);
 
     /// Inserts evaluated "data" into the given collection
-    void insertIntoCollection(std::vector<QtData*>* data, std::string collectionName);
+    void insertIntoCollection(std::vector<QtData*>* data, const QtCollection& collection);
 
     /// Returns true if a collection exists with the given name
-    bool collectionExists(std::string collectionName);
+    bool collectionExists(const QtCollection& collection);
 
     /// command type
     QtCommandType command;
@@ -107,7 +108,7 @@ private:
     static const QtNodeType nodeType;
 
     /// collection name for drop/create collection
-    std::string collectionName;
+    QtCollection collection;
 
     /// type name for create collection
     std::string typeName;

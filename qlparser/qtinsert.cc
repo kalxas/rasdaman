@@ -76,22 +76,40 @@ extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 
-QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource)
-    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(NULL), collectionName(initCollectionName)
+QtInsert::QtInsert(const QtCollection& initCollection, QtOperation* initSource)
+    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(NULL), collection(initCollection)
 {
     source->setParent(this);
+	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
+  	{
+    	LFATAL << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+    	parseInfo.setErrorNo(499);
+    	throw parseInfo; 
+  	}
 }
 
-QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource, QtOperation* storage)
-    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(storage), collectionName(initCollectionName)
+QtInsert::QtInsert(const QtCollection& initCollection, QtOperation* initSource, QtOperation* storage)
+    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(storage), collection(initCollection)
 {
     source->setParent(this);
+	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
+  	{
+    	LFATAL << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+    	parseInfo.setErrorNo(499);
+    	throw parseInfo; 
+  	}
 }
 
 /// constructor getting name of collection and data to insert
-QtInsert::QtInsert(const std::string& initCollectionName, QtData* data)
-    : QtExecute(), source(NULL), dataToInsert(data), stgLayout(NULL), collectionName(initCollectionName)
+QtInsert::QtInsert(const QtCollection& initCollection, QtData* data)
+    : QtExecute(), source(NULL), dataToInsert(data), stgLayout(NULL), collection(initCollection)
 {
+	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
+  	{
+    	LFATAL << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+    	parseInfo.setErrorNo(499);
+    	throw parseInfo; 
+  	}
 }
 
 QtInsert::~QtInsert()
@@ -155,7 +173,7 @@ QtInsert::evaluate()
 
         try
         {
-            almost = MDDColl::getMDDCollection(collectionName.c_str());
+            almost = MDDColl::getMDDCollection(collection.getCollectionName().c_str());
         }
         catch (...)
         {

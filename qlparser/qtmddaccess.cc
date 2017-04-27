@@ -59,24 +59,23 @@ extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtMDDAccess::nodeType = QT_MDD_ACCESS;
 
-QtMDDAccess::QtMDDAccess(const string& collectionNameNew)
-    :  QtONCStream(),
-       collectionName(collectionNameNew),
-       mddColl(NULL),
-       mddIter(NULL)
+QtMDDAccess::QtMDDAccess(const QtCollection& collectionNew)
+	:  QtONCStream(),
+	   collection(collectionNew),
+	   mddColl(NULL),
+	   mddIter(NULL)
 {
 }
 
-
-QtMDDAccess::QtMDDAccess(const string& collectionNameNew, const string& initName)
-    :  QtONCStream(),
-       collectionName(collectionNameNew),
-       iteratorName(initName),
-       mddColl(NULL),
-       mddIter(NULL)
+QtMDDAccess::QtMDDAccess(const QtCollection& collectionNew, const string& initName)
+	:  QtONCStream(),
+	   collection(collectionNew),
+	   iteratorName(initName),
+	   mddColl(NULL),
+	   mddIter(NULL)
 {
+	
 }
-
 
 QtMDDAccess::~QtMDDAccess()
 {
@@ -208,7 +207,7 @@ QtMDDAccess::printTree(int tab, ostream& s, QtChildType /*mode*/)
     s << getEvaluationTime();
     s << endl;
 
-    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << collectionName.c_str()
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << collection.getCollectionName().c_str()
       << " <- " << iteratorName.c_str() << endl;
 }
 
@@ -217,7 +216,7 @@ QtMDDAccess::printTree(int tab, ostream& s, QtChildType /*mode*/)
 void
 QtMDDAccess::printAlgebraicExpression(ostream& s)
 {
-    s << collectionName.c_str() << " as " << iteratorName.c_str() << flush;
+    s << collection.getCollectionName().c_str() << " as " << iteratorName.c_str() << flush;
 }
 
 
@@ -231,9 +230,17 @@ QtMDDAccess::checkType()
     // create the collection and add it to the list in the client table entry
     //
 
+	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
+	{
+		LFATAL << "Error: QtMDDAccess::open(): Non-local collection is unsupported";
+		parseInfo.setErrorNo(499); //to be changed		
+		throw parseInfo; 
+	}
+
+
     try
     {
-        mddColl = MDDColl::getMDDCollection(collectionName.c_str());
+        mddColl = MDDColl::getMDDCollection(collection.getCollectionName().c_str());
 
         if (currentClientTblElt)
         {
@@ -258,7 +265,7 @@ QtMDDAccess::checkType()
     }
     catch (...)
     {
-        LFATAL << "Error: QtMDDAccess::open() collection: " << collectionName.c_str() << " is unknown";
+        LFATAL << "Error: QtMDDAccess::open() collection: " << collection.getCollectionName().c_str() << " is unknown";
         parseInfo.setErrorNo(355);
         throw parseInfo;
     }

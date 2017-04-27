@@ -1,6 +1,7 @@
 #ifndef _QTMDDACCESS_
 #define _QTMDDACCESS_
 
+#include "qlparser/qtcollection.hh"
 #include "qlparser/qtoncstream.hh"
 
 #ifndef CPPSTDLIB
@@ -55,11 +56,12 @@ element.
 class QtMDDAccess : public QtONCStream
 {
 public:
+
     /// constructor getting the collection name if no iterator name is specified
-    QtMDDAccess(const std::string& collectionName);
+	QtMDDAccess(const QtCollection& collection);
 
     /// constructor getting collection and iterator name
-    QtMDDAccess(const std::string& collectionName, const std::string& iteratorName);
+	QtMDDAccess(const QtCollection& collection, const std::string& iteratorName);
 
     /// destructor
     virtual ~QtMDDAccess();
@@ -92,8 +94,9 @@ public:
     virtual const QtTypeTuple& checkType();
 
 private:
-    /// name of the MDD collection
-    std::string collectionName;
+
+	/// QtCollection class
+	QtCollection collection;
 
     /// name of the iterator
     std::string iteratorName;

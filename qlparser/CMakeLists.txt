@@ -48,6 +48,7 @@ add_library(qlparser
         qtcaseequality.hh qtcaseequality.cc
         qtcaseop.hh qtcaseop.cc qtcaseop.icc
         qtcelltypeattributes.hh qtcelltypeattributes.cc
+		qtcollection.hh qtcollection.cc
         qtcommand.hh qtcommand.cc qtcommand.icc
         qtcomplexdata.hh qtcomplexdata.cc qtcomplexdata.icc
         qtconcat.hh qtconcat.cc qtconcat.icc
