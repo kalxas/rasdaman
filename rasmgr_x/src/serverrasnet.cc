@@ -84,7 +84,10 @@ using rasnet::service::RasServerService;
 
 #define RASEXECUTABLE BINDIR"rasserver"
 
-const boost::uint32_t ServerRasNet::SERVER_CLEANUP_TIMEOUT = 30000;
+// give 3 seconds to rasserver to cleanly shutdown, before killing it with a SIGKILL
+const boost::int32_t ServerRasNet::SERVER_CLEANUP_TIMEOUT = 3000000;
+// 10 milliseconds
+const boost::int32_t ServerRasNet::SERVER_CHECK_INTERVAL = 10000;
 
 ServerRasNet::ServerRasNet(const ServerConfig& config)
 {
@@ -393,11 +396,23 @@ void ServerRasNet::stop(KillLevel level)
             LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
         }
 
-        usleep(SERVER_CLEANUP_TIMEOUT);
-
-        if (kill(this->processId, SIGKILL))
+        // wait until the server process is dead
+        boost::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
+        bool isProcessAlive = true;
+        while (cleanupTimeout > 0 && isProcessAlive)
         {
-            LERROR << "Failed to send SIGKILL to server with ID:" << this->serverId;
+            usleep(SERVER_CHECK_INTERVAL);
+            cleanupTimeout -= SERVER_CHECK_INTERVAL;
+            isProcessAlive = (kill(this->processId, 0) == 0);
+        }
+
+        // if the server is still alive after SERVER_CLEANUP_TIMEOUT, send a SIGKILL
+        if (isProcessAlive)
+        {
+            if (kill(this->processId, SIGKILL))
+            {
+                LERROR << "Failed to send SIGKILL to server with ID:" << this->serverId;
+            }
         }
     }
     break;

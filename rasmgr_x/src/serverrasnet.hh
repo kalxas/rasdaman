@@ -161,7 +161,12 @@ private:
      * The number of microseconds between a SIGTERM signal and a SIGKILL signal sent to the server.
      * This timeout allows the server enough time to cleanup after itself.
     */
-    static const boost::uint32_t SERVER_CLEANUP_TIMEOUT;
+    static const boost::int32_t SERVER_CLEANUP_TIMEOUT;
+    /**
+     * Microseconds to wait between checks on whether the server is still alive
+     */
+    static const boost::int32_t SERVER_CHECK_INTERVAL;
+
     std::string hostName;/*! Hostname of the RasServer process */
     boost::int32_t port;/*! Port of the RasServer process */
     boost::shared_ptr<DatabaseHost> dbHost;/*! Database host to which this server has access */

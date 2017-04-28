@@ -64,7 +64,7 @@ RASMGR_PORT=7001
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 
 # sleep time to let rasmgr establish before spawning servers
-WAIT_FOR_CHILDREN=5
+WAIT_FOR_CHILDREN=1
 
 # error messages:
 ERROR_PARAM="ERS001 Error: illegal parameter: $1"
@@ -116,14 +116,23 @@ rm -f nohup.out
 # start rasdaman server manager as demon; log will go into nohup.out
 # the manager is started in quiet mode
 nohup @bindir@rasmgr --port $RASMGR_PORT & 2>&1
+rasmgr_pid=$!
 
 # --- start servers: -------------------------------------------------
 
 # allow process to establish
 sleep $WAIT_FOR_CHILDREN
 
+# check if rasmgr's pid is actually running; if not, exit with an error.
+# we do it this way, because the exit code cannot be captured with nohup
+ps -p $rasmgr_pid > /dev/null
+if [ $? -ne 0 ]; then
+    echo "$MYNAME: rasmgr failed starting; please check the logs for more information."
+    exit $RC_ERROR
+fi
+
 # these servers will be started:
-if [ $1 ]
+if [ -n "$1" ]
 then
     # parameters provided, take them as server names
     # B: check if parameter's name does not start with -- then it is the server name
@@ -131,14 +140,13 @@ then
     for var in "$@"
     do
         if [[ "$var" != *"--"* ]]; then
-        # this is server name so add to SERVERS
-        SERVERS+="$var"' ';
-            #echo $var
+            # this is server name so add to SERVERS
+            SERVERS+="$var"' '
         fi
     done
 
 else
-    if [ "$RASSERVERS" ]; then
+    if [ -n "$RASSERVERS" ]; then
         SERVERS=$RASSERVERS
     else
         SERVERS=""
@@ -162,6 +170,18 @@ else
     @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv -all || exit $!
 fi
 
+# do a rasql query test to check if rasdaman has started properly
+@bindir@rasql -q 'select version()' --quiet -p $RASMGR_PORT > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "$MYNAME: failed starting rasservers; please check the logs for more information."
+    echo -n "$MYNAME: shutting down rasdaman... "
+    # shut down any rasservers just in case
+    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv -all -kill
+    sleep $WAIT_FOR_CHILDREN
+    # kill rasmgr
+    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all -kill
+    exit $RC_ERROR
+fi
 
 #---------------------------------------------------
 

@@ -48,12 +48,13 @@
 
 MYNAME=`basename $0`
 
+# RETURN CODES
+RC_OK=0        # everything went fine
+RC_ERROR=1    # something went wrong
+
 RASMGR_PORT=7001
 # rasadmin/rasadmin
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
-
-# sleep time to let rasmgr shutdown servers first
-WAIT_FOR_CHILDREN=5
 
 # base DBMS used by petascope
 PETASCOPEDB=@petascopedb@
@@ -68,6 +69,12 @@ JETTY_JAR=jetty.jar
 
 # --- ACTION --------------------------------------------------------
 
+# check if rasmgr is running first of all
+pgrep rasmgr > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo $MYNAME: rasdaman is already down, nothing to do.
+    exit $RC_OK
+fi
 
 echo $MYNAME: terminating all rasdaman servers
 
@@ -90,8 +97,18 @@ done
 
 # --- stop rasmgr: -------------------------------------------------
 
-# give rasserver processes time to disappear
-sleep $WAIT_FOR_CHILDREN
+# give rasserver processes time to disappear (10 second timeout)
+count=0
+while [ $count -lt 100 ]; do
+    pgrep rasserver > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        break # no rasservers found, no need to wait more
+    fi
+    count=$(($count+1))
+    # otherwise, wait 0.1 seconds and try again
+    # if sleep 0.1 fails (0.1 not supported), try sleep 1
+    sleep 0.1 || sleep 1
+done
 
 # finally shut down the server manager
 echo -n "terminating rasdaman server manager(s)..."
