@@ -52,7 +52,16 @@ public class RasMArrayByte extends RasGMArray {
      *  * @param initDomain The initial Domain of the MArray
      */
     public RasMArrayByte(final RasMInterval initDomain) {
-        super(initDomain, SIZE_OF_BYTE);
+        super(initDomain, SIZE_OF_BYTE, false);
+    }
+
+    /**
+     * constructor for uninitialized MDD objects
+     * @param initDomain The initial Domain of the MArray
+     * @param allocateData control whether to allocate the data or not
+     */
+    public RasMArrayByte(final RasMInterval initDomain, boolean allocateData) {
+        super(initDomain, SIZE_OF_BYTE, allocateData);
     }
 
     /**
@@ -61,7 +70,17 @@ public class RasMArrayByte extends RasGMArray {
     * @param RasStorageLayout The storage layout to be used
     */
     public RasMArrayByte(final RasMInterval initDomain, RasStorageLayout stl) {
-        super(initDomain, SIZE_OF_BYTE, stl);
+        super(initDomain, SIZE_OF_BYTE, stl, false);
+    }
+
+    /**
+    * Constructor for uninitialized MDD objects with Storage Layout
+    * @param initDomain The initial Domain of the MArray
+    * @param RasStorageLayout The storage layout to be used
+     * @param allocateData control whether to allocate the data or not
+    */
+    public RasMArrayByte(final RasMInterval initDomain, RasStorageLayout stl, boolean allocateData) {
+        super(initDomain, SIZE_OF_BYTE, stl, allocateData);
     }
 
     /**

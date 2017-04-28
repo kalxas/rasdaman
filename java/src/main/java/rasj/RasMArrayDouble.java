@@ -56,8 +56,18 @@ public class RasMArrayDouble extends RasGMArray {
      * @param initDomain The initial Domain of the MArray
      */
     public RasMArrayDouble(final RasMInterval initDomain) {
-        super(initDomain, SIZE_OF_DOUBLE);
-        objectData = new double[(int)(dataSize / SIZE_OF_DOUBLE)];
+        this(initDomain, true);
+    }
+
+    /**
+     * constructor for uninitialized MDD objects
+     * @param initDomain The initial Domain of the MArray
+     * @param allocateData control whether to allocate the data or not
+     */
+    public RasMArrayDouble(final RasMInterval initDomain, boolean allocateData) {
+        super(initDomain, SIZE_OF_DOUBLE, allocateData);
+        if (allocateData)
+            objectData = new double[(int)(dataSize / SIZE_OF_DOUBLE)];
         data = null;
     }
 
@@ -67,8 +77,19 @@ public class RasMArrayDouble extends RasGMArray {
       * @param RasStorageLayout The storage layout to be used
       */
     public RasMArrayDouble(final RasMInterval initDomain, RasStorageLayout stl) {
-        super(initDomain, SIZE_OF_DOUBLE, stl);
-        objectData = new double[(int)(dataSize / SIZE_OF_DOUBLE)];
+        this(initDomain, stl, true);
+    }
+
+    /**
+      * Constructor for uninitialized MDD objects with Storage Layout
+      * @param initDomain The initial Domain of the MArray
+      * @param RasStorageLayout The storage layout to be used
+      * @param allocateData control whether to allocate the data or not
+      */
+    public RasMArrayDouble(final RasMInterval initDomain, RasStorageLayout stl, boolean allocateData) {
+        super(initDomain, SIZE_OF_DOUBLE, stl, allocateData);
+        if (allocateData)
+            objectData = new double[(int)(dataSize / SIZE_OF_DOUBLE)];
         data = null;
     }
 

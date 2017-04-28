@@ -93,6 +93,16 @@ public class RasGMArray extends RasObject implements RasGlobalDefs {
      * @param cellTypeLength The length of the cell type used
      */
     public RasGMArray(final RasMInterval initDomain, long cellTypeLength) {
+        this(initDomain, cellTypeLength, true);
+    }
+
+    /**
+     * Constructor for uninitialized MDD objects
+     * @param initDomain The initial Domain of the GMArray
+     * @param cellTypeLength The length of the cell type used
+     * @param allocateData control whether to allocate the data or not
+     */
+    public RasGMArray(final RasMInterval initDomain, long cellTypeLength, boolean allocateData) {
         super(RAS_MARRAY);
         data = null;
         objectData = null;
@@ -104,7 +114,8 @@ public class RasGMArray extends RasObject implements RasGlobalDefs {
 
         // If dimensionality is zero, just one scalar value is stored.
         dataSize = ((domain.dimension() != 0) ? domain.cellCount() : 1) * typeLength;
-        data = new byte[(int)dataSize];
+        if (allocateData)
+            data = new byte[(int)dataSize];
         currentCell = new byte[(int)cellTypeLength];
     }
 
@@ -115,6 +126,17 @@ public class RasGMArray extends RasObject implements RasGlobalDefs {
      * @param RasStorageLayout The storage layout to be used
      */
     public RasGMArray(final RasMInterval initDomain,  long cellTypeLength, RasStorageLayout stl) {
+        this(initDomain, cellTypeLength, stl, false);
+    }
+
+    /**
+     * Constructor for uninitialized MDD objects with Storage Layout
+     * @param initDomain The initial Domain of the GMArray
+     * @param cellTypeLength The length of the cell type used
+     * @param RasStorageLayout The storage layout to be used
+     * @param allocateData control whether to allocate the data or not
+     */
+    public RasGMArray(final RasMInterval initDomain,  long cellTypeLength, RasStorageLayout stl, boolean allocateData) {
         super(RAS_MARRAY);
         data = null;
         objectData = null;
@@ -126,7 +148,8 @@ public class RasGMArray extends RasObject implements RasGlobalDefs {
 
         // If dimensionality is zero, just one scalar value is stored.
         dataSize = ((domain.dimension() != 0) ? domain.cellCount() : 1) * typeLength;
-        data = new byte[(int)dataSize];
+        if (allocateData)
+            data = new byte[(int)dataSize];
         currentCell = new byte[(int)cellTypeLength];
     }
 

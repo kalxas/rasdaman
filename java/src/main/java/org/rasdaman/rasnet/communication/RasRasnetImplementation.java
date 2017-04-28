@@ -42,6 +42,7 @@ import rasj.global.RasGlobalDefs;
 import rasj.odmg.*;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -395,33 +396,354 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                     .setData(ByteString.copyFrom(bytes))
                     .build();
 
-            StreamedHttpQueryRepl streamedHttpQueryRepl = this.getRasServerService().beginStreamedHttpQuery(beginStreamedHttpQueryReq);
-
-            String requestUUID = streamedHttpQueryRepl.getUuid();
-            long dataLength = streamedHttpQueryRepl.getDataLength();
-            ByteArrayOutputStream data = new ByteArrayOutputStream((int)dataLength);
-            data.write(streamedHttpQueryRepl.getData().toByteArray());
-
+            StreamedHttpQueryRepl streamedHttpQueryRepl = 
+                    this.getRasServerService().beginStreamedHttpQuery(
+                            beginStreamedHttpQueryReq);
             long bytesLeft = streamedHttpQueryRepl.getBytesLeft();
+            String requestUUID = streamedHttpQueryRepl.getUuid();
 
-            while (bytesLeft > 0) {
+            Debug.enterVerbose("RasNetImplementation.getResponse: start.");
 
-                GetNextStreamedHttpQueryReq nextStreamedHttpQueryReq = GetNextStreamedHttpQueryReq.newBuilder()
-                        .setUuid(requestUUID)
-                        .build();
-                StreamedHttpQueryRepl nextStreamedHttpQueryRepl = this.getRasServerService().getNextStreamedHttpQuery(nextStreamedHttpQueryReq);
+            Object result = null;
+            byte[] currentChunk = streamedHttpQueryRepl.getData().toByteArray();
+            int currentChunkSize = currentChunk.length;
+            ByteArrayInputStream dataByteStream = new ByteArrayInputStream(currentChunk);
+            DataInputStream in = new DataInputStream(dataByteStream);
+            
+            byte[] b1 = new byte[1];
+            byte[] b4 = new byte[4];
+            byte endianess = 0;
+            String collType = null;
+            int numberOfResults = 0;
+            int arraySize = 0;
+            byte[] arrayData = null;
+            int totalReadBytes = 0;
+            int currentlyReadBytes = 0;
+            DBag resultBag;
+            RasGMArray res = null;
+            try {
+                currentChunkSize -= in.read(b1);
+                int resultType = b1[0];
+                switch (resultType) {
+                    case RESPONSE_OK:
+                    case RESPONSE_OK_NEGATIVE:
+                        //Nothing todo
+                        break;
 
-                byte[] nextChunk = nextStreamedHttpQueryRepl.getData().toByteArray();
+                    // +++++++++++++++++++++++++++++++++++++++++++++++++
+                    case RESPONSE_MDDS:
+                        // read Endianess
+                        while (in.read(b1) == 0) ;
+                        --currentChunkSize;
+                        endianess = b1[0];
 
-                bytesLeft = nextStreamedHttpQueryRepl.getBytesLeft();
-                data.write(nextStreamedHttpQueryRepl.getData().toByteArray());
+                        // read Collection Type
+                        collType = RasUtils.readString(in);
+                        currentChunkSize -= (collType.length() + 1);
+
+                        // read NumberOfResults
+                        while (in.available() < 4) ;
+                        currentChunkSize -= in.read(b4);
+                        numberOfResults = RasUtils.ubytesToInt(b4, endianess);
+
+                        // Initialize return-set and parameters
+                        resultBag = new RasBag();
+                        String mddBaseType = null;
+                        String domain = null;
+                        String oid = "";
+                        RasOID roid = null;
+
+                        // do this for each result
+                        for (int x = 0; x < numberOfResults; x++) {
+                            //read mddBaseType
+                            mddBaseType = RasUtils.readString(in);
+                            currentChunkSize -= (mddBaseType.length() + 1);
+
+                            // read spatialDomain
+                            domain = RasUtils.readString(in);
+                            currentChunkSize -= (domain.length() + 1);
+
+                            // read OID
+                            oid = RasUtils.readString(in);
+                            currentChunkSize -= (oid.length() + 1);
+                            roid = new RasOID(oid);
+
+                            // read size of binData
+                            while (in.available() < 4) ;
+                            currentChunkSize -= in.read(b4);
+
+                            arraySize = RasUtils.ubytesToInt(b4, endianess);
+
+                            arrayData = new byte[arraySize];
+                            totalReadBytes = 0;
+                            currentlyReadBytes = 0;
+
+                            while (totalReadBytes < arraySize) {
+                                int bytesToReadFromChunk = Math.min(currentChunkSize, arraySize - totalReadBytes);
+                                currentlyReadBytes = in.read(arrayData, totalReadBytes, bytesToReadFromChunk);
+                                if (currentlyReadBytes == -1) {
+                                    break;
+                                }
+                                totalReadBytes += currentlyReadBytes;
+                                currentChunkSize -= currentlyReadBytes;
+                                
+                                // read next chunk if the current is fully processed already
+                                if (currentChunkSize == 0 && bytesLeft > 0) {
+                                    GetNextStreamedHttpQueryReq nextStreamedHttpQueryReq
+                                            = GetNextStreamedHttpQueryReq.newBuilder()
+                                                    .setUuid(requestUUID).build();
+                                    StreamedHttpQueryRepl nextStreamedHttpQueryRepl
+                                            = this.getRasServerService().getNextStreamedHttpQuery(
+                                                    nextStreamedHttpQueryReq);
+                                    bytesLeft = nextStreamedHttpQueryRepl.getBytesLeft();
+                                    in.close();
+                                    currentChunk = nextStreamedHttpQueryRepl.getData().toByteArray();
+                                    currentChunkSize = currentChunk.length;
+                                    in = new DataInputStream(new ByteArrayInputStream(currentChunk));
+                                    System.gc();
+                                }
+                            }
+                            
+                            // to make sure it doesn't happen that we go into the next loop with a bit too small
+                            // chunk, that cannot cover reading the base type, spatial domain, oid and data size,
+                            // we extend the current chunk if it's smaller than 1000 bytes.
+                            if (bytesLeft > 0 && currentChunkSize < 1000) {
+                                GetNextStreamedHttpQueryReq nextStreamedHttpQueryReq
+                                        = GetNextStreamedHttpQueryReq.newBuilder()
+                                                .setUuid(requestUUID).build();
+                                StreamedHttpQueryRepl nextStreamedHttpQueryRepl
+                                        = this.getRasServerService().getNextStreamedHttpQuery(
+                                                nextStreamedHttpQueryReq);
+                                bytesLeft = nextStreamedHttpQueryRepl.getBytesLeft();
+                                // get next chunk data
+                                ByteString nextChunk = nextStreamedHttpQueryRepl.getData();
+                                int nextChunkSize = nextChunk.size();
+                                // set up new chunk, combined from current and next chunks
+                                int newChunkSize = currentChunkSize + nextChunkSize;
+                                currentChunk = new byte[newChunkSize];
+                                // in first half read the current chunk
+                                in.read(currentChunk, 0, currentChunkSize);
+                                in.close();
+                                // in second half read the next chunk
+                                nextChunk.copyTo(currentChunk, currentChunkSize);
+                                currentChunkSize = newChunkSize;
+                                in = new DataInputStream(new ByteArrayInputStream(currentChunk));
+                                System.gc();
+                            }
+
+                            RasType rType = RasType.getAnyType(mddBaseType);
+                            RasBaseType rb = null;
+
+                            if (rType.getClass().getName().equals("rasj.RasMArrayType")) {
+                                RasMArrayType tmp = (RasMArrayType) rType;
+                                rb = tmp.getBaseType();
+                            } else {
+                                Debug.talkCritical("RasNetImplementation.getResponse: collection element is no MArray.");
+                                Debug.leaveVerbose("RasNetImplementation.getResponse: done, with exception.");
+                                throw new RasClientInternalException("RasHttpRequest", 
+                                        "execute()", "element of MDD Collection is no MArray");
+                            }
+                            if (rb.isBaseType()) {
+                                if (rb.isStructType()) {
+                                    RasStructureType sType = (RasStructureType) rb;
+                                    res = new RasGMArray(new RasMInterval(domain), 0, false);
+                                    res.setTypeLength(rb.getSize());
+                                    res.setArraySize(arraySize);
+                                    res.setArray(arrayData);
+                                    res.setTypeStructure(mddBaseType);
+                                    //insert into result set
+                                    resultBag.add(res);
+                                } else {
+                                    // It is a primitiveType
+                                    RasPrimitiveType pType = (RasPrimitiveType) rb;
+                                    switch (pType.getTypeID()) {
+                                        case RAS_BOOLEAN:
+                                        case RAS_BYTE:
+                                        case RAS_CHAR:
+                                            res = new RasMArrayByte(new RasMInterval(domain), false);
+                                            break;
+                                        case RAS_SHORT:
+                                            res = new RasMArrayShort(new RasMInterval(domain), false);
+                                            break;
+
+                                        case RAS_USHORT:
+                                            byte[] tmData = new byte[arraySize * 2];
+                                            for (int i = 0; i < arraySize * 2;) {
+                                                tmData[i] = 0;
+                                                tmData[i + 1] = 0;
+                                                tmData[i + 2] = arrayData[i / 2];
+                                                tmData[i + 3] = arrayData[i / 2 + 1];
+                                                i = i + SIZE_OF_INTEGER;
+                                            }
+                                            arrayData = tmData;
+                                            res = new RasMArrayInteger(new RasMInterval(domain), false);
+                                            break;
+
+                                        case RAS_INT:
+                                        case RAS_LONG:
+                                            res = new RasMArrayInteger(new RasMInterval(domain), false);
+                                            break;
+                                        case RAS_ULONG:
+                                            byte[] tmpData = new byte[arraySize * 2];
+                                            for (int i = 0; i < arraySize * 2;) {
+                                                tmpData[i] = 0;
+                                                tmpData[i + 1] = 0;
+                                                tmpData[i + 2] = 0;
+                                                tmpData[i + 3] = 0;
+                                                tmpData[i + 4] = arrayData[i / 2];
+                                                tmpData[i + 5] = arrayData[i / 2 + 1];
+                                                tmpData[i + 6] = arrayData[i / 2 + 2];
+                                                tmpData[i + 7] = arrayData[i / 2 + 3];
+                                                i = i + SIZE_OF_LONG;
+                                            }
+                                            arrayData = tmpData;
+                                            res = new RasMArrayLong(new RasMInterval(domain), false);
+                                            break;
+                                        case RAS_FLOAT:
+                                            res = new RasMArrayFloat(new RasMInterval(domain), false);
+                                            break;
+                                        case RAS_DOUBLE:
+                                            res = new RasMArrayDouble(new RasMInterval(domain), false);
+                                            break;
+                                        default:
+                                            res = new RasGMArray(new RasMInterval(domain), pType.getSize(), false);
+                                    }
+                                    res.setArray(arrayData);
+                                    res.setOID(roid);
+                                    res.setTypeStructure(mddBaseType);
+                                    resultBag.add(res);
+                                }
+                            } else {
+                                Debug.talkCritical("RasNetImplementation.getResponse: type is not base type.");
+                                Debug.leaveVerbose("RasNetImplementation.getResponse: done, type is not base type.");
+                                throw new RasClientInternalException("RasHttpRequest", "execute()", "Type of MDD is no Base Type");
+                            }
+                        } // for
+
+                        result = resultBag;
+                        in.close();
+
+                        break;
+
+                    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    case RESPONSE_SKALARS:
+                        // read Endianess
+                        while (in.read(b1) == 0) ;
+                        endianess = b1[0];
+                        // read Collection Type
+                        collType = RasUtils.readString(in);
+                        RasType rt = new RasType();
+                        try {
+                            rt = rt.getAnyType(collType);
+                        } catch (Exception e) {
+                            Debug.talkCritical("RasNetImplementation.getResponse: type not supported: " + rt);
+                            Debug.leaveVerbose("RasNetImplementation.getResponse: done, unsupported type");
+                            throw new RasTypeNotSupportedException(rt + " as RasCollectionType");
+                        }
+                        if (rt.getTypeID() != RasGlobalDefs.RAS_COLLECTION) {
+                            Debug.leaveCritical("RasNetImplementation.getResponse: done. type not supported: " + rt);
+                            throw new RasTypeNotSupportedException(rt + " as RasCollectionType");
+                        }
+
+                        // read NumberOfResults
+                        while (in.available() < 4)
+                    ;
+                        in.read(b4);
+                        numberOfResults = RasUtils.ubytesToInt(b4, endianess);
+
+                        // Initailize return-list
+                        resultBag = new RasBag();
+
+                        // do this for each result
+                        for (int x = 0; x < numberOfResults; x++) {
+                            // read elementType
+                            String elementType = RasUtils.readString(in);
+                            RasType et = new RasType();
+                            et = ((RasCollectionType) rt).getElementType();
+                            // read size of binData
+                            while (in.available() < 4)
+                        ;
+                            in.read(b4);
+                            arraySize = RasUtils.ubytesToInt(b4, endianess);
+                            // read binData
+                            arrayData = new byte[arraySize];
+                            totalReadBytes = 0;
+                            currentlyReadBytes = 0;
+                            while ((currentlyReadBytes != -1) && (totalReadBytes < arraySize)) {
+                                currentlyReadBytes = in.read(arrayData, totalReadBytes, arraySize - totalReadBytes);
+                                totalReadBytes += currentlyReadBytes;
+                            }
+
+                            ByteArrayInputStream bis = new ByteArrayInputStream(arrayData);
+                            DataInputStream dis = new DataInputStream(bis);
+                            // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                            resultBag.add(getElement(dis, et, arrayData));
+                        }
+                        result = resultBag;
+                        // close stream
+                        in.close();
+                        break;
+
+                    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    case RESPONSE_ERROR:
+                        // read Endianess
+                        while (in.read(b1) == 0) ;
+                        endianess = b1[0];
+                        // read Error Number
+                        while (in.available() < 4)
+                    ;
+                        in.read(b4);
+                        int errNo = RasUtils.ubytesToInt(b4, endianess);
+                        // read Line Number
+                        while (in.available() < 4)
+                    ;
+                        in.read(b4);
+                        int lineNo = RasUtils.ubytesToInt(b4, endianess);
+                        // read Column Number
+                        while (in.available() < 4)
+                    ;
+                        in.read(b4);
+                        int colNo = RasUtils.ubytesToInt(b4, endianess);
+                        // read token
+                        String token = RasUtils.readString(in);
+                        Debug.leaveCritical("RasNetImplementation.getResponse: query failed, errNo=" + errNo + ", lineNo=" + lineNo + ", colNo=" + colNo + ", token=" + token);
+                        throw new RasQueryExecutionFailedException(errNo, lineNo, colNo, token);
+                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    case RESPONSE_INT:
+                        // read Integer Value
+                        while (in.available() < 4)
+                    ;
+                        in.read(b4);
+                        result = new Integer(RasUtils.ubytesToInt(b4, endianess));
+                        break;
+
+                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    case RESPONSE_OID:
+                        // read Values
+                        String sys = RasUtils.readString(in);
+                        String base = RasUtils.readString(in);
+                        double d = in.readDouble();
+                        resultBag = new RasBag();
+                        resultBag.add(new RasOID(sys, base, d));
+                        result = resultBag;
+                        // close stream
+                        in.close();
+                        break;
+                    default:
+                        break;
+                }
+            } catch (IOException e) {
+                Debug.talkCritical("RasNetImplementation.getResponse: " + e.getMessage());
+                Debug.leaveVerbose("RasNetImplementation.getResponse: done, communication exception.");
+                throw new RasClientInternalException("RasNetImplementation", "getResponse()", e.getMessage());
+            } catch (RasResultIsNoIntervalException e) {
+                Debug.talkCritical("RasNetImplementation.getResponse: " + e.getMessage());
+                Debug.leaveVerbose("RasNetImplementation.getResponse: done, result not an interval.");
+                throw new RasClientInternalException("RasNetImplementation", "getResponse()", e.getMessage());
             }
 
-            if (data.size() != dataLength) {
-                throw new RasClientInternalException("RasNetImplementation", "executeQueryRequest()", String.format("Bytes expected: %d, bytes received: %d", dataLength, data.size()));
-            }
-
-            return getResponse(data.toByteArray());
+            Debug.leaveVerbose("RasNetImplementation.getResponse: done. result=" + result);
+            return result;
 
         } catch (IOException e) {
             Debug.talkCritical("RasNetImplementation.executeQueryRequest: " + e.getMessage());
@@ -549,296 +871,6 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         } catch (Exception e) {
             throw new ODMGRuntimeException(e.getMessage());
         }
-    }
-
-    @SuppressWarnings("Duplicates")
-    private Object getResponse(byte[] opaqueAnswer)
-    throws RasQueryExecutionFailedException {
-        Debug.enterVerbose("RasNetImplementation.getResponse: start.");
-
-        Object result = null;
-        DataInputStream in = new DataInputStream(new ByteArrayInputStream(opaqueAnswer));
-        byte[] b1 = new byte[1];
-        byte[] b4 = new byte[4];
-        byte endianess = 0;
-        String collType = null;
-        int numberOfResults = 0;
-        int dataSize = 0;
-        byte[] binData = null;
-        int readBytes = 0;
-        int readBytesTmp = 0;
-        DBag resultBag;
-        RasGMArray res = null;
-        try {
-            in.read(b1);
-            int resultType = b1[0];
-            switch (resultType) {
-            case RESPONSE_OK:
-            case RESPONSE_OK_NEGATIVE:
-                //Nothing todo
-                break;
-
-            // +++++++++++++++++++++++++++++++++++++++++++++++++
-            case RESPONSE_MDDS:
-                // read Endianess
-                while (in.read(b1) == 0) ;
-                endianess = b1[0];
-
-                // read Collection Type
-                collType = RasUtils.readString(in);
-
-                // read NumberOfResults
-                while (in.available() < 4) ;
-                in.read(b4);
-                numberOfResults = RasUtils.ubytesToInt(b4, endianess);
-
-                // Initialize return-set and parameters
-                resultBag = new RasBag();
-                String mddBaseType = null;
-                String domain = null;
-                String oid = "";
-                RasOID roid = null;
-
-                // do this for each result
-                for (int x = 0; x < numberOfResults; x++) {
-                    //read mddBaseType
-                    mddBaseType = RasUtils.readString(in);
-
-                    // read spatialDomain
-                    domain = RasUtils.readString(in);
-
-                    // read OID
-                    oid = RasUtils.readString(in);
-                    roid = new RasOID(oid);
-
-                    // read size of binData
-                    while (in.available() < 4) ;
-                    in.read(b4);
-
-                    dataSize = RasUtils.ubytesToInt(b4, endianess);
-
-                    // read binData
-                    binData = new byte[dataSize];
-                    readBytes = 0;
-                    readBytesTmp = 0;
-
-                    while ((readBytesTmp != -1) && (readBytes < dataSize)) {
-                        readBytesTmp = in.read(binData, readBytes, dataSize - readBytes);
-                        readBytes += readBytesTmp;
-                    }
-
-                    RasType rType = RasType.getAnyType(mddBaseType);
-                    RasBaseType rb = null;
-
-                    if (rType.getClass().getName().equals("rasj.RasMArrayType")) {
-                        RasMArrayType tmp = (RasMArrayType) rType;
-                        rb = tmp.getBaseType();
-                    } else {
-                        Debug.talkCritical("RasNetImplementation.getResponse: collection element is no MArray.");
-                        Debug.leaveVerbose("RasNetImplementation.getResponse: done, with exception.");
-                        throw new RasClientInternalException("RasHttpRequest", "execute()", "element of MDD Collection is no MArray");
-                    }
-                    if (rb.isBaseType()) {
-                        if (rb.isStructType()) {
-                            RasStructureType sType = (RasStructureType) rb;
-                            res = new RasGMArray(new RasMInterval(domain), 0);
-                            res.setTypeLength(rb.getSize());
-                            res.setArraySize(dataSize);
-                            res.setArray(binData);
-                            res.setTypeStructure(mddBaseType);
-                            //insert into result set
-                            resultBag.add(res);
-                        } else {
-                            // It is a primitiveType
-                            RasPrimitiveType pType = (RasPrimitiveType) rb;
-                            switch (pType.getTypeID()) {
-                            case RAS_BOOLEAN:
-                            case RAS_BYTE:
-                            case RAS_CHAR:
-                                res = new RasMArrayByte(new RasMInterval(domain));
-                                break;
-                            case RAS_SHORT:
-                                res = new RasMArrayShort(new RasMInterval(domain));
-                                break;
-
-                            case RAS_USHORT:
-                                byte[] tmData = new byte[dataSize * 2];
-                                for (int i = 0; i < dataSize * 2;) {
-                                    tmData[i] = 0;
-                                    tmData[i + 1] = 0;
-                                    tmData[i + 2] = binData[i / 2];
-                                    tmData[i + 3] = binData[i / 2 + 1];
-                                    i = i + SIZE_OF_INTEGER;
-                                }
-                                binData = tmData;
-                                res = new RasMArrayInteger(new RasMInterval(domain));
-                                break;
-
-                            case RAS_INT:
-                            case RAS_LONG:
-                                res = new RasMArrayInteger(new RasMInterval(domain));
-                                break;
-                            case RAS_ULONG:
-                                byte[] tmpData = new byte[dataSize * 2];
-                                for (int i = 0; i < dataSize * 2;) {
-                                    tmpData[i] = 0;
-                                    tmpData[i + 1] = 0;
-                                    tmpData[i + 2] = 0;
-                                    tmpData[i + 3] = 0;
-                                    tmpData[i + 4] = binData[i / 2];
-                                    tmpData[i + 5] = binData[i / 2 + 1];
-                                    tmpData[i + 6] = binData[i / 2 + 2];
-                                    tmpData[i + 7] = binData[i / 2 + 3];
-                                    i = i + SIZE_OF_LONG;
-                                }
-                                binData = tmpData;
-                                res = new RasMArrayLong(new RasMInterval(domain));
-                                break;
-                            case RAS_FLOAT:
-                                res = new RasMArrayFloat(new RasMInterval(domain));
-                                break;
-                            case RAS_DOUBLE:
-                                res = new RasMArrayDouble(new RasMInterval(domain));
-                                break;
-                            default:
-                                res = new RasGMArray(new RasMInterval(domain), pType.getSize());
-                            }
-                            res.setArray(binData);
-                            res.setOID(roid);
-                            res.setTypeStructure(mddBaseType);
-                            resultBag.add(res);
-                        }
-                    } else {
-                        Debug.talkCritical("RasNetImplementation.getResponse: type is not base type.");
-                        Debug.leaveVerbose("RasNetImplementation.getResponse: done, type is not base type.");
-                        throw new RasClientInternalException("RasHttpRequest", "execute()", "Type of MDD is no Base Type");
-                    }
-                } // for
-
-                result = resultBag;
-                in.close();
-
-                break;
-
-            // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            case RESPONSE_SKALARS:
-                // read Endianess
-                while (in.read(b1) == 0) ;
-                endianess = b1[0];
-                // read Collection Type
-                collType = RasUtils.readString(in);
-                RasType rt = new RasType();
-                try {
-                    rt = rt.getAnyType(collType);
-                } catch (Exception e) {
-                    Debug.talkCritical("RasNetImplementation.getResponse: type not supported: " + rt);
-                    Debug.leaveVerbose("RasNetImplementation.getResponse: done, unsupported type");
-                    throw new RasTypeNotSupportedException(rt + " as RasCollectionType");
-                }
-                if (rt.getTypeID() != RasGlobalDefs.RAS_COLLECTION) {
-                    Debug.leaveCritical("RasNetImplementation.getResponse: done. type not supported: " + rt);
-                    throw new RasTypeNotSupportedException(rt + " as RasCollectionType");
-                }
-
-                // read NumberOfResults
-                while (in.available() < 4)
-                    ;
-                in.read(b4);
-                numberOfResults = RasUtils.ubytesToInt(b4, endianess);
-
-                // Initailize return-list
-                resultBag = new RasBag();
-
-                // do this for each result
-                for (int x = 0; x < numberOfResults; x++) {
-                    // read elementType
-                    String elementType = RasUtils.readString(in);
-                    RasType et = new RasType();
-                    et = ((RasCollectionType) rt).getElementType();
-                    // read size of binData
-                    while (in.available() < 4)
-                        ;
-                    in.read(b4);
-                    dataSize = RasUtils.ubytesToInt(b4, endianess);
-                    // read binData
-                    binData = new byte[dataSize];
-                    readBytes = 0;
-                    readBytesTmp = 0;
-                    while ((readBytesTmp != -1) && (readBytes < dataSize)) {
-                        readBytesTmp = in.read(binData, readBytes, dataSize - readBytes);
-                        readBytes += readBytesTmp;
-                    }
-
-                    ByteArrayInputStream bis = new ByteArrayInputStream(binData);
-                    DataInputStream dis = new DataInputStream(bis);
-                    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    resultBag.add(getElement(dis, et, binData));
-                }
-                result = resultBag;
-                // close stream
-                in.close();
-                break;
-
-            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            case RESPONSE_ERROR:
-                // read Endianess
-                while (in.read(b1) == 0) ;
-                endianess = b1[0];
-                // read Error Number
-                while (in.available() < 4)
-                    ;
-                in.read(b4);
-                int errNo = RasUtils.ubytesToInt(b4, endianess);
-                // read Line Number
-                while (in.available() < 4)
-                    ;
-                in.read(b4);
-                int lineNo = RasUtils.ubytesToInt(b4, endianess);
-                // read Column Number
-                while (in.available() < 4)
-                    ;
-                in.read(b4);
-                int colNo = RasUtils.ubytesToInt(b4, endianess);
-                // read token
-                String token = RasUtils.readString(in);
-                Debug.leaveCritical("RasNetImplementation.getResponse: query failed, errNo=" + errNo + ", lineNo=" + lineNo + ", colNo=" + colNo + ", token=" + token);
-                throw new RasQueryExecutionFailedException(errNo, lineNo, colNo, token);
-            //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            case RESPONSE_INT:
-                // read Integer Value
-                while (in.available() < 4)
-                    ;
-                in.read(b4);
-                result = new Integer(RasUtils.ubytesToInt(b4, endianess));
-                break;
-
-            //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            case RESPONSE_OID:
-                // read Values
-                String sys = RasUtils.readString(in);
-                String base = RasUtils.readString(in);
-                double d = in.readDouble();
-                resultBag = new RasBag();
-                resultBag.add(new RasOID(sys, base, d));
-                result = resultBag;
-                // close stream
-                in.close();
-                break;
-            default:
-                break;
-            }
-        } catch (IOException e) {
-            Debug.talkCritical("RasNetImplementation.getResponse: " + e.getMessage());
-            Debug.leaveVerbose("RasNetImplementation.getResponse: done, communication exception.");
-            throw new RasClientInternalException("RasNetImplementation", "getResponse()", e.getMessage());
-        } catch (RasResultIsNoIntervalException e) {
-            Debug.talkCritical("RasNetImplementation.getResponse: " + e.getMessage());
-            Debug.leaveVerbose("RasNetImplementation.getResponse: done, result not an interval.");
-            throw new RasClientInternalException("RasNetImplementation", "getResponse()", e.getMessage());
-        }
-
-        Debug.leaveVerbose("RasNetImplementation.getResponse: done. result=" + result);
-        return result;
     }
 
     private static Object getElement(DataInputStream dis, RasType et, byte[] binData) throws IOException, RasResultIsNoIntervalException {
