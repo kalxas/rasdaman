@@ -212,7 +212,7 @@ public class TypeRegistry {
         }
     }
 
-    private void initializeSetTypes() throws RasdamanException {
+    private void initializeSetTypes() throws RasdamanException, PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_SET_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         String[] fullStringResult = queryResult.toString().split("\0");
@@ -267,7 +267,7 @@ public class TypeRegistry {
         return result;
     }
 
-    private void initializeMarrayTypes() throws RasdamanException {
+    private void initializeMarrayTypes() throws RasdamanException, PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_MARRAY_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         String[] fullStringResult = queryResult.toString().split("\0");
@@ -278,7 +278,7 @@ public class TypeRegistry {
         }
     }
 
-    private void initializeStructRegistry() throws RasdamanException {
+    private void initializeStructRegistry() throws RasdamanException, PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_STRUCT_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         String[] fullStringResult = queryResult.toString().split("\0");

@@ -206,6 +206,9 @@ public class WcpsServlet extends CORSHttpServlet {
             printError(response, "Secore Error: " + ex.getMessage(), ex);
         } finally {
             IOUtils.closeQuietly(os);
+            // NOTE: it must release the data occupied by byte[] so doing like this will release memory right after the response is done.            
+            results = null;
+            System.gc();
         }
     }
 

@@ -27,6 +27,7 @@ import petascope.util.ras.RasUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import petascope.exceptions.PetascopeException;
 
 /**
  * Class for inserting data into a collection, starting from a file.
@@ -55,7 +56,7 @@ public class RasdamanFileInserter implements RasdamanInserter {
     }
 
     @Override
-    public BigInteger insert() throws RasdamanException, IOException {
+    public BigInteger insert() throws RasdamanException, IOException, PetascopeException {
         BigInteger oid = RasUtil.executeInsertFileStatement(collectionName, filePath, mimetype, tiling);
         return oid;
     }

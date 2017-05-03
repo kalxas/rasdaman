@@ -104,7 +104,7 @@ public class Response {
     public List<byte[]> getData() {
         return data;
     }
-
+        
     // Encoding in Rasql
     public String getFormatType() {
         if (formatType == null) {

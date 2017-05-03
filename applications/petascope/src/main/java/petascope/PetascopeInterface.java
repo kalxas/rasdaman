@@ -621,6 +621,7 @@ public class PetascopeInterface extends CORSHttpServlet {
      */
     private void handleWcs2Request(String request, HttpServletResponse response, HttpServletRequest srvRequest)
     throws WCSException, PetascopeException, SecoreException {
+        Response res = null;
         try {
             log.info("Handling WCS 2.0 request");
             HTTPRequest petascopeRequest = this.parseUrl(srvRequest, request);
@@ -629,10 +630,11 @@ public class PetascopeInterface extends CORSHttpServlet {
                 throw new WCSException(ExceptionCode.NoApplicableCode,
                                        "No protocol binding extension that can handle this request was found ");
             }
-            log.info("Protocol binding extension found: {}", pext.getExtensionIdentifier());
-            Response res = pext.handle(petascopeRequest, meta);
+            log.info("Protocol binding extension found: {}", pext.getExtensionIdentifier());            
+            res = pext.handle(petascopeRequest, meta);
 
             OutputStream os = response.getOutputStream();
+            
             response.setStatus(res.getExitCode());
 
             String fileName = res.getCoverageID();
@@ -739,6 +741,10 @@ public class PetascopeInterface extends CORSHttpServlet {
             log.error("Runtime error : {}", e.getMessage());
             throw new WCSException(ExceptionCode.RuntimeError,
                                    "Runtime error while processing request", e);
+        } finally {
+            // NOTE: it must release the data occupied by byte[] so doing like this will release memory right after the response is done.
+            res = null;                
+            System.gc();            
         }
     }
 

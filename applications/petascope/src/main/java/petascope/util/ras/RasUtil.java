@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.rasdaman.RasdamanCollectionDoesNotExistException;
@@ -83,7 +84,7 @@ public class RasUtil {
      * @param query
      * @throws RasdamanException
      */
-    public static Object executeRasqlQuery(String query) throws RasdamanException {
+    public static Object executeRasqlQuery(String query) throws RasdamanException, PetascopeException {
         return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS);
     }
 
@@ -97,7 +98,7 @@ public class RasUtil {
      * @return
      * @throws RasdamanException
      */
-    public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws RasdamanException {
+    public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws RasdamanException, PetascopeException {
         // NOTE: rasmgr could be different port not by 7001 by default and be changed in petascope.properties        
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
@@ -166,8 +167,14 @@ public class RasUtil {
                     }
                 } catch (Error ex) {
                     tr.abort();
-                    throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                            "Requested more data than the server can handle at once.");
+                    log.error("Critical error", ex);                    
+                    
+                    if (ex instanceof OutOfMemoryError) {
+                        throw new PetascopeException(ExceptionCode.InternalComponentError, "Requested more data than the server can handle at once. "
+                                + "Try increasing the maximum memory allowed for Tomcat (-Xmx JVM option).");
+                    } else {                    
+                        throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, ex.getMessage());
+                    }
                 } finally {
 
                     //Done connection with rasdaman, closing database.
@@ -238,7 +245,7 @@ public class RasUtil {
      * @throws RasdamanException
      */
     // FIXME - should return just String?
-    public static Object executeRasqlQuery(String query, String username, String password) throws RasdamanException {
+    public static Object executeRasqlQuery(String query, String username, String password) throws RasdamanException, PetascopeException {
         return executeRasqlQuery(query, username, password, false);
     }
 
@@ -340,7 +347,7 @@ public class RasUtil {
      * @throws WCPSException
      * @throws RasdamanException
      */
-    public static Object executeWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException {
+    public static Object executeWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException, PetascopeException {
         if (query == null) {
             throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't execute null query");
         }
@@ -362,7 +369,7 @@ public class RasUtil {
      * @throws WCPSException
      * @throws RasdamanException
      */
-    public static Object executeAbstractWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException {
+    public static Object executeAbstractWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException, PetascopeException {
         if (query == null) {
             throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't execute null query");
         }
@@ -385,7 +392,7 @@ public class RasUtil {
      * @throws WCPSException
      * @throws RasdamanException
      */
-    public static Object executeXmlWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException {
+    public static Object executeXmlWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException, PetascopeException {
         if (query == null) {
             throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't execute null query");
         }
@@ -427,7 +434,7 @@ public class RasUtil {
      * @param collectionName
      * @throws RasdamanException
      */
-    public static void deleteFromRasdaman(BigInteger oid, String collectionName) throws RasdamanException {
+    public static void deleteFromRasdaman(BigInteger oid, String collectionName) throws RasdamanException, PetascopeException {
         String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_OID, oid.toString());
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //check if there are other objects left in the collection
@@ -448,7 +455,7 @@ public class RasUtil {
      * @param collectionType
      * @throws RasdamanException
      */
-    public static void createRasdamanCollection(String collectionName, String collectionType) throws RasdamanException {
+    public static void createRasdamanCollection(String collectionName, String collectionType) throws RasdamanException, PetascopeException {
         String query = TEMPLATE_CREATE_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName)
                 .replace(TOKEN_COLLECTION_TYPE, collectionType);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
@@ -464,7 +471,7 @@ public class RasUtil {
      * @return the oid of the newly inserted object
      * @throws RasdamanException
      */
-    public static BigInteger executeInsertValuesStatement(String collectionName, String values, String tiling) throws RasdamanException {
+    public static BigInteger executeInsertValuesStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
         BigInteger oid = null;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
@@ -497,7 +504,7 @@ public class RasUtil {
      * @throws java.io.IOException
      */
     public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mime,
-            String tiling) throws RasdamanException, IOException {
+            String tiling) throws RasdamanException, IOException, PetascopeException {
         BigInteger oid = new BigInteger("0");
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;

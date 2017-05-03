@@ -25,6 +25,7 @@ import petascope.exceptions.rasdaman.RasdamanException;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import petascope.exceptions.PetascopeException;
 
 /**
  * Interface for inserting data into rasdaman.
@@ -37,5 +38,5 @@ public interface RasdamanInserter {
      * Inserts data into rasdaman.
      * @return the oid of the affected array.
      */
-    public BigInteger insert() throws RasdamanException, IOException;
+    public BigInteger insert() throws RasdamanException, IOException, PetascopeException;
 }

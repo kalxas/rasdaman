@@ -34,6 +34,8 @@ import petascope.wms2.service.getmap.access.RasqlQueryGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import petascope.exceptions.PetascopeException;
+import petascope.wms2.service.exception.error.WMSDataStoreException;
 
 /**
  * Handler for the GetMap operation
@@ -55,7 +57,7 @@ public class GetMapHandler implements Handler<GetMapRequest, GetMapResponse> {
 
     @NotNull
     @Override
-    public GetMapResponse handle(@NotNull GetMapRequest request) throws WMSException {
+    public GetMapResponse handle(@NotNull GetMapRequest request) throws WMSException, WMSDataStoreException, WMSInternalException, PetascopeException {
         MergedLayer mergedLayer = getMergedLayer(request);
         RasqlQueryGenerator queryGenerator = new RasqlQueryGenerator(mergedLayer);
         String query = queryGenerator.generateQuery();

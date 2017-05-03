@@ -26,6 +26,7 @@ import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.ras.RasUtil;
 
 import java.math.BigInteger;
+import petascope.exceptions.PetascopeException;
 
 /**
  * Class for inserting data into a collection, starting from a values clause.
@@ -56,7 +57,7 @@ public class RasdamanValuesInserter implements RasdamanInserter {
     }
 
     @Override
-    public BigInteger insert() throws RasdamanException {
+    public BigInteger insert() throws RasdamanException, PetascopeException {
         BigInteger oid = null;
         try {
             //insert the values

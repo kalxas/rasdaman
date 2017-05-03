@@ -22,6 +22,7 @@
 package petascope.wcs2.handlers.wcst.helpers.update;
 
 import petascope.ConfigManager;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.ras.RasUtil;
 
@@ -55,7 +56,7 @@ public class RasdamanValuesUpdater implements RasdamanUpdater {
     }
 
     @Override
-    public void update() throws RasdamanException {
+    public void update() throws RasdamanException, PetascopeException {
         String queryString = UPDATE_TEMPLATE_VALUES.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)

@@ -23,6 +23,7 @@
 package petascope.wms2.service.base;
 
 import org.jetbrains.annotations.NotNull;
+import petascope.exceptions.PetascopeException;
 import petascope.wms2.service.exception.error.WMSException;
 
 /**
@@ -44,6 +45,6 @@ public interface Handler<RT extends Request, RSP extends Response> {
      * @return the response to this request
      */
     @NotNull
-    RSP handle(@NotNull RT request) throws WMSException;
+    RSP handle(@NotNull RT request) throws WMSException, PetascopeException;
 
 }

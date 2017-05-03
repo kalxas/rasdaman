@@ -22,6 +22,7 @@
 
 package petascope.wms2.rasdaman;
 
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -53,7 +54,7 @@ public class RasdamanService {
      * @throws RasdamanException
      * @throws WMSDataStoreException
      */
-    public byte[] executeQuery(String query) throws WMSDataStoreException, WMSInternalException {
+    public byte[] executeQuery(String query) throws WMSDataStoreException, WMSInternalException, PetascopeException {
         //TODO Once the new protocol is stable replace this with a pool of RasImplementation
         //The current code uses the RasUtil implementation which is suboptimal for a WMS service
         //as it reconnects to rasdaman each time a query is executed. Ideally we should establish a number of

@@ -22,6 +22,7 @@
 package petascope.wcs2.handlers.wcst.helpers.insert;
 
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
 import petascope.util.ras.RasUtil;
 
@@ -48,7 +49,7 @@ public class RasdamanDefaultCollectionCreator implements RasdamanCollectionCreat
     }
 
     @Override
-    public void createCollection() throws RasdamanException {
+    public void createCollection() throws RasdamanException, PetascopeException {
         log.info("Creating rasdaman collection " + collectionName + ".");
         //create the collection
         RasUtil.createRasdamanCollection(collectionName, collectionType);

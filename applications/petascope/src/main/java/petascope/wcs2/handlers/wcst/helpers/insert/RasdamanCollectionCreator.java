@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.handlers.wcst.helpers.insert;
 
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.rasdaman.RasdamanException;
 
 /**
@@ -29,5 +30,5 @@ import petascope.exceptions.rasdaman.RasdamanException;
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public interface RasdamanCollectionCreator {
-    public void createCollection() throws RasdamanException;
+    public void createCollection() throws RasdamanException, PetascopeException;
 }

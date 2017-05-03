@@ -137,7 +137,7 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
      * @param coverage
      * @throws RasdamanException 
      */
-    private void deleteFromRasdaman(CoverageMetadata coverage) throws RasdamanException {
+    private void deleteFromRasdaman(CoverageMetadata coverage) throws RasdamanException, PetascopeException {
         Pair<BigInteger, String> collection = coverage.getRasdamanCollection();
         RasUtil.deleteFromRasdaman(collection.fst, collection.snd);
     }
