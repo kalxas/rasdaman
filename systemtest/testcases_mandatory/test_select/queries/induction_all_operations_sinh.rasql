@@ -1,1 +1,1 @@
-select sinh(0) from test_grey
+select sinh(1) from test_grey

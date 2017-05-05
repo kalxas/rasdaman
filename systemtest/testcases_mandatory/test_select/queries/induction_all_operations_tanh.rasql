@@ -1,1 +1,1 @@
-select tanh(0) from test_grey
+select tanh(1) from test_grey

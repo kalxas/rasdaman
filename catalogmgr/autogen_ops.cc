@@ -47,7 +47,7 @@ void OpABSCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -55,17 +55,6 @@ void OpABSCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = fabs(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -82,7 +71,7 @@ void OpSQRTCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -90,17 +79,6 @@ void OpSQRTCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = sqrt(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -117,7 +95,7 @@ void OpPOWCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -125,17 +103,6 @@ void OpPOWCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = pow(convOp, exponent);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -157,7 +124,7 @@ void OpEXPCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -165,17 +132,6 @@ void OpEXPCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = exp(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -192,7 +148,7 @@ void OpLOGCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -200,17 +156,6 @@ void OpLOGCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = log10(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -227,7 +172,7 @@ void OpLNCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -235,17 +180,6 @@ void OpLNCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = log(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -262,7 +196,7 @@ void OpSINCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -270,17 +204,6 @@ void OpSINCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = sin(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -297,7 +220,7 @@ void OpCOSCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -305,17 +228,6 @@ void OpCOSCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = cos(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -332,7 +244,7 @@ void OpTANCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -340,17 +252,6 @@ void OpTANCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = tan(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -367,25 +268,14 @@ void OpSINHCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
     }
     else
     {
-        convRes = sin(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
+        convRes = sinh(convOp);
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -402,25 +292,14 @@ void OpCOSHCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
     }
     else
     {
-        convRes = cos(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
+        convRes = cosh(convOp);
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -437,25 +316,14 @@ void OpTANHCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
     }
     else
     {
-        convRes = tan(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
+        convRes = tanh(convOp);
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -472,7 +340,7 @@ void OpARCSINCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -480,17 +348,6 @@ void OpARCSINCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = asin(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -507,7 +364,7 @@ void OpARCCOSCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -515,17 +372,6 @@ void OpARCCOSCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = acos(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
@@ -542,7 +388,7 @@ void OpARCTANCDouble::operator()(char* res, const char* op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    errno = 0;
+    
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -550,17 +396,6 @@ void OpARCTANCDouble::operator()(char* res, const char* op)
     else
     {
         convRes = atan(convOp);
-    }
-    if (errno)
-    {
-        if (errno == EDOM)
-        {
-            throw 510;
-        }
-        if (errno == ERANGE)
-        {
-            throw 511;
-        }
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
