@@ -287,7 +287,7 @@ bool UserManager::tryLoadUserAuthFromFile(const std::string& filePath)
 
         if (!ifs)
         {
-            LERROR << "Could not open :" << filePath;
+            LWARNING << filePath << " was not found; using default credentials.";
         }
         else
         {
