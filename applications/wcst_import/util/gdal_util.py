@@ -200,7 +200,11 @@ class GDALGmlUtil:
                              "as it cannot be represented as a 64 bit integer.".format(nil_value, field_name))
                     nil_value = None
                 else:
-                     nil_value = str(floor_nill_value) + ":" + str(ceil_nill_value)
+                    if floor_nill_value == ceil_nill_value:
+                        nil_value = str(floor_nill_value)
+                    else:
+                        # NOTE: There is no nilValues interval e.g: 0:200 in Rasdaman, everything has to be separated, such as: 0,200
+                        nil_value = str(floor_nill_value) + "," + str(ceil_nill_value)
             else:
                 # Band does not contain any nodata_value, then check if nullvalue is specified in ingredient file
                 dfn = ConfigManager.default_null_values

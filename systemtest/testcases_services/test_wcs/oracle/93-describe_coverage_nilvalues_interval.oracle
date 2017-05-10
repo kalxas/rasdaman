@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions       >
+  <wcs:CoverageDescription id="test_nilvalue_interval" xmlns="http://www.opengis.net/gml/3.2"  >
+    <boundedBy>
+      <Envelope srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
+        <lowerCorner>499980 4200040 "2016-03-25T00:00:00.000Z"</lowerCorner>
+        <upperCorner>699980 4400040 "2016-03-25T00:00:00.000Z"</upperCorner>
+      </Envelope>
+    </boundedBy>
+    <wcs:CoverageId>test_nilvalue_interval</wcs:CoverageId>
+    <coverageFunction>
+      <GridFunction>
+        <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
+        <startPoint>0 0 0</startPoint>
+      </GridFunction>
+    </coverageFunction>
+    <gmlcov:metadata>
+      <gmlcov:Extension/>
+    </gmlcov:metadata>
+    <domainSet>
+      <gmlrgrid:ReferenceableGridByVectors dimension="3" id="test_nilvalue_interval-grid"  >
+        <limits>
+          <GridEnvelope>
+            <low>0 0 0</low>
+            <high>0 0 0</high>
+          </GridEnvelope>
+        </limits>
+        <axisLabels>E N ansi</axisLabels>
+        <gmlrgrid:origin>
+          <Point id="test_nilvalue_interval-origin" srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">
+            <pos>599980 4300040 "2016-03-25T00:00:00.000Z"</pos>
+          </Point>
+        </gmlrgrid:origin>
+        <gmlrgrid:generalGridAxis>
+          <gmlrgrid:GeneralGridAxis>
+            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">200000 0 0</gmlrgrid:offsetVector>
+            <gmlrgrid:coefficients/>
+            <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+          </gmlrgrid:GeneralGridAxis>
+        </gmlrgrid:generalGridAxis>
+        <gmlrgrid:generalGridAxis>
+          <gmlrgrid:GeneralGridAxis>
+            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">0 -200000 0</gmlrgrid:offsetVector>
+            <gmlrgrid:coefficients/>
+            <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+          </gmlrgrid:GeneralGridAxis>
+        </gmlrgrid:generalGridAxis>
+        <gmlrgrid:generalGridAxis>
+          <gmlrgrid:GeneralGridAxis>
+            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
+            <gmlrgrid:coefficients>"2016-03-25T00:00:00.000Z"</gmlrgrid:coefficients>
+            <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+          </gmlrgrid:GeneralGridAxis>
+        </gmlrgrid:generalGridAxis>
+      </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
+    <gmlcov:rangeType>
+      <swe:DataRecord>
+        <swe:field name="Gray">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_2">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_3">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_4">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_5">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_6">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_7">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_8">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_9">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+        <swe:field name="field_10">
+          <swe:Quantity>
+            <swe:nilValues>
+              <swe:NilValues>
+                <swe:nilValue reason="">0</swe:nilValue>
+              </swe:NilValues>
+            </swe:nilValues>
+            <swe:uom code="10^0"/>
+          </swe:Quantity>
+        </swe:field>
+      </swe:DataRecord>
+    </gmlcov:rangeType>
+    <wcs:ServiceParameters>
+      <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+      <CoverageSubtypeParent xmlns="http://www.opengis.net/wcs/2.0">
+        <CoverageSubtype>AbstractDiscreteCoverage</CoverageSubtype>
+        <CoverageSubtypeParent>
+          <CoverageSubtype>AbstractCoverage</CoverageSubtype>
+        </CoverageSubtypeParent>
+      </CoverageSubtypeParent>
+      <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+    </wcs:ServiceParameters>
+  </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>
