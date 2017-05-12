@@ -1,0 +1,1 @@
+select count_cells(c = 1) from test_dql_ingest as c
