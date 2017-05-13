@@ -109,7 +109,7 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(const char* options) throw(r_Error)
         LERROR << "mandatory format options have not been specified.";
         throw r_Error(INVALIDFORMATPARAMETER);
     }
-    formatParams.parse(string(options), true);
+    formatParams.parse(string(options));
     return this->convertFrom(formatParams);
 }
 

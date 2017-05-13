@@ -320,8 +320,6 @@ void r_Conv_NETCDF::parseEncodeOptions(const string& options) throw (r_Error)
 {
     if (!formatParams.parse(options))
     {
-        LWARNING << "failed parsing the JSON options, error: " << formatParams.getParseErrorMsg();
-        LINFO << "attempting to parse key/value style options.";
         // try to parse the old-style key-value format in any case
         parseDecodeOptions(options);
     }

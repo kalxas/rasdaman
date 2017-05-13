@@ -49,18 +49,15 @@ public:
 
     /**
      * Parse the input format parameters into a JSON object and get the values for
-     * parameters common across multiple converters.
-     *
+     * parameters common across multiple converters, if the paramsStr is a
+     * JSON string (starts with a '{').
+     * 
      * @param paramsStr a format parameters string.
-     * @param mandatory if true and parsing the format parameters string into JSON
-     * fails, than an error is thrown, otherwise just a warning is printed.
-     * In some formats for backwards compatibility we still support old-style
-     * key/value format parameter string, so then JSON is not mandatory.
+     * @return true if paramsStr is a JSON string and it was successfully parsed,
+     * false otherwise. It throws an error if it is a JSON string and parsing
+     * it failed.
      */
-    bool parse(const std::string& paramsStr, bool mandatory = false) throw (r_Error);
-
-    /// If parse fails, this method allows to get the error message.
-    std::string getParseErrorMsg() const;
+    bool parse(const std::string& paramsStr) throw (r_Error);
 
     /// get the JSON params
     Json::Value getParams() const;
@@ -146,6 +143,11 @@ public:
 
 private:
 
+    /**
+     * @return true if the string starts with a '{'.
+     */
+    bool isJson(std::string options) const;
+    
     void parseJson() throw (r_Error);
     void parseTranspose() throw (r_Error);
     void parseVariables() throw (r_Error);
@@ -157,8 +159,6 @@ private:
     void parseGeoReference() throw (r_Error);
 
     Json::Value params;
-
-    std::string parseErrorMsg;
 
     /// specifying a path to file to be decoded
     std::vector<std::string> filePaths;

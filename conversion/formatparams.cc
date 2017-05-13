@@ -43,35 +43,40 @@ r_Format_Params::r_Format_Params() :
 {
 }
 
-bool r_Format_Params::parse(const string& options, bool mandatory) throw (r_Error)
+bool r_Format_Params::parse(const string& options) throw (r_Error)
 {
     bool ret = false;
-    transpose = false;
     if (!options.empty())
     {
-        string json{options};
-        // rasql transmits \" from the cmd line literally; this doesn't work
-        // in json, so we unescape them below
-        boost::algorithm::replace_all(json, "\\\"", "\"");
+        if (isJson(options))
+        {
+            string json{options};
+            // rasql transmits \" from the cmd line literally; this doesn't work
+            // in json, so we unescape them below
+            boost::algorithm::replace_all(json, "\\\"", "\"");
 
-        Json::Reader reader;
-        ret = reader.parse(json, params);
-        if (ret)
-        {
-            parseJson();
-        }
-        else if (mandatory)
-        {
-            LERROR << "failed parsing the JSON format options: " << reader.getFormattedErrorMessages();
-            LERROR << "original options string: '" << options << "'.";
-            throw r_Error(INVALIDFORMATPARAMETER);
-        }
-        else
-        {
-            parseErrorMsg = reader.getFormattedErrorMessages();
+            Json::Reader reader;
+            ret = reader.parse(json, params);
+            if (ret)
+            {
+                parseJson();
+            }
+            else
+            {
+                LERROR << "failed parsing the JSON format options: " << reader.getFormattedErrorMessages();
+                LERROR << "original options string: '" << options << "'.";
+                throw r_Error(INVALIDFORMATPARAMETER);
+            }
         }
     }
     return ret;
+}
+
+bool r_Format_Params::isJson(string options) const
+{
+    boost::trim_left(options);
+    // it's json if the options string starts with a '{'
+    return !options.empty() && options[0] == '{';
 }
 
 void r_Format_Params::parseJson() throw (r_Error)
@@ -295,11 +300,6 @@ Json::Value r_Format_Params::getParams() const
 bool r_Format_Params::isValidJson() const
 {
     return !params.isNull();
-}
-
-string r_Format_Params::getParseErrorMsg() const
-{
-    return parseErrorMsg;
 }
 
 vector<string> r_Format_Params::getFilePaths() const

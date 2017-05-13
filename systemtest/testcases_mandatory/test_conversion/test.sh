@@ -262,6 +262,12 @@ $RASQL -q 'select encode(c, "tiff") from test_tmp as c' --out file --outfile nod
 check_result 0 $? "default tiff test"
 rm -f nodata*
 
+################## test invalid json ###############################
+
+$RASQL -q 'select encode(c, "tiff", "{ \"nodata\": 200:201 }") from test_tmp as c' --out file --outfile nodata > /dev/null 2>&1
+check_result 255 $? "invalid json test"
+rm -f nodata*
+
 ################## test georeference ###############################
 
 $RASQL -q 'select encode(c, "GTiff", "{ \"nodata\": [200,201,202], \"geoReference\": { \"bbox\": { \"xmin\": 0.5, \"xmax\": 30, \"ymin\": -15, \"ymax\": 50.3}, \"crs\": \"EPSG:4326\" }, \"metadata\": \"metadata test\" }") from test_tmp as c' --out file --outfile geo > /dev/null

@@ -608,9 +608,6 @@ r_Conv_GDAL::initEncodeParams(const string& paramsIn)
     }
     else
     {
-        LWARNING << "parsing json format options failed, error: " << formatParams.getParseErrorMsg();
-        LINFO << "attempting to parse key/value format parameters.";
-
         // replace escaped characters
         string paramsStr{paramsIn};
         boost::algorithm::replace_all(paramsStr, "\\\"", "\"");
