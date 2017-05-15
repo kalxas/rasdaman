@@ -28,7 +28,7 @@ rasdaman GmbH.
  *
  *
  * COMMENTS:
- *   uses embedded SQL
+ *   
  *
  ***********************************************************************/
 
@@ -55,6 +55,7 @@ rasdaman GmbH.
 #include "relcatalogif/syntaxtypes.hh"
 #include <easylogging++.h>
 #include <boost/algorithm/string/predicate.hpp>
+#include "raslib/error.hh"
 
 TypeFactory* TypeFactory::myInstance = 0;
 
@@ -396,16 +397,17 @@ TypeFactory::deleteStructType(const char* typeName)
             DBObjectId toKill(resultType->getOId());
             toKill->setPersistent(false);
             toKill->setCached(false);
-            LINFO << "base type: " << typeName << " will be deleted from db";
+            LDEBUG << "Base type '" << typeName << "' will be deleted from the database";
         }
         else
         {
-            LINFO << "base type: " << typeName <<  " cannot be deleted: instance existing";
+            LFATAL << "Struct type '" << typeName << "' is currently in use, so it cannot be dropped.";
+            throw r_Error(TYPEISINUSE);
         }
     }
     else
     {
-        LINFO << "base type: " << typeName << " cannot be deleted: not existing";
+        LWARNING << "Base type '" << typeName << "' cannot be deleted. It does not exist";
     }
 }
 
@@ -462,21 +464,23 @@ TypeFactory::deleteMDDType(const char* typeName)
                 DBObjectId toKill(resultType->getOId());
                 toKill->setPersistent(false);
                 toKill->setCached(false);
-                LINFO << "MDD type: " << typeName << " will be deleted from db";
+                LDEBUG << "MDD type '" << typeName << "' will be deleted from the database.";
             }
             else
             {
-                LINFO << "MDD type: " << typeName << " cannot be deleted: instance existing";
+                LFATAL << "MDD type '" << typeName << "' is currently in use, so it cannot be dropped.";
+                throw r_Error(TYPEISINUSE);
             }
         }
         else
         {
-            LINFO << "MDD type: " << typeName << " cannot be deleted: instance existing";
+            LFATAL << "MDD type '" << typeName << "' is currently in use, so it cannot be dropped.";
+            throw r_Error(TYPEISINUSE);
         }
     }
     else
     {
-        LINFO << "MDD type: " << typeName << " cannot be deleted: not existing";
+        LWARNING << "MDD type '" << typeName << "' cannot be deleted. It does not exist";
     }
 }
 
@@ -504,16 +508,17 @@ TypeFactory::deleteSetType(const char* typeName)
             DBObjectId toKill(resultType->getOId());
             toKill->setPersistent(false);
             toKill->setCached(false);
-            LINFO << "set type: " << typeName << " will be deleted from db";
+            LDEBUG << "set type '" << typeName << "' will be deleted from the database";
         }
         else
         {
-            LINFO << "set type: " << typeName << " cannot be deleted: instance existing";
+            LFATAL << "set type '" << typeName << "' is currently in use, so it cannot be dropped.";
+            throw r_Error(TYPEISINUSE);
         }
     }
     else
     {
-        LINFO << "set type: " << typeName << " cannot be deleted: not existing";
+        LWARNING << "set type '" << typeName << "' cannot be deleted. It does not exist";
     }
 }
 

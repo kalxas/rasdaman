@@ -118,10 +118,23 @@ logn "DROP TYPE $1 ... "
 $RASQL --quiet -q "DROP TYPE $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
 if [ $? -eq 0 ]; then
 	echo ok.
-    NUM_SUC=$(($NUM_SUC + 1))
+        NUM_SUC=$(($NUM_SUC + 1))
 else
 	echo failed.
 	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+}
+
+function test_invalid_drop_type() {
+logn "DROP TYPE $1 ..."
+ERR_MSG=$($RASQL --quiet -q "DROP TYPE $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD 2>&1)
+echo $ERR_MSG | grep -F -q "Exception"
+if [ $? -eq 0 ]; then
+        echo ok.
+        NUM_SUC=$(($NUM_SUC + 1))
+else
+        echo failed.
+        NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 }
 
@@ -137,11 +150,22 @@ if [ $NUM_FAIL -eq 0 ]; then
     test_create_type "$TEST_SET_TYPE" "RAS_SET_TYPES"
     test_create_type "$TEST_SET_TYPE_NULL_VALUES" "RAS_SET_TYPES"
 
+    test_invalid_drop_type "$STRUCT_TYPE_NAME"
+    test_invalid_drop_type "$MARRAY_DOM_TYPE_NAME"
+
+    COLL_TYPE_NAME="TestCollType"
+
+    $RASQL --quiet -q "create collection $COLL_TYPE_NAME $SET_TYPE_NAME" --out string --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
+    test_invalid_drop_type "$SET_TYPE_NAME"
+
+    $RASQL --quiet -q "drop collection $COLL_TYPE_NAME" --out string --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
+
     test_drop_type "$SET_TYPE_NAME"
     test_drop_type "$SET_TYPE_NAME_NULL_VALUES"
     test_drop_type "$MARRAY_DIM_TYPE_NAME"
     test_drop_type "$MARRAY_DOM_TYPE_NAME"
     test_drop_type "$STRUCT_TYPE_NAME"
+
 fi
 
 # ------------------------------------------------------------------------------

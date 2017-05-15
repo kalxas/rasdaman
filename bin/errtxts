@@ -1,4 +1,4 @@
-216
+217
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -61,6 +61,7 @@
 240^E^Exception: Insert into a RC index is not allowed.
 241^E^Exception: No tiling defined at that region.  Update not possible.
 242^E^Exception: Invalid format parameter.
+243^E^Exception: The type to be dropped is currently in use by another stored object. Please delete any existing references to this type and try again.
 #
 300^E^Parsing error $errorNo in line $lineNo, column $columnNo: Unexpected name $token.
 301^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: All cell values of an MDD must be of the same type. 
