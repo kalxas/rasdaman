@@ -1,0 +1,1 @@
+select complex(cos(x.0), -1/sin(x.1)) from test_struct as x

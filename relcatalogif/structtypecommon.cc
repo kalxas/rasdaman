@@ -263,13 +263,13 @@ StructType::getNewTypeStructure() const
 unsigned int
 StructType::addElement(const char* elemName, const char* elemType)
 {
-    BaseType* stuff = 0;
-    stuff = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, elemType));
-    if (stuff == 0)
+    BaseType* typeByName = 0;
+    typeByName = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, elemType));
+    if (typeByName == 0)
     {
-        stuff = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, elemType));
+        typeByName = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, elemType));
     }
-    return addElement(elemName, stuff);
+    return addElement(elemName, typeByName);
 }
 
 unsigned int
@@ -324,8 +324,8 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
             // append at the end, align offset to 4 bytes.
             currPos = numElems;
             ++numElems;
-            elementOffsets[currPos] = ((elementOffsets[currPos - 1] +
-                                        elements[currPos - 1]->getSize() - 1) / myAlign + 1) * myAlign;
+            elementOffsets[currPos] = elementOffsets[currPos - 1] +
+                                        elements[currPos - 1]->getSize();
         }
         else
         {
@@ -338,8 +338,8 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
                 // append at the end, align offset to 4 bytes.
                 currPos = numElems;
                 ++numElems;
-                elementOffsets[currPos] = ((elementOffsets[currPos - 1] +
-                                            elements[currPos - 1]->getSize() - 1) / 4 + 1) * 4;
+                elementOffsets[currPos] = elementOffsets[currPos - 1] +
+                                            elements[currPos - 1]->getSize();
             }
             else
             {
@@ -351,8 +351,8 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
                     }
                     currPos = numElems;
                     numElems++;
-                    elementOffsets[currPos] = ((elementOffsets[currPos - 1] +
-                                                elements[currPos - 1]->getSize() - 1) / 2 + 1) * 2;
+                    elementOffsets[currPos] = elementOffsets[currPos - 1] +
+                                                elements[currPos - 1]->getSize();
                 }
                 else
                 {
@@ -548,25 +548,12 @@ StructType::compatibleWith(const Type* aType) const
 void
 StructType::calcSize()
 {
-    unsigned int alignSize = 1;
-
-    // check for alignment of size
-    for (unsigned int i = 0; i < numElems; i++)
-    {
-        if (elements[i]->getSize() == 4 || elements[i]->getType() == STRUCT)
-        {
-            alignSize = 4;
-            break;
-        }
-        else
-        {
-            if (elements[i]->getSize() == 2)
-            {
-                alignSize = 2;
-            }
-        }
+    unsigned int tempSize = 0;
+    
+    for (unsigned int i = 0; i < numElems; i++){
+        tempSize += elements[i]->getSize();        
     }
-    // align size to alignSize bytes (there may be unused bytes at the end!)
-    size = ((elementOffsets[numElems - 1] + elements[numElems - 1]->getSize() - 1) / alignSize + 1) * alignSize;
+    
+    size = tempSize;
 }
 

@@ -1,0 +1,1 @@
+select add_cells(a) from test_struct as a

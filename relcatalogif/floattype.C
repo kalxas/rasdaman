@@ -142,9 +142,7 @@ FloatType::printCell( ostream& stream, const char* cell ) const
 double*
 FloatType::convertToCDouble(const char* cell, double* value) const
 {
-  // !!!! HP specific, assumes 4 Byte float and MSB..LSB 
-  // byte order
-  *value = *(float*)const_cast<char*>(cell);
+  *value = static_cast<double>(*(reinterpret_cast<float*>(const_cast<char*>(cell))));
   return value;
 }
 
@@ -154,10 +152,6 @@ FloatType::makeFromCDouble(char* cell, const double* value) const
 {
   // make sure that a float is not assigned a double (DEC Alpha correctly dumps core)
   double dummy = *value;
-  if(dummy > FLT_MAX)
-    dummy = FLT_MAX;
-  if(dummy < -1.0f * FLT_MAX)
-    dummy = -1.0f * FLT_MAX;
-  *(float*)(cell) = dummy;
+  *reinterpret_cast<float*>(cell) = static_cast<float>(dummy);
   return cell;
 }

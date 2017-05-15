@@ -92,7 +92,7 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
         else if (opType->getType() == STRUCT)
         {
             if (resType->getType() == STRUCT &&
-                    ((StructType*)const_cast<BaseType*>(resType))->getNumElems() != ((StructType*)const_cast<BaseType*>(opType))->getNumElems())
+                    (dynamic_cast<StructType*>(const_cast<BaseType*>(resType)))->getNumElems() != (dynamic_cast<StructType*>(const_cast<BaseType*>(opType)))->getNumElems())
             {
                 return 0;
             }
@@ -1132,8 +1132,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
             StructType* resStructType = new StructType;
             TypeFactory::addTempType(resStructType);
 
-            StructType* opStructType = (StructType*)const_cast<BaseType*>(op1);
-
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
             for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
             {
                 const BaseType* resType = getResultType(op, opStructType->getElemType(i), op2);
@@ -1196,8 +1195,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
         {
             StructType* resStructType = new StructType;
             TypeFactory::addTempType(resStructType);
-            StructType* opStructType = (StructType*)const_cast<BaseType*>(op1);
-
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
             for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
             {
                 const BaseType* resType = getResultType(op, opStructType->getElemType(i));
@@ -1261,8 +1259,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
         {
             StructType* resStructType = new StructType;
             TypeFactory::addTempType(resStructType);
-            StructType* opStructType = (StructType*)const_cast<BaseType*>(op1);
-
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
             for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
             {
                 const BaseType* resType = getResultType(op, opStructType->getElemType(i));
@@ -1327,8 +1324,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
 
                 StructType* resStructType = new StructType;
                 TypeFactory::addTempType(resStructType);
-                StructType* opStructType = (StructType*)const_cast<BaseType*>(op1);
-
+                StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
                 for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
                 {
                     const BaseType* resType = getResultType(op, opStructType->getElemType(i), op2);
@@ -1356,8 +1352,8 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
 
             StructType* resStructType = new StructType;
             TypeFactory::addTempType(resStructType);
-            StructType* opStructType = (StructType*)const_cast<BaseType*>(op2);
-
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
+            
             for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
             {
                 const BaseType* resType = getResultType(op, op1, opStructType->getElemType(i));
@@ -1442,7 +1438,7 @@ int
 Ops::isApplicableOnStruct(Ops::OpType op, const BaseType* opType)
 {
     unsigned int i = 0;
-    StructType* myStructType = (StructType*)const_cast<BaseType*>(opType);
+    StructType* myStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(opType));
     unsigned int numElems = myStructType->getNumElems();
 
     for (i = 0; i < numElems; i++)
@@ -1461,7 +1457,7 @@ Ops::isApplicableOnStructConst(Ops::OpType op, const BaseType* op1Type,
                                const BaseType* op2Type)
 {
     unsigned int i = 0;
-    StructType* myStructType = (StructType*)const_cast<BaseType*>(op1Type);
+    StructType* myStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type));
     unsigned int numElems = myStructType->getNumElems();
 
     for (i = 0; i < numElems; i++)
@@ -4040,8 +4036,8 @@ OpCondenseStruct::OpCondenseStruct(
 {
     unsigned int i = 0;
 
-    myResType = (StructType*)const_cast<BaseType*>(newResType);
-    myOpType = (StructType*)const_cast<BaseType*>(newOpType);
+    myResType = dynamic_cast<StructType*>(const_cast<BaseType*>(newResType));
+    myOpType = dynamic_cast<StructType*>(const_cast<BaseType*>(newOpType));
     numElems = myOpType->getNumElems();
     elemOps = new CondenseOp*[numElems];
     for (i = 0; i < numElems; i++)
@@ -4079,8 +4075,8 @@ OpCondenseStruct::OpCondenseStruct(
 {
     unsigned int i = 0;
 
-    myResType = (StructType*)const_cast<BaseType*>(newResType);
-    myOpType = (StructType*)const_cast<BaseType*>(newOpType);
+    myResType = dynamic_cast<StructType*>(const_cast<BaseType*>(newResType));
+    myOpType = dynamic_cast<StructType*>(const_cast<BaseType*>(newOpType));
     numElems = myOpType->getNumElems();
     elemOps = new CondenseOp*[numElems];
     for (i = 0; i < numElems; i++)
@@ -4153,7 +4149,7 @@ OpBinaryStruct::OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
     BaseType* boolType = ((BaseType*)ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, "Bool"));
 
 
-    myStructType = (StructType*)const_cast<BaseType*>(newStructType);
+    myStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(newStructType));
     numElems = myStructType->getNumElems();
     elemOps = new BinaryOp*[numElems];
     equalOps = new BinaryOp*[numElems];
@@ -4296,8 +4292,8 @@ OpBinaryStructConst::OpBinaryStructConst(
 {
     unsigned int i = 0;
 
-    resStructType = (StructType*)const_cast<BaseType*>(resType);
-    opStructType = (StructType*)const_cast<BaseType*>(op1Type);
+    resStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(resType));
+    opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type));
     numElems = opStructType->getNumElems();
     elemOps = new BinaryOp*[numElems];
     for (i = 0; i < numElems; i++)
@@ -4352,8 +4348,8 @@ OpBinaryConstStruct::OpBinaryConstStruct(
 {
     unsigned int i = 0;
 
-    resStructType = (StructType*)const_cast<BaseType*>(resType);
-    opStructType = (StructType*)const_cast<BaseType*>(op2Type);
+    resStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(resType));
+    opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type));
     numElems = opStructType->getNumElems();
     elemOps = new BinaryOp*[numElems];
     for (i = 0; i < numElems; i++)
@@ -4406,17 +4402,17 @@ OpEQUALStruct::OpEQUALStruct(const BaseType* newResType,
 {
     unsigned int i = 0;
 
-    numElems = ((StructType*)const_cast<BaseType*>(op1Type))->getNumElems();
+    numElems = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getNumElems();
     elemOps = new BinaryOp*[numElems];
     for (i = 0; i < numElems; i++)
     {
         elemOps[i] =
             Ops::getBinaryOp(Ops::OP_EQUAL, resType,
-                             ((StructType*)const_cast<BaseType*>(op1Type))->getElemType(i),
-                             ((StructType*)const_cast<BaseType*>(op2Type))->getElemType(i),
+                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getElemType(i),
+                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getElemType(i),
                              newResOff,
-                             newOp1Off + ((StructType*)const_cast<BaseType*>(op1Type))->getOffset(i),
-                             newOp2Off + ((StructType*)const_cast<BaseType*>(op2Type))->getOffset(i));
+                             newOp1Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getOffset(i),
+                             newOp2Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getOffset(i));
     }
 }
 
@@ -4461,17 +4457,17 @@ OpNOTEQUALStruct::OpNOTEQUALStruct(const BaseType* newResType,
 {
     unsigned int i = 0;
 
-    numElems = ((StructType*)const_cast<BaseType*>(op1Type))->getNumElems();
+    numElems = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getNumElems();
     elemOps = new BinaryOp*[numElems];
     for (i = 0; i < numElems; i++)
     {
         elemOps[i] =
             Ops::getBinaryOp(Ops::OP_NOTEQUAL, resType,
-                             ((StructType*)const_cast<BaseType*>(op1Type))->getElemType(i),
-                             ((StructType*)const_cast<BaseType*>(op2Type))->getElemType(i),
+                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getElemType(i),
+                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getElemType(i),
                              newResOff,
-                             newOp1Off + ((StructType*)const_cast<BaseType*>(op1Type))->getOffset(i),
-                             newOp2Off + ((StructType*)const_cast<BaseType*>(op2Type))->getOffset(i));
+                             newOp1Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getOffset(i),
+                             newOp2Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getOffset(i));
     }
 }
 
@@ -4515,8 +4511,8 @@ OpUnaryStruct::OpUnaryStruct(
 {
     unsigned int i = 0;
 
-    myResType = (StructType*)const_cast<BaseType*>(newResType);
-    myOpType = (StructType*)const_cast<BaseType*>(newOpType);
+    myResType = dynamic_cast<StructType*>(const_cast<BaseType*>(newResType));
+    myOpType = dynamic_cast<StructType*>(const_cast<BaseType*>(newOpType));
     numElems = myOpType->getNumElems();
     elemOps = new UnaryOp*[numElems];
     for (i = 0; i < numElems; i++)
@@ -4630,7 +4626,7 @@ OpMAX_BINARYChar::operator()(char* res, const char* op1, const char* op2)
 void
 OpMAX_BINARYChar::getCondenseInit(char* init)
 {
-    *init = 0;
+    *init = std::numeric_limits<r_Char>::min();
 }
 
 //--------------------------------------------

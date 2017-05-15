@@ -58,6 +58,7 @@ NUM_FAIL=0  # the number of fail manipulations
 NUM_SUC=0   # the number of success manipulations
 
 # testing data
+TEST_STRUCT=test_struct
 TEST_GREY=test_grey
 TEST_GREY2=test_grey2
 TEST_RGB2=test_rgb2

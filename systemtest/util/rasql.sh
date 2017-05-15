@@ -253,13 +253,26 @@ function import_rasql_data()
   if [ ! -f "$TESTDATA_PATH/50k.bin" ]; then
     error "testdata file $TESTDATA_PATH/50k.bin not found"
   fi
+  if [ ! -f "$TESTDATA_PATH/23k.bin" ]; then
+    error "testdata file $TESTDATA_PATH/23k.bin not found"
+  fi
   
   # check data types
   check_type GreySet
   check_type GreySet3
   check_type RGBSet
   
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D
+  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_STRUCT
+
+  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bstruct_cube_set\b"
+  if [ $? -ne 0 ]; then
+    log "rasdaman type struct_cube_set not found, inserting..."
+    $RASQL -q "create type struct_pixel as ( x1 float, x2 double, x3 octet, x4 double, x5 short )" > /dev/null
+    $RASQL -q "create type struct_cube as struct_pixel mdarray [ x, y, z ]" > /dev/null
+    $RASQL -q "create type struct_cube_set as set ( struct_cube )" > /dev/null
+  fi
+  create_coll $TEST_STRUCT struct_cube_set
+  $RASQL -q "insert into $TEST_STRUCT values \$1" -f "$TESTDATA_PATH/23k.bin" --mdddomain "[0:99,0:9,0:0]" --mddtype struct_cube > /dev/null
 
   create_coll $TEST_GREY GreySet
   insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode"

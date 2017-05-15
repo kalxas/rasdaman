@@ -74,17 +74,13 @@ inline r_Long* ComplexType1::convertToCLong(const char*, r_Long*) const { return
 inline char* ComplexType1::makeFromCLong(char*, const r_Long*) const { return 0; }
 
 inline double* ComplexType1::convertToCDouble(const char* cell, double* value) const {
-	*value = *(float*)const_cast<char*>(cell);
+    *value = static_cast<double>(*(reinterpret_cast<float*>(const_cast<char*>(cell))));
     return value;
 }
 
 inline char* ComplexType1::makeFromCDouble(char* cell, const double* value) const {
 	double dummy = *value;
-	if(dummy > FLT_MAX)
-		dummy = FLT_MAX;
-	if(dummy < -1.0f * FLT_MAX)
-		dummy = -1.0f * FLT_MAX;
-	*(float*)(cell) = dummy;
+        *reinterpret_cast<float*>(cell) = static_cast<float>(dummy);
 	return cell;
 }
 
