@@ -322,7 +322,7 @@ public class SubsetParsingService {
             // grid upper bound is the ceiling of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: (ORIGIN) 0--- 30 ---- 60 ---- 90 then upper trim on 31 will return geoBound: 60
             gridUpperBound = (BigDecimalUtil.divide(geoUpperBound.subtract(geoOrigin), resolution)).setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
-            geoUpperBound = geoOrigin.add(gridUpperBound.multiply(resolution));
+            geoUpperBound = geoOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
         } else {
             // negative axis (origin is larger than maxGeo bound)
 
@@ -334,7 +334,7 @@ public class SubsetParsingService {
             // grid lower bound is the ceiling of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then lower trim on 31 will return geoBound: 30
             gridUpperBound = (BigDecimalUtil.divide(geoLowerBound.subtract(geoOrigin), resolution)).setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
-            geoLowerBound = geoOrigin.add(gridUpperBound.multiply(resolution));
+            geoLowerBound = geoOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
         }
 
         // this happens when trim lower and upper before fitting have same value (e.g: Lat(20:20)),

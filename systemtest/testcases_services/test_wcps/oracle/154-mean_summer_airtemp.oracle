@@ -11,8 +11,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
-      <lowerCorner>-12.975 129.975 </lowerCorner>
-      <upperCorner>-11.975 130.975 </upperCorner>
+      <lowerCorner>-13.025 129.975 </lowerCorner>
+      <upperCorner>-11.975 131.025 </upperCorner>
     </Envelope>
   </boundedBy>
 

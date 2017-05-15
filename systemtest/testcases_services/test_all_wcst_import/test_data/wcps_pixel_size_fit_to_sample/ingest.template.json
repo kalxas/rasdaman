@@ -1,0 +1,36 @@
+{
+
+  "config": {
+
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+
+    "mock": false,
+
+    "automated": true
+
+  },
+
+  "input": {
+
+    "coverage_id": "test_pixel_size_10m", 
+    "paths": [
+      "output.tif"
+    ]
+
+  },
+
+  "recipe": {
+
+    "name": "map_mosaic", 
+
+    "options": {
+
+ 	  "tiling": "ALIGNED [0:500, 0:500]"
+    }
+
+  }
+
+}

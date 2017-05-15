@@ -1,0 +1,1 @@
+for c in (test_pixel_size_10m) return encode(c[E(580000:580020), N(4339980:4340000)], "tiff")
