@@ -316,6 +316,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
         // The array has to be ordered by offsets.
         if (newType->getType() == STRUCT)
         {
+            //kept for potential future use
             unsigned int myAlign = (static_cast<StructType*>(const_cast<BaseType*>(newType)))->getAlignment();
             if (align < myAlign)
             {

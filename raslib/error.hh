@@ -560,6 +560,7 @@ public:
 #define NOTILINGDEFINED                     241
 #define INVALIDFORMATPARAMETER              242
 #define TYPEISINUSE                         243
+#define STRUCTOFSTRUCTSDISABLED             244
 #define UNSATISFIEDMDDCONSTANT              373
 #define DIVISION_BY_ZERO                    433
 #define DATABASE_EXISTS                     708

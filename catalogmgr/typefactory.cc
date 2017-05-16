@@ -192,7 +192,9 @@ TypeFactory::addStructType(const StructType* type)
             {
             case STRUCT:
                 LTRACE << "element is struct type " << type->getElemName(i) << " of type " << type->getElemType(i)->getName();
-                persistentType->addElement(type->getElemName(i), addStructType(static_cast<const StructType*>(type->getElemType(i))));
+                //persistentType->addElement(type->getElemName(i), addStructType(static_cast<const StructType*>(type->getElemType(i)))); 
+                LFATAL << "Building a struct using a user-defined struct is currently not supported.";
+                throw r_Error(STRUCTOFSTRUCTSDISABLED);
                 break;
             case ULONG:
             case USHORT:

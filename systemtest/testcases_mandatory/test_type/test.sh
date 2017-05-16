@@ -117,11 +117,11 @@ function test_drop_type() {
 logn "DROP TYPE $1 ... "
 $RASQL --quiet -q "DROP TYPE $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
 if [ $? -eq 0 ]; then
-	echo ok.
+        echo ok.
         NUM_SUC=$(($NUM_SUC + 1))
 else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
+        echo failed.
+        NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 }
 
@@ -138,18 +138,42 @@ else
 fi
 }
 
+function test_invalid_create_type() {
+logn "$1 ..."
+#$1 is the type name, $2 is the format for the structure to be created
+ERR_MSG=$($RASQL --quiet -q "$1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD  2>&1)
+echo $ERR_MSG | grep -F -q "Exception"
+if [ $? -eq 0 ]; then
+        echo ok.
+        NUM_SUC=$((NUM_SUC + 1))
+else
+        echo failed.
+        NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+}
+
 test_select_type "RAS_STRUCT_TYPES"
 test_select_type "RAS_MARRAY_TYPES"
 test_select_type "RAS_SET_TYPES"
 
 # if RAS_TYPES collections exist then run the rest of the tests
 if [ $NUM_FAIL -eq 0 ]; then
+#testing type creation
     test_create_type "$TEST_STRUCT_TYPE" "RAS_STRUCT_TYPES"
     test_create_type "$TEST_MARRAY_DIM_TYPE" "RAS_MARRAY_TYPES"
     test_create_type "$TEST_MARRAY_DOM_TYPE" "RAS_MARRAY_TYPES"
     test_create_type "$TEST_SET_TYPE" "RAS_SET_TYPES"
     test_create_type "$TEST_SET_TYPE_NULL_VALUES" "RAS_SET_TYPES"
+#testing error when making struct of structs
+    STRUCT_OF_STRUCT_TYPE_NAME="TestStructOfStructsType"
+    TEST_STRUCT_OF_STRUCT_TYPE_A="CREATE TYPE $STRUCT_OF_STRUCT_TYPE_NAME AS (x1 char, x2 $STRUCT_TYPE_NAME, x3 char)"
+    TEST_STRUCT_OF_STRUCT_TYPE_B="CREATE TYPE $STRUCT_OF_STRUCT_TYPE_NAME AS (x1 $STRUCT_TYPE_NAME, x2 char, x3 char)"
+    TEST_STRUCT_OF_STRUCT_TYPE_C="CREATE TYPE $STRUCT_OF_STRUCT_TYPE_NAME AS (x1 char, x2 char, x3 $STRUCT_TYPE_NAME)"
 
+    test_invalid_create_type "$TEST_STRUCT_OF_STRUCT_TYPE_A"
+    test_invalid_create_type "$TEST_STRUCT_OF_STRUCT_TYPE_B"
+    test_invalid_create_type "$TEST_STRUCT_OF_STRUCT_TYPE_C"
+#testing error when dropping in-use types
     test_invalid_drop_type "$STRUCT_TYPE_NAME"
     test_invalid_drop_type "$MARRAY_DOM_TYPE_NAME"
 
@@ -159,7 +183,7 @@ if [ $NUM_FAIL -eq 0 ]; then
     test_invalid_drop_type "$SET_TYPE_NAME"
 
     $RASQL --quiet -q "drop collection $COLL_TYPE_NAME" --out string --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
-
+#testing type dropping
     test_drop_type "$SET_TYPE_NAME"
     test_drop_type "$SET_TYPE_NAME_NULL_VALUES"
     test_drop_type "$MARRAY_DIM_TYPE_NAME"
