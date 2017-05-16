@@ -9,4 +9,3 @@
 214-colorPalette_json_full_json.test
 # This query failed on VMs but not on development system (need to verify later).
 216-json_with_break_lines.test
-

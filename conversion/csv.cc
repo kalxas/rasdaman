@@ -205,7 +205,7 @@ const char* r_Conv_CSV::printPrimitiveValue(std::stringstream& f, const r_Base_T
         f << static_cast<int>(ptr->get_octet(val));
         break;
     case r_Type::DOUBLE:
-        f << fixed << static_cast<double>(ptr->get_double(val));
+        f << ptr->get_double(val);
         break;
     case r_Type::FLOAT:
         f << ptr->get_float(val);
