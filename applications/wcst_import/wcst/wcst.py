@@ -75,6 +75,9 @@ class WCSTRequest:
         params.update(self.global_params)
         extra_params = ""
         for key, value in params.iteritems():
+            # We don't send the UpdateCoverage request with subset1=Lat(...)&subset2=Long(...) as they are not valid
+            if str(key).startswith("subset"):
+                key = "subset"
             extra_params += "&" + str(key) + "=" + str(value)
         return self.SERVICE_PARAMETER + "=" + self.SERVICE_VALUE + "&" + \
                self.VERSION_PARAMETER + "=" + self.VERSION_VALUE + "&" + \
