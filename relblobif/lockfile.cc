@@ -105,7 +105,15 @@ bool LockFile::unlock()
         }
         if (unlink(lockFilePath.c_str()) == IO_ERROR_RC)
         {
-            LWARNING << "failed deleting lock file (" << lockFilePath << "): " << strerror(errno);
+            if (access(lockFilePath.c_str(), F_OK) != IO_ERROR_RC)
+            {
+                // lock file still exists, but cannot be removed; perhaps it was locked by another process?
+                LWARNING << "failed deleting lock file (" << lockFilePath << "): " << strerror(errno);
+            }
+            else
+            {
+                // it was already deleted by another process probably, nothing to do
+            }
         }
         fd = INVALID_FILE_DESCRIPTOR;
     }

@@ -211,6 +211,7 @@ private:
     int messageDigest(const char* input, char* output, const char* mdName);
     const char* convertDatabRights(const UserDatabaseRights& dbRights);
 
+    bool isProcessAlive(pid_t pid) const;
 };
 
 }

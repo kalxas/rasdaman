@@ -221,7 +221,7 @@ bool ServerRasNet::isAlive()
     unique_lock<shared_mutex> lock(this->stateMtx);
     if (this->started)
     {
-        //Remove the process fromt he process table if it has died.
+        //Remove the process from the process table if it has died.
         int status;
         waitpid(this->processId, &status, WNOHANG);
 
@@ -398,16 +398,14 @@ void ServerRasNet::stop(KillLevel level)
 
         // wait until the server process is dead
         boost::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
-        bool isProcessAlive = true;
-        while (cleanupTimeout > 0 && isProcessAlive)
+        while (cleanupTimeout > 0 && isProcessAlive(this->processId))
         {
             usleep(SERVER_CHECK_INTERVAL);
             cleanupTimeout -= SERVER_CHECK_INTERVAL;
-            isProcessAlive = (kill(this->processId, 0) == 0);
         }
 
         // if the server is still alive after SERVER_CLEANUP_TIMEOUT, send a SIGKILL
-        if (isProcessAlive)
+        if (isProcessAlive(this->processId))
         {
             if (kill(this->processId, SIGKILL))
             {
@@ -595,6 +593,12 @@ const char* ServerRasNet::convertDatabRights(const UserDatabaseRights& dbRights)
 
     sprintf(buffer, "%c%c", R, W);
     return buffer;
+}
+
+bool ServerRasNet::isProcessAlive(pid_t pid) const
+{
+    int status;
+    return waitpid(pid, &status, WNOHANG) == 0;
 }
 
 }

@@ -63,9 +63,6 @@ RASMGR_PORT=7001
 # rasadmin/rasadmin
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 
-# sleep time to let rasmgr establish before spawning servers
-WAIT_FOR_CHILDREN=1
-
 # error messages:
 ERROR_PARAM="ERS001 Error: illegal parameter: $1"
 
@@ -120,9 +117,6 @@ rasmgr_pid=$!
 
 # --- start servers: -------------------------------------------------
 
-# allow process to establish
-sleep $WAIT_FOR_CHILDREN
-
 # check if rasmgr's pid is actually running; if not, exit with an error.
 # we do it this way, because the exit code cannot be captured with nohup
 ps -p $rasmgr_pid > /dev/null
@@ -171,6 +165,7 @@ else
 fi
 
 # do a rasql query test to check if rasdaman has started properly
+sleep 0.1 || sleep 1
 @bindir@rasql -q 'select version()' --quiet -p $RASMGR_PORT > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "$MYNAME: failed starting rasservers; please check the logs for more information."
