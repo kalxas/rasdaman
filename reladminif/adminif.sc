@@ -51,9 +51,6 @@ extern char globalConnectId[PATH_MAX];
 
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN] = "SQLite";
 
-// global connection variable
-sqlite3* sqliteConn = NULL;
-
 /**
  * Check if a counter value matches the actual column value in the respective table.
  */
@@ -94,14 +91,7 @@ checkCounter(const char* counterName, const char* column,
 void
 closeDbConnection()
 {
-    if (sqliteConn != NULL)
-    {
-        if (sqlite3_close(sqliteConn) != SQLITE_OK)
-        {
-            warnOnError("close RASBASE connection", sqliteConn);
-        }
-        sqliteConn = NULL;
-    }
+    SQLiteQuery::closeConnection();
 }
 
 AdminIf::AdminIf(bool createDb) throw (r_Error)
@@ -116,17 +106,7 @@ AdminIf::AdminIf(bool createDb) throw (r_Error)
         }
     }
 
-    if (sqlite3_open(globalConnectId, &sqliteConn) != SQLITE_OK)
-    {
-        validConnection = false;
-        LFATAL << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
-        throw r_Error(830);
-    }
-    else
-    {
-        validConnection = true;
-        LINFO << "Connected successfully to '" << globalConnectId << "'";
-    }
+    validConnection = SQLiteQuery::openConnection(globalConnectId);
 
     ObjectBroker::init();
 

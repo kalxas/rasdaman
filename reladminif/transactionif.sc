@@ -58,7 +58,10 @@ TransactionIf::begin(bool readOnly) throw (r_Error)
     {
         SQLiteQuery::execute("COMMIT TRANSACTION");
     }
-    SQLiteQuery::execute("BEGIN TRANSACTION");
+    if (readOnly)
+        SQLiteQuery::execute("BEGIN TRANSACTION");
+    else
+        SQLiteQuery::execute("BEGIN IMMEDIATE TRANSACTION");
 
     isReadOnly = readOnly;
     AdminIf::setAborted(false);

@@ -50,8 +50,8 @@ EXEC SQL define STRING_MAXLEN 255;
 #define QUERY_MAXLEN 2000
 
 #define UPDATE_QUERY(c) { \
-        sqlite3_exec(sqliteConn, c, 0, 0, 0); \
-        failOnError(c, sqliteConn); \
+        sqlite3_exec(SQLiteQuery::getConnection(), c, 0, 0, 0); \
+        failOnError(c, SQLiteQuery::getConnection()); \
     }
 #define DROP_TABLE(table_name) \
     UPDATE_QUERY("DROP TABLE IF EXISTS "#table_name);

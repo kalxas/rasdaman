@@ -198,10 +198,18 @@ public:
      * @return the sqlite statement.
      */
     sqlite3_stmt* getStatement();
+    
+    static void closeConnection();
+    
+    static bool openConnection(const char* globalConnectId);
 private:
+    static sqlite3* sqliteConn;
     sqlite3_stmt* stmt;
     char* query;
     int columnCounter;
+    
+    // 10 minutes timeout, in case RASBASE is locked by another rasserver for writing
+    static constexpr int SQLITE_BUSY_TIMEOUT{10 * 60 * 1000};
 };
 
 #endif

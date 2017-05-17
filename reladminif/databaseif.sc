@@ -55,37 +55,19 @@ using namespace std;
 
 extern char globalConnectId[PATH_MAX];
 
-extern sqlite3* sqliteConn;
-
 // size of ARCHITECTURE attribute in RAS_ADMIN:
 #define SIZE_ARCH_RASADMIN 20
 
 void
 DatabaseIf::disconnect() throw (r_Error)
 {
-    if (sqliteConn != NULL)
-    {
-        int error = sqlite3_close(sqliteConn);
-        if (error != SQLITE_OK)
-        {
-            warnOnError("close RASBASE connection", sqliteConn);
-        }
-        sqliteConn = NULL;
-    }
+    SQLiteQuery::closeConnection();
 }
 
 void
 DatabaseIf::connect() throw (r_Error)
 {
-    if (sqliteConn == NULL)
-    {
-        int error = sqlite3_open(globalConnectId, &sqliteConn);
-        if (error != SQLITE_OK)
-        {
-            LFATAL << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
-            throw r_Error(830);
-        }
-    }
+    SQLiteQuery::openConnection(globalConnectId);
 }
 
 void

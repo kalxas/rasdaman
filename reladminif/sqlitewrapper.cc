@@ -38,10 +38,7 @@ rasdaman GmbH.
 #include <bool.h>
 #include <easylogging++.h>
 
-extern sqlite3* sqliteConn;
-
-// 60s timeout, in case RASBASE is locked by another rasserver for writing
-#define SQLITE_BUSY_TIMEOUT 60000
+sqlite3* SQLiteQuery::sqliteConn = NULL;
 
 SQLiteQuery::SQLiteQuery(char q[]) :
     stmt(NULL), columnCounter(0)
@@ -121,7 +118,7 @@ void SQLiteQuery::bindBlob(char* param, int size)
 
 void SQLiteQuery::execute(int fail)
 {
-    LDEBUG << "SQL query: " << query;
+    LDEBUG << "Executing SQL query (fail on error: " << fail << "): " << query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_step(stmt);
     if (fail)
@@ -137,7 +134,7 @@ void SQLiteQuery::execute(int fail)
 void SQLiteQuery::execute(const char* query)
 {
     //RMInit::logOut << "SQL query: " << query << endl;
-    LDEBUG << "SQL query: " << query;
+    LDEBUG << "Executing SQL query: " << query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_exec(sqliteConn, query, 0, 0, 0);
     failOnError(query, sqliteConn);
@@ -151,7 +148,7 @@ void SQLiteQuery::executeWithParams(const char* format, ...)
     vsnprintf(query, QUERY_MAXLEN, format, args);
     va_end(args);
     //RMInit::logOut << "SQL query: " << query << endl;
-    LDEBUG << "SQL query: " << query;
+    LDEBUG << "Executing SQL query: " << query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_exec(sqliteConn, query, 0, 0, 0);
     failOnError(query, sqliteConn);
@@ -221,6 +218,34 @@ int SQLiteQuery::currColumnType()
 int SQLiteQuery::currColumnNull()
 {
     return currColumnType() == SQLITE_NULL;
+}
+
+void SQLiteQuery::closeConnection()
+{
+    if (sqliteConn != NULL)
+    {
+        if (sqlite3_close(sqliteConn) != SQLITE_OK)
+        {
+            warnOnError("close RASBASE connection", sqliteConn);
+        }
+        sqliteConn = NULL;
+    }
+}
+
+bool SQLiteQuery::openConnection(const char* globalConnectId)
+{
+    sqlite3_enable_shared_cache(0);
+    if (sqlite3_open(globalConnectId, &sqliteConn) != SQLITE_OK)
+    {
+        LFATAL << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
+        throw r_Error(830);
+    }
+    else
+    {
+        LINFO << "Connected successfully to '" << globalConnectId << "'";
+        sqlite3_exec(sqliteConn, "PRAGMA journal_mode=WAL", NULL, 0, NULL);
+    }
+    return true;
 }
 
 #endif
