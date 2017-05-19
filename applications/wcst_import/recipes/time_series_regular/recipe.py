@@ -192,8 +192,8 @@ class Recipe(BaseRecipe):
             if subsets[i].coverage_axis.axis.crs_axis is not None and subsets[i].coverage_axis.axis.crs_axis.is_future():
                 subsets[i].coverage_axis.axis = RegularAxis(subsets[i].coverage_axis.axis.label,
                                                             subsets[i].coverage_axis.axis.uomLabel,
-                                                            subsets[i].coverage_axis.axis.low,
-                                                            subsets[i].coverage_axis.axis.high, tpair.time.to_string(),
+                                                            tpair.time.to_string(),
+                                                            tpair.time.to_string(), tpair.time.to_string(),
                                                             subsets[i].coverage_axis.axis.crs_axis)
                 subsets[i].coverage_axis.grid_axis.resolution = number_of_days
                 subsets[i].interval.low = tpair.time.to_string()
