@@ -1,0 +1,3 @@
+service=WCS&
+acceptversions=2.0.1&
+request=GetCapabilities

@@ -365,6 +365,9 @@ public class PetascopeInterface extends CORSHttpServlet {
                 wms13Adapter.handleGetRequests(wrapperRequest, httpResponse);
             } else if (service.equals(WCS_SERVICE)) {
                 // Support WCS 2.0.1
+                if (version == null) {
+                    version = paramMap.get(KVPSymbols.KEY_ACCEPTVERSIONS);
+                }
                 String queryString = wrapperRequest.getQueryString();
                 handleWcsRequest(version, paramMap.get(REQUEST_GET_PARAMETER), queryString,
                                 httpResponse, wrapperRequest);
