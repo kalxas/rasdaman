@@ -108,8 +108,9 @@ r_Miter::nextCell()
     char* retVal = currCell;
     r_Dimension i = 0;
 
-    if(done)
+    if(done){
         return retVal;
+    }
 
     // increment adresses
     currCell += incArrIter[0].inc;

@@ -57,14 +57,16 @@ using namespace std;
 
 QtScalarData::QtScalarData()
     : valueType(NULL),
-      valueBuffer(NULL)
+      valueBuffer(NULL),
+      ownCells(true)
 {
 }
 
 
 
 QtScalarData::QtScalarData(const QtScalarData& obj)
-    : QtData(obj)
+    : QtData(obj),
+      ownCells(true)
 {
     setLifetime(obj.getLifetime());
 
@@ -87,11 +89,13 @@ QtScalarData::QtScalarData(const QtScalarData& obj)
 QtScalarData::~QtScalarData()
 {
     // valueType is not deleted because it is maintained by the typeFactory
-
-    if (valueBuffer)
+    if (ownCells) 
     {
-        delete[] valueBuffer;
-        valueBuffer = NULL;
+        if (valueBuffer) 
+        {
+            delete[] valueBuffer;
+            valueBuffer = NULL;
+        }
     }
 }
 

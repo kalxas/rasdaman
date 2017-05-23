@@ -928,10 +928,7 @@ Tile::setCell(r_Area index, const char* newCell)
 {
     char* cells = getCell(index);
     unsigned int typeSize = type->getSize();
-    for (unsigned int i = 0; i < typeSize; i++)
-    {
-        cells[i] = newCell[i];
-    }
+    memcpy(cells, newCell, typeSize);
 }
 
 char*

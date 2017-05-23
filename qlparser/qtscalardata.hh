@@ -78,7 +78,10 @@ public:
 
     /// sets the value buffer
     inline void setValueBuffer(char* buffer);
-
+    
+    /// sets ownership of cells to false so destructor will not delete the data
+    inline void disownCells();
+    
     /// returns a null-terminated string describing the type structure
     virtual char* getTypeStructure() const;
     /**
@@ -103,6 +106,9 @@ protected:
 
     /// pointer to the value buffer
     char* valueBuffer;
+     
+    /// ownership of cells (for use by destructor)
+    bool ownCells = true;
 };
 
 #include "qlparser/qtscalardata.icc"

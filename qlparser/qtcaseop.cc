@@ -35,6 +35,7 @@ rasdaman GmbH.
 #include "qlparser/qtcaseop.hh"
 #include "raslib/rmdebug.hh"
 
+#include "mymalloc/mymalloc.h"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtmintervaldata.hh"
@@ -286,26 +287,26 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList)
                     }
                 }
             }
+            
             unsigned int cellCount = 0;
             while (!condTileIter.isDone())
             {
+                std::vector<char*> cachedPoints;
+                std::vector<char*> cachedDefaultPoint;
                 char* condPoint = condTileIter.nextCell();
-                std::vector<char*>* cachedPoints = new std::vector<char*>();
-                std::vector<char*>* cachedDefaultPoint = new std::vector<char*>();
                 if (cachedTiles->size())
                 {
                     for (std::vector<r_Miter*>::iterator i = cacheIterators->begin(); i != cacheIterators->end(); i++)
                     {
-                        cachedPoints->push_back((*i)->nextCell());
+                        cachedPoints.push_back((*i)->nextCell());
                     }
                 }
                 if (defaultIter->size())
                 {
                     for (std::vector<r_Miter*>::iterator i = defaultIter->begin(); i != defaultIter->end(); i++)
                     {
-                        cachedDefaultPoint->push_back((*i)->nextCell());
+                        cachedDefaultPoint.push_back((*i)->nextCell());
                     }
-
                 }
                 if (static_cast<long>(*(condPoint)) == 1 && !changedCells.at(cellCount))
                 {
@@ -314,52 +315,40 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList)
                     //for MDDs, evaluate point by point
                     if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD)
                     {
-                        localResult = evaluateCellByCell(inputList, *resultIter, cachedTiles, cachedPoints);
+                        localResult = evaluateCellByCell(inputList, *resultIter, cachedTiles, &cachedPoints);
+                        (*tileIter)->setCell(cellCount, (dynamic_cast<QtScalarData*>(localResult))->getValueBuffer());
+                        delete localResult;
                     }
-                    else     //for base types
+                    //for base types
+                    else     
                     {
                         localResult = getCachedScalar((*resultIter), scalarCacheList);
+                        (*tileIter)->setCell(cellCount, (dynamic_cast<QtScalarData*>(localResult))->getValueBuffer());                        
                     }
-                    if (localResult->getDataType() != QT_COMPLEX)
-                    {
-                        (*tileIter)->setCell(cellCount, (static_cast<QtAtomicData*>(localResult))->getValueBuffer());
-                    }
-                    else
-                    {
-                        (*tileIter)->setCell(cellCount, (static_cast<QtComplexData*>(localResult))->getValueBuffer());
-                    }
-                }//on the last condition iteration, also plug in the default
+
+                }
+                //on the last condition iteration, also plug in the default
                 else if ((condPos == conditionList2->size() - 1) && !changedCells.at(cellCount))
                 {
                     //put default result
                     QtData* localResult = NULL;
                     if (defaultResult->getDataStreamType().getDataType() == QT_MDD)
                     {
-                        localResult = evaluateCellByCell(inputList, defaultResult, cachedDefaultTiles, cachedDefaultPoint);
+                        localResult = evaluateCellByCell(inputList, defaultResult, cachedDefaultTiles, &cachedDefaultPoint);
+                        (*tileIter)->setCell(cellCount, (dynamic_cast<QtScalarData*>(localResult))->getValueBuffer());
+                        delete localResult;
                     }
+                    //for base types
                     else
                     {
-                        //for base types
                         localResult = getCachedScalar(defaultResult, scalarCacheList);
+                        (*tileIter)->setCell(cellCount, (dynamic_cast<QtScalarData*>(localResult))->getValueBuffer());
                     }
-                    if (localResult->getDataType() != QT_COMPLEX)
-                    {
-                        (*tileIter)->setCell(cellCount, (static_cast<QtAtomicData*>(localResult))->getValueBuffer());
-                    }
-                    else
-                    {
-                        (*tileIter)->setCell(cellCount, (static_cast<QtComplexData*>(localResult))->getValueBuffer());
-                    }
-                }
+
+                }               
                 cellCount++;
-                //if done cleanup
-                if (cellCount == condTile->getDomain().cell_count())
-                {
-                    std::vector<char*>::iterator i;
-                    delete cachedPoints;
-                    delete cachedDefaultPoint;
-                }
             }
+            
             condPos++;
             //if done cleanup
             if (condPos == conditionList2->size())
@@ -424,7 +413,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList)
         {
             if (*dataCacheIter)
             {
-                (*dataCacheIter)->deleteRef();
+                int x = (*dataCacheIter)->deleteRef();
             }
         }
     }
@@ -833,47 +822,57 @@ int QtCaseOp::isSignedType(const BaseType* type)
 QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* currentOperation,
                                      std::vector<Tile*>* currentTiles, std::vector<char*>* cachedPoints)
 {
+    // return value
     QtData* localResult = NULL;
-    std::vector<Tile*>::iterator tileIter;
-    std::vector<char*>::iterator pointIter;
-    QtNodeList::iterator mddVar;
-    //if the current node is an mdd var itself then it has no op applied to, so
-    //return the cell
+    // if the current node is an mdd var itself then it has no op applied to, so
+    // return the cell
     if (currentOperation->getNodeType() == QT_MDD_VAR)
     {
+        // storage container for the data of the cell
         QtScalarData* point = new QtScalarData();
         point->setValueBuffer(cachedPoints->at(0));
         point->setValueType(currentTiles->at(0)->getType());
-        localResult = static_cast<QtData*>(point);
+        //do not delete data as cell data belongs to the cached point
+        //and QtScalarData only stores a reference to the data
+        point->disownCells();
+        // assigns return value
+        localResult = dynamic_cast<QtData*>(point);
     }
     else
     {
-        //get the mdd vars
-        QtNodeList* mddVars = currentOperation->getChild(QT_MDD_VAR, QT_ALL_NODES);
-        QtNodeList* originalTree = new QtNodeList();
-        QtNodeList* replacedTree = new QtNodeList();
-        for (mddVar = mddVars->begin(), tileIter = currentTiles->begin(), pointIter = cachedPoints->begin();
-                mddVar != mddVars->end() && tileIter != currentTiles->end() && pointIter != cachedPoints->end();
-                mddVar++, tileIter++, pointIter++)
+        // get the mdd vars
+        const auto & mddVars = *(currentOperation->getChild(QT_MDD_VAR, QT_ALL_NODES));
+        QtNodeList originalTree;
+        QtNodeList replacedTree;
+        auto mddVar = mddVars.begin();
+        auto tileIter = currentTiles->begin();
+        auto pointIter = cachedPoints->begin();
+        for ( ;mddVar != mddVars.end() && tileIter != currentTiles->end() && pointIter != cachedPoints->end();
+               mddVar++, tileIter++, pointIter++)
         {
+            // storage container for the data of the cell
             QtScalarData* point = new QtScalarData();
             point->setValueBuffer(*pointIter);
             point->setValueType((*tileIter)->getType());
+            //do not delete data as cell data belongs to the cached point
+            //and QtScalarData only stores a reference to the data
+            point->disownCells();
+            
             QtConst* newInput = new QtConst(point);
-            //replace the mdd in the operation tree with the point
+            // replace the mdd in the operation tree with the point
             (*mddVar)->getParent()->setInput(static_cast<QtOperation*>(*mddVar), newInput);
-            originalTree->push_back((*mddVar));
-            replacedTree->push_back(newInput);
+            originalTree.push_back((*mddVar));
+            replacedTree.push_back(newInput);
         }
-        //evaluate the newly formed operation
-        //before, the operation was returning an array, set the dataStreamType to a baseType
-        //this has to be done for every operation in the new tree
-        QtNodeList* currentTree = currentOperation->getChilds(QT_ALL_NODES);
+        // evaluate the newly formed operation
+        // before, the operation was returning an array, set the dataStreamType to a baseType
+        // this has to be done for every operation in the new tree
+        std::unique_ptr<QtNodeList> currentTree(currentOperation->getChilds(QT_ALL_NODES));
         currentTree->push_front(currentOperation);
 
-        QtNodeList* streamsChanged = new QtNodeList();
-        std::vector<QtTypeElement>* oldStreams = new std::vector<QtTypeElement>();
-        for (QtNodeList::iterator i = currentTree->begin(); i != currentTree->end(); i++)
+        QtNodeList streamsChanged;
+        std::vector<QtTypeElement> oldStreams;
+        for (auto i = currentTree->begin(); i != currentTree->end(); i++)
         {
             QtTypeElement currentDataStreamType = (static_cast<QtOperation*>(*i))->getDataStreamType();
             QtTypeElement oldDataStreamType;
@@ -883,34 +882,27 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
                 const BaseType* newOpType = (static_cast<MDDBaseType*>(const_cast<Type*>(currentDataStreamType.getType())))->getBaseType();
                 currentDataStreamType.setType(newOpType);
                 (static_cast<QtOperation*>(*i))->setDataStreamType(currentDataStreamType);
-                streamsChanged->push_back((*i));
-                oldStreams->push_back(oldDataStreamType);
+                streamsChanged.push_back((*i));
+                oldStreams.push_back(oldDataStreamType);
             }
         }
+        //assigns return value
         localResult = currentOperation->evaluate(inputList);
-        //restore the query tree
+        // restore the query tree
         QtNodeList::iterator orig, replaced;
-        for (orig = originalTree->begin(), replaced = replacedTree->begin();
-                orig != originalTree->end() && replaced != replacedTree->end(); orig++, replaced++)
+        for (orig = originalTree.begin(), replaced = replacedTree.begin();
+                orig != originalTree.end() && replaced != replacedTree.end(); orig++, replaced++)
         {
             (*replaced)->getParent()->setInput(static_cast<QtOperation*>(*replaced), static_cast<QtOperation*>(*orig));
         }
-        //restore the dataStreamTypes
-        QtNodeList::iterator streamChangedIter;
-        std::vector<QtTypeElement>::iterator oldStreamIter;
-        for (streamChangedIter = streamsChanged->begin(), oldStreamIter = oldStreams->begin();
-                streamChangedIter != streamsChanged->end() && oldStreamIter != oldStreams->end();
-                streamChangedIter++, oldStreamIter++)
+        // restore the dataStreamTypes
+        auto streamChangedIter = streamsChanged.begin();
+        auto oldStreamIter = oldStreams.begin();
+        for ( ;streamChangedIter != streamsChanged.end() && oldStreamIter != oldStreams.end();
+               streamChangedIter++, oldStreamIter++)
         {
             (static_cast<QtOperation*>(*streamChangedIter))->setDataStreamType((*oldStreamIter));
         }
-        //cleanup
-        delete mddVars;
-        delete originalTree;
-        delete replacedTree;
-        delete streamsChanged;
-        delete oldStreams;
-        delete currentTree;
     }
     return localResult;
 }
@@ -1007,7 +999,7 @@ void QtCaseOp::addMddsToCache(QtDataList* inputList, QtOperation*& op, std::vect
                               QtDataList*>>* cacheList)
 {
     //get all the MDD variables
-    QtNodeList* mddVars = op->getChild(QT_MDD_VAR, QT_ALL_NODES);
+    std::unique_ptr<QtNodeList> mddVars(op->getChild(QT_MDD_VAR, QT_ALL_NODES));
     //if the node itself is a mdd variable add it to the list
     if (op->getNodeType() == QT_MDD_VAR)
     {
@@ -1030,7 +1022,7 @@ void QtCaseOp::addMddsToCache(QtDataList* inputList, QtOperation*& op, std::vect
         //remove any eventual domain operation encountered from the tree
         trimmedArray->getParent()->setInput(trimmedArray, static_cast<QtOperation*>(*i));
     }
-    cacheList->push_back(std::make_pair(op, correspondingMdds));
+    cacheList->emplace_back(std::make_pair(op, correspondingMdds));
 }
 #include "qlparser/qtcaseop.icc"
 

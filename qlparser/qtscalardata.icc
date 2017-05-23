@@ -56,3 +56,11 @@ QtScalarData::setValueBuffer( char* buffer )
 {
   valueBuffer = buffer;
 }
+
+
+
+inline void
+QtScalarData::disownCells()
+{
+    ownCells = false;
+}
