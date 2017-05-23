@@ -37,7 +37,7 @@ module wcs {
 
         public toKVP():string {
             return "&SERVICE=" + this.Service +
-                "&VERSION=" + this.AcceptVersions[0] +
+                "&ACCEPTVERSIONS=" + this.AcceptVersions[0] +
                 "&REQUEST=" + this.Request;
         }
     }

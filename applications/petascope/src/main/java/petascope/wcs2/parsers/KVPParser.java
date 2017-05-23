@@ -35,8 +35,8 @@ import petascope.util.ListUtil;
 import petascope.wcs2.handlers.RequestHandler;
 
 /**
- * An abstract superclass for XML/POST protocol binding extensions, which provides some
- * convenience methods to concrete implementations.
+ * An abstract superclass for KVP protocol binding extensions, which
+ * provides some convenience methods to concrete implementations.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  *
@@ -49,8 +49,8 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
     @Override
     public boolean canParse(HTTPRequest request) {
         boolean canParse = request.getRequestString() != null
-                           && !request.getRequestString().startsWith("<")
-                           && request.getRequestString().contains(getOperationName());
+                && !request.getRequestString().startsWith("<")
+                && request.getRequestString().contains(getOperationName());
         log.trace("KVPParser<{}> {} parse the request", getOperationName(), canParse ? "can" : "cannot");
         return canParse;
     }
@@ -68,18 +68,21 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
      *
      * @param m
      * @param keys KVP keys that the operation supports
-     * @throws WCSException thrown when the request doesn't comply with the KVP syntax
+     * @throws WCSException thrown when the request doesn't comply with the KVP
+     * syntax
      */
     protected void checkEncodingSyntax(Map<String, List<String>> m, String... keys) throws WCSException {
         List<String> possibleKeys = ListUtil.toList(keys);
         Set<String> requestKeys = m.keySet();
 
         String request = get(KEY_REQUEST, m);
-        if (!RequestHandler.GET_CAPABILITIES.equals(request)) {
+        if (RequestHandler.GET_CAPABILITIES.equals(request)) {
             String version = get(KEY_VERSION, m);
-            if (version == null) {
-                version = get(KEY_ACCEPTVERSIONS, m);
+            if (version != null) {
+                log.warn("Using VERSION in a GetCapabilities request is invalid.");
             }
+        } else if (!RequestHandler.GET_CAPABILITIES.equals(request)) {
+            String version = get(KEY_VERSION, m);
             if (version == null || !version.matches(BaseRequest.VERSION)) {
                 log.error("Version = " + version);
                 throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(KEY_VERSION));
@@ -113,24 +116,25 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
         //    <ows:ServiceProvider>...</ows:ServiceProvider>
         // </wcs:Capabilities>
         if (m.containsKey(KEY_SECTIONS)) {
-            String[] validCases = { KVPSymbols.VALUE_SECTIONS_SERVICE_IDENTIFICATION,
-                                    KVPSymbols.VALUE_SECTIONS_SERVICE_PROVIDER,
-                                    KVPSymbols.VALUE_SECTIONS_OPERATIONS_METADATA,
-                                    KVPSymbols.VALUE_SECTIONS_CONTENTS,
-                                    KVPSymbols.VALUE_SECTIONS_LANGUAGES,
-                                    KVPSymbols.VALUE_SECTIONS_ALL
-                                  };
+            String[] validCases = {KVPSymbols.VALUE_SECTIONS_SERVICE_IDENTIFICATION,
+                KVPSymbols.VALUE_SECTIONS_SERVICE_PROVIDER,
+                KVPSymbols.VALUE_SECTIONS_OPERATIONS_METADATA,
+                KVPSymbols.VALUE_SECTIONS_CONTENTS,
+                KVPSymbols.VALUE_SECTIONS_LANGUAGES,
+                KVPSymbols.VALUE_SECTIONS_ALL
+            };
             checkValue(m, KEY_SECTIONS, validCases);
         }
     }
 
     /**
-    * This function will check value for argument in list of valid cases
-    * @param m: List arguments
-    * @param k: Argument's key which is needed to check
-    * @param vals: Argument's list of valid cases
-    * @throws WCSException
-    */
+     * This function will check value for argument in list of valid cases
+     *
+     * @param m: List arguments
+     * @param k: Argument's key which is needed to check
+     * @param vals: Argument's list of valid cases
+     * @throws WCSException
+     */
     private void checkValue(Map<String, List<String>> m, String k, String... vals) throws WCSException {
         String v = get(k, m);
         if (v == null || (!ListUtil.toList(vals).contains(v))) {
