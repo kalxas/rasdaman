@@ -92,22 +92,22 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
         So we must use the values in the list by string and split it to a list to get the same values
         """
-        # convert list of string values list of decimal values
-        array = list_util.to_list_decimal(list(variable))
+        # convert list of string values to list of decimal values
+        decimal_values = list_util.numpy_array_to_list_decimal(variable[:])
 
         if operation == "max":
-            return max(array)
+            return max(decimal_values)
         elif operation == "min":
-            return min(array)
+            return min(decimal_values)
         elif operation == "last":
             last_index = len(variable) - 1
-            return array[last_index]
+            return decimal_values[last_index]
         elif operation == "first":
-            return array[0]
+            return decimal_values[0]
         elif operation == "resolution":
             # NOTE: only netCDF needs this expression to calculate resolution automatically
             # for GDAL: it uses: ${gdal:resolutionX} and GRIB: ${grib:jDirectionIncrementInDegrees} respectively
-            resolution = self.__calculate_netcdf_resolution(array)
+            resolution = self.__calculate_netcdf_resolution(decimal_values)
             return resolution
         else:
             try:
@@ -142,7 +142,7 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
                 # return the entire variable translated to the string representation of a python list that can be
                 # further passed to eval() which should only use list of strings to evaluate (not Decimal as eval has error)
                 # e.g: variable:E
-                array_str = str(list(nc_dataset.variables[variable_name][:]))
+                array_str = list_util.numpy_array_to_string(nc_dataset.variables[variable_name][:])
                 return array_str
             else:
                 # e.g: variable:E:min and operation is min

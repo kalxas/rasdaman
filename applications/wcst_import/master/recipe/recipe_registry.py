@@ -70,6 +70,7 @@ class RecipeRegistry:
             log.title("\nValidation")
             recipe.validate()
             recipe.describe()
+
             if not session.is_automated():
                 raw_input("Press Enter to Continue...: ")
             t = Thread(target=run_status, args=(recipe,))
@@ -78,6 +79,7 @@ class RecipeRegistry:
             t.start()
             recipe.run()
             t.join()
+
             log.success("Recipe executed successfully")
 
 
@@ -112,4 +114,4 @@ def run_status(recipe):
             update_progress(processed_items, total)
         if total == -1:
             return
-        sleep(1)
+        sleep(0.01)

@@ -40,6 +40,8 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from util.crs_util import CRSAxis
 from util.file_obj import File
 from util.gdal_util import GDALGmlUtil
+import numpy
+numpy.set_printoptions(numpy.inf)
 
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):

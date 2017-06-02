@@ -51,7 +51,7 @@ class CoverageUtil:
                 # exception is in the response, coverage does not exist
                 return False
             else:
-                # exception is not the in the reponse, coverage does exist
+                # exception is not the in the response, coverage does exist
                 return True
         except Exception as ex:
             raise RuntimeException("Could not check if the coverage exists. "

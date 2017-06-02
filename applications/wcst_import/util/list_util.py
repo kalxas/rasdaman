@@ -24,26 +24,34 @@
 import decimal
 
 
-def to_list_decimal(input_list):
+def numpy_array_to_list_decimal(numpy_array):
     """
-    This is used most for the cases of netcdf (or grib)
-    e.g: ncdump shows the time axis with:    148654.084259259,  148656.99994213,    148658.082291667,   148661.002060185
-    but, actually the list contains values: 148654.08425925925, 148656.99994212962, 148658.08229166668, 148661.00206018519
-    and min/max (list) will return the value as ncdump
+    Convert a numpy array to list of bigdecimal without losing precision.
+    This is used for the cases of netcdf (or grib), e.g: ncdump shows the time axis with: 148654.084259259, 148656.99994213
+    but, actually the list contains values in numpy array: 148654.08425925925, 148656.99994212962, 148658.08229166668
+    and min/max (numpy_array) will return the value as ncdump which causes problem with coefficient in petascope
+    (e.g: the first coefficient for irregular time axis is like 2.810E-7 not 0.0) and coverage will not be ingested.
 
-    However, eval(list) will use the more precision values to evaluate, so to keep it consistently, we use the second values
-    :param list input_list (normally is float): list of values need to be convert to more precision
+    The reason is, for instance: "directPositions": "[float(x) * 24 * 3600 - 11644560000.0 for x in ${netcdf:variable:ansi}]"
+    will return the whole numpy of array with precision so some operations to apply on input numpy_array like min(), max(),
+    first(), last() *must* have same input list of decimal with same precision.
+
+    :param array (numpy) numpy_array: array of values in numpy need to be convert to list of decimal without losing precision
     :rtype: list decimal
     """
-    # NOTE: ncdump shows the short values of list(variables), e.g: 79.05 not 79.05000000000005
-    # so we have to keep it consistent with eval() by using the latter values
-    tmp = str(list(input_list))
-    values = tmp.split('[', 1)[1].split(']')[0]
-    output_list = values.split(", ")
+    # NOTE: str(list(variable[:])) is *must* to keep all the precision of float values in numpy array
+    output_list = map(decimal.Decimal, str(list(numpy_array))[1:-1].split(","))
 
-    # convert all the string values to Decimal (e.g: '0.0000000000001' -> 0.0000000000001)
-    output_list = map(decimal.Decimal, output_list)
     return output_list
+
+
+def numpy_array_to_string(numpy_array):
+    """
+    Convert a numpy array to string which represents the list of values with precision
+    :param numpy_array: array of values in numpy
+    :return: str: the representation string of numpy array
+    """
+    return str(list(numpy_array))
 
 
 def to_list_string(input_list):
