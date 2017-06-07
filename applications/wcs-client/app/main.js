@@ -768,6 +768,7 @@ var rasdaman;
             });
         }
         function PrettyPrint($sanitize, $sce) {
+            var MAXIMUM_TEXT_LENGTH = 300000;
             return {
                 restrict: 'EC',
                 scope: {
@@ -777,6 +778,10 @@ var rasdaman;
                 link: function (scope, element, attrs) {
                     scope.$watch("data", function (newData, oldValue) {
                         if (newData && newData.Value) {
+                            if (newData.Value.length > MAXIMUM_TEXT_LENGTH) {
+                                newData.Value = newData.Value.substr(0, MAXIMUM_TEXT_LENGTH);
+                                newData.Value += "\n The text content is too long to display, only first " + MAXIMUM_TEXT_LENGTH + " characters are shown.";
+                            }
                             var escapedHtml = prettyPrintOne(escapeXml(newData.Value), newData.Type, true);
                             scope.document = $sce.trustAsHtml(escapedHtml);
                         }
