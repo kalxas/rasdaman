@@ -60,6 +60,7 @@ import static petascope.core.XMLSymbols.OWS_LABEL_SERVICE_IDENTIFICATION;
 import petascope.util.XMLUtil;
 import static petascope.core.Templates.WCS2_GET_CAPABILITIES_OPERATIONS_METADATA_ELEMENT_URL;
 import petascope.exceptions.WMSException;
+import petascope.util.ListUtil;
 
 /**
  * Handle the GetCapabilities WCS 2.0.1 request result example which is
@@ -117,7 +118,7 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
 
     private OwsServiceMetadata owsServiceMetadata;
 
-    public static final List<String> supportedInterpolations = Arrays.asList(INTERPOLATION_NEAREST_NEIGHBOR);
+    public static final List<String> supportedInterpolations = ListUtil.valuesToList(INTERPOLATION_NEAREST_NEIGHBOR);
 
     public KVPWCSGetCapabilitiesHandler() {
 

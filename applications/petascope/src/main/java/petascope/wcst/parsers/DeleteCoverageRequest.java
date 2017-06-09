@@ -22,8 +22,8 @@
 
 package petascope.wcst.parsers;
 
-import java.util.Arrays;
 import java.util.List;
+import petascope.util.ListUtil;
 import petascope.util.StringUtil;
 
 /**
@@ -37,7 +37,7 @@ public class DeleteCoverageRequest extends AbstractWCSTRequest{
      * @param coverageId 
      */
     public DeleteCoverageRequest(String coverageId) {
-        coverageIds = Arrays.asList(StringUtil.trim(coverageId).split(","));
+        coverageIds = ListUtil.valuesToList(StringUtil.trim(coverageId).split(","));
     }
     
     public List<String> getCoverageIds() {

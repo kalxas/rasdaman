@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.util.ListUtil;
 import petascope.wcps2.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps2.exception.processing.InvalidAxisNameException;
 import petascope.wcps2.metadata.model.Axis;
@@ -106,7 +107,7 @@ public class SubsetExpressionHandler {
             Axis axis = metadata.getAxisByName(axisName);
             int axisOrder = axis.getRasdamanOrder();
 
-            String dimension = rasqlTranslationService.constructRasqlDomain(new ArrayList(Arrays.asList(axis)), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+            String dimension = rasqlTranslationService.constructRasqlDomain(ListUtil.valuesToList(axis), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
             intervals[axisOrder] = dimension;
 
             // 0:5,0:100,89

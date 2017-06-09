@@ -51,6 +51,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
+import petascope.util.ListUtil;
 import petascope.util.XMLUtil;
 import petascope.wms.exception.WMSLayerNotExistException;
 
@@ -77,7 +78,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     }
 
     // List of output format for WMS request (only 2D)
-    public static final List<String> supportedFormats = Arrays.asList(MIMEUtil.MIME_JPEG, MIMEUtil.MIME_PNG, MIMEUtil.MIME_TIFF);
+    public static final List<String> supportedFormats = ListUtil.valuesToList(MIMEUtil.MIME_JPEG, MIMEUtil.MIME_PNG, MIMEUtil.MIME_TIFF);
 
     // Xml output. (The default format)
     public static final String EXCEPTION_XML = "XML";
@@ -85,7 +86,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     public static final String EXCEPTION_INIMAGE = "INIMAGE";
     // BLANK: Generates a blank image
     public static final String EXCEPTION_BLANK = "BLANK";
-    public static final List<String> supportedExceptions = Arrays.asList(EXCEPTION_XML, EXCEPTION_INIMAGE, EXCEPTION_BLANK);
+    public static final List<String> supportedExceptions = ListUtil.valuesToList(EXCEPTION_XML, EXCEPTION_INIMAGE, EXCEPTION_BLANK);
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws WMSException {

@@ -66,16 +66,16 @@ public class MIMEUtil {
         // Add the mime type and rasdaman data type
         mimeTypesMap = new LinkedHashMap<>();
         // No encode gml in rasdaman, only in WCPS
-        mimeTypesMap.put(MIME_GML, new ArrayList<>(Arrays.asList(ENCODE_GML)));
-        mimeTypesMap.put(MIME_JPEG, new ArrayList<>(Arrays.asList(ENCODE_JPEG)));
-        mimeTypesMap.put(MIME_PNG, new ArrayList<>(Arrays.asList(ENCODE_PNG)));
-        mimeTypesMap.put(MIME_TIFF, new ArrayList<>(Arrays.asList(ENCODE_GTIFF, ENCODE_TIFF)));
-        mimeTypesMap.put(MIME_BMP, new ArrayList<>(Arrays.asList(ENCODE_BMP)));
-        mimeTypesMap.put(MIME_JP2, new ArrayList<>(Arrays.asList(ENCODE_JPEG2000)));
-        mimeTypesMap.put(MIME_NETCDF, new ArrayList<>(Arrays.asList(ENCODE_NETCDF)));
-        mimeTypesMap.put(MIME_CSV, new ArrayList<>(Arrays.asList(ENCODE_CSV)));
-        mimeTypesMap.put(MIME_JSON, new ArrayList<>(Arrays.asList(ENCODE_JSON)));
-        mimeTypesMap.put(MIME_DEM, new ArrayList<>(Arrays.asList(ENCODE_DEM)));
+        mimeTypesMap.put(MIME_GML, ListUtil.valuesToList(ENCODE_GML));
+        mimeTypesMap.put(MIME_JPEG, ListUtil.valuesToList(ENCODE_JPEG));
+        mimeTypesMap.put(MIME_PNG, ListUtil.valuesToList(ENCODE_PNG));
+        mimeTypesMap.put(MIME_TIFF, ListUtil.valuesToList(ENCODE_GTIFF, ENCODE_TIFF));
+        mimeTypesMap.put(MIME_BMP, ListUtil.valuesToList(ENCODE_BMP));
+        mimeTypesMap.put(MIME_JP2, ListUtil.valuesToList(ENCODE_JPEG2000));
+        mimeTypesMap.put(MIME_NETCDF, ListUtil.valuesToList(ENCODE_NETCDF));
+        mimeTypesMap.put(MIME_CSV, ListUtil.valuesToList(ENCODE_CSV));
+        mimeTypesMap.put(MIME_JSON, ListUtil.valuesToList(ENCODE_JSON));
+        mimeTypesMap.put(MIME_DEM, ListUtil.valuesToList(ENCODE_DEM));
     }
 
     /**

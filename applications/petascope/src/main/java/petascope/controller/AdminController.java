@@ -23,6 +23,7 @@ package petascope.controller;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
+import petascope.util.ListUtil;
 
 /**
  * Controller to handle request to Admin page to update OWS Service metadata
@@ -179,12 +181,12 @@ public class AdminController extends AbstractController {
                 owsServiceMetadata.getServiceProvider().getServiceContact().setPositionName(kvpParameters.get("positionName")[0]);
                 owsServiceMetadata.getServiceProvider().getServiceContact().setRole(kvpParameters.get("role")[0]);
                 
-                List<String> emails = Arrays.asList(kvpParameters.get("email"));
+                List<String> emails = ListUtil.valuesToList(kvpParameters.get("email"));
                 owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setElectronicMailAddresses(emails);
                 
-                List<String> voicePhones = Arrays.asList(kvpParameters.get("voicePhone"));
+                List<String> voicePhones = ListUtil.valuesToList(kvpParameters.get("voicePhone"));
                 owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setVoicePhones(voicePhones);
-                List<String> facsimilePhones = Arrays.asList(kvpParameters.get("facsimilePhone"));
+                List<String> facsimilePhones = ListUtil.valuesToList(kvpParameters.get("facsimilePhone"));
                 owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setFacsimilePhone(facsimilePhones);
                 
                 owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setHoursOfService(kvpParameters.get("hoursOfService")[0]);

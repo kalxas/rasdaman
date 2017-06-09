@@ -24,9 +24,11 @@ package petascope.wcps2.metadata.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.util.ListUtil;
 
 /**
  * This class has the purpose of keeping information about coverage aliases inside 1 query (e.g. "for c in mr" means
@@ -41,7 +43,7 @@ import org.springframework.stereotype.Service;
 public class CoverageAliasRegistry {
 
     // NOTE: a coverage variable can be alias for multiple coverage names
-    private LinkedHashMap<String, ArrayList<String>> coverageMappings = new LinkedHashMap<>();
+    private LinkedHashMap<String, List<String>> coverageMappings = new LinkedHashMap<>();
 
     public CoverageAliasRegistry() {
         
@@ -55,13 +57,13 @@ public class CoverageAliasRegistry {
     }
 
     public void addCoverageMapping(String coverageAlias, String coverageName) {
-        ArrayList<String> values = coverageMappings.get(coverageAlias);
+        List<String> values = coverageMappings.get(coverageAlias);
         if (values != null) {
             // If key -> value exist then just add new coverage name to value
             coverageMappings.get(coverageAlias).add(coverageName);
         } else {
             // if key does not exist then need to add key first then add value for this key
-            coverageMappings.put(coverageAlias, new ArrayList<String> (Arrays.asList(coverageName)));
+            coverageMappings.put(coverageAlias, ListUtil.valuesToList(coverageName));
         }
     }
 
@@ -84,7 +86,7 @@ public class CoverageAliasRegistry {
      * e.g: $c -> (mr, rgb), $d -> (mr1, rgb1)
      * @return
      */
-    public LinkedHashMap<String, ArrayList<String>> getCoverageMappings() {
+    public LinkedHashMap<String, List<String>> getCoverageMappings() {
         return this.coverageMappings;
     }
 }

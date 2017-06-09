@@ -72,10 +72,35 @@ class WMSTRequest:
         pass
 
 
+class WMSTGetCapabilities(WMSTRequest):
+    def __init__(self):
+        """
+        Class to request GetCapabilities from WMS 1.3.0 endpoint
+        """
+
+    def _get_request_type(self):
+        """
+        Returns the request type
+        :rtype str
+        """
+        return self.__REQUEST_TYPE
+
+    def _get_request_type_parameters(self):
+        """
+        Returns the request specific parameters
+        :rtype dict
+        """
+        ret = {}
+
+        return ret
+
+    __REQUEST_TYPE = "GetCapabilities"
+
+
 class WMSTFromWCSInsertRequest(WMSTRequest):
     def __init__(self, wcs_coverage_id, with_pyramids):
         """
-        Class to insert a wcs coverage into wms. This is not a standard way in OGC but a custom method in the
+        Class to insert a new wcs coverage into a WMS layer. This is not a standard way in OGC but a custom method in the
         WMS service offered by rasdaman to allow for automatic insertion
         Constructor for the class
 
@@ -103,6 +128,41 @@ class WMSTFromWCSInsertRequest(WMSTRequest):
         return ret
 
     __REQUEST_TYPE = "InsertWCSLayer"
+    __COVERAGE_ID_PARAMETER = "wcsCoverageId"
+    __WITH_PYRAMIDS_PARAMETER = "withPyramids"
+
+
+class WMSTFromWCSUpdateRequest(WMSTRequest):
+    def __init__(self, wcs_coverage_id, with_pyramids):
+        """
+        Class to update a wcs coverage into an existing wms layer. This is not a standard way in OGC but a custom method in the
+        WMS service offered by rasdaman to allow for automatic insertion
+        Constructor for the class
+
+        :param str wcs_coverage_id: the coverage id to be used as a layer
+        """
+        self.wcs_coverage_id = wcs_coverage_id
+        self.with_pyramids = with_pyramids
+
+    def _get_request_type(self):
+        """
+        Returns the request type
+        :rtype str
+        """
+        return self.__REQUEST_TYPE
+
+    def _get_request_type_parameters(self):
+        """
+        Returns the request specific parameters
+        :rtype dict
+        """
+        ret = {
+            self.__COVERAGE_ID_PARAMETER: self.wcs_coverage_id,
+            self.__WITH_PYRAMIDS_PARAMETER: str(self.with_pyramids)
+        }
+        return ret
+
+    __REQUEST_TYPE = "UpdateWCSLayer"
     __COVERAGE_ID_PARAMETER = "wcsCoverageId"
     __WITH_PYRAMIDS_PARAMETER = "withPyramids"
 

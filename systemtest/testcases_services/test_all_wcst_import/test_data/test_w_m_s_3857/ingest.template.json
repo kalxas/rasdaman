@@ -1,0 +1,23 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL",
+    "default_crs": "SECORE_URL/crs/EPSG/0/3857",
+    "mock": false,
+    "automated": true,
+    "subset_correction": true
+  },
+  "input": {
+    "coverage_id": "test_wms_3857",
+    "paths": [
+      "../wms_3857_repeat/*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "map_mosaic",
+    "options": {
+      "wms_import": true
+    }
+  }
+}

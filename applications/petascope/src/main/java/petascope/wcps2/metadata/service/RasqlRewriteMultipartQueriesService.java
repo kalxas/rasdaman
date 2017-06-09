@@ -23,6 +23,7 @@ package petascope.wcps2.metadata.service;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +114,7 @@ public class RasqlRewriteMultipartQueriesService {
     // e.g: $c -> (mr, rgb)
     public boolean isMultiPart() {
         // if $c -> (mr, rgb) then size > 1 and it is multipart
-        for (ArrayList<String> coverageNames : this.coverageAliasRegistry.getCoverageMappings().values()) {
+        for (List<String> coverageNames : this.coverageAliasRegistry.getCoverageMappings().values()) {
             if (coverageNames.size() > 1) {
                 return true;
             }

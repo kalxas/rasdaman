@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.wms.exception.WMSInvalidDimensionalityException;
 
 /**
@@ -94,7 +95,7 @@ public class WMSLayerTranslatingService {
         layer.setName(layerName);
         layer.setTitle(legacyLayer.getTitle());
         layer.setLayerAbstract(legacyLayer.getLayerAbstract());
-        layer.setCrss(Arrays.asList(crs));
+        layer.setCrss(ListUtil.valuesToList(crs));
 
         // Some optional properties for layer (which is the same from legacy WMS layer), e.g: opaque, cascaded, queryable,...
         LayerAttribute layerAttribute = new LayerAttribute();
@@ -104,7 +105,7 @@ public class WMSLayerTranslatingService {
         // NOTE: legacy boundingbox's CRS from the CRS of 2D geo XY axes (layer's CRS)
         BoundingBox bbox = this.createBoundingBox(coverage);
         bbox.setCrs(crs);
-        layer.setBoundingBoxes(Arrays.asList(bbox));
+        layer.setBoundingBoxes(ListUtil.valuesToList(bbox));
 
         // Each layer can contain multiple styles and one EXGeographicBoundingBox
         EXGeographicBoundingBox exBBox = this.createEXBBox(legacyLayer.getExBBox());

@@ -130,7 +130,7 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
 
         // Then update the layer with the new updated/added style to database.
         this.wmsRepostioryService.saveLayer(layer);
-        log.debug("WMS Style: " + style.getName() + " is persisted in database.");
+        log.info("WMS Style: " + style.getName() + " is persisted in database.");
         
         if (!request.equals(KVPSymbols.VALUE_WMS_INSERT_STYLE)) {
             // Remove all the cached GetMap response from cache as style is updated

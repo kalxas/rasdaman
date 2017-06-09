@@ -39,6 +39,7 @@ package petascope.util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -304,6 +305,16 @@ public class ListUtil {
             }
         }
         return sb.toString();
+    }
+    
+    /**
+     * Create an array list from the input value (s)
+     * @param <T>
+     * @param value
+     * @return 
+     */
+    public static <T> List<T> valuesToList(T... value) {
+        return new ArrayList<>(Arrays.asList(value));
     }
 
     /**

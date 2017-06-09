@@ -41,10 +41,11 @@ from util.coverage_util import CoverageUtil
 from util.file_obj import File
 from util.log import log
 from wcst.wcst import WCSTInsertRequest, WCSTUpdateRequest, WCSTSubset
-from wcst.wmst import WMSTFromWCSInsertRequest
+from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest
+from wcst.wmst import WMSTGetCapabilities
 from util.crs_util import CRSUtil
 from util.time_util import DateTimeUtil
-
+from lxml import etree
 
 class Importer:
     def __init__(self, coverage, insert_into_wms=False, grid_coverage=False):
@@ -73,7 +74,7 @@ class Importer:
             self._insert_slices()
 
             if self.insert_into_wms:
-                self._insert_into_wms()
+                self._insert_update_into_wms()
 
     def get_progress(self):
         """
@@ -273,12 +274,26 @@ class Importer:
         self.resumer.add_imported_data(data_provider)
         return file
 
-    def _insert_into_wms(self):
+    def _insert_update_into_wms(self):
         """
-        Inserts the coverage into the wms service
+        Inserts or Update the coverage into the wms service
         """
         try:
-            request = WMSTFromWCSInsertRequest(self.coverage.coverage_id, False)
+            # First check from WMS GetCapabilities if layer name (coverage id) existed
+            request = WMSTGetCapabilities()
+            response = ConfigManager.executor.execute(request)
+
+            root_element = etree.fromstring(response)
+            namespace = {"wms": "http://www.opengis.net/wms"}
+            exist = root_element.xpath("//wms:Capability/wms:Layer/wms:Layer/wms:Name/text()='"
+                                       + self.coverage.coverage_id + "'", namespaces=namespace)
+
+            # WMS layer does not exist, just insert new WMS layer from imported coverage
+            if exist is False:
+                request = WMSTFromWCSInsertRequest(self.coverage.coverage_id, False)
+            else:
+                # WMS layer existed, update WMS layer from updated coverage
+                request = WMSTFromWCSUpdateRequest(self.coverage.coverage_id, False)
             ConfigManager.executor.execute(request)
         except Exception as e:
             log.error(

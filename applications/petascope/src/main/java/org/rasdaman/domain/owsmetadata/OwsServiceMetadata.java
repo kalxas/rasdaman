@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.owsmetadata;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,6 +32,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import petascope.util.ListUtil;
 
 /**
  *
@@ -108,7 +110,7 @@ public class OwsServiceMetadata {
         serviceIdentification.setServiceTitle("rasdaman");
         serviceIdentification.setServiceAbstract("rasdaman server - free download from www.rasdaman.org");
         serviceIdentification.setServiceType("OGC WCS");
-        serviceIdentification.setServiceTypeVersions(Arrays.asList("2.0.1"));
+        serviceIdentification.setServiceTypeVersions(ListUtil.valuesToList("2.0.1"));
 
         ServiceProvider serviceProvider = new ServiceProvider();
         owsServiceMetadata.setServiceProvider(serviceProvider);
@@ -126,15 +128,15 @@ public class OwsServiceMetadata {
 
         Address address = new Address();
         contactInfo.setAddress(address);
-        address.setDeliveryPoints(Arrays.asList("Campus Ring 1"));
+        address.setDeliveryPoints(ListUtil.valuesToList("Campus Ring 1"));
         address.setCity("Bremen");
         address.setPostalCode("28717");
         address.setCountry("Germany");
-        address.setElectronicMailAddresses(Arrays.asList("p.baumann@jacobs-university.de"));
+        address.setElectronicMailAddresses(ListUtil.valuesToList("p.baumann@jacobs-university.de"));
 
         Phone phone = new Phone();
         contactInfo.setPhone(phone);
-        phone.setVoicePhones(Arrays.asList(Phone.DEFAULT_VOICE_PHONE));
+        phone.setVoicePhones(ListUtil.valuesToList(Phone.DEFAULT_VOICE_PHONE));
         
         return owsServiceMetadata;
     }

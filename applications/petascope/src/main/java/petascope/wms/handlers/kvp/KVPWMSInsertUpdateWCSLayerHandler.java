@@ -22,6 +22,7 @@
 package petascope.wms.handlers.kvp;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +44,7 @@ import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.metadata.service.WcpsCoverageMetadataTranslator;
@@ -135,7 +137,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         layer.setTitle(layerName);
 
         // Only set 1 crs for 1 layer now
-        layer.setCrss(Arrays.asList(CrsUtil.getEPSGCode(crs)));
+        layer.setCrss(ListUtil.valuesToList(CrsUtil.getEPSGCode(crs)));
 
         // These attributes are fixed by default (cascaded, fixedHeight,...)
         LayerAttribute layerAttribute = new LayerAttribute();
@@ -147,7 +149,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
 
         // Only set 1 bounding box for 1 native CRS now
         BoundingBox bbox = this.createBoundingBox(wcpsCoverageMetadata.isXYOrder(), xyAxes);
-        layer.setBoundingBoxes(Arrays.asList(bbox));
+        layer.setBoundingBoxes(ListUtil.valuesToList(bbox));
 
         // NOTE: not supports insert 2D+ WMS coverage now, it needs to add the dimension object from WCS coverage metadata
         // @TODO: add non XY axes as Dimensions to layer so WMS can supports more than 2D request.
@@ -156,11 +158,10 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
             throw new WMSInvalidDimensionalityException(coverageDimensions);
         }
 
-        log.debug("WMS layer: " + layerName + " is persisted in database.");
-
         // No need to add a default style as before, WMS with Styles= will return the default style
         // Persist the layer
         wmsRepostioryService.saveLayer(layer);
+        log.info("WMS layer: " + layerName + " is persisted in database.");
 
         if (!request.equals(KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER)) {
             // Remove all the cached GetMap response from cache as layer is updated

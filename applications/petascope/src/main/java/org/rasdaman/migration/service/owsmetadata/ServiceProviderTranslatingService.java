@@ -34,6 +34,7 @@ import org.rasdaman.domain.owsmetadata.ServiceContact;
 import org.rasdaman.domain.owsmetadata.ServiceProvider;
 import org.rasdaman.domain.owsmetadata.Phone;
 import org.springframework.stereotype.Service;
+import petascope.util.ListUtil;
 
 /**
  * Class which translates the legacy OWS ServiceIdentification to new one and
@@ -124,7 +125,7 @@ public class ServiceProviderTranslatingService {
         address.setDeliveryPoints(deliveryPoints);
         if (address.getDeliveryPoints().isEmpty()) {
             // NOTE: Make up this address from legacy WMS Address value as it is needed for WMS and does not exist in legacy OWS Service Metadata
-            address.setDeliveryPoints(Arrays.asList(ServiceProvider.DEFAULT_DELIVERY_POINT));
+            address.setDeliveryPoints(ListUtil.valuesToList(ServiceProvider.DEFAULT_DELIVERY_POINT));
         }
 
         List<String> emailAddresses = new ArrayList<>();
@@ -147,7 +148,7 @@ public class ServiceProviderTranslatingService {
         telephone.setVoicePhones(legacy.getVoicePhones());
         if (telephone.getVoicePhones().isEmpty()) {
             // Use the default voice phone
-            telephone.setVoicePhones(Arrays.asList(Phone.DEFAULT_VOICE_PHONE));
+            telephone.setVoicePhones(ListUtil.valuesToList(Phone.DEFAULT_VOICE_PHONE));
         }
         telephone.setFacsimilePhone(legacy.getFacsimilePhones());
 

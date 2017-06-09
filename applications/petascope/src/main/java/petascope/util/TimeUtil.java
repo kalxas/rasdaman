@@ -326,7 +326,7 @@ public class TimeUtil {
      * @throws petascope.exceptions.PetascopeException 
      */
     public static String valueToISODateTime(BigDecimal firstPoint, BigDecimal coeff, CrsDefinition crsDefinition) throws PetascopeException {
-        List<BigDecimal> coeffs = new ArrayList(Arrays.asList(coeff));
+        List<BigDecimal> coeffs = ListUtil.valuesToList(coeff);
         // Should have only 1 dateTime value
         List<String> isoDateTimes = listValuesToISODateTime(firstPoint, coeffs, crsDefinition);
         

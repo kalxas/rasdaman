@@ -41,6 +41,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WMSException;
 import petascope.util.CrsProjectionUtil;
+import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.StringUtil;
 import petascope.wms.exception.WMSInvalidCrsUriException;
@@ -186,8 +187,8 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             this.validate(kvpParameters);
 
             // Collect all the parameters (mandatory)
-            List<String> layerNames = Arrays.asList(kvpParameters.get(KVPSymbols.KEY_WMS_LAYERS)[0].split(","));
-            List<String> styleNames = Arrays.asList(kvpParameters.get(KVPSymbols.KEY_WMS_STYLES)[0].split(","));
+            List<String> layerNames = ListUtil.valuesToList(kvpParameters.get(KVPSymbols.KEY_WMS_LAYERS)[0].split(","));
+            List<String> styleNames = ListUtil.valuesToList(kvpParameters.get(KVPSymbols.KEY_WMS_STYLES)[0].split(","));
             // Do some other validations for the styles
 
             String outputCRS = kvpParameters.get(KVPSymbols.KEY_WMS_CRS)[0];
