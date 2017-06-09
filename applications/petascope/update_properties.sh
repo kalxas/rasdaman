@@ -98,15 +98,22 @@ OLD_BAK="$OLD.$NOW.bak" # this backup will not overwrite previous backup files a
 
 # --------------------------------------------
 #2 Check files are existing
-#2.1 Check NEW file is exist (the properties file in the source folder)
+#2.1 Check NEW file is existing (the properties file in the source folder)
 if [ ! -f "$NEW" ]; then
     error "Error: New file: $NEW is not a valid file path."
 fi
 
-#2.2 Check OLD file is existing ( if new installation then just copy the source properties file to installation folder)
+#2.3 Check if OLD directory existed
+OLDDIR=$(dirname "$OLD")
+if [ ! -d "$OLDDIR" ]; then
+    mkdir -p "$OLDDIR" || error "Error: failed creating properties directory '$OLDDIR'."
+    log "Created properties directory '$OLDDIR'."
+fi
+
+#2.3 Check OLD file is existing ( if new installation then just copy the source properties file to installation folder)
 if [ ! -f "$OLD" ]; then
     echo "Copy properties file from: $NEW to $OLD."
-    cp "$NEW" "$OLD"
+    cp "$NEW" "$OLD" || error "Error: failed installing properties file '$NEW' to '$OLD'."
     ok
 fi
 
