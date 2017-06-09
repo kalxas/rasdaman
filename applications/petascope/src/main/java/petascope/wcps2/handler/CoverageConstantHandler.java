@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -23,24 +23,24 @@ package petascope.wcps2.handler;
 
 import org.apache.commons.lang3.StringUtils;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.RasqlTranslationService;
-import petascope.wcps2.metadata.service.SubsetParsingService;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
 import petascope.wcps2.result.WcpsResult;
-import petascope.wcps2.result.parameters.AxisIterator;
-import petascope.wcps2.result.parameters.SubsetDimension;
+import petascope.wcps2.subset_axis.model.AxisIterator;
+import petascope.wcps2.subset_axis.model.WcpsSubsetDimension;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import petascope.wcps2.metadata.model.Subset;
+import petascope.wcps2.metadata.service.RasqlTranslationService;
+import petascope.wcps2.metadata.service.SubsetParsingService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataGeneralService;
 
 /**
- * Translation node from wcps coverageConstant to  rasql
- * Example:
- * <code>
+ * Translation node from wcps coverageConstant to rasql Example:  <code>
  * COVERAGE m
  * OVER x(0:1), y(2:4)
  * VALUES <1;2;3;4;5>
- * </code>
- * translates to
+ * </code> translates to
  * <code>
  * <[0:1,2:4] 1, 2; 3,4,5>
  * </code>
@@ -48,14 +48,20 @@ import java.util.List;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class CoverageConstantHandler {
 
-    public static WcpsResult handle(String coverageName, ArrayList<AxisIterator> axisIterators,
-                                    List<String> constantList, WcpsCoverageMetadataService wcpsCoverageMetadataService,
-                                    RasqlTranslationService rasqlTranslationService,
-                                    SubsetParsingService subsetParsingService) {
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    @Autowired
+    private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private SubsetParsingService subsetParsingService;
 
-        List<SubsetDimension> subsetDimensions = new ArrayList();
+    public WcpsResult handle(String coverageName, ArrayList<AxisIterator> axisIterators,
+            List<String> constantList) {
+
+        List<WcpsSubsetDimension> subsetDimensions = new ArrayList();
         for (AxisIterator axisIterator : axisIterators) {
             subsetDimensions.add(axisIterator.getSubsetDimension());
         }
@@ -66,11 +72,11 @@ public class CoverageConstantHandler {
             constantsByDimension.add(constant);
         }
         String rasql = TEMPLATE.replace("$intervals", intervals).replace("$constants", StringUtils.join(constantsByDimension, ","));
-        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName,
-                                        subsetParsingService.convertToRawNumericSubsets(subsetDimensions));
+        List<Subset> subsets = subsetParsingService.convertToRawNumericSubsets(subsetDimensions);
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, subsets);
         WcpsResult result = new WcpsResult(metadata, rasql);
         return result;
     }
 
-    private static final String TEMPLATE = "<[$intervals] $constants>";
+    private final String TEMPLATE = "<[$intervals] $constants>";
 }

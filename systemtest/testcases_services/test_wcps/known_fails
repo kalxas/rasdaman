@@ -1,3 +1,8 @@
+# Wait for WCPS XML syntax paser
+01-soap_encode.xml
+02-soap_just_trim.xml
+03-soap_simple_count.xml
+04-soap_count.error.xml
 31-Discrete_Fourier.test
 53-jpeg2000-params-filling.test
 58-overlay_performance.test
@@ -9,3 +14,5 @@
 214-colorPalette_json_full_json.test
 # This query failed on VMs but not on development system (need to verify later).
 216-json_with_break_lines.test
+# Failed only on Ubuntu for some reason with gdal
+155-irr-cube-1.test

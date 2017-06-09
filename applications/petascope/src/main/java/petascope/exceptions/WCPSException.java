@@ -14,41 +14,32 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.exceptions;
 
-import petascope.ConfigManager;
-
 /**
- * This is the superclass of all WCPS exceptions.
+ * General exception class for the wcps package.
+ *
+ * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
+ * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
-public class WCPSException extends PetascopeException {
+public class WCPSException extends RuntimeException {
 
-    public WCPSException(String exceptionText) {
-        this(ExceptionCode.WcpsError, exceptionText);
+    public WCPSException() {
     }
 
-    public WCPSException(String exceptionText, Exception ex) {
-        this(ExceptionCode.WcpsError, exceptionText, ex);
+    public WCPSException(String message, ExceptionCode exceptionCode) {
+        super(message);
+        this.exceptionCode = exceptionCode;
     }
 
-    public WCPSException(ExceptionCode exceptionCode) {
-        this(exceptionCode, null, null);
+    public ExceptionCode getExceptionCode() {
+        return this.exceptionCode;
     }
 
-    public WCPSException(ExceptionCode exceptionCode, Exception ex) {
-        this(exceptionCode, ex.getLocalizedMessage(), ex);
-    }
-
-    public WCPSException(ExceptionCode exceptionCode, String exceptionText) {
-        this(exceptionCode, exceptionText, null);
-    }
-
-    public WCPSException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
-        super(exceptionCode, exceptionText, ex, ConfigManager.WCPS_VERSION, ConfigManager.WCPS_LANGUAGE);
-    }
+    private ExceptionCode exceptionCode;
 }

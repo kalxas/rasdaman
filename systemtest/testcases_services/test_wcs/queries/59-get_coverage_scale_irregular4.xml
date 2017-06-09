@@ -12,7 +12,7 @@
         <scal:TargetAxisExtent>
           <scal:axis>E</scal:axis>
           <scal:low>0</scal:low>
-          <scal:high>0</scal:high>
+          <scal:high>10</scal:high>
         </scal:TargetAxisExtent>
       </scal:ScaleToExtent>
     </scal:Scaling>

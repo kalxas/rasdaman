@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*
+ /*
  * JOMDoc - A Java library for OMDoc documents (http://omdoc.org/jomdoc).
  *
  * Original author    Dimitar Misev <d.misev@jacobs-university.de>
@@ -37,6 +37,8 @@
  */
 package petascope.util;
 
+import petascope.core.KVPSymbols;
+import petascope.core.XMLSymbols;
 import com.eaio.uuid.UUID;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,7 +49,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,15 +57,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.SchemaFactory;
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -78,9 +75,15 @@ import nu.xom.ParsingException;
 import nu.xom.Text;
 import nu.xom.XPathContext;
 import nu.xom.converters.DOMConverter;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -91,6 +94,9 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCSException;
+import static petascope.core.XMLSymbols.ATT_SERVICE;
+import static petascope.core.XMLSymbols.ATT_VERSION;
 
 /**
  * Common utility methods for working with XML.
@@ -130,9 +136,8 @@ public class XMLUtil {
     public static final String XML_STD_ENCODING = "UTF-8";
     public static final String WCS_SCHEMA = "xml/ogc/wcs/2.0.0/wcsAll.xsd";
     private static final String SET_FEATURE_XXE_FALSE = "http://xml.org/sax/features/external-general-entities";
-    
-    public static final String WCS_SCHEMA_URL = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
 
+    public static final String WCS_SCHEMA_URL = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
 
     static {
         init();
@@ -143,7 +148,7 @@ public class XMLUtil {
             return;
         }
         System.setProperty("javax.xml.parsers.SAXParserFactory",
-                           "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+                "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
         factory = SAXParserFactory.newInstance();
 
         try {
@@ -232,8 +237,10 @@ public class XMLUtil {
     /**
      * Creates a {@link Document} given a input stream.
      * <p>
-     * <i>Note</i>: If the input stream to parse contains a <code>DOCTYPE</code> definition, but the parser can't find the referenced <code>DTD</code>, then a
-     * <code>FileNotFound</code> exception is raised discarding the parsing process.
+     * <i>Note</i>: If the input stream to parse contains a <code>DOCTYPE</code>
+     * definition, but the parser can't find the referenced <code>DTD</code>,
+     * then a <code>FileNotFound</code> exception is raised discarding the
+     * parsing process.
      *
      * @param baseURI
      * @param in an input stream
@@ -248,15 +255,14 @@ public class XMLUtil {
             doc = builder.get().build(in, baseURI);
         } catch (ParsingException ex) {
             log.error(StringUtil.join("Error while building XML document: " + baseURI, ex.getMessage(),
-                                      "line: " + ex.getLineNumber() + ", column: " + ex.getColumnNumber()));
+                    "line: " + ex.getLineNumber() + ", column: " + ex.getColumnNumber()));
             throw ex;
         } catch (IOException ex) {
             log.error(StringUtil.join("Error while building XML document: " + baseURI,
-                                      "Error reading from the input stream.", ex.getMessage()));
+                    "Error reading from the input stream.", ex.getMessage()));
             throw ex;
         } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error(StringUtil.join("Error while building XML document: " + baseURI, ex.getMessage()));
+            log.error(StringUtil.join("Error while building XML document: " + baseURI, ex.getMessage()), ex);
             throw new RuntimeException("Error while building XML document: " + baseURI, ex);
         } finally {
             in.close();
@@ -468,8 +474,8 @@ public class XMLUtil {
     }
 
     /**
-     * Return new element with the same name and attributes as the given element.
-     * Note that we don't care about the prefix/namespaces here.
+     * Return new element with the same name and attributes as the given
+     * element. Note that we don't care about the prefix/namespaces here.
      *
      * @param e
      * @param ignoreAttributes set of attributes to ignore when copying
@@ -492,7 +498,9 @@ public class XMLUtil {
     }
 
     /**
-     * cp(<label att_1="val_1"...att_n="val_n">ch</label>) --> <label att_1="val_1"...att_n="val_n">ch'</label>, where ch'!=Element
+     * cp(<label att_1="val_1"...att_n="val_n">ch</label>) -->
+     * <label att_1="val_1"...att_n="val_n">ch'</label>, where ch'!=Element
+     *
      * @param n
      */
     public static Node cp(Node n) {
@@ -566,6 +574,7 @@ public class XMLUtil {
 
     /**
      * Return the text that some node contains.
+     *
      * @param node
      */
     public static String getText(Element node) {
@@ -611,8 +620,9 @@ public class XMLUtil {
     }
 
     public static List<Element> collectAllExcept(Element e, String except, boolean recurse, String... names) {
-        List<Element> ret = new ArrayList<Element>();
-        Set<String> namesSet = new HashSet<String>(Arrays.asList(names));
+        List<Element> ret = new ArrayList<>();
+        Set<String> namesSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        namesSet.addAll(Arrays.asList(names));
         collectAllExcept(ret, e, except, recurse, namesSet);
         return ret;
     }
@@ -628,7 +638,8 @@ public class XMLUtil {
         int n = e.getChildCount();
         for (int i = 0; i < n; i++) {
             Node node = e.getChild(i);
-            if (node instanceof Element && !((Element) node).getLocalName().equals(except)) {
+            // Relax the string checking (e.g: describeCoverage or DescribeCoverage is ok)
+            if (node instanceof Element && !((Element) node).getLocalName().equalsIgnoreCase(except)) {
                 collectAllExcept(ret, (Element) node, except, recurse, names);
             }
         }
@@ -637,6 +648,10 @@ public class XMLUtil {
     /**
      * Collect all children of <code>e</code> with the given name.
      *
+     * @param e
+     * @param prefix
+     * @param name
+     * @param ctx
      * @return a list of the collected elements
      */
     public static List<Element> collectAll(Element e, String prefix, String name, XPathContext ctx) {
@@ -682,7 +697,9 @@ public class XMLUtil {
     }
 
     /**
-     * Replaces an <code>o</code> with a new child node. If <code>o</code> does not have a parent node, then a <code>NoSuchChildException</code> is thrown.
+     * Replaces an <code>o</code> with a new child node. If <code>o</code> does
+     * not have a parent node, then a <code>NoSuchChildException</code> is
+     * thrown.
      *
      * @param <T> the type parameter to specify the node type
      * @param o the old node
@@ -734,7 +751,8 @@ public class XMLUtil {
      * Wrap the given list of nodes in a root element
      *
      * @param n nodes to wrap
-     * @param copy whether to append copies of the nodes. If false then the given nodes are detached!
+     * @param copy whether to append copies of the nodes. If false then the
+     * given nodes are detached!
      * @param prefix root element prefix
      * @param name root element name
      * @param namespace root element namespace
@@ -779,7 +797,8 @@ public class XMLUtil {
         for (int i = 0; i < e.getChildCount(); i++) {
             n = e.getChild(i);
             if (n instanceof Element) {
-                if (name == null || ((Element) n).getLocalName().equals(name)) {
+                // Relax the string checking (e.g: <describeCoverage> or <DescribeCoverage> is ok)
+                if (name == null || ((Element) n).getLocalName().equalsIgnoreCase(name)) {
                     return (Element) n;
                 }
             }
@@ -789,9 +808,10 @@ public class XMLUtil {
 
     /**
      * Returns first child element whose name matches a certain pattern.
-     * @param e         Root element
-     * @param pattern   The pattern to match
-     * @return          The first child element which matches the pattern (if it exists)
+     *
+     * @param e Root element
+     * @param pattern The pattern to match
+     * @return The first child element which matches the pattern (if it exists)
      */
     public static Element firstChildPattern(Element e, String pattern) {
         Node n = null;
@@ -824,10 +844,12 @@ public class XMLUtil {
     }
 
     /**
-     * Returns first child element whose name matches a certain pattern, recursively through the XML nodes.
-     * @param e         Root element
-     * @param pattern   The pattern to match
-     * @return          The first child element which matches the pattern (if it exists)
+     * Returns first child element whose name matches a certain pattern,
+     * recursively through the XML nodes.
+     *
+     * @param e Root element
+     * @param pattern The pattern to match
+     * @return The first child element which matches the pattern (if it exists)
      */
     public static Element firstChildRecursivePattern(Element e, String pattern) {
         Node n = null;
@@ -866,11 +888,12 @@ public class XMLUtil {
     }
 
     /**
-     * ch (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)=n for all c_i
+     * ch (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)=n for all
+     * c_i
      */
     public static List<Node> ch(Node n, String name) {
         if (n instanceof Element) {
-            return ListUtil.<Node, Element>cast(ch((Element) n, name));
+            return ListUtil.<Node, Element>cast(getChildElements((Element) n, name));
         } else {
             return Collections.<Node>emptyList();
         }
@@ -879,20 +902,22 @@ public class XMLUtil {
     /**
      * ch (e) --> [c_1,...,c_n], where parent(c_i)=e for all c_i
      */
-    public static List<Element> ch(Element e) {
-        return ch(e, (String) null);
+    public static List<Element> getChildElements(Element e) {
+        return getChildElements(e, (String) null);
     }
 
     /**
-     * ch (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)=n for all c_i
+     * ch (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)=n for all
+     * c_i
      */
-    public static List<Element> ch(Element e, String name) {
-        List<Element> l = new LinkedList<Element>();
+    public static List<Element> getChildElements(Element e, String name) {
+        List<Element> l = new LinkedList<>();
         Element el = null;
         for (int i = 0; i < e.getChildCount(); i++) {
             if (e.getChild(i) instanceof Element) {
                 el = (Element) e.getChild(i);
-                if (name == null || el.getLocalName().equals(name)) {
+                // Relax the string checking (e.g: <describeCoverage> or <DescribeCoverage> is ok)
+                if (name == null || el.getLocalName().equalsIgnoreCase(name)) {
                     l.add(el);
                 }
             }
@@ -901,7 +926,8 @@ public class XMLUtil {
     }
 
     /**
-     * ch (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)=n for all c_i
+     * ch (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)=n for all
+     * c_i
      */
     public static List<Element> children(Element e, String... names) {
         List<Element> l = new LinkedList<Element>();
@@ -942,7 +968,8 @@ public class XMLUtil {
     /**
      * Extract elements.
      *
-     * chex (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)!=n for all c_i
+     * chex (e, n) --> [c_1,...,c_n], where parent(c_i)=e and name(c_i)!=n for
+     * all c_i
      */
     public static List<Node> chex(Node n, String name) {
         if (n instanceof Element) {
@@ -1099,6 +1126,7 @@ public class XMLUtil {
 
     /**
      * Append an XML fragment to an XOM element.
+     *
      * @param fragment
      * @return Element of the fragment, with no parents.
      * @throws IOException
@@ -1107,23 +1135,24 @@ public class XMLUtil {
     public static Element parseXmlFragment(String fragment) throws IOException, ParsingException {
         Builder docBuilder = new Builder();
         Element fragmentNode = docBuilder.build(new StringReader(fragment)).getRootElement();
-        return (Element)fragmentNode.copy();
+        return (Element) fragmentNode.copy();
     }
 
     /**
      * Extract the WCS request from the SOAP message.
+     *
      * @param request SOAP request.
      * @return the embedded WCS request
      * @throws Exception in case of error when parsing the SOAP message, or
-     *  serializing the WCS request to XML
+     * serializing the WCS request to XML
      */
     public static String extractWcsRequest(String request) throws Exception {
         Document doc = XMLUtil.buildDocument(null, request);
         Element body = ListUtil.head(
-                           XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
+                XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
         if (body == null) {
             throw new PetascopeException(ExceptionCode.InvalidEncodingSyntax,
-                                         "Missing Body from SOAP request.");
+                    "Missing Body from SOAP request.");
         }
         Element wcsRequest = XMLUtil.firstChild(body);
         wcsRequest.detach();
@@ -1131,14 +1160,21 @@ public class XMLUtil {
     }
 
     /**
-     * Transform a non-formated XML output to formated XML with indentation
+     * Transform a non-formated XML output to formated XML with 0 indentation
+     * for OGC CITE test. NOTE: OCT CITE wcs2:get-kvp-core-req42 the different
+     * in deep-equal is DescribeCoverage has boundedBy element below 2 parents
+     * (wcs:CoverageDescriptions and wcs:CoverageDescription) while GetCoverage
+     * only has 1 parent, e.g: gmlcov:RectifiedGridCoverage so the identations
+     * are different, then must remove any prefix indentations to compare.
+     *
+     *
      * @param inputXML
      * @return
      */
-    public static String transformXML(String inputXML) {
-        try {
+    public static String formatXMLForOGCCITE(String inputXML) {
+        /*try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "no");
             // NOTE: set to 0 due to OGC cite cannot check indetation different between 2 outputs.
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "0");
             StreamResult result = new StreamResult(new StringWriter());
@@ -1148,11 +1184,50 @@ public class XMLUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return null;*/
+        return inputXML.replaceAll(">\\s*<", "><");
+    }
+
+    /**
+     * Format a string in XML with indentation
+     *
+     * @param inputXML
+     * @return
+     */
+    public static String formatXML(String inputXML) {
+        if (ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+            return formatXMLForOGCCITE(inputXML);
+        } else {
+            // Not for testing OGC CITE, then return the pretty XML
+            try {
+                final InputSource src = new InputSource(new StringReader(inputXML));
+                final org.w3c.dom.Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
+                final Boolean keepDeclaration = Boolean.valueOf(inputXML.startsWith("<?xml"));
+
+                //May need this: System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+                final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+                final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+                LSOutput lsOutput = impl.createLSOutput();
+                // NOTE: QGIS cannot read UTF-16 from WMS GetCapabilities
+                lsOutput.setEncoding("UTF-8");
+                final LSSerializer writer = impl.createLSSerializer();
+
+                writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE); // Set this to true if the output needs to be beautified.
+                writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if the declaration is needed to be outputted.
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                lsOutput.setByteStream(byteArrayOutputStream);
+                writer.write(document, lsOutput);
+
+                return byteArrayOutputStream.toString();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
      * Parse the input XML and return as XML Document Object to write to String.
+     *
      * @param in
      * @return
      */
@@ -1168,14 +1243,98 @@ public class XMLUtil {
         }
     }
 
-
     /**
      * Strip spaces between XML element tags (e.g: <var>XML_Text </var> or
-     * <var> XML_Text1   XML_Text2 </var>) which needs to be stripped leading and trailing spaces before writing to output stream.
+     * <var> XML_Text1 XML_Text2 </var>) which needs to be stripped leading and
+     * trailing spaces before writing to output stream.
+     *
      * @param input
      * @return
      */
     public static String trimSpaceBetweenElements(String input) {
         return input.replaceAll(">\\s*", ">").replaceAll("\\s*<", "<");
+    }
+
+    /**
+     * Concatenate the children elements of a element node and return as a
+     * String e.g: a,b,c,d
+     *
+     * @param e
+     * @return
+     */
+    public static String childrenToString(Element e) {
+        if (e == null) {
+            return null;
+        }
+        String ret = "";
+        for (int i = 0; i < e.getChildCount(); i++) {
+            Node n = e.getChild(i);
+            if (n instanceof Element) {
+                ret += getText((Element) n) + ",";
+            }
+        }
+        return ret.substring(0, ret.length() - 1);
+    }
+
+    /**
+     * Parse a WCS requestBody in XML to a XML document with root element
+     *
+     * @param input
+     * @return
+     * @throws WCSException
+     */
+    public static Element parseInput(String input) throws WCSException {
+        try {
+            Document doc = XMLUtil.buildDocument(null, input);
+            Element rootElement = doc.getRootElement();
+
+            // Validate the request which must contain the serviceType and the version
+            String service = rootElement.getAttributeValue(ATT_SERVICE);
+            String version = rootElement.getAttributeValue(ATT_VERSION);
+            if ((null == service) || (!service.equals(KVPSymbols.WCS_SERVICE))
+                    || (version != null && !version.matches(KVPSymbols.WCS_VERSION_PATTERN))) {
+                throw new WCSException(ExceptionCode.VersionNegotiationFailed, "Service/Version not supported.");
+            }
+
+            return rootElement;
+        } catch (ParsingException ex) {
+            throw new WCSException(ExceptionCode.XmlNotValid.locator(
+                    "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
+                    ex.getMessage(), ex);
+        } catch (IOException | WCSException ex) {
+            throw new WCSException(ExceptionCode.XmlNotValid, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Simple check if an input string is in XML format (e.g: <a> .... </a> or
+     * text: for c in (...))
+     *
+     * @param input
+     * @return
+     */
+    public static boolean isXmlString(String input) {
+        return input.contains("<?xml");
+    }
+
+    /**
+     * When XML string is replaced with "&lt; for <" and "&gt; for >", replace
+     * them all.
+     *
+     * @param input
+     * @return
+     */
+    public static String replaceEnquotes(String input) {
+        return input.replaceAll("&lt;", "<").replaceAll("&amp;lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;gt;", ">");
+    }
+
+    /**
+     * Enquote the XML string in <![CDATA[ ]]> to keep special characters
+     *
+     * @param input
+     * @return
+     */
+    public static String enquoteCDATA(String input) {
+        return "<![CDATA[" + input + "]]>";
     }
 }

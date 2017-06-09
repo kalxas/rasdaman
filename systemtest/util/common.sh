@@ -545,7 +545,7 @@ get_request_kvp() {
   kvpValues=`echo "$2" | tr -d '\n'`
   if [[ -z "$4" ]]; then
     echo "$url?$kvpValues"
-    curl -s -X GET "$url" --data-urlencode "$kvpValues" > "$3"
+    curl -s -G -X GET "$url" --data-urlencode "$kvpValues" > "$3"
   else
     # SECORE (just send the request as it is without encoding)
     echo "$url$kvpValues"
@@ -559,16 +559,18 @@ post_request_kvp() {
   # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=....)
   # $3 is output file
   url="$1"
-  kvpValues=`echo "$2" | tr -d '\n'`
-
+  kvpValues=`echo "$2" | tr -d '\n'`  
   echo "$url?$kvpValues"
-  curl -s -X POST "$url" --data-urlencode "$kvpValues" > "$3"
+  curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
 # this function will be used to send XML/SOAP request for WCS, WCPS
 post_request_xml() {
-  # curl -X GET -d @14-get_coverage_jp2_slice_t_crs1.xml http://localhost:8080/rasdaman/ows -o error.txt
-  curl -s -X POST -d @"$1" "$PETASCOPE_URL" -o "$2"
+  # curl -s -X POST --data-urlencode "$kvpValues" "$PETASCOPE_URL" -o "$2"
+  url="$1"
+  kvpValues=`echo "$2" | tr -d '\n'`  
+  echo "$url?$kvpValues"
+  curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
 
@@ -695,21 +697,20 @@ run_test()
                     echo "Done."
                     ;;
                 xml)
-                    postdata=`mktemp`
-                    cat "$f" > "$postdata"
+                    QUERY=`cat $f`
 
                     # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
-                    check_query_runable "`cat $f`"
+                    check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
-                      # send SOAP to petascope
-                      post_request_xml "$postdata" "$out"
+                      # send POST/SOAP to petascope
+                      post_request_xml "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
                         continue
                     fi
                     echo "Done."
                     rm -f "$postdata"
                     ;;
-                *)   error "unknown wcs test type: $test_type"
+                *)   error "unknown wcps test type: $test_type"
               esac
               ;;
       wcs)    case "$test_type" in
@@ -726,14 +727,14 @@ run_test()
                     # this query will need to be encoded for value of parameter "query" only
                     echo "Done."
                     ;;
-                xml) postdata=`mktemp`
-                    cat "$f" > "$postdata"
+                xml) 
+                    QUERY=`cat $f`
 
                     # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
-                    check_query_runable "`cat $f`"
+                    check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
-                        # send XML by POST
-                        post_request_xml "$postdata" "$out"
+                        # send POST/SOAP XML
+                        post_request_xml "$PETASCOPE_URL" "query=$QUERY" "$out"
                     else
                         continue
                     fi

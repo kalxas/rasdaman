@@ -14,51 +14,52 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation class for boolean coverage expression in switch case.
- * Example
- * <code>
+ * Translation class for boolean coverage expression in switch case. Example  <code>
  *     switch case c > 1000 return
  *            case 100 < c return
  *            case 0 = c return
- *            case 1 > 0 return
- *            case c > c return
- * </code>
- * translates to
- * <code>
+ *            case 1 > 0 return case c > c return
+ * </code> translates to  <code>
  *     (c)>(1000)
  * </code>
+ *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class BooleanSwitchCaseCoverageExpressionHandler {
 
-    public static WcpsResult handle(WcpsResult leftCoverageExpr, String operand, WcpsResult rightCoverageExpr,
-                                    WcpsCoverageMetadataService metadataService) {
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+
+    public WcpsResult handle(WcpsResult leftCoverageExpr, String operand, WcpsResult rightCoverageExpr) {
         String leftCoverageExprStr = leftCoverageExpr.getRasql();
         String rightCoverageExprStr = rightCoverageExpr.getRasql();
 
         String rasql = TEMPLATE.replace("$leftCoverageExpr", leftCoverageExprStr)
-                       .replace("$operand", operand)
-                       .replace("$rightCoverageExpr", rightCoverageExprStr);
+                .replace("$operand", operand)
+                .replace("$rightCoverageExpr", rightCoverageExprStr);
 
         //create the resulting metadata from both of coverageExpression (choose 1 of 2)
-        WcpsCoverageMetadata metadata = metadataService.getResultingMetadata(leftCoverageExpr.getMetadata(),
-                                        rightCoverageExpr.getMetadata());
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.getResultingMetadata(leftCoverageExpr.getMetadata(),
+                rightCoverageExpr.getMetadata());
 
         return new WcpsResult(metadata, rasql);
     }
 
-    private static final String TEMPLATE = "$leftCoverageExpr $operand $rightCoverageExpr";
+    private final String TEMPLATE = "$leftCoverageExpr $operand $rightCoverageExpr";
 }

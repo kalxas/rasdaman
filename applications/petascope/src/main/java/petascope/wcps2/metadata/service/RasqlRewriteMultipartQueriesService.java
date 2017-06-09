@@ -25,44 +25,40 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
-import petascope.wcps2.error.managed.processing.MetaResultMultipartException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.handler.ForClauseHandler;
-import petascope.wcps2.result.VisitorResult;
-import petascope.wcps2.result.WcpsMetadataResult;
 
 /**
- * This class has the purpose of rewriting a Rasql query into multiple Rasql queries
- * from 1 WCPS query for returning multipart results.
- * e.g: for c in (mr, rgb) return encode(c, "png")
- * then it will returns 2 Rasql queries
- * select encode(c, "png") from mr
- * select encode(c, "rgb") from rgb
+ * This class has the purpose of rewriting a Rasql query into multiple Rasql
+ * queries from 1 WCPS query for returning multipart results. e.g: for c in (mr,
+ * rgb) return encode(c, "png") then it will returns 2 Rasql queries select
+ * encode(c, "png") from mr select encode(c, "rgb") from rgb
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Service
 public class RasqlRewriteMultipartQueriesService {
 
-    private final CoverageAliasRegistry coverageAliasRegistry;
-    private final VisitorResult wcpsResult;
+    @Autowired
+    private CoverageAliasRegistry coverageAliasRegistry;
 
-    public RasqlRewriteMultipartQueriesService(CoverageAliasRegistry coverageAliasRegistry, VisitorResult wcpsResult) {
-        this.coverageAliasRegistry = coverageAliasRegistry;
-        this.wcpsResult = wcpsResult;
-
-        checkValid();
+    public RasqlRewriteMultipartQueriesService() {
+        
     }
 
     /**
-     * This function will create multiple rasql queries from the Rasql query result
-     * @param coverageAliasRegistry
+     * This function will create multiple rasql queries from the Rasql query
+     * result
+     *
      * @param defaultRasql
      * @return
      */
-    public Stack<String> rewriteQuery(CoverageAliasRegistry coverageAliasRegistry, String defaultRasql) {
+    public Stack<String> rewriteQuery(String defaultRasql) {
         // Store the Rasql queries to update with coverage names in 2 stacks (1 is the final results, 1 is temporary)
-        Stack<String> stackUpdatedQueries = new Stack<String>();
-        Stack<String> stackTmp = new Stack<String>();
+        Stack<String> stackUpdatedQueries = new Stack<>();
+        Stack<String> stackTmp = new Stack<>();
 
         if (!this.isMultiPart()) {
             stackUpdatedQueries.push(defaultRasql);
@@ -72,9 +68,9 @@ public class RasqlRewriteMultipartQueriesService {
             boolean isFirstIterator = true;
             String rasql = "";
             while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry)it.next();
+                Map.Entry pair = (Map.Entry) it.next();
                 // Only add Rasql query if coverage iterator has more than 1 coverage (collection) name
-                ArrayList<String> collectionNames = (ArrayList<String>)pair.getValue();
+                ArrayList<String> collectionNames = (ArrayList<String>) pair.getValue();
                 int size = collectionNames.size();
                 String coverageIteratorName = pair.getKey().toString();
 
@@ -102,7 +98,7 @@ public class RasqlRewriteMultipartQueriesService {
                         }
 
                         // Add values to the first stack and continue to add new Rasql query by updating coverage names.
-                        stackUpdatedQueries = (Stack<String>)stackTmp.clone();
+                        stackUpdatedQueries = (Stack<String>) stackTmp.clone();
                         stackTmp.clear();
                     }
                     isFirstIterator = false;
@@ -123,16 +119,5 @@ public class RasqlRewriteMultipartQueriesService {
             }
         }
         return false;
-    }
-
-    /**
-     * check if input for multipart is not wcps metadata result (e.g: identifier());
-     */
-    private void checkValid() {
-        // Check if wcpsResult is not WcpsMetadataResult (as cannot return multipart for this kind of WCPS query)
-        // it will create multiple WCPS queries and rerun to get metadata (but not support now)
-        if ((this.isMultiPart()) && (this.wcpsResult instanceof WcpsMetadataResult)) {
-            throw new MetaResultMultipartException();
-        }
     }
 }

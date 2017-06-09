@@ -23,41 +23,46 @@ package petascope.wcps2.metadata.model;
 
 import java.math.BigDecimal;
 import petascope.core.CrsDefinition;
+import petascope.exceptions.PetascopeException;
+import petascope.core.AxisTypes;
+import petascope.core.AxisTypes.AxisDirection;
+import petascope.util.BigDecimalUtil;
+import petascope.util.CrsUtil;
+import petascope.util.TimeUtil;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @param <T>
  */
-public class Axis<T> {
+public abstract class Axis<T> {
 
     private final String label;
     private NumericSubset geoBounds;
     private NumericSubset gridBounds;
     private BigDecimal origin;
     private final AxisDirection direction;
-    private String crsUri;
+    // this is the CRS of axis in coverage
+    private String nativeCrsUri;
     private final CrsDefinition crsDefinition;
     // e.g: x, y, t, ...
     private final String axisType;
     private final String axisUoM;
-    private final BigDecimal scalarResolution;
     private final int rasdamanOrder;
     private BigDecimal resolution;
 
     public Axis(String label, NumericSubset geoBounds, NumericSubset gridBounds,
-                AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
-                String axisType, String axisUoM, BigDecimal scalarResolution, int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
+            AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
+            String axisType, String axisUoM, int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
         this.label = label;
         this.geoBounds = geoBounds;
         this.gridBounds = gridBounds;
         this.direction = direction;
-        this.crsUri = crsUri;
+        this.nativeCrsUri = crsUri;
         this.crsDefinition = crsDefinition;
         this.axisType = axisType;
         this.axisUoM = axisUoM;
-        this.scalarResolution = scalarResolution;
         this.rasdamanOrder = rasdamanOrder;
-        this.origin = origin;
+        this.origin = BigDecimalUtil.stripDecimalZeros(origin);
         this.resolution = resolution;
     }
 
@@ -69,12 +74,12 @@ public class Axis<T> {
         this.resolution = resolution;
     }
 
-    public void setCrsUri(String crsUri) {
-        this.crsUri = crsUri;
+    public void setNativeCrsUri(String crsUri) {
+        this.nativeCrsUri = crsUri;
     }
 
-    public String getCrsUri() {
-        return crsUri;
+    public String getNativeCrsUri() {
+        return nativeCrsUri;
     }
 
     public CrsDefinition getCrsDefinition() {
@@ -113,26 +118,116 @@ public class Axis<T> {
         return axisUoM;
     }
 
-    public BigDecimal getScalarResolution() {
-        return scalarResolution;
-    }
-
     public int getRasdamanOrder() {
         return rasdamanOrder;
     }
 
-    public BigDecimal getOrigin() {
-        return origin;
-    }
-
     public void setOrigin(BigDecimal origin) {
-        this.origin = origin;
+        this.origin = BigDecimalUtil.stripDecimalZeros(origin);
     }
 
-    @Override
-    public Axis clone() {
-        return new Axis(getLabel(), getGeoBounds(), getGridBounds(), getDirection(),
-                        getCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
-                        getScalarResolution(), getRasdamanOrder(), getOrigin(), getResolution());
+    /**
+     * Return the original origin of the axis without trimming/slicing from coverage's metadata
+     *
+     * @return
+     */
+    public BigDecimal getOriginalOrigin() {
+        return this.origin;
     }
+
+    /**
+     * Return the raw origin in number (e.g: 4.5000 -> 4.5, 3.20001 -> 3.20001)
+     *
+     * @return
+     */
+    public BigDecimal getOrigin() {
+        // Re calculate origin when subsets were applied (but it is not original origin of coverage)
+        BigDecimal axisOrigin = null;
+        if (this instanceof IrregularAxis) {
+            axisOrigin = geoBounds.getLowerLimit();
+        } else {
+            BigDecimal halfPixel = BigDecimal.valueOf(1.0 / 2).multiply(resolution).abs();
+            if (resolution.compareTo(BigDecimal.ZERO) > 0) {
+                // origin = (geoMinValue + 0.5 * resolution) when resolution > 0 (e.g: Longitude axis)
+                axisOrigin = geoBounds.getLowerLimit().add(halfPixel).stripTrailingZeros();
+            } else {
+                // origin = (geoMaxValue - 0.5 * resolution) when resolution < 0 (e.g: Latitude axis)                
+                axisOrigin = geoBounds.getUpperLimit().subtract(halfPixel).stripTrailingZeros();
+            }
+        }
+
+        return axisOrigin;
+    }
+
+    /**
+     * Return the translated origin for the axis in String with dateTime axis is
+     * in dateTime format and non dateTime axis is raw value.
+     *
+     * @return
+     * @throws petascope.exceptions.PetascopeException
+     */
+    public String getOriginRepresentation() throws PetascopeException {
+        if (this.axisType.equals(AxisTypes.T_AXIS)) {
+            // Translate the origin in number to dateTime format            
+            return TimeUtil.valueToISODateTime(BigDecimal.ZERO, this.getOrigin(), crsDefinition);
+        } else {
+            return this.getOrigin().toPlainString();
+        }
+    }
+
+    /**
+     * Return the translated lower geo bound for the axis in String with
+     * dateTime axis is in dateTime format and non dateTime axis is raw value
+     *
+     * @return
+     * @throws petascope.exceptions.PetascopeException
+     */
+    public String getLowerGeoBoundRepresentation() throws PetascopeException {
+        if (this.axisType.equals(AxisTypes.T_AXIS)) {
+            // Translate the lower geo bound in number to dateTime format            
+            return TimeUtil.valueToISODateTime(BigDecimal.ZERO, this.getGeoBounds().getLowerLimit(), crsDefinition);
+        } else {
+            return this.getGeoBounds().getLowerLimit().toPlainString();
+        }
+    }
+
+    /**
+     * Return the translated lower geo bound for the axis in String with
+     * dateTime axis is in dateTime format and non dateTime axis is raw value
+     *
+     * @return
+     * @throws petascope.exceptions.PetascopeException
+     */
+    public String getUpperGeoBoundRepresentation() throws PetascopeException {
+        if (this.axisType.equals(AxisTypes.T_AXIS)) {
+            // Translate the upper geo bound in number to dateTime format            
+            return TimeUtil.valueToISODateTime(BigDecimal.ZERO, this.getGeoBounds().getUpperLimit(), crsDefinition);
+        } else {
+            return this.getGeoBounds().getUpperLimit().toPlainString();
+        }
+    }
+
+    /**
+     * Check if axis is X, Y geoferenced axis (e.g: Lat, Long, E, N,...) and it
+     * is not gridCRS (CRS:1) or IndexNDCRS
+     *
+     * @return
+     */
+    public boolean isXYGeoreferencedAxis() {
+        if (this.axisType.equals(AxisTypes.X_AXIS) || this.axisType.equals(AxisTypes.Y_AXIS)) {
+            if (!(CrsUtil.isGridCrs(this.nativeCrsUri) && CrsUtil.isIndexCrs(this.nativeCrsUri))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isXAxis() {
+        return this.axisType.equals(AxisTypes.X_AXIS);
+    }
+
+    public boolean isYAxis() {
+        return this.axisType.equals(AxisTypes.Y_AXIS);
+    }    
 }

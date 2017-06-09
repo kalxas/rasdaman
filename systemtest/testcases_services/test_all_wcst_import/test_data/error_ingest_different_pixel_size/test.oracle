@@ -1,1 +1,3 @@
-<ows:ExceptionText>Resolution 1.0 was found in the input coverage, but no axis with the same resolution exists in the target coverage.</ows:ExceptionText>
+<ows:ExceptionText>Resolution -1.0 was found in the input coverage, but no axis with the same resolution exists in the updating coverage.</ows:ExceptionText>
+
+

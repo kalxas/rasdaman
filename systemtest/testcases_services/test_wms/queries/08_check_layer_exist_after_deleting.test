@@ -1,4 +1,0 @@
-service=WMS&
-version=1.3.0&
-request=DeleteLayer&
-layer=test_wax_lake

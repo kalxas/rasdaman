@@ -21,7 +21,7 @@
  */
 package petascope.wcps2.handler;
 
-import java.util.List;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.NumericSlicing;
 import petascope.wcps2.metadata.model.NumericTrimming;
@@ -30,18 +30,16 @@ import petascope.wcps2.result.WcpsResult;
 
 /**
  * Translator class for the imageCrsDomain(coverageExpression, axisLabel)
- * operation in wcps
- * <code>
+ * operation in wcps  <code>
  * for c in (eobstest) return imageCrsDomain(c[Lat(20:30)], Lat)
- * </code>
- * returns
- * [120:170] in grid-coordinate
+ * </code> returns [120:170] in grid-coordinate
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@Service
 public class ImageCrsDomainExpressionByDimensionExpressionHandler {
 
-    public static WcpsMetadataResult handle(WcpsResult coverageExpression, String axisName) {
+    public WcpsMetadataResult handle(WcpsResult coverageExpression, String axisName) {
         // just iterate the axes and get the grid bound for each axis
         String rasql = "";
         String tmp = "";
@@ -49,14 +47,14 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler {
         Axis axis = coverageExpression.getMetadata().getAxisByName(axisName);
         if (axis.getGeoBounds() instanceof NumericTrimming) {
             // Trimming
-            String lowBound = ((NumericTrimming)axis.getGridBounds()).getLowerLimit().toPlainString();
-            String highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
+            String lowBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();
+            String highBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
 
             tmp = TRIMMING_TEMPLATE.replace("$lowBound", lowBound)
-                  .replace("$highBound", highBound);
+                    .replace("$highBound", highBound);
         } else {
             // Slicing
-            String bound = ((NumericSlicing)axis.getGridBounds()).getBound().toPlainString();
+            String bound = ((NumericSlicing) axis.getGridBounds()).getBound().toPlainString();
             tmp = SLICING_TEMPLATE.replace("$lowBound", bound);
         }
 
@@ -66,6 +64,6 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler {
         return wcpsMetadataResult;
     }
 
-    private static final String TRIMMING_TEMPLATE = "$lowBound:$highBound";
-    private static final String SLICING_TEMPLATE = "$lowBound";
+    private final String TRIMMING_TEMPLATE = "$lowBound:$highBound";
+    private final String SLICING_TEMPLATE = "$lowBound";
 }

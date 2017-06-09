@@ -1,4 +1,8 @@
-<html><head><title>PetaScope Rasql Servlet</title></head><body>
-<h1>An error has occured, please check log for more detail.</h1>
-<p>Failed evaluating query: select encode(c, "png") from test_mr as c</p>
-The user RASGUEST does not exist.
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="InternalComponentError">
+        <ows:ExceptionText>The user RASGUEST does not exist.. Please check the log for the detail error.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

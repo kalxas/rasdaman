@@ -96,7 +96,13 @@ RETURN: ('r'|'R')('e'|'E')('t'|'T')('u'|'U')('r'|'R')('n'|'N');
 RIGHT_BRACE: '}';
 RIGHT_BRACKET: ']';
 RIGHT_PARENTHESIS: ')';
+// This one is WCPS standard
 SCALE: ('s'|'S')('c'|'C')('a'|'A')('l'|'L')('e'|'E');
+// These ones are made for WCS scaling extension to WCPS scale handlers (not standard)
+SCALE_FACTOR: ('s'|'S')('c'|'C')('a'|'A')('l'|'L')('e'|'E')('f'|'F')('a'|'A')('c'|'C')('t'|'T')('o'|'O')('r'|'R');
+SCALE_AXES: ('s'|'S')('c'|'C')('a'|'A')('l'|'L')('e'|'E')('a'|'A')('x'|'X')('e'|'E')('s'|'S');
+SCALE_SIZE: ('s'|'S')('c'|'C')('a'|'A')('l'|'L')('e'|'E')('s'|'S')('i'|'I')('z'|'z')('e'|'E');
+SCALE_EXTENT: ('s'|'S')('c'|'C')('a'|'A')('l'|'L')('e'|'E')('e'|'E')('x'|'X')('t'|'T')('e'|'E')('n'|'N')('t'|'T');
 SEMICOLON: ';';
 SIN: ('s'|'S')('i'|'I')('n'|'N');
 SINH: ('s'|'S')('i'|'I')('n'|'N')('h'|'H');
@@ -115,7 +121,7 @@ VALUES:('v'|'V')('a'|'A')('l'|'L')('u'|'U')('e'|'E')('s'|'S');
 WHERE: ('w'|'W')('h'|'H')('e'|'E')('r'|'R')('e'|'E');
 XOR: ('x'|'X')('o'|'O')('r'|'R');
 REAL_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?;
-SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')('+'|'-')[0-9]+;
+SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;
 //COVERAGE_VARIABLE_NAME: '$'[a-zA-Z0-9_]+; disabled for backwards compatibility with WCPS1
 COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
 NAME: [a-z|A-Z]+;

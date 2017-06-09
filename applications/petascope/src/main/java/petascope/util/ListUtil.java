@@ -278,13 +278,13 @@ public class ListUtil {
     }
 
     /**
-     * Print all elements in the list, separated by the specified Field Separator.
+     * join all elements in the list, separated by the specified Field Separator.     
      * @param <T>
      * @param l    The list
      * @param FS   The field separator (e.g. comma for CSV outputs)
      * @return Readable listing of all elements in the list. Example: printList({a,b,c}, "-") --> "a-b-c"
      */
-    public static <T> String printList(List<T> l, String FS) {
+    public static <T> String join(List<T> l, String FS) {
         String out = "";
         StringBuilder sb = new StringBuilder(out);
         if (l.size() > 0) {

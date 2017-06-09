@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -24,71 +24,53 @@ package petascope.wcps2.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
-import petascope.wcps2.error.managed.processing.WCPSProcessingError;
-import petascope.wcps2.metadata.service.CoverageAliasRegistry;
-import petascope.wcps2.metadata.service.CoverageRegistry;
-import petascope.wcps2.metadata.service.RasqlTranslationService;
-import petascope.wcps2.metadata.service.SubsetParsingService;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.exceptions.WCPSException;
 import petascope.wcps2.result.VisitorResult;
 
 /**
- * Class to translate a wcps query into a rasql query using the antlr generated parser and
- * the translation classes in this package
+ * Class to translate a wcps query into a rasql query using the antlr generated
+ * parser and the translation classes in this package
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class WcpsTranslator {
 
-    private final CoverageRegistry coverageRegistry;
-    private final WcpsCoverageMetadataService wcpsCoverageMetadataService;
-    private final RasqlTranslationService rasqlTranslationService;
-    private final SubsetParsingService subsetParsingService;
-    private CoverageAliasRegistry coverageAliasRegistry;
+    @Autowired
+    private WcpsEvaluator wcpsEvaluator;
 
-    /**
-     * Constructor for the class. This class should be created at application start-up.
-     *
-     * @param coverageRegistry
-     * @param wcpsCoverageMetadataService
-     * @param rasqlTranslationService
-     * @param subsetParsingService
-     */
-    public WcpsTranslator(CoverageRegistry coverageRegistry, WcpsCoverageMetadataService wcpsCoverageMetadataService,
-                          RasqlTranslationService rasqlTranslationService, SubsetParsingService subsetParsingService) {
-        this.coverageRegistry = coverageRegistry;
-        this.wcpsCoverageMetadataService = wcpsCoverageMetadataService;
-        this.rasqlTranslationService = rasqlTranslationService;
-        this.subsetParsingService = subsetParsingService;
+    public WcpsTranslator() {
+
     }
 
     /**
-     * Translates a wcps query into a single rasql query or value.
-     * This method should be called AFTER query rewriting (for multipart).
+     * Translates a wcps query into a single rasql query or value. This method
+     * should be called AFTER query rewriting (for multipart).
+     *
      * @param wcpsQuery
      * @return the translated query
      * @throws petascope.exceptions.PetascopeException
      */
-    public VisitorResult translate(String wcpsQuery) throws WCPSProcessingError, PetascopeException {
+    public VisitorResult translate(String wcpsQuery) throws WCPSException, PetascopeException {
         //create a evaluator object.
-        WcpsEvaluator wcpsEvaluator = new WcpsEvaluator(coverageRegistry, wcpsCoverageMetadataService,
-                rasqlTranslationService, subsetParsingService);
-        VisitorResult result = getTranslationTree(wcpsEvaluator, wcpsQuery);
+        VisitorResult result = getTranslationTree(wcpsQuery);
         return result;
     }
 
     /**
-     * Converts the wcps query into a translation tree that can be used to generate a
-     * rasql query
+     * Converts the wcps query into a translation tree that can be used to
+     * generate a rasql query
      *
      * @param wcpsQuery the query to be translated
      * @return a translation tree
      */
-    private VisitorResult getTranslationTree(WcpsEvaluator evaluator, String wcpsQuery) throws PetascopeException {
+    private VisitorResult getTranslationTree(String wcpsQuery) throws PetascopeException {
         ANTLRInputStream input = new ANTLRInputStream(wcpsQuery);
         wcpsLexer lexer = new wcpsLexer(input);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -102,7 +84,7 @@ public class WcpsTranslator {
         // If query cannot be parsed, it is SyntaxError Exception (needed for OGC CITE test)
         try {
             parseTree = parser.wcpsQuery();
-        } catch(WCPSProcessingError ex) {
+        } catch (WCPSException ex) {
             throw new PetascopeException(ExceptionCode.SyntaxError, ex.getMessage(), ex);
         }
 
@@ -110,21 +92,13 @@ public class WcpsTranslator {
         try {
             // When the tree is parsed, it will traverse to each node to evaluate
             // And throw WCPSProcessingError or other kind of Exceptions if possible
-            translationTree = evaluator.visit(parseTree);
-//            translationTree.setMimeType(evaluator.getMimeType());
+            translationTree = this.wcpsEvaluator.visit(parseTree);
 
-            // Get the aliasCoverage for multipart
-            this.coverageAliasRegistry = evaluator.getCoverageAliasRegistry();
-        } catch (WCPSProcessingError ex) {
+        } catch (WCPSException ex) {
             throw new WCSException(ex.getExceptionCode(), ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new WCSException(ExceptionCode.WcpsError, ex.getMessage(), ex);
         }
         return translationTree;
-    }
-
-    // Get the coverageVariableNames and coverageNames
-    public CoverageAliasRegistry getCoverageAliasRegistry() {
-        return this.coverageAliasRegistry;
     }
 }

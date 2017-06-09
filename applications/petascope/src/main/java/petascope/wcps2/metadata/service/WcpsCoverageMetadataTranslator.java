@@ -21,26 +21,30 @@
  */
 package petascope.wcps2.metadata.service;
 
-import org.apache.commons.lang3.StringUtils;
-import petascope.core.CoverageMetadata;
-import petascope.core.DbMetadataSource;
-import petascope.swe.datamodel.*;
-import petascope.util.AxisTypes;
-import petascope.util.CrsUtil;
-import petascope.wcps.metadata.CellDomainElement;
-import petascope.wcps.metadata.DomainElement;
-import petascope.wcps2.metadata.model.*;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.rasdaman.domain.cis.*;
+import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
-import petascope.wcps.server.core.RangeElement;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.core.AxisTypes;
+import petascope.core.AxisTypes.AxisDirection;
+import petascope.util.CrsUtil;
+import petascope.wcps2.metadata.model.RangeField;
+import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps2.metadata.model.Axis;
+import petascope.wcps2.metadata.model.IrregularAxis;
+import petascope.wcps2.metadata.model.NumericSubset;
+import petascope.wcps2.metadata.model.NumericTrimming;
+import petascope.wcps2.metadata.model.RegularAxis;
 
 /**
  * This class translates different types of metadata into WcpsCoverageMetadata.
@@ -48,60 +52,125 @@ import petascope.wcps.server.core.RangeElement;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
+@Service
 public class WcpsCoverageMetadataTranslator {
 
-    public WcpsCoverageMetadataTranslator() {}
+    @Autowired
+    private CoverageRepostioryService persistedCoverageService;
 
-    public WcpsCoverageMetadata translate(CoverageMetadata metadata) {
-        List<Axis> axes = buildAxes(metadata.getDomainList(), metadata.getCellDomainList());
-        List<RangeField> rangeFields = buildRangeFields(metadata.getRangeIterator(), metadata.getSweComponentsIterator());        
-        Set<String> metadataList = metadata.getExtraMetadata(DbMetadataSource.EXTRAMETADATA_TYPE_GMLCOV);
-        // parse extra metadata of coverage to map
-        String extraMetadata = StringUtils.join(metadataList, "");
-        List<NilValue> nodata = metadata.getAllUniqueNullValues();
-        return new WcpsCoverageMetadata(metadata.getCoverageName(), metadata.getCoverageType(), axes,
-                                        CrsUtil.CrsUri.createCompound(metadata.getCrsUris()),
-                                        rangeFields, extraMetadata);
+
+    public WcpsCoverageMetadataTranslator() {
+
     }
 
-    private List<RangeField> buildRangeFields(Iterator<RangeElement> rangeIterator, Iterator<AbstractSimpleComponent> sweIterator) {
-        List<RangeField> rangeFields = new ArrayList<RangeField>();
-        while (rangeIterator.hasNext()) {
-            RangeElement rangeElement = rangeIterator.next();
-            Quantity quantity = (Quantity) sweIterator.next();
+    /**
+     * Create a WCPS coverage metadata object from a Coverage CIS 1.1 model in
+     * database.
+     *
+     * @param coverageId
+     * @return
+     * @throws PetascopeException
+     * @throws SecoreException
+     */
+    public WcpsCoverageMetadata create(String coverageId) throws PetascopeException, SecoreException {
+        // Only supports GeneralGridCoverage now
+        Coverage coverage = this.persistedCoverageService.readCoverageByIdFromCache(coverageId);
+        List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
+        List<IndexAxis> indexAxes = ((GeneralGridCoverage) coverage).getIndexAxes();
 
-            rangeFields.add(new RangeField(rangeElement.getType(), rangeElement.getName(), quantity.getDescription(),
-                                           parseNodataValues(quantity.getNilValuesIterator()), quantity.getUom(), quantity.getDefinition(),
-                                           quantity.getAllowedValues()));
+        // wcpsCoverageMetadata axis
+        List<Axis> axes = buildAxes(geoAxes, indexAxes);
+        List<RangeField> rangeFields = buildRangeFields(coverage.getRangeType().getDataRecord().getFields());
+        // parse extra metadata of coverage to map
+        String extraMetadata = coverage.getMetadata();
+        List<NilValue> nilValues = coverage.getAllUniqueNullValues();
+
+        WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId, coverage.getCoverageType(), axes,
+                coverage.getEnvelope().getEnvelopeByAxis().getSrsName(),
+                rangeFields, nilValues, extraMetadata);
+
+        return wcpsCoverageMetadata;
+    }
+
+    /**
+     * Translate a persisted coverage in database by coverageId to a
+     * WcpsCoverageMetadata. NOTE: if a WcpsCoverageMetadata is already
+     * translated, it will get from cache.
+     *
+     * @param coverageId
+     * @return
+     * @throws petascope.exceptions.PetascopeException
+     * @throws petascope.exceptions.SecoreException
+     */
+    public WcpsCoverageMetadata translate(String coverageId) throws PetascopeException, SecoreException {
+        // NOTE: cannot cache a translated WCPS coverage metadata as a WCPS request can slice, trim to the coverage metadata which is stored in cache
+        // and the next request will not have the full metadata as the previous one which is big error.
+        WcpsCoverageMetadata  wcpsCoverageMetadata = this.create(coverageId);
+
+        return wcpsCoverageMetadata;
+    }
+
+    /**
+     * Build list of RangeField for WcpsCoverageMetadata object
+     *
+     * @param fields
+     * @return
+     */
+    private List<RangeField> buildRangeFields(List<Field> fields) {
+        List<RangeField> rangeFields = new ArrayList<>();
+        // each field contains one quantity
+        for (Field field : fields) {
+            Quantity quantity = field.getQuantity();
+            RangeField rangeField = new RangeField();
+            // Data type for each band of coverage
+            rangeField.setDataType(quantity.getDataType());
+            rangeField.setName(field.getName());
+            rangeField.setDescription(quantity.getDescription());
+            rangeField.setDefinition(quantity.getDefinition());
+            rangeField.setNodata(quantity.getNilValuesList());
+            rangeField.setUomCode(quantity.getUom().getCode());
+            rangeField.setAllowedValues(quantity.getAllowedValues());
+
+            rangeFields.add(rangeField);
         }
 
         return rangeFields;
     }
 
-    private List<NilValue> parseNodataValues(Iterator<NilValue> nilValueIterator) {
-        List<NilValue> ret = new ArrayList<NilValue>();
-        while (nilValueIterator.hasNext()) {
-            NilValue number = nilValueIterator.next();
-            ret.add(number);
-        }
-        return ret;
-    }
-
-    private List<Axis> buildAxes(List<DomainElement> geoDomains, List<CellDomainElement> gridDomains) {
+    /**
+     * Build list of axes for WcpsCoverageMetadata from the coverage's axes
+     *
+     * @param geoDomains
+     * @param gridDomains
+     * @return
+     */
+    private List<Axis> buildAxes(List<GeoAxis> geoAxes, List<IndexAxis> indexAxes) throws PetascopeException, SecoreException {
         List<Axis> result = new ArrayList();
-        for (int i = 0; i < geoDomains.size(); i++) {
-            DomainElement currentGeo = geoDomains.get(i);
-            CellDomainElement currentGrid = gridDomains.get(i);
+        for (int i = 0; i < geoAxes.size(); i++) {
+            GeoAxis geoAxis = geoAxes.get(i);
+            String axisLabel = geoAxis.getAxisLabel();
+
+            // NOTE: the order of geo CRS axes could be different from the index axes
+            // e.g: CRS is EPSG:4326&Ansidate so the geo order is: Lat, Long, t, but in rasdaman, grid stored as: t, Lat, Long
+            IndexAxis indexAxis = null;
+            for (int j = 0; j < indexAxes.size(); j++) {
+                indexAxis = indexAxes.get(j);
+                String indexAxisLabelTmp = indexAxis.getAxisLabel();
+                if (axisLabel.equals(indexAxisLabelTmp)) {
+                    break;
+                }
+            }
 
             // geoBounds is the geo bounds of axis in the coverage (but can be modified later by subsets)
-            NumericSubset geoBounds = new NumericTrimming(currentGeo.getMinValue(), currentGeo.getMaxValue());
-            NumericSubset gridBounds = new NumericTrimming(new BigDecimal(currentGrid.getLo()), new BigDecimal(currentGrid.getHi()));
-            String crsUri = currentGeo.getNativeCrs();
-            AxisDirection axisDirection;
+            NumericSubset geoBounds = new NumericTrimming(geoAxis.getLowerBoundNumber(), geoAxis.getUpperBoundNumber());
+            NumericSubset gridBounds = new NumericTrimming(new BigDecimal(indexAxis.getLowerBound()), new BigDecimal(indexAxis.getUpperBound()));
+            String crsUri = geoAxis.getSrsName();
 
+            CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crsUri);
             // x, y, t,...
-            String axisType = currentGeo.getAxisDef().getType();
+            String axisType = CrsUtil.getAxisType(crsDefinition, axisLabel);
 
+            AxisDirection axisDirection = null;
             if (axisType.equals(AxisTypes.X_AXIS)) {
                 axisDirection = AxisDirection.EASTING;
             } else if (axisType.equals(AxisTypes.Y_AXIS)) {
@@ -113,53 +182,52 @@ public class WcpsCoverageMetadataTranslator {
             }
 
             // Get the metadata of CRS (needed when using TimeCrs)
-            CrsDefinition crsDefinition = currentGeo.getAxisDef().getCrsDefinition();
-            String axisUoM = currentGeo.getUom();
-            int rasdamanOrder = currentGeo.getOrder();
+            String axisUoM = geoAxis.getUomLabel();
+            // the order of geo axis stored in rasdaman as grid axis (e.g: CRS order EPSG:4326 Lat, Long, but in grid order is: Long, Lat)
+            int gridAxisOrder = indexAxis.getAxisOrder();
 
             // NOTE: this needs the "sign" of offset vector as well
-            BigDecimal scalarResolution = currentGeo.getDirectionalResolution();
-
+            BigDecimal scalarResolution = geoAxis.getResolution();
+            BigDecimal originNumber = this.getOriginNumber(geoAxis);
 
             // Check domainElement's type
-            if (currentGeo.isIrregular()) {
-                // Need the iOder of axis to query coeffcients
-                result.add(new IrregularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
-                                             crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, getOrigin(currentGeo), currentGeo.getDirectionalResolution()));
+            if (geoAxis.isIrregular()) {
+                // All stored coefficients for irregular axis in coverage
+                List<BigDecimal> directPositions = ((org.rasdaman.domain.cis.IrregularAxis) geoAxis).getDirectPositionsNumber();
+                result.add(new IrregularAxis(axisLabel, geoBounds, gridBounds, axisDirection,
+                        crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
+                        originNumber, scalarResolution, directPositions));
             } else {
 
-                result.add(new RegularAxis(currentGeo.getLabel(), geoBounds, gridBounds, axisDirection,
-                                           crsUri, crsDefinition, axisType, axisUoM, scalarResolution, rasdamanOrder, getOrigin(currentGeo), currentGeo.getDirectionalResolution()));
+                result.add(new RegularAxis(axisLabel, geoBounds, gridBounds, axisDirection,
+                        crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
+                        originNumber, scalarResolution));
             }
         }
         return result;
     }
 
-    private BigDecimal getOrigin(DomainElement currentGeo){
+    private BigDecimal getOriginNumber(GeoAxis geoAxis) throws PetascopeException, SecoreException {
         BigDecimal origin;
 
-        if(currentGeo.isIrregular()) {
-            if (currentGeo.getDirectionalResolution().compareTo(BigDecimal.ZERO) > 0) {
-                // longitude with offset vector > 0, min is origin
-                origin = currentGeo.getMinValue().stripTrailingZeros();
-            } else {
-                // latitude with offset vector < 0 (max is origin)
-                origin = currentGeo.getMaxValue().stripTrailingZeros();
-            }
+        if (geoAxis.isIrregular()) {
+            // Only supports irregular with positive resolution
+            origin = geoAxis.getLowerBoundNumber();
         } else {
-            //if axis is regular we apply formula: origin =(geoMinValue + 0.5) * scalarResolution
-            if (currentGeo.getDirectionalResolution().compareTo(BigDecimal.ZERO) > 0) {
-                origin = currentGeo.getMinValue().add(BigDecimal.valueOf(1.0 / 2)
-                        .multiply(currentGeo.getDirectionalResolution())).stripTrailingZeros();
+            BigDecimal resolution = geoAxis.getResolution();
+            BigDecimal lowerBound = geoAxis.getLowerBoundNumber();
+            BigDecimal upperBound = geoAxis.getUpperBoundNumber();
+            //if axis is regular positive axis we apply formula: origin = (geoMinValue + 0.5) * resolution (> 0)
+            if (resolution.compareTo(BigDecimal.ZERO) > 0) {
+                origin = lowerBound.add(BigDecimal.valueOf(1.0 / 2)
+                        .multiply(resolution)).stripTrailingZeros();
             } else {
-                // e.g: origin =(geoMaxValue + 0.5) * scalarResolution
-                origin = currentGeo.getMaxValue().add(BigDecimal.valueOf(1.0 / 2)
-                        .multiply(currentGeo.getDirectionalResolution())).stripTrailingZeros();
+                // if axis is regular negative axis, origin = (geoMaxValue + 0.5) * resolution (< 0)
+                origin = upperBound.add(BigDecimal.valueOf(1.0 / 2)
+                        .multiply(resolution)).stripTrailingZeros();
             }
         }
 
         return origin;
     }
-
-
 }

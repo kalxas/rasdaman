@@ -2,9 +2,7 @@
 <ows:ExceptionReport version="2.0.1"
     
       >
-    <ows:Exception exceptionCode="InvalidParameterValue">
-        <ows:ExceptionText>Temporal subset ""1950-01-01T12-01":"1950-01-01T12Z"" is invalid: check order.</ows:ExceptionText>
+    <ows:Exception exceptionCode="InvalidSubsetting">
+        <ows:ExceptionText>Invalid 'subsetting' with '127470.54166666666666666666666666666666666666666666666667:127470.5' for axis 't'.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

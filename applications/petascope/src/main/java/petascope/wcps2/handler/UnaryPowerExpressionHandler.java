@@ -21,6 +21,7 @@
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsResult;
 
 /**
@@ -32,15 +33,16 @@ import petascope.wcps2.result.WcpsResult;
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Service
 public class UnaryPowerExpressionHandler {
 
-    public static WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
+    public WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
         // NOTE: It is implemented same as UnaryBooleanExpression with case bit
         String template = TEMPLATE.replace("$coverageExp", coverageExp.getRasql())
-                          .replace("$scalarExp", scalarExp.getRasql());
+                .replace("$scalarExp", scalarExp.getRasql());
 
         return new WcpsResult(coverageExp.getMetadata(), template);
     }
 
-    private static final String TEMPLATE = "POW($coverageExp, $scalarExp)";
+    private final String TEMPLATE = "POW($coverageExp, $scalarExp)";
 }

@@ -24,7 +24,7 @@ package petascope.wcps2.metadata.service;
 import java.math.BigDecimal;
 import petascope.exceptions.PetascopeException;
 import petascope.util.TimeUtil;
-import petascope.wcps2.error.managed.processing.InvalidCalculatedBoundsSubsettingException;
+import petascope.wcps2.exception.processing.InvalidCalculatedBoundsSubsettingException;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.ParsedSubset;
 
@@ -70,7 +70,7 @@ public class TimeConversionService {
         String axisName = axis.getLabel();
         String axisUoM = axis.getAxisUoM();
         String datumOrigin = axis.getCrsDefinition().getDatumOrigin();
-        BigDecimal scalarResolution = axis.getScalarResolution();
+        BigDecimal scalarResolution = axis.getResolution();
 
         BigDecimal result;
         try {

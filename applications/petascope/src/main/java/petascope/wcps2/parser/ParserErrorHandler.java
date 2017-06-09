@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,13 +25,14 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
-import petascope.wcps2.error.managed.processing.WCPSProcessingError;
-import petascope.wcps2.error.managed.syntax.ErrorRegistry;
-import petascope.wcps2.error.managed.syntax.WCPSSyntaxError;
+import petascope.exceptions.WCPSException;
+import petascope.wcps2.exception.syntax.ErrorRegistry;
+import petascope.wcps2.exception.syntax.WCPSSyntaxError;
 
 import java.util.Collections;
 import java.util.List;
 import petascope.exceptions.ExceptionCode;
+import petascope.util.XMLUtil;
 
 /**
  * Listens for errors from the parser and maps them to known error classes.
@@ -47,6 +48,9 @@ public class ParserErrorHandler extends BaseErrorListener {
         Collections.reverse(stack);
         ErrorRegistry registry = new ErrorRegistry();
         WCPSSyntaxError error = registry.lookupError(stack, offendingSymbol, line, charPositionInLine, msg);
-        throw new WCPSProcessingError(error.getErrorMessage(), ExceptionCode.WcpsError);
+        // NOTE: the error message contains special character (<, >) so must be enquoted
+        String errorMessage = XMLUtil.enquoteCDATA(error.getErrorMessage());
+        
+        throw new WCPSException(errorMessage, ExceptionCode.WcpsError);
     }
 }

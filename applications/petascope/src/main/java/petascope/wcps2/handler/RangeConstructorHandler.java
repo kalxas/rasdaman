@@ -14,47 +14,46 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
-import java.math.BigDecimal;
 import org.apache.commons.lang3.StringUtils;
 import petascope.wcps2.result.WcpsResult;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import petascope.swe.datamodel.NilValue;
+import org.rasdaman.domain.cis.NilValue;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.RangeField;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 
 /**
- * Translation class for the range constructor expressions
- * <code>
+ * Translation class for the range constructor expressions  <code>
  * for c in (COV) return encode( {red: c.red;    green: c.green;    blue: c.blue }, "png")
- * </code>
- * returns
- * <code>
+ * </code> returns  <code>
  * select  { c.red, c.green, c.blue } from COV as c
  * </code>
+ *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class RangeConstructorHandler {
 
-    public static WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
+    public WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
         List<String> translatedFields = new ArrayList();
         // NOTE: if range is single scalar value then metadata is NULL. If any range has a not-null metadata, the metadata is from this range.
         WcpsCoverageMetadata metadata = null;
-        
+
         List<RangeField> rangeFields = new ArrayList<RangeField>();
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
-            translatedFields.add(entry.getValue().getRasql());            
-            WcpsCoverageMetadata rangeMetadata = entry.getValue().getMetadata();     
+            translatedFields.add(entry.getValue().getRasql());
+            WcpsCoverageMetadata rangeMetadata = entry.getValue().getMetadata();
             RangeField rangeField = null;
             // e.g: { red: c.0 }
             if (rangeMetadata != null) {
@@ -67,11 +66,11 @@ public class RangeConstructorHandler {
                 // e.g: test_rgb has 3 ranges (bands) and can be used as { red: c.red } "not" { red: c }
                 // NOTE: in case of coverage constructor, it also has only 1 range
                 rangeField = rangeMetadata.getRangeFields().get(0);
-                rangeField.setName(entry.getKey());                                
+                rangeField.setName(entry.getKey());
             } else {
                 // e.g: { red: 0 } which coverage metadata is null then need to create a range field for this case
-                rangeField = new RangeField(RangeField.TYPE, entry.getKey(), null, new ArrayList<NilValue>(), RangeField.UOM, null, null);                
-            }            
+                rangeField = new RangeField(RangeField.DATA_TYPE, entry.getKey(), null, new ArrayList<NilValue>(), RangeField.UOM_CODE, null, null);
+            }
             rangeFields.add(rangeField);
         }
 
@@ -82,7 +81,7 @@ public class RangeConstructorHandler {
         } else {
             rasql = MULTIPLE_RANGE_TEMPLATE.replace("$fieldDefinitions", StringUtils.join(translatedFields, ","));
         }
-        
+
         // Range expression will have metadata of the first range's metadata which is not null and contains the range list for all the specified ranges.
         // NOTE: if metadata of range constructor is null, e.g: c.red * { red: 1; green: 2; blue: 1 } then no set range fields for it.
         if (metadata != null) {
@@ -92,6 +91,6 @@ public class RangeConstructorHandler {
         return new WcpsResult(metadata, rasql);
     }
 
-    private static final String ONE_RANGE_TEMPLATE = "$fieldDefinitions";
-    private static final String MULTIPLE_RANGE_TEMPLATE = "{$fieldDefinitions}";
+    private final String ONE_RANGE_TEMPLATE = "$fieldDefinitions";
+    private final String MULTIPLE_RANGE_TEMPLATE = "{$fieldDefinitions}";
 }

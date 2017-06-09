@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -27,32 +27,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.util.JsonUtil;
+import petascope.util.MIMEUtil;
 import petascope.wcps2.encodeparameters.model.Dimensions;
 import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.model.JsonExtraParams;
 import petascope.wcps2.encodeparameters.model.NoData;
 import petascope.wcps2.encodeparameters.model.Variables;
-import petascope.wcps2.error.managed.processing.DeserializationExtraParamsInJsonExcception;
+import petascope.wcps2.exception.processing.DeserializationExtraParamsInJsonExcception;
 import petascope.wcps2.handler.EncodeCoverageHandler;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
-import petascope.wcs2.extensions.FormatExtension;
-import petascope.wcs2.handlers.ProcessCoverageHandler;
 
 /**
  *
  * Build encoding object then serialize it to JSON string.
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Service
 public class SerializationEncodingService {
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(SerializationEncodingService.class);
     
+    @Autowired
+    private EncodeCoverageHandler encodeCoverageHandler;
+    @Autowired
     private ExtraMetadataService extraMetadataService;
 
-    public SerializationEncodingService(ExtraMetadataService extraMetadataService) {
-        this.extraMetadataService = extraMetadataService;
+    public SerializationEncodingService() {
+        
     }
 
     /**
@@ -82,8 +87,8 @@ public class SerializationEncodingService {
         
         jsonExtraParams.setGeoReference(geoReference);
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
-        if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_OPENJP2)) {
-            jsonExtraParams.getFormatParameters().put(FormatExtension.CODEC, FormatExtension.CODEC_JP2);
+        if (rasqlFormat.equalsIgnoreCase(MIMEUtil.FORMAT_ID_OPENJP2)) {
+            jsonExtraParams.getFormatParameters().put(MIMEUtil.CODEC, MIMEUtil.CODEC_JP2);
         }
 
         String jsonOutput = JsonUtil.serializeToPojoJson(jsonExtraParams);
@@ -117,7 +122,7 @@ public class SerializationEncodingService {
         }
 
         // update each range of coverage with value from passing nodata_values
-        EncodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), metadata);
+        encodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), metadata);
         Map<String, String> extraMetadata = extraMetadataService.convertExtraMetadata(metadata.getMetadata());
         
         // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
@@ -151,8 +156,8 @@ public class SerializationEncodingService {
         }
 
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
-        if (rasqlFormat.equalsIgnoreCase(FormatExtension.FORMAT_ID_OPENJP2)) {
-            jsonExtraParams.getFormatParameters().put(FormatExtension.CODEC, FormatExtension.CODEC_JP2);
+        if (rasqlFormat.equalsIgnoreCase(MIMEUtil.FORMAT_ID_OPENJP2)) {
+            jsonExtraParams.getFormatParameters().put(MIMEUtil.CODEC, MIMEUtil.CODEC_JP2);
         }
 
         String jsonOutput = JsonUtil.serializeToPojoJson(jsonExtraParams);

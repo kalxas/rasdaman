@@ -14,34 +14,33 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation class for boolean unary scalar expression.
- * Example
- * <code>
+ * Translation class for boolean unary scalar expression. Example  <code>
  *     NOT(avg_cells(c) > 10)
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  *     not(avg_cells(c) > 10)
  * </code>
+ *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class BooleanUnaryScalarExpressionHandler {
 
-    public static WcpsResult handle(String operand, WcpsResult scalarExpression) {
+    public WcpsResult handle(String operand, WcpsResult scalarExpression) {
         return new WcpsResult(scalarExpression.getMetadata(), TEMPLATE.replace("$operand", operand)
-                              .replace("$scalarExpression", scalarExpression.getRasql()));
+                .replace("$scalarExpression", scalarExpression.getRasql()));
     }
 
-    private static final String TEMPLATE = "$operand($scalarExpression)";
+    private final String TEMPLATE = "$operand($scalarExpression)";
 }

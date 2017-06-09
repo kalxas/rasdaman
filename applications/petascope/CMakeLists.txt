@@ -21,16 +21,11 @@
 #
 # Constants
 # Directories
-set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/main")
-set(SRC_MAIN "${SRC}/java")
-set(SRC_RES "${SRC}/resources")
-set(SRC_WEB "${SRC}/webapp")
-set(SRC_DB "${SRC}/db/")
+set(SRC_MAIN "${CMAKE_CURRENT_SOURCE_DIR}/src/main")
+set(SRC_RES "${SRC_MAIN}/resources")
+set(SRC_COVERAGE_EXAMPLES "${CMAKE_CURRENT_SOURCE_DIR}/coverages_example")
 
 # Constants used in the template (.in) files; if you change the key you need to change the corresponding files as well
-set(SERVICE_FILENAME wms_service.properties)
-set(SERVICE_SRC_FILE "src/main/resources/wms/wms_service.properties")
-set(PETASCOPE_WEB_XML_PATH "${SRC_WEB}/WEB-INF/web.xml")
 set(PETASCOPE_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/target")
 set(CONF_DIR "${CONF_DIR}/")
 set(GENERATED_rasdaman_bin_path "${BIN_DIR}/")
@@ -44,110 +39,67 @@ set(java_server ${JAVA_SERVER})
 set(petascopedb ${PETASCOPEDB})
 set(RASJ_PATH "${CMAKE_BINARY_DIR}/java/target/rasj-jar-with-dependencies.jar")
 
-# Database files
-set(CREATE_PETASCOPEDB_SCRIPT "${SRC_DB}/update_petascopedb.sh")
-set(CREATE_PETASCOPEDB_TEMPLATE "${CREATE_PETASCOPEDB_SCRIPT}.in")
-set(INSERT_DATA_SCRIPT "${SRC_DB}/petascope_insertdemo.sh")
-set(INSERT_DATA_SCRIPT_TEMPLATE "${INSERT_DATA_SCRIPT}.in")
-set(DATABASE_UPDATES_DIR "${SRC_DB}/petascope")
-
-# will not rebuild petascope when make install
+# Will not rebuild petascope package when make install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
-# Server decision: embeded vs external; JAVA_SERVER_EMBEDDED variable is provided from the main CMakeLists.txt file
+# Necessary parameters to start main method in application
+set(APPLICATION_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/application.properties.in")
+set(APPLICATION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/application.properties")
+
+# Only has 1 petascope.properties for all databases
+set(SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope.properties.in")
+set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope.properties")
+
+# Script to import coverages example to petascopedb
+set(INSERT_DATA_SCRIPT_TEMPLATE "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo.sh.in")
+set(INSERT_DATA_SCRIPT "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo.sh")
+
+# Server decision: embeded (jar) vs external (war); JAVA_SERVER_EMBEDDED variable is provided from the main CMakeLists.txt file
 if (JAVA_SERVER_EMBEDDED)
     set(GENERATED_java_server "embedded")
-    set(GENERATED_embedded_petascope "true")
-    set(USE_EMBEDDED_JAVA_SERVER true)    
+    set(GENERATED_embedded_petascope "true") 
 else ()
     set(GENERATED_java_server "external")
     set(GENERATED_embedded_petascope "false")
-    set(USE_EMBEDDED_JAVA_SERVER false)
 endif ()
 
-# Choose the correct templates file based on the selected database for petascope
-if (PETASCOPEDB_PGSQL)
-    set(SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope.properties.in")
-    set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope.properties")
-endif ()
-
-if (PETASCOPEDB_SQLITE)
-    set(SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope_sqlite.properties.in")
-    set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope_sqlite.properties")
-    set(SQLITE 1)
-endif ()
-
-if (PETASCOPEDB_HSQLDB)
-    set(SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope_hsqldb.properties.in")
-    set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope_hsqldb.properties")
-    set(HSQLDB 1)
-endif ()
-
-# Generate web.xml out of an .in file by replacing any variables that can be configured at compile time
-configure_file("${SRC_WEB}/WEB-INF/web.xml.in" ${PETASCOPE_WEB_XML_PATH} @ONLY)
+# Generate an .in file by replacing any variables that can be configured at compile time
+# Do the same for the Application.in 
+configure_file("${APPLICATION_FILE_TEMPLATE}" "${APPLICATION_FILE}" @ONLY)
 
 # Do the same for the pom.xml 
 configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
 # Do the same for petascope.properties
-configure_file(${SETTINGS_FILE_TEMPLATE} ${SETTINGS_FILE} @ONLY)
-
-# Do the same for update_petascopedb.sh
-configure_file(${CREATE_PETASCOPEDB_TEMPLATE} ${CREATE_PETASCOPEDB_SCRIPT} @ONLY)
+configure_file("${SETTINGS_FILE_TEMPLATE}" "${SETTINGS_FILE}" @ONLY)
 
 # Do the same for petascope_insertdemo.sh
-configure_file(${INSERT_DATA_SCRIPT_TEMPLATE} ${INSERT_DATA_SCRIPT} @ONLY)
+configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 
 # Make sure maven is available
 find_package(Maven REQUIRED)
 
-# Create the target for building petascope war
+# Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
-        COMMAND ${MAVEN_EXECUTABLE} package "-Ppetascope"
-        DEPENDS rasj
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        VERBATIM)
-
+    COMMAND ${MAVEN_EXECUTABLE} package "-Pwar"
+    DEPENDS rasj
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    VERBATIM)
 add_dependencies(petascope rasj)
 
-# If petascope should work as a standalone server let's build the jetty profile in maven
-if (JAVA_SERVER_EMBEDDED)
-    add_custom_target(petascope-embeded ALL
-        COMMAND ${MAVEN_EXECUTABLE} package "-Pjetty"
-        DEPENDS rasj
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        VERBATIM)
-    
-    add_dependencies(petascope-embeded petascope)
-
-
-# Install it in the war dir
-    install(FILES "${PETASCOPE_TARGET_DIR}/petascope-standalone.jar"
-            DESTINATION ${WAR_DIR})
-# Copy the standalone jetty archive    
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/jetty/jetty.jar"
-            DESTINATION ${WAR_DIR})    
-endif(JAVA_SERVER_EMBEDDED)
-
-# Install the database files
+# Install the update_petascopedb.sh script
+set(CREATE_PETASCOPEDB_SCRIPT "update_petascopedb.sh")
+# TODO: remove the update_petascopedb.sh script in version 9.5
 install(PROGRAMS "${CREATE_PETASCOPEDB_SCRIPT}" "${INSERT_DATA_SCRIPT}"
         DESTINATION ${BIN_DIR})
-
-install(DIRECTORY "${DATABASE_UPDATES_DIR}"
-        DESTINATION ${SHARE_DATA_DIR}
-        PATTERN "*.sh"
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                    GROUP_EXECUTE GROUP_READ)
 
 # Move the log4j.properties to log4j.properties.unused as it was merged in petascope.properties
 install( CODE "execute_process(COMMAND mv ${CONF_DIR}/log4j.properties ${CONF_DIR}/log4j.properties.unused ERROR_QUIET)" )
 
-# Install wms_service.properties if it does not exist
-install_if_not_exists("${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/wms/wms_service.properties" ${CONF_DIR})
-
 # Install petascope.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
-install( CODE "execute_process(COMMAND bash  ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/petascope.properties ${SETTINGS_FILE})" )
+install( CODE "execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/petascope.properties ${SETTINGS_FILE})" )
 
-# Install it to the war directory specified during configure
+# Install built package (war) to the web applications folder (e.g: Tomcat /var/lib/tomcat/webapps/)
+# Petascope can be run as embedded or external with war package.
 install(FILES "${PETASCOPE_TARGET_DIR}/rasdaman.war"
         DESTINATION ${WAR_DIR})

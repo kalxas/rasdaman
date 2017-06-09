@@ -1,7 +1,2 @@
 POST request with upload a file to rasql-servlet...
-<html><head><title>PetaScope Rasql Servlet</title></head><body>
-<h1>An error has occured, please check log for more detail.</h1>
-<p>Failed evaluating query: update test_mr_test1 set mr_test1 assign decode($1)</p>
-rasdaman error 357: Execution error 357 in line 1, column 26, near token mr_test1: Variable is unknown.
-
 done.

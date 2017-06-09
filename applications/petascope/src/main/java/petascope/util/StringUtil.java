@@ -21,6 +21,7 @@
  */
 package petascope.util;
 
+import petascope.core.XMLSymbols;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -219,7 +220,9 @@ public class StringUtil {
     }
 
     /**
-     * Create a readable random string from the input string, which combine the current dateTime and a random number
+     * Create a readable random string from the input string, which combine the
+     * current dateTime and a random number
+     *
      * @param label
      * @return
      */
@@ -231,8 +234,9 @@ public class StringUtil {
     }
 
     /**
-     * Check if a string which has the pattern of random string (contains dd_mm_yy_hh_mm_ss_randomNumber)
-     * example: label_2016_09_09_13_56_33_5132
+     * Check if a string which has the pattern of random string (contains
+     * dd_mm_yy_hh_mm_ss_randomNumber) example: label_2016_09_09_13_56_33_5132
+     *
      * @param prefixLabel (e.g: label)
      * @param randomString (e.g: label_2016_09_09_13_56_33_5132)
      * @return
@@ -250,33 +254,29 @@ public class StringUtil {
     /**
      * <b>Taken from HttpUtils.java and modified</b>
      *
-     * Parses a query string passed from the client to the
-     * server and builds a <code>HashTable</code> object
-     * with key-value pairs.
-     * The query string should be in the form of a string
-     * packaged by the GET or POST method, that is, it
-     * should have key-value pairs in the form <i>key=value</i>,
+     * Parses a query string passed from the client to the server and builds a
+     * <code>HashTable</code> object with key-value pairs. The query string
+     * should be in the form of a string packaged by the GET or POST method,
+     * that is, it should have key-value pairs in the form <i>key=value</i>,
      * with each pair separated from the next by a &amp; character.
      *
-     * <p>A key can appear more than once in the query string
-     * with different values. However, the key appears only once in
-     * the hashtable, with its value being
-     * an array of strings containing the multiple values sent
-     * by the query string.
+     * <p>
+     * A key can appear more than once in the query string with different
+     * values. However, the key appears only once in the hashtable, with its
+     * value being an array of strings containing the multiple values sent by
+     * the query string.
      *
-     * <p>The keys and values in the hashtable are stored in their
-     * decoded form, so
-     * any + characters are converted to spaces, and characters
-     * sent in hexadecimal notation (like <i>%xx</i>) are
-     * converted to ASCII characters.
+     * <p>
+     * The keys and values in the hashtable are stored in their decoded form, so
+     * any + characters are converted to spaces, and characters sent in
+     * hexadecimal notation (like <i>%xx</i>) are converted to ASCII characters.
      *
-     * @param s     a string containing the query to be parsed
+     * @param s a string containing the query to be parsed
      *
-     * @return      a <code>HashTable</code> object built
-     *          from the parsed key-value pairs
+     * @return a <code>HashTable</code> object built from the parsed key-value
+     * pairs
      *
-     * @exception IllegalArgumentException  if the query string
-     *                      is invalid
+     * @exception IllegalArgumentException if the query string is invalid
      *
      */
     public static Map<String, List<String>> parseQuery(String s) {
@@ -296,7 +296,7 @@ public class StringUtil {
             }
             String key = parseName(pair.substring(0, pos), sb).toLowerCase();
             List<String> val = stol(parseName(pair.substring(pos + 1, pair.
-                                              length()), sb));
+                    length()), sb));
             if (ret.containsKey(key)) {
                 ret.get(key).addAll(val);
             } else {
@@ -314,27 +314,27 @@ public class StringUtil {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
-            case '%':
-                try {
-                    sb.append((char) Integer.parseInt(s.substring(i + 1, i + 3),
-                                                      16));
-                    i += 2;
-                } catch (NumberFormatException e) {
-                    // XXX
-                    // need to be more specific about illegal arg
-                    throw new IllegalArgumentException();
-                } catch (StringIndexOutOfBoundsException e) {
-                    String rest = s.substring(i);
-                    sb.append(rest);
-                    if (rest.length() == 2) {
-                        i++;
+                case '%':
+                    try {
+                        sb.append((char) Integer.parseInt(s.substring(i + 1, i + 3),
+                                16));
+                        i += 2;
+                    } catch (NumberFormatException e) {
+                        // XXX
+                        // need to be more specific about illegal arg
+                        throw new IllegalArgumentException();
+                    } catch (StringIndexOutOfBoundsException e) {
+                        String rest = s.substring(i);
+                        sb.append(rest);
+                        if (rest.length() == 2) {
+                            i++;
+                        }
                     }
-                }
 
-                break;
-            default:
-                sb.append(c);
-                break;
+                    break;
+                default:
+                    sb.append(c);
+                    break;
             }
         }
         return sb.toString();
@@ -342,6 +342,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'&'</tt> characters with <tt>'&amp;'</tt>
+     *
      * @param aString
      */
     private static String escapeAmpersands(String aString) {
@@ -350,6 +351,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'\''</tt> characters with <tt>'&apos;'</tt>
+     *
      * @param aString
      */
     private static String escapeApostrophes(String aString) {
@@ -358,6 +360,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'<'</tt> characters with <tt>'&lt;'</tt>
+     *
      * @param aString
      */
     private static String escapeLessThanSigns(String aString) {
@@ -366,6 +369,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'>'</tt> characters with <tt>'&gt;'</tt>
+     *
      * @param aString
      */
     private static String escapeGreaterThanSigns(String aString) {
@@ -374,6 +378,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'\"'</tt> characters with <tt>'&quot;'</tt>
+     *
      * @param aString
      */
     private static String escapeQuotes(String aString) {
@@ -381,8 +386,10 @@ public class StringUtil {
     }
 
     /**
-     * Fix a string for valid insertion in XML document (escape reserved entities).
+     * Fix a string for valid insertion in XML document (escape reserved
+     * entities).
      * http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+     *
      * @param aString
      */
     public static String escapeXmlPredefinedEntities(String aString) {
@@ -399,6 +406,7 @@ public class StringUtil {
 
     /**
      * Takes two numeric strings and returns their range.
+     *
      * @param lo
      * @param hi
      * @return hi-lo
@@ -411,6 +419,7 @@ public class StringUtil {
 
     /**
      * Takes two (discrete) numeric strings and returns their range.
+     *
      * @param lo
      * @param hi
      * @return hi-lo
@@ -423,6 +432,7 @@ public class StringUtil {
 
     /**
      * Returns a list of String literals from a comma-separated value String.
+     *
      * @param csvString
      */
     public static List<String> csv2list(String csvString) {
@@ -438,8 +448,9 @@ public class StringUtil {
 
     /**
      * Repeats a String literal N times.
-     * @param value     The single input literal to be repeated
-     * @param times     How many repetitions
+     *
+     * @param value The single input literal to be repeated
+     * @param times How many repetitions
      */
     public static List<String> repeat(String value, int times) {
         List<String> outList = new ArrayList<String>(times);
@@ -450,12 +461,13 @@ public class StringUtil {
 
         return outList;
     }
-    
+
     /**
-     * Strip the " at first and last position of input string
-     * e.g: "abcdefef" -> abcdefef
+     * Strip the " at first and last position of input string e.g: "abcdefef" ->
+     * abcdefef
+     *
      * @param input
-     * @return 
+     * @return
      */
     public static String stripQuotes(String input) {
         String output = input.replaceAll("^\"|\"$", "");
@@ -464,6 +476,7 @@ public class StringUtil {
 
     /**
      * Clean all the empty, null elements in string array
+     *
      * @param v
      * @return
      */
@@ -472,5 +485,24 @@ public class StringUtil {
         list.removeAll(Collections.singleton(null));
         list.removeAll(Collections.singleton(""));
         return list.toArray(new String[list.size()]);
+    }
+
+    /**
+     * Build a query string from all KVP keys and values
+     *
+     * @param kvpParameters
+     * @return
+     */
+    public static String buildQueryString(Map<String, String[]> kvpParameters) {
+        List<String> keyValues = new ArrayList<>();
+        for (Map.Entry<String, String[]> entry : kvpParameters.entrySet()) {
+            String key = entry.getKey();
+            String[] values = entry.getValue();
+            for (String value : values) {
+                keyValues.add(key + "=" + value);
+            }
+        }
+
+        return ListUtil.join(keyValues, "&");
     }
 }

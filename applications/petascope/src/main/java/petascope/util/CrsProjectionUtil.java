@@ -24,19 +24,17 @@ package petascope.util;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.gdal.osr.CoordinateTransformation;
+import org.gdal.osr.SpatialReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.wcps2.encodeparameters.model.BoundingBox;
 
 /**
- * This class will provide utility method for projecting interval in geo-referenced axis
+ * This class will provide utility method for projecting interval in
+ * geo-referenced axis
+ *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 public class CrsProjectionUtil {
@@ -44,7 +42,9 @@ public class CrsProjectionUtil {
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
 
     /**
-     * Transform a bounding box (e.g: xmin,ymin,xmax,ymax) from sourceCrs to targetCrs
+     * Transform a bounding box (e.g: xmin,ymin,xmax,ymax) from sourceCrs to
+     * targetCrs
+     *
      * @param sourceCrs
      * @param targetCrs
      * @param srcCoords
@@ -55,18 +55,20 @@ public class CrsProjectionUtil {
         List<BigDecimal> out = new ArrayList<BigDecimal>(srcCoords.length);
 
         // xmin, ymin
-        double[] xyMinArray = new double[] { srcCoords[0], srcCoords[1] };
-        out.addAll(transform(sourceCrs, targetCrs, xyMinArray, false));
+        double[] xyMinArray = new double[]{srcCoords[0], srcCoords[1]};
+        out.addAll(transform(sourceCrs, targetCrs, xyMinArray));
 
         // xmax, ymax
-        double[] xyMaxArray = new double[] { srcCoords[2], srcCoords[3] };
-        out.addAll(transform(sourceCrs, targetCrs, xyMaxArray, false));
+        double[] xyMaxArray = new double[]{srcCoords[2], srcCoords[3]};
+        out.addAll(transform(sourceCrs, targetCrs, xyMaxArray));
 
         return out;
     }
 
     /**
-     * Transform a BoundingBox object with xmin, ymin, xmax, ymax from soureCrs to targetCrs
+     * Transform a BoundingBox object with xmin, ymin, xmax, ymax from soureCrs
+     * to targetCrs
+     *
      * @param sourceCrs
      * @param targetCrs
      * @param bbox BoundingBox
@@ -74,100 +76,69 @@ public class CrsProjectionUtil {
      * @throws petascope.exceptions.WCSException
      */
     public static BoundingBox transformBoundingBox(String sourceCrs, String targetCrs, BoundingBox bbox) throws WCSException {
-        List<BigDecimal> out = new ArrayList<BigDecimal>();
+        List<BigDecimal> out = new ArrayList<>();
 
         // xmin, ymin
-        double[] xyMinArray = new double[] { bbox.getXMin().doubleValue(), bbox.getYMin().doubleValue() };
-        out.addAll(transform(sourceCrs, targetCrs, xyMinArray, false));
-        
+        double[] xyMinArray = new double[]{bbox.getXMin().doubleValue(), bbox.getYMin().doubleValue()};
+        out.addAll(transform(sourceCrs, targetCrs, xyMinArray));
+
         // xmax, ymax
-        double[] xyMaxArray = new double[] { bbox.getXMax().doubleValue(), bbox.getYMax().doubleValue() };
-        out.addAll(transform(sourceCrs, targetCrs, xyMaxArray, false));
-        
+        double[] xyMaxArray = new double[]{bbox.getXMax().doubleValue(), bbox.getYMax().doubleValue()};
+        out.addAll(transform(sourceCrs, targetCrs, xyMaxArray));
+
         return new BoundingBox(out.get(0), out.get(1), out.get(2), out.get(3));
     }
 
     // Methods
-    /** Overloaded transform methods:
+    /**
+     * Overloaded transform methods:
+     *
      * @param sourceCrs source CRS of axis
      * @param targetCrs target CRS to project
-     * @param   srcCoords       Array of input coordinates: min values first, max values next. E.g. [xMin,yMin,xMax,yMax].
-     * @param isSwapCoords      Normally when source coordinate has correct x and y then isSwapCoords = true, otherwise it should not swap.
-     * @return  List<BigDecimal>    Locations transformed to targetCRS (defined at construction time).
-     * @throws  WCSException
+     * @param sourceCoordinates Array of input coordinates: min values first,
+     * max values next. E.g. [xMin,yMin,xMax,yMax].
+     * @return List<BigDecimal> Locations transformed to targetCRS (defined at
+     * construction time).
+     * @throws WCSException
      */
-    public static List<BigDecimal> transform(String sourceCrs, String targetCrs, double[] srcCoords, boolean isSwapCoords) throws WCSException {
+    public static List<BigDecimal> transform(String sourceCrs, String targetCrs, double[] sourceCoordinates) throws WCSException {
 
-        try {
-            double[] trasfCoords = new double[srcCoords.length];
-            String sourceCrsEPSGCode = sourceCrs;
-            String targetCrsEPSGCode = targetCrs;
-            // NOTE: sourceCrs and targetCrs can be CRS Uri (e.g: http://.../4326) or already EPSG:4326
-            if (!sourceCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
-                sourceCrsEPSGCode = CrsUtil.getEPSGCode(sourceCrsEPSGCode);
-            }
-            if (!targetCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
-                targetCrsEPSGCode = CrsUtil.getEPSGCode(targetCrsEPSGCode);
-            }
-            CoordinateReferenceSystem sCrsID = CRS.decode(sourceCrsEPSGCode);
-            CoordinateReferenceSystem tCrsID = CRS.decode(targetCrsEPSGCode);
-            MathTransform transform = CRS.findMathTransform(sCrsID, tCrsID);
-            transform.transform(srcCoords, 0, trasfCoords, 0, 1);
-
-            // Transform
-            JTS.xform(transform, srcCoords, trasfCoords);
-
-            /* Re-order transformed coordinates: warping between different projections
-             * might change the ordering of the points. Eg with a small horizontal subsets
-             * and a very wide vertical subset:
-             *
-             *   EPSG:32634 (UTM 34N) |  EPSG:4326 (pure WGS84)
-             *   230000x   3800000y   =  18.07lon   34.31lat
-             *   231000x   4500000y   =  17.82lon   40.61lat
-             */
-            /**
-             * In case of we don't have x or y value and add the 0 for the missing value.
-             * We don't need the swap function as it will return the wrong order.
-             * As we have the same origin (0) then the assumption above is not valid..
-             * e.g: x=0, y=15000 -> x=20, y=0. which is wrong, should be x=0, y=20
-             */
-            if (isSwapCoords) {
-                double buf;
-                for (int i = 0; i < trasfCoords.length / 2; i++) {
-                    if (trasfCoords[i] > trasfCoords[i + trasfCoords.length / 2]) {
-                        // Need to swap the coordinates
-                        buf = trasfCoords[i];
-                        trasfCoords[i] = trasfCoords[i + trasfCoords.length / 2];
-                        trasfCoords[i + trasfCoords.length / 2] = buf;
-                    }
-                }
-            }
-
-            // Format output
-            List<BigDecimal> out = new ArrayList<BigDecimal>(srcCoords.length);
-            for (int i = 0; i < trasfCoords.length; i++) {
-                out.add(new BigDecimal(trasfCoords[i]));
-            }
-
-            return out;
-
-        } catch (TransformException e) {
-            log.error("Error while transforming coordinates.\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point: " + e.getMessage());
-        } catch (ClassCastException e) {
-            log.error("Inappropriate key when accessing CrsUtil.loadedTransforms.\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point: " + e.getMessage());
-        } catch (NullPointerException e) {
-            log.error("Null key when accessing CrsUtil.loadedTransforms.\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point: " + e.getMessage());
-        } catch (Exception e) {
-            log.error("Error while transforming point." + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point: " + e.getMessage());
+        String sourceCrsEPSGCode = sourceCrs;
+        String targetCrsEPSGCode = targetCrs;
+        // NOTE: sourceCrs and targetCrs can be CRS Uri (e.g: http://.../4326) or already EPSG:4326
+        if (!sourceCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
+            sourceCrsEPSGCode = CrsUtil.getEPSGCode(sourceCrsEPSGCode);
         }
+        if (!targetCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
+            targetCrsEPSGCode = CrsUtil.getEPSGCode(targetCrsEPSGCode);
+        }
+
+        // e.g: 4326, 32633
+        int sourceCode = Integer.valueOf(sourceCrsEPSGCode.split(":")[1]);
+        int targetCode = Integer.valueOf(targetCrsEPSGCode.split(":")[1]);
+
+        // Using gdal native library to transform the coordinates from source crs to target crs
+        SpatialReference sourceSpatialReference = new SpatialReference();
+        sourceSpatialReference.ImportFromEPSG(sourceCode);
+
+        SpatialReference targetSpatialReference = new SpatialReference();
+        targetSpatialReference.ImportFromEPSG(targetCode);
+
+        CoordinateTransformation coordinateTransformation = CoordinateTransformation.CreateCoordinateTransformation(sourceSpatialReference, targetSpatialReference);
+        // This will returns 3 values, translated X, translated Y and another value which is not used
+        double[] transformedCoordinate = coordinateTransformation.TransformPoint(sourceCoordinates[0], sourceCoordinates[1]);
+
+        List<BigDecimal> out = new ArrayList<>(sourceCoordinates.length);
+        for (int i = 0; i < transformedCoordinate.length - 1; i++) {
+            out.add(new BigDecimal(transformedCoordinate[i]));
+        }
+
+        return out;
     }
 
     /**
      * Current only support transformation between EPSG crss
+     *
      * @param crsCode (e.g: EPSG:4326)
      */
     public static boolean validTransformation(String crsCode) {

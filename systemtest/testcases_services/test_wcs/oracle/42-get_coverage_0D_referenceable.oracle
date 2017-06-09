@@ -1,45 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-    xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:gml='http://www.opengis.net/gml/3.2'
-    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
-    id="test_irr_cube_1">
-
-  <boundedBy>
-    <Envelope srsName="" axisLabels="" uomLabels="" >
-      <lowerCorner></lowerCorner>
-      <upperCorner></upperCorner>
-    </Envelope>
-  </boundedBy>
-
-  <domainSet>
-
-  </domainSet>
-
-  <rangeSet>
-    <DataBlock>
-      <rangeParameters/>
-      <tupleList ts="," cs=" ">524</tupleList>
-    </DataBlock>
-  </rangeSet>
-
-  <coverageFunction>
-    <GridFunction>
-      <sequenceRule axisOrder="">Linear</sequenceRule>
-      <startPoint></startPoint>
-    </GridFunction>
-  </coverageFunction>
-
-  <gmlcov:rangeType>
-    <swe:DataRecord>
-    <swe:field name="band_1">
-      <swe:Quantity ><swe:description>Test values</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>
-    </swe:DataRecord>
-  </gmlcov:rangeType>
-  <gmlcov:metadata><gmlcov:Extension><description>This is a test coverage</description><slices /></gmlcov:Extension></gmlcov:metadata>
+<gmlcov:ReferenceableGridCoverage id="test_irr_cube_1"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="" srsName="" uomLabels="">
+            <lowerCorner/>
+            <upperCorner/>
+        </Envelope>
+    </boundedBy>
+    <domainSet/>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">524</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="">Linear</sequenceRule>
+            <startPoint/>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="band_1">
+                <swe:Quantity >
+                    <swe:label>band_1</swe:label>
+                    <swe:description>Test values</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <description>This is a test coverage</description>
+                <slices/>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

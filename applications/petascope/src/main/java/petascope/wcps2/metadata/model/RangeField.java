@@ -21,37 +21,40 @@
  */
 package petascope.wcps2.metadata.model;
 
-import petascope.swe.datamodel.AllowedValues;
-import petascope.swe.datamodel.NilValue;
-
-import java.math.BigDecimal;
 import java.util.List;
+import org.rasdaman.domain.cis.AllowedValue;
+import org.rasdaman.domain.cis.NilValue;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class RangeField {
 
-    private final String type;
+    private String dataType;
 
     private String name;
 
-    private final String description;
+    private String description;
 
     private List<NilValue> nodata;
 
-    private final String uom;
+    private String uomCode;
 
-    private final String definition;
+    private String definition;
 
-    private final AllowedValues allowedValues;
+    private List<AllowedValue> allowedValues;
+    
+    public RangeField() {
+        
+    }
 
-    public RangeField(String type, String name, String description, List<NilValue> nodata, String uom, String definition, AllowedValues allowedValues) {
-        this.type = type;
+    public RangeField(String dataType, String name, String description, List<NilValue> nodata, 
+                      String uomCode, String definition, List<AllowedValue> allowedValues) {
+        this.dataType = dataType;
         this.name = name;
         this.description = description;
         this.nodata = nodata;
-        this.uom = uom;
+        this.uomCode = uomCode;
         this.definition = definition;
         this.allowedValues = allowedValues;
     }
@@ -76,24 +79,50 @@ public class RangeField {
         return nodata;
     }
 
-    public String getUom() {
-        return uom;
+    public String getUomCode() {   
+        if (uomCode == null) {
+            return RangeField.UOM_CODE;
+        } else if (uomCode.trim().isEmpty()) {
+            return RangeField.UOM_CODE;
+        } else {
+            return uomCode;
+        }
     }
 
     public String getDefinition() {
         return definition;
     }
 
-    public AllowedValues getAllowedValues() {
+    public List<AllowedValue> getAllowedValues() {
         return allowedValues;
     }
 
-    public String getType() {
-        return type;
+    public String getDataType() {
+        return dataType;
     }
 
-    public static final String TYPE = "double";
-    public static final String UOM = "10^0";
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setUomCode(String uomCode) {
+        this.uomCode = uomCode;
+    }
+
+    public void setDefinition(String definition) {
+        this.definition = definition;
+    }
+
+    public void setAllowedValues(List<AllowedValue> allowedValues) {
+        this.allowedValues = allowedValues;
+    }
+    
+    public static final String DATA_TYPE = "double";
+    public static final String UOM_CODE = "10^0";
     // used in case of creating coverage constructor
     public static final String DEFAULT_NAME = "band1";
 }

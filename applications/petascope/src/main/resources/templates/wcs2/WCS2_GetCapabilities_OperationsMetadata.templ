@@ -1,0 +1,50 @@
+<ows:OperationsMetadata xmlns:ows='http://www.opengis.net/ows/2.0' xmlns:xlink='http://www.w3.org/1999/xlink'>
+    <ows:Operation name="GetCapabilities">
+        <ows:DCP>
+            <ows:HTTP>
+                <ows:Post xlink:href="%URL%"/>
+                <ows:Get xlink:href="%URL%"/>
+            </ows:HTTP>
+        </ows:DCP>
+        <ows:Constraint name="PostEncoding">
+            <ows:AllowedValues>
+                <ows:Value>XML</ows:Value>
+                <ows:Value>SOAP</ows:Value>
+            </ows:AllowedValues>
+        </ows:Constraint>
+    </ows:Operation>
+    <ows:Operation name="DescribeCoverage">
+        <ows:DCP>
+            <ows:HTTP>
+                <ows:Post xlink:href="%URL%"/>
+                <ows:Get xlink:href="%URL%"/>
+            </ows:HTTP>
+        </ows:DCP>
+        <ows:Constraint name="PostEncoding">
+            <ows:AllowedValues>
+                <ows:Value>XML</ows:Value>
+                <ows:Value>SOAP</ows:Value>
+            </ows:AllowedValues>
+        </ows:Constraint>
+    </ows:Operation>
+    <ows:Operation name="GetCoverage">
+        <ows:DCP>
+            <ows:HTTP>
+                <ows:Post xlink:href="%URL%"/>
+                <ows:Get xlink:href="%URL%"/>
+            </ows:HTTP>
+        </ows:DCP>
+        <ows:Constraint name="PostEncoding">
+            <ows:AllowedValues>
+                <ows:Value>XML</ows:Value>
+                <ows:Value>SOAP</ows:Value>
+            </ows:AllowedValues>
+        </ows:Constraint>
+    </ows:Operation>
+    <ows:Constraint name="PostEncoding">
+        <ows:AllowedValues>
+            <ows:Value>XML</ows:Value>
+            <ows:Value>SOAP</ows:Value>
+        </ows:AllowedValues>
+    </ows:Constraint>
+</ows:OperationsMetadata>

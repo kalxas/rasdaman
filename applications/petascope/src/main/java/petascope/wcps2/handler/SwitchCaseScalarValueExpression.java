@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -26,29 +26,29 @@ import petascope.wcps2.result.WcpsResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 
 /**
- * Translation switch case class which returns range constructor expressions
- * <code>
+ * Translation switch case class which returns range constructor expressions  <code>
  * for c in (mr) return encode(
  *  switch case c > 1000 return (char)5
  *  default return (char)6 , "png")
- * </code>
- * returns
- * <code>
+ * </code> returns  <code>
  * SELECT encode(case
  *  WHEN ((c)>(1000)) THEN ((octet)(2))
  *                     ELSE ((octet)(6))
  *  END, "GTiff", "xmin=0.0;xmax=255.0;ymin=0.0;ymax=210.0")
  *  from mr AS c where oid(c)=1025
  * </code>
- * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham  Huu</a>
+ *
+ * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class SwitchCaseScalarValueExpression {
 
-    public static WcpsResult handle(List<WcpsResult> booleanResults, List<WcpsResult> scalarResults) {
+    public WcpsResult handle(List<WcpsResult> booleanResults, List<WcpsResult> scalarResults) {
         List<String> translatedFields = new ArrayList();
 
         for (int i = 0; i < booleanResults.size(); i++) {
@@ -56,7 +56,7 @@ public class SwitchCaseScalarValueExpression {
             String scalarResult = scalarResults.get(i).getRasql();
 
             String result = TEMPLATE_WHEN_THEN.replace("$booleanExpr", booleanResult)
-                            .replace("$scalarExpr", scalarResult);
+                    .replace("$scalarExpr", scalarResult);
             translatedFields.add(result);
         }
 
@@ -69,7 +69,7 @@ public class SwitchCaseScalarValueExpression {
         elseStr = TEMPLATE_ELSE.replace("$scalarExpr", scalarResult);
 
         String rasql = TEMPLATE.replace("$whenThenExpr", whenThenStr)
-                       .replace("$elseExpr", elseStr);
+                .replace("$elseExpr", elseStr);
 
         // This is needed a coverage metadata from boolean coverage epxression
         WcpsCoverageMetadata metadata = booleanResults.get(0).getMetadata();
@@ -77,9 +77,9 @@ public class SwitchCaseScalarValueExpression {
     }
 
     // it can have multiple cases
-    private static final String TEMPLATE_WHEN_THEN = "WHEN ( $booleanExpr ) THEN ( $scalarExpr )";
+    private final String TEMPLATE_WHEN_THEN = "WHEN ( $booleanExpr ) THEN ( $scalarExpr )";
     // but only one default
-    private static final String TEMPLATE_ELSE = "ELSE ( $scalarExpr )";
+    private final String TEMPLATE_ELSE = "ELSE ( $scalarExpr )";
     // the Rasql query template for this switch case
-    private static final String TEMPLATE = "CASE $whenThenExpr $elseExpr END";
+    private final String TEMPLATE = "CASE $whenThenExpr $elseExpr END";
 }

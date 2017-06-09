@@ -4,3 +4,6 @@
 14-get_coverage_jp2_slice_t_crs1.xml
 48-get_coverage_gmljp2.kvp
 48-get_coverage_gmljp2.xml
+#Failed only on Ubuntu for difference with gdal
+78-subsettingCrs_32633_to_4326.kvp
+84-outputCrs-and-scale.kvp

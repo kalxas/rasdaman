@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.wcst.WCSTNoReadPermissionException;
+import petascope.wcst.exceptions.WCSTNoReadPermissionException;
+import petascope.core.Pair;
 
 /**
  * Utility for getting gdalinfo output
@@ -72,7 +72,8 @@ public class Gdalinfo {
             throw e;
         }
         log.trace("Got " + dimensions + " dimensions and " + bandTypes.toString() + " band types.");
-        return Pair.of(dimensions, bandTypes);
+        
+        return new Pair(dimensions, bandTypes);
     }
 
     /**

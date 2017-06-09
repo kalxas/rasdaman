@@ -1,4 +1,8 @@
-<html><head><title>PetaScope Rasql Servlet</title></head><body>
-<h1>An error has occured, please check log for more detail.</h1>
-<p>Failed evaluating query: create collection test_mr GreySet</p>
-Error evaluating rasdaman query: 'create collection test_mr GreySet
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'create collection test_mr GreySet'</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

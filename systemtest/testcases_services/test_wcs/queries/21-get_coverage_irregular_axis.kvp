@@ -1,0 +1,6 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_irr_cube_1&
+subset=j(5)&
+format=image/png

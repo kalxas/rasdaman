@@ -127,18 +127,8 @@ if (GENERATE_PIC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 endif ()
 
-set(PETASCOPEDB "postgresql" CACHE STRING "Change the default DBMS used by petascope (postgresql, hsqldb, sqlite)")
-set_property(CACHE PETASCOPEDB PROPERTY STRINGS postgresql hsqldb sqlite)
-
-if (${PETASCOPEDB} STREQUAL postgresql)
-    set(PETASCOPEDB_PGSQL 1)
-elseif (${PETASCOPEDB} STREQUAL hsqldb)
-    set(PETASCOPEDB_HSQLDB 1)
-elseif (${PETASCOPEDB} STREQUAL sqlite)
-    set(PETASCOPEDB_SQLITE 1)
-else ()
-    message(FATAL_ERROR "Unsupported Petascope DB.")
-endif ()
+set(PETASCOPEDB "postgresql" CACHE STRING "Default DBMS used by petascope is: postgresql")
+set_property(CACHE PETASCOPEDB PROPERTY STRINGS postgresql)
 
 set(ENABLE_JAVA ON CACHE BOOL
         "Enable or disable compilation and installation of Java-based components, including rasj and petascope.")
@@ -150,6 +140,17 @@ if (ENABLE_JAVA)
 
     find_package(Java COMPONENTS Runtime REQUIRED)
     find_package(Java COMPONENTS Development REQUIRED)
+    # Check if gdal-java library is installed as package
+    find_library(GDAL_JAVA NAMES libgdaljni.so
+                 PATHS /usr/lib/java/gdal
+                       /usr/lib/jni/)
+    if (NOT GDAL_JAVA)
+        message(FATAL_ERROR "gdal-java package not found.")
+    else ()
+        get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA} DIRECTORY)
+        message("-- Found gdal-java: ${GDAL_JAVA_DIR}")
+    endif()
+    set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
 
     set(ENABLE_R OFF CACHE BOOL "Compile and install R package.")
 endif ()

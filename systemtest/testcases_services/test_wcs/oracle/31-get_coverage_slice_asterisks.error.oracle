@@ -3,8 +3,6 @@
     
       >
     <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Error converting WCPS query to rasql query: Invalid slicing coordinate '*' for axis 'j'.</ows:ExceptionText>
+        <ows:ExceptionText>Invalid slicing coordinate '*' for axis 'j'.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

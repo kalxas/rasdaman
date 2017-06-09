@@ -8,9 +8,7 @@
     "automated": true,
     "track_files": false,
     "subset_correction": true,
-        "__comment__": "[OPTIONAL] If a WCST request fails it will be retried a number of times before an error is thrown",
-    "retry": true,
-    "__comment__": "[OPTIONAL] Number of retries to be attempted."
+    "retry": true
   },
   "input": {
     "coverage_id": "wcst_test_nil_value_nan",

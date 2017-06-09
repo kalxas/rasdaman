@@ -14,7 +14,7 @@
       </scal:ScaleByFactor>
     </scal:Scaling>
     <int:Interpolation>
-      <int:globalInterpolation>http://www.opengis.net/def/interpolation/OGC/0/nearest-neighbor</int:globalInterpolation>
+      <int:globalInterpolation>http://www.opengis.net/def/interpolation/OGC/1.0/nearest-neighbor</int:globalInterpolation>
     </int:Interpolation>
   </wcs:Extension>
   <wcs:CoverageId>test_mr</wcs:CoverageId>

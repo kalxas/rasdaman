@@ -22,7 +22,7 @@
 package petascope.wcps2.metadata.service;
 
 import org.apache.commons.lang3.StringUtils;
-import petascope.wcps2.result.parameters.SubsetDimension;
+import petascope.wcps2.subset_axis.model.WcpsSubsetDimension;
 import petascope.wcps2.metadata.model.Axis;
 
 import java.util.ArrayList;
@@ -30,38 +30,39 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.NumericSlicing;
 import petascope.wcps2.metadata.model.NumericSubset;
 import petascope.wcps2.metadata.model.NumericTrimming;
 import petascope.wcps2.metadata.model.Subset;
 import petascope.wcps2.result.WcpsMetadataResult;
-import petascope.wcps2.result.parameters.AxisIterator;
-import petascope.wcps2.result.parameters.SliceSubsetDimension;
-import petascope.wcps2.result.parameters.TrimSubsetDimension;
+import petascope.wcps2.subset_axis.model.AxisIterator;
+import petascope.wcps2.subset_axis.model.WcpsSliceSubsetDimension;
+import petascope.wcps2.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
+@Service
 public class RasqlTranslationService {
 
     /**
      * Constructs the rasql domain corresponding to the current list of axes.
      *
-     * @param axes list of axes of coverage
+     * @param axes list of axes of coverage sorted by grid order
      * @param subsetAxisIteratorDimensions list of subset dimensions which contains "$" as axis iterator
      * @param axisIteratorAliasRegistry list of axis iterator alias and their subset dimensions
      * @return
      */
-    public String constructRasqlDomain(List<Axis> axes, List<SubsetDimension> subsetAxisIteratorDimensions, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {
-        //sort the axes after the rasdaman order
-        Collections.sort(axes, new AxesOrderComparator());
+    public String constructRasqlDomain(List<Axis> axes, List<WcpsSubsetDimension> subsetAxisIteratorDimensions, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {        
+        
         String rasqlDomain = "";
         String result = "";
-        List<String> translatedDomains = new ArrayList<String>();
+        List<String> translatedDomains = new ArrayList<>();
         for (Axis axis : axes) {
             //we should use the grid bounds, unless we have a dollar subset on this axis
             boolean dollarSubsetFound = false;
-            for (SubsetDimension dollarSubset : subsetAxisIteratorDimensions) {
+            for (WcpsSubsetDimension dollarSubset : subsetAxisIteratorDimensions) {
                 if (dollarSubset.getAxisName().equals(axis.getLabel())) {
                     // found this subset containing axis iterator alias (e.g: c[i($px), j($px+$py)]
                     // NOTE: need to change axis iterator alias with the correct order inside a coverage
@@ -86,44 +87,6 @@ public class RasqlTranslationService {
     }
 
     /**
-     * Translate a subset dimension for an axis to Rasql interval (slicing/trimming)
-     * @param axis
-     * @param subsetAxisIteratorDimensions
-     * @param axisIteratorAliasRegistry
-     * @return
-     */
-    public String constructRasqlDomain(Axis axis, List<SubsetDimension> subsetAxisIteratorDimensions, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {
-        String rasqlDomain = "";
-        String result = "";
-        List<String> translatedDomains = new ArrayList<String>();
-        //we should use the grid bounds, unless we have a dollar subset on this axis
-        boolean dollarSubsetFound = false;
-        for (SubsetDimension dollarSubset : subsetAxisIteratorDimensions) {
-            if (dollarSubset.getAxisName().equals(axis.getLabel())) {
-                // found this subset containing axis iterator alias (e.g: c[i($px), j($px+$py)]
-                // NOTE: need to change axis iterator alias with the correct order inside a coverage
-                // e.g: Marray px in [0:20,0:20] values c[ px[0],px[0] + px[1] ]
-                String subsetDimensionStr = dollarSubset.getStringRepresentation();
-                result = this.replaceAxisIteratorAliasNames(subsetDimensionStr, axisIteratorAliasRegistry);
-                dollarSubsetFound = true;
-                break;
-            }
-        }
-        if (!dollarSubsetFound) {
-            //ok, regular grid domain
-            NumericSubset gridBounds = axis.getGridBounds();
-            result = gridBounds.getStringRepresentationInInteger();
-        }
-
-        // NOTE: only add translated subsetDimension if subset dimension is processed currently
-        translatedDomains.add(result);
-
-        rasqlDomain = StringUtils.join(translatedDomains, ",");
-        return rasqlDomain;
-    }
-
-
-    /**
      * This function will construct the rasql domain corresponding to the
      * *specific* list of axis used in extend and scale e.g: extend(c[t(0)], {
      * Lat(0:70), Long(0:150) }) with c is 3D return Rasql: c[0, 0:20, 0:30],
@@ -138,7 +101,7 @@ public class RasqlTranslationService {
         Collections.sort(axes, new AxesOrderComparator());
         String rasqlDomain = "";
         String result = "";
-        List<String> translatedDomains = new ArrayList<String>();
+        List<String> translatedDomains = new ArrayList<>();
         for (Axis axis : axes) {
             // Only add the axis if it is defined in the subsets
             if (isNeededAxis(axis.getLabel(), subsets)) {
@@ -163,14 +126,14 @@ public class RasqlTranslationService {
      * @param subsetDimensions
      * @return
      */
-    public String constructRasqlDomainFromSubsets(List<SubsetDimension> subsetDimensions) {
+    public String constructRasqlDomainFromSubsets(List<WcpsSubsetDimension> subsetDimensions) {
         List<String> results = new ArrayList();
-        for (SubsetDimension subsetDimension : subsetDimensions) {
-            if (subsetDimension instanceof TrimSubsetDimension) {
-                results.add(((TrimSubsetDimension) subsetDimension).getLowerBound()
-                            + ":" + ((TrimSubsetDimension) subsetDimension).getUpperBound());
+        for (WcpsSubsetDimension subsetDimension : subsetDimensions) {
+            if (subsetDimension instanceof WcpsTrimSubsetDimension) {
+                results.add(((WcpsTrimSubsetDimension) subsetDimension).getLowerBound()
+                            + ":" + ((WcpsTrimSubsetDimension) subsetDimension).getUpperBound());
             } else {
-                results.add(((SliceSubsetDimension) subsetDimension).getBound());
+                results.add(((WcpsSliceSubsetDimension) subsetDimension).getBound());
             }
 
         }
@@ -185,14 +148,14 @@ public class RasqlTranslationService {
      * @param wcpsMetadataResult
      * @return SubsetDimension
      */
-    public SubsetDimension constructRasqlDomainFromWcpsMetadataDomainInterval(WcpsMetadataResult wcpsMetadataResult) {
+    public WcpsSubsetDimension constructRasqlDomainFromWcpsMetadataDomainInterval(WcpsMetadataResult wcpsMetadataResult) {
         // NOTE: it only support 1D domain for the axis iterator
         Axis axis = wcpsMetadataResult.getMetadata().getAxes().get(0);
         String axisName = axis.getLabel();
-        String crsUri = axis.getCrsUri();
+        String crsUri = axis.getNativeCrsUri();
         String lowerBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();
         String upperBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
-        SubsetDimension trimSubsetDimension = new TrimSubsetDimension(axisName, crsUri, lowerBound, upperBound);
+        WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axisName, crsUri, lowerBound, upperBound);
 
         return trimSubsetDimension;
     }

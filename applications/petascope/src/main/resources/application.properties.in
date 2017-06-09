@@ -1,0 +1,4 @@
+spring.mvc.view.prefix: /WEB-INF/jsp/
+spring.mvc.view.suffix: .jsp
+petascope.confDir=@CONF_DIR@
+gdal-java.libDir=@GDAL_JAVA_DIR@

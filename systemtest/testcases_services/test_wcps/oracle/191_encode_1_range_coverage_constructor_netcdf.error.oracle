@@ -3,8 +3,6 @@
     
       >
     <ows:Exception exceptionCode="WcpsError">
-        <ows:ExceptionText>range name 'green' is duplicated.</ows:ExceptionText>
+        <ows:ExceptionText>Range name 'green' is duplicated.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

@@ -3,8 +3,6 @@
     
       >
     <ows:Exception exceptionCode="InvalidAxisLabel">
-        <ows:ExceptionText>Invalid axis name 'LAT'.</ows:ExceptionText>
+        <ows:ExceptionText>Coverage's Axis not found 'LAT'.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

@@ -22,25 +22,32 @@
 package petascope.wcps2.metadata.service;
 
 import java.util.LinkedHashMap;
-import petascope.wcps2.error.managed.processing.CannotFindAxistIteratorException;
-import petascope.wcps2.error.managed.processing.InvalidRedefineAxisIteratorException;
-import petascope.wcps2.result.parameters.AxisIterator;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+import petascope.wcps2.exception.processing.CannotFindAxistIteratorException;
+import petascope.wcps2.exception.processing.InvalidRedefineAxisIteratorException;
+import petascope.wcps2.subset_axis.model.AxisIterator;
 
 /**
- * This class has the purpose of keeping information about axis iterator aliases inside 1 query
- * e.g: for c in (mr) return encode(coverage cov $px x(0:20), $py y(20:50) values c[i($px), j($py), "png")
- * means that $px is an alias for x(0:20) and $px is an alias for y(20:50) in this query.
+ * This class has the purpose of keeping information about axis iterator aliases
+ * inside 1 query e.g: for c in (mr) return encode(coverage cov $px x(0:20), $py
+ * y(20:50) values c[i($px), j($py), "png") means that $px is an alias for
+ * x(0:20) and $px is an alias for y(20:50) in this query.
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
+@Service
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class AxisIteratorAliasRegistry {
 
     // NOTE: axis iterator alias can only be unique for a subset dimension (e.g: $px x(0:20))
-    private final LinkedHashMap<String, AxisIterator> axisIteratorMappings;
+    private final LinkedHashMap<String, AxisIterator> axisIteratorMappings = new LinkedHashMap<String, AxisIterator>();
 
     public AxisIteratorAliasRegistry() {
-        this.axisIteratorMappings = new LinkedHashMap<String, AxisIterator>();
+
     }
 
     public void addAxisIteratorAliasMapping(String axisIteratorAlias, AxisIterator axisIterator) {

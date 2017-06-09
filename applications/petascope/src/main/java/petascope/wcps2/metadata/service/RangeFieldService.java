@@ -22,8 +22,8 @@
 package petascope.wcps2.metadata.service;
 
 import java.util.List;
-import petascope.wcps2.error.managed.processing.IncompatibleBandNameInSwitchCaseExpression;
-import petascope.wcps2.error.managed.processing.IncompatibleNumberOfBandsInSwitchCaseException;
+import petascope.wcps2.exception.processing.IncompatibleBandNameInSwitchCaseExpression;
+import petascope.wcps2.exception.processing.IncompatibleNumberOfBandsInSwitchCaseException;
 import petascope.wcps2.metadata.model.RangeField;
 
 /**
@@ -32,6 +32,7 @@ import petascope.wcps2.metadata.model.RangeField;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 public class RangeFieldService {
+    
     public static void validateRangeFields(List<RangeField> firstRangeFields, List<RangeField> secondRangeFields) {
         // check if the next case expression has the same band names and band numbers
         if (firstRangeFields.size() != secondRangeFields.size()) {

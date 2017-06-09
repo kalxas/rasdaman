@@ -21,14 +21,15 @@
  */
 package petascope.wcps2.metadata.service;
 
-import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
 import petascope.wcps2.metadata.model.ParsedSubset;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
-import petascope.wcps2.util.CrsComputer;
+import org.springframework.stereotype.Service;
+import petascope.core.Pair;
+import petascope.wcps2.metadata.model.IrregularAxis;
+import petascope.core.service.CrsComputerService;
 
 /**
  * Translate the coordinates from geo bound to grid bound for trimming/slicing and vice versa if using CRS:1 in trimming/slicing
@@ -36,13 +37,9 @@ import petascope.wcps2.util.CrsComputer;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Service
 public class CoordinateTranslationService {
-
-    private final CoverageRegistry coverageRegistry;
-
-    public CoordinateTranslationService(CoverageRegistry coverageRegistry) {
-        this.coverageRegistry = coverageRegistry;
-    }
+    
 
     /**
      * Computes the pixel indices for a subset on a regular axis.
@@ -54,7 +51,7 @@ public class CoordinateTranslationService {
      * @param gridDomainMin:     the grid coordinate of the first pixel of the axis
      * @return the pair of grid coordinates corresponding to the given geo subset.
      */
-    public ParsedSubset<BigInteger> geoToGridForRegularAxis(ParsedSubset<BigDecimal> numericSubset, BigDecimal geoDomainMin,
+    public ParsedSubset<Long> geoToGridForRegularAxis(ParsedSubset<BigDecimal> numericSubset, BigDecimal geoDomainMin,
         BigDecimal geoDomainMax, BigDecimal resolution, BigDecimal gridDomainMin) {
         boolean zeroIsMin = resolution.compareTo(BigDecimal.ZERO) > 0;
 
@@ -63,11 +60,11 @@ public class CoordinateTranslationService {
             // closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
             // e.g: Long(0:20) -> c[0:50]
             BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution);
-            lowerLimit = CrsComputer.shiftToNearestGridPoint(lowerLimit);
+            lowerLimit = CrsComputerService.shiftToNearestGridPoint(lowerLimit);
             returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
             
             BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution);            
-            upperLimit = CrsComputer.shiftToNearestGridPoint(upperLimit);
+            upperLimit = CrsComputerService.shiftToNearestGridPoint(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
 
             //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
@@ -90,11 +87,11 @@ public class CoordinateTranslationService {
             // geo:  80  60  40  20  0
             // user subset 58: count how many resolution-sized interval are between 80 and 58 (1.1), and floor it to get 1
             BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMax), resolution);
-            lowerLimit = CrsComputer.shiftToNearestGridPoint(lowerLimit);
+            lowerLimit = CrsComputerService.shiftToNearestGridPoint(lowerLimit);
             returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
             
             BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMax), resolution);
-            upperLimit = CrsComputer.shiftToNearestGridPoint(upperLimit);
+            upperLimit = CrsComputerService.shiftToNearestGridPoint(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
 
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
@@ -109,36 +106,37 @@ public class CoordinateTranslationService {
                 returnUpperLimit = returnLowerLimit;
             }
         }
-        return new ParsedSubset(returnLowerLimit.toBigInteger(), returnUpperLimit.toBigInteger());
+        return new ParsedSubset(returnLowerLimit.longValue(), returnUpperLimit.longValue());
     }
 
     /**
      * Translate the  grid subset with grid CRS (i.e: CRS:1) to geo subset
      * e.g: Long:"CRS:1"(0:50) -> Long(0.5:20.5)
+     * NOTE: no rounding for geo bounds as they should be not integer values
      * @param numericSubset
-     * @param geoDomainMin
-     * @param geoDomainMax
-     * @param resolution
      * @param gridDomainMin
+     * @param gridDomainMax
+     * @param resolution
+     * @param geoDomainMin
      * @return 
      */
-    public ParsedSubset<BigInteger> gridToGeoForRegularAxis(ParsedSubset<BigDecimal> numericSubset, BigDecimal geoDomainMin,
-            BigDecimal geoDomainMax, BigDecimal resolution, BigDecimal gridDomainMin) {
+    public ParsedSubset<BigDecimal> gridToGeoForRegularAxis(ParsedSubset<BigDecimal> numericSubset, BigDecimal gridDomainMin,
+            BigDecimal gridDomainMax, BigDecimal resolution, BigDecimal geoDomainMin) {
         boolean zeroIsMin = resolution.compareTo(BigDecimal.ZERO) > 0;
         BigDecimal returnLowerLimit, returnUpperLimit;
         if (zeroIsMin) {
             // e.g: Long:"CRS:1"(0:50) -> Long(0.5:20.5)
-            returnLowerLimit = BigDecimalUtil.multiple(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution)
-                               .setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
-            returnUpperLimit = BigDecimalUtil.multiple(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution)
-                               .setScale(0, RoundingMode.CEILING).add(gridDomainMin);
+            returnLowerLimit = BigDecimalUtil.multiple(numericSubset.getLowerLimit().subtract(gridDomainMin), resolution)
+                               .add(geoDomainMin);
+            returnUpperLimit = BigDecimalUtil.multiple(numericSubset.getUpperLimit().subtract(gridDomainMin), resolution)
+                               .add(geoDomainMin);
 
             // because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
                 returnUpperLimit = returnLowerLimit;
             }
             // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if ((geoDomainMax.compareTo(geoDomainMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(geoDomainMax)) {
+            if ((gridDomainMax.compareTo(gridDomainMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(gridDomainMax)) {
                 returnLowerLimit = returnLowerLimit.subtract(BigDecimal.ONE);
                 returnUpperLimit = returnLowerLimit;
             }
@@ -146,16 +144,17 @@ public class CoordinateTranslationService {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
             // e.g: Lat:"CRS:"(0:50) -> Lat(0.23:20.23)
-            returnLowerLimit = BigDecimalUtil.multiple(numericSubset.getUpperLimit().subtract(geoDomainMax), resolution)
-                               .setScale(0, RoundingMode.CEILING).add(gridDomainMin);
-            returnUpperLimit = BigDecimalUtil.multiple(numericSubset.getLowerLimit().subtract(geoDomainMax), resolution)
-                               .setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
+            // (input grid - total pixels) / resolution + geoDomain, NOTE: total pixels + 1 (e.g: 0:710 then max is not: 0 but 711)
+            returnLowerLimit = BigDecimalUtil.multiple(numericSubset.getUpperLimit().subtract(gridDomainMax.add(BigDecimal.ONE)), resolution)
+                               .add(geoDomainMin);
+            returnUpperLimit = BigDecimalUtil.multiple(numericSubset.getLowerLimit().subtract(gridDomainMax.add(BigDecimal.ONE)), resolution)
+                               .add(geoDomainMin);
 
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
                 returnUpperLimit = returnLowerLimit;
             }
         }
-        return new ParsedSubset(returnLowerLimit.toBigInteger(), returnUpperLimit.toBigInteger());
+        return new ParsedSubset(returnLowerLimit, returnUpperLimit);
     }
 
     /**
@@ -165,40 +164,23 @@ public class CoordinateTranslationService {
      *
      * @param numericSubset    the subset to be translated
      * @param scalarResolution
-     * @param coverageName
-     * @param axisOrder
      * @param gridDomainMin
      * @param gridDomainMax
      * @param geoDomainMin
-     * @return
-     * @throws petascope.exceptions.PetascopeException
+     * @param irregularAxis
+     * @return     
      */
-    public ParsedSubset<BigInteger> geoToGridForIrregularAxes(
-        ParsedSubset<BigDecimal> numericSubset, BigDecimal scalarResolution, String coverageName,
-        int axisOrder, BigDecimal gridDomainMin,
-        BigDecimal gridDomainMax, BigDecimal geoDomainMin) throws PetascopeException {
-        // Need to query the database (IRRSERIES table) to get the extents
-        // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
-        // TODO: I need to extract all the values, not just the extremes
-        // coefficients are relative to the origin, but subsets are not.
-        BigDecimal lowerCoefficient = null;
-        BigDecimal upperCoefficient = null;
+    public ParsedSubset<Long> geoToGridForIrregularAxes(
+        ParsedSubset<BigDecimal> numericSubset, BigDecimal scalarResolution, BigDecimal gridDomainMin,
+        BigDecimal gridDomainMax, BigDecimal geoDomainMin, IrregularAxis irregularAxis) {
 
         // e.g: t(148654) in irr_cube_2
-        lowerCoefficient = ((numericSubset.getLowerLimit()).subtract(geoDomainMin)).divide(scalarResolution);
-        upperCoefficient = ((numericSubset.getUpperLimit()).subtract(geoDomainMin)).divide(scalarResolution);
+        BigDecimal lowerCoefficient = ((numericSubset.getLowerLimit()).subtract(geoDomainMin)).divide(scalarResolution);
+        BigDecimal upperCoefficient = ((numericSubset.getUpperLimit()).subtract(geoDomainMin)).divide(scalarResolution);
+        
+        // Return the grid indices of the lower and upper coefficients in an irregular axis
+        Pair<Long, Long> indices = irregularAxis.getGridIndices(lowerCoefficient, upperCoefficient);
 
-        long[] indexes = coverageRegistry.getMetadataSource().getIndexesFromIrregularRectilinearAxis(
-                             coverageName,
-                             axisOrder, // i-order of axis
-                             lowerCoefficient,
-                             upperCoefficient,
-                             Long.valueOf(gridDomainMin.toBigInteger().toString()), Long.valueOf(gridDomainMax.toBigInteger().toString()));
-
-        // Add sdom lower bound
-        BigInteger lowerBound = BigDecimal.valueOf(indexes[0]).add(gridDomainMin).toBigInteger();
-        BigInteger upperbound = BigDecimal.valueOf(indexes[1]).toBigInteger();
-
-        return new ParsedSubset(lowerBound, upperbound);
+        return new ParsedSubset(indices.fst, indices.snd);
     }
 }

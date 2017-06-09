@@ -1,85 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-    xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:gml='http://www.opengis.net/gml/3.2'
-    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
-    id="test_irr_cube_1">
-
-  <boundedBy>
-    <Envelope srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
-      <lowerCorner>-0.5 -0.5 0 </lowerCorner>
-      <upperCorner>9.5 9.5 8 </upperCorner>
-    </Envelope>
-  </boundedBy>
-
-  <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="3" id="test_irr_cube_1-grid"
-        
-        >
-      <limits>
-        <GridEnvelope>
-          <low>0 0 0 </low>
-          <high>9 9 5 </high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels>i j k</axisLabels>
-      <gmlrgrid:origin>
-        <Point id="test_irr_cube_1-origin" srsName="/crs/OGC/0/Index3D">
-          <pos>0 9 0 </pos>
-        </Point>
-      </gmlrgrid:origin>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">1 0 0</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients></gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 -1 0</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients></gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 0 1</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>0 1 2 3 5 8</gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>k</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-    </gmlrgrid:ReferenceableGridByVectors>
-
-  </domainSet>
-
-  <rangeSet>
-    <DataBlock>
-      <rangeParameters/>
-      <tupleList ts="," cs=" ">0,100,200,300,500,800,1,101,201,301,501,801,2,102,202,302,502,802,3,103,203,303,503,803,4,104,204,304,504,804,5,105,205,305,505,805,6,106,206,306,506,806,7,107,207,307,507,807,8,108,208,308,508,808,9,109,209,309,509,809,10,110,210,310,510,810,11,111,211,311,511,811,12,112,212,312,512,812,13,113,213,313,513,813,14,114,214,314,514,814,15,115,215,315,515,815,16,116,216,316,516,816,17,117,217,317,517,817,18,118,218,318,518,818,19,119,219,319,519,819,20,120,220,320,520,820,21,121,221,321,521,821,22,122,222,322,522,822,23,123,223,323,523,823,24,124,224,324,524,824,25,125,225,325,525,825,26,126,226,326,526,826,27,127,227,327,527,827,28,128,228,328,528,828,29,129,229,329,529,829,30,130,230,330,530,830,31,131,231,331,531,831,32,132,232,332,532,832,33,133,233,333,533,833,34,134,234,334,534,834,35,135,235,335,535,835,36,136,236,336,536,836,37,137,237,337,537,837,38,138,238,338,538,838,39,139,239,339,539,839,40,140,240,340,540,840,41,141,241,341,541,841,42,142,242,342,542,842,43,143,243,343,543,843,44,144,244,344,544,844,45,145,245,345,545,845,46,146,246,346,546,846,47,147,247,347,547,847,48,148,248,348,548,848,49,149,249,349,549,849,50,150,250,350,550,850,51,151,251,351,551,851,52,152,252,352,552,852,53,153,253,353,553,853,54,154,254,354,554,854,55,155,255,355,555,855,56,156,256,356,556,856,57,157,257,357,557,857,58,158,258,358,558,858,59,159,259,359,559,859,60,160,260,360,560,860,61,161,261,361,561,861,62,162,262,362,562,862,63,163,263,363,563,863,64,164,264,364,564,864,65,165,265,365,565,865,66,166,266,366,566,866,67,167,267,367,567,867,68,168,268,368,568,868,69,169,269,369,569,869,70,170,270,370,570,870,71,171,271,371,571,871,72,172,272,372,572,872,73,173,273,373,573,873,74,174,274,374,574,874,75,175,275,375,575,875,76,176,276,376,576,876,77,177,277,377,577,877,78,178,278,378,578,878,79,179,279,379,579,879,80,180,280,380,580,880,81,181,281,381,581,881,82,182,282,382,582,882,83,183,283,383,583,883,84,184,284,384,584,884,85,185,285,385,585,885,86,186,286,386,586,886,87,187,287,387,587,887,88,188,288,388,588,888,89,189,289,389,589,889,90,190,290,390,590,890,91,191,291,391,591,891,92,192,292,392,592,892,93,193,293,393,593,893,94,194,294,394,594,894,95,195,295,395,595,895,96,196,296,396,596,896,97,197,297,397,597,897,98,198,298,398,598,898,99,199,299,399,599,899</tupleList>
-    </DataBlock>
-  </rangeSet>
-
-  <coverageFunction>
-    <GridFunction>
-      <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-      <startPoint>0 0 0 </startPoint>
-    </GridFunction>
-  </coverageFunction>
-
-  <gmlcov:rangeType>
-    <swe:DataRecord>
-    <swe:field name="band_1">
-      <swe:Quantity ><swe:label>band_1</swe:label><swe:description>Test values</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>
-    </swe:DataRecord>
-  </gmlcov:rangeType>
-  <gmlcov:metadata><gmlcov:Extension><description>This is a test coverage</description><slices /></gmlcov:Extension></gmlcov:metadata>
+<gmlcov:ReferenceableGridCoverage id="test_irr_cube_1"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="i j k" srsDimension="3"
+            srsName="/crs/OGC/0/Index3D" uomLabels="GridSpacing GridSpacing GridSpacing">
+            <lowerCorner>-0.5 -0.5 0</lowerCorner>
+            <upperCorner>9.5 9.5 8</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="3"
+            id="test_irr_cube_1-grid"
+             >
+            <limits>
+                <GridEnvelope>
+                    <low>0 0 0</low>
+                    <high>9 9 5</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>i j k</axisLabels>
+            <gmlrgrid:origin>
+                <Point id="test_irr_cube_1-origin" srsName="/crs/OGC/0/Index3D">
+                    <pos>0 9 0</pos>
+                </Point>
+            </gmlrgrid:origin>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">1 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 -1 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 0 1</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients>0 1 2 3 5 8</gmlrgrid:coefficients>
+                    <gmlrgrid:gridAxesSpanned>k</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">0,100,200,300,500,800,1,101,201,301,501,801,2,102,202,302,502,802,3,103,203,303,503,803,4,104,204,304,504,804,5,105,205,305,505,805,6,106,206,306,506,806,7,107,207,307,507,807,8,108,208,308,508,808,9,109,209,309,509,809,10,110,210,310,510,810,11,111,211,311,511,811,12,112,212,312,512,812,13,113,213,313,513,813,14,114,214,314,514,814,15,115,215,315,515,815,16,116,216,316,516,816,17,117,217,317,517,817,18,118,218,318,518,818,19,119,219,319,519,819,20,120,220,320,520,820,21,121,221,321,521,821,22,122,222,322,522,822,23,123,223,323,523,823,24,124,224,324,524,824,25,125,225,325,525,825,26,126,226,326,526,826,27,127,227,327,527,827,28,128,228,328,528,828,29,129,229,329,529,829,30,130,230,330,530,830,31,131,231,331,531,831,32,132,232,332,532,832,33,133,233,333,533,833,34,134,234,334,534,834,35,135,235,335,535,835,36,136,236,336,536,836,37,137,237,337,537,837,38,138,238,338,538,838,39,139,239,339,539,839,40,140,240,340,540,840,41,141,241,341,541,841,42,142,242,342,542,842,43,143,243,343,543,843,44,144,244,344,544,844,45,145,245,345,545,845,46,146,246,346,546,846,47,147,247,347,547,847,48,148,248,348,548,848,49,149,249,349,549,849,50,150,250,350,550,850,51,151,251,351,551,851,52,152,252,352,552,852,53,153,253,353,553,853,54,154,254,354,554,854,55,155,255,355,555,855,56,156,256,356,556,856,57,157,257,357,557,857,58,158,258,358,558,858,59,159,259,359,559,859,60,160,260,360,560,860,61,161,261,361,561,861,62,162,262,362,562,862,63,163,263,363,563,863,64,164,264,364,564,864,65,165,265,365,565,865,66,166,266,366,566,866,67,167,267,367,567,867,68,168,268,368,568,868,69,169,269,369,569,869,70,170,270,370,570,870,71,171,271,371,571,871,72,172,272,372,572,872,73,173,273,373,573,873,74,174,274,374,574,874,75,175,275,375,575,875,76,176,276,376,576,876,77,177,277,377,577,877,78,178,278,378,578,878,79,179,279,379,579,879,80,180,280,380,580,880,81,181,281,381,581,881,82,182,282,382,582,882,83,183,283,383,583,883,84,184,284,384,584,884,85,185,285,385,585,885,86,186,286,386,586,886,87,187,287,387,587,887,88,188,288,388,588,888,89,189,289,389,589,889,90,190,290,390,590,890,91,191,291,391,591,891,92,192,292,392,592,892,93,193,293,393,593,893,94,194,294,394,594,894,95,195,295,395,595,895,96,196,296,396,596,896,97,197,297,397,597,897,98,198,298,398,598,898,99,199,299,399,599,899</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+1 +2 +3">Linear</sequenceRule>
+            <startPoint>0 0 0</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="band_1">
+                <swe:Quantity >
+                    <swe:label>band_1</swe:label>
+                    <swe:description>Test values</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <description>This is a test coverage</description>
+                <slices/>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

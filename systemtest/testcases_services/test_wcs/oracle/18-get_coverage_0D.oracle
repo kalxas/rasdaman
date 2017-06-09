@@ -1,45 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage
-    xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:gml='http://www.opengis.net/gml/3.2'
-    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
-    id="test_mr">
-
-  <boundedBy>
-    <Envelope srsName="" axisLabels="" uomLabels="" >
-      <lowerCorner></lowerCorner>
-      <upperCorner></upperCorner>
-    </Envelope>
-  </boundedBy>
-
-  <domainSet>
-
-  </domainSet>
-
-  <rangeSet>
-    <DataBlock>
-      <rangeParameters/>
-      <tupleList ts="," cs=" ">0</tupleList>
-    </DataBlock>
-  </rangeSet>
-
-  <coverageFunction>
-    <GridFunction>
-      <sequenceRule axisOrder="">Linear</sequenceRule>
-      <startPoint></startPoint>
-    </GridFunction>
-  </coverageFunction>
-
-  <gmlcov:rangeType>
-    <swe:DataRecord>
-    <swe:field name="value">
-      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>
-    </swe:DataRecord>
-  </gmlcov:rangeType>
-  <gmlcov:metadata><gmlcov:Extension>{  "resolution": "1",   "slices": []}</gmlcov:Extension></gmlcov:metadata>
+<gmlcov:RectifiedGridCoverage id="test_mr"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="" srsName="" uomLabels="">
+            <lowerCorner/>
+            <upperCorner/>
+        </Envelope>
+    </boundedBy>
+    <domainSet/>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">0</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="">Linear</sequenceRule>
+            <startPoint/>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="value">
+                <swe:Quantity >
+                    <swe:label>value</swe:label>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>{  "resolution": "1",   "slices": []}</covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

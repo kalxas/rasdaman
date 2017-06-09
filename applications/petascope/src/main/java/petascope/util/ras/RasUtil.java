@@ -25,15 +25,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
-import org.apache.commons.io.IOUtils;
 import org.odmg.Database;
 import org.odmg.ODMGException;
 import org.odmg.OQLQuery;
@@ -41,20 +38,15 @@ import org.odmg.QueryException;
 import org.odmg.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.ConfigManager;
+import org.rasdaman.config.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.rasdaman.RasdamanException;
-import petascope.exceptions.WCPSException;
-import petascope.exceptions.rasdaman.RasdamanCollectionDoesNotExistException;
-import petascope.exceptions.rasdaman.RasdamanCollectionExistsException;
-import petascope.util.WcpsConstants;
+import petascope.rasdaman.exceptions.RasdamanException;
+import petascope.rasdaman.exceptions.RasdamanCollectionDoesNotExistException;
+import petascope.rasdaman.exceptions.RasdamanCollectionExistsException;
+import petascope.util.BigDecimalUtil;
+import petascope.core.Pair;
 import static petascope.util.ras.RasConstants.RASQL_VERSION;
-import petascope.wcps.grammar.WCPSRequest;
-import petascope.wcps.grammar.wcpsLexer;
-import petascope.wcps.grammar.wcpsParser;
-import petascope.wcps.server.core.ProcessCoveragesRequest;
-import petascope.wcps.server.core.Wcps;
 import rasj.RasClientInternalException;
 import rasj.RasConnectionFailedException;
 import rasj.RasImplementation;
@@ -74,9 +66,6 @@ public class RasUtil {
 
     //Default number of re-connect attempts  (If setting not fount)
     private static final int DEFAULT_RECONNECT_ATTEMPTS = 3;
-
-    // Useful patterns to extract data from the ``--out string'' RasQL output
-    private static final String VERSION_PATTERN = "rasdaman (\\S+)-\\S+ .*$"; // group _1_ is version
 
     /**
      * Execute a RasQL query with configured credentials.
@@ -99,7 +88,8 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws RasdamanException, PetascopeException {
-        // NOTE: rasmgr could be different port not by 7001 by default and be changed in petascope.properties        
+        long start = System.currentTimeMillis();
+
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
         Database db = impl.newDatabase();
@@ -163,16 +153,15 @@ public class RasUtil {
                         throw new RasdamanCollectionDoesNotExistException(ExceptionCode.CollectionDoesNotExist, query, ex);
                     } else {
                         throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                                "Error evaluating rasdaman query: '" + query, ex);
+                                "Error evaluating rasdaman query: '" + query + "'", ex);
                     }
                 } catch (Error ex) {
                     tr.abort();
-                    log.error("Critical error", ex);                    
-                    
+                    log.error("Critical error", ex);
                     if (ex instanceof OutOfMemoryError) {
                         throw new PetascopeException(ExceptionCode.InternalComponentError, "Requested more data than the server can handle at once. "
                                 + "Try increasing the maximum memory allowed for Tomcat (-Xmx JVM option).");
-                    } else {                    
+                    } else {
                         throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, ex.getMessage());
                     }
                 } finally {
@@ -232,6 +221,11 @@ public class RasUtil {
             }
 
         }
+
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+
         return ret;
     }
 
@@ -250,169 +244,19 @@ public class RasUtil {
     }
 
     /**
-     * Convert WCPS query in abstract syntax to a rasql query. This is done as
-     * abstract -> XML -> rasql conversion.
-     *
-     * @param query WCPS query in abstract syntax
-     * @param wcps WCPS engine
-     * @return the corresponding rasql query
-     * @throws WCPSException
-     */
-    public static String abstractWCPSToRasql(String query, Wcps wcps) throws WCPSException {
-        if (query == null) {
-            throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't convert null query");
-        }
-        log.trace("Converting abstract WCPS query\n{}", query);
-        String xmlQuery = abstractWCPStoXML(query);
-        try {
-            String rasql = xmlWCPSToRasql(xmlQuery, wcps);
-            log.debug("rasql: " + rasql);
-            return rasql;
-            //return xmlWCPSToRasql(xmlQuery, wcps);
-        } catch (WCPSException ex) {
-            throw ex;
-        }
-    }
-
-    /**
-     * Convert abstract WCPS query to XML syntax.
-     *
-     * @param query WCPS query in abstract syntax
-     * @return the same query in XML
-     * @throws WCPSException in case of error during the parsing/translation
-     */
-    public static String abstractWCPStoXML(String query) throws WCPSException {
-        String ret = null;
-        WCPSRequest request = null;
-        try {
-            CharStream cs = new ANTLRStringStream(query);
-            wcpsLexer lexer = new wcpsLexer(cs);
-            CommonTokenStream tokens = new CommonTokenStream();
-            tokens.setTokenSource(lexer);
-            wcpsParser parser = new wcpsParser(tokens);
-
-            log.trace("Parsing abstract WCPS query...");
-            wcpsParser.wcpsRequest_return rrequest = parser.wcpsRequest();
-            request = rrequest.value;
-        } catch (RecognitionException ex) {
-            throw new WCPSException(ExceptionCode.SyntaxError,
-                    "Error parsing abstract WCPS query.", ex);
-        }
-
-        try {
-            log.trace("Converting parsed request to XML...");
-            ret = request.toXML();
-            log.debug("Done, xml query: " + ret);
-        } catch (Exception ex) {
-            throw new WCPSException(ExceptionCode.SyntaxError,
-                    "Error translating parsed abstract WCPS query to XML format.", ex);
-        }
-        return ret;
-    }
-
-    /**
-     * Convert WCPS query in XML syntax to a rasql query.
-     *
-     * @param query WCPS query in XML syntax
-     * @param wcps WCPS engine
-     * @return the corresponding rasql query
-     * @throws WCPSException
-     */
-    public static String xmlWCPSToRasql(String query, Wcps wcps) throws WCPSException {
-        if (query == null) {
-            throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't convert null query");
-        }
-        log.trace("Converting XML WCPS query\n{}", query);
-        ProcessCoveragesRequest pcReq;
-        try {
-            pcReq = wcps.pcPrepare(ConfigManager.RASDAMAN_URL,
-                    ConfigManager.RASDAMAN_DATABASE, IOUtils.toInputStream(query));
-        } catch (WCPSException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new WCPSException(ExceptionCode.InternalComponentError,
-                    "Error translating XML WCPS query to rasql - " + ex.getMessage(), ex);
-        }
-        log.trace("Resulting RasQL query: [{}] {}", pcReq.getMime(), pcReq.getRasqlQuery());
-        String ret = pcReq.getRasqlQuery();
-        return ret;
-    }
-
-    /**
-     * Execute a WCPS query given in abstract or XML syntax.
-     *
-     * @param query a WCPS query given in abstract syntax
-     * @param wcps WCPS engine
-     * @return result from executing query
-     * @throws WCPSException
-     * @throws RasdamanException
-     */
-    public static Object executeWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException, PetascopeException {
-        if (query == null) {
-            throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't execute null query");
-        }
-        query = query.trim();
-        log.trace("Executing WCPS query: {}", query);
-        if (query.startsWith("<")) {
-            return executeXmlWcpsQuery(query, wcps);
-        } else {
-            return executeAbstractWcpsQuery(query, wcps);
-        }
-    }
-
-    /**
-     * Execute a WCPS query given in abstract syntax.
-     *
-     * @param query a WCPS query given in abstract syntax
-     * @param wcps WCPS engine
-     * @return result from executing query
-     * @throws WCPSException
-     * @throws RasdamanException
-     */
-    public static Object executeAbstractWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException, PetascopeException {
-        if (query == null) {
-            throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't execute null query");
-        }
-        log.trace("Executing abstract WCPS query");
-        String rasquery = abstractWCPSToRasql(query, wcps);
-        // Check if it is a rasql query
-        if (rasquery != null && rasquery.startsWith(WcpsConstants.MSG_SELECT)) {
-            return executeRasqlQuery(abstractWCPSToRasql(query, wcps));
-        }
-        return rasquery;
-
-    }
-
-    /**
-     * Execute a WCPS query given in XML syntax.
-     *
-     * @param query a WCPS query given in XML syntax
-     * @param wcps WCPS engine
-     * @return the result from executing query
-     * @throws WCPSException
-     * @throws RasdamanException
-     */
-    public static Object executeXmlWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException, PetascopeException {
-        if (query == null) {
-            throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't execute null query");
-        }
-        log.trace("Executing XML WCPS query");
-        return executeRasqlQuery(xmlWCPSToRasql(query, wcps));
-    }
-
-    /**
      * Fetch rasdaman version by parsing RasQL ``version()'' output.
      *
      * @return The rasdaman version
      * @throws RasdamanException
      */
     public static String getRasdamanVersion() throws RasdamanException {
+        long start = System.currentTimeMillis();
 
         String version = "";
         Object tmpResult = null;
         try {
             tmpResult = RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
-        } catch (Exception ex) {
+        } catch (PetascopeException ex) {
             throw new RasdamanException(ExceptionCode.InternalSqlError, "Could not retrieve rasdaman version; is rasdaman started?", ex);
         }
 
@@ -424,6 +268,11 @@ public class RasUtil {
         }
 
         log.debug("Read rasdaman version: \"" + version + "\"");
+
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+
         return version;
     }
 
@@ -434,7 +283,9 @@ public class RasUtil {
      * @param collectionName
      * @throws RasdamanException
      */
-    public static void deleteFromRasdaman(BigInteger oid, String collectionName) throws RasdamanException, PetascopeException {
+    public static void deleteFromRasdaman(Long oid, String collectionName) throws RasdamanException, PetascopeException {
+        long start = System.currentTimeMillis();
+
         String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_OID, oid.toString());
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //check if there are other objects left in the collection
@@ -446,6 +297,10 @@ public class RasUtil {
             log.info("No objects left in the collection, dropping the collection so the name can be reused in the future.");
             executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }
+
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        log.debug("Total time for rasql: " + String.valueOf(totalTime));
     }
 
     /**
@@ -468,11 +323,14 @@ public class RasUtil {
      *
      * @param collectionName
      * @param values
+     * @param tiling
      * @return the oid of the newly inserted object
      * @throws RasdamanException
      */
-    public static BigInteger executeInsertValuesStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
-        BigInteger oid = null;
+    public static Long executeInsertValuesStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
+        long start = System.currentTimeMillis();
+
+        Long oid = null;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
                 .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
@@ -487,8 +345,14 @@ public class RasUtil {
             resultInstance = resultIterator.next();
         }
         if (resultInstance != null) {
-            oid = BigDecimal.valueOf((Double) resultInstance).toBigInteger();
+            BigDecimal tmp = BigDecimalUtil.stripDecimalZeros(new BigDecimal(resultInstance.toString()));
+            oid = tmp.longValue();
         }
+
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+
         return oid;
     }
 
@@ -500,12 +364,14 @@ public class RasUtil {
      * @param mime
      * @param tiling
      * @return
-     * @throws petascope.exceptions.rasdaman.RasdamanException
+     * @throws petascope.rasdaman.exceptions.RasdamanException
      * @throws java.io.IOException
      */
-    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mime,
+    public static Long executeInsertFileStatement(String collectionName, String filePath, String mime,
             String tiling) throws RasdamanException, IOException, PetascopeException {
-        BigInteger oid = new BigInteger("0");
+        long start = System.currentTimeMillis();
+                
+        Long oid = new Long("0");
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
 
@@ -535,8 +401,13 @@ public class RasUtil {
             resultInstance = resultIterator.next();
         }
         if (resultInstance != null) {
-            oid = BigDecimal.valueOf((Double) resultInstance).toBigInteger();
+            oid = new Long(resultInstance.toString());
         }
+        
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+        
         return oid;
     }
 
@@ -550,13 +421,13 @@ public class RasUtil {
      * @param filePath
      * @param username
      * @param password
-     * @throws petascope.exceptions.rasdaman.RasdamanException
+     * @throws petascope.rasdaman.exceptions.RasdamanException
      * @throws java.io.IOException
      */
     public static void executeInsertUpdateFileStatement(String orgQuery, String filePath, String username, String password) throws RasdamanException, IOException {
-        String query;
-
-        query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
+        long start = System.currentTimeMillis();
+        
+        String query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
                 + "'"
                 + orgQuery
                 + "' --file " + filePath;
@@ -573,6 +444,10 @@ public class RasUtil {
             //error occured
             throw new RasdamanException(response);
         }
+        
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        log.debug("Total time for rasql: " + String.valueOf(totalTime));
     }
 
     /**
@@ -583,6 +458,9 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static void executeUpdateFileStatement(String query) throws IOException, RasdamanException {
+
+        long start = System.currentTimeMillis();
+
         String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + ConfigManager.RASDAMAN_ADMIN_USER
                 + " --passwd " + ConfigManager.RASDAMAN_ADMIN_PASS + " -q "
                 + "'" + query + "'";
@@ -598,6 +476,10 @@ public class RasUtil {
         if (!response.isEmpty()) {
             throw new RasdamanException(response);
         }
+
+        long end = System.currentTimeMillis();
+
+        log.debug("Time for rasql to update collection: " + String.valueOf(end - start));
     }
 
     /**
@@ -655,6 +537,60 @@ public class RasUtil {
         return false;
     }
 
+    /**
+     * Parse the domainIntervals (e.g: [0:20,0:30,10] to list of pairs
+     * (lowerBound, upperBound)
+     *
+     * @param domainIntervals
+     * @return
+     */
+    public static List<Pair<Long, Long>> parseDomainIntervals(String domainIntervals) {
+        List<Pair<Long, Long>> results = new ArrayList<Pair<Long, Long>>();
+        String extracted = domainIntervals.substring(domainIntervals.indexOf("[") + 1, domainIntervals.indexOf("]"));
+        String[] values = extracted.split(",");
+        for (String value : values) {
+            String[] lowerUpperBounds = value.split(":");
+            Long lowerBound = null, upperBound = null;
+            // Slicing
+            if (lowerUpperBounds.length == 1) {
+                lowerBound = new Long(lowerUpperBounds[0]);
+                upperBound = lowerBound;
+            } else {
+                // Trimming
+                lowerBound = new Long(lowerUpperBounds[0]);
+                upperBound = new Long(lowerUpperBounds[1]);
+            }
+
+            results.add(new Pair(lowerBound, upperBound));
+        }
+
+        return results;
+    }
+
+    /**
+     * Run a rasql query and return results as array of bytes
+     *
+     * @param rasqlQuery
+     * @return
+     * @throws petascope.rasdaman.exceptions.RasdamanException
+     */
+    public static byte[] getRasqlResultAsBytes(String rasqlQuery) throws RasdamanException, PetascopeException {
+        byte[] result = new byte[0];
+        RasQueryResult res;
+
+        res = new RasQueryResult(RasUtil.executeRasqlQuery(rasqlQuery));
+        if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
+            for (String s : res.getScalars()) {
+                result = s.getBytes(Charset.forName("UTF-8"));
+            }
+            for (byte[] bs : res.getMdds()) {
+                result = bs;
+            }
+        }
+
+        return result;
+    }
+
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
     private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";
     private static final String TEMPLATE_CREATE_COLLECTION = "CREATE COLLECTION " + TOKEN_COLLECTION_NAME + " " + TOKEN_COLLECTION_TYPE;
@@ -666,8 +602,7 @@ public class RasUtil {
     private static final String TOKEN_OID = "%oid%";
     private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME + " WHERE oid(" + TOKEN_COLLECTION_NAME + ")=" + TOKEN_OID;
     private static final String TEMPLATE_INSERT_DECODE_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)" + " " + TOKEN_TILING;
-    // every rasql queries should connect to the rasmgr port defined in petascope.properties, by default is 7001
-    private static final String RASQL = "rasql -p " + ConfigManager.RASDAMAN_PORT;
+    private static final String RASQL = "rasql";
     private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";
     private static final String TEMPLATE_DROP_COLLECTION = "DROP COLLECTION " + TOKEN_COLLECTION_NAME;
 }

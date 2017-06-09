@@ -1,9 +1,6 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<ServiceExceptionReport version="1.3.0"
-                        xmlns="http://www.opengis.net/ogc"
-                        
-                        >
-    <ServiceException code="UnsupportedToTransformCRS">
-        CRS transformation not supported for the requested crs: OGC:Index2D
-    </ServiceException>
+<ServiceExceptionReport version="1.3.0" xmlns="http://www.opengis.net/ogc"  >
+    <ServiceException code="InvalidCrs">
+	The supplied crs uri OGC:Index2D is invalid, current only supports EPSG code.
+</ServiceException>
 </ServiceExceptionReport>

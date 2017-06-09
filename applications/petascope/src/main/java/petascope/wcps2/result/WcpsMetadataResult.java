@@ -21,8 +21,8 @@
  */
 package petascope.wcps2.result;
 
+import petascope.util.MIMEUtil;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcs2.extensions.FormatExtension;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
@@ -58,7 +58,7 @@ public class WcpsMetadataResult implements VisitorResult {
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
         if (this.mimeType == null) {
-            this.mimeType = FormatExtension.MIME_TEXT;
+            this.mimeType = MIMEUtil.MIME_XML;
         }
     }
 

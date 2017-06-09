@@ -1,59 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:RectifiedGridCoverage
-    xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:gml='http://www.opengis.net/gml/3.2'
-    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
-    id="test_eobstest">
-
-  <boundedBy>
-    <Envelope srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
-      <lowerCorner>127469.5</lowerCorner>
-      <upperCorner>127475.5</upperCorner>
-    </Envelope>
-  </boundedBy>
-
-  <domainSet>
-    <RectifiedGrid dimension="1" id="test_eobstest-grid">
-      <limits>
-        <GridEnvelope>
-          <low>0</low>
-          <high>5</high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels>t</axisLabels>
-      <origin>
-          <Point id="test_eobstest-origin" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
-              <pos>"1949-12-31T12:00:00.000Z"</pos>
-          </Point>
-      </origin>
-      <offsetVector srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1</offsetVector>
-    </RectifiedGrid>
-  </domainSet>
-
-  <rangeSet>
-    <DataBlock>
-      <rangeParameters/>
-      <tupleList ts="," cs=" ">-9999,-9999,-9999,-9999,-9999,-9999</tupleList>
-    </DataBlock>
-  </rangeSet>
-
-  <coverageFunction>
-    <GridFunction>
-      <sequenceRule axisOrder="+1">Linear</sequenceRule>
-      <startPoint>0</startPoint>
-    </GridFunction>
-  </coverageFunction>
-
-  <gmlcov:rangeType>
-    <swe:DataRecord>
-    <swe:field name="tg">
-      <swe:Quantity ><swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>
-    </swe:DataRecord>
-  </gmlcov:rangeType>
-  <gmlcov:metadata><gmlcov:Extension><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:Extension></gmlcov:metadata>
+<gmlcov:RectifiedGridCoverage id="test_eobstest"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="t" srsDimension="1"
+            srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="d">
+            <lowerCorner>"1949-12-31T12:00:00.000Z"</lowerCorner>
+            <upperCorner>"1950-01-06T12:00:00.000Z"</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <RectifiedGrid dimension="1" id="test_eobstest-grid">
+            <limits>
+                <GridEnvelope>
+                    <low>0</low>
+                    <high>5</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>t</axisLabels>
+            <origin>
+                <Point id="test_eobstest-origin" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
+                    <pos>"1950-01-01T00:00:00.000Z"</pos>
+                </Point>
+            </origin>
+            <offsetVector srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">1</offsetVector>
+        </RectifiedGrid>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999,-9999</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+1">Linear</sequenceRule>
+            <startPoint>0</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="tg">
+                <swe:Quantity >
+                    <swe:label>tg</swe:label>
+                    <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <Project>This is another test file</Project>
+                <Creator>This is a test creator file</Creator>
+                <Title>This is a test file</Title>
+                <slices/>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

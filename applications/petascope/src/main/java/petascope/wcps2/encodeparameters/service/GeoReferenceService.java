@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -26,8 +26,8 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps2.encodeparameters.model.BoundingBox;
 import petascope.wcps2.encodeparameters.model.GeoReference;
-import petascope.wcps2.error.managed.processing.InvalidBoundingBoxInCrsTransformException;
-import petascope.wcps2.error.managed.processing.NotGeoReferencedCoverageInCrsTransformException;
+import petascope.wcps2.exception.processing.InvalidBoundingBoxInCrsTransformException;
+import petascope.wcps2.exception.processing.NotGeoReferencedCoverageInCrsTransformException;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 
 /**
@@ -48,7 +48,7 @@ public class GeoReferenceService {
         String outputCrs = metadata.getOutputCrsUri();
 
         // transformation from xyCrs to outputCrs
-        if (outputCrs != null) {
+        if (outputCrs != null && !CrsUtil.isGridCrs(outputCrs) && !CrsUtil.isIndexCrs(outputCrs)) {
             // NOTE: not allow to transform from CRS:1 or IndexND to a geo-referenced CRS
             if (CrsUtil.isGridCrs(xyCrs) || CrsUtil.isIndexCrs(xyCrs)) {
                 throw new NotGeoReferencedCoverageInCrsTransformException();

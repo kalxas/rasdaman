@@ -23,33 +23,136 @@
 #
 # PetaScope configuration file
 #
-# Important note:
-# Parameters marked "yes" in item "need to adapt" MUST be configured
+# ***IMPORTANT NOTE***:
+# Parameters marked *yes* in item *need to adapt* MUST be configured
 # to meaningful values during installation, they CAN NOT be used as is!
-# ---------------------------------------------------------------------
 
-# parameter:     metadata_driver
-# purpose:       name of DBMS driver to be loaded
+#------------------- Spring Hibernate configuration -------------------
+
+# Config for Hibernate
 # need to adapt: no
-metadata_driver=org.postgresql.Driver
+# important for Hibernate could generate id field for SQLite with strategy auto
+spring.jpa.hibernate.use-new-id-generator-mappings=true
+spring.jpa.hibernate.ddl-auto=create
 
-# parameter:     metadata_url
-# purpose:       JDBC URL of database serving PetaScope metadata
-#                recommendation: use default values on a default Postgresql
-#                installation, and DB name petascopedb
+# Config for Spring datasource with Postgresql (more detail about other databases see wiki page: http://rasdaman.org/wiki/PetascopeUserGuide#SpringHibernatedatasourcesconfiguration) 
+# need to adapt: yes
+spring.datasource.url=jdbc:postgresql://localhost:5432/cisdb
+spring.datasource.username=NOT_USE_NOW
+spring.datasource.password=NOT_USE_NOW
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+
+# Config for legacy datasource with Postgresql
+# These parameters below will be removed in rasdaman version 10 as all imported coverages will use the new data model by default.
+
+# Legacy Petascope metadata configuration for postgresql
+# purpose:       Before version 9.5, petascope uses GMLCOV 1.0 as data model with default database name
+#                is: petascopedb in Postgresql. In 9.5, petascope uses Coverage Implementation Schema (CIS 1.1)
+#                as data model, so there is a need to convert imported coverages from legacy petascopedb to new cisdb.
+# description:   All the imported coverages in legacy database will be converted to new database internally.             
 # need to adapt: yes
 metadata_url=jdbc:postgresql://localhost:5432/petascopedb
-# parameter:     metadata_user
-# purpose:       DBMS login under which servlet has r/w access
-#                to PetaScope metadata;
-#                recommendation: establish a dedicated user
-# need to adapt: yes
 metadata_user=petauser
-
-# parameter:     metadata_pass
-# purpose:       password for DBMS login, as above
-# need to adapt: yes
 metadata_pass=petapasswd
+
+#------------------- General Petascope configuration -------------------
+
+# parameter:     java_server
+# purpose:       Allow user to start Petascope with embedded (standalone web application: jar file including embedded Tomcat)
+#                or external (normal web application: war file to deploy on a specific web application containter, 
+#                e.g: Tomcat, GlassFish,...) mode. It is set as parameter by using -DJAVA_SERVER=embedded/external with cmake 
+#                or ./configure --with-java-server=embedded/external with automake when configuring rasdaman installation.
+# description:   When set to external, all settings (server.port, start_embedded_petascope)
+#                for embedded petascope will be disabled.
+# need to adapt: no
+java_server=@GENERATED_java_server@
+
+# parameter:     server.contextPath
+# purpose:       Both deployed web application as embedded/external will need this parameter as prefix
+#                for controller in URL routing (e.g: http://localhost:8080/rasdaman/ows).
+# need to adapt: no
+server.contextPath=/rasdaman
+
+# parameter:     secore_urls
+# purpose:       SECORE URLs to be used by Petascope.
+# description:   comma-separated list of SECORE endpoints, relevance order.
+# need to adapt: yes
+secore_urls=http://localhost:8080/def
+
+# parameter:     petascope_admin_user
+# purpose:       Login account has read/wright access to petascope's service introduction information in metadata tables
+#                of database (currently: PostgreSQL), including:
+#                ps_description, ps_service_identification, ps_service_provider.
+# description:   Log in to http://localhost:8080/rasadaman/admin to update these information.
+#                Recommendation: establish a dedicated user.
+# need to adapt: yes
+petascope_admin_user=petauser
+
+# parameter:     petascope_admin_pass
+# purpose:       password for petascope_admin_user login, as above.
+# need to adapt: yes
+petascope_admin_pass=petapasswd
+
+# parameter:     xml_validation
+# purpose:       If set to 'true', input WCS POST/SOAP in XML requests will be validated against
+#                OGC WCS 2.0.1 schema definitions.
+#                (!) When starting Petascope it will take around 1-2 mins to
+#                load the schemas from OGC server(!). Set the parameter to 'false' if no WCS 2.0.1 POST/SOAP input
+#                validation is required.
+# need to adapt: yes
+xml_validation=false
+
+# parameter:     ogc_cite_output_optimization
+# purpose:       To pass OGC CITE test, Petascope has to optimize the outputs to
+#                bypass some test cases.
+# description:   Petascope will trim indentation from output of WCS GetCoverage,
+#                DescribeCoverage. 
+#                (!) Only enable this option when executing OGC CITE tests, and set
+#                xml_validation to false otherwise some SOAP requests will fail
+#                due to the input requests could not pass the schema validation (!).
+# need to adapt: no
+ogc_cite_output_optimization=false
+
+# parameter:     petascope_servlet_url
+# purpose:       service endpoint can be set here.
+# description:   This property is used by WCS GetCapabilities() response <ows:HTTP> element
+#                to give the service endpoint. By default it is: http://localhost:8080/rasdaman/ows
+#                Set this parameter to your public service URL in case you are using a proxy 
+#                (e.g: http://proxy.rasdaman.org:8090/rasdaman/ows).
+# need to adapt: no
+petascope_servlet_url=
+
+# parameter:     disable_write_operations
+# purpose:       disables access to WCST (InsertCoverage, UpdateCoverage and DeleteCoverage) operations.
+# description:   Used to disable requests which could change 
+#                (insert new coverage, update/delete existing coverage) in Rasdaman through Petascope.
+# need to adapt: no
+disable_write_operations=false
+
+# parameter:     rasql_servlet_upload_path
+# purpose:       Rasql query can be submitted to RasqlServlet with file to import to rasdaman by decode() function.
+# description:   This folder stores the uploaded file through RasqlServlet temporarily 
+#                and removes it after the rasql import query is done.
+# need to adapt: no
+rasql_servlet_upload_path=/tmp/rasql_servlet_upload
+
+#------------------- Embedded Petascope configuration -------------------
+# These configurations below only have effect when java_server configuration is set to embedded, i.e: java_server=embedded
+
+# parameter:     server.port
+# purpose:       Port for embedded petascope using embedded Tomcat web application container.
+# need to adapt: yes
+server.port=8080
+
+# parameter:     start_emdedded_petascope
+# purpose:       Allow user to start embedded petascope after executing start_rasdaman.sh.
+# description:   User could enable or disable embedded petascope by configuration:"true/false"
+#                or temporarily enable/disable before starting script start_rasdaman.sh,
+#                e.g: start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope"
+# need to adapt: no
+start_embedded_petascope=@GENERATED_embedded_petascope@
+
+#------------------- Rasdaman configuration for Petascope -------------------
 
 # parameter:     rasdaman_url
 # purpose:       URL of rasdaman database serving PetaScope raster data
@@ -58,7 +161,7 @@ rasdaman_url=http://localhost:7001
 
 # parameter:     rasdaman_database
 # purpose:       name of rasdaman database serving PetaScope raster data
-#                recommendation: use rasdaman standard name, RASBASE
+#                (!) recommendation: use rasdaman standard name, RASBASE (!)
 # need to adapt: no
 rasdaman_database=RASBASE
 
@@ -99,141 +202,16 @@ rasdaman_retry_timeout=10
 # need to adapt: no
 rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
 
-# parameter:    xml_validation
-# purpose:      If set to `true', input XML requests will be validated against
-#               OGC WCS schema definitions.
-#               (!) When deploying Petascope it will take around 1-2 mins to
-#               load the schemas (!). Set the parameter to `false' if no input
-#               validation is required (default).
-# need to adapt: yes
-xml_validation=false
+#------------------- log4j configuration -------------------
 
-# parameter:     secore_urls
-# purpose:       SECORE URLs to be used by Petascope.
-# description:   comma-separated list of SECORE endpoints, relevance order.
-# need to adapt: yes
-secore_urls=http://localhost:8080/def
-
-# parameter:     secore_versions
-# purpose:       versions of SECORE's resolvers
-#                (grep "VERSION_M.*=" <rasdaman_src>/applications/secore/secore-core/src/ -r)
-# need to adapt: yes
-secore_versions=0.1.0
-
-# parameter:     ogc_cite_output_optimization
-# purpose:       To pass OGC CITE test, Petascope has to optimize the outputs to
-#                bypass some test cases.
-# description:   Petascope will trim indentation from WCS GetCoverage,
-#                DescribeCoverage, GridEnvelop element will have the axis order
-#                accordingly by coverage's CRS (especially: EPSG:4326 whose order is Lat, Long).
-#                Only enable this option when executing OGC CITE tests, and set
-#                xml_validation to false otherwise some SOAP requests will fail
-#                due to the input request not passing the schema validation.
+# Configuration to write Petascope's logs to petascope.log file.
 # need to adapt: no
-ogc_cite_output_optimization=false
-
-# parameter:     metadata_in_covsummary
-# purpose:       OWS metadata in the coverage summaries of the capabilities document
-#                can be disabled here (true/false).
-# description:   This kind of metadata can be added either manually in ps_extra_metadata table
-#                or through rasimport `--metadata' argument.
-#                Due to the fast growth in the capabilities document if each coverage
-#                includes an ows:Metadata element, here you can tell Petascope to ignore such elements.
-# need to adapt: yes
-metadata_in_covsummary=false
-
-# parameter:     bbox_in_covsummary
-# purpose:       true/false switch for enabling/disabling the insertion of wcs:BoundingBox elements
-#                in every wcs:CoverageSummary (capabilities document).
-# description:   The WCS capabilities document can be used at different levels, depending on the
-#                specific service. This parameter (along with other *_in_covsummary parameters)
-#                let you fine-tune the amount of information that Petascope should put inside
-#                of every wcs:CoverageSummary element. The more the number of coverages offered by
-#                A service, the more painful can the response time get damaged by having
-#                this param set to true (an RasQL sdom request is called).
-# need to adapt: yes
-bbox_in_covsummary=false
-
-# parameter:     description_in_covsummary
-# purpose:       true/false switch for enabling/disabling the insertion of (optionally inserted)
-#                [ows] Title/Abstract/Keywords in wcs:CoverageSummary elements of the capabilities document.
-# description:   As for other *_in_covsummary parameters, this one lets you fine-tune
-#                the coverage summaries in the capabilities document.
-#                Though they can be useful for having a richer catalog of coverages directly from WCS,
-#                you can always turn off the insertion of already inserted descriptions
-#                (petascopedb::ps_descriptions) by setting this to false.
-# need to adapt: yes
-description_in_covsummary=false
-
-# parameter:     petascope_servlet_url
-# purpose:       service endpoint can be set here.
-# description:   This property is used by WCS GetCapabilities() response <ows:HTTP> element
-#                to give the service endpoint.
-#                Leave it null in case you want Petascope to declare the service URL based on
-#                the first request it receives after deploy.
-#                Set this parameter to your public service URL in case you are using a proxy.
-# need to adapt: no
-petascope_servlet_url=
-
-# parameter:     jetty_port
-# purpose:       Port of embedded petacope, default is 8080
-# description:   This port must not be used simultaneously by any other Web Application like Tomcat or Apache.
-# need to adapt: no
-jetty_port=8080
-
-# parameter:     jetty_extracted_path
-# purpose:       Temporary directory of embedded petascope
-# description:   Jetty will extract war files to this directory before starting up petascope.
-#                Default is $RMANHOME/share/rasdaman/war/jetty_tmp.
-# need to adapt: no
-jetty_extracted_path=@GENERATED_jetty_extracted_path@
-
-# parameter:     java_server
-# purpose:       Allow user to start Petascope with embedded (Jetty) or external (Tomcat) mode.
-#                (use ./configure --with-java-server=embedded/external).
-# description:   When set to external, all settings (jetty_port, jetty_extracted_path, start_embedded_petascope)
-#                for embedded petascope will be disabled.
-# need to adapt: no
-java_server=@GENERATED_java_server@
-
-# parameter:     start_emdedded_petascope
-# purpose:       Allow user to start embedded petascope after executing start_rasdaman.sh.
-# description:   User could enable or disable embedded petascope by configuration:"true/false"
-#                or temporarily enable/disable before starting script start_rasdaman.sh,
-#                e.g: start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope"
-# need to adapt:  no
-start_embedded_petascope=@GENERATED_embedded_petascope@
-
-# parameter:     petascope_admin_user
-# purpose:       Login account has r/w access to petascope's service introduction information in metadata tables
-#                of database (currently: PostgreSQL), including:
-#                ps_description, ps_service_identification, ps_service_provider.
-# description:   Log in to http://localhost:8080/rasadaman/admin to update these information with user's information.
-#                Recommendation: establish a dedicated user
-# need to adapt: yes
-petascope_admin_user=petauser
-
-# parameter:     petascope_admin_pass
-# purpose:       password for petascope_admin_user login, as above.
-# need to adapt: yes
-petascope_admin_pass=petapasswd
-
-# parameter:     disable_write_operations
-# purpose:       disables access to WCST (InsertCoverage, UpdateCoverage and DeleteCoverage) operations.
-# need to adapt: no
-disable_write_operations=false
-
-# parameter:    upload directory for RasqlServlet
-# purpose:      Rasql query to RasqlServlet can upload file with decode() functions, default is /tmp/rasql_servlet_upload.
-# need to adapt: no
-rasql_servlet_upload_path=/tmp/rasql_servlet_upload
-
-# ---------------------------------------------------------------------
-
-#
-# log4j configuration
-#
 log4j.rootLogger=TRACE, rollingFile, stdout
+
+# Reduce the log information from Spring
+log4j.logger.org.springframework=WARN
+# Reduce the log information from Hibernate
+log4j.logger.org.hibernate=WARN
 
 # Reduce the log information from GRPC, Netty
 log4j.logger.io.grpc=WARN
@@ -253,4 +231,3 @@ log4j.appender.rollingFile.MaxFileSize=10MB
 log4j.appender.rollingFile.MaxBackupIndex=10
 log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
 log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n
-

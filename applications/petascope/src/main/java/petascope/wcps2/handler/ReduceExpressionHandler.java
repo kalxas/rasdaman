@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,10 +25,10 @@ import petascope.wcps2.result.WcpsResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Service;
 
 /**
- * Class to translate a reduce boolean expression to rasql
- * <code>
+ * Class to translate a reduce boolean expression to rasql  <code>
  * some($c > 1)
  * </code>
  * <p/>
@@ -41,17 +41,18 @@ import java.util.Map;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class ReduceExpressionHandler {
 
-    public static WcpsResult handle(String operator, WcpsResult reduceParameter) {
+    public WcpsResult handle(String operator, WcpsResult reduceParameter) {
         return new WcpsResult(null, TEMPLATE.replace("$reduceOperation", operationTranslator.get(operator.toLowerCase()))
-                              .replace("$reduceParameter", reduceParameter.getRasql()));
+                .replace("$reduceParameter", reduceParameter.getRasql()));
     }
 
-    private final static String TEMPLATE = " $reduceOperation($reduceParameter) ";
-    private final static Map<String, String> operationTranslator = new HashMap<String, String>();
+    private final String TEMPLATE = " $reduceOperation($reduceParameter) ";
+    private final Map<String, String> operationTranslator = new HashMap<String, String>();
 
-    static {
+    {
         operationTranslator.put("some", "some_cells");
         operationTranslator.put("all", "all_cells");
         operationTranslator.put("avg", "avg_cells");

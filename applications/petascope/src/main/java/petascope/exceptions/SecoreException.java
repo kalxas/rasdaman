@@ -21,10 +21,8 @@
  */
 package petascope.exceptions;
 
-import net.opengis.ows.v_1_0_0.ExceptionReport;
-import net.opengis.ows.v_1_0_0.ExceptionType;
-import petascope.ConfigManager;
-import petascope.util.StringUtil;
+import org.rasdaman.Application;
+import org.rasdaman.config.ConfigManager;
 
 /**
  * This exception can return an error report, that can be marshalled into a
@@ -34,9 +32,8 @@ import petascope.util.StringUtil;
  */
 public class SecoreException extends Exception {
 
-    private ExceptionCode code;
-    private ExceptionType type;
-    private ExceptionReport report;
+    private ExceptionCode exceptionCode;
+    private String exceptionText;
 
     private SecoreException() {
     }
@@ -81,7 +78,7 @@ public class SecoreException extends Exception {
      * @param causeEx original exception
      */
     public SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception causeEx) {
-        this(exceptionCode, exceptionText, causeEx, ConfigManager.RASDAMAN_VERSION, ConfigManager.PETASCOPE_LANGUAGE);
+        this(exceptionCode, exceptionText, causeEx, ConfigManager.RASDAMAN_VERSION, ConfigManager.LANGUAGE);
     }
 
     /**
@@ -90,72 +87,30 @@ public class SecoreException extends Exception {
      * @param exceptionCode exception code, if it's null then
      * {@link ExceptionCode#UnknownError} is used.
      * @param exceptionText exception message
-     * @param causeEx original exception
+     * @param ex
      * @param version
      * @param language
      */
-    protected SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception causeEx, String version, String language) {
-        super(exceptionText, causeEx);
+    protected SecoreException(ExceptionCode exceptionCode, String exceptionText, Exception ex, String version, String language) {
+        super(exceptionText, ex);
         if (exceptionCode == null) {
-            exceptionCode = ExceptionCode.UnknownError;
+            this.exceptionCode = ExceptionCode.UnknownError;
+        } else {
+            this.exceptionCode = exceptionCode;
         }
-        code = exceptionCode;
 
-        report = new ExceptionReport();
-        report.setLanguage(language);
-        report.setVersion(version);
-
-        type = new ExceptionType();
-        type.setExceptionCode(exceptionCode.getExceptionCode());
-        type.setLocator(exceptionCode.getLocator());
         if (exceptionText != null) {
-            type.getExceptionText().add(exceptionText);
-        } else if (exceptionCode.getDescription() != null) {
-            type.getExceptionText().add(exceptionCode.getDescription());
+            this.exceptionText = exceptionText;
+        } else {
+            this.exceptionText = exceptionCode.getDescription();
         }
-        report.getException().add(type);
     }
 
-    /**
-     * @return Return the error code.
-     */
     public ExceptionCode getExceptionCode() {
-        return code;
+        return exceptionCode;
     }
 
-    /**
-     * @return Return the detailed error message.
-     */
     public String getExceptionText() {
-        return StringUtil.ltos(type.getExceptionText(), '\n');
-    }
-
-    /**
-     * Retrieves a data structure that can be later marshalled into a XML
-     * ExceptionReport" document.
-     *
-     * @return ExceptionReport object
-     */
-    public ExceptionReport getReport() {
-        return report;
-    }
-
-    /**
-     * Adds text to this exception's detail message.
-     *
-     * @param msg
-     */
-    public void appendExceptionText(String msg) {
-        type.getExceptionText().add(msg);
-    }
-
-    @Override
-    public String getMessage() {
-        return getExceptionText();
-    }
-
-    @Override
-    public String toString() {
-        return type.getExceptionCode() + ": " + getMessage();
+        return exceptionText;
     }
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -22,29 +22,32 @@
 package petascope.wcps2.handler;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import petascope.wcps2.error.managed.processing.RangeFieldNotFound;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import petascope.wcps2.exception.processing.RangeFieldNotFound;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation node from wcps to rasql for range subsetting.
- * Example:
- * <code>
+ * Translation node from wcps to rasql for range subsetting. Example:  <code>
  * $c1.red
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * c1.red
- * </code>
- * select encode(scale( ((c[*:*,*:*,0:0]).0) [*:*,*:*,0], [0:2,0:1] ), "csv") from irr_cube_2 AS c
- * SELECT encode(SCALE( ((c[*:*,*:*,0:0]).0) [*:*,*:*,0:0], [0:2,0:1]), "csv" ) FROM irr_cube_2 AS c
+ * </code> select encode(scale( ((c[*:*,*:*,0:0]).0) [*:*,*:*,0], [0:2,0:1] ),
+ * "csv") from irr_cube_2 AS c SELECT encode(SCALE( ((c[*:*,*:*,0:0]).0)
+ * [*:*,*:*,0:0], [0:2,0:1]), "csv" ) FROM irr_cube_2 AS c
+ *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class RangeSubsettingHandler {
 
-    public static WcpsResult handle(String fieldName, WcpsResult coverageExp, WcpsCoverageMetadataService wcpsCoverageMetadataService) {
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+
+    public WcpsResult handle(String fieldName, WcpsResult coverageExp) {
 
         WcpsCoverageMetadata metadata = coverageExp.getMetadata();
 
@@ -71,7 +74,7 @@ public class RangeSubsettingHandler {
 
         String coverageExprStr = coverageExp.getRasql().trim();
         String rasql = TEMPLATE.replace("$coverageExp", coverageExprStr)
-                               .replace("$rangeFieldIndex", String.valueOf(rangeFieldIndex));
+                .replace("$rangeFieldIndex", String.valueOf(rangeFieldIndex));
 
         wcpsCoverageMetadataService.removeUnusedRangeFields(metadata, rangeFieldIndex);
 
@@ -80,5 +83,5 @@ public class RangeSubsettingHandler {
         return new WcpsResult(coverageExp.getMetadata(), rasql);
     }
 
-    private static final String TEMPLATE = "$coverageExp.$rangeFieldIndex";
+    private final String TEMPLATE = "$coverageExp.$rangeFieldIndex";
 }

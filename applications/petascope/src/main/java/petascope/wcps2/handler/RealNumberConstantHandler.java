@@ -14,25 +14,28 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translator class for real numbers. The numbers in WCPS correspond to their definition in rasql so no translation
- * to a number format is done, the string is passed upwards.
+ * Translator class for real numbers. The numbers in WCPS correspond to their
+ * definition in rasql so no translation to a number format is done, the string
+ * is passed upwards.
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class RealNumberConstantHandler {
 
-    public static WcpsResult handle(String number) {
+    public WcpsResult handle(String number) {
         return new WcpsResult(null, number);
     }
 

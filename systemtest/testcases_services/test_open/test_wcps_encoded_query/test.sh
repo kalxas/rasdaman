@@ -35,14 +35,14 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 . "$SCRIPT_DIR"/../../../util/common.sh
 
 
-# encoded WCPS query
-WCPS_ENDPOINT=$PETASCOPE_URL"?service=WCS&version=2.0.1&request=ProcessCoverages&query="
-QUERY="for%20c%20in%20(test_mr)%20return%20encode%20(c%5Bi(0%3A20)%2Cj(0%3A20)%5D%20%2B%205%2C%20%22png%22)"
+# this query will be encoded in python script with urllib
+WCPS_ENDPOINT=$PETASCOPE_URL
+QUERY='for c in (test_mr) return encode (c[i(0:20),j(0:20)] + 5, "png")'
 
 log "Test encoded WCPS query..."
 log $WCPS_ENDPOINT
 log $QUERY
-python "$SCRIPT_DIR"/test.py $WCPS_ENDPOINT $QUERY
+python "$SCRIPT_DIR"/test.py "$WCPS_ENDPOINT" "$QUERY"
 
 # defined in common.sh
 check

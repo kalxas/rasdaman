@@ -21,20 +21,21 @@
  */
 package petascope.wcps2.metadata.model;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
+import java.util.Collections;
+import java.util.HashMap;
 
 import java.util.List;
 import java.util.Map;
-import petascope.core.CrsDefinition;
-import petascope.swe.datamodel.NilValue;
-import petascope.util.AxisTypes;
+import org.rasdaman.domain.cis.NilValue;
+import petascope.core.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.wcps2.exception.processing.CoverageAxisNotFoundExeption;
+import petascope.wcps2.metadata.service.AxesOrderComparator;
 
 /**
- * Class that keeps information about the coverages (such as domains, CRSs
- * etc.) in the WCPS tree.
+ * Class that keeps information about the coverages (such as domains, CRSs etc.)
+ * in the WCPS tree.
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
@@ -43,20 +44,25 @@ public class WcpsCoverageMetadata {
 
     private final String coverageName;
     private String coverageType;
+    // List of axes after coverage expression (it will be stripped when there is a slicing expression, 
+    // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)
     private List<Axis> axes;
     private final String crsUri;
     // use in crsTransform()
     private String outputCrsUri;
-    private List<RangeField> rangeFields;        
+    private List<RangeField> rangeFields;
+    private List<NilValue> nilValues;
     private String metadata;
 
     public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri,
-                                List<RangeField> rangeFields, String metadata) {
+            List<RangeField> rangeFields, List<NilValue> nilValues, String metadata) {
         this.crsUri = crsUri;
+        // this axes could be stripped when a slicing expression is processed
         this.axes = axes;
         this.coverageName = coverageName;
         this.rangeFields = rangeFields;
-        this.metadata = metadata;        
+        this.nilValues = nilValues;
+        this.metadata = metadata;
         this.coverageType = coverageType;
 
     }
@@ -69,8 +75,40 @@ public class WcpsCoverageMetadata {
         this.axes = axes;
     }
 
+    /**
+     * Return the list of axes by the CRS order e.g: EPSG:4326&AnsiDate, then
+     * order is Lat, Long, Ansi
+     *
+     * @return
+     */
     public List<Axis> getAxes() {
         return this.axes;
+    }
+
+    /**
+     * Return the list of axes by grid Order e.g: EPSG:4326&AnsiDate, the grid
+     * axes order is: ansi, Long, Lat
+     *
+     * NOTE: used only when writing the rasql domains for each axis by grid
+     * order
+     *
+     * @return
+     */
+    public List<Axis> getSortedAxesByGridOrder() {
+        List<Axis> sortedAxis = new ArrayList<>();
+        // create a copy of the original list
+        for (Axis axis : this.axes) {
+            if (axis instanceof RegularAxis) {
+                sortedAxis.add(((RegularAxis) axis).clone());
+            } else {
+                sortedAxis.add(((IrregularAxis) axis).clone());
+            }
+        }
+
+        // then sort this list by the grid order
+        Collections.sort(sortedAxis, new AxesOrderComparator());
+
+        return sortedAxis;
     }
 
     public String getCrsUri() {
@@ -88,7 +126,7 @@ public class WcpsCoverageMetadata {
     public String getCoverageName() {
         return this.coverageName;
     }
-    
+
     public void setRangeFields(List<RangeField> rangeFields) {
         this.rangeFields = rangeFields;
     }
@@ -103,54 +141,86 @@ public class WcpsCoverageMetadata {
                 return axis;
             }
         }
-        throw new InvalidAxisNameException(axisName);
+        throw new CoverageAxisNotFoundExeption(axisName);
     }
 
-    public String getGridId(){
+    public String getGridId() {
         return getCoverageName() + "-grid";
-    }
-
-    /**
-     * Return the XY axes from coverage (e.g: 3D x,y,t then axes is x,y)
-     * @return
-     */
-    public List<Axis> getXYAxes() {
-        List<Axis> axisList = new ArrayList<Axis>();
-        for (Axis axis : this.axes) {
-            if (CrsDefinition.getAxisTypeByName(axis.getLabel()).equals(AxisTypes.X_AXIS)
-                    || CrsDefinition.getAxisTypeByName(axis.getLabel()).equals(AxisTypes.Y_AXIS)) {
-                axisList.add(axis);
-            }
-        }
-        return axisList;
     }
     
     /**
-     * Get the geo-reference CRS which is used for X, Y axes only
+     * To support WMS the axis order is needed to swap correctly in the bounding box
      * @return 
+     */
+    public boolean isXYOrder() {        
+        // e.g: 4326 in WMS is YX order (Lat, Long)        
+        int xGridOrder = -1;
+        int yGridOrder = -1;
+        int i = 0;
+        for (Axis axis : this.axes) {
+            if (axis.getAxisType().equals(AxisTypes.X_AXIS)) {
+                xGridOrder = i;
+            } else if (axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
+                yGridOrder = i;
+            }     
+            i++;
+        }        
+        
+        if (xGridOrder < yGridOrder) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Return the XY axes from coverage (e.g: 3D x,y,t then axes are x,y) by
+     * grid axis order (NOTE: not by CRS order (so EPSG:4326 returns Long (X), Lat (Y)).
+     *
+     * @return
+     */
+    public List<Axis> getXYAxes() {
+        Map<Integer, Axis> map = new HashMap<>();
+        for (Axis axis : this.axes) {
+            // NOTE: the order must be XY if the coverage has X-Y axes, or only X or only Y when the coverage has CRS combination (e.g: Lat and Time axes)
+            if (axis.getAxisType().equals(AxisTypes.X_AXIS)) {
+                map.put(0, axis);
+            } else if (axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
+                map.put(1, axis);
+            }
+        }
+
+        return new ArrayList<>(map.values());
+    }
+
+    /**
+     * Get the geo-reference CRS which is used for X, Y axes only
+     *
+     * @return
      */
     public String getXYCrs() {
         // NOTE: cannot combine CRS from 1 axis with geo-referenced CRS and 1 axis is time (or IndexND)
         // so if coverage returns with 1 axis is Lat and 1 axis is AnsiDate so the CRS for the coverage will be Index2D
-        if (this.getXYAxes().size() < 2) {            
+        if (this.getXYAxes().size() < 2) {
             return CrsUtil.INDEX_CRS_PREFIX;
         }
-        
+
         // X, Y axes have same CRS
-        return this.getXYAxes().get(0).getCrsUri();
+        return this.getXYAxes().get(0).getNativeCrsUri();
     }
 
     /**
      * Get nodata values from Range fields to be consistent
-     * @return 
+     *
+     * @return
      */
     public List<NilValue> getNodata() {
-        List<NilValue> nodataValues = new ArrayList<NilValue>();
-        for (RangeField rangeField: this.rangeFields) {
+        List<NilValue> nodataValues = new ArrayList<>();
+        for (RangeField rangeField : this.rangeFields) {
             // NOTE: current only support 1 range with 1 no data value
             if (rangeField.getNodata().size() > 0) {
                 nodataValues.add(rangeField.getNodata().get(0));
-            }            
+            }
         }
         return nodataValues;
     }
@@ -171,4 +241,11 @@ public class WcpsCoverageMetadata {
         this.coverageType = coverageType;
     }
 
+    public List<NilValue> getNilValues() {
+        return nilValues;
+    }
+
+    public void setNilValues(List<NilValue> nilValues) {
+        this.nilValues = nilValues;
+    }
 }

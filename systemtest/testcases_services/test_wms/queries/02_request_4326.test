@@ -6,4 +6,5 @@ bbox=-44.525,111.976,-8.978,156.274&
 crs=EPSG:4326&
 width=600&
 height=600&
+Styles=&
 format=image/png

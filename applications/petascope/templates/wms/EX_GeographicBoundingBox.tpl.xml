@@ -1,6 +1,0 @@
-<EX_GeographicBoundingBox>
-    <westBoundLongitude>$westBoundLongitude$</westBoundLongitude>
-    <eastBoundLongitude>$eastBoundLongitude$</eastBoundLongitude>
-    <southBoundLatitude>$southBoundLatitude$</southBoundLatitude>
-    <northBoundLatitude>$northBoundLatitude$</northBoundLatitude>
-</EX_GeographicBoundingBox>

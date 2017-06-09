@@ -1,0 +1,24 @@
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="%PetascopeURL%"/>
+						</Get>
+						<Post>
+							<OnlineResource xlink:type="simple" xlink:href="%PetascopeURL%"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</GetCapabilities>
+		 %GetMapElement%	
+		</Request>
+		%ExceptionElement%
+		<Layer>
+			<Title>Rasdaman Web Map Service</Title>
+			<Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
+		  %LayerElements%	
+		</Layer>
+	</Capability>

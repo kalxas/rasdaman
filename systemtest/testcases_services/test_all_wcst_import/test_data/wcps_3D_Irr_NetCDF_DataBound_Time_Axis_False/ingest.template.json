@@ -11,7 +11,7 @@
     "mock": false
   },
   "input": {
-    "coverage_id": "test_netcdf_irr_1",
+    "coverage_id": "test_meris_lai_3d_data_bound_time_axis_false",
     "paths": [
       "*.nc"
     ]
@@ -53,13 +53,13 @@
               "min": "${netcdf:variable:lon:min}",
               "max": "${netcdf:variable:lon:max}",
               "gridOrder": 2,
-              "resolution": "0.00277777"
+              "resolution": "0.0027777771603223114"
             },
             "Lat": {
               "min": "${netcdf:variable:lat:min}",
               "max": "${netcdf:variable:lat:max}",
               "gridOrder": 1,
-              "resolution": "-0.00277777"
+              "resolution": "-0.0027777771603223114"
             }
           }
         }

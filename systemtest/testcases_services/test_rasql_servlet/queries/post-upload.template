@@ -22,7 +22,7 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 
 # example to send a POST request with file and query
-# curl -i -F 'image=@mr_1.png' "http://localhost:8080/rasdaman/rasql?username=rasadmin&password=rasadmin&query=insert%20into%20mr%20values%20decode(%241)"
+# curl -i -F 'file=@mr_1.png' "http://localhost:8080/rasdaman/rasql?username=rasadmin&password=rasadmin&query=insert%20into%20mr%20values%20decode(%241)"
 
 PROG=$( basename $0 )
 

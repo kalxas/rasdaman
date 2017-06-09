@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="WcsError">
+        <ows:ExceptionText>CrsTransform requires 2D XY geo-referenced axes, received: 1 axis.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

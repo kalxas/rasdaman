@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -27,46 +27,47 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
-import petascope.wcps2.error.managed.processing.IdenticalAxisNameInCrsTransformException;
-import petascope.wcps2.error.managed.processing.InvalidOutputCrsProjectionInCrsTransformException;
-import petascope.wcps2.error.managed.processing.NotGeoReferenceAxisNameInCrsTransformException;
-import petascope.wcps2.error.managed.processing.NotIdenticalCrsInCrsTransformException;
+import petascope.wcps2.exception.processing.IdenticalAxisNameInCrsTransformException;
+import petascope.wcps2.exception.processing.InvalidDimensionInBoundingBoxException;
+import petascope.wcps2.exception.processing.InvalidOutputCrsProjectionInCrsTransformException;
+import petascope.wcps2.exception.processing.Not2DXYGeoreferencedAxesCrsTransformException;
+import petascope.wcps2.exception.processing.NotGeoReferenceAxisNameInCrsTransformException;
+import petascope.wcps2.exception.processing.NotIdenticalCrsInCrsTransformException;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.NumericTrimming;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Class to handle an crsTransform coverage expression
- * <code>
+ * Class to handle an crsTransform coverage expression  <code>
  * encode(
  *      crsTransform($c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"),
  *                       {b1("near", "1,2,3")},
  * "tiff", "NODATA=0")
- * </code>
- * returns a Rasql query
- * <code>
+ * </code> returns a Rasql query  <code>
  * encode(project(c, {20,30,40,50}, "EPSG:3857, EPSG:4326"),
  *        "xmin=1000,ymin=15000,xmax=2000,ymax=25000", "tiff", "NODATA=0")
  * </code>
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@Service
 public class CrsTransformHandler {
 
     /**
      * Constructor for the class
      *
      * @param coverageExpression the coverage expression that is encoded
-     * @param axisCrss List of 2 coverage's axes and their CRS (e.g: http://opengis.net/def/crs/epsg/0/4326)
-     * @param rangeInterpolations List of ranges and their interpolation type (e.g: near, bilinear, average,..) and null values (e.g: "1,2,3")
+     * @param axisCrss List of 2 coverage's axes and their CRS (e.g:
+     * http://opengis.net/def/crs/epsg/0/4326)
+     * @param rangeInterpolations List of ranges and their interpolation type
+     * (e.g: near, bilinear, average,..) and null values (e.g: "1,2,3")
      * @param wcpsCoverageMetadataService
      * @return
      */
-    public static WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, HashMap<String,
-                                    HashMap<String, String>> rangeInterpolations, WcpsCoverageMetadataService wcpsCoverageMetadataService) {
+    public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, HashMap<String, HashMap<String, String>> rangeInterpolations) {
         checkValid(axisCrss);
         String rasql = getBoundingBox(coverageExpression, axisCrss);
 
@@ -79,10 +80,10 @@ public class CrsTransformHandler {
     /**
      * Check if crsTrasnformExpression is valid
      */
-    private static void checkValid(HashMap<String, String> axisCrss) {
+    private void checkValid(HashMap<String, String> axisCrss) {
 
         Set<String> keys = axisCrss.keySet();
-        String[] axisNameArray =  keys.toArray(new String[keys.size()]);
+        String[] axisNameArray = keys.toArray(new String[keys.size()]);
         String[] crsArray = Arrays.copyOf(axisCrss.values().toArray(), axisCrss.values().toArray().length, String[].class);
 
         // 1. axisName should be different (not as {Long:CRS_A, Long:CRS_B})
@@ -117,7 +118,7 @@ public class CrsTransformHandler {
         }
     }
 
-    public static String getBoundingBox(WcpsResult coverageExpression, HashMap<String, String> axisCrss) {
+    public String getBoundingBox(WcpsResult coverageExpression, HashMap<String, String> axisCrss) {
         String outputStr = "";
 
         // Get the calculated coverage in grid axis with Rasql
@@ -129,14 +130,13 @@ public class CrsTransformHandler {
 
         // NOTE: only trimming subset is used to set bounding box and axisList need to have 2 axes (X,Y)
         // It can support 3D netCdf, so need to handle this in EncodedCoverageHandler as well
-        /*if (axisList.size() != 2) {
-            throw new InvalidDimensionInBoundingBoxException(String.valueOf(axisList.size()));
-        }*/
-
-        String xMin = String.valueOf(((NumericTrimming)axisList.get(0).getGeoBounds()).getLowerLimit().toPlainString());
-        String xMax = String.valueOf(((NumericTrimming)axisList.get(0).getGeoBounds()).getUpperLimit().toPlainString());
-        String yMin = String.valueOf(((NumericTrimming)axisList.get(1).getGeoBounds()).getLowerLimit().toPlainString());
-        String yMax = String.valueOf(((NumericTrimming)axisList.get(1).getGeoBounds()).getUpperLimit().toPlainString());
+        if (axisList.size() < 2) {
+            throw new Not2DXYGeoreferencedAxesCrsTransformException(axisList.size());
+        }
+        String xMin = String.valueOf(((NumericTrimming) axisList.get(0).getGeoBounds()).getLowerLimit().toPlainString());
+        String xMax = String.valueOf(((NumericTrimming) axisList.get(0).getGeoBounds()).getUpperLimit().toPlainString());
+        String yMin = String.valueOf(((NumericTrimming) axisList.get(1).getGeoBounds()).getLowerLimit().toPlainString());
+        String yMax = String.valueOf(((NumericTrimming) axisList.get(1).getGeoBounds()).getUpperLimit().toPlainString());
 
         // Handle bounding_box to project
         String bbox = xMin + "," + yMin + "," + xMax + "," + yMax;
@@ -145,19 +145,19 @@ public class CrsTransformHandler {
         // (NOTE: sourceCrs can be compoundCrs, e.g: irr_cube_2) then need to get the crsUri from axis not from coverage metadata
         String axisName = axisCrss.keySet().iterator().next();
         Axis axis = covMetadata.getAxisByName(axisName);
-        String covCRS = axis.getCrsUri();
+        String covCRS = axis.getNativeCrsUri();
         String outputCrs = axisCrss.values().toArray()[0].toString();
         String sourceCRS = CrsUtil.CrsUri.getAuthorityCode(covCRS);
         String targetCRS = CrsUtil.CrsUri.getAuthorityCode(outputCrs);
 
         outputStr = TEMPLATE.replace("$COVERAGE_EXPRESSION", covRasql).replace("$BOUNDING_BOX", bbox)
-                    .replace("$SOURCE_CRS", sourceCRS).replace("$TARGET_CRS", targetCRS);
+                .replace("$SOURCE_CRS", sourceCRS).replace("$TARGET_CRS", targetCRS);
 
         return outputStr;
     }
 
     // e.g Rasql query: select encode(project( c[0,-10:10,51:71], "20.0,40.0,30.0,50.0", "EPSG:4326", "EPSG:32633" ),
     // "GTiff", "xmin=20000.0;xmax=300000.0;ymin=400000.0;ymax=500000.0;crs=EPSG:32633") from eobstest AS c where oid(c)=1537
-    private final static String TEMPLATE = "project( $COVERAGE_EXPRESSION, \"$BOUNDING_BOX\", \"$SOURCE_CRS\", \"$TARGET_CRS\" )";
+    private final String TEMPLATE = "project( $COVERAGE_EXPRESSION, \"$BOUNDING_BOX\", \"$SOURCE_CRS\", \"$TARGET_CRS\" )";
 
 }

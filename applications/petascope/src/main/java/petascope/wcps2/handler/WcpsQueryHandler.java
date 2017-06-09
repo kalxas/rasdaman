@@ -21,17 +21,13 @@
  */
 package petascope.wcps2.handler;
 
-import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation node from wcps to rasql.
- * Example:
- * <code>
+ * Translation node from wcps to rasql. Example:  <code>
  * for $c1 in cov1 for $c2 in cov 2 return encode($c1 + $c2, "csv")
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * SELECT csv(c1 + c2) FROM cov1 as c1, cov2 as c2
  * </code>
  *
@@ -39,11 +35,12 @@ import petascope.wcps2.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Service
 public class WcpsQueryHandler {
 
-    public static WcpsResult handle(WcpsResult forClauseList, WcpsResult whereClause, WcpsResult returnClause) {
+    public WcpsResult handle(WcpsResult forClauseList, WcpsResult whereClause, WcpsResult returnClause) {
         //SELECT c1+c2
-        String  rasql = returnClause.getRasql();
+        String rasql = returnClause.getRasql();
 
         //FROM cov1 as c1, cov2 as c2
         rasql = rasql.concat(forClauseList.getRasql());

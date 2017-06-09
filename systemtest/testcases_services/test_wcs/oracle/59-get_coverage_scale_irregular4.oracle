@@ -1,79 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-    xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:gml='http://www.opengis.net/gml/3.2'
-    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
-    id="test_irr_cube_2">
-
-  <boundedBy>
-    <Envelope srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
-      <lowerCorner>75042.7273594 5094865.55794</lowerCorner>
-      <upperCorner>105042.7273594 5124865.55794</upperCorner>
-    </Envelope>
-  </boundedBy>
-
-  <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="2" id="test_irr_cube_2-grid"
-        
-        >
-      <limits>
-        <GridEnvelope>
-          <low>0 33</low>
-          <high>0 35</high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels>E N</axisLabels>
-      <gmlrgrid:origin>
-        <Point id="test_irr_cube_2-origin" srsName="/crs/EPSG/0/32633">
-          <pos>80042.7273594 5119865.55794</pos>
-        </Point>
-      </gmlrgrid:origin>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">10000 0</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients></gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">0 -10000</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients></gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-    </gmlrgrid:ReferenceableGridByVectors>
-
-  </domainSet>
-
-  <rangeSet>
-    <DataBlock>
-      <rangeParameters/>
-      <tupleList ts="," cs=" ">9.55874 4.17515,9.63844 4.17907,9.69735 4.18183</tupleList>
-    </DataBlock>
-  </rangeSet>
-
-  <coverageFunction>
-    <GridFunction>
-      <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-      <startPoint>0 33</startPoint>
-    </GridFunction>
-  </coverageFunction>
-
-  <gmlcov:rangeType>
-    <swe:DataRecord>
-    <swe:field name="b1">
-      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>    <swe:field name="b2">
-      <swe:Quantity ><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>
-    </swe:DataRecord>
-  </gmlcov:rangeType>
-  <gmlcov:metadata><gmlcov:Extension></gmlcov:Extension></gmlcov:metadata>
-</gmlcov:ReferenceableGridCoverage>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="WcpsError">
+        <ows:ExceptionText>Scaling value for axis: E must be > 0, given: 0.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

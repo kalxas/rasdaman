@@ -23,7 +23,7 @@ package petascope.wcps2.metadata.service;
 
 import java.util.List;
 import petascope.core.CrsDefinition;
-import petascope.util.AxisTypes;
+import petascope.core.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
@@ -45,7 +45,7 @@ public class CrsUtility {
      */
     public static String getAxisType(Axis axis) {
         String axisName = axis.getLabel();
-        String crsUri = axis.getCrsUri();
+        String crsUri = axis.getNativeCrsUri();
 
         String axisType = "";
 
@@ -114,7 +114,7 @@ public class CrsUtility {
 
         // native axis
         Axis nativeAxis = wcpsCoverageMetadata.getAxisByName(axisName);
-        String nativeAxisCrs = nativeAxis.getCrsUri();
+        String nativeAxisCrs = nativeAxis.getNativeCrsUri();
         String nativeCrsCode = CrsUri.getCode(nativeAxisCrs);
 
         // if same as: epsg:4326, epsg:4326 then it is identical

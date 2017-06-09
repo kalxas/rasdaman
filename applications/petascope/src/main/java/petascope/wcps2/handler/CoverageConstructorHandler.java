@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -22,28 +22,27 @@
 package petascope.wcps2.handler;
 
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.RasqlTranslationService;
-import petascope.wcps2.metadata.service.SubsetParsingService;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
 import petascope.wcps2.result.WcpsResult;
-import petascope.wcps2.result.parameters.AxisIterator;
-import petascope.wcps2.result.parameters.SubsetDimension;
+import petascope.wcps2.subset_axis.model.AxisIterator;
+import petascope.wcps2.subset_axis.model.WcpsSubsetDimension;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.Subset;
 import petascope.wcps2.metadata.service.AxisIteratorAliasRegistry;
+import petascope.wcps2.metadata.service.RasqlTranslationService;
+import petascope.wcps2.metadata.service.SubsetParsingService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataGeneralService;
 
 /**
- * Translation node from wcps coverage list to rasql for the coverage constructor
- * Example:
- * <code>
+ * Translation node from wcps coverage list to rasql for the coverage
+ * constructor Example:  <code>
  * COVERAGE myCoverage
  * OVER x x(0:100)
  * VALUES 200
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * MARRAY x in [0:100]
  * VALUES 200
  * </code>
@@ -51,30 +50,37 @@ import petascope.wcps2.metadata.service.AxisIteratorAliasRegistry;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class CoverageConstructorHandler {
 
-    public static WcpsResult handle(String coverageName, List<AxisIterator> axisIterators, WcpsResult values,
-                                    AxisIteratorAliasRegistry axisIteratorAliasRegistry,
-                                    WcpsCoverageMetadataService wcpsCoverageMetadataService,
-                                    RasqlTranslationService rasqlTranslationService, SubsetParsingService subsetParsingService) {
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    @Autowired
+    private SubsetParsingService subsetParsingService;
+    @Autowired
+    private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+
+    public WcpsResult handle(String coverageName, List<AxisIterator> axisIterators, WcpsResult values) {
 
         // contains subset dimension without "$"
-        List<SubsetDimension> pureSubsetDimensions = new ArrayList<SubsetDimension>();
+        List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
         // contains subset dimension with "$"
-        List<SubsetDimension> axisIteratorSubsetDimensions = new ArrayList<SubsetDimension>();
+        List<WcpsSubsetDimension> axisIteratorSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
 
         // All of the axis iterators uses the same rasql alias name (e.g: px)
         String rasqlAliasName = "";
 
         for (AxisIterator i : axisIterators) {
             String alias = i.getAliasName();
-            SubsetDimension subsetDimension = i.getSubsetDimension();
+            WcpsSubsetDimension subsetDimension = i.getSubsetDimension();
 
             if (rasqlAliasName.isEmpty()) {
-                rasqlAliasName = alias.replace(SubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
+                rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
-            if (i.getSubsetDimension().getStringRepresentation().contains(SubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
+            if (i.getSubsetDimension().getStringRepresentation().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
                 axisIteratorSubsetDimensions.add(subsetDimension);
             } else {
                 pureSubsetDimensions.add(subsetDimension);
@@ -84,12 +90,12 @@ public class CoverageConstructorHandler {
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, numericSubsets);
 
-        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getAxes(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
         String template = TEMPLATE.replace("$iter", rasqlAliasName)
-                          .replace("$intervals", rasqlDomain)
-                          .replace("$values", values.getRasql());
+                .replace("$intervals", rasqlDomain)
+                .replace("$values", values.getRasql());
         return new WcpsResult(metadata, template);
     }
 
-    private static final String TEMPLATE = "MARRAY $iter in [$intervals] VALUES $values";
+    private final String TEMPLATE = "MARRAY $iter in [$intervals] VALUES $values";
 }

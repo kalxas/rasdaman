@@ -343,7 +343,7 @@ decodeCoverageExpression: DECODE LEFT_PARENTHESIS
  */
 coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionLogicLabel
-		              | coverageConstructorExpression
+		          | coverageConstructorExpression
                     #CoverageExpressionConstructorLabel
                   | coverageExpression coverageArithmeticOperator coverageExpression
                     #CoverageExpressionArithmeticLabel
@@ -381,7 +381,7 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionTrigonometricLabel
                   | exponentialExpression
                     #CoverageExpressionExponentialLabel
-		              | unaryPowerExpression
+		          | unaryPowerExpression
                     #CoverageExpressionPowerLabel
                   | unaryBooleanExpression
                     #CoverageExpressionUnaryBooleanLabel
@@ -393,22 +393,36 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionRangeConstructorLabel
                   | crsTransformExpression
                     #CoverageExpressionCrsTransformLabel
-		              | switchCaseExpression
+		          | switchCaseExpression
                     #CoverageExpressionSwitchCaseLabel
-		              | domainIntervals
+		          | domainIntervals
                     #CoverageExpressionDomainIntervalsLabel
                   | SCALE LEFT_PARENTHESIS
-                    coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE (COMMA fieldInterpolationList)*
+                        coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE (COMMA fieldInterpolationList)*
                     RIGHT_PARENTHESIS
-                    #CoverageExpressionScaleLabel
-		              | SCALE LEFT_PARENTHESIS
+                    #CoverageExpressionScaleByDimensionIntervalsLabel
+		          | SCALE LEFT_PARENTHESIS
 		                coverageExpression COMMA LEFT_BRACE domainIntervals RIGHT_BRACE
                     RIGHT_PARENTHESIS
-                    #CoverageExpressionScaleByDomainIntervalsLabel
+                    #CoverageExpressionScaleByImageCrsDomainLabel
                   | LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS
-                    #CoverageExpressionCoverageLabel;
-
-
+                    #CoverageExpressionCoverageLabel
+                  | SCALE_FACTOR LEFT_PARENTHESIS
+                        coverageExpression COMMA number
+                    RIGHT_PARENTHESIS
+                    #CoverageExpressionScaleByFactorLabel
+                  | SCALE_AXES LEFT_PARENTHESIS
+                        coverageExpression COMMA LEFT_BRACKET scaleDimensionIntervalList RIGHT_BRACKET
+                    RIGHT_PARENTHESIS
+                    #CoverageExpressionScaleByAxesLabel
+                  | SCALE_SIZE LEFT_PARENTHESIS
+                        coverageExpression COMMA LEFT_BRACKET scaleDimensionIntervalList RIGHT_BRACKET
+                    RIGHT_PARENTHESIS
+                    #CoverageExpressionScaleBySizeLabel
+                  | SCALE_EXTENT LEFT_PARENTHESIS
+                        coverageExpression COMMA LEFT_BRACKET scaleDimensionIntervalList RIGHT_BRACKET
+                    RIGHT_PARENTHESIS
+                    #CoverageExpressionScaleByExtentLabel;
 /**
  * Example:
  *   $c1 AND $c2
@@ -560,6 +574,33 @@ dimensionPointElement: axisName (COLON crsName)? LEFT_PARENTHESIS coverageExpres
 dimensionIntervalList: dimensionIntervalElement (COMMA dimensionIntervalElement)*
 #DimensionIntervalListLabel;
 
+/*
+ Used by WCS scaling extension, e.g: GetCoverage&coverageId=test_mr&scaleaxes=i(0.5),j(0.5)
+ then the grid pixels of i and j axes are: number / 0.5
+ WCPS: scale(c, [i(0.5), j(0.5)])
+*/
+scaleDimensionIntervalList: scaleDimensionIntervalElement (COMMA scaleDimensionIntervalElement)* 
+#ScaleDimensionIntervalListLabel;  
+
+/*
+e.g: i(20:30)
+which means scale to the grid interval 20:30
+used only for scaleextent
+*/
+scaleDimensionIntervalElement: axisName LEFT_PARENTHESIS
+                            number COLON number
+                          RIGHT_PARENTHESIS                                                                             #TrimScaleDimensionIntervalElementLabel
+/*
+e.g: i(0.5)
+used for scaleaxes, scalesize
+*/
+                        | axisName LEFT_PARENTHESIS number
+                          RIGHT_PARENTHESIS                                                                             #SliceScaleDimensionIntervalElementLabel;
+                          
+                          
+/*
+Use for trimming, slicing of coverage (e.g: Lat:"CRS:1"(0:20))
+*/
 dimensionIntervalElement: axisName (COLON crsName)? LEFT_PARENTHESIS
                             coverageExpression COLON coverageExpression
                           RIGHT_PARENTHESIS                                                                             #TrimDimensionIntervalElementLabel

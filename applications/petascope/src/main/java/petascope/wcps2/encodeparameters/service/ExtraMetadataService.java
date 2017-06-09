@@ -14,34 +14,42 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
-*/
+ */
 package petascope.wcps2.encodeparameters.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+//import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import petascope.util.XMLUtil;
 
 /**
  *
  * Build extra metadata as Map<String, String>
+ *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Service
 public class ExtraMetadataService {
 
     public ExtraMetadataService() {
+        
     }
 
     /**
-     * Convert extra metadata of coverage from String to Map<String, String> to encode
+     * Convert extra metadata of coverage from String to Map<String, String> to
+     * encode
+     *
      * @param extraMetadata
-     * @return 
+     * @return
      */
     public Map<String, String> convertExtraMetadata(String extraMetadata) {
         XmlMapper xmlMapper = new XmlMapper();
@@ -59,20 +67,23 @@ public class ExtraMetadataService {
                 convertedMetadata = xmlMapper.readValue(OUTER_TAG_START + extraMetadata + OUTER_TAG_END, Map.class);
             } else if (extraMetadata.startsWith("{")) {
                 //json
-                convertedMetadata = objectMapper.readValue(extraMetadata, new TypeReference<Map<String, String>>() {});
+                convertedMetadata = objectMapper.readValue(extraMetadata, new TypeReference<Map<String, String>>() {
+                });
             }
         } catch (IOException e) {
             //failed, just give it as string
-            convertedMetadata = new HashMap<String, String>();
+            convertedMetadata = new HashMap<>();
             convertedMetadata.put(METADATA_STRING_KEY, extraMetadata);
         }
         return convertedMetadata;
     }
-    
+
     /**
-     * remove the slices and the gmlcov:metadata closing tag if it exists from extraMetadata
+     * remove the slices and the gmlcov:metadata closing tag if it exists from
+     * extraMetadata
+     *
      * @param extraMetadata
-     * @return 
+     * @return
      */
     private String removeMetadataSlices(String extraMetadata) {
         String result = "";
@@ -108,7 +119,7 @@ public class ExtraMetadataService {
         }
         return result;
     }
-        
+
     private final static String OUTER_TAG_START = "<metadata>";
     private final static String OUTER_TAG_END = "</metadata>";
     private final static String METADATA_STRING_KEY = "metadata";

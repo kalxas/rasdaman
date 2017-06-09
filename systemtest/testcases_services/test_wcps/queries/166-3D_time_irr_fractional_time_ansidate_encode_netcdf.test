@@ -1,1 +1,1 @@
-for c in (test_netcdf_irr_1) return encode(c[Lat(49.9972225652), Long(-89.999988885)], "netcdf")
+for c in (test_meris_lai_3d_data_bound_time_axis_false) return encode(c[Lat(49.9972225652), Long(-89.999988885)], "netcdf")

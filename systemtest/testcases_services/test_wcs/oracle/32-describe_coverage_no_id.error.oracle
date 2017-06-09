@@ -3,8 +3,6 @@
     
       >
     <ows:Exception exceptionCode="InvalidRequest">
-        <ows:ExceptionText>A DescribeCoverage request must specify at least one coverageid.</ows:ExceptionText>
+        <ows:ExceptionText>A DescribeCoverage request must specify at least one coverageId.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

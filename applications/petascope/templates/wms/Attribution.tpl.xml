@@ -1,8 +1,0 @@
-<Attribution>
-    <Title>$title$</Title>
-    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="$onlineResourceHelp$"/>
-    <LogoURL width="$logoWidth$" height="$logoHeight$">
-        <Format>$logoFormat$</Format>
-        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="$logoOnlineResource$"/>
-    </LogoURL>
-</Attribution>

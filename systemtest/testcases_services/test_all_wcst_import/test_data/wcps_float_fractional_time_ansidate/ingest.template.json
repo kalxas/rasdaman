@@ -1,8 +1,8 @@
 {
   "config": {
-    "service_url": "http://localhost:8080/rasdaman/ows",
+    "service_url": "   PETASCOPE_URL",
     "tmp_directory": "/tmp/",
-    "crs_resolver": "http://localhost:8080/def/",
+    "crs_resolver": "    SECORE_URL/",
     "default_crs": "http://localhost:8080/def/OGC/0/Index2D",
     "automated": true,
     "track_files": false,
@@ -20,7 +20,7 @@
     "name": "general_coverage",
     "options": {
       "coverage": {
-        "crs": "OGC/0/UnixTime@EPSG/0/4326",
+        "crs": "OGC/0/AnsiDate@EPSG/0/4326",
         "metadata": {
           "type": "xml",
           "global": {
@@ -39,7 +39,7 @@
             }
           ],
           "axes": {
-            "unix": {
+            "ansi": {
               "min": "regex_extract('${file:name}', '(.*)_\\[(.+?)\\]\\.(.*)', 2)",
               "gridOrder": 0,
               "irregular": true,

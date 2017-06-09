@@ -1,3 +1,0 @@
-<Dimension name="$dimensionName$" units="$units$" unitSymbol="$symbol$"
-           default="$defaultValue$" multipleValues="$multipleValues$" nearestValue="$nearestValue$"
-           current="$current$">$extent$</Dimension>

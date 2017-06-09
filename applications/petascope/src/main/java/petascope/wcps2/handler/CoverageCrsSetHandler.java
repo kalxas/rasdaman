@@ -24,6 +24,7 @@ package petascope.wcps2.handler;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 import petascope.util.CrsUtil;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.result.WcpsMetadataResult;
@@ -33,13 +34,11 @@ import petascope.wcps2.result.WcpsResult;
  * Translator class for CrsSet of the coverage (e.g list all coverage's axis CRS
  * from crsSet($c))
  *
- * for c in (mr), d in (rgb) return crsSet(c)
- * return:
+ * for c in (mr), d in (rgb) return crsSet(c) return:
  * i:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1,
  * j:http://localhost:8080/def/crs/OGC/0/Index2D CRS:1
  *
- * for c in (mean_summer_airtemp) return crsSet(c)
- * return:
+ * for c in (mean_summer_airtemp) return crsSet(c) return:
  *
  * Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,
  * Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1
@@ -47,15 +46,16 @@ import petascope.wcps2.result.WcpsResult;
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@Service
 public class CoverageCrsSetHandler {
 
-    public static WcpsMetadataResult handle(WcpsResult coverageExpression) {
+    public WcpsMetadataResult handle(WcpsResult coverageExpression) {
         String result = "";
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         String tmp = "";
         for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             // nativeCrs (e.g: mr: Index2D, mean_summer_airtemp: EPSG:4326)
-            tmp = axis.getLabel() + ":" + axis.getCrsUri();
+            tmp = axis.getLabel() + ":" + axis.getNativeCrsUri();
             // gridCrs (CRS:1)
             tmp = tmp + " " + CrsUtil.GRID_CRS;
 

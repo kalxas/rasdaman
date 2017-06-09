@@ -1,114 +1,96 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<WMS_Capabilities xmlns="http://www.opengis.net/wms"   version="1.3.0" updateSequence="2" >
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities updateSequence="3" version="1.3.0"
+    xmlns="http://www.opengis.net/wms"
+    
+     >
     <Service>
-    <Name>WMS</Name>
-    <Title>rasdaman</Title>
-    <Abstract>rasdaman server - free download from www.rasdaman.org</Abstract>
-    <KeywordList>
-        
-    </KeywordList>
-    <ContactInformation>
-    <ContactPersonPrimary>
-        <ContactPerson>Prof. Dr. Peter Baumann</ContactPerson>
-        <ContactOrganization>Jacobs University Bremen</ContactOrganization>
-    </ContactPersonPrimary>
-    <ContactPosition>Project Leader</ContactPosition>
-    <ContactAddress>
-        <AddressType>postal</AddressType>
-        <Address>Campus Ring 1</Address>
-        <City>Bremen</City>
-        <StateOrProvince>Bremen</StateOrProvince>
-        <PostCode>28759</PostCode>
-        <Country>Germany</Country>
-    </ContactAddress>
-    <ContactVoiceTelephone>+49 421 20040</ContactVoiceTelephone>
-    <ContactFacsimileTelephone>none</ContactFacsimileTelephone>
-    <ContactElectronicMailAddress>p.baumann@jacobs-university.de</ContactElectronicMailAddress>
-</ContactInformation>
-    <Fees></Fees>
-    <AccessConstraints></AccessConstraints>
-</Service>
+        <Name>WMS</Name>
+        <Title>rasdaman</Title>
+        <Abstract>rasdaman server - free download from www.rasdaman.org</Abstract>
+        <ContactInformation>
+            <ContactPersonPrimary>
+                <ContactPerson>Prof. Dr. Peter Baumann</ContactPerson>
+                <ContactOrganization>Jacobs University Bremen</ContactOrganization>
+            </ContactPersonPrimary>
+            <ContactPosition>Project Leader</ContactPosition>
+            <ContactAddress>
+                <AddessType>postal</AddessType>
+                <Address>Campus Ring 1</Address>
+                <City>Bremen</City>
+                <StateOrProvince>Bremen</StateOrProvince>
+                <PostCode>28717</PostCode>
+                <Country>Germany</Country>
+            </ContactAddress>
+            <ContactVoiceTelephone>+49 421 20040</ContactVoiceTelephone>
+            <ContactElectronicMailAddress>p.baumann@jacobs-university.de</ContactElectronicMailAddress>
+        </ContactInformation>
+    </Service>
     <Capability>
         <Request>
             <GetCapabilities>
                 <Format>text/xml</Format>
-
                 <DCPType>
                     <HTTP>
                         <Get>
+                            <OnlineResource
                         </Get>
+                        <Post>
+                            <OnlineResource
+                        </Post>
                     </HTTP>
                 </DCPType>
             </GetCapabilities>
             <GetMap>
+                <Format>image/jpeg</Format>
                 <Format>image/png</Format>
-<Format>image/jpeg</Format>
-<Format>image/tiff</Format>
-
+                <Format>image/tiff</Format>
                 <DCPType>
                     <HTTP>
                         <Get>
+                            <OnlineResource
                         </Get>
                     </HTTP>
                 </DCPType>
             </GetMap>
         </Request>
         <Exception>
-            <Format>application/vnd.ogc.se_inimage</Format>
-<Format>application/vnd.ogc.se_xml</Format>
-<Format>application/vnd.ogc.se_blank</Format>
-
+            <Format>XML</Format>
+            <Format>INIMAGE</Format>
+            <Format>BLANK</Format>
         </Exception>
         <Layer>
-              <Title>Rasdaman Web Map Service</Title>
-              <Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
-                <Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
-    <Name>test_wms_3857</Name>
-    <Title>test_wms_3857</Title>
-    <Abstract></Abstract>
-    <CRS>EPSG:3857</CRS>
-
-    <EX_GeographicBoundingBox>
-    <westBoundLongitude>111.9750000000664300614516832865774631500244140625</westBoundLongitude>
-    <eastBoundLongitude>156.30844882053662558973883278667926788330078125</eastBoundLongitude>
-    <southBoundLatitude>-44.61151132149205977839301340281963348388671875</southBoundLatitude>
-    <northBoundLatitude>-8.974999999971505104667812702246010303497314453125</northBoundLatitude>
-</EX_GeographicBoundingBox>
-    <BoundingBox CRS="EPSG:3857" minx="1.24649999815842E7" miny="-5560567.840963" maxx="1.74001769293886E7" maxy="-1003203.4824642"/>
-
-    <Style>
-    <Name>test_wms_3857</Name>
-    <Title>Default Raster Style</Title>
-    <Abstract>A default style that returns the layer exactly as it is stored</Abstract>
-</Style>
-
-    
-</Layer>
-
-<Layer queryable="0" cascaded="0" opaque="1" noSubsets="0" fixedWidth="0" fixedHeight="0">
-    <Name>test_wms_4326</Name>
-    <Title>test_wms_4326</Title>
-    <Abstract></Abstract>
-    <CRS>EPSG:4326</CRS>
-
-    <EX_GeographicBoundingBox>
-    <westBoundLongitude>111.975</westBoundLongitude>
-    <eastBoundLongitude>156.375</eastBoundLongitude>
-    <southBoundLatitude>-44.575</southBoundLatitude>
-    <northBoundLatitude>-8.975</northBoundLatitude>
-</EX_GeographicBoundingBox>
-    <BoundingBox CRS="EPSG:4326" minx="-44.575" miny="111.975" maxx="-8.975" maxy="156.375"/>
-
-    <Style>
-    <Name>test_wms_4326</Name>
-    <Title>Default Raster Style</Title>
-    <Abstract>A default style that returns the layer exactly as it is stored</Abstract>
-</Style>
-
-    
-</Layer>
-
-
+            <Title>Rasdaman Web Map Service</Title>
+            <Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_3857</Name>
+                <Title>test_wms_3857</Title>
+                <Abstract/>
+                <CRS>EPSG:3857</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>-44.61151132147286801910013309679925441741943359375</westBoundLongitude>
+                    <eastBoundLongitude>-8.975000000022962609591559157706797122955322265625</eastBoundLongitude>
+                    <southBoundLatitude>111.9750000002083112349282600916922092437744140625</southBoundLatitude>
+                    <northBoundLatitude>156.3084488206390005871071480214595794677734375</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:3857" maxx="17400176.9294"
+                    maxy="-1003203.48247" minx="12464999.9816" miny="-5560567.84096"/>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_4326</Name>
+                <Title>test_wms_4326</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>111.975</westBoundLongitude>
+                    <eastBoundLongitude>156.375</eastBoundLongitude>
+                    <southBoundLatitude>-44.575</southBoundLatitude>
+                    <northBoundLatitude>-8.975</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326" maxx="-8.975"
+                    maxy="156.375" minx="-44.575" miny="111.975"/>
+            </Layer>
         </Layer>
     </Capability>
 </WMS_Capabilities>

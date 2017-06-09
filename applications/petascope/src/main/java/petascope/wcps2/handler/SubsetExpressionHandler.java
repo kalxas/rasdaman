@@ -14,68 +14,77 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
-import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
+import petascope.wcps2.exception.processing.CoverageAxisNotFoundExeption;
+import petascope.wcps2.exception.processing.InvalidAxisNameException;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.Subset;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.metadata.service.AxisIteratorAliasRegistry;
 import petascope.wcps2.metadata.service.RasqlTranslationService;
 import petascope.wcps2.metadata.service.SubsetParsingService;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps2.result.WcpsResult;
-import petascope.wcps2.result.parameters.DimensionIntervalList;
-import petascope.wcps2.result.parameters.SubsetDimension;
+import petascope.wcps2.subset_axis.model.DimensionIntervalList;
+import petascope.wcps2.subset_axis.model.WcpsSubsetDimension;
 
 /**
- * Translation class for slice/trim expression in wcps.
- * <code>
+ * Translation class for slice/trim expression in wcps.  <code>
  * $c[x(0:10),y(0:100)]
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * c[0:10,0:100]
  * </code>
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class SubsetExpressionHandler {
 
-    public static WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList,
-                                    AxisIteratorAliasRegistry axisIteratorAliasRegistry,
-                                    WcpsCoverageMetadataService wcpsCoverageMetadataService,
-                                    RasqlTranslationService rasqlTranslationService, SubsetParsingService subsetParsingService) throws PetascopeException {
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    @Autowired
+    private SubsetParsingService subsetParsingService;
+    @Autowired
+    private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+
+    public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
 
         String rasql = coverageExpression.getRasql();
         String template = TEMPLATE.replace("$covExp", rasql);
 
-        WcpsCoverageMetadata metadata = coverageExpression.getMetadata();               
-        List<SubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
-        
+        WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
+        List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
+
         // Validate axis name before doing other processes.
         validateSubsets(metadata, subsetDimensions);
 
         //check in the list of subsets the ones that do not contain "$" and use only those
         // subset dimension without "$"
-        List<SubsetDimension> pureSubsetDimensions = subsetParsingService.getPureSubsetDimensions(subsetDimensions);
+        List<WcpsSubsetDimension> pureSubsetDimensions = subsetParsingService.getPureSubsetDimensions(subsetDimensions);
         // subset dimension with "$"
-        List<SubsetDimension> axisIteratorSubsetDimensions = subsetParsingService.getAxisIteratorSubsetDimensions(subsetDimensions);
+        List<WcpsSubsetDimension> axisIteratorSubsetDimensions = subsetParsingService.getAxisIteratorSubsetDimensions(subsetDimensions);
 
         // Only apply subsets if subset dimensions don't contain the "$"
         List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(pureSubsetDimensions, metadata, false);
 
         // Update the coverage expression metadata with the new subsets
-        wcpsCoverageMetadataService.applySubsets(true, metadata, numericSubsets);
+        wcpsCoverageMetadataService.applySubsets(true, metadata, numericSubsets);        
 
         //now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.
@@ -83,8 +92,8 @@ public class SubsetExpressionHandler {
 
         // NOTE: in case of coverage constant e.g: <[-1:1,-1:1],-1,0,1,....> it should not replace the interval inside the "< >"
         if (rasql.contains("<") || !rasql.contains("[")) {
-            String dimensions = rasqlTranslationService.constructRasqlDomain(metadata.getAxes(),
-                                axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+            String dimensions = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(),
+                                                        axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
             rasqlSubset = template.replace("$dimensionIntervalList", dimensions);
         } else {
             // update the interval of the existing expression in template string
@@ -97,7 +106,7 @@ public class SubsetExpressionHandler {
             Axis axis = metadata.getAxisByName(axisName);
             int axisOrder = axis.getRasdamanOrder();
 
-            String dimension = rasqlTranslationService.constructRasqlDomain(axis, axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+            String dimension = rasqlTranslationService.constructRasqlDomain(new ArrayList(Arrays.asList(axis)), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
             intervals[axisOrder] = dimension;
 
             // 0:5,0:100,89
@@ -119,28 +128,29 @@ public class SubsetExpressionHandler {
     }
 
     /**
-     * Validate axis name from subset
-     * e.g: c[LAT(12)] is not valid and throw exception
+     * Validate axis name from subset e.g: c[LAT(12)] is not valid and throw
+     * exception
+     *
      * @param subsetDimensions
      */
-    private static void validateSubsets(WcpsCoverageMetadata metadata, List<SubsetDimension> subsetDimensions) {
+    private void validateSubsets(WcpsCoverageMetadata metadata, List<WcpsSubsetDimension> subsetDimensions) {
         String axisName = null;
-        for (SubsetDimension subset:subsetDimensions) {
+        for (WcpsSubsetDimension subset : subsetDimensions) {
             axisName = subset.getAxisName();
             boolean isExist = false;
-            for (Axis axis : metadata.getAxes()) {           
+            for (Axis axis : metadata.getAxes()) {
                 if (axis.getLabel().equals(axisName)) {
                     isExist = true;
                     break;
                 }
             }
-            
+
             if (!isExist) {
                 // subset does not contains valid axis name
-                throw new InvalidAxisNameException(axisName);
+                throw new CoverageAxisNotFoundExeption(axisName);
             }
         }
     }
 
-    private final static String TEMPLATE = "$covExp[$dimensionIntervalList]";
+    private final String TEMPLATE = "$covExp[$dimensionIntervalList]";
 }

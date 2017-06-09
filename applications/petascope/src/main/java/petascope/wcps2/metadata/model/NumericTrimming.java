@@ -22,6 +22,7 @@
 package petascope.wcps2.metadata.model;
 
 import java.math.BigDecimal;
+import petascope.util.BigDecimalUtil;
 
 /**
  * Class for storing numerical trimming
@@ -33,8 +34,8 @@ public class NumericTrimming extends NumericSubset {
     private BigDecimal upperLimit;
 
     public NumericTrimming(BigDecimal lowerLimit, BigDecimal upperLimit) {
-        this.lowerLimit = lowerLimit;
-        this.upperLimit = upperLimit;
+        this.lowerLimit = BigDecimalUtil.stripDecimalZeros(lowerLimit);
+        this.upperLimit =  BigDecimalUtil.stripDecimalZeros(upperLimit);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class NumericTrimming extends NumericSubset {
     }
 
     public void setLowerLimit(BigDecimal lowerLimit) {
-        this.lowerLimit = lowerLimit;
+        this.lowerLimit =  BigDecimalUtil.stripDecimalZeros(lowerLimit);
     }
 
     @Override
@@ -64,7 +65,4 @@ public class NumericTrimming extends NumericSubset {
     public String getStringRepresentationInInteger() {
         return lowerLimit.toBigInteger().toString() + ":" + upperLimit.toBigInteger().toString();
     }
-
-
-
 }

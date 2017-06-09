@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -22,27 +22,28 @@
 package petascope.wcps2.handler;
 
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.service.CoverageAliasRegistry;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation node from wcps to rasql for the for clause.
- * Example:
- * <code>
+ * Translation node from wcps to rasql for the for clause. Example:  <code>
  * for $c1 in COL1
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * COL1 as c1
  * </code>
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class ForClauseHandler {
 
-    public static WcpsResult handle(String coverageIterator, List<String> coverageNames,
-                                    CoverageAliasRegistry coverageAliasRegistry) {
+    @Autowired
+    private CoverageAliasRegistry coverageAliasRegistry;
+
+    public WcpsResult handle(String coverageIterator, List<String> coverageNames) {
         //add the mapping in the coverageRegistry
         for (String coverageName : coverageNames) {
             coverageAliasRegistry.addCoverageMapping(coverageIterator, coverageName);
@@ -59,17 +60,17 @@ public class ForClauseHandler {
         if (coverageNames.size() > 1) {
             // Multipart query
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                       .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
+                    .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
         } else {
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                       .replace("$collectionName", coverageNames.get(0));
+                    .replace("$collectionName", coverageNames.get(0));
         }
         //metadata is loaded in the return clause, no meta needed here
         WcpsResult result = new WcpsResult(null, template);
         return result;
     }
 
-    private final static String TEMPLATE = "$collectionName AS $iterator";
-    private final static String COVERAGE_VARIABLE_PREFIX = "$";
-    public final static String COLLECTION_NAME = "$collectionName";
+    private static final String TEMPLATE = "$collectionName AS $iterator";
+    private static final String COVERAGE_VARIABLE_PREFIX = "$";
+    public static final String COLLECTION_NAME = "$collectionName";
 }

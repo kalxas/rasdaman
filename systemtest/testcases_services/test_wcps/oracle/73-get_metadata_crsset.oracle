@@ -1,1 +1,1 @@
-Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1
+Lat:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1,Long:http://localhost:8080/def/crs/EPSG/0/4326 CRS:1

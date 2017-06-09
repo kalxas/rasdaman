@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsResult;
 
 /**
@@ -28,22 +29,20 @@ import petascope.wcps2.result.WcpsResult;
  *
  * <code>
  *   (2,4)
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  *   complex(2,5)
  * </code>
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class ComplexNumberConstantHandler {
 
-
-    public static WcpsResult handle(String re, String im) {
+    public WcpsResult handle(String re, String im) {
         return new WcpsResult(null, TEMPLATE.replace("$re", re).replace("$im", im));
     }
 
-    private final static String TEMPLATE = "complex($re, $im)";
+    private final String TEMPLATE = "complex($re, $im)";
 
 }

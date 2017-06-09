@@ -7,4 +7,5 @@ crs=OGC:Index2D&
 width=60&
 height=60&
 format=image/png&
+Styles=&
 transparent=true

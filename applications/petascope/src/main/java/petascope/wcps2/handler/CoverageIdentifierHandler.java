@@ -21,24 +21,24 @@
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
 
 /**
  * Translator class for Identifier of the coverage (e.g coverage's name from
- * identifier($c))
- * <code>
+ * identifier($c))  <code>
  * for c in (mr), d in (rgb) return identifier(c)
- * </code>
- * <code>
+ * </code>  <code>
  * mr
  * </code>
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@Service
 public class CoverageIdentifierHandler {
 
-    public static WcpsMetadataResult handle(WcpsResult coverageExpression) {
+    public WcpsMetadataResult handle(WcpsResult coverageExpression) {
         return new WcpsMetadataResult(coverageExpression.getMetadata(), coverageExpression.getMetadata().getCoverageName());
     }
 

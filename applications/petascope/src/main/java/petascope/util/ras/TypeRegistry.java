@@ -21,23 +21,20 @@
  */
 package petascope.util.ras;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.ConfigManager;
-import petascope.exceptions.ExceptionCode;
+import org.rasdaman.config.ConfigManager;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.rasdaman.RasdamanException;
-import petascope.swe.datamodel.NilValue;
+import petascope.rasdaman.exceptions.RasdamanException;
 
 /**
  * Keeps track of the types that exist in the tracked rasdaman instance.
@@ -46,19 +43,20 @@ import petascope.swe.datamodel.NilValue;
  * @author <a href="vlad@flanche.net">Vlad Merticariu</a>
  */
 public class TypeRegistry {
-    private static TypeRegistry Instance = new TypeRegistry();
+    private static TypeRegistry instance;
 
     /**
      * Returns the instance to the singleton @link{TypeRegistry}
      *
      * @return
+     * @throws petascope.exceptions.PetascopeException
      */
     public static TypeRegistry getInstance() throws PetascopeException {
-        if (!initialized) {
-            Instance.initializeRegistry();
-            initialized = true;
+        if (instance == null) {
+            instance = new TypeRegistry();
+            instance.initializeRegistry();
         }
-        return Instance;
+        return instance;
     }
 
     private TypeRegistry() {
@@ -468,7 +466,6 @@ public class TypeRegistry {
     private final String RASDL_MARRAY_IDENTIFIER = "typedef marray";
     private final String RASDL_SET_IDENTIFIER = "typedef set";
     private final Logger log = LoggerFactory.getLogger(TypeRegistry.class);
-    private static boolean initialized = false;
     private final static Integer GENERATED_TYPE_NAME_LENGTH = 30;
     private final static String QUERY_MARRAY_TYPES = "SELECT a FROM RAS_MARRAY_TYPES a";
     private final static String QUERY_STRUCT_TYPES = "SELECT a FROM RAS_STRUCT_TYPES a";

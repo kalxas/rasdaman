@@ -14,40 +14,42 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
-import petascope.wcps2.error.managed.processing.WCPSProcessingError;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import petascope.exceptions.WCPSException;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation node from wcps coverage list to rasql for the LogicalCOverageExpressions
- * Example:
- * <code>
+ * Translation node from wcps coverage list to rasql for the
+ * LogicalCOverageExpressions Example:  <code>
  * $c1 OR $c2
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * c1 OR c2
  * </code>
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class BinaryCoverageExpressionHandler {
 
-    public static WcpsResult handle(WcpsResult firstCoverage, String operator, WcpsResult secondCoverage,
-                                    WcpsCoverageMetadataService metadataService) throws WCPSProcessingError {
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+
+    public WcpsResult handle(WcpsResult firstCoverage, String operator, WcpsResult secondCoverage) throws WCPSException {
         //create the resulting rasql string
-        String rasql = firstCoverage.getRasql() + " " + operator + " " +  secondCoverage.getRasql();
+        String rasql = firstCoverage.getRasql() + " " + operator + " " + secondCoverage.getRasql();
         //create the resulting metadata
-        WcpsCoverageMetadata metadata = metadataService.getResultingMetadata(firstCoverage.getMetadata(), secondCoverage.getMetadata());
+        WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.getResultingMetadata(firstCoverage.getMetadata(), secondCoverage.getMetadata());
         WcpsResult result = new WcpsResult(metadata, rasql);
         return result;
     }

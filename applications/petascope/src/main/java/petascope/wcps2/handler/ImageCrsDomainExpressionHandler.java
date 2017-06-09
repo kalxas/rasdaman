@@ -24,6 +24,7 @@ package petascope.wcps2.handler;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.NumericTrimming;
 import petascope.wcps2.result.WcpsMetadataResult;
@@ -33,20 +34,20 @@ import petascope.wcps2.result.WcpsResult;
  * Translator class for the imageCrsDomain(coverageExpression, axisLabel)
  * operation in wcps
  *
- * imageCrsDomain (coverageExpr):
- * for c in (eobstest) return imageCrsDomain(c[Lat(20:30), Long(30:40)])
- * returns
- * (0:5, 60:70, 20:30) in grid-coordinate (t, Long, Lat) respectively
+ * imageCrsDomain (coverageExpr): for c in (eobstest) return
+ * imageCrsDomain(c[Lat(20:30), Long(30:40)]) returns (0:5, 60:70, 20:30) in
+ * grid-coordinate (t, Long, Lat) respectively
  *
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@Service
 public class ImageCrsDomainExpressionHandler {
 
-    public static WcpsMetadataResult handle(WcpsResult coverageExpression) {
+    public WcpsMetadataResult handle(WcpsResult coverageExpression) {
         // just iterate the axes and get the grid bound for each axis
         String rasql = "";
-        List<String> axisBounds = new ArrayList<String>();
+        List<String> axisBounds = new ArrayList<>();
 
         for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             // This is used to set bounding box in case of scale() or extend() with imageCrsdomain()
@@ -54,8 +55,8 @@ public class ImageCrsDomainExpressionHandler {
             if (axis.getGridBounds() instanceof NumericTrimming) {
                 // Trimming
                 // NOTE: not add slice for bounding box e.g: Lat(0), need to check if NumericSubset is slicing or trimming
-                String lowBound = ((NumericTrimming)axis.getGridBounds()).getLowerLimit().toPlainString();
-                String highBound = ((NumericTrimming)axis.getGridBounds()).getUpperLimit().toPlainString();
+                String lowBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();
+                String highBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
                 tmp = TRIMMING_TEMPLATE.replace("$lowBound", lowBound).replace("$highBound", highBound);
 
                 // Only add trimming domain interval to Rasql
@@ -70,7 +71,7 @@ public class ImageCrsDomainExpressionHandler {
         return wcpsMetadataResult;
     }
 
-    private static final String TRIMMING_TEMPLATE = "$lowBound:$highBound";
-    private static final String SLICING_TEMPLATE = "$lowBound";
-    public static final String IMAGE_CRS_DOMAIN = "imageCrsdomain";
+    private final String TRIMMING_TEMPLATE = "$lowBound:$highBound";
+    private final String SLICING_TEMPLATE = "$lowBound";
+    public final String IMAGE_CRS_DOMAIN = "imageCrsdomain";
 }

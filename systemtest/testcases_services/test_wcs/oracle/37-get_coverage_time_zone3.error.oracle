@@ -2,9 +2,7 @@
 <ows:ExceptionReport version="2.0.1"
     
       >
-    <ows:Exception exceptionCode="InvalidParameterValue">
-        <ows:ExceptionText>Timestamp ""1950-01-02T12:00/14"" is not valid or supported.</ows:ExceptionText>
+    <ows:Exception exceptionCode="InvalidSubsetting">
+        <ows:ExceptionText>Invalid slicing coordinate '"1950-01-02T12:00/14"' for axis 't'.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

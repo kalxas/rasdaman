@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:%coverageType%
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0'
+    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
+    gml:id="%coverageId%">
+
+  <boundedBy>
+    <Envelope %srsGroupFullAttributes%>
+      <lowerCorner>%lowerCorner%</lowerCorner>
+      <upperCorner>%upperCorner%</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+%domainSet%
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">%coverageData%</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+%coverageFunction%
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+%rangeFields%
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+%gmlcovMetadata%
+</gmlcov:%coverageType%>

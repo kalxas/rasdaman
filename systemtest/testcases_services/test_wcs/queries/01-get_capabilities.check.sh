@@ -31,7 +31,7 @@ cp "$oracle" "$oracle".tmp
 # remove variable lines
 for file in "$out".tmp "$oracle".tmp
 do
-  sed -i '/<CoverageSummary>/,/<\/CoverageSummary>/d' "$file"
+  sed -i '/<wcs:CoverageSummary>/,/<\/wcs:CoverageSummary>/d' "$file"
   sed -i 's/<\(wcs:\)\?formatSupported>.*<\/\(wcs:\)\?formatSupported>/%formatSupported%/g' "$file" # it's a Set in Java, order is not fixed.
   sed -i '/<ows:HTTP>/,/<\/ows:HTTP>/d' "$file"
 done

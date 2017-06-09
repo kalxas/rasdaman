@@ -26,9 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.util.AxisTypes;
+import petascope.core.AxisTypes.AxisDirection;
 import petascope.util.CrsUtil;
-import petascope.wcps2.metadata.model.AxisDirection;
 
 /**
  * Class to host the info of a (GML) Coordinate Reference System (CRS) definition
@@ -144,7 +143,7 @@ public class CrsDefinition {
 
     /* NOTE: "In the EPSG Dataset codes are assigned to CRSs, coordinate transformations,
      * and their component entities (datums, projections, etc.).
-     * Within each entity type, every record has a unique code".
+     * Within each domain type, every record has a unique code".
      */
     public boolean equals(CrsDefinition crs) {
         boolean out = (crs.getAuthority().equals(authority) &&

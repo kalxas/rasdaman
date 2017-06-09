@@ -3,8 +3,6 @@
     
       >
     <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Invalid subsetting coordinates '226:138' for axis 'Long'.</ows:ExceptionText>
+        <ows:ExceptionText>Invalid 'subsetting' with '226:138' for axis 'Long'.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

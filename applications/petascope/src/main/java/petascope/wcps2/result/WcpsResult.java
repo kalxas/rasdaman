@@ -21,8 +21,8 @@
  */
 package petascope.wcps2.result;
 
+import petascope.util.MIMEUtil;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcs2.extensions.FormatExtension;
 
 /**
  * Class that encapsulates the result of the evaluation of a WCPS node.
@@ -74,8 +74,8 @@ public class WcpsResult implements VisitorResult {
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
         // e.g: dem() is not MIME then will return null
-        if (this.mimeType == null) {
-            this.mimeType = FormatExtension.MIME_TEXT;
+        if (this.mimeType == null) {            
+            this.mimeType = MIMEUtil.MIME_XML;
         }
     }
 }

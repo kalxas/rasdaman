@@ -168,7 +168,6 @@ AC_CONFIG_FILES([third_party/Makefile
                  applications/rasgeo/Makefile
                  applications/raswct/Makefile
                  applications/petascope/Makefile
-                 applications/petascope/src/main/db/Makefile
                  applications/secore/Makefile
                  applications/RRasdaman/Makefile
                  applications/wcst_import/Makefile
@@ -630,6 +629,10 @@ AS_IF([test "$with_default_basedb" == sqlite],
 
 AM_CONDITIONAL([BASEDB_PGSQL], [test "$BASEDBSTRING" = pgsql])
 AM_CONDITIONAL([BASEDB_SQLITE], [test "$BASEDBSTRING" = sqlite])
+
+# gdal-java package for petascope
+AM_CONDITIONAL([GDAL_JAVA_DIR_CENTOS], [test -d "/usr/lib/java/gdal"])
+AM_CONDITIONAL([GDAL_JAVA_DIR_UBUNTU], [test -d "/usr/lib/jni"])
 
 PETASCOPEDB=$with_petascopedb
 AM_CONDITIONAL([PETASCOPEDB_PGSQL], [test "$with_petascopedb" = postgresql])

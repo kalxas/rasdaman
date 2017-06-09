@@ -10,6 +10,7 @@
 	    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
         "tmp_directory": "/tmp/", 
         "automated": true, 
+        "track_files": false,
         "mock": false
     }, 
     "recipe": {

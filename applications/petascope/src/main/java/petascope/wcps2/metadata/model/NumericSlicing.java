@@ -22,6 +22,7 @@
 package petascope.wcps2.metadata.model;
 
 import java.math.BigDecimal;
+import petascope.util.BigDecimalUtil;
 
 /**
  * Class for storing numerical slicing (lower is equal with upper)
@@ -32,7 +33,7 @@ public class NumericSlicing extends NumericSubset {
     private BigDecimal bound;
 
     public NumericSlicing(BigDecimal bound) {
-        this.bound = bound;
+        this.bound =  BigDecimalUtil.stripDecimalZeros(bound);
     }
 
     public BigDecimal getBound() {
@@ -40,7 +41,7 @@ public class NumericSlicing extends NumericSubset {
     }
 
     public void setBound(BigDecimal bound) {
-        this.bound = bound;
+        this.bound = BigDecimalUtil.stripDecimalZeros(bound);
     }
 
     @Override
@@ -61,5 +62,15 @@ public class NumericSlicing extends NumericSubset {
     @Override
     public BigDecimal getUpperLimit() {
         return bound;
+    }
+
+    @Override
+    public void setLowerLimit(BigDecimal value) {
+        this.bound = value;
+    }
+
+    @Override
+    public void setUpperLimit(BigDecimal value) {
+        this.bound = value;
     }
 }

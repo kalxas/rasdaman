@@ -20,8 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
-
 package petascope.util.ras;
 
 import rasj.RasGMArray;

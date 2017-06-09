@@ -14,32 +14,30 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation node from wcps unary arithmetic expression to rasql
- * Example:
- * <code>
+ * Translation node from wcps unary arithmetic expression to rasql Example:  <code>
  * abs($c1)
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * abs(c1)
  * </code>
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class UnaryArithmeticExpressionHandler {
 
-    public static WcpsResult handle(String operator, WcpsResult coverageExpression) {
+    public WcpsResult handle(String operator, WcpsResult coverageExpression) {
         String template = TEMPLATE.replace("$coverage", coverageExpression.getRasql());
         //real and imaginary translate to postfix operations in rasql
         //yielding .re and .im
@@ -51,7 +49,7 @@ public class UnaryArithmeticExpressionHandler {
         return new WcpsResult(coverageExpression.getMetadata(), template);
     }
 
-    private static final String TEMPLATE = "$preOperator $coverage $postOperator";
-    private static final String POST_REAL = "re";
-    private static final String POST_IMAGINARY = "im";
+    private final String TEMPLATE = "$preOperator $coverage $postOperator";
+    private final String POST_REAL = "re";
+    private final String POST_IMAGINARY = "im";
 }

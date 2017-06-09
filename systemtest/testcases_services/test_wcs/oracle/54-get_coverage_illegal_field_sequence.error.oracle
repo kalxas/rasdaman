@@ -3,8 +3,6 @@
     
       >
     <ows:Exception exceptionCode="IllegalFieldSequence">
-        <ows:ExceptionText>Lower limit is above the upper limit in the range field interval.</ows:ExceptionText>
+        <ows:ExceptionText>Lower limit is above the upper limit in the range field interval, received: .green:red</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

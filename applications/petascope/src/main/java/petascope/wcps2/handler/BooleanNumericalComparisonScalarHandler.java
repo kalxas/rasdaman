@@ -14,35 +14,34 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation class for Boolean numerical comparisons.
- * <code>
+ * Translation class for Boolean numerical comparisons.  <code>
  * avg($c) > 1
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * avg_cells(c) > 1
  * </code>
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class BooleanNumericalComparisonScalarHandler {
 
-    public static WcpsResult handle(WcpsResult left, WcpsResult right, String operator) {
+    public WcpsResult handle(WcpsResult left, WcpsResult right, String operator) {
         return new WcpsResult(null, TEMPLATE.replace("$leftOperand", left.getRasql())
-                              .replace("$operator", operator)
-                              .replace("$rightOperand", right.getRasql()));
+                .replace("$operator", operator)
+                .replace("$rightOperand", right.getRasql()));
     }
 
-    private static final String TEMPLATE = " $leftOperand $operator $rightOperand ";
+    private final String TEMPLATE = " $leftOperand $operator $rightOperand ";
 }

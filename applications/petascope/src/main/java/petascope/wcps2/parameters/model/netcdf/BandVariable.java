@@ -28,12 +28,13 @@ package petascope.wcps2.parameters.model.netcdf;
  */
 public class BandVariable implements Variable {
 
+    // e.g: double, float32
     private String type;
     private String name;
     private BandVariableMetadata metadata;    
 
-    public BandVariable(String type, String name, BandVariableMetadata metadata) {
-        this.type = type;
+    public BandVariable(String dataType, String name, BandVariableMetadata metadata) {
+        this.type = dataType;
         this.name = name;
         this.metadata = metadata;        
     }

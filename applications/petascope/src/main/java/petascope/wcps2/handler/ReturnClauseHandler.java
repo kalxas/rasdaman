@@ -14,33 +14,31 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translation node from wcps to rasql for the return clause.
- * Example:
- * <code>
+ * Translation node from wcps to rasql for the return clause. Example:  <code>
  * return $c1 + $c2
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * SELECT c1 + c2
  * </code>
  *
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class ReturnClauseHandler {
 
-    public static WcpsResult handle(WcpsResult processingExpr) {
+    public  WcpsResult handle(WcpsResult processingExpr) {
         String template = TEMPLATE_RASQL.replace("$processingExpression", processingExpr.getRasql());
         WcpsCoverageMetadata metadata = processingExpr.getMetadata();
         processingExpr.setMetadata(metadata);
@@ -48,5 +46,5 @@ public class ReturnClauseHandler {
         return processingExpr;
     }
 
-    private static final String TEMPLATE_RASQL = "SELECT $processingExpression ";
+    private  final String TEMPLATE_RASQL = "SELECT $processingExpression ";
 }

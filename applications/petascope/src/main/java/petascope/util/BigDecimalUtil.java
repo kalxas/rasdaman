@@ -23,11 +23,12 @@ package petascope.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.wcps2.util.CrsComputer;
+import static petascope.core.service.CrsComputerService.COEFFICIENT_DECIMAL_EPSILON;
 
 /**
  * Utilities for handling BigDecimals computations and scales.
@@ -35,7 +36,13 @@ import petascope.wcps2.util.CrsComputer;
  */
 public class BigDecimalUtil {
 
+    // The total digit numbers of BigDecimal number (before and after the ".")
+    public static final int MAX_PRECISION = 128;
+    // The total digit numbers of BigDecimal number (after the ".")
+    public static final int MAX_SCALE = 64;
+    
     private static final Logger log = LoggerFactory.getLogger(BigDecimalUtil.class);
+    
     /**
      * Scale of a quotient between two BigDecimals.
      *
@@ -107,17 +114,31 @@ public class BigDecimalUtil {
      * @param value
      * @return 
      */
-    public static int listContainsCoefficient(List<BigDecimal> list, BigDecimal value) {
+    public static long listContainsCoefficient(List<BigDecimal> list, BigDecimal value) {
         int counter = 0;
         for (BigDecimal coeff : list) {
             // if value is within [coefficient - epsilon, coefficient + epsilon], then value is considered the coefficient
             // e.g: 
-            if ((coeff.subtract(CrsComputer.COEFFICIENT_DECIMAL_EPSILON).compareTo(value) <= 0)
-                &&(coeff.add(CrsComputer.COEFFICIENT_DECIMAL_EPSILON).compareTo(value) >= 0)) {
+            if ((coeff.subtract(COEFFICIENT_DECIMAL_EPSILON).compareTo(value) <= 0)
+                &&(coeff.add(COEFFICIENT_DECIMAL_EPSILON).compareTo(value) >= 0)) {
                 return counter;
             }            
             counter++;
         }
         return -1;
+    }
+    
+    /**
+     * Convert list of String to list of BigDecimal values
+     * @param values
+     * @return 
+     */
+    public static List<BigDecimal> convertListString(List<String> values) {
+        List<BigDecimal> convertedValues = new ArrayList<>();
+        for (String value : values) {
+            convertedValues.add(new BigDecimal(value));
+        }
+        
+        return convertedValues;
     }
 }

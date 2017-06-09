@@ -1,90 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions       >
-  <wcs:CoverageDescription id="test_AverageChloro" xmlns="http://www.opengis.net/gml/3.2"  >
-    <boundedBy>
-      <Envelope srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;" axisLabels="Lat Long unix" uomLabels="degree degree d" srsDimension="3">
-        <lowerCorner>-90 -180 "2015-01-01T00:00:00.000Z"</lowerCorner>
-        <upperCorner>90 180 "2015-07-01T00:00:00.000Z"</upperCorner>
-      </Envelope>
-    </boundedBy>
-    <wcs:CoverageId>test_AverageChloro</wcs:CoverageId>
-    <coverageFunction>
-      <GridFunction>
-        <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-        <startPoint>0 0 0</startPoint>
-      </GridFunction>
-    </coverageFunction>
-    <gmlcov:metadata>
-      <gmlcov:Extension/>
-    </gmlcov:metadata>
-    <domainSet>
-      <gmlrgrid:ReferenceableGridByVectors dimension="3" id="test_AverageChloro-grid"  >
-        <limits>
-          <GridEnvelope>
-            <low>0 0 0</low>
-            <high>239 119 5</high>
-          </GridEnvelope>
-        </limits>
-        <axisLabels>Lat Long unix</axisLabels>
-        <gmlrgrid:origin>
-          <Point id="test_AverageChloro-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">
-            <pos>89.25 -179.25 "2015-01-01T00:00:00.000Z"</pos>
-          </Point>
-        </gmlrgrid:origin>
-        <gmlrgrid:generalGridAxis>
-          <gmlrgrid:GeneralGridAxis>
-            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">-1.5 0 0</gmlrgrid:offsetVector>
-            <gmlrgrid:coefficients/>
-            <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
-            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-          </gmlrgrid:GeneralGridAxis>
-        </gmlrgrid:generalGridAxis>
-        <gmlrgrid:generalGridAxis>
-          <gmlrgrid:GeneralGridAxis>
-            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">0 1.5 0</gmlrgrid:offsetVector>
-            <gmlrgrid:coefficients/>
-            <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
-            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-          </gmlrgrid:GeneralGridAxis>
-        </gmlrgrid:generalGridAxis>
-        <gmlrgrid:generalGridAxis>
-          <gmlrgrid:GeneralGridAxis>
-            <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">0 0 1</gmlrgrid:offsetVector>
-            <gmlrgrid:coefficients>"2015-01-01T00:00:00.000Z" "2015-02-01T00:00:00.000Z" "2015-03-01T00:00:00.000Z" "2015-04-01T00:00:00.000Z" "2015-05-01T00:00:00.000Z" "2015-07-01T00:00:00.000Z"</gmlrgrid:coefficients>
-            <gmlrgrid:gridAxesSpanned>unix</gmlrgrid:gridAxesSpanned>
-            <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-          </gmlrgrid:GeneralGridAxis>
-        </gmlrgrid:generalGridAxis>
-      </gmlrgrid:ReferenceableGridByVectors>
-    </domainSet>
-    <gmlcov:rangeType>
-      <swe:DataRecord>
-        <swe:field name="Red">
-          <swe:Quantity>
-            <swe:uom code="10^0"/>
-          </swe:Quantity>
-        </swe:field>
-        <swe:field name="Green">
-          <swe:Quantity>
-            <swe:uom code="10^0"/>
-          </swe:Quantity>
-        </swe:field>
-        <swe:field name="Blue">
-          <swe:Quantity>
-            <swe:uom code="10^0"/>
-          </swe:Quantity>
-        </swe:field>
-      </swe:DataRecord>
-    </gmlcov:rangeType>
-    <wcs:ServiceParameters>
-      <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
-      <CoverageSubtypeParent xmlns="http://www.opengis.net/wcs/2.0">
-        <CoverageSubtype>AbstractDiscreteCoverage</CoverageSubtype>
-        <CoverageSubtypeParent>
-          <CoverageSubtype>AbstractCoverage</CoverageSubtype>
-        </CoverageSubtypeParent>
-      </CoverageSubtypeParent>
-      <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-    </wcs:ServiceParameters>
-  </wcs:CoverageDescription>
+<wcs:CoverageDescriptions 
+    
+    
+    
+    
+    
+    
+     >
+    <wcs:CoverageDescription id="test_AverageChloro"
+        xmlns="http://www.opengis.net/gml/3.2"
+         >
+        <boundedBy>
+            <Envelope axisLabels="Lat Long unix" srsDimension="3"
+                srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;" uomLabels="degree degree d">
+                <lowerCorner>-90 -180 "2015-01-01T00:00:00.000Z"</lowerCorner>
+                <upperCorner>90 180 "2015-07-01T00:00:00.000Z"</upperCorner>
+            </Envelope>
+        </boundedBy>
+        <wcs:CoverageId>test_AverageChloro</wcs:CoverageId>
+        <coverageFunction>
+            <GridFunction>
+                <sequenceRule axisOrder="+2 +1 +3">Linear</sequenceRule>
+                <startPoint>0 0 0</startPoint>
+            </GridFunction>
+        </coverageFunction>
+        <gmlcov:metadata/>
+        <domainSet>
+            <gmlrgrid:ReferenceableGridByVectors dimension="3"
+                id="test_AverageChloro-grid"
+                 >
+                <limits>
+                    <GridEnvelope>
+                        <low>0 0 0</low>
+                        <high>119 239 5</high>
+                    </GridEnvelope>
+                </limits>
+                <axisLabels>Lat Long unix</axisLabels>
+                <gmlrgrid:origin>
+                    <Point id="test_AverageChloro-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">
+                        <pos>89.25 -179.25 "2015-01-01T00:00:00.000Z"</pos>
+                    </Point>
+                </gmlrgrid:origin>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">-1.5 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">0 1.5 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">0 0 1</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>"2015-01-01T00:00:00.000Z" "2015-02-01T00:00:00.000Z" "2015-03-01T00:00:00.000Z" "2015-04-01T00:00:00.000Z" "2015-05-01T00:00:00.000Z" "2015-07-01T00:00:00.000Z"</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>unix</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+            </gmlrgrid:ReferenceableGridByVectors>
+        </domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="Red">
+                    <swe:Quantity >
+                        <swe:label>Red</swe:label>
+                        <swe:uom code="10^0"/>
+                    </swe:Quantity>
+                </swe:field>
+                <swe:field name="Green">
+                    <swe:Quantity >
+                        <swe:label>Green</swe:label>
+                        <swe:uom code="10^0"/>
+                    </swe:Quantity>
+                </swe:field>
+                <swe:field name="Blue">
+                    <swe:Quantity >
+                        <swe:label>Blue</swe:label>
+                        <swe:uom code="10^0"/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

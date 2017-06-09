@@ -24,12 +24,14 @@ package petascope.wcps2.parameters.netcdf.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Service;
 
 /**
  * This class acts as a translator from Coverage metadata (e.g. axes labels) to NetCDF CF-compliant metadata.
  * The used list of CF-compliant terms is available at: http://cfconventions.org/Data/cf-standard-names/34/build/cf-standard-name-table.html
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
+@Service
 public class CovToCFTranslationService {
 
     /**

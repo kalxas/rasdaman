@@ -14,37 +14,35 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps2.handler;
 
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import petascope.wcps2.metadata.model.Subset;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.metadata.service.AxisIteratorAliasRegistry;
 import petascope.wcps2.metadata.service.RasqlTranslationService;
 import petascope.wcps2.metadata.service.SubsetParsingService;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataService;
+import petascope.wcps2.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps2.result.WcpsResult;
-import petascope.wcps2.result.parameters.AxisIterator;
-import petascope.wcps2.result.parameters.SubsetDimension;
+import petascope.wcps2.subset_axis.model.AxisIterator;
+import petascope.wcps2.subset_axis.model.WcpsSubsetDimension;
 
 /**
  * Translation node from wcps coverage list to rasql for the general condenser
- * Example:
- * <code>
+ * Example:  <code>
  * CONDENSE +
  * OVER x x(0:100)
  * WHERE true
  * USING 2
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * CONDENSE +
  * OVER x in [0:100]
  * WHERE true
@@ -54,30 +52,37 @@ import petascope.wcps2.result.parameters.SubsetDimension;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
+@Service
 public class GeneralCondenserHandler {
 
-    public static WcpsResult handle(String operation, ArrayList<AxisIterator> axisIterators, WcpsResult whereClause,
-                                    WcpsResult using,
-                                    AxisIteratorAliasRegistry axisIteratorAliasRegistry,
-                                    WcpsCoverageMetadataService wcpsCoverageMetadataService,
-                                    RasqlTranslationService rasqlTranslationService, SubsetParsingService subsetParsingService) {
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    @Autowired
+    private SubsetParsingService subsetParsingService;
+    @Autowired
+    private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+
+    public WcpsResult handle(String operation, ArrayList<AxisIterator> axisIterators, WcpsResult whereClause,
+            WcpsResult using) {
         // contains subset dimension without "$"
-        List<SubsetDimension> pureSubsetDimensions = new ArrayList<SubsetDimension>();
+        List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
         // contains subset dimension with "$"
-        List<SubsetDimension> axisIteratorSubsetDimensions = new ArrayList<SubsetDimension>();
+        List<WcpsSubsetDimension> axisIteratorSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
 
         // All of the axis iterators uses the same rasql alias name (e.g: px)
         String rasqlAliasName = "";
 
         for (AxisIterator i : axisIterators) {
             String alias = i.getAliasName();
-            SubsetDimension subsetDimension = i.getSubsetDimension();
+            WcpsSubsetDimension subsetDimension = i.getSubsetDimension();
 
             if (rasqlAliasName.isEmpty()) {
-                rasqlAliasName = alias.replace(SubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
+                rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
-            if (i.getSubsetDimension().getStringRepresentation().contains(SubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
+            if (i.getSubsetDimension().getStringRepresentation().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
                 axisIteratorSubsetDimensions.add(subsetDimension);
             } else {
                 pureSubsetDimensions.add(subsetDimension);
@@ -88,21 +93,21 @@ public class GeneralCondenserHandler {
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(CONDENSER_TEMP_NAME, numericSubsets);
 
-        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getAxes(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
         String template = TEMPLATE.replace("$operation", operation)
-                                  .replace("$iter", rasqlAliasName)
-                                  .replace("$intervals", rasqlDomain)
-                                  .replace("$using", using.getRasql());
+                .replace("$iter", rasqlAliasName)
+                .replace("$intervals", rasqlDomain)
+                .replace("$using", using.getRasql());
 
         if (whereClause != null) {
             template = template.replace("$whereClause", whereClause.getRasql());
         } else {
             template = template.replace("$whereClause", "");
         }
-        
+
         return new WcpsResult(using.getMetadata(), template);
     }
 
-    private final static String CONDENSER_TEMP_NAME = "CONDENSE_TEMP";
-    private final static String TEMPLATE = "CONDENSE $operation OVER $iter in [$intervals] $whereClause USING $using";
+    private final String CONDENSER_TEMP_NAME = "CONDENSE_TEMP";
+    private final String TEMPLATE = "CONDENSE $operation OVER $iter in [$intervals] $whereClause USING $using";
 }

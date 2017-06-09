@@ -34,7 +34,6 @@
 
 VERSION_NUMBER = 1.0
 
-
 if GENERATE_DOCS
   GEN_DOCS = javadoc
   DOC          = doc
@@ -51,8 +50,6 @@ RASJ_JAR=\$${project.basedir}/lib/rasj.jar
 SRC       = src/main
 SRC_MAIN  = $(SRC)/java
 SRC_RES   = $(SRC)/resources
-WMS_MES   = $(SRC_RES)/wms-messages
-SRC_WEB   = $(SRC)/webapp
 TEST      = src/test
 BUILD     = build
 DIST      = $(BUILD)/dist
@@ -60,32 +57,23 @@ WEB       = $(BUILD)/web
 CLASSES   = $(WEB)/WEB-INF/classes
 NAME      = rasdaman
 WAR_NAME  = $(NAME).war
-WAR       = $(PETASCOPE_TARGET_DIR)/$(WAR_NAME)
+WAR_FILE  = $(PETASCOPE_TARGET_DIR)/$(WAR_NAME)
 
-JETTY     = jetty
+if GDAL_JAVA_DIR_CENTOS
+   GDAL_JAVA_DIR = "/usr/lib/java/gdal"
+endif
+if GDAL_JAVA_DIR_UBUNTU
+   GDAL_JAVA_DIR = "/usr/lib/jni"
+endif
+
 
 APIDOCS   = $(BUILD)/apidocs
 STATIC_WEB_FOLDER = static
 WCS_CLIENT_SRC = ../wcs-client/app/*
 WCS_CLIENT_DEST = $(WEB)/$(STATIC_WEB_FOLDER)/wcs-client/
 
-SERVICE_FILENAME=wms_service.properties
-SERVICE_SRC_FILE=src/main/resources/wms/wms_service.properties
-
-if PETASCOPEDB_PGSQL
-  SETTINGS_FILE = src/main/resources/petascope.properties.in
-  SETTINGS_FILE_EDIT = src/main/resources/petascope.properties
-endif
-if PETASCOPEDB_SQLITE
-  SETTINGS_FILE = src/main/resources/petascope_sqlite.properties.in
-  SETTINGS_FILE_EDIT = src/main/resources/petascope_sqlite.properties
-  SQLITE=1
-endif
-if PETASCOPEDB_HSQLDB
-  SETTINGS_FILE = src/main/resources/petascope_hsqldb.properties.in
-  SETTINGS_FILE_EDIT = src/main/resources/petascope_hsqldb.propertiess
-  HSQLDB=1
-endif
+SETTINGS_FILE = src/main/resources/petascope.properties.in
+SETTINGS_FILE_EDIT = src/main/resources/petascope.properties
 
 OLD_CONF=$(DESTDIR)$(sysconfdir)/petascope.properties
 NEW_CONF=$(SETTINGS_FILE_EDIT)
@@ -128,18 +116,23 @@ JDFLAGS   = -sourcepath $(SRC_MAIN) \
 #                                 TARGETS
 # ------------------------------------------------------------------------------
 
-# Create war
+# Create war (Petascope embedded or external can use same war package)
+# Check if gdal-java package is installed in Centos or Ubuntu first or returns error.
 .PHONY: war
 war: 
+	echo "GDAL JAVA DIR: " $(GDAL_JAVA_DIR)
+	if test -z $(GDAL_JAVA_DIR); then \
+		echo "gdal-java package is not installed, please install it."; \
+		exit 1 ;\
+	fi
+	cp $(SRC_RES)/application.properties.in $(SRC_RES)/application.properties
+	$(SED) -i "s|@GDAL_JAVA_DIR@|$(GDAL_JAVA_DIR)|g" $(SRC_RES)/application.properties
+	$(SED) -i "s|@CONF_DIR@|$(sysconfdir)|g" $(SRC_RES)/application.properties
+		
 	cp pom.xml.in pom.xml
 	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
 	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" pom.xml
-	$(SED) -i "s|@RASJ_PATH@|${RASJ_JAR}|g" pom.xml
-	$(SED) 's|@CONF_DIR@|$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
-	mvn package -Ppetascope
-if JAVA_SERVER_EMBEDDED
-	mvn package -Pjetty
-endif
+	mvn package -Pwar; \	
 
 # Print the targets
 .PHONY: help
@@ -161,29 +154,29 @@ help:
 javadoc: $(all_javas)
 	$(JAVADOC) $(JDFLAGS) @$<
 
-# copy WAR to TOMCAT
-# B: copy jetty.jar, rasdaman.war, def.war to $wardir folder
+# B: Build petascope.properties and install war file to target directory.
 # Open $(SETTINGS_FILE): petascope.properties file in ~petascope/src/main/resources to $RMANHOME/etc/
 # Set java_server=external if --with-java-server=external or java_server=embedded if --with-java-server=embedded or not set.
 # Finally, copy $(SETTINGS_FILE) file petascope.properties in ~petascope/src/main/resources to $RMANHOME/etc/
 .PHONY: install
-install:  service
-	echo "Creating temporary petascope.properties file for merging with old configuration file...";
+install: 
+	echo -n "Creating temporary petascope.properties file for merging with old configuration file...";
 	$(CP) $(SETTINGS_FILE) $(SETTINGS_FILE_EDIT);
 	echo "Done.";
 	$(MKDIR) $(DESTDIR)$(wardir)
-	$(CP) $(WAR) $(DESTDIR)$(wardir)
 	echo "JAVA SERVER = "$(JAVA_SERVER)
+	echo "Install rasddaman.war to $(DESTDIR)$(wardir)"; \
+	$(CP) $(WAR_FILE) $(DESTDIR)$(wardir); \
 	if [ $(JAVA_SERVER) == external ]; then \
 		echo 'Update java_server=external Petascope in petascope properties file'; \
+		sed -i 's|@GENERATED_embedded_petascope@|false|g' $(SETTINGS_FILE_EDIT); \
 		sed -i 's|java_server=embedded|java_server=external|g' $(SETTINGS_FILE_EDIT); \
 		sed -i 's|start_embedded_petascope=true|start_embedded_petascope=false|g' $(SETTINGS_FILE_EDIT); \
 	else \
 		echo 'Update java_server=embedded Petascope in petascope properties file'; \
+		sed -i 's|@GENERATED_embedded_petascope@|true|g' $(SETTINGS_FILE_EDIT); \
 		sed -i 's|java_server=external|java_server=embedded|g' $(SETTINGS_FILE_EDIT); \
 		sed -i 's|start_embedded_petascope=false|start_embedded_petascope=true|g' $(SETTINGS_FILE_EDIT); \
-		$(CP) $(PETASCOPE_TARGET_DIR)/petascope-standalone.jar ${DESTDIR}$(wardir);\
-		$(CP) jetty/jetty.jar ${DESTDIR}$(wardir);\
 	fi;
 # If user's petascope.properties file has no option 'java_server' or 'start_embedded_petascope', it will be added automatically.
 # If user's petascope.properties has option 'java_server' then it will update to 'embedded/external' based on user's configuration.  (./configure --with-java-server=embedded/external)
@@ -193,16 +186,10 @@ if GENERATE_DOCS
 	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 endif
-if PETASCOPEDB_HSQLDB
-	$(CP) lib/sqltool.jar lib/hsqldb.jar $(DESTDIR)$(libdir)
-	$(MKDIR) -p $(filedatadir)/petascope
-endif
 	sed -i "s|@GENERATED_rasdaman_bin_path@|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
 	sed -i "s|@LOGDIR@|$(logdir)|g" $(SETTINGS_FILE_EDIT); \
-	if test -n "$$SQLITE"; then \
-		sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEW_CONF; \
-	fi; \
-	echo "$@ is updating petascope.properties file: $(OLD_CONF) from $(NEW_CONF)"; \
+	sed -i "s|@GENERATED_java_server@|$(JAVA_SERVER)|g" $(SETTINGS_FILE_EDIT); \
+	echo -n "$@ is updating petascope.properties file: $(OLD_CONF) from $(NEW_CONF)"; \
 	./update_properties.sh $(OLD_CONF) $(NEW_CONF); \
 	echo "Done.";
 	echo -e; \
@@ -217,22 +204,12 @@ endif
 test:
 	${JAVA} -cp $(JJARS_CP):$(BUILD)/test/classes:$(BUILD)/web/WEB-INF/classes org.junit.runner.JUnitCore petascope.AllTests
 
-#service file
-.PHONY: service
-service:
-	SERVICE_FILE=$(DESTDIR)$(sysconfdir)/$(SERVICE_FILENAME); \
-	if test -f $$SERVICE_FILE; then\
-		echo "$@ existing service file, will not modify it";\
-	else \
-		$(MKDIR_P) $(DESTDIR)$(sysconfdir);\
-		$(INSTALL_DATA) $(SERVICE_SRC_FILE) $$SERVICE_FILE; \
-	fi;
 
 # clean up
 .PHONY: clean
 clean:
-	mvn clean -Ppetascope
-	mvn clean -Pjetty
+	mvn clean -Pwar
+	mvn clean -Pjar
 	$(RM) $(BUILD) dist
 	$(RM) $(PETASCOPE_TARGET_DIR)
 	$(RM) pom.xml

@@ -21,30 +21,30 @@
  */
 package petascope.wcps2.handler;
 
+import org.springframework.stereotype.Service;
 import petascope.util.CrsUtil;
 import petascope.wcps2.result.WcpsMetadataResult;
 import petascope.wcps2.result.WcpsResult;
 
 /**
- * Translator class for imageCrs (CRS:1).
- * <code>
+ * Translator class for imageCrs (CRS:1).  <code>
  * for c in (mr), d in (rgb) return imageCrs(c)
- * </code>
- * translates to
- * <code>
+ * </code> translates to  <code>
  * Grid CRS (CRS:1)
  * </code>
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
+@Service
 public class ImageCrsExpressionHandler {
 
     /**
      * Return the Rasql grid CRS of the coverage (CRS:1)
+     *
      * @param coverageExpression
      * @return
      */
-    public static WcpsMetadataResult handle(WcpsResult coverageExpression) {
+    public WcpsMetadataResult handle(WcpsResult coverageExpression) {
         String imageCrsUri = CrsUtil.GRID_CRS;
         WcpsMetadataResult wcpsResult = new WcpsMetadataResult(coverageExpression.getMetadata(), imageCrsUri);
         return wcpsResult;

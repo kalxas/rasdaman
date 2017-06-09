@@ -1,53 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:GridCoverage
-    xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:gml='http://www.opengis.net/gml/3.2'
-    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
-    id="test_double_1d">
-
-  <boundedBy>
-    <Envelope srsName="/crs/OGC/0/Index1D" axisLabels="i" uomLabels="GridSpacing" srsDimension="1">
-      <lowerCorner>6</lowerCorner>
-      <upperCorner>9</upperCorner>
-    </Envelope>
-  </boundedBy>
-
-  <domainSet>
-    <Grid dimension="1" id="test_double_1d-grid">
-      <limits>
-        <GridEnvelope>
-          <low>6</low>
-          <high>9</high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels>i</axisLabels>
-    </Grid>
-  </domainSet>
-
-  <rangeSet>
-    <DataBlock>
-      <rangeParameters/>
-      <tupleList ts="," cs=" ">3,3.5,4,4.5</tupleList>
-    </DataBlock>
-  </rangeSet>
-
-  <coverageFunction>
-    <GridFunction>
-      <sequenceRule axisOrder="+1">Linear</sequenceRule>
-      <startPoint>6</startPoint>
-    </GridFunction>
-  </coverageFunction>
-
-  <gmlcov:rangeType>
-    <swe:DataRecord>
-    <swe:field name="value">
-      <swe:Quantity ><swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>
-    </swe:DataRecord>
-  </gmlcov:rangeType>
-  <gmlcov:metadata><gmlcov:Extension><Project>This is another test file</Project><Creator>This is a test creator file</Creator><Title>This is a test file</Title><slices /></gmlcov:Extension></gmlcov:metadata>
+<gmlcov:GridCoverage id="test_double_1d"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="i" srsDimension="1"
+            srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
+            <lowerCorner>6</lowerCorner>
+            <upperCorner>9</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <Grid dimension="1" id="test_double_1d-grid">
+            <limits>
+                <GridEnvelope>
+                    <low>6</low>
+                    <high>9</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>i</axisLabels>
+        </Grid>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">3,3.5,4,4.5</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+1">Linear</sequenceRule>
+            <startPoint>6</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="value">
+                <swe:Quantity >
+                    <swe:label>value</swe:label>
+                    <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <Project>This is another test file</Project>
+                <Creator>This is a test creator file</Creator>
+                <Title>This is a test file</Title>
+                <slices/>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:GridCoverage>

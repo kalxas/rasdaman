@@ -1,0 +1,25 @@
+<wcs:CoverageDescription xmlns="http://www.opengis.net/gml/3.2" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:swe="http://www.opengis.net/swe/2.0" gml:id="%coverageId%">
+  <boundedBy>
+    <Envelope %srsGroupFullAttributes%>
+      <lowerCorner>%lowerCorner%</lowerCorner>
+      <upperCorner>%upperCorner%</upperCorner>
+    </Envelope>
+  </boundedBy>
+  <wcs:CoverageId>%coverageId%</wcs:CoverageId>
+  %coverageFunction%
+  %gmlcovMetadata%
+  <domainSet>
+%domainSet%
+  </domainSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    %rangeFields%
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+  <wcs:ServiceParameters>
+    <wcs:CoverageSubtype>%coverageSubtype%</wcs:CoverageSubtype>
+    <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+  </wcs:ServiceParameters>
+</wcs:CoverageDescription>

@@ -27,8 +27,17 @@ import java.math.BigDecimal;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public abstract class NumericSubset {
+
     public abstract String getStringRepresentation();
+
     public abstract String getStringRepresentationInInteger();
+
     public abstract BigDecimal getLowerLimit();
+
     public abstract BigDecimal getUpperLimit();
+    
+    public abstract void setLowerLimit(BigDecimal value);
+
+    public abstract void setUpperLimit(BigDecimal value);
+
 }

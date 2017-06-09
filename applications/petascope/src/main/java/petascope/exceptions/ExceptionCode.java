@@ -22,7 +22,7 @@
 package petascope.exceptions;
 
 import static javax.servlet.http.HttpServletResponse.*;
-import petascope.util.XMLSymbols;
+import petascope.core.XMLSymbols;
 
 /**
  * Represents an exception code, as defined in [OGC 06-121r9] Clause 8
@@ -39,7 +39,7 @@ public class ExceptionCode {
     /**
      * Code representing type of this exception
      */
-    private final String exceptionCode;
+    private final String exceptionCodeName;
     /**
      * Exception code description
      */
@@ -91,7 +91,7 @@ public class ExceptionCode {
      * @param httpErrorCode HTTP response code, when the exception is returned over HTTP
      */
     public ExceptionCode(String exceptionCode, String description, int httpErrorCode) {
-        this.exceptionCode = exceptionCode;
+        this.exceptionCodeName = exceptionCode;
         this.description = description;
         this.httpErrorCode = httpErrorCode;
     }
@@ -104,7 +104,7 @@ public class ExceptionCode {
      * @return a copy of the original exception code
      */
     public ExceptionCode locator(String locator) {
-        ExceptionCode ret = new ExceptionCode(exceptionCode, description, httpErrorCode);
+        ExceptionCode ret = new ExceptionCode(exceptionCodeName, description, httpErrorCode);
         ret.setLocator(locator);
         return ret;
     }
@@ -119,8 +119,8 @@ public class ExceptionCode {
     /**
      * @return Code representing type of this exception
      */
-    public String getExceptionCode() {
-        return exceptionCode;
+    public String getExceptionCodeName() {
+        return exceptionCodeName;
     }
 
     /**
@@ -149,7 +149,7 @@ public class ExceptionCode {
     @Override
     public String toString() {
         return "Exception Code {"
-               + "\n  exceptionCode = " + exceptionCode
+               + "\n  exceptionCode = " + exceptionCodeName
                + "\n  description = " + description
                + "\n  locator = " + locator
                + "\n  httpErrorCode = " + httpErrorCode
@@ -162,7 +162,7 @@ public class ExceptionCode {
             "Lower limit is above the upper limit in the range field interval.", SC_BAD_REQUEST);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError");
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError");
-    public static final ExceptionCode InternalWMSError = new ExceptionCode("InternalWMSError");
+    public static final ExceptionCode InternalWMSError = new ExceptionCode("InternalWMSError", SC_BAD_REQUEST);
     public static final ExceptionCode InterpolationMethodNotSupported = new ExceptionCode("InterpolationMethodNotSupported",
             "'interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_METHOD_NOT_ALLOWED);
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
@@ -203,12 +203,13 @@ public class ExceptionCode {
     public static final ExceptionCode NoSuchCoverage = new ExceptionCode("NoSuchCoverage",
             "One of the identifiers passed does not match with any of the coverages offered by this server. "
             + "Locator: List of violating coverage identifiers", SC_NOT_FOUND);
+    public static final ExceptionCode NoSuchMediaType = new ExceptionCode("NoSuchMediaType",
+            "The requested mediatype is not valid", SC_NOT_FOUND);
     public static final ExceptionCode NotEnoughStorage = new ExceptionCode("NotEnoughStorage");
     public static final ExceptionCode OperationNotSupported = new ExceptionCode("OperationNotSupported",
             "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode OptionNotSupported = new ExceptionCode("OptionNotSupported",
             "Request is for an option that is not supported by this server. Locator: Identifier of option not supported", SC_NOT_IMPLEMENTED);
-    public static final ExceptionCode OperationNotAllowed = new ExceptionCode("OperationNotAllowed", "Operation not allowed.", SC_BAD_REQUEST);
     public static final ExceptionCode RasdamanRequestFailed = new ExceptionCode("RasdamanRequestFailed");
     public static final ExceptionCode RasdamanUnavailable = new ExceptionCode("RasdamanUnavailable");
     public static final ExceptionCode RasdamanError = new ExceptionCode("RasdamanError");
@@ -219,6 +220,7 @@ public class ExceptionCode {
     public static final ExceptionCode ServletConnectionError = new ExceptionCode("ServletConnectionError");
     public static final ExceptionCode UnknownError = new ExceptionCode("UnknownError");
     public static final ExceptionCode UnsupportedCombination = new ExceptionCode("UnsupportedCombination", SC_NOT_IMPLEMENTED);
+    public static final ExceptionCode UnsupportedEncodingFormat = new ExceptionCode("UnsupportedEncodingFormat", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode UnsupportedCoverageConfiguration = new ExceptionCode("UnsupportedCoverageConfiguration",
             "One or more of the available coverages is not queryable due to unimplemented service features.", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode VersionNegotiationFailed = new ExceptionCode("VersionNegotiationFailed",
@@ -241,9 +243,9 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidExtent = new ExceptionCode("InvalidExtent",
             "Extent interval passed has upper bound smaller than lower bound.", SC_BAD_REQUEST);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
-            "CRS axis indicated is not an axis occurring in this coverage.", SC_BAD_REQUEST);    
+            "CRS axis indicated is not an axis occurring in this coverage.", SC_BAD_REQUEST);
     public static final ExceptionCode WCSPMissingQueryParameter = new ExceptionCode("WCSPMissingQueryParameter",
-            "No query parameter was found in the request.", SC_BAD_REQUEST);    
+            "No query parameter was found in the request.", SC_BAD_REQUEST);
     public static final ExceptionCode WCSTMissingCoverageParameter = new ExceptionCode("WCSTMissingCoverageParameter",
             "No \"coverage\" of \"coverageRef\" parameters were found in the request (at least one expected).");
     public static final ExceptionCode WCSTUnknownUseId = new ExceptionCode("WCSTUnknownUseId",
@@ -267,9 +269,15 @@ public class ExceptionCode {
     public static final ExceptionCode WCSTMissingLow = new ExceptionCode("WCSTMissingLow",
             "The \"" + XMLSymbols.LABEL_GRID_ENVELOPE + "\" element contains the wrong number of \"" +
             XMLSymbols.LABEL_LOW + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingLowerCorner = new ExceptionCode("WCSTMissingLowCorner",
+            "The \"" + XMLSymbols.LABEL_GRID_ENVELOPE + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_LOWER_CORNER + "\" (exactly 1 expected).");
     public static final ExceptionCode WCSTMissingHigh = new ExceptionCode("WCSTMissingHigh",
             "The \"" + XMLSymbols.LABEL_GRID_ENVELOPE + "\" element contains the wrong number of \"" +
             XMLSymbols.LABEL_HIGH + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingUpperCorner = new ExceptionCode("WCSTMissingUpperCorner",
+            "The \"" + XMLSymbols.LABEL_GRID_ENVELOPE + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_UPPER_CORNER + "\" (exactly 1 expected).");
     public static final ExceptionCode WCSTLowHighDifferentSizes = new ExceptionCode("WCSTHighLowDifferentSizes",
             "The \"" + XMLSymbols.LABEL_LOW + "\" and \"" + XMLSymbols.LABEL_HIGH + "\" elements don't contain the same number of points.");
     public static final ExceptionCode WCSTCoverageNotFound = new ExceptionCode("WCSTCoverageNotFound",
@@ -304,7 +312,7 @@ public class ExceptionCode {
             "The number of \"" + XMLSymbols.LABEL_FILE_REFERENCE + "\" elements is wrong (exactly 1 expected).");
     public static final ExceptionCode WCSTWrongNumberOfFileStructureElements = new ExceptionCode("WCSTWrongNumberOfFileStructureElements",
             "The number of \"" + XMLSymbols.LABEL_FILE_STRUCTURE + "\" elements is wrong (exactly 1 expected).");
-    public static final ExceptionCode WCSTDuplicatedCoverageName = new ExceptionCode("WCSTDuplicatedCoverageName",
+    public static final ExceptionCode WCSTDuplicatedCoverageId = new ExceptionCode("WCSTDuplicatedCoverageName",
             "A coverage with this name already exists (pick a different name or use the request parameter useId=new).");
     public static final ExceptionCode WCSTTypeRegistryNotFound = new ExceptionCode("WCSTTypeRegistryNotFound",
             "Could not read the rasdaman type registry.");
@@ -322,5 +330,8 @@ public class ExceptionCode {
             "CRS indicated in the outputCrs parameter is not supported by this server.", 501);
     public static final ExceptionCode GridCoverageNotSupported = new ExceptionCode("GridCoverageNotSupported",
             "Grid coverage cannot be used to project (transform) by this server.", 501);
+    
+    // WCS 2 Exception code (InvalidRequest returns error 400 but in some cases OGC CITE wants error 404 for WCS 2.0.1)
+    public static final ExceptionCode WCSBadRequest = new ExceptionCode("WCSBadRequest", 404);
 
 }

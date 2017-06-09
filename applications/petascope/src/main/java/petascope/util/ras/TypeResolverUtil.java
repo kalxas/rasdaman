@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.rasdaman.domain.cis.NilValue;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.wcst.WCSTUnknownPixelTypeException;
-import petascope.swe.datamodel.NilValue;
+import petascope.wcst.exceptions.WCSTUnknownPixelTypeException;
+import petascope.core.Pair;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
 
 /**
@@ -49,7 +49,8 @@ public class TypeResolverUtil {
      */
     public static String guessCollectionTypeFromFile(String filePath, int dimension, List<NilValue> nullValues) throws IOException, PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
-        return guessCollectionType(dimension, dimTypes.getValue(), nullValues);
+        
+        return guessCollectionType(dimension, dimTypes.snd, nullValues);
     }
 
     /**

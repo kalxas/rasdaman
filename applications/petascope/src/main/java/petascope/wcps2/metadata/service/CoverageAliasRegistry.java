@@ -24,6 +24,9 @@ package petascope.wcps2.metadata.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
 
 /**
  * This class has the purpose of keeping information about coverage aliases inside 1 query (e.g. "for c in mr" means
@@ -32,13 +35,23 @@ import java.util.LinkedHashMap;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Service
+// Create a new instance of this bean for each request (so it will not use the old object with stored data)
+@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CoverageAliasRegistry {
 
     // NOTE: a coverage variable can be alias for multiple coverage names
-    private final LinkedHashMap<String, ArrayList<String>> coverageMappings;
+    private LinkedHashMap<String, ArrayList<String>> coverageMappings = new LinkedHashMap<>();
 
     public CoverageAliasRegistry() {
-        this.coverageMappings = new LinkedHashMap<String, ArrayList<String>>();
+        
+    }
+    
+    /**
+     * As this bean exists for a HTTP request, so in case of WCS multipart, it still contains the data from the first WCPS query, so need to clear it
+     */
+    public void clear() {
+        coverageMappings = new LinkedHashMap<>();
     }
 
     public void addCoverageMapping(String coverageAlias, String coverageName) {
@@ -74,5 +87,4 @@ public class CoverageAliasRegistry {
     public LinkedHashMap<String, ArrayList<String>> getCoverageMappings() {
         return this.coverageMappings;
     }
-
 }

@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,59 +47,53 @@ import nu.xom.Element;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 import org.apache.commons.io.IOUtils;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.ConfigManager;
-import petascope.core.CoverageMetadata;
+import org.rasdaman.config.ConfigManager;
 import petascope.core.CrsDefinition;
 import static petascope.core.CrsDefinition.ELEV_ALIASES;
 import static petascope.core.CrsDefinition.X_ALIASES;
 import static petascope.core.CrsDefinition.Y_ALIASES;
-import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
-import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
+import petascope.core.AxisTypes;
+import petascope.util.StringUtil;
+import petascope.core.XMLSymbols;
+import petascope.util.XMLUtil;
 import static petascope.util.StringUtil.ENCODING_UTF8;
-import petascope.wcps.metadata.CellDomainElement;
-import petascope.wcps.metadata.CoverageInfo;
-import petascope.wcps.metadata.DomainElement;
 
 /**
- * Coordinates transformation utility in case a spatial reprojection
- *  is needed before translating to WCPS/RASQL queries. *
- * NOTE: each instance of this class should decode the source and
- *  target CRS at construction time, to a one-for-all read into the EPSG db.
- *  It also should not be static since different requests
- *  will involve different CRS. However keeping a static dictionary
- *  of the requested mathematical transformations avoids the need of
- *  redundant read onto the EPSG db.
+ * Coordinates transformation utility in case a spatial reprojection is needed
+ * before translating to WCPS/RASQL queries. * NOTE: each instance of this class
+ * should decode the source and target CRS at construction time, to a
+ * one-for-all read into the EPSG db. It also should not be static since
+ * different requests will involve different CRS. However keeping a static
+ * dictionary of the requested mathematical transformations avoids the need of
+ * redundant read onto the EPSG db.
  *
  * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class CrsUtil {
 
     // NOTE: accept any URI format, but ask to SECORE: flattened definitions, less recursion.
-    public static final  String OPENGIS_URI_PREFIX = "http://www.opengis.net";
-    private static final String HTTP_URL_PATTERN   = "(http|https)://.*/";
-    private static final String HTTP_PREFIX        = "http://";
+    public static final String OPENGIS_URI_PREFIX = "http://www.opengis.net";
+    public static final String OPENGIS_INDEX_URI = OPENGIS_URI_PREFIX + "/def/crs/OGC/0/Index$ND";
+    public static final String OPENGIS_EPSG_URI = OPENGIS_URI_PREFIX + "/def/crs/EPSG/0/";
+    private static final String HTTP_URL_PATTERN = "(http|https)://.*/";
+    private static final String HTTP_PREFIX = "http://";
 
     // SECORE keywords (URL is set in the ConfigManager)
-    public static final String KEY_RESOLVER_CRS    = "crs";
-    public static final String KEY_RESOLVER_CCRS   = "crs-compound";
-    public static final String KEY_RESOLVER_EQUAL  = "equal";
+    public static final String KEY_RESOLVER_CRS = "crs";
+    public static final String KEY_RESOLVER_CCRS = "crs-compound";
+    public static final String KEY_RESOLVER_EQUAL = "equal";
     public static final char SLICED_AXIS_SEPARATOR = '@';
 
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
     // NOTE: IndexND is different with CRS:1 (consider IndexND is a geo-referenced axis type)
     // while CRS:1 is Rasql grid axis type, it is not interchangeable.
-    public static final String GRID_CRS  = "CRS:1";
+    public static final String GRID_CRS = "CRS:1";
     public static final String INDEX_CRS_PATTERN = "Index\\d+D";
     public static final String INDEX_CRS_PATTERN_NUMBER = "\\d+";
     // Replace \\d+ with the number of axis (e.g: 2 (mr), 3 (irr_cube_1))
@@ -106,23 +101,23 @@ public class CrsUtil {
     public static final String INDEX_CRS_PREFIX = "Index";
     public static final String INDEX_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
     public static final BigDecimal INDEX_SCALAR_RESOLUTION = BigDecimal.ONE; // Use for RectifiedGrid coverage which uses IndexND
-    public static final String PURE_UOM  = "10^0";
+    public static final String PURE_UOM = "10^0";
 
     public static final String CRS_DEFAULT_VERSION = "0";
     //public static final String CRS_DEFAULT_FORMAT  = "application/gml+xml";
 
     // TODO: do not rely on a static set of auths, but ask SECORE to return the supported authorities: ./def/crs/
     public static final String EPSG_AUTH = "EPSG";
-    public static final String ISO_AUTH  = "ISO";
+    public static final String ISO_AUTH = "ISO";
     public static final String AUTO_AUTH = "AUTO";
-    public static final String OGC_AUTH  = "OGC";
+    public static final String OGC_AUTH = "OGC";
     //public static final String IAU_AUTH  = "IAU2000";
     //public static final String UMC_AUTH  = "UMC";
     public static final List<String> SUPPORTED_AUTHS = Arrays.asList(EPSG_AUTH, ISO_AUTH, AUTO_AUTH, OGC_AUTH); // IAU_AUTH, UMC_AUTH);
 
     // WGS84
     public static final String WGS84_EPSG_CODE = "4326";
-    
+
     // used in WCS GetCapabilities to list all the possible CRSs
     public static final String EPSG_ALL_CRS = CrsUtil.getResolverUri() + "/crs/EPSG/0";
     // e.g: <identifier>http://localhost:8080/def/crs/EPSG/0/4326</identifier>
@@ -130,50 +125,17 @@ public class CrsUtil {
 
 
     /* CACHES: avoid EPSG db and SECORE redundant access */
-    private static Map<List<String>, MathTransform> loadedTransforms = new HashMap<List<String>, MathTransform>();  // CRS reprojections
-    private static Map<String, CrsDefinition>       parsedCRSs       = new HashMap<String, CrsDefinition>();        // CRS definitions
-    private static Map<List<String>, Boolean>       crsComparisons   = new HashMap<List<String>, Boolean>();        // CRS equality tests
-    private static Map<List<String>, Long[]>  gridIndexConversions   = new HashMap<List<String>, Long[]>();         // subset2gridIndex conversions
+    private static Map<String, CrsDefinition> parsedCRSs = new HashMap<String, CrsDefinition>();        // CRS definitions
+    private static Map<List<String>, Boolean> crsComparisons = new HashMap<List<String>, Boolean>();        // CRS equality tests
+    private static Map<List<String>, Long[]> gridIndexConversions = new HashMap<List<String>, Long[]>();         // subset2gridIndex conversions
 
-    private List<String> crssMap;
-    private CoordinateReferenceSystem sCrsID, tCrsID;
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
-
-    // Constructor
-    public CrsUtil(String sCrs, String tCrs) throws WCSException {
-        sCrsID = null;
-        tCrsID = null;
-
-        try {
-            // TODO: allow non-EPSG CRSs.
-            crssMap = new ArrayList<String>(2);
-            crssMap.addAll(Arrays.asList(sCrs, tCrs));
-
-            if (CrsUtil.loadedTransforms.containsKey(crssMap)) {
-                log.info("CRS transform already loaded in memory.");
-            } else {
-                log.info("Previously unused CRS transform: create and load in memory.");
-                sCrsID = CRS.decode(EPSG_AUTH + ":" + CrsUri.getCode(sCrs));
-                tCrsID = CRS.decode(EPSG_AUTH + ":" + CrsUri.getCode(tCrs));
-                MathTransform transform = CRS.findMathTransform(sCrsID, tCrsID);
-                CrsUtil.loadedTransforms.put(crssMap, transform);
-            }
-        } catch (NoSuchAuthorityCodeException e) {
-            log.error("Could not find CRS " + (sCrsID == null ? sCrs : tCrs) + " on the EPSG db: CRS transform impossible.");
-            throw new WCSException(ExceptionCode.InvalidMetadata, "Unsopported or invalid CRS \"" + (sCrsID == null ? sCrs : tCrs) + "\".");
-        } catch (FactoryException e) {
-            log.error("Error while decoding CRS " + (sCrsID == null ? sCrs : tCrs) + "\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while instanciating new CrsUtil object.\".");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while instanciating new CrsUtil object.\".");
-        }
-    }
 
     // Interface (unuseful now)
     /**
-     * @return Indicates whether the CrsUtil object has already been created: only DomainInterval/Points
-     *  read the WCPS CRS specification, so CrsUtil is called multiple times to transform e.g. a whole BBOX specification.
+     * @return Indicates whether the CrsUtil object has already been created:
+     * only DomainInterval/Points read the WCPS CRS specification, so CrsUtil is
+     * called multiple times to transform e.g. a whole BBOX specification.
      */
     /*public CoordinateReferenceSystem getSourceCrs() {
         return sCrsID;
@@ -181,60 +143,46 @@ public class CrsUtil {
     public CoordinateReferenceSystem getTargetCrs() {
         return tCrsID;
     }*/
-
-    // TODO: ask SECORE which auths are supported.
-    /**
-     * @param   String crsID    OGC identification URL of CRS.
-     * @return  boolean         True if a supported CRS (currently EPSG codes only).
-     */
-    public static boolean isSupportedCrsCode(String crsID) {
-        //   try {
-        //        // read from List e return
-        //        return crsID.equals(GRID_CRS)
-        //                || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)) //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
-        //                ||
-        //        //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
-        //        //      ...
-        //    } catch (Exception e) {
-        //        log.warn(e.getMessage());
-        //        return false;
-        //    }
-        return true;
-    }
-
     /**
      * Build a CRS HTTP URI.
-     * @param   resolver     The prefix of the resolver URL (http://<host>/def/)
-     * @param   committee    The committee defining the CRS (e.g. EPSG)
-     * @param   version      Version of the CRS
-     * @param   code         Code of the CRS
-     * @return  The URI of the CRS (based on SECORE URL by default)
+     *
+     * @param resolver The prefix of the resolver URL (http://<host>/def/)
+     * @param committee The committee defining the CRS (e.g. EPSG)
+     * @param version Version of the CRS
+     * @param code Code of the CRS
+     * @return The URI of the CRS (based on SECORE URL by default)
      */
     public static String CrsUri(String resolver, String committee, String version, String code) {
         return resolver + "/" + KEY_RESOLVER_CRS + "/" + committee + "/" + version + "/" + code;
     }
+
     public static String CrsUri(String committee, String version, String code) {
         return getResolverUri() + "/" + KEY_RESOLVER_CRS + "/" + committee + "/" + version + "/" + code;
     }
+
     public static String CrsUri(String committee, String code) {
         return CrsUri(committee, CRS_DEFAULT_VERSION, code);
     }
+
     // @Override: shortcut ".../auth/0/" for e.g. supportedCrs in WCS GetCapabilities response
     public static String CrsUriDir(String prefix, String committee, String version) {
         return prefix + "/" + KEY_RESOLVER_CRS + "/" + committee + "/" + version + "/";
     }
+
     public static String CrsUriDir(String prefix, String committee) {
         return CrsUriDir(prefix, committee, CRS_DEFAULT_VERSION);
     }
+
     public static String CrsUriDir(String committee) {
         return CrsUriDir(getResolverUri(), committee, CRS_DEFAULT_VERSION);
     }
-    
-    
+
     /**
-     * WCS GetCapabilities must contain list of EPSG CRSs as it is required in OGC CRS Extension 
-     * @return 
-     * @throws java.net.MalformedURLException 
+     * WCS GetCapabilities must contain list of EPSG CRSs as it is required in
+     * OGC CRS Extension
+     *
+     * @return
+     * @throws java.net.MalformedURLException
      */
     public static List<String> getAllEPSGCrss() throws MalformedURLException, IOException {
         URL url = new URL(CrsUtil.EPSG_ALL_CRS);
@@ -242,30 +190,44 @@ public class CrsUtil {
         con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
         con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
         InputStream inStream = con.getInputStream();
-        
+
         String crssTmp = IOUtils.toString(inStream, ENCODING_UTF8);
         Matcher matcher = Pattern.compile(SECORE_IDENTIFIER_PATTERN).matcher(crssTmp);
-        
+
         List<String> crss = new ArrayList<String>();
         while (matcher.find()) {
             crss.add(matcher.group(1));
         }
-        
+
         return crss;
     }
 
     /**
-     * Parser of GML definitions of Coordinate Reference Systems:
-     * parse the specified (resolver) URI recursively and creates the CrsDefinition object(s) along.
-     * Sliced axes list (e.g. <uri>@<not_sliced_axis>) is dropped from the URI to keep it actionable
-     * (SECORE does not understand this notation, nor it is standardized).
-     * @param  givenCrsUri   The URI of the /atomic/ CRS to be parsed (URI need to be decomposed first).
+     * Return the datumOrigin from CRS definition by CRS uri
+     *
+     * @return
+     */
+    public static String getDatumOrigin(String crs) throws PetascopeException, SecoreException {
+        String datumOrigin = getCrsDefinition(crs).getDatumOrigin();
+
+        return datumOrigin;
+    }
+
+    /**
+     * Parser of GML definitions of Coordinate Reference Systems: parse the
+     * specified (resolver) URI recursively and creates the CrsDefinition
+     * object(s) along. Sliced axes list (e.g. <uri>@<not_sliced_axis>) is
+     * dropped from the URI to keep it actionable (SECORE does not understand
+     * this notation, nor it is standardized).
+     *
+     * @param givenCrsUri The URI of the /atomic/ CRS to be parsed (URI need to
+     * be decomposed first).
      * @return The parsed CRS definition
      * @throws PetascopeException
      * @throws SecoreException
      */
     // (!!) Always use decomposeUri() output to feed this method: it currently understands single CRSs.
-    public static CrsDefinition getGmlDefinition(String givenCrsUri) throws PetascopeException, SecoreException {        
+    public static CrsDefinition getCrsDefinition(String givenCrsUri) throws PetascopeException, SecoreException {
         CrsDefinition crs = null;
         List<List<String>> axes = new ArrayList<List<String>>();
 
@@ -273,7 +235,7 @@ public class CrsUtil {
         givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "");
 
         // Check first if the definition is already in cache:
-        if (CrsUri.isCached(givenCrsUri)) {            
+        if (CrsUri.isCached(givenCrsUri)) {
             return CrsUri.getCachedDefinition(givenCrsUri);
         }
 
@@ -293,9 +255,9 @@ public class CrsUtil {
         String lastUri = givenCrsUri;
         for (String resolverUri : ConfigManager.SECORE_URLS) {
             String fullUri = CrsUri(resolverUri,
-                                    CrsUri.getAuthority(givenCrsUri),
-                                    CrsUri.getVersion(givenCrsUri),
-                                    CrsUri.getCode(givenCrsUri));
+                    CrsUri.getAuthority(givenCrsUri),
+                    CrsUri.getVersion(givenCrsUri),
+                    CrsUri.getCode(givenCrsUri));
             if (!crsUris.contains(fullUri)) {
                 lastUri = fullUri;
                 crsUris.add(lastUri);
@@ -350,12 +312,12 @@ public class CrsUtil {
 
                 // Init CrsDefinition, then add axes later on
                 crs = new CrsDefinition(
-                    CrsUri.getAuthority(crsUri),
-                    CrsUri.getVersion(crsUri),
-                    CrsUri.getCode(crsUri),
-                    crsType);
+                        CrsUri.getAuthority(crsUri),
+                        CrsUri.getVersion(crsUri),
+                        CrsUri.getCode(crsUri),
+                        crsType);
 
-                List<Element> axesList = XMLUtil.ch(csEl, XMLSymbols.LABEL_CRSAXIS);
+                List<Element> axesList = XMLUtil.getChildElements(csEl, XMLSymbols.LABEL_CRSAXIS);
 
                 // Check if there is at least one axis definition
                 if (axesList.isEmpty()) {
@@ -374,7 +336,7 @@ public class CrsUtil {
 
                     // Get abbreviation
                     Element axisAbbrevEl = XMLUtil.firstChildRecursive(csaEl, XMLSymbols.LABEL_AXISABBREV);
-                    Element axisDirEl    = XMLUtil.firstChildRecursive(csaEl, XMLSymbols.LABEL_AXISDIRECTION);
+                    Element axisDirEl = XMLUtil.firstChildRecursive(csaEl, XMLSymbols.LABEL_AXISDIRECTION);
 
                     // Check if they are defined: otherwise exception must be thrown
                     if (axisAbbrevEl == null | axisDirEl == null) {
@@ -382,7 +344,7 @@ public class CrsUtil {
                         throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
                     }
                     String axisAbbrev = axisAbbrevEl.getValue();
-                    String axisDir    = axisDirEl.getValue();
+                    String axisDir = axisDirEl.getValue();
 
                     // Get the UoM of this axis
                     String uomName;
@@ -405,7 +367,7 @@ public class CrsUtil {
                             uomName = uomAtt.getValue().split(" ")[0]; // UoM is meant as one word only
                         } else {
                             // Need to parse a new XML definition
-                            uomUrl = new URL(uomAtt.getValue());                            
+                            uomUrl = new URL(uomAtt.getValue());
                             Element uomRoot = crsDefUrlToXml(uomAtt.getValue());
                             if (uomRoot != null) {
 
@@ -468,15 +430,15 @@ public class CrsUtil {
                 throw new SecoreException(ExceptionCode.InvalidMetadata, ex);
             } catch (ValidityException ex) {
                 throw new SecoreException(ExceptionCode.InternalComponentError,
-                                          (null == uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
+                        (null == uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
             } catch (ParsingException ex) {
                 log.error(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
                 throw new SecoreException(ExceptionCode.InternalComponentError,
-                                          (null == uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
+                        (null == uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
             } catch (IOException ex) {
                 if (crsUri.equals(lastUri) || null != uomUrl) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                                              (null == uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
+                            (null == uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
                 } else {
                     log.warn("Connection problem with " + (null == uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
                     log.warn("Attempting to fetch the CRS definition via fallback resolver.");
@@ -485,7 +447,7 @@ public class CrsUtil {
                 throw ex;
             } catch (Exception ex) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                             (null == uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
+                        (null == uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
             }
         }
 
@@ -509,16 +471,19 @@ public class CrsUtil {
     }
 
     /**
-     * Try to build XML elements tree from CRS URI (try with all provided SECORE configurations in petascope.properties if it still returns NULL for elements tree)
+     * Try to build XML elements tree from CRS URI (try with all provided SECORE
+     * configurations in petascope.properties if it still returns NULL for
+     * elements tree)
+     *
      * @param url
      * @return Element
      * @throws MalformedURLException
      * @throws IOException
-     * @throws ParsingException 
+     * @throws ParsingException
      */
     public static Element crsDefUrlToXml(final String url) throws MalformedURLException, IOException, ParsingException {
         Element ret = crsDefUrlToDocument(url);
-        if (ret == null) {            
+        if (ret == null) {
             for (String configuredResolver : ConfigManager.SECORE_URLS) {
                 String newUrl = CrsUri.replaceResolverInUrl(url, configuredResolver);
                 ret = crsDefUrlToDocument(newUrl);
@@ -532,6 +497,7 @@ public class CrsUtil {
 
     /**
      * Check if axisCrs of coverage is gridCrs (CRS:1)
+     *
      * @param axisCrs
      * @return
      */
@@ -542,9 +508,9 @@ public class CrsUtil {
         return false;
     }
 
-
     /**
      * Check if axisCrs of coverage is IndexCRS (IndexND)
+     *
      * @param axisCrs
      * @return
      */
@@ -559,9 +525,10 @@ public class CrsUtil {
 
     /**
      * Building a XML elements tree from a CRS URI
+     *
      * @param url
      * @return Element
-     * @throws MalformedURLException 
+     * @throws MalformedURLException
      */
     private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
         Element ret = null;
@@ -581,8 +548,9 @@ public class CrsUtil {
     }
 
     /**
-     * Extracts the UoM name from the URI as last field in the RESTful .
-     * 10^0 as UoM for pure numbers is otherwise returned.
+     * Extracts the UoM name from the URI as last field in the RESTful . 10^0 as
+     * UoM for pure numbers is otherwise returned.
+     *
      * @param uomUrl
      * @return The UoM label for the URI.
      */
@@ -609,12 +577,15 @@ public class CrsUtil {
     }
 
     /**
-     * Discover which is the order of the specified (CRS) axis in the specified ordered list of CRSs (compound CRS).
-     * If the axis is not present in the (C)CRS, then -1 is returned.
-     * NOTE: use CrsUri.decomposeUri() to get a list of single CRS URIs from a compound CRS.
-     * @param crsUris     An ordered list of single CRS URIs
-     * @param axisAbbrev  The CRS axis label (//CoordinateSystemAxis/axisAbbrev)
-     * @return The order of `axisAbbrev' axis in the (C)CRS [0 is first], -1 otherwise.
+     * Discover which is the order of the specified (CRS) axis in the specified
+     * ordered list of CRSs (compound CRS). If the axis is not present in the
+     * (C)CRS, then -1 is returned. NOTE: use CrsUri.decomposeUri() to get a
+     * list of single CRS URIs from a compound CRS.
+     *
+     * @param crsUris An ordered list of single CRS URIs
+     * @param axisAbbrev The CRS axis label (//CoordinateSystemAxis/axisAbbrev)
+     * @return The order of `axisAbbrev' axis in the (C)CRS [0 is first], -1
+     * otherwise.
      * @throws PetascopeException
      * @throws SecoreException
      */
@@ -626,7 +597,7 @@ public class CrsUtil {
 
         // scan the CRS axes
         for (String singleCrs : crsUris) {
-            crsDef = CrsUtil.getGmlDefinition(singleCrs); // cache is used, no SECORE access here
+            crsDef = CrsUtil.getCrsDefinition(singleCrs); // cache is used, no SECORE access here
             for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
                 if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
                     if (crsAxis.getAbbreviation().equals(axisAbbrev)) {
@@ -641,12 +612,16 @@ public class CrsUtil {
     }
 
     /**
-     * Discover which is the label of the specified (CRS) axis in the specified ordered list of CRSs (compound CRS).
-     * If the axis is not present in the (C)CRS, then an empty String is returned.
-     * NOTE: use CrsUri.decomposeUri() to get a list of single CRS URIs from a compound CRS.
-     * @param crsUris   An ordered list of single CRS URIs
-     * @param axisOrder The order of the axis (//CoordinateSystemAxis) in the (C)CRS [0 is first]
-     * @return The label (//CoordinateSystemAxis/axisAbbrev) of the "axisOrder"-th axis in the (C)CRS, an empty String otherwise.
+     * Discover which is the label of the specified (CRS) axis in the specified
+     * ordered list of CRSs (compound CRS). If the axis is not present in the
+     * (C)CRS, then an empty String is returned. NOTE: use CrsUri.decomposeUri()
+     * to get a list of single CRS URIs from a compound CRS.
+     *
+     * @param crsUris An ordered list of single CRS URIs
+     * @param axisOrder The order of the axis (//CoordinateSystemAxis) in the
+     * (C)CRS [0 is first]
+     * @return The label (//CoordinateSystemAxis/axisAbbrev) of the
+     * "axisOrder"-th axis in the (C)CRS, an empty String otherwise.
      * @throws PetascopeException
      * @throws SecoreException
      */
@@ -658,7 +633,7 @@ public class CrsUtil {
 
         // scan the CRS axes
         for (String singleCrs : crsUris) {
-            crsDef = CrsUtil.getGmlDefinition(singleCrs);
+            crsDef = CrsUtil.getCrsDefinition(singleCrs);
             for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
                 if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
                     if (counter == axisOrder) {
@@ -672,15 +647,18 @@ public class CrsUtil {
         // Axis was not found: return empty String
         return "";
     }
+
     // Overload for a single URI
     public static String getAxisLabel(String singleCrsUri, Integer axisOrder) throws PetascopeException, SecoreException {
-        return getAxisLabel(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})), axisOrder);
+        return getAxisLabel(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})), axisOrder);
     }
 
     /**
      * Get an ordered list of axis labels for a CCRS.
-     * @param crsUris  An ordered list of single CRS URIs
-     * @return The ordered list of labels (//CoordinateSystemAxis/axisAbbrev) of the (C)CRS.
+     *
+     * @param crsUris An ordered list of single CRS URIs
+     * @return The ordered list of labels (//CoordinateSystemAxis/axisAbbrev) of
+     * the (C)CRS.
      * @throws PetascopeException
      * @throws SecoreException
      */
@@ -692,7 +670,7 @@ public class CrsUtil {
 
         // scan the CRS axes
         for (String singleCrs : crsUris) {
-            crsDef = CrsUtil.getGmlDefinition(singleCrs);
+            crsDef = CrsUtil.getCrsDefinition(singleCrs);
             for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
                 if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
                     axesLabels.add(crsAxis.getAbbreviation());
@@ -702,15 +680,18 @@ public class CrsUtil {
 
         return axesLabels;
     }
+
     // Overload for single URI
     public static List<String> getAxesLabels(String singleCrsUri) throws PetascopeException, SecoreException {
-        return getAxesLabels(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})));
+        return getAxesLabels(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
     }
 
     /**
      * Discover which is the type of the specified (CRS) axis.
-     * @param crs   An ordered list of single CRS URIs
-     * @param axisName The order of the axis (//CoordinateSystemAxis) in the (C)CRS [0 is first]
+     *
+     * @param crs An ordered list of single CRS URIs
+     * @param axisName The order of the axis (//CoordinateSystemAxis) in the
+     * (C)CRS [0 is first]
      * @return The type of the specified axis
      */
     public static String getAxisType(CrsDefinition crs, String axisName) {
@@ -736,20 +717,22 @@ public class CrsUtil {
 
     /**
      * Get an ordered list of axis UoMs for a CCRS.
-     * @param crsUris  An ordered list of single CRS URIs
-     * @return The ordered list of UoM (//CoordinateSystemAxis/@uom) of the (C)CRS.
+     *
+     * @param crsUris An ordered list of single CRS URIs
+     * @return The ordered list of UoM (//CoordinateSystemAxis/@uom) of the
+     * (C)CRS.
      * @throws PetascopeException
      * @throws SecoreException
      */
     public static List<String> getAxesUoMs(List<String> crsUris) throws PetascopeException, SecoreException {
 
         // init
-        List<String> axesUoMs = new ArrayList<String>(getTotalDimensionality(crsUris));
+        List<String> axesUoMs = new ArrayList<>(getTotalDimensionality(crsUris));
         CrsDefinition crsDef;
 
         // scan the CRS axes
         for (String singleCrs : crsUris) {
-            crsDef = CrsUtil.getGmlDefinition(singleCrs);
+            crsDef = CrsUtil.getCrsDefinition(singleCrs);
             for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
                 if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
                     axesUoMs.add(crsAxis.getUoM());
@@ -759,14 +742,16 @@ public class CrsUtil {
 
         return axesUoMs;
     }
+
     // Overload for single URI
     public static List<String> getAxesUoMs(String singleCrsUri) throws PetascopeException, SecoreException {
-        return getAxesUoMs(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})));
+        return getAxesUoMs(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
     }
 
     /**
      * Counts the number of axes involved in a CCRS composition.
-     * @param crsUris  An ordered list of single CRS URIs
+     *
+     * @param crsUris An ordered list of single CRS URIs
      * @return The sum of dimensionalities of each single CRS.
      * @throws PetascopeException
      * @throws SecoreException
@@ -779,7 +764,7 @@ public class CrsUtil {
 
         // scan the CRS axes
         for (String singleCrs : crsUris) {
-            crsDef = CrsUtil.getGmlDefinition(singleCrs);
+            crsDef = CrsUtil.getCrsDefinition(singleCrs);
             for (String axisLabel : crsDef.getAxesLabels()) {
                 counter += CrsUri.isSliced(singleCrs, axisLabel) ? 0 : 1;
             }
@@ -787,21 +772,25 @@ public class CrsUtil {
 
         return counter;
     }
+
     // Overload for single URI
     public static Integer getTotalDimensionality(String singleCrsUri) throws PetascopeException, SecoreException {
-        return getTotalDimensionality(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})));
+        return getTotalDimensionality(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
     }
 
     /**
-     * Deduces the updated (C)CRS URI from a given (C)CRS where 1+ axes have to be removed (sliced out).
-     * @param crsUris     An ordered list of single CRS URIs
-     * @param slicedAxes  The unordered list of axes to be sliced
-     * @return An updated (C)CRS URI where CRSs have been either removed (all its axes were sliced), partially sliced, or left as-is.
+     * Deduces the updated (C)CRS URI from a given (C)CRS where 1+ axes have to
+     * be removed (sliced out).
+     *
+     * @param crsUris An ordered list of single CRS URIs
+     * @param slicedAxes The unordered list of axes to be sliced
+     * @return An updated (C)CRS URI where CRSs have been either removed (all
+     * its axes were sliced), partially sliced, or left as-is.
      * @throws PetascopeException
      * @throws SecoreException
      */
     public static String sliceAxesOut(List<String> crsUris, Set<String> slicedAxes)
-    throws PetascopeException, SecoreException {
+            throws PetascopeException, SecoreException {
 
         // init
         Map<Integer, String> orderedSlicedAxes = new TreeMap<Integer, String>(); // {Axis Order in Coverage --> Axis Abbreviation}
@@ -828,9 +817,9 @@ public class CrsUtil {
             // a CRS must be either sliced (%/<axisLabel1>[/<axisLabel2>...])or removed from `gml:srsName' in case all its axes are sliced out.
             Map<String, List<String>> crsAxes = new LinkedHashMap<String, List<String>>(crsUris.size()); // keep insertion order
             for (String singleCrs : crsUris) {
-                List<String> labels = new ArrayList<String>(getGmlDefinition(singleCrs).getDimensions());
+                List<String> labels = new ArrayList<String>(getCrsDefinition(singleCrs).getDimensions());
                 // Get the list of axis labels of this URI and update the Map
-                labels.addAll(getGmlDefinition(singleCrs).getAxesLabels());
+                labels.addAll(getCrsDefinition(singleCrs).getAxesLabels());
                 crsAxes.put(singleCrs, labels);
             }
 
@@ -838,7 +827,7 @@ public class CrsUtil {
             for (Map.Entry orderLabel : orderedSlicedAxes.entrySet()) {
                 for (String singleCrs : crsUris) {
                     List<String> crsAxesLabels = getAxesLabels(singleCrs);
-                    String thisLabel = (String)orderLabel.getValue();
+                    String thisLabel = (String) orderLabel.getValue();
                     if (crsAxesLabels.contains(thisLabel)) {
                         // This CRS contains the sliced axis: remove it from the Map
                         List<String> updatedLabels = crsAxes.get(singleCrs);
@@ -851,8 +840,8 @@ public class CrsUtil {
             // Build-up the new (C)CRS uri:
             List<String> updatedSingleUris = new ArrayList<String>();
             for (Map.Entry uriLabels : crsAxes.entrySet()) {
-                String uri = (String)uriLabels.getKey();
-                List<String> axesLabels = (List<String>)uriLabels.getValue();
+                String uri = (String) uriLabels.getKey();
+                List<String> axesLabels = (List<String>) uriLabels.getValue();
 
                 if (axesLabels.isEmpty()) {
                     log.debug(uri + " CRS will be removed from the output URI.");
@@ -882,407 +871,100 @@ public class CrsUtil {
     }
 
     /**
-     * Utility to convert CRS subsets to grid indexes.
-     * Each grid axis is aligned with an axis of the native (compound) CRS.
-     * Conversions are cached, so that multiple calls do not duplicate computations.
-     * For WCS each request indeed you convert to build the RasQL query to fetch the data,
-     * and additionally you need the same indexes to update the coverage description.
-     *
-     * Grid indexes are not trimmer to fit sdom, since operations like extend or scale neet to
-     * go over the bounds. It is up to the caller to trim them afterwards.
-     *
-     * @param covMeta
-     * @param dbMeta
-     * @param axisName
-     * @param stringLo
-     * @param loIsNumeric
-     * @param stringHi
-     * @param hiIsNumeric
-     * @throws PetascopeException
-     */
-    public static long[] convertToInternalGridIndices(CoverageMetadata covMeta, DbMetadataSource dbMeta, String axisName,
-            String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
-    throws PetascopeException {
-
-        // out indexes
-        long[] subsetGridIndexes = new long[2];
-
-        // Check the cache: signature is {coverage name, axis name, lo, hi}
-        List<String> cacheKey = new ArrayList<String>(Arrays.asList(new String[] {
-                    covMeta.getCoverageName(),
-                    axisName,
-                    stringLo,
-                    stringHi
-                }));
-        // query the cache (for irregular axes: need to fetch the coefficients and set them in the DomainElement: no cache)
-        if (gridIndexConversions.containsKey(cacheKey)
-                &&  !covMeta.getDomainByName(axisName).isIrregular()) {
-            long[] cachedIndexes = new long[] {
-                gridIndexConversions.get(cacheKey)[0].longValue(),
-                gridIndexConversions.get(cacheKey)[1].longValue()
-            };
-            return cachedIndexes;
-
-        } else {
-            // Conversion is not cached: compute it
-            DomainElement      dom = covMeta.getDomainByName(axisName);
-            CellDomainElement cdom = covMeta.getCellDomainByName(axisName);
-
-            // null-pointers check
-            if (null == cdom || null == dom) {
-                log.error("Could not find the \"" + axisName + "\" axis for coverage:" + covMeta.getCoverageName());
-                throw new PetascopeException(ExceptionCode.NoApplicableCode, "Could not find the \"" + axisName + "\" axis for coverage:" + covMeta.getCoverageName());
-            }
-
-            // Get datum origin can also be null if !temporal axis: use axisType to guard)
-            String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
-
-            // Get Unit of Measure of this axis:
-            String axisUoM = dom.getUom();
-
-            // Get cellDomain extremes
-            long indexMin = cdom.getLoInt();
-            long indexMax = cdom.getHiInt();
-            log.trace("CellDomain extremes values: LOW: " + indexMin + ", HIGH:" + indexMax);
-
-            // Get Domain extremes (real sdom)
-            BigDecimal domMin = dom.getMinValue();
-            BigDecimal domMax = dom.getMaxValue();
-            log.trace("Domain extremes coordinates: (" + domMin + ", " + domMax + ")");
-            log.trace("Subset cooordinates: (" + stringLo + ", " + stringHi + ")");
-
-            /*---------------------------------*/
-            /*         VALIDITY CHECKS         */
-            /*---------------------------------*/
-            log.trace("Checking order, format and bounds of axis {} ...", axisName);
-
-            // Requires homogeneity in the bounds of a subset
-            if (loIsNumeric ^ hiIsNumeric) { // XOR
-                log.error("(" + stringLo + "," + stringHi + ") subset is invalid.");
-                throw new PetascopeException(ExceptionCode.InvalidRequest,
-                                             "(" + stringLo + "," + stringHi + ") subset requires bounds of the same domain.");
-            }
-            //~(From now on, some tests can be made on a single bound)
-            boolean subsetWithTimestamps = !loIsNumeric; // = !hiIsNumeric
-
-            // if subsets are not numeric, /now/ they other choice is that they are timestamps: check the format is valid
-            if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringLo)) {
-                log.error("Invalid temporal subset: " + stringLo);
-                throw new WCPSException(ExceptionCode.InvalidRequest,
-                                        "Subset '" + stringLo + "' is not valid nor as a number, nor as a supported time description. "
-                                        + "See Date4J javadoc for supported formats.");
-            }
-            if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringHi)) {
-                log.error("Invalid temporal subset: " + stringHi);
-                throw new WCPSException(ExceptionCode.InvalidRequest,
-                                        "Subset '" + stringHi + "' is not valid nor as a number, nor as a supported time description. "
-                                        + "See Date4J javadoc for supported formats.");
-            }
-
-            // Check order of subset: separate treatment for temporal axis with timestamps subsets
-            if (subsetWithTimestamps) {
-                // Check order
-                if (!TimeUtil.isOrderedTimeSubset(stringLo, stringHi)) {
-                    log.error("Temporal subset is not ordered: [" + stringLo + ", " + stringHi + "]");
-                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                                                 axisName + " axis: lower bound " + stringLo + " is greater then the upper bound " + stringHi);
-                }
-            } else {
-
-                // Numerical axis:
-                double coordLo = Double.parseDouble(stringLo);
-                double coordHi = Double.parseDouble(stringHi);
-
-                // Check order
-                if (coordHi < coordLo) {
-                    log.error("Subset is not ordered: [" + coordLo + ", " + coordHi + "]");
-                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                                                 axisName + " axis: lower bound " + coordLo + " is greater the upper bound " + coordHi);
-                }
-
-                // Check intersection with extents
-                if (coordLo > domMax.doubleValue() || coordHi < domMin.doubleValue()) {
-                    log.error("Subset " + "[" + coordLo + ", " + coordHi + "] is out of coverage bounds [" + domMin + ", " + domMax + "]");
-                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                                                 axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
-                }
-            }
-
-            /*---------------------------------*/
-            /*             CONVERT             */
-            /*---------------------------------*/
-            log.trace("Converting axis {} interval to pixel indices ...", axisName);
-            // There can be several different cases depending on spacing and type of this axis:
-            if (dom.isIrregular()) {
-
-                // Consistency check
-                // TODO need to find a way to solve `static` issue of dbMeta
-                if (dbMeta == null) {
-                    throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                                 "Axis " + axisName + " is irregular but is not linked to DbMetadataSource.");
-                }
-
-                // Need to query the database (IRRSERIES table) to get the extents
-                try {
-                    //
-                    String numLo = stringLo;
-                    String numHi = stringHi;
-                    BigDecimal normalizedNumLo;
-                    BigDecimal normalizedNumHi;
-
-                    if (subsetWithTimestamps) {
-                        // Need to convert timestamps to TemporalCRS numeric coordinates (normalized: "how many vectors" between subset/datum)
-                        normalizedNumLo = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution()).toString());
-                        normalizedNumHi = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution()).toString());
-                    } else {
-                        // Coefficients refer to how many offset-vectors of distance is a coordinate
-                        normalizedNumLo = BigDecimalUtil.divide(new BigDecimal(numLo), dom.getScalarResolution());
-                        normalizedNumHi = BigDecimalUtil.divide(new BigDecimal(numHi), dom.getScalarResolution());
-                    }
-
-                    // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
-                    // TODO: I need to extract all the values, not just the extremes
-                    BigDecimal normalizedDomMin = BigDecimalUtil.divide(domMin, dom.getScalarResolution());
-                    subsetGridIndexes = dbMeta.getIndexesFromIrregularRectilinearAxis(
-                                            covMeta.getCoverageName(),
-                                            covMeta.getDomainIndexByName(axisName), // i-order of axis
-                                            normalizedNumLo.subtract(normalizedDomMin),  // coefficients are relative to the origin, but subsets are not.
-                                            normalizedNumHi.subtract(normalizedDomMin),  //
-                                            indexMin, indexMax);
-
-                    // Retrieve the coefficients values and store them in the DomainElement
-                    dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
-                                            covMeta.getCoverageName(),
-                                            covMeta.getDomainIndexByName(axisName), // i-order of axis
-                                            normalizedNumLo.subtract(normalizedDomMin),
-                                            normalizedNumHi.subtract(normalizedDomMin)
-                                        ));
-
-                    // Add sdom lower bound
-                    subsetGridIndexes[0] = subsetGridIndexes[0] + indexMin;
-
-                } catch (PetascopeException e) {
-                    throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                                 "Error while fetching cell boundaries of irregular axis '" +
-                                                 axisName + "' of coverage " + covMeta.getCoverageName() + ": " + e.getMessage(), e);
-                }
-
-            } else {
-                // The axis is regular: need to differentiate between numeric and timestamps
-                // TODO: enable negative directions in time axis too (dom.isPositiveForwards())
-                if (subsetWithTimestamps) {
-                    // Need to convert timestamps to TemporalCRS numeric coordinates
-                    BigDecimal numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, BigDecimal.ONE); // do not normalize by vector here:
-                    BigDecimal numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, BigDecimal.ONE); // absolute time coords needed
-
-                    // Consistency check
-                    if (numHi.compareTo(domMin) < 0 || numLo.compareTo(domMax) > 0) {
-                        throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                                     "Translated pixel indixes of regular temporal axis (" +
-                                                     numLo + ":" + numHi + ") exceed the allowed values.");
-                    }
-
-                    // Replace timestamps with numeric subsets
-                    stringLo = "" + numLo;
-                    stringHi = "" + numHi;
-                    // Now subsets can be tranlsated to pixels with normal numeric proportion
-                }
-
-                // Indexed CRSs (integer "GridSpacing" UoM): no need for math proportion, coords are just int offsets.
-                // This is not the same as CRS:1 which access direct grid coordinates.
-                // Index CRSs have indexed coordinates, but still offset vectors can determine a different reference (eg origin is UL corner).
-                if (axisUoM.equals(CrsUtil.INDEX_UOM)) {
-                    int count = 0;
-                    // S = subset value, px_s = subset grid index
-                    // m = min(grid index), M = max(grid index)
-                    // {isPositiveForwards / isNegativeForwards}
-                    // Formula : px_s = grid_origin + [{S/M} - {m/S}]
-                    for (String subset : (Arrays.asList(new String[] {stringLo, stringHi}))) {
-                        // NOTE: on subsets.lo the /next/ integer needs to be taken : trunc(stringLo) + 1 (if it is not exact integer)
-                        boolean roundUp = subset.equals(stringLo) && ((double)Double.parseDouble(subset) != (long)Double.parseDouble(subset));
-                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) + (roundUp ? 1 : 0) : indexMax;
-                        long loBound = dom.isPositiveForwards() ? indexMin : (long)Double.parseDouble(subset) + (roundUp ? 1 : 0);
-                        subsetGridIndexes[count] =  domMin.longValue() + (hiBound - loBound);
-                        count += 1;
-                    }
-                    log.debug("Subset grid indexes for input Index CRS subsets: (" +
-                              subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
-                } else {
-
-                    /* Loop to get the pixel subset values.
-                    * Different cases (0%-overlap subsets are excluded by the checks above)
-                    *        MIN                                                     MAX
-                    *         |-------------+-------------+-------------+-------------|
-                    *              cell0         cell1         cell2         cell3
-                    * i)   |_____________________|
-                    * ii)                              |__________________|
-                    * iii)                                                         |_________________|
-                    */
-                    // Numeric interval: simple mathematical proportion
-                    double coordLo = Double.parseDouble(stringLo);
-                    double coordHi = Double.parseDouble(stringHi);
-
-                    // Get cell dimension -- Use BigDecimals to avoid finite arithmetic rounding issues of Doubles
-                    //double cellWidth = dom.getResolution().doubleValue();
-                    double cellWidth = BigDecimalUtil.divide(
-                                           (domMax.subtract(domMin)),
-                                           (BigDecimal.valueOf(indexMax + 1)).subtract(BigDecimal.valueOf(indexMin)))
-                                       .doubleValue();
-                    //      = (dDomHi-dDomLo)/(double)((pxHi-pxLo)+1);
-
-                    // Open interval on the right: take away epsilon from upper bound:
-                    //double coordHiEps = coordHi - cellWidth/10000;    // [a,b) subsets
-                    double coordHiEps = coordHi;                        // [a,b] subsets
-
-                    // Conversion to pixel domain
-                    /*
-                    * Policy = minimum encompassing BoundingBox returned
-                    *
-                    *     9°       10°       11°       12°       13°
-                    *     o---------o---------o---------o---------o
-                    *     |  cell0  |  cell1  |  cell2  |  cell3  |
-                    *     [=== s1 ==]
-                    *          [=== s2 ==]
-                    *           [===== s3 ====]
-                    *      [= s4 =]
-                    *
-                    * -- [a,b] closed intervals:
-                    * s1(9°  ,10°  ) -->  [cell0:cell1]
-                    * s2(9.5°,10.5°) -->  [cell0:cell1]
-                    * s3(9.7°,11°  ) -->  [cell0:cell2]
-                    * s4(9.2°,9.8° ) -->  [cell0:cell0]
-                    *
-                    * -- [a,b) open intervals:
-                    * s1(9°  ,10°  ) -->  [cell0:cell0]
-                    * s2(9.5°,10.5°) -->  [cell0:cell1]
-                    * s3(9.7°,11°  ) -->  [cell0:cell1]
-                    * s4(9.2°,9.8° ) -->  [cell0:cell0]
-                    */
-                    if (dom.isPositiveForwards()) {
-                        // Normal linear numerical axis
-                        subsetGridIndexes = new long[] {
-                            (long)Math.floor((coordLo    - domMin.doubleValue()) / cellWidth) + indexMin,
-                            (long)Math.floor((coordHiEps - domMin.doubleValue()) / cellWidth) + indexMin
-                        };
-                        // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-                        if (coordLo == coordHi && coordHi == domMax.doubleValue()) {
-                            subsetGridIndexes[0] -= 1;
-                        }
-                    } else {
-                        // Linear negative axis (eg northing of georeferenced images)
-                        subsetGridIndexes = new long[] {
-                            // First coordHi, so that left-hand index is the lower one
-                            (long)Math.floor((domMax.doubleValue() - coordHiEps) / cellWidth) + indexMin,
-                            (long)Math.floor((domMax.doubleValue() - coordLo)    / cellWidth) + indexMin
-                        };
-                        // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-                        if (coordLo == coordHi && coordHi == domMin.doubleValue()) {
-                            subsetGridIndexes[0] -= 1;
-                        }
-                    }
-                    log.debug("Transformed coords indices (" + subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
-                }
-            }
-
-            // Check lo<hi integrity (subsetHi becomes lower grid bound if the axis is positive backwards):
-            if (subsetGridIndexes[0] > subsetGridIndexes[1]) { // = (dom.isPositiveForwards())
-                subsetGridIndexes = new long[] {subsetGridIndexes[1], subsetGridIndexes[0]}; // swap
-                log.debug("Fix grid indexes order: (" + subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
-            }
-        }
-
-        // Add to cache (NOTE: Java collections need Objects -- no primitives)
-        gridIndexConversions.put(cacheKey, new Long[] {subsetGridIndexes[0], subsetGridIndexes[1]});
-
-        return subsetGridIndexes;
-    }
-    // Overload (for slices)
-    // [!] NOTE: do not use this method in case of trims: no lo<hi guard can be applied if interval elements are converted separately.
-    public static long convertToInternalGridIndices(CoverageMetadata meta, DbMetadataSource dbMeta, String axisName, String value, boolean isNumeric) throws PetascopeException {
-        return convertToInternalGridIndices(meta, dbMeta, axisName, value, isNumeric, value, isNumeric)[0];
-    }
-
-    /**
-     * Utility to get nativeCrs of axisName from compoundCrs of coverage
-     * @param coverageInfo
-     * @param axisName
-     * @return
-     */
-    public static String getNativeCrsByAxisName(CoverageInfo coverageInfo, String axisName) {
-        for (DomainElement element : coverageInfo.getDomains()) {
-            if (element.getLabel().equals(axisName)) {
-                return element.getNativeCrs();
-            }
-        }
-        return coverageInfo.getCoverageCrs();
-    }
-
-    /**
      * Utility to get the epsg code from CRS URI
+     *
      * @return
      */
     public static String getEPSGCode(String crs) {
-        return EPSG_AUTH + ":" + CrsUri.getCode(crs);
+        return EPSG_AUTH + ":" + getCode(crs);
     }
 
     /**
-    * Check if a coverage with geo-referenced axes are XY or YX axis order
-    * e.g: EPSG:4326 (YX), EPSG:3857 (XY)
-     * @param axisLabels
-    * @param coverageMetadata
-    * @return
-    */
-    public static boolean isXYCoverage(List<String> axisLabels, CoverageMetadata coverageMetadata) {
-        boolean isXYOrder = true;
-        for (String axisLabel : axisLabels) {
-            DomainElement dom = coverageMetadata.getDomainByName(axisLabel);
-            if (dom.getType().equals(AxisTypes.X_AXIS)) {
-                isXYOrder = true;
-                break;
-            } else if (dom.getType().equals(AxisTypes.Y_AXIS)) {
-                isXYOrder = false;
-                break;
-            }
-
-        }
-        return isXYOrder;
+     * Return the opengis full uri for EPSG code, e.g: EPSG:4326 ->
+     * http://www.opengis.net/def/crs/EPSG/0/4326
+     *
+     * @param epsgCode
+     * @return
+     */
+    public static String getEPSGFullUri(String epsgCode) {
+        return OPENGIS_EPSG_URI + epsgCode.split(":")[1];
     }
 
+    /**
+     * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326)
+     *
+     * @param crs
+     * @return
+     */
+    public static String getCode(String crs) {
+        return CrsUri.getCode(crs);
+    }
+
+    /**
+     * Check if 2D geo-referenced CRS is valid to transform
+     *
+     * @param uri
+     * @return
+     */
+    public static boolean isValidTransform(String uri) {
+        if (CrsUtil.isGridCrs(uri)) {
+            return false;
+        } else if (CrsUtil.isIndexCrs(uri)) {
+            return false;
+        } else if (!CrsUtil.CrsUri.getAuthority(uri).equals(EPSG_AUTH)) {
+            // Not EPSG CRS so cannot transform
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Nested class to offer utilities for CRS *URI* handling.
      */
     public static class CrsUri {
 
+        /**
+         * SECORE keyword used in legacy PS_CRS table to be replaces with the
+         * first configured resolver. NOTE: Don't store the whole URI with fixed
+         * SECORE endpoint (e.g: http://localhost:8080/def/crs/epsg/0/4326) as
+         * if one does not host SECORE in localhost:8080 and changes in
+         * petascope.propeties with SECORE http://abc.com/def/crs/epsg/0/4326,
+         * the stored URI with localhost will be not found.
+         */
+        public static final String SECORE_URL_PREFIX = "%SECORE_URL%";
         public static final String LAST_PATH_PATTERN = ".*/(.*)$";
 
-        private static final String COMPOUND_SPLIT   = "(\\?|&)\\d+=";
+        private static final String COMPOUND_SPLIT = "(\\?|&)\\d+=";
         private static final String COMPOUND_PATTERN = "^" + HTTP_URL_PATTERN + KEY_RESOLVER_CCRS;
 
         private static final String AUTHORITY_KEY = "authority";    // Case-insensitivity is added in the pattern
-        private static final String VERSION_KEY   = "version";
-        private static final String CODE_KEY      = "code";
+        private static final String VERSION_KEY = "version";
+        private static final String CODE_KEY = "code";
         //private static final String FORMAT_KEY    = "format";
 
-        private static final String KV_PAIR = "(((?i)" + AUTHORITY_KEY  + ")=[^&]+|"  +
-                                              "((?i)" + CODE_KEY       + ")=(.+)|" +
-                                              //"((?i)" + FORMAT_KEY     + ")=[^&]+|" +  // Add 1 KV_PAIR here below when enabled.
-                                              "((?i)" + VERSION_KEY    + ")=(.+))";
-        private static final String KVP_CRS_PATTERN = "^" +
-                HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?" +
-                KV_PAIR + "&" + KV_PAIR + "&" + KV_PAIR + "$";
+        private static final String KV_PAIR = "(((?i)" + AUTHORITY_KEY + ")=[^&]+|"
+                + "((?i)" + CODE_KEY + ")=(.+)|"
+                + //"((?i)" + FORMAT_KEY     + ")=[^&]+|" +  // Add 1 KV_PAIR here below when enabled.
+                "((?i)" + VERSION_KEY + ")=(.+))";
+        private static final String KVP_CRS_PATTERN = "^"
+                + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?"
+                + KV_PAIR + "&" + KV_PAIR + "&" + KV_PAIR + "$";
 
-        private static final String REST_CRS_PATTERN = "^" +
-                HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "/[^/]+/.+/.+$";
+        private static final String REST_CRS_PATTERN = "^"
+                + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "/[^/]+/.+/.+$";
 
         public static final String RESOLVER_PREFIX_END = "/def";
 
         // In case the URI represents a CCRS, it return the list of atomic CRS it represents.
         // NOTE: consistency of the URI should be first evaluated with isValid().
         /**
-         * In case the URI represents a CCRS, it returns the list of atomic CRS it represents.
+         * In case the URI represents a CCRS, it returns the list of atomic CRS
+         * it represents.
+         *
          * @param uri
-         * @return The list of atomic URIs that form the CCRS, with one element in case uri is already atomic.
+         * @return The list of atomic URIs that form the CCRS, with one element
+         * in case uri is already atomic.
          */
         public static List<String> decomposeUri(String uri) {
             String decUri = StringUtil.urldecode(uri, null);
@@ -1323,6 +1005,7 @@ public class CrsUtil {
 
         /**
          * Checks if a URI is compound.
+         *
          * @param uri
          * @return True if uri is compound
          */
@@ -1336,7 +1019,9 @@ public class CrsUtil {
         }
 
         /**
-         * Checks if a specified URI (or an equivalent one) has already been cached.
+         * Checks if a specified URI (or an equivalent one) has already been
+         * cached.
+         *
          * @param uri
          * @return True if uri's definition has already been parsed and cached.
          * @throws PetascopeException
@@ -1344,7 +1029,7 @@ public class CrsUtil {
          */
         public static boolean isCached(String uri) throws PetascopeException, SecoreException {
             for (String cachedUri : parsedCRSs.keySet()) {
-                if (areEquivalent(cachedUri, uri)) {                    
+                if (areEquivalent(cachedUri, uri)) {
                     return true;
                 }
             }
@@ -1353,28 +1038,31 @@ public class CrsUtil {
         }
 
         /**
-         * Returns true if a specified URI is key-value paired.
-         * It works with atomic CRSs (use decomposeUri first).
+         * Returns true if a specified URI is key-value paired. It works with
+         * atomic CRSs (use decomposeUri first).
+         *
          * @param uri
          * @return True if uri is key-value paired
          */
         public static boolean isKvp(String uri) {
-            Pattern pKvp  = Pattern.compile(KVP_CRS_PATTERN);
-            Matcher m     = pKvp.matcher(StringUtil.urldecode(uri, null));
+            Pattern pKvp = Pattern.compile(KVP_CRS_PATTERN);
+            Matcher m = pKvp.matcher(StringUtil.urldecode(uri, null));
             while (m.find()) {
                 return true;
             }
             return false;
         }
+
         /**
-         * Returns true if a specified URI is RESTful.
-         * It works with atomic CRSs (use decomposeUri first).
+         * Returns true if a specified URI is RESTful. It works with atomic CRSs
+         * (use decomposeUri first).
+         *
          * @param uri
          * @return True if uri is RESTful.
          */
         public static boolean isRest(String uri) {
             Pattern pRest = Pattern.compile(REST_CRS_PATTERN);
-            Matcher m     = pRest.matcher(StringUtil.urldecode(uri, null));
+            Matcher m = pRest.matcher(StringUtil.urldecode(uri, null));
             while (m.find()) {
                 return true;
             }
@@ -1383,6 +1071,7 @@ public class CrsUtil {
 
         /**
          * Checks if an URI, compound or not, is consistent.
+         *
          * @param uri
          * @return true if it is a valid CRS URI.
          */
@@ -1411,9 +1100,11 @@ public class CrsUtil {
         }
 
         /**
-         * Return true whether 2 CRS URLs are equivalent definitions.
-         * It exploits SECORE's equality handling capabilities and caches new comparisons.
-         * If configured SECORE is not available, further configured fallback URIs are queried.
+         * Return true whether 2 CRS URLs are equivalent definitions. It
+         * exploits SECORE's equality handling capabilities and caches new
+         * comparisons. If configured SECORE is not available, further
+         * configured fallback URIs are queried.
+         *
          * @param uri1
          * @param uri2
          * @throws PetascopeException
@@ -1443,12 +1134,12 @@ public class CrsUtil {
                 return crsComparisons.get(URLs);
             } else {
                 // New comparison: need to ask SECORE(s)
-                log.trace(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
-                          getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
-                          "comparison is *not* cached: need to ask SECORE.");
+                log.trace(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/"
+                        + getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " "
+                        + "comparison is *not* cached: need to ask SECORE.");
                 Boolean equal = null;
                 for (String resolverUri : ConfigManager.SECORE_URLS) {
-                    try {                        
+                    try {
                         equal = checkEquivalence(resolverUri, uri1, uri2);
                         break; // No need to check against any resolver
                     } catch (SecoreException ex) {
@@ -1461,7 +1152,7 @@ public class CrsUtil {
 
                 if (null == equal) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                                              "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints. Please see server logs for further info.");
+                            "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints. Please see server logs for further info.");
                 }
 
                 // cache the comparison
@@ -1472,6 +1163,7 @@ public class CrsUtil {
 
         /**
          * Check equivalence of two CRS URIs through a single resolver.
+         *
          * @param resolverUri
          * @param uri1
          * @param uri2
@@ -1479,7 +1171,7 @@ public class CrsUtil {
          * @throws SecoreException
          */
         private static boolean checkEquivalence(String resolverUri, String uri1, String uri2)
-        throws PetascopeException, SecoreException {
+                throws PetascopeException, SecoreException {
 
             // Escape key entities: parametrized CRS with KV pairs can clash otherwise
             try {
@@ -1493,16 +1185,15 @@ public class CrsUtil {
             /* Tentative 1: comarison of given URIs
              * Tentative 2: both URIs at resolver
              */
-
-            String equalityUri_given = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?" +
-                                       "1=" + uri1 + "&" +
-                                       "2=" + uri2;
-            String equalityUri_atResolver = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?" +
-                                            "1=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri1), getVersion(uri1), getCode(uri1)) + "&" +
-                                            "2=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri2), getVersion(uri2), getCode(uri2));
+            String equalityUri_given = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?"
+                    + "1=" + uri1 + "&"
+                    + "2=" + uri2;
+            String equalityUri_atResolver = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?"
+                    + "1=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri1), getVersion(uri1), getCode(uri1)) + "&"
+                    + "2=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri2), getVersion(uri2), getCode(uri2));
             Boolean equal = false;
 
-            for (String equalityUri : new String[] {equalityUri_given, equalityUri_atResolver}) {
+            for (String equalityUri : new String[]{equalityUri_given, equalityUri_atResolver}) {
                 try {
                     // Create InputStream and set the timeouts
                     URL url = new URL(equalityUri);
@@ -1532,14 +1223,14 @@ public class CrsUtil {
 
                 } catch (ValidityException ex) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                                              equalityUri + " returned an invalid document.", ex);
+                            equalityUri + " returned an invalid document.", ex);
                 } catch (ParsingException ex) {
                     throw new PetascopeException(ExceptionCode.XmlNotValid.locator(
-                                                     "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
-                                                 ex.getMessage(), ex);
+                            "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
+                            ex.getMessage(), ex);
                 } catch (IOException ex) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                                              equalityUri + ": resolver exception: " + ex.getMessage(), ex);
+                            equalityUri + ": resolver exception: " + ex.getMessage(), ex);
                 } catch (SecoreException ex) {
                     throw ex;
                 } catch (Exception ex) {
@@ -1553,8 +1244,9 @@ public class CrsUtil {
         // Getters (decomposeUri() first: they work on atomic CRS URIs, check validity as well first)
         /**
          * Extracts the authority from a CRS URL.
-         * @param uri   The URL of a CRS
-         * @return      The authority of the CRS definition
+         *
+         * @param uri The URL of a CRS
+         * @return The authority of the CRS definition
          */
         public static String getAuthority(String uri) {
             String decUri = StringUtil.urldecode(uri, null);
@@ -1562,7 +1254,7 @@ public class CrsUtil {
             Matcher m;
             // KVP
             if (isKvp(decUri)) {
-                p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?.*((?i)" + AUTHORITY_KEY  + ")=([^&]+).*$");
+                p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?.*((?i)" + AUTHORITY_KEY + ")=([^&]+).*$");
                 m = p.matcher(decUri);
                 while (m.find()) {
                     if (m.groupCount() == 2) {
@@ -1586,10 +1278,12 @@ public class CrsUtil {
             }
             return "";
         }
+
         /**
          * Extracts the version from a CRS URL.
-         * @param uri   The URL of a CRS
-         * @return      The version of the CRS definition
+         *
+         * @param uri The URL of a CRS
+         * @return The version of the CRS definition
          */
         public static String getVersion(String uri) {
             String decUri = StringUtil.urldecode(uri, null);
@@ -1597,7 +1291,7 @@ public class CrsUtil {
             Matcher m;
             // KVP
             if (isKvp(decUri)) {
-                p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?.*((?i)" + VERSION_KEY  + ")=(.+).*$");
+                p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?.*((?i)" + VERSION_KEY + ")=(.+).*$");
                 m = p.matcher(decUri);
                 while (m.find()) {
                     if (m.groupCount() == 2) {
@@ -1621,10 +1315,12 @@ public class CrsUtil {
             }
             return "";
         }
+
         /**
          * Extracts the code from a CRS URL.
-         * @param uri   The URL of a CRS
-         * @return      The code of the CRS definition
+         *
+         * @param uri The URL of a CRS
+         * @return The code of the CRS definition
          */
         public static String getCode(String uri) {
             // NOTE: `code' is generally a String, not integer (eg <resolver>/def/crs/OGC/0/Image1D)
@@ -1633,7 +1329,7 @@ public class CrsUtil {
             Matcher m;
             // KVP
             if (isKvp(decUri)) {
-                p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?.*((?i)" + CODE_KEY  + ")=(.+).*$");
+                p = Pattern.compile("^" + HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "\\?.*((?i)" + CODE_KEY + ")=(.+).*$");
                 m = p.matcher(decUri);
                 while (m.find()) {
                     if (m.groupCount() == 2) {
@@ -1659,10 +1355,11 @@ public class CrsUtil {
         // Generalize the simple HashMap.get() method to include non-identical
         // but equivalent CRS URI (e.g. KVP/SOAP or KVP pairs order).
         /**
-         * Generalization of HashMap.get() method to include non-identical
-         * but equivalent CRS URI (eg KVP/SOAP or KVP pairs order).
-         * @param uri   The URI which needs to be parsed
-         * @return      The cached CrsDefinition, null otherwise
+         * Generalization of HashMap.get() method to include non-identical but
+         * equivalent CRS URI (eg KVP/SOAP or KVP pairs order).
+         *
+         * @param uri The URI which needs to be parsed
+         * @return The cached CrsDefinition, null otherwise
          * @throws PetascopeException
          * @throws SecoreException
          */
@@ -1678,27 +1375,29 @@ public class CrsUtil {
 
         /**
          * Builds a compound CRS from the input atomic CRS URIs.
+         *
          * @param crsUris
-         * @return  The compounding of the listed CRS URIs.
+         * @return The compounding of the listed CRS URIs.
          */
         public static String createCompound(List<String> crsUris) {
+            Set<String> crsSet = new LinkedHashSet<>(crsUris);
             String ccrsOut = "";
-            switch (crsUris.size()) {
-            case 0: // no URIs: return empty string
-                break;
-            case 1: // Only one CRS: no need to compound
-                ccrsOut = crsUris.iterator().next();
-                break;
-            default : // By default, use SECORE host in the CCRS URL
-                ccrsOut = getResolverUri() + "/" +  KEY_RESOLVER_CCRS + "?";
-                Iterator it = crsUris.iterator();
-                for (int i = 0; i < crsUris.size(); i++) {
-                    ccrsOut += (i + 1) + "=" + it.next();
-                    if (it.hasNext()) {
-                        ccrsOut += "&";
+            switch (crsSet.size()) {
+                case 0: // no URIs: return empty string
+                    break;
+                case 1: // Only one CRS: no need to compound
+                    ccrsOut = crsSet.iterator().next();
+                    break;
+                default: // By default, use SECORE host in the CCRS URL
+                    ccrsOut = getResolverUri() + "/" + KEY_RESOLVER_CCRS + "?";
+                    Iterator it = crsSet.iterator();
+                    for (int i = 0; i < crsSet.size(); i++) {
+                        ccrsOut += (i + 1) + "=" + it.next();
+                        if (it.hasNext()) {
+                            ccrsOut += "&";
+                        }
                     }
-                }
-                break;
+                    break;
             }
             return ccrsOut;
         }
@@ -1706,14 +1405,17 @@ public class CrsUtil {
         /**
          * Appends a CSV list of axes which have not been sliced by a 0D subset.
          * NOTE: this notation is *not* standard.
+         *
          * @param singleCrsUri
          * @param leftAxesLabels
          * @throws PetascopeException
          * @throws SecoreException
-         * @return buildSlicedUri("http://www.opengis.net/def/crs/EPSG/0/4327",{Lat,Long}) -> "http://www.opengis.net/def/crs/EPSG/0/4327@Lat,Long"
+         * @return
+         * buildSlicedUri("http://www.opengis.net/def/crs/EPSG/0/4327",{Lat,Long})
+         * -> "http://www.opengis.net/def/crs/EPSG/0/4327@Lat,Long"
          */
         public static String buildSlicedUri(String singleCrsUri, List<String> leftAxesLabels)
-        throws PetascopeException, SecoreException {
+                throws PetascopeException, SecoreException {
             String slicedUri = singleCrsUri;
 
             if (leftAxesLabels.containsAll(getAxesLabels(singleCrsUri))) {
@@ -1736,10 +1438,12 @@ public class CrsUtil {
 
         /**
          * Determines if an axis has been sliced from the CRS URI.
+         *
          * @param crsUris
          * @param axisLabel
          * @return True if axis is in the list of sliced axes. Example:
-         * isSliced("http://www.opengis.net/def/crs/EPSG/0/4327@Long,h", "Lat") --> TRUE {only Long and h are left in th CRS}.
+         * isSliced("http://www.opengis.net/def/crs/EPSG/0/4327@Long,h", "Lat")
+         * --> TRUE {only Long and h are left in th CRS}.
          */
         public static Boolean isSliced(List<String> crsUris, String axisLabel) {
             Boolean isSliced = true;
@@ -1760,20 +1464,29 @@ public class CrsUtil {
             }
             return isSliced;
         }
+
         // Overload
         public static Boolean isSliced(String singleCrsUri, String axisLabel) {
-            return isSliced(new ArrayList<String>(Arrays.asList(new String[] {singleCrsUri})), axisLabel);
+            return isSliced(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})), axisLabel);
         }
 
+        /**
+         * Replace the SECORE URI prefix (e.g: http://localhost:8080) to a
+         * placeholder before persisting to database. Then when loading
+         * persisted coverage's CRS with new SECORE endpoint in
+         * petascope.properties, placeholder can be replaced with new endpoint.
+         *
+         * @param crsUri
+         * @return
+         */
         public static String toDbRepresentation(String crsUri) {
             //simple
             if (!CrsUri.isCompound(crsUri)) {
                 return CrsUri.simpleUriToDbRepresentation(crsUri);
-            }
-            //compound
+            } //compound
             else {
                 List<String> uris = CrsUri.decomposeUri(crsUri);
-                String result = ConfigManager.SECORE_URL_KEYWORD + "/" + CrsUtil.KEY_RESOLVER_CCRS + "?";
+                String result = SECORE_URL_PREFIX + "/" + CrsUtil.KEY_RESOLVER_CCRS + "?";
                 int counter = 1;
                 for (String uri : uris) {
                     result += String.valueOf(counter) + "=" + simpleUriToDbRepresentation(uri);
@@ -1787,7 +1500,23 @@ public class CrsUtil {
         }
 
         /**
+         * When reading coverage's CRS from database, the URI contains SECORE
+         * prefix as string placeholder. So, replace it with SECORE endpoint
+         * configured in petascope.properties. e.g:
+         * %SECORE_URL%/def/crs/epsg/0/4326 to
+         * http://localhost:8080/def/crs/epsg/0/4326
+         *
+         * @param crsUri
+         * @return
+         */
+        public static String fromDbRepresentation(String crsUri) {
+            crsUri = crsUri.replace(SECORE_URL_PREFIX, ConfigManager.SECORE_URLS.get(0));
+            return crsUri;
+        }
+
+        /**
          * Return a string with authority:code (e.g: EPSG:4326)
+         *
          * @return
          */
         public static String getAuthorityCode(String crsUri) {
@@ -1798,15 +1527,19 @@ public class CrsUtil {
         }
 
         /**
-         * Converts a simple (not composed) crs uri to the form that is stored into the database.
+         * Converts a simple (not composed) crs uri to the form that is stored
+         * into the database.
+         *
          * @param crsUri the uri of the crs.
-         * @return the db form of the uri. E.g. "http://www.opengis.net/def/crs/EPSG/0/4326" -> "%SECORE_URL%/crs/EPSG/0/4326"
+         * @return the db form of the uri. E.g.
+         * "http://www.opengis.net/def/crs/EPSG/0/4326" ->
+         * "%SECORE_URL%/crs/EPSG/0/4326"
          */
         private static String simpleUriToDbRepresentation(String crsUri) {
             String authority = CrsUri.getAuthority(crsUri);
             String code = CrsUri.getCode(crsUri);
             String version = CrsUri.getVersion(crsUri);
-            String result = ConfigManager.SECORE_URL_KEYWORD + "/" + CrsUtil.KEY_RESOLVER_CRS + "/" + authority + "/" + version + "/" + code;
+            String result = SECORE_URL_PREFIX + "/" + CrsUtil.KEY_RESOLVER_CRS + "/" + authority + "/" + version + "/" + code;
             return result;
         }
     }

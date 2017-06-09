@@ -1,85 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage
-    xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:gml='http://www.opengis.net/gml/3.2'
-    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xsi:schemaLocation='http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'
-    id="test_irr_cube_1">
-
-  <boundedBy>
-    <Envelope srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
-      <lowerCorner>0 3 5</lowerCorner>
-      <upperCorner>2 5 5</upperCorner>
-    </Envelope>
-  </boundedBy>
-
-  <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="3" id="test_irr_cube_1-grid"
-        
-        >
-      <limits>
-        <GridEnvelope>
-          <low>0 4 4</low>
-          <high>2 6 4</high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels>i j k</axisLabels>
-      <gmlrgrid:origin>
-        <Point id="test_irr_cube_1-origin" srsName="/crs/OGC/0/Index3D">
-          <pos>0.5 4.5 4</pos>
-        </Point>
-      </gmlrgrid:origin>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">1 0 0</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients></gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 -1 0</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients></gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 0 1</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>5</gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned>k</gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-    </gmlrgrid:ReferenceableGridByVectors>
-
-  </domainSet>
-
-  <rangeSet>
-    <DataBlock>
-      <rangeParameters/>
-      <tupleList ts="," cs=" ">504,505,506,514,515,516,524,525,526</tupleList>
-    </DataBlock>
-  </rangeSet>
-
-  <coverageFunction>
-    <GridFunction>
-      <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-      <startPoint>0 4 4</startPoint>
-    </GridFunction>
-  </coverageFunction>
-
-  <gmlcov:rangeType>
-    <swe:DataRecord>
-    <swe:field name="band_1">
-      <swe:Quantity ><swe:description>Test values</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="">-999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="10^0" /></swe:Quantity>
-    </swe:field>
-    </swe:DataRecord>
-  </gmlcov:rangeType>
-  <gmlcov:metadata><gmlcov:Extension><description>This is a test coverage</description><slices /></gmlcov:Extension></gmlcov:metadata>
+<gmlcov:ReferenceableGridCoverage id="test_irr_cube_1"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="i j k" srsDimension="3"
+            srsName="/crs/OGC/0/Index3D" uomLabels="GridSpacing GridSpacing GridSpacing">
+            <lowerCorner>0 3 4</lowerCorner>
+            <upperCorner>2 5 5</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="3"
+            id="test_irr_cube_1-grid"
+             >
+            <limits>
+                <GridEnvelope>
+                    <low>0 4 4</low>
+                    <high>2 6 4</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>i j k</axisLabels>
+            <gmlrgrid:origin>
+                <Point id="test_irr_cube_1-origin" srsName="/crs/OGC/0/Index3D">
+                    <pos>0.5 4.5 4</pos>
+                </Point>
+            </gmlrgrid:origin>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">1 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 -1 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D">0 0 1</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients>5</gmlrgrid:coefficients>
+                    <gmlrgrid:gridAxesSpanned>k</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">504,505,506,514,515,516,524,525,526</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+1 +2 +3">Linear</sequenceRule>
+            <startPoint>0 4 4</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="band_1">
+                <swe:Quantity >
+                    <swe:label>band_1</swe:label>
+                    <swe:description>Test values</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <description>This is a test coverage</description>
+                <slices/>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>
