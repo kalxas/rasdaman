@@ -94,8 +94,8 @@ void r_Conv_CSV::initCSV(void)
 
     leftParen = LEFT_PAREN;
     rightParen = RIGHT_PAREN;
-    outerParens = false;
     valueSeparator = SEPARATOR;
+    outerParens = false;
 }
 
 
@@ -603,17 +603,8 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options) throw(r_Error)
     const r_Base_Type* base_type = static_cast<const r_Base_Type*>(desc.srcType);
     try 
     {
-        if (rank == 0) 
-        {
+        if(rank == 0){
             outerParens = false;
-        } 
-        //honestly, this should be a simple else statement, but *.csv files lack outer
-        //parens while json files possess them. Ideally, both would have them, but
-        //it would require changing hundreds, possibly thousands, of oracle files in the systemtest
-        //directory to fix, so for now, we will leave this as is.
-        else if (rank == 1) 
-        {
-            outerParens = true;
         }
         if (outerParens) 
         {
