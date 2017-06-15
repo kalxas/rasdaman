@@ -1,0 +1,917 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+<changeSet author="rasdaman (generated)" id="1497536461050-1">
+<createTable tableName="abstract_coverage">
+<column name="abstract_coverage_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="coverage_id" type="VARCHAR(255)"/>
+<column name="coverage_type" type="VARCHAR(255)"/>
+<column name="metadata" type="TEXT"/>
+<column name="coverage_function_id" type="BIGINT"/>
+<column name="domain_set_id" type="BIGINT"/>
+<column name="envelope_id" type="BIGINT"/>
+<column name="range_type_id" type="BIGINT"/>
+<column name="rasdaman_range_set_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-2">
+<createTable tableName="address">
+<column name="address_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="administrative_area" type="VARCHAR(255)"/>
+<column name="city" type="VARCHAR(255)"/>
+<column name="country" type="VARCHAR(255)"/>
+<column name="postal_code" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-3">
+<createTable tableName="address_delivery_points">
+<column name="address_address_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="delivery_points" type="VARCHAR(255)"/>
+<column name="delivery_points_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-4">
+<createTable tableName="address_electronic_mail_addresses">
+<column name="address_address_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="electronic_mail_addresses" type="VARCHAR(255)"/>
+<column name="electronic_mail_addresses_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-5">
+<createTable tableName="allowed_value">
+<column name="allowed_value_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="allowed_values" type="VARCHAR(255)"/>
+<column name="quantity_id" type="BIGINT"/>
+<column name="allowed_values_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-6">
+<createTable tableName="axis">
+<column name="axis_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="axis_label" type="VARCHAR(255)"/>
+<column name="srs_name" type="VARCHAR(1000)"/>
+<column name="uom_label" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-7">
+<createTable tableName="axis_extent">
+<column name="axis_extent_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="axis_label" type="VARCHAR(255)"/>
+<column name="lower_bound" type="VARCHAR(255)"/>
+<column name="resolution" type="numeric(19, 2)"/>
+<column name="srs_name" type="VARCHAR(1000)"/>
+<column name="uom_label" type="VARCHAR(255)"/>
+<column name="upper_bound" type="VARCHAR(255)"/>
+<column name="envelope_by_axis_id" type="BIGINT"/>
+<column name="axis_extents_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-8">
+<createTable tableName="contact_info">
+<column name="contact_info_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="contact_instructions" type="TEXT"/>
+<column name="hours_of_service" type="VARCHAR(255)"/>
+<column name="online_resource" type="VARCHAR(1000)"/>
+<column name="address_id" type="BIGINT"/>
+<column name="phone_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-9">
+<createTable tableName="coverage_function">
+<column name="coverage_function_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="sequence_rule" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-10">
+<createTable tableName="data_record">
+<column name="data_record_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-11">
+<createTable tableName="direct_multi_point_positions">
+<column name="direct_multi_point_general_grid_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="positions" type="VARCHAR(255)"/>
+<column name="positions_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-12">
+<createTable tableName="domain_set">
+<column name="domain_set_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-13">
+<createTable tableName="envelope">
+<column name="envelope_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="envelope_by_axis_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-14">
+<createTable tableName="envelope_by_axis">
+<column name="envelope_by_axis_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="axis_labels" type="VARCHAR(255)"/>
+<column name="srs_dimension" type="INT"/>
+<column name="srs_name" type="VARCHAR(10000)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-15">
+<createTable tableName="field">
+<column name="field_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="name" type="VARCHAR(255)"/>
+<column name="quantity_id" type="BIGINT"/>
+<column name="data_record_id" type="BIGINT"/>
+<column name="fields_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-16">
+<createTable tableName="general_grid">
+<column name="general_grid_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="srs_name" type="VARCHAR(1000)"/>
+<column name="grid_limits_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-17">
+<createTable tableName="general_grid_coverage">
+<column name="general_grid_coverage_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-18">
+<createTable tableName="general_grid_domain_set">
+<column name="coverage_origin" type="VARCHAR(255)"/>
+<column name="general_grid_domain_set_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="general_grid_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-19">
+<createTable tableName="geo_axis">
+<column name="lower_bound" type="VARCHAR(255)"/>
+<column name="resolution" type="VARCHAR(255)"/>
+<column name="upper_bound" type="VARCHAR(255)"/>
+<column name="geo_axis_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="general_grid_id" type="BIGINT"/>
+<column name="geo_axes_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-20">
+<createTable tableName="grid_limits">
+<column name="grid_limits_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="srs_name" type="VARCHAR(1000)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-21">
+<createTable tableName="hibernate_sequences">
+<column name="sequence_name" type="VARCHAR(255)">
+<constraints nullable="false"/>
+</column>
+<column name="next_val" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-22">
+<createTable tableName="index_axis">
+<column name="grid_axis_order" type="INT"/>
+<column name="lower_bound" type="BIGINT"/>
+<column name="upper_bound" type="BIGINT"/>
+<column name="index_axis_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="grid_limits_id" type="BIGINT"/>
+<column name="index_axes_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-23">
+<createTable tableName="interpolation_restriction">
+<column name="interpolation_restriction_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-24">
+<createTable tableName="interpolation_restriction_allowed_interpolations">
+<column name="interpolation_restriction_interpolation_restriction_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="allowed_interpolations" type="VARCHAR(255)"/>
+<column name="allowed_interpolations_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-25">
+<createTable tableName="irregular_axis">
+<column name="irregular_axis_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-26">
+<createTable tableName="irregular_axis_direct_positions">
+<column name="irregular_axis_irregular_axis_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="direct_positions" type="VARCHAR(255)"/>
+<column name="direct_positions_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-27">
+<createTable tableName="layer_crss">
+<column name="layer_wms13__layer_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="crss" type="VARCHAR(255)"/>
+<column name="crss_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-28">
+<createTable tableName="layer_keyword_list">
+<column name="layer_wms13__layer_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="keyword_list" type="VARCHAR(255)"/>
+<column name="keyword_list_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-29">
+<createTable tableName="multi_point_coverage">
+<column name="multi_point_coverage_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-30">
+<createTable tableName="multi_point_domain_set">
+<column name="general_grid_domain_set_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="general_grid_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-31">
+<createTable tableName="nil_value">
+<column name="nil_value_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="reason" type="TEXT"/>
+<column name="value" type="VARCHAR(255)"/>
+<column name="quantity_id" type="BIGINT"/>
+<column name="nil_values_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-32">
+<createTable tableName="ows_service_metadata">
+<column name="ows_service_metadata_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="service_identification_id" type="BIGINT"/>
+<column name="service_provider_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-33">
+<createTable tableName="phone">
+<column name="phone_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-34">
+<createTable tableName="phone_facsimile_phones">
+<column name="phone_phone_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="facsimile_phones" type="VARCHAR(255)"/>
+<column name="facsimile_phones_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-35">
+<createTable tableName="phone_voice_phones">
+<column name="phone_phone_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="voice_phones" type="VARCHAR(255)"/>
+<column name="voice_phones_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-36">
+<createTable tableName="quantity">
+<column name="quantity_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="data_type" type="VARCHAR(255)"/>
+<column name="definition" type="TEXT"/>
+<column name="description" type="TEXT"/>
+<column name="uom_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-37">
+<createTable tableName="range_type">
+<column name="range_type_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="data_record_id" type="BIGINT"/>
+<column name="interpolation_restriction_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-38">
+<createTable tableName="rasdaman_range_set">
+<column name="rasdaman_range_set_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="collection_name" type="VARCHAR(255)"/>
+<column name="collection_type" type="VARCHAR(255)"/>
+<column name="mdd_type" type="VARCHAR(255)"/>
+<column name="oid" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-39">
+<createTable tableName="regular_axis">
+<column name="regular_axis_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-40">
+<createTable tableName="service_contact">
+<column name="service_contact_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="individual_name" type="VARCHAR(255)"/>
+<column name="position_name" type="VARCHAR(255)"/>
+<column name="role" type="VARCHAR(255)"/>
+<column name="contact_info_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-41">
+<createTable tableName="service_identification">
+<column name="service_identification_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="fees" type="VARCHAR(255)"/>
+<column name="service_abstract" type="TEXT"/>
+<column name="service_title" type="VARCHAR(255)"/>
+<column name="service_type" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-42">
+<createTable tableName="service_identification_access_constraints">
+<column name="service_identification_service_identification_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="access_constraints" type="VARCHAR(255)"/>
+<column name="access_constraints_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-43">
+<createTable tableName="service_identification_keywords">
+<column name="service_identification_service_identification_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="keywords" type="VARCHAR(255)"/>
+<column name="keywords_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-44">
+<createTable tableName="service_identification_service_type_versions">
+<column name="service_identification_service_identification_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="service_type_versions" type="VARCHAR(255)"/>
+<column name="service_type_versions_order" type="INT">
+<constraints nullable="false"/>
+</column>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-45">
+<createTable tableName="service_provider">
+<column name="service_provider_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="provider_name" type="VARCHAR(255)"/>
+<column name="provider_site" type="VARCHAR(255)"/>
+<column name="service_contact_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-46">
+<createTable tableName="uom">
+<column name="uom_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="code" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-47">
+<createTable tableName="wms13__attribution">
+<column name="wms13__attribution_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="logo_url_format" type="VARCHAR(255)"/>
+<column name="logo_url_height" type="VARCHAR(255)"/>
+<column name="logo_url_online_resource_url" type="VARCHAR(1000)"/>
+<column name="logo_url_width" type="VARCHAR(255)"/>
+<column name="online_resource_url" type="VARCHAR(1000)"/>
+<column name="title" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-48">
+<createTable tableName="wms13__authority_url">
+<column name="wms13__authority_url_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="name" type="VARCHAR(255)"/>
+<column name="online_resource_url" type="VARCHAR(1000)"/>
+<column name="wms13__layer_id" type="BIGINT"/>
+<column name="authorityurls_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-49">
+<createTable tableName="wms13__bounding_box">
+<column name="wms13__bounding_box_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="crs" type="VARCHAR(255)"/>
+<column name="maxx" type="VARCHAR(255)"/>
+<column name="maxy" type="VARCHAR(255)"/>
+<column name="minx" type="VARCHAR(255)"/>
+<column name="miny" type="VARCHAR(255)"/>
+<column name="wms13__layer_id" type="BIGINT"/>
+<column name="bounding_boxes_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-50">
+<createTable tableName="wms13__data_url">
+<column name="wms13__data_url_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="format" type="VARCHAR(255)"/>
+<column name="online_resource_url" type="VARCHAR(1000)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-51">
+<createTable tableName="wms13__dimension">
+<column name="wms13__dimension_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="current" type="INT"/>
+<column name="default_value" type="VARCHAR(255)"/>
+<column name="extent" type="VARCHAR(255)"/>
+<column name="multiple_values" type="INT"/>
+<column name="name" type="VARCHAR(255)"/>
+<column name="nearest_value" type="INT"/>
+<column name="unit_symbol" type="VARCHAR(255)"/>
+<column name="units" type="VARCHAR(255)"/>
+<column name="wms13__layer_id" type="BIGINT"/>
+<column name="dimensions_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-52">
+<createTable tableName="wms13__ex_geographic_bounding_box">
+<column name="wms13__ex_geographic_bounding_box_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="east_bound_longitude" type="VARCHAR(255)"/>
+<column name="north_bound_latitude" type="VARCHAR(255)"/>
+<column name="south_bound_latitude" type="VARCHAR(255)"/>
+<column name="west_bound_longitude" type="VARCHAR(255)"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-53">
+<createTable tableName="wms13__identifier">
+<column name="wms13__identifier_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="authority_url_name" type="VARCHAR(1000)"/>
+<column name="name" type="VARCHAR(255)"/>
+<column name="wms13__layer_id" type="BIGINT"/>
+<column name="identifiers_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-54">
+<createTable tableName="wms13__layer">
+<column name="wms13__layer_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="layer_abstract" type="TEXT"/>
+<column name="name" type="VARCHAR(255)"/>
+<column name="parent_id" type="INT"/>
+<column name="title" type="VARCHAR(255)"/>
+<column name="wms13__attribution_id" type="BIGINT"/>
+<column name="wms13__data_url_id" type="BIGINT"/>
+<column name="wms13__ex_geographic_bounding_box_id" type="BIGINT"/>
+<column name="wms13__layer_attribute_id" type="BIGINT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-55">
+<createTable tableName="wms13__layer_attribute">
+<column name="wms13__layer_attribute_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="cascaded" type="INT"/>
+<column name="fixed_height" type="INT"/>
+<column name="fixed_width" type="INT"/>
+<column name="no_subsets" type="INT"/>
+<column name="opaque" type="INT"/>
+<column name="queryable" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-56">
+<createTable tableName="wms13__legend_url">
+<column name="wms13__legend_url_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="logo_height" type="INT"/>
+<column name="format" type="VARCHAR(255)"/>
+<column name="online_resource_url" type="VARCHAR(1000)"/>
+<column name="width" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-57">
+<createTable tableName="wms13__metadata_url">
+<column name="wms13__metadata_url_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="format" type="VARCHAR(255)"/>
+<column name="online_resource_url" type="VARCHAR(1000)"/>
+<column name="wms13__layer_id" type="BIGINT"/>
+<column name="metadataurls_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-58">
+<createTable tableName="wms13__style">
+<column name="wms13__style_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="name" type="VARCHAR(255)"/>
+<column name="rasql_query_transformer" type="TEXT"/>
+<column name="style_abstract" type="TEXT"/>
+<column name="title" type="VARCHAR(255)"/>
+<column name="wms13__legend_url_id" type="BIGINT"/>
+<column name="wms13__layer_id" type="BIGINT"/>
+<column name="styles_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-59">
+<addPrimaryKey columnNames="abstract_coverage_id" constraintName="abstract_coverage_pkey" tableName="abstract_coverage"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-60">
+<addPrimaryKey columnNames="address_address_id, delivery_points_order" constraintName="address_delivery_points_pkey" tableName="address_delivery_points"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-61">
+<addPrimaryKey columnNames="address_address_id, electronic_mail_addresses_order" constraintName="address_electronic_mail_addresses_pkey" tableName="address_electronic_mail_addresses"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-62">
+<addPrimaryKey columnNames="address_id" constraintName="address_pkey" tableName="address"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-63">
+<addPrimaryKey columnNames="allowed_value_id" constraintName="allowed_value_pkey" tableName="allowed_value"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-64">
+<addPrimaryKey columnNames="axis_extent_id" constraintName="axis_extent_pkey" tableName="axis_extent"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-65">
+<addPrimaryKey columnNames="axis_id" constraintName="axis_pkey" tableName="axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-66">
+<addPrimaryKey columnNames="contact_info_id" constraintName="contact_info_pkey" tableName="contact_info"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-67">
+<addPrimaryKey columnNames="coverage_function_id" constraintName="coverage_function_pkey" tableName="coverage_function"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-68">
+<addPrimaryKey columnNames="data_record_id" constraintName="data_record_pkey" tableName="data_record"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-69">
+<addPrimaryKey columnNames="direct_multi_point_general_grid_id, positions_order" constraintName="direct_multi_point_positions_pkey" tableName="direct_multi_point_positions"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-70">
+<addPrimaryKey columnNames="domain_set_id" constraintName="domain_set_pkey" tableName="domain_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-71">
+<addPrimaryKey columnNames="envelope_by_axis_id" constraintName="envelope_by_axis_pkey" tableName="envelope_by_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-72">
+<addPrimaryKey columnNames="envelope_id" constraintName="envelope_pkey" tableName="envelope"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-73">
+<addPrimaryKey columnNames="field_id" constraintName="field_pkey" tableName="field"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-74">
+<addPrimaryKey columnNames="general_grid_coverage_id" constraintName="general_grid_coverage_pkey" tableName="general_grid_coverage"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-75">
+<addPrimaryKey columnNames="general_grid_domain_set_id" constraintName="general_grid_domain_set_pkey" tableName="general_grid_domain_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-76">
+<addPrimaryKey columnNames="general_grid_id" constraintName="general_grid_pkey" tableName="general_grid"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-77">
+<addPrimaryKey columnNames="geo_axis_id" constraintName="geo_axis_pkey" tableName="geo_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-78">
+<addPrimaryKey columnNames="grid_limits_id" constraintName="grid_limits_pkey" tableName="grid_limits"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-79">
+<addPrimaryKey columnNames="sequence_name" constraintName="hibernate_sequences_pkey" tableName="hibernate_sequences"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-80">
+<addPrimaryKey columnNames="index_axis_id" constraintName="index_axis_pkey" tableName="index_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-81">
+<addPrimaryKey columnNames="interpolation_restriction_interpolation_restriction_id, allowed_interpolations_order" constraintName="interpolation_restriction_allowed_interpolations_pkey" tableName="interpolation_restriction_allowed_interpolations"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-82">
+<addPrimaryKey columnNames="interpolation_restriction_id" constraintName="interpolation_restriction_pkey" tableName="interpolation_restriction"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-83">
+<addPrimaryKey columnNames="irregular_axis_irregular_axis_id, direct_positions_order" constraintName="irregular_axis_direct_positions_pkey" tableName="irregular_axis_direct_positions"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-84">
+<addPrimaryKey columnNames="irregular_axis_id" constraintName="irregular_axis_pkey" tableName="irregular_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-85">
+<addPrimaryKey columnNames="layer_wms13__layer_id, crss_order" constraintName="layer_crss_pkey" tableName="layer_crss"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-86">
+<addPrimaryKey columnNames="layer_wms13__layer_id, keyword_list_order" constraintName="layer_keyword_list_pkey" tableName="layer_keyword_list"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-87">
+<addPrimaryKey columnNames="multi_point_coverage_id" constraintName="multi_point_coverage_pkey" tableName="multi_point_coverage"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-88">
+<addPrimaryKey columnNames="general_grid_domain_set_id" constraintName="multi_point_domain_set_pkey" tableName="multi_point_domain_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-89">
+<addPrimaryKey columnNames="nil_value_id" constraintName="nil_value_pkey" tableName="nil_value"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-90">
+<addPrimaryKey columnNames="ows_service_metadata_id" constraintName="ows_service_metadata_pkey" tableName="ows_service_metadata"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-91">
+<addPrimaryKey columnNames="phone_phone_id, facsimile_phones_order" constraintName="phone_facsimile_phones_pkey" tableName="phone_facsimile_phones"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-92">
+<addPrimaryKey columnNames="phone_id" constraintName="phone_pkey" tableName="phone"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-93">
+<addPrimaryKey columnNames="phone_phone_id, voice_phones_order" constraintName="phone_voice_phones_pkey" tableName="phone_voice_phones"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-94">
+<addPrimaryKey columnNames="quantity_id" constraintName="quantity_pkey" tableName="quantity"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-95">
+<addPrimaryKey columnNames="range_type_id" constraintName="range_type_pkey" tableName="range_type"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-96">
+<addPrimaryKey columnNames="rasdaman_range_set_id" constraintName="rasdaman_range_set_pkey" tableName="rasdaman_range_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-97">
+<addPrimaryKey columnNames="regular_axis_id" constraintName="regular_axis_pkey" tableName="regular_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-98">
+<addPrimaryKey columnNames="service_contact_id" constraintName="service_contact_pkey" tableName="service_contact"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-99">
+<addPrimaryKey columnNames="service_identification_service_identification_id, access_constraints_order" constraintName="service_identification_access_constraints_pkey" tableName="service_identification_access_constraints"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-100">
+<addPrimaryKey columnNames="service_identification_service_identification_id, keywords_order" constraintName="service_identification_keywords_pkey" tableName="service_identification_keywords"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-101">
+<addPrimaryKey columnNames="service_identification_id" constraintName="service_identification_pkey" tableName="service_identification"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-102">
+<addPrimaryKey columnNames="service_identification_service_identification_id, service_type_versions_order" constraintName="service_identification_service_type_versions_pkey" tableName="service_identification_service_type_versions"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-103">
+<addPrimaryKey columnNames="service_provider_id" constraintName="service_provider_pkey" tableName="service_provider"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-104">
+<addPrimaryKey columnNames="uom_id" constraintName="uom_pkey" tableName="uom"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-105">
+<addPrimaryKey columnNames="wms13__attribution_id" constraintName="wms13__attribution_pkey" tableName="wms13__attribution"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-106">
+<addPrimaryKey columnNames="wms13__authority_url_id" constraintName="wms13__authority_url_pkey" tableName="wms13__authority_url"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-107">
+<addPrimaryKey columnNames="wms13__bounding_box_id" constraintName="wms13__bounding_box_pkey" tableName="wms13__bounding_box"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-108">
+<addPrimaryKey columnNames="wms13__data_url_id" constraintName="wms13__data_url_pkey" tableName="wms13__data_url"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-109">
+<addPrimaryKey columnNames="wms13__dimension_id" constraintName="wms13__dimension_pkey" tableName="wms13__dimension"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-110">
+<addPrimaryKey columnNames="wms13__ex_geographic_bounding_box_id" constraintName="wms13__ex_geographic_bounding_box_pkey" tableName="wms13__ex_geographic_bounding_box"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-111">
+<addPrimaryKey columnNames="wms13__identifier_id" constraintName="wms13__identifier_pkey" tableName="wms13__identifier"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-112">
+<addPrimaryKey columnNames="wms13__layer_attribute_id" constraintName="wms13__layer_attribute_pkey" tableName="wms13__layer_attribute"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-113">
+<addPrimaryKey columnNames="wms13__layer_id" constraintName="wms13__layer_pkey" tableName="wms13__layer"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-114">
+<addPrimaryKey columnNames="wms13__legend_url_id" constraintName="wms13__legend_url_pkey" tableName="wms13__legend_url"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-115">
+<addPrimaryKey columnNames="wms13__metadata_url_id" constraintName="wms13__metadata_url_pkey" tableName="wms13__metadata_url"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-116">
+<addPrimaryKey columnNames="wms13__style_id" constraintName="wms13__style_pkey" tableName="wms13__style"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-117">
+<addForeignKeyConstraint baseColumnNames="rasdaman_range_set_id" baseTableName="abstract_coverage" constraintName="fk173ltn04lekw9wl7fmm6nqegd" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="rasdaman_range_set_id" referencedTableName="rasdaman_range_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-118">
+<addForeignKeyConstraint baseColumnNames="service_identification_service_identification_id" baseTableName="service_identification_keywords" constraintName="fk1ipfodqw0nvkt47g5ftlykrw8" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="service_identification_id" referencedTableName="service_identification"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-119">
+<addForeignKeyConstraint baseColumnNames="wms13__layer_id" baseTableName="wms13__identifier" constraintName="fk1v820y4nnf2m7wutyfsywkuuv" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__layer_id" referencedTableName="wms13__layer"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-120">
+<addForeignKeyConstraint baseColumnNames="wms13__ex_geographic_bounding_box_id" baseTableName="wms13__layer" constraintName="fk28a1ifn3mtboa35aqq0yhpu1y" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__ex_geographic_bounding_box_id" referencedTableName="wms13__ex_geographic_bounding_box"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-121">
+<addForeignKeyConstraint baseColumnNames="grid_limits_id" baseTableName="general_grid" constraintName="fk28fq635bk0grwsd5iykgxho4g" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="grid_limits_id" referencedTableName="grid_limits"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-122">
+<addForeignKeyConstraint baseColumnNames="layer_wms13__layer_id" baseTableName="layer_keyword_list" constraintName="fk29rlmjof0hw93rjw7heyjvpbr" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__layer_id" referencedTableName="wms13__layer"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-123">
+<addForeignKeyConstraint baseColumnNames="multi_point_coverage_id" baseTableName="multi_point_coverage" constraintName="fk3s8wytq28cquty3i797avns9b" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="abstract_coverage_id" referencedTableName="abstract_coverage"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-124">
+<addForeignKeyConstraint baseColumnNames="phone_id" baseTableName="contact_info" constraintName="fk3th2ni2ulmm4b86j4nk3u4xgs" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="phone_id" referencedTableName="phone"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-125">
+<addForeignKeyConstraint baseColumnNames="domain_set_id" baseTableName="abstract_coverage" constraintName="fk3yws4gp65s9lmh45w548b54ky" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="domain_set_id" referencedTableName="domain_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-126">
+<addForeignKeyConstraint baseColumnNames="general_grid_id" baseTableName="geo_axis" constraintName="fk4c4we3h7qgpj77kv83xldk4vx" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="general_grid_id" referencedTableName="general_grid"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-127">
+<addForeignKeyConstraint baseColumnNames="data_record_id" baseTableName="range_type" constraintName="fk58yfekh6yp0avfk1nxdh91dxt" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="data_record_id" referencedTableName="data_record"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-128">
+<addForeignKeyConstraint baseColumnNames="irregular_axis_id" baseTableName="irregular_axis" constraintName="fk5lycy5ada0s4qveg1i63r6b3n" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geo_axis_id" referencedTableName="geo_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-129">
+<addForeignKeyConstraint baseColumnNames="general_grid_id" baseTableName="general_grid_domain_set" constraintName="fk65xge7i5sau334gx88ur7br5h" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="general_grid_id" referencedTableName="general_grid"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-130">
+<addForeignKeyConstraint baseColumnNames="wms13__layer_id" baseTableName="wms13__metadata_url" constraintName="fk6ha6l7c36vytw99qkyb3iyhfk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__layer_id" referencedTableName="wms13__layer"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-131">
+<addForeignKeyConstraint baseColumnNames="envelope_by_axis_id" baseTableName="axis_extent" constraintName="fk6jq2em80yg7w8yl4klplflmj4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="envelope_by_axis_id" referencedTableName="envelope_by_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-132">
+<addForeignKeyConstraint baseColumnNames="service_identification_id" baseTableName="ows_service_metadata" constraintName="fk71u4owpd7du9lbngiiqokfxmp" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="service_identification_id" referencedTableName="service_identification"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-133">
+<addForeignKeyConstraint baseColumnNames="wms13__layer_attribute_id" baseTableName="wms13__layer" constraintName="fk75xlm05lh4bra7kgk8jdqox92" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__layer_attribute_id" referencedTableName="wms13__layer_attribute"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-134">
+<addForeignKeyConstraint baseColumnNames="interpolation_restriction_id" baseTableName="range_type" constraintName="fk7at4qly4kdskenlcdsu5ciwaq" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="interpolation_restriction_id" referencedTableName="interpolation_restriction"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-135">
+<addForeignKeyConstraint baseColumnNames="quantity_id" baseTableName="nil_value" constraintName="fk7ueatiq2qaxxxkp4gdy6rx9to" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="quantity_id" referencedTableName="quantity"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-136">
+<addForeignKeyConstraint baseColumnNames="index_axis_id" baseTableName="index_axis" constraintName="fk9w88vp4x49ignq2f8x84nv29e" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="axis_id" referencedTableName="axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-137">
+<addForeignKeyConstraint baseColumnNames="grid_limits_id" baseTableName="index_axis" constraintName="fkb7qxmi35jmi714mfbgd6wmm12" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="grid_limits_id" referencedTableName="grid_limits"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-138">
+<addForeignKeyConstraint baseColumnNames="layer_wms13__layer_id" baseTableName="layer_crss" constraintName="fkbg90dfu5qm1pwtxynte28x99t" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__layer_id" referencedTableName="wms13__layer"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-139">
+<addForeignKeyConstraint baseColumnNames="wms13__legend_url_id" baseTableName="wms13__style" constraintName="fkbi9yln29pxukxsw6s4e8mph70" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__legend_url_id" referencedTableName="wms13__legend_url"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-140">
+<addForeignKeyConstraint baseColumnNames="irregular_axis_irregular_axis_id" baseTableName="irregular_axis_direct_positions" constraintName="fkca292pnyvl031482fpq5bo2pt" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="irregular_axis_id" referencedTableName="irregular_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-141">
+<addForeignKeyConstraint baseColumnNames="regular_axis_id" baseTableName="regular_axis" constraintName="fkcne9x6s5m6pnq6rk0lipxmm18" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="geo_axis_id" referencedTableName="geo_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-142">
+<addForeignKeyConstraint baseColumnNames="phone_phone_id" baseTableName="phone_facsimile_phones" constraintName="fkco8yget1ma3783vtyw5vydhr" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="phone_id" referencedTableName="phone"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-143">
+<addForeignKeyConstraint baseColumnNames="service_contact_id" baseTableName="service_provider" constraintName="fkcxfg6meunr0oai31pbm80qfrs" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="service_contact_id" referencedTableName="service_contact"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-144">
+<addForeignKeyConstraint baseColumnNames="envelope_id" baseTableName="abstract_coverage" constraintName="fkej491v3sfmsa7ntl2kl8mvo02" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="envelope_id" referencedTableName="envelope"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-145">
+<addForeignKeyConstraint baseColumnNames="wms13__attribution_id" baseTableName="wms13__layer" constraintName="fkew95quw2brj24e0ai4wlpoq4o" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__attribution_id" referencedTableName="wms13__attribution"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-146">
+<addForeignKeyConstraint baseColumnNames="quantity_id" baseTableName="allowed_value" constraintName="fkh68f4niorbcqp16d9gmrhlvnw" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="quantity_id" referencedTableName="quantity"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-147">
+<addForeignKeyConstraint baseColumnNames="geo_axis_id" baseTableName="geo_axis" constraintName="fkjebjb9pg0e02ggftrb221nftm" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="axis_id" referencedTableName="axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-148">
+<addForeignKeyConstraint baseColumnNames="coverage_function_id" baseTableName="abstract_coverage" constraintName="fkjtfl2xknlgoyqo5prtk89rdvh" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="coverage_function_id" referencedTableName="coverage_function"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-149">
+<addForeignKeyConstraint baseColumnNames="service_provider_id" baseTableName="ows_service_metadata" constraintName="fkkaayv1l53eh918xm4nousp9ib" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="service_provider_id" referencedTableName="service_provider"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-150">
+<addForeignKeyConstraint baseColumnNames="interpolation_restriction_interpolation_restriction_id" baseTableName="interpolation_restriction_allowed_interpolations" constraintName="fkkf2ypvjvt796kp6xjdgm39gsa" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="interpolation_restriction_id" referencedTableName="interpolation_restriction"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-151">
+<addForeignKeyConstraint baseColumnNames="wms13__data_url_id" baseTableName="wms13__layer" constraintName="fkkjrhqo9xukmsltmm8mlyy0hti" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__data_url_id" referencedTableName="wms13__data_url"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-152">
+<addForeignKeyConstraint baseColumnNames="service_identification_service_identification_id" baseTableName="service_identification_service_type_versions" constraintName="fkkvr5jm80ufu1o41el74jtpipg" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="service_identification_id" referencedTableName="service_identification"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-153">
+<addForeignKeyConstraint baseColumnNames="range_type_id" baseTableName="abstract_coverage" constraintName="fkles4hnx1vf3s21h1jwfo2k0ti" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="range_type_id" referencedTableName="range_type"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-154">
+<addForeignKeyConstraint baseColumnNames="general_grid_domain_set_id" baseTableName="general_grid_domain_set" constraintName="fklrkhvc6wxx2ih2h71pvfvn39e" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="domain_set_id" referencedTableName="domain_set"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-155">
+<addForeignKeyConstraint baseColumnNames="address_id" baseTableName="contact_info" constraintName="fkmgmidb0k93h4j2wmq5tjmrnxi" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="address_id" referencedTableName="address"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-156">
+<addForeignKeyConstraint baseColumnNames="contact_info_id" baseTableName="service_contact" constraintName="fkpbli2fuiee9nmcceed8p0wiyc" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="contact_info_id" referencedTableName="contact_info"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-157">
+<addForeignKeyConstraint baseColumnNames="wms13__layer_id" baseTableName="wms13__authority_url" constraintName="fkq9vd73vhdgn3k2yuw0lte60hb" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__layer_id" referencedTableName="wms13__layer"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-158">
+<addForeignKeyConstraint baseColumnNames="envelope_by_axis_id" baseTableName="envelope" constraintName="fkr5mccsf6ea9ih4d3gu6c9m8c3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="envelope_by_axis_id" referencedTableName="envelope_by_axis"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-159">
+<addForeignKeyConstraint baseColumnNames="phone_phone_id" baseTableName="phone_voice_phones" constraintName="fkrpur7px36sgdw045lbmsua3qu" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="phone_id" referencedTableName="phone"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-160">
+<addForeignKeyConstraint baseColumnNames="uom_id" baseTableName="quantity" constraintName="fkrsd3eucybj3fb2ax2sxjvw0ra" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="uom_id" referencedTableName="uom"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1497536461050-161">
+<addForeignKeyConstraint baseColumnNames="wms13__layer_id" baseTableName="wms13__style" constraintName="fks7hm0dq7gbfkayngfcdnqx6n5" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="wms13__layer_id" referencedTableName="wms13__layer"/>
+</changeSet>
+</databaseChangeLog>

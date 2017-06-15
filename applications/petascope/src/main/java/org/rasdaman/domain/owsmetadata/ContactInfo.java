@@ -28,6 +28,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -61,7 +62,7 @@ public class ContactInfo {
 
     @Id
     @Column(name = COLUMN_ID)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private long id;
 
     // Zero or one, optional
@@ -69,7 +70,8 @@ public class ContactInfo {
     private String hoursOfService;
 
     // Zero or one, optional
-    @Column(name = "contact_instructions", length = 10000)
+    @Column(name = "contact_instructions")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String contactInstructions;
 

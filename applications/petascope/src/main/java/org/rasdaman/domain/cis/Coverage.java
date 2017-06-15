@@ -32,6 +32,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -67,7 +68,7 @@ public abstract class Coverage {
 
     @Id
     @Column(name = COLUMN_ID)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private long id;
 
     @Column(name = "coverage_id")
@@ -95,8 +96,10 @@ public abstract class Coverage {
     @JoinColumn(name = RangeType.COLUMN_ID)
     private RangeType rangeType;
 
-    @Column(name = "metadata", length = 100000)
+    @Column(name = "metadata")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
+    // Hibernate will detect suitable datatype for target database (e.g: in Postgreql is text for String)
     private String metadata;
 
     @Column(name = "coverage_type")

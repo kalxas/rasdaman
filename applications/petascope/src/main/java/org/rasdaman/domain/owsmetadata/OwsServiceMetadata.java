@@ -56,7 +56,7 @@ public class OwsServiceMetadata {
 
     @Id
     @Column(name = COLUMN_ID)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private long id;
 
     @OneToOne(cascade = CascadeType.ALL)

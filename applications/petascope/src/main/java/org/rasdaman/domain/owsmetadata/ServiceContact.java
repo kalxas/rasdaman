@@ -73,7 +73,7 @@ public class ServiceContact {
 
     @Id
     @Column(name = COLUMN_ID)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private long id;
 
     @Column(name = "individual_name")

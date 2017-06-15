@@ -32,6 +32,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
@@ -56,7 +57,7 @@ public class Layer {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
 
@@ -86,7 +87,8 @@ public class Layer {
     private String title;
 
     // Zero or One, mandatory
-    @Column(name = "layerAbstract", length = 10000)
+    @Column(name = "layerAbstract")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String layerAbstract;
 
@@ -102,6 +104,7 @@ public class Layer {
 
     // Zero Or Many, mandatory
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<Style> styles = new ArrayList<>();
 
@@ -119,11 +122,13 @@ public class Layer {
 
     // One or Many, mandatory
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<BoundingBox> boundingBoxes = new ArrayList<>();
 
     // Zero Or Many, mandatory
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<Dimension> dimensions = new ArrayList<>();
 
@@ -134,16 +139,19 @@ public class Layer {
 
     // Zero Or Many, optional
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<AuthorityURL> authorityURLs = new ArrayList<>();
 
     // Zero Or Many, optional
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<Identifier> identifiers = new ArrayList<>();
 
     // Zero Or Many, optional
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Layer.COLUMN_ID)
     @OrderColumn
     private List<MetadataURL> metadataURLs = new ArrayList<>();
 

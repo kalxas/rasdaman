@@ -28,6 +28,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import nu.xom.Element;
@@ -91,7 +92,7 @@ public class Style {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
 
@@ -115,7 +116,8 @@ public class Style {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "style_abstract", length = 10000)
+    @Column(name = "style_abstract")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String styleAbstract;
 
@@ -127,7 +129,8 @@ public class Style {
     // NOTE: Rasdaman does not support the StyleSheet for WMS, it uses a RASQL query to create the style for the layers
     // And this style query could be added to style abstract for human readable.
     // NOTE: As this could be long text, so varchar(255) is not enough
-    @Column(name = "rasqlQueryTransformer", length = 10000)
+    @Column(name = "rasqlQueryTransformer")
+    @Lob
     private String rasqlQueryTransformer;
 
     public String getName() {

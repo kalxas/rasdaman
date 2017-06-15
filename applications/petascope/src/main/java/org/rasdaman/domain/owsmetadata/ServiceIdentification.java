@@ -30,6 +30,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
@@ -74,7 +75,7 @@ public class ServiceIdentification {
 
     @Id
     @Column(name = COLUMN_ID)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private long id;
 
     @Column(name = "service_type")
@@ -90,7 +91,8 @@ public class ServiceIdentification {
     // One, mandatory
     private String serviceTitle;
 
-    @Column(name = "service_abstract", length = 10000)
+    @Column(name = "service_abstract")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     // Zero or one, optional
     private String serviceAbstract;

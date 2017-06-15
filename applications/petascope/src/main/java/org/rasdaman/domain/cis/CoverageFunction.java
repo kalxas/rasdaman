@@ -63,7 +63,7 @@ public class CoverageFunction {
     public static final String DEFAULT_SEQUENCE_RULE = "linear";
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
     

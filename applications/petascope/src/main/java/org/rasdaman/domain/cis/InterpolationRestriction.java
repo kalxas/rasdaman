@@ -55,7 +55,7 @@ public class InterpolationRestriction {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
 

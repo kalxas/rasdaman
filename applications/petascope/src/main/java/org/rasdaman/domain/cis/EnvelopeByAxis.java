@@ -49,7 +49,7 @@ public class EnvelopeByAxis {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
 
@@ -64,6 +64,7 @@ public class EnvelopeByAxis {
     private String axisLabels;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = EnvelopeByAxis.COLUMN_ID)
     @OrderColumn
     private List<AxisExtent> axisExtents;
 

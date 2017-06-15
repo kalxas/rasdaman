@@ -49,7 +49,7 @@ public class LayerAttribute {
     public static final String FIXED_HEIGHT = "fixedHeight";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
 

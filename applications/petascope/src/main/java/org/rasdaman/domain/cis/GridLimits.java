@@ -45,7 +45,7 @@ public class GridLimits {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     public long id;
 
@@ -54,6 +54,7 @@ public class GridLimits {
     private String srsName;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = GridLimits.COLUMN_ID)
     @OrderColumn
     // all axes of the Index CRS referenced in srsName, in proper sequence
     private List<IndexAxis> indexAxes;

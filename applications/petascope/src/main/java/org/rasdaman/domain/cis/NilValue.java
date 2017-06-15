@@ -58,14 +58,15 @@ public class NilValue {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
 
     @Column(name = "value")
     private String value;
 
-    @Column(name = "reason", length = 10000)
+    @Column(name = "reason")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String reason;
 

@@ -41,16 +41,17 @@ public class GeneralGrid {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
         
-    @Column(name = "srs_name", length = 10000)
+    @Column(name = "srs_name", length = 1000)
     // NOTE: As this could be long text, so varchar(255) is not enough
     // Compound CRSs of all geo axes    
     private String srsName;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = GeneralGrid.COLUMN_ID)
     @OrderColumn
     // GeoAxis means it could be RegularAxis or IrregularAxis
     private List<GeoAxis> geoAxes;

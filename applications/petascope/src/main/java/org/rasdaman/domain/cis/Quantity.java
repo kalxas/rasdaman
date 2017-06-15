@@ -56,25 +56,28 @@ public class Quantity {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = COLUMN_ID)
     private long id;
 
-    @Column(name = "definition", length = 10000)
+    @Column(name = "definition")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String definition;
 
-    @Column(name = "description", length = 10000)
+    @Column(name = "description")
+    @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String description;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = Quantity.COLUMN_ID)
     @OrderColumn
     private List<NilValue> nilValues;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn
-    @JoinColumn(name = AllowedValue.COLUMN_ID)
+    @JoinColumn(name = Quantity.COLUMN_ID)
     private List<AllowedValue> allowedValues;
     
     @OneToOne(cascade = CascadeType.ALL)
