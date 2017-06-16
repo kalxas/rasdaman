@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,7 +29,7 @@ public class TestCoverage3Dheight {
     private static final String GRID_LIMITS_NAME = "http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0/Index3D";
 
     @Autowired
-    private AbstractCoverageRepository abstractCoverageRepository;
+    private CoverageRepository abstractCoverageRepository;
 
     @Test
     public void checkCoverage() {

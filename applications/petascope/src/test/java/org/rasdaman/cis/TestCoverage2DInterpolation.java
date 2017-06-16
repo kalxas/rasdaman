@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -31,7 +31,7 @@ public class TestCoverage2DInterpolation {
     private static final String GRID_LIMITS_NAME = "http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0/Index2D";
     private static final String GENERAL_GRID_NAME = "http://kahlua.eecs.jacobs-university.de:8080/def/crs/EPSG/0/4326";
     @Autowired private
-    AbstractCoverageRepository abstractCoverageRepository;
+    CoverageRepository abstractCoverageRepository;
 
     @Test
     public void checkCoverage() {

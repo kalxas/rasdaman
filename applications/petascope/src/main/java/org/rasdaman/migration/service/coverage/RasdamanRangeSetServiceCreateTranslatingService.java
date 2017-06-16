@@ -23,7 +23,7 @@ package org.rasdaman.migration.service.coverage;
 
 import java.math.BigInteger;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
-import org.rasdaman.migration.legacy.LegacyCoverageMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
 import org.springframework.stereotype.Service;
 
 /**

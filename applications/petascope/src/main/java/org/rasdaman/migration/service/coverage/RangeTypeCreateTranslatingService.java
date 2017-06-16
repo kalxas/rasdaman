@@ -31,11 +31,11 @@ import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.domain.cis.Quantity;
 import org.rasdaman.domain.cis.RangeType;
 import org.rasdaman.domain.cis.Uom;
-import org.rasdaman.migration.legacy.LegacyAbstractSimpleComponent;
-import org.rasdaman.migration.legacy.LegacyQuantity;
-import org.rasdaman.migration.legacy.LegacyCoverageMetadata;
-import org.rasdaman.migration.legacy.LegacyNilValue;
-import org.rasdaman.migration.legacy.LegacyRangeElement;
+import org.rasdaman.migration.domain.legacy.LegacyAbstractSimpleComponent;
+import org.rasdaman.migration.domain.legacy.LegacyQuantity;
+import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyNilValue;
+import org.rasdaman.migration.domain.legacy.LegacyRangeElement;
 import org.springframework.stereotype.Service;
 
 /**

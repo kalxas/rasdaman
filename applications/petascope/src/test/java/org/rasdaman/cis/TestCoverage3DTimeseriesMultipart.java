@@ -32,7 +32,7 @@ import org.rasdaman.domain.cis.Envelope;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeneralGridDomainSet;
 import org.rasdaman.domain.cis.GeoAxis;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -50,7 +50,7 @@ public class TestCoverage3DTimeseriesMultipart {
     public static final String GRID_LIMITS_NAME = "http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0/Index4D";
 
     @Autowired private
-    AbstractCoverageRepository abstractCoverageRepository;
+    CoverageRepository abstractCoverageRepository;
 
     @Test
     public void checkCoverage() {

@@ -32,15 +32,15 @@ import org.rasdaman.domain.cis.GridLimits;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.RegularAxis;
-import org.rasdaman.migration.legacy.LegacyCellDomainElement;
-import org.rasdaman.migration.legacy.LegacyCoverageMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyCellDomainElement;
+import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
 import petascope.util.CrsUtil;
-import org.rasdaman.migration.legacy.LegacyDbMetadataSource;
-import org.rasdaman.migration.legacy.LegacyDomainElement;
+import org.rasdaman.migration.domain.legacy.LegacyDbMetadataSource;
+import org.rasdaman.migration.domain.legacy.LegacyDomainElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.util.TimeUtil;
-import org.rasdaman.migration.legacy.LegacyAxisTypes;
+import org.rasdaman.migration.domain.legacy.LegacyAxisTypes;
 
 /**
  * Create a DomainSet object from legacy CoverageMetadata object

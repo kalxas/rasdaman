@@ -21,7 +21,7 @@
  */
 package org.rasdaman.migration.service.owsmetadata;
 
-import org.rasdaman.migration.legacy.LegacyServiceMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyServiceMetadata;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.domain.owsmetadata.ServiceIdentification;
 import org.rasdaman.domain.owsmetadata.ServiceProvider;

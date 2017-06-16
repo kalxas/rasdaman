@@ -22,9 +22,9 @@
 package org.rasdaman.migration.legacy.readdatabase;
 
 import java.util.List;
-import org.rasdaman.migration.legacy.LegacyCoverageMetadata;
-import org.rasdaman.migration.legacy.LegacyDbMetadataSource;
-import org.rasdaman.migration.legacy.LegacyWcsUtil;
+import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyDbMetadataSource;
+import org.rasdaman.migration.domain.legacy.LegacyWcsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

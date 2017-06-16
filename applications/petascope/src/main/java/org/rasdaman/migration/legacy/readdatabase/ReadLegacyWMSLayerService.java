@@ -23,8 +23,8 @@ package org.rasdaman.migration.legacy.readdatabase;
 
 import java.sql.SQLException;
 import java.util.List;
-import org.rasdaman.migration.legacy.LegacyDbMetadataSource;
-import org.rasdaman.migration.legacy.LegacyWMSLayer;
+import org.rasdaman.migration.domain.legacy.LegacyDbMetadataSource;
+import org.rasdaman.migration.domain.legacy.LegacyWMSLayer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

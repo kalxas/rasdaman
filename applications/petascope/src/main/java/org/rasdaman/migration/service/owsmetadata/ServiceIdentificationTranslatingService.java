@@ -22,7 +22,7 @@
 package org.rasdaman.migration.service.owsmetadata;
 
 import java.util.ArrayList;
-import org.rasdaman.migration.legacy.LegacyServiceIdentification;
+import org.rasdaman.migration.domain.legacy.LegacyServiceIdentification;
 import org.rasdaman.domain.owsmetadata.ServiceIdentification;
 import org.springframework.stereotype.Service;
 

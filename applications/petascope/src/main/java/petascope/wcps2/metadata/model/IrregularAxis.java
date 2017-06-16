@@ -30,7 +30,7 @@ import petascope.core.AxisTypes.AxisDirection;
 import petascope.util.ListUtil;
 import petascope.core.Pair;
 import petascope.util.TimeUtil;
-import org.rasdaman.migration.legacy.LegacyAxisTypes;
+import org.rasdaman.migration.domain.legacy.LegacyAxisTypes;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>

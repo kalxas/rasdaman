@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.LinkedList;
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -28,7 +28,7 @@ public class TestCoverage2Dindex {
     private static final String UOM_LABEL = "GridSpacing";
 
     @Autowired
-    private AbstractCoverageRepository abstractCoverageRepositroy;
+    private CoverageRepository abstractCoverageRepositroy;
 
     @Test
     public void checkCoverage() {

@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.rasdaman.domain.cis.AxisExtent;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
-import org.rasdaman.migration.legacy.LegacyCoverageMetadata;
-import org.rasdaman.migration.legacy.LegacyDomainElement;
+import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyDomainElement;
 import org.springframework.stereotype.Service;
 import petascope.util.TimeUtil;
-import org.rasdaman.migration.legacy.LegacyAxisTypes;
+import org.rasdaman.migration.domain.legacy.LegacyAxisTypes;
 
 /**
  * Create a EnvelopeByAxis object from legacy CoverageMetadata object

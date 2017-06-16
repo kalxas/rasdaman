@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import petascope.exceptions.WCSException;
 
 /**
@@ -38,6 +39,7 @@ import petascope.exceptions.WCSException;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 @Service
+@Transactional
 public class OwsMetadataRepostioryService {
 
     @Autowired

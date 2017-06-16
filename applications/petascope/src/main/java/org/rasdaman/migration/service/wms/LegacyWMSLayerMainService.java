@@ -23,7 +23,7 @@ package org.rasdaman.migration.service.wms;
 
 import java.sql.SQLException;
 import org.rasdaman.domain.wms.Layer;
-import org.rasdaman.migration.legacy.LegacyWMSLayer;
+import org.rasdaman.migration.domain.legacy.LegacyWMSLayer;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

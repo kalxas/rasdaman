@@ -23,7 +23,8 @@ package org.rasdaman;
 
 import javax.sql.DataSource;
 import org.rasdaman.config.ConfigManager;
-import org.rasdaman.migration.legacy.LegacyDbMetadataSource;
+import org.rasdaman.migration.domain.legacy.LegacyDbMetadataSource;
+import org.rasdaman.migration.service.LegacyMigrationService;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -95,7 +96,7 @@ public class BeanApplicationConfiguration {
         // NOTE: Only create this beans if petascopedb existed in postgresql
         // It does not exist since version 9.5 with new installtion.       
         LegacyDbMetadataSource meta = null;
-        if (Application.checkLegacyDatabaseExist()) {
+        if (LegacyMigrationService.checkLegacyDatabaseExist()) {
             meta = new LegacyDbMetadataSource(ConfigManager.LEGACY_DATASOURCE_DRIVER,
                     ConfigManager.LEGACY_DATASOURCE_URL,
                     ConfigManager.LEGACY_DATASOURCE_USERNAME,

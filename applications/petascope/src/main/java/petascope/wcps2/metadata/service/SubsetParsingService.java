@@ -43,7 +43,7 @@ import petascope.wcps2.metadata.model.NumericSubset;
 import petascope.wcps2.metadata.model.RegularAxis;
 import petascope.wcps2.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps2.subset_axis.model.WcpsTrimSubsetDimension;
-import org.rasdaman.migration.legacy.LegacyWcpsConstants;
+import org.rasdaman.migration.domain.legacy.LegacyWcpsConstants;
 import petascope.core.service.CrsComputerService;
 
 /**

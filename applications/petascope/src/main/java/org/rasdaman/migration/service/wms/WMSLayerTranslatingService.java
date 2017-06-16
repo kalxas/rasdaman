@@ -33,10 +33,9 @@ import org.rasdaman.domain.wms.EXGeographicBoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
 import org.rasdaman.domain.wms.Style;
-import org.rasdaman.migration.legacy.LegacyWMSEXGeographicBoundingBox;
-import org.rasdaman.migration.legacy.LegacyWMSLayer;
-import org.rasdaman.migration.legacy.LegacyWMSStyle;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
+import org.rasdaman.migration.domain.legacy.LegacyWMSEXGeographicBoundingBox;
+import org.rasdaman.migration.domain.legacy.LegacyWMSLayer;
+import org.rasdaman.migration.domain.legacy.LegacyWMSStyle;
 import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.wms.exception.WMSInvalidDimensionalityException;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 
 /**
  *
@@ -60,7 +60,7 @@ public class WMSLayerTranslatingService {
     private static final Logger log = LoggerFactory.getLogger(WMSLayerTranslatingService.class);
 
     @Autowired
-    private AbstractCoverageRepository abstractCoverageRepository;
+    private CoverageRepostioryService coverageRepostioryService;
 
     /**
      * Create a WMS layer from legacy WMS layer
@@ -78,7 +78,7 @@ public class WMSLayerTranslatingService {
         // NOTE: a layer name in WMS is a WCS coverage id (and with legacy WMS only supports 2D coverages).
         // Also the CRS is missing from layer in legacy object, so need to fetch it from the new persistent coverage.
         String layerName = legacyLayer.getName();
-        Coverage coverage = this.abstractCoverageRepository.findOneByCoverageId(layerName);
+        Coverage coverage = this.coverageRepostioryService.readCoverageByIdFromDatabase(layerName);
         if (coverage == null) {
             log.info("*******Coverage for WMS 1.3 layer: " + layerName + " does not exist, please migrate coverage's metadata first, so layer will not be migrated.*******");
             return null;

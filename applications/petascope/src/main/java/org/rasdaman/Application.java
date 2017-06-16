@@ -129,8 +129,8 @@ public class Application extends SpringBootServletInitializer {
             // Load the WCS Schema to validation if it is needed
             XMLAbstractParser.loadWcsSchema();
 
-            // Create the database if not exist
-            this.createDatabaseIfNotExist();
+            // Create the new database if not exist
+            this.createDatabaseIfNotExist();        
         } catch (RasdamanException ex) {
             throw new RuntimeException("Could not initialize config manager for petascope.properties", ex);
         } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
@@ -167,40 +167,7 @@ public class Application extends SpringBootServletInitializer {
         newPaths[newPaths.length - 1] = pathToAdd;
         usrPathsField.set(null, newPaths);
     }
-    
-    /**
-     * In version 9.5, petascopedb will not exist as update_petascopedb.sh script is removed.
-     * So don't create the bean for reading legacy database source as it will throw exception when initializing server.
-     * @return 
-     * @throws java.lang.ClassNotFoundException 
-     * @throws java.sql.SQLException 
-     */
-    public static boolean checkLegacyDatabaseExist() throws ClassNotFoundException, SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            Class.forName(LEGACY_DATASOURCE_DRIVER);
-            connection = DriverManager.getConnection(ConfigManager.LEGACY_DATASOURCE_URL, ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD);            
-        } catch (SQLException ex) {
-            log.info("Legacy petascopedb does not exist, no need to migrate data to new database.");
-            return false;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException ex) {
-                throw ex;
-            }
-        }
         
-        log.info("Legacy petascopedb existed, need to migrate data to new database.");
-        return true;
-    }
-
     /**
      * Postgresql does not allow Hibernate to create database as other
      * relational databases so instead of throwing exception, it should create

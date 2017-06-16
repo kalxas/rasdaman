@@ -35,7 +35,6 @@ import org.rasdaman.domain.cis.EnvelopeByAxis;
 import org.rasdaman.domain.cis.GeneralGrid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeneralGridDomainSet;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +43,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 
 /**
  *
@@ -57,7 +57,7 @@ import petascope.util.CrsUtil;
 public class CoverageRepostioryService {
 
     @Autowired
-    private AbstractCoverageRepository abstractCoverageRepository;
+    private CoverageRepository abstractCoverageRepository;
     
     // NOTE: for migration, Hibernate caches the object in first-level cache internally
     // and recheck everytime a new entity is saved, then with thousands of cached objects for nothing

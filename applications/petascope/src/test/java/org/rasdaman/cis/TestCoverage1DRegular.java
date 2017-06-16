@@ -31,7 +31,7 @@ import org.rasdaman.domain.cis.Envelope;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeneralGridDomainSet;
 import org.rasdaman.domain.cis.GeoAxis;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -51,7 +51,7 @@ public class TestCoverage1DRegular {
 
 
     @Autowired private
-    AbstractCoverageRepository abstractCoverageRepository;
+    CoverageRepository abstractCoverageRepository;
 
     @Test
     public void checkCoverage() {

@@ -21,8 +21,8 @@
  */
 package org.rasdaman.migration.legacy.readdatabase;
 
-import org.rasdaman.migration.legacy.LegacyDbMetadataSource;
-import org.rasdaman.migration.legacy.LegacyServiceMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyDbMetadataSource;
+import org.rasdaman.migration.domain.legacy.LegacyServiceMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

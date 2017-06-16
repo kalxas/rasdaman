@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.LinkedList;
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.repository.interfaces.AbstractCoverageRepository;
+import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -33,7 +33,7 @@ public class TestCoverage4DHeightTime {
     private static final String AXIS_LABELS = "Lat Long h ansi";
 
     @Autowired
-    private AbstractCoverageRepository abstractCoverageRepository;
+    private CoverageRepository abstractCoverageRepository;
 
     @Test
     public void checkCoverage() {

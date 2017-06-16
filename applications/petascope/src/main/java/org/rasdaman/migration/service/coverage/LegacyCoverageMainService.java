@@ -29,7 +29,7 @@ import org.rasdaman.domain.cis.EnvelopeByAxis;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.RangeType;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
-import org.rasdaman.migration.legacy.LegacyCoverageMetadata;
+import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.rasdaman.repository.service.CoverageRepostioryService;
