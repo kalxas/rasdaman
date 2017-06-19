@@ -1,0 +1,1 @@
+select encode(c is null, "csv") from nulltest as c

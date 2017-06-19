@@ -120,6 +120,7 @@ public:
         QT_LESS,
         QT_LESS_EQUAL,
         QT_NOT,
+        QT_IS_NULL,
         QT_SQRT,
 // added by CStancuMara
         QT_EXECUTE,

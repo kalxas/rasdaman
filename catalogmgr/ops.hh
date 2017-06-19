@@ -96,6 +96,7 @@ This is the ops code and the persistence code: from the typenum the oids are gen
 
   && {\bf unary operations} \\
   OP_NOT  && negation (bitwise for ints, logical for bools) \\
+  OP_IS_NULL  && is null check (result Bool) \\
   OP_SQRT  && square root (for doubles) \\
   OP_IDENTITY && used for copying cells \\
 
@@ -134,6 +135,7 @@ public:
         /* insert new condense ops before this line */
         // unary operations.
         OP_NOT,
+        OP_IS_NULL,
 
         //*******************
         OP_UFUNC_BEGIN,
@@ -2161,6 +2163,52 @@ class OpIDENTITYLong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYLong(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
+//--------------------------------------------
+//      OpISNULL
+//--------------------------------------------
+/*@Doc:
+OpISNULL checks if a cell is null.
+*/
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpISNULLCLong : public UnaryOp
+{
+public:
+	/// constructor gets RasDaMan base type of result and operand.
+    OpISNULLCLong(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpISNULLCULong : public UnaryOp
+{
+public:
+	/// constructor gets RasDaMan base type of result and operand.
+    OpISNULLCULong(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpISNULLCDouble : public UnaryOp
+{
+public:
+	/// constructor gets RasDaMan base type of result and operand.
+    OpISNULLCDouble(const BaseType* newResType, const BaseType* newOpType,
                    unsigned int newResOff = 0, unsigned int newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);

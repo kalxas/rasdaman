@@ -107,6 +107,26 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
         }
     }
 
+	if (resType->getType() == BOOLTYPE && op == Ops::OP_IS_NULL)
+	{
+		if (opType->getType() >= ULONG && opType->getType() <= BOOLTYPE)
+		{
+			return new OpISNULLCULong(resType, opType, resOff, opOff);
+		}
+		else if (opType->getType() >= LONG && opType->getType() <= OCTET)
+		{
+			return new OpISNULLCLong(resType, opType, resOff, opOff);
+		}
+		else if (opType->getType() >= DOUBLE && opType->getType() <= FLOAT)
+		{
+			return new OpISNULLCDouble(resType, opType, resOff, opOff);
+		}
+		else 
+		{
+			return 0;
+		}	
+	}
+
     // all Char
     if (resType->getType() == BOOLTYPE && opType->getType() == BOOLTYPE)
     {
@@ -909,7 +929,7 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
     // introduces circular dependency between the two functions.
     // So it is broken here.
 
-    if (op == OP_SOME || op == OP_ALL || (op >= OP_EQUAL && op <= OP_GREATEREQUAL))
+    if (op == OP_SOME || op == OP_ALL || op == OP_IS_NULL || (op >= OP_EQUAL && op <= OP_GREATEREQUAL))
     {
         // result must be Bool
         resType = TypeFactory::mapType("Bool");
@@ -1166,6 +1186,11 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
         return 0;
     }
 
+    if (op == Ops::OP_IS_NULL)
+    {
+        return TypeFactory::mapType("Bool");
+    }
+
     // the condense operation COUNT always returns an unsigned long
     if (op == Ops::OP_COUNT)
     {
@@ -1306,6 +1331,12 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
             return TypeFactory::mapType("Complex2");
         }
     }
+
+    if (op == OP_IS_NULL)
+    {
+        return TypeFactory::mapType("Bool");
+    }
+
     if (op2 == 0)
     {
         return const_cast<BaseType*>(op1);
@@ -5032,6 +5063,52 @@ void
 OpIDENTITYLong::operator()(char* res, const char* op)
 {
     *(r_ULong*)(res + resOff) = *(r_ULong*)(const_cast<char*>(op) + opOff);
+}
+
+//--------------------------------------------
+//  OpISNULL
+//--------------------------------------------
+
+OpISNULLCLong::OpISNULLCLong(const BaseType* newResType, const BaseType* newOpType,
+		                   unsigned int newResOff, unsigned int newOpOff)
+	: UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpISNULLCLong::operator()(char* result, const char* op)
+{
+	r_Long longOp;
+	longOp  = *(opType->convertToCLong(op + opOff, &longOp));
+	*(result + resOff) = isNull(longOp);
+}
+
+OpISNULLCULong::OpISNULLCULong(const BaseType* newResType, const BaseType* newOpType,
+		                   unsigned int newResOff, unsigned int newOpOff)
+	: UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpISNULLCULong::operator()(char* result, const char* op)
+{
+	r_ULong longOp;
+	longOp  = *(opType->convertToCULong(op + opOff, &longOp));
+	*(result + resOff) = isNull(longOp);
+}
+
+OpISNULLCDouble::OpISNULLCDouble(const BaseType* newResType, const BaseType* newOpType,
+		                   unsigned int newResOff, unsigned int newOpOff)
+	: UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpISNULLCDouble::operator()(char* result, const char* op)
+{
+	double doubleOp;
+	doubleOp  = *(opType->convertToCDouble(op + opOff, &doubleOp));
+	*(result + resOff) = isNull(doubleOp) || std::isnan(doubleOp);
 }
 
 //--------------------------------------------

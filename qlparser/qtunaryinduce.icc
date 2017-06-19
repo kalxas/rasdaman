@@ -38,6 +38,15 @@ QtNot::getNodeType() const
 
 
 inline QtNode::QtNodeType
+QtIsNull::getNodeType() const
+{
+  return nodeType;
+}
+
+
+
+
+inline QtNode::QtNodeType
 QtDot::getNodeType() const
 {
   return nodeType;

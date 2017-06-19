@@ -2443,6 +2443,31 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
 	}
+	| generalExp IS NULLKEY
+	{
+	  $$ = new QtIsNull( $1 );
+	  $2.info->setToken("is null");
+	  $$->setParseInfo( *($2.info) );
+
+	  parseQueryTree->removeDynamicObject( $1 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($2)
+	  FREESTACK($3)
+	}
+	| generalExp IS NOT NULLKEY
+	{
+	  QtOperation* tmp = new QtIsNull($1);
+	  $2.info->setToken("is not null");
+	  tmp->setParseInfo( *($2.info) );
+	  $$ = new QtNot(tmp);
+	  $$->setParseInfo( tmp->getParseInfo() );
+
+	  parseQueryTree->removeDynamicObject( $1 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($2)
+	  FREESTACK($3)
+	  FREESTACK($4)
+	}
 	| generalExp IS generalExp
 	{
 	  $$ = new QtIs ( $1, $3 );
