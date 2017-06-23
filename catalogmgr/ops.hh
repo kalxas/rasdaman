@@ -131,7 +131,7 @@ public:
     enum OpType
     {
         // condense operations.
-        OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SOME, OP_ALL,
+        OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SQSUM, OP_SOME, OP_ALL,
         /* insert new condense ops before this line */
         // unary operations.
         OP_NOT,
@@ -573,6 +573,29 @@ public:
     /// operator to carry out operation on {\tt op} using internal accu.
     virtual char* operator()(const char* op);
 };
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_SUM on type #double#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpSQSUMCDouble : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpSQSUMCDouble(const BaseType* newResType, const BaseType* newOpType,
+                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// constructor initializing internal accu.
+    OpSQSUMCDouble(const BaseType* newResType, char* newAccu,
+                 const   BaseType* newOpType, unsigned int newResOff,
+                 unsigned int newOpOff);
+    /// operator to carry out operation on {\tt op}.
+    virtual char* operator()(const char* op, char* myAccu);
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char* operator()(const char* op);
+};
+
 
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: Class for carrying out condense operations on structs.

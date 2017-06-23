@@ -806,6 +806,8 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, const BaseType* opTy
             return new OpMINCDouble(resType, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMCDouble(resType, opType, resOff, opOff);
+        case Ops::OP_SQSUM:
+            return new OpSQSUMCDouble(resType, opType, resOff, opOff);
         default:
             break;
         }
@@ -825,6 +827,15 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, const BaseType* opTy
             return new OpMINComplex(resType, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMComplex(resType, opType, resOff, opOff);
+        default:
+            break;
+        }
+    } else if (resType->getType() == FLOAT || resType->getType() == DOUBLE)
+    {
+        switch (op)
+        {
+        case Ops::OP_SQSUM:
+            return new OpSQSUMCDouble(resType, opType, resOff, opOff);
         default:
             break;
         }
@@ -902,6 +913,8 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, char* newAccu,
             return new OpMINCDouble(resType, newAccu, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMCDouble(resType, newAccu, opType, resOff, opOff);
+        case Ops::OP_SQSUM:
+            return new OpSQSUMCDouble(resType, newAccu, opType, resOff, opOff);
         default:
             break;
         }
@@ -978,6 +991,10 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
     else if (op == OP_SUM && op1Type->getType() == COMPLEXTYPE2)
     {
         resType = TypeFactory::mapType("Complex2");
+    }
+    else if (op == OP_SQSUM && op1Type->getType() <= FLOAT)
+    {
+        resType = TypeFactory::mapType("Double");
     }
 
     // unary operations on complex: re, im
@@ -1304,6 +1321,39 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
         }
     }
 
+    if (!op2 && op == Ops::OP_SQSUM)
+    {
+
+        if (op1->getType() <= FLOAT)
+        {
+            return TypeFactory::mapType("Double");
+        }
+
+        else if (op1->getType() == STRUCT)
+        {
+            StructType* resStructType = new StructType;
+            TypeFactory::addTempType(resStructType);
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
+            {
+                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
+                if (!resType)
+                {
+                    return 0;
+                }
+
+                resStructType->addElement(opStructType->getElemName(i), resType);
+            }
+
+            return (BaseType*)resStructType;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+ 
     // some :-) unary and condense operations return the same type
     if (op == OP_REALPART || op == OP_IMAGINARPART)
     {
@@ -4056,6 +4106,71 @@ OpSUMCDouble::operator()(const char* op)
 {
     return OpSUMCDouble::operator()(op, accu);
 }
+
+/// OpSQSUM
+
+OpSQSUMCDouble::OpSQSUMCDouble(const BaseType* newResType, const BaseType* newOpType,
+                           unsigned int newResOff, unsigned int newOpOff)
+    : CondenseOp(newResType, newOpType, newResOff, newOpOff)
+{
+    double myVal = 0.0;
+    // initialising with neutral value
+    accu = new char[resType->getSize()];
+    resType->makeFromCDouble(accu, &myVal);
+}
+
+OpSQSUMCDouble::OpSQSUMCDouble(const BaseType* newResType, char* newAccu,
+                           const BaseType* newOpType, unsigned int newResOff,
+                           unsigned int newOpOff)
+    : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
+{
+}
+
+char*
+OpSQSUMCDouble::operator()(const char* op, char* init)
+{
+    double longOp = 0;
+    double longRes = 0;
+
+    longOp = *(opType->convertToCDouble(op + opOff, &longOp));
+    longRes = *(resType->convertToCDouble(init + resOff, &longRes));
+
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCDouble(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp))
+    {
+        if (nullAccu)
+        {
+            longRes = longOp * longOp;
+            nullAccu = false;
+        }
+        else
+        {
+            longRes += longOp * longOp;
+        }
+
+        resType->makeFromCDouble(init + resOff, &longRes);
+    }
+
+    return init;
+}
+
+char*
+OpSQSUMCDouble::operator()(const char* op)
+{
+    return OpSQSUMCDouble::operator()(op, accu);
+}
+
+
+///
 
 OpCondenseStruct::OpCondenseStruct(
     const BaseType* newResType,

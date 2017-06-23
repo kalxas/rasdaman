@@ -1,0 +1,1 @@
+rasdaman error 353: Execution error 353 in line 1, column 8, near token stddev_samp: Operand of quantifier must be multidimensional.

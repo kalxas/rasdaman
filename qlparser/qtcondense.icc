@@ -194,4 +194,34 @@ QtMaxCells::getAlgebraicName() const
 
 
 
+inline QtNode::QtNodeType
+QtStdDevVar::getNodeType() const
+{
+  return nodeType;
+}
 
+
+inline const char* 
+QtStdDevVar::getClassName() const
+{
+  return "QtStdDevVar";
+}
+
+
+inline const char* 
+QtStdDevVar::getAlgebraicName() const
+{
+  switch (nodeType)
+  {
+    case QT_VARPOP:
+      return "var_pop";
+    case QT_VARSAMP:
+      return "var_samp";
+    case QT_STDDEVPOP:
+      return "stddev_pop";
+    case QT_STDDEVSAMP:
+      return "stddev_samp";
+    default:
+      return "";
+  }
+}

@@ -340,6 +340,41 @@ private:
 };
 
 
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+  The class represents the specialized condenser {\tt var_pop()} in the query tree.
+
+*/
+
+class QtStdDevVar : public QtCondense
+{
+public:
+    /// default constructor
+    QtStdDevVar(QtNodeType newNodeType);
+
+    /// constructor getting the operand
+    QtStdDevVar(QtOperation* input, QtNodeType newNodeType);
+
+    /// method for evaluating the node
+    QtData* evaluate(QtDataList* inputList);
+
+    /// method for identification of nodes
+    inline virtual QtNodeType getNodeType() const;
+
+    /// method returning class name
+    inline virtual const char* getClassName() const;
+
+    /// method returning algebraic identifier
+    inline virtual const char* getAlgebraicName() const;
+
+private:
+    /// attribute for identification of nodes
+    const QtNodeType nodeType;
+};
+
+
 #include "qlparser/qtcondense.icc"
 
 #endif
