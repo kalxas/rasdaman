@@ -75,11 +75,11 @@ class AbstractToCoverageConverter:
         :param evaluator_slice: the sentence evaluator for the slice
         :rtype: UserAxis | IrregularUserAxis
         """
-        min = self.sentence_evaluator.evaluate(user_axis.interval.low, evaluator_slice)
+        min = self.sentence_evaluator.evaluate(user_axis.interval.low, evaluator_slice, user_axis.statements)
         max = None
         if user_axis.interval.high:
-            max = self.sentence_evaluator.evaluate(user_axis.interval.high, evaluator_slice)
-        resolution = self.sentence_evaluator.evaluate(user_axis.resolution, evaluator_slice)
+            max = self.sentence_evaluator.evaluate(user_axis.interval.high, evaluator_slice, user_axis.statements)
+        resolution = self.sentence_evaluator.evaluate(user_axis.resolution, evaluator_slice, user_axis.statements)
         if isinstance(user_axis, RegularUserAxis):
             return RegularUserAxis(user_axis.name, resolution, user_axis.order, min, max, user_axis.type,
                                    user_axis.dataBound)
@@ -88,7 +88,7 @@ class AbstractToCoverageConverter:
                 # grib irregular axis will be calculated later when all the messages is evaluated
                 direct_positions = user_axis.directPositions
             else:
-                direct_positions = self.sentence_evaluator.evaluate(user_axis.directPositions, evaluator_slice)
+                direct_positions = self.sentence_evaluator.evaluate(user_axis.directPositions, evaluator_slice, user_axis.statements)
 
             return IrregularUserAxis(user_axis.name, resolution, user_axis.order, min, direct_positions, max,
                                      user_axis.type, user_axis.dataBound)

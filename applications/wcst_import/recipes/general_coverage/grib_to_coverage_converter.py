@@ -194,7 +194,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                     if evaluated_user_axis.interval.high is not None \
                         and evaluated_user_axis.interval.low > evaluated_user_axis.interval.high:
                         evaluated_user_axis.interval.low, evaluated_user_axis.interval.high = evaluated_user_axis.interval.high, evaluated_user_axis.interval.low
-
+                evaluated_user_axis.statements = user_axis.statements
                 axes.append(evaluated_user_axis)
             evaluated_messages.append(GRIBMessage(i, axes, grib_message))
 
@@ -232,7 +232,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
             # convert all of values in the list to string then it can be evaluated
             direct_positions = list_util.to_list_string(direct_positions)
             evaluator_slice = GribMessageEvaluatorSlice(first_grib_message, grib_file, direct_positions)
-            user_axis.directPositions = self.sentence_evaluator.evaluate(evaluating_sentence, evaluator_slice)
+            user_axis.directPositions = self.sentence_evaluator.evaluate(evaluating_sentence, evaluator_slice, user_axis.statements)
 
             # axis is datetime
             if user_axis.type == UserAxisType.DATE:

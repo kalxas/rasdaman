@@ -52,7 +52,8 @@
               "gridOrder": 0,
               "type": "ansidate",
               "irregular": true,
-              "directPositions": "${grib:axis:reftime}"
+              "statements": "from datetime import datetime, timedelta",
+              "directPositions": "[(datetime(2015,1,1,0,0,0) + timedelta(hours=6*i)).strftime(\"%Y-%m-%dT%H:%M\") for i in range(0,124)]"
             },
             "Long": {
               "min": "${grib:longitudeOfFirstGridPointInDegrees}",

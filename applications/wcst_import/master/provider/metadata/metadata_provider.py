@@ -150,10 +150,10 @@ class MetadataProvider:
             if self.is_coverage_irregular():
                 coefficient = None if axis.coefficient is None else " ".join(map(lambda x: str(x), axis.coefficient))
                 offsets.append(OffsetVectorIrregular(self.get_crs(), self.get_axis_labels(), self.get_axis_uom_labels(),
-                                                     self.get_no_of_dimensions(), offset_vector, coefficient))
+                                                     self.get_no_of_dimensions(), offset_vector, coefficient, grid_axis.label))
             else:
                 offsets.append(OffsetVectorRegular(self.get_crs(), self.get_axis_labels(), self.get_axis_uom_labels(),
-                                                   self.get_no_of_dimensions(), offset_vector))
+                                                   self.get_no_of_dimensions(), offset_vector, grid_axis.label))
         return offsets
 
     def _get_axis_for_grid_axis(self, grid_axis):
