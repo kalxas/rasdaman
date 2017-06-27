@@ -1,0 +1,1 @@
+select encode(bit({c.0,c.1,c.2},1), "png") from test_rgb2 as c

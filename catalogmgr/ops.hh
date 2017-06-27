@@ -854,6 +854,7 @@ class OpBinaryStruct : public BinaryOp
 public:
     /// constructor gets struct type.
     OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
+                   const BaseType* op1typeArg, const BaseType* op2typeArg,
                    unsigned int newResOff = 0, unsigned int newOp1Off = 0,
                    unsigned int newOp2Off = 0);
     /// destructor.
@@ -1507,7 +1508,6 @@ public:
                             const char* op2);
     virtual void getCondenseInit(char* init);
 };
-
 
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_MINUS on C type #double# and #double#, result #double#.
@@ -2318,7 +2318,6 @@ protected:
 
 };
 
-
 //--------------------------------------------
 //      Complex operations
 //--------------------------------------------
@@ -2625,7 +2624,6 @@ private:
     unsigned int opReOff;
 };
 
-
 /**
   * \ingroup Catalogmgrs
   */
@@ -2700,7 +2698,6 @@ private:
     const char* pattern;
 };
 
-
 //--------------------------------------------
 //      OpBIT
 //--------------------------------------------
@@ -2726,10 +2723,6 @@ public:
     virtual void operator()(char* res, const char* op1, const char* op2);
 };
 
-
-
 #include "autogen_ops.hh"
 
-
 #endif
-//  LocalWords:  op

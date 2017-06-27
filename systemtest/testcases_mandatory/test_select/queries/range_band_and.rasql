@@ -1,0 +1,1 @@
+select encode({c.1, c.0 and c.2, c.2}, "png") from test_rgb2 as c

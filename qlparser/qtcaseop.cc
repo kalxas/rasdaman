@@ -51,6 +51,7 @@ rasdaman GmbH.
 #include "catalogmgr/ops.hh"
 #include "relcatalogif/type.hh"
 #include "catalogmgr/typefactory.hh"
+#include "relcatalogif/structtype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 
 #include <easylogging++.h>
@@ -722,10 +723,18 @@ QtCaseOp::checkType(QtTypeTuple* typeTuple)
  */
 const BaseType* QtCaseOp::getResultType(const BaseType* op1, const BaseType* op2)
 {
-
-    if ((op1->getType() == STRUCT) || (op2->getType() == STRUCT))
+    //shortcut in case the types are actually the same
+    if (op1->getType() == op2->getType())
     {
-        if (op1->compatibleWith(op2))
+        return op1;
+    }
+    
+    //in case both are structs
+    // for proper type coercion, do we not need to ensure the best type from each pair of bands is selected?
+    // -BB
+    if (op1->getType() == STRUCT)
+    {
+        if (((StructType*)const_cast<BaseType*>(op1))->compatibleWith(op2))
         {
             return op1;
         }
@@ -734,12 +743,7 @@ const BaseType* QtCaseOp::getResultType(const BaseType* op1, const BaseType* op2
             return NULL;
         }
     }
-    if (op1->getType() == op2->getType())
-    {
-        return op1;
-    }
-
-
+    
     // if only one of operand is signed, result also has to be signed.
     if (isSignedType(op1) && !isSignedType(op2))
     {

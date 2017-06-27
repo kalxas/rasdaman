@@ -563,6 +563,8 @@ public:
 #define STRUCTOFSTRUCTSDISABLED             244
 #define UNSATISFIEDMDDCONSTANT              373
 #define DIVISION_BY_ZERO                    433
+#define CELLBINARYOPUNAVAILABLE             434
+#define CELLUNARYOPUNAVAILABLE              435
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709
 #define FAILEDWRITINGTODISK                 710

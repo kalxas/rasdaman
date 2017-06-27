@@ -1,0 +1,1 @@
+select encode(abs(100*sin({x.0,x.1,x.2})), "png") from test_rgb2 as x

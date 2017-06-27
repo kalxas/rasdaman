@@ -64,8 +64,6 @@ QtBinaryInduce::QtBinaryInduce(QtOperation* initInput1, QtOperation* initInput2,
 {
 }
 
-
-
 QtData*
 QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
 {
@@ -134,8 +132,6 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
 
     return returnValue;
 }
-
-
 
 QtData*
 QtBinaryInduce::computeUnaryMDDOp(QtMDD* operand1, QtScalarData* operand2, const BaseType* resultBaseType, int scalarPos)
@@ -318,7 +314,13 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD* operand1, QtMDD* operand2, const BaseT
         // and iterate over them
 
         //auto_ptr<BinaryOp> myOp(Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType()));
-        myOp->setNullValues(nullValues1);
+        if(myOp){
+            myOp->setNullValues(nullValues1);
+        }
+        else
+        {
+            throw r_Error(CELLBINARYOPUNAVAILABLE);
+        }
         for (tileOp1It = allTilesOp1->begin(); tileOp1It !=  allTilesOp1->end(); tileOp1It++)
         {
             // domain of the op1 tile
@@ -407,8 +409,6 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD* operand1, QtMDD* operand2, const BaseT
     return returnValue;
 }
 
-
-
 QtData*
 QtBinaryInduce::computeBinaryOp(QtScalarData* operand1, QtScalarData* operand2, const BaseType* resultBaseType)
 {
@@ -452,8 +452,6 @@ QtBinaryInduce::computeBinaryOp(QtScalarData* operand1, QtScalarData* operand2, 
     return scalarDataObj;
 }
 
-
-
 QtData*
 QtBinaryInduce::evaluate(QtDataList* inputList)
 {
@@ -479,8 +477,6 @@ QtBinaryInduce::evaluate(QtDataList* inputList)
     stopTimer();
     return returnValue;
 }
-
-
 
 const QtTypeElement&
 QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
@@ -607,16 +603,12 @@ QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
     return dataStreamType;
 }
 
-
-
 const QtNode::QtNodeType QtPlus::nodeType = QT_PLUS;
 
 QtPlus::QtPlus(QtOperation* initInput1, QtOperation* initInput2)
     : QtBinaryInduce(initInput1, initInput2, Ops::OP_PLUS)
 {
 }
-
-
 
 QtOperation*
 QtPlus::getUniqueOrder(const QtNode::QtNodeType ID)
@@ -651,8 +643,6 @@ QtPlus::getUniqueOrder(const QtNode::QtNodeType ID)
     return returnValue;
 }
 
-
-
 void
 QtPlus::printTree(int tab, ostream& s, QtChildType mode)
 {
@@ -660,8 +650,6 @@ QtPlus::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtPlus::printAlgebraicExpression(ostream& s)
@@ -691,8 +679,6 @@ QtPlus::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-
-
 const QtNode::QtNodeType QtMinus::nodeType = QT_MINUS;
 
 QtMinus::QtMinus(QtOperation* initInput1, QtOperation* initInput2)
@@ -700,15 +686,11 @@ QtMinus::QtMinus(QtOperation* initInput1, QtOperation* initInput2)
 {
 }
 
-
-
 bool
 QtMinus::isCommutative() const
 {
     return false; // NOT commutative
 }
-
-
 
 void
 QtMinus::printTree(int tab, ostream& s, QtChildType mode)
@@ -717,8 +699,6 @@ QtMinus::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtMinus::printAlgebraicExpression(ostream& s)
@@ -748,16 +728,12 @@ QtMinus::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-
 const QtNode::QtNodeType QtMax_binary::nodeType = QT_MAX_BINARY;
 
 QtMax_binary::QtMax_binary(QtOperation* initInput1, QtOperation* initInput2)
     : QtBinaryInduce(initInput1, initInput2, Ops::OP_MAX_BINARY)
 {
 }
-
-
-
 
 void
 QtMax_binary::printTree(int tab, ostream& s, QtChildType mode)
@@ -766,8 +742,6 @@ QtMax_binary::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtMax_binary::printAlgebraicExpression(ostream& s)
@@ -797,16 +771,12 @@ QtMax_binary::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-
 const QtNode::QtNodeType QtMin_binary::nodeType = QT_MIN_BINARY;
 
 QtMin_binary::QtMin_binary(QtOperation* initInput1, QtOperation* initInput2)
     : QtBinaryInduce(initInput1, initInput2, Ops::OP_MIN_BINARY)
 {
 }
-
-
-
 
 void
 QtMin_binary::printTree(int tab, ostream& s, QtChildType mode)
@@ -815,8 +785,6 @@ QtMin_binary::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtMin_binary::printAlgebraicExpression(ostream& s)
@@ -846,16 +814,12 @@ QtMin_binary::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-
-
 const QtNode::QtNodeType QtMult::nodeType = QT_MULT;
 
 QtMult::QtMult(QtOperation* initInput1, QtOperation* initInput2)
     :  QtBinaryInduce(initInput1, initInput2, Ops::OP_MULT)
 {
 }
-
-
 
 QtOperation*
 QtMult::getUniqueOrder(const QtNode::QtNodeType ID)
@@ -890,8 +854,6 @@ QtMult::getUniqueOrder(const QtNode::QtNodeType ID)
     return returnValue;
 }
 
-
-
 void
 QtMult::printTree(int tab, ostream& s, QtChildType mode)
 {
@@ -899,8 +861,6 @@ QtMult::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtMult::printAlgebraicExpression(ostream& s)
@@ -930,8 +890,6 @@ QtMult::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-
-
 const QtNode::QtNodeType QtDiv::nodeType = QT_DIV;
 
 QtDiv::QtDiv(QtOperation* initInput1, QtOperation* initInput2)
@@ -939,15 +897,11 @@ QtDiv::QtDiv(QtOperation* initInput1, QtOperation* initInput2)
 {
 }
 
-
-
 bool
 QtDiv::isCommutative() const
 {
     return false; // NOT commutative
 }
-
-
 
 void
 QtDiv::printTree(int tab, ostream& s, QtChildType mode)
@@ -956,8 +910,6 @@ QtDiv::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtDiv::printAlgebraicExpression(ostream& s)
@@ -994,15 +946,11 @@ QtIntDiv::QtIntDiv(QtOperation* initInput1, QtOperation* initInput2)
 {
 }
 
-
-
 bool
 QtIntDiv::isCommutative() const
 {
     return false; // NOT commutative
 }
-
-
 
 void
 QtIntDiv::printTree(int tab, ostream& s, QtChildType mode)
@@ -1011,8 +959,6 @@ QtIntDiv::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtIntDiv::printAlgebraicExpression(ostream& s)
@@ -1048,15 +994,11 @@ QtMod::QtMod(QtOperation* initInput1, QtOperation* initInput2)
 {
 }
 
-
-
 bool
 QtMod::isCommutative() const
 {
     return false; // NOT commutative
 }
-
-
 
 void
 QtMod::printTree(int tab, ostream& s, QtChildType mode)
@@ -1065,8 +1007,6 @@ QtMod::printTree(int tab, ostream& s, QtChildType mode)
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
-
-
 
 void
 QtMod::printAlgebraicExpression(ostream& s)

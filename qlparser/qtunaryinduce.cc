@@ -156,12 +156,26 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType,
     if (operation == Ops::OP_IDENTITY)
     {
         myOp = Ops::getUnaryOp(operation, resultBaseType, resultBaseType, 0, operandOffset);
-        myOp->setNullValues(nullValues);
+        if(myOp)
+        {
+            myOp->setNullValues(nullValues);
+        }
+        else
+        {
+            throw r_Error(CELLUNARYOPUNAVAILABLE);
+        }
     }
     else
     {
         myOp = Ops::getUnaryOp(operation, resultBaseType, op->getCellType(), 0, 0);
-        myOp->setNullValues(nullValues);
+        if(myOp)
+        {
+            myOp->setNullValues(nullValues);
+        }
+        else
+        {
+            throw r_Error(CELLUNARYOPUNAVAILABLE);
+        }
     }
     if (myOp == NULL)
     {
