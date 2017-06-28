@@ -25,6 +25,7 @@ import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.ras.RasUtil;
 
 import java.io.IOException;
+import petascope.exceptions.PetascopeException;
 
 /**
  * Class for updating when values are received as file to be decoded using decode() rasdaman function.
@@ -56,7 +57,7 @@ public class RasdamanGribUpdater implements RasdamanUpdater {
     }
 
     @Override
-    public void update() throws RasdamanException, IOException {
+    public void update() throws PetascopeException {
         String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)

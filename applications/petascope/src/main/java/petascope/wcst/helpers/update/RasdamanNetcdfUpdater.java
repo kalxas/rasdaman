@@ -25,6 +25,7 @@ import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.ras.RasUtil;
 
 import java.io.IOException;
+import petascope.exceptions.PetascopeException;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
@@ -47,7 +48,7 @@ public class RasdamanNetcdfUpdater implements RasdamanUpdater {
     }
 
     @Override
-    public void update() throws RasdamanException, IOException {
+    public void update() throws PetascopeException {
         String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)

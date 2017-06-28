@@ -149,12 +149,8 @@ public class UpdateCoverageHandler {
             if (dataBlockElements.size() != 0) {
                 //tuple list given explicitly
                 String values = getReplacementValuesFromTupleList(currentCoverage, rangeSet, request.getPixelDataType());
-                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);
-                try {
-                    updater.update();
-                } catch (RasdamanException e) {
-                    throw e;
-                }
+                updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);                
+                updater.update();                
             } else {
                 //tuple list given as file
                 //retrieve the file, if needed
@@ -181,12 +177,8 @@ public class UpdateCoverageHandler {
 
                 updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid,
                         affectedDomain, valuesFile, mimetype, shiftDomain,
-                        decodeParameters);
-                try {
-                    updater.update();
-                } catch (RasdamanException e) {
-                    throw e;
-                }
+                        decodeParameters);                
+                updater.update();                
 
                 //delete the file
                 if (!isLocal) {

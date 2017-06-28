@@ -21,9 +21,6 @@
  */
 package petascope.wcst.helpers.update;
 
-import petascope.rasdaman.exceptions.RasdamanException;
-
-import java.io.IOException;
 import petascope.exceptions.PetascopeException;
 
 /**
@@ -35,6 +32,7 @@ public interface RasdamanUpdater {
 
     /**
      * Updates rasdaman data.
+     * @throws petascope.exceptions.PetascopeException
      */
-    public void update() throws RasdamanException, IOException, PetascopeException;
+    public void update() throws PetascopeException;
 }

@@ -73,10 +73,10 @@ public class RasUtil {
      * @param query
      * @throws RasdamanException
      */
-    public static Object executeRasqlQuery(String query) throws RasdamanException, PetascopeException {
+    public static Object executeRasqlQuery(String query) throws PetascopeException {
         return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS);
     }
-
+    
     /**
      * Executes a RasQL query, allowing write transactions by setting the flag.
      *
@@ -87,7 +87,7 @@ public class RasUtil {
      * @return
      * @throws RasdamanException
      */
-    public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws RasdamanException, PetascopeException {
+    public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws PetascopeException {
         long start = System.currentTimeMillis();
 
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
@@ -239,7 +239,7 @@ public class RasUtil {
      * @throws RasdamanException
      */
     // FIXME - should return just String?
-    public static Object executeRasqlQuery(String query, String username, String password) throws RasdamanException, PetascopeException {
+    public static Object executeRasqlQuery(String query, String username, String password) throws PetascopeException {
         return executeRasqlQuery(query, username, password, false);
     }
 
@@ -451,32 +451,16 @@ public class RasUtil {
     }
 
     /**
-     * Update collection from file as slice
+     * Update collection from file as slice by WCST
      *
      * @param query
-     * @throws IOException
      * @throws RasdamanException
      */
-    public static void executeUpdateFileStatement(String query) throws IOException, RasdamanException {
+    public static void executeUpdateFileStatement(String query) throws PetascopeException {
 
         long start = System.currentTimeMillis();
-
-        String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + ConfigManager.RASDAMAN_ADMIN_USER
-                + " --passwd " + ConfigManager.RASDAMAN_ADMIN_PASS + " -q "
-                + "'" + query + "'";
-        log.info("Executing " + rasql);
-        Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", rasql});
-        BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String s;
-        String response = "";
-        while ((s = stdError.readLine()) != null) {
-            response += s + "\n";
-        }
-        //check if an error exist in the response
-        if (!response.isEmpty()) {
-            throw new RasdamanException(response);
-        }
-
+        // This needs to run with open transaction and rasadmin permission
+        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         long end = System.currentTimeMillis();
 
         log.debug("Time for rasql to update collection: " + String.valueOf(end - start));
