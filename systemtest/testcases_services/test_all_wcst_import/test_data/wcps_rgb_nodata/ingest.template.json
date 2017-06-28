@@ -32,12 +32,14 @@
             {
               "identifier": "red",
               "name": "red",
-	      "description": "${gdal:minY} + ${gdal:maxY}"
+	      "description": "${gdal:minY} + ${gdal:maxY}",
+	      "uomCode": "Pa"
 	      
             }, {
               "identifier": "red",
               "name": "green",
-	      "description": "${gdal:minX} + ${gdal:maxX}"
+	      "description": "${gdal:minX} + ${gdal:maxX}",
+              "uomCode": "Celsius"
             }, {
               "identifier": "red",
               "name": "blue",

@@ -37,7 +37,8 @@
               "description": "Leaf Area Index",
               "nilReason": "The nil value represents an error in the sensor.",
 	      "nilValue": "-9999",
-              "identifier": "LAI"
+              "identifier": "LAI",
+              "uomCode": "${netcdf:variable:LAI:units}"
             }
           ],
           "axes": {

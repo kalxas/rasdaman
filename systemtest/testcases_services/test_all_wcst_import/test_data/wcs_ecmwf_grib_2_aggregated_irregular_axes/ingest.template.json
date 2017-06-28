@@ -41,7 +41,8 @@
               "identifier": "Temperature_isobaric",
               "description": "Bands description",
               "nilReason": "Nil value represents missing values.",
-              "nilValue": 9999
+              "nilValue": 9999,
+              "uomCode": "${grib:unitsOfFirstFixedSurface}"
             }
           ],
           "axes": {
