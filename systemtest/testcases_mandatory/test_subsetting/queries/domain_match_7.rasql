@@ -1,0 +1,1 @@
+select c[ 2 ] from test_subsetting_3d as c

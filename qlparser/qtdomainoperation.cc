@@ -404,6 +404,13 @@ QtDomainOperation::evaluate(QtDataList* inputList)
                 {
                     resultCell = currentMDDObj->pointQuery(projPoint);
                 }
+                 else
+                {
+                    LFATAL << "Error: QtDomainOperation::evaluate() - The dimension of the subset domain is not equal to the dimension of the subsetted marray. The subset domain dimension is: " << projPoint.dimension() <<" while the marray domain dimension is: " << currentMDDObj->getDimension();
+                    parseInfo.setErrorNo(362);
+                    throw parseInfo;
+
+                }
                 if (resultCell == NULL)
                 {
                     resultCell = new char[cellType->getSize()];
