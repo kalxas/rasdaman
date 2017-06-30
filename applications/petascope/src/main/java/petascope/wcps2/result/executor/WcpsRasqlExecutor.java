@@ -83,7 +83,7 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
     private byte[] buildGmlCovResult(WcpsCoverageMetadata wcpsCoverageMetadata, byte[] arrayData) throws PetascopeException, SecoreException {
         // Run the rasql query to get the data and put in <tupleList ts="," cs="> ... </tupleList>        
         String data = new String(arrayData);
-        data = this.rasCsvToTupleList(data);
+        data = this.rasJsonToTupleList(data);
 
         // Get the GML Coverage in application/gml+xml format (text)
         String gml = gmlCoverageBuilder.build(wcpsCoverageMetadata, Templates.WCS2_GET_COVERAGE_FILE);
@@ -97,16 +97,16 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
     }
 
     /**
-     * Transforms a csv output returned by rasdaman server into a csv format
+     * Transforms a JSON output (http://rasdaman.org/ticket/1578) returned by rasdaman server into a JSON format
      * accepted by the gml:tupleList according to section 19.3.8 of the OGC GML
      * standard version 3.2.1
      *
-     * @param csv - a csv input like {b1 b2 ... bn, b1 b2 ... bn, ...}, {...}
-     * where each {...} represents a dimension and each sequence b1 ... bn n
+     * @param json - a JSON input like [b1 b2 ... bn, b1 b2 ... bn, ...], [...]
+     * where each [...] represents a dimension and each sequence b1 ... bn n
      * bands
-     * @return csv string of form b1 b2 .. bn, b1 b2 ... bn, ...
+     * @return JSON string of form b1 b2 .. bn, b1 b2 ... bn, ...
      */
-    private String rasCsvToTupleList(String csv) {
-        return csv.replace("{", "").replace("}", "").replace("\"", "");
+    private String rasJsonToTupleList(String json) {
+        return json.replace("[", "").replace("]", "").replace("\"", "");
     }
 }

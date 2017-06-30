@@ -98,8 +98,9 @@ public class EncodeCoverageHandler {
         if (rasqlFormat.equalsIgnoreCase(MIMEUtil.FORMAT_ID_JP2)) {
             rasqlFormat = MIMEUtil.FORMAT_ID_OPENJP2;
         } else if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_GML)) {
-            // NOTE: We need the values from csv encoding of a coverage to add in the tupleLists element of output in application/gml+xml
-            rasqlFormat = MIMEUtil.ENCODE_CSV;
+            // NOTE: We need the values from JSON encoding of a coverage (http://rasdaman.org/ticket/1578)
+            // to add in the tupleLists element of output in application/gml+xml            
+            rasqlFormat = MIMEUtil.ENCODE_JSON;
         }
 
         // NOTE: we have 2 cases for extra params:
