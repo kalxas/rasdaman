@@ -29,26 +29,29 @@ set(SRC_COVERAGE_EXAMPLES "${CMAKE_CURRENT_SOURCE_DIR}/coverages_example")
 set(PETASCOPE_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/target")
 set(CONF_DIR "${CONF_DIR}/")
 set(GENERATED_rasdaman_bin_path "${BIN_DIR}/")
-set(GENERATED_jetty_extracted_path ${WAR_DIR})
-set(LOGDIR "${LOG_DIR}")
 set(bindir "${BIN_DIR}/")
-set(pkgdatadir "${SHARE_DATA_DIR}/")
+set(PKGDATA_DIR "${SHARE_DATA_DIR}/")
 set(sysconfdir "${CONF_DIR}/")
 set(libdir "${LIB_DIR}/")
 set(java_server ${JAVA_SERVER})
 set(petascopedb ${PETASCOPEDB})
 set(RASJ_PATH "${CMAKE_BINARY_DIR}/java/target/rasj-jar-with-dependencies.jar")
+set(PETASCOPE_SHARE_DIR "${SHARE_DATA_DIR}/petascope/")
 
 # Will not rebuild petascope package when make install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
-# Necessary parameters to start main method in application
-set(APPLICATION_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/application.properties.in")
-set(APPLICATION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/application.properties")
+# Necessary parameters to start main method in application (petascope_main)
+set(APPLICATION_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/application.properties.in")
+set(APPLICATION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/application.properties")
 
-# Only has 1 petascope.properties for all databases
-set(SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope.properties.in")
-set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/petascope.properties")
+# Only has 1 petascope.properties for all databases in application (petascope_main)
+set(SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/petascope.properties.in")
+set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/petascope.properties")
+
+# Script to migrate old petascopedb to new petascopedb
+set(MIGRATE_PETASCOPEDB_SCRIPT_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh.in")
+set(MIGRATE_PETASCOPEDB_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh")
 
 # Script to import coverages example to petascopedb
 set(INSERT_DATA_SCRIPT_TEMPLATE "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo.sh.in")
@@ -63,17 +66,26 @@ else ()
     set(GENERATED_embedded_petascope "false")
 endif ()
 
-# Generate an .in file by replacing any variables that can be configured at compile time
+# Generate file from .in file by replacing any variables that can be configured at compile time
 # Do the same for the Application.in 
 configure_file("${APPLICATION_FILE_TEMPLATE}" "${APPLICATION_FILE}" @ONLY)
 
-# Do the same for the pom.xml 
-configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
+# Do the same for the petascope_parent pom.xml 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
+# Do the same for the petascope_core pom.xml 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_core/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_core/pom.xml" @ONLY)
+# Do the same for the petascope_main pom.xml 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/pom.xml" @ONLY)
+# Do the same for the petascope_migration pom.xml 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_migration/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_migration/pom.xml" @ONLY)
 
-# Do the same for petascope.properties
+# Do the same for petascope.properties.in
 configure_file("${SETTINGS_FILE_TEMPLATE}" "${SETTINGS_FILE}" @ONLY)
 
-# Do the same for petascope_insertdemo.sh
+# Do the same for migrate_petascopedb.sh.in
+configure_file("${MIGRATE_PETASCOPEDB_SCRIPT_TEMPLATE}" "${MIGRATE_PETASCOPEDB_SCRIPT}" @ONLY)
+
+# Do the same for petascope_insertdemo.sh.in
 configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 
 # Make sure maven is available
@@ -81,7 +93,7 @@ find_package(Maven REQUIRED)
 
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
-    COMMAND ${MAVEN_EXECUTABLE} package "-Pwar"
+    COMMAND ${MAVEN_EXECUTABLE} package
     DEPENDS rasj
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     VERBATIM)
@@ -101,5 +113,12 @@ install( CODE "execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/update_p
 
 # Install built package (war) to the web applications folder (e.g: Tomcat /var/lib/tomcat/webapps/)
 # Petascope can be run as embedded or external with war package.
-install(FILES "${PETASCOPE_TARGET_DIR}/rasdaman.war"
-        DESTINATION ${WAR_DIR})
+install( FILES "${PETASCOPE_TARGET_DIR}/petascope_main/rasdaman.war"
+         DESTINATION "${WAR_DIR}" )
+
+# Copy rasdaman-geo-migration.jar to $RMANHOME/share/rasdaman/petascope and migrate_petascopedb.sh to bin directory
+install( FILES "${PETASCOPE_TARGET_DIR}/petascope_migration/rasdaman-geo-migration.jar"
+         DESTINATION "${PETASCOPE_SHARE_DIR}" )
+
+install( PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh"
+         DESTINATION "${BIN_DIR}" )

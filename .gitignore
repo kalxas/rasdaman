@@ -7,6 +7,9 @@ autom4te.cache
 *.o
 *.a
 *.patch
+petascope.properties
+pom.xml
+target/*
 applications/petascope/pom.xml
 applications/petascope/target
 applications/secore/secore-core/pom.xml
@@ -103,6 +106,7 @@ applications/petascope/src/main/db/update_petascopedb.sh
 applications/petascope/src/main/resources/application.properties
 application.properties
 bin/update_db.sh
+migrate_petascopedb.sh
 applications/raswct/bin
 *.lis
 configure
@@ -213,6 +217,10 @@ applications/petascope/nb-configuration.xml
 applications/secore/secore-core/javadoc/
 applications/secore/secore-web/javadoc/
 
-
+nb-configuration.xml
 
 build/
+applications/petascope/petascope_core/target/
+applications/petascope/petascope_main/target/
+applications/petascope/petascope_migration/target/
+

@@ -1,4 +1,4 @@
-# -*-Makefile-*-
+#
 # This file is part of rasdaman community.
 #
 # Rasdaman community is free software: you can redistribute it and/or modify
@@ -14,26 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+# Copyright 2003 - 2017 Peter Baumann /
 # rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
-# MAKEFILE FOR:
-#   rasdaman applications
-#   does nothing but distribute any make call into all subdirs
-#
-# COMMENTS:
-#
-##################################################################
+# ------------------------------------------------------------------------------
 
-if ENABLE_JAVA
-    JAVA_DIR = petascope raswct secore rasgeo wcst_import
-endif
-
-if ENABLE_R
-	R_DIR = RRasdaman
-endif
-
-SUBDIRS=rasql rview $(JAVA_DIR) directql $(R_DIR)
+This project is a dependency of the petascope main and petascope migration projects.
+It provides the Coverage Schema Implementation (CIS) data model, the service, and repository 
+classes to persist data by Hibernate. Functionality which can be used by all petascope 
+applications should be added in this project. The output is a rasdaman-geo-core.jar library.

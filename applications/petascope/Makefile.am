@@ -48,8 +48,8 @@ PETASCOPE_TARGET_DIR=target
 RASJ_JAR=\$${project.basedir}/lib/rasj.jar
 
 SRC       = src/main
-SRC_MAIN  = $(SRC)/java
-SRC_RES   = $(SRC)/resources
+SRC_MAIN  = petascope_main/$(SRC)/java
+SRC_RES   = petascope_main/$(SRC)/resources
 TEST      = src/test
 BUILD     = build
 DIST      = $(BUILD)/dist
@@ -57,7 +57,8 @@ WEB       = $(BUILD)/web
 CLASSES   = $(WEB)/WEB-INF/classes
 NAME      = rasdaman
 WAR_NAME  = $(NAME).war
-WAR_FILE  = $(PETASCOPE_TARGET_DIR)/$(WAR_NAME)
+WAR_FILE  = petascope_main/$(PETASCOPE_TARGET_DIR)/petascope_main/$(WAR_NAME)
+MIGRATION_JAR_FILE  = petascope_migration/$(PETASCOPE_TARGET_DIR)/petascope_migration/rasdaman-geo-migration.jar
 
 if GDAL_JAVA_DIR_CENTOS
    GDAL_JAVA_DIR = "/usr/lib/java/gdal"
@@ -72,8 +73,8 @@ STATIC_WEB_FOLDER = static
 WCS_CLIENT_SRC = ../wcs-client/app/*
 WCS_CLIENT_DEST = $(WEB)/$(STATIC_WEB_FOLDER)/wcs-client/
 
-SETTINGS_FILE = src/main/resources/petascope.properties.in
-SETTINGS_FILE_EDIT = src/main/resources/petascope.properties
+SETTINGS_FILE = petascope_main/src/main/resources/petascope.properties.in
+SETTINGS_FILE_EDIT = petascope_main/src/main/resources/petascope.properties
 
 OLD_CONF=$(DESTDIR)$(sysconfdir)/petascope.properties
 NEW_CONF=$(SETTINGS_FILE_EDIT)
@@ -128,11 +129,23 @@ war:
 	cp $(SRC_RES)/application.properties.in $(SRC_RES)/application.properties
 	$(SED) -i "s|@GDAL_JAVA_DIR@|$(GDAL_JAVA_DIR)|g" $(SRC_RES)/application.properties
 	$(SED) -i "s|@CONF_DIR@|$(sysconfdir)|g" $(SRC_RES)/application.properties
-		
+	cp migrate_petascopedb.sh.in migrate_petascopedb.sh	
+	$(SED) -i "s|@LOG_DIR@|$(logdir)|g" migrate_petascopedb.sh	
+	$(SED) -i "s|@CONF_DIR@|$(sysconfdir)|g" migrate_petascopedb.sh	
+	$(SED) -i "s|@PKGDATA_DIR@|$(pkgdatadir)|g" migrate_petascopedb.sh				
 	cp pom.xml.in pom.xml
 	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
 	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" pom.xml
-	mvn package -Pwar; \	
+	cp petascope_core/pom.xml.in petascope_core/pom.xml
+	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" petascope_core/pom.xml
+	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" petascope_core/pom.xml
+	cp petascope_main/pom.xml.in petascope_main/pom.xml
+	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" petascope_main/pom.xml
+	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" petascope_main/pom.xml
+	cp petascope_migration/pom.xml.in petascope_migration/pom.xml
+	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" petascope_migration/pom.xml
+	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" petascope_migration/pom.xml
+	mvn package
 
 # Print the targets
 .PHONY: help
@@ -165,8 +178,12 @@ install:
 	echo "Done.";
 	$(MKDIR) $(DESTDIR)$(wardir)
 	echo "JAVA SERVER = "$(JAVA_SERVER)
-	echo "Install rasddaman.war to $(DESTDIR)$(wardir)"; \
+	echo "Install rasdaman.war to $(DESTDIR)$(wardir)"; \
 	$(CP) $(WAR_FILE) $(DESTDIR)$(wardir); \
+	echo "Install rasdaman-geo-migration.jar to $(DESTDIR)$(pkgdatadir)/petascope/"; \
+	$(CP) $(MIGRATION_JAR_FILE) $(DESTDIR)$(pkgdatadir)/petascope/; \
+	echo "Install migrate_petascopedb.sh to $(DESTDIR)$(bindir)"; \
+	$(CP) migrate_petascopedb.sh $(DESTDIR)$(bindir); \
 	if [ $(JAVA_SERVER) == external ]; then \
 		echo 'Update java_server=external Petascope in petascope properties file'; \
 		sed -i 's|@GENERATED_embedded_petascope@|false|g' $(SETTINGS_FILE_EDIT); \
