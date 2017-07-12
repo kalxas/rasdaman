@@ -89,32 +89,10 @@ public class SubsetExpressionHandler {
 
         //now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.
-        String rasqlSubset = "";
-
-        // NOTE: in case of coverage constant e.g: <[-1:1,-1:1],-1,0,1,....> it should not replace the interval inside the "< >"
-        if (rasql.contains("<") || !rasql.contains("[")) {
-            String dimensions = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(),
+        String dimensions = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(),
                                                         axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
-            rasqlSubset = template.replace("$dimensionIntervalList", dimensions);
-        } else {
-            // update the interval of the existing expression in template string
-            // e.g: trim(c[0:5,0:100,89], {90:90}) -> c[0:5,90:90,89]
-            // need to replace the interval correctly
-            String tmp = rasql.substring(rasql.indexOf("[") + 1, rasql.indexOf("]"));
-            String[] intervals = tmp.split(",");
-
-            String axisName = subsetDimensions.get(0).getAxisName();
-            Axis axis = metadata.getAxisByName(axisName);
-            int axisOrder = axis.getRasdamanOrder();
-
-            String dimension = rasqlTranslationService.constructRasqlDomain(ListUtil.valuesToList(axis), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
-            intervals[axisOrder] = dimension;
-
-            // 0:5,0:100,89
-            String intervalsStr = "[" + StringUtils.join(intervals, ",") + "]";
-            rasqlSubset = rasql.replaceAll("\\[.*?\\]", intervalsStr);
-        }
-
+        String rasqlSubset = template.replace("$dimensionIntervalList", dimensions);
+        
         // NOTE: DimensionIntervalList with Trim expression can contain slicing as well (e.g: c[t(0), Lat(0:20), Long(30)])
         // then the slicing axis also need to be removed from coverage metadata.
         wcpsCoverageMetadataService.stripSlicingAxes(metadata, subsetDimensions);
