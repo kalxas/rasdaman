@@ -21,15 +21,16 @@
  */
 package petascope.wcps2.encodeparameters.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 //import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import petascope.util.XMLUtil;
+import petascope.wcps2.encodeparameters.model.CoverageMetadata;
+import petascope.wcps2.exception.processing.InvalidCoverageMetadataToDeserializeException;
 
 /**
  *
@@ -40,43 +41,46 @@ import petascope.util.XMLUtil;
 @Service
 public class ExtraMetadataService {
 
+    private static final Logger log = LoggerFactory.getLogger(ExtraMetadataService.class);
+    
     public ExtraMetadataService() {
         
-    }
-
+    }  
+    
+    
     /**
-     * Convert extra metadata of coverage from String to Map<String, String> to
-     * encode
-     *
-     * @param extraMetadata
-     * @return
+     * Deserialize the coverage's metadata in XML/JSON format of gmlcov:metadata element
+     * to and object to manipulate.
+     * 
+     * @param metadata
+     * @return 
      */
-    public Map<String, String> convertExtraMetadata(String extraMetadata) {
+    public CoverageMetadata deserializeCoverageMetadata(String metadata) {
+        CoverageMetadata coverageMetadata = new CoverageMetadata();
+        
         XmlMapper xmlMapper = new XmlMapper();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> convertedMetadata = null;
+        ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         //remove the slices and the gmlcov:metadata closing tag if it exists
-        extraMetadata = removeMetadataSlices(extraMetadata).replace("<gmlcov:metadata />", "");
+        metadata = removeMetadataSlices(metadata).replace("<gmlcov:metadata />", "");
         //convert to object
         try {
             //find out the type
-            if (extraMetadata.startsWith("<")) {
+            if (metadata.startsWith("<")) {
                 //xml
                 //the contents that the xmlMapper can read into a map must currently come from inside an outer tag, which is ignored
                 //so we are just adding them
-                convertedMetadata = xmlMapper.readValue(OUTER_TAG_START + extraMetadata + OUTER_TAG_END, Map.class);
-            } else if (extraMetadata.startsWith("{")) {
+                coverageMetadata = xmlMapper.readValue(OUTER_TAG_START + metadata + OUTER_TAG_END, CoverageMetadata.class);
+            } else if (metadata.startsWith("{")) {
                 //json
-                convertedMetadata = objectMapper.readValue(extraMetadata, new TypeReference<Map<String, String>>() {
-                });
+                coverageMetadata = objectMapper.readValue(metadata, CoverageMetadata.class);
             }
         } catch (IOException e) {
-            //failed, just give it as string
-            convertedMetadata = new HashMap<>();
-            convertedMetadata.put(METADATA_STRING_KEY, extraMetadata);
+            log.error("Cannot deserialize WCPS coverage's metadata in XML/JSON by Jackson", e);
+            throw new InvalidCoverageMetadataToDeserializeException(e.getMessage());
         }
-        return convertedMetadata;
-    }
+        
+        return coverageMetadata;
+    }    
 
     /**
      * remove the slices and the gmlcov:metadata closing tag if it exists from

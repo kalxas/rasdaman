@@ -92,32 +92,41 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
         So we must use the values in the list by string and split it to a list to get the same values
         """
+        MAX = "max"
+        MIN = "min"
+        LAST = "last"
+        FIRST = "first"
+        RESOLUTION = "resolution"
+        # List of support operation on a netCDF variable
+        supported_operations = [MAX, MIN, LAST, FIRST, RESOLUTION]
+
+        if operation not in supported_operations:
+            # it must be an attribute of variable
+            return variable.__getattribute__(operation)
+
+        # It must be an operation that could be applied on a netCDF variable
         # convert list of string values to list of decimal values
         decimal_values = list_util.numpy_array_to_list_decimal(variable[:])
 
-        if operation == "max":
+        if operation == MAX:
             return max(decimal_values)
-        elif operation == "min":
+        elif operation == MIN:
             return min(decimal_values)
-        elif operation == "last":
+        elif operation == LAST:
             last_index = len(variable) - 1
             return decimal_values[last_index]
-        elif operation == "first":
+        elif operation == FIRST:
             return decimal_values[0]
-        elif operation == "resolution":
+        elif operation == RESOLUTION:
             # NOTE: only netCDF needs this expression to calculate resolution automatically
             # for GDAL: it uses: ${gdal:resolutionX} and GRIB: ${grib:jDirectionIncrementInDegrees} respectively
             resolution = self.__calculate_netcdf_resolution(decimal_values)
             return resolution
-        else:
-            try:
-                return variable.__getattribute__(operation)
-            except:
-                # We will throw a runtime exception if this fails down the road
-                pass
+
+        # Not supported operation and not valid attribute of netCDF variable
         raise RuntimeException(
             "Invalid operation on netcdf variable: " + operation
-            + ". Currently supported: max, min, first, last or any metadata entry of the variable.")
+            + ". Currently supported: " + ', '.join(supported_operations) + " or any metadata entry of the variable.")
 
     def _resolve(self, expression, nc_dataset):
         """

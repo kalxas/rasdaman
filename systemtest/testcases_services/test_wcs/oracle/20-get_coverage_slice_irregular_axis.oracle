@@ -79,7 +79,6 @@
         <gmlcov:Extension>
             <covMetadata>
                 <description>This is a test coverage</description>
-                <slices/>
             </covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>

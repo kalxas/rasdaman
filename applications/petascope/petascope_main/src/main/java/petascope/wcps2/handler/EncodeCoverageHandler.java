@@ -44,7 +44,7 @@ import petascope.wcps2.exception.processing.InvalidJsonDeserializationException;
 import petascope.wcps2.exception.processing.InvalidNumberOfNodataValuesException;
 import petascope.wcps2.exception.processing.MetadataSerializationException;
 import petascope.wcps2.metadata.model.RangeField;
-import petascope.wcps2.parameters.netcdf.service.NetCDFParametersFactory;
+import petascope.wcps2.parameters.netcdf.service.NetCDFParametersService;
 
 /**
  * Class to translate a WCPS expression with encode() *
@@ -73,7 +73,7 @@ public class EncodeCoverageHandler {
     @Autowired
     private SerializationEncodingService serializationEncodingService;
     @Autowired
-    private NetCDFParametersFactory netCDFParametersFactory;
+    private NetCDFParametersService netCDFParametersFactory;
 
     public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException, JsonProcessingException {
         //strip first part of the mime type because rasdaman encode function does not support mime types yet
@@ -151,7 +151,7 @@ public class EncodeCoverageHandler {
             return otherParamsString;
         } else if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_NETCDF)) {
             // netcdf (we build some netCDF parameters separately)            
-            netCDFExtraParams = netCDFParametersFactory.getParameters(coverageExpression.getMetadata());
+            netCDFExtraParams = netCDFParametersFactory.buildParameters(coverageExpression.getMetadata());
 
         }
 

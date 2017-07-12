@@ -14,31 +14,31 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps2.parameters.model.netcdf;
+package petascope.wcps2.exception.processing;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import java.util.Map;
+import petascope.exceptions.WCPSException;
+import petascope.exceptions.ExceptionCode;
 
 /**
- * This class represents the metadata of a netcdf variable that represents a dimension.
- * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
+ * Exception that is thrown when coverage's metadata is not valid XML/JSON to deserialize
+ *
+ * @author <a href="mailto:b.phamhuu@jacobs-univeristy.de">Bang Pham Huu</a>
  */
-public class DimensionVariableMetadata {
-    
-    private Map<String, String> metadataMap;
-    
-    public DimensionVariableMetadata(Map<String, String> metadataMap) {
-        this.metadataMap = metadataMap;
+public class InvalidCoverageMetadataToDeserializeException extends WCPSException {
+
+    /**
+     * Constructor for the class
+     *
+     * @param errorMessage
+     */
+    public InvalidCoverageMetadataToDeserializeException(String errorMessage) {
+        super(ERROR_TEMPLATE.replace("$errorMessage", errorMessage), ExceptionCode.WcpsError);
     }
-    
-    @JsonAnyGetter
-    // Unwrap the map to list of keys, values, e.g: "map:" {"a":"b"} serializes to "a":"b"
-    public Map<String, String> getMetadata() {
-        return metadataMap;
-    }
+
+    private static final String ERROR_TEMPLATE = "Cannot deserialize WCPS coverage's metadata in XML/JSON by Jackson, error: $errorMessage.";
 }

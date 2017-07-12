@@ -69,7 +69,7 @@ class ExtraMetadataCollector:
                 global_meta[key] = str(value)
 
         meta_slices = []
-        # if we have local metadata go ahead, otherwise stop at global metadata
+        # if we have local metadata go ahead
         if len(self.extra_metadata_info.slice_attributes.items()) > 0:
             for metadata_entry in self.metadata_entries:
                 meta_values = {}
@@ -77,4 +77,31 @@ class ExtraMetadataCollector:
                     # output of extra metadata should be string in any cases
                     meta_values[meta_key] = str(self.evaluator.evaluate(sentence, metadata_entry.evalutor_slice))
                 meta_slices.append(ExtraMetadataSlice(metadata_entry.slice_subset, meta_values))
-        return ExtraMetadata(global_meta, meta_slices)
+
+        # NOTE: this bands's metadata is added to gmlcov:metadata not swe:field
+        bands_meta = {}
+        # band_attributes is a dict of keys, values
+        for band, band_attributes in self.extra_metadata_info.bands_attributes.items():
+            bands_meta[band] = {}
+            for key, value in band_attributes.items():
+                # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
+                # output of extra metadata should be string in any cases
+                if str(value) != "":
+                    bands_meta[band][key] = str(self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice))
+                else:
+                    bands_meta[band][key] = str(value)
+
+        # Axes metadata (dimension's metadata)
+        axes_meta = {}
+        # axes_attributes is a dict of keys, values
+        for axis, axis_attributes in self.extra_metadata_info.axes_attributes.items():
+            axes_meta[axis] = {}
+            for key, value in axis_attributes.items():
+                # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
+                # output of extra metadata should be string in any cases
+                if str(value) != "":
+                    axes_meta[axis][key] = str(self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice))
+                else:
+                    axes_meta[axis][key] = str(value)
+
+        return ExtraMetadata(global_meta, meta_slices, bands_meta, axes_meta)

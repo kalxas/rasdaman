@@ -9,7 +9,7 @@
     "track_files": false
   },
   "input": {
-    "coverage_id": "test_rgb_nodata",
+    "coverage_id": "test_rgb_nodata_band_data_xml",
     "paths": [
       "*.png"
     ]
@@ -20,7 +20,7 @@
       "coverage": {
         "crs": "OGC/0/Index2D",
         "metadata": {
-          "type": "json",
+          "type": "xml",
           "global": {
 	    "description": "'This file has 3 different nodata values for bands and they could be fetched implicitly.'",
             "resolution": "'1'"

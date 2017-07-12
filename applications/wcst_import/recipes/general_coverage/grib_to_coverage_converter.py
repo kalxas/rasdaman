@@ -79,7 +79,9 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
     RECIPE_TYPE = "grib"
 
     def __init__(self, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
-                 global_metadata_fields, local_metadata_fields, metadata_type, grid_coverage, pixel_is_point):
+                 global_metadata_fields, local_metadata_fields, bands_metadata_fields, axes_metadata_fields,
+                 metadata_type,
+                 grid_coverage, pixel_is_point):
         """
         Converts a grib list of files to a coverage
         :param recipe_type: the type of recipe
@@ -92,6 +94,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param str tiling: the tiling string to be passed to wcst
         :param dict global_metadata_fields: the global metadata fields
         :param dict local_metadata_fields: the local metadata fields
+        :param dict bands_metadata_fields: the bands metadata fields
+        :param dict axes_metadata_fields: the axes metadata fields
         :param str metadata_type: the metadata type
         :param boolean grid_coverage: check if user want to import grid coverage
         :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
@@ -106,6 +110,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         self.tiling = tiling
         self.global_metadata_fields = global_metadata_fields
         self.local_metadata_fields = local_metadata_fields
+        self.bands_metadata_fields = bands_metadata_fields
+        self.axes_metadata_fields = axes_metadata_fields
         self.metadata_type = metadata_type
         self.grid_coverage = grid_coverage
         self.pixel_is_point = pixel_is_point

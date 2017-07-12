@@ -128,9 +128,9 @@ public class JsonExtraParams {
     private NoData nodata;
     private ColorPalette colorPalette;
         
-    private List<Integer> transpose = new ArrayList<Integer>();    
-    private Map<String, String> formatParameters = new HashMap<String, String>();
-    private Map<String, String> metadata = new HashMap<String, String>();
-    private Map<String, String> configOptions = new HashMap<String, String>();
+    private List<Integer> transpose = new ArrayList<>();    
+    private Map<String, String> formatParameters = new HashMap<>();
+    private Map<String, String> metadata = new HashMap<>();
+    private Map<String, String> configOptions = new HashMap<>();
     
 }

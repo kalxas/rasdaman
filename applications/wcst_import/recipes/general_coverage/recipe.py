@@ -280,6 +280,59 @@ class Recipe(BaseRecipe):
                 return self.options['coverage']['metadata']['local']
         return {}
 
+    def _bands_metadata_fields(self):
+        """
+        Returns the bands metadata fields which are used to add to bands of output file which supports this option (e.g: netCDF)
+        :rtype: dict
+        """
+        if "metadata" in self.options['coverage']:
+            if "bands" in self.options['coverage']['metadata']:
+                # a list of user defined bands
+                user_bands = self._read_bands()
+                # a dictionary of user defined bands's metadata
+                bands_metadata = self.options['coverage']['metadata']['bands']
+
+                # validate if band's name does exist in list of user defined bands
+                for band, band_attributes in bands_metadata.items():
+                    exist = False
+                    for user_band in user_bands:
+                        if str(band) == str(user_band.name):
+                            exist = True
+                            break
+                    if exist is False:
+                        raise RuntimeException("Band's metadata with name: '" + band + "' does not exist in user defined bands.")
+
+                # it is a valid definition
+                return bands_metadata
+        return {}
+
+    def _axes_metadata_fields(self):
+        """
+        Returns the axes metadata fields which are used to add to dimensions (axes) of output file which supports this option (e.g: netCDF)
+        :rtype: dict
+        """
+        if "metadata" in self.options['coverage']:
+            if "axes" in self.options['coverage']['metadata']:
+                # a list of user defined axes
+                crs = self._resolve_crs(self.options['coverage']['crs'])
+                user_axes = self._read_axes(crs)
+                # a dictionary of user defined axes's metadata
+                axes_metadata = self.options['coverage']['metadata']['axes']
+
+                # validate if axis name does exist in list of user defined axes
+                for axis, axis_attributes in axes_metadata.items():
+                    exist = False
+                    for user_axis in user_axes:
+                        if str(axis) == str(user_axis.name):
+                            exist = True
+                            break
+                    if exist is False:
+                        raise RuntimeException("Axis's metadata with name: '" + axis + "' does not exist in user defined axes.")
+
+                # it is a valid definition
+                return axes_metadata
+        return {}
+
     def _metadata_type(self):
         """
         Returns the metadata type
@@ -332,7 +385,9 @@ class Recipe(BaseRecipe):
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
-                                           self._local_metadata_fields(), self._metadata_type(),
+                                           self._local_metadata_fields(), self._bands_metadata_fields(),
+                                           self._axes_metadata_fields(),
+                                           self._metadata_type(),
                                            self.options['coverage']['grid_coverage']).to_coverage()
         return coverage
 
@@ -353,7 +408,10 @@ class Recipe(BaseRecipe):
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
                                              self.options['tiling'], self._netcdf_global_metadata_fields(),
-                                             self._local_metadata_fields(), self._metadata_type(),
+                                             self._local_metadata_fields(),
+                                             self._bands_metadata_fields(),
+                                             self._axes_metadata_fields(),
+                                             self._metadata_type(),
                                              self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
         return coverage
 
@@ -373,7 +431,10 @@ class Recipe(BaseRecipe):
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
-                                           self._local_metadata_fields(), self._metadata_type(),
+                                           self._local_metadata_fields(),
+                                           self._bands_metadata_fields(),
+                                           self._axes_metadata_fields(),
+                                           self._metadata_type(),
                                            self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
 
         return coverage

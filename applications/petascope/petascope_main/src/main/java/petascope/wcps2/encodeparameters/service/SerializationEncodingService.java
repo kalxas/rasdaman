@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.util.JsonUtil;
 import petascope.util.MIMEUtil;
+import petascope.wcps2.encodeparameters.model.CoverageMetadata;
 import petascope.wcps2.encodeparameters.model.Dimensions;
 import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.model.JsonExtraParams;
@@ -82,7 +83,7 @@ public class SerializationEncodingService {
         
         if (metadata.getMetadata() != null) {
             // Extra metadata of coverage
-            jsonExtraParams.setMetadata(extraMetadataService.convertExtraMetadata(metadata.getMetadata()));
+            jsonExtraParams.setMetadata(extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata()).getGlobalAttributesMap());
         }
         
         jsonExtraParams.setGeoReference(geoReference);
@@ -116,22 +117,23 @@ public class SerializationEncodingService {
                 
         try {
             jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             log.error("Could not deserialize extra parameters in JSON format", ex);
             throw new DeserializationExtraParamsInJsonExcception();
         }
 
         // update each range of coverage with value from passing nodata_values
-        encodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), metadata);
-        Map<String, String> extraMetadata = extraMetadataService.convertExtraMetadata(metadata.getMetadata());
+        encodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), metadata);        
+        // parse the input global metadata if exists
+        Map<String, String> inputGlobalMetadataMap = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata()).getGlobalAttributesMap();
         
         // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
-        if (jsonExtraParams.getMetadata() == null) {
-            jsonExtraParams.setMetadata(extraMetadata);
+        if (jsonExtraParams.getMetadata()== null) {
+            jsonExtraParams.setMetadata(inputGlobalMetadataMap);
         } else {
-            // merge coverage extraMetadata with input extra metadata in JSON
+            // merge global coverage's metadata with input extra metadata from WCPS query in JSON if exists
             if (metadata.getMetadata() != null && !metadata.getMetadata().isEmpty()) {
-                for (Map.Entry<String, String> entry: extraMetadata.entrySet()) {
+                for (Map.Entry<String, String> entry: inputGlobalMetadataMap.entrySet()) {
                     jsonExtraParams.getMetadata().put(entry.getKey(), entry.getValue());
                 }
             }

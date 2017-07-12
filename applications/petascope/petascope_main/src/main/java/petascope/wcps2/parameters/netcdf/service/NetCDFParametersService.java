@@ -44,6 +44,10 @@ import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.wcps2.encodeparameters.model.AxesMetadata;
+import petascope.wcps2.encodeparameters.model.BandsMetadata;
+import petascope.wcps2.encodeparameters.model.CoverageMetadata;
+import petascope.wcps2.encodeparameters.service.ExtraMetadataService;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.NumericTrimming;
 import petascope.wcps2.metadata.model.RangeField;
@@ -52,29 +56,33 @@ import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.metadata.service.AxesOrderComparator;
 
 /**
- * This class will build parameters for encoding in NetCDF
+ * This class will build all parameters for encoding in NetCDF
  *
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class NetCDFParametersFactory {
+public class NetCDFParametersService {
 
     @Autowired
     private CoverageRepostioryService persistedCoverageService;
-
-    //this key is used when the coverage metadata is not an object (xml, json) so the contents is passed as an object
-    //having a single property, with this key    
+    
     @Autowired
-    private CovToCFTranslationService covToCFTranslationService;
+    private ExtraMetadataService extraMetadataService;
 
-    public NetCDFParametersFactory() {
+    public NetCDFParametersService() {
 
     }
 
-    public NetCDFExtraParams getParameters(WcpsCoverageMetadata metadata) throws PetascopeException {
+    /**
+     * Build all the parameters for netCDF encoding.
+     * @param metadata
+     * @return
+     * @throws PetascopeException 
+     */
+    public NetCDFExtraParams buildParameters(WcpsCoverageMetadata metadata) throws PetascopeException {
         // NOTE: this needs to write with grid axis order
-        List<String> dimensions = this.getDimensions(metadata.getSortedAxesByGridOrder());
-        List<Variable> vars = this.getVariables(metadata);
+        List<String> dimensions = this.buildDimensions(metadata.getSortedAxesByGridOrder());
+        List<Variable> vars = this.buildVariables(metadata);
         // variables in JSON uses as a Map: { "variableName": { object }, "variableName1": { object1 }, .... }
         Map<String, Variable> variables = new LinkedHashMap<>();
         for (Variable var : vars) {
@@ -82,10 +90,17 @@ public class NetCDFParametersFactory {
         }
 
         NetCDFExtraParams netCDFExtraParams = new NetCDFExtraParams(dimensions, variables);
+        
         return netCDFExtraParams;
     }
 
-    private List<String> getDimensions(List<Axis> axes) {
+    /**
+     * Build the dimensions parameter of netCDF encoding, e.g:
+     * \"dimensions\":[\"i\",\"j\"]
+     * @param axes
+     * @return 
+     */
+    private List<String> buildDimensions(List<Axis> axes) {
         List<String> dimensions = new ArrayList<>();
         // NOTE: crs axes here must be used as grid axis order
         //sort the axes after the rasdaman order
@@ -96,40 +111,98 @@ public class NetCDFParametersFactory {
         return dimensions;
     }
 
-    private List<DimensionVariable> getDimensionVariables(String covName, List<Axis> axes) throws PetascopeException {
+    /**
+     * Build the dimensions's variables parameters of netCDF encoding, e.g:
+     * \"variables\":{\"i\":{\"type\":\"double\",\"data\":[0.5],\"name\":\"i\",\"metadata\":{\"standard_name\":\"i\",\"units\":\"GridSpacing\",\"axis\":\"X\"}}
+     *               ,\"j\":{\"type\":\"double\",\"data\":[-0.5],\"name\":\"j\",\"metadata\":{\"standard_name\":\"j\",\"units\":\"GridSpacing\",\"axis\":\"Y\"}}
+     * @param covName
+     * @param axes
+     * @return
+     * @throws PetascopeException 
+     */
+    private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata metadata) throws PetascopeException {
+        String covName = metadata.getCoverageName();
+        List<Axis> axes = metadata.getSortedAxesByGridOrder();        
         List<DimensionVariable> dimensionVariables = new ArrayList<>();
+        
+        // First get all the metadata of coverage
+        CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata());
+        AxesMetadata axesMetadata = coverageMetadata.getAxesMetadata();
+        
         for (Axis axis : axes) {
-            DimensionVariableMetadata metadata = getDimensionVariableMetadata(axis);
-            dimensionVariables.add(new DimensionVariable<>(RangeField.DATA_TYPE, this.getPoisitionData(covName, axis), axis.getLabel(), metadata));
+            Map<String, String> axesMetadataMap = null;
+            
+            // Axes's metadata exists in coverage's metadata
+            for (Map.Entry<String, Map<String, String>> axisAttribute : axesMetadata.getAxesAttributesMap().entrySet()) {
+                if (axis.getLabel().equals(axisAttribute.getKey())) {
+                    axesMetadataMap = axisAttribute.getValue();
+                    break;
+                }
+            }
+            
+            DimensionVariableMetadata dimensionVariableMetadata = new DimensionVariableMetadata(axesMetadataMap);
+            dimensionVariables.add(new DimensionVariable<>(RangeField.DATA_TYPE, this.buildPoisitionData(covName, axis), axis.getLabel(), dimensionVariableMetadata));
         }
         return dimensionVariables;
     }
 
-    private DimensionVariableMetadata getDimensionVariableMetadata(Axis axis) {
-        String standardName = covToCFTranslationService.getStandardName(axis.getLabel());
-        String unitOfMeasure = covToCFTranslationService.getUnitOfMeasure(axis.getLabel(), axis.getAxisUoM());
-        String axisType = covToCFTranslationService.getAxisType(axis.getLabel(), axis.getAxisType());
-        return new DimensionVariableMetadata(standardName, unitOfMeasure, axisType);
-    }
-
-    private List<BandVariable> getBandVariables(List<RangeField> bands) {
+    
+    /**
+     * Build the band (range field) parameter of netCDF encoding, e.g:
+     * NOTE: band's metadata is combined from swe:range element and bands element (if exist) in gmlcov:metata (i.e: coverage's metadata).
+     * \"value\":{\"type\":\"unsigned char\",\"name\":\"value\",\"metadata\":{\"units\":\"10^0\", \"another_value\":\"25.565\"}}
+     * @param metadata
+     * @return 
+     */
+    private List<BandVariable> buildBandVariables(WcpsCoverageMetadata metadata) {
         List<BandVariable> bandVariables = new ArrayList<>();
-        for (RangeField band : bands) {
-            bandVariables.add(new BandVariable(band.getDataType(), band.getName(), new BandVariableMetadata(band.getDescription(), parseNodataValues(band.getNodata()),
-                    band.getUomCode(), band.getDefinition())));
+        List<RangeField> bands = metadata.getRangeFields();
+        // NOTE: There are 2 types of bands's metadata (the mandatory one from swe:element of swe:field and the option one from coverage's metadata bands element if exists)        
+        CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata());
+        BandsMetadata bandsMetadata = coverageMetadata.getBandsMetadata();
+        
+        for (RangeField band : bands) {            
+            Map<String, String> bandsMetadataMap = null;
+            
+            // Bands's metadata exists in coverage's metadata
+            for (Map.Entry<String, Map<String, String>> bandAttribute : bandsMetadata.getBandsAttributesMap().entrySet()) {
+                if (band.getName().equals(bandAttribute.getKey())) {
+                    bandsMetadataMap = bandAttribute.getValue();
+                    break;
+                }
+            }
+            
+            BandVariableMetadata bandVariableMetadata = new BandVariableMetadata(band.getDescription(), parseNodataValues(band.getNodata()),
+                    band.getUomCode(), band.getDefinition(), bandsMetadataMap);
+            bandVariables.add(new BandVariable(band.getDataType(), band.getName(), bandVariableMetadata));
         }
         return bandVariables;
     }
 
-    private List<Variable> getVariables(WcpsCoverageMetadata metadata) throws PetascopeException {
+    /**
+     * Build all the possible variables (dimension and band)
+     * @param metadata
+     * @return
+     * @throws PetascopeException 
+     */
+    private List<Variable> buildVariables(WcpsCoverageMetadata metadata) throws PetascopeException {
         List<Variable> variables = new ArrayList<>();
         // NOTE: this needs to write with grid axis order
-        variables.addAll(this.getDimensionVariables(metadata.getCoverageName(), metadata.getSortedAxesByGridOrder()));
-        variables.addAll(this.getBandVariables(metadata.getRangeFields()));
+        variables.addAll(this.buildDimensionVariables(metadata));
+        variables.addAll(this.buildBandVariables(metadata));
         return variables;
     }
 
-    private List<Double> getPoisitionData(String covName, Axis axis) throws PetascopeException {
+    /**
+     * Build the position data for each dimension, e.g:
+     * \"Long\":{\"type\":\"double\",\"data\":[10.0,10.5,11.0,11.5,12.0,12.5,13.0,13.5,14.0,14.5,15.0,15.5,16.0,16.5,17.0,17.5,18.0,18.5,19.0,19.5,20.0]
+     * NOTE: nagative axis like Lat will write max to min values (origin is the max value)
+     * @param covName
+     * @param axis
+     * @return
+     * @throws PetascopeException 
+     */
+    private List<Double> buildPoisitionData(String covName, Axis axis) throws PetascopeException {
         Coverage coverage = this.persistedCoverageService.readCoverageByIdFromCache(covName);
 
         // data=[geoLow, geoLow+res, geoLow+2*res, ...., geoHigh]
@@ -187,8 +260,13 @@ public class NetCDFParametersFactory {
         return data;
     }
 
+    /**
+     * Parse a list of nilValues to collect all the numeric nodata values
+     * @param nullValues
+     * @return 
+     */
     private List<BigDecimal> parseNodataValues(List<NilValue> nullValues) {
-        List<BigDecimal> result = new ArrayList<BigDecimal>();
+        List<BigDecimal> result = new ArrayList<>();
         for (NilValue nullValue : nullValues) {
             String value = nullValue.getValue();
             if (isNumber(value)) {

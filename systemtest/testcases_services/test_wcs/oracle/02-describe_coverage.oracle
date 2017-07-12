@@ -26,7 +26,7 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>{  "resolution": "1",   "slices": []}</covMetadata>
+                <covMetadata>{  "resolution": "1"}</covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>

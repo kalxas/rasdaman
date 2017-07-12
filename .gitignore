@@ -10,6 +10,7 @@ autom4te.cache
 petascope.properties
 pom.xml
 target/*
+nb-configuration.xml
 applications/petascope/pom.xml
 applications/petascope/target
 applications/secore/secore-core/pom.xml

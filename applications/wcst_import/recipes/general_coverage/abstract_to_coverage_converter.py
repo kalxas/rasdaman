@@ -183,7 +183,8 @@ class AbstractToCoverageConverter:
         :param list[Slice] slices: the slices of the coverage which needs the metadata from ingredient files
         :return: str
         """
-        if not self.global_metadata_fields and not self.local_metadata_fields:
+        if not self.global_metadata_fields and not self.local_metadata_fields \
+            and not self.bands_metadata_fields and not self.axes_metadata_fields:
             return ""
         serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
         metadata_entries = []
@@ -197,7 +198,9 @@ class AbstractToCoverageConverter:
 
         collector = ExtraMetadataCollector(self.sentence_evaluator,
                                            ExtraMetadataIngredientInformation(self.global_metadata_fields,
-                                                                              self.local_metadata_fields),
+                                                                              self.local_metadata_fields,
+                                                                              self.bands_metadata_fields,
+                                                                              self.axes_metadata_fields),
                                            metadata_entries)
         return serializer.serialize(collector.collect())
 
@@ -271,8 +274,13 @@ class AbstractToCoverageConverter:
 
         return range_fields
 
-    def _evaluate_bands_metadata(self, slice_file, bands):
+    def _evaluate_swe_bands_metadata(self, slice_file, bands):
         """
+        NOTE: These bands metadata are used to put in swe element when DescribeCoverage, which limits to few metadata:
+        swe:description, swe:definition, swe:nilValue. swe:nilReason.
+        Other bands metadata which are not supported by swe element are put in coverage's global metadata as an element.
+        They can be used to add to output file which allowed to add band's metadata such as netCDF.
+
         Translate the metadata variable in bands (ranges) in ingredient file to values from the file
         e.g: ${grib:missingValue} -> 99999
         :param File slice_file: the current file which is used to evaluate for metadata of bands
@@ -335,8 +343,8 @@ class AbstractToCoverageConverter:
         slices = self._slices(crs_axes)
         # generate coverage extra_metadata from ingredient files
         metadata = self._metadata(slices)
-        # Evaluate all the bands's metadata (each file should have same bands' metadata), so first file is ok
-        self._evaluate_bands_metadata(self.files[0], self.bands)
+        # Evaluate all the swe bands's metadata (each file should have same swe bands's metadata), so first file is ok
+        self._evaluate_swe_bands_metadata(self.files[0], self.bands)
 
         coverage = Coverage(self.coverage_id, slices, self._range_fields(), self.crs,
                             self._data_type(),

@@ -31,7 +31,24 @@
             "product_version": "'${netcdf:metadata:product_version}'",
             "test_empty_attribute": "",
             "source": "'${netcdf:metadata:source}'"
-          }
+          },
+	  "bands": {
+              "band_1": {
+		 "product_version": "'${netcdf:metadata:product_version}'",
+                 "test_empty_attribute": ""
+               }, 
+               "band_7": {
+                 "date_created": "'${netcdf:metadata:date_created}'",
+	         "Conventions": "'${netcdf:metadata:Conventions}'"
+               }
+          },
+	  "axes": {
+		"unix": {
+		   "min": "${netcdf:variable:unix:min}",
+              	   "max": "${netcdf:variable:unix:max}",
+              	   "directPositions": "${netcdf:variable:E:min}"
+		}
+           }
         },
         "slicer": {
           "type": "netcdf",

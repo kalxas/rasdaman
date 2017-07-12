@@ -24,11 +24,15 @@
 
 
 class ExtraMetadataIngredientInformation:
-    def __init__(self, global_attributes, slice_attributes):
+    def __init__(self, global_attributes, slice_attributes, bands_attributes, axes_attributes):
         """
         Contains an extra-metadata description of the fields that need to be collected from the dataset via wcst expressions
         :param dict global_attributes: the attributes that need to be collected only once per coverage and do not change per slice
         :param dict slice_attributes: the attributes that should be collected per slice
+        :param dict bands_attributes: the attributes that need to be collected only once per coverage and do not change per slice
+        :param dict axes_attributes: the attributes that need to be collected only once per coverage and do not change per slice
         """
         self.global_attributes = global_attributes
         self.slice_attributes = slice_attributes
+        self.bands_attributes = bands_attributes
+        self.axes_attributes = axes_attributes

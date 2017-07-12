@@ -197,6 +197,13 @@ class CRSUtil:
                     uom = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
                 else:
                     uom = ""
+
+                # in some crs definitions the axis direction is not properly set, override
+                if label in self.X_AXES:
+                    direction = "east"
+                elif label in self.Y_AXES:
+                    direction = "north"
+
                 crsAxis = CRSAxis(crs, label, direction, uom)
                 axesLabels.append(label)
                 self.axes.append(crsAxis)
@@ -217,4 +224,7 @@ class CRSUtil:
         return {"axes": [], "individual_crs_axes": {}}
 
     __CACHE__ = {}
+
+    X_AXES = ["X", "E", "M", "E(X)", "x", "e", "Long", "Lon", "i"]
+    Y_AXES = ["Y", "N", "P", "E(Y)", "y", "n", "Lat", "j"]
 

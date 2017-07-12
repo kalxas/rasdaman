@@ -21,7 +21,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-
 import json
 from abc import abstractmethod
 
@@ -44,7 +43,7 @@ class ExtraMetadataSerializer:
 
     def to_dict(self, extra_metadata):
         """
-        Returns a dict representation of the extra_metadata
+        Returns a dict representation of the extra_metadata (global, local and bands metadata)
         :param ExtraMetadata extra_metadata: the extra metadata object to serialize
         :rtype: dict
         """
@@ -54,6 +53,18 @@ class ExtraMetadataSerializer:
             slice = metadata_slice.metadata_dictionary
             slice["envelope"] = self.subset_to_dict(metadata_slice.subsets)
             global_meta["slices"].append(slice)
+
+        global_meta["bands"] = extra_metadata.bands_extra_metadata.copy()
+        global_meta["axes"] = extra_metadata.axes_extra_metadata.copy()
+
+        # don't add empty attributes to coverage's metadata
+        if len(global_meta["slices"]) == 0:
+            global_meta.pop('slices', None)
+        if len(global_meta["bands"]) == 0:
+            global_meta.pop('bands', None)
+        if len(global_meta["axes"]) == 0:
+            global_meta.pop('axes', None)
+
         return global_meta
 
     @staticmethod
@@ -89,33 +100,54 @@ class XMLExtraMetadataSerializer(ExtraMetadataSerializer):
     def __init__(self):
         ExtraMetadataSerializer.__init__(self)
 
+    def __xml_key(self, key):
+        """
+        Create a XML element <key>...<key> with key has no space between characeters
+        :param str key: input key
+        :return: str: a valid xml element
+        """
+        return key.replace(" ", "_")
+
     def serialize(self, extra_metadata):
         bounded_by_template = """<boundedBy>
-    <Envelope axisLabels="{axisLabels}" srsDimension="{noOfDimensions}">
-        <lowerCorner>{lowerCorner}</lowerCorner>
-        <upperCorner>{upperCorner}</upperCorner>
-    </Envelope>
-</boundedBy>"""
+                                    <Envelope axisLabels="{axisLabels}" srsDimension="{noOfDimensions}">
+                                        <lowerCorner>{lowerCorner}</lowerCorner>
+                                        <upperCorner>{upperCorner}</upperCorner>
+                                    </Envelope>
+                                </boundedBy>"""
         global_dict = self.to_dict(extra_metadata)
         xml_return = []
         for key, value in global_dict.items():
-            if key != "slices":
-                xml_return.append("<{0}>{1}</{0}>".format(key, value))
+            if key == "bands" or key == "axes":
+                # each band of bands is a dictionary of keys, values for band's metadata
+                result = "<" + key + ">"
+                for band_key, band_attributes in value.items():
+                    result += "<" + self.__xml_key(band_key) + ">"
+                    for band_attribute_key, band_attribute_value in band_attributes.items():
+                        result += "<{0}>{1}</{0}>".format(self.__xml_key(band_attribute_key), band_attribute_value)
+                    result += "</" + self.__xml_key(band_key) + ">"
+                result += "</" + key + ">"
+                xml_return.append(result)
+            elif key != "slices":
+                xml_return.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
 
-        slices = global_dict["slices"]
-        slices_xml = []
-        for slice in slices:
-            slice_xml = ["<slice>"]
-            slice_xml.append(bounded_by_template.format(axisLabels=" ".join(slice['envelope']["axisLabels"]),
-                                                        noOfDimensions=slice['envelope']["noOfDimensions"],
-                                                        lowerCorner=" ".join(slice['envelope']["lowerCorner"]),
-                                                        upperCorner=" ".join(slice['envelope']["upperCorner"])))
-            for key, value in slice.items():
-                if key != 'envelope':
-                    slice_xml.append("<{0}>{1}</{0}>".format(key, value))
-            slice_xml.append("</slice>")
-            slices_xml.append("\n".join(slice_xml))
-        xml_return.append("<slices>\n{}\n</slices>".format("\n".join(slices_xml)))
+        # Only parse this slices (local metadata) if it exists
+        if "slices" in global_dict:
+            slices = global_dict["slices"]
+            slices_xml = []
+            for slice in slices:
+                slice_xml = ["<slice>"]
+                slice_xml.append(bounded_by_template.format(axisLabels=" ".join(slice['envelope']["axisLabels"]),
+                                                            noOfDimensions=slice['envelope']["noOfDimensions"],
+                                                            lowerCorner=" ".join(slice['envelope']["lowerCorner"]),
+                                                            upperCorner=" ".join(slice['envelope']["upperCorner"])))
+                for key, value in slice.items():
+                    if key != 'envelope':
+                        slice_xml.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
+                slice_xml.append("</slice>")
+                slices_xml.append("\n".join(slice_xml))
+            xml_return.append("<slices>\n{}\n</slices>".format("\n".join(slices_xml)))
+
         return "\n".join(xml_return)
 
 

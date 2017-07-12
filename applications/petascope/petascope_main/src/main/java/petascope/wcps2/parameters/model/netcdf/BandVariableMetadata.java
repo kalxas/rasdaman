@@ -21,8 +21,10 @@
  */
 package petascope.wcps2.parameters.model.netcdf;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents the metadata for a variable representing a band in netcdf.
@@ -38,12 +40,15 @@ public class BandVariableMetadata {
     private String units;
 
     private String definition;
+    
+    private Map<String, String> metadataMap;
 
-    public BandVariableMetadata(String description, List<BigDecimal> missing_value, String units, String definition) {
+    public BandVariableMetadata(String description, List<BigDecimal> missing_value, String units, String definition, Map<String, String> metadataMap) {
         this.description = description;
         this.missing_value = missing_value;
         this.units = units;
         this.definition = definition;
+        this.metadataMap = metadataMap;
     }
 
     public BandVariableMetadata() {
@@ -63,5 +68,11 @@ public class BandVariableMetadata {
 
     public String getDefinition() {
         return definition;
+    }
+
+    @JsonAnyGetter
+    // Unwrap the map to list of keys, values, e.g: "map:" {"a":"b"} serializes to "a":"b"
+    public Map<String, String> getMetadata() {
+        return metadataMap;
     }
 }
