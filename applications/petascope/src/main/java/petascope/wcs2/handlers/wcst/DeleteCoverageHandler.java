@@ -57,35 +57,31 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
     @Override
     public Response handle(DeleteCoverageRequest request) throws PetascopeException, SecoreException {
         String[] coverageIds = request.getCoverageId().split(COVERAGE_IDS_SEPARATOR);
+        
+        Pair<BigInteger, String> rasdamanPair = null;
         //check that all the ids exist
         for (String coverageId : coverageIds) {
             checkCoverageId(coverageId);
         }
         //delete all of them
         for (String coverageId : coverageIds) {
-            try {                
-                CoverageMetadata coverageMetadata = null;                
+            try {                                                                
+                rasdamanPair = this.meta.readRasdamanCollectionByCoverageId(coverageId);
+                
+                // first, try to delete the rasdaman collection.
                 try {
-                    coverageMetadata = this.meta.read(coverageId);
-                } catch (PetascopeException e) {
+                    deleteFromRasdaman(rasdamanPair);
+                } catch (RasdamanException e) {
                     if (e.getExceptionCode().equals(ExceptionCode.CollectionDoesNotExist)) {
                         // NOTE: when collection does not exist, the coverage metadata is polluted and should be removed.                                                
                         this.deleteCoverageMetadata(coverageId);
                         return new Response(new String[] {""});
+                    } else {
+                        log.error("Cannot delete collection: " + rasdamanPair.snd + ", error: ", e);
+                        throw new PetascopeException(ExceptionCode.InternalSqlError, e);
                     }
-                    else {
-                        throw e;
-                    }
-                }
-                
-                // first, try to delete the rasdaman collection.
-                try {
-                    deleteFromRasdaman(coverageMetadata);
-                } catch (RasdamanException e) {
-                    log.error("Cannot delete collection: " + coverageMetadata.getRasdamanCollection().snd + ", error: ", e);
-                    throw new PetascopeException(ExceptionCode.InternalSqlError, e);
-                } catch (Exception ex) {
-                    log.error("Cannot delete collection: " + coverageMetadata.getRasdamanCollection().snd + ", error: ", ex);
+                } catch (PetascopeException ex) {
+                    log.error("Cannot delete collection: " + rasdamanPair.snd + ", error: ", ex);
                     throw new PetascopeException(ExceptionCode.InternalSqlError, ex);
                 }               
                 
@@ -137,9 +133,8 @@ public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverage
      * @param coverage
      * @throws RasdamanException 
      */
-    private void deleteFromRasdaman(CoverageMetadata coverage) throws RasdamanException, PetascopeException {
-        Pair<BigInteger, String> collection = coverage.getRasdamanCollection();
-        RasUtil.deleteFromRasdaman(collection.fst, collection.snd);
+    private void deleteFromRasdaman(Pair<BigInteger, String> rasdamanPair) throws RasdamanException, PetascopeException {
+        RasUtil.deleteFromRasdaman(rasdamanPair.fst, rasdamanPair.snd);
     }
 
     /**

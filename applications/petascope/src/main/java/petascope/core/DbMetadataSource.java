@@ -925,6 +925,89 @@ public class DbMetadataSource implements IMetadataSource {
 
         return ret;
     }
+    
+    /**
+     * Given the coverageName, returns the pair of oid, collection name in rasdaman.
+     * @param coverageId
+     * @return 
+     * @throws java.sql.SQLException 
+     * @throws petascope.exceptions.PetascopeException 
+     */
+    public Pair<BigInteger, String> readRasdamanCollectionByCoverageId(String coverageName) throws SQLException, PetascopeException {
+        Pair<BigInteger, String> rasdamanPair;
+        Statement s = null;
+        String sqlQuery; // buffer for SQL queries
+        ensureConnection();
+        s = conn.createStatement();
+        
+        try {                
+            /* TABLE_COVERAGE */
+            sqlQuery =
+                " SELECT " + COVERAGE_ID               + ", "
+                + COVERAGE_NAME             + ", "
+                + COVERAGE_GML_TYPE_ID      + ", "
+                + COVERAGE_NATIVE_FORMAT_ID + ", "
+                + COVERAGE_DESCRIPTION_ID   +
+                " FROM "   + TABLE_COVERAGE +
+                " WHERE "  + COVERAGE_NAME  + "='" + coverageName + "'"
+                ;
+            log.debug("SQL query: " + sqlQuery);
+            ResultSet r = s.executeQuery(sqlQuery);
+            if (!r.next()) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest,
+                                             "Coverage '" + coverageName + "' is not served by this server");
+            }
+
+            // Store fetched data
+            int coverageId = r.getInt(COVERAGE_ID);
+
+            sqlQuery =
+                    " SELECT " + RANGESET_STORAGE_TABLE + ", "
+                    + RANGESET_STORAGE_ID    +
+                    " FROM "   + TABLE_RANGESET         +
+                    " WHERE "  + RANGESET_COVERAGE_ID   + "=" + coverageId
+                    ;
+                log.debug("SQL query: " + sqlQuery);
+                r = s.executeQuery(sqlQuery);
+                // Check that range-set is not missing
+                if (!r.next()) {
+                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                                 "Missing range-set for coverage '" + coverageId + "'");
+                }
+                // Currently only coverages stored in `rasdaman' are supported
+                String storageTable = r.getString(RANGESET_STORAGE_TABLE);
+                if (!storageTable.equals(TABLE_RASDAMAN_COLLECTION)) {
+                    throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
+                                                 "Storage table '" + storageTable + "' is not valid." +
+                                                 "Only coverages stored in `rasdaman' are currently supported.");
+                }
+                // TABLE_RASDAMAN_COLLECTION
+                // Read the rasdaman collection:OID which stores the values of this coverage
+                int storageId = r.getInt(RANGESET_STORAGE_ID);
+                sqlQuery =
+                    " SELECT " + RASDAMAN_COLLECTION_NAME  + ", "
+                    + RASDAMAN_COLLECTION_OID   + ","
+                    + RASDAMAN_COLLECTION_BASE_TYPE +
+                    " FROM "   + TABLE_RASDAMAN_COLLECTION +
+                    " WHERE "  + RASDAMAN_COLLECTION_ID    + "=" + storageId
+                    ;
+                log.debug("SQL query: " + sqlQuery);
+                r = s.executeQuery(sqlQuery);
+                if (!r.next()) {
+                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                                 "Coverage '" + coverageId + "' is missing the range-set metadata.");
+                }
+                // Store fetched data: OID -> collName
+                rasdamanPair = Pair.of(
+                                   r.getBigDecimal(RASDAMAN_COLLECTION_OID).toBigInteger(),
+                                   r.getString(RASDAMAN_COLLECTION_NAME)
+                               );        
+            } finally {
+            closeConnection(s);
+        }
+        
+        return rasdamanPair;
+    }
 
     /**
      * Given a coverage name; scans its metadata information thoroughly
