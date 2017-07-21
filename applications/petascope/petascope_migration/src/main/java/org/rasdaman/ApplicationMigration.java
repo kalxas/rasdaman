@@ -22,7 +22,6 @@
 package org.rasdaman;
 
 import java.util.List;
-import java.util.logging.Level;
 import javax.annotation.Resource;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
@@ -32,13 +31,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import petascope.util.DatabaseUtil;
 
+
 @SpringBootApplication
 @ComponentScan({"org.rasdaman", "petascope"})
 @PropertySource({"classpath:application.properties"})
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 /**
  * Main class of migration application.
  *
@@ -91,21 +94,26 @@ public class ApplicationMigration implements CommandLineRunner {
          */
         // Then, check what kind of migration should be done
         for (AbstractMigrationService migrationService : migrationServices) {
-            // @TODO: make a service to migrate for new database version from 9.5
             if (migrationService.isMigrating()) {
                 // A migration process is running, don't do anything else
                 log.error("A migration process is already running.");
                 System.exit(ExitCode.FAILURE.getExitCode());
             }
+            
+            // NOTE: There are 2 types of migration:
+            // + From legacy petascopedb prior version 9.5, it checks if petascopedb contains a legacy table name then it migrates to new petascopedb version 9.5.
+            // + From petascopedb after version 9.5 to a different database, it checks if both source JDBC, target JDBC can be connected then it migrates entities to new database.
             if (migrationService.canMigrate()) {
                 try {
                     migrationService.migrate();
                 } catch (Exception ex) {
                     log.error("An error occured while migrating, aborting the migration process.", ex);
                     // Release the lock on Migration table so later can run migration again
+                    migrationService.releaseLock();
                     System.exit(ExitCode.FAILURE.getExitCode());
                 }
-
+                // Just do one migration
+                break;    
             }
         }
 

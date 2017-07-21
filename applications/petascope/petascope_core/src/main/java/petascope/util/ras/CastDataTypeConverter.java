@@ -21,7 +21,7 @@
  */
 package petascope.util.ras;
 
-import petascope.util.WcpsConstants;
+import petascope.util.WCPSConstants;
 
 /**
  * Utility class to convert a petascope data type to a rasdaman data type
@@ -46,20 +46,20 @@ public class CastDataTypeConverter {
      */
     public static String convert(String dataTypeToBeConverted) {
         String result = dataTypeToBeConverted.toLowerCase();
-        if (result.equals(WcpsConstants.MSG_BOOLEAN)) {
-            result = WcpsConstants.MSG_BOOL;
-        } else if (result.equals(WcpsConstants.MSG_CHAR)) {
-            result = WcpsConstants.MSG_OCTET;
-        } else if (result.equals(WcpsConstants.MSG_UNSIGNED_CHAR)) {
-            result = WcpsConstants.MSG_CHAR;
-        } else if (result.equals(WcpsConstants.MSG_INT)) {
-            result = WcpsConstants.MSG_LONG;
-        } else if (result.equals(WcpsConstants.MSG_UNSIGNED_INT)) {
-            result = WcpsConstants.MSG_UNSIGNED_LONG;
-        } else if (result.equals(WcpsConstants.MSG_UNSIGNED_LONG)) {
-            result = WcpsConstants.MSG_LONG;
-        } else if (result.equals(WcpsConstants.MSG_COMPLEX + "2")) {
-            result = WcpsConstants.MSG_COMPLEX + "d";
+        if (result.equals(WCPSConstants.MSG_BOOLEAN)) {
+            result = WCPSConstants.MSG_BOOL;
+        } else if (result.equals(WCPSConstants.MSG_CHAR)) {
+            result = WCPSConstants.MSG_OCTET;
+        } else if (result.equals(WCPSConstants.MSG_UNSIGNED_CHAR)) {
+            result = WCPSConstants.MSG_CHAR;
+        } else if (result.equals(WCPSConstants.MSG_INT)) {
+            result = WCPSConstants.MSG_LONG;
+        } else if (result.equals(WCPSConstants.MSG_UNSIGNED_INT)) {
+            result = WCPSConstants.MSG_UNSIGNED_LONG;
+        } else if (result.equals(WCPSConstants.MSG_UNSIGNED_LONG)) {
+            result = WCPSConstants.MSG_LONG;
+        } else if (result.equals(WCPSConstants.MSG_COMPLEX + "2")) {
+            result = WCPSConstants.MSG_COMPLEX + "d";
         }
         //short, unsigned short and complex have identity mapping
         return result;

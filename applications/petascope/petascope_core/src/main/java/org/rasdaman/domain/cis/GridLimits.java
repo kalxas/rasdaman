@@ -55,7 +55,7 @@ public class GridLimits {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = GridLimits.COLUMN_ID)
-    @OrderColumn
+    @OrderColumn(name = "index_axes_order")
     // all axes of the Index CRS referenced in srsName, in proper sequence
     private List<IndexAxis> indexAxes;
 

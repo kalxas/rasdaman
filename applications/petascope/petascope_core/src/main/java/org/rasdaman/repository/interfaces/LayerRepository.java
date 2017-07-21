@@ -21,7 +21,11 @@
  */
 package org.rasdaman.repository.interfaces;
 
+import java.util.List;
 import org.rasdaman.domain.wms.Layer;
+import static org.rasdaman.domain.wms.Layer.LAYER_CLASS_NAME;
+import static org.rasdaman.domain.wms.Layer.LAYER_NAME_PROPERTY;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -29,4 +33,7 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface LayerRepository extends CrudRepository<Layer, String> {
     Layer findOneByName(String layerName);
+    
+    @Query("Select " + LAYER_NAME_PROPERTY + " from " + LAYER_CLASS_NAME)
+    List<String> readAllLayerNames();
 }

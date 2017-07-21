@@ -26,7 +26,7 @@ package petascope.util;
  *
  * @author <a href="mailto:a.rezaeim@jacobs-university.de">Alireza Rezaei Mahdiraji</a>
  */
-public interface WcpsConstants {
+public interface WCPSConstants {
 
     /**
      * General messages

@@ -21,11 +21,20 @@
  */
 package org.rasdaman.repository.interfaces;
 
-import org.rasdaman.domain.cis.Uom;
-import org.springframework.data.repository.Repository;
+import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
+import org.springframework.data.repository.CrudRepository;
 
 /**
- * Repository to store the Uom object to database
+ *
+ * OGC Web service provides the metadata about the ServiceIdentification,
+ * ServiceProvider in GML from GetCapabilities request
+ *
+ * NOTE: The objects are defined for WCS standard, with WMS, the GML element
+ * names are different, so build the GML representation accordingly the service type.
+ *
+ *
+ @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public interface UomRepository extends Repository<Uom,Long> {
+public interface OWSServiceMetadataRepository extends CrudRepository<OwsServiceMetadata, Long> {    
+
 }

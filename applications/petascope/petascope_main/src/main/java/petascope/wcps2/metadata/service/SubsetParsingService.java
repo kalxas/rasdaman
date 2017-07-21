@@ -44,7 +44,7 @@ import petascope.wcps2.metadata.model.RegularAxis;
 import petascope.wcps2.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps2.subset_axis.model.WcpsTrimSubsetDimension;
 import petascope.core.service.CrsComputerService;
-import static petascope.util.WcpsConstants.MSG_STAR;
+import static petascope.util.WCPSConstants.MSG_STAR;
 
 /**
  * This class has the purpose of translating subsets coming from the users into

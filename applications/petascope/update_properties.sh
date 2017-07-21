@@ -52,6 +52,16 @@ ok() {
     echo "$PROG: Done."
     exit $RC_OK
 }
+# return the value of key=value from properties file ($1: the key, $2: the file)
+get_value(){    
+    key_value=$(grep -E "$1" "$2")
+    echo ${key_value#*=}    
+}
+
+# replace the value of a key from properties file ($1: the key, $2: the new value, $3: the file)
+replace_value() {
+    sed -i "s|\($1\).*|\1$2|g" "$3"
+}
 
 # rollback old configuration if error occurs
 _cleanup() {
@@ -177,6 +187,24 @@ while read line;do
         fi
     fi # end check line not start with '#' in OLD file
 done < "$OLD" # ending read line in files
+
+### For new Petascope in 9.5, copy the username, password from old configuration to new Spring configuration
+# Check if metadata_url=spring.datasource.url then do the copy as when petascope uses different JDBC URL (e.g: database)
+# the copy will be incorrect.
+metadata_url_value=$(get_value "metadata_url=" "$NEWTMP")
+if [[ ! -z  "$metadata_url_value" ]]; then
+    spring_datasource_url_value=$(get_value "spring.datasource.url=" "$NEWTMP")    
+    if [[ $metadata_url_value == $spring_datasource_url_value ]]; then
+        logn "Configuring Spring datasource for petascope version 9.5 or newer in petascope.properties..."
+        metadata_user_value=$(get_value "metadata_user=" "$NEWTMP")           
+        $(replace_value "spring.datasource.username=" "$metadata_user_value" "$NEWTMP")
+      
+        metadata_pass_value=$(get_value "metadata_pass=" "$NEWTMP")           
+        $(replace_value "spring.datasource.password=" "$metadata_pass_value" "$NEWTMP")                      
+
+        echo "Done."
+    fi    
+fi
 
 # if nothing needs to change in NEW file
 if [[ $k == 0 ]]; then

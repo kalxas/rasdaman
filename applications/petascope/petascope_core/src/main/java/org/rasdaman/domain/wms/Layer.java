@@ -54,6 +54,10 @@ public class Layer {
     public static final String TABLE_PREFIX = "wms13_";
     public static final String TABLE_NAME = TABLE_PREFIX + "_layer";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
+    
+    // For Hibernate queries HQL, Criteria
+    public static final String LAYER_CLASS_NAME = "Layer";
+    public static final String LAYER_NAME_PROPERTY = "name";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -86,7 +90,7 @@ public class Layer {
     private String title;
 
     // Zero or One, mandatory
-    @Column(name = "layerAbstract")
+    @Column(name = "layer_abstract")
     @Lob
     // NOTE: As this could be long text, so varchar(255) is not enough
     private String layerAbstract;

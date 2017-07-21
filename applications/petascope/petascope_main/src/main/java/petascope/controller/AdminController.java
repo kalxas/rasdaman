@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.ADMIN;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
-import org.rasdaman.repository.service.OwsMetadataRepostioryService;
+import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,7 +65,7 @@ public class AdminController extends AbstractController {
     HttpServletRequest httpServletRequest;
 
     @Autowired
-    OwsMetadataRepostioryService owsMetadataRepostioryService;
+    OWSMetadataRepostioryService owsMetadataRepostioryService;
 
     /**
      * Handle the login page for logging in and update OWS Service metadata

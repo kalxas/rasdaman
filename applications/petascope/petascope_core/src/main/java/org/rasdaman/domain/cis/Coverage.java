@@ -63,8 +63,12 @@ import javax.persistence.Table;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Coverage {
 
-    public static final String TABLE_NAME = "abstract_coverage";
-    public static final String COLUMN_ID = TABLE_NAME + "_id";
+    public static final String TABLE_NAME = "coverage";
+    public static final String COLUMN_ID = "id";
+    
+    // Used by Hibernate HSQ, Criteria
+    public static final String COVERAGE_CLASS_NAME = "Coverage";
+    public static final String COVERAGE_ID_PROPERTY = "coverageId";
 
     @Id
     @Column(name = COLUMN_ID)

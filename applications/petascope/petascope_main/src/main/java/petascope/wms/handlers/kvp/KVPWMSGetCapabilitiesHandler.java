@@ -38,7 +38,7 @@ import org.rasdaman.domain.wms.Dimension;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
 import org.rasdaman.domain.wms.Style;
-import org.rasdaman.repository.service.OwsMetadataRepostioryService;
+import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
-    private OwsMetadataRepostioryService persistedOwsServiceMetadataService;
+    private OWSMetadataRepostioryService persistedOwsServiceMetadataService;
 
     private OwsServiceMetadata owsServiceMetadata;
 

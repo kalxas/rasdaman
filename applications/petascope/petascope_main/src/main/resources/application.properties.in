@@ -31,3 +31,7 @@ spring.jpa.hibernate.use-new-id-generator-mappings=true
 # Liquibase for database versions migration, used only when generating new difference from current database
 # version and a development database version schemas by Maven.
 liquibase.change-log=classpath:/database_versions/db.changelog-master.xml
+
+# Configure Hibernate 5 to use a unique name convention instead of mixing up lower_case, upper_case and camel_case.
+spring.jpa.hibernate.naming.implicit-strategy=org.rasdaman.CustomImplicitNamingStrategyImpl
+spring.jpa.hibernate.naming.physical-strategy=org.rasdaman.CustomPhysicalNamingStrategyImpl

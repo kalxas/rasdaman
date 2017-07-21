@@ -197,8 +197,8 @@ public class DatabaseUtil {
 
         Connection connection = null;
         Statement statement = null;
-        try {
-            connection = DriverManager.getConnection(defaultURL, ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD);
+        try {            
+            connection = DriverManager.getConnection(defaultURL, ConfigManager.PETASCOPE_DATASOURCE_USERNAME, ConfigManager.PETASCOPE_DATASOURCE_PASSWORD);
             // Then try to query from the database
             statement = connection.createStatement();
             String selectQuery = "select count(*) from pg_catalog.pg_database where datname = '" + databaseName + "'";

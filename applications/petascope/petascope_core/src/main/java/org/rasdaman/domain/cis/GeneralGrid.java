@@ -52,7 +52,7 @@ public class GeneralGrid {
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = GeneralGrid.COLUMN_ID)
-    @OrderColumn
+    @OrderColumn(name = "geo_axes_order")
     // GeoAxis means it could be RegularAxis or IrregularAxis
     private List<GeoAxis> geoAxes;
 

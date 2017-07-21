@@ -21,12 +21,25 @@
  */
 package org.rasdaman.repository.interfaces;
 
+import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.EnvelopeByAxis;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Repository to store the Coverage object to database
  */
 public interface CoverageRepository extends CrudRepository<Coverage, String> {
     Coverage findOneByCoverageId(String coverageId);
+    
+    @Query("Select coverageId from Coverage")
+    List<String> readAllCoverageIds();
+    
+    @Query("Select coverageId, coverageType from Coverage")
+    List<Object[]> readAllCoverageIdsAndTypes();
+    
+    @Query("select b.envelopeByAxis From Coverage c inner join c.envelope b where c.coverageId = :coverageId")
+    EnvelopeByAxis readEnvelopeByAxisByCoverageId(@Param("coverageId") String coverageId);
 }

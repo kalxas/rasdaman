@@ -40,7 +40,7 @@ import org.rasdaman.domain.owsmetadata.ServiceContact;
 import org.rasdaman.domain.owsmetadata.ServiceIdentification;
 import org.rasdaman.domain.owsmetadata.ServiceProvider;
 import org.rasdaman.repository.service.CoverageRepostioryService;
-import org.rasdaman.repository.service.OwsMetadataRepostioryService;
+import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +52,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import petascope.core.Pair;
 import petascope.util.MIMEUtil;
 import petascope.core.XMLSymbols;
 import static petascope.core.XMLSymbols.NAMESPACE_OWS;
@@ -76,7 +77,7 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
     @Autowired
     private CoverageRepostioryService persistedCoverageService;
     @Autowired
-    private OwsMetadataRepostioryService persistedOwsServiceMetadataService;
+    private OWSMetadataRepostioryService persistedOwsServiceMetadataService;
 
     // WCS ows:profiles (i.e: the supported extensions for:) 
     // EncodeFormatExtensions
@@ -525,24 +526,24 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
      */
     private Element buildContentsElement(String nameSpace) throws PetascopeException, SecoreException {
         Element contentsElement = new Element(XMLSymbols.WCS_LABEL_CONTENTS, nameSpace);
-        List<Coverage> importedCoverages = this.persistedCoverageService.readAllCoverages();
-
+        List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllCoveragesBasicMetatata();
+ 
         // Children elements (list of all imported coverage)
-        for (Coverage coverage : importedCoverages) {
+        for (Pair<Coverage, Boolean> coveragePair : importedCoveragePairs) {
             // 1.1 CoverageSummary element
             Element coverageSummaryElement = new Element(XMLSymbols.WCS_LABEL_COVERAGE_SUMMARY, nameSpace);
             contentsElement.appendChild(coverageSummaryElement);
 
             // 1.1.1 Children elements of CoverageSummary element
             Element coverageIdElement = new Element(XMLSymbols.LABEL_COVERAGE_ID, nameSpace);
-            coverageIdElement.appendChild(coverage.getCoverageId());
+            coverageIdElement.appendChild(coveragePair.fst.getCoverageId());
             coverageSummaryElement.appendChild(coverageIdElement);
 
             Element coverageSubTypeElement = new Element(XMLSymbols.LABEL_COVERAGE_SUBTYPE, nameSpace);
-            coverageSubTypeElement.appendChild(coverage.getCoverageType());
+            coverageSubTypeElement.appendChild(coveragePair.fst.getCoverageType());
             coverageSummaryElement.appendChild(coverageSubTypeElement);
 
-            EnvelopeByAxis envelopeByAxis = coverage.getEnvelope().getEnvelopeByAxis();
+            EnvelopeByAxis envelopeByAxis = coveragePair.fst.getEnvelope().getEnvelopeByAxis();
             Element boundingBox = new Element(XMLSymbols.OWS_LABEL_BOUNDING_BOX, NAMESPACE_OWS);
             // Attributes of BoundingBox element
             // attribute: compound Crs

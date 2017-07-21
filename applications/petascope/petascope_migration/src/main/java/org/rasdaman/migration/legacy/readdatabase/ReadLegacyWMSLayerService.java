@@ -57,7 +57,7 @@ public class ReadLegacyWMSLayerService {
      * @return
      * @throws java.lang.Exception
      */
-    public List<String> readlAllLayerNames() throws Exception {
+    public List<String> readAllLayerNames() throws Exception {
         List<String> layerNames = meta.layers();
 
         return layerNames;

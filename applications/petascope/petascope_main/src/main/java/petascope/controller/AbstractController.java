@@ -89,10 +89,8 @@ public abstract class AbstractController {
         queryString = queryString.trim();
 
         // Query is already encoded from Browser or client, but the "+" is not encoded, so encode it correctly.
-        if (queryString.contains("%")) {
-            // NOTE: it does not matter if space character is encoded to "+" or "%2B", just replace it when a query string is encoded from client).
-            queryString = queryString.replaceAll("\\+", "%2B");
-        }
+        // NOTE: it does not matter if space character is encoded to "+" or "%2B", just replace it when a query string is encoded from client).
+        queryString = queryString.replaceAll("\\+", "%2B");
 
         return this.buildKvpParametersMap(queryString);
     }

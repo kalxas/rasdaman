@@ -21,8 +21,6 @@
  */
 package org.rasdaman.domain.owsmetadata;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;

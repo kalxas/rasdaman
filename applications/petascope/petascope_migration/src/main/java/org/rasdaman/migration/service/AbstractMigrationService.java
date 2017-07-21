@@ -21,22 +21,14 @@
  */
 package org.rasdaman.migration.service;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.migration.Migration;
 import org.rasdaman.repository.interfaces.MigrationRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException; 
 
 /**
  * Abstract class for migration service
@@ -45,7 +37,7 @@ import petascope.exceptions.PetascopeException;
  */
 @Service
 public abstract class AbstractMigrationService {
-    
+
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractMigrationService.class);
 
     @Autowired
@@ -68,8 +60,8 @@ public abstract class AbstractMigrationService {
     }
 
     /**
-     * Check if the database migration is running.
-     * NOTE: Only has 1 entry or None in Migration table.
+     * Check if the database migration is running. NOTE: Only has 1 entry or
+     * None in Migration table.
      *
      * @return
      */
@@ -88,10 +80,10 @@ public abstract class AbstractMigrationService {
 
         return migration.isLock();
     }
-    
+
     /**
-     * Release the lock when the migration process has error.
-     * NOTE: Only has 1 entry in Migration table.
+     * Release the lock when the migration process has error. NOTE: Only has 1
+     * entry in Migration table.
      */
     public void releaseLock() {
         Migration migration = null;
@@ -101,8 +93,9 @@ public abstract class AbstractMigrationService {
                 migration = iterator.next();
             }
         }
-        
+
         migration.setLock(false);
+        migrationRepository.save(migration);
     }
 
     /**
@@ -119,5 +112,28 @@ public abstract class AbstractMigrationService {
      * @throws Exception
      */
     public abstract boolean canMigrate() throws Exception;
+
+    /**
+     * Migrate legacy coverages from petascopedb to new database
+     *
+     * @throws Exception
+     */
+    protected abstract void saveAllCoverages() throws Exception;
+
+    /**
+     * OWS Service metadata for WCS, WMS (service identification, service
+     * provider,...) Migrate OWS Service metadata (ServiceIdentification,
+     * ServiceProvider of WCS GetCapabilities) to database
+     *
+     * @throws Exception
+     */
+    protected abstract void saveOwsServiceMetadata() throws Exception;
+
+    /**
+     * WMS 1.3 tables to WMS 1.3 data models
+     *
+     * @throws Exception
+     */
+    protected abstract void saveWMSLayers() throws Exception;
 
 }

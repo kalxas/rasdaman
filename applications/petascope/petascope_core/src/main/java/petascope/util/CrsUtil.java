@@ -933,7 +933,7 @@ public class CrsUtil {
          * petascope.propeties with SECORE http://abc.com/def/crs/epsg/0/4326,
          * the stored URI with localhost will be not found.
          */
-        public static final String SECORE_URL_PREFIX = "%SECORE_URL%";
+        public static final String SECORE_URL_PREFIX = "$SECORE_URL$";
         public static final String LAST_PATH_PATTERN = ".*/(.*)$";
 
         private static final String COMPOUND_SPLIT = "(\\?|&)\\d+=";
@@ -1534,13 +1534,19 @@ public class CrsUtil {
          * @param crsUri the uri of the crs.
          * @return the db form of the uri. E.g.
          * "http://www.opengis.net/def/crs/EPSG/0/4326" ->
-         * "%SECORE_URL%/crs/EPSG/0/4326"
+         * "$SECORE_URL$/crs/EPSG/0/4326"
          */
         private static String simpleUriToDbRepresentation(String crsUri) {
-            String authority = CrsUri.getAuthority(crsUri);
-            String code = CrsUri.getCode(crsUri);
-            String version = CrsUri.getVersion(crsUri);
-            String result = SECORE_URL_PREFIX + "/" + CrsUtil.KEY_RESOLVER_CRS + "/" + authority + "/" + version + "/" + code;
+            String result = crsUri;
+            
+            // Don't try to parse CRS when it is already the abstract URL
+            if (!crsUri.contains(SECORE_URL_PREFIX)) {
+                String authority = CrsUri.getAuthority(crsUri);
+                String code = CrsUri.getCode(crsUri);
+                String version = CrsUri.getVersion(crsUri);
+                result = SECORE_URL_PREFIX + "/" + CrsUtil.KEY_RESOLVER_CRS + "/" + authority + "/" + version + "/" + code;
+            }
+
             return result;
         }
     }

@@ -60,6 +60,7 @@ public class IrregularAxis extends GeoAxis {
     public static final String COLUMN_ID = TABLE_NAME + "_id";
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "irregular_axis_direct_positions")
     @OrderColumn
     // Ordered sequence of direct positions (coefficients) along this axis
     // NOTE: Postgresql can set precision and scale defined, it will use only use 2 numbers for scale (e.g: 19.3434534534534534533333333....33 -> 19.34)

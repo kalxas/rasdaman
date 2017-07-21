@@ -35,14 +35,16 @@ import org.slf4j.LoggerFactory;
 public class InitAllConfigurationsApplicationService {
 
     private static final Logger log = LoggerFactory.getLogger(InitAllConfigurationsApplicationService.class);
-    
+
     // path to gdal native files (.so) which are needed for GDAL java to invoke.
     public static final String APPLICATION_PROPERTIES_FILE = "application.properties";
     public static final String KEY_GDAL_JAVA_DIR = "gdal-java.libDir";
     public static final String KEY_PETASCOPE_CONF_DIR = "petascope.confDir";
     // NOTE: this is a hidden database of postgresql which allows to connect and create/rename other database.
     public static final String POSTGRESQL_NEUTRAL_DATABASE = "template1";
-   
+
+    
+
     /**
      * Adds the specified path to the java library path (very important to load
      * GDAL native libraries!!!)

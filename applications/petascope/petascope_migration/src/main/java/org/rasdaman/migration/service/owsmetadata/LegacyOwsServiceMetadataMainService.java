@@ -26,7 +26,7 @@ import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.domain.owsmetadata.ServiceIdentification;
 import org.rasdaman.domain.owsmetadata.ServiceProvider;
 import org.rasdaman.migration.legacy.readdatabase.ReadLegacyOwsServiceMetadataService;
-import org.rasdaman.repository.service.OwsMetadataRepostioryService;
+import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class LegacyOwsServiceMetadataMainService {
     private ServiceProviderTranslatingService serviceProviderTranslatingService;
 
     @Autowired
-    private OwsMetadataRepostioryService owsMetadataRepostioryService;
+    private OWSMetadataRepostioryService owsMetadataRepostioryService;
 
     /**
      * Build a OwsServiceMetadata object from legacy OWS tables

@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
-import org.rasdaman.domain.wms.BoundingBox;
+import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.Style;
 import org.rasdaman.repository.interfaces.LayerRepository;
@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import petascope.util.CrsUtil;
 
 /**
  *
@@ -56,9 +55,10 @@ public class WMSRepostioryService {
 
     // NOTE: for migration, Hibernate caches the object in first-level cache internally
     // and recheck everytime a new entity is saved, then with thousands of cached objects for nothing
-    // it will slow significantly the speed of next saving coverage, then it must be clear this cache.    
-    @Autowired
-    EntityManager entityManager;
+    // it will slow significantly the speed of next saving coverage, then it must be clear this cache.        
+    // As targetEntityManagerFactory is set with Primary in bean application of migration application, no need to specify the unitName=target for this PersistenceContext
+    @PersistenceContext
+    private EntityManager entityManager;   
 
     private static final Logger log = LoggerFactory.getLogger(WMSRepostioryService.class);
 
@@ -151,7 +151,7 @@ public class WMSRepostioryService {
 
         // add to WMS layers cache if it does not exist or update the existing one        
         layersCacheMap.put(layer.getName(), layer);
-
+        
         entityManager.flush();
         entityManager.clear();
 
@@ -214,5 +214,15 @@ public class WMSRepostioryService {
         Layer layer = this.layerRepository.findOneByName(legacyWMSLayerName);
 
         return layer != null;
+    }
+    
+    /**
+     * Fetch all the layer names from wms13 layer table
+     * @return 
+     */
+    public List<String> readAllLayerNames() {
+        List<String> layerNames = layerRepository.readAllLayerNames();
+        
+        return layerNames;
     }
 }

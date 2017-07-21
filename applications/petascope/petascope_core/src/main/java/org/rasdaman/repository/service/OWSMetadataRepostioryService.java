@@ -23,13 +23,13 @@ package org.rasdaman.repository.service;
 
 import java.util.List;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
-import org.rasdaman.repository.interfaces.OwsServiceMetadataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petascope.exceptions.WCSException;
+import org.rasdaman.repository.interfaces.OWSServiceMetadataRepository;
 
 /**
  *
@@ -40,12 +40,12 @@ import petascope.exceptions.WCSException;
  */
 @Service
 @Transactional
-public class OwsMetadataRepostioryService {
+public class OWSMetadataRepostioryService {
 
     @Autowired
-    private OwsServiceMetadataRepository owsServiceMetadataRepository;
+    private OWSServiceMetadataRepository owsServiceMetadataRepository;
 
-    private static final Logger log = LoggerFactory.getLogger(OwsMetadataRepostioryService.class);
+    private static final Logger log = LoggerFactory.getLogger(OWSMetadataRepostioryService.class);
 
     // cache the Ows Service metadata
     private static OwsServiceMetadata owsServiceMetadataCache;

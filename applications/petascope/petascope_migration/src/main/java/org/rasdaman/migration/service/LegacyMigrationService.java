@@ -70,11 +70,12 @@ public class LegacyMigrationService extends AbstractMigrationService {
     private LegacyDbMetadataSource legacyDbMetadataSource;
 
     /**
-     * When legacy petascopedb already exists, need to create a temp datase in
+     * When legacy petascopedb already exists, need to create a temp database in
      * Postgresql for Liquibase to create the schema first.
      */
-    public static final String PETASCOPEDB_MIGRATION_TEMP_POSTFIX = "_migration_temp";
-
+    
+    public static final String LEGACY_PETASCOPEDB_MIGRATION_TEMP_POSTFIX = "_migration_temp";
+    public static final String LEGACY_PETASCOPEDB_MIGRATION_TEMP = ConfigManager.PETASCOPE_DB + LEGACY_PETASCOPEDB_MIGRATION_TEMP_POSTFIX;
     private static final Logger log = LoggerFactory.getLogger(LegacyMigrationService.class);
 
     public LegacyMigrationService() {
@@ -120,8 +121,7 @@ public class LegacyMigrationService extends AbstractMigrationService {
         log.info("\n");
 
         // Legacy migration is done, release the lock
-        migration.setLock(false);
-        migrationRepositoryService.save(migration);
+        this.releaseLock();
 
         // No need to connect to legacy petascopedb anymore
         legacyDbMetadataSource.closeConnection();
@@ -132,18 +132,13 @@ public class LegacyMigrationService extends AbstractMigrationService {
 
         // rename the temp database is used to migrate to official name
         this.renamePetascopeDatabaseMigrationTemp();
-        log.info("Moving temporary migration database '" + ConfigManager.PETASCOPE_DB + PETASCOPEDB_MIGRATION_TEMP_POSTFIX + "' to final database '" + ConfigManager.PETASCOPE_DB + "'.");
+        log.info("Moving temporary migration database '" + LEGACY_PETASCOPEDB_MIGRATION_TEMP + "' to final database '" + ConfigManager.PETASCOPE_DB + "'.");
 
-        log.debug("petascopedb 9.4 or older has been migrated successfully.");
+        log.info("petascopedb 9.4 or older has been migrated successfully.");
     }
 
-    /**
-     * Migrate legacy coverages from petascopedb to new database
-     *
-     * @throws Exception
-     */
-    private void saveAllCoverages() throws Exception {
-
+    @Override
+    protected void saveAllCoverages() throws Exception {
         List<String> legacyCoverageIds = readLegacyCoveragesService.readAllCoverageIds();
         log.info("Migrating coverages...");
         int totalCoverages = legacyCoverageIds.size();
@@ -168,29 +163,17 @@ public class LegacyMigrationService extends AbstractMigrationService {
         log.info("All coverages migrated successfully.");
     }
 
-    /**
-     * OWS Service metadata for WCS, WMS (service identification, service
-     * provider,...) Migrate OWS Service metadata (ServiceIdentification,
-     * ServiceProvider of WCS GetCapabilities) to database
-     *
-     * @throws Exception
-     */
-    private void saveOwsServiceMetadata() throws Exception {
-
+    @Override
+    protected void saveOwsServiceMetadata() throws Exception {
         log.info("Migrating OWS Service metadata...");
         legacyOwsServiceMetadataMainService.persist();
 
         log.info("... migrated successfully.");
     }
 
-    /**
-     * WMS 1.3 tables to WMS 1.3 data models
-     *
-     * @throws Exception
-     */
-    private void saveWMSLayers() throws Exception {
-
-        List<String> legacyWmsLayers = readLegacyWMSLayerService.readlAllLayerNames();
+    @Override
+    protected void saveWMSLayers() throws Exception {
+        List<String> legacyWmsLayers = readLegacyWMSLayerService.readAllLayerNames();
         int totalLayers = legacyWmsLayers.size();
 
         int i = 1;
@@ -236,6 +219,6 @@ public class LegacyMigrationService extends AbstractMigrationService {
      */
     private void renamePetascopeDatabaseMigrationTemp() throws PetascopeException, SQLException, ClassNotFoundException, InterruptedException {
         // rename it while closing all the connections to this database of Hibernate
-        DatabaseUtil.renamePostgresqLegacyDatabase(ConfigManager.PETASCOPE_DB + PETASCOPEDB_MIGRATION_TEMP_POSTFIX, ConfigManager.PETASCOPE_DB);
+        DatabaseUtil.renamePostgresqLegacyDatabase(LEGACY_PETASCOPEDB_MIGRATION_TEMP, ConfigManager.PETASCOPE_DB);
     }
 }

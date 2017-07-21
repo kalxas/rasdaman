@@ -76,7 +76,7 @@ public class WMSLayerTranslatingService {
         // NOTE: a layer name in WMS is a WCS coverage id (and with legacy WMS only supports 2D coverages).
         // Also the CRS is missing from layer in legacy object, so need to fetch it from the new persistent coverage.
         String layerName = legacyLayer.getName();
-        Coverage coverage = this.coverageRepostioryService.readCoverageByIdFromDatabase(layerName);
+        Coverage coverage = this.coverageRepostioryService.readCoverageByIdFromCache(layerName);
         if (coverage == null) {
             log.info("Coverage for WMS 1.3 layer '" + layerName + "' does not exist, please migrate the coverage metadata first; aborting layer migration.");
             return null;

@@ -21,24 +21,22 @@
  */
 package org.rasdaman;
 
-import javax.sql.DataSource;
-import org.rasdaman.config.ConfigManager;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-@Configuration
 /**
  * This class initializes the bean which needs the passing dependencies from
  * properties file
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
+@Configuration
 public class BeanApplicationConfiguration {
 
     @Bean
@@ -49,24 +47,6 @@ public class BeanApplicationConfiguration {
                 registry.addMapping("/*").allowedOrigins("*");
             }
         };
-    }
-
-    // @TODO: remove this one when rasdaman installer changes from updating in legacy configurations for username, password to the new ones
-    /**
-     * Instead of reading properties automatically from petascope.properties,
-     * use this one to read from legacy configuration due to rasdaman installer
-     * creates password differently for each installation for username rasdaman
-     * in postgresql and it only knows about legacy configurations.
-     *
-     * @return
-     */
-    @Bean
-    public DataSource dataSource() {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.url(ConfigManager.PETASCOPE_DATASOURCE_URL);
-        dataSourceBuilder.username(ConfigManager.LEGACY_DATASOURCE_USERNAME);
-        dataSourceBuilder.password(ConfigManager.LEGACY_DATASOURCE_PASSWORD);
-        return dataSourceBuilder.build();
     }
 
     /**
