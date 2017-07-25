@@ -33,8 +33,8 @@ module rasdaman {
     export class WCPSResultFactory {
         public static getResult(errorHandlingService:any, command:WCPSCommand, data:any, mimeType:string, fileName:string):WCPSQueryResult {
             if (command.WidgetConfiguration == null) {
-                // if mimeType is text then return raw data
-                if (mimeType == "application/json" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
+                // if mimeType is text (csv, json, gml) or empty then return raw data to the console
+                if (mimeType == "" || mimeType == "application/json" || mimeType == "text/plain" || mimeType == "text/csv" || mimeType == "text/xml" || mimeType == "application/gml+xml") {
                     return new RawWCPSResult(command, data);
                 } else {
                     // if mimeType is image/binary file then download file

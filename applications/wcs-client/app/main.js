@@ -5647,7 +5647,7 @@ var rasdaman;
         }
         WCPSResultFactory.getResult = function (errorHandlingService, command, data, mimeType, fileName) {
             if (command.WidgetConfiguration == null) {
-                if (mimeType == "application/json" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
+                if (mimeType == "" || mimeType == "application/json" || mimeType == "text/plain" || mimeType == "text/csv" || mimeType == "text/xml" || mimeType == "application/gml+xml") {
                     return new rasdaman.RawWCPSResult(command, data);
                 }
                 else {
