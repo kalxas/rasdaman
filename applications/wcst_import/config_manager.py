@@ -31,7 +31,7 @@ class ConfigManager:
      below serve only as documentation
     """
     wcs_service = "http://localhost:8080/rasdaman/ows"
-    crs_resolver = "http://localhost:8080/def/"
+    crs_resolver = ""
     default_crs = "http://localhost:8080/def/OGC/0/Index2D"
     tmp_directory = "/tmp/"
     mock = True

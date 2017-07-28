@@ -2,8 +2,6 @@
   "config": {
     "service_url": "   PETASCOPE_URL",
     "tmp_directory": "/tmp/",
-    "crs_resolver": "    SECORE_URL/",
-    "default_crs": "     SECORE_URL/OGC/0/Index2D",
     "automated": true,
     "track_files": false,
     "subset_correction": false,

@@ -22,4 +22,5 @@
 # *
 #
 # Call the wcst_import.py from the share directory
+export PETASCOPE_PROPERTIES_PATH="@CONF_DIR@/petascope.properties"
 python @WCST_IMPORT_PY_SCRIPT@ $1

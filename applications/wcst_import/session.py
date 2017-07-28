@@ -21,12 +21,14 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import os
 import glob2 as glob
 from config_manager import ConfigManager
 from util.file_obj import File
 
 from util.log import log
 from wcst.wcst import WCSTMockExecutor, WCSTExecutor
+from master.error.runtime_exception import RuntimeException
 
 
 class Session:
@@ -48,11 +50,11 @@ class Session:
         self.recipe = recipe
         self.wcs_service = config['service_url'] if "service_url" in config else None
         self.tmp_directory = config['tmp_directory'] if "tmp_directory" in config else "/tmp/"
-
-        self.crs_resolver = config['crs_resolver'] if "crs_resolver" in config else None
-        self.crs_resolver = self.crs_resolver.strip()
+        self.crs_resolver = self.__get_crs_resolver_configuration()
         self.default_crs = config['default_crs'] if "default_crs" in config else None
-        self.default_crs = self.default_crs.strip()
+        # NOTE: only old recipes before general recipe using the default_crs inside the ingredient files
+        if self.default_crs:
+            self.default_crs = self.__replace_secore_prefix(self.default_crs.strip())
         self.root_url = self.config["root_url"] if "root_url" in self.config else "file://"
         self.root_url = self.root_url.strip()
 
@@ -77,7 +79,7 @@ class Session:
         Initializes the configuration manager
         """
         ConfigManager.automated = self.is_automated()
-        ConfigManager.crs_resolver = self.crs_resolver if self.crs_resolver[-1] == "/" else self.crs_resolver + "/"
+        ConfigManager.crs_resolver = self.crs_resolver
         ConfigManager.default_crs = self.default_crs
         ConfigManager.default_null_values = self.default_null_values
         ConfigManager.insitu = self.insitu
@@ -95,6 +97,60 @@ class Session:
         ConfigManager.resumer_dir_path = self.resumer_dir_path if self.resumer_dir_path[-1] == "/" else self.resumer_dir_path + "/"
         ConfigManager.description_max_no_slices = self.description_max_no_slices
         ConfigManager.track_files = self.track_files
+
+    def __get_crs_resolver_configuration(self):
+        """
+        From the petascope.properties file which is configured in config_manager.py when building wcst_import,
+        it can read the secore_urls configuration of Petascope and set as default crs resolver.
+        It must replace the SECORE prefix in ingredient file by petascope's SECORE prefix.
+        (e.g: http://localhost:8080/def  to http://opengis.net/def).
+        :return: str
+        """
+        # We will check if the environment variable exists first (it is exported in wcst_import.sh)
+        try:
+            petascope_properties_path = os.environ["PETASCOPE_PROPERTIES_PATH"]
+        except:
+            # If one does not run wcst_import with wcst_import.sh but wcst_import.py then it will check the well-known configuration paths
+            try:
+                # first is $RMANHOME/etc/petascope.properties
+                petascope_properties_path = os.environ["RMANHOME"] + "/etc/petascope.properties"
+            except:
+                # $RMANHOME does not exist, try to find petascope.properties in /opt/rasdaman/etc/petascope.properties
+                if os.path.exists("/opt/rasdaman/etc/petascope.properties"):
+                    petascope_properties_path = "/opt/rasdaman/etc/petascope.properties"
+                elif os.path.exists("/etc/rasdaman/petascope.properties"):
+                    petascope_properties_path = "/etc/rasdaman/petascope.properties"
+                else:
+                    # It cannot find petascope.properties internally
+                    raise RuntimeException("Could not locate the petascope.properties file, "
+                                           "please export the environment variable PETASCOPE_PROPERTIES_PATH before executing this script.")
+
+        crs_resolver = None
+        with open(petascope_properties_path) as f:
+            for line in f:
+                if "secore_urls=" in line:
+                    crs_resolver = line.split("=")[1].strip()
+                    # WCST_Import needs the SECORE prefix with "/" as last character
+                    if crs_resolver[-1] != "/":
+                        crs_resolver += "/"
+                    return crs_resolver
+        if crs_resolver is None:
+            raise RuntimeException("Cannot find secore_urls configuration "
+                                   "in petascope's properties file '{}' for crs_resolver".format(petascope_properties_path))
+
+    def __replace_secore_prefix(self, crs):
+        """
+        Replace the SECORE prefix in ingredient file by petascope's configuration, e.g:
+        http://localhost:8080/def/crs/EPSG/0/4326 to http://opengis.net/def/crs/EPSG/0/4326
+        NOTE: this is only used by old recipes before general recipe and without compound CRSs.
+        :param str crs: the input crs from the ingredient file
+        :return: str
+        """
+        crs_postfix = crs.split("/def/")[1]
+        updated_crs = self.crs_resolver + crs_postfix
+
+        return updated_crs
+
 
     def parse_input(self, paths):
         """
