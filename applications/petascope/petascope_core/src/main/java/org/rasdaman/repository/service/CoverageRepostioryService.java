@@ -21,6 +21,7 @@
  */
 package org.rasdaman.repository.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,11 @@ import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.springframework.transaction.annotation.Propagation;
+import petascope.core.AxisTypes;
+import petascope.core.BoundingBox;
 import petascope.core.Pair;
+import petascope.util.CrsProjectionUtil;
+import petascope.util.ListUtil;
 
 /**
  *
@@ -57,7 +62,7 @@ import petascope.core.Pair;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 @Service
-@Transactional(propagation = Propagation.REQUIRED)
+@Transactional
 public class CoverageRepostioryService {
 
     @Autowired
@@ -78,6 +83,13 @@ public class CoverageRepostioryService {
     // define this map manually.
     public static final Map<String, Pair<Coverage, Boolean>> coveragesCacheMap = new ConcurrentHashMap<>();
 
+    /**
+     * Store the coverages's extents (only geo-referenced XY axes). First String
+     * is minLong, minLat, second String is maxLong, maxLat.
+     */
+    public static final Map<String, BoundingBox> coveragesExtentsCacheMap = new ConcurrentHashMap<>();
+    public static final String COVERAGES_EXTENT_TARGET_CRS_DEFAULT = "EPSG:4326";
+
     public CoverageRepostioryService() {
 
     }
@@ -88,8 +100,10 @@ public class CoverageRepostioryService {
      * (i.e: other autowired dependent services are not null). Then it can load
      * all coverages to cache.
      */
-    private void initCoveragesCache() {
+    private void initCoveragesCache() throws PetascopeException, SecoreException {
         this.readAllCoveragesBasicMetatata();
+        // After reading all coverages's basic metadata, then create the XY axes's extent in EPSG:4326 for WCS_Client to display in a map
+        this.createAllCoveragesExtents();
         log.debug("Initialized all the coverages's metadata to cache.");
     }
 
@@ -102,7 +116,7 @@ public class CoverageRepostioryService {
      * @return
      * @throws petascope.exceptions.PetascopeException
      */
-    public Coverage readCoverageByIdFromCache(String coverageId) throws PetascopeException {
+    public Coverage readCoverageFullMetadataByIdFromCache(String coverageId) throws PetascopeException {
         Pair<Coverage, Boolean> coveragePair = coveragesCacheMap.get(coverageId);
         Coverage coverage = null;
         // Check if coverage is already cached
@@ -121,6 +135,19 @@ public class CoverageRepostioryService {
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
         CoverageRepostioryService.addCrsPrefix(coverage);
         log.debug("Coverage id '" + coverageId + "' is read from cache.");
+
+        return coverage;
+    }
+
+    /**
+     * Only read basic coverages's metadata from cache. Used when starting web
+     * application as it should not query the whole coverages's metadata.
+     *
+     * @param coverageId
+     * @return
+     */
+    public Coverage readCoverageBasicMetadataByIdFromCache(String coverageId) {
+        Coverage coverage = coveragesCacheMap.get(coverageId).fst;
 
         return coverage;
     }
@@ -146,7 +173,7 @@ public class CoverageRepostioryService {
         }
 
         log.debug("Coverage: " + coverageId + " is read from database.");
-        
+
         // NOTE: As coverage is saved with a placeholder for SECORE prefix, so after reading coverage from database, 
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
         CoverageRepostioryService.addCrsPrefix(coverage);
@@ -174,7 +201,7 @@ public class CoverageRepostioryService {
      * </ows:BoundingBox>
      * </wcs:CoverageSummary>
      *
-     * @return List<Coverage>
+     * @return List<Pair<Coverage, Boolean>>
      */
     public List<Pair<Coverage, Boolean>> readAllCoveragesBasicMetatata() {
         long start = System.currentTimeMillis();
@@ -221,6 +248,126 @@ public class CoverageRepostioryService {
     }
 
     /**
+     * From the cached coverages's basic metadata (EnvelopeByAxis with
+     * AxisExtents), create the coverages's extents by reprojecting from native
+     * XY axes's CRS to EPSG:4326 and cache all the results (minLongLat,
+     * maxLongLat). NOTE: Only add coverage with native CRS EPSG code as GDAL
+     * cannot reproject unknown CRS.
+     *
+     * @throws petascope.exceptions.PetascopeException
+     * @throws petascope.exceptions.SecoreException
+     */
+    private void createAllCoveragesExtents() throws PetascopeException, SecoreException {
+        long start = System.currentTimeMillis();
+        for (String coverageId : coveragesCacheMap.keySet()) {
+            this.createCoverageExtents(coverageId);
+        }
+
+        long end = System.currentTimeMillis();
+        log.debug("Time to compute all Coverages's Extends is: " + String.valueOf(end - start));
+    }
+
+    /**
+     * Create a coverage's extent by cached coverage's metadata
+     * (EnvelopeByAxis). The XY axes' BoundingBox is reprojected to EPSG:4326.
+     */
+    private void createCoverageExtents(String coverageId) throws PetascopeException, SecoreException {
+        // Tranformed XY extents to EPSG:4326 (Long, Lat for OpenLayers)
+        BoundingBox boundingBox = new BoundingBox();
+
+        // Only need a coverage's basic metadata, it is slow to query the whole coverage's metadata
+        Coverage coverage = this.readCoverageBasicMetadataByIdFromCache(coverageId);
+        List<AxisExtent> axisExtents = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getAxisExtents();
+        boolean foundX = false, foundY = false;
+        String xMin = null, yMin = null, xMax = null, yMax = null;
+        String xyAxesCRS = null;
+        for (AxisExtent axisExtent : axisExtents) {
+            String axisExtentCrs = axisExtent.getSrsName();
+            // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
+            axisExtentCrs = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCrs);
+            // x, y, t,...
+            String axisType = CrsUtil.getAxisType(axisExtentCrs, axisExtent.getAxisLabel());
+            if (axisType.equals(AxisTypes.X_AXIS)) {
+                foundX = true;
+                xMin = axisExtent.getLowerBound();
+                xMax = axisExtent.getUpperBound();
+                xyAxesCRS = axisExtentCrs;
+            } else if (axisType.equals(AxisTypes.Y_AXIS)) {
+                foundY = true;
+                yMin = axisExtent.getLowerBound();
+                yMax = axisExtent.getUpperBound();
+            }
+            if (foundX && foundY) {
+                break;
+            }
+        }
+
+        log.debug("Coverage Id '" + coverageId + "' to transform extents.");
+
+        // Don't transform the XY extents to EPSG:4326 if it is not EPSG code or it is not at least 2D
+        if (foundX && foundY && CrsUtil.isValidTransform(xyAxesCRS)) {
+            double[] xyMinArray = {Double.valueOf(xMin), Double.valueOf(yMin)};
+            double[] xyMaxArray = {Double.valueOf(xMax), Double.valueOf(yMax)};
+            List<BigDecimal> minLongLatList = null, maxLongLatList = null;
+
+            try {
+                // NOTE: cannot reproject every kind of EPSG:codes to EPSG:4326, but should not stop application for this.
+                minLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMinArray);
+                maxLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMaxArray);
+                
+                // NOTE: EPSG:4326 cannot display outside of coordinates for lat(-90, 90), lon(-180, 180) and it should only contain 5 precisions.                
+                BigDecimal minLon = minLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
+                BigDecimal minLat = minLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
+                BigDecimal maxLon = maxLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
+                BigDecimal maxLat = maxLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
+                
+                if (minLon.compareTo(new BigDecimal("-180")) < 0) {
+                    if (minLon.compareTo(new BigDecimal("-180.5")) > 0) {
+                        minLon = new BigDecimal("-180");
+                    } else {
+                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                        return;
+                    }
+                }
+                if (minLat.compareTo(new BigDecimal("-90")) < 0) {
+                    if (minLon.compareTo(new BigDecimal("-90.5")) > 0) {
+                        minLat = new BigDecimal("-90");
+                    } else {
+                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                        return;
+                    }                    
+                }                
+                if (maxLon.compareTo(new BigDecimal("180")) > 0) {
+                    if (maxLon.compareTo(new BigDecimal("180.5")) < 0) {
+                        maxLon = new BigDecimal("180");
+                    } else {
+                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                        return;
+                    }
+                }
+                if (maxLat.compareTo(new BigDecimal("90")) > 0) {
+                    if (maxLat.compareTo(new BigDecimal("90.5")) < 0) {
+                        maxLat = new BigDecimal("90");
+                    } else {
+                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                        return;
+                    }
+                }                
+                
+                boundingBox.setXmin(minLon);
+                boundingBox.setYmin(minLat);
+                boundingBox.setXmax(maxLon);
+                boundingBox.setYmax(maxLat);
+                
+                // Transformed is done, put it to cache
+                coveragesExtentsCacheMap.put(coverageId, boundingBox);
+            } catch (PetascopeException ex) {
+                log.debug("Cannot create extent for coverage '" + coverageId + "', error '" + ex.getExceptionText() + "'.", ex);
+            }
+        }
+    }
+
+    /**
      * Update or Insert a new Coverage to database
      *
      * @param coverage
@@ -229,6 +376,7 @@ public class CoverageRepostioryService {
      * @throws petascope.exceptions.SecoreException
      */
     public Coverage save(Coverage coverage) throws PetascopeException, SecoreException {
+        String coverageId = coverage.getCoverageId();
         // NOTE: Don't save coverage with fixed CRS (e.g: http://localhost:8080/def/crs/epsg/0/4326)
         // it must use a string placeholder so when setting up Petascope with a different SECORE endpoint, it will replace the placeholder
         // with new SECORE endpoint or otherwise the persisted URL will throw exception as non-existing URL.
@@ -238,17 +386,19 @@ public class CoverageRepostioryService {
         // then it can save (insert/update) the coverage to database
         this.coverageRepository.save(coverage);
         long end = System.currentTimeMillis();
-        log.debug("Time to persist a coverage is: " + String.valueOf(end - start));
+        log.debug("Time to persist a coverage " + coverageId + " is: " + String.valueOf(end - start));
 
         entityManager.flush();
         entityManager.clear();
-        
+
         // Then add the coverage with abstractCRS SECORE to cache
         // Don't addCrsPrefix now as Hibernate not yet persists the coverage's metadata, so, it will only save the fixed CRSs instead of the abstract CRSs to database.
         // When reading coverage from cache method, it will add back the CRS.
-        coveragesCacheMap.put(coverage.getCoverageId(), new Pair(coverage, false));
-        
-        log.debug("Coverage '" + coverage.getCoverageId() + "' is persisted in database.");
+        coveragesCacheMap.put(coverageId, new Pair(coverage, false));
+        // Also insert/update the coverage's extent in cache as the bounding box of XY axes can be extended by WCST_Import.
+        this.createCoverageExtents(coverageId);
+
+        log.debug("Coverage '" + coverageId + "' is persisted in database.");
 
         return coverage;
     }
@@ -264,6 +414,8 @@ public class CoverageRepostioryService {
 
         // Remove the cached coverage from cache
         coveragesCacheMap.remove(coverageId);
+        // Remove the coverageExtent from cache
+        coveragesExtentsCacheMap.remove(coverageId);
 
         entityManager.flush();
         entityManager.clear();

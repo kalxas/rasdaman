@@ -104,8 +104,9 @@ public class PetascopeController extends AbstractController {
 
             // Check if any handlers can handle the request
             for (AbstractHandler handler : handlers) {
-                if (handler.canHandle(service, version, requestService)) {
+                if (handler.canHandle(service, version, requestService)) {                    
                     response = handler.handle(kvpParameters);
+                    break;
                 }
             }
             if (response == null) {

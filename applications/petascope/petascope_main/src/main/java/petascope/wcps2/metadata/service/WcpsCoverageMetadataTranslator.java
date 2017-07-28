@@ -74,7 +74,7 @@ public class WcpsCoverageMetadataTranslator {
      */
     public WcpsCoverageMetadata create(String coverageId) throws PetascopeException, SecoreException {
         // Only supports GeneralGridCoverage now
-        Coverage coverage = this.persistedCoverageService.readCoverageByIdFromCache(coverageId);
+        Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(coverageId);
         List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
         List<IndexAxis> indexAxes = ((GeneralGridCoverage) coverage).getIndexAxes();
 

@@ -25,6 +25,7 @@
 ///<reference path="../shared/WCSService.ts"/>
 ///<reference path="../main/MainController.ts"/>
 ///<reference path="../../models/wcs/_wcs.ts"/>
+///<reference path="../web_world_wind/WebWorldWindService.ts"/>
 
 module rasdaman {
     export class GetCoverageController {
@@ -36,15 +37,20 @@ module rasdaman {
             "$rootScope",
             "$log",
             "rasdaman.WCSService",
-            "Notification"
+            "Notification",
+            "rasdaman.WebWorldWindService"
         ];
 
         public constructor($scope:GetCoverageControllerScope,
                            $rootScope:angular.IRootScopeService,
                            $log:angular.ILogService,
                            wcsService:rasdaman.WCSService,
-                           alertService:any) {
+                           alertService:any,
+                           webWorldWindService:rasdaman.WebWorldWindService) {
             $scope.SelectedCoverageId = null;
+
+            $scope.IsGlobeOpen = false;
+            $scope.IsGetCoverageHideGlobe = true;
 
             $scope.isCoverageIdValid = ()=> {
                 if ($scope.StateInformation.ServerCapabilities) {
@@ -74,16 +80,35 @@ module rasdaman {
                 }
             });
 
+            $scope.loadCoverageExtentOnGlobe = function() {
+                // Fetch the coverageExtent by coverageId to display on globe if possible
+                var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.SelectedCoverageId);                            
+                if (coveragesExtents == null) {
+                    $scope.IsGetCoverageHideGlobe = true;
+                } else {
+                    // Show covearge's extent on the globe
+                    var canvasId = "canvasGetCoverage";
+                    $scope.IsGetCoverageHideGlobe = false;
+                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
+                    // NOTE: Without the time interval, Globe in DescribeCoverage/GetCoverage will hang up in some cases when it goes to the center of current coverage's extent
+                    // If the globe hangs up, click on the button GetCoverage one more time.
+                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                }                                
+            }
+
             $scope.getCoverageClickEvent = function () {
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
                     return;
                 }
                 // trigger the DescribeCoverage in DescribeCoverageController to fill the data to both DescribeCoverage and GetCoverage tabs
-                $scope.StateInformation.SelectedGetCoverageId = $scope.SelectedCoverageId;
-                $scope.$digest();
-            }
+                $scope.StateInformation.SelectedGetCoverageId = $scope.SelectedCoverageId;                
+                // $scope.$digest();
 
+                // load the coverage extent on the globe
+                $scope.loadCoverageExtentOnGlobe();
+            }
+           
 
             $scope.$watch("StateInformation.SelectedCoverageDescriptions",
                 (coverageDescriptions:wcs.CoverageDescriptions)=> {
@@ -91,7 +116,7 @@ module rasdaman {
                         $scope.CoverageDescription = $scope.StateInformation.SelectedCoverageDescriptions.CoverageDescription[0];
                         $scope.SelectedCoverageId = $scope.CoverageDescription.CoverageId;
 
-                        $scope.GetCoverageTabStates = {
+                        $scope.GetCoverageTabStates = {                            
                             IsCoreOpen: true,
                             IsRangeSubsettingOpen: false,
                             IsRangeSubsettingSupported: GetCoverageController.isRangeSubsettingSupported($scope.StateInformation.ServerCapabilities),
@@ -157,15 +182,18 @@ module rasdaman {
                             wcsService.getCoverage(getCoverageRequest)
                                 .then(
                                     (requestUrl:string)=> {
-                                        $scope.Core.RequestUrl = requestUrl;
+                                        $scope.Core.RequestUrl = requestUrl;                                        
                                     },
                                     (...args:any[])=> {
                                         $scope.Core.RequestUrl = null;
 
                                         alertService.error("Failed to execute GetCoverage operation.");
                                         $log.error(args);
-                                    });
+                                    });                            
                         };
+
+                        // Load the coverage extent on globe
+                        $scope.loadCoverageExtentOnGlobe();
                     }
                 });
         }
@@ -185,6 +213,11 @@ module rasdaman {
 
 
     interface GetCoverageControllerScope extends MainControllerScope {
+        // Is the dropdown for Globe open
+        IsGlobeOpen:boolean;
+        // Is the div containing Globe show/hide
+        IsGetCoverageHideGlobe:boolean;
+
         AvailableCoverageIds:string[];
         SelectedCoverageId:string;
         isCoverageIdValid():void;
@@ -213,7 +246,7 @@ module rasdaman {
         RequestUrl:string;
     }
 
-    interface GetCoverageTabStates {
+    interface GetCoverageTabStates {        
         //Is the core tab open
         IsCoreOpen:boolean;
 

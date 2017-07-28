@@ -58,6 +58,7 @@ module rasdaman {
 
             $scope.StateInformation = {
                 ServerCapabilities: null,
+                GetCoveragesExtents: null,
                 SelectedCoverageDescriptions: null,
                 SelectedGetCoverageId: null
             };
@@ -135,6 +136,7 @@ module rasdaman {
     export interface MainControllerScope extends angular.IScope {
         StateInformation:{
             ServerCapabilities:wcs.Capabilities,
+            GetCoveragesExtents:string,
             SelectedCoverageDescriptions:wcs.CoverageDescriptions,
             SelectedGetCoverageId:string
         };
@@ -156,5 +158,5 @@ module rasdaman {
         View:string;
         Active:boolean;
         Disabled:boolean;
-    }
+    }    
 }

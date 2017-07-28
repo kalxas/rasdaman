@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.encodeparameters.model.BoundingBox;
+import petascope.core.BoundingBox;
 
 /**
  *

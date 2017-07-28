@@ -29,7 +29,7 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.util.JsonUtil;
+import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
 import petascope.wcps2.encodeparameters.model.CoverageMetadata;
 import petascope.wcps2.encodeparameters.model.Dimensions;
@@ -92,7 +92,7 @@ public class SerializationEncodingService {
             jsonExtraParams.getFormatParameters().put(MIMEUtil.CODEC, MIMEUtil.CODEC_JP2);
         }
 
-        String jsonOutput = JsonUtil.serializeToPojoJson(jsonExtraParams);
+        String jsonOutput = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
         return jsonOutput;
     }
 
@@ -162,7 +162,7 @@ public class SerializationEncodingService {
             jsonExtraParams.getFormatParameters().put(MIMEUtil.CODEC, MIMEUtil.CODEC_JP2);
         }
 
-        String jsonOutput = JsonUtil.serializeToPojoJson(jsonExtraParams);
+        String jsonOutput = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
         return jsonOutput;
     }
 }

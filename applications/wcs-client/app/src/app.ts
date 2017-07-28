@@ -23,6 +23,7 @@
 
 /// <reference path="_all.ts" />
 
+// NOTE: When creating new Controller, Service, Directive classes, remember to register it to module.
 module rasdaman {
     "use strict";
     export class AngularConfig {
@@ -83,6 +84,7 @@ module rasdaman {
         }
     }
 
+    // Register Service, Controller, Directive classes to module
     var wcsClient = angular
         .module(rasdaman.Constants.APP_NAME, ["ngRoute",
             "ngAnimate",
@@ -98,6 +100,7 @@ module rasdaman {
         .service("rasdaman.SettingsService", rasdaman.SettingsService)
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
         .service("rasdaman.WCSService", rasdaman.WCSService)
+        .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
         .service("rasdaman.WCSErrorHandlingService", rasdaman.WCSErrorHandlingService)
         .controller("rasdaman.SettingsController", rasdaman.SettingsController)
         .controller("rasdaman.GetCapabilitiesController", rasdaman.GetCapabilitiesController)

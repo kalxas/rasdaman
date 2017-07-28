@@ -21,6 +21,7 @@
 */
 package petascope.wcps2.encodeparameters.model;
 
+import petascope.core.BoundingBox;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**

@@ -24,6 +24,7 @@
 /// <reference path="shared/Constants.ts"/>
 /// <reference path="shared/WCSService.ts"/>
 /// <reference path="shared/WCSErrorHandlingService.ts"/>
+/// <reference path="web_world_wind/WebWorldWindService.ts"/>
 
 /// <reference path="settings/SettingsService.ts"/>
 /// <reference path="settings/SettingsController.ts"/>

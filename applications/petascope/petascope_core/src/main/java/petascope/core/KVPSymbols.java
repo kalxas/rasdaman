@@ -63,14 +63,11 @@ public interface KVPSymbols {
 
     String KEY_OUTPUT_CRS = "outputCrs";
     String KEY_SUBSETTING_CRS = "subsettingCrs";
-    String KEY_GET_CAPABILITIES = "GetCapabilities";
-    String KEY_GET_COVERAGE = "GetCoverage";
-    String KEY_DESCRIBE_COVERAGE = "DescribeCoverage";
 
     // WCS
     String VALUE_GET_CAPABILITIES = "GetCapabilities";
     String VALUE_DESCRIBE_COVERAGE = "DescribeCoverage";
-    String VALUE_GET_COVERAGE = "GetCoverage";
+    String VALUE_GET_COVERAGE = "GetCoverage";    
 
     // WCST
     String VALUE_INSERT_COVERAGE = "InsertCoverage";

@@ -22,7 +22,6 @@
 package petascope.wms.handlers.kvp;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +48,7 @@ import petascope.wcps2.metadata.model.Axis;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wms.exception.WMSDuplicateLayerException;
+import petascope.wms.exception.WMSInvalidBoundingBoxInCrsTransformException;
 import petascope.wms.exception.WMSInvalidCrsUriException;
 import petascope.wms.exception.WMSInvalidDimensionalityException;
 import petascope.wms.exception.WMSLayerNotExistException;
@@ -180,7 +180,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
      * @param xyAxes
      * @return
      */
-    private EXGeographicBoundingBox createEXGeographicBoundingBox(List<Axis> xyAxes) throws WCSException {
+    private EXGeographicBoundingBox createEXGeographicBoundingBox(List<Axis> xyAxes) throws WCSException, WMSInvalidBoundingBoxInCrsTransformException {
         EXGeographicBoundingBox exBBox = new EXGeographicBoundingBox();
         String crs = CrsUtil.getCode(xyAxes.get(0).getNativeCrsUri());
 
@@ -200,14 +200,19 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
             // Need to transform from native CRS of XY geo axes (e.g: EPSG:3857) to EPSG:4326
             String sourceCrs = xyAxes.get(0).getNativeCrsUri();
             String targetCrs = DEFAULT_CRS_URI;
-
-            // min geo bounds
-            double[] minSourceCoordinates = new double[]{minGeoBoundX.doubleValue(), minGeoBoundY.doubleValue()};
-            List<BigDecimal> minValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, minSourceCoordinates);
-
-            // max geo bounds
-            double[] maxSourceCoordinates = new double[]{maxGeoBoundX.doubleValue(), maxGeoBoundY.doubleValue()};
-            List<BigDecimal> maxValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, maxSourceCoordinates);
+            List<BigDecimal> minValues = null, maxValues = null;
+            try {
+                // min geo bounds
+                double[] minSourceCoordinates = new double[]{minGeoBoundX.doubleValue(), minGeoBoundY.doubleValue()};            
+                minValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, minSourceCoordinates);
+                // max geo bounds
+                double[] maxSourceCoordinates = new double[]{maxGeoBoundX.doubleValue(), maxGeoBoundY.doubleValue()};
+                maxValues = CrsProjectionUtil.transform(sourceCrs, targetCrs, maxSourceCoordinates);
+            } catch (PetascopeException ex) {
+                String bbox = "xmin=" + minGeoBoundX.doubleValue() + ", ymin=" + minGeoBoundY.doubleValue()
+                            + "xmax=" + maxGeoBoundX.doubleValue() + ", ymax=" + maxGeoBoundY.doubleValue();
+                throw new WMSInvalidBoundingBoxInCrsTransformException(bbox, sourceCrs, targetCrs, ex.getExceptionText());
+            }
 
             // Output is EPSG:4326 (Lat, Long)
             minLong = minValues.get(1);

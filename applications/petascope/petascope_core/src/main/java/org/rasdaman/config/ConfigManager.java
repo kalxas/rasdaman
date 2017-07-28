@@ -68,6 +68,7 @@ public class ConfigManager {
     public static final String WCPS = "wcps";
     public static final String RASQL = "rasql";
     public static final String ADMIN = "admin";
+    public static final String GET_COVERAGE_EXTENTS = "GetCoveragesExtents";
 
     /* ***** Services version configuration ***** */
     // CRS resolver
@@ -406,3 +407,4 @@ public class ConfigManager {
         log.info("------------------------------------");
     }
 }
+

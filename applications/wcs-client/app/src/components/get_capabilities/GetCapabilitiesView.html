@@ -10,19 +10,20 @@
                        ng-model="WcsServerEndpoint"/>
                             <span class="input-group-btn">
                             <button class="btn btn-default" type="button" ng-click="getServerCapabilities()">Get
-                                                                                                             Capabilities
+                                                                                                            Capabilities
                             </button>
                             </span>
             </div>
         </div>
-
-        <div class="row top15" ng-if="Capabilities">
+ 	
+        <div class="row top15">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="IsAvailableCoveragesOpen">
                     <uib-accordion-heading>
                         Available coverages <i class="pull-right glyphicon"
                                                ng-class="{'glyphicon-chevron-down': IsAvailableCoveragesOpen, 'glyphicon-chevron-right': !IsAvailableCoveragesOpen}"></i>
                     </uib-accordion-heading>
+                    <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->
                     <table st-table="coverageSummaries" st-safe-src="Capabilities.Contents.CoverageSummary"
                            class="table table-striped">
                         <thead>
@@ -46,13 +47,30 @@
                         <tfoot>
                             <tr>
                                 <td colspan="2" class="text-right">
-                                    <div st-pagination="" st-items-by-page="10"></div>
+                                    <div st-pagination="" st-items-by-page="rowPerPageSmartTable" st-page-change="pageChanged(newPage)"></div>
                                 </td>
                             </tr>
                         </tfoot>
                     </table>
 
                 </uib-accordion-group>
+                
+                <!-- WebWorldWind -->
+                <uib-accordion-group is-open="false"> 	
+                    <uib-accordion-heading>
+                        Coverages's extents on a globe (Only reprojectable coverages to EPSG:4326) 
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': IsCoveragesExtentsOpen, 
+                                    'glyphicon-chevron-right': !IsCoveragesExtentsOpen}"></i>
+                    </uib-accordion-heading>	                       
+                    <div>
+                        <!-- Create a canvas for Web WorldWind. -->
+                        <canvas id="canvasGetCapabilities" style="width:100%;height:500px;">
+                            Your browser does not support HTML5 Canvas.
+                        </canvas>
+                    </div>
+                </uib-accordion-group>
+                
 
                 <uib-accordion-group is-open="IsServiceIdentificationOpen">
                     <uib-accordion-heading>

@@ -25,7 +25,9 @@
 ///<reference path="../../models/wcs/GetCapabilities.ts"/>
 ///<reference path="../shared/WCSService.ts"/>
 ///<reference path="../settings/SettingsService.ts"/>
+///<reference path="../web_world_wind/WebWorldWindService.ts"/>
 ///<reference path="../main/MainController.ts"/>
+///<reference path="../../_all.ts"/>
 
 module rasdaman {
     export class GetCapabilitiesController {
@@ -34,25 +36,70 @@ module rasdaman {
             "$scope",
             "$log",
             "rasdaman.WCSService",
-            "rasdaman.SettingsService",
+            "rasdaman.SettingsService",            
             "Notification",
-            "rasdaman.WCSErrorHandlingService"
+            "rasdaman.WCSErrorHandlingService",
+            "rasdaman.WebWorldWindService"           
         ];
 
         public constructor(private $scope:CapabilitiesControllerScope,
                            private $log:angular.ILogService,
                            private wcsService:rasdaman.WCSService,
-                           private settings:rasdaman.SettingsService,
+                           private settings:rasdaman.SettingsService,                           
                            private alertService:any,
-                           private errorHandlingService:WCSErrorHandlingService) {
+                           private errorHandlingService:WCSErrorHandlingService,
+                           private webWorldWindService:rasdaman.WebWorldWindService
+                           ) {
             $scope.IsAvailableCoveragesOpen = false;
+            $scope.IsCoveragesExtentsOpen = false;
             $scope.IsServiceIdentificationOpen = false;
             $scope.IsServiceProviderOpen = false;
             $scope.IsCapabilitiesDocumentOpen = false;
+            // Only display 10 rows in a smart table's page
+            $scope.rowPerPageSmartTable = 10;
 
             $scope.WcsServerEndpoint = settings.WCSEndpoint;
+            // To init the Globe on this canvas           
+            var canvasId = "canvasGetCapabilities";
+                        
+            // A callback method is called when the page button of paginator of smart table is clicked            
+            // newPage starts from 1
+            $scope.pageChanged = (newPage: any) => {                                
+                var selectedPage = newPage - 1;
+                // e.g: newPage is 1 then selectedPage is 0 and startIndex is 0 and endIndex is 10 (non inclusive in slice method)
+                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
+                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
 
-            $scope.getServerCapabilities = ()=> {
+                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
+                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
+            }            
+
+            // Select coverages's extents from the list of WCS Coverages on the current page.
+            // NOTE: not all coverages in a page can be displayable, so they need to be filtered.
+            $scope.selectCoveragesExtentsCurrentPage = (startIndex: number, endIndex: number) => {
+                var coveragesCurrentPage = $scope.Capabilities.Contents.CoverageSummary.slice(startIndex, endIndex);
+                var coveragesExtentsCurrentPage = [];
+                // Fetch the coverages's extents of current page by coverage Ids
+                for (var i = 0; i < coveragesCurrentPage.length; i++) {
+                    for (var j = 0; j < $scope.coveragesExtents.length; j++) {
+                        if ($scope.coveragesExtents[j].coverageId === coveragesCurrentPage[i].CoverageId) {
+                            var coverageExtent = $scope.coveragesExtents[j];
+                            coverageExtent.index = j;
+                            coveragesExtentsCurrentPage.push(coverageExtent);
+                            break;
+                        }
+                    }
+                }                
+
+                // Sort the coveragesExtents in current page by the original order (area descending)
+                coveragesExtentsCurrentPage.sort(function(a, b) {
+                    return parseFloat(a.index) - parseFloat(b.index);
+                });
+
+                return coveragesExtentsCurrentPage;
+            }
+
+            $scope.getServerCapabilities = (...args: any[])=> {                
                 if (!$scope.WcsServerEndpoint) {
                     alertService.error("The entered WCS endpoint is invalid.");
                     return;
@@ -73,6 +120,31 @@ module rasdaman {
                             $scope.IsAvailableCoveragesOpen = true;
                             $scope.IsServiceIdentificationOpen = true;
                             $scope.IsServiceProviderOpen = true;
+                            
+                            // also, make another request to GetCoveragesExtents in EPSG:4326 to display on Globe
+                            wcsService.getCoveragesExtents()
+                                .then((response:rasdaman.common.Response<any>)=> {
+                                        //Success handler                                                                                                                                                            
+                                        $scope.coveragesExtents = response.data;
+                                        // Also, store the CoveragesExtents to Service class then can be used later
+                                        webWorldWindService.setCoveragesExtents($scope.coveragesExtents);
+                                        $scope.IsCoveragesExtentsOpen = true;
+
+                                        // Load coveragesExtents of first page to WebWorldWind                                                                                
+                                        var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);                                                               
+                                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
+                                    },
+                                    (...args:any[])=> {
+                                        //UnSuccess handler
+                                        $scope.coveragesExtents = null;
+                                        $scope.IsCoveragesExtentsOpen = false;
+
+                                        errorHandlingService.handleError(args);
+                                        $log.error(args);
+                                    })
+                                .finally(()=> {
+                                    $scope.StateInformation.GetCoveragesExtents = $scope.coveragesExtents;
+                                });
                         },
                         (...args:any[])=> {
                             //Success handler
@@ -89,7 +161,9 @@ module rasdaman {
                     .finally(()=> {
                         $scope.StateInformation.ServerCapabilities = $scope.Capabilities;
                     });
-            };
+
+                
+            };            
 
             // When the constructor is called, make a call to retrieve the server capabilities.
             $scope.getServerCapabilities();
@@ -98,14 +172,21 @@ module rasdaman {
 
     interface CapabilitiesControllerScope extends rasdaman.MainControllerScope {
         WcsServerEndpoint:string;
-
         IsAvailableCoveragesOpen:boolean;
+        IsCoveragesExtentsOpen:boolean;
         IsServiceIdentificationOpen:boolean;
         IsServiceProviderOpen:boolean;
         IsCapabilitiesDocumentOpen:boolean;
         CapabilitiesDocument:rasdaman.common.ResponseDocument;
         Capabilities:wcs.Capabilities;
+        // An array to store the list of CoverageExtent objects
+        coveragesExtents:any;        
+        rowPerPageSmartTable:number;
 
         getServerCapabilities():void;
     }
+
+
+
+
 }

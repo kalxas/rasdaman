@@ -1,30 +1,13 @@
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -32,42 +15,20 @@ var rasdaman;
         var Exception = (function (_super) {
             __extends(Exception, _super);
             function Exception(message) {
-                _super.call(this, message);
-                this.name = "Exception";
-                this.message = message;
-                this.stack = (new Error()).stack;
+                var _this = _super.call(this, message) || this;
+                _this.name = "Exception";
+                _this.message = message;
+                _this.stack = new Error().stack;
+                return _this;
             }
             Exception.prototype.toString = function () {
                 return this.name + ": " + this.message;
             };
             return Exception;
-        })(Error);
+        }(Error));
         common.Exception = Exception;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Exception.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -75,36 +36,13 @@ var rasdaman;
         var InvalidAttributeNameException = (function (_super) {
             __extends(InvalidAttributeNameException, _super);
             function InvalidAttributeNameException(attributeName) {
-                _super.call(this, "The attribute \"" + attributeName + "\" does not exist on this element.");
+                return _super.call(this, "The attribute \"" + attributeName + "\" does not exist on this element.") || this;
             }
             return InvalidAttributeNameException;
-        })(common.Exception);
+        }(common.Exception));
         common.InvalidAttributeNameException = InvalidAttributeNameException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Exception.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -112,36 +50,13 @@ var rasdaman;
         var InvalidElementNameException = (function (_super) {
             __extends(InvalidElementNameException, _super);
             function InvalidElementNameException(elementName) {
-                _super.call(this, "The child element \"" + elementName + "\" does not exist on this element.");
+                return _super.call(this, "The child element \"" + elementName + "\" does not exist on this element.") || this;
             }
             return InvalidElementNameException;
-        })(common.Exception);
+        }(common.Exception));
         common.InvalidElementNameException = InvalidElementNameException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Exception.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -149,37 +64,15 @@ var rasdaman;
         var LogicException = (function (_super) {
             __extends(LogicException, _super);
             function LogicException(message) {
-                _super.call(this, message);
-                this.name = "LogicException";
+                var _this = _super.call(this, message) || this;
+                _this.name = "LogicException";
+                return _this;
             }
             return LogicException;
-        })(common.Exception);
+        }(common.Exception));
         common.LogicException = LogicException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Exception.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -187,37 +80,15 @@ var rasdaman;
         var NotImplementedException = (function (_super) {
             __extends(NotImplementedException, _super);
             function NotImplementedException() {
-                _super.call(this, "The method was not implemented.");
-                this.name = "NotImplementedException";
+                var _this = _super.call(this, "The method was not implemented.") || this;
+                _this.name = "NotImplementedException";
+                return _this;
             }
             return NotImplementedException;
-        })(common.Exception);
+        }(common.Exception));
         common.NotImplementedException = NotImplementedException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="Exception.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -225,37 +96,15 @@ var rasdaman;
         var IllegalArgumentException = (function (_super) {
             __extends(IllegalArgumentException, _super);
             function IllegalArgumentException(message) {
-                _super.call(this, message);
-                this.name = "IllegalArgumentException";
+                var _this = _super.call(this, message) || this;
+                _this.name = "IllegalArgumentException";
+                return _this;
             }
             return IllegalArgumentException;
-        })(common.Exception);
+        }(common.Exception));
         common.IllegalArgumentException = IllegalArgumentException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="IllegalArgumentException.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -279,32 +128,10 @@ var rasdaman;
                 }
             };
             return ArgumentValidator;
-        })();
+        }());
         common.ArgumentValidator = ArgumentValidator;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -345,67 +172,22 @@ var rasdaman;
                 return base64;
             };
             return ImageUtilities;
-        })();
+        }());
         common.ImageUtilities = ImageUtilities;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var rasdaman;
 (function (rasdaman) {
     var common;
     (function (common) {
+        var ResponseDocumentType;
         (function (ResponseDocumentType) {
             ResponseDocumentType[ResponseDocumentType["XML"] = 1] = "XML";
             ResponseDocumentType[ResponseDocumentType["SOAP"] = 2] = "SOAP";
             ResponseDocumentType[ResponseDocumentType["JSON"] = 3] = "JSON";
-        })(common.ResponseDocumentType || (common.ResponseDocumentType = {}));
-        var ResponseDocumentType = common.ResponseDocumentType;
+        })(ResponseDocumentType = common.ResponseDocumentType || (common.ResponseDocumentType = {}));
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="ResponseDocumentType.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -416,54 +198,10 @@ var rasdaman;
                 this.Type = responseType;
             }
             return ResponseDocument;
-        })();
+        }());
         common.ResponseDocument = ResponseDocument;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -474,61 +212,10 @@ var rasdaman;
                 this.Value = value;
             }
             return Response;
-        })();
+        }());
         common.Response = Response;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="ISerializedObject.ts"/>
-///<reference path="ResponseDocument.ts"/>
-///<reference path="IllegalArgumentException.ts"/>
-///<reference path="LogicException.ts"/>
-///<reference path="NotImplementedException.ts"/>
-///<reference path="InvalidAttributeNameException.ts"/>
-///<reference path="InvalidElementNameException.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -676,34 +363,10 @@ var rasdaman;
                 return resolvedName;
             };
             return XMLSerializedObject;
-        })();
+        }());
         common.XMLSerializedObject = XMLSerializedObject;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="ISerializedObject.ts"/>
-///<reference path="XMLSerializedObject.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -720,33 +383,10 @@ var rasdaman;
                 }
             };
             return SerializedObjectFactory;
-        })();
+        }());
         common.SerializedObjectFactory = SerializedObjectFactory;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../../assets/typings/tsd.d.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -788,29 +428,6 @@ var rasdaman;
         PrettyPrint.$inject = ["$sanitize", "$sce"];
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../../assets/typings/tsd.d.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -831,29 +448,6 @@ var rasdaman;
         common.StringToNumberConverter = StringToNumberConverter;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../../assets/typings/tsd.d.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -887,91 +481,6 @@ var rasdaman;
         Autocomplete.$inject = ["$timeout"];
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="pretty-print/PrettyPrint.ts"/>
-/// <reference path="string-to-number-converter/StringToNumberConverter.ts"/>
-/// <reference path="autocomplete/Autocomplete.ts"/> 
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Exception.ts"/>
-///<reference path="InvalidAttributeNameException.ts"/>
-///<reference path="InvalidElementNameException.ts"/>
-///<reference path="LogicException.ts"/>
-///<reference path="NotImplementedException.ts"/>
-///<reference path="IllegalArgumentException.ts"/>
-///<reference path="ArgumentValidator.ts"/>
-///<reference path="ImageUtilities.ts"/>
-///<reference path="ResponseDocumentType.ts"/>
-///<reference path="ResponseDocument.ts"/>
-///<reference path="ISerializable.ts"/>
-///<reference path="Response.ts"/>
-///<reference path="ISerializedObject.ts"/>
-///<reference path="SerializedObjectFactory.ts"/>
-///<reference path="XMLSerializedObject"/>
-///<reference path="directives/_directives.ts"/>
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var rasdaman;
 (function (rasdaman) {
     var Constants = (function () {
@@ -984,32 +493,9 @@ var rasdaman;
         Constants.SCALING_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
         Constants.INTERPOLATION_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
         return Constants;
-    })();
+    }());
     rasdaman.Constants = Constants;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Address = (function () {
@@ -1038,32 +524,9 @@ var ows;
             });
         }
         return Address;
-    })();
+    }());
     ows.Address = Address;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var BoundingBox = (function () {
@@ -1071,32 +534,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return BoundingBox;
-    })();
+    }());
     ows.BoundingBox = BoundingBox;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var LanguageString = (function () {
@@ -1108,32 +548,9 @@ var ows;
             }
         }
         return LanguageString;
-    })();
+    }());
     ows.LanguageString = LanguageString;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var OnlineResource = (function () {
@@ -1162,65 +579,18 @@ var ows;
             }
         }
         return OnlineResource;
-    })();
+    }());
     ows.OnlineResource = OnlineResource;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="OnlineResource.ts"/>
 var ows;
 (function (ows) {
     var Uri = (function () {
         function Uri(uri) {
         }
         return Uri;
-    })();
+    }());
     ows.Uri = Uri;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Uri.ts"/>
 var ows;
 (function (ows) {
     var Code = (function () {
@@ -1232,34 +602,9 @@ var ows;
             }
         }
         return Code;
-    })();
+    }());
     ows.Code = Code;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="LanguageString.ts"/>
-///<reference path="Code.ts"/>
 var ows;
 (function (ows) {
     var Keywords = (function () {
@@ -1273,34 +618,9 @@ var ows;
             this.Type = new ows.Code(source.getChildAsSerializedObject("ows:Type"));
         }
         return Keywords;
-    })();
+    }());
     ows.Keywords = Keywords;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="LanguageString.ts"/>
-///<reference path="Keywords.ts"/>
 var ows;
 (function (ows) {
     var Description = (function () {
@@ -1321,34 +641,9 @@ var ows;
             });
         }
         return Description;
-    })();
+    }());
     ows.Description = Description;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Description.ts"/>
-///<reference path="Code.ts"/>
 var ows;
 (function (ows) {
     var ServiceIdentification = (function (_super) {
@@ -1356,50 +651,28 @@ var ows;
         function ServiceIdentification(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _super.call(this, source);
-            this.ServiceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
-            this.ServiceTypeVersion = [];
+            _this = _super.call(this, source) || this;
+            _this.ServiceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
+            _this.ServiceTypeVersion = [];
             source.getChildrenAsSerializedObjects("ows:ServiceTypeVersion").forEach(function (s) {
                 _this.ServiceTypeVersion.push(s.getValueAsString());
             });
-            this.Profile = [];
+            _this.Profile = [];
             source.getChildrenAsSerializedObjects("ows:Profile").forEach(function (s) {
                 _this.Profile.push(s.getValueAsString());
             });
             if (source.doesElementExist("ows:Fees")) {
-                this.Fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
+                _this.Fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
             }
             if (source.doesElementExist("ows:AccessConstraints")) {
-                this.AccessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
+                _this.AccessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
             }
+            return _this;
         }
         return ServiceIdentification;
-    })(ows.Description);
+    }(ows.Description));
     ows.ServiceIdentification = ServiceIdentification;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Phone = (function () {
@@ -1416,35 +689,9 @@ var ows;
             });
         }
         return Phone;
-    })();
+    }());
     ows.Phone = Phone;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Phone.ts"/>
-///<reference path="Address.ts"/>
-///<reference path="OnlineResource.ts"/>
 var ows;
 (function (ows) {
     var ContactInfo = (function () {
@@ -1467,34 +714,9 @@ var ows;
             }
         }
         return ContactInfo;
-    })();
+    }());
     ows.ContactInfo = ContactInfo;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="ContactInfo.ts"/>
-///<reference path="Code.ts"/>
 var ows;
 (function (ows) {
     var ResponsiblePartySubset = (function () {
@@ -1514,70 +736,23 @@ var ows;
             }
         }
         return ResponsiblePartySubset;
-    })();
+    }());
     ows.ResponsiblePartySubset = ResponsiblePartySubset;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="ResponsiblePartySubset.ts"/>
 var ows;
 (function (ows) {
     var ServiceContact = (function (_super) {
         __extends(ServiceContact, _super);
         function ServiceContact(source) {
+            var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _super.call(this, source);
+            _this = _super.call(this, source) || this;
+            return _this;
         }
         return ServiceContact;
-    })(ows.ResponsiblePartySubset);
+    }(ows.ResponsiblePartySubset));
     ows.ServiceContact = ServiceContact;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="OnlineResource.ts"/>
-///<reference path="ServiceContact.ts"/>
 var ows;
 (function (ows) {
     var ServiceProvider = (function () {
@@ -1594,32 +769,9 @@ var ows;
             }
         }
         return ServiceProvider;
-    })();
+    }());
     ows.ServiceProvider = ServiceProvider;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Constraint = (function () {
@@ -1627,148 +779,52 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Constraint;
-    })();
+    }());
     ows.Constraint = Constraint;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Constraint.ts"/>
-///<reference path="OnlineResource.ts"/>
 var ows;
 (function (ows) {
     var RequestMethod = (function (_super) {
         __extends(RequestMethod, _super);
         function RequestMethod(source) {
-            var _this = this;
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Constraint = [];
+            _this.Constraint = [];
             source.getChildrenAsSerializedObjects("ows:Constraint").forEach(function (o) {
                 _this.Constraint.push(new ows.Constraint(o));
             });
+            return _this;
         }
         return RequestMethod;
-    })(ows.OnlineResource);
+    }(ows.OnlineResource));
     ows.RequestMethod = RequestMethod;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="RequestMethod.ts"/>
 var ows;
 (function (ows) {
     var Get = (function (_super) {
         __extends(Get, _super);
         function Get(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            return _this;
         }
         return Get;
-    })(ows.RequestMethod);
+    }(ows.RequestMethod));
     ows.Get = Get;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="RequestMethod.ts"/>
 var ows;
 (function (ows) {
     var Post = (function (_super) {
         __extends(Post, _super);
         function Post(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            return _this;
         }
         return Post;
-    })(ows.RequestMethod);
+    }(ows.RequestMethod));
     ows.Post = Post;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Get.ts"/>
-///<reference path="Post.ts"/>
 var ows;
 (function (ows) {
     var HTTP = (function () {
@@ -1778,33 +834,9 @@ var ows;
             this.Post = new ows.Post(source.getChildAsSerializedObject("ows:Post"));
         }
         return HTTP;
-    })();
+    }());
     ows.HTTP = HTTP;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="HTTP.ts"/>
 var ows;
 (function (ows) {
     var DCP = (function () {
@@ -1813,32 +845,9 @@ var ows;
             this.HTTP = new ows.HTTP(source.getChildAsSerializedObject("ows:HTTP"));
         }
         return DCP;
-    })();
+    }());
     ows.DCP = DCP;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Parameter = (function () {
@@ -1846,32 +855,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Parameter;
-    })();
+    }());
     ows.Parameter = Parameter;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Metadata = (function () {
@@ -1879,36 +865,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Metadata;
-    })();
+    }());
     ows.Metadata = Metadata;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="DCP.ts"/>
-///<reference path="Parameter.ts"/>
-///<reference path="Constraint.ts"/>
-///<reference path="Metadata.ts"/>
 var ows;
 (function (ows) {
     var Operation = (function () {
@@ -1934,32 +893,9 @@ var ows;
             });
         }
         return Operation;
-    })();
+    }());
     ows.Operation = Operation;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var ExtendedCapabilities = (function () {
@@ -1967,36 +903,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return ExtendedCapabilities;
-    })();
+    }());
     ows.ExtendedCapabilities = ExtendedCapabilities;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Operation.ts"/>
-///<reference path="Parameter.ts"/>
-///<reference path="Constraint.ts"/>
-///<reference path="ExtendedCapabilities.ts"/>
 var ows;
 (function (ows) {
     var OperationsMetadata = (function () {
@@ -2020,32 +929,9 @@ var ows;
             }
         }
         return OperationsMetadata;
-    })();
+    }());
     ows.OperationsMetadata = OperationsMetadata;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Languages = (function () {
@@ -2053,36 +939,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Languages;
-    })();
+    }());
     ows.Languages = Languages;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="ServiceIdentification.ts"/>
-///<reference path="ServiceProvider.ts"/>
-///<reference path="OperationsMetadata.ts"/>
-///<reference path="Languages.ts"/>
 var ows;
 (function (ows) {
     var CapabilitiesBase = (function () {
@@ -2106,32 +965,9 @@ var ows;
             }
         }
         return CapabilitiesBase;
-    })();
+    }());
     ows.CapabilitiesBase = CapabilitiesBase;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var ContentsBase = (function () {
@@ -2139,32 +975,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return ContentsBase;
-    })();
+    }());
     ows.ContentsBase = ContentsBase;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Section = (function () {
@@ -2172,32 +985,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Section;
-    })();
+    }());
     ows.Section = Section;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="Section.ts"/>
 var ows;
 (function (ows) {
     var GetCapabilities = (function () {
@@ -2205,32 +995,9 @@ var ows;
             this.Request = "GetCapabilities";
         }
         return GetCapabilities;
-    })();
+    }());
     ows.GetCapabilities = GetCapabilities;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var ows;
 (function (ows) {
     var Exception = (function () {
@@ -2245,33 +1012,9 @@ var ows;
             }
         }
         return Exception;
-    })();
+    }());
     ows.Exception = Exception;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Exception.ts"/>
 var ows;
 (function (ows) {
     var ExceptionReport = (function () {
@@ -2280,32 +1023,9 @@ var ows;
             this.Exception = new ows.Exception(source.getChildAsSerializedObject("Exception"));
         }
         return ExceptionReport;
-    })();
+    }());
     ows.ExceptionReport = ExceptionReport;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="OnlineResource.ts"/>
 var ows;
 (function (ows) {
     var WGS84BoundingBox = (function () {
@@ -2313,87 +1033,9 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return WGS84BoundingBox;
-    })();
+    }());
     ows.WGS84BoundingBox = WGS84BoundingBox;
 })(ows || (ows = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Address.ts"/>
-///<reference path="BoundingBox.ts"/>
-///<reference path="CapabilitiesBase.ts"/>
-///<reference path="Code.ts"/>
-///<reference path="Constraint.ts"/>
-///<reference path="ContactInfo.ts"/>
-///<reference path="ContentsBase.ts"/>
-///<reference path="DCP.ts"/>
-///<reference path="Description.ts"/>
-///<reference path="ExtendedCapabilities.ts"/>
-///<reference path="Get.ts"/>
-///<reference path="GetCapabilities.ts"/>
-///<reference path="Exception.ts"/>
-///<reference path="ExceptionReport.ts"/>
-///<reference path="HTTP.ts"/>
-///<reference path="Keywords.ts"/>
-///<reference path="Languages.ts"/>
-///<reference path="LanguageString.ts"/>
-///<reference path="Metadata.ts"/>
-///<reference path="OnlineResource.ts"/>
-///<reference path="Operation.ts"/>
-///<reference path="OperationsMetadata.ts"/>
-///<reference path="Parameter.ts"/>
-///<reference path="Phone.ts"/>
-///<reference path="Post.ts"/>
-///<reference path="RequestMethod.ts"/>
-///<reference path="ResponsiblePartySubset.ts"/>
-///<reference path="Section.ts"/>
-///<reference path="ServiceContact.ts"/>
-///<reference path="ServiceIdentification.ts"/>
-///<reference path="ServiceProvider.ts"/>
-///<reference path="Uri.ts"/>
-///<reference path="WGS84BoundingBox.ts"/>
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var wcs;
 (function (wcs) {
     var Extension = (function () {
@@ -2403,33 +1045,9 @@ var wcs;
             }
         }
         return Extension;
-    })();
+    }());
     wcs.Extension = Extension;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Extension.ts"/>
 var wcs;
 (function (wcs) {
     var ServiceMetadata = (function () {
@@ -2446,209 +1064,87 @@ var wcs;
             });
         }
         return ServiceMetadata;
-    })();
+    }());
     wcs.ServiceMetadata = ServiceMetadata;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var wcs;
 (function (wcs) {
     var CoverageSubtypeParent = (function () {
         function CoverageSubtypeParent(source) {
         }
         return CoverageSubtypeParent;
-    })();
+    }());
     wcs.CoverageSubtypeParent = CoverageSubtypeParent;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="../ows/ows_all.ts"/>
-///<reference path="CoverageSubtypeParent.ts"/>
 var wcs;
 (function (wcs) {
     var CoverageSummary = (function (_super) {
         __extends(CoverageSummary, _super);
         function CoverageSummary(source) {
-            var _this = this;
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
-            this.CoverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
+            _this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            _this.CoverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
             if (source.doesElementExist("wcs:CoverageSubtypeParent")) {
-                this.CoverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
+                _this.CoverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
             }
-            this.WGS84BoundingBox = [];
+            _this.WGS84BoundingBox = [];
             source.getChildrenAsSerializedObjects("ows:WGS84BoundingBox").forEach(function (o) {
                 _this.WGS84BoundingBox.push(new ows.WGS84BoundingBox(o));
             });
-            this.BoundingBox = [];
+            _this.BoundingBox = [];
             source.getChildrenAsSerializedObjects("ows:BoundingBox").forEach(function (o) {
                 _this.BoundingBox.push(new ows.BoundingBox(o));
             });
-            this.Metadata = [];
+            _this.Metadata = [];
             source.getChildrenAsSerializedObjects("ows:Metadata").forEach(function (o) {
                 _this.Metadata.push(new ows.Metadata(o));
             });
+            return _this;
         }
         return CoverageSummary;
-    })(ows.Description);
+    }(ows.Description));
     wcs.CoverageSummary = CoverageSummary;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="../ows/ows_all.ts"/>
-///<reference path="CoverageSummary.ts"/>
-///<reference path="Extension.ts"/>
 var wcs;
 (function (wcs) {
     var Contents = (function (_super) {
         __extends(Contents, _super);
         function Contents(source) {
-            var _this = this;
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.CoverageSummary = [];
+            _this.CoverageSummary = [];
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(function (o) {
                 _this.CoverageSummary.push(new wcs.CoverageSummary(o));
             });
             if (source.doesElementExist("wcs.Extension")) {
-                this.Extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
+                _this.Extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
             }
+            return _this;
         }
         return Contents;
-    })(ows.ContentsBase);
+    }(ows.ContentsBase));
     wcs.Contents = Contents;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="../ows/ows_all.ts"/>
-///<reference path="ServiceMetadata.ts"/>
-///<reference path="Contents.ts"/>
 var wcs;
 (function (wcs) {
     var Capabilities = (function (_super) {
         __extends(Capabilities, _super);
         function Capabilities(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("wcs:ServiceMetadata")) {
-                this.ServiceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
+                _this.ServiceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
             }
             if (source.doesElementExist("wcs:Contents")) {
-                this.Contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
+                _this.Contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
             }
+            return _this;
         }
         return Capabilities;
-    })(ows.CapabilitiesBase);
+    }(ows.CapabilitiesBase));
     wcs.Capabilities = Capabilities;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var gml;
 (function (gml) {
     var Pos = (function () {
@@ -2674,32 +1170,9 @@ var gml;
             });
         }
         return Pos;
-    })();
+    }());
     gml.Pos = Pos;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var gml;
 (function (gml) {
     var LowerCorner = (function () {
@@ -2725,32 +1198,9 @@ var gml;
             });
         }
         return LowerCorner;
-    })();
+    }());
     gml.LowerCorner = LowerCorner;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var gml;
 (function (gml) {
     var UpperCorner = (function () {
@@ -2776,35 +1226,9 @@ var gml;
             });
         }
         return UpperCorner;
-    })();
+    }());
     gml.UpperCorner = UpperCorner;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Pos.ts"/>
-///<reference path="LowerCorner.ts"/>
-///<reference path="UpperCorner.ts"/>
 var gml;
 (function (gml) {
     var Envelope = (function () {
@@ -2836,69 +1260,22 @@ var gml;
             }
         }
         return Envelope;
-    })();
+    }());
     gml.Envelope = Envelope;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="Envelope.ts"/>
 var gml;
 (function (gml) {
     var EnvelopeWithTimePeriod = (function (_super) {
         __extends(EnvelopeWithTimePeriod, _super);
         function EnvelopeWithTimePeriod(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            return _this;
         }
         return EnvelopeWithTimePeriod;
-    })(gml.Envelope);
+    }(gml.Envelope));
     gml.EnvelopeWithTimePeriod = EnvelopeWithTimePeriod;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Envelope.ts"/>
-///<reference path="EnvelopeWithTimePeriod.ts"/>
 var gml;
 (function (gml) {
     var BoundedBy = (function () {
@@ -2913,33 +1290,9 @@ var gml;
             }
         }
         return BoundedBy;
-    })();
+    }());
     gml.BoundedBy = BoundedBy;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="BoundedBy.ts"/>
 var gml;
 (function (gml) {
     var AbstractFeature = (function () {
@@ -2962,32 +1315,9 @@ var gml;
             }
         }
         return AbstractFeature;
-    })();
+    }());
     gml.AbstractFeature = AbstractFeature;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var gml;
 (function (gml) {
     var CoverageFunction = (function () {
@@ -2995,32 +1325,9 @@ var gml;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return CoverageFunction;
-    })();
+    }());
     gml.CoverageFunction = CoverageFunction;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var gml;
 (function (gml) {
     var DomainSet = (function () {
@@ -3028,63 +1335,9 @@ var gml;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return DomainSet;
-    })();
+    }());
     gml.DomainSet = DomainSet;
 })(gml || (gml = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="AbstractFeature.ts"/>
-///<reference path="BoundedBy.ts"/>
-///<reference path="CoverageFunction.ts"/>
-///<reference path="DomainSet.ts"/>
-///<reference path="Envelope.ts"/>
-///<reference path="EnvelopeWithTimePeriod.ts"/>
-///<reference path="LowerCorner.ts"/>
-///<reference path="Pos.ts"/>
-///<reference path="UpperCorner.ts"/> 
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var gmlcov;
 (function (gmlcov) {
     var Metadata = (function () {
@@ -3092,32 +1345,9 @@ var gmlcov;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Metadata;
-    })();
+    }());
     gmlcov.Metadata = Metadata;
 })(gmlcov || (gmlcov = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var swe;
 (function (swe) {
     var Uom = (function () {
@@ -3126,33 +1356,9 @@ var swe;
             this.Code = source.getAttributeAsString("code");
         }
         return Uom;
-    })();
+    }());
     swe.Uom = Uom;
 })(swe || (swe = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Uom.ts"/>
 var swe;
 (function (swe) {
     var Quantity = (function () {
@@ -3163,33 +1369,9 @@ var swe;
             }
         }
         return Quantity;
-    })();
+    }());
     swe.Quantity = Quantity;
 })(swe || (swe = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Quantity.ts"/>
 var swe;
 (function (swe) {
     var Field = (function () {
@@ -3203,33 +1385,9 @@ var swe;
             }
         }
         return Field;
-    })();
+    }());
     swe.Field = Field;
 })(swe || (swe = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="Field.ts"/>
 var swe;
 (function (swe) {
     var DataRecord = (function () {
@@ -3242,59 +1400,9 @@ var swe;
             });
         }
         return DataRecord;
-    })();
+    }());
     swe.DataRecord = DataRecord;
 })(swe || (swe = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Uom.ts"/>
-///<reference path="DataRecord.ts"/>
-///<reference path="Field.ts"/>
-///<reference path="Quantity.ts"/>
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="../swe/_swe.ts"/>
 var gmlcov;
 (function (gmlcov) {
     var RangeType = (function () {
@@ -3305,58 +1413,9 @@ var gmlcov;
             }
         }
         return RangeType;
-    })();
+    }());
     gmlcov.RangeType = RangeType;
 })(gmlcov || (gmlcov = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Metadata.ts"/>
-///<reference path="RangeType.ts"/>
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="CoverageSubtypeParent.ts"/>
-///<reference path="Extension.ts"/>
 var wcs;
 (function (wcs) {
     var ServiceParameters = (function () {
@@ -3372,82 +1431,33 @@ var wcs;
             }
         }
         return ServiceParameters;
-    })();
+    }());
     wcs.ServiceParameters = ServiceParameters;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../gml/_gml.ts"/>
-///<reference path="../gmlcov/_gmlcov.ts"/>
-///<reference path="ServiceParameters.ts"/>
 var wcs;
 (function (wcs) {
     var CoverageDescription = (function (_super) {
         __extends(CoverageDescription, _super);
         function CoverageDescription(source) {
-            var _this = this;
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            _this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             if (source.doesElementExist("gml:coverageFunction")) {
-                this.CoverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
+                _this.CoverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
             }
-            this.Metadata = [];
+            _this.Metadata = [];
             source.getChildrenAsSerializedObjects("gmlcov:metadata").forEach(function (o) {
                 _this.Metadata.push(new gmlcov.Metadata(o));
             });
-            this.DomainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
-            this.RangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
-            this.ServiceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
+            _this.DomainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
+            _this.RangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
+            _this.ServiceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
+            return _this;
         }
         return CoverageDescription;
-    })(gml.AbstractFeature);
+    }(gml.AbstractFeature));
     wcs.CoverageDescription = CoverageDescription;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="CoverageDescription.ts"/>
 var wcs;
 (function (wcs) {
     var CoverageDescriptions = (function () {
@@ -3460,32 +1470,9 @@ var wcs;
             });
         }
         return CoverageDescriptions;
-    })();
+    }());
     wcs.CoverageDescriptions = CoverageDescriptions;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var wcs;
 (function (wcs) {
     var RequestBase = (function () {
@@ -3498,43 +1485,20 @@ var wcs;
                 "&VERSION=" + this.Version;
         };
         return RequestBase;
-    })();
+    }());
     wcs.RequestBase = RequestBase;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="../../_all.ts"/>
-/// <reference path="RequestBase.ts"/>
 var wcs;
 (function (wcs) {
     var DescribeCoverage = (function (_super) {
         __extends(DescribeCoverage, _super);
         function DescribeCoverage(coverageIds) {
-            _super.call(this);
+            var _this = _super.call(this) || this;
             if (!coverageIds.length) {
                 throw new rasdaman.common.IllegalArgumentException("coverageIds");
             }
-            this.CoverageId = angular.copy(coverageIds);
+            _this.CoverageId = angular.copy(coverageIds);
+            return _this;
         }
         DescribeCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
@@ -3543,31 +1507,9 @@ var wcs;
             return serialization;
         };
         return DescribeCoverage;
-    })(wcs.RequestBase);
+    }(wcs.RequestBase));
     wcs.DescribeCoverage = DescribeCoverage;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var wcs;
 (function (wcs) {
     var DimensionSubset = (function () {
@@ -3578,117 +1520,51 @@ var wcs;
             throw new rasdaman.common.NotImplementedException();
         };
         return DimensionSubset;
-    })();
+    }());
     wcs.DimensionSubset = DimensionSubset;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="DimensionSubset.ts"/>
 var wcs;
 (function (wcs) {
     var DimensionSlice = (function (_super) {
         __extends(DimensionSlice, _super);
         function DimensionSlice(dimension, slicePoint) {
-            _super.call(this, dimension);
-            this.SlicePoint = slicePoint;
+            var _this = _super.call(this, dimension) || this;
+            _this.SlicePoint = slicePoint;
+            return _this;
         }
         DimensionSlice.prototype.toKVP = function () {
             return this.Dimension + "(" + this.SlicePoint + ")";
         };
         return DimensionSlice;
-    })(wcs.DimensionSubset);
+    }(wcs.DimensionSubset));
     wcs.DimensionSlice = DimensionSlice;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="DimensionSubset.ts"/>
 var wcs;
 (function (wcs) {
     var DimensionTrim = (function (_super) {
         __extends(DimensionTrim, _super);
         function DimensionTrim(dimension, trimLow, trimHigh) {
-            _super.call(this, dimension);
-            this.TrimLow = trimLow;
-            this.TrimHigh = trimHigh;
+            var _this = _super.call(this, dimension) || this;
+            _this.TrimLow = trimLow;
+            _this.TrimHigh = trimHigh;
+            return _this;
         }
         DimensionTrim.prototype.toKVP = function () {
             return this.Dimension + "(" + this.TrimLow + "," + this.TrimHigh + ")";
         };
         return DimensionTrim;
-    })(wcs.DimensionSubset);
+    }(wcs.DimensionSubset));
     wcs.DimensionTrim = DimensionTrim;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../ows/ows_all.ts"/>
 var wcs;
 (function (wcs) {
     var GetCapabilities = (function (_super) {
         __extends(GetCapabilities, _super);
         function GetCapabilities() {
-            _super.call(this);
-            this.Service = "WCS";
-            this.AcceptVersions = ["2.0.1"];
+            var _this = _super.call(this) || this;
+            _this.Service = "WCS";
+            _this.AcceptVersions = ["2.0.1"];
+            return _this;
         }
         GetCapabilities.prototype.toKVP = function () {
             return "&SERVICE=" + this.Service +
@@ -3696,31 +1572,9 @@ var wcs;
                 "&REQUEST=" + this.Request;
         };
         return GetCapabilities;
-    })(ows.GetCapabilities);
+    }(ows.GetCapabilities));
     wcs.GetCapabilities = GetCapabilities;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var wcs;
 (function (wcs) {
     var RangeItem = (function () {
@@ -3730,32 +1584,9 @@ var wcs;
             throw new rasdaman.common.NotImplementedException();
         };
         return RangeItem;
-    })();
+    }());
     wcs.RangeItem = RangeItem;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="RangeItem.ts"/>
 var wcs;
 (function (wcs) {
     var RangeSubset = (function () {
@@ -3775,31 +1606,9 @@ var wcs;
             }
         };
         return RangeSubset;
-    })();
+    }());
     wcs.RangeSubset = RangeSubset;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var wcs;
 (function (wcs) {
     var Scaling = (function () {
@@ -3809,49 +1618,23 @@ var wcs;
             throw new rasdaman.common.NotImplementedException();
         };
         return Scaling;
-    })();
+    }());
     wcs.Scaling = Scaling;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="RequestBase.ts"/>
-///<reference path="DimensionSubset.ts"/>
-///<reference path="RangeSubset.ts"/>
-///<reference path="Scaling.ts"/>
 var wcs;
 (function (wcs) {
     var GetCoverage = (function (_super) {
         __extends(GetCoverage, _super);
         function GetCoverage(coverageId, dimensionSubset, format, mediaType) {
-            var _this = this;
-            _super.call(this);
-            this.CoverageId = coverageId;
-            this.DimensionSubset = [];
+            var _this = _super.call(this) || this;
+            _this.CoverageId = coverageId;
+            _this.DimensionSubset = [];
             dimensionSubset.forEach(function (o) {
                 _this.DimensionSubset.push(o);
             });
-            this.Format = format;
-            this.MediaType = mediaType;
+            _this.Format = format;
+            _this.MediaType = mediaType;
+            return _this;
         }
         GetCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
@@ -3878,31 +1661,9 @@ var wcs;
             return serialization;
         };
         return GetCoverage;
-    })(wcs.RequestBase);
+    }(wcs.RequestBase));
     wcs.GetCoverage = GetCoverage;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var wcs;
 (function (wcs) {
     var InterpolationMetadata = (function () {
@@ -3916,45 +1677,22 @@ var wcs;
             });
         }
         return InterpolationMetadata;
-    })();
+    }());
     wcs.InterpolationMetadata = InterpolationMetadata;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="RequestBase.ts"/>
-///<reference path="../../common/_common.ts"/>
 var wcs;
 (function (wcs) {
     var ProcessCoverages = (function (_super) {
         __extends(ProcessCoverages, _super);
         function ProcessCoverages(query, extraParams) {
-            _super.call(this);
+            var _this = _super.call(this) || this;
             rasdaman.common.ArgumentValidator.isNotNull(query, "query");
             rasdaman.common.ArgumentValidator.isNotNull(extraParams, "extraParams");
             rasdaman.common.ArgumentValidator.isArray(extraParams, "extraParams");
-            this.Request = "ProcessCoverages";
-            this.Query = query;
-            this.ExtraParameters = angular.copy(extraParams);
+            _this.Request = "ProcessCoverages";
+            _this.Query = query;
+            _this.ExtraParameters = angular.copy(extraParams);
+            return _this;
         }
         ProcessCoverages.prototype.toKVP = function () {
             var serializedParams = "";
@@ -3966,31 +1704,9 @@ var wcs;
                 + serializedParams;
         };
         return ProcessCoverages;
-    })(wcs.RequestBase);
+    }(wcs.RequestBase));
     wcs.ProcessCoverages = ProcessCoverages;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var wcs;
 (function (wcs) {
     var Interpolation = (function () {
@@ -4006,152 +1722,61 @@ var wcs;
             }
         };
         return Interpolation;
-    })();
+    }());
     wcs.Interpolation = Interpolation;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="RangeItem.ts"/>
 var wcs;
 (function (wcs) {
     var RangeComponent = (function (_super) {
         __extends(RangeComponent, _super);
         function RangeComponent(rangeComponent) {
-            _super.call(this);
-            this.RangeComponent = rangeComponent;
+            var _this = _super.call(this) || this;
+            _this.RangeComponent = rangeComponent;
+            return _this;
         }
         RangeComponent.prototype.toKVP = function () {
             return this.RangeComponent;
         };
         return RangeComponent;
-    })(wcs.RangeItem);
+    }(wcs.RangeItem));
     wcs.RangeComponent = RangeComponent;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="RangeItem.ts"/>
-///<reference path="RangeComponent.ts"/>
 var wcs;
 (function (wcs) {
     var RangeInterval = (function (_super) {
         __extends(RangeInterval, _super);
         function RangeInterval(startComponent, endComponent) {
-            _super.call(this);
-            this.StartComponent = startComponent;
-            this.EndComponent = endComponent;
+            var _this = _super.call(this) || this;
+            _this.StartComponent = startComponent;
+            _this.EndComponent = endComponent;
+            return _this;
         }
         RangeInterval.prototype.toKVP = function () {
             return this.StartComponent.toKVP() + ":" + this.EndComponent.toKVP();
         };
         return RangeInterval;
-    })(wcs.RangeItem);
+    }(wcs.RangeItem));
     wcs.RangeInterval = RangeInterval;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="Scaling.ts"/>
-///<reference path="../../common/_common.ts"/>
 var wcs;
 (function (wcs) {
     var ScaleByFactor = (function (_super) {
         __extends(ScaleByFactor, _super);
         function ScaleByFactor(scaleFactor) {
-            _super.call(this);
+            var _this = _super.call(this) || this;
             if (scaleFactor < 0) {
                 throw new rasdaman.common.IllegalArgumentException("ScaleFactor must be positive.");
             }
-            this.ScaleFactor = scaleFactor;
+            _this.ScaleFactor = scaleFactor;
+            return _this;
         }
         ScaleByFactor.prototype.toKVP = function () {
             return "&SCALEFACTOR=" + this.ScaleFactor;
         };
         return ScaleByFactor;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleByFactor = ScaleByFactor;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var wcs;
 (function (wcs) {
     var ScaleAxis = (function () {
@@ -4166,41 +1791,17 @@ var wcs;
             return this.Axis + "(" + this.ScaleFactor + ")";
         };
         return ScaleAxis;
-    })();
+    }());
     wcs.ScaleAxis = ScaleAxis;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="ScaleAxis.ts"/>
-///<reference path="Scaling.ts"/>
 var wcs;
 (function (wcs) {
     var ScaleAxesByFactor = (function (_super) {
         __extends(ScaleAxesByFactor, _super);
         function ScaleAxesByFactor(scaleAxis) {
-            _super.call(this);
-            this.ScaleAxis = angular.copy(scaleAxis);
+            var _this = _super.call(this) || this;
+            _this.ScaleAxis = angular.copy(scaleAxis);
+            return _this;
         }
         ScaleAxesByFactor.prototype.toKVP = function () {
             var serializedAxes = [];
@@ -4210,32 +1811,9 @@ var wcs;
             return "&SCALEAXES=" + serializedAxes.join(",");
         };
         return ScaleAxesByFactor;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleAxesByFactor = ScaleAxesByFactor;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
 var wcs;
 (function (wcs) {
     var TargetAxisSize = (function () {
@@ -4250,41 +1828,17 @@ var wcs;
             return this.Axis + "(" + this.TargetSize + ")";
         };
         return TargetAxisSize;
-    })();
+    }());
     wcs.TargetAxisSize = TargetAxisSize;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="TargetAxisSize.ts"/>
-///<reference path="Scaling.ts"/>
 var wcs;
 (function (wcs) {
     var ScaleToSize = (function (_super) {
         __extends(ScaleToSize, _super);
         function ScaleToSize(targetAxisSize) {
-            _super.call(this);
-            this.TargetAxisSize = angular.copy(targetAxisSize);
+            var _this = _super.call(this) || this;
+            _this.TargetAxisSize = angular.copy(targetAxisSize);
+            return _this;
         }
         ScaleToSize.prototype.toKVP = function () {
             var targetAxesSize = [];
@@ -4294,31 +1848,9 @@ var wcs;
             return "&SCALESIZE=" + targetAxesSize.join(",");
         };
         return ScaleToSize;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleToSize = ScaleToSize;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var wcs;
 (function (wcs) {
     var TargetAxisExtent = (function () {
@@ -4331,41 +1863,17 @@ var wcs;
             return this.Axis + "(" + this.Low + ":" + this.High + ")";
         };
         return TargetAxisExtent;
-    })();
+    }());
     wcs.TargetAxisExtent = TargetAxisExtent;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="TargetAxisExtent.ts"/>
-///<reference path="Scaling.ts"/>
 var wcs;
 (function (wcs) {
     var ScaleToExtent = (function (_super) {
         __extends(ScaleToExtent, _super);
         function ScaleToExtent(targetAxisExtent) {
-            _super.call(this);
-            this.TargetAxisExtent = angular.copy(targetAxisExtent);
+            var _this = _super.call(this) || this;
+            _this.TargetAxisExtent = angular.copy(targetAxisExtent);
+            return _this;
         }
         ScaleToExtent.prototype.toKVP = function () {
             var serializedAxes = [];
@@ -4375,86 +1883,9 @@ var wcs;
             return "&SCALEEXTENT=" + serializedAxes.join(",");
         };
         return ScaleToExtent;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleToExtent = ScaleToExtent;
 })(wcs || (wcs = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="Capabilities.ts"/>
-/// <reference path="Contents.ts"/>
-/// <reference path="CoverageDescription.ts"/>
-/// <reference path="CoverageDescriptions.ts"/>
-/// <reference path="CoverageSubtypeParent.ts"/>
-/// <reference path="CoverageSummary.ts"/>
-/// <reference path="DescribeCoverage.ts"/>
-/// <reference path="DimensionSubset.ts"/>
-/// <reference path="DimensionSlice.ts"/>
-/// <reference path="DimensionTrim.ts"/>
-/// <reference path="Extension.ts"/>
-/// <reference path="GetCapabilities.ts"/>
-/// <reference path="GetCoverage.ts"/>
-/// <reference path="InterpolationMetadata.ts"/>
-/// <reference path="ProcessCoverages.ts"/>
-/// <reference path="Interpolation.ts"/>
-/// <reference path="RangeItem.ts"/>
-/// <reference path="RangeSubset.ts"/>
-/// <reference path="RangeInterval.ts"/>
-/// <reference path="RangeComponent.ts"/>
-/// <reference path="RequestBase.ts"/>
-/// <reference path="ServiceMetadata.ts"/>
-/// <reference path="ServiceParameters.ts"/>
-/// <reference path="Scaling.ts"/>
-/// <reference path="ScaleByFactor.ts"/>
-/// <reference path="ScaleAxesByFactor.ts"/>
-/// <reference path="ScaleAxis.ts"/>
-/// <reference path="ScaleToSize.ts"/>
-/// <reference path="ScaleToExtent.ts"/>
-/// <reference path="TargetAxisSize.ts"/>
-/// <reference path="TargetAxisExtent.ts"/>
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="../../common/_common.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var SettingsService = (function () {
@@ -4464,34 +1895,9 @@ var rasdaman;
         }
         SettingsService.$inject = ["$window"];
         return SettingsService;
-    })();
+    }());
     rasdaman.SettingsService = SettingsService;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="../../common/_common.ts"/>
-/// <reference path="../../models/wcs/_wcs.ts"/>
-/// <reference path="../settings/SettingsService.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var WCSService = (function () {
@@ -4518,6 +1924,17 @@ var rasdaman;
                 catch (err) {
                     result.reject(err);
                 }
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WCSService.prototype.getCoveragesExtents = function () {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.WCSEndpoint + "/GetCoveragesExtents";
+            this.$http.get(requestUrl)
+                .then(function (data) {
+                result.resolve(data);
             }, function (error) {
                 result.reject(error);
             });
@@ -4603,34 +2020,9 @@ var rasdaman;
         };
         WCSService.$inject = ["$http", "$q", "rasdaman.SettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
         return WCSService;
-    })();
+    }());
     rasdaman.WCSService = WCSService;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="../../common/_common.ts"/>
-/// <reference path="../../models/wcs/_wcs.ts"/>
-/// <reference path="../settings/SettingsService.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var WCSErrorHandlingService = (function () {
@@ -4642,7 +2034,7 @@ var rasdaman;
         WCSErrorHandlingService.prototype.handleError = function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
+                args[_i] = arguments[_i];
             }
             if (args.length == 1) {
                 var errorInformation = args[0][0];
@@ -4662,33 +2054,170 @@ var rasdaman;
         };
         WCSErrorHandlingService.$inject = ["Notification", "rasdaman.common.SerializedObjectFactory", "$log"];
         return WCSErrorHandlingService;
-    })();
+    }());
     rasdaman.WCSErrorHandlingService = WCSErrorHandlingService;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="SettingsService.ts"/>
+var rasdaman;
+(function (rasdaman) {
+    var WebWorldWindService = (function () {
+        function WebWorldWindService() {
+            this.webWorldWindModels = [];
+            this.coveragesExtents = null;
+        }
+        WebWorldWindService.prototype.setCoveragesExtents = function (coveragesExtents) {
+            this.coveragesExtents = coveragesExtents;
+        };
+        WebWorldWindService.prototype.getCoveragesExtents = function () {
+            return this.coveragesExtents;
+        };
+        WebWorldWindService.prototype.getCoveragesExtentsByCoverageId = function (coverageId) {
+            var result = [];
+            for (var i = 0; i < this.coveragesExtents.length; i++) {
+                if (this.coveragesExtents[i].coverageId === coverageId) {
+                    result.push(this.coveragesExtents[i]);
+                    return result;
+                }
+            }
+            return null;
+        };
+        WebWorldWindService.prototype.initWebWorldWind = function (canvasId) {
+            var wwd = new WorldWind.WorldWindow(canvasId);
+            var polygonLayer = new WorldWind.RenderableLayer();
+            var layers = [
+                { layer: new WorldWind.BMNGLayer(), enabled: true },
+                { layer: new WorldWind.BMNGLandsatLayer(), enabled: false },
+                { layer: new WorldWind.BingAerialLayer(null), enabled: false },
+                { layer: new WorldWind.BingAerialWithLabelsLayer(null), enabled: true },
+                { layer: new WorldWind.BingRoadsLayer(null), enabled: false },
+                { layer: new WorldWind.CompassLayer(), enabled: true },
+                { layer: new WorldWind.CoordinatesDisplayLayer(wwd), enabled: true },
+                { layer: new WorldWind.ViewControlsLayer(wwd), enabled: true }
+            ];
+            for (var i = 0; i < layers.length; i++) {
+                layers[i].layer.enabled = layers[i].enabled;
+                wwd.addLayer(layers[i].layer);
+            }
+            var textLayer = new WorldWind.RenderableLayer("Screen Text");
+            wwd.addLayer(textLayer);
+            var handlePick = function (o) {
+                textLayer.removeAllRenderables();
+                var pickPoint = wwd.canvasCoordinates(o.clientX, o.clientY);
+                var pickList = wwd.pick(pickPoint);
+                if (pickList.objects.length > 0) {
+                    for (var p = 0; p < pickList.objects.length; p++) {
+                        var pickedObject = pickList.objects[p];
+                        if (!pickedObject.isTerrain) {
+                            if (pickedObject.userObject instanceof WorldWind.SurfacePolygon) {
+                                var screenText = new WorldWind.ScreenText(new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5), pickedObject.userObject.userProperties);
+                                var textAttributes = new WorldWind.TextAttributes(null);
+                                textAttributes.color = WorldWind.Color.YELLOW;
+                                screenText.attributes = textAttributes;
+                                textLayer.addRenderable(screenText);
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            wwd.addEventListener("mousemove", handlePick);
+            var highlightController = new WorldWind.HighlightController(wwd);
+            var webWorldWindModel = {
+                canvasId: canvasId,
+                wwd: wwd,
+                polygonLayer: polygonLayer
+            };
+            this.webWorldWindModels.push(webWorldWindModel);
+            return webWorldWindModel;
+        };
+        WebWorldWindService.prototype.getCoverageIdsSameExtent = function (coverageExtent, coveragesExtentsArray) {
+            var coveragedIds = [];
+            var xmin = coverageExtent.bbox.xmin;
+            var ymin = coverageExtent.bbox.ymin;
+            var xmax = coverageExtent.bbox.xmax;
+            var ymax = coverageExtent.bbox.ymax;
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {
+                var coverageIdTmp = coveragesExtentsArray[i].coverageId;
+                var bboxTmp = coveragesExtentsArray[i].bbox;
+                var xminTmp = bboxTmp.xmin;
+                var yminTmp = bboxTmp.ymin;
+                var xmaxTmp = bboxTmp.xmax;
+                var ymaxTmp = bboxTmp.ymax;
+                if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) {
+                    coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
+                }
+            }
+            return coveragedIds;
+        };
+        WebWorldWindService.prototype.loadCoveragesExtentsOnGlobe = function (canvasId, coveragesExtentsArray) {
+            var exist = false;
+            var webWorldWindModel = null;
+            for (var i = 0; i < this.webWorldWindModels.length; i++) {
+                if (this.webWorldWindModels[i].canvasId === canvasId) {
+                    exist = true;
+                    webWorldWindModel = this.webWorldWindModels[i];
+                    break;
+                }
+            }
+            if (!exist) {
+                webWorldWindModel = this.initWebWorldWind(canvasId);
+            }
+            var wwd = webWorldWindModel.wwd;
+            var polygonLayer = webWorldWindModel.polygonLayer;
+            wwd.removeLayer(polygonLayer);
+            polygonLayer = new WorldWind.RenderableLayer();
+            webWorldWindModel.polygonLayer = polygonLayer;
+            wwd.addLayer(polygonLayer);
+            var polygonAttributes = new WorldWind.ShapeAttributes(null);
+            polygonAttributes.drawInterior = true;
+            polygonAttributes.drawOutline = true;
+            polygonAttributes.outlineColor = WorldWind.Color.BLUE;
+            polygonAttributes.interiorColor = new WorldWind.Color(0, 1, 1, 0.2);
+            polygonAttributes.applyLighting = true;
+            var highlightAttributes = new WorldWind.ShapeAttributes(polygonAttributes);
+            highlightAttributes.outlineColor = WorldWind.Color.RED;
+            highlightAttributes.interiorColor = new WorldWind.Color(1, 1, 1, 0.2);
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {
+                var coverageExtent = coveragesExtentsArray[i];
+                var coverageId = coverageExtent.coverageId;
+                var bbox = coverageExtent.bbox;
+                var boundaries = [];
+                boundaries[0] = [];
+                boundaries[0].push(new WorldWind.Location(bbox.ymin, bbox.xmin));
+                boundaries[0].push(new WorldWind.Location(bbox.ymin, bbox.xmax));
+                boundaries[0].push(new WorldWind.Location(bbox.ymax, bbox.xmax));
+                boundaries[0].push(new WorldWind.Location(bbox.ymax, bbox.xmin));
+                var polygon = new WorldWind.SurfacePolygon(boundaries, polygonAttributes);
+                polygon.highlightAttributes = highlightAttributes;
+                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
+                var coverageIdsStr = "";
+                for (var j = 0; j < coverageIds.length; j++) {
+                    coverageIdsStr += coverageIds[j];
+                }
+                var userProperties = coverageIdsStr + "Coverage Extent: lat_min=" + bbox.ymin + ", lon_min=" + bbox.xmin + ", lat_max=" + bbox.ymax + ", lon_max=" + bbox.xmax;
+                polygon.userProperties = userProperties;
+                polygonLayer.addRenderable(polygon);
+            }
+        };
+        WebWorldWindService.prototype.gotoCoverageExtentCenter = function (canvasId, coverageExtents) {
+            var webWorldWindModel = null;
+            for (var i = 0; i < this.webWorldWindModels.length; i++) {
+                if (this.webWorldWindModels[i].canvasId === canvasId) {
+                    webWorldWindModel = this.webWorldWindModels[i];
+                    break;
+                }
+            }
+            var coverageExtent = coverageExtents[0];
+            var xcenter = (coverageExtent.bbox.xmin + coverageExtent.bbox.xmax) / 2;
+            var ycenter = (coverageExtent.bbox.ymin + coverageExtent.bbox.ymax) / 2;
+            var wwd = webWorldWindModel.wwd;
+            wwd.navigator.lookAtLocation = new WorldWind.Location(ycenter, xcenter);
+            wwd.redraw();
+        };
+        WebWorldWindService.$inject = [];
+        return WebWorldWindService;
+    }());
+    rasdaman.WebWorldWindService = WebWorldWindService;
+})(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
     var SettingsController = (function () {
@@ -4705,34 +2234,9 @@ var rasdaman;
             "rasdaman.SettingsService"
         ];
         return SettingsController;
-    })();
+    }());
     rasdaman.SettingsController = SettingsController;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="../../models/wcs/Capabilities.ts"/>
-///<reference path="../../models/wcs/CoverageDescriptions.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var MainController = (function () {
@@ -4758,6 +2262,7 @@ var rasdaman;
             $scope.Tabs = [$scope.GetCapabilitiesTab, $scope.DescribeCoverageTab, $scope.GetCoverageTab, $scope.ProcessCoverageTab, $scope.DeleteCoverageTab, $scope.InsertCoverageTab];
             $scope.StateInformation = {
                 ServerCapabilities: null,
+                GetCoveragesExtents: null,
                 SelectedCoverageDescriptions: null,
                 SelectedGetCoverageId: null
             };
@@ -4821,52 +2326,58 @@ var rasdaman;
         };
         MainController.$inject = ["$scope", "$rootScope", "$state"];
         return MainController;
-    })();
+    }());
     rasdaman.MainController = MainController;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="../../models/wcs/GetCapabilities.ts"/>
-///<reference path="../shared/WCSService.ts"/>
-///<reference path="../settings/SettingsService.ts"/>
-///<reference path="../main/MainController.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var GetCapabilitiesController = (function () {
-        function GetCapabilitiesController($scope, $log, wcsService, settings, alertService, errorHandlingService) {
+        function GetCapabilitiesController($scope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
             this.$scope = $scope;
             this.$log = $log;
             this.wcsService = wcsService;
             this.settings = settings;
             this.alertService = alertService;
             this.errorHandlingService = errorHandlingService;
+            this.webWorldWindService = webWorldWindService;
             $scope.IsAvailableCoveragesOpen = false;
+            $scope.IsCoveragesExtentsOpen = false;
             $scope.IsServiceIdentificationOpen = false;
             $scope.IsServiceProviderOpen = false;
             $scope.IsCapabilitiesDocumentOpen = false;
+            $scope.rowPerPageSmartTable = 10;
             $scope.WcsServerEndpoint = settings.WCSEndpoint;
+            var canvasId = "canvasGetCapabilities";
+            $scope.pageChanged = function (newPage) {
+                var selectedPage = newPage - 1;
+                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
+                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
+                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
+                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
+            };
+            $scope.selectCoveragesExtentsCurrentPage = function (startIndex, endIndex) {
+                var coveragesCurrentPage = $scope.Capabilities.Contents.CoverageSummary.slice(startIndex, endIndex);
+                var coveragesExtentsCurrentPage = [];
+                for (var i = 0; i < coveragesCurrentPage.length; i++) {
+                    for (var j = 0; j < $scope.coveragesExtents.length; j++) {
+                        if ($scope.coveragesExtents[j].coverageId === coveragesCurrentPage[i].CoverageId) {
+                            var coverageExtent = $scope.coveragesExtents[j];
+                            coverageExtent.index = j;
+                            coveragesExtentsCurrentPage.push(coverageExtent);
+                            break;
+                        }
+                    }
+                }
+                coveragesExtentsCurrentPage.sort(function (a, b) {
+                    return parseFloat(a.index) - parseFloat(b.index);
+                });
+                return coveragesExtentsCurrentPage;
+            };
             $scope.getServerCapabilities = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
                 if (!$scope.WcsServerEndpoint) {
                     alertService.error("The entered WCS endpoint is invalid.");
                     return;
@@ -4880,10 +2391,29 @@ var rasdaman;
                     $scope.IsAvailableCoveragesOpen = true;
                     $scope.IsServiceIdentificationOpen = true;
                     $scope.IsServiceProviderOpen = true;
+                    wcsService.getCoveragesExtents()
+                        .then(function (response) {
+                        $scope.coveragesExtents = response.data;
+                        webWorldWindService.setCoveragesExtents($scope.coveragesExtents);
+                        $scope.IsCoveragesExtentsOpen = true;
+                        var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);
+                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        $scope.coveragesExtents = null;
+                        $scope.IsCoveragesExtentsOpen = false;
+                        errorHandlingService.handleError(args);
+                        $log.error(args);
+                    })["finally"](function () {
+                        $scope.StateInformation.GetCoveragesExtents = $scope.coveragesExtents;
+                    });
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     $scope.CapabilitiesDocument = null;
                     $scope.Capabilities = null;
@@ -4892,8 +2422,7 @@ var rasdaman;
                     $scope.IsServiceProviderOpen = false;
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })
-                    .finally(function () {
+                })["finally"](function () {
                     $scope.StateInformation.ServerCapabilities = $scope.Capabilities;
                 });
             };
@@ -4905,44 +2434,20 @@ var rasdaman;
             "rasdaman.WCSService",
             "rasdaman.SettingsService",
             "Notification",
-            "rasdaman.WCSErrorHandlingService"
+            "rasdaman.WCSErrorHandlingService",
+            "rasdaman.WebWorldWindService"
         ];
         return GetCapabilitiesController;
-    })();
+    }());
     rasdaman.GetCapabilitiesController = GetCapabilitiesController;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="../shared/WCSService.ts"/>
-///<reference path="../../models/wcs/Capabilities.ts"/>
-///<reference path="../main/MainController.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var DescribeCoverageController = (function () {
-        function DescribeCoverageController($scope, $rootScope, $log, wcsService, alertService, wcsErrorHandlingService) {
+        function DescribeCoverageController($scope, $rootScope, $log, wcsService, alertService, wcsErrorHandlingService, webWorldWindService) {
             $scope.SelectedCoverageId = null;
             $scope.IsCoverageDescriptionsDocumentOpen = false;
+            $scope.IsCoverageDescriptionsHideGlobe = true;
             $scope.isCoverageIdValid = function () {
                 if ($scope.StateInformation.ServerCapabilities) {
                     var coverageSummaries = $scope.StateInformation.ServerCapabilities.Contents.CoverageSummary;
@@ -4984,17 +2489,26 @@ var rasdaman;
                     .then(function (response) {
                     $scope.CoverageDescriptionsDocument = response.Document;
                     $scope.CoverageDescriptions = response.Value;
+                    var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.SelectedCoverageId);
+                    if (coveragesExtents == null) {
+                        $scope.IsCoverageDescriptionsHideGlobe = true;
+                    }
+                    else {
+                        var canvasId = "canvasDescribeCoverage";
+                        $scope.IsCoverageDescriptionsHideGlobe = false;
+                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
+                        webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                    }
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     $scope.CoverageDescriptionsDocument = null;
                     $scope.CoverageDescriptions = null;
                     wcsErrorHandlingService.handleError(args);
                     $log.error(args);
-                })
-                    .finally(function () {
+                })["finally"](function () {
                     $scope.StateInformation.SelectedCoverageDescriptions = $scope.CoverageDescriptions;
                 });
             };
@@ -5006,37 +2520,13 @@ var rasdaman;
             "$log",
             "rasdaman.WCSService",
             "Notification",
-            "rasdaman.WCSErrorHandlingService"
+            "rasdaman.WCSErrorHandlingService",
+            "rasdaman.WebWorldWindService"
         ];
         return DescribeCoverageController;
-    })();
+    }());
     rasdaman.DescribeCoverageController = DescribeCoverageController;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="../main/MainController.ts"/>
-///<reference path="../shared/WCSService.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var DeleteCoverageController = (function () {
@@ -5081,18 +2571,18 @@ var rasdaman;
                     _this.wcsService.deleteCoverage($scope.IdOfCoverageToDelete).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.IdOfCoverageToDelete + "<b/>");
                         _this.$log.log(args);
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
-                    }).finally(function () {
+                    })["finally"](function () {
                         $scope.RequestInProgress = false;
                     });
                 }
@@ -5109,34 +2599,9 @@ var rasdaman;
             "rasdaman.WCSErrorHandlingService"
         ];
         return DeleteCoverageController;
-    })();
+    }());
     rasdaman.DeleteCoverageController = DeleteCoverageController;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="../shared/WCSService.ts"/>
-///<reference path="../main/MainController.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var InsertCoverageController = (function () {
@@ -5159,18 +2624,18 @@ var rasdaman;
                     _this.wcsService.insertCoverage($scope.UrlOfCoverageToInsert, $scope.UseGeneratedCoverageId).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.alertService.success("Successfully inserted coverage.");
                         _this.$log.info(args);
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
-                    }).finally(function () {
+                    })["finally"](function () {
                         $scope.RequestInProgress = false;
                     });
                 }
@@ -5184,40 +2649,16 @@ var rasdaman;
             "rasdaman.WCSErrorHandlingService"
         ];
         return InsertCoverageController;
-    })();
+    }());
     rasdaman.InsertCoverageController = InsertCoverageController;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="../shared/WCSService.ts"/>
-///<reference path="../main/MainController.ts"/>
-///<reference path="../../models/wcs/_wcs.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var GetCoverageController = (function () {
-        function GetCoverageController($scope, $rootScope, $log, wcsService, alertService) {
+        function GetCoverageController($scope, $rootScope, $log, wcsService, alertService, webWorldWindService) {
             $scope.SelectedCoverageId = null;
+            $scope.IsGlobeOpen = false;
+            $scope.IsGetCoverageHideGlobe = true;
             $scope.isCoverageIdValid = function () {
                 if ($scope.StateInformation.ServerCapabilities) {
                     var coverageSummaries = $scope.StateInformation.ServerCapabilities.Contents.CoverageSummary;
@@ -5237,13 +2678,25 @@ var rasdaman;
                     });
                 }
             });
+            $scope.loadCoverageExtentOnGlobe = function () {
+                var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.SelectedCoverageId);
+                if (coveragesExtents == null) {
+                    $scope.IsGetCoverageHideGlobe = true;
+                }
+                else {
+                    var canvasId = "canvasGetCoverage";
+                    $scope.IsGetCoverageHideGlobe = false;
+                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
+                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                }
+            };
             $scope.getCoverageClickEvent = function () {
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
                     return;
                 }
                 $scope.StateInformation.SelectedGetCoverageId = $scope.SelectedCoverageId;
-                $scope.$digest();
+                $scope.loadCoverageExtentOnGlobe();
             };
             $scope.$watch("StateInformation.SelectedCoverageDescriptions", function (coverageDescriptions) {
                 if (coverageDescriptions && coverageDescriptions.CoverageDescription) {
@@ -5309,13 +2762,14 @@ var rasdaman;
                         }, function () {
                             var args = [];
                             for (var _i = 0; _i < arguments.length; _i++) {
-                                args[_i - 0] = arguments[_i];
+                                args[_i] = arguments[_i];
                             }
                             $scope.Core.RequestUrl = null;
                             alertService.error("Failed to execute GetCoverage operation.");
                             $log.error(args);
                         });
                     };
+                    $scope.loadCoverageExtentOnGlobe();
                 }
             });
         }
@@ -5333,34 +2787,13 @@ var rasdaman;
             "$rootScope",
             "$log",
             "rasdaman.WCSService",
-            "Notification"
+            "Notification",
+            "rasdaman.WebWorldWindService"
         ];
         return GetCoverageController;
-    })();
+    }());
     rasdaman.GetCoverageController = GetCoverageController;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
 var rasdaman;
 (function (rasdaman) {
     var WidgetConfiguration = (function () {
@@ -5369,33 +2802,9 @@ var rasdaman;
             this.Parameters = parameters;
         }
         return WidgetConfiguration;
-    })();
+    }());
     rasdaman.WidgetConfiguration = WidgetConfiguration;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="WidgetConfiguration.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var WCPSCommand = (function () {
@@ -5426,33 +2835,9 @@ var rasdaman;
             }
         }
         return WCPSCommand;
-    })();
+    }());
     rasdaman.WCPSCommand = WCPSCommand;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="WCPSCommand.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var WCPSQueryResult = (function () {
@@ -5461,117 +2846,47 @@ var rasdaman;
             this.Command = command;
         }
         return WCPSQueryResult;
-    })();
+    }());
     rasdaman.WCPSQueryResult = WCPSQueryResult;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="WCPSQueryResult.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var RawWCPSResult = (function (_super) {
         __extends(RawWCPSResult, _super);
         function RawWCPSResult(command, data) {
-            _super.call(this, command);
-            this.Data = data.toString();
+            var _this = _super.call(this, command) || this;
+            _this.Data = data.toString();
+            return _this;
         }
         return RawWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.RawWCPSResult = RawWCPSResult;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="WCPSQueryResult.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var ImageWCPSResult = (function (_super) {
         __extends(ImageWCPSResult, _super);
         function ImageWCPSResult(command, rawImageData) {
-            _super.call(this, command);
-            this.Base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
-            this.ImageType = (command.Query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            var _this = _super.call(this, command) || this;
+            _this.Base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
+            _this.ImageType = (command.Query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            return _this;
         }
         return ImageWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.ImageWCPSResult = ImageWCPSResult;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="WCPSQueryResult.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var DiagramWCPSResult = (function (_super) {
         __extends(DiagramWCPSResult, _super);
         function DiagramWCPSResult(command, data) {
-            _super.call(this, command);
+            var _this = _super.call(this, command) || this;
             var diagramType = "lineChart";
             if (command.WidgetConfiguration.Parameters && command.WidgetConfiguration.Parameters.type) {
                 diagramType = command.WidgetConfiguration.Parameters.type;
             }
-            this.DiagramOptions = {
+            _this.DiagramOptions = {
                 chart: {
                     type: diagramType,
                     height: 300,
@@ -5603,43 +2918,17 @@ var rasdaman;
                     y: rawData[i]
                 });
             }
-            this.DiagramData = [
+            _this.DiagramData = [
                 {
                     values: processedValues
                 }
             ];
+            return _this;
         }
         return DiagramWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.DiagramWCPSResult = DiagramWCPSResult;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../common/_common.ts"/>
-///<reference path="WCPSQueryResult.ts"/>
-///<reference path="RawWCPSResult.ts"/>
-///<reference path="ImageWCPSResult.ts"/>
-///<reference path="DiagramWCPSResult.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var WCPSResultFactory = (function () {
@@ -5677,34 +2966,9 @@ var rasdaman;
             }
         };
         return WCPSResultFactory;
-    })();
+    }());
     rasdaman.WCPSResultFactory = WCPSResultFactory;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
-///<reference path="WCPSCommand.ts"/>
-///<reference path="WCPSResultFactory.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var ProcessCoverageController = (function () {
@@ -5741,12 +3005,11 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         errorHandlingService.handleError(args);
                         $log.error(args);
-                    })
-                        .finally(function () {
+                    })["finally"](function () {
                         $interval.cancel(waitingForResultsPromise);
                     });
                 }
@@ -5792,38 +3055,15 @@ var rasdaman;
             "rasdaman.WCSErrorHandlingService"
         ];
         return ProcessCoverageController;
-    })();
+    }());
     rasdaman.ProcessCoverageController = ProcessCoverageController;
     var WaitingForResult = (function () {
         function WaitingForResult() {
             this.SecondsPassed = 0;
         }
         return WaitingForResult;
-    })();
+    }());
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
 var rasdaman;
 (function (rasdaman) {
     function RangeSubsettingExtension() {
@@ -5837,29 +3077,6 @@ var rasdaman;
     }
     rasdaman.RangeSubsettingExtension = RangeSubsettingExtension;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../models/wcs/_wcs.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var RangeSubsettingModel = (function () {
@@ -5886,32 +3103,9 @@ var rasdaman;
             this.RangeSubset.RangeItem.splice(index, 1);
         };
         return RangeSubsettingModel;
-    })();
+    }());
     rasdaman.RangeSubsettingModel = RangeSubsettingModel;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../models/wcs/_wcs.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var ScalingExtensionModel = (function () {
@@ -6011,32 +3205,9 @@ var rasdaman;
         ScalingExtensionModel.DEFAULT_SCALE_FACTOR = 1.0;
         ScalingExtensionModel.DEFAULT_AXIS_SIZE = 0.0;
         return ScalingExtensionModel;
-    })();
+    }());
     rasdaman.ScalingExtensionModel = ScalingExtensionModel;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
 var rasdaman;
 (function (rasdaman) {
     function ScalingExtension() {
@@ -6050,29 +3221,6 @@ var rasdaman;
     }
     rasdaman.ScalingExtension = ScalingExtension;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../models/wcs/_wcs.ts"/>
 var rasdaman;
 (function (rasdaman) {
     var InterpolationExtensionModel = (function () {
@@ -6099,32 +3247,9 @@ var rasdaman;
             return new wcs.Interpolation(interpolationUri);
         };
         return InterpolationExtensionModel;
-    })();
+    }());
     rasdaman.InterpolationExtensionModel = InterpolationExtensionModel;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-///<reference path="../../../assets/typings/tsd.d.ts"/>
 var rasdaman;
 (function (rasdaman) {
     function InterpolationExtension() {
@@ -6138,94 +3263,6 @@ var rasdaman;
     }
     rasdaman.InterpolationExtension = InterpolationExtension;
 })(rasdaman || (rasdaman = {}));
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="shared/Constants.ts"/>
-/// <reference path="shared/WCSService.ts"/>
-/// <reference path="shared/WCSErrorHandlingService.ts"/>
-/// <reference path="settings/SettingsService.ts"/>
-/// <reference path="settings/SettingsController.ts"/>
-/// <reference path="get_capabilities/GetCapabilitiesController.ts"/>
-/// <reference path="describe_coverage/DescribeCoverageController.ts"/>
-/// <reference path="delete_coverage/DeleteCoverageController.ts"/>
-/// <reference path="insert_coverage/InsertCoverageController.ts"/>
-/// <reference path="get_coverage/GetCoverageController.ts"/>
-/// <reference path="process_coverage/ProcessCoverageController.ts"/>
-/// <reference path="range_subsetting_ext/RangeSubsettingExtension.ts"/>
-/// <reference path="range_subsetting_ext/RangeSubsettingModel.ts"/>
-/// <reference path="scaling_ext/ScalingExtensionModel.ts"/>
-/// <reference path="scaling_ext/ScalingExtension.ts"/>
-/// <reference path="interpolation_ext/InterpolationExtensionModel.ts"/>
-/// <reference path="interpolation_ext/InterpolationExtension.ts"/>
-/// <reference path="main/MainController.ts"/>
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="../assets/typings/tsd.d.ts"/>
-/// <reference path="common/_common.ts"/>
-/// <reference path="components/_components.ts"/>
-/*
- * This file is part of rasdaman community.
- *
- * Rasdaman community is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Rasdaman community is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
- rasdaman GmbH.
- *
- * For more information please see <http://www.rasdaman.org>
- * or contact Peter Baumann via <baumann@rasdaman.com>.
- */
-/// <reference path="_all.ts" />
 var rasdaman;
 (function (rasdaman) {
     "use strict";
@@ -6281,7 +3318,7 @@ var rasdaman;
             "NotificationProvider"
         ];
         return AngularConfig;
-    })();
+    }());
     rasdaman.AngularConfig = AngularConfig;
     var wcsClient = angular
         .module(rasdaman.Constants.APP_NAME, ["ngRoute",
@@ -6298,6 +3335,7 @@ var rasdaman;
         .service("rasdaman.SettingsService", rasdaman.SettingsService)
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
         .service("rasdaman.WCSService", rasdaman.WCSService)
+        .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
         .service("rasdaman.WCSErrorHandlingService", rasdaman.WCSErrorHandlingService)
         .controller("rasdaman.SettingsController", rasdaman.SettingsController)
         .controller("rasdaman.GetCapabilitiesController", rasdaman.GetCapabilitiesController)

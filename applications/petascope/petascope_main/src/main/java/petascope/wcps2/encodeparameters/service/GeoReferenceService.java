@@ -24,7 +24,8 @@ package petascope.wcps2.encodeparameters.service;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
-import petascope.wcps2.encodeparameters.model.BoundingBox;
+import petascope.core.BoundingBox;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.exception.processing.InvalidBoundingBoxInCrsTransformException;
 import petascope.wcps2.exception.processing.NotGeoReferencedCoverageInCrsTransformException;
@@ -57,7 +58,7 @@ public class GeoReferenceService {
             BoundingBox bbox = bboxExtractorService.extract(metadata);
             try {
                 bbox = CrsProjectionUtil.transformBoundingBox(xyCrs, outputCrs, bbox);
-            } catch (WCSException ex) {
+            } catch (PetascopeException ex) {
                 String bboxStr = "xmin=" + bbox.getXMin() + "," + "ymin=" + bbox.getYMin() + ","
                                + "xmax=" + bbox.getXMax() + "," + "ymax=" + bbox.getYMax();
                 throw new InvalidBoundingBoxInCrsTransformException(bboxStr, outputCrs, ex.getMessage());

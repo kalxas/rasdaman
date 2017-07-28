@@ -25,6 +25,7 @@
 ///<reference path="../shared/WCSService.ts"/>
 ///<reference path="../../models/wcs/Capabilities.ts"/>
 ///<reference path="../main/MainController.ts"/>
+///<reference path="../web_world_wind/WebWorldWindService.ts"/>
 
 module rasdaman {
     export class DescribeCoverageController {
@@ -37,7 +38,8 @@ module rasdaman {
             "$log",
             "rasdaman.WCSService",
             "Notification",
-            "rasdaman.WCSErrorHandlingService"
+            "rasdaman.WCSErrorHandlingService",
+            "rasdaman.WebWorldWindService"
         ];
 
         public constructor($scope:DescribeCoverageControllerScope,
@@ -45,10 +47,13 @@ module rasdaman {
                            $log:angular.ILogService,
                            wcsService:rasdaman.WCSService,
                            alertService:any,
-                           wcsErrorHandlingService:rasdaman.WCSErrorHandlingService) {
+                           wcsErrorHandlingService:rasdaman.WCSErrorHandlingService,
+                           webWorldWindService:rasdaman.WebWorldWindService) {
 
             $scope.SelectedCoverageId = null;
             $scope.IsCoverageDescriptionsDocumentOpen = false;
+            // default hide the div containing the Globe
+            $scope.IsCoverageDescriptionsHideGlobe = true;
 
             $scope.isCoverageIdValid = ()=> {
                 if ($scope.StateInformation.ServerCapabilities) {
@@ -86,8 +91,7 @@ module rasdaman {
                 }
             });
 
-
-            $scope.describeCoverage = function () {
+            $scope.describeCoverage = function () {                
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
                     return;
@@ -106,6 +110,20 @@ module rasdaman {
                             //Success handler
                             $scope.CoverageDescriptionsDocument = response.Document;
                             $scope.CoverageDescriptions = response.Value;
+
+                            // Fetch the coverageExtent by coverageId to display on globe if possible
+                            var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.SelectedCoverageId);                            
+                            if (coveragesExtents == null) {
+                                $scope.IsCoverageDescriptionsHideGlobe = true;
+                            } else {
+                                // Show coverage's extent on the globe
+                                var canvasId = "canvasDescribeCoverage";
+                                $scope.IsCoverageDescriptionsHideGlobe = false;
+                                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
+                                // NOTE: Without the time interval, Globe in DescribeCoverage/GetCoverage will hang up in some cases when it goes to the center of current coverage's extent
+                                // If the globe hangs up, click on the button DescribeCoverage one more time.
+                                webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                            }                            
                         },
                         (...args:any[])=> {
                             $scope.CoverageDescriptionsDocument = null;
@@ -125,6 +143,8 @@ module rasdaman {
 
     interface DescribeCoverageControllerScope extends MainControllerScope {
         IsCoverageDescriptionsDocumentOpen:boolean;
+        // Not show the globe when coverage cannot reproject to EPSG:4326
+        IsCoverageDescriptionsHideGlobe:boolean;
 
         CoverageDescriptionsDocument:rasdaman.common.ResponseDocument;
         CoverageDescriptions:wcs.CoverageDescriptions;

@@ -57,7 +57,27 @@
             </div>
         </div>
 
-        <div class="row top15" ng-show="CoverageDescriptionsDocument.Value">
+        <!-- WebWorldWind -->
+        <div class="row top15" ng-hide="IsCoverageDescriptionsHideGlobe">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="IsCoverageDescriptionsDocumentOpen"> 	
+                    <uib-accordion-heading>
+                        Coverage's extent on a globe (Only reprojectable coverage to EPSG:4326) 
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': IsCoverageDescriptionsDocumentOpen, 
+                                    'glyphicon-chevron-right': !IsCoverageDescriptionsDocumentOpen}"></i>
+                    </uib-accordion-heading>                    
+                    <div>                        
+                        <!-- Create a canvas for Web WorldWind. -->
+                        <canvas id="canvasDescribeCoverage" style="width:100%;height:500px;">
+                            Your browser does not support HTML5 Canvas.
+                        </canvas>
+                    </div>
+                </uib-accordion-group>
+            </uib-accordion>
+        </div>
+
+        <div class="row top15" ng-show="CoverageDescriptionsDocument.Value" style="margin-top: -15px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="IsCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>

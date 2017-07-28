@@ -34,7 +34,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.wcps2.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps2.result.WcpsResult;
-import petascope.util.JsonUtil;
+import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
 import petascope.wcps2.encodeparameters.model.GeoReference;
 import petascope.wcps2.encodeparameters.service.GeoReferenceService;
@@ -168,7 +168,7 @@ public class EncodeCoverageHandler {
         String jsonOutput = "";
 
         // Check if extra params is in old style or new JSON style
-        if (JsonUtil.isJsonValid(extraParams)) {
+        if (JSONUtil.isJsonValid(extraParams)) {
             // extra params is new JSON style
             jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, extraParams,
                     metadata, netCDFExtraParams, geoReference);

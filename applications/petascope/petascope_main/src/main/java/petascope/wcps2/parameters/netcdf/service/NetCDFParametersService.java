@@ -203,7 +203,7 @@ public class NetCDFParametersService {
      * @throws PetascopeException 
      */
     private List<Double> buildPoisitionData(String covName, Axis axis) throws PetascopeException {
-        Coverage coverage = this.persistedCoverageService.readCoverageByIdFromCache(covName);
+        Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(covName);
 
         // data=[geoLow, geoLow+res, geoLow+2*res, ...., geoHigh]
         List<Double> data = new ArrayList<>();

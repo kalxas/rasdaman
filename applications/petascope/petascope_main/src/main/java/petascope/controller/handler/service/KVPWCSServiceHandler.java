@@ -72,10 +72,11 @@ public class KVPWCSServiceHandler extends AbstractHandler {
         } // DescribeCoverage
         else if (requestService.equals(KVPSymbols.VALUE_DESCRIBE_COVERAGE)) {
             response = describeCoverageHandler.handle(kvpParameters);
-        } else if (requestService.equals(KVPSymbols.KEY_GET_COVERAGE)) {
+        } else if (requestService.equals(KVPSymbols.VALUE_GET_COVERAGE)) {
+            // GetCoverage
             response = getCoverageHandler.handle(kvpParameters);
         }
-
+        
         return response;
     }
 }

@@ -39,6 +39,7 @@ import petascope.core.AxisTypes;
 import petascope.core.AxisTypes.AxisDirection;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
+import petascope.wcps2.exception.processing.InvalidBoundingBoxInCrsTransformException;
 import petascope.wcps2.exception.processing.InvalidSubsettingException;
 import petascope.wcps2.exception.processing.NotIdenticalCrsInCrsTransformException;
 import petascope.wcps2.exception.processing.OutOfBoundsSubsettingException;
@@ -152,8 +153,15 @@ public class WcpsCoverageMetadataGeneralService {
             // sourceCrs
             String subsettingCrs = subsettingCrsX;
             // Transform from sourceCrs to targetCrs and change the values of List subsets (only when targetCrs is different from soureCrs)
-            List<BigDecimal> xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMin, yMin});
-            List<BigDecimal> xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMax, yMax});
+            List<BigDecimal> xyMin = null, xyMax  = null;
+            try {
+                xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMin, yMin});
+                xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMax, yMax});
+            } catch (PetascopeException ex) {
+                String bboxStr = "xmin=" + xMin + "," + "ymin=" + yMin + ","
+                               + "xmax=" + xMax + "," + "ymax=" + yMax;
+                throw new InvalidBoundingBoxInCrsTransformException(bboxStr, subsettingCrs, ex.getExceptionText());
+            }
 
             // NOTE: when using subsettingCRS, both of XY-georefenced axis must exist in coverage expression
             // e.g: c[Lat:"http://.../3857"(3000,60000), Long:"http://.../3857"(4000,60000")]

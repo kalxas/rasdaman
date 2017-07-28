@@ -686,6 +686,21 @@ public class CrsUtil {
     public static List<String> getAxesLabels(String singleCrsUri) throws PetascopeException, SecoreException {
         return getAxesLabels(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
     }
+    
+    /**
+     * From the axis name and axis crs, return the axis type (X, Y, Time,...)
+     * @param axisName
+     * @param crsUri
+     * @return 
+     * @throws petascope.exceptions.PetascopeException 
+     * @throws petascope.exceptions.SecoreException 
+     */
+    public static String getAxisType(String crsUri, String axisName) throws PetascopeException, SecoreException {
+        CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crsUri);
+        String axisType = getAxisType(crsDefinition, axisName);
+        
+        return axisType;
+    }
 
     /**
      * Discover which is the type of the specified (CRS) axis.

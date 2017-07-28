@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-package petascope.wcps2.encodeparameters.model;
+package petascope.core;
 
 import java.math.BigDecimal;
 
@@ -65,6 +65,22 @@ public class BoundingBox {
     
     public BigDecimal getYMax() {
         return this.ymax;
+    }
+
+    public void setXmin(BigDecimal xmin) {
+        this.xmin = xmin;
+    }
+
+    public void setYmin(BigDecimal ymin) {
+        this.ymin = ymin;
+    }
+
+    public void setXmax(BigDecimal xmax) {
+        this.xmax = xmax;
+    }
+
+    public void setYmax(BigDecimal ymax) {
+        this.ymax = ymax;
     }
     
     private BigDecimal xmin;

@@ -27,19 +27,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * JSON ultilities
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public class JsonUtil {
+public class JSONUtil {
     /**
-     * Serialize a POJO object to JSON string
+     * Serialize an object to JSON string
      * @param obj
      * @return
      * @throws JsonProcessingException
      */
-    public static String serializeToPojoJson(Object obj) throws JsonProcessingException {
+    public static String serializeObjectToJSONString(Object obj) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
