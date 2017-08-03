@@ -123,12 +123,12 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Initialize all the configurations for GDAL libraries, ConfigManager and
      * OGC WCS XML Schema
      */
-    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException {
+    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException {
         String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {
             // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")        
-            addLibraryPath(GDAL_JAVA_DIR);
+            addLibraryPath("gdal_java", GDAL_JAVA_DIR);
             // Load properties for Spring, Hibernate from external petascope.properties
             ConfigManager.init(CONF_DIR);
             // Load all the type registry (set, mdd, base types) of rasdaman

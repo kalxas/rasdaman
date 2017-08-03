@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import petascope.core.BoundingBox;
 import petascope.core.CoverageExtent;
 import petascope.core.response.Response;
@@ -53,14 +54,15 @@ import petascope.util.MIMEUtil;
  *
  * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-@Controller
+@RestController
+// @Controller will have an error to find a jsp file: GetCoveragesExtentsController.jsp, so only use @RestController
 public class GetCoveragesExtentsController extends AbstractController {
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(GetCoveragesExtentsController.class);
 
     @RequestMapping(value = OWS + "/" + GET_COVERAGE_EXTENTS, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws IOException, PetascopeException, WCSException, SecoreException, Exception {
-        this.requestDispatcher(null);
+        this.handleGet(httpServletRequest);
     }
 
     @RequestMapping(value = OWS + "/" + GET_COVERAGE_EXTENTS, method = RequestMethod.GET)

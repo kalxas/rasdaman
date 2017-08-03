@@ -21,8 +21,14 @@
  */
 package org.rasdaman;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,27 +55,50 @@ public class InitAllConfigurationsApplicationService {
      * Adds the specified path to the java library path (very important to load
      * GDAL native libraries!!!)
      *
+     * @param libraryName
      * @param pathToAdd the path to add
      * @throws java.lang.NoSuchFieldException
      * @throws java.lang.IllegalAccessException
+     * @throws java.io.IOException
      */
-    public static void addLibraryPath(String pathToAdd) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+    public static void addLibraryPath(String libraryName, String pathToAdd) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
+        final String tmpTargetNativeDefaultFolderPath = "/tmp/rasdaman/" + libraryName;
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        
+        // The original installation of gdal_java native in system
+        File sourceNativeFolder = new File(pathToAdd);        
+        // Each time application starts, copy the original native folder to a temp folder to be loaded by Classloader
+        String tmpTargetNativeFolderPath =  tmpTargetNativeDefaultFolderPath + "/" + timeStamp;
+        File tmpTargetNativeFolder = new File(tmpTargetNativeFolderPath);
+        FileUtils.forceMkdir(tmpTargetNativeFolder);
+        
+        // Copy the source folder to native folder and load to class path
+        FileUtils.copyDirectory(sourceNativeFolder, tmpTargetNativeFolder);
+                
         final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
         usrPathsField.setAccessible(true);
 
         // get array of paths
         final String[] paths = (String[]) usrPathsField.get(null);
 
+        int i = 0;
         // check if the path to add is already present
         for (String path : paths) {
-            if (path.equals(pathToAdd)) {
+            String pathFolder = StringUtils.substringBeforeLast(path, "/");
+            if (pathFolder.equals(tmpTargetNativeDefaultFolderPath)) {
+                // Remove the previous rasdaman/gdal_native folder first
+                FileUtils.deleteDirectory(new File(path));
+                // Override the old path of rasdaman/gdal_native with the new one
+                paths[i] = tmpTargetNativeFolderPath;
+                usrPathsField.set(null, paths);
                 return;
             }
+            i++;
         }
 
         //add the new path
-        final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
-        newPaths[newPaths.length - 1] = pathToAdd;
+        final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);        
+        newPaths[newPaths.length - 1] = tmpTargetNativeFolderPath;
         usrPathsField.set(null, newPaths);
     }
 }
