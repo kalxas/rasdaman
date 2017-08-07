@@ -903,7 +903,7 @@ public class CrsUtil {
      * @return
      */
     public static String getEPSGFullUri(String epsgCode) {
-        return OPENGIS_EPSG_URI + epsgCode.split(":")[1];
+        return EPSG_ALL_CRS + "/" + epsgCode.split(":")[1];
     }
 
     /**

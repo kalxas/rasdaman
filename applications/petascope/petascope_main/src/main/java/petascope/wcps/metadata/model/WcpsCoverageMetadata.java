@@ -42,7 +42,7 @@ import petascope.wcps.metadata.service.AxesOrderComparator;
  */
 public class WcpsCoverageMetadata {
 
-    private final String coverageName;
+    private final String coverageName;   
     private String coverageType;
     // List of axes after coverage expression (it will be stripped when there is a slicing expression, 
     // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)

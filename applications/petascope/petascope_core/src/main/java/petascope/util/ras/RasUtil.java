@@ -88,6 +88,7 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws PetascopeException {
+        log.debug("Execute rasql query '" + query + "'.");
         long start = System.currentTimeMillis();
 
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);

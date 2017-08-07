@@ -48,5 +48,5 @@ public class WMSDuplicateLayerException extends WMSException {
     }
 
     private final static String EXCEPTION_CODE = "LayerExisted";
-    private final static String ERROR_MESSAGE = "The requested layer: $LayerName already existed in database.";
+    private final static String ERROR_MESSAGE = "The requested layer '$LayerName' already existed in database.";
 }

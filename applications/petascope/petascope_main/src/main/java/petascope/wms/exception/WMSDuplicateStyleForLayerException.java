@@ -49,5 +49,5 @@ public class WMSDuplicateStyleForLayerException extends WMSException {
     }
 
     private final static String EXCEPTION_CODE = "StyleExisted";
-    private final static String ERROR_MESSAGE = "The requested style: $StyleName already existed in the layer: $LayerName.";
+    private final static String ERROR_MESSAGE = "The requested style '$StyleName' already existed in the layer '$LayerName'.";
 }

@@ -133,11 +133,11 @@ public class WMSLayerTranslatingService {
         int i = 0;
         for (GeoAxis geoAxis : geoAxes) {
             if (i == 0) {
-                boundingBox.setMinx(geoAxis.getLowerBoundNumber());
-                boundingBox.setMaxx(geoAxis.getUpperBoundNumber());
+                boundingBox.setXMin(geoAxis.getLowerBoundNumber());
+                boundingBox.setXMax(geoAxis.getUpperBoundNumber());
             } else {
-                boundingBox.setMiny(geoAxis.getLowerBoundNumber());
-                boundingBox.setMaxy(geoAxis.getUpperBoundNumber());
+                boundingBox.setYMin(geoAxis.getLowerBoundNumber());
+                boundingBox.setYMax(geoAxis.getUpperBoundNumber());
             }
             i++;
         }
@@ -159,7 +159,7 @@ public class WMSLayerTranslatingService {
             style.setTitle(legacyStyle.getTitle());
             style.setStyleAbstract(legacyStyle.getStyleAbstract());
             // Rasql fragment for the style to apply on a collection and result is a 2D image
-            style.setRasqlQueryTransformer(legacyStyle.getRasqlQueryTransformer());
+            style.setRasqlQueryTransformFragment(legacyStyle.getRasqlQueryTransformer());
 
             styles.add(style);
         }

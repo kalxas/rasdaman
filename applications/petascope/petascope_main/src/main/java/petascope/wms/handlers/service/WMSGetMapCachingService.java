@@ -91,6 +91,7 @@ public class WMSGetMapCachingService {
     
     /**
      * When a layer is removed from database, it is also needed to remove the layer from cache
+     * NOTE: all GetMap request containing layerName will be removed from cache.
      * @param layerName 
      */
     public void removeLayerGetMapInCache(String layerName) {
@@ -114,7 +115,8 @@ public class WMSGetMapCachingService {
     
     
     /**
-     * When a style is removed from database, it is also needed to remove the layers's style name from cache
+     * When a style is removed from database, it is also needed to remove the layers's style name from cache.
+     * NOTE: All GetMap requests containing the input layerName and styleName will be removed from cache.
      * @param layerName 
      * @param styleName 
      */

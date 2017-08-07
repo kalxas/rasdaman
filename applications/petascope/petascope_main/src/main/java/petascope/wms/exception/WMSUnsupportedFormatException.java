@@ -49,5 +49,5 @@ public class WMSUnsupportedFormatException extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "UnsupportedFormat";
-    private static final String ERROR_MESSAGE = "The requested output format $format is not supported.";
+    private static final String ERROR_MESSAGE = "The requested output format '$format' is not supported.";
 }

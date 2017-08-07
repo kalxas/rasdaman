@@ -32,6 +32,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import nu.xom.Element;
+import org.hsqldb.lib.StringUtil;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
 import petascope.util.XMLUtil;
@@ -129,9 +130,16 @@ public class Style {
     // NOTE: Rasdaman does not support the StyleSheet for WMS, it uses a RASQL query to create the style for the layers
     // And this style query could be added to style abstract for human readable.
     // NOTE: As this could be long text, so varchar(255) is not enough
-    @Column(name = "rasqlQueryTransformer")
+    @Deprecated
+    @Column(name = "rasqlQueryTransformFragment")
     @Lob
-    private String rasqlQueryTransformer;
+    private String rasqlQueryTransformFragment;
+        
+    // NOTE: use this WCPS query fragment (subtracted from a full WCPS query (for c in (...) return encode(wcpsQueryFragment, "png",...))
+    // to make style for WMS layer, the rasqlTransformFragment is deprecated.
+    @Column(name = "wcpsQueryFragment")
+    @Lob
+    private String wcpsQueryFragment;
 
     public String getName() {
         return name;
@@ -165,12 +173,20 @@ public class Style {
         this.legendURL = legendURL;
     }
 
-    public String getRasqlQueryTransformer() {
-        return rasqlQueryTransformer;
+    public String getRasqlQueryTransformFragment() {
+        return rasqlQueryTransformFragment;
     }
 
-    public void setRasqlQueryTransformer(String rasqlQueryTransformer) {
-        this.rasqlQueryTransformer = rasqlQueryTransformer;
+    public void setRasqlQueryTransformFragment(String rasqlQueryTransformFragment) {
+        this.rasqlQueryTransformFragment = rasqlQueryTransformFragment;
+    }
+
+    public String getWcpsQueryFragment() {
+        return wcpsQueryFragment;
+    }
+
+    public void setWcpsQueryFragment(String wcpsQueryFragment) {
+        this.wcpsQueryFragment = wcpsQueryFragment;
     }
 
     /**
@@ -193,10 +209,14 @@ public class Style {
 
         // Abstract
         Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
-        // NOTE: Rasql fragment query is not a valid WMS style, so just add it to abstract for human readble.
+        
+        // NOTE: fragment query is not a valid WMS style, so just add it to abstract for human readble.
         String styleAbstractStr = this.getStyleAbstract();
-        if (!this.getRasqlQueryTransformer().isEmpty()) {
-            styleAbstractStr += ". Rasql fragment query: " + XMLUtil.enquoteCDATA(this.getRasqlQueryTransformer());
+        if (!StringUtil.isEmpty(this.getWcpsQueryFragment())) {         
+            styleAbstractStr += ". WCPS query fragment: " + XMLUtil.enquoteCDATA(this.getWcpsQueryFragment());
+        } else if (!StringUtil.isEmpty(this.getRasqlQueryTransformFragment())) {
+            // deprecated
+            styleAbstractStr += ". Rasql transform fragment: " + XMLUtil.enquoteCDATA(this.getRasqlQueryTransformFragment());
         }
         abstractElement.appendChild(styleAbstractStr);
         styleElement.appendChild(abstractElement);

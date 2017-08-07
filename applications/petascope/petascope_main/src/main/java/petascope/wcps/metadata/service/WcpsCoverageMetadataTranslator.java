@@ -85,9 +85,9 @@ public class WcpsCoverageMetadataTranslator {
         String extraMetadata = coverage.getMetadata();
         List<NilValue> nilValues = coverage.getAllUniqueNullValues();
 
-        WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId, coverage.getCoverageType(), axes,
-                coverage.getEnvelope().getEnvelopeByAxis().getSrsName(),
-                rangeFields, nilValues, extraMetadata);
+        WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId,
+                                                        coverage.getCoverageType(), axes, coverage.getEnvelope().getEnvelopeByAxis().getSrsName(), 
+                                                        rangeFields, nilValues, extraMetadata);
 
         return wcpsCoverageMetadata;
     }

@@ -36,7 +36,7 @@ public class WMSInvalidCrsUriException extends WMSException {
      *
      * @param crs the invalid crs.
      */
-    public WMSInvalidCrsUriException(@NotNull String crs) {
+    public WMSInvalidCrsUriException(@NotNull String crs) {        
         super(ERROR_MESSAGE.replace(CRS_TOKEN, crs));
     }
 
@@ -48,5 +48,5 @@ public class WMSInvalidCrsUriException extends WMSException {
 
     private static final String CRS_TOKEN = "$crs$";
     private static final String EXCEPTION_CODE = "InvalidCrs";
-    private static final String ERROR_MESSAGE = "The supplied crs uri " + CRS_TOKEN + " is invalid, current only supports EPSG code.";
+    private static final String ERROR_MESSAGE = "The supplied crs uri '" + CRS_TOKEN + "' is invalid, current only supports EPSG code.";
 }

@@ -48,6 +48,6 @@ public class WMSMissingRequestParameter extends WMSException {
 
     private static final String TOKEN_PARAMETER = "$parameter$";
     private static final String EXCEPTION_CODE = "MissingRequestParameter";
-    private static final String ERROR_MESSAGE = "The requested parameter: " + TOKEN_PARAMETER + " is missing.";
+    private static final String ERROR_MESSAGE = "The request parameter '" + TOKEN_PARAMETER + "' is missing.";
 
 }

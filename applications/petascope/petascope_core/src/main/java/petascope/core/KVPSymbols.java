@@ -114,6 +114,7 @@ public interface KVPSymbols {
     String KEY_WMS_TITLE = "title";
     String KEY_WMS_ABSTRACT = "abstract";
     String KEY_WMS_RASQL_TRANSFORM_FRAGMENT = "rasqlTransformFragment";
+    String KEY_WMS_WCPS_QUERY_FRAGMENT = "wcpsQueryFragment";
     String KEY_WMS_WCSCOVERAGEID = "wcsCoverageId";
     String KEY_WMS_LAYERS = "layers";
     String KEY_WMS_STYLES = "styles";

@@ -41,6 +41,10 @@ public abstract class WMSException extends Exception {
     public WMSException(String errorMessage) {
         super(errorMessage);
     }
+    
+    public WMSException(String errorMessage, Exception ex) {
+        super(errorMessage, ex);
+    }
 
     /**
      * Returns the exception code

@@ -49,5 +49,5 @@ public class WMSInvalidDimensionValue extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidFormat";
-    private static final String ERROR_MESSAGE = "The request contains an invalid sample dimension $Dimension value.";
+    private static final String ERROR_MESSAGE = "The request contains an invalid sample dimension '$Dimension' value.";
 }

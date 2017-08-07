@@ -55,5 +55,5 @@ public class WMSInvalidWidth extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidWidth";
-    private static final String ERROR_MESSAGE = "The requested $Width is invalid.";
+    private static final String ERROR_MESSAGE = "The requested '$Width' is invalid.";
 }

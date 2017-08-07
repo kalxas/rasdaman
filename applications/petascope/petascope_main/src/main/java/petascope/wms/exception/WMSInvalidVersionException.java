@@ -48,5 +48,5 @@ public class WMSInvalidVersionException extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidVersion";
-    private static final String ERROR_MESSAGE = "The requested version $Version is invalid.";
+    private static final String ERROR_MESSAGE = "The requested version '$Version' is invalid.";
 }

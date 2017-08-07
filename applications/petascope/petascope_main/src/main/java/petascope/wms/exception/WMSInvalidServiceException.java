@@ -48,5 +48,5 @@ public class WMSInvalidServiceException extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidService";
-    private static final String ERROR_MESSAGE = "The requested service $Service is invalid.";
+    private static final String ERROR_MESSAGE = "The requested service '$Service' is invalid.";
 }

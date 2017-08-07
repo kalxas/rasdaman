@@ -63,15 +63,30 @@
             <Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_4326_new</Name>
+                <Title>test_wms_4326_new</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>111.975</westBoundLongitude>
+                    <eastBoundLongitude>156.375</eastBoundLongitude>
+                    <southBoundLatitude>-44.575</southBoundLatitude>
+                    <northBoundLatitude>-8.975</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326" maxx="-8.975"
+                    maxy="156.375" minx="-44.575" miny="111.975"/>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
                 <Name>test_wms_3857</Name>
                 <Title>test_wms_3857</Title>
                 <Abstract/>
                 <CRS>EPSG:3857</CRS>
                 <EX_GeographicBoundingBox>
-                    <westBoundLongitude>-44.61151132147286801910013309679925441741943359375</westBoundLongitude>
-                    <eastBoundLongitude>-8.975000000022962609591559157706797122955322265625</eastBoundLongitude>
-                    <southBoundLatitude>111.9750000002083112349282600916922092437744140625</southBoundLatitude>
-                    <northBoundLatitude>156.3084488206390005871071480214595794677734375</northBoundLatitude>
+                    <westBoundLongitude>111.9750000002083112349282600916922092437744140625</westBoundLongitude>
+                    <eastBoundLongitude>156.3084488206390005871071480214595794677734375</eastBoundLongitude>
+                    <southBoundLatitude>-44.61151132147286801910013309679925441741943359375</southBoundLatitude>
+                    <northBoundLatitude>-8.975000000022962609591559157706797122955322265625</northBoundLatitude>
                 </EX_GeographicBoundingBox>
                 <BoundingBox CRS="EPSG:3857" maxx="17400176.9294"
                     maxy="-1003203.48247" minx="12464999.9816" miny="-5560567.84096"/>

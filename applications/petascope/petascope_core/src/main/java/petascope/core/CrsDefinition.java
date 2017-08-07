@@ -27,6 +27,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.AxisTypes.AxisDirection;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 
 /**
@@ -196,8 +198,7 @@ public class CrsDefinition {
         }
         return direction;
     }
-
-
+    
     // Inner class
     public class Axis implements Cloneable {
         private final String direction;

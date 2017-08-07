@@ -84,13 +84,17 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         if (nameParam == null) {
             throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_NAME);
         }
-
-        // Check if Rasql fragment does exist from the request
-        String[] rasqlFragmentParam = kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT);
-        if (rasqlFragmentParam == null) {
-            throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT);
+        
+        // Check if WCPS query fragment does exist from the request
+        String[] wcpsQueryFragmentParam = kvpParameters.get(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT);
+        if (wcpsQueryFragmentParam == null) {
+            // Check if Rasql transform fragment does exist from the request
+            String[] rasqlFragmentParam = kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT);
+            if (rasqlFragmentParam == null) {
+                // Neither wcpsQueryFragment or rasqlTransformFragment does exist, so throw exception for this style
+                throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT + " or " + KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT);
+            }
         }
-
     }
 
     @Override
@@ -103,8 +107,7 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         String styleName = kvpParameters.get(KVPSymbols.KEY_WMS_NAME)[0];
         // NOTE: if title param does not exist, title is as same as name
         String styleTitle = kvpParameters.get(KVPSymbols.KEY_WMS_TITLE) == null ? styleName : kvpParameters.get(KVPSymbols.KEY_WMS_TITLE)[0];
-        String styleAbstract = kvpParameters.get(KVPSymbols.KEY_WMS_ABSTRACT) == null ? "" : kvpParameters.get(KVPSymbols.KEY_WMS_ABSTRACT)[0];
-        String styleRasqlFragmenet = kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT)[0];
+        String styleAbstract = kvpParameters.get(KVPSymbols.KEY_WMS_ABSTRACT) == null ? "" : kvpParameters.get(KVPSymbols.KEY_WMS_ABSTRACT)[0];        
         Layer layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
 
         String request = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
@@ -113,7 +116,7 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
             // Check if style does exist
             style = layer.getStyle(styleName);
             if (style != null) {
-                // Cannot add same style name for a laer
+                // Cannot add same style name for a layer
                 throw new WMSDuplicateStyleForLayerException(styleName, layerName);
             } else {
                 // create new style
@@ -123,15 +126,26 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         } else {
             style = layer.getStyle(styleName);
         }
+        
+        if (style == null) {
+            throw new WMSStyleNotExistException(styleName, layerName);
+        }
 
         style.setName(styleName);
         style.setTitle(styleTitle);
         style.setStyleAbstract(styleAbstract);
-        style.setRasqlQueryTransformer(styleRasqlFragmenet);
+        
+        // A style must have a value for wcpsQueryFragment or rasqlTransformFragment
+        if (kvpParameters.get(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT) != null) {
+            style.setWcpsQueryFragment(kvpParameters.get(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT)[0]);
+        } else if (kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT) != null) {
+            // deprecated
+            style.setRasqlQueryTransformFragment(kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT)[0]);
+        }
 
         // Then update the layer with the new updated/added style to database.
         this.wmsRepostioryService.saveLayer(layer);
-        log.info("WMS Style: " + style.getName() + " is persisted in database.");
+        log.info("WMS Style '" + style.getName() + "' is persisted in database.");
 
         if (!request.equals(KVPSymbols.VALUE_WMS_INSERT_STYLE)) {
             // Remove all the cached GetMap response from cache as style is updated

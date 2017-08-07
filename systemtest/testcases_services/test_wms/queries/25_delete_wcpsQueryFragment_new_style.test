@@ -1,0 +1,5 @@
+service=WMS&
+version=1.3.0&
+request=DeleteStyle&
+name=wcpsQueryFragment&
+layer=test_wms_4326_new

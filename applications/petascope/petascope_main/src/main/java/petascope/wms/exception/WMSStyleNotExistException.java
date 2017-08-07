@@ -48,6 +48,6 @@ public class WMSStyleNotExistException extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private final static String ERROR_MESSAGE = "The given style name: $styleName of a layer: $layerName does not exist in database.";
-    private final static String EXCEPTION_CODE = "StyleNotExist";
+    private final static String ERROR_MESSAGE = "The given style name '$styleName' of layer '$layerName' does not exist in database.";
+    private final static String EXCEPTION_CODE = "StyleNotFound";
 }

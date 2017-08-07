@@ -23,7 +23,6 @@ package petascope.wms.handlers.kvp;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -52,7 +51,7 @@ import petascope.wms.exception.WMSStylesSizeNotCorrsespondLayersSizeException;
 import petascope.wms.exception.WMSUnsupportedFormatException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 import petascope.wms.handlers.service.WMSGetMapExceptionService;
-import petascope.wms.handlers.service.WMSRasqlGeneratorService;
+import petascope.wms.handlers.service.WMSGetMapService;
 
 /**
  * Class to handle the KVP WMS GetMap request, e.g:
@@ -74,7 +73,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
-    private WMSRasqlGeneratorService wmsRasqlGeneratorService;
+    private WMSGetMapService wmsGetMapService;
     @Autowired
     private WMSGetMapExceptionService wmsGetMapExceptionService;
     @Autowired
@@ -106,7 +105,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         } else {
             // NOTE: if Styles=&format=image/png, so styles is empty for all the requesting layers (use the first style of layers)            
             if (!stylesParam[0].isEmpty()) {
-                if (stylesParam.length != layers.size()) {
+                if (stylesParam[0].split(",").length != layers.size()) {
                     throw new WMSStylesSizeNotCorrsespondLayersSizeException(stylesParam.length, layers.size());
                 }
                 for (int i = 0; i < stylesParam.length; i++) {
@@ -205,16 +204,16 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             }
 
             // @TODO: supports TIME, ELEVATION and other dimensions in WMS coverage > 2D.  
-            wmsRasqlGeneratorService.setLayerNames(layerNames);
-            wmsRasqlGeneratorService.setStyleNames(styleNames);
-            wmsRasqlGeneratorService.setOutputCRS(outputCRS);
-            wmsRasqlGeneratorService.setBBox(bbox);
-            wmsRasqlGeneratorService.setWidth(width);
-            wmsRasqlGeneratorService.setHeight(height);
-            wmsRasqlGeneratorService.setFormat(format);
-            wmsRasqlGeneratorService.setTransparent(transparent);
+            wmsGetMapService.setLayerNames(layerNames);
+            wmsGetMapService.setStyleNames(styleNames);
+            wmsGetMapService.setOutputCRS(outputCRS);
+            wmsGetMapService.setBBox(bbox);
+            wmsGetMapService.setWidth(width);
+            wmsGetMapService.setHeight(height);
+            wmsGetMapService.setFormat(format);
+            wmsGetMapService.setTransparent(transparent);
 
-            response = wmsRasqlGeneratorService.createGetMapResponse();
+            response = wmsGetMapService.createGetMapResponse();
             // Add the successful result to the cache
             wmsGetMapCachingService.addResponseToCache(queryString, response);
         } catch (Exception ex) {
@@ -245,10 +244,10 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
 
         BoundingBox bbox = new BoundingBox();
         String[] values = input.split(",");
-        bbox.setMinx(new BigDecimal(values[0]));
-        bbox.setMiny(new BigDecimal(values[1]));
-        bbox.setMaxx(new BigDecimal(values[2]));
-        bbox.setMaxy(new BigDecimal(values[3]));
+        bbox.setXMin(new BigDecimal(values[0]));
+        bbox.setYMin(new BigDecimal(values[1]));
+        bbox.setXMax(new BigDecimal(values[2]));
+        bbox.setYMax(new BigDecimal(values[3]));
 
         return bbox;
     }

@@ -54,5 +54,5 @@ public class WMSStylesSizeNotCorrsespondLayersSizeException extends WMSException
     }
 
     private final static String EXCEPTION_CODE = "StylesNotCorrespondLayers";
-    private final static String ERROR_MESSAGE = "The number of requesting styles: $stylesSize is different from requesting layers: $layersSize.";
+    private final static String ERROR_MESSAGE = "The number of request styles '$stylesSize' is different from request layers '$layersSize'.";
 }

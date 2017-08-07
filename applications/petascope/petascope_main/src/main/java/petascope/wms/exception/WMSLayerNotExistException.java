@@ -46,6 +46,6 @@ public class WMSLayerNotExistException extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private final static String ERROR_MESSAGE = "The given layer name: $layerName does not exist in database.";
-    private final static String EXCEPTION_CODE = "LayerNotExist";
+    private final static String ERROR_MESSAGE = "The given layer name '$layerName' does not exist in database.";
+    private final static String EXCEPTION_CODE = "LayerNotFound";
 }

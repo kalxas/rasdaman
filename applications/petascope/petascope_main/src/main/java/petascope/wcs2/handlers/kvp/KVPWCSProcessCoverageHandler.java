@@ -124,6 +124,20 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
 
         return new Response(results, mimeType, coverageID);
     }
+    
+    /**
+     * Build a wcpsQuery which will return a Rasql query
+     * @param wcpsQuery 
+     * @return  
+     * @throws petascope.exceptions.PetascopeException 
+     */
+    public String buildRasqlQuery(String wcpsQuery) throws WCPSException, PetascopeException {
+        VisitorResult visitorResult = wcpsTranslator.translate(wcpsQuery);
+        WcpsResult wcpsResult = (WcpsResult) visitorResult;        
+        String rasql = wcpsResult.getRasql();
+        
+        return rasql;
+    }
 
     /**
      * Process a WCPS query and returns the Response

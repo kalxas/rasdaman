@@ -85,16 +85,16 @@ public class BoundingBox {
     private String crs;
 
     @Column
-    private String minx;
+    private String xmin;
 
     @Column
-    private String miny;
+    private String ymin;
 
     @Column
-    private String maxx;
+    private String xmax;
 
     @Column
-    private String maxy;
+    private String ymax;
 
     public String getCrs() {
         return crs;
@@ -104,42 +104,42 @@ public class BoundingBox {
         this.crs = crs;
     }
 
-    public BigDecimal getMinx() {
-        return new BigDecimal(minx);
+    public BigDecimal getXMin() {
+        return new BigDecimal(xmin);
     }
 
-    public void setMinx(BigDecimal minx) {
-        this.minx = BigDecimalUtil.stripDecimalZeros(minx).toPlainString();
+    public void setXMin(BigDecimal xMin) {
+        this.xmin = BigDecimalUtil.stripDecimalZeros(xMin).toPlainString();
     }
 
-    public BigDecimal getMiny() {
-        return new BigDecimal(miny);
+    public BigDecimal getYMin() {
+        return new BigDecimal(ymin);
     }
 
-    public void setMiny(BigDecimal miny) {
-        this.miny = BigDecimalUtil.stripDecimalZeros(miny).toPlainString();
+    public void setYMin(BigDecimal ymin) {
+        this.ymin = BigDecimalUtil.stripDecimalZeros(ymin).toPlainString();
     }
 
-    public BigDecimal getMaxx() {
-        return new BigDecimal(maxx);
+    public BigDecimal getXMax() {
+        return new BigDecimal(xmax);
     }
 
-    public void setMaxx(BigDecimal maxx) {
-        this.maxx = BigDecimalUtil.stripDecimalZeros(maxx).toPlainString();
+    public void setXMax(BigDecimal xMax) {
+        this.xmax = BigDecimalUtil.stripDecimalZeros(xMax).toPlainString();
     }
 
-    public BigDecimal getMaxy() {
-        return new BigDecimal(maxy);
+    public BigDecimal getYMax() {
+        return new BigDecimal(ymax);
     }
 
-    public void setMaxy(BigDecimal maxy) {
-        this.maxy = BigDecimalUtil.stripDecimalZeros(maxy).toPlainString();
+    public void setYMax(BigDecimal ymax) {
+        this.ymax = BigDecimalUtil.stripDecimalZeros(ymax).toPlainString();
     }
 
     @Override
     public String toString() {
-        return "Bounding box: minx=" + minx + ", maxx=" + maxx
-                + ", miny=" + miny + ", maxy=" + maxy;
+        return "Bounding box: xmin=" + xmin + ", xmax=" + xmax
+                + ", ymin=" + ymin + ", ymax=" + ymax;
     }
 
     /**
@@ -151,10 +151,10 @@ public class BoundingBox {
         
         Element bboxElement = new Element(XMLSymbols.LABEL_WMS_BOUNDING_BOX);
         Attribute crsAttribute = new Attribute(XMLSymbols.LABEL_WMS_CRS, this.getCrs());
-        Attribute minxAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_X, minx);
-        Attribute minyAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_Y, miny);
-        Attribute maxxAttribute = new Attribute(XMLSymbols.ATT_WMS_MAX_X, maxx);
-        Attribute maxyAttribute = new Attribute(XMLSymbols.ATT_WMS_MAX_Y, maxy);
+        Attribute minxAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_X, xmin);
+        Attribute minyAttribute = new Attribute(XMLSymbols.ATT_WMS_MIN_Y, ymin);
+        Attribute maxxAttribute = new Attribute(XMLSymbols.ATT_WMS_MAX_X, xmax);
+        Attribute maxyAttribute = new Attribute(XMLSymbols.ATT_WMS_MAX_Y, ymax);
 
         bboxElement.addAttribute(crsAttribute);
         bboxElement.addAttribute(minxAttribute);

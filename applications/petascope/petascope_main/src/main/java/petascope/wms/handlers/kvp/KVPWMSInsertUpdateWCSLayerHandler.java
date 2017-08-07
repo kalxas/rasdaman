@@ -214,11 +214,11 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
                 throw new WMSInvalidBoundingBoxInCrsTransformException(bbox, sourceCrs, targetCrs, ex.getExceptionText());
             }
 
-            // Output is EPSG:4326 (Lat, Long)
-            minLong = minValues.get(1);
-            minLat = minValues.get(0);
-            maxLong = maxValues.get(1);
-            maxLat = maxValues.get(0);
+            // Output is EPSG:4326 (but GDAL always show Long, Lat)
+            minLong = minValues.get(0);
+            minLat = minValues.get(1);
+            maxLong = maxValues.get(0);
+            maxLat = maxValues.get(1);
         }
 
         exBBox.setWestBoundLongitude(minLong);
@@ -239,16 +239,16 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
 
         if (isXYOrder) {
             // EPSG:3857 is XY order
-            bbox.setMinx(xyAxes.get(0).getGeoBounds().getLowerLimit());
-            bbox.setMiny(xyAxes.get(1).getGeoBounds().getLowerLimit());
-            bbox.setMaxx(xyAxes.get(0).getGeoBounds().getUpperLimit());
-            bbox.setMaxy(xyAxes.get(1).getGeoBounds().getUpperLimit());
+            bbox.setXMin(xyAxes.get(0).getGeoBounds().getLowerLimit());
+            bbox.setYMin(xyAxes.get(1).getGeoBounds().getLowerLimit());
+            bbox.setXMax(xyAxes.get(0).getGeoBounds().getUpperLimit());
+            bbox.setYMax(xyAxes.get(1).getGeoBounds().getUpperLimit());
         } else {
             // EPSG:4326 is YX order
-            bbox.setMinx(xyAxes.get(1).getGeoBounds().getLowerLimit());
-            bbox.setMiny(xyAxes.get(0).getGeoBounds().getLowerLimit());
-            bbox.setMaxx(xyAxes.get(1).getGeoBounds().getUpperLimit());
-            bbox.setMaxy(xyAxes.get(0).getGeoBounds().getUpperLimit());
+            bbox.setXMin(xyAxes.get(1).getGeoBounds().getLowerLimit());
+            bbox.setYMin(xyAxes.get(0).getGeoBounds().getLowerLimit());
+            bbox.setXMax(xyAxes.get(1).getGeoBounds().getUpperLimit());
+            bbox.setYMax(xyAxes.get(0).getGeoBounds().getUpperLimit());
         }
 
         return bbox;
