@@ -120,11 +120,11 @@ module rasdaman {
                             $scope.IsAvailableCoveragesOpen = true;
                             $scope.IsServiceIdentificationOpen = true;
                             $scope.IsServiceProviderOpen = true;
-                            
+
                             // also, make another request to GetCoveragesExtents in EPSG:4326 to display on Globe
                             wcsService.getCoveragesExtents()
                                 .then((response:rasdaman.common.Response<any>)=> {
-                                        //Success handler                                                                                                                                                            
+                                        //Success handler
                                         $scope.coveragesExtents = response.data;
                                         // Also, store the CoveragesExtents to Service class then can be used later
                                         webWorldWindService.setCoveragesExtents($scope.coveragesExtents);

@@ -128,37 +128,9 @@ module rasdaman {
             return webWorldWindModel;
         }
 
-        // To get the coverageIds of other coverages in the current page which have same extents.
-        // As in the Globe, only the upper coverage's polygon can be hovered, so need to add these coverageIds to the text layer
-        // to let user know how many coverages in this polygon.
-        // return: array[string] coverageIds
-        private getCoverageIdsSameExtent(coverageExtent: any, coveragesExtentsArray: any) {
-            var coveragedIds = [];            
-            var xmin = coverageExtent.bbox.xmin;
-            var ymin = coverageExtent.bbox.ymin;
-            var xmax = coverageExtent.bbox.xmax;
-            var ymax = coverageExtent.bbox.ymax;
-
-            for (var i = 0; i < coveragesExtentsArray.length; i++) {
-                var coverageIdTmp = coveragesExtentsArray[i].coverageId;
-                var bboxTmp = coveragesExtentsArray[i].bbox;
-                var xminTmp = bboxTmp.xmin;
-                var yminTmp = bboxTmp.ymin;
-                var xmaxTmp = bboxTmp.xmax;
-                var ymaxTmp = bboxTmp.ymax;
-
-                if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) {                    
-                    // add the coverages with same extent with input coverage (incldue itself)
-                    coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
-                }
-            }
-
-            return coveragedIds;
-        }
-
-        // coveragesExtentsArray is an array of CoveragesExtents
+        // coverageExtents is an array of CoverageExtents
         // Then load this array on the Globe on a HTML element canvas
-        public loadCoveragesExtentsOnGlobe(canvasId: string, coveragesExtentsArray: any) {    
+        public loadCoveragesExtentsOnGlobe(canvasId: string, coverageExtents: any) {    
             var exist = false;
             var webWorldWindModel = null;            
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -195,30 +167,39 @@ module rasdaman {
             highlightAttributes.outlineColor = WorldWind.Color.RED;
             highlightAttributes.interiorColor = new WorldWind.Color(1, 1, 1, 0.2);        
                       
-            for (var i = 0; i < coveragesExtentsArray.length; i++) {
-                var coverageExtent = coveragesExtentsArray[i];
+            var xcenter = 0, ycenter = 0;
+            for (var i = 0; i < coverageExtents.length; i++) {
+                var coverageExtent = coverageExtents[i];
                 var coverageId = coverageExtent.coverageId;
                 var bbox = coverageExtent.bbox;
 
+                var xmin = bbox.xmin.toFixed(5);
+                if (xmin < -180) {
+                    xmin = -180;
+                }
+                var ymin = bbox.ymin.toFixed(5);
+                if (ymin < -90) {
+                    ymin = 90;
+                }
+                var xmax = bbox.xmax.toFixed(5);
+                if (xmax > 180) {
+                    xmax = 180;
+                }
+                var ymax = bbox.ymax.toFixed(5);
+                if (ymax > 90) {
+                    ymax = 90;
+                }
+
                 var boundaries = [];
                 boundaries[0] = []; // outer boundary
-                boundaries[0].push(new WorldWind.Location(bbox.ymin, bbox.xmin));
-                boundaries[0].push(new WorldWind.Location(bbox.ymin, bbox.xmax));
-                boundaries[0].push(new WorldWind.Location(bbox.ymax, bbox.xmax));
-                boundaries[0].push(new WorldWind.Location(bbox.ymax, bbox.xmin));                                       
+                boundaries[0].push(new WorldWind.Location(ymin, xmin));
+                boundaries[0].push(new WorldWind.Location(ymin, xmax));
+                boundaries[0].push(new WorldWind.Location(ymax, xmax));
+                boundaries[0].push(new WorldWind.Location(ymax, xmin));                                       
 
                 var polygon = new WorldWind.SurfacePolygon(boundaries, polygonAttributes);                                                            
                 polygon.highlightAttributes = highlightAttributes;
-
-                // as it can have multiple coverageIds share same extent
-                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
-                var coverageIdsStr = "";
-
-                for (var j = 0; j < coverageIds.length; j++) {
-                    coverageIdsStr += coverageIds[j];
-                }
-
-                var userProperties = coverageIdsStr + "Coverage Extent: lat_min=" + bbox.ymin + ", lon_min=" + bbox.xmin + ", lat_max=" + bbox.ymax + ", lon_max=" + bbox.xmax;
+                var userProperties = "Coverage Id: " + coverageId + "\n" +  "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
                 polygon.userProperties = userProperties;
 
                 // Add the polygon to the layer and the layer to the World Window's layer list.

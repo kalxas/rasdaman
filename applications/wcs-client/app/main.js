@@ -2038,8 +2038,13 @@ var rasdaman;
             }
             if (args.length == 1) {
                 var errorInformation = args[0][0];
-                this.notificationService.error("The request failed with status:" + errorInformation.status + "(" + errorInformation.statusText + ")");
-                if (errorInformation.data) {
+                if (errorInformation.data === "" && errorInformation.status == 404) {
+                    this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");
+                }
+                else {
+                    this.notificationService.error("The request failed with HTTP code:" + errorInformation.status + "(" + errorInformation.statusText + ")");
+                }
+                if (errorInformation.data != "") {
                     try {
                         var responseDocument = new rasdaman.common.ResponseDocument(errorInformation.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = this.serializedObjectFactory.getSerializedObject(responseDocument);
@@ -2129,26 +2134,7 @@ var rasdaman;
             this.webWorldWindModels.push(webWorldWindModel);
             return webWorldWindModel;
         };
-        WebWorldWindService.prototype.getCoverageIdsSameExtent = function (coverageExtent, coveragesExtentsArray) {
-            var coveragedIds = [];
-            var xmin = coverageExtent.bbox.xmin;
-            var ymin = coverageExtent.bbox.ymin;
-            var xmax = coverageExtent.bbox.xmax;
-            var ymax = coverageExtent.bbox.ymax;
-            for (var i = 0; i < coveragesExtentsArray.length; i++) {
-                var coverageIdTmp = coveragesExtentsArray[i].coverageId;
-                var bboxTmp = coveragesExtentsArray[i].bbox;
-                var xminTmp = bboxTmp.xmin;
-                var yminTmp = bboxTmp.ymin;
-                var xmaxTmp = bboxTmp.xmax;
-                var ymaxTmp = bboxTmp.ymax;
-                if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) {
-                    coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
-                }
-            }
-            return coveragedIds;
-        };
-        WebWorldWindService.prototype.loadCoveragesExtentsOnGlobe = function (canvasId, coveragesExtentsArray) {
+        WebWorldWindService.prototype.loadCoveragesExtentsOnGlobe = function (canvasId, coverageExtents) {
             var exist = false;
             var webWorldWindModel = null;
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -2176,24 +2162,36 @@ var rasdaman;
             var highlightAttributes = new WorldWind.ShapeAttributes(polygonAttributes);
             highlightAttributes.outlineColor = WorldWind.Color.RED;
             highlightAttributes.interiorColor = new WorldWind.Color(1, 1, 1, 0.2);
-            for (var i = 0; i < coveragesExtentsArray.length; i++) {
-                var coverageExtent = coveragesExtentsArray[i];
+            var xcenter = 0, ycenter = 0;
+            for (var i = 0; i < coverageExtents.length; i++) {
+                var coverageExtent = coverageExtents[i];
                 var coverageId = coverageExtent.coverageId;
                 var bbox = coverageExtent.bbox;
+                var xmin = bbox.xmin.toFixed(5);
+                if (xmin < -180) {
+                    xmin = -180;
+                }
+                var ymin = bbox.ymin.toFixed(5);
+                if (ymin < -90) {
+                    ymin = 90;
+                }
+                var xmax = bbox.xmax.toFixed(5);
+                if (xmax > 180) {
+                    xmax = 180;
+                }
+                var ymax = bbox.ymax.toFixed(5);
+                if (ymax > 90) {
+                    ymax = 90;
+                }
                 var boundaries = [];
                 boundaries[0] = [];
-                boundaries[0].push(new WorldWind.Location(bbox.ymin, bbox.xmin));
-                boundaries[0].push(new WorldWind.Location(bbox.ymin, bbox.xmax));
-                boundaries[0].push(new WorldWind.Location(bbox.ymax, bbox.xmax));
-                boundaries[0].push(new WorldWind.Location(bbox.ymax, bbox.xmin));
+                boundaries[0].push(new WorldWind.Location(ymin, xmin));
+                boundaries[0].push(new WorldWind.Location(ymin, xmax));
+                boundaries[0].push(new WorldWind.Location(ymax, xmax));
+                boundaries[0].push(new WorldWind.Location(ymax, xmin));
                 var polygon = new WorldWind.SurfacePolygon(boundaries, polygonAttributes);
                 polygon.highlightAttributes = highlightAttributes;
-                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
-                var coverageIdsStr = "";
-                for (var j = 0; j < coverageIds.length; j++) {
-                    coverageIdsStr += coverageIds[j];
-                }
-                var userProperties = coverageIdsStr + "Coverage Extent: lat_min=" + bbox.ymin + ", lon_min=" + bbox.xmin + ", lat_max=" + bbox.ymax + ", lon_max=" + bbox.xmax;
+                var userProperties = "Coverage Id: " + coverageId + "\n" + "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
                 polygon.userProperties = userProperties;
                 polygonLayer.addRenderable(polygon);
             }
@@ -2931,12 +2929,25 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    var NotificationWCPSResult = (function (_super) {
+        __extends(NotificationWCPSResult, _super);
+        function NotificationWCPSResult(command, data) {
+            var _this = _super.call(this, command) || this;
+            _this.Data = data.toString();
+            return _this;
+        }
+        return NotificationWCPSResult;
+    }(rasdaman.WCPSQueryResult));
+    rasdaman.NotificationWCPSResult = NotificationWCPSResult;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var WCPSResultFactory = (function () {
         function WCPSResultFactory() {
         }
         WCPSResultFactory.getResult = function (errorHandlingService, command, data, mimeType, fileName) {
             if (command.WidgetConfiguration == null) {
-                if (mimeType == "" || mimeType == "application/json" || mimeType == "text/plain" || mimeType == "text/csv" || mimeType == "text/xml" || mimeType == "application/gml+xml") {
+                if (mimeType == "application/json" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
                     return new rasdaman.RawWCPSResult(command, data);
                 }
                 else {
@@ -2958,7 +2969,7 @@ var rasdaman;
             }
         };
         WCPSResultFactory.validateResult = function (errorHandlingService, widgetType, mimeType) {
-            if (widgetType == "diagram" && !(mimeType == "application/json" || mimeType == "text/plain")) {
+            if (widgetType == "diagram" && !(mimeType == "application/json" || mimeType == "text/plain" || mimeType == "text/csv")) {
                 errorHandlingService.notificationService.error("Diagram widget can only be used with encoding 1D result in json or csv.");
             }
             else if (widgetType == "image" && !(mimeType == "image/png" || mimeType == "image/jpeg")) {
@@ -2993,6 +3004,8 @@ var rasdaman;
                     var waitingForResults = new WaitingForResult();
                     $scope.EditorData.push(waitingForResults);
                     var indexOfResults = $scope.EditorData.length - 1;
+                    $scope.EditorData[indexOfResults].Query = $scope.Query;
+                    $scope.EditorData[indexOfResults].finished = false;
                     var waitingForResultsPromise = $interval(function () {
                         $scope.EditorData[indexOfResults].SecondsPassed++;
                     }, 1000);
@@ -3002,14 +3015,23 @@ var rasdaman;
                         if (editorRow != null) {
                             $scope.EditorData.push(editorRow);
                         }
+                        else {
+                            $scope.EditorData.push(new rasdaman.NotificationWCPSResult(command, "Downloading WCPS query's result as a file to Web Browser."));
+                        }
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
                             args[_i] = arguments[_i];
                         }
+                        if (args[0].data instanceof ArrayBuffer) {
+                            var decoder = new TextDecoder("utf-8");
+                            args[0].data = decoder.decode(new Uint8Array(args[0].data));
+                        }
                         errorHandlingService.handleError(args);
                         $log.error(args);
+                        $scope.EditorData.push(new rasdaman.NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));
                     })["finally"](function () {
+                        $scope.EditorData[indexOfResults].finished = true;
                         $interval.cancel(waitingForResultsPromise);
                     });
                 }
@@ -3022,14 +3044,17 @@ var rasdaman;
                 if (datum instanceof WaitingForResult) {
                     return 0;
                 }
-                if (datum instanceof rasdaman.RawWCPSResult) {
+                else if (datum instanceof rasdaman.RawWCPSResult) {
                     return 1;
                 }
-                if (datum instanceof rasdaman.ImageWCPSResult) {
+                else if (datum instanceof rasdaman.ImageWCPSResult) {
                     return 2;
                 }
-                if (datum instanceof rasdaman.DiagramWCPSResult) {
+                else if (datum instanceof rasdaman.DiagramWCPSResult) {
                     return 3;
+                }
+                else if (datum instanceof rasdaman.NotificationWCPSResult) {
+                    return 4;
                 }
                 return -1;
             };
@@ -3037,12 +3062,29 @@ var rasdaman;
         ProcessCoverageController.createExampleQueries = function () {
             return [
                 {
-                    Title: '-- No Option --',
+                    Title: '-- Select a WCPS query --',
                     Query: ''
-                },
-                {
-                    Title: 'Encode as PNG',
+                }, {
+                    Title: 'No encoding',
+                    Query: 'for c in (test_mean_summer_airtemp) return avg(c)'
+                }, {
+                    Title: 'Encode 2D as png with widget',
                     Query: 'image>>for c in (test_mean_summer_airtemp) return encode(c, "png")'
+                }, {
+                    Title: 'Encode 2D as tiff',
+                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "tiff")'
+                }, {
+                    Title: 'Encode 2D as netCDF',
+                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "netcdf")'
+                }, {
+                    Title: 'Encode 1D as csv with widget',
+                    Query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "csv")'
+                }, {
+                    Title: 'Encode 1D as json with widget',
+                    Query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "json")'
+                }, {
+                    Title: 'Encode 1D as gml',
+                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "gml")'
                 }
             ];
         };

@@ -59,15 +59,21 @@ module rasdaman {
                 $scope.Query = newValue;
             });
 
+            // Execute button's click event handler
             $scope.executeQuery = ()=> {
                 try {
-                    var command = new WCPSCommand($scope.Query);
+                    var command = new WCPSCommand($scope.Query);                    
                     var processCoverages = new wcs.ProcessCoverages(command.Query, []);
                     var waitingForResults = new WaitingForResult();
 
                     // Add a message that tracks the processing of the operation
-                    $scope.EditorData.push(waitingForResults);
+                    $scope.EditorData.push(waitingForResults);                    
                     var indexOfResults = $scope.EditorData.length - 1;
+
+                    // Add the query to the scope and display in the console
+                    $scope.EditorData[indexOfResults].Query = $scope.Query;
+                    // Check when query finished
+                    $scope.EditorData[indexOfResults].finished = false;
                     // Start a counter for the current operation
                     var waitingForResultsPromise = $interval(()=> {
                         $scope.EditorData[indexOfResults].SecondsPassed++;
@@ -80,15 +86,24 @@ module rasdaman {
                 				var editorRow = WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
                 				if (editorRow != null) {
 	                                $scope.EditorData.push(editorRow);
+                                } else {
+                                    $scope.EditorData.push(new NotificationWCPSResult(command, "Downloading WCPS query's result as a file to Web Browser."));
                                 }
                             },
                             (...args:any[])=> {
-                                errorHandlingService.handleError(args);
-                                $log.error(args);
+                                // NOTE: Check if args[0].data is arraybuffer then convert it to string or it cannot parse correctly in Error Handler
+                                if (args[0].data instanceof ArrayBuffer) {
+                                    var decoder = new TextDecoder("utf-8");
+                                    args[0].data = decoder.decode(new Uint8Array(args[0].data));
+                                }
+                                errorHandlingService.handleError(args);                                
+                                $log.error(args);                                
+                                $scope.EditorData.push(new NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));                                
                             }
                         )
                         .finally(()=> {
-                            // Stop the counter for the current operation
+                            // Stop the seconds counter for the current WCPS query as it finished.
+                            $scope.EditorData[indexOfResults].finished = true;
                             $interval.cancel(waitingForResultsPromise);
                         });
                 }
@@ -98,21 +113,22 @@ module rasdaman {
                 }
             };
 
-            $scope.getEditorDataType = (datum:any)=> {
+            $scope.getEditorDataType = (datum:any)=> {                
                 if (datum instanceof WaitingForResult) {
+                    // Query not finishes yet
                     return 0;
-                }
-
-                if (datum instanceof RawWCPSResult) {
+                } else if (datum instanceof RawWCPSResult) {
+                    // Text result (csv, json, gml)
                     return 1;
-                }
-
-                if (datum instanceof ImageWCPSResult) {
+                } else if (datum instanceof ImageWCPSResult) {
+                    // 2D image result (jpeg, png) with widget image>>
                     return 2;
-                }
-
-                if (datum instanceof DiagramWCPSResult) {
+                } else if (datum instanceof DiagramWCPSResult) {
+                    // 1D text result with widget diagram>>
                     return 3;
+                } else if (datum instanceof NotificationWCPSResult) {
+                    // Just return a notification to WCPS console
+                    return 4;
                 }
 
                 return -1;
@@ -122,13 +138,31 @@ module rasdaman {
         private static createExampleQueries():QueryExample[] {
             return [
                 {
-                    Title: '-- No Option --',
+                    Title: '-- Select a WCPS query --',
                     Query: ''
-                },
-                {
-                    Title: 'Encode as PNG',
+                }, {
+                    Title: 'No encoding',
+                    Query: 'for c in (test_mean_summer_airtemp) return avg(c)'
+                }, {
+                    Title: 'Encode 2D as png with widget',
                     Query: 'image>>for c in (test_mean_summer_airtemp) return encode(c, "png")'
+                }, {
+                    Title: 'Encode 2D as tiff',
+                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "tiff")'
+                }, {
+                    Title: 'Encode 2D as netCDF',
+                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "netcdf")'
+                }, {
+                    Title: 'Encode 1D as csv with widget',
+                    Query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "csv")'
+                }, {
+                    Title: 'Encode 1D as json with widget',
+                    Query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "json")'
+                }, {
+                    Title: 'Encode 1D as gml',
+                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "gml")'
                 }
+
                 //{
                 //    Title: 'Most basic query',
                 //    Query: 'for c in (AvgLandTemp) return 1'

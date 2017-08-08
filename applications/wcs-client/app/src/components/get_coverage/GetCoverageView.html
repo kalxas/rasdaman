@@ -62,7 +62,7 @@
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label for="select-coverage-format">
-                                        Select coverage format:
+                                        Select encoding format:
                                     </label>
                                 </div>
                                 <div class="col-sm-9">
@@ -103,7 +103,7 @@
                                             by:
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row">                                        
                                         <ul class="bullet-less">
                                             <li class="top5">
                                                 <input type="radio" ng-model="Core.IsTrimSelected[$index]"
@@ -131,7 +131,7 @@
                                                 slicing at
 		                                <input type="string"
 		                                       ng-model="Core.Slices[$index].SlicePoint"
-		                                       ng-disabled="Core.IsTrimSelected[$index]">
+		                                       ng-disabled="Core.IsTrimSelected[$index]" style="margin-left: 28px;">
 		                                <span class="important-text">
 		                                    {{CoverageDescription.BoundedBy.Envelope.UomLabels[$index]}}
 		                                </span>

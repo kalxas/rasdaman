@@ -23,56 +23,67 @@
         <div class="row">
             <div id="output" class="col-sm-12" scroll-glue>
                 <div class="row">
-                    <span class="label label-info">you@wcps>Status</span> Welcome to the interactive WCPS console. Type
-                                                                          your
-                                                                          query in the textbox below and press Execute
-                                                                          to test it.<br/> If you want to pipe the
-                                                                          output of the query to a widget just add the
-                                                                          name of the widget in
-                                                                          front of the query like this:
-                    <span class="label label-success">widget>>query</span> (e.g. encoding 1D in csv, json <span class="label label-success">diagram>>for c in ... return encode(c, "csv")</span>), encoding 2D in png, jpeg <span class="label label-success">image>>for c in ... return encode(c, "png")</span>). You can also add parameters to the widget, i.e.
-                <span class="label label-success">
-                    diagram(type=multiBarChart)>>for x in ...
-                </span>
-                    <br/>
-
-                    <p>
-                        Have fun!
-                    </p>
-                </div>
+                    <span class="label label-info">you@wcps>Status</span> Welcome to the interactive WCPS (<a href ="http://tutorial.rasdaman.org/rasdaman-and-ogc-ws-tutorial/#ogc-web-services-web-coverage-processing-service"> WCPS tutorial </a>) console. Type your WCPS query in the textbox below and click on  <span class="label label-primary">Execute</span> button
+to run it.<br/> 
+                    <ul>
+                        <li>The console can only display 2D image result encoding in png, jpeg with widget: <span class="label label-warning">image>>your WCPS query.</span></li>
+                        <li>Text result encoding in csv, json, gml will display directly without widget.</li>
+                        <li>1D text result encoding in csv, json can be displayed as a diagram with widget: <span class="label label-warning">diagram>>your WCPS query.</span> By default it is a line chart, you can change to bar chart by adding parameter, e.g: <span class="label label-warning">diagram(type=multiBarChart)>>your WCPS query.</span></li>
+                        <li>Other cases will download as files (e.g: 2D tiff, 3D netCDF, 2D png without widget,...).</li>
+                    </ul>
+                </div>                
+		<br/>
 
                 <div class="row" ng-repeat="datum in EditorData">
                     <div class="col-sm-12" ng-switch="getEditorDataType(datum)">
+                        <!-- Query is running, not finish yet -->
                         <div class="row" ng-switch-when="0">
                             <p>
                                 <span class="label label-info">you@wcps>:</span>
-                                Executing Query.
-                                <span class="label label-warning">{{datum.PassedSeconds}} seconds</span>
-                                passed. Please wait...
+                                {{$index}}. Executing WCPS query. <span class="label label-warning">{{datum.SecondsPassed}} seconds</span>
+                                passed. {{datum.finished && " Done."|| " Please wait..."}}
+                                <br/>
+                                <textarea style="width: 91%; min-height: 200px; max-height:500px; margin-top: 10px; 
+    background-color: #eae9e6; resize: none; outline: none;" readonly> {{datum.Query}} </textarea>
+                                <br/>                                
                             </p>
                         </div>
+                        <!-- Query finished, text result (csv, json, gml) is displayed  -->
                         <div class="row" ng-switch-when="1">
-                            <p>
-                                <span class="label label-info">you@wcps>:</span>
-                                {{datum.Query}}
+                            <p>                                                                
+                                <span class="label label-info">Text result (csv, json, gml):</span>
                                 <br/>
-                                <span class="label label-info">Result:</span>
-                                <br/>
-                                {{datum.Data}}
+                                <textarea style="width: 100%; min-height: 200px; max-height:500px; margin-top: 10px; 
+    background-color: transparent; resize: none; outline: none;" readonly> {{datum.Data}} </textarea>
+                                
                             </p>
                         </div>
+                        <!-- Query finished, 2D image (png, jpeg) is displayed with widget image>>-->
                         <div class="row" ng-switch-when="2">
-                            <p>
-                                <span class="label label-info">you@wcps>:</span>
-                                {{datum.Query}}
+                            <p>                               
+                                <span class="label label-info">2D Image result (png, jpeg):</span>
                                 <br/>
-                                <span class="label label-info">Result:</span>
-                                <br/>
-                                <img class="img-responsive"
+                                <img class="img-responsive" style="margin-top: 10px;"
                                      ng-src="{{'data:'+datum.ImageType+';base64,'+datum.Base64ImageData}}"/>
                             </p>
                         </div>
-                        <div class="row row-centered" ng-switch-when="3">
+                        <!-- Query finished, 1D text is displayed with widget diagram>>-->
+                        <div class="row" ng-switch-when="3">
+                            <p>                                
+                                <span class="label label-info">Diagram result:</span>
+                                <br/>
+                            </p>
+                            <div class="col-sm-11 col-centered">
+                                <nvd3 options="datum.DiagramOptions" data="datum.DiagramData"></nvd3>
+                            </div>
+                        </div>
+                        <!-- Query finished, either download as a file or an error-->
+                        <div class="row" ng-switch-when="4">
+                            <p>                                
+                                <span class="label label-danger">Notification result:</span>                                
+                                <br/>
+                                {{datum.Data}}
+                            </p>
                             <div class="col-sm-11 col-centered">
                                 <nvd3 options="datum.DiagramOptions" data="datum.DiagramData"></nvd3>
                             </div>
@@ -86,7 +97,7 @@
         </div>
 
         <div class="row top10">
-            <div class="col-sm-11">
+            <div class="col-sm-11" style="margin-left: -15px;">
                 <div id="queryInput" ui-codemirror="EditorOptions" ng-model="Query"></div>
             </div>
             <div class="col-sm-1">
@@ -96,7 +107,7 @@
             </div>
         </div>
         <div class="row top5">
-            <div class="col-sm-4">
+            <div class="col-sm-4" style="margin-left: -15px;">
                 <div class="input-group">
                     <span class="input-group-addon">Example</span>
                     <select class="form-control" ng-options="query.Query as query.Title for query in AvailableQueries"

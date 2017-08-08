@@ -38,9 +38,14 @@ module rasdaman {
             if (args.length == 1) {
                 var errorInformation:any = args[0][0];
 
-                this.notificationService.error("The request failed with status:" + errorInformation.status + "(" + errorInformation.statusText + ")");
+                if (errorInformation.data === "" && errorInformation.status == 404) {
+                    // No error in data and HTTP code 404 then, Petascope cannot connect.
+                    this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");
+                } else {
+                    this.notificationService.error("The request failed with HTTP code:" + errorInformation.status + "(" + errorInformation.statusText + ")");
+                }                
 
-                if (errorInformation.data) {
+                if (errorInformation.data != "") {
                     try {
                         var responseDocument = new rasdaman.common.ResponseDocument(errorInformation.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = this.serializedObjectFactory.getSerializedObject(responseDocument);
