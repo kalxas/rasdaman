@@ -29,12 +29,14 @@ package petascope.exceptions;
  */
 public class WCPSException extends RuntimeException {
 
-    public WCPSException() {
-    }
-
-    public WCPSException(String message, ExceptionCode exceptionCode) {
+    public WCPSException(ExceptionCode exceptionCode, String message) {
         super(message);
         this.exceptionCode = exceptionCode;
+    }
+
+    public WCPSException(String message) {
+        super(message);
+        this.exceptionCode = ExceptionCode.WcpsError;
     }
 
     public ExceptionCode getExceptionCode() {

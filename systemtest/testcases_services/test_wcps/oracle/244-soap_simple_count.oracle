@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<soap:Envelope >
+    <soap:Header/>
+    <soap:Body>
+      NDIyMA==
+    </soap:Body>
+</soap:Envelope>

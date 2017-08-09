@@ -22,16 +22,16 @@
 package petascope.core.service;
 
 import org.rasdaman.domain.cis.*;
-import petascope.wcps2.exception.processing.UnorderedSubsetException;
-import petascope.wcps2.exception.processing.IrregularAxisFetchingFailedException;
-import petascope.wcps2.exception.processing.InvalidCalculatedBoundsSubsettingException;
-import petascope.wcps2.exception.processing.InvalidDateTimeSubsetException;
+import petascope.wcps.exception.processing.UnorderedSubsetException;
+import petascope.wcps.exception.processing.IrregularAxisFetchingFailedException;
+import petascope.wcps.exception.processing.InvalidCalculatedBoundsSubsettingException;
+import petascope.wcps.exception.processing.InvalidDateTimeSubsetException;
 import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
 import petascope.core.XMLSymbols;
-import petascope.wcps2.metadata.model.ParsedSubset;
+import petascope.wcps.metadata.model.ParsedSubset;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

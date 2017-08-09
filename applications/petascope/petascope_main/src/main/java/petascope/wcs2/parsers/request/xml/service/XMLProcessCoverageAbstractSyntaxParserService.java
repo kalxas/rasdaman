@@ -22,7 +22,6 @@
 package petascope.wcs2.parsers.request.xml.service;
 
 import nu.xom.Element;
-import nu.xom.Elements;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ import petascope.core.XMLSymbols;
 import static petascope.core.XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST;
 import petascope.util.XMLUtil;
 import static petascope.core.XMLSymbols.LABEL_WCPS_QUERY;
-import static petascope.core.XMLSymbols.LABEL_WCPS_ABSTRACT_SYNTAX;
 
 /**
  * Parse a ProcessCoverages from request body in XML to map of keys, values as
@@ -63,39 +61,35 @@ import static petascope.core.XMLSymbols.LABEL_WCPS_ABSTRACT_SYNTAX;
 public class XMLProcessCoverageAbstractSyntaxParserService implements IXMLProcessCoverageParserService {
 
     @Override
-    public boolean canParse(Element rootElement) {
-        Elements childElements = rootElement.getChildElements();
-        // Iterate all the child elements
-        for (int i = 0; i < childElements.size(); i++) {
-            Element childElement = childElements.get(i);
-            String elementName = childElement.getLocalName();
-            // There is a <abstractSyntax> element, so it can parse
-            if (elementName.equals(XMLSymbols.LABEL_WCPS_ABSTRACT_SYNTAX)) {
-                return true;
+    public boolean canParse(Element rootElement) throws WCSException {
+        String rootElementName = rootElement.getLocalName();
+
+        if (rootElementName.equals(XMLSymbols.LABEL_WCPS_ROOT_ABSTRACT_SYNTAX)) {
+            // First element must be <query>
+            Element queryElement = rootElement.getFirstChildElement(XMLSymbols.LABEL_WCPS_QUERY, XMLSymbols.NAMESPACE_WCPS);
+            if (queryElement == null) {
+                throw new WCSException(ExceptionCode.InvalidRequest, "'" + LABEL_PROCESSCOVERAGE_REQUEST + "' element should contain only one '" + LABEL_WCPS_QUERY + "' element.");
             }
+
+            // Next element must be <abstractSyntax>
+            Element abstractSyntaxtElement = queryElement.getFirstChildElement(XMLSymbols.LABEL_WCPS_ABSTRACT_SYNTAX, XMLSymbols.NAMESPACE_WCPS);
+            if (abstractSyntaxtElement == null) {
+                return false;
+            }
+
+            return true;
         }
+
         return false;
     }
 
     @Override
-    public String parseXMLRequest(Element rootElement) throws WCSException {       
-        
-        if (!rootElement.getLocalName().equals(LABEL_PROCESSCOVERAGE_REQUEST)) {
-            throw new WCSException(ExceptionCode.InvalidRequest, "A WCPS request in abstractSyntax must specify one " + LABEL_PROCESSCOVERAGE_REQUEST + " element.");
-        }
-        
-        Elements queryElements = rootElement.getChildElements();
-        if (queryElements.size() > 0) {
-            throw new WCSException(ExceptionCode.InvalidRequest, LABEL_PROCESSCOVERAGE_REQUEST + " element should contain only one " + LABEL_WCPS_QUERY + " element.");
-        }
-        
-        Elements abstractSyntaxElements = queryElements.get(0).getChildElements();
-        if (abstractSyntaxElements.size() > 0) {
-            throw new WCSException(ExceptionCode.InvalidRequest, LABEL_WCPS_QUERY + " element should contain only one " + LABEL_WCPS_ABSTRACT_SYNTAX + " element.");
-        }
-        
-        String wcpsQuery = XMLUtil.getText(abstractSyntaxElements.get(0));        
+    public String parseXMLRequest(Element rootElement) throws WCSException {
+        // Just get the abstract WCPS query from the XML *abstractSyntax* element
+        Element queryElement = rootElement.getFirstChildElement(XMLSymbols.LABEL_WCPS_QUERY, XMLSymbols.NAMESPACE_WCPS);
+        Element abstractSyntaxtElement = queryElement.getFirstChildElement(XMLSymbols.LABEL_WCPS_ABSTRACT_SYNTAX, XMLSymbols.NAMESPACE_WCPS);        
+        String abstractWcpsQuery = XMLUtil.getText(abstractSyntaxtElement);
 
-        return wcpsQuery;
+        return abstractWcpsQuery;
     }
 }

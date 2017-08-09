@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="SyntaxError">
+        <ows:ExceptionText><![CDATA[A parsing error occurred at position=1:81. Offending symbol is=[@28,81:83='max',<48>,1:81]. Parser message=no viable alternative at input 'condense+over$xx(0:100),$yy(0:100)where((max'.]]></ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

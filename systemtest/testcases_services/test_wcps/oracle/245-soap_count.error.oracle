@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<soap:Envelope >
+    <soap:Header/>
+    <soap:Body>
+        <soap:Fault>
+            <soap:Code>
+                <soap:Value>soap:server</soap:Value>
+            </soap:Code>
+            <soap:Reason>
+                <soap:Text xml:lang="en-US">A server exception was encountered.</soap:Text>
+            </soap:Reason>
+            <soap:Detail>
+                <ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="InvalidRequest">
+        <ows:ExceptionText>Invalid XML ProcessCoverages request.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>
+
+            </soap:Detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

@@ -58,44 +58,35 @@ public class XMLProcessCoverageOGCSyntaxParserService implements IXMLProcessCove
 
     @Override
     public boolean canParse(Element rootElement) {
-        Elements childElements = rootElement.getChildElements();
-        // Iterate all the child elements
-        for (int i = 0; i < childElements.size(); i++) {
-            Element childElement = childElements.get(i);
-            String elementName = childElement.getLocalName();
-            // There is a <query> element, so it can parse
-            if (elementName.equals(XMLSymbols.LABEL_WCPS_QUERY)) {
-                return true;
-            }
+        // NOTE: the rootElement must be *ProcessCoverages* not *ProcessCoveragesRequest*
+        String rootElementName = rootElement.getLocalName();
+        if (rootElementName.equals(XMLSymbols.LABEL_WCPS_ROOT_OGC_ABSTRACT_SYNTAX)) {
+            return true;
         }
+        
         return false;
     }
 
     @Override
     public String parseXMLRequest(Element rootElement) throws WCSException {
-
-        if (!rootElement.getLocalName().equals(XMLSymbols.LABEL_WCPS_PROCESS_COVERAGES)) {
-            throw new WCSException(ExceptionCode.InvalidRequest, "A ProcessCoverages request must specify one " + XMLSymbols.LABEL_WCPS_PROCESS_COVERAGES + " element.");
-        }
-
         Elements childElements = rootElement.getChildElements();
-        String wcpsQuery = "";
+        String abstractWcpsQuery = "";
         // Iterate all the child elements
         for (int i = 0; i < childElements.size(); i++) {
             Element childElement = childElements.get(i);
             String elementName = childElement.getLocalName();
             if (elementName.equals(XMLSymbols.LABEL_WCPS_QUERY)) {
-                wcpsQuery = XMLUtil.getText(childElement);
+                abstractWcpsQuery = XMLUtil.getText(childElement);
             } else if (elementName.equals(XMLSymbols.LABEL_WCPS_EXTRA_PARAMETER)) {
                 // Replace the $i with the value from each extraParameter element
                 // e.g: for c in (test_mr) return encode(c, "$1") and extraParameter is png ($1)
                 String extraParameterValue = XMLUtil.getText(childElement);
-                wcpsQuery = wcpsQuery.replace("$" + i, extraParameterValue);
+                abstractWcpsQuery = abstractWcpsQuery.replace("$" + i, extraParameterValue);
             } else {
-                throw new WCSException(ExceptionCode.InvalidRequest, "A ProcessCoverages request cannot contain this element, given: " + elementName);
+                throw new WCSException(ExceptionCode.InvalidRequest, "A ProcessCoverages request cannot contain this element, given: '" + elementName + "'.");
             }
         }
 
-        return wcpsQuery;
+        return abstractWcpsQuery;
     }
 }

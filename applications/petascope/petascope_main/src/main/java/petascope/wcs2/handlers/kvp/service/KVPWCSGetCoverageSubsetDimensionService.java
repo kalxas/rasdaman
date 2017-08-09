@@ -26,8 +26,8 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
 import petascope.exceptions.WCSException;
-import petascope.wcps2.metadata.model.Axis;
-import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
 import petascope.wcs2.parsers.subsets.SubsetDimensionParserService;
 

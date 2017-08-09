@@ -81,6 +81,8 @@ public interface XMLSymbols {
     String NAMESPACE_OWS = "http://www.opengis.net/ows/2.0";
     String NAMESPACE_WCS_OLD = "http://www.opengis.net/wcs/1.1";
     String NAMESPACE_WCS = "http://www.opengis.net/wcs/2.0";
+    // nu xom to get the child element must need the namespace beside the nu
+    String NAMESPACE_WCPS = "http://www.opengis.net/wcps/1.0";
     String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
     String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
@@ -225,11 +227,19 @@ public interface XMLSymbols {
 
     // gml:rangeSet from wcst_import
     String LABEL_RANGESET = "rangeSet";
+    
+    // There are 3 types of WCPS in XML POST request (abstract, OGC abstract and XML syntax)
+    // so determine which type of request by the name of root element and the child element
+    String LABEL_WCPS_ROOT_ABSTRACT_SYNTAX = "ProcessCoveragesRequest";
+    String LABEL_WCPS_ROOT_OGC_ABSTRACT_SYNTAX = "ProcessCoverages";
+    String LABEL_WCPS_ROOT_XML_SYNTAX = "ProcessCoveragesRequest";
 
     // processing coverage extension
     String LABEL_WCPS_PROCESS_COVERAGES = "ProcessCoverages";
     // OGC WCPS POST abstract syntax
     String LABEL_WCPS_ABSTRACT_SYNTAX = "abstractSyntax";
+    // WCPS POST xml syntax
+    String LABEL_WCPS_XML_SYNTAX = "xmlSyntax";
     // OGC WCPS POST syntax
     String LABEL_WCPS_QUERY = "query";
     String LABEL_WCPS_EXTRA_PARAMETER = "extraParameter";

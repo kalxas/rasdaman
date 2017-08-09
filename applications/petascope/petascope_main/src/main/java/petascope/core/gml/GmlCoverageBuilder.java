@@ -30,9 +30,9 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.*;
-import petascope.wcps2.metadata.model.Axis;
-import petascope.wcps2.metadata.model.RangeField;
-import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.RangeField;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -55,7 +55,7 @@ import static petascope.core.XMLSymbols.LABEL_QUANTITY;
 import static petascope.core.XMLSymbols.LABEL_UOM;
 import static petascope.core.XMLSymbols.NAMESPACE_SWE;
 import static petascope.core.XMLSymbols.PREFIX_SWE;
-import petascope.wcps2.metadata.model.IrregularAxis;
+import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.core.Templates;
 
 /**

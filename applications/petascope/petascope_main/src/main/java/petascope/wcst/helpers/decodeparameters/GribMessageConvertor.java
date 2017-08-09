@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.rasdaman.domain.cis.Coverage;
-import petascope.wcps2.metadata.model.ParsedSubset;
+import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.core.service.CrsComputerService;
 import petascope.wcst.helpers.decodeparameters.model.RasdamanDecodeParams;
 import petascope.wcst.helpers.decodeparameters.model.RasdamanGribInternalStructure;

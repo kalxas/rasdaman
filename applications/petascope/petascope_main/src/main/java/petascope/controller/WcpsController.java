@@ -23,8 +23,10 @@ package petascope.controller;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.io.IOUtils;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.WCPS;
 import org.slf4j.LoggerFactory;
@@ -33,13 +35,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
 import petascope.wcs2.handlers.kvp.KVPWCSProcessCoverageHandler;
+import petascope.wcs2.parsers.request.xml.XMLProcessCoverageParser;
 
 /**
  * Controller for legacy WCPS servlet controller (i.e:
@@ -56,6 +59,9 @@ public class WcpsController extends AbstractController {
     // Handlers for the POST request
     @Autowired
     KVPWCSProcessCoverageHandler kvpProcessCoverageHandler;
+    // To parse WCPS in XML syntax to abstract syntax before doing anything
+    @Autowired
+    XMLProcessCoverageParser xmlProcessCoverageParser;
 
     @RequestMapping(value = OWS + "/" + WCPS, method = RequestMethod.POST)
     protected void handlePost(@RequestBody String postBody) throws Exception {        
@@ -69,7 +75,6 @@ public class WcpsController extends AbstractController {
      * return the HTML page with the form to submit a WCPS Post request
      * NOTE: although the string is returned, it actually returns wcps.jsp file.
      * @param httpServletRequest
-     * @return
      * @throws WCSException
      * @throws IOException
      * @throws PetascopeException
@@ -77,13 +82,28 @@ public class WcpsController extends AbstractController {
      * @throws Exception 
      */
     @RequestMapping(value = OWS + "/" + WCPS, method = RequestMethod.GET)      
-    public String returnWebPage(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
-        return "wcps";
+    public void returnWebPage(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
+        byte[] bytes = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/wcps.html")).getBytes();
+        Response response = new Response(Arrays.asList(bytes), "text/html");
+        
+        // Dump the response result to client
+        this.writeResponseResult(response);
     }
 
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
         log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+        
+        // NOTE: this posted WCPS query in requestBody can be WCPS in XML syntax beside the abstract syntax
+        if (kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY) != null) {
+            String requestBody = kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY)[0];
+            // It should be WCPS in XML elements
+            String abstractWcpsQuery = xmlProcessCoverageParser.parseWCPSQueryFromXML(requestBody);
+            // Parsed the WCPS query to abstract syntax and handle it as a POST KVP
+            kvpParameters.remove(KVPSymbols.KEY_REQUEST_BODY);
+            kvpParameters.put(KVPSymbols.KEY_QUERY, new String[]{abstractWcpsQuery});
+        }        
+        
         Response response = kvpProcessCoverageHandler.handle(kvpParameters);
         this.writeResponseResult(response);
     }

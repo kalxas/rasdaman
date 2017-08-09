@@ -136,6 +136,7 @@ public interface KVPSymbols {
      */
     String WCS_SERVICE = "WCS";
     String WMS_SERVICE = "WMS";
+    String WCPS_SERVICE = "WCPS";
     // Make up for RASQL servlet
     String RASQL_SERVICE = "RASQL";
 
@@ -143,6 +144,11 @@ public interface KVPSymbols {
      * WCS version, fixed to 2.0.x
      */
     String WCS_VERSION_PATTERN = "2\\.0\\.\\d+";
+    
+    /**
+     * WCPS version, fixed to 1.0.x
+     */
+    String WCPS_VERSION_PATTERN = "1\\.0\\.\\d+";
 
     // WCS mutlipart
     String VALUE_MULTIPART_RELATED = "multipart/related";

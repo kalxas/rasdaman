@@ -36,8 +36,8 @@ import petascope.core.KVPSymbols;
 import petascope.exceptions.WMSException;
 import petascope.util.MIMEUtil;
 import petascope.util.XMLUtil;
-import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataTranslator;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 
 /**
  * Class which handle WCS 2.0.1 DescribeCoverage request NOTE: 1 coverage can

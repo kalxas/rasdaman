@@ -76,7 +76,7 @@ import petascope.core.gml.GeneralGridCoverageGMLService;
 
 import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
 import petascope.wcst.exceptions.WCSTInvalidXML;
-import petascope.wcps2.metadata.model.ParsedSubset;
+import petascope.wcps.metadata.model.ParsedSubset;
 
 @Service
 public class UpdateCoverageHandler {

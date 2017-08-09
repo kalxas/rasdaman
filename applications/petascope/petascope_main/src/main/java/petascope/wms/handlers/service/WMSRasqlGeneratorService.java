@@ -47,11 +47,11 @@ import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.ras.RasUtil;
-import petascope.wcps2.metadata.model.Axis;
-import petascope.wcps2.metadata.model.ParsedSubset;
-import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps2.metadata.service.CoordinateTranslationService;
-import petascope.wcps2.metadata.service.WcpsCoverageMetadataTranslator;
+import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.ParsedSubset;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.CoordinateTranslationService;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.exception.WMSStyleNotExistException;
 

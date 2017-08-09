@@ -35,8 +35,9 @@ public interface IXMLProcessCoverageParserService {
      * There are 3 types of WCPS POST requests and depend on the XML element to parse them correctly
      * @param rootElement
      * @return 
+     * @throws petascope.exceptions.WCSException 
      */
-    boolean canParse(Element rootElement);
+    boolean canParse(Element rootElement) throws WCSException;
     
     /**
      * Parse a XML document to a WCPS query String

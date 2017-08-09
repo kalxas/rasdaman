@@ -27,8 +27,8 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
-import petascope.wcps2.metadata.model.RangeField;
-import petascope.wcps2.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.model.RangeField;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import static petascope.wcs2.handlers.kvp.KVPWCSGetCoverageHandler.RANGE_NAME;
 
 /**

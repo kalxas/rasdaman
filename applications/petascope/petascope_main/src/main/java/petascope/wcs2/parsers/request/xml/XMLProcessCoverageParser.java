@@ -35,7 +35,6 @@ import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.XMLSymbols;
 import petascope.exceptions.PetascopeException;
-import petascope.util.XMLUtil;
 import petascope.wcs2.parsers.request.xml.service.IXMLProcessCoverageParserService;
 
 /**
@@ -62,26 +61,44 @@ public class XMLProcessCoverageParser extends XMLAbstractParser {
         // Only used when xml_validation=true in petascope.properties
         this.validateXMLRequestBody(requestBody);
 
-        Element rootElement = XMLUtil.parseInput(requestBody);
+        Element rootElement = parseInput(requestBody);
         // e.g:  <proc:ProcessCoverages service="WCS" version="2.0.1">...</proc:ProcessCoverages>
         String version = rootElement.getAttributeValue(XMLSymbols.ATT_VERSION);
         kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[]{KVPSymbols.WCS_SERVICE});
         kvpParameters.put(KVPSymbols.KEY_VERSION, new String[]{version});
         kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[]{KVPSymbols.VALUE_PROCESS_COVERAGES});
 
-        String wcpsQuery = null;
-        for (IXMLProcessCoverageParserService parserService : parserServices) {
-            if (parserService.canParse(rootElement)) {
-                wcpsQuery = parserService.parseXMLRequest(rootElement);
-                log.debug("Found the XML ProcessCoverage parser: " + parserService.getClass().getCanonicalName());
-            }
-        }
+        // Try to parse the WCPS query in abstract syntax from XML elements
+        String wcpsQuery = parseWCPSQueryFromXML(requestBody);        
         if (wcpsQuery == null) {
-            throw new WCSException(ExceptionCode.NoApplicableCode, "No XML parser can handle the ProcessCoverages in XML POST request, please check if the XML request is valid.");
+            log.error("No XML parser can handle the ProcessCoverages in XML POST request, please check if the XML request is valid.");
+            throw new WCSException(ExceptionCode.InvalidRequest, "Invalid XML ProcessCoverages request.");
         } else {
             kvpParameters.put(KVPSymbols.KEY_QUERY, new String[]{wcpsQuery});        
         }
+        
+        log.debug("Abstract WCPS query parsed from XML POST request body: '" + wcpsQuery + "'.");
 
         return kvpParameters;
+    }
+    
+    /**
+     * Return the WCPS query in abstract syntax from the XML POST request body
+     * which is in XML elements
+     * @param requestBody
+     * @return 
+     * @throws petascope.exceptions.WCSException 
+     */
+    public String parseWCPSQueryFromXML(String requestBody) throws WCSException, PetascopeException {
+        Element rootElement = parseInput(requestBody);
+        String wcpsQuery = null;
+        for (IXMLProcessCoverageParserService parserService : parserServices) {
+            if (parserService.canParse(rootElement)) {
+                log.debug("Found the XML ProcessCoverage parser: '" + parserService.getClass().getCanonicalName() + "'.");
+                wcpsQuery = parserService.parseXMLRequest(rootElement);                
+            }
+        }
+        
+        return wcpsQuery;
     }
 }

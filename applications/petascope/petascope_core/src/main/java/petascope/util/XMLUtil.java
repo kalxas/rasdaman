@@ -1148,6 +1148,9 @@ public class XMLUtil {
      * serializing the WCS request to XML
      */
     public static String extractWcsRequest(String request) throws Exception {
+        // Substring any parameter before the XML element characeter "<?xml..."
+        // e.g: query=<?xml....>
+        request = request.substring(request.indexOf("<"));
         Document doc = XMLUtil.buildDocument(null, request);
         Element body = ListUtil.head(
                 XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_BODY));
@@ -1337,5 +1340,15 @@ public class XMLUtil {
      */
     public static String enquoteCDATA(String input) {
         return "<![CDATA[" + input + "]]>";
+    }
+    
+    /**
+     * Remove all the spaces between XML elements of the input string
+     *
+     * @param inputXML
+     * @return
+     */
+    public static String removeSpaceBetweenElements(String inputXML) {
+        return inputXML.replaceAll(">\\s+<", "><").trim();
     }
 }

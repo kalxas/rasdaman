@@ -21,15 +21,16 @@
  */
 package petascope.wcs2.handlers.kvp;
 
+import petascope.wcps.metadata.service.CoverageAliasRegistry;
+import petascope.wcps.metadata.service.RasqlRewriteMultipartQueriesService;
 import petascope.exceptions.WCSException;
 import petascope.core.response.Response;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.*;
-import petascope.wcps2.result.executor.WcpsExecutor;
-import petascope.wcps2.result.executor.WcpsExecutorFactory;
-import petascope.wcps2.metadata.service.*;
-import petascope.wcps2.parser.WcpsTranslator;
-import petascope.wcps2.result.VisitorResult;
+import petascope.wcps.result.executor.WcpsExecutor;
+import petascope.wcps.result.executor.WcpsExecutorFactory;
+import petascope.wcps.parser.WcpsTranslator;
+import petascope.wcps.result.VisitorResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,8 +40,8 @@ import java.util.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
-import petascope.wcps2.result.WcpsMetadataResult;
-import petascope.wcps2.result.WcpsResult;
+import petascope.wcps.result.WcpsMetadataResult;
+import petascope.wcps.result.WcpsResult;
 
 /**
  * Handler for the Process Coverages Extension

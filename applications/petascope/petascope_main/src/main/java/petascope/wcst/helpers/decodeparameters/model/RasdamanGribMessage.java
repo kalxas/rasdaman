@@ -22,7 +22,7 @@
 package petascope.wcst.helpers.decodeparameters.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import petascope.wcps2.metadata.model.ParsedSubset;
+import petascope.wcps.metadata.model.ParsedSubset;
 
 import java.util.Map;
 
