@@ -1,2 +1,0 @@
-for c in (Parksmall)
-return encode(c[E(456300:456399),N(339866:339867),H(50:59)],"csv")

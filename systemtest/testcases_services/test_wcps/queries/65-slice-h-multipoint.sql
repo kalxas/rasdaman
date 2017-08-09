@@ -1,1 +1,0 @@
-select value, St_AsText(coordinate) AS coords, St_X(coordinate) AS x, St_Y(coordinate) AS y, St_Z(coordinate) AS z from ps9_coverage c, ps9_multipoint_domain_set AS d, ps9_multipoint_range_set AS r where c.name='Parksmall' AND c.id = d.coverage_id AND d.id = r.point_id AND d.coordinate && 'BOX3D(456377 339865 53.86599957,456380.49997508002 339868.15615006001 53.86599957)'::box3d

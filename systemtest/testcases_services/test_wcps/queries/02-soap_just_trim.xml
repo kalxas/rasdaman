@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope"> 
-    <env:Header/>
-    <env:Body>
-  <ProcessCoveragesRequest xmlns="http://www.opengis.net/wcps/1.0" service="WCPS" version="1.0.0">
-  <query><xmlSyntax><coverageIterator><iteratorVar>c</iteratorVar><coverageName>test_rgb</coverageName></coverageIterator><encode store="false"><trim><coverage>c</coverage><axis>i</axis><lowerBound><numericConstant>0</numericConstant></lowerBound><upperBound><numericConstant>100</numericConstant></upperBound><axis>j</axis><lowerBound><numericConstant>0</numericConstant></lowerBound><upperBound><numericConstant>100</numericConstant></upperBound></trim><format>png</format></encode></xmlSyntax></query></ProcessCoveragesRequest>
-    </env:Body>
-</env:Envelope>

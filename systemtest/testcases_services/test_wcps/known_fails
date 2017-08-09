@@ -1,11 +1,5 @@
-# Wait for WCPS XML syntax paser
-01-soap_encode.xml
-02-soap_just_trim.xml
-03-soap_simple_count.xml
-04-soap_count.error.xml
-31-Discrete_Fourier.test
-53-jpeg2000-params-filling.test
-58-overlay_performance.test
+031-Discrete_Fourier.test
+053-jpeg2000-params-filling.test
 157-extra_params_json_jpeg2000.test
 153-irr_cube_3D_time_irregular.test
 # This query returns invalid gdal file
