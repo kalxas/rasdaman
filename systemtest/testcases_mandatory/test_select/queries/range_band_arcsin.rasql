@@ -1,0 +1,1 @@
+select encode({c.1,arcsin(c.0+1),c.2}[100:109,100:109],"csv") from test_rgb2 as c

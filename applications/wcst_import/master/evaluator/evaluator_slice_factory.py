@@ -30,6 +30,15 @@ from util.gdal_util import GDALGmlUtil
 
 class EvaluatorSliceFactory:
 
+    def __init__(self):
+        pass
+
+    # Class to return the evaluator slice for general recipes (gdal, netCDF, GRIB)
+    # NOTE: it is used to extract the metadata only, so all files should have same metadata and
+    # extract from the first file is ok. It should not open file for each slice as it will increase the time to analyze
+    # unnecessary.
+    evaluator_slice = None
+
     @staticmethod
     def get_evaluator_slice(recipe_type, slice_file):
         """
@@ -43,15 +52,19 @@ class EvaluatorSliceFactory:
         from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
         from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
 
+        # already read the first file to extract metadata
+        if EvaluatorSliceFactory.evaluator_slice is not None:
+            return EvaluatorSliceFactory.evaluator_slice
+
         if recipe_type == GdalToCoverageConverter.RECIPE_TYPE:
             # NOTE: warp file to a wrapper class as old GDAL recipes
-            evaluator_slice = GDALEvaluatorSlice(slice_file)
+            EvaluatorSliceFactory.evaluator_slice = GDALEvaluatorSlice(slice_file)
         elif recipe_type == NetcdfToCoverageConverter.RECIPE_TYPE:
-            evaluator_slice = NetcdfEvaluatorSlice(slice_file)
+            EvaluatorSliceFactory.evaluator_slice = NetcdfEvaluatorSlice(slice_file)
         elif recipe_type == GRIBToCoverageConverter.RECIPE_TYPE:
             # use first grib_message of grib file to evaluate metadata
-            evaluator_slice = GribMessageEvaluatorSlice(None, slice_file, None)
+            EvaluatorSliceFactory.evaluator_slice = GribMessageEvaluatorSlice(None, slice_file, None)
         else:
             raise RuntimeException("Cannot generate metadata for recipe_type: {}".format(recipe_type))
 
-        return evaluator_slice
+        return EvaluatorSliceFactory.evaluator_slice

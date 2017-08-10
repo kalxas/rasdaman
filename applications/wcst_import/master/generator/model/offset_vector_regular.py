@@ -26,7 +26,7 @@ from master.generator.model.offset_vector import OffsetVector
 
 
 class OffsetVectorRegular(OffsetVector):
-    def __init__(self, crs, axisLabels, uomLabels, noOfDimensions, offset):
+    def __init__(self, crs, axisLabels, uomLabels, noOfDimensions, offset, axisSpanned):
         """
         Representation of the offset vector on a regular axis
         :param str crs: the crs of the offset vector
@@ -34,8 +34,9 @@ class OffsetVectorRegular(OffsetVector):
         :param list[str] uomLabels: the labels of the uoms
         :param int noOfDimensions: the number of dimensions
         :param list[float] offset: the offset value
+        :param str axisSpanned: the label of the axis to which this vector corresponds to
         """
-        super(OffsetVectorRegular, self).__init__(crs, axisLabels, uomLabels, noOfDimensions, offset)
+        super(OffsetVectorRegular, self).__init__(crs, axisLabels, uomLabels, noOfDimensions, offset, axisSpanned)
 
     def get_template_name(self):
         return "gml_offset_vector_regular.xml"

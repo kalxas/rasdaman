@@ -1,0 +1,1 @@
+select stddev_samp(1f)

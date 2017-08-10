@@ -43,12 +43,13 @@ class SentenceEvaluator:
         """
         self.evaluator_factory = evaluator_factory
 
-    def evaluate(self, input_sentence, evaluator_slice):
+    def evaluate(self, input_sentence, evaluator_slice, statements=[]):
         """
         Evaluates a sentence
         :param str input_sentence: the sentence to evaluate
         :param master.evaluator.evaluator_slice.EvaluatorSlice evaluator_slice: the slice that provides the context for
          the evaluator
+        :param array statements: an array of statements to be executed before evaluation, e.g. import
         :rtype: str
         """
         sentence = str(input_sentence).strip()
@@ -73,17 +74,25 @@ class SentenceEvaluator:
             return result
         except:
             # not decimal value, need to evaluate (e.g: [0, 1, 2, 3, 4] + 84200)
-            return self.evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils)
+            return self.evaluate_python_expression(sentence, instantiated_sentence, evaluator_utils, statements)
 
-    def evaluate_python_expression(self, sentence, instantiated_sentence, locals):
+    def evaluate_python_expression(self, sentence, instantiated_sentence, locals, statements=[]):
         """
         Evaluates the python expression according to the evaluator with the option of using a set of local functions and variables
         :param str sentence: the expression from ingredient file to evaluate (e.g: ${netcdf:variable:unix} + 5)
         :param str instantiated_sentence: (e.g: [0, 1, 2, 3,...] + 5 from the sentence)
         :param dict locals: the locals to provide in the context of the evaluation
+        :param array statements: an array of statements to be executed before evaluation, e.g. import
         """
         try:
-            return eval(instantiated_sentence, globals(), locals)
+            for statement in statements:
+                # allow overriding the provided datetime function
+                if "datetime" in statement and "datetime" in locals:
+                    locals.pop("datetime")
+                exec(statement, globals())
+
+            result = eval(instantiated_sentence, globals(), locals)
+            return result
         except Exception as e:
             try:
                 # NOTE: metadata evaluation expression in string must be enquoted with single quotes in ingredient file

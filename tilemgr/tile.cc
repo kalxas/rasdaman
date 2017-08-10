@@ -743,6 +743,93 @@ Tile::copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval
 #endif
 }
 
+void 
+Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, const r_Minterval& areaOp, 
+                          const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize) 
+{
+    if (areaRes == areaOp && opTile->getDomain() == this->getDomain() && this->getDomain() == areaOp) 
+    {
+        r_Area numCells = this->getDomain().cell_count();
+        
+        char* targetData = this->getContents() + resOff;
+        const char* sourceData = opTile->getContents() + opOff;
+        
+        size_t cellSize = this->getType()->getSize();
+        size_t opCellSize = opTile->getType()->getSize();
+        
+        for(r_Area i = 0; i < numCells; ++i)
+        {
+            memcpy(targetData, sourceData, bandSize);
+            targetData += cellSize;
+            sourceData += opCellSize;
+        }
+    } 
+    else 
+    {
+
+
+        const char* cellOp = NULL;
+        char* cellRes = NULL;
+
+        // this may trigger decompression
+        cellOp = opTile->getContents();
+        cellRes = getContents();
+
+        size_t cellSize = this->getType()->getSize();
+
+        r_Dimension dimRes = areaRes.dimension();
+        r_Dimension dimOp = areaOp.dimension();
+
+        r_Range width = areaRes[dimRes - 1].get_extent();
+        if (width > areaOp[dimOp - 1].get_extent()) 
+        {
+            width = areaOp[dimOp - 1].get_extent();
+            LWARNING << "RMDebug::module_tilemgr::copyTile() WARNING: had to adjust high dim width to " << width;
+        }
+
+        // these iterators iterate last dimension first, i.e. minimal step size
+        r_MiterDirect resTileIter(static_cast<void*> (cellRes), getDomain(), areaRes, cellSize);
+        r_MiterDirect opTileIter(static_cast<void*> (const_cast<char*> (cellOp)), opTile->getDomain(), areaOp, bandSize);
+
+#ifdef RMANBENCHMARK
+        opTimer.resume();
+#endif
+        // set up the offsets for the last dimension
+        // for faster computations in the iteration in 2+ dimensions.
+        std::vector<size_t> srcJumpsFullWidth;
+        std::vector<size_t> opJumpsFullWidth;
+        srcJumpsFullWidth.reserve(width);
+        opJumpsFullWidth.reserve(width);
+        for (unsigned int i = 0; i < width; i++) 
+        {
+            srcJumpsFullWidth.push_back(i * cellSize);
+            opJumpsFullWidth.push_back(i * (opTile->getType()->getSize()));
+        }
+        // iterate over the result tile until filled
+        while (!resTileIter.isDone()) 
+        {
+            // copy entire line (continuous chunk in last dimension) in one go
+
+            auto srcJumpIter = srcJumpsFullWidth.begin();
+            auto opJumpIter = opJumpsFullWidth.begin();
+            for (srcJumpIter, opJumpIter; srcJumpIter != srcJumpsFullWidth.end(); ++srcJumpIter, ++opJumpIter) 
+            {
+                memcpy(static_cast<char*> (resTileIter.getData()) + *srcJumpIter + resOff, static_cast<char*> (opTileIter.getData()) + *opJumpIter + opOff, bandSize);
+            }
+            // force overflow of last dimension
+            resTileIter.id[dimRes - 1].pos += width;
+            opTileIter.id[dimOp - 1].pos += width;
+
+            // iterate; the last dimension will always overflow now
+            ++resTileIter;
+            ++opTileIter;
+        }
+    }
+#ifdef RMANBENCHMARK
+        opTimer.pause();
+#endif    
+}
+
 std::vector<Tile*>*
 Tile::splitTile(r_Minterval resDom, __attribute__((unused)) int storageDomain)
 {

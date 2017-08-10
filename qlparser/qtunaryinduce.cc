@@ -156,12 +156,26 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType,
     if (operation == Ops::OP_IDENTITY)
     {
         myOp = Ops::getUnaryOp(operation, resultBaseType, resultBaseType, 0, operandOffset);
-        myOp->setNullValues(nullValues);
+        if(myOp)
+        {
+            myOp->setNullValues(nullValues);
+        }
+        else
+        {
+            throw r_Error(CELLUNARYOPUNAVAILABLE);
+        }
     }
     else
     {
         myOp = Ops::getUnaryOp(operation, resultBaseType, op->getCellType(), 0, 0);
-        myOp->setNullValues(nullValues);
+        if(myOp)
+        {
+            myOp->setNullValues(nullValues);
+        }
+        else
+        {
+            throw r_Error(CELLUNARYOPUNAVAILABLE);
+        }
     }
     if (myOp == NULL)
     {
@@ -476,6 +490,140 @@ QtNot::checkType(QtTypeTuple* typeTuple)
 
     return dataStreamType;
 }
+
+
+
+const QtNode::QtNodeType QtIsNull::nodeType = QtNode::QT_IS_NULL;
+
+QtIsNull::QtIsNull(QtOperation* initInput)
+    :  QtUnaryInduce(initInput)
+{
+}
+
+
+QtData*
+QtIsNull::evaluate(QtDataList* inputList)
+{
+    startTimer("QtIsNull");
+    QtData* returnValue = NULL;
+    QtData* operand = NULL;
+
+    if (getOperand(inputList, operand))
+    {
+        returnValue = computeOp(operand, Ops::OP_IS_NULL);
+		
+        // delete old operand
+        if (operand)
+        {
+            operand->deleteRef();
+        }
+    }
+
+    stopTimer();
+
+    return returnValue;
+}
+
+
+
+void
+QtIsNull::printTree(int tab, ostream& s, QtChildType mode)
+{
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIsNull Object" << getEvaluationTime() << endl;
+
+    QtUnaryInduce::printTree(tab + 2, s, mode);
+}
+
+
+
+void
+QtIsNull::printAlgebraicExpression(ostream& s)
+{
+    s << "isnull(";
+
+    if (input)
+    {
+        input->printAlgebraicExpression(s);
+    }
+    else
+    {
+        s << "<nn>";
+    }
+
+    s << ")";
+}
+
+
+
+const QtTypeElement&
+QtIsNull::checkType(QtTypeTuple* typeTuple)
+{
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
+
+    // check operand branches
+    if (input)
+    {
+
+        // get input types
+        const QtTypeElement& inputType = input->checkType(typeTuple);
+
+#ifdef DEBUG
+        LTRACE << "Operand: ";
+        inputType.printStatus(RMInit::dbgOut);
+#endif
+        if (inputType.getDataType() == QT_MDD)
+        {
+            const BaseType* baseType = (static_cast<const MDDBaseType*>(inputType.getType()))->getBaseType();
+
+            const BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_IS_NULL, baseType));
+
+            if (!resultBaseType)
+            {
+                LFATAL << "Error: QtIsNull::checkType() - induce operand type is not supported.";
+                parseInfo.setErrorNo(366);
+                throw parseInfo;
+            }
+
+            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+
+            TypeFactory::addTempType(resultMDDType);
+
+            dataStreamType.setType(resultMDDType);
+        }
+        else if (inputType.isBaseType())
+        {
+            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
+
+            const BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_IS_NULL, baseType));
+
+            if (!resultBaseType)
+            {
+                LFATAL << "Error: QtIsNull::checkType() - operand type is not supported.";
+                parseInfo.setErrorNo(367);
+                throw parseInfo;
+            }
+
+            // MDDBaseType* resultMDDType = new MDDBaseType( "tmp", resultBaseType );
+            // TypeFactory::addTempType( resultMDDType );
+
+            // dataStreamType.setType( resultMDDType );
+            dataStreamType.setType(resultBaseType);
+        }
+        else
+        {
+            LFATAL << "Error: QtIsNull::checkType() - operation is not supported for strings.";
+            parseInfo.setErrorNo(385);
+            throw parseInfo;
+        }
+    }
+    else
+    {
+        LERROR << "Error: QtIsNull::checkType() - operand branch invalid.";
+    }
+
+    return dataStreamType;
+}
+
 
 
 

@@ -4,7 +4,7 @@
                     {{offset}}
                 </gmlrgrid:offsetVector>
                 <gmlrgrid:coefficients>{{coefficient}}</gmlrgrid:coefficients>
-                <gmlrgrid:gridAxesSpanned>None</gmlrgrid:gridAxesSpanned>
+                <gmlrgrid:gridAxesSpanned>{{axisSpanned}}</gmlrgrid:gridAxesSpanned>
                 <gmlrgrid:sequenceRule axisOrder="+1">None</gmlrgrid:sequenceRule>
             </gmlrgrid:GeneralGridAxis>
         </gmlrgrid:generalGridAxis>

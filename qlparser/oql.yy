@@ -226,7 +226,7 @@ struct QtUpdateSpecElement
 %token <stringToken>     StringLit
 %token <typeToken>       TUNSIG TBOOL TOCTET TCHAR TSHORT TUSHORT TLONG TULONG TFLOAT TDOUBLE
 %token <commandToken>    SELECT FROM WHERE AS RESTRICT TO EXTEND BY PROJECT AT DIMENSION ALL SOME
-                         COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS SDOM OVER USING LO HI UPDATE
+                         COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS VAR_POP VAR_SAMP STDDEV_POP STDDEV_SAMP SDOM OVER USING LO HI UPDATE
                          SET ASSIGN MARRAY MDARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
@@ -2443,6 +2443,31 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
 	}
+	| generalExp IS NULLKEY
+	{
+	  $$ = new QtIsNull( $1 );
+	  $2.info->setToken("is null");
+	  $$->setParseInfo( *($2.info) );
+
+	  parseQueryTree->removeDynamicObject( $1 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($2)
+	  FREESTACK($3)
+	}
+	| generalExp IS NOT NULLKEY
+	{
+	  QtOperation* tmp = new QtIsNull($1);
+	  $2.info->setToken("is not null");
+	  tmp->setParseInfo( *($2.info) );
+	  $$ = new QtNot(tmp);
+	  $$->setParseInfo( tmp->getParseInfo() );
+
+	  parseQueryTree->removeDynamicObject( $1 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($2)
+	  FREESTACK($3)
+	  FREESTACK($4)
+	}
 	| generalExp IS generalExp
 	{
 	  $$ = new QtIs ( $1, $3 );
@@ -2842,7 +2867,35 @@ reduceIdent: ALL
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
-	};
+	}
+  | VAR_POP
+  {
+    $$ = new QtStdDevVar(QtNode::QT_VARPOP);
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+  }
+  | VAR_SAMP
+  {
+    $$ = new QtStdDevVar(QtNode::QT_VARSAMP);
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+  }
+  | STDDEV_POP
+  {
+    $$ = new QtStdDevVar(QtNode::QT_STDDEVPOP);
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)     
+   }
+   | STDDEV_SAMP
+   {
+    $$ = new QtStdDevVar(QtNode::QT_STDDEVSAMP);
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+   };
 
 intLitExp: IntegerLit
     {
@@ -3144,6 +3197,7 @@ trimExp: generalExp mintervalExp
 	  parseQueryTree->removeDynamicObject( $2 );
 	  parseQueryTree->addDynamicObject( dop );
 	  $$ = dop;
+		$$->setParseInfo( $2->getParseInfo() );
 	  if (mflag == MF_IN_CONTEXT)
 	    parseQueryTree->addDomainObject( dop );	  
 	};    

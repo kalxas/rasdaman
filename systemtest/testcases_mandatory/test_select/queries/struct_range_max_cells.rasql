@@ -1,0 +1,1 @@
+select max_cells({x.1,x.0}) from test_struct as x

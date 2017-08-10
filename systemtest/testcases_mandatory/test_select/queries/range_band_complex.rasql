@@ -1,0 +1,1 @@
+select encode({x.0, complex(x.0, x.1),x.2}[100:109,100:109], "csv") from test_rgb2 as x

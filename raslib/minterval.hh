@@ -547,6 +547,8 @@ public:
     r_Area cell_count() const throw(r_Error);
     /// calculate offset in cells for one dimensional access (dimension ordering is high first)
     r_Area cell_offset(const r_Point&) const throw(r_Eindex_violation, r_Error);
+    // as above, but without error checking, for performance
+    r_Area efficient_cell_offset(const r_Point&) const;
     /// calculate point index out of offset
     r_Point cell_point(r_Area) const throw(r_Eno_cell, r_Error);
     /// delete the specified dimension

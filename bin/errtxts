@@ -1,4 +1,4 @@
-217
+218
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -171,6 +171,9 @@
 431^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid persistent object given to the info function.
 432^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Failed retreiving information for the specified object.
 433^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Division by zero.
+#
+434^E^Execution error: Cell base types of binary induce operation are incompatible.
+435^E^Execution error: Cell base type of unary induce operation is not supported.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #

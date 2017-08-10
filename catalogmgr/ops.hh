@@ -96,6 +96,7 @@ This is the ops code and the persistence code: from the typenum the oids are gen
 
   && {\bf unary operations} \\
   OP_NOT  && negation (bitwise for ints, logical for bools) \\
+  OP_IS_NULL  && is null check (result Bool) \\
   OP_SQRT  && square root (for doubles) \\
   OP_IDENTITY && used for copying cells \\
 
@@ -130,10 +131,11 @@ public:
     enum OpType
     {
         // condense operations.
-        OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SOME, OP_ALL,
+        OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SQSUM, OP_SOME, OP_ALL,
         /* insert new condense ops before this line */
         // unary operations.
         OP_NOT,
+        OP_IS_NULL,
 
         //*******************
         OP_UFUNC_BEGIN,
@@ -573,6 +575,29 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_SUM on type #double#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpSQSUMCDouble : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpSQSUMCDouble(const BaseType* newResType, const BaseType* newOpType,
+                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// constructor initializing internal accu.
+    OpSQSUMCDouble(const BaseType* newResType, char* newAccu,
+                 const   BaseType* newOpType, unsigned int newResOff,
+                 unsigned int newOpOff);
+    /// operator to carry out operation on {\tt op}.
+    virtual char* operator()(const char* op, char* myAccu);
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char* operator()(const char* op);
+};
+
+
+//@ManMemo: Module: {\bf catalogif}.
 //@Doc: Class for carrying out condense operations on structs.
 
 // Inherits some useless members from CondenseOp, don't want to
@@ -829,6 +854,7 @@ class OpBinaryStruct : public BinaryOp
 public:
     /// constructor gets struct type.
     OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
+                   const BaseType* op1typeArg, const BaseType* op2typeArg,
                    unsigned int newResOff = 0, unsigned int newOp1Off = 0,
                    unsigned int newOp2Off = 0);
     /// destructor.
@@ -1482,7 +1508,6 @@ public:
                             const char* op2);
     virtual void getCondenseInit(char* init);
 };
-
 
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_MINUS on C type #double# and #double#, result #double#.
@@ -2166,6 +2191,52 @@ public:
     virtual void operator()(char* result, const char* op);
 };
 
+//--------------------------------------------
+//      OpISNULL
+//--------------------------------------------
+/*@Doc:
+OpISNULL checks if a cell is null.
+*/
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpISNULLCLong : public UnaryOp
+{
+public:
+	/// constructor gets RasDaMan base type of result and operand.
+    OpISNULLCLong(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpISNULLCULong : public UnaryOp
+{
+public:
+	/// constructor gets RasDaMan base type of result and operand.
+    OpISNULLCULong(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpISNULLCDouble : public UnaryOp
+{
+public:
+	/// constructor gets RasDaMan base type of result and operand.
+    OpISNULLCDouble(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
 //@ManMemo: Module: {\bf catalogif}.
 
 /*@Doc:
@@ -2246,7 +2317,6 @@ protected:
     char* initVal;
 
 };
-
 
 //--------------------------------------------
 //      Complex operations
@@ -2554,7 +2624,6 @@ private:
     unsigned int opReOff;
 };
 
-
 /**
   * \ingroup Catalogmgrs
   */
@@ -2629,7 +2698,6 @@ private:
     const char* pattern;
 };
 
-
 //--------------------------------------------
 //      OpBIT
 //--------------------------------------------
@@ -2655,10 +2723,6 @@ public:
     virtual void operator()(char* res, const char* op1, const char* op2);
 };
 
-
-
 #include "autogen_ops.hh"
 
-
 #endif
-//  LocalWords:  op

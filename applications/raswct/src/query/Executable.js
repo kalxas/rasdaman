@@ -93,26 +93,23 @@ FlancheJs.defineTrait("Rj.query.Executable", {
 
     evaluateRaw: function(transport, callback){
       var self = this;
-      _.ajax({
-        url    : transport.getServiceUrl(),
-        method : transport.getServiceHttpMethod(),
-        data   : transport.getParams(),
-        binary : transport.getBinary(),
-        success: function(response, httpStatus){
-          if(httpStatus == 404){
-            Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceUnavailableErrorMessage, true);
-          }
-          else if(httpStatus == 500){
-            Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceErrorMessage + response, true);
-          }
-          else{
-            self._handleCallback(callback, response, httpStatus);
-          }
-        },
-        error  : function(){
+      var xhr = new XMLHttpRequest();
+      xhr.open(transport.getServiceHttpMethod(), transport.getServiceUrl());
+      if (transport.getBinary()){
+        xhr.responseType = "arraybuffer";
+      }
+      xhr.onreadystatechange = function(){
+        if(xhr.httpStatus == 404){
           Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceUnavailableErrorMessage, true);
         }
-      });
+        else if(xhr.httpStatus == 500){
+          Rj.util.ErrorManager.reportError(Rj.util.Constants.serviceErrorMessage + xhr.response, true)
+        }
+        else{
+          self._handleCallback(callback, xhr.response, xhr.httpStatus);     
+        }
+      };
+      xhr.send(transport.getParams().request);   
     },
 
     handleCallback: function(callback, response, httpStatus){

@@ -1,1 +1,1 @@
-select {test_rgb2.0, test_rgb2.1, test_rgb2.2} from test_rgb2
+select encode({test_rgb2.0, test_rgb2.1, test_rgb2.2}, "png") from test_rgb2

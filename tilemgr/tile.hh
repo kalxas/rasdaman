@@ -50,6 +50,7 @@ rasdaman GmbH.
 #include "relblobif/dbtile.hh"
 #include "reladminif/dbref.hh"
 #include "compression/tilecompression.hh"
+#include <boost/shared_ptr.hpp>
 
 #ifdef RMANBENCHMARK
 #include "raslib/rmdebug.hh"        // for RMTimer
@@ -338,6 +339,11 @@ public:
       The part of opTile covered by areaOp is copied to areaRes of this tile. Identical in functionality to execUnaryOp(OP_IDENTITY, ...) but much faster.
       Requires matching base types and matching domains.
     */
+    
+    /// copy a subcube from one tile to another, with offsets per cell for the result and the operand
+    /// and band sizes for the result and operand
+    virtual void copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, const r_Minterval& areaOp, 
+                          const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize);
 
     DBTileId getDBTile();
     /*Doc

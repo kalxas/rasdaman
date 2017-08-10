@@ -81,7 +81,7 @@ public class DeleteCoverageHandler {
                 this.deleteFromRasdaman(oid, collectionName);
             } catch (RasdamanException e) {
                 log.error("Cannot delete collection: " + collectionName + ", error: ", e);
-                throw new PetascopeException(ExceptionCode.InternalSqlError, e);
+                // NOTE: If cannot delete collection for some reason (e.g: collection does not exist), it should not throw exception as it cannot delete coverage's metadata
             }
 
             // check if WMS layer does exist, then remove it as well

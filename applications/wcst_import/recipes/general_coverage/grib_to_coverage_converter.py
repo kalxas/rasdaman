@@ -116,6 +116,9 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         self.grid_coverage = grid_coverage
         self.pixel_is_point = pixel_is_point
 
+        # dataSet of a processing grib file
+        self.dataset = None
+
     def _file_band_nil_values(self, index):
         """
         This is used to get the null values (Only 1) from the given band index if one exists when nilValue was not defined
@@ -127,9 +130,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
             raise RuntimeException("No files to import were specified.")
 
         # NOTE: all files should have same bands's metadata
-        dataset = pygrib.open(self.files[0].filepath)
         try:
-            nil_value = dataset.message(1)["missingValue"]
+            nil_value = self.dataset.message(1)["missingValue"]
         except KeyError:
             # missingValue is not defined in grib file
             nil_value = None
@@ -163,11 +165,12 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param File grib_file: the grib file for which to return the evaluated_messages
         :rtype: list[GRIBMessage]
         """
-        dataset = pygrib.open(grib_file.get_filepath())
+        self.dataset = pygrib.open(grib_file.get_filepath())
         evaluated_messages = []
+
         # Message id starts with "1"
-        for i in range(1, dataset.messages + 1):
-            grib_message = dataset.message(i)
+        for i in range(1, self.dataset.messages + 1):
+            grib_message = self.dataset.message(i)
             axes = []
             # Iterate all the axes and evaluate them with message
             # e.g: Long axis: ${grib:longitudeOfFirstGridPointInDegrees}
@@ -185,7 +188,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                 # then, the directPositions of axis is [0, 2, 8,...30]
                 # the syntax to retrieve directions in ingredient file is: ${grib:axis:axis_name}
                 # with axis_name is the name user defined (e.g: AnsiDate?axis-label="time" then axis name is: time)
-                evaluated_user_axis = self._user_axis(user_axis, GribMessageEvaluatorSlice(grib_message, grib_file))
+                grib_message_evaluator = GribMessageEvaluatorSlice(grib_message, grib_file)
+                evaluated_user_axis = self._user_axis(user_axis, grib_message_evaluator)
 
                 # When pixelIsPoint:true then it will be adjusted by half pixels for min, max internally (recommended)
                 if self.pixel_is_point is True:
@@ -200,7 +204,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                     if evaluated_user_axis.interval.high is not None \
                         and evaluated_user_axis.interval.low > evaluated_user_axis.interval.high:
                         evaluated_user_axis.interval.low, evaluated_user_axis.interval.high = evaluated_user_axis.interval.high, evaluated_user_axis.interval.low
-
+                evaluated_user_axis.statements = user_axis.statements
                 axes.append(evaluated_user_axis)
             evaluated_messages.append(GRIBMessage(i, axes, grib_message))
 
@@ -215,8 +219,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :rtype AxisSubset
         """
         # first grib message from grib file, used to extract grib variables only
-        dataset = pygrib.open(grib_file.get_filepath())
-        first_grib_message = dataset.message(1)
+        first_grib_message = self.dataset.message(1)
 
         # As all the messages contain same axes (but different intervals), so first message is ok to get user_axis
         first_user_axis = self._get_user_axis_in_evaluated_message(evaluated_messages[0], crs_axis.label)
@@ -238,7 +241,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
             # convert all of values in the list to string then it can be evaluated
             direct_positions = list_util.to_list_string(direct_positions)
             evaluator_slice = GribMessageEvaluatorSlice(first_grib_message, grib_file, direct_positions)
-            user_axis.directPositions = self.sentence_evaluator.evaluate(evaluating_sentence, evaluator_slice)
+            user_axis.directPositions = self.sentence_evaluator.evaluate(evaluating_sentence, evaluator_slice, user_axis.statements)
 
             # axis is datetime
             if user_axis.type == UserAxisType.DATE:

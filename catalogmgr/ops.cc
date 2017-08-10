@@ -107,6 +107,26 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
         }
     }
 
+    if (resType->getType() == BOOLTYPE && op == Ops::OP_IS_NULL)
+    {
+        if (opType->getType() >= ULONG && opType->getType() <= BOOLTYPE)
+        {
+            return new OpISNULLCULong(resType, opType, resOff, opOff);
+        }
+        else if (opType->getType() >= LONG && opType->getType() <= OCTET)
+        {
+            return new OpISNULLCLong(resType, opType, resOff, opOff);
+        }
+        else if (opType->getType() >= DOUBLE && opType->getType() <= FLOAT)
+        {
+            return new OpISNULLCDouble(resType, opType, resOff, opOff);
+        }
+        else 
+        {
+            return 0;
+        }	
+    }
+
     // all Char
     if (resType->getType() == BOOLTYPE && opType->getType() == BOOLTYPE)
     {
@@ -165,7 +185,6 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
         {
         case Ops::OP_IDENTITY:
             return new OpIDENTITYCDouble(resType, opType, resOff, opOff);
-
         case Ops::OP_SQRT:
             return new OpSQRTCDouble(resType, opType, resOff, opOff);
         case Ops::OP_POW:
@@ -196,12 +215,10 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
             return new OpARCCOSCDouble(resType, opType, resOff, opOff);
         case Ops::OP_ARCTAN:
             return new OpARCTANCDouble(resType, opType, resOff, opOff);
-
         case Ops::OP_REALPART:
             return new OpRealPart(resType, opType, resOff, opOff);
         case Ops::OP_IMAGINARPART:
             return new OpImaginarPart(resType, opType, resOff, opOff);
-
         default:
             return 0;
         }
@@ -229,7 +246,7 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
         return new OpIDENTITYComplex(resType, opType, resOff, opOff);
     }
 
-    if (resType->getType() == STRUCT && resType->compatibleWith(opType))
+    if (resType->getType() == STRUCT)
     {
 
 #ifndef NO_OPT_IDENTITY_STRUCT
@@ -237,7 +254,13 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
         switch (op)
         {
         case Ops::OP_IDENTITY:
-            return new OpIDENTITYStruct(resType, opType, resOff, opOff);
+            if(resType->compatibleWith(opType)){
+                return new OpIDENTITYStruct(resType, opType, resOff, opOff);
+            }
+            else
+            {
+                return 0;
+            }
         default:
 /////////////////////////////
 #endif
@@ -665,10 +688,9 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType* resType, const BaseType* op1Typ
     {
 
 
-        if (op >= OP_MINUS && op <= OP_XOR && isApplicableOnStruct(op, op1Type) &&
-                resType->compatibleWith(op1Type) && resType->compatibleWith(op2Type))
+        if (op >= OP_MINUS && op <= OP_XOR)
         {
-            return new OpBinaryStruct(resType, op, resOff, op1Off, op2Off);
+            return new OpBinaryStruct(resType, op, op1Type, op2Type, resOff, op1Off, op2Off);
         }
         else
         {
@@ -786,6 +808,8 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, const BaseType* opTy
             return new OpMINCDouble(resType, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMCDouble(resType, opType, resOff, opOff);
+        case Ops::OP_SQSUM:
+            return new OpSQSUMCDouble(resType, opType, resOff, opOff);
         default:
             break;
         }
@@ -805,6 +829,15 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, const BaseType* opTy
             return new OpMINComplex(resType, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMComplex(resType, opType, resOff, opOff);
+        default:
+            break;
+        }
+    } else if (resType->getType() == FLOAT || resType->getType() == DOUBLE)
+    {
+        switch (op)
+        {
+        case Ops::OP_SQSUM:
+            return new OpSQSUMCDouble(resType, opType, resOff, opOff);
         default:
             break;
         }
@@ -882,6 +915,8 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, char* newAccu,
             return new OpMINCDouble(resType, newAccu, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMCDouble(resType, newAccu, opType, resOff, opOff);
+        case Ops::OP_SQSUM:
+            return new OpSQSUMCDouble(resType, newAccu, opType, resOff, opOff);
         default:
             break;
         }
@@ -897,169 +932,17 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, char* newAccu,
 //-----------------------------------------------
 //  isApplicable
 //-----------------------------------------------
+// perhaps a better approach would be to check if the ops are null, after assigning them.
+//                                                                                    -BB
 int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* op2Type)
 {
     UnaryOp* myUnaryOp;
     BinaryOp* myBinaryOp;
     CondenseOp* myCondenseOp;
 
-    const BaseType* resType = NULL;
-
-    // could be getResType( op, op1Type, op2Type ), but this
-    // introduces circular dependency between the two functions.
-    // So it is broken here.
-
-    if (op == OP_SOME || op == OP_ALL || (op >= OP_EQUAL && op <= OP_GREATEREQUAL))
-    {
-        // result must be Bool
-        resType = TypeFactory::mapType("Bool");
-    }
-    else if (op == OP_COUNT)
-    {
-        resType = TypeFactory::mapType("ULong");
-    }
-
-    else if (op > OP_UFUNC_BEGIN && op < OP_UFUNC_END)
-    {
-        resType = TypeFactory::mapType("Double");
-    }
-
-    else if (op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END && op1Type->getType() <= FLOAT
-             && op != Ops::OP_CAST_GENERAL)
-    {
-        const char* typeName[] =
-        {
-            "Bool", "Char", "Octet", "Short", "UShort",
-            "Long", "ULong", "Float", "Double"
-        };
-        resType = TypeFactory::mapType(typeName[op - OP_CAST_BEGIN - 1]);
-    }
-
-    else if (op == OP_BIT)
-    {
-        resType = TypeFactory::mapType("Bool");
-    }
-    else if (op == OP_SUM && op1Type->getType() <= CHAR)
-    {
-        resType = TypeFactory::mapType("ULong");
-    }
-    else if (op == OP_SUM && op1Type->getType() <= OCTET)
-    {
-        resType = TypeFactory::mapType("Long");
-    }
-    else if (op == OP_SUM && op1Type->getType() <= FLOAT)
-    {
-        resType = TypeFactory::mapType("Double");
-    }
-    else if (op == OP_SUM && op1Type->getType() == COMPLEXTYPE1)
-    {
-        resType = TypeFactory::mapType("Complex1");
-    }
-    else if (op == OP_SUM && op1Type->getType() == COMPLEXTYPE2)
-    {
-        resType = TypeFactory::mapType("Complex2");
-    }
-
-    // unary operations on complex: re, im
-    else if (op == OP_REALPART || op == OP_IMAGINARPART)
-    {
-        if (op1Type->getType() == COMPLEXTYPE1)
-        {
-            resType = TypeFactory::mapType("Float");
-        }
-        if (op1Type->getType() == COMPLEXTYPE2)
-        {
-            resType = TypeFactory::mapType("Double");
-        }
-    }
-
-    else if (op2Type == 0)
-    {
-        resType = const_cast<BaseType*>(op1Type);
-    }
-
-    else if (op1Type->getType() >= STRUCT && op1Type->getType() <= CLASSTYPE)
-        // composite types must be compatible, so just take one of them as
-        // result
-    {
-        resType = const_cast<BaseType*>(op1Type);
-    }
-    else if (op2Type->getType() >= STRUCT && op2Type->getType() <= CLASSTYPE)
-        // composite types must be compatible, so just take one of them as
-        // result
-    {
-        resType = const_cast<BaseType*>(op2Type);
-    }
-
-
-    else if (op1Type->getType() == COMPLEXTYPE2 || op2Type->getType() == COMPLEXTYPE2)
-        // if one of the opernds is complex type and the other any atomic type
-        // the result should be complex
-    {
-        resType = TypeFactory::mapType("Complex2");
-    }
-
-    else if (op1Type->getType() == COMPLEXTYPE1 || op2Type->getType() == COMPLEXTYPE1)
-        // idem
-    {
-        resType = TypeFactory::mapType("Complex1");
-    }
-
-    else if (op >= OP_IS && op <= OP_XOR)
-        // result must be long in this case
-    {
-        resType = TypeFactory::mapType("Long");
-    }
-    else if (op == OP_MOD || op == OP_INTDIV)
-    {
-        if (op1Type->getType() == LONG || op2Type->getType() == LONG)
-        {
-            resType = TypeFactory::mapType("Long");
-        }
-        else if (op1Type->getType() == ULONG || op2Type->getType() == ULONG)
-        {
-            resType = TypeFactory::mapType("ULong");
-        }
-        else if (op1Type->getType() == CHAR || op2Type->getType() == CHAR)
-        {
-            resType = TypeFactory::mapType("Char");
-        }
-        else
-            // Double is the strongest type anyway
-        {
-            resType = TypeFactory::mapType("Double");
-        }
-    }
-    else if (op == OP_CONSTRUCT_COMPLEX)
-    {
-        if (op1Type->getType() <= NUMERICAL_TYPES_END && op2Type->getType() <= NUMERICAL_TYPES_END)
-        {
-            if (op1Type->getType() == DOUBLE || op2Type->getType() == DOUBLE)
-            {
-                resType = TypeFactory::mapType("Complex2");
-            }
-            else if (op1Type->getType() == FLOAT || op2Type->getType() == FLOAT)
-            {
-                resType = TypeFactory::mapType("Complex1");
-            }
-            else
-            {
-                resType = TypeFactory::mapType("Complex2");
-            }
-        }
-    }
-    else
-        // Double is the strongest type anyway
-    {
-        resType = TypeFactory::mapType("Double");
-    }
-
-    if (op == OP_OVERLAY)
-    {
-        resType = const_cast<BaseType*>(op1Type);
-    }
-
-
+    // currently utilizing getResultType( op, op1Type, op2Type )
+    // this introduces circular dependency between the two functions. -BB
+    const BaseType* resType = getResultType(op, op1Type, op2Type);
     // unary or condense operations
     if (op2Type == 0)
     {
@@ -1086,7 +969,7 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
         if (myBinaryOp != 0)
         {
             delete myBinaryOp;
-            return 1;
+            return 1;   // found a binary op
 
         }
         else
@@ -1103,25 +986,17 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
 const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const BaseType* op2)
 {
 
-    // operations between composite types defined only on compatible types
+    // overlay between composite types defined only on identical types
     if (op == OP_OVERLAY)
-    {
-        if ((op1->getType() == STRUCT) || (op2->getType() == STRUCT))
-        {
-            if (op1->compatibleWith(op2))
-            {
-                return op1;
-            }
-            else
-            {
-                return NULL;
-            }
-        }
-        if (op1->getType() == op2->getType())
+    {       
+        if((op1->compatibleWith(op2)))
         {
             return op1;
         }
-        return NULL;
+        else
+        {
+            return NULL;
+        }
     }
 
     // operation BIT returns bool or struct {bool, ...}
@@ -1129,10 +1004,10 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     {
         if (op1->getType() == STRUCT)
         {
-            StructType* resStructType = new StructType;
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
             TypeFactory::addTempType(resStructType);
 
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
             for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
             {
                 const BaseType* resType = getResultType(op, opStructType->getElemType(i), op2);
@@ -1147,23 +1022,20 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
 
             return (BaseType*) resStructType;
         }
-
         // integral types
         else if (op1->getType() <= OCTET)
         {
             return TypeFactory::mapType("Bool");
         }
-
         else
         {
             return 0;
         }
     }
-
-    // operation not even applicable, so no result type
-    if (!isApplicable(op, op1, op2))
+    
+    if (op == OP_IS_NULL)
     {
-        return 0;
+        return TypeFactory::mapType("Bool");
     }
 
     // the condense operation COUNT always returns an unsigned long
@@ -1171,12 +1043,55 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     {
         return TypeFactory::mapType("ULong");
     }
-    // SQRT returns DOUBLE
+    // SQRT & similar ops return DOUBLE
+    // for structs, each band will return double (if it is well-defined!)
 
-
-    if (op > Ops::OP_UFUNC_BEGIN && op < Ops::OP_UFUNC_END)
+    if (op > Ops::OP_UFUNC_BEGIN && op < Ops::OP_UFUNC_END) 
     {
-        return TypeFactory::mapType("Double");
+        if (op1 && op1->getType() == STRUCT) 
+        {
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
+            TypeFactory::addTempType(resStructType);
+
+            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
+            {
+                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
+
+                if (!resType)
+                {
+                    return 0;
+                }
+
+                resStructType->addElement(opStructType->getElemName(i), resType);
+            }
+
+            return (BaseType*) resStructType;            
+        }
+        else if(op2 && op2->getType() == STRUCT)
+        {
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
+            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
+            TypeFactory::addTempType(resStructType);
+
+            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
+            {
+                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
+
+                if (!resType)
+                {
+                    return 0;
+                }
+
+                resStructType->addElement(opStructType->getElemName(i), resType);
+            }
+
+            return (BaseType*) resStructType;            
+        }
+        else 
+        {
+            return TypeFactory::mapType("Double");
+        }
     }
 
     if (op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END && op != OP_CAST_GENERAL)
@@ -1193,9 +1108,10 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
 
         else if (op1->getType() == STRUCT)
         {
-            StructType* resStructType = new StructType;
-            TypeFactory::addTempType(resStructType);
             StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
+            TypeFactory::addTempType(resStructType);
+
             for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
             {
                 const BaseType* resType = getResultType(op, opStructType->getElemType(i));
@@ -1220,9 +1136,25 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     // if we have division of integers, the result should be a real -- DM
     if (op == OP_DIV)
     {
-        if ((op1->getType() <= OCTET && op2->getType() <= OCTET))
+        // considering the ordering, we only care that there is a natural
+        // inclusion map from the 2nd op's type to the complex numbers, and that
+        // op1 is, at worst, also complex
+        if (op2->getType() <= COMPLEXTYPE2 && op1->getType() <= COMPLEXTYPE2) 
         {
-            return TypeFactory::mapType("Double");
+            int x = std::max(op2->getType(), DOUBLE);
+            switch (x) {
+                case DOUBLE:
+                    return TypeFactory::mapType("Double");
+                case FLOAT:
+                    return TypeFactory::mapType("Float");
+                case COMPLEXTYPE1:
+                    return TypeFactory::mapType("Complex1");
+                case COMPLEXTYPE2:
+                    return TypeFactory::mapType("Complex2");
+                default:
+                    return TypeFactory::mapType("Double");
+                    break;
+            }
         }
     }
 
@@ -1257,6 +1189,39 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
 
         else if (op1->getType() == STRUCT)
         {
+            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
+            TypeFactory::addTempType(resStructType);
+
+            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
+            {
+                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
+                if (!resType)
+                {
+                    return 0;
+                }
+
+                resStructType->addElement(opStructType->getElemName(i), resType);
+            }
+
+            return (BaseType*)resStructType;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    if (!op2 && op == Ops::OP_SQSUM)
+    {
+
+        if (op1->getType() <= FLOAT)
+        {
+            return TypeFactory::mapType("Double");
+        }
+
+        else if (op1->getType() == STRUCT)
+        {
             StructType* resStructType = new StructType;
             TypeFactory::addTempType(resStructType);
             StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
@@ -1279,6 +1244,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
         }
     }
 
+ 
     // some :-) unary and condense operations return the same type
     if (op == OP_REALPART || op == OP_IMAGINARPART)
     {
@@ -1322,9 +1288,10 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
             if (op1->getType() == STRUCT && op2->getType() <= FLOAT)
             {
 
-                StructType* resStructType = new StructType;
-                TypeFactory::addTempType(resStructType);
                 StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+                StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
+                TypeFactory::addTempType(resStructType);
+
                 for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
                 {
                     const BaseType* resType = getResultType(op, opStructType->getElemType(i), op2);
@@ -1338,10 +1305,6 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
 
                 return (BaseType*)resStructType;
             }
-            else
-            {
-                return const_cast<BaseType*>(op1);
-            }
         }
     }
     if (op2->getType() >= STRUCT && op2->getType() <= CLASSTYPE)
@@ -1349,10 +1312,9 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
 
         if (op1->getType() <= FLOAT && op2->getType() == STRUCT)
         {
-
-            StructType* resStructType = new StructType;
-            TypeFactory::addTempType(resStructType);
             StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
+            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
+            TypeFactory::addTempType(resStructType);
             
             for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
             {
@@ -1374,7 +1336,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     }
 
     // comparison operators always return bool
-    if (op >= OP_EQUAL && op <= OP_GREATEREQUAL)
+    if ((op >= OP_EQUAL && op <= OP_GREATEREQUAL))
     {
         return TypeFactory::mapType("Bool");
     }
@@ -1431,6 +1393,74 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     else
     {
         return const_cast<BaseType*>(op2);
+    }
+    //operations on composite types are extended band-wise.
+    if(op1->getType() == STRUCT && op2->getType() == STRUCT)
+    {
+        StructType* opStructType1 = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+        StructType* opStructType2 = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
+        //ensure that both structs have the same number of elements before proceeding
+        if ( opStructType1->getNumElems() != opStructType2->getNumElems() ) 
+        {
+            return 0;
+        }
+        
+        StructType* resStructType = new StructType("res_struct_type", opStructType1->getNumElems());
+        TypeFactory::addTempType(resStructType);
+
+        for (unsigned int i = 0; i < opStructType1->getNumElems(); ++i)
+        {
+            const BaseType* resType = getResultType(op, opStructType1->getElemType(i), opStructType2->getElemType(i));
+            if (!resType)
+            {
+                return 0;
+            }
+            resStructType->addElement(opStructType1->getElemName(i), resType);
+        }
+
+        return (BaseType*)resStructType;        
+    }
+    else if(op1->getType() == STRUCT && op2->getType() != STRUCT)
+    {
+        StructType* opStructType1 = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+        
+        StructType* resStructType = new StructType("res_struct_type", opStructType1->getNumElems());
+        TypeFactory::addTempType(resStructType);
+
+        for (unsigned int i = 0; i < opStructType1->getNumElems(); ++i)
+        {
+            const BaseType* resType = getResultType(op, opStructType1->getElemType(i), op2);
+            if (!resType)
+            {
+                return 0;
+            }
+            resStructType->addElement(opStructType1->getElemName(i), resType);
+        }
+
+        return (BaseType*)resStructType;        
+    }
+    else if(op1->getType() != STRUCT && op2->getType() == STRUCT)
+    {
+        StructType* opStructType2 = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
+        
+        StructType* resStructType = new StructType("res_struct_type", opStructType2->getNumElems());
+        TypeFactory::addTempType(resStructType);
+
+        for (unsigned int i = 0; i < opStructType2->getNumElems(); ++i)
+        {
+            const BaseType* resType = getResultType(op, op1, opStructType2->getElemType(i));
+            if (!resType)
+            {
+                return 0;
+            }
+            resStructType->addElement(opStructType2->getElemName(i), resType);
+        }
+
+        return (BaseType*)resStructType;        
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -1587,6 +1617,7 @@ OpNOTCULong::operator()(char* res, const char* op)
 
     resType->makeFromCULong(res + resOff, &longRes);
 }
+
 
 OpIDENTITYCULong::OpIDENTITYCULong(const BaseType* newResType, const BaseType* newOpType,
                                    unsigned int newResOff,
@@ -4026,6 +4057,71 @@ OpSUMCDouble::operator()(const char* op)
     return OpSUMCDouble::operator()(op, accu);
 }
 
+/// OpSQSUM
+
+OpSQSUMCDouble::OpSQSUMCDouble(const BaseType* newResType, const BaseType* newOpType,
+                           unsigned int newResOff, unsigned int newOpOff)
+    : CondenseOp(newResType, newOpType, newResOff, newOpOff)
+{
+    double myVal = 0.0;
+    // initialising with neutral value
+    accu = new char[resType->getSize()];
+    resType->makeFromCDouble(accu, &myVal);
+}
+
+OpSQSUMCDouble::OpSQSUMCDouble(const BaseType* newResType, char* newAccu,
+                           const BaseType* newOpType, unsigned int newResOff,
+                           unsigned int newOpOff)
+    : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
+{
+}
+
+char*
+OpSQSUMCDouble::operator()(const char* op, char* init)
+{
+    double longOp = 0;
+    double longRes = 0;
+
+    longOp = *(opType->convertToCDouble(op + opOff, &longOp));
+    longRes = *(resType->convertToCDouble(init + resOff, &longRes));
+
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCDouble(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp))
+    {
+        if (nullAccu)
+        {
+            longRes = longOp * longOp;
+            nullAccu = false;
+        }
+        else
+        {
+            longRes += longOp * longOp;
+        }
+
+        resType->makeFromCDouble(init + resOff, &longRes);
+    }
+
+    return init;
+}
+
+char*
+OpSQSUMCDouble::operator()(const char* op)
+{
+    return OpSQSUMCDouble::operator()(op, accu);
+}
+
+
+///
+
 OpCondenseStruct::OpCondenseStruct(
     const BaseType* newResType,
     const BaseType* newOpType,
@@ -4138,6 +4234,7 @@ OpCondenseStruct::operator()(const char* op)
 static Ops::OpType _operation;
 
 OpBinaryStruct::OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
+                               const BaseType* op1typeArg, const BaseType* op2typeArg,
                                unsigned int newResOff, unsigned int newOp1Off,
                                unsigned int newOp2Off)
     : BinaryOp(newStructType, newStructType, newStructType, newResOff,
@@ -4150,6 +4247,8 @@ OpBinaryStruct::OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
 
 
     myStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(newStructType));
+    StructType* op1type = dynamic_cast<StructType*>(const_cast<BaseType*>(op1typeArg));
+    StructType* op2type = dynamic_cast<StructType*>(const_cast<BaseType*>(op2typeArg));
     numElems = myStructType->getNumElems();
     elemOps = new BinaryOp*[numElems];
     equalOps = new BinaryOp*[numElems];
@@ -4162,29 +4261,37 @@ OpBinaryStruct::OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
         assignmentOps[i] = NULL;
         
         elemOps[i] = Ops::getBinaryOp(op, myStructType->getElemType(i),
-                                          myStructType->getElemType(i),
-                                          myStructType->getElemType(i),
+                                          op1type->getElemType(i),
+                                          op2type->getElemType(i),
                                           newResOff + myStructType->getOffset(i),
-                                          newOp1Off + myStructType->getOffset(i),
-                                          newOp2Off + myStructType->getOffset(i));    
+                                          newOp1Off + op1type->getOffset(i),
+                                          newOp2Off + op2type->getOffset(i));
+        if (elemOps[i] == NULL)
+        {
+            throw r_Error(CELLBINARYOPUNAVAILABLE);
+        }
         if (op == Ops::OP_MIN_BINARY || op == Ops::OP_MAX_BINARY)
         {
             lessOps[i] = Ops::getBinaryOp(Ops::OP_LESS, boolType,
-                                          myStructType->getElemType(i),
-                                          myStructType->getElemType(i),
+                                          op1type->getElemType(i),
+                                          op2type->getElemType(i),
                                           0,
-                                          newOp1Off + myStructType->getOffset(i),
-                                          newOp2Off + myStructType->getOffset(i));
+                                          newOp1Off + op1type->getOffset(i),
+                                          newOp2Off + op2type->getOffset(i));
             equalOps[i] = Ops::getBinaryOp(Ops::OP_EQUAL, boolType,
-                                           myStructType->getElemType(i),
-                                           myStructType->getElemType(i),
+                                           op1type->getElemType(i),
+                                           op2type->getElemType(i),
                                            0,
-                                           newOp1Off + myStructType->getOffset(i),
-                                           newOp2Off + myStructType->getOffset(i));
+                                           newOp1Off + op1type->getOffset(i),
+                                           newOp2Off + op2type->getOffset(i));
             assignmentOps[i] = Ops::getUnaryOp(Ops::OP_IDENTITY, myStructType->getElemType(i),
                                                myStructType->getElemType(i),
                                                newResOff + myStructType->getOffset(i),
                                                newOp1Off + myStructType->getOffset(i));
+            if(lessOps[i] == NULL || equalOps[i] == NULL || assignmentOps[i] == NULL)
+            {
+                throw r_Error(CELLBINARYOPUNAVAILABLE);
+            }
         }
     }
 }
@@ -4524,6 +4631,10 @@ OpUnaryStruct::OpUnaryStruct(
                          newResOff + myResType->getOffset(i),
                          newOpOff + myOpType->getOffset(i)
                      );
+        if(elemOps[i] == NULL)
+        {
+            throw r_Error(CELLUNARYOPUNAVAILABLE);
+        }
     }
 }
 
@@ -4920,6 +5031,51 @@ OpNOTEQUALChar::operator()(char* res, const char* op1,
     }
 }
 
+ //--------------------------------------------
+//  OpISNULL
+//--------------------------------------------
+
+OpISNULLCLong::OpISNULLCLong(const BaseType* newResType, const BaseType* newOpType,
+		                   unsigned int newResOff, unsigned int newOpOff)
+	: UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpISNULLCLong::operator()(char* result, const char* op)
+{
+	r_Long longOp;
+	longOp  = *(opType->convertToCLong(op + opOff, &longOp));
+	*(result + resOff) = isNull(longOp);
+}
+
+OpISNULLCULong::OpISNULLCULong(const BaseType* newResType, const BaseType* newOpType,
+		                   unsigned int newResOff, unsigned int newOpOff)
+	: UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpISNULLCULong::operator()(char* result, const char* op)
+{
+	r_ULong longOp;
+	longOp  = *(opType->convertToCULong(op + opOff, &longOp));
+	*(result + resOff) = isNull(longOp);
+}
+
+OpISNULLCDouble::OpISNULLCDouble(const BaseType* newResType, const BaseType* newOpType,
+		                   unsigned int newResOff, unsigned int newOpOff)
+	: UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpISNULLCDouble::operator()(char* result, const char* op)
+{
+	double doubleOp;
+	doubleOp  = *(opType->convertToCDouble(op + opOff, &doubleOp));
+	*(result + resOff) = isNull(doubleOp) || std::isnan(doubleOp);
+}
 
 //--------------------------------------------
 //  OpGREATERChar

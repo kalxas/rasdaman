@@ -26,7 +26,7 @@ from master.helper.user_axis import UserAxis, UserAxisType
 
 class IrregularUserAxis(UserAxis):
     def __init__(self, name, resolution, order, min, directPositions, max=None, type=UserAxisType.NUMBER,
-                 dataBound=True, crs_origin=None):
+                 dataBound=True, crs_origin=None, statements=[]):
         """
         An IrregularUserAxis is a UserAxis with direct positions and assumed resolution of 1.
         :param str name: The name of the axis
@@ -38,6 +38,7 @@ class IrregularUserAxis(UserAxis):
         :param str | float | None max: the maximum on this axis
         :param str type: the type of the values on this axis
         :param str directPositions: the list of direct positions of the slices on this axis
+        :param array statements: an array of statements to be executed before evaluation, e.g. import
         """
-        UserAxis.__init__(self, name, resolution, order, min, max, type, dataBound)
+        UserAxis.__init__(self, name, resolution, order, min, max, type, dataBound, statements)
         self.directPositions = directPositions

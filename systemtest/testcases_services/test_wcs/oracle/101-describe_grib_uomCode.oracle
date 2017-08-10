@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions 
+    
+    
+    
+    
+    
+    
+     >
+    <wcs:CoverageDescription id="ecmwf_grib_temperature_isobaric"
+        xmlns="http://www.opengis.net/gml/3.2"
+         >
+        <boundedBy>
+            <Envelope axisLabels="reftime isobaric Lat Long"
+                srsDimension="4"
+                srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;reftime&quot;&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=/crs/EPSG/0/4326" uomLabels="d GridSpacing degree degree">
+                <lowerCorner>"2015-01-01T00:00:00.000Z" 500 19.75 9.75</lowerCorner>
+                <upperCorner>"2015-01-31T18:00:00.000Z" 1000 20.75 10.75</upperCorner>
+            </Envelope>
+        </boundedBy>
+        <wcs:CoverageId>ecmwf_grib_temperature_isobaric</wcs:CoverageId>
+        <coverageFunction>
+            <GridFunction>
+                <sequenceRule axisOrder="+1 +2 +4 +3">Linear</sequenceRule>
+                <startPoint>0 0 0 0</startPoint>
+            </GridFunction>
+        </coverageFunction>
+        <gmlcov:metadata>
+            <gmlcov:Extension>
+                <covMetadata>{  "MARS type": "MARS type",   "Grib1_Parameter_id": "Parameter id",   "Originating_or_generating_Center": "European Centre for Medium-Range Weather Forecasts",   "GRIB_table_version": "Mars Param",   "Type of level": "Type of level",   "Grib1_Parameter_name": "Parameter name"}</covMetadata>
+            </gmlcov:Extension>
+        </gmlcov:metadata>
+        <domainSet>
+            <gmlrgrid:ReferenceableGridByVectors dimension="4"
+                id="ecmwf_grib_temperature_isobaric-grid"
+                 >
+                <limits>
+                    <GridEnvelope>
+                        <low>0 0 0 0</low>
+                        <high>123 12 1 1</high>
+                    </GridEnvelope>
+                </limits>
+                <axisLabels>reftime isobaric Lat Long</axisLabels>
+                <gmlrgrid:origin>
+                    <Point
+                        id="ecmwf_grib_temperature_isobaric-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;reftime&quot;&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=/crs/EPSG/0/4326">
+                        <pos>"2015-01-01T00:00:00.000Z" 500 20.5 10</pos>
+                    </Point>
+                </gmlrgrid:origin>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;reftime&quot;&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=/crs/EPSG/0/4326">1 0 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>"2015-01-01T00:00:00.000Z" "2015-01-01T06:00:00.000Z" "2015-01-01T12:00:00.000Z" "2015-01-01T18:00:00.000Z" "2015-01-02T00:00:00.000Z" "2015-01-02T06:00:00.000Z" "2015-01-02T12:00:00.000Z" "2015-01-02T18:00:00.000Z" "2015-01-03T00:00:00.000Z" "2015-01-03T06:00:00.000Z" "2015-01-03T12:00:00.000Z" "2015-01-03T18:00:00.000Z" "2015-01-04T00:00:00.000Z" "2015-01-04T06:00:00.000Z" "2015-01-04T12:00:00.000Z" "2015-01-04T18:00:00.000Z" "2015-01-05T00:00:00.000Z" "2015-01-05T06:00:00.000Z" "2015-01-05T12:00:00.000Z" "2015-01-05T18:00:00.000Z" "2015-01-06T00:00:00.000Z" "2015-01-06T06:00:00.000Z" "2015-01-06T12:00:00.000Z" "2015-01-06T18:00:00.000Z" "2015-01-07T00:00:00.000Z" "2015-01-07T06:00:00.000Z" "2015-01-07T12:00:00.000Z" "2015-01-07T18:00:00.000Z" "2015-01-08T00:00:00.000Z" "2015-01-08T06:00:00.000Z" "2015-01-08T12:00:00.000Z" "2015-01-08T18:00:00.000Z" "2015-01-09T00:00:00.000Z" "2015-01-09T06:00:00.000Z" "2015-01-09T12:00:00.000Z" "2015-01-09T18:00:00.000Z" "2015-01-10T00:00:00.000Z" "2015-01-10T06:00:00.000Z" "2015-01-10T12:00:00.000Z" "2015-01-10T18:00:00.000Z" "2015-01-11T00:00:00.000Z" "2015-01-11T06:00:00.000Z" "2015-01-11T12:00:00.000Z" "2015-01-11T18:00:00.000Z" "2015-01-12T00:00:00.000Z" "2015-01-12T06:00:00.000Z" "2015-01-12T12:00:00.000Z" "2015-01-12T18:00:00.000Z" "2015-01-13T00:00:00.000Z" "2015-01-13T06:00:00.000Z" "2015-01-13T12:00:00.000Z" "2015-01-13T18:00:00.000Z" "2015-01-14T00:00:00.000Z" "2015-01-14T06:00:00.000Z" "2015-01-14T12:00:00.000Z" "2015-01-14T18:00:00.000Z" "2015-01-15T00:00:00.000Z" "2015-01-15T06:00:00.000Z" "2015-01-15T12:00:00.000Z" "2015-01-15T18:00:00.000Z" "2015-01-16T00:00:00.000Z" "2015-01-16T06:00:00.000Z" "2015-01-16T12:00:00.000Z" "2015-01-16T18:00:00.000Z" "2015-01-17T00:00:00.000Z" "2015-01-17T06:00:00.000Z" "2015-01-17T12:00:00.000Z" "2015-01-17T18:00:00.000Z" "2015-01-18T00:00:00.000Z" "2015-01-18T06:00:00.000Z" "2015-01-18T12:00:00.000Z" "2015-01-18T18:00:00.000Z" "2015-01-19T00:00:00.000Z" "2015-01-19T06:00:00.000Z" "2015-01-19T12:00:00.000Z" "2015-01-19T18:00:00.000Z" "2015-01-20T00:00:00.000Z" "2015-01-20T06:00:00.000Z" "2015-01-20T12:00:00.000Z" "2015-01-20T18:00:00.000Z" "2015-01-21T00:00:00.000Z" "2015-01-21T06:00:00.000Z" "2015-01-21T12:00:00.000Z" "2015-01-21T18:00:00.000Z" "2015-01-22T00:00:00.000Z" "2015-01-22T06:00:00.000Z" "2015-01-22T12:00:00.000Z" "2015-01-22T18:00:00.000Z" "2015-01-23T00:00:00.000Z" "2015-01-23T06:00:00.000Z" "2015-01-23T12:00:00.000Z" "2015-01-23T18:00:00.000Z" "2015-01-24T00:00:00.000Z" "2015-01-24T06:00:00.000Z" "2015-01-24T12:00:00.000Z" "2015-01-24T18:00:00.000Z" "2015-01-25T00:00:00.000Z" "2015-01-25T06:00:00.000Z" "2015-01-25T12:00:00.000Z" "2015-01-25T18:00:00.000Z" "2015-01-26T00:00:00.000Z" "2015-01-26T06:00:00.000Z" "2015-01-26T12:00:00.000Z" "2015-01-26T18:00:00.000Z" "2015-01-27T00:00:00.000Z" "2015-01-27T06:00:00.000Z" "2015-01-27T12:00:00.000Z" "2015-01-27T18:00:00.000Z" "2015-01-28T00:00:00.000Z" "2015-01-28T06:00:00.000Z" "2015-01-28T12:00:00.000Z" "2015-01-28T18:00:00.000Z" "2015-01-29T00:00:00.000Z" "2015-01-29T06:00:00.000Z" "2015-01-29T12:00:00.000Z" "2015-01-29T18:00:00.000Z" "2015-01-30T00:00:00.000Z" "2015-01-30T06:00:00.000Z" "2015-01-30T12:00:00.000Z" "2015-01-30T18:00:00.000Z" "2015-01-31T00:00:00.000Z" "2015-01-31T06:00:00.000Z" "2015-01-31T12:00:00.000Z" "2015-01-31T18:00:00.000Z"</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>reftime</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;reftime&quot;&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=/crs/EPSG/0/4326">0 1 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>0 50 250 275 300 325 350 375 400 425 450 475 500</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>isobaric</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;reftime&quot;&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=/crs/EPSG/0/4326">0 0 -0.5 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;reftime&quot;&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=/crs/EPSG/0/4326">0 0 0 0.5</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients/>
+                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+            </gmlrgrid:ReferenceableGridByVectors>
+        </domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="Temperature_isobaric">
+                    <swe:Quantity >
+                        <swe:label>Temperature_isobaric</swe:label>
+                        <swe:description>Bands description</swe:description>
+                        <swe:nilValues>
+                            <swe:NilValues>
+                                <swe:nilValue reason="Nil value represents missing values.">9999</swe:nilValue>
+                            </swe:NilValues>
+                        </swe:nilValues>
+                        <swe:uom code="Pa"/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

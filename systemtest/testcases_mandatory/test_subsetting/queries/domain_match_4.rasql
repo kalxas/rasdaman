@@ -1,0 +1,1 @@
+select c[ 2014 , 3, 1, 2, 3, 4, 5, 6 ] from test_subsetting_3d as c

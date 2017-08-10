@@ -25,6 +25,6 @@ from master.helper.user_axis import UserAxis, UserAxisType
 
 
 class RegularUserAxis(UserAxis):
-    def __init__(self, name, resolution, order, min, max=None, type=UserAxisType.NUMBER, dataBound=True):
-        UserAxis.__init__(self, name, resolution, order, min, max, type, dataBound)
+    def __init__(self, name, resolution, order, min, max=None, type=UserAxisType.NUMBER, dataBound=True, statements=[]):
+        UserAxis.__init__(self, name, resolution, order, min, max, type, dataBound, statements)
 

@@ -40,9 +40,9 @@ static const char rcsid[] = "@(#)catalogif,BaseType: $Id: basetype.C,v 1.11 2001
 
 BaseType::BaseType(const char* name)
 	:	Type(name)
-	{
-        LTRACE << "BaseType(" << getName() << ")";
-	}
+{
+    LTRACE << "BaseType(" << getName() << ")";
+}
 
 /*************************************************************
  * Method name...: BaseType()
@@ -54,20 +54,20 @@ BaseType::BaseType(const char* name)
 
 BaseType::BaseType()
 	:	Type("unnamed basetype")
-	{
-        LTRACE << "BaseType()";
-	}
+{
+    LTRACE << "BaseType()";
+}
 
 BaseType::BaseType(const OId& id) throw (r_Error)
 	:	Type(id)
-	{
-        LTRACE << "BaseType(" << myOId << ")";
-	}
+{
+    LTRACE << "BaseType(" << myOId << ")";
+}
 
 BaseType::BaseType(const BaseType& old)
 	:	Type(old)
-	{
-	}
+{
+}
 
 /*************************************************************
  * Method name...: ~BaseType()
@@ -77,16 +77,14 @@ BaseType::BaseType(const BaseType& old)
  * Description...: virtual destructor
  ************************************************************/
 
-BaseType::~BaseType()
-	{
-	}
+BaseType::~BaseType(){}
 
 BaseType&
 BaseType::operator=(const BaseType& old)
-	{
-	Type::operator=(old);
-	return *this;
-	}
+{
+    Type::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: UnaryOp* getUnaryOp( Ops::OpType optype )
@@ -101,28 +99,28 @@ BaseType::operator=(const BaseType& old)
 UnaryOp*
 BaseType::getUnaryOp( Ops::OpType op, const BaseType* optype ) const
 {
-  return Ops::getUnaryOp(op, static_cast<const BaseType*>(this), optype);
+    return Ops::getUnaryOp(op, static_cast<const BaseType*>(this), optype);
 }
 
 BinaryOp*
 BaseType::getBinaryOp( Ops::OpType op, const BaseType* op1type, 
 		       const BaseType* op2type ) const
 {
-  return Ops::getBinaryOp(op, static_cast<const BaseType*>(this), op1type, op2type);
+    return Ops::getBinaryOp(op, static_cast<const BaseType*>(this), op1type, op2type);
 }
 
 
 CondenseOp*
 BaseType::getCondenseOp( Ops::OpType op ) const
 { 
-  return Ops::getCondenseOp(op, static_cast<const BaseType*>(this));
+    return Ops::getCondenseOp(op, static_cast<const BaseType*>(this));
 }
 
 
 int
 BaseType::compatibleWith(const Type* aType) const
-	{
-	int retval = (myType == aType->getType());
-	return retval;
-	}
+{
+    int retval = (myType == aType->getType());
+    return retval;
+}
 

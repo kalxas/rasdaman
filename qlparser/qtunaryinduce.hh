@@ -137,6 +137,45 @@ private:
 
 */
 
+class QtIsNull : public QtUnaryInduce
+{
+public:
+    /// constructor getting the operand
+    QtIsNull(QtOperation* input);
+
+    /// method for evaluating the node
+    QtData* evaluate(QtDataList* inputList);
+
+    /**
+      The method invokes the evaluate method of its superclass {\tt QtUnaryInduce} with the not
+      operation as an additional argument to compute the result of the node.
+    */
+
+    /// prints the tree
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+
+    /// prints the algebraic expression
+    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+
+    /// method for identification of nodes
+    inline virtual QtNodeType getNodeType() const;
+
+    /// type checking of the subtree
+    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+
+private:
+    /// attribute for identification of nodes
+    static const QtNodeType nodeType;
+};
+
+
+
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+*/
+
 class QtDot : public QtUnaryInduce
 {
 public:

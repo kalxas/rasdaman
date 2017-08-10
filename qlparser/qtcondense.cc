@@ -293,6 +293,14 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
             resultType = finalResultType;
         }
 
+        if (getNodeType() >= QT_VARPOP && getNodeType() <= QT_STDDEVSAMP)
+        {
+            const BaseType* finalResultType = Ops::getResultType(Ops::OP_CAST_DOUBLE, resultType);
+
+            resultType = finalResultType;
+ 
+        }
+
         dataStreamType.setType(resultType);
     }
     else
@@ -782,4 +790,114 @@ QtMaxCells::evaluate(QtDataList* inputList)
     stopTimer();
 
     return returnValue;
+}
+
+
+QtStdDevVar::QtStdDevVar(QtNodeType newNodeType)
+    : QtCondense(Ops::OP_SQSUM), nodeType(newNodeType)
+{
+}
+
+
+QtStdDevVar::QtStdDevVar(QtOperation* inputNew, QtNodeType newNodeType)
+    : QtCondense(Ops::OP_SQSUM, inputNew), nodeType(newNodeType)
+{
+}
+
+
+QtData*
+QtStdDevVar::evaluate(QtDataList* inputList)
+{
+    startTimer("QtStdDevVar");
+    r_Minterval dummyint1;
+    r_Minterval dummyint2;
+
+    QtScalarData* res = new QtAtomicData();
+
+    // Computing \sum_i x_i^2 - (\sum_i x_i)^2 / n
+
+    // sum of squares
+    QtData* sqSum = QtCondense::computeFullCondense(inputList, dummyint1);
+  
+    // sum of elements
+    QtCondense* tmp = new QtCondense(Ops::OP_SUM, input);
+    QtData* sum = tmp->computeFullCondense(inputList, dummyint2);
+
+
+    QtScalarData* scalarSum    = static_cast<QtScalarData*>(sum);
+    BaseType*     resultType   = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
+    char* resultBuffer = new char[ resultType->getSize() ];
+
+    Ops::execUnaryConstOp(Ops::OP_CAST_DOUBLE, resultType, scalarSum->getValueType(),
+                          resultBuffer, scalarSum->getValueBuffer()); 
+
+    Ops::execBinaryConstOp(Ops::OP_MULT, resultType,
+                           resultType,   resultType,
+                           resultBuffer,
+                           resultBuffer, resultBuffer);
+
+  
+    // allocate ulong constant with number of cells
+    r_ULong constValue  = dummyint2.cell_count() - sum->getNullValuesCount();
+    if (constValue == 0)
+    {
+        constValue = 1;
+    }
+    const BaseType*     constType   = TypeFactory::mapType("ULong");
+    char*               constBuffer = new char[ constType->getSize() ];
+
+    constType->makeFromCULong(constBuffer, &constValue);
+
+    Ops::execBinaryConstOp(Ops::OP_DIV, resultType,
+                           resultType,   constType,
+                           resultBuffer,
+                           resultBuffer, constBuffer);
+
+
+    QtScalarData* scalarSqSum = static_cast<QtScalarData*>(sqSum);
+
+    Ops::execBinaryConstOp(Ops::OP_MINUS, resultType,
+                           scalarSqSum->getValueType(),   resultType,
+                           resultBuffer,
+                           scalarSqSum->getValueBuffer(), resultBuffer);
+
+    // end of computation
+
+    if (nodeType == QT_VARSAMP || nodeType == QT_STDDEVSAMP)
+    {
+      if (constValue>1)
+      {
+        constValue --;
+      }
+      constType->makeFromCULong(constBuffer, &constValue);
+    }
+
+    Ops::execBinaryConstOp(Ops::OP_DIV, resultType,
+                           resultType,   constType,
+                           resultBuffer,
+                           resultBuffer, constBuffer);
+
+    if (nodeType == QT_STDDEVPOP || nodeType == QT_STDDEVSAMP)
+    {
+      Ops::execUnaryConstOp(Ops::OP_SQRT, resultType, resultType, 
+                            resultBuffer, resultBuffer);
+    }
+
+    res->setValueType(resultType);
+    res->setValueBuffer(resultBuffer);
+
+    delete[] constBuffer;
+    constBuffer = NULL;
+    if (scalarSum)
+    {
+        scalarSum->deleteRef();
+    }
+    if (scalarSqSum)
+    {
+        scalarSqSum->deleteRef();
+    }
+    
+    stopTimer();
+
+    return res;
 }

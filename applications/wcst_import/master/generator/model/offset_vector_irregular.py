@@ -26,7 +26,7 @@ from master.generator.model.offset_vector import OffsetVector
 
 
 class OffsetVectorIrregular(OffsetVector):
-    def __init__(self, crs, axisLabels, uomLabels, noOfDimensions, offset, coefficient):
+    def __init__(self, crs, axisLabels, uomLabels, noOfDimensions, offset, coefficient, axisSpanned):
         """
         Representation of the offset vector on a regular axis
         :param str crs: the crs of the offset vector
@@ -35,8 +35,9 @@ class OffsetVectorIrregular(OffsetVector):
         :param int noOfDimensions: the number of dimensions
         :param list[float] offset: the offset value
         :param str coefficient: the coefficient(s) for the axis
+        :param str axisSpanned: the label of the axis to which this vector corresponds to
         """
-        super(OffsetVectorIrregular, self).__init__(crs, axisLabels, uomLabels, noOfDimensions, offset)
+        super(OffsetVectorIrregular, self).__init__(crs, axisLabels, uomLabels, noOfDimensions, offset, axisSpanned)
         self.coefficient = coefficient
 
     def get_template_name(self):

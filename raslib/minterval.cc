@@ -576,8 +576,6 @@ r_Minterval::create_scale(const vector<double>& scaleVec) const throw(r_Eno_inte
     return result;
 }
 
-
-
 r_Minterval&
 r_Minterval::union_of(const r_Minterval& mint1, const r_Minterval& mint2) throw(r_Edim_mismatch, r_Eno_interval)
 {
@@ -996,6 +994,24 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
         LFATAL << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")";
         throw (r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
     }
+    offset += static_cast<long long unsigned int>(point[i] - intervals[i].low());
+
+    return offset;
+}
+
+r_Area
+r_Minterval::efficient_cell_offset(const r_Point& point) const
+{
+    r_Area offset = 0;
+    r_Point ptExt = get_extent();
+
+    r_Dimension i = 0;
+    // calculate offset
+    for (; i < dimensionality - 1; i++)
+    {
+        offset = (offset + static_cast<long long unsigned int>(point[i] - intervals[i].low())) * static_cast<long long unsigned int>(ptExt[i + 1]);
+    }
+
     offset += static_cast<long long unsigned int>(point[i] - intervals[i].low());
 
     return offset;

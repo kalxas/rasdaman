@@ -133,7 +133,7 @@ QtRangeConstructor::evaluate(QtDataList* inputList)
         if (complexLit)
         {
             QtComplexData::QtScalarDataList* scalarOperandList = new QtComplexData::QtScalarDataList();
-            for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++)
+            for (auto iter = operandList->begin(); iter != operandList->end(); iter++)
             {
                 QtData* operand = *iter;
                 QtDataType operandType = operand->getDataType();
@@ -157,101 +157,61 @@ QtRangeConstructor::evaluate(QtDataList* inputList)
         }
         else
         {
-
             // create a transient MDD object for the query result
             MDDObj* resultMDD = getResultMDD(operandList);
-
-
+            // size of each cell in the result tile
             unsigned int cellSize = resultMDD->getCellType()->getSize();
-            vector<char*> targetTiles;
-
+            // total # of cells in the result tile
+            r_Area resultCellCount = resultMDD->getDefinitionDomain().cell_count();
+            // offset used for copying the current operand: starts at 0 and
+            // increments based on the size of the previous source cells.
             unsigned short structElemShift = 0;
+            // create the result tile
+            Tile* resultTile = new Tile(resultMDD->getDefinitionDomain(), resultMDD->getCellType());
+            resultMDD->insertTile(resultTile);
             // iterate over the MDD objects from each band
-            for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++)
+            for (auto iter = operandList->begin(); iter != operandList->end(); iter++)
             {
-
-                vector<char*>::iterator targetIt = targetTiles.begin();
                 if (static_cast<QtScalarData*>(*iter)->isScalarData())
                 {
-
-                    char* ScalarTargetTile = NULL;
-                    if (structElemShift == 0)
+                    // pointer to contents of target tile, shifted for this band
+                    char* targetData = const_cast<char*>(resultTile->getContents()) + structElemShift;
+                    // ptr to source data -- in this case, we do not shift as the data is constant
+                    const char* scalarValuePtr = (static_cast<QtScalarData*>(*iter))->getValueBuffer();
+                    // source data size for memcpy
+                    size_t scalarDataSize = (static_cast<QtScalarData*>(*iter))->getValueType()->getSize();
+                    // loop for copying the data
+                    for(unsigned int cell = 0; cell < resultCellCount; ++cell)
                     {
-                        Tile* scalarTile = new Tile(resultMDD->getDefinitionDomain(), resultMDD->getCellType());
-                        resultMDD->insertTile(scalarTile);
-                        ScalarTargetTile = static_cast<char*>(scalarTile->getContents());
-                        targetTiles.push_back(ScalarTargetTile);
+                        memcpy(targetData, scalarValuePtr, scalarDataSize);
+                        // shifted by total cell size
+                        targetData += cellSize;
                     }
-                    else
-                    {
-                        ScalarTargetTile = *targetIt;
-                        ++targetIt;
-                    }
-                    ScalarTargetTile += structElemShift;
-                    r_Area scalarCellCount = resultMDD->getDefinitionDomain().cell_count();
-                    unsigned int cell = 0;
-                    while (cell < scalarCellCount)
-                    {
-                        memcpy(ScalarTargetTile, (static_cast<QtScalarData*>(*iter))->getValueBuffer(), (static_cast<QtScalarData*>(*iter))->getValueType()->getSize());
-                        ++cell;
-                    }
-                    structElemShift += (static_cast<QtScalarData*>(*iter))->getValueType()->getSize();
-
-
+                    // for offset computations in the next pass
+                    structElemShift += scalarDataSize;
                 }
                 else
                 {
-
+                    // ptr to this band's mdd & data container
                     QtMDD* qtMDDObj = static_cast<QtMDD*>(*iter);
                     MDDObj* currentMDDObj = qtMDDObj->getMDDObject();
+                    // vector of tiles for the source mdd object
                     vector<boost::shared_ptr<Tile>>* tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
+                    // cell size for this band
                     unsigned int bandCellSize = currentMDDObj->getCellType()->getSize();
-
-                    // iterate over the source tiles of the curent band
-                    targetIt = targetTiles.begin();
-                    for (vector<boost::shared_ptr<Tile>>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+                    // iterate over the source tiles of the current band
+                    for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
                     {
-                        const char* sourceTile = (*tileIter)->getContents();
-                        r_Minterval tileDomain = (*tileIter)->getDomain();
-
-                        // get the target tile to which the input band will be copied
-                        char* targetTile = NULL;
-                        if (structElemShift == 0)
-                        {
-                            Tile* newTile = new Tile(tileDomain, resultMDD->getCellType());
-                            resultMDD->insertTile(newTile);
-                            targetTile = static_cast<char*>(newTile->getContents());
-                            targetTiles.push_back(targetTile);
-                        }
-                        else
-                        {
-                            targetTile = *targetIt;
-                            ++targetIt;
-                        }
-                        targetTile += structElemShift;
-
-                        // copy all cells from input band to the output composite MDD,
-                        // properly shifted to the right offset
-                        r_Area cellCount = tileDomain.cell_count();
-                        unsigned int cell = 0;
-                        while (cell < cellCount)
-                        {
-                            memcpy(targetTile, sourceTile, bandCellSize);
-                            targetTile += cellSize;
-                            sourceTile += bandCellSize;
-                            ++cell;
-                        }
+                        // use copyTile to move contents from source to target
+                        resultTile->copyTile((*tileIter)->getDomain(), *tileIter, (*tileIter)->getDomain(), structElemShift, 0, bandCellSize);                           
                     }
-                    // increase element shift within the struct
+                    // for offset computations in the next pass
                     structElemShift += bandCellSize;
                     delete tiles;
                 }
-
             }
-
             returnValue = new QtMDD(resultMDD);
         }
-
         // delete old operands
         if (operandList)
         {
@@ -259,87 +219,49 @@ QtRangeConstructor::evaluate(QtDataList* inputList)
             operandList = NULL;
         }
     }
-
     return returnValue;
 }
 
 MDDObj*
 QtRangeConstructor::getResultMDD(QtDataList* operandList)
 {
-    unsigned int nBands = operandList->size();
-    StructType* destinationStructBaseType = new StructType("tmp_str_name", nBands);
-    const BaseType* baseType = static_cast<const BaseType*>(destinationStructBaseType);
+    size_t nBands = operandList->size();
     r_Minterval destinationDomain;
-    r_Minterval currDomain;
-    BaseType* cellType = NULL;
-    for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++)
+    //here, we build the destination domain
+    for (auto iter = operandList->begin(); iter != operandList->end(); iter++)
     {
+        bool destinationDomainSet = false;
         if (!(*iter)->isScalarData())
         {
-            destinationDomain = (static_cast<QtMDD*>(*iter))->getLoadDomain();
-            cellType = (static_cast<QtMDD*>(*iter))->getCellType();
-            currDomain = destinationDomain;
-        }
-
-    }
-
-    // iterate over the MDDs in each band
-    int band = 0;
-    QtMDD* qtMDDObj = NULL;
-    for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++, band++)
-    {
-
-        if (!(*iter)->isScalarData())
-        {
-            qtMDDObj = static_cast<QtMDD*>(*iter);
-            currDomain = qtMDDObj->getLoadDomain();
-
-        }
-
-        if (destinationDomain != currDomain)
-        {
-            if (operandList)
+            //get this operand's MDD object
+            MDDObj* currMDD = (static_cast<QtMDD*>(*iter))->getMDDObject();
+            // get this operand's domain
+            r_Minterval currDomain = currMDD->getDefinitionDomain();
+            //check that the domains match:
+            if(destinationDomainSet && (currDomain != destinationDomain) )
             {
-                delete operandList;
-                operandList = NULL;
-            }
-
-            LFATAL << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands have different domains.";
-            parseInfo.setErrorNo(351);
-            throw parseInfo;
-        }
-
-        char bandName[20];
-        memset(bandName, '\0', 20);
-        sprintf(bandName, "band%d", band);
-        if ((*iter)->isScalarData())
-        {
-
-            if (strcmp(((static_cast<QtScalarData*>(*iter))->getValueType())->getTypeStructure(), cellType->getTypeStructure()) != 0)
-            {
-                LFATAL << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands should have the same type.";
-                parseInfo.setErrorNo(301);
+                LFATAL << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands have different domains.";
+                parseInfo.setErrorNo(351);
                 throw parseInfo;
             }
-
-            destinationStructBaseType->addElement(bandName, (static_cast<QtScalarData*>(*iter))->getValueType());
-
+            //define currDomain if not yet set
+            else if(!destinationDomainSet)
+            {
+                destinationDomain = currDomain;
+                destinationDomainSet = true;
+            }
         }
-        else
-        {
-
-            destinationStructBaseType->addElement(bandName, qtMDDObj->getCellType());
-        }
-
     }
-
-    MDDBaseType* resultMDDType = new MDDBaseType("tmptype", baseType);
-    TypeFactory::addTempType(resultMDDType);
-    dataStreamType.setType(resultMDDType);
-    dataStreamType.setDataType(QT_MDD);
-
-    MDDObj* resultMDD = new MDDObj(resultMDDType, destinationDomain);
-    return resultMDD;
+    
+    if(dynamic_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType())))
+    {
+        MDDObj* resultMDD = new MDDObj(dynamic_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType())), destinationDomain);
+        return resultMDD;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 void
@@ -392,17 +314,17 @@ QtRangeConstructor::checkType(QtTypeTuple* typeTuple)
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     complexLit = true;
-
+    
     QtTypeElement inputType;
 
     // check operand branches
     if (operationList)
     {
-        StructType* structType = new StructType("", operationList->size());
-        unsigned int i = 0;
-        for (QtOperationList::iterator iter = operationList->begin(); iter != operationList->end(); iter++, i++)
+        StructType* structType = new StructType("tmp_struct_name", operationList->size());
+        for (QtOperationList::iterator iter = operationList->begin(); iter != operationList->end(); iter++)
         {
 
+            //check if the current operand's subtree exists
             if (*iter)
             {
                 inputType = (*iter)->checkType(typeTuple);
@@ -412,18 +334,33 @@ QtRangeConstructor::checkType(QtTypeTuple* typeTuple)
                 LERROR << "Error: QtRangeConstructor::checkType() - operand branch invalid.";
             }
 
+            // add an element to the runtime Structure, which corresponds to the
+            // result type of the current operand's subtree
             if (inputType.getDataType() == QT_MDD)
             {
                 complexLit = false;
+                //we need to identify the base type of the QT_MDD, and add it to our struct.
+                char elementName[50];
+                sprintf(elementName, "%d", structType->getNumElems());
+                //we first need the MDDBaseType* from the child:
+                MDDBaseType* dummyMDDBaseTypePtr = static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType()));
+                //next, we reference the underlying BaseType:
+                const BaseType* dummyBaseTypePtr = dummyMDDBaseTypePtr->getBaseType();
+                //lastly, we pass the base type into the transient struct:
+                structType->addElement(elementName, const_cast<BaseType*>(dummyBaseTypePtr));
             }
             else
             {
                 char elementName[50];
-                sprintf(elementName, "%d", i);
+                sprintf(elementName, "%d", structType->getNumElems());
+                //in this case, the base type is much easier to pass into to the transient struct:
                 structType->addElement(elementName, (static_cast<BaseType*>(const_cast<Type*>( inputType.getType() ))));
             }
         }
-        if (complexLit)
+
+        // add the struct type to the list of temporary runtime struct types
+        // if it is not scalar data, we must first create a resultMDDType to add
+        if(complexLit)
         {
             TypeFactory::addTempType(structType);
             dataStreamType.setDataType(QT_COMPLEX);
@@ -431,17 +368,17 @@ QtRangeConstructor::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
+            MDDBaseType* resultMDDType = new MDDBaseType("tmptype", static_cast<BaseType*>(structType));
+            TypeFactory::addTempType(resultMDDType);
             dataStreamType.setDataType(QT_MDD);
-            delete structType;
-            structType = NULL;
+            dataStreamType.setType(resultMDDType);
         }
-
     }
     else
     {
         LERROR << "Error: QtRangeConstructor::checkType() - operand branch invalid.";
     }
-
+    
     return dataStreamType;
 }
 

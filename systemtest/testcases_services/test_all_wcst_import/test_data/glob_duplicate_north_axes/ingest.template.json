@@ -1,0 +1,32 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "SECORE_URL/",
+    "default_crs": "SECORE_URL/crs/OGC/0/Index2D",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "default_null_values": ["-9999"]
+  },
+  "input": {
+    "coverage_id": "GlobColour_monthly",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_irregular",
+    "options": {
+      "time_parameter": {
+        "filename": {
+          "regex": "(.*)_(.*)_(.*)_(.*)\\.(.*)",
+          "group": "4"
+        },
+        "datetime_format": "YYYYMM"
+      },
+      "time_crs": "http://localhost:8080/def/crs/OGC/0/AnsiDate",
+      "tiling": "ALIGNED [0:9, 0:999, 0:499] TILE SIZE 5000000"
+    }
+  }
+}

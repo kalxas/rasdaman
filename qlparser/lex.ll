@@ -187,6 +187,10 @@ int string_yyinput( char* buf, int max_size )
 "avg_cell"|"avg_cells"                   { SETTOKEN( AVGCELLS, commandToken, AVGCELLS ) }
 "min_cell"|"min_cells"                   { SETTOKEN( MINCELLS, commandToken, MINCELLS ) }
 "max_cell"|"max_cells"                   { SETTOKEN( MAXCELLS, commandToken, MAXCELLS ) }
+"var_pop"                                { SETTOKEN( VAR_POP, commandToken, VAR_POP ) } 
+"var_samp"                               { SETTOKEN( VAR_SAMP, commandToken, VAR_SAMP ) }
+"stddev_pop"                             { SETTOKEN( STDDEV_POP, commandToken, STDDEV_POP ) } 
+"stddev_samp"                            { SETTOKEN( STDDEV_SAMP, commandToken, STDDEV_SAMP ) }
 "sdom"                                   { SETTOKEN( SDOM, commandToken, SDOM ) }
 "over"                                   { SETTOKEN( OVER, commandToken, OVER ) }
 "overlay"                                { SETTOKEN( OVERLAY, commandToken, OVERLAY ) }

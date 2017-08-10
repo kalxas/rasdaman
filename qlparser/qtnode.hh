@@ -120,6 +120,7 @@ public:
         QT_LESS,
         QT_LESS_EQUAL,
         QT_NOT,
+        QT_IS_NULL,
         QT_SQRT,
 // added by CStancuMara
         QT_EXECUTE,
@@ -154,6 +155,10 @@ public:
         QT_AVGCELLS,
         QT_MINCELLS,
         QT_MAXCELLS,
+        QT_VARPOP,
+        QT_VARSAMP,
+        QT_STDDEVPOP,
+        QT_STDDEVSAMP,
         QT_MDD_VAR,
         QT_MDD_STREAM,
         QT_CONST,

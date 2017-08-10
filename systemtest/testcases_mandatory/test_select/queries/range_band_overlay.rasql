@@ -1,0 +1,1 @@
+select encode({c.0,c.1 overlay c.2,c.2}[100:109,100:109], "csv") from test_rgb2 as c

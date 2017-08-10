@@ -225,13 +225,21 @@ class Recipe(BaseRecipe):
                 resolution = 1
             default_order += 1
 
+            if "statements" in axis:
+                if isinstance(axis["statements"], list):
+                    statements = axis["statements"]
+                else:
+                    statements = [axis["statements"]]
+            else:
+                statements = []
+
             if not irregular:
                 user_axes.append(
-                    RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound))
+                    RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound, statements=statements))
             else:
                 user_axes.append(
                     IrregularUserAxis(crs_axis.label, resolution, order, axis["min"], axis["directPositions"], max,
-                                      type, data_bound))
+                                      type, data_bound, statements=statements))
         return user_axes
 
     def _global_metadata_fields(self):
