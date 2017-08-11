@@ -159,8 +159,8 @@ module rasdaman {
                     Title: 'Encode 1D as json with widget',
                     Query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "json")'
                 }, {
-                    Title: 'Encode 1D as gml',
-                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "gml")'
+                    Title: 'Encode 2D as gml',
+                    Query: 'for c in (test_mean_summer_airtemp) return encode(c[Lat(-44.525:-44.5), Long(112.5:113.5)], "gml")'
                 }
 
                 //{

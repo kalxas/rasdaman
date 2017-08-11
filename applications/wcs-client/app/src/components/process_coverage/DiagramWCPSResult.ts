@@ -67,7 +67,13 @@ module rasdaman {
             };
 
 
-            var rawData:number[] = JSON.parse("[" + data.substr(1, data.length - 2) + "]");
+            // 1D csv, no need to subtract ([ ... ]), json is needed
+            if (data.indexOf("[") !== -1) {
+                // json
+                data = data.substr(1, data.length - 2);
+            }
+        
+            var rawData:number[] = JSON.parse("[" + data  + "]");
             var processedValues = [];
             for (var i = 0; i < rawData.length; ++i) {
                 processedValues.push({
