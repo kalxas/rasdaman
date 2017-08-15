@@ -33,38 +33,25 @@
 
 
 ########################### Targets ##############################
-TESTSEQUENCE = $(shell) ls -d testcases_mandatory/* \
-                             testcases_open/* \
-                             testcases_fixed/* \
-                             testcases_services/*
+
+TESTSEQUENCE = testcases_mandatory/* testcases_open/* testcases_fixed/*
+
+if ENABLE_JAVA
+	TESTSEQUENCE = testcases_mandatory/* testcases_open/* testcases_fixed/* testcases_services/*
+endif
+
+
+.PHONY: all
+all:
+	cp "run_test.sh.in" "run_test.sh"; \
+	sed -i "s|@TEST_SEQUENCE@|${TESTSEQUENCE}|g" "run_test.sh"
+	
+
 # general system test
 .PHONY: check
 check:
-	ret=0; \
-	for testcase in ${TESTSEQUENCE}; do\
-		PATH=${bindir}:${PATH}\
-		PROGTEST=$${testcase}/*.sh;\
-		if [ ! -f $$testcase/*.sh ]; then\
-			continue;\
-		fi;\
-		echo; \
-		echo; \
-		$$testcase/*.sh;\
-		tmp=$$?;\
-		if [ $$tmp -eq 2 ]; then\
-			echo $${PROGTEST} ... SKIPPED>>logtmp;\
-		elif [ $$tmp -ne 0 ]; then\
-			ret=$$tmp;\
-			echo $${PROGTEST} ... FAIL>>logtmp;\
-		else \
-			echo $${PROGTEST} ... OK>>logtmp;\
-		fi; \
-		echo "	"see detail in $$testcase/log>>logtmp;\
-	done;\
-	echo -e "\n\nTEST SUMMARY\n";\
-	cat logtmp;\
-	rm logtmp;\
-	exit $$ret;
+	bash run_test.sh ${bindir}
+	exit $$?;
 
 .PHONY: clean
 clean:
