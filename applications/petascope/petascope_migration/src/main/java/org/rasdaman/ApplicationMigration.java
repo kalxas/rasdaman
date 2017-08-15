@@ -37,11 +37,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import petascope.util.DatabaseUtil;
 
-
 @SpringBootApplication
 @ComponentScan({"org.rasdaman", "petascope"})
 @PropertySource({"classpath:application.properties"})
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 /**
  * Main class of migration application.
  *
@@ -73,13 +72,18 @@ public class ApplicationMigration implements CommandLineRunner {
         }
     }
 
-    public static void main(String[] args) throws Exception {        
-        SpringApplication.run(ApplicationMigration.class, args);
+    public static void main(String[] args) throws Exception {
+        try {
+            SpringApplication.run(ApplicationMigration.class, args);
+        } catch (Exception ex) {
+            // NOTE: always return error code or migrate_petascopedb.sh script will notice it migrated successfully.
+            log.error("An error occured while migrating, aborting the migration process.", ex);            
+            System.exit(ExitCode.FAILURE.getExitCode());                    
+        }
     }
 
     @Override
     public void run(String... args) throws Exception {
-
         log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.LEGACY_DATASOURCE_URL + "' to JDBC URL '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'...");
         // First, check if old JDBC URL can be connected
         if (!DatabaseUtil.checkJDBCConnection(ConfigManager.LEGACY_DATASOURCE_URL,
@@ -89,8 +93,8 @@ public class ApplicationMigration implements CommandLineRunner {
         }
 
         /*
-        NOTE: Hibernate already connected when migration application starts,
-        so With the embedded database, if another connection tries to connect, it will return exception.
+            NOTE: Hibernate already connected when migration application starts,
+            so With the embedded database, if another connection tries to connect, it will return exception.
          */
         // Then, check what kind of migration should be done
         for (AbstractMigrationService migrationService : migrationServices) {
@@ -99,7 +103,7 @@ public class ApplicationMigration implements CommandLineRunner {
                 log.error("A migration process is already running.");
                 System.exit(ExitCode.FAILURE.getExitCode());
             }
-            
+
             // NOTE: There are 2 types of migration:
             // + From legacy petascopedb prior version 9.5, it checks if petascopedb contains a legacy table name then it migrates to new petascopedb version 9.5.
             // + From petascopedb after version 9.5 to a different database, it checks if both source JDBC, target JDBC can be connected then it migrates entities to new database.
@@ -113,7 +117,7 @@ public class ApplicationMigration implements CommandLineRunner {
                     System.exit(ExitCode.FAILURE.getExitCode());
                 }
                 // Just do one migration
-                break;    
+                break;
             }
         }
 

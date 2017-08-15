@@ -28,8 +28,10 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Properties;
 import static org.rasdaman.InitAllConfigurationsApplicationService.APPLICATION_PROPERTIES_FILE;
+import static org.rasdaman.InitAllConfigurationsApplicationService.KEY_GDAL_JAVA_DIR;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.InitAllConfigurationsApplicationService.KEY_PETASCOPE_CONF_DIR;
+import static org.rasdaman.InitAllConfigurationsApplicationService.addLibraryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -66,7 +68,7 @@ public class InitializeApplication implements CommandLineRunner {
      * @throws IOException
      */
     @Bean
-    public PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException {
+    public PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         String resourceName = APPLICATION_PROPERTIES_FILE; // could also be a constant
         Properties properties = new Properties();
         InputStream resourceStream = this.getClass().getResourceAsStream("/" + resourceName);
@@ -93,10 +95,12 @@ public class InitializeApplication implements CommandLineRunner {
      * Initialize all the configurations for GDAL libraries, ConfigManager and
      * OGC WCS XML Schema
      */
-    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException {
+    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
+        String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {
-            // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")        
+            // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")            
+            addLibraryPath("gdal_java", GDAL_JAVA_DIR);
             // Load properties for Spring, Hibernate from external petascope.properties
             ConfigManager.init(CONF_DIR);
             // Create the new database if not exist

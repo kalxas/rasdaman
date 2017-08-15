@@ -76,7 +76,8 @@ else
     # User can see the log from the terminal at the same time as migration application writes to petascope.log
     # No output log4j, grpc to user's console
     java -jar "$PETASCOPE_MIGRATION_JAR" 2>&1 |  grep -v --line-buffered -e 'grpc' -e 'log4j'
-    if [ "$?" -eq 0 ]; then
+    # NOTE: $? always return 0 even when first command returns 1 (exception in migration application), must get exit code from correct variable.
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then
         log "Migration completted successfully; petascope can be started again."
     else
         error "Migration failed; please check for errors in $LOG_FILE file."
