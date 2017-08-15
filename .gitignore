@@ -8,10 +8,12 @@ autom4te.cache
 *.a
 *.patch
 petascope.properties
-pom.xml
 target/*
 nb-configuration.xml
 applications/petascope/pom.xml
+applications/petascope/petascope_core/pom.xml
+applications/petascope/petascope_main/pom.xml
+applications/petascope/petascope_migration/pom.xml
 applications/petascope/target
 applications/secore/secore-core/pom.xml
 applications/secore/secore-web/pom.xml
@@ -189,6 +191,10 @@ config.guess
 config.sub
 
 # testing
+phantomjs
+phantomjsdriver.log
+test_web_interfaces-spring-boot.jar
+
 #core
 systemtest/testcases_manual/test_crash_rasserver/queries_metrics
 systemtest/testcases_manual/test_crash_rasserver/bugs
@@ -225,3 +231,5 @@ applications/petascope/petascope_core/target/
 applications/petascope/petascope_main/target/
 applications/petascope/petascope_migration/target/
 
+/systemtest/testcases_services/test_web_interaces/TestWebInterfaces/target/
+/systemtest/testcases_services/test_web_interfaces/TestWebInterfaces/target/

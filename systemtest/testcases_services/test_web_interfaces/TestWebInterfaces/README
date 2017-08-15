@@ -1,0 +1,41 @@
+/*
+  *  This file is part of rasdaman community.
+  * 
+  *  Rasdaman community is free software: you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+  *  the Free Software Foundation, either version 3 of the License, or
+  *  (at your option) any later version.
+  * 
+  *  Rasdaman community is distributed in the hope that it will be useful,
+  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *  See the GNU  General Public License for more details.
+  * 
+  *  You should have received a copy of the GNU  General Public License
+  *  along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+  * 
+  *  Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+  * 
+  *  For more information please see <http://www.rasdaman.org>
+  *  or contact Peter Baumann via <baumann@rasdaman.com>.
+ */
+This is a Java application to test WS-Client and SECORE user interfaces. 
+It uses Selenium and Phantomjs to run a headless Web Browser and can imitate 
+user's behavior by clicking on the buttons of test cases which belong to web pages. 
+It cannot test WebWorldWind because WebGL is not supported by Selenium.
+
+When a test case finishes, it captures the web page as an output image file and
+compares with an oracle image file. The similarity is set to 95% because some test cases (e.g: WCPS console)
+have the response times of queries and the output files are slightly different on each run.
+
+To add/update test cases:
+1. Modify an existing class which represents these test cases (e.g: class WCSDeleteCoverageTest is used to test the DeleteCoverage feature from WCS-Client)
+2. If a class does not exist, create a new class for it.
+
+To add oracle files:
+- Add the test cases in test class and run test application. It will create oracle file if it does not exist yet.
+
+NOTE: 
+- This Java application needs 2 command-line parameters (petascope and secore ports) from the conf/test.cfg file. They are passed from the test script (../test.sh) when the system test runs.
+- It also requires phantomjs binary file which is downloaded by the test script (../test.sh) and copied to src/main/resources directory.
+
