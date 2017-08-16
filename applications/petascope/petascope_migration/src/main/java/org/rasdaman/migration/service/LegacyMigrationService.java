@@ -185,10 +185,14 @@ public class LegacyMigrationService extends AbstractMigrationService {
                 log.info("... already migrated, skipping.");
             } else {
                 // Legacy WMS layer is not migrated yet, now read the whole legacy WMS layer content which is *slow*
-                LegacyWMSLayer legacyWMSLayer = readLegacyWMSLayerService.read(legacyWmsLayerName);
-                // And persist this legacy WMS layer's metadata by converting it to new data model and saving to database
-                legacyWMSLayerMainService.persist(legacyWMSLayer);
-                log.info("... migrated successfully.");
+                LegacyWMSLayer legacyWMSLayer = readLegacyWMSLayerService.read(legacyWmsLayerName);                
+                if (legacyWMSLayer == null) {
+                    log.info("Associated coverage for this layer does not exist in database to migrate, skipping.");
+                } else {
+                    // And persist this legacy WMS layer's metadata by converting it to new data model and saving to database
+                    legacyWMSLayerMainService.persist(legacyWMSLayer);
+                    log.info("... migrated successfully.");
+                }
             }            
             i++;
         }

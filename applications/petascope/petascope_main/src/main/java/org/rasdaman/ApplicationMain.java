@@ -87,7 +87,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * @throws IOException
      */
     @Bean
-    public PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException {
+    public PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, InterruptedException {
         String resourceName = APPLICATION_PROPERTIES_FILE; // could also be a constant
         Properties properties = new Properties();
         InputStream resourceStream = this.getClass().getResourceAsStream("/" + resourceName);
@@ -115,7 +115,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         return builder.sources(ApplicationMain.class);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {        
         SpringApplication.run(ApplicationMain.class, args);
     }
 
@@ -123,7 +123,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Initialize all the configurations for GDAL libraries, ConfigManager and
      * OGC WCS XML Schema
      */
-    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException {
+    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException, InterruptedException {                
         String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {

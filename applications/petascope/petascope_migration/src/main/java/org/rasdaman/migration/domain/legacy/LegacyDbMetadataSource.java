@@ -3211,8 +3211,10 @@ public class LegacyDbMetadataSource implements LegacyIMetadataSource {
         Statement s = conn.createStatement();
         try {
 
-            // First, get all the layers from wms13_layer            
-            String sqlQuery = "SELECT * from wms13_layer where name ='" + legacyLayerName + "'";
+            // First, check if legacy WMS layer exists in both wms layer table and wcs coverage table
+            // NOTE: if a wms layer does not exist in wcs coverage table, it cannot be used to migrate as the associated coverage does not exist.
+            String sqlQuery = "SELECT * from wms13_layer where name ='" + legacyLayerName 
+                            + "' and name in (select name from ps_coverage where name = '" + legacyLayerName + "')";
             //log.debug("SQL Query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
             while (r.next()) {
