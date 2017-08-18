@@ -47,12 +47,10 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import org.rasdaman.repository.interfaces.CoverageRepository;
-import org.springframework.transaction.annotation.Propagation;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
-import petascope.util.ListUtil;
 
 /**
  *
@@ -101,9 +99,7 @@ public class CoverageRepostioryService {
      * all coverages to cache.
      */
     private void initCoveragesCache() throws PetascopeException, SecoreException {
-        this.readAllCoveragesBasicMetatata();
-        // After reading all coverages's basic metadata, then create the XY axes's extent in EPSG:4326 for WCS_Client to display in a map
-        this.createAllCoveragesExtents();
+        this.readAllCoveragesBasicMetatata();        
         log.debug("Initialized all the coverages's metadata to cache.");
     }
 
@@ -203,7 +199,7 @@ public class CoverageRepostioryService {
      *
      * @return List<Pair<Coverage, Boolean>>
      */
-    public List<Pair<Coverage, Boolean>> readAllCoveragesBasicMetatata() {
+    public List<Pair<Coverage, Boolean>> readAllCoveragesBasicMetatata() throws PetascopeException, SecoreException {        
         long start = System.currentTimeMillis();
 
         List<Pair<Coverage, Boolean>> coverages = new ArrayList<>();
@@ -257,10 +253,10 @@ public class CoverageRepostioryService {
      * @throws petascope.exceptions.PetascopeException
      * @throws petascope.exceptions.SecoreException
      */
-    private void createAllCoveragesExtents() throws PetascopeException, SecoreException {
+    public void createAllCoveragesExtents() throws PetascopeException, SecoreException {
         long start = System.currentTimeMillis();
         for (String coverageId : coveragesCacheMap.keySet()) {
-            this.createCoverageExtents(coverageId);
+            this.createCoverageExtent(coverageId);
         }
 
         long end = System.currentTimeMillis();
@@ -271,7 +267,7 @@ public class CoverageRepostioryService {
      * Create a coverage's extent by cached coverage's metadata
      * (EnvelopeByAxis). The XY axes' BoundingBox is reprojected to EPSG:4326.
      */
-    private void createCoverageExtents(String coverageId) throws PetascopeException, SecoreException {
+    private void createCoverageExtent(String coverageId) throws PetascopeException, SecoreException {
         // Tranformed XY extents to EPSG:4326 (Long, Lat for OpenLayers)
         BoundingBox boundingBox = new BoundingBox();
 
@@ -396,7 +392,7 @@ public class CoverageRepostioryService {
         // When reading coverage from cache method, it will add back the CRS.
         coveragesCacheMap.put(coverageId, new Pair(coverage, false));
         // Also insert/update the coverage's extent in cache as the bounding box of XY axes can be extended by WCST_Import.
-        this.createCoverageExtents(coverageId);
+        this.createCoverageExtent(coverageId);
 
         log.debug("Coverage '" + coverageId + "' is persisted in database.");
 

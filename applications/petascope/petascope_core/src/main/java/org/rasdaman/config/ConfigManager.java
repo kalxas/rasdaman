@@ -132,7 +132,6 @@ public class ConfigManager {
 
     /* ***** SECORE configuration ***** */
     public static List<String> SECORE_URLS;
-    // NOTE: time to read CRS from SECORE can be slow when Tomcat restarts and SECORE is initializing, so petascope should wait longer.
     public static final int CRSRESOLVER_CONN_TIMEOUT = 10000;
     public static final int CRSRESOLVER_READ_TIMEOUT = 10000;
 

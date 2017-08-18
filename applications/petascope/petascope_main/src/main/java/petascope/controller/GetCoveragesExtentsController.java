@@ -33,7 +33,7 @@ import static org.rasdaman.config.ConfigManager.GET_COVERAGE_EXTENTS;
 import static org.rasdaman.config.ConfigManager.OWS;
 import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,6 +59,9 @@ import petascope.util.MIMEUtil;
 public class GetCoveragesExtentsController extends AbstractController {
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(GetCoveragesExtentsController.class);
+    
+    @Autowired
+    CoverageRepostioryService coverageRepostioryService;
 
     @RequestMapping(value = OWS + "/" + GET_COVERAGE_EXTENTS, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest) throws IOException, PetascopeException, WCSException, SecoreException, Exception {
@@ -85,7 +88,7 @@ public class GetCoveragesExtentsController extends AbstractController {
      * @return
      * @throws WCSException
      */
-    private Response handle(Map<String, String[]> kvpParameters) throws WCSException {
+    private Response handle(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException, SecoreException {
         // Default load all coverages's extents
         String coverageId = null;
         if (kvpParameters.get("coverageId") != null) {
@@ -98,6 +101,11 @@ public class GetCoveragesExtentsController extends AbstractController {
             if (coverageId == null) {
                 // Return all coverages's extents
                 List<CoverageExtent> coveragesExtents = new ArrayList<>();
+                        
+                // This GetCoverageExtents request is sent from wcs_client after WCS GetCapabilities request, then all the coverages's metadata should be ready
+                // then create the XY axes's extent in EPSG:4326 for WCS_Client to display in WebWorldWind
+                coverageRepostioryService.createAllCoveragesExtents();
+                
                 for (Map.Entry<String, BoundingBox> entry : CoverageRepostioryService.coveragesExtentsCacheMap.entrySet()) {
                     coveragesExtents.add(new CoverageExtent(entry.getKey(), entry.getValue()));
                 }
