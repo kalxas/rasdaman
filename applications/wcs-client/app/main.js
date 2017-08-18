@@ -1088,6 +1088,7 @@ var wcs;
         function CoverageSummary(source) {
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            _this.DisplayFootprint = null;
             _this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             _this.CoverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
             if (source.doesElementExist("wcs:CoverageSubtypeParent")) {
@@ -2072,19 +2073,19 @@ var rasdaman;
     var WebWorldWindService = (function () {
         function WebWorldWindService() {
             this.webWorldWindModels = [];
-            this.coveragesExtents = null;
+            this.coveragesExtentsArray = null;
         }
-        WebWorldWindService.prototype.setCoveragesExtents = function (coveragesExtents) {
-            this.coveragesExtents = coveragesExtents;
+        WebWorldWindService.prototype.setCoveragesExtentsArray = function (coveragesExtentsArray) {
+            this.coveragesExtentsArray = coveragesExtentsArray;
         };
-        WebWorldWindService.prototype.getCoveragesExtents = function () {
-            return this.coveragesExtents;
+        WebWorldWindService.prototype.getCoveragesExtentsArray = function () {
+            return this.coveragesExtentsArray;
         };
         WebWorldWindService.prototype.getCoveragesExtentsByCoverageId = function (coverageId) {
             var result = [];
-            for (var i = 0; i < this.coveragesExtents.length; i++) {
-                if (this.coveragesExtents[i].coverageId === coverageId) {
-                    result.push(this.coveragesExtents[i]);
+            for (var i = 0; i < this.coveragesExtentsArray.length; i++) {
+                if (this.coveragesExtentsArray[i].coverageId === coverageId) {
+                    result.push(this.coveragesExtentsArray[i]);
                     return result;
                 }
             }
@@ -2134,12 +2135,89 @@ var rasdaman;
             var webWorldWindModel = {
                 canvasId: canvasId,
                 wwd: wwd,
-                polygonLayer: polygonLayer
+                polygonLayer: polygonLayer,
+                hidedPolygonObjsArray: []
             };
             this.webWorldWindModels.push(webWorldWindModel);
             return webWorldWindModel;
         };
-        WebWorldWindService.prototype.loadCoveragesExtentsOnGlobe = function (canvasId, coverageExtents) {
+        WebWorldWindService.prototype.getCoverageIdsSameExtent = function (coverageExtent, coveragesExtentsArray) {
+            var coveragedIds = [];
+            var xmin = coverageExtent.bbox.xmin;
+            var ymin = coverageExtent.bbox.ymin;
+            var xmax = coverageExtent.bbox.xmax;
+            var ymax = coverageExtent.bbox.ymax;
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {
+                if (coveragesExtentsArray[i].show) {
+                    var coverageIdTmp = coveragesExtentsArray[i].coverageId;
+                    var bboxTmp = coveragesExtentsArray[i].bbox;
+                    var xminTmp = bboxTmp.xmin;
+                    var yminTmp = bboxTmp.ymin;
+                    var xmaxTmp = bboxTmp.xmax;
+                    var ymaxTmp = bboxTmp.ymax;
+                    if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) {
+                        coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
+                    }
+                }
+            }
+            return coveragedIds;
+        };
+        WebWorldWindService.prototype.showHideCoverageExtentOnGlobe = function (canvasId, coverageId) {
+            var webWorldWindModel = null;
+            for (var i = 0; i < this.webWorldWindModels.length; i++) {
+                if (this.webWorldWindModels[i].canvasId === canvasId) {
+                    webWorldWindModel = this.webWorldWindModels[i];
+                    break;
+                }
+            }
+            var polygonLayer = webWorldWindModel.polygonLayer;
+            var coveragesExtentsArray = polygonLayer.coveragesExtentsArray;
+            var coverageExtent = null;
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {
+                if (coveragesExtentsArray[i].coverageId == coverageId) {
+                    coverageExtent = coveragesExtentsArray[i];
+                    break;
+                }
+            }
+            this.gotoCoverageExtentCenter(canvasId, [coverageExtent]);
+            for (var i = 0; i < polygonLayer.renderables.length; i++) {
+                var polygonObj = polygonLayer.renderables[i];
+                if (polygonObj.coverageId == coverageId) {
+                    polygonLayer.removeRenderable(polygonObj);
+                    webWorldWindModel.hidedPolygonObjsArray.push(polygonObj);
+                    this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, false);
+                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+                    return;
+                }
+            }
+            for (var i = 0; i < webWorldWindModel.hidedPolygonObjsArray.length; i++) {
+                var polygonObj = webWorldWindModel.hidedPolygonObjsArray[i];
+                if (polygonObj.coverageId == coverageId) {
+                    polygonLayer.addRenderable(polygonObj);
+                    this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, true);
+                    this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
+                    return;
+                }
+            }
+        };
+        WebWorldWindService.prototype.updateCoverageExtentShowProperty = function (coveragesExtentsArray, coverageId, value) {
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {
+                if (coveragesExtentsArray[i].coverageId == coverageId) {
+                    coveragesExtentsArray[i].show = value;
+                    return;
+                }
+            }
+        };
+        WebWorldWindService.prototype.updatePolygonUserPropertiesWhenShowHide = function (polygonLayer) {
+            var coveragesExtentsArray = polygonLayer.coveragesExtentsArray;
+            for (var i = 0; i < polygonLayer.renderables.length; i++) {
+                var polygonObj = polygonLayer.renderables[i];
+                var coverageIds = this.getCoverageIdsSameExtent(polygonObj.coverageExtent, coveragesExtentsArray);
+                var userProperties = this.buildUserPropertiesStr(coverageIds, polygonObj.coverageExtentStr);
+                polygonObj.userProperties = userProperties;
+            }
+        };
+        WebWorldWindService.prototype.loadCoveragesExtentsOnGlobe = function (canvasId, coveragesExtentsArray) {
             var exist = false;
             var webWorldWindModel = null;
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -2162,16 +2240,17 @@ var rasdaman;
             polygonAttributes.drawInterior = true;
             polygonAttributes.drawOutline = true;
             polygonAttributes.outlineColor = WorldWind.Color.BLUE;
-            polygonAttributes.interiorColor = new WorldWind.Color(0, 1, 1, 0.2);
+            polygonAttributes.interiorColor = new WorldWind.Color(0, 1, 1, 0.1);
             polygonAttributes.applyLighting = true;
             var highlightAttributes = new WorldWind.ShapeAttributes(polygonAttributes);
             highlightAttributes.outlineColor = WorldWind.Color.RED;
-            highlightAttributes.interiorColor = new WorldWind.Color(1, 1, 1, 0.2);
+            highlightAttributes.interiorColor = new WorldWind.Color(1, 1, 1, 0.1);
             var xcenter = 0, ycenter = 0;
-            for (var i = 0; i < coverageExtents.length; i++) {
-                var coverageExtent = coverageExtents[i];
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {
+                var coverageExtent = coveragesExtentsArray[i];
                 var coverageId = coverageExtent.coverageId;
                 var bbox = coverageExtent.bbox;
+                coverageExtent.show = true;
                 var xmin = bbox.xmin.toFixed(5);
                 if (xmin < -180) {
                     xmin = -180;
@@ -2195,9 +2274,15 @@ var rasdaman;
                 boundaries[0].push(new WorldWind.Location(ymax, xmax));
                 boundaries[0].push(new WorldWind.Location(ymax, xmin));
                 var polygon = new WorldWind.SurfacePolygon(boundaries, polygonAttributes);
+                polygon.coverageId = coverageId;
                 polygon.highlightAttributes = highlightAttributes;
-                var userProperties = "Coverage Id: " + coverageId + "\n" + "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
+                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
+                var coverageExtentStr = "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
+                polygon.coverageExtent = coverageExtent;
+                polygon.coverageExtentStr = coverageExtentStr;
+                var userProperties = this.buildUserPropertiesStr(coverageIds, coverageExtentStr);
                 polygon.userProperties = userProperties;
+                polygonLayer.coveragesExtentsArray = coveragesExtentsArray;
                 polygonLayer.addRenderable(polygon);
             }
         };
@@ -2215,6 +2300,14 @@ var rasdaman;
             var wwd = webWorldWindModel.wwd;
             wwd.navigator.lookAtLocation = new WorldWind.Location(ycenter, xcenter);
             wwd.redraw();
+        };
+        WebWorldWindService.prototype.buildUserPropertiesStr = function (coverageIds, coverageExtentStr) {
+            var coverageIdsStr = "";
+            for (var j = 0; j < coverageIds.length; j++) {
+                coverageIdsStr += coverageIds[j];
+            }
+            var userProperties = coverageIdsStr + "\n" + coverageExtentStr;
+            return userProperties;
         };
         WebWorldWindService.$inject = [];
         return WebWorldWindService;
@@ -2351,12 +2444,19 @@ var rasdaman;
             $scope.rowPerPageSmartTable = 10;
             $scope.WcsServerEndpoint = settings.WCSEndpoint;
             var canvasId = "canvasGetCapabilities";
+            var currentPageNumber = 1;
             $scope.pageChanged = function (newPage) {
+                currentPageNumber = newPage;
+                $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
+            };
+            $scope.loadCoverageExtentsByPageNumber = function (newPage) {
                 var selectedPage = newPage - 1;
                 var startIndex = $scope.rowPerPageSmartTable * selectedPage;
                 var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
                 var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
                 webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
+                $scope.showAllFootprints = false;
+                $("#displayAllFootprintsCheckbox").prop('checked', false);
             };
             $scope.selectCoveragesExtentsCurrentPage = function (startIndex, endIndex) {
                 var coveragesCurrentPage = $scope.Capabilities.Contents.CoverageSummary.slice(startIndex, endIndex);
@@ -2364,6 +2464,7 @@ var rasdaman;
                 for (var i = 0; i < coveragesCurrentPage.length; i++) {
                     for (var j = 0; j < $scope.coveragesExtents.length; j++) {
                         if ($scope.coveragesExtents[j].coverageId === coveragesCurrentPage[i].CoverageId) {
+                            coveragesCurrentPage[i].DisplayFootprint = true;
                             var coverageExtent = $scope.coveragesExtents[j];
                             coverageExtent.index = j;
                             coveragesExtentsCurrentPage.push(coverageExtent);
@@ -2375,6 +2476,18 @@ var rasdaman;
                     return parseFloat(a.index) - parseFloat(b.index);
                 });
                 return coveragesExtentsCurrentPage;
+            };
+            $scope.displayFootprint = function (coverageId) {
+                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+            };
+            $scope.displayAllFootprints = function (status) {
+                $scope.showAllFootprints = status;
+                if (status == true) {
+                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, $scope.coveragesExtents);
+                }
+                else {
+                    $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
+                }
             };
             $scope.getServerCapabilities = function () {
                 var args = [];
@@ -2397,7 +2510,7 @@ var rasdaman;
                     wcsService.getCoveragesExtents()
                         .then(function (response) {
                         $scope.coveragesExtents = response.data;
-                        webWorldWindService.setCoveragesExtents($scope.coveragesExtents);
+                        webWorldWindService.setCoveragesExtentsArray($scope.coveragesExtents);
                         $scope.IsCoveragesExtentsOpen = true;
                         var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);
                         webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);

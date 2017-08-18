@@ -12,7 +12,7 @@
                        source="AvailableCoverageIds"
                        placeholder="Input coverage ID or part of it"/>
                            <span class="input-group-btn">
-                <button class="btn btn-default"
+                <button class="btn btn-info"
                         type="button"
                         ng-disabled="!isCoverageIdValid()"
                         ng-click="getCoverageClickEvent()">
@@ -35,7 +35,7 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="IsGlobeOpen"> 	
                     <uib-accordion-heading>
-                        Coverage's extent on a globe (Only reprojectable coverage to EPSG:4326) 
+                        Footprints of geo-referenced coverages
                         <i class="pull-right glyphicon"
                         ng-class="{'glyphicon-chevron-down': IsGlobeOpen, 
                                     'glyphicon-chevron-right': !IsGlobeOpen}"></i>

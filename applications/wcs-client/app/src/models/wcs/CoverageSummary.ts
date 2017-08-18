@@ -33,11 +33,14 @@ module wcs {
         public WGS84BoundingBox:ows.WGS84BoundingBox[];
         public BoundingBox:ows.BoundingBox[];
         public Metadata:ows.Metadata[];
+        public DisplayFootprint:boolean;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             super(source);
 
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            // Don't display checkbox to show/hide coverages's footprints if they are not displayable.
+            this.DisplayFootprint = null;
 
             this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             this.CoverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();

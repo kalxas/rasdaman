@@ -9,7 +9,7 @@
                        placeholder="WCS server endpoint"
                        ng-model="WcsServerEndpoint"/>
                             <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" ng-click="getServerCapabilities()">Get
+                            <button type="button" class="btn btn-info" ng-click="getServerCapabilities()">Get
                                                                                                             Capabilities
                             </button>
                             </span>
@@ -28,26 +28,36 @@
                            class="table table-striped">
                         <thead>
                             <tr>
-                                <th st-sort="CoverageId">Coverage ID</th>
+                                <th st-sort="CoverageId" colspan="2">Coverage ID</th>
                                 <th>Coverage subtype</th>
+                                <th>Display footprints</th>
                             </tr>
                             <tr>
-                                <th colspan="2"><input st-search="CoverageId" class="form-control"
+                                <th colspan="4"><input st-search="CoverageId" class="form-control"
                                                        placeholder="Search coverage by ID ..." type="text"/></th>
                             </tr>
 
                         </thead>
                         <tbody>
                             <tr ng-repeat="coverageSummary in coverageSummaries">
-                                <td><a ng-click='describeCoverage(coverageSummary.CoverageId);'>{{coverageSummary.CoverageId}}</a>
+                                <td colspan="2"><a ng-click='describeCoverage(coverageSummary.CoverageId);'>{{coverageSummary.CoverageId}}</a>
                                 </td>
                                 <td>{{coverageSummary.CoverageSubtype}}</td>
+                                <td><input type="checkbox" ng-model="coverageSummary.DisplayFootprint" ng-hide="coverageSummary.DisplayFootprint === null"
+                                         ng-change="displayFootprint(coverageSummary.CoverageId)"
+                                         onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left" title="Show/Hide this coverage's footprint on globe."/>
+                                </td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="2" class="text-right">
+                                <td colspan="4" class="text-right">
                                     <div st-pagination="" st-items-by-page="rowPerPageSmartTable" st-page-change="pageChanged(newPage)"></div>
+                                    <div class="checkbox" style="font-size: 16px;">
+                                        <input type="checkbox" id="displayAllFootprintsCheckbox" title="Load all coverages's footprints on globe from all pages." 
+                                            ng-model="showAllFootprints" ng-change="displayAllFootprints(showAllFootprints)"
+                                            onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">Display all footprints</input>                                            
+                                    </div>
                                 </td>
                             </tr>
                         </tfoot>
@@ -58,7 +68,7 @@
                 <!-- WebWorldWind -->
                 <uib-accordion-group is-open="false"> 	
                     <uib-accordion-heading>
-                        Coverages's extents on a globe (Only reprojectable coverages to EPSG:4326) 
+                        Footprints of geo-referenced coverages
                         <i class="pull-right glyphicon"
                            ng-class="{'glyphicon-chevron-down': IsCoveragesExtentsOpen, 
                                     'glyphicon-chevron-right': !IsCoveragesExtentsOpen}"></i>
