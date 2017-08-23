@@ -193,8 +193,10 @@ void* getFaultAddress(sig_ucontext_t* uc)
     caller_address = (void*) uc->uc_mcontext.eip;  // EIP: x86 specific
 #elif defined(__x86_64__) // gcc specific
     caller_address = (void*) uc->uc_mcontext.rip;  // RIP: x86_64 specific
+#elif defined(ARM)
+    caller_address = (void*) uc->uc_mcontext.arm_pc;  // ARM specific
 #else
-#error Unsupported architecture. // TODO: Add support for other arch.
+    caller_address = NULL;
 #endif
 
     return caller_address;
