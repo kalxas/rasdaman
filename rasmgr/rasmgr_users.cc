@@ -522,7 +522,6 @@ bool Authorization::saveAuthFile()
         return false;
     }
 
-    EVP_MD_CTX mdctx;
     const EVP_MD* md;
     unsigned int md_len;
     //unsigned char md_value[30];
@@ -533,7 +532,6 @@ bool Authorization::saveAuthFile()
     {
         return false;
     }
-    EVP_DigestInit(&mdctx, md);
 
     AuthFileHeader header;
     header.fileID      = AUTHFILEID;
@@ -559,13 +557,21 @@ bool Authorization::saveAuthFile()
 
     initcrypt(header.lastUserID);
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_MD_CTX tmpctx;
+    EVP_MD_CTX *mdctx = &tmpctx;
+#else
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+#endif
+
+    EVP_DigestInit(mdctx, md);
     for (int i = 0; i < header.countUsers; i++)
     {
         User& u = userManager[i];
         AuthUserRec uRec;
 
         u.loadToRec(uRec);
-        EVP_DigestUpdate(&mdctx, &uRec, sizeof(uRec));
+        EVP_DigestUpdate(mdctx, &uRec, sizeof(uRec));
 
         crypt(&uRec, sizeof(uRec));
         ofs.write((char*)&uRec, sizeof(uRec));
@@ -574,15 +580,18 @@ bool Authorization::saveAuthFile()
         {
             AuthDbRRec dbRec;
             u.loadRightToRec(j, dbRec);
-            EVP_DigestUpdate(&mdctx, &dbRec, sizeof(dbRec));
+            EVP_DigestUpdate(mdctx, &dbRec, sizeof(dbRec));
 
             crypt(&dbRec, sizeof(dbRec));
             ofs.write((char*)&dbRec, sizeof(dbRec));
         }
 
     }
+    EVP_DigestFinal(mdctx, header.messageDigest, &md_len);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_MD_CTX_free(mdctx);
+#endif
 
-    EVP_DigestFinal(&mdctx, header.messageDigest, &md_len);
     ofs.seekp(0, std::ios::beg);
     ofs.write((char*)&header, sizeof(header));
     ofs.close();
@@ -685,7 +694,13 @@ int Authorization::readAuthFile()
 
 int Authorization::verifyAuthFile(std::ifstream& ifs)
 {
-    EVP_MD_CTX mdctx;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_MD_CTX tmpctx;
+    EVP_MD_CTX *mdctx = &tmpctx;
+#else
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+#endif
+
     const EVP_MD* md;
     unsigned int md_len;
     unsigned char md_value[50];
@@ -697,7 +712,7 @@ int Authorization::verifyAuthFile(std::ifstream& ifs)
         return false;
     }
 
-    EVP_DigestInit(&mdctx, md);
+    EVP_DigestInit(mdctx, md);
 
     AuthFileHeader header;
     ifs.read((char*)&header, sizeof(header));
@@ -726,7 +741,7 @@ int Authorization::verifyAuthFile(std::ifstream& ifs)
     ifs.read(&uRec,sizeof(uRec));
     decrypt(&uRec,sizeof(uRec));
 
-    EVP_DigestUpdate(&mdctx,&uRec,sizeof(uRec));
+    EVP_DigestUpdate(mdctx,&uRec,sizeof(uRec));
 
     for(int j=0;j<uRec.countRights;j++)
       {
@@ -734,7 +749,7 @@ int Authorization::verifyAuthFile(std::ifstream& ifs)
         ifs.read(&dbRec,sizeof(dbRec));
         decrypt(&dbRec,sizeof(dbRec));
 
-        EVP_DigestUpdate(&mdctx,&dbRec,sizeof(dbRec));
+        EVP_DigestUpdate(mdctx,&dbRec,sizeof(dbRec));
        }
 
        }
@@ -763,11 +778,14 @@ int Authorization::verifyAuthFile(std::ifstream& ifs)
 
         decrypt(buff, r);
 
-        EVP_DigestUpdate(&mdctx, buff, static_cast<size_t>(r));
+        EVP_DigestUpdate(mdctx, buff, static_cast<size_t>(r));
         //LINFO<<"verify "<<r;
     }
 
-    EVP_DigestFinal(&mdctx, md_value, &md_len);
+    EVP_DigestFinal(mdctx, md_value, &md_len);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_MD_CTX_free(mdctx);
+#endif
 
     ifs.seekg(0, std::ios::beg);
 

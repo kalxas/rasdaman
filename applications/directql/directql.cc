@@ -94,7 +94,6 @@ using namespace std;
 #include "commline/cmlparser.hh"
 
 #include "../rasql/rasql_error.hh"
-#include "../rasql/rasql_signal.hh"
 
 #include "servercomm/servercomm.hh"
 #include "relblobif/tilecache.hh"

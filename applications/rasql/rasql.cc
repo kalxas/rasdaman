@@ -92,7 +92,6 @@ using namespace std;
 #include <easylogging++.h>
 
 #include "rasql_error.hh"
-#include "rasql_signal.hh"
 
 #include "globals.hh"
 

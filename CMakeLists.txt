@@ -337,6 +337,7 @@ add_definitions(-DFILEDATADIR="${FILE_DATA_DIR}/")
 # compiling with -Werror and -Wunused, the warning for this turns into an error, and it cannot be suppressed
 # with a pragma.
 add_definitions(-DPROTOBUF_INLINE_NOT_IN_HEADERS=0)
+add_definitions(-DCOMPDATE="2017-08-24")
 
 #TODO: These do not seem safe but are kept because the old code requires them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector -fno-strict-overflow")

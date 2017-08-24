@@ -23,7 +23,6 @@
 
 add_executable(directql directql.cc
         directql_error.hh directql_error.cc
-        directql_signal.hh directql_signal.cc
         template_inst.hh
         ../../server/rasserver_config.hh
         ../../server/rasserver_config.cc

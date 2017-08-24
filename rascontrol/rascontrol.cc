@@ -52,14 +52,14 @@ rasdaman GmbH.
 #error "Please specify RMANVERSION variable!"
 #endif
 
-#ifndef COMPDATE
-#error "Please specify the COMPDATE variable!"
+//#ifndef COMPDATE
+//#error "Please specify the COMPDATE variable!"
 /*
 COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
 
 and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 */
-#endif
+//#endif
 
 UserLogin        userLogin;
 EditLine         editLine;
