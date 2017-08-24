@@ -5,7 +5,7 @@
 %global tomcat tomcat6
 %endif
 Name:           rasdaman
-Version:        9.4.0
+Version:        9.5.0
 Release:        1%{?dist}
 Summary:        rasdaman - Raster Data Manager
 

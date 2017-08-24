@@ -27,7 +27,7 @@ cmake_policy(SET CMP0012 NEW)
 cmake_policy(SET CMP0009 NEW)
 cmake_policy(SET CMP0048 NEW)
 
-project(rasdaman VERSION 9.4.0
+project(rasdaman VERSION 9.5.0
         LANGUAGES C CXX)
 
 # no rebuild dependency when make install
