@@ -20,6 +20,8 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 module rasdaman {
+    //Declare the WorldWind object so that typescript does not complain.
+    declare var WorldWind:any;
     // NOTE: remember to register Service, Controller, Directive classes to app/src/app.ts
     // or it will have this error: $injector:unpr
     // https://docs.angularjs.org/error/$injector/unpr?p0=rasdaman.WebWorldWindServiceProvider%20%3C-%20rasdaman.WebWorldWindService

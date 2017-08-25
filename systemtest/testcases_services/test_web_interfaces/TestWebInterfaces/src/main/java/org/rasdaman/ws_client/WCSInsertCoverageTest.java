@@ -54,7 +54,7 @@ public class WCSInsertCoverageTest extends WSAbstractSectionWebPageTest {
         // First, change to tab InsertCoverage
         testCaseName = this.getSectionTestCaseName("change_to_insert_coverage_tab");
         log.info("Testing change current tab to InsertCoverage...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/ul/li[6]/a");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[6]/a");
 
         // Then add a URL from kahlua to a GML file which contain a GML for a coverage (3D domain is[0:0, 0:0, 0:0]
         // It is used to test for InsertCoverage tab in wcs-client and later can be deleted in DeleteCoverage in wcs-lcient
@@ -62,9 +62,9 @@ public class WCSInsertCoverageTest extends WSAbstractSectionWebPageTest {
         log.info("Testing insert coverage with coverageId '" + coverageId + "' from a GML file at online URL...");
         // First add the URL to the GML file for the input coverage
         String urlToGMLFile = "http://kahlua.eecs.jacobs-university.de:8080/test_wcsclient_insertcoverage/example.gml";
-        this.addTextToTextBox(webDriver, urlToGMLFile, "/html/body/div/div/div/div/div/div[6]/div/div/div/div[1]/input");
+        this.addTextToTextBox(webDriver, urlToGMLFile, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/input");
         // Then click on the Insert Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[6]/div/div/div/div[1]/span[2]/button");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/span[2]/button");
         Thread.sleep(2000);
     }
 }

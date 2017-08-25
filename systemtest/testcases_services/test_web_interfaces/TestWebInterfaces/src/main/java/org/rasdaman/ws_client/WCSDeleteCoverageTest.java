@@ -33,7 +33,7 @@ import static org.rasdaman.ws_client.WCSInsertCoverageTest.coverageId;
  */
 public class WCSDeleteCoverageTest extends WSAbstractSectionWebPageTest {
 
-    private static final Logger log = Logger.getLogger(WCSDeleteCoverageTest.class);    
+    private static final Logger log = Logger.getLogger(WCSDeleteCoverageTest.class);
 
     public WCSDeleteCoverageTest() {
         super();
@@ -47,20 +47,23 @@ public class WCSDeleteCoverageTest extends WSAbstractSectionWebPageTest {
 
         // Switch to iframe to parse the web element
         webDriver.switchTo().frame(0);
+        Thread.sleep(1000);
 
         String testCaseName;
 
-        // First, change to tab DeleteCoverage
+        // First, change to tab DeleteCoverage     
         testCaseName = this.getSectionTestCaseName("change_to_delete_coverage_tab");
         log.info("Testing change current tab to DeleteCoverage...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/ul/li[5]/a");
-
-        testCaseName = this.getSectionTestCaseName("delete_coverage_empty_grid_domain_by_gml");        
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[5]/a");
+        
+        testCaseName = this.getSectionTestCaseName("delete_coverage_empty_grid_domain_by_gml");
         log.info("Testing delete a coverage named '" + coverageId + "'...");
-        // First add the new inserted coverage from kahlua GML file        
-        this.addTextToTextBox(webDriver, coverageId, "/html/body/div/div/div/div/div/div[5]/div/div/div/div/input");
+        Thread.sleep(1000);
+        // First add the new inserted coverage from kahlua GML file                
+        this.addTextToTextBox(webDriver, coverageId, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[5]/div/div/div/div/input");
+
         // Then click on the Delete Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[5]/div/div/div/div/span[2]/button");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[5]/div/div/div/div/span[2]/button");
     }
 
 }

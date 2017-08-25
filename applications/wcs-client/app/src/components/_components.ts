@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+ * Copyright 2003 - 2017 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -22,26 +22,32 @@
  */
 
 /// <reference path="shared/Constants.ts"/>
-/// <reference path="shared/WCSService.ts"/>
-/// <reference path="shared/WCSErrorHandlingService.ts"/>
+/// <reference path="../components/wcs_component/WCSService.ts"/>
+/// <reference path="shared/ErrorHandlingService.ts"/>
 /// <reference path="web_world_wind/WebWorldWindService.ts"/>
 
-/// <reference path="settings/SettingsService.ts"/>
-/// <reference path="settings/SettingsController.ts"/>
+/// <reference path="wcs_component/settings/SettingsService.ts"/>
+/// <reference path="wcs_component/settings/SettingsController.ts"/>
 
-/// <reference path="get_capabilities/GetCapabilitiesController.ts"/>
-/// <reference path="describe_coverage/DescribeCoverageController.ts"/>
-/// <reference path="delete_coverage/DeleteCoverageController.ts"/>
-/// <reference path="insert_coverage/InsertCoverageController.ts"/>
-/// <reference path="get_coverage/GetCoverageController.ts"/>
-/// <reference path="process_coverage/ProcessCoverageController.ts"/>
-/// <reference path="range_subsetting_ext/RangeSubsettingExtension.ts"/>
-/// <reference path="range_subsetting_ext/RangeSubsettingModel.ts"/>
+/// <reference path="wcs_component/get_capabilities/GetCapabilitiesController.ts"/>
+/// <reference path="wcs_component/describe_coverage/DescribeCoverageController.ts"/>
+/// <reference path="wcs_component/delete_coverage/DeleteCoverageController.ts"/>
+/// <reference path="wcs_component/insert_coverage/InsertCoverageController.ts"/>
+/// <reference path="wcs_component/get_coverage/GetCoverageController.ts"/>
+/// <reference path="wcs_component/process_coverage/ProcessCoverageController.ts"/>
+/// <reference path="wcs_component/range_subsetting_ext/RangeSubsettingExtension.ts"/>
+/// <reference path="wcs_component/range_subsetting_ext/RangeSubsettingModel.ts"/>
 
-/// <reference path="scaling_ext/ScalingExtensionModel.ts"/>
-/// <reference path="scaling_ext/ScalingExtension.ts"/>
+/// <reference path="wcs_component/scaling_ext/ScalingExtensionModel.ts"/>
+/// <reference path="wcs_component/scaling_ext/ScalingExtension.ts"/>
 
-/// <reference path="interpolation_ext/InterpolationExtensionModel.ts"/>
-/// <reference path="interpolation_ext/InterpolationExtension.ts"/>
+/// <reference path="wcs_component/interpolation_ext/InterpolationExtensionModel.ts"/>
+/// <reference path="wcs_component/interpolation_ext/InterpolationExtension.ts"/>
 
-/// <reference path="main/MainController.ts"/>
+/// <reference path="main/WCSMainController.ts"/>
+/// <reference path="main/WMSMainController.ts"/>
+
+//// WMS
+/// <reference path="wms_component/settings/SettingsService.ts"/>
+/// <reference path="wms_component/get_capabilities/GetCapabilitiesController.ts"/>
+/// <reference path="wms_component/describe_layer/DescribeLayerController.ts"/>

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+ * Copyright 2003 - 2017 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -67,12 +67,12 @@ module rasdaman.common {
             link: function (scope:any, element:JQuery, attrs:any) {
                 scope.$watch("data", (newData:PrettyPrintObject, oldValue:PrettyPrintObject)=> {
                     //Only update the document if the value changes.
-                    if (newData && newData.Value) {
-                        if (newData.Value.length > MAXIMUM_TEXT_LENGTH) {
-                            newData.Value = newData.Value.substr(0, MAXIMUM_TEXT_LENGTH);
-                            newData.Value += "\n The text content is too long to display, only first " + MAXIMUM_TEXT_LENGTH + " characters are shown.";
+                    if (newData && newData.value) {
+                        if (newData.value.length > MAXIMUM_TEXT_LENGTH) {
+                            newData.value = newData.value.substr(0, MAXIMUM_TEXT_LENGTH);
+                            newData.value += "\n The text content is too long to display, only first " + MAXIMUM_TEXT_LENGTH + " characters are shown.";
                         }
-                        var escapedHtml = prettyPrintOne(escapeXml(newData.Value), newData.Type, true);
+                        var escapedHtml = prettyPrintOne(escapeXml(newData.value), newData.type, true);
                         scope.document = $sce.trustAsHtml(escapedHtml);
                     }
                 }, true);
@@ -83,7 +83,7 @@ module rasdaman.common {
     PrettyPrint.$inject = ["$sanitize", "$sce"];
 
     export interface PrettyPrintObject {
-        Value:string;
-        Type:string;
+        value:string;
+        type:string;
     }
 }

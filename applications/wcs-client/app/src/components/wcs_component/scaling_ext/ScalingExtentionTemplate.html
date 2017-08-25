@@ -1,0 +1,80 @@
+<div class="row">
+    <div class="col-sm-12 col-centered">
+        <div class="row">
+            <div class="col-sm-3">
+                <select class="form-control" ng-model="model.scalingType">
+                    <option value="0" ng-selected="model.scalingType==0">
+                        Scale by factor
+                    </option>
+                    <option value="1" ng-selected="model.scalingType==1">
+                        Scale axes by factor
+                    </option>
+                    <option value="2" ng-selected="model.scalingType==2">
+                        Scale to size
+                    </option>
+                    <option value="3" ng-selected="model.scalingType==3">
+                        Scale to extent
+                    </option>
+                </select>
+            </div>
+        </div>       
+
+        <!-- scale by factor -->
+        <div class="row top7" ng-if="model.scalingType==0">
+            <span class="col-sm-3">Scale all axes by:</span>
+            <input class="col-sm-3 input-sm" type="number" ng-model="model.scaleByFactor.scaleFactor">
+        </div>
+
+        <!-- scale axes by factor -->
+        <div class="row top7" ng-if="model.scalingType==1">
+            <div class="col-sm-12">
+                <div class="row top5"
+                     ng-repeat="scaleAxis in model.scaleAxesByFactor.scaleAxis">
+                    <span class="col-sm-3">
+                        Scale axis
+                        <span class="important-text">
+                            {{scaleAxis.Axis}}
+                        </span>
+                        by:
+                    </span>
+
+                    <input class="col-sm-6" type="number" ng-model="scaleAxis.scaleFactor"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- scale to size -->
+        <div class="row top7" ng-if="model.scalingType==2">
+            <div class="col-sm-12">
+                <div class="row top5" ng-repeat="targetAxisSize in model.scaleToSize.targetAxisSize">
+                    <span class="col-sm-3"> Scale axis <span
+                            class="important-text">{{targetAxisSize.Axis}}</span> to:</span>
+                    <input class="col-sm-6" type="number" ng-model="targetAxisSize.targetSize"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- scale to extent -->
+        <div class="row top7" ng-if="model.scalingType==3">
+            <div class="col-sm-12">
+                <div class="row top5" ng-repeat="targetAxisExtent in model.scaleToExtent.targetAxisExtent">
+                    <span class="col-sm-3">
+                        Scale axis <span class="important-text">{{targetAxisExtent.Axis}}</span> to extent:
+                    </span>
+
+                    <div class="col-sm-9">
+                        <input type="number" ng-model="targetAxisExtent.low"/>
+                        -
+                        <input type="number" ng-model="targetAxisExtent.high"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row top7">
+            <div class="col-sm-3">
+                <button class="btn btn-default" ng-click="model.clearScaling();">Clear scaling operation</button>
+            </div>
+        </div>
+    </div>
+</div>

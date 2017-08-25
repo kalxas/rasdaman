@@ -1,0 +1,44 @@
+<div class="row">
+    <div class="col-sm-12 col-centered">
+        <div class="row top7">
+            <table style="margin-left: 10px">
+                <tbody>
+                    <tr ng-repeat="item in model.rangeSubset.rangeItem">
+                        <td ng-if="!model.isInterval[$index]" class="range-select">
+                            <select ng-model="item.rangeComponent"
+                                    ng-options="range for range in model.availableRanges">
+                            </select>
+                        </td>
+                        <td ng-if="!model.isInterval[$index]" class="range-select">
+
+                        </td>
+                        <td ng-if="model.isInterval[$index]" class="range-select">
+                            <select ng-model="item.startComponent.rangeComponent"
+                                    ng-options="range for range in model.availableRanges">
+                            </select>
+                        </td>
+                        <td ng-if="model.isInterval[$index]" class="range-select">
+                            <select ng-model="item.endComponent.rangeComponent"
+                                    ng-options="range for range in model.availableRanges">
+                            </select>
+                        </td>
+                        <td class="range-select">
+                            <a ng-click="model.deleteRangeComponent($index)">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row top7 btn-toolbar">
+            <button class="btn btn-default btn-sm" ng-click="model.addRangeComponent()">
+                Add range component
+            </button>
+            <button class="btn btn-default btn-sm" ng-click="model.addRangeComponentInterval()">
+                Add range component interval
+            </button>
+        </div>
+    </div>
+</div>

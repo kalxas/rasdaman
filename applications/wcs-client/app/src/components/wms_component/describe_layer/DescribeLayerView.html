@@ -1,0 +1,179 @@
+<div class="row top15 row-centered">
+    <div class="col-sm-11 col-centered">        
+        <div class="row row-centered">
+            <div class="col-sm-12 input-group input-group-lg">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-globe"></span>
+                            </span>
+                <input type="text"
+                       autocomplete
+                       ng-model="selectedLayerName"
+                       class="form-control"
+                       source="layerNames"
+                       placeholder="Input layer name or part of it"/>
+                           <span class="input-group-btn">
+                <button class="btn btn-info"
+                        type="button" class="btn btn-info"
+                        ng-disabled="!isLayerNameValid()"
+                        ng-click="describeLayer()">
+                    Describe Layer
+                </button>
+            </span>
+            </div>
+        </div>
+
+        <div class="row top15" ng-model="layer" ng-hide="!isLayerDocumentOpen">
+            <div class="col-sm-12">
+                <p>You have selected layer with name: <span class="important-text">{{layer.name}}</span></p>
+                <ul>
+                    <li>Title: {{layer.title}}</li>
+                    <li>Abstract: {{layer.abstract}}</li>                    
+                    <li>Coordinate Reference System (CRS) code: {{layer.crs}}</li>
+                </ul>
+                with geographic bounding box (<span class="important-text">EX_GeographicBoundingBox</span>) reprojected to <span class="important-text">WGS84</span>:
+                <ul>
+                    <li>West bound longitude: {{layer.coverageExtent.bbox.xmin}}</li>
+                    <li>South bound latitude: {{layer.coverageExtent.bbox.ymin}}</li>
+                    <li>East bound longitude: {{layer.coverageExtent.bbox.xmax}}</li>
+                    <li>North bound latitude: {{layer.coverageExtent.bbox.ymax}}</li>
+                </ul>
+                with bounding box (<span class="important-text">BoundingBox</span>) in native CRS: <span class="important-text">{{layer.crs}}</span>
+                <ul>
+                    <li>Min X: {{layer.minx}}</li>
+                    <li>Min Y: {{layer.miny}}</li>
+                    <li>Max X: {{layer.maxx}}</li>
+                    <li>Max Y: {{layer.maxy}}</li>
+                </ul>                
+            </div>
+        </div>
+
+        <!-- WebWorldWind -->
+        <div class="row top15" ng-hide="!isLayerDocumentOpen">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="isLayerDocumentOpen"> 	
+                    <uib-accordion-heading>
+                        Footprint of layer
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen, 
+                                    'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
+                    </uib-accordion-heading>                    
+                    <div>                        
+                        <!-- Create a canvas for Web WorldWind. -->
+                        <canvas id="wmsCanvasDescribeLayer" style="width:100%;height:500px;">
+                            Your browser does not support HTML5 Canvas.
+                        </canvas>
+                    </div>
+                </uib-accordion-group>
+            </uib-accordion>
+        </div>
+
+        <!-- Layers's styles -->
+        <div class="row top15" ng-hide="!isLayerDocumentOpen">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="isLayerDocumentOpen"> 	
+                    <uib-accordion-heading>
+                        Styles of layer
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen, 
+                                    'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
+                    </uib-accordion-heading>                    
+                    <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->
+                    <table st-table="styles" st-safe-src="layer.styles"
+                           class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th colspan=25%>Style Name</th>
+                                <th colspan=65% style="width: 65%;">Abstract</th>
+                                <th colspan=10% style="width: 15%;">Operation</th>
+                            </tr>
+                            <tr>
+                                <td colspan=100%><input st-search="name" class="form-control"
+                                                       placeholder="Search style by name ..." type="text"/></td>
+                            </tr>
+
+                        </thead>
+                        <tbody>                            
+                            <tr ng-repeat="style in styles">                                
+                                <td colspan=25%><a ng-click='describeStyleToUpdate(style.name);'>{{style.name}}</a></td>                                
+                                <td colspan=65%>{{style.abstract}}</td>                                
+                                <td colspan=10%>                                    
+                                     <button class="btn btn-danger" ng-click="deleteStyle(style.name)">Delete</button>                                    
+                                </td>                                
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan=100% class="text-right">
+                                    <div st-pagination="" st-items-by-page="5"></div>                                    
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                   <!-- style's form to insert/update -->
+                   <div class="container">
+                        <form class="form-horizontal" action="">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Style name:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" placeholder="Enter style name" id="styleName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Abstract:</label>
+                                <div class="col-sm-8">          
+                                    <textarea rows="2" class="form-control" placeholder="Enter style abstract" id="styleAbstract"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Query type:</label>
+                                <div class="col-sm-3">          
+                                    <select class="form-control" id="styleQueryType">
+                                        <option value="0">WCPS query fragment</option>
+                                        <option value="1">Rasql transform fragment</option>                                                                                
+                                    </select>                                    
+                                </div>
+                                <div class="col-sm-3"> 
+                                    <a href="http://rasdaman.org/wiki/WMSGuide#Stylecreation" target="_blank">Link to WMS style queries example</a>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Query:</label>
+                                <div class="col-sm-8">          
+                                    <textarea rows="10" class="form-control" placeholder="Enter style query" id="styleQuery"/>
+                                </div>
+                            </div>                            
+                            <div class="form-group">        
+                                <div class="col-sm-offset-2 col-sm-1">
+                                    <button class="btn btn-primary" type="button" ng-click="insertStyle()">Insert Style</button>
+                                </div>
+                                <div class="col-sm-offset-4">
+                                    <button class="btn btn-warning" type="button" ng-click="updateStyle()">Update Style</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </uib-accordion-group>
+            </uib-accordion>
+        </div>
+
+        <!-- GML document of specified metadata -->
+        <div class="row top15" ng-hide="!isLayerDocumentOpen" style="margin-top: -15px;">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="isLayerDocumentOpen">
+                    <uib-accordion-heading>
+                        GML coverage descriptions document <i class="pull-right glyphicon"
+                                                              ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen,
+'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
+                    </uib-accordion-heading>
+                    <ras-pretty-print data="{value:layer.gmlDocument, type:'xml'}">
+                    </ras-pretty-print>
+                </uib-accordion-group>
+
+            </uib-accordion>
+        </div>
+
+    </div>
+
+</div>

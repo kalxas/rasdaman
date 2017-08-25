@@ -55,35 +55,38 @@ public class WCSProcessCoverageTest extends WSAbstractSectionWebPageTest {
         // First, change to tab ProcessCoverage
         testCaseName = this.getSectionTestCaseName("change_to_process_coverage_tab");        
         log.info("Testing change current tab to ProcessCoverages...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/ul/li[4]/a");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[4]/a");
+        
+        String selectDropDownXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[4]/div/div/div/div[3]/div/div/select";
+        String executeButtonXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[4]/div/div/div/div[2]/div[2]/button";
         
         // No encoding
         testCaseName = this.getSectionTestCaseName("no_encoding");
-        dropdown = new Select(webDriver.findElement(By.xpath("/html/body/div/div/div/div/div/div[4]/div/div/div/div[3]/div/div/select")));
+        dropdown = new Select(webDriver.findElement(By.xpath(selectDropDownXPath)));
         log.info("Testing a WCPS query without encoding...");
         dropdown.selectByVisibleText("No encoding");        
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[4]/div/div/div/div[2]/div[2]/button");
+        this.runTestByClickingOnElement(webDriver, testCaseName, executeButtonXPath);
         
         // Encode 2D as PNG with widget
         testCaseName = this.getSectionTestCaseName("encode_2d_png_widget");
-        dropdown = new Select(webDriver.findElement(By.xpath("/html/body/div/div/div/div/div/div[4]/div/div/div/div[3]/div/div/select")));
+        dropdown = new Select(webDriver.findElement(By.xpath(selectDropDownXPath)));
         log.info("Testing a WCPS query with encoding as PNG and image widget...");
         dropdown.selectByVisibleText("Encode 2D as png with widget");        
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[4]/div/div/div/div[2]/div[2]/button");
+        this.runTestByClickingOnElement(webDriver, testCaseName, executeButtonXPath);
         
         // Encode 1D as JSON with widget
         testCaseName = this.getSectionTestCaseName("encode_1d_json_widget");
         log.info("Testing a WCPS query with encoding as JSON and diagram widget...");
-        dropdown = new Select(webDriver.findElement(By.xpath("/html/body/div/div/div/div/div/div[4]/div/div/div/div[3]/div/div/select")));
+        dropdown = new Select(webDriver.findElement(By.xpath(selectDropDownXPath)));
         dropdown.selectByVisibleText("Encode 1D as json with widget");        
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[4]/div/div/div/div[2]/div[2]/button");
+        this.runTestByClickingOnElement(webDriver, testCaseName, executeButtonXPath);
         
         // Encode 2D as gml
         testCaseName = this.getSectionTestCaseName("encode_2d_gml");
         log.info("Testing a WCPS query with encoding as GML...");
-        dropdown = new Select(webDriver.findElement(By.xpath("/html/body/div/div/div/div/div/div[4]/div/div/div/div[3]/div/div/select")));
+        dropdown = new Select(webDriver.findElement(By.xpath(selectDropDownXPath)));
         dropdown.selectByVisibleText("Encode 2D as gml");                
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[4]/div/div/div/div[2]/div[2]/button");
+        this.runTestByClickingOnElement(webDriver, testCaseName, executeButtonXPath);
         
     }
 }

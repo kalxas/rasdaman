@@ -1,3 +1,27 @@
+<!-- /*
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003 - 2017 Peter Baumann /
+ rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ */
+-->
+
 <!DOCTYPE html>
 <html lang="en" ng-app="wcsClient">
     <head>
@@ -7,7 +31,7 @@
         <meta name="description" content="The rasdaman WCS client">
         <meta name="author" content="rasdaman GmbH">
 
-        <title>WCS Client</title>
+        <title>OGC Web Services (OWS) Client</title>
 
         <!-- Bootstrap Core CSS -->
         <link href="assets/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -30,13 +54,35 @@
 
     </head>
     <body> 
-        <div class="container" ng-controller="rasdaman.MainController">
+        <div class="container">
             <div class="row">
                 <div class="col-sm-12">
-                    <uib-tabset justified="true">
-                        <uib-tab ng-repeat="tab in Tabs" heading="{{tab.Heading}}" active="tab.Active"
-                                 disable="tab.Disabled">
-                            <div ui-view="{{tab.View}}"></div>
+                    <uib-tabset active="active">    
+                        <!-- WCS content -->                                            
+                        <uib-tab index="1" heading="OGC Web Coverage Service (WCS)">
+                            <uib-tabset justified="true">
+                                <div ng-controller="rasdaman.WCSMainController">
+                                    <uib-tabset justified="true">
+                                        <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
+                                                disable="tab.disabled">
+                                             <div ui-view="{{tab.view}}"></div> 
+                                        </uib-tab>
+                                    </uib-tabset>
+                                </div>
+                            </uib-tabset>
+                        </uib-tab>                        
+                        <!-- WMS content -->  
+                        <uib-tab index="0" heading="OGC Web Map Service (WMS)">
+                            <uib-tabset justified="true">
+                                 <div ng-controller="rasdaman.WMSMainController">                                     
+                                    <uib-tabset justified="true">
+                                        <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
+                                                disable="tab.disabled">                                                                                       
+                                            <div ui-view="{{tab.view}}"></div>
+                                        </uib-tab>
+                                    </uib-tabset>
+                                </div>
+                            </uib-tabset>
                         </uib-tab>
                     </uib-tabset>
                 </div>

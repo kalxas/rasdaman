@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+ * Copyright 2003 - 2017 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -60,7 +60,7 @@ module rasdaman.common {
             };
 
             if (documentOrObject instanceof ResponseDocument) {
-                this.jsonObject = xmlToJSON.parseString(documentOrObject.Value, options);
+                this.jsonObject = xmlToJSON.parseString(documentOrObject.value, options);
                 for (var key in this.jsonObject) {
                     if (this.jsonObject.hasOwnProperty(key) && key != "_proto") {
                         this.jsonObject = this.jsonObject[key][0];

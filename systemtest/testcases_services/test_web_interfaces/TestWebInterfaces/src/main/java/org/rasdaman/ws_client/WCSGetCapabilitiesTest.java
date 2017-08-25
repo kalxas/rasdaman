@@ -52,8 +52,8 @@ public class WCSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
         // Click on get capabilities button
         testCaseName = this.getSectionTestCaseName("click_on_GetCapabilities_button");
         log.info("Testing change current tab to GetCapabilities...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/div/div/div[1]/div/span[2]/button");
-        
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[1]/a");
+        Thread.sleep(1000);
         /* 
         As the returned coverages from Petascope are produced from a Map, so they can show different coverageIds in second page.
         // Click on paging button        
@@ -65,18 +65,18 @@ public class WCSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
         // Click on GML server Capabilities document dropdown button
         testCaseName = this.getSectionTestCaseName("click_on_ServiceIdentification_dropdown_button");
         log.info("Testing click on Service identification dropdown button...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[5]/div[1]/h4/a/span/i");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[3]/div[1]/h4/a/span/i");
         
         // Search the coverage by id
         // NOTE: this one lists only one coverage and has no paging button, so must put it at the last test case
         testCaseName = this.getSectionTestCaseName("search_coverage_by_id");
         log.info("Testing search coverage by Id textbox...");
-        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_mr", "/html/body/div/div/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/thead/tr[2]/th/input");
+        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_mr", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/thead/tr[2]/th/input");
         
         // Click on the search result (only one result) to move to next tab
         testCaseName = this.getSectionTestCaseName("click_on_a_search_result");
         log.info("Testing click on a found result of searching by coverageId...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/tbody/tr/td[1]/a");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/tbody/tr/td[1]/a");
 
     }
 }

@@ -51,7 +51,7 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         // Switch to iframe to parse the web element
         webDriver.switchTo().frame(0);        
         // First, change to tab GetCoverage
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/ul/li[3]/a");
+        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[3]/a");
     }
 
     @Override
@@ -68,9 +68,11 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         testCaseName = this.getSectionTestCaseName("get_a_coverage_metadata");
         log.info("Testing get coverage's metadata...");
         // First change the coverage id in text box
-        this.addTextToTextBox(webDriver, "test_mean_summer_airtemp", "/html/body/div/div/div/div/div/div[3]/div/div/div/div[1]/div/input");
+        this.addTextToTextBox(webDriver, "test_mean_summer_airtemp", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[1]/div/input");
         // Then click on the Get Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[3]/div/div/div/div[1]/div/span[2]/button");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[1]/div/span[2]/button");
+        
+        String downloadButtonXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[6]/button";
         
         // Download a whole coverage in PNG (GML cannot be captured by PhantomJS)
         testCaseName = this.getSectionTestCaseName("get_whole_2D_coverage_in_png");
@@ -79,7 +81,7 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
         dropdown.selectByVisibleText("image/png");
         // Then click on the Download Coverage button which will open a new window
-        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[3]/div/div/div/div[6]/button");
+        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
                         
         // Refocus on the tab
         this.focusOnTheIFrameTab(webDriver);
@@ -91,11 +93,11 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
         dropdown.selectByVisibleText("image/png");
         // Then subset on Lat axis (min lat)
-        this.addTextToTextBox(webDriver, "-20.5", "/html/body/div/div/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[2]");
+        this.addTextToTextBox(webDriver, "-20.5", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[2]");
         // Then subset on Lon axis (min Lon)
-        this.addTextToTextBox(webDriver, "135.5", "/html/body/div/div/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");        
+        this.addTextToTextBox(webDriver, "135.5", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");        
         // Then click on the Download Coverage button which will open a new window
-        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[3]/div/div/div/div[6]/button");
+        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
         
         // Refocus on the tab
         this.focusOnTheIFrameTab(webDriver);
@@ -107,11 +109,11 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
         dropdown.selectByVisibleText("application/json");
         // Then subset on Lat axis (min lat)
-        this.addTextToTextBox(webDriver, "-10.5", "/html/body/div/div/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[2]");
+        this.addTextToTextBox(webDriver, "-10.5", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[2]");
         // Then subset on Lon axis (min Lon)
-        this.addTextToTextBox(webDriver, "154.275", "/html/body/div/div/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");        
+        this.addTextToTextBox(webDriver, "154.275", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");        
         // Then click on the Download Coverage button which will open a new window
-        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[3]/div/div/div/div[6]/button");
+        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
         
     }
 }

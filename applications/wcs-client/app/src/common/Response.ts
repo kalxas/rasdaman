@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+ * Copyright 2003 - 2017 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -23,13 +23,13 @@
 
 module rasdaman.common {
     export class Response<T> {
-        public Document:ResponseDocument;
+        public document:ResponseDocument;
         //Value obtained from the deserialization of the response document.
-        public Value:T;
+        public value:T;
 
         public constructor(document:ResponseDocument, value:T) {
-            this.Document = document;
-            this.Value = value;
+            this.document = document;
+            this.value = value;
         }
     }
 }

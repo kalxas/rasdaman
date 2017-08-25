@@ -194,8 +194,8 @@ var rasdaman;
     (function (common) {
         var ResponseDocument = (function () {
             function ResponseDocument(value, responseType) {
-                this.Value = value;
-                this.Type = responseType;
+                this.value = value;
+                this.type = responseType;
             }
             return ResponseDocument;
         }());
@@ -208,8 +208,8 @@ var rasdaman;
     (function (common) {
         var Response = (function () {
             function Response(document, value) {
-                this.Document = document;
-                this.Value = value;
+                this.document = document;
+                this.value = value;
             }
             return Response;
         }());
@@ -239,7 +239,7 @@ var rasdaman;
                     childrenAsArray: true
                 };
                 if (documentOrObject instanceof common.ResponseDocument) {
-                    this.jsonObject = xmlToJSON.parseString(documentOrObject.Value, options);
+                    this.jsonObject = xmlToJSON.parseString(documentOrObject.value, options);
                     for (var key in this.jsonObject) {
                         if (this.jsonObject.hasOwnProperty(key) && key != "_proto") {
                             this.jsonObject = this.jsonObject[key][0];
@@ -375,7 +375,7 @@ var rasdaman;
             function SerializedObjectFactory() {
             }
             SerializedObjectFactory.prototype.getSerializedObject = function (document) {
-                if (document.Type == common.ResponseDocumentType.XML) {
+                if (document.type == common.ResponseDocumentType.XML) {
                     return new common.XMLSerializedObject(document);
                 }
                 else {
@@ -417,12 +417,12 @@ var rasdaman;
                 templateUrl: "src/common/directives/pretty-print/PrettyPrintTemplate.html",
                 link: function (scope, element, attrs) {
                     scope.$watch("data", function (newData, oldValue) {
-                        if (newData && newData.Value) {
-                            if (newData.Value.length > MAXIMUM_TEXT_LENGTH) {
-                                newData.Value = newData.Value.substr(0, MAXIMUM_TEXT_LENGTH);
-                                newData.Value += "\n The text content is too long to display, only first " + MAXIMUM_TEXT_LENGTH + " characters are shown.";
+                        if (newData && newData.value) {
+                            if (newData.value.length > MAXIMUM_TEXT_LENGTH) {
+                                newData.value = newData.value.substr(0, MAXIMUM_TEXT_LENGTH);
+                                newData.value += "\n The text content is too long to display, only first " + MAXIMUM_TEXT_LENGTH + " characters are shown.";
                             }
-                            var escapedHtml = prettyPrintOne(escapeXml(newData.Value), newData.Type, true);
+                            var escapedHtml = prettyPrintOne(escapeXml(newData.value), newData.type, true);
                             scope.document = $sce.trustAsHtml(escapedHtml);
                         }
                     }, true);
@@ -507,25 +507,25 @@ var ows;
         function Address(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.DeliveryPoint = [];
+            this.deliveryPoint = [];
             source.getChildrenAsSerializedObjects("ows:DeliveryPoint").forEach(function (o) {
-                _this.DeliveryPoint.push(o.getValueAsString());
+                _this.deliveryPoint.push(o.getValueAsString());
             });
             if (source.doesElementExist("ows:City")) {
-                this.City = source.getChildAsSerializedObject("ows:City").getValueAsString();
+                this.city = source.getChildAsSerializedObject("ows:City").getValueAsString();
             }
             if (source.doesElementExist("ows:AdministrativeArea")) {
-                this.AdministrativeArea = source.getChildAsSerializedObject("ows:AdministrativeArea").getValueAsString();
+                this.administrativeArea = source.getChildAsSerializedObject("ows:AdministrativeArea").getValueAsString();
             }
             if (source.doesElementExist("ows:PostalCode")) {
-                this.PostalCode = source.getChildAsSerializedObject("ows:PostalCode").getValueAsString();
+                this.postalCode = source.getChildAsSerializedObject("ows:PostalCode").getValueAsString();
             }
             if (source.doesElementExist("ows:Country")) {
-                this.Country = source.getChildAsSerializedObject("ows:Country").getValueAsString();
+                this.country = source.getChildAsSerializedObject("ows:Country").getValueAsString();
             }
-            this.ElectronicMailAddress = [];
+            this.electronicMailAddress = [];
             source.getChildrenAsSerializedObjects("ows:ElectronicMailAddress").forEach(function (o) {
-                _this.ElectronicMailAddress.push(o.getValueAsString());
+                _this.electronicMailAddress.push(o.getValueAsString());
             });
         }
         return Address;
@@ -547,9 +547,9 @@ var ows;
     var LanguageString = (function () {
         function LanguageString(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Value = source.getValueAsString();
+            this.value = source.getValueAsString();
             if (source.doesAttributeExist("xml:lang")) {
-                this.Lang = source.getAttributeAsString("xml:lang");
+                this.lang = source.getAttributeAsString("xml:lang");
             }
         }
         return LanguageString;
@@ -562,25 +562,25 @@ var ows;
         function OnlineResource(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesAttributeExist("xlink:actuate")) {
-                this.Actuate = source.getAttributeAsString("xlink:actuate");
+                this.actuate = source.getAttributeAsString("xlink:actuate");
             }
             if (source.doesAttributeExist("xlink:acrole")) {
-                this.Acrole = source.getAttributeAsString("xlink:acrole");
+                this.acrole = source.getAttributeAsString("xlink:acrole");
             }
             if (source.doesAttributeExist("xlink:href")) {
-                this.Href = source.getAttributeAsString("xlink:href");
+                this.href = source.getAttributeAsString("xlink:href");
             }
             if (source.doesAttributeExist("xlink:role")) {
-                this.Role = source.getAttributeAsString("xlink:role");
+                this.role = source.getAttributeAsString("xlink:role");
             }
             if (source.doesAttributeExist("xlink:show")) {
-                this.Show = source.getAttributeAsString("xlink:show");
+                this.show = source.getAttributeAsString("xlink:show");
             }
             if (source.doesAttributeExist("xlink:title")) {
-                this.Title = source.getAttributeAsString("xlink:title");
+                this.title = source.getAttributeAsString("xlink:title");
             }
             if (source.doesAttributeExist("xlink:type")) {
-                this.Type = source.getAttributeAsString("xlink:type");
+                this.type = source.getAttributeAsString("xlink:type");
             }
         }
         return OnlineResource;
@@ -601,9 +601,9 @@ var ows;
     var Code = (function () {
         function Code(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Code = source.getValueAsString();
+            this.code = source.getValueAsString();
             if (source.doesAttributeExist("codeSpace")) {
-                this.CodeSpace = new ows.Uri(source.getAttributeAsString("codeSpace"));
+                this.codeSpace = new ows.Uri(source.getAttributeAsString("codeSpace"));
             }
         }
         return Code;
@@ -616,11 +616,11 @@ var ows;
         function Keywords(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Keyword = [];
+            this.keyword = [];
             source.getChildrenAsSerializedObjects("ows:Keyword").forEach(function (s) {
-                _this.Keyword.push(new ows.LanguageString(s));
+                _this.keyword.push(new ows.LanguageString(s));
             });
-            this.Type = new ows.Code(source.getChildAsSerializedObject("ows:Type"));
+            this.type = new ows.Code(source.getChildAsSerializedObject("ows:Type"));
         }
         return Keywords;
     }());
@@ -632,17 +632,17 @@ var ows;
         function Description(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Title = [];
+            this.title = [];
             source.getChildrenAsSerializedObjects("ows:Title").forEach(function (s) {
-                _this.Title.push(new ows.LanguageString(s));
+                _this.title.push(new ows.LanguageString(s));
             });
-            this.Abstract = [];
+            this.abstract = [];
             source.getChildrenAsSerializedObjects("ows:Abstract").forEach(function (s) {
-                _this.Abstract.push(new ows.LanguageString(s));
+                _this.abstract.push(new ows.LanguageString(s));
             });
-            this.Keywords = [];
+            this.keywords = [];
             source.getChildrenAsSerializedObjects("ows:Keywords").forEach(function (s) {
-                _this.Keywords.push(new ows.Keywords(s));
+                _this.keywords.push(new ows.Keywords(s));
             });
         }
         return Description;
@@ -657,20 +657,20 @@ var ows;
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             _this = _super.call(this, source) || this;
-            _this.ServiceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
-            _this.ServiceTypeVersion = [];
+            _this.serviceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
+            _this.serviceTypeVersion = [];
             source.getChildrenAsSerializedObjects("ows:ServiceTypeVersion").forEach(function (s) {
-                _this.ServiceTypeVersion.push(s.getValueAsString());
+                _this.serviceTypeVersion.push(s.getValueAsString());
             });
-            _this.Profile = [];
+            _this.profile = [];
             source.getChildrenAsSerializedObjects("ows:Profile").forEach(function (s) {
-                _this.Profile.push(s.getValueAsString());
+                _this.profile.push(s.getValueAsString());
             });
             if (source.doesElementExist("ows:Fees")) {
-                _this.Fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
+                _this.fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
             }
             if (source.doesElementExist("ows:AccessConstraints")) {
-                _this.AccessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
+                _this.accessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
             }
             return _this;
         }
@@ -684,13 +684,13 @@ var ows;
         function Phone(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Voice = [];
+            this.voice = [];
             source.getChildrenAsSerializedObjects("ows:Voice").forEach(function (s) {
-                _this.Voice.push(s.getValueAsString());
+                _this.voice.push(s.getValueAsString());
             });
-            this.Facsimile = [];
+            this.facsimile = [];
             source.getChildrenAsSerializedObjects("ows:Facsimile").forEach(function (s) {
-                _this.Facsimile.push(s.getValueAsString());
+                _this.facsimile.push(s.getValueAsString());
             });
         }
         return Phone;
@@ -703,19 +703,19 @@ var ows;
         function ContactInfo(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("ows:Phone")) {
-                this.Phone = new ows.Phone(source.getChildAsSerializedObject("ows:Phone"));
+                this.phone = new ows.Phone(source.getChildAsSerializedObject("ows:Phone"));
             }
             if (source.doesElementExist("ows:Address")) {
-                this.Address = new ows.Address(source.getChildAsSerializedObject("ows:Address"));
+                this.address = new ows.Address(source.getChildAsSerializedObject("ows:Address"));
             }
             if (source.doesElementExist("ows:OnlineResource")) {
-                this.OnlineResource = new ows.OnlineResource(source.getChildAsSerializedObject("ows:OnlineResource"));
+                this.onlineResource = new ows.OnlineResource(source.getChildAsSerializedObject("ows:OnlineResource"));
             }
             if (source.doesElementExist("ows:HoursOfService")) {
-                this.HoursOfService = source.getChildAsSerializedObject("ows:HoursOfService").getValueAsString();
+                this.hoursOfService = source.getChildAsSerializedObject("ows:HoursOfService").getValueAsString();
             }
             if (source.doesElementExist("ows:ContactInstructions")) {
-                this.ContactInstructions = source.getChildAsSerializedObject("ows:ContactInstructions").getValueAsString();
+                this.contactInstructions = source.getChildAsSerializedObject("ows:ContactInstructions").getValueAsString();
             }
         }
         return ContactInfo;
@@ -728,16 +728,16 @@ var ows;
         function ResponsiblePartySubset(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("ows:IndividualName")) {
-                this.IndividualName = source.getChildAsSerializedObject("ows:IndividualName").getValueAsString();
+                this.individualName = source.getChildAsSerializedObject("ows:IndividualName").getValueAsString();
             }
             if (source.doesElementExist("ows:PositionName")) {
-                this.PositionName = source.getChildAsSerializedObject("ows:PositionName").getValueAsString();
+                this.positionName = source.getChildAsSerializedObject("ows:PositionName").getValueAsString();
             }
             if (source.doesElementExist("ows:Role")) {
-                this.Role = new ows.Code(source.getChildAsSerializedObject("ows:Role"));
+                this.role = new ows.Code(source.getChildAsSerializedObject("ows:Role"));
             }
             if (source.doesElementExist("ows:ContactInfo")) {
-                this.ContactInfo = new ows.ContactInfo(source.getChildAsSerializedObject("ows:ContactInfo"));
+                this.contactInfo = new ows.ContactInfo(source.getChildAsSerializedObject("ows:ContactInfo"));
             }
         }
         return ResponsiblePartySubset;
@@ -764,13 +764,13 @@ var ows;
         function ServiceProvider(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("ows:ProviderName")) {
-                this.ProviderName = source.getChildAsSerializedObject("ows:ProviderName").getValueAsString();
+                this.providerName = source.getChildAsSerializedObject("ows:ProviderName").getValueAsString();
             }
             if (source.doesElementExist("ows:ProviderSite")) {
-                this.ProviderSite = new ows.OnlineResource(source.getChildAsSerializedObject("ows:ProviderSite"));
+                this.providerSite = new ows.OnlineResource(source.getChildAsSerializedObject("ows:ProviderSite"));
             }
             if (source.doesElementExist("ows:ServiceContact")) {
-                this.ServiceContact = new ows.ServiceContact(source.getChildAsSerializedObject("ows:ServiceContact"));
+                this.serviceContact = new ows.ServiceContact(source.getChildAsSerializedObject("ows:ServiceContact"));
             }
         }
         return ServiceProvider;
@@ -794,9 +794,9 @@ var ows;
         function RequestMethod(source) {
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.Constraint = [];
+            _this.constraint = [];
             source.getChildrenAsSerializedObjects("ows:Constraint").forEach(function (o) {
-                _this.Constraint.push(new ows.Constraint(o));
+                _this.constraint.push(new ows.Constraint(o));
             });
             return _this;
         }
@@ -835,8 +835,8 @@ var ows;
     var HTTP = (function () {
         function HTTP(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Get = new ows.Get(source.getChildAsSerializedObject("ows:Get"));
-            this.Post = new ows.Post(source.getChildAsSerializedObject("ows:Post"));
+            this.get = new ows.Get(source.getChildAsSerializedObject("ows:Get"));
+            this.post = new ows.Post(source.getChildAsSerializedObject("ows:Post"));
         }
         return HTTP;
     }());
@@ -847,7 +847,7 @@ var ows;
     var DCP = (function () {
         function DCP(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.HTTP = new ows.HTTP(source.getChildAsSerializedObject("ows:HTTP"));
+            this.http = new ows.HTTP(source.getChildAsSerializedObject("ows:HTTP"));
         }
         return DCP;
     }());
@@ -879,22 +879,22 @@ var ows;
         function Operation(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Name = source.getAttributeAsString("name");
-            this.DCP = [];
+            this.name = source.getAttributeAsString("name");
+            this.dcp = [];
             source.getChildrenAsSerializedObjects("ows:DCP").forEach(function (o) {
-                _this.DCP.push(new ows.DCP(o));
+                _this.dcp.push(new ows.DCP(o));
             });
-            this.Parameter = [];
+            this.parameter = [];
             source.getChildrenAsSerializedObjects("ows:Parameter").forEach(function (o) {
-                _this.Parameter.push(new ows.Parameter(o));
+                _this.parameter.push(new ows.Parameter(o));
             });
-            this.Constraint = [];
+            this.constraint = [];
             source.getChildrenAsSerializedObjects("ows:Constraint").forEach(function (o) {
-                _this.Constraint.push(new ows.Constraint(o));
+                _this.constraint.push(new ows.Constraint(o));
             });
-            this.Metadata = [];
+            this.metadata = [];
             source.getChildrenAsSerializedObjects("ows:Metadata").forEach(function (o) {
-                _this.Metadata.push(new ows.Metadata(o));
+                _this.metadata.push(new ows.Metadata(o));
             });
         }
         return Operation;
@@ -917,20 +917,20 @@ var ows;
         function OperationsMetadata(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Operation = [];
+            this.operation = [];
             source.getChildrenAsSerializedObjects("ows:Operation").forEach(function (o) {
-                _this.Operation.push(new ows.Operation(o));
+                _this.operation.push(new ows.Operation(o));
             });
-            this.Parameter = [];
+            this.parameter = [];
             source.getChildrenAsSerializedObjects("ows:Parameter").forEach(function (o) {
-                _this.Parameter.push(new ows.Parameter(o));
+                _this.parameter.push(new ows.Parameter(o));
             });
-            this.Constraint = [];
+            this.constraint = [];
             source.getChildrenAsSerializedObjects("ows:Constraint").forEach(function (o) {
-                _this.Constraint.push(new ows.Constraint(o));
+                _this.constraint.push(new ows.Constraint(o));
             });
             if (source.doesElementExist("ows:ExtendedCapabilities")) {
-                this.ExtendedCapabilities = new ows.ExtendedCapabilities(source.getChildAsSerializedObject("ows:ExtendedCapabilities"));
+                this.extendedCapabilities = new ows.ExtendedCapabilities(source.getChildAsSerializedObject("ows:ExtendedCapabilities"));
             }
         }
         return OperationsMetadata;
@@ -952,21 +952,21 @@ var ows;
     var CapabilitiesBase = (function () {
         function CapabilitiesBase(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Version = source.getAttributeAsString("version");
+            this.version = source.getAttributeAsString("version");
             if (source.doesAttributeExist("updateSequence")) {
-                this.UpdateSequence = source.getAttributeAsString("updateSequence");
+                this.updateSequence = source.getAttributeAsString("updateSequence");
             }
             if (source.doesElementExist("ows:ServiceIdentification")) {
-                this.ServiceIdentification = new ows.ServiceIdentification(source.getChildAsSerializedObject("ows:ServiceIdentification"));
+                this.serviceIdentification = new ows.ServiceIdentification(source.getChildAsSerializedObject("ows:ServiceIdentification"));
             }
             if (source.doesElementExist("ows:ServiceProvider")) {
-                this.ServiceProvider = new ows.ServiceProvider(source.getChildAsSerializedObject("ows:ServiceProvider"));
+                this.serviceProvider = new ows.ServiceProvider(source.getChildAsSerializedObject("ows:ServiceProvider"));
             }
             if (source.doesElementExist("ows:OperationsMetadata")) {
-                this.OperationsMetadata = new ows.OperationsMetadata(source.getChildAsSerializedObject("ows:OperationsMetadata"));
+                this.operationsMetadata = new ows.OperationsMetadata(source.getChildAsSerializedObject("ows:OperationsMetadata"));
             }
             if (source.doesElementExist("Languages")) {
-                this.Languages = new ows.Languages(source.getChildAsSerializedObject("Languages"));
+                this.languages = new ows.Languages(source.getChildAsSerializedObject("Languages"));
             }
         }
         return CapabilitiesBase;
@@ -997,7 +997,7 @@ var ows;
 (function (ows) {
     var GetCapabilities = (function () {
         function GetCapabilities() {
-            this.Request = "GetCapabilities";
+            this.request = "GetCapabilities";
         }
         return GetCapabilities;
     }());
@@ -1008,12 +1008,12 @@ var ows;
     var Exception = (function () {
         function Exception(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.ExceptionText = source.getChildAsSerializedObject("ExceptionText").getValueAsString();
+            this.exceptionText = source.getChildAsSerializedObject("ExceptionText").getValueAsString();
             if (source.doesAttributeExist("exceptionCode")) {
-                this.ExceptionCode = source.getAttributeAsString("exceptionCode");
+                this.exceptionCode = source.getAttributeAsString("exceptionCode");
             }
             if (source.doesAttributeExist("locator")) {
-                this.Locator = source.getAttributeAsString("locator");
+                this.locator = source.getAttributeAsString("locator");
             }
         }
         return Exception;
@@ -1025,7 +1025,7 @@ var ows;
     var ExceptionReport = (function () {
         function ExceptionReport(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Exception = new ows.Exception(source.getChildAsSerializedObject("Exception"));
+            this.exception = new ows.Exception(source.getChildAsSerializedObject("Exception"));
         }
         return ExceptionReport;
     }());
@@ -1046,7 +1046,7 @@ var wcs;
     var Extension = (function () {
         function Extension(source) {
             if (source.doesElementExist("int:InterpolationMetadata")) {
-                this.InterpolationMetadata = new wcs.InterpolationMetadata(source.getChildAsSerializedObject("int:InterpolationMetadata"));
+                this.interpolationMetadata = new wcs.InterpolationMetadata(source.getChildAsSerializedObject("int:InterpolationMetadata"));
             }
         }
         return Extension;
@@ -1059,13 +1059,13 @@ var wcs;
         function ServiceMetadata(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.FormatSupported = [];
+            this.formatSupported = [];
             source.getChildrenAsSerializedObjects("wcs:formatSupported").forEach(function (o) {
-                _this.FormatSupported.push(o.getValueAsString());
+                _this.formatSupported.push(o.getValueAsString());
             });
-            this.Extension = [];
+            this.extension = [];
             source.getChildrenAsSerializedObjects("wcs:Extension").forEach(function (o) {
-                _this.Extension.push(new wcs.Extension(o));
+                _this.extension.push(new wcs.Extension(o));
             });
         }
         return ServiceMetadata;
@@ -1088,23 +1088,23 @@ var wcs;
         function CoverageSummary(source) {
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.DisplayFootprint = null;
-            _this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
-            _this.CoverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
+            _this.displayFootprint = null;
+            _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            _this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
             if (source.doesElementExist("wcs:CoverageSubtypeParent")) {
-                _this.CoverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
+                _this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
             }
-            _this.WGS84BoundingBox = [];
+            _this.wgs84BoundingBox = [];
             source.getChildrenAsSerializedObjects("ows:WGS84BoundingBox").forEach(function (o) {
-                _this.WGS84BoundingBox.push(new ows.WGS84BoundingBox(o));
+                _this.wgs84BoundingBox.push(new ows.WGS84BoundingBox(o));
             });
-            _this.BoundingBox = [];
+            _this.boundingBox = [];
             source.getChildrenAsSerializedObjects("ows:BoundingBox").forEach(function (o) {
-                _this.BoundingBox.push(new ows.BoundingBox(o));
+                _this.boundingBox.push(new ows.BoundingBox(o));
             });
-            _this.Metadata = [];
+            _this.metadata = [];
             source.getChildrenAsSerializedObjects("ows:Metadata").forEach(function (o) {
-                _this.Metadata.push(new ows.Metadata(o));
+                _this.metadata.push(new ows.Metadata(o));
             });
             return _this;
         }
@@ -1119,12 +1119,12 @@ var wcs;
         function Contents(source) {
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.CoverageSummary = [];
+            _this.coverageSummary = [];
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(function (o) {
-                _this.CoverageSummary.push(new wcs.CoverageSummary(o));
+                _this.coverageSummary.push(new wcs.CoverageSummary(o));
             });
             if (source.doesElementExist("wcs.Extension")) {
-                _this.Extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
+                _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
             }
             return _this;
         }
@@ -1140,10 +1140,10 @@ var wcs;
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("wcs:ServiceMetadata")) {
-                _this.ServiceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
+                _this.serviceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
             }
             if (source.doesElementExist("wcs:Contents")) {
-                _this.Contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
+                _this.contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
             }
             return _this;
         }
@@ -1158,21 +1158,21 @@ var gml;
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesAttributeExist("srsName")) {
-                this.SrsName = source.getAttributeAsString("srsName");
+                this.srsName = source.getAttributeAsString("srsName");
             }
             if (source.doesAttributeExist("srsDimension")) {
-                this.SrsDimension = source.getAttributeAsNumber("srsDimension");
+                this.srsDimension = source.getAttributeAsNumber("srsDimension");
             }
             if (source.doesAttributeExist("axisLabels")) {
-                this.AxisLabels = source.getAttributeAsString("axisLabels").split(" ");
+                this.axisLabels = source.getAttributeAsString("axisLabels").split(" ");
             }
             if (source.doesAttributeExist("uomLabels")) {
-                this.UomLabels = source.getAttributeAsString("uomLabels").split(" ");
+                this.uomLabels = source.getAttributeAsString("uomLabels").split(" ");
             }
-            this.Values = [];
+            this.values = [];
             var stringValues = source.getValueAsString().split(" ");
             stringValues.forEach(function (o) {
-                _this.Values.push(parseFloat(o));
+                _this.values.push(parseFloat(o));
             });
         }
         return Pos;
@@ -1186,21 +1186,21 @@ var gml;
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesAttributeExist("srsName")) {
-                this.SrsName = source.getAttributeAsString("srsName");
+                this.srsName = source.getAttributeAsString("srsName");
             }
             if (source.doesAttributeExist("srsDimension")) {
-                this.SrsDimension = source.getAttributeAsNumber("srsDimension");
+                this.srsDimension = source.getAttributeAsNumber("srsDimension");
             }
             if (source.doesAttributeExist("axisLabels")) {
-                this.AxisLabels = source.getAttributeAsString("axisLabels").split(" ");
+                this.axisLabels = source.getAttributeAsString("axisLabels").split(" ");
             }
             if (source.doesAttributeExist("uomLabels")) {
-                this.UomLabels = source.getAttributeAsString("uomLabels").split(" ");
+                this.uomLabels = source.getAttributeAsString("uomLabels").split(" ");
             }
-            this.Values = [];
+            this.values = [];
             var stringValues = source.getValueAsString().split(" ");
             stringValues.forEach(function (o) {
-                _this.Values.push(o);
+                _this.values.push(o);
             });
         }
         return LowerCorner;
@@ -1214,21 +1214,21 @@ var gml;
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesAttributeExist("srsName")) {
-                this.SrsName = source.getAttributeAsString("srsName");
+                this.srsName = source.getAttributeAsString("srsName");
             }
             if (source.doesAttributeExist("srsDimension")) {
-                this.SrsDimension = source.getAttributeAsNumber("srsDimension");
+                this.srsDimension = source.getAttributeAsNumber("srsDimension");
             }
             if (source.doesAttributeExist("axisLabels")) {
-                this.AxisLabels = source.getAttributeAsString("axisLabels").split(" ");
+                this.axisLabels = source.getAttributeAsString("axisLabels").split(" ");
             }
             if (source.doesAttributeExist("uomLabels")) {
-                this.UomLabels = source.getAttributeAsString("uomLabels").split(" ");
+                this.uomLabels = source.getAttributeAsString("uomLabels").split(" ");
             }
-            this.Values = [];
+            this.values = [];
             var stringValues = source.getValueAsString().split(" ");
             stringValues.forEach(function (o) {
-                _this.Values.push(o);
+                _this.values.push(o);
             });
         }
         return UpperCorner;
@@ -1241,28 +1241,28 @@ var gml;
         function Envelope(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesAttributeExist("srsName")) {
-                this.SrsName = source.getAttributeAsString("srsName");
+                this.srsName = source.getAttributeAsString("srsName");
             }
             if (source.doesAttributeExist("srsDimension")) {
-                this.SrsDimension = source.getAttributeAsNumber("srsDimension");
+                this.srsDimension = source.getAttributeAsNumber("srsDimension");
             }
             if (source.doesAttributeExist("axisLabels")) {
-                this.AxisLabels = source.getAttributeAsString("axisLabels").split(" ");
+                this.axisLabels = source.getAttributeAsString("axisLabels").split(" ");
             }
             if (source.doesAttributeExist("uomLabels")) {
-                this.UomLabels = source.getAttributeAsString("uomLabels").split(" ");
+                this.uomLabels = source.getAttributeAsString("uomLabels").split(" ");
             }
             if (source.doesAttributeExist("frame")) {
-                this.Frame = source.getAttributeAsString("frame");
+                this.frame = source.getAttributeAsString("frame");
             }
             if (source.doesElementExist("gml:lowerCorner")) {
-                this.LowerCorner = new gml.LowerCorner(source.getChildAsSerializedObject("gml:lowerCorner"));
+                this.lowerCorner = new gml.LowerCorner(source.getChildAsSerializedObject("gml:lowerCorner"));
             }
             if (source.doesElementExist("gml:upperCorner")) {
-                this.UpperCorner = new gml.UpperCorner(source.getChildAsSerializedObject("gml:upperCorner"));
+                this.upperCorner = new gml.UpperCorner(source.getChildAsSerializedObject("gml:upperCorner"));
             }
             if (source.doesElementExist("gml:pos")) {
-                this.Pos = new gml.Pos(source.getChildAsSerializedObject("gml:pos"));
+                this.pos = new gml.Pos(source.getChildAsSerializedObject("gml:pos"));
             }
         }
         return Envelope;
@@ -1288,11 +1288,11 @@ var gml;
         function BoundedBy(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("gml:Envelope")) {
-                this.Envelope = new gml.Envelope(source.getChildAsSerializedObject("gml:Envelope"));
+                this.envelope = new gml.Envelope(source.getChildAsSerializedObject("gml:Envelope"));
             }
             if (source.doesElementExist("gml:EnvelopeWithTimePeriod")) {
-                this.EnvelopeWithTimePeriod = new gml.EnvelopeWithTimePeriod(source.getChildAsSerializedObject("gml:EnvelopeWithTimePeriod"));
-                this.Envelope = this.EnvelopeWithTimePeriod;
+                this.envelopeWithTimePeriod = new gml.EnvelopeWithTimePeriod(source.getChildAsSerializedObject("gml:EnvelopeWithTimePeriod"));
+                this.envelope = this.envelopeWithTimePeriod;
             }
         }
         return BoundedBy;
@@ -1305,19 +1305,19 @@ var gml;
         function AbstractFeature(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Id = source.getAttributeAsString("gml:id");
+            this.id = source.getAttributeAsString("gml:id");
             if (source.doesElementExist("gml:description")) {
-                this.Description = source.getChildAsSerializedObject("gml:description").getValueAsString();
+                this.description = source.getChildAsSerializedObject("gml:description").getValueAsString();
             }
             if (source.doesElementExist("gml:identifier")) {
-                this.Identifier = source.getChildAsSerializedObject("gml:identifier").getValueAsString();
+                this.identifier = source.getChildAsSerializedObject("gml:identifier").getValueAsString();
             }
-            this.Name = [];
+            this.name = [];
             source.getChildrenAsSerializedObjects("gml:name").forEach(function (o) {
-                _this.Name.push(o.getValueAsString());
+                _this.name.push(o.getValueAsString());
             });
             if (source.doesElementExist("gml:boundedBy")) {
-                this.BoundedBy = new gml.BoundedBy(source.getChildAsSerializedObject("gml:boundedBy"));
+                this.boundedBy = new gml.BoundedBy(source.getChildAsSerializedObject("gml:boundedBy"));
             }
         }
         return AbstractFeature;
@@ -1359,7 +1359,7 @@ var swe;
     var Uom = (function () {
         function Uom(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Code = source.getAttributeAsString("code");
+            this.code = source.getAttributeAsString("code");
         }
         return Uom;
     }());
@@ -1371,7 +1371,7 @@ var swe;
         function Quantity(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("swe:uom")) {
-                this.Uom = new swe.Uom(source.getChildAsSerializedObject("swe:uom"));
+                this.uom = new swe.Uom(source.getChildAsSerializedObject("swe:uom"));
             }
         }
         return Quantity;
@@ -1384,10 +1384,10 @@ var swe;
         function Field(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesAttributeExist("name")) {
-                this.Name = source.getAttributeAsString("name");
+                this.name = source.getAttributeAsString("name");
             }
             if (source.doesElementExist("swe:Quantity")) {
-                this.Quantity = new swe.Quantity(source.getChildAsSerializedObject("swe:Quantity"));
+                this.quantity = new swe.Quantity(source.getChildAsSerializedObject("swe:Quantity"));
             }
         }
         return Field;
@@ -1400,9 +1400,9 @@ var swe;
         function DataRecord(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.Field = [];
+            this.field = [];
             source.getChildrenAsSerializedObjects("swe:field").forEach(function (o) {
-                _this.Field.push(new swe.Field(o));
+                _this.field.push(new swe.Field(o));
             });
         }
         return DataRecord;
@@ -1415,7 +1415,7 @@ var gmlcov;
         function RangeType(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("swe:DataRecord")) {
-                this.DataRecord = new swe.DataRecord(source.getChildAsSerializedObject("swe:DataRecord"));
+                this.dataRecord = new swe.DataRecord(source.getChildAsSerializedObject("swe:DataRecord"));
             }
         }
         return RangeType;
@@ -1427,13 +1427,13 @@ var wcs;
     var ServiceParameters = (function () {
         function ServiceParameters(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.CoverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
+            this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
             if (source.doesElementExist("wcs:CoverageSubtypeParent")) {
-                this.CoverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
+                this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
             }
-            this.NativeFormat = source.getChildAsSerializedObject("nativeFormat").getValueAsString();
+            this.nativeFormat = source.getChildAsSerializedObject("nativeFormat").getValueAsString();
             if (source.doesAttributeExist("wcs:Extension")) {
-                this.Extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
+                this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
             }
         }
         return ServiceParameters;
@@ -1447,17 +1447,17 @@ var wcs;
         function CoverageDescription(source) {
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.CoverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             if (source.doesElementExist("gml:coverageFunction")) {
-                _this.CoverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
+                _this.coverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
             }
-            _this.Metadata = [];
+            _this.metadata = [];
             source.getChildrenAsSerializedObjects("gmlcov:metadata").forEach(function (o) {
-                _this.Metadata.push(new gmlcov.Metadata(o));
+                _this.metadata.push(new gmlcov.Metadata(o));
             });
-            _this.DomainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
-            _this.RangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
-            _this.ServiceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
+            _this.domainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
+            _this.rangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
+            _this.serviceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
             return _this;
         }
         return CoverageDescription;
@@ -1470,9 +1470,9 @@ var wcs;
         function CoverageDescriptions(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.CoverageDescription = [];
+            this.coverageDescription = [];
             source.getChildrenAsSerializedObjects("wcs:CoverageDescription").forEach(function (o) {
-                _this.CoverageDescription.push(new wcs.CoverageDescription(o));
+                _this.coverageDescription.push(new wcs.CoverageDescription(o));
             });
         }
         return CoverageDescriptions;
@@ -1483,12 +1483,12 @@ var wcs;
 (function (wcs) {
     var RequestBase = (function () {
         function RequestBase() {
-            this.Service = "WCS";
-            this.Version = "2.0.1";
+            this.service = "WCS";
+            this.version = "2.0.1";
         }
         RequestBase.prototype.toKVP = function () {
-            return "&SERVICE=" + this.Service +
-                "&VERSION=" + this.Version;
+            return "&SERVICE=" + this.service +
+                "&VERSION=" + this.version;
         };
         return RequestBase;
     }());
@@ -1503,13 +1503,13 @@ var wcs;
             if (!coverageIds.length) {
                 throw new rasdaman.common.IllegalArgumentException("coverageIds");
             }
-            _this.CoverageId = angular.copy(coverageIds);
+            _this.coverageId = angular.copy(coverageIds);
             return _this;
         }
         DescribeCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
             serialization += "&REQUEST=DescribeCoverage";
-            serialization += "&COVERAGEID=" + this.CoverageId.join(",");
+            serialization += "&COVERAGEID=" + this.coverageId.join(",");
             return serialization;
         };
         return DescribeCoverage;
@@ -1520,7 +1520,7 @@ var wcs;
 (function (wcs) {
     var DimensionSubset = (function () {
         function DimensionSubset(dimension) {
-            this.Dimension = dimension;
+            this.dimension = dimension;
         }
         DimensionSubset.prototype.toKVP = function () {
             throw new rasdaman.common.NotImplementedException();
@@ -1535,11 +1535,11 @@ var wcs;
         __extends(DimensionSlice, _super);
         function DimensionSlice(dimension, slicePoint) {
             var _this = _super.call(this, dimension) || this;
-            _this.SlicePoint = slicePoint;
+            _this.slicePoint = slicePoint;
             return _this;
         }
         DimensionSlice.prototype.toKVP = function () {
-            return this.Dimension + "(" + this.SlicePoint + ")";
+            return this.dimension + "(" + this.slicePoint + ")";
         };
         return DimensionSlice;
     }(wcs.DimensionSubset));
@@ -1551,12 +1551,12 @@ var wcs;
         __extends(DimensionTrim, _super);
         function DimensionTrim(dimension, trimLow, trimHigh) {
             var _this = _super.call(this, dimension) || this;
-            _this.TrimLow = trimLow;
-            _this.TrimHigh = trimHigh;
+            _this.trimLow = trimLow;
+            _this.trimHigh = trimHigh;
             return _this;
         }
         DimensionTrim.prototype.toKVP = function () {
-            return this.Dimension + "(" + this.TrimLow + "," + this.TrimHigh + ")";
+            return this.dimension + "(" + this.trimLow + "," + this.trimHigh + ")";
         };
         return DimensionTrim;
     }(wcs.DimensionSubset));
@@ -1568,14 +1568,14 @@ var wcs;
         __extends(GetCapabilities, _super);
         function GetCapabilities() {
             var _this = _super.call(this) || this;
-            _this.Service = "WCS";
-            _this.AcceptVersions = ["2.0.1"];
+            _this.service = "WCS";
+            _this.acceptVersions = ["2.0.1"];
             return _this;
         }
         GetCapabilities.prototype.toKVP = function () {
-            return "&SERVICE=" + this.Service +
-                "&ACCEPTVERSIONS=" + this.AcceptVersions[0] +
-                "&REQUEST=" + this.Request;
+            return "&SERVICE=" + this.service +
+                "&ACCEPTVERSIONS=" + this.acceptVersions[0] +
+                "&REQUEST=" + this.request;
         };
         return GetCapabilities;
     }(ows.GetCapabilities));
@@ -1597,11 +1597,11 @@ var wcs;
 (function (wcs) {
     var RangeSubset = (function () {
         function RangeSubset() {
-            this.RangeItem = [];
+            this.rangeItem = [];
         }
         RangeSubset.prototype.toKVP = function () {
             var serializedRangeItems = [];
-            this.RangeItem.forEach(function (rangeItem) {
+            this.rangeItem.forEach(function (rangeItem) {
                 serializedRangeItems.push(rangeItem.toKVP());
             });
             if (serializedRangeItems.length) {
@@ -1633,35 +1633,35 @@ var wcs;
         __extends(GetCoverage, _super);
         function GetCoverage(coverageId, dimensionSubset, format, mediaType) {
             var _this = _super.call(this) || this;
-            _this.CoverageId = coverageId;
-            _this.DimensionSubset = [];
+            _this.coverageId = coverageId;
+            _this.dimensionSubset = [];
             dimensionSubset.forEach(function (o) {
-                _this.DimensionSubset.push(o);
+                _this.dimensionSubset.push(o);
             });
-            _this.Format = format;
-            _this.MediaType = mediaType;
+            _this.format = format;
+            _this.mediaType = mediaType;
             return _this;
         }
         GetCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
             serialization += "&REQUEST=GetCoverage";
-            serialization += "&COVERAGEID=" + this.CoverageId;
-            this.DimensionSubset.forEach(function (subset) {
+            serialization += "&COVERAGEID=" + this.coverageId;
+            this.dimensionSubset.forEach(function (subset) {
                 serialization += "&SUBSET=" + subset.toKVP();
             });
-            if (this.RangeSubset) {
-                serialization += this.RangeSubset.toKVP();
+            if (this.rangeSubset) {
+                serialization += this.rangeSubset.toKVP();
             }
-            if (this.Scaling) {
-                serialization += this.Scaling.toKVP();
+            if (this.scaling) {
+                serialization += this.scaling.toKVP();
             }
-            if (this.Interpolation) {
-                serialization += this.Interpolation.toKVP();
+            if (this.interpolation) {
+                serialization += this.interpolation.toKVP();
             }
-            if (this.Format) {
-                serialization += "&FORMAT=" + this.Format;
+            if (this.format) {
+                serialization += "&FORMAT=" + this.format;
             }
-            if (this.MediaType) {
+            if (this.mediaType) {
                 serialization += "&MEDIATYPE=multipart/related";
             }
             return serialization;
@@ -1676,10 +1676,10 @@ var wcs;
         function InterpolationMetadata(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.InterpolationSupported = [];
+            this.interpolationSupported = [];
             source.getChildrenAsSerializedObjects("int:InterpolationSupported")
                 .forEach(function (interpolation) {
-                _this.InterpolationSupported.push(interpolation.getValueAsString());
+                _this.interpolationSupported.push(interpolation.getValueAsString());
             });
         }
         return InterpolationMetadata;
@@ -1695,18 +1695,18 @@ var wcs;
             rasdaman.common.ArgumentValidator.isNotNull(query, "query");
             rasdaman.common.ArgumentValidator.isNotNull(extraParams, "extraParams");
             rasdaman.common.ArgumentValidator.isArray(extraParams, "extraParams");
-            _this.Request = "ProcessCoverages";
-            _this.Query = query;
-            _this.ExtraParameters = angular.copy(extraParams);
+            _this.request = "ProcessCoverages";
+            _this.query = query;
+            _this.extraParameters = angular.copy(extraParams);
             return _this;
         }
         ProcessCoverages.prototype.toKVP = function () {
             var serializedParams = "";
-            for (var i = 0; i < this.ExtraParameters.length; ++i) {
-                serializedParams += ("&" + i + "=" + encodeURI(this.ExtraParameters[i]));
+            for (var i = 0; i < this.extraParameters.length; ++i) {
+                serializedParams += ("&" + i + "=" + encodeURI(this.extraParameters[i]));
             }
-            return "&REQUEST=" + this.Request
-                + "&QUERY=" + encodeURI(this.Query)
+            return "&REQUEST=" + this.request
+                + "&QUERY=" + encodeURI(this.query)
                 + serializedParams;
         };
         return ProcessCoverages;
@@ -1717,11 +1717,11 @@ var wcs;
 (function (wcs) {
     var Interpolation = (function () {
         function Interpolation(globalInterpolation) {
-            this.GlobalInterpolation = globalInterpolation;
+            this.globalInterpolation = globalInterpolation;
         }
         Interpolation.prototype.toKVP = function () {
-            if (this.GlobalInterpolation) {
-                return "&INTERPOLATION=" + this.GlobalInterpolation;
+            if (this.globalInterpolation) {
+                return "&INTERPOLATION=" + this.globalInterpolation;
             }
             else {
                 return "";
@@ -1737,11 +1737,11 @@ var wcs;
         __extends(RangeComponent, _super);
         function RangeComponent(rangeComponent) {
             var _this = _super.call(this) || this;
-            _this.RangeComponent = rangeComponent;
+            _this.rangeComponent = rangeComponent;
             return _this;
         }
         RangeComponent.prototype.toKVP = function () {
-            return this.RangeComponent;
+            return this.rangeComponent;
         };
         return RangeComponent;
     }(wcs.RangeItem));
@@ -1753,12 +1753,12 @@ var wcs;
         __extends(RangeInterval, _super);
         function RangeInterval(startComponent, endComponent) {
             var _this = _super.call(this) || this;
-            _this.StartComponent = startComponent;
-            _this.EndComponent = endComponent;
+            _this.startComponent = startComponent;
+            _this.endComponent = endComponent;
             return _this;
         }
         RangeInterval.prototype.toKVP = function () {
-            return this.StartComponent.toKVP() + ":" + this.EndComponent.toKVP();
+            return this.startComponent.toKVP() + ":" + this.endComponent.toKVP();
         };
         return RangeInterval;
     }(wcs.RangeItem));
@@ -1773,11 +1773,11 @@ var wcs;
             if (scaleFactor < 0) {
                 throw new rasdaman.common.IllegalArgumentException("ScaleFactor must be positive.");
             }
-            _this.ScaleFactor = scaleFactor;
+            _this.scaleFactor = scaleFactor;
             return _this;
         }
         ScaleByFactor.prototype.toKVP = function () {
-            return "&SCALEFACTOR=" + this.ScaleFactor;
+            return "&SCALEFACTOR=" + this.scaleFactor;
         };
         return ScaleByFactor;
     }(wcs.Scaling));
@@ -1790,11 +1790,11 @@ var wcs;
             if (scaleFactor < 0) {
                 throw new rasdaman.common.IllegalArgumentException("ScaleFactor must be positive.");
             }
-            this.Axis = axis;
-            this.ScaleFactor = scaleFactor;
+            this.axis = axis;
+            this.scaleFactor = scaleFactor;
         }
         ScaleAxis.prototype.toKVP = function () {
-            return this.Axis + "(" + this.ScaleFactor + ")";
+            return this.axis + "(" + this.scaleFactor + ")";
         };
         return ScaleAxis;
     }());
@@ -1806,12 +1806,12 @@ var wcs;
         __extends(ScaleAxesByFactor, _super);
         function ScaleAxesByFactor(scaleAxis) {
             var _this = _super.call(this) || this;
-            _this.ScaleAxis = angular.copy(scaleAxis);
+            _this.scaleAxis = angular.copy(scaleAxis);
             return _this;
         }
         ScaleAxesByFactor.prototype.toKVP = function () {
             var serializedAxes = [];
-            this.ScaleAxis.forEach(function (axis) {
+            this.scaleAxis.forEach(function (axis) {
                 serializedAxes.push(axis.toKVP());
             });
             return "&SCALEAXES=" + serializedAxes.join(",");
@@ -1827,11 +1827,11 @@ var wcs;
             if (targetSize < 0) {
                 throw new rasdaman.common.IllegalArgumentException("ScaleFactor must be positive.");
             }
-            this.Axis = axis;
-            this.TargetSize = targetSize;
+            this.axis = axis;
+            this.targetSize = targetSize;
         }
         TargetAxisSize.prototype.toKVP = function () {
-            return this.Axis + "(" + this.TargetSize + ")";
+            return this.axis + "(" + this.targetSize + ")";
         };
         return TargetAxisSize;
     }());
@@ -1843,12 +1843,12 @@ var wcs;
         __extends(ScaleToSize, _super);
         function ScaleToSize(targetAxisSize) {
             var _this = _super.call(this) || this;
-            _this.TargetAxisSize = angular.copy(targetAxisSize);
+            _this.targetAxisSize = angular.copy(targetAxisSize);
             return _this;
         }
         ScaleToSize.prototype.toKVP = function () {
             var targetAxesSize = [];
-            this.TargetAxisSize.forEach(function (target) {
+            this.targetAxisSize.forEach(function (target) {
                 targetAxesSize.push(target.toKVP());
             });
             return "&SCALESIZE=" + targetAxesSize.join(",");
@@ -1861,12 +1861,12 @@ var wcs;
 (function (wcs) {
     var TargetAxisExtent = (function () {
         function TargetAxisExtent(axis, low, high) {
-            this.Axis = axis;
-            this.Low = low;
-            this.High = high;
+            this.axis = axis;
+            this.low = low;
+            this.high = high;
         }
         TargetAxisExtent.prototype.toKVP = function () {
-            return this.Axis + "(" + this.Low + ":" + this.High + ")";
+            return this.axis + "(" + this.low + ":" + this.high + ")";
         };
         return TargetAxisExtent;
     }());
@@ -1878,12 +1878,12 @@ var wcs;
         __extends(ScaleToExtent, _super);
         function ScaleToExtent(targetAxisExtent) {
             var _this = _super.call(this) || this;
-            _this.TargetAxisExtent = angular.copy(targetAxisExtent);
+            _this.targetAxisExtent = angular.copy(targetAxisExtent);
             return _this;
         }
         ScaleToExtent.prototype.toKVP = function () {
             var serializedAxes = [];
-            this.TargetAxisExtent.forEach(function (target) {
+            this.targetAxisExtent.forEach(function (target) {
                 serializedAxes.push(target.toKVP());
             });
             return "&SCALEEXTENT=" + serializedAxes.join(",");
@@ -1894,15 +1894,15 @@ var wcs;
 })(wcs || (wcs = {}));
 var rasdaman;
 (function (rasdaman) {
-    var SettingsService = (function () {
-        function SettingsService($window) {
-            this.WCSEndpoint = $window.location.origin + "/rasdaman/ows";
-            this.WCSServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
+    var WCSSettingsService = (function () {
+        function WCSSettingsService($window) {
+            this.wcsEndpoint = $window.location.origin + "/rasdaman/ows";
+            this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
         }
-        SettingsService.$inject = ["$window"];
-        return SettingsService;
+        WCSSettingsService.$inject = ["$window"];
+        return WCSSettingsService;
     }());
-    rasdaman.SettingsService = SettingsService;
+    rasdaman.WCSSettingsService = WCSSettingsService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
@@ -1917,7 +1917,7 @@ var rasdaman;
         WCSService.prototype.getServerCapabilities = function (request) {
             var result = this.$q.defer();
             var self = this;
-            var requestUrl = this.settings.WCSEndpoint + "?" + request.toKVP();
+            var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
             this.$http.get(requestUrl)
                 .then(function (data) {
                 try {
@@ -1937,7 +1937,7 @@ var rasdaman;
         };
         WCSService.prototype.getCoveragesExtents = function () {
             var result = this.$q.defer();
-            var requestUrl = this.settings.WCSEndpoint + "/GetCoveragesExtents";
+            var requestUrl = this.settings.wcsEndpoint + "/GetCoveragesExtents";
             this.$http.get(requestUrl)
                 .then(function (data) {
                 result.resolve(data);
@@ -1949,7 +1949,7 @@ var rasdaman;
         WCSService.prototype.getCoverageDescription = function (request) {
             var result = this.$q.defer();
             var self = this;
-            var requestUrl = this.settings.WCSEndpoint + "?" + request.toKVP();
+            var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
             this.$http.get(requestUrl)
                 .then(function (data) {
                 try {
@@ -1969,7 +1969,7 @@ var rasdaman;
         };
         WCSService.prototype.getCoverage = function (request) {
             var result = this.$q.defer();
-            var requestUrl = this.settings.WCSEndpoint + "?" + request.toKVP();
+            var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
             this.$window.open(requestUrl);
             result.resolve(requestUrl);
             return result.promise;
@@ -1979,7 +1979,7 @@ var rasdaman;
             if (!coverageId) {
                 result.reject("You must specify at least one coverage ID.");
             }
-            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + "&REQUEST=DeleteCoverage&COVERAGEID=" + coverageId;
+            var requestUrl = this.settings.wcsEndpoint + "?" + this.settings.wcsServiceNameVersion + "&REQUEST=DeleteCoverage&COVERAGEID=" + coverageId;
             this.$http.get(requestUrl)
                 .then(function (data) {
                 result.resolve(data);
@@ -1993,7 +1993,7 @@ var rasdaman;
             if (!coverageUrl) {
                 result.reject("You must indicate a coverage source.");
             }
-            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + "&REQUEST=InsertCoverage&coverageRef=" + encodeURI(coverageUrl);
+            var requestUrl = this.settings.wcsEndpoint + "?" + this.settings.wcsServiceNameVersion + "&REQUEST=InsertCoverage&coverageRef=" + encodeURI(coverageUrl);
             if (useGeneratedId) {
                 requestUrl += "&useId=new";
             }
@@ -2007,12 +2007,14 @@ var rasdaman;
         };
         WCSService.prototype.processCoverages = function (query) {
             var result = this.$q.defer();
-            var queryStr = query.toKVP();
-            var requestUrl = this.settings.WCSEndpoint + "?" + this.settings.WCSServiceNameVersion + queryStr;
+            var queryStr = 'query=' + query;
+            var requestUrl = this.settings.wcsEndpoint;
             var request = {
-                method: 'GET',
+                method: 'POST',
                 url: requestUrl,
-                transformResponse: null
+                transformResponse: null,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                data: queryStr
             };
             if (queryStr.indexOf("png") >= 0 || queryStr.indexOf("jpeg") >= 0 || queryStr.indexOf("jpeg2000") >= 0 || queryStr.indexOf("tiff") >= 0 || queryStr.indexOf("netcdf") >= 0) {
                 request.responseType = "arraybuffer";
@@ -2024,38 +2026,38 @@ var rasdaman;
             });
             return result.promise;
         };
-        WCSService.$inject = ["$http", "$q", "rasdaman.SettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        WCSService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
         return WCSService;
     }());
     rasdaman.WCSService = WCSService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var WCSErrorHandlingService = (function () {
-        function WCSErrorHandlingService(notificationService, serializedObjectFactory, $log) {
+    var ErrorHandlingService = (function () {
+        function ErrorHandlingService(notificationService, serializedObjectFactory, $log) {
             this.notificationService = notificationService;
             this.serializedObjectFactory = serializedObjectFactory;
             this.$log = $log;
         }
-        WCSErrorHandlingService.prototype.handleError = function () {
+        ErrorHandlingService.prototype.handleError = function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
             if (args.length == 1) {
                 var errorInformation = args[0][0];
-                if (errorInformation.data === "" && errorInformation.status == 404) {
+                if (errorInformation.status == 404 || errorInformation.status == -1) {
                     this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");
                 }
                 else {
                     this.notificationService.error("The request failed with HTTP code:" + errorInformation.status + "(" + errorInformation.statusText + ")");
                 }
-                if (errorInformation.data != "") {
+                if (errorInformation.data != null && errorInformation.data != "") {
                     try {
                         var responseDocument = new rasdaman.common.ResponseDocument(errorInformation.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = this.serializedObjectFactory.getSerializedObject(responseDocument);
                         var exceptionReport = new ows.ExceptionReport(serializedResponse);
-                        this.notificationService.error(exceptionReport.Exception.ExceptionText + "</br> Exception code: " + exceptionReport.Exception.ExceptionCode);
+                        this.notificationService.error(exceptionReport.exception.exceptionText + "</br> Exception code: " + exceptionReport.exception.exceptionCode);
                     }
                     catch (err) {
                         this.$log.error(err);
@@ -2063,10 +2065,10 @@ var rasdaman;
                 }
             }
         };
-        WCSErrorHandlingService.$inject = ["Notification", "rasdaman.common.SerializedObjectFactory", "$log"];
-        return WCSErrorHandlingService;
+        ErrorHandlingService.$inject = ["Notification", "rasdaman.common.SerializedObjectFactory", "$log"];
+        return ErrorHandlingService;
     }());
-    rasdaman.WCSErrorHandlingService = WCSErrorHandlingService;
+    rasdaman.ErrorHandlingService = ErrorHandlingService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
@@ -2316,119 +2318,119 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var SettingsController = (function () {
-        function SettingsController($scope, settingsService) {
+    var WCSSettingsController = (function () {
+        function WCSSettingsController($scope, settingsService) {
             this.$scope = $scope;
             this.settingsService = settingsService;
-            $scope.WCSEndpoint = settingsService.WCSEndpoint;
+            $scope.wcsEndpoint = settingsService.wcsEndpoint;
             $scope.updateSettings = function () {
-                console.log($scope.WCSEndpoint);
+                console.log($scope.wcsEndpoint);
             };
         }
-        SettingsController.$inject = [
+        WCSSettingsController.$inject = [
             "$scope",
-            "rasdaman.SettingsService"
+            "rasdaman.WCSSettingsService"
         ];
-        return SettingsController;
+        return WCSSettingsController;
     }());
-    rasdaman.SettingsController = SettingsController;
+    rasdaman.WCSSettingsController = WCSSettingsController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var MainController = (function () {
-        function MainController($scope, $rootScope, $state) {
+    var WCSMainController = (function () {
+        function WCSMainController($scope, $rootScope, $state) {
             var _this = this;
             this.$scope = $scope;
             this.initializeTabs($scope);
-            $scope.$watch("StateInformation.ServerCapabilities", function (newValue, oldValue) {
+            $scope.$watch("wcsStateInformation.serverCapabilities", function (newValue, oldValue) {
                 if (newValue) {
-                    $scope.DescribeCoverageTab.Disabled = false;
-                    $scope.GetCoverageTab.Disabled = false;
-                    $scope.ProcessCoverageTab.Disabled = !MainController.isProcessCoverageEnabled(newValue);
-                    $scope.InsertCoverageTab.Disabled = !MainController.isCoverageTransactionEnabled(newValue);
-                    $scope.DeleteCoverageTab.Disabled = !MainController.isCoverageTransactionEnabled(newValue);
+                    $scope.wcsDescribeCoverageTab.disabled = false;
+                    $scope.wcsGetLayerTab.disabled = false;
+                    $scope.wcsProcessCoverageTab.disabled = !WCSMainController.isProcessCoverageEnabled(newValue);
+                    $scope.wcsInsertCoverageTab.disabled = !WCSMainController.isCoverageTransactionEnabled(newValue);
+                    $scope.wcsDeleteCoverageTab.disabled = !WCSMainController.isCoverageTransactionEnabled(newValue);
                 }
                 else {
                     _this.resetState();
                 }
             });
-            $scope.$watch("StateInformation.SelectedCoverageDescriptions", function (newValue, oldValue) {
-                $scope.GetCoverageTab.Disabled = newValue ? false : true;
+            $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (newValue, oldValue) {
+                $scope.wcsGetLayerTab.disabled = newValue ? false : true;
             });
-            $scope.Tabs = [$scope.GetCapabilitiesTab, $scope.DescribeCoverageTab, $scope.GetCoverageTab, $scope.ProcessCoverageTab, $scope.DeleteCoverageTab, $scope.InsertCoverageTab];
-            $scope.StateInformation = {
-                ServerCapabilities: null,
-                GetCoveragesExtents: null,
-                SelectedCoverageDescriptions: null,
-                SelectedGetCoverageId: null
+            $scope.tabs = [$scope.wcsGetCapabilitiesTab, $scope.wcsDescribeCoverageTab, $scope.wcsGetLayerTab, $scope.wcsProcessCoverageTab, $scope.wcsDeleteCoverageTab, $scope.wcsInsertCoverageTab];
+            $scope.wcsStateInformation = {
+                serverCapabilities: null,
+                getCoveragesExtents: null,
+                selectedCoverageDescriptions: null,
+                selectedGetCoverageId: null
             };
             $scope.describeCoverage = function (coverageId) {
-                $scope.DescribeCoverageTab.Active = true;
-                $rootScope.$broadcast("SelectedCoverageId", coverageId);
+                $scope.wcsDescribeCoverageTab.active = true;
+                $rootScope.$broadcast("wcsSelectedGetCoverageId", coverageId);
             };
         }
-        MainController.prototype.initializeTabs = function ($scope) {
-            $scope.GetCapabilitiesTab = {
-                Heading: "GetCapabilities",
-                View: "get_capabilities",
-                Active: true,
-                Disabled: false
+        WCSMainController.prototype.initializeTabs = function ($scope) {
+            $scope.wcsGetCapabilitiesTab = {
+                heading: "GetCapabilities",
+                view: "get_capabilities",
+                active: true,
+                disabled: false
             };
-            $scope.DescribeCoverageTab = {
-                Heading: "DescribeCoverage",
-                View: "describe_coverage",
-                Active: false,
-                Disabled: false
+            $scope.wcsDescribeCoverageTab = {
+                heading: "DescribeCoverage",
+                view: "describe_coverage",
+                active: false,
+                disabled: false
             };
-            $scope.GetCoverageTab = {
-                Heading: "GetCoverage",
-                View: "get_coverage",
-                Active: false,
-                Disabled: false
+            $scope.wcsGetLayerTab = {
+                heading: "GetCoverage",
+                view: "get_coverage",
+                active: false,
+                disabled: false
             };
-            $scope.ProcessCoverageTab = {
-                Heading: "ProcessCoverages",
-                View: "process_coverages",
-                Active: false,
-                Disabled: false
+            $scope.wcsProcessCoverageTab = {
+                heading: "ProcessCoverages",
+                view: "process_coverages",
+                active: false,
+                disabled: false
             };
-            $scope.InsertCoverageTab = {
-                Heading: "InsertCoverage",
-                View: "insert_coverage",
-                Active: false,
-                Disabled: false
+            $scope.wcsDeleteCoverageTab = {
+                heading: "DeleteCoverage",
+                view: "delete_coverage",
+                active: false,
+                disabled: false
             };
-            $scope.DeleteCoverageTab = {
-                Heading: "DeleteCoverage",
-                View: "delete_coverage",
-                Active: false,
-                Disabled: false
+            $scope.wcsInsertCoverageTab = {
+                heading: "InsertCoverage",
+                view: "insert_coverage",
+                active: false,
+                disabled: false
             };
         };
-        MainController.prototype.resetState = function () {
-            this.$scope.DescribeCoverageTab.Disabled = true;
-            this.$scope.GetCoverageTab.Disabled = true;
-            this.$scope.ProcessCoverageTab.Disabled = true;
-            this.$scope.DeleteCoverageTab.Disabled = true;
-            this.$scope.InsertCoverageTab.Disabled = true;
+        WCSMainController.prototype.resetState = function () {
+            this.$scope.wcsDescribeCoverageTab.disabled = true;
+            this.$scope.wcsGetLayerTab.disabled = true;
+            this.$scope.wcsProcessCoverageTab.disabled = true;
+            this.$scope.wcsDeleteCoverageTab.disabled = true;
+            this.$scope.wcsInsertCoverageTab.disabled = true;
         };
-        MainController.isProcessCoverageEnabled = function (serverCapabilities) {
+        WCSMainController.isProcessCoverageEnabled = function (serverCapabilities) {
             var processExtensionUri = rasdaman.Constants.PROCESSING_EXT_URI;
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(processExtensionUri) != -1;
+            return serverCapabilities.serviceIdentification.profile.indexOf(processExtensionUri) != -1;
         };
-        MainController.isCoverageTransactionEnabled = function (serverCapabilities) {
+        WCSMainController.isCoverageTransactionEnabled = function (serverCapabilities) {
             var transactionExtensionUri = rasdaman.Constants.TRANSACTION_EXT_URI;
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(transactionExtensionUri) != -1;
+            return serverCapabilities.serviceIdentification.profile.indexOf(transactionExtensionUri) != -1;
         };
-        MainController.$inject = ["$scope", "$rootScope", "$state"];
-        return MainController;
+        WCSMainController.$inject = ["$scope", "$rootScope", "$state"];
+        return WCSMainController;
     }());
-    rasdaman.MainController = MainController;
+    rasdaman.WCSMainController = WCSMainController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var GetCapabilitiesController = (function () {
-        function GetCapabilitiesController($scope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
+    var WCSGetCapabilitiesController = (function () {
+        function WCSGetCapabilitiesController($scope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
             this.$scope = $scope;
             this.$log = $log;
             this.wcsService = wcsService;
@@ -2436,16 +2438,21 @@ var rasdaman;
             this.alertService = alertService;
             this.errorHandlingService = errorHandlingService;
             this.webWorldWindService = webWorldWindService;
-            $scope.IsAvailableCoveragesOpen = false;
-            $scope.IsCoveragesExtentsOpen = false;
-            $scope.IsServiceIdentificationOpen = false;
-            $scope.IsServiceProviderOpen = false;
-            $scope.IsCapabilitiesDocumentOpen = false;
+            $scope.isAvailableCoveragesOpen = false;
+            $scope.isCoveragesExtentsOpen = false;
+            $scope.isServiceIdentificationOpen = false;
+            $scope.isServiceProviderOpen = false;
+            $scope.isCapabilitiesDocumentOpen = false;
             $scope.rowPerPageSmartTable = 10;
-            $scope.WcsServerEndpoint = settings.WCSEndpoint;
-            var canvasId = "canvasGetCapabilities";
+            $scope.wcsServerEndpoint = settings.wcsEndpoint;
+            var canvasId = "wcsCanvasGetCapabilities";
             var currentPageNumber = 1;
             $scope.pageChanged = function (newPage) {
+                var selectedPage = newPage - 1;
+                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
+                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
+                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
+                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
                 currentPageNumber = newPage;
                 $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
             };
@@ -2456,15 +2463,15 @@ var rasdaman;
                 var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
                 webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
                 $scope.showAllFootprints = false;
-                $("#displayAllFootprintsCheckbox").prop('checked', false);
+                $("#wcsDisplayAllFootprintsCheckbox").prop('checked', false);
             };
             $scope.selectCoveragesExtentsCurrentPage = function (startIndex, endIndex) {
-                var coveragesCurrentPage = $scope.Capabilities.Contents.CoverageSummary.slice(startIndex, endIndex);
+                var coveragesCurrentPage = $scope.capabilities.contents.coverageSummary.slice(startIndex, endIndex);
                 var coveragesExtentsCurrentPage = [];
                 for (var i = 0; i < coveragesCurrentPage.length; i++) {
                     for (var j = 0; j < $scope.coveragesExtents.length; j++) {
-                        if ($scope.coveragesExtents[j].coverageId === coveragesCurrentPage[i].CoverageId) {
-                            coveragesCurrentPage[i].DisplayFootprint = true;
+                        if ($scope.coveragesExtents[j].coverageId === coveragesCurrentPage[i].coverageId) {
+                            coveragesCurrentPage[i].displayFootprint = true;
                             var coverageExtent = $scope.coveragesExtents[j];
                             coverageExtent.index = j;
                             coveragesExtentsCurrentPage.push(coverageExtent);
@@ -2477,10 +2484,10 @@ var rasdaman;
                 });
                 return coveragesExtentsCurrentPage;
             };
-            $scope.displayFootprint = function (coverageId) {
+            $scope.displayFootprintOnGlobe = function (coverageId) {
                 webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
             };
-            $scope.displayAllFootprints = function (status) {
+            $scope.displayAllFootprintsOnGlobe = function (status) {
                 $scope.showAllFootprints = status;
                 if (status == true) {
                     webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, $scope.coveragesExtents);
@@ -2494,24 +2501,24 @@ var rasdaman;
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                if (!$scope.WcsServerEndpoint) {
+                if (!$scope.wcsServerEndpoint) {
                     alertService.error("The entered WCS endpoint is invalid.");
                     return;
                 }
-                settings.WCSEndpoint = $scope.WcsServerEndpoint;
+                settings.wcsEndpoint = $scope.wcsServerEndpoint;
                 var capabilitiesRequest = new wcs.GetCapabilities();
                 wcsService.getServerCapabilities(capabilitiesRequest)
                     .then(function (response) {
-                    $scope.CapabilitiesDocument = response.Document;
-                    $scope.Capabilities = response.Value;
-                    $scope.IsAvailableCoveragesOpen = true;
-                    $scope.IsServiceIdentificationOpen = true;
-                    $scope.IsServiceProviderOpen = true;
+                    $scope.capabilitiesDocument = response.document;
+                    $scope.capabilities = response.value;
+                    $scope.isAvailableCoveragesOpen = true;
+                    $scope.isServiceIdentificationOpen = true;
+                    $scope.isServiceProviderOpen = true;
                     wcsService.getCoveragesExtents()
                         .then(function (response) {
                         $scope.coveragesExtents = response.data;
                         webWorldWindService.setCoveragesExtentsArray($scope.coveragesExtents);
-                        $scope.IsCoveragesExtentsOpen = true;
+                        $scope.isCoveragesExtentsOpen = true;
                         var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);
                         webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
                     }, function () {
@@ -2520,76 +2527,76 @@ var rasdaman;
                             args[_i] = arguments[_i];
                         }
                         $scope.coveragesExtents = null;
-                        $scope.IsCoveragesExtentsOpen = false;
+                        $scope.isCoveragesExtentsOpen = false;
                         errorHandlingService.handleError(args);
                         $log.error(args);
                     })["finally"](function () {
-                        $scope.StateInformation.GetCoveragesExtents = $scope.coveragesExtents;
+                        $scope.wcsStateInformation.getCoveragesExtents = $scope.coveragesExtents;
                     });
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
                         args[_i] = arguments[_i];
                     }
-                    $scope.CapabilitiesDocument = null;
-                    $scope.Capabilities = null;
-                    $scope.IsAvailableCoveragesOpen = false;
-                    $scope.IsServiceIdentificationOpen = false;
-                    $scope.IsServiceProviderOpen = false;
+                    $scope.capabilitiesDocument = null;
+                    $scope.capabilities = null;
+                    $scope.isAvailableCoveragesOpen = false;
+                    $scope.isServiceIdentificationOpen = false;
+                    $scope.isServiceProviderOpen = false;
                     errorHandlingService.handleError(args);
                     $log.error(args);
                 })["finally"](function () {
-                    $scope.StateInformation.ServerCapabilities = $scope.Capabilities;
+                    $scope.wcsStateInformation.serverCapabilities = $scope.capabilities;
                 });
             };
             $scope.getServerCapabilities();
         }
-        GetCapabilitiesController.$inject = [
+        WCSGetCapabilitiesController.$inject = [
             "$scope",
             "$log",
             "rasdaman.WCSService",
-            "rasdaman.SettingsService",
+            "rasdaman.WCSSettingsService",
             "Notification",
-            "rasdaman.WCSErrorHandlingService",
+            "rasdaman.ErrorHandlingService",
             "rasdaman.WebWorldWindService"
         ];
-        return GetCapabilitiesController;
+        return WCSGetCapabilitiesController;
     }());
-    rasdaman.GetCapabilitiesController = GetCapabilitiesController;
+    rasdaman.WCSGetCapabilitiesController = WCSGetCapabilitiesController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var DescribeCoverageController = (function () {
-        function DescribeCoverageController($scope, $rootScope, $log, wcsService, alertService, wcsErrorHandlingService, webWorldWindService) {
-            $scope.SelectedCoverageId = null;
-            $scope.IsCoverageDescriptionsDocumentOpen = false;
-            $scope.IsCoverageDescriptionsHideGlobe = true;
+    var WCSDescribeCoverageController = (function () {
+        function WCSDescribeCoverageController($scope, $rootScope, $log, wcsService, alertService, errorHandlingService, webWorldWindService) {
+            $scope.selectedCoverageId = null;
+            $scope.isCoverageDescriptionsDocumentOpen = false;
+            $scope.isCoverageDescriptionsHideGlobe = true;
             $scope.isCoverageIdValid = function () {
-                if ($scope.StateInformation.ServerCapabilities) {
-                    var coverageSummaries = $scope.StateInformation.ServerCapabilities.Contents.CoverageSummary;
+                if ($scope.wcsStateInformation.serverCapabilities) {
+                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
-                        if (coverageSummaries[i].CoverageId == $scope.SelectedCoverageId) {
+                        if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {
                             return true;
                         }
                     }
                 }
                 return false;
             };
-            $rootScope.$on("SelectedCoverageId", function (event, coverageId) {
-                $scope.SelectedCoverageId = coverageId;
+            $rootScope.$on("wcsSelectedGetCoverageId", function (event, coverageId) {
+                $scope.selectedCoverageId = coverageId;
                 $scope.describeCoverage();
             });
-            $scope.$watch("StateInformation.ServerCapabilities", function (capabilities) {
+            $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
-                    $scope.AvailableCoverageIds = [];
-                    capabilities.Contents.CoverageSummary.forEach(function (coverageSummary) {
-                        $scope.AvailableCoverageIds.push(coverageSummary.CoverageId);
+                    $scope.availableCoverageIds = [];
+                    capabilities.contents.coverageSummary.forEach(function (coverageSummary) {
+                        $scope.availableCoverageIds.push(coverageSummary.coverageId);
                     });
                 }
             });
-            $scope.$watch("StateInformation.SelectedGetCoverageId", function (getCoverageId) {
+            $scope.$watch("wcsStateInformation.selectedGetCoverageId", function (getCoverageId) {
                 if (getCoverageId) {
-                    $scope.SelectedCoverageId = getCoverageId;
+                    $scope.selectedCoverageId = getCoverageId;
                     $scope.describeCoverage();
                 }
             });
@@ -2599,19 +2606,19 @@ var rasdaman;
                     return;
                 }
                 var coverageIds = [];
-                coverageIds.push($scope.SelectedCoverageId);
+                coverageIds.push($scope.selectedCoverageId);
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                 wcsService.getCoverageDescription(describeCoverageRequest)
                     .then(function (response) {
-                    $scope.CoverageDescriptionsDocument = response.Document;
-                    $scope.CoverageDescriptions = response.Value;
-                    var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.SelectedCoverageId);
+                    $scope.coverageDescriptionsDocument = response.document;
+                    $scope.coverageDescriptions = response.value;
+                    var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
                     if (coveragesExtents == null) {
-                        $scope.IsCoverageDescriptionsHideGlobe = true;
+                        $scope.isCoverageDescriptionsHideGlobe = true;
                     }
                     else {
-                        var canvasId = "canvasDescribeCoverage";
-                        $scope.IsCoverageDescriptionsHideGlobe = false;
+                        var canvasId = "wcsCanvasDescribeCoverage";
+                        $scope.isCoverageDescriptionsHideGlobe = false;
                         webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
                         webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
                     }
@@ -2620,33 +2627,33 @@ var rasdaman;
                     for (var _i = 0; _i < arguments.length; _i++) {
                         args[_i] = arguments[_i];
                     }
-                    $scope.CoverageDescriptionsDocument = null;
-                    $scope.CoverageDescriptions = null;
-                    wcsErrorHandlingService.handleError(args);
+                    $scope.coverageDescriptionsDocument = null;
+                    $scope.coverageDescriptions = null;
+                    errorHandlingService.handleError(args);
                     $log.error(args);
                 })["finally"](function () {
-                    $scope.StateInformation.SelectedCoverageDescriptions = $scope.CoverageDescriptions;
+                    $scope.wcsStateInformation.selectedCoverageDescriptions = $scope.coverageDescriptions;
                 });
             };
-            $scope.IsCoverageDescriptionsDocumentOpen = false;
+            $scope.isCoverageDescriptionsDocumentOpen = false;
         }
-        DescribeCoverageController.$inject = [
+        WCSDescribeCoverageController.$inject = [
             "$scope",
             "$rootScope",
             "$log",
             "rasdaman.WCSService",
             "Notification",
-            "rasdaman.WCSErrorHandlingService",
+            "rasdaman.ErrorHandlingService",
             "rasdaman.WebWorldWindService"
         ];
-        return DescribeCoverageController;
+        return WCSDescribeCoverageController;
     }());
-    rasdaman.DescribeCoverageController = DescribeCoverageController;
+    rasdaman.WCSDescribeCoverageController = WCSDescribeCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var DeleteCoverageController = (function () {
-        function DeleteCoverageController($scope, $log, alertService, wcsService, errorHandlingService) {
+    var WCSDeleteCoverageController = (function () {
+        function WCSDeleteCoverageController($scope, $log, alertService, wcsService, errorHandlingService) {
             var _this = this;
             this.$scope = $scope;
             this.$log = $log;
@@ -2654,42 +2661,42 @@ var rasdaman;
             this.wcsService = wcsService;
             this.errorHandlingService = errorHandlingService;
             function isCoverageIdValid(coverageId) {
-                if ($scope.StateInformation.ServerCapabilities) {
-                    var coverageSummaries = $scope.StateInformation.ServerCapabilities.Contents.CoverageSummary;
+                if ($scope.wcsStateInformation.serverCapabilities) {
+                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
-                        if (coverageSummaries[i].CoverageId == coverageId) {
+                        if (coverageSummaries[i].coverageId == coverageId) {
                             return true;
                         }
                     }
                 }
                 return false;
             }
-            $scope.$watch("IdOfCoverageToDelete", function (newValue, oldValue) {
-                $scope.IsCoverageIdValid = isCoverageIdValid(newValue);
+            $scope.$watch("idOfCoverageToDelete", function (newValue, oldValue) {
+                $scope.isCoverageIdValid = isCoverageIdValid(newValue);
             });
-            $scope.$watch("StateInformation.ServerCapabilities", function (capabilities) {
+            $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
-                    $scope.AvailableCoverageIds = [];
-                    capabilities.Contents.CoverageSummary.forEach(function (coverageSummary) {
-                        $scope.AvailableCoverageIds.push(coverageSummary.CoverageId);
+                    $scope.availableCoverageIds = [];
+                    capabilities.contents.coverageSummary.forEach(function (coverageSummary) {
+                        $scope.availableCoverageIds.push(coverageSummary.coverageId);
                     });
                 }
             });
             $scope.deleteCoverage = function () {
-                if ($scope.RequestInProgress) {
+                if ($scope.requestInProgress) {
                     _this.alertService.error("Cannot delete a coverage while another delete request is in progress.");
                 }
-                else if (!isCoverageIdValid($scope.IdOfCoverageToDelete)) {
-                    _this.alertService.error("The coverage ID <b>" + $scope.IdOfCoverageToDelete + "</b> is not valid.");
+                else if (!isCoverageIdValid($scope.idOfCoverageToDelete)) {
+                    _this.alertService.error("The coverage ID <b>" + $scope.idOfCoverageToDelete + "</b> is not valid.");
                 }
                 else {
-                    $scope.RequestInProgress = true;
-                    _this.wcsService.deleteCoverage($scope.IdOfCoverageToDelete).then(function () {
+                    $scope.requestInProgress = true;
+                    _this.wcsService.deleteCoverage($scope.idOfCoverageToDelete).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
                             args[_i] = arguments[_i];
                         }
-                        _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.IdOfCoverageToDelete + "<b/>");
+                        _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
                         _this.$log.log(args);
                     }, function () {
                         var args = [];
@@ -2699,45 +2706,45 @@ var rasdaman;
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
                     })["finally"](function () {
-                        $scope.RequestInProgress = false;
+                        $scope.requestInProgress = false;
                     });
                 }
             };
-            $scope.IdOfCoverageToDelete = null;
-            $scope.RequestInProgress = false;
-            $scope.IsCoverageIdValid = false;
+            $scope.idOfCoverageToDelete = null;
+            $scope.requestInProgress = false;
+            $scope.isCoverageIdValid = false;
         }
-        DeleteCoverageController.$inject = [
+        WCSDeleteCoverageController.$inject = [
             "$scope",
             "$log",
             "Notification",
             "rasdaman.WCSService",
-            "rasdaman.WCSErrorHandlingService"
+            "rasdaman.ErrorHandlingService"
         ];
-        return DeleteCoverageController;
+        return WCSDeleteCoverageController;
     }());
-    rasdaman.DeleteCoverageController = DeleteCoverageController;
+    rasdaman.WCSDeleteCoverageController = WCSDeleteCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var InsertCoverageController = (function () {
-        function InsertCoverageController($scope, $log, alertService, wcsService, errorHandlingService) {
+    var WCSInsertCoverageController = (function () {
+        function WCSInsertCoverageController($scope, $log, alertService, wcsService, errorHandlingService) {
             var _this = this;
             this.$scope = $scope;
             this.$log = $log;
             this.alertService = alertService;
             this.wcsService = wcsService;
             this.errorHandlingService = errorHandlingService;
-            $scope.UrlOfCoverageToInsert = null;
-            $scope.RequestInProgress = false;
-            $scope.UseGeneratedCoverageId = false;
+            $scope.urlOfCoverageToInsert = null;
+            $scope.requestInProgress = false;
+            $scope.useGeneratedCoverageId = false;
             $scope.insertCoverage = function () {
-                if ($scope.RequestInProgress) {
+                if ($scope.requestInProgress) {
                     _this.alertService.error("Cannot insert a coverage while another insert request is in progress.");
                 }
                 else {
-                    $scope.RequestInProgress = true;
-                    _this.wcsService.insertCoverage($scope.UrlOfCoverageToInsert, $scope.UseGeneratedCoverageId).then(function () {
+                    $scope.requestInProgress = true;
+                    _this.wcsService.insertCoverage($scope.urlOfCoverageToInsert, $scope.useGeneratedCoverageId).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
                             args[_i] = arguments[_i];
@@ -2752,56 +2759,56 @@ var rasdaman;
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
                     })["finally"](function () {
-                        $scope.RequestInProgress = false;
+                        $scope.requestInProgress = false;
                     });
                 }
             };
         }
-        InsertCoverageController.$inject = [
+        WCSInsertCoverageController.$inject = [
             "$scope",
             "$log",
             "Notification",
             "rasdaman.WCSService",
-            "rasdaman.WCSErrorHandlingService"
+            "rasdaman.ErrorHandlingService"
         ];
-        return InsertCoverageController;
+        return WCSInsertCoverageController;
     }());
-    rasdaman.InsertCoverageController = InsertCoverageController;
+    rasdaman.WCSInsertCoverageController = WCSInsertCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var GetCoverageController = (function () {
-        function GetCoverageController($scope, $rootScope, $log, wcsService, alertService, webWorldWindService) {
-            $scope.SelectedCoverageId = null;
-            $scope.IsGlobeOpen = false;
-            $scope.IsGetCoverageHideGlobe = true;
+    var WCSGetCoverageController = (function () {
+        function WCSGetCoverageController($scope, $rootScope, $log, wcsService, alertService, webWorldWindService) {
+            $scope.selectedCoverageId = null;
+            $scope.isGlobeOpen = false;
+            $scope.isGetCoverageHideGlobe = true;
             $scope.isCoverageIdValid = function () {
-                if ($scope.StateInformation.ServerCapabilities) {
-                    var coverageSummaries = $scope.StateInformation.ServerCapabilities.Contents.CoverageSummary;
+                if ($scope.wcsStateInformation.serverCapabilities) {
+                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
-                        if (coverageSummaries[i].CoverageId == $scope.SelectedCoverageId) {
+                        if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {
                             return true;
                         }
                     }
                 }
                 return false;
             };
-            $scope.$watch("StateInformation.ServerCapabilities", function (capabilities) {
+            $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
-                    $scope.AvailableCoverageIds = [];
-                    capabilities.Contents.CoverageSummary.forEach(function (coverageSummary) {
-                        $scope.AvailableCoverageIds.push(coverageSummary.CoverageId);
+                    $scope.availableCoverageIds = [];
+                    capabilities.contents.coverageSummary.forEach(function (coverageSummary) {
+                        $scope.availableCoverageIds.push(coverageSummary.coverageId);
                     });
                 }
             });
             $scope.loadCoverageExtentOnGlobe = function () {
-                var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.SelectedCoverageId);
+                var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
                 if (coveragesExtents == null) {
-                    $scope.IsGetCoverageHideGlobe = true;
+                    $scope.isGetCoverageHideGlobe = true;
                 }
                 else {
-                    var canvasId = "canvasGetCoverage";
-                    $scope.IsGetCoverageHideGlobe = false;
+                    var canvasId = "wcsCanvasGetCoverage";
+                    $scope.isGetCoverageHideGlobe = false;
                     webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
                     webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
                 }
@@ -2811,76 +2818,76 @@ var rasdaman;
                     alertService.error("The entered coverage ID is invalid.");
                     return;
                 }
-                $scope.StateInformation.SelectedGetCoverageId = $scope.SelectedCoverageId;
+                $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;
                 $scope.loadCoverageExtentOnGlobe();
             };
-            $scope.$watch("StateInformation.SelectedCoverageDescriptions", function (coverageDescriptions) {
-                if (coverageDescriptions && coverageDescriptions.CoverageDescription) {
-                    $scope.CoverageDescription = $scope.StateInformation.SelectedCoverageDescriptions.CoverageDescription[0];
-                    $scope.SelectedCoverageId = $scope.CoverageDescription.CoverageId;
-                    $scope.GetCoverageTabStates = {
-                        IsCoreOpen: true,
-                        IsRangeSubsettingOpen: false,
-                        IsRangeSubsettingSupported: GetCoverageController.isRangeSubsettingSupported($scope.StateInformation.ServerCapabilities),
-                        IsScalingOpen: false,
-                        IsScalingSupported: GetCoverageController.isScalingSupported($scope.StateInformation.ServerCapabilities),
-                        IsInterpolationOpen: false,
-                        IsInterpolationSupported: GetCoverageController.isInterpolationSupported($scope.StateInformation.ServerCapabilities)
+            $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (coverageDescriptions) {
+                if (coverageDescriptions && coverageDescriptions.coverageDescription) {
+                    $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
+                    $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
+                    $scope.getCoverageTabStates = {
+                        isCoreOpen: true,
+                        isRangeSubsettingOpen: false,
+                        isRangeSubsettingSupported: WCSGetCoverageController.isRangeSubsettingSupported($scope.wcsStateInformation.serverCapabilities),
+                        isScalingOpen: false,
+                        isScalingSupported: WCSGetCoverageController.isScalingSupported($scope.wcsStateInformation.serverCapabilities),
+                        isInterpolationOpen: false,
+                        isInterpolationSupported: WCSGetCoverageController.isInterpolationSupported($scope.wcsStateInformation.serverCapabilities)
                     };
-                    $scope.Core = {
-                        Slices: [],
-                        Trims: [],
-                        IsTrimSelected: [],
-                        IsMultiPartFormat: false,
-                        SelectedCoverageFormat: $scope.StateInformation.ServerCapabilities.ServiceMetadata.FormatSupported[0],
-                        RequestUrl: null
+                    $scope.core = {
+                        slices: [],
+                        trims: [],
+                        isTrimSelected: [],
+                        isMultiPartFormat: false,
+                        selectedCoverageFormat: $scope.wcsStateInformation.serverCapabilities.serviceMetadata.formatSupported[0],
+                        requestUrl: null
                     };
-                    var numberOfAxis = $scope.CoverageDescription.BoundedBy.Envelope.LowerCorner.Values.length;
+                    var numberOfAxis = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values.length;
                     for (var i = 0; i < numberOfAxis; ++i) {
-                        var dimension = $scope.CoverageDescription.BoundedBy.Envelope.AxisLabels[i];
-                        var min = $scope.CoverageDescription.BoundedBy.Envelope.LowerCorner.Values[i];
-                        var max = $scope.CoverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
-                        $scope.Core.Slices.push(new wcs.DimensionSlice(dimension, min + ""));
-                        $scope.Core.Trims.push(new wcs.DimensionTrim(dimension, min + "", max + ""));
-                        $scope.Core.IsTrimSelected.push(true);
+                        var dimension = $scope.coverageDescription.boundedBy.envelope.axisLabels[i];
+                        var min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                        var max = $scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+                        $scope.core.slices.push(new wcs.DimensionSlice(dimension, min + ""));
+                        $scope.core.trims.push(new wcs.DimensionTrim(dimension, min + "", max + ""));
+                        $scope.core.isTrimSelected.push(true);
                     }
-                    if ($scope.GetCoverageTabStates.IsRangeSubsettingSupported) {
-                        $scope.RangeSubsettingExtension = new rasdaman.RangeSubsettingModel($scope.CoverageDescription);
+                    if ($scope.getCoverageTabStates.isRangeSubsettingSupported) {
+                        $scope.rangeSubsettingExtension = new rasdaman.RangeSubsettingModel($scope.coverageDescription);
                     }
-                    if ($scope.GetCoverageTabStates.IsScalingSupported) {
-                        $scope.ScalingExtension = new rasdaman.ScalingExtensionModel($scope.CoverageDescription);
+                    if ($scope.getCoverageTabStates.isScalingSupported) {
+                        $scope.scalingExtension = new rasdaman.WCSScalingExtensionModel($scope.coverageDescription);
                     }
-                    if ($scope.GetCoverageTabStates.IsInterpolationSupported) {
-                        $scope.InterpolationExtension = new rasdaman.InterpolationExtensionModel($scope.StateInformation.ServerCapabilities);
+                    if ($scope.getCoverageTabStates.isInterpolationSupported) {
+                        $scope.interpolationExtension = new rasdaman.WCSInterpolationExtensionModel($scope.wcsStateInformation.serverCapabilities);
                     }
                     $scope.getCoverage = function () {
                         var dimensionSubset = [];
                         for (var i = 0; i < numberOfAxis; ++i) {
-                            var min = $scope.CoverageDescription.BoundedBy.Envelope.LowerCorner.Values[i];
-                            var max = $scope.CoverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
-                            if ($scope.Core.IsTrimSelected[i]) {
-                                if ($scope.Core.Trims[i].TrimLow != min.toString()
-                                    || $scope.Core.Trims[i].TrimHigh != max.toString()) {
-                                    dimensionSubset.push($scope.Core.Trims[i]);
+                            var min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                            var max = $scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+                            if ($scope.core.isTrimSelected[i]) {
+                                if ($scope.core.trims[i].trimLow != min.toString()
+                                    || $scope.core.trims[i].trimHigh != max.toString()) {
+                                    dimensionSubset.push($scope.core.trims[i]);
                                 }
                             }
                             else {
-                                dimensionSubset.push($scope.Core.Slices[i]);
+                                dimensionSubset.push($scope.core.slices[i]);
                             }
                         }
-                        var getCoverageRequest = new wcs.GetCoverage($scope.CoverageDescription.CoverageId, dimensionSubset, $scope.Core.SelectedCoverageFormat, $scope.Core.IsMultiPartFormat);
-                        getCoverageRequest.RangeSubset = $scope.RangeSubsettingExtension.RangeSubset;
-                        getCoverageRequest.Scaling = $scope.ScalingExtension.getScaling();
-                        getCoverageRequest.Interpolation = $scope.InterpolationExtension.getInterpolation();
+                        var getCoverageRequest = new wcs.GetCoverage($scope.coverageDescription.coverageId, dimensionSubset, $scope.core.selectedCoverageFormat, $scope.core.isMultiPartFormat);
+                        getCoverageRequest.rangeSubset = $scope.rangeSubsettingExtension.rangeSubset;
+                        getCoverageRequest.scaling = $scope.scalingExtension.getScaling();
+                        getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
                         wcsService.getCoverage(getCoverageRequest)
                             .then(function (requestUrl) {
-                            $scope.Core.RequestUrl = requestUrl;
+                            $scope.core.requestUrl = requestUrl;
                         }, function () {
                             var args = [];
                             for (var _i = 0; _i < arguments.length; _i++) {
                                 args[_i] = arguments[_i];
                             }
-                            $scope.Core.RequestUrl = null;
+                            $scope.core.requestUrl = null;
                             alertService.error("Failed to execute GetCoverage operation.");
                             $log.error(args);
                         });
@@ -2889,16 +2896,16 @@ var rasdaman;
                 }
             });
         }
-        GetCoverageController.isRangeSubsettingSupported = function (serverCapabilities) {
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(rasdaman.Constants.RANGE_SUBSETTING_EXT_URI) != -1;
+        WCSGetCoverageController.isRangeSubsettingSupported = function (serverCapabilities) {
+            return serverCapabilities.serviceIdentification.profile.indexOf(rasdaman.Constants.RANGE_SUBSETTING_EXT_URI) != -1;
         };
-        GetCoverageController.isScalingSupported = function (serverCapabilities) {
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(rasdaman.Constants.SCALING_EXT_URI) != -1;
+        WCSGetCoverageController.isScalingSupported = function (serverCapabilities) {
+            return serverCapabilities.serviceIdentification.profile.indexOf(rasdaman.Constants.SCALING_EXT_URI) != -1;
         };
-        GetCoverageController.isInterpolationSupported = function (serverCapabilities) {
-            return serverCapabilities.ServiceIdentification.Profile.indexOf(rasdaman.Constants.INTERPOLATION_EXT_URI) != -1;
+        WCSGetCoverageController.isInterpolationSupported = function (serverCapabilities) {
+            return serverCapabilities.serviceIdentification.profile.indexOf(rasdaman.Constants.INTERPOLATION_EXT_URI) != -1;
         };
-        GetCoverageController.$inject = [
+        WCSGetCoverageController.$inject = [
             "$scope",
             "$rootScope",
             "$log",
@@ -2906,16 +2913,16 @@ var rasdaman;
             "Notification",
             "rasdaman.WebWorldWindService"
         ];
-        return GetCoverageController;
+        return WCSGetCoverageController;
     }());
-    rasdaman.GetCoverageController = GetCoverageController;
+    rasdaman.WCSGetCoverageController = WCSGetCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
     var WidgetConfiguration = (function () {
         function WidgetConfiguration(type, parameters) {
-            this.Type = type;
-            this.Parameters = parameters;
+            this.type = type;
+            this.parameters = parameters;
         }
         return WidgetConfiguration;
     }());
@@ -2927,14 +2934,14 @@ var rasdaman;
         function WCPSCommand(command) {
             rasdaman.common.ArgumentValidator.isNotNull(command, "command");
             if (command.indexOf(">>") == -1) {
-                this.WidgetConfiguration = null;
-                this.Query = command;
+                this.widgetConfiguration = null;
+                this.query = command;
             }
             else {
                 var commandParts = command.split(">>");
                 var widget = {
-                    Type: commandParts[0],
-                    Parameters: null
+                    type: commandParts[0],
+                    parameters: null
                 };
                 if (commandParts[0].indexOf("(") != -1) {
                     var widgetParams = commandParts[0].substring(commandParts[0].indexOf("(") + 1, commandParts[0].indexOf(")")).split(",");
@@ -2943,11 +2950,11 @@ var rasdaman;
                         var parts = param.split("=");
                         params[parts[0]] = parts[1];
                     });
-                    widget.Type = commandParts[0].substring(0, commandParts[0].indexOf("("));
-                    widget.Parameters = params;
+                    widget.type = commandParts[0].substring(0, commandParts[0].indexOf("("));
+                    widget.parameters = params;
                 }
-                this.WidgetConfiguration = widget;
-                this.Query = commandParts[1];
+                this.widgetConfiguration = widget;
+                this.query = commandParts[1];
             }
         }
         return WCPSCommand;
@@ -2959,7 +2966,7 @@ var rasdaman;
     var WCPSQueryResult = (function () {
         function WCPSQueryResult(command) {
             rasdaman.common.ArgumentValidator.isNotNull(command, "command");
-            this.Command = command;
+            this.command = command;
         }
         return WCPSQueryResult;
     }());
@@ -2971,7 +2978,7 @@ var rasdaman;
         __extends(RawWCPSResult, _super);
         function RawWCPSResult(command, data) {
             var _this = _super.call(this, command) || this;
-            _this.Data = data.toString();
+            _this.data = data.toString();
             return _this;
         }
         return RawWCPSResult;
@@ -2984,8 +2991,8 @@ var rasdaman;
         __extends(ImageWCPSResult, _super);
         function ImageWCPSResult(command, rawImageData) {
             var _this = _super.call(this, command) || this;
-            _this.Base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
-            _this.ImageType = (command.Query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            _this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
+            _this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
             return _this;
         }
         return ImageWCPSResult;
@@ -2999,10 +3006,10 @@ var rasdaman;
         function DiagramWCPSResult(command, data) {
             var _this = _super.call(this, command) || this;
             var diagramType = "lineChart";
-            if (command.WidgetConfiguration.Parameters && command.WidgetConfiguration.Parameters.type) {
-                diagramType = command.WidgetConfiguration.Parameters.type;
+            if (command.widgetConfiguration.parameters && command.widgetConfiguration.parameters.type) {
+                diagramType = command.widgetConfiguration.parameters.type;
             }
-            _this.DiagramOptions = {
+            _this.diagramOptions = {
                 chart: {
                     type: diagramType,
                     height: 300,
@@ -3037,7 +3044,7 @@ var rasdaman;
                     y: rawData[i]
                 });
             }
-            _this.DiagramData = [
+            _this.diagramData = [
                 {
                     values: processedValues
                 }
@@ -3054,7 +3061,7 @@ var rasdaman;
         __extends(NotificationWCPSResult, _super);
         function NotificationWCPSResult(command, data) {
             var _this = _super.call(this, command) || this;
-            _this.Data = data.toString();
+            _this.data = data.toString();
             return _this;
         }
         return NotificationWCPSResult;
@@ -3067,7 +3074,7 @@ var rasdaman;
         function WCPSResultFactory() {
         }
         WCPSResultFactory.getResult = function (errorHandlingService, command, data, mimeType, fileName) {
-            if (command.WidgetConfiguration == null) {
+            if (command.widgetConfiguration == null) {
                 if (mimeType == "" || mimeType == "application/json" || mimeType == "text/csv" || mimeType == "text/xml" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
                     return new rasdaman.RawWCPSResult(command, data);
                 }
@@ -3077,16 +3084,16 @@ var rasdaman;
                     return null;
                 }
             }
-            else if (command.WidgetConfiguration.Type == "diagram") {
-                this.validateResult(errorHandlingService, command.WidgetConfiguration.Type, mimeType);
+            else if (command.widgetConfiguration.type == "diagram") {
+                this.validateResult(errorHandlingService, command.widgetConfiguration.type, mimeType);
                 return new rasdaman.DiagramWCPSResult(command, data);
             }
-            else if (command.WidgetConfiguration.Type == "image") {
-                this.validateResult(errorHandlingService, command.WidgetConfiguration.Type, mimeType);
+            else if (command.widgetConfiguration.type == "image") {
+                this.validateResult(errorHandlingService, command.widgetConfiguration.type, mimeType);
                 return new rasdaman.ImageWCPSResult(command, data);
             }
             else {
-                errorHandlingService.notificationService.error("The input widget: " + command.WidgetConfiguration.Type + " does not exist");
+                errorHandlingService.notificationService.error("The input widget: " + command.widgetConfiguration.type + " does not exist");
             }
         };
         WCPSResultFactory.validateResult = function (errorHandlingService, widgetType, mimeType) {
@@ -3103,41 +3110,40 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var ProcessCoverageController = (function () {
-        function ProcessCoverageController($scope, $log, $interval, notificationService, wcsService, errorHandlingService) {
-            $scope.EditorOptions = {
+    var WCSProcessCoverageController = (function () {
+        function WCSProcessCoverageController($scope, $log, $interval, notificationService, wcsService, errorHandlingService) {
+            $scope.editorOptions = {
                 extraKeys: { "Ctrl-Space": "autocomplete" },
                 mode: "xquery",
                 theme: "eclipse",
                 lineNumbers: false
             };
-            $scope.EditorData = [];
-            $scope.AvailableQueries = ProcessCoverageController.createExampleQueries();
-            $scope.Query = $scope.AvailableQueries[0].Query;
-            $scope.SelectedQuery = $scope.AvailableQueries[0].Query;
-            $scope.$watch("SelectedQuery", function (newValue, oldValue) {
-                $scope.Query = newValue;
+            $scope.editorData = [];
+            $scope.availableQueries = WCSProcessCoverageController.createExampleQueries();
+            $scope.query = $scope.availableQueries[0].query;
+            $scope.selectedQuery = $scope.availableQueries[0].query;
+            $scope.$watch("selectedQuery", function (newValue, oldValue) {
+                $scope.query = newValue;
             });
             $scope.executeQuery = function () {
                 try {
-                    var command = new rasdaman.WCPSCommand($scope.Query);
-                    var processCoverages = new wcs.ProcessCoverages(command.Query, []);
+                    var command = new rasdaman.WCPSCommand($scope.query);
                     var waitingForResults = new WaitingForResult();
-                    $scope.EditorData.push(waitingForResults);
-                    var indexOfResults = $scope.EditorData.length - 1;
-                    $scope.EditorData[indexOfResults].Query = $scope.Query;
-                    $scope.EditorData[indexOfResults].finished = false;
+                    $scope.editorData.push(waitingForResults);
+                    var indexOfResults = $scope.editorData.length - 1;
+                    $scope.editorData[indexOfResults].query = $scope.query;
+                    $scope.editorData[indexOfResults].finished = false;
                     var waitingForResultsPromise = $interval(function () {
-                        $scope.EditorData[indexOfResults].SecondsPassed++;
+                        $scope.editorData[indexOfResults].secondsPassed++;
                     }, 1000);
-                    wcsService.processCoverages(processCoverages)
+                    wcsService.processCoverages(command.query)
                         .then(function (data) {
                         var editorRow = rasdaman.WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
                         if (editorRow != null) {
-                            $scope.EditorData.push(editorRow);
+                            $scope.editorData.push(editorRow);
                         }
                         else {
-                            $scope.EditorData.push(new rasdaman.NotificationWCPSResult(command, "Downloading WCPS query's result as a file to Web Browser."));
+                            $scope.editorData.push(new rasdaman.NotificationWCPSResult(command, "Downloading WCPS query's result as a file to Web Browser."));
                         }
                     }, function () {
                         var args = [];
@@ -3150,9 +3156,9 @@ var rasdaman;
                         }
                         errorHandlingService.handleError(args);
                         $log.error(args);
-                        $scope.EditorData.push(new rasdaman.NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));
+                        $scope.editorData.push(new rasdaman.NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));
                     })["finally"](function () {
-                        $scope.EditorData[indexOfResults].finished = true;
+                        $scope.editorData[indexOfResults].finished = true;
                         $interval.cancel(waitingForResultsPromise);
                     });
                 }
@@ -3180,90 +3186,90 @@ var rasdaman;
                 return -1;
             };
         }
-        ProcessCoverageController.createExampleQueries = function () {
+        WCSProcessCoverageController.createExampleQueries = function () {
             return [
                 {
-                    Title: '-- Select a WCPS query --',
-                    Query: ''
+                    title: '-- Select a WCPS query --',
+                    query: ''
                 }, {
-                    Title: 'No encoding',
-                    Query: 'for c in (test_mean_summer_airtemp) return avg(c)'
+                    title: 'No encoding',
+                    query: 'for c in (test_mean_summer_airtemp) return avg(c)'
                 }, {
-                    Title: 'Encode 2D as png with widget',
-                    Query: 'image>>for c in (test_mean_summer_airtemp) return encode(c, "png")'
+                    title: 'Encode 2D as png with widget',
+                    query: 'image>>for c in (test_mean_summer_airtemp) return encode(c, "png")'
                 }, {
-                    Title: 'Encode 2D as tiff',
-                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "tiff")'
+                    title: 'Encode 2D as tiff',
+                    query: 'for c in (test_mean_summer_airtemp) return encode(c, "tiff")'
                 }, {
-                    Title: 'Encode 2D as netCDF',
-                    Query: 'for c in (test_mean_summer_airtemp) return encode(c, "netcdf")'
+                    title: 'Encode 2D as netCDF',
+                    query: 'for c in (test_mean_summer_airtemp) return encode(c, "netcdf")'
                 }, {
-                    Title: 'Encode 1D as csv with widget',
-                    Query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "csv")'
+                    title: 'Encode 1D as csv with widget',
+                    query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "csv")'
                 }, {
-                    Title: 'Encode 1D as json with widget',
-                    Query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "json")'
+                    title: 'Encode 1D as json with widget',
+                    query: 'diagram>>for c in (test_mean_summer_airtemp) return encode(c[Lat(-20)], "json")'
                 }, {
-                    Title: 'Encode 2D as gml',
-                    Query: 'for c in (test_mean_summer_airtemp) return encode(c[Lat(-44.525:-44.5), Long(112.5:113.5)], "gml")'
+                    title: 'Encode 2D as gml',
+                    query: 'for c in (test_mean_summer_airtemp) return encode(c[Lat(-44.525:-44.5), Long(112.5:113.5)], "gml")'
                 }
             ];
         };
-        ProcessCoverageController.$inject = [
+        WCSProcessCoverageController.$inject = [
             "$scope",
             "$log",
             "$interval",
             "Notification",
             "rasdaman.WCSService",
-            "rasdaman.WCSErrorHandlingService"
+            "rasdaman.ErrorHandlingService"
         ];
-        return ProcessCoverageController;
+        return WCSProcessCoverageController;
     }());
-    rasdaman.ProcessCoverageController = ProcessCoverageController;
+    rasdaman.WCSProcessCoverageController = WCSProcessCoverageController;
     var WaitingForResult = (function () {
         function WaitingForResult() {
-            this.SecondsPassed = 0;
+            this.secondsPassed = 0;
         }
         return WaitingForResult;
     }());
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    function RangeSubsettingExtension() {
+    function WCSRangeSubsettingExtension() {
         return {
             require: "ngModel",
             scope: {
                 model: "=ngModel"
             },
-            templateUrl: "src/components/range_subsetting_ext/RangeSubsettingTemplate.html"
+            templateUrl: "src/components/wcs_component/range_subsetting_ext/RangeSubsettingTemplate.html"
         };
     }
-    rasdaman.RangeSubsettingExtension = RangeSubsettingExtension;
+    rasdaman.WCSRangeSubsettingExtension = WCSRangeSubsettingExtension;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
     var RangeSubsettingModel = (function () {
         function RangeSubsettingModel(coverageDescription) {
             var _this = this;
-            this.RangeSubset = new wcs.RangeSubset();
-            this.AvailableRanges = [];
-            this.IsInterval = [];
-            coverageDescription.RangeType.DataRecord.Field.forEach(function (field) {
-                _this.AvailableRanges.push(field.Name);
+            this.rangeSubset = new wcs.RangeSubset();
+            this.availableRanges = [];
+            this.isInterval = [];
+            coverageDescription.rangeType.dataRecord.field.forEach(function (field) {
+                _this.availableRanges.push(field.name);
             });
         }
         RangeSubsettingModel.prototype.addRangeComponent = function () {
-            this.RangeSubset.RangeItem.push(new wcs.RangeComponent(this.AvailableRanges[0]));
-            this.IsInterval.push(false);
+            this.rangeSubset.rangeItem.push(new wcs.RangeComponent(this.availableRanges[0]));
+            this.isInterval.push(false);
         };
         RangeSubsettingModel.prototype.addRangeComponentInterval = function () {
-            var begin = new wcs.RangeComponent(this.AvailableRanges[0]);
-            var end = new wcs.RangeComponent(this.AvailableRanges[this.AvailableRanges.length - 1]);
-            this.RangeSubset.RangeItem.push(new wcs.RangeInterval(begin, end));
-            this.IsInterval.push(true);
+            var begin = new wcs.RangeComponent(this.availableRanges[0]);
+            var end = new wcs.RangeComponent(this.availableRanges[this.availableRanges.length - 1]);
+            this.rangeSubset.rangeItem.push(new wcs.RangeInterval(begin, end));
+            this.isInterval.push(true);
         };
         RangeSubsettingModel.prototype.deleteRangeComponent = function (index) {
-            this.RangeSubset.RangeItem.splice(index, 1);
+            this.rangeSubset.rangeItem.splice(index, 1);
         };
         return RangeSubsettingModel;
     }());
@@ -3271,160 +3277,744 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var ScalingExtensionModel = (function () {
-        function ScalingExtensionModel(coverageDescription) {
+    var WCSScalingExtensionModel = (function () {
+        function WCSScalingExtensionModel(coverageDescription) {
             this.coverageDescription = coverageDescription;
             var i = 0;
             var axes = [];
-            coverageDescription.BoundedBy.Envelope.AxisLabels.forEach(function (label) {
+            coverageDescription.boundedBy.envelope.axisLabels.forEach(function (label) {
                 axes.push(label);
             });
-            this.ScaleByFactor = new wcs.ScaleByFactor(ScalingExtensionModel.DEFAULT_SCALE_FACTOR);
+            this.scaleByFactor = new wcs.ScaleByFactor(WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR);
             var scaleAxis = [];
             for (i = 0; i < axes.length; ++i) {
-                scaleAxis.push(new wcs.ScaleAxis(axes[i], ScalingExtensionModel.DEFAULT_SCALE_FACTOR));
+                scaleAxis.push(new wcs.ScaleAxis(axes[i], WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR));
             }
-            this.ScaleAxesByFactor = new wcs.ScaleAxesByFactor(scaleAxis);
+            this.scaleAxesByFactor = new wcs.ScaleAxesByFactor(scaleAxis);
             var targetAxisSize = [];
             for (i = 0; i < axes.length; ++i) {
-                targetAxisSize.push(new wcs.TargetAxisSize(axes[i], ScalingExtensionModel.DEFAULT_AXIS_SIZE));
+                targetAxisSize.push(new wcs.TargetAxisSize(axes[i], WCSScalingExtensionModel.DEFAULT_AXIS_SIZE));
             }
-            this.ScaleToSize = new wcs.ScaleToSize(targetAxisSize);
+            this.scaleToSize = new wcs.ScaleToSize(targetAxisSize);
             var targetAxisExtent = [];
             for (i = 0; i < axes.length; ++i) {
-                var low = coverageDescription.BoundedBy.Envelope.LowerCorner.Values[i];
-                var high = coverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
+                var low = coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                var high = coverageDescription.boundedBy.envelope.upperCorner.values[i];
                 targetAxisExtent.push(new wcs.TargetAxisExtent(axes[i], low, high));
             }
-            this.ScaleToExtent = new wcs.ScaleToExtent(targetAxisExtent);
-            this.ScalingType = 0;
+            this.scaleToExtent = new wcs.ScaleToExtent(targetAxisExtent);
+            this.scalingType = 0;
         }
-        ScalingExtensionModel.prototype.getScaling = function () {
-            if (0 == this.ScalingType) {
+        WCSScalingExtensionModel.prototype.getScaling = function () {
+            if (0 == this.scalingType) {
                 return this.getScaleByFactor();
             }
-            else if (1 == this.ScalingType) {
+            else if (1 == this.scalingType) {
                 return this.getScaleAxesByFactor();
             }
-            else if (2 == this.ScalingType) {
+            else if (2 == this.scalingType) {
                 return this.getScaleToSize();
             }
             else {
                 return this.getScaleToExtent();
             }
         };
-        ScalingExtensionModel.prototype.clearScaling = function () {
+        WCSScalingExtensionModel.prototype.clearScaling = function () {
             var i = 0;
-            this.ScaleByFactor.ScaleFactor = ScalingExtensionModel.DEFAULT_SCALE_FACTOR;
-            for (i = 0; i < this.ScaleAxesByFactor.ScaleAxis.length; ++i) {
-                this.ScaleAxesByFactor.ScaleAxis[i].ScaleFactor = ScalingExtensionModel.DEFAULT_SCALE_FACTOR;
+            this.scaleByFactor.scaleFactor = WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR;
+            for (i = 0; i < this.scaleAxesByFactor.scaleAxis.length; ++i) {
+                this.scaleAxesByFactor.scaleAxis[i].scaleFactor = WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR;
             }
-            for (i = 0; i < this.ScaleToSize.TargetAxisSize.length; ++i) {
-                this.ScaleToSize.TargetAxisSize[i].TargetSize = ScalingExtensionModel.DEFAULT_AXIS_SIZE;
+            for (i = 0; i < this.scaleToSize.targetAxisSize.length; ++i) {
+                this.scaleToSize.targetAxisSize[i].targetSize = WCSScalingExtensionModel.DEFAULT_AXIS_SIZE;
             }
-            for (i = 0; i < this.ScaleToExtent.TargetAxisExtent.length; ++i) {
-                var low = this.coverageDescription.BoundedBy.Envelope.LowerCorner.Values[i];
-                var high = this.coverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
-                this.ScaleToExtent.TargetAxisExtent[i].Low = low;
-                this.ScaleToExtent.TargetAxisExtent[i].High = high;
+            for (i = 0; i < this.scaleToExtent.targetAxisExtent.length; ++i) {
+                var low = this.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                var high = this.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+                this.scaleToExtent.targetAxisExtent[i].low = low;
+                this.scaleToExtent.targetAxisExtent[i].high = high;
             }
-            this.ScalingType = 0;
+            this.scalingType = 0;
         };
-        ScalingExtensionModel.prototype.getScaleByFactor = function () {
-            if (this.ScaleByFactor.ScaleFactor != ScalingExtensionModel.DEFAULT_SCALE_FACTOR) {
-                return this.ScaleByFactor;
+        WCSScalingExtensionModel.prototype.getScaleByFactor = function () {
+            if (this.scaleByFactor.scaleFactor != WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR) {
+                return this.scaleByFactor;
             }
             else {
                 return null;
             }
         };
-        ScalingExtensionModel.prototype.getScaleAxesByFactor = function () {
-            for (var i = 0; i < this.ScaleAxesByFactor.ScaleAxis.length; ++i) {
-                if (this.ScaleAxesByFactor.ScaleAxis[i].ScaleFactor != ScalingExtensionModel.DEFAULT_SCALE_FACTOR) {
-                    return this.ScaleAxesByFactor;
+        WCSScalingExtensionModel.prototype.getScaleAxesByFactor = function () {
+            for (var i = 0; i < this.scaleAxesByFactor.scaleAxis.length; ++i) {
+                if (this.scaleAxesByFactor.scaleAxis[i].scaleFactor != WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR) {
+                    return this.scaleAxesByFactor;
                 }
             }
             return null;
         };
-        ScalingExtensionModel.prototype.getScaleToSize = function () {
-            for (var i = 0; i < this.ScaleToSize.TargetAxisSize.length; ++i) {
-                if (this.ScaleToSize.TargetAxisSize[i].TargetSize != ScalingExtensionModel.DEFAULT_AXIS_SIZE) {
-                    return this.ScaleToSize;
+        WCSScalingExtensionModel.prototype.getScaleToSize = function () {
+            for (var i = 0; i < this.scaleToSize.targetAxisSize.length; ++i) {
+                if (this.scaleToSize.targetAxisSize[i].targetSize != WCSScalingExtensionModel.DEFAULT_AXIS_SIZE) {
+                    return this.scaleToSize;
                 }
             }
             return null;
         };
-        ScalingExtensionModel.prototype.getScaleToExtent = function () {
-            for (var i = 0; i < this.ScaleToExtent.TargetAxisExtent.length; ++i) {
-                var low = this.coverageDescription.BoundedBy.Envelope.LowerCorner.Values[i];
-                var high = this.coverageDescription.BoundedBy.Envelope.UpperCorner.Values[i];
-                if (this.ScaleToExtent.TargetAxisExtent[i].Low != low
-                    || this.ScaleToExtent.TargetAxisExtent[i].High != high) {
-                    return this.ScaleToExtent;
+        WCSScalingExtensionModel.prototype.getScaleToExtent = function () {
+            for (var i = 0; i < this.scaleToExtent.targetAxisExtent.length; ++i) {
+                var low = this.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                var high = this.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+                if (this.scaleToExtent.targetAxisExtent[i].low != low
+                    || this.scaleToExtent.targetAxisExtent[i].high != high) {
+                    return this.scaleToExtent;
                 }
             }
             return null;
         };
-        ScalingExtensionModel.DEFAULT_SCALE_FACTOR = 1.0;
-        ScalingExtensionModel.DEFAULT_AXIS_SIZE = 0.0;
-        return ScalingExtensionModel;
+        WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR = 1.0;
+        WCSScalingExtensionModel.DEFAULT_AXIS_SIZE = 0.0;
+        return WCSScalingExtensionModel;
     }());
-    rasdaman.ScalingExtensionModel = ScalingExtensionModel;
+    rasdaman.WCSScalingExtensionModel = WCSScalingExtensionModel;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    function ScalingExtension() {
+    function WCSScalingExtension() {
         return {
             require: "ngModel",
             scope: {
                 model: "=ngModel"
             },
-            templateUrl: "src/components/scaling_ext/ScalingExtentionTemplate.html"
+            templateUrl: "src/components/wcs_component/scaling_ext/ScalingExtentionTemplate.html"
         };
     }
-    rasdaman.ScalingExtension = ScalingExtension;
+    rasdaman.WCSScalingExtension = WCSScalingExtension;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    var InterpolationExtensionModel = (function () {
-        function InterpolationExtensionModel(serverCapabilities) {
+    var WCSInterpolationExtensionModel = (function () {
+        function WCSInterpolationExtensionModel(serverCapabilities) {
             var _this = this;
-            this.AvailableInterpolationMethods = [];
-            for (var i = 0; i < serverCapabilities.ServiceMetadata.Extension.length; ++i) {
-                if (serverCapabilities.ServiceMetadata.Extension[i].InterpolationMetadata) {
-                    serverCapabilities.ServiceMetadata.Extension[i].InterpolationMetadata.InterpolationSupported.forEach(function (interpolationUri) {
-                        _this.AvailableInterpolationMethods.push({
-                            Name: interpolationUri,
-                            Uri: interpolationUri
+            this.availableInterpolationMethods = [];
+            for (var i = 0; i < serverCapabilities.serviceMetadata.extension.length; ++i) {
+                if (serverCapabilities.serviceMetadata.extension[i].interpolationMetadata) {
+                    serverCapabilities.serviceMetadata.extension[i].interpolationMetadata.interpolationSupported.forEach(function (interpolationUri) {
+                        _this.availableInterpolationMethods.push({
+                            name: interpolationUri,
+                            uri: interpolationUri
                         });
                     });
                     break;
                 }
             }
         }
-        InterpolationExtensionModel.prototype.getInterpolation = function () {
+        WCSInterpolationExtensionModel.prototype.getInterpolation = function () {
             var interpolationUri = "";
-            if (this.SelectedInterpolationMethod) {
-                interpolationUri = this.SelectedInterpolationMethod.Uri;
+            if (this.selectedInterpolationMethod) {
+                interpolationUri = this.selectedInterpolationMethod.uri;
             }
             return new wcs.Interpolation(interpolationUri);
         };
-        return InterpolationExtensionModel;
+        return WCSInterpolationExtensionModel;
     }());
-    rasdaman.InterpolationExtensionModel = InterpolationExtensionModel;
+    rasdaman.WCSInterpolationExtensionModel = WCSInterpolationExtensionModel;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
-    function InterpolationExtension() {
+    function WCSInterpolationExtension() {
         return {
             require: "ngModel",
             scope: {
                 model: "=ngModel"
             },
-            templateUrl: "src/components/interpolation_ext/InterpolationExtensionTemplate.html"
+            templateUrl: "src/components/wcs_component/interpolation_ext/InterpolationExtensionTemplate.html"
         };
     }
-    rasdaman.InterpolationExtension = InterpolationExtension;
+    rasdaman.WCSInterpolationExtension = WCSInterpolationExtension;
+})(rasdaman || (rasdaman = {}));
+var wms;
+(function (wms) {
+    var ServiceIdentification = (function () {
+        function ServiceIdentification(title, abstract) {
+            this.serviceType = "OGC WMS";
+            this.serviceTypeVersion = rasdaman.WMSSettingsService.version;
+            this.title = title;
+            this.abstract = abstract;
+        }
+        return ServiceIdentification;
+    }());
+    wms.ServiceIdentification = ServiceIdentification;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var Capabilities = (function () {
+        function Capabilities(source, gmlDocument) {
+            var _this = this;
+            this.gmlDocument = gmlDocument;
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            if (source.doesElementExist("Service")) {
+                var serviceObj = source.getChildAsSerializedObject("Service");
+                var title = serviceObj.getChildAsSerializedObject("Title").getValueAsString();
+                var abstract = serviceObj.getChildAsSerializedObject("Abstract").getValueAsString();
+                this.serviceIdentification = new wms.ServiceIdentification(title, abstract);
+                var onlineResourceObj = serviceObj.getChildAsSerializedObject("OnlineResource");
+                var contactInformationObj = serviceObj.getChildAsSerializedObject("ContactInformation");
+                var contactPersonPrimaryObj = contactInformationObj.getChildAsSerializedObject("ContactPersonPrimary");
+                var contactAdressObj = contactInformationObj.getChildAsSerializedObject("ContactAddress");
+                var providerName = contactPersonPrimaryObj.getChildAsSerializedObject("ContactOrganization").getValueAsString();
+                var providerSite = onlineResourceObj.getAttributeAsString("href");
+                var contactPersion = contactPersonPrimaryObj.getChildAsSerializedObject("ContactPerson").getValueAsString();
+                var positionName = contactInformationObj.getChildAsSerializedObject("ContactPosition").getValueAsString();
+                var email = contactInformationObj.getChildAsSerializedObject("ContactElectronicMailAddress").getValueAsString();
+                var voicePhone = contactInformationObj.getChildAsSerializedObject("ContactVoiceTelephone").getValueAsString();
+                var address = contactAdressObj.getChildAsSerializedObject("Address").getValueAsString();
+                var city = contactAdressObj.getChildAsSerializedObject("City").getValueAsString();
+                var postCode = contactAdressObj.getChildAsSerializedObject("PostCode").getValueAsString();
+                var country = contactAdressObj.getChildAsSerializedObject("Country").getValueAsString();
+                this.serviceProvider = new wms.ServiceProvider(providerName, providerSite, contactPersion, positionName, email, voicePhone, address, city, postCode, country);
+                var capabilityObj = source.getChildAsSerializedObject("Capability");
+                var getMapObj = capabilityObj.getChildAsSerializedObject("Request").getChildAsSerializedObject("GetMap");
+                this.getMapFormat = [];
+                getMapObj.getChildrenAsSerializedObjects("Format").forEach(function (obj) {
+                    _this.getMapFormat.push(obj.getValueAsString());
+                });
+                var layerObjs = capabilityObj.getChildAsSerializedObject("Layer").getChildrenAsSerializedObjects("Layer");
+                this.layers = [];
+                layerObjs.forEach(function (obj) {
+                    var name = obj.getChildAsSerializedObject("Name").getValueAsString();
+                    var title = obj.getChildAsSerializedObject("Title").getValueAsString();
+                    var abstract = obj.getChildAsSerializedObject("Abstract").getValueAsString();
+                    var crs = obj.getChildAsSerializedObject("CRS").getValueAsString();
+                    var exBBox = obj.getChildAsSerializedObject("EX_GeographicBoundingBox");
+                    var westBoundLongitude = exBBox.getChildAsSerializedObject("westBoundLongitude").getValueAsNumber();
+                    var eastBoundLongitude = exBBox.getChildAsSerializedObject("eastBoundLongitude").getValueAsNumber();
+                    var southBoundLatitude = exBBox.getChildAsSerializedObject("southBoundLatitude").getValueAsNumber();
+                    var northBoundLatitude = exBBox.getChildAsSerializedObject("northBoundLatitude").getValueAsNumber();
+                    var bboxObj = obj.getChildAsSerializedObject("BoundingBox");
+                    var crs = bboxObj.getAttributeAsString("CRS");
+                    var minx = bboxObj.getAttributeAsNumber("minx");
+                    var miny = bboxObj.getAttributeAsNumber("miny");
+                    var maxx = bboxObj.getAttributeAsNumber("maxx");
+                    var maxy = bboxObj.getAttributeAsNumber("maxy");
+                    var layerGMLDocument = _this.extractLayerGMLDocument(name);
+                    _this.layers.push(new wms.Layer(layerGMLDocument, name, title, abstract, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy));
+                });
+            }
+        }
+        Capabilities.prototype.extractLayerGMLDocument = function (layerName) {
+            var regex = /<Layer \S+[\s\S]*?<\/Layer>/g;
+            var match = regex.exec(this.gmlDocument);
+            while (match != null) {
+                if (match[0].indexOf("<Name>" + layerName + "</Name>") !== -1) {
+                    return match[0];
+                }
+                match = regex.exec(this.gmlDocument);
+            }
+            return null;
+        };
+        return Capabilities;
+    }());
+    wms.Capabilities = Capabilities;
+})(wms || (wms = {}));
+var rasdaman;
+(function (rasdaman) {
+    var WMSMainController = (function () {
+        function WMSMainController($scope, $rootScope, $state) {
+            this.$scope = $scope;
+            this.initializeTabs($scope);
+            $scope.tabs = [$scope.wmsGetCapabilitiesTab, $scope.wmsDescribeLayerTab];
+            $scope.describeLayer = function (layerName) {
+                $scope.wmsDescribeLayerTab.active = true;
+                $rootScope.$broadcast("wmsSelectedLayerName", layerName);
+            };
+            $scope.wmsStateInformation = {
+                ServerCapabilities: null
+            };
+        }
+        WMSMainController.prototype.initializeTabs = function ($scope) {
+            $scope.wmsGetCapabilitiesTab = {
+                heading: "GetCapabilities",
+                view: "wms_get_capabilities",
+                active: true,
+                disabled: false
+            };
+            $scope.wmsDescribeLayerTab = {
+                heading: "DescribeLayer",
+                view: "wms_describe_layer",
+                active: false,
+                disabled: false
+            };
+        };
+        WMSMainController.$inject = ["$scope", "$rootScope", "$state"];
+        return WMSMainController;
+    }());
+    rasdaman.WMSMainController = WMSMainController;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var WMSSettingsService = (function () {
+        function WMSSettingsService($window) {
+            this.wmsEndpoint = $window.location.origin + "/rasdaman/ows";
+            this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
+            this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
+        }
+        WMSSettingsService.$inject = ["$window"];
+        WMSSettingsService.version = "1.3.0";
+        return WMSSettingsService;
+    }());
+    rasdaman.WMSSettingsService = WMSSettingsService;
+})(rasdaman || (rasdaman = {}));
+var wms;
+(function (wms) {
+    var GetCapabilities = (function () {
+        function GetCapabilities() {
+            this.Service = "WMS";
+            this.version = ["1.3.0"];
+        }
+        GetCapabilities.prototype.toKVP = function () {
+            return "&service=" + this.Service +
+                "&version=" + this.version[0] +
+                "&request=" + "GetCapabilities";
+        };
+        return GetCapabilities;
+    }());
+    wms.GetCapabilities = GetCapabilities;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var Layer = (function () {
+        function Layer(gmlDocument, name, title, abstract, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy) {
+            this.gmlDocument = gmlDocument;
+            this.name = name;
+            this.title = title;
+            this.abstract = abstract;
+            this.coverageExtent = new wms.CoverageExtent(name, westBoundLongitude, southBoundLatitude, eastBoundLongitude, northBoundLatitude);
+            this.crs = crs;
+            this.minx = minx;
+            this.miny = miny;
+            this.maxx = maxx;
+            this.maxy = maxy;
+            this.displayFootprint = true;
+            this.buildStylesFromGMLDocument();
+        }
+        Layer.prototype.buildStylesFromGMLDocument = function () {
+            this.styles = [];
+            var tmpXML = $.parseXML(this.gmlDocument);
+            var totalStyles = $(tmpXML).find("Style").length;
+            for (var i = 0; i < totalStyles; i++) {
+                var styleXML = $(tmpXML).find("Style").eq(i);
+                var name = styleXML.find("Name").text();
+                var abstract = styleXML.find("Abstract").text();
+                var queryType = 0;
+                var query = "";
+                var tmp = "";
+                if (abstract.indexOf("Rasql transform fragment: ") == -1) {
+                    queryType = 0;
+                    tmp = "WCPS query fragment: ";
+                }
+                else {
+                    queryType = 1;
+                    tmp = "Rasql transform fragment: ";
+                }
+                query = abstract.substring(abstract.indexOf(tmp) + tmp.length, abstract.length);
+                var styleAbstract = abstract.substring(0, abstract.indexOf(tmp));
+                this.styles.push(new wms.Style(name, styleAbstract, queryType, query));
+            }
+        };
+        return Layer;
+    }());
+    wms.Layer = Layer;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var ServiceProvider = (function () {
+        function ServiceProvider(providerName, providerSite, contactPerson, positionName, email, voicePhone, address, city, postCode, country) {
+            this.providerName = providerName;
+            this.providerSite = providerSite;
+            this.contactPerson = contactPerson;
+            this.positionName = positionName;
+            this.email = email;
+            this.voicePhone = voicePhone;
+            this.address = address;
+            this.city = city;
+            this.postCode = postCode;
+            this.country = country;
+        }
+        return ServiceProvider;
+    }());
+    wms.ServiceProvider = ServiceProvider;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var BBox = (function () {
+        function BBox(xmin, ymin, xmax, ymax) {
+            this.xmin = xmin;
+            this.ymin = ymin;
+            this.xmax = xmax;
+            this.ymax = ymax;
+        }
+        return BBox;
+    }());
+    wms.BBox = BBox;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var CoverageExtent = (function () {
+        function CoverageExtent(coverageId, xmin, ymin, xmax, ymax) {
+            this.coverageId = coverageId;
+            this.bbox = new wms.BBox(xmin, ymin, xmax, ymax);
+        }
+        return CoverageExtent;
+    }());
+    wms.CoverageExtent = CoverageExtent;
+})(wms || (wms = {}));
+var rasdaman;
+(function (rasdaman) {
+    var WMSService = (function () {
+        function WMSService($http, $q, settings, serializedObjectFactory, $window) {
+            this.$http = $http;
+            this.$q = $q;
+            this.settings = settings;
+            this.serializedObjectFactory = serializedObjectFactory;
+            this.$window = $window;
+        }
+        WMSService.prototype.getServerCapabilities = function (request) {
+            var result = this.$q.defer();
+            var self = this;
+            var requestUrl = this.settings.wmsEndpoint + "?" + request.toKVP();
+            this.$http.get(requestUrl)
+                .then(function (data) {
+                try {
+                    var gmlDocument = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
+                    var serializedResponse = self.serializedObjectFactory.getSerializedObject(gmlDocument);
+                    var capabilities = new wms.Capabilities(serializedResponse, gmlDocument.value);
+                    var response = new rasdaman.common.Response(gmlDocument, capabilities);
+                    result.resolve(response);
+                }
+                catch (err) {
+                    result.reject(err);
+                }
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.updateLayerStyleRequest = function (updateLayerStyle) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wmsEndpoint;
+            var request = {
+                method: 'POST',
+                url: requestUrl,
+                transformResponse: null,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                data: this.settings.wmsServiceNameVersion + "&" + updateLayerStyle.toKVP()
+            };
+            this.$http(request).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.insertLayerStyleRequest = function (insertLayerStyle) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wmsEndpoint;
+            var request = {
+                method: 'POST',
+                url: requestUrl,
+                transformResponse: null,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                data: this.settings.wmsServiceNameVersion + "&" + insertLayerStyle.toKVP()
+            };
+            this.$http(request).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.prototype.deleteLayerStyleRequest = function (request) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
+            this.$http.get(requestUrl)
+                .then(function (data) {
+                try {
+                    result.resolve("");
+                }
+                catch (err) {
+                    result.reject(err);
+                }
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        WMSService.$inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        return WMSService;
+    }());
+    rasdaman.WMSService = WMSService;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var WMSGetCapabilitiesController = (function () {
+        function WMSGetCapabilitiesController($scope, $log, settings, wmsService, alertService, errorHandlingService, webWorldWindService) {
+            this.$scope = $scope;
+            this.$log = $log;
+            this.settings = settings;
+            this.wmsService = wmsService;
+            this.alertService = alertService;
+            this.errorHandlingService = errorHandlingService;
+            this.webWorldWindService = webWorldWindService;
+            $scope.isAvailableLayersOpen = false;
+            $scope.isServiceIdentificationOpen = false;
+            $scope.isServiceProviderOpen = false;
+            $scope.isCapabilitiesDocumentOpen = false;
+            $scope.rowPerPageSmartTable = 10;
+            $scope.wmsServerEndpoint = settings.wmsEndpoint;
+            var canvasId = "wmsCanvasGetCapabilities";
+            var currentPageNumber = 1;
+            $scope.pageChanged = function (newPage) {
+                currentPageNumber = newPage;
+                $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
+            };
+            $scope.display = true;
+            $scope.loadCoverageExtentsByPageNumber = function (newPage) {
+                var selectedPage = newPage - 1;
+                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
+                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
+                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
+                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
+                $("#wmsDisplayAllFootprintsCheckbox").prop('checked', false);
+            };
+            $scope.selectCoveragesExtentsCurrentPage = function (startIndex, endIndex) {
+                var layersCurrentPage = $scope.capabilities.layers.slice(startIndex, endIndex);
+                var coverageExtentsCurrentPage = [];
+                for (var i = 0; i < layersCurrentPage.length; i++) {
+                    layersCurrentPage[i].displayFootprint = true;
+                    coverageExtentsCurrentPage.push(layersCurrentPage[i].coverageExtent);
+                }
+                return coverageExtentsCurrentPage;
+            };
+            $scope.displayFootprintOnGlobe = function (coverageId) {
+                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+            };
+            $scope.displayAllFootprintsOnGlobe = function (status) {
+                var coveragesExtentsArray = [];
+                for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                    $scope.capabilities.layers[i].displayFootprint = true;
+                    coveragesExtentsArray.push($scope.capabilities.layers[i].coverageExtent);
+                }
+                $scope.showAllFootprints = status;
+                if (status == true) {
+                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsArray);
+                }
+                else {
+                    $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
+                }
+            };
+            $scope.getServerCapabilities = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                if (!$scope.wmsServerEndpoint) {
+                    alertService.error("The entered WMS endpoint is invalid.");
+                    return;
+                }
+                settings.wmsEndpoint = $scope.wmsServerEndpoint;
+                var capabilitiesRequest = new wms.GetCapabilities();
+                wmsService.getServerCapabilities(capabilitiesRequest)
+                    .then(function (response) {
+                    $scope.capabilitiesDocument = response.document;
+                    $scope.capabilities = response.value;
+                    $scope.isAvailableLayersOpen = true;
+                    $scope.isServiceIdentificationOpen = true;
+                    $scope.isServiceProviderOpen = true;
+                    var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);
+                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    $scope.capabilitiesDocument = null;
+                    $scope.capabilities = null;
+                    $scope.isAvailableLayersOpen = false;
+                    $scope.isServiceIdentificationOpen = false;
+                    $scope.isServiceProviderOpen = false;
+                    errorHandlingService.handleError(args);
+                    $log.error(args);
+                })["finally"](function () {
+                    $scope.wmsStateInformation.ServerCapabilities = $scope.capabilities;
+                });
+            };
+            $scope.getServerCapabilities();
+        }
+        WMSGetCapabilitiesController.$inject = [
+            "$scope",
+            "$log",
+            "rasdaman.WMSSettingsService",
+            "rasdaman.WMSService",
+            "Notification",
+            "rasdaman.ErrorHandlingService",
+            "rasdaman.WebWorldWindService"
+        ];
+        return WMSGetCapabilitiesController;
+    }());
+    rasdaman.WMSGetCapabilitiesController = WMSGetCapabilitiesController;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var WMSDescribeLayerController = (function () {
+        function WMSDescribeLayerController($scope, $rootScope, $log, $timeout, wmsService, alertService, errorHandlingService, webWorldWindService) {
+            $scope.layerNames = [];
+            $scope.layers = [];
+            var WCPS_QUERY_FRAGMENT = 0;
+            var RASQL_QUERY_FRAGMENT = 1;
+            $rootScope.$on("wmsSelectedLayerName", function (event, layerName) {
+                $scope.selectedLayerName = layerName;
+                $scope.describeLayer();
+            });
+            $scope.isLayerNameValid = function () {
+                for (var i = 0; i < $scope.layers.length; ++i) {
+                    if ($scope.layers[i].name == $scope.selectedLayerName) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            $scope.$watch("wmsStateInformation.ServerCapabilities", function (capabilities) {
+                if (capabilities) {
+                    $scope.layers = [];
+                    capabilities.layers.forEach(function (layer) {
+                        $scope.layerNames.push(layer.name);
+                        $scope.layers.push(layer);
+                    });
+                }
+            });
+            $scope.describeLayer = function () {
+                for (var i = 0; i < $scope.layers.length; i++) {
+                    if ($scope.layers[i].name == $scope.selectedLayerName) {
+                        $scope.layer = $scope.layers[i];
+                        $scope.isLayerDocumentOpen = true;
+                        var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedLayerName);
+                        var canvasId = "wmsCanvasDescribeLayer";
+                        $scope.isCoverageDescriptionsHideGlobe = false;
+                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
+                        webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                        return;
+                    }
+                }
+            };
+            $scope.isLayerDocumentOpen = false;
+            $scope.describeStyleToUpdate = function (styleName) {
+                for (var i = 0; i < $scope.layer.styles.length; i++) {
+                    var styleObj = $scope.layer.styles[i];
+                    if (styleObj.name == styleName) {
+                        $("#styleName").val(styleObj.name);
+                        $("#styleAbstract").val(styleObj.abstract);
+                        $("#styleQueryType").val(styleObj.queryType.toString());
+                        $("#styleQuery").val(styleObj.query);
+                        break;
+                    }
+                }
+            };
+            $scope.validateStyle = function () {
+                var styleName = $("#styleName").val();
+                var styleAbstract = $("#styleAbstract").val();
+                var styleQueryType = $("#styleQueryType").val();
+                var styleQuery = $("#styleQuery").val();
+                if (styleName.trim() === "") {
+                    alertService.error("Style name cannot be empty.");
+                    return;
+                }
+                else if (styleAbstract.trim() === "") {
+                    alertService.error("Style abstract cannot be empty.");
+                    return;
+                }
+                else if (styleQuery.trim() === "") {
+                    alertService.error("Style query cannot be empty.");
+                    return;
+                }
+                return true;
+            };
+            $scope.updateStyle = function () {
+                if ($scope.validateStyle()) {
+                    var styleName = $("#styleName").val();
+                    var styleAbstract = $("#styleAbstract").val();
+                    var styleQueryType = $("#styleQueryType").val();
+                    var styleQuery = $("#styleQuery").val();
+                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);
+                    wmsService.updateLayerStyleRequest(updateLayerStyle).then(function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        errorHandlingService.handleError(args);
+                    })["finally"](function () {
+                    });
+                }
+            };
+            $scope.insertStyle = function () {
+                if ($scope.validateStyle()) {
+                    var styleName = $("#styleName").val();
+                    var styleAbstract = $("#styleAbstract").val();
+                    var styleQueryType = $("#styleQueryType").val();
+                    var styleQuery = $("#styleQuery").val();
+                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);
+                    wmsService.insertLayerStyleRequest(insertLayerStyle).then(function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        errorHandlingService.handleError(args);
+                    })["finally"](function () {
+                    });
+                }
+            };
+            $scope.deleteStyle = function (styleName) {
+                var deleteLayerStyle = new wms.DeleteLayerStyle($scope.layer.name, styleName);
+                wmsService.deleteLayerStyleRequest(deleteLayerStyle).then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    alertService.success("Successfully delete style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                })["finally"](function () {
+                });
+            };
+        }
+        WMSDescribeLayerController.$inject = [
+            "$scope",
+            "$rootScope",
+            "$log",
+            "$timeout",
+            "rasdaman.WMSService",
+            "Notification",
+            "rasdaman.ErrorHandlingService",
+            "rasdaman.WebWorldWindService"
+        ];
+        return WMSDescribeLayerController;
+    }());
+    rasdaman.WMSDescribeLayerController = WMSDescribeLayerController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
@@ -3432,38 +4022,47 @@ var rasdaman;
     var AngularConfig = (function () {
         function AngularConfig($httpProvider, $urlRouterProvider, $stateProvider, NotificationProvider) {
             $httpProvider.defaults.useXDomain = true;
-            $stateProvider.state('wcs', {
-                url: "/wcs",
+            $stateProvider.state('services', {
+                url: "",
                 views: {
                     'get_capabilities': {
                         url: "get_capabilities",
-                        templateUrl: 'src/components/get_capabilities/GetCapabilitiesView.html',
-                        controller: rasdaman.GetCapabilitiesController
+                        templateUrl: 'src/components/wcs_component/get_capabilities/GetCapabilitiesView.html',
+                        controller: rasdaman.WCSGetCapabilitiesController
                     },
                     'describe_coverage': {
                         url: "describe_coverage",
-                        templateUrl: 'src/components/describe_coverage/DescribeCoverageView.html',
-                        controller: rasdaman.DescribeCoverageController
+                        templateUrl: 'src/components/wcs_component/describe_coverage/DescribeCoverageView.html',
+                        controller: rasdaman.WCSDescribeCoverageController
                     },
                     'get_coverage': {
-                        templateUrl: 'src/components/get_coverage/GetCoverageView.html',
-                        controller: rasdaman.GetCoverageController
+                        templateUrl: 'src/components/wcs_component/get_coverage/GetCoverageView.html',
+                        controller: rasdaman.WCSGetCoverageController
                     },
                     'process_coverages': {
-                        templateUrl: 'src/components/process_coverage/ProcessCoverageView.html',
-                        controller: rasdaman.ProcessCoverageController
+                        templateUrl: 'src/components/wcs_component/process_coverage/ProcessCoverageView.html',
+                        controller: rasdaman.WCSProcessCoverageController
                     },
                     'insert_coverage': {
-                        templateUrl: 'src/components/insert_coverage/InsertCoverageView.html',
-                        controller: rasdaman.InsertCoverageController
+                        templateUrl: 'src/components/wcs_component/insert_coverage/InsertCoverageView.html',
+                        controller: rasdaman.WCSInsertCoverageController
                     },
                     'delete_coverage': {
-                        templateUrl: 'src/components/delete_coverage/DeleteCoverageView.html',
-                        controller: rasdaman.DeleteCoverageController
+                        templateUrl: 'src/components/wcs_component/delete_coverage/DeleteCoverageView.html',
+                        controller: rasdaman.WCSDeleteCoverageController
+                    },
+                    'wms_get_capabilities': {
+                        url: "wms_get_capabilities",
+                        templateUrl: 'src/components/wms_component/get_capabilities/GetCapabilitiesView.html',
+                        controller: rasdaman.WMSGetCapabilitiesController
+                    },
+                    'wms_describe_layer': {
+                        url: "wms_describe_layer",
+                        templateUrl: 'src/components/wms_component/describe_layer/DescribeLayerView.html',
+                        controller: rasdaman.WMSDescribeLayerController
                     }
                 }
             });
-            $urlRouterProvider.otherwise('/wcs');
             NotificationProvider.setOptions({
                 delay: 10000,
                 startTop: 20,
@@ -3495,23 +4094,110 @@ var rasdaman;
         "luegg.directives",
         "nvd3"])
         .config(AngularConfig)
-        .service("rasdaman.SettingsService", rasdaman.SettingsService)
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
         .service("rasdaman.WCSService", rasdaman.WCSService)
+        .service("rasdaman.WCSSettingsService", rasdaman.WCSSettingsService)
+        .service("rasdaman.WMSService", rasdaman.WMSService)
+        .service("rasdaman.WMSSettingsService", rasdaman.WMSSettingsService)
         .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
-        .service("rasdaman.WCSErrorHandlingService", rasdaman.WCSErrorHandlingService)
-        .controller("rasdaman.SettingsController", rasdaman.SettingsController)
-        .controller("rasdaman.GetCapabilitiesController", rasdaman.GetCapabilitiesController)
-        .controller("rasdaman.DescribeCoverageController", rasdaman.DescribeCoverageController)
-        .controller("rasdaman.DeleteCoverageController", rasdaman.DeleteCoverageController)
-        .controller("rasdaman.GetCoverageController", rasdaman.GetCoverageController)
-        .controller("rasdaman.ProcessCoverageController", rasdaman.ProcessCoverageController)
-        .controller("rasdaman.MainController", rasdaman.MainController)
-        .directive("rangeSubsettingExtension", rasdaman.RangeSubsettingExtension)
-        .directive("scalingExtension", rasdaman.ScalingExtension)
-        .directive("interpolationExtension", rasdaman.InterpolationExtension)
+        .service("rasdaman.ErrorHandlingService", rasdaman.ErrorHandlingService)
+        .controller("rasdaman.WCSMainController", rasdaman.WCSMainController)
+        .controller("rasdaman.WCSSettingsController", rasdaman.WCSSettingsController)
+        .controller("rasdaman.WCSGetCapabilitiesController", rasdaman.WCSGetCapabilitiesController)
+        .controller("rasdaman.WCSDescribeCoverageController", rasdaman.WCSDescribeCoverageController)
+        .controller("rasdaman.WCSDeleteCoverageController", rasdaman.WCSDeleteCoverageController)
+        .controller("rasdaman.WCSGetCoverageController", rasdaman.WCSGetCoverageController)
+        .controller("rasdaman.WCSProcessCoverageController", rasdaman.WCSProcessCoverageController)
+        .controller("rasdaman.WMSMainController", rasdaman.WMSMainController)
+        .directive("rangeSubsettingExtension", rasdaman.WCSRangeSubsettingExtension)
+        .directive("scalingExtension", rasdaman.WCSScalingExtension)
+        .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete);
 })(rasdaman || (rasdaman = {}));
+var wms;
+(function (wms) {
+    var DeleteLayerStyle = (function () {
+        function DeleteLayerStyle(layerName, name) {
+            this.request = "DeleteStyle";
+            this.layerName = layerName;
+            this.name = name;
+        }
+        DeleteLayerStyle.prototype.toKVP = function () {
+            return "&request=" + this.request +
+                "&name=" + this.name +
+                "&layer=" + this.layerName;
+        };
+        return DeleteLayerStyle;
+    }());
+    wms.DeleteLayerStyle = DeleteLayerStyle;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var InsertLayerStyle = (function () {
+        function InsertLayerStyle(layerName, name, abstract, queryType, query) {
+            this.request = "InsertStyle";
+            this.layerName = layerName;
+            this.name = name;
+            this.abstract = abstract;
+            if (queryType == 0) {
+                this.queryFragmentType = "wcpsQueryFragment";
+            }
+            else if (queryType == 1) {
+                this.queryFragmentType = "rasqlTransformFragment";
+            }
+            this.query = query;
+        }
+        InsertLayerStyle.prototype.toKVP = function () {
+            return "&request=" + this.request +
+                "&name=" + this.name +
+                "&layer=" + this.layerName +
+                "&abstract=" + this.abstract +
+                "&" + this.queryFragmentType + "=" + this.query;
+        };
+        return InsertLayerStyle;
+    }());
+    wms.InsertLayerStyle = InsertLayerStyle;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var Style = (function () {
+        function Style(name, abstract, queryType, query) {
+            this.name = name;
+            this.abstract = abstract;
+            this.queryType = queryType;
+            this.query = query;
+        }
+        return Style;
+    }());
+    wms.Style = Style;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var UpdateLayerStyle = (function () {
+        function UpdateLayerStyle(layerName, name, abstract, queryType, query) {
+            this.request = "UpdateStyle";
+            this.layerName = layerName;
+            this.name = name;
+            this.abstract = abstract;
+            if (queryType == 0) {
+                this.queryFragmentType = "wcpsQueryFragment";
+            }
+            else if (queryType == 1) {
+                this.queryFragmentType = "rasqlTransformFragment";
+            }
+            this.query = query;
+        }
+        UpdateLayerStyle.prototype.toKVP = function () {
+            return "&request=" + this.request +
+                "&name=" + this.name +
+                "&layer=" + this.layerName +
+                "&abstract=" + this.abstract +
+                "&" + this.queryFragmentType + "=" + this.query;
+        };
+        return UpdateLayerStyle;
+    }());
+    wms.UpdateLayerStyle = UpdateLayerStyle;
+})(wms || (wms = {}));
 //# sourceMappingURL=main.js.map

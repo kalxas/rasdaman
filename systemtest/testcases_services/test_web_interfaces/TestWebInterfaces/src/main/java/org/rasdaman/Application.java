@@ -46,6 +46,8 @@ import org.rasdaman.ws_client.WCSGetCapabilitiesTest;
 import org.rasdaman.ws_client.WCSGetCoverageTest;
 import org.rasdaman.ws_client.WCSInsertCoverageTest;
 import org.rasdaman.ws_client.WCSProcessCoverageTest;
+import org.rasdaman.ws_client.WMSDescribeLayerTest;
+import org.rasdaman.ws_client.WMSGetCapabilitiesTest;
 
 /**
  * Main class to start the test
@@ -82,12 +84,17 @@ public class Application {
 
             // List of test classes
             List<AbstractWebPageTest> webPageTests = new ArrayList<>();
+            // TEST WCS
             webPageTests.add(new WCSGetCapabilitiesTest());
             webPageTests.add(new WCSDescribeCoverageTest());
             webPageTests.add(new WCSGetCoverageTest());
             webPageTests.add(new WCSProcessCoverageTest());
             webPageTests.add(new WCSInsertCoverageTest());
             webPageTests.add(new WCSDeleteCoverageTest());
+            
+            // TEST WMS
+            webPageTests.add(new WMSGetCapabilitiesTest());
+            webPageTests.add(new WMSDescribeLayerTest());
 
             // Test SECORE
             webPageTests.add(new SecoreGetCRSMetadataTest());

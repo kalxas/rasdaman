@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+ * Copyright 2003 - 2017 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -24,6 +24,7 @@
 /// <reference path="_all.ts" />
 
 // NOTE: When creating new Controller, Service, Directive classes, remember to register it to module.
+// to avoid error: Error: $injector:unpr
 module rasdaman {
     "use strict";
     export class AngularConfig {
@@ -38,40 +39,54 @@ module rasdaman {
             //Enable cross domain calls
             $httpProvider.defaults.useXDomain = true;
 
-            $stateProvider.state('wcs', {
-                url: "/wcs",
+            // Routing for WCS, WMS controllers, views
+            $stateProvider.state('services', {
+                url: "",
                 views: {
+                    // WCS
                     'get_capabilities': {
                         url: "get_capabilities",
-                        templateUrl: 'src/components/get_capabilities/GetCapabilitiesView.html',
-                        controller: rasdaman.GetCapabilitiesController
+                        templateUrl: 'src/components/wcs_component/get_capabilities/GetCapabilitiesView.html',
+                        controller: rasdaman.WCSGetCapabilitiesController
                     },
                     'describe_coverage': {
                         url: "describe_coverage",
-                        templateUrl: 'src/components/describe_coverage/DescribeCoverageView.html',
-                        controller: rasdaman.DescribeCoverageController
+                        templateUrl: 'src/components/wcs_component/describe_coverage/DescribeCoverageView.html',
+                        controller: rasdaman.WCSDescribeCoverageController
                     },
                     'get_coverage': {
-                        templateUrl: 'src/components/get_coverage/GetCoverageView.html',
-                        controller: rasdaman.GetCoverageController
+                        templateUrl: 'src/components/wcs_component/get_coverage/GetCoverageView.html',
+                        controller: rasdaman.WCSGetCoverageController
                     },
                     'process_coverages': {
-                        templateUrl: 'src/components/process_coverage/ProcessCoverageView.html',
-                        controller: rasdaman.ProcessCoverageController
+                        templateUrl: 'src/components/wcs_component/process_coverage/ProcessCoverageView.html',
+                        controller: rasdaman.WCSProcessCoverageController
                     },
                     'insert_coverage': {
-                        templateUrl: 'src/components/insert_coverage/InsertCoverageView.html',
-                        controller: rasdaman.InsertCoverageController
+                        templateUrl: 'src/components/wcs_component/insert_coverage/InsertCoverageView.html',
+                        controller: rasdaman.WCSInsertCoverageController
                     },
                     'delete_coverage': {
-                        templateUrl: 'src/components/delete_coverage/DeleteCoverageView.html',
-                        controller: rasdaman.DeleteCoverageController
+                        templateUrl: 'src/components/wcs_component/delete_coverage/DeleteCoverageView.html',
+                        controller: rasdaman.WCSDeleteCoverageController
+                    },
+
+                    // WMS
+                    'wms_get_capabilities': {
+                        url: "wms_get_capabilities",
+                        templateUrl: 'src/components/wms_component/get_capabilities/GetCapabilitiesView.html',
+                        controller: rasdaman.WMSGetCapabilitiesController
+                    },
+                    'wms_describe_layer': {
+                        url: "wms_describe_layer",
+                        templateUrl: 'src/components/wms_component/describe_layer/DescribeLayerView.html',
+                        controller: rasdaman.WMSDescribeLayerController
                     }
+                    
                 }
             });
 
-            $urlRouterProvider.otherwise('/wcs');
-
+            
             NotificationProvider.setOptions({
                 delay: 10000,
                 startTop: 20,
@@ -96,22 +111,25 @@ module rasdaman {
             "ui.codemirror",
             "luegg.directives",
             "nvd3"])
-        .config(AngularConfig)
-        .service("rasdaman.SettingsService", rasdaman.SettingsService)
+        .config(AngularConfig)        
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
         .service("rasdaman.WCSService", rasdaman.WCSService)
+        .service("rasdaman.WCSSettingsService", rasdaman.WCSSettingsService)
+        .service("rasdaman.WMSService", rasdaman.WMSService)
+        .service("rasdaman.WMSSettingsService", rasdaman.WMSSettingsService)
         .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
-        .service("rasdaman.WCSErrorHandlingService", rasdaman.WCSErrorHandlingService)
-        .controller("rasdaman.SettingsController", rasdaman.SettingsController)
-        .controller("rasdaman.GetCapabilitiesController", rasdaman.GetCapabilitiesController)
-        .controller("rasdaman.DescribeCoverageController", rasdaman.DescribeCoverageController)
-        .controller("rasdaman.DeleteCoverageController", rasdaman.DeleteCoverageController)
-        .controller("rasdaman.GetCoverageController", rasdaman.GetCoverageController)
-        .controller("rasdaman.ProcessCoverageController", rasdaman.ProcessCoverageController)
-        .controller("rasdaman.MainController", rasdaman.MainController)
-        .directive("rangeSubsettingExtension", rasdaman.RangeSubsettingExtension)
-        .directive("scalingExtension", rasdaman.ScalingExtension)
-        .directive("interpolationExtension", rasdaman.InterpolationExtension)
+        .service("rasdaman.ErrorHandlingService", rasdaman.ErrorHandlingService)
+        .controller("rasdaman.WCSMainController", rasdaman.WCSMainController)
+        .controller("rasdaman.WCSSettingsController", rasdaman.WCSSettingsController)
+        .controller("rasdaman.WCSGetCapabilitiesController", rasdaman.WCSGetCapabilitiesController)
+        .controller("rasdaman.WCSDescribeCoverageController", rasdaman.WCSDescribeCoverageController)
+        .controller("rasdaman.WCSDeleteCoverageController", rasdaman.WCSDeleteCoverageController)
+        .controller("rasdaman.WCSGetCoverageController", rasdaman.WCSGetCoverageController)
+        .controller("rasdaman.WCSProcessCoverageController", rasdaman.WCSProcessCoverageController)        
+        .controller("rasdaman.WMSMainController", rasdaman.WMSMainController)
+        .directive("rangeSubsettingExtension", rasdaman.WCSRangeSubsettingExtension)
+        .directive("scalingExtension", rasdaman.WCSScalingExtension)
+        .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete);

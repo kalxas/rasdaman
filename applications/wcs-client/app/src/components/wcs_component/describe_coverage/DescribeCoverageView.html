@@ -1,0 +1,89 @@
+<div class="row top15 row-centered">
+    <div class="col-sm-11 col-centered">
+        <div class="row row-centered">
+            <div class="col-sm-12 input-group input-group-lg">
+                <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-globe"></span>
+                </span>
+                <input type="text" autocomplete ng-model="selectedCoverageId" class="form-control" source="availableCoverageIds" placeholder="Input coverage ID or part of it" />
+                <span class="input-group-btn">
+                <button class="btn btn-default"
+                        type="button" class="btn btn-info"
+                        ng-disabled="!isCoverageIdValid()"
+                        ng-click="describeCoverage()">
+                    Describe Coverage
+                </button>
+            </span>
+            </div>
+        </div>
+
+        <div class="row top15" ng-repeat="coverageDescription in coverageDescriptions.coverageDescription">
+            <div class="col-sm-12">
+                <p>Coverage <span class="important-text">{{coverageDescription.coverageId}} </span> is of type <span class="important-text"> {{coverageDescription.serviceParameters.coverageSubtype}}</span> with <span class="important-text">{{coverageDescription.boundedBy.envelope.srsDimension}}</span> axes:
+                </p>
+
+                <!-- coverage's axes -->
+                <ul ng-repeat="axisLabel in coverageDescription.boundedBy.envelope.axisLabels">
+                    <li>
+                        <span class="important-text">
+                        {{axisLabel}}
+                    </span>
+                        <span ng-show="coverageDescription.boundedBy.envelope.axisLabels.length == coverageDescription.boundedBy.envelope.uomLabels.length">
+                        (measured in <span class="important-text"> {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> )
+                        </span>
+                        with domain extent from <span class="important-text"> {{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}</span> to <span class="important-text">{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}</span>.
+                    </li>
+                </ul>
+
+                <!-- coverages's ranges (bands) -->
+                <p>with range type:</p>
+                <ul ng-repeat="field in coverageDescription.rangeType.dataRecord.field">
+                    <li>
+                        <span class="important-text">{{field.name}}</span> measured in <span class="important-text">{{field.quantity.uom.code}}</span>
+                    </li>
+                </ul>
+                <p>with native format: <span class="important-text">{{coverageDescription.serviceParameters.nativeFormat}}</span>
+                </p>
+                <p>with Coordinate Reference System: <span class="important-text">{{coverageDescription.boundedBy.envelope.srsName}}</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- WebWorldWind -->
+        <div class="row top15" ng-hide="isCoverageDescriptionsHideGlobe">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
+                    <uib-accordion-heading>
+                        Footprint of geo-referenced coverages
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen, 
+                                    'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
+                    </uib-accordion-heading>
+                    <div>
+                        <!-- Create a canvas for Web WorldWind. -->
+                        <canvas id="wcsCanvasDescribeCoverage" style="width:100%;height:500px;">
+                            Your browser does not support HTML5 Canvas.
+                        </canvas>
+                    </div>
+                </uib-accordion-group>
+            </uib-accordion>
+        </div>
+
+        <div class="row top15" ng-show="coverageDescriptionsDocument.value" style="margin-top: -15px;">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
+                    <uib-accordion-heading>
+                        GML coverage descriptions document <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen,
+'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
+                    </uib-accordion-heading>
+
+
+                    <ras-pretty-print data="{value:coverageDescriptionsDocument.value, type:'xml'}">
+                    </ras-pretty-print>
+                </uib-accordion-group>
+
+            </uib-accordion>
+        </div>
+
+    </div>
+
+</div>

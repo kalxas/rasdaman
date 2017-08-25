@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-sm-12 col-centered">
+        <div class="row">
+            <div class="col-sm-12">
+                Select the interpolation method to be applied on all the axes:
+            </div>
+        </div>
+        <div class="row top5">
+            <div class="col-sm-12">
+                <select class="form-control"
+                        ng-options="interpolationMethods as interpolationMethods.Name for interpolationMethods in model.availableInterpolationMethods"
+                        ng-model="model.selectedInterpolationMethod">
+                    <option value="" disabled selected>Choose the global interpolation method</option>
+
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

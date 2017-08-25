@@ -1,0 +1,24 @@
+<div class="row top15 row-centered">
+    <div class="col-sm-11 col-centered">
+        <div class="row input-group input-group-lg">
+            <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-globe">
+                        </span>
+            </span>
+            <input type="text" class="form-control" ng-model="urlOfCoverageToInsert" placeholder="Input an URL pointing to the coverage to be inserted" />
+            <span class="input-group-btn">
+                        <button class="btn btn-default"
+                                type="button" class="btn btn-info"
+                                ng-click="insertCoverage()">
+                            Insert Coverage
+                        </button>
+                            <img ng-show="requestInProgress" src="assets/img/loading.gif"
+                                 class="loading-image"/>
+                        </span>
+        </div>
+        <div class="row top10">
+            <label for="use-new-id">Use a generated, unique coverage id: </label>
+            <input id="use-new-id" ng-model="useGeneratedCoverageId" type="checkbox" />
+        </div>
+    </div>
+</div>
