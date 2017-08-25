@@ -422,7 +422,9 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                   | SCALE_EXTENT LEFT_PARENTHESIS
                         coverageExpression COMMA LEFT_BRACKET scaleDimensionIntervalList RIGHT_BRACKET
                     RIGHT_PARENTHESIS
-                    #CoverageExpressionScaleByExtentLabel;
+                    #CoverageExpressionScaleByExtentLabel
+  		          | coverageExpression IS (NOT)? NULL
+		            #CoverageIsNullExpression;
 /**
  * Example:
  *   $c1 AND $c2

@@ -1,0 +1,1 @@
+for c in (test_mr) return encode(c[i(0:20), j(0:20)] is null + 2 - 5 + c[i(0:20), j(0:20)] is not null * (c[i(0:20), j(0:20)] - 5 is null) , "csv")

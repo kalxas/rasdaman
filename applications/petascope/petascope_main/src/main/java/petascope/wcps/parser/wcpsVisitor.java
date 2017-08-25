@@ -320,6 +320,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitCoverageExpressionScalarLabel(@NotNull wcpsParser.CoverageExpressionScalarLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageIsNullExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageIsNullExpression(@NotNull wcpsParser.CoverageIsNullExpressionContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#AxisIteratorLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

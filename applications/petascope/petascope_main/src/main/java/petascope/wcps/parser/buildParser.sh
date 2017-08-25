@@ -24,7 +24,7 @@
 # Runs the tools that are need to generate the parser from the wcps.g4 grammar
 #
 # USAGE:
-#  cd $PETASCOPE_SOURCES/wcps2/parser && ./buildParser.sh
+#  cd $PETASCOPE_SOURCES/wcps/parser && ./buildParser.sh
 #
 
 URL_TO_ANTLR="http://www.antlr.org/download/antlr-4.1-complete.jar"
@@ -47,8 +47,8 @@ rm -f *.java
 #Build the parser
 export antlr4="java -jar $PATH_TO_ANTLR_TOOL"
 export CLASSPATH=".:$PATH_TO_ANTLR_TOOL:$CLASSPATH"
-$antlr4 -package petascope.wcps2.parser wcps.g4
-$antlr4 -package petascope.wcps2.parser -no-listener -visitor wcps.g4
+$antlr4 -package petascope.wcps.parser wcps.g4
+$antlr4 -package petascope.wcps.parser -no-listener -visitor wcps.g4
 
 #Compile the parser classes
 javac *.java

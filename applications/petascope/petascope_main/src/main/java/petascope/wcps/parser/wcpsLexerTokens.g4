@@ -66,6 +66,7 @@ IDENTIFIER:	('i'|'I')('d'|'D')('e'|'E')('n'|'N')('t'|'T')('i'|'i')('f'|'F')('i'|
 CRSSET:	('c'|'C')('r'|'R')('s'|'S')('s'|'S')('e'|'E')('t'|'T');
 IMAGECRSDOMAIN: ('i'|'I')('m'|'M')('a'|'A')('g'|'G')('e'|'E')('c'|'C')('r'|'R')('s'|'S')('d'|'D')('o'|'O')('m'|'M')('a'|'A')('i'|'I')('n'|'N');
 IMAGECRS: ('i'|'I')('m'|'M')('a'|'A')('g'|'G')('e'|'E')('c'|'C')('r'|'R')('s'|'S');
+IS: ('i'|'I')('s'|'S');
 DOMAIN: ('d'|'D')('o'|'O')('m'|'M')('a'|'A')('i'|'I')('n'|'N');
 IN:	('i'|'I')('n'|'N');
 LEFT_BRACE: '{';
@@ -83,6 +84,7 @@ MULTIPLICATION: '*';
 NOT: ('n'|'N')('o'|'O')('t'|'T');
 NOT_EQUAL: '!=';
 NAN_NUMBER_CONSTANT: ('n'|'N')('a'|'A')('n'|'N');
+NULL: ('n'|'N')('u'|'U')('l'|'L')('l'|'L');
 OR: ('o'|'O')('r'|'R');
 OVER:('o'|'O')('v'|'V')('e'|'E')('r'|'R');
 OVERLAY: ('o'|'O')('v'|'V')('e'|'E')('r'|'R')('l'|'L')('a'|'A')('y'|'Y');

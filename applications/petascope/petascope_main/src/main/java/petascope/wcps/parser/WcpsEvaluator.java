@@ -103,6 +103,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.StringUtil;
+import petascope.wcps.handler.CoverageIsNullHandler;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
@@ -227,6 +228,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     SwitchCaseRangeConstructorExpression switchCaseRangeConstructorExpression;
     @Autowired private
     SwitchCaseScalarValueExpression switchCaseScalarValueExpression;
+    @Autowired private
+    CoverageIsNullHandler coverageIsNullHandler;
     
     /**
      * Class constructor. This object is created for each incoming Wcps query.
@@ -1220,6 +1223,19 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = switchCaseScalarValueExpression.handle(booleanResults, scalarResults);
         return result;
     }
+    
+    @Override
+    public VisitorResult visitCoverageIsNullExpression(@NotNull wcpsParser.CoverageIsNullExpressionContext ctx) {
+        // coverageExpression IS NULL
+        // e.g: encode(c is null, "csv") then if c's nodata = 0, then all the pixels of c with 0 values will return true, others return false.
+        WcpsResult coverageExpression = (WcpsResult)visit(ctx.coverageExpression());
+        boolean isNull = true;        
+        if (ctx.NOT() != null) {
+             isNull = false;
+        }
+        WcpsResult result = coverageIsNullHandler.handle(coverageExpression, isNull);        
+        return result;
+    }  
 
     // PARAMETERS
     /* ----------- Parameters objects for nodes ----------- */

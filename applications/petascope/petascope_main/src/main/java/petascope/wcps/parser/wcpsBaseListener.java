@@ -589,6 +589,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterCoverageIsNullExpression(@NotNull wcpsParser.CoverageIsNullExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageIsNullExpression(@NotNull wcpsParser.CoverageIsNullExpressionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterAxisIteratorLabel(@NotNull wcpsParser.AxisIteratorLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}

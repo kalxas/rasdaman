@@ -493,6 +493,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionScalarLabel(@NotNull wcpsParser.CoverageExpressionScalarLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageIsNullExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageIsNullExpression(@NotNull wcpsParser.CoverageIsNullExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageIsNullExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageIsNullExpression(@NotNull wcpsParser.CoverageIsNullExpressionContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#AxisIteratorLabel}.
 	 * @param ctx the parse tree
 	 */
