@@ -68,10 +68,10 @@ public class InitializeApplication implements CommandLineRunner {
      * @throws IOException
      */
     @Bean
-    public PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InterruptedException {
         String resourceName = APPLICATION_PROPERTIES_FILE; // could also be a constant
         Properties properties = new Properties();
-        InputStream resourceStream = this.getClass().getResourceAsStream("/" + resourceName);
+        InputStream resourceStream = InitializeApplication.class.getResourceAsStream("/" + resourceName);
         properties.load(resourceStream);
 
         PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
@@ -95,7 +95,7 @@ public class InitializeApplication implements CommandLineRunner {
      * Initialize all the configurations for GDAL libraries, ConfigManager and
      * OGC WCS XML Schema
      */
-    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
+    private static void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException, InterruptedException {
         String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {

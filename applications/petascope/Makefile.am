@@ -73,6 +73,9 @@ STATIC_WEB_FOLDER = static
 WCS_CLIENT_SRC = ../wcs-client/app/*
 WCS_CLIENT_DEST = $(WEB)/$(STATIC_WEB_FOLDER)/wcs-client/
 
+LOG4J_SPRING_SETTINGS_FILE = petascope_core/src/main/resources/log4j.properties.in
+LOG4J_SPRING_SETTINGS_FILE_EDIT = petascope_core/src/main/resources/log4j.properties
+
 SETTINGS_FILE = petascope_main/src/main/resources/petascope.properties.in
 SETTINGS_FILE_EDIT = petascope_main/src/main/resources/petascope.properties
 
@@ -129,6 +132,8 @@ war:
 	cp $(SRC_RES)/application.properties.in $(SRC_RES)/application.properties
 	$(SED) -i "s|@GDAL_JAVA_DIR@|$(GDAL_JAVA_DIR)|g" $(SRC_RES)/application.properties
 	$(SED) -i "s|@CONF_DIR@|$(sysconfdir)|g" $(SRC_RES)/application.properties
+	cp $(LOG4J_SPRING_SETTINGS_FILE) $(LOG4J_SPRING_SETTINGS_FILE_EDIT)
+	$(SED) -i "s|@LOG_DIR@|$(logdir)|g" $(LOG4J_SPRING_SETTINGS_FILE_EDIT)		
 	cp migrate_petascopedb.sh.in migrate_petascopedb.sh	
 	$(SED) -i "s|@LOG_DIR@|$(logdir)|g" migrate_petascopedb.sh	
 	$(SED) -i "s|@CONF_DIR@|$(sysconfdir)|g" migrate_petascopedb.sh	

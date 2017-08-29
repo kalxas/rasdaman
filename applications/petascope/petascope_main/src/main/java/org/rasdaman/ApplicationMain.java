@@ -68,10 +68,7 @@ import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 public class ApplicationMain extends SpringBootServletInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationMain.class);
-
-    @Autowired
-    AbstractHandler abstractHandler;
-
+    
     /**
      * NOTE: This one is use to load Petascope properties from external file
      * when Spring Environment is not wired (i.e: null). Then all the
@@ -79,6 +76,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
      *
      * @throws java.sql.SQLException
      * @throws java.lang.ClassNotFoundException
+     * @throws petascope.exceptions.PetascopeException
+     * @throws java.lang.InterruptedException
      * @PropertySource in class level will not work as it requires a constant
      * path to petascope.properties.
      *
@@ -87,10 +86,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * @throws IOException
      */
     @Bean
-    public PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, InterruptedException {
+    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, InterruptedException {
         String resourceName = APPLICATION_PROPERTIES_FILE; // could also be a constant
         Properties properties = new Properties();
-        InputStream resourceStream = this.getClass().getResourceAsStream("/" + resourceName);
+        InputStream resourceStream = ApplicationMain.class.getClassLoader().getResourceAsStream("/" + resourceName);
         properties.load(resourceStream);
 
         PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
@@ -123,7 +122,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Initialize all the configurations for GDAL libraries, ConfigManager and
      * OGC WCS XML Schema
      */
-    private void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException, InterruptedException {                
+    private static void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException, InterruptedException {                
         String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {

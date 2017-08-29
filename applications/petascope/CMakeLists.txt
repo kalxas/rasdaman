@@ -46,6 +46,10 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 set(APPLICATION_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/application.properties.in")
 set(APPLICATION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/application.properties")
 
+# Log4j for Spring framework and used only when it starts (not for petascope applications)
+set(LOG4J_SPRING_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_core/src/main/resources/log4j.properties.in")
+set(LOG4J_SPRING_FILE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_core/src/main/resources/log4j.properties")
+
 # Only has 1 petascope.properties for all databases in application (petascope_main)
 set(SETTINGS_FILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/petascope.properties.in")
 set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources/petascope.properties")
@@ -79,6 +83,9 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_core/pom.xml.in" "${CMAKE_
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/pom.xml" @ONLY)
 # Do the same for the petascope_migration pom.xml 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_migration/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_migration/pom.xml" @ONLY)
+
+# Do the same for log4j.properties.in
+configure_file("${LOG4J_SPRING_FILE_TEMPLATE}" "${LOG4J_SPRING_FILE}" @ONLY)
 
 # Do the same for petascope.properties.in
 configure_file("${SETTINGS_FILE_TEMPLATE}" "${SETTINGS_FILE}" @ONLY)

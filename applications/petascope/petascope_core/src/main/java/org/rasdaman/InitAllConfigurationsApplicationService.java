@@ -61,8 +61,12 @@ public class InitAllConfigurationsApplicationService {
      * @throws java.lang.IllegalAccessException
      * @throws java.io.IOException
      */
-    public static void addLibraryPath(String libraryName, String pathToAdd) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
-        final String tmpTargetNativeDefaultFolderPath = "/tmp/rasdaman/" + libraryName;
+    public static void addLibraryPath(String libraryName, String pathToAdd) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException, InterruptedException {
+        final String tmpTargetNativeDefaultFolderPath = "/tmp/rasdaman/" + libraryName;          
+    
+        // Remove this temp directory for the gdal library as it already loaded in JVM
+        FileUtils.deleteDirectory(new File(tmpTargetNativeDefaultFolderPath));
+        
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         
         // The original installation of gdal_java native in system
@@ -82,23 +86,30 @@ public class InitAllConfigurationsApplicationService {
         final String[] paths = (String[]) usrPathsField.get(null);
 
         int i = 0;
+        boolean pathExist = false;
         // check if the path to add is already present
         for (String path : paths) {
             String pathFolder = StringUtils.substringBeforeLast(path, "/");
-            if (pathFolder.equals(tmpTargetNativeDefaultFolderPath)) {
-                // Remove the previous rasdaman/gdal_native folder first
-                FileUtils.deleteDirectory(new File(path));
+            if (pathFolder.equals(tmpTargetNativeDefaultFolderPath)) {                
                 // Override the old path of rasdaman/gdal_native with the new one
                 paths[i] = tmpTargetNativeFolderPath;
                 usrPathsField.set(null, paths);
-                return;
+                pathExist = true;
+                break;
             }
             i++;
         }
 
-        //add the new path
-        final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);        
-        newPaths[newPaths.length - 1] = tmpTargetNativeFolderPath;
-        usrPathsField.set(null, newPaths);
+        if (pathExist == false) {
+            //add the new path
+            final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);        
+            newPaths[newPaths.length - 1] = tmpTargetNativeFolderPath;
+            usrPathsField.set(null, newPaths);
+        }
+        
+        // As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
+        // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
+        Runtime rt = Runtime.getRuntime();
+        rt.exec("chmod -R 777 " + tmpTargetNativeDefaultFolderPath);
     }
 }
