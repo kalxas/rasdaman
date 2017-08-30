@@ -38,7 +38,7 @@ module rasdaman {
         public constructor(private $scope:WCSMainControllerScope, $rootScope:angular.IRootScopeService, $state:any) {
             this.initializeTabs($scope);
 
-            $scope.$watch("wcsStateInformation.serverCapabilities", (newValue:wcs.Capabilities, oldValue:wcs.Capabilities)=> {
+            $scope.$watch("wcsStateInformation.serverCapabilities", (newValue:wcs.Capabilities, oldValue:wcs.Capabilities)=> {                
                 if (newValue) {
                     $scope.wcsDescribeCoverageTab.disabled = false;
                     $scope.wcsGetLayerTab.disabled = false;
@@ -63,7 +63,8 @@ module rasdaman {
                 serverCapabilities: null,
                 getCoveragesExtents: null,
                 selectedCoverageDescriptions: null,
-                selectedGetCoverageId: null
+                selectedGetCoverageId: null,
+                reloadServerCapabilities: null
             };
 
             // When click on the coverageId in the table of GetCapabilities tab,
@@ -144,7 +145,8 @@ module rasdaman {
             serverCapabilities:wcs.Capabilities,
             getCoveragesExtents:string,
             selectedCoverageDescriptions:wcs.CoverageDescriptions,
-            selectedGetCoverageId:string
+            selectedGetCoverageId:string,
+            reloadServerCapabilities:boolean
         };
 
         tabs:TabState[];

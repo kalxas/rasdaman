@@ -55,6 +55,8 @@ module rasdaman {
                         (...args:any[])=> {
                             this.alertService.success("Successfully inserted coverage.");
                             this.$log.info(args);
+                            // after insert coverage Id, it should reload GetCapabilities to add the id to the list
+                            $scope.wcsStateInformation.reloadServerCapabilities = true;
                         },
                         (...args:any[])=> {
                             this.errorHandlingService.handleError(args);

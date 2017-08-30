@@ -2362,7 +2362,8 @@ var rasdaman;
                 serverCapabilities: null,
                 getCoveragesExtents: null,
                 selectedCoverageDescriptions: null,
-                selectedGetCoverageId: null
+                selectedGetCoverageId: null,
+                reloadServerCapabilities: null
             };
             $scope.describeCoverage = function (coverageId) {
                 $scope.wcsDescribeCoverageTab.active = true;
@@ -2430,8 +2431,9 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WCSGetCapabilitiesController = (function () {
-        function WCSGetCapabilitiesController($scope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
+        function WCSGetCapabilitiesController($scope, $rootScope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
             this.$scope = $scope;
+            this.$rootScope = $rootScope;
             this.$log = $log;
             this.wcsService = wcsService;
             this.settings = settings;
@@ -2496,6 +2498,10 @@ var rasdaman;
                     $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
                 }
             };
+            $scope.$watch("wcsStateInformation.reloadServerCapabilities", function (capabilities) {
+                $scope.getServerCapabilities();
+                $scope.wcsStateInformation.reloadServerCapabilities = false;
+            });
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -2547,12 +2553,14 @@ var rasdaman;
                     $log.error(args);
                 })["finally"](function () {
                     $scope.wcsStateInformation.serverCapabilities = $scope.capabilities;
+                    $rootScope.$broadcast("reloadServerCapabilities", true);
                 });
             };
             $scope.getServerCapabilities();
         }
         WCSGetCapabilitiesController.$inject = [
             "$scope",
+            "$rootScope",
             "$log",
             "rasdaman.WCSService",
             "rasdaman.WCSSettingsService",
@@ -2698,6 +2706,7 @@ var rasdaman;
                         }
                         _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
                         _this.$log.log(args);
+                        $scope.wcsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -2751,6 +2760,7 @@ var rasdaman;
                         }
                         _this.alertService.success("Successfully inserted coverage.");
                         _this.$log.info(args);
+                        $scope.wcsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -3528,7 +3538,8 @@ var rasdaman;
                 $rootScope.$broadcast("wmsSelectedLayerName", layerName);
             };
             $scope.wmsStateInformation = {
-                ServerCapabilities: null
+                serverCapabilities: null,
+                reloadServerCapabilities: null
             };
         }
         WMSMainController.prototype.initializeTabs = function ($scope) {
@@ -3757,7 +3768,8 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WMSGetCapabilitiesController = (function () {
-        function WMSGetCapabilitiesController($scope, $log, settings, wmsService, alertService, errorHandlingService, webWorldWindService) {
+        function WMSGetCapabilitiesController($rootScope, $scope, $log, settings, wmsService, alertService, errorHandlingService, webWorldWindService) {
+            this.$rootScope = $rootScope;
             this.$scope = $scope;
             this.$log = $log;
             this.settings = settings;
@@ -3812,6 +3824,17 @@ var rasdaman;
                     $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
                 }
             };
+            $rootScope.$on("wcsSelectedGetCoverageId", function (event, coverageId) {
+                $scope.selectedCoverageId = coverageId;
+                $scope.describeCoverage();
+            });
+            $rootScope.$on("reloadServerCapabilities", function (event, value) {
+                $scope.getServerCapabilities();
+            });
+            $scope.$watch("wmsStateInformation.reloadServerCapabilities", function (capabilities) {
+                $scope.getServerCapabilities();
+                $scope.wmsStateInformation.reloadServerCapabilities = false;
+            });
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -3845,12 +3868,13 @@ var rasdaman;
                     errorHandlingService.handleError(args);
                     $log.error(args);
                 })["finally"](function () {
-                    $scope.wmsStateInformation.ServerCapabilities = $scope.capabilities;
+                    $scope.wmsStateInformation.serverCapabilities = $scope.capabilities;
                 });
             };
             $scope.getServerCapabilities();
         }
         WMSGetCapabilitiesController.$inject = [
+            "$rootScope",
             "$scope",
             "$log",
             "rasdaman.WMSSettingsService",
@@ -3883,13 +3907,14 @@ var rasdaman;
                 }
                 return false;
             };
-            $scope.$watch("wmsStateInformation.ServerCapabilities", function (capabilities) {
+            $scope.$watch("wmsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
                     $scope.layers = [];
                     capabilities.layers.forEach(function (layer) {
                         $scope.layerNames.push(layer.name);
                         $scope.layers.push(layer);
                     });
+                    $scope.describeLayer();
                 }
             });
             $scope.describeLayer = function () {
@@ -3907,6 +3932,14 @@ var rasdaman;
                 }
             };
             $scope.isLayerDocumentOpen = false;
+            $scope.isStyleNameValid = function (styleName) {
+                for (var i = 0; i < $scope.layer.styles.length; ++i) {
+                    if ($scope.layer.styles[i].name == styleName) {
+                        return true;
+                    }
+                }
+                return false;
+            };
             $scope.describeStyleToUpdate = function (styleName) {
                 for (var i = 0; i < $scope.layer.styles.length; i++) {
                     var styleObj = $scope.layer.styles[i];
@@ -3944,6 +3977,10 @@ var rasdaman;
                     var styleAbstract = $("#styleAbstract").val();
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
+                    if (!$scope.isStyleNameValid(styleName)) {
+                        alertService.error("Style name '" + styleName + "' does not exist to update.");
+                        return;
+                    }
                     var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(function () {
                         var args = [];
@@ -3951,6 +3988,7 @@ var rasdaman;
                             args[_i] = arguments[_i];
                         }
                         alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                        $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -3967,6 +4005,10 @@ var rasdaman;
                     var styleAbstract = $("#styleAbstract").val();
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
+                    if ($scope.isStyleNameValid(styleName)) {
+                        alertService.error("Style name '" + styleName + "' already exists, cannot insert same name.");
+                        return;
+                    }
                     var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(function () {
                         var args = [];
@@ -3974,6 +4016,7 @@ var rasdaman;
                             args[_i] = arguments[_i];
                         }
                         alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                        $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -3992,6 +4035,7 @@ var rasdaman;
                         args[_i] = arguments[_i];
                     }
                     alertService.success("Successfully delete style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                    $scope.wmsStateInformation.reloadServerCapabilities = true;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {

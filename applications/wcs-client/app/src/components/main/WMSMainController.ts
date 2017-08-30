@@ -46,10 +46,11 @@ module rasdaman {
                 $rootScope.$broadcast("wmsSelectedLayerName", layerName);
             };
 
-            // NOTE: must initialize wmsStateInformation first or watcher for ServerCapabilities in GetCapabilities
+            // NOTE: must initialize wmsStateInformation first or watcher for serverCapabilities in GetCapabilities
             // from DescribeLayer controller will not work and return null.
             $scope.wmsStateInformation = {
-                ServerCapabilities: null
+                serverCapabilities: null,
+                reloadServerCapabilities: null
             };
         }
 
@@ -72,7 +73,8 @@ module rasdaman {
 
     export interface WMSMainControllerScope extends angular.IScope {
         wmsStateInformation:{
-            ServerCapabilities: wms.Capabilities
+            serverCapabilities: wms.Capabilities,
+            reloadServerCapabilities: boolean
         };
 
         tabs:TabState[];

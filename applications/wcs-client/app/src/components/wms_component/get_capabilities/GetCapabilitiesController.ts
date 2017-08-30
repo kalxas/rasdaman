@@ -33,6 +33,7 @@ module rasdaman {
     export class WMSGetCapabilitiesController {
 
         public static $inject = [
+            "$rootScope",
             "$scope",
             "$log",
             "rasdaman.WMSSettingsService",       
@@ -42,7 +43,8 @@ module rasdaman {
             "rasdaman.WebWorldWindService"           
         ];
 
-        public constructor(private $scope:WMSCapabilitiesControllerScope,
+        public constructor(private $rootScope:angular.IRootScopeService,
+                           private $scope:WMSCapabilitiesControllerScope,
                            private $log:angular.ILogService,
                            private settings:rasdaman.WMSSettingsService,                           
                            private wmsService:rasdaman.WMSService,                           
@@ -121,6 +123,22 @@ module rasdaman {
                 }                
             }
 
+            $rootScope.$on("wcsSelectedGetCoverageId", (event:angular.IAngularEvent, coverageId:string)=> {                
+                $scope.selectedCoverageId = coverageId;
+                $scope.describeCoverage();
+            });
+
+            // When WCS GetCapabilities button is clicked, then WMS also needs to reload its GetCapabilities
+            $rootScope.$on("reloadServerCapabilities", (event:angular.IAngularEvent, value:boolean)=> {                
+                $scope.getServerCapabilities();
+            });
+
+            // When WMS insertStyle, updateStyle, deleteStyle is called sucessfully, it should reload the new capabilities            
+            $scope.$watch("wmsStateInformation.reloadServerCapabilities", (capabilities:wms.Capabilities)=> {
+                $scope.getServerCapabilities();
+                // It already reloaded, then set to false.
+                $scope.wmsStateInformation.reloadServerCapabilities = false;
+            });            
             
             // Handle the click event on GetCoverage button
             $scope.getServerCapabilities = (...args: any[])=> {                
@@ -168,7 +186,7 @@ module rasdaman {
                             $log.error(args);
                         })
                     .finally(()=> {
-                        $scope.wmsStateInformation.ServerCapabilities = $scope.capabilities;
+                        $scope.wmsStateInformation.serverCapabilities = $scope.capabilities;
                     });
             };            
 

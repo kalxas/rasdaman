@@ -76,7 +76,7 @@ module rasdaman {
             };
             
             // When GetCapabilities is requested, also update the available layers to be used in DescribeLayer controller.
-            $scope.$watch("wmsStateInformation.ServerCapabilities", (capabilities:wms.Capabilities)=> {                
+            $scope.$watch("wmsStateInformation.serverCapabilities", (capabilities:wms.Capabilities)=> {                
                 if (capabilities) {                                  
                     // NOTE: Clear the layers array first to get new valus from GetCapabilities
                     $scope.layers = [];  
@@ -85,6 +85,9 @@ module rasdaman {
                         $scope.layerNames.push(layer.name);
                         $scope.layers.push(layer);                                                
                     });
+
+                    // Describe the current selected layer
+                    $scope.describeLayer();
                 }
             });
            
@@ -119,6 +122,15 @@ module rasdaman {
 
 
             // ********** Layer's styles management **************
+            $scope.isStyleNameValid = (styleName:string)=> {                
+                for (var i = 0; i < $scope.layer.styles.length; ++i) {
+                    if ($scope.layer.styles[i].name == styleName) {
+                        return true;
+                    }
+                }                                    
+
+                return false;
+            };
 
             // Display the selected style's metadata to the form for updating
             $scope.describeStyleToUpdate = (styleName:string)=> {
@@ -164,11 +176,19 @@ module rasdaman {
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
 
+                    // Check if style of current layer exists
+                    if (!$scope.isStyleNameValid(styleName)) {
+                        alertService.error("Style name '" + styleName + "' does not exist to update.");
+                        return;
+                    }
+
                     // Then, send the update layer's style request to server
                     var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);                    
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(
                         (...args:any[])=> {
                             alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");                            
+                            // reload WMS GetCapabilities 
+                            $scope.wmsStateInformation.reloadServerCapabilities = true;
                         }, (...args:any[])=> {
                             errorHandlingService.handleError(args);                            
                         }).finally(function () {                        
@@ -185,11 +205,19 @@ module rasdaman {
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
 
+                    // Check if style of current layer exists
+                    if ($scope.isStyleNameValid(styleName)) {
+                        alertService.error("Style name '" + styleName + "' already exists, cannot insert same name.");
+                        return;
+                    }
+
                     // Then, send the insert layer's style request to server
                     var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);                    
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(
                         (...args:any[])=> {
                             alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                            // reload WMS GetCapabilities 
+                            $scope.wmsStateInformation.reloadServerCapabilities = true;
                         }, (...args:any[])=> {
                             errorHandlingService.handleError(args);                            
                         }).finally(function () {                        
@@ -204,6 +232,8 @@ module rasdaman {
                 wmsService.deleteLayerStyleRequest(deleteLayerStyle).then(
                     (...args:any[])=> {
                         alertService.success("Successfully delete style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
+                        // reload WMS GetCapabilities 
+                        $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, (...args:any[])=> {
                         errorHandlingService.handleError(args);                            
                     }).finally(function () {                        

@@ -81,6 +81,8 @@ module rasdaman {
                         (...args:any[])=> {
                             this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
                             this.$log.log(args);
+                            // after delete coverage Id, it should reload GetCapabilities to remove the id from the list
+                            $scope.wcsStateInformation.reloadServerCapabilities = true;
                         }, (...args:any[])=> {
                             this.errorHandlingService.handleError(args);
                             this.$log.error(args);

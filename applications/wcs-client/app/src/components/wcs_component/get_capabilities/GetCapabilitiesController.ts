@@ -32,8 +32,9 @@
 module rasdaman {
     export class WCSGetCapabilitiesController {
 
-        public static $inject = [
+        public static $inject = [            
             "$scope",
+            "$rootScope",
             "$log",
             "rasdaman.WCSService",
             "rasdaman.WCSSettingsService",            
@@ -43,7 +44,8 @@ module rasdaman {
         ];
 
         public constructor(private $scope:WCSCapabilitiesControllerScope,
-                           private $log:angular.ILogService,
+                           private $rootScope:angular.IRootScopeService,
+                           private $log:angular.ILogService,                           
                            private wcsService:rasdaman.WCSService,
                            private settings:rasdaman.WCSSettingsService,                           
                            private alertService:any,
@@ -140,8 +142,15 @@ module rasdaman {
                 }                
             }
 
+            // When deleteCoverage, insertCoverage is called sucessfully, it should reload the new capabilities
+            $scope.$watch("wcsStateInformation.reloadServerCapabilities", (capabilities:wcs.Capabilities)=> {
+                $scope.getServerCapabilities();
+                // It already reloaded, then set to false.
+                $scope.wcsStateInformation.reloadServerCapabilities = false;
+            });
+
             // Handle the click event on Get Capabilities button
-            $scope.getServerCapabilities = (...args: any[])=> {                
+            $scope.getServerCapabilities = (...args: any[])=> {                            
                 if (!$scope.wcsServerEndpoint) {
                     alertService.error("The entered WCS endpoint is invalid.");
                     return;
@@ -202,6 +211,8 @@ module rasdaman {
                         })
                     .finally(()=> {
                         $scope.wcsStateInformation.serverCapabilities = $scope.capabilities;
+                        // Broadcast to WMS controller to reload its server capabilities when WCS GetCapabitlies button is clicked
+                        $rootScope.$broadcast("reloadServerCapabilities", true);                        
                     });
             };            
 
