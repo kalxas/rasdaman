@@ -95,6 +95,7 @@ class Importer:
         """
         current_exception = None
         current_str = ""
+
         for attempt in range(0, ConfigManager.retries):
             try:
                 current_str = str(current)
@@ -135,6 +136,17 @@ class Importer:
         """
         Insert the slices of the coverage
         """
+        is_loggable = True
+        is_ingest_file = True
+        file_name = ""
+        try:
+            log_file = open(ConfigManager.resumer_dir_path + "/" + ConfigManager.ingredient_file_name + ".log", "a+")
+            log_file.write("\n-------------------------------------------------------------------------------------")
+            log_file.write("\nIngesting coverage '" + self.coverage.coverage_id + "'...")
+        except Exception as e:
+            is_loggable = False
+            log.warn("\nCannot create log file for this ingestion process, only log to console.")
+
         for i in range(self.processed, self.total):
             try:
                 # Log the time to send the slice (file) to server to ingest
@@ -148,22 +160,39 @@ class Importer:
                     end_time = time.time()
                     time_to_ingest = round(end_time - start_time, 2)
                     size_per_second = round(file_size_in_mb / time_to_ingest, 2)
-                    log.info("\nFile name: " + file_name + " with size: " + str(file_size_in_mb) + " MB. " +
-                             "Total time to ingest: " + str(time_to_ingest) + " s. Speed: " + str(size_per_second) + " MB/s.")
+                    log_text = "\nFile '" + file_name + "' with size " + str(file_size_in_mb) + " MB; " \
+                           "Total time to ingest " + str(time_to_ingest) + "s @ " + str(size_per_second) + " MB/s."
+                    # write to console
+                    log.info(log_text)
+                    if is_loggable:
+                        # write to log file
+                        log_file.write(log_text)
                 else:
+                    is_ingest_file = False
                     # extract coverage from petascope to ingest a new coverage
                     start_time = time.time()
                     self._insert_slice(self.coverage.slices[i])
                     end_time = time.time()
                     time_to_ingest = round(end_time - start_time, 2)
                     log.info("\nTotal time to ingest: " + str(time_to_ingest) + " s.")
-
             except Exception as e:
                 if ConfigManager.skip:
                     log.warn("Skipped slice " + str(self.coverage.slices[i]))
+                    if is_loggable and is_ingest_file:
+                        log_file.write("\nSkipped file: " + file_name + ".")
+                        log_file.write("\nReason: " + str(e))
                 else:
+                    if is_loggable and is_ingest_file:
+                        log_file.write("\nError file: " + file_name + ".")
+                        log_file.write("\nReason: " + str(e))
+                        log_file.write("\nResult: failed.")
+                        log_file.close()
+
                     raise e
             self.processed += 1
+
+        log_file.write("\nResult: success.")
+        log_file.close()
 
     def _initialize_coverage(self):
         """

@@ -32,17 +32,19 @@ from master.error.runtime_exception import RuntimeException
 
 
 class Session:
-    def __init__(self, config, inp, recipe, ingredients_dir_path):
+    def __init__(self, config, inp, recipe, ingredient_file_name, ingredients_dir_path):
         """
         This class is used to hold the configuration for this importing session
         :param dict[str,str] config: the config part of the json input
         :param dict[str,str] inp: the input part of the json input
         :param dict[str,dict|str] recipe: the recipe configuration
+        :param str ingredient_file_name: the input file name of wcst_import.sh
         :param str ingredients_dir_path: the filepath to the directory containing the ingredients to be used
         for relative paths
         :rtype: Session
         """
         self.config = config
+        self.ingredient_file_name = ingredient_file_name
         self.ingredients_dir_path = ingredients_dir_path if ingredients_dir_path.endswith("/") \
             else ingredients_dir_path + "/"
         self.files = self.parse_input(inp['paths'] if 'paths' in inp else [])
@@ -97,6 +99,7 @@ class Session:
         ConfigManager.resumer_dir_path = self.resumer_dir_path if self.resumer_dir_path[-1] == "/" else self.resumer_dir_path + "/"
         ConfigManager.description_max_no_slices = self.description_max_no_slices
         ConfigManager.track_files = self.track_files
+        ConfigManager.ingredient_file_name = self.ingredient_file_name
 
     def __get_crs_resolver_configuration(self):
         """

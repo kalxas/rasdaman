@@ -26,6 +26,7 @@
 """
 Utility to insert coverages into rasdaman using WCST
 """
+import os
 import json
 import sys
 import traceback
@@ -124,6 +125,7 @@ def main():
     try:
         ingredients = decode_ingredients(read_ingredients())
         session = Session(ingredients['config'], ingredients['input'], ingredients['recipe'],
+                          os.path.basename(sys.argv[1]),
                           FileUtil.get_directory_path(sys.argv[1]))
         reg.run_recipe(session)
     except RecipeValidationException as re:

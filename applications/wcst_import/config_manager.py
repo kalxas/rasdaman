@@ -51,3 +51,5 @@ class ConfigManager:
     resumer_dir_path = ""
     description_max_no_slices = 5
     track_files = True
+    # input file name of wcst_import.sh
+    ingredient_file_name = ""

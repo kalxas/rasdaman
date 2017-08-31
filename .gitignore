@@ -118,6 +118,7 @@ install-sh
 depcomp
 missing
 log
+*.log
 log.save
 aclocal.m4
 ylwrap
