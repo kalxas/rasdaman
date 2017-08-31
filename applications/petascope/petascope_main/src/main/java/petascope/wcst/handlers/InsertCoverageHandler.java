@@ -183,7 +183,7 @@ public class InsertCoverageHandler {
 
                 long start = System.currentTimeMillis();
                 Pair<String, String> collectionType
-                        = TypeResolverUtil.guessCollectionType(numberOfBands, numberOfDimensions, nullValues, pixelDataType);
+                        = TypeResolverUtil.guessCollectionType(collectionName, numberOfBands, numberOfDimensions, nullValues, pixelDataType);
                 rasCollectionType = collectionType.fst;
                 long end = System.currentTimeMillis();
                 log.debug("Time for guessing collection type: " + String.valueOf(end - start));
@@ -227,10 +227,10 @@ public class InsertCoverageHandler {
                 String mimetype = GMLParserService.parseMimeType(rangeSet);
                 //pass it to gdal to get the collection type
                 if (pixelDataType != null) {
-                    rasCollectionType = TypeResolverUtil.guessCollectionType(numberOfBands, numberOfDimensions, nullValues, pixelDataType).fst;
+                    rasCollectionType = TypeResolverUtil.guessCollectionType(collectionName, numberOfBands, numberOfDimensions, nullValues, pixelDataType).fst;
                 } else {
                     //read it from file
-                    rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(tmpFile.getAbsolutePath(), numberOfDimensions, nullValues);
+                    rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(collectionName, tmpFile.getAbsolutePath(), numberOfDimensions, nullValues);
                 }
                 //insert it into rasdaman
                 rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);

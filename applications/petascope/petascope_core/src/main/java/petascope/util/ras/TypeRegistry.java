@@ -86,8 +86,8 @@ public class TypeRegistry {
     private String generateStructStructure(List<String> bandBaseTypes) {
         String output = "";
         int count = 0;
-        for (String i : bandBaseTypes) {
-            output += getRandomTypeName() + " " + i + " ";
+        for (String bandBaseType : bandBaseTypes) {
+            output += ("band" + count) + " " + bandBaseType + " ";
             if (count < bandBaseTypes.size() - 1) {
                 output += ",";
             }
@@ -133,10 +133,12 @@ public class TypeRegistry {
         return result.toString();
     }
 
-    public String createNewType(Integer numberOfDimensions, List<String> bandBaseTypes, List<NilValue> nullValues) throws PetascopeException {
+    public String createNewType(String collectionName, Integer numberOfDimensions, List<String> bandBaseTypes, List<NilValue> nullValues) throws PetascopeException {
         log.info("Creating new type.");
-        String marrayName = getRandomTypeName();
-        String setName = getRandomTypeName();
+        String cellName = collectionName + "_Cell";
+        String marrayName = collectionName + "_Array";
+        String setName = collectionName + "_Set";
+        
         if (bandBaseTypes.size() == 1) {
             //simple types
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
@@ -146,14 +148,13 @@ public class TypeRegistry {
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         } else {
             //struct types
-            String structName = getRandomTypeName();
-            String queryStruct = QUERY_CREATE_STRUCT_TYPE.replace("$structTypeName", structName)
+            String queryStruct = QUERY_CREATE_STRUCT_TYPE.replace("$structTypeName", cellName)
                                  .replace("$structStructure", generateStructStructure(bandBaseTypes));
             //create the struct type
             RasUtil.executeRasqlQuery(queryStruct, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
             //marray type
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
-                                 .replace("$typeStructure", structName)
+                                 .replace("$typeStructure", cellName)
                                  .replace("$dimensions", expandDimensions(numberOfDimensions));
             //create it
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
@@ -183,16 +184,7 @@ public class TypeRegistry {
         }
         return mddType;
     }
-
-    /**
-     * Generates a random alphabetic string
-     *
-     * @return
-     */
-    private static String getRandomTypeName() {
-        return RandomStringUtils.randomAlphabetic(GENERATED_TYPE_NAME_LENGTH);
-    }
-
+    
     /**
      * Collects the types from rasdl and inserts them into an internal registry
      */

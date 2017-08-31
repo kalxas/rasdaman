@@ -41,29 +41,31 @@ public class TypeResolverUtil {
     /**
      * Guesses the rasdaman collection type from a file.
      *
+     * @param collectionName
      * @param filePath path to the file
      * @param dimension
      * @param nullValues
      * @return the rasdaman collection type
      * @throws IOException
      */
-    public static String guessCollectionTypeFromFile(String filePath, int dimension, List<NilValue> nullValues) throws IOException, PetascopeException {
+    public static String guessCollectionTypeFromFile(String collectionName, String filePath, int dimension, List<NilValue> nullValues) throws IOException, PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
         
-        return guessCollectionType(dimension, dimTypes.snd, nullValues);
+        return guessCollectionType(collectionName, dimension, dimTypes.snd, nullValues);
     }
 
     /**
      * Guesses the collection type when band type is not available. It assumes
      * band type char.
      *
+     * @param collectionName     name of creating collection (coverage Id)
      * @param numberOfBands      how many band the dataset has
      * @param numberOfDimensions how many dimensions the dataset has
      * @param nullValues
      * @param pixelDataType      the pixel data type, if not given assumed Float32
      * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
      */
-    public static Pair<String, String> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, List<NilValue> nullValues, String pixelDataType) throws PetascopeException {
+    public static Pair<String, String> guessCollectionType(String collectionName, Integer numberOfBands, Integer numberOfDimensions, List<NilValue> nullValues, String pixelDataType) throws PetascopeException {
         if (pixelDataType == null) {
             pixelDataType = GDT_Float32;
         }
@@ -75,7 +77,7 @@ public class TypeResolverUtil {
         for (Integer i = 0; i < numberOfBands; i++) {
             bandTypes.add(pixelDataType);
         }
-        return Pair.of(guessCollectionType(numberOfDimensions, bandTypes, nullValues), RAS_TYPES_TO_ABBREVIATION.get(GDAL_TYPES_TO_RAS_TYPES.get(pixelDataType)));
+        return Pair.of(guessCollectionType(collectionName, numberOfDimensions, bandTypes, nullValues), RAS_TYPES_TO_ABBREVIATION.get(GDAL_TYPES_TO_RAS_TYPES.get(pixelDataType)));
     }
 
     /**
@@ -99,7 +101,7 @@ public class TypeResolverUtil {
      * @param gdalBandTypes
      * @return
      */
-    private static String guessCollectionType(Integer numberOfDimensions, ArrayList<String> gdalBandTypes, List<NilValue> nullValues) throws PetascopeException {
+    private static String guessCollectionType(String collectionName, Integer numberOfDimensions, ArrayList<String> gdalBandTypes, List<NilValue> nullValues) throws PetascopeException {
         String result = "";
 
         //get the type registry
@@ -152,7 +154,7 @@ public class TypeResolverUtil {
             }
         }
         //nothing has been found, so the type must be created
-        result = typeRegistry.createNewType(numberOfDimensions, translateTypes(gdalBandTypes), nullValues);
+        result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nullValues);
         return result;
     }
 
