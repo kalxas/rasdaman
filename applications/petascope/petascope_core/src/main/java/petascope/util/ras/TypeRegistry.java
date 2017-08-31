@@ -124,7 +124,7 @@ public class TypeRegistry {
     private String expandDimensions(int numberOfDimensions) {
         StringBuilder result = new StringBuilder();
         for (int i = 0 ; i < numberOfDimensions; i++) {
-            result.append("a" + String.valueOf(i));
+            result.append("D" + String.valueOf(i));
             if (i < numberOfDimensions - 1) {
                 result.append(",");
             }

@@ -23,6 +23,8 @@
 """
 
 import decimal
+import os
+import time
 from lib import arrow
 from collections import OrderedDict
 from time import sleep
@@ -135,7 +137,27 @@ class Importer:
         """
         for i in range(self.processed, self.total):
             try:
-                self._insert_slice(self.coverage.slices[i])
+                # Log the time to send the slice (file) to server to ingest
+                # NOTE: in case of using wcs_extract recipe, it will fetch file from server, so don't know the file size
+                if hasattr(self.coverage.slices[i].data_provider, "file"):
+                    file_path = self.coverage.slices[i].data_provider.file.filepath
+                    file_size_in_mb = round((float)(os.path.getsize(file_path)) / (1000*1000), 2)
+                    file_name = os.path.basename(file_path)
+                    start_time = time.time()
+                    self._insert_slice(self.coverage.slices[i])
+                    end_time = time.time()
+                    time_to_ingest = round(end_time - start_time, 2)
+                    size_per_second = round(file_size_in_mb / time_to_ingest, 2)
+                    log.info("\nFile name: " + file_name + " with size: " + str(file_size_in_mb) + " MB. " +
+                             "Total time to ingest: " + str(time_to_ingest) + " s. Speed: " + str(size_per_second) + " MB/s.")
+                else:
+                    # extract coverage from petascope to ingest a new coverage
+                    start_time = time.time()
+                    self._insert_slice(self.coverage.slices[i])
+                    end_time = time.time()
+                    time_to_ingest = round(end_time - start_time, 2)
+                    log.info("\nTotal time to ingest: " + str(time_to_ingest) + " s.")
+
             except Exception as e:
                 if ConfigManager.skip:
                     log.warn("Skipped slice " + str(self.coverage.slices[i]))
