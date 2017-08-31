@@ -50,7 +50,7 @@
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
-            <tupleList cs=" " ts=",">9.55874 4.17515,9.63844 4.17907,9.11508 4.17128,9.06019 4.17397</tupleList>
+            <tupleList cs=" " ts=",">9.558741 4.175151,9.63844 4.179067,9.115076 4.171284,9.060192 4.173973</tupleList>
         </DataBlock>
     </rangeSet>
     <coverageFunction>

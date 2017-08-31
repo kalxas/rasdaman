@@ -5,6 +5,4 @@
     <ows:Exception exceptionCode="WcpsError">
         <ows:ExceptionText>Encoding coverage's metadata is null, cannot use encode expression.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

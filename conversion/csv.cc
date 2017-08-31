@@ -46,6 +46,8 @@ rasdaman GmbH.
 #define STRUCT_DELIMITER_CLOSE "\""
 #define STRUCT_DELIMITER_ELEMENT " "
 
+#include <limits>
+#include <iomanip>
 #include "config.h"
 #include "conversion/csv.hh"
 #include "raslib/error.hh"
@@ -205,10 +207,10 @@ const char* r_Conv_CSV::printPrimitiveValue(std::stringstream& f, const r_Base_T
         f << static_cast<int>(ptr->get_octet(val));
         break;
     case r_Type::DOUBLE:
-        f << ptr->get_double(val);
+        f << std::setprecision(std::numeric_limits<double>::digits10 + 1) << ptr->get_double(val);
         break;
     case r_Type::FLOAT:
-        f << ptr->get_float(val);
+        f << std::setprecision(std::numeric_limits<float>::digits10 + 1) << ptr->get_float(val);
         break;
     case r_Type::CHAR:
         f << static_cast<int>(ptr->get_char(val));

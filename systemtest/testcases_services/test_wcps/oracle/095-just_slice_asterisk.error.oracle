@@ -5,6 +5,4 @@
     <ows:Exception exceptionCode="InvalidSubsetting">
         <ows:ExceptionText>Invalid slicing coordinate '*' for axis 'j'.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-

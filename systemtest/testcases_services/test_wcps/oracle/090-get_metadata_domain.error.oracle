@@ -5,6 +5,4 @@
     <ows:Exception exceptionCode="WcpsError">
         <ows:ExceptionText>CRS: '/crs/EPSG/0/32633' does not belong to axis 'Long'.</ows:ExceptionText>
     </ows:Exception>
-
 </ows:ExceptionReport>
-
