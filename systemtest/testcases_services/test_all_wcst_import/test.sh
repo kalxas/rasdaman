@@ -83,6 +83,11 @@ for test_case in $TEST_DATA/*; do
     # each folder is a coverage with image files and recipe
     # 1.1 get the recipe in $test_case directory (NOTE: -L to find in symbolic directory)
     recipe_file_template=$(find -L $test_case -type f -name "*.template.json")
+    if [ -z "$recipe_file_template" ]; then
+        log "Test case '$test_case' is obsolete, removing."
+        rm -rf "$test_case"
+        continue
+    fi
 
     # 1.2 copy the template file to ingest.json (this file will be used to ingest data)
     recipe_file="$test_case"/'ingest.json'
