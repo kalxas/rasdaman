@@ -24,6 +24,7 @@ package org.rasdaman;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -62,10 +63,12 @@ public class InitAllConfigurationsApplicationService {
      * @throws java.io.IOException
      */
     public static void addLibraryPath(String libraryName, String pathToAdd) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException, InterruptedException {
-        final String tmpTargetNativeDefaultFolderPath = "/tmp/rasdaman/" + libraryName;          
-    
-        // Remove this temp directory for the gdal library as it already loaded in JVM
-        FileUtils.deleteDirectory(new File(tmpTargetNativeDefaultFolderPath));
+        final String tmpTargetNativeDefaultFolderPath = "/tmp/rasdaman/" + libraryName;
+        Runtime rt = Runtime.getRuntime();
+        if (new File(tmpTargetNativeDefaultFolderPath).exists()) {
+            // Remove this temp directory for the gdal library as it already loaded in JVM
+            rt.exec("rm -rf " + tmpTargetNativeDefaultFolderPath);
+        }
         
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         
@@ -109,7 +112,6 @@ public class InitAllConfigurationsApplicationService {
         
         // As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
         // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
-        Runtime rt = Runtime.getRuntime();
         rt.exec("chmod -R 777 " + tmpTargetNativeDefaultFolderPath);
     }
 }
