@@ -25,9 +25,22 @@
  * Extend this class so that it fully complies with the OGC WMS specification if the need arises.
  */
 module wms {
-    export class GetCapabilities implements rasdaman.common.ISerializable {        
+    export class GetMap implements rasdaman.common.ISerializable {        
+        public layers:string;
+        public bbox:string;
+        public width:number;
+        public height:number;      
+        
+        public constructor(layers:string, bbox:string, width:number, height:number) {            
+            this.layers = layers;
+            this.bbox = bbox;
+            this.width = width;
+            this.height = height;
+        }
+
         public toKVP():string {
-            return "request=" + "GetCapabilities";
+            return "request=" + "GetMap&layers=" + this.layers + "&bbox=" + this.bbox + 
+                   "&width=" + this.width + "&height=" + this.height + "&styles=&crs=EPSG:4326&format=image/png";
         }
     }
 }

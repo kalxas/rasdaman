@@ -40,7 +40,7 @@ module rasdaman {
             var result = this.$q.defer();
             var self = this;
 
-            var requestUrl = this.settings.wmsEndpoint + "?" + request.toKVP();
+            var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
             this.$http.get(requestUrl)
                 .then(function (data:any) {
                     try {
@@ -57,9 +57,7 @@ module rasdaman {
                 });
 
             return result.promise;
-        }
-
-
+        }      
 
         /**
          *

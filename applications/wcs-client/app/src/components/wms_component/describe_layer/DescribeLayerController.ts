@@ -21,8 +21,12 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+/// <reference path="../../../common/_common.ts"/>
+/// <reference path="../../../models/wms_model/wms/_wms.ts"/>
 ///<reference path="../../../../assets/typings/tsd.d.ts"/>
+/// <reference path="../../wms_component/settings/SettingsService.ts"/>
 ///<reference path="../../wms_component/WMSService.ts"/>
+///<reference path="../../wcs_component/WCSService.ts"/>
 ///<reference path="../../../models/wms_model/wms/Capabilities.ts"/>
 ///<reference path="../../main/WMSMainController.ts"/>
 ///<reference path="../../web_world_wind/WebWorldWindService.ts"/>
@@ -35,9 +39,10 @@ module rasdaman {
         public static $inject = [
             "$scope",
             "$rootScope",
-            "$log",
-            "$timeout",
+            "$log",            
+            "rasdaman.WMSSettingsService",
             "rasdaman.WMSService",
+            "rasdaman.WCSService",
             "Notification",
             "rasdaman.ErrorHandlingService",
             "rasdaman.WebWorldWindService"
@@ -45,9 +50,10 @@ module rasdaman {
 
         public constructor($scope:WMSDescribeLayerControllerScope,
                            $rootScope:angular.IRootScopeService,
-                           $log:angular.ILogService,
-                           $timeout:any,
+                           $log:angular.ILogService,                           
+                           settings:rasdaman.WMSSettingsService,
                            wmsService:rasdaman.WMSService,
+                           wcsService:rasdaman.WCSService,
                            alertService:any,
                            errorHandlingService:rasdaman.ErrorHandlingService,
                            webWorldWindService:rasdaman.WebWorldWindService) {               
@@ -107,10 +113,53 @@ module rasdaman {
                         // Show coverage's extent on the globe
                         var canvasId = "wmsCanvasDescribeLayer";
                         $scope.isCoverageDescriptionsHideGlobe = false;
-                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
-                        // NOTE: Without the time interval, Globe in DescribeCoverage/GetCoverage will hang up in some cases when it goes to the center of current coverage's extent
-                        // If the globe hangs up, click on the button DescribeCoverage one more time.
-                        webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                                                
+                        // Check if coverage is 2D and has <= 4 bands then send a GetMap request to petascope and display result on globe
+                        // Create describe coverage request
+                        var coverageIds:string[] = [];
+                        coverageIds.push($scope.layer.name);
+                        var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
+                        wcsService.getCoverageDescription(describeCoverageRequest)
+                            .then(
+                                (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
+                                    //Success handler                                    
+                                    var coverageDescriptions = response.value;
+                                    var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+
+                                    var showGetMapURL = false;
+                                    if (dimensions == 2) {
+                                        var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                                        // As PNG can only support maximum 4 bands
+                                        if (bands <= 4) {
+                                            showGetMapURL = true;
+                                            // send a getmap request in EPSG:4326 to server
+                                            var bbox = coveragesExtents[0].bbox;
+                                            var minLat = bbox.ymin;
+                                            var minLong = bbox.xmin;
+                                            var maxLat = bbox.ymax;
+                                            var maxLong = bbox.xmax;
+                                            // WMS 1.3 requires axes order by CRS (EPSG:4326 is lat, long order)
+                                            var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;                                            
+                                            var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
+                                            var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
+                                            this.getMapRequestURL = url;
+                                            // Then, let webworldwind shows the result of GetMap on the globe
+                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, bbox, url);                                            
+                                        }
+                                    }
+                                    if (!showGetMapURL) {
+                                        // Coverage cannot show GetMap on globe
+                                        this.getMapRequestURL = null;
+                                    }                                                                        
+
+                                    // Then, load the footprint of layer on the globe
+                                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);                        
+                                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                                },
+                                (...args:any[])=> {                                    
+                                    errorHandlingService.handleError(args);
+                                    $log.error(args);
+                                })
 
                         return;
                     }
@@ -244,6 +293,8 @@ module rasdaman {
 
     interface WMSDescribeLayerControllerScope extends WMSMainControllerScope {           
         isLayerDocumentOpen:boolean;
+        // Only with 2D coverage (bands <=4) can show GetMap
+        getMapRequestURL:string;
 
         // Model of text box to search layer by name
         layerNames:string[];

@@ -65,6 +65,7 @@ module rasdaman {
             var wwd = new WorldWind.WorldWindow(canvasId);    
             // Create a layer to hold the polygons.
             var polygonLayer = new WorldWind.RenderableLayer();         
+            var surfaceImageLayer = new WorldWind.RenderableLayer();
             
             var layers = [
                 {layer: new WorldWind.BMNGLayer(), enabled: true},
@@ -122,6 +123,7 @@ module rasdaman {
             var webWorldWindModel: WebWorldWindModel = {
                 canvasId: canvasId,
                 wwd: wwd,
+                surfaceImageLayer: surfaceImageLayer,
                 polygonLayer: polygonLayer,
                 hidedPolygonObjsArray: []
             }
@@ -367,12 +369,54 @@ module rasdaman {
 
             return userProperties;
         }
+
+        // ****************** WMS
+
+        /**
+         * Show the result of a GetMap request for a layer (coverage) with bands <=4 and dimensions = 2
+         * @param canvasId 
+         * @param coveragesExtentsArray 
+         * @param getMapRequestURL 
+         */
+        public loadGetMapResultOnGlobe(canvasId: string, bbox: any, getMapRequestURL: string) {
+            // It uses the same canvasId for DescribeLayer
+            var webWorldWindModel = null;            
+            var exist = false;
+            for (var i = 0; i < this.webWorldWindModels.length; i++) {
+                if (this.webWorldWindModels[i].canvasId === canvasId) {                    
+                    webWorldWindModel = this.webWorldWindModels[i];
+                    exist = true;
+                    break;
+                }
+            }
+
+             // Init the WebWorldWindModel for the canvasId if it does not exist
+            if (!exist) {
+                webWorldWindModel = this.initWebWorldWind(canvasId);
+            }                        
+
+            var wwd = webWorldWindModel.wwd;
+
+            var surfaceImageLayer = webWorldWindModel.surfaceImageLayer;
+            // Remove the rendered surface image layer and replace it with new layer
+            wwd.removeLayer(surfaceImageLayer);
+            surfaceImageLayer = new WorldWind.RenderableLayer();
+            webWorldWindModel.surfaceImageLayer = surfaceImageLayer;     
+            wwd.addLayer(surfaceImageLayer);
+
+            // Create an image on the globe from the bbox and GetMap result in PNG
+            var surfaceImage = new WorldWind.SurfaceImage(new WorldWind.Sector(bbox.ymin, bbox.ymax, bbox.xmin, bbox.xmax),
+                                                         getMapRequestURL);
+            surfaceImage.opacity = 0.8;
+            surfaceImageLayer.addRenderable(surfaceImage);
+        }
     }
    
 
     interface WebWorldWindModel {
         canvasId: string,
         wwd: any,
+        surfaceImageLayer: any,
         polygonLayer: any,
         hidedPolygonObjsArray: any
     }

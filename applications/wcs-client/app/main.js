@@ -2096,6 +2096,7 @@ var rasdaman;
         WebWorldWindService.prototype.initWebWorldWind = function (canvasId) {
             var wwd = new WorldWind.WorldWindow(canvasId);
             var polygonLayer = new WorldWind.RenderableLayer();
+            var surfaceImageLayer = new WorldWind.RenderableLayer();
             var layers = [
                 { layer: new WorldWind.BMNGLayer(), enabled: true },
                 { layer: new WorldWind.BMNGLandsatLayer(), enabled: false },
@@ -2137,6 +2138,7 @@ var rasdaman;
             var webWorldWindModel = {
                 canvasId: canvasId,
                 wwd: wwd,
+                surfaceImageLayer: surfaceImageLayer,
                 polygonLayer: polygonLayer,
                 hidedPolygonObjsArray: []
             };
@@ -2310,6 +2312,29 @@ var rasdaman;
             }
             var userProperties = coverageIdsStr + "\n" + coverageExtentStr;
             return userProperties;
+        };
+        WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, bbox, getMapRequestURL) {
+            var webWorldWindModel = null;
+            var exist = false;
+            for (var i = 0; i < this.webWorldWindModels.length; i++) {
+                if (this.webWorldWindModels[i].canvasId === canvasId) {
+                    webWorldWindModel = this.webWorldWindModels[i];
+                    exist = true;
+                    break;
+                }
+            }
+            if (!exist) {
+                webWorldWindModel = this.initWebWorldWind(canvasId);
+            }
+            var wwd = webWorldWindModel.wwd;
+            var surfaceImageLayer = webWorldWindModel.surfaceImageLayer;
+            wwd.removeLayer(surfaceImageLayer);
+            surfaceImageLayer = new WorldWind.RenderableLayer();
+            webWorldWindModel.surfaceImageLayer = surfaceImageLayer;
+            wwd.addLayer(surfaceImageLayer);
+            var surfaceImage = new WorldWind.SurfaceImage(new WorldWind.Sector(bbox.ymin, bbox.ymax, bbox.xmin, bbox.xmax), getMapRequestURL);
+            surfaceImage.opacity = 0.8;
+            surfaceImageLayer.addRenderable(surfaceImage);
         };
         WebWorldWindService.$inject = [];
         return WebWorldWindService;
@@ -3579,13 +3604,9 @@ var wms;
 (function (wms) {
     var GetCapabilities = (function () {
         function GetCapabilities() {
-            this.Service = "WMS";
-            this.version = ["1.3.0"];
         }
         GetCapabilities.prototype.toKVP = function () {
-            return "&service=" + this.Service +
-                "&version=" + this.version[0] +
-                "&request=" + "GetCapabilities";
+            return "request=" + "GetCapabilities";
         };
         return GetCapabilities;
     }());
@@ -3692,7 +3713,7 @@ var rasdaman;
         WMSService.prototype.getServerCapabilities = function (request) {
             var result = this.$q.defer();
             var self = this;
-            var requestUrl = this.settings.wmsEndpoint + "?" + request.toKVP();
+            var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
             this.$http.get(requestUrl)
                 .then(function (data) {
                 try {
@@ -3890,7 +3911,7 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WMSDescribeLayerController = (function () {
-        function WMSDescribeLayerController($scope, $rootScope, $log, $timeout, wmsService, alertService, errorHandlingService, webWorldWindService) {
+        function WMSDescribeLayerController($scope, $rootScope, $log, settings, wmsService, wcsService, alertService, errorHandlingService, webWorldWindService) {
             $scope.layerNames = [];
             $scope.layers = [];
             var WCPS_QUERY_FRAGMENT = 0;
@@ -3918,6 +3939,7 @@ var rasdaman;
                 }
             });
             $scope.describeLayer = function () {
+                var _this = this;
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         $scope.layer = $scope.layers[i];
@@ -3925,8 +3947,43 @@ var rasdaman;
                         var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedLayerName);
                         var canvasId = "wmsCanvasDescribeLayer";
                         $scope.isCoverageDescriptionsHideGlobe = false;
-                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
-                        webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                        var coverageIds = [];
+                        coverageIds.push($scope.layer.name);
+                        var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
+                        wcsService.getCoverageDescription(describeCoverageRequest)
+                            .then(function (response) {
+                            var coverageDescriptions = response.value;
+                            var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+                            var showGetMapURL = false;
+                            if (dimensions == 2) {
+                                var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                                if (bands <= 4) {
+                                    showGetMapURL = true;
+                                    var bbox = coveragesExtents[0].bbox;
+                                    var minLat = bbox.ymin;
+                                    var minLong = bbox.xmin;
+                                    var maxLat = bbox.ymax;
+                                    var maxLong = bbox.xmax;
+                                    var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;
+                                    var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
+                                    var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
+                                    _this.getMapRequestURL = url;
+                                    webWorldWindService.loadGetMapResultOnGlobe(canvasId, bbox, url);
+                                }
+                            }
+                            if (!showGetMapURL) {
+                                _this.getMapRequestURL = null;
+                            }
+                            webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
+                            webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                        }, function () {
+                            var args = [];
+                            for (var _i = 0; _i < arguments.length; _i++) {
+                                args[_i] = arguments[_i];
+                            }
+                            errorHandlingService.handleError(args);
+                            $log.error(args);
+                        });
                         return;
                     }
                 }
@@ -4050,8 +4107,9 @@ var rasdaman;
             "$scope",
             "$rootScope",
             "$log",
-            "$timeout",
+            "rasdaman.WMSSettingsService",
             "rasdaman.WMSService",
+            "rasdaman.WCSService",
             "Notification",
             "rasdaman.ErrorHandlingService",
             "rasdaman.WebWorldWindService"
@@ -4176,6 +4234,23 @@ var wms;
         return DeleteLayerStyle;
     }());
     wms.DeleteLayerStyle = DeleteLayerStyle;
+})(wms || (wms = {}));
+var wms;
+(function (wms) {
+    var GetMap = (function () {
+        function GetMap(layers, bbox, width, height) {
+            this.layers = layers;
+            this.bbox = bbox;
+            this.width = width;
+            this.height = height;
+        }
+        GetMap.prototype.toKVP = function () {
+            return "request=" + "GetMap&layers=" + this.layers + "&bbox=" + this.bbox +
+                "&width=" + this.width + "&height=" + this.height + "&styles=&crs=EPSG:4326&format=image/png";
+        };
+        return GetMap;
+    }());
+    wms.GetMap = GetMap;
 })(wms || (wms = {}));
 var wms;
 (function (wms) {

@@ -57,7 +57,11 @@
                            ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen, 
                                     'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
                     </uib-accordion-heading>                    
-                    <div>                        
+                    <div>
+                        <div ng-hide="getMapRequestURL == null">                        
+                            Default GetMap request of this layer: <br/>
+                            <a href="{{getMapRequestURL}}" target="_blank">{{getMapRequestURL}}</a> <br/><br/>
+                        </div>
                         <!-- Create a canvas for Web WorldWind. -->
                         <canvas id="wmsCanvasDescribeLayer" style="width:100%;height:500px;">
                             Your browser does not support HTML5 Canvas.
