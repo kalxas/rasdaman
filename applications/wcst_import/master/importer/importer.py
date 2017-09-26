@@ -159,6 +159,8 @@ class Importer:
                     self._insert_slice(self.coverage.slices[i])
                     end_time = time.time()
                     time_to_ingest = round(end_time - start_time, 2)
+                    if time_to_ingest < 0.0000001:
+                        time_to_ingest = 0.0000001
                     size_per_second = round(file_size_in_mb / time_to_ingest, 2)
                     log_text = "\nFile '" + file_name + "' with size " + str(file_size_in_mb) + " MB; " \
                            "Total time to ingest " + str(time_to_ingest) + "s @ " + str(size_per_second) + " MB/s."

@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.rasdaman.domain.cis.NilValue;
@@ -403,51 +402,51 @@ public class TypeRegistry {
      */
     public class TypeRegistryEntry {
 
-        private TypeRegistryEntry(String baseType, String domainType, List<NilValue> nullValues) {
-            this.baseType = baseType;
-            this.domainType = domainType;
-            this.nullValues = nullValues;
+        private TypeRegistryEntry(String cellType, String mddArrayType, List<NilValue> nilValues) {
+            this.cellType = cellType;
+            this.mdArrayType = mddArrayType;
+            this.nilValues = nilValues;
         }
 
         /**
-         * Returns the base type of this type entry
+         * Returns the cell type of this type entry
          *
          * @return
          */
-        public String getBaseType() {
-            return baseType;
+        public String getCellType() {
+            return cellType;
         }
 
         /**
-         * Returns the domain type of this type entry
+         * Returns the MD array type of this type entry
          *
          * @return
          */
-        public String getDomainType() {
-            return domainType;
+        public String getMDArrayType() {
+            return mdArrayType;
         }
 
         @Override
         public String toString() {
             return "TypeRegistryEntry{" +
-                   "baseType='" + baseType + '\'' +
-                   ", domainType='" + domainType + '\'' +
-                   ", nullValues='" + nullValues.toString() + "'" +
+                   "cellType='" + cellType + '\'' +
+                   ", mdArrayType='" + mdArrayType + '\'' +
+                   ", nilValues='" + nilValues.toString() + "'" +
                    '}';
         }
 
         public Boolean equals(TypeRegistryEntry another) {
-            return another.getBaseType().equals(this.baseType) &&
-                   another.getDomainType().equals(this.domainType);
+            return another.getCellType().equals(this.cellType) &&
+                   another.getMDArrayType().equals(this.mdArrayType);
         }
 
-        public List<NilValue> getNullValues() {
-            return nullValues;
+        public List<NilValue> getNilValues() {
+            return nilValues;
         }
 
-        private String baseType;
-        private String domainType;
-        private List<NilValue> nullValues;
+        private String cellType;
+        private String mdArrayType;
+        private List<NilValue> nilValues;
     }
 
     private final HashMap<String, TypeRegistryEntry> typeRegistry = new HashMap<String, TypeRegistryEntry>();
@@ -458,7 +457,6 @@ public class TypeRegistry {
     private final String RASDL_MARRAY_IDENTIFIER = "typedef marray";
     private final String RASDL_SET_IDENTIFIER = "typedef set";
     private final Logger log = LoggerFactory.getLogger(TypeRegistry.class);
-    private final static Integer GENERATED_TYPE_NAME_LENGTH = 30;
     private final static String QUERY_MARRAY_TYPES = "SELECT a FROM RAS_MARRAY_TYPES a";
     private final static String QUERY_STRUCT_TYPES = "SELECT a FROM RAS_STRUCT_TYPES a";
     private final static String QUERY_SET_TYPES = "SELECT a FROM RAS_SET_TYPES a";

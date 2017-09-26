@@ -101,61 +101,88 @@ public class TypeResolverUtil {
      * @param gdalBandTypes
      * @return
      */
-    private static String guessCollectionType(String collectionName, Integer numberOfDimensions, ArrayList<String> gdalBandTypes, List<NilValue> nullValues) throws PetascopeException {
+    private static String guessCollectionType(String collectionName, Integer numberOfDimensions, ArrayList<String> gdalBandTypes, List<NilValue> nilValues) throws PetascopeException {
         String result = "";
 
         //get the type registry
         TypeRegistry typeRegistry = TypeRegistry.getInstance();
-        for (Map.Entry<String, TypeRegistryEntry> i : typeRegistry.getTypeRegistry().entrySet()) {
-            //filter by dimensionality
-            String domainType = i.getValue().getDomainType();
-            if (domainType.contains(numberOfDimensions.toString())) {
+        for (Map.Entry<String, TypeRegistryEntry> entry : typeRegistry.getTypeRegistry().entrySet()) {
+            //filter by dimensionality (e.g: struct { char band0, char band1, char band2 }, 2)
+            String mdArrayType = entry.getValue().getMDArrayType();
+            String mdArrayDimensions = mdArrayType.substring(mdArrayType.lastIndexOf(",") + 1);
+            // existing MDD type has same dimension as input coverage (2D, 3D,...)
+            if (mdArrayDimensions.equals(numberOfDimensions.toString())) {
                 //get the structured base type
-                String baseType;
-                if (domainType.contains("struct")) {
+                String cellType;
+                if (mdArrayType.contains("struct")) {
                     //more bands, check for each of them
-                    String baseTypeArr = domainType.split("}")[0];
-                    baseType = baseTypeArr.split("\\{")[1];
+                    String cellTypeArr = mdArrayType.split("}")[0];
+                    cellType = cellTypeArr.split("\\{")[1];
                     //we are left with something like char red, char green, char blue
-                    String[] baseTypeByBand = baseType.split(",");
+                    String[] cellTypeByBand = cellType.split(",");
                     //filter by number of bands
-                    if (baseTypeByBand.length == gdalBandTypes.size()) {
+                    if (cellTypeByBand.length == gdalBandTypes.size()) {
                         Boolean allBandsMatch = true;
                         //compare band by band
-                        for (Integer j = 0; j < baseTypeByBand.length; j++) {
+                        for (int j = 0; j < cellTypeByBand.length; j++) {
                             //fix rasdaman type bug, where ushort and ulong are printed by rasdl, but not accepted as input.
                             // Instead rasdl wants "unsigned short" or "unsigned long"
-                            if (baseTypeByBand[j].contains("ushort")) {
-                                baseTypeByBand[j] = "unsigned short";
+                            if (cellTypeByBand[j].contains("ushort")) {
+                                cellTypeByBand[j] = "unsigned short";
                             }
-                            if (baseTypeByBand[j].contains("ulong")) {
-                                baseTypeByBand[j] = "unsigned long";
-                            }
-                            if (!baseTypeByBand[j].contains(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(j)))) {
+                            if (cellTypeByBand[j].contains("ulong")) {
+                                cellTypeByBand[j] = "unsigned long";
+                            }                            
+                            if (!cellTypeByBand[j].contains(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(j)))) {
                                 allBandsMatch = false;
                             }
                         }
-                        //if all good check for nils
+                        
+                        // if band types are the same then last check for nilValues
                         if (allBandsMatch) {
-                            if (nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
-                                return i.getKey();
+                            // all nil values are the same then the existing set type is good for this coverage, no need to create new cell/array/set types
+                            if (allNilValuesMatch(entry.getValue().getNilValues(), nilValues)) {
+                                return entry.getKey();                            
                             }
                         }
                     }
                 } else {
                     //1 band
-                    baseType = i.getValue().getBaseType();
-                    if (gdalBandTypes.size() == 1 && baseType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))) {
-                        if (nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
-                            return i.getKey();
+                    cellType = entry.getValue().getCellType();
+                    if (gdalBandTypes.size() == 1 && cellType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))) {
+                        // all nil values are the same then the existing set type is good for this coverage, no need to create new cell/array/set types
+                        if (allNilValuesMatch(entry.getValue().getNilValues(), nilValues)) {
+                            return entry.getKey();                            
                         }
                     }
                 }
             }
         }
-        //nothing has been found, so the type must be created
-        result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nullValues);
+        // no existing set type can be used for the coverage, so create the new one
+        result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nilValues);
         return result;
+    }
+    
+    /**
+     * Check if both 2 input lists have same scalar nilValues for each band
+     * @return 
+     */
+    private static boolean allNilValuesMatch(List<NilValue> oldNilValues, List<NilValue> newNilValues) {
+        // NOTE: Only check null values (scalar) not null values object as it can contain different null reason but the values are the same
+        if (oldNilValues.size() == newNilValues.size()) {
+            int i = 0;                                        
+            for (NilValue newNilValue : newNilValues) {
+                if (!newNilValue.getValue().equals(oldNilValues.get(i).getValue())) {                    
+                    return false;
+                }
+                i++;
+            }
+
+            // The new coverage's data type existed in rasdaman's collection type, so don't create a new type            
+            return true;            
+        }
+        
+        return false;
     }
 
     /**
