@@ -60,7 +60,7 @@
           }
         }
       },
-      "tiling": "ALIGNED [0:13, 0:10, 0:0, 0:10] TILE SIZE 4000000"
+      "tiling": "ALIGNED [0:0,0:0,0:719,0:360] TILE SIZE 2079360"
     }
   }
 }

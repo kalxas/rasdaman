@@ -54,12 +54,12 @@ public class Config {
     /**
      * Wait milliseconds after clicking button to get result
      */
-    public static final int TIME_TO_WAIT_AFTER_CLICK = 500;
+    public static final int TIME_TO_WAIT_AFTER_CLICK = 1000;
 
     /**
      * Wait milliseconds before taking the image of web page as test result
      */
-    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 1000;
+    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 1500;
 
     public Config() {
         // Current directory of the jar application

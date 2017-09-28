@@ -35,6 +35,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
@@ -51,7 +52,7 @@ import petascope.wcs2.parsers.request.xml.XMLProcessCoverageParser;
  *
  * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-@Controller
+@RestController
 public class WcpsController extends AbstractController {
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(WcpsController.class);

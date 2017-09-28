@@ -60,24 +60,17 @@ public class CoordinateTranslationService {
             // closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
             // e.g: Long(0:20) -> c[0:50]
             BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution);
-            lowerLimit = CrsComputerService.shiftToNearestGridPoint(lowerLimit);
+            lowerLimit = CrsComputerService.shiftToNearestGridPointWCPS(lowerLimit);
             returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
             
             BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution);            
-            upperLimit = CrsComputerService.shiftToNearestGridPoint(upperLimit);
+            upperLimit = CrsComputerService.shiftToNearestGridPointWCPS(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
 
-            //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
+            //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower            
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
-                returnUpperLimit = returnLowerLimit;
-            }
-            // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if ((geoDomainMax.compareTo(geoDomainMin) != 0) && 
-                numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && 
-                numericSubset.getUpperLimit().equals(geoDomainMax)) {
-                returnLowerLimit = returnLowerLimit.subtract(BigDecimal.ONE);
-                returnUpperLimit = returnLowerLimit;
-            }
+                returnLowerLimit = returnUpperLimit;
+            }            
         } else {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
@@ -87,25 +80,18 @@ public class CoordinateTranslationService {
             // geo:  80  60  40  20  0
             // user subset 58: count how many resolution-sized interval are between 80 and 58 (1.1), and floor it to get 1
             BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMax), resolution);
-            lowerLimit = CrsComputerService.shiftToNearestGridPoint(lowerLimit);
+            lowerLimit = CrsComputerService.shiftToNearestGridPointWCPS(lowerLimit);
             returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
             
             BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMax), resolution);
-            upperLimit = CrsComputerService.shiftToNearestGridPoint(upperLimit);
+            upperLimit = CrsComputerService.shiftToNearestGridPointWCPS(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
-
+            
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
-                returnUpperLimit = returnLowerLimit;
-            }
-
-            // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if ((geoDomainMax.compareTo(geoDomainMin) != 0) && 
-                numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && 
-                numericSubset.getUpperLimit().equals(geoDomainMin)) {
-                returnLowerLimit = returnLowerLimit.subtract(BigDecimal.ONE);
-                returnUpperLimit = returnLowerLimit;
+                returnLowerLimit = returnUpperLimit;
             }
         }
+        
         return new ParsedSubset(returnLowerLimit.longValue(), returnUpperLimit.longValue());
     }
 

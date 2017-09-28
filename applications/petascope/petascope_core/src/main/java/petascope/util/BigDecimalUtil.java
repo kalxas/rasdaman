@@ -40,7 +40,7 @@ public class BigDecimalUtil {
     // e.g: coeffcient (double) in database is 0.0, calculated coefficient (BigDecimal) is 0.0000000001
     public static final BigDecimal COEFFICIENT_DECIMAL_EPSILON = new BigDecimal("0.0000000001");    
     // The resolution from files can be different but only within the [axis resolution - epsilon, axis resolution + epsilon]
-    public static final BigDecimal AXIS_RESOLUTION_EPSILION = new BigDecimal("0.00000001");
+    public static final BigDecimal AXIS_RESOLUTION_EPSILION = new BigDecimal("0.00001");
 
     // The total digit numbers of BigDecimal number (before and after the ".")
     public static final int MAX_PRECISION = 128;

@@ -5,7 +5,7 @@
     "automated": true,
     "mock": false,
     "track_files": false,
-    "subset_correction": true
+    "subset_correction": false
   },
   "input": {
     "coverage_id": "test_ansidate_different_crs_origin",

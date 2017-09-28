@@ -8,7 +8,7 @@
     "mock": false,
     "automated": true,
     "track_files": false,
-    "subset_correction": true
+    "subset_correction": false
   },
 
   "input": {

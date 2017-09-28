@@ -1,0 +1,5 @@
+for a in (test_pml_wcps_indices_translate_accuracy)
+
+return 
+
+imageCrsDomain(a[Lat(20:24), Long(26), ansi("2000-03-01")], Lat)

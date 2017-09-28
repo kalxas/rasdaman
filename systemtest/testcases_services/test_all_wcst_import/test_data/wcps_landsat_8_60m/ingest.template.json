@@ -6,7 +6,7 @@
     "tmp_directory": "/tmp/",
     "default_crs": "SECORE_URL/crs/EPSG/0/4326",
     "mock": false,
-    "subset_correction": true,
+    "subset_correction": false,
     "track_files": false,
     "automated": true
 

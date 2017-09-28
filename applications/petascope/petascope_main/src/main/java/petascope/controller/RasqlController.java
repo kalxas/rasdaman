@@ -36,6 +36,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import petascope.controller.handler.service.KVPRasqlServiceHandler;
 import petascope.core.KVPSymbols;
@@ -51,7 +52,7 @@ import petascope.util.StringUtil;
  *
  * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-@Controller
+@RestController
 public class RasqlController extends AbstractController {
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(RasqlController.class);

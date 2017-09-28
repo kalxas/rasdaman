@@ -5,7 +5,7 @@
     "default_crs": "SECORE_URL/crs/EPSG/0/3857",
     "mock": false,
     "automated": true,
-    "subset_correction": true
+    "subset_correction": false
   },
   "input": {
     "coverage_id": "test_wms_3857",

@@ -189,58 +189,59 @@ public class CrsComputerService {
             return new ParsedSubset<>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
         }
 
-        // Negative axis with negative resolution (e.g: lat)
-        BigDecimal cellWidth = resolution.abs();
-
         // Open interval on the right: take away epsilon from upper bound:
         long returnLowerLimit, returnUpperLimit;
         if (positiveAxis) {
             // Normal linear numerical axis
-            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(domMin), cellWidth);
-            lowerLimit = this.shiftToNearestGridPoint(lowerLimit);
-            returnLowerLimit = (long) Math.floor(lowerLimit.doubleValue()) + pxMin;
-            if (numericSubset.getUpperLimit().equals(numericSubset.getLowerLimit())) {
-                returnUpperLimit = returnLowerLimit;
-            } else {
-                BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(domMin), cellWidth);
-                upperLimit = this.shiftToNearestGridPoint(upperLimit);
-                returnUpperLimit = (long) Math.ceil(upperLimit.doubleValue()) - 1 + pxMin;
-            }
-            // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
+            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(domMin), resolution);
+            lowerLimit = this.shiftToNearestGridPointWCST(lowerLimit);
+            returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(new BigDecimal(pxMin)).longValue();
+            
+            BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(domMin), resolution);
+            upperLimit = this.shiftToNearestGridPointWCST(upperLimit);
+            returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(new BigDecimal(pxMin)).longValue();
 
-            if ((domMax.compareTo(domMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(domMax.doubleValue())) {
-                returnLowerLimit = returnLowerLimit - 1;
-            }
-
-            // This happens when max_subset = min_subset + 0.01 for example (at least for WMS)
-            if (returnLowerLimit > returnUpperLimit) {
-                returnUpperLimit = returnLowerLimit;
+            if (returnUpperLimit < returnLowerLimit) {
+                returnLowerLimit = returnUpperLimit;
             }
         } else {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
-            BigDecimal lowerLimit = BigDecimalUtil.divide(domMax.subtract(numericSubset.getUpperLimit()), cellWidth);
-            lowerLimit = this.shiftToNearestGridPoint(lowerLimit);
-            returnLowerLimit = (long) Math.ceil(lowerLimit.doubleValue()) + pxMin;
+            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(domMax), resolution);
+            lowerLimit = this.shiftToNearestGridPointWCST(lowerLimit);
+            returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(new BigDecimal(pxMin)).longValue();
+            
+            BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(domMax), resolution);
+            upperLimit = this.shiftToNearestGridPointWCST(upperLimit);
+            returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(new BigDecimal(pxMin)).longValue();
 
-            if (numericSubset.getUpperLimit().equals(numericSubset.getLowerLimit())) {
-                returnUpperLimit = returnLowerLimit;
-            } else {
-                BigDecimal upperLimit = BigDecimalUtil.divide(domMax.subtract(numericSubset.getLowerLimit()), cellWidth);
-                upperLimit = this.shiftToNearestGridPoint(upperLimit);
-                returnUpperLimit = (long) Math.floor(upperLimit.doubleValue()) - 1 + pxMin;
-            }
-            // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if ((domMax.compareTo(domMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit() == domMin) {
-                returnLowerLimit -= 1;
-            }
-
-            // This happens when max_subset = min_subset + 0.01 for example (at least for WMS)
-            if (returnLowerLimit > returnUpperLimit) {
-                returnUpperLimit = returnLowerLimit;
+            if (returnUpperLimit < returnLowerLimit) {
+                returnLowerLimit = returnUpperLimit;
             }
         }
+        
         return new ParsedSubset<>(returnLowerLimit, returnUpperLimit);
+    }
+    
+    /**
+     *
+     * We shift the BigDecimal pixel to nearest grid pixel in integer e.g:
+     * 4.9998 -> 5 and 5.00001 -> 5
+     *
+     * @param gridPoint
+     * @return 
+     */
+    public static BigDecimal shiftToNearestGridPointWCST(BigDecimal gridPoint) {
+        // e.g: 4.999 + 0.001 > 5 then return 5
+        if ((gridPoint.add(GRID_POINT_EPSILON_WCST)).compareTo(gridPoint.setScale(0, RoundingMode.CEILING)) >= 0) {
+            return gridPoint.setScale(0, RoundingMode.CEILING);
+        } else if ((gridPoint.subtract(GRID_POINT_EPSILON_WCST)).compareTo(gridPoint.setScale(0, RoundingMode.FLOOR)) <= 0) {
+            // e.g: 5.0001 -0.0001 = 5
+            return gridPoint.setScale(0, RoundingMode.FLOOR);
+        } else {
+            return gridPoint;
+        }
+
     }
 
     /**
@@ -251,11 +252,11 @@ public class CrsComputerService {
      * @param gridPoint
      * @return 
      */
-    public static BigDecimal shiftToNearestGridPoint(BigDecimal gridPoint) {
+    public static BigDecimal shiftToNearestGridPointWCPS(BigDecimal gridPoint) {
         // e.g: 4.999 + 0.001 > 5 then return 5
-        if ((gridPoint.add(GRID_POINT_EPSILON)).compareTo(gridPoint.setScale(0, RoundingMode.CEILING)) >= 0) {
+        if ((gridPoint.add(GRID_POINT_EPSILON_WCPS)).compareTo(gridPoint.setScale(0, RoundingMode.CEILING)) >= 0) {
             return gridPoint.setScale(0, RoundingMode.CEILING);
-        } else if ((gridPoint.subtract(GRID_POINT_EPSILON)).compareTo(gridPoint.setScale(0, RoundingMode.FLOOR)) <= 0) {
+        } else if ((gridPoint.subtract(GRID_POINT_EPSILON_WCPS)).compareTo(gridPoint.setScale(0, RoundingMode.FLOOR)) <= 0) {
             // e.g: 5.0001 -0.0001 = 5
             return gridPoint.setScale(0, RoundingMode.FLOOR);
         } else {
@@ -344,7 +345,13 @@ public class CrsComputerService {
     // we have to using an acceptable espilon to determine which grid point should be the result of calculation
     // as math.ceil(), math.floor() will easily +/- by 1 grid pixel in unwanted cases, such as: 4.00001 -> 5, 3.999 -> 3
     // so the epsilon is added to support these cases to shift to nearest integer value: 4.000001 -> 4, 3.999 -> 4
-    public static final BigDecimal GRID_POINT_EPSILON = new BigDecimal("0.001");
+    // NOTE: for WCST, no need to use subset_correction:true when it could shift the grid bounds to nearest pixels properly with this epsilon 
+    // (the axis's resolution is the most important to support this adjustment and the resolution should be almost correct, e.g: 4.1566667777 instead of 4.15666677777777 and not 4.1566).
+    public static final BigDecimal GRID_POINT_EPSILON_WCST = new BigDecimal("0.01");
+    // NOTE: for WCPS, the most important value is a correct axis's resolution, then the formular to translate geo bounds to grid bounds will be correct.
+    // The epsilon to adjust grid bounds for WCPS is really small as this is not used in almost cases, 
+    // only in rare cases when the result should be shifted (e.g: 1.0000000000000000000011111 -> 1)
+    public static final BigDecimal GRID_POINT_EPSILON_WCPS = new BigDecimal("0.000000001");
     
     private final String axisName;
     private final String crsName;

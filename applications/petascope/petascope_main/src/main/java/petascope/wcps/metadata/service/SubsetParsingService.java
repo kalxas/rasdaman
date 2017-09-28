@@ -316,14 +316,15 @@ public class SubsetParsingService {
             // grid lower bound is the floor of ( (geo lower Bound - origin) / resolution )
             // e.g: original geo axis is: (ORIGIN) 0 --- 30 ---- 60 ---- 90 then lower trim on 31 will return geoBound: 30
             BigDecimal tmpGridLowerBound = BigDecimalUtil.divide(geoLowerBound.subtract(geoOriginalOrigin), resolution);
-            tmpGridLowerBound = CrsComputerService.shiftToNearestGridPoint(tmpGridLowerBound);
+            tmpGridLowerBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridLowerBound);
+            
             gridLowerBound = tmpGridLowerBound.setScale(0, BigDecimal.ROUND_FLOOR);
             geoLowerBound = geoOriginalOrigin.add(gridLowerBound.multiply(resolution));
 
             // grid upper bound is the ceiling of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: (ORIGIN) 0--- 30 ---- 60 ---- 90 then upper trim on 31 will return geoBound: 60
             BigDecimal tmpGridUpperBound = BigDecimalUtil.divide(geoUpperBound.subtract(geoOriginalOrigin), resolution);
-            tmpGridUpperBound = CrsComputerService.shiftToNearestGridPoint(tmpGridUpperBound);
+            tmpGridUpperBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridUpperBound);
             
             gridUpperBound = tmpGridUpperBound.setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
             geoUpperBound = geoOriginalOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
@@ -333,7 +334,7 @@ public class SubsetParsingService {
             // grid lower bound is the floor of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then upper trim on 31 will return geoBound: 60
             BigDecimal tmpGridLowerBound = BigDecimalUtil.divide(geoUpperBound.subtract(geoOriginalOrigin), resolution);
-            tmpGridLowerBound = CrsComputerService.shiftToNearestGridPoint(tmpGridLowerBound);
+            tmpGridLowerBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridLowerBound);            
             
             gridLowerBound = tmpGridLowerBound.setScale(0, BigDecimal.ROUND_FLOOR);
             geoUpperBound = geoOriginalOrigin.add(gridLowerBound.multiply(resolution));
@@ -341,19 +342,19 @@ public class SubsetParsingService {
             // grid lower bound is the ceiling of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then lower trim on 31 will return geoBound: 30
             BigDecimal tmpGridUpperBound = BigDecimalUtil.divide(geoLowerBound.subtract(geoOriginalOrigin), resolution);
-            tmpGridUpperBound = CrsComputerService.shiftToNearestGridPoint(tmpGridUpperBound);
+            tmpGridUpperBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridUpperBound);
             
             gridUpperBound = tmpGridUpperBound.setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
             geoLowerBound = geoOriginalOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
         }
 
         // this happens when trim lower and upper before fitting have same value (e.g: Lat(20:20)),
-        // after fitting upper will reduced by 1 resolution (e.g: Lat(20,19)) then need to set it back to same value.
+        // after fitting upper will reduced by 1 resolution (e.g: Lat(20,19)) then need to set it back to same value.        
         if (geoUpperBound.compareTo(geoLowerBound) < 0) {
             geoUpperBound = geoLowerBound;
         }
         if (gridUpperBound.compareTo(gridLowerBound) < 0) {
-            gridUpperBound = gridLowerBound;
+            gridLowerBound = gridUpperBound;
         }
 
         // after fitting, set the correct bounds to axis
