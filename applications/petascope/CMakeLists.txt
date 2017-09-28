@@ -130,3 +130,8 @@ install( FILES "${PETASCOPE_TARGET_DIR}/petascope_migration/rasdaman-geo-migrati
 
 install( PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh"
          DESTINATION "${BIN_DIR}" )
+
+# Copy update_properties.sh to $RMANHOME/bin to be used by rasdaman installer for installing packages (e.g: rpm)
+# which will update the changes from user's old petascope.properties and new built-in petascope.properties in the package.
+install( PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh"
+         DESTINATION "${BIN_DIR}" )

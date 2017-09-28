@@ -189,6 +189,8 @@ install:
 	$(CP) $(MIGRATION_JAR_FILE) $(DESTDIR)$(pkgdatadir)/petascope/; \
 	echo "Install migrate_petascopedb.sh to $(DESTDIR)$(bindir)"; \
 	$(CP) migrate_petascopedb.sh $(DESTDIR)$(bindir); \
+	echo "Install update_properties.sh to $(DESTDIR)$(bindir)"; \
+	$(CP) update_properties.sh $(DESTDIR)$(bindir); \
 	if [ $(JAVA_SERVER) == external ]; then \
 		echo 'Update java_server=external Petascope in petascope properties file'; \
 		sed -i 's|@GENERATED_embedded_petascope@|false|g' $(SETTINGS_FILE_EDIT); \
