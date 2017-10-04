@@ -22,25 +22,24 @@
 ###################################################################
 
 if (ENABLE_JAVA)
+    set(SECORE_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/target")
     # will not rebuild secore when make install
     set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
     set(LOGDIR "${LOG_DIR}")
     find_package(Maven REQUIRED)
 
-    # This variable will be used in the to configure the pom files.
-    set(SECORE_TARGET_DIR ${CMAKE_CURRENT_BINARY_DIR})
-    # This variable will be used in secore-core/etc/secore.conf.in.
-    set(SHARE_DATA_DIR ${SHARE_DATA_DIR})
-
-    configure_file(secore-core/pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/secore-core/pom.xml" @ONLY)
-    configure_file(secore-web/pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/secore-web/pom.xml" @ONLY)
+    configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)    
 
     # Generate files from *.in by replacing any variables that can be configured at compile time
     # configuration file for secore.properties.in
-    configure_file("secore-core/etc/secore.properties.in" ${CMAKE_CURRENT_SOURCE_DIR}/secore-core/etc/secore.properties @ONLY)        
-    # configuration for web.xml.in
-    configure_file("secore-web/src/main/webapp/WEB-INF/web.xml.in" ${CMAKE_CURRENT_SOURCE_DIR}/secore-web/src/main/webapp/WEB-INF/web.xml @ONLY)
+    configure_file("src/main/resources/secore.properties.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/secore.properties" @ONLY)     
+  
+    # configuration file for application.properties.in
+    configure_file("src/main/resources/application.properties.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/application.properties" @ONLY)
+
+    # configuration file for log4j.properties.in which is used only when Spring Boot starts
+    configure_file("src/main/resources/log4j.properties.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties" @ONLY)
 
     if (GENERATE_DOCS)
         add_custom_target(secore_doc ALL
@@ -60,15 +59,21 @@ if (ENABLE_JAVA)
             VERBATIM)
 
     # install secore.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
-    install(CODE "execute_process(COMMAND bash  ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/secore.properties ${CMAKE_CURRENT_SOURCE_DIR}/secore-core/etc/secore.properties)")
+    install(CODE "execute_process(COMMAND bash  ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/secore.properties ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/secore.properties)")
 
     install(DIRECTORY DESTINATION "${WAR_DIR}/secoredb"
-	    DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ 
-	    GROUP_EXECUTE GROUP_WRITE GROUP_READ 
-	    WORLD_EXECUTE WORLD_WRITE WORLD_READ)
+	        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ 
+	        GROUP_EXECUTE GROUP_WRITE GROUP_READ 
+	        WORLD_EXECUTE WORLD_WRITE WORLD_READ)
 
     install(FILES "${SECORE_TARGET_DIR}/def.war"
-    DESTINATION ${WAR_DIR})
+            DESTINATION ${WAR_DIR})
+
+    # Also copy this war file to $RMANHOME/share/rasdaman/war/ to be used later if SECORE runs with embedded servlet container.
+    if (NOT ("${WAR_DIR}" EQUAL "${SHARE_DATA_DIR}/war"))
+        install( FILES "${SECORE_TARGET_DIR}/def.war"
+             DESTINATION "${SHARE_DATA_DIR}/war/" )
+    endif()
 
     # these files contain update CRS defintions for SECORE userdb
     install(DIRECTORY db_updates/ DESTINATION "${SHARE_DATA_DIR}/secore")

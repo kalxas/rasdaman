@@ -19,7 +19,6 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 # ---------------------------------------------------------------------
-# settings.properties
 #
 # PetaScope configuration file
 #
@@ -50,16 +49,6 @@ metadata_user=petauser
 metadata_pass=petapasswd
 
 #------------------- General Petascope configuration -------------------
-
-# parameter:     java_server
-# purpose:       Allow user to start Petascope with embedded (standalone web application: jar file including embedded Tomcat)
-#                or external (normal web application: war file to deploy on a specific web application containter, 
-#                e.g: Tomcat, GlassFish,...) mode. It is set as parameter by using -DJAVA_SERVER=embedded/external with cmake 
-#                or ./configure --with-java-server=embedded/external with automake when configuring rasdaman installation.
-# description:   When set to external, all settings (server.port, start_embedded_petascope)
-#                for embedded petascope will be disabled.
-# need to adapt: no
-java_server=@GENERATED_java_server@
 
 # parameter:     server.contextPath
 # purpose:       Both deployed web application as embedded/external will need this parameter as prefix
@@ -131,20 +120,23 @@ disable_write_operations=false
 rasql_servlet_upload_path=/tmp/rasql_servlet_upload
 
 #------------------- Embedded Petascope configuration -------------------
+
+# parameter:     java_server
+# purpose:       Allow user to start Petascope with embedded (standalone web application: jar file including embedded Tomcat)
+#                or external (normal web application: war file to deploy on a specific web application containter, 
+#                e.g: Tomcat, GlassFish,...) mode. It is set as parameter by using -DJAVA_SERVER=embedded/external with cmake 
+#                or ./configure --with-java-server=embedded/external with automake when configuring rasdaman installation.
+# description:   When set to external, all settings (server.port, start_embedded_petascope)
+#                for embedded petascope will be disabled.
+# need to adapt: no
+java_server=@GENERATED_java_server@
+
 # These configurations below only have effect when java_server configuration is set to embedded, i.e: java_server=embedded
 
 # parameter:     server.port
 # purpose:       Port for embedded petascope using embedded Tomcat web application container.
 # need to adapt: yes
 server.port=8080
-
-# parameter:     start_emdedded_petascope
-# purpose:       Allow user to start embedded petascope after executing start_rasdaman.sh.
-# description:   User could enable or disable embedded petascope by configuration:"true/false"
-#                or temporarily enable/disable before starting script start_rasdaman.sh,
-#                e.g: start_rasdaman.sh --stop-embedded-petascope" or "start_rasdaman --start-embedded-petascope"
-# need to adapt: no
-start_embedded_petascope=@GENERATED_embedded_petascope@
 
 #------------------- Rasdaman configuration for Petascope -------------------
 

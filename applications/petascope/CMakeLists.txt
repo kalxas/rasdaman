@@ -123,6 +123,11 @@ install( CODE "execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/update_p
 # Petascope can be run as embedded or external with war package.
 install( FILES "${PETASCOPE_TARGET_DIR}/petascope_main/rasdaman.war"
          DESTINATION "${WAR_DIR}" )
+# Also copy this war file to $RMANHOME/share/rasdaman/war/ to be used later if petascope runs with embedded servlet container.
+if (NOT ("${WAR_DIR}" EQUAL "${SHARE_DATA_DIR}/war"))
+    install( FILES "${PETASCOPE_TARGET_DIR}/petascope_main/rasdaman.war"
+             DESTINATION "${SHARE_DATA_DIR}/war/" )
+endif()
 
 # Copy rasdaman-geo-migration.jar to $RMANHOME/share/rasdaman/petascope and migrate_petascopedb.sh to bin directory
 install( FILES "${PETASCOPE_TARGET_DIR}/petascope_migration/rasdaman-geo-migration.jar"

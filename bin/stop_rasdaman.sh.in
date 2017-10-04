@@ -46,7 +46,7 @@
 
 # --- CONSTANTS -----------------------------------------------------
 
-MYNAME=`basename $0`
+PROG=`basename $0`
 
 # RETURN CODES
 RC_OK=0        # everything went fine
@@ -58,27 +58,77 @@ DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 
 # base DBMS used by petascope
 PETASCOPEDB=@petascopedb@
-PETASCOPEDB_PGSQL=postgresql
-PETASCOPEDB_HSQLDB=hsqldb
-PETASCOPEDB_SQLITE=sqlite
 
-# JETTY JAR
-JETTY_JAR=jetty.jar
+log()
+{
+  echo "$PROG: $*"
+}
 
-# --- END CONSTANTS -------------------------------------------------
+logn()
+{
+  echo -n "$PROG: $*"
+}
 
-# --- ACTION --------------------------------------------------------
+# Read the property of a value by input key from input properties file
+get_property_value() {
+    # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
+    # $2 is the key of a property in this file which needs to get the value of this key.
+    local -r properties_file="$1"
+    local -r key="$2"
+
+    # only grep key=value line not commented line (e.g: #key=value)
+    grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
+}
+
+# --- kill embedded petascope, secore if they are running ---------
+
+stop_embedded() {
+    # Stop embedded tomcat from values in properties file
+    # $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
+    # $2: the web application name (e.g: petascope, secore).
+    local -r properties_file_path="$1"
+    local -r application_name="$2"
+
+    if [ -f "$properties_file_path" ]; then
+        # check if java-server is embedded/external
+        java_server=$(get_property_value "$properties_file_path" "java_server")
+        # check if java-server is embedded
+        if [ "$java_server" == "embedded" ]; then
+            # Check if the port for this application is running and kill this process
+            # Get the embedded port for server
+            server_port=$(get_property_value "$properties_file_path" "server.port")
+            # Check if port is available
+            fuser -s -n tcp "$server_port" 
+            # Return 0 means port is occupied and embedded server is running.
+            if [[ $? -eq 0 ]]; then
+                # kill process on this port
+                kill -9 $(lsof -t -i:"$server_port" -sTCP:LISTEN)
+                log "embedded $application_name is terminated on port '$server_port'."
+            fi
+        fi
+    else
+        log "could not find properties file '$properties_file_path' to stop embedded $application_name."
+        exit $RC_ERROR
+    fi
+}
+
+petascope_properties_path="@sysconfdir@/petascope.properties"
+secore_properties_path="@sysconfdir@/secore.properties"
+
+# Check if it should stop embedded tomcat, secore
+stop_embedded "$secore_properties_path" "secore"
+stop_embedded "$petascope_properties_path" "petascope"
 
 # check if rasmgr is running first of all
 pgrep rasmgr > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-    echo $MYNAME: rasdaman is already down, nothing to do.
+    log "rasdaman is already down, nothing to do."
     exit $RC_OK
 fi
 
-echo $MYNAME: terminating all rasdaman servers
+log "terminating all rasdaman servers"
 
-# --- stop rasdaman servers: ---------------------------------------
+# --- stop rasdaman servers ---------------------------------------
 
 if [ -z "$RASLOGIN" ]; then
     export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
@@ -88,14 +138,13 @@ fi
 ALLSERVERS=`@bindir@rascontrol --port $RASMGR_PORT -e -q -x list srv | awk '{ if (\$6 == "UP") print \$2;}'`
 
 # ...and shut down all of them, forcefully (!); any open transaction will be lost
-for SRV in $ALLSERVERS
-do
-    echo -n $MYNAME: terminating server $SRV...
+for SRV in $ALLSERVERS; do
+    logn "terminating server $SRV..."
     @bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv $SRV -kill
     echo "done."
 done
 
-# --- stop rasmgr: -------------------------------------------------
+# --- stop rasmgr -------------------------------------------------
 
 # give rasserver processes time to disappear (10 second timeout)
 count=0
@@ -111,45 +160,10 @@ while [ $count -lt 100 ]; do
 done
 
 # finally shut down the server manager
-echo -n "terminating rasdaman server manager(s)..."
+logn "terminating rasdaman server manager(s)..."
 @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all
+log "done."
+
 echo "done."
-
-
-
-# if HSQLDB is used for petascope, stop HSQLDB server here
-if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
-    metadata_url=$(grep metadata_url @sysconfdir@/petascope.properties | awk -F "=" '{print $2}' | tr -d '\n')
-    db_name=$(basename "$metadata_url")
-    db_file=$(echo "$metadata_url" | awk -F ":" '{ print $NF; }')
-    echo -n "$MYNAME: terminating petascope database..."
-    kill $(pgrep -f org.hsqldb.server.Server)
-    echo "done."
-fi
-
-# --- B: Terminate Embedded Petascope if it is running ----------------------------------------------------
-
-# get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
-# the [] is trick to avoid grep's pid is chosen instead of running Jetty.
-pid=$(ps -ef | grep '[r]asdaman/war/jetty.jar' | awk '{print $2; exit}')
-
-if [[ ! -z "$pid" ]]; then # pid is not empty then need to terminate running embedded Petascope
-    kill -9 $pid;
-    # get the pid of lasted embedded Jetty with Petascope (only 1 process is allowed to run in background)
-    # the [] is trick to avoid grep's pid is chosen instead of running Jetty.
-    repid=$(ps -ef | grep '[r]asdaman/war/'$JETTY_JAR | awk '{print $2; exit}')
-
-    if [[ ! -z "$redpid" ]]; then # redpid is not empty then need to have an error
-        echo $MYNAME: 'terminate embedded petascope unsuccessfully. Please kill PID: "'$repid'" manually..Done.'
-    else
-        echo $MYNAME: 'terminating embedded petascope successfully...Done.'
-    fi
-fi
-
-
-# --- END ACTION ----------------------------------------------------
-
-
-echo $MYNAME: done.
 exit $RC_OK
 

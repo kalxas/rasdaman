@@ -185,6 +185,8 @@ install:
 	echo "JAVA SERVER = "$(JAVA_SERVER)
 	echo "Install rasdaman.war to $(DESTDIR)$(wardir)"; \
 	$(CP) $(WAR_FILE) $(DESTDIR)$(wardir); \
+	echo "Install rasdaman.war to share directory $(DESTDIR)$(pkgdatadir)/war/"; \
+	$(CP) $(WAR_FILE) $(DESTDIR)$(pkgdatadir)/war/; \
 	echo "Install rasdaman-geo-migration.jar to $(DESTDIR)$(pkgdatadir)/petascope/"; \
 	$(CP) $(MIGRATION_JAR_FILE) $(DESTDIR)$(pkgdatadir)/petascope/; \
 	echo "Install migrate_petascopedb.sh to $(DESTDIR)$(bindir)"; \

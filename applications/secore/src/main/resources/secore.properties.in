@@ -1,0 +1,97 @@
+#
+# This file is part of rasdaman community.
+#
+# Rasdaman community is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rasdaman community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2003 - 2017 Peter Baumann /
+# rasdaman GmbH.
+#
+# For more information please see <http://www.rasdaman.org>
+# or contact Peter Baumann via <baumann@rasdaman.com>.      
+#
+# ----------------------------------------------------------------------------#
+#
+# SECORE configuration file
+#
+# Notes:
+#  Settings should be specified in key=value pairs.
+#  The server needs to be restarted for any changes in this file to take effect.
+#
+
+#------------------- Default SECORE configuration -------------------
+# parameter:     db_updates.path  
+# purpose:       Directory holding updates (insert, delete) CRS defintions to be changed in userdb.
+# need to adapt: no
+db_updates.path=@SHARE_DATA_DIR@/secore
+
+# parameter:     service.url
+# purpose:       Service URL, used in automatic substitution of URNs (urn:ogc:def) and URLs (e.g: http://localhost:8080/def).
+#                Set this parameter to your public service URL if you use a proxy to SECORE in localhost.
+# need to adapt: yes
+service.url=http://www.opengis.net/def
+
+# parameter:     codespace
+# purpose:       Default codeSpace to be used for definitions constructed on the fly by crs-compound. 
+#                From the GML 3.2.1 XML schema: The value of the codeSpace attribute (if present) 
+#                shall indicate a dictionary, thesaurus, classification scheme, authority, or pattern for the term.
+# need to adapt: no
+codespace=OGC
+
+# parameter:     server.contextPath
+# purpose:       Both deployed web application as embedded/external will need this parameter as prefix
+#                for controller in URL routing (e.g: http://localhost:8080/def).
+# need to adapt: no
+server.contextPath=/def
+
+#------------------- Embedded SECORE configuration -------------------
+# These configurations below only have effect when java_server configuration is set to embedded, i.e: java_server=external
+
+# parameter:     java_server
+# purpose:       Allow user to start SECORE with embedded (standalone web application: jar file including embedded Tomcat)
+#                or external (normal web application: war file to deploy on a specific web application containter, 
+#                e.g: Tomcat, GlassFish,...) mode. It is set as parameter by using -DJAVA_SERVER=embedded/external with cmake 
+#                or ./configure --with-java-server=embedded/external with automake when configuring rasdaman installation.
+# description:   When set to external, all settings (server.port, start_embedded_secore)
+#                for embedded SECORE will be disabled.
+# need to adapt: no
+java_server=external
+
+# parameter:     server.port
+# purpose:       Port for embedded secore using embedded Tomcat web application container. 
+#                It must be different from embedded Tomcat for Petascope in petascope.properties file (default is: 8080).
+# need to adapt: yes
+server.port=8081
+
+#------------------- log4j configuration -------------------
+
+log4j.rootLogger=TRACE, rollingFile, stdout
+
+# Reduce the log information from Spring
+log4j.logger.org.springframework=WARN
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n
+
+log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+
+# Please make sure the path specified by log4j.appender.rollingFile.File is a
+# location where the system user running Tomcat has write access.
+# Otherwise, the secore log can only be found in catalina.out
+log4j.appender.rollingFile.File=@LOGDIR@/secore.log
+
+log4j.appender.rollingFile.MaxFileSize=10MB
+log4j.appender.rollingFile.MaxBackupIndex=10
+log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
+log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n

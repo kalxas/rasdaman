@@ -33,7 +33,11 @@ SECORE_TARGET_DIR=`pwd`/target
 WAR_DIR=$(DESTDIR)$(wardir)
 
 OLD_CONF=$(DESTDIR)$(sysconfdir)/secore.properties
-NEW_CONF=secore-core/etc/secore.properties
+NEW_CONF=src/main/resources/secore.properties
+
+APPLICATION_PROPERTIES=src/main/resources/application.properties
+# use only when Spring Boot starts.
+LOG4J_PROPERTIES=src/main/resources/log4j.properties
 
 if GENERATE_DOCS
 secore_doc:
@@ -41,21 +45,20 @@ secore_doc:
 endif
 
 all:
-	cp secore-core/etc/secore.properties.in $(NEW_CONF)
+	cp src/main/resources/secore.properties.in $(NEW_CONF)
 	sed -i "s|@SHARE_DATA_DIR@|$(pkgdatadir)|g" $(NEW_CONF)
 	sed -i "s|@LOGDIR@|$(logdir)|g" $(NEW_CONF)
-	cp secore-web/src/main/webapp/WEB-INF/web.xml.in secore-web/src/main/webapp/WEB-INF/web.xml
-	sed -i "s|@CONF_DIR@|$(sysconfdir)|g" secore-web/src/main/webapp/WEB-INF/web.xml
-	cp secore-core/pom.xml.in secore-core/pom.xml
-	cp secore-web/pom.xml.in secore-web/pom.xml
-	sed -i "s|@SECORE_TARGET_DIR@|${SECORE_TARGET_DIR}|g" secore-core/pom.xml
-	sed -i "s|@SECORE_TARGET_DIR@|${SECORE_TARGET_DIR}|g" secore-web/pom.xml
+	cp src/main/resources/application.properties.in $(APPLICATION_PROPERTIES)
+	sed -i "s|@CONF_DIR@|$(sysconfdir)|g" $(APPLICATION_PROPERTIES)
+	cp src/main/resources/log4j.properties.in $(LOG4J_PROPERTIES)
+	sed -i "s|@LOGDIR@|$(sysconfdir)|g" $(LOG4J_PROPERTIES)
+	cp pom.xml.in pom.xml
+	sed -i "s|@SECORE_TARGET_DIR@|${SECORE_TARGET_DIR}|g" pom.xml
 	mvn package
 
-install-exec-hook:
-	mkdir -p ${WAR_DIR}/secoredb || true
-	chmod -R 777 ${WAR_DIR}/secoredb > /dev/null 2>&1 || true
+install-exec-hook:	
 	cp ${SECORE_TARGET_DIR}/def.war ${WAR_DIR}/
+	cp ${SECORE_TARGET_DIR}/def.war $(DESTDIR)$(pkgdatadir)/war/
 	echo "$@ is updating secore.properties: $(OLD_CONF) from $(NEW_CONF)";
 	./update_properties.sh "$(OLD_CONF)" "$(NEW_CONF)";
 	mkdir -p $(DESTDIR)$(pkgdatadir)/secore || true
@@ -64,5 +67,4 @@ install-exec-hook:
 clean-local:
 	mvn clean
 	rm -rf ${SECORE_TARGET_DIR}
-	rm -f secore-core/pom.xml
-	rm -f secore-web/pom.xml
+	rm -f secore/pom.xml

@@ -7,7 +7,9 @@ autom4te.cache
 *.o
 *.a
 *.patch
+secore.properties
 petascope.properties
+log4j.properties
 target/*
 nb-configuration.xml
 applications/petascope/pom.xml
@@ -15,8 +17,7 @@ applications/petascope/petascope_core/pom.xml
 applications/petascope/petascope_main/pom.xml
 applications/petascope/petascope_migration/pom.xml
 applications/petascope/target
-applications/secore/secore-core/pom.xml
-applications/secore/secore-web/pom.xml
+applications/secore/pom.xml
 applications/secore/target
 #These are all generated files under openrasdaman
 applications/rasql/rasql
@@ -85,11 +86,12 @@ applications/rasgeo/raserase
 applications/rasgeo/rasimport
 applications/secore/secore-core/build
 applications/secore/secore-web/build
+applications/secore/secore-core/
+applications/secore/secore-web/
 petascope_insertdemo.sh
 rasdaman_insertdemo.sh
 applications/raswct/bin
 glassfish-web.xml
-applications/secore/secore-core/etc/secore.properties
 java/dist/
 java/target
 java/src/org/rasdaman/rasnet/message
@@ -227,12 +229,12 @@ applications/petascope/nb-configuration.xml
 applications/secore/secore-core/javadoc/
 applications/secore/secore-web/javadoc/
 
+applications/secore/src/main/resources/gml/
+
 nb-configuration.xml
 
 build/
 applications/petascope/petascope_core/target/
 applications/petascope/petascope_main/target/
 applications/petascope/petascope_migration/target/
-
-/systemtest/testcases_services/test_web_interaces/TestWebInterfaces/target/
 /systemtest/testcases_services/test_web_interfaces/TestWebInterfaces/target/
