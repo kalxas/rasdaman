@@ -281,7 +281,72 @@ r_Point::operator!=(const r_Point& pt) const
     return !operator==(pt);
 }
 
+bool
+r_Point::operator < (const r_Point& pt) const  throw(r_Edim_mismatch)
+{
+    if(this->dimensionality != pt.dimension())
+    {
+        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        throw r_Edim_mismatch(dimensionality, pt.dimension());
+    }
+    bool returnValue = true;
+    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    {
+        returnValue &= this->points[dim] < pt[dim];
+    }
 
+    return returnValue;
+}
+bool
+r_Point::operator > (const r_Point& pt) const  throw(r_Edim_mismatch)
+{
+    if(this->dimensionality != pt.dimension())
+    {
+        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        throw r_Edim_mismatch(dimensionality, pt.dimension());
+    }
+    bool returnValue = true;
+    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    {
+        returnValue &= this->points[dim] > pt[dim];
+    }
+
+    return returnValue;
+}
+
+bool
+r_Point::operator >= (const r_Point& pt) const  throw(r_Edim_mismatch)
+{
+    if(this->dimensionality != pt.dimension())
+    {
+        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        throw r_Edim_mismatch(dimensionality, pt.dimension());
+    }
+    bool returnValue = true;
+    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    {
+        returnValue &= this->points[dim] >= pt[dim];
+    }
+
+    return returnValue;
+}
+
+bool
+r_Point::operator <= (const r_Point& pt) const  throw(r_Edim_mismatch)
+{
+    if(this->dimensionality != pt.dimension())
+    {
+        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        throw r_Edim_mismatch(dimensionality, pt.dimension());
+    }
+    bool returnValue = true;
+    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    {
+        returnValue &= this->points[dim] <= pt[dim];
+    }
+
+    return returnValue;
+}
 
 r_Point
 r_Point::operator+(const r_Point& pt) const throw(r_Edim_mismatch)
@@ -335,6 +400,38 @@ r_Point::operator*(const r_Point& pt) const throw(r_Edim_mismatch)
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
         result[i] = points[i] * pt[i];
+    }
+
+    return result;
+}
+
+r_Point
+r_Point::operator*(const r_Range newElement) const
+{
+    r_Point result(dimensionality);
+
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
+        result[i] = points[i] * newElement;
+    }
+
+    return result;
+}
+
+r_Range
+r_Point::dotProduct(const r_Point& pt) const throw(r_Edim_mismatch)
+{
+    if (dimensionality != pt.dimension())
+    {
+        LFATAL << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        throw r_Edim_mismatch(dimensionality, pt.dimension());
+    }
+
+    r_Range result = 0;
+
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
+        result += points[i] * pt[i];
     }
 
     return result;

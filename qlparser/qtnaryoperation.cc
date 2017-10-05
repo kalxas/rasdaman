@@ -49,22 +49,20 @@ using namespace std;
 const QtNode::QtNodeType QtNaryOperation::nodeType = QtNode::QT_NARY_OPERATION;
 
 QtNaryOperation::QtNaryOperation()
-    :  QtOperation(),
-       operationList(NULL)
+    : QtOperation(),
+      operationList(NULL)
 {
 }
 
-
-QtNaryOperation::QtNaryOperation(QtNode* node)
-    :  QtOperation(node),
-       operationList(NULL)
+QtNaryOperation::QtNaryOperation(QtNode *node)
+    : QtOperation(node),
+      operationList(NULL)
 {
 }
 
-
-QtNaryOperation::QtNaryOperation(QtOperationList* opList)
-    :  QtOperation(),
-       operationList(opList)
+QtNaryOperation::QtNaryOperation(QtOperationList *opList)
+    : QtOperation(),
+      operationList(opList)
 {
     if (operationList)
     {
@@ -76,7 +74,6 @@ QtNaryOperation::QtNaryOperation(QtOperationList* opList)
         }
     }
 }
-
 
 QtNaryOperation::~QtNaryOperation()
 {
@@ -93,11 +90,10 @@ QtNaryOperation::~QtNaryOperation()
         delete operationList;
         operationList = NULL;
     }
+    
 }
 
-
-void
-QtNaryOperation::simplify()
+void QtNaryOperation::simplify()
 {
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
@@ -127,12 +123,12 @@ QtNaryOperation::simplify()
         if (success)
         {
             // evaluate the self node with no input list
-            QtData* newConst = this->evaluate(NULL);
+            QtData *newConst = this->evaluate(NULL);
 
             if (newConst)
             {
                 // create a new constant node and fill it with newConst
-                QtConst* newNode = new QtConst(newConst);
+                QtConst *newNode = new QtConst(newConst);
 
                 // set its data stream type
                 newNode->checkType(NULL);
@@ -147,29 +143,26 @@ QtNaryOperation::simplify()
     }
 }
 
-
-
-bool
-QtNaryOperation::equalMeaning(QtNode* node)
+bool QtNaryOperation::equalMeaning(QtNode *node)
 {
     bool result;
     result = false;
 
     if (getNodeType() == node->getNodeType())
     {
-        QtNaryOperation* naryNode;
-        naryNode = static_cast<QtNaryOperation*>(node); // by force
+        QtNaryOperation *naryNode;
+        naryNode = static_cast<QtNaryOperation *>(node); // by force
 
         // get 2nd operation list
-        QtOperationList* operationList2 = naryNode->getInputs();
+        QtOperationList *operationList2 = naryNode->getInputs();
 
         // create iterators
         QtOperationList::iterator iter, iter2;
 
         result = true;
         for (iter = operationList->begin(), iter2 = operationList2->begin();
-                iter != operationList->end() && iter2 != operationList2->end();
-                iter++, iter2++)
+             iter != operationList->end() && iter2 != operationList2->end();
+             iter++, iter2++)
             if (!((*iter)->equalMeaning(*iter2)))
             {
                 result = false;
@@ -183,13 +176,11 @@ QtNaryOperation::equalMeaning(QtNode* node)
     return result;
 }
 
-
-
-QtNode::QtNodeList*
+QtNode::QtNodeList *
 QtNaryOperation::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList = NULL;
-    QtNodeList* subList = NULL;
+    QtNodeList *resultList = NULL;
+    QtNodeList *subList = NULL;
 
     if (operationList)
     {
@@ -217,22 +208,21 @@ QtNaryOperation::getChilds(QtChildType flag)
     return resultList;
 }
 
-
-bool
-QtNaryOperation::getOperands(QtDataList* inputList, QtDataList*& operandList)
+bool QtNaryOperation::getOperands(QtDataList *inputList, QtDataList *&operandList)
 {
     bool success = (operationList != 0);
 
     // Test, if all operands are available.
-    QtOperationList::iterator iter;
 
     if (success)
-        for (iter = operationList->begin(); iter != operationList->end(); iter++)
+    {
+        for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
             if ((*iter) == NULL)
             {
                 success = false;
                 break;
             }
+    }
 
     if (success)
     {
@@ -241,7 +231,7 @@ QtNaryOperation::getOperands(QtDataList* inputList, QtDataList*& operandList)
 
         unsigned int pos = 0;
 
-        for (iter = operationList->begin(); iter != operationList->end(); iter++)
+        for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
         {
             if (*iter)
             {
@@ -284,8 +274,6 @@ QtNaryOperation::getOperands(QtDataList* inputList, QtDataList*& operandList)
     return success;
 }
 
-
-
 string
 QtNaryOperation::getSpelling()
 {
@@ -293,7 +281,7 @@ QtNaryOperation::getSpelling()
 
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
-    string result  = string(tempStr);
+    string result = string(tempStr);
 
     result.append("(");
 
@@ -317,10 +305,7 @@ QtNaryOperation::getSpelling()
     return result;
 }
 
-
-
-void
-QtNaryOperation::setInput(QtOperation* inputOld, QtOperation* inputNew)
+void QtNaryOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
     QtOperationList::iterator iter;
 
@@ -328,7 +313,7 @@ QtNaryOperation::setInput(QtOperation* inputOld, QtOperation* inputNew)
     {
         if (*iter == inputOld)
         {
-            (*iter) =  inputNew;
+            (*iter) = inputNew;
 
             if (inputNew)
             {
@@ -338,16 +323,13 @@ QtNaryOperation::setInput(QtOperation* inputOld, QtOperation* inputNew)
     }
 }
 
-
-
 QtNode::QtAreaType
 QtNaryOperation::getAreaType()
 {
     return QT_AREA_SCALAR;
 }
 
-void
-QtNaryOperation::optimizeLoad(QtTrimList* trimList)
+void QtNaryOperation::optimizeLoad(QtTrimList *trimList)
 {
     // delete trimList
     // release( trimList->begin(), trimList->end() );
@@ -371,9 +353,7 @@ QtNaryOperation::optimizeLoad(QtTrimList* trimList)
     }
 }
 
-
-void
-QtNaryOperation::printTree(int tab, ostream& s, QtChildType mode)
+void QtNaryOperation::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (mode != QT_DIRECT_CHILDS)
     {
@@ -392,10 +372,7 @@ QtNaryOperation::printTree(int tab, ostream& s, QtChildType mode)
     }
 }
 
-
-
-void
-QtNaryOperation::printAlgebraicExpression(ostream& s)
+void QtNaryOperation::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -427,6 +404,3 @@ QtNaryOperation::printAlgebraicExpression(ostream& s)
 
     s << ")";
 }
-
-
-

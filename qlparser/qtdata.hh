@@ -62,7 +62,8 @@ enum QtDataType
     QT_STRING,
     QT_INTERVAL,
     QT_MINTERVAL,
-    QT_POINT
+    QT_POINT,
+    QT_MSHAPE
 };
 
 

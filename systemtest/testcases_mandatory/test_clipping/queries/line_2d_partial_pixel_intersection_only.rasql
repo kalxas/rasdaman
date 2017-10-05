@@ -1,0 +1,1 @@
+select encode(subspace( c , (397 344, 400 343)), "csv") from test_rgb2 as c

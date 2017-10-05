@@ -94,7 +94,7 @@ public:
     r_Range  operator[](r_Dimension) const throw(r_Eindex_violation);
     /// subscriptor for write access
     r_Range& operator[](r_Dimension) throw(r_Eindex_violation);
-
+    
     /// assignment: cleanup + copy
     const r_Point& operator= (const r_Point&);
 
@@ -116,6 +116,15 @@ public:
     /// non equal operator - negation of equal operator
     bool operator!=(const r_Point&) const;
 
+    bool operator < (const r_Point&) const throw(r_Edim_mismatch);
+
+    bool operator > (const r_Point&) const throw(r_Edim_mismatch);
+
+
+    bool operator <= (const r_Point&) const throw(r_Edim_mismatch);
+
+    bool operator >= (const r_Point&) const throw(r_Edim_mismatch);
+
     /// vector addition
     r_Point operator+(const r_Point&) const
     throw(r_Edim_mismatch);
@@ -126,6 +135,13 @@ public:
 
     /// vector multiplication
     r_Point operator*(const r_Point&) const
+    throw(r_Edim_mismatch);
+    
+    /// vector multiplication with a scalar
+    r_Point operator*(const r_Range newElement) const;
+
+    /// vector dotProduct
+    r_Range dotProduct(const r_Point &r) const
     throw(r_Edim_mismatch);
 
     /// get dimensionality
@@ -151,7 +167,7 @@ public:
 
 private:
     /// array holding the point coordinates
-    r_Range*    points;
+    r_Range* points;
     /// dimensionality of the point
     r_Dimension dimensionality;
     /// number of components initialized already

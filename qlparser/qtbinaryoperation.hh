@@ -102,9 +102,9 @@ public:
     //@{
     ///
     ///
-    inline void         setInput1(QtOperation* input);
+    inline void setInput1(QtOperation* input);
     ///
-    inline void         setInput2(QtOperation* input);
+    inline void setInput2(QtOperation* input);
     ///
     inline QtOperation* getInput1();
     ///

@@ -58,6 +58,8 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtvariable.cc qtvariable.hh qtvariable.icc \
                       qtconst.cc qtconst.hh qtconst.icc \
                       qtdata.cc qtdata.hh qtdata.icc \
+		      qtclippingfunc.hh qtclippingfunc.cc qtclippingfunc.icc \
+		      qtclippingutil.hh qtclippingutil.cc \
                       qtcollection.cc qtcollection.hh \
                       qtscalardata.cc qtscalardata.hh qtscalardata.icc \
                       qtatomicdata.cc qtatomicdata.hh qtatomicdata.icc \

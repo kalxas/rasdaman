@@ -37,6 +37,7 @@ static const char rcsid[] = "@(#)qlparser, QtPointOp: $Id: qtpointop.cc,v 1.7 20
 
 #include "qlparser/qtpointop.hh"
 #include "qlparser/qtdata.hh"
+#include "qlparser/qtconst.hh"
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtatomicdata.hh"
 
@@ -53,36 +54,51 @@ static const char rcsid[] = "@(#)qlparser, QtPointOp: $Id: qtpointop.cc,v 1.7 20
 using namespace std;
 #endif
 
-
 const QtNode::QtNodeType QtPointOp::nodeType = QT_POINTOP;
 
-QtPointOp::QtPointOp(QtOperationList* opList)
-    :  QtNaryOperation(opList)
+QtPointOp::QtPointOp(QtOperationList *opList)
+    : QtNaryOperation(opList)
 {
+    pt = NULL;
+    bool areAllQtConst = true;
+    for (auto iter = opList->begin(); iter != opList->end(); iter++)
+    {
+        areAllQtConst &= ((*iter)->getNodeType() == QT_CONST);
+    }
+
+    if (areAllQtConst)
+    {
+        pt = new r_Point(opList->size());
+        int i= 0;
+        for (auto iter = opList->begin(); iter != opList->end(); iter++, i++)
+        {
+            QtData* coordPtr  = (dynamic_cast<QtConst*>(*iter))->getDataObj();
+            
+           (*pt)[i] = (static_cast<QtAtomicData *>(coordPtr))->getUnsignedValue();
+        }
+    }
 }
 
-
-
-QtData*
-QtPointOp::evaluate(QtDataList* inputList)
+QtData *
+QtPointOp::evaluate(QtDataList *inputList)
 {
     startTimer("QtPointOp");
 
-    QtData*     returnValue = NULL;
-    QtDataList* operandList = NULL;
+    QtData *returnValue = NULL;
+    QtDataList *operandList = NULL;
 
     if (getOperands(inputList, operandList))
     {
-        vector<QtData*>::iterator dataIter;
-        bool              goOn = true;
+        vector<QtData *>::iterator dataIter;
+        bool goOn = true;
 
         if (operandList)
         {
             // first check operand types
             for (dataIter = operandList->begin(); dataIter != operandList->end() && goOn; dataIter++)
                 if (!((*dataIter)->getDataType() == QT_SHORT || (*dataIter)->getDataType() == QT_USHORT ||
-                        (*dataIter)->getDataType() == QT_LONG  || (*dataIter)->getDataType() == QT_ULONG  ||
-                        (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR))
+                      (*dataIter)->getDataType() == QT_LONG || (*dataIter)->getDataType() == QT_ULONG ||
+                      (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR))
                 {
                     goOn = false;
                     break;
@@ -114,20 +130,20 @@ QtPointOp::evaluate(QtDataList* inputList)
             // create a QtPointData object and fill it
             //
             r_Point pt(operandList->size());
-            r_Minterval* nullValues = NULL;
+            r_Minterval *nullValues = NULL;
 
             for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
                 if ((*dataIter)->getDataType() == QT_SHORT ||
-                        (*dataIter)->getDataType() == QT_LONG  ||
-                        (*dataIter)->getDataType() == QT_OCTET)
+                    (*dataIter)->getDataType() == QT_LONG ||
+                    (*dataIter)->getDataType() == QT_OCTET)
                 {
-                    pt << (static_cast<QtAtomicData*>(*dataIter))->getSignedValue();
-                    nullValues = (static_cast<QtAtomicData*>(*dataIter))->getNullValues();
+                    pt << (static_cast<QtAtomicData *>(*dataIter))->getSignedValue();
+                    nullValues = (static_cast<QtAtomicData *>(*dataIter))->getNullValues();
                 }
                 else
                 {
-                    pt << (static_cast<QtAtomicData*>(*dataIter))->getUnsignedValue();
-                    nullValues = (static_cast<QtAtomicData*>(*dataIter))->getNullValues();
+                    pt << (static_cast<QtAtomicData *>(*dataIter))->getUnsignedValue();
+                    nullValues = (static_cast<QtAtomicData *>(*dataIter))->getNullValues();
                 }
             returnValue = new QtPointData(pt);
             returnValue->setNullValues(nullValues);
@@ -152,20 +168,14 @@ QtPointOp::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-
-
-void
-QtPointOp::printTree(int tab, std::ostream& s, QtChildType mode)
+void QtPointOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtPointOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << std::endl;
 
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtPointOp::printAlgebraicExpression(std::ostream& s)
+void QtPointOp::printAlgebraicExpression(std::ostream &s)
 {
     s << "[";
 
@@ -174,27 +184,25 @@ QtPointOp::printAlgebraicExpression(std::ostream& s)
     s << "]";
 }
 
-
-
-const QtTypeElement&
-QtPointOp::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtPointOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     QtOperationList::iterator iter;
-    bool              opTypesValid = true;
+    bool opTypesValid = true;
 
     for (iter = operationList->begin(); iter != operationList->end() && opTypesValid; iter++)
     {
-        const QtTypeElement& type = (*iter)->checkType(typeTuple);
+        const QtTypeElement &type = (*iter)->checkType(typeTuple);
 
         // valid types: integers
-        if (!(type.getDataType() == QT_SHORT    ||
-                type.getDataType() == QT_LONG     ||
-                type.getDataType() == QT_OCTET    ||
-                type.getDataType() == QT_USHORT   ||
-                type.getDataType() == QT_ULONG    ||
-                type.getDataType() == QT_CHAR))
+        if (!(type.getDataType() == QT_SHORT ||
+              type.getDataType() == QT_LONG ||
+              type.getDataType() == QT_OCTET ||
+              type.getDataType() == QT_USHORT ||
+              type.getDataType() == QT_ULONG ||
+              type.getDataType() == QT_CHAR))
         {
             opTypesValid = false;
             break;
@@ -212,19 +220,4 @@ QtPointOp::checkType(QtTypeTuple* typeTuple)
 
     return dataStreamType;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

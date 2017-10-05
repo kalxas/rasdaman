@@ -418,15 +418,18 @@ void QueryTree::removeDynamicObject(vector<QtONCStream*>* node)
 
 void QueryTree::releaseDynamicObjects()
 {
+    
     for (list<QtNode*>::iterator iter = qtNodeList.begin(); iter != qtNodeList.end(); iter++)
     {
+        
         if (*iter != NULL)
         {
+            std::cout << (*iter)->getNodeType() << std::flush;
             delete *iter;
             *iter = NULL;
         }
     }
-
+    
     for (list<QtData*>::iterator iter = qtDataList.begin(); iter != qtDataList.end(); iter++)
     {
         if (*iter != NULL)

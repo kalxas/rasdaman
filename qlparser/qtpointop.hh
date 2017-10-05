@@ -69,9 +69,13 @@ public:
     /// type checking of the subtree
     virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
+    inline r_Point* getPoints();
+
 private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
+
+    r_Point* pt;
 };
 
 

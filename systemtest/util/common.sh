@@ -63,6 +63,7 @@ TEST_GREY=test_grey
 TEST_GREY2=test_grey2
 TEST_RGB2=test_rgb2
 TEST_GREY3D=test_grey3d
+TEST_GREY4D=test_grey4d
 TEST_COMPLEX=test_complex
 TEST_NULL=nulltest
 TEST_SUBSETTING_1D=test_subsetting_1d
@@ -749,7 +750,7 @@ run_test()
       secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g'`
               get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
-      select|rasql|nullvalues|subsetting)
+      select|rasql|nullvalues|subsetting|clipping)
               QUERY=`cat $f`
               
               $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"

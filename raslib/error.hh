@@ -565,6 +565,10 @@ public:
 #define DIVISION_BY_ZERO                    433
 #define CELLBINARYOPUNAVAILABLE             434
 #define CELLUNARYOPUNAVAILABLE              435
+#define MDDARGREQUIRED                      436
+#define POINTDIMENSIONDIFFERS               507
+#define SUBSPACENOINTERSECTION              506
+#define SUBSPACEDIMSAMEASMDDOBJ             515
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709
 #define FAILEDWRITINGTODISK                 710

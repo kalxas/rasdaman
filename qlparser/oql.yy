@@ -78,6 +78,9 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtcelltypeattributes.hh"
 #include "relcatalogif/syntaxtypes.hh"
 
+#include "qlparser/qtclippingfunc.hh"
+#include "qlparser/qtmshapeop.hh"
+
 #undef EQUAL
 #undef ABS
 
@@ -184,6 +187,7 @@ struct QtUpdateSpecElement
   QtIterator::QtONCStreamList*      qtONCStreamListValue;
   QtComplexData::QtScalarDataList*  qtScalarDataListValue;
   QtNode::QtOperationList*          qtOperationListValue;
+	QtNode::QtOperationList*  				qtOperationListValue2;
 
   QtUpdateSpecElement               qtUpdateSpecElement;
 
@@ -230,7 +234,7 @@ struct QtUpdateSpecElement
                          SET ASSIGN MARRAY MDARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
-                         MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN
+                         MDDPARAM OID SHIFT CLIP POLYTOPE SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN SUBSPACE
                          ARCCOS ARCTAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST
 			  INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
@@ -259,15 +263,15 @@ struct QtUpdateSpecElement
 %type <qtUpdateSpecElement>   updateSpec
 %type <qtMDDAccessValue>      iteratedCollection
 %type <qtONCStreamListValue>  collectionList
-%type <qtUnaryOperationValue> reduceIdent structSelection trimExp
-%type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp functionExp spatialOp
-                              integerExp mintervalExp namedMintervalExp intervalExp namedIntervalExp condenseExp variable mddConfiguration mintervalList concatExp rangeConstructorExp
-                              caseExp typeAttribute projectExp
+%type <qtUnaryOperationValue> reduceIdent structSelection trimExp 
+%type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp  functionExp spatialOp pointCoordinate 
+                              integerExp mintervalExp  namedMintervalExp intervalExp namedIntervalExp condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
+                              caseExp typeAttribute projectExp polytopeWKT
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
 // %type <stgType>           storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2 namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList
+%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2  namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList  pointCoordinateList2 pointCoordinateList polytopeWKTList 
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
@@ -1474,7 +1478,7 @@ spatialOpList:
 	{
 	  $$ = $1;
 	};
-
+ 
 spatialOpList2: spatialOpList2 COMMA spatialOp
 	{
 	  $1->push_back( $3 );
@@ -1488,6 +1492,104 @@ spatialOpList2: spatialOpList2 COMMA spatialOp
 	};
 
 spatialOp: generalExp        { $$ = $1; };
+
+
+polytopeWKT: polytopeWKTList
+{
+		QtMShapeOp* mshape = new QtMShapeOp($1);
+		for(auto iter = $1->begin(); iter!= $1->end(); iter++)
+		{
+		  parseQueryTree->removeDynamicObject(dynamic_cast<QtMShapeOp*> (*iter));
+		}
+		$$ = mshape;
+
+};
+
+polytopeWKTList:POLYTOPE LRPAR LRPAR pointCoordinateList RRPAR RRPAR 
+{
+	if( $4->size() > 1)
+	{
+		$$ = new QtNode::QtOperationList();
+		QtMShapeOp* mshape = new QtMShapeOp( $4 ); 
+		parseQueryTree->addDynamicObject( mshape );
+		$$->push_back(mshape);
+		
+		// clean up
+		for(auto iter = $4->begin(); iter!= $4->end(); iter++)
+		{
+			parseQueryTree->removeDynamicObject(dynamic_cast<QtPointOp*> (*iter));
+		}
+		
+	}
+	else
+	{
+	// save the parse error info and stop the parser
+            if( parseError ) delete parseError;
+            parseError = new ParseInfo( 312, $1.info->getToken().c_str(),
+	                                $1.info->getLineNo(), $1.info->getColumnNo() );
+
+	    QueryTree::symtab.wipe();
+            YYABORT;	
+	}
+}
+	| POLYTOPE LRPAR polytopeWKTList COMMA POLYTOPE LRPAR LRPAR pointCoordinateList RRPAR RRPAR RRPAR
+	{
+		QtMShapeOp* pt = new QtMShapeOp( $8);
+		parseQueryTree->addDynamicObject(pt);
+	  $3->push_back ( pt );
+		$$ = $3;
+		for(auto iter = $8->begin(); iter!= $8->end(); iter++)
+		{
+		  parseQueryTree->removeDynamicObject(dynamic_cast<QtPointOp*> (*iter));
+		}
+		FREESTACK($1)
+		FREESTACK($2)
+		FREESTACK($4)
+		FREESTACK($5)
+		FREESTACK($6)
+		FREESTACK($7)
+		FREESTACK($9)
+		FREESTACK($10)
+		FREESTACK($11)
+	};
+	
+pointCoordinateList: pointCoordinateList2
+        {
+            $$ = new QtNode::QtOperationList();
+            QtPointOp* pt = new QtPointOp( $1 );
+            parseQueryTree->addDynamicObject( pt );
+            $$->push_back ( pt );
+        }
+        | pointCoordinateList COMMA pointCoordinateList2
+        {
+            QtPointOp* pt = new QtPointOp( $3 );
+            parseQueryTree->addDynamicObject( pt );
+            $1->push_back ( pt );
+            $$ = $1;
+            FREESTACK( $2 )
+        };
+ 
+
+pointCoordinateList2: pointCoordinate pointCoordinateList2  
+	{
+            //append the coordinate value to the front of the vector
+            $2->insert($2->begin(), $1);
+            $$ = $2;
+            parseQueryTree->removeDynamicObject( $1 );
+        }
+        | pointCoordinate
+        {
+            $$ = new QtNode::QtOperationList();
+            $$->push_back( $1 );
+            parseQueryTree->removeDynamicObject( $1 );
+	};
+
+pointCoordinate:scalarLit        
+{ 
+	$$ = new QtConst( $1 );
+	parseQueryTree->removeDynamicObject( $1 );
+	parseQueryTree->addDynamicObject( $$ );
+};
 
 intervalExp: generalExp COLON generalExp
 	{
@@ -1706,29 +1808,58 @@ condenseOpLit: PLUS
 	}; 
 
 functionExp: OID LRPAR collectionIterator RRPAR    
+    {
+	QtVariable* var = new QtVariable( $3.value );
+	var->setParseInfo( *($3.info) );
+	$$ = new QtOId( var );
+	$$->setParseInfo( *($1.info) );
+	parseQueryTree->addDynamicObject( $$ );
+	FREESTACK($1)
+	FREESTACK($2)
+	FREESTACK($3)
+	FREESTACK($4)
+    }
+    | SHIFT LRPAR generalExp COMMA generalExp RRPAR
+    {
+	$$ = new QtShift( $3, $5 );
+	$$->setParseInfo( *($1.info) );
+	parseQueryTree->removeDynamicObject( $3 );
+	parseQueryTree->removeDynamicObject( $5 );
+	parseQueryTree->addDynamicObject( $$ );
+	FREESTACK($1)
+	FREESTACK($2)
+	FREESTACK($4)
+	FREESTACK($6)
+    }
+    | CLIP LRPAR generalExp COMMA polytopeWKT RRPAR
+    {
+        $$ = new QtClipping( $3, $5, QtClipping::CLIP_POLYTOPE );
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->removeDynamicObject( $3 );
+        parseQueryTree->removeDynamicObject( $5 );
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($6)
+ 	}
+    | SUBSPACE LRPAR generalExp COMMA LRPAR pointCoordinateList RRPAR RRPAR
+    {
+	QtMShapeOp* mshapeop = new QtMShapeOp( $6 );
+        $$ = new QtClipping( $3, mshapeop, QtClipping::CLIP_SUBSPACE );
+	$$->setParseInfo( *($1.info) );
+	parseQueryTree->removeDynamicObject( $3 );
+	for(auto iter = $6->begin(); iter!= $6->end(); iter++)
 	{
-	  QtVariable* var = new QtVariable( $3.value );
-	  var->setParseInfo( *($3.info) );
-	  $$ = new QtOId( var );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($3)
-	  FREESTACK($4)
-	}
-	| SHIFT LRPAR generalExp COMMA generalExp RRPAR
-	{
-	  $$ = new QtShift( $3, $5 );
-	  $$->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $3 );
-	  parseQueryTree->removeDynamicObject( $5 );
-	  parseQueryTree->addDynamicObject( $$ );
-	  FREESTACK($1)
-	  FREESTACK($2)
-	  FREESTACK($4)
-	  FREESTACK($6)
-	}
+            parseQueryTree->removeDynamicObject(dynamic_cast<QtPointOp*> (*iter));
+        }
+	parseQueryTree->addDynamicObject( $$ );
+	FREESTACK($1)
+	FREESTACK($2)
+	FREESTACK($4)
+	FREESTACK($5)
+	FREESTACK($7)
+    }
 	// added -- PB 2005-jun-18
 	| EXTEND LRPAR generalExp COMMA generalExp RRPAR
 	{

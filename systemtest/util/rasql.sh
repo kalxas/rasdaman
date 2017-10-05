@@ -262,8 +262,9 @@ function import_rasql_data()
   check_type GreySet3
   check_type RGBSet
   
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_STRUCT
+  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
 
+#create the struct_cube_set type
   $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bstruct_cube_set\b"
   if [ $? -ne 0 ]; then
     log "rasdaman type struct_cube_set not found, inserting..."
@@ -271,8 +272,20 @@ function import_rasql_data()
     $RASQL -q "create type struct_cube as struct_pixel mdarray [ x, y, z ]" > /dev/null
     $RASQL -q "create type struct_cube_set as set ( struct_cube )" > /dev/null
   fi
+
   create_coll $TEST_STRUCT struct_cube_set
   $RASQL -q "insert into $TEST_STRUCT values \$1" -f "$TESTDATA_PATH/23k.bin" --mdddomain "[0:99,0:9,0:0]" --mddtype struct_cube > /dev/null
+
+#create the GreySet4 type
+  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bGreySet4\b"
+  if [ $? -ne 0 ]; then
+    log "rasdaman type GreySet4 not found, inserting..."
+    $RASQL -q "create type GreyTesseract as char mdarray [ x0, x1, x2, x3 ]" > /dev/null
+    $RASQL -q "create type GreySet4 as set ( GreyTesseract )" > /dev/null
+  fi
+
+  create_coll $TEST_GREY4D GreySet4
+  $RASQL -q "insert into $TEST_GREY4D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:9,0:9,0:9,0:49]" --mddtype GreyTesseract > /dev/null
 
   create_coll $TEST_GREY GreySet
   insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode"

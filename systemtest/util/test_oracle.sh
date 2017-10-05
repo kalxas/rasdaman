@@ -91,8 +91,8 @@ gmljp2_enabled=$( check_gdal_version 1 10 ) # GDAL >= 1.10
 drop_data()
 {
   [ $DROP_DATA -eq 0 ] && return
-  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_COMPLEX $TEST_STRUCT
-  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || drop_petascope_data
+  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_COMPLEX $TEST_STRUCT
+  [ "$SVC_NAME" = "clipping" -o "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || drop_petascope_data
   [ "$SVC_NAME" == "nullvalues" ] && drop_nullvalues_data
   [ "$SVC_NAME" == "subsetting" ] && drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D
 }
@@ -147,8 +147,8 @@ done
 
 # run import if necessary
 drop_data
-[ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]
-[ "$SVC_NAME" == "select" ] && import_rasql_data "$TESTDATA_PATH"
+[ "$SVC_NAME" == "clipping" -o "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]
+[ "$SVC_NAME" == "select" -o "$SVC_NAME" == "clipping" ] && import_rasql_data "$TESTDATA_PATH"
 [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
 [ "$SVC_NAME" == "subsetting" ] && import_subsetting_data "$TESTDATA_PATH"
 if [ -e "$TESTDATA_PATH/complex.binary" ] ; then

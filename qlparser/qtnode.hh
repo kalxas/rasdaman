@@ -77,6 +77,8 @@ public:
     /// list of QtData pointers
     typedef std::vector<QtData*> QtDataList;
 
+    typedef std::vector<QtDataList*> QtNestedDataList;
+
     /// struct containing dimension and triming information
     struct QtTrimElement
     {
@@ -136,6 +138,7 @@ public:
         QT_CONDENSE,
         QT_UNARY_INDUCE,
         QT_PROJECT,
+        QT_CLIPPING,
 
 //**************
         QT_ABS, QT_EXP, QT_LOG, QT_LN, QT_SIN, QT_COS,
@@ -168,6 +171,7 @@ public:
         QT_INTERVALOP,
         QT_MINTERVALOP,
         QT_POINTOP,
+        QT_MSHAPEOP,
         QT_LO,
         QT_HI,
         QT_SDOM,
@@ -213,6 +217,7 @@ public:
 
     /// list of QtOperation pointers
     typedef std::vector<QtOperation*> QtOperationList;
+    typedef std::vector<QtOperationList* > QtOperationNestedList;
 
     /// default constructor
     QtNode();

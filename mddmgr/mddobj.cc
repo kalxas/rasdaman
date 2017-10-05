@@ -317,7 +317,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
 }
 
 std::vector<shared_ptr<Tile>>*
-                           MDDObj::intersect(const r_Minterval& searchInter) const
+MDDObj::intersect(const r_Minterval& searchInter) const
 {
     std::vector<shared_ptr<Tile>>* retval = myMDDIndex->intersect(searchInter);
 #ifdef DEBUG
@@ -335,7 +335,7 @@ std::vector<shared_ptr<Tile>>*
 }
 
 std::vector<shared_ptr<Tile>>*
-                           MDDObj::getTiles() const
+MDDObj::getTiles() const
 {
     RMTIMER("MDDObj", "getTiles");
     return  myMDDIndex->getTiles();

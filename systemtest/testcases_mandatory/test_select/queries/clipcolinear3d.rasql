@@ -1,0 +1,1 @@
+select clip(c, polygon((0 0 0,73 91 2))) from test_grey3d as c

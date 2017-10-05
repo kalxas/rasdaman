@@ -104,7 +104,7 @@ QtShift::evaluate(QtDataList* inputList)
         // domain while copying the data. Optimization of this is left for future work.
         //
 
-        QtMDD*         qtMDDObj          = static_cast<QtMDD*>(operand1);
+        QtMDD* qtMDDObj = static_cast<QtMDD*>(operand1);
         r_Point transPoint(1);
 
         // get transPoint

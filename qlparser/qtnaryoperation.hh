@@ -61,6 +61,7 @@ public:
     /// constructor getting a list of operands
     QtNaryOperation(QtOperationList* opList);
 
+
     /// virtual destructor
     virtual ~QtNaryOperation();
 
@@ -112,6 +113,7 @@ public:
 protected:
     /// method for testing and evaluating the input branches
     bool getOperands(QtDataList* inputList, QtDataList*& operandList);
+
     /**
       The method checks if the input branches are valid. Then it passes the evaluate message to its two
       operands with the {\tt inputList} as argument. The returned results are provided through the arguments
@@ -121,6 +123,7 @@ protected:
 
     /// operation trees
     QtOperationList* operationList;
+
 
 private:
     /// atribute for identification of nodes

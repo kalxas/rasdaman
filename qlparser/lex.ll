@@ -226,6 +226,9 @@ int string_yyinput( char* buf, int max_size )
 
 "oid"                                    { SETTOKEN( OID, commandToken, OID ) }
 "shift"                                  { SETTOKEN( SHIFT, commandToken, SHIFT ) }
+"clip"                                   { SETTOKEN( CLIP, commandToken, CLIP ) }
+"subspace"                               { SETTOKEN( SUBSPACE, commandToken, SUBSPACE)}
+"polytope"                                { SETTOKEN( POLYTOPE, commandToken, POLYTOPE )}
 "scale"                                  { SETTOKEN( SCALE, commandToken, SCALE ) }
 "dbinfo"                                 { SETTOKEN( DBINFO, commandToken, DBINFO ) }
 "version"                                { SETTOKEN( RAS_VERSION, commandToken, RAS_VERSION ) }

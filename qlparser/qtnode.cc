@@ -91,6 +91,7 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_BINARY_OPERATION, QT_MARRAYOP},
     {QT_BINARY_OPERATION, QT_SCALE},
     {QT_BINARY_OPERATION, QT_SHIFT},
+    {QT_BINARY_OPERATION, QT_CLIPPING},
     {QT_OPERATION, QT_CONST},
     {QT_OPERATION, QT_GROUP_ITERATOR},
     {QT_OPERATION, QT_IDENT},
@@ -101,6 +102,7 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_NARY_OPERATION, QT_CONCAT},
     {QT_NARY_OPERATION, QT_RANGE_CONSTRUCTOR},
     {QT_NARY_OPERATION, QT_CASEOP},
+    {QT_NARY_OPERATION, QT_MSHAPEOP},
     {QT_OPERATION, QT_UNARY_OPERATION},
     {QT_UNARY_OPERATION, QT_CONDENSE},
     {QT_CONDENSE, QT_ADDCELLS},
@@ -487,7 +489,7 @@ QtTypeElement::QtTypeElement(const Type*            initType,
 
 
 
-QtTypeElement::QtTypeElement(const QtTypeElement& typeElement)
+QtTypeElement:: QtTypeElement(const QtTypeElement& typeElement)
     : dataType(typeElement.dataType),
       type(typeElement.type),
       name(NULL)

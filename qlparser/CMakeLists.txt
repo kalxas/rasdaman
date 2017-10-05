@@ -48,7 +48,9 @@ add_library(qlparser
         qtcaseequality.hh qtcaseequality.cc
         qtcaseop.hh qtcaseop.cc qtcaseop.icc
         qtcelltypeattributes.hh qtcelltypeattributes.cc
-		qtcollection.hh qtcollection.cc
+        qtclippingutil.hh qtclippingutil.cc
+        qtclippingfunc.hh qtclippingfunc.cc qtclippingfunc.icc
+        qtcollection.hh qtcollection.cc
         qtcommand.hh qtcommand.cc qtcommand.icc
         qtcomplexdata.hh qtcomplexdata.cc qtcomplexdata.icc
         qtconcat.hh qtconcat.cc qtconcat.icc
@@ -65,6 +67,7 @@ add_library(qlparser
         qtdroptype.cc qtdroptype.hh
         qtemptystream.cc qtemptystream.hh qtemptystream.icc
         qtexecute.hh
+        qtfindsection.hh qtfindsection.cc
         qtinfo.cc qtinfo.hh qtinfo.icc
         qtinsert.cc qtinsert.hh qtinsert.icc
         qtintervaldata.cc qtintervaldata.hh qtintervaldata.icc
@@ -99,7 +102,9 @@ add_library(qlparser
         qtupdate.cc qtupdate.hh qtupdate.icc
         qtvariable.cc qtvariable.hh qtvariable.icc
         querytree.cc querytree.hh querytree.icc
-        symtab.hh symtab.cc)
+        symtab.hh symtab.cc
+        qtmshapedata.hh qtmshapedata.cc qtmshapedata.icc
+        qtmshapeop.hh qtmshapeop.cc qtmshapeop.icc)
 
 
 if (USE_GDAL)
@@ -112,10 +117,13 @@ endif ()
 target_include_directories(qlparser SYSTEM PUBLIC ${OPTIONAL_INCLUDE_DIRECTORIES})
 target_include_directories(qlparser PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(qlparser PUBLIC "${CMAKE_SOURCE_DIR}/debug")
+
+add_subdirectory(test)
+
 target_link_libraries(qlparser ${OPTIONAL_LIBRARIES})
 
 # The qlparser depends on clientcomm and servercomm because somebody included the generated RPC files.
-add_dependencies(qlparser clientcomm servercomm)
+add_dependencies(qlparser clientcomm servercomm catalogmgr)
 
 install(TARGETS qlparser
         DESTINATION ${LIB_DIR})

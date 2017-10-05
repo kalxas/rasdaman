@@ -63,7 +63,8 @@ add_library(raslib attribute.hh attribute.cc
         structure.hh structure.cc
         structuretype.hh structuretype.cc
         template_inst.hh
-        type.hh type.cc)
+        type.hh type.cc
+        pointdouble.hh pointdouble.cc pointdouble.icc)
 
 target_include_directories(raslib PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 

@@ -32,3 +32,9 @@ QtPointOp::getNodeType() const
 {
   return nodeType;
 }
+
+inline r_Point*
+QtPointOp::getPoints()
+{
+    return pt;
+}

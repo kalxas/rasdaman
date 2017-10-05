@@ -315,7 +315,7 @@ MDDObjIx::removeTile(shared_ptr<Tile> tileToRemove)
 }
 
 vector<shared_ptr<Tile>>*
-                      MDDObjIx::intersect(const r_Minterval& searchInter) const
+MDDObjIx::intersect(const r_Minterval& searchInter) const
 {
 #ifdef RMANBENCHMARK
     if (RManBenchmark >= 3)
@@ -462,7 +462,7 @@ MDDObjIx::containPointQuery(const r_Point& searchPoint) const
 }
 
 vector<shared_ptr<Tile>>*
-                      MDDObjIx::getTiles() const
+MDDObjIx::getTiles() const
 {
 #ifdef RMANBENCHMARK
     if (RManBenchmark >= 3)
@@ -531,7 +531,6 @@ vector<shared_ptr<Tile>>*
 #endif
     return result;
 }
-
 
 bool
 MDDObjIx::isPersistent() const
