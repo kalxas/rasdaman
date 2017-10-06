@@ -178,12 +178,13 @@
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 500^E^Error: The points don't have the same dimension.
-501^E^Error: Invalid set of points to construct polygon.
+501^E^Error: Ill-defined 2-D polygon.
 502^E^Error: The faces of the polytope are not of the same dimension
-503^E^Error: The number of faces defining the polytope is too small. The polygon is not a closed convex object
+503^E^Error: The number of faces defining the polytope numbers too few.
 504^E^Error: The polytope has a dimension larger than the MDD object in which it is expected to lie.
 506^E^Exception: The subspace of the data points provided does not intersect with the stored data.
 507^E^Exception: The dimension of the points differs from that of the MDD object in which they are expected to lie.
+508^E^Error: The polygon vertices are not coplanar.
 515^E^Exception: The subspace dimension is the same as the dimension of the MDD object in which it is expected to lie.
 #
 # 5XX errors for overflow situations

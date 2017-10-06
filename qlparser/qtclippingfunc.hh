@@ -24,20 +24,15 @@ rasdaman GmbH.
 #ifndef _QTCLIPPINGFUNC_
 #define _QTCLIPPINGFUNC_
 
-//#ifndef CPPSTDLIB
-//#include <ospace/string.h> // STL<ToolKit>
-//#else
 #include <string>
-//#endif
 
 #include "qlparser/qtbinaryoperation.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtmshapedata.hh"
 #include "qlparser/qtclippingutil.hh"
+#include "qlparser/qtpolygonclipping.hh"
 #include <map>
-
-//#include "catalogmgr/ops.hh"
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -78,7 +73,8 @@ class QtClipping : public QtBinaryOperation
 
     enum QtClipType
     {
-        CLIP_SUBSPACE, 
+        CLIP_SUBSPACE,
+        CLIP_POLYGON,
         CLIP_POLYTOPE
     };
 

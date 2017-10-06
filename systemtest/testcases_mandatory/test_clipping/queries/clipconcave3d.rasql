@@ -1,0 +1,1 @@
+select encode(clip(c, polygon( 0 0 0, 80 0 0, 40 40 2, 80 80 3, 0 0 3)), "png") from test_grey3d as c

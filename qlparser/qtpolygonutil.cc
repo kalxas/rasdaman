@@ -37,17 +37,7 @@ using namespace std;
 
 using namespace std;
 
-bool classcomp::operator()(const r_Point& x, const r_Point& y) const {
-    if (x.dimension() < y.dimension()) return true;
-    if (x.dimension() > y.dimension()) return false;
-    for (unsigned int i = 0; i < x.dimension(); i++) {
-        if (x[i] < y[i]) return true;
-        if (x[i] > y[i]) return false;
-    }
-    return false;
-}
-
-pair<r_Point, r_Point> getBoundingBox(const vector<r_Point>& polygon)
+pair< r_Point, r_Point > getBoundingBox(const vector< r_Point >& polygon)
 {
     r_Point minPoint( polygon[0].dimension() );
     r_Point maxPoint( polygon[0].dimension() );
@@ -70,7 +60,7 @@ pair<r_Point, r_Point> getBoundingBox(const vector<r_Point>& polygon)
     return make_pair(minPoint, maxPoint);
 }
 
-void rasterizePolygon( vector<vector<char>>& mask, const vector<r_Point>& polygon )
+void rasterizePolygon( vector< vector< char > >& mask, const vector< r_Point >& polygon )
 {
     for( r_Dimension k=0; k < polygon.size(); k++ )
     {
@@ -119,7 +109,7 @@ void rasterizePolygon( vector<vector<char>>& mask, const vector<r_Point>& polygo
     }
 }
 
-void fillOutsideOfPolygon( vector<vector<char>>& mask )
+void fillOutsideOfPolygon( vector< vector< char > >& mask )
 {
     if( mask[0][0] != 1 ) mask[0][0] = 0;
     if( mask[mask.size()-1][0] != 1 ) mask[mask.size()-1][0] = 0;
@@ -209,7 +199,7 @@ int orientation(const r_Point& p, const r_Point& q, const r_Point& r)
     return (val > 0)? 1: 2; // clock or counterclock wise
 }
 
-int orientation(const r_Point& p, const r_Point& q, const double& x, const double& y)
+int orientation(const r_Point& p, const r_Point& q, const double x, const double y)
 {
     double val = ((double)q[1] - (double)p[1]) * (x - (double)q[0]) -
               ((double)q[0] - (double)p[0]) * (y - (double)q[1]);
@@ -221,7 +211,7 @@ int orientation(const r_Point& p, const r_Point& q, const double& x, const doubl
     return (val > 0)? 1: 2; // clock or counterclock wise
 }
 
-int orientation(const vector<double>& p, const vector<double>& q, const vector<double>& r)
+int orientation(const vector< double >& p, const vector< double >& q, const vector< double >& r)
 {
     double val = (q[1] - p[1]) * (r[0] - q[0]) -
               (q[0] - p[0]) * (r[1] - q[1]);
@@ -233,7 +223,7 @@ int orientation(const vector<double>& p, const vector<double>& q, const vector<d
     return (val > 0)? 1: 2; // clock or counterclock wise
 }
 
-int checkPointInsidePolygon( const double& x, const double& y, const vector<r_Point>& polygon )
+int checkPointInsidePolygon( const double x, const double y, const vector< r_Point >& polygon )
 {
     unsigned int next;
     int count = 0;
@@ -293,7 +283,7 @@ int checkPointInsidePolygon( const double& x, const double& y, const vector<r_Po
     return count;
 }
 
-int checkPointInsidePolygon( const r_Point& x, const vector<r_Point>& polygon )
+int checkPointInsidePolygon( const r_Point& x, const vector< r_Point >& polygon )
 {
     unsigned int next;
     int count = 0;
@@ -357,7 +347,7 @@ int checkPointInsidePolygon( const r_Point& x, const vector<r_Point>& polygon )
     return count;
 }
 
-int checkPointInsidePolygon( const vector<double>& x, const vector<vector<double>>& polygon )
+int checkPointInsidePolygon( const vector< double >& x, const vector< vector< double > >& polygon )
 {
     unsigned int next;
     int count = 0;
@@ -421,7 +411,7 @@ int checkPointInsidePolygon( const vector<double>& x, const vector<vector<double
     return count;
 }
 
-bool pnpoly(const int& testx, const int& testy, const std::vector< std::pair<int, int> >& polygon)
+bool isPointInsidePolygon( const int testx, const int testy, const std::vector< r_Point >& polygon)
 {
     /*
     Copyright (c) 1970-2003, Wm. Randolph Franklin
@@ -444,19 +434,19 @@ bool pnpoly(const int& testx, const int& testy, const std::vector< std::pair<int
     bool c = false;
     for (i = 0, j = nvert-1; i < nvert; j = i++)
     {
-        if ( ((polygon[i].second > testy) != (polygon[j].second > testy)) )
+        if ( ((polygon[i][1] > testy) != (polygon[j][1] > testy)) )
         {
-            int x = (polygon[j].second-polygon[i].second);
+            int x = (polygon[j][1]-polygon[i][1]);
             if(x > 0)
             {
-                if( x*( testx-polygon[i].first ) < ( polygon[j].first-polygon[i].first )*( testy-polygon[i].second ) )
+                if( x*( testx-polygon[i][0] ) < ( polygon[j][0]-polygon[i][0] )*( testy-polygon[i][1] ) )
                 {
                     c = !c;
                 }
             }
             else
             {
-                if( x*( testx-polygon[i].first ) > ( polygon[j].first-polygon[i].first )*( testy-polygon[i].second ) )
+                if( x*( testx-polygon[i][0] ) > ( polygon[j][0]-polygon[i][0] )*( testy-polygon[i][1] ) )
                 {
                     c = !c;
                 }
@@ -496,7 +486,7 @@ bool checkSegmentsIntersect( const r_Point& p1, const r_Point& q1, const r_Point
 
 // take v1 as the left-down vertex of the square
 // and v2 as the right-up vertex of the square !!!
-void checkSquare( const r_Point& v1, const r_Point& v2, const vector<r_Point>& polygon, vector<vector<char>>& mask )
+void checkSquare( const r_Point& v1, const r_Point& v2, const vector< r_Point >& polygon, vector< vector< char > >& mask )
 {
     if( abs(v1[0]-v2[0]) <=2 || abs(v1[1]-v2[1]) <= 2 )
     {
@@ -545,7 +535,7 @@ void checkSquare( const r_Point& v1, const r_Point& v2, const vector<r_Point>& p
     }
 }
 
-vector<double> changePointTo2D( const r_Point& x, const vector<r_Point>& polygon )
+vector< double > changePointTo2D( const r_Point& x, const vector< r_Point >& polygon )
 {
     r_Point a = polygon[0];
     r_Point b = polygon[1];
@@ -592,7 +582,7 @@ vector<double> changePointTo2D( const r_Point& x, const vector<r_Point>& polygon
 }
 
 
-vector<double> changePointTo2D( const vector<double>& x, const vector<r_Point>& polygon )
+vector< double > changePointTo2D( const vector< double >& x, const vector< r_Point >& polygon )
 {
     r_Point a = polygon[0];
     r_Point b = polygon[1];
@@ -638,7 +628,7 @@ vector<double> changePointTo2D( const vector<double>& x, const vector<r_Point>& 
     return result;
 }
 
-vector<vector<double>> changePolygonTo2D( const vector<r_Point>& polygon )
+vector< vector< double > > changePolygonTo2D( const vector< r_Point >& polygon )
 {
     vector<vector<double>> result;
     for( unsigned int i = 0; i < polygon.size(); i++ )
@@ -650,12 +640,12 @@ vector<vector<double>> changePolygonTo2D( const vector<r_Point>& polygon )
 
 // take v1 as the left-down vertex of the cube
 // and v2 as the right-up vertex of the cube !!!
-void checkCube( const r_Point& v1, const r_Point& v2, const vector<r_Point>& polygon, map<r_Point, bool, classcomp>& result )
+void checkCube( const r_Point& v1, const r_Point& v2, const vector< r_Point >& polygon, map< r_Point, bool, classcomp >& result )
 {   
     //require vector to have at least 3 points
     
     if(polygon.size() < 3){
-        throw r_Error(NOTENOUGHVERTICES);
+        throw r_Error(INCORRECTPOLYGON);
     }
     int a = v1[0];
     int b = v1[1];
@@ -797,4 +787,3 @@ void checkCube( const r_Point& v1, const r_Point& v2, const vector<r_Point>& pol
         return;
     }
 }
-

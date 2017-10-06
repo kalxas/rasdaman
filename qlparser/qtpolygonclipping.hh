@@ -41,47 +41,30 @@ rasdaman GmbH.
 #include "qlparser/qtbinaryoperation.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtatomicdata.hh"
+#include "qlparser/qtpolygonutil.hh"
 
-class QtPolygonClipping : public QtBinaryOperation
+
+class QtPolygonClipping
 {
 public:
-    /// constructor getting the operand
-    QtPolygonClipping(QtOperation* mddOp, QtOperation* pointOp);
-    
-    /// returns FALSE saying that the operation IS NOT commutative
-    virtual bool isCommutative() const;
+    /// constructor getting the mShape (collection of points) and a bounding box.
+    QtPolygonClipping(const r_Minterval& areaOp, const std::vector<r_Point>& vertices);
 
     // computes the polygon clipping in 2D using Bresenham
     // fast and draws boundaries; currently used for lines, but works in general
-    MDDObj* compute2D_Bresenham(MDDObj* op, r_Minterval areaOp, r_Point vertices, MDDObj* mddres, r_Dimension dim);
+    MDDObj* compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension dim);    
     
     // computes the polygon clipping in 2D using ray intersection counting 
     // also fast and can be adapted to float or double for vertices OR interior points
     // ref: https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
-    MDDObj* compute2D_Rays(MDDObj* op, r_Minterval areaOp, r_Point vertices, MDDObj* mddres, r_Dimension dim);
-    
-    // computes the polygon clipping in 2D using a Divide and conquer approach and a mask
-    // pretty slow, but also the basis for our 3D implementation...
-    MDDObj* compute2D_Divide(MDDObj* op, r_Minterval areaOp, r_Point vertices, MDDObj* mddres, r_Dimension dim);
-    
-    // computes the polygon clipping in 3D
-    MDDObj* compute3D_Divide(MDDObj* op, r_Minterval areaOp, r_Point vertices, MDDObj* mddres, r_Dimension dim);
-    
-    // calls the operation based on the dimension & number of vertices.
-    QtData* computeOp(QtMDD* operand, r_Point polygon);
-    
-    /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
-
-    /// method for identification of nodes
-    virtual QtNodeType getNodeType() const;
-    
-    /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    MDDObj* compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim);
 
 private:
-    /// attribute for identification of nodes
-    static const QtNodeType nodeType;
+    /// the area of interest
+    r_Minterval domain;    
+    
+    /// the vector of vertices
+    vector<r_Point> polygonVertices;
 };
 
 #endif	/* QTPOLYGONCLIPPING_HH */

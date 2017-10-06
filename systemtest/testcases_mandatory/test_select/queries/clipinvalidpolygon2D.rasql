@@ -1,1 +1,0 @@
-select clip(c,polgon((30 40,0 80,60 50,12 80.5,70 60))) from test_rgb2 as c

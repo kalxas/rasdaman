@@ -104,7 +104,9 @@ add_library(qlparser
         querytree.cc querytree.hh querytree.icc
         symtab.hh symtab.cc
         qtmshapedata.hh qtmshapedata.cc qtmshapedata.icc
-        qtmshapeop.hh qtmshapeop.cc qtmshapeop.icc)
+        qtmshapeop.hh qtmshapeop.cc qtmshapeop.icc
+        qtpolygonclipping.hh qtpolygonclipping.cc
+        qtpolygonutil.hh qtpolygonutil.cc)
 
 
 if (USE_GDAL)

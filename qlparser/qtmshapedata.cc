@@ -35,8 +35,6 @@ using namespace std;
 #include "config.h"
 #include "qlparser/qtmshapedata.hh"
 #include <cstring>
-// deprecated, not any longer available -- PB 2005-jan-14
-// #include <iostream>
 
 QtMShapeData::QtMShapeData(vector<r_Point> &mShape)
     : QtData(), polytopePoints(mShape), midPoint(NULL)
@@ -52,7 +50,7 @@ QtMShapeData::QtMShapeData(vector<r_Point> &mShape)
 }
 
 QtMShapeData::QtMShapeData(vector<QtMShapeData*> &mShapeEdges )
-    :QtData(), midPoint(NULL), edgePolytopes(mShapeEdges)
+    :QtData(), midPoint(NULL), polytopeEdges(mShapeEdges)
 {
     for(size_t i = 0; i < mShapeEdges.size(); i++)
     {
@@ -108,7 +106,7 @@ QtMShapeData::getSpelling() const
     std::string result;
 
     // buffer
-    r_Dimension bufferLen = polytopePoints.size() * 50; // on the save side for one integers per dimension plus colon and brackets
+    r_Dimension bufferLen = polytopePoints.size() * 50; // on the safe side for one integers per dimension plus colon and brackets
     char *buffer = new char[bufferLen];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );

@@ -1,1 +1,0 @@
-select clip(c, polygon((30 40,120 80))) from test_rgb2 as c

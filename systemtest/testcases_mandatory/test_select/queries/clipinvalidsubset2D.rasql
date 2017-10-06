@@ -1,1 +1,0 @@
-select clip(c[sdom],polygon(( 30 40,0 80,60 50,12 80,70 60))) from test_rgb2 as c

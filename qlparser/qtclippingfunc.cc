@@ -46,7 +46,6 @@ rasdaman GmbH.
 
 #include <sstream>
 #ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
 #else
 #include <string>
 using namespace std;
@@ -377,7 +376,7 @@ QtClipping::extractBresenhamLine(MDDObj* op, r_Minterval areaOp, QtMShapeData* m
     if (resultMDD->getTiles() == NULL)
     {
         LFATAL << "QtClipping::extract_nd_BresenhamLine() - The subspace defined by the set of points provided does not pass through the stored data.";
-        parseInfo.setErrorNo(506);
+        parseInfo.setErrorNo(SUBSPACENOINTERSECTION);
         throw parseInfo;
     }
     
@@ -584,24 +583,48 @@ QtClipping::computeOp(QtMDD* operand, QtMShapeData* mshape)
 
     MDDObj *resultMDD = NULL;
 
-    // first, we need to get the bounding box of the multidimensional shape
-    if (operand->getLoadDomain().dimension() < mshape->getDimension())
+    if (clipType == CLIP_POLYGON)
     {
-        // throw error since the dimension of the polytope cannot be larger than the dimension
-        // of the space in which it lies.
-        LFATAL << "Error: QtClipping::computeOp() - Dimension of the subspace is larger than the dimension of the MDD object.";
-        parseInfo.setErrorNo(504);
-        throw parseInfo;
+        if (operand->getLoadDomain().dimension() < mshape->getDimension())
+        {
+            // throw error since the dimension of the polytope cannot be larger than the dimension
+            // of the space in which it lies.
+            LFATAL << "Error: QtClipping::computeOp() - Dimension of the subspace containing the polygon is larger than the dimension of the MDD object.";
+            parseInfo.setErrorNo(POLYTOPEDIMENSIONTOOLARGE);
+            throw parseInfo;
+        }
+        else if (operand->getLoadDomain().dimension() == 2 && mshape->getDimension() == 2)
+        {
+            QtPolygonClipping polygonMethodsAccess(areaOp, mshape->getPolytopePoints());
+            resultMDD = polygonMethodsAccess.compute2D_Bresenham(op, resultMDD, dim);
+        }
+        else
+        {
+            // throw an error since the dimension of the polygon cannot differ from 2.
+            LFATAL << "Error: QtClipping::computeOp() - At present, polygon clipping can only occur on 2D datasets with 2D polytopes such as triangles.";
+            parseInfo.setErrorNo(INCORRECTPOLYGON);
+            throw parseInfo;            
+        }
     }
-    else if (operand->getLoadDomain().dimension() != 1 && mshape->getDimension() == 1)
+    else if (clipType == CLIP_SUBSPACE)
     {
-        resultMDD = extractBresenhamLine(op, areaOp, mshape, resultMDD, dim);
+        if (operand->getLoadDomain().dimension() < mshape->getDimension())
+        {
+            // throw error since the dimension of the polytope cannot be larger than the dimension
+            // of the space in which it lies.
+            LFATAL << "Error: QtClipping::computeOp() - Dimension of the subspace is larger than the dimension of the MDD object.";
+            parseInfo.setErrorNo(POLYTOPEDIMENSIONTOOLARGE);
+            throw parseInfo;
+        }
+        else if (operand->getLoadDomain().dimension() != 1 && mshape->getDimension() == 1)
+        {
+            resultMDD = extractBresenhamLine(op, areaOp, mshape, resultMDD, dim);
+        }
+        else
+        {
+            resultMDD = extractSubspace(op, areaOp, mshape, resultMDD);
+        }        
     }
-    else
-    {
-        resultMDD = extractSubspace(op, areaOp, mshape, resultMDD);
-    }
-
     // create a new QtMDD object as carrier object for the transient MDD object
     returnValue = new QtMDD(resultMDD);
 

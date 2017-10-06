@@ -566,8 +566,11 @@ public:
 #define CELLBINARYOPUNAVAILABLE             434
 #define CELLUNARYOPUNAVAILABLE              435
 #define MDDARGREQUIRED                      436
-#define POINTDIMENSIONDIFFERS               507
+#define INCORRECTPOLYGON                    501
+#define POLYTOPEDIMENSIONTOOLARGE           504
 #define SUBSPACENOINTERSECTION              506
+#define CLIPNOTPOSSIBLEOVER3D               507
+#define POLYGONVERTICESNOTCOPLANAR          508
 #define SUBSPACEDIMSAMEASMDDOBJ             515
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709

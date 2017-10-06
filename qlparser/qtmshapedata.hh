@@ -41,9 +41,6 @@ rasdaman GmbH.
 #include <vector>
 #include <memory>
 
-// removed deprecated ostrsteam -- PB 2005-jan-14
-// #include <strstream.h>
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -93,6 +90,9 @@ public:
     /// print status of the object to the specified stream
     virtual void printStatus(std::ostream& stream = std::cout) const;
 
+    /// get the list of defining vertices
+    inline const std::vector<r_Point>& getPolytopePoints();
+    
     /// get the dimension of the space the object lies into (how many vectors define this space)
     r_Dimension getDimension();
 
@@ -108,14 +108,14 @@ public:
     /// computes the hyperplaneEquations if they are not yet, and returns them otherwise
     std::vector<std::pair< r_PointDouble, double> > computeHyperplaneEquation();
 private:
-    /// attribute storing the poligon vertices coordinates
-    vector<r_Point>  polytopePoints;
+    /// attribute storing the polytope vertex coordinates
+    std::vector<r_Point>  polytopePoints;
     
     /// barycentre of the polytope vertices.
     r_PointDouble* midPoint;
     
     /// contains data defining the n-1 dim facets
-    vector<QtMShapeData*> edgePolytopes;
+    vector<QtMShapeData*> polytopeEdges;
     
     /// polytope Vertex data; converted to double points to maintain precision.
     std::vector<r_PointDouble>   polytopePointsDouble;

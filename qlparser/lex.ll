@@ -228,7 +228,8 @@ int string_yyinput( char* buf, int max_size )
 "shift"                                  { SETTOKEN( SHIFT, commandToken, SHIFT ) }
 "clip"                                   { SETTOKEN( CLIP, commandToken, CLIP ) }
 "subspace"                               { SETTOKEN( SUBSPACE, commandToken, SUBSPACE)}
-"polytope"                                { SETTOKEN( POLYTOPE, commandToken, POLYTOPE )}
+"polytope"                               { SETTOKEN( POLYTOPE, commandToken, POLYTOPE )}
+"polygon"                                { SETTOKEN( POLYGON, commandToken, POLYGON)}
 "scale"                                  { SETTOKEN( SCALE, commandToken, SCALE ) }
 "dbinfo"                                 { SETTOKEN( DBINFO, commandToken, DBINFO ) }
 "version"                                { SETTOKEN( RAS_VERSION, commandToken, RAS_VERSION ) }

@@ -234,7 +234,7 @@ struct QtUpdateSpecElement
                          SET ASSIGN MARRAY MDARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
-                         MDDPARAM OID SHIFT CLIP POLYTOPE SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN SUBSPACE
+                         MDDPARAM OID SHIFT CLIP POLYGON POLYTOPE SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN SUBSPACE
                          ARCCOS ARCTAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST
 			  INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
@@ -1767,73 +1767,61 @@ condenseExp: CONDENSE condenseOpLit OVER condenseVariable IN generalExp WHERE ge
 	};
 
 condenseOpLit: PLUS
-	{
-	  $$ = Ops::OP_PLUS;
-	  FREESTACK($1)
-	}
-	| MINUS
-	{ 
-    	  $$ = Ops::OP_MINUS;
-	  FREESTACK($1)
-	}
-	| MULT
-	{
-	  $$ = Ops::OP_MULT;
-	  FREESTACK($1)
-	}
-	| DIV
-	{
-	  $$ = Ops::OP_DIV;
-	  FREESTACK($1)
-	}
-	| AND
-	{
-	  $$ = Ops::OP_AND;
-	  FREESTACK($1)
-	}
-	| OR
-	{
-	  $$ = Ops::OP_OR;
-	  FREESTACK($1)
-	}
-	| MAX_BINARY
-	{
-	  $$ = Ops::OP_MAX_BINARY;
-	  FREESTACK($1)
-	}
-	| MIN_BINARY
-	{
-	  $$ = Ops::OP_MIN_BINARY;
-	  FREESTACK($1)
+        {
+            $$ = Ops::OP_PLUS;
+            FREESTACK($1)
+        }
+        | MINUS
+        { 
+            $$ = Ops::OP_MINUS;
+            FREESTACK($1)
+        }
+        | MULT
+        {
+            $$ = Ops::OP_MULT;
+            FREESTACK($1)
+        }
+        | DIV
+        {
+            $$ = Ops::OP_DIV;
+            FREESTACK($1)
+        }
+        | AND
+        {
+            $$ = Ops::OP_AND;
+            FREESTACK($1)
+        }
+        | OR
+        {
+            $$ = Ops::OP_OR;
+            FREESTACK($1)
+        }
+        | MAX_BINARY
+        {
+            $$ = Ops::OP_MAX_BINARY;
+            FREESTACK($1)
+        }
+        | MIN_BINARY
+        {
+            $$ = Ops::OP_MIN_BINARY;
+            FREESTACK($1)
 	}; 
 
 functionExp: OID LRPAR collectionIterator RRPAR    
     {
-	QtVariable* var = new QtVariable( $3.value );
-	var->setParseInfo( *($3.info) );
-	$$ = new QtOId( var );
-	$$->setParseInfo( *($1.info) );
-	parseQueryTree->addDynamicObject( $$ );
-	FREESTACK($1)
-	FREESTACK($2)
-	FREESTACK($3)
-	FREESTACK($4)
+        QtVariable* var = new QtVariable( $3.value );
+        var->setParseInfo( *($3.info) );
+        $$ = new QtOId( var );
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($3)
+        FREESTACK($4)
     }
     | SHIFT LRPAR generalExp COMMA generalExp RRPAR
     {
-	$$ = new QtShift( $3, $5 );
-	$$->setParseInfo( *($1.info) );
-	parseQueryTree->removeDynamicObject( $3 );
-	parseQueryTree->removeDynamicObject( $5 );
-	parseQueryTree->addDynamicObject( $$ );
-	FREESTACK($1)
-	FREESTACK($2)
-	FREESTACK($4)
-	FREESTACK($6)
-    }
-    | CLIP LRPAR generalExp COMMA polytopeWKT RRPAR
-    {
-        $$ = new QtClipping( $3, $5, QtClipping::CLIP_POLYTOPE );
+        $$ = new QtShift( $3, $5 );
         $$->setParseInfo( *($1.info) );
         parseQueryTree->removeDynamicObject( $3 );
         parseQueryTree->removeDynamicObject( $5 );
@@ -1842,23 +1830,43 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($2)
         FREESTACK($4)
         FREESTACK($6)
- 	}
-    | SUBSPACE LRPAR generalExp COMMA LRPAR pointCoordinateList RRPAR RRPAR
+    }
+    | CLIP LRPAR generalExp COMMA POLYGON LRPAR pointCoordinateList RRPAR RRPAR
     {
-	QtMShapeOp* mshapeop = new QtMShapeOp( $6 );
-        $$ = new QtClipping( $3, mshapeop, QtClipping::CLIP_SUBSPACE );
-	$$->setParseInfo( *($1.info) );
-	parseQueryTree->removeDynamicObject( $3 );
-	for(auto iter = $6->begin(); iter!= $6->end(); iter++)
-	{
+        QtMShapeOp* mshapeop = new QtMShapeOp( $7 );
+        $$ = new QtClipping( $3, mshapeop, QtClipping::CLIP_POLYGON );
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->removeDynamicObject( $3 );
+        for(auto iter = $7->begin(); iter!= $7->end(); iter++)
+        {
             parseQueryTree->removeDynamicObject(dynamic_cast<QtPointOp*> (*iter));
         }
-	parseQueryTree->addDynamicObject( $$ );
-	FREESTACK($1)
-	FREESTACK($2)
-	FREESTACK($4)
-	FREESTACK($5)
-	FREESTACK($7)
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        FREESTACK($6)
+        FREESTACK($8)
+        FREESTACK($9)
+    }
+    | SUBSPACE LRPAR generalExp COMMA LRPAR pointCoordinateList RRPAR RRPAR
+    {
+        QtMShapeOp* mshapeop = new QtMShapeOp( $6 );
+        $$ = new QtClipping( $3, mshapeop, QtClipping::CLIP_SUBSPACE );
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->removeDynamicObject( $3 );
+        for(auto iter = $6->begin(); iter!= $6->end(); iter++)
+        {
+            parseQueryTree->removeDynamicObject(dynamic_cast<QtPointOp*> (*iter));
+        }
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        FREESTACK($7)
+        FREESTACK($8)
     }
 	// added -- PB 2005-jun-18
 	| EXTEND LRPAR generalExp COMMA generalExp RRPAR
