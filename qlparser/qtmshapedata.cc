@@ -35,6 +35,7 @@ using namespace std;
 #include "config.h"
 #include "qlparser/qtmshapedata.hh"
 #include <cstring>
+#include <cmath>
 
 QtMShapeData::QtMShapeData(vector<r_Point> &mShape)
     : QtData(), polytopePoints(mShape), midPoint(NULL)

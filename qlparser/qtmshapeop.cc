@@ -53,6 +53,7 @@ static const char rcsid[] = "@(#)qlparser, QtMShapeOp: $Id: qtMShapeOp.cc,v 1.7 
 #include <string>
 using namespace std;
 #endif
+#include <cmath>
 
 const QtNode::QtNodeType QtMShapeOp::nodeType = QT_MSHAPEOP;
 

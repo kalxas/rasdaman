@@ -34,6 +34,7 @@ using namespace std;
 #endif
 
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
