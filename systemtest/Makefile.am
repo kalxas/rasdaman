@@ -56,7 +56,7 @@ check:
 .PHONY: clean
 clean:
 	for testcase in testcases_*/test_*; do \
-		rm -rf $${testcase}/log* $${testcase}/failed_cases $${testcase}/output; \
+		rm -rf $${testcase}/*.log $${testcase}/failed_cases $${testcase}/output; \
 	done;
 
 ######################## Dependencies ############################

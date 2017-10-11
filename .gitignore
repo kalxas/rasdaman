@@ -70,6 +70,7 @@ bin/start_rasdaman.sh
 bin/watch_rasdaman.sh
 bin/stop_rasdaman.sh
 bin/rasmgr.conf
+run_test.sh
 *.class
 *.war
 dbparams.properties
