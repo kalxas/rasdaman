@@ -107,6 +107,30 @@ public class XMLUtil {
 
     private static Logger log = LoggerFactory.getLogger(XMLUtil.class);
 
+    /**
+     * Given a XML text, e.g: <a><b>123</b></a> and one element (open and close tags, e.g: <b>  123   </b>)
+     * return <a><b><![CDATA[  123  ]]></b></a>
+     * @param xml
+     * @param openElement
+     * @param closeElement
+     * @return 
+     */
+    public static String addCdataInsideElement(String xml, String openElement, String closeElement) {
+        int openElementIndex = xml.indexOf(openElement);
+        int closeElementIndex = xml.indexOf(closeElement);
+        
+        String before = xml.substring(0, openElementIndex + openElement.length());
+        String after = xml.substring(closeElementIndex, xml.length());
+        
+        // the 123 value which need to enquoted by cdata
+        String middle = xml.substring(openElementIndex + openElement.length(), closeElementIndex);
+        middle = XMLUtil.enquoteCDATA(middle);
+        
+        String result = before + middle + after;
+        
+        return result;
+    }
+
     static class MyBuilder extends ThreadLocal<Builder> {
 
         boolean validating;
@@ -1340,6 +1364,15 @@ public class XMLUtil {
      */
     public static String enquoteCDATA(String input) {
         return "<![CDATA[" + input + "]]>";
+    }
+    
+    /**
+     * Remove the <![CDATA[ ]]> which enquotes the input string.
+     * @param input
+     * @return 
+     */
+    public static String dequoteCDATA(String input) {
+        return input.replace("<![CDATA[", "").replace("]]>", "");
     }
     
     /**

@@ -59,6 +59,9 @@ import static petascope.core.XMLSymbols.LABEL_WCPS_QUERY;
 // Create a new instance of this bean for each request (so it will not use the old object with stored data)
 @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class XMLProcessCoverageAbstractSyntaxParserService implements IXMLProcessCoverageParserService {
+    // to determine which element contains the WCPS query
+    public static final String QUERY_OPEN_ELEMENT = "<abstractSyntax>";
+    public static final String QUERY_CLOSE_ELEMENT = "</abstractSyntax>";
 
     @Override
     public boolean canParse(Element rootElement) throws WCSException {
