@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ import static petascope.core.KVPSymbols.KEY_TILING;
 import static petascope.core.KVPSymbols.KEY_USE_ID;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
 import petascope.wcs2.parsers.subsets.SubsetDimensionParserService;
+import petascope.wcst.exceptions.WCSTOperationNotAllowed;
 
 /**
  * Parser for the requests handled by the Transaction Extension of OGC Web
@@ -72,6 +74,11 @@ public class KVPWCSTParser {
     public AbstractWCSTRequest parse(Map<String, String[]> kvpParameters) throws WCSException {
         //distinguish between the 3 possible request types: InsertCoverage, DeleteCoverage and UpdateCoverage
         String requestType = kvpParameters.get(KEY_REQUEST)[0];
+        //NOTE: when disable_write_operations is enabled in petascope.properties
+        // All WCST requests: Insertcoverage, UpdateCoverage, DeleteCoverage will be rejected to protect the imported coverages.
+        if (ConfigManager.DISABLE_WRITE_OPERATIONS) {
+            throw new WCSTOperationNotAllowed(requestType);
+        }
         if (requestType.equals(KVPSymbols.VALUE_INSERT_COVERAGE)) {
             //validate the request against WCS-T spec requirements
             validateInsertCoverageRequest(kvpParameters);

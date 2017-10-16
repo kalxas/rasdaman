@@ -210,6 +210,8 @@ public class ExceptionCode {
             "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode OptionNotSupported = new ExceptionCode("OptionNotSupported",
             "Request is for an option that is not supported by this server. Locator: Identifier of option not supported", SC_NOT_IMPLEMENTED);
+    public static final ExceptionCode OperationNotAllowed = new ExceptionCode("OperationNotAllowed",
+            "Request is for an operation that is not allowed by this server. Locator: Identifier of operation not allowed", SC_FORBIDDEN);
     public static final ExceptionCode RasdamanRequestFailed = new ExceptionCode("RasdamanRequestFailed");
     public static final ExceptionCode RasdamanUnavailable = new ExceptionCode("RasdamanUnavailable");
     public static final ExceptionCode RasdamanError = new ExceptionCode("RasdamanError");

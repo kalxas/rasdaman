@@ -188,6 +188,27 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
         this.clickOnElement(webDriver, xPathToElement);
         this.compareOutputAndOracleFile(webDriver, testCaseName);
     }
+    
+    
+    /**
+     * Run the test on the web page when it is needed to click on the link
+     * element <a> ... </a> or element <button> ... </button>
+     * which will not open another page but send query to server and plot the
+     * result.
+     * 
+     * NOTE: it will not compare the output with oracle file.
+     *
+     * @param webDriver
+     * @param testCaseName
+     * @param xPathToElement
+     * @throws java.lang.InterruptedException
+     * @throws java.io.IOException
+     */
+    protected void runTestByClickingOnElementWithoutComparingOracle(WebDriver webDriver, String testCaseName, String xPathToElement) throws InterruptedException, IOException {
+        this.clickOnElement(webDriver, xPathToElement);
+        Thread.sleep(2000);
+        //this.compareOutputAndOracleFile(webDriver, testCaseName);
+    }
 
     /**
      * Run test by clicking on element, then, a tab/window is opened, and
