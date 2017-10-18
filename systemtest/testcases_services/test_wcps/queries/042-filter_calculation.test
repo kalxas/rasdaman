@@ -1,7 +1,7 @@
-for c in (test_mr) return encode((unsigned char)
+for $c in (test_mr) return encode((unsigned char)
   coverage filteredImage
     over $px x(1:10),
-              $py y(1:10)
+         $py y(1:10)
     values
                   (
                     condense +
@@ -12,6 +12,6 @@ for c in (test_mr) return encode((unsigned char)
                                                     over $x x (-1:1),
                                                            $y y(-1:1)
                                                      value list < -1; 0; 1; -2; 0; 2;-1; 0; 1 >) [x($kx),y($ky)])
-                                                               *(c[i($px+$kx),j($py+$ky)])/(8*5.13712275))
+                                                               *($c[i($px+$kx),j($py+$ky)])/(8*5.13712275))
                      )
-, "png", "nodata=0")
+, "image/png", "nodata=0")

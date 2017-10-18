@@ -102,7 +102,7 @@ coverageVariableName: COVERAGE_VARIABLE_NAME
  */
 processingExpression: scalarExpression
                     | encodedCoverageExpression
-		                | scalarValueCoverageExpression;
+		            | scalarValueCoverageExpression;
 
 
 /**

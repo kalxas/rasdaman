@@ -1,2 +1,2 @@
-for s in ( test_rgb, test_rgb, test_rgb ) return	
-	count( (s.0+s.1)/(s.0-s.1) >= 0)
+for $c in ( test_rgb, test_rgb, test_rgb ) return	
+	count( ($c.0+$c.1)/($c.0-$c.1) >= 0)

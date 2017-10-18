@@ -505,4 +505,13 @@ public class StringUtil {
 
         return ListUtil.join(keyValues, "&");
     }
+    
+    /**
+     * As replace() does not work with "$", all the "$" of string, e.g: $c will need to be stripped
+     * @param input
+     * @return 
+     */
+    public static String stripDollarSign(String input) {
+        return input.replaceAll("\\$", "");
+    }
 }

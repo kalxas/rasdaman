@@ -1,5 +1,5 @@
-for a in (test_rgb) return
+for $c in (test_rgb) return
     condense +
 	over $kx x (1:10),
              $ky y (25:75)
-	using $kx * (a[i($kx),j($ky)]).red
+	using $kx * ($c[i($kx),j($ky)]).red

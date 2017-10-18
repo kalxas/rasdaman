@@ -1,6 +1,6 @@
-for c in ( test_mr ) 
+for $c in ( test_mr ) 
 return  encode( 
 	coverage histogram 
 	over $n x(0:255) 
-	values count( c = $n )
-, "csv" )
+	values count( $c = $n )
+, "text/csv" )

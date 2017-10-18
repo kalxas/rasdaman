@@ -1,1 +1,1 @@
-for c in (test_mr) return AvG(c)
+for $c in (test_mr) return AvG($c)

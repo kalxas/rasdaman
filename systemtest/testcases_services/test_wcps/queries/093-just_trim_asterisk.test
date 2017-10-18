@@ -1,1 +1,1 @@
-for c in ( test_rgb ) return encode( c[ i(*:1), j(340:*) ], "csv" )
+for $c in ( test_rgb ) return encode( $c[ i(*:1), j(340:*) ], "text/csv" )

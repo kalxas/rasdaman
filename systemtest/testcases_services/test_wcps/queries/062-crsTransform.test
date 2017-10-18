@@ -1,1 +1,1 @@
-for c in (test_eobstest)  return encode(crsTransform(c[t:"CRS:1"(1)], { Lat:"http://www.opengis.net/def/crs/EPSG/0/3785", Long:"http://www.opengis.net/def/crs/EPSG/0/3785"}, {}), "png", "nodata=0")
+for $c in (test_eobstest)  return encode(crsTransform($c[t:"CRS:1"(1)], { Lat:"http://www.opengis.net/def/crs/EPSG/0/3785", Long:"http://www.opengis.net/def/crs/EPSG/0/3785"}, {}), "image/png", "nodata=0")

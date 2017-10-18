@@ -1,4 +1,4 @@
-for c in (test_rgb) return 
+for $c in (test_rgb) return 
 encode( 
 
 	coverage DFT
@@ -9,7 +9,7 @@ encode(
 		over $ux x(65:70),
 		     $uy y(65:70)
 		using
-			c[i($ux),j($uy)]
+			$c[i($ux),j($uy)]
 			*
 			cos(
 				( -2 * (22.0/7.0) )
@@ -20,4 +20,4 @@ encode(
 					( (double) ($uy*$xy) / (70 - 65 + 1 ) )
 				)
 			)
-, "png", "nodata=0")
+, "image/png", "nodata=0")

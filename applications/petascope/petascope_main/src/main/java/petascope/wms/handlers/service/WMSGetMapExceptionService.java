@@ -109,7 +109,7 @@ public class WMSGetMapExceptionService {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
-            ImageIO.write(img, MIMEUtil.getEncodingType(mimeFormat).get(0), byteArrayOutputStream);
+            ImageIO.write(img, MIMEUtil.getFormatType(mimeFormat), byteArrayOutputStream);
         } catch (PetascopeException | IOException ex) {
             log.error("Cannot create WMS image exception", ex);
         }

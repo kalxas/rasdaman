@@ -13,7 +13,7 @@ import petascope.exceptions.WCSException;
 /**
  * Class stores the mime type and rasdaman data type
  *
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 public class MIMEUtil {
 
@@ -60,22 +60,22 @@ public class MIMEUtil {
     // Metadata for JPEG2000 (jp2openjpeg driver)
     public static final String FORMAT_ID_OPENJP2_CODEC = "codec=jp2";
 
-    private static Map<String, List<String>> mimeTypesMap;
+    private static Map<String, String> mimeTypesMap;
 
     private static void init() {
         // Add the mime type and rasdaman data type
         mimeTypesMap = new LinkedHashMap<>();
         // No encode gml in rasdaman, only in WCPS
-        mimeTypesMap.put(MIME_GML, ListUtil.valuesToList(ENCODE_GML));
-        mimeTypesMap.put(MIME_JPEG, ListUtil.valuesToList(ENCODE_JPEG));
-        mimeTypesMap.put(MIME_PNG, ListUtil.valuesToList(ENCODE_PNG));
-        mimeTypesMap.put(MIME_TIFF, ListUtil.valuesToList(ENCODE_GTIFF, ENCODE_TIFF));
-        mimeTypesMap.put(MIME_BMP, ListUtil.valuesToList(ENCODE_BMP));
-        mimeTypesMap.put(MIME_JP2, ListUtil.valuesToList(ENCODE_JPEG2000));
-        mimeTypesMap.put(MIME_NETCDF, ListUtil.valuesToList(ENCODE_NETCDF));
-        mimeTypesMap.put(MIME_CSV, ListUtil.valuesToList(ENCODE_CSV));
-        mimeTypesMap.put(MIME_JSON, ListUtil.valuesToList(ENCODE_JSON));
-        mimeTypesMap.put(MIME_DEM, ListUtil.valuesToList(ENCODE_DEM));
+        mimeTypesMap.put(MIME_GML, ENCODE_GML);
+        mimeTypesMap.put(MIME_JPEG, ENCODE_JPEG);
+        mimeTypesMap.put(MIME_PNG, ENCODE_PNG);
+        mimeTypesMap.put(MIME_TIFF, ENCODE_TIFF);
+        mimeTypesMap.put(MIME_BMP, ENCODE_BMP);
+        mimeTypesMap.put(MIME_JP2, ENCODE_JPEG2000);
+        mimeTypesMap.put(MIME_NETCDF, ENCODE_NETCDF);
+        mimeTypesMap.put(MIME_CSV, ENCODE_CSV);
+        mimeTypesMap.put(MIME_JSON, ENCODE_JSON);
+        mimeTypesMap.put(MIME_DEM, ENCODE_DEM);
     }
 
     /**
@@ -83,7 +83,7 @@ public class MIMEUtil {
      *
      * @return
      */
-    private static Map<String, List<String>> getInstance() {
+    private static Map<String, String> getInstance() {
         if (mimeTypesMap == null) {
             init();
         }
@@ -98,33 +98,33 @@ public class MIMEUtil {
      * @return
      * @throws petascope.exceptions.PetascopeException
      */
-    public static String getMimeType(String encodingType) throws PetascopeException {
-        for (Map.Entry<String, List<String>> entry : getInstance().entrySet()) {
+    public static String getMimeType(String encodingType) throws PetascopeException {        
+        for (Map.Entry<String, String> entry : getInstance().entrySet()) {
             String mimeType = entry.getKey();
-            List<String> encodingTypes = entry.getValue();
-            if (encodingTypes.contains(encodingType)) {
+            // e.g: mime is image/png, type is png
+            if (mimeType.contains(encodingType)) {
                 return mimeType;
             }
         }
 
         // if encoding does not exist, mean it is not supported
-        throw new PetascopeException(ExceptionCode.UnsupportedEncodingFormat, "Encoding format: " + encodingType + " is not supported.");
+        throw new PetascopeException(ExceptionCode.UnsupportedEncodingFormat, "Encoding format '" + encodingType + "' is not supported.");
     }
 
     /**
-     * Return the list of encoding types of a mimeType (e.g: image/jpeg -> [jpg
+     * Return the encoding type of a mimeType (e.g: image/jpeg -> [jpg
      * (not supported), jpeg])
      *
      * @param mimeType
      * @return
      * @throws petascope.exceptions.PetascopeException
      */
-    public static List<String> getEncodingType(String mimeType) throws PetascopeException {
-        List<String> formatTypes = getInstance().get(mimeType);
-        if (formatTypes == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "MIME type is not supported, given: " + mimeType);
+    public static String getFormatType(String mimeType) throws PetascopeException {
+        String formatType = getInstance().get(mimeType);
+        if (formatType == null) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "MIME type is not supported, given '" + mimeType + "'.");
         }
-        return formatTypes;
+        return formatType;
     }
 
     /**

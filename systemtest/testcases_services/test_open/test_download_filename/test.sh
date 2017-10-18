@@ -85,25 +85,19 @@ WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/image\/png/g')
 WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/png/g')
 downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "png"
 
-# 2. JPEG2000
-log "+ Test download encoding JPEG2000..."
-WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/image\/jp2/g')
-WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/jpeg2000/g')
-downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "jp2"
-
-# 3. TIFF
+# 2. TIFF
 log "+ Test download encoding TIFF..."
 WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/image\/tiff/g')
 WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/tiff/g')
 downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "tiff"
 
-# 4. NETCDF
+# 3. NETCDF
 log "+ Test download encoding NETCDF..."
 WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/application\/netcdf/g')
 WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/netcdf/g')
 downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "nc"
 
-# 5. JPEG
+# 4. JPEG
 log "+ Test download encoding JPEG..."
 WCS_ENDPOINT=$(echo $WCS_ENDPOINT_MULTIPART_TEMPLATE | sed 's/$FORMAT/image\/jpeg/g')
 WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/jpeg/g')

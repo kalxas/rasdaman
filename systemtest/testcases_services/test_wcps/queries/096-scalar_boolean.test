@@ -1,1 +1,1 @@
-for c in ( test_mr ) return encode((unsigned char)(1 * (c[i(160:180),j(100:130)] > 150) + (c[i(160:180),j(100:130)] <= 150) * 100), "png", "nodata=0" )
+for $c in ( test_mr ) return encode((unsigned char)(1 * ($c[i(160:180),j(100:130)] > 150) + ($c[i(160:180),j(100:130)] <= 150) * 100), "image/png", "nodata=0" )

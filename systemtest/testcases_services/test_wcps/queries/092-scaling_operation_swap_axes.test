@@ -1,1 +1,1 @@
-for c in (test_mr) return encode(scale(c, { j(0:4), i(0:2)}), "csv")
+for $c in (test_mr) return encode(scale($c, { j(0:4), i(0:2)}), "text/csv")

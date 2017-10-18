@@ -1,1 +1,1 @@
-for m in ( test_mr ) return encode( slice( m, {i(10)} ), "csv" )
+for $c in ( test_mr ) return encode( slice( $c, {i(10)} ), "text/csv" )

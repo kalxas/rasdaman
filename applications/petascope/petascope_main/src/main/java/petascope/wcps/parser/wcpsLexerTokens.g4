@@ -127,8 +127,8 @@ SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;
 //COVERAGE_VARIABLE_NAME: '$'[a-zA-Z0-9_]+; disabled for backwards compatibility with WCPS1
 COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
 NAME: [a-z|A-Z]+;
-//FORMAT_NAME: replaced with STRING_LITERAL for backward compatibility with WCPS1. The regex for a valid mime type is: '"'[a-zA-Z0-9!#$&.+-^_]+'/'[a-zA-Z0-9!#$&.+-^_]+'"'
-FORMAT_NAME: QUOTE [a-zA-Z0-9 ]+ QUOTE;
+FORMAT_NAME: QUOTE ( [a-zA-Z]+'/'[a-zA-Z-+]+ | [a-zA-Z-+]+ ) QUOTE;
+// FORMAT_NAME: QUOTE [a-zA-Z0-9 ]+ QUOTE;
 STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_ ]+ '"';
 // extra params in JSON format
 EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';

@@ -1,1 +1,1 @@
-for c in ( test_eobstest ) return encode( c[ Long:"CRS:1"(226:138) ], "csv")
+for $c in ( test_eobstest ) return encode( $c[ Long:"CRS:1"(226:138) ], "text/csv")

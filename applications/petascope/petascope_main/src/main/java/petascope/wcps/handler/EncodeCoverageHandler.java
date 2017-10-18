@@ -76,31 +76,16 @@ public class EncodeCoverageHandler {
     private NetCDFParametersService netCDFParametersFactory;
 
     public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException, JsonProcessingException {
-        //strip first part of the mime type because rasdaman encode function does not support mime types yet
-        //e.g. image/png -> png; text/csv -> csv and so on.
-        format = format.contains("/") ? format.split("/")[1] : format;
-        format = format.replace("\"", "");
-
-        // then get the Gdal code according to the extracted format (e.g: tiff -> GTiff).
-        // Migrate:
-        String rasqlFormat = null;
-        //String rasqlFormat = coverageRegistry.getMetadataSource().formatToGdalid(format);
-
-        if (rasqlFormat == null) {
-            // NOTE: csv, dem does not exist in GDAL code so use the input format type directly.
-            rasqlFormat = format;
-        }
-
         // get the mime-type before modifying the rasqlFormat
         String mimeType = MIMEUtil.getMimeType(format);
 
         // NOTE: must use JP2OpenJPEG to encode with geo-reference metadata for JPEG2000 (JP2)
-        if (rasqlFormat.equalsIgnoreCase(MIMEUtil.FORMAT_ID_JP2)) {
-            rasqlFormat = MIMEUtil.FORMAT_ID_OPENJP2;
-        } else if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_GML)) {
+        if (format.equalsIgnoreCase(MIMEUtil.FORMAT_ID_JP2)) {
+            format = MIMEUtil.FORMAT_ID_OPENJP2;
+        } else if (format.contains(MIMEUtil.ENCODE_GML)) {
             // NOTE: We need the values from JSON encoding of a coverage (http://rasdaman.org/ticket/1578)
             // to add in the tupleLists element of output in application/gml+xml            
-            rasqlFormat = MIMEUtil.ENCODE_JSON;
+            format = MIMEUtil.ENCODE_JSON;
         }
 
         // NOTE: we have 2 cases for extra params:
@@ -110,16 +95,16 @@ public class EncodeCoverageHandler {
         //   then pass it in JSON string as rasql's encode extra parameters
         String otherParamsString = null;
         try {
-            otherParamsString = getExtraParams(coverageExpression, rasqlFormat, extraParams);
+            otherParamsString = getExtraParams(coverageExpression, format, extraParams);
         } catch (IOException ex) {
             log.debug("Failed get extra params: ", ex);
             throw new MetadataSerializationException();
         }
 
         //get the right template for rasql string (the dem() encode still use the old format, other will use the new JSON format)
-        String template = getTemplate(rasqlFormat);
+        String template = getTemplate(format);
         String resultRasql = template.replace("$covExpression", coverageExpression.getRasql())
-                .replace("$format", '"' + rasqlFormat + '"')
+                .replace("$format", '"' + format + '"')
                 .replace("$otherParams", otherParamsString);
         WcpsResult wcpsResult = new WcpsResult(coverageExpression.getMetadata(), resultRasql);
         wcpsResult.setMimeType(mimeType);
@@ -139,20 +124,19 @@ public class EncodeCoverageHandler {
         NetCDFExtraParams netCDFExtraParams = null;
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // set parameters for dem
-        if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_DEM)) {
+        if (rasqlFormat.contains(MIMEUtil.ENCODE_DEM)) {
             // keep the arguments without need to calculate anything else
             otherParamsString = "\"" + extraParams + "\"";
             return otherParamsString;
         } else if (!addDefaultParams(rasqlFormat)) {
             // e.g: csv, json no add default params            
             return otherParamsString;
-        } else if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_GML)) {
+        } else if (rasqlFormat.contains(MIMEUtil.ENCODE_GML)) {
             otherParamsString = "";
             return otherParamsString;
-        } else if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_NETCDF)) {
+        } else if (rasqlFormat.contains(MIMEUtil.ENCODE_NETCDF)) {
             // netcdf (we build some netCDF parameters separately)            
             netCDFExtraParams = netCDFParametersFactory.buildParameters(coverageExpression.getMetadata());
-
         }
 
         // encode number or string which returns metadata is null in non csv/json will be invalid request

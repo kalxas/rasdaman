@@ -1,8 +1,8 @@
-for c in (test_eobstest)
+for $c in (test_eobstest)
   return
     encode(
       coverage temp
         over
         $pt t(0:1)
-      values (count(c[t($pt)]=30)) / (count(c[t($pt)]!=0)) * 100,
-      "csv")
+      values (count($c[t($pt)]=30)) / (count($c[t($pt)]!=0)) * 100,
+      "text/csv")

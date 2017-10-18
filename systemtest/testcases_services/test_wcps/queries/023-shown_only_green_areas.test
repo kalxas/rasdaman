@@ -1,4 +1,4 @@
-for r in (test_rgb)
+for $c in (test_rgb)
 return  encode(
-            r * ((r.green > 130) and (r.red < 110) and (r.blue < 140))
-        , "png", "nodata=0")
+            $c * (($c.green > 130) and ($c.red < 110) and ($c.blue < 140))
+        , "image/png", "nodata=0")

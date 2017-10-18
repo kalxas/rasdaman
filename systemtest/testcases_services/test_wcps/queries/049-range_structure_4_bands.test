@@ -1,8 +1,8 @@
-for c in ( test_rgb )
+for $c in ( test_rgb )
 return encode(
 {
-  red:   c.red;
-  green: c.green;
-  blue:  c.blue;
-  alpha: c.blue
-}, "png", "nodata=0")
+  red:   $c.red;
+  green: $c.green;
+  blue:  $c.blue;
+  alpha: $c.blue
+}, "image/png", "nodata=0")

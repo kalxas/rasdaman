@@ -1,1 +1,1 @@
-for c in (test_eobstest) return domain(c, Long, "http://localhost:8080/def/crs/EPSG/0/4326")
+for $c in (test_eobstest) return domain($c, Long, "http://localhost:8080/def/crs/EPSG/0/4326")

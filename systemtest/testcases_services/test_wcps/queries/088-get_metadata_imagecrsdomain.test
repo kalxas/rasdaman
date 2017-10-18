@@ -1,1 +1,1 @@
-for c in (test_eobstest) return imageCrsDomain(c, Lat)
+for $c in (test_eobstest) return imageCrsDomain($c, Lat)

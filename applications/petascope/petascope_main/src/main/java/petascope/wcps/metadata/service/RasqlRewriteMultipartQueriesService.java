@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.util.StringUtil;
 import petascope.wcps.handler.ForClauseHandler;
 
 /**
@@ -80,11 +81,14 @@ public class RasqlRewriteMultipartQueriesService {
                 if (size > 1) {
                     // e.g: collectionName_c, collectionName_d
                     String updateName = ForClauseHandler.COLLECTION_NAME + "_" + coverageIteratorName;
+                    updateName = StringUtil.stripDollarSign(updateName);
                     if (isFirstIterator) {
-                        for (int i = 0; i < size; i++) {
-                            rasql = defaultRasql;
+                        for (int i = 0; i < size; i++) {                            
                             //replace $collectionName with the coverage name from multipart axis iterator
-                            rasql = rasql.replace(updateName, collectionNames.get(i));
+                            // NOTE: $ must be quoted or it will not work with string replace() and rasql does not have $ in syntax.
+                            rasql = StringUtil.stripDollarSign(defaultRasql);                            
+                            String target = StringUtil.stripDollarSign(collectionNames.get(i));
+                            rasql = rasql.replace(updateName, target);
                             stackUpdatedQueries.push(rasql);
                         }
                     } else {
@@ -93,7 +97,9 @@ public class RasqlRewriteMultipartQueriesService {
                             String rasqlTemplate = stackUpdatedQueries.pop();
                             for (int i = 0; i < size; i++) {
                                 // from second multipartcoverage iterator, use Rasql queries in listRasqlQueries to create new query
-                                rasql = rasqlTemplate.replace(updateName, collectionNames.get(i));
+                                // NOTE: $ must be quoted or it will not work with string replace() and rasql does not have $ in syntax.
+                                String target = StringUtil.stripDollarSign(collectionNames.get(i));
+                                rasql = rasqlTemplate.replace(updateName, target);
                                 stackTmp.push(rasql);
                             }
                         }

@@ -1,4 +1,4 @@
-for c in (test_mr) return encode((unsigned char)
+for $c in (test_mr) return encode((unsigned char)
        coverage gray_image
        over $px x(0:10),
             $py y(0:10)
@@ -6,4 +6,4 @@ for c in (test_mr) return encode((unsigned char)
            condense +
            over $kx x(0:10),
                 $ky y(0:10)
-           using 1   , "png", "nodata=0")
+           using 1   , "image/png", "nodata=0")

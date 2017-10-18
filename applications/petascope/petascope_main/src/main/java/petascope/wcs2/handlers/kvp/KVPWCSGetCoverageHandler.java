@@ -143,7 +143,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
                 requestedMime = kvpParameters.get(KVPSymbols.KEY_FORMAT)[0];
             }
             // e.g: png
-            String encodeFormat = MIMEUtil.getEncodingType(requestedMime).get(0);
+            String encodeFormat = MIMEUtil.getFormatType(requestedMime);
             wcpsQuery = WCPS_QUERY_TEMPLATE.replace("$coverageId", coverageId)
                     .replace("$queryContent", queryContent);
 

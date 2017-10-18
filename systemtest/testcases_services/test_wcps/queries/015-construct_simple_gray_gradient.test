@@ -1,8 +1,8 @@
-for c in ( test_rgb ) 
+for $c in ( test_rgb ) 
 return encode( 
         (unsigned char)
 	coverage greyImage 
 	over $first x(51:150), 
              $second y(0:99) 
 	values $first
-, "png", "nodata=0" )
+, "image/png", "nodata=0" )

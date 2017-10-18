@@ -1,1 +1,1 @@
-for t in (test_rgb) return encode(extend( (t + (unsigned char)50),  {i:"CRS:1" ( 0:500 ),  j: "CRS:1" (0: 500)}  ), "png", "nodata=0" )
+for $c in (test_rgb) return encode(extend( ($c + (unsigned char)50),  {i:"CRS:1" ( 0:500 ),  j: "CRS:1" (0: 500)}  ), "image/png", "nodata=0" )

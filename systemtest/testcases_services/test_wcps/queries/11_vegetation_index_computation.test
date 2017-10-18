@@ -1,1 +1,1 @@
-for s in ( test_rgb ) return encode((unsigned char) (s.0 - s.1)/(s.0 + s.1), "png", "nodata=0" )
+for $c in ( test_rgb ) return encode((unsigned char) ($c.0 - $c.1)/($c.0 + $c.1), "image/png", "nodata=0" )

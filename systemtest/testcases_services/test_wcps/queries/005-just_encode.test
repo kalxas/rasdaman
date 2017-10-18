@@ -1,1 +1,1 @@
-for c in ( test_rgb ) return encode( c, "png", "nodata=0" )
+for $c in ( test_rgb ) return encode( $c, "image/png", "nodata=0" )

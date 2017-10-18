@@ -1,4 +1,4 @@
-for c in (test_mr) return
+for $c in (test_mr) return
    encode(
-      count(trim(c, {i(100:101),j(100:101)}) > 0) * 2,
-   "csv")
+      count(trim($c, {i(100:101),j(100:101)}) > 0) * 2,
+   "text/csv")

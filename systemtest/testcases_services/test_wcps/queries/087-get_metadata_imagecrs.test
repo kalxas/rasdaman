@@ -1,1 +1,1 @@
-for c in (test_eobstest) return imageCrs(c)
+for $c in (test_eobstest) return imageCrs($c)

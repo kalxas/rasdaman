@@ -1,4 +1,4 @@
-for a in (test_rgb) return
+for $c in (test_rgb) return
     condense +
     over $x x(1:10)
-    using $x * (a[i($x), j(10)]).red
+    using $x * ($c[i($x), j(10)]).red

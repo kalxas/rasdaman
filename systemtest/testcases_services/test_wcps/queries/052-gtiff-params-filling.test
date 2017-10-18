@@ -1,6 +1,6 @@
-for c in (test_eobstest) return encode(
-  (c[
+for $c in (test_eobstest) return encode(
+  ($c[
     t:"CRS:1"(1),
     Lat:"http://www.opengis.net/def/crs/EPSG/0/4326" (25:35),
     Long:"http://www.opengis.net/def/crs/EPSG/0/4326" (10:15)]),
-"tiff", "nodata=0")
+"image/tiff", "nodata=0")

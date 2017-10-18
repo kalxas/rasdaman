@@ -1,8 +1,8 @@
-for c in (test_eobstest)
+for $c in (test_eobstest)
 return encode(
   (coverage newcov
-  over $px x(imageCrsDomain(c[Lat(25:35)], Lat)),
-       $pt t(imageCrsDomain(c, t))
-  values avg(c[Lat($px),t($pt)])
+  over $px x(imageCrsDomain($c[Lat(25:35)], Lat)),
+       $pt t(imageCrsDomain($c, t))
+  values avg($c[Lat($px),t($pt)])
   )
-, "csv")
+, "text/csv")

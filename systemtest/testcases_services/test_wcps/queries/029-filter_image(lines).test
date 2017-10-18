@@ -1,4 +1,4 @@
-for c in (test_rgb) return encode((unsigned char)
+for $c in (test_rgb) return encode((unsigned char)
 		coverage filteredImage
 		over $px x(10:24),
                      $py y(10:23)
@@ -13,5 +13,5 @@ for c in (test_rgb) return encode((unsigned char)
 				value list < 1; 1; 1; 0; 0; 0; -1; -1; -1 >
 				)[x($kx),y($ky)]
 					*
-				(c[i($px+$kx),j($py+$ky)]).red
-        , "png", "nodata=0")
+				($c[i($px+$kx),j($py+$ky)]).red
+        , "image/png", "nodata=0")

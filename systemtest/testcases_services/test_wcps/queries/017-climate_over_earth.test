@@ -1,5 +1,5 @@
-for clouds in ( test_mr ), 
-	mask   in ( test_mr ) 
+for $clouds in ( test_mr ), 
+	$mask   in ( test_mr ) 
 return encode( 
-        (unsigned char) clouds[ i(0) ] * mask[ i(0) ]
-, "csv" )
+        (unsigned char) $clouds[ i(0) ] * $mask[ i(0) ]
+, "text/csv" )

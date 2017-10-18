@@ -1,1 +1,1 @@
-for c in ( test_eobstest ) return encode( c[ Long(69.6), Lat(30.05), t(*:*) ], "csv" )
+for $c in ( test_eobstest ) return encode( $c[ Long(69.6), Lat(30.05), t(*:*) ], "text/csv" )

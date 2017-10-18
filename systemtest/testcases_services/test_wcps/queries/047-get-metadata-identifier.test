@@ -1,1 +1,1 @@
-for c in (test_mr), d in (test_rgb) return identifier(c)
+for $c in (test_mr), $d in (test_rgb) return identifier($c)

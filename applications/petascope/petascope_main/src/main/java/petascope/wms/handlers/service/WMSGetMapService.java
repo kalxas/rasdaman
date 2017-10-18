@@ -274,7 +274,7 @@ public class WMSGetMapService {
             }
 
             String nodata = this.transparent ? "nodata=0" : "";
-            String formatType = MIMEUtil.getEncodingType(this.format).get(0);
+            String formatType = MIMEUtil.getFormatType(this.format);
             String collections = ListUtil.join(collectionAlias, ", ");
 
             // Create the final Rasql query for all layers's styles of this GetMap request.
