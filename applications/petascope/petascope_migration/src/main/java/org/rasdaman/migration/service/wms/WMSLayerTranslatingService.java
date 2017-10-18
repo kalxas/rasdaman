@@ -121,15 +121,6 @@ public class WMSLayerTranslatingService {
         // Bounding box also does not exist in legacy database, so just fetch it with current 2D geo bounds
         // NOTE: WMS 1.3, the XY order is depent on the CRS order (e.g: EPSG:4326 is Lat, Long so minx (actually is minLat) and maxx (actually is maxLat)).
         List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
-        if (geoAxes.size() > 2) {
-            throw new WMSException("Cannot create more than 2D bounding box: " + geoAxes.size()) {
-                @Override
-                public String getExceptionCode() {
-                    return "NotSupportMoreThan2DCoverage";
-                }
-            };
-
-        }
         int i = 0;
         for (GeoAxis geoAxis : geoAxes) {
             if (i == 0) {

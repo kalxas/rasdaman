@@ -24,6 +24,9 @@ package org.rasdaman.migration.service;
 import java.sql.SQLException;
 import java.util.List;
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.GeneralGridCoverage;
+import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.migration.Migration;
 import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
 import org.rasdaman.migration.domain.legacy.LegacyDbMetadataSource;
@@ -33,6 +36,7 @@ import org.rasdaman.migration.legacy.readdatabase.ReadLegacyWMSLayerService;
 import org.rasdaman.migration.service.coverage.LegacyCoverageMainService;
 import org.rasdaman.migration.service.owsmetadata.LegacyOwsServiceMetadataMainService;
 import org.rasdaman.migration.service.wms.LegacyWMSLayerMainService;
+import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.rasdaman.repository.service.MigrationRepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +68,9 @@ public class LegacyMigrationService extends AbstractMigrationService {
     private ReadLegacyWMSLayerService readLegacyWMSLayerService;
     @Autowired
     private MigrationRepositoryService migrationRepositoryService;
+    
+    @Autowired
+    private CoverageRepostioryService coverageRepostioryService;
 
     @Autowired
     // Use to close the connection to legacy petascopedb when migration is done
@@ -189,9 +196,16 @@ public class LegacyMigrationService extends AbstractMigrationService {
                 if (legacyWMSLayer == null) {
                     log.info("Associated coverage for this layer does not exist in database to migrate, skipping.");
                 } else {
-                    // And persist this legacy WMS layer's metadata by converting it to new data model and saving to database
-                    legacyWMSLayerMainService.persist(legacyWMSLayer);
-                    log.info("... migrated successfully.");
+                    // NOTE: WMS does not support 3D+ coverage, so don't migrate the legacy WMS layer which was imported before accidentally.                    
+                    Coverage coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(legacyWmsLayerName);
+                    List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
+                    if (geoAxes.size() > 2) {            
+                        log.info("WMS does not support 3D+ layer to migrate, skipping.");
+                    } else {
+                        // And persist this legacy WMS layer's metadata by converting it to new data model and saving to database
+                        legacyWMSLayerMainService.persist(legacyWMSLayer);
+                        log.info("... migrated successfully.");
+                    }
                 }
             }            
             i++;

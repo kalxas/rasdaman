@@ -63,6 +63,11 @@ public abstract class AbstractController {
     @Resource
     // Spring finds all the subclass of AbstractHandler and injects to the list
     List<AbstractHandler> handlers;
+    
+    // When result_bytes of all processed requests > this number, call the gabarge co
+    private static final Long GARBAGE_COLLECTION_THRESHOLD = 104857600l;
+    // All the returned bytes to clients up to this current request
+    private static Long totalReturnedBytes = 0l;
 
     /**
      * Handler GET request
@@ -314,10 +319,25 @@ public abstract class AbstractController {
                 }
             }
         } finally {
-            IOUtils.closeQuietly(outputStream);
-            // NOTE: it must release the data occupied by byte[] so doing like this will release memory right after the response is done.            
-            response = null;
-            System.gc();
+            IOUtils.closeQuietly(outputStream);                                    
+            boolean clearGabarge = false;
+            if (response.getDatas() != null) {
+                // NOTE: don't call gabarge collector in every cases, it will slow down the time to receive new request to petascope controller
+                // Only call it when the result of current request is big size ( > 100 MB ).
+                for (byte[] bytes : response.getDatas()) {
+                    if (totalReturnedBytes > GARBAGE_COLLECTION_THRESHOLD) {
+                        clearGabarge = true;                        
+                    }
+                    totalReturnedBytes += bytes.length;
+                }
+                if (clearGabarge) {
+                    System.gc();
+                    totalReturnedBytes = 0l;
+                }
+                
+                // NOTE: it must release the data occupied by byte[] so doing like this will release memory right after the response is done.            
+                response = null;
+            }
         }
     }
 
