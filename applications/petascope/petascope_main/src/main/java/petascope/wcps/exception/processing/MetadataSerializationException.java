@@ -28,9 +28,9 @@ import petascope.exceptions.ExceptionCode;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class MetadataSerializationException extends WCPSException {
-    public MetadataSerializationException() {
-        super(ExceptionCode.WcsError, EXCEPTION_TEXT);
+    public MetadataSerializationException(String errorMessage) {
+        super(ExceptionCode.WcsError, EXCEPTION_TEXT.replace("$errorMessage", errorMessage));
     }
 
-    private final static String EXCEPTION_TEXT = "Could not serialize coverage metadata.";
+    private final static String EXCEPTION_TEXT = "Could not serialize coverage metadata, reason '$errorMessage'.";
 }

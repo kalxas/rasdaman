@@ -880,13 +880,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitWcpsQueryLabel(@NotNull wcpsParser.WcpsQueryLabelContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#format_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFormat_name(@NotNull wcpsParser.Format_nameContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#ReduceBooleanExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -1373,17 +1373,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitWcpsQueryLabel(@NotNull wcpsParser.WcpsQueryLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#format_name}.
-	 * @param ctx the parse tree
-	 */
-	void enterFormat_name(@NotNull wcpsParser.Format_nameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#format_name}.
-	 * @param ctx the parse tree
-	 */
-	void exitFormat_name(@NotNull wcpsParser.Format_nameContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ReduceBooleanExpressionLabel}.
 	 * @param ctx the parse tree
 	 */

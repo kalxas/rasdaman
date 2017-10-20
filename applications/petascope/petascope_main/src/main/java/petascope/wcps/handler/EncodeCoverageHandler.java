@@ -97,8 +97,8 @@ public class EncodeCoverageHandler {
         try {
             otherParamsString = getExtraParams(coverageExpression, format, extraParams);
         } catch (IOException ex) {
-            log.debug("Failed get extra params: ", ex);
-            throw new MetadataSerializationException();
+            log.debug("Failed get extra params", ex);
+            throw new MetadataSerializationException(ex.getMessage());
         }
 
         //get the right template for rasql string (the dem() encode still use the old format, other will use the new JSON format)

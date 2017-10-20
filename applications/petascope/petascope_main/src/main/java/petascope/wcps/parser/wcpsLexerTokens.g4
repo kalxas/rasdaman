@@ -127,11 +127,8 @@ SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;
 //COVERAGE_VARIABLE_NAME: '$'[a-zA-Z0-9_]+; disabled for backwards compatibility with WCPS1
 COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
 NAME: [a-z|A-Z]+;
-FORMAT_NAME: QUOTE ( [a-zA-Z]+'/'[a-zA-Z-+]+ | [a-zA-Z-+]+ ) QUOTE;
-// FORMAT_NAME: QUOTE [a-zA-Z0-9 ]+ QUOTE;
-STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_ ]+ '"';
+STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_/ ]+ '"';
 // extra params in JSON format
 EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';
 WS: [ \n\t\r]+ -> skip;
 CRS_TRANSFORM: ('c'|'C')('r'|'R')('s'|'S')('t'|'T')('r'|'R')('a'|'A')('n'|'N')('s'|'S')('f'|'F')('o'|'O')('r'|'R')('m'|'M');
-//for testing

@@ -301,7 +301,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitEncodedCoverageExpressionLabel(@NotNull wcpsParser.EncodedCoverageExpressionLabelContext ctx) {
         WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
         // e.g: tiff
-        String formatType = StringUtil.stripQuotes(ctx.format_name().getText());
+        String formatType = StringUtil.stripQuotes(ctx.STRING_LITERAL().getText());
         // NOTE: extraParam here can be:
         // + Old style: e.g: "nodata=0"
         // + JSON style: e.g: "{\"nodata\": [0]}" -> {"nodata": [0]}
@@ -313,14 +313,11 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = null;
         try {
             result = encodeCoverageHandler.handle(coverageExpression, formatType, extraParams);
-        } catch (PetascopeException e) {
+        } catch (PetascopeException | JsonProcessingException e) {
             log.error(e.getMessage(), e);
-            throw new MetadataSerializationException();
-        } catch (JsonProcessingException ex) {
-            // Cannot convert object to JSON
-            log.error(ex.getMessage(), ex);
-            throw new MetadataSerializationException();
+            throw new MetadataSerializationException(e.getMessage());
         }
+        // Cannot convert object to JSON
         return result;
     }
 

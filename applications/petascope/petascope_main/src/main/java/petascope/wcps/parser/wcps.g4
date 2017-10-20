@@ -316,7 +316,6 @@ describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARENTHESIS coverageVariableN
 domainIntervals: domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression;
 
 
-format_name: FORMAT_NAME;
 extra_params: STRING_LITERAL | EXTRA_PARAMS;
 
 /**
@@ -325,7 +324,7 @@ extra_params: STRING_LITERAL | EXTRA_PARAMS;
  * | encode($c, "image/png", "NODATA=0")
  */
 encodedCoverageExpression: ENCODE LEFT_PARENTHESIS
-                           coverageExpression COMMA /* FORMAT_NAME */ format_name (COMMA extra_params)?
+                           coverageExpression COMMA STRING_LITERAL (COMMA extra_params)?
                            RIGHT_PARENTHESIS                                                                            #EncodedCoverageExpressionLabel;
 
 /**
@@ -335,7 +334,7 @@ encodedCoverageExpression: ENCODE LEFT_PARENTHESIS
  *   ?!
  */
 decodeCoverageExpression: DECODE LEFT_PARENTHESIS
-                          STRING_LITERAL COMMA /* FORMAT_NAME */ STRING_LITERAL (COMMA STRING_LITERAL)*
+                          STRING_LITERAL COMMA STRING_LITERAL (COMMA STRING_LITERAL)*
                           RIGHT_PARENTHESIS                                                                             #DecodedCoverageExpressionLabel;
 
 /**
