@@ -44,7 +44,7 @@ import petascope.wcps.subset_axis.model.WcpsSliceScaleDimension;
  *    SCALE_AXES($coverageExpression, [$scaleDimensionInteverlList]) *
  * </code>
  *
- * e.g: scale_axes(c, [i(0.5)]) then number of grid points for i / 0.5, while j
+ * e.g: scale_axes(c, [i(0.5)]) then number of grid points for i * 0.5, while j
  * is kept with c is 2D coverage
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
@@ -72,8 +72,8 @@ public class WcsScaleExpressionByScaleAxesHandler extends AbstractWcsScaleHandle
                 }
             }
 
-            BigDecimal scaledLowerBound = BigDecimalUtil.divide(axis.getGridBounds().getLowerLimit(), scaleFactor);
-            BigDecimal scaledUpperBound = BigDecimalUtil.divide(axis.getGridBounds().getUpperLimit(), scaleFactor);
+            BigDecimal scaledLowerBound = BigDecimalUtil.multiple(axis.getGridBounds().getLowerLimit(), scaleFactor);
+            BigDecimal scaledUpperBound = BigDecimalUtil.multiple(axis.getGridBounds().getUpperLimit(), scaleFactor);
             NumericSubset numericSubset = null;
             if (axis.getGridBounds() instanceof NumericSlicing) {
                 numericSubset = new NumericSlicing(new BigDecimal(scaledLowerBound.intValue()));

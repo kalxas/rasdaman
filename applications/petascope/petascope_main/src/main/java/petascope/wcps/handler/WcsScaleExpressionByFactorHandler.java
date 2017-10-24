@@ -40,7 +40,7 @@ import petascope.wcps.result.WcpsResult;
 /**
  * Class to translate a scale wcps expression into rasql  <code>
  *    SCALE_FACTOR($coverageExpression, $factor)
- * NOTE: factor = 0.5 means every axis of coverage will divide by 0.5 in grid pixels
+ * NOTE: factor = 0.5 means every axis of coverage will multiple by 0.5 in grid pixels
  * </code>
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
@@ -60,10 +60,10 @@ public class WcsScaleExpressionByFactorHandler extends AbstractWcsScaleHandler {
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         List<Subset> subsets = new ArrayList<>();
         // first apply the scale factor on all the grid bounds
-        // e.g: 100 / 2.5 or 100 / 0.5
+        // e.g: 100 * 2.5 or 100 * 0.5
         for (Axis axis : metadata.getAxes()) {
-            BigDecimal scaledLowerBound = BigDecimalUtil.divide(axis.getGridBounds().getLowerLimit(), scaleFactor);
-            BigDecimal scaledUpperBound = BigDecimalUtil.divide(axis.getGridBounds().getUpperLimit(), scaleFactor);
+            BigDecimal scaledLowerBound = BigDecimalUtil.multiple(axis.getGridBounds().getLowerLimit(), scaleFactor);
+            BigDecimal scaledUpperBound = BigDecimalUtil.multiple(axis.getGridBounds().getUpperLimit(), scaleFactor);
             NumericSubset numericSubset = null;
             if (axis.getGridBounds() instanceof NumericSlicing) {
                 numericSubset = new NumericSlicing(new BigDecimal(scaledLowerBound.intValue()));

@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.wcps.exception.processing.InvalidScaleExtentException;
 import petascope.wcps.metadata.model.Axis;
-import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
