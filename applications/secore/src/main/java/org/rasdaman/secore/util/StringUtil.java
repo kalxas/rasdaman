@@ -141,7 +141,12 @@ public class StringUtil {
      */
     public static String stripServiceURI(String url) {
         int index = url.indexOf(Constants.WEB_APPLICATION_NAME);
-        return url.substring(index + Constants.WEB_APPLICATION_NAME.length(), url.length());
+        if (index == -1) {
+            // cannot find /def/ in the URI
+            return url;
+        } else {
+            return url.substring(index + Constants.WEB_APPLICATION_NAME.length(), url.length());
+        }
     }
 
     /**

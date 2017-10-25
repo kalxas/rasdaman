@@ -64,7 +64,10 @@ public abstract class AbstractHandler implements Handler {
      * @throws SecoreException usually if the text content of el hasn't been
      * matched with id
      */
-    protected ResolveResponse resolveId(String url, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {
+    protected ResolveResponse resolveId(String url, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {       
+        // NOTE: remove the /def/ from the URL as same as in other handlers 
+        // and this help determine the index of version number from URL (e.g: /crs/EPSG/0/4326, version is 0).
+        url = StringUtil.stripServiceURI(url);
         String res = resolve(IDENTIFIER_LABEL, url, versionNumber, depth, parameters);
         ResolveResponse ret = new ResolveResponse(res);
 
@@ -111,23 +114,6 @@ public abstract class AbstractHandler implements Handler {
      */
     protected String resolve(String el, String id, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {
         // NOTE: this will query in userdb first then later with the gml db.
-        // e.g: gml_85 as database collection name
-        String collectionName = "";
-        if (versionNumber.equals("") || versionNumber.equals(DbManager.FIX_GML_VERSION_ALIAS)) {
-            // if user request to version 0, then it is supposed in gml dictionary.
-            collectionName = DbManager.createGMLCollectionName(DbManager.FIX_GML_VERSION_ALIAS);
-        } else {
-
-            // NOTE: if a definition from userdb (e.g: crs/AUTO/1.3/42001) then it don't have gml_13 collection name.
-            // it will use the fixed version for gmldb (e.g: gml_85) to resolve.
-            boolean collectionExistByVersionNumber = DbManager.collectionExistByVersionNumber(versionNumber);
-            if (collectionExistByVersionNumber) {
-                collectionName = DbManager.createGMLCollectionName(versionNumber);
-            } else {
-                collectionName = DbManager.FIX_GML_COLLECTION_NAME;
-            }
-        }
-
         String work = null;
 
         if (!parameters.isEmpty()) {
@@ -198,14 +184,24 @@ public abstract class AbstractHandler implements Handler {
         // if error cannot promote sequence() to element() then not execute function local:work as it only returns 1 element() (ONLY FOR DEBUGGING)
         // Execute local:flatten(collection('__COLLECTION__'), '/def/crs/EPSG/0/66006405', 0)
 
+        // NOTE: it will depend on the version of $id (e.g: http://localhost:8080/def/crs/EPSG/0/4326 (get version at "/" number 7)
+        // or crs/EPSG/8.5/4326 (get version at "/" number 4)) to send request to correct collection
+        // Don't use fix collection here as 1 CRS definition could contain different internal CRS URIs with different version number.
         String query
             = "declare namespace gml = \"" + NAMESPACE_GML + "\";\n"
               + "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n"
               + "declare function local:getid($d as document-node(), $id as xs:string) as element() {\n"
               + "let $retUserDB := $d//gml:" + el + "[fn:ends-with(text(), $id)]/..\n"
               + "let $retValue := \"\"\n"
-              + "return if (empty($retUserDB)) then\n"
-              + "             let $retGML := collection('" + collectionName + "')//gml:" + el + "[fn:ends-with(text(), $id)]/..\n"
+              + "return if (empty($retUserDB)) then \n"
+              + "             let $version := tokenize($id, '/')[7] \n"
+              + "             let $version := \n"
+              + "                 if (empty($version)) then \n"
+              + "                     tokenize($id, '/')[4] \n"
+              + "                 else \n" 
+              + "                     tokenize($id, '/')[7] \n"
+              + "             let $collectionName := replace( concat('gml_', $version ), '\\.', '' ) \n"
+              + "             let $retGML := collection($collectionName)//gml:" + el + "[fn:ends-with(text(), $id)]/..\n"
               + "             return if (empty($retGML)) then\n"
               + "                       let $retValue := <empty/>\n"
               + "                       return $retValue"

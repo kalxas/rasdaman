@@ -262,7 +262,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
                 url = StringUtil.replaceVersionNumber(targetCRS, versionNumber);
             }
         }
-
+        
         // set expand depth from the original request URL
         ResolveResponse ret = resolveId(url, versionNumber, request.getExpandDepth(), params);
 
@@ -438,12 +438,19 @@ class Parameter {
         if (evaluated) {
             return;
         }
+        
+        // e.g: http://localhost:8080/def/crs/AUTO/1.3/42001 is not valid
+        // but http://localhost:8080/def/crs/AUTO/1.3/42001?lon=20 is valid
+        if (value == null) {
+            throw new SecoreException(ExceptionCode.InvalidParameterValue, "Value for parameter '" + name + "' cannot be null.");
+        }
+        
         try {
             this.value = StringUtil.evaluate(value);
             evaluated = true;
         } catch (ScriptException ex) {
             throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(name),
-                                      "Failed evaluating the parameter value: " + value, ex);
+                                      "Failed evaluating the parameter value '" + value + "'.", ex);
         }
     }
 

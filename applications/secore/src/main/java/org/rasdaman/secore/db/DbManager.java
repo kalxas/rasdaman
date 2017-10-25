@@ -46,22 +46,24 @@ public class DbManager {
     private static final Logger log = LoggerFactory.getLogger(DbManager.class);
 
     // should be "epsgdb" or so, but for backwards compatibility we stick to "gml"
-    public static String EPSG_DB = "gml";
-    public static String EPSG_DB_FILE = "GmlDictionary.xml";
-    public static String USER_DB = "userdb";
-    public static String USER_DB_FILE = "UserDictionary.xml";
+    public static final String EPSG_DB = "gml";
+    public static final String EPSG_DB_FILE = "GmlDictionary.xml";
+    public static final String USER_DB = "userdb";
+    public static final String USER_DB_FILE = "UserDictionary.xml";
 
 
     // keep backwards support (e.g: http://localhost:8080/def/crs/OGC/0/Index2D/)
     // so if request does not have the specific version, it should load the GMLDictionary from this version
-    public static String FIX_GML_VERSION_NUMBER = "8.5";
-    public static String FIX_GML_VERSION_ALIAS = "0";
+    public static final String FIX_GML_VERSION_NUMBER = "8.5";
+    public static final String FIX_GML_VERSION_ALIAS = "0";
 
     // it can be changed (e.g: crs/OGC/0/Index2D -> crs/OGC/1.3/Index2D)
-    public static String FIX_USER_VERSION_NUMBER = "0";
+    public static final String FIX_USER_VERSION_NUMBER = "0";
 
     // BaseX cannot use "." in the collection name
-    public static String FIX_GML_COLLECTION_NAME = "";
+    // collection name -> absolute path to initalization file
+    // NOTE: gml database can have many versions (e.g: 8.5, 8.6,...) then use gml_version as key (e.g: gml_8.5)
+    public static final String FIX_GML_COLLECTION_NAME = createGMLCollectionName(FIX_GML_VERSION_NUMBER);    
 
     private Database db;
     private static DbManager instance;
@@ -83,11 +85,7 @@ public class DbManager {
     public static final Map<DbCollection, String> collections = new HashMap<DbCollection, String>();
 
     private DbManager() throws SecoreException {
-
-        // collection name -> absolute path to initalization file
-        // NOTE: gml database can have many versions (e.g: 8.5, 8.6,...) then use gml_version as key (e.g: gml_8.5)
-        FIX_GML_COLLECTION_NAME = createGMLCollectionName(FIX_GML_VERSION_NUMBER);
-
+        
         boolean hasFixVersion = false;
         boolean hasUserDBFile = false;
 

@@ -48,19 +48,22 @@
                     Pattern pattern = Pattern.compile(patternStr);
                     Matcher matcher = pattern.matcher(query);
                     String result = null;
-
-                    // If query is used to change userdb, then it should only query in userdb
-                    if (matcher.find()) {
-                        result = DbManager.getInstance().getDb().queryUser(query, true);
-                    } else {
-                        // non-update userdb query (like select can query in both collections: userdb and epsg db).
-                        result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
+                    
+                    try {
+                        // If query is used to change userdb, then it should only query in userdb
+                        if (matcher.find()) {
+                            result = DbManager.getInstance().getDb().queryUser(query, true);
+                        } else {
+                            // non-update userdb query (like select can query in both collections: userdb and epsg db).
+                            result = DbManager.getInstance().getDb().queryBothDB(query, versionNumber);
+                        }
+                        out.println("<br/><span>Result:</span><br/>");
+                        out.println("<form name=mf><textarea name=mt cols=150 rows=30 readonly>" + result + "</textarea></form>");
+                    } catch (Exception ex) {
+                        out.println("<br/><span><span style=\"color:red\">Error when querying BaseX database '" + ex.getMessage() + "'.<span></span><br/>");
                     }
-
-                    out.println("<br/><span style=\"font-size:x-large;\">Result:</span><br/>");
-                    out.println("<form name=mf><textarea name=mt cols=150 rows=30 readonly>" + result + "</textarea></form>");
                 } else {
-                    out.println("<br/><span style=\"font-size:x-large;\"><span style=\"color:red\">Empty query submitted!<span></span><br/>");
+                    out.println("<br/><span><span style=\"color:red\">Empty query submitted.<span></span><br/>");
                 }
             } else {
 
