@@ -33,6 +33,8 @@ import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.StringUtil;
 import org.rasdaman.secore.util.XMLUtil;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.regex.Pattern;
 import javax.script.ScriptException;
 import net.n3.nanoxml.IXMLElement;
@@ -183,35 +185,48 @@ public class ParameterizedCrsHandler extends GeneralHandler {
         }
 
         // parse the query parameters, and accordingly update the template parameters
-        for (RequestParam p : request.getParams()) {
-            String name = p.key;
-            String value = p.val.toString();
+        // e.g: localhost:8080/def/crs/AUTO/1.3/42001?lon=20&lat=30 or localhost:8080/def/crs/AUTO/1.3/42001/20/30
+        i = 0;
+        int j = 0;
+        List<String> keyList = new ArrayList<>(parameters.keySet());
+        for (RequestParam param : request.getParams()) {
+            // name = null when key is in REST format not key=value format
+            String name = param.key;
+            String value = param.val.toString();
 
             log.debug("key: " + name + ", value: " + value);
-
-            if (name != null) {
-                if (name.equalsIgnoreCase(RESOLVE_TARGET_KEY) && value != null) {
-                    if (value.equalsIgnoreCase(RESOLVE_TARGET_NO)) {
-                        // no resolving, just return original definition
-                        return gml;
-                    } else if (!value.equalsIgnoreCase(RESOLVE_TARGET_YES)) {
-                        throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
-                                                  "Invalid value for parameter " + name + ", expected 'yes' or 'no'.");
-                    }
-                } else if (!name.equalsIgnoreCase(AUTHORITY_KEY)
-                           && !name.equalsIgnoreCase(CODE_KEY)
-                           && !name.equalsIgnoreCase(VERSION_KEY)) {
-                    Parameter parameter = parameters.get(name);
-                    if (parameter == null) {
-                        throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
-                                                  "Specified parameter not supported by this Parameterized CRS.");
-                    }
-                    parameter.setValue(value);
-                }
+            
+            if (i < 3) {
+                // first 3 parameters are (authority, version, code) are not used
+                i++;
+                continue;
             }
+            // e.g: CRS's definition only has 1 variable (lon), but URI has ?lon=30&lat=20 (/30/20)
+            if (j >= keyList.size()) {
+                throw new SecoreException(ExceptionCode.InvalidRequest, 
+                         "Expected maximum '" + keyList.size() + "' parameterized variables from requesting URI, given '" + (request.getParams().size() - 3) + "'.");
+            }            
+            // Then check if the request in REST format or key=values format
+            if (name == null) {
+                // REST format, values are replaced in CRS's template by parameter's order from the URI                
+                String paramName = keyList.get(j);
+                Parameter parameter = parameters.get(paramName);
+                parameter.setValue(value);                
+            } else {
+                // key=value format, values are replaced in CRS's template by parameter's name, no order is not considered.
+                Parameter parameter = parameters.get(name);
+                if (parameter == null) {
+                    throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
+                                              "Specified parameter not supported by this Parameterized CRS.");
+                }
+                parameter.setValue(value);
+            }
+            j++;
         }
 
-        // do the actual work
+        // from the input parameters of URI (e.g: ?lat=20, /20), 
+        // it will evaluate these variables's expressions to values in CRS's definition
+        // (e.g: parameter name = "lat", value = ${lat} + 20, then the evaluated value is 40)
         parameters.evaluateParameters();
 
         // extract parameters with targets
@@ -272,12 +287,10 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     }
 
 }
-class Parameters extends HashMap<String, Parameter> {
-
-    private static Logger log = LoggerFactory.getLogger(Parameters.class);
+class Parameters extends LinkedHashMap<String, Parameter> {
 
     // used to detect circular references
-    private Set<String> stack = new HashSet<>();
+    private Set<String> stack = new LinkedHashSet<>();
 
     /**
      * @param xml a parameters XML fragment
