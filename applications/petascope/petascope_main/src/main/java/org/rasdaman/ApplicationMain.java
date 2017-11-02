@@ -89,7 +89,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
     public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, InterruptedException {
         String resourceName = APPLICATION_PROPERTIES_FILE; // could also be a constant
         Properties properties = new Properties();
-        InputStream resourceStream = ApplicationMain.class.getClassLoader().getResourceAsStream("/" + resourceName);
+        InputStream resourceStream = ApplicationMain.class.getClassLoader().getResourceAsStream(resourceName);
         properties.load(resourceStream);
 
         PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
