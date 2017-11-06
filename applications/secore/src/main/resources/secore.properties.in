@@ -73,6 +73,14 @@ java_server=external
 # need to adapt: yes
 server.port=8081
 
+# parameter:     secoredb.path
+# purpose:       Path to folder where embedded secore generates BaseX files which are needed to run BaseX queries.
+#                This folder will need read, write permission for the user who is running embedded secore.
+#                For external secore, it will generate secoredb folder inside the servlet's webapps folder (e.g: /var/lib/tomcat7/webapps/secoredb) automatically and user does not have to change anything.
+# need to adapt: yes
+
+secoredb.path=
+
 #------------------- log4j configuration -------------------
 
 log4j.rootLogger=TRACE, rollingFile, stdout

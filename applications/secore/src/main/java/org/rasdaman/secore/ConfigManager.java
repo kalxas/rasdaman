@@ -23,6 +23,7 @@ package org.rasdaman.secore;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -30,6 +31,9 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
+import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.util.ExceptionCode;
+import org.rasdaman.secore.util.SecoreException;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.slf4j.Logger;
@@ -60,6 +64,8 @@ public class ConfigManager {
     private final static String CODESPACE_KEY = "codespace";
     // If java_server=external, extract secoredb to tomcat/webapps/, if java_server=embedded, extract secoredb to $RMANHOME/share/rasdaman/war
     private final static String JAVA_SERVER = "java_server";
+    // Only embedded secore needs to specify the path to store secoredb folder
+    private final static String EMBEDDED_SECOREDB_FOLDER_PATH = "secoredb.path";
 
     // singleton
     private static ConfigManager instance;
@@ -83,7 +89,7 @@ public class ConfigManager {
     private ConfigManager(String confDir) {
         // (we read from @CONF_DIR@/secore.properties (i.e: $RMANHOME/etc/secore.properties)) which is copied from secore-core/etc/secore.properties
         String confFile = confDir + "/" + SECORE_PROPERTIES_FILE;
-
+        
         if (confDir.equals(DEFAULT_CONF_DIR)) {
             log.error("SECORE's configuration properties file was not setup, please change this parameter (@CONF_DIR@) in WEB-INF/web.xml to the location of secore.properties file.");
             throw new RuntimeException("SECORE's configuration properties file was not setup, please change this parameter (@CONF_DIR@) in WEB-INF/web.xml to the location of secore.properties file.");
@@ -128,8 +134,14 @@ public class ConfigManager {
             } else {
                 /// external servlet container, war file is extracted to folder automatically, then could find the file path.
                 // NOTE: for SECORE runs with external servlet container get the gml folder in resources folder of def.war, then go to $CATALINA_HOME/webapps/
-                file = new ClassPathResource("gml").getFile();
-                gmlDir = file.getCanonicalPath();
+                try {
+                    file = new ClassPathResource("gml").getFile();
+                    gmlDir = file.getCanonicalPath();
+                } catch (IOException ex) {
+                    // If user wants to run secore as embedded with java -jar def.war, however in secore.properties, it is set java_server=external
+                    // this will throw exception as embedded could not load resource directory from file.
+                    throw new RuntimeException("Cannot find gml resource folder, does secore set to " + JAVA_SERVER + "=external in secore.properties file?", ex);
+                }
             }
         } catch (IOException ex) {
             log.error("Can not find gml folder in resources folder.");
@@ -138,6 +150,8 @@ public class ConfigManager {
 
         // then init log4j configuration
         initLogging(confFile);
+        
+        log.info("Loaded SECORE properties from this file path '" + confFile + "'.");
     }
 
     /**
@@ -197,8 +211,9 @@ public class ConfigManager {
      *
      * @param confDir
      * @throws java.io.IOException
+     * @throws org.rasdaman.secore.util.SecoreException
      */
-    public static void initInstance(String confDir) throws IOException {
+    public static void initInstance(String confDir) throws IOException, SecoreException {
         if (instance == null) {
             instance = new ConfigManager(confDir);
         }
@@ -261,11 +276,24 @@ public class ConfigManager {
     }
     
     /**
-     * The share war dir from $RMANHOME/share/rasdaman/war.     
+     * The path to secoredb folder for embedded SECORE
+     * which is configged in secore.properties (secoredb.path). 
      * @return 
+     * @throws org.rasdaman.secore.util.SecoreException 
      */
-    public String getShareWarDir() {
-        String shareWarDir = new File(ConfigManager.getInstance().get(DB_UPDATES_PATH)).getParent() + "/war";
-        return shareWarDir;
+    public String getEmbeddedSecoreDbFolderPath() throws SecoreException {
+        String secoredbFolderPath = ConfigManager.getInstance().get(EMBEDDED_SECOREDB_FOLDER_PATH);
+        if (secoredbFolderPath.equals("")) {
+            throw new SecoreException(ExceptionCode.InvalidParameterValue, 
+                                      EMBEDDED_SECOREDB_FOLDER_PATH + " is empty in secore.properties file for embedded SECORE.");
+        } else {
+            File file = new File(secoredbFolderPath);
+            if (!file.canRead() || !file.canWrite()) { 
+                throw new SecoreException(ExceptionCode.InvalidParameterValue, 
+                                          EMBEDDED_SECOREDB_FOLDER_PATH + " points to non readable/writable folder path in secore.properties file for embedded SECORE.");
+            }
+        }       
+        
+        return secoredbFolderPath;
     }
 }

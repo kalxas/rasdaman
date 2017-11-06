@@ -132,17 +132,19 @@ public class IOUtil {
      * This is where Tomcat/other servlet servers would always have access.
      *
      * @return the db dir, or null in case of an error
+     * @throws org.rasdaman.secore.util.SecoreException
      */
-    public static String getSecoreDbDir() {
+    public static String getSecoreDbDir() throws SecoreException {
         if (secoreDbDir == null) {            
             try {
                 if (ConfigManager.getInstance().useEmbeddedServer()) {
-                    // embedded servlet container, secoredb is from $RMANHOME/share/rasdaman/war
-                    secoreDbDir = ConfigManager.getInstance().getShareWarDir() + "/" + Constants.SECORE_DB_DIR;
+                    // embedded servlet container
+                    // NOTE: secoredb is configged by user in secore.properties file (secoredb.path)
+                    secoreDbDir = ConfigManager.getInstance().getEmbeddedSecoreDbFolderPath() + "/" + Constants.SECORE_DB_DIR;
                 } else {
                     // external servlet container, secoredb is from webapps/secoredb
                     File webappsDir = new ClassPathResource("gml").getFile().getParentFile().getParentFile().getParentFile().getParentFile();                
-                    secoreDbDir = webappsDir.getAbsolutePath() + "/" + Constants.SECORE_DB_DIR;                    
+                    secoreDbDir = webappsDir.getAbsolutePath() + "/" + Constants.SECORE_DB_DIR;
                 }
                 log.info("BaseX will create secoredb from the input gml resource folder '" + secoreDbDir + "'.");
                 File secoreDbDirFile = new File(secoreDbDir);
