@@ -85,12 +85,12 @@ public class DbSecoreVersion {
      * Get the latest version number from file name in update scripts folder and update BaseX database with the newer scripts if any.
      * @return
      */
-    private String getUpdateFilesLatestVersion(String versionNumber) throws FileNotFoundException, SecoreException, IOException {
-        String latestVersionNumber = "";
+    private String getUpdateFilesLatestVersion(String versionNumber) throws FileNotFoundException, SecoreException, IOException {        
+        Integer latestVersionNumber = 0;
         File folder = new File(ConfigManager.getInstance().getDbUpdatesPath());
         log.debug("update version files from folder: " + folder.getCanonicalPath());
-        if (folder.list().length == 0) {
-            log.debug("No update script to update.");
+        if (folder.list() == null) {
+            log.debug("No update script to update secoredb.");
         } else {
             File[] files = folder.listFiles();
             // NOTE: must sort the file names as Ubuntu can have different kind of order.
@@ -116,10 +116,16 @@ public class DbSecoreVersion {
                     }
                 }
             }
-            latestVersionNumber = maxNumber.toString();
-            log.debug("Latest update script version number is: " + latestVersionNumber);
+                        
+            if (maxNumber > currentVersionNumber) {
+                latestVersionNumber = maxNumber;
+            } else {
+                latestVersionNumber = currentVersionNumber;
+            }
+            log.info("Latest update script version number is '" + latestVersionNumber + "'.");
         }
-        return latestVersionNumber;
+        
+        return latestVersionNumber.toString();
     }
 
     /**
