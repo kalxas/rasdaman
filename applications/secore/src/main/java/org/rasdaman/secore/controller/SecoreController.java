@@ -91,15 +91,15 @@ public class SecoreController {
 
             // NOTE: use the cache instead of querying collections if URI does exist in the cache
             String result;
-            /* if (cache.containsKey(uri)) {
+            if (cache.containsKey(uri)) {
                 log.debug("Query data from *cache* for URI request: {}", uri);
                 result = cache.get(uri);
-            } else { */
+            } else {
                 ResolveResponse res = Resolver.resolve(request);
                 result = res.getData();
                 log.debug("Query data from *collections* for URI request: {}", uri);                
                 cache.put(uri, result);
-            // }
+            }
             writeResult(resp, result);
         } catch (SecoreException ex) {
             writeError(resp, ex);

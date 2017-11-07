@@ -21,7 +21,6 @@
  */
 package org.rasdaman.secore.handler;
 
-import java.io.IOException;
 import org.rasdaman.secore.req.ResolveResponse;
 import org.rasdaman.secore.req.ResolveRequest;
 import org.rasdaman.secore.db.DbManager;
@@ -115,34 +114,57 @@ public abstract class AbstractHandler implements Handler {
     protected String resolve(String el, String id, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {
         // NOTE: this will query in userdb first then later with the gml db.
         String work = null;
+        
+        // NOTE: only use this when resolving a CRS which is parameterizedCRS
+        // e.g: a parameterized CRS localhost:8080/def/crs/OGC/1.3/Auto42001/20/40 (20 is $lat, $40 is lon)
+        // which contains a child parameterized CRS defined like this: localhost:8080/def/crs/OGC/1.3/Auto42001/$lat/$lon ($lat, $lon are the keys)
+        // then this child CRS will be replaced $keys by $values from parent CRS.
+        String keyvalueParameters = "";
+        String keys = "let $keys := (";
+        String values = "let $values := (";
 
         if (!parameters.isEmpty()) {
             String targets = EMPTY;
-            int i = 0;
-            for (Parameter parameter : parameters) {
-                if (!targets.equals(EMPTY)) {
-                    targets += COMMA + NEW_LINE;
+            int i = 0;            
+            // keys, values for parameters
+                        
+            List<String> keysList = new ArrayList<>();
+            List<String> valuesList = new ArrayList<>();
+            List<String> targetsList = new ArrayList<>();
+            
+            for (Parameter parameter : parameters) {                
+                // This one is used for parameterizedCRS, e.g: AnsiDate?axis-label="abc", then abixAbbrev is changed from default ansi to abc.
+                // replace value of node "$tmp//gml:CoordinateSystemAxis/gml:axisAbbrev" with input value.
+                if (parameter.getTarget() != null) {
+                    targetsList.add("if (exists($tmp" + parameter.getTarget()
+                               + ")) then replace value of node $tmp" + parameter.getTarget()
+                               + " with '" + parameter.getValue() + "' else ()");
                 }
-                targets += "     if (exists($tmp" + parameter.getTarget()
-                           + ")) then replace value of node $tmp" + parameter.getTarget()
-                           + " with '" + parameter.getValue() + "' else ()";
-                if (i++ == 0) {
-                    targets += NEW_LINE;
-                }
-            }
-            work
-                = "	for $res in local:flatten(collection('" + COLLECTION_NAME + "'), $id, 0)\n"
+                // in a parameterizedCRS, it defines children parameterizedCRS with $key1/$key2/... as input parameters
+                // then, need to escape $ sign for BaseX also.                  
+                keysList.add("\"\\$" + parameter.getName() + "\"");
+                valuesList.add("\"" + parameter.getValue() + "\"");
+            }   
+            
+            keys = keys + StringUtil.ltos(keysList, ',') + ")";
+            values = values + StringUtil.ltos(valuesList, ',') + ")";
+            targets = StringUtil.ltos(targetsList, ',');
+            
+            work  = "for $res in local:flatten(collection('" + COLLECTION_NAME + "'), $id, 0)\n"
                   + " return\n"
                   + "   copy $tmp := $res\n"
                   + "   modify (\n"
                   + targets
                   + "   )\n"
-                  + "   return $tmp\n";
+                  + "return $tmp\n";
         } else {
-            work
-                = "	let $res := local:flatten(collection('" + COLLECTION_NAME + "'), $id, 0)\n"
+            keys = keys + ")";
+            values = values + ")";
+            work  = "	let $res := local:flatten(collection('" + COLLECTION_NAME + "'), $id, 0)\n"
                   + "	return $res\n";
         }
+        
+        keyvalueParameters += keys + "\n" + values;
 
         // remove host from id
         id = StringUtil.uriToPath(id);
@@ -169,7 +191,7 @@ public abstract class AbstractHandler implements Handler {
         List<String> unresolveElements = Arrays.asList("changeID", "descriptionReference", "projectionConversion", "sourceGeographicCRS",
                                          "geometryFile", "unitsSystem", "signReversal", "propertyRference", "changeRequest",
                                          "deprecatedObject", "replacedBy", "supersededObject", "supersededBy", "propertyReference",
-                                         "sourceCoordDiffUom", "targetCoordDiffUom", "baseGeodeticCRS");
+                                         "sourceCoordDiffUom", "targetCoordDiffUom");
 
         // This string will store all the unresolveElements in where clause (node name does not contains any string in List)
         String whereNotContains = "where not (contains($elName, \"" + unresolveElements.get(0) + "\")) \n";
@@ -187,54 +209,79 @@ public abstract class AbstractHandler implements Handler {
         // NOTE: it will depend on the version of $id (e.g: http://localhost:8080/def/crs/EPSG/0/4326 (get version at "/" number 7)
         // or crs/EPSG/8.5/4326 (get version at "/" number 4)) to send request to correct collection
         // Don't use fix collection here as 1 CRS definition could contain different internal CRS URIs with different version number.
-        String query
-            = "declare namespace gml = \"" + NAMESPACE_GML + "\";\n"
-              + "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n"
-              + "declare function local:getid($d as document-node(), $id as xs:string) as element() {\n"
-              + "let $retUserDB := $d//gml:" + el + "[fn:ends-with(text(), $id)]/..\n"
-              + "let $retValue := \"\"\n"
-              + "return if (empty($retUserDB)) then \n"
-              + "             let $version := tokenize($id, '/')[7] \n"
-              + "             let $version := \n"
-              + "                 if (empty($version)) then \n"
-              + "                     tokenize($id, '/')[4] \n"
-              + "                 else \n" 
-              + "                     tokenize($id, '/')[7] \n"
-              + "             let $collectionName := replace( concat('gml_', $version ), '\\.', '' ) \n"
-              + "             let $retGML := collection($collectionName)//gml:" + el + "[fn:ends-with(text(), $id)]/..\n"
-              + "             return if (empty($retGML)) then\n"
-              + "                       let $retValue := <empty/>\n"
-              + "                       return $retValue"
-              + "                    else"
-              + "                        let $retValue := $retGML[last()]\n"
-              + "                        return $retValue"
-              + "       else\n"
-              + "             let $retValue := $retUserDB[last()]\n"
-              + "             return $retValue"
-              + "};\n"
-              + ""
-              + "declare function local:flatten($d as document-node(), $id as xs:string, $depth as xs:integer) as element()* {\n"
-              + "  copy $el := local:getid($d, $id)\n"
-              + "  modify\n"
-              + "  (\n"
-              + "  for $c in $el//*[@xlink:href]\n"
-              + "  let $elName := $c/name()\n"
-              + "  let $hrefValue := $c/@xlink:href\n"
-              + "  (: $nodeName will be created as a parent node of resolved definition which is referenced by xlink:href :)"
-              + "  let $nodeName := node-name($c)"
-              + whereNotContains
-              + "  return if ($depth < " + depth + ") then\n"
-              + "  	replace node $c with element {$nodeName}   {\n"
-              + "             (  local:flatten($d, $c/@xlink:href, $depth + 1) ) \n"
-              + "	  }  else replace node $c with $c\n"
-              + "  )\n"
-              + "  return $el\n"
-              + "};\n"
-              + ""
-              + "declare function local:work($id as xs:string) as element() {\n"
-              + work
-              + "};\n"
-              + "local:work('" + id + "')";
+        String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";\n"
+                        + "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n"
+                        // NOTE: It needs to replace placeholders for children GML ids if they are also parameterized CRS as parent
+                        // e.g: WMS 1.3 CRS parent id is: http://www.opengis.net/def/crs/OGC/1.3/AUTO42001/99/8888
+                        // and contains a child CRS in its definition: http://www.opengis.net/def/coordinateOperation/OGC/1.3/AutoUniversalTransverseMercatorConversion/99/8888
+                        + "declare function local:replace-word($word as xs:string, $search as xs:string*, $replace as xs:string*) as xs:string { \n"
+                        + "  if (empty($search)) then $word \n"
+                        + "  else replace(local:replace-word($word, tail($search), tail($replace)), head($search), head($replace)) \n"
+                        + "};"                        
+                        + "\n"
+                
+                        // This function will be called from "flatten" function and what it does is
+                        // get the definition of the input GML id (URL), e.g: /crs/OGC/0/_Index1D_template (root ID) or 'http://localhost:8080/def/crs/EPSG/0/4326' (id of internal crs to resolve))
+                        // from userdb collection or gml_version (version comes from the URL) collection.
+                        // NOTE: if the URL contains parameters (number of "/" > 8), then it will invoke a separate HTTP request to this URL
+                        // as parameterized CRSs (e.g: http://localhost:8080/def/crs/OGC/1.3/Auto42001/$lat/$long) inside a parent CRS cannot be queried from any collections.                                        
+                        + "declare function local:getid($d as document-node(), $id as xs:string) as element() {\n"
+                        + "  let $retValue := \"\" \n"
+                        + "  return if ( count(tokenize($id, '/')) > 8 ) then \n"                        
+                        + "         " + keyvalueParameters
+                        + "             let $replacedId := local:replace-word($id, $keys, $values) \n"
+                        + "             let $retValue := (doc($replacedId)//*)[1] \n"
+                        + "             return $retValue \n"
+                        + "         else  \n"
+                        + "             let $retUserDB := $d//gml:identifier[fn:ends-with(text(), $id)]/.. \n"
+                        + "             return if (empty($retUserDB)) then \n"
+                        + "                        let $version := tokenize($id, '/')[7] \n"
+                        + "                        let $version := \n"
+                        + "                             if (empty($version)) then \n"
+                        + "                                tokenize($id, '/')[4] \n"
+                        + "                             else \n"
+                        + "                                tokenize($id, '/')[7] \n"
+                        + "                        let $collectionName := replace( concat('gml_', $version ), '\\.', '' ) \n"
+                        + "                        let $retGML := collection($collectionName)//gml:identifier[fn:ends-with(text(), $id)]/.. \n"
+                        + "                        return \n"
+                        + "                            if (empty($retGML)) then \n"
+                        + "                                let $retValue := <empty/> \n"
+                        + "                                return $retValue \n"
+                        + "                            else \n"
+                        + "                                let $retValue := $retGML[last()] \n"
+                        + "                                return $retValue \n"
+                        + "                    else \n"
+                        + "                         let $retValue := $retUserDB[last()] \n"
+                        + "                         return $retValue \n"
+                        + "};"                
+                        + "\n"
+                                                        
+                        + "\n"
+                        + "declare function local:flatten($d as document-node(), $id as xs:string, $depth as xs:integer) as element()* {\n"
+                        + "  copy $el := local:getid($d, $id)\n"
+                        + "  modify\n"
+                        + "  (\n"
+                        + "  for $c in $el//*[@xlink:href]\n"
+                        + "  let $elName := $c/name()\n"
+                        + "  let $hrefValue := $c/@xlink:href\n"
+                        + "  (: $nodeName will be created as a parent node of resolved definition which is referenced by xlink:href :)"
+                        + "  let $nodeName := node-name($c)"
+                        + whereNotContains
+                        + "  return if ($depth < " + depth + ") then\n"
+                        + "  	replace node $c with element {$nodeName}   {\n"
+                        + "             (  local:flatten($d, $c/@xlink:href, $depth + 1) ) \n"
+                        + "	  }  else replace node $c with $c\n"
+                        + "  )\n"
+                        + "  return $el\n"
+                        + "};"                
+                
+                        + "\n"
+                        + "declare function local:work($id as xs:string) as element() {\n"
+                        + work
+                        + "};"
+                
+                        + "\n"
+                        + "local:work('" + id + "')";
 
         return DbManager.getInstance().getDb().queryUser(query, versionNumber);
     }

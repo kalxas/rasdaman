@@ -101,8 +101,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
 
     @Override
     public boolean canHandle(ResolveRequest request) throws SecoreException {
-        boolean ret = request.getOperation() != null
-                      && request.getOperation().equals(OP_CRS)
+        boolean ret = request.getOperation() != null                      
                       && request.getParams().size() > 3;
         return ret;
     }
@@ -232,9 +231,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
         // extract parameters with targets
         List<Parameter> params = new ArrayList<>();
         for (Parameter parameter : parameters.values()) {
-            if (parameter.getTarget() != null) {
-                params.add(parameter);
-            }
+            params.add(parameter);
         }
 
         // resolve the target CRS
