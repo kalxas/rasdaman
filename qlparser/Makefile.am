@@ -58,11 +58,13 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtvariable.cc qtvariable.hh qtvariable.icc \
                       qtconst.cc qtconst.hh qtconst.icc \
                       qtdata.cc qtdata.hh qtdata.icc \
-		      qtclippingfunc.hh qtclippingfunc.cc qtclippingfunc.icc \
-		      qtclippingutil.hh qtclippingutil.cc \
-		      qtfindsection.hh qtfindsection.cc \
-		      qtpolygonclipping.hh qtpolygonclipping.cc \
-		      qtpolygonutil.hh qtpolygonutil.cc \
+                      qtclippingfunc.hh qtclippingfunc.cc qtclippingfunc.icc \
+                      qtclippingutil.hh qtclippingutil.cc \
+                      qtfindsection.hh qtfindsection.cc \
+                      qtpolygonclipping.hh qtpolygonclipping.cc \
+                      qtpolygonutil.hh qtpolygonutil.cc \
+                      qtmshapedata.hh qtmshapedata.cc qtmshapedata.icc \
+                      qtmshapeop.hh qtmshapeop.cc qtmshapeop.icc \
                       qtcollection.cc qtcollection.hh \
                       qtscalardata.cc qtscalardata.hh qtscalardata.icc \
                       qtatomicdata.cc qtatomicdata.hh qtatomicdata.icc \
@@ -98,8 +100,8 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtmddcfgop.hh qtmddcfgop.cc \
                       qtconcat.hh qtconcat.cc qtconcat.icc \
                       qtsimplecaseop.cc qtsimplecaseop.hh \
-		      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
-		      qtcaseequality.hh qtcaseequality.cc \
+                      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
+                      qtcaseequality.hh qtcaseequality.cc \
                       qtinfo.cc qtinfo.hh qtinfo.icc \
                       qtemptystream.cc qtemptystream.hh qtemptystream.icc \
                       qtrangeconstructor.cc qtrangeconstructor.hh qtrangeconstructor.icc \

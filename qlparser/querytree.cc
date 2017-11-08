@@ -424,7 +424,6 @@ void QueryTree::releaseDynamicObjects()
         
         if (*iter != NULL)
         {
-            std::cout << (*iter)->getNodeType() << std::flush;
             delete *iter;
             *iter = NULL;
         }

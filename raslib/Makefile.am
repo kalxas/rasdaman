@@ -41,6 +41,7 @@ libraslib_a_SOURCES= sinterval.hh dlist.hh point.hh minterval.hh error.hh \
                      oid.hh scalar.hh primitive.hh structure.hh miter.hh mddtypes.hh \
                      miterd.hh mitera.hh memblockvec.hh parseparams.hh storageman.hh \
                      endian.hh flatbasetype.hh complex.hh complextype.hh shhopt.h \
+                     pointdouble.hh pointdouble.cc pointdouble.icc \
                      sinterval.cc dlist.cc point.cc minterval.cc error.cc \
                      rmdebug.cc rminit.cc metaobject.cc type.cc marraytype.cc \
                      basetype.cc primitivetype.cc log_config.cc sintervaltype.cc \
