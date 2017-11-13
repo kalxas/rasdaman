@@ -107,7 +107,7 @@ for test_case in $TEST_DATA/*; do
     sed -i "s@SECORE_URL@$SECORE_URL@g" "$recipe_file"
 
     # 1.4 execute wcst_import with $recipe_file
-    if [[ "$test_case" == *"error_ingest"* ]]; then
+    if [[ "$test_case" == *"error_"* ]]; then
         # This test returns error, then check with test.oracle
         outputError=`python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" $recipe_file 2>&1`
         oracleError=`cat $test_case/test.oracle`

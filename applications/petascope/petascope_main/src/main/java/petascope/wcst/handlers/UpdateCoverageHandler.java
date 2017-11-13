@@ -635,7 +635,7 @@ public class UpdateCoverageHandler {
      */
     private String getReplacementValuesFromTupleList(Coverage coverage, Element rangeSet, String pixelDataType) throws PetascopeException {
         Element dataBlock = GMLParserService.parseDataBlock(rangeSet);
-        String collectionName = coverage.getCoverageId().replace("-", "_");
+        String collectionName = coverage.getCoverageId();
         Pair<String, String> collectionType = TypeResolverUtil.guessCollectionType(collectionName, coverage.getNumberOfBands(), coverage.getNumberOfDimensions(),
                 coverage.getAllUniqueNullValues(), pixelDataType);
 

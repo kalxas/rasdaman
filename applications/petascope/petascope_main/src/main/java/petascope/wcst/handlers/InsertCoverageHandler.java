@@ -55,6 +55,7 @@ import petascope.util.XMLUtil;
 import petascope.util.ras.TypeResolverUtil;
 import petascope.core.response.Response;
 import petascope.core.Templates;
+import petascope.wcst.exceptions.WCSTCoverageIdNotValid;
 import petascope.wcst.exceptions.WCSTDuplicatedCoverageId;
 import petascope.wcst.helpers.insert.RasdamanCollectionCreator;
 import petascope.wcst.helpers.insert.RasdamanDefaultCollectionCreator;
@@ -163,7 +164,10 @@ public class InsertCoverageHandler {
             }
             // use the same collection name as the coverage name 
             // (NOTE: rasdaman does not support "-" in collection name, then replace it)
-            String collectionName = coverage.getCoverageId().replace("-", "_");
+            String collectionName = coverage.getCoverageId();
+            if (collectionName.contains("-")) {
+                throw new WCSTCoverageIdNotValid(collectionName);
+            }
 
             Long oid;
             RasdamanInserter rasdamanInserter;
