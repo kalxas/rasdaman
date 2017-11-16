@@ -26,7 +26,6 @@ if (ENABLE_JAVA)
     # will not rebuild secore when make install
     set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
-    set(LOGDIR "${LOG_DIR}")
     find_package(Maven REQUIRED)
 
     configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)    
@@ -47,8 +46,8 @@ if (ENABLE_JAVA)
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
 
-        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/site/apidocs/"
-            DESTINATION "${SHARE_DATA_DIR}/doc/doc-secore"
+        install(DIRECTORY "${SECORE_TARGET_DIR}/site/apidocs/"
+            DESTINATION "${SHARE_DATA_DIR}/doc/doc-secore/classes"
             PATTERN "*.sh" EXCLUDE)
 
     endif(GENERATE_DOCS)

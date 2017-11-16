@@ -534,6 +534,15 @@ trim_indentation()
   echo "Done."
 }
 
+
+# -----------------------------------------------------------------------------
+# WCS 2.0.1 utility requests
+delete_coverage() {
+  # $1 is the coverageId to be deleted
+  local WCS_END_POINT="$PETASCOPE_URL?service=WCS&version=2.0.1&request=DeleteCoverage&CoverageId=$1"
+  wget -q --spider "$WCS_END_POINT"
+}
+
 # -----------------------------------------------------------------------------
 # GET KVP request
 get_request_kvp() {

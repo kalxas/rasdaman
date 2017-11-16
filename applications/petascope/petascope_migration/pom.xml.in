@@ -5,15 +5,19 @@
     <packaging>jar</packaging>
     <name>petascope-migration</name>
     <description>Petascope migration application</description>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.7</java.version>
+        <!-- to disable error when generating javadoc for java 1.8 -->
+        <additionalparam>-Xdoclint:none</additionalparam>
+        <!-- The main class to start for Spring Boot-->
+        <start-class>org.rasdaman.ApplicationMigration</start-class>
+    </properties>
     <parent>
         <groupId>org.rasdaman</groupId>
         <artifactId>petascope-parent</artifactId>
         <version>@PROJECT_VERSION@</version>
     </parent>
-    <properties>
-        <!-- The main class to start for Spring Boot-->
-        <start-class>org.rasdaman.ApplicationMigration</start-class>
-    </properties>
     <dependencies>
     </dependencies>
     <build>

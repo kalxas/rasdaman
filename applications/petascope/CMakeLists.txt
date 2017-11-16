@@ -30,9 +30,9 @@ set(PETASCOPE_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/target")
 set(CONF_DIR "${CONF_DIR}/")
 set(GENERATED_rasdaman_bin_path "${BIN_DIR}/")
 set(bindir "${BIN_DIR}/")
-set(PKGDATA_DIR "${SHARE_DATA_DIR}/")
+set(pkgdatadir "${SHARE_DATA_DIR}/")
 set(sysconfdir "${CONF_DIR}/")
-set(LOGDIR "${LOG_DIR}/")
+set(logdir "${LOG_DIR}/")
 set(libdir "${LIB_DIR}/")
 set(java_server ${JAVA_SERVER})
 set(petascopedb ${PETASCOPEDB})
@@ -140,3 +140,28 @@ install( PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh"
 # which will update the changes from user's old petascope.properties and new built-in petascope.properties in the package.
 install( PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh"
          DESTINATION "${BIN_DIR}" )
+
+# Copy petascope_insertdemo.sh to bin dir
+install( PROGRAMS "${INSERT_DATA_SCRIPT}"
+         DESTINATION "${BIN_DIR}" )
+
+# Copy coverages_example/petascope_insertdemo_data to (e.g: /opt/rasdaman/share/rasdaman/petascope)
+install(DIRECTORY "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo_data"
+        DESTINATION "${PETASCOPE_SHARE_DIR}")
+
+
+if (GENERATE_DOCS)
+    add_custom_target(petascope_doc ALL
+                      COMMAND ${MAVEN_EXECUTABLE} javadoc:javadoc 2>&1 > /dev/null || exit 0
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                      VERBATIM)
+
+    # Copy java doc from target folders to (e.g: /opt/rasdaman/share/doc/)
+    install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_core/site"
+        DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_core")
+    install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_main/site"
+        DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_main")
+    install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_migration/site"
+        DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_migration")
+
+endif(GENERATE_DOCS)

@@ -41,10 +41,10 @@ CODE_OK=0
 CODE_FAIL=255
 
 # petascope settings file
-SETTINGS=@sysconfdir@/petascope.properties
+SETTINGS="@sysconfdir@/petascope.properties"
 
 # petascope updateN.sql scripts and demo examples
-SCRIPT_DIR=@pkgdatadir@/petascope
+SCRIPT_DIR="@pkgdatadir@/petascope"
 
 # input file directory (coverage files + recipe files .template.json)
 DATA_DIRECTORY=$SCRIPT_DIR/petascope_insertdemo_data

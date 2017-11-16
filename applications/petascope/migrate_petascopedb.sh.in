@@ -57,7 +57,7 @@ LOG_FILE="@LOG_DIR@/petascope.log"
 PROPERTIES_FILE="@CONF_DIR@/petascope.properties"
 
 # This jar file is generated from the petascope_migration application
-PETASCOPE_MIGRATION_JAR="@PKGDATA_DIR@/petascope/rasdaman-geo-migration.jar"
+PETASCOPE_MIGRATION_JAR="@pkgdatadir@/petascope/rasdaman-geo-migration.jar"
 
 log "This script migrates data from old petascopedb to new petascopedb as confgured in $PROPERTIES_FILE."
 log "  Important: please verify that petascope is not running, e.g. in Tomcat, and stop it if necessary."

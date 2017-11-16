@@ -216,7 +216,7 @@ log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
 # Please make sure the path specified by log4j.appender.rollingFile.File is a
 # location where the system user running Tomcat has write access.
 # Otherwise, the secore and petascope logs can only be found in catalina.out
-log4j.appender.rollingFile.File=@LOGDIR@/petascope.log
+log4j.appender.rollingFile.File=@LOG_DIR@/petascope.log
 
 log4j.appender.rollingFile.MaxFileSize=10MB
 log4j.appender.rollingFile.MaxBackupIndex=10

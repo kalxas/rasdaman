@@ -206,11 +206,9 @@ for test_case in $TEST_DATA/*; do
 
             if [[ "$IS_REMOVE" == 1 ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
-                DELETE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
-                RETURN=$(get_http_return_code "$DELETE_COVERAGE_URL")
-
                 logn "Test delete coverage from Petascope WCS... "
-                if [[ $RETURN != 200 ]]; then                    
+                delete_coverage "$COVERAGE_ID"
+                if [[ $? != 0 ]]; then                    
                     check_failed         
                     write_to_failed_log "$test_case" "Cannot delete CoverageID in Petascope WCS."                               
                 else # 2.8 coverage is deleted (return HTTP 200)

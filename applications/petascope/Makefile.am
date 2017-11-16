@@ -67,6 +67,9 @@ if GDAL_JAVA_DIR_UBUNTU
    GDAL_JAVA_DIR = "/usr/lib/jni"
 endif
 
+SRC_COVERAGE_EXAMPLES = "coverages_example"
+INSERT_DATA_SCRIPT_TEMPLATE = "$(SRC_COVERAGE_EXAMPLES)/petascope_insertdemo.sh.in"
+INSERT_DATA_SCRIPT = "$(SRC_COVERAGE_EXAMPLES)/petascope_insertdemo.sh"
 
 APIDOCS   = $(BUILD)/apidocs
 STATIC_WEB_FOLDER = static
@@ -111,10 +114,6 @@ JVM       = $(JAVA) $(JVMFLAGS)
 JAR       = jar
 JARFLAGS  = cf
 
-JAVADOC   = javadoc
-JDFLAGS   = -sourcepath $(SRC_MAIN) \
-            -d $(APIDOCS)           \
-            -source 1.5 -classpath $(JJARS_CP)
 
 # ------------------------------------------------------------------------------
 #                                 TARGETS
@@ -137,7 +136,7 @@ war:
 	cp migrate_petascopedb.sh.in migrate_petascopedb.sh	
 	$(SED) -i "s|@LOG_DIR@|$(logdir)|g" migrate_petascopedb.sh	
 	$(SED) -i "s|@CONF_DIR@|$(sysconfdir)|g" migrate_petascopedb.sh	
-	$(SED) -i "s|@PKGDATA_DIR@|$(pkgdatadir)|g" migrate_petascopedb.sh				
+	$(SED) -i "s|@pkgdatadir@|$(pkgdatadir)|g" migrate_petascopedb.sh				
 	cp pom.xml.in pom.xml
 	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
 	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" pom.xml
@@ -167,11 +166,6 @@ help:
 	@echo "    wps      build 52n WPS server with petascope support and copy to wardir"
 	@echo
 
-# Generate the Java doc from sources
-.PHONY: javadoc
-javadoc: $(all_javas)
-	$(JAVADOC) $(JDFLAGS) @$<
-
 # B: Build petascope.properties and install war file to target directory.
 # Open $(SETTINGS_FILE): petascope.properties file in ~petascope/src/main/resources to $RMANHOME/etc/
 # Set java_server=external if --with-java-server=external or java_server=embedded if --with-java-server=embedded or not set.
@@ -191,6 +185,11 @@ install:
 	$(CP) $(MIGRATION_JAR_FILE) $(DESTDIR)$(pkgdatadir)/petascope/; \
 	echo "Install migrate_petascopedb.sh to $(DESTDIR)$(bindir)"; \
 	$(CP) migrate_petascopedb.sh $(DESTDIR)$(bindir); \
+	echo "Install petascope_insertdemo.sh to $(DESTDIR)$(bindir)"; \
+	$(SED) -e 's|@bindir[@]|$(bindir)/|g' -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g' -e 's|@sysconfdir[@]|$(sysconfdir)/|g' $(INSERT_DATA_SCRIPT_TEMPLATE) > $(INSERT_DATA_SCRIPT); \
+	$(CP) $(INSERT_DATA_SCRIPT) $(DESTDIR)$(bindir); \
+	echo "Install petascope_insertdemo_data to $(DESTDIR)$(pkgdatadir)/petascope/"; \
+	$(CP) -r $(SRC_COVERAGE_EXAMPLES)/petascope_insertdemo_data $(DESTDIR)$(pkgdatadir)/petascope/; \
 	echo "Install update_properties.sh to $(DESTDIR)$(bindir)"; \
 	$(CP) update_properties.sh $(DESTDIR)$(bindir); \
 	if [ $(JAVA_SERVER) == external ]; then \
@@ -209,11 +208,17 @@ install:
 # [ -z "`grep -m 1 -h "java_server" "$$NEWCONF"`" ]; need to use -z "grep " to avoid  "too many arguments error".
 # ---- From line 212, in any case, run scrip update_properties with input is old and new files (petascope.properties and log4j.properties)
 if GENERATE_DOCS
-	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
-	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
+	echo "Creating java doc..."
+	mvn javadoc:javadoc 2>&1 > /dev/null || exit 0
+	mkdir -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
+	echo "Copying java doc to $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)"
+	cp -r "petascope_core/$(PETASCOPE_TARGET_DIR)/petascope_core/site" "$(DESTDIR)$(pkgdatadir)/$(APIFOLDER)/petascope_core"
+	cp -r "petascope_main/$(PETASCOPE_TARGET_DIR)/petascope_main/site" "$(DESTDIR)$(pkgdatadir)/$(APIFOLDER)/petascope_main"
+	cp -r "petascope_migration/$(PETASCOPE_TARGET_DIR)/petascope_migration/site" "$(DESTDIR)$(pkgdatadir)/$(APIFOLDER)/petascope_migration"
+	echo "Done."
 endif
 	sed -i "s|@GENERATED_rasdaman_bin_path@|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
-	sed -i "s|@LOGDIR@|$(logdir)|g" $(SETTINGS_FILE_EDIT); \
+	sed -i "s|@LOG_DIR@|$(logdir)|g" $(SETTINGS_FILE_EDIT); \
 	sed -i "s|@GENERATED_java_server@|$(JAVA_SERVER)|g" $(SETTINGS_FILE_EDIT); \
 	echo -n "$@ is updating petascope.properties file: $(OLD_CONF) from $(NEW_CONF)"; \
 	./update_properties.sh $(OLD_CONF) $(NEW_CONF); \

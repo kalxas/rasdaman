@@ -39,19 +39,17 @@ APPLICATION_PROPERTIES=src/main/resources/application.properties
 # use only when Spring Boot starts.
 LOG4J_PROPERTIES=src/main/resources/log4j.properties
 
-if GENERATE_DOCS
-secore_doc:
-	mvn javadoc:javadoc 2>&1 > /dev/null || exit 0
-endif
+APIFOLDER = doc/doc-secore/classes
+
 
 all:
 	cp src/main/resources/secore.properties.in $(NEW_CONF)
 	sed -i "s|@SHARE_DATA_DIR@|$(pkgdatadir)|g" $(NEW_CONF)
-	sed -i "s|@LOGDIR@|$(logdir)|g" $(NEW_CONF)
+	sed -i "s|@LOG_DIR@|$(logdir)|g" $(NEW_CONF)
 	cp src/main/resources/application.properties.in $(APPLICATION_PROPERTIES)
 	sed -i "s|@CONF_DIR@|$(sysconfdir)|g" $(APPLICATION_PROPERTIES)
 	cp src/main/resources/log4j.properties.in $(LOG4J_PROPERTIES)
-	sed -i "s|@LOGDIR@|$(sysconfdir)|g" $(LOG4J_PROPERTIES)
+	sed -i "s|@LOG_DIR@|$(sysconfdir)|g" $(LOG4J_PROPERTIES)
 	cp pom.xml.in pom.xml
 	sed -i "s|@SECORE_TARGET_DIR@|${SECORE_TARGET_DIR}|g" pom.xml
 	mvn package
@@ -63,6 +61,13 @@ install-exec-hook:
 	./update_properties.sh "$(OLD_CONF)" "$(NEW_CONF)";
 	mkdir -p $(DESTDIR)$(pkgdatadir)/secore || true
 	cp db_updates/* $(DESTDIR)$(pkgdatadir)/secore
+if GENERATE_DOCS
+	echo "Creating java doc..."
+	mvn javadoc:javadoc 2>&1 > /dev/null || exit 0
+	mkdir -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
+	echo "Copying java doc from target/site to $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)"
+	cp -r "target/site" "$(DESTDIR)$(pkgdatadir)/$(APIFOLDER)"
+endif
 
 clean-local:
 	mvn clean

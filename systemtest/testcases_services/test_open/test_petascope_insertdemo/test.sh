@@ -14,17 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.    If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+# Copyright 2003 - 2017 Peter Baumann /
 # rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 # SYNOPSIS
-#    stress.sh
+#    test.sh
 # Description
-#    This script tests the connections from WMSServlet in Petascope to petascopedb from Postgresql. By default, Postgresql supports 100 connections at the same time.
-#    The problem is fixed when WMSServlet releases connection as soon as possible.
+#    This script tests petascope_insertdemo.sh script which will import sample coverages to local petascope
 
 ################################################################################
 # get script name
@@ -34,25 +33,23 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
   SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-. "$SCRIPT_DIR"/../../util/common.sh
+. "$SCRIPT_DIR"/../../../util/common.sh
 
-# run every test cases open folders
-# change directory to the test_open
-. cd "$SCRIPT_DIR"
 
-# list all the subdirectories of test_open
-for d in */ ; do
-	scriptFile="$d/test.sh"
-	if [ ! -f "$scriptFile" ]; then
-		log "Script test.sh does not exist in folder: $d, skipping..."
-	else
-		log "Running test case: $d"
-		"./$scriptFile"
+# run the petascope_insertdemo script
+petascope_insertdemo.sh > /dev/null 2>&1
 
-		# check the result of script
-		check
-	fi
-done
+# check result
+check
+
+# Remove imported sample coverages
+# delete_coverage is a WCS request in common.sh
+delete_coverage "AverageChloro"
+delete_coverage "AverageTemperature"
+delete_coverage "mean_summer_airtemp"
 
 log "done."
-exit_script
+
+# print summary from util/common.sh
+print_summary
+exit $RC

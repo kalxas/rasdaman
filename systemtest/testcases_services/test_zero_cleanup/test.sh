@@ -35,9 +35,6 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 . "$SCRIPT_DIR"/../../util/common.sh
 
 
-WCS_ENDPOINT=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=DeleteCoverage&coverageId='
-
-
 # This script will iterate the test data of test wcst_import and retrieve all imported coverages by folder name prefix (wcs_, wcps_, wms_)
 # then will remove the coverageName with WCS DeleteCoverage service which will remove the imported coverage and correspondent WMS layers if available.
 declare -a SERVICES=('error_ingest' 'wcs' 'wms' 'wcps')
@@ -59,7 +56,7 @@ for d in */ ; do
 
 			logn "Removing coverageID: $coverageID... "
 			# remove the imported coverage
-			wget -q --spider "$WCS_ENDPOINT$coverageID"
+			delete_coverage "$coverageID"
 			check
 		fi
 	done
