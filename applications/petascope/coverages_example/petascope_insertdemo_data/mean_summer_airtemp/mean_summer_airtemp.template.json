@@ -8,7 +8,7 @@
     "automated": true
   },
   "input": {
-    "coverage_id": "mean_summer_airtemp",
+    "coverage_id": "test_mean_summer_airtemp",
     "paths": [
       "mean_summer_airtemp.tif"
     ]

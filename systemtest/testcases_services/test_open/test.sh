@@ -38,7 +38,7 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 
 # run every test cases open folders
 # change directory to the test_open
-. cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR"
 
 # list all the subdirectories of test_open
 for d in */ ; do

@@ -44,9 +44,10 @@ check
 
 # Remove imported sample coverages
 # delete_coverage is a WCS request in common.sh
-delete_coverage "AverageChloro"
-delete_coverage "AverageTemperature"
-delete_coverage "mean_summer_airtemp"
+delete_coverage "test_AverageTemperature"
+# don't delete it, as this one updates an existing coverage after wcst_import which is used by wcs, wcps
+# delete_coverage "test_AverageChloro"
+# delete_coverage "test_mean_summer_airtemp"
 
 log "done."
 

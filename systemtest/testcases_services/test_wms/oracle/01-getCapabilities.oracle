@@ -63,8 +63,8 @@
             <Abstract>A compliant implementation of WMS 1.3.0 for raster data</Abstract>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
-                <Name>test_wms_4326_new</Name>
-                <Title>test_wms_4326_new</Title>
+                <Name>test_wms_4326</Name>
+                <Title>test_wms_4326</Title>
                 <Abstract/>
                 <CRS>EPSG:4326</CRS>
                 <EX_GeographicBoundingBox>
@@ -93,8 +93,23 @@
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
-                <Name>test_wms_4326</Name>
-                <Title>test_wms_4326</Title>
+                <Name>test_mean_summer_airtemp</Name>
+                <Title>test_mean_summer_airtemp</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>111.975</westBoundLongitude>
+                    <eastBoundLongitude>156.275</eastBoundLongitude>
+                    <southBoundLatitude>-44.525</southBoundLatitude>
+                    <northBoundLatitude>-8.975</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326" maxx="-8.975"
+                    maxy="156.275" minx="-44.525" miny="111.975"/>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_4326_new</Name>
+                <Title>test_wms_4326_new</Title>
                 <Abstract/>
                 <CRS>EPSG:4326</CRS>
                 <EX_GeographicBoundingBox>
