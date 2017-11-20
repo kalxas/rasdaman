@@ -132,6 +132,28 @@ public class DatabaseUtil {
 
         return true;
     }
+    
+    /**
+     * Check if petascopedb exists just by trying to connect to petascopedb
+     * NOTE: don't distinguish it is petascope version 9.4 or 9.5+
+     * @return 
+     * @throws java.lang.ClassNotFoundException 
+     * @throws petascope.exceptions.PetascopeException 
+     */
+    public static boolean petascopeDatabaseExists() throws ClassNotFoundException, PetascopeException {
+        Connection connection = null;
+        try {
+            connection = getDatabaseConnection(ConfigManager.LEGACY_DATASOURCE_URL,
+                    ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD);
+        } catch (SQLException ex) {
+            // petascopedb doesn't exist
+            return false;
+        } finally {
+            closeDatabaseConnection(connection);
+        }
+        
+        return true;
+    }
 
     /**
      * A simple check if the old petascope is preparing to migrate is prior

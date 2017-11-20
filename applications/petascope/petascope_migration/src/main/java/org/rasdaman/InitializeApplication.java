@@ -81,6 +81,12 @@ public class InitializeApplication implements CommandLineRunner {
         // Init all properties for ConfigManager
         initConfigurations(properties);
         
+        if (!DatabaseUtil.petascopeDatabaseExists()) {
+            // NOTE: petascopedb doesn't exist to migrate, just consider it is a success instead of failure.
+            log.info("petascopedb doesn't exist to migrate, skipping...");
+            System.exit(ApplicationMigration.ExitCode.SUCCESS.getExitCode());
+        }
+        
         // NOTE: Cannot migrate with same JDBC URLs (e.g: jdbc:postgresql://localhost:5432/petascopedb)
         // except with the migration of legacy petascope'db prior version 9.5
         if (!DatabaseUtil.legacyPetascopeDatabaseExists() && ConfigManager.LEGACY_DATASOURCE_URL.equalsIgnoreCase(ConfigManager.PETASCOPE_DATASOURCE_URL)) {
@@ -102,9 +108,7 @@ public class InitializeApplication implements CommandLineRunner {
             // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")            
             addLibraryPath("gdal_java", GDAL_JAVA_DIR);
             // Load properties for Spring, Hibernate from external petascope.properties
-            ConfigManager.init(CONF_DIR);
-            // Create the new database if not exist
-            DatabaseUtil.createDatabaseIfNotExist(null);
+            ConfigManager.init(CONF_DIR);            
         } catch (RasdamanException ex) {
             throw new RuntimeException("Could not initialize config manager for petascope.properties", ex);
         }
