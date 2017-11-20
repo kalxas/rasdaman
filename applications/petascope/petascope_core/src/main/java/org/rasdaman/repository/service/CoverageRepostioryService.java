@@ -126,10 +126,7 @@ public class CoverageRepostioryService {
             // Coverage already exists in the cache.
             coverage = coveragePair.fst;
         }
-
-        // NOTE: As coverage is saved with a placeholder for SECORE prefix, so after reading coverage from database, 
-        // replace placeholder with SECORE configuration endpoint from petascope.properties.
-        CoverageRepostioryService.addCrsPrefix(coverage);
+        
         log.debug("Coverage id '" + coverageId + "' is read from cache.");
 
         return coverage;
@@ -169,6 +166,11 @@ public class CoverageRepostioryService {
         }
 
         log.debug("Coverage: " + coverageId + " is read from database.");
+        
+        // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
+        // with a DescribeCoverage request, after the replacement, 
+        // it will save coverage's crs with localhost:8080 instead of the placeholder $SCORE_URL$ in database.
+        entityManager.clear();
 
         // NOTE: As coverage is saved with a placeholder for SECORE prefix, so after reading coverage from database, 
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
