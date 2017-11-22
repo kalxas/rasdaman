@@ -59,7 +59,7 @@ public class StringUtil {
     public static String START_DIGIT_REGEXP = "^\\d+=.+";
 
     // substring from full uri to get the service uri (e.g: localhost:8080/def/crs/epsg/0/4326 returns localhost:8080/def/)
-    public static String SERVICE_URI_REGEXP = "(http|https)://.*?/.*?/";
+    public static String SERVICE_URI_REGEXP = "(http|https)://.*?/.*?/?";
 
     private static final ScriptEngineManager engineManager;
     private static final ScriptEngine engine;
@@ -253,7 +253,7 @@ public class StringUtil {
         if (regexMatcher.find()) {
             serviceUri = regexMatcher.group();
         } else {
-            throw new SecoreException(ExceptionCode.InvalidRequest, "The requested service URI is not valid: " + serviceUri);
+            throw new SecoreException(ExceptionCode.InvalidRequest, "The requested service URI is not valid: " + uri);
         }        
 
         return serviceUri;

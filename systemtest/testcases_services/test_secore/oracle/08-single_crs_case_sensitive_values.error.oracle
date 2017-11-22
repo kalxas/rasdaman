@@ -2,6 +2,6 @@
 
 <ows:ExceptionReport version="2.0.0" xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"   >
   <ows:Exception exceptionCode="NoSuchDefinition">
-    <ows:ExceptionText>Failed resolving /crs/epsg/8.5/4327</ows:ExceptionText>
+    <ows:ExceptionText>Failed resolving http://localhost:8080/crs/epsg/8.5/4327</ows:ExceptionText>
   </ows:Exception>
 </ows:ExceptionReport>
