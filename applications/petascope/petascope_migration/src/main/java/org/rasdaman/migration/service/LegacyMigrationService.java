@@ -158,11 +158,16 @@ public class LegacyMigrationService extends AbstractMigrationService {
             if (legacyCoverageMainService.coverageIdExist(legacyCoverageId)) {
                 log.info("... already migrated, skipping.");
             } else {
-                // Legacy coverage Id is not migrated yet, now read the whole legacy coverage content which is *slow*
-                LegacyCoverageMetadata legacyCoverageMetadata = readLegacyCoveragesService.read(legacyCoverageId);
-                // And persist this legacy coverage metadata by converting it to new CIS data model and saving to database
-                legacyCoverageMainService.persist(legacyCoverageMetadata);
-                log.info("... migrated successfully.");
+                try {
+                    // Legacy coverage Id is not migrated yet, now read the whole legacy coverage content which is *slow*
+                    LegacyCoverageMetadata legacyCoverageMetadata = readLegacyCoveragesService.read(legacyCoverageId);
+                    // And persist this legacy coverage metadata by converting it to new CIS data model and saving to database
+                    legacyCoverageMainService.persist(legacyCoverageMetadata);
+                    log.info("... migrated successfully.");
+                } catch (Exception ex) {
+                    log.debug("Error when migrating coverage", ex);
+                    log.info("... cannot migrate coverage with error '" + ex.getMessage() + "', skipping.");
+                }
             }            
             i++;
         }
@@ -173,9 +178,14 @@ public class LegacyMigrationService extends AbstractMigrationService {
     @Override
     protected void saveOwsServiceMetadata() throws Exception {
         log.info("Migrating OWS Service metadata...");
-        legacyOwsServiceMetadataMainService.persist();
+        try {
+            legacyOwsServiceMetadataMainService.persist();
+            log.info("... migrated successfully.");
+        } catch (Exception ex) {
+            log.debug("Error when migrating OWS Service metadata", ex);
+            log.info("... cannot migrate OWS Service metadata with error '" + ex.getMessage() + "', skpiing.");
+        }
 
-        log.info("... migrated successfully.");
     }
 
     @Override
@@ -196,15 +206,20 @@ public class LegacyMigrationService extends AbstractMigrationService {
                 if (legacyWMSLayer == null) {
                     log.info("Associated coverage for this layer does not exist in database to migrate, skipping.");
                 } else {
-                    // NOTE: WMS does not support 3D+ coverage, so don't migrate the legacy WMS layer which was imported before accidentally.                    
-                    Coverage coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(legacyWmsLayerName);
-                    List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
-                    if (geoAxes.size() > 2) {            
-                        log.info("WMS does not support 3D+ layer to migrate, skipping.");
-                    } else {
-                        // And persist this legacy WMS layer's metadata by converting it to new data model and saving to database
-                        legacyWMSLayerMainService.persist(legacyWMSLayer);
-                        log.info("... migrated successfully.");
+                    try {
+                        // NOTE: WMS does not support 3D+ coverage, so don't migrate the legacy WMS layer which was imported before accidentally.                    
+                        Coverage coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(legacyWmsLayerName);
+                        List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
+                        if (geoAxes.size() > 2) {            
+                            log.info("WMS does not support 3D+ layer to migrate, skipping.");
+                        } else {
+                            // And persist this legacy WMS layer's metadata by converting it to new data model and saving to database
+                            legacyWMSLayerMainService.persist(legacyWMSLayer);
+                            log.info("... migrated successfully.");
+                        }
+                    } catch (Exception ex) {
+                        log.debug("Error when migrating layer", ex);
+                        log.info("... cannot migrate layer with error '" + ex.getMessage() + "', skipping.");
                     }
                 }
             }            
