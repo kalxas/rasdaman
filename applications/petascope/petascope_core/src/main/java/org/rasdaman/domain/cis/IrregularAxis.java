@@ -27,6 +27,7 @@ import javax.persistence.*;
 import java.util.List;
 import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 
 /**
@@ -58,6 +59,11 @@ public class IrregularAxis extends GeoAxis {
 
     public static final String TABLE_NAME = "irregular_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
+    
+    public enum CoefficientStatus {
+        NO_EXIST_AND_GREATER_THAN_UPPER_BOUND,
+        EXIST   
+    }
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "irregular_axis_direct_positions")
@@ -150,26 +156,31 @@ public class IrregularAxis extends GeoAxis {
      * e.g: existing coefficients: 0 3 5 8, cannot add 2, 4, 6, 7 but 8.01 is ok
      *
      *
+     * @param isInsitu
      * @param coefficient
      * @return
      * @throws petascope.exceptions.WCSException
      */
-    public boolean validateCoefficient(BigDecimal coefficient) throws WCSException {
+    public CoefficientStatus validateCoefficient(boolean isInsitu, BigDecimal coefficient) throws WCSException {
         long index = BigDecimalUtil.listContainsCoefficient(this.getDirectPositionsNumber(), coefficient);
         if (index == -1) {
             // Check if coefficient > the upperBound of axis, if it is not then it is added between other coeffcients which is not valid
             int numberOfCoefficients = this.getDirectPositionsNumber().size();
             BigDecimal upperBoundCoefficient = this.getDirectPositionsNumber().get(numberOfCoefficients - 1);
-            if (upperBoundCoefficient.compareTo(coefficient) > 0) {
-                throw new WCSException("Can not add new slice in between existing slices on irregular axis. Only " +
-            "adding slices on top is currently supported.");
+            if (upperBoundCoefficient.compareTo(coefficient) > 0) {                
+                if (!isInsitu) {
+                    throw new WCSException("Can not add new slice in between existing slices on irregular axis. Only " +
+                "adding slices on top is currently supported.");
+                } else {
+                    throw new WCSException(ExceptionCode.NoApplicableCode, "Adding slice in between existing slices on irregular axis is not supported.");
+                }
             } else {
                 // the coefficient does not exist in the list of direct positions and greater than upperBound
-                return false;
+                return CoefficientStatus.NO_EXIST_AND_GREATER_THAN_UPPER_BOUND;
             }
         } else {
             // the coefficient does exist in list of direct positions
-            return true;
+            return CoefficientStatus.EXIST;
         }
     }
 

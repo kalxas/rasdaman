@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.cis.Axis;
@@ -92,17 +91,6 @@ public class CoverageRepostioryService {
 
     }
 
-    @PostConstruct
-    /**
-     * This method is called after the bean for this service class is finished
-     * (i.e: other autowired dependent services are not null). Then it can load
-     * all coverages to cache.
-     */
-    private void initCoveragesCache() throws PetascopeException, SecoreException {
-        this.readAllCoveragesBasicMetatata();        
-        log.debug("Initialized all the coverages's metadata to cache.");
-    }
-
     /**
      * This method is used *only* when read coverage metadata to get another
      * data not from database. If using it to update an input coverage metadata,
@@ -111,6 +99,7 @@ public class CoverageRepostioryService {
      * @param coverageId
      * @return
      * @throws petascope.exceptions.PetascopeException
+     * @throws petascope.exceptions.SecoreException
      */
     public Coverage readCoverageFullMetadataByIdFromCache(String coverageId) throws PetascopeException {
         Pair<Coverage, Boolean> coveragePair = coveragesCacheMap.get(coverageId);
@@ -153,8 +142,15 @@ public class CoverageRepostioryService {
      * @param coverageId
      * @return
      * @throws petascope.exceptions.PetascopeException
+     * @throws petascope.exceptions.SecoreException
      */
     public Coverage readCoverageByIdFromDatabase(String coverageId) throws PetascopeException {
+        
+        // This happens when Petascope starts and user sends a WCPS query to a coverage instead of WCS GetCapabilities
+        if (coveragesCacheMap.isEmpty()) {
+            this.readAllCoveragesBasicMetatata();
+        }
+        
         long start = System.currentTimeMillis();
 
         Coverage coverage = this.coverageRepository.findOneByCoverageId(coverageId);
@@ -201,7 +197,7 @@ public class CoverageRepostioryService {
      *
      * @return List<Pair<Coverage, Boolean>>
      */
-    public List<Pair<Coverage, Boolean>> readAllCoveragesBasicMetatata() throws PetascopeException, SecoreException {        
+    public List<Pair<Coverage, Boolean>> readAllCoveragesBasicMetatata() throws PetascopeException {        
         long start = System.currentTimeMillis();
 
         List<Pair<Coverage, Boolean>> coverages = new ArrayList<>();

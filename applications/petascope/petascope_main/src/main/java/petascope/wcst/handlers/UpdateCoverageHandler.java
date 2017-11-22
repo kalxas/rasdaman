@@ -69,6 +69,7 @@ import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
+import org.rasdaman.domain.cis.IrregularAxis.CoefficientStatus;
 import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -266,13 +267,14 @@ public class UpdateCoverageHandler {
                     BigDecimal normalizedCoefficient = unnormalizedCoefficient.add(coefficientOffset);
 
                     // Check if this normalizedCoefficient is not in current axis list of directPositions then add it
-                    boolean isExist = currentIrregularAxis.validateCoefficient(normalizedCoefficient);
-
+                    boolean isInsitu = false;
+                    CoefficientStatus coefficientStatus = currentIrregularAxis.validateCoefficient(isInsitu, normalizedCoefficient);
+                    
                     // Coefficient does not exist in the list of direct positions and it > highest coefficient, so add it into the list
                     // NOTE: no support to add new coefficient betweens coefficients (e.g: 0 2 3 and add 1)
-                    if (!isExist) {
+                    if (coefficientStatus == coefficientStatus.NO_EXIST_AND_GREATER_THAN_UPPER_BOUND) {
                         currentIrregularAxis.getDirectPositions().add(normalizedCoefficient.toPlainString());
-                    }
+                    } 
                 }
             }
         }

@@ -21,6 +21,12 @@
  */
 package org.rasdaman;
 
+import javax.sql.DataSource;
+import liquibase.integration.spring.SpringLiquibase;
+import org.rasdaman.config.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +34,10 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import petascope.controller.AbstractController;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.util.DatabaseUtil;
 
 /**
  * This class initializes the bean which needs the passing dependencies from
@@ -37,6 +47,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  */
 @Configuration
 public class BeanApplicationConfiguration {
+    
+    private static final Logger log = LoggerFactory.getLogger(BeanApplicationConfiguration.class);
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -64,5 +76,35 @@ public class BeanApplicationConfiguration {
         FilterRegistrationBean registration = new FilterRegistrationBean(filter);
         registration.setEnabled(false);
         return registration;
+    }
+    
+    
+    @Bean
+    public SpringLiquibase liquibase() throws Exception {
+        SpringLiquibase liquibase = new SpringLiquibase();
+        // NOTE: An exception occurs before, don't do anything.
+        if (AbstractController.startException != null) {
+            liquibase.setShouldRun(false);
+            return liquibase; 
+        }
+        String datasourceUrl = ConfigManager.PETASCOPE_DATASOURCE_URL;
+        DataSource dataSource = DataSourceBuilder.create().url(datasourceUrl)
+                .username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME)
+                .password(ConfigManager.PETASCOPE_DATASOURCE_PASSWORD).build();
+        liquibase.setDataSource(dataSource);
+        liquibase.setChangeLog("classpath:database_versions/db.changelog-master.xml");
+        // NOTE: Don't populate new schema from petascopedb9.5 to petascopedb9.4, return error later to client via controller also
+        if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
+            String errorMessage = "petascopedb 9.4 or older already exists, "
+                    + "please run the migrate_petascopedb.sh script to migrate to the new petascope schema first, then restart petascope.";
+            PetascopeException exception = new PetascopeException(ExceptionCode.InternalSqlError, errorMessage);
+            AbstractController.startException = exception;
+            log.error(errorMessage, exception);
+            liquibase.setShouldRun(false);
+        } else {
+            liquibase.setShouldRun(true);
+        }
+
+        return liquibase;
     }
 }

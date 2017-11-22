@@ -56,6 +56,9 @@ import petascope.util.XMLUtil;
 public abstract class AbstractController {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractController.class);
+    
+    // When petascope cannot start for some reasons, just not throw the exception until it can start the web application and throw exception to user via HTTP request
+    public static PetascopeException startException;
 
     @Autowired
     protected HttpServletResponse httpServletResponse;
@@ -68,6 +71,15 @@ public abstract class AbstractController {
     private static final Long GARBAGE_COLLECTION_THRESHOLD = 104857600l;
     // All the returned bytes to clients up to this current request
     private static Long totalReturnedBytes = 0l;
+    
+    /**
+     * If an exception occurs when petascope starts, just defer it until web application can start and exception can be thrown via controllers
+     * @throws PetascopeException 
+     */
+    protected void throwStartException() throws PetascopeException {
+        throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                "Cannot process request, reason '" + startException.getExceptionText() + "'.", startException);
+    }
 
     /**
      * Handler GET request

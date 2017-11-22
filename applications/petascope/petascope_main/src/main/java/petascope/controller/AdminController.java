@@ -134,7 +134,7 @@ public class AdminController extends AbstractController {
      * @param modelToView
      * @return
      */
-    private String handleLoginRequest(Map<String, String[]> kvpParameters, Map<String, Object> modelToView) throws WCSException {
+    private String handleLoginRequest(Map<String, String[]> kvpParameters, Map<String, Object> modelToView) throws WCSException, PetascopeException {
         // If submitted username, password are not as same as admin's account in petascope.properties, so return error status.
         if (!(kvpParameters.get(USERNAME)[0].equals(ConfigManager.PETASCOPE_ADMIN_USERNAME)
                 && kvpParameters.get(PASSWORD)[0].equals(ConfigManager.PETASCOPE_ADMIN_PASSWORD))) {
@@ -156,7 +156,11 @@ public class AdminController extends AbstractController {
      * @param modelToView
      * @return
      */
-    private String handleFormRequest(Map<String, String[]> kvpParameters, Map<String, Object> modelToView) throws WCSException {
+    private String handleFormRequest(Map<String, String[]> kvpParameters, Map<String, Object> modelToView) throws WCSException, PetascopeException {
+        if (startException != null) {
+            throwStartException();
+        }
+        
         OwsServiceMetadata owsServiceMetadata = owsMetadataRepostioryService.read();
 
         if (kvpParameters != null) {

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import static org.rasdaman.config.ConfigManager.OWS;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,11 +81,16 @@ public class PetascopeController extends AbstractController {
      * @throws IOException
      * @throws PetascopeException
      * @throws petascope.exceptions.SecoreException
+     * @throws petascope.exceptions.WMSException
      */
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
         // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)                
         log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+        
+        if (startException != null) {
+            throwStartException();
+        }
 
         Response response = null;
         if (kvpParameters.isEmpty()) {

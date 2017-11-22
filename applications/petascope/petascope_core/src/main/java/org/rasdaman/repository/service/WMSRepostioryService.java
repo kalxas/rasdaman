@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.wms.Layer;
@@ -65,16 +64,6 @@ public class WMSRepostioryService {
     // Cache all the metadata for WMS layers
     public static final Map<String, Layer> layersCacheMap = new ConcurrentHashMap<>();
 
-    @PostConstruct
-    /**
-     * This method is called after the bean for this service class is finished
-     * (i.e: other autowired dependent services are not null). Then it can load
-     * all WMS layers to cache.
-     */
-    private void initLayersCache() {
-        readAllLayers();
-        log.debug("Initialize all the layers's metadata to cache.");
-    }
 
     /**
      *
@@ -104,6 +93,11 @@ public class WMSRepostioryService {
      * @return
      */
     public Layer readLayerByNameFromDatabase(String layerName) {
+        
+        // This happens when Petascope starts and user sends a WMS GetMap query to a coverage instead of WMS GetCapabilities
+        if (layersCacheMap.isEmpty()) {
+            this.readAllLayers();
+        }
 
         Layer layer = this.layerRepository.findOneByName(layerName);
         if (layer == null) {

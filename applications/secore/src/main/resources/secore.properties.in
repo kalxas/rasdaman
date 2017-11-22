@@ -83,7 +83,7 @@ secoredb.path=
 
 #------------------- log4j configuration -------------------
 
-log4j.rootLogger=TRACE, rollingFile, stdout
+log4j.rootLogger=WARN, rollingFile, stdout
 
 # Reduce the log information from Spring
 log4j.logger.org.springframework=WARN

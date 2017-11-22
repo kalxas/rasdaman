@@ -45,6 +45,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
+import petascope.controller.AbstractController;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -96,13 +97,13 @@ public class ApplicationMain extends SpringBootServletInitializer {
         File initialFile = new File(properties.getProperty(KEY_PETASCOPE_CONF_DIR) + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
         propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
 
-        // Init all properties for ConfigManager
-        initConfigurations(properties);
-
-        // NOTE: If legacy petascopedb exists, don't start web application or Liquibase will populate tables to same database
-        if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
-            throw new PetascopeException(ExceptionCode.InternalSqlError, "petascopedb 9.4 or older already exists, "
-                    + "please run the migrate_petascopedb.sh script to migrate to the new petascope schema first.");
+        try {
+            // Init all properties for ConfigManager
+            initConfigurations(properties);            
+        } catch (Exception ex) {
+            PetascopeException exception = new PetascopeException(ExceptionCode.InternalComponentError, ex.getMessage(), ex);
+            log.error("Error when initializing petascope's configurations", exception);
+            AbstractController.startException = exception;
         }
 
         return propertyResourcePlaceHolderConfigurer;

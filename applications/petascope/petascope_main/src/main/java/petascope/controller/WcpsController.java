@@ -31,7 +31,6 @@ import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.WCPS;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -94,6 +93,9 @@ public class WcpsController extends AbstractController {
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
         log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+        if (startException != null) {
+            throwStartException();
+        }
         
         // NOTE: this posted WCPS query in requestBody can be WCPS in XML syntax beside the abstract syntax
         if (kvpParameters.get(KVPSymbols.KEY_REQUEST_BODY) != null) {
