@@ -21,8 +21,18 @@
  */
 package org.rasdaman;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 import javax.annotation.Resource;
+import static org.rasdaman.InitAllConfigurationsApplicationService.APPLICATION_PROPERTIES_FILE;
+import static org.rasdaman.InitAllConfigurationsApplicationService.KEY_GDAL_JAVA_DIR;
+import static org.rasdaman.InitAllConfigurationsApplicationService.KEY_PETASCOPE_CONF_DIR;
+import static org.rasdaman.InitAllConfigurationsApplicationService.addLibraryPath;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
 import org.springframework.boot.CommandLineRunner;
@@ -33,8 +43,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.FileSystemResource;
+import petascope.exceptions.PetascopeException;
+import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.DatabaseUtil;
 
 @SpringBootApplication
@@ -53,6 +68,66 @@ public class ApplicationMigration implements CommandLineRunner {
     @Resource
     // Spring finds all the subclass of AbstractMigrationService and injects to the list
     List<AbstractMigrationService> migrationServices;
+    
+    private static Properties properties;
+    
+    /**
+     * NOTE: This one is use to load Petascope properties from external file
+     * when Spring Environment is not wired (i.e: null). Then all the
+     * configurations for application from petascope.properties is loaded.
+     *
+     * @throws java.sql.SQLException
+     * @throws java.lang.ClassNotFoundException
+     * @PropertySource in class level will not work as it requires a constant
+     * path to petascope.properties.
+     *
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InterruptedException {
+        String resourceName = APPLICATION_PROPERTIES_FILE; // could also be a constant
+        properties = new Properties();
+        InputStream resourceStream = ApplicationMigration.class.getResourceAsStream("/" + resourceName);
+        properties.load(resourceStream);
+
+        PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
+        File initialFile = new File(properties.getProperty(KEY_PETASCOPE_CONF_DIR) + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
+        propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
+
+        // Init all properties for ConfigManager
+        initConfigurations(properties);
+        
+        if (!DatabaseUtil.petascopeDatabaseExists()) {
+            // NOTE: petascopedb doesn't exist to migrate, just consider it is a success instead of failure.
+            log.info("petascopedb doesn't exist, nothing to migrate.");
+            System.exit(ApplicationMigration.ExitCode.SUCCESS.getExitCode());
+        }
+        
+        // NOTE: Cannot migrate with same JDBC URLs (e.g: jdbc:postgresql://localhost:5432/petascopedb)
+        // except with the migration of legacy petascope'db prior version 9.5
+        if (!DatabaseUtil.legacyPetascopeDatabaseExists() && ConfigManager.LEGACY_DATASOURCE_URL.equalsIgnoreCase(ConfigManager.PETASCOPE_DATASOURCE_URL)) {
+            log.error("Cannot migrate petascope's database with same JDBC URL: " + ConfigManager.LEGACY_DATASOURCE_URL);
+            System.exit(ApplicationMigration.ExitCode.FAILURE.getExitCode());
+        }
+        
+        return propertyResourcePlaceHolderConfigurer;
+    }
+
+    /**
+     * Initialize all the configurations for GDAL libraries, ConfigManager and
+     * OGC WCS XML Schema
+     */
+    private static void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException, InterruptedException {        
+        String confDir = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
+        try {
+            // Load properties for Spring, Hibernate from external petascope.properties
+            ConfigManager.init(confDir);            
+        } catch (RasdamanException ex) {
+            throw new RuntimeException("Could not initialize config manager for petascope.properties", ex);
+        }
+    }
 
     /**
      * Return the exit code to user
@@ -84,6 +159,11 @@ public class ApplicationMigration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        
+        // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")
+        String gdalJavaDir = properties.getProperty(KEY_GDAL_JAVA_DIR);
+        addLibraryPath("gdal_java", gdalJavaDir);
+        
         log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.LEGACY_DATASOURCE_URL + "' to JDBC URL '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'...");
         // First, check if old JDBC URL can be connected
         if (!DatabaseUtil.checkJDBCConnection(ConfigManager.LEGACY_DATASOURCE_URL,
