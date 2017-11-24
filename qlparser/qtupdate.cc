@@ -407,7 +407,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     {
         tempOp = Ops::getUnaryOp(Ops::OP_IDENTITY, targetObj->getCellType(), (*sourceIt)->getType(), 0, 0);
     }
-    std::auto_ptr<UnaryOp> identityOp(tempOp);
+    std::unique_ptr<UnaryOp> identityOp(tempOp);
 
     const vector<bool>* trimFlags = NULL;
 
