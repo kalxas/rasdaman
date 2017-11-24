@@ -30,18 +30,26 @@ class JavaGrpcGenerator : public google::protobuf::compiler::CodeGenerator {
   virtual bool Generate(const google::protobuf::FileDescriptor* file,
                         const string& parameter,
                         google::protobuf::compiler::GeneratorContext* context,
-                        __attribute__ ((unused)) string* error) const {
-    vector<pair<string, string> > options;
+                        string* error) const {
+    std::vector<std::pair<string, string> > options;
     google::protobuf::compiler::ParseGeneratorParameter(parameter, &options);
 
-    bool generate_nano = false;
-    for (unsigned int i = 0; i < options.size(); i++) {
-      if (options[i].first == "nano" && options[i].second == "true") {
-        generate_nano = true;
+    java_grpc_generator::ProtoFlavor flavor =
+        java_grpc_generator::ProtoFlavor::NORMAL;
+
+    bool disable_version = false;
+    for (size_t i = 0; i < options.size(); i++) {
+      if (options[i].first == "nano") {
+        flavor = java_grpc_generator::ProtoFlavor::NANO;
+      } else if (options[i].first == "lite") {
+        flavor = java_grpc_generator::ProtoFlavor::LITE;
+      } else if (options[i].first == "noversion") {
+        disable_version = true;
       }
     }
 
-    string package_name = java_grpc_generator::ServiceJavaPackage(file, generate_nano);
+    string package_name = java_grpc_generator::ServiceJavaPackage(
+        file, flavor == java_grpc_generator::ProtoFlavor::NANO);
     string package_filename = JavaPackageToDir(package_name);
     for (int i = 0; i < file->service_count(); ++i) {
       const google::protobuf::ServiceDescriptor* service = file->service(i);
@@ -49,7 +57,8 @@ class JavaGrpcGenerator : public google::protobuf::compiler::CodeGenerator {
           + java_grpc_generator::ServiceClassName(service) + ".java";
       std::unique_ptr<google::protobuf::io::ZeroCopyOutputStream> output(
           context->Open(filename));
-      java_grpc_generator::GenerateService(service, output.get(), generate_nano);
+      java_grpc_generator::GenerateService(
+          service, output.get(), flavor, disable_version);
     }
     return true;
   }

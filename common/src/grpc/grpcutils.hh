@@ -88,6 +88,12 @@ public:
      * @return True if the port is busy, false otherwise.
      */
     static bool isPortBusy(const std::string& host, boost::uint32_t port);
+
+    /**
+     * @brief getDefaultChannelArguments Utility function returning default channel arguments,
+     * with unlimited max send/receive message size.
+     */
+    static grpc::ChannelArguments getDefaultChannelArguments();
 };
 
 }

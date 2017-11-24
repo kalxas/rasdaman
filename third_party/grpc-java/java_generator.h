@@ -10,15 +10,12 @@
 
 class LogHelper {
   std::ostream* os;
-  bool abort;
 
  public:
-  LogHelper(std::ostream* osArg, bool abortArg) : os(osArg), abort(abortArg) {}
+  LogHelper(std::ostream* os) : os(os) {}
   ~LogHelper() {
     *os << std::endl;
-    if (abort) {
-      ::abort();
-    }
+    ::abort();
   }
   std::ostream& get_os() {
     return *os;
@@ -27,7 +24,7 @@ class LogHelper {
 
 // Abort the program after logging the mesage if the given condition is not
 // true. Otherwise, do nothing.
-#define GRPC_CODEGEN_CHECK(x) !(x) && LogHelper(&std::cerr, true).get_os() \
+#define GRPC_CODEGEN_CHECK(x) !(x) && LogHelper(&std::cerr).get_os() \
                              << "CHECK FAILED: " << __FILE__ << ":" \
                              << __LINE__ << ": "
 
@@ -37,6 +34,10 @@ class LogHelper {
 using namespace std;
 
 namespace java_grpc_generator {
+
+enum ProtoFlavor {
+  NORMAL, LITE, NANO
+};
 
 // Returns the package name of the gRPC services defined in the given file.
 string ServiceJavaPackage(const google::protobuf::FileDescriptor* file, bool nano);
@@ -48,7 +49,8 @@ string ServiceClassName(const google::protobuf::ServiceDescriptor* service);
 // Writes the generated service interface into the given ZeroCopyOutputStream
 void GenerateService(const google::protobuf::ServiceDescriptor* service,
                      google::protobuf::io::ZeroCopyOutputStream* out,
-                     bool generate_nano);
+                     ProtoFlavor flavor,
+                     bool disable_version);
 
 }  // namespace java_grpc_generator
 

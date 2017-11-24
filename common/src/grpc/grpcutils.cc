@@ -144,4 +144,12 @@ bool GrpcUtils::isPortBusy(const std::string& host, boost::uint32_t port)
     return NetworkResolverFactory::getNetworkResolver(host, port)->isPortBusy();
 }
 
+grpc::ChannelArguments GrpcUtils::getDefaultChannelArguments()
+{
+    grpc::ChannelArguments args;                                                                                                                                                                 
+    args.SetMaxReceiveMessageSize(-1); // unlimited
+    args.SetMaxSendMessageSize(-1); // unlimited
+    return args;
+}
+
 }

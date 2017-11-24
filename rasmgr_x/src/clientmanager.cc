@@ -329,7 +329,7 @@ bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, cons
             out_serverSession.clientSessionId = client->getClientId();
             out_serverSession.dbSessionId = dbSessionId;
             out_serverSession.serverHostName = assignedServer->getHostName();
-            out_serverSession.serverPort = static_cast<google::protobuf::uint32_t>(assignedServer->getPort());
+            out_serverSession.serverPort = static_cast<uint32_t>(assignedServer->getPort());
 
             foundServer = true;
             break;

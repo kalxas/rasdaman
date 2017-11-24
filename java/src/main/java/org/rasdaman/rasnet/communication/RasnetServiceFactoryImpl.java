@@ -29,6 +29,6 @@ public class RasnetServiceFactoryImpl implements RasnetServiceFactory {
 
     @Override
     public ManagedChannel createChannel(String host, int port) {
-        return NettyChannelBuilder.forAddress(host, port).usePlaintext(true).build();
+        return NettyChannelBuilder.forAddress(host, port).usePlaintext(true).maxMessageSize(Integer.MAX_VALUE).build();
     }
 }
