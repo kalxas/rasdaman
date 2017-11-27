@@ -537,10 +537,15 @@ public class CrsUtil {
             // Get the CRS URI definition from SECORE to build Element
             URLConnection uomCon = uomUrl.openConnection();
             uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-            uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-            InputStream is = uomCon.getInputStream();
-            Document doc = XMLUtil.buildDocument(null, is);
-            ret = doc.getRootElement();
+            uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);            
+            if (url.contains("uom/UCUM") || url.contains("uom/OGC")) {
+                // NOTE: as it cannot resolve the UOM for time axis, e.g: http://www.opengis.net/def/uom/UCUM/0/d, doesn't need to do anything
+                ret = null;
+            } else {
+                InputStream is = uomCon.getInputStream();
+                Document doc = XMLUtil.buildDocument(null, is);
+                ret = doc.getRootElement();
+            }
         } catch (IOException | ParsingException | PetascopeException ex) {
             log.debug("Error while building the document from URL '" + url + "'", ex);
             ret = null;

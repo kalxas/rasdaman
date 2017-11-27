@@ -163,7 +163,7 @@ public class InsertCoverageHandler {
                 coverage.setCoverageId(generateCoverageName());
             }
             // use the same collection name as the coverage name 
-            // (NOTE: rasdaman does not support "-" in collection name, then replace it)
+            // (NOTE: rasdaman does not support "-" in collection name)
             String collectionName = coverage.getCoverageId();
             if (collectionName.contains("-")) {
                 throw new WCSTCoverageIdNotValid(collectionName);

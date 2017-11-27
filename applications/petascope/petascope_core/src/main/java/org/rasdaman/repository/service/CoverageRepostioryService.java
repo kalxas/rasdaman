@@ -230,6 +230,7 @@ public class CoverageRepostioryService {
 
             // Read all coverage from persistent database
             log.debug("Read all persistent coverages from database.");
+            coverages = new ArrayList<>(coveragesCacheMap.values());
         } else {
             coverages = new ArrayList<>(coveragesCacheMap.values());
             log.debug("Read all persistent coverages from cache.");
@@ -356,7 +357,7 @@ public class CoverageRepostioryService {
                 // Transformed is done, put it to cache
                 coveragesExtentsCacheMap.put(coverageId, boundingBox);
             } catch (PetascopeException ex) {
-                log.debug("Cannot create extent for coverage '" + coverageId + "', error '" + ex.getExceptionText() + "'.", ex);
+                log.warn("Cannot create extent for coverage '" + coverageId + "', error from GDAL crs transform '" + ex.getExceptionText() + "'.");
             }
         }
     }

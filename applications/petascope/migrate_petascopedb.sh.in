@@ -60,7 +60,6 @@ PROPERTIES_FILE="@CONF_DIR@/petascope.properties"
 PETASCOPE_MIGRATION_JAR="@pkgdatadir@/petascope/rasdaman-geo-migration.jar"
 
 log "This script migrates data from old petascopedb to new petascopedb as confgured in $PROPERTIES_FILE."
-log "  Important: please verify that petascope is not running, e.g. in Tomcat, and stop it if necessary."
 log "  More details on the migration process: http://rasdaman.org/wiki/Petascope_9.5#Howtomigrate"
 echo
 
