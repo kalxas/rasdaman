@@ -42,7 +42,7 @@ from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
 from util.log import log
-
+from util.string_util import escape_metadata_dict
 
 class Recipe(BaseRecipe):
 
@@ -249,7 +249,8 @@ class Recipe(BaseRecipe):
         """
         if "metadata" in self.options['coverage']:
             if "global" in self.options['coverage']['metadata']:
-                return self.options['coverage']['metadata']['global']
+                metadata_dict = escape_metadata_dict(self.options['coverage']['metadata']['global'])
+                return metadata_dict
         return {}
 
     def _netcdf_global_metadata_fields(self):
@@ -267,7 +268,8 @@ class Recipe(BaseRecipe):
                 global_metadata = self.options['coverage']['metadata']['global']
                 # global_metadata is defined with { ... some values }
                 if type(global_metadata) is dict:
-                    return self.options['coverage']['metadata']['global']
+                    metadata_dict = self.options['coverage']['metadata']['global']
+                    return escape_metadata_dict(metadata_dict)
                 else:
                     # global metadata is defined with "a string"
                     if global_metadata != "auto":
@@ -275,7 +277,8 @@ class Recipe(BaseRecipe):
                                                "given: " + global_metadata)
                     else:
                         # global metadata is defined with auto, then parse the metadata from the first file to a dict
-                        return self.__parse_netcdf_global_metadata()
+                        metadata_dict = escape_metadata_dict(self.__parse_netcdf_global_metadata())
+                        return metadata_dict
         return {}
 
     def _local_metadata_fields(self):

@@ -28,7 +28,8 @@
             "cloud_cover": "'20%'",
             "type_of_sensor": "''",
             "type_of_scene": "''",
-            "type_of_ordering": "'CloudEO Store'"
+            "type_of_ordering": "'CloudEO Store'",
+            "INVALID_METADATA": "'<<<<Invalid metadata>>>>>>>>>>>&&&&&&&&&&&&&&&'"
           }
         },
         "slicer": {

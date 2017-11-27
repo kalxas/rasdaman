@@ -21,7 +21,8 @@
         "metadata": {
           "type": "xml",
           "global": {
-            "description": "'This is a test coverage'"
+            "description": "'This is a test coverage'",
+            "INVALID_METADATA": "'<<<<Invalid metadata>>>>>>>>>>>&&&&&&&&&&&&&&&'"
           }
         },
         "slicer": {

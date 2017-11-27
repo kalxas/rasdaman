@@ -23,7 +23,8 @@
           "global": {
             "Title": "'${netcdf:metadata:title}'",
             "Project": "'${netcdf:metadata:project}'",
-            "Creator": "'${netcdf:metadata:creator_name}'"
+            "Creator": "'${netcdf:metadata:creator_name}'",
+            "INVALID_METADATA": "'<<<<Invalid metadata>>>>>>>>>>>&&&&&&&&&&&&&&&'"
           }
         },
         "slicer": {
