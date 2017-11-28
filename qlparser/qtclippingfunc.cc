@@ -48,7 +48,7 @@ rasdaman GmbH.
 #ifndef CPPSTDLIB
 #else
 #include <string>
-using namespace std;
+#include <cmath>
 #endif
 
 #include <iostream>
@@ -102,7 +102,7 @@ QtClipping::extractBresenhamLine(MDDObj* op, r_Minterval areaOp, QtMShapeData* m
     // directionVectors contains a set of n orthogonal vectors where n is the dimension of the dataset. The first
     // m vectors, where m is the dimension of the mshape define the space in which the m-dimensional shape lies into
     // The remaining vectors are vectors orthogonal to the mshape.
-    std::vector<r_PointDouble> *directionVectors = mshape->getDirectionVectors();
+    std::vector<r_PointDouble>* directionVectors = mshape->getDirectionVectors();
 
     // Construct r_Minterval from the bounding box of the multidimensional shape
     r_Minterval mintervalBoundingBox(datasetDimension);
@@ -220,9 +220,9 @@ QtClipping::extractBresenhamLine(MDDObj* op, r_Minterval areaOp, QtMShapeData* m
     r_Dimension maxSlopeDim = 0;
     for (r_Dimension d = 0; d < datasetDimension; d++)
     {
-        maxSlopeDim = abs((*directionVectors)[0][maxSlopeDim]) > abs((*directionVectors)[0][d]) ? maxSlopeDim : d;
+        maxSlopeDim = abs( directionVectors->at(0)[maxSlopeDim] ) > abs( directionVectors->at(0)[d] ) ? maxSlopeDim : d;
     }
-    bool negativeDirection = (*directionVectors)[0][maxSlopeDim] < 0;
+    bool negativeDirection = directionVectors->at(0)[maxSlopeDim] < 0;
 
     // get all tiles in relevant area
     vector<boost::shared_ptr<Tile>> *allTiles = op->getTiles();
