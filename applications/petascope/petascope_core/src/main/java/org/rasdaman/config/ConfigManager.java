@@ -338,9 +338,7 @@ public class ConfigManager {
         RASDAMAN_ADMIN_PASS = get(KEY_RASDAMAN_ADMIN_PASS);
         RASDAMAN_RETRY_TIMEOUT = get(KEY_RASDAMAN_RETRY_TIMEOUT);
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
-        RASDAMAN_BIN_PATH = get(KEY_RASDAMAN_BIN_PATH);
-        // Get rasdaman version from RasQL (see #546)
-        RASDAMAN_VERSION = RasUtil.getRasdamanVersion();
+        RASDAMAN_BIN_PATH = get(KEY_RASDAMAN_BIN_PATH);        
 
         /* ***** SECORE configuration ***** */
         SECORE_URLS = StringUtil.csv2list(get(KEY_SECORE_URLS));
@@ -362,6 +360,15 @@ public class ConfigManager {
         /* ***** Rasql servlet configuration ***** */
         // rasql servlet upload path for decode()
         RASQL_SERVLET_UPLOAD_DIR = get(KEY_RASQL_SERVLET_UPLOAD_PATH);
+        
+        // Get rasdaman version from RasQL (see #546)
+        try {
+            RASDAMAN_VERSION = RasUtil.getRasdamanVersion(); 
+        } catch (RasdamanException ex) {
+            // cannot connect to rasdaman server, set default version
+            RASDAMAN_VERSION = "9.5";
+        }
+        
 
         log.info("------------------------------------");
 

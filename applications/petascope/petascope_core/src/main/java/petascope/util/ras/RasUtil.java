@@ -257,8 +257,9 @@ public class RasUtil {
         Object tmpResult = null;
         try {
             tmpResult = RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
-        } catch (PetascopeException ex) {
-            throw new RasdamanException(ExceptionCode.InternalSqlError, "Could not retrieve rasdaman version; is rasdaman started?", ex);
+        } catch (Exception ex) {
+            log.error("Cannot retrieve rasdaman version", ex);
+            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, "Could not retrieve rasdaman version; is rasdaman started?", ex);
         }
 
         if (null != tmpResult) {

@@ -53,7 +53,12 @@ public class TypeRegistry {
     public static TypeRegistry getInstance() throws PetascopeException {
         if (instance == null) {
             instance = new TypeRegistry();
-            instance.initializeRegistry();
+            try {
+                instance.initializeRegistry();
+            } catch (Exception ex) {
+                instance = null;
+                throw ex;
+            }
         }
         return instance;
     }

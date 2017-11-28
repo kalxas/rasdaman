@@ -69,7 +69,7 @@ import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 public class ApplicationMain extends SpringBootServletInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationMain.class);
-    
+
     /**
      * NOTE: This one is use to load Petascope properties from external file
      * when Spring Environment is not wired (i.e: null). Then all the
@@ -96,15 +96,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
         File initialFile = new File(properties.getProperty(KEY_PETASCOPE_CONF_DIR) + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
         propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
-
-        try {
-            // Init all properties for ConfigManager
-            initConfigurations(properties);            
-        } catch (Exception ex) {
-            PetascopeException exception = new PetascopeException(ExceptionCode.InternalComponentError, ex.getMessage(), ex);
-            log.error("Error when initializing petascope's configurations", exception);
-            AbstractController.startException = exception;
-        }
+        initConfigurations(properties);
 
         return propertyResourcePlaceHolderConfigurer;
     }
@@ -115,7 +107,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         return builder.sources(ApplicationMain.class);
     }
 
-    public static void main(String[] args) throws Exception {        
+    public static void main(String[] args) throws Exception {
         SpringApplication.run(ApplicationMain.class, args);
     }
 
@@ -123,27 +115,32 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Initialize all the configurations for GDAL libraries, ConfigManager and
      * OGC WCS XML Schema
      */
-    private static void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException, InterruptedException {                
+    private static void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException, InterruptedException {
         String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {
             // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")        
             addLibraryPath("gdal_java", GDAL_JAVA_DIR);
-            // Load properties for Spring, Hibernate from external petascope.properties
-            ConfigManager.init(CONF_DIR);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
+            log.error("Cannot add GDAL java native library from '" + GDAL_JAVA_DIR + "' to java library path.", ex);
+            AbstractController.startException = ex;
+        }
+        
+        // Load properties for Spring, Hibernate from external petascope.properties
+        ConfigManager.init(CONF_DIR);
+        try {
             // Load all the type registry (set, mdd, base types) of rasdaman
             TypeRegistry.getInstance();
+        } catch (Exception ex) {
+            log.warn("Failed initializing type registry from rasdaman.", ex);
+        }
+
+        try {
             // Load the WCS Schema to validation if it is needed
             XMLAbstractParser.loadWcsSchema();
-
-            // Create the new database if not exist
-            DatabaseUtil.createDatabaseIfNotExist(null);
-        } catch (RasdamanException ex) {
-            throw new RuntimeException("Could not initialize config manager for petascope.properties", ex);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
-            throw new RuntimeException("Could not add GDAL java native library from '" + GDAL_JAVA_DIR + "' to java library path.", ex);
         } catch (WCSException ex) {
-            throw new RuntimeException("Could not load the OGC WCS Schema to validate POST/SOAP requests.", ex);
+            log.error("Cannot load the OGC WCS Schema to validate POST/SOAP requests.", ex);
+            AbstractController.startException = ex;
         }
     }
 }

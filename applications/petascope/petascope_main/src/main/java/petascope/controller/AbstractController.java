@@ -58,7 +58,7 @@ public abstract class AbstractController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractController.class);
     
     // When petascope cannot start for some reasons, just not throw the exception until it can start the web application and throw exception to user via HTTP request
-    public static PetascopeException startException;
+    public static Exception startException;
 
     @Autowired
     protected HttpServletResponse httpServletResponse;
@@ -78,7 +78,7 @@ public abstract class AbstractController {
      */
     protected void throwStartException() throws PetascopeException {
         throw new PetascopeException(ExceptionCode.InternalComponentError, 
-                "Cannot process request, reason '" + startException.getExceptionText() + "'.", startException);
+                "Cannot start petascope, reason '" + startException.getMessage() + "'.", startException);
     }
 
     /**

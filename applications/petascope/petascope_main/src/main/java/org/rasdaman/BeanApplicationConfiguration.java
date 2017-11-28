@@ -37,6 +37,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import petascope.controller.AbstractController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.DatabaseUtil;
 
 /**
@@ -47,7 +48,7 @@ import petascope.util.DatabaseUtil;
  */
 @Configuration
 public class BeanApplicationConfiguration {
-    
+
     private static final Logger log = LoggerFactory.getLogger(BeanApplicationConfiguration.class);
 
     @Bean
@@ -77,16 +78,29 @@ public class BeanApplicationConfiguration {
         registration.setEnabled(false);
         return registration;
     }
-    
-    
+
     @Bean
     public SpringLiquibase liquibase() throws Exception {
         SpringLiquibase liquibase = new SpringLiquibase();
-        // NOTE: An exception occurs before, don't do anything.
+        // NOTE: Do not initialize/update petascopedb if petascope failed to start properly.
         if (AbstractController.startException != null) {
             liquibase.setShouldRun(false);
-            return liquibase; 
+            return liquibase;
         }
+        
+        try {
+            // Create the new petascopedb database if not exist
+            DatabaseUtil.createDatabaseIfNotExist(null);
+        } catch (Exception ex) {
+            // e.g: postgresql is not running
+            PetascopeException petascopeException = new PetascopeException(ExceptionCode.InternalSqlError, 
+                    "Cannot connect to petascopedb via base DMBS, error '" + ex.getMessage() + "'.", ex);
+            log.error(petascopeException.getExceptionText(), petascopeException);
+            AbstractController.startException = ex;
+            liquibase.setShouldRun(false);
+            return liquibase;
+        }
+        
         String datasourceUrl = ConfigManager.PETASCOPE_DATASOURCE_URL;
         DataSource dataSource = DataSourceBuilder.create().url(datasourceUrl)
                 .username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME)
