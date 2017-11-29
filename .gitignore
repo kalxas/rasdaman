@@ -151,6 +151,7 @@ rasnet/src/messages/
 rasmgr_x/src/messages/
 rasmgr_x/src/rasmgr
 third_party/bin
+third_party/grpc
 rascontrol_x/src/rascontrol
 
 # patchmanager
