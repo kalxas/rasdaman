@@ -64,81 +64,60 @@ module rasdaman {
             // To init the Globe on this canvas           
             var canvasId = "wcsCanvasGetCapabilities";
 
-            // to know which page are selected
-            var currentPageNumber = 1;
-                        
-            // A callback method is called when the page button of paginator of smart table is clicked            
-            // newPage starts from 1
-            $scope.pageChanged = (newPage: any) => {                                
-                var selectedPage = newPage - 1;
-                // e.g: newPage is 1 then selectedPage is 0 and startIndex is 0 and endIndex is 10 (non inclusive in slice method)
-                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
-                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
-
-                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
-                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
-
-                currentPageNumber = newPage;
-                $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
-            }            
-
-
-            // Load all coverages's extents on current page
-            $scope.loadCoverageExtentsByPageNumber = (newPage:number)=> {
-                var selectedPage = newPage - 1;
-                // e.g: newPage is 1 then selectedPage is 0 and startIndex is 0 and endIndex is 10 (non inclusive in slice method)
-                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
-                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
-
-                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
-                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
-
-                // When changing to another page, uncheck the display all footprints checkbox if it is checked
-                // and only load the coverages's extents of current page      
-                $scope.showAllFootprints = false;          
-                $("#wcsDisplayAllFootprintsCheckbox").prop('checked', false);
-            }
-
-            // Select coverages's extents from the list of WCS Coverages on the current page.
-            // NOTE: not all coverages in a page can be displayable, so they need to be filtered.
-            $scope.selectCoveragesExtentsCurrentPage = (startIndex: number, endIndex: number) => {
-                var coveragesCurrentPage = $scope.capabilities.contents.coverageSummary.slice(startIndex, endIndex);
-                var coveragesExtentsCurrentPage = [];
-                // Fetch the coverages's extents of current page by coverage Ids
-                for (var i = 0; i < coveragesCurrentPage.length; i++) {
+            // NOTE: not all coverages could be loaded as geo-referenced, only possible coverages will have checkboxes nearby coveargeId
+            $scope.initCheckboxesForCoverageIds = () => {
+                // all coverages
+                var coverageSummaryArray = $scope.capabilities.contents.coverageSummary;
+                for (var i = 0; i < coverageSummaryArray.length; i++) {
+                    // only geo-referenced coverages
                     for (var j = 0; j < $scope.coveragesExtents.length; j++) {
-                        if ($scope.coveragesExtents[j].coverageId === coveragesCurrentPage[i].coverageId) {
-                            coveragesCurrentPage[i].displayFootprint = true;
-                            var coverageExtent = $scope.coveragesExtents[j];
-                            coverageExtent.index = j;
-                            coveragesExtentsCurrentPage.push(coverageExtent);
+                        if ($scope.coveragesExtents[j].coverageId === coverageSummaryArray[i].coverageId) {
+                            coverageSummaryArray[i].displayFootprint = false;
                             break;
                         }
                     }
-                }                
+                }                     
+            }
 
-                // Sort the coveragesExtents in current page by the original order (area descending)
-                coveragesExtentsCurrentPage.sort(function(a, b) {
-                    return parseFloat(a.index) - parseFloat(b.index);
-                });
-
-                return coveragesExtentsCurrentPage;
+            // Return a coverage's summary by coverageId
+            $scope.getCoverageSummaryByCoverageId = (coverageId:string) => {
+                // all coverages
+                var coverageSummaryArray = $scope.capabilities.contents.coverageSummary;
+                for (var i = 0; i < coverageSummaryArray.length; i++) {
+                    if (coverageSummaryArray[i].coverageId == coverageId) {
+                        return coverageSummaryArray[i];
+                    }
+                }
             }
 
             // If a coverage can be displayed on globe, user can show/hide it's footprint by changing checkbox of current page
             $scope.displayFootprintOnGlobe = (coverageId:string)=> {     
-                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);                
+                webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
             }
 
             // Load/Unload all coverages's extents on globe
             $scope.displayAllFootprintsOnGlobe = (status:boolean)=> {
                 $scope.showAllFootprints = status;
                 if (status == true) {
-                    // load all footprints from all pages on globe
-                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, $scope.coveragesExtents);
+                    // load all unloaded footprints from all pages on globe                    
+                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                        var coverageId = $scope.coveragesExtents[i].coverageId;
+                        if ($scope.coveragesExtents[i].displayFootprint == false) {
+                            // checkbox is checked
+                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = true;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }                     
+                    }                    
                 } else {
-                    // only load all footprint of current page
-                    $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
+                    // unload all loaded footprints from all pages on globe
+                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                        var coverageId = $scope.coveragesExtents[i].coverageId;                    
+                        if ($scope.coveragesExtents[i].displayFootprint == true) {
+                            // checkbox is unchecked
+                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = false;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }                        
+                    }
                 }                
             }
 
@@ -177,13 +156,20 @@ module rasdaman {
                                 .then((response:rasdaman.common.Response<any>)=> {
                                         //Success handler
                                         $scope.coveragesExtents = response.data;
+                                        // default don't load any coverage's on globe, just prepare them
+                                        for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                                            $scope.coveragesExtents[i].displayFootprint = false;
+                                        }
                                         // Also, store the CoveragesExtents to Service class then can be used later
-                                           webWorldWindService.setCoveragesExtentsArray($scope.coveragesExtents);
-                                        $scope.isCoveragesExtentsOpen = true;
+                                        webWorldWindService.setCoveragesExtentsArray($scope.coveragesExtents);
+                                        $scope.isCoveragesExtentsOpen = true;                                    
 
-                                        // Load coveragesExtents of first page to WebWorldWind                                                                                
-                                        var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);                                                               
-                                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
+                                        // Init all possible checkboxes for geo-reference coverages and set to false
+                                        $scope.initCheckboxesForCoverageIds();
+                                        // Prepare all coverage's extents but does not load it on WebWorldWind
+                                        webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, $scope.coveragesExtents);
+                                        // Then, load the footprint of this coverage on the globe
+                                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
                                     },
                                     (...args:any[])=> {
                                         //UnSuccess handler
@@ -235,8 +221,6 @@ module rasdaman {
         rowPerPageSmartTable:number;
 
         showAllFootprints:boolean;
-        // load all the coverages's extents on a specified page
-        loadCoverageExtentsByPageNumber(pageNumber:number):void;
         // Show/Hide the checked coverage extent on globe of current page
         displayFootprintOnGlobe(coverageId:string):void;
         // Load all the coverages's extents on globe from all pages

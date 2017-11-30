@@ -86,6 +86,7 @@ module rasdaman {
                 if (capabilities) {                                  
                     // NOTE: Clear the layers array first to get new valus from GetCapabilities
                     $scope.layers = [];  
+                    $scope.layerNames = [];
 
                     capabilities.layers.forEach((layer:wms.Layer)=> {                        
                         $scope.layerNames.push(layer.name);
@@ -119,6 +120,10 @@ module rasdaman {
                         var coverageIds:string[] = [];
                         coverageIds.push($scope.layer.name);
                         var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
+                        // Also prepare for DescribeLayer's globe with only 1 coverageExtent
+                        var coverageExtentArray = [];
+                        coverageExtentArray.push($scope.layer.coverageExtent);
+                        webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(
                                 (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
@@ -153,8 +158,7 @@ module rasdaman {
                                     }                                                                        
 
                                     // Then, load the footprint of layer on the globe
-                                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);                        
-                                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                                    webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.layer.name);
                                 },
                                 (...args:any[])=> {                                    
                                     errorHandlingService.handleError(args);

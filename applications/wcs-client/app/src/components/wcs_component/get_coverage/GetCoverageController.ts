@@ -82,17 +82,19 @@ module rasdaman {
 
             $scope.loadCoverageExtentOnGlobe = function() {
                 // Fetch the coverageExtent by coverageId to display on globe if possible
-                var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);                            
-                if (coveragesExtents == null) {
+                var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);                            
+                if (coverageExtentArray == null) {
                     $scope.isGetCoverageHideGlobe = true;
                 } else {
                     // Show covearge's extent on the globe
                     var canvasId = "wcsCanvasGetCoverage";
                     $scope.isGetCoverageHideGlobe = false;
-                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
-                    // NOTE: Without the time interval, Globe in DescribeCoverage/GetCoverage will hang up in some cases when it goes to the center of current coverage's extent
-                    // If the globe hangs up, click on the button GetCoverage one more time.
-                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                    // Also prepare for GetCoverage's globe with only 1 coverageExtent                    
+                    webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
+                    // Then, load the footprint of this coverage on the globe
+                    webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
+                    // And look at the coverage's center on globe
+                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
                 }                                
             }
 

@@ -156,9 +156,11 @@ module rasdaman {
                     var xmaxTmp = bboxTmp.xmax;
                     var ymaxTmp = bboxTmp.ymax;
 
-                    if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) {                    
-                        // add the coverages with same extent with input coverage (incldue itself)
-                        coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
+                    if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) { 
+                        if (coveragesExtentsArray[i].displayFootprint) {
+                            // add the coverages with same extent with input coverage (incldue itself)
+                            coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
+                        }                        
                     }
                 }                
             }
@@ -198,6 +200,12 @@ module rasdaman {
                     polygonLayer.removeRenderable(polygonObj);
                     // add it to a list of hided polygonObjs
                     webWorldWindModel.hidedPolygonObjsArray.push(polygonObj);
+                    for (var j = 0; j < coveragesExtentsArray.length; j++) {
+                        if (coveragesExtentsArray[j].coverageId == coverageId) {
+                            coveragesExtentsArray[j].displayFootprint = false;
+                            break;
+                        }
+                    }
                     // coverage extent is hided
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, false);
                     // then update the text of polygon when show 
@@ -212,6 +220,12 @@ module rasdaman {
                 if (polygonObj.coverageId == coverageId) {
                     // show the hided polygon (coverageExtent)
                     polygonLayer.addRenderable(polygonObj);
+                    for (var j = 0; j < coveragesExtentsArray.length; j++) {
+                        if (coveragesExtentsArray[j].coverageId == coverageId) {
+                            coveragesExtentsArray[j].displayFootprint = true;
+                            break;
+                        }
+                    }
                     // coverage extent is shown
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, true);
                     // then update the text of polygon when hide 
@@ -243,9 +257,8 @@ module rasdaman {
             } 
         }
 
-        // coveragesExtentsArray is an array of CoverageExtents
-        // Then load this array on the Globe on a HTML element canvas
-        public loadCoveragesExtentsOnGlobe(canvasId: string, coveragesExtentsArray: any) {    
+        // Only prepare all the polygon for coverages's extents, don't load it to globe by default
+        public prepareCoveragesExtentsForGlobe(canvasId: string, coveragesExtentsArray: any) {    
             var exist = false;
             var webWorldWindModel = null;            
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -283,8 +296,8 @@ module rasdaman {
             highlightAttributes.interiorColor = new WorldWind.Color(1, 1, 1, 0.1);        
                       
             var xcenter = 0, ycenter = 0;
-            for (var i = 0; i < coveragesExtentsArray.length; i++) {
-                var coverageExtent = coveragesExtentsArray[i];
+            for (var i = 0; i < coveragesExtentsArray.length; i++) {                
+                var coverageExtent = coveragesExtentsArray[i];                
                 var coverageId = coverageExtent.coverageId;
                 var bbox = coverageExtent.bbox;
                 // NOTE: by default, coverage extent is shown on globe
@@ -314,19 +327,19 @@ module rasdaman {
                 boundaries[0].push(new WorldWind.Location(ymax, xmax));
                 boundaries[0].push(new WorldWind.Location(ymax, xmin));                                       
 
-                var polygon = new WorldWind.SurfacePolygon(boundaries, polygonAttributes);     
+                var polygon = new WorldWind.SurfacePolygon(boundaries, polygonAttributes);
                 // a made-up property to know this polygon belongs to a coverageId
-                polygon.coverageId = coverageId;                                                       
+                polygon.coverageId = coverageId;
                 polygon.highlightAttributes = highlightAttributes;
 
                 // as it can have multiple coverageIds share same extent
-                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);                
+                var coverageIds = this.getCoverageIdsSameExtent(coverageExtent, coveragesExtentsArray);
                 var coverageExtentStr = "Coverage Extent: lat_min=" + ymin + ", lon_min=" + xmin + ", lat_max=" + ymax + ", lon_max=" + xmax;
                                 
                 // NOTE: the extent will never change, but the coverageIds can be changed when one of coverage extent is hided
                 // add these made-up properties to be used
                 polygon.coverageExtent = coverageExtent;
-                polygon.coverageExtentStr = coverageExtentStr;                
+                polygon.coverageExtentStr = coverageExtentStr;
 
                 // the text to be shown when hovering on coverage extent
                 var userProperties = this.buildUserPropertiesStr(coverageIds, coverageExtentStr);
@@ -334,7 +347,8 @@ module rasdaman {
 
                 // Add the polygon to the layer and the layer to the World Window's layer list.
                 polygonLayer.coveragesExtentsArray = coveragesExtentsArray;
-                polygonLayer.addRenderable(polygon);                
+                // Don't load footprint's of this coverage on globe by default
+                webWorldWindModel.hidedPolygonObjsArray.push(polygon);
             }                                                                                       
         }
 

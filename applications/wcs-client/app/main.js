@@ -2160,7 +2160,9 @@ var rasdaman;
                     var xmaxTmp = bboxTmp.xmax;
                     var ymaxTmp = bboxTmp.ymax;
                     if (xmin == xminTmp && ymin == yminTmp && xmax == xmaxTmp && ymax == ymaxTmp) {
-                        coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
+                        if (coveragesExtentsArray[i].displayFootprint) {
+                            coveragedIds.push("Coverage Id: " + coverageIdTmp + "\n");
+                        }
                     }
                 }
             }
@@ -2189,6 +2191,12 @@ var rasdaman;
                 if (polygonObj.coverageId == coverageId) {
                     polygonLayer.removeRenderable(polygonObj);
                     webWorldWindModel.hidedPolygonObjsArray.push(polygonObj);
+                    for (var j = 0; j < coveragesExtentsArray.length; j++) {
+                        if (coveragesExtentsArray[j].coverageId == coverageId) {
+                            coveragesExtentsArray[j].displayFootprint = false;
+                            break;
+                        }
+                    }
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, false);
                     this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
                     return;
@@ -2198,6 +2206,12 @@ var rasdaman;
                 var polygonObj = webWorldWindModel.hidedPolygonObjsArray[i];
                 if (polygonObj.coverageId == coverageId) {
                     polygonLayer.addRenderable(polygonObj);
+                    for (var j = 0; j < coveragesExtentsArray.length; j++) {
+                        if (coveragesExtentsArray[j].coverageId == coverageId) {
+                            coveragesExtentsArray[j].displayFootprint = true;
+                            break;
+                        }
+                    }
                     this.updateCoverageExtentShowProperty(coveragesExtentsArray, coverageId, true);
                     this.updatePolygonUserPropertiesWhenShowHide(polygonLayer);
                     return;
@@ -2221,7 +2235,7 @@ var rasdaman;
                 polygonObj.userProperties = userProperties;
             }
         };
-        WebWorldWindService.prototype.loadCoveragesExtentsOnGlobe = function (canvasId, coveragesExtentsArray) {
+        WebWorldWindService.prototype.prepareCoveragesExtentsForGlobe = function (canvasId, coveragesExtentsArray) {
             var exist = false;
             var webWorldWindModel = null;
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -2287,7 +2301,7 @@ var rasdaman;
                 var userProperties = this.buildUserPropertiesStr(coverageIds, coverageExtentStr);
                 polygon.userProperties = userProperties;
                 polygonLayer.coveragesExtentsArray = coveragesExtentsArray;
-                polygonLayer.addRenderable(polygon);
+                webWorldWindModel.hidedPolygonObjsArray.push(polygon);
             }
         };
         WebWorldWindService.prototype.gotoCoverageExtentCenter = function (canvasId, coverageExtents) {
@@ -2473,43 +2487,24 @@ var rasdaman;
             $scope.rowPerPageSmartTable = 10;
             $scope.wcsServerEndpoint = settings.wcsEndpoint;
             var canvasId = "wcsCanvasGetCapabilities";
-            var currentPageNumber = 1;
-            $scope.pageChanged = function (newPage) {
-                var selectedPage = newPage - 1;
-                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
-                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
-                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
-                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
-                currentPageNumber = newPage;
-                $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
-            };
-            $scope.loadCoverageExtentsByPageNumber = function (newPage) {
-                var selectedPage = newPage - 1;
-                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
-                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
-                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
-                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
-                $scope.showAllFootprints = false;
-                $("#wcsDisplayAllFootprintsCheckbox").prop('checked', false);
-            };
-            $scope.selectCoveragesExtentsCurrentPage = function (startIndex, endIndex) {
-                var coveragesCurrentPage = $scope.capabilities.contents.coverageSummary.slice(startIndex, endIndex);
-                var coveragesExtentsCurrentPage = [];
-                for (var i = 0; i < coveragesCurrentPage.length; i++) {
+            $scope.initCheckboxesForCoverageIds = function () {
+                var coverageSummaryArray = $scope.capabilities.contents.coverageSummary;
+                for (var i = 0; i < coverageSummaryArray.length; i++) {
                     for (var j = 0; j < $scope.coveragesExtents.length; j++) {
-                        if ($scope.coveragesExtents[j].coverageId === coveragesCurrentPage[i].coverageId) {
-                            coveragesCurrentPage[i].displayFootprint = true;
-                            var coverageExtent = $scope.coveragesExtents[j];
-                            coverageExtent.index = j;
-                            coveragesExtentsCurrentPage.push(coverageExtent);
+                        if ($scope.coveragesExtents[j].coverageId === coverageSummaryArray[i].coverageId) {
+                            coverageSummaryArray[i].displayFootprint = false;
                             break;
                         }
                     }
                 }
-                coveragesExtentsCurrentPage.sort(function (a, b) {
-                    return parseFloat(a.index) - parseFloat(b.index);
-                });
-                return coveragesExtentsCurrentPage;
+            };
+            $scope.getCoverageSummaryByCoverageId = function (coverageId) {
+                var coverageSummaryArray = $scope.capabilities.contents.coverageSummary;
+                for (var i = 0; i < coverageSummaryArray.length; i++) {
+                    if (coverageSummaryArray[i].coverageId == coverageId) {
+                        return coverageSummaryArray[i];
+                    }
+                }
             };
             $scope.displayFootprintOnGlobe = function (coverageId) {
                 webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
@@ -2517,10 +2512,22 @@ var rasdaman;
             $scope.displayAllFootprintsOnGlobe = function (status) {
                 $scope.showAllFootprints = status;
                 if (status == true) {
-                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, $scope.coveragesExtents);
+                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                        var coverageId = $scope.coveragesExtents[i].coverageId;
+                        if ($scope.coveragesExtents[i].displayFootprint == false) {
+                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = true;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }
+                    }
                 }
                 else {
-                    $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
+                    for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                        var coverageId = $scope.coveragesExtents[i].coverageId;
+                        if ($scope.coveragesExtents[i].displayFootprint == true) {
+                            $scope.getCoverageSummaryByCoverageId(coverageId).displayFootprint = false;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }
+                    }
                 }
             };
             $scope.$watch("wcsStateInformation.reloadServerCapabilities", function (capabilities) {
@@ -2548,10 +2555,14 @@ var rasdaman;
                     wcsService.getCoveragesExtents()
                         .then(function (response) {
                         $scope.coveragesExtents = response.data;
+                        for (var i = 0; i < $scope.coveragesExtents.length; i++) {
+                            $scope.coveragesExtents[i].displayFootprint = false;
+                        }
                         webWorldWindService.setCoveragesExtentsArray($scope.coveragesExtents);
                         $scope.isCoveragesExtentsOpen = true;
-                        var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);
-                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
+                        $scope.initCheckboxesForCoverageIds();
+                        webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, $scope.coveragesExtents);
+                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -2645,15 +2656,16 @@ var rasdaman;
                     .then(function (response) {
                     $scope.coverageDescriptionsDocument = response.document;
                     $scope.coverageDescriptions = response.value;
-                    var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
-                    if (coveragesExtents == null) {
+                    var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
+                    if (coverageExtentArray == null) {
                         $scope.isCoverageDescriptionsHideGlobe = true;
                     }
                     else {
                         var canvasId = "wcsCanvasDescribeCoverage";
                         $scope.isCoverageDescriptionsHideGlobe = false;
-                        webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
-                        webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                        webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
+                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
+                        webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
                     }
                 }, function () {
                     var args = [];
@@ -2837,15 +2849,16 @@ var rasdaman;
                 }
             });
             $scope.loadCoverageExtentOnGlobe = function () {
-                var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
-                if (coveragesExtents == null) {
+                var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
+                if (coverageExtentArray == null) {
                     $scope.isGetCoverageHideGlobe = true;
                 }
                 else {
                     var canvasId = "wcsCanvasGetCoverage";
                     $scope.isGetCoverageHideGlobe = false;
-                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
-                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                    webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
+                    webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
+                    webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
                 }
             };
             $scope.getCoverageClickEvent = function () {
@@ -3695,6 +3708,7 @@ var wms;
         function CoverageExtent(coverageId, xmin, ymin, xmax, ymax) {
             this.coverageId = coverageId;
             this.bbox = new wms.BBox(xmin, ymin, xmax, ymax);
+            this.displayFootprint = false;
         }
         return CoverageExtent;
     }());
@@ -3811,44 +3825,38 @@ var rasdaman;
                 $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
             };
             $scope.display = true;
-            $scope.loadCoverageExtentsByPageNumber = function (newPage) {
-                var selectedPage = newPage - 1;
-                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
-                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
-                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
-                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
-                $("#wmsDisplayAllFootprintsCheckbox").prop('checked', false);
-            };
-            $scope.selectCoveragesExtentsCurrentPage = function (startIndex, endIndex) {
-                var layersCurrentPage = $scope.capabilities.layers.slice(startIndex, endIndex);
-                var coverageExtentsCurrentPage = [];
-                for (var i = 0; i < layersCurrentPage.length; i++) {
-                    layersCurrentPage[i].displayFootprint = true;
-                    coverageExtentsCurrentPage.push(layersCurrentPage[i].coverageExtent);
+            $scope.initCheckboxesForCoverageIds = function () {
+                var layerArray = $scope.capabilities.layers;
+                for (var i = 0; i < layerArray.length; i++) {
+                    layerArray[i].displayFootprint = false;
                 }
-                return coverageExtentsCurrentPage;
             };
             $scope.displayFootprintOnGlobe = function (coverageId) {
                 webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
             };
             $scope.displayAllFootprintsOnGlobe = function (status) {
-                var coveragesExtentsArray = [];
-                for (var i = 0; i < $scope.capabilities.layers.length; i++) {
-                    $scope.capabilities.layers[i].displayFootprint = true;
-                    coveragesExtentsArray.push($scope.capabilities.layers[i].coverageExtent);
-                }
                 $scope.showAllFootprints = status;
                 if (status == true) {
-                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsArray);
+                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
+                        var coverageId = coverageExtent.coverageId;
+                        if (coverageExtent.displayFootprint == false) {
+                            $scope.capabilities.layers[i].displayFootprint = true;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }
+                    }
                 }
                 else {
-                    $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
+                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
+                        var coverageId = coverageExtent.coverageId;
+                        if (coverageExtent.displayFootprint == true) {
+                            $scope.capabilities.layers[i].displayFootprint = false;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }
+                    }
                 }
             };
-            $rootScope.$on("wcsSelectedGetCoverageId", function (event, coverageId) {
-                $scope.selectedCoverageId = coverageId;
-                $scope.describeCoverage();
-            });
             $rootScope.$on("reloadServerCapabilities", function (event, value) {
                 $scope.getServerCapabilities();
             });
@@ -3874,8 +3882,12 @@ var rasdaman;
                     $scope.isAvailableLayersOpen = true;
                     $scope.isServiceIdentificationOpen = true;
                     $scope.isServiceProviderOpen = true;
-                    var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);
-                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
+                    $scope.initCheckboxesForCoverageIds();
+                    var coverageExtentArray = [];
+                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                        coverageExtentArray.push($scope.capabilities.layers[i].coverageExtent);
+                    }
+                    webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
@@ -3931,6 +3943,7 @@ var rasdaman;
             $scope.$watch("wmsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
                     $scope.layers = [];
+                    $scope.layerNames = [];
                     capabilities.layers.forEach(function (layer) {
                         $scope.layerNames.push(layer.name);
                         $scope.layers.push(layer);
@@ -3950,6 +3963,9 @@ var rasdaman;
                         var coverageIds = [];
                         coverageIds.push($scope.layer.name);
                         var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
+                        var coverageExtentArray = [];
+                        coverageExtentArray.push($scope.layer.coverageExtent);
+                        webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(function (response) {
                             var coverageDescriptions = response.value;
@@ -3974,8 +3990,7 @@ var rasdaman;
                             if (!showGetMapURL) {
                                 _this.getMapRequestURL = null;
                             }
-                            webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtents);
-                            webWorldWindService.gotoCoverageExtentCenter(canvasId, coveragesExtents);
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.layer.name);
                         }, function () {
                             var args = [];
                             for (var _i = 0; _i < arguments.length; _i++) {

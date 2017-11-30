@@ -73,31 +73,16 @@ module rasdaman {
 
             $scope.display = true;
 
-            // Load all coverages's extents on current page
-            $scope.loadCoverageExtentsByPageNumber = (newPage:number)=> {
-                var selectedPage = newPage - 1;
-                // e.g: newPage is 1 then selectedPage is 0 and startIndex is 0 and endIndex is 10 (non inclusive in slice method)
-                var startIndex = $scope.rowPerPageSmartTable * selectedPage;
-                var endIndex = $scope.rowPerPageSmartTable * selectedPage + $scope.rowPerPageSmartTable;
-
-                var coveragesExtentsCurrentPage = $scope.selectCoveragesExtentsCurrentPage(startIndex, endIndex);
-                webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsCurrentPage);
-                
-                $("#wmsDisplayAllFootprintsCheckbox").prop('checked', false);
-            }
-
             // From the WMS's EX_GeographicBoundingBox
             // NOTE: not like WCS, all layers can be display on the globe as they are geo-referenced.            
-            $scope.selectCoveragesExtentsCurrentPage = (startIndex:number, endIndex:number) => {
-                var layersCurrentPage = $scope.capabilities.layers.slice(startIndex, endIndex);
-                var coverageExtentsCurrentPage = [];
-                for (var i = 0; i < layersCurrentPage.length; i++) {
-                    layersCurrentPage[i].displayFootprint = true;
-                    coverageExtentsCurrentPage.push(layersCurrentPage[i].coverageExtent);                    
-                }
+            $scope.initCheckboxesForCoverageIds = () => {
+                // all coverages
+                var layerArray = $scope.capabilities.layers;
+                for (var i = 0; i < layerArray.length; i++) {                        
+                    layerArray[i].displayFootprint = false;
+                }                     
+            }
 
-                return coverageExtentsCurrentPage;
-            }    
 
             // If a coverage can be displayed on globe, user can show/hide it's footprint by changing checkbox of current page
             $scope.displayFootprintOnGlobe = (coverageId:string)=> {     
@@ -107,26 +92,31 @@ module rasdaman {
             // Load/Unload all coverages's extents on globe
             $scope.displayAllFootprintsOnGlobe = (status:boolean)=> {
                 // Array of coverageExtents belong to WMS layers
-                var coveragesExtentsArray = [];
-                for (var i = 0; i < $scope.capabilities.layers.length; i++) {
-                    $scope.capabilities.layers[i].displayFootprint = true;
-                    coveragesExtentsArray.push($scope.capabilities.layers[i].coverageExtent);
-                }
-
                 $scope.showAllFootprints = status;
                 if (status == true) {
-                    // load all footprints from all pages on globe
-                    webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsArray);
+                    // load all unloaded footprints from all pages on globe                    
+                    for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
+                        var coverageId = coverageExtent.coverageId;
+                        if (coverageExtent.displayFootprint == false) {
+                            // checkbox is checked
+                            $scope.capabilities.layers[i].displayFootprint = true;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }
+                    }
                 } else {
-                    // only load all footprint of current page
-                    $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
-                }                
-            }
-
-            $rootScope.$on("wcsSelectedGetCoverageId", (event:angular.IAngularEvent, coverageId:string)=> {                
-                $scope.selectedCoverageId = coverageId;
-                $scope.describeCoverage();
-            });
+                    // unload all loaded footprints from all pages on globe
+                    for (var i = 0; i <  $scope.capabilities.layers.length; i++) {
+                        var coverageExtent = $scope.capabilities.layers[i].coverageExtent;
+                        var coverageId = coverageExtent.coverageId;
+                        if (coverageExtent.displayFootprint == true) {
+                            // checkbox is unchecked
+                            $scope.capabilities.layers[i].displayFootprint = false;
+                            webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, coverageId);
+                        }
+                    }
+                }
+            }            
 
             // When WCS GetCapabilities button is clicked, then WMS also needs to reload its GetCapabilities
             $rootScope.$on("reloadServerCapabilities", (event:angular.IAngularEvent, value:boolean)=> {                
@@ -157,20 +147,25 @@ module rasdaman {
                     .then((response:rasdaman.common.Response<wms.Capabilities>)=> {
                             //Success handler
                             // This is output from GetCapabilities request in XML
-                            $scope.capabilitiesDocument = response.document;
+                            $scope.capabilitiesDocument = response.document;                            
                             // This is the parsed object from XML output by wmsService
                             $scope.capabilities = response.value;
 
                             // If a GetCapabilities succeeds, all dropdown boxes should open
                             $scope.isAvailableLayersOpen = true;
                             $scope.isServiceIdentificationOpen = true;
-                            $scope.isServiceProviderOpen = true;
+                            $scope.isServiceProviderOpen = true;                            
                                                         
                             // NOTE: WMS does not have the request GetCoverageExtents to fetch the reprojected coverages's extents in EPSG:4326
                             // It already has the EX_GeographicBoundingBox element of each layer from GetCapabilities request.
                             // But, WMS still needs to convert the EX_GeographicBoundingBox the same outcome (CoverageExtent) to be displayable on globe.                            
-                            var coveragesExtentsFirstPage = $scope.selectCoveragesExtentsCurrentPage(0, $scope.rowPerPageSmartTable);                                                               
-                            webWorldWindService.loadCoveragesExtentsOnGlobe(canvasId, coveragesExtentsFirstPage);
+                            $scope.initCheckboxesForCoverageIds();
+                            
+                            var coverageExtentArray = [];
+                            for (var i = 0; i < $scope.capabilities.layers.length; i++) {
+                                coverageExtentArray.push($scope.capabilities.layers[i].coverageExtent);
+                            }
+                            webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);                            
                         },
                         (...args:any[])=> {
                             //Error handler

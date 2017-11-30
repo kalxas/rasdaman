@@ -46,8 +46,9 @@ to run it.<br/>
                                 {{$index}}. Executing WCPS query. <span class="label label-warning">{{datum.secondsPassed}} seconds</span>
                                 passed. {{datum.finished && " Done."|| " Please wait..."}}
                                 <br/>
-                                <textarea style="width: 91%; min-height: 200px; max-height:500px; margin-top: 10px; 
-    background-color: #eae9e6; resize: none; outline: none;" readonly> {{datum.query}} </textarea>
+                                <div style="max-height: 200px; overflow: auto;">
+                                   <pre> {{datum.query}} </pre>
+                                </div>  
                                 <br/>                                
                             </p>
                         </div>
@@ -56,9 +57,9 @@ to run it.<br/>
                             <p>                                                                
                                 <span class="label label-info">Text result (csv, json, gml):</span>
                                 <br/>
-                                <textarea style="width: 100%; min-height: 200px; max-height:500px; margin-top: 10px; 
-    background-color: transparent; resize: none; outline: none;" readonly> {{datum.data}} </textarea>
-                                
+                                <div style="max-height: 200px; overflow: auto;">
+                                    <pre> {{datum.data}} </pre>
+                                </div>                                
                             </p>
                         </div>
                         <!-- Query finished, 2D image (png, jpeg) is displayed with widget image>>-->
@@ -85,7 +86,9 @@ to run it.<br/>
                             <p>                                
                                 <span class="label label-danger">Notification result:</span>                                
                                 <br/>
-                                {{datum.data}}
+                                <div style="max-height: 200px; overflow: auto;">
+                                    <pre> {{datum.data}} </pre>
+                                </div>  
                             </p>                            
                         </div>
                         <div class="row" ng-switch-default>
