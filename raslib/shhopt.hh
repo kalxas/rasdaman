@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/* $Id: shhopt.h,v 1.4 2000/09/20 14:41:56 widmann Exp $ */
+/* $Id: shhopt.hh,v 1.4 2000/09/20 14:41:56 widmann Exp $ */
 #ifndef SHHOPT_H
 #define SHHOPT_H
 
@@ -53,5 +53,7 @@ typedef struct
 void optSetFatalFunc(void (*f)(const char*, ...));
 void optParseOptions(int* argc, char* argv[],
                      optStruct opt[], int allowNegNum);
+
+void optExecute(optStruct* opt, char* arg, int lng);
 
 #endif

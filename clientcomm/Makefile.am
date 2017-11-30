@@ -34,7 +34,7 @@ AM_CXXFLAGS = @AM_CXXFLAGS@ @CLIENTCXXFLAGS@
 AM_LDFLAGS = @CLIENTLDFLAGS@
 
 lib_LIBRARIES=libclientcomm.a
-libclientcomm_a_SOURCES = rpcif_clnt.cc rpcif_xdr.c rpcif.h \
+libclientcomm_a_SOURCES = rpcif_clnt.cc rpcif_xdr.cc rpcif.h \
                           clientcomm.cc clientcomm.hh rpcclientcomm.cc \
                           rpcclientcomm.hh clientcomm.icc \
                           ../mymalloc/mymalloc_cln.cc ../mymalloc/mymalloc.h \
@@ -59,8 +59,8 @@ if RMANRASNET
 endif
 
 EXTRA_libclientcomm_a_SOURCES = rpcif.x                          
-BUILT_SOURCES= rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif_svc.cc
-CLEANFILES=rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \
+BUILT_SOURCES= rpcif_clnt.cc rpcif_xdr.cc rpcif.h rpcif_svc.cc
+CLEANFILES=rpcif_clnt.cc rpcif_xdr.cc rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \
            rpcif_svc.cc.tmp rpcif_svc.cc
 
 rpcif.h: rpcif.x	
@@ -73,10 +73,11 @@ rpcif_clnt.cc: rpcif.x
 	$(AWK) -f rpcif_clnt.c.awk rpcif_clnt.cc.tmp > rpcif_clnt.cc
 	rm -f rpcif_clnt.cc.tmp
 
-rpcif_xdr.c: rpcif.x
-	-rm -f rpcif_xdr.c
-	$(RPCGEN) -c -o rpcif_xdr.c rpcif.x
-
+rpcif_xdr.cc: rpcif.x
+	$(RPCGEN) -l -o rpcif_xdr.cc.tmp rpcif.x
+	$(AWK) -f rpcif_xdr.cc.awk rpcif_xdr.cc.tmp > rpcif_xdr.cc
+	rm -f rpcif_xdr.cc.tmp
+	
 rpcif_svc.cc: rpcif.x
 	$(RPCGEN) -m -o rpcif_svc.cc.tmp rpcif.x
 	$(AWK) -f rpcif_svc.c.awk rpcif_svc.cc.tmp > rpcif_svc.cc

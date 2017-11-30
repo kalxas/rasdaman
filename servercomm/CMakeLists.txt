@@ -64,16 +64,23 @@ add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_svc.cc"
         WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
         )
 
-add_custom_command(OUTPUT ${RPCGEN_DIR}/rpcif_xdr.c
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
+add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_xdr.cc"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
-        ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.c" "${RPCGEN_DIR}/rpcif.x"
+        ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
 
-        DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
+        COMMAND ${AWK_EXECUTABLE}
+        ARGS -f rpcif_xdr.cc.awk "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" > "${RPCGEN_DIR}/rpcif_xdr.cc"
 
-        WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
+
+        DEPENDS rpcif.x
+
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
+
 
 set(SRC_FILES callbackmgr.hh callbackmgr.cc
         httpserver.hh httpserver.cc httpserver.icc
@@ -108,7 +115,7 @@ endif ()
 add_library(servercomm ${SRC_FILES}
         "${RPCGEN_DIR}/rpcif.h"
         "${RPCGEN_DIR}/rpcif_svc.cc"
-        "${RPCGEN_DIR}/rpcif_xdr.c")
+        "${RPCGEN_DIR}/rpcif_xdr.cc")
 
 # Add the directories that contain files needed by this
 target_include_directories(servercomm PUBLIC "${CMAKE_SOURCE_DIR}/mymalloc")

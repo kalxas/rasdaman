@@ -41,7 +41,7 @@ AM_YFLAGS=-d -y
 # extend the AM_CXXFLAGS since it is set in configure.ac
 AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
 AM_CFLAGS=$(CXXFLAGS)
-libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
+libqlparser_a_SOURCES=oql.yy lex.ll alloca.cc\
                       symtab.cc symtab.hh \
                       qtoncstream.cc qtoncstream.hh qtoncstream.icc \
                       qtmddaccess.cc qtmddaccess.hh qtmddaccess.icc \

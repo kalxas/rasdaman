@@ -20,9 +20,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/* $Id: shhopt.c,v 1.4 2000/09/20 14:41:56 widmann Exp $ */
+/* $Id: shhopt.cc,v 1.4 2000/09/20 14:41:56 widmann Exp $ */
 /* *
- *  FILE            shhopt.c
+ *  FILE            shhopt.cc
  *
  *  DESCRIPTION     Functions for parsing command line arguments. Values
  *                  of miscellaneous types may be stored in variables,
@@ -42,7 +42,7 @@
 #include <limits.h>
 #include <errno.h>
 
-#include "shhopt.h"
+#include "shhopt.hh"
 
 /**************************************************************************
  *                                                                        *
@@ -137,7 +137,7 @@ static int optMatch(optStruct opt[], const char* s, int lng)
     nopt = optStructCount(opt);
     if (lng)
     {
-        if ((p = (char*)strchr(s, '=')) != NULL)
+        if ((p = const_cast<char*>(strchr(s, '='))) != NULL)
         {
             matchlen = p - s;
         }
@@ -154,7 +154,7 @@ static int optMatch(optStruct opt[], const char* s, int lng)
             {
                 continue;
             }
-            if (strncmp(s, opt[q].longName, matchlen) == 0)
+            if (strncmp(s, opt[q].longName, static_cast<size_t>(matchlen)) == 0)
             {
                 return q;
             }
@@ -417,7 +417,7 @@ void optSetFatalFunc(void (*f)(const char*, ...))
  *
  *  FUNCTION      Parse commandline options.
  *
- *  SYNOPSIS      #include "shhopt.h"
+ *  SYNOPSIS      #include "shhopt.hh"
  *                void optParseOptions(int *argc, char *argv[],
  *                                     optStruct opt[], int allowNegNum);
  *

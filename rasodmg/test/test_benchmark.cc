@@ -56,7 +56,7 @@ rasdaman GmbH.
 
 #include "raslib/type.hh"
 extern "C" {
-#include "raslib/shhopt.h"
+#include "raslib/shhopt.hh"
 }
 #include "raslib/rmdebug.hh"
 

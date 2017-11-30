@@ -40,7 +40,7 @@ libraslib_a_SOURCES= sinterval.hh dlist.hh point.hh minterval.hh error.hh \
                      pointtype.hh oidtype.hh structuretype.hh itertype.hh \
                      oid.hh scalar.hh primitive.hh structure.hh miter.hh mddtypes.hh \
                      miterd.hh mitera.hh memblockvec.hh parseparams.hh storageman.hh \
-                     endian.hh flatbasetype.hh complex.hh complextype.hh shhopt.h \
+                     endian.hh flatbasetype.hh complex.hh complextype.hh shhopt.hh \
                      pointdouble.hh pointdouble.cc pointdouble.icc \
                      sinterval.cc dlist.cc point.cc minterval.cc error.cc \
                      rmdebug.cc rminit.cc metaobject.cc type.cc marraytype.cc \
@@ -49,7 +49,7 @@ libraslib_a_SOURCES= sinterval.hh dlist.hh point.hh minterval.hh error.hh \
                      pointtype.cc oidtype.cc structuretype.cc itertype.cc \
                      oid.cc scalar.cc primitive.cc structure.cc mddtypes.cc \
                      miterd.cc mitera.cc memblockvec.cc parseparams.cc storageman.cc \
-                     endian.cc flatbasetype.cc complex.cc complextype.cc shhopt.c \
+                     endian.cc flatbasetype.cc complex.cc complextype.cc shhopt.cc \
                      error.icc minterval.icc miterd.icc miterf.icc \
                      miter.icc oid.icc point.icc rmdebug.icc sinterval.icc \
                      rmdebug.hh rm.hh odmgtypes.hh miterf.hh template_inst.hh \

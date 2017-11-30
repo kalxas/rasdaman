@@ -10,6 +10,13 @@
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 
+// Pragmas for compiling w/ -Werror
+#pragma GCC diagnostic ignored "-Wmissing-declarations"
+#pragma GCC diagnostic ignored "-Wsign-promo"
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+
+
 // Stringify helpers used solely to cast GRPC_VERSION
 #ifndef STR
 #define STR(s) #s
@@ -1233,3 +1240,4 @@ string ServiceClassName(const google::protobuf::ServiceDescriptor* service) {
 }
 
 }  // namespace java_grpc_generator
+

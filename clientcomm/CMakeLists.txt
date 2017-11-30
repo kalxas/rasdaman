@@ -60,11 +60,17 @@ add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_clnt.cc"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
-add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_xdr.c"
+add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_xdr.cc"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
 
         COMMAND ${RPCGEN_EXECUTABLE}
-        ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.c" "${RPCGEN_DIR}/rpcif.x"
+        ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
+
+        COMMAND ${AWK_EXECUTABLE}
+        ARGS -f rpcif_xdr.cc.awk "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" > "${RPCGEN_DIR}/rpcif_xdr.cc"
+
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
 
         DEPENDS rpcif.x
 
@@ -97,7 +103,7 @@ endif ()
 set(SRC_FILES ${SRC_FILES}
         "${RPCGEN_DIR}/rpcif.h"
         "${RPCGEN_DIR}/rpcif_clnt.cc"
-        "${RPCGEN_DIR}/rpcif_xdr.c"
+        "${RPCGEN_DIR}/rpcif_xdr.cc"
 
         clientcomm.hh clientcomm.cc clientcomm.icc
         rpcclientcomm.hh rpcclientcomm.cc

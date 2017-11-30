@@ -1108,7 +1108,7 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
             {
                 // read image buffer from file
                 GDALRasterBand* pBand = pDs->GetRasterBand(static_cast<int>(b));
-                pBand->RasterIO(GF_Read, startcolumn, startrow, readGDALImgDOM[0].get_extent(), rowstoread,
+                CPLErr newErr = pBand->RasterIO(GF_Read, startcolumn, startrow, readGDALImgDOM[0].get_extent(), rowstoread,
                                 gdalbuf, readGDALImgDOM[0].get_extent(), rowstoread, newGeoRegion.gdaltype, 0, 0);
 
                 if (iter == 0 && oids.size() < b)
@@ -1125,7 +1125,7 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
                 int linesize = readGDALImgDOM[0].get_extent() * pixelsize;
                 int bandoffset = static_cast<int>(pixelsize) / newGeoRegion.nbands; // -> INTERLEAVE_PIXEL
                 // read image buffer from file
-                pDs->RasterIO(GF_Read, startcolumn, startrow, readGDALImgDOM[0].get_extent(), rowstoread,
+                CPLErr newErr = pDs->RasterIO(GF_Read, startcolumn, startrow, readGDALImgDOM[0].get_extent(), rowstoread,
                               gdalbuf, readGDALImgDOM[0].get_extent(), rowstoread, newGeoRegion.gdaltype,
                               newGeoRegion.nbands, NULL, static_cast<int>(pixelsize), linesize, bandoffset);
 

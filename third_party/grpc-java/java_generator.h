@@ -8,6 +8,9 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/descriptor.h>
 
+// Pragmas for compiling w/ -Werror
+#pragma GCC diagnostic ignored "-Wshadow"
+
 class LogHelper {
   std::ostream* os;
 

@@ -56,7 +56,7 @@ add_library(raslib attribute.hh attribute.cc
         rmdebug.hh rmdebug.cc rmdebug.icc
         rminit.hh rminit.cc
         scalar.hh scalar.cc
-        shhopt.h shhopt.c
+        shhopt.hh shhopt.cc
         sinterval.hh sinterval.cc sinterval.icc
         sintervaltype.hh sintervaltype.cc
         storageman.hh storageman.cc

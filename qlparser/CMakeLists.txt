@@ -38,7 +38,7 @@ add_library(qlparser
         ${BISON_QlParser_OUTPUTS}
         ${FLEX_QlScanner_OUTPUTS}
         lex.ll oql.yy # These files are added to the list to allow QtCreator to see them as part of the project.
-        alloca.c
+        alloca.cc
         parseinfo.hh parseinfo.cc parseinfo.icc
         qtatomicdata.hh qtatomicdata.cc qtatomicdata.icc
         qtbinaryfunc.hh qtbinaryfunc.cc qtbinaryfunc.icc

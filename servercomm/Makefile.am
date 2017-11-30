@@ -33,7 +33,7 @@ AM_CXXFLAGS=@AM_CXXFLAGS@ @BASEDBCXXFLAGS@
 AM_LDFLAGS=@BASEDBLDFLAGS@
 
 lib_LIBRARIES=libservercomm.a
-libservercomm_a_SOURCES=../clientcomm/rpcif_xdr.c ../clientcomm/rpcif_svc.cc servercomm.cc \
+libservercomm_a_SOURCES=../clientcomm/rpcif_xdr.cc ../clientcomm/rpcif_svc.cc servercomm.cc \
                         servercomm2.cc manager.cc callbackmgr.cc httpserver.cc \
                         ../mymalloc/mymalloc_svc.cc ../mymalloc/mymalloc.h \
                         ../clientcomm/rpcif.h callbackmgr.hh httpserver.hh httpserver.icc \
@@ -62,8 +62,8 @@ endif
 libservercomm_a_CPPFLAGS=-I../rnprotocol                        
 
 EXTRA_libservercomm_a_SOURCES = rpcif.x    
-BUILT_SOURCES= rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif_svc.cc
-CLEANFILES=rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \
+BUILT_SOURCES= rpcif_clnt.cc rpcif_xdr.cc rpcif.h rpcif_svc.cc
+CLEANFILES=rpcif_clnt.cc rpcif_xdr.cc rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \
            rpcif_svc.cc.tmp rpcif_svc.cc rpcif_clnt.cc.tmp
 
 rpcif.h: rpcif.x    
@@ -76,9 +76,10 @@ rpcif_clnt.cc: rpcif.x
 	$(AWK) -f rpcif_clnt.c.awk rpcif_clnt.cc.tmp > rpcif_clnt.cc
 	rm -f rpcif_clnt.cc.tmp
 
-rpcif_xdr.c: rpcif.x
-	-rm -f rpcif_xdr.c
-	$(RPCGEN) -c -o rpcif_xdr.c rpcif.x
+rpcif_xdr.cc: rpcif.x
+	$(RPCGEN) -l -o rpcif_xdr.cc.tmp rpcif.x
+	$(AWK) -f rpcif_xdr.cc.awk rpcif_xdr.cc.tmp > rpcif_xdr.cc
+	rm -f rpcif_xdr.cc.tmp
 
 rpcif_svc.cc: rpcif.x
 	$(RPCGEN) -m -o rpcif_svc.cc.tmp rpcif.x
