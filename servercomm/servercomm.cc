@@ -905,7 +905,7 @@ ServerComm::deleteClientTblEntry(unsigned long clientId)
     // If the current transaction belongs to this client, abort it.
     if (transactionActive == clientId)
     {
-        LINFO << "aborting transaction...";
+        LDEBUG << "aborting transaction...";
         context->transaction.abort();
         transactionActive = 0;
     }
@@ -914,9 +914,11 @@ ServerComm::deleteClientTblEntry(unsigned long clientId)
     // (e.g. after connection breakdowns)
     if (strcmp(context->baseName, "none") != 0)
     {
-        LINFO << "closing database...";
+        LDEBUG << "closing database...";
 
+#ifndef BASEDB_SQLITE
         context->database.close();
+#endif
 
         // reset database name
         delete[] context->baseName;
