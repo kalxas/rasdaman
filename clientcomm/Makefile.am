@@ -60,7 +60,7 @@ endif
 
 EXTRA_libclientcomm_a_SOURCES = rpcif.x                          
 BUILT_SOURCES= rpcif_clnt.cc rpcif_xdr.cc rpcif.h rpcif_svc.cc
-CLEANFILES=rpcif_clnt.cc rpcif_xdr.cc rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \
+CLEANFILES=rpcif_clnt.cc rpcif_xdr.cc rpcif_xdr.cc.tmp rpcif.h rpcif.h.tmp rpcif_clnt.cc.tmp \
            rpcif_svc.cc.tmp rpcif_svc.cc
 
 rpcif.h: rpcif.x	
@@ -74,7 +74,7 @@ rpcif_clnt.cc: rpcif.x
 	rm -f rpcif_clnt.cc.tmp
 
 rpcif_xdr.cc: rpcif.x
-	$(RPCGEN) -l -o rpcif_xdr.cc.tmp rpcif.x
+	$(RPCGEN) -c -o rpcif_xdr.cc.tmp rpcif.x
 	$(AWK) -f rpcif_xdr.cc.awk rpcif_xdr.cc.tmp > rpcif_xdr.cc
 	rm -f rpcif_xdr.cc.tmp
 	

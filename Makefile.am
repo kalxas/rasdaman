@@ -40,7 +40,7 @@ if ENABLE_JAVA
     JAVA_DIR = java
 endif
 
-nobase_include_HEADERS=raslib/*.h raslib/*.hh raslib/*.icc raslib/*.cc \
+nobase_include_HEADERS=raslib/*.hh raslib/*.icc raslib/*.cc \
 		rasodmg/*.hh rasodmg/*.cc rasodmg/*.icc conversion/*.hh \
 		clientcomm/*.h clientcomm/*.hh commline/*.hh commline/*.cc debug/*.hh config.h
 
