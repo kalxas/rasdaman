@@ -56,7 +56,6 @@ all:
 
 install-exec-hook:	
 	cp ${SECORE_TARGET_DIR}/def.war ${WAR_DIR}/
-	cp ${SECORE_TARGET_DIR}/def.war $(DESTDIR)$(pkgdatadir)/war/
 	echo "$@ is updating secore.properties: $(OLD_CONF) from $(NEW_CONF)";
 	./update_properties.sh "$(OLD_CONF)" "$(NEW_CONF)";
 	mkdir -p $(DESTDIR)$(pkgdatadir)/secore || true

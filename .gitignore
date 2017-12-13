@@ -26,12 +26,10 @@ applications/RRasdaman/pom.xml
 clientcomm/rpcif.h
 clientcomm/rpcif_clnt.cc
 clientcomm/rpcif_svc.cc
-clientcomm/rpcif_xdr.c
 clientcomm/rpcif_xdr.cc
 servercomm/rpcif.h
 servercomm/rpcif_clnt.cc
 servercomm/rpcif_svc.cc
-servercomm/rpcif_xdr.c
 servercomm/rpcif_xdr.cc
 config.log
 config.status
@@ -117,6 +115,7 @@ application.properties
 applications/petascope/petascope_core/src/main/resources/log4j.properties
 bin/update_db.sh
 migrate_petascopedb.sh
+update_petascopedb.sh
 applications/raswct/bin
 *.lis
 configure

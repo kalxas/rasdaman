@@ -37,7 +37,7 @@ all-local: init-third-party compile-gmock compile-rasnet-deps
 # We recursively initialize the submodules everytime make is called.
 # The command is idempotent.
 init-third-party:
-	[ -d grpc ] || tar xzf grpc.tar.gz
+	[ -d grpc ] || { tar xzf grpc.tar.gz; find grpc -exec touch {} +; }
 	cd .. && git submodule update --init --recursive
 
 # gmock should be compiled irrespectively

@@ -23,6 +23,5 @@
 #
 # ------------------------------------------------------------------------------
 #
-# This script is used in very short term when rasdaman installer still needs this script for master branch
-# It will be removed completely in version 9.5
-exit 0
+
+@bindir@/migrate_petascopedb.sh

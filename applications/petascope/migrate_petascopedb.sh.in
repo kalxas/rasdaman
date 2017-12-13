@@ -24,64 +24,66 @@
 # ------------------------------------------------------------------------------
 #
 # SYNOPSIS
-#    migration_petascopedb.sh
+#    migrate_petascopedb.sh
 # Description
 #    This script is used to migrate coverages imported by wcst_import, OWS Service 
-#    metadata and WMS 1.3 layers (see: http://rasdaman.org/wiki/Petascope_9.5#Howtomigrate).
+#    metadata and WMS 1.3 layers. For more details see
+#    http://rasdaman.org/wiki/PetascopeUserGuide#Databasemigration
+#
 #    There are 2 types of migration:
-#     - Migrate petascopedb 9.4 or older. After the migration, the old petascopedb is 
-#       backed up at petascope_94_backup.    
-#     - Migrate petascopedb 9.5 or newer to a different database name or different database
-#       (e.g. PostgreSQL to HSQLDB).
+#     1. Migrate petascopedb 9.4 or older. After the migration, the old 
+#        petascopedb is backed up at petascope_94_backup.    
+#     2. Migrate petascopedb 9.5 or newer to a different database name or 
+#        different database (e.g. PostgreSQL to HSQLDB).
 #
 # Preconditions
-#    - The petascope web application must not be running (e.g: in Tomcat) while migrating 
-#      to protected the existing data integrity.
+#    - The petascope web application must not be running (e.g: in Tomcat) while 
+#      migrating to a different database (type 2 above) to protect the existing 
+#      data integrity.
 
-MYNAME=$(basename $0)
+readonly MYNAME=$(basename $0)
 
-OK=0
-ERROR=1
+readonly RC_OK=0
+readonly RC_ERROR=1
 
 log() {
-    echo $MYNAME: $*
+    echo "$MYNAME: $@"
 }
 
 error() {
-    echo $MYNAME: $* 1>&2
-    echo "$MYNAME: done." 1>&2
-    exit $ERROR
+    echo "$MYNAME: $@" 1>&2
+    echo "$MYNAME: Exiting." 1>&2
+    exit $RC_ERROR
 }
 
-LOG_FILE="@LOG_DIR@/petascope.log"
-PROPERTIES_FILE="@CONF_DIR@/petascope.properties"
+readonly LOG_FILE="@LOG_DIR@/petascope-migration.log"
+readonly PROPERTIES_FILE="@CONF_DIR@/petascope.properties"
 
 # This jar file is generated from the petascope_migration application
-PETASCOPE_MIGRATION_JAR="@pkgdatadir@/petascope/rasdaman-geo-migration.jar"
+readonly PETASCOPE_MIGRATION_JAR="@pkgdatadir@/petascope/rasdaman-geo-migration.jar"
+if [ ! -f "$PETASCOPE_MIGRATION_JAR" ]; then
+    error "Cannot find the migration application '$PETASCOPE_MIGRATION_JAR'."
+fi
 
-log "This script migrates data from old petascopedb to new petascopedb as confgured in $PROPERTIES_FILE."
-log "  More details on the migration process: http://rasdaman.org/wiki/Petascope_9.5#Howtomigrate"
-echo
+log "Using configuration file '$PROPERTIES_FILE'."
 
-read -p "Start the migration process (y/n)? " -n 1 -r
+read -p "$MYNAME: Start the migration process [Y/n]? " -n 1 -r
 echo -e ""
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    log "Aborting, no data has been migrated."
-else
-    if [ ! -f "$PETASCOPE_MIGRATION_JAR" ]; then
-        error "Cannot find the migration application '$PETASCOPE_MIGRATION_JAR'."
-    fi
-    
+if [[ $REPLY =~ ^[Yy]$ ]] || [[ "$REPLY" = "" ]]; then
     # User can see the log from the terminal at the same time as migration application writes to petascope.log
-    # No output log4j, grpc to user's console
+    # Filter log4j/grpc log to user's console
     java -jar "$PETASCOPE_MIGRATION_JAR" 2>&1 |  grep -v --line-buffered -e 'grpc' -e 'log4j'
-    # NOTE: $? always return 0 even when first command returns 1 (exception in migration application), must get exit code from correct variable.
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then
-        log "Migration completted successfully; petascope can be started again."
-    else
-        error "Migration failed; please check for errors in $LOG_FILE file."
-    fi
-fi   
 
-log "done."
-exit $OK
+    # NOTE: $? always return 0 even when first command returns 1 (exception in migration application)
+    # so we have to get the exit code of the java -jar command from PIPESTATUS
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+        log "Migration completted successfully."
+    else
+        error "Migration failed."
+    fi
+else
+    log "Aborting, no data has been migrated."
+fi
+
+log "Done."
+exit $RC_OK

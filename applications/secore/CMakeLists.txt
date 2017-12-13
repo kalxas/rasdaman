@@ -68,12 +68,6 @@ if (ENABLE_JAVA)
     install(FILES "${SECORE_TARGET_DIR}/def.war"
             DESTINATION ${WAR_DIR})
 
-    # Also copy this war file to $RMANHOME/share/rasdaman/war/ to be used later if SECORE runs with embedded servlet container.
-    if (NOT ("${WAR_DIR}" EQUAL "${SHARE_DATA_DIR}/war"))
-        install( FILES "${SECORE_TARGET_DIR}/def.war"
-             DESTINATION "${SHARE_DATA_DIR}/war/" )
-    endif()
-
     # these files contain update CRS defintions for SECORE userdb
     install(DIRECTORY db_updates/ DESTINATION "${SHARE_DATA_DIR}/secore")
 

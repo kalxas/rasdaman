@@ -69,8 +69,12 @@ endmacro()
 execute_process(COMMAND git submodule update --init --recursive
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-execute_process(COMMAND tar xzf grpc.tar.gz
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/third_party/grpc")
+    execute_process(COMMAND tar xzf grpc.tar.gz
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
+    execute_process(COMMAND find grpc -exec touch {} +
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
+endif()
 
 ############################################################################
 # Begin Google Test

@@ -58,6 +58,10 @@ set(SETTINGS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/src/main/resources
 set(MIGRATE_PETASCOPEDB_SCRIPT_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh.in")
 set(MIGRATE_PETASCOPEDB_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh")
 
+# Deprecated migrate script
+set(CREATE_PETASCOPEDB_SCRIPT_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/update_petascopedb.sh.in")
+set(CREATE_PETASCOPEDB_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/update_petascopedb.sh")
+
 # Script to import coverages example to petascopedb
 set(INSERT_DATA_SCRIPT_TEMPLATE "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo.sh.in")
 set(INSERT_DATA_SCRIPT "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo.sh")
@@ -93,6 +97,9 @@ configure_file("${SETTINGS_FILE_TEMPLATE}" "${SETTINGS_FILE}" @ONLY)
 # Do the same for migrate_petascopedb.sh.in
 configure_file("${MIGRATE_PETASCOPEDB_SCRIPT_TEMPLATE}" "${MIGRATE_PETASCOPEDB_SCRIPT}" @ONLY)
 
+# Do the same for update_petascopedb.sh.in
+configure_file("${CREATE_PETASCOPEDB_SCRIPT_TEMPLATE}" "${CREATE_PETASCOPEDB_SCRIPT}" @ONLY)
+
 # Do the same for petascope_insertdemo.sh.in
 configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 
@@ -107,9 +114,6 @@ add_custom_target(petascope ALL
     VERBATIM)
 add_dependencies(petascope rasj)
 
-# Install the update_petascopedb.sh script
-set(CREATE_PETASCOPEDB_SCRIPT "update_petascopedb.sh")
-# TODO: remove the update_petascopedb.sh script in version 9.5
 install(PROGRAMS "${CREATE_PETASCOPEDB_SCRIPT}" "${INSERT_DATA_SCRIPT}"
         DESTINATION ${BIN_DIR})
 
@@ -123,11 +127,6 @@ install( CODE "execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/update_p
 # Petascope can be run as embedded or external with war package.
 install( FILES "${PETASCOPE_TARGET_DIR}/petascope_main/rasdaman.war"
          DESTINATION "${WAR_DIR}" )
-# Also copy this war file to $RMANHOME/share/rasdaman/war/ to be used later if petascope runs with embedded servlet container.
-if (NOT ("${WAR_DIR}" EQUAL "${SHARE_DATA_DIR}/war"))
-    install( FILES "${PETASCOPE_TARGET_DIR}/petascope_main/rasdaman.war"
-             DESTINATION "${SHARE_DATA_DIR}/war/" )
-endif()
 
 # Copy rasdaman-geo-migration.jar to $RMANHOME/share/rasdaman/petascope and migrate_petascopedb.sh to bin directory
 install( FILES "${PETASCOPE_TARGET_DIR}/petascope_migration/rasdaman-geo-migration.jar"

@@ -136,7 +136,9 @@ war:
 	cp migrate_petascopedb.sh.in migrate_petascopedb.sh	
 	$(SED) -i "s|@LOG_DIR@|$(logdir)|g" migrate_petascopedb.sh	
 	$(SED) -i "s|@CONF_DIR@|$(sysconfdir)|g" migrate_petascopedb.sh	
-	$(SED) -i "s|@pkgdatadir@|$(pkgdatadir)|g" migrate_petascopedb.sh				
+	$(SED) -i "s|@pkgdatadir@|$(pkgdatadir)|g" migrate_petascopedb.sh		
+	cp update_petascopedb.sh.in update_petascopedb.sh	
+	$(SED) -i 's|@bindir[@]|$(bindir)|g' update_petascopedb.sh
 	cp pom.xml.in pom.xml
 	$(SED) -i "s|@PROJECT_VERSION@|${PROJECT_VERSION}|g" pom.xml
 	$(SED) -i "s|@PETASCOPE_TARGET_DIR@|${PETASCOPE_TARGET_DIR}|g" pom.xml
@@ -176,15 +178,16 @@ install:
 	$(CP) $(SETTINGS_FILE) $(SETTINGS_FILE_EDIT);
 	echo "Done.";
 	$(MKDIR) $(DESTDIR)$(wardir)
+	$(MKDIR) $(DESTDIR)$(pkgdatadir)/petascope/
 	echo "JAVA SERVER = "$(JAVA_SERVER)
 	echo "Install rasdaman.war to $(DESTDIR)$(wardir)"; \
 	$(CP) $(WAR_FILE) $(DESTDIR)$(wardir); \
-	echo "Install rasdaman.war to share directory $(DESTDIR)$(pkgdatadir)/war/"; \
-	$(CP) $(WAR_FILE) $(DESTDIR)$(pkgdatadir)/war/; \
 	echo "Install rasdaman-geo-migration.jar to $(DESTDIR)$(pkgdatadir)/petascope/"; \
 	$(CP) $(MIGRATION_JAR_FILE) $(DESTDIR)$(pkgdatadir)/petascope/; \
 	echo "Install migrate_petascopedb.sh to $(DESTDIR)$(bindir)"; \
 	$(CP) migrate_petascopedb.sh $(DESTDIR)$(bindir); \
+	echo "Install update_petascopedb.sh to $(DESTDIR)$(bindir)"; \
+	$(CP) update_petascopedb.sh $(DESTDIR)$(bindir); \
 	echo "Install petascope_insertdemo.sh to $(DESTDIR)$(bindir)"; \
 	$(SED) -e 's|@bindir[@]|$(bindir)/|g' -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g' -e 's|@sysconfdir[@]|$(sysconfdir)/|g' $(INSERT_DATA_SCRIPT_TEMPLATE) > $(INSERT_DATA_SCRIPT); \
 	$(CP) $(INSERT_DATA_SCRIPT) $(DESTDIR)$(bindir); \
@@ -213,8 +216,6 @@ if GENERATE_DOCS
 	mkdir -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 	echo "Copying java doc to $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)"
 	cp -r "petascope_core/$(PETASCOPE_TARGET_DIR)/petascope_core/site" "$(DESTDIR)$(pkgdatadir)/$(APIFOLDER)/petascope_core"
-	cp -r "petascope_main/$(PETASCOPE_TARGET_DIR)/petascope_main/site" "$(DESTDIR)$(pkgdatadir)/$(APIFOLDER)/petascope_main"
-	cp -r "petascope_migration/$(PETASCOPE_TARGET_DIR)/petascope_migration/site" "$(DESTDIR)$(pkgdatadir)/$(APIFOLDER)/petascope_migration"
 	echo "Done."
 endif
 	sed -i "s|@GENERATED_rasdaman_bin_path@|$(bindir)/|g" $(SETTINGS_FILE_EDIT); \
