@@ -141,22 +141,6 @@ BuildArch:      noarch
 %description petascope
 Petascope is an add-in to the rasdaman raster server providing making it a geo raster data with open, interoperable OGC standards-based interfaces.
 
-%package rasdaview
-Summary:        WxWidgets based GUI client for rasdaman
-Group:          Graphics
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description rasdaview
-The rasdaman-rasdaview package installs GUI client for rasdaman. It is based on WxWidgets.
-
-%package rasgeo
-Summary:        rasgeo is an add-in for GDAL-based image file import
-Group:          Applications/Databases
-Requires:       %{name}%{?_isa} = %{version}-%{release} gdal
-
-%description rasgeo
-The rasgeo package is an add-in for GDAL-based image file import. It uses GDAL.
-
 %package raswct
 Summary:        Rasdaman Web Client Toolkit based on JavaScript
 Group:          Applications/Databases
@@ -193,8 +177,6 @@ make %{?_smp_mflags} DESTDIR=%{buildroot}
 
 sed -i 's/^metadata_user=.\+/metadata_user=inituser/' applications/petascope/src/main/resources/petascope.properties.in
 sed -i 's/^metadata_pass=.\+/metadata_pass=initpass/' applications/petascope/src/main/resources/petascope.properties.in
-sed -i 's/^rasuser=rasdaman/rasuser=petauser/' applications/rasgeo/rasconnect
-sed -i 's/^raspassword=rasdaman/raspassword=petapasswd/' applications/rasgeo/rasconnect
 sed -i 's#@confdir@#%{_sysconfdir}/rasdaman#' applications/petascope/src/main/webapp/WEB-INF/web.xml.in
 
 %install
@@ -202,9 +184,6 @@ rm -rf %{buildroot}
 
 mkdir -p %{buildroot}%{_sharedstatedir}/tomcat6/webapps/secoredb
 make install DESTDIR=%{buildroot}
-
-# copy rasgeo configuration
-install -m 755 applications/rasgeo/rasconnect %{buildroot}%{_sysconfdir}/rasdaman/rasconnect
 
 # install SYSV init stuff
 mkdir -p %{buildroot}%{_initddir}
@@ -228,19 +207,6 @@ sed 's|connect RASBASE|connect %{rasdir}/data/RASBASE/|g' -i %{buildroot}%{_sysc
 mkdir %{buildroot}/rasdaman
 mv %{buildroot}%{_includedir}/* %{buildroot}/rasdaman
 mv %{buildroot}/rasdaman %{buildroot}%{_includedir}
-
-# Move rview pieces from bin
-mkdir -p %{buildroot}%{_libdir}/rasdaview/bin
-mv %{buildroot}%{_bindir}/labels.txt %{buildroot}%{_libdir}/rasdaview/bin
-mv %{buildroot}%{_bindir}/rview %{buildroot}%{_libdir}/rasdaview/bin/rasdaview.bin
-mv %{buildroot}%{_bindir}/../.rviewrc %{buildroot}%{_libdir}/rasdaview
-cp -a %{buildroot}%{_datadir}/rasdaman/errtxts* %{buildroot}%{_libdir}/rasdaview/bin
-
-echo "#!/bin/bash" > %{buildroot}%{_bindir}/rasdaview
-echo "cd %{_libdir}/rasdaview/bin" >> %{buildroot}%{_bindir}/rasdaview
-echo "exec %{_libdir}/rasdaview/bin/rasdaview.bin" >> %{buildroot}%{_bindir}/rasdaview
-
-chmod +x %{buildroot}%{_bindir}/rasdaview
 
 %clean
 rm -rf %{buildroot}
@@ -312,17 +278,6 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/wms_service.properties
 %{_bindir}/petascope_insertdemo.sh
 %{_bindir}/update_petascopedb.sh
-
-%files rasdaview
-%defattr(-,root,root,-)
-%{_bindir}/rasdaview
-%{_libdir}/rasdaview
-
-%files rasgeo
-%defattr(-,root,root,-)
-%{_bindir}/rasimport
-%{_bindir}/raserase
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/rasconnect
 
 %files raswct
 %defattr(-,root,root,-)

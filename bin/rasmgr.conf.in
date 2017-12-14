@@ -108,10 +108,5 @@ change srv N8 -countdown 10000 -autorestart on -xp --timeout 300
 define srv N9 -host @hostname@ -type n -port 7010 -dbh rasdaman_host
 change srv N9 -countdown 10000 -autorestart on -xp --timeout 300
 
-# further, we define one RPC type server; this protocol is deprecated,
-# but rview still needs it. Comment out the lines below to enable this server.
-#define srv P1 -host @hostname@ -type r -port 0x29999901 -dbh rasdaman_host
-#change srv P1 -countdown 10000 -autorestart on -xp --timeout 300
-
 # end of rasmgr.conf
 

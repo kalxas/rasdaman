@@ -26,7 +26,6 @@ add_subdirectory(rasql)
 
 if (ENABLE_JAVA)
     add_subdirectory(petascope)
-    add_subdirectory(rasgeo)
     add_subdirectory(raswct)
     add_subdirectory(secore)
     add_subdirectory(wcst_import)

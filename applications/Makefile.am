@@ -29,11 +29,11 @@
 ##################################################################
 
 if ENABLE_JAVA
-    JAVA_DIR = petascope raswct secore rasgeo wcst_import
+    JAVA_DIR = petascope raswct secore wcst_import
 endif
 
 if ENABLE_R
 	R_DIR = RRasdaman
 endif
 
-SUBDIRS=rasql rview $(JAVA_DIR) directql $(R_DIR)
+SUBDIRS=rasql $(JAVA_DIR) directql $(R_DIR)

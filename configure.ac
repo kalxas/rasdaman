@@ -164,8 +164,6 @@ AC_CONFIG_FILES([third_party/Makefile
                  applications/Makefile
                  applications/rasql/Makefile
                  applications/directql/Makefile
-                 applications/rview/Makefile
-                 applications/rasgeo/Makefile
                  applications/raswct/Makefile
                  applications/petascope/Makefile
                  applications/secore/Makefile
@@ -589,9 +587,7 @@ AS_IF([test "$with_default_basedb" == postgresql],
        STATICBASEDBFLAGS="$BASEDBLDFLAGS"
        LDFLAGS="$LDFLAGS $POSTGRESQL_LDFLAGS"
        
-       AC_PROG_ECPG       
-       #AC_CHECK_LIB([ecpg], [main])
-       #AC_CHECK_HEADERS([ecpgerrno.h])
+       AC_PROG_ECPG
        # TODO: change main to something sensible
        AC_CHECK_LIB([pq], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
        AC_CHECK_LIB([pgtypes], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
@@ -612,17 +608,6 @@ AS_IF([test "$with_default_basedb" == sqlite],
 
        EMBEDDEDSQLPRECOMPILER="cp -a"
        BASEDBSTRING=sqlite
-
-       # also configure postgres, needed by rasimport for connecting to petascopedb
-       # this is a copy of an earlier if block, remove once petascope is adapted to use sqlite
-       if test "$disable_java" = "no" -a "$with_petascopedb" = "postgresql"; then
-	       BASEDBCXXFLAGS="$BASEDBCXXFLAGS $POSTGRESQL_CFLAGS"
-	       BASEDBLDFLAGS="$BASEDBLDFLAGS $POSTGRESQL_LDFLAGS -lz -lecpg"
-	       STATICBASEDBFLAGS="$STATICBASEDBFLAGS $BASEDBLDFLAGS"
-	       LDFLAGS="$LDFLAGS $POSTGRESQL_LDFLAGS"
-	       AC_CHECK_LIB([pq], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
-	       AC_CHECK_LIB([pgtypes], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
-       fi
       ],
 [AC_MSG_ERROR([unsupported base DBMS: $with_default_basedb])]))
 

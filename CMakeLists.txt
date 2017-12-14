@@ -181,28 +181,6 @@ if (${DEFAULT_BASEDB} STREQUAL sqlite)
 
     set(BASEDB_LIBRARIES ${BASEDB_LIBRARIES} ${SQLITE_LIBRARIES})
     set(BASEDB_INCLUDE_DIR ${BASEDB_INCLUDE_DIR} ${SQLITE_INCLUDE_DIR})
-
-    if (${ENABLE_JAVA} AND ${PETASCOPEDB} STREQUAL postgresql)
-        find_package(PostgreSQL REQUIRED)
-        check_library_exists(pq PQexec "" HAVE_LIBPQ)
-        check_library_exists(pgtypes PGTYPESnumeric_add "" HAVE_LIBPGTYPES)
-
-        if ((NOT ${HAVE_LIBPQ}) OR (NOT ${HAVE_LIBPGTYPES}))
-            message(FATAL_ERROR "Library not found! Please install...")
-        endif ()
-
-        if (${PostgreSQL_VERSION_STRING} VERSION_LESS ${POSTGRESQL_MIN_VERSION})
-            message(FATAL_ERROR "Could not find the minimum version of PostgreSQL. Minimum version is ${POSTGRESQL_MIN_VERSION}" )
-        endif ()
-
-        find_library(ECPG_LIBARY ecpg DOC "The ECPG library.")
-        mark_as_advanced(ECPG_LIBARY)
-
-        find_package(ZLIB REQUIRED)
-
-        set(BASEDB_LIBRARIES ${BASEDB_LIBRARIES} ${PostgreSQL_LIBRARIES} ${ZLIB_LIBRARIES} ${ECPG_LIBARY})
-        set(BASEDB_INCLUDE_DIR ${BASEDB_INCLUDE_DIR} ${PostgreSQL_INCLUDE_DIRS})
-    endif ()
 elseif (${DEFAULT_BASEDB} STREQUAL postgresql)
     # Used in config-cmake.h
     set(BASEDB_PGSQL 1)
