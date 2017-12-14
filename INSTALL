@@ -1,13 +1,3 @@
-To build and install rasdaman:
+Instructions to build and install rasdaman can be found on the wiki:
 
-  $ ./configure
-  $ make
-  # make install
-
-You may set the installation directory and other parameters by options
-to ./configure.  To see them, use:
-
-  $ ./configure --help
-
-Once installed, see the "rasdaman Installation Guide" for next steps.
-It can be found in manuals_and_examples/manuals/doc-guides/inst-guide.pdf
+  http://rasdaman.org/

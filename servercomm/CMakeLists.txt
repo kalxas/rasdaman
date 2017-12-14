@@ -33,77 +33,77 @@ find_package(RpcGen REQUIRED)
 find_package(AWK REQUIRED)
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
 
-        COMMAND ${RPCGEN_EXECUTABLE}
-        ARGS -h -o "${RPCGEN_DIR}/rpcif.h.tmp" "${RPCGEN_DIR}/rpcif.x"
+    COMMAND ${RPCGEN_EXECUTABLE}
+    ARGS -h -o "${RPCGEN_DIR}/rpcif.h.tmp" "${RPCGEN_DIR}/rpcif.x"
 
-        COMMAND ${AWK_EXECUTABLE}
-        ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif.h.awk" "${RPCGEN_DIR}/rpcif.h.tmp" > "${RPCGEN_DIR}/rpcif.h"
+    COMMAND ${AWK_EXECUTABLE}
+    ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif.h.awk" "${RPCGEN_DIR}/rpcif.h.tmp" > "${RPCGEN_DIR}/rpcif.h"
 
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
 
-        DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
-        WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
-        )
+    DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
+    WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
+    )
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_svc.cc"
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
 
-        COMMAND ${RPCGEN_EXECUTABLE}
-        ARGS -m -o "${RPCGEN_DIR}/rpcif_svc.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
+    COMMAND ${RPCGEN_EXECUTABLE}
+    ARGS -m -o "${RPCGEN_DIR}/rpcif_svc.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
 
-        COMMAND ${AWK_EXECUTABLE}
-        ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif_svc.c.awk" "${RPCGEN_DIR}/rpcif_svc.cc.tmp" > "${RPCGEN_DIR}/rpcif_svc.cc"
+    COMMAND ${AWK_EXECUTABLE}
+    ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif_svc.c.awk" "${RPCGEN_DIR}/rpcif_svc.cc.tmp" > "${RPCGEN_DIR}/rpcif_svc.cc"
 
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
 
-        DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
-        WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
-        )
+    DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
+    WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
+    )
 
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_xdr.cc"
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
 
-        COMMAND ${RPCGEN_EXECUTABLE}
-        ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
+    COMMAND ${RPCGEN_EXECUTABLE}
+    ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
 
-        COMMAND ${AWK_EXECUTABLE}
-        ARGS -f rpcif_xdr.cc.awk "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" > "${RPCGEN_DIR}/rpcif_xdr.cc"
+    COMMAND ${AWK_EXECUTABLE}
+    ARGS -f rpcif_xdr.cc.awk "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" > "${RPCGEN_DIR}/rpcif_xdr.cc"
 
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
 
-        DEPENDS rpcif.x
+    DEPENDS rpcif.x
 
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        )
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
 
 
 set(SRC_FILES callbackmgr.hh callbackmgr.cc
-        httpserver.hh httpserver.cc httpserver.icc
-        manager.cc
-        servercomm.hh servercomm.cc servercomm2.cc servercomm.icc
-        "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.hh" "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.cc"
-        "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.cc"
-        "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.cc"
-        "${RNPROTOCOL_SOURCE_DIR}/rnpserver.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpserver.cc"
-        "${RNPROTOCOL_SOURCE_DIR}/srvrasmgrcomm.hh" "${RNPROTOCOL_SOURCE_DIR}/srvrasmgrcomm.cc"
-        "${RNPROTOCOL_SOURCE_DIR}/rnprasserver.hh" "${RNPROTOCOL_SOURCE_DIR}/rnprasserver.cc"
-        "${RNPROTOCOL_SOURCE_DIR}/rnpservercomm.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpservercomm.cc")
+    httpserver.hh httpserver.cc httpserver.icc
+    manager.cc
+    servercomm.hh servercomm.cc servercomm2.cc servercomm.icc
+    "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.hh" "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.cc"
+    "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.cc"
+    "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.cc"
+    "${RNPROTOCOL_SOURCE_DIR}/rnpserver.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpserver.cc"
+    "${RNPROTOCOL_SOURCE_DIR}/srvrasmgrcomm.hh" "${RNPROTOCOL_SOURCE_DIR}/srvrasmgrcomm.cc"
+    "${RNPROTOCOL_SOURCE_DIR}/rnprasserver.hh" "${RNPROTOCOL_SOURCE_DIR}/rnprasserver.cc"
+    "${RNPROTOCOL_SOURCE_DIR}/rnpservercomm.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpservercomm.cc")
 
 set(RASNET_LIBRARIES "")
 
 # If rasnet is enabled, build the servercomm and add the libraries as requirements
 if (RMANRASNET)
     set(SRC_FILES ${SRC_FILES}
-            "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.hh"
-            "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.cc")
+        "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.hh"
+        "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.cc")
 
     set(RASNET_LIBRARIES ${RASNET_LIBRARIES}
-            rasnet common_exceptions common_grpc common_logging common_time common_uuid)
+        rasnet common_exceptions common_grpc common_logging common_time common_uuid)
 endif (RMANRASNET)
 
 
@@ -123,10 +123,8 @@ target_include_directories(servercomm PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 target_include_directories(servercomm PUBLIC "${RNPROTOCOL_SOURCE_DIR}")
 target_include_directories(servercomm PUBLIC "${CMAKE_SOURCE_DIR}/rasnetprotocol")
 target_include_directories(servercomm PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
-
 target_include_directories(servercomm PUBLIC "${BASEDB_INCLUDE_DIR}")
 
 target_link_libraries(servercomm ${RASNET_LIBRARIES} ${OPTIONAL_LIBRARIES})
 
-install(TARGETS servercomm
-        DESTINATION ${LIB_DIR})
+install(TARGETS servercomm DESTINATION ${LIB_DIR})

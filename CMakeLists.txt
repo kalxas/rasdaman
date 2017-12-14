@@ -20,9 +20,9 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
-#Set cmake policies for compatibility
+# Set cmake policies for compatibility
 cmake_policy(SET CMP0012 NEW)
 cmake_policy(SET CMP0009 NEW)
 cmake_policy(SET CMP0048 NEW)
@@ -30,7 +30,7 @@ cmake_policy(SET CMP0048 NEW)
 project(rasdaman VERSION 9.5.0
         LANGUAGES C CXX)
 
-# no rebuild dependency when make install
+# No rebuild dependency when make install
 # https://cmake.org/Wiki/CMake_Useful_Variables#Various_Options
 set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
@@ -38,23 +38,26 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 ################################################################################
 # CMake configuration options
 ################################################################################
+
 # This sets the folder from which cmake modules can be loaded.
 # When find_package(X) is called, the module path is search of a FindX.cmake
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 
-set(CMAKE_VERBOSE_OUTPUT OFF CACHE BOOL "Enable  this if you need detailed output from the make process.")
+set(CMAKE_VERBOSE_OUTPUT OFF CACHE BOOL 
+    "Enable this if you need detailed output from the make process.")
 if (CMAKE_VERBOSE_OUTPUT)
     set(CMAKE_VERBOSE_MAKEFILE ON)
 endif ()
 
-################################################################################
-# Override CMake defaults
-################################################################################
 # Override the default installation directory
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "/opt/rasdaman" CACHE PATH "Installation directory." FORCE)
 endif ()
+
+################################################################################
+# Configure options
+################################################################################
 
 # Add make unit-check target. Running make unit-check will run the unit tests.
 include(CTest)
@@ -72,24 +75,25 @@ include(cmake/Functions.cmake)
 # Check for functions and symbols needed by rasdaman
 include(cmake/CheckForRequiredSymbols.cmake)
 
-# Options for selecting the network protocol
-set(NETWORK_PROTOCOL rasnet CACHE STRING "Set the network protocol used in rasdaman (rasnet or rnp).")
-set_property(CACHE NETWORK_PROTOCOL PROPERTY STRINGS rasnet rnp)
-
-# Enable C++11 for rasnet.
+#
+# Enable C++11
+#
 include(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if (COMPILER_SUPPORTS_CXX11)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif (COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else ()
-    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
 endif ()
 
-message("Building rasdaman with the ${NETWORK_PROTOCOL} protocol.")
+#
+# Options for selecting the network protocol
+#
+set(NETWORK_PROTOCOL rasnet CACHE STRING 
+    "Set the network protocol used in rasdaman (rasnet or rnp).")
+set_property(CACHE NETWORK_PROTOCOL PROPERTY STRINGS rasnet rnp)
+message(STATUS "Building rasdaman with the ${NETWORK_PROTOCOL} protocol.")
 if (${NETWORK_PROTOCOL} STREQUAL rasnet)
     set(RMANRASNET 1)
     set(DISABLE_PROTOBUF_WARNINGS_FLAGS " -Wno-sign-conversion -Wno-shadow -Wno-pedantic -Wno-undef ")    
@@ -98,75 +102,43 @@ else ()
     set(RMANRASNET 0)
 endif ()
 
-set(USE_HDF4 OFF CACHE BOOL "This feature enables the inclusion of HDF4 library during installation.")
+#
+# Format support
+#
+set(USE_HDF4 OFF CACHE BOOL "Enable inclusion of HDF4 library during installation.")
 if (USE_HDF4)
-    # Flag used in config-cmake.h
-    set(HAVE_HDF ON)
+    set(HAVE_HDF ON) # Flag used in config-cmake.h
 endif ()
 
-set(USE_NETCDF OFF CACHE BOOL "This feature enables the inclusion of netCDF library during installation.")
+set(USE_NETCDF OFF CACHE BOOL "Enable inclusion of netCDF library during installation.")
 if (USE_NETCDF)
-    # Flag used in config-cmake.h
-    set(HAVE_NETCDF ON)
+    set(HAVE_NETCDF ON) # Flag used in config-cmake.h
 endif ()
 
-set(USE_GDAL ON CACHE BOOL "This feature enables the inclusion of GDAL library during installation.")
+set(USE_GDAL ON CACHE BOOL "Enable inclusion of GDAL library during installation. ")
 if (USE_GDAL)
-    # Flag used in config-cmake.h
-    set(HAVE_GDAL ON)
+    set(HAVE_GDAL ON) # Flag used in config-cmake.h
 endif ()
 
-set(USE_GRIB OFF CACHE BOOL "This feature enables the inclusion of GRIB library during installation.")
+set(USE_GRIB OFF CACHE BOOL "Enable inclusion of GRIB library during installation.")
 if (USE_GRIB)
-    # Flag used in config-cmake.h
-    set(HAVE_GRIB ON)
+    set(HAVE_GRIB ON) # Flag used in config-cmake.h
 endif ()
 
-set(GENERATE_PIC ON CACHE BOOL "Generate position independent code (PIC)")
-if (GENERATE_PIC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-endif ()
-
-set(PETASCOPEDB "postgresql" CACHE STRING "Default DBMS used by petascope is: postgresql")
-set_property(CACHE PETASCOPEDB PROPERTY STRINGS postgresql)
-
-set(ENABLE_JAVA ON CACHE BOOL
-        "Enable or disable compilation and installation of Java-based components, including rasj and petascope.")
-if (ENABLE_JAVA)
-    # This variable is necessary to allow the Java components to be built.
-    # Petascope depends on rasj being built to this directory.
-    set(RASJ_TARGET_DIR "${CMAKE_BINARY_DIR}/java/target")
-    file(MAKE_DIRECTORY ${RASJ_TARGET_DIR})
-
-    find_package(Java COMPONENTS Runtime REQUIRED)
-    find_package(Java COMPONENTS Development REQUIRED)
-    # Check if gdal-java library is installed as package
-    find_library(GDAL_JAVA NAMES libgdaljni.so
-                 PATHS /usr/lib/java/gdal
-                       /usr/lib/jni/)
-    if (NOT GDAL_JAVA)
-        message(FATAL_ERROR "gdal-java package not found.")
-    else ()
-        get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA} DIRECTORY)
-        message("-- Found gdal-java: ${GDAL_JAVA_DIR}")
-    endif()
-    set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
-
-    set(ENABLE_R OFF CACHE BOOL "Compile and install R package.")
-endif ()
-
-set(DEFAULT_BASEDB "sqlite" CACHE STRING "Change the default Base DBMS (sqlite, postgresql)")
+#
+# RASBASE
+#
+set(DEFAULT_BASEDB "sqlite" CACHE STRING 
+    "Specify the DBMS that rasdaman uses for storing RASBASE.")
 set_property(CACHE DEFAULT_BASEDB PROPERTY STRINGS sqlite postgresql)
 
 find_library(NSL_LIBRARY nsl DOC "The NSL library.")
 mark_as_advanced(NSL_LIBRARY)
-
 set(BASEDB_LIBRARIES ${NSL_LIBRARY})
 set(BASEDB_INCLUDE_DIR "")
 
-set(POSTGRESQL_MIN_VERSION 9.1.0)
 if (${DEFAULT_BASEDB} STREQUAL sqlite)
+
     find_package(Sqlite REQUIRED)
     # For config-cmake.h
     set(BASEDB_SQLITE 1)
@@ -181,7 +153,11 @@ if (${DEFAULT_BASEDB} STREQUAL sqlite)
 
     set(BASEDB_LIBRARIES ${BASEDB_LIBRARIES} ${SQLITE_LIBRARIES})
     set(BASEDB_INCLUDE_DIR ${BASEDB_INCLUDE_DIR} ${SQLITE_INCLUDE_DIR})
+
 elseif (${DEFAULT_BASEDB} STREQUAL postgresql)
+
+    set(POSTGRESQL_MIN_VERSION 9.1.0)
+
     # Used in config-cmake.h
     set(BASEDB_PGSQL 1)
     set(BASEDBSTRING pgsql)
@@ -191,46 +167,90 @@ elseif (${DEFAULT_BASEDB} STREQUAL postgresql)
     set(EMBEDDEDSQL_OUT cc)
 
     find_package(PostgreSQL REQUIRED)
+    if (${PostgreSQL_VERSION_STRING} VERSION_LESS ${POSTGRESQL_MIN_VERSION})
+        message(FATAL_ERROR "PostgreSQL newer than ${POSTGRESQL_MIN_VERSION} not found.")
+    endif ()
+
+    # TODO may not be necessary
     check_library_exists(pq PQexec "" HAVE_LIBPQ)
     check_library_exists(pgtypes PGTYPESnumeric_add "" HAVE_LIBPGTYPES)
-
     if ((NOT ${HAVE_LIBPQ}) OR (NOT ${HAVE_LIBPGTYPES}))
-        message(FATAL_ERROR "Library not found! Please install...")
+        message(FATAL_ERROR "libpq not found, please install.")
     endif ()
 
-    if (${PostgreSQL_VERSION_STRING} VERSION_LESS ${POSTGRESQL_MIN_VERSION})
-        message(FATAL_ERROR "Could not find the minimum version of PostgreSQL. Minimum version is ${POSTGRESQL_MIN_VERSION}")
-    endif ()
-
-    find_program(ECPG ecpg
-            DOC "A precompiler for PostgreSQL embedded code.")
+    find_program(ECPG ecpg DOC "A precompiler for PostgreSQL embedded code.")
     set(EMBEDDEDSQLPRECOMPILER "${ECPG}")
     set(EMBEDDEDSQLPRECOMPILER_FLAGS  "-o")
 
     find_library(ECPG_LIBARY ecpg DOC "The ECPG library.")
     find_package(ZLIB REQUIRED)
 
-    set(BASEDB_LIBRARIES ${BASEDB_LIBRARIES} ${PostgreSQL_LIBRARIES} ${ZLIB_LIBRARIES} ${ECPG_LIBARY})
+    set(BASEDB_LIBRARIES ${BASEDB_LIBRARIES} ${PostgreSQL_LIBRARIES} 
+                         ${ZLIB_LIBRARIES} ${ECPG_LIBARY})
     set(BASEDB_INCLUDE_DIR ${BASEDB_INCLUDE_DIR} ${PostgreSQL_INCLUDE_DIRS})
+
 else ()
-    message(FATAL_ERROR "Unsupported base DBMS.")
+
+    message(FATAL_ERROR "Unsupported base DBMS '${DEFAULT_BASEDB}'.")
+
 endif ()
 
-set(JAVA_SERVER "external" CACHE STRING "Set the Java application deployment mode (external or embedded)")
-set_property(CACHE JAVA_SERVER PROPERTY STRINGS external embedded)
-if (${JAVA_SERVER} STREQUAL external)
-    set(JAVA_SERVER_EXTERNAL true)
-elseif (${JAVA_SERVER} STREQUAL embedded)
-    set(JAVA_SERVER_EMBEDDED true)
-else ()
-    message(FATAL_ERROR "Invalid JAVA_SERVER option.")
+#
+# Java
+#
+set(ENABLE_JAVA ON CACHE BOOL
+    "Generate and install of Java-based components (rasj, petascope, secore).")
+if (ENABLE_JAVA)
+    # This variable is necessary to allow the Java components to be built.
+    # Petascope depends on rasj being built to this directory.
+    set(RASJ_TARGET_DIR "${CMAKE_BINARY_DIR}/java/target")
+    file(MAKE_DIRECTORY ${RASJ_TARGET_DIR})
+
+    find_package(Java COMPONENTS Runtime REQUIRED)
+    find_package(Java COMPONENTS Development REQUIRED)
+
+    # gdal-java
+    find_library(GDAL_JAVA NAMES libgdaljni.so
+                 PATHS /usr/lib/java/gdal /usr/lib/jni/)
+    if (NOT GDAL_JAVA)
+        message(FATAL_ERROR "gdal-java not found.")
+    else ()
+        get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA} DIRECTORY)
+        message(STATUS "Found gdal-java: ${GDAL_JAVA_DIR}")
+    endif()
+    set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
+
+    # R
+    set(ENABLE_R OFF CACHE BOOL "Compile and install R package.")
+
+    # deployment mode
+    set(JAVA_SERVER "external" CACHE STRING 
+        "Set the Java application deployment mode (external or embedded)")
+    set_property(CACHE JAVA_SERVER PROPERTY STRINGS external embedded)
+    if (${JAVA_SERVER} STREQUAL external)
+        set(JAVA_SERVER_EXTERNAL true)
+    elseif (${JAVA_SERVER} STREQUAL embedded)
+        set(JAVA_SERVER_EMBEDDED true)
+    else ()
+        message(FATAL_ERROR "Invalid JAVA_SERVER option '${JAVA_SERVER}'.")
+    endif ()
 endif ()
 
-set(ENABLE_DEBUG OFF CACHE BOOL "Enable debug symbols and define RMANDEBUG and DEBUG. If you do not need RMANDEBUG, only create a Debug build using CMake.")
+#
+# Various
+#
+
+set(GENERATE_PIC ON CACHE BOOL "Generate position independent code (PIC)")
+if (GENERATE_PIC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+endif ()
+
+set(ENABLE_DEBUG OFF CACHE BOOL 
+    "Generate (slower) binaries that can be debugged / produce debug logs.")
 if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     set(DEBUG ${ENABLE_DEBUG})
-
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g3 -gdwarf-2 -rdynamic")
 else ()
     #TODO:Double check if these are used and remove them if not
@@ -239,71 +259,79 @@ else ()
     set(__NO_MATH_INLINES 1)
 endif ()
 
-set(ENABLE_BENCHMARK OFF CACHE BOOL "This feature enables generation of binaries that contain extra code for benchmark output.")
+set(ENABLE_BENCHMARK OFF CACHE BOOL 
+    "Generate binaries that contain extra code for benchmark output. ")
 if (ENABLE_BENCHMARK)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRMANBENCHMARK")
 endif ()
 
-set(ENABLE_PROFILING OFF CACHE BOOL "This feature enables profiling of queries with google-perftools..")
+set(ENABLE_PROFILING OFF CACHE BOOL 
+    "Enable profiling of queries with google-perftools.")
 if (ENABLE_PROFILING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_PROFILING")
 endif ()
 
-set(ENABLE_STRICT OFF CACHE BOOL "Enable compiling in strict mode: warnings terminate compilation.")
+set(ENABLE_STRICT OFF CACHE BOOL 
+    "Enable compilation in strict mode (warnings terminate compilation).")
 if (ENABLE_STRICT)
     # list from http://stackoverflow.com/a/9862800
     add_compile_options(-pedantic -Werror -Wall -Wextra -Wshadow -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused -Wno-long-long -Wno-format-nonliteral)
 endif ()
 
-set(GENERATE_DOCS OFF CACHE BOOL
-        "Generate doxygen documentation during build.")
+set(GENERATE_DOCS OFF CACHE BOOL "Build and install documentation.")
 
 ########################################
 # Begin backward compatibility section
 ########################################
+
 #TODO: The following variables could be factored out with some care
 #Enable the standard library
 set(CPPSTDLIB 1)
 
 # The name of the architecture for which the system is compiling.
 set(RASARCHITECTURE "X86")
-# Compile for a X86 based system.
 set(X86 1)
 set(EARLY_TEMPLATE 1)
 set(NOPRE 1)
 set(NO_in_addr_t 1)
-
 set(RASSCHEMAVERSION 5)
 
 include(TestBigEndian)
-
 test_big_endian(IS_BIG_ENDIAN)
-
 if (NOT ${IS_BIG_ENDIAN})
     set(IS_LITTLE_ENDIAN 1)
 endif ()
 
+add_definitions(-DCOMPDATE="2017-08-24")
+
+# TODO: These do not seem safe but are kept because the old code requires them
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector -fno-strict-overflow")
+
 ########################################
 # End backward compatibility section
 ########################################
+
+#
+# Paths
+#
+
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
 set(LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 set(CONF_DIR "${CMAKE_INSTALL_PREFIX}/etc")
-
 set(SHARE_DIR "${CMAKE_INSTALL_PREFIX}/share")
 set(SHARE_DATA_DIR "${SHARE_DIR}/rasdaman")
-
-set(LOG_DIR "${CMAKE_INSTALL_PREFIX}/log" CACHE STRING "The path where the servers will store their logs.")
-
+set(FILE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data" CACHE STRING
+    "The path where the server stores array tiles as files.")
+set(WAR_DIR "${SHARE_DATA_DIR}/war" CACHE STRING
+    "The path where Java war files should be installed.")
+set(LOG_DIR "${CMAKE_INSTALL_PREFIX}/log" CACHE STRING 
+    "The path where server logs are stored.")
 install(DIRECTORY DESTINATION ${LOG_DIR})
 
-set(FILE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data" CACHE STRING "The path where the server stores blobs as files.")
-
-set(WAR_DIR "${SHARE_DATA_DIR}/war" CACHE STRING "The path where the war files should be installed.")
-
-
-#Directories used in the source-code
+#
+# Directories used in the source-code
+#
 add_definitions(-DCONFDIR="${CONF_DIR}/")
 add_definitions(-DBINDIR="${BIN_DIR}/")
 add_definitions(-DLOGDIR="${LOG_DIR}/")
@@ -311,32 +339,38 @@ add_definitions(-DINCLUDE_DIR="${INCLUDE_DIR}/")
 add_definitions(-DSHARE_DATA_DIR="${SHARE_DATA_DIR}/")
 add_definitions(-DFILEDATADIR="${FILE_DATA_DIR}/")
 
-#Definition added for use of protobuf libraries. In particular, the protobuf libraries (correctly)
-# assume that when a variable x is not defined, it is assumed false (i.e. !x = 1); however, when
-# compiling with -Werror and -Wunused, the warning for this turns into an error, and it cannot be suppressed
-# with a pragma.
+# Definition added for use of protobuf libraries. In particular, the protobuf
+# libraries (correctly) assume that when a variable x is not defined, it is
+# assumed false (i.e. !x = 1); however, when compiling with -Werror and -Wunused,
+# the warning for this turns into an error, and it cannot be suppressed with a 
+# pragma.
 add_definitions(-DPROTOBUF_INLINE_NOT_IN_HEADERS=0)
-add_definitions(-DCOMPDATE="2017-08-24")
 
-#TODO: These do not seem safe but are kept because the old code requires them
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector -fno-strict-overflow")
-
-GetVersionInformation(RMANVERSION GCCVERSION GCCTARGET)
+#
 # Generate the configuration header files.
+#
+GetVersionInformation(RMANVERSION GCCVERSION GCCTARGET)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config-cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version.h")
 
+#
 # Execute the 3rd party CMakeLists.txt
+#
 include(third_party/CMakeLists.txt)
 
+#
+# Include dirs
+#
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/debug)
-
-# All the generated files should be placed in the binary dir. We add this to the include path so that the compiler can
-# find the files.
+# All the generated files should be placed in the binary dir. We add this to the
+# include path so that the compiler can find the files.
 include_directories(${CMAKE_BINARY_DIR})
 
+#
+# Make subdirectories visible
+#
 add_subdirectory(applications)
 add_subdirectory(bin)
 add_subdirectory(catalogmgr)
@@ -374,7 +408,3 @@ add_subdirectory(servercomm)
 add_subdirectory(storagemgr)
 add_subdirectory(systemtest)
 add_subdirectory(tilemgr)
-
-#  This folder MUST be refactored. It does not need to produce any library.
-## add_subdirectory(rasnetprotocol)
-## add_subdirectory(rnprotocol)
