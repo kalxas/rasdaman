@@ -43,7 +43,6 @@ if (NOT RMANRASNET)
 
     target_include_directories(rasmgr PUBLIC ${BASEDB_INCLUDE_DIR})
 
-    find_package(OpenSSL REQUIRED)
     target_link_libraries(rasmgr raslib network commline mymalloc_cln ${OPENSSL_LIBRARIES})
 
     install(TARGETS rasmgr

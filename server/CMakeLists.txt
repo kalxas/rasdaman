@@ -27,9 +27,8 @@ add_executable(rasserver createinitmdd.hh createinitmdd.cc
         rasserver_entry.hh rasserver_entry.cc
         rasserver_main.cc template_inst.hh)
 
-find_package(OpenSSL REQUIRED)
-
 target_include_directories(rasserver PUBLIC "${CMAKE_SOURCE_DIR}/debug" ${OPENSSL_INCLUDE_DIR})
+
 target_link_libraries(rasserver servercomm qlparser conversion
         rasodmg raslib storagemgr reladminif tilemgr mddmgr
         catalogmgr relmddif relstorageif

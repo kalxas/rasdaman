@@ -29,9 +29,6 @@ set(CLIENTCOMM_BINARY_DIR "${CMAKE_BINARY_DIR}/clientcomm")
 # Generate the RPC files in the current binary directory
 set(RPCGEN_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
-find_package(RpcGen REQUIRED)
-find_package(AWK REQUIRED)
-
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
     COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"

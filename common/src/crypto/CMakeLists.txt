@@ -23,7 +23,6 @@
 
 add_library(common_crypto crypto.hh crypto.cc)
 
-find_package(OpenSSL REQUIRED)
 target_link_libraries(common_crypto ${OPENSSL_LIBRARIES})
 target_include_directories(common_crypto PUBLIC ${OPENSSL_INCLUDE_DIR})
 

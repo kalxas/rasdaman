@@ -171,8 +171,6 @@ SET(RASMGR_SOURCES ${GENERATED_PROTO_SOURCES}
 add_library(rasmgr_lib ${RASMGR_SOURCES})
 
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED
-        COMPONENTS thread)
 
 target_link_libraries(rasmgr_lib rasnet commline common_crypto
         common_exceptions common_grpc common_logging common_time common_uuid

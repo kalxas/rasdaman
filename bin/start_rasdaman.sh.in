@@ -163,6 +163,7 @@ if [ "$SERVERS" ]; then
     do
         logn "starting server $SRV..."
         @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
+        echo "done."
     done
 else
     log "starting all rasdaman servers..."
@@ -228,7 +229,7 @@ start_embedded() {
 start_embedded "$secore_properties_path" "secore" "def.war"
 start_embedded "$petascope_properties_path" "petascope" "rasdaman.war"
 
-echo "done."
+log "done."
 exit $RC_OK
 
 # --- END ACTION ----------------------------------------------------

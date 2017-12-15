@@ -37,8 +37,6 @@ if (RMANRASNET)
     target_link_libraries(rasnetserver servercomm)
 endif ()
 
-find_package(Boost REQUIRED
-        COMPONENTS thread)
 target_link_libraries(rasnetserver ${Boost_THREAD_LIBRARY})
 
 

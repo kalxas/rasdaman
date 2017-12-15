@@ -23,7 +23,6 @@
 
 if (NOT RMANRASNET)
     find_package(Readline REQUIRED)
-    find_package(OpenSSL REQUIRED)
 
     add_executable(rascontrol rascontrol.hh rascontrol.cc
             rascontrol_class.cc

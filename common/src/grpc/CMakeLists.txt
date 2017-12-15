@@ -56,10 +56,7 @@ add_library(common_grpc STATIC
         ${GENERATED_PROTO_SOURCES}
         ${GENERATED_GRPC_SOURCES})
 
-find_package(ZLIB REQUIRED)
 find_package(LibDL REQUIRED)
-find_package(Boost REQUIRED
-    COMPONENTS system)
 
 target_link_libraries(common_grpc common_exceptions common_network
     ${GRPCPP_LIBRARY} ${GRPC_LIBRARY}

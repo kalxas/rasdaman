@@ -93,36 +93,13 @@ endif ()
 set(NETWORK_PROTOCOL rasnet CACHE STRING 
     "Set the network protocol used in rasdaman (rasnet or rnp).")
 set_property(CACHE NETWORK_PROTOCOL PROPERTY STRINGS rasnet rnp)
-message(STATUS "Building rasdaman with the ${NETWORK_PROTOCOL} protocol.")
+message(STATUS "Building rasdaman with the ${NETWORK_PROTOCOL} protocol (-DNETWORK_PROTOCOL=${NETWORK_PROTOCOL}).")
 if (${NETWORK_PROTOCOL} STREQUAL rasnet)
     set(RMANRASNET 1)
     set(DISABLE_PROTOBUF_WARNINGS_FLAGS " -Wno-sign-conversion -Wno-shadow -Wno-pedantic -Wno-undef ")    
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 else ()
     set(RMANRASNET 0)
-endif ()
-
-#
-# Format support
-#
-set(USE_HDF4 OFF CACHE BOOL "Enable inclusion of HDF4 library during installation.")
-if (USE_HDF4)
-    set(HAVE_HDF ON) # Flag used in config-cmake.h
-endif ()
-
-set(USE_NETCDF OFF CACHE BOOL "Enable inclusion of netCDF library during installation.")
-if (USE_NETCDF)
-    set(HAVE_NETCDF ON) # Flag used in config-cmake.h
-endif ()
-
-set(USE_GDAL ON CACHE BOOL "Enable inclusion of GDAL library during installation. ")
-if (USE_GDAL)
-    set(HAVE_GDAL ON) # Flag used in config-cmake.h
-endif ()
-
-set(USE_GRIB OFF CACHE BOOL "Enable inclusion of GRIB library during installation.")
-if (USE_GRIB)
-    set(HAVE_GRIB ON) # Flag used in config-cmake.h
 endif ()
 
 #
@@ -136,6 +113,7 @@ find_library(NSL_LIBRARY nsl DOC "The NSL library.")
 mark_as_advanced(NSL_LIBRARY)
 set(BASEDB_LIBRARIES ${NSL_LIBRARY})
 set(BASEDB_INCLUDE_DIR "")
+find_package(ZLIB REQUIRED)
 
 if (${DEFAULT_BASEDB} STREQUAL sqlite)
 
@@ -195,6 +173,48 @@ else ()
 
 endif ()
 
+message(STATUS "Building rasdaman with support for ${DEFAULT_BASEDB} "
+    "(-DDEFAULT_BASEDB=${DEFAULT_BASEDB}).")
+
+#
+# Format support
+#
+message(STATUS "Support for data formats:")
+
+set(USE_HDF4 OFF CACHE BOOL "Enable inclusion of HDF4 library during installation.")
+if (USE_HDF4)
+    set(HAVE_HDF ON) # Flag used in config-cmake.h
+    message(STATUS "  HDF4 enabled (-DUSE_HDF4=${USE_HDF4}).")
+else()
+    message(STATUS "  HDF4 disabled (-DUSE_HDF4=${USE_HDF4}).")
+endif ()
+
+set(USE_NETCDF OFF CACHE BOOL "Enable inclusion of netCDF library during installation.")
+if (USE_NETCDF)
+    set(HAVE_NETCDF ON) # Flag used in config-cmake.h
+    message(STATUS "  NetCDF enabled (-DUSE_NETCDF=${USE_NETCDF}).")
+else()
+    message(STATUS "  NetCDF disabled (-DUSE_NETCDF=${USE_NETCDF}).")
+endif ()
+
+set(USE_GDAL ON CACHE BOOL "Enable inclusion of GDAL library during installation. ")
+if (USE_GDAL)
+    set(HAVE_GDAL ON) # Flag used in config-cmake.h
+
+    message(STATUS "  GDAL enabled (-DUSE_GDAL=${USE_GDAL}).")
+else()
+    message(STATUS "  GDAL disabled (-DUSE_GDAL=${USE_GDAL}).")
+endif ()
+
+set(USE_GRIB OFF CACHE BOOL "Enable inclusion of GRIB library during installation.")
+if (USE_GRIB)
+    set(HAVE_GRIB ON) # Flag used in config-cmake.h
+
+    message(STATUS "  GRIB enabled (-DUSE_GRIB=${USE_GRIB}).")
+else()
+    message(STATUS "  GRIB disabled (-DUSE_GRIB=${USE_GRIB}).")
+endif ()
+
 #
 # Java
 #
@@ -234,6 +254,12 @@ if (ENABLE_JAVA)
     else ()
         message(FATAL_ERROR "Invalid JAVA_SERVER option '${JAVA_SERVER}'.")
     endif ()
+
+    message(STATUS "Java-based components (rasj, petascope, secore) enabled " 
+        "(-DENABLE_JAVA=${ENABLE_JAVA}).")
+else()
+    message(STATUS "Java-based components (rasj, petascope, secore) disabled " 
+        "(-DENABLE_JAVA=${ENABLE_JAVA}).")
 endif ()
 
 #
@@ -244,6 +270,12 @@ set(GENERATE_PIC ON CACHE BOOL "Generate position independent code (PIC)")
 if (GENERATE_PIC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+
+    message(STATUS "Position independent code (PIC) enabled " 
+        "(-DGENERATE_PIC=${GENERATE_PIC}).")
+else()
+    message(STATUS "Position independent code (PIC) disabled " 
+        "(-DGENERATE_PIC=${GENERATE_PIC}).")
 endif ()
 
 set(ENABLE_DEBUG OFF CACHE BOOL 
@@ -252,33 +284,73 @@ if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     set(DEBUG ${ENABLE_DEBUG})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g3 -gdwarf-2 -rdynamic")
+
+    message(STATUS "Compile in debug mode enabled " 
+        "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
 else ()
     #TODO:Double check if these are used and remove them if not
     set(_DISABLE_TRACE_LOGS 1)
     # Used by some performance implementation of math libraries.
     set(__NO_MATH_INLINES 1)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
+    message(STATUS "Compile in debug mode disabled " 
+        "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
 endif ()
 
 set(ENABLE_BENCHMARK OFF CACHE BOOL 
     "Generate binaries that contain extra code for benchmark output. ")
 if (ENABLE_BENCHMARK)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRMANBENCHMARK")
+
+    message(STATUS "Benchmarking of queries enabled " 
+        "(-DENABLE_BENCHMARK=${ENABLE_BENCHMARK}).")
+else()
+    message(STATUS "Benchmarking of queries disabled " 
+        "(-DENABLE_BENCHMARK=${ENABLE_BENCHMARK}).")
 endif ()
 
 set(ENABLE_PROFILING OFF CACHE BOOL 
-    "Enable profiling of queries with google-perftools.")
+    "Enable profiling with google-perftools.")
 if (ENABLE_PROFILING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_PROFILING")
+
+    message(STATUS "Profiling with google-perftools enabled " 
+        "(-DENABLE_PROFILING=${ENABLE_PROFILING}).")
+else()
+    message(STATUS "Profiling with google-perftools disabled " 
+        "(-DENABLE_PROFILING=${ENABLE_PROFILING}).")
 endif ()
 
 set(ENABLE_STRICT OFF CACHE BOOL 
     "Enable compilation in strict mode (warnings terminate compilation).")
 if (ENABLE_STRICT)
     # list from http://stackoverflow.com/a/9862800
-    add_compile_options(-pedantic -Werror -Wall -Wextra -Wshadow -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused -Wno-long-long -Wno-format-nonliteral)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Werror -Wall -Wextra -Wshadow ")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align -Wcast-qual -Wsign-promo")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wctor-dtor-privacy -Wdisabled-optimization")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Winit-self -Wlogical-op")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-declarations -Wmissing-include-dirs")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnoexcept -Woverloaded-virtual -Wredundant-decls")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsign-conversion -Wstrict-null-sentinel")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wstrict-overflow=5 -Wswitch-default -Wundef")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused -Wno-long-long -Wno-format-nonliteral")
+
+    message(STATUS "Strict mode (warnings terminate compilation) " 
+        "enabled (-DENABLE_STRICT=${ENABLE_STRICT}).")
+else()
+    message(STATUS "Strict mode (warnings terminate compilation) " 
+        "disabled (-DENABLE_STRICT=${ENABLE_STRICT}).")
 endif ()
 
 set(GENERATE_DOCS OFF CACHE BOOL "Build and install documentation.")
+if (GENERATE_DOCS)
+    message(STATUS "Documentation building enabled " 
+        "(-DGENERATE_DOCS=${GENERATE_DOCS}).")
+else()
+    message(STATUS "Documentation building disabled " 
+        "(-DGENERATE_DOCS=${GENERATE_DOCS}).")
+endif()
 
 ########################################
 # Begin backward compatibility section
@@ -368,6 +440,12 @@ include_directories(${CMAKE_SOURCE_DIR}/debug)
 # include path so that the compiler can find the files.
 include_directories(${CMAKE_BINARY_DIR})
 
+# 3rd party packages
+find_package(Boost REQUIRED COMPONENTS thread system)
+find_package(RpcGen REQUIRED)
+find_package(AWK REQUIRED)
+find_package(OpenSSL REQUIRED)
+
 #
 # Make subdirectories visible
 #
@@ -408,3 +486,6 @@ add_subdirectory(servercomm)
 add_subdirectory(storagemgr)
 add_subdirectory(systemtest)
 add_subdirectory(tilemgr)
+
+message(STATUS "Final compiler options: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Rasdaman will be installed in ${CMAKE_INSTALL_PREFIX}")

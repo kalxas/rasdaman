@@ -162,8 +162,9 @@ done
 # finally shut down the server manager
 logn "terminating rasdaman server manager(s)..."
 @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all
+echo "done."
+
 log "done."
 
-echo "done."
 exit $RC_OK
 

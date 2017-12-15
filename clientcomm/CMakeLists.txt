@@ -25,9 +25,6 @@
 # Directory in which we will generate the RPC files.
 set(RPCGEN_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-find_package(RpcGen REQUIRED)
-find_package(AWK REQUIRED)
-
 add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
     COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
@@ -92,8 +89,6 @@ if (RMANRASNET)
     set_source_files_properties("${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetclientcomm.cc" 
         PROPERTIES COMPILE_FLAGS ${DISABLE_PROTOBUF_WARNINGS_FLAGS})
 
-    find_package(Boost REQUIRED COMPONENTS thread)
-
     set(RASNET_LIBRARIESS ${RASNET_LIBRARIESS}
         rasnet common_exceptions common_crypto common_grpc
         common_logging common_time common_uuid
@@ -122,7 +117,6 @@ target_include_directories(clientcomm PUBLIC "${CMAKE_SOURCE_DIR}/mymalloc")
 target_include_directories(clientcomm PUBLIC ${RNPROTOCOL_SOURCE_DIR})
 target_include_directories(clientcomm PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-find_package(OpenSSL REQUIRED)
 target_link_libraries(clientcomm mymalloc_cln ${RASNET_LIBRARIESS} ${OPENSSL_LIBRARIES})
 
 install(TARGETS clientcomm DESTINATION ${LIB_DIR})
