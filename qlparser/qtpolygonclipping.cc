@@ -92,6 +92,7 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
     vector< vector<char> > mask(static_cast<long unsigned int>(bBox.second[0] - bBox.first[0] + 1), 
                                        vector<char>(static_cast<long unsigned int>(bBox.second[1] - bBox.first[1] + 1), 2));
     
+    //translate polygon vertices into mask coordinates
     for( unsigned int i = 0; i < polygonVertices.size(); i++ )
     {
         polygonVertices[i][0] = polygonVertices[i][0]-bBox.first[0];
@@ -100,6 +101,7 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
     //fill the polygon edges in the mask
     rasterizePolygon(mask, polygonVertices);
     //fill the connected component of the complement of the polygon containing infinity
+    //TODO (bbell): Consider replacing with floodfill for more-robust handling of edge-cases..
     fillOutsideOfPolygon(mask);
         
     // get all tiles in relevant area
@@ -133,15 +135,11 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
                     
                     for( auto j = intersectDom[1].low(); j <= intersectDom[1].high(); j++ )
                     {
-                        if( i >= bBox.first[0] && i <= bBox.second[0]
-                            && j >= bBox.first[1] && j <= bBox.second[1] )
-                        {
                             if( mask[static_cast<size_t>(i-bBox.first[0])][static_cast<size_t>(j-bBox.first[1])] != 0 )
                             {
                                 memcpy(resultData, rowOfData, typeSize);
                             }
                             index++;
-                        }
                         // move to the next cell of the op tile
                         rowOfData += typeSize;
                         // move to the next cell of the result tile
@@ -181,6 +179,7 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
         mddres = NULL;
         throw r_Error(err);
     }
+    delete allTiles;
     return mddres;
 }
 
@@ -245,15 +244,11 @@ QtPolygonClipping::compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim)
                     
                     for( auto j = intersectDom[1].low(); j <= intersectDom[1].high(); j++ )
                     {
-                        if( i >= bBox.first[0] && i <= bBox.second[0]
-                            && j >= bBox.first[1] && j <= bBox.second[1] )
-                        {
                             if(isPointInsidePolygon(i, j, polygonVertices))
                             {
                                 memcpy(resultData, rowOfData, typeSize);
                             }
                             index++;
-                        }
                         // move to the next cell of the op tile
                         rowOfData += typeSize;
                         // move to the next cell of the result tile
@@ -293,5 +288,6 @@ QtPolygonClipping::compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim)
         mddres = NULL;
         throw r_Error(err);
     }
+    delete allTiles;
     return mddres;
 }

@@ -75,26 +75,26 @@ void rasterizePolygon( vector< vector< char > >& mask, const vector< r_Point >& 
         
         bool swapped = false;
         
-        if( abs(y2-y1) > abs(x2-x1))
+        if( abs( y2 - y1 ) > abs( x2 - x1 ) )
         {
-            swap(x1,y1);
-            swap(x2,y2);
+            swap(x1, y1);
+            swap(x2, y2);
             swapped = true;
         }
         
-        if( x1>x2 )
+        if( x1 > x2 )
         {
             swap(x1,x2);
             swap(y1,y2);
         }
         
         int dx = x2 - x1;
-        int dy = abs(y2-y1);
+        int dy = abs( y2 - y1 );
         int x = x1; int y = y1; // start point
         int error = dx/2;
-        int ystep = (y1 < y2) ? 1:-1; // step in + or - y-direction
+        int ystep = ( y1 < y2 ) ? 1:-1; // step in + or - y-direction
 
-        for(int i=0; i<=dx; i++)
+        for(int i = 0; i <= dx; i++)
         {
             if( swapped ) mask[static_cast<size_t>(y)][static_cast<size_t>(x)] = 1;
             else mask[static_cast<size_t>(x)][static_cast<size_t>(y)] = 1;
@@ -102,8 +102,8 @@ void rasterizePolygon( vector< vector< char > >& mask, const vector< r_Point >& 
             error -= dy; 
             if( error < 0 )
             {
-                y+=ystep;
-                error+=dx;
+                y += ystep;
+                error += dx;
             }
             x++;
         }
@@ -134,52 +134,20 @@ void fillOutsideOfPolygon( vector< vector< char > >& mask )
     {
         for( unsigned int j = 0; j < mask[i].size(); j++ )
         {
-            if( mask[i][j]==2 )
+            if( mask[i][j] == 2 )
             {
-                if( i > 0 && j > 0 )
-                {
-                    if( mask[i-1][j]==0 || mask[i][j-1]==0 ) mask[i][j]=0;
-                }
-                else if( i > 0 )
-                {
-                    if( mask[i-1][j]==0 ) mask[i][j]=0;
-                }
-                else if( j > 0 )
-                {
-                    if( mask[i][j-1]==0 ) mask[i][j]=0;
-                }
+                if( mask[i-1][j] == 0 || mask[i][j-1] == 0) mask[i][j] = 0;
             }   
         }
     }
-
-    for( size_t i = mask.size()-1; i-- != 0; )
+    
+    for( size_t i = mask.size() - 1; i-- != 0; )
     {
-        for( size_t j = mask[i].size()-1; j-- != 0; )
+        for( size_t j = mask[i].size() - 1; j-- != 0; )
         {
             if( mask[i][j] == 2 )
             {
-                if( i < mask.size()-1 && j < mask[i].size()-1 )
-                {
-                    if( mask[i+1][j]==0 
-                     || mask[i][j+1]==0 )
-                    {
-                        mask[i][j]=0;
-                    }
-                }
-                else if( i < mask.size()-1 )
-                {
-                    if( mask[i][j]==0 )
-                    {
-                        mask[i][j]=0;
-                    }
-                }
-                else if( j < mask[i].size()-1 )
-                {
-                    if( mask[i][j+1]==0 )
-                    {
-                        mask[i][j]=0;
-                    }
-                }
+                if( mask[i+1][j] == 0 || mask[i][j+1] == 0) mask[i][j] = 0;
             }
         }
     }
