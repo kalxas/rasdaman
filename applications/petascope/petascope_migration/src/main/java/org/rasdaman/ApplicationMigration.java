@@ -105,13 +105,6 @@ public class ApplicationMigration implements CommandLineRunner {
             System.exit(ApplicationMigration.ExitCode.SUCCESS.getExitCode());
         }
         
-        // NOTE: Cannot migrate with same JDBC URLs (e.g: jdbc:postgresql://localhost:5432/petascopedb)
-        // except with the migration of legacy petascope'db prior version 9.5
-        if (!DatabaseUtil.legacyPetascopeDatabaseExists() && ConfigManager.LEGACY_DATASOURCE_URL.equalsIgnoreCase(ConfigManager.PETASCOPE_DATASOURCE_URL)) {
-            log.error("Cannot migrate petascope's database with same JDBC URL: " + ConfigManager.LEGACY_DATASOURCE_URL);
-            System.exit(ApplicationMigration.ExitCode.FAILURE.getExitCode());
-        }
-        
         return propertyResourcePlaceHolderConfigurer;
     }
 
