@@ -49,7 +49,6 @@ rasdaman GmbH.
 #include "relblobif/inlinetile.hh"
 #include "relblobif/dbtile.hh"
 #include "reladminif/dbref.hh"
-#include "compression/tilecompression.hh"
 #include <boost/shared_ptr.hpp>
 
 #ifdef RMANBENCHMARK
