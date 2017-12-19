@@ -119,6 +119,28 @@ secore_properties_path="@sysconfdir@/secore.properties"
 stop_embedded "$secore_properties_path" "secore"
 stop_embedded "$petascope_properties_path" "petascope"
 
+# give rasserver processes time to disappear (10 second timeout)
+wait_for_rasservers_to_shutdown()
+{
+count=0
+while [ $count -lt 100 ]; do
+    pgrep rasserver > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        break # no rasservers found, no need to wait more
+    fi
+    count=$(($count+1))
+    # otherwise, wait 0.1 seconds and try again
+    # if sleep 0.1 fails (0.1 not supported), try sleep 1
+    sleep 0.1 || sleep 1
+done
+if [ $count -eq 100 ]; then
+    log "timeout of 10 seconds on waiting for rasserver processes to shutdown reached;"
+    log "please manually check and kill any still running rasserver processes:"
+    log " 1. list the running rasserver processes: pgrep rasserver"
+    log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
+fi
+}
+
 # check if rasmgr is running first of all
 pgrep rasmgr > /dev/null 2>&1
 if [ $? -ne 0 ]; then
@@ -135,7 +157,7 @@ if [ -z "$RASLOGIN" ]; then
 fi
 
 # determine a list of all currently running servers
-ALLSERVERS=`@bindir@rascontrol --port $RASMGR_PORT -e -q -x list srv | awk '{ if (\$6 == "UP") print \$2;}'`
+ALLSERVERS=`@bindir@rascontrol --port $RASMGR_PORT -e -q -x list srv -all | awk '{ if (\$6 == "UP") print \$2;}'`
 
 # ...and shut down all of them, forcefully (!); any open transaction will be lost
 for SRV in $ALLSERVERS; do
@@ -144,25 +166,13 @@ for SRV in $ALLSERVERS; do
     echo "done."
 done
 
+wait_for_rasservers_to_shutdown
+
 # --- stop rasmgr -------------------------------------------------
 
-# give rasserver processes time to disappear (10 second timeout)
-count=0
-while [ $count -lt 100 ]; do
-    pgrep rasserver > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        break # no rasservers found, no need to wait more
-    fi
-    count=$(($count+1))
-    # otherwise, wait 0.1 seconds and try again
-    # if sleep 0.1 fails (0.1 not supported), try sleep 1
-    sleep 0.1 || sleep 1
-done
-
 # finally shut down the server manager
-logn "terminating rasdaman server manager(s)..."
+logn ""
 @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all
-echo "done."
 
 log "done."
 

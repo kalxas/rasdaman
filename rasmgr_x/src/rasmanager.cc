@@ -66,7 +66,7 @@ using boost::shared_ptr;
 RasManager::RasManager(rasmgr::Configuration& config)
 {
     this->port = config.getPort();
-    RasMgrConfig::getInstance()->setRasMgrPort(this->port);
+    RasMgrConfig::getInstance()->setRasMgrPort(static_cast<boost::int32_t>(this->port));
     this->running = false;
 }
 

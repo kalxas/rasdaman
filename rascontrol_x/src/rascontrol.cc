@@ -223,7 +223,7 @@ void RasControl::startBatchMode()
 
                 if (!serverReply.empty())
                 {
-                    std::cout << "    " << serverReply << std::endl;
+                    std::cout << serverReply << std::endl;
                 }
             }
         }

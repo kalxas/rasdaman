@@ -64,7 +64,7 @@ public:
     std::string sudoExecuteCommand(const std::string& command);
 
 private:
-    RasControlGrammar<std::string::const_iterator> grammar;
+    RasControlGrammar grammar;
     boost::shared_ptr<RasControl> rascontrol;
     boost::mutex mut;
 

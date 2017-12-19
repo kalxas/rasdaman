@@ -920,12 +920,10 @@ std::string RasControl::listServerGroup(const ListServerGroup& listData)
     if (listData.has_group_name())
     {
         ss << (format("Status of server %s:\r\n") % listData.group_name());
-
     }
     else if (listData.has_host())
     {
         ss << (format("List of servers on host %s:\r\n") % listData.host());
-
     }
     else
     {
@@ -1100,7 +1098,7 @@ std::string RasControl::stopRasMgr()
         {
             // I assume there is no problem if stopRasmgrAsync is called multiple times
             this->stopRasmgrThread.reset(new boost::thread(&RasControl::stopRasmgrAsync, this));
-            message = "rasmanager is shutting down. Good Bye!";
+            message = "terminating rasmanager. Good Bye!";
         }
     }
     catch (std::exception& ex)
@@ -1148,7 +1146,7 @@ std::string RasControl::save()
 
 std::string RasControl::exit()
 {
-    return "";
+    return "Exiting rascontrol session.";
 }
 
 std::string RasControl::convertAdminRights(const UserAdminRightsProto& adminRights)

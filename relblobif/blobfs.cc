@@ -105,7 +105,7 @@ void BlobFS::init() throw (r_Error)
 
     finalizeUncompletedTransactions();
 
-    LINFO << "initialized blob file storage handler with root data directory " << config.tilesPath;
+    LDEBUG << "initialized blob file storage handler with root data directory " << config.tilesPath;
     LDEBUG << "(using " << (config.nested ? "new" : "old") << " storage organization).";
 }
 

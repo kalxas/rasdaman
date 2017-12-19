@@ -23,17 +23,12 @@
 #include <boost/algorithm/string.hpp>
 
 #include <easylogging++.h>
-#include "../../rasmgr_x/src/rasctrlgrammarconstants.hh"
 
 #include "controlrasmgrcomm.hh"
 #include "commandexecutor.hh"
 
 namespace rascontrol
 {
-using boost::spirit::qi::phrase_parse;
-using boost::spirit::qi::string;
-using boost::spirit::ascii::space;
-using rasmgr::RasCtrlGrammarConstants;
 
 CommandExecutor::CommandExecutor(boost::shared_ptr<ControlRasMgrComm> communicationArg)
 {

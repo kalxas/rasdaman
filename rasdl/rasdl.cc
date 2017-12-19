@@ -752,7 +752,6 @@ readMode() throw (r_Error, RasdlError)
     {
         cout << "inserting symbols into database..." << flush;
         Symbols->global_scope->insertData();
-        cout << "ok" << endl;
     }
     if (printToFile)
     {
@@ -887,7 +886,7 @@ main(int argc, char* argv[])
         disconnectDB(false);
     }
 
-    cout << argv[0] << " done." << endl;
+    cout << "rasdl: done." << endl;
 
     return (result);
 }

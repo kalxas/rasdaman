@@ -20,10 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#define BOOST_SPIRIT_USE_PHOENIX_V3
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix.hpp>
-
 #include <easylogging++.h>
 #include "common/src/grpc/grpcutils.hh"
 

@@ -121,9 +121,8 @@ SET(RASMGR_SOURCES ${GENERATED_PROTO_SOURCES}
         randomgenerator.cc
         rascontrol.cc
         rascontrol.hh
+        rascontrolgrammar.cc
         rascontrolgrammar.hh
-        rasctrlgrammarconstants.cc
-        rasctrlgrammarconstants.hh
         rasmanager.cc
         rasmanager.hh
         rasmgrconfig.cc

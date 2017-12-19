@@ -242,7 +242,7 @@ bool SQLiteQuery::openConnection(const char* globalConnectId)
     }
     else
     {
-        LINFO << "Connected successfully to '" << globalConnectId << "'";
+        LDEBUG << "Connected successfully to '" << globalConnectId << "'";
         sqlite3_exec(sqliteConn, "PRAGMA journal_mode=WAL", NULL, 0, NULL);
     }
     return true;

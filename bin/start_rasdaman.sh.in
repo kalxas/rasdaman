@@ -79,6 +79,29 @@ logn()
   echo -n "$PROG: $*"
 }
 
+# give rasserver processes time to disappear (10 second timeout)
+wait_for_rasservers_to_shutdown()
+{
+count=0
+while [ $count -lt 100 ]; do
+    pgrep rasserver > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        break # no rasservers found, no need to wait more
+    fi
+    count=$(($count+1))
+    # otherwise, wait 0.1 seconds and try again
+    # if sleep 0.1 fails (0.1 not supported), try sleep 1
+    sleep 0.1 || sleep 1
+done
+if [ $count -eq 100 ]; then
+    echo
+    log "timeout of 10 seconds on waiting for rasserver processes to shutdown reached;"
+    log "please manually check and kill any still running rasserver processes:"
+    log " 1. list the running rasserver processes: pgrep rasserver"
+    log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
+fi
+}
+
 # Read the property of a value by input key from input properties file
 get_property_value() {
     # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
@@ -116,9 +139,11 @@ rm -f nohup.out
 
 # start rasdaman server manager as demon; log will go into nohup.out
 # the manager is started in quiet mode
-nohup @bindir@rasmgr --port $RASMGR_PORT & 2>&1
+logn "  starting rasmgr... "
+nohup @bindir@rasmgr --port $RASMGR_PORT > nohup.out 2>&1 &
 rasmgr_pid=$!
 sleep 1
+echo "ok, pid $rasmgr_pid."
 
 # --- start servers: -------------------------------------------------
 
@@ -161,27 +186,37 @@ fi
 if [ "$SERVERS" ]; then
     for SRV in $SERVERS
     do
-        logn "starting server $SRV..."
+        logn "  starting server $SRV... "
         @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
-        echo "done."
+        echo "ok."
     done
 else
-    log "starting all rasdaman servers..."
+    logn "  starting all rasdaman servers... "
     @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv -all || exit $!
+    echo "ok."
 fi
 
 # do a rasql query test to check if rasdaman has started properly
+logn "running check query... "
 sleep 1
 @bindir@rasql -q 'select version()' --quiet -p $RASMGR_PORT > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-    log "failed starting rasservers; please check the logs for more information."
-    logn "shutting down rasdaman... "
+    echo "failed; please check the logs for more information."
+
+    logn "  shutting down rasdaman... "
     # shut down any rasservers just in case
-    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv -all -kill
-    sleep $WAIT_FOR_CHILDREN
+    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv -all -kill > /dev/null
+    wait_for_rasservers_to_shutdown
     # kill rasmgr
-    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all -kill
+    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all -kill > /dev/null
+    pgrep rasserver > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo ok.
+    fi
+    log "done."
     exit $RC_ERROR
+else
+    echo "ok."
 fi
 
 #------start embedded petascope/secore if needed--------------------------
