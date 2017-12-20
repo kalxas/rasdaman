@@ -44,3 +44,26 @@ add_library(rasodmg alignedtiling.hh alignedtiling.cc alignedtiling.icc
 
 install(TARGETS rasodmg
         DESTINATION ${LIB_DIR})
+
+install(FILES
+    alignedtiling.hh
+    collection.hh
+    database.hh
+    dirdecompose.hh
+    dirtiling.hh
+    gmarray.hh
+    interesttiling.hh
+    iterator.hh
+    marray.hh
+    object.hh
+    oqlquery.hh
+    partinsert.hh
+    polycutout.hh
+    polygon.hh
+    ref.hh
+    set.hh
+    stattiling.hh
+    storagelayout.hh
+    tiling.hh
+    transaction.hh
+    DESTINATION "${INCLUDE_DIR}/rasodmg")

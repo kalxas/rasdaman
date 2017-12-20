@@ -70,3 +70,50 @@ target_include_directories(raslib PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 
 install(TARGETS raslib
         DESTINATION ${LIB_DIR})
+
+install(FILES
+    attribute.hh
+    basetype.hh
+    collectiontype.hh
+    commonutil.hh
+    complex.hh
+    complextype.hh
+    dlist.hh
+    endian.hh
+    error.hh
+    flatbasetype.hh
+    itertype.hh
+    log_config.hh
+    marraytype.hh
+    mddtypes.hh
+    memblockvec.hh
+    metaobject.hh
+    minterval.hh
+    mintervaltype.hh
+    mitera.hh
+    miterd.hh
+    miterf.hh
+    miter.hh
+    odmgtypes.hh
+    oid.hh
+    oidtype.hh
+    parseparams.hh
+    pointdouble.hh
+    point.hh
+    pointtype.hh
+    primitive.hh
+    primitivetype.hh
+    property.hh
+    rmdebug.hh
+    rm.hh
+    rminit.hh
+    scalar.hh
+    shhopt.hh
+    sinterval.hh
+    sintervaltype.hh
+    storageman.hh
+    structure.hh
+    structuretype.hh
+    template_inst.hh
+    type.hh
+    DESTINATION "${INCLUDE_DIR}/raslib")
