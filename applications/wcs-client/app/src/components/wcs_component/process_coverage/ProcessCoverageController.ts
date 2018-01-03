@@ -143,25 +143,25 @@ module rasdaman {
                     query: ''
                 }, {
                     title: 'No encoding',
-                    query: 'for $c in (test_mean_summer_airtemp) return avg($c)'
+                    query: 'for $c in (mean_summer_airtemp) return avg($c)'
                 }, {
                     title: 'Encode 2D as png with widget',
-                    query: 'image>>for $c in (test_mean_summer_airtemp) return encode($c, "png")'
+                    query: 'image>>for $c in (mean_summer_airtemp) return encode($c, "png")'
                 }, {
                     title: 'Encode 2D as tiff',
-                    query: 'for $c in (test_mean_summer_airtemp) return encode($c, "tiff")'
+                    query: 'for $c in (mean_summer_airtemp) return encode($c, "tiff")'
                 }, {
                     title: 'Encode 2D as netCDF',
-                    query: 'for $c in (test_mean_summer_airtemp) return encode($c, "application/netcdf")'
+                    query: 'for $c in (mean_summer_airtemp) return encode($c, "application/netcdf")'
                 }, {
                     title: 'Encode 1D as csv with widget',
-                    query: 'diagram>>for $c in (test_mean_summer_airtemp) return encode($c[Lat(-20)], "text/csv")'
+                    query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "text/csv")'
                 }, {
                     title: 'Encode 1D as json with widget',
-                    query: 'diagram>>for $c in (test_mean_summer_airtemp) return encode($c[Lat(-20)], "application/json")'
+                    query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "application/json")'
                 }, {
                     title: 'Encode 2D as gml',
-                    query: 'for $c in (test_mean_summer_airtemp) return encode($c[Lat(-44.525:-44.5), Long(112.5:113.5)], "application/gml+xml")'
+                    query: 'for $c in (mean_summer_airtemp) return encode($c[Lat(-44.525:-44.5), Long(112.5:113.5)], "application/gml+xml")'
                 }
 
                 //{

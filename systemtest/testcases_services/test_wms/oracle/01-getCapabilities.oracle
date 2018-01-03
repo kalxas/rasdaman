@@ -93,8 +93,8 @@
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
-                <Name>test_mean_summer_airtemp</Name>
-                <Title>test_mean_summer_airtemp</Title>
+                <Name>mean_summer_airtemp</Name>
+                <Title>mean_summer_airtemp</Title>
                 <Abstract/>
                 <CRS>EPSG:4326</CRS>
                 <EX_GeographicBoundingBox>

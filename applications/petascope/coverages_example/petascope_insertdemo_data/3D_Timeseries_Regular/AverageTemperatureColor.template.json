@@ -10,7 +10,7 @@
     "retries" : 5
   },
   "input": {
-    "coverage_id": "test_AverageTemperature",
+    "coverage_id": "AverageTemperature",
     "paths": [
       "SCALED*.TIFF"
     ]
