@@ -199,7 +199,8 @@ public class TypeRegistry {
             initializeMarrayTypes();
             initializeSetTypes();
             this.buildRegistry();
-            log.info("Succesfully initiated the type registry. Contents: {}", typeRegistry.toString());
+            log.info("Succesfully initialized the type registry.");
+            log.debug("Contents: {}", typeRegistry.toString());
         } catch (RasdamanException e) {
             //log.error(MessageFormat.format("Could not read the rasdaman type registry. Tried with {0}rasdl -p", ConfigManager.RASDAMAN_BIN_PATH));
             throw e;

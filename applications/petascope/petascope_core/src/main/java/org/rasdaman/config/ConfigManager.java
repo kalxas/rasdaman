@@ -372,44 +372,30 @@ public class ConfigManager {
 
         log.info("------------------------------------");
 
-        log.info("       *** PETASCOPE ***      ");
-        log.info("Petascope Version   : " + RASDAMAN_VERSION);
-        log.info("Metadata URL        : " + PETASCOPE_DATASOURCE_URL);
-        log.info("Metadata Username   : " + PETASCOPE_DATASOURCE_USERNAME);
+        log.info("-- PETASCOPE");
+        log.info("Version: " + RASDAMAN_VERSION);
+        log.info("DB URL: " + PETASCOPE_DATASOURCE_URL);
+        log.info("DB User: " + PETASCOPE_DATASOURCE_USERNAME);
         log.info("");
 
-        log.info("       *** COVERAGE IMPLEMENTATION SCHEMA (CIS) ***      ");
-        log.info("CIS Version         : " + CIS_VERSION);
+        log.info("-- RASDAMAN");
+        log.info("Version: " + RASDAMAN_VERSION);
+        log.info("URL: " + RASDAMAN_URL);
+        log.info("DB: " + RASDAMAN_DATABASE);
+        log.info("User: " + RASDAMAN_USER);
         log.info("");
 
-        log.info("       *** RASDAMAN ***       ");
-        log.info("Rasdaman URL        : " + RASDAMAN_URL);
-        log.info("Rasdaman DB         : " + RASDAMAN_DATABASE);
-        log.info("Rasdaman user       : " + RASDAMAN_USER);
-        log.info("Rasdaman version    : " + RASDAMAN_VERSION);
-        log.info("Rasdaman admin user : " + RASDAMAN_ADMIN_USER);
+        log.info("-- SECORE");
+        log.info("Version: " + SECORE_VERSION);
+        log.info("URL: " + SECORE_URLS);
         log.info("");
 
-        log.info("       *** SECORE ***       ");
-        log.info("SECORE URL          : " + SECORE_URLS);
-        log.info("SECORE version      : " + SECORE_VERSION);
-        log.info("");
-
-        log.info("       *** WCS-T ***       ");
-        log.info("WCS-T Version       : " + WCST_VERSION);
-        log.info("");
-
-        log.info("       *** WCPS ***       ");
-        log.info("WCPS Version        : " + WCPS_VERSION);
-        log.info("");
-
-        log.info("       *** WCS ***       ");
-        log.info("WCS Versions        : " + WCS_VERSIONS);
-        log.info("");
-
-        log.info("       *** WMS ***       ");
-        log.info("WMS Versions        : " + WMS_VERSIONS);
-        log.info("");
+        log.info("-- OGC STANDARDS");
+        log.info("CIS: " + CIS_VERSION);
+        log.info("WCS: " + WCS_VERSIONS);
+        log.info("WCS-T: " + WCST_VERSION);
+        log.info("WCPS: " + WCPS_VERSION);
+        log.info("WMS: " + WMS_VERSIONS);
 
         log.info("------------------------------------");
     }

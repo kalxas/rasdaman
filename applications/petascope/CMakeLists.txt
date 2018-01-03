@@ -108,7 +108,7 @@ find_package(Maven REQUIRED)
 
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
-    COMMAND ${MAVEN_EXECUTABLE} package
+    COMMAND ${MAVEN_EXECUTABLE} -B package
     DEPENDS rasj
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     VERBATIM)
@@ -151,7 +151,7 @@ install(DIRECTORY "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo_data"
 
 if (GENERATE_DOCS)
     add_custom_target(petascope_doc ALL
-                      COMMAND ${MAVEN_EXECUTABLE} javadoc:javadoc 2>&1 > /dev/null || exit 0
+                      COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc 2>&1 > /dev/null || exit 0
                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                       VERBATIM)
 

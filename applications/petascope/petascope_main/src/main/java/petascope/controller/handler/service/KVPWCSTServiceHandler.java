@@ -88,21 +88,21 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
             response = this.handleInsertCoverageRequest(kvpParameters);
             long end = System.currentTimeMillis();
             
-            log.debug("Total time to initialize new coverage: " + String.valueOf(end - start));
+            log.debug("Total time to create a new coverage is " + String.valueOf(end - start) + " ms.");
         } else if (queryString.contains(KVPSymbols.VALUE_UPDATE_COVERAGE)) {
             // If coverage does exist then update the coverage metadata and rasdaman collection from file
             long start = System.currentTimeMillis();
             response = this.handleUpdateCoverageRequest(kvpParameters);
             long end = System.currentTimeMillis();
             
-            log.debug("Total time to update a slice to an existing coverage: " + String.valueOf(end - start));
+            log.debug("Total time to update a slice to an existing coverage is " + String.valueOf(end - start) + " ms.");
         } else if (queryString.contains(KVPSymbols.VALUE_DELETE_COVERAGE)) {
             // Delete the coverage listed in the CoverageId parameters (e.g: CoverageId=a,b,c)
             long start = System.currentTimeMillis();
             response = this.handleDeleteCoverageRequest(kvpParameters);
             long end = System.currentTimeMillis();
             
-            log.debug("Total time to delete an existing coverage: " + String.valueOf(end - start));
+            log.debug("Total time to delete an existing coverage is " + String.valueOf(end - start) + " ms.");
         }
 
         return response;

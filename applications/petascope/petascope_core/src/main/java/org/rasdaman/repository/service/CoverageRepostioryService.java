@@ -155,7 +155,7 @@ public class CoverageRepostioryService {
 
         Coverage coverage = this.coverageRepository.findOneByCoverageId(coverageId);
         long end = System.currentTimeMillis();
-        log.debug("Time to read a coverage from database is: " + String.valueOf(end - start));
+        log.debug("Time to read coverage '" + coverageId + "' from database is " + String.valueOf(end - start) + " ms.");
 
         if (coverage == null) {
             throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage: " + coverageId + " does not exist in persistent database.");
@@ -259,7 +259,7 @@ public class CoverageRepostioryService {
         }
 
         long end = System.currentTimeMillis();
-        log.debug("Time to compute all Coverages's Extends is: " + String.valueOf(end - start));
+        log.debug("Time to compute all coverage extents is " + String.valueOf(end - start) + " ms.");
     }
 
     /**
@@ -381,7 +381,7 @@ public class CoverageRepostioryService {
         // then it can save (insert/update) the coverage to database
         this.coverageRepository.save(coverage);
         long end = System.currentTimeMillis();
-        log.debug("Time to persist a coverage " + coverageId + " is: " + String.valueOf(end - start));
+        log.debug("Time to persist coverage '" + coverageId + "' is " + String.valueOf(end - start) + " ms.");
 
         entityManager.flush();
         entityManager.clear();

@@ -88,8 +88,8 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws PetascopeException {
-        log.debug("Execute rasql query '" + query + "'.");
-        long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();        
+        log.debug("Executing rasql query: " + query);
 
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
@@ -137,8 +137,7 @@ public class RasUtil {
 
                 //A free rasdaman server was obtain, executing query
                 try {
-                    q.create(query);
-                    log.trace("Executing query {}", query);
+                    q.create(query);                    
                     ret = q.execute();
                     tr.commit();
                     queryCompleted = true;
@@ -225,7 +224,7 @@ public class RasUtil {
 
         long end = System.currentTimeMillis();
         long totalTime = end - start;
-        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
 
         return ret;
     }
@@ -273,7 +272,7 @@ public class RasUtil {
 
         long end = System.currentTimeMillis();
         long totalTime = end - start;
-        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
 
         return version;
     }
@@ -302,7 +301,7 @@ public class RasUtil {
 
         long end = System.currentTimeMillis();
         long totalTime = end - start;
-        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
     }
 
     /**
@@ -353,7 +352,7 @@ public class RasUtil {
 
         long end = System.currentTimeMillis();
         long totalTime = end - start;
-        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
 
         return oid;
     }
@@ -408,7 +407,7 @@ public class RasUtil {
         
         long end = System.currentTimeMillis();
         long totalTime = end - start;
-        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
         
         return oid;
     }
@@ -449,7 +448,7 @@ public class RasUtil {
         
         long end = System.currentTimeMillis();
         long totalTime = end - start;
-        log.debug("Total time for rasql: " + String.valueOf(totalTime));
+        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
     }
 
     /**

@@ -111,8 +111,6 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
             while (!rasqlQueries.isEmpty()) {
                 // Execute multiple Rasql queries with different coverageIDs to get List of byte arrays
                 String rasql = rasqlQueries.pop();
-                log.debug("Executing rasql query: " + rasql);
-
                 ((WcpsResult) visitorResult).setRasql(rasql);
                 results.add(executor.execute(visitorResult));
             }
