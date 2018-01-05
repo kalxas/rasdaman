@@ -86,6 +86,9 @@ public interface Constants {
     String METADATA_LABEL = "metaDataProperty";
 
     // constants related to the secore database location
+    String BASEX_OPTION_PREFIX = "org.basex";
+    // NOTE: this is the file path to where .basex file is created, it must need to be put to secoredb folder which tomcat has permission to read
+    String BASEX_PATH_PROPERTY = "path";
     String DBPATH_BASEX_PROPERTY = "dbpath";
     String DEFAULT_SECORE_DB_DIR = "nullBaseXData";
     String DEFAULT_SECORE_DB_DIR_HOME = "BaseXData";

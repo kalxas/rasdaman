@@ -66,8 +66,8 @@ public abstract class AbstractHandler implements Handler {
     protected ResolveResponse resolveId(String url, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {       
         // NOTE: remove the /def/ from the URL as same as in other handlers 
         // and this help determine the index of version number from URL (e.g: /crs/EPSG/0/4326, version is 0).
-        url = StringUtil.stripServiceURI(url);
-        String res = resolve(IDENTIFIER_LABEL, url, versionNumber, depth, parameters);
+        String urlTmp = StringUtil.stripServiceURI(url);
+        String res = resolve(IDENTIFIER_LABEL, urlTmp, versionNumber, depth, parameters);
         ResolveResponse ret = new ResolveResponse(res);
 
         if (!ret.isValidDefinition()) {

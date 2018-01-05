@@ -116,11 +116,12 @@ public class GeneralHandler extends AbstractHandler {
         // If versionNumber does not exist in userdb, then it should be from GML dictionaries.
         if (!existsDefInUserDB) {
             if (!DbManager.collectionExistByVersionNumber(versionNumber)) {
-                throw new SecoreException(ExceptionCode.VersionNotFoundException, "Requested version: " + versionNumber + " does not exist");
+                String requestURL = url.replace(VERSION_NUMBER, versionNumber);
+                throw new SecoreException(ExceptionCode.InvalidRequest, "Failed resolving request '" + requestURL + "', check if version number is valid or crs definition exists first.");
             }
         }
 
-        ResolveResponse ret = resolveId(url, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());
+        ResolveResponse ret = resolveId(parseRequest(request).snd, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());
 
         // Replace the requested URL in <gml:identifier> with the replaced URL with prefix in secore.properties
         // e.g: <gml:identifier codeSpace="OGP">http://localhost:8080/def/crs/EPSG/0/4326</gml:identifier>
@@ -130,7 +131,7 @@ public class GeneralHandler extends AbstractHandler {
 
         // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
         if (ParameterizedCrsHandler.isParameterizedCrsDefinition(ret.getData())) {
-            ret = resolveId(url, versionNumber, ZERO, new ArrayList<Parameter>());
+            ret = resolveId(parseRequest(request).snd, versionNumber, ZERO, new ArrayList<Parameter>());
             ParameterizedCrsHandler phandler = new ParameterizedCrsHandler();
             phandler.setDefinition(ret);
             ret = phandler.handle(request);
@@ -200,6 +201,7 @@ public class GeneralHandler extends AbstractHandler {
             versionParam = VERSION_NUMBER;
 
             String url = (request.isLocal() ? "" : request.getServiceUri())
+                    + Constants.WEB_APPLICATION_NAME + REST_SEPARATOR
                     + request.getOperation() + REST_SEPARATOR
                     + authorityParam + REST_SEPARATOR + versionParam + REST_SEPARATOR + codeParam;
 

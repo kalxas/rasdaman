@@ -36,10 +36,12 @@ import org.basex.core.cmd.InfoDB;
 import org.basex.core.cmd.Open;
 import org.basex.core.cmd.Set;
 import org.basex.core.cmd.XQuery;
-import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.util.Constants;
+import static org.rasdaman.secore.util.Constants.BASEX_OPTION_PREFIX;
+import static org.rasdaman.secore.util.Constants.BASEX_PATH_PROPERTY;
+import static org.rasdaman.secore.util.Constants.DBPATH_BASEX_PROPERTY;
 import org.rasdaman.secore.util.IOUtil;
 import org.rasdaman.secore.util.Pair;
 import org.rasdaman.secore.util.StringUtil;
@@ -67,36 +69,14 @@ public class BaseX implements Database {
      */
     public BaseX(Map<DbCollection, String> collections) throws SecoreException {
         this.collections = collections.keySet();
-
-        context = new Context();
-
-        try {
-            // determine configuration directory in which to put the database
-            String configuredDir = new Get(Constants.DBPATH_BASEX_PROPERTY).execute(context);
-            if (configuredDir != null) {
-                configuredDir = configuredDir.trim(); // remove ending new line
-                configuredDir = configuredDir.replace(Constants.DEFAULT_SECORE_DB_DIR_PREFIX, "");
-            }
-            if (configuredDir == null
-                    || configuredDir.endsWith(Constants.DEFAULT_SECORE_DB_DIR)
-                    || configuredDir.endsWith(Constants.DEFAULT_SECORE_DB_DIR_OTHER)
-                    || configuredDir.endsWith(Constants.DEFAULT_SECORE_DB_DIR_HOME)) {
-                String secoreDbDir = IOUtil.getSecoreDbDir();
-                if (secoreDbDir != null) {
-                    new Set(Constants.DBPATH_BASEX_PROPERTY, secoreDbDir).execute(context);
-                    log.debug("Secore database directory: " + secoreDbDir);
-                } else {
-                    log.warn("Default secore database directory, please "
-                            + "consider updating DBPATH in .basex: " + configuredDir);
-                }
-            } else {
-                log.debug("Secore database directory from .basex: '" + configuredDir + "'");
-            }
-        } catch (BaseXException ex) {
-            log.warn("Failed setting secore database directory, using DBPATH value from .basex", ex);
-        } catch (IOException ex) {            
-            throw new SecoreException(ExceptionCode.IOConnectionError, "Cannot find the secoredb folder in servlet container webapps folder.", ex);
-        }
+        // determine configuration directory in which to put the database
+        String secoreDbDir = IOUtil.getSecoreDbDir();
+        // the folder (secoredb) where .basex file is created
+        System.setProperty(BASEX_OPTION_PREFIX + "." + BASEX_PATH_PROPERTY, secoreDbDir);
+        // the folder (secoredb) where collections files are created
+        System.setProperty(BASEX_OPTION_PREFIX + "." + DBPATH_BASEX_PROPERTY, secoreDbDir);
+        context = new Context();            
+        log.info("Secore database directory '" + secoreDbDir + "'.");
 
         // Iterate all the versions which can be initialized
         for (DbCollection collection : this.collections) {
