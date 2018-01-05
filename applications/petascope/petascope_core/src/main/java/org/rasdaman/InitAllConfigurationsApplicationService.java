@@ -24,14 +24,20 @@ package org.rasdaman;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * When Application starts, initialize all the configurations, properties which
@@ -113,5 +119,30 @@ public class InitAllConfigurationsApplicationService {
         // As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
         // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
         rt.exec("chmod -R 777 " + tmpTargetNativeDefaultFolderPath);
+    }
+    
+    /**
+     * Add JDBC driver to classpath to be used at runtime from configuration in petascope.properties.
+     * 
+     * @param pathToJarFile 
+     * @throws petascope.exceptions.PetascopeException 
+     */
+    public static void addJDBCDriverToClassPath(String pathToJarFile) throws PetascopeException {
+        
+        File jdbcJarFile = new File(pathToJarFile);
+        if (!jdbcJarFile.exists()) {
+            throw new PetascopeException(ExceptionCode.InvalidPropertyValue, "Path to JDBC jar driver for DMBS does not exist, given '" + pathToJarFile + "'.");
+        }
+        URL urls[] = new URL[1];
+        try {
+            urls[0] = jdbcJarFile.toURI().toURL();            
+        } catch (MalformedURLException ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                    "Cannot get the URI from given JDBC jar driver file path, given '" + pathToJarFile + "', error " + ex.getMessage());
+        }
+        
+        // Add this jar file to class path
+        URLClassLoader loader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        Thread.currentThread().setContextClassLoader(loader);
     }
 }

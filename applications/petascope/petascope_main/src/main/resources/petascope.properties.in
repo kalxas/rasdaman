@@ -28,25 +28,41 @@
 
 #------------------- Spring Hibernate configuration -------------------
 
-# Config for Spring datasource with Postgresql (more detail about other databases see wiki page: http://rasdaman.org/wiki/PetascopeUserGuide#SpringHibernatedatasourcesconfiguration) 
+# Default configuration for all DBMS for petascopedb
+# need to adapt: no
+spring.jpa.database=default
+spring.jpa.hibernate.ddl-auto=none
+
+# Config for Spring datasource which is used by petascopedb 
+# (see more details: http://rasdaman.org/wiki/PetascopeUserGuide#Configuration) 
 # need to adapt: yes
 spring.datasource.url=jdbc:postgresql://localhost:5432/petascopedb
 spring.datasource.username=petauser
 spring.datasource.password=petapasswd
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 
-# Config for legacy datasource with Postgresql
-# These parameters below will be removed in rasdaman version 10 as all imported coverages will use the new data model by default.
+# Path to JDBC jar file for Spring datasource
+# purpose:       If left empty, the default PostgreSQL JDBC driver will be used.
+#                To use a different DBMS (e.g. H2, HSQLDB, etc), please download the corresponding
+#                JDBC driver, and set the path to it.
+# need to adapt: no
+spring.datasource.jdbc_jar_path=
 
-# Legacy Petascope metadata configuration for postgresql
-# purpose:       Before version 9.5, petascope uses GMLCOV 1.0 as data model with default database name
-#                is: petascopedb in Postgresql. In 9.5, petascope uses Coverage Implementation Schema (CIS 1.1)
-#                as data model, so there is a need to convert imported coverages from legacy petascopedb to new cisdb.
-# description:   All the imported coverages in legacy database will be converted to new database internally.             
+# Config for source datasource to migrate petascopedb by migrate_petascopedb.sh script.
+# purpose:       These configurations are used to migrate petascopedb from same DBMS 
+#                (e.g: in Postgresql from rasdaman version 9.4 to rasdaman 9.5) or
+#                to different DBMS (for rasdaman version 9.5+ only)
+#                (e.g: migrate petascopedb in Postgresql to H2 database).
 # need to adapt: yes
 metadata_url=jdbc:postgresql://localhost:5432/petascopedb
 metadata_user=petauser
 metadata_pass=petapasswd
+
+# Path to JDBC jar file for source datasource
+# purpose:       If left empty, the default PostgreSQL JDBC driver will be used.
+#                To use a different DBMS (e.g. H2, HSQLDB, etc), please download the corresponding
+#                JDBC driver, and set the path to it.
+# need to adapt: no
+metadata_jdbc_jar_path=
 
 #------------------- General Petascope configuration -------------------
 

@@ -32,7 +32,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import nu.xom.Element;
-import org.hsqldb.lib.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
 import petascope.util.XMLUtil;
@@ -212,9 +212,9 @@ public class Style {
         
         // NOTE: fragment query is not a valid WMS style, so just add it to abstract for human readble.
         String styleAbstractStr = this.getStyleAbstract();
-        if (!StringUtil.isEmpty(this.getWcpsQueryFragment())) {         
+        if (!StringUtils.isEmpty(this.getWcpsQueryFragment())) {         
             styleAbstractStr += ". WCPS query fragment: " + XMLUtil.enquoteCDATA(this.getWcpsQueryFragment());
-        } else if (!StringUtil.isEmpty(this.getRasqlQueryTransformFragment())) {
+        } else if (!StringUtils.isEmpty(this.getRasqlQueryTransformFragment())) {
             // deprecated
             styleAbstractStr += ". Rasql transform fragment: " + XMLUtil.enquoteCDATA(this.getRasqlQueryTransformFragment());
         }

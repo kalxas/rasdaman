@@ -69,6 +69,11 @@ public class ConfigManager {
     public static final String RASQL = "rasql";
     public static final String ADMIN = "admin";
     public static final String GET_COVERAGE_EXTENTS = "GetCoveragesExtents";
+    
+    /* **** Default DMBS for petascope is Postgresql **** */
+    public static final String DEFAULT_DMBS = "postgresql";
+    // to check if petascopedb (version 9.5+) exists in DBMS
+    public static final String PETASCOPEDB_TABLE_EXIST = "coverage";
 
     /* ***** Services version configuration ***** */
     // CRS resolver
@@ -98,15 +103,19 @@ public class ConfigManager {
     public static String PETASCOPE_DATASOURCE_URL;
     public static String PETASCOPE_DATASOURCE_USERNAME;
     public static String PETASCOPE_DATASOURCE_PASSWORD;
+    // path to JDBC driver jar file if user doesn't use postgresql
+    public static String PETASCOPE_DATASOURCE_JDBC_JAR_PATH;
     // simple user name for admin to update the OWS Service metadata
     public static String PETASCOPE_ADMIN_USERNAME;
     public static String PETASCOPE_ADMIN_PASSWORD;
 
-    // For legacy Petascopedb
+    // For old Petascopedb to migrate (source data source)
     public static String POSTGRESQL_DATASOURCE_DRIVER = "org.postgresql.Driver";
-    public static String LEGACY_DATASOURCE_URL;
-    public static String LEGACY_DATASOURCE_USERNAME;
-    public static String LEGACY_DATASOURCE_PASSWORD;
+    public static String SOURCE_DATASOURCE_URL;
+    public static String SOURCE_DATASOURCE_USERNAME;
+    public static String SOURCE_DATASOURCE_PASSWORD;
+    // path to JDBC driver jar file if user doesn't use postgresql
+    public static String SOURCE_DATASOURCE_JDBC_JAR_PATH;
 
     // XML validation schema control setting POST, SOAP request validation for WCS request
     public static boolean XML_VALIDATION = false;
@@ -151,14 +160,18 @@ public class ConfigManager {
     private static final String KEY_PETASCOPE_DATASOURCE_URL = "spring.datasource.url";
     private static final String KEY_PETASCOPE_DATASOURCE_USERNAME = "spring.datasource.username";
     private static final String KEY_PETASCOPE_DATASOURCE_PASSWORD = "spring.datasource.password";
+    // If user doesn't use default postgresql (e.g: H2 database), then user needs to provide a corresponding JDBC driver (h2-jdbc.jar) manually
+    public static final String KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH = "spring.datasource.jdbc_jar_path";
     private static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
     private static final String KEY_PORT = "server.port";
     private static final String KEY_APPLICATION_NAME = "server.contextPath";
 
-    // For Legacy Petascopedb    
-    private static final String KEY_LEGACY_DATASOURCE_URL = "metadata_url";
-    private static final String KEY_LEGACY_DATASOURCE_USERNAME = "metadata_user";
-    private static final String KEY_LEGACY_DATASOURCE_PASSWORD = "metadata_pass";
+    // For old Petascopedb to migrate (source datasource)
+    private static final String KEY_SOURCE_DATASOURCE_URL = "metadata_url";
+    private static final String KEY_SOURCE_DATASOURCE_USERNAME = "metadata_user";
+    private static final String KEY_SOURCE_DATASOURCE_PASSWORD = "metadata_pass";
+    // If user doesn't use default postgresql (e.g: H2 database), then user needs to provide a corresponding JDBC driver (h2-jdbc.jar) manually
+    public static final String KEY_SOURCE_DATASOURCE_JDBC_JAR_PATH = "metadata_jdbc_jar_path";
 
     // For simple admin login to update OWS Service metadata
     private static final String KEY_PETASCOPE_ADMIN_USERNAME = "petascope_admin_user";
@@ -318,12 +331,14 @@ public class ConfigManager {
         }
         PETASCOPE_DATASOURCE_URL = get(KEY_PETASCOPE_DATASOURCE_URL);
         PETASCOPE_DATASOURCE_USERNAME = get(KEY_PETASCOPE_DATASOURCE_USERNAME);
-        PETASCOPE_DATASOURCE_PASSWORD = get(KEY_PETASCOPE_DATASOURCE_PASSWORD);
+        PETASCOPE_DATASOURCE_PASSWORD = get(KEY_PETASCOPE_DATASOURCE_PASSWORD);        
+        PETASCOPE_DATASOURCE_JDBC_JAR_PATH = get(KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH);
 
         // For legacy Petascopedb
-        LEGACY_DATASOURCE_URL = get(KEY_LEGACY_DATASOURCE_URL);
-        LEGACY_DATASOURCE_USERNAME = get(KEY_LEGACY_DATASOURCE_USERNAME);
-        LEGACY_DATASOURCE_PASSWORD = get(KEY_LEGACY_DATASOURCE_PASSWORD);
+        SOURCE_DATASOURCE_URL = get(KEY_SOURCE_DATASOURCE_URL);
+        SOURCE_DATASOURCE_USERNAME = get(KEY_SOURCE_DATASOURCE_USERNAME);
+        SOURCE_DATASOURCE_PASSWORD = get(KEY_SOURCE_DATASOURCE_PASSWORD);
+        SOURCE_DATASOURCE_JDBC_JAR_PATH = get(KEY_SOURCE_DATASOURCE_JDBC_JAR_PATH);
 
         // For simple admin user to update OWS Service metadata
         PETASCOPE_ADMIN_USERNAME = get(KEY_PETASCOPE_ADMIN_USERNAME);

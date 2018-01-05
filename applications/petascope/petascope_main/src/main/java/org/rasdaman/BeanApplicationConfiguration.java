@@ -23,6 +23,7 @@ package org.rasdaman;
 
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
+import static org.rasdaman.InitAllConfigurationsApplicationService.addJDBCDriverToClassPath;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import petascope.controller.AbstractController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.DatabaseUtil;
 
 /**
@@ -79,9 +79,41 @@ public class BeanApplicationConfiguration {
         return registration;
     }
 
+    /**
+     * Build a DataSource (JDBC driver) to connect to underneath DBMS for Liquibase.
+     * Configuration values are fetched from petascope.properties.
+     * 
+     * @return
+     * @throws petascope.exceptions.PetascopeException
+     */
+    public DataSource dynamicDataSource() throws PetascopeException {
+        
+        // If user doesn't use postgresql by default
+        if (!ConfigManager.PETASCOPE_DATASOURCE_URL.contains(ConfigManager.DEFAULT_DMBS)) {
+            try {
+                addJDBCDriverToClassPath(ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH);
+            } catch(PetascopeException ex) {
+                throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
+                                            "JDBC driver jar file path for current DBMS configured in petascope.properties with key '" 
+                                                    + ConfigManager.KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "', given value '" 
+                                                    + ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
+                                            ex);
+            }     
+        }       
+       
+        DataSource dataSource = DataSourceBuilder.create().url(ConfigManager.PETASCOPE_DATASOURCE_URL)
+                                                          .username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME)
+                                                          .password(ConfigManager.PETASCOPE_DATASOURCE_PASSWORD)
+                                                          .build();
+             
+        return dataSource;
+    }
+
     @Bean
     public SpringLiquibase liquibase() throws Exception {
         SpringLiquibase liquibase = new SpringLiquibase();
+        DataSource dataSource;
+        
         // NOTE: Do not initialize/update petascopedb if petascope failed to start properly.
         if (AbstractController.startException != null) {
             liquibase.setShouldRun(false);
@@ -100,11 +132,9 @@ public class BeanApplicationConfiguration {
             liquibase.setShouldRun(false);
             return liquibase;
         }
-        
-        String datasourceUrl = ConfigManager.PETASCOPE_DATASOURCE_URL;
-        DataSource dataSource = DataSourceBuilder.create().url(datasourceUrl)
-                .username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME)
-                .password(ConfigManager.PETASCOPE_DATASOURCE_PASSWORD).build();
+               
+        // Create dataSource for Liquibase
+        dataSource = this.dynamicDataSource();
         liquibase.setDataSource(dataSource);
         liquibase.setChangeLog("classpath:database_versions/db.changelog-master.xml");
         // NOTE: Don't populate new schema from petascopedb9.5 to petascopedb9.4, return error later to client via controller also

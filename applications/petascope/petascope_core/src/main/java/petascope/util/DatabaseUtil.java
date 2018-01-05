@@ -27,6 +27,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.sql.DataSource;
 import org.rasdaman.InitAllConfigurationsApplicationService;
 import static org.rasdaman.InitAllConfigurationsApplicationService.POSTGRESQL_NEUTRAL_DATABASE;
 import org.rasdaman.config.ConfigManager;
@@ -46,8 +47,8 @@ public class DatabaseUtil {
     private static final Logger log = LoggerFactory.getLogger(DatabaseUtil.class);
 
     // To rename a database, connect to a default neutral database of Postgresql
-    private static final String LEGACY_NEUTRAL_POSTGRESQL_DATASOURCE_URL = ConfigManager.LEGACY_DATASOURCE_URL.substring(0,
-            ConfigManager.LEGACY_DATASOURCE_URL.lastIndexOf("/") + 1) + InitAllConfigurationsApplicationService.POSTGRESQL_NEUTRAL_DATABASE;
+    private static final String SOURCE_NEUTRAL_POSTGRESQL_DATASOURCE_URL = ConfigManager.SOURCE_DATASOURCE_URL.substring(0,
+            ConfigManager.SOURCE_DATASOURCE_URL.lastIndexOf("/") + 1) + InitAllConfigurationsApplicationService.POSTGRESQL_NEUTRAL_DATABASE;
 
     /**
      * Close the connection to petascopedb from manual query.
@@ -136,18 +137,36 @@ public class DatabaseUtil {
     /**
      * Check if petascopedb exists just by trying to connect to petascopedb
      * NOTE: don't distinguish it is petascope version 9.4 or 9.5+
+     * @param dataSource
      * @return 
      * @throws java.lang.ClassNotFoundException 
      * @throws petascope.exceptions.PetascopeException 
      */
-    public static boolean petascopeDatabaseExists() throws ClassNotFoundException, PetascopeException {
+    public static boolean petascopeDatabaseExists(DataSource dataSource) throws ClassNotFoundException, PetascopeException {
         Connection connection = null;
         try {
-            connection = getDatabaseConnection(ConfigManager.LEGACY_DATASOURCE_URL,
-                    ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD);
+            connection = dataSource.getConnection();        
+            DatabaseMetaData dbm = connection.getMetaData();
+            
+            // for version < 9.5
+            if (legacyPetascopeDatabaseExists()) {
+                return true;
+            }
+            
+            // for version 9.5+
+            // check if "coverage" table is there to know petascopedb exists
+            ResultSet tables = dbm.getTables(null, null, ConfigManager.PETASCOPEDB_TABLE_EXIST, null);
+            if (!tables.next()) {
+                // Table does not exist, maybe it is H2/HSQL, tables is in upper cases
+                tables = dbm.getTables(null, null, ConfigManager.PETASCOPEDB_TABLE_EXIST.toUpperCase(), null);
+                if (!tables.next()) {
+                    // Table still does not exist, petascopedb does not exist
+                    return false;
+                }
+            }        
         } catch (SQLException ex) {
-            // petascopedb doesn't exist
-            return false;
+            throw new PetascopeException(ExceptionCode.InternalSqlError, 
+                    "Cannot check if petascopedb exists in source DMBS to migrate, error '" + ex.getMessage() + "'", ex);
         } finally {
             closeDatabaseConnection(connection);
         }
@@ -167,8 +186,8 @@ public class DatabaseUtil {
     public static boolean legacyPetascopeDatabaseExists() throws ClassNotFoundException, PetascopeException {
         Connection connection = null;
         try {
-            connection = getDatabaseConnection(ConfigManager.LEGACY_DATASOURCE_URL,
-                    ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD);
+            connection = getDatabaseConnection(ConfigManager.SOURCE_DATASOURCE_URL,
+                    ConfigManager.SOURCE_DATASOURCE_USERNAME, ConfigManager.SOURCE_DATASOURCE_PASSWORD);
             DatabaseMetaData databaseMetaData = connection.getMetaData();
 
             // Check if the legacy table ps_dbupdates existed
@@ -256,8 +275,8 @@ public class DatabaseUtil {
         Statement statement = null;
         ResultSet resultSet = null;
         try {
-            connection = DatabaseUtil.getDatabaseConnection(LEGACY_NEUTRAL_POSTGRESQL_DATASOURCE_URL,
-                    ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD);
+            connection = DatabaseUtil.getDatabaseConnection(SOURCE_NEUTRAL_POSTGRESQL_DATASOURCE_URL,
+                    ConfigManager.SOURCE_DATASOURCE_USERNAME, ConfigManager.SOURCE_DATASOURCE_PASSWORD);
 
             statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT current_setting('server_version_num') as version_number;");
@@ -301,8 +320,8 @@ public class DatabaseUtil {
         Connection connection = null;
         Statement statement = null;
         try {
-            connection = DatabaseUtil.getDatabaseConnection(LEGACY_NEUTRAL_POSTGRESQL_DATASOURCE_URL,
-                    ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD);
+            connection = DatabaseUtil.getDatabaseConnection(SOURCE_NEUTRAL_POSTGRESQL_DATASOURCE_URL,
+                    ConfigManager.SOURCE_DATASOURCE_USERNAME, ConfigManager.SOURCE_DATASOURCE_PASSWORD);
 
             statement = connection.createStatement();
             statement.execute("ALTER DATABASE " + fromDatabaseName + " RENAME TO " + toDatabaseName);

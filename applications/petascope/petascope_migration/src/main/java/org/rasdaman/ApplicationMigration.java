@@ -50,7 +50,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
-import petascope.util.DatabaseUtil;
 
 @SpringBootApplication
 @ComponentScan({"org.rasdaman", "petascope"})
@@ -97,14 +96,8 @@ public class ApplicationMigration implements CommandLineRunner {
         propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
 
         // Init all properties for ConfigManager
-        initConfigurations(properties);
-        
-        if (!DatabaseUtil.petascopeDatabaseExists()) {
-            // NOTE: petascopedb doesn't exist to migrate, just consider it is a success instead of failure.
-            log.info("petascopedb doesn't exist, nothing to migrate.");
-            System.exit(ApplicationMigration.ExitCode.SUCCESS.getExitCode());
-        }
-        
+        initConfigurations(properties);       
+       
         return propertyResourcePlaceHolderConfigurer;
     }
 
@@ -157,13 +150,7 @@ public class ApplicationMigration implements CommandLineRunner {
         String gdalJavaDir = properties.getProperty(KEY_GDAL_JAVA_DIR);
         addLibraryPath("gdal_java", gdalJavaDir);
         
-        log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.LEGACY_DATASOURCE_URL + "' to JDBC URL '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'...");
-        // First, check if old JDBC URL can be connected
-        if (!DatabaseUtil.checkJDBCConnection(ConfigManager.LEGACY_DATASOURCE_URL,
-                ConfigManager.LEGACY_DATASOURCE_USERNAME, ConfigManager.LEGACY_DATASOURCE_PASSWORD)) {
-            log.error("Cannot connect to existing petascopedb database at JDBC URL '" + ConfigManager.LEGACY_DATASOURCE_URL + "', aborting the migration process.");
-            System.exit(ExitCode.FAILURE.getExitCode());
-        }
+        log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + "' to JDBC URL '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'...");
 
         /*
             NOTE: Hibernate already connected when migration application starts,

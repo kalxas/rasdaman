@@ -71,29 +71,6 @@
             <artifactId>postgresql</artifactId>
             <version>9.1-901-1.jdbc4</version>
         </dependency>
-        <!-- Petascope database: sqlite -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.16.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.enigmabridge</groupId>
-            <artifactId>hibernate4-sqlite-dialect</artifactId>
-            <version>0.1.2</version>
-        </dependency>
-        <!-- Petascope database: hsqldb -->
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-        <!-- Petascope database: h2 -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.196</version>
-        </dependency>
         <!-- Database schema versions migration -->
         <dependency>
             <groupId>org.liquibase</groupId>

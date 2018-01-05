@@ -236,8 +236,8 @@ public class LegacyMigrationService extends AbstractMigrationService {
      */
     private String renameLegacyPetascopeDatabaseToBackUp() throws SQLException, ClassNotFoundException, PetascopeException {
         // Normally it is petascopedb, but it could be changed before.
-        String oldLegacyDatabaseName = ConfigManager.LEGACY_DATASOURCE_URL.substring(
-                ConfigManager.LEGACY_DATASOURCE_URL.lastIndexOf("/") + 1, ConfigManager.LEGACY_DATASOURCE_URL.length());
+        String oldLegacyDatabaseName = ConfigManager.SOURCE_DATASOURCE_URL.substring(
+                ConfigManager.SOURCE_DATASOURCE_URL.lastIndexOf("/") + 1, ConfigManager.SOURCE_DATASOURCE_URL.length());
         String newLegacyDatabaseName = oldLegacyDatabaseName + "_94_backup";
 
         // Rename legacy database to a backup database

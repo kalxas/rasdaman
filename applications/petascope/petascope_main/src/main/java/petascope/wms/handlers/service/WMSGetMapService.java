@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.hsqldb.lib.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.wms.BoundingBox;
 import org.rasdaman.domain.wms.Style;
 import org.rasdaman.repository.service.CoverageRepostioryService;
@@ -201,7 +201,7 @@ public class WMSGetMapService {
                 if (style == null) {
                     // NOTE: in case of Style is empty, it still need to create a Rasql for the scale(layer[bbox], [width, height])
                     coverageExpression = aliasName;
-                } else if (!StringUtil.isEmpty(style.getWcpsQueryFragment())) {
+                } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
                     // wcpsQueryFragment
                     coverageExpression = this.buildCoverageExpressionByWCPSQueryFragment(aliasName, layerName, styleName);
                 } else {

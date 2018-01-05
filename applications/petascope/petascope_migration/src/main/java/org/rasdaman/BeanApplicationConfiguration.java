@@ -21,6 +21,15 @@
  */
 package org.rasdaman;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -32,6 +41,7 @@ import static org.rasdaman.CustomImplicitNamingStrategyImpl.HIBERNATE_IMPLICIT_N
 import static org.rasdaman.CustomImplicitNamingStrategyImpl.HIBERNATE_IMPLICIT_NAMING_STRATEGY_VALUE;
 import static org.rasdaman.CustomPhysicalNamingStrategyImpl.HIBERNATE_PHYSICAL_NAMING_STRATEGY_KEY;
 import static org.rasdaman.CustomPhysicalNamingStrategyImpl.HIBERNATE_PHYSICAL_NAMING_STRATEGY_VALUE;
+import static org.rasdaman.InitAllConfigurationsApplicationService.addJDBCDriverToClassPath;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.domain.legacy.LegacyDbMetadataSource;
 import org.rasdaman.migration.service.LegacyMigrationService;
@@ -50,6 +60,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import petascope.util.DatabaseUtil;
 import static org.rasdaman.migration.service.LegacyMigrationService.LEGACY_PETASCOPEDB_MIGRATION_TEMP;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * This class initializes the beans to connect to the datasources (from legacy
@@ -99,6 +111,7 @@ public class BeanApplicationConfiguration {
 
         return liquibase;
     }
+    
 
     /**
      * Create a source datasource from JDBC URL, username, password manually
@@ -109,12 +122,32 @@ public class BeanApplicationConfiguration {
      */
     @Bean
     public DataSource sourceDataSource() throws Exception {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.url(ConfigManager.LEGACY_DATASOURCE_URL);
-        dataSourceBuilder.username(ConfigManager.LEGACY_DATASOURCE_USERNAME);
-        dataSourceBuilder.password(ConfigManager.LEGACY_DATASOURCE_PASSWORD);
-
-        return dataSourceBuilder.build();
+        
+        // If user doesn't use postgresql by default
+        if (!ConfigManager.SOURCE_DATASOURCE_URL.contains(ConfigManager.DEFAULT_DMBS)) {
+            try {
+                addJDBCDriverToClassPath(ConfigManager.SOURCE_DATASOURCE_JDBC_JAR_PATH);
+            } catch(PetascopeException ex) {
+                throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
+                                            "JDBC driver jar file path for current DBMS configured in petascope.properties with key '" 
+                                                    + ConfigManager.KEY_SOURCE_DATASOURCE_JDBC_JAR_PATH + "', given value '" 
+                                                    + ConfigManager.SOURCE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
+                                            ex);
+            }            
+        }             
+       
+        DataSource dataSource = DataSourceBuilder.create().url(ConfigManager.SOURCE_DATASOURCE_URL)
+                                                          .username(ConfigManager.SOURCE_DATASOURCE_USERNAME)
+                                                          .password(ConfigManager.SOURCE_DATASOURCE_PASSWORD)
+                                                          .build();              
+           
+        if (!DatabaseUtil.petascopeDatabaseExists(dataSource)) {
+            // NOTE: petascopedb doesn't exist to migrate, just consider it is a success instead of failure.
+            log.info("petascopedb doesn't exist, nothing to migrate.");
+            System.exit(ApplicationMigration.ExitCode.SUCCESS.getExitCode());
+        }
+             
+        return dataSource;
     }
 
     /**
@@ -129,6 +162,20 @@ public class BeanApplicationConfiguration {
     @Bean
     @Primary
     public DataSource targetDataSource() throws Exception {
+        
+        // If user doesn't use postgresql by default
+        if (!ConfigManager.PETASCOPE_DATASOURCE_URL.contains(ConfigManager.DEFAULT_DMBS)) {
+            try {
+                addJDBCDriverToClassPath(ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH);
+            } catch(PetascopeException ex) {
+                throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
+                                            "JDBC driver jar file path for target DBMS configured in petascope.properties with key '" 
+                                                    + ConfigManager.KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "', given value '" 
+                                                    + ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
+                                            ex);
+            }
+        }
+        
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         String dataSourceURL = ConfigManager.PETASCOPE_DATASOURCE_URL;
 
@@ -170,9 +217,9 @@ public class BeanApplicationConfiguration {
         LegacyDbMetadataSource meta = null;
         if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
             meta = new LegacyDbMetadataSource(ConfigManager.POSTGRESQL_DATASOURCE_DRIVER,
-                    ConfigManager.LEGACY_DATASOURCE_URL,
-                    ConfigManager.LEGACY_DATASOURCE_USERNAME,
-                    ConfigManager.LEGACY_DATASOURCE_PASSWORD, false);
+                    ConfigManager.SOURCE_DATASOURCE_URL,
+                    ConfigManager.SOURCE_DATASOURCE_USERNAME,
+                    ConfigManager.SOURCE_DATASOURCE_PASSWORD, false);
         }
 
         return meta;
