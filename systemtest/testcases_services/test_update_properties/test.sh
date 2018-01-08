@@ -38,65 +38,57 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 UPDATE=""$SCRIPT_DIR"/../../../applications/petascope/update_properties.sh"
 
-log "--- Testing updating values between new and old configuration files ---"
+log "Testing properties file migration"
 
 # 1. Get the test input in old, new, oracle directories.
-OLD_DIR="$SCRIPT_DIR"'/data/old'
-NEW_DIR="$SCRIPT_DIR"'/data/new'
-ORACLE_DIR="$SCRIPT_DIR"'/oracle'
+# store the original properties files from data_suite folder to be updated after testing
+TMP_DIR="$SCRIPT_DIR/tmp"
+TMP_OLD_DIR="$TMP_DIR/old"
+TMP_NEW_DIR="$TMP_DIR/new"
+DATA_SUITE_DIR="$SCRIPT_DIR/data_suite"
+ORACLE_DIR="$SCRIPT_DIR/oracle"
 
+# 2. Remove files in tmp folder and copy test suite from data_suite to data and preparing to test
+logn 'Preparing tmp data directories for test cases...'
+rm -rf "$TMP_DIR" || error "Error: Could not delete tmp folder '$TMP_DIR'." # remove old data directory
+cp -R "$DATA_SUITE_DIR" "$TMP_DIR" || error "Error: Failed copying '$DATA_SUITE_DIR' to '$TMP_DIR'" 
+echo "ok."
 
-# 2. Remove files in data/ and copy test suite from data_suite to data and preparing to test
-log 'Preparing input data directories.'
-rm -rf "$SCRIPT_DIR"'/data' || error "Error: Could not delete old data." # remove old data directory
-cp -R "$SCRIPT_DIR"'/data_suite' "$SCRIPT_DIR"'/data' || error "Error: Failed copying $SCRIPT_DIR/data_suite to $SCRIPT_DIR/data" # copy data_suite to data
-log "Done."
+# 3. Iterate each file in the input directories, run the update_properties.sh and check the result between data/old/ directory and oracle directory
+for f in $TMP_OLD_DIR/*; do
+    # 3.1 Get the fileName in OLD directory
+    test_case_name=${f##*/}
+    old_properties_file="$f"
+    new_properties_file="$TMP_NEW_DIR/$test_case_name"
 
-# 3. Check that data/old, data/new, oracle/ has the same input files
-OLD_COUNT=$(find "$SCRIPT_DIR"'/data/old' -type f | wc -l) # count files in the old directory
-NEW_COUNT=$(find "$SCRIPT_DIR"'/data/old' -type f | wc -l) # count files in the new directory
-ORACLE_COUNT=$(find "$SCRIPT_DIR"'/oracle' -type f | wc -l) # count files in the oracle directory
+    logn "Running test case '$test_case_name'... "
+    # 3.2 Run update_properties.sh script
+    "$UPDATE" "$old_properties_file" "$new_properties_file" >> /dev/null # call script update_petascope.sh with inputs: old file and new file
 
-echo 'Number of files to test is: '$OLD_COUNT;
-
-if [[ $OLD_COUNT != $NEW_COUNT ]]; then
-    error "Error: Different files between old and new directories in ./data/, please check.";
-elif [[ $NEW_COUNT != $ORACLE_COUNT ]]; then
-    error "Error: Different files between old/new and oracle directories in ./data/ and ./oracle/, please check.";
-fi
-
-
-# 4. Iterate each file in the input directories, run the update_properties.sh and check the result between data/old/ directory and oracle directory
-for f in $OLD_DIR/*; do
-    # 4.1 Get the fileName in OLD directory
-    name=$(echo ${f##*/} | awk -F '_' '{print $1}') # get fileName and split by '_'
-
-    newName="$NEW_DIR/$name"_new # must have the _new postfix
-
-    # 4.2 Run update_properties.sh script
-    $("$UPDATE" "$f" "$newName" >> /dev/null) # call script update_petascope.sh    with inputs: old file and new file
-
-    # 4.3 Check if script doest not run correctly
+    # 3.3 Check if script doest not run correctly
     if [[ $? != 0 ]]; then
         NUM_FAIL=$(($NUM_FAIL + 1))
-        log 'Failed in update_properties.sh. Please check old and new inputs are correct files. Done.';
-
+        echo 'failed executing update_properties.sh.';
     else # run correctly
+        oracle_properties_file="$ORACLE_DIR/$test_case_name"
+        # 3.4 Compare updated properties file in tmp/old with oracle file
+        cmp "$old_properties_file" "$oracle_properties_file" # compare the output (old file) with oracle file
 
-        oracleFile="$ORACLE_DIR/$name"_oracle
-
-        # 4.4 Check oldName in $OLD_DIR with oracle/oldName_oracle
-        log "Comparing output file:"
-        log    "+"$f
-        log    "+"$oracleFile
-
-        check=$(cmp "$f" "$oracleFile") # compare the output (old file) with oracle file
-        if [[ "$check" != ''    ]]; then # if the output file is not the same with oracleFile
-            log "Failed: Output file is diffrent with oracle file. Done."
-            log "Trace: cmp ""$f" "$oracleFile"
+        if [[ $? -ne 0 ]]; then # if the output file is not the same with oracle_properties_file
+            log "Failed: Updated properties file is diffrent from oracle file. Done."
             NUM_FAIL=$(($NUM_FAIL + 1))
-	      else
-	          log "Pass: Output file is identical to oracle file. Done."
+	    else
+            # 3.5 Check if test case has deprecated properties then it should create backup for this old properties file
+            if [[ "$test_case_name" =~ "removed" ]]; then
+                back_up_exist=$(find "$TMP_OLD_DIR/" -name "$test_case_name*.bak")
+                if [[ -z "back_up_exist" ]]; then
+                    echo "failed, test case did not create a backup file."
+                    NUM_FAIL=$(($NUM_FAIL + 1))
+                    # no need to compare updated properties file with oracle file
+                    continue
+                fi   
+            fi
+	        echo "passed."
             NUM_SUC=$(($NUM_SUC + 1))
         fi
     fi # end check update_properties.sh

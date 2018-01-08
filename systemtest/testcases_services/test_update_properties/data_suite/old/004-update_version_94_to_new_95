@@ -1,0 +1,236 @@
+# This file is part of rasdaman community.
+#
+# Rasdaman community is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rasdaman community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann /
+# rasdaman GmbH.
+#
+# For more information please see <http://www.rasdaman.org>
+# or contact Peter Baumann via <baumann@rasdaman.com>.
+# ---------------------------------------------------------------------
+#
+# PetaScope configuration file
+#
+# ***IMPORTANT NOTE***:
+# Parameters marked *yes* in item *need to adapt* MUST be configured
+# to meaningful values during installation, they CAN NOT be used as is!
+
+#------------------- Spring Hibernate configuration -------------------
+
+# Default configuration for all DBMS for petascopedb
+# need to adapt: no
+spring.jpa.database=default
+spring.jpa.hibernate.ddl-auto=none
+
+
+# Path to JDBC jar file for a different DBMS than Postgresql
+# e.g: H2, HSQLDB,... then user has to download this jar file from Internet to user's system and configure here (e.g: /home/rasdaman/jdbc_driver/h2-jdbc.jar).
+# need to adapt: yes
+spring.datasource.jdbc_jar_path=
+
+# Config for legacy datasource with Postgresql
+# These parameters below will be removed in rasdaman version 10 as all imported coverages will use the new data model by default.
+
+# ******************************** USER CONFIGURED PROPERTIES IN 9.4 ********************************
+# Legacy Petascope metadata configuration for postgresql
+# purpose:       Before version 9.5, petascope uses GMLCOV 1.0 as data model with default database name
+#                is: petascopedb in Postgresql. In 9.5, petascope uses Coverage Implementation Schema (CIS 1.1)
+#                as data model, so there is a need to convert imported coverages from legacy petascopedb to new cisdb.
+# description:   All the imported coverages in legacy database will be converted to new database internally.             
+# need to adapt: yes
+metadata_url=jdbc:postgresql://localhost:5432/petascopedb_THIS_SHOULD_BE_UPDATED_TO_SPRING_DATASOURCE_IN_9.5
+metadata_user=petauser_THIS_SHOULD_BE_UPDATED_TO_SPRING_DATASOURCE_IN_9.5
+metadata_pass=petapasswd_THIS_SHOULD_BE_UPDATED_TO_SPRING_DATASOURCE_IN_9.5
+
+# Path to JDBC jar file for a different DBMS than Postgresql
+# NOTE: Only used when migrating from old DBMS (metadata_*) to new DMBS (spring.datasource.*) (!)
+# e.g: H2, HSQLDB,... then user has to download this jar file from Internet to user's system and configure here (e.g: /home/rasdaman/jdbc_driver/h2-jdbc.jar).
+# need to adapt: yes
+jdbc_jar_path=
+
+#------------------- General Petascope configuration -------------------
+
+# parameter:     server.contextPath
+# purpose:       Both deployed web application as embedded/external will need this parameter as prefix
+#                for controller in URL routing (e.g: http://localhost:8080/rasdaman/ows).
+# need to adapt: no
+server.contextPath=/rasdaman
+
+# parameter:     secore_urls
+# purpose:       SECORE URLs to be used by Petascope.
+# description:   comma-separated list of SECORE endpoints, relevance order.
+# need to adapt: yes
+secore_urls=http://localhost:8080/def
+
+# parameter:     petascope_admin_user
+# purpose:       Login account has read/wright access to petascope's service introduction information in metadata tables
+#                of database (currently: PostgreSQL), including:
+#                ps_description, ps_service_identification, ps_service_provider.
+# description:   Log in to http://localhost:8080/rasadaman/admin to update these information.
+#                Recommendation: establish a dedicated user.
+# need to adapt: yes
+petascope_admin_user=petauser
+
+# parameter:     petascope_admin_pass
+# purpose:       password for petascope_admin_user login, as above.
+# need to adapt: yes
+petascope_admin_pass=petapasswd
+
+# parameter:     xml_validation
+# purpose:       If set to 'true', input WCS POST/SOAP in XML requests will be validated against
+#                OGC WCS 2.0.1 schema definitions.
+#                (!) When starting Petascope it will take around 1-2 mins to
+#                load the schemas from OGC server(!). Set the parameter to 'false' if no WCS 2.0.1 POST/SOAP input
+#                validation is required.
+# need to adapt: yes
+xml_validation=false
+
+# parameter:     ogc_cite_output_optimization
+# purpose:       To pass OGC CITE test, Petascope has to optimize the outputs to
+#                bypass some test cases.
+# description:   Petascope will trim indentation from output of WCS GetCoverage,
+#                DescribeCoverage. 
+#                (!) Only enable this option when executing OGC CITE tests, and set
+#                xml_validation to false otherwise some SOAP requests will fail
+#                due to the input requests could not pass the schema validation (!).
+# need to adapt: no
+ogc_cite_output_optimization=false
+
+# parameter:     petascope_servlet_url
+# purpose:       service endpoint can be set here.
+# description:   This property is used by WCS GetCapabilities() response <ows:HTTP> element
+#                to give the service endpoint. By default it is: http://localhost:8080/rasdaman/ows
+#                Set this parameter to your public service URL in case you are using a proxy 
+#                (e.g: http://proxy.rasdaman.org:8090/rasdaman/ows).
+# need to adapt: no
+petascope_servlet_url=
+
+# parameter:     disable_write_operations
+# purpose:       disables access to WCST (InsertCoverage, UpdateCoverage and DeleteCoverage) operations.
+# description:   Used to disable requests which could change 
+#                (insert new coverage, update/delete existing coverage) in Rasdaman through Petascope.
+# need to adapt: no
+disable_write_operations=false
+
+# parameter:     rasql_servlet_upload_path
+# purpose:       Rasql query can be submitted to RasqlServlet with file to import to rasdaman by decode() function.
+# description:   This folder stores the uploaded file through RasqlServlet temporarily 
+#                and removes it after the rasql import query is done.
+# need to adapt: no
+rasql_servlet_upload_path=/tmp/rasql_servlet_upload
+
+#------------------- Embedded Petascope configuration -------------------
+
+# parameter:     java_server
+# purpose:       Allow user to start Petascope with embedded (standalone web application: jar file including embedded Tomcat)
+#                or external (normal web application: war file to deploy on a specific web application containter, 
+#                e.g: Tomcat, GlassFish,...) mode. It is set as parameter by using -DJAVA_SERVER=embedded/external with cmake 
+#                or ./configure --with-java-server=embedded/external with automake when configuring rasdaman installation.
+# description:   When set to external, all settings (server.port, start_embedded_petascope)
+#                for embedded petascope will be disabled.
+# need to adapt: no
+java_server=@GENERATED_java_server@
+
+# These configurations below only have effect when java_server configuration is set to embedded, i.e: java_server=embedded
+
+# parameter:     server.port
+# purpose:       Port for embedded petascope using embedded Tomcat web application container.
+# need to adapt: yes
+server.port=8080
+
+#------------------- Rasdaman configuration for Petascope -------------------
+
+# parameter:     rasdaman_url
+# purpose:       URL of rasdaman database serving PetaScope raster data
+# need to adapt: yes
+rasdaman_url=http://localhost:7001
+
+# parameter:     rasdaman_database
+# purpose:       name of rasdaman database serving PetaScope raster data
+#                (!) recommendation: use rasdaman standard name, RASBASE (!)
+# need to adapt: no
+rasdaman_database=RASBASE
+
+# parameter:     rasdaman_user
+# purpose:       username to access rasdaman
+# need to adapt: yes
+rasdaman_user=rasguest
+
+# parameter:     rasdaman_pass
+# purpose:       password to access rasdaman
+# need to adapt: yes
+rasdaman_pass=rasguest
+
+# parameter:     rasdaman_admin_user
+# purpose:       admin username to access rasdaman
+# need to adapt: yes
+rasdaman_admin_user=rasadmin
+
+# parameter:     rasdaman_rasadmin_pass
+# purpose:       admin password to access rasdaman
+# need to adapt: yes
+rasdaman_admin_pass=rasadmin
+
+# parameter:     rasdaman_retry_attempts
+# purpose:       maximum re-connect attempts to a rasdaman server in case
+#                a connection fails.
+# need to adapt: no
+rasdaman_retry_attempts=5
+
+# parameter:     rasdaman_retry_timeout
+# purpose:       wait time in seconds between re-connect attempts to
+#                a rasdaman server
+# need to adapt: no
+rasdaman_retry_timeout=10
+
+# parameter:     rasdaman_bin_path
+# purpose:       path to rasdaman binaries
+# need to adapt: no
+rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
+
+#------------------- log4j configuration -------------------
+
+# Configuration to write Petascope's logs to petascope.log file.
+# need to adapt: no
+log4j.rootLogger=TRACE, rollingFile, stdout
+
+# Reduce the log information from Spring
+log4j.logger.org.springframework=WARN
+# Reduce the log information from Hibernate
+log4j.logger.org.hibernate=WARN
+
+# Reduce the log information from Liquibase
+log4j.logger.liquibase=WARN
+
+# Reduce the log information from GRPC, Netty
+log4j.logger.io.grpc=WARN
+log4j.logger.io.netty=WARN
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+# Log level INFO only to user's console
+log4j.appender.stdout.layout.ConversionPattern=%m%n
+log4j.appender.stdout.Threshold=INFO
+
+log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+
+# Please make sure the path specified by log4j.appender.rollingFile.File is a
+# location where the system user running Tomcat has write access.
+# Otherwise, the secore and petascope logs can only be found in catalina.out
+log4j.appender.rollingFile.File=@LOG_DIR@/petascope.log
+
+log4j.appender.rollingFile.MaxFileSize=10MB
+log4j.appender.rollingFile.MaxBackupIndex=10
+log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
+log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n

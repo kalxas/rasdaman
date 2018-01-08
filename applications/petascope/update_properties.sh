@@ -24,7 +24,7 @@
 #    update_properties.sh path_to_old_file path_to_new_file
 # Description
 #    Compare user's properties files with current properties files.
-#    Add the new properties to user files but keep their configuration like (host, port, database name, users name, password,...)
+#    Add the new properties to user files but keep their properties like (host, port, database name, users name, password,...)
 #
 ################################################################################
 # RETURN CODES
@@ -34,6 +34,9 @@ RC_ERROR=1	# something went wrong
 # get script name
 PROG=$( basename $0 )
 
+# if no key in properties file exists, value of this key is null
+NULL_VALUE="NULL"
+
 #
 # logging
 #
@@ -42,6 +45,9 @@ log() {
 }
 logn() {
     echo -n "$PROG: $*"
+}
+loge() {
+    echo -e "$PROG: $*"
 }
 error() {
     echo "$PROG: $*" >&2
@@ -54,8 +60,7 @@ ok() {
 }
 # return the value of key=value from properties file ($1: the key, $2: the file)
 get_value(){    
-    key_value=$(grep -E "$1" "$2")
-    echo ${key_value#*=}    
+    key_value=$(grep -E "^$1=" "$2") && echo ${key_value#*=} || echo "$NULL_VALUE"
 }
 
 # replace the value of a key from properties file ($1: the key, $2: the new value, $3: the file)
@@ -63,22 +68,22 @@ replace_value() {
     sed -i "s|\($1\).*|\1$2|g" "$3"
 }
 
-# rollback old configuration if error occurs
+# rollback old properties if error occurs
 _cleanup() {
     echo "$PROG: Exiting..." >&2
-    # 1. if the script has created $OLD_BAK then has something to clean or just finish
-    if [ -f "$OLD_BAK" ]; then
-	logn "Note: Rollingback your old configuration file... "
-        # 1. Remove old configuration as it can has some unfinished upgrade data
-        rm -f "$OLD" || error "Error: Cannot remove old configuration file $OLD."
+    # 1. if the script has created $old_bak then has something to clean or just finish
+    if [ -f "$old_bak" ]; then
+	logn "Note: Rollingback your old properties file... "
+        # 1. Remove old properties as it can has some unfinished upgrade data
+        rm -f "$old_file" || error "Error: Cannot remove old properties file $old_file."
 
-        # 2. Remove new configuration file which has been copied to $OLDDIR if it exists
-        rm -f "$NEWTMP" || error "Error: Cannot remove new configuration file $NEWTMP."; # remove new configuration file in $OLDDIR
+        # 2. Remove new properties file which has been copied to $old_dir if it exists
+        rm -f "$new_file_tmp" || error "Error: Cannot remove new properties file $new_file_tmp."; # remove new properties file in $old_dir
 
-        # 3. Rename temporary backup file to $OLD configuration file and done
-        mv "$OLD_BAK" "$OLD" || error "Error: Cannot rollback $OLD_BAK to $OLD."; # rollback backup file to $OLD
+        # 3. Rename temporary backup file to $old_file properties file and done
+        mv "$old_bak" "$old_file" || error "Error: Cannot rollback $old_bak to $old_file."; # rollback backup file to $old_file
         echo "Done."
-    fi # end check $OLD_BAK file exists
+    fi # end check $old_bak file exists
     log "Done."
     exit $RC_ERROR # escape from trap as it has rollbacked
 }
@@ -86,9 +91,7 @@ _cleanup() {
 trap _cleanup HUP INT QUIT KILL
 
 
-log "Updating your new configuration file with old values."
-
-# Get filepath to OLD and NEW files
+# Get filepath to old_file and new_file files
 
 if [ "$#" -eq 0 ]; then
     error "Error: no arguments (old and new file paths) were supplied."
@@ -98,127 +101,125 @@ elif [ ! "$#" -eq 2 ]; then
 fi
 
 # --------------------------------------------
-#1. Get file name from the arguments (OLD and NEW files)
-OLD="$1"
-NEW="$2"
+#1. Get file name from the arguments (old_file and new_file files)
+old_file="$1"
+new_file="$2"
+
+log "Updating old properties file '$old_file' from new properties file '$new_file'..."
 
 NOW=$(date "+%m-%d-%Y_%H-%M-%S") # get current date_time
-OLD_BAK="$OLD.$NOW.bak" # this backup will not overwrite previous backup files as different times
+old_bak="$old_file.$NOW.bak" # this backup will not overwrite previous backup files as different times
 
 
 # --------------------------------------------
 #2 Check files are existing
-#2.1 Check NEW file is existing (the properties file in the source folder)
-if [ ! -f "$NEW" ]; then
-    error "Error: New file: $NEW is not a valid file path."
+#2.1 Check new_file file is existing (the properties file in the source folder)
+if [ ! -f "$new_file" ]; then
+    error "Error: New file: $new_file is not a valid file path."
 fi
 
-#2.3 Check if OLD directory existed
-OLDDIR=$(dirname "$OLD")
-if [ ! -d "$OLDDIR" ]; then
-    mkdir -p "$OLDDIR" || error "Error: failed creating properties directory '$OLDDIR'."
-    log "Created properties directory '$OLDDIR'."
+#2.3 Check if old_file's directory existed
+old_dir=$(dirname "$old_file")
+if [ ! -d "$old_dir" ]; then
+    mkdir -p "$old_dir" || error "Error: failed creating properties directory '$old_dir'."
+    log "Created properties directory '$old_dir'."
 fi
 
-#2.3 Check OLD file is existing ( if new installation then just copy the source properties file to installation folder)
-if [ ! -f "$OLD" ]; then
-    echo "Copy properties file from: $NEW to $OLD."
-    cp "$NEW" "$OLD" || error "Error: failed installing properties file '$NEW' to '$OLD'."
+#2.3 Check old_file file is existing ( if new installation then just copy the source properties file to installation folder)
+if [ ! -f "$old_file" ]; then
+    echo "Copy properties file from: $new_file to $old_file."
+    cp "$new_file" "$old_file" || error "Error: failed installing properties file '$new_file' to '$old_file'."
     ok
 fi
 
-echo -e
-
-#2.3 Check if NEW and OLD file are the same (no need to create a backup and do anything else)
-cmp --quiet "$NEW" "$OLD"
+#2.3 Check if new_file and old_file file are the same (no need to create a backup and do anything else)
+cmp --quiet "$new_file" "$old_file"
 if [[ $? -eq 0 ]]; then
-   log "The existing configuration is already up to date."
+   log "The existing properties is already up to date."
    ok
 fi
-echo "Done."
 
 # --------------------------------------------
-#3 Backup the OLD file by renaming to OLD.bak
-logn "Backing up your old configuration file to $OLD_BAK... "
-cp "$OLD" "$OLD_BAK" || error "Error: Cannot backup your old configuration file."
-echo "Done."
+#3 Backup the old_file file by renaming to old_file.bak
+loge "Backing up your old properties file to $old_bak... "
+cp "$old_file" "$old_bak" || error "Error: Cannot backup your old properties file."
+loge "Done."
 
 # --------------------------------------------
-#4 Copy the NEW file to the directory of OLD file with the name likes $NEW.tmp
-OLDDIR=$(dirname "$OLD") # get the directory of OLD file
-NEWFILENAME=$(basename "$NEW") # get the file name of NEW file
+#4 Copy the new_file file to the directory of old_file file with the name likes $new_file.tmp
+old_dir=$(dirname "$old_file") # get the directory of old_file file
+new_file_name=$(basename "$new_file") # get the file name of new_file file
 
-NEWTMP="$OLDDIR"'/'"$NEWFILENAME"'.tmp'
+new_file_tmp="$old_dir"'/'"$new_file_name"'.tmp'
 
-cp "$NEW" "$NEWTMP" || error "Error: Cannot copy new configuration file to $OLDDIR." # copy NEW file to NEW.tmp in OLD directory
-echo -e
+cp "$new_file" "$new_file_tmp" || error "Error: Cannot copy new properties file to $old_dir." # copy new_file file to new_file.tmp in old_file directory
 
 # ---------------------------------------------
-#5 Update the NEW file in OLD directory with the OLD configuration values
-# Read each line in OLD files which is configured and add this value in NEW file.
-log "Updating differences between new file and old file..."
+#5 Update the new_file file in old_file directory with the old_file properties values
+# Read each line in old_file files which is configured and add this value in new_file file.
+log "Updating differences between new properties file and old properties file..."
 
-k=0 # notice about changing values
+# if some old settings are removed, the backup file needs to be kept
+keep_backup=0 
+
 while read line;do
     line=$(echo "$line" | xargs -0) # | xargs for trimming spaces in head/tail of line.
-    CHAR=${line:0:1} # get first character of the line
+    first_char=${line:0:1} # get first character of the line
 
-    if [[ $CHAR != '#' && $CHAR != '' ]]; then    # if $line starts with # or spaces -> comments so ignore.
+    if [[ $first_char != '#' && $first_char != '' ]]; then # if $line starts with # or spaces -> comments so ignore.
 
-        # 5.1 Get the OLD setting (setting name) and value (setting value)
-        OLD_SETTING=$(echo ${line%%=*}) # get the value before the delimiter '=', % is from ending (right to left)
-        OLD_VALUE=$(echo ${line##*=}) # get the value after the delimiter '=', ## is from beginning (left to right)
+        # 5.1 Get the old_file setting (setting name) and value (setting value)
+        old_setting=$(echo ${line%%=*}) # get the value before the delimiter '=', % is from ending (right to left)
+        old_value=$(echo ${line##*=}) # get the value after the delimiter '=', ## is from beginning (left to right)
 
-        OLD_SETTING_VALUE="$OLD_SETTING"'='"$OLD_VALUE"
-        OLD_SETTING_VALUE=$(echo "$OLD_SETTING_VALUE" | xargs -0 ) # trimming spaces
+        old_setting_value="$old_setting"'='"$old_value"
+        old_setting_value=$(echo "$old_setting_value" | xargs -0 ) # trimming spaces
 
-        # 5.2 Get the NEW setting (name and value) from NEW.tmp
-        NEW_SETTING_VALUE=$(cat "$NEWTMP" | grep -E "($OLD_SETTING=)+") # i.e: grep -E '(start_embdded_petascope=true)' E is groupping regex, + for match one
-        NEW_SETTING_VALUE=$(echo "$NEW_SETTING_VALUE" | xargs -0 ) # trimming spaces
+        # 5.2 Get the new_file setting (name and value) from new_file.tmp
+        new_value=$(get_value "$old_setting" "$new_file_tmp")
+        new_setting_value="$old_setting=$new_value"
 
-        if [[ $NEW_SETTING_VALUE == '' ]]; then # if no OLD setting value in NEW file
-            log "+ Note: Old setting: $OLD_SETTING_VALUE is deprecated. Nothing to do. Done.";
-
-        elif [[ "$OLD_SETTING_VALUE" != "$NEW_SETTING_VALUE"    ]]; then
-            k=1 # To check value has been changed
-            # 5.3 If the OLD value is not the same as the NEW value then replace the NEW setting with the OLD setting from NEW.tmp
-            sed -i "s|\($OLD_SETTING=\).*|\1$OLD_VALUE|g" $NEWTMP # Trick: replace after delimiter '=' with OLD value in NEW.tmp (special characters)
-            log "+ Changing $NEW_SETTING_VALUE to $OLD_VALUE. Done.";
+        if [[ "$new_value" == "$NULL_VALUE" ]]; then # if no old_file setting value in new_file file
+            log "+ Note: Old setting: '$old_setting_value' is deprecated and is removed from old properties file.";
+            keep_backup=1 # Some old settings were removed, then it needs to keep the backup file
+        elif [[ "$old_setting_value" != "$new_setting_value" ]]; then            
+            # 5.3 If the old_file value is not the same as the new_file value then replace the new_file setting with the old_file setting from new_file.tmp
+            loge "+ Updating '$new_setting_value' to '$old_setting=$old_value'."
+            sed -i "s|\($old_setting=\).*|\1$old_value|g" $new_file_tmp # Trick: replace after delimiter '=' with old_file value in new_file.tmp (special characters)
+            loge "Done.";
         fi
-    fi # end check line not start with '#' in OLD file
-done < "$OLD" # ending read line in files
+    fi # end check line not start with '#' in old_file file
+done < "$old_file" # ending read line in files
 
-### For new Petascope in 9.5, copy the username, password from old configuration to new Spring configuration
-# Check if metadata_url=spring.datasource.url then do the copy as when petascope uses different JDBC URL (e.g: database)
-# the copy will be incorrect.
-metadata_url_value=$(get_value "metadata_url=" "$NEWTMP")
-if [[ ! -z  "$metadata_url_value" ]]; then
-    spring_datasource_url_value=$(get_value "spring.datasource.url=" "$NEWTMP")    
-    if [[ $metadata_url_value == $spring_datasource_url_value ]]; then
-        logn "Configuring Spring datasource for petascope version 9.5 or newer in petascope.properties..."
-        metadata_user_value=$(get_value "metadata_user=" "$NEWTMP")           
-        $(replace_value "spring.datasource.username=" "$metadata_user_value" "$NEWTMP")
-      
-        metadata_pass_value=$(get_value "metadata_pass=" "$NEWTMP")           
-        $(replace_value "spring.datasource.password=" "$metadata_pass_value" "$NEWTMP")                      
+### For new Petascope in 9.5, copy the username, password from old properties (version 9.4) to new Spring properties
+# then user doesn't have to update this petascope.properties for current datasource for Spring.
+spring_datasource_url_value=$(get_value "spring.datasource.url" "$old_file")
+if [[ "$spring_datasource_url_value" == "$NULL_VALUE" ]]; then
+    loge "Configuring Spring datasource for petascope version 9.5+ in petascope.properties from petascope.properties version 9.4- ..."
+    metadata_url_value=$(get_value "metadata_url" "$old_file")
+    $(replace_value "spring.datasource.url=" "$metadata_url_value" "$new_file_tmp")
+    
+    metadata_user_value=$(get_value "metadata_user" "$old_file")           
+    $(replace_value "spring.datasource.username=" "$metadata_user_value" "$new_file_tmp")
+  
+    metadata_pass_value=$(get_value "metadata_pass" "$old_file")           
+    $(replace_value "spring.datasource.password=" "$metadata_pass_value" "$new_file_tmp")                      
 
-        echo "Done."
-    fi    
+    loge "Done."
+fi    
+
+# if no old settings were removed in old file from new file, the backup for old file is not needed
+if [[ "$keep_backup" == 0 ]]; then
+    # the .bak file is not needed 
+    loge "No old settings were deprecated from old properties file, removing backup file '$old_bak'."
+    rm "$old_bak" || error "Error: Cannot remove temp backup file '$old_bak'.";    
+    loge "Done."
 fi
-
-# if nothing needs to change in NEW file
-if [[ $k == 0 ]]; then
-    log "Your old configuration is already up to date."
-fi
-
-echo -e
 
 # ---------------------------------------------
-#6 Remove OLD configuration file and rename NEW.tmp to the original file
-logn "Removing old configuration file... "
-rm "$OLD" || error "Error: Cannot remove old configuration file in $OLDDIR."; # remove old file
-echo "Done."
+#6 Remove old_file properties file and rename new_file.tmp to the original file
+rm "$old_file" || error "Error: Cannot remove old properties file in $old_dir."; # remove old file
 
-mv "$NEWTMP" "$OLD" # rename NEW.tmp to old file.
-log "The configuration file has been successfully updated."
+mv "$new_file_tmp" "$old_file" # rename new_file.tmp to old file.
+log "The old properties file has been successfully updated."
 ok
