@@ -42,7 +42,7 @@ if (ENABLE_JAVA)
 
     if (GENERATE_DOCS)
         add_custom_target(secore_doc ALL
-            COMMAND ${MAVEN_EXECUTABLE} javadoc:javadoc 2>&1 > /dev/null || exit 0
+            COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc 2>&1 > /dev/null || exit 0
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
 
@@ -53,7 +53,7 @@ if (ENABLE_JAVA)
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND ${MAVEN_EXECUTABLE} package
+            COMMAND ${MAVEN_EXECUTABLE} -B package
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
 

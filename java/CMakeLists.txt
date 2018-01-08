@@ -56,7 +56,7 @@ if (ENABLE_JAVA)
     # Run maven to build the project and copy rasj.jar to maven local repository
     find_package(Maven REQUIRED)
     add_custom_target(rasj ALL
-            COMMAND ${MAVEN_EXECUTABLE} package -P${NETWORK_PROTOCOL}
+            COMMAND ${MAVEN_EXECUTABLE} -B package -P${NETWORK_PROTOCOL}
             COMMAND mvn install:install-file -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
 		   -DgroupId=org.rasdaman -DartifactId=rasj -Dversion=${PROJECT_VERSION} -Dpackaging=jar
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
@@ -65,7 +65,7 @@ if (ENABLE_JAVA)
 
     if (GENERATE_DOCS)
         add_custom_target(rasj_doc ALL
-            COMMAND ${MAVEN_EXECUTABLE} javadoc:javadoc -P${NETWORK_PROTOCOL} 2>&1 > /dev/null || exit 0
+            COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc -P${NETWORK_PROTOCOL} 2>&1 > /dev/null || exit 0
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)

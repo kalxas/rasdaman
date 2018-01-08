@@ -49,7 +49,7 @@ phantomjs_path="/tmp/phantomjs"
 
 if [ ! -f "$phantomjs_path" ]; then
     log "Preparing to download phantomjs..."
-    wget http://kahlua.eecs.jacobs-university.de:8080/test_wcsclient_insertcoverage/phantomjs -O "$phantomjs_path"
+    wget -q http://kahlua.eecs.jacobs-university.de:8080/test_wcsclient_insertcoverage/phantomjs -O "$phantomjs_path"
 fi
 
 if [ ! -f "$phantomjs_path" ]; then
