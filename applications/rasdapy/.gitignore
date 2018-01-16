@@ -1,0 +1,10 @@
+build/*
+dist/*
+*.pyc
+*.egg-info
+.idea/*
+.vagrant/*
+.DS_Store
+.eggs/*
+venv/*
+
