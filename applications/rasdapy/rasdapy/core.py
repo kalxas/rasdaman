@@ -58,6 +58,7 @@ from rasdapy.remote_procedures import rasmgr_close_db, rasmgr_connect, \
 from rasdapy.stubs import client_rassrvr_service_pb2 as rassrvr
 from rasdapy.stubs import rasmgr_client_service_pb2 as rasmgr
 
+from exception_factories import ExceptionFactories
 
 class Connection(object):
     """
@@ -458,14 +459,9 @@ class Query(object):
             self.query_str)
         if exec_update_query_resp.status == 2 or \
                         exec_update_query_resp.status == 3:
-            raise Exception(
-                "Error executing query: err_no = " + str(
-                    exec_update_query_resp.erroNo) + ", line_no = " +
-                str(
-                    exec_update_query_resp.lineNo) + ", col_no = " +
-                str(
-                    exec_update_query_resp.colNo) + ", token = " +
-                exec_update_query_resp.token)
+            error_message = ExceptionFactories.create_error_message(exec_update_query_resp.erroNo, exec_update_query_resp.lineNo,
+                                                                    exec_update_query_resp.colNo, exec_update_query_resp.token)
+            raise Exception("Error executing query '{}', error message '{}'".format(self.query_str, error_message))
         if exec_update_query_resp.status == 1:
             raise Exception("Error: Unknown Client")
         if exec_update_query_resp.status > 3:
@@ -483,11 +479,9 @@ class Query(object):
                                                 self.query_str)
         self.exec_query_resp = exec_query_resp
         if exec_query_resp.status == 4 or exec_query_resp.status == 5:
-            raise Exception("Error executing query: err_no = " + str(
-                exec_query_resp.err_no) + ", line_no = " + str(
-                exec_query_resp.line_no) + ", col_no = " + str(
-                exec_query_resp.col_no) + ", token = " +
-                            exec_query_resp.token)
+            error_message = ExceptionFactories.create_error_message(exec_query_resp.err_no, exec_query_resp.line_no,
+                                                                    exec_query_resp.col_no, exec_query_resp.token)
+            raise Exception("Error executing query '{}', error message '{}'".format(self.query_str, error_message))
         elif exec_query_resp.status == 0:
             return self._get_next_collection()
         elif exec_query_resp.status == 1:
