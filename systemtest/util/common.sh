@@ -77,6 +77,9 @@ TEST_SUBSETTING_3D=test_subsetting_3d
 #
 export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
               --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
+# This one is used only for test_rasdapy
+export PY_RASQL="python $UTIL_SCRIPT_DIR/../testcases_mandatory/test_rasdapy/rasql.py --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
+              --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 export RASDL="rasdl -d $RASDB"
 export RASIMPORT="rasimport"
@@ -801,10 +804,13 @@ run_test()
       secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g'`
               get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
-      select|rasql|nullvalues|subsetting|clipping)
+      select|rasql|nullvalues|subsetting|clipping|rasdapy)
               QUERY=`cat $f`
-              
-              $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
+              if [ "$SVC_NAME" == "rasdapy" ]; then                 
+                $PY_RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
+              else
+                $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
+              fi
 
               # if an exception was thrown, then the err file has non-zero size
               if [ -s "$err" ]; then
@@ -825,7 +831,7 @@ run_test()
                     $RASQL -q "$QUERY" --out string | grep Result > $out
                 fi
               fi
-              ;;
+              ;;              
       *)      error "unknown service: $SVC_NAME"
     esac
 
@@ -1028,3 +1034,4 @@ get_server_pid()
 # load all modules
 #
 . "$UTIL_SCRIPT_DIR"/rasql.sh
+. "$UTIL_SCRIPT_DIR"/py_rasql.sh

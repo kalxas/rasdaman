@@ -88,3 +88,10 @@ class ResultArray(object):
         ndarr = numpy.ndarray(shape=tuple(shape_arr), buffer=numpy.array(self.data), dtype=numpy_data_type,
                               order='F')
         return ndarr
+
+    def __str__(self):
+        """
+        Get the content of the MDDArray which can be printed (e.g: for encode as csv and can output as --string)
+        :return: str
+        """
+        return self.data

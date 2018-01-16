@@ -28,18 +28,28 @@ class DBConnector(object):
     """
     Interface to user to open a connection to rasdaman database and keep connection until user closes it.
     """
-    def __init__(self, hostname, username, password):
+    def __init__(self, hostname, port, username, password, database="RASBASE"):
         """
         :param str hostname: e.g: localhost
+        :param int port: e.g: 7001 (default rasmgr port)
         :param str username: e.g: rasguest/rasadmin
         :param str password: e.g: rasguest/rasadmin
         """
         self.hostname = hostname
+        self.port = port
         self.username = username
         self.password = password
-        self.con = core.Connection(hostname=hostname,
+        self.database = database
+        self.con = core.Connection(hostname=hostname, port=port,
                                    username=username, password=password)
-        self.db = self.con.database("RASBASE")
+        self.db = self.con.database(self.database)
+
+    def open(self):
+        """
+        Open the connection to rasserver, then RASBASE
+        """
+        self.con.connect()
+        self.db.open()
 
     def close(self):
         """

@@ -27,6 +27,7 @@ import struct
 import threading
 import math
 
+from rasdapy.models.complex import Complex
 from rasdapy.models.composite_type import CompositeType
 from rasdapy.models.sinterval import SInterval
 from rasdapy.models.minterval import MInterval
@@ -52,16 +53,16 @@ def get_type_structure_from_string(input_str):
     :return: object {"type", "base_type", "sub_type"(optional)}
     """
     primary_regex = "set\s*<marray\s*<(" \
-                    "char|ushort|short|ulong|long|float|double|complexd|complex|bool),\s*.*>>"
-    scalar_regex = "set\s*<(char|ushort|short|ulong|long|float|double|complexd|complex|bool)\s*>"
+                    "char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet),\s*.*>>"
+    scalar_regex = "set\s*<(char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet)\s*>"
     struct_regex = (
         "set\s*<marray\s*<struct\s*{(("
-        "char|ushort|short|ulong|long|float|double|complexd|complex|bool)\s*.*,)*\s*(("
-        "char|ushort|short|ulong|long|float|double|complexd|complex|bool)\s*.*)},\s*.*>>"
+        "char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet)\s*.*,)*\s*(("
+        "char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet)\s*.*)},\s*.*>>"
     )
     complex_scalar_regex = (
-        "set\s*<struct\s*{((char|ushort|short|ulong|long|float|double)\s*.*,"
-        ")*\s*((char|ushort|short|ulong|long|float|double)\s*.*)}\s*>"
+        "set\s*<struct\s*{((char|ushort|short|ulong|long|float|double|octet)\s*.*,"
+        ")*\s*((char|ushort|short|ulong|long|float|double|octet)\s*.*)}\s*>"
     )
     # sdom(c)
     minterval_regex = "set<minterval>"
@@ -136,10 +137,7 @@ def get_type_structure_from_string(input_str):
             'type': 'sinterval'
         }
     else:
-        print(input_str)
-        raise Exception(
-                "Invalid Type Structure: Could not retrieve type structure "
-                "from String")
+        raise Exception("Invalid Type Structure: Could not retrieve type structure from: {}.".format(input_str))
 
     return result
 
@@ -156,27 +154,30 @@ def convert_data_from_bin(dtype, data, big_endian=False):
     flag = ">" if big_endian else "<"
 
     if dtype == "char":
-        result = struct.unpack(flag + "c", data)
+        # it is hex character and needs to convert to ascii value integer instead
+        result = ord(struct.unpack(flag + "c", data)[0])
     elif dtype == "bool":
-        result = struct.unpack(flag + "?", data)
+        result = struct.unpack(flag + "?", data)[0]
     elif dtype == "minterval" or dtype == "sinterval":
         # minterval is output from sdom and parsed each byte, interval is sdom()[0]
-        result = struct.unpack(flag + "s", data)
+        result = struct.unpack(flag + "s", data)[0]
+    elif dtype == "octet":
+        result = struct.unpack(flag + "B", data)[0]
     elif dtype == "ushort":
-        result = struct.unpack(flag + "H", data)
+        result = struct.unpack(flag + "H", data)[0]
     elif dtype == "short":
-        result = struct.unpack(flag + "h", data)
+        result = struct.unpack(flag + "h", data)[0]
     elif dtype == "ulong":
-        result = struct.unpack(flag + "I", data)
+        result = struct.unpack(flag + "I", data)[0]
     elif dtype == "long":
-        result = struct.unpack(flag + "i", data)
+        result = struct.unpack(flag + "i", data)[0]
     elif dtype == "float" or dtype == "complex":
-        result = struct.unpack(flag + "f", data)
+        result = struct.unpack(flag + "f", data)[0]
     elif dtype == "double" or dtype == "complexd":
-        result = struct.unpack(flag + "d", data)
+        result = struct.unpack(flag + "d", data)[0]
     else:
         raise Exception("Unknown Data type provided")
-    return result[0]
+    return result
 
 
 def get_size_from_data_type(dtype):
@@ -188,6 +189,8 @@ def get_size_from_data_type(dtype):
     if dtype == "char":
         result = 1
     elif dtype == "bool":
+        result = 1
+    elif dtype == "octet":
         result = 1
     elif dtype == "ushort":
         result = 2
@@ -229,9 +232,15 @@ def convert_binary_data_stream(dtype, data):
         # e.g: select {1, 2, 3}
         temp_array = []
         cell_counter = 0
+        last_byte = 0
         for idx, dt in enumerate(dtype["sub_type"]["types"]):
             dtsize = get_size_from_data_type(dt)
-            temp_array.append(convert_data_from_bin(dt, data[idx * dtsize : (idx + 1) * dtsize]))
+            from_byte = last_byte
+            to_byte = last_byte + dtsize
+            last_byte = to_byte
+            scalar_value = convert_data_from_bin(dt, data[from_byte : to_byte])
+            scalar_value = get_scalar_result(scalar_value)
+            temp_array.append(scalar_value)
             cell_counter += 1
         composite_type = CompositeType(temp_array)
 
@@ -276,14 +285,39 @@ def convert_binary_data_stream(dtype, data):
         dtsize = get_size_from_data_type(type)
         real_number = convert_data_from_bin(type, data[0: dtsize])
         imagine_number = convert_data_from_bin(type, data[dtsize: dtsize * 2])
-        complex_number = complex(real_number, imagine_number)
+
+        real_number = get_scalar_result(real_number)
+        imagine_number = get_scalar_result(imagine_number)
+        complex_number = Complex(real_number, imagine_number)
 
         return complex_number
     else:
         # e.g: query return 1 double value and data will have length = 8 bytes
         scalar_value = convert_data_from_bin(type, data)
+        scalar_value = get_scalar_result(scalar_value)
 
         return scalar_value
+
+
+def get_scalar_result(scalar_value):
+    """
+    Rasql client returns number with round (e.g: 33.234544665464 is 33.2345, 33.0 is 33)
+    :param (int|float) number: input number which need to process to return as from rasql client
+    :return: (int|float) processed number
+    """
+    # rasql client also rounds e.g: 39.8362884521 to 39.8363
+    if isinstance(scalar_value, bool):
+        if scalar_value is True:
+            scalar_value = "t"
+        else:
+            scalar_value = "f"
+    elif "e" not in str(scalar_value):
+        # scalar_value is a float with scientific notation, e.g: 4e-05
+        if str(scalar_value).endswith(".0"):
+            # e.g: 333.0 should return 333 as in rasql client
+            scalar_value = int(scalar_value)
+
+    return scalar_value
 
 
 def convert_numpy_arr_to_bin(arr):

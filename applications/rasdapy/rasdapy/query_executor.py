@@ -91,6 +91,8 @@ class QueryExecutor(object):
         # but with values $1 it needs to specify these parameters
         if mdd_domain is None:
             mdd_domain = "[0:" + str(len(data) - 1) + "]"
+        if mdd_type is None:
+            mdd_type = RasGMArray.DEFAULT_MDD_TYPE
 
         # Parse str values of mdd_domain and tile_domain to MInterval objects
         mdd_domain = MInterval.from_str(mdd_domain)

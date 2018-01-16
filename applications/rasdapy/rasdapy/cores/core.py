@@ -85,7 +85,6 @@ class Connection(object):
         self.session = None
         self._rasmgr_keep_alive_running = None
         self._keep_alive_thread = None
-        self.connect()
 
     def disconnect(self):
         """
@@ -171,7 +170,6 @@ class Database(object):
         self.stub = None
         self._rassrvr_keep_alive_running = None
         self._keep_alive_thread = None
-        self.open()
 
     def open(self):
         """
@@ -499,7 +497,8 @@ class Query(object):
             # e.g: query: select complex(35, 56), select sdom(c) from test_mr as c, select {1, 2, 3}
             return self._get_element_result()
         elif exec_query_resp.status == 2:
-            raise Exception("Query returned an empty collection")
+            # Query can return empty collection (e.g: select c from c where all_cells( c > 20 )) which returns empty
+            pass
         else:
             raise Exception("Unknown status code: " + str(
                 exec_query_resp.status) + " returned by ExecuteQuery")
