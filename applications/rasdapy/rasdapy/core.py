@@ -428,26 +428,26 @@ class Query(object):
         :param query_str: the query as a string
         """
         self.transaction = transaction
-        self.query_str = query_str
+        self.query_str = query_str.strip()
         self.mdd_constants = None
         self.exec_query_resp = None
 
     def eval(self):
-        if self.query_str.startswith("insert") or self.query_str.startswith(
-                "INSERT"):
-            self._execute_update()
-        elif self.query_str.startswith("create") or self.query_str.startswith(
-                "CREATE"):
-            self._execute_update()
-        elif self.query_str.startswith("drop") or self.query_str.startswith(
-                "DROP"):
-            self._execute_update()
-        else:
+        tmp_query = self.query_str.upper()
+        if tmp_query.startswith("SELECT ") and not " INTO " in tmp_query:
+            # Only select, not select .... into collection
             return self._execute_read()
+        else:
+            # select ... into, create, update, delete, drop
+            return self._execute_update()
 
     def _execute_update(self):
+        """
+        Executes the query with write permission and returns back a result
+        :return: the resulting status returned by the query
+        """
         if self.transaction.rw is False:
-            raise Exception("Transaction does now have write access")
+            raise Exception("Transaction does not have write access")
 
         if self.mdd_constants is not None:
             pass
@@ -474,7 +474,7 @@ class Query(object):
 
     def _execute_read(self):
         """
-        Executes the query and returns back a result
+        Executes the query with read permission and returns back a result
         :return: the resulting array returned by the query
         :rtype: Array
         """
@@ -604,6 +604,7 @@ class Query(object):
                 raise Exception("Error: Invalid Type")
             else:
                 raise Exception("Error: Transfer failed")
+
 
 
 class RPCMarray(object):
