@@ -116,4 +116,14 @@ install(FILES
     structuretype.hh
     template_inst.hh
     type.hh
+    error.icc
+    minterval.icc
+    miterd.icc
+    miterf.icc
+    miter.icc
+    oid.icc
+    pointdouble.icc
+    point.icc
+    rmdebug.icc
+    sinterval.icc
     DESTINATION "${INCLUDE_DIR}/raslib")

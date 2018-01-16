@@ -46,6 +46,11 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile"
         DESTINATION "${SHARE_DATA_DIR}/examples/c++/"
         RENAME Makefile)
 
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/manuals/"
+        DESTINATION "${SHARE_DATA_DIR}/doc"
+        PATTERN "*.doc" EXCLUDE
+        PATTERN "*.sh" EXCLUDE)
+
 if (GENERATE_DOCS)
     find_package(Doxygen REQUIRED)
 
@@ -62,8 +67,4 @@ if (GENERATE_DOCS)
             COMMENT "Building documentation."
             VERBATIM)
 
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/manuals/"
-            DESTINATION "${SHARE_DATA_DIR}/doc"
-            PATTERN "*.doc" EXCLUDE
-            PATTERN "*.sh" EXCLUDE)
 endif ()

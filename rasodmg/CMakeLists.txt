@@ -66,4 +66,15 @@ install(FILES
     storagelayout.hh
     tiling.hh
     transaction.hh
+    alignedtiling.icc
+    collection.icc
+    database.icc
+    gmarray.icc
+    iterator.icc
+    marray.icc
+    object.icc
+    oqlquery.icc
+    ref.icc
+    storagelayout.icc
+    transaction.icc
     DESTINATION "${INCLUDE_DIR}/rasodmg")
