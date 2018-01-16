@@ -118,6 +118,7 @@ class Connection(object):
                     rasmgr_keep_alive,
                     self.session.keepAliveTimeout / 2000,
                     self.stub, self.session.clientUUID)
+                self._keep_alive_thread.daemon = True
                 self._keep_alive_thread.start()
         else:
             raise Exception("RasMgrKeepAlive already running")
@@ -190,6 +191,8 @@ class Database(object):
         self.rassrvr_db = rassrvr_open_db(self.stub,
                                           self.connection.session.clientId,
                                           self.name)
+
+        # Open another thread to keep connection with rasserver
         self._keep_alive()
 
     def close(self):
@@ -197,8 +200,14 @@ class Database(object):
         Closes the connection to RasServer and RasManager. Also, stops
         sending the keep alive messages to the RasServer.
         """
+
+        # Trying to stop keep alive message thread to rasserver
         self._stop_keep_alive()
+
+        # Trying to close connection to rasserver
         rassrvr_close_db(self.stub, self.connection.session.clientId)
+
+        # Trying to close connection to rasmgr
         rasmgr_close_db(self.connection.stub,
                         self.connection.session.clientUUID,
                         self.connection.session.clientId,
@@ -250,6 +259,8 @@ class Database(object):
                     self.connection.session.keepAliveTimeout / 2000,
                     self.stub, self.connection.session.clientUUID,
                     self.rasmgr_db.dbSessionId)
+
+                self._keep_alive_thread.daemon = True
                 self._keep_alive_thread.start()
         else:
             raise Exception("RasSrvrKeepAlive already running")

@@ -254,13 +254,17 @@ class StoppableTimeoutThread(threading.Thread):
         self._args = args
         self._timeout = timeout
         self._stop = threading.Event()
+        self.close_thread = False
 
     def run(self):
-        while True:
+        while self.close_thread is not True:
+            # send a keep alive message to rasmgr/rasserver
             self._target(*self._args)
-            time.sleep(self._timeout)
+            self._stop.wait(self._timeout)
 
     def stop(self):
+        # wake up thread to quit
+        self.close_thread = True
         self._stop.set()
 
     def stopped(self):
@@ -281,3 +285,4 @@ def represent_subsetting(collection, tuple_arr):
     repr = repr[:-1]
     repr += "]"
     return repr
+
