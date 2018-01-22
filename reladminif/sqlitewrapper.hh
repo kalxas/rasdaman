@@ -34,6 +34,7 @@ rasdaman GmbH.
 #ifdef BASEDB_SQLITE
 
 #include <sqlite3.h>
+#include <string>
 #include "sqlglobals.h"
 
 /**
@@ -159,12 +160,12 @@ public:
     /**
      * @param param the string parameter to bind to the SQL statement.
      */
-    void bindString(char* param, int size);
+    void bindString(const char* param, int size);
 
     /**
      * @param param the blob parameter to bind to the SQL statement.
      */
-    void bindBlob(char* param, int size);
+    void bindBlob(const char* param, int size);
 
     /**
      * Execute this SQL statement.
@@ -205,7 +206,8 @@ public:
 private:
     static sqlite3* sqliteConn;
     sqlite3_stmt* stmt;
-    char* query;
+    // saved for debugging purposes, e.g. in case the query execution fails
+    std::string query;
     int columnCounter;
     
     // 10 minutes timeout, in case RASBASE is locked by another rasserver for writing

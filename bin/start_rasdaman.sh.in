@@ -37,9 +37,6 @@
 #    * If at least one parameter is provided then all parameters
 #      will be treated as a server name which is tried to be started.
 #
-#    One possible reason while not all servers may come up is that more servers
-#    might be defined than your licence model allows to run in parallel.
-#
 #    To log in to the server, the external variable $RASLOGIN is expected to hold
 #    an ID string (see rasdaman manual). If not found, a desperate last attempt is
 #    made to login as rasadmin/rasadmin. If this fails, no servers are started at all.
@@ -102,6 +99,29 @@ if [ $count -eq 100 ]; then
 fi
 }
 
+# Check if the last executed command is successfull
+# $1 - process name
+# $2 == 1 - exit with error if failed to start
+# return - pid if started successfully
+check_process()
+{
+    # get exit code and pid of the last executed command
+    local exit_code=$?
+    pid=$!
+    # wait 1 second for the process to establish
+    sleep 1
+    if [ $exit_code -ne 0 ]; then
+        echo "failed; please check the logs for more information."
+        [ "$2" == "1" ] && exit $RC_ERROR
+    elif ! ps -p $pid > /dev/null 2>&1; then
+        echo "failed, pid $pid not found; please check the logs for more information."
+        [ "$2" == "1" ] && exit $RC_ERROR
+    else
+        echo "ok, pid $pid."
+        echo $pid > $1.pid
+    fi
+}
+
 # Read the property of a value by input key from input properties file
 get_property_value() {
     # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
@@ -117,6 +137,13 @@ log "starting rasdaman server complex..."
 
 # --- start rasmgr: -------------------------------------------------
 
+# check if rasmgr exists
+if [ ! -f @bindir@rasmgr ];
+then
+    log "rasmgr does not exist in "@bindir@", rasdaman cannot be started."
+    exit $RC_ERROR
+fi
+
 # here we want to put all log files
 cd @logdir@
 
@@ -127,11 +154,9 @@ then
     exit $RC_ERROR
 fi
 
-# check if rasmgr exists
-if [ ! -f @bindir@rasmgr ];
-then
-    log "rasmgr does not exist in "@bindir@", rasdaman cannot be started."
-    exit $RC_ERROR
+# determine rascontrol login
+if [ -z "$RASLOGIN" ]; then
+    export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 fi
 
 # clear previous log file
@@ -141,51 +166,22 @@ rm -f nohup.out
 # the manager is started in quiet mode
 logn "  starting rasmgr... "
 nohup @bindir@rasmgr --port $RASMGR_PORT > nohup.out 2>&1 &
-rasmgr_pid=$!
-sleep 1
-echo "ok, pid $rasmgr_pid."
+check_process "rasmgr" 1
 
 # --- start servers: -------------------------------------------------
 
-# check if rasmgr's pid is actually running; if not, exit with an error.
-# we do it this way, because the exit code cannot be captured with nohup
-ps -p $rasmgr_pid > /dev/null
-if [ $? -ne 0 ]; then
-    log "rasmgr failed starting; please check the logs for more information."
-    exit $RC_ERROR
-fi
 
 # these servers will be started:
-if [ -n "$1" ]
-then
+if [ -n "$1" ]; then
     # parameters provided, take them as server names
-    # B: check if parameter's name does not start with -- then it is the server name
-    SERVERS=""
-    for var in "$@"
-    do
-        if [[ "$var" != *"--"* ]]; then
-            # this is server name so add to SERVERS
-            SERVERS+="$var"' '
-        fi
-    done
-
+    SERVERS="$@"
 else
-    if [ -n "$RASSERVERS" ]; then
-        SERVERS=$RASSERVERS
-    else
-        SERVERS=""
-    fi
-fi
-
-# determine rascontrol login
-if [ -z "$RASLOGIN" ]; then
-    export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
+    SERVERS="$RASSERVERS"
 fi
 
 # ...then spawn server workers
-if [ "$SERVERS" ]; then
-    for SRV in $SERVERS
-    do
+if [ -n "$SERVERS" ]; then
+    for SRV in $SERVERS; do
         logn "  starting server $SRV... "
         @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
         echo "ok."
@@ -209,10 +205,6 @@ if [ $? -ne 0 ]; then
     wait_for_rasservers_to_shutdown
     # kill rasmgr
     @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all -kill > /dev/null
-    pgrep rasserver > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo ok.
-    fi
     log "done."
     exit $RC_ERROR
 else
@@ -242,21 +234,19 @@ start_embedded() {
         if [ "$java_server" == "embedded" ]; then
             # Get the embedded port for server
             server_port=$(get_property_value "$properties_file_path" "server.port")
+            log "  starting $application_name on port $server_port... "
             # Check if port is available
             fuser -s -n tcp "$server_port"   
              # Return 1 means port is available  
             if [[ ! $? -eq 0 ]]; then
-                nohup java -jar "$war_path/""$war_file_name" & 2>&1
-                log "embedded $application_name is starting on port '$server_port'..."
-                log "check $log_path/$application_name.log for detail."
+                nohup java -jar "$war_path/""$war_file_name" >> "$application_name.log" & 2>&1
+                check_process "$application_name"
             else
-                log "port '$server_port' is occupied, cannot start embedded $application_name."
-                exit $RC_ERROR
+                echo "failed, port '$server_port' is occupied."
             fi
         fi
     else
-        log "could not find properties file '$properties_file_path' to start embedded $application_name."
-        exit $RC_ERROR
+        log "Warning: '$properties_file_path' not found, $application_name cannot be started."
     fi
 }
 

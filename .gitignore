@@ -95,6 +95,7 @@ applications/raswct/bin
 glassfish-web.xml
 java/dist/
 java/target
+java/lib
 java/src/org/rasdaman/rasnet/message
 java/src/main/java/org/rasdaman/rasnet/service
 java/src/rasj/RasImplementation.java
@@ -240,6 +241,7 @@ applications/secore/src/main/resources/gml/
 nb-configuration.xml
 
 build/
+target/
 applications/petascope/petascope_core/target/
 applications/petascope/petascope_main/target/
 applications/petascope/petascope_migration/target/

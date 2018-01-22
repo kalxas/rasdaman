@@ -34,6 +34,7 @@ rasdaman GmbH.
 #include "raslib/rminit.hh"
 #include "debug/debug-srv.hh"
 #include <cstdarg>
+#include <memory>
 #include <cstdio>
 #include <bool.h>
 #include <easylogging++.h>
@@ -41,28 +42,25 @@ rasdaman GmbH.
 sqlite3* SQLiteQuery::sqliteConn = NULL;
 
 SQLiteQuery::SQLiteQuery(char q[]) :
-    stmt(NULL), columnCounter(0)
+    stmt(NULL), query(q), columnCounter(0)
 {
-    query = query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_prepare_v2(sqliteConn, q, -1, &stmt, NULL);
-    //RMInit::logOut << "SQL query: " << query << endl;
     LDEBUG << "SQL query: " << query;
 }
 
 SQLiteQuery::SQLiteQuery(const char* format, ...) :
-    stmt(NULL), columnCounter(0)
+    stmt(NULL), query(""), columnCounter(0)
 {
-    char q[QUERY_MAXLEN];
+    std::unique_ptr<char[]> tmpQuery(new char[QUERY_MAXLEN]);
     va_list args;
     va_start(args, format);
-    vsnprintf(q, QUERY_MAXLEN, format, args);
+    vsnprintf(tmpQuery.get(), QUERY_MAXLEN, format, args);
     va_end(args);
-    query = q;
-    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
-    sqlite3_prepare_v2(sqliteConn, query, -1, &stmt, NULL);
-    //RMInit::logOut << "SQL query: " << query << endl;
+    query = std::string(tmpQuery.get());
     LDEBUG << "SQL query: " << query;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
+    sqlite3_prepare_v2(sqliteConn, query.c_str(), -1, &stmt, NULL);
 }
 
 SQLiteQuery::~SQLiteQuery()
@@ -83,6 +81,7 @@ void SQLiteQuery::finalize()
     {
         sqlite3_finalize(stmt);
         stmt = NULL;
+        query = "";
     }
 }
 
@@ -106,52 +105,50 @@ void SQLiteQuery::bindDouble(double param)
     sqlite3_bind_double(stmt, ++columnCounter, param);
 }
 
-void SQLiteQuery::bindString(char* param, int size)
+void SQLiteQuery::bindString(const char* param, int size)
 {
     sqlite3_bind_text(stmt, ++columnCounter, param, size, SQLITE_TRANSIENT);
 }
 
-void SQLiteQuery::bindBlob(char* param, int size)
+void SQLiteQuery::bindBlob(const char* param, int size)
 {
     sqlite3_bind_blob(stmt, ++columnCounter, param, size, SQLITE_TRANSIENT);
 }
 
 void SQLiteQuery::execute(int fail)
 {
-    LDEBUG << "Executing SQL query (fail on error: " << fail << "): " << query;
+    LDEBUG << "SQL query: " << query;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_step(stmt);
     if (fail)
     {
-        failOnError(query, sqliteConn);
+        failOnError(query.c_str(), sqliteConn);
     }
     else
     {
-        warnOnError(query, sqliteConn);
+        warnOnError(query.c_str(), sqliteConn);
     }
 }
 
-void SQLiteQuery::execute(const char* query)
+void SQLiteQuery::execute(const char* q)
 {
-    //RMInit::logOut << "SQL query: " << query << endl;
-    LDEBUG << "Executing SQL query: " << query;
+    LDEBUG << "SQL query: " << q;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
-    sqlite3_exec(sqliteConn, query, 0, 0, 0);
-    failOnError(query, sqliteConn);
+    sqlite3_exec(sqliteConn, q, 0, 0, 0);
+    failOnError(q, sqliteConn);
 }
 
 void SQLiteQuery::executeWithParams(const char* format, ...)
 {
-    char query[QUERY_MAXLEN];
+    std::unique_ptr<char[]> q(new char[QUERY_MAXLEN]);
     va_list args;
     va_start(args, format);
-    vsnprintf(query, QUERY_MAXLEN, format, args);
+    vsnprintf(q.get(), QUERY_MAXLEN, format, args);
     va_end(args);
-    //RMInit::logOut << "SQL query: " << query << endl;
-    LDEBUG << "Executing SQL query: " << query;
+    LDEBUG << "SQL query: " << q.get();
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
-    sqlite3_exec(sqliteConn, query, 0, 0, 0);
-    failOnError(query, sqliteConn);
+    sqlite3_exec(sqliteConn, q.get(), 0, 0, 0);
+    failOnError(q.get(), sqliteConn);
 }
 
 sqlite3* SQLiteQuery::getConnection()
@@ -169,7 +166,7 @@ int SQLiteQuery::nextRow()
     int rc = sqlite3_step(stmt);
     if (rc != SQLITE_ROW && rc != SQLITE_DONE)
     {
-        failOnError((const char*) query, sqliteConn);
+        failOnError(query.c_str(), sqliteConn);
     }
     columnCounter = 0;
     return rc == SQLITE_ROW;

@@ -148,7 +148,7 @@ if [ $? -ne 0 ]; then
     exit $RC_OK
 fi
 
-log "terminating all rasdaman servers"
+log "terminating rasdaman server complex... "
 
 # --- stop rasdaman servers ---------------------------------------
 
@@ -161,9 +161,13 @@ ALLSERVERS=`@bindir@rascontrol --port $RASMGR_PORT -e -q -x list srv -all | awk 
 
 # ...and shut down all of them, forcefully (!); any open transaction will be lost
 for SRV in $ALLSERVERS; do
-    logn "terminating server $SRV..."
+    logn "  terminating server $SRV... "
     @bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv $SRV -kill
-    echo "done."
+    if [ $? -eq 0 ]; then
+        echo "ok."
+    else
+        echo "failed."
+    fi
 done
 
 wait_for_rasservers_to_shutdown
