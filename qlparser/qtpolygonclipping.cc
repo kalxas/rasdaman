@@ -80,7 +80,8 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
     convexHull << xAxis;
     convexHull << yAxis;
 
-    if( !domain.intersects_with(convexHull) ){
+    if( !domain.intersects_with(convexHull) )
+    {
         return NULL;
     }
 
@@ -101,8 +102,7 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
     //fill the polygon edges in the mask
     rasterizePolygon(mask, polygonVertices);
     //fill the connected component of the complement of the polygon containing infinity
-    //TODO (bbell): Consider replacing with floodfill for more-robust handling of edge-cases..
-    fillOutsideOfPolygon(mask);
+    polygonInteriorFloodfill(mask, polygonVertices);
         
     // get all tiles in relevant area
     vector<boost::shared_ptr<Tile>>* allTiles = op->getTiles();
@@ -135,7 +135,7 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
                     
                     for( auto j = intersectDom[1].low(); j <= intersectDom[1].high(); j++ )
                     {
-                            if( mask[static_cast<size_t>(i-bBox.first[0])][static_cast<size_t>(j-bBox.first[1])] != 0 )
+                            if( mask[static_cast<size_t>(i-bBox.first[0])][static_cast<size_t>(j-bBox.first[1])] < 2 )
                             {
                                 memcpy(resultData, rowOfData, typeSize);
                             }
@@ -177,7 +177,7 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
         resTile = NULL;
         delete mddres;
         mddres = NULL;
-        throw r_Error(err);
+        throw r_Error(static_cast<size_t>(err));
     }
     delete allTiles;
     return mddres;
@@ -286,8 +286,31 @@ QtPolygonClipping::compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim)
         resTile = NULL;
         delete mddres;
         mddres = NULL;
-        throw r_Error(err);
+        throw r_Error(static_cast<size_t>(err));
     }
     delete allTiles;
     return mddres;
+}
+
+vector< vector<char> >
+QtPolygonClipping::generateMask()
+{
+    //2-D array of type char "mask" for marking which cells are in the polygon and which are outside
+    vector< vector<char> > mask( static_cast<long unsigned int>(domain[0].get_extent()), 
+                                    vector<char>(static_cast<long unsigned int>(domain[1].get_extent()), 2));
+    
+    //translate polygon vertices into mask coordinates
+    for( unsigned int i = 0; i < polygonVertices.size(); i++ )
+    {
+        polygonVertices[i][0] = polygonVertices[i][0] - domain[0].low();
+        polygonVertices[i][1] = polygonVertices[i][1] - domain[1].low();
+    }
+    
+    //fill the polygon edges in the mask
+    rasterizePolygon(mask, polygonVertices);
+    
+    //fill the connected component of the complement of the polygon containing infinity
+    polygonInteriorFloodfill(mask, polygonVertices);    
+
+    return mask;
 }

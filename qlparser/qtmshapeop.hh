@@ -77,10 +77,10 @@ public:
 
     // 1. checks each group of three vertices if they fail in either the colinear
     //    or convex test.
-    int isLeftTurn(std::deque< r_Point  *> &);
+    int isLeftTurn( const std::deque< r_Point  *> & );
 
     // 2. The mshape/polygon created must be concave and with no colinear vertices
-    bool isValidSetOfPoints( vector<r_Point>&);
+    bool isValidSetOfPoints( const vector<r_Point>& );
 
     inline vector<r_Point> getPoints();
 

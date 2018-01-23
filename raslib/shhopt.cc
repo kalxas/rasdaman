@@ -44,6 +44,9 @@
 
 #include "shhopt.hh"
 
+/* for compiling in strict mode -- bug fixed in later versions of GCC*/
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**************************************************************************
  *                                                                        *
  *                       P R I V A T E    D A T A                         *

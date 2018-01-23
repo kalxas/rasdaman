@@ -74,7 +74,7 @@ QtPointOp::QtPointOp(QtOperationList *opList)
         {
             QtData* coordPtr  = (dynamic_cast<QtConst*>(*iter))->getDataObj();
             
-           (*pt)[i] = (static_cast<QtAtomicData *>(coordPtr))->getUnsignedValue();
+           (*pt)[i] = (static_cast<QtAtomicData*>(coordPtr))->getSignedValue();
         }
     }
 }

@@ -90,11 +90,14 @@ int computeOffset(const r_Point& genExtents, const r_Point& pointOne, const r_Po
 /// first = initial offset; second = total # cells to produce
 /// convention: first = -1          --> no solutions (0 = 1)
 ///             second = std::max   --> infinitely many solutions (0 = 0)
-std::pair<int, int> computeStepsToSkip(const r_Point& currentPosition, const r_Point& boundingPosition, QtMShapeData *mshape, r_Dimension boxDim);
+std::pair<int, int> computeStepsToSkip(const r_Point& currentPosition, const r_Point& boundingPosition, QtMShapeData* mshape, r_Dimension boxDim);
 
 // appends index vectors to nSubspace corresponding to a BLA performed on the two vertices in mshape
 // the BLA gives indices, not offsets. So the offsets are computed int he output method.
-void compute_nD_Bresenham_Line(QtMShapeData *mshape, vector<r_Point> &nSubspace);
+void computeNDBresenhamLine(QtMShapeData* mshape, vector<r_Point>& nSubspace);
+
+// performs the same BLA as above, but with a pair of points as an argument, and without order swapping, for more flexible usage.
+vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& polytopeVertices);
 
 /// computes the r_Minterval of the projected subspace.
 r_Minterval computeProjectedMinterval(QtMShapeData* mshape, boundingBox* bBox, r_PointDouble* indexToRemove, std::set<r_Dimension, std::less<r_Dimension>> &projectionDimensionSet);

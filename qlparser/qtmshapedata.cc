@@ -37,7 +37,7 @@ using namespace std;
 #include <cstring>
 #include <cmath>
 
-QtMShapeData::QtMShapeData(vector<r_Point> &mShape)
+QtMShapeData::QtMShapeData(const vector<r_Point>& mShape)
     : QtData(), polytopePoints(mShape), midPoint(NULL)
 {
     // save the coordinate points with double precision to reduce rounding errors
@@ -246,6 +246,39 @@ void QtMShapeData::computeDimensionality()
     }
 }
 
+vector<r_Minterval> QtMShapeData::localConvexHulls() const
+{
+    // one bounding box for each line segment, treated as a linestring (so the pair (first, last) is not considered)
+    
+    vector<r_Minterval> result;
+    //here we do not benefit fully from std::vector::reserve(), as sizeof(r_Minterval) is variable; however, we would otherwise be resizing at every step anyways, so this cannot hurt.
+    result.reserve(polytopePoints.size());
+    
+    for(size_t i = 0; i < polytopePoints.size() - 1; i++)
+    {
+        r_Minterval nextConvexHull(polytopePoints[i].dimension());
+        
+        for(size_t j = 0; j < polytopePoints[i].dimension(); j++)
+        {
+            nextConvexHull[j] = r_Sinterval( polytopePoints[i][j], polytopePoints[i][j] );
+            
+            if ( polytopePoints[i][j] < polytopePoints[i+1][j] )
+            {
+                nextConvexHull[j].set_high( polytopePoints[i+1][j] );
+            }
+            
+            if ( polytopePoints[i][j] > polytopePoints[i+1][j] )
+            {
+                nextConvexHull[j].set_low( polytopePoints[i+1][j] );
+            }
+        }
+        
+        result.emplace_back(nextConvexHull);
+    }
+    
+    return result;
+}
+
 std::vector<std::pair< r_PointDouble, double> >
 QtMShapeData::computeHyperplaneEquation()
 {
@@ -281,4 +314,10 @@ r_Dimension
 QtMShapeData::getDimension()
 {   
     return dimensionality;
+}
+
+r_Dimension
+QtMShapeData::getPointDimension()
+{
+    return polytopePoints[0].dimension();
 }

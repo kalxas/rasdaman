@@ -60,6 +60,8 @@ const QtNode::QtNodeType QtMShapeOp::nodeType = QT_MSHAPEOP;
 QtMShapeOp::QtMShapeOp(QtOperationList *parsedOpList)
     : QtNaryOperation(parsedOpList)
 {
+    //i don't think this is accomplishing what we hope -- it seems that the real work is beign done in evaluate, below, and this is accomplishing little-nothing.
+    //todo (bbell): run a few tests for QtMShapeOp. Figure out if this can be invoked in oql.yy without being evaluated.
     // get bounding box
     for (auto iter = parsedOpList->begin(); iter < parsedOpList->end(); iter++)
     {
@@ -129,7 +131,7 @@ QtMShapeOp::evaluate(QtDataList *inputList)
             vector<r_Point> polygonVertices;
             vector<QtMShapeData *> polytopeEdges;
             r_Minterval *nullValues = NULL;
-            r_Dimension overAllDim;
+            r_Dimension overAllDim{};
 
             bool isSimplePolytope = false;
             for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
@@ -232,7 +234,7 @@ void QtMShapeOp::printAlgebraicExpression(std::ostream &s)
 }
 
 const QtTypeElement &
-QtMShapeOp::checkType(QtTypeTuple *typeTuple)
+QtMShapeOp::checkType(QtTypeTuple* typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -263,7 +265,7 @@ QtMShapeOp::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-int QtMShapeOp::isLeftTurn(std::deque<r_Point *> &vertices)
+int QtMShapeOp::isLeftTurn(const std::deque<r_Point *>& vertices)
 {
     // This method checks if any vertices of the user-defined polygon end up
     // being co-linear or if the points form a non convex polygon
@@ -299,11 +301,11 @@ int QtMShapeOp::isLeftTurn(std::deque<r_Point *> &vertices)
     return 0;
 }
 
-bool QtMShapeOp::isValidSetOfPoints(vector<r_Point> &polygon)
+bool QtMShapeOp::isValidSetOfPoints(const vector<r_Point>& polygon)
 {
     // This method checks if the vertices of the user-defined polygon end up
     // forming a concave polygon.
-    std::deque<r_Point *> vertices;
+    std::deque<r_Point*> vertices;
 
     // In case our mShape is a simple line in n-dim
     if (polygon.size() == 2)
@@ -311,11 +313,11 @@ bool QtMShapeOp::isValidSetOfPoints(vector<r_Point> &polygon)
         return true;
     }
     // put the first two vertices in the deque
-    vertices.push_back(&(polygon[0]));
-    vertices.push_back(&(polygon[1]));
+    vertices.push_back(const_cast<r_Point*>(&polygon[0]));
+    vertices.push_back(const_cast<r_Point*>(&polygon[1]));
     for (size_t i = 2; i < polygon.size(); i++)
     {
-        vertices.push_back(&polygon[i]);
+        vertices.push_back(const_cast<r_Point*>(&polygon[i]));
 
         if (isLeftTurn(vertices) != 1)
         {

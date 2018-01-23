@@ -246,7 +246,7 @@ void r_PointDouble::print_status(std::ostream &s) const
     s << "]";
 }
 
-r_Point r_PointDouble::toIntPoint()
+r_Point r_PointDouble::toIntPoint() const
 {
     r_Point returnValue(dimension());
     for (size_t i = 0; i < dimension(); i++)

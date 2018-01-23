@@ -58,6 +58,9 @@ public:
     // also fast and can be adapted to float or double for vertices OR interior points
     // ref: https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
     MDDObj* compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim);
+    
+    // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
+    vector< vector<char> > generateMask();
 
 private:
     /// the area of interest

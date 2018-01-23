@@ -4349,11 +4349,11 @@ OpBinaryStruct::operator()(char* res, const char* op1,
         for (i = 0; i < numElems; ++i)
         {
             (*lessOps[i])(boolRes, op1, op2);
-            bool op1LessThanOp2 = *((bool*)(boolRes));
+            bool op1LessThanOp2 = static_cast<bool>(boolRes[0]);
             if (!op1LessThanOp2)
             {
                 (*equalOps[i])(boolRes, op1, op2);
-                bool op1EqualToOp2 = *((bool*)(boolRes));
+                bool op1EqualToOp2 = static_cast<bool>(boolRes[0]);
                 if (!op1EqualToOp2)
                 {
                     op1Min = false;
@@ -4737,6 +4737,7 @@ OpMAX_BINARYChar::operator()(char* res, const char* op1, const char* op2)
 void
 OpMAX_BINARYChar::getCondenseInit(char* init)
 {
+    //why do we pass the min of an unsigned char here? isn't that just 0?
     *init = std::numeric_limits<r_Char>::min();
 }
 

@@ -826,6 +826,7 @@ std::string RasControlGrammar::downRasHosts()
 std::string RasControlGrammar::saveCommand()
 {
     rascontrol->save();
+    return {};
 }
 
 // ----------------------------------------------------------------------------
@@ -1016,7 +1017,7 @@ bool RasControlGrammar::isFlag(const std::string &flag, int pos)
             if (strieq(flag, tokens[i]))
                 return true;
     }
-    if (pos > 1 && pos < tokens.size())
+    if (pos > 1 && pos < static_cast<int>(tokens.size()))
     {
         if (strieq(flag, tokens[static_cast<size_t>(pos)]))
             return true;

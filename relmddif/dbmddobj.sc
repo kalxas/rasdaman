@@ -338,13 +338,13 @@ DBMDDObj::setIx(const DBObjectId& newIx)
 void
 DBMDDObj::updateInDb() throw (r_Error)
 {
-    long long mddoid3;
-    long long objindex3;
-    long persRefCount3;
-    long long nullvalueoid;
-    long long oldnullvalueoid;
-    long long settypeoid;
-    long count;
+    long long mddoid3{};
+    long long objindex3{};
+    long persRefCount3{};
+    long long nullvalueoid{};
+    long long oldnullvalueoid{};
+    long long settypeoid{};
+    long count{};
 
     objindex3 = objIxId.getOId();
     mddoid3 = myOId.getCounter();
@@ -406,12 +406,12 @@ DBMDDObj::updateInDb() throw (r_Error)
 void
 DBMDDObj::insertInDb() throw (r_Error)
 {
-    long long mddoid;
-    long long basetypeid;
-    long long storage;
-    long long domainid;
-    long long objindex;
-    long persRefCount;
+    long long mddoid{};
+    long long basetypeid{};
+    long long storage{};
+    long long domainid{};
+    long long objindex{};
+    long persRefCount{};
 
     storage = storageLayoutId->getOId();
     objindex = objIxId.getOId();
@@ -439,12 +439,12 @@ DBMDDObj::readFromDb() throw (r_Error)
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
-    long long mddoid2;
-    long long basetypeid2;
-    long long domainid2;
-    long long objindex2;
-    long persRefCount2;
-    long long storage2;
+    long long mddoid2{};
+    long long basetypeid2{};
+    long long domainid2{};
+    long long objindex2{};
+    long persRefCount2{};
+    long long storage2{};
 
     mddoid2 = myOId.getCounter();
 

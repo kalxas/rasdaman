@@ -53,9 +53,9 @@ class QtMShapeData : public QtData
 public:
 
     // constructor getting the vertices
-    QtMShapeData(vector<r_Point> &pts);
+    QtMShapeData(const vector<r_Point>& pts);
     /// constructor getting a QtMShape
-    QtMShapeData(vector<QtMShapeData*> &mshapes);
+    QtMShapeData(vector<QtMShapeData*>& mshapes);
 
     /// virtual destructor
     virtual ~QtMShapeData();
@@ -65,9 +65,9 @@ public:
     ///
 
     ///
-    inline const std::vector<r_PointDouble>&  getMShapeData();
+    inline const std::vector<r_PointDouble>& getMShapeData() const;
     ///
-    inline void setMShapeData(std::vector<r_PointDouble> &pts);
+    inline void setMShapeData(const std::vector<r_PointDouble>& pts);
 
     /// returns a null-terminated string describing the type structure
     virtual char* getTypeStructure() const;
@@ -95,6 +95,9 @@ public:
     
     /// get the dimension of the space the object lies into (how many vectors define this space)
     r_Dimension getDimension();
+    
+    // dimension of the points
+    r_Dimension getPointDimension();
 
     /// get the orthonormal vectors defining the space the object lies into.
     inline std::vector<r_PointDouble>* getDirectionVectors();
@@ -104,6 +107,9 @@ public:
 
     /// compute the directionVectors and the dimensionality of the space in which this mshape lives.
     void computeDimensionality();
+    
+    /// compute a vector of local bounding boxes, one for each line segment in the polytope.
+    vector<r_Minterval> localConvexHulls() const;
 
     /// computes the hyperplaneEquations if they are not yet, and returns them otherwise
     std::vector<std::pair< r_PointDouble, double> > computeHyperplaneEquation();

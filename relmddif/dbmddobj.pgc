@@ -335,13 +335,13 @@ void
 DBMDDObj::updateInDb() throw (r_Error)
 {
     EXEC SQL BEGIN DECLARE SECTION;
-        long    mddoid3;
-        long long  objindex3;
-        long    persRefCount3;
-        long long    nullvalueoid;
-        long long    oldnullvalueoid;
-        long long    settypeoid;
-        long    count;
+        long        mddoid3;
+        long long   objindex3;
+        long        persRefCount3;
+        long long   nullvalueoid;
+        long long   oldnullvalueoid;
+        long long   settypeoid;
+        long        count;
     EXEC SQL END DECLARE SECTION;
 
     objindex3 = objIxId.getOId();
@@ -426,12 +426,12 @@ void
 DBMDDObj::insertInDb() throw (r_Error)
 {
     EXEC SQL BEGIN DECLARE SECTION;
-        long      mddoid;
-        long long basetypeid;
-        long long storage;
-        long      domainid;
-        long long objindex;
-        long      persRefCount;
+        long        mddoid;
+        long long   basetypeid;
+        long long   storage;
+        long        domainid;
+        long long   objindex;
+        long        persRefCount;
     EXEC SQL END DECLARE SECTION;
 
     storage = storageLayoutId->getOId();

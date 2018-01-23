@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include <string>
 
 #include "qlparser/qtbinaryoperation.hh"
+#include "qlparser/qtnaryoperation.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtmshapedata.hh"
@@ -65,35 +66,53 @@ class QtClipping : public QtBinaryOperation
 {
   public:
 
-    // So far the clip_subspace operation is suppoted in teh QtClipping class
+    // So far the clip_subspace operation is suppoted in the QtClipping class
     // Later planned additional operations are 
     // 1. PolytopeClipping
     // 2. Multiline
     // 3. Multipolytope
+    // 4. Curtains
 
     enum QtClipType
     {
         CLIP_SUBSPACE,
         CLIP_POLYGON,
-        CLIP_POLYTOPE
+        CLIP_POLYTOPE,
+        CLIP_LINESTRING,
+        CURTAIN_POLYGON,
+        CURTAIN_LINESTRING
     };
 
     /// constructor getting the mdd op, where we define the object we are going to do operations on.
-    /// mshapeOp where the multidimensional shape operation is defined and also the QtClipType where the type of clipping operation is defined. (The later is for future reference since this class could be used for further operations). The clipping type opration suported at the moment is only clip_subspace as defined in the enum.
-    QtClipping(QtOperation *mddOp, QtOperation *mshapeOp, QtClipType tp);
+    /// mshapeOp where the multidimensional shape operation is defined and also the QtClipType where the type of clipping operation is defined. (The later is for future reference since this class could be used for further operation).
+    QtClipping(QtOperation* mddOp, QtOperation* mshapeOp, QtClipType tp);
 
-    /// returns FALSE saying that the operation IS NOT commutative
+    /// constructor getting the mdd op, where we define the object we are going to do operations on.
+    /// mshapeOp where the multidimensional shape operation is defined and also the QtClipType where the type of clipping operation is defined. (The later is for future reference since this class could be used for further operations).
+    QtClipping(QtOperation* mddOp, QtOperation* mshapeOp1, QtMShapeData* mshapeOp2, QtClipType tp);
+
+    
+    ~QtClipping();
+        /// returns FALSE saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
 
     /// In case the user defined points all define a line than we use a generalization of the Bresenham line in n-dimensions.
-    MDDObj* extractBresenhamLine(MDDObj *op, r_Minterval areaOp, QtMShapeData *mshape, MDDObj *mddres, r_Dimension dim);
+    MDDObj* extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeData* mshape, MDDObj* mddres, const r_Dimension dim);
 
     /// This function is called in case the set of points in the subsbase operation is of dimensionality bigger than one. The parameters passed to the function are MDDObj* which holds the infomration of the dataset we are going to operate on. areaOp is the r_Minterval of the MDDobj. 
     /// "polytope" points @ the multidimensional shape constructed from the set of user-defined points. The second MDDObj pointer points to the result object. 
-    MDDObj* extractSubspace(MDDObj *op, const r_Minterval& areaOp, QtMShapeData *polytope, MDDObj *mddres);
+    MDDObj* extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, MDDObj* mddres);
+    
+    MDDObj* extractLinestring(const MDDObj* op, const QtMShapeData* linestring, MDDObj* mddres, const r_Dimension dim);
+
+    /// In case the user is seeking a curtain query, we need the range of the curtain in the 1st coordinate and the polygonal cutout in the last 2 coordinates.
+    MDDObj* extractCurtainPolygon(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, QtMShapeData* rangeArg, MDDObj* mddres);
+
+    /// In case the user is seeking a curtain query, we need the range of the curtain in the 1st coordinate and the linear curtain rods in the last 2 coordinates.
+    MDDObj* extractCurtainLinestring(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, QtMShapeData* rangeArg, MDDObj* mddres);
     
     /// either the extractBresenhamLine or the extractSubspace function based on the dimensionality of the dataset and the multidimensional shape
-    QtData* computeOp(QtMDD *operand, QtMShapeData *mshape);
+    QtData* computeOp(QtMDD* operand, QtMShapeData* mshape);
 
     /// method for evaluating the node
     QtData* evaluate(QtDataList *inputList);
@@ -107,10 +126,16 @@ class QtClipping : public QtBinaryOperation
   private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
-
+    
     // current clipping operation choice.
     const QtClipType clipType;
+    
+    /// pointer to range data for curtains -- default value is NULL
+    QtMShapeData* range;
 };
+
+//checks if an r_Minterval has more than single cell
+bool isSingleton(const r_Minterval& interval );
 
 #include "qlparser/qtclippingfunc.icc"
 

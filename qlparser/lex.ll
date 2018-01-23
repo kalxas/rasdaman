@@ -230,6 +230,9 @@ int string_yyinput( char* buf, int max_size )
 "subspace"                               { SETTOKEN( SUBSPACE, commandToken, SUBSPACE)}
 "polytope"                               { SETTOKEN( POLYTOPE, commandToken, POLYTOPE )}
 "polygon"                                { SETTOKEN( POLYGON, commandToken, POLYGON)}
+"curtain"                                { SETTOKEN( CURTAIN, commandToken, CURTAIN)}
+"linestring"                             { SETTOKEN( LINESTRING, commandToken, LINESTRING)}
+"range"                                  { SETTOKEN( RANGE, commandToken, RANGE)}
 "scale"                                  { SETTOKEN( SCALE, commandToken, SCALE ) }
 "dbinfo"                                 { SETTOKEN( DBINFO, commandToken, DBINFO ) }
 "version"                                { SETTOKEN( RAS_VERSION, commandToken, RAS_VERSION ) }

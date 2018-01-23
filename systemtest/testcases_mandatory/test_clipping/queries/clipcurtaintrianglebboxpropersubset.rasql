@@ -1,0 +1,1 @@
+select encode(clip(c, curtain( range(13, 15), polygon(1 1, 98 1, 97 3))), "csv") from test_grey3d as c

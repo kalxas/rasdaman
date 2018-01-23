@@ -283,7 +283,7 @@ set(ENABLE_DEBUG OFF CACHE BOOL
 if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     set(DEBUG ${ENABLE_DEBUG})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g3 -gdwarf-2 -rdynamic")
+    set(CMAKE_CXX_FLAGS " -O0 -g3 -gdwarf-2 -rdynamic ${CMAKE_CXX_FLAGS}")
 
     message(STATUS "Compile in debug mode enabled " 
         "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
@@ -292,7 +292,7 @@ else ()
     set(_DISABLE_TRACE_LOGS 1)
     # Used by some performance implementation of math libraries.
     set(__NO_MATH_INLINES 1)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "-O3 ${CMAKE_CXX_FLAGS}")
 
     message(STATUS "Compile in debug mode disabled " 
         "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")

@@ -349,7 +349,7 @@ int computeOffset(const r_Point& extents, const r_Point& pos1, const r_Point& po
     return result;
 }
 
-void compute_nD_Bresenham_Line(QtMShapeData *mshape, vector<r_Point> &nSubspace)
+void computeNDBresenhamLine(QtMShapeData* mshape, vector<r_Point>& nSubspace)
 {
     
     // segment endpoints -- already checked that the size is 2.
@@ -460,6 +460,115 @@ void compute_nD_Bresenham_Line(QtMShapeData *mshape, vector<r_Point> &nSubspace)
         //append to the vector of solutions
         nSubspace.push_back(currentPoint);
     }
+}
+
+vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& polytopeVertices)
+{
+    vector<r_Point> nSubspace;
+
+    if(polytopeVertices.size() < 2)
+    {
+        LERROR << "computeNDBresenhamSegment() - Performing a Bresenham line algorithm on a line segment requires two endpoint vertices.";
+        throw r_Error(SUBSPACEDIMSAMEASMDDOBJ);
+    }
+    // the dimension -- used for determining loop size below
+    r_Dimension overallDimension = polytopeVertices[0].dimension();
+    
+    // determine the starting point of the algo -- the lowest wrt lexicographic order.
+    // also compute the direction vector associated with the line.
+    r_PointDouble directionVector(polytopeVertices[1] - polytopeVertices[0]);
+
+    //we append the first point to the result now to simplify the loop later.
+    r_Point currentPoint(polytopeVertices[0].toIntPoint());
+
+    nSubspace.push_back(currentPoint);
+    
+    // determine std basis vector w/ direction vector's largest coefficient
+    r_Dimension iterationDimension = 0;
+    double currentMax = directionVector[0];
+    for(size_t i = 1; i < overallDimension; i++)
+    {
+        if(std::abs(currentMax) < std::abs(directionVector[i]))
+        {
+            currentMax = directionVector[i];
+            iterationDimension = i;
+        }
+    }
+    
+    // determine total number of steps in iteration
+    size_t numSteps = std::abs(directionVector[iterationDimension]);
+    //now we can allocate memory for the result vector.
+    //the +1 is for the initial value (for two pixels X & Y, we define k := max_i(dist(proj_i(X), proj_i(Y))).
+    //There are k+1 pixels in the result
+    nSubspace.reserve(numSteps + 1);
+    // rescale direction vector s.t. largest coefficient in the std basis is 1
+    for(size_t i = 0; i < overallDimension; i++)
+    {
+         directionVector[i] /=  std::abs(currentMax);
+    }
+    
+    //initial error vector:
+    r_PointDouble errorVector(overallDimension);
+    for(size_t i = 0; i < overallDimension; i++)
+    {
+        errorVector[i] = 0;
+    }
+    
+    
+    // fill output vector with points in lattice which are to be used.
+    
+    // loop size: numSteps
+    // dimension w/ fixed step size of 1: iterationDimension
+    // error threshold: +/- 0.5 in each direction (standard BLA thresholds)
+    // directional vector: directionVector
+    // error vector: errorVector
+    // current point: currentPoint
+    // next point to be added: nextPoint
+    
+    for(size_t i = 0; i < numSteps; i++)
+    {
+        r_Point nextPoint(overallDimension);
+        //loop over directions, skipping iterationDimension
+        for(size_t j = 0; j < overallDimension; j++)
+        {
+            if(j != iterationDimension)
+            {
+                errorVector[j] += directionVector[j];
+                
+                if(0.5 < errorVector[j])
+                {
+                    nextPoint[j] = currentPoint[j] + 1; //accumulated error exceeds 0.5 in abs
+                    errorVector[j] -= 1; //reset error in this direction
+                }
+                else if(errorVector[j] < -0.5)
+                {
+                    nextPoint[j] = currentPoint[j] - 1; //accumulated error exceeds 0.5 in abs
+                    errorVector[j] += 1; //reset error in this direction
+                }
+                else
+                {
+                    nextPoint[j] = currentPoint[j]; //no incrementation in case -0.5 <= error <= 0.5
+                }
+            }
+            else //always increment in the iteration dimension
+            {
+                if(currentMax > 0)
+                {
+                    nextPoint[j] = currentPoint[j] + 1;
+                }
+                else
+                {
+                    nextPoint[j] = currentPoint[j] - 1;
+                }
+            }
+        }
+        //update the current point for next iteration
+        currentPoint = nextPoint;
+        //append to the vector of solutions
+        nSubspace.push_back(currentPoint);  
+    }
+    
+    return nSubspace;
 }
 
 r_Minterval

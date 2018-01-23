@@ -30,7 +30,7 @@ class JavaGrpcGenerator : public google::protobuf::compiler::CodeGenerator {
   virtual bool Generate(const google::protobuf::FileDescriptor* file,
                         const string& parameter,
                         google::protobuf::compiler::GeneratorContext* context,
-                        string* error) const {
+                        __attribute__((unused)) string* error) const {
     std::vector<std::pair<string, string> > options;
     google::protobuf::compiler::ParseGeneratorParameter(parameter, &options);
 

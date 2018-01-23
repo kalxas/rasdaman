@@ -131,7 +131,7 @@ public:
     inline const std::vector<double>& getVectorContent() const;
 
     /// converts the stored vector to an r_Point (integer vertices)
-    r_Point toIntPoint();
+    r_Point toIntPoint() const;
 
 
 private:

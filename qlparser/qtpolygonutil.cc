@@ -63,7 +63,7 @@ pair< r_Point, r_Point > getBoundingBox(const vector< r_Point >& polygon)
 
 void rasterizePolygon( vector< vector< char > >& mask, const vector< r_Point >& polygon )
 {
-    for( r_Dimension k=0; k < polygon.size(); k++ )
+    for( r_Dimension k = 0; k < polygon.size(); k++ )
     {
         r_Point first = polygon[k];
         r_Point second;
@@ -110,45 +110,136 @@ void rasterizePolygon( vector< vector< char > >& mask, const vector< r_Point >& 
     }
 }
 
-void fillOutsideOfPolygon( vector< vector< char > >& mask )
+//used for filling the first values of the mask which are inside the polygon
+//this algorithm searches every point adjacent to the polygon boundary and checks which points are inside, and which are outside
+void polygonInteriorFloodfill( vector< vector< char > >& mask, const vector< r_Point >& polygon)
 {
-    if( mask[0][0] != 1 ) mask[0][0] = 0;
-    if( mask[mask.size()-1][0] != 1 ) mask[mask.size()-1][0] = 0;
-    if( mask[0][mask[0].size()-1] != 1 ) mask[0][mask[0].size()-1] = 0;
-    if( mask[mask.size()-1][mask[0].size()-1] != 1 ) mask[mask.size()-1][mask[0].size()-1] = 0;
- 
-    // check the edges
-    for( unsigned int i = 0; i < mask.size(); i++ ) 
+    //if mask.size() = x and mask is roughly square, then floodfilling everything is O(x^2)
+    //and checking isPointInsidePolygon() on the boundary is, for polygon.size() = p, O(6*p*x),
+    //where 4*x is the approximate perimeter, 3 is the expected value of the # of neighbouring cells which are not initialized to 2 in the mask,
+    //hence one half of that is the expectation *after* flood fill has occurred, and thus we have 4 * 1.5 * x checks, and the
+    //overall complexity O(6 * p * x) since each check is O(p).
+    //as such, it is better to flood fill everything when 6p > x.
+    bool fillOutside = false;
+    size_t x = sqrt(mask.size() * mask[0].size());
+    
+    if( 6*polygon.size() > x )
     {
-        if( mask[i][0] == 2 ) mask[i][0] = 0;
-        if( mask[i][mask[i].size()-1] == 2 ) mask[i][mask[i].size()-1] = 0; 
+        fillOutside = true;
     }
     
-    for( unsigned int i = 0; i < mask[0].size(); i++ )
+    //loop over rows
+    for(size_t i = 1; i + 1 < mask.size(); i++)
     {
-        if( mask[0][i] == 2 ) mask[0][i] = 0;
-        if( mask[mask.size()-1][i] == 2 ) mask[mask.size()-1][i] = 0; 
-    }
-    
-    for( unsigned int i = 0; i < mask.size(); i++ )
-    {
-        for( unsigned int j = 0; j < mask[i].size(); j++ )
+        //loop over columns
+        for(size_t j = 1; j + 1 < mask[i].size(); j++)
         {
-            if( mask[i][j] == 2 )
+            //if we are on a point just inside the polygon
+            if(mask[i][j] == 1)
             {
-                if( mask[i-1][j] == 0 || mask[i][j-1] == 0) mask[i][j] = 0;
-            }   
+                if(mask[i+1][j] == 2)
+                {
+                    if(isPointInsidePolygon(i+1,j,polygon))
+                    {
+                        floodFillFromPoint(mask, j, i+1, 2, 0);
+                    }
+                    else if(fillOutside) //else -> outside, fillOutside -> generally more optimal to fill
+                    {
+                        floodFillFromPoint(mask, j, i+1, 2, 3);
+                    }
+                }
+                if(mask[i-1][j] == 2)
+                {
+                    if(isPointInsidePolygon(i-1,j,polygon))
+                    {
+                        floodFillFromPoint(mask, j, i-1, 2, 0);
+                    }
+                    else if(fillOutside)
+                    {
+                        floodFillFromPoint(mask, j, i-1, 2, 3);
+                    }
+                }
+                if(mask[i][j+1] == 2)
+                {
+                    if(isPointInsidePolygon(i,j+1,polygon))
+                    {
+                        floodFillFromPoint(mask, j+1, i, 2, 0);
+                    }
+                    else if(fillOutside)
+                    {
+                        floodFillFromPoint(mask, j+1, i, 2, 3);
+                    }
+                }
+                if(mask[i][j-1] == 2 && isPointInsidePolygon(i,j-1,polygon))
+                {
+                    if(isPointInsidePolygon(i,j-1,polygon))
+                    {
+                        floodFillFromPoint(mask, j-1, i, 2, 0);
+                    }
+                    else if(fillOutside)
+                    {
+                        floodFillFromPoint(mask, j-1, i, 2, 3);                        
+                    }
+                    
+                }
+            }
         }
     }
-    
-    for( size_t i = mask.size() - 1; i-- != 0; )
+}
+
+void floodFillFromPoint( vector< vector< char > >& mask, size_t x, size_t y, char oldColor, char newColor )
+{
+    //check colours
+    if(oldColor == newColor)
     {
-        for( size_t j = mask[i].size() - 1; j-- != 0; )
+        return;
+    }
+    //create a pair for the starting point of the flood fill operation
+    std::pair<size_t&,size_t&> xy(x, y);
+    size_t w = mask[0].size();
+    size_t h = mask.size();
+    
+    size_t x1{};
+    bool spanAbove{}, spanBelow{};
+    
+    std::vector< std::pair<size_t, size_t> > linesToScanfill{};
+    linesToScanfill.push_back(xy);
+    
+    while(!linesToScanfill.empty())
+    {
+        xy = linesToScanfill.back();
+        linesToScanfill.pop_back();
+        x1 = xy.first;
+        
+        while(x1 > 0 && mask[y][x1-1] == oldColor)
         {
-            if( mask[i][j] == 2 )
+            --x1;
+        }  
+        
+        spanAbove = spanBelow = false;
+        while(x1 < w && mask[y][x1] == oldColor)
+        {
+            mask[y][x1] = newColor;
+            
+            if(!spanAbove && y > 0 && mask[y-1][x1] == oldColor)
             {
-                if( mask[i+1][j] == 0 || mask[i][j+1] == 0) mask[i][j] = 0;
+                linesToScanfill.emplace_back(x1, y-1);
+                spanAbove = true;
             }
+            else if(spanAbove && y > 0 && mask[y - 1][x1] != oldColor)
+            {
+                spanAbove = false;
+            }
+            if(!spanBelow && y + 1 < h && mask[y + 1][x1] == oldColor)
+            {
+                linesToScanfill.emplace_back(x1, y+1);
+                spanBelow = true;
+            }
+            else if(spanBelow && y + 1 < h && mask[y + 1][x1] != oldColor)
+            {
+                spanBelow = false;
+            }
+            x1++;
         }
     }
 }

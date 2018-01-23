@@ -186,6 +186,10 @@
 507^E^Exception: The dimension of the points differs from that of the MDD object in which they are expected to lie.
 508^E^Error: The polygon vertices are not coplanar.
 515^E^Exception: The subspace dimension is the same as the dimension of the MDD object in which it is expected to lie.
+516^E^Error: The range given for the curtain either has too many or too few parameters.
+517^E^Error: The domain for a curtain query must be three dimensional.
+518^E^Exception: The domain of the curtain query does not intersect with the domain of the given MDD Object.
+519^E^Error: A line segment is defined by at least two end points, which are required to compute the intermediary values.
 #
 # 5XX errors for overflow situations
 #

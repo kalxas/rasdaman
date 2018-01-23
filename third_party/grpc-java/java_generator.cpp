@@ -1047,7 +1047,7 @@ static void PrintService(const ServiceDescriptor* service,
                          std::map<string, string>* vars,
                          Printer* p,
                          ProtoFlavor flavor,
-                         bool disable_version) {
+                         __attribute__((unused)) bool disable_version) {
   (*vars)["service_name"] = service->name();
   (*vars)["file_name"] = service->file()->name();
   (*vars)["service_class_name"] = ServiceClassName(service);

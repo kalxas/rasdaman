@@ -33,13 +33,13 @@ inline const std::vector<r_Point>& QtMShapeData::getPolytopePoints()
 }
 
 inline const std::vector<r_PointDouble>&  
-QtMShapeData::getMShapeData() 
+QtMShapeData::getMShapeData() const
 {
     return polytopePointsDouble;
 }
 
 inline void
-QtMShapeData::setMShapeData( std::vector<r_PointDouble> &MShape )
+QtMShapeData::setMShapeData( const std::vector<r_PointDouble> &MShape )
 {
     polytopePointsDouble = MShape;
 }
