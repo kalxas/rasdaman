@@ -42,7 +42,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import petascope.util.DatabaseUtil;
 
 /**
@@ -114,6 +116,17 @@ public class LegacyMigrationService extends AbstractMigrationService {
         migration.setLock(true);
         // Insert the first entry to migration table
         migrationRepositoryService.save(migration);
+        
+        // NOTE: Check secore is running first, if it is not running, migration cannot be done
+        try {
+            // try to request to localhost:8080/def/crs/EPSG/0/4326
+            CrsUtil.getCrsDefinition(CrsUtil.EPSG_ALL_CRS + "/4326");
+        } catch (Exception ex) {            
+            String errorMessage = "Test request '" + CrsUtil.EPSG_ALL_CRS + "/4326' failed; "
+                                + "please make sure def.war (SECORE) is deployed in Tomcat and then retry the migration.";
+            log.debug(errorMessage, ex);
+            throw new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
+        }
 
         // First, migrate the legacy coverage's metadata to new CIS data model
         this.saveAllCoverages();

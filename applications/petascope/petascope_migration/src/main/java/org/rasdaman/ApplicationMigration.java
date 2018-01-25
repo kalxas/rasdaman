@@ -168,10 +168,10 @@ public class ApplicationMigration implements CommandLineRunner {
             // + From legacy petascopedb prior version 9.5, it checks if petascopedb contains a legacy table name then it migrates to new petascopedb version 9.5.
             // + From petascopedb after version 9.5 to a different database, it checks if both source JDBC, target JDBC can be connected then it migrates entities to new database.
             if (migrationService.canMigrate()) {
-                try {
+                try {                    
                     migrationService.migrate();
                 } catch (Exception ex) {
-                    log.error("An error occured while migrating, aborting the migration process.", ex);
+                    log.error("An error occured while migrating, aborting the migration process. Reason: \n" + ex.getMessage());
                     // Release the lock on Migration table so later can run migration again
                     migrationService.releaseLock();
                     System.exit(ExitCode.FAILURE.getExitCode());
