@@ -177,22 +177,28 @@
 436^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second Operand must be a multidimensional shape.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
-500^E^Error: The points don't have the same dimension.
-501^E^Error: Ill-defined 2-D polygon.
-502^E^Error: The faces of the polytope are not of the same dimension
-503^E^Error: The number of faces defining the polytope numbers too few.
+#
+# 5XX errors for overflow situations and clipping
+#
+#clipping
+500^E^Error: Every clip requires at least two vertices.
+501^E^Error: The polygon must be 2D and be defined by vertices in a 2D grid.
+502^E^Error: The faces of the polytope are not of the same dimension.
+503^E^Error: The vertices are not of the same dimension.
 504^E^Error: The polytope has a dimension larger than the MDD object in which it is expected to lie.
-506^E^Exception: The subspace of the data points provided does not intersect with the stored data.
+505^E^Error: The vertex arguments must be grid points (integer vertices only).
+506^E^Exception: The subset defined by the clipping parameters does not intersect with the given MDD object.
 507^E^Exception: The dimension of the points differs from that of the MDD object in which they are expected to lie.
-508^E^Error: The polygon vertices are not coplanar.
-515^E^Exception: The subspace dimension is the same as the dimension of the MDD object in which it is expected to lie.
-516^E^Error: The range given for the curtain either has too many or too few parameters.
+508^E^Error: The set of user-defined vertices are not coplanar.
+509^E^Error: Natural embeddings from grids of one dimension into grids of another dimension do not exist.
+515^E^Exception: The affine subspace containing the vertices is the same as the dimension of the MDD object which it is expected to clip.
+516^E^Error: The range given for the curtain must consist of two 1D vertices.
 517^E^Error: The domain for a curtain query must be three dimensional.
 518^E^Exception: The domain of the curtain query does not intersect with the domain of the given MDD Object.
 519^E^Error: A line segment is defined by at least two end points, which are required to compute the intermediary values.
-#
-# 5XX errors for overflow situations
-#
+520^E^Error: The clipping was undefined for the given parameters.
+521^E^Error: The dimension of the vertices defining the curtain's cross-section should match that of the cross-sectional sample of the requested curtain.
+# overflow
 510^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The argument is outside the function domain.
 511^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The function result exceeds the allowed range.
 #

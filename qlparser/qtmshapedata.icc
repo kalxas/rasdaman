@@ -27,7 +27,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-inline const std::vector<r_Point>& QtMShapeData::getPolytopePoints()
+inline const std::vector<r_Point>& QtMShapeData::getPolytopePoints() const
 {
     return polytopePoints;
 }

@@ -39,10 +39,10 @@ r_Error::get_kind() const
 
 
 
-inline unsigned int
+inline unsigned long
 r_Error::get_errorno() const
 {
-  return errorNo;
+  return static_cast<unsigned long>(errorNo);
 }
 
 

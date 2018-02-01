@@ -46,6 +46,7 @@ class r_Edim_mismatch;
 #include "raslib/mddtypes.hh"
 #include "raslib/error.hh"
 
+#include <vector>
 #include <iostream>
 
 //@ManMemo: Module: {\bf raslib}
@@ -79,6 +80,7 @@ public:
     ///
     r_Point(r_Range, r_Range, r_Range, r_Range, r_Range);
     ///
+    r_Point(const std::vector<r_Range>& pointArg);
     //@}
 
     /// default constructor
@@ -139,6 +141,9 @@ public:
     
     /// vector multiplication with a scalar
     r_Point operator*(const r_Range newElement) const;
+    
+    /// create a new r_Point r from the vector argument vecArg where r(i) = this->at(vecArg(i))
+    r_Point indexedMap(const std::vector<r_Dimension>& vecArg) const;
 
     /// vector dotProduct
     r_Range dotProduct(const r_Point &r) const
@@ -146,6 +151,9 @@ public:
 
     /// get dimensionality
     inline r_Dimension dimension() const;
+    
+    /// get vectorized version of the stored point
+    std::vector<r_Range> getVector() const;
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream& s = std::cout) const;

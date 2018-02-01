@@ -70,6 +70,14 @@ ParseInfo::setErrorNo( unsigned long newNo )
 
 
 inline void
+ParseInfo::setErrorNo(int newNo)
+{
+  errorNo = static_cast<unsigned long>(newNo);
+}
+
+
+
+inline void
 ParseInfo::setToken( const std::string& text )
 {
   token = text;

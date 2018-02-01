@@ -501,7 +501,7 @@ MDDObjIx::getTiles() const
 #endif
             for (unsigned int i = 0; i < resSize; i++)
             {
-                result->push_back(shared_ptr<Tile>(
+                result->emplace_back(shared_ptr<Tile>(
                                       new Tile(resultKeys[i].getDomain(), cellBaseType,
                                                DBTileId(resultKeys[i].getObject()))));
             }
@@ -511,12 +511,12 @@ MDDObjIx::getTiles() const
             for (unsigned int i = 0; i < resultKeys.size(); i++)
             {
                 if (resultKeys[i].getTransObject() == NULL)
-                    result->push_back(shared_ptr<Tile>(
+                    result->emplace_back(shared_ptr<Tile>(
                                           new Tile(resultKeys[i].getDomain(), cellBaseType,
                                                    DBTileId(resultKeys[i].getObject()))));
                 else
                 {
-                    result->push_back(resultKeys[i].getTransObject());
+                    result->emplace_back(resultKeys[i].getTransObject());
                 }
             }
         }

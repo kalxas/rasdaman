@@ -1,0 +1,1 @@
+select encode(clip( c, subspace(-10 -10 -1, 90 90 5, -10 0 5 )), "csv") from test_grey3d as c

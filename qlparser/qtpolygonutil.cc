@@ -128,6 +128,19 @@ void polygonInteriorFloodfill( vector< vector< char > >& mask, const vector< r_P
         fillOutside = true;
     }
     
+    //just in case the mask is precisely the boundary of our box, we will have no boundary points in the interior points.
+    // Of course, with that much information, our check is trivial
+    if(mask.size() != 1 && mask[0].size() != 1)
+    {
+        if(mask[0][0] == 1)
+        {
+            if(mask[1][1] == 2 && isPointInsidePolygon(1,1,polygon))
+            {
+                floodFillFromPoint(mask, 1, 1, 2, 0);
+            }
+        }
+    }
+    
     //loop over rows
     for(size_t i = 1; i + 1 < mask.size(); i++)
     {
@@ -737,7 +750,7 @@ void checkCube( const r_Point& v1, const r_Point& v2, const vector< r_Point >& p
     while( nextPoint != polygon.end() ) {
         const r_Point & refToCoords = *nextPoint;
         if (abs(refToCoords[0] * eX + refToCoords[1] * eY + refToCoords[2] * eZ + eD) >= 2) {
-            throw r_Error(POLYGONVERTICESNOTCOPLANAR);
+            throw r_Error(GRIDVERTICESNOTCOPLANAR);
             break;
         }
         nextPoint++;

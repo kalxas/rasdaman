@@ -56,7 +56,7 @@ bool classcomp::operator()(const r_Point &x, const r_Point &y) const
 }
 
 r_Minterval
-computeProjectedMinterval(QtMShapeData *mshape, boundingBox *bBox, r_PointDouble *indexToRemove, std::set<r_Dimension, std::less<r_Dimension>> &projectionDimensionSet)
+computeProjectedMinterval(QtMShapeData *mshape, BoundingBox *bBox, r_PointDouble* indexToRemove, std::set<r_Dimension, std::less<r_Dimension>>& projectionDimensionSet)
 {
     // Remove k smallest dimensions. Save the indices of the dimensions to be removed in indexToRemove. 
     // add the dimensions to be projected in projectionDimensionSet
@@ -123,7 +123,7 @@ computeProjectedMinterval(QtMShapeData *mshape, boundingBox *bBox, r_PointDouble
     return resultMinterval;
 }
 
-boundingBox* computeBoundingBox(QtMShapeData* mShape)
+BoundingBox* computeBoundingBox(const QtMShapeData* mShape)
 {
     /* Given a multidimensional shape, this function computes the bounding box
        that fully contains the shape. It goes throught the point coordinates 
@@ -152,7 +152,7 @@ boundingBox* computeBoundingBox(QtMShapeData* mShape)
         }
     }
 
-    return new boundingBox(minPoint, maxPoint, boundingBoxSize);
+    return new BoundingBox(minPoint, maxPoint, boundingBoxSize);
 }
 
 pair<double, bool> isInNSubspace(const r_Point& position, QtMShapeData *mshape)
@@ -349,9 +349,8 @@ int computeOffset(const r_Point& extents, const r_Point& pos1, const r_Point& po
     return result;
 }
 
-void computeNDBresenhamLine(QtMShapeData* mshape, vector<r_Point>& nSubspace)
+vector<r_Point> computeNDBresenhamLine(QtMShapeData* mshape)
 {
-    
     // segment endpoints -- already checked that the size is 2.
     vector<r_PointDouble> polytopeVertices = mshape->getMShapeData();
     // the dimension -- used for determining loop size below
@@ -371,14 +370,6 @@ void computeNDBresenhamLine(QtMShapeData* mshape, vector<r_Point>& nSubspace)
         directionVector = polytopeVertices[0] - polytopeVertices[1];
     }
 
-    //we append this to the result now to simplify the loop later.
-    r_Point currentPoint(overallDimension);
-    for(size_t i = 0; i < overallDimension; i++)
-    {
-        currentPoint[i] = (*firstPoint)[i];
-    }
-    nSubspace.push_back(currentPoint);
-    
     // determine std basis vector w/ direction vector's largest coefficient
     r_Dimension iterationDimension = 0;
     double currentMax = directionVector[0];
@@ -417,6 +408,16 @@ void computeNDBresenhamLine(QtMShapeData* mshape, vector<r_Point>& nSubspace)
     // error vector: errorVector
     // current point: currentPoint
     // next point to be added: nextPoint
+    vector<r_Point> nSubspace;
+    nSubspace.reserve(numSteps);
+    
+    //we append the currentPoint to the result now to simplify the loop later.
+    r_Point currentPoint(overallDimension);
+    for(size_t i = 0; i < overallDimension; i++)
+    {
+        currentPoint[i] = (*firstPoint)[i];
+    }
+    nSubspace.emplace_back(currentPoint);
     
     for(size_t i = 0; i < numSteps; i++)
     {
@@ -458,9 +459,85 @@ void computeNDBresenhamLine(QtMShapeData* mshape, vector<r_Point>& nSubspace)
         //update the current point for next iteration
         currentPoint = nextPoint;
         //append to the vector of solutions
-        nSubspace.push_back(currentPoint);
+        nSubspace.emplace_back(currentPoint);
     }
+    return nSubspace;
 }
+
+std::vector< std::vector< r_PointDouble > > vectorOfPairsWithoutMultiplicity(const std::vector<r_PointDouble>& polytopeVertices, size_t numSteps)
+{
+    vector< vector< r_PointDouble > > vectorOfSegmentEndpointPairs;
+    //max possible size
+    size_t endPt = polytopeVertices.size();
+    vectorOfSegmentEndpointPairs.reserve(numSteps);
+    for(size_t i = 0; i + 1 < endPt; )
+    {
+        size_t k = i + 1;
+        
+        while( k < endPt 
+                && polytopeVertices[i] == polytopeVertices[k] )
+        {
+            k++;
+        }
+        
+        vectorOfSegmentEndpointPairs.emplace_back(vector<r_PointDouble>({polytopeVertices[i], polytopeVertices[k]}));
+        
+        i = k;
+    }
+    
+    vectorOfSegmentEndpointPairs.shrink_to_fit();
+    if(vectorOfSegmentEndpointPairs.size() != numSteps)
+    {
+        throw r_Error(POINTDIMENSIONDIFFERS);
+    }
+    return vectorOfSegmentEndpointPairs;
+}
+
+std::vector<r_Minterval> vectorOfResultTileDomains(const std::vector<r_Minterval>& bBoxes, const std::vector<r_Dimension>& projectionDims )
+{
+    std::vector<r_Minterval> resultMintervals;
+    resultMintervals.reserve(bBoxes.size());
+    bool firstInterval = true;
+    r_Range currentOffset = 0;
+    for(size_t i = 0; i < bBoxes.size(); i++)
+    {
+            r_Minterval nextInterval(1);
+            //translate to currentOffset
+            if(!firstInterval)
+            {
+                nextInterval[0] = r_Sinterval(currentOffset, currentOffset + static_cast<r_Range>( bBoxes[i][projectionDims[i]].get_extent() ) - 2);                
+            }
+            else
+            {
+                nextInterval[0] = r_Sinterval(currentOffset, currentOffset + static_cast<r_Range>( bBoxes[i][projectionDims[i]].get_extent() ) - 1);
+            }
+
+            resultMintervals.emplace_back(nextInterval);
+            currentOffset = nextInterval[0].high() + 1;
+            firstInterval = false;
+    }
+    return resultMintervals;
+}
+
+//std::vector<boost::shared_ptr<Tile>> initializeTileVector(const std::vector<r_Minterval>& resTileDomains, const BaseType* resTileBasetype)
+//{
+//    size_t typeSize = resTileBasetype->getSize();
+//    vector< boost::shared_ptr<Tile> > resultTiles;
+//    resultTiles.reserve(resTileDomains.size());
+//    for(size_t i = 0; i < resTileDomains.size(); i++)
+//    {
+//        //build a new tile        
+//        boost::shared_ptr<Tile> resTilePtr;
+//        resTilePtr.reset(new Tile(resTileDomains[i], resTileBasetype));
+//        //Tile* resTilePtr = new Tile(resultTileMintervals[i], tempTile->getType());
+//        //initialize contents to 0
+//        char* resData = resTilePtr->getContents();
+//        memset(resData, 0, typeSize * resTileDomains[i].cell_count() );
+//        //add tile to vector of result tiles
+//        resultTiles.emplace_back(resTilePtr);
+//    }
+//    return resultTiles;
+//}
 
 vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& polytopeVertices)
 {
@@ -569,6 +646,120 @@ vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& poly
     }
     
     return nSubspace;
+}
+
+std::pair<int, int> endpointsSearch(const r_Minterval& domainArg, const std::vector<r_Point>& lineSegmentArg)
+{
+    //we first determine which band of values from the BLA result apply to this tile
+    r_Point lowPoint = domainArg.get_origin();
+    r_Point highPoint = domainArg.get_high();
+
+    // since for each tile the intersectionDomain is different, we need to know which points of the line
+    // sit inside the overall dataset, so we can assign it a global domain. 
+    // startEndIndices keeps track of the segment of the line contained inside areaOp.
+    pair<int, int> startEndIndices = make_pair(-1, -1);
+
+    bool isFirstInitialized = false;
+    
+    for (size_t i = 0; i < lineSegmentArg.size(); i++)
+    {
+        if ((lineSegmentArg[i] >= lowPoint) && (lineSegmentArg[i] <= highPoint))
+        {
+            if (isFirstInitialized)
+            {
+                startEndIndices.second = i;
+            }
+            else
+            {
+                startEndIndices.first = i;
+                startEndIndices.second = i;
+                isFirstInitialized = true;
+            }
+        }
+    }
+    return startEndIndices;
+}
+
+r_Minterval localHull(const std::pair<int, int>& indices, const std::vector<r_Point>& lineSegmentArg)
+{
+    // domain of the relevant area of the actual dbobj corresponds to the bounding box of the start and end points.
+    r_Minterval convexHull(lineSegmentArg[0].dimension());
+    
+    size_t firstIndex = 0;
+    size_t secondIndex = 0;
+    
+    if(indices.first < 0)
+    {
+        firstIndex = 0;
+    }
+    else
+    {
+        firstIndex = static_cast<size_t>(indices.first);
+    }
+    
+    if(indices.second < 0)
+    {
+        secondIndex = lineSegmentArg.size() - 1;
+    }
+    else
+    {
+        secondIndex = static_cast<size_t>(indices.second);
+    }
+    for(size_t i = 0; i < convexHull.dimension(); i++)
+    {
+        if(lineSegmentArg[firstIndex][i] <= lineSegmentArg[secondIndex][i])
+        {
+            convexHull[i].set_low(lineSegmentArg[firstIndex][i]);
+            convexHull[i].set_high(lineSegmentArg[secondIndex][i]);
+        }
+        else
+        {
+            convexHull[i].set_low(lineSegmentArg[secondIndex][i]);
+            convexHull[i].set_high(lineSegmentArg[firstIndex][i]);
+        }
+    }
+    
+    return convexHull;
+}
+
+r_Sinterval localHullByIndex(const std::pair<int, int>& indices, const std::vector<r_Point>& lineSegmentArg, size_t index)
+{
+    // domain of the relevant area of the actual dbobj corresponds to the bounding box of the start and end points.
+    r_Sinterval convexHull;
+    
+    size_t firstIndex = 0;
+    size_t secondIndex = 0;
+    
+    if(indices.first < 0)
+    {
+        firstIndex = 0;
+    }
+    else
+    {
+        firstIndex = static_cast<size_t>(indices.first);
+    }
+    
+    if(indices.second < 0)
+    {
+        secondIndex = lineSegmentArg.size() - 1;
+    }
+    else
+    {
+        secondIndex = static_cast<size_t>(indices.second);
+    }
+    
+    if(lineSegmentArg[firstIndex][index] <= lineSegmentArg[secondIndex][index])
+    {
+        convexHull.set_low(lineSegmentArg[firstIndex][index]);
+        convexHull.set_high(lineSegmentArg[secondIndex][index]);
+    }
+    else
+    {
+        convexHull.set_low(lineSegmentArg[secondIndex][index]);
+        convexHull.set_high(lineSegmentArg[firstIndex][index]);
+    }
+    
+    return convexHull;
 }
 
 r_Minterval

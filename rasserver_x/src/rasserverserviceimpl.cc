@@ -29,9 +29,9 @@ rasdaman GmbH.
 
 namespace rasserver
 {
-RasServerServiceImpl::RasServerServiceImpl(::boost::shared_ptr<rasserver::ClientManager> clientManager)
+RasServerServiceImpl::RasServerServiceImpl(::boost::shared_ptr<rasserver::ClientManager> clientManagerArg)
 {
-    this->clientManager = clientManager;
+    this->clientManager = clientManagerArg;
 }
 
 

@@ -60,7 +60,7 @@ QtPolygonClipping::QtPolygonClipping(const r_Minterval& areaOp, const std::vecto
 }
 
 MDDObj* 
-QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension dim)
+QtPolygonClipping::compute2DBresenham(MDDObj* op, r_Dimension dim)
 {
     pair<r_Point, r_Point> bBox = getBoundingBox( polygonVertices );
 
@@ -87,7 +87,9 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
 
     domain = domain.create_intersection(convexHull);
 
-    mddres = new MDDObj(mddBaseType, domain, op->getNullValues());
+    std::unique_ptr<MDDObj> resultMDD;
+    resultMDD.reset( new MDDObj(mddBaseType, domain, op->getNullValues()) );
+    
 
     //2-D array of type char "mask" for marking which cells are in the polygon and which are outside
     vector< vector<char> > mask(static_cast<long unsigned int>(bBox.second[0] - bBox.first[0] + 1), 
@@ -105,15 +107,14 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
     polygonInteriorFloodfill(mask, polygonVertices);
         
     // get all tiles in relevant area
-    vector<boost::shared_ptr<Tile>>* allTiles = op->getTiles();
+    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
+    allTiles.reset(op->getTiles());
 
-    Tile* resTile = NULL;
     // iterate over the tiles
     try 
     {
         for (auto tileIt = allTiles->begin(); tileIt !=  allTiles->end(); tileIt++)
         {
-            resTile = NULL;
             // domain of the actual tile
             const r_Minterval& tileDom = (*tileIt)->getDomain();
             if( tileDom.intersects_with( domain ) )
@@ -122,7 +123,8 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
                 r_Minterval intersectDom(tileDom.create_intersection(domain));
 
                 // create tile for result
-                resTile = new Tile(intersectDom, op->getCellType());
+                boost::shared_ptr<Tile> resTile;                
+                resTile.reset( new Tile(intersectDom, op->getCellType()) );
                 size_t typeSize = (*tileIt)->getType()->getSize();
                 char* resultData = resTile->getContents();
                 long unsigned int index = 0;
@@ -147,44 +149,27 @@ QtPolygonClipping::compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension d
                     }
                 }
                 // insert Tile in result mdd
-                mddres->insertTile(resTile);
+                resultMDD->insertTile(resTile);
             }
         }
     } 
     catch (r_Error& err) 
     {
         LFATAL << "QtCLipping::compute2D caught " << err.get_errorno() << " " << err.what();
-        delete allTiles;
-        allTiles = NULL;
-        //contents of allTiles are deleted when index is deleted
-        delete mddres;
-        mddres = NULL;
-        delete resTile;
-        resTile = NULL;
-        delete mddres;
-        mddres = NULL;
         throw err;
     } 
     catch (int err) 
     {
         LFATAL << "QtPolygonClipping::compute2D caught errno error (" << err << ") in qtclipping";
-        delete allTiles;
-        allTiles = NULL;
-        //contents of allTiles are deleted when index is deleted
-        delete mddres;
-        mddres = NULL;
-        delete resTile;
-        resTile = NULL;
-        delete mddres;
-        mddres = NULL;
-        throw r_Error(static_cast<size_t>(err));
+        throw r_Error(static_cast<unsigned int>(err));
+                                        
     }
-    delete allTiles;
-    return mddres;
+    
+    return resultMDD.release();
 }
 
 MDDObj* 
-QtPolygonClipping::compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim)
+QtPolygonClipping::compute2DRays(MDDObj* op, r_Dimension dim)
 {
    
     pair<r_Point, r_Point> bBox = getBoundingBox( polygonVertices );
@@ -211,18 +196,18 @@ QtPolygonClipping::compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim)
 
     domain = domain.create_intersection(convexHull);
 
-    mddres = new MDDObj(mddBaseType, domain, op->getNullValues());
+    std::unique_ptr<MDDObj> resultMDD;
+    resultMDD.reset( new MDDObj(mddBaseType, domain, op->getNullValues()) );
 
     // get all tiles in relevant area
-    vector<boost::shared_ptr<Tile>>* allTiles = op->getTiles();
+    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
+    allTiles.reset(op->getTiles());
 
-    Tile* resTile = NULL;
     // iterate over the tiles
     try 
     {
         for (auto tileIt = allTiles->begin(); tileIt !=  allTiles->end(); tileIt++)
         {
-            resTile = NULL;
             // domain of the actual tile
             const r_Minterval& tileDom = (*tileIt)->getDomain();
             if( tileDom.intersects_with( domain ) )
@@ -231,7 +216,8 @@ QtPolygonClipping::compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim)
                 r_Minterval intersectDom(tileDom.create_intersection(domain));
 
                 // create tile for result
-                resTile = new Tile(intersectDom, op->getCellType());
+                boost::shared_ptr<Tile> resTile;
+                resTile.reset( new Tile(intersectDom, op->getCellType()) );
                 size_t typeSize = (*tileIt)->getType()->getSize();
                 char* resultData = resTile->getContents();
                 long unsigned int index = 0;
@@ -256,40 +242,21 @@ QtPolygonClipping::compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim)
                     }
                 }
                 // insert Tile in result mdd
-                mddres->insertTile(resTile);
+                resultMDD->insertTile(resTile);
             }
         }
     } 
     catch (r_Error& err) 
     {
         LFATAL << "QtCLipping::compute2D caught " << err.get_errorno() << " " << err.what();
-        delete allTiles;
-        allTiles = NULL;
-        //contents of allTiles are deleted when index is deleted
-        delete mddres;
-        mddres = NULL;
-        delete resTile;
-        resTile = NULL;
-        delete mddres;
-        mddres = NULL;
         throw err;
     } 
     catch (int err) 
     {
         LFATAL << "QtPolygonClipping::compute2D caught errno error (" << err << ") in qtclipping";
-        delete allTiles;
-        allTiles = NULL;
-        //contents of allTiles are deleted when index is deleted
-        delete mddres;
-        mddres = NULL;
-        delete resTile;
-        resTile = NULL;
-        delete mddres;
-        mddres = NULL;
-        throw r_Error(static_cast<size_t>(err));
+        throw r_Error(static_cast<unsigned int>(err));
     }
-    delete allTiles;
-    return mddres;
+    return resultMDD.release();
 }
 
 vector< vector<char> >

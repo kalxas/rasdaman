@@ -1,1 +1,0 @@
-select encode(clip(c, polygon(30 40,0 80,60 150,120 80,0 80,130 60)), "png")  from test_rgb2 as c

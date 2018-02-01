@@ -1,1 +1,0 @@
-select encode(clip(c, curtain( range(0, 15), polygon(-10 -10, 99 0, 99 4))), "csv") from test_grey3d as c

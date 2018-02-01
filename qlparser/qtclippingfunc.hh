@@ -97,19 +97,23 @@ class QtClipping : public QtBinaryOperation
     virtual bool isCommutative() const;
 
     /// In case the user defined points all define a line than we use a generalization of the Bresenham line in n-dimensions.
-    MDDObj* extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeData* mshape, MDDObj* mddres, const r_Dimension dim);
+    MDDObj* extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeData* mshape, const r_Dimension dim);
 
     /// This function is called in case the set of points in the subsbase operation is of dimensionality bigger than one. The parameters passed to the function are MDDObj* which holds the infomration of the dataset we are going to operate on. areaOp is the r_Minterval of the MDDobj. 
     /// "polytope" points @ the multidimensional shape constructed from the set of user-defined points. The second MDDObj pointer points to the result object. 
-    MDDObj* extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, MDDObj* mddres);
+    MDDObj* extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope);
     
-    MDDObj* extractLinestring(const MDDObj* op, const QtMShapeData* linestring, MDDObj* mddres, const r_Dimension dim);
+    MDDObj* extractLinestring(const MDDObj* op, const QtMShapeData* linestring, const r_Dimension dim);
 
     /// In case the user is seeking a curtain query, we need the range of the curtain in the 1st coordinate and the polygonal cutout in the last 2 coordinates.
-    MDDObj* extractCurtainPolygon(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, QtMShapeData* rangeArg, MDDObj* mddres);
+    MDDObj* extractCurtainPolygon(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, const QtMShapeData* rangeArg);
 
     /// In case the user is seeking a curtain query, we need the range of the curtain in the 1st coordinate and the linear curtain rods in the last 2 coordinates.
-    MDDObj* extractCurtainLinestring(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, QtMShapeData* rangeArg, MDDObj* mddres);
+    /// for one line segment
+    MDDObj* extractCurtainLine(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, const QtMShapeData* rangeArg);
+    
+    /// for several consecutive line segments
+    MDDObj* extractCurtainLinestring(const MDDObj* op, const r_Minterval& areaOp, const QtMShapeData* polytope, const QtMShapeData* rangeArg, r_Dimension dim = 2);
     
     /// either the extractBresenhamLine or the extractSubspace function based on the dimensionality of the dataset and the multidimensional shape
     QtData* computeOp(QtMDD* operand, QtMShapeData* mshape);

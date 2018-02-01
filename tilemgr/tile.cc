@@ -798,8 +798,8 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         // for faster computations in the iteration in 2+ dimensions.
         std::vector<size_t> srcJumpsFullWidth;
         std::vector<size_t> opJumpsFullWidth;
-        srcJumpsFullWidth.reserve(width);
-        opJumpsFullWidth.reserve(width);
+        srcJumpsFullWidth.reserve(static_cast<size_t>(width));
+        opJumpsFullWidth.reserve(static_cast<size_t>(width));
         for (unsigned int i = 0; i < width; i++) 
         {
             srcJumpsFullWidth.push_back(i * cellSize);

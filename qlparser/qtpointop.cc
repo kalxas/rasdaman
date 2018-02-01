@@ -69,7 +69,7 @@ QtPointOp::QtPointOp(QtOperationList *opList)
     if (areAllQtConst)
     {
         pt = new r_Point(opList->size());
-        int i= 0;
+        size_t i= 0;
         for (auto iter = opList->begin(); iter != opList->end(); iter++, i++)
         {
             QtData* coordPtr  = (dynamic_cast<QtConst*>(*iter))->getDataObj();
@@ -78,6 +78,13 @@ QtPointOp::QtPointOp(QtOperationList *opList)
         }
     }
 }
+
+QtPointOp::~QtPointOp()
+{
+    delete pt;
+    pt = NULL;
+}
+
 
 QtData *
 QtPointOp::evaluate(QtDataList *inputList)
@@ -129,7 +136,7 @@ QtPointOp::evaluate(QtDataList *inputList)
             //
             // create a QtPointData object and fill it
             //
-            r_Point pt(operandList->size());
+            r_Point ptVar(operandList->size());
             r_Minterval *nullValues = NULL;
 
             for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
@@ -137,15 +144,15 @@ QtPointOp::evaluate(QtDataList *inputList)
                     (*dataIter)->getDataType() == QT_LONG ||
                     (*dataIter)->getDataType() == QT_OCTET)
                 {
-                    pt << (static_cast<QtAtomicData *>(*dataIter))->getSignedValue();
+                    ptVar << (static_cast<QtAtomicData *>(*dataIter))->getSignedValue();
                     nullValues = (static_cast<QtAtomicData *>(*dataIter))->getNullValues();
                 }
                 else
                 {
-                    pt << (static_cast<QtAtomicData *>(*dataIter))->getUnsignedValue();
+                    ptVar << (static_cast<QtAtomicData *>(*dataIter))->getUnsignedValue();
                     nullValues = (static_cast<QtAtomicData *>(*dataIter))->getNullValues();
                 }
-            returnValue = new QtPointData(pt);
+            returnValue = new QtPointData(ptVar);
             returnValue->setNullValues(nullValues);
 
             // delete the old operands

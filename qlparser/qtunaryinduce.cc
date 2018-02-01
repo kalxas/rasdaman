@@ -248,7 +248,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType,
             resTile = NULL;
             delete mddres;
             mddres = NULL;
-            parseInfo.setErrorNo(static_cast<unsigned int>(err));
+            parseInfo.setErrorNo(err);
             throw parseInfo;
         }
 
@@ -322,7 +322,7 @@ QtUnaryInduce::computeUnaryOp(QtScalarData* operand, const BaseType* resultBaseT
             {
                 delete[] resultBuffer;
                 resultBuffer = NULL;
-                parseInfo.setErrorNo(static_cast<unsigned int>(err));
+                parseInfo.setErrorNo(err);
                 throw parseInfo;
             }
     }

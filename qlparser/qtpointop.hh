@@ -43,7 +43,7 @@ rasdaman GmbH.
 /*@Doc:
 
   The class represents the root of a point expression.
-
+  and now it even manages its memory properly!
 */
 
 class QtPointOp : public QtNaryOperation
@@ -51,6 +51,9 @@ class QtPointOp : public QtNaryOperation
 public:
     /// constructor getting the two operands
     QtPointOp(QtOperationList* opList);
+    
+    /// destructor for pointer member
+    ~QtPointOp();
 
     /// method for evaluating the node
     QtData* evaluate(QtDataList* inputList);
@@ -69,7 +72,7 @@ public:
     /// type checking of the subtree
     virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
-    inline r_Point* getPoints();
+    inline r_Point* getPoints() const;
 
 private:
     /// attribute for identification of nodes

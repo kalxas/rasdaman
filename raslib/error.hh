@@ -168,6 +168,9 @@ public:
 
     /// constructor getting an error number
     r_Error(unsigned int errorno);
+    
+    /// constructor getting an error number
+    r_Error(int errorno);
 
     /// destructor
     virtual ~r_Error() throw();
@@ -183,7 +186,7 @@ public:
     ///
     inline kind          get_kind() const;
     ///
-    inline unsigned int get_errorno() const;
+    inline unsigned long get_errorno() const;
     ///
     //@}
 
@@ -566,16 +569,23 @@ public:
 #define CELLBINARYOPUNAVAILABLE             434
 #define CELLUNARYOPUNAVAILABLE              435
 #define MDDARGREQUIRED                      436
+#define NEEDTWOORMOREVERTICES               500
 #define INCORRECTPOLYGON                    501
+#define FACEDIMENSIONMISMATCH               502
+#define VERTEXDIMENSIONMISMATCH             503
 #define POLYTOPEDIMENSIONTOOLARGE           504
+#define GRIDPOINTSONLY                      505
 #define SUBSPACENOINTERSECTION              506
 #define POINTDIMENSIONDIFFERS               507
-#define POLYGONVERTICESNOTCOPLANAR          508
+#define GRIDVERTICESNOTCOPLANAR             508
+#define NONATURALEMBEDDING                  509
 #define SUBSPACEDIMSAMEASMDDOBJ             515
 #define CURTAINRANGEINCORRECT               516
 #define CURTAINDOMAINDIMENSIONERROR         517
 #define CURTAINDOMAININTERSECTERROR         518
 #define BRESENHAMSEGMENTMOREVERTICES        519
+#define CLIPERRORUNDEFINED                  520
+#define CURTAINLINESTRINGDIMENSIONMISMATCH  521
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709
 #define FAILEDWRITINGTODISK                 710

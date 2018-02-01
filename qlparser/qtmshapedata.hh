@@ -91,7 +91,7 @@ public:
     virtual void printStatus(std::ostream& stream = std::cout) const;
 
     /// get the list of defining vertices
-    inline const std::vector<r_Point>& getPolytopePoints();
+    inline const std::vector<r_Point>& getPolytopePoints() const;
     
     /// get the dimension of the space the object lies into (how many vectors define this space)
     r_Dimension getDimension();

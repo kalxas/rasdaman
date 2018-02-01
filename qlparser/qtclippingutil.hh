@@ -46,7 +46,7 @@ struct classcomp
     bool operator()(const r_Point &x, const r_Point &y) const;
 };
 
-typedef struct boundingBox
+typedef struct BoundingBox
 {
     // properties of the struct
     r_PointDouble minPoint;
@@ -54,9 +54,21 @@ typedef struct boundingBox
     r_PointDouble bBoxSizes;
 
     // constructor
-    boundingBox( r_PointDouble minP, r_PointDouble maxP, r_PointDouble bSize) : minPoint(minP), maxPoint(maxP), bBoxSizes(bSize)
+    BoundingBox( r_PointDouble minP, r_PointDouble maxP, r_PointDouble bSize) : minPoint(minP), maxPoint(maxP), bBoxSizes(bSize)
     {    };
-} boundingBox;
+    
+    // return the respective r_Minterval
+    r_Minterval getHull()
+    {
+        r_Minterval retVal(minPoint.dimension());
+        for (r_Dimension i = 0; i < minPoint.dimension(); i++)
+        {
+            r_Sinterval rs(static_cast<r_Range>(minPoint[i]), static_cast<r_Range>(maxPoint[i]));
+            retVal << rs;
+        }
+        return retVal;
+    };
+} BoundingBox;
 
 /* Generates the vertice coordinates relevant to the new basis. This is later to be used to generate
    the bounding box 
@@ -67,11 +79,11 @@ typedef struct boundingBox
  */
 
 /// compute the box in which the polytope lies
-boundingBox *computeBoundingBox(QtMShapeData *mshape);
+BoundingBox *computeBoundingBox(const QtMShapeData* mshape);
 
 
 /// compute the box in which the polytope lies
-boundingBox *computeBoundingBoxFromList(vector<r_Point> &vertices);
+BoundingBox *computeBoundingBoxFromList(vector<r_Point>& vertices);
 
 /// check if a given point is in the given affine subspace defined by the vertices of mshape
 pair<double, bool> isInNSubspace(const r_Point& position, QtMShapeData* mshape);
@@ -94,13 +106,31 @@ std::pair<int, int> computeStepsToSkip(const r_Point& currentPosition, const r_P
 
 // appends index vectors to nSubspace corresponding to a BLA performed on the two vertices in mshape
 // the BLA gives indices, not offsets. So the offsets are computed int he output method.
-void computeNDBresenhamLine(QtMShapeData* mshape, vector<r_Point>& nSubspace);
+vector<r_Point> computeNDBresenhamLine(QtMShapeData* mshape);
 
 // performs the same BLA as above, but with a pair of points as an argument, and without order swapping, for more flexible usage.
 vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& polytopeVertices);
 
+// builds a vector of pairs of r_PointDouble to be passed sequentially into computeNDBresenhamSegments, using computeNDBresenhamSegment
+vector< vector< r_PointDouble > > vectorOfPairsWithoutMultiplicity(const std::vector<r_PointDouble>& polytopeVertices, size_t numSteps);
+
+// constructs a vector of 1-D r_Mintervals given a vector of bounding boxes and their corresponding longest dimensions
+// this method removes point duplicity on the edges. Primarily used for linestrings
+vector< r_Minterval > vectorOfResultTileDomains(const std::vector<r_Minterval>& bBoxes, const std::vector<r_Dimension>& projectionDims );
+
+//generate a vector of tiles with the given domains and base type, initialized to 0.
+//std::vector<boost::shared_ptr<Tile>> initializeTileVector(const std::vector<r_Minterval>& resTileDomains, const BaseType* resTileBasetype);
+
+// takes the result of computeNDBresenhamLine or computeNDBresenhamSegment and an r_Minterval to find the index of the positions of the first and last points in a segment contained within the r_Minterval
+// note: this method assumes that lineSegmentArg exhibits monotonicity
+std::pair<int, int> endpointsSearch(const r_Minterval& domainArg, const std::vector<r_Point>& lineSegmentArg);
+
+// takes a pair and returns the smallest  r_Minterval containing the end points given by lineSegmentArg[first] and lineSegmentArg[second]
+r_Minterval localHull(const std::pair<int, int>& indices, const std::vector<r_Point>& lineSegmentArg);
+r_Sinterval localHullByIndex(const std::pair<int, int>& indices, const std::vector<r_Point>& lineSegmentArg, size_t index);
+
 /// computes the r_Minterval of the projected subspace.
-r_Minterval computeProjectedMinterval(QtMShapeData* mshape, boundingBox* bBox, r_PointDouble* indexToRemove, std::set<r_Dimension, std::less<r_Dimension>> &projectionDimensionSet);
+r_Minterval computeProjectedMinterval(QtMShapeData* mshape, BoundingBox* bBox, r_PointDouble* indexToRemove, std::set<r_Dimension, std::less<r_Dimension>>& projectionDimensionSet);
 
 /// given an r_Minterval, computes the new r_Minterval i.e. the projection of the first according to the projectionDimensionSet.
 /// dim is the number of dimensions of the first input r_Minterval

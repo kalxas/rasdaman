@@ -107,7 +107,7 @@ QtMShapeOp::evaluate(QtDataList *inputList)
             {
                 LFATAL << "Error: QtMShapeOp::evaluate() - operands of point expression must be of type integer.";
 
-                parseInfo.setErrorNo(410);
+                parseInfo.setErrorNo(GRIDPOINTSONLY);
 
                 // delete the old operands
                 if (operandList)
@@ -151,7 +151,7 @@ QtMShapeOp::evaluate(QtDataList *inputList)
                         if (overAllDim != pt.dimension())
                         {
                             LFATAL << "Error: QtMShapeOp::evaluate() - polygon vertices must have the same dimension.";
-                            parseInfo.setErrorNo(245);
+                            parseInfo.setErrorNo(VERTEXDIMENSIONMISMATCH);
                             throw parseInfo;
                         }
                     }
@@ -188,7 +188,7 @@ QtMShapeOp::evaluate(QtDataList *inputList)
                         // throw an erro in the object construction since the faces constructing it need
                         // to be of a dimension one less.
                         LFATAL << "Error: QtMShapeOp::evaluate() - the faces of the polytope must have the same dimension.";
-                        parseInfo.setErrorNo(502);
+                        parseInfo.setErrorNo(FACEDIMENSIONMISMATCH);
                         throw parseInfo;
                     }
                 }

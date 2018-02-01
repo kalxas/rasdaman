@@ -73,6 +73,8 @@ public:
     ///
     inline void          setErrorNo(unsigned long errorNo);
     ///
+    inline void          setErrorNo(int errorNo);
+    ///
     inline void          setToken(const std::string& text);
     ///
     inline void          setToken(const char* text);

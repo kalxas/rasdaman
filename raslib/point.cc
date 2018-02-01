@@ -163,6 +163,17 @@ r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5)
     points[4] = p5;
 }
 
+r_Point::r_Point(const std::vector<r_Range>& pointArg)
+    : dimensionality(pointArg.size()),
+      streamInitCnt(dimensionality)
+{
+    points = new r_Range[dimensionality];
+    for(size_t i = 0; i < dimensionality; i++)
+    {
+        points[i] = pointArg[i];
+    }
+}
+
 
 r_Point::r_Point()
     : points(NULL),
@@ -418,6 +429,18 @@ r_Point::operator*(const r_Range newElement) const
     return result;
 }
 
+r_Point
+r_Point::indexedMap(const std::vector<r_Dimension>& vecArg) const
+{
+    r_Point retVal(vecArg.size());
+    for(size_t i = 0; i < vecArg.size(); i++)
+    {
+        retVal[i] = points[vecArg[i]];
+    }
+    return retVal;
+}
+
+
 r_Range
 r_Point::dotProduct(const r_Point& pt) const throw(r_Edim_mismatch)
 {
@@ -435,6 +458,18 @@ r_Point::dotProduct(const r_Point& pt) const throw(r_Edim_mismatch)
     }
 
     return result;
+}
+
+std::vector<r_Range>
+r_Point::getVector() const
+{
+    std::vector<r_Range> returnVal;
+    returnVal.reserve(dimensionality);
+    for(size_t i = 0; i < dimensionality; i++)
+    {
+        returnVal.emplace_back(points[i]);
+    }
+    return returnVal;
 }
 
 void

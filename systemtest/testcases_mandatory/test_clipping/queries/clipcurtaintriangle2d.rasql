@@ -1,1 +1,0 @@
-select encode(clip(c, curtain( range(0, 0), polygon(0 0, 99 0, 99 4))), "png") from test_grey3d as c

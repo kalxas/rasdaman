@@ -1,0 +1,1 @@
+select clip(c, polygon((0 0, 30 40, 60 80))) from test_rgb2 as c

@@ -34,7 +34,7 @@ TEST(computerMinterval, clippingHelpFunctions)
     vector<r_Point> polytopePoints = {r_Point(0, 0, 0), r_Point( 2, 2, 0), r_Point(2, 0, 0)};
     QtMShapeData* mshape = new QtMShapeData(polytopePoints);
 
-    boundingBox* bBox = computeBoundingBox(mshape);
+    BoundingBox* bBox = computeBoundingBox(mshape);
 
     r_PointDouble expected1(3), bBoxRemoveDimension(3);
     expected1[2] = -1;
@@ -57,9 +57,9 @@ TEST(computerMinterval5d, clippingHelpFunctions)
     vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point( 2, 2, 1, 1, 0), r_Point(2, 2, 0, 0, 0)};
     QtMShapeData* mshape = new QtMShapeData(polytopePoints);
 
-    boundingBox* bBox = computeBoundingBox(mshape);
+    BoundingBox* bBox = computeBoundingBox(mshape);
 
-   r_PointDouble expected1_5d(5), bBoxRemoveDimension5d(5);
+    r_PointDouble expected1_5d(5), bBoxRemoveDimension5d(5);
     expected1_5d[4] = -1;
     expected1_5d[3] = -1;
     expected1_5d[2] = -1;
@@ -83,7 +83,7 @@ TEST(computerMinterval5d_2, clippingHelpFunctions)
     
     vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point( 0, 2, 1, 2, 2), r_Point(0, 2, 1, 0, 2)};
     QtMShapeData* mshape = new QtMShapeData(polytopePoints);
-    boundingBox* bBox = computeBoundingBox(mshape);
+    BoundingBox* bBox = computeBoundingBox(mshape);
 
     r_PointDouble expected2_5d(5), bBoxRemoveDim1_5d(5);
     expected2_5d[0] = -1;
@@ -106,7 +106,7 @@ TEST(computerMinterval5d_3, clippingHelpFunctions)
     
     vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point( 0, 10, 5, 2, 7), r_Point(0, 2, 0, 0, 2)};
     QtMShapeData* mshape = new QtMShapeData(polytopePoints);
-    boundingBox* bBox = computeBoundingBox(mshape);
+    BoundingBox* bBox = computeBoundingBox(mshape);
 
     r_PointDouble expected2_5d(5), bBoxRemoveDim1_5d(5);
     expected2_5d[0] = -1;

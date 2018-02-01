@@ -52,12 +52,12 @@ public:
 
     // computes the polygon clipping in 2D using Bresenham
     // fast and draws boundaries; currently used for lines, but works in general
-    MDDObj* compute2D_Bresenham(MDDObj* op, MDDObj* mddres, r_Dimension dim);    
+    MDDObj* compute2DBresenham(MDDObj* op, r_Dimension dim);    
     
     // computes the polygon clipping in 2D using ray intersection counting 
     // also fast and can be adapted to float or double for vertices OR interior points
     // ref: https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
-    MDDObj* compute2D_Rays(MDDObj* op, MDDObj* mddres, r_Dimension dim);
+    MDDObj* compute2DRays(MDDObj* op, r_Dimension dim);
     
     // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
     vector< vector<char> > generateMask();

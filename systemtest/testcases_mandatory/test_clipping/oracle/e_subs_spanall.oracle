@@ -1,0 +1,1 @@
+rasdaman error 515: Exception: The affine subspace containing the vertices is the same as the dimension of the MDD object which it is expected to clip.
