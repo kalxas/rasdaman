@@ -48,7 +48,7 @@
       <name>World</name>
     </epsg:AreaOfUse>
   </domainOfValidity>
-  <scope  >Horizontal component of 3D system. Used by the GPS satellite navigation system and for NATO military geodetic surveying.</scope>
+  <scope>Horizontal component of 3D system. Used by the GPS satellite navigation system and for NATO military geodetic surveying.</scope>
   <ellipsoidalCS>
     <EllipsoidalCS id="iogp-cs-6422">
       <metaDataProperty>
@@ -127,7 +127,7 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf. Also NGA.STND.0036_1.0.0_WG
           <name>World</name>
         </epsg:AreaOfUse>
       </domainOfValidity>
-      <scope  >Satellite navigation.</scope>
+      <scope>Satellite navigation.</scope>
       <anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 1994-06-29 (G730), a further 0.2m on 1997-01-29 (G873),  0.06m on 2002-01-20 (G1150), 0.2m on 2012-02-08 (G1674) and 0.02m on 2013-10-16 (G1762).</anchorDefinition>
       <primeMeridian>
         <PrimeMeridian id="epsg-meridian-8901">

@@ -173,12 +173,11 @@ public class IncompleteUrlHandler extends AbstractHandler {
             res = SecoreUtil.queryDefVersionless(urlTmp, DbManager.FIX_GML_VERSION_ALIAS);
         }
 
-        String response = "";
 
         if (!StringUtil.emptyQueryResult(res)) {
             // parse the res as it is stored as string (e.g: /def/ will return: area crs crs datum)
             // and store these sublevel into a sorted set (remove duplicate sublevel)
-            List<String> subsetURIs = new ArrayList(Arrays.asList(res.split(" ")));
+            List<String> subsetURIs = new ArrayList(Arrays.asList(res.replace("\n", " ").split(" ")));
             // remove empty elements "" from list
             subsetURIs.removeAll(Arrays.asList("", null));
             Set<String> children = new TreeSet<>(subsetURIs);
@@ -192,11 +191,14 @@ public class IncompleteUrlHandler extends AbstractHandler {
                 childrenURIs.append(" <" + IDENTIFIER_LABEL + ">" + requestUri + child + "</" + IDENTIFIER_LABEL + ">\n");
             }
 
-            response = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getReplacedURLPrefixRequest())
+            String response = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getReplacedURLPrefixRequest())
                     + "' xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n"
                     + childrenURIs
                     + "</" + IDENTIFIERS_LABEL + ">";
-        }
-        return response;
+            return response;
+        } else {
+            // e.g: http://localhost:8080/def/crs/abc which doesn't exist and XQuery returns "" for all collections
+            throw new SecoreException(ExceptionCode.NoSuchDefinition, "Failed resolving " + request.getOriginalRequest());
+        }        
     }
 }

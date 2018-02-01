@@ -83,7 +83,8 @@ public class DbManager {
      * and full path to XML dictionary files. (e.g: .../ect/gml/$VERSION/GmlDictionary.xml)
      */
     public static final Map<DbCollection, String> collections = new HashMap<DbCollection, String>();
-
+    private List<String> supportedGMLCollectionVersions = new ArrayList<>();
+    
     private DbManager() throws SecoreException {
         
         boolean hasFixVersion = false;
@@ -96,6 +97,9 @@ public class DbManager {
         File folder = new File(ConfigManager.getInstance().getGMLDirectory());
         // Get the folders and 1 UserDictionary.xml in the etc/gml/
         List<File> files = new ArrayList<>(Arrays.asList(folder.listFiles()));
+        
+        // Default version 0 is what GML collection supports
+        supportedGMLCollectionVersions.add(FIX_GML_VERSION_ALIAS);
 
         // Iterate all the EPSG versions in the config directory
         for (File f : files) {
@@ -106,6 +110,7 @@ public class DbManager {
                 hasUserDBFile = true;
             } else {
                 String versionNumber = f.getName();
+                supportedGMLCollectionVersions.add(versionNumber);
                 // it is folder, get deeper to get the GMLDictionary file
                 // e.g: gml_85, gml_892
                 String collectionName = createGMLCollectionName(versionNumber);
@@ -222,6 +227,10 @@ public class DbManager {
         }
 
         return false;
+    }
+    
+    public List<String> getSupportedGMLCollectionVersions() {
+        return this.supportedGMLCollectionVersions;
     }
 
     public Database getDb() {

@@ -69,6 +69,7 @@ public class BaseX implements Database {
      */
     public BaseX(Map<DbCollection, String> collections) throws SecoreException {
         this.collections = collections.keySet();
+        
         // determine configuration directory in which to put the database
         String secoreDbDir = IOUtil.getSecoreDbDir();
         // the folder (secoredb) where .basex file is created
@@ -77,6 +78,8 @@ public class BaseX implements Database {
         System.setProperty(BASEX_OPTION_PREFIX + "." + DBPATH_BASEX_PROPERTY, secoreDbDir);
         context = new Context();            
         log.info("Secore database directory '" + secoreDbDir + "'.");
+        
+        context = new Context();
 
         // Iterate all the versions which can be initialized
         for (DbCollection collection : this.collections) {

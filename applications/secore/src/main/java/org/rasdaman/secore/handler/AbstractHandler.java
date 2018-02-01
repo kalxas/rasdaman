@@ -28,6 +28,9 @@ import org.rasdaman.secore.util.SecoreException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.req.RequestParam;
@@ -68,7 +71,11 @@ public abstract class AbstractHandler implements Handler {
         // and this help determine the index of version number from URL (e.g: /crs/EPSG/0/4326, version is 0).
         String urlTmp = StringUtil.stripServiceURI(url);
         String res = resolve(IDENTIFIER_LABEL, urlTmp, versionNumber, depth, parameters);
-        ResolveResponse ret = new ResolveResponse(res);
+        // NOTE: output from resolving CRS is what it was stored before (i.e: a CRS definition contains an xlink:href to an obsolete URI, e.g: localhost:8090/def).
+        // It should replace these SECORE URI by the serivce URI which user configured in secore.properties currently (e.g: localhost:8080/def)
+        // then if one parse the result from SECORE can still access to xlink href URI instead of non-existing URI.
+        String newRes = StringUtil.fixLinks(res);
+        ResolveResponse ret = new ResolveResponse(newRes);
 
         if (!ret.isValidDefinition()) {
             // no definition found
@@ -209,6 +216,16 @@ public abstract class AbstractHandler implements Handler {
         // NOTE: it will depend on the version of $id (e.g: http://localhost:8080/def/crs/EPSG/0/4326 (get version at "/" number 7)
         // or crs/EPSG/8.5/4326 (get version at "/" number 4)) to send request to correct collection
         // Don't use fix collection here as 1 CRS definition could contain different internal CRS URIs with different version number.
+        List<String> list = DbManager.getInstance().getSupportedGMLCollectionVersions();
+        String supportedGMLCollectionVersions = "";
+        for (int i = 0; i < list.size(); i++) {
+            supportedGMLCollectionVersions += " " + "'" + list.get(i) + "'";
+            if (i < list.size() - 1) {
+                supportedGMLCollectionVersions += ",";
+            }
+        }
+        supportedGMLCollectionVersions = "(" + supportedGMLCollectionVersions.trim() + ")";
+        
         String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";\n"
                         + "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n"
                         // NOTE: It needs to replace placeholders for children GML ids if they are also parameterized CRS as parent
@@ -230,19 +247,38 @@ public abstract class AbstractHandler implements Handler {
                         + "  return if ( count(tokenize($id, '/')) > 8 ) then \n"                        
                         + "         " + keyvalueParameters
                         + "             let $replacedId := local:replace-word($id, $keys, $values) \n"
-                        + "             let $retValue := (doc($replacedId)//*)[1] \n"
+                        // NOTE: when send a HTTP request, it should use the domain which is configured in secore.properties, not the one it is stored in userdb
+                        // e.g: if it was stored with localhost:8090 for xlink:href but user changes to use localhost:8080 in current configuration, this request will return error HTTP 500.
+                        + "             let $mainPartURI := substring-after($replacedId, '" + Constants.WEB_APPLICATION_NAME + "') \n"
+                        + "             let $serviceDomain := '" + ConfigManager.getInstance().getServiceUrl() + "' \n"
+                        + "             let $replaceId := concat($serviceDomain, $mainPartURI) \n"
+                        + "             let $retValue := (doc($replaceId)//*)[1] \n"
                         + "             return $retValue \n"
                         + "         else  \n"
-                        + "             let $retUserDB := $d//gml:identifier[fn:ends-with(text(), $id)]/.. \n"
+                        //              id can be a part of full URI (e.g: crs/EPSG/4326) or it can be a full URI from xlink:href element inside a CRS definition 
+                        //              (e.g: http://opengis.net/def/crs/EPSG/0/4893). It needs to subtract the domain + application name as it can be stored differently 
+                        //              inside secoredb (e.g: in secoredb for GML collection: CRS is http://localhost:8080/def/crs/EPSG/0/4893).
+                        + "             let $tmpId := \n" 
+                        + "                  if (contains($id, \"http\")) then \n" 
+                        + "                      substring-after($id, '" + Constants.WEB_APPLICATION_NAME + "') \n"
+                        + "                  else \n"
+                        + "                      $id \n"
+                        + "             let $retUserDB := $d//gml:identifier[ends-with(text(), $tmpId)]/.. \n"
                         + "             return if (empty($retUserDB)) then \n"
                         + "                        let $version := tokenize($id, '/')[7] \n"
                         + "                        let $version := \n"
                         + "                             if (empty($version)) then \n"
                         + "                                tokenize($id, '/')[4] \n"
                         + "                             else \n"
-                        + "                                tokenize($id, '/')[7] \n"
-                        + "                        let $collectionName := replace( concat('gml_', $version ), '\\.', '' ) \n"
-                        + "                        let $retGML := collection($collectionName)//gml:identifier[fn:ends-with(text(), $id)]/.. \n"
+                        + "                                tokenize($id, '/')[7] \n"                        
+                        //             if a CRS contain a non-existing xlink:href element which doesn't exist in userdb collection (e.g: http://opengis.net/def/crs/OGC/1.3/MapCS)
+                        //             it will try to query with version 1.3 in GML collections which will throw exception as only versions (0, 8.5, 8.92) exist.
+                        + "                        let $retGML := \n"
+                        + "                            if (index-of((" + supportedGMLCollectionVersions + "), $version)) then \n "
+                        + "                                let $collectionName := replace( concat('gml_', $version ), '\\.', '' ) \n"
+                        + "                                return collection($collectionName)//gml:identifier[ends-with(text(), $tmpId)]/.. \n"
+                        + "                            else \n"
+                        + "                                element empty {\"\"} \n"
                         + "                        return \n"
                         + "                            if (empty($retGML)) then \n"
                         + "                                let $retValue := <empty/> \n"

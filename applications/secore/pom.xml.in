@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.basex</groupId>
             <artifactId>basex</artifactId>
-            <version>7.3.1</version>
+            <version>8.6.7</version>
         </dependency>
         <dependency>
             <groupId>xmlunit</groupId>

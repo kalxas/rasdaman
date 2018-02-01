@@ -66,12 +66,12 @@ class CRSAxis:
         return False
 
     def is_uom_day(self):
-        if self.uom == 'http://www.opengis.net/def/uom/UCUM/0/d':
+        if 'uom/UCUM/0/d' in self.uom:
             return True
         return False
 
     def is_uom_second(self):
-        if self.uom == 'http://www.opengis.net/def/uom/UCUM/0/s':
+        if 'uom/UCUM/0/s' in self.uom:
             return True
         return False
 
@@ -227,4 +227,5 @@ class CRSUtil:
 
     X_AXES = ["X", "E", "M", "E(X)", "x", "e", "Long", "Lon", "i"]
     Y_AXES = ["Y", "N", "P", "E(Y)", "y", "n", "Lat", "j"]
+
 

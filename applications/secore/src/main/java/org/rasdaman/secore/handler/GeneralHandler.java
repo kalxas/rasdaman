@@ -116,18 +116,11 @@ public class GeneralHandler extends AbstractHandler {
         // If versionNumber does not exist in userdb, then it should be from GML dictionaries.
         if (!existsDefInUserDB) {
             if (!DbManager.collectionExistByVersionNumber(versionNumber)) {
-                String requestURL = url.replace(VERSION_NUMBER, versionNumber);
-                throw new SecoreException(ExceptionCode.InvalidRequest, "Failed resolving request '" + requestURL + "', check if version number is valid or crs definition exists first.");
+                throw new SecoreException(ExceptionCode.InvalidRequest, "Failed resolving request '" + request.toString() + "', check if version number is valid or crs definition exists first.");
             }
         }
 
         ResolveResponse ret = resolveId(parseRequest(request).snd, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());
-
-        // Replace the requested URL in <gml:identifier> with the replaced URL with prefix in secore.properties
-        // e.g: <gml:identifier codeSpace="OGP">http://localhost:8080/def/crs/EPSG/0/4326</gml:identifier>
-        // to: <gml:identifier codeSpace="OGP">http://opengist.net/def/crs/EPSG/0/4326</gml:identifier>
-        ret = new ResolveResponse(StringUtil.replaceElementValue(
-                ret.getData(), IDENTIFIER_LABEL, request.getReplacedURLPrefixRequest()));
 
         // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
         if (ParameterizedCrsHandler.isParameterizedCrsDefinition(ret.getData())) {

@@ -513,7 +513,7 @@ public class StringUtil {
     public static boolean emptyQueryResult(String result) {
         return result == null
                || result.equals(EMPTY_XML)
-               || result.replaceAll("[\\n\\r]", "").equals(EMPTY);
+               || result.trim().equals(EMPTY);
     }
 
     /**
@@ -612,5 +612,32 @@ public class StringUtil {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         log.debug("Error when " + method + " definition by BaseX: " + sw.toString());
+    }
+    
+    /**
+     * From the gml output of BaseX which contains stored URL (e.g: http://localhost:8080/def/crs/EPSG/0/4326).
+     * Replace all these URLs with the domain configured in secore.properties for service.url
+     * (e.g: http://opengis.net/def). Then, URL in newly output will be: http://opengis.net/def/crs/EPSG/0/4326
+     * @param gml: output of BaseX query when resolving a request.
+     * @return newly replaced gml output
+     */
+    public static String fixLinks(String gml) {
+        String patternString = "(http(s)?://[A-Za-z0-9-_.:]*/" + Constants.WEB_APPLICATION_NAME + "/.*)";
+
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(gml);
+        
+        String prefixDomain = ConfigManager.getInstance().getServiceUrl();
+        
+        StringBuffer stringBuffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String url = prefixDomain + matcher.group(1).split(Constants.WEB_APPLICATION_NAME)[1];
+            matcher.appendReplacement(stringBuffer, url);
+        }
+        matcher.appendTail(stringBuffer);
+        
+        String newGML = stringBuffer.toString();
+        return newGML;        
     }
 }
