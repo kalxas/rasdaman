@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="InvalidParameterValue">
+        <ows:ExceptionText>Invalid input WKT for clipping operator. Reason 'Number of dimensions in WKT '3' is different from coverage's '2'.'.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

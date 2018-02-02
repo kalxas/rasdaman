@@ -239,6 +239,8 @@ applications/secore/secore-web/javadoc/
 applications/secore/src/main/resources/gml/
 
 nb-configuration.xml
+nbactions.xml
+nbactions-jar.xml
 
 build/
 target/

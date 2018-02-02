@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.handlers.kvp.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -54,17 +55,12 @@ public class KVPWCSGetCoverageSubsetDimensionService {
      */
     public List<AbstractSubsetDimension> parseSubsets(Map<String, String[]> kvpParameters, WcpsCoverageMetadata wcpsCoverageMetadata) throws WCSException {
         String[] subsets = kvpParameters.get(KVPSymbols.KEY_SUBSET);
-        if (subsets == null) {
-            subsets = new String[wcpsCoverageMetadata.getAxes().size()];
-            // Now, build the subsets for all the axes of coverage when no subset is mentioned as parameter
-            int i = 0;
-            for (Axis axis : wcpsCoverageMetadata.getAxes()) {
-                subsets[i] = axis.getLabel() + "(" + axis.getGeoBounds().getLowerLimit() + "," + axis.getGeoBounds().getUpperLimit() + ")";
-                i++;
-            }
-        }
         // convert the string to list of subset dimension objects
-        List<AbstractSubsetDimension> dimensionSubsets = SubsetDimensionParserService.parseSubsets(subsets);
+        List<AbstractSubsetDimension> dimensionSubsets = new ArrayList<>();
+        if (subsets != null) {
+            dimensionSubsets = SubsetDimensionParserService.parseSubsets(subsets);
+        }
+        
         return dimensionSubsets;
     }
 }

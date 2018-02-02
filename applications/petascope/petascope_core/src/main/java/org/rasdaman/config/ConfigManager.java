@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
@@ -121,6 +120,14 @@ public class ConfigManager {
     public static boolean XML_VALIDATION = false;
     // Only used when testing OGC CITE
     public static boolean OGC_CITE_OUTPUT_OPTIMIZATION = false;
+    
+    public static String DEFAULT_DIR_TMP = "/tmp";
+    public static String DEFAULT_PETASCOPE_DIR_TMP = "/tmp/rasdaman/petascope";
+    /* ***** Petascope Uploaded files configuration ***** */    
+    // Any files are posted to controllers will store here and be removed when request is done
+    public static String UPLOADED_FILE_DIR_TMP = DEFAULT_PETASCOPE_DIR_TMP + "/" + "upload";    
+    // Any uploaded file to server to process will have this prefix (e.g on server: rasdaman.uploadedfile.datetime)
+    public static String UPLOAD_FILE_PREFIX = "rasdaman.";
 
     /* ***** rasdaman configuration ***** */
     public static String RASDAMAN_SERVER = "localhost";
@@ -150,10 +157,6 @@ public class ConfigManager {
 
     /* ***** WMS configuration ***** */
     public static long WMS_MAXIMUM_CACHE_SIZE = 100000000; // 100 MB
-
-    /* ***** RASQL Servlet configuration ***** */
-    // rasql servlet upload file for decode()
-    public static String RASQL_SERVLET_UPLOAD_DIR = "/tmp/rasql_servlet_upload";
 
     // properties's keys in petascope.properties file
     /* ***** Petascope configuration ***** */
@@ -187,7 +190,9 @@ public class ConfigManager {
     private static final String KEY_RASDAMAN_RETRY_TIMEOUT = "rasdaman_retry_timeout";
     private static final String KEY_RASDAMAN_RETRY_ATTEMPTS = "rasdaman_retry_attempts";
     private static final String KEY_RASDAMAN_BIN_PATH = "rasdaman_bin_path";
-
+    
+    /* ***** Petascope uploaded file configuration ***** */
+    private static final String KEY_UPLOADED_FILE_DIR_TMP = "uploaded_files_dir_tmp";
 
     /* ***** SECORE configuration ***** */
     private static final String KEY_SECORE_URLS = "secore_urls";
@@ -200,9 +205,6 @@ public class ConfigManager {
 
     /* ***** WCST configuration ***** */
     private static final String KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
-
-    /* ***** Rasql servlet configuration ***** */
-    private static final String KEY_RASQL_SERVLET_UPLOAD_PATH = "rasql_servlet_upload_path";
 
     /* ***** LOG4J configuration ***** */
     // from petascope.properties used for log4j
@@ -372,9 +374,23 @@ public class ConfigManager {
         // Disable write operations
         DISABLE_WRITE_OPERATIONS = Boolean.parseBoolean(get(KEY_DISABLE_WRITE_OPERATIONS));
 
-        /* ***** Rasql servlet configuration ***** */
-        // rasql servlet upload path for decode()
-        RASQL_SERVLET_UPLOAD_DIR = get(KEY_RASQL_SERVLET_UPLOAD_PATH);
+        /* ***** Petascope uploaded files directory configuration ***** */
+        UPLOADED_FILE_DIR_TMP = get(KEY_UPLOADED_FILE_DIR_TMP);
+        if (!StringUtils.isEmpty(UPLOADED_FILE_DIR_TMP)) {
+            // try to create this folder (e.g: /tmp/rasdaman/petascope/upload)
+            File file = new File(UPLOADED_FILE_DIR_TMP);
+            try {
+                file.mkdirs();
+            } catch (Exception ex) {
+                // Cannot create uploaded files folder configured in properties file, fallback to /tmp
+                UPLOADED_FILE_DIR_TMP = DEFAULT_DIR_TMP;
+                log.warn("Cannot create folder for this key '" + KEY_UPLOADED_FILE_DIR_TMP + "' from properties file. Reason '" + ex + "'."
+                        + "Uploaded files will be set to " + DEFAULT_DIR_TMP + " folder.'");
+            }
+        } else {
+            // no configuration for this key in properties file, set it to default /tmp folder
+            UPLOADED_FILE_DIR_TMP = DEFAULT_DIR_TMP;
+        }
         
         // Get rasdaman version from RasQL (see #546)
         try {

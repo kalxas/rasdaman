@@ -21,18 +21,12 @@
  */
 package petascope.controller;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.RASQL;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,12 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import petascope.controller.handler.service.KVPRasqlServiceHandler;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
 import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
-import petascope.util.StringUtil;
 
 /**
  * Controller for Rasql query as RasqlServlet before
@@ -61,26 +55,16 @@ public class RasqlController extends AbstractController {
     KVPRasqlServiceHandler kvpRasqlServiceHandler;
 
     @RequestMapping(value = RASQL, method = RequestMethod.POST)
-    protected void handlePost(HttpServletRequest httpServletRequest, @RequestParam(value = "file", required = false) MultipartFile file) throws Exception {
+    protected void handlePost(HttpServletRequest httpServletRequest, @RequestParam(value = KVPSymbols.KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) throws Exception {
         String requestBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(requestBody);
 
-        if (file != null) {
-            // It is a upload file request
-            byte[] bytes = file.getBytes();            
-            // Check if temp folder exist first
-            File folderPath = new File(ConfigManager.RASQL_SERVLET_UPLOAD_DIR);
-            if (!folderPath.exists()) {
-                folderPath.mkdir();
-            }
-            String fileName = StringUtil.createRandomString(file.getOriginalFilename());
-            String filePath = ConfigManager.RASQL_SERVLET_UPLOAD_DIR + "/" + fileName;
-            Path path = Paths.get(filePath);
-            Files.write(path, bytes);
-            log.debug("Uploaded request file to local temp folder: " + filePath);
-            kvpParameters.put(KVPSymbols.KEY_UPLOADED_FILE_PATH, new String[]{filePath});
+        // A file is uploaded e.g: with WCS clipping extension and WKT text is big string in a text file
+        String uploadedFilePath = null;
+        if (uploadedFile != null) {
+            uploadedFilePath = this.storeUploadFileOnServer(uploadedFile);
+            kvpParameters.put(KEY_UPLOADED_FILE_VALUE, new String[] {uploadedFilePath});
         }
-
         this.requestDispatcher(kvpParameters);
     }
 

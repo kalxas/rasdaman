@@ -21,6 +21,7 @@
  */
 package petascope.controller;
 
+import java.io.File;
 import petascope.controller.handler.service.AbstractHandler;
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,7 +32,9 @@ import static org.rasdaman.config.ConfigManager.OWS;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -39,6 +42,7 @@ import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.WMSException;
+import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -55,9 +59,16 @@ public class PetascopeController extends AbstractController {
     }
 
     @RequestMapping(value = OWS, method = RequestMethod.POST)
-    protected void handlePost(HttpServletRequest httpServletRequest) throws IOException, PetascopeException, WCSException, SecoreException, Exception {
+    protected void handlePost(HttpServletRequest httpServletRequest, @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
+            throws IOException, PetascopeException, WCSException, SecoreException, Exception {
         String postBody = this.getPOSTRequestBody(httpServletRequest);        
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        // A file is uploaded e.g: with WCS clipping extension and WKT text is big string in a text file
+        String uploadedFilePath = null;
+        if (uploadedFile != null) {
+            uploadedFilePath = this.storeUploadFileOnServer(uploadedFile);
+            kvpParameters.put(KEY_UPLOADED_FILE_VALUE, new String[] {uploadedFilePath});
+        }
         this.requestDispatcher(kvpParameters);
     }
 
@@ -86,39 +97,50 @@ public class PetascopeController extends AbstractController {
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
         // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)                
-        log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
-        
-        if (startException != null) {
-            throwStartException();
-        }
+        try {
+            log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+                
+            if (startException != null) {
+                throwStartException();
+            }
 
-        Response response = null;
-        if (kvpParameters.isEmpty()) {
-            // a WCS request without any params, so returns WCS-Client            
-            byte[] bytes = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/interface-servlet.html")).getBytes();
-            response = new Response(Arrays.asList(bytes), "text/html");
-        } else {
+            Response response = null;
+            if (kvpParameters.isEmpty()) {
+                // a WCS request without any params, so returns WCS-Client            
+                byte[] bytes = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/interface-servlet.html")).getBytes();
+                response = new Response(Arrays.asList(bytes), "text/html");
+            } else {
 
-            // e.g: WCS, WMS
-            String service = kvpParameters.get(KVPSymbols.KEY_SERVICE)[0];
-            // e.g: 2.0.1 (WCS), 1.3.0 (WMS)
-            String version = kvpParameters.get(KVPSymbols.KEY_VERSION)[0];
-            // e.g: GetCapabilities, DescribeCoverage
-            String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
+                // e.g: WCS, WMS
+                String service = kvpParameters.get(KVPSymbols.KEY_SERVICE)[0];
+                // e.g: 2.0.1 (WCS), 1.3.0 (WMS)
+                String version = kvpParameters.get(KVPSymbols.KEY_VERSION)[0];
+                // e.g: GetCapabilities, DescribeCoverage
+                String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
 
-            // Check if any handlers can handle the request
-            for (AbstractHandler handler : handlers) {
-                if (handler.canHandle(service, version, requestService)) {                    
-                    response = handler.handle(kvpParameters);
-                    break;
+                // Check if any handlers can handle the request
+                for (AbstractHandler handler : handlers) {
+                    if (handler.canHandle(service, version, requestService)) {                    
+                        response = handler.handle(kvpParameters);
+                        break;
+                    }
+                }
+                if (response == null) {
+                    throw new PetascopeException(ExceptionCode.NoApplicableCode, "Cannot find the handler for the request.");
                 }
             }
-            if (response == null) {
-                throw new PetascopeException(ExceptionCode.NoApplicableCode, "Cannot find the handler for the request.");
-            }
-        }
 
-        // Dump the response result to client
-        this.writeResponseResult(response);
+            // Dump the response result to client
+            this.writeResponseResult(response);
+        } finally {
+             // Here, the uploaded file (if exists) should be removed
+            if (kvpParameters.get(KEY_UPLOADED_FILE_VALUE) != null) {
+                String uploadedFilePath = kvpParameters.get(KEY_UPLOADED_FILE_VALUE)[0];
+                File file = new File(uploadedFilePath);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }            
+        }
     }
 }

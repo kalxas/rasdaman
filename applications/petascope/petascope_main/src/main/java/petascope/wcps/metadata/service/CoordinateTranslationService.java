@@ -67,10 +67,6 @@ public class CoordinateTranslationService {
             upperLimit = CrsComputerService.shiftToNearestGridPointWCPS(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
 
-            //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower            
-            if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
-                returnLowerLimit = returnUpperLimit;
-            }            
         } else {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
@@ -86,11 +82,16 @@ public class CoordinateTranslationService {
             BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMax), resolution);
             upperLimit = CrsComputerService.shiftToNearestGridPointWCPS(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
-            
-            if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
-                returnLowerLimit = returnUpperLimit;
-            }
         }
+        
+        //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower            
+        if (returnUpperLimit.add(BigDecimal.ONE).equals(returnLowerLimit)) {
+            if (returnUpperLimit.compareTo(gridDomainMin) < 0) {
+                returnUpperLimit = gridDomainMin;
+            }
+            returnLowerLimit = returnUpperLimit;
+            
+        }            
         
         return new ParsedSubset(returnLowerLimit.longValue(), returnUpperLimit.longValue());
     }

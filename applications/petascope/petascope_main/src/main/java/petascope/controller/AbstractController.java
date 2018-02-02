@@ -21,10 +21,13 @@
  */
 package petascope.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -33,8 +36,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.rasdaman.config.ConfigManager;
+import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
+import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.core.KVPSymbols;
 import petascope.core.XMLSymbols;
@@ -46,6 +52,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
 import petascope.util.MIMEUtil;
+import petascope.util.StringUtil;
 import petascope.util.XMLUtil;
 
 /**
@@ -65,7 +72,7 @@ public abstract class AbstractController {
 
     @Autowired
     protected HttpServletResponse httpServletResponse;
-
+  
     @Resource
     // Spring finds all the subclass of AbstractHandler and injects to the list
     List<AbstractHandler> handlers;
@@ -226,6 +233,40 @@ public abstract class AbstractController {
         }
 
         return kvpParameters;
+    }
+    
+    
+    /**
+     * Write the uploaded file from client and store to a folder in server
+     * @param uploadedFile uploaded File object
+     * @return the stored file path in server
+     * @throws petascope.exceptions.PetascopeException
+     */
+    protected String storeUploadFileOnServer(MultipartFile uploadedFile) throws PetascopeException {
+        // It is a upload file request
+        byte[] bytes = null;            
+        try {
+            bytes = uploadedFile.getBytes();
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot get data from uploaded file. Reason: " + ex.getMessage() + ".", ex);
+        }
+        // Check if temp folder exist first
+        File folderPath = new File(UPLOADED_FILE_DIR_TMP);
+        if (!folderPath.exists()) {
+            folderPath.mkdir();
+        }
+        String fileName = StringUtil.createRandomString(UPLOAD_FILE_PREFIX + uploadedFile.getOriginalFilename());
+        String filePath = UPLOADED_FILE_DIR_TMP + "/" + fileName;
+        Path path = Paths.get(filePath);
+        try {
+            Files.write(path, bytes);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot store uploaded file to '" + filePath + "'. Reason: " + ex.getMessage() + ".", ex);
+        }
+        
+        log.debug("Uploaded file to '" + filePath + "'.");
+        
+        return filePath;
     }
 
     /**

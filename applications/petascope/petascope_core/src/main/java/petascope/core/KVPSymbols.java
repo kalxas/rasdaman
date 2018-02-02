@@ -63,11 +63,15 @@ public interface KVPSymbols {
 
     String KEY_OUTPUT_CRS = "outputCrs";
     String KEY_SUBSETTING_CRS = "subsettingCrs";
-
+    // clip coverage with WKT (e.g: POLYGON, LineString,...)
+    String KEY_CLIP = "clip";
+    
     // WCS
     String VALUE_GET_CAPABILITIES = "GetCapabilities";
     String VALUE_DESCRIBE_COVERAGE = "DescribeCoverage";
     String VALUE_GET_COVERAGE = "GetCoverage";    
+    // it is the name of file parameter to be posted to server
+    String KEY_UPLOADED_FILE_VALUE = "file";
 
     // WCST
     String VALUE_INSERT_COVERAGE = "InsertCoverage";
@@ -98,7 +102,6 @@ public interface KVPSymbols {
     // rasql KVP
     String KEY_PASSWORD = "password";
     String KEY_USERNAME = "username";
-    String KEY_UPLOADED_FILE_PATH = "filePath";
 
     // WMS
     // Not standard request (only Rasdaman supports)    

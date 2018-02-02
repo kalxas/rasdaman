@@ -53,7 +53,7 @@ public class WcpsTranslator {
      * Translates a wcps query into a single rasql query or value. This method
      * should be called AFTER query rewriting (for multipart).
      *
-     * @param wcpsQuery
+     * @param wcpsQuery WCPS query to be parsed to rasql query
      * @return the translated query
      * @throws petascope.exceptions.PetascopeException
      */

@@ -33,7 +33,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import static petascope.core.KVPSymbols.KEY_PASSWORD;
 import static petascope.core.KVPSymbols.KEY_QUERY;
-import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_PATH;
+import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
 import static petascope.core.KVPSymbols.KEY_USERNAME;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
@@ -78,7 +78,7 @@ public class KVPRasqlHandler implements IKVPHandler {
         String query = kvpParameters.get(KEY_QUERY)[0];
 
         // check if user wants to upload file to server by find decode() or inv_*() in the requested query
-        String filePath = kvpParameters.get(KEY_UPLOADED_FILE_PATH) == null ? null : kvpParameters.get(KEY_UPLOADED_FILE_PATH)[0];
+        String filePath = kvpParameters.get(KEY_UPLOADED_FILE_VALUE) == null ? null : kvpParameters.get(KEY_UPLOADED_FILE_VALUE)[0];
 
         // select, delete, update without decode()
         Response response = this.executeQuery(userName, password, query, filePath);

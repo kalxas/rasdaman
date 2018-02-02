@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp) return encode( clip(c, POLYGON((-12.3829 132.0117, -33.4314 120.4102, -18.8127 148.5352, -22.7559 118.4766, -36.3151 143.7891)) ), "png")

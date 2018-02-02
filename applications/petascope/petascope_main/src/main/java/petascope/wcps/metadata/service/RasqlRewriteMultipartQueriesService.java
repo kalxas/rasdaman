@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
+import petascope.exceptions.PetascopeException;
 import petascope.util.StringUtil;
 import petascope.wcps.handler.ForClauseHandler;
 
@@ -57,7 +59,7 @@ public class RasqlRewriteMultipartQueriesService {
      * @param defaultRasql
      * @return
      */
-    public Stack<String> rewriteQuery(String defaultRasql) {
+    public Stack<String> rewriteQuery(String defaultRasql) throws PetascopeException {
         // Store the Rasql queries to update with coverage names in 2 stacks (1 is the final results, 1 is temporary)
         Stack<String> stackUpdatedQueries = new Stack<>();
         Stack<String> stackTmp = new Stack<>();
@@ -72,7 +74,7 @@ public class RasqlRewriteMultipartQueriesService {
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
                 // Only add Rasql query if coverage iterator has more than 1 coverage (collection) name
-                ArrayList<String> collectionNames = (ArrayList<String>) pair.getValue();
+                List<Pair<String, String>> collectionNames = (ArrayList<Pair<String, String>>) pair.getValue();
                 int size = collectionNames.size();
                 String coverageIteratorName = pair.getKey().toString();
 
@@ -87,7 +89,7 @@ public class RasqlRewriteMultipartQueriesService {
                             //replace $collectionName with the coverage name from multipart axis iterator
                             // NOTE: $ must be quoted or it will not work with string replace() and rasql does not have $ in syntax.
                             rasql = StringUtil.stripDollarSign(defaultRasql);                            
-                            String target = StringUtil.stripDollarSign(collectionNames.get(i));
+                            String target = StringUtil.stripDollarSign(collectionNames.get(i).fst);
                             rasql = rasql.replace(updateName, target);
                             stackUpdatedQueries.push(rasql);
                         }
@@ -98,8 +100,9 @@ public class RasqlRewriteMultipartQueriesService {
                             for (int i = 0; i < size; i++) {
                                 // from second multipartcoverage iterator, use Rasql queries in listRasqlQueries to create new query
                                 // NOTE: $ must be quoted or it will not work with string replace() and rasql does not have $ in syntax.
-                                String target = StringUtil.stripDollarSign(collectionNames.get(i));
-                                rasql = rasqlTemplate.replace(updateName, target);
+                                String coverageName = StringUtil.stripDollarSign(collectionNames.get(i).fst);
+                                String rasdamanCollectionName = this.coverageAliasRegistry.getRasdamanCollectionNameByCoverageName(coverageName);
+                                rasql = rasqlTemplate.replace(updateName, rasdamanCollectionName);
                                 stackTmp.push(rasql);
                             }
                         }
@@ -120,8 +123,8 @@ public class RasqlRewriteMultipartQueriesService {
     // e.g: $c -> (mr, rgb)
     public boolean isMultiPart() {
         // if $c -> (mr, rgb) then size > 1 and it is multipart
-        for (List<String> coverageNames : this.coverageAliasRegistry.getCoverageMappings().values()) {
-            if (coverageNames.size() > 1) {
+        for (List<Pair<String,String>> pairs : this.coverageAliasRegistry.getCoverageMappings().values()) {
+            if (pairs.size() > 1) {
                 return true;
             }
         }

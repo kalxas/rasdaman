@@ -200,10 +200,6 @@ public class CrsComputerService {
             BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(domMin), resolution);
             upperLimit = this.shiftToNearestGridPointWCST(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(new BigDecimal(pxMin)).longValue();
-
-            if (returnUpperLimit < returnLowerLimit) {
-                returnLowerLimit = returnUpperLimit;
-            }
         } else {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
@@ -214,10 +210,15 @@ public class CrsComputerService {
             BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(domMax), resolution);
             upperLimit = this.shiftToNearestGridPointWCST(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(new BigDecimal(pxMin)).longValue();
-
-            if (returnUpperLimit < returnLowerLimit) {
-                returnLowerLimit = returnUpperLimit;
+        }
+        
+        //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower            
+        if (returnUpperLimit + 1 == returnLowerLimit) {
+            if (returnUpperLimit < pxMin) {
+                returnUpperLimit = pxMin;
             }
+            returnLowerLimit = returnUpperLimit;
+            
         }
         
         return new ParsedSubset<>(returnLowerLimit, returnUpperLimit);

@@ -9,7 +9,7 @@
     "insitu": false
   },
   "input": {
-    "coverage_id": "fire_dc_test_irregular_axis",
+    "coverage_id": "test_ecmwf_fire_4d",
     "paths": [
       "*.nc"
     ]
@@ -27,6 +27,7 @@
           },
           "slicer": {
             "type": "netcdf",
+	    "pixelIsPoint": true,
             "bands": [
               {
                 "name": "Drought code",
@@ -44,19 +45,19 @@
   	          "resolution": "1",
                 "gridOrder": 0,
                 "type": "ansidate",
-                "regular": true
+                "irregular": true
               },
               "Long": {
-                "min": 0,
-                "max": 360,
+                "min": "${netcdf:variable:lon:min}",
+                "max": "${netcdf:variable:lon:max}",
                 "gridOrder": 2,
-                "resolution":"0.140625"
+                "resolution": "${netcdf:variable:lon:resolution}"
               },
               "Lat": {
-                "min": -90,
-                "max": 90,
+                "min": "${netcdf:variable:lat:min}",
+                "max": "${netcdf:variable:lat:max}",
                 "gridOrder": 1,
-                "resolution": "-0.140625"
+                "resolution": "${netcdf:variable:lat:resolution}"
               }, 
               "forecast": {
                 "min": "int(regex_extract('${file:name}', '(.*)_(.*)_ecfire_fwi_dc', 2))",

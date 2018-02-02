@@ -1,0 +1,5 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_wms_4326&
+subsettingCrs=http://opengis.net/def/crs/EPSG/0/3857&format=image/png

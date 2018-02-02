@@ -21,6 +21,8 @@
  */
 package petascope.wcs2.handlers.kvp;
 
+import java.io.File;
+import java.io.IOException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.service.RasqlRewriteMultipartQueriesService;
 import petascope.exceptions.WCSException;
@@ -85,14 +87,15 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
      * @throws PetascopeException
      * @throws WCSException
      * @throws SecoreException
+     * @throws petascope.exceptions.WMSException
      */
+    @Override
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, WCSException, SecoreException, WMSException {
         // Validate before handling the request
         this.validate(kvpParameters);
 
         String coverageID = null;
         String wcpsQuery = kvpParameters.get(KVPSymbols.KEY_QUERY)[0];
-
         VisitorResult visitorResult = wcpsTranslator.translate(wcpsQuery);
         WcpsExecutor executor = wcpsExecutorFactory.getExecutor(visitorResult);
 

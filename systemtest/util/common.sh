@@ -583,6 +583,20 @@ post_request_xml() {
   curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
+# this function will send a POST request to server with an upload file
+# e.g: used by WCS clipping extension with POST request
+post_request_file() {
+  # $1 is servlet endpoint (e.g: localhost:8080/rasdaman/ows)
+  # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&request=GetCoverage&clip=$1...)
+  # $3 is the path to the file to be uploaded to server
+  # $4 is output file from HTTP response
+  url="$1"
+  kvpValues=`echo "$2" | tr -d '\n'`
+  echo "$url?$kvpValues"
+  upload_file="$3"
+  curl -s -F "file=@$upload_file" "$url?$kvpValues" > "$4"
+}
+
 
 # ------------------------------------------------------------------------------
 #
@@ -688,6 +702,20 @@ run_test()
               esac
               ;;
       wcps)   case "$test_type" in
+                post_file)
+                    # It will send a WCS POST request with a file to petascope (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
+                    # NOTE: $ is not valid character for curl, it must be escaped inside test request file
+                    QUERY=$(cat $f | sed 's/\$/%24/g')
+                    
+                    # File to upload to server, same name with test request file but with .file                
+                    upload_file="${f%.*}.file"
+                    check_query_runable "$QUERY"
+                    if [[ $? -eq 0 ]]; then
+                      post_request_file "$PETASCOPE_URL" "query=$QUERY" "$upload_file" "$out"
+                    else
+                      continue
+                    fi
+                    ;;
                 test)
                     QUERY=`cat $f`
                     # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
@@ -724,6 +752,20 @@ run_test()
               esac
               ;;
       wcs)    case "$test_type" in
+                post_file)
+                    # It will send a WCS POST request with a file to petascope (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
+                    # NOTE: $ is not valid character for curl, it must be escaped inside test request file
+                    QUERY=$(cat $f | sed 's/\$/%24/g')
+                    
+                    # File to upload to server, same name with test request file but with .file                
+                    upload_file="${f%.*}.file"
+                    check_query_runable "$QUERY"
+                    if [[ $? -eq 0 ]]; then
+                      post_request_file "$PETASCOPE_URL" "$QUERY" "$upload_file" "$out"
+                    else
+                      continue
+                    fi
+                    ;;
                 kvp)
                     QUERY=`cat $f`
                     # check if query contains "jpeg2000"-approx_stats and gdal supports this format, then the query should be run.

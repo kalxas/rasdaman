@@ -141,14 +141,14 @@ public class GridDomainsValidator {
      * @param affectDomain
      * @return
      */
-    private int getDomainCellCount(String affectDomain) {
-        int result = 1;
+    private long getDomainCellCount(String affectDomain) {
+        long result = 1;
         String[] domainParts = affectDomain.replace("[", "").replace("]", "").split(",");
         for (String domainPart : domainParts) {
             if (domainPart.contains(":")) {
                 //trimming only, slicing doesn't add to the cell count
-                int low = NumberUtils.toInt(domainPart.split(":")[0].trim());
-                int high = NumberUtils.toInt(domainPart.split(":")[1].trim());
+                long low = NumberUtils.toInt(domainPart.split(":")[0].trim());
+                long high = NumberUtils.toInt(domainPart.split(":")[1].trim());
                 result *= high - low + 1;
             }
         }

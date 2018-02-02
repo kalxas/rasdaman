@@ -102,13 +102,22 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.util.StringUtil;
+import petascope.wcps.exception.processing.InvalidWKTClippingException;
+import petascope.wcps.handler.ClipExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
+import petascope.wcps.subset_axis.model.AbstractWKTShape;
 import petascope.wcps.subset_axis.model.WcpsScaleDimensionIntevalList;
 import petascope.wcps.subset_axis.model.AbstractWcpsScaleDimension;
+import petascope.wcps.subset_axis.model.WKTCompoundPoint;
+import petascope.wcps.subset_axis.model.WKTCompoundPoints;
+import petascope.wcps.subset_axis.model.WKTLineString;
+import petascope.wcps.subset_axis.model.WKTMultipolygon;
+import petascope.wcps.subset_axis.model.WKTPolygon;
 import petascope.wcps.subset_axis.model.WcpsSliceScaleDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimScaleDimension;
 
@@ -137,6 +146,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Autowired private
     EncodeCoverageHandler encodeCoverageHandler;
     
+    @Autowired private
+    ClipExpressionHandler clipExpressionHandler;
     @Autowired private
     CrsTransformHandler crsTransformHandler;
     @Autowired private
@@ -320,13 +331,123 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // Cannot convert object to JSON
         return result;
     }
+    
+    @Override
+    public VisitorResult visitWktPointsLabel(@NotNull wcpsParser.WktPointsLabelContext ctx) {
+        // Handle wktPoints (coordinates inside WKT): constant (constant)*) (COMMA constant (constant)*)*
+        // e.g: 20 30 "2017-01-01T02:35:50", 30 40 "2017-01-05T02:35:50", 50 60 "2017-01-07T02:35:50" 
+        int numberOfCompoundPoints = ctx.constant().size();
+        int numberOfDimensions = numberOfCompoundPoints / (ctx.COMMA().size() + 1);
+        int count = 0;
+        List<String> listTmp = new ArrayList<>();
+        String point = "";
+        // NOTE: there is a huge bottle neck if using normal for loop with counter i in ANTLR4
+        // (e.g: with 100 000 elements, it can take minutes to just iterate) with foreach it takes ms.
+        for (wcpsParser.ConstantContext constant : ctx.constant()) {
+            String pointTmp = constant.getText();
+            point = point + " " + pointTmp;
+            if (count < numberOfDimensions - 1) {                
+                count++;
+            } else {
+                listTmp.add(point.trim());
+                point = "";
+                count = 0;
+            }            
+        }   
+        WKTCompoundPoint wktPoint = new WKTCompoundPoint(ListUtil.join(listTmp, ","), numberOfDimensions);
+        return wktPoint;
+    }
+    
+    @Override
+    public VisitorResult visitWKTPointElementListLabel(@NotNull wcpsParser.WKTPointElementListLabelContext ctx) {
+        // Handle LEFT_PARENTHESIS wktPoints RIGHT_PARENTHESIS (COMMA LEFT_PARENTHESIS wktPoints RIGHT_PARENTHESIS)*
+        // e.g: (20 30, 40 50), (40 60, 70 80) are considered as 2 WKTCompoundPoints (1 is 20 30 40 50, 2 is 40 60 70 80)
+        List<WKTCompoundPoint> points = new ArrayList<>();
+        for (wcpsParser.WktPointsContext elem : ctx.wktPoints()) {            
+            points.add((WKTCompoundPoint)visit(elem));
+        }
+        
+        WKTCompoundPoints wktCompoundPointList = new WKTCompoundPoints(points);
+        return wktCompoundPointList;
+    }
+    
+    @Override
+    public VisitorResult visitWKTLineStringLabel(@NotNull wcpsParser.WKTLineStringLabelContext ctx) {
+        // Handle LINESTRING wktPointElementList
+        // e.g: LineString(20 30, 40 50)
+        WKTCompoundPoints wktCompoundPoints = (WKTCompoundPoints) visit(ctx.wktPointElementList());         
+        List<WKTCompoundPoints> wktCompoundPointsList = new ArrayList<>();
+        wktCompoundPointsList.add(wktCompoundPoints);
+        
+        WKTLineString wktLineString = new WKTLineString(wktCompoundPointsList);        
+        return wktLineString;
+    }
+    
+    @Override
+    public VisitorResult visitWKTPolygonLabel(@NotNull wcpsParser.WKTPolygonLabelContext ctx) {
+        // Handle POLYGON LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS
+        // e.g: POLYGON((20 30, 40 50), (60 70, 70 80))
+        WKTCompoundPoints wktCompoundPoints = (WKTCompoundPoints) visit(ctx.wktPointElementList());        
+        List<WKTCompoundPoints> wktCompoundPointsList = new ArrayList<>();
+        wktCompoundPointsList.add(wktCompoundPoints);
+        
+        WKTPolygon wktPolygon = new WKTPolygon(wktCompoundPointsList);        
+        return wktPolygon;
+    }
+    
+    @Override
+    public VisitorResult visitWKTMultipolygonLabel(@NotNull wcpsParser.WKTMultipolygonLabelContext ctx) {
+        // Handle MULTIPOLYGON LEFT_PARENTHESIS 
+        //                         LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS
+        //                         (COMMA LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS)* 
+        //                     RIGHT_PARENTHESIS
+        // e.g: Multipolygon( ((20 30, 40 50, 60 70)), ((20 30, 40 50), (60 70, 80 90)) )
+        List<WKTCompoundPoints> wktPolygonCompoundPointList = new ArrayList();
+        for (wcpsParser.WktPointElementListContext elem : ctx.wktPointElementList()) {            
+            wktPolygonCompoundPointList.add((WKTCompoundPoints)visit(elem));
+        }
+        WKTMultipolygon wktMultipolygon = new WKTMultipolygon(wktPolygonCompoundPointList);
+        
+        return wktMultipolygon;
+    }
+    
+    
+    @Override
+    public VisitorResult visitClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx) { 
+        // Handle clipExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA (wktPolygon | wktLineString) (COMMA crsName)? RIGHT_PARENTHESIS
+        // e.g: clip(c[i(0:20), j(0:20)], Polygon((0 10, 20 20, 20 10, 0 10)), "http://opengis.net/def/CRS/EPSG/3857")
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
+        AbstractWKTShape wktShape;
+        if (ctx.wktPolygon() != null) {
+            wktShape = (WKTPolygon) visit(ctx.wktPolygon());
+        } else if (ctx.wktLineString() != null) {
+            wktShape = (WKTLineString) visit(ctx.wktLineString());
+        } else if (ctx.wktMultipolygon() != null) {
+            wktShape = (WKTMultipolygon) visit(ctx.wktMultipolygon());
+        } else {
+            throw new InvalidWKTClippingException("Input WKT for clip() operator is not supported."); 
+        }
+        
+        int numberOfDimensions = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        int coverageDimensions = coverageExpression.getMetadata().getAxes().size();
+        if (numberOfDimensions != coverageDimensions) {
+            throw new InvalidWKTClippingException("Number of dimensions in WKT '" + numberOfDimensions + "' is different from coverage's '" + coverageDimensions + "'.");
+        }
+        // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
+        String wktCRS = null;
+        if (ctx.crsName() != null) {
+            wktCRS = ctx.crsName().getText().replace("\"", "");
+        }        
+        WcpsResult result = clipExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
+        return result;
+    }
 
     @Override
     public WcpsResult visitCrsTransformExpressionLabel(@NotNull wcpsParser.CrsTransformExpressionLabelContext ctx) {
         // Handle crsTransform($COVERAGE_EXPRESSION, {$DOMAIN_CRS_2D}, {$INTERPOLATION})
         // e.g: crsTransform(c, {Lat:"www.opengis.net/def/crs/EPSG/0/4327", Long:"www.opengis.net/def/crs/EPSG/0/4327"}, {}
         WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
-        HashMap<String, String> axisCrss = new LinkedHashMap<String, String>();
+        HashMap<String, String> axisCrss = new LinkedHashMap<>();
 
         // { Axis_CRS_1 , Axis_CRS_2 } (e.g: Lat:"http://localhost:8080/def/crs/EPSG/0/4326")
         wcpsParser.DimensionCrsElementLabelContext crsX = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(1);
@@ -944,13 +1065,6 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         }
 
         WcpsResult result = rangeConstructorSwitchCaseHandler.handle(rangeConstructor);
-        return result;
-    }
-
-    @Override
-    public VisitorResult visitCoverageExpressionRangeConstructorLabel(@NotNull wcpsParser.CoverageExpressionRangeConstructorLabelContext ctx) {
-        // rangeConstructorExpression
-        WcpsResult result = (WcpsResult) visit(ctx.rangeConstructorExpression());
         return result;
     }
 

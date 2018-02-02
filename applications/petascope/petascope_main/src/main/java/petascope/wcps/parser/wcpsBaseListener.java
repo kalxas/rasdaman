@@ -82,6 +82,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterWKTMultipolygonLabel(@NotNull wcpsParser.WKTMultipolygonLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitWKTMultipolygonLabel(@NotNull wcpsParser.WKTMultipolygonLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterCoverageArithmeticOperator(@NotNull wcpsParser.CoverageArithmeticOperatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -375,6 +388,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitCoverageExpressionRangeSubsettingLabel(@NotNull wcpsParser.CoverageExpressionRangeSubsettingLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterWKTPointElementListLabel(@NotNull wcpsParser.WKTPointElementListLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitWKTPointElementListLabel(@NotNull wcpsParser.WKTPointElementListLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1018,6 +1044,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterWktPointsLabel(@NotNull wcpsParser.WktPointsLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitWktPointsLabel(@NotNull wcpsParser.WktPointsLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterCoverageExpressionCoverageLabel(@NotNull wcpsParser.CoverageExpressionCoverageLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1369,6 +1408,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterCoverageExpressionClipLabel(@NotNull wcpsParser.CoverageExpressionClipLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageExpressionClipLabel(@NotNull wcpsParser.CoverageExpressionClipLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterBooleanBinaryScalarLabel(@NotNull wcpsParser.BooleanBinaryScalarLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1454,6 +1506,32 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitCoverageCrsSetExpressionLabel(@NotNull wcpsParser.CoverageCrsSetExpressionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterWKTLineStringLabel(@NotNull wcpsParser.WKTLineStringLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitWKTLineStringLabel(@NotNull wcpsParser.WKTLineStringLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterWKTPolygonLabel(@NotNull wcpsParser.WKTPolygonLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitWKTPolygonLabel(@NotNull wcpsParser.WKTPolygonLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1649,6 +1727,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

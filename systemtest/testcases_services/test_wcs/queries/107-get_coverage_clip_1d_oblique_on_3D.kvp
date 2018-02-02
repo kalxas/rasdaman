@@ -1,0 +1,6 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_irr_cube_2&
+clip=LineString(75042.7273594 5094865.55794 "2008-01-01T02:01:20.000Z", 705042.727359 5454865.55794 "2008-01-08T00:02:58.000Z")&
+format=application/gml+xml

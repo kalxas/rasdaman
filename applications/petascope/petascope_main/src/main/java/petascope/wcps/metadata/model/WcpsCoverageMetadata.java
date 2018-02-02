@@ -21,6 +21,7 @@
  */
 package petascope.wcps.metadata.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import org.rasdaman.domain.cis.NilValue;
 import petascope.core.AxisTypes;
+import petascope.core.Pair;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.service.AxesOrderComparator;
@@ -43,6 +45,9 @@ import petascope.wcps.metadata.service.AxesOrderComparator;
 public class WcpsCoverageMetadata {
 
     private final String coverageName;   
+    // NOTE: rasdaman collection name can be different from coverageName (in case of import a coverageName which is duplicate to an existing collectionName)
+    // then coverage will create a new collectionName_datetime to store data.
+    private final String rasdamanCollectionName;
     private String coverageType;
     // List of axes after coverage expression (it will be stripped when there is a slicing expression, 
     // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)
@@ -54,12 +59,13 @@ public class WcpsCoverageMetadata {
     private List<NilValue> nilValues;
     private String metadata;
 
-    public WcpsCoverageMetadata(String coverageName, String coverageType, List<Axis> axes, String crsUri,
+    public WcpsCoverageMetadata(String coverageName, String rasdamanCollectionName, String coverageType, List<Axis> axes, String crsUri,
             List<RangeField> rangeFields, List<NilValue> nilValues, String metadata) {
         this.crsUri = crsUri;
         // this axes could be stripped when a slicing expression is processed
         this.axes = axes;
         this.coverageName = coverageName;
+        this.rasdamanCollectionName = rasdamanCollectionName;
         this.rangeFields = rangeFields;
         this.nilValues = nilValues;
         this.metadata = metadata;
@@ -125,6 +131,10 @@ public class WcpsCoverageMetadata {
 
     public String getCoverageName() {
         return this.coverageName;
+    }
+    
+    public String getRasdamanCollectionName() {
+        return this.rasdamanCollectionName;
     }
 
     public void setRangeFields(List<RangeField> rangeFields) {
@@ -207,6 +217,41 @@ public class WcpsCoverageMetadata {
 
         // X, Y axes have same CRS
         return this.getXYAxes().get(0).getNativeCrsUri();
+    }
+    
+    /**
+     * Return the geo-order of XY axes in coverage.
+     * 
+     * @return Pair of geo-order of XY axes
+     */
+    public Pair<Integer, Integer> getXYAxesOrder() {
+        int xOrder = -1;
+        int yOrder = -1;
+        int index = 0;
+        for (Axis axis : this.getAxes()) {
+            if (axis.getAxisType().equals(AxisTypes.X_AXIS)) {
+                xOrder = index;
+            } else if (axis.getAxisType().equals(AxisTypes.Y_AXIS)) {
+                yOrder = index;
+            }
+            if (xOrder != -1 && yOrder != -1) {
+                return new Pair<>(xOrder, yOrder);
+            }
+            index++;
+        }
+        return null;      
+    }
+    
+    /**
+     * Check if coverage contains XY axes (e.g: Lat, Long).
+     * With a sliced coverage on a Lat/Long axis, it doesn't contain XY axes.
+     * @return true if coverage has XY axes or false
+     */
+    public boolean hasXYAxes() {
+        if (this.getXYAxesOrder() != null) {
+            return true;
+        }
+        return false;
     }
 
     /**

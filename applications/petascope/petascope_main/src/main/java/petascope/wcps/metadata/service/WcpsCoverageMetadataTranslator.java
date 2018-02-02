@@ -84,8 +84,10 @@ public class WcpsCoverageMetadataTranslator {
         // parse extra metadata of coverage to map
         String extraMetadata = coverage.getMetadata();
         List<NilValue> nilValues = coverage.getAllUniqueNullValues();
+        
+        String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
 
-        WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId,
+        WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId, rasdamanCollectionName,
                                                         coverage.getCoverageType(), axes, coverage.getEnvelope().getEnvelopeByAxis().getSrsName(), 
                                                         rangeFields, nilValues, extraMetadata);
 

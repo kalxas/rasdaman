@@ -29,7 +29,7 @@
  * Useful reference: https://github.com/antlr/grammars-v4
  */
 lexer grammar wcpsLexerTokens;
-FOR: ('f'|'F')('o'|'O')('r'|'R');
+FOR: (('f'|'F')('o'|'O')('r'|'R'));
 ABSOLUTE_VALUE: ('a'|'A')('b'|'B')('s'|'S');
 ADD: ('a'|'A')('d'|'D')('d'|'D');
 ALL: ('a'|'A')('l'|'L')('l'|'L');
@@ -40,6 +40,7 @@ ARCTAN: ('a'|'A')('r'|'R')('c'|'C')('t'|'T')('a'|'A')('n'|'N');
 AVG: ('a'|'A')('v'|'V')('g'|'G');
 BIT: ('b'|'B')('i'|'I')('t'|'T');
 CASE: ('c'|'C')('a'|'A')('s'|'S')('e'|'E');
+CLIP: ('c'|'C')('l'|'L')('i'|'I')('p'|'P');
 COLON : ':';
 COMMA : ',';
 CONDENSE: ('c'|'C')('o'|'O')('n'|'N')('d'|'D')('e'|'E')('n'|'N')('s'|'S')('e'|'E');
@@ -122,13 +123,15 @@ VALUE:('v'|'V')('a'|'A')('l'|'L')('u'|'U')('e'|'E');
 VALUES:('v'|'V')('a'|'A')('l'|'L')('u'|'U')('e'|'E')('s'|'S');
 WHERE: ('w'|'W')('h'|'H')('e'|'E')('r'|'R')('e'|'E');
 XOR: ('x'|'X')('o'|'O')('r'|'R');
+CRS_TRANSFORM: ('c'|'C')('r'|'R')('s'|'S')('t'|'T')('r'|'R')('a'|'A')('n'|'N')('s'|'S')('f'|'F')('o'|'O')('r'|'R')('m'|'M');
+POLYGON: ('p'|'P')('o'|'O')('l'|'L')('y'|'Y')('g'|'G')('o'|'O')('n'|'N')((' ')('z'|'Z'))?;
+LINESTRING: ('l'|'L')('i'|'I')('n'|'N')('e'|'E')('s'|'S')('t'|'T')('r'|'R')('i'|'I')('n'|'N')('g'|'G')((' ')('z'|'Z'))?;
+MULTIPOLYGON: ('m'|'M')('u'|'U')('l'|'L')('t'|'T')('i'|'I')('p'|'P')('o'|'O')('l'|'L')('y'|'Y')('g'|'G')('o'|'O')('n'|'N')?;
+
 REAL_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?;
 SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;
 //COVERAGE_VARIABLE_NAME: '$'[a-zA-Z0-9_]+; disabled for backwards compatibility with WCPS1
 COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
-NAME: [a-z|A-Z]+;
-STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_/ ]+ '"';
-// extra params in JSON format
-EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';
+STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_/ ]+? '"';
 WS: [ \n\t\r]+ -> skip;
-CRS_TRANSFORM: ('c'|'C')('r'|'R')('s'|'S')('t'|'T')('r'|'R')('a'|'A')('n'|'N')('s'|'S')('f'|'F')('o'|'O')('r'|'R')('m'|'M');
+EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';

@@ -30,7 +30,6 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
 import petascope.wcps.exception.processing.IdenticalAxisNameInCrsTransformException;
-import petascope.wcps.exception.processing.InvalidDimensionInBoundingBoxException;
 import petascope.wcps.exception.processing.InvalidOutputCrsProjectionInCrsTransformException;
 import petascope.wcps.exception.processing.Not2DXYGeoreferencedAxesCrsTransformException;
 import petascope.wcps.exception.processing.NotGeoReferenceAxisNameInCrsTransformException;

@@ -64,6 +64,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#WKTMultipolygonLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterWKTMultipolygonLabel(@NotNull wcpsParser.WKTMultipolygonLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#WKTMultipolygonLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitWKTMultipolygonLabel(@NotNull wcpsParser.WKTMultipolygonLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#coverageArithmeticOperator}.
 	 * @param ctx the parse tree
 	 */
@@ -315,6 +326,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageExpressionRangeSubsettingLabel(@NotNull wcpsParser.CoverageExpressionRangeSubsettingLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#WKTPointElementListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterWKTPointElementListLabel(@NotNull wcpsParser.WKTPointElementListLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#WKTPointElementListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitWKTPointElementListLabel(@NotNull wcpsParser.WKTPointElementListLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#DomainExpressionLabel}.
@@ -856,6 +878,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitNumericalBinaryScalarExpressionLabel(@NotNull wcpsParser.NumericalBinaryScalarExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#wktPointsLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterWktPointsLabel(@NotNull wcpsParser.WktPointsLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#wktPointsLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitWktPointsLabel(@NotNull wcpsParser.WktPointsLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionCoverageLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1153,6 +1186,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitReduceNumericalExpressionOperator(@NotNull wcpsParser.ReduceNumericalExpressionOperatorContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionClipLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionClipLabel(@NotNull wcpsParser.CoverageExpressionClipLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionClipLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionClipLabel(@NotNull wcpsParser.CoverageExpressionClipLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#BooleanBinaryScalarLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1228,6 +1272,28 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageCrsSetExpressionLabel(@NotNull wcpsParser.CoverageCrsSetExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#WKTLineStringLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterWKTLineStringLabel(@NotNull wcpsParser.WKTLineStringLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#WKTLineStringLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitWKTLineStringLabel(@NotNull wcpsParser.WKTLineStringLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#WKTPolygonLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterWKTPolygonLabel(@NotNull wcpsParser.WKTPolygonLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#WKTPolygonLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitWKTPolygonLabel(@NotNull wcpsParser.WKTPolygonLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ScaleDimensionIntervalListLabel}.
@@ -1393,6 +1459,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#ClipExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#ClipExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#WhereClauseLabel}.

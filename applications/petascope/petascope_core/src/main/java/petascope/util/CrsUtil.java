@@ -939,6 +939,25 @@ public class CrsUtil {
 
         return true;
     }
+    
+    /**
+     * Check if CRS definition is XY axes order (e.g: EPSG:3857) or YX axes order (e.g: EPSG:4326)
+     * @param uri URL to CRS definition from SECORE
+     * @throws petascope.exceptions.PetascopeException
+     * @throws petascope.exceptions.SecoreException
+     */
+    public static boolean isXYAxesOrder(String uri) throws PetascopeException, SecoreException {
+        List<CrsDefinition.Axis> axes = CrsUtil.getCrsDefinition(uri).getAxes();
+        if (axes.isEmpty()) {
+            throw new PetascopeException(ExceptionCode.InvalidMetadata, "CRS does not contain any axis, given '" + uri + "'.");
+        } else if (axes.get(0).getType().equals(AxisTypes.Y_AXIS)) {
+            // YX order
+            return false;
+        }
+        
+        // XY order
+        return true;
+    }
 
     /**
      * Nested class to offer utilities for CRS *URI* handling.

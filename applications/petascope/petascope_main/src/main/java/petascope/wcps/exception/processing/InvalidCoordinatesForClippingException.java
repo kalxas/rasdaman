@@ -14,32 +14,27 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps.exception.processing;
 
+import java.math.BigDecimal;
 import petascope.exceptions.WCPSException;
-import petascope.exceptions.ExceptionCode;
 
 /**
- * Exception that is thrown when a referenced coverage is not found in the database
- *
- * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
- * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+ * When a coordinate is not valid for clipping(), exception is thrown.
+ * e.g: axis's interval is (0:20) and coordinate is 21 in WKT clipping.
+ * 
+ * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public class CoverageNotFoundException extends WCPSException {
-
-    /**
-     * Constructor for the class
-     *
-     * @param coverageName the coverage that was not found
-     */
-    public CoverageNotFoundException(String coverageName) {
-        super(ExceptionCode.NoSuchCoverage, ERROR_TEMPLATE.replace("$coverage", coverageName));
+public class InvalidCoordinatesForClippingException extends WCPSException {
+    
+    public InvalidCoordinatesForClippingException(BigDecimal coordinateValue, String errorMessage) {
+        super(ERROR_TEMPLATE.replace("$coordinateValue", coordinateValue.toPlainString()).replace("$errorMessage", errorMessage));
     }
-
-    private static final String ERROR_TEMPLATE = "Coverage '$coverage' was not found.";
+    
+    private static final String ERROR_TEMPLATE = "Coordinate value '$coordinateValue' is not valid. Reason '$errorMessage'.";
 }

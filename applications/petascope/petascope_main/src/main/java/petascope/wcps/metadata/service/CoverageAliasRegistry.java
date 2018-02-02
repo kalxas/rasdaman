@@ -22,12 +22,13 @@
 package petascope.wcps.metadata.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
 import petascope.util.ListUtil;
 
 /**
@@ -43,7 +44,7 @@ import petascope.util.ListUtil;
 public class CoverageAliasRegistry {
 
     // NOTE: a coverage variable can be alias for multiple coverage names
-    private LinkedHashMap<String, List<String>> coverageMappings = new LinkedHashMap<>();
+    private LinkedHashMap<String, List<Pair<String, String>>> coverageMappings = new LinkedHashMap<>();
 
     public CoverageAliasRegistry() {
         
@@ -56,14 +57,14 @@ public class CoverageAliasRegistry {
         coverageMappings = new LinkedHashMap<>();
     }
 
-    public void addCoverageMapping(String coverageAlias, String coverageName) {
-        List<String> values = coverageMappings.get(coverageAlias);
+    public void addCoverageMapping(String coverageAlias, String coverageName, String rasdamanCollectionName) {
+        List<Pair<String, String>> values = coverageMappings.get(coverageAlias);
         if (values != null) {
             // If key -> value exist then just add new coverage name to value
-            coverageMappings.get(coverageAlias).add(coverageName);
+            coverageMappings.get(coverageAlias).add(new Pair<>(coverageName, rasdamanCollectionName));
         } else {
             // if key does not exist then need to add key first then add value for this key
-            coverageMappings.put(coverageAlias, ListUtil.valuesToList(coverageName));
+            coverageMappings.put(coverageAlias, ListUtil.valuesToList(new Pair<>(coverageName, rasdamanCollectionName)));
         }
     }
 
@@ -75,18 +76,92 @@ public class CoverageAliasRegistry {
     public String getCoverageName(String alias) {
         String coverageName = null;
         if (coverageMappings.get(alias) != null) {
-            coverageName = coverageMappings.get(alias).get(0);
+            coverageName = coverageMappings.get(alias).get(0).fst;
         }
 
         return coverageName;
     }
+    
+    /**
+     * Get rasdamanCollectionName by coverage's alias (e.g: for c in (test_mean_summer_airtemp))
+     * test_mean_summer_airtemp is coverageName, test_mean_sumer_airtemp_datetime is rasdamanCollectionName
+     * @param alias: coverage iterator (c)
+     * @return rasdamanCollectionName
+     */
+    public String getRasdamanCollectionNameByAlias(String alias) {
+        String rasdamanCollectionName = null;
+        if (coverageMappings.get(alias) != null) {
+            rasdamanCollectionName = coverageMappings.get(alias).get(0).snd;
+        }
+        return rasdamanCollectionName;
+    }
+    
+    /**
+     * Return the alias by a coverage name (e.g: for c in (test_mr, test_rgb))
+     * 
+     * @param coverageName input coverage name (e.g: test_mr)
+     * @return alias (e.g: c)
+     */
+    public String getAliasByCoverageName(String coverageName) {
+        for (Map.Entry<String, List<Pair<String, String>>> entry : this.coverageMappings.entrySet()) {
+            for (Pair<String, String> pair : entry.getValue()) {
+                if (pair.fst.equals(coverageName)) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Return the rasdaman collection name by coverage name
+     * @param coverageName input coverage name
+     * @return coverage's rasdaman collection name
+     */
+    public String getRasdamanCollectionNameByCoverageName(String coverageName) {
+        for (Map.Entry<String, List<Pair<String, String>>> entry : this.coverageMappings.entrySet()) {
+            for (Pair<String, String> pair : entry.getValue()) {
+                if (pair.fst.equals(coverageName)) {
+                    return pair.snd;
+                }
+            }
+        }
+        return null;
+    }
+    
 
     /**
      * return list( $coverageVariableName -> arrayList (coverageNames) )
      * e.g: $c -> (mr, rgb), $d -> (mr1, rgb1)
      * @return
      */
-    public LinkedHashMap<String, List<String>> getCoverageMappings() {
+    public LinkedHashMap<String, List<Pair<String, String>>> getCoverageMappings() {
         return this.coverageMappings;
     }
+    
+    /**
+     * Return the string representing this Map of coverage iterators and rasdaman collection names
+     * e.g: c -> test_mean_summer_airtemp, d -> test_mean_summer_airtemp_repeat
+     * @return String: test_mean_summer_airtemp as c, test_mean_summer_airtemp_repeat as d
+     */
+    public String getRasqlFromClause() {
+        List<String> list = new ArrayList<>();
+        for (Map.Entry<String, List<Pair<String, String>>> entry : this.coverageMappings.entrySet()) {
+            String coverageIterator = entry.getKey();
+            List<String> tmpList = new ArrayList<>();
+            for (Pair<String, String> pair : entry.getValue()) {
+                // e.g: test_mean_summer_airtemp as c                
+                tmpList.add(pair.snd + " as " + coverageIterator);
+            }
+            
+            // e.g: test_mean_summer_airtemp as c
+            String tmpOuput = ListUtil.join(tmpList, ", ");
+            list.add(tmpOuput);            
+        }
+        
+        // test_mean_summer_airtemp as c, test_mean_summer_airtemp as d
+        String output = ListUtil.join(list, ", ");
+        
+        return output;
+    }    
 }

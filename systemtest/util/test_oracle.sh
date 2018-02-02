@@ -171,7 +171,7 @@ for f in *; do
   [ -f "$f" ] || continue
 
   # skip scripts, we only want queries
-  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh  || "$f" == *.template ]] && continue
+  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh  || "$f" == *.template || "$f" == *.file ]] && continue
 
   # uncomment for single test run
   #[[ "$f" == 01-* ]] || continue

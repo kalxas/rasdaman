@@ -390,6 +390,8 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionRangeSubsettingLabel
                   | rangeConstructorExpression
                     #CoverageExpressionRangeConstructorLabel
+                  | clipExpression
+                    #CoverageExpressionClipLabel
                   | crsTransformExpression
                     #CoverageExpressionCrsTransformLabel
 		          | switchCaseExpression
@@ -608,6 +610,38 @@ dimensionIntervalElement: axisName (COLON crsName)? LEFT_PARENTHESIS
                         | axisName (COLON crsName)? LEFT_PARENTHESIS coverageExpression
                           RIGHT_PARENTHESIS                                                                             #SliceDimensionIntervalElementLabel;
 
+/* e.g: 20 30, 30 40, 50 60 */
+wktPoints: (constant (constant)*) (COMMA constant (constant)*)*
+#wktPointsLabel;
+
+/* e.g: (20 30, 30 40, 50 60), (20 30, 30 40, 50 60) */
+wktPointElementList: LEFT_PARENTHESIS wktPoints RIGHT_PARENTHESIS (COMMA LEFT_PARENTHESIS wktPoints RIGHT_PARENTHESIS)*
+#WKTPointElementListLabel;
+
+/* e.g: Linestring (20 30, 30 40, 50 60) */
+wktLineString: LINESTRING wktPointElementList
+#WKTLineStringLabel;
+
+/* e.g: Polygon ( (20 30, 30 40, 50 60) -- exterior, (20 30, 30 40, 50 60) --interior ) */
+wktPolygon: POLYGON LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS
+#WKTPolygonLabel;
+
+/* e.g: Multipolygon ( ((20 30, 30 40, 50 60)) --polygon 1, ((20 30, 30 40, 50 60), (20 30, 30 40, 50 60)) --polygon 2 )   */
+wktMultipolygon: MULTIPOLYGON LEFT_PARENTHESIS LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS (COMMA LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS)* RIGHT_PARENTHESIS
+#WKTMultipolygonLabel;
+
+
+/*
+  clip(coverageExpression, WKT) is used to clip a coverage with 1D (linestring), 2D (polygon, multipolygons), 3D+ (curtain queries)
+  example:  for c in (test_rgb) return encode(clip(c[i(0:20), j(0:20)], Polygon((0 10, 20 20, 20 10, 0 10)), "png")
+  Only support 1 clip operator for each query and it should be applied second last before crsTransform() when parsing a WCPS queries.
+  invalid query, e.g: for c in (test_rgb) return encode (clip(clip(c[i(0:20), j(0:20)], Polygon((0 10, 20 20, 20 10, 0 10)), Polygon((0 10, 20 20, 20 10, 0 10)), "png")
+  
+  A geo CRS (e.g: http://opengis.net/def/CRS/EPSG/0/4326) can be input parameter for clip operator and the XY coordinates in WKT will be transformed 
+  from this CRS to coverage's native CRS for XY axes (e.g: EPSG:3857). The output clipped coverage will keep native CRS EPSG:3857.
+*/
+clipExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA (wktPolygon | wktLineString | wktMultipolygon) (COMMA crsName)? RIGHT_PARENTHESIS
+#ClipExpressionLabel;
 
 /**
  * crsTransform (Use to project a coverage from CRS:A to CRS:B). Require coverage was geo-referenced, not grid.
@@ -785,9 +819,7 @@ axisName: COVERAGE_VARIABLE_NAME;
 number:   (MINUS)? REAL_NUMBER_CONSTANT
         | (MINUS)? SCIENTIFIC_NUMBER_CONSTANT;
 
-
 constant: STRING_LITERAL
         | TRUE | FALSE
         | (MINUS)? number
         | complexNumberConstant;
-

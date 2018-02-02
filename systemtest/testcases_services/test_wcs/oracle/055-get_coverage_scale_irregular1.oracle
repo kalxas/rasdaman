@@ -10,7 +10,7 @@
         <Envelope axisLabels="E N ansi" srsDimension="3"
             srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" uomLabels="metre metre d">
             <lowerCorner>75042.7273594 5094865.55794 "2008-01-01T02:01:20.000Z"</lowerCorner>
-            <upperCorner>705042.7273594 5454865.55794 "2008-01-08T00:02:58.000Z"</upperCorner>
+            <upperCorner>705042.727359 5454865.55794 "2008-01-08T00:02:58.000Z"</upperCorner>
         </Envelope>
     </boundedBy>
     <domainSet>

@@ -1,0 +1,6 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_wms_4326&
+clip=POLYGON((10000000 100000000))
+&format=image/png

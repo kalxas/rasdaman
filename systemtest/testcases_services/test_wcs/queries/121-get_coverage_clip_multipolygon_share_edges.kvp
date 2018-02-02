@@ -1,0 +1,6 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_mean_summer_airtemp&
+clip=Multipolygon( ((-16.425 129.0015, -25.9975 128.9575, -20.6533 120.9595)), ((-16.425 129.0015, -25.9975 128.9575, -21.2075 137.6147)) )&
+format=image/png

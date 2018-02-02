@@ -21,9 +21,15 @@
  */
 package petascope.wcps.handler;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.exception.processing.CoverageReadingException;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.result.WcpsResult;
 
@@ -42,11 +48,28 @@ public class ForClauseHandler {
 
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
+    
+    @Autowired
+    private CoverageRepostioryService coverageRepostioryService;
+    
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ForClauseHandler.class);
 
     public WcpsResult handle(String coverageIterator, List<String> coverageNames) {
+        
+        List<String> rasdamanCollectionNames = new ArrayList<>();
+        
         //add the mapping in the coverageRegistry
         for (String coverageName : coverageNames) {
-            coverageAliasRegistry.addCoverageMapping(coverageIterator, coverageName);
+            Coverage coverage;
+            try {
+                coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageName);
+            } catch (PetascopeException ex) {
+                log.error("Error reading coverage '" + coverageName + "'.", ex);
+                throw new CoverageReadingException(coverageName, ex.getExceptionText());
+            }
+            String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
+            rasdamanCollectionNames.add(rasdamanCollectionName);
+            coverageAliasRegistry.addCoverageMapping(coverageIterator, coverageName, rasdamanCollectionName);
         }
         String translatedCoverageIterator = coverageIterator;
         //if the coverageVariable starts with $, remove it to make it valid rasql
@@ -61,9 +84,9 @@ public class ForClauseHandler {
             // Multipart query
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
                     .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
-        } else {
+        } else {            
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                    .replace("$collectionName", coverageNames.get(0));
+                    .replace("$collectionName", rasdamanCollectionNames.get(0));
         }
         //metadata is loaded in the return clause, no meta needed here
         WcpsResult result = new WcpsResult(null, template);

@@ -64,7 +64,8 @@ public class WcpsController extends AbstractController {
     XMLProcessCoverageParser xmlProcessCoverageParser;
 
     @RequestMapping(value = OWS + "/" + WCPS, method = RequestMethod.POST)
-    protected void handlePost(@RequestBody String postBody) throws Exception {        
+    protected void handlePost(HttpServletRequest httpServletRequest) throws Exception {
+        String postBody = this.getPOSTRequestBody(httpServletRequest); 
         // @TODO: it only allows to post WCPS in abstract syntax (i.e: text) now
         postBody = URLDecoder.decode(postBody, "utf-8");
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);

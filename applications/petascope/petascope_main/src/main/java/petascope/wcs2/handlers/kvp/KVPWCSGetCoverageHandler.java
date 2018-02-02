@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.controller.AbstractController;
 import petascope.core.response.Response;
 import petascope.core.service.ResponseService;
 import petascope.exceptions.ExceptionCode;
@@ -45,6 +46,7 @@ import petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageInterpolationService
 import petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageRangeSubsetService;
 import petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService;
 import petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageSubsetDimensionService;
+import petascope.wcs2.handlers.kvp.service.KVPWCSGetcoverageClipService;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
 
 /**
@@ -70,8 +72,19 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
     private KVPWCSGetCoverageInterpolationService kvpGetCoverageInterpolationService;
     @Autowired
     private KVPWCSGetCoverageScalingService kvpGetCoverageScalingService;
+    @Autowired
+    private KVPWCSGetcoverageClipService kvpGetCoverageClipService;
 
     private static final Logger log = LoggerFactory.getLogger(KVPWCSGetCoverageHandler.class);
+    
+    
+    public static final String ENCODE_FORMAT = "$encodeFormat";
+    public static final String RANGE_NAME = ".$rangeName";
+
+    // e.g: for c in (test_mr) return encode(c[i(0:10), j(0:20)], "png")
+    private static final String WCPS_QUERY_TEMPLATE = "for c in ($coverageId) return encode($queryContent, \"" + ENCODE_FORMAT + "\")";
+    
+    private static final String WCPS_COVERAGE_ALIAS = "c";
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
@@ -203,12 +216,22 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
 
         // e.g: c[i(0:20)] or c[i(0:20)].red and depend on the imported coverage has 1 or multibands (!)
         // as: test_mr (1 band) cannot have this query: c[i(0:20)].0 but test_rgb (3 bands) can have: c[i(0:20)].0
-        String coverageExpression = "c[" + ListUtil.join(intervals, ", ") + "]" + RANGE_NAME;
+        String coverageExpression;
+        if (intervals.isEmpty()) {
+            // e.g: no subsets
+            coverageExpression = WCPS_COVERAGE_ALIAS + RANGE_NAME;
+        } else {
+            // e.g: subset=Lat(20:30)
+            coverageExpression = WCPS_COVERAGE_ALIAS + "[" + ListUtil.join(intervals, ", ") + "]" + RANGE_NAME;
+        }        
 
         // NOTE: if subsettingCrs exists but outputCrs is null, then outputCrs is subsettingCrs
         if (subsettingCrs != null && outputCrs == null) {
             outputCrs = subsettingCrs;
         }
+        
+        // Handle for WCS WKT clipping extension if necessary (i.e: when clip parameter exists in the request)
+        coverageExpression = this.kvpGetCoverageClipService.handle(kvpParameters, coverageExpression, subsettingCrs);
 
         if (outputCrs != null) {
             // Generate the CrsTransform expression
@@ -226,9 +249,4 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
         return coverageExpression;
     }
 
-    public static final String ENCODE_FORMAT = "$encodeFormat";
-    public static final String RANGE_NAME = ".$rangeName";
-
-    // e.g: for c in (test_mr) return encode(c[i(0:10), j(0:20)], "png")
-    private static final String WCPS_QUERY_TEMPLATE = "for c in ($coverageId) return encode($queryContent, \"" + ENCODE_FORMAT + "\")";
 }

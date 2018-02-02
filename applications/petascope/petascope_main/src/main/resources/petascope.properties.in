@@ -26,6 +26,14 @@
 # Parameters marked *yes* in item *need to adapt* MUST be configured
 # to meaningful values during installation, they CAN NOT be used as is!
 
+# ------------------ Spring configuration -------------------
+# Maximum size of file to upload to Petascope
+# purpose:       Client can only upload file with size < this configuration to Petascope.
+# need to adapt: yes
+spring.http.multipart.max-file-size=128MB
+spring.http.multipart.max-request-size=128MB
+
+
 #------------------- Spring Hibernate configuration -------------------
 
 # Default configuration for all DBMS for petascopedb
@@ -128,12 +136,12 @@ petascope_servlet_url=
 # need to adapt: no
 disable_write_operations=false
 
-# parameter:     rasql_servlet_upload_path
-# purpose:       Rasql query can be submitted to RasqlServlet with file to import to rasdaman by decode() function.
-# description:   This folder stores the uploaded file through RasqlServlet temporarily 
-#                and removes it after the rasql import query is done.
+# parameter:     uploaded_files_dir_tmp
+# purpose:       The path to the folder in server to store uploaded files to Petascope.
+# description:   This folder stores the uploaded file temporarily 
+#                and removes it after the request is done.
 # need to adapt: no
-rasql_servlet_upload_path=/tmp/rasql_servlet_upload
+uploaded_files_dir_tmp=/tmp/rasdaman/petascope/upload
 
 #------------------- Embedded Petascope configuration -------------------
 

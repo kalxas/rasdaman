@@ -43,9 +43,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCSException;
 import petascope.core.AxisTypes;
 import petascope.core.AxisTypes.AxisDirection;
+import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.InvalidBoundingBoxInCrsTransformException;
@@ -105,7 +105,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param subsets
      * @return
      */
-    private void transformSubsettingCrsXYSubsets(WcpsCoverageMetadata metadata, List<Subset> subsets) throws WCSException {
+    public void transformSubsettingCrsXYSubsets(WcpsCoverageMetadata metadata, List<Subset> subsets) {
         String xyAxis = metadata.getXYCrs();
         if (!CrsUtil.isValidTransform(xyAxis)) {
             // No need to transform if XY axis is not geo-referenced or Authority is not EPSG
@@ -164,12 +164,19 @@ public class WcpsCoverageMetadataGeneralService {
             // Transform from sourceCrs to targetCrs and change the values of List subsets (only when targetCrs is different from soureCrs)
             List<BigDecimal> xyMin = null, xyMax  = null;
             try {
-                xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMin, yMin});
-                xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMax, yMax});
-            } catch (PetascopeException ex) {
+                boolean xyOrder = metadata.isXYOrder() && CrsUtil.isXYAxesOrder(subsettingCrs);
+                boolean yxOrder = !metadata.isXYOrder() && !CrsUtil.isXYAxesOrder(subsettingCrs);
+                if (xyOrder || yxOrder) {
+                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMin, yMin});
+                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{xMax, yMax});                
+                } else {
+                    xyMin = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{yMin, xMin});
+                    xyMax = CrsProjectionUtil.transform(subsettingCrs, nativeCrs, new double[]{yMax, xMax}); 
+                }
+            } catch (Exception ex) {
                 String bboxStr = "xmin=" + xMin + "," + "ymin=" + yMin + ","
                                + "xmax=" + xMax + "," + "ymax=" + yMax;
-                throw new InvalidBoundingBoxInCrsTransformException(bboxStr, subsettingCrs, ex.getExceptionText());
+                throw new InvalidBoundingBoxInCrsTransformException(bboxStr, subsettingCrs, ex.getMessage());
             }
 
             // NOTE: when using subsettingCRS, both of XY-georefenced axis must exist in coverage expression
@@ -199,7 +206,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param subsets
      * @throws petascope.exceptions.PetascopeException
      */
-    public void applySubsets(Boolean checkBoundary, WcpsCoverageMetadata metadata, List<Subset> subsets) throws PetascopeException {
+    public void applySubsets(Boolean checkBoundary, WcpsCoverageMetadata metadata, List<Subset> subsets) {
         checkSubsetConsistency(metadata, subsets);
 
         // If the subsets contain subsettingCrs which is different from XY-georeferenced axis's nativeCRS, then do the transform for both XY axes
@@ -354,6 +361,54 @@ public class WcpsCoverageMetadataGeneralService {
         metadata.getRangeFields().clear();
         metadata.getRangeFields().add(rangeField);
     }
+    
+    /**
+     * Create a new WcpsCoverageMetadata object from a source WcpsCoverageMetadata object and a number of output coverage's axes (N).
+     * The coverage's metadata output will contain IndexND axis instead of geo-CRS or CRS-compound as source object.
+     * NOTE: the bounding boxes (geo/grid axes) of output coverage are unknown. e.g: clip a 2D oblique polygon on a 3D coverages (Lat, Long, Time).
+     * In WCPS level, there is no understanding about the bounding box of this polygon, so set it with a constant value.
+     * 
+     * @param sourceMetadata a WcpsCoverageMetadata object
+     * @param domains sdom() of clipped output which only can be determined by sending a clipping rasql query to rasserver.
+     * @return WcpsCoverageMetadata object
+     */
+    public WcpsCoverageMetadata createCoverageByIndexAxes(WcpsCoverageMetadata sourceMetadata, List<Pair<String, String>> domains) {
+        Integer numberOfAxes = domains.size();
+        String coverageName = sourceMetadata.getCoverageName();
+        String coverageType = sourceMetadata.getCoverageType();
+        String crsURI = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, numberOfAxes.toString());
+        List<RangeField> rangeFields = sourceMetadata.getRangeFields();
+        List<NilValue> nilValues = sourceMetadata.getNilValues();
+        String metadata = sourceMetadata.getMetadata();
+        
+        // Create index axes
+        // the axis type (x, y, t,...) should be set to axis correctly, now just set to x
+        String axisType = AxisTypes.X_AXIS;
+        // Scalar resolution is set to 1
+        BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
+        AxisDirection axisDirection = AxisTypes.AxisDirection.UNKNOWN;
+        CrsDefinition crsDefinition = null;
+        String axisUoM = CrsUtil.INDEX_UOM;
+        String axisLabelPrefix = "i";
+        List<Axis> axes = new ArrayList<>();
+        
+        // Create index axes for output coverage
+        for (int i = 0; i < numberOfAxes; i++) {
+            String label = axisLabelPrefix + i;
+            // NOTE: output coverage is unknown about the bounding box, so set with a constant value for geo and grid domains.
+            BigDecimal lowerBound = new BigDecimal(domains.get(i).fst);
+            BigDecimal upperBound = new BigDecimal(domains.get(i).snd);
+            NumericSubset geoBounds = new NumericTrimming(lowerBound, upperBound);
+            NumericSubset gridBounds = geoBounds;
+            BigDecimal origin = geoBounds.getLowerLimit();            
+            Axis axis = new RegularAxis(label, geoBounds, gridBounds, axisDirection, crsURI,
+                    crsDefinition, axisType, axisUoM, i, origin, scalarResolution);
+            axes.add(axis);
+        }
+        
+        WcpsCoverageMetadata outputMetadata = new WcpsCoverageMetadata(coverageName, coverageName, coverageType, axes, crsURI, rangeFields, nilValues, metadata);
+        return outputMetadata;
+    }
 
     /**
      * Creates a coverage for the coverage constructor. Right now, this is not
@@ -430,7 +485,7 @@ public class WcpsCoverageMetadataGeneralService {
 
         List<NilValue> nilValues = new ArrayList<>();
 
-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, null);
+        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, null);
         return result;
     }
 
@@ -447,7 +502,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param axis
      * @throws PetascopeException
      */
-    private void applyTrimmingSubset(Boolean checkBoundary, WcpsCoverageMetadata metadata, Subset subset, Axis axis) throws PetascopeException {
+    private void applyTrimmingSubset(Boolean checkBoundary, WcpsCoverageMetadata metadata, Subset subset, Axis axis) {
 
         boolean geoToGrid = true;
         //set the lower, upper bounds and crs
@@ -515,7 +570,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @throws PetascopeException
      */
     private void translateTrimmingGeoToGridSubset(Axis axis, Subset subset,
-            NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset) throws PetascopeException {
+            NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset) {
         BigDecimal geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
         BigDecimal geoDomainMax = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit();
         BigDecimal gridDomainMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
@@ -546,11 +601,10 @@ public class WcpsCoverageMetadataGeneralService {
      * @param subset
      * @param unAppliedNumericSubset
      * @param unTranslatedNumericSubset
-     * @throws PetascopeException
      */
     private void translateTrimmingGridToGeoSubset(Axis axis, Subset subset,
             NumericTrimming unAppliedNumericSubset,
-            NumericTrimming unTranslatedNumericSubset) throws PetascopeException {
+            NumericTrimming unTranslatedNumericSubset) {
         BigDecimal geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
         BigDecimal gridDomainMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
         BigDecimal gridDomainMax = ((NumericTrimming) axis.getGridBounds()).getUpperLimit();
@@ -584,10 +638,9 @@ public class WcpsCoverageMetadataGeneralService {
      * @param metadata
      * @param subset
      * @param axis
-     * @throws PetascopeException
      */
     private void applySlicing(Boolean checkBoundary, WcpsCoverageMetadata metadata,
-            Subset subset, Axis axis) throws PetascopeException {
+            Subset subset, Axis axis) {
         boolean geoToGrid = true;
         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
 
@@ -631,9 +684,8 @@ public class WcpsCoverageMetadataGeneralService {
      * @param axis
      * @param subset
      * @param metadata
-     * @throws PetascopeException
      */
-    private void translateSlicingGeoToGridSubset(Axis axis, Subset subset) throws PetascopeException {
+    private void translateSlicingGeoToGridSubset(Axis axis, Subset subset) {
 
         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(bound, bound);
@@ -681,9 +733,8 @@ public class WcpsCoverageMetadataGeneralService {
      * @param axis
      * @param subset
      * @param metadata
-     * @throws PetascopeException
      */
-    private void translateSlicingGridToGeoSubset(Axis axis, Subset subset) throws PetascopeException {
+    private void translateSlicingGridToGeoSubset(Axis axis, Subset subset) {
 
         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(bound, bound);
@@ -733,12 +784,11 @@ public class WcpsCoverageMetadataGeneralService {
      * @param gridDomainMin
      * @param gridDomainMax
      * @return
-     * @throws PetascopeException
      */
-    private ParsedSubset<Long> translateGeoToGridCoordinates(ParsedSubset<BigDecimal> parsedSubset,
+    public ParsedSubset<Long> translateGeoToGridCoordinates(ParsedSubset<BigDecimal> parsedSubset,
             Axis axis, BigDecimal geoDomainMin,
             BigDecimal geoDomainMax, BigDecimal gridDomainMin,
-            BigDecimal gridDomainMax) throws PetascopeException {
+            BigDecimal gridDomainMax) {
         ParsedSubset<Long> translatedSubset;
         // Regular axis (no need to query database)
         if (axis instanceof RegularAxis) {
@@ -773,7 +823,7 @@ public class WcpsCoverageMetadataGeneralService {
      */
     private ParsedSubset<BigDecimal> translateGridToGeoCoordinates(ParsedSubset<BigDecimal> parsedSubset,
             Axis axis, BigDecimal geoDomainMin, BigDecimal gridDomainMin,
-            BigDecimal gridDomainMax) throws PetascopeException {
+            BigDecimal gridDomainMax) {
         ParsedSubset<BigDecimal> translatedSubset;
         // Regular axis (no need to query database)
         if (axis instanceof RegularAxis) {
