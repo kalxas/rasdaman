@@ -1896,7 +1896,7 @@ var rasdaman;
 (function (rasdaman) {
     var WCSSettingsService = (function () {
         function WCSSettingsService($window) {
-            this.wcsEndpoint = $window.location.origin + "/rasdaman/ows";
+            this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
         }
         WCSSettingsService.$inject = ["$window"];
@@ -3603,7 +3603,7 @@ var rasdaman;
 (function (rasdaman) {
     var WMSSettingsService = (function () {
         function WMSSettingsService($window) {
-            this.wmsEndpoint = $window.location.origin + "/rasdaman/ows";
+            this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
             this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
         }

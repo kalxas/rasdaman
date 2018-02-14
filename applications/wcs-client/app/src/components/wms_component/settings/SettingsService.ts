@@ -33,7 +33,7 @@ module rasdaman {
 
         public constructor($window:angular.IWindowService) {
             // e.g: http://localhost:8080/rasdaman/ows
-            this.wmsEndpoint = $window.location.origin + "/rasdaman/ows";
+            this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             // e.g: service=WMS&version=1.3.0
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
             // e.g: http://localhost:8080/rasdaman/ows?service=WMS&version=1.3.0

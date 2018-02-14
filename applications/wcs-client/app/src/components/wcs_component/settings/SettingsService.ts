@@ -30,7 +30,7 @@ module rasdaman {
         public static $inject = ["$window"];
 
         public constructor($window:angular.IWindowService) {
-            this.wcsEndpoint = $window.location.origin + "/rasdaman/ows";
+            this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
         }
     }
