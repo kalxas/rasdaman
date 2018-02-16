@@ -35,7 +35,7 @@ import numpy as np
 from grpc.beta import implementations
 from rasdapy.utils import StoppableTimeoutThread, \
     get_spatial_domain_from_type_structure, get_type_structure_from_string, \
-    convert_data_stream_from_bin
+    convert_binary_data_stream
 from rasdapy.remote_procedures import rasmgr_close_db, rasmgr_connect, \
     rasmgr_disconnect, rasmgr_keep_alive, rasmgr_open_db, \
     rassrvr_abort_transaction, rassrvr_begin_streamed_http_query, \
@@ -59,6 +59,10 @@ from rasdapy.stubs import client_rassrvr_service_pb2 as rassrvr
 from rasdapy.stubs import rasmgr_client_service_pb2 as rasmgr
 
 from exception_factories import ExceptionFactories
+import re
+
+from models.ResultArray import ResultArray
+
 
 class Connection(object):
     """
@@ -472,100 +476,128 @@ class Query(object):
         """
         Executes the query with read permission and returns back a result
         :return: the resulting array returned by the query
-        :rtype: Array
+        :rtype: result object according to query
         """
         exec_query_resp = rassrvr_execute_query(self.transaction.database.stub,
                                                 self.transaction.database.connection.session.clientId,
                                                 self.query_str)
         self.exec_query_resp = exec_query_resp
+        select_collection_names = "RAS_COLLECTIONNAMES" in self.query_str
         if exec_query_resp.status == 4 or exec_query_resp.status == 5:
             error_message = ExceptionFactories.create_error_message(exec_query_resp.err_no, exec_query_resp.line_no,
                                                                     exec_query_resp.col_no, exec_query_resp.token)
             raise Exception("Error executing query '{}', error message '{}'".format(self.query_str, error_message))
+        elif exec_query_resp.status == 0 and select_collection_names:
+            # e.g: query: select c from RAS_COLLECTIONNAMES as c
+            return self._get_list_collection_names()
         elif exec_query_resp.status == 0:
-            return self._get_next_collection()
+            # e.g: query: select c + 1 from test_mr as c, select encode(c, "png") from test_mr as c
+            return self._get_collection_result()
         elif exec_query_resp.status == 1:
-            return self._get_next_element()
+            # e.g: query: select complex(35, 56), select sdom(c) from test_mr as c, select {1, 2, 3}
+            return self._get_element_result()
         elif exec_query_resp.status == 2:
             raise Exception("Query returned an empty collection")
         else:
             raise Exception("Unknown status code: " + str(
                 exec_query_resp.status) + " returned by ExecuteQuery")
 
-    def _get_next_collection(self):
+    def __get_array_result_mdd(self):
+        """
+        With query to return mdds, use this method to collect all the binary data from tiles in an array
+        :return: an array of binary string
+        """
+        result_data = []
         mddstatus = 0
-        tilestatus = 0
-        array = []
-        metadata = ArrayMetadata(
-            spatial_domain=SpatialDomain(
-                get_spatial_domain_from_type_structure(
-                    self.exec_query_resp.type_structure)),
-            band_types=get_type_structure_from_string(
-                self.exec_query_resp.type_structure))
+
         while mddstatus == 0:
             mddresp = rassrvr_get_next_mdd(self.transaction.database.stub,
                                            self.transaction.database.connection.session.clientId)
             mddstatus = mddresp.status
             if mddstatus == 2:
-                raise Exception(
-                    "getMDDCollection - no transfer or empty collection")
+                raise Exception("getMDDCollection - no transfer or empty collection")
+
             tilestatus = 2
             while tilestatus == 2 or tilestatus == 3:
                 tileresp = rassrvr_get_next_tile(self.transaction.database.stub,
                                                  self.transaction.database.connection.session.clientId)
                 tilestatus = tileresp.status
                 if tilestatus == 4:
-                    raise Exception(
-                        "rpcGetNextTile - no tile to transfer or empty "
-                        "collection")
+                    raise Exception("rpcGetNextTile - no tile to transfer or empty collection")
                 else:
-                    if self.query_str == "select r from RAS_COLLECTIONNAMES " \
-                                         "as r":
-                        array.append(tileresp.data[:-1])
-                    else:
-                        array.append(RPCMarray(domain=tileresp.domain,
-                                               cell_type_length=tileresp.cell_type_length,
-                                               current_format=tileresp.current_format,
-                                               storage_format=tileresp.storage_format,
-                                               data=convert_data_stream_from_bin(
-                                                   metadata.band_types,
-                                                   tileresp.data,
-                                                   tileresp.data_length,
-                                                   tileresp.cell_type_length,
-                                                   metadata.spatial_domain)))
+                    data = tileresp.data
+                    result_data.append(data)
 
             if tilestatus == 0:
                 break
-        rassrvr_end_transfer(self.transaction.database.stub,
-                             self.transaction.database.connection.session
-                             .clientId)
-        if self.query_str == "select r from RAS_COLLECTIONNAMES as r":
-            return array
-        else:
-            return Array(values=array, metadata=metadata)
 
-    def _get_next_element(self):
+        # Close connection to server
+        rassrvr_end_transfer(self.transaction.database.stub, self.transaction.database.connection.session.clientId)
+        return result_data
+
+    def _get_list_collection_names(self):
+        """
+        Return the list of collection names from RASBASE for query (select c from RAS_COLLECTIONNAMES as c)
+        :return: list of string collection names
+        """
+        arr_temp = self.__get_array_result_mdd()
+        for i, collection_name in enumerate(arr_temp):
+            arr_temp[i] = str(collection_name)[:-1]
+        return arr_temp
+
+    def _get_collection_result(self):
+        """
+        Parse the string binary containing data (encoded, unencoded) from rasql to objects which later can be
+        translated to numpy array.
+        Or returns the list of rasdaman collections in RASBASE.
+        :return: ResultArray object
+        """
+        spatial_domain = get_spatial_domain_from_type_structure(self.exec_query_resp.type_structure)
+        band_types = get_type_structure_from_string(self.exec_query_resp.type_structure)
+        metadata = ArrayMetadata(spatial_domain, band_types)
+
+        # concatenate all the binary strings to one string to be decoded as Numpy ndarray buffer
+        arr_temp = self.__get_array_result_mdd()
+        result_data = "".join(arr_temp)
+
+        data_type = metadata.band_types["type"]
+        # NOTE: unencoded result array is nD+ numpy array. If number of bands > 1 then the number of dimensions + 1
+        number_of_bands = 1
+        if data_type == "struct":
+            data_type = metadata.band_types["sub_type"]["types"][0]
+            number_of_bands = len(metadata.band_types["sub_type"]["types"])
+
+        result_array = ResultArray(result_data, metadata.spatial_domain, data_type, number_of_bands)
+        return result_array
+
+    def _get_element_result(self):
+        """
+        Get the response from rasserver for query which doesn't return array which can be converted to Numpy ndarray
+        e.g: select 1 + 2, select {1, 2, 3}
+        :return: array of results if server returns multiple elements or just 1 result if only 1 element
+        """
         rpcstatus = 0
-        array = []
-        metadata = ArrayMetadata(
-            spatial_domain=SpatialDomain(
-                get_spatial_domain_from_type_structure(
-                    self.exec_query_resp.type_structure)),
-            band_types=get_type_structure_from_string(
-                self.exec_query_resp.type_structure))
+        result_arr = []
+
+        spatial_domain = get_spatial_domain_from_type_structure(self.exec_query_resp.type_structure)
+        band_types = get_type_structure_from_string(self.exec_query_resp.type_structure)
+        metadata = ArrayMetadata(spatial_domain, band_types)
+
         while rpcstatus == 0:
             elemresp = rassrvr_get_next_element(self.transaction.database.stub,
                                                 self.transaction.database.connection.session.clientId)
             rpcstatus = elemresp.status
             if rpcstatus == 2:
                 raise Exception("getNextElement - no transfer or empty element")
-            array.append(
-                convert_data_stream_from_bin(metadata.band_types,
-                                             elemresp.data,
-                                             elemresp.data_length,
-                                             elemresp.data_length,
-                                             metadata.spatial_domain))
-        return array
+            # e.g: select 2 + 3, select complex(3, 5)
+            result = convert_binary_data_stream(metadata.band_types, elemresp.data)
+            result_arr.append(result)
+        if len(result_arr) > 1:
+            # e.g: select sdom(c) from test_mr with test_mr has 2 collections, result is an array
+            return result_arr
+        else:
+            # e.g: select 1 from test_mr, result is only a value
+            return result_arr[0]
 
     def _send_mdd_constants(self):
         exec_init_update_resp = rassrvr_init_update(
@@ -600,57 +632,6 @@ class Query(object):
                 raise Exception("Error: Transfer failed")
 
 
-
-class RPCMarray(object):
-    """
-    Class to represent RPC Array
-    """
-
-    def __init__(self, domain=None, cell_type_length=None, current_format=None,
-                 storage_format=None, data=None):
-        self.domain = domain
-        self.cell_type_length = cell_type_length
-        self.current_format = current_format
-        self.storage_format = storage_format
-        self.data = data
-
-    def to_array(self):
-        if type == "numpy":
-            return np.frombuffer(self.data)
-        elif type == "scipy":
-            raise NotImplementedError("No support for SciPy yet")
-        elif type == "pandas":
-            raise NotImplementedError("No Support for Pandas yet")
-        else:
-            raise NotImplementedError(
-                "Invalid type: only valid types are 'numpy' (default), "
-                "'scipy', and 'pandas'")
-
-
-class BandType(object):
-    """
-    Enum containing possible band types in rasdaman
-    """
-    INVALID = 0,
-    CHAR = 1,
-    USHORT = 2,
-    SHORT = 3,
-    ULONG = 4,
-    LONG = 5,
-    FLOAT = 6,
-    DOUBLE = 7
-
-
-class SpatialDomain(object):
-    def __init__(self, interval_params):
-        """
-        Class to represent a spatial domain in rasdaman
-        :param list[tuple] interval_parameters: a list of intervals
-        represented as tuples
-        """
-        self.interval_params = interval_params
-
-
 class ArrayMetadata(object):
     def __init__(self, spatial_domain, band_types):
         """
@@ -663,41 +644,3 @@ class ArrayMetadata(object):
         self.spatial_domain = spatial_domain
         self.band_types = band_types
 
-
-class Array(object):
-    def __init__(self, metadata=None, values=None):
-        """
-        Class to represent an array produced by a rasdaman query
-        :param ArrayMetadata metadata: the metadata of the array
-        :param list[list[int | float]] values: the values of the array stored
-        band-interleaved (we store a list of
-        values for each band)
-        """
-        self.metadata = metadata
-        self.values = values
-
-    def to_image(self, filename, normalize=False):
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
-        plt.imshow(self.to_array()[0], interpolation='nearest')
-        plt.savefig(filename)
-        plt.close()
-
-    def to_array(self, type="numpy"):
-        """
-        Returns the serialized array as a numpy, scipy, or pandas data structure
-        :param type: valid option - "numpy", "scipy", "pandas"
-        :return:
-        """
-        if type == "numpy":
-            nparr = np.array([val.data for val in self.values])
-            return nparr
-        elif type == "scipy":
-            raise NotImplementedError("No support for SciPy yet")
-        elif type == "pandas":
-            raise NotImplementedError("No Support for Pandas yet")
-        else:
-            raise NotImplementedError(
-                "Invalid type: only valid types are 'numpy' (default), "
-                "'scipy', and 'pandas'")
