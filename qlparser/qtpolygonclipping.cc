@@ -281,3 +281,9 @@ QtPolygonClipping::generateMask()
 
     return mask;
 }
+
+const r_Minterval
+QtPolygonClipping::getDomain() const
+{
+    return domain;
+}

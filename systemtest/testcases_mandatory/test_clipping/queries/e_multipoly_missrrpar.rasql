@@ -1,0 +1,2 @@
+select encode(clip(c, multipolygon( ((30 40, 0 80, 60 150, 120 80, 70 60), ((0 0, 30 0, 30 30)) ) ), "png") from test_rgb2 as c
+- - the right round parend of the first polygon is missing

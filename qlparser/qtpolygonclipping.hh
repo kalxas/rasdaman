@@ -61,6 +61,8 @@ public:
     
     // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
     vector< vector<char> > generateMask();
+    
+    const r_Minterval getDomain() const;
 
 private:
     /// the area of interest

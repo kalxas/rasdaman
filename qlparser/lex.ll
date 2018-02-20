@@ -40,6 +40,7 @@ static const char rcsid[] = "@(#)qlparser, lexer: $Id: oql.l,v 1.64 2005/07/06 2
 #include "qlparser/qtcomplexdata.hh"
 #include "qlparser/qtiterator.hh"
 #include "qlparser/qtunaryinduce.hh"
+#include "qlparser/qtmshapedata.hh"
 
 std::list<ParseInfo> infoList;
 
@@ -228,6 +229,7 @@ int string_yyinput( char* buf, int max_size )
 "shift"                                  { SETTOKEN( SHIFT, commandToken, SHIFT ) }
 "clip"                                   { SETTOKEN( CLIP, commandToken, CLIP ) }
 "subspace"                               { SETTOKEN( SUBSPACE, commandToken, SUBSPACE)}
+"multipolygon"                           { SETTOKEN( MULTIPOLYGON, commandToken, MULTIPOLYGON)}
 "polytope"                               { SETTOKEN( POLYTOPE, commandToken, POLYTOPE )}
 "polygon"                                { SETTOKEN( POLYGON, commandToken, POLYGON)}
 "curtain"                                { SETTOKEN( CURTAIN, commandToken, CURTAIN)}

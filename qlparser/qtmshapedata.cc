@@ -279,6 +279,39 @@ vector<r_Minterval> QtMShapeData::localConvexHulls() const
     return result;
 }
 
+r_Minterval QtMShapeData::convexHull() const
+{
+    r_Minterval result(polytopePoints[0].dimension());
+    for(size_t i = 0; i < polytopePoints[0].dimension(); i++ )
+    {
+        result[i] = r_Sinterval(polytopePoints[0][i], polytopePoints[0][i]);
+    }
+    
+    for(size_t i = 0; i < polytopePoints.size() - 1; i++)
+    {
+        r_Minterval nextConvexHull(polytopePoints[i].dimension());
+        
+        for(size_t j = 0; j < polytopePoints[i].dimension(); j++)
+        {
+            nextConvexHull[j] = r_Sinterval( polytopePoints[i][j], polytopePoints[i][j] );
+            
+            if ( polytopePoints[i][j] < polytopePoints[i+1][j] )
+            {
+                nextConvexHull[j].set_high( polytopePoints[i+1][j] );
+            }
+            
+            if ( polytopePoints[i][j] > polytopePoints[i+1][j] )
+            {
+                nextConvexHull[j].set_low( polytopePoints[i+1][j] );
+            }
+        }
+
+        result = result.closure_with(nextConvexHull);
+    }
+    
+    return result;
+}
+
 std::vector<std::pair< r_PointDouble, double> >
 QtMShapeData::computeHyperplaneEquation()
 {
@@ -313,6 +346,7 @@ QtMShapeData::computeHyperplaneEquation()
 r_Dimension
 QtMShapeData::getDimension()
 {   
+    // todo (bbell): update to reflect linestring behaviour; e.g. enum a geometry type here, and compute this differently based on the geom type.
     return dimensionality;
 }
 

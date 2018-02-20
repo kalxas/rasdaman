@@ -111,6 +111,9 @@ public:
     /// compute a vector of local bounding boxes, one for each line segment in the polytope.
     vector<r_Minterval> localConvexHulls() const;
 
+    /// returns an r_Minterval representing the convex hull of this polytope.
+    r_Minterval convexHull() const;
+    
     /// computes the hyperplaneEquations if they are not yet, and returns them otherwise
     std::vector<std::pair< r_PointDouble, double> > computeHyperplaneEquation();
 private:

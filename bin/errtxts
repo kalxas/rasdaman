@@ -198,6 +198,7 @@
 519^E^Error: A line segment is defined by at least two end points, which are required to compute the intermediary values.
 520^E^Error: The clipping was undefined for the given parameters.
 521^E^Error: The dimension of the vertices defining the curtain's cross-section should match that of the cross-sectional sample of the requested curtain.
+522^E^Error: All polygons in the request lie outside the MDDObject's domain.
 # overflow
 510^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The argument is outside the function domain.
 511^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The function result exceeds the allowed range.

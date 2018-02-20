@@ -586,6 +586,7 @@ public:
 #define BRESENHAMSEGMENTMOREVERTICES        519
 #define CLIPERRORUNDEFINED                  520
 #define CURTAINLINESTRINGDIMENSIONMISMATCH  521
+#define ALLPOLYGONSOUTSIDEMDDOBJ            522
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709
 #define FAILEDWRITINGTODISK                 710

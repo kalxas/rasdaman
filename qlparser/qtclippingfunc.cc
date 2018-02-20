@@ -1204,15 +1204,12 @@ QtClipping::computeOp(QtMDD* operand, QtMShapeData* mshape)
         }
     }
     else
-    {
-        LFATAL << "Error: QtClipping::computeOp() - The behaviour for this clip type is undefined.";
-        parseInfo.setErrorNo(CLIPERRORUNDEFINED);
+    {        parseInfo.setErrorNo(CLIPERRORUNDEFINED);
         throw parseInfo;        
     }
     
     if(!resultMDD)
     {
-        LFATAL << "Error: QtClipping::computeOp() - Failed for an unknown reason. Please contact the development team with the query full query and the sdom of the MDD operand.";
         parseInfo.setErrorNo(CLIPERRORUNDEFINED);
         throw parseInfo;
     }

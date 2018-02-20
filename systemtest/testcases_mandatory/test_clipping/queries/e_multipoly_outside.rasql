@@ -1,0 +1,1 @@
+select encode(clip(c, multipolygon( ((-30 -40, -10 -80, -60 -150, -120 -80, -70 -60)), ((-12 -12, -19 -19, -10 -10)) ) ), "png") from test_rgb2 as c

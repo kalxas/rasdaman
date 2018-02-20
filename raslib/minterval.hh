@@ -517,6 +517,17 @@ public:
     ///
     //@}
 
+    //@Man: Methods/Operators for dimension-specific operations involving projections:
+    //@{
+    /// the vector of projection dimensions cannot have more values than this->dimensionality
+    r_Minterval trim_along_slice(const r_Minterval&, const std::vector<r_Dimension>&) const
+    throw(r_Edim_mismatch, r_Eno_interval);
+    /// the vector of projection dimensions can have more values than this->dimensionality
+    r_Minterval project_along_dims(const std::vector<r_Dimension>&) const
+    throw(r_Edim_mismatch, r_Eno_interval);
+    ///
+    //@}
+    
     /// writes the state of the object to the specified stream
     void print_status(std::ostream& s = std::cout) const;
 

@@ -79,7 +79,11 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "relcatalogif/syntaxtypes.hh"
 
 #include "qlparser/qtclippingfunc.hh"
+#include "qlparser/qtmshapedata.hh"
 #include "qlparser/qtmshapeop.hh"
+#include "qlparser/qtmulticlipping.hh"
+
+#include <vector>
 
 #undef EQUAL
 #undef ABS
@@ -172,7 +176,7 @@ struct QtUpdateSpecElement
 //---------------------------------------------------
 
   r_Sinterval*                      Sinterval;
-
+  
   QtNode*                           qtNodeValue;
   QtOperation*                      qtOperationValue;
   QtUnaryOperation*                 qtUnaryOperationValue;
@@ -187,9 +191,11 @@ struct QtUpdateSpecElement
   QtIterator::QtONCStreamList*      qtONCStreamListValue;
   QtComplexData::QtScalarDataList*  qtScalarDataListValue;
   QtNode::QtOperationList*          qtOperationListValue;
-	QtNode::QtOperationList*  				qtOperationListValue2;
+  QtNode::QtOperationList*          qtOperationListValue2;
 
   QtUpdateSpecElement               qtUpdateSpecElement;
+
+  std::vector< QtMShapeData* >*     qtMShapeVector;
 
   Ops::OpType                       operationValue;
   int                               dummyValue;
@@ -234,7 +240,7 @@ struct QtUpdateSpecElement
                          SET ASSIGN MARRAY MDARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
-                         MDDPARAM OID SHIFT CLIP CURTAIN POLYGON LINESTRING RANGE POLYTOPE SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN SUBSPACE
+                         MDDPARAM OID SHIFT CLIP CURTAIN POLYGON MULTIPOLYGON LINESTRING RANGE POLYTOPE SCALE SQRT ABS EXP LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN SUBSPACE
                          ARCCOS ARCTAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST
 			 INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
@@ -271,7 +277,7 @@ struct QtUpdateSpecElement
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
 // %type <stgType>            storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2  namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList  pointCoordinateList2 pointCoordinateList polytopeWKTList 
+%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2  namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList  pointCoordinateList3 pointCoordinateList2 pointCoordinateList polytopeWKTList 
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
@@ -289,6 +295,9 @@ struct QtUpdateSpecElement
 %type <qtComplexDataValue>    complexLit
 %type <qtScalarDataListValue> scalarLitList dimensionLitList
 %type <floatToken>            numericalLit floatLitExp
+
+// vectorized data
+%type <qtMShapeVector>        pointCoordinateListVector
 
 // marray2 with multiple intervals
 %type <mddIntervalListType>   ivList
@@ -1549,6 +1558,31 @@ polytopeWKTList:POLYTOPE LRPAR LRPAR pointCoordinateList RRPAR RRPAR
             FREESTACK($11)
         };
 
+pointCoordinateListVector: pointCoordinateList3
+        {
+            $$ = new std::vector<QtMShapeData*>();
+            QtMShapeOp currentPoly( $1 );
+            QtMShapeData* polyData = new QtMShapeData( currentPoly.getPoints() );
+            $$->push_back(polyData);
+        }
+        | pointCoordinateListVector COMMA pointCoordinateList3
+        {
+            $$ = $1;
+            QtMShapeOp currentPoly( $3 );
+            QtMShapeData* polyData = new QtMShapeData( currentPoly.getPoints() );
+            $$->push_back(polyData);
+            FREESTACK($2)
+        };
+
+pointCoordinateList3: LRPAR LRPAR pointCoordinateList RRPAR RRPAR
+        {
+            $$ = $3;
+            FREESTACK($1)
+            FREESTACK($2)
+            FREESTACK($4)
+            FREESTACK($5)
+        };
+
 pointCoordinateList: pointCoordinateList2
         {
             $$ = new QtNode::QtOperationList();
@@ -1571,12 +1605,12 @@ pointCoordinateList: pointCoordinateList2
             FREESTACK( $2 )
         };
  
-pointCoordinateList2: pointCoordinate pointCoordinateList2  
+pointCoordinateList2:  pointCoordinateList2 pointCoordinate 
         {
             //append the coordinate value to the front of the vector
-            $2->insert($2->begin(), $1);
-            $$ = $2;
-            parseQueryTree->removeDynamicObject( $1 );
+            $1->push_back($2);
+            $$ = $1;
+            parseQueryTree->removeDynamicObject( $2 );
         }
         | pointCoordinate
         {
@@ -1849,6 +1883,21 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($9)
         FREESTACK($10)
         FREESTACK($11)
+    }
+    | CLIP LRPAR generalExp COMMA MULTIPOLYGON LRPAR pointCoordinateListVector RRPAR RRPAR
+    {
+        std::vector<QtMShapeData*> mshapeTransport = *( $7 );
+        $$ = new QtMulticlipping( $3, mshapeTransport, QtMulticlipping::CLIP_MULTIPOLYGON);
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->removeDynamicObject( $3 );
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        FREESTACK($6)
+        FREESTACK($8)
+        FREESTACK($9)
     }
     | CLIP LRPAR generalExp COMMA CURTAIN LRPAR RANGE LRPAR pointCoordinateList RRPAR COMMA POLYGON LRPAR LRPAR pointCoordinateList RRPAR RRPAR RRPAR RRPAR
     {

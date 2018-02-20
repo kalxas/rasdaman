@@ -79,11 +79,11 @@ typedef struct BoundingBox
  */
 
 /// compute the box in which the polytope lies
-BoundingBox *computeBoundingBox(const QtMShapeData* mshape);
+BoundingBox* computeBoundingBox(const QtMShapeData* mshape);
 
 
 /// compute the box in which the polytope lies
-BoundingBox *computeBoundingBoxFromList(vector<r_Point>& vertices);
+BoundingBox* computeBoundingBoxFromList(vector<r_Point>& vertices);
 
 /// check if a given point is in the given affine subspace defined by the vertices of mshape
 pair<double, bool> isInNSubspace(const r_Point& position, QtMShapeData* mshape);

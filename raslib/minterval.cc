@@ -871,6 +871,72 @@ r_Minterval::create_closure(const r_Minterval& mint) const throw(r_Edim_mismatch
     return result;
 }
 
+r_Minterval
+r_Minterval::trim_along_slice(const r_Minterval& mint, const std::vector<r_Dimension>& projDims) const throw(r_Edim_mismatch, r_Eno_interval)
+{
+    if(dimensionality < mint.dimension())
+    {
+        LFATAL << "r_Minterval:trim_along_slice(" << mint << ") dimensions (" << dimensionality << ") do not coincide";
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
+    }
+    else if(projDims.size() >= dimensionality)
+    {
+        LFATAL << "r_Minterval:trim_along_slice(" << projDims.size() << ") dimensions (" << dimensionality << ") do not coincide";
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));        
+    }
+    
+    for(size_t i = 0; i < projDims.size(); i++)
+    {
+        if(projDims[i] >= dimensionality)
+        {
+            LFATAL << "r_Minterval:trim_along_slice(" << projDims[i] << ") dimensions (" << dimensionality << ") do not coincide";
+            throw (r_Edim_mismatch(dimensionality, projDims[i]));            
+        }
+    }
+    
+    r_Minterval result(dimensionality);
+    
+    size_t projCtr = 0;
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
+        if(projDims[projCtr] == i)
+        {
+            // trimming along the slice
+            result << mint[projDims[projCtr]].create_intersection(intervals[i]);
+            projCtr++;
+        }
+        else
+        {
+            // no trimming happens -- dimension is kept
+            result << intervals[i];
+        }
+    }
+    
+    return result;
+}
+
+r_Minterval
+r_Minterval::project_along_dims(const std::vector<r_Dimension>& projDims) const throw(r_Edim_mismatch, r_Eno_interval)
+{
+    for(size_t i = 0; i < projDims.size(); i++)
+    {
+        if(projDims[i] >= dimensionality)
+        {
+            LFATAL << "r_Minterval:trim_along_slice(" << projDims[i] << ") dimensions (" << dimensionality << ") do not coincide";
+            throw (r_Edim_mismatch(dimensionality, projDims[i]));            
+        }
+    }    
+    
+    r_Minterval result(projDims.size());
+    
+    for (auto projDimIter = projDims.begin(); projDimIter != projDims.end(); projDimIter++)
+    {
+        result << intervals[*projDimIter];
+    }
+    
+    return result;
+}
+
 void
 r_Minterval::print_status(std::ostream& s) const
 {
