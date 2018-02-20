@@ -21,8 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import struct
 
-from rasdapy.request_factories import make_rasmgr_close_db_req, \
+from rasdapy.cores.request_factories import make_rasmgr_close_db_req, \
     make_rasmgr_connect_req, make_rasmgr_disconnect_req, \
     make_rasmgr_keep_alive_req, make_rasmgr_open_db_req, \
     make_rassrvr_abort_transaction_req, \
@@ -47,6 +48,9 @@ from rasdapy.request_factories import make_rasmgr_close_db_req, \
     make_rassrvr_open_db_req, make_rassrvr_remove_object_from_collection_req, \
     make_rassrvr_set_format_req, make_rassrvr_start_insert_mdd, \
     make_rassrvr_start_insert_trans_mdd
+
+from utils import ubytes_to_int, byte_to_char_value
+from exception_factories import ExceptionFactories
 
 _TIMEOUT_SECONDS = 60
 _QUERY_TIMEOUT_SECONDS = 3600
@@ -381,13 +385,38 @@ def rassrvr_keep_alive(stub, client_uuid, session_id):
 
 
 def rassrvr_begin_streamed_http_query(stub, cuuid, data):
-    resp = stub.BeginStreamedHttpQuery(
-            make_rassrvr_begin_streamed_http_query_req(cuuid, data),
-            _TIMEOUT_SECONDS)
+    tmp_tupple = make_rassrvr_begin_streamed_http_query_req(cuuid, data),
+    try:
+        resp = stub.BeginStreamedHttpQuery(tmp_tupple[0], _TIMEOUT_SECONDS)
+    except Exception as e:
+        print str(e)
+
     if not resp:
         raise Exception(
                 "Remote function 'BeginStreamedHttpQuery' from RasServer did "
                 "not return anything")
+
+    # check first byte to know it is error or not
+    error = byte_to_char_value(resp.data[0])
+    if error == 0:
+        # Unpack the response for error code
+        bytes_arr = []
+        for i in range(0, resp.data_length):
+            tmp = byte_to_char_value(resp.data[i])
+            bytes_arr.append(tmp)
+
+        edianness = bytes_arr[1]
+        err_no = ubytes_to_int(bytes_arr[2:6], edianness)
+        line_no = ubytes_to_int(bytes_arr[6:10], edianness)
+        col_no = ubytes_to_int(bytes_arr[10:14], edianness)
+        token = ""
+        for i in range(14, resp.data_length - 1):
+            token += chr(bytes_arr[i])
+
+        error_message = ExceptionFactories.create_error_message(err_no, line_no, col_no, token)
+        query = data[0:300]
+        raise Exception("Error executing query (first 300 characters) '{}'. Reason '{}'".format(query, error_message))
+
     return resp
 
 

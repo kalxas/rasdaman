@@ -31,37 +31,33 @@ to a format (i.e. NumPy) that can be used for performing scientific operations
 on the resultant arrays efficiently on the local machine
 """
 
-import numpy as np
+import os
+
 from grpc.beta import implementations
-from rasdapy.utils import StoppableTimeoutThread, \
+from rasdapy.cores.utils import StoppableTimeoutThread, \
     get_spatial_domain_from_type_structure, get_type_structure_from_string, \
     convert_binary_data_stream
-from rasdapy.remote_procedures import rasmgr_close_db, rasmgr_connect, \
+
+from exception_factories import ExceptionFactories
+from rasdapy.cores.remote_procedures import rasmgr_close_db, rasmgr_connect, \
     rasmgr_disconnect, rasmgr_keep_alive, rasmgr_open_db, \
     rassrvr_abort_transaction, rassrvr_begin_streamed_http_query, \
     rassrvr_begin_transaction, rassrvr_close_db, rassrvr_commit_transaction, \
-    rassrvr_create_db, rassrvr_delete_collection_by_id, \
-    rassrvr_delete_collection_by_name, rassrvr_destroy_db, \
-    rassrvr_end_insert_mdd, rassrvr_end_transfer, rassrvr_execute_http_query, \
-    rassrvr_execute_insert_query, rassrvr_execute_query, \
-    rassrvr_execute_update_query, rassrvr_get_collection_by_id, \
-    rassrvr_get_collection_by_name, rassrvr_get_collection_oids_by_id, \
-    rassrvr_get_collection_oids_by_name, rassrvr_get_new_oid, \
-    rassrvr_get_next_element, rassrvr_get_next_mdd, \
-    rassrvr_get_next_streamed_http_query, rassrvr_get_next_tile, \
-    rassrvr_get_object_type, rassrvr_get_type_structure, rassrvr_init_update, \
+    rassrvr_delete_collection_by_id, \
+    rassrvr_delete_collection_by_name, rassrvr_end_transfer, rassrvr_execute_query, \
+    rassrvr_execute_update_query, rassrvr_get_collection_by_name, rassrvr_get_next_element, rassrvr_get_next_mdd, \
+    rassrvr_get_next_tile, \
+    rassrvr_init_update, \
     rassrvr_insert_collection, rassrvr_insert_tile, \
-    rassrvr_is_transaction_open, \
     rassrvr_keep_alive, rassrvr_open_db, \
-    rassrvr_remove_object_from_collection, \
-    rassrvr_set_format, rassrvr_start_insert_mdd, rassrvr_start_insert_trans_mdd
+    rassrvr_start_insert_trans_mdd
+from rasdapy.models.minterval import MInterval
+from rasdapy.models.ras_gmrray import RasGMArray
+from rasdapy.models.ras_storage_layout import RasStorageLayOut
+from rasdapy.models.result_array import ResultArray
 from rasdapy.stubs import client_rassrvr_service_pb2 as rassrvr
 from rasdapy.stubs import rasmgr_client_service_pb2 as rasmgr
-
-from exception_factories import ExceptionFactories
-import re
-
-from models.ResultArray import ResultArray
+from utils import int_to_bytes, str_to_encoded_bytes, get_tiling_domain, convert_data_from_bin
 
 
 class Connection(object):
@@ -425,7 +421,7 @@ class Transaction(object):
 
 
 class Query(object):
-    def __init__(self, transaction, query_str):
+    def __init__(self, transaction, query_str, file_path=None, mdddomain=None, mddtype=None):
         """
         Class to represent a rasql query that can be executed in a certain
         transaction
@@ -437,16 +433,22 @@ class Query(object):
         self.mdd_constants = None
         self.exec_query_resp = None
 
-    def eval(self):
-        tmp_query = self.query_str.upper()
-        if tmp_query.startswith("SELECT ") and not " INTO " in tmp_query:
-            # Only select, not select .... into collection
-            return self._execute_read()
-        else:
-            # select ... into, create, update, delete, drop
-            return self._execute_update()
+    def execute_write_with_file(self):
+        """
+        Execute a full request query (not only the rasql query from user input) to rasserver which contains
+        all the information about the MDD Array from the file to be used to update rasdaman collection.
+        :param str query: a full request query to be sent to rasserver
+        :return: response from server
+        """
+        # Send the request query and get the response from rasserver
+        exec_update_query_from_file_resp = rassrvr_begin_streamed_http_query(
+                                        self.transaction.database.stub,
+                                        self.transaction.database.connection.session.clientUUID,
+                                        self.query_str)
 
-    def _execute_update(self):
+        return exec_update_query_from_file_resp
+
+    def execute_update(self):
         """
         Executes the query with write permission and returns back a result
         :return: the resulting status returned by the query
@@ -472,7 +474,7 @@ class Query(object):
             raise Exception("Error: Transfer failed")
         return exec_update_query_resp.status
 
-    def _execute_read(self):
+    def execute_read(self):
         """
         Executes the query with read permission and returns back a result
         :return: the resulting array returned by the query
@@ -643,4 +645,3 @@ class ArrayMetadata(object):
         """
         self.spatial_domain = spatial_domain
         self.band_types = band_types
-

@@ -29,8 +29,10 @@ the python magic methods for certain operations.
 """
 
 from copy import deepcopy
+
 from rasdapy.core import Database
-from rasdapy.utils import represent_subsetting, slice_tuple
+
+from rasdapy.cores.utils import represent_subsetting, slice_tuple
 
 
 class ExpNode(object):

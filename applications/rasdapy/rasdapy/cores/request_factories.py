@@ -22,9 +22,9 @@
  *
 """
 
+from rasdapy.cores.utils import get_md5_string
 from rasdapy.stubs import client_rassrvr_service_pb2 as rassrvr
 from rasdapy.stubs import rasmgr_client_service_pb2 as rasmgr
-from rasdapy.utils import get_md5_string
 
 
 def make_rasmgr_connect_req(username, password):

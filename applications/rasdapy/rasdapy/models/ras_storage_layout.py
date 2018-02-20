@@ -23,21 +23,18 @@
 """
 
 
-class MInterval(object):
+class RasStorageLayOut(object):
     """
-    A class represents the multiple interval in rasdaman (e.g: select sdom(c) from test_mr as c)
-    which returns [0:255, 0:210].
+    This class is used to express the storage options for MDD objects.
+    In the current version, either the tile-size (for example 256000 bytes) or the
+    tiling-domain (for example "[0:127,0:511]") can be specified.
     """
+    DEFAULT_TILE_SIZE = 128000
 
-    def __init__(self, intervals):
+    def __init__(self, spatial_domain=None, tile_size=None):
         """
-        :param intervals: the List of SIntervals
+        :param long tile_size: The current tile size in bytes (optional)
+        :param MInterval spatial_domain: The spatial domain of the current storageLayout (optional)
         """
-        self.intervals = intervals
-
-    def __str__(self):
-        """
-        String representing the multiple interval (e.g: [SInterval1, SInterval2] -> [0:250, 0:210]
-        """
-        output = "[" + ",".join(str(x) for x in self.intervals) + "]"
-        return output
+        self.spatial_domain = spatial_domain
+        self.tile_size = tile_size

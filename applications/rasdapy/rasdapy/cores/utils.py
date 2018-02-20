@@ -1,11 +1,36 @@
+"""
+ *
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003 - 2016 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+"""
 import hashlib
 import re
 import struct
 import threading
+import math
 
-from models.CompositeType import CompositeType
-from models.SInterval import SInterval
-from models.MInterval import MInterval
+from rasdapy.models.composite_type import CompositeType
+from rasdapy.models.sinterval import SInterval
+from rasdapy.models.minterval import MInterval
+
 
 def get_md5_string(input_str):
     """
@@ -119,33 +144,36 @@ def get_type_structure_from_string(input_str):
     return result
 
 
-def convert_data_from_bin(dtype, data):
+def convert_data_from_bin(dtype, data, big_endian=False):
     """
     Unpack string binary to meaningful data
     https://docs.python.org/2/library/struct.html
     :param dtype: datatype to determine how many bytes needed
     :param data: data to be unpacked
+    :param big_endian: default it is little endian
     :return: unpacked data
     """
+    flag = ">" if big_endian else "<"
+
     if dtype == "char":
-        result = struct.unpack("c", data)
+        result = struct.unpack(flag + "c", data)
     elif dtype == "bool":
-        result = struct.unpack("?", data)
+        result = struct.unpack(flag + "?", data)
     elif dtype == "minterval" or dtype == "sinterval":
         # minterval is output from sdom and parsed each byte, interval is sdom()[0]
-        result = struct.unpack("s", data)
+        result = struct.unpack(flag + "s", data)
     elif dtype == "ushort":
-        result = struct.unpack("H", data)
+        result = struct.unpack(flag + "H", data)
     elif dtype == "short":
-        result = struct.unpack("h", data)
+        result = struct.unpack(flag + "h", data)
     elif dtype == "ulong":
-        result = struct.unpack("I", data)
+        result = struct.unpack(flag + "I", data)
     elif dtype == "long":
-        result = struct.unpack("i", data)
+        result = struct.unpack(flag + "i", data)
     elif dtype == "float" or dtype == "complex":
-        result = struct.unpack("f", data)
+        result = struct.unpack(flag + "f", data)
     elif dtype == "double" or dtype == "complexd":
-        result = struct.unpack("d", data)
+        result = struct.unpack(flag + "d", data)
     else:
         raise Exception("Unknown Data type provided")
     return result[0]
@@ -282,6 +310,82 @@ def get_spatial_domain_from_type_structure(input_str):
     return minterval
 
 
+def int_to_bytes(input):
+    """
+    Encode int number to 4 bytes value
+    :param int input: input number
+    :return: a 4 bytes value with BigEndian
+    """
+    result = struct.pack(">I", input)
+    return result
+
+
+def byte_to_char_value(input):
+    """
+    Unpack the byte value to a character
+    :param byte input: value to be unpacked
+    :return: char result
+    """
+    result = struct.unpack(">b", input)[0]
+    return result
+
+def str_to_encoded_bytes(input):
+    """
+    Encode str to bytes with "\0" postfix
+    :param str input: string to be encoded
+    :return: an encoded string
+    """
+    result = (str(input) + "\0").encode("iso-8859-1")
+    return result
+
+
+def ubytes_to_int(bytes_arr, endianness):
+    """
+     This method is used for turning up to 4 unsigned bytes into signed integers.
+    :param list bytes_arr: one to four Bytes which are interpreted as an unsigned Integer
+    :param int endianness: determines the order of the bytes: 0 = bigendian, 1 = little endian
+    :return: integer
+    """
+    retval = 0
+    length = len(bytes_arr)
+    for i in range(0, length):
+        if endianness == 0:
+            # BigEdianness
+            tmpb = bytes_arr[length - i - 1]
+        else:
+            # SmallEdianness
+            tmpb = bytes_arr[i]
+
+        if tmpb < 0:
+            tmpi = 256 + tmpb
+        else:
+            tmpi = tmpb
+
+        tmpi <<= (i * 8)
+        retval += tmpi
+
+    return retval
+
+
+def get_tiling_domain(dim, mddtype_length, tile_size):
+    """
+    calculates the tiling domain based on the original MDD, the type length and the tileSize
+    of the MDD's storageLayout.
+    :param int dim: number of marray's dimensions
+    :param int mddtype_length: the length of cell base type in bytes (e.g: char: 1 byte)
+    :param int tile_size: the size of tile to be used by marray (e.g: default 128 KB)
+    :return: str tile_domain: the tile domain to be used by marray (e.g: [0:10, 0:10])
+    """
+    tmp = float(1.0 / dim)
+    size = str(int(math.pow(float(tile_size / mddtype_length), tmp)) - 1)
+    tile_domain = "0:" + size
+    for i in range(1, dim):
+        tile_domain = tile_domain + ",0:" + size
+    tile_domain = "[" + tile_domain + "]"
+
+    return tile_domain
+
+
 class StoppableTimeoutThread(threading.Thread):
     """
     Thread that runs a method over and over again
@@ -324,4 +428,3 @@ def represent_subsetting(collection, tuple_arr):
     repr = repr[:-1]
     repr += "]"
     return repr
-
