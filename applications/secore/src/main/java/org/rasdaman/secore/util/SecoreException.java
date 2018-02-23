@@ -21,6 +21,7 @@
  */
 package org.rasdaman.secore.util;
 
+import org.rasdaman.secore.Constants;
 import org.rasdaman.secore.ConfigManager;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;

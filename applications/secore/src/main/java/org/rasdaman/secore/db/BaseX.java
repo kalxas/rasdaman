@@ -21,7 +21,6 @@
  */
 package org.rasdaman.secore.db;
 
-import java.io.IOException;
 import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.ExceptionCode;
 import java.util.Map;
@@ -31,17 +30,17 @@ import org.basex.core.Context;
 import org.basex.core.cmd.Close;
 import org.basex.core.cmd.CreateDB;
 import org.basex.core.cmd.CreateIndex;
-import org.basex.core.cmd.Get;
 import org.basex.core.cmd.InfoDB;
 import org.basex.core.cmd.Open;
 import org.basex.core.cmd.Set;
 import org.basex.core.cmd.XQuery;
+import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.rasdaman.secore.util.Constants;
-import static org.rasdaman.secore.util.Constants.BASEX_OPTION_PREFIX;
-import static org.rasdaman.secore.util.Constants.BASEX_PATH_PROPERTY;
-import static org.rasdaman.secore.util.Constants.DBPATH_BASEX_PROPERTY;
+import org.rasdaman.secore.Constants;
+import static org.rasdaman.secore.Constants.BASEX_OPTION_PREFIX;
+import static org.rasdaman.secore.Constants.BASEX_PATH_PROPERTY;
+import static org.rasdaman.secore.Constants.DBPATH_BASEX_PROPERTY;
 import org.rasdaman.secore.util.IOUtil;
 import org.rasdaman.secore.util.Pair;
 import org.rasdaman.secore.util.StringUtil;
@@ -110,7 +109,7 @@ public class BaseX implements Database {
                     }
 
                     // This will change the URN to URI (e.g: urn:ogc:def:crs:EPSG::4326) to "/def/crs/EPSG/$VERSION/4326)
-                    xml = StringUtil.fixLinks(xml, StringUtil.SERVICE_URI, versionNumber);
+                    xml = StringUtil.fixLinks(xml, ConfigManager.getInstance().getServiceUrl(), versionNumber);
                     /*log.trace("Creating database with content (trimmed to first 3000 characters):\n{}",
                         xml.substring(0, Math.min(xml.length(), 3000)));*/
 
@@ -212,7 +211,7 @@ public class BaseX implements Database {
     @Override
     public String updateQuery(String query, String collectionName) throws SecoreException {
         log.trace("Executing update query");
-        query = StringUtil.fixLinks(query, StringUtil.SERVICE_URI);
+        query = StringUtil.fixLinks(query, ConfigManager.getInstance().getServiceUrl());
 
         // in here should check if identifier is existing in GmlDictionary or UserDictionary then update query correspond with DB name
         String ret = Constants.EMPTY;

@@ -23,7 +23,6 @@ package org.rasdaman.secore;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -31,7 +30,6 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
-import org.rasdaman.secore.util.Constants;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
 import org.rauschig.jarchivelib.Archiver;
@@ -57,15 +55,25 @@ public class ConfigManager {
     public final static String VERSION
             = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_MICRO;
     public final static String LANGUAGE = "en";
-    private final static String DB_UPDATES_PATH = "db_updates.path";
+    
+    public static final String DEFAULT_SERVER_CONTEXT_PATH = "/def";
+    
+    /*** properties's values in secore.properties ***/
+    private final static String KEY_SERVER_CONTEXT_PATH = "server.contextPath";
+    private final static String KEY_DB_UPDATES_PATH = "db_updates.path";
     // This will changed the original request (before "/def") with URL prefix which is set in secore.properties
     // e.g: http://localhost:8080/def/crs/EPSG/0/4326 to http://opengist.net/def/crs/EPSG/0/4326
-    private final static String SERVICE_URL = "service.url";
-    private final static String CODESPACE_KEY = "codespace";
+    private final static String KEY_SERVICE_URL = "service.url";
+    private final static String KEY_CODESPACE = "codespace";
     // If java_server=external, extract secoredb to tomcat/webapps/, if java_server=embedded, extract secoredb to $RMANHOME/share/rasdaman/war
-    private final static String JAVA_SERVER = "java_server";
+    private final static String KEY_JAVA_SERVER = "java_server";
     // Only embedded secore needs to specify the path to store secoredb folder
-    private final static String EMBEDDED_SECOREDB_FOLDER_PATH = "secoredb.path";
+    private final static String KEY_EMBEDDED_SECOREDB_FOLDER_PATH = "secoredb.path";
+    
+    // username, password to log in admin pages (*.jsp files)
+    // NOTE: if no configurations in secore.properties, just login normally
+    private final static String KEY_SECORE_ADMIN_USER = "secore_admin_user";
+    private final static String KEY_SECORE_ADMIN_PASSWORD = "secore_admin_pass";
 
     // singleton
     private static ConfigManager instance;
@@ -140,7 +148,7 @@ public class ConfigManager {
                 } catch (IOException ex) {
                     // If user wants to run secore as embedded with java -jar def.war, however in secore.properties, it is set java_server=external
                     // this will throw exception as embedded could not load resource directory from file.
-                    throw new RuntimeException("Cannot find gml resource folder, does secore set to " + JAVA_SERVER + "=external in secore.properties file?", ex);
+                    throw new RuntimeException("Cannot find gml resource folder, does secore set to " + KEY_JAVA_SERVER + "=external in secore.properties file?", ex);
                 }
             }
         } catch (IOException ex) {
@@ -235,27 +243,32 @@ public class ConfigManager {
     }
 
     public String getDbUpdatesPath() {
-        String ret = get(DB_UPDATES_PATH);
+        String ret = get(KEY_DB_UPDATES_PATH);
         if (ret != null && !ret.endsWith(File.separator)) {
             ret += File.separator;
         }
 
         return ret;
     }
+    
+    /**
+     * Return the servlet context path: /def (by default)
+     */
+    public String getServerContextPath() {
+        return get(KEY_SERVER_CONTEXT_PATH);
+    }
 
     /**
      * The prefix URL in secore.properties (secore.url) (e.g:
      * http://opengis.net/def) then all the resolved URL will use this prefix
      * URL.
-     *
-     * @return
      */
     public String getServiceUrl() {
-        return get(SERVICE_URL);
+        return get(KEY_SERVICE_URL);
     }
 
     public String getCodespace() {
-        return get(CODESPACE_KEY);
+        return get(KEY_CODESPACE);
     }
 
     public String getGMLDirectory() {
@@ -268,7 +281,7 @@ public class ConfigManager {
      * @return
      */
     public boolean useEmbeddedServer() {
-        String value = get(JAVA_SERVER);
+        String value = get(KEY_JAVA_SERVER);
         if (value.equals("external")) {
             return false;
         }
@@ -282,18 +295,37 @@ public class ConfigManager {
      * @throws org.rasdaman.secore.util.SecoreException 
      */
     public String getEmbeddedSecoreDbFolderPath() throws SecoreException {
-        String secoredbFolderPath = ConfigManager.getInstance().get(EMBEDDED_SECOREDB_FOLDER_PATH);
+        String secoredbFolderPath = ConfigManager.getInstance().get(KEY_EMBEDDED_SECOREDB_FOLDER_PATH);
         if (secoredbFolderPath.equals("")) {
             throw new SecoreException(ExceptionCode.InvalidParameterValue, 
-                                      EMBEDDED_SECOREDB_FOLDER_PATH + " is empty in secore.properties file for embedded SECORE.");
+                                      KEY_EMBEDDED_SECOREDB_FOLDER_PATH + " is empty in secore.properties file for embedded SECORE.");
         } else {
             File file = new File(secoredbFolderPath);
             if (!file.canRead() || !file.canWrite()) { 
                 throw new SecoreException(ExceptionCode.InvalidParameterValue, 
-                                          EMBEDDED_SECOREDB_FOLDER_PATH + " points to non readable/writable folder path in secore.properties file for embedded SECORE.");
+                                          KEY_EMBEDDED_SECOREDB_FOLDER_PATH + " points to non readable/writable folder path in secore.properties file for embedded SECORE.");
             }
         }       
         
         return secoredbFolderPath;
+    }
+    
+    public String getAdminUsername() {
+        return get(KEY_SECORE_ADMIN_USER);
+    }
+    
+    public String getAdminPassword() {
+        return get(KEY_SECORE_ADMIN_PASSWORD);
+    }
+    
+    /**
+     * NOTE: only show login page for admin pages (*.jsp) if these configuration are setup in secore.properties.
+     * If they don't exist, just allow access without any login form.
+     */
+    public boolean showLoginPage() {
+        String username = this.getAdminUsername();
+        String password = this.getAdminPassword();
+        boolean result = !username.isEmpty() && !password.isEmpty();
+        return result;
     }
 }

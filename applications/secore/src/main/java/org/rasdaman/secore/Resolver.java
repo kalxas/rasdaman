@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.handler.QueryHandler;
 import org.rasdaman.secore.req.RequestParam;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 
 /**
  * Resolves a given request.

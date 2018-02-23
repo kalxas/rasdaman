@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.Resolver;
 import org.rasdaman.secore.req.RequestParam;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 
 /**
  * Performs CRS combining into a compound CRS.
@@ -138,7 +138,7 @@ public class CrsCompoundHandler extends AbstractHandler {
     }
 
     private void checkCrsRef(String crsRef) throws SecoreException {
-        if (!crsRef.contains(StringUtil.SERVLET_CONTEXT + "/crs")) {
+        if (!crsRef.contains(ConfigManager.getInstance().getServerContextPath() + "/crs")) {
             log.error("Invalid crs-compound request, expected a CRS reference, but got " + crsRef);
             throw new SecoreException(ExceptionCode.InvalidParameterValue,
                     "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);

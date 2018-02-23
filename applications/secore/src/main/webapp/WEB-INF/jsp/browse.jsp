@@ -19,6 +19,8 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
+<%@page import="org.rasdaman.SecoreFilter"%>
+<%@page import="org.rasdaman.secore.ConfigManager"%>
 <%@page import="org.rasdaman.secore.util.ExceptionCode"%>
 <%@page import="org.rasdaman.secore.db.DbCollection"%>
 <%@page import="java.util.ArrayList"%>
@@ -33,7 +35,7 @@
 <%@page import="java.util.Set"%>
 <%@page import="java.util.TreeSet"%>
 <%@page import="org.rasdaman.secore.db.DbManager" %>
-<%@page import="org.rasdaman.secore.util.Constants" %>
+<%@page import="org.rasdaman.secore.Constants" %>
 <%@page import="org.rasdaman.secore.util.Pair"%>
 <%@page import="org.rasdaman.secore.util.XMLUtil"%>
 <%@page import="org.rasdaman.secore.util.StringUtil"%>
@@ -101,9 +103,10 @@
       String toadd = request.getParameter("add");
 
       // Future work: assure a smooth transition between URNs and URLs for the new identifiers
-      String url = (String) request.getAttribute("uri");
+      String url = request.getAttribute(SecoreFilter.CLIENT_REQUEST_URI_ATTRIBUTE).toString().replace(Constants.BROWSE_JSP, "");
       // return the string without first "/", e.g: def/crs/EPSG/
-      String defURL = url.substring(url.lastIndexOf("def"));
+      String servletContextPath = ConfigManager.getInstance().getServerContextPath().replace("/", "");
+      String defURL = url.substring(url.lastIndexOf(servletContextPath));
 
       // when use with browse page, the URL is followed by URN format with maximum 4 parameters (/def/crs/EPSG/0/4326).
       // try if request URI has the version number value
@@ -141,7 +144,7 @@
       // -------------------------------- Page Header --------------------------------
       // ------ Go to index.jsp -----
       out.println("<span style='font-size:large;'>"
-          + "<a href='" + StringUtil.SERVLET_CONTEXT + "/" + Constants.INDEX_FILE + "'>Index</a></span>");
+          + "<a href='" + ConfigManager.getInstance().getServerContextPath() + "/" + Constants.INDEX_JSP + "'>Index</a></span>");
 
       // ----- Go to up one level in entries list -------
       String up = url.substring(0, url.lastIndexOf(Constants.REST_SEPARATOR, url.length() - 2));
@@ -154,7 +157,13 @@
       }
       if (!up.isEmpty()) {
         out.println(" | <span style='font-size:large;'>"
-            + "<a href='" + up + "/" + Constants.ADMIN_FILE + "'>Up one level</a></span> ");
+            + "<a href='" + up + "/" + Constants.BROWSE_JSP + "'>Up one level</a></span> ");
+      }
+      
+      // NOTE: only when secore admin username/password in secore.properties then logged in user will see log out link
+      if (ConfigManager.getInstance().showLoginPage()) {
+        out.println(" | <span style='font-size:large; margin-left: 60px;'>"
+            + "<b><a href='" + ConfigManager.getInstance().getServerContextPath() + "/" + Constants.LOGOUT_JSP + "'>Log out</a></b></span> ");
       }
 
       //  ------ Navigation in entries list --------
@@ -162,7 +171,7 @@
 
       // ---------- Add new definition -----------
       out.println("<br/><span style='font-size:large;'><a href='" + url
-          + Constants.ADMIN_FILE + Constants.QUERY_SEPARATOR
+          + Constants.BROWSE_JSP + Constants.QUERY_SEPARATOR
           + "add=true'>Add new definition</a>");
       out.print("<span style='color:red;'>&nbsp;&nbsp;&nbsp;Note: you can only add, update or remove 'user defined entries'.</span><br/></span><hr/>");
 
@@ -227,7 +236,7 @@
           // This mean definition has been deleted and does not exist in DB then go to upper level (Use when user delete a parent entry)
           // NOTE: if countSeperator = 1 (def/) then don't need to go upper as it is root entry
           if (result.equals(Constants.EMPTY_XML)) {
-            response.sendRedirect(up + "/browse.jsp");
+            response.sendRedirect(up + "/" + Constants.BROWSE_JSP);
           }
         } // This is not max level of entries, then load the list of entries
         else {
@@ -241,13 +250,13 @@
           if (p.snd) {
             // only allow removal of user definitions
             remove = "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                + "<a href='" + Constants.ADMIN_FILE + Constants.QUERY_SEPARATOR + "delete=" + l + "'"
+                + "<a href='" + Constants.BROWSE_JSP + Constants.QUERY_SEPARATOR + "delete=" + l + "'"
                 + " onclick='return confirm(\" Do you really want to delete entry " + l + " with all of its *user defined entries children* ? \");'>Remove</a>"
                 + "</td>";
           }
           // If definition cannot de removed, still need to print it link with remove = ""
           out.print("<tr>"
-              + "<td><a href='" + l + "/" + Constants.ADMIN_FILE + "'>" + l + "</a></td>" + remove + " </tr>");
+              + "<td><a href='" + l + "/" + Constants.BROWSE_JSP + "'>" + l + "</a></td>" + remove + " </tr>");
         } // end for each definition
       %>
     </table>
@@ -350,7 +359,7 @@
     <!-- View and Update definition form !-->
     <span style="font-size:large;">The definition below will be replaced by your submission:</span><br/>
 
-    <form action="<%=url + Constants.ADMIN_FILE + "?update=true"%>" method="post" name="gmlform">
+    <form action="<%=url + Constants.BROWSE_JSP + "?update=true"%>" method="post" name="gmlform">
       <textarea cols="150" rows="25" name="changedef" wrap="virtual"><%=mod%></textarea><br/>
       <span style="color: blue">Note: Check definition valid before submitting. If identifier does exist then update, else insert. Only add/update this definition to <b>user dictionary</b>.<br/><br/></span>
       <input type="submit" style="margin-right:20px; float:left;" name="checkValidUpdate" value="Valid GML" onclick="return checkTextEmpty(this)" />
@@ -445,7 +454,7 @@
     <span style="font-size:large;">Add a new GML definition in the space below:</span><br/>
 
 
-    <form action="<%=url + Constants.ADMIN_FILE + "?add=true"%>" method="post" name="gmlform">
+    <form action="<%=url + Constants.BROWSE_JSP + "?add=true"%>" method="post" name="gmlform">
       <textarea cols="150" rows="25" name="adddef" wrap="virtual"><%=newd%></textarea><br/>
       <span style="color: blue">Note: you should check definition valid before submitting.<br/><br/></span>
       <input type="submit" style="margin-right:20px; float:left;" name="checkValidAdd" value="Valid GML" onclick="return checkTextEmpty(this)" />
@@ -481,7 +490,7 @@
       if (errorDel.equals(Constants.EMPTY)) {
         //errorDel = "<span style='font-size: large; color:green;'>The database has been updated sucessfully.</span><br/><br/>";
         //Note: After removing, need to load all the entries again by reloading the current page as it is success
-        response.sendRedirect(url + "browse.jsp");
+        response.sendRedirect(url + "/" + Constants.BROWSE_JSP);
       } else {
            errorDel = "<span style='color:red;'>Error: " + errorDel + " when delete, see log file for more detail. The database remains unchanged.</span><br/><br/>";
            // print the error not reload the page

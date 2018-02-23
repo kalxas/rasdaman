@@ -28,14 +28,12 @@ import org.rasdaman.secore.util.SecoreException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.req.RequestParam;
-import org.rasdaman.secore.util.Constants;
-import static org.rasdaman.secore.util.Constants.*;
+import org.rasdaman.secore.Constants;
+import static org.rasdaman.secore.Constants.*;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.StringUtil;
 
@@ -397,7 +395,7 @@ public abstract class AbstractHandler implements Handler {
     }
 
     private void checkCrsRef(String crsRef) throws SecoreException {
-        if (!crsRef.contains(StringUtil.SERVLET_CONTEXT + "/crs")) {
+        if (!crsRef.contains(ConfigManager.getInstance().getServerContextPath() + "/crs")) {
             log.error("Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
             throw new SecoreException(ExceptionCode.InvalidParameterValue,
                                       "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);

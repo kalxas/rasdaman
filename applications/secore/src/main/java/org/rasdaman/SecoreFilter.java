@@ -34,6 +34,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.rasdaman.secore.ConfigManager;
+import org.rasdaman.secore.Constants;
 
 /**
  *
@@ -41,6 +42,28 @@ import org.rasdaman.secore.ConfigManager;
  */
 @WebFilter(urlPatterns = "/*")
 public class SecoreFilter implements Filter {
+    
+    // Attribute is set from servlet to jsp pages
+    public static final String CLIENT_REQUEST_URI_ATTRIBUTE = "requestURI";
+    public static final String CLIENT_SUCCESS_ATTRIBUTE = "success";
+    // Attribute is used in servlet for dispatching only
+    public static final String SERVER_REQUEST_URI_ATTRIBUTE = "serverRequestURI";
+    
+    // Request parameters for login, form pages 
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    
+    private static final String JSP_PATTERN = ".jsp";
+    private static final String JSP_FOLDER_IN_WAR_FILE = "/WEB-INF/jsp/";
+
+    /**
+     * Dispatch the request to another JSP page.
+     */
+    private void dispatchJSPRequest(String jspFile, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {        
+        RequestDispatcher dispatcher = request.getServletContext()
+                .getRequestDispatcher(JSP_FOLDER_IN_WAR_FILE + jspFile);        
+        dispatcher.forward(request, response);
+    }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res,
@@ -49,21 +72,53 @@ public class SecoreFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         // For the external serverlet container, it will just forward request containing .jsp to jsp files
         // as the war is extracted to folder, so no problem with finding jsp files.
-        if (request.getAttribute("uri") != null) {
+        if (request.getAttribute(SERVER_REQUEST_URI_ATTRIBUTE) != null) {
             chain.doFilter(request, response);
-        } else if (!request.getRequestURI().endsWith(".jsp")) {
+        } else if (!request.getRequestURI().endsWith(JSP_PATTERN)) {
             // Not a new/forwarded request to jsp file, don't do anything
             chain.doFilter(request, response);
         } else {
-            String jspFile = new File(request.getRequestURI()).getName();
-            // e.g: /application/3223/234234/2342323/browse.jsp
-            String uri = request.getRequestURI();
-            // extract the jsp file from uri
-            uri = uri.substring(0, uri.length() - jspFile.length());
-            RequestDispatcher dispatcher = request.getServletContext()
-                    .getRequestDispatcher("/WEB-INF/jsp/" + jspFile);
-            request.setAttribute("uri", uri);
-            dispatcher.forward(request, response);
+            String jspFile = Constants.LOGIN_JSP;
+            // used by secore filter to continue redirect
+            request.setAttribute(SERVER_REQUEST_URI_ATTRIBUTE, request.getRequestURI());
+            // used by login.jsp to show the action URL in form element
+            request.setAttribute(CLIENT_REQUEST_URI_ATTRIBUTE, request.getRequestURI());            
+                        
+            // First, check if it should show login page (depending on secore admin username/password does exist in secore.properties)
+            if (ConfigManager.getInstance().showLoginPage()) {
+                if (request.getRequestURI().contains(Constants.LOGOUT_JSP)) {
+                    // User wants to log out, clear session and redirect to login page of index.jsp.
+                    request.getSession().setAttribute(USERNAME, null);
+                    String indexPageRequestURI = ConfigManager.getInstance().getServerContextPath() + "/" + Constants.INDEX_JSP;
+                    request.setAttribute(SERVER_REQUEST_URI_ATTRIBUTE, indexPageRequestURI);
+                    request.setAttribute(CLIENT_REQUEST_URI_ATTRIBUTE, indexPageRequestURI);
+                } else if (request.getSession().getAttribute(USERNAME) == null) {
+                    // Check if user already logged in
+                    String username = request.getParameter(USERNAME);
+                    String password = request.getParameter(PASSWORD);                    
+                    if (username != null) {
+                        // Login page is shown and user trying to login
+                        String adminUsername = ConfigManager.getInstance().getAdminUsername();
+                        String adminPassword = ConfigManager.getInstance().getAdminPassword();
+                        if (username.equals(adminUsername) && password.equals(adminPassword)) {
+                            // Valid login, create session then no need to relogin later
+                            request.getSession().setAttribute(USERNAME, username);
+                            // then redirect to the requested admin page
+                            jspFile = new File(request.getRequestURI()).getName();
+                        } else {
+                            // invalid login return unsuccessful message to web browser
+                            request.setAttribute(CLIENT_SUCCESS_ATTRIBUTE, false);
+                        }
+                    }
+                } else {
+                    // session exists, then redirect to the requested admin page (e.g: http://localhost:8080/def/crs/EPSG/0/4327/browse.jsp)
+                    jspFile = new File(request.getRequestURI()).getName();
+                }
+            } else {
+                // No admin user, password is set in secore.properties, just go to the jsp page without login form
+                jspFile = new File(request.getRequestURI()).getName();
+            }
+            this.dispatchJSPRequest(jspFile, request, response);
         }
     }
 

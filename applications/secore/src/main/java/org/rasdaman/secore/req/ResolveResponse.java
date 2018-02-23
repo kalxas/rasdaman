@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 import org.rasdaman.secore.util.StringUtil;
 
 /**

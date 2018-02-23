@@ -19,7 +19,9 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package org.rasdaman.secore.util;
+package org.rasdaman.secore;
+
+import org.rasdaman.secore.util.StringUtil;
 
 /**
  * Global constants.
@@ -27,6 +29,13 @@ package org.rasdaman.secore.util;
  * @author Dimitar Misev
  */
 public interface Constants {
+
+    /*** JSP endpoint pages ***/
+    String INDEX_JSP = "index.jsp";
+    String BROWSE_JSP = "browse.jsp";
+    String LOGIN_JSP = "login.jsp";
+    String LOGOUT_JSP = "logout.jsp";
+    String DEMO_JSP = "demo.jsp";
 
     String WEB_APPLICATION_NAME = "def";
     String URN_SEPARATOR = ":";
@@ -64,10 +73,7 @@ public interface Constants {
     String CRSNTS_NAMESPACE = "http://www.opengis.net/crs-nts/1.0";
 
 
-    String ADMIN_FILE = "browse.jsp";
     String SYNONYMS_FILE = "synonyms.jsp";
-    String INDEX_FILE = "index.jsp";
-    String DEMO_FILE = "demo.jsp";
     String UPDATEDB_FILE = "updatedb.jsp";
     String IOUTIL_CLASS = "IOUtil.class";
 

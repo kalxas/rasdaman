@@ -37,6 +37,16 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
+OUTPUT_PATH="$SCRIPT_DIR/output"
+# NOTE: before running any test queries in test directory, remove all the output files to make it clean first
+if [ -d "$OUTPUT_PATH" ]; then
+    logn "Cleaning output directory... "
+    rm -rf "$OUTPUT_PATH"
+    echo "Done."
+fi
+# then create the output directory
+mkdir -p "$OUTPUT_PATH"
+
 # NOTE: as the output from Ubuntu are different from Centos because of font, size,... so only run this test on Centos
 cat /etc/*-release | grep 'CentOS' > /dev/null
 

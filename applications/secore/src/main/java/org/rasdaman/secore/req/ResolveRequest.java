@@ -28,10 +28,10 @@ import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 import static org.rasdaman.secore.handler.GeneralHandler.*;
 import org.rasdaman.secore.ConfigManager;
-import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.Constants;
 import org.rasdaman.secore.util.StringUtil;
 
 /**

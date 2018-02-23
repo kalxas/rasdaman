@@ -43,7 +43,7 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.rasdaman.secore.util.SecoreException;
-import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.Constants;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.IOUtil;
 import org.springframework.core.io.ClassPathResource;

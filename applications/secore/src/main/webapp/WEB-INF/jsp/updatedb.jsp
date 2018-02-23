@@ -19,6 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
+<%@page import="org.rasdaman.secore.ConfigManager"%>
 <%@page import="org.rasdaman.secore.util.StringUtil"%>
 <%@page import="org.basex.core.cmd.CreateDB"%>
 <%@page import="org.basex.core.cmd.Close"%>
@@ -37,7 +38,7 @@
 <%@page import="java.io.*"%>
 <%@page import="java.util.TreeSet"%>
 <%@page import="org.rasdaman.secore.db.DbManager" %>
-<%@page import="org.rasdaman.secore.util.Constants" %>
+<%@page import="org.rasdaman.secore.Constants" %>
 <!DOCTYPE html>
 <html>  
   <head>
@@ -46,7 +47,7 @@
   </head>
   <body>
 <%
-  out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_FILE + "'>Index</a></span><br/><br/>");
+  out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_JSP + "'>Index</a></span><br/><br/>");
   
   String contentType = request.getContentType();
   if ((contentType == null) || (contentType.indexOf("multipart/form-data") == -1)) {
@@ -88,7 +89,7 @@
     }
     
     String file = new String(dataBytes);
-    file = StringUtil.fixLinks(file, StringUtil.SERVICE_URI);
+    file = StringUtil.fixLinks(file, ConfigManager.getInstance().getServiceUrl());
     
     // figure out file name
     String saveFile = file.substring(file.indexOf("filename=\"") + 10);

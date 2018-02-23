@@ -54,6 +54,18 @@ codespace=OGC
 # need to adapt: no
 server.contextPath=/def
 
+# parameter:     secore_admin_user
+# purpose:       Login account which is allowed to access SECORE admin pages (*.jsp) to query/insert/update/delete CRS definitions from userdb collection.
+# description:   Log in to http://domain:port/def/index.jsp (e.g: http://localhost:8080/def/index.jsp) to have access to other admin pages.
+#                Recommendation: establish a dedicated user.
+# need to adapt: yes
+secore_admin_user=secoreuser
+
+# parameter:     secore_admin_pass
+# purpose:       password for secore_admin_user login, as above.
+# need to adapt: yes
+secore_admin_pass=secorepasswd
+
 #------------------- Embedded SECORE configuration -------------------
 # These configurations below only have effect when java_server configuration is set to embedded, i.e: java_server=external
 

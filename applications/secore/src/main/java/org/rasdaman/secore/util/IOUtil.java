@@ -21,6 +21,7 @@
  */
 package org.rasdaman.secore.util;
 
+import org.rasdaman.secore.Constants;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.db.DbManager;
 import org.rasdaman.secore.req.RequestParam;
-import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.Constants;
 
 /**
  * Resolves axis identifiers.

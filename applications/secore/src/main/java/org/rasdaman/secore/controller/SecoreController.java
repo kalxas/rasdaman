@@ -33,16 +33,16 @@ import org.rasdaman.secore.req.ResolveResponse;
 import org.rasdaman.secore.Resolver;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
-import static org.rasdaman.secore.util.Constants.EMPTY;
-import static org.rasdaman.secore.util.Constants.QUERY_SEPARATOR;
+import static org.rasdaman.secore.Constants.EMPTY;
+import static org.rasdaman.secore.Constants.QUERY_SEPARATOR;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.rasdaman.secore.util.StringUtil;
 import org.rasdaman.secore.db.DbManager;
-import static org.rasdaman.secore.util.Constants.NEW_LINE;
-import static org.rasdaman.secore.util.Constants.XML_DECL;
+import static org.rasdaman.secore.Constants.NEW_LINE;
+import static org.rasdaman.secore.Constants.XML_DECL;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
 import org.springframework.stereotype.Controller;
@@ -73,7 +73,6 @@ public class SecoreController {
      */
     @RequestMapping("/**")
     public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        StringUtil.SERVLET_CONTEXT = req.getContextPath();
         String uri = req.getRequestURL().toString();        
         String qs = req.getQueryString();
         if (qs != null && !qs.equals(EMPTY)) {

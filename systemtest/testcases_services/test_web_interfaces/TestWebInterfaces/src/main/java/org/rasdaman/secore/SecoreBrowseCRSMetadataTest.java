@@ -49,10 +49,20 @@ public class SecoreBrowseCRSMetadataTest extends SecoreAbstractSectionWebPageTes
         webDriver.navigate().to(this.testURL);
 
         String testCaseName;
+        
+        // It needs to login with SECORE admin and password first
+        testCaseName = this.getSectionTestCaseName("login_admin_page");
+        log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
+        log.info("Testing login with username, password in admin page: crs/EPGS/0/4326/browse.jsp URI...");
+        String username = "secoreuser";
+        this.addTextToTextBox(webDriver, username, "//*[@id=\"username\"]");
+        String password = "secorepasswd";
+        this.addTextToTextBox(webDriver, password, "//*[@id=\"password\"]");
+        // then, login and capture the result
+        this.runTestByClickingOnElement(webDriver, testCaseName, "//*[@id=\"collapseOne\"]/div/form/p[3]/input");
 
         // First, just display the crs in a textarea
         testCaseName = this.getSectionTestCaseName("view_crs_metadata");
-        log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
         log.info("Testing browse CRS metadata from EPSG:4326 URI...");
         this.runTestByNonElementEvent(webDriver, testCaseName);
 

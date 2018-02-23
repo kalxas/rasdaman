@@ -39,8 +39,8 @@ import static org.rasdaman.secore.handler.GeneralHandler.CODE_KEY;
 import static org.rasdaman.secore.handler.GeneralHandler.VERSION_KEY;
 import org.rasdaman.secore.req.RequestParam;
 import org.rasdaman.secore.ConfigManager;
-import org.rasdaman.secore.util.Constants;
-import static org.rasdaman.secore.util.Constants.*;
+import org.rasdaman.secore.Constants;
+import static org.rasdaman.secore.Constants.*;
 import org.rasdaman.secore.util.SecoreUtil;
 import org.rasdaman.secore.util.SecoreUtil.QueryDB;
 import org.rasdaman.secore.util.StringUtil;
@@ -74,7 +74,7 @@ public class IncompleteUrlHandler extends AbstractHandler {
         log.debug("Handling resolve request...");
         ResolveResponse ret = null;
 
-        String url = StringUtil.SERVLET_CONTEXT + REST_SEPARATOR;
+        String url = ConfigManager.getInstance().getServerContextPath() + REST_SEPARATOR;
         String authorityParam = EMPTY;
         String versionNumberParam = EMPTY;
         String codeParam = EMPTY;

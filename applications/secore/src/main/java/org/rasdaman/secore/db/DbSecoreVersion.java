@@ -29,7 +29,7 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.ConfigManager;
-import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.Constants;
 import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.SecoreUtil;
 import org.rasdaman.secore.util.StringUtil;

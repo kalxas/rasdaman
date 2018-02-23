@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.Resolver;
 import org.rasdaman.secore.req.RequestParam;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.StringUtil;

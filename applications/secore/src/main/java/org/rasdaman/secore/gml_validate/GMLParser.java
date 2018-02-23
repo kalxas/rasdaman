@@ -34,7 +34,7 @@ import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.xml.sax.helpers.DefaultHandler;
 import org.rasdaman.secore.Resolver;
-import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.Constants;
 
 /**
  *

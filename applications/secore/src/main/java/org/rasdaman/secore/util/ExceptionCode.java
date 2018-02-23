@@ -21,6 +21,8 @@
  */
 package org.rasdaman.secore.util;
 
+import org.rasdaman.secore.Constants;
+
 /**
  * Represents an exception code, as defined in [OGC 06-121r9] Clause 8
  *

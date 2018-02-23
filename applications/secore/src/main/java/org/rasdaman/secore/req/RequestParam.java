@@ -21,8 +21,8 @@
  */
 package org.rasdaman.secore.req;
 
-import org.rasdaman.secore.util.Constants;
-import static org.rasdaman.secore.util.Constants.KEY_VALUE_SEPARATOR;
+import org.rasdaman.secore.Constants;
+import static org.rasdaman.secore.Constants.KEY_VALUE_SEPARATOR;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.StringUtil;

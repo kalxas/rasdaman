@@ -21,6 +21,7 @@
  */
 package org.rasdaman.secore.util;
 
+import org.rasdaman.secore.Constants;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;

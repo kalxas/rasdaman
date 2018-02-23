@@ -40,6 +40,7 @@ import org.rasdaman.secore.SecoreCompare2CRSsMetadataTest;
 import org.rasdaman.secore.SecoreDeleteCRSMetadataTest;
 import org.rasdaman.secore.SecoreExecuteXQueryTest;
 import org.rasdaman.secore.SecoreGetCRSMetadataTest;
+import org.rasdaman.secore.SecoreLogoutTest;
 import org.rasdaman.ws_client.WCSDeleteCoverageTest;
 import org.rasdaman.ws_client.WCSDescribeCoverageTest;
 import org.rasdaman.ws_client.WCSGetCapabilitiesTest;
@@ -102,6 +103,7 @@ public class Application {
             webPageTests.add(new SecoreBrowseCRSMetadataTest());
             webPageTests.add(new SecoreDeleteCRSMetadataTest());
             webPageTests.add(new SecoreExecuteXQueryTest());
+            webPageTests.add(new SecoreLogoutTest());
 
             log.info("----------------------- Test Start ------------------");
 

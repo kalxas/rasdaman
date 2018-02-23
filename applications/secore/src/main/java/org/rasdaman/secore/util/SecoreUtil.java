@@ -4,15 +4,17 @@
  */
 package org.rasdaman.secore.util;
 
+import org.rasdaman.secore.Constants;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.db.DbManager;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 
 /**
  * Secore utility methods, for handling definition CRUD, etc.
@@ -42,11 +44,10 @@ public class SecoreUtil {
      * @return String != "" if error
      * @throws SecoreException
      */
-    public static String insertDef(String newd, String id) throws SecoreException {
-        log.trace("Insert definition with identifier: " + id);
-
-        newd = StringUtil.fixDef(newd, StringUtil.SERVICE_URI, DbManager.FIX_USER_VERSION_NUMBER);
+    public static String insertDef(String newd, String id) throws SecoreException {       
+        newd = StringUtil.fixDef(newd, ConfigManager.getInstance().getServiceUrl(), DbManager.FIX_USER_VERSION_NUMBER);
         String newdId = StringUtil.getElementValue(newd, IDENTIFIER_LABEL);
+        log.info("Insert CRS definition with identifier '" + newdId + "'.");
         if (newdId != null) {
             id = newdId;
         }
@@ -87,8 +88,8 @@ public class SecoreUtil {
      * @throws SecoreException
      */
     public static String updateDef(String mod, String id, String collectionName) throws SecoreException {
-        log.trace("Update definition with identifier: " + id);
-        mod = StringUtil.fixDef(mod, StringUtil.SERVICE_URI, DbManager.FIX_USER_VERSION_NUMBER);
+        log.info("Update CRS definition with identifier '" + id + "'.");
+        mod = StringUtil.fixDef(mod, ConfigManager.getInstance().getServiceUrl(), DbManager.FIX_USER_VERSION_NUMBER);
         id = StringUtil.removeLastColon(id);
         String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
                        + "let $x := collection('" + COLLECTION_NAME + "')//gml:identifier[text() = '" + id + "']/.." + NEW_LINE
@@ -326,15 +327,14 @@ public class SecoreUtil {
        * @return String
        * @throws SecoreException
        */
-    public static String deleteDef(String id, String todel) throws SecoreException {
-        log.trace("Delete definition with identifier: " + id);
-
-        String fullID = id + todel;
-        String childIDs = fullID + "/.*";
+    public static String deleteDef(String id, String todel) throws SecoreException {        
+        String fullId = id + todel;
+        log.info("Delete CRS definition with identifier '" + fullId + "'.");
+        String childIds = fullId + "/.*";
         String query
             = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
-              + "for $x in collection('" + COLLECTION_NAME + "')//gml:identifier[ends-with(.,'" + fullID + "')]/.. "
-              + "union doc('" + COLLECTION_NAME + "')//gml:identifier[matches(.,'" + childIDs + "')]/.." + NEW_LINE
+              + "for $x in collection('" + COLLECTION_NAME + "')//gml:identifier[ends-with(.,'" + fullId + "')]/.. "
+              + "union doc('" + COLLECTION_NAME + "')//gml:identifier[matches(.,'" + childIds + "')]/.." + NEW_LINE
               + "return delete node $x";
 
         String error = Constants.EMPTY;

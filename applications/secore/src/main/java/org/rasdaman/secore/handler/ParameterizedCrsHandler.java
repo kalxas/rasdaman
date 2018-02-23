@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.db.DbManager;
 import static org.rasdaman.secore.handler.ParameterizedCrsHandler.*;
 import org.rasdaman.secore.req.RequestParam;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 import org.rasdaman.secore.util.Pair;
 import org.rasdaman.secore.util.SecoreUtil;
 

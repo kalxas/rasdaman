@@ -21,7 +21,7 @@
  */
 package org.rasdaman.secore.req;
 
-import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.Constants;
 
 /**
  * Simple, string parameter values.

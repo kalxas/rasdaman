@@ -31,7 +31,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.ConfigManager;
-import org.rasdaman.secore.util.Constants;
+import org.rasdaman.secore.Constants;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.Pair;
 import org.rasdaman.secore.util.SecoreException;

@@ -21,6 +21,7 @@
  */
 package org.rasdaman.secore.util;
 
+import org.rasdaman.secore.Constants;
 import org.rasdaman.secore.ConfigManager;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,7 +41,7 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.db.DbManager;
-import static org.rasdaman.secore.util.Constants.*;
+import static org.rasdaman.secore.Constants.*;
 
 /**
  * String utilities.
@@ -51,8 +52,6 @@ public class StringUtil {
 
     private static Logger log = LoggerFactory.getLogger(StringUtil.class);
 
-    public static String SERVLET_CONTEXT = "/def";
-    public static String SERVICE_URI = ConfigManager.getInstance().getServiceUrl();
     public static boolean SERVICE_URI_SET = false;
     // this URI is changed by the servlet during the first request.
 
@@ -114,7 +113,7 @@ public class StringUtil {
      * @return (e.g: crs/EPSG/0/4326)
      */
     public static String stripDef(String s) {
-        String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
+        String servletContext = ConfigManager.getInstance().getServerContextPath() + REST_SEPARATOR;
         s = wrapUri(s);
         int fragmentPos = s.indexOf(QUERY_SEPARATOR);
         if (fragmentPos == -1) {
@@ -235,8 +234,9 @@ public class StringUtil {
     }
 
     public static String removeDuplicateDef(String s) {
-        int ind = s.indexOf(SERVLET_CONTEXT);
-        return s.substring(0, ind) + s.substring(ind + SERVLET_CONTEXT.length());
+        String serlvetContextPath = ConfigManager.getInstance().getServerContextPath();
+        int ind = s.indexOf(serlvetContextPath);
+        return s.substring(0, ind) + s.substring(ind + serlvetContextPath.length());
     }
 
     /**

@@ -19,6 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
+<%@page import="org.rasdaman.secore.ConfigManager"%>
 <%-- 
     Document   : demo
     Created on : Feb 4, 2012, 12:37:30 PM
@@ -26,7 +27,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="org.rasdaman.secore.util.Constants" %>
+<%@page import="org.rasdaman.secore.Constants" %>
 <!DOCTYPE html>
 <html>
   <head>
@@ -46,7 +47,7 @@
       String query = request.getParameter("crs");
       // Check if the crs demo was requested
       if (null != query && query.equals("true")) {
-        out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.DEMO_FILE + "'>Back to demo page</a></span><br/>"); %>
+        out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.DEMO_JSP + "'>Back to demo page</a></span><br/>"); %>
     <h1>Resolving CRSs</h1>
     <p>
       This service delivers the CRS pertaining to the identifier passed.
@@ -79,7 +80,7 @@
       // Check if the axis demo was requested
       query = request.getParameter("axis");
       if (null != query && query.equals("true")) {
-        out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.DEMO_FILE + "'>Back to demo page</a></span><br/>"); %>
+        out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.DEMO_JSP + "'>Back to demo page</a></span><br/>"); %>
     <h1>Resolving Axes Synonyms</h1>
     <p>
       This service deliveres the definition of an axis given its predefined synomym.
@@ -109,7 +110,7 @@
       // Check if the Combining CRS demo was requested
       query = request.getParameter("comb");
       if (null != query && query.equals("true")) {
-        out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.DEMO_FILE + "'>Back to demo page</a></span><br/>"); %>
+        out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.DEMO_JSP + "'>Back to demo page</a></span><br/>"); %>
     <h1>Combining CRSs</h1>
     <p>
       This service establishes definition of a CRS which is obtained by combining the input CRSs.
@@ -139,7 +140,7 @@
     <%
     } else {
       // Deliver the mai page of the demo
-      out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_FILE + "'>Index</a></span><br/>"); %>
+      out.println("<span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_JSP + "'>Index</a></span><br/>"); %>
     <h1>SeCoRe Demo</h1>
 
     <p>
@@ -153,9 +154,9 @@
     </p>
     <ul>
 
-      <li><%out.print("<a href='" + Constants.DEMO_FILE + "?crs=true'>resolve CRSs</a><br/>");%> -- provide a CRS identifier, retrieve its definition
-      <li><%out.print("<a href='" + Constants.DEMO_FILE + "?axis=true'>resolve axes synonyms</a><br/>");%> -- provide an axis name, retrieve its definition
-      <li><%out.print("<a href='" + Constants.DEMO_FILE + "?comb=true'>combine CRSs</a><br/>");%> -- provide two or more CRS identifiers, retrieve their combination
+      <li><%out.print("<a href='" + Constants.DEMO_JSP + "?crs=true'>resolve CRSs</a><br/>");%> -- provide a CRS identifier, retrieve its definition
+      <li><%out.print("<a href='" + Constants.DEMO_JSP + "?axis=true'>resolve axes synonyms</a><br/>");%> -- provide an axis name, retrieve its definition
+      <li><%out.print("<a href='" + Constants.DEMO_JSP + "?comb=true'>combine CRSs</a><br/>");%> -- provide two or more CRS identifiers, retrieve their combination
     </ul>
     <%
               }

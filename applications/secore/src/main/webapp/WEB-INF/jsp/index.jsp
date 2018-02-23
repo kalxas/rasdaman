@@ -19,6 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 --%>
+<%@page import="org.rasdaman.secore.ConfigManager"%>
 <%@page import="java.util.regex.Matcher"%>
 <%@page import="java.util.regex.Pattern"%>
 <%--
@@ -29,7 +30,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="org.rasdaman.secore.db.DbManager" %>
-<%@page import="org.rasdaman.secore.util.Constants" %>
+<%@page import="org.rasdaman.secore.Constants" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -37,10 +38,10 @@
         <title>SECORE Home Page</title>
     </head>
     <body>
-        <% // Handle the direct queries
+        <% // Handle the XQuery sent from same page after clicking on submit button
             String query = request.getParameter("runquery");
             if (null != query) {
-                out.println("<br/><span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_FILE + "'>Index</a></span><br/>");
+                out.println("<br/><span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_JSP + "'>Index</a></span><br/>");
                 if (!query.equals(Constants.EMPTY)) {
                     String versionNumber = DbManager.FIX_GML_VERSION_NUMBER;
                     // NOTE: not every query will need to query in both epsg and userdb (only select will need to do this).
@@ -70,19 +71,24 @@
                 String toquery = request.getParameter("query");
                 if (null != toquery && toquery.equals("true")) {
                     out.println("<br/><span style=\"font-size:x-large;\">Please write the XQuery to be executed on the database in the space below:</span>");
-                    out.println("<br/><span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_FILE + "'>Back</a></span><br/>");
+                    out.println("<br/><span style=\"font-size:x-large;\"><a href='" + Constants.INDEX_JSP + "'>Back</a></span><br/>");
         %>
-        <form action="<%=Constants.INDEX_FILE%>" method="post" name="queryform">
+        <form action="<%=Constants.INDEX_JSP%>" method="post" name="queryform">
             <textarea cols="150" rows="30" name="runquery" wrap="virtual"></textarea><br/>
             <input type="submit" name="Execute" value="Execute" />
         </form>
         <%
             } else {%>
         <h1>Coordinate Reference System Resolver</h1>
-        <span style="font-size:x-large;"><%out.print("<a href='" + Constants.ADMIN_FILE + "'>Browse the definitions tree</a><br/>");%></span>        
-        <span style="font-size:x-large;"><%out.print("<a href='" + Constants.INDEX_FILE + "?query=true'>Query the database directly</a><br/>");%></span>
-        <span style="font-size:x-large;"><%out.print("<a href='" + Constants.DEMO_FILE + "'>View examples</a><br/>");%></span>
-        <%}
-            }%>
+        <span style="font-size:x-large;"><%out.print("<a href='" + Constants.BROWSE_JSP + "'>Browse the definitions tree</a><br/>");%></span>        
+        <span style="font-size:x-large;"><%out.print("<a href='" + Constants.INDEX_JSP + "?query=true'>Query the database directly</a><br/>");%></span>
+        <span style="font-size:x-large;"><%out.print("<a href='" + Constants.DEMO_JSP + "'>View examples</a><br/>");%></span> <br/><br/>
+        <%
+            // NOTE: only when secore admin username/password in secore.properties then logged in user will see log out link
+            if (ConfigManager.getInstance().showLoginPage()) { %>
+            <span style="font-size:x-large;"><%out.print("<b><a href='" + ConfigManager.getInstance().getServerContextPath() + "/" + Constants.LOGOUT_JSP + "'>Log out</a></b><br/>");%></span>
+            <% }              
+          }
+        }%>
     </body>
 </html>
