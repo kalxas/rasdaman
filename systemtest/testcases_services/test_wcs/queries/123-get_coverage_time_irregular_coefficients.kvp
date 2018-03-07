@@ -1,0 +1,6 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=GetCoverage&
+COVERAGEID=test_time_irregular_coefficients_subset&
+SUBSET=ansi("2016-01-02T00:00:06.000Z","2016-01-04T00:00:00.000Z")&
+FORMAT=application/gml+xml

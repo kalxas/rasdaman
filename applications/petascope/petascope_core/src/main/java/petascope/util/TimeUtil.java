@@ -283,6 +283,33 @@ public class TimeUtil {
         String ucumAbbreviation = crsDefinition.getAxes().get(0).getUoM();
         return getMillis(ucumAbbreviation);
     }
+    
+    
+    /**
+     * Converts the time coefficient to ISO datetime stamp
+     * yyyy-MM-dd'T'HH:mm:ssZ (e.g: 2008-01-01T00:00:00Z)
+     *
+     * @param firstPoint the value of first coefficient from origin (e.g: 2008-01-01 is 148654 from AnsiDate origin: 1601-01-01)
+     * @param coeff a time point
+     * @param crsDefinition contains information of Time CRS     
+     * @return string list of time coefficients (days, seconds) to ISO datetime
+     * stamp
+     * @throws petascope.exceptions.PetascopeException
+     */
+    public static String valueToISODateTime(BigDecimal firstPoint, BigDecimal coeff, CrsDefinition crsDefinition) throws PetascopeException {        
+        // Get the UOM in milliseconds (e.g: ansidate uom: d is 86 400 000 millis, unixtime uom: seconds is 1000 millis)
+        Long milliSeconds = TimeUtil.getMillis(crsDefinition);
+        DateTime dateTime = new DateTime(crsDefinition.getDatumOrigin());
+
+        // formula: (firstPoint + Time Coefficients) * UOM in milliSeconds
+        long duration = ((firstPoint.add(coeff)).multiply(new BigDecimal(milliSeconds))).setScale(0, RoundingMode.HALF_UP).longValue();
+        DateTime dt = dateTime.plus(duration);
+
+        // Then convert the added date to ISO 8601 datetime (Z means UTC)
+        // and we add the qoute to make XML parser easier as it is time value
+        String isoDateTime = "\"" + dt.toString(DateTimeFormat.forPattern(TimeUtil.ISO_8061_FORMAT).withZoneUTC()) + "\"";        
+        return isoDateTime;
+    }
 
     /**
      * Converts the time coefficients to ISO datetime stamp
@@ -303,9 +330,14 @@ public class TimeUtil {
         Long milliSeconds = TimeUtil.getMillis(crsDefinition);
         DateTime dateTime = new DateTime(crsDefinition.getDatumOrigin());
 
+        // NOTE: When doing a trim subset on an irregular axis (time) then the coefficients of the result are not corresponding to the new subsetted time interval.
+        // (i.e: first coefficient should be 0 when not doing subset, but it is a value > 0), therefore need to substract for first coefficient to normalize the list of 
+        // subsetted coefficients or it will return wrong values for time axis.
+        BigDecimal firstCoefficient = coeffs.get(0);
         for (BigDecimal coeff : coeffs) {
+            BigDecimal tempCoeff = coeff.subtract(firstCoefficient);
             // formula: (firstPoint + Time Coefficients) * UOM in milliSeconds
-            long duration = ((firstPoint.add(coeff)).multiply(new BigDecimal(milliSeconds))).setScale(0, RoundingMode.HALF_UP).longValue();
+            long duration = ((firstPoint.add(tempCoeff)).multiply(new BigDecimal(milliSeconds))).setScale(0, RoundingMode.HALF_UP).longValue();
             DateTime dt = dateTime.plus(duration);
 
             // Then convert the added date to ISO 8601 datetime (Z means UTC)
@@ -313,24 +345,6 @@ public class TimeUtil {
             isoDateTimes.add("\"" + dt.toString(DateTimeFormat.forPattern(TimeUtil.ISO_8061_FORMAT).withZoneUTC()) + "\"");
         }
         return isoDateTimes;
-    }
-    
-    /**
-     * Return the dateTime ISO format for a coefficient value
-     * 
-     * @param firstPoint
-     * @param coeff
-     * @param crsDefinition
-     * @param resolution
-     * @return 
-     * @throws petascope.exceptions.PetascopeException 
-     */
-    public static String valueToISODateTime(BigDecimal firstPoint, BigDecimal coeff, CrsDefinition crsDefinition) throws PetascopeException {
-        List<BigDecimal> coeffs = ListUtil.valuesToList(coeff);
-        // Should have only 1 dateTime value
-        List<String> isoDateTimes = listValuesToISODateTime(firstPoint, coeffs, crsDefinition);
-        
-        return isoDateTimes.get(0);
     }
 
     /**
