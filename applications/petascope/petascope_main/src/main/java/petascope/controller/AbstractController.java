@@ -57,6 +57,9 @@ public abstract class AbstractController {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractController.class);
     
+    // NOTE: if WCS GetCapabilities does not have version or acceptversions parameter, it uses this default version.
+    public static final String WCS_GETCAPABILITIES_DEFAULT_ACCEPTVERSIONS = "2.0.1";
+    
     // When petascope cannot start for some reasons, just not throw the exception until it can start the web application and throw exception to user via HTTP request
     public static Exception startException;
 
@@ -209,9 +212,12 @@ public abstract class AbstractController {
                 // NOTE: backwards compatibility for old clients which send WCS GetCapabilities with version parameter
                 if (versions != null) {
                     log.warn("Using VERSION in a GetCapabilities request is invalid.");
-                } else {
+                } else {                    
+                    String[] version = new String[] {WCS_GETCAPABILITIES_DEFAULT_ACCEPTVERSIONS};
                     // It should use AcceptVersions for WCS GetCapabilities
-                    String[] version = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS);
+                    if (kvpParameters.get(KVPSymbols.KEY_ACCEPTVERSIONS) != null) {
+                        version = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS);
+                    }
                     kvpParameters.put(KVPSymbols.KEY_VERSION, version);
                 }
             }
