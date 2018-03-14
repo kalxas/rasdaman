@@ -201,8 +201,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
         {
             returnValue = new QtAtomicData();
         }
-        LDEBUG << "Clone null values.";
-        returnValue->cloneNullValues(condOp);
+        returnValue->setNullValuesCount(condOp->getNullValuesCount());
 
         LDEBUG << "computeFullCondense-b\n";
         // allocate buffer for the result
@@ -407,7 +406,6 @@ QtSome::evaluate(QtDataList* inputList)
 
     // get the MDD object
     MDDObj* op = mdd->getMDDObject();
-    r_Minterval* nullValues = op->getNullValues();
 
     //  get the area, where the operation has to be applied
     r_Minterval areaOp = mdd->getLoadDomain();
@@ -444,7 +442,6 @@ QtSome::evaluate(QtDataList* inputList)
 
     // create QtAtomicData object for the result
     returnValue = new QtAtomicData(static_cast<bool>(dummy));
-    returnValue->setNullValues(nullValues);
 
     // delete result buffer
     delete[] resultBuffer;
@@ -534,7 +531,6 @@ QtAll::evaluate(QtDataList* inputList)
 
     // get the MDD object
     MDDObj* op = (static_cast<QtMDD*>(operand))->getMDDObject();
-    r_Minterval* nullValues = op->getNullValues();
 
     //  get the area, where the operation has to be applied
     r_Minterval areaOp = mdd->getLoadDomain();
@@ -570,7 +566,6 @@ QtAll::evaluate(QtDataList* inputList)
 
     // create QtBoolData object for the result
     returnValue = new QtAtomicData(static_cast<bool>(dummy));
-    returnValue->setNullValues(nullValues);
 
     // delete result buffer done in delete CondOp
     delete[] resultBuffer;
