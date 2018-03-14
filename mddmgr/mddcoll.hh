@@ -157,6 +157,11 @@ public:
         Returns the type of this MDD collection.
     */
 
+    void setCollectionType(const CollectionType* collType);
+    /**
+        Returns the type of this MDD collection.
+    */
+
     unsigned long getCardinality() const;
     /**
         Returns the cardinality of the collection.

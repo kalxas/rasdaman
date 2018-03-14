@@ -57,6 +57,7 @@ public:
         QT_DROP_COLLECTION,
         QT_CREATE_COLLECTION,
         QT_CREATE_COLLECTION_FROM_QUERY_RESULT,
+        QT_ALTER_COLLECTION,
         QT_COMMIT
     };
 
@@ -88,6 +89,9 @@ private:
 
     /// create a collection
     OId createCollection(const QtCollection& collection, std::string typeName);
+
+    /// alter the type of a collection
+    void alterCollection(const QtCollection& collection, std::string typeName);
 
     /// drop a given collection
     void dropCollection(const QtCollection& collection);

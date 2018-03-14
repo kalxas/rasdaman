@@ -173,6 +173,54 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
     return oid;
 }
 
+void QtCommand::alterCollection(const QtCollection& collection2, string typeName2)
+{
+    if (!currentClientTblElt)
+        return;
+
+    // get new collection type
+    unique_ptr<CollectionType> newCollType;
+    newCollType.reset(static_cast<CollectionType*>(const_cast<SetType*>(
+        TypeFactory::mapSetType(typeName2.c_str()))));
+
+    if (newCollType)
+    {
+        try
+        {
+            unique_ptr<MDDColl> coll;
+            coll.reset(MDDColl::getMDDCollection(collection2.getCollectionName().c_str()));
+            if (!coll)
+            {
+                LFATAL << "Collection name not found: " << collection2.getCollectionName().c_str();
+                parseInfo.setErrorNo(957);
+                throw parseInfo;
+            }
+
+            const CollectionType* existingCollType = coll->getCollectionType();
+            const MDDType* existingMDDType = existingCollType->getMDDType();
+            if (!newCollType->compatibleWith(existingMDDType))
+            {
+                LFATAL << "New collection type is incompatible with the existing collection type.";
+                parseInfo.setErrorNo(959);
+                throw parseInfo;
+            }
+
+            coll->setCollectionType(newCollType.get());
+        }
+        catch (r_Error& obj)
+        {
+            parseInfo.setErrorNo(955);
+            throw parseInfo;
+        }
+    }
+    else
+    {
+        LFATAL << "Collection type not found: " << typeName2;
+        parseInfo.setErrorNo(956);
+        throw parseInfo;
+    }
+}
+
 string QtCommand::getSelectedDataType(vector<QtData*>* data)
 {
     char* typestr       = NULL;
@@ -299,6 +347,9 @@ QtCommand::evaluate()
         break;
     case QT_CREATE_COLLECTION:
         createCollection(collection, typeName);
+        break;
+    case QT_ALTER_COLLECTION:
+        alterCollection(collection, typeName);
         break;
     case QT_COMMIT:
         TileCache::clear();

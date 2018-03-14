@@ -281,7 +281,7 @@ struct QtUpdateSpecElement
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
-%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl createType dropType
+%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl createType dropType alterExp
 
 %type <qtCollection>          namedCollection
 
@@ -324,6 +324,7 @@ query: createExp
         | commitExp
         | createType
         | dropType
+        | alterExp
 	;
 
 commitExp: COMMIT
@@ -777,6 +778,37 @@ updateExp: UPDATE iteratedCollection SET updateSpec ASSIGN generalExp WHERE gene
       FREESTACK($6)
       FREESTACK($7)
 	};
+
+alterExp: ALTER COLLECTION namedCollection SET TYPE typeName
+    {
+      try {
+        accessControl.wantToWrite();
+      }
+      catch(...) {
+        // save the parse error info and stop the parser
+        if ( parseError ) delete parseError;
+        parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                    $1.info->getLineNo(), $1.info->getColumnNo() );
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        QueryTree::symtab.wipe();
+        YYABORT;
+      }
+
+      // create the command node
+      QtCommand* commandNode = new QtCommand( QtCommand::QT_ALTER_COLLECTION, *($3.value), $6.value );
+      commandNode->setParseInfo( *($1.info) );
+      
+      // set insert node  as root of the Query Tree
+      parseQueryTree->setRoot( commandNode );
+      
+      FREESTACK($1)
+      FREESTACK($2)
+      FREESTACK($4)
+      FREESTACK($5)
+    };
  
 insertExp: INSERT INTO namedCollection VALUES generalExp
 	{

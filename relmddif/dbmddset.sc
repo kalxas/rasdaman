@@ -48,7 +48,7 @@ rasdaman GmbH.
 
 DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type) throw (r_Error)
     : DBNamedObject(id, name),
-      collType(type)
+      collType(const_cast<CollectionType*>(type))
 {
     if (name == NULL)
     {
@@ -182,7 +182,7 @@ DBMDDSet::readFromDb() throw (r_Error)
         free(collname2);
         collname2 = NULL;
     }
-    collType = (const CollectionType*) ObjectBroker::getObjectByOId(OId(colltypeoid2, OId::SETTYPEOID));
+    collType = (CollectionType*) ObjectBroker::getObjectByOId(OId(colltypeoid2, OId::SETTYPEOID));
 
     SQLiteQuery cquery("SELECT MDDId FROM RAS_MDDCOLLECTIONS WHERE MDDCollId = %lld ORDER BY MDDId", mddcolloid2);
     while (cquery.nextRow())

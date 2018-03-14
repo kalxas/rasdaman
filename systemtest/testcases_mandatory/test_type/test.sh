@@ -82,13 +82,7 @@ function test_select_type() {
 
 logn "SELECT $1 FROM $1 ... "
 $RASQL --quiet -q "SELECT $1 FROM $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
-if [ $? -eq 0 ]; then
-    echo ok.
-    NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check_result 0 $?
 }
 
 # check if a collection type is created and if it exists in the RAS_TYPES collections
@@ -99,16 +93,11 @@ $RASQL --quiet -q "$1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
 if [ $? -eq 0 ]; then
     TYPES=$($RASQL -q "SELECT a FROM $2 a" --out string)
     echo $TYPES | grep -F -q "$1"
-    if [ $? -eq 0 ]; then
-	echo ok.
-        NUM_SUC=$(($NUM_SUC + 1))
-    else
-	    echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-    fi
+    check_result 0 $?
 else
 	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
+    NUM_FAIL=$(($NUM_FAIL + 1))
+    NUM_TOTAL=$(($NUM_TOTAL + 1))
 fi
 }
 
@@ -116,26 +105,14 @@ fi
 function test_drop_type() {
 logn "DROP TYPE $1 ... "
 $RASQL --quiet -q "DROP TYPE $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
-if [ $? -eq 0 ]; then
-        echo ok.
-        NUM_SUC=$(($NUM_SUC + 1))
-else
-        echo failed.
-        NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check_result 0 $?
 }
 
 function test_invalid_drop_type() {
 logn "DROP TYPE $1 ..."
 ERR_MSG=$($RASQL --quiet -q "DROP TYPE $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD 2>&1)
 echo $ERR_MSG | grep -F -q "Exception"
-if [ $? -eq 0 ]; then
-        echo ok.
-        NUM_SUC=$(($NUM_SUC + 1))
-else
-        echo failed.
-        NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check_result 0 $?
 }
 
 function test_invalid_create_type() {
@@ -143,13 +120,7 @@ logn "$1 ..."
 #$1 is the type name, $2 is the format for the structure to be created
 ERR_MSG=$($RASQL --quiet -q "$1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD  2>&1)
 echo $ERR_MSG | grep -F -q "Exception"
-if [ $? -eq 0 ]; then
-        echo ok.
-        NUM_SUC=$((NUM_SUC + 1))
-else
-        echo failed.
-        NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check_result 0 $?
 }
 
 test_select_type "RAS_STRUCT_TYPES"
@@ -179,10 +150,24 @@ if [ $NUM_FAIL -eq 0 ]; then
 
     COLL_TYPE_NAME="TestCollType"
 
-    $RASQL --quiet -q "create collection $COLL_TYPE_NAME $SET_TYPE_NAME" --out string --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
+    $RASQL --quiet -q "create collection $COLL_TYPE_NAME $SET_TYPE_NAME"
     test_invalid_drop_type "$SET_TYPE_NAME"
-
-    $RASQL --quiet -q "drop collection $COLL_TYPE_NAME" --out string --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
+    $RASQL --quiet -q "drop collection $COLL_TYPE_NAME"
+#testing altering collection type
+    $RASQL --quiet -q "create collection $COLL_TYPE_NAME GreySet"
+    # create type with null values 2 and alter type
+    $RASQL --quiet -q "CREATE TYPE TestGreySetNullValues AS SET (GreyImage NULL VALUES [2:2])"
+    $RASQL --quiet -q "alter collection $COLL_TYPE_NAME set type TestGreySetNullValues"
+    # test if the output corresponds to the new type
+    $RASQL --quiet -q "insert into $COLL_TYPE_NAME values <[0:0,0:1] 1c, 2c>"
+    res=$($RASQL -q "select add_cells(c) from $COLL_TYPE_NAME as c" --out string | grep Result | awk '{ print $4; }')
+    check_result 1 $res "ALTER COLLECTION with new type"
+    # test alter type to incompatible type
+    $RASQL --quiet -q "alter collection $COLL_TYPE_NAME set type FloatSet" > /dev/null 2>&1
+    check_result 255 $? "ALTER COLLECTION with incompatible type"
+    # cleanup
+    $RASQL --quiet -q "drop collection $COLL_TYPE_NAME"
+    test_drop_type "TestGreySetNullValues"
 #testing type dropping
     test_drop_type "$SET_TYPE_NAME"
     test_drop_type "$SET_TYPE_NAME_NULL_VALUES"

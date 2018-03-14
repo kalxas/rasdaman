@@ -88,6 +88,12 @@ MDDColl::getCollectionType() const
     return dbColl->getCollType();
 }
 
+void
+MDDColl::setCollectionType(const CollectionType* collType)
+{
+    return dbColl->setCollType(collType);
+}
+
 unsigned long
 MDDColl::getCardinality() const
 {

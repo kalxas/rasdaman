@@ -139,6 +139,11 @@ public:
         Returns the collectiontype of this entry.
     */
 
+    void setCollType(const CollectionType* collTypeArg);
+    /*@Doc:
+        Set the collectiontype of this entry.
+    */
+
 protected:
     friend class ObjectBroker;
 
@@ -171,7 +176,7 @@ private:
         Memory representation of the list of oids of DBMDDObjs.
     */
 
-    const CollectionType* collType;
+    CollectionType* collType;
     /*@Doc:
         Pointer to the collectiontype.
     */

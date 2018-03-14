@@ -112,6 +112,13 @@ DBMDDSet::getCollType() const
     return collType;
 }
 
+void
+DBMDDSet::setCollType(const CollectionType* collTypeArg)
+{
+    collType = const_cast<CollectionType*>(collTypeArg);
+    setModified();
+}
+
 
 r_Bytes
 DBMDDSet::getMemorySize() const
@@ -217,7 +224,7 @@ DBMDDSet::deleteDBMDDSet(const char* name)
 
 DBMDDSet::DBMDDSet(const char* name, const CollectionType* type) throw (r_Error)
     :   DBNamedObject(name),
-        collType(type)
+        collType(const_cast<CollectionType*>(type))
 {
     if (name == NULL)
     {
