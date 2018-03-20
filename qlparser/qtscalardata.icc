@@ -60,6 +60,22 @@ QtScalarData::setValueBuffer( char* buffer )
 
 
 inline void
+QtScalarData::setTotalValuesCount( unsigned long count )
+{
+  totalValuesCount = count;
+}
+
+
+
+inline unsigned long
+QtScalarData::getTotalValuesCount() const
+{
+  return totalValuesCount;
+}
+
+
+
+inline void
 QtScalarData::disownCells()
 {
     ownCells = false;

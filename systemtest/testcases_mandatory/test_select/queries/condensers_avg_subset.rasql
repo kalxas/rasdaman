@@ -1,0 +1,1 @@
+select avg_cells(c[200,210:211]) from test_grey AS c -- ticket 1711

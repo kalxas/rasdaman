@@ -78,6 +78,12 @@ public:
 
     /// sets the value buffer
     inline void setValueBuffer(char* buffer);
+
+    /// sets the total values count
+    inline void setTotalValuesCount(unsigned long count);
+
+    /// returns the total values count
+    inline unsigned long getTotalValuesCount() const;
     
     /// sets ownership of cells to false so destructor will not delete the data
     inline void disownCells();
@@ -109,6 +115,12 @@ protected:
      
     /// ownership of cells (for use by destructor)
     bool ownCells = true;
+
+    /// mainly needed by avg_cells, contains the number of cells that were 
+    /// actually considered in a condense operation; this number can be different
+    /// from the subset domain if some parts of this domain are not physically
+    /// materialized in tiles.
+    unsigned long totalValuesCount{};
 };
 
 #include "qlparser/qtscalardata.icc"

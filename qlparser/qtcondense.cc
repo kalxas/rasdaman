@@ -172,6 +172,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
         // get new operation object
         CondenseOp* condOp = Ops::getCondenseOp(opType, resultType, mdd->getCellType());
         condOp->setNullValues(nullValues);
+        long totalValuesCount{0};
 
         LDEBUG << "computeFullCondense-9\n";
         // and iterate over them
@@ -183,6 +184,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
 
             // domain of the relevant area of the actual tile
             r_Minterval intersectDom = tileDom.create_intersection(areaOp);
+            totalValuesCount += intersectDom.cell_count();
 
             (*tileIt)->execCondenseOp(condOp, intersectDom);
         }
@@ -202,6 +204,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
             returnValue = new QtAtomicData();
         }
         returnValue->setNullValuesCount(condOp->getNullValuesCount());
+        returnValue->setTotalValuesCount(totalValuesCount);
 
         LDEBUG << "computeFullCondense-b\n";
         // allocate buffer for the result
@@ -680,7 +683,7 @@ QtAvgCells::evaluate(QtDataList* inputList)
     char* resultBuffer = new char[ resultType->getSize() ];
 
     // allocate ulong constant with number of cells
-    r_ULong constValue  = areaOp.cell_count() - dataCond->getNullValuesCount();
+    r_ULong constValue = scalarDataCond->getTotalValuesCount() - dataCond->getNullValuesCount();
     if (constValue == 0)
     {
         constValue = 1;
@@ -833,7 +836,7 @@ QtStdDevVar::evaluate(QtDataList* inputList)
 
   
     // allocate ulong constant with number of cells
-    r_ULong constValue  = dummyint2.cell_count() - sum->getNullValuesCount();
+    r_ULong constValue  = scalarSum->getTotalValuesCount() - sum->getNullValuesCount();
     if (constValue == 0)
     {
         constValue = 1;
