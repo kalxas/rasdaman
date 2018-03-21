@@ -1,0 +1,22 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "default_crs": "http://localhost:8080/def/crs/EPSG/0/4326",
+    "mock": true,
+    "track_files": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_wms_mock_true",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "map_mosaic",
+    "options": {
+      "wms_import": true
+    }
+  }
+}

@@ -231,8 +231,6 @@ class Session:
         """
         Returns the configured executor
         """
-        if self.mock:
-            return WCSTMockExecutor(self.get_wcs_service(), self.insitu)
         return WCSTExecutor(self.get_wcs_service(), self.insitu)
 
     def get_default_null_values(self):

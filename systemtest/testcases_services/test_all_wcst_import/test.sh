@@ -162,9 +162,17 @@ for test_case in $TEST_DATA/*; do
     else
         # 2.2 run correctly
         check_passed
+
+        grep -q '"mock": true' "$recipe_file"
+        if [[ $? == 0 ]]; then
+            # It is a mock import, nothing has been ingested
+            log "----------------------------------------------------------------------"
+            log ""
+            continue
+        fi
         
         # 2.3 remove file resume.json to clean
-        clear_resume_file "$test_case"
+        clear_resume_file "$test_case"        
 
         # 2.4 Get coverage id from ingest.json
         COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $recipe_file | awk -F'"' '{print $4}')

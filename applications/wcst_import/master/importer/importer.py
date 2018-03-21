@@ -103,7 +103,7 @@ class Importer:
                 subsets = self._get_update_subsets_for_slice(current)
                 request = WCSTUpdateRequest(self.coverage.coverage_id, file.get_url(), subsets, ConfigManager.insitu)
                 executor = ConfigManager.executor
-                executor.execute(request)
+                executor.execute(request, mock=ConfigManager.mock)
                 file.release()
                 self.resumer.add_imported_data(current.data_provider)
             except Exception as e:
@@ -206,7 +206,7 @@ class Importer:
         executor = ConfigManager.executor
         current_insitu_value = executor.insitu
         executor.insitu = None
-        executor.execute(request)
+        executor.execute(request, mock=ConfigManager.mock)
         executor.insitu = current_insitu_value
         file.release()
 
@@ -347,7 +347,7 @@ class Importer:
             else:
                 # WMS layer existed, update WMS layer from updated coverage
                 request = WMSTFromWCSUpdateRequest(self.coverage.coverage_id, False)
-            ConfigManager.executor.execute(request)
+            ConfigManager.executor.execute(request, mock=ConfigManager.mock)
         except Exception as e:
             log.error(
                 "Exception thrown when importing in WMS. Please try to reimport in WMS manually.")

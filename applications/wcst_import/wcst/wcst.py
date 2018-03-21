@@ -292,7 +292,7 @@ class WCSTExecutor(WCSTBaseExecutor):
 
             raise WCSTException(error_code, error_text, service_call)
 
-    def execute(self, request, output=False):
+    def execute(self, request, output=False, mock=False):
         """
         Executes a WCST request and returns the response to it
 
@@ -303,6 +303,10 @@ class WCSTExecutor(WCSTBaseExecutor):
         service_call = self.base_url + "?" + request.get_query_string()
         if output:
             log.info(service_call)
+        if mock:
+            log.info("\n\033[1mThis is just a mocked request, no data will be changed.\x1b[0m ");
+            log.info(service_call)
+            return
         try:
             response = validate_and_read_url(service_call)
         except Exception as ex:
