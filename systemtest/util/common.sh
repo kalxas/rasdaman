@@ -361,11 +361,11 @@ check_result()
   logn "$msg... "
   if [ "$exp" != "$res" ]; then
     NUM_FAIL=$(($NUM_FAIL + 1))
-    echo failed.
+    loge failed.
     log "expected: '$exp', got '$res'"
   else
     NUM_SUC=$(($NUM_SUC + 1))
-    echo ok.
+    loge ok.
   fi
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
@@ -385,7 +385,7 @@ check()
 # this test case is failed (and cannot check by the return of $?)
 check_failed()
 {
-  echo failed.
+  loge failed.
   NUM_FAIL=$(($NUM_FAIL + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
@@ -393,7 +393,7 @@ check_failed()
 # this test case is passed (and cannot check by the return of $?)
 check_passed()
 {
-  echo ok.
+  loge ok.
   NUM_SUC=$(($NUM_SUC + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }

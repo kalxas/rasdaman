@@ -83,6 +83,12 @@ KNOWN_FAILS="$SCRIPT_DIR/known_fails"
 DROP_DATA=0
 
 #
+# indicates whether to ingest data before running tests: 0 = no, 1 = yes
+# --no-ingest turns this option off
+#
+INGEST_DATA=1
+
+#
 # constants for GDAL version checks
 JP2_MIME='image/jp2'
 MULTIPART_MIME='multipart/related'
@@ -95,6 +101,23 @@ drop_data()
   [ "$SVC_NAME" = "clipping" -o "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || drop_petascope_data
   [ "$SVC_NAME" == "nullvalues" ] && drop_nullvalues_data
   [ "$SVC_NAME" == "subsetting" ] && drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D
+}
+
+ingest_data()
+{
+  [ $INGEST_DATA -eq 0 ] && return
+  [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "clipping" ] && import_rasql_data "$TESTDATA_PATH"
+  [ "$SVC_NAME" == "rasdapy" ] && py_import_rasql_data "$TESTDATA_PATH"
+  [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
+  [ "$SVC_NAME" == "subsetting" ] && import_subsetting_data "$TESTDATA_PATH"
+  if [ -e "$TESTDATA_PATH/complex.binary" ] ; then
+    if [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "jit" -o "$SVC_NAME" == "nullvalues" -o "$SVC_NAME" == "cache" ]; then
+      check_type Gauss2Set
+      drop_colls $TEST_COMPLEX
+      create_coll $TEST_COMPLEX Gauss2Set
+      insert_into $TEST_COMPLEX "$TESTDATA_PATH/complex.binary" "" "" "--mddtype Gauss2Image --mdddomain [0:7,0:7]"
+    fi
+  fi
 }
 
 #
@@ -140,27 +163,16 @@ fi
 #
 for i in $*; do
   case $i in
-    --drop)    DROP_DATA=1;;
+    --drop)      DROP_DATA=1;;
+    --no-ingest) INGEST_DATA=0;;
     *) error "unknown option: $i"
   esac
 done
 
 # run import if necessary
 drop_data
-[ "$SVC_NAME" == "clipping" -o "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]
-[ "$SVC_NAME" == "select" -o "$SVC_NAME" == "clipping" ] && import_rasql_data "$TESTDATA_PATH"
-[ "$SVC_NAME" == "rasdapy" ] && py_import_rasql_data "$TESTDATA_PATH"
-[ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
-[ "$SVC_NAME" == "subsetting" ] && import_subsetting_data "$TESTDATA_PATH"
+ingest_data
 
-if [ -e "$TESTDATA_PATH/complex.binary" ] ; then
-  if [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ]; then
-    check_type Gauss2Set
-    drop_colls $TEST_COMPLEX
-    create_coll $TEST_COMPLEX Gauss2Set
-    insert_into $TEST_COMPLEX "$TESTDATA_PATH/complex.binary" "" "" "--mddtype Gauss2Image --mdddomain [0:7,0:7]"
-  fi
-fi
 echo
 
 pushd "$QUERIES_PATH" > /dev/null

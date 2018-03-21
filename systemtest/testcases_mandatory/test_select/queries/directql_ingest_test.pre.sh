@@ -7,5 +7,8 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 x=test_dql_ingest
 
-directql -q "create collection $x GreySet3" --user rasadmin --passwd rasadmin -d $RMANHOME/data/RASBASE > /dev/null
-directql -q "insert into $x values \$1" -f "../testdata/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube --user rasadmin --passwd rasadmin -d $RMANHOME/data/RASBASE > /dev/null
+datadir=$RASDATA
+[ -z "$RASDATA" ] && datadir=$RMANHOME/data
+
+directql -q "create collection $x GreySet3" --user rasadmin --passwd rasadmin -d $datadir/RASBASE > /dev/null
+directql -q "insert into $x values \$1" -f "../testdata/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube --user rasadmin --passwd rasadmin -d $datadir/RASBASE > /dev/null

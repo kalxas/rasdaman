@@ -61,9 +61,8 @@ add_library(qlparser
         qtcreatecelltype.hh qtcreatecelltype.cc
         qtcreatemarraytype.hh qtcreatemarraytype.cc
         qtcreatesettype.hh qtcreatesettype.cc
-        qtmulticlipping.hh qtmulticlipping.cc qtmulticlipping.icc
         qtdata.cc qtdata.hh qtdata.icc
-        qtdelete.cc qtdelete.hh qtdelete.icc
+        qtdelete.cc qtdelete.hh
         qtdomainoperation.cc qtdomainoperation.hh qtdomainoperation.icc
         qtdroptype.cc qtdroptype.hh
         qtemptystream.cc qtemptystream.hh qtemptystream.icc
@@ -83,6 +82,9 @@ add_library(qlparser
         qtmddconfig.cc qtmddconfig.hh
         qtmintervaldata.cc qtmintervaldata.hh qtmintervaldata.icc
         qtmintervalop.cc qtmintervalop.hh qtmintervalop.icc
+        qtmshapedata.hh qtmshapedata.cc qtmshapedata.icc
+        qtmshapeop.hh qtmshapeop.cc qtmshapeop.icc
+        qtmulticlipping.hh qtmulticlipping.cc qtmulticlipping.icc
         qtnaryoperation.cc qtnaryoperation.hh qtnaryoperation.icc
         qtnode.cc qtnode.hh qtnode.icc
         qtoid.cc qtoid.hh qtoid.icc
@@ -91,12 +93,14 @@ add_library(qlparser
         qtoperationiterator.cc qtoperationiterator.hh qtoperationiterator.icc
         qtpointdata.cc qtpointdata.hh qtpointdata.icc
         qtpointop.cc qtpointop.hh qtpointop.icc
+        qtpolygonclipping.hh qtpolygonclipping.cc
+        qtpolygonutil.hh qtpolygonutil.cc
         qtproject.cc qtproject.hh
         qtrangeconstructor.cc qtrangeconstructor.hh qtrangeconstructor.icc
         qtscalardata.cc qtscalardata.hh qtscalardata.icc
         qtselectioniterator.cc qtselectioniterator.hh qtselectioniterator.icc
-        qtsimplecaseop.cc qtsimplecaseop.hh qtstringdata.cc
-        qtstringdata.hh qtstringdata.icc
+        qtsimplecaseop.cc qtsimplecaseop.hh
+        qtstringdata.cc qtstringdata.hh qtstringdata.icc
         qtunaryfunc.cc qtunaryfunc.hh qtunaryfunc.icc
         qtunaryinduce.cc qtunaryinduce.hh qtunaryinduce.icc
         qtunaryoperation.cc qtunaryoperation.hh qtunaryoperation.icc
@@ -104,10 +108,7 @@ add_library(qlparser
         qtvariable.cc qtvariable.hh qtvariable.icc
         querytree.cc querytree.hh querytree.icc
         symtab.hh symtab.cc
-        qtmshapedata.hh qtmshapedata.cc qtmshapedata.icc
-        qtmshapeop.hh qtmshapeop.cc qtmshapeop.icc
-        qtpolygonclipping.hh qtpolygonclipping.cc
-        qtpolygonutil.hh qtpolygonutil.cc)
+)
 
 
 if (USE_GDAL)
