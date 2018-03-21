@@ -28,11 +28,15 @@ import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import petascope.util.DatabaseUtil;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -40,19 +44,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import petascope.controller.AbstractController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.util.DatabaseUtil;
 
 /**
- * This class initializes the bean which needs the passing dependencies from
- * properties file
+ * This class initializes the beans to connect to the datasources (from legacy
+ * petascope prior version 9.5, Spring Hibernate). *
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 @Configuration
-public class BeanApplicationConfiguration {
+@EnableTransactionManagement
+public class BeanApplicationConfiguration implements Condition {
 
     private static final Logger log = LoggerFactory.getLogger(BeanApplicationConfiguration.class);
+    public static final String LIQUIBASE_CHANGELOG_PATH = "classpath:database_versions/db.changelog-master.xml";
 
+    // ************************ For general beans ************************
+    
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurerAdapter() {
@@ -80,77 +87,97 @@ public class BeanApplicationConfiguration {
         registration.setEnabled(false);
         return registration;
     }
+    
+    // ************************ For non-migrating beans ************************
 
     /**
-     * Build a DataSource (JDBC driver) to connect to underneath DBMS for Liquibase.
-     * Configuration values are fetched from petascope.properties.
-     * 
+     * Build a DataSource (JDBC driver) to connect to underneath DBMS for
+     * Liquibase. Configuration values are fetched from petascope.properties.
+     *
      * @return
      * @throws petascope.exceptions.PetascopeException
      */
-    public DataSource dynamicDataSource() throws PetascopeException {
-        
+    private DataSource dynamicDataSource() throws PetascopeException {
+
         // If user doesn't use postgresql by default
         if (!ConfigManager.PETASCOPE_DATASOURCE_URL.contains(ConfigManager.DEFAULT_DMBS)) {
             try {
-                addJDBCDriverToClassPath(ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH);
-            } catch(PetascopeException ex) {
-                throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
-                                            "JDBC driver jar file path for current DBMS configured in petascope.properties with key '" 
-                                                    + ConfigManager.KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "', given value '" 
-                                                    + ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
-                                            ex);
-            }     
-        }       
-       
+                addJDBCDriverToClassPath(ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH, ConfigManager.PETASCOPE_DATASOURCE_URL);
+            } catch (PetascopeException ex) {
+                throw new PetascopeException(ExceptionCode.InvalidPropertyValue,
+                        "JDBC driver jar file path for current DBMS configured in petascope.properties with key '"
+                        + ConfigManager.KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "', given value '"
+                        + ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
+                        ex);
+            }
+        }
+
         DataSource dataSource = DataSourceBuilder.create().url(ConfigManager.PETASCOPE_DATASOURCE_URL)
-                                                          .username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME)
-                                                          .password(ConfigManager.PETASCOPE_DATASOURCE_PASSWORD)
-                                                          .build();
-             
+                .username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME)
+                .password(ConfigManager.PETASCOPE_DATASOURCE_PASSWORD)
+                .build();
+
         return dataSource;
     }
-
+    
+    /**
+     * NOTE: without migration, this one is used to create datasource (populate database schema by Liquibase)
+     * for spring configuration in petascope.properties.
+     */
     @Bean
+    @Conditional(BeanApplicationConfiguration.class)
     public SpringLiquibase liquibase() throws Exception {
         SpringLiquibase liquibase = new SpringLiquibase();
         DataSource dataSource;
-        
+
         // NOTE: Do not initialize/update petascopedb if petascope failed to start properly.
         if (AbstractController.startException != null) {
             liquibase.setShouldRun(false);
             return liquibase;
         }
-        
+
         try {
-            // Create the new petascopedb database if not exist
-            DatabaseUtil.createDatabaseIfNotExist(null);
+            if (DatabaseUtil.checkDefaultDatabase()) {
+                // NOTE: Only create a new petascopedb for Postgresql if it doesn't exist
+                // and Liquibase will populate schema on this empty database.
+                DatabaseUtil.createPostgresqlDatabaseIfNotExist(null);
+            }
         } catch (Exception ex) {
-            // e.g: postgresql is not running
-            PetascopeException petascopeException = new PetascopeException(ExceptionCode.InternalSqlError, 
-                    "Cannot connect to petascopedb via base DMBS, error '" + ex.getMessage() + "'.", ex);
-            log.error(petascopeException.getExceptionText(), petascopeException);
-            AbstractController.startException = ex;
-            liquibase.setShouldRun(false);
-            return liquibase;
+            // e.g: postgresql is not running, fatal error for Spring Framework to continue
+            PetascopeException petascopeException = new PetascopeException(ExceptionCode.InternalSqlError,
+                    "Cannot create new empty petascopedb for Postgresql, error '" + ex.getMessage() + "'.", ex);
+            throw petascopeException;
         }
-               
+
         // Create dataSource for Liquibase
         dataSource = this.dynamicDataSource();
         liquibase.setDataSource(dataSource);
-        liquibase.setChangeLog("classpath:database_versions/db.changelog-master.xml");
-        // NOTE: Don't populate new schema from petascopedb9.5 to petascopedb9.4, return error later to client via controller also
-        if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
-            String errorMessage = "petascopedb 9.4 or older already exists, "
+        liquibase.setChangeLog(LIQUIBASE_CHANGELOG_PATH);
+
+        if (DatabaseUtil.targetLegacyPetascopeDatabaseExists()) {            
+            if (!ApplicationMain.MIGRATE) {
+                // Run rasdaman.war with petascopedb version 9.4 which is not valid
+                String errorMessage = "petascopedb 9.4 or older already exists, "
                     + "please run the migrate_petascopedb.sh script to migrate to the new petascope schema first, then restart petascope.";
-            PetascopeException exception = new PetascopeException(ExceptionCode.InternalSqlError, errorMessage);
-            AbstractController.startException = exception;
-            log.error(errorMessage, exception);
-            liquibase.setShouldRun(false);
-        } else {
-            liquibase.setShouldRun(true);
+                PetascopeException exception = new PetascopeException(ExceptionCode.InternalSqlError, errorMessage);
+                AbstractController.startException = exception;
+                log.error(errorMessage, exception);
+                liquibase.setShouldRun(false); 
+            }            
         }
 
         return liquibase;
+    }
+    
+    
+    @Override
+    // NOTE: only when NOT running java -jar rasdaman.war --migrate, it will need to create
+    // the beans which have annotaion @Conditional which match this condition.
+    public boolean matches(ConditionContext cc, AnnotatedTypeMetadata atm) {
+        if (ApplicationMain.MIGRATE) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

@@ -100,7 +100,7 @@ public class OwsServiceMetadata {
      * metadata
      * @return 
      */
-    public OwsServiceMetadata createDefaultOWSMetadataService() {
+    public static OwsServiceMetadata createDefaultOWSMetadataService() {
         OwsServiceMetadata owsServiceMetadata = new OwsServiceMetadata();
 
         ServiceIdentification serviceIdentification = new ServiceIdentification();

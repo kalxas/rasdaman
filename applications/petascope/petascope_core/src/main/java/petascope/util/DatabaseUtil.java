@@ -118,15 +118,13 @@ public class DatabaseUtil {
      * @return
      * @throws java.lang.ClassNotFoundException
      * @throws petascope.exceptions.PetascopeException
+     * @throws java.sql.SQLException
      */
     public static boolean checkJDBCConnection(String datasourceURL,
-            String datasourceUserName, String datasourcePassword) throws ClassNotFoundException, PetascopeException {
+            String datasourceUserName, String datasourcePassword) throws ClassNotFoundException, PetascopeException, SQLException {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(datasourceURL, datasourceUserName, datasourcePassword);
-        } catch (SQLException ex) {
-            // Old database does not exist to connect, don't migrate anything
-            return false;
         } finally {
             closeDatabaseConnection(connection);
         }
@@ -135,21 +133,21 @@ public class DatabaseUtil {
     }
     
     /**
-     * Check if petascopedb exists just by trying to connect to petascopedb
+     * Check if petascopedb is empty just by trying to connect to petascopedb
      * NOTE: don't distinguish it is petascope version 9.4 or 9.5+
      * @param dataSource
      * @return 
      * @throws java.lang.ClassNotFoundException 
      * @throws petascope.exceptions.PetascopeException 
      */
-    public static boolean petascopeDatabaseExists(DataSource dataSource) throws ClassNotFoundException, PetascopeException {
+    public static boolean petascopeDatabaseEmpty(DataSource dataSource) throws ClassNotFoundException, PetascopeException {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();        
             DatabaseMetaData dbm = connection.getMetaData();
             
             // for version < 9.5
-            if (legacyPetascopeDatabaseExists()) {
+            if (sourceLegacyPetascopeDatabaseExists()) {
                 return true;
             }
             
@@ -160,7 +158,7 @@ public class DatabaseUtil {
                 // Table does not exist, maybe it is H2/HSQL, tables is in upper cases
                 tables = dbm.getTables(null, null, ConfigManager.PETASCOPEDB_TABLE_EXIST.toUpperCase(), null);
                 if (!tables.next()) {
-                    // Table still does not exist, petascopedb does not exist
+                    // Table still does not exist, petascopedb is empty
                     return false;
                 }
             }        
@@ -177,13 +175,13 @@ public class DatabaseUtil {
     /**
      * A simple check if the old petascope is preparing to migrate is prior
      * version 9.5 which uses the legacy CoverageMetadata instead of CIS data
-     * model.
+     * model. (NOTE: used for source datasource: meta_* configuration in petascope.properties)
      *
      * @return
      * @throws java.lang.ClassNotFoundException
      * @throws petascope.exceptions.PetascopeException
      */
-    public static boolean legacyPetascopeDatabaseExists() throws ClassNotFoundException, PetascopeException {
+    public static boolean sourceLegacyPetascopeDatabaseExists() throws ClassNotFoundException, PetascopeException {
         Connection connection = null;
         try {
             connection = getDatabaseConnection(ConfigManager.SOURCE_DATASOURCE_URL,
@@ -203,6 +201,46 @@ public class DatabaseUtil {
 
         return false;
     }
+    
+    /**
+     * A simple check if the old petascope is preparing to migrate is prior
+     * version 9.5 which uses the legacy CoverageMetadata instead of CIS data
+     * model. (NOTE: used for target datasource: spring_* configuration in petascope.properties)
+     *
+     * @return
+     * @throws java.lang.ClassNotFoundException
+     * @throws petascope.exceptions.PetascopeException
+     */
+    public static boolean targetLegacyPetascopeDatabaseExists() throws ClassNotFoundException, PetascopeException {
+        Connection connection = null;
+        try {
+            connection = getDatabaseConnection(ConfigManager.PETASCOPE_DATASOURCE_URL,
+                    ConfigManager.PETASCOPE_DATASOURCE_USERNAME, ConfigManager.PETASCOPE_DATASOURCE_PASSWORD);
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+
+            // Check if the legacy table ps_dbupdates existed
+            ResultSet tables = databaseMetaData.getTables(null, null, "ps_dbupdates", null);
+            if (tables.next()) {
+                return true;
+            }
+        } catch (SQLException ex) {
+            return false;
+        } finally {
+            closeDatabaseConnection(connection);
+        }
+
+        return false;
+    }
+    
+    /**
+     * Check if database by default (e.g: Postgresql) is used.
+     */
+    public static boolean checkDefaultDatabase() {
+        if (ConfigManager.PETASCOPE_DATASOURCE_URL.contains(ConfigManager.DEFAULT_DMBS)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Create the database if it does not exist as Hibernate cannot do it. NOTE:
@@ -219,10 +257,10 @@ public class DatabaseUtil {
      * @throws java.lang.ClassNotFoundException
      * @throws petascope.exceptions.PetascopeException
      */
-    public static void createDatabaseIfNotExist(String databaseName) throws SQLException, ClassNotFoundException, PetascopeException {
+    public static void createPostgresqlDatabaseIfNotExist(String databaseName) throws SQLException, ClassNotFoundException, PetascopeException {
         // No need to do anything if it is not Postgresql
-        if (!ConfigManager.PETASCOPE_DATASOURCE_URL.contains("postgresql")) {
-            return;
+        if (!checkDefaultDatabase()) {
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Cannot create database automatically for this JDBC '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'.");
         }
 
         Class.forName(ConfigManager.POSTGRESQL_DATASOURCE_DRIVER);

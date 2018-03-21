@@ -23,6 +23,7 @@ package org.rasdaman.migration.service;
 
 import java.sql.SQLException;
 import java.util.List;
+import org.rasdaman.BeanApplicationConfiguration;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
@@ -94,7 +95,7 @@ public class LegacyMigrationService extends AbstractMigrationService {
     @Override
     public boolean canMigrate() throws Exception {
         // If old petascope's database is prior version 9.5
-        if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
+        if (DatabaseUtil.sourceLegacyPetascopeDatabaseExists()) {
             return true;
         }
 
@@ -110,7 +111,7 @@ public class LegacyMigrationService extends AbstractMigrationService {
      */
     @Override
     public void migrate() throws Exception {
-        log.info("Migrating from petascopedb 9.4 or older to new version 9.5.");
+        log.info("Migrating from petascopedb 9.4 or older to new version.");
         // Lock the new database when migrating so no request is handled
         Migration migration = new Migration();
         migration.setLock(true);

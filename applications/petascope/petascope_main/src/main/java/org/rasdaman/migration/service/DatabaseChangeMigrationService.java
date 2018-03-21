@@ -28,8 +28,9 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import static org.rasdaman.BeanApplicationConfiguration.SOURCE;
-import static org.rasdaman.BeanApplicationConfiguration.SOURCE_TRANSACTION_MANAGER;
+import org.rasdaman.MigrationBeanApplicationConfiguration;
+import static org.rasdaman.MigrationBeanApplicationConfiguration.SOURCE;
+import static org.rasdaman.MigrationBeanApplicationConfiguration.SOURCE_TRANSACTION_MANAGER;
 import org.rasdaman.domain.cis.Coverage;
 import static org.rasdaman.domain.cis.Coverage.COVERAGE_ID_PROPERTY;
 import org.rasdaman.domain.migration.Migration;
@@ -43,6 +44,7 @@ import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petascope.util.DatabaseUtil;
@@ -55,6 +57,7 @@ import petascope.util.DatabaseUtil;
  */
 @Service
 @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER)
+@Conditional(MigrationBeanApplicationConfiguration.class)
 public class DatabaseChangeMigrationService extends AbstractMigrationService {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseChangeMigrationService.class);
@@ -85,7 +88,7 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
     @Override
     public boolean canMigrate() throws Exception {
         // NOTE: Spring already checked the JDBC connections in BeanApplicationConfiguration when application starts        
-        if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
+        if (DatabaseUtil.sourceLegacyPetascopeDatabaseExists()) {
             return false;
         }
         return true;
@@ -134,11 +137,16 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
             if (targetCoverageIds.contains(coverageId)) {
                 log.info("... already migrated, skipping.");
             } else {
-                // Coverage Id is not migrated yet, now read the whole coverage entity from source data source
-                Coverage coverage = this.readCoverageById(coverageId);
-                // And persist this coverage to target data source
-                coverageRepostioryService.save(coverage);
-                log.info("... migrated successfully.");
+                try {
+                    // Coverage Id is not migrated yet, now read the whole coverage entity from source data source
+                    Coverage coverage = this.readCoverageById(coverageId);
+                    // And persist this coverage to target data source
+                    coverageRepostioryService.save(coverage);
+                    log.info("... migrated successfully.");
+                } catch (Exception ex) {
+                log.debug("Error when migrating coverage", ex);
+                log.info("... cannot migrate coverage with error '" + ex.getMessage() + "', skipping.");
+            }
             }
             i++;
         }
@@ -148,11 +156,15 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
 
     @Override
     protected void saveOwsServiceMetadata() throws Exception {
-        log.info("Migrating OWS Service metadata...");
-        OwsServiceMetadata owsServiceMetadata = this.readOwsServiceMetadata();
-        owsMetadataRepostioryService.save(owsServiceMetadata);
-
-        log.info("... migrated successfully.");
+        log.info("Migrating OWS Service metadata...");        
+        try {
+            OwsServiceMetadata owsServiceMetadata = this.readOwsServiceMetadata();
+            owsMetadataRepostioryService.save(owsServiceMetadata);
+            log.info("... migrated successfully.");
+        } catch (Exception ex) {
+            log.debug("Error when migrating OWS Service metadata", ex);
+            log.info("... cannot migrate OWS Service metadata with error '" + ex.getMessage() + "', skpiing.");
+        }
     }
 
     @Override
@@ -170,11 +182,16 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
             if (targetWmsLayerNames.contains(wmsLayerName)) {
                 log.info("... already migrated, skipping.");
             } else {
-                // WMS layer is not migrated yet, now read the whole WMS layer content which is *slow*
-                Layer layer = this.readLayerByName(wmsLayerName);
-                // And persist this WMS layer to target datasource
-                wmsRepostioryService.saveLayer(layer);
-                log.info("... migrated successfully.");
+                try {
+                    // WMS layer is not migrated yet, now read the whole WMS layer content which is *slow*
+                    Layer layer = this.readLayerByName(wmsLayerName);
+                    // And persist this WMS layer to target datasource
+                    wmsRepostioryService.saveLayer(layer);
+                    log.info("... migrated successfully.");
+                } catch (Exception ex) {
+                    log.debug("Error when migrating layer", ex);
+                    log.info("... cannot migrate layer with error '" + ex.getMessage() + "', skipping.");
+                }
             }
             i++;
         }
@@ -220,9 +237,14 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
     @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER)
     private OwsServiceMetadata readOwsServiceMetadata() {
         Criteria criteria = this.getSourceHibernateSession().createCriteria(OwsServiceMetadata.class);
-        OwsServiceMetadata owsServiceMetadata = (OwsServiceMetadata) criteria.list().get(0);
-
-        return owsServiceMetadata;
+        OwsServiceMetadata owsServiceMetadata;
+        if (criteria.list().isEmpty()) {
+            owsServiceMetadata = OwsServiceMetadata.createDefaultOWSMetadataService();
+            return owsServiceMetadata;
+        } else {
+            owsServiceMetadata = (OwsServiceMetadata) criteria.list().get(0);
+            return owsServiceMetadata;
+        }
     }
 
     /**

@@ -8,7 +8,6 @@
     <modules>
        <module>petascope_core</module>
        <module>petascope_main</module>
-       <module>petascope_migration</module>
     </modules>
     <packaging>pom</packaging>
     <name>petascope-parent</name>

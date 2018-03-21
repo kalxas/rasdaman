@@ -60,9 +60,9 @@ readonly LOG_FILE="@LOG_DIR@/petascope-migration.log"
 readonly PROPERTIES_FILE="@CONF_DIR@/petascope.properties"
 
 # This jar file is generated from the petascope_migration application
-readonly PETASCOPE_MIGRATION_JAR="@pkgdatadir@/petascope/rasdaman-geo-migration.jar"
-if [ ! -f "$PETASCOPE_MIGRATION_JAR" ]; then
-    error "Cannot find the migration application '$PETASCOPE_MIGRATION_JAR'."
+readonly PETASCOPE_WAR="@WAR_DIR@/rasdaman.war"
+if [ ! -f "$PETASCOPE_WAR" ]; then
+    error "Cannot find the migration application '$PETASCOPE_WAR'."
 fi
 
 log "Using configuration file '$PROPERTIES_FILE'."
@@ -72,7 +72,7 @@ echo -e ""
 if [[ $REPLY =~ ^[Yy]$ ]] || [[ "$REPLY" = "" ]]; then
     # User can see the log from the terminal at the same time as migration application writes to petascope.log
     # Filter log4j/grpc log to user's console
-    java -jar "$PETASCOPE_MIGRATION_JAR" 2>&1 |  grep -v --line-buffered -e 'grpc' -e 'log4j'
+    java -jar "$PETASCOPE_WAR" --migrate 2>&1 |  grep -v --line-buffered -e 'grpc' -e 'log4j'
 
     # NOTE: $? always return 0 even when first command returns 1 (exception in migration application)
     # so we have to get the exit code of the java -jar command from PIPESTATUS

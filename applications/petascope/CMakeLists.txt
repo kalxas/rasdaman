@@ -85,8 +85,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pom.xml.in" "${CMAKE_CURRENT_SOURCE_
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_core/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_core/pom.xml" @ONLY)
 # Do the same for the petascope_main pom.xml 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_main/pom.xml" @ONLY)
-# Do the same for the petascope_migration pom.xml 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/petascope_migration/pom.xml.in" "${CMAKE_CURRENT_SOURCE_DIR}/petascope_migration/pom.xml" @ONLY)
 
 # Do the same for log4j.properties.in
 configure_file("${LOG4J_SPRING_FILE_TEMPLATE}" "${LOG4J_SPRING_FILE}" @ONLY)
@@ -128,9 +126,6 @@ install( CODE "execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/update_p
 install( FILES "${PETASCOPE_TARGET_DIR}/petascope_main/rasdaman.war"
          DESTINATION "${WAR_DIR}" )
 
-# Copy rasdaman-geo-migration.jar to $RMANHOME/share/rasdaman/petascope and migrate_petascopedb.sh to bin directory
-install( FILES "${PETASCOPE_TARGET_DIR}/petascope_migration/rasdaman-geo-migration.jar"
-         DESTINATION "${PETASCOPE_SHARE_DIR}" )
 
 install( PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/migrate_petascopedb.sh"
          DESTINATION "${BIN_DIR}" )
@@ -148,7 +143,6 @@ install( PROGRAMS "${INSERT_DATA_SCRIPT}"
 install(DIRECTORY "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo_data"
         DESTINATION "${PETASCOPE_SHARE_DIR}")
 
-
 if (GENERATE_DOCS)
     add_custom_target(petascope_doc ALL
                       COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc 2>&1 > /dev/null || exit 0
@@ -160,7 +154,5 @@ if (GENERATE_DOCS)
         DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_core")
     install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_main/site"
         DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_main")
-    install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_migration/site"
-        DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_migration")
 
 endif(GENERATE_DOCS)

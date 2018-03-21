@@ -21,22 +21,13 @@
  */
 package org.rasdaman;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
-import static org.rasdaman.BeanApplicationConfiguration.BASE_PACKAGE;
-import static org.rasdaman.BeanApplicationConfiguration.TARGET_ENTITY_MANAGER_FACTORY;
+import org.rasdaman.ApplicationMain.ExitCode;
+import static org.rasdaman.BeanApplicationConfiguration.LIQUIBASE_CHANGELOG_PATH;
 import static org.rasdaman.CustomImplicitNamingStrategyImpl.HIBERNATE_IMPLICIT_NAMING_STRATEGY_KEY;
 import static org.rasdaman.CustomImplicitNamingStrategyImpl.HIBERNATE_IMPLICIT_NAMING_STRATEGY_VALUE;
 import static org.rasdaman.CustomPhysicalNamingStrategyImpl.HIBERNATE_PHYSICAL_NAMING_STRATEGY_KEY;
@@ -51,7 +42,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -60,6 +50,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import petascope.util.DatabaseUtil;
 import static org.rasdaman.migration.service.LegacyMigrationService.LEGACY_PETASCOPEDB_MIGRATION_TEMP;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 
@@ -71,13 +65,9 @@ import petascope.exceptions.PetascopeException;
  */
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(
-        entityManagerFactoryRef = TARGET_ENTITY_MANAGER_FACTORY,
-        basePackages = BASE_PACKAGE
-)
-public class BeanApplicationConfiguration {
+public class MigrationBeanApplicationConfiguration implements Condition {
 
-    private static final Logger log = LoggerFactory.getLogger(BeanApplicationConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(MigrationBeanApplicationConfiguration.class);
 
     // Configuration for different datasources used by Spring Hibernate in migration application
     public static final String BASE_PACKAGE = "org.rasdaman";
@@ -88,25 +78,23 @@ public class BeanApplicationConfiguration {
     public static final String SOURCE = "source";
     public static final String TARGET = "target";
     public static final String SOURCE_TRANSACTION_MANAGER = "sourceTransactionManager";
-    public static final String TARGET_TRANSACTION_MANAGER = "targetTransactionManager";
-
+    public static final String TARGET_TRANSACTION_MANAGER = "targetTransactionManager";    
+           
+    
+    // ************************ For migrating beans ************************        
     /**
-     * To make Spring Hibernate can work with different datasources after
-     * version 9.5, create 2 EntityManagerFactory for each of datasource
-     * manually.
-     *
-     * @param datasourceUrl
-     * @return
-     * @throws java.lang.Exception
+     * NOTE: with migration, this one is used to create datasource (populate database schema by Liquibase)
+     * for spring configuration in petascope.properties.
      */
     @Bean
-    public SpringLiquibase liquibase(String datasourceUrl) throws Exception {
+    @Conditional(MigrationBeanApplicationConfiguration.class)
+    public SpringLiquibase migrationLiquibase(String datasourceUrl) throws Exception {
         SpringLiquibase liquibase = new SpringLiquibase();
         DataSource dataSource = DataSourceBuilder.create().url(datasourceUrl)
                 .username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME)
                 .password(ConfigManager.PETASCOPE_DATASOURCE_PASSWORD).build();
         liquibase.setDataSource(dataSource);
-        liquibase.setChangeLog("classpath:database_versions/db.changelog-master.xml");
+        liquibase.setChangeLog(LIQUIBASE_CHANGELOG_PATH);
         liquibase.setShouldRun(true);
 
         return liquibase;
@@ -121,32 +109,41 @@ public class BeanApplicationConfiguration {
      * @throws java.lang.Exception
      */
     @Bean
+    @Conditional(MigrationBeanApplicationConfiguration.class)
     public DataSource sourceDataSource() throws Exception {
-        
         // If user doesn't use postgresql by default
         if (!ConfigManager.SOURCE_DATASOURCE_URL.contains(ConfigManager.DEFAULT_DMBS)) {
             try {
-                addJDBCDriverToClassPath(ConfigManager.SOURCE_DATASOURCE_JDBC_JAR_PATH);
-            } catch(PetascopeException ex) {
-                throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
-                                            "JDBC driver jar file path for current DBMS configured in petascope.properties with key '" 
-                                                    + ConfigManager.KEY_SOURCE_DATASOURCE_JDBC_JAR_PATH + "', given value '" 
-                                                    + ConfigManager.SOURCE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
-                                            ex);
-            }            
-        }             
-       
-        DataSource dataSource = DataSourceBuilder.create().url(ConfigManager.SOURCE_DATASOURCE_URL)
-                                                          .username(ConfigManager.SOURCE_DATASOURCE_USERNAME)
-                                                          .password(ConfigManager.SOURCE_DATASOURCE_PASSWORD)
-                                                          .build();              
-           
-        if (!DatabaseUtil.petascopeDatabaseExists(dataSource)) {
-            // NOTE: petascopedb doesn't exist to migrate, just consider it is a success instead of failure.
-            log.info("petascopedb doesn't exist, nothing to migrate.");
-            System.exit(ApplicationMigration.ExitCode.SUCCESS.getExitCode());
+                addJDBCDriverToClassPath(ConfigManager.SOURCE_DATASOURCE_JDBC_JAR_PATH, ConfigManager.SOURCE_DATASOURCE_URL);
+            } catch (PetascopeException ex) {
+                throw new PetascopeException(ExceptionCode.InvalidPropertyValue,
+                        "JDBC driver jar file path for current DBMS configured in petascope.properties with key '"
+                        + ConfigManager.KEY_SOURCE_DATASOURCE_JDBC_JAR_PATH + "', given value '"
+                        + ConfigManager.SOURCE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
+                        ex);
+            }
         }
-             
+
+        DataSource dataSource = DataSourceBuilder.create().url(ConfigManager.SOURCE_DATASOURCE_URL)
+                .username(ConfigManager.SOURCE_DATASOURCE_USERNAME)
+                .password(ConfigManager.SOURCE_DATASOURCE_PASSWORD)
+                .build();
+
+        try {
+            DatabaseUtil.checkJDBCConnection(ConfigManager.SOURCE_DATASOURCE_URL,
+                    ConfigManager.SOURCE_DATASOURCE_USERNAME, ConfigManager.SOURCE_DATASOURCE_PASSWORD);
+        } catch (Exception ex) {
+            log.error("Cannot migrate petascopedb by source datasource with JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + "'."
+                    + "\n Reason: " + ex.getMessage());
+            System.exit(ExitCode.FAILURE.getExitCode());
+        }
+
+        if (!DatabaseUtil.petascopeDatabaseEmpty(dataSource)) {
+            // NOTE: petascopedb exists but doesn't have any tables to migrate, just consider it is a success instead of failure.
+            log.info("petascopedb is empty, nothing to migrate.");
+            System.exit(ExitCode.SUCCESS.getExitCode());
+        }
+
         return dataSource;
     }
 
@@ -161,29 +158,30 @@ public class BeanApplicationConfiguration {
      */
     @Bean
     @Primary
+    @Conditional(MigrationBeanApplicationConfiguration.class)
     public DataSource targetDataSource() throws Exception {
-        
+
         // If user doesn't use postgresql by default
         if (!ConfigManager.PETASCOPE_DATASOURCE_URL.contains(ConfigManager.DEFAULT_DMBS)) {
             try {
-                addJDBCDriverToClassPath(ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH);
-            } catch(PetascopeException ex) {
-                throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
-                                            "JDBC driver jar file path for target DBMS configured in petascope.properties with key '" 
-                                                    + ConfigManager.KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "', given value '" 
-                                                    + ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
-                                            ex);
+                addJDBCDriverToClassPath(ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH, ConfigManager.PETASCOPE_DATASOURCE_URL);
+            } catch (PetascopeException ex) {
+                throw new PetascopeException(ExceptionCode.InvalidPropertyValue,
+                        "JDBC driver jar file path for target DBMS configured in petascope.properties with key '"
+                        + ConfigManager.KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "', given value '"
+                        + ConfigManager.PETASCOPE_DATASOURCE_JDBC_JAR_PATH + "' is not valid.",
+                        ex);
             }
         }
-        
+
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         String dataSourceURL = ConfigManager.PETASCOPE_DATASOURCE_URL;
 
         // NOTE: if legacy petascopedb exists, *must* create a temp database for Liquibase to populate tables to migrate first
         // then when the migration is done, rename the temp database back to petascopedb and the legacy petascopedb to petascopedb_94_backup
-        if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
+        if (DatabaseUtil.sourceLegacyPetascopeDatabaseExists()) {
             String tempDatabaseName = LEGACY_PETASCOPEDB_MIGRATION_TEMP;
-            DatabaseUtil.createDatabaseIfNotExist(tempDatabaseName);
+            DatabaseUtil.createPostgresqlDatabaseIfNotExist(tempDatabaseName);
             log.info("petascopedb 9.4 or older already exists, creating a temporary backup database '"
                     + LEGACY_PETASCOPEDB_MIGRATION_TEMP + "' for it.");
 
@@ -197,8 +195,17 @@ public class BeanApplicationConfiguration {
         dataSourceBuilder.username(ConfigManager.PETASCOPE_DATASOURCE_USERNAME);
         dataSourceBuilder.password(ConfigManager.PETASCOPE_DATASOURCE_PASSWORD);
 
-        // NOTE: must use like this or with 2 different EntityManager, Liquibase will not run to populate schema to target datasource.
-        liquibase(dataSourceURL);
+        try {
+            DatabaseUtil.checkJDBCConnection(ConfigManager.PETASCOPE_DATASOURCE_URL,
+                    ConfigManager.PETASCOPE_DATASOURCE_USERNAME, ConfigManager.PETASCOPE_DATASOURCE_PASSWORD);
+        } catch (Exception ex) {
+            log.error("Cannot migrate petascopedb to target datasource with JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + "'."
+                    + "\n Reason: " + ex.getMessage());
+            System.exit(ExitCode.FAILURE.getExitCode());
+        }
+
+        // NOTE: must use like this or with 2 different EntityManagers, Liquibase will not run to populate schema to target datasource.
+        migrationLiquibase(dataSourceURL);
         return dataSourceBuilder.build();
     }
 
@@ -215,7 +222,7 @@ public class BeanApplicationConfiguration {
         // This bean is initialized by Spring and we could use it when possible
         // NOTE: LegacyMigrationService uses this bean only.
         LegacyDbMetadataSource meta = null;
-        if (DatabaseUtil.legacyPetascopeDatabaseExists()) {
+        if (DatabaseUtil.sourceLegacyPetascopeDatabaseExists()) {
             meta = new LegacyDbMetadataSource(ConfigManager.POSTGRESQL_DATASOURCE_DRIVER,
                     ConfigManager.SOURCE_DATASOURCE_URL,
                     ConfigManager.SOURCE_DATASOURCE_USERNAME,
@@ -226,27 +233,32 @@ public class BeanApplicationConfiguration {
     }
 
     @Bean
+    @Conditional(MigrationBeanApplicationConfiguration.class)
     public EntityManager sourceEntityManager() throws Exception {
         return sourceEntityManagerFactory().createEntityManager();
     }
 
     @Bean
+    @Conditional(MigrationBeanApplicationConfiguration.class)
     public EntityManager targetEntityManager() throws Exception {
-        return targetEntityManagerFactory().createEntityManager();
+        return entityManagerFactory().createEntityManager();
     }
 
     @Bean
+    @Conditional(MigrationBeanApplicationConfiguration.class)
     public EntityManagerFactory sourceEntityManagerFactory() throws Exception {
         return createEntityManagerFactory(SOURCE, this.sourceDataSource());
     }
 
     @Bean
     @Primary
-    public EntityManagerFactory targetEntityManagerFactory() throws Exception {
+    @Conditional(MigrationBeanApplicationConfiguration.class)
+    public EntityManagerFactory entityManagerFactory() throws Exception {
         return createEntityManagerFactory(TARGET, this.targetDataSource());
     }
 
     @Bean(name = SOURCE_TRANSACTION_MANAGER)
+    @Conditional(MigrationBeanApplicationConfiguration.class)
     // Read to source database, use source transaction manager
     public PlatformTransactionManager sourceTransactionManager() throws Exception {
         return new JpaTransactionManager(sourceEntityManagerFactory());
@@ -254,11 +266,12 @@ public class BeanApplicationConfiguration {
 
     @Bean
     @Primary
+    @Conditional(MigrationBeanApplicationConfiguration.class)
     // Read to target database, use the default transaction manager 
     // (why default? because target datasource is more important to read/save with JPA repositories).
     // while source datasource is only used for read (which uses Hibernate HQL).
     public PlatformTransactionManager transactionManager() throws Exception {
-        return new JpaTransactionManager(targetEntityManagerFactory());
+        return new JpaTransactionManager(entityManagerFactory());
     }
 
     /**
@@ -278,17 +291,15 @@ public class BeanApplicationConfiguration {
         entityManagerFactory.setPersistenceUnitName(persistenceUnitName);
 
         final Properties properties = new Properties();
-        
+
         // Enable Hibernate log for debugging SQL queries
         //properties.setProperty("hibernate.show_sql", "true");
         //properties.setProperty("hibernate.format_sql", "true");
-        
         // NOTE: Only populate schema on target datasource for ***testing***) 
         // if (persistenceUnitName.equals(TARGET)) {
-            // as spring.jpa.hibernate.ddl-auto=create in petascope.properties has no useage when having different datasources.
-            // properties.setProperty("hibernate.hbm2ddl.auto", "create");
+        // as spring.jpa.hibernate.ddl-auto=create in petascope.properties has no useage when having different datasources.
+        // properties.setProperty("hibernate.hbm2ddl.auto", "create");
         // }
-
         // NOTE: When configuring EntityManagerFactory manually, must config Hibernate 5 to use the naming strategies or the rasql query can be mixed up with lower case, upper case and camel case.
         properties.setProperty(HIBERNATE_IMPLICIT_NAMING_STRATEGY_KEY, HIBERNATE_IMPLICIT_NAMING_STRATEGY_VALUE);
         properties.setProperty(HIBERNATE_PHYSICAL_NAMING_STRATEGY_KEY, HIBERNATE_PHYSICAL_NAMING_STRATEGY_VALUE);
@@ -297,5 +308,16 @@ public class BeanApplicationConfiguration {
         entityManagerFactory.afterPropertiesSet();
 
         return entityManagerFactory.getObject();
+    }
+    
+    @Override
+    // NOTE: only when running java -jar rasdaman.war --migrate, it will need to create
+    // the beans which have annotaion @Conditional which match this condition.
+    public boolean matches(ConditionContext cc, AnnotatedTypeMetadata atm) {
+        if (ApplicationMain.MIGRATE) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
