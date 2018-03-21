@@ -100,11 +100,11 @@ expected="  Result element 1: [0:4,0:719,0:360]"
 result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array domain"
 
-expected="  Result element 1: 0.122112"
+expected="  Result element 1: 0.122111803631888"
 result=$($RASQL -q 'select avg_cells(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check full array contents"
 
-expected="  Result element 1: 0.103524"
+expected="  Result element 1: 0.1035237765466262"
 result=$($RASQL -q 'select avg_cells(c[1,*:*,*:*]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array slice contents"
 
@@ -112,7 +112,7 @@ expected="  Result element 1: 1.355"
 result=$($RASQL -q 'select avg_cells(c[3,700:*,5]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array row"
 
-expected="  Result element 1: -1.08333"
+expected="  Result element 1: -1.083333333333333"
 result=$($RASQL -q 'select avg_cells(c[1,2,5:10]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array column"
 }
@@ -141,15 +141,15 @@ expected="  Result element 1: [1:1,0:719,0:360]"
 result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array domain"
 
-expected="  Result element 1: 0.103524"
+expected="  Result element 1: 0.1035237765466262"
 result=$($RASQL -q 'select avg_cells(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check full array contents"
 
-expected="  Result element 1: 0.103524"
+expected="  Result element 1: 0.1035237765466262"
 result=$($RASQL -q 'select avg_cells(c[1,*:*,*:*]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array slice contents"
 
-expected="  Result element 1: -1.08333"
+expected="  Result element 1: -1.083333333333333"
 result=$($RASQL -q 'select avg_cells(c[1,2,5:10]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array column"
 drop_colls test_grib2_3d
@@ -164,19 +164,19 @@ expected="  Result element 1: [1:2,0:719,0:360]"
 result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array domain"
 
-expected="  Result element 1: 0.117361"
+expected="  Result element 1: 0.1173613034779906"
 result=$($RASQL -q 'select avg_cells(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check full array contents"
 
-expected="  Result element 1: 0.103524"
+expected="  Result element 1: 0.1035237765466262"
 result=$($RASQL -q 'select avg_cells(c[1,*:*,*:*]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array slice contents"
 
-expected="  Result element 1: -1.08333"
+expected="  Result element 1: -1.083333333333333"
 result=$($RASQL -q 'select avg_cells(c[1,2,5:10]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array column"
 
-expected="  Result element 1: -0.196"
+expected="  Result element 1: -0.1960000000000001"
 result=$($RASQL -q 'select avg_cells(c[1:1,0:4,0:4]) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check subset contents"
 drop_colls test_grib2_3d
@@ -191,7 +191,7 @@ expected="  Result element 1: [1:1,0:4,0:4]"
 result=$($RASQL -q 'select sdom(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array domain"
 
-expected="  Result element 1: -0.196"
+expected="  Result element 1: -0.1960000000000001"
 result=$($RASQL -q 'select avg_cells(c) from test_grib2_3d as c' --out string | grep Result)
 check_result "$expected" "$result" "check full array contents"
 drop_colls test_grib2_3d
@@ -206,11 +206,11 @@ expected="  Result element 1: [0:2,0:2,0:719,0:360]"
 result=$($RASQL -q 'select sdom(c) from test_grib2_4d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array domain"
 
-expected="  Result element 1: 0.0678399"
+expected="  Result element 1: 0.06783989090660443"
 result=$($RASQL -q 'select avg_cells(c) from test_grib2_4d as c' --out string | grep Result)
 check_result "$expected" "$result" "check full array contents"
 
-expected="  Result element 1: 0.103524"
+expected="  Result element 1: 0.1035237765466262"
 result=$($RASQL -q 'select avg_cells(c[0,1,*:*,*:*]) from test_grib2_4d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array slice contents"
 
@@ -218,7 +218,7 @@ expected="  Result element 1: 1.355"
 result=$($RASQL -q 'select avg_cells(c[2,0,700:*,5]) from test_grib2_4d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array row"
 
-expected="  Result element 1: -1.08333"
+expected="  Result element 1: -1.083333333333333"
 result=$($RASQL -q 'select avg_cells(c[0,1,2,5:10]) from test_grib2_4d as c' --out string | grep Result)
 check_result "$expected" "$result" "check array column"
 

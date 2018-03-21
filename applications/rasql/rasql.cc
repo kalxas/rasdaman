@@ -53,6 +53,8 @@ static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/
 #include <fstream>
 #include <vector>
 #include <stdexcept>
+#include <limits>
+#include <iomanip>
 #include "raslib/commonutil.hh"
 
 using namespace std;
@@ -571,11 +573,11 @@ void printScalar(const r_Scalar& scalar)
         break;
 
     case r_Type::FLOAT:
-        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush);
+        INFO(std::setprecision(std::numeric_limits<float>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush);
         break;
 
     case r_Type::DOUBLE:
-        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush);
+        INFO(std::setprecision(std::numeric_limits<double>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush);
         break;
 
     case r_Type::COMPLEXTYPE1:
