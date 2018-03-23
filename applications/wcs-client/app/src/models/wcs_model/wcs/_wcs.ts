@@ -27,6 +27,8 @@
 /// <reference path="CoverageDescriptions.ts"/>
 /// <reference path="CoverageSubtypeParent.ts"/>
 /// <reference path="CoverageSummary.ts"/>
+/// <reference path="CRS.ts"/>
+/// <reference path="Clipping.ts"/>
 /// <reference path="DescribeCoverage.ts"/>
 /// <reference path="DimensionSubset.ts"/>
 /// <reference path="DimensionSlice.ts"/>

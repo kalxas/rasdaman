@@ -497,6 +497,7 @@ var rasdaman;
         Constants.RANGE_SUBSETTING_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/record-subsetting";
         Constants.SCALING_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
         Constants.INTERPOLATION_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
+        Constants.CRS_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
         return Constants;
     }());
     rasdaman.Constants = Constants;
@@ -1481,6 +1482,44 @@ var wcs;
 })(wcs || (wcs = {}));
 var wcs;
 (function (wcs) {
+    var CRS = (function () {
+        function CRS(subsettingCRS, outputCRS) {
+            this.subsettingCRS = subsettingCRS;
+            this.outputCRS = outputCRS;
+        }
+        CRS.prototype.toKVP = function () {
+            var result = "";
+            if (this.subsettingCRS) {
+                result = "&subsettingCRS=" + this.subsettingCRS;
+            }
+            if (this.outputCRS) {
+                result += "&outputCRS=" + this.outputCRS;
+            }
+            return result;
+        };
+        return CRS;
+    }());
+    wcs.CRS = CRS;
+})(wcs || (wcs = {}));
+var wcs;
+(function (wcs) {
+    var Clipping = (function () {
+        function Clipping(wkt) {
+            this.wkt = wkt;
+        }
+        Clipping.prototype.toKVP = function () {
+            var result = "";
+            if (this.wkt) {
+                result = "&clip=" + this.wkt;
+            }
+            return result;
+        };
+        return Clipping;
+    }());
+    wcs.Clipping = Clipping;
+})(wcs || (wcs = {}));
+var wcs;
+(function (wcs) {
     var RequestBase = (function () {
         function RequestBase() {
             this.service = "WCS";
@@ -1657,6 +1696,12 @@ var wcs;
             }
             if (this.interpolation) {
                 serialization += this.interpolation.toKVP();
+            }
+            if (this.crs) {
+                serialization += this.crs.toKVP();
+            }
+            if (this.clipping) {
+                serialization += this.clipping.toKVP();
             }
             if (this.format) {
                 serialization += "&FORMAT=" + this.format;
@@ -2880,7 +2925,11 @@ var rasdaman;
                         isScalingOpen: false,
                         isScalingSupported: WCSGetCoverageController.isScalingSupported($scope.wcsStateInformation.serverCapabilities),
                         isInterpolationOpen: false,
-                        isInterpolationSupported: WCSGetCoverageController.isInterpolationSupported($scope.wcsStateInformation.serverCapabilities)
+                        isInterpolationSupported: WCSGetCoverageController.isInterpolationSupported($scope.wcsStateInformation.serverCapabilities),
+                        isCRSOpen: false,
+                        isCRSSupported: WCSGetCoverageController.isCRSSupported($scope.wcsStateInformation.serverCapabilities),
+                        isClippingOpen: false,
+                        isClippingSupported: true
                     };
                     $scope.core = {
                         slices: [],
@@ -2908,6 +2957,12 @@ var rasdaman;
                     if ($scope.getCoverageTabStates.isInterpolationSupported) {
                         $scope.interpolationExtension = new rasdaman.WCSInterpolationExtensionModel($scope.wcsStateInformation.serverCapabilities);
                     }
+                    if ($scope.getCoverageTabStates.isCRSSupported) {
+                        $scope.crsExtension = new rasdaman.WCSCRSExtensionModel($scope.wcsStateInformation.serverCapabilities);
+                    }
+                    if ($scope.getCoverageTabStates.isClippingSupported) {
+                        $scope.clippingExtension = new rasdaman.WCSClippingExtensionModel($scope.wcsStateInformation.serverCapabilities);
+                    }
                     $scope.getCoverage = function () {
                         var dimensionSubset = [];
                         for (var i = 0; i < numberOfAxis; ++i) {
@@ -2927,6 +2982,8 @@ var rasdaman;
                         getCoverageRequest.rangeSubset = $scope.rangeSubsettingExtension.rangeSubset;
                         getCoverageRequest.scaling = $scope.scalingExtension.getScaling();
                         getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
+                        getCoverageRequest.crs = $scope.crsExtension.getCRS();
+                        getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
                         wcsService.getCoverage(getCoverageRequest)
                             .then(function (requestUrl) {
                             $scope.core.requestUrl = requestUrl;
@@ -2952,6 +3009,9 @@ var rasdaman;
         };
         WCSGetCoverageController.isInterpolationSupported = function (serverCapabilities) {
             return serverCapabilities.serviceIdentification.profile.indexOf(rasdaman.Constants.INTERPOLATION_EXT_URI) != -1;
+        };
+        WCSGetCoverageController.isCRSSupported = function (serverCapabilities) {
+            return serverCapabilities.serviceIdentification.profile.indexOf(rasdaman.Constants.CRS_EXT_URI) != -1;
         };
         WCSGetCoverageController.$inject = [
             "$scope",
@@ -3442,17 +3502,14 @@ var rasdaman;
 (function (rasdaman) {
     var WCSInterpolationExtensionModel = (function () {
         function WCSInterpolationExtensionModel(serverCapabilities) {
-            var _this = this;
             this.availableInterpolationMethods = [];
             for (var i = 0; i < serverCapabilities.serviceMetadata.extension.length; ++i) {
                 if (serverCapabilities.serviceMetadata.extension[i].interpolationMetadata) {
-                    serverCapabilities.serviceMetadata.extension[i].interpolationMetadata.interpolationSupported.forEach(function (interpolationUri) {
-                        _this.availableInterpolationMethods.push({
-                            name: interpolationUri,
-                            uri: interpolationUri
-                        });
-                    });
-                    break;
+                    var arr = serverCapabilities.serviceMetadata.extension[i].interpolationMetadata.interpolationSupported;
+                    for (var j = 0; j < arr.length; j++) {
+                        var interpolationUri = arr[j];
+                        this.availableInterpolationMethods.push({ name: interpolationUri, uri: interpolationUri });
+                    }
                 }
             }
         }
@@ -3479,6 +3536,56 @@ var rasdaman;
         };
     }
     rasdaman.WCSInterpolationExtension = WCSInterpolationExtension;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var WCSCRSExtensionModel = (function () {
+        function WCSCRSExtensionModel(serverCapabilities) {
+        }
+        WCSCRSExtensionModel.prototype.getCRS = function () {
+            return new wcs.CRS(this.wcsGetCoverageSubsettingCRS, this.wcsGetCoverageOutputCRS);
+        };
+        return WCSCRSExtensionModel;
+    }());
+    rasdaman.WCSCRSExtensionModel = WCSCRSExtensionModel;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    function WCSCRSExtension() {
+        return {
+            require: "ngModel",
+            scope: {
+                model: "=ngModel"
+            },
+            templateUrl: "src/components/wcs_component/crs_ext/CRSExtensionTemplate.html"
+        };
+    }
+    rasdaman.WCSCRSExtension = WCSCRSExtension;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var WCSClippingExtensionModel = (function () {
+        function WCSClippingExtensionModel(serverCapabilities) {
+        }
+        WCSClippingExtensionModel.prototype.getClipping = function () {
+            return new wcs.Clipping(this.wcsGetCoverageClipping);
+        };
+        return WCSClippingExtensionModel;
+    }());
+    rasdaman.WCSClippingExtensionModel = WCSClippingExtensionModel;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    function WCSClippingExtension() {
+        return {
+            require: "ngModel",
+            scope: {
+                model: "=ngModel"
+            },
+            templateUrl: "src/components/wcs_component/clipping_ext/ClippingExtensionTemplate.html"
+        };
+    }
+    rasdaman.WCSClippingExtension = WCSClippingExtension;
 })(rasdaman || (rasdaman = {}));
 var wms;
 (function (wms) {
@@ -4229,6 +4336,8 @@ var rasdaman;
         .directive("rangeSubsettingExtension", rasdaman.WCSRangeSubsettingExtension)
         .directive("scalingExtension", rasdaman.WCSScalingExtension)
         .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)
+        .directive("crsExtension", rasdaman.WCSCRSExtension)
+        .directive("clippingExtension", rasdaman.WCSClippingExtension)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete);

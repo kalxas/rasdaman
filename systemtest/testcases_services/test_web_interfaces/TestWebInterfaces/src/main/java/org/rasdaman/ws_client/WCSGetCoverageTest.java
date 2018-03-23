@@ -82,13 +82,46 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         dropdown.selectByVisibleText("image/png");
         // Then click on the Download Coverage button which will open a new window
         this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
-                        
+        
         // Refocus on the tab
         this.focusOnTheIFrameTab(webDriver);
         
+        // Download a coverage in PNG with subsettingCRS, outputCRS and clipping polygon
+        testCaseName = this.getSectionTestCaseName("get_clipped_crs_2D_coverage_in_png");       
+        log.info("Testing get clippied coverage (with subsettingCRS, outputCRS) with encoding as 2D PNG...");
+        // Then select coverage as png
+        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
+        dropdown.selectByVisibleText("image/png");        
+        // Then need to click on dropdown tab to show contents or it cannot add values to text boxes
+        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[4]/div[1]/h4/a/span/i");
+        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[5]/div[1]/h4/a/span/i");
+        
+        // Then add URL for subsettingCRS
+        this.addTextToTextBox(webDriver, "http://www.opengis.net/def/crs/EPSG/0/3857", "//*[@id=\"wcs-get-coverage-subsetting-crs\"]");
+        // Then add URL for outputCRS
+        this.addTextToTextBox(webDriver, "http://www.opengis.net/def/crs/EPSG/0/4326", "//*[@id=\"wcs-get-coverage-output-crs\"]");        
+        // Then add WKT in EPSG:3857
+        this.addTextToTextBox(webDriver, "POLYGON((13589894.568 -2015496.69612, 15086830.0246 -1780682.3822, 16867507.7313 -2856914.62008, "
+                + "15302077.392 -2269868.21355, 16906647.6642 -3913582.33674, 15096615.0078 -2514467.00655, 16182636.8281 -4510392.53842, "
+                + "14812883.8897 -2807984.60711, 15125969.9576 -4128820.82664, 14548722.738 -2964529.36373, "
+                + "14548722.738 -3737465.90606, 14333475.3706 -3071780.21294, 13971464.3866 -3854876.71085, "
+                + "14088873.0535 -3042805.48806, 13159399.8332 -4167958.77195, 13834485.7532 -2984102.2771, "
+                + "12846313.7653 -3590703.84695, 13619249.5177 -2788419.51082, 12699550.1487 -3140648.57605, "
+                + "13423560.9848 -2661225.99144, 12777830.0146 -2553611.15296, 13198539.7662 -2445988.6568))",
+                "//*[@id=\"wcs-get-coverage-clipping\"]");        
+        // Then click on the Download Coverage button which will open a new window
+        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
+                        
+        // Refocus on the tab
+        this.focusOnTheIFrameTab(webDriver);        
+      
         // Download a subset coverage in PNG (GML cannot be captured by PhantomJS)
         testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_png"); 
         log.info("Testing get subset coverage with encoding as 2D PNG...");
+        // Clear what has been done above
+        this.addTextToTextBox(webDriver, " ", "//*[@id=\"wcs-get-coverage-subsetting-crs\"]");
+        this.addTextToTextBox(webDriver, " ", "//*[@id=\"wcs-get-coverage-output-crs\"]");
+        this.addTextToTextBox(webDriver, " ", "//*[@id=\"wcs-get-coverage-clipping\"]");
         // Then select coverage as png
         dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
         dropdown.selectByVisibleText("image/png");
@@ -113,7 +146,7 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         // Then subset on Lon axis (min Lon)
         this.addTextToTextBox(webDriver, "154.275", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");        
         // Then click on the Download Coverage button which will open a new window
-        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
-        
+        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);       
+                
     }
 }

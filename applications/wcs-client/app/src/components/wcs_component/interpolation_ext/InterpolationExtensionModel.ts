@@ -32,15 +32,11 @@ module rasdaman {
 
             for (var i = 0; i < serverCapabilities.serviceMetadata.extension.length; ++i) {
                 if (serverCapabilities.serviceMetadata.extension[i].interpolationMetadata) {
-
-                    serverCapabilities.serviceMetadata.extension[i].interpolationMetadata.interpolationSupported.forEach(interpolationUri=> {
-                        this.availableInterpolationMethods.push({
-                            name: interpolationUri,
-                            uri: interpolationUri
-                        });
-                    });
-
-                    break;
+                    var arr = serverCapabilities.serviceMetadata.extension[i].interpolationMetadata.interpolationSupported;
+                    for (var j = 0; j <arr.length; j++) {
+                        var interpolationUri = arr[j];
+                        this.availableInterpolationMethods.push({name: interpolationUri, uri: interpolationUri});
+                    }                    
                 }
             }
         }

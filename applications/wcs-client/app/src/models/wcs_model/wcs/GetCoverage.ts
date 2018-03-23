@@ -37,6 +37,8 @@ module wcs {
         public rangeSubset:wcs.RangeSubset;
         public scaling:wcs.Scaling;
         public interpolation:wcs.Interpolation;
+        public crs:wcs.CRS;
+        public clipping:wcs.Clipping;
 
         public constructor(coverageId:string, dimensionSubset:DimensionSubset[], format?:string, mediaType?:boolean) {
             super();
@@ -71,6 +73,14 @@ module wcs {
 
             if (this.interpolation) {
                 serialization += this.interpolation.toKVP();
+            }
+
+            if (this.crs) {
+                serialization += this.crs.toKVP();
+            }
+
+            if (this.clipping) {
+                serialization += this.clipping.toKVP();
             }
 
             if (this.format) {

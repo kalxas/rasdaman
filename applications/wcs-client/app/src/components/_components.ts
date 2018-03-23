@@ -44,6 +44,12 @@
 /// <reference path="wcs_component/interpolation_ext/InterpolationExtensionModel.ts"/>
 /// <reference path="wcs_component/interpolation_ext/InterpolationExtension.ts"/>
 
+/// <reference path="wcs_component/crs_ext/CRSExtensionModel.ts"/>
+/// <reference path="wcs_component/crs_ext/CRSExtension.ts"/>
+
+/// <reference path="wcs_component/clipping_ext/ClippingExtensionModel.ts"/>
+/// <reference path="wcs_component/clipping_ext/ClippingExtension.ts"/>
+
 /// <reference path="main/WCSMainController.ts"/>
 /// <reference path="main/WMSMainController.ts"/>
 

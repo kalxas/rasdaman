@@ -21,14 +21,16 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+///<reference path="../../../../assets/typings/tsd.d.ts"/>
+
 module rasdaman {
-    export class Constants {
-        public static APP_NAME:string = "wcsClient";
-        public static PROCESSING_EXT_URI:string = "http://www.opengis.net/spec/WCS_service-extension_processing/2.0/conf/processing";
-        public static TRANSACTION_EXT_URI:string = "http://www.opengis.net/spec/WCS_service-extension_transaction/2.0/conf/insert+delete";
-        public static RANGE_SUBSETTING_EXT_URI:string = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/record-subsetting";
-        public static SCALING_EXT_URI:string = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
-        public static INTERPOLATION_EXT_URI:string = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
-        public static CRS_EXT_URI:string = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
+    export function WCSCRSExtension():angular.IDirective {
+        return {
+            require: "ngModel",
+            scope: {
+                model: "=ngModel"
+            },
+            templateUrl: "src/components/wcs_component/crs_ext/CRSExtensionTemplate.html"
+        };
     }
 }

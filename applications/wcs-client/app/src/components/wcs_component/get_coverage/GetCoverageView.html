@@ -137,6 +137,24 @@
                     </div>
                 </uib-accordion-group>
 
+                <uib-accordion-group class="row" ng-if="getCoverageTabStates.isCRSSupported" is-open="getCoverageTabStates.isCRSOpen">
+                    <uib-accordion-heading>
+                        CRS Extension
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isCRSOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isCRSOpen}"></i>
+                    </uib-accordion-heading>
+                    <div crs-extension ng-model="crsExtension">
+                    </div>
+                </uib-accordion-group>
+
+                <uib-accordion-group class="row" ng-if="getCoverageTabStates.isClippingSupported" is-open="getCoverageTabStates.isClippingOpen">
+                    <uib-accordion-heading>
+                        Clipping Extension
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': getCoverageTabStates.isClippingOpen, 'glyphicon-chevron-right': !getCoverageTabStates.isClippingOpen}"></i>
+                    </uib-accordion-heading>
+                    <div clipping-extension ng-model="clippingExtension">
+                    </div>
+                </uib-accordion-group>
+
                 <uib-accordion-group class="row" ng-if="getCoverageTabStates.isInterpolationSupported" is-open="getCoverageTabStates.isInterpolationOpen">
                     <uib-accordion-heading>
                         Interpolation Extension

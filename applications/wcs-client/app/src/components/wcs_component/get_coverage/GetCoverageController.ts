@@ -125,7 +125,12 @@ module rasdaman {
                             isScalingOpen: false,
                             isScalingSupported: WCSGetCoverageController.isScalingSupported($scope.wcsStateInformation.serverCapabilities),
                             isInterpolationOpen: false,
-                            isInterpolationSupported: WCSGetCoverageController.isInterpolationSupported($scope.wcsStateInformation.serverCapabilities)
+                            isInterpolationSupported: WCSGetCoverageController.isInterpolationSupported($scope.wcsStateInformation.serverCapabilities),
+                            isCRSOpen: false,
+                            isCRSSupported: WCSGetCoverageController.isCRSSupported($scope.wcsStateInformation.serverCapabilities),
+                            isClippingOpen: false,
+                            // TODO: when clipping is accepted from OGC, get an URI to schema from WCS GetCapabilities.
+                            isClippingSupported: true
                         };
 
                         $scope.core = {
@@ -160,6 +165,14 @@ module rasdaman {
                             $scope.interpolationExtension = new WCSInterpolationExtensionModel($scope.wcsStateInformation.serverCapabilities);
                         }
 
+                        if ($scope.getCoverageTabStates.isCRSSupported) {
+                            $scope.crsExtension = new WCSCRSExtensionModel($scope.wcsStateInformation.serverCapabilities);
+                        }
+
+                        if ($scope.getCoverageTabStates.isClippingSupported) {
+                            $scope.clippingExtension = new WCSClippingExtensionModel($scope.wcsStateInformation.serverCapabilities);
+                        }
+
                         $scope.getCoverage = function ():void {
                             var dimensionSubset:wcs.DimensionSubset[] = [];
                             for (var i = 0; i < numberOfAxis; ++i) {
@@ -180,6 +193,8 @@ module rasdaman {
                             getCoverageRequest.rangeSubset = $scope.rangeSubsettingExtension.rangeSubset;
                             getCoverageRequest.scaling = $scope.scalingExtension.getScaling();
                             getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
+                            getCoverageRequest.crs = $scope.crsExtension.getCRS();
+                            getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
 
                             wcsService.getCoverage(getCoverageRequest)
                                 .then(
@@ -211,6 +226,10 @@ module rasdaman {
         private static isInterpolationSupported(serverCapabilities:wcs.Capabilities):boolean {
             return serverCapabilities.serviceIdentification.profile.indexOf(Constants.INTERPOLATION_EXT_URI) != -1;
         }
+
+        private static isCRSSupported(serverCapabilities:wcs.Capabilities):boolean {
+            return serverCapabilities.serviceIdentification.profile.indexOf(Constants.CRS_EXT_URI) != -1;
+        }
     }
 
 
@@ -229,6 +248,8 @@ module rasdaman {
         core:GetCoverageCoreModel;
         rangeSubsettingExtension:RangeSubsettingModel;
         scalingExtension:WCSScalingExtensionModel;
+        crsExtension:WCSCRSExtensionModel;
+        clippingExtension:WCSClippingExtensionModel;
         interpolationExtension:WCSInterpolationExtensionModel;
 
         getCoverageTabStates:GetCoverageTabStates;
@@ -263,5 +284,13 @@ module rasdaman {
         //Is the interpolation tab open
         isInterpolationOpen:boolean;
         isInterpolationSupported:boolean;
+
+        //Is the CRS tab open
+        isCRSOpen:boolean;
+        isCRSSupported:boolean;
+
+        //Is the Clipping tab open
+        isClippingOpen:boolean;
+        isClippingSupported:boolean;
     }
 }

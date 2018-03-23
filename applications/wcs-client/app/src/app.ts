@@ -130,6 +130,8 @@ module rasdaman {
         .directive("rangeSubsettingExtension", rasdaman.WCSRangeSubsettingExtension)
         .directive("scalingExtension", rasdaman.WCSScalingExtension)
         .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)
+        .directive("crsExtension", rasdaman.WCSCRSExtension)
+        .directive("clippingExtension", rasdaman.WCSClippingExtension)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete);
