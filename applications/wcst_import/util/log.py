@@ -23,6 +23,7 @@
 """
 import logging
 import sys
+from logging import Filter
 
 """
 Configuration of the python logger
@@ -71,6 +72,30 @@ def success(self, message, *args, **kws):
 logging.Logger.title = title
 logging.Logger.success = success
 logging.StreamHandler.emit = add_coloring_to_emit_ansi(logging.StreamHandler.emit)
-log = logging.getLogger("WCSTILogger")
-log.setLevel(TITLE_LEVEL)
-log.addHandler(logging.StreamHandler(sys.stdout))
+log = logging.getLogger()
+
+class SingleLevelFilter(logging.Filter):
+    def __init__(self, passlevel, reject):
+        self.passlevel = passlevel
+        self.reject = reject
+
+    def filter(self, record):
+        if self.reject:
+            return (record.levelno != self.passlevel)
+        else:
+            return (record.levelno == self.passlevel)
+
+# Default is logging level debug
+log.setLevel(logging.DEBUG)
+
+# Lower than level info (called by method of log (e.g: log.debug()) in other classes) go to stdout
+handler1 = logging.StreamHandler(sys.stdout)
+filter1 = SingleLevelFilter(logging.INFO, False)
+handler1.addFilter(filter1)
+log.addHandler(handler1)
+
+# Higher than info (called by method of log (e.g: log.error()) in other classes) go to stderr
+handler2 = logging.StreamHandler(sys.stderr)
+filter2 = SingleLevelFilter(logging.INFO, True)
+handler2.addFilter(filter2)
+log.addHandler(handler2)

@@ -109,8 +109,12 @@ for test_case in $TEST_DATA/*; do
     # 1.4 execute wcst_import with $recipe_file
     if [[ "$test_case" == *"error_"* ]]; then
         # This test returns error, then check with test.oracle
-        outputError=`python "$SCRIPT_DIR/../../../applications/wcst_import/wcst_import.py" $recipe_file 2>&1`
+        outputError=`wcst_import.sh $recipe_file -q`
         oracleError=`cat $test_case/test.oracle`
+
+        # echo $outputError
+        # echo $oracleError
+        # exit 1
 
         logn "Checking error output is identical with oracle output..."
 
@@ -131,7 +135,7 @@ for test_case in $TEST_DATA/*; do
     else
         logn "Test import coverage... "
         # This test will succeed, check coverage exists later
-        wcst_import.sh "$recipe_file" >> "$LOG_FILE"
+        wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"
     fi
 
     if [[ $? != 0 ]]; then
@@ -139,7 +143,7 @@ for test_case in $TEST_DATA/*; do
         # In Debian, it can failed without reason in some test cases, try it again can make it work
         echo ""
         logn "First import does not succeed, try one more time... "
-        wcst_import.sh "$recipe_file" >> "$LOG_FILE"        
+        wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"        
     fi
     
     if [[ $? != 0 ]]; then
@@ -147,7 +151,7 @@ for test_case in $TEST_DATA/*; do
         # In Debian, it can failed without reason in some test cases, try it again can make it work
         echo ""
         logn "Second import does not succeed, try one more time... "
-        wcst_import.sh "$recipe_file" >> "$LOG_FILE"
+        wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"
     fi    
 
     # 2 Check if wcst_import runs successfully
@@ -231,6 +235,7 @@ for test_case in $TEST_DATA/*; do
         logn "Cleaning collection: $COLLECTION_NAME."
         rasql -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
         logn "Done."
+        log ""
     fi
     echo -e
 

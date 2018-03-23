@@ -23,4 +23,41 @@
 #
 # Call the wcst_import.py from the share directory
 export PETASCOPE_PROPERTIES_PATH="@CONF_DIR@/petascope.properties"
-python @WCST_IMPORT_PY_SCRIPT@ $1
+
+RC_OK=0
+
+usage()
+{
+  local -r usage="
+Usage: $PROG [OPTION] <ingredients_file>
+
+wcst_import.sh is a tool for importing data into petascope via WCS-T (example: http://rasdaman.org/wiki/WCSTImportGuide).
+
+Options:
+  -q, --quiet
+    suppress regular output
+  -h, --help
+    display this help and exit
+"
+  echo "$usage"
+  exit $RC_OK
+}
+
+# ----------------------------------------------------------------------------
+# parse command-line options
+# ----------------------------------------------------------------------------
+quiet=false 
+for i in "$@"; do
+    case $i in
+      -h|--help)     usage;;
+      -q|--quiet)   quiet=true;;
+      *) ingredients_file="$i";;
+    esac
+done
+
+if [[ "$quiet" == true ]]; then
+    # Ignore stdout, redirect stderr to stdout when log level > INFO in wcst_import/.../log.py
+    python @WCST_IMPORT_PY_SCRIPT@ "$ingredients_file" 2>&1 > /dev/null
+else
+    python @WCST_IMPORT_PY_SCRIPT@ "$ingredients_file"
+fi
