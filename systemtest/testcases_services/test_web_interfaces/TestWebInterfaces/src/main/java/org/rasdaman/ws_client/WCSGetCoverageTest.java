@@ -74,6 +74,7 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         
         String downloadButtonXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[6]/button";
         
+        // ******************** Test HTTP GET request ***********************
         // Download a whole coverage in PNG (GML cannot be captured by PhantomJS)
         testCaseName = this.getSectionTestCaseName("get_whole_2D_coverage_in_png");
         log.info("Testing get whole coverage with encoding as 2D PNG...");
@@ -147,6 +148,41 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         this.addTextToTextBox(webDriver, "154.275", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");        
         // Then click on the Download Coverage button which will open a new window
         this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);       
+        
+        
+        // ******************** Test HTTP POST request ***********************
+        // Refocus on the tab
+        this.focusOnTheIFrameTab(webDriver);
+        // then change to POST HTTP request
+        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"selectHTTPRequest\"]")));
+        dropdown.selectByVisibleText("POST");
+        
+        testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_png_http_post"); 
+        log.info("Testing get subset coverage with encoding as 2D PNG in HTTP POST...");
+        // Then select coverage as png
+        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
+        dropdown.selectByVisibleText("image/png");
+        // Then subset on Lat axis (min lat)
+        this.addTextToTextBox(webDriver, "-20.5", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[2]");
+        // Then subset on Lon axis (min Lon)
+        this.addTextToTextBox(webDriver, "135.5", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");                
+        // Then click on the Download Coverage button which will open a new window
+        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
+        
+        
+        // Refocus on the tab
+        this.focusOnTheIFrameTab(webDriver);
+        testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_jp2_http_post"); 
+        log.info("Testing get subset coverage with encoding as 2D JP2 in HTTP POST...");
+        // Then select coverage as png
+        dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
+        dropdown.selectByVisibleText("image/jp2");
+        // Then subset on Lat axis (min lat)
+        this.addTextToTextBox(webDriver, "-20.5", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[2]");
+        // Then subset on Lon axis (min Lon)
+        this.addTextToTextBox(webDriver, "135.5", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[2]");                
+        // Then click on the Download Coverage button which will open a new window
+        this.runTestByClickingOnElementAndCaptureTheOpenedWindow(webDriver, testCaseName, downloadButtonXPath);
                 
     }
 }

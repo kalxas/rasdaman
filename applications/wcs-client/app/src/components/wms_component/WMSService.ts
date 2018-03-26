@@ -36,7 +36,7 @@ module rasdaman {
         }
 
 
-        public getServerCapabilities(request:wms.GetCapabilities):angular.IPromise<rasdaman.common.Response<wms.Capabilities> > {
+        public getServerCapabilities(request:wms.GetCapabilities):angular.IPromise<any> {
             var result = this.$q.defer();
             var self = this;
 
@@ -64,7 +64,7 @@ module rasdaman {
          * @param query wcs.ProcessCoverages query that will be serialized and sent to the server.
          * @returns {IPromise<T>}
          */
-        public updateLayerStyleRequest(updateLayerStyle:wms.UpdateLayerStyle):angular.IPromise<rasdaman.common.Response<any> > {
+        public updateLayerStyleRequest(updateLayerStyle:wms.UpdateLayerStyle):angular.IPromise<any> {
             var result = this.$q.defer();                                               
             var requestUrl = this.settings.wmsEndpoint;
 

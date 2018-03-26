@@ -37,7 +37,7 @@ module rasdaman {
         }
 
 
-        public getServerCapabilities(request:wcs.GetCapabilities):angular.IPromise<rasdaman.common.Response<wcs.Capabilities> > {
+        public getServerCapabilities(request:wcs.GetCapabilities):angular.IPromise<any> {
             var result = this.$q.defer();
             var self = this;
 
@@ -61,14 +61,15 @@ module rasdaman {
         }
 
         // When sending request GetCapabilities, also make a request to a made up GetCoveragesExtents to get all the reprojected CoveragesExtents in ESPG:4326        
-        public getCoveragesExtents():angular.IPromise<rasdaman.common.Response<any>> {
+        public getCoveragesExtents():angular.IPromise<any> {
             var result = this.$q.defer();
 
             var requestUrl = this.settings.wcsEndpoint + "/GetCoveragesExtents";
 
             this.$http.get(requestUrl)
                 .then(function (data:any) {
-                    result.resolve(data);
+                    var response = new rasdaman.common.Response<any>(null, data.data);
+                    result.resolve(response);
                 }, function (error) {
                     result.reject(error);
                 });
@@ -76,7 +77,7 @@ module rasdaman {
             return result.promise;
         }
 
-        public getCoverageDescription(request:wcs.DescribeCoverage):angular.IPromise<rasdaman.common.Response<wcs.CoverageDescriptions> > {
+        public getCoverageDescription(request:wcs.DescribeCoverage):angular.IPromise<any> {
             var result = this.$q.defer();
             var self = this;
 
@@ -100,7 +101,8 @@ module rasdaman {
             return result.promise;
         }
 
-        public getCoverage(request:wcs.GetCoverage):angular.IPromise<any> {
+        // Send a GetCoverage KVP request in HTTP GET
+        public getCoverageHTTPGET(request:wcs.GetCoverage):angular.IPromise<any> {
             var result = this.$q.defer();
             // Build the request URL
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
@@ -114,7 +116,46 @@ module rasdaman {
             return result.promise;
         }
 
-        public deleteCoverage(coverageId:string):angular.IPromise<rasdaman.common.Response<any> > {
+        // Send a GetCoverage KVP request in HTTP POST
+        public getCoverageHTTPPOST(request:wcs.GetCoverage) {
+            var result = this.$q.defer();
+
+            var requestUrl = this.settings.wcsEndpoint;
+            var keysValues = request.toKVP();
+            var arrayTmp = keysValues.split("&");
+
+            // Simulate the same behavior as HTTP GET, open a new window to see the result from Petascope
+            // by submitting form input elements.
+            var formId = "getCoverageHTTPPostForm";     
+            var formTmp = <HTMLFormElement>(document.getElementById(formId)); 
+            // remove the old one if exists      
+            if (formTmp) {
+                document.body.removeChild(formTmp);
+            }            
+
+            formTmp = document.createElement("form");
+            formTmp.id = "getCoverageHTTPPostForm";
+            formTmp.target = "_blank";
+            formTmp.method = "POST";
+            formTmp.action = requestUrl;
+
+            for (var i = 0; i < arrayTmp.length;i ++) {
+                if (arrayTmp[i].trim() != "") {
+                    var inputTmp = document.createElement("input");
+                    inputTmp.type = "hidden";
+                    // e.g: service=WCS
+                    var keyValue = arrayTmp[i].split("=");
+                    inputTmp.name = keyValue[0];
+                    inputTmp.value = keyValue[1];
+                    formTmp.appendChild(inputTmp);
+                }                
+            }
+
+            document.body.appendChild(formTmp);            
+            formTmp.submit();
+        }
+
+        public deleteCoverage(coverageId:string):angular.IPromise<any> {
             var result = this.$q.defer();
 
             if (!coverageId) {
@@ -132,7 +173,7 @@ module rasdaman {
             return result.promise;
         }
 
-        public insertCoverage(coverageUrl:string, useGeneratedId:boolean):angular.IPromise<rasdaman.common.Response<any> > {
+        public insertCoverage(coverageUrl:string, useGeneratedId:boolean):angular.IPromise<any> {
             var result = this.$q.defer();
 
             if (!coverageUrl) {
@@ -158,7 +199,7 @@ module rasdaman {
          * @param query wcs.ProcessCoverages query that will be serialized and sent to the server.
          * @returns {IPromise<T>}
          */
-        public processCoverages(query:String):angular.IPromise<rasdaman.common.Response<any> > {
+        public processCoverages(query:String):angular.IPromise<any> {
             var result = this.$q.defer();            
             // Use POST request to POST long WCPS query to server as form-data (as same as Web page /ows/wcps)
             var queryStr = 'query=' + query;

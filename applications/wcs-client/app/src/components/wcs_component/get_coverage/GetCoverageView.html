@@ -165,11 +165,17 @@
                 </uib-accordion-group>
             </uib-accordion>
         </div>
+        <!-- Only used for GET KVP Request -->
         <div class="row top5" ng-show="core.requestUrl">
-            The constructed request is: <a href="{{core.requestUrl}}" target="_blank">{{core.requestUrl}}</a>
+            The constructed GET KVP request is: <a href="{{core.requestUrl}}" target="_blank">{{core.requestUrl}}</a>
         </div>
-        <div class="row top5">
-            <button class="btn btn-default" ng-click="getCoverage()">Download Coverage</button>
+        
+        <div class="row top5" ng-show="getCoverageTabStates.isCoreOpen">
+            <b>Select HTTP request for GetCoverage KVP</b>:
+            <select style="height: 30px;" ng-options="httpRequest for httpRequest in avaiableHTTPRequests" 
+                                          ng-model="selectedHTTPRequest" id="selectHTTPRequest">                             
+            </select>
+            <button style="margin-left: 10px;" class="btn btn-default" ng-click="getCoverage()">Download Coverage</button>
         </div>
     </div>
 </div>

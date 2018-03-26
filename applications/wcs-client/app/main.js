@@ -1985,7 +1985,8 @@ var rasdaman;
             var requestUrl = this.settings.wcsEndpoint + "/GetCoveragesExtents";
             this.$http.get(requestUrl)
                 .then(function (data) {
-                result.resolve(data);
+                var response = new rasdaman.common.Response(null, data.data);
+                result.resolve(response);
             }, function (error) {
                 result.reject(error);
             });
@@ -2012,12 +2013,40 @@ var rasdaman;
             });
             return result.promise;
         };
-        WCSService.prototype.getCoverage = function (request) {
+        WCSService.prototype.getCoverageHTTPGET = function (request) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
             this.$window.open(requestUrl);
             result.resolve(requestUrl);
             return result.promise;
+        };
+        WCSService.prototype.getCoverageHTTPPOST = function (request) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint;
+            var keysValues = request.toKVP();
+            var arrayTmp = keysValues.split("&");
+            var formId = "getCoverageHTTPPostForm";
+            var formTmp = (document.getElementById(formId));
+            if (formTmp) {
+                document.body.removeChild(formTmp);
+            }
+            formTmp = document.createElement("form");
+            formTmp.id = "getCoverageHTTPPostForm";
+            formTmp.target = "_blank";
+            formTmp.method = "POST";
+            formTmp.action = requestUrl;
+            for (var i = 0; i < arrayTmp.length; i++) {
+                if (arrayTmp[i].trim() != "") {
+                    var inputTmp = document.createElement("input");
+                    inputTmp.type = "hidden";
+                    var keyValue = arrayTmp[i].split("=");
+                    inputTmp.name = keyValue[0];
+                    inputTmp.value = keyValue[1];
+                    formTmp.appendChild(inputTmp);
+                }
+            }
+            document.body.appendChild(formTmp);
+            formTmp.submit();
         };
         WCSService.prototype.deleteCoverage = function (coverageId) {
             var result = this.$q.defer();
@@ -2599,7 +2628,7 @@ var rasdaman;
                     $scope.isServiceProviderOpen = true;
                     wcsService.getCoveragesExtents()
                         .then(function (response) {
-                        $scope.coveragesExtents = response.data;
+                        $scope.coveragesExtents = response.value;
                         for (var i = 0; i < $scope.coveragesExtents.length; i++) {
                             $scope.coveragesExtents[i].displayFootprint = false;
                         }
@@ -2912,6 +2941,8 @@ var rasdaman;
                     return;
                 }
                 $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;
+                $scope.avaiableHTTPRequests = ["GET", "POST"];
+                $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
                 $scope.loadCoverageExtentOnGlobe();
             };
             $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (coverageDescriptions) {
@@ -2984,18 +3015,23 @@ var rasdaman;
                         getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
                         getCoverageRequest.crs = $scope.crsExtension.getCRS();
                         getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
-                        wcsService.getCoverage(getCoverageRequest)
-                            .then(function (requestUrl) {
-                            $scope.core.requestUrl = requestUrl;
-                        }, function () {
-                            var args = [];
-                            for (var _i = 0; _i < arguments.length; _i++) {
-                                args[_i] = arguments[_i];
-                            }
-                            $scope.core.requestUrl = null;
-                            alertService.error("Failed to execute GetCoverage operation.");
-                            $log.error(args);
-                        });
+                        if ($scope.selectedHTTPRequest == "GET") {
+                            wcsService.getCoverageHTTPGET(getCoverageRequest)
+                                .then(function (requestUrl) {
+                                $scope.core.requestUrl = requestUrl;
+                            }, function () {
+                                var args = [];
+                                for (var _i = 0; _i < arguments.length; _i++) {
+                                    args[_i] = arguments[_i];
+                                }
+                                $scope.core.requestUrl = null;
+                                alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
+                                $log.error(args);
+                            });
+                        }
+                        else {
+                            wcsService.getCoverageHTTPPOST(getCoverageRequest);
+                        }
                     };
                     $scope.loadCoverageExtentOnGlobe();
                 }

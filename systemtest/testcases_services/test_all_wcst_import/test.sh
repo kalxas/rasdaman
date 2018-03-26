@@ -133,24 +133,24 @@ for test_case in $TEST_DATA/*; do
 
         continue
     else
-        logn "Test import coverage... "
+        logn "Test coverage import... "
         # This test will succeed, check coverage exists later
         wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"
     fi
 
     if [[ $? != 0 ]]; then
         sleep 2
-        # In Debian, it can failed without reason in some test cases, try it again can make it work
+        # In Debian, it can fail without reason in some test cases, try it again can make it work
         echo ""
-        logn "First import does not succeed, try one more time... "
+        logn "Failed, trying one more time... "
         wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"        
     fi
     
     if [[ $? != 0 ]]; then
         sleep 2
-        # In Debian, it can failed without reason in some test cases, try it again can make it work
+        # In Debian, it can fail without reason in some test cases, try it again can make it work
         echo ""
-        logn "Second import does not succeed, try one more time... "
+        logn "Failed, trying one more time... "
         wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"
     fi    
 
@@ -222,7 +222,7 @@ for test_case in $TEST_DATA/*; do
                 delete_coverage "$COVERAGE_ID"
                 if [[ $? != 0 ]]; then                    
                     check_failed         
-                    write_to_failed_log "$test_case" "Cannot delete CoverageID in Petascope WCS."                               
+                    write_to_failed_log "$test_case" "Cannot delete CoverageID in Petascope WCS."
                 else # 2.8 coverage is deleted (return HTTP 200)
                     check_passed
                 fi
@@ -232,7 +232,7 @@ for test_case in $TEST_DATA/*; do
 
     # 2.7.1 remove created collection in rasdaman
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-        logn "Cleaning collection: $COLLECTION_NAME."
+        logn "Removing collection: $COLLECTION_NAME."
         rasql -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
         logn "Done."
         log ""

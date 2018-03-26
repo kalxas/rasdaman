@@ -155,7 +155,7 @@ module rasdaman {
                             wcsService.getCoveragesExtents()
                                 .then((response:rasdaman.common.Response<any>)=> {
                                         //Success handler
-                                        $scope.coveragesExtents = response.data;
+                                        $scope.coveragesExtents = response.value;
                                         // default don't load any coverage's on globe, just prepare them
                                         for (var i = 0; i < $scope.coveragesExtents.length; i++) {
                                             $scope.coveragesExtents[i].displayFootprint = false;

@@ -155,13 +155,11 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
                 // e.g: image/png if it exists in the request
                 requestedMime = kvpParameters.get(KVPSymbols.KEY_FORMAT)[0];
             }
-            // e.g: png
-            String encodeFormat = MIMEUtil.getFormatType(requestedMime);
             wcpsQuery = WCPS_QUERY_TEMPLATE.replace("$coverageId", coverageId)
                     .replace("$queryContent", queryContent);
 
             // Handle multipart for WCS (WCPS) request if any or non multipart            
-            Response responseTmp = responseService.handleWCPSResponse(kvpParameters, wcpsQuery, encodeFormat);
+            Response responseTmp = responseService.handleWCPSResponse(kvpParameters, wcpsQuery, requestedMime);
             responses.add(responseTmp);
         }
 

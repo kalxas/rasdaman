@@ -106,6 +106,10 @@ module rasdaman {
                 // trigger the DescribeCoverage in DescribeCoverageController to fill the data to both DescribeCoverage and GetCoverage tabs
                 $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;                
                 // $scope.$digest();
+                
+                // Supported HTTP request type for GetCoverage KVP request
+                $scope.avaiableHTTPRequests = ["GET", "POST"];
+                $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
 
                 // load the coverage extent on the globe
                 $scope.loadCoverageExtentOnGlobe();
@@ -196,7 +200,9 @@ module rasdaman {
                             getCoverageRequest.crs = $scope.crsExtension.getCRS();
                             getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
 
-                            wcsService.getCoverage(getCoverageRequest)
+                            if ($scope.selectedHTTPRequest == "GET") {
+                                // GET KVP request which open a new Window to show the result
+                                wcsService.getCoverageHTTPGET(getCoverageRequest)
                                 .then(
                                     (requestUrl:string)=> {
                                         $scope.core.requestUrl = requestUrl;                                        
@@ -204,9 +210,13 @@ module rasdaman {
                                     (...args:any[])=> {
                                         $scope.core.requestUrl = null;
 
-                                        alertService.error("Failed to execute GetCoverage operation.");
+                                        alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
                                         $log.error(args);
-                                    });                            
+                                    });
+                            } else {
+                                // POST KVP request which open a new Window to show the result
+                                wcsService.getCoverageHTTPPOST(getCoverageRequest);
+                            }                           
                         };
 
                         // Load the coverage extent on globe
@@ -244,6 +254,9 @@ module rasdaman {
         isCoverageIdValid():void;
 
         coverageDescription:wcs.CoverageDescription;
+        // GET, POST
+        avaiableHTTPRequests:string[];
+        selectedHTTPRequest:string;
 
         core:GetCoverageCoreModel;
         rangeSubsettingExtension:RangeSubsettingModel;
@@ -266,7 +279,7 @@ module rasdaman {
         isTrimSelected:boolean[];
         isMultiPartFormat:boolean;
         selectedCoverageFormat:string;
-        requestUrl:string;
+        requestUrl:string;        
     }
 
     interface GetCoverageTabStates {        

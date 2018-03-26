@@ -277,13 +277,14 @@ public class MIMEUtil {
      * Check if the MIME output is an 2D image which can be displayable.
      */
     public static boolean displayableMIME(String encode) {
-        if (encode.equalsIgnoreCase(ENCODE_PNG)
-            || encode.equalsIgnoreCase(ENCODE_JPEG)
-            || encode.equalsIgnoreCase(ENCODE_BMP)
-            || encode.equalsIgnoreCase(ENCODE_TIFF)
-            || encode.equalsIgnoreCase(ENCODE_GTIFF)
-            || encode.equalsIgnoreCase(ENCODE_GIF)
-            || encode.equalsIgnoreCase(ENCODE_JPEG2000)) {
+        encode = encode.toLowerCase();
+        if (encode.contains(ENCODE_PNG)
+            || encode.contains(ENCODE_JPEG)
+            || encode.contains(ENCODE_BMP)
+            || encode.contains(ENCODE_TIFF)
+            || encode.contains(ENCODE_GTIFF)
+            || encode.contains(ENCODE_GIF)
+            || encode.contains(ENCODE_JPEG2000)) {
             return true;
         }
         return false;

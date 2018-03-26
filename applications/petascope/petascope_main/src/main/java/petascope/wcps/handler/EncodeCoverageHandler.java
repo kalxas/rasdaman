@@ -80,7 +80,7 @@ public class EncodeCoverageHandler {
         String mimeType = MIMEUtil.getMimeType(format);
 
         // NOTE: must use JP2OpenJPEG to encode with geo-reference metadata for JPEG2000 (JP2)
-        if (format.equalsIgnoreCase(MIMEUtil.FORMAT_ID_JP2)) {
+        if (format.contains(MIMEUtil.FORMAT_ID_JP2) || format.contains(MIMEUtil.CODEC_JP2)) {
             format = MIMEUtil.FORMAT_ID_OPENJP2;
         } else if (format.contains(MIMEUtil.ENCODE_GML)) {
             // NOTE: We need the values from JSON encoding of a coverage (http://rasdaman.org/ticket/1578)
