@@ -47,6 +47,7 @@ static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/
 #include "raslib/template_inst.hh"
 #endif
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
@@ -1085,6 +1086,9 @@ int main(int argc, char** argv)
     int retval = EXIT_SUCCESS;  // overall result status
 
     installSigSegvHandler(crash_handler);
+    // unset the http_proxy env variable if it is set, otherwise rasql will most likely fail
+    // more info at http://rasdaman.org/ticket/1716
+    unsetenv("http_proxy");
     try
     {
         parseParams(argc, argv);
