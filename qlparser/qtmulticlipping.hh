@@ -67,14 +67,19 @@ class QtMulticlipping : public QtUnaryOperation
     enum QtMulticlipType
     {
         CLIP_MULTIPOLYGON,
-        CLIP_MULTILINESTRING
+        CLIP_MULTILINESTRING,
+        CLIP_POSITIVEGENUS
     };
     
-    QtMulticlipping(QtOperation* mddOp, const std::vector<QtMShapeData*>& mshapeOp, QtMulticlipType ct);
+    QtMulticlipping(QtOperation* mddOp, const std::vector<QtMShapeData*>& mshapeListArg, QtMulticlipType ct);
+    
+    QtMulticlipping(QtOperation* mddOp, const std::vector< std::vector<QtMShapeData*>* >& mshapeListArg, QtMulticlipType ct);
 
     QtData* computeOp(QtMDD* operand);
 
     MDDObj* extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op);
+    
+//    MDDObj* extractPositiveGenus(const r_Minterval& areaOp, const MDDObj* op);
     
     /// method for evaluating the node
     QtData* evaluate(QtDataList* inputList);
@@ -87,7 +92,7 @@ class QtMulticlipping : public QtUnaryOperation
 
   private:
     
-    std::vector<QtMShapeData*> mshapeList;
+    std::vector< QtPositiveGenusClipping > mshapeList;
       
     /// attribute for identifying the type of clipping to be performed
     QtMulticlipType clipType;

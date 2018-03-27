@@ -587,6 +587,7 @@ public:
 #define CLIPERRORUNDEFINED                  520
 #define CURTAINLINESTRINGDIMENSIONMISMATCH  521
 #define ALLPOLYGONSOUTSIDEMDDOBJ            522
+#define POLYGONHOLEINEXTERIOR               523
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709
 #define FAILEDWRITINGTODISK                 710

@@ -1,0 +1,1 @@
+select encode(clip(c, polygon((0 0, 399 0, 399 343), (0 300, 0 343, 100 343))), "png") from test_rgb2 as c

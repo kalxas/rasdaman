@@ -40,32 +40,62 @@ static const char rcsid[] = "@(#)qlparser, QtMulticlipping: $Id: qtmulticlipping
 
 const QtNode::QtNodeType QtMulticlipping::nodeType = QtNode::QT_MULTICLIPPING;
 
-QtMulticlipping::QtMulticlipping(QtOperation* mddOp, const std::vector<QtMShapeData*>& mshapeVector, QtMulticlipType ct)
-    : QtUnaryOperation(mddOp), mshapeList(mshapeVector), clipType(ct)
+QtMulticlipping::QtMulticlipping(QtOperation* mddOp, const std::vector<QtMShapeData*>& mshapeListArg, QtMulticlipType ct)
+    : QtUnaryOperation(mddOp), clipType(ct)
 {
+    //TODO (bbell): make this more flexible in the future, so that point dimensionality need not be enforced, 
+    //              and the parser will pick up the exact line & column numbers.
+    r_Dimension opDim = 2;
+    
+    for(auto iter = mshapeListArg.begin(); iter != mshapeListArg.end(); iter++)
+    {
+        if (opDim != (*iter)->getDimension() && opDim != (*iter)->getPointDimension() )
+        {
+            LFATAL << "Error: QtMulticlipping::evaluate() - Dimension of the polygon vertices differs from the domain's dimension.";
+            throw r_Error(507);
+        }
+    } 
+
+    mshapeList.reserve(1);
+    //add the next polygon w/ interiors to the vector
+    mshapeList.emplace_back( QtPositiveGenusClipping(mshapeListArg[0]->convexHull(), mshapeListArg) );
+}
+
+QtMulticlipping::QtMulticlipping(QtOperation* mddOp, const std::vector< std::vector<QtMShapeData*>* >& mshapeListArg, QtMulticlipType ct)
+    : QtUnaryOperation(mddOp), clipType(ct)
+{
+    r_Dimension opDim = 2;
+    
+    for(auto shapeIter = mshapeListArg.begin(); shapeIter != mshapeListArg.end(); shapeIter++)
+    {
+        for(auto iter = (*shapeIter)->begin(); iter != (*shapeIter)->end(); iter++)
+        {
+            if (opDim != (*iter)->getDimension() && opDim != (*iter)->getPointDimension() )
+            {
+                LFATAL << "Error: QtMulticlipping::evaluate() - Dimension of the polygon vertices differs from the domain's dimension.";
+                throw r_Error(507);
+            }
+        }
+    }   
+    
+    mshapeList.reserve(mshapeListArg.size());
+    for( auto iter = mshapeListArg.begin(); iter != mshapeListArg.end(); iter++)
+    {
+        //add the next polygon w/ interiors to the vector
+        mshapeList.emplace_back( QtPositiveGenusClipping((*iter)->at(0)->convexHull(), **iter) );
+    }
 }
 
 MDDObj*
 QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op)
 {   
-    //for each mshape, generate a polygon clipping object and the minterval it belongs to, and append that data to a global result mask.
-    
-    //the polygon clipping object vector
-    std::vector<QtPolygonClipping> theseClippings;
-    theseClippings.reserve(mshapeList.size());
-    
-    for(auto i = mshapeList.begin(); i != mshapeList.end(); i++)
-    {
-        //construct the polygon clipping object and generate a mask
-        QtPolygonClipping thisClipping( (*i)->convexHull(), (*i)->getPolytopePoints() );
-        theseClippings.emplace_back(thisClipping);
-    }
+    //for each clipping in the vector, we generate a mask, 
+    //and we assemble them into a single result mask
 
     //constructing the result domain for the mask and the resultmdd
-    //result domain
     std::unique_ptr<r_Minterval> resultDom;
     
-    for(auto i = theseClippings.begin(); i != theseClippings.end(); i++)
+    for(auto i = mshapeList.begin(); i != mshapeList.end(); i++)
     {
         if(i->getDomain().intersects_with(areaOp))
         {
@@ -80,11 +110,12 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
         }
     }
     
-    //in case nothing was hit, we can simply return to the parent method, where we will throw an error.
+    //in case nothing of interest was hit, we can simply return to the parent method, where we will throw an error.
     if(!resultDom)
     {
         return NULL;
     }
+    
     //result mask
     char* resultMask = new char[resultDom->cell_count()];
     memset(resultMask, 2, resultDom->cell_count());
@@ -92,7 +123,7 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
     //starting point of the mask, for iteration
     const char* resultMaskPtr = &resultMask[0];
     
-    for(auto iter = theseClippings.begin(); iter != theseClippings.end(); iter++)
+    for(auto iter = mshapeList.begin(); iter != mshapeList.end(); iter++)
     {
         if(iter->getDomain().intersects_with(areaOp))
         {
@@ -203,7 +234,7 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
     }
     catch (int err)
     {
-        LFATAL << "QtClipping::extractMultipolygon caught errno error (" << err << ") in qtclipping";
+        LFATAL << "QtClipping::extractMultipolygon caught errno error (" << err << ") in qtmulticlipping";
         parseInfo.setErrorNo(err);
         throw parseInfo;
     }
@@ -218,28 +249,16 @@ QtMulticlipping::evaluate(QtDataList* inputList)
     QtData* returnValue = NULL;
     
     // get the operand
-    //TODO(BBELL): FIXME -- why does this complain???
     QtData* operand = input->evaluate( inputList );
     
     // evaluate sub-nodes to obtain operand values
     if (operand)
     {
-
         // source mdd object in the 1st operand
         QtMDD* qtMDDObj = static_cast<QtMDD*>(operand);        
         MDDObj* currentMDDObj = qtMDDObj->getMDDObject();
         
         r_Dimension opDim = qtMDDObj->getLoadDomain().dimension();
-        //verify dimensionality of the MShapeData and the point-dimensionality.
-        for(auto iter = mshapeList.begin(); iter != mshapeList.end(); iter++)
-        {
-            if (opDim != (*iter)->getDimension() && opDim != (*iter)->getPointDimension() )
-            {
-                LFATAL << "Error: QtMulticlipping::evaluate() - Dimension of the polygon vertices is bigger than the domain's dimension.";
-                parseInfo.setErrorNo(407);
-                throw parseInfo;
-            }
-        }
         returnValue = computeOp(qtMDDObj);
         
         //delete the old operands
@@ -262,8 +281,15 @@ QtMulticlipping::computeOp(QtMDD* operand)
          
     //extract the multipolygon data as a transient MDD object for the result.
     std::unique_ptr<MDDObj> resultMDD;
-    resultMDD.reset( extractMultipolygon(areaOp, op) );
     
+    if(clipType == CLIP_MULTIPOLYGON)
+    {
+    resultMDD.reset( extractMultipolygon(areaOp, op) );
+    }
+    else if(clipType == CLIP_POSITIVEGENUS)
+    {
+//        resultMDD.reset( extractPositiveGenus(areaOp, op) );
+    }
     if(!resultMDD)
     {
         parseInfo.setErrorNo(ALLPOLYGONSOUTSIDEMDDOBJ);

@@ -35,6 +35,8 @@ rasdaman GmbH.
 
 //this class summarizes and builds upon the work of Vlad Frasineanu from his Bachelor's thesis
 
+//positive genus means the polygon has holes; in other words, drilled-out interior regions which are polygons themselves.
+
 #ifndef QTPOLYGONCLIPPING_HH
 #define	QTPOLYGONCLIPPING_HH
 
@@ -49,6 +51,8 @@ class QtPolygonClipping
 public:
     /// constructor getting the mShape (collection of points) and a bounding box.
     QtPolygonClipping(const r_Minterval& areaOp, const std::vector<r_Point>& vertices);
+    
+    QtPolygonClipping();
 
     // computes the polygon clipping in 2D using Bresenham
     // fast and draws boundaries; currently used for lines, but works in general
@@ -60,7 +64,10 @@ public:
     MDDObj* compute2DRays(MDDObj* op, r_Dimension dim);
     
     // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
-    vector< vector<char> > generateMask();
+    virtual vector< vector<char> > generateMask();
+    
+    inline void setDomain(const r_Minterval& arg) { domain = arg; };
+    inline void setPolygonVertices(const vector<r_Point>& arg) { polygonVertices = arg; };
     
     const r_Minterval getDomain() const;
 
@@ -69,8 +76,22 @@ private:
     r_Minterval domain;    
     
     /// the vector of vertices
-    vector<r_Point> polygonVertices;
+    vector< r_Point> polygonVertices;
 };
-
 #endif	/* QTPOLYGONCLIPPING_HH */
 
+#ifndef QTPOSITIVEGENUSCLIPPING_HH
+#define	QTPOSITIVEGENUSCLIPPING_HH
+
+class QtPositiveGenusClipping : public QtPolygonClipping
+{
+public:
+    QtPositiveGenusClipping(const r_Minterval& areaOp, const std::vector<QtMShapeData*>& polygonArgs);
+    
+    virtual vector< vector<char> > generateMask() override;
+    
+private:
+    std::vector< QtPolygonClipping > interiorPolygons;
+};
+
+#endif

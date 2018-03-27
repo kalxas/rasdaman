@@ -43,7 +43,7 @@ class r_Minterval;
   an Minterval specifying the area to be iterated through.
 
   Going to the next cell is done with nextCell() which
-  returns the adress of the next cell. Test for the end
+  returns the address of the next cell. Test for the end
   is done with isDone(). The iterator can be reset with
   reset().
 */

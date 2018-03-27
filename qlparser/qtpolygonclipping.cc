@@ -42,6 +42,7 @@ rasdaman GmbH.
 #include <easylogging++.h>
 
 #include "qlparser/qtpointdata.hh"
+#include "raslib/miter.hh"
 
 #include <sstream>
 #ifndef CPPSTDLIB
@@ -57,6 +58,11 @@ QtPolygonClipping::QtPolygonClipping(const r_Minterval& areaOp, const std::vecto
     :  domain(areaOp), polygonVertices(vertices)
 {
     
+}
+
+QtPolygonClipping::QtPolygonClipping()
+{
+    //initialize domain & polygonVertices for use by QtPositiveGenusClipping
 }
 
 MDDObj* 
@@ -286,4 +292,109 @@ const r_Minterval
 QtPolygonClipping::getDomain() const
 {
     return domain;
+}
+
+/*
+ * Below, we define the mask generation methods for a polygon clipping containing interior regions.
+ * 
+ * be mindful not to apply this to an empty vector!
+ */
+
+QtPositiveGenusClipping::QtPositiveGenusClipping(const r_Minterval& areaOp, const std::vector<QtMShapeData*>& polygonArgs)
+{
+    setDomain(areaOp);
+    
+    if(!polygonArgs.empty())
+    {
+        //the convention here is that the first MShape is the outer polygon, while the inner polygons are the subsequent MShapes
+        interiorPolygons.reserve(polygonArgs.size() - 1);
+        
+        for(auto iter = polygonArgs.begin(); iter != polygonArgs.end(); iter++)
+        {
+            if(iter != polygonArgs.begin())
+            {
+                interiorPolygons.emplace_back( QtPolygonClipping( (*iter)->convexHull(), (*iter)->getPolytopePoints() ) );
+            }
+            else
+            {
+                setPolygonVertices((*iter)->getPolytopePoints());
+            }
+        }
+    }
+}
+
+
+vector< vector<char> >
+QtPositiveGenusClipping::generateMask()
+{
+    //2-D array of type char "mask" for holding the result data; initialized to the mask of the outer polygon
+    vector< vector<char> > mask = QtPolygonClipping::generateMask();
+
+    //make the data contiguous
+    r_Minterval thisDomain = getDomain();
+    char* resultMask = new char[thisDomain.cell_count()];
+    char* resPtr = resultMask;
+    const char* resultMaskPtr = &resultMask[0];
+    
+    for(size_t i = 0; i < static_cast<size_t>(thisDomain[0].get_extent()); i++)
+    {
+        for(size_t j = 0; j < static_cast<size_t>(thisDomain[1].get_extent()); j++)
+        {
+            *resPtr = mask[i][j];
+            resPtr++;
+        }
+    }
+    
+    for(auto iter = interiorPolygons.begin(); iter != interiorPolygons.end(); iter++)
+    {
+        //then, we drill polygonally-shaped holes in the polygon
+        if(thisDomain.covers(iter->getDomain()))
+        {
+            vector< vector<char> > polygonMask = iter->generateMask();
+            r_Minterval interiorDomain = iter->getDomain();
+            r_Miter resultMaskIter(&interiorDomain, &thisDomain, sizeof(char), resultMaskPtr);
+            for(size_t m = 0; m < polygonMask.size(); m++)
+            {
+                for(size_t n = 0; n < polygonMask[m].size(); n++)
+                {
+                    char* thisCell = resultMaskIter.nextCell();
+                    
+                    //case 1: we are interior of the outer polygon
+                    if(*thisCell == 0)
+                    {
+                        //we are also in the interior of the inner polygon, so we remove this point from the mask
+                        if(polygonMask[m][n] == 0)
+                        {
+                            *thisCell = 3;
+                        }
+                        //otherwise, we do nothing.
+                    }
+                    //case 2: we must either be on the boundary of the outer polygon, or in the exterior, 
+                    //        at which point we must not encounter any interior points of the interior polygon.
+                    else if(polygonMask[m][n] == 0)
+                    {
+                        throw r_Error(POLYGONHOLEINEXTERIOR);
+                    }
+                }
+            }       
+        }
+        else
+        {
+            //throw an error, since an interior hole cannot leave the mask
+            throw r_Error(POLYGONHOLEINEXTERIOR);
+        }
+    }       
+
+    //return to the noncontiguous state
+    resPtr = &resultMask[0];
+    for(size_t i = 0; i < static_cast<size_t>(thisDomain[0].get_extent()); i++)
+    {
+        for(size_t j = 0; j < static_cast<size_t>(thisDomain[1].get_extent()); j++)
+        {
+            mask[i][j] = *resPtr;
+            resPtr++;
+        }
+    }    
+    
+    return mask;    
 }

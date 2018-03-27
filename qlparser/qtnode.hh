@@ -79,7 +79,7 @@ public:
 
     typedef std::vector<QtDataList*> QtNestedDataList;
 
-    /// struct containing dimension and triming information
+    /// struct containing dimension and trimming information
     struct QtTrimElement
     {
         r_Dimension dimension;

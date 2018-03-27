@@ -195,7 +195,10 @@ struct QtUpdateSpecElement
 
   QtUpdateSpecElement               qtUpdateSpecElement;
 
-  std::vector< QtMShapeData* >*     qtMShapeVector;
+  vector< QtMShapeData* >*          qtMShapeVector;
+
+  vector< vector< 
+    QtMShapeData* >* >*             polygonVector;
 
   Ops::OpType                       operationValue;
   int                               dummyValue;
@@ -277,7 +280,7 @@ struct QtUpdateSpecElement
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
 // %type <stgType>            storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2  namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList  pointCoordinateList3 pointCoordinateList2 pointCoordinateList polytopeWKTList 
+%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2 namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList parentheticalLinestring pointCoordinateList2 pointCoordinateList polytopeWKTList 
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
@@ -297,7 +300,8 @@ struct QtUpdateSpecElement
 %type <floatToken>            numericalLit floatLitExp
 
 // vectorized data
-%type <qtMShapeVector>        pointCoordinateListVector
+%type <qtMShapeVector>        positiveGenusPolygon
+%type <polygonVector>         polygonVector
 
 // marray2 with multiple intervals
 %type <mddIntervalListType>   ivList
@@ -1590,29 +1594,44 @@ polytopeWKTList:POLYTOPE LRPAR LRPAR pointCoordinateList RRPAR RRPAR
             FREESTACK($11)
         };
 
-pointCoordinateListVector: pointCoordinateList3
+polygonVector: LRPAR positiveGenusPolygon RRPAR
+        {
+            $$ = new std::vector< std::vector<QtMShapeData*>* >();
+            $$->emplace_back($2);
+            FREESTACK($1)
+            FREESTACK($3)
+        }
+        | polygonVector COMMA LRPAR positiveGenusPolygon RRPAR
+        {
+            $$ = $1;
+            $$->emplace_back($4);
+            FREESTACK($2)
+            FREESTACK($3)
+            FREESTACK($5)
+        };
+
+positiveGenusPolygon: parentheticalLinestring
         {
             $$ = new std::vector<QtMShapeData*>();
             QtMShapeOp currentPoly( $1 );
             QtMShapeData* polyData = new QtMShapeData( currentPoly.getPoints() );
-            $$->push_back(polyData);
+            $$->emplace_back(polyData);
         }
-        | pointCoordinateListVector COMMA pointCoordinateList3
+        | positiveGenusPolygon COMMA parentheticalLinestring
         {
             $$ = $1;
             QtMShapeOp currentPoly( $3 );
             QtMShapeData* polyData = new QtMShapeData( currentPoly.getPoints() );
-            $$->push_back(polyData);
+            $$->emplace_back(polyData);
             FREESTACK($2)
         };
 
-pointCoordinateList3: LRPAR LRPAR pointCoordinateList RRPAR RRPAR
+// linestring defining a polygonal boundary, separated by parends
+parentheticalLinestring: LRPAR pointCoordinateList RRPAR
         {
-            $$ = $3;
+            $$ = $2;
             FREESTACK($1)
-            FREESTACK($2)
-            FREESTACK($4)
-            FREESTACK($5)
+            FREESTACK($3)
         };
 
 pointCoordinateList: pointCoordinateList2
@@ -1916,9 +1935,24 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($10)
         FREESTACK($11)
     }
-    | CLIP LRPAR generalExp COMMA MULTIPOLYGON LRPAR pointCoordinateListVector RRPAR RRPAR
+    | CLIP LRPAR generalExp COMMA POLYGON LRPAR positiveGenusPolygon RRPAR RRPAR
     {
         std::vector<QtMShapeData*> mshapeTransport = *( $7 );
+        $$ = new QtMulticlipping( $3, mshapeTransport, QtMulticlipping::CLIP_MULTIPOLYGON);
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->removeDynamicObject( $3 );
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        FREESTACK($6)
+        FREESTACK($8)
+        FREESTACK($9)
+    }
+    | CLIP LRPAR generalExp COMMA MULTIPOLYGON LRPAR polygonVector RRPAR RRPAR
+    {
+        std::vector< std::vector<QtMShapeData*>* > mshapeTransport = *( $7 );
         $$ = new QtMulticlipping( $3, mshapeTransport, QtMulticlipping::CLIP_MULTIPOLYGON);
         $$->setParseInfo( *($1.info) );
         parseQueryTree->removeDynamicObject( $3 );

@@ -120,7 +120,7 @@ void polygonInteriorFloodfill( vector< vector< char > >& mask, const vector< r_P
     //hence one half of that is the expectation *after* flood fill has occurred, and thus we have 4 * 1.5 * x checks, and the
     //overall complexity O(6 * p * x) since each check is O(p).
     //as such, it is better to flood fill everything when 6p > x.
-    bool fillOutside = false;
+    bool fillOutside = true;
     size_t x = sqrt(mask.size() * mask[0].size());
     
     if( 6*polygon.size() > x )
