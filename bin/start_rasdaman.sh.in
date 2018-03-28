@@ -192,25 +192,6 @@ else
     echo "ok."
 fi
 
-# do a rasql query test to check if rasdaman has started properly
-logn "running check query... "
-sleep 1
-@bindir@rasql -q 'select version()' --quiet -p $RASMGR_PORT > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "failed; please check the logs for more information."
-
-    logn "  shutting down rasdaman... "
-    # shut down any rasservers just in case
-    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv -all -kill > /dev/null
-    wait_for_rasservers_to_shutdown
-    # kill rasmgr
-    @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all -kill > /dev/null
-    log "done."
-    exit $RC_ERROR
-else
-    echo "ok."
-fi
-
 #------start embedded petascope/secore if needed--------------------------
 log_path="@logdir@"
 # war files also copied to this share folder: /opt/rasdaman/share/rasdaman/war/

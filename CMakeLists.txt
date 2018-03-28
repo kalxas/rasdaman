@@ -27,8 +27,7 @@ cmake_policy(SET CMP0012 NEW)
 cmake_policy(SET CMP0009 NEW)
 cmake_policy(SET CMP0048 NEW)
 
-project(rasdaman VERSION 9.5.0
-        LANGUAGES C CXX)
+project(rasdaman VERSION 9.6.0 LANGUAGES C CXX)
 
 # No rebuild dependency when make install
 # https://cmake.org/Wiki/CMake_Useful_Variables#Various_Options
@@ -55,6 +54,8 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "/opt/rasdaman" CACHE PATH "Installation directory." FORCE)
 endif ()
 
+set(CPP_FILE_EXTENSIONS *.cc *.hh *.sc *.icc)
+
 ################################################################################
 # Configure options
 ################################################################################
@@ -75,6 +76,17 @@ include(cmake/Functions.cmake)
 # Check for functions and symbols needed by rasdaman
 include(cmake/CheckForRequiredSymbols.cmake)
 
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'Release' as none was specified.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+      "MinSizeRel" "RelWithDebInfo")
+else()
+    message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+endif()
+
 #
 # Enable C++11
 #
@@ -86,6 +98,31 @@ if (COMPILER_SUPPORTS_CXX11)
 else ()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
 endif ()
+
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -gdwarf-2 -rdynamic")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -gdwarf-2 -rdynamic")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer")
+
+# Disable default log file from easylogging, otherwise we get by default
+# logs/myeasylog.log
+add_definitions(-DELPP_NO_DEFAULT_LOG_FILE)
+
+# If release, disable Debug and Trace logs
+string(TOUPPER ${CMAKE_BUILD_TYPE} uppercase_CMAKE_BUILD_TYPE)
+if (uppercase_CMAKE_BUILD_TYPE STREQUAL "RELEASE")
+    add_definitions(-DELPP_DISABLE_TRACE_LOGS)
+    add_definitions(-DELPP_DISABLE_VERBOSE_LOGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
+    add_definitions(-DNDEBUG)
+    # Used by some performance implementation of math libraries.
+    set(__NO_MATH_INLINES 1)
+elseif (uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
+else()
+    # thread-safe logging if in Debug mode
+    add_definitions(-DELPP_THREAD_SAFE)
+endif()
 
 #
 # Options for selecting the network protocol
@@ -283,17 +320,10 @@ set(ENABLE_DEBUG OFF CACHE BOOL
 if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     set(DEBUG ${ENABLE_DEBUG})
-    set(CMAKE_CXX_FLAGS " -O0 -g3 -gdwarf-2 -rdynamic ${CMAKE_CXX_FLAGS}")
 
     message(STATUS "Compile in debug mode enabled " 
         "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
 else ()
-    #TODO:Double check if these are used and remove them if not
-    set(_DISABLE_TRACE_LOGS 1)
-    # Used by some performance implementation of math libraries.
-    set(__NO_MATH_INLINES 1)
-    set(CMAKE_CXX_FLAGS "-O3 ${CMAKE_CXX_FLAGS}")
-
     message(STATUS "Compile in debug mode disabled " 
         "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
 endif ()
@@ -301,7 +331,7 @@ endif ()
 set(ENABLE_BENCHMARK OFF CACHE BOOL 
     "Generate binaries that contain extra code for benchmark output. ")
 if (ENABLE_BENCHMARK)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRMANBENCHMARK")
+    add_definitions(-DRMANBENCHMARK)
 
     message(STATUS "Benchmarking of queries enabled " 
         "(-DENABLE_BENCHMARK=${ENABLE_BENCHMARK}).")
@@ -313,7 +343,11 @@ endif ()
 set(ENABLE_PROFILING OFF CACHE BOOL 
     "Enable profiling with google-perftools.")
 if (ENABLE_PROFILING)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_PROFILING")
+    find_package(GooglePerftools)
+    if (GOOGLEPERFTOOLS_FOUND)
+        add_definitions(-DGPERFTOOLS_ENABLED)
+        add_definitions(-DENABLE_PROFILING)
+    endif ()
 
     message(STATUS "Profiling with google-perftools enabled " 
         "(-DENABLE_PROFILING=${ENABLE_PROFILING}).")
@@ -441,7 +475,10 @@ include_directories(${CMAKE_SOURCE_DIR}/debug)
 include_directories(${CMAKE_BINARY_DIR})
 
 # 3rd party packages
-find_package(Boost REQUIRED COMPONENTS thread system)
+SET(Boost_USE_STATIC_LIBS ON)
+SET(Boost_USE_STATIC_RUNTIME ON)
+#add_definitions(-DBOOST_ALL_NO_LIB)
+find_package(Boost REQUIRED COMPONENTS thread system filesystem)
 find_package(RpcGen REQUIRED)
 find_package(AWK REQUIRED)
 find_package(OpenSSL REQUIRED)
