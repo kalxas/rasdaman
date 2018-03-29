@@ -68,7 +68,7 @@ public class InitAllConfigurationsApplicationService {
      * @throws java.io.IOException
      */
     public static void addLibraryPath(String libraryName, String pathToAdd) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException, InterruptedException {
-        final String tmpTargetNativeDefaultFolderPath = ConfigManager.DEFAULT_PETASCOPE_DIR_TMP + libraryName;
+        final String tmpTargetNativeDefaultFolderPath = ConfigManager.DEFAULT_PETASCOPE_DIR_TMP + "/" + libraryName;
         Runtime rt = Runtime.getRuntime();
         if (new File(tmpTargetNativeDefaultFolderPath).exists()) {
             // Remove this temp directory for the gdal library as it already loaded in JVM
