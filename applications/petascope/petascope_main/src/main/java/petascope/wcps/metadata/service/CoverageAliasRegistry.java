@@ -150,8 +150,8 @@ public class CoverageAliasRegistry {
             String coverageIterator = entry.getKey();
             List<String> tmpList = new ArrayList<>();
             for (Pair<String, String> pair : entry.getValue()) {
-                // e.g: test_mean_summer_airtemp as c                
-                tmpList.add(pair.snd + " as " + coverageIterator);
+                // e.g: test_mean_summer_airtemp as c, not test_mean_summer_airtemp as $c                
+                tmpList.add(pair.snd + " as " + coverageIterator.replace("$", ""));
             }
             
             // e.g: test_mean_summer_airtemp as c
