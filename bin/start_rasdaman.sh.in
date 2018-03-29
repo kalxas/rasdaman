@@ -81,7 +81,7 @@ wait_for_rasservers_to_shutdown()
 {
 count=0
 while [ $count -lt 100 ]; do
-    pgrep rasserver > /dev/null 2>&1
+    pgrep -f @bindir@rasserver > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         break # no rasservers found, no need to wait more
     fi
@@ -94,7 +94,7 @@ if [ $count -eq 100 ]; then
     echo
     log "timeout of 10 seconds on waiting for rasserver processes to shutdown reached;"
     log "please manually check and kill any still running rasserver processes:"
-    log " 1. list the running rasserver processes: pgrep rasserver"
+    log " 1. list the running rasserver processes: pgrep -f @bindir@rasserver"
     log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
 fi
 }
