@@ -33,7 +33,7 @@
 #include <errno.h>
 #include "dirwrapper.hh"
 #include "blobfscommon.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 using namespace std;
 using namespace blobfs;

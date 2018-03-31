@@ -21,19 +21,16 @@
 #
 ###################################################################
 
-set(LOGGING_HEADERS loggingutils.hh)
+set(LOGGING_HEADERS loggingutils.hh logging.hh)
 
 add_library(common_logging STATIC
         loggingutils.cc
         ${LOGGING_HEADERS})
 
-if (RMANRASNET)
-    # This is used to redirect the GRPC log
-    add_dependencies(common_logging ${GRPC_LIBRARY})
-endif ()
+target_link_libraries(common_logging ${ELPP_LIBRARY})
 
 install(TARGETS common_logging
-        DESTINATION ${LIB_DIR})
+        DESTINATION "${LIB_DIR}")
 
 install(FILES ${LOGGING_HEADERS}
-        DESTINATION "${INCLUDE_DIR}/common/logging")
+        DESTINATION "${INCLUDE_DIR}")

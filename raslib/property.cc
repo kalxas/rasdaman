@@ -28,7 +28,7 @@ static const char rcsid[] = "@(#)raslib, r_Meta_Object: $Header: /home/rasdev/CV
 #include "raslib/basetype.hh"
 #include "raslib/error.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #ifdef __APPLE__
 #include <sys/malloc.h>

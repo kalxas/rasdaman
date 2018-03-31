@@ -26,7 +26,7 @@ static const char rcsid[] = "@(#)raslib, r_Collection_Type: $Header: /home/rasde
 #include "config.h"
 #include "raslib/collectiontype.hh"
 #include "raslib/error.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "config.h"
 

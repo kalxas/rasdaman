@@ -29,7 +29,7 @@ static const char rcsid[] = "@(#)raslib, r_Primitive_Type: $Header: /home/rasdev
 #include "raslib/endian.hh"
 #include "raslib/error.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iomanip>
 #include <string>

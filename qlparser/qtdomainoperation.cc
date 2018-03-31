@@ -61,7 +61,7 @@ using namespace std;
 #include <iostream>
 #include <string.h>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 const QtNode::QtNodeType QtDomainOperation::nodeType = QtNode::QT_DOMAIN_OPERATION;

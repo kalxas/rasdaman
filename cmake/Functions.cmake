@@ -313,6 +313,50 @@ function(install_if_not_exists src dest)
   ")
 endfunction(install_if_not_exists)
 
+# This function is used to install log files only if they do not exist or ar not
+# changed.
+# Syntax install_log_file(SOURCE DESTINATION)
+# SOURCE: Path to the file to copy
+# DESTINATION: Destination directory.
+function(install_log_file src dest)
+    if (NOT IS_ABSOLUTE "${src}")
+        set(src "${CMAKE_CURRENT_SOURCE_DIR}/${src}")
+    endif ()
+
+    get_filename_component(src_name "${src}" NAME)
+    if (NOT IS_ABSOLUTE "${dest}")
+        set(dest "${CMAKE_INSTALL_PREFIX}/${dest}")
+    endif ()
+    install(CODE "
+    if(NOT EXISTS \"\$ENV{DESTDIR}${dest}/${src_name}\")
+      #file(INSTALL \"${src}\" DESTINATION \"${dest}\")
+      message(STATUS \"Installing: \$ENV{DESTDIR}${dest}/${src_name}\")
+      execute_process(COMMAND \${CMAKE_COMMAND} -E copy \"${src}\"
+                      \"\$ENV{DESTDIR}${dest}/${src_name}\"
+                      RESULT_VARIABLE copy_result
+                      ERROR_VARIABLE error_output)
+      if(copy_result)
+        message(FATAL_ERROR \${error_output})
+      endif()
+    else()
+      file(STRINGS \"\$ENV{DESTDIR}${dest}/${src_name}\" log_file_strings
+           REGEX \"^//\")
+      if (log_file_strings)
+        message(STATUS \"Overwriting: \$ENV{DESTDIR}${dest}/${src_name}\")
+        execute_process(COMMAND \${CMAKE_COMMAND} -E copy \"${src}\"
+                        \"\$ENV{DESTDIR}${dest}/${src_name}\"
+                        RESULT_VARIABLE copy_result
+                        ERROR_VARIABLE error_output)
+        if(copy_result)
+          message(FATAL_ERROR \${error_output})
+        endif()
+      else()
+        message(STATUS \"Skipping  : \$ENV{DESTDIR}${dest}/${src_name}\")
+      endif()
+    endif()
+  ")
+endfunction(install_log_file)
+
 # Get the number of CPU on this machine.
 # This function is used to set a concurrency limit for third_party make process.
 # Syntax GetProcessorCount(PROCESSOR_COUNT)

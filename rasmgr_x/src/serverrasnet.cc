@@ -39,7 +39,7 @@
 
 #include "common/src/grpc/grpcutils.hh"
 #include "common/src/uuid/uuid.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "rasnet/messages/rassrvr_rasmgr_service.pb.h"
 

@@ -52,7 +52,7 @@ rasdaman GmbH.
 #include "common/src/crypto/crypto.hh"
 #include "common/src/uuid/uuid.hh"
 #include "common/src/grpc/grpcutils.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "common/src/grpc/messages/error.pb.h"
 

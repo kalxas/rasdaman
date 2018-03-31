@@ -25,7 +25,7 @@ add_executable(rasql rasql.cc
         rasql_error.hh rasql_error.cc)
 
 target_link_libraries(rasql rasodmg clientcomm raslib
-        conversion commline network)
+        conversion commline network common_logging)
 
 if (RMANRASNET)
     target_link_libraries(rasql rasnet)

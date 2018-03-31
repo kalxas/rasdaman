@@ -50,7 +50,7 @@ static const char rcsid[] = "@(#)cachetamgr,Tile: $Id: tile.cc,v 1.79 2005/09/03
 #include "raslib/miterd.hh"
 #include "raslib/basetype.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <cstring>
 

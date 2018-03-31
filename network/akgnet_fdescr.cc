@@ -32,7 +32,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include <akgnet_fdescr.hh>
-#include <easylogging++.h>
+#include <logging.hh>
 
 akg::FileDescriptor::FileDescriptor() throw()
 {

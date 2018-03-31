@@ -44,7 +44,7 @@ using namespace std;
 #endif
 #include<fstream>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 QtMddCfgOp::QtMddCfgOp()

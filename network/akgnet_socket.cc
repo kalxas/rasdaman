@@ -34,7 +34,7 @@ rasdaman GmbH.
 #include <assert.h>
 #include <akgnet_socket.hh>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 akg::Socket::Socket() throw()
 {

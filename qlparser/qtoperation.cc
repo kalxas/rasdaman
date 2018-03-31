@@ -36,7 +36,7 @@ static const char rcsid[] = "@(#)qlparser, QtOperation: $Id: qtoperation.cc,v 1.
 #include "config.h"
 #include "qlparser/qtoperation.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iostream>
 

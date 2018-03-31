@@ -39,7 +39,7 @@ rasdaman GmbH.
 #include "relcatalogif/mdddimensiontype.hh"
 #include "relcatalogif/syntaxtypes.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "qlparser/qtpointdata.hh"
 #include "raslib/miter.hh"

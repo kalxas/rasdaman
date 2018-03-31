@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "rasmgr_master.hh"
 
 #include "debug-srv.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #ifdef SOLARIS
 #define PORTMAP        // define to use function declarations for old interfaces

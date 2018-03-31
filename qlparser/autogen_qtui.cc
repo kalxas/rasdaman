@@ -22,7 +22,7 @@ rasdaman GmbH.
 */
 
 #include "qtatomicdata.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 /*************************************************************
  *

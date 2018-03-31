@@ -38,7 +38,7 @@ static const char rcsid[] = "@(#)raslib, RasdlError: $Id: rasdl_error.cc,v 1.1 2
 #include <exception>
 #include <cstring>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 // for sprintf():
 #include <stdio.h>

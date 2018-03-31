@@ -22,7 +22,7 @@
 
 #include <cstdlib>
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include <gtest/gtest.h>
 #include "common/src/crypto/crypto.hh"
 #include "include/globals.hh"

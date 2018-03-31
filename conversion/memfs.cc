@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include <string.h>
 #include "conversion/memfs.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 /* can't use RMDBGOUT because this is C, not C++ */
 const int MEMFSDBGLEVEL = 4;

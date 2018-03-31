@@ -46,7 +46,7 @@ rasdaman GmbH.
 
 #include "conversion/transpose.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <sstream>
 #include <iostream>

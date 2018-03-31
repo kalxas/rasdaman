@@ -22,9 +22,10 @@
 
 #include <boost/cstdlib.hpp>
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/crypto/crypto.hh"
-#include "common/src/logging/loggingutils.hh"
+#include "common/src/grpc/grpcutils.hh"
+#include "loggingutils.hh"
 
 #include "config.h"
 #include "version.h"
@@ -39,17 +40,17 @@
 #error "Please specify RMANVERSION variable!"
 #endif
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
     //Default logging configuration
-    easyloggingpp::Configurations defaultConf;
+    el::Configurations defaultConf;
     defaultConf.setToDefault();
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    easyloggingpp::Loggers::disableAll();
+    defaultConf.parseFromText("*Global:\n Enabled = false");
+    el::Loggers::reconfigureLogger("default", defaultConf);
 
-    common::LoggingUtils::redirectGRPCLogToEasyLogging();
+    common::GrpcUtils::redirectGRPCLogToEasyLogging();
 
     rascontrol::RasControlConfig config;
     rascontrol::UserCredentials userCredentials;
@@ -65,8 +66,8 @@ int main(int argc, char** argv)
         if (!config.getLogConfigFile().empty())
         {
             std::string configFile = config.getLogConfigFile();
-            easyloggingpp::Configurations conf(configFile.c_str());
-            easyloggingpp::Loggers::reconfigureAllLoggers(conf);
+            el::Configurations conf(configFile.c_str());
+            el::Loggers::reconfigureAllLoggers(conf);
         }
 
         if (!config.isQuietMode())

@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "dbobject.hh"
 #include "sqlerror.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 DatabaseIf* TransactionIf::lastBase = NULL;
 

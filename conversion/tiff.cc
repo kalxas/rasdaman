@@ -38,7 +38,7 @@ rasdaman GmbH.
 #include "raslib/primitivetype.hh"
 #include "debug/debug.hh"
 #include "mymalloc/mymalloc.h"
-#include <easylogging++.h>
+#include <logging.hh>
 
 using namespace std;
 

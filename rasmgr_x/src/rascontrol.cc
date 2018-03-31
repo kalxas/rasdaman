@@ -27,7 +27,7 @@
 #include <boost/format.hpp>
 
 #include "common/src/crypto/crypto.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 #include "include/globals.hh"
 
 #include "databasehostmanager.hh"

@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/grpc/grpcutils.hh"
 
 #include "servermanager.hh"

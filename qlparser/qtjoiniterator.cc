@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 #include "qlparser/qtjoiniterator.hh"
 #include "qlparser/qtmdd.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iostream>
 #ifndef CPPSTDLIB

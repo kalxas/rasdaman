@@ -32,7 +32,7 @@ rasdaman GmbH.
 
 #include "nullvalues.hh"
 #include "debug/debug-srv.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 NullValuesHandler::NullValuesHandler()
     : nullValues(NULL), nullValuesCount(0)

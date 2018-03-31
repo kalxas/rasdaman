@@ -59,7 +59,7 @@ add_library(common_grpc STATIC
 find_package(LibDL REQUIRED)
 
 target_link_libraries(common_grpc common_exceptions common_network
-    ${GRPCPP_LIBRARY} ${GRPC_LIBRARY}
+    ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${ELPP_LIBRARY}
     ${PROTOBUF_LIBRARY} ${LIBDL_LIBRARIES} ${ZLIB_LIBRARIES} ${Boost_SYSTEM_LIBRARY})
 
 install(TARGETS common_grpc

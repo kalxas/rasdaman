@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include "rasmgr_users.hh"
 
 #include "debug-srv.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 extern bool hostCmp(const char* h1, const char* h2);
 

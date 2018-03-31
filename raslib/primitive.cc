@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include "raslib/primitivetype.hh"
 #include "raslib/error.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <sstream>
 #include <string.h>

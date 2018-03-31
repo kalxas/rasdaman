@@ -40,6 +40,8 @@ target_link_libraries(clipping_test
         raslib 
         qlparser
         mymalloc_cln
+        common_logging
+        ${ELPP_LIBRARY}
         ${Boost_LIBRARIES}
         ${GMOCK_LIBRARY}
         ${CMAKE_THREAD_LIBS_INIT})

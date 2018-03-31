@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "reladminif/externs.h"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 void
 MDDType::insertInDb() throw (r_Error)

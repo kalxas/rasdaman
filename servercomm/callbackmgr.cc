@@ -44,7 +44,7 @@ rasdaman GmbH.
 
 #include "servercomm/callbackmgr.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 CallBackManager::CallBackManager(unsigned int size)
 {

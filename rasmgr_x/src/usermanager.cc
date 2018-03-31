@@ -29,7 +29,7 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/crypto/crypto.hh"
 #include "common/src/uuid/uuid.hh"
 #include "common/src/exceptions/rasexceptions.hh"

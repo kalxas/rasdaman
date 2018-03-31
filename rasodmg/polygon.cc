@@ -61,7 +61,7 @@ using std::sort;
 
 #include "debug/debug.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 static const char rcsid[] = "@(#)rasodmg, r_Polygon: $Header: /home/rasdev/CVS-repository/rasdaman/rasodmg/polygon.cc,v 1.28 2003/12/27 23:02:56 rasdev Exp $";
 

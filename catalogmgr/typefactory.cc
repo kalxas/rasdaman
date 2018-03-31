@@ -53,7 +53,7 @@ rasdaman GmbH.
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
 #include "relcatalogif/syntaxtypes.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 #include <boost/algorithm/string/predicate.hpp>
 #include "raslib/error.hh"
 

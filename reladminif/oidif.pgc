@@ -43,7 +43,7 @@ EXEC SQL include "sqlglobals.h";
 #include "oidif.hh"
 #include "sqlerror.hh"
 #include "adminif.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 void
 OId::initialize()

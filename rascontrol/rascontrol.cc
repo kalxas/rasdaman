@@ -45,8 +45,7 @@ rasdaman GmbH.
 #include <signal.h>
 #include <linux/limits.h>
 
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
@@ -85,13 +84,13 @@ int  batchMode();
 int testLogin();
 bool isCommand(const char* command, const char* key);
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
     // Default logging configuration
-    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
-    defaultConf.configClientLogging();
+    LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+    logConf.configClientLogging(config.beQuiet());
 
     if (config.interpretArguments(argc, argv) == false)
     {

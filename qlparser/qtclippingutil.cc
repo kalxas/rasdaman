@@ -24,7 +24,7 @@ rasdaman GmbH.
 
 #include "qlparser/qtclippingutil.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <sstream>
 #ifndef CPPSTDLIB

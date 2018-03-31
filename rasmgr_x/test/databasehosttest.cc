@@ -25,7 +25,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "../../rasmgr_x/src/databasehost.hh"
 #include "../../rasmgr_x/src/database.hh"

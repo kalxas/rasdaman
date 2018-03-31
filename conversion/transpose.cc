@@ -34,7 +34,7 @@ rasdaman GmbH.
 */
 #include "transpose.hh"
 #include "raslib/error.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 int dataTypeSize(const r_Type* base_type){
     //size of the data type, used for offset computation in memcpy

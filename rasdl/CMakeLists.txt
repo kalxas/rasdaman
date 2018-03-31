@@ -49,7 +49,7 @@ target_include_directories(rasdl PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(rasdl reladminif relmddif
         relstorageif relindexif relcatalogif relblobif
         indexmgr catalogmgr storagemgr tilemgr commline raslib conversion
-        rasodmg ${BASEDB_LIBRARIES})
+        rasodmg common_logging ${BASEDB_LIBRARIES})
 
 install(TARGETS rasdl
         DESTINATION ${BIN_DIR})

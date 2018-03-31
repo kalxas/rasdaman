@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include "config.h"
 #include "raslib/mitera.hh"
 #include "raslib/minterval.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 r_MiterArea::r_MiterArea(const r_Minterval* newIterDom,
                          const r_Minterval* newImgDom) throw(r_Error)

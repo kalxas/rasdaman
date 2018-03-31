@@ -30,7 +30,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "inlineminterval.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 InlineMinterval::InlineMinterval()
     :   r_Minterval(static_cast<r_Dimension>(0))

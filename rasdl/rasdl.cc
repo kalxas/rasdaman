@@ -80,8 +80,7 @@ using namespace std;
 #endif
 
 #include "raslib/rminit.hh"
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 #define MAXMSG 1024
 
@@ -761,14 +760,14 @@ readMode() throw (r_Error, RasdlError)
     cout << "ok" << endl;
 }
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 int
 main(int argc, char* argv[])
 {
     // Default logging configuration
-    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
-    defaultConf.configClientLogging();
+    common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+    logConf.configClientLogging();
 
     SET_OUTPUT(false);          // ...unless we are otherwise instructed by --debug parameter
 
@@ -780,8 +779,6 @@ main(int argc, char* argv[])
     {
         parseParams(argc, argv);
 
-        // don't overwrite the value of the --connect!! -- DM 2012-jul-11
-        //strcpy(globalConnectId, baseName);
         switch (progMode)
         {
         case M_READ:

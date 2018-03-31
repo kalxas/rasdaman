@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include "relindexif/hierindex.hh"
 #include "reladminif/dbref.hh"
 #include "relindexif/indexid.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 const float    ff = 0.5;
 

@@ -22,7 +22,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "controlrasmgrcomm.hh"
 #include "commandexecutor.hh"

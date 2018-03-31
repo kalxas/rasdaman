@@ -31,7 +31,7 @@ static const char rcsid[] = "@(#)qlparser, QtData: $Id: qtdata.cc,v 1.17 2002/06
 
 #include "config.h"
 #include "qlparser/qtdata.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 QtData::QtData()

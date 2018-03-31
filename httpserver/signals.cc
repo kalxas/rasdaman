@@ -140,44 +140,44 @@ void SigHandler(int Signal)
     switch (Signal)
     {
     case SIGHUP:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGHUP'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGHUP'.");
         errno = errno_bak;
         Exit(OK);
         break;
 
     case SIGINT:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGINT'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGINT'.");
         errno = errno_bak;
         Exit(OK);
         break;
 
     case SIGQUIT:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGQUIT'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGQUIT'.");
         errno = errno_bak;
         Exit(OK);
         break;
 
     case SIGUSR1:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGUSR1'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGUSR1'.");
         //      SaveCache( Server.Cache, Server.CacheFile );
         break;
 
     case SIGUSR2:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGUSR2'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGUSR2'.");
         break;
 
     case SIGPIPE:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGPIPE'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGPIPE'.");
         break;
 
     case SIGTERM:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGTERM'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGTERM'.");
         errno = errno_bak;
         Exit(OK);
         break;
 
     case SIGCHLD:
-        LogMsg(LG_SERVER, INFO, "INFO:  Received 'SIGCHLD'.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  Received 'SIGCHLD'.");
         ChildPId = waitpid(-1, &ChildStatus, WNOHANG);
         while (ChildPId > 0)
         {

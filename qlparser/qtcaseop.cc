@@ -54,7 +54,7 @@ rasdaman GmbH.
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iostream>
 #ifndef CPPSTDLIB

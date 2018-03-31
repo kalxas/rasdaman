@@ -41,7 +41,7 @@ static const char rcsid[] = "@(#)qlparser, QtNode: $Id: qtnode.cc,v 1.27 2002/06
 #include <iostream>
 #include <algorithm>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 const QtNode::QtNodeType QtNode::nodeType = QT_UNDEFINED_NODE;
 

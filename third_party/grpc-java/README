@@ -1,6 +1,6 @@
 This directory contains gRPC Java Codegen Plugin for Protobuf Compiler from
 https://github.com/grpc/grpc-java/tree/master/compiler/src/java_plugin/cpp
-(commit 8826bb5e3ea52585451b1ed9b28dab488e1a970d).
+(commit 6f9b4e87e16192b870cc13bd2d48f4db187d2308).
 The license is BSD-3: https://github.com/grpc/grpc-java/blob/master/LICENSE
 
 The reason we do this manually with our own Makefile is because building with 

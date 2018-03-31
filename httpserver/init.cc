@@ -121,7 +121,7 @@ rc_t Initialize(int argc, char* argv[], struct ServerBase* newServer)
             newServer->Log.Comm.Filename);
 
 
-    LogMsg(LG_SERVER, INFO, "INFO:  ========= %s started. ===============", DAEMONNAME);
+    LogMsg(LG_SERVER, LVL_INFO, "INFO:  ========= %s started. ===============", DAEMONNAME);
 
     // We don't do that so that the one process running can be exited with simple ^C
     /*  Initialize the signal handlers.  ---------------------------------- */
@@ -219,7 +219,7 @@ rc_t InitSocket(int* SockFD, struct sockaddr_in* Socket, int Port)
         ErrorMsg(E_SYS, WARN, "WARN:  InitSocket(): can't set sockopt REUSEADDR.");
     }
 #else
-    LogMsg(LG_SERVER, INFO, "INFO:  InitSocket(): sockopt REUSEADDR not available.");
+    LogMsg(LG_SERVER, LVL_INFO, "INFO:  InitSocket(): sockopt REUSEADDR not available.");
 #endif
 
     if (bind(*SockFD, (struct sockaddr*)Socket, sizeof(*Socket)) < 0)

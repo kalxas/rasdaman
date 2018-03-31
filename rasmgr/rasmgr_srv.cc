@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "rasmgr_users.hh"
 
 #include "debug-srv.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 // host name returned when we don't have a valid one:
 #define NO_VALID_HOST "noValidHost"

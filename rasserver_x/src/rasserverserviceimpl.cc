@@ -21,7 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "clientmanager.hh"
 
 #include "rasserverserviceimpl.hh"

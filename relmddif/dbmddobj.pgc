@@ -47,7 +47,7 @@ rasdaman GmbH.
 #include "dbmddobj.hh"
 #include "relindexif/indexid.hh"
 #include "indexmgr/indexds.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "debug-srv.hh"
 

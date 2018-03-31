@@ -76,7 +76,7 @@ extern int noTimeOut;
 
 #include "servercomm/servercomm.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 extern "C" {
     void garbageCollection(int);

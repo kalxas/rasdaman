@@ -35,7 +35,7 @@
 
 #include "commonutil.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "debug/debug.hh"   //ENTER and LEAVE
 

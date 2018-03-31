@@ -29,7 +29,7 @@ rasdaman GmbH.
 #include "reladminif/objectbroker.hh"
 #include <stdlib.h>
 #include <new>
-#include <easylogging++.h>
+#include <logging.hh>
 
 using namespace std;
 

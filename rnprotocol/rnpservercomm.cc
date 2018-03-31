@@ -50,7 +50,7 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 // aux function to avoid a compiler warning (see 'man strftime')

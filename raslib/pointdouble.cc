@@ -40,7 +40,7 @@ static const char rcsid[] = "@(#)raslib, r_PointDouble: $Id: r_PointDouble.cc,v 
 #include <sstream>
 #include <math.h>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "raslib/error.hh"
 using namespace std;

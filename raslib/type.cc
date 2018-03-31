@@ -40,7 +40,7 @@ static const char rcsid[] = "@(#)raslib, r_Type: $Header: /home/rasdev/CVS-repos
 #include "raslib/attribute.hh"
 #include "raslib/error.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 r_Type::r_Type()
     : r_Meta_Object()

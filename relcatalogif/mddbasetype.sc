@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 void
 MDDBaseType::insertInDb() throw (r_Error)

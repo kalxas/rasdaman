@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "rasodmg/alignedtiling.hh"
 #include "raslib/rminit.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <assert.h>
 #include <string.h>

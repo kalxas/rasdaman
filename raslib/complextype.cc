@@ -30,7 +30,7 @@ rasdaman GmbH.
 #include "raslib/endian.hh"
 #include "raslib/error.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 r_Complex_Type::r_Complex_Type()
     :   r_Primitive_Type(),

@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "raslib/attribute.hh"
 #include "raslib/structuretype.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include <sstream>
 #include <string>
 #include <boost/algorithm/string.hpp>

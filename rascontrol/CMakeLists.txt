@@ -28,8 +28,7 @@ if (NOT RMANRASNET)
             rascontrol_class.cc
             rasmgr_utils_comm.hh rasmgr_utils_comm.cc
             rasmgr_utils_conf.hh rasmgr_utils_conf.cc
-            ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh
-            ../raslib/log_config.cc ../raslib/log_config.hh)
+            ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh)
 
     target_include_directories(rascontrol PUBLIC ${OPENSSL_INCLUDE_DIR})
     target_link_libraries(rascontrol network commline ${READLINE_LIBRARIES} ${OPENSSL_LIBRARIES})
@@ -44,7 +43,7 @@ if (NOT RMANRASNET)
             ../raslib/log_config.cc ../raslib/log_config.hh)
 
     target_include_directories(raspasswd PUBLIC ${OPENSSL_INCLUDE_DIR})
-    target_link_libraries(raspasswd network commline ${READLINE_LIBRARIES} ${OPENSSL_LIBRARIES})
+    target_link_libraries(raspasswd network commline common_logging ${READLINE_LIBRARIES} ${OPENSSL_LIBRARIES})
 
     install(TARGETS raspasswd
             DESTINATION ${BIN_DIR})

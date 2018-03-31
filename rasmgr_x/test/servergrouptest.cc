@@ -29,7 +29,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "mocks/serverfactorymock.hh"
 #include "mocks/databasehostmgrmock.hh"

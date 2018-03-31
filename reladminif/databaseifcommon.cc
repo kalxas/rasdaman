@@ -52,7 +52,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "relcatalogif/alltypes.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 // defined in rasserver.cc
 extern char globalConnectId[256];

@@ -21,7 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/uuid/uuid.hh"
 #include "server/rasserver_entry.hh"
 #include "common/src/exceptions/missingresourceexception.hh"

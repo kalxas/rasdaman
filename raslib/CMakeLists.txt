@@ -32,7 +32,6 @@ add_library(raslib attribute.hh attribute.cc
         error.hh error.cc error.icc
         flatbasetype.hh flatbasetype.cc
         itertype.hh itertype.cc
-        log_config.hh log_config.cc
         marraytype.hh marraytype.cc
         mddtypes.hh mddtypes.cc
         memblockvec.hh memblockvec.cc
@@ -83,7 +82,6 @@ install(FILES
     error.hh
     flatbasetype.hh
     itertype.hh
-    log_config.hh
     marraytype.hh
     mddtypes.hh
     memblockvec.hh

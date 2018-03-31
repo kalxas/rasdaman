@@ -45,7 +45,7 @@ static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/C
 #include "catalogmgr/algebraops.hh"
 #include "mddmgr/mddobj.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/doubletype.hh"

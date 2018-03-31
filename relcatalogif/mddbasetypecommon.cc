@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 #include <cstring>
 
 r_Bytes

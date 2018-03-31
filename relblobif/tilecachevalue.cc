@@ -27,7 +27,7 @@ rasdaman GmbH.
 
 #include <cstdlib>
 #include <iostream>
-#include <easylogging++.h>
+#include <logging.hh>
 
 using namespace std;
 

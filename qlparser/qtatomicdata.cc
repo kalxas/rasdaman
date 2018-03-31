@@ -33,7 +33,7 @@ static const char rcsid[] = "@(#)qlparser, QtAtomicData: $Header: /home/rasdev/C
 #include "qlparser/qtatomicdata.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/alltypes.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iostream>
 #ifndef CPPSTDLIB

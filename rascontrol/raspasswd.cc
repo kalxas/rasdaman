@@ -46,8 +46,7 @@ rasdaman GmbH.
 #include "rascontrol.hh"
 #include "raspasswd.hh"
 #include "rasmgr_utils_comm.hh"
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 
 #ifndef RMANVERSION
@@ -71,13 +70,13 @@ char message[100];
 char encrNewPass1[35];
 char encrNewPass2[35];
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
     // Default logging configuration
-    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
-    defaultConf.configClientLogging();
+    LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+    logConf.configClientLogging();
 
     cout << "raspasswd: rasdaman password utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl;
     std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl

@@ -43,7 +43,7 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 // only for access control
 #include "servercomm/servercomm.hh"

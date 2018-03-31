@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include <cstring>
 #include <ctype.h>
 #include "type.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 #include "reladminif/externs.h"
 
 /************************************************************

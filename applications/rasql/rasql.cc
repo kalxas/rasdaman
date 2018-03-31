@@ -91,8 +91,7 @@ using namespace std;
 
 #include "../../commline/cmlparser.hh"
 
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 #include "rasql_error.hh"
 
@@ -206,8 +205,7 @@ typedef enum
 #define PARAM_DEBUG "debug"
 #define HELP_DEBUG  "generate diagnostic output"
 
-#include <easylogging++.h>
-_INITIALIZE_EASYLOGGINGPP
+#include <logging.hh>
 
 // global variables and default settings
 // -------------------------------------
@@ -1072,14 +1070,15 @@ crash_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t
     exit(SEGFAULT_EXIT_CODE);
 }
 
+INITIALIZE_EASYLOGGINGPP
+
 /*
  * returns 0 on success, -1 on error
  */
 int main(int argc, char** argv)
 {
-    // Default logging configuration
-    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
-    defaultConf.configClientLogging();
+    common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+    logConf.configClientLogging();
 
     SET_OUTPUT(false);          // inhibit unconditional debug output, await cmd line evaluation
 
@@ -1092,6 +1091,9 @@ int main(int argc, char** argv)
     try
     {
         parseParams(argc, argv);
+        
+        if (quietLog)
+            logConf.configClientLogging(true);
 
         // put INFO after parsing parameters to respect a '--quiet'
         INFO(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << "." << endl);

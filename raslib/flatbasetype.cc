@@ -38,7 +38,7 @@ rasdaman GmbH.
 #include "raslib/structuretype.hh"
 #include "raslib/flatbasetype.hh"
 #include "raslib/error.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 r_Flat_Base_Type::r_Flat_Base_Type(void)
 {

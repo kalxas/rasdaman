@@ -50,6 +50,7 @@ using namespace std;
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string>
+#include <signal.h>
 
 #include "config.h"
 #include "globals.hh"   // DEFAULT_PORT
@@ -57,7 +58,7 @@ using namespace std;
 #include "storagemgr/sstoragelayout.hh"
 #include "relblobif/tilecache.hh"
 #include "raslib/commonutil.hh"
-#include <signal.h>
+#include "loggingutils.hh"
 
 RMINITGLOBALS('C')
 
@@ -76,7 +77,7 @@ RMINITGLOBALS('C')
 #include "rasserver_x/src/rasnetserver.hh"
 #endif
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 // return codes
 #define RC_OK       0
@@ -166,7 +167,7 @@ void rasnetTerminationHandler(__attribute__((unused)) int sig, __attribute__((un
     exit(EXIT_SUCCESS);
 }
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
@@ -176,7 +177,8 @@ int main(int argc, char** argv)
     SET_OUTPUT(true);       // enable debug output, if compiled so
 
     //print startup text (this line will still go into forking rasmgr's log!)
-    cout << "Spawned rasserver " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << "." << endl;
+    // DM: commented out, it goes in nohup.out and is confusing.
+    //cout << "Spawned rasserver " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << "." << endl;
 
     if (configuration.parseCommandLine(argc, argv) == false)
     {

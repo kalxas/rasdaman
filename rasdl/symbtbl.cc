@@ -37,7 +37,7 @@ rasdaman GmbH.
 
 #include "debug/debug.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 YSymbol::YSymbol()
 {

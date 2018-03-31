@@ -44,7 +44,7 @@ rasdaman GmbH.
 
 #include "dbrcindexds.hh"
 #include "reladminif/sqlerror.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 // general embedded SQL related definitions
 EXEC SQL include "../reladminif/sqlglobals.h";

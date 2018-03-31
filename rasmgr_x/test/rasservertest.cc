@@ -29,7 +29,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/grpc/grpcutils.hh"
 
 #include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"

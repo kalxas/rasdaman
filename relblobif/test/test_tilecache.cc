@@ -43,8 +43,7 @@ rasdaman GmbH.
 #include "commline/cmlparser.hh"
 #include "testing.h"
 
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 using namespace std;
 
@@ -77,7 +76,7 @@ bool udfEnabled = true;
 // cache limit that triggers cache readjustment
 #define CACHE_LIMIT_READJUST 400
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 /*
  * Global variables

@@ -25,7 +25,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 #include "rasmgr_x/src/client.hh"

@@ -49,7 +49,7 @@ rasdaman GmbH.
 
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 /*************************************************************************
  *

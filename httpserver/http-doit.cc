@@ -542,7 +542,7 @@ void WriteAccessLog(struct ClientBase* Client)
     }
 
     LogDate(TimeString, DATE_BUFFSIZE);
-    LogMsg(LG_ACCESS, INFO, "%s - - %s \"%s\" %d %d\n",
+    LogMsg(LG_ACCESS, LVL_INFO, "%s - - %s \"%s\" %d %d\n",
            Hostname,
            TimeString,
            Client->Request.Line.Vanilla,

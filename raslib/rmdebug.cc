@@ -42,7 +42,7 @@ using namespace std;
 #include <stdlib.h>
 #include <fstream>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "raslib/rmdebug.hh"
 #include "raslib/odmgtypes.hh"

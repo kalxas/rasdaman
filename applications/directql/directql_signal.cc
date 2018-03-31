@@ -54,7 +54,7 @@ rasdaman GmbH.
 
 // debug facility; relies on -DDEBUG at compile time
 #include "debug-clt.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 //installSignalHandlers function should be called first in main function
 //in order to receive a signal in your program

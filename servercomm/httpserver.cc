@@ -36,11 +36,6 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)servercomm, HttpServer: $Id: httpserver.cc,v 1.54 2005/09/03 21:05:14 rasdev Exp $";
 
 #include <iostream>
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
-#include <malloc.h>
-#endif
 #include <time.h>      // for time()
 #include <string.h>
 
@@ -79,7 +74,7 @@ static const char rcsid[] = "@(#)servercomm, HttpServer: $Id: httpserver.cc,v 1.
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtstringdata.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #define UNEXPECTED_INTERNAL_ERROR 10000
 
@@ -1799,10 +1794,10 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
 
 #include "raslib/error.hh"
 
-#include   "httpserver/defs.h"
-#include   "httpserver/protos.h"
-#include   "httpserver/types.h"
-#include   "httpserver/server.h"
+#include "httpserver/defs.h"
+#include "httpserver/protos.h"
+#include "httpserver/types.h"
+#include "httpserver/server.h"
 
 
 extern struct ServerBase  Server;
@@ -1839,11 +1834,11 @@ int HttpServer::doIt_httpserver(int argc, char* argv[])
         Server.Client.Comm.ConnStatus      = CONN_UNDEFINED;
         InitHTTPMsg(&Server.Client.Response);
         InitReqInfo(&Server.Client.Request);
-        LogMsg(LG_SERVER, INFO, "INFO:  ====== Connection from %s accepted...",
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  ====== Connection from %s accepted...",
                Server.Client.Host.IPAddrString);
 
         HandleRequest(&Server.Client);
-        LogMsg(LG_SERVER, INFO, "INFO:  ====== EOT. Disconnecting.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  ====== EOT. Disconnecting.");
 
         close(Server.Client.SockFD);
 

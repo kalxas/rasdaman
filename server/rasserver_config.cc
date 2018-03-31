@@ -38,9 +38,8 @@ using namespace std;
 #include "servercomm/httpserver.hh"
 
 #include "debug/debug.hh"
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
 #include "debug.hh"
+#include "loggingutils.hh"
 
 Configuration configuration;
 
@@ -236,7 +235,7 @@ Configuration::initLogFiles()
 
 
     // Default logging configuration
-    LogConfiguration defaultConf(CONFDIR, SERVER_LOG_CONF);
+    common::LogConfiguration defaultConf(string(CONFDIR), SERVER_LOG_CONF);
     defaultConf.configServerLogging(logFileName);
 
     if (logToStdOut == true)

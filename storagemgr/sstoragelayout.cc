@@ -58,7 +58,7 @@ rasdaman GmbH.
 #include <cstdlib>
 #include <sstream>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 // this number should be DBMS dependent.. default in postgres seems to be 8kB, in MySQL 16kB, etc.
 const r_Bytes   StorageLayout::DBSPageSize = 4096;

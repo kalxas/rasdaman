@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "rasodmg/gmarray.hh"
 #include "raslib/dlist.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 const char*
 r_Tiling::ASTERIX   = "*";

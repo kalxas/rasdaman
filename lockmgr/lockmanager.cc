@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 #include "debug.hh"
 #include "raslib/rmdebug.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #define MSG_OK          "ok"
 #define MSG_FAILED      "failed"

@@ -47,7 +47,7 @@ rasdaman GmbH.
 #include "relmddif/dbmddset.hh"
 #include "reladminif/eoid.hh"
 #include "tilemgr/tile.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/mdddomaintype.hh"

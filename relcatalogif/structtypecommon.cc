@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
 #include "raslib/error.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <cstring>
 #include <string>

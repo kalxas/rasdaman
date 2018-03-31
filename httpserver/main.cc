@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include   "types.h"
 #include   "server.h"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #ifdef PURIFY
 #include <purify.h>
@@ -113,10 +113,10 @@ extern int init_httpserver(int argc, char* argv[])
         InitHTTPMsg(&Server.Client.Response);
         InitReqInfo(&Server.Client.Request);
 
-        LogMsg(LG_SERVER, INFO, "INFO:  ====== Connection from %s accepted...",
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  ====== Connection from %s accepted...",
                Server.Client.Host.IPAddrString);
         HandleRequest(&Server.Client);
-        LogMsg(LG_SERVER, INFO, "INFO:  ====== EOT. Disconnecting.");
+        LogMsg(LG_SERVER, LVL_INFO, "INFO:  ====== EOT. Disconnecting.");
 
         close(Server.Client.SockFD);
 
@@ -174,7 +174,7 @@ int Exit(int RC)
     {
         unlink(Server.PidFile);
         LogMsg(LG_SERVER, DEBUG, "DEBUG: Main process exiting (RC=%d)...", RC);
-        LogMsg(LG_SERVER, INFO,
+        LogMsg(LG_SERVER, LVL_INFO,
                "INFO:  ========= %s terminated. ============", DAEMONNAME);
     }
     else

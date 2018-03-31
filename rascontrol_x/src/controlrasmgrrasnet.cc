@@ -27,7 +27,7 @@
 
 #include "rasnet/messages/rasmgr_rasctrl_service.pb.h"
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/grpc/grpcutils.hh"
 #include "common/src/exceptions/rasexceptions.hh"
 

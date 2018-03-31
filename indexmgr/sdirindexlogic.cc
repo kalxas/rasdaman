@@ -36,7 +36,7 @@ static const char rcsiddirix[] = "@(#)dirix, SDirIndexLogic: $Id: sdirindexlogic
 #include "indexmgr/sdirindexlogic.hh"
 #include "keyobject.hh"
 #include "indexds.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 bool

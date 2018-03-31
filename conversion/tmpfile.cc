@@ -23,7 +23,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "conversion/tmpfile.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>

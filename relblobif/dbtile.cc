@@ -30,7 +30,7 @@ rasdaman GmbH.
 #include "blobtile.hh"
 #include "inlinetile.hh"
 #include "reladminif/dbref.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "unistd.h"
 #include <iostream>

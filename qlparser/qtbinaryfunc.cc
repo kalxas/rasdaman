@@ -57,7 +57,7 @@ static const char rcsid[] = "@(#)qlparser, QtMintervalSelect, QtShift: $Header: 
 
 #include "raslib/rmdebug.hh"
 #include "raslib/dlist.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iostream>
 #ifndef CPPSTDLIB

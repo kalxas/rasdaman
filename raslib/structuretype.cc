@@ -35,7 +35,7 @@ static const char rcsid[] = "@(#)raslib, r_Structure_Type: $Header: /home/rasdev
 #include "raslib/attribute.hh"
 #include "raslib/error.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 r_Structure_Type::r_Structure_Type()
     : r_Base_Type(),

@@ -22,19 +22,16 @@
 
 #include <iostream>
 #include <gtest/gtest.h>
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 using namespace std;
 
 int main(int argc, char** argv)
 {
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    common::LogConfiguration logConf;
+    logConf.configClientLogging();
+    
     ::testing::InitGoogleTest(&argc, argv);
 
     return RUN_ALL_TESTS();

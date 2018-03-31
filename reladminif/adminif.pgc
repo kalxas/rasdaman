@@ -45,7 +45,7 @@ EXEC SQL include sqlglobals.h;
 #include "raslib/rmdebug.hh"
 #include "objectbroker.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 extern char globalConnectId[256];
 extern char globalDbUser[255];

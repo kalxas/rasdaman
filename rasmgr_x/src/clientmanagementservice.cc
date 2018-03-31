@@ -25,7 +25,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/uuid/uuid.hh"
 #include "common/src/grpc/grpcutils.hh"
 
@@ -151,7 +151,7 @@ grpc::Status ClientManagementService::OpenDb(__attribute__ ((unused)) grpc::Serv
         //The session is initialized by the call
         this->clientManager->openClientDbSession(clientId, dbName, session);
 
-        LDEBUG_IF(clientId != session.clientSessionId) << "Opened remote database session for client with ID:" << clientId;
+        LOG_IF(clientId != session.clientSessionId, DEBUG) << "Opened remote database session for client with ID:" << clientId;
 
         response->set_clientsessionid(session.clientSessionId);
         response->set_dbsessionid(session.dbSessionId);

@@ -23,7 +23,7 @@ rasdaman GmbH.
 
 #include "qlparser/qtpolygonutil.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <sstream>
 #ifndef CPPSTDLIB

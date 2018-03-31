@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include "databaseif.hh"
 #include "dbobject.hh"
 #include "relblobif/blobfs.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 using blobfs::BlobFS;
 

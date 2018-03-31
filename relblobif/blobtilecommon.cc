@@ -54,7 +54,7 @@ rasdaman GmbH.
 #include "inlinetile.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/dbref.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 // defined in rasserver.cc
 extern char globalConnectId[256];

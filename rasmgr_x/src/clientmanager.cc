@@ -28,7 +28,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "common/src/uuid/uuid.hh"
 
 #include "exceptions/rasmgrexceptions.hh"

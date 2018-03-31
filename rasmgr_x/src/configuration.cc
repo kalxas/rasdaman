@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <cstring>
 #include "../../include/globals.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "configuration.hh"
 

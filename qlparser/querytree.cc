@@ -65,7 +65,7 @@ using namespace std;
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 unsigned int QueryTree::nextCSENo = 0;
 

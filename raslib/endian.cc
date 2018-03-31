@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "raslib/structuretype.hh"
 #include "raslib/miter.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 /*

@@ -25,7 +25,7 @@ using namespace std;
 
 #include "globals.hh"
 #include "rascontrolgrammar.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 namespace rasmgr
 {

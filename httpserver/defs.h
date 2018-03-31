@@ -127,7 +127,7 @@ typedef int socklen_t;
 
 /* LogLevels / ReturnCodes:
  *    DEBUG   (1)   Detaillierte Aktionsmeldungen
- *    INFO    (2)   Statusmeldungen
+ *    LVL_INFO    (2)   Statusmeldungen
  *    NOTE    (3)   Hinweise auf besondere Situationen
  *    WARN    (5)   Behebbare Fehlersituationen
  *    ERROR   (10)  Fehler die zu Aktionsabbruch fuehren
@@ -136,7 +136,7 @@ typedef int socklen_t;
 
 #define    OK                 0
 #define    DEBUG              1
-#define    INFO               2
+#define    LVL_INFO               2
 #define    NOTE               3
 #define    WARN               5
 #define    ERROR              10

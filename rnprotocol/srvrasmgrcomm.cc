@@ -45,7 +45,7 @@ rasdaman GmbH.
 #include<iostream>
 #include<string.h>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "debug.hh"
 

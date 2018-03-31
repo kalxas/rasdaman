@@ -40,7 +40,7 @@ static const char rcsid[] = "@(#)qlparser, QtIntervalOp: $Header: /home/rasdev/C
 #include "qlparser/qtintervaldata.hh"
 #include "qlparser/qtstringdata.hh"
 #include "qlparser/qtatomicdata.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iostream>
 #ifndef CPPSTDLIB

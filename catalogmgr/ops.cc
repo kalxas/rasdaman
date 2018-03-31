@@ -38,7 +38,7 @@ static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-rep
 #include "reladminif/objectbroker.hh"
 #include "typefactory.hh"
 #include "raslib/point.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 //-----------------------------------------------
 //  getUnaryOp

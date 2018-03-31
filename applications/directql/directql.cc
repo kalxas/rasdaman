@@ -103,8 +103,7 @@ using namespace std;
 
 #include "globals.hh"
 
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 #ifdef __VISUALC__
 #undef __EXECUTABLE__
@@ -252,6 +251,8 @@ bool taIsOpen = false;
 
 // suppress regular messages in log? (cmd line parameter '--quiet')
 bool quietLog = false;
+
+// TODO: remove this and use easylogging macros (LINFO)
 // logging mechanism that respects 'quiet' flag:
 #define INFO(a) { if (!quietLog) std::cout << a; }
 
@@ -1024,7 +1025,7 @@ void doStuff() throw(RasqlError, r_Error)
 
         if (query.is_insert_query())
         {
-            INFO("Executing insert query..." << flush);
+            INFO("Executing insert query...\n" << flush);
 
             openTransaction(true);
 
@@ -1063,7 +1064,7 @@ void doStuff() throw(RasqlError, r_Error)
         }
         else if (query.is_update_query())
         {
-            INFO("Executing update query..." << flush);
+            INFO("Executing update query...\n" << flush);
 
             openTransaction(true);
 
@@ -1096,7 +1097,7 @@ void doStuff() throw(RasqlError, r_Error)
         }
         else // retrieval query
         {
-            INFO("Executing retrieval query..." << flush);
+            INFO("Executing retrieval query...\n" << flush);
 
             openTransaction(false);
 
@@ -1107,7 +1108,9 @@ void doStuff() throw(RasqlError, r_Error)
 
             unsigned short status = server->executeQuery(DQ_CLIENT_ID, queryString, result);
 
-            printOutput(status, &result);
+            if (status >= 0 && status <= 2)
+                printOutput(status, &result);
+            
             freeResult(&result);
 
             closeTransaction(true);
@@ -1115,7 +1118,7 @@ void doStuff() throw(RasqlError, r_Error)
     }
     catch (r_Error& err)
     {
-        cerr << "Exception: " << err.what() << endl << flush;
+        LERROR << "Exception: " << err.what() << endl << flush;
         SECURE_FREE_PTR(fileContents);
         if (marray)
         {
@@ -1132,8 +1135,6 @@ void doStuff() throw(RasqlError, r_Error)
         SECURE_FREE_PTR(marray);
     }
     ObjectBroker::clearBroker();
-
-    INFO("ok." << endl << flush);
 }
 
 void
@@ -1146,16 +1147,15 @@ crash_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t
     exit(SEGFAULT_EXIT_CODE);
 }
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 /*
  * returns 0 on success, -1 on error
  */
 int main(int argc, char** argv)
 {
-    // Default logging configuration
-    LogConfiguration defaultConf(CONFDIR, CLIENT_LOG_CONF);
-    defaultConf.configClientLogging();
+    common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+    logConf.configClientLogging();
 
     SET_OUTPUT(false); // inhibit unconditional debug output, await cmd line evaluation
 
@@ -1167,6 +1167,9 @@ int main(int argc, char** argv)
     try
     {
         parseParams(argc, argv);
+        
+        if (quietLog)
+            logConf.configClientLogging(true);
 
         // put INFO after parsing parameters to respect a '--quiet'
         INFO(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << "." << endl);

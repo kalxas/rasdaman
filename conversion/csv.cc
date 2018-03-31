@@ -70,7 +70,7 @@ rasdaman GmbH.
 
 #include "debug/debug-srv.hh"
 #include "formatparamkeys.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #define DIM_BOUNDARY -1
 

@@ -40,7 +40,7 @@ rasdaman GmbH.
 #endif
 
 #include "raslib/mddtypes.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 /*

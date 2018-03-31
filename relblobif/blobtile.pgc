@@ -73,7 +73,7 @@ extern PGconn *pgConn;
 #include "inlinetile.hh"
 #include "tilecache.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 using namespace std;
 

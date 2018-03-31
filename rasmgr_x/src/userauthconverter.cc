@@ -27,7 +27,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #include <openssl/evp.h>
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "userauthconverter.hh"
 #include "authentication.hh"

@@ -32,7 +32,7 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/alltypes.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 extern void output_scope(FILE* out, const YSymbolTable::Scope* scope);
 

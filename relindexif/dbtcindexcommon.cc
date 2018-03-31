@@ -35,7 +35,7 @@ rasdaman GmbH.
 #include "reladminif/dbref.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "indexmgr/keyobject.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 void
 DBTCIndex::setMappingHasChanged()

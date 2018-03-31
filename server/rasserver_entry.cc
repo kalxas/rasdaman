@@ -39,7 +39,7 @@ using namespace std;
 
 #include "debug-srv.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 // console output describing successful/unsuccessful actions (cf. servercomm/servercomm.cc)
 #define MSG_OK     "ok"

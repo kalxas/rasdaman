@@ -35,7 +35,7 @@ rasdaman GmbH.
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
 #include "dbminterval.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 #include <cstring>
 #include <string>
 #include <boost/algorithm/string/predicate.hpp>

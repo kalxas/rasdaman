@@ -40,7 +40,7 @@ static const char rcsid[] = "@(#)rasodmg, r_Object: $Id: object.cc,v 1.37 2002/0
 
 #include "rasodmg/object.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #ifdef __VISUALC__
 #ifndef __EXECUTABLE__

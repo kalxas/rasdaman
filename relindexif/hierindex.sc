@@ -45,7 +45,7 @@ rasdaman GmbH.
 #include "relblobif/blobtile.hh"
 #include "indexmgr/keyobject.hh"
 #include "reladminif/sqlitewrapper.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 void
 DBHierIndex::insertInDb() throw (r_Error)

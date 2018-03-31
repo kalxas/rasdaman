@@ -21,7 +21,7 @@
  */
 
 #include "common/src/grpc/grpcutils.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "constants.hh"
 #include "outpeer.hh"

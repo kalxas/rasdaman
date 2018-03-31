@@ -21,7 +21,7 @@ static const char rcsid[] = "@(#)qlparser, QtMulticlipping: $Id: qtmulticlipping
 #include "qlparser/qtmshapeop.hh"
 #include "qlparser/qtfindsection.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtoperation.hh"

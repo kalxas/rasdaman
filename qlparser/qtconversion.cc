@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/chartype.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <string>

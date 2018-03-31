@@ -36,7 +36,7 @@
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
-#include <easylogging++.h>
+#include <logging.hh>
 #include "blobfscommon.hh"
 #include "blobtile.hh"
 #include "dirwrapper.hh"

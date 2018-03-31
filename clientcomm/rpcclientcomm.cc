@@ -97,7 +97,7 @@ extern "C"
 #include "raslib/structure.hh"
 #include "raslib/endian.hh"
 #include "raslib/parseparams.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "clientcomm/rpcclientcomm.hh"
 

@@ -94,6 +94,12 @@ public:
      * with unlimited max send/receive message size.
      */
     static grpc::ChannelArguments getDefaultChannelArguments();
+    
+    /**
+     * @brief redirectGRPCLogToEasyLogging Redirect the GRPC log to use Easyloggingpp
+     */
+    static void redirectGRPCLogToEasyLogging();
+    
 };
 
 }

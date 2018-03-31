@@ -69,6 +69,15 @@ endmacro()
 execute_process(COMMAND git submodule update --init --recursive
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+# gRPC-C++.podspec is in grpc v1.10.0 but not in the previous release that was
+# embedded in rasdaman (v1.7.2), so we check for its existence to determine if
+# the extracted grpc/ dreictory is the most current one and remove it if not.
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/third_party/grpc/gRPC-C++.podspec")
+    execute_process(COMMAND rm -rf grpc
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
+endif()
+
+# If the grpc/ directory does not exist it needs to be extracted from grpc.tar.gz
 if(NOT EXISTS "${CMAKE_SOURCE_DIR}/third_party/grpc")
     execute_process(COMMAND tar xzf grpc.tar.gz
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
@@ -302,10 +311,15 @@ if (RMANRASNET)
 endif (RMANRASNET)
 
 ############################################################################
-# Begin Easylogging++
+# Begin Easyloggingpp (ELPP)
 ############################################################################
-set(EASYLOGGING_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/third_party/easyloggingpp")
 
-include_directories(SYSTEM ${EASYLOGGING_INCLUDE_DIR})
-install(FILES ${EASYLOGGING_INCLUDE_DIR}/easylogging++.h
+set(ELPP_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/easyloggingpp")
+set(ELPP_INCLUDE_DIR "${ELPP_SOURCE_DIR}")
+
+set(ELPP_LIBRARY easyloggingpp)
+add_library(${ELPP_LIBRARY} STATIC ${ELPP_SOURCE_DIR}/easylogging++.cc)
+
+install(FILES ${ELPP_INCLUDE_DIR}/easylogging++.h
         DESTINATION ${INCLUDE_DIR})
+install(TARGETS ${ELPP_LIBRARY} ARCHIVE DESTINATION ${LIB_DIR})

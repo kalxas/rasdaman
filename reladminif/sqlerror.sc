@@ -43,7 +43,7 @@ rasdaman GmbH.
 
 #include "raslib/error.hh"
 #include "debug-srv.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 // general message buffer size
 #define BUFFER_SIZE 4000

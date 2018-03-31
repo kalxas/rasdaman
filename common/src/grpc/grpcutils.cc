@@ -32,6 +32,7 @@
 #include "messages/error.pb.h"
 
 #include "common/src/network/networkresolverfactory.hh"
+#include <logging.hh>
 
 #include "grpcutils.hh"
 
@@ -150,6 +151,53 @@ grpc::ChannelArguments GrpcUtils::getDefaultChannelArguments()
     args.SetMaxReceiveMessageSize(-1); // unlimited
     args.SetMaxSendMessageSize(-1); // unlimited
     return args;
+}
+
+void gpr_replacement_log(gpr_log_func_args* args);
+void gpr_replacement_log(gpr_log_func_args* args)
+{
+    string prefix = "GRPC: ";
+    string separator = " ";
+
+    switch (args->severity)
+    {
+    case GPR_LOG_SEVERITY_DEBUG:
+    {
+        LDEBUG << prefix
+               << args->file << separator
+               << args->line << separator
+               << args->message;
+    }
+    break;
+    case GPR_LOG_SEVERITY_INFO:
+    {
+        LINFO << prefix
+              << args->file << separator
+              << args->line << separator
+              << args->message;
+    }
+    break;
+    case GPR_LOG_SEVERITY_ERROR:
+    {
+        LERROR << prefix
+               << args->file << separator
+               << args->line << separator
+               << args->message;
+    }
+    break;
+    default:
+    {
+        LERROR << prefix
+               << args->file << separator
+               << args->line << separator
+               << args->message;
+    }
+    }
+}
+
+void GrpcUtils::redirectGRPCLogToEasyLogging()
+{
+    gpr_set_log_function(gpr_replacement_log);
 }
 
 }

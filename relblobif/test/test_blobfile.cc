@@ -36,8 +36,7 @@
 #include "relblobif/blobfile.hh"
 #include "testing.h"
 
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 using namespace std;
 using namespace blobfs;
@@ -51,7 +50,7 @@ char* dbSchema = 0;
 int noTimeOut = 0;
 bool udfEnabled = true;
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 namespace blobfs
 {

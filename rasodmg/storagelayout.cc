@@ -45,7 +45,7 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "rasodmg/gmarray.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char* formatParams)
     :   til(0),

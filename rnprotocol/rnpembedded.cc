@@ -33,7 +33,7 @@ rasdaman GmbH.
 
 #include "debug.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 using namespace rnp;
 

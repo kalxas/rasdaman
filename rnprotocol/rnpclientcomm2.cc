@@ -56,7 +56,7 @@ rasdaman GmbH.
 #include "raslib/endian.hh"
 #include "raslib/parseparams.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "debug.hh"
 

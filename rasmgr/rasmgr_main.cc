@@ -51,7 +51,7 @@ rasdaman GmbH.
 #include "rasmgr_error.hh"
 #include "raslib/rminit.hh"
 
-#include <easylogging++.h>
+#include "common/src/grpc/grpcutils.hh"
 
 #ifndef COMPDATE
 #error "Please specify the COMPDATE variable!"
@@ -66,7 +66,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #undef DEBUG_HH
 #include "debug-srv.hh"
 
-_INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 RMINITGLOBALS('S')
 
@@ -89,6 +89,10 @@ void SigIntHandler(int sig);
 
 int main(int argc, char** argv, char** envp)
 {
+    auto outputLogFilePath = string("rasmgr.") + std::to_string(::getpid()) + ".log";
+    common::LogConfiguration logConfig(string(CONFDIR), RASMGR_LOG_CONF);
+    logConfig.configServerLogging(outputLogFilePath);
+    
     SET_OUTPUT(true);   // enable debugging trace, if compiled so
 
     if (testIsMessageDigestAvailable("MD5") == false)

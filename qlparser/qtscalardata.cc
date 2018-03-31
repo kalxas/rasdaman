@@ -38,7 +38,7 @@ static const char rcsid[] = "@(#)qlparser, QtScalarData: $Header: /home/rasdev/C
 #include "relcatalogif/basetype.hh"
 
 #include "raslib/rmdebug.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <iostream>
 #ifndef CPPSTDLIB

@@ -43,7 +43,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 void
 MDDBaseType::insertInDb() throw (r_Error)

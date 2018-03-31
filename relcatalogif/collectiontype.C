@@ -23,7 +23,7 @@ rasdaman GmbH.
 #include "collectiontype.hh"
 #include "mddtype.hh"
 #include "debug/debug-srv.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 r_Bytes
 CollectionType::getMemorySize() const

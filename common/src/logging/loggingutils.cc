@@ -20,215 +20,85 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <string>
-#include <fstream>
-
-#include <easylogging++.h>
-
+#include <sys/stat.h>
+#include <unistd.h>
 #include "globals.hh"
 #include "config.h"
-
 #include "loggingutils.hh"
-
-#ifdef RMANRASNET
-
-#include <grpc/support/log.h>
-
-#endif
+#include "raslib/commonutil.hh"
 
 namespace common
 {
-using std::string;
+using namespace std;
 
-#ifdef RMANRASNET
-void gpr_replacement_log(gpr_log_func_args* args);
-void gpr_replacement_log(gpr_log_func_args* args)
+LogConfiguration::LogConfiguration()
 {
-    string prefix = "GRPC:";
-    string separator = " ";
-
-    switch (args->severity)
-    {
-    case GPR_LOG_SEVERITY_DEBUG:
-    {
-        LDEBUG << prefix << separator
-               << args->file << separator
-               << args->line << separator
-               << args->message;
-    }
-    break;
-    case GPR_LOG_SEVERITY_INFO:
-    {
-        LINFO << prefix << separator
-              << args->file << separator
-              << args->line << separator
-              << args->message;
-    }
-    break;
-    case GPR_LOG_SEVERITY_ERROR:
-    {
-        LERROR << prefix << separator
-               << args->file << separator
-               << args->line << separator
-               << args->message;
-    }
-    break;
-    default:
-    {
-        LERROR << prefix << separator
-               << args->file << separator
-               << args->line << separator
-               << args->message;
-    }
-    }
 }
 
-#endif
-
-void common::LoggingUtils::redirectGRPCLogToEasyLogging()
+// constructor which sets the path of the configuration file
+LogConfiguration::LogConfiguration(string confDir, string confFileName)
 {
-#ifdef RMANRASNET
-
-    gpr_set_log_function(gpr_replacement_log);
-
-#endif
+    auto sep = confDir[confDir.length() - 1] == '/' ? "" : "/";
+    configFilePath = confDir + sep + confFileName;
 }
 
-easyloggingpp::Configurations LoggingUtils::getClientLoggingConfiguration()
+void LogConfiguration::configClientLogging(bool quiet)
 {
-    std::string configFilePath(std::string(CONFDIR) + "/" + CLIENT_LOG_CONF);
-
-    if (doesFileExist(configFilePath))
-    {
-        easyloggingpp::Configurations defaultConf(configFilePath);
-
-        LINFO << "Loaded log configuration file:" << configFilePath;
-
-        return defaultConf;
-    }
-    else        // if configuration file is not found, use inline configuration
-    {
-        easyloggingpp::Configurations defaultConf;
-        defaultConf.setToDefault();
-        defaultConf.set(easyloggingpp::Level::All,
-                        easyloggingpp::ConfigurationType::Format, "[%level] - %log");
-        defaultConf.set(easyloggingpp::Level::Info,
-                        easyloggingpp::ConfigurationType::Format, " [%level] - %log");
-        defaultConf.set(easyloggingpp::Level::Warning,
-                        easyloggingpp::ConfigurationType::Format, " [%level] - %log");
-
-        defaultConf.set(easyloggingpp::Level::Debug,
-                        easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
-        defaultConf.set(easyloggingpp::Level::Trace,
-                        easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
-
-        defaultConf.set(easyloggingpp::Level::All,
-                        easyloggingpp::ConfigurationType::ToFile, "false");
-        defaultConf.set(easyloggingpp::Level::All,
-                        easyloggingpp::ConfigurationType::ToStandardOutput, "true");
-
-#ifdef RMANDEBUG
-        defaultConf.set(easyloggingpp::Level::Debug,
-                        easyloggingpp::ConfigurationType::Enabled, "true");
-        defaultConf.set(easyloggingpp::Level::Trace,
-                        easyloggingpp::ConfigurationType::Enabled, "true");
-#else
-        defaultConf.set(easyloggingpp::Level::Debug,
-                        easyloggingpp::ConfigurationType::Enabled, "false");
-        defaultConf.set(easyloggingpp::Level::Trace,
-                        easyloggingpp::ConfigurationType::Enabled, "false");
-#endif
-        LWARNING << "Configuration file not found.";
-
-        return defaultConf;
-    }
+    initConfig("", quiet);
 }
 
-easyloggingpp::Configurations LoggingUtils::getServerLoggingConfiguration(const std::string& configFilePath)
+void LogConfiguration::configServerLogging(const string& outputLogFilePath, bool quiet)
 {
-    if (doesFileExist(configFilePath))
-    {
-        easyloggingpp::Configurations defaultConf(configFilePath);
-
-        LINFO << "Loaded log configuration file:" << configFilePath;
-
-        return defaultConf;
-    }
-    else        // if configuration file is not found, use inline configuration
-    {
-        LWARNING << "Configuration file not found.";
-
-        return getDefaultEasyloggingConfig();
-    }
+    initConfig(outputLogFilePath, quiet);
 }
 
-easyloggingpp::Configurations LoggingUtils::getServerLoggingConfiguration(const std::string& configFilePath, const std::string& outputLogFilePath)
+void LogConfiguration::initConfig(const string& outputLogFilePath, bool quiet)
 {
-    if (doesFileExist(configFilePath))
+    bool client = outputLogFilePath.empty();
+    
+    struct stat buffer;
+    auto configFileExists = stat(configFilePath.c_str(), &buffer) == 0;
+    
+    if (configFileExists)
     {
-        easyloggingpp::Configurations defaultConf(configFilePath);
-        defaultConf.set(easyloggingpp::Level::All ,
-                        easyloggingpp::ConfigurationType::Filename, outputLogFilePath);
-
-        LINFO << "Loaded log configuration file:" << configFilePath;
-
-        return defaultConf;
-    }
-    else        // if configuration file is not found, use inline configuration
-    {
-
-        easyloggingpp::Configurations defaultConf = getDefaultEasyloggingConfig();
-        defaultConf.set(easyloggingpp::Level::All ,
-                        easyloggingpp::ConfigurationType::Filename, outputLogFilePath);
-        LWARNING << "Configuration file not found.";
-
-        return defaultConf;
-    }
-}
-
-bool LoggingUtils::doesFileExist(const std::string& filePath)
-{
-    std::ifstream f(filePath.c_str());
-    if (f.good())
-    {
-        f.close();
-        return true;
+        conf = el::Configurations(configFilePath);
     }
     else
     {
-        f.close();
-        return false;
+        conf.setToDefault();
+        auto globalFmt = client ? "%msg" : "[%level] - %datetime, %loc: %msg";
+        conf.set(el::Level::Global, el::ConfigurationType::Format, globalFmt);
+        if (!client)
+            conf.set(el::Level::Info, el::ConfigurationType::Format,
+                     " [%level] - %datetime: %msg");
+
+        conf.set(el::Level::Global, el::ConfigurationType::ToFile,
+                 client ? "false" : "true");
+        conf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput,
+                 client ? "true" : "false");
+        conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
+        conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
+    }
+    
+    el::Loggers::addFlag(el::LoggingFlag::LogDetailedCrashReason);
+    el::Loggers::addFlag(el::LoggingFlag::CreateLoggerAutomatically);
+    el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
+    // if it's a client and the output is on a terminal then color the output
+    if (client && isatty(1))
+        el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
+    // if it's a server and the log filepath is not set -> set to outputLogFilePath
+    if (!client && !conf.get(el::Level::Global, el::ConfigurationType::Filename))
+        conf.set(el::Level::Global, el::ConfigurationType::Filename, outputLogFilePath);
+    if (quiet)
+        conf.set(el::Level::Global, el::ConfigurationType::Enabled, "false");
+    el::Loggers::setDefaultConfigurations(conf, true);
+    
+    if (!configFileExists)
+    {
+        LWARNING << StackTrace();
+        LWARNING << "Using default log configuration as the config file '" 
+                 << configFilePath << "' was not found.";
     }
 }
 
-easyloggingpp::Configurations LoggingUtils::getDefaultEasyloggingConfig()
-{
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-
-    defaultConf.set(easyloggingpp::Level::All,
-                    easyloggingpp::ConfigurationType::Format, "[%level] - %datetime, %loc: %log");
-    defaultConf.set(easyloggingpp::Level::Info,
-                    easyloggingpp::ConfigurationType::Format, " [%level] - %datetime: %log");
-    defaultConf.set(easyloggingpp::Level::Warning,
-                    easyloggingpp::ConfigurationType::Format, " [%level] - %datetime, %loc: %log");
-
-    defaultConf.set(easyloggingpp::Level::All,
-                    easyloggingpp::ConfigurationType::ToFile, "true");
-    defaultConf.set(easyloggingpp::Level::All,
-                    easyloggingpp::ConfigurationType::ToStandardOutput, "false");
-#ifdef RMANDEBUG
-    defaultConf.set(easyloggingpp::Level::Debug,
-                    easyloggingpp::ConfigurationType::Enabled, "true");
-    defaultConf.set(easyloggingpp::Level::Trace,
-                    easyloggingpp::ConfigurationType::Enabled, "true");
-#endif
-
-    defaultConf.set(easyloggingpp::Level::Debug,
-                    easyloggingpp::ConfigurationType::Enabled, "false");
-    defaultConf.set(easyloggingpp::Level::Trace,
-                    easyloggingpp::ConfigurationType::Enabled, "false");
-
-    return defaultConf;
-}
 }

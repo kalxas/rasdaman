@@ -107,6 +107,10 @@ SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer")
 # Disable default log file from easylogging, otherwise we get by default
 # logs/myeasylog.log
 add_definitions(-DELPP_NO_DEFAULT_LOG_FILE)
+add_definitions(-DELPP_FEATURE_CRASH_LOG)
+add_definitions(-DELPP_STACKTRACE)
+add_definitions(-DELPP_DISABLE_DEFAULT_CRASH_HANDLING)
+add_definitions(-DELPP_NO_CHECK_MACROS)
 
 # If release, disable Debug and Trace logs
 string(TOUPPER ${CMAKE_BUILD_TYPE} uppercase_CMAKE_BUILD_TYPE)
@@ -470,6 +474,7 @@ include(third_party/CMakeLists.txt)
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/debug)
+include_directories(${CMAKE_SOURCE_DIR}/common/src/logging)
 # All the generated files should be placed in the binary dir. We add this to the
 # include path so that the compiler can find the files.
 include_directories(${CMAKE_BINARY_DIR})

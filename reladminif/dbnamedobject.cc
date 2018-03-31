@@ -39,7 +39,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 #include "dbnamedobject.hh"
 #include "dbobject.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 // Beware: keep this value less or equal to STRING_MAXLEN in externs.h!
 #define MAXNAMELENGTH_CONST 200

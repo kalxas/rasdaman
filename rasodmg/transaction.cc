@@ -47,7 +47,7 @@ static const char rcsid[] = "@(#)rasodmg, r_Transaction: $Id: transaction.cc,v 1
 #include "raslib/scalar.hh"
 #include "clientcomm/clientcomm.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #ifdef __VISUALC__
 #ifdef TRANSACTION_NOT_SET

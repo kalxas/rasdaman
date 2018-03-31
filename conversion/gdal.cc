@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include "conversion/transpose.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include <limits>
 #include <boost/algorithm/string.hpp>
 

@@ -61,7 +61,7 @@ static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.4
 #include <iostream>
 #include <iomanip>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 r_GMarray::r_GMarray() throw(r_Error)

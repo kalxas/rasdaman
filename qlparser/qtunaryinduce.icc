@@ -27,7 +27,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 inline QtNode::QtNodeType
 QtNot::getNodeType() const

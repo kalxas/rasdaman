@@ -33,7 +33,7 @@ rasdaman GmbH.
  */
 
 #include "config.h"
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "conversion/convfactory.hh"
 

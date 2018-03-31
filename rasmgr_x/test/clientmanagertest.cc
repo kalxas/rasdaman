@@ -25,7 +25,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "../src/client.hh"
 #include "../src/user.hh"

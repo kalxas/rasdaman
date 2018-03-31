@@ -46,7 +46,7 @@ using namespace std;
 #include "rasmgr_users.hh"
 #include "rasmgr_error.hh"
 #include <arpa/inet.h>
-#include <easylogging++.h>
+#include <logging.hh>
 
 #ifndef RMANVERSION
 #error "Please specify RAMNVERSION variable!"

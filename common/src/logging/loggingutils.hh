@@ -23,27 +23,30 @@
 #ifndef COMMON_SRC_LOGGING_LOGGINGUTILS_HH
 #define COMMON_SRC_LOGGING_LOGGINGUTILS_HH
 
-#include <easylogging++.h>
+#include <logging.hh>
+#include <string>
 
 namespace common
 {
-class LoggingUtils
+class LogConfiguration
 {
 public:
-    /**
-     * @brief redirectGRPCLogToEasyLogging Redirect the GRPC log to use the Easylogging library.
-     */
-    static void redirectGRPCLogToEasyLogging();
+    LogConfiguration();
 
-    static easyloggingpp::Configurations getClientLoggingConfiguration();
+    // constructor which sets the path of the configuration file,
+    // using the path of the directory and the name of the file
+    LogConfiguration(std::string confDir, std::string confFileName);
 
-    static easyloggingpp::Configurations getServerLoggingConfiguration(const std::string& configFilePath);
+    void configClientLogging(bool quiet = false);
 
-    static easyloggingpp::Configurations getServerLoggingConfiguration(const std::string& configFilePath, const std::string& outputLogFilePath);
+    void configServerLogging(const std::string& outputLogFilePath, bool quiet = false);
 
 private:
-    static bool doesFileExist(const std::string& filePath);
-    static easyloggingpp::Configurations getDefaultEasyloggingConfig();
+    void initConfig(const std::string& outputLogFilePath, bool quiet);
+
+    std::string configFilePath;
+    
+    el::Configurations conf;
 };
 }
 

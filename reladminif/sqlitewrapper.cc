@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include <memory>
 #include <cstdio>
 #include <bool.h>
-#include <easylogging++.h>
+#include <logging.hh>
 
 sqlite3* SQLiteQuery::sqliteConn = NULL;
 

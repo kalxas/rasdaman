@@ -50,7 +50,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include "reladminif/sqlerror.hh"
 #include "relblobif/blobtile.hh"
 #include "indexmgr/keyobject.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 // libpg connection maintenance
 extern PGconn *pgConn;

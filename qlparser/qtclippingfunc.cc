@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "qlparser/qtmshapeop.hh"
 #include "qlparser/qtfindsection.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "qlparser/qtpointdata.hh"
 

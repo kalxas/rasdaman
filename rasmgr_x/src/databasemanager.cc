@@ -24,7 +24,7 @@
 
 #include <boost/thread/locks.hpp>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "exceptions/rasmgrexceptions.hh"
 #include "database.hh"

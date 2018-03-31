@@ -46,7 +46,7 @@ static const char rcsidref[] = "@(#)rasodmg, r_Ref: $Id: ref.cc,v 1.28 2002/08/2
 #include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 // forward declaration needed because of EARLY_TEMPLATE

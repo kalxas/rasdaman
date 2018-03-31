@@ -33,7 +33,7 @@ rasdaman GmbH.
  * COMMENTS:
 */
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "rascontrol.hh"
 

@@ -6,7 +6,7 @@
 
 #include <stdexcept>
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include "config.h"
 #include "include/globals.hh"

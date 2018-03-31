@@ -39,7 +39,7 @@ rasdaman GmbH.
 #include "debug.hh"
 #include "raslib/rminit.hh" // for RNP_COMM_TIMEOUT
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 using namespace rnp;
 

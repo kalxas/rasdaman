@@ -70,9 +70,9 @@ install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/start_rasdaman.sh"
 # Only install the files if they are not installed. This allows the user to update his installation without having the files overwritten.
 install_if_not_exists("${CMAKE_CURRENT_BINARY_DIR}/watch_rasdaman.sh" ${BIN_DIR})
 install_if_not_exists("${CMAKE_CURRENT_BINARY_DIR}/rasmgr.conf" ${CONF_DIR})
-install_if_not_exists(log-client.conf ${CONF_DIR})
-install_if_not_exists(log-server.conf ${CONF_DIR})
-install_if_not_exists(log-rasmgr.conf ${CONF_DIR})
+install_log_file(log-client.conf ${CONF_DIR})
+install_log_file(log-server.conf ${CONF_DIR})
+install_log_file(log-rasmgr.conf ${CONF_DIR})
 
 # Copy the error text files.
 install(FILES errtxts_en errtxts_de errtxts_fr errtxts

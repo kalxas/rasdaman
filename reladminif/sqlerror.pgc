@@ -51,7 +51,7 @@ static const char rcsid[] = "@(#)reladminif,SQLError: $Id: sqlerror.ec,v 1.4 200
 
 #include "raslib/error.hh"
 #include "debug-srv.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 // general embedded SQL related definitions
 EXEC SQL include "sqlglobals.h";

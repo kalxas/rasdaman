@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "config.h"
 #include "symtab.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 // constructor
 template <class T>

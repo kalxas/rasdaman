@@ -48,7 +48,7 @@ static const char rcsid[] = "@(#)mddobjix, MDDObjIx: $Id: mddobjix.cc,v 1.30 200
 #include "keyobject.hh"
 #include "reladminif/lists.h"
 #include "relblobif/tileid.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 using boost::shared_ptr;
 

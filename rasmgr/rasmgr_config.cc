@@ -62,8 +62,7 @@ using namespace std;
 #include "raslib/rminit.hh"
 #include "debug/debug-srv.hh"
 
-#include "raslib/log_config.hh"
-#include <easylogging++.h>
+#include "loggingutils.hh"
 
 extern bool hostCmp(const char* h1, const char* h2);
 
@@ -518,7 +517,7 @@ void Configuration::initLogFiles()
         logToStdOut = false;
     }
     // Default logging configuration
-    LogConfiguration defaultConf(CONFDIR, SERVER_LOG_CONF);
+    LogConfiguration defaultConf(string(CONFDIR), RASMGR_LOG_FILE);
     defaultConf.configServerLogging(logFileName);
 
     cout << "rasmgr log file is: " << logFileName << endl;

@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include "raslib/miterd.hh"
 #include "mymalloc/mymalloc.h"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 #include <string.h>
 #include <errno.h>

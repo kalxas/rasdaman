@@ -42,7 +42,7 @@ rasdaman GmbH.
 #include "debug.hh"
 #include "rasodmg/gmarray.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 // waiting time increment upon subsecuqnet connect tries in RNP [msecs] -- PB 2005-sep-09

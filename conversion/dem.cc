@@ -53,7 +53,7 @@ using namespace std;
 #include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
-#include <easylogging++.h>
+#include <logging.hh>
 
 
 const r_Dimension r_Conv_DEM::srcIntervDim = 1;

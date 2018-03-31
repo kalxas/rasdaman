@@ -39,7 +39,7 @@ using namespace std;
 #include "reladminif/objectbroker.hh"
 #include "raslib/mitera.hh"
 
-#include <easylogging++.h>
+#include <logging.hh>
 
 //#include <akgtime.hh>
 
