@@ -758,6 +758,7 @@ static const base::type::char_t* kLogFunctionFormatSpecifier      =      ELPP_LI
 static const base::type::char_t* kCurrentUserFormatSpecifier      =      ELPP_LITERAL("%user");
 static const base::type::char_t* kCurrentHostFormatSpecifier      =      ELPP_LITERAL("%host");
 static const base::type::char_t* kMessageFormatSpecifier          =      ELPP_LITERAL("%msg");
+static const base::type::char_t* kMessageFormatSpecifierOld       =      ELPP_LITERAL("%log");
 static const base::type::char_t* kVerboseLevelFormatSpecifier     =      ELPP_LITERAL("%vlevel");
 static const char* kDateTimeFormatSpecifierForFilename            =      "%datetime";
 // Date/time

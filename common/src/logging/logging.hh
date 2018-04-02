@@ -1,9 +1,6 @@
 #pragma once
 
-#define ELPP_FEATURE_CRASH_LOG
-#define ELPP_DISABLE_DEFAULT_CRASH_HANDLING
-
-#include "third_party/easyloggingpp/easylogging++.h"
+#include "easylogging++.h"
 
 #ifndef LINFO
 #define LINFO LOG(INFO)

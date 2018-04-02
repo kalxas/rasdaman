@@ -475,6 +475,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/debug)
 include_directories(${CMAKE_SOURCE_DIR}/common/src/logging)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/easyloggingpp)
 # All the generated files should be placed in the binary dir. We add this to the
 # include path so that the compiler can find the files.
 include_directories(${CMAKE_BINARY_DIR})

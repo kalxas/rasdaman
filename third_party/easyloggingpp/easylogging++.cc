@@ -66,6 +66,7 @@ struct StringToLevelItem {
 };
 
 static struct StringToLevelItem stringToLevelMap[] = {
+  { "all", Level::Global },
   { "global", Level::Global },
   { "debug", Level::Debug },
   { "info", Level::Info },
@@ -126,6 +127,7 @@ static struct ConfigurationStringToTypeItem configStringToTypeMap[] = {
   { "milliseconds_width", ConfigurationType::MillisecondsWidth },
   { "performance_tracking", ConfigurationType::PerformanceTracking },
   { "max_log_file_size", ConfigurationType::MaxLogFileSize },
+  { "roll_out_size", ConfigurationType::MaxLogFileSize },
   { "log_flush_threshold", ConfigurationType::LogFlushThreshold },
 };
 
@@ -379,6 +381,12 @@ void Configurations::Parser::ignoreComments(std::string* line) {
     }
     *line = line->substr(0, foundAt);
   }
+  if ((foundAt = line->find("//")) != std::string::npos) {
+    if (foundAt < quotesEnd) {
+      foundAt = line->find("//", quotesEnd + 1);
+    }
+    *line = line->substr(0, foundAt);
+  }
 }
 
 bool Configurations::Parser::isLevel(const std::string& line) {
@@ -386,7 +394,8 @@ bool Configurations::Parser::isLevel(const std::string& line) {
 }
 
 bool Configurations::Parser::isComment(const std::string& line) {
-  return base::utils::Str::startsWith(line, std::string(base::consts::kConfigurationComment));
+  return base::utils::Str::startsWith(line, std::string(base::consts::kConfigurationComment)) || 
+          base::utils::Str::startsWith(line, "//");
 }
 
 bool Configurations::Parser::isConfig(const std::string& line) {
@@ -1441,6 +1450,7 @@ void LogFormat::parseFromFormat(const base::type::string_t& userFormat) {
   conditionalAddFlag(base::consts::kCurrentUserFormatSpecifier, base::FormatFlags::User);
   conditionalAddFlag(base::consts::kCurrentHostFormatSpecifier, base::FormatFlags::Host);
   conditionalAddFlag(base::consts::kMessageFormatSpecifier, base::FormatFlags::LogMessage);
+  conditionalAddFlag(base::consts::kMessageFormatSpecifierOld, base::FormatFlags::LogMessage);
   conditionalAddFlag(base::consts::kVerboseLevelFormatSpecifier, base::FormatFlags::VerboseLevel);
   // For date/time we need to extract user's date format first
   std::size_t dateIndex = std::string::npos;
