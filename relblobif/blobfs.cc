@@ -256,11 +256,11 @@ void BlobFS::finalizeUncompletedTransactions() throw (r_Error)
                     BlobFSTransaction* transaction = BlobFSTransaction::getBlobFSTransaction(subdir, config);
                     if (transaction != NULL)
                     {
-                        LINFO << "transaction in invalid state discovered, recovering...";
+                        NNLDEBUG << "transaction in invalid state discovered, recovering...";
                         transaction->finalizeUncompleted();
                         delete transaction;
                         transaction = NULL;
-                        LINFO << "invalid transaction successfully recovered.";
+                        BLDEBUG << "ok.";
                     }
                 }
                 checkTransactionLock.unlock();

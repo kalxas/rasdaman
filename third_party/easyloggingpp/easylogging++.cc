@@ -1452,6 +1452,7 @@ void LogFormat::parseFromFormat(const base::type::string_t& userFormat) {
   conditionalAddFlag(base::consts::kMessageFormatSpecifier, base::FormatFlags::LogMessage);
   conditionalAddFlag(base::consts::kMessageFormatSpecifierOld, base::FormatFlags::LogMessage);
   conditionalAddFlag(base::consts::kVerboseLevelFormatSpecifier, base::FormatFlags::VerboseLevel);
+  conditionalAddFlag(base::consts::kNoNewLineFormatSpecifier, base::FormatFlags::NoNewLine);
   // For date/time we need to extract user's date format first
   std::size_t dateIndex = std::string::npos;
   if ((dateIndex = formatCopy.find(base::consts::kDateTimeFormatSpecifier)) != std::string::npos) {
@@ -2165,7 +2166,11 @@ void DefaultLogDispatchCallback::dispatch(base::type::string_t&& logLine) {
     if (m_data->logMessage()->logger()->m_typedConfigurations->toStandardOutput(m_data->logMessage()->level())) {
       if (ELPP->hasFlag(LoggingFlag::ColoredTerminalOutput))
         m_data->logMessage()->logger()->logBuilder()->convertToColoredOutput(&logLine, m_data->logMessage()->level());
-      ELPP_COUT << ELPP_COUT_LINE(logLine);
+      auto lvl = m_data->logMessage()->level();
+      if (lvl == Level::Warning || lvl == Level::Error || lvl == Level::Fatal)
+        ELPP_CERR << ELPP_COUT_LINE(logLine);
+      else
+        ELPP_COUT << ELPP_COUT_LINE(logLine);
     }
   }
 #if defined(ELPP_SYSLOG)
@@ -2390,7 +2395,13 @@ base::type::string_t DefaultLogBuilder::build(const LogMessage* logMessage, bool
     base::utils::Str::replaceFirstWithEscape(logLine, wcsFormatSpecifier, it->resolver()(logMessage));
   }
 #endif  // !defined(ELPP_DISABLE_CUSTOM_FORMAT_SPECIFIERS)
-  if (appendNewLine) logLine += ELPP_LITERAL("\n");
+  if (appendNewLine) {
+    if (!logFormat->hasFlag(base::FormatFlags::NoNewLine)) {
+      logLine += ELPP_LITERAL("\n");
+    } else {
+      base::utils::Str::replaceAll(logLine, base::consts::kNoNewLineFormatSpecifier, "");
+    }
+  }
   return logLine;
 }
 

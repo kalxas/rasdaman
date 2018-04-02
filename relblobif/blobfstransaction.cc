@@ -168,21 +168,21 @@ void BlobFSTransaction::finalizeUncompleted() throw (r_Error)
     {
         if (!validCommitState())
         {
-            LINFO << "invalid transaction commit state; finalizing commit procedure...";
+            NNLINFO << "invalid transaction commit state; finalizing commit procedure...";
             postRasbaseCommit();
-            LINFO << "completed recovery of invalid transaction commit.";
+            BLINFO << "ok.\n";
         }
         else if (!validAbortState())
         {
-            LINFO << "invalid transaction abort state; finalizing abort procedure...";
+            NNLINFO << "invalid transaction abort state; finalizing abort procedure...";
             postRasbaseAbort();
-            LINFO << "completed recovery of invalid transaction abort.";
+            BLINFO << "ok.\n";
         }
         else
         {
-            LINFO << "invalid transaction state; running recovery procedure...";
+            NNLINFO << "invalid transaction state; running recovery procedure...";
             finalizeRasbaseCrash();
-            LINFO << "completed recovery of invalid transaction.";
+            BLINFO << "ok.\n";
         }
     }
 }
@@ -194,6 +194,8 @@ void BlobFSTransaction::finalizeRasbaseCrash() throw (r_Error)
         SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_TILES'");
         if (checkTable.nextRow())
         {
+            if (blobIds.size() > 0)
+                BLINFO << "\n";
             for (long unsigned int i = 0; i < blobIds.size(); i++)
             {
                 long long blobId = blobIds[i];

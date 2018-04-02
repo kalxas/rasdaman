@@ -187,21 +187,21 @@ int main(int argc, char** argv)
     }
 
     LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << ".";
-    LINFO << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH. \n"
-          << "Rasdaman community is free software: you can redistribute it and/or modify "
+    LINFO << " Copyright 2003-2018 Peter Baumann / rasdaman GmbH. \n"
+          << " Rasdaman community is free software: you can redistribute it and/or modify "
           << "it under the terms of the GNU General Public License as published by "
           << "the Free Software Foundation, either version 3 of the License, or "
           << "(at your option) any later version. \n"
-          << "Rasdaman community is distributed in the hope that it will be useful, "
+          << " Rasdaman community is distributed in the hope that it will be useful, "
           << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
           << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-          << "GNU General Public License for more details. \n";
+          << "GNU General Public License for more details.";
 
-    LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.";
+    LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.\n";
 
     if (initialization() == false)
     {
-        LERROR << "Error during initialization. aborted.";
+        LERROR << "Error during initialization, aborted.";
         return RC_ERROR;
     }
 
@@ -209,9 +209,9 @@ int main(int argc, char** argv)
     // body rasserver
     //
 
-    LINFO << "Installing signal handler for ignoring broken pipe signal...";
+    NNLINFO << "Installing signal handler for ignoring broken pipe signal... ";
     signal(SIGPIPE, SIG_IGN);
-    LINFO << "ok";
+    BLINFO << "ok.\n\n";
 
     int returnCode = 0;
     try
@@ -255,19 +255,16 @@ int main(int argc, char** argv)
     }
     catch (r_Error& errorObj)
     {
-        LDEBUG << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
-        LERROR << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
+        LERROR << "rasdaman server error " << errorObj.get_errorno() << ": " << errorObj.what();
         returnCode = RC_ERROR;
     }
     catch (std::exception& ex)
     {
-        LERROR << "Error encounter: " << ex.what();
-        LDEBUG << "std::exception: " << ex.what();
+        LERROR << "rasdaman server exception: " << ex.what();
         returnCode = RC_ERROR;
     }
     catch (...)
     {
-        LDEBUG << "rasserver: general exception";
         LERROR << "rasserver: general exception";
         returnCode = RC_ERROR;
     }
@@ -295,46 +292,47 @@ bool initialization()
 
     serverListenPort = globalHTTPPort = configuration.getListenPort();
 
-    LINFO << "Server " << serverName << " of type ";
+    NNLINFO << "Server " << serverName << " of type ";
 
     if (configuration.isRnpServer())
     {
-        LINFO << "RNP, listening on port " << serverListenPort;
+        BLINFO << "RNP, listening on port " << serverListenPort;
     }
     else if (configuration.isHttpServer())
     {
-        LINFO << "HTTP, listening on port " << serverListenPort;
+        BLINFO << "HTTP, listening on port " << serverListenPort;
+    }
+    else if (configuration.isRasnetServer())
+    {
+        BLINFO << "rasnet, listening on port " << serverListenPort;
     }
     else
     {
-        LINFO << "RPC, registered with prognum 0x" << hex << serverListenPort << dec;
+        BLINFO << "RPC, registered with prognum 0x" << hex << serverListenPort << dec;
     }
 
     //  globalConnectId         = configuration.getDbConnectionID();
     strcpy(globalConnectId, configuration.getDbConnectionID());
-    LINFO << ", connecting to " << BASEDBSTRING << " as '" << globalConnectId <<  "'";
+    BLINFO << ", connecting to " << BASEDBSTRING << " as '" << globalConnectId <<  "'";
 
     strcpy(globalDbUser, configuration.getDbUser());
     if (strlen(configuration.getDbUser()) > 0)
     {
-        LINFO << ", user " << globalDbUser;
+        BLINFO << ", user " << globalDbUser;
     }
     strcpy(globalDbPasswd, configuration.getDbPasswd());
+    BLINFO << "\n";
 
     rasmgrHost = configuration.getRasmgrHost();
     rasmgrPort = configuration.getRasmgrPort();
 
-    LINFO << "Verifying rasmgr host name: " << rasmgrHost << "...";
+    NNLINFO << "Verifying rasmgr host name: " << rasmgrHost << "... ";
     if (!gethostbyname(rasmgrHost))
     {
-        LINFO << "failed";
-        if (!configuration.isLogToStdOut())
-        {
-            LINFO << "failed";
-        }
+        BLINFO << "failed\n";
         return false;
     }
-    LINFO << "ok";
+    BLINFO << "ok\n";
 
     maxTransferBufferSize = static_cast<unsigned int>(configuration.getMaxTransferBufferSize());
 
@@ -373,13 +371,8 @@ bool initialization()
     }
     catch (r_Error& err)
     {
-        LERROR << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval";
-        LERROR << "Error " << err.get_errorno() << " : " << err.what();
-        if (!configuration.isLogToStdOut())
-        {
-            LERROR << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval";
-            LERROR << "Error " << err.get_errorno() << " : " << err.what();
-        }
+        LERROR << "Failed converting " << configuration.getDefaultTileConfig() << " to r_Minterval, "
+               "error " << err.get_errorno() << " : " << err.what();
         return false;
     }
     LINFO << "Default Tile Conf: " << StorageLayout::DefaultTileConfiguration;
@@ -394,11 +387,7 @@ bool initialization()
 
     if ((tmpTS != r_NoTiling) && (tmpTS != r_RegularTiling) && (tmpTS != r_AlignedTiling))
     {
-        LERROR << "Error: unsupported tiling strategy: " << configuration.getTilingScheme();
-        if (configuration.isLogToStdOut())
-        {
-            LERROR << "Error: unsupported tiling strategy: " << configuration.getTilingScheme();
-        }
+        LERROR << "Unsupported tiling strategy: " << configuration.getTilingScheme();
         return false;
     }
 
@@ -416,11 +405,11 @@ bool initialization()
 
     //use tilecontainer
     RMInit::useTileContainer = configuration.useTileContainer();
-    LINFO << "Use Tile Container: " << RMInit::useTileContainer;
+    LINFO << "Tile Container   : " << RMInit::useTileContainer;
 
     //set cache size limit
     TileCache::cacheLimit = configuration.getCacheLimit();
-    LINFO << "Cache size limit  : " << TileCache::cacheLimit;
+    LINFO << "Cache size limit : " << TileCache::cacheLimit;
 
     return true;
 }

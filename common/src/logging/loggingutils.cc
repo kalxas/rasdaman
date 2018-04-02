@@ -25,7 +25,6 @@
 #include "globals.hh"
 #include "config.h"
 #include "loggingutils.hh"
-#include "raslib/commonutil.hh"
 
 namespace common
 {
@@ -90,14 +89,41 @@ void LogConfiguration::initConfig(const string& outputLogFilePath, bool quiet)
     if (!client && !conf.get(el::Level::Global, el::ConfigurationType::Filename))
         conf.set(el::Level::Global, el::ConfigurationType::Filename, outputLogFilePath);
     if (quiet)
-        conf.set(el::Level::Global, el::ConfigurationType::Enabled, "false");
+    {
+        for (auto lvl : {el::Level::Info, el::Level::Debug, el::Level::Trace})
+            conf.set(lvl, el::ConfigurationType::Enabled, "false");
+    }
     el::Loggers::setDefaultConfigurations(conf, true);
     
     if (!configFileExists)
     {
-        LWARNING << StackTrace();
         LWARNING << "Using default log configuration as the config file '" 
                  << configFilePath << "' was not found.";
+    }
+    
+    auto levels = {el::Level::Info, el::Level::Debug, el::Level::Error, 
+        el::Level::Warning, el::Level::Fatal, el::Level::Trace, el::Level::Global};
+    
+    // copy the default logger into a "no new line" logger that doesn't 
+    // automatically append a new line
+    {
+        el::Configurations customConf;
+        customConf.setFromBase(&conf);
+        for (auto lvl : levels)
+        {
+            auto *formatConf = customConf.get(lvl, el::ConfigurationType::Format);
+            formatConf->setValue(formatConf->value() + "%nnl");
+        }
+        el::Loggers::getLogger("nnl")->configure(customConf);
+    }
+    
+    // copy the default logger into a "bare" logger that only prints the %msg
+    {
+        el::Configurations customConf;
+        customConf.setFromBase(&conf);
+        for (auto lvl : levels)
+            customConf.get(lvl, el::ConfigurationType::Format)->setValue("%msg%nnl");
+        el::Loggers::getLogger("bare")->configure(customConf);
     }
 }
 

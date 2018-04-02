@@ -128,14 +128,12 @@ char* ppOutBuf = 0;
 void ppreset()
 {
     LFATAL << "Error: Preprocessor not compiled in.";
-    LTRACE << "Error: Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 
 int ppparse()
 {
     LFATAL << "Error: Preprocessor not compiled in.";
-    LTRACE << "Error: Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 #else
@@ -269,7 +267,7 @@ ServerComm::openDB(unsigned long callingClientId,
             context->userName = new char[strlen(userName) + 1];
             strcpy(context->userName, userName);
 #ifdef DEBUG
-            LINFO << MSG_OK;
+            BLINFO << MSG_OK << "\n";
 #endif
         }
 
@@ -284,7 +282,7 @@ ServerComm::openDB(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
     return returnValue;
@@ -337,12 +335,12 @@ ServerComm::closeDB(unsigned long callingClientId)
 #endif
 
 #ifdef DEBUG
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
 #endif
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
     return returnValue;
@@ -371,7 +369,7 @@ ServerComm::createDB(char* name)
     {
         tempDbIf->createDB(name, dbSchema);
 #ifdef DEBUG
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
 #endif
     }
     catch (r_Error& myErr)
@@ -429,7 +427,7 @@ ServerComm::destroyDB(char* name)
     delete tempDbIf;
 
 #ifdef DEBUG
-    LINFO << MSG_OK;
+    BLINFO << MSG_OK << "\n";
 #endif
 
     return returnValue;
@@ -454,7 +452,7 @@ ServerComm::beginTA(unsigned long callingClientId,
 
     if (context == 0)
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
     else if (transactionActive)
@@ -479,7 +477,7 @@ ServerComm::beginTA(unsigned long callingClientId,
             // start the transaction
             context->transaction.begin(&(context->database), readOnly);
 #ifdef DEBUG
-            LINFO << MSG_OK;
+            BLINFO << MSG_OK << "\n";
 #endif
         }
         catch (r_Error& err)
@@ -553,12 +551,12 @@ ServerComm::commitTA(unsigned long callingClientId)
         context->release();
 
 #ifdef DEBUG
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
 #endif
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -610,12 +608,12 @@ ServerComm::abortTA(unsigned long callingClientId)
         context->release();
 
 #ifdef DEBUG
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
 #endif
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -664,7 +662,7 @@ ServerComm::insertColl(unsigned long callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'insert collection', collection name = '" << collName << "', type = '" << typeName << "'...";
+    NNLINFO << "Request: 'insert collection', collection name = '" << collName << "', type = '" << typeName << "'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -686,21 +684,21 @@ ServerComm::insertColl(unsigned long callingClientId,
             {
                 MDDColl* coll = MDDColl::createMDDCollection(collName, OId(oid.get_local_oid()), collType);
                 delete coll;
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
             }
             catch (r_Error& obj)
             {
                 if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
                 {
 #ifdef DEBUG
-                    LERROR << "Error: collection exists already.";
+                    BLERROR << "Error: collection exists already.\n";
 #endif
                     returnValue = 3;
                 }
                 else
                 {
 #ifdef DEBUG
-                    LERROR << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what();
+                    BLERROR << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what() << "\n";
 #endif
                     //this should be another code...
                     returnValue = 3;
@@ -710,7 +708,7 @@ ServerComm::insertColl(unsigned long callingClientId,
         }
         else
         {
-            LERROR << "Error: unknown collection type: '" << typeName << "'.";
+            BLERROR << "Error: unknown collection type: '" << typeName << "'.\n";
             returnValue = 2;
         }
 
@@ -722,7 +720,7 @@ ServerComm::insertColl(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -741,7 +739,7 @@ ServerComm::deleteCollByName(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-    LINFO << "Request: 'delete collection by name', name = '" << collName << "'...";
+    NNLINFO << "Request: 'delete collection by name', name = '" << collName << "'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -757,14 +755,12 @@ ServerComm::deleteCollByName(unsigned long callingClientId,
         // delete root object with collection name
         if (MDDColl::dropMDDCollection(collName))
         {
-            LTRACE << "collection dropped";
-            LINFO << MSG_OK;
+            BLINFO << MSG_OK << "\n";
             returnValue = 0;
         }
         else
         {
-            LTRACE << "did not drop collection";
-            LERROR << "Error: collection does not exist.";
+            BLERROR << "Error: collection does not exist.\n";
             returnValue = 2;
         }
 
@@ -776,7 +772,7 @@ ServerComm::deleteCollByName(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -791,7 +787,7 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-    LINFO << "Request: 'delete MDD by OID', oid = '" << oid << "'...";
+    NNLINFO << "Request: 'delete MDD by OID', oid = '" << oid << "'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -810,28 +806,25 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
         {
         case OId::MDDOID:
             // FIXME: why not deleted?? -- PB 2005-aug-27
-            LINFO << "found MDD object; NOT deleted yet..." << MSG_OK;
-            LTRACE << "not deleting mdd object";
+            BLINFO << "found MDD object; NOT deleted yet..." << MSG_OK << "\n";
             returnValue = 0;
             break;
         case OId::MDDCOLLOID:
-            LINFO << "deleting collection...";
+            BLINFO << "deleting collection... ";
             // delete root object with collection name
             if (MDDColl::dropMDDCollection(oidIf))
             {
-                LINFO << MSG_OK;
-                LTRACE << "deleted mdd coll";
+                BLINFO << MSG_OK << "\n";
                 returnValue = 0;
             }
             else
             {
-                LERROR << "Error: Collection does not exist.";
-                LTRACE << "did not delete mdd coll";
+                BLERROR << "Error: Collection does not exist.\n";
                 returnValue = 2;
             }
             break;
         default:
-            LERROR << "Error: object has unknown type: " << objType;
+            BLERROR << "Error: object has unknown type: " << objType << "\n";
             returnValue = 2;
         }
 
@@ -843,7 +836,7 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -859,7 +852,7 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-    LINFO << "Request: 'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'...";
+    NNLINFO << "Request: 'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -886,14 +879,14 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
 #ifdef DEBUG
-                LERROR << "Error: collection not found.";
+                BLERROR << "Error: collection not found.\n";
 #endif
                 returnValue = 2;
             }
             else
             {
 #ifdef DEBUG
-                LERROR << "Error " << obj.get_errorno() << ": " << obj.what();
+                BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
 #endif
                 // there should be another return code
                 returnValue = 2;
@@ -902,13 +895,13 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
         }
         catch (std::bad_alloc)
         {
-            LERROR << "Error: cannot allocate memory.";
+            BLERROR << "Error: cannot allocate memory.\n";
             throw;
         }
         catch (...)
         {
             // collection name invalid
-            LERROR << "Error: unspecified exception.";
+            BLERROR << "Error: unspecified exception.\n";
             returnValue = 2;
         }
 
@@ -925,7 +918,7 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
 
                 // no error management yet -> returnValue = 3
 
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
                 returnValue = 0;
 
                 delete coll;
@@ -940,7 +933,7 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -957,7 +950,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'insert MDD type', type = '" << typeName << "', collection = '" << collName << "'...";
+    NNLINFO << "Request: 'insert MDD type', type = '" << typeName << "', collection = '" << collName << "'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
     r_Data_Format myDataFmt = r_Array;
@@ -994,21 +987,21 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                     }
                     else
                     {
-                        LFATAL << "Error: inserting into system collection is illegal.";
+                        BLFATAL << "Error: inserting into system collection is illegal.\n";
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
                 }
                 catch (std::bad_alloc)
                 {
-                    LFATAL << "Error: cannot allocate memory.";
+                    BLFATAL << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& err)
                 {
 #ifdef DEBUG
-                    LERROR << "Error " << err.get_errorno() << ": " << err.what();
+                    BLERROR << "Error " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
                     returnValue = 5;
                     context->release(); //!!!
@@ -1017,7 +1010,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 catch (...)
                 {
                     returnValue = 5;
-                    LERROR << "Error: unspecific exception during collection read.";
+                    BLERROR << "Error: unspecific exception during collection read.\n";
                     context->release();
                     return returnValue;
                 }
@@ -1046,7 +1039,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 4;
-                    LERROR << "Error: MDD type is not compatible wrt. its domain: " << domain;
+                    BLERROR << "Error: MDD type is not compatible wrt. its domain: " << domain << "\n";
 
                     context->release();
 
@@ -1061,7 +1054,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 3;
-                    LERROR << "Error: MDD and collection types are incompatible.";
+                    BLERROR << "Error: MDD and collection types are incompatible.\n";
 
                     context->release();
 
@@ -1100,14 +1093,14 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 }
                 catch (std::bad_alloc)
                 {
-                    LFATAL << "Error: cannot allocate memory.";
+                    BLFATAL << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& obj)
                 {
 #ifdef DEBUG
-                    LERROR << "Error " << obj.get_errorno() << ": " << obj.what();
+                    BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
 #endif
                     context->release(); //!!!
                     throw;
@@ -1115,7 +1108,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 catch (...)
                 {
                     returnValue = 6;
-                    LERROR << "Error: unspecific exception during creation of persistent object.";
+                    BLERROR << "Error: unspecific exception during creation of persistent object.\n";
 
                     context->release();
 
@@ -1139,7 +1132,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 {
                     //FIXME returnValue
                     returnValue = 6;
-                    LERROR << "Error: illegal tile format for creating object.";
+                    BLERROR << "Error: illegal tile format for creating object.\n";
 
                     context->release();
 
@@ -1180,7 +1173,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                     }
                     delete entireTile;
 
-                    LINFO << "creating " << tileSet->size() << " tile(s)...";
+                    BLINFO << "creating " << tileSet->size() << " tile(s)... ";
 
                     for (vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++)
                     {
@@ -1212,17 +1205,17 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 // done
                 //
 
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
             }
             else
             {
-                LERROR << "Error: MDD type name '" << typeName << "' has no base type.";
+                BLERROR << "Error: MDD type name '" << typeName << "' has no base type.\n";
                 returnValue = 2;
             }
         }
         else
         {
-            LERROR << "Error: MDD type name '" << typeName << "' not found.";
+            BLERROR << "Error: MDD type name '" << typeName << "' not found.\n";
             returnValue = 2;
         }
 
@@ -1230,7 +1223,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -1246,7 +1239,7 @@ ServerComm::insertTileSplitted(unsigned long  callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'insert tile'...";
+    NNLINFO << "Request: 'insert tile'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -1373,18 +1366,18 @@ ServerComm::insertTileSplitted(unsigned long  callingClientId,
             // done
             //
 
-            LINFO << MSG_OK;
+            BLINFO << MSG_OK << "\n";
         }
         else
         {
-            LERROR << "Error: tile and MDD base type do not match.";
+            BLERROR << "Error: tile and MDD base type do not match.\n";
         }
 
         context->release();
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -1415,9 +1408,9 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'start inserting persistent MDD type', type = '" << typeName
+    NNLINFO << "Request: 'start inserting persistent MDD type', type = '" << typeName
           << "', collection = '" << collName << "', domain = " << domain << ", cell size = " << typeLength
-          << ", " << domain.cell_count()*typeLength << "...";
+          << ", " << domain.cell_count()*typeLength << "... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -1441,7 +1434,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                     context->transferColl = MDDColl::getMDDCollection(collName);
                     if (!context->transferColl->isPersistent())
                     {
-                        LFATAL << "Error: inserting into system collection is illegal.";
+                        BLFATAL << "Error: inserting into system collection is illegal.\n";
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
@@ -1449,21 +1442,21 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                 catch (r_Error& obj)
                 {
 #ifdef DEBUG
-                    LFATAL << "Error " << obj.get_errorno() << ": " << obj.what();
+                    BLFATAL << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
 #endif
                     context->release(); //!!!
                     throw;
                 }
                 catch (std::bad_alloc)
                 {
-                    LFATAL << "Error: cannot allocate memory.";
+                    BLFATAL << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
                 catch (...)
                 {
                     returnValue = 5;
-                    LERROR << "Error: unspecific exception while opening collection.";
+                    BLERROR << "Error: unspecific exception while opening collection.\n";
 
                     context->release();
 
@@ -1492,7 +1485,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 4;
-                    LERROR << "Error: MDD type not compatible wrt. its domain: " << domain << MSG_FAILED;
+                    BLERROR << "Error: MDD type not compatible wrt. its domain: " << domain << MSG_FAILED << "\n";
 
                     context->release();
 
@@ -1508,7 +1501,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 3;
-                    LERROR << "Error: incompatible MDD and collection types.";
+                    BLERROR << "Error: incompatible MDD and collection types.\n";
 
                     context->release();
 
@@ -1534,38 +1527,38 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                 catch (r_Error& err)
                 {
 #ifdef DEBUG
-                    LFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what();
+                    BLFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
                     context->release(); //!!!
                     throw;
                 }
                 catch (std::bad_alloc)
                 {
-                    LFATAL << "Error: cannot allocate memory.";
+                    BLFATAL << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
                 catch (...)
                 {
                     returnValue = 6;
-                    LERROR << "Error: unspecific exception during creation of persistent object.";
+                    BLERROR << "Error: unspecific exception during creation of persistent object.\n";
 
                     context->release();
 
                     return returnValue;
                 }
 
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
             }
             else
             {
-                LERROR << "Error: MDD type '" << typeName << "' has no base type...";
+                BLERROR << "Error: MDD type '" << typeName << "' has no base type.\n";
                 returnValue = 2;
             }
         }
         else
         {
-            LERROR << "Error: MDD type name '" << typeName << "' not found.";
+            BLERROR << "Error: MDD type name '" << typeName << "' not found.\n";
             returnValue = 2;
         }
 
@@ -1573,7 +1566,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -1602,7 +1595,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
     returnStructure.lineNo        = 0;
     returnStructure.columnNo      = 0;
 
-    LINFO << "Request: '" << query << "'...";
+    NNLINFO << "Request: '" << query << "'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -1625,14 +1618,14 @@ ServerComm::executeQuery(unsigned long callingClientId,
         // delete old transfer collection/iterator
         context->releaseTransferStructures();
 
+        currentClientTblElt = context;      // assign current client table element (temporary)
+
         //
         // execute the query
         //
 
         QueryTree* qtree = new QueryTree();   // create a query tree object...
         parseQueryTree   = qtree;             // ...and assign it to the global parse query tree pointer;
-
-        currentClientTblElt = context;      // assign current client table element (temporary)
 
         int ppRet = 0;
         int parserRet = 0;
@@ -1643,7 +1636,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
             //
             // preprocess
             //
-            LINFO << "preprocessing...";
+            BLINFO << "preprocessing... ";
             ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
@@ -1662,7 +1655,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
 
         yyreset();
 
-        LINFO << "parsing...";
+        BLINFO << "parsing... ";
 
         parserRet = yyparse(0);
         if ((ppRet == 0) && (parserRet == 0))
@@ -1673,7 +1666,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 qtree->printTree(2, RMInit::logOut);
 #endif
 
-                LINFO << "checking semantics...";
+                BLINFO << "checking semantics... ";
                 qtree->checkSemantics();
 
 #ifdef DEBUG
@@ -1686,9 +1679,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
                     context->evaluationTimer = new RMTimer("ServerComm", "evaluation");
                 }
 #endif
-                //qtree->checkSemantics();
-                //qtree->printTree( 2, std::cout );
-                LINFO << "evaluating...";
+                BLINFO << "evaluating... ";
                 context->transferData = qtree->evaluateRetrieval();
             }
             catch (ParseInfo& info)
@@ -1709,7 +1700,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
             }
             catch (r_Ebase_dbms& myErr)
             {
-                LERROR << "Error: base DBMS exception: " << myErr.what();
+                BLERROR << "Error: base DBMS exception: " << myErr.what() << "\n";
 
                 // release data
                 context->releaseTransferStructures();
@@ -1732,9 +1723,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
             }
             catch (r_Error& myErr)
             {
-#ifdef DEBUG
-                LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();
-#endif
+                BLERROR << "Error: " << myErr.get_errorno() << " " << myErr.what() << "\n";
 
                 // release data
                 context->releaseTransferStructures();
@@ -1757,7 +1746,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
             }
             catch (std::bad_alloc)
             {
-                LERROR << "Error: cannot allocate memory.";
+                BLERROR << "Error: cannot allocate memory.\n";
 
                 // release data
                 context->releaseTransferStructures();
@@ -1778,7 +1767,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
             }
             catch (...)
             {
-                LERROR << "Error: unspecific exception.";
+                BLERROR << "Error: unspecific exception.\n";
 
                 context->releaseTransferStructures();
                 context->release(); //!!!
@@ -1841,8 +1830,8 @@ ServerComm::executeQuery(unsigned long callingClientId,
                                 r_Minterval domain = mddObj->getLoadDomain();
                                 totalReturnedSize += (domain.cell_count() * baseTypeSize);
                             }
-                            LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)"
-                                  << ", total size " << totalReturnedSize << " bytes.";
+                            BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)"
+                                  << ", total size " << totalReturnedSize << " bytes.\n";
                         }
                         else
                         {
@@ -1855,14 +1844,14 @@ ServerComm::executeQuery(unsigned long callingClientId,
                             returnStructure.typeStructure = static_cast<char*>(mymalloc(strlen(elementType) + 6));
                             sprintf(returnStructure.typeStructure, "set<%s>", elementType);
                             free(elementType);
-                            LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).";
+                            BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).\n";
                         }
 
                         strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
                     }
                     else
                     {
-                        LINFO << MSG_OK << ", result is empty.";
+                        BLINFO << MSG_OK << ", result is empty.\n";
                         returnValue = 2;         // evaluation ok, no elements
 
                         returnStructure.typeName      = strdup("");
@@ -1871,7 +1860,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 }
                 else
                 {
-                    LINFO << MSG_OK << ", result is empty.";
+                    BLINFO << MSG_OK << ", result is empty.\n";
                     returnValue = 2;         // evaluation ok, no elements
                 }
             }
@@ -1880,7 +1869,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
         {
             if (ppRet)
             {
-                LINFO << MSG_OK << ",result is empty.";
+                BLINFO << MSG_OK << ",result is empty.\n";
                 returnValue = 2;         // evaluation ok, no elements
             }
             else    // parse error
@@ -1899,7 +1888,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 else
                 {
                     returnStructure.errorNo = 309;
-                    LERROR << "Internal Error: Unknown parse error.";
+                    BLERROR << "Internal Error: Unknown parse error.\n";
                 }
 
                 yyreset(); // reset the input buffer of the scanner
@@ -1978,7 +1967,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 3;
     }
 
@@ -1997,7 +1986,7 @@ ServerComm::initExecuteUpdate(unsigned long callingClientId)
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'initialize update'...";
+    NNLINFO << "Request: 'initialize update'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -2017,11 +2006,11 @@ ServerComm::initExecuteUpdate(unsigned long callingClientId)
 
         context->release();
 
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -2037,9 +2026,9 @@ ServerComm::startInsertTransMDD(unsigned long callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'insert MDD', type '"
+    NNLINFO << "Request: 'insert MDD', type '"
           << typeName << "', domain " << domain << ", cell length " << typeLength  << ", "
-          << domain.cell_count()*typeLength << " bytes...";
+          << domain.cell_count()*typeLength << " bytes... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -2060,7 +2049,7 @@ ServerComm::startInsertTransMDD(unsigned long callingClientId,
                 {
                     // return error
                     returnValue = 3;
-                    LERROR << "Error: MDD type incompatible wrt. domain: " << domain;
+                    BLERROR << "Error: MDD type incompatible wrt. domain: " << domain << "\n";
 
                     context->release();
 
@@ -2070,17 +2059,17 @@ ServerComm::startInsertTransMDD(unsigned long callingClientId,
                 // create for further insertions
                 context->transferMDD = new MDDObj(mddBaseType, domain);
 
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
             }
             else
             {
-                LERROR << "Error: MDD type has no base type.";
+                BLERROR << "Error: MDD type has no base type.\n";
                 returnValue = 2;
             }
         }
         else
         {
-            LERROR << "Error: MDD type not found.";
+            BLERROR << "Error: MDD type not found.\n";
             returnValue = 2;
         }
 
@@ -2088,7 +2077,7 @@ ServerComm::startInsertTransMDD(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -2104,7 +2093,7 @@ ServerComm::endInsertMDD(unsigned long callingClientId,
     unsigned short returnValue = 0;
 
 #ifdef DEBUG
-    LINFO << "Request: 'end insert MDD'...";
+    NNLINFO << "Request: 'end insert MDD'...";
 #endif
 
     ClientTblElt* context = getClientContext(callingClientId);
@@ -2137,14 +2126,14 @@ ServerComm::endInsertMDD(unsigned long callingClientId,
         }
 
 #ifdef DEBUG
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
 #endif
 
         context->release();
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -2158,7 +2147,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                           const char* query,
                           ExecuteUpdateRes& returnStructure)
 {
-    LINFO << "Request: '" << query << "'...";
+    NNLINFO << "Request: '" << query << "'... ";
 
 #ifdef ENABLE_PROFILING
     startProfiler("/tmp/rasdaman_query_update.XXXXXX.pprof", true);
@@ -2199,7 +2188,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
             //
             // preprocess
             //
-            LINFO << "preprocessing...";
+            BLINFO << "preprocessing... ";
             ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
@@ -2225,7 +2214,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
 
         yyreset();
 
-        LINFO << "parsing...";
+        BLINFO << "parsing... ";
 
         if (ppRet == 0 && yyparse(0) == 0)
         {
@@ -2235,7 +2224,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 qtree->printTree(2, RMInit::logOut);
 #endif
 
-                LINFO << "checking semantics...";
+                BLINFO << "checking semantics... ";
 
                 qtree->checkSemantics();
 
@@ -2250,7 +2239,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 }
 #endif
 
-                LINFO << "evaluating...";
+                BLINFO << "evaluating... ";
 
                 vector<QtData*>* updateResult = qtree->evaluateUpdate();
 
@@ -2258,7 +2247,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 delete updateResult;
                 context->releaseTransferStructures();
 
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
             }
             catch (ParseInfo& info)
             {
@@ -2280,7 +2269,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 context->releaseTransferStructures();
                 context->release();
 #ifdef DEBUG
-                LFATAL << "Error: " << err.get_errorno() << " " << err.what();
+                BLFATAL << "Error: " << err.get_errorno() << " " << err.what() << "\n";
 #endif
                 throw;
             }
@@ -2289,7 +2278,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
         {
             if (ppRet)
             {
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
                 returnValue = 0;
             }
             else    // parse error
@@ -2308,7 +2297,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 else
                 {
                     returnStructure.errorNo = 309;
-                    LERROR << "Error: unspecific internal parser error.";
+                    BLERROR << "Error: unspecific internal parser error.\n";
                 }
 
                 yyreset(); // reset the input buffer of the scanner
@@ -2333,7 +2322,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -2363,7 +2352,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
                           const char* query,
                           ExecuteQueryRes& returnStructure)
 {
-    LINFO << "Request: '" << query << "'...";
+    NNLINFO << "Request: '" << query << "'... ";
 
 #ifdef ENABLE_PROFILING
     startProfiler("/tmp/rasdaman_query_insert.XXXXXX.pprof", true);
@@ -2404,7 +2393,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
             //
             // preprocess
             //
-            LINFO << "preprocessing...";
+            BLINFO << "preprocessing... ";
             ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
@@ -2430,7 +2419,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
 
         yyreset();
 
-        LINFO << "parsing...";
+        BLINFO << "parsing... ";
 
         if (ppRet == 0 && yyparse(0) == 0)
         {
@@ -2440,7 +2429,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
                 qtree->printTree(2, RMInit::logOut);
 #endif
 
-                LINFO << "checking semantics...";
+                BLINFO << "checking semantics... ";
 
                 qtree->checkSemantics();
 
@@ -2455,7 +2444,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
                 }
 #endif
 
-                LINFO << "evaluating...";
+                BLINFO << "evaluating... ";
 
                 context->transferData = qtree->evaluateUpdate();
             }
@@ -2479,7 +2468,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
                 context->releaseTransferStructures();
                 context->release();
 #ifdef DEBUG
-                LFATAL << "Error: " << err.get_errorno() << " " << err.what();
+                BLFATAL << "Error: " << err.get_errorno() << " " << err.what() << "\n";
 #endif
                 throw;
             }
@@ -2532,11 +2521,11 @@ ServerComm::executeInsert(unsigned long callingClientId,
 
                         strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
 
-                        LINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).";
+                        BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).\n";
                     }
                     else
                     {
-                        LINFO << MSG_OK << ", result is empty.";
+                        BLINFO << MSG_OK << ", result is empty.\n";
                         returnValue = 2;         // evaluation ok, no elements
 
                         returnStructure.typeName      = strdup("");
@@ -2545,7 +2534,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
                 }
                 else
                 {
-                    LINFO << MSG_OK << ", result is empty.";
+                    BLINFO << MSG_OK << ", result is empty.\n";
                     returnValue = 2;         // evaluation ok, no elements
                 }
             }
@@ -2554,7 +2543,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
         {
             if (ppRet)
             {
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
                 returnValue = 2;
             }
             else    // parse error
@@ -2573,7 +2562,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
                 else
                 {
                     returnStructure.errorNo = 309;
-                    LERROR << "Error: unspecific internal parser error.";
+                    BLERROR << "Error: unspecific internal parser error.\n";
                 }
 
                 yyreset(); // reset the input buffer of the scanner
@@ -2607,7 +2596,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 3;
     }
 
@@ -2642,7 +2631,7 @@ ServerComm::getCollByName(unsigned long callingClientId,
                           char*&         typeStructure,
                           r_OId&         oid)
 {
-    LINFO << "Request: 'get collection by name', name = " << collName << "'...";
+    NNLINFO << "Request: 'get collection by name', name = " << collName << "'... ";
 
     unsigned short returnValue = 0;
 
@@ -2665,14 +2654,14 @@ ServerComm::getCollByName(unsigned long callingClientId,
         }
         catch (std::bad_alloc)
         {
-            LFATAL << "Error: cannot allocate memory.";
+            BLFATAL << "Error: cannot allocate memory.\n";
             context->release(); //!!!
             throw;
         }
         catch (r_Error& err)
         {
 #ifdef DEBUG
-            LFATAL << "Error " << err.get_errorno() << " " << err.what();
+            BLFATAL << "Error " << err.get_errorno() << " " << err.what() << "\n";
 #endif
             context->release(); //!!!
             throw;
@@ -2680,7 +2669,7 @@ ServerComm::getCollByName(unsigned long callingClientId,
         catch (...)
         {
             returnValue = 2;  // collection name invalid
-            LERROR << "Error: unspecific exception.";
+            BLERROR << "Error: unspecific exception.\n";
         }
 
         if (returnValue == 0)
@@ -2709,7 +2698,7 @@ ServerComm::getCollByName(unsigned long callingClientId,
                         }
                     }
                 }
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK << "\n";
             }
             else
             {
@@ -2720,7 +2709,7 @@ ServerComm::getCollByName(unsigned long callingClientId,
 
             if (!context->transferCollIter->notDone())
             {
-                LINFO << MSG_OK << ", result empty.";
+                BLINFO << MSG_OK << ", result empty.\n";
                 returnValue = 1;
 
                 // delete transfer collection/iterator
@@ -2736,7 +2725,7 @@ ServerComm::getCollByName(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 3;
     }
 
@@ -2752,7 +2741,7 @@ ServerComm::getCollByOId(unsigned long callingClientId,
                          char*&         typeStructure,
                          char*&         collName)
 {
-    LINFO << "Request: 'get collection by OID', oid = " << oid << "...";
+    NNLINFO << "Request: 'get collection by OID', oid = " << oid << "... ";
 
     unsigned short returnValue = 0;
 
@@ -2781,20 +2770,20 @@ ServerComm::getCollByOId(unsigned long callingClientId,
             }
             catch (std::bad_alloc)
             {
-                LFATAL << "Error: cannot allocate memory.";
+                BLFATAL << "Error: cannot allocate memory.\n";
                 throw;
             }
             catch (r_Error& err)
             {
 #ifdef DEBUG
-                LFATAL << "Error " << err.get_errorno() << " " << err.what();
+                BLFATAL << "Error " << err.get_errorno() << " " << err.what() << "\n";
 #endif
                 throw;
             }
             catch (...) // not found (?)
             {
                 returnValue = 2;
-                LERROR << "Error: unspecific exception.";
+                BLERROR << "Error: unspecific exception.\n";
             }
 
             //
@@ -2828,18 +2817,18 @@ ServerComm::getCollByOId(unsigned long callingClientId,
                             oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
                         }
                     }
-                    LINFO << MSG_OK;
+                    BLINFO << MSG_OK << "\n";
                 }
                 else
                 {
-                    LINFO << MSG_OK << ", but warning: cannot obtain type information.";
+                    BLINFO << MSG_OK << ", but warning: cannot obtain type information.\n";
                     typeName      = strdup("");
                     typeStructure = strdup("");
                 }
 
                 if (!context->transferCollIter->notDone())
                 {
-                    LINFO << MSG_OK << ", result empty.";
+                    BLINFO << MSG_OK << ", result empty.\n";
                     returnValue = 1;
 
                     // delete transfer collection/iterator
@@ -2851,7 +2840,7 @@ ServerComm::getCollByOId(unsigned long callingClientId,
         else
         {
             returnValue = 2; // oid does not belong to a collection object
-            LERROR << "Error: oid does not belong to a collection object.";
+            BLERROR << "Error: oid does not belong to a collection object.\n";
         }
 
         //
@@ -2862,7 +2851,7 @@ ServerComm::getCollByOId(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 3;
     }
 
@@ -2880,7 +2869,7 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
                               RPCOIdEntry*&  oidTable,
                               unsigned int&  oidTableSize)
 {
-    LINFO << "Request: 'get collection OIds by name', name = " << collName << "'...";
+    NNLINFO << "Request: 'get collection OIds by name', name = " << collName << "'... ";
 
     unsigned short returnValue = 0;
 
@@ -2903,7 +2892,7 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
             if (!almost->isPersistent())
             {
                 LTRACE << "retrieved system collection";
-                LFATAL << "Error: trying to get oid of system collection: " << collName;
+                BLFATAL << "Error: trying to get oid of system collection: " << collName << "\n";
                 throw r_Error(SYSTEM_COLLECTION_HAS_NO_OID);
             }
             else
@@ -2914,24 +2903,21 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
         }
         catch (std::bad_alloc)
         {
-            LFATAL << "Error: cannot allocate memory.";
+            BLFATAL << "Error: cannot allocate memory.\n";
             throw;
         }
         catch (r_Error& err)
         {
-            LTRACE << "caught exception";
 #ifdef DEBUG
-            LERROR << "Error " << err.get_errorno() << ": " << err.what();
+            BLERROR << "Error " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
             returnValue = 2;  // collection name invalid
         }
         catch (...)
         {
-            LTRACE << "caught exception";
             returnValue = 2;  // collection name invalid
-            LERROR << "Error: unspecific exception.";
+            BLERROR << "Error: unspecific exception.\n";
         }
-        LTRACE << "after exception catching";
 
         if (returnValue == 0)
         {
@@ -2953,7 +2939,7 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
             }
             else
             {
-                LWARNING << "Warning: no type information available...";
+                BLWARNING << "Warning: no type information available... ";
                 typeName      = strdup("");
                 typeStructure = strdup("");
             }
@@ -2995,11 +2981,11 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
 
                 delete collIter;
 
-                LINFO << MSG_OK << ", " << coll->getCardinality() << " result(s).";
+                BLINFO << MSG_OK << ", " << coll->getCardinality() << " result(s).\n";
             }
             else
             {
-                LINFO << MSG_OK << ", result empty.";
+                BLINFO << MSG_OK << ", result empty.\n";
                 returnValue = 1;
             }
 
@@ -3014,7 +3000,7 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 3;
     }
 
@@ -3031,7 +3017,7 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
                              unsigned int&  oidTableSize,
                              char*&         collName)
 {
-    LINFO << "Request: 'get collection OIDs by OId', oid = " << oid << "...";
+    NNLINFO << "Request: 'get collection OIDs by OId', oid = " << oid << "... ";
 
     unsigned short returnValue = 0;
 
@@ -3059,13 +3045,13 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
             }
             catch (std::bad_alloc)
             {
-                LFATAL << "Error: cannot allocate memory.";
+                BLFATAL << "Error: cannot allocate memory.\n";
                 throw;
             }
             catch (r_Error& err)
             {
 #ifdef DEBUG
-                LERROR << "Error " << err.get_errorno() << ": " << err.what();
+                BLERROR << "Error " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
                 returnValue = 2;  // collection name invalid
                 if (err.get_kind() != r_Error::r_Error_RefNull)
@@ -3076,7 +3062,7 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
             catch (...)
             {
                 returnValue = 2;  // collection name invalid
-                LERROR << "Error: unknown collection name.";
+                BLERROR << "Error: unknown collection name.\n";
             }
 
             if (returnValue == 0)
@@ -3102,7 +3088,7 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
                 }
                 else
                 {
-                    LWARNING << "Warning: no type information available...";
+                    BLWARNING << "Warning: no type information available... ";
                     typeName      = strdup("");
                     typeStructure = strdup("");
                 }
@@ -3144,11 +3130,11 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
                     delete collIter;
                     //coll->releaseAll();
 
-                    LINFO << MSG_OK << ", " << coll->getCardinality() << " result(s).";
+                    BLINFO << MSG_OK << ", " << coll->getCardinality() << " result(s).\n";
                 }
                 else
                 {
-                    LINFO << MSG_OK << ", result empty.";
+                    BLINFO << MSG_OK << ", result empty.\n";
                     returnValue = 1;
                 }
 
@@ -3158,7 +3144,7 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
         else
         {
             returnValue = 2; // oid does not belong to a collection object
-            LERROR << "Error: not a collection oid: " << oid;
+            BLERROR << "Error: not a collection oid: " << oid << "\n";
         }
 
         //
@@ -3169,7 +3155,7 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 3;
     }
 
@@ -3393,7 +3379,7 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                 else
                 {
                     returnValue = 2;  // no actual transfer collection
-                    LERROR << "Error: no transfer collection. ";
+                    LERROR << "Error: no transfer collection.";
                 }
             }
 
@@ -3784,7 +3770,7 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
             catch (...)
             {
                 returnValue = 2;
-                LERROR << "Error: unspecified exception.";
+                BLERROR << "Error: unspecified exception.\n";
             }
 
             if (!returnValue)
@@ -4187,7 +4173,7 @@ ServerComm::aliveSignal(unsigned long client)
     unsigned short returnValue = 0;
 
 #ifdef DEBUG
-    LINFO << "Client " << client << " called: endTransfer...";
+    NNLINFO << "Client " << client << " called: endTransfer... ";
 #endif
 
     ClientTblElt* context = getClientContext(client);
@@ -4202,12 +4188,15 @@ ServerComm::aliveSignal(unsigned long client)
         context->release();
 
 #ifdef DEBUG
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
 #endif
     }
     else
     {
-        LERROR << "Error: client not registered.";
+#ifndef DEBUG
+        NNLINFO << "Client " << client << " called: endTransfer... ";
+#endif
+        BLERROR << "Error: client not registered.\n";
     }
 
     return returnValue;
@@ -4222,7 +4211,7 @@ ServerComm::getNewOId(unsigned long callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'get new OId for " << (objType == 1 ? "MDD" : "collection") << " type'...";
+    NNLINFO << "Request: 'get new OId for " << (objType == 1 ? "MDD" : "collection") << " type'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -4244,11 +4233,11 @@ ServerComm::getNewOId(unsigned long callingClientId,
 
         context->release();
 
-        LINFO << MSG_OK;
+        BLINFO << MSG_OK << "\n";
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -4264,7 +4253,7 @@ ServerComm::getObjectType(unsigned long callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'get object type by OID', oid = " << oid << "...";
+    NNLINFO << "Request: 'get object type by OID', oid = " << oid << "... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -4277,19 +4266,19 @@ ServerComm::getObjectType(unsigned long callingClientId,
         if (objType == OId::INVALID)
         {
             // oid not found
-            LERROR << "Error: no type for this oid.";
+            BLERROR << "Error: no type for this oid.\n";
             returnValue = 2;
         }
         else
         {
-            LINFO << "type is " << (objType == 1 ? "MDD" : "collection") << "..." << MSG_OK;
+            BLINFO << "type is " << (objType == 1 ? "MDD" : "collection") << "..." << MSG_OK << "\n";
         }
 
         context->release();
     }
     else
     {
-        LINFO << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -4306,18 +4295,18 @@ ServerComm::getTypeStructure(unsigned long  callingClientId,
 {
     unsigned short returnValue = 0;
 
-    LINFO << "Request: 'get type structure', type = '" << typeName << "'...";
+    NNLINFO << "Request: 'get type structure', type = '" << typeName << "'... ";
 
     ClientTblElt* context = getClientContext(callingClientId);
     if (context == 0)
     {
-        LERROR << "Error: client not registered.";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
     if (returnValue == 0 && !transactionActive)
     {
-        LERROR << "Error: no transaction open.";
+        BLERROR << "Error: no transaction open.\n";
         returnValue = 1;
     }
 
@@ -4358,11 +4347,11 @@ ServerComm::getTypeStructure(unsigned long  callingClientId,
 
         if (returnValue == 2)
         {
-            LERROR << "Error: unknown type.";
+            BLERROR << "Error: unknown type.\n";
         }
         else
         {
-            LINFO << MSG_OK;
+            BLINFO << MSG_OK << "\n";
         }
 
         context->release();

@@ -218,8 +218,6 @@ bool taIsOpen = false;
 
 // suppress regular messages in log? (cmd line parameter '--quiet')
 bool quietLog = false;
-// logging mechanism that respects 'quiet' flag:
-#define INFO(a) { if (!quietLog) std::cout << a; }
 
 int  optionValueIndex = 0;
 
@@ -472,14 +470,14 @@ openDatabase() throw (r_Error)
 {
     if (! dbIsOpen)
     {
-        INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
+        NNLINFO << "Opening database " << baseName << " at " << serverName << ":" << serverPort << "... ";
         db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification(user, passwd);
         LDEBUG << "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << user << ", passwd=" << passwd << "...";
         db.open(baseName);
         LDEBUG << "ok";
         dbIsOpen = true;
-        INFO("ok" << endl << flush);
+        BLINFO << "ok.\n";
     }
 } // openDatabase()
 
@@ -544,63 +542,63 @@ void printScalar(const r_Scalar& scalar)
     switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        INFO(((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f") << flush);
+        NNLINFO << ((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f");
         break;
 
     case r_Type::CHAR:
-        INFO(static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char()) << flush);
+        NNLINFO << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char());
         break;
 
     case r_Type::OCTET:
-        INFO(static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet()) << flush);
+        NNLINFO << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet());
         break;
 
     case r_Type::SHORT:
-        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short() << flush);
+        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short();
         break;
 
     case r_Type::USHORT:
-        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort() << flush);
+        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort();
         break;
 
     case r_Type::LONG:
-        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long() << flush);
+        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long();
         break;
 
     case r_Type::ULONG:
-        INFO((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong() << flush);
+        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong();
         break;
 
     case r_Type::FLOAT:
-        INFO(std::setprecision(std::numeric_limits<float>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush);
+        NNLINFO << std::setprecision(std::numeric_limits<float>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float();
         break;
 
     case r_Type::DOUBLE:
-        INFO(std::setprecision(std::numeric_limits<double>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush);
+        NNLINFO << std::setprecision(std::numeric_limits<double>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double();
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        INFO("(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")" << flush);
+        NNLINFO << "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")";
         break;
 
     case r_Type::STRUCTURETYPE:
     {
         r_Structure* structValue = static_cast<r_Structure*>(&const_cast<r_Scalar&>(scalar));
-        INFO("{ " << flush);
+        NNLINFO << "{ ";
         for (unsigned int i = 0; i < structValue->count_elements(); i++)
         {
             printScalar((*structValue)[i]);
             if (i < structValue->count_elements() - 1)
             {
-                INFO(", " << flush);
+                BLINFO << ", ";
             }
         }
-        INFO(" }" << endl);
+        BLINFO << " }";
     }
     break;
     default:
-        INFO("scalar type " << scalar.get_type()->type_id() <<  "  not supported!" << endl);
+        LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
         break;
     }
 } // printScalar()
@@ -609,34 +607,34 @@ void printScalar(const r_Scalar& scalar)
 // result_set should be parameter, but is global -- see def for reason
 void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
 {
-    INFO("Query result collection has " << result_set.cardinality() << " element(s):" << endl);
+    LINFO << "Query result collection has " << result_set.cardinality() << " element(s):";
 
     if (displayType)
     {
-        cout << "  Oid...................: " << result_set.get_oid() << endl;
-        cout << "  Type Structure........: "
-             << (result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>") << endl;
-        cout << "  Type Schema...........: " << flush;
+        LINFO << "  Oid...................: " << result_set.get_oid();
+        LINFO << "  Type Structure........: "
+             << (result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>");
+        NNLINFO << "  Type Schema...........: ";
         if (result_set.get_type_schema())
         {
             result_set.get_type_schema()->print_status(cout);
         }
         else
         {
-            cout << "(no name)" << flush;
+            BLINFO << "(no name)";
         }
-        cout << endl;
-        cout << "  Number of entries.....: " << result_set.cardinality() << endl;
-        cout << "  Element Type Schema...: " << flush;
+        BLINFO << "\n";
+        LINFO << "  Number of entries.....: " << result_set.cardinality();
+        NNLINFO << "  Element Type Schema...: ";
         if (result_set.get_element_type_schema())
         {
             result_set.get_element_type_schema()->print_status(cout);
         }
         else
         {
-            cout << "(no name)" << flush;
+            BLINFO << "(no name)";
         }
-        cout << endl;
+        BLINFO << "\n";
     }
 
     /* The following can be used if the type is known and the element type is not atomic.
@@ -662,7 +660,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
-                INFO("  Result object " << i << ": ");
+                NNLINFO << "  Result object " << i << ": ";
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
                 {
                     cout << theStuff[cnt];
@@ -674,7 +672,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
-                INFO("  Result object " << i << ": ");
+                NNLINFO << "  Result object " << i << ": ";
                 cout << hex;
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
                 {
@@ -684,11 +682,13 @@ void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
             }
             break;
             case OUT_FORMATTED:
-                INFO("  Result object " << i << ":" << endl);
-                // for (int cnt = 0; cnt < numCells; cnt++)
-                printScalar(*(r_Ref<r_Scalar>(*iter)));
+            {
+                NNLINFO << "  Result object " << i << ": ";
+                size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
+                const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                 cout << endl;
-                break;
+            }
+            break;
             case OUT_FILE:
             {
                 char defFileName[FILENAME_MAX];
@@ -734,7 +734,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
                     break;
                 }
 
-                INFO("  Result object " << i << ": going into file " << defFileName << "..." << flush);
+                NNLINFO << "  Result object " << i << ": going into file " << defFileName << "... ";
                 FILE* tfile = fopen(defFileName, "wb");
                 if (tfile == NULL)
                 {
@@ -747,41 +747,34 @@ void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
                     throw RasqlError(UNABLETOWRITETOFILE);
                 };
                 fclose(tfile);
-                INFO("ok." << endl);
+                BLINFO << "ok.\n";
             }
             break;
             default:
-                cerr << "Internal error: unknown output type, ignoring action: " << static_cast<int>(outputType) << endl;
+                LERROR << "Unknown output type, ignoring action: " << static_cast<int>(outputType) << endl;
                 break;
             } // switch(outputType)
             break;
 
         case r_Type::POINTTYPE:
-            INFO("  Result element " << i << ": ");
-            cout << *(r_Ref<r_Point>(*iter)) << endl;
+            LINFO << "  Result element " << i << ": " << *(r_Ref<r_Point>(*iter));
             break;
-
         case r_Type::SINTERVALTYPE:
-            INFO("  Result element " << i << ": ");
-            cout << *(r_Ref<r_Sinterval>(*iter)) << endl;
+            LINFO << "  Result element " << i << ": " << *(r_Ref<r_Sinterval>(*iter));
             break;
 
         case r_Type::MINTERVALTYPE:
-            INFO("  Result element " << i << ": ");
-            cout << *(r_Ref<r_Minterval>(*iter)) << endl;
+            LINFO << "  Result element " << i << ": " << *(r_Ref<r_Minterval>(*iter));
             break;
 
         case r_Type::OIDTYPE:
-            INFO("  Result element " << i << ": ");
-            cout << *(r_Ref<r_OId>(*iter)) << endl;
+            LINFO << "  Result element " << i << ": " << *(r_Ref<r_OId>(*iter));
             break;
 
         default:
-            INFO("  Result element " << i << ": " << flush);
+            NNLINFO << "  Result element " << i << ": ";
             printScalar(*(r_Ref<r_Scalar>(*iter)));
-            cout << endl;
-            // or simply
-            // r_Ref<r_Scalar>(*iter)->print_status( cout );
+            BLINFO << "\n";
         } // switch
     }  // for(...)
 } // printResult()
@@ -844,7 +837,8 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2) throw(RasqlError, r
     }
     catch (r_Error& err)
     {
-        LDEBUG << "Error during retrieval of MDD type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what();
+        LDEBUG << "Error during retrieval of MDD type structure (" 
+                << typeStructure << "): " << err.get_errorno() << " " << err.what();
         throw;
     }
 
@@ -874,12 +868,13 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
             mddTypeName = MDD_STRINGTYPE;
         }
 
-        INFO("fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush);
+        NNLINFO << "fetching type information for " << mddTypeName 
+                << " from database, using readonly transaction... ";
         mddType = getTypeFromDatabase(mddTypeName);
         closeTransaction(true);
-        INFO("ok" << endl);
+        BLINFO << "ok.\n";
 
-        INFO("reading file " << fileName << "..." << flush);
+        NNLINFO << "reading file " << fileName << "... ";
         FILE* fileD = fopen(fileName, "r");
         if (fileD == NULL)
         {
@@ -948,14 +943,14 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
             }
             catch (std::bad_alloc)
             {
-                LDEBUG << "Unable to claim memory: " << size << " Bytes";
+                LERROR << "Failed to allocate memory of " << size << " bytes.";
                 throw RasqlError(UNABLETOCLAIMRESOURCEFORFILE);
             }
         }
 
         fclose(fileD);
 
-        INFO("ok" << endl);
+        BLINFO << "ok.\n";
 
         LDEBUG << "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName;
         fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, false);
@@ -972,15 +967,16 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
         query << *fileMDD;
 
-        LDEBUG << "constants are:";
+        LINFO << "constants are:";
         r_Set<r_GMarray*>* myConstSet = const_cast<r_Set<r_GMarray*> *>(query.get_constants());
         r_Iterator<r_GMarray*> iter = myConstSet->create_iterator();
         int i;
         for (i = 1, iter.reset(); iter.not_done(); iter++, i++)
         {
             r_Ref<r_GMarray> myConstant = *iter;
-            INFO("  constant " << i << ": ");
-            myConstant->print_status(cout);
+            NNLINFO << "  constant " << i << ": ";
+            if (!quietLog)
+                myConstant->print_status(cout);
 // the following can be used for sporadic debugging of input files, but beware: is very verbose!
 #if 0
             cout << "  Contents: " << hex;
@@ -1000,10 +996,10 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
         r_Marray<r_ULong>* mddConst = NULL;
 
-        INFO("Executing insert query..." << flush);
+        NNLINFO << "Executing insert query... ";
         // third param is just to differentiate from retrieval
         r_oql_execute(query, result_set, 1);
-        INFO("ok" << endl);
+        BLINFO << "ok.\n";
 
         // generate output only if explicitly requested
         if (output)
@@ -1024,9 +1020,9 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
         r_Marray<r_ULong>* mddConst = NULL;
 
-        INFO("Executing update query..." << flush);
+        NNLINFO << "Executing update query... ";
         r_oql_execute(query);
-        INFO("ok" << endl);
+        BLINFO << "ok.\n";
 
         if (mddConst)
         {
@@ -1042,9 +1038,9 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         // should be defined here, but is global; see def for reason
         // r_Set< r_Ref_Any > result_set;
 
-        INFO("Executing retrieval query..." << flush);
+        NNLINFO << "Executing retrieval query... ";
         r_oql_execute(query, result_set);
-        INFO("ok" << endl);
+        BLINFO << "ok.\n";
 
         // generate output only if explicitly requested
         if (output)
@@ -1096,7 +1092,7 @@ int main(int argc, char** argv)
             logConf.configClientLogging(true);
 
         // put INFO after parsing parameters to respect a '--quiet'
-        INFO(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << "." << endl);
+        LINFO << argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << ".";
 
         openDatabase();
         doStuff(argc, argv);
@@ -1105,22 +1101,22 @@ int main(int argc, char** argv)
     }
     catch (std::runtime_error& ex)
     {
-        cerr << ex.what() << endl;
+        LERROR << ex.what();
         retval = EXIT_FAILURE;
     }
     catch (RasqlError& e)
     {
-        cerr << argv[0] << ": " << e.what() << endl;
+        LERROR << argv[0] << ": " << e.what();
         retval = EXIT_FAILURE;
     }
     catch (const r_Error& e)
     {
-        cerr << "rasdaman error " << e.get_errorno() << ": " << e.what() << endl;
+        LERROR << "rasdaman error " << e.get_errorno() << ": " << e.what();
         retval = EXIT_FAILURE;
     }
     catch (...)
     {
-        cerr << argv[0] << ": panic: unexpected internal exception." << endl;
+        LERROR << argv[0] << ": panic: unexpected internal exception.";
         retval = EXIT_FAILURE;
     }
 
@@ -1128,9 +1124,9 @@ int main(int argc, char** argv)
     {
         try
         {
-            INFO("aborting transaction..." << flush);
+            NNLINFO << "aborting transaction... ";
             closeTransaction(false);    // abort transaction and close database, ignore any further exceptions
-            INFO("ok" << endl);
+            BLINFO << "ok.\n";
             closeDatabase();
         }
         catch (...)
@@ -1139,7 +1135,7 @@ int main(int argc, char** argv)
         }
     }
 
-    INFO(argv[0] << " done." << endl);
+    LINFO << argv[0] << " done.";
     return retval;
 } // main()
 

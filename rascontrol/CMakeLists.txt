@@ -39,8 +39,7 @@ if (NOT RMANRASNET)
     add_executable(raspasswd raspasswd.hh raspasswd.cc
             rasmgr_utils_comm.hh rasmgr_utils_comm.cc
             rasmgr_utils_conf.hh rasmgr_utils_conf.cc
-            ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh
-            ../raslib/log_config.cc ../raslib/log_config.hh)
+            ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh)
 
     target_include_directories(raspasswd PUBLIC ${OPENSSL_INCLUDE_DIR})
     target_link_libraries(raspasswd network commline common_logging ${READLINE_LIBRARIES} ${OPENSSL_LIBRARIES})

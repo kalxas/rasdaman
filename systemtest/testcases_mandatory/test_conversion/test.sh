@@ -412,6 +412,8 @@ check_jpeg2000_enabled
 if [ $? -ne 0 ]
 then
     log "skipping test for GMLJP2 encoding: $FORMAT_CODE is not enabled (see \`$GDALINFO --formats\`)."
+elif [ -f "/etc/centos-release" ]; then
+    log "skipping test for GMLJP2 encoding on CentOS."
 else
     # params:
             CODEC="jp2" # J2K does not foresee GML
@@ -430,21 +432,13 @@ else
                from $COLL_NAME AS c" --out file --outfile ${OUT_GMLJP2%.*} > /dev/null
 
     # compare/register
-    cmp $OUT_GMLJP2 $ORACLE_GMLJP2 > /dev/null
-    if [ $? != 0 ]
-    then
-        echo input and output do not match
-        NUM_FAIL=$(($NUM_FAIL + 1))
-    else
-        echo input and output match
-        NUM_SUC=$(($NUM_SUC + 1))
-    fi
+    cmp $OUT_GMLJP2 $ORACLE_GMLJP2 > /dev/null 2>&1
+    check_result 0 $? "input and output match"
 
     # cleanup
     drop_colls "$COLL_NAME"
-    rm $OUT_GMLJP2
+    rm -f $OUT_GMLJP2
 fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
 
 
 ################## csv() #######################

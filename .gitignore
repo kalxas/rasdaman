@@ -114,6 +114,7 @@ applications/petascope/src/main/db/update_petascopedb.sh
 applications/petascope/src/main/resources/application.properties
 application.properties
 applications/petascope/petascope_core/src/main/resources/log4j.properties
+applications/secore/src/main/resources/log4j.properties
 bin/update_db.sh
 migrate_petascopedb.sh
 update_petascopedb.sh

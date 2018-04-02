@@ -752,7 +752,6 @@ BLOBTile::readFromDb() throw (r_Error)
         if (ignoredPgResult < 0)                // we note, but ignore errors, as we have the data
         {
             LERROR << "BLOBTile::readFromDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
-            LDEBUG << "BLOBTile::readFromDb: ignoring lo_close() error: " << PQerrorMessage(pgConn);
         }
         
         if (TileCache::cacheLimit > 0)
@@ -814,3 +813,4 @@ BLOBTile::getAnyTileOid()
 {
     return NO_TILE_FOUND;
 }
+

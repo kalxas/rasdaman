@@ -856,7 +856,7 @@ ServerComm::addClientTblEntry(ClientTblElt* context) throw (r_Error)
 {
     if (context == NULL)
     {
-        LFATAL << "Error: ServerComm::addClientTblEntry(): client context is NULL.";
+        LFATAL << "Cannot register client in the client table: client context is NULL.";
         throw r_Error(r_Error::r_Error_RefNull);
     }
 
@@ -1408,7 +1408,7 @@ void AccessControl::wantToRead()
 {
     if (okToRead == false)
     {
-        LFATAL << "Error: no permission for read operation.";
+        LERROR << "No permission for read operation.";
         throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 }
@@ -1417,7 +1417,7 @@ void AccessControl::wantToWrite()
 {
     if (okToWrite == false)
     {
-        LFATAL << "Error: no permission for write operation.";
+        LERROR << "No permission for write operation.";
         throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 

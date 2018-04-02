@@ -499,6 +499,7 @@ namespace type {
 #undef ELPP_LITERAL
 #undef ELPP_STRLEN
 #undef ELPP_COUT
+#undef ELPP_CERR
 #if defined(ELPP_UNICODE)
 #  define ELPP_LITERAL(txt) L##txt
 #  define ELPP_STRLEN wcslen
@@ -507,6 +508,11 @@ namespace type {
 #  else
 #    define ELPP_COUT std::wcout
 #  endif  // defined ELPP_CUSTOM_COUT
+#  if defined ELPP_CUSTOM_CERR
+#    define ELPP_CERR ELPP_CUSTOM_CERR
+#  else
+#    define ELPP_CERR std::wcerr
+#  endif  // defined ELPP_CUSTOM_CERR
 typedef wchar_t char_t;
 typedef std::wstring string_t;
 typedef std::wstringstream stringstream_t;
@@ -520,6 +526,11 @@ typedef std::wostream ostream_t;
 #  else
 #    define ELPP_COUT std::cout
 #  endif  // defined ELPP_CUSTOM_COUT
+#  if defined ELPP_CUSTOM_CERR
+#    define ELPP_CERR ELPP_CUSTOM_CERR
+#  else
+#    define ELPP_CERR std::cerr
+#  endif  // defined ELPP_CUSTOM_CERR
 typedef char char_t;
 typedef std::string string_t;
 typedef std::stringstream stringstream_t;
@@ -531,6 +542,11 @@ typedef std::ostream ostream_t;
 #else
 #  define ELPP_COUT_LINE(logLine) logLine << std::flush
 #endif // defined(ELPP_CUSTOM_COUT_LINE)
+#if defined(ELPP_CUSTOM_CERR_LINE)
+#  define ELPP_CERR_LINE(logLine) ELPP_CUSTOM_CERR_LINE(logLine)
+#else
+#  define ELPP_CERR_LINE(logLine) logLine << std::flush
+#endif // defined(ELPP_CUSTOM_CERR_LINE)
 typedef unsigned int EnumType;
 typedef unsigned short VerboseLevel;
 typedef unsigned long int LineNumber;
@@ -760,6 +776,7 @@ static const base::type::char_t* kCurrentHostFormatSpecifier      =      ELPP_LI
 static const base::type::char_t* kMessageFormatSpecifier          =      ELPP_LITERAL("%msg");
 static const base::type::char_t* kMessageFormatSpecifierOld       =      ELPP_LITERAL("%log");
 static const base::type::char_t* kVerboseLevelFormatSpecifier     =      ELPP_LITERAL("%vlevel");
+static const base::type::char_t* kNoNewLineFormatSpecifier     =         ELPP_LITERAL("%nnl");
 static const char* kDateTimeFormatSpecifierForFilename            =      "%datetime";
 // Date/time
 static const char* kDays[7]                         =      { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
@@ -899,7 +916,8 @@ enum class FormatFlags : base::type::EnumType {
   ThreadId = 1 << 12,
   Level = 1 << 13,
   FileBase = 1 << 14,
-  LevelShort = 1 << 15
+  LevelShort = 1 << 15,
+  NoNewLine = 1 << 16
 };
 /// @brief A subsecond precision class containing actual width and offset of the subsecond part
 class SubsecondPrecision {
