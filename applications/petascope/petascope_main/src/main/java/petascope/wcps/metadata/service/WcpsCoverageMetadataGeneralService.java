@@ -485,7 +485,7 @@ public class WcpsCoverageMetadataGeneralService {
 
         List<NilValue> nilValues = new ArrayList<>();
 
-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, null);
+        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, "");
         return result;
     }
 

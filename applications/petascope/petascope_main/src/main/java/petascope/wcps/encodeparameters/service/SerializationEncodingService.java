@@ -88,12 +88,10 @@ public class SerializationEncodingService {
         }
         
         jsonExtraParams.setNoData(new NoData(metadata.getNodata()));        
-        // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
         
-        if (metadata.getMetadata() != null) {
-            // Extra metadata of coverage
-            jsonExtraParams.setMetadata(extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata()).getGlobalAttributesMap());
-        }
+        // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
+        // Extra metadata of coverage
+        jsonExtraParams.setMetadata(extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata()).getGlobalAttributesMap());        
         
         jsonExtraParams.setGeoReference(geoReference);
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
@@ -146,7 +144,7 @@ public class SerializationEncodingService {
             jsonExtraParams.setMetadata(inputGlobalMetadataMap);
         } else {
             // merge global coverage's metadata with input extra metadata from WCPS query in JSON if exists
-            if (metadata.getMetadata() != null && !metadata.getMetadata().isEmpty()) {
+            if (!metadata.getMetadata().isEmpty()) {
                 for (Map.Entry<String, String> entry: inputGlobalMetadataMap.entrySet()) {
                     jsonExtraParams.getMetadata().put(entry.getKey(), entry.getValue());
                 }

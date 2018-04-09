@@ -68,9 +68,8 @@ public class WcpsCoverageMetadata {
         this.rasdamanCollectionName = rasdamanCollectionName;
         this.rangeFields = rangeFields;
         this.nilValues = nilValues;
-        this.metadata = metadata;
+        this.metadata = (metadata == null ? "" : metadata);
         this.coverageType = coverageType;
-
     }
 
     public Integer getGridDimension() {
@@ -270,7 +269,7 @@ public class WcpsCoverageMetadata {
         return nodataValues;
     }
 
-    public String getMetadata() {
+    public String getMetadata() {        
         return metadata;
     }
 

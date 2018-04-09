@@ -124,9 +124,10 @@ public class NetCDFParametersService {
         String covName = metadata.getCoverageName();
         List<Axis> axes = metadata.getSortedAxesByGridOrder();        
         List<DimensionVariable> dimensionVariables = new ArrayList<>();
-        
+                        
         // First get all the metadata of coverage
         CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata());
+        
         AxesMetadata axesMetadata = coverageMetadata.getAxesMetadata();
         
         for (Axis axis : axes) {
@@ -159,8 +160,8 @@ public class NetCDFParametersService {
         List<RangeField> bands = metadata.getRangeFields();
         // NOTE: There are 2 types of bands's metadata (the mandatory one from swe:element of swe:field and the option one from coverage's metadata bands element if exists)        
         CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata());
-        BandsMetadata bandsMetadata = coverageMetadata.getBandsMetadata();
-        
+        BandsMetadata bandsMetadata = coverageMetadata.getBandsMetadata();       
+       
         for (RangeField band : bands) {            
             Map<String, String> bandsMetadataMap = null;
             
@@ -203,7 +204,6 @@ public class NetCDFParametersService {
      * @throws PetascopeException 
      */
     private List<Double> buildPoisitionData(String covName, Axis axis) throws PetascopeException {
-        Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(covName);
 
         // data=[geoLow, geoLow+res, geoLow+2*res, ...., geoHigh]
         List<Double> data = new ArrayList<>();
@@ -244,6 +244,7 @@ public class NetCDFParametersService {
                 //Irregular axis, need to add the coefficients into the calculation
                 BigDecimal coeffMin = geoDomMin.subtract(axis.getOrigin()).divide(resolution);
                 BigDecimal coeffMax = geoDomMax.subtract(axis.getOrigin()).divide(resolution);
+                Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(covName);
                 // Only supports GeneralGridCoverage now and this axis should be irregular axis
                 GeoAxis geoAxis = ((GeneralGridCoverage) coverage).getGeoAxisByName(axis.getLabel());
                 IrregularAxis irregularAxis = ((IrregularAxis) geoAxis);

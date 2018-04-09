@@ -72,7 +72,10 @@ public class ExceptionUtil {
             }
             detailMessage += ". Please check the log for the detail error.";
         }
-
+        
+        if (detailMessage == null) {
+            detailMessage = "Unknown error, possibly a null pointer exception; please check the petascope log for further details.";
+        }
         exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_CODE_REPLACEMENT, exceptionCodeName);
         exceptionText = exceptionText.replace(Templates.GENERAL_EXCEPTION_TEXT_REPLACEMENT, detailMessage);
 
