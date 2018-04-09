@@ -49,8 +49,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import petascope.controller.AbstractController;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
+import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 
@@ -150,15 +152,21 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Initialize all the configurations for GDAL libraries, ConfigManager and
      * OGC WCS XML Schema
      */
-    private static void initConfigurations(Properties properties) throws SQLException, ClassNotFoundException, PetascopeException, IOException, InterruptedException {
+    private static void initConfigurations(Properties properties) throws Exception {
         String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {
             // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")        
             addLibraryPath("gdal_java", GDAL_JAVA_DIR);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
-            log.error("Cannot add GDAL java native library from '" + GDAL_JAVA_DIR + "' to java library path.", ex);
-            AbstractController.startException = ex;
+            
+            // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
+            // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
+            CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});
+        } catch (Error ex) {
+            String errorMessage = "Cannot add GDAL java native library from '" + GDAL_JAVA_DIR + "' to java library path, "
+                    + "please restart Tomcat containing Petascope to fix this problem. Reason: " + ex.getMessage();
+            log.error(errorMessage, ex);
+            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
         }
 
         // Load properties for Spring, Hibernate from external petascope.properties
