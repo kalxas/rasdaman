@@ -147,7 +147,6 @@ void UserAuthConverter::initCrypt(int seed)
 
 int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
 {
-    EVP_MD_CTX mdctx;
     const EVP_MD* md;
     unsigned int md_len;
     unsigned char md_value[50];
@@ -159,7 +158,13 @@ int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
         return false;
     }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_MD_CTX mdctx;
     EVP_DigestInit(&mdctx, md);
+#else
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    EVP_DigestInit(mdctx, md);
+#endif
 
     AuthFileHeader header;
     ifs.read((char*)&header, sizeof(header));
@@ -201,10 +206,19 @@ int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
 
         crypt(buff, r);
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         EVP_DigestUpdate(&mdctx, buff, static_cast<size_t>(r));
+#else
+        EVP_DigestUpdate(mdctx, buff, static_cast<size_t>(r));
+#endif
     }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_DigestFinal(&mdctx, md_value, &md_len);
+#else
+    EVP_DigestFinal(mdctx, md_value, &md_len);
+    EVP_MD_CTX_free(mdctx);
+#endif
 
     ifs.seekg(0, std::ios::beg);
 

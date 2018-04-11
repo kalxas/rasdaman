@@ -559,7 +559,6 @@ const char* ServerRasNet::getCapability(const char* serverName, const char* data
 
 int ServerRasNet::messageDigest(const char* input, char* output, const char* mdName)
 {
-    EVP_MD_CTX mdctx;
     const EVP_MD* md;
     unsigned int md_len, i;
     unsigned char md_value[100];
@@ -573,9 +572,18 @@ int ServerRasNet::messageDigest(const char* input, char* output, const char* mdN
         return 0;
     }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_MD_CTX mdctx;
     EVP_DigestInit(&mdctx, md);
     EVP_DigestUpdate(&mdctx, input, strlen(input));
     EVP_DigestFinal(&mdctx, md_value, &md_len);
+#else
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    EVP_DigestInit(mdctx, md);
+    EVP_DigestUpdate(mdctx, input, strlen(input));
+    EVP_DigestFinal(mdctx, md_value, &md_len);
+    EVP_MD_CTX_free(mdctx);
+#endif
 
     for (i = 0; i < md_len; i++)
     {
