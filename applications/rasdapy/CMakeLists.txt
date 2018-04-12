@@ -21,18 +21,7 @@
 #
 ###################################################################
 
-add_subdirectory(directql)
-add_subdirectory(rasql)
-add_subdirectory(rasdapy)
-
-if (ENABLE_JAVA)
-    add_subdirectory(petascope)
-    add_subdirectory(raswct)
-    add_subdirectory(secore)
-    add_subdirectory(wcst_import)
-
-    if (ENABLE_R)
-        add_subdirectory(RRasdaman)
-    endif (ENABLE_R)
-endif (ENABLE_JAVA)
-
+# Create error messages from bin/errtxts via bash script to a Python file
+add_custom_target(rasdapy_generate_errtxts_message ALL
+    COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_errtxts_messages.sh ${CMAKE_CURRENT_SOURCE_DIR}/rasdapy/cores/exception_factories.py.in 
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )

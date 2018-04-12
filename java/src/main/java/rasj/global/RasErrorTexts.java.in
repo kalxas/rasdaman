@@ -42,9 +42,36 @@ import java.io.*;
 // This file is created automatically - do not edit unless allowed explicitly (look for
 // a message "changes can only be made after here")!
 
-public abstract class RasErrorTexts
-{
+public abstract class RasErrorTexts {
 
-    public static String[] errorMessages = {
+    // NOTE: The content of this array comes from errtxts file (http://rasdaman.org/browser/bin/errtxts) via a bash script
+    public static String[] errorMessages = { $ARRAY_OF_ERROR_MESSAGES_FROM_ERRTXTS_FILE };
 
-// end of RasErrorTexts.template1
+    public static String getErrorMessage(int errNo) {
+        StringBuffer buf;
+        String prefix = String.valueOf(errNo) + ":";
+        int index = 0;
+        String retVal = null;
+
+        while (index < errorMessages.length - 1) { // last string is empty, see above
+            if (errorMessages[index].startsWith(prefix)) {
+                buf = new StringBuffer(errorMessages[index]);
+                index = errorMessages[index].indexOf(":");
+                buf.delete(0, index + 1);
+                retVal = buf.toString();
+                index = errorMessages.length + 1;
+            } else {
+                index++;
+            }
+
+        }
+        if (retVal == null) {
+            retVal = "No error message available for error number " + errNo + ".";
+        }
+
+        return retVal;
+    }
+
+}
+
+

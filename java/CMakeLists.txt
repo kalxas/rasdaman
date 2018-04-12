@@ -44,6 +44,8 @@ if (ENABLE_JAVA)
 
         set(GENERATED_GRPC_SOURCES "")
 
+        set(GENERATED_ERRTXTS_MESSAGE "rasj_generate_errtxts_message")
+
         foreach (GRPC_FILE ${GRPC_SRC})
             CompileJavaGRPCFile(${GRPC_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java" GENERATED_GRPC_SOURCES)
         endforeach ()
@@ -53,13 +55,18 @@ if (ENABLE_JAVA)
     # Configure the pom file
     configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
+    # Create error messages from bin/errtxts via bash script to a java file
+    add_custom_target(${GENERATED_ERRTXTS_MESSAGE} ALL
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_errtxts_messages.sh ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/rasj/global/RasErrorTexts.java.in
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+
     # Run maven to build the project and copy rasj.jar to maven local repository
     find_package(Maven REQUIRED)
     add_custom_target(rasj ALL
             COMMAND ${MAVEN_EXECUTABLE} -B package -P${NETWORK_PROTOCOL}
             COMMAND mvn install:install-file -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
 		   -DgroupId=org.rasdaman -DartifactId=rasj -Dversion=${PROJECT_VERSION} -Dpackaging=jar
-            DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
+            DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES} ${GENERATED_ERRTXTS_MESSAGE}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
 
