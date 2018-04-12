@@ -21,10 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import pygrib
-
 from util.file_obj import File
 from util.gdal_util import GDALGmlUtil
+from util.import_util import import_pygrib, import_netcdf4
 
 
 class EvaluatorSlice:
@@ -84,6 +83,8 @@ class GribMessageEvaluatorSlice(FileEvaluatorSlice):
                i.e: when all the messages were evaluated, now it can get the list of values [min,....max] and do some
                addition calculation if it is necessary
         """
+        pygrib = import_pygrib()
+
         FileEvaluatorSlice.__init__(self, container_file)
         # if no grib_message is passed, we use the first grib message from the grib file to evaluate
         # e.g: global variables which does not change from message, grib:marsType, grib:marsClass
@@ -121,5 +122,5 @@ class NetcdfEvaluatorSlice(FileEvaluatorSlice):
         Returns the dataset ofthe file
         :rtype: netCDF4.Dataset
         """
-        from netCDF4 import Dataset
-        return Dataset(self.get_file().get_filepath(), "r")
+        netCDF4 = import_netcdf4()
+        return netCDF4.Dataset(self.get_file().get_filepath(), "r")

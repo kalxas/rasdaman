@@ -22,7 +22,6 @@
  *
 """
 import copy
-import pygrib
 from lib import arrow
 from util.time_util import DateTimeUtil
 from util import list_util
@@ -45,6 +44,8 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSAxis
 from util.file_obj import File
+
+from util.import_util import import_pygrib
 
 
 class GRIBMessage:
@@ -165,6 +166,8 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         :param File grib_file: the grib file for which to return the evaluated_messages
         :rtype: list[GRIBMessage]
         """
+        pygrib = import_pygrib()
+
         self.dataset = pygrib.open(grib_file.get_filepath())
         evaluated_messages = []
 

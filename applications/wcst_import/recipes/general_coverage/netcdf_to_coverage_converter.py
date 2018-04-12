@@ -40,6 +40,7 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from util.crs_util import CRSAxis
 from util.file_obj import File
 from util.gdal_util import GDALGmlUtil
+from util.import_util import import_netcdf4
 import numpy
 numpy.set_printoptions(numpy.inf)
 
@@ -93,7 +94,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         """
         if len(self.files) < 1:
             raise RuntimeException("No files to import were specified.")
-        import netCDF4
+        netCDF4 = import_netcdf4()
         nci = netCDF4.Dataset(self.files[0].get_filepath(), 'r')
         netcdf_data_type = nci.variables[self.bands[0].identifier].dtype.name
 
@@ -109,7 +110,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         if len(self.files) < 1:
             raise RuntimeException("No netcdf files given for import!")
 
-        import netCDF4
+        netCDF4 = import_netcdf4()
         # NOTE: all files should have same bands's metadata for each file
         nci = netCDF4.Dataset(self.files[0].get_filepath(), 'r')
         try:

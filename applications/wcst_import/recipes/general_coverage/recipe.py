@@ -43,6 +43,8 @@ from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
 from util.log import log
 from util.string_util import escape_metadata_dict
+from util.import_util import import_netcdf4
+
 
 class Recipe(BaseRecipe):
 
@@ -467,8 +469,9 @@ class Recipe(BaseRecipe):
         """
         netcdf_files = self.session.get_files()
         file_path = netcdf_files[0].filepath
-        import netCDF4
+
         # NOTE: all files should have same bands's metadata for each file
+        netCDF4 = import_netcdf4()
         dataset = netCDF4.Dataset(file_path, 'r')
         global_metadata = OrderedDict()
         for attr in dataset.ncattrs():
