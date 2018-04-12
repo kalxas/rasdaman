@@ -477,18 +477,7 @@ public class RasUtil {
         query = query.toLowerCase().trim();
         // e.g: select dbinfo(c) from mr as c
 
-        String patternTemplate = "(%s)(.*?)(%s)(.*?)";
-        String patternStr = String.format(patternTemplate, RasConstants.RASQL_SELECT.toLowerCase(), RasConstants.RASQL_FROM.toLowerCase());
-
-        Pattern pattern = Pattern.compile(patternStr);
-        Matcher matcher = pattern.matcher(query);
-        String value = null;
-
-        while (matcher.find()) {
-            value = matcher.group(1);
-        }
-
-        if (value != null) {
+        if (query.startsWith("select") && !query.contains(" into ")) {
             return true;
         }
         return false;

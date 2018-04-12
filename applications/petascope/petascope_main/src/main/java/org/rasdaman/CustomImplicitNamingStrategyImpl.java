@@ -21,7 +21,7 @@
  */
 package org.rasdaman;
 
-import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import org.hibernate.boot.model.naming.EntityNaming;
@@ -53,7 +53,7 @@ public class CustomImplicitNamingStrategyImpl extends ImplicitNamingStrategyComp
     @Override
     protected String transformEntityName(EntityNaming entityNaming) {
         // prefer the JPA entity name, if specified...
-        if (!StringUtil.isNullOrEmpty(entityNaming.getJpaEntityName())) {
+        if (!StringUtils.isEmpty(entityNaming.getJpaEntityName())) {
             return entityNaming.getJpaEntityName();
         } else {
             // otherwise, use the Hibernate entity name
@@ -75,7 +75,7 @@ public class CustomImplicitNamingStrategyImpl extends ImplicitNamingStrategyComp
         String owningEntity = transformEntityName(source.getOwningEntityNaming());
         String name = transformAttributePath(source.getOwningAttributePath());
         String entityName;
-        if (!StringUtil.isNullOrEmpty(owningEntity)) {
+        if (!StringUtils.isEmpty(owningEntity)) {
             entityName = owningEntity + "_" + name;
         } else {
             entityName = name;

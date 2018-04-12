@@ -1,1 +1,1 @@
-username=rasadmin&password=rasadmin&query=select (char)(c / 2) into test_mr_test1 from mr as c
+username=rasadmin&password=rasadmin&query=select (char)(c / 2) into test_mr_test1 from test_mr as c
