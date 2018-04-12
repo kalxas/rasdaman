@@ -94,6 +94,11 @@ JP2_MIME='image/jp2'
 MULTIPART_MIME='multipart/related'
 gmljp2_enabled=$( check_gdal_version 1 10 ) # GDAL >= 1.10
 
+# Drop coverage imported by wcst_import.sh to Petascope
+drop_petascope_data() {
+  "$SYSTEST_DIR/testcases_services/test_zero_cleanup/test.sh"
+}
+
 drop_data()
 {
   [ $DROP_DATA -eq 0 ] && return
