@@ -157,11 +157,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
         try {
             // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")        
-            addLibraryPath("gdal_java", GDAL_JAVA_DIR);
-            
-            // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
-            // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
-            CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});
+            addLibraryPath("gdal_java", GDAL_JAVA_DIR);            
         } catch (Error ex) {
             String errorMessage = "Cannot add GDAL java native library from '" + GDAL_JAVA_DIR + "' to java library path, "
                     + "please restart Tomcat containing Petascope to fix this problem. Reason: " + ex.getMessage();
