@@ -1,0 +1,80 @@
+{
+  "config": {
+    	"service_url": "PETASCOPE_URL",
+        "tmp_directory": "/tmp/",
+    "automated": true,
+    "mock": false,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "CCI_V2_monthly_chlor_a",
+    "paths": [
+      "*.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate",
+        "metadata": {
+          "type": "xml",
+          "global": "auto"
+	},
+	"slicer": {
+          "type": "netcdf",
+	  "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "chlor_a",
+              "identifier": "chlor_a",
+              "description": "Count of the number of observations from the SeaWiFS sensor contributing to this bin cell",
+              "nilReason": "The nil value represents an error in the sensor.",
+              "nilValue" : "-999999"
+            },
+	    {
+              "name" : "chlor_a_log10_bias",
+              "identifier": "chlor_a_log10_bias",
+              "description" : "Uncertainty lookups derived from file: /data/datasets/CCI/v2.0-production/stage09b-uncertainty_tables/chlor_a/cci_chla_bias.dat",
+              "nilReason" : "The nil value represents an error in the sensor.",
+              "nilValue" : "-999999"
+            },
+	    {
+       	      "name" : "chlor_a_log10_rmsd",
+       	      "identifier": "chlor_a_log10_rmsd",
+       	      "description" : "Uncertainty lookups derived from file: /data/datasets/CCI/v2.0-production/stage09b-uncertainty_tables/chlor_a/cci_chla_rmsd.dat",
+       	      "nilReason" : "The nil value represents an error in the sensor.",
+              "nilValue" : "-999999"
+       	    }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "datetime(${netcdf:variable:time:min} * 24 * 3600)",
+              "max": "datetime(${netcdf:variable:time:max} * 24 * 3600)",
+	      "directPositions": "[datetime(${netcdf:variable:time:min} * 24 * 3600)]",
+              "resolution": 1,
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true
+            },
+            "Long": {
+              "min": "${netcdf:variable:lon:min}",
+              "max": "${netcdf:variable:lon:max}",
+              "gridOrder": 2,
+              "resolution": "${netcdf:variable:lon:resolution}"
+            },
+            "Lat": {
+              "min": "${netcdf:variable:lat:min}",
+              "max": "${netcdf:variable:lat:max}",
+              "gridOrder": 1,
+              "resolution": "${netcdf:variable:lat:resolution}"
+            }
+          }
+	}
+      },
+      "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+    }
+  }
+}
+

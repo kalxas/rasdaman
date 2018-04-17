@@ -53,5 +53,6 @@ def escape_metadata_dict(metadata_dict):
     """
     # NOTE: metadata can contain invalid characters for XML such as: <, >, & then needs to escape them
     for key, value in metadata_dict.iteritems():
-        metadata_dict[key] = escape(value)
+        metadata_dict[key] = escape(str(value))
+
     return metadata_dict
