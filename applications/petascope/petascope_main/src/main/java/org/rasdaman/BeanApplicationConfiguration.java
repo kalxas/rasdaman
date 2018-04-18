@@ -130,12 +130,6 @@ public class BeanApplicationConfiguration implements Condition {
         SpringLiquibase liquibase = new SpringLiquibase();
         DataSource dataSource;
 
-        // NOTE: Do not initialize/update petascopedb if petascope failed to start properly.
-        if (AbstractController.startException != null) {
-            liquibase.setShouldRun(false);
-            return liquibase;
-        }
-
         try {
             if (DatabaseUtil.checkDefaultDatabase()) {
                 // NOTE: Only create a new petascopedb for Postgresql if it doesn't exist
@@ -147,6 +141,12 @@ public class BeanApplicationConfiguration implements Condition {
             PetascopeException petascopeException = new PetascopeException(ExceptionCode.InternalSqlError,
                     "Cannot create new empty petascopedb for Postgresql, error '" + ex.getMessage() + "'.", ex);
             throw petascopeException;
+        }
+        
+        // NOTE: Do not initialize/update petascopedb if petascope failed to start properly.
+        if (AbstractController.startException != null) {
+            liquibase.setShouldRun(false);
+            return liquibase;
         }
 
         // Create dataSource for Liquibase

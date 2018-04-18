@@ -112,10 +112,10 @@ public class InitAllConfigurationsApplicationService {
         // Then load this new created tmp native library folder by Java class loader
         loadNativeLibraryByClassLoader(tmpNativeParentFolderPath, tmpNativeChildFolderPath);               
               
-        // NOTE: cannot remove this temp native folder now, it needs time for Java class loader to do it and they will be cleaned when Petascope restarts.
-        tmpNativeParentFolder.setWritable(true);
-        tmpNativeParentFolder.setReadable(true);
-        tmpNativeParentFolder.setExecutable(true);
+        // NOTE: As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
+        // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
+        Runtime rt = Runtime.getRuntime();
+        rt.exec("chmod -R 777 " + tmpNativeParentFolder);
     }
 
     /**
