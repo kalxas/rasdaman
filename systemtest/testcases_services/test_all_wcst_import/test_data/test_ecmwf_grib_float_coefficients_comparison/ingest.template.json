@@ -1,0 +1,77 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost/def/OGC/0/Index2D",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false,
+    "insitu": false
+  },
+  "input": {
+    "coverage_id": "t2m_era5_d05_01_jan_2010_v7x_subset",
+    "paths": [
+      "*.grib"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate?axis-label=\"reftime\"",
+        "metadata": {
+          "type": "json",
+          "global": {
+            "Originating_or_generating_Center": "dummy_ctr",
+            "GRIB_table_version": "128",
+            "Grib1_Parameter_name": "just_a_name",
+            "Grib1_Parameter_id": "dummy_id",
+            "MARS type": "'${grib:marsType}'",
+            "Type of level": "sfc"
+          }
+        },
+        "slicer": {
+          "type": "grib",
+          "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "Temperature",
+              "identifier": "Temperature",
+              "description": "grib description",
+              "nilReason": "Nil value represents missing values.",
+              "nilValue": "99999",
+              "uomCode": "1"
+            }
+          ],
+          "axes": {
+            "reftime": {
+              "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true,
+              "directPositions": "${grib:axis:reftime}",
+              "dataBound" : true
+            },
+            "Long": {
+              "min": "${grib:longitudeOfFirstGridPointInDegrees}",
+              "max": "${grib:longitudeOfLastGridPointInDegrees}",
+              "gridOrder": 1,
+              "dataBound" : true,
+              "resolution": "-${grib:iDirectionIncrementInDegrees} if bool(${grib:iScansNegatively}) else ${grib:iDirectionIncrementInDegrees}"
+            },
+            "Lat": {
+              "min": "${grib:latitudeOfLastGridPointInDegrees}",
+              "max": "${grib:latitudeOfFirstGridPointInDegrees}",
+              "gridOrder": 2,
+              "dataBound" : true,
+              "resolution": "${grib:jDirectionIncrementInDegrees} if bool(${grib:jScansPositively}) else -${grib:jDirectionIncrementInDegrees}"
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:0, 0:179, 0:90]"
+    }
+  }
+}

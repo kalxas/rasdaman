@@ -256,7 +256,7 @@ public class UpdateCoverageHandler {
                     // e.g: This axis contains 4 coefficients, then the values are 0, 3, 5, 8                    
                     IrregularAxis inputIrregularAxis = ((IrregularAxis) inputGeoAxis);
                     // unformalized: for 4 days (lowerBound: 2008-01-01, 2008-01-04, 2008-01-06, upperBound: 2008-01-09)
-                    unnormalizedCoefficients.addAll(inputIrregularAxis.getDirectPositionsNumber());
+                    unnormalizedCoefficients.addAll(inputIrregularAxis.getDirectPositionsAsNumbers());
                 }
 
                 // NOTE: Coefficients of input axis are calculated with the input domain lowerBound which is not current domain lowerBound

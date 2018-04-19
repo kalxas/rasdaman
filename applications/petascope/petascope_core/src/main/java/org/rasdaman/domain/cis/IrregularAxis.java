@@ -85,7 +85,7 @@ public class IrregularAxis extends GeoAxis {
      * Ultility method to get direct positions in number
      * @return 
      */
-    public List<BigDecimal> getDirectPositionsNumber() {
+    public List<BigDecimal> getDirectPositionsAsNumbers() {
         List<BigDecimal> bigDecimalList = new ArrayList<>();
         for (String value : directPositions) {
             bigDecimalList.add(new BigDecimal(value));
@@ -100,6 +100,25 @@ public class IrregularAxis extends GeoAxis {
             this.directPositions.add(value.toPlainString());
         }
 
+    }
+    
+    /**
+     * Compare 2 big decimal numbers with a small epsilon to make sure the difference between numbers are acceptable.
+     * e.g: number1: 0.46666666666666666666666667, number2: 0.466666666666666666666666666666666666666666 are equal.
+     * 
+     * @param number1
+     * @param number2
+     * @return 
+     */
+    private boolean epsilonGreaterOrEqual(BigDecimal number1, BigDecimal number2) {
+        // number1 really greater than number2
+        if (number1.compareTo(number2.add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON)) >= 0) {
+            return true;
+        } else if (number1.subtract(number2).abs().compareTo(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON) <= 0) {
+            // number1 not really greater than number2 but approximately
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -124,18 +143,26 @@ public class IrregularAxis extends GeoAxis {
         Long i = Long.valueOf("0");
 
         // coefficient in numbers for legacy coverages
-        for (BigDecimal coefficient : this.getDirectPositionsNumber()) {
-            // find the min number which >= minInput
-            if (!foundMinIndex && coefficient.compareTo(minInput) >= 0) {
-                minIndex = i;
-                foundMinIndex = true;
+        for (BigDecimal coefficient : this.getDirectPositionsAsNumbers()) {
+            
+            // NOTE: from WCST_Import coefficient (especially DateTime from arrow) will return double and it can be larger than BigDecimal value calculated in Petascope.
+            // Therefore, we need to check this comparison with a small epsilon to make sure it is actually same number more or less.
+            // e.g: 
+            // coefficient: 0.04166666666666666666666666667
+            // input:       0.04166666666666666666666666666666666666666666666667
+             // find the min number which >= minInput
+            if (!foundMinIndex) {
+                if (this.epsilonGreaterOrEqual(coefficient, minInput)) {
+                    minIndex = i;
+                    foundMinIndex = true;
+                }
             }
             // find the max number which <= maxInput (as it is ascending list, so don't stop until coefficent > maxInput
-            if (coefficient.compareTo(maxInput) <= 0) {
+            if (this.epsilonGreaterOrEqual(maxInput, coefficient)) {
                 maxIndex = i;
             }
             // stop as it should find the minIndex and maxIndex already
-            if (coefficient.compareTo(maxInput) >= 0) {
+            if (this.epsilonGreaterOrEqual(coefficient, maxInput)) {
                 break;
             }
 
@@ -144,7 +171,6 @@ public class IrregularAxis extends GeoAxis {
 
         return new Pair(minIndex, maxIndex);
     }
-
     /**
      *
      * Check if a coefficient is valid (i.e: it should be equals to an existing
@@ -162,11 +188,11 @@ public class IrregularAxis extends GeoAxis {
      * @throws petascope.exceptions.WCSException
      */
     public CoefficientStatus validateCoefficient(boolean isInsitu, BigDecimal coefficient) throws WCSException {
-        long index = BigDecimalUtil.listContainsCoefficient(this.getDirectPositionsNumber(), coefficient);
+        long index = BigDecimalUtil.listContainsCoefficient(this.getDirectPositionsAsNumbers(), coefficient);
         if (index == -1) {
             // Check if coefficient > the upperBound of axis, if it is not then it is added between other coeffcients which is not valid
-            int numberOfCoefficients = this.getDirectPositionsNumber().size();
-            BigDecimal upperBoundCoefficient = this.getDirectPositionsNumber().get(numberOfCoefficients - 1);
+            int numberOfCoefficients = this.getDirectPositionsAsNumbers().size();
+            BigDecimal upperBoundCoefficient = this.getDirectPositionsAsNumbers().get(numberOfCoefficients - 1);
             if (upperBoundCoefficient.compareTo(coefficient) > 0) {                
                 if (!isInsitu) {
                     throw new WCSException("Can not add new slice in between existing slices on irregular axis. Only " +
@@ -197,7 +223,7 @@ public class IrregularAxis extends GeoAxis {
         Pair<Long, Long> gridIndices = this.getGridIndices(minInput, maxInput);
         List<BigDecimal> coefficients = new ArrayList<>();
         for (Long i = gridIndices.fst; i <= gridIndices.snd; i++) {
-            BigDecimal coefficient = this.getDirectPositionsNumber().get(i.intValue());
+            BigDecimal coefficient = this.getDirectPositionsAsNumbers().get(i.intValue());
             coefficients.add(coefficient);
         }
 

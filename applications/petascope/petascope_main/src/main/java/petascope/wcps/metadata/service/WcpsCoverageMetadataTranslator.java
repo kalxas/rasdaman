@@ -195,7 +195,7 @@ public class WcpsCoverageMetadataTranslator {
             // Check domainElement's type
             if (geoAxis.isIrregular()) {
                 // All stored coefficients for irregular axis in coverage
-                List<BigDecimal> directPositions = ((org.rasdaman.domain.cis.IrregularAxis) geoAxis).getDirectPositionsNumber();
+                List<BigDecimal> directPositions = ((org.rasdaman.domain.cis.IrregularAxis) geoAxis).getDirectPositionsAsNumbers();
                 result.add(new IrregularAxis(axisLabel, geoBounds, gridBounds, axisDirection,
                         crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
                         originNumber, scalarResolution, directPositions));
