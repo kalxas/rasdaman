@@ -412,6 +412,13 @@ void RasServerEntry::startRpcServer() throw(r_Error) {}
 void RasServerEntry::stopRpcServer() {}
 //#######################################################
 
+bool isValidCommand(char* req)
+{
+    while (isalpha(req[0]))
+        ++req;
+    return req[0] == '=' || req[0] == '\0';
+}
+
 // local version of this function, with small adaptations to compile here.
 int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestInfo)
 {
@@ -422,6 +429,7 @@ int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestI
     Input = new char[ SourceLen + 1 ];
     memcpy(Input, Source, static_cast<size_t>(SourceLen));
     Input[SourceLen] = '\0';
+    char* InputEnd = Input + SourceLen;
     // Read the message body and check for the post parameters
     Buffer = strtok(Input, "=");
     while (Buffer != NULL)
@@ -434,7 +442,15 @@ int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestI
         }
         else if (strcmp(Buffer, "QueryString") == 0)
         {
-            RequestInfo->QueryString = strdup(strtok(NULL, "&"));
+            char *tmpQueryString = strtok(NULL, "&");
+            char *end = tmpQueryString + strlen(tmpQueryString) + 1;
+            while (end && end < InputEnd && !isValidCommand(end))
+            {
+                // reset the & in the query that was set to \0 by strtok
+                *(end - 1) = '&';
+                end = strtok(NULL, "&");
+            }
+            RequestInfo->QueryString = strdup(tmpQueryString);
             LDEBUG << "Parameter QueryString is " << RequestInfo->QueryString;
             Buffer = strtok(NULL, "=");
         }
