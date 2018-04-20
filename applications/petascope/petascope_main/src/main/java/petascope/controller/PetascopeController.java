@@ -57,7 +57,7 @@ public class PetascopeController extends AbstractController {
     public PetascopeController() {
 
     }
-
+    
     @RequestMapping(value = OWS, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest, @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
             throws IOException, PetascopeException, WCSException, SecoreException, Exception {
@@ -72,6 +72,12 @@ public class PetascopeController extends AbstractController {
         this.requestDispatcher(kvpParameters);
     }
 
+    @RequestMapping(value = OWS + "/", method = RequestMethod.POST)
+    private void handlePostFallBack(HttpServletRequest httpServletRequest, @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
+            throws IOException, PetascopeException, WCSException, SecoreException, Exception {
+        this.handlePost(httpServletRequest, uploadedFile);
+    }
+
 //    @RequestMapping(value = OWS, method = RequestMethod.POST)
 //    protected void handlePost(@RequestBody String postBody) throws Exception {        
 //        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -82,6 +88,11 @@ public class PetascopeController extends AbstractController {
     protected void handleGet(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
         this.requestDispatcher(kvpParameters);
+    }
+    
+    @RequestMapping(value = OWS + "/", method = RequestMethod.GET)
+    protected void handleGetFallBack(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
+        this.handleGet(httpServletRequest);
     }
 
     /**
@@ -144,3 +155,4 @@ public class PetascopeController extends AbstractController {
         }
     }
 }
+
