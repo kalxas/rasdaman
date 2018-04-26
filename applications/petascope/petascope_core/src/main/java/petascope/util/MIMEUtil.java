@@ -198,7 +198,7 @@ public class MIMEUtil {
         for (Map.Entry<String, String> entry : getInstance().entrySet()) {
             String mimeType = entry.getKey();
             // e.g: mime is image/png, type is png
-            if (mimeType.contains(encodingType)) {
+            if (mimeType.contains(encodingType.toLowerCase())) {
                 return mimeType;
             }
         }
