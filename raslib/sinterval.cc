@@ -30,25 +30,18 @@
  *
 */
 
-static const char rcsid[] = "@(#)raslib, r_Sinterval: $Id: sinterval.cc,v 1.29 2002/08/19 11:11:25 coman Exp $";
-
 #include "config.h"
 #include "sinterval.hh"
+#include "raslib/error.hh"
+#include <logging.hh>
 
 #include <string>
 #include <cstring>
-
 #include <sstream>
-
 // for min and max
 #include <algorithm>
 
 using namespace std;
-
-
-#include "raslib/error.hh"
-
-#include <logging.hh>
 
 r_Sinterval::r_Sinterval()
     : lower_bound(0),
@@ -67,7 +60,7 @@ r_Sinterval::r_Sinterval(char* stringRep) throw(r_Eno_interval)
 {
     if (!stringRep)
     {
-        LFATAL << "r_Sinterval::r_Sinterval(" << (stringRep ? stringRep : "NULL") << ")";
+        LERROR << "Cannot create interval from null string.";
         throw r_Eno_interval();
     }
 
@@ -98,7 +91,8 @@ r_Sinterval::r_Sinterval(char* stringRep) throw(r_Eno_interval)
         low_fixed = false;
         high_fixed = false;
 
-        LFATAL << "r_Sinterval::r_Sinterval(" << stringRep << ") string doesn't have the pattern a:b";
+        LERROR << "Cannot create interval from string (" << stringRep 
+                << ") that is not of the pattern a:b";
         throw r_Eno_interval();
     }
 
@@ -124,7 +118,8 @@ r_Sinterval::r_Sinterval(r_Range newLow, r_Range newHigh) throw(r_Eno_interval)
 {
     if (newLow > newHigh)
     {
-        LFATAL << "r_Sinterval::r_Sinterval(" << newLow << ", " << newHigh << ") not a interval";
+        LERROR << "Invalid interval: lower bound (" << lower_bound 
+                << ") is greater than the upper bound (" << newHigh << ").";
         throw r_Eno_interval();
     }
 }
@@ -200,7 +195,8 @@ r_Sinterval::get_extent() const throw(r_Error)
 
     if (!low_fixed || !high_fixed)
     {
-        LFATAL << "r_Sinterval::get_extent() low or high are not fixed (" << *this << ")";
+        LERROR << "Cannot get extent of interval (" << *this 
+                << ") as lower or upper bounds are not fixed.";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -214,7 +210,8 @@ r_Sinterval::set_low(r_Range newLow) throw(r_Eno_interval)
 {
     if (high_fixed && newLow > upper_bound)
     {
-        LFATAL << "r_Sinterval::set_low(" << newLow << ") not an interval (" << *this << ")";
+        LERROR << "Invalid interval: lower bound (" << newLow 
+                << ") is greater than the upper bound (" << upper_bound << ").";
         throw r_Eno_interval();
     }
 
@@ -228,7 +225,8 @@ r_Sinterval::set_high(r_Range newHigh) throw(r_Eno_interval)
 {
     if (low_fixed && newHigh < lower_bound)
     {
-        LFATAL << "r_Sinterval::set_high(" << newHigh << ") not an interval (" << *this << ")";
+        LERROR << "Invalid interval: lower bound (" << lower_bound 
+                << ") is greater than the upper bound (" << newHigh << ").";
         throw r_Eno_interval();
     }
 
@@ -242,7 +240,8 @@ r_Sinterval::set_interval(r_Range newLow, r_Range newHigh) throw(r_Eno_interval)
 {
     if (newLow > newHigh)
     {
-        LFATAL << "r_Sinterval::set_interval(" << newLow << ", " << newHigh << ") not an interval (" << *this << ")";
+        LERROR << "Invalid interval: lower bound (" << newLow 
+                << ") is greater than the upper bound (" << newHigh << ").";
         throw r_Eno_interval();
     }
 
@@ -604,7 +603,7 @@ r_Sinterval::calc_union(const r_Sinterval& a, const r_Sinterval& b) const throw(
 
     default: // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
     {
-        LFATAL << "r_Sinterval::calc_union(" << a << ", " << b << ") not an interval";
+        LDEBUG << "Cannot calculate union of intervals " << a << " and " << b << ".";
         throw r_Eno_interval();
     }
     }
@@ -701,7 +700,7 @@ r_Sinterval::calc_difference(const r_Sinterval& a, const r_Sinterval& b) const t
 
     default: // case in { 3, 5, 11, 12, 13, 14, 19, 24, 25, 29, 30, 40, 41, 44, 45, 46, 47, 50, 51, 52 }
     {
-        LFATAL << "r_Sinterval::calc_difference(" << a << ", " << b << ") not an interval";
+        LDEBUG << "Cannot calculate difference of intervals " << a << " and " << b << ".";
         throw r_Eno_interval();
     }
     }
@@ -838,7 +837,7 @@ r_Sinterval::calc_intersection(const r_Sinterval& a, const r_Sinterval& b) const
         break;
 
     default: // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
-        LFATAL << "r_Sinterval::calc_intersection(" << a << ", " << b << ") not an interval";
+        LDEBUG << "Cannot calculate intersection of intervals " << a << " and " << b << ".";
         throw r_Eno_interval();
     }
 

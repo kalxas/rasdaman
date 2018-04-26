@@ -256,9 +256,10 @@ QtVariable::evaluate(QtDataList* inputList) throw (ParseInfo)
             {
                 QtMDD*  qtMDD         = static_cast<QtMDD*>(dataObject);
                 MDDObj* currentMDDObj = qtMDD->getMDDObject();
+                const auto &currDomain = currentMDDObj->getCurrentDomain();
 
                 LTRACE << "  definitionDomain: " << currentMDDObj->getDefinitionDomain();
-                LTRACE << "  currentDomain...: " << currentMDDObj->getCurrentDomain();
+                LTRACE << "  currentDomain...: " << currDomain;
 
                 // load domain for the actual MDDObj
                 r_Minterval actLoadDomain;
@@ -266,29 +267,42 @@ QtVariable::evaluate(QtDataList* inputList) throw (ParseInfo)
                 // intersect actLoadDomain with defined domain
                 try
                 {
-                    actLoadDomain.intersection_of(loadDomain, currentMDDObj->getCurrentDomain());
+                    actLoadDomain.intersection_of(loadDomain, currDomain);
                 }
-                catch (r_Edim_mismatch&)
+                catch (r_Edim_mismatch& err)
                 {
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
                 }
-                catch (r_Eno_interval)
+                catch (r_Eno_interval& err)
                 {
                     // ticket:358
                     // Instead of throwing an exception, return an MDD initialized
                     // with null values when selecting an area that doesn't intersect
                     // with any existing tiles in the database -- DM 2013-nov-15
-                    LWARNING << "Warning: specified domain " << loadDomain
-                             << " does not intersect with spatial domain of MDD, returning empty result.";
+                    LWARNING << "specified domain " << loadDomain
+                             << " does not intersect with the MDD spatial domain "
+                            << currDomain << ", returning empty result.";
 
                     const MDDBaseType* mddType = currentMDDObj->getMDDBaseType();
+                    
+                    r_Minterval newDomain(currDomain.dimension());
+                    for (size_t dim = 0; dim < currDomain.dimension(); ++dim)
+                    {
+                        const auto &specifiedInterval = loadDomain[dim];
+                        r_Sinterval newInterval = currDomain[dim];
+                        if (specifiedInterval.is_low_fixed())
+                            newInterval.set_high(specifiedInterval.low());
+                        if (specifiedInterval.is_high_fixed())
+                            newInterval.set_high(specifiedInterval.high());
+                        newDomain << newInterval;
+                    }
 
                     // create a transient MDD object for the query result
-                    MDDObj* resultMDD = new MDDObj(mddType, loadDomain);
+                    MDDObj* resultMDD = new MDDObj(mddType, newDomain);
 
                     // create transient tile
-                    Tile* resTile = new Tile(loadDomain, mddType->getBaseType());
+                    Tile* resTile = new Tile(newDomain, mddType->getBaseType());
                     resTile->setPersistent(false);
 
                     // insert Tile in result mddObj
@@ -297,10 +311,6 @@ QtVariable::evaluate(QtDataList* inputList) throw (ParseInfo)
 
                     stopTimer();
                     return returnValue;
-
-//                    LFATAL << "Error: QtVariable::evaluate() - Specified domain does not intersect with spatial domain of MDD.";
-//                    parseInfo.setErrorNo(356);
-//                    throw parseInfo;
                 }
                 catch (r_Error& err)
                 {
