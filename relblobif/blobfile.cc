@@ -116,7 +116,7 @@ void BlobFile::readData(BlobData& blob) throw (r_Error)
 
 void BlobFile::prepareForInserting() throw (r_Error)
 {
-    fd = open(filePath.c_str(), O_CREAT | O_WRONLY, 0770);
+    fd = open(filePath.c_str(), O_CREAT | O_WRONLY, 0660);
     if (fd == INVALID_FILE_DESCRIPTOR)
     {
         generateError("failed opening blob file for inserting", FAILEDOPENFORWRITING);
@@ -125,7 +125,7 @@ void BlobFile::prepareForInserting() throw (r_Error)
 
 void BlobFile::prepareForUpdating() throw (r_Error)
 {
-    fd = open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0770);
+    fd = open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0660);
     if (fd == INVALID_FILE_DESCRIPTOR)
     {
         generateError("failed opening blob file for updating", FAILEDOPENFORUPDATING);
