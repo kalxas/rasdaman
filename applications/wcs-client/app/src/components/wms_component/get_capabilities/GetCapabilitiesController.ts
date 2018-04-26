@@ -139,6 +139,8 @@ module rasdaman {
 
                 //Update settings:
                 settings.wmsEndpoint = $scope.wmsServerEndpoint;
+                //Reload the full WMS URL
+                settings.setWMSFullEndPoint();   
 
                 //Create capabilities request
                 var capabilitiesRequest = new wms.GetCapabilities();

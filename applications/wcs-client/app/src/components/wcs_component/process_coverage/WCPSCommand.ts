@@ -28,6 +28,8 @@ module rasdaman {
     export class WCPSCommand {
         public query:string;
         public widgetConfiguration:WidgetConfiguration;
+        // e.g: wwd(20,30,50,60)>> then parameters = [20, 30, 50, 60]
+        public widgetParameters:string[] = [];
 
         public constructor(command:string) {
             rasdaman.common.ArgumentValidator.isNotNull(command, "command");
@@ -45,6 +47,7 @@ module rasdaman {
 
                 if (commandParts[0].indexOf("(") != -1) {
                     var widgetParams:string[] = commandParts[0].substring(commandParts[0].indexOf("(") + 1, commandParts[0].indexOf(")")).split(",");
+                    this.widgetParameters = widgetParams;
                     var params = {};
                     widgetParams.forEach((param:string)=> {
                         var parts = param.split("=");
@@ -55,7 +58,7 @@ module rasdaman {
                     widget.parameters = params;
                 }
 
-                this.widgetConfiguration = widget;
+                this.widgetConfiguration = widget;                
                 this.query = commandParts[1];
             }
         }

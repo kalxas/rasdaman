@@ -2431,6 +2431,56 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    function WebWorldWindDisplayWidget() {
+        return {
+            link: function (scope, elem, attributes) {
+                console.log('attributes: ', attributes);
+                var index = attributes.index;
+                var minLat = attributes.minlat;
+                var minLong = attributes.minlong;
+                var maxLat = attributes.maxlat;
+                var maxLong = attributes.maxlong;
+                var canvas = document.createElement("canvas");
+                canvas.id = "canvas" + Math.random().toString();
+                canvas.width = 500;
+                canvas.height = 500;
+                var divContainerId = document.getElementById("resultRow_" + attributes.index);
+                divContainerId.appendChild(canvas);
+                WorldWind.Logger.setLoggingLevel(WorldWind.Logger.LEVEL_WARNING);
+                var wwd = new WorldWind.WorldWindow(canvas.id);
+                var layers = [
+                    { layer: new WorldWind.BMNGLayer(), enabled: true },
+                    { layer: new WorldWind.BMNGLandsatLayer(), enabled: false },
+                    { layer: new WorldWind.BingAerialLayer(null), enabled: false },
+                    { layer: new WorldWind.BingAerialWithLabelsLayer(null), enabled: true },
+                    { layer: new WorldWind.BingRoadsLayer(null), enabled: false },
+                    { layer: new WorldWind.OpenStreetMapImageLayer(null), enabled: false },
+                    { layer: new WorldWind.CompassLayer(), enabled: true },
+                    { layer: new WorldWind.CoordinatesDisplayLayer(wwd), enabled: true },
+                    { layer: new WorldWind.ViewControlsLayer(wwd), enabled: true }
+                ];
+                for (var l = 0; l < layers.length; l++) {
+                    layers[l].layer.enabled = layers[l].enabled;
+                    wwd.addLayer(layers[l].layer);
+                }
+                var image = new Image();
+                image.src = "data:image/png;base64," + attributes.data;
+                var surfaceImage = new WorldWind.SurfaceImage(new WorldWind.Sector(minLat, maxLat, minLong, maxLong), new WorldWind.ImageSource(image));
+                var surfaceImageLayer = new WorldWind.RenderableLayer();
+                surfaceImageLayer.displayName = "Surface Images";
+                surfaceImageLayer.addRenderable(surfaceImage);
+                wwd.addLayer(surfaceImageLayer);
+                var xcenter = (parseFloat(minLong) + parseFloat(maxLong)) / 2;
+                var ycenter = (parseFloat(minLat) + parseFloat(maxLat)) / 2;
+                wwd.navigator.lookAtLocation = new WorldWind.Location(ycenter, xcenter);
+                wwd.redraw();
+            }
+        };
+    }
+    rasdaman.WebWorldWindDisplayWidget = WebWorldWindDisplayWidget;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var WCSSettingsController = (function () {
         function WCSSettingsController($scope, settingsService) {
             this.$scope = $scope;
@@ -3076,6 +3126,7 @@ var rasdaman;
 (function (rasdaman) {
     var WCPSCommand = (function () {
         function WCPSCommand(command) {
+            this.widgetParameters = [];
             rasdaman.common.ArgumentValidator.isNotNull(command, "command");
             if (command.indexOf(">>") == -1) {
                 this.widgetConfiguration = null;
@@ -3089,6 +3140,7 @@ var rasdaman;
                 };
                 if (commandParts[0].indexOf("(") != -1) {
                     var widgetParams = commandParts[0].substring(commandParts[0].indexOf("(") + 1, commandParts[0].indexOf(")")).split(",");
+                    this.widgetParameters = widgetParams;
                     var params = {};
                     widgetParams.forEach(function (param) {
                         var parts = param.split("=");
@@ -3201,6 +3253,30 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    var WebWorldWindWCPSResult = (function (_super) {
+        __extends(WebWorldWindWCPSResult, _super);
+        function WebWorldWindWCPSResult(command, rawImageData) {
+            var _this = _super.call(this, command) || this;
+            _this.minLat = -90;
+            _this.minLong = -180;
+            _this.maxLat = 90;
+            _this.maxLong = 180;
+            _this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
+            _this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            if (command.widgetParameters.length > 0) {
+                _this.minLat = parseFloat(command.widgetParameters[0]);
+                _this.minLong = parseFloat(command.widgetParameters[1]);
+                _this.maxLat = parseFloat(command.widgetParameters[2]);
+                _this.maxLong = parseFloat(command.widgetParameters[3]);
+            }
+            return _this;
+        }
+        return WebWorldWindWCPSResult;
+    }(rasdaman.WCPSQueryResult));
+    rasdaman.WebWorldWindWCPSResult = WebWorldWindWCPSResult;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var NotificationWCPSResult = (function (_super) {
         __extends(NotificationWCPSResult, _super);
         function NotificationWCPSResult(command, data) {
@@ -3218,6 +3294,7 @@ var rasdaman;
         function WCPSResultFactory() {
         }
         WCPSResultFactory.getResult = function (errorHandlingService, command, data, mimeType, fileName) {
+            var validationResult = this.validateResult(errorHandlingService, command, mimeType);
             if (command.widgetConfiguration == null) {
                 if (mimeType == "" || mimeType == "application/json" || mimeType == "text/csv" || mimeType == "text/xml" || mimeType == "text/plain" || mimeType == "application/gml+xml") {
                     return new rasdaman.RawWCPSResult(command, data);
@@ -3229,24 +3306,88 @@ var rasdaman;
                 }
             }
             else if (command.widgetConfiguration.type == "diagram") {
-                this.validateResult(errorHandlingService, command.widgetConfiguration.type, mimeType);
-                return new rasdaman.DiagramWCPSResult(command, data);
+                if (validationResult == null) {
+                    return new rasdaman.DiagramWCPSResult(command, data);
+                }
+                else {
+                    return new rasdaman.NotificationWCPSResult(command, validationResult);
+                }
             }
             else if (command.widgetConfiguration.type == "image") {
-                this.validateResult(errorHandlingService, command.widgetConfiguration.type, mimeType);
-                return new rasdaman.ImageWCPSResult(command, data);
+                if (validationResult == null) {
+                    return new rasdaman.ImageWCPSResult(command, data);
+                }
+                else {
+                    return new rasdaman.NotificationWCPSResult(command, validationResult);
+                }
+            }
+            else if (command.widgetConfiguration.type == "wwd") {
+                if (validationResult == null) {
+                    return new rasdaman.WebWorldWindWCPSResult(command, data);
+                }
+                else {
+                    return new rasdaman.NotificationWCPSResult(command, validationResult);
+                }
             }
             else {
                 errorHandlingService.notificationService.error("The input widget: " + command.widgetConfiguration.type + " does not exist");
             }
         };
-        WCPSResultFactory.validateResult = function (errorHandlingService, widgetType, mimeType) {
+        WCPSResultFactory.validateResult = function (errorHandlingService, command, mimeType) {
+            var errorMessage = null;
+            if (command.widgetConfiguration == null) {
+                return errorMessage;
+            }
+            var widgetType = command.widgetConfiguration.type;
             if (widgetType == "diagram" && !(mimeType == "application/json" || mimeType == "text/plain" || mimeType == "text/csv")) {
-                errorHandlingService.notificationService.error("Diagram widget can only be used with encoding 1D result in json or csv.");
+                errorMessage = "Diagram widget can only be used with encoding 1D result in json or csv.";
+                errorHandlingService.notificationService.error(errorMessage);
             }
             else if (widgetType == "image" && !(mimeType == "image/png" || mimeType == "image/jpeg")) {
-                errorHandlingService.notificationService.error("Image widget can only be used with encoding 2D result in png or jpeg.");
+                errorMessage = "Image widget can only be used with encoding 2D result in png or jpeg.";
+                errorHandlingService.notificationService.error(errorMessage);
             }
+            else if (widgetType == "wwd" && !(mimeType == "image/png" || mimeType == "image/jpeg")) {
+                errorMessage = "WebWorldWind widget can only be used with encoding 2D result in png or jpeg.";
+                errorHandlingService.notificationService.error(errorMessage);
+            }
+            else if (widgetType == "wwd" && command.widgetParameters.length > 0) {
+                if (command.widgetParameters.length != 4) {
+                    errorMessage = "WebWorldWind widget with input parameters needs to follow this pattern: wwd(MIN_LAT,MIN_LONG,MAX_LAT,MAX_LONG).";
+                    errorHandlingService.notificationService.error(errorMessage);
+                }
+                else {
+                    var minLat = parseFloat(command.widgetParameters[0]);
+                    var minLong = parseFloat(command.widgetParameters[1]);
+                    var maxLat = parseFloat(command.widgetParameters[2]);
+                    var maxLong = parseFloat(command.widgetParameters[3]);
+                    if (minLat < -90 || minLat > 90) {
+                        errorMessage = "WebWorldWind widget min Lat value is not within (-90:90), given: " + minLat + ".";
+                        errorHandlingService.notificationService.error(errorMessage);
+                    }
+                    else if (minLong < -180 || minLat > 180) {
+                        errorMessage = "WebWorldWind widget min Long value is not within (-180:180), given: " + minLong + ".";
+                        errorHandlingService.notificationService.error(errorMessage);
+                    }
+                    else if (maxLat < -90 || maxLat > 90) {
+                        errorMessage = "WebWorldWind widget max Lat value is not within (-90:90), given: " + maxLat + ".";
+                        errorHandlingService.notificationService.error(errorMessage);
+                    }
+                    else if (maxLong < -180 || maxLong > 180) {
+                        errorMessage = "WebWorldWind widget max Long value is not within (-180:180), given: " + maxLong + ".";
+                        errorHandlingService.notificationService.error(errorMessage);
+                    }
+                    else if (minLat > maxLat) {
+                        errorMessage = "WebWorldWind widget min Lat cannot greater than max Lat, given: minLat: " + minLat + ", maxLat: " + maxLat + ".";
+                        errorHandlingService.notificationService.error(errorMessage);
+                    }
+                    else if (minLong > maxLong) {
+                        errorMessage = "WebWorldWind widget min Long cannot greater than max Long, given: minLong: " + minLong + ", maxLong: " + maxLong + ".";
+                        errorHandlingService.notificationService.error(errorMessage);
+                    }
+                }
+            }
+            return errorMessage;
         };
         return WCPSResultFactory;
     }());
@@ -3283,7 +3424,10 @@ var rasdaman;
                     wcsService.processCoverages(command.query)
                         .then(function (data) {
                         var editorRow = rasdaman.WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
-                        if (editorRow != null) {
+                        if (editorRow instanceof rasdaman.NotificationWCPSResult) {
+                            $scope.editorData.push(new rasdaman.NotificationWCPSResult(command, "Error when validating the WCPS query. Reason: " + editorRow.data));
+                        }
+                        else if (editorRow != null) {
                             $scope.editorData.push(editorRow);
                         }
                         else {
@@ -3327,6 +3471,9 @@ var rasdaman;
                 else if (datum instanceof rasdaman.NotificationWCPSResult) {
                     return 4;
                 }
+                else if (datum instanceof rasdaman.WebWorldWindWCPSResult) {
+                    return 5;
+                }
                 return -1;
             };
         }
@@ -3339,7 +3486,7 @@ var rasdaman;
                     title: 'No encoding',
                     query: 'for $c in (mean_summer_airtemp) return avg($c)'
                 }, {
-                    title: 'Encode 2D as png with widget',
+                    title: 'Encode 2D as png with image widget',
                     query: 'image>>for $c in (mean_summer_airtemp) return encode($c, "png")'
                 }, {
                     title: 'Encode 2D as tiff',
@@ -3348,14 +3495,17 @@ var rasdaman;
                     title: 'Encode 2D as netCDF',
                     query: 'for $c in (mean_summer_airtemp) return encode($c, "application/netcdf")'
                 }, {
-                    title: 'Encode 1D as csv with widget',
+                    title: 'Encode 1D as csv with diagram widget',
                     query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "text/csv")'
                 }, {
-                    title: 'Encode 1D as json with widget',
+                    title: 'Encode 1D as json with diagram widget',
                     query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "application/json")'
                 }, {
                     title: 'Encode 2D as gml',
                     query: 'for $c in (mean_summer_airtemp) return encode($c[Lat(-44.525:-44.5), Long(112.5:113.5)], "application/gml+xml")'
+                }, {
+                    title: 'Encode 2D as png with WebWorldWind (wwd) widget ',
+                    query: 'wwd(-44.525,111.975,-8.975,156.275)>>for $c in (mean_summer_airtemp) return encode($c, "png")'
                 }
             ];
         };
@@ -3748,8 +3898,11 @@ var rasdaman;
         function WMSSettingsService($window) {
             this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
-            this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
+            this.setWMSFullEndPoint();
         }
+        WMSSettingsService.prototype.setWMSFullEndPoint = function () {
+            this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
+        };
         WMSSettingsService.$inject = ["$window"];
         WMSSettingsService.version = "1.3.0";
         return WMSSettingsService;
@@ -4017,6 +4170,7 @@ var rasdaman;
                     return;
                 }
                 settings.wmsEndpoint = $scope.wmsServerEndpoint;
+                settings.setWMSFullEndPoint();
                 var capabilitiesRequest = new wms.GetCapabilities();
                 wmsService.getServerCapabilities(capabilitiesRequest)
                     .then(function (response) {
@@ -4374,6 +4528,7 @@ var rasdaman;
         .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)
         .directive("crsExtension", rasdaman.WCSCRSExtension)
         .directive("clippingExtension", rasdaman.WCSClippingExtension)
+        .directive("wwdDisplay", rasdaman.WebWorldWindDisplayWidget)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete);

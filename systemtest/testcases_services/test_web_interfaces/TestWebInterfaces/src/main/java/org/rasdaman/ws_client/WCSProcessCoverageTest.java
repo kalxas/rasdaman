@@ -71,14 +71,14 @@ public class WCSProcessCoverageTest extends WSAbstractSectionWebPageTest {
         testCaseName = this.getSectionTestCaseName("encode_2d_png_widget");
         dropdown = new Select(webDriver.findElement(By.xpath(selectDropDownXPath)));
         log.info("Testing a WCPS query with encoding as PNG and image widget...");
-        dropdown.selectByVisibleText("Encode 2D as png with widget");        
+        dropdown.selectByVisibleText("Encode 2D as png with image widget");        
         this.runTestByClickingOnElement(webDriver, testCaseName, executeButtonXPath);
         
         // Encode 1D as JSON with widget
         testCaseName = this.getSectionTestCaseName("encode_1d_json_widget");
         log.info("Testing a WCPS query with encoding as JSON and diagram widget...");
         dropdown = new Select(webDriver.findElement(By.xpath(selectDropDownXPath)));
-        dropdown.selectByVisibleText("Encode 1D as json with widget");        
+        dropdown.selectByVisibleText("Encode 1D as json with diagram widget");        
         this.runTestByClickingOnElement(webDriver, testCaseName, executeButtonXPath);
         
         // Encode 2D as gml

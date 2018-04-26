@@ -25,6 +25,7 @@
 /// <reference path="../components/wcs_component/WCSService.ts"/>
 /// <reference path="shared/ErrorHandlingService.ts"/>
 /// <reference path="web_world_wind/WebWorldWindService.ts"/>
+/// <reference path="wcs_component/process_coverage/WebWorldWindDisplayWidget.ts"/>
 
 /// <reference path="wcs_component/settings/SettingsService.ts"/>
 /// <reference path="wcs_component/settings/SettingsController.ts"/>

@@ -85,7 +85,9 @@ module rasdaman {
                             (data:any)=> {
                 				// depend on the result, it will return an object and display on the editor console or download the result as file without display.
                 				var editorRow = WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
-                				if (editorRow != null) {
+                				if (editorRow instanceof NotificationWCPSResult) {
+                                    $scope.editorData.push(new NotificationWCPSResult(command, "Error when validating the WCPS query. Reason: " + editorRow.data));
+                                } else if (editorRow != null) {
 	                                $scope.editorData.push(editorRow);
                                 } else {
                                     $scope.editorData.push(new NotificationWCPSResult(command, "Downloading WCPS query's result as a file to Web Browser."));
@@ -130,6 +132,9 @@ module rasdaman {
                 } else if (datum instanceof NotificationWCPSResult) {
                     // Just return a notification to WCPS console
                     return 4;
+                } else if (datum instanceof WebWorldWindWCPSResult) {
+                    // 2D image result (jpeg, png) with widget wwd(minLat, minLong, maxLat, maxLong)>> or wwd>>
+                    return 5;
                 }
 
                 return -1;
@@ -145,7 +150,7 @@ module rasdaman {
                     title: 'No encoding',
                     query: 'for $c in (mean_summer_airtemp) return avg($c)'
                 }, {
-                    title: 'Encode 2D as png with widget',
+                    title: 'Encode 2D as png with image widget',
                     query: 'image>>for $c in (mean_summer_airtemp) return encode($c, "png")'
                 }, {
                     title: 'Encode 2D as tiff',
@@ -154,14 +159,17 @@ module rasdaman {
                     title: 'Encode 2D as netCDF',
                     query: 'for $c in (mean_summer_airtemp) return encode($c, "application/netcdf")'
                 }, {
-                    title: 'Encode 1D as csv with widget',
+                    title: 'Encode 1D as csv with diagram widget',
                     query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "text/csv")'
                 }, {
-                    title: 'Encode 1D as json with widget',
+                    title: 'Encode 1D as json with diagram widget',
                     query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "application/json")'
                 }, {
                     title: 'Encode 2D as gml',
                     query: 'for $c in (mean_summer_airtemp) return encode($c[Lat(-44.525:-44.5), Long(112.5:113.5)], "application/gml+xml")'
+                }, {
+                    title: 'Encode 2D as png with WebWorldWind (wwd) widget ',
+                    query: 'wwd(-44.525,111.975,-8.975,156.275)>>for $c in (mean_summer_airtemp) return encode($c, "png")'
                 }
 
                 //{

@@ -37,6 +37,10 @@ module rasdaman {
             // e.g: service=WMS&version=1.3.0
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
             // e.g: http://localhost:8080/rasdaman/ows?service=WMS&version=1.3.0
+            this.setWMSFullEndPoint();
+        }
+
+        public setWMSFullEndPoint() {
             this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
         }
     }

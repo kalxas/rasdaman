@@ -112,6 +112,7 @@ module rasdaman {
             "luegg.directives",
             "nvd3"])
         .config(AngularConfig)        
+        // NOTE: remember to add these types in app/src/components/_component.ts or here will have error not found type
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
         .service("rasdaman.WCSService", rasdaman.WCSService)
         .service("rasdaman.WCSSettingsService", rasdaman.WCSSettingsService)
@@ -132,6 +133,7 @@ module rasdaman {
         .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)
         .directive("crsExtension", rasdaman.WCSCRSExtension)
         .directive("clippingExtension", rasdaman.WCSClippingExtension)
+        .directive("wwdDisplay", rasdaman.WebWorldWindDisplayWidget)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
         .directive("autocomplete", rasdaman.common.Autocomplete);

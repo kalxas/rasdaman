@@ -38,7 +38,8 @@ to run it.<br/>
 		<br/>
 
                 <div class="row" ng-repeat="datum in editorData">
-                    <div class="col-sm-12" ng-switch="getEditorDataType(datum)">
+                    <!-- NOTE: this div is the container of a WCPS result -->
+                    <div class="col-sm-12" ng-switch="getEditorDataType(datum)" id="resultRow_{{$index}}">
                         <!-- Query is running, not finish yet -->
                         <div class="row" ng-switch-when="0">
                             <p>
@@ -57,7 +58,7 @@ to run it.<br/>
                             <p>                                                                
                                 <span class="label label-info">Text result (csv, json, gml):</span>
                                 <br/>
-                                <div style="max-height: 200px; overflow: auto;">
+                                <div style="max-height: 200px; overflow: auto;">                                    
                                     <pre> {{datum.data}} </pre>
                                 </div>                                
                             </p>
@@ -91,6 +92,16 @@ to run it.<br/>
                                 </div>  
                             </p>                            
                         </div>
+                        <!-- Query finished, display 2D output on WebWorldWind-->
+                        <div class="row" ng-switch-when="5">
+                            <p>                                
+                                <span class="label label-info">Display 2D image result on WebWorldWind globe:</span>                                
+                                <br/>                                
+                                <!-- Then use WebWorldWind directive here to show the ouput on the globe -->
+                                <wwd-display minLat="{{datum.minLat}}" minLong="{{datum.minLong}}" maxLat="{{datum.maxLat}}" 
+                                             maxLong="{{datum.maxLong}}" data="{{datum.base64ImageData}}" index="{{$index}}"></wwd-display>
+                            </p>                            
+                        </div>
                         <div class="row" ng-switch-default>
 
                         </div>
@@ -110,7 +121,7 @@ to run it.<br/>
             </div>
         </div>
         <div class="row top5">
-            <div class="col-sm-4" style="margin-left: -15px;">
+            <div class="col-sm-6" style="margin-left: -15px;">
                 <div class="input-group">
                     <span class="input-group-addon">Example</span>
                     <select class="form-control" ng-options="item.query as item.title for item in availableQueries"
