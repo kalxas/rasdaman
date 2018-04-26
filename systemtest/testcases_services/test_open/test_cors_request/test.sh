@@ -63,6 +63,17 @@ log "Check doOptions() with enabled CORS..."
 grep -R "Access-Control-Allow-Origin: *" "$OUTPUT_FILE"
 check
 
+# clear output file
+echo -n > "$OUTPUT_FILE"
+
+# 3. Test doGet() on a sub-controller
+curl -H "Origin:*" -I "$PETASCOPE_URL/GetCoverageExtents" --verbose  2> "$OUTPUT_FILE"
+
+# Check the result to see Petascope allows CORS
+log "Check doGet() with enabled CORS on a sub-controller..."
+grep -R "Access-Control-Allow-Origin: *" "$OUTPUT_FILE"
+check
+
 log "done."
 
 # remove output file
