@@ -109,7 +109,7 @@ public class WMSGetMapService {
 
     // In case of nativeCrs of layer (coverage) is different from outputCrs of GetMap request, then it needs to reproject $coverageExpression from sourceCrs to targetCrs.
     private static final String PROJECTION_TEMPLATE = "project($coverageExpression, \"$xMin, $yMin, $xMax, $yMax\", \"$sourceCRS\", \"$targetCRS\")";
-    private static final String SUBSET_COVERAGE_EXPRESSION_TEMPLATE = "( $coverageExpression )[$gridXMin:$gridXMax, $gridYMin:$gridYMax]";
+    private static final String SUBSET_COVERAGE_EXPRESSION_TEMPLATE = "( $coverageExpression )";
     private static final String FINAL_TRANSLATED_RASQL_TEMPLATE = "SELECT ENCODE($coverageExpression, \"$formatType\", \"$nodata\") FROM $collections";
     private static final String ALIAS_NAME = "c";
     private static final String WCPS_COVERAGE_ALIAS = "$c";
@@ -178,46 +178,7 @@ public class WMSGetMapService {
             List<String> coverageExpressions = new ArrayList<>();
             List<String> collectionAlias = new ArrayList<>();
             int i = 0;
-
-            for (String layerName : layerNames) {
-                String aliasName = ALIAS_NAME + "" + i;
-                // Then generate the rasql query for this layer 
-                // NOTE: styleName can be empty if GetMap request with default styles for all layers
-                String styleName = "";
-                if (!this.styleNames.isEmpty()) {
-                    styleName = this.styleNames.get(i);
-                }
-
-                // Collect the translated rasql query for the current layer's style
-                Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);
-                // NOTE: style can be null when just insert a new layer without style, but if styleName is not empty, then it is invalid request.
-                if (style == null && !styleName.isEmpty()) {
-                    throw new WMSStyleNotExistException(styleName, layerName);
-                }
-                // CoverageExpression is the main part of a Rasql query builded from the current layer and style
-                // e.g: c1 + 5, case c1 > 5 then {0, 1, 2}
-                String coverageExpression;
-
-                if (style == null) {
-                    // NOTE: in case of Style is empty, it still need to create a Rasql for the scale(layer[bbox], [width, height])
-                    coverageExpression = aliasName;
-                } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
-                    // wcpsQueryFragment
-                    coverageExpression = this.buildCoverageExpressionByWCPSQueryFragment(aliasName, layerName, styleName);
-                } else {
-                    // rasqlTransformFragment
-                    coverageExpression = this.buildCoverageExpressionByRasqlTransformFragment(aliasName, layerName, styleName);
-                }
-                // Add the translated Rasql query for the style to combine later
-                coverageExpressions.add("( " + coverageExpression + " )");
-
-                // a layer is equivalent to a rasdaman collection
-                String collectionName = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(layerName).getRasdamanRangeSet().getCollectionName();
-                collectionAlias.add(collectionName + " as " + aliasName);
-
-                i++;
-            }
-
+            
             // All requesting layers (coverages) should have same axes's domains and nativeCrss.
             WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerNames.get(0));
             List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
@@ -250,15 +211,62 @@ public class WMSGetMapService {
             ParsedSubset<Long> gridDomainSubsetY = coordinateTranslationService.geoToGridForRegularAxis(geoDomainSubsetY, geoDomainMinY,
                     geoDomainMaxY, resolutionY, gridDomainMinY);
 
+            for (String layerName : layerNames) {
+                String aliasName = ALIAS_NAME + "" + i;
+                // Then generate the rasql query for this layer 
+                // NOTE: styleName can be empty if GetMap request with default styles for all layers
+                String styleName = "";
+                if (!this.styleNames.isEmpty()) {
+                    styleName = this.styleNames.get(i);
+                }
+
+                // Collect the translated rasql query for the current layer's style
+                Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);
+                // NOTE: style can be null when just insert a new layer without style, but if styleName is not empty, then it is invalid request.
+                if (style == null && !styleName.isEmpty()) {
+                    throw new WMSStyleNotExistException(styleName, layerName);
+                }
+                // CoverageExpression is the main part of a Rasql query builded from the current layer and style
+                // e.g: c1 + 5, case c1 > 5 then {0, 1, 2}
+                String coverageExpression;
+                
+                // NOTE: This one is used temporarily for generating Rasql query from fragments, it will not be showed in final Rasql query
+                String aliasNameTemp = "GENERATED_COLLECTION_ALIAS_" + i;
+
+                if (style == null) {
+                    // NOTE: in case of Style is empty, it still need to create a Rasql for the scale(layer[bbox], [width, height])
+                    coverageExpression = aliasNameTemp;
+                } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
+                    // wcpsQueryFragment
+                    coverageExpression = this.buildCoverageExpressionByWCPSQueryFragment(aliasNameTemp, layerName, styleName);
+                } else {
+                    // rasqlTransformFragment
+                    coverageExpression = this.buildCoverageExpressionByRasqlTransformFragment(aliasNameTemp, layerName, styleName);
+                }
+                
+                // Then, apply the trimming subset for each coverage iterator
+                // e.g: style is $c + 5 then rasql will be: c[0:20,0:30] + 5
+                String gridDomains = "[" + gridDomainSubsetX.getLowerLimit().toString() + ":" + gridDomainSubsetX.getUpperLimit().toString() + ","
+                                         + gridDomainSubsetY.getLowerLimit().toString() + ":" + gridDomainSubsetY.getUpperLimit().toString() + "]";
+                
+                // NOTE: select c0 + udf.c0test() only should replace c0 with c0[0:20, 30:40] not udf.c0test to udf.c0[0:20, 30:40]test
+                coverageExpression = coverageExpression.replace(aliasNameTemp, aliasName + gridDomains);
+                
+                // Add the translated Rasql query for the style to combine later
+                coverageExpressions.add("( " + coverageExpression + " )");
+
+                // a layer is equivalent to a rasdaman collection
+                String collectionName = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(layerName).getRasdamanRangeSet().getCollectionName();
+                collectionAlias.add(collectionName + " as " + aliasName);
+
+                i++;
+            }            
+
             // Now create a final coverageExpression which combines all the translated coverageExpression for styles with the OVERLAY operator            
             String combinedCoverageExpression = ListUtil.join(coverageExpressions, " OVERLAY ");
             // e.g: (c + 1)[0:20, 30:45]
             String subsetCoverageExpression = SUBSET_COVERAGE_EXPRESSION_TEMPLATE
-                    .replace("$coverageExpression", combinedCoverageExpression)
-                    .replace("$gridXMin", gridDomainSubsetX.getLowerLimit().toString())
-                    .replace("$gridYMin", gridDomainSubsetY.getLowerLimit().toString())
-                    .replace("$gridXMax", gridDomainSubsetX.getUpperLimit().toString())
-                    .replace("$gridYMax", gridDomainSubsetY.getUpperLimit().toString());
+                    .replace("$coverageExpression", combinedCoverageExpression);
 
             String scaleCoverageExpression = "Scale( " + subsetCoverageExpression + ", [0:" + (this.width - 1) + ", 0:" + (this.height - 1) + "] )";
             // Final Rasql from all the styles, layers
