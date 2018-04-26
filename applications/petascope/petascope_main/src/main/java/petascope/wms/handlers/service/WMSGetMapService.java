@@ -210,6 +210,9 @@ public class WMSGetMapService {
 
             ParsedSubset<Long> gridDomainSubsetY = coordinateTranslationService.geoToGridForRegularAxis(geoDomainSubsetY, geoDomainMinY,
                     geoDomainMaxY, resolutionY, gridDomainMinY);
+            
+            String gridDomains = "[" + gridDomainSubsetX.getLowerLimit().toString() + ":" + gridDomainSubsetX.getUpperLimit().toString() + ","
+                                         + gridDomainSubsetY.getLowerLimit().toString() + ":" + gridDomainSubsetY.getUpperLimit().toString() + "]";
 
             for (String layerName : layerNames) {
                 String aliasName = ALIAS_NAME + "" + i;
@@ -245,9 +248,7 @@ public class WMSGetMapService {
                 }
                 
                 // Then, apply the trimming subset for each coverage iterator
-                // e.g: style is $c + 5 then rasql will be: c[0:20,0:30] + 5
-                String gridDomains = "[" + gridDomainSubsetX.getLowerLimit().toString() + ":" + gridDomainSubsetX.getUpperLimit().toString() + ","
-                                         + gridDomainSubsetY.getLowerLimit().toString() + ":" + gridDomainSubsetY.getUpperLimit().toString() + "]";
+                // e.g: style is $c + 5 then rasql will be: c[0:20,0:30] + 5                
                 
                 // NOTE: select c0 + udf.c0test() only should replace c0 with c0[0:20, 30:40] not udf.c0test to udf.c0[0:20, 30:40]test
                 coverageExpression = coverageExpression.replace(aliasNameTemp, aliasName + gridDomains);
@@ -267,6 +268,16 @@ public class WMSGetMapService {
             // e.g: (c + 1)[0:20, 30:45]
             String subsetCoverageExpression = SUBSET_COVERAGE_EXPRESSION_TEMPLATE
                     .replace("$coverageExpression", combinedCoverageExpression);
+            
+            // NOTE: We need to ***extend*** before ***scaling*** for GetMap result.
+            // Reason: Subsetting that goes _beyond_ the edge of a coverage will return the intersection with the coverage sdom.
+            // We want to get the full subset sdom, however, and not just the intersection, otherwise the result will be scaled wrongly.
+            // Therefore we use the _extend_ operation here to extend the intersection to the full subset domain.
+            
+            // e.g: sdom(coverage) is (0:860, 0:710) and GetMap request with grid bounds (700:1000, 500:800), only the intersection will be return (700:860, 500:710)
+            // and if we bring this output to scale (e.g: scale(c[700:860, 500:710], [0:255,0:255])), this output will be stretched wrongly.
+            // Therefore, it needs to use ***extend**** for this out of the bbox case and after that, scale will keep the correct ratio.
+            subsetCoverageExpression = "Extend( " + subsetCoverageExpression + ", " + gridDomains + ")";
 
             String scaleCoverageExpression = "Scale( " + subsetCoverageExpression + ", [0:" + (this.width - 1) + ", 0:" + (this.height - 1) + "] )";
             // Final Rasql from all the styles, layers
