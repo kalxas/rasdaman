@@ -73,6 +73,10 @@ module rasdaman {
 
             $scope.$watch("wcsStateInformation.serverCapabilities", (capabilities:wcs.Capabilities)=> {
                 if (capabilities) {
+                    // Supported HTTP request type for GetCoverage KVP request
+                    $scope.avaiableHTTPRequests = ["GET", "POST"];
+                    $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
+                    
                     $scope.availableCoverageIds = [];
                     capabilities.contents.coverageSummary.forEach((coverageSummary:wcs.CoverageSummary)=> {
                         $scope.availableCoverageIds.push(coverageSummary.coverageId);
@@ -107,10 +111,6 @@ module rasdaman {
                 $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;                
                 // $scope.$digest();
                 
-                // Supported HTTP request type for GetCoverage KVP request
-                $scope.avaiableHTTPRequests = ["GET", "POST"];
-                $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
-
                 // load the coverage extent on the globe
                 $scope.loadCoverageExtentOnGlobe();
             }

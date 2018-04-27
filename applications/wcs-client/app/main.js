@@ -2966,6 +2966,8 @@ var rasdaman;
             };
             $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
+                    $scope.avaiableHTTPRequests = ["GET", "POST"];
+                    $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
                     $scope.availableCoverageIds = [];
                     capabilities.contents.coverageSummary.forEach(function (coverageSummary) {
                         $scope.availableCoverageIds.push(coverageSummary.coverageId);
@@ -2991,8 +2993,6 @@ var rasdaman;
                     return;
                 }
                 $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;
-                $scope.avaiableHTTPRequests = ["GET", "POST"];
-                $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
                 $scope.loadCoverageExtentOnGlobe();
             };
             $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (coverageDescriptions) {

@@ -43,7 +43,7 @@
                     </li>
                 </ul>
                 <p>with native format: <span class="important-text">{{coverageDescription.serviceParameters.nativeFormat}}</span>
-                </p>
+                </p>                
                 <p>with Coordinate Reference System: <span class="important-text">{{coverageDescription.boundedBy.envelope.srsName}}</span>
                 </p>
             </div>
@@ -68,6 +68,7 @@
             </uib-accordion>
         </div>
 
+        <br/>
         <div class="row top15" ng-show="coverageDescriptionsDocument.value" style="margin-top: -15px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
