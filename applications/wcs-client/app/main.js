@@ -2146,10 +2146,29 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    var WMSSettingsService = (function () {
+        function WMSSettingsService($window) {
+            this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
+            this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
+            this.setWMSFullEndPoint();
+        }
+        WMSSettingsService.prototype.setWMSFullEndPoint = function () {
+            this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
+        };
+        WMSSettingsService.$inject = ["$window"];
+        WMSSettingsService.version = "1.3.0";
+        return WMSSettingsService;
+    }());
+    rasdaman.WMSSettingsService = WMSSettingsService;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var WebWorldWindService = (function () {
-        function WebWorldWindService() {
+        function WebWorldWindService($rootScope, wmsSetting) {
             this.webWorldWindModels = [];
             this.coveragesExtentsArray = null;
+            this.wmsSetting = null;
+            this.wmsSetting = wmsSetting;
         }
         WebWorldWindService.prototype.setCoveragesExtentsArray = function (coveragesExtentsArray) {
             this.coveragesExtentsArray = coveragesExtentsArray;
@@ -2171,6 +2190,7 @@ var rasdaman;
             var wwd = new WorldWind.WorldWindow(canvasId);
             var polygonLayer = new WorldWind.RenderableLayer();
             var surfaceImageLayer = new WorldWind.RenderableLayer();
+            var wmsLayer = null;
             var layers = [
                 { layer: new WorldWind.BMNGLayer(), enabled: true },
                 { layer: new WorldWind.BMNGLandsatLayer(), enabled: false },
@@ -2213,6 +2233,7 @@ var rasdaman;
                 canvasId: canvasId,
                 wwd: wwd,
                 surfaceImageLayer: surfaceImageLayer,
+                wmsLayer: wmsLayer,
                 polygonLayer: polygonLayer,
                 hidedPolygonObjsArray: []
             };
@@ -2401,7 +2422,7 @@ var rasdaman;
             var userProperties = coverageIdsStr + "\n" + coverageExtentStr;
             return userProperties;
         };
-        WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, bbox, getMapRequestURL) {
+        WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, layerName, bbox, displayLayer) {
             var webWorldWindModel = null;
             var exist = false;
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -2415,16 +2436,29 @@ var rasdaman;
                 webWorldWindModel = this.initWebWorldWind(canvasId);
             }
             var wwd = webWorldWindModel.wwd;
-            var surfaceImageLayer = webWorldWindModel.surfaceImageLayer;
-            wwd.removeLayer(surfaceImageLayer);
-            surfaceImageLayer = new WorldWind.RenderableLayer();
-            webWorldWindModel.surfaceImageLayer = surfaceImageLayer;
-            wwd.addLayer(surfaceImageLayer);
-            var surfaceImage = new WorldWind.SurfaceImage(new WorldWind.Sector(bbox.ymin, bbox.ymax, bbox.xmin, bbox.xmax), getMapRequestURL);
-            surfaceImage.opacity = 0.8;
-            surfaceImageLayer.addRenderable(surfaceImage);
+            var config = {
+                title: "WMS layer overview",
+                version: rasdaman.WMSSettingsService.version,
+                service: this.wmsSetting.wmsEndpoint,
+                layerNames: layerName,
+                sector: new WorldWind.Sector(bbox.ymin, bbox.ymax, bbox.xmin, bbox.xmax),
+                levelZeroDelta: new WorldWind.Location(36, 36),
+                numLevels: 15,
+                format: "image/png",
+                size: 256
+            };
+            wwd.navigator.range = 3000 * 1000;
+            wwd.removeLayer(webWorldWindModel.wmsLayer);
+            var wmsLayer = new WorldWind.WmsLayer(config, null);
+            webWorldWindModel.wmsLayer = wmsLayer;
+            if (displayLayer) {
+                wwd.addLayer(wmsLayer);
+            }
         };
-        WebWorldWindService.$inject = [];
+        WebWorldWindService.$inject = [
+            "$rootScope",
+            "rasdaman.WMSSettingsService"
+        ];
         return WebWorldWindService;
     }());
     rasdaman.WebWorldWindService = WebWorldWindService;
@@ -3892,23 +3926,6 @@ var rasdaman;
     }());
     rasdaman.WMSMainController = WMSMainController;
 })(rasdaman || (rasdaman = {}));
-var rasdaman;
-(function (rasdaman) {
-    var WMSSettingsService = (function () {
-        function WMSSettingsService($window) {
-            this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
-            this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
-            this.setWMSFullEndPoint();
-        }
-        WMSSettingsService.prototype.setWMSFullEndPoint = function () {
-            this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
-        };
-        WMSSettingsService.$inject = ["$window"];
-        WMSSettingsService.version = "1.3.0";
-        return WMSSettingsService;
-    }());
-    rasdaman.WMSSettingsService = WMSSettingsService;
-})(rasdaman || (rasdaman = {}));
 var wms;
 (function (wms) {
     var GetCapabilities = (function () {
@@ -4223,6 +4240,8 @@ var rasdaman;
         function WMSDescribeLayerController($scope, $rootScope, $log, settings, wmsService, wcsService, alertService, errorHandlingService, webWorldWindService) {
             $scope.layerNames = [];
             $scope.layers = [];
+            $scope.displayWMSLayer = false;
+            var canvasId = "wmsCanvasDescribeLayer";
             var WCPS_QUERY_FRAGMENT = 0;
             var RASQL_QUERY_FRAGMENT = 1;
             $rootScope.$on("wmsSelectedLayerName", function (event, layerName) {
@@ -4250,12 +4269,12 @@ var rasdaman;
             });
             $scope.describeLayer = function () {
                 var _this = this;
+                $scope.displayWMSLayer = false;
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         $scope.layer = $scope.layers[i];
                         $scope.isLayerDocumentOpen = true;
                         var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedLayerName);
-                        var canvasId = "wmsCanvasDescribeLayer";
                         $scope.isCoverageDescriptionsHideGlobe = false;
                         var coverageIds = [];
                         coverageIds.push($scope.layer.name);
@@ -4273,6 +4292,7 @@ var rasdaman;
                                 if (bands <= 4) {
                                     showGetMapURL = true;
                                     var bbox = coveragesExtents[0].bbox;
+                                    $scope.bboxLayer = bbox;
                                     var minLat = bbox.ymin;
                                     var minLong = bbox.xmin;
                                     var maxLat = bbox.ymax;
@@ -4281,7 +4301,7 @@ var rasdaman;
                                     var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
                                     var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
                                     _this.getMapRequestURL = url;
-                                    webWorldWindService.loadGetMapResultOnGlobe(canvasId, bbox, url);
+                                    webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
                                 }
                             }
                             if (!showGetMapURL) {
@@ -4301,6 +4321,14 @@ var rasdaman;
                 }
             };
             $scope.isLayerDocumentOpen = false;
+            $scope.showWMSLayerOnGlobe = function () {
+                $scope.displayWMSLayer = true;
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, true);
+            };
+            $scope.hideWMSLayerOnGlobe = function () {
+                $scope.displayWMSLayer = false;
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
+            };
             $scope.isStyleNameValid = function (styleName) {
                 for (var i = 0; i < $scope.layer.styles.length; ++i) {
                     if ($scope.layer.styles[i].name == styleName) {

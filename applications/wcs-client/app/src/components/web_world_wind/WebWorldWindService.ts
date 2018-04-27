@@ -19,21 +19,35 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+
+///<reference path="../../../assets/typings/tsd.d.ts"/>
+///<reference path="../../_all.ts"/>
+///<reference path="../wms_component/settings/SettingsService.ts"/>
+
 module rasdaman {
     //Declare the WorldWind object so that typescript does not complain.
     declare var WorldWind:any;
     // NOTE: remember to register Service, Controller, Directive classes to app/src/app.ts
     // or it will have this error: $injector:unpr
     // https://docs.angularjs.org/error/$injector/unpr?p0=rasdaman.WebWorldWindServiceProvider%20%3C-%20rasdaman.WebWorldWindService
-    export class WebWorldWindService {                    
+    export class WebWorldWindService {          
+        
+        public static $inject = [
+            "$rootScope",                       
+            "rasdaman.WMSSettingsService"          
+        ];
+
+
         // Array of object for each WebWorldWind in each canvas (GetCapabilities, DescribeCoverage, GetCoverage)        
         private webWorldWindModels: WebWorldWindModel[] = [];  
         // Array of coveragesExtents to be displayed on this webWorldWind object               
         private coveragesExtentsArray: any = null;
 
-        public static $inject = [];
+        private wmsSetting: any = null;
 
-        public constructor() {            
+        public constructor($rootScope:angular.IRootScopeService,                           
+                           wmsSetting:rasdaman.WMSSettingsService) {
+            this.wmsSetting = wmsSetting;                 
         }
 
         public setCoveragesExtentsArray(coveragesExtentsArray: any) {
@@ -66,6 +80,7 @@ module rasdaman {
             // Create a layer to hold the polygons.
             var polygonLayer = new WorldWind.RenderableLayer();         
             var surfaceImageLayer = new WorldWind.RenderableLayer();
+            var wmsLayer = null;
             
             var layers = [
                 {layer: new WorldWind.BMNGLayer(), enabled: true},
@@ -124,6 +139,7 @@ module rasdaman {
                 canvasId: canvasId,
                 wwd: wwd,
                 surfaceImageLayer: surfaceImageLayer,
+                wmsLayer: wmsLayer,
                 polygonLayer: polygonLayer,
                 hidedPolygonObjsArray: []
             }
@@ -392,7 +408,7 @@ module rasdaman {
          * @param coveragesExtentsArray 
          * @param getMapRequestURL 
          */
-        public loadGetMapResultOnGlobe(canvasId: string, bbox: any, getMapRequestURL: string) {
+        public loadGetMapResultOnGlobe(canvasId: string, layerName: string, bbox: any, displayLayer: boolean) {
             // It uses the same canvasId for DescribeLayer
             var webWorldWindModel = null;            
             var exist = false;
@@ -411,26 +427,37 @@ module rasdaman {
 
             var wwd = webWorldWindModel.wwd;
 
-            var surfaceImageLayer = webWorldWindModel.surfaceImageLayer;
-            // Remove the rendered surface image layer and replace it with new layer
-            wwd.removeLayer(surfaceImageLayer);
-            surfaceImageLayer = new WorldWind.RenderableLayer();
-            webWorldWindModel.surfaceImageLayer = surfaceImageLayer;     
-            wwd.addLayer(surfaceImageLayer);
+            var config = {
+                    title: "WMS layer overview",
+                    version: WMSSettingsService.version,
+                    service: this.wmsSetting.wmsEndpoint,
+                    layerNames: layerName,
+                    sector: new WorldWind.Sector(bbox.ymin, bbox.ymax, bbox.xmin, bbox.xmax),
+                    levelZeroDelta: new WorldWind.Location(36, 36),
+                    numLevels: 15,
+                    format: "image/png",
+                    size: 256
+                };
 
-            // Create an image on the globe from the bbox and GetMap result in PNG
-            var surfaceImage = new WorldWind.SurfaceImage(new WorldWind.Sector(bbox.ymin, bbox.ymax, bbox.xmin, bbox.xmax),
-                                                         getMapRequestURL);
-            surfaceImage.opacity = 0.8;
-            surfaceImageLayer.addRenderable(surfaceImage);
+            // Zoom at distance 1 km (to avoid loading full big coverage which causes server terminated due to not enough RAM)
+            wwd.navigator.range = 3000 * 1000;
+
+            // Remove the rendered surface image layer and replace it with new layer
+            wwd.removeLayer(webWorldWindModel.wmsLayer);
+            var wmsLayer = new WorldWind.WmsLayer(config, null);                        
+            webWorldWindModel.wmsLayer = wmsLayer;     
+            if (displayLayer) {
+                // Should this Layer be displayed
+                wwd.addLayer(wmsLayer);
+            }            
         }
-    }
-   
+    }  
 
     interface WebWorldWindModel {
         canvasId: string,
         wwd: any,
         surfaceImageLayer: any,
+        wmsLayer: any,
         polygonLayer: any,
         hidedPolygonObjsArray: any
     }

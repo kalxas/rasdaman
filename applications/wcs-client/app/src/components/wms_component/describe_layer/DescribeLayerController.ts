@@ -59,14 +59,18 @@ module rasdaman {
                            webWorldWindService:rasdaman.WebWorldWindService) {               
                                
             $scope.layerNames = [];
-            $scope.layers = [];    
+            $scope.layers = [];   
+            
+            $scope.displayWMSLayer = false;
+
+            var canvasId = "wmsCanvasDescribeLayer";
 
             var WCPS_QUERY_FRAGMENT = 0;
             var RASQL_QUERY_FRAGMENT = 1;            
           
             // When clicking on the layername from the table of GetCapabilities tab, it will change to DescribeLayer tab and load metadata for this selected layer.
             $rootScope.$on("wmsSelectedLayerName", (event:angular.IAngularEvent, layerName:string)=> {                            
-                $scope.selectedLayerName = layerName;
+                $scope.selectedLayerName = layerName;                
                 $scope.describeLayer();
             });
 
@@ -99,7 +103,10 @@ module rasdaman {
             });
            
             // Describe the content (children elements of this selected layer) of a selected WMS layer
-            $scope.describeLayer = function() {                
+            $scope.describeLayer = function() {
+
+                $scope.displayWMSLayer = false;
+
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         // Fetch the layer's metadata from the available layers
@@ -111,8 +118,7 @@ module rasdaman {
                         var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedLayerName);
 
                         // And load the layer as footprint on the globe
-                        // Show coverage's extent on the globe
-                        var canvasId = "wmsCanvasDescribeLayer";
+                        // Show coverage's extent on the globe                        
                         $scope.isCoverageDescriptionsHideGlobe = false;
                                                 
                         // Check if coverage is 2D and has <= 4 bands then send a GetMap request to petascope and display result on globe
@@ -138,7 +144,8 @@ module rasdaman {
                                         if (bands <= 4) {
                                             showGetMapURL = true;
                                             // send a getmap request in EPSG:4326 to server
-                                            var bbox = coveragesExtents[0].bbox;
+                                            var bbox = coveragesExtents[0].bbox;       
+                                            $scope.bboxLayer = bbox;                                     
                                             var minLat = bbox.ymin;
                                             var minLong = bbox.xmin;
                                             var maxLat = bbox.ymax;
@@ -149,7 +156,8 @@ module rasdaman {
                                             var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
                                             this.getMapRequestURL = url;
                                             // Then, let webworldwind shows the result of GetMap on the globe
-                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, bbox, url);                                            
+                                            // Default layer is not shown
+                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
                                         }
                                     }
                                     if (!showGetMapURL) {
@@ -172,6 +180,17 @@ module rasdaman {
             };
 
             $scope.isLayerDocumentOpen = false;
+            
+            // Load/Unload WMSLayer on WebWorldWind globe from the checkbox user selected
+            $scope.showWMSLayerOnGlobe = ()=> {                
+                $scope.displayWMSLayer = true;          
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, true);
+            }
+
+            $scope.hideWMSLayerOnGlobe = ()=> {                
+                $scope.displayWMSLayer = false;          
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
+            }
 
 
             // ********** Layer's styles management **************
@@ -298,7 +317,14 @@ module rasdaman {
     interface WMSDescribeLayerControllerScope extends WMSMainControllerScope {           
         isLayerDocumentOpen:boolean;
         // Only with 2D coverage (bands <=4) can show GetMap
-        getMapRequestURL:string;
+        getMapRequestURL:string;        
+        bboxLayer:any;
+        displayWMSLayer:boolean;
+
+        // Show the WMSLayer on WebWorldWind globe (default doesn't show)
+        showWMSLayerOnGlobe():void;
+        // Hide the WMSLayer on WebWorldWind globe
+        hideWMSLayerOnGlobe():void;
 
         // Model of text box to search layer by name
         layerNames:string[];
