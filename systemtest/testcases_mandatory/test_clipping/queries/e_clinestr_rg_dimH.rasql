@@ -1,1 +1,1 @@
-select encode(clip(c, curtain(range(3 1,19 0),linestring(1 1,19 3,39 0,19 2))),"csv") from test_grey3d as c
+select encode(clip(c, curtain(projection(1 0, 2 3),linestring(1 1,19 3,39 0,19 2))),"csv") from test_grey3d as c

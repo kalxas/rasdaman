@@ -565,10 +565,11 @@ public:
 #define TYPEISINUSE                         243
 #define STRUCTOFSTRUCTSDISABLED             244
 #define UNSATISFIEDMDDCONSTANT              373
+#define MDDARGREQUIRED                      405
 #define DIVISION_BY_ZERO                    433
 #define CELLBINARYOPUNAVAILABLE             434
 #define CELLUNARYOPUNAVAILABLE              435
-#define MDDARGREQUIRED                      436
+#define MSHAPEARGREQUIRED                   436
 #define NEEDTWOORMOREVERTICES               500
 #define INCORRECTPOLYGON                    501
 #define FACEDIMENSIONMISMATCH               502
@@ -588,6 +589,9 @@ public:
 #define CURTAINLINESTRINGDIMENSIONMISMATCH  521
 #define ALLPOLYGONSOUTSIDEMDDOBJ            522
 #define POLYGONHOLEINEXTERIOR               523
+#define SINGLETONPROJECTIONCOORDS           524
+#define AXISNUMBERSMUSTEXIST                525
+#define PROJDIMNOTMATCHINGMASKDIM           526
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709
 #define FAILEDWRITINGTODISK                 710

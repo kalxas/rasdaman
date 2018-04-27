@@ -1,1 +1,1 @@
-rasdaman error 300: Parsing error 300 in line 1, column 43: Unexpected name line.
+rasdaman error 203: Exception: Dimension mismatch between $dim1 and $dim2.

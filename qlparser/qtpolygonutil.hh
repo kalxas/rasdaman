@@ -54,7 +54,8 @@ pair<r_Point, r_Point> getBoundingBox(const vector<r_Point>& polygon);
  * http://www.faculty.jacobs-university.de/llinsen/teaching/320322/Lecture08.pdf
  */
 //modify the mask for marking the edges of the polygon
-void rasterizePolygon( vector< vector<char> >& mask, const vector< r_Point >& polygon );
+//if isPolygon is false, will not use the last edge, built during construction.
+void rasterizePolygon( vector< vector<char> >& mask, const vector< r_Point >& polygon, bool isPolygon);
 //modify a mask for marking the points inside a polygon
 //this works by checking the neighbours of each point in the boundary drawn by rasterizePolygon, and verifies which side is interior, calling floodFillFromPoint on the interior value.
 //optimized by first checking that the cell is not already filled, and then checking if it is on the interior or exterior of the polygon.

@@ -64,7 +64,7 @@ public:
     MDDObj* compute2DRays(MDDObj* op, r_Dimension dim);
     
     // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
-    virtual vector< vector<char> > generateMask();
+    virtual vector< vector<char> > generateMask(bool toFill);
     
     inline void setDomain(const r_Minterval& arg) { domain = arg; };
     inline void setPolygonVertices(const vector<r_Point>& arg) { polygonVertices = arg; };
@@ -88,7 +88,7 @@ class QtPositiveGenusClipping : public QtPolygonClipping
 public:
     QtPositiveGenusClipping(const r_Minterval& areaOp, const std::vector<QtMShapeData*>& polygonArgs);
     
-    virtual vector< vector<char> > generateMask() override;
+    virtual vector< vector<char> > generateMask(bool toFill) override;
     
 private:
     std::vector< QtPolygonClipping > interiorPolygons;

@@ -1,4 +1,3 @@
-
 /*
 * This file is part of rasdaman community.
 *
@@ -74,12 +73,21 @@ class QtMulticlipping : public QtUnaryOperation
     QtMulticlipping(QtOperation* mddOp, const std::vector<QtMShapeData*>& mshapeListArg, QtMulticlipType ct);
     
     QtMulticlipping(QtOperation* mddOp, const std::vector< std::vector<QtMShapeData*>* >& mshapeListArg, QtMulticlipType ct);
+    
+    //  computes the result mask domain for the mshapeList
+    std::shared_ptr<r_Minterval> buildResultDom(const r_Minterval& areaOp);
+    
+    //  takes the result of buildResultDom and builds the result mask from the stored mshapeList (polygons w/ interiors)
+    //  one can pass other resultDom's to this method, if needed, but the intersection needs to be nonempty (unknown prior to the method called)
+    //  or else a segfault will occur!
+    std::shared_ptr<char> buildResultMask(std::shared_ptr<r_Minterval> resultDom);
+
+    //  uses the internal mshapeList only to build a result mask and a specified domain
+    std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > buildAbstractMask();
 
     QtData* computeOp(QtMDD* operand);
 
     MDDObj* extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op);
-    
-//    MDDObj* extractPositiveGenus(const r_Minterval& areaOp, const MDDObj* op);
     
     /// method for evaluating the node
     QtData* evaluate(QtDataList* inputList);

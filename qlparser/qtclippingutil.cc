@@ -519,26 +519,6 @@ std::vector<r_Minterval> vectorOfResultTileDomains(const std::vector<r_Minterval
     return resultMintervals;
 }
 
-//std::vector<boost::shared_ptr<Tile>> initializeTileVector(const std::vector<r_Minterval>& resTileDomains, const BaseType* resTileBasetype)
-//{
-//    size_t typeSize = resTileBasetype->getSize();
-//    vector< boost::shared_ptr<Tile> > resultTiles;
-//    resultTiles.reserve(resTileDomains.size());
-//    for(size_t i = 0; i < resTileDomains.size(); i++)
-//    {
-//        //build a new tile        
-//        boost::shared_ptr<Tile> resTilePtr;
-//        resTilePtr.reset(new Tile(resTileDomains[i], resTileBasetype));
-//        //Tile* resTilePtr = new Tile(resultTileMintervals[i], tempTile->getType());
-//        //initialize contents to 0
-//        char* resData = resTilePtr->getContents();
-//        memset(resData, 0, typeSize * resTileDomains[i].cell_count() );
-//        //add tile to vector of result tiles
-//        resultTiles.emplace_back(resTilePtr);
-//    }
-//    return resultTiles;
-//}
-
 vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& polytopeVertices)
 {
     vector<r_Point> nSubspace;

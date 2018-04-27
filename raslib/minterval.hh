@@ -520,6 +520,7 @@ public:
     //@Man: Methods/Operators for dimension-specific operations involving projections:
     //@{
     /// the vector of projection dimensions cannot have more values than this->dimensionality
+    /// this should really be called "trim_wrt_slice" because the result dimension is this->dimensionality
     r_Minterval trim_along_slice(const r_Minterval&, const std::vector<r_Dimension>&) const
     throw(r_Edim_mismatch, r_Eno_interval);
     /// the vector of projection dimensions can have more values than this->dimensionality

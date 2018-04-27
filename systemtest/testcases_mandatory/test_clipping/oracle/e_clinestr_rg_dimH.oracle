@@ -1,1 +1,1 @@
-rasdaman error 516: Error: The range given for the curtain must consist of two 1D vertices.
+rasdaman error 524: Error: The projection dimensions should be single axis numbers separated by commas.

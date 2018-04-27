@@ -1,0 +1,1 @@
+select add_cells(clip(c[*:*,*:*,1:3], curtain(projection(0, 1), linestring(0 0, 0 3, 3 3)))) from test_nulltest3d as c

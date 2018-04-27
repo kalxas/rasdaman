@@ -85,7 +85,6 @@ QtClipping::QtClipping(QtOperation* mddOp, QtOperation* mshapePointList, QtMShap
     // for now, we assume the range is 1D in the first coordinate and mshapePointList is 2d in the last 2 coordinates. Will be expanded upon later.
 }
 
-
 QtClipping::~QtClipping()
 {
     delete range;
@@ -308,8 +307,7 @@ QtClipping::extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShap
     
     // initialize the data in the resTile to 0
     char* resInitializer = resTile->getContents();
-    size_t totalTileSize = (resTile->getDomain().cell_count()) * typeSize;
-    memset(resInitializer, 0, totalTileSize);
+    op->fillTileWithNullvalues(resInitializer, projectedDomain.cell_count());
     
     //object for computing the point coordinates of the preimage of the projection in the subspace.
     FindSection resFinder(mshape->computeHyperplaneEquation(), keptDimensions);
@@ -443,7 +441,7 @@ QtClipping::extractLinestring(const MDDObj* op, const QtMShapeData* mshape, cons
     TypeFactory::addTempType(mddBaseType);    
 
     std::unique_ptr<MDDObj> resultMDD;
-    resultMDD.reset(new MDDObj(mddBaseType, resultDomainGlobal));
+    resultMDD.reset(new MDDObj(mddBaseType, resultDomainGlobal, op->getNullValues()));
     
     //   loop over source tiles
     //  loop over bresenhamLines vector
@@ -469,7 +467,7 @@ QtClipping::extractLinestring(const MDDObj* op, const QtMShapeData* mshape, cons
         //Tile* resTilePtr = new Tile(resultTileMintervals[i], tempTile->getType());
         //initialize contents to 0
         char* resData = resTilePtr->getContents();
-        memset(resData, 0, typeSize * resultTileMintervals[i].cell_count() );
+        op->fillTileWithNullvalues(resData, resultTileMintervals[i].cell_count());
         //add tile to vector of result tiles
         resultTiles.emplace_back(resTilePtr);
     }
@@ -590,7 +588,7 @@ QtClipping::extractCurtainPolygon(const MDDObj* op, const r_Minterval& areaOp, Q
     QtPolygonClipping polygonMethodsAccess(convexHull, polytope->getPolytopePoints() );   
 
     // using the Bresenham-style algorithm, we produce a mask applying to each 2D slice (translated to origin).
-    vector<vector<char>> mask = polygonMethodsAccess.generateMask();
+    vector<vector<char>> mask = polygonMethodsAccess.generateMask(true);
     
     // here, we apply the mask to each slice for the range and produce the output.
     boost::shared_ptr<Tile> resTile;
@@ -1287,7 +1285,7 @@ const QtTypeElement& QtClipping::checkType(QtTypeTuple *typeTuple)
         if (inputType1.getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtClipping::checkType() - first operand must be of type MDD.";
-            parseInfo.setErrorNo(405);
+            parseInfo.setErrorNo(MDDARGREQUIRED);
             throw parseInfo;
         }
 
@@ -1297,7 +1295,7 @@ const QtTypeElement& QtClipping::checkType(QtTypeTuple *typeTuple)
         if (inputType2.getDataType() != QT_MSHAPE)
         {
             LFATAL << "Error: QtClipping::checkType() - second operand must be of type QT_MSHAPE.";
-            parseInfo.setErrorNo(MDDARGREQUIRED);
+            parseInfo.setErrorNo(MSHAPEARGREQUIRED);
             throw parseInfo;
         }
 

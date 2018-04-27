@@ -108,7 +108,7 @@ QtPolygonClipping::compute2DBresenham(MDDObj* op, r_Dimension dim)
         polygonVertices[i][1] = polygonVertices[i][1]-bBox.first[1];
     }
     //fill the polygon edges in the mask
-    rasterizePolygon(mask, polygonVertices);
+    rasterizePolygon(mask, polygonVertices, true);
     //fill the connected component of the complement of the polygon containing infinity
     polygonInteriorFloodfill(mask, polygonVertices);
         
@@ -133,6 +133,8 @@ QtPolygonClipping::compute2DBresenham(MDDObj* op, r_Dimension dim)
                 resTile.reset( new Tile(intersectDom, op->getCellType()) );
                 size_t typeSize = (*tileIt)->getType()->getSize();
                 char* resultData = resTile->getContents();
+                op->fillTileWithNullvalues(resultData, intersectDom.cell_count());
+                
                 long unsigned int index = 0;
                 
                 for( auto i = intersectDom[0].low(); i <= intersectDom[0].high(); i++ )
@@ -266,7 +268,7 @@ QtPolygonClipping::compute2DRays(MDDObj* op, r_Dimension dim)
 }
 
 vector< vector<char> >
-QtPolygonClipping::generateMask()
+QtPolygonClipping::generateMask(bool toFill)
 {
     //2-D array of type char "mask" for marking which cells are in the polygon and which are outside
     vector< vector<char> > mask( static_cast<long unsigned int>(domain[0].get_extent()), 
@@ -280,11 +282,14 @@ QtPolygonClipping::generateMask()
     }
     
     //fill the polygon edges in the mask
-    rasterizePolygon(mask, polygonVertices);
+    rasterizePolygon(mask, polygonVertices, toFill);
     
-    //fill the connected component of the complement of the polygon containing infinity
-    polygonInteriorFloodfill(mask, polygonVertices);    
-
+    //fill the connected components of the complement of the polygon
+    if(toFill)
+    {
+        polygonInteriorFloodfill(mask, polygonVertices);    
+    }
+    
     return mask;
 }
 
@@ -325,10 +330,10 @@ QtPositiveGenusClipping::QtPositiveGenusClipping(const r_Minterval& areaOp, cons
 
 
 vector< vector<char> >
-QtPositiveGenusClipping::generateMask()
+QtPositiveGenusClipping::generateMask(bool toFill)
 {
-    //2-D array of type char "mask" for holding the result data; initialized to the mask of the outer polygon
-    vector< vector<char> > mask = QtPolygonClipping::generateMask();
+    //2-D array of type char "mask", initialized to the mask of the outer polygon
+    vector< vector<char> > mask = QtPolygonClipping::generateMask( toFill );
 
     //make the data contiguous
     r_Minterval thisDomain = getDomain();
@@ -350,7 +355,7 @@ QtPositiveGenusClipping::generateMask()
         //then, we drill polygonally-shaped holes in the polygon
         if(thisDomain.covers(iter->getDomain()))
         {
-            vector< vector<char> > polygonMask = iter->generateMask();
+            vector< vector<char> > polygonMask = iter->generateMask( toFill );
             r_Minterval interiorDomain = iter->getDomain();
             r_Miter resultMaskIter(&interiorDomain, &thisDomain, sizeof(char), resultMaskPtr);
             for(size_t m = 0; m < polygonMask.size(); m++)

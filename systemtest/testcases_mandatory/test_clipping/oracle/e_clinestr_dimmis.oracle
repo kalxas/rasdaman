@@ -1,1 +1,1 @@
-rasdaman error 503: Error: The vertices are not of the same dimension.
+rasdaman error 203: Exception: Dimension mismatch between $dim1 and $dim2.

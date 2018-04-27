@@ -901,10 +901,10 @@ r_Minterval::trim_along_slice(const r_Minterval& mint, const std::vector<r_Dimen
     size_t projCtr = 0;
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
-        if(projDims[projCtr] == i)
+        if(projDims[projCtr] == i && projCtr < projDims.size())
         {
             // trimming along the slice
-            result << mint[projDims[projCtr]].create_intersection(intervals[i]);
+            result << mint[projCtr].create_intersection(intervals[i]);
             projCtr++;
         }
         else

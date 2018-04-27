@@ -317,14 +317,20 @@ function import_nullvalues_data()
 
   local mdd_type=NullValueArrayTest
   local set_type=NullValueSetTest
+  local mdd_type3d=NullValueArrayTest3D
+  local set_type3d=NullValueSetTest3D
 
   # check data types and insert if not available
   check_user_type $set_type
+  check_user_type $set_type3d
 
-  drop_colls $TEST_NULL
+  drop_colls $TEST_NULL $TEST_NULL3D
 
   create_coll $TEST_NULL $set_type
   $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" | tee -a $LOG
+
+  create_coll $TEST_NULL3D $set_type3d
+  $RASQL -q "insert into $TEST_NULL3D values marray x in [0:3,0:3,0:3] values (char)(x[0] + x[1] + 1)" | tee -a $LOG
 }
 
 #		
@@ -384,6 +390,6 @@ function import_subsetting_data()
 #
 drop_nullvalues_data()
 {
-  drop_colls $TEST_NULL
-  drop_types NullValueSetTest NullValueArrayTest
+  drop_colls $TEST_NULL $TEST_NULL3D
+  drop_types NullValueSetTest NullValueArrayTest NullValueSetTest3D NullValueArrayTest3D
 }

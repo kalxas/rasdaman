@@ -61,9 +61,21 @@ pair< r_Point, r_Point > getBoundingBox(const vector< r_Point >& polygon)
     return make_pair(minPoint, maxPoint);
 }
 
-void rasterizePolygon( vector< vector< char > >& mask, const vector< r_Point >& polygon )
+void rasterizePolygon( vector< vector< char > >& mask, const vector< r_Point >& polygon, bool isPolygon )
 {
-    for( r_Dimension k = 0; k < polygon.size(); k++ )
+    r_Dimension numIt = 0;
+    
+    // if we are not considering a polygon, then our mask will not be filled afterwards anyways.
+    if(!isPolygon && polygon.size() > 0)
+    {
+        numIt = polygon.size() - 1;
+    }
+    else
+    {
+        numIt = polygon.size();
+    }
+    
+    for( r_Dimension k = 0; k < numIt; k++ )
     {
         r_Point first = polygon[k];
         r_Point second;

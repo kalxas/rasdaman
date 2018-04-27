@@ -1,1 +1,0 @@
-select encode(clip(c, curtain(range(-19, -9), linestring(1 1, 19 3))), "csv") from test_grey3d as c

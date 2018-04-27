@@ -367,7 +367,7 @@ QtShift::checkType(QtTypeTuple* typeTuple)
         if (inputType1.getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtShift::checkType() - first operand must be of type MDD.";
-            parseInfo.setErrorNo(405);
+            parseInfo.setErrorNo(MDDARGREQUIRED);
             throw parseInfo;
         }
 
@@ -836,7 +836,7 @@ QtExtend::checkType(QtTypeTuple* typeTuple)
         if (inputType1.getDataType() != QT_MDD)
         {
             LFATAL << "Error: QtExtend::checkType() - first operand must be of type MDD.";
-            parseInfo.setErrorNo(405);
+            parseInfo.setErrorNo(MDDARGREQUIRED);
             throw parseInfo;
         }
 

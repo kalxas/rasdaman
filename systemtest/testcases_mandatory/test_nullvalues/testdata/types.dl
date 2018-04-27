@@ -1,2 +1,4 @@
 typedef marray <char, 2> NullValueArrayTest;
 typedef set<NullValueArrayTest> null values [5:7] NullValueSetTest;
+typedef marray <char, 3> NullValueArrayTest3D;
+typedef set<NullValueArrayTest3D> null values [5:7] NullValueSetTest3D;

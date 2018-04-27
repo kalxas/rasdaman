@@ -1,1 +1,1 @@
-rasdaman error 516: Error: The range given for the curtain must consist of two 1D vertices.
+rasdaman error 526: Error: The number of dimensions projected to should match the dimension of the corresponding mask. In this case, a polygon mask is 2-D, and so two distinct axis numbers should be chosen to represent it.

@@ -61,6 +61,7 @@ add_library(qlparser
         qtcreatecelltype.hh qtcreatecelltype.cc
         qtcreatemarraytype.hh qtcreatemarraytype.cc
         qtcreatesettype.hh qtcreatesettype.cc
+        qtcurtain.hh qtcurtain.cc qtcurtain.icc
         qtdata.cc qtdata.hh qtdata.icc
         qtdelete.cc qtdelete.hh
         qtdomainoperation.cc qtdomainoperation.hh qtdomainoperation.icc

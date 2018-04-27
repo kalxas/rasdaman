@@ -200,6 +200,9 @@
 521^E^Error: The dimension of the vertices defining the curtain's cross-section should match that of the cross-sectional sample of the requested curtain.
 522^E^Error: All polygons in the request lie outside the MDDObject's domain.
 523^E^Error: All polygon interiors must be located within the outer polygon's interior.
+524^E^Error: The projection dimensions should be single axis numbers separated by commas.
+525^E^Error: The axis numbers for the projection syntax must correspond to existing axes, using Roman counting.
+526^E^Error: The number of dimensions projected to should match the dimension of the corresponding mask. In this case, a polygon mask is 2-D, and so two distinct axis numbers should be chosen to represent it.
 # overflow
 510^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The argument is outside the function domain.
 511^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The function result exceeds the allowed range.

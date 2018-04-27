@@ -1,3 +1,32 @@
+/*
+* This file is part of rasdaman community.
+*
+* Rasdaman community is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Rasdaman community is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+*
+* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+rasdaman GmbH.
+*
+* For more information please see <http://www.rasdaman.org>
+* or contact Peter Baumann via <baumann@rasdaman.com>.
+*/
+/* 
+ * File:   qtmulticlipping.cc
+ * Author: bbell
+ *
+ * Created on February 12, 2018, 18:03 PM
+ */
+
 static const char rcsid[] = "@(#)qlparser, QtMulticlipping: $Id: qtmulticlipping.cc,v 1.47 2002/08/19 11:13:27 coman Exp $";
 
 #include "qlparser/qtmulticlipping.hh"
@@ -51,7 +80,7 @@ QtMulticlipping::QtMulticlipping(QtOperation* mddOp, const std::vector<QtMShapeD
     {
         if (opDim != (*iter)->getDimension() && opDim != (*iter)->getPointDimension() )
         {
-            LFATAL << "Error: QtMulticlipping::evaluate() - Dimension of the polygon vertices differs from the domain's dimension.";
+            LFATAL << "Error: QtMulticlipping::QtMulticlipping() - Dimension of the polygon vertices differs from the domain's dimension.";
             throw r_Error(507);
         }
     } 
@@ -72,7 +101,7 @@ QtMulticlipping::QtMulticlipping(QtOperation* mddOp, const std::vector< std::vec
         {
             if (opDim != (*iter)->getDimension() && opDim != (*iter)->getPointDimension() )
             {
-                LFATAL << "Error: QtMulticlipping::evaluate() - Dimension of the polygon vertices differs from the domain's dimension.";
+                LFATAL << "Error: QtMulticlipping::QtMulticlipping() - Dimension of the polygon vertices differs from the domain's dimension.";
                 throw r_Error(507);
             }
         }
@@ -86,15 +115,12 @@ QtMulticlipping::QtMulticlipping(QtOperation* mddOp, const std::vector< std::vec
     }
 }
 
-MDDObj*
-QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op)
-{   
-    //for each clipping in the vector, we generate a mask, 
-    //and we assemble them into a single result mask
-
+std::shared_ptr<r_Minterval> 
+QtMulticlipping::buildResultDom(const r_Minterval& areaOp)
+{
     //constructing the result domain for the mask and the resultmdd
-    std::unique_ptr<r_Minterval> resultDom;
-    
+    std::shared_ptr<r_Minterval> resultDom;
+    //since we use this method both internall and externally, we don't always want to compute the result domain (it could be passed as areaOp)
     for(auto i = mshapeList.begin(); i != mshapeList.end(); i++)
     {
         if(i->getDomain().intersects_with(areaOp))
@@ -109,28 +135,41 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
             }
         }
     }
-    
-    //in case nothing of interest was hit, we can simply return to the parent method, where we will throw an error.
-    if(!resultDom)
-    {
-        return NULL;
-    }
-    
-    //result mask
-    char* resultMask = new char[resultDom->cell_count()];
-    memset(resultMask, 2, resultDom->cell_count());
 
+    return resultDom;
+}
+
+std::shared_ptr<char>
+QtMulticlipping::buildResultMask(std::shared_ptr<r_Minterval> resultDom)
+{
+    //result mask
+    std::shared_ptr<char> resultMask;
+    resultMask.reset(new char[resultDom->cell_count()]);
+    memset(resultMask.get(), 2, resultDom->cell_count());
+    
     //starting point of the mask, for iteration
-    const char* resultMaskPtr = &resultMask[0];
+    const char* resultMaskPtr = &resultMask.get()[0];
     
     for(auto iter = mshapeList.begin(); iter != mshapeList.end(); iter++)
     {
-        if(iter->getDomain().intersects_with(areaOp))
+        if(iter->getDomain().intersects_with(*resultDom))
         {
             const r_Minterval* currentDomain = new r_Minterval(iter->getDomain());
-            vector< vector<char> > polygonMask = iter->generateMask();
+            
+            vector< vector<char> > polygonMask;
+            
+            if(clipType == CLIP_MULTIPOLYGON)
+            {
+                polygonMask = iter->generateMask(true);
+            }
+            else if(clipType == CLIP_MULTILINESTRING)
+            {
+                polygonMask = iter->generateMask(false);
+            }
             
             r_Miter resultMaskIter(currentDomain, resultDom.get(), sizeof(char), resultMaskPtr);
+            
+            //this is the approach we take when combining positive genus polygonal masks
             for(size_t m = 0; m < polygonMask.size(); m++)
             {
                 for(size_t n = 0; n < polygonMask[m].size(); n++)
@@ -144,9 +183,54 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
                         resultMaskIter.nextCell();
                     }
                 }
-            }       
+            }
         }
-    }   
+    }
+    
+    return resultMask;
+}
+
+std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >
+QtMulticlipping::buildAbstractMask()
+{
+    
+    //builds the result domain without worrying about an area of interest
+    std::shared_ptr<r_Minterval> resultDom;
+    for(auto i = mshapeList.begin(); i != mshapeList.end(); i++)
+    {
+        if(resultDom)
+        {
+            *resultDom = resultDom->closure_with(i->getDomain());
+        }
+        else
+        {
+            resultDom.reset( new r_Minterval(i->getDomain()) );
+        }
+    }     
+     
+    //result mask & domain
+    
+    std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > retVal(buildResultMask(resultDom), resultDom);
+    
+    return retVal;
+}
+
+MDDObj*
+QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op)
+{   
+    //for each clipping in the vector, we generate a mask, 
+    //and we assemble them into a single result mask
+
+    //constructing the result domain for the mask and the resultmdd
+    std::shared_ptr<r_Minterval> resultDom = buildResultDom(areaOp);
+    
+    //in case nothing of interest was hit, we can simply return to the parent method, where we will throw an error.
+    if(!resultDom)
+    {
+        return NULL;
+    }
+    
+    std::shared_ptr<char> resultMask = buildResultMask(resultDom);
     
     //gennerate resultMDD
     MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), 3);
@@ -163,29 +247,10 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
     std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
     allTiles.reset(op->intersect(*resultDom));
     try
-    {        
+    {
         //data type size
         size_t typeSize = (*(allTiles->begin()))->getType()->getSize();
-        
-        //check for nullValues for initializing the result tiles.
-        std::shared_ptr<r_Minterval> firstNullValueDomain;
-        firstNullValueDomain.reset( op->getNullValues() );
-        
-        //pointer to the nullValue values
-        std::unique_ptr<char> nullValue;
-        nullValue.reset( new char[typeSize] );
-        
-        if(firstNullValueDomain)
-        {
-            //assign value of null value data.
-            memcpy(nullValue.get(), op->pointQuery(firstNullValueDomain->get_origin()), typeSize);
-        }
-        else
-        {
-            memset(nullValue.get(), 0, typeSize);
-        }
-        
-        
+
         for (auto tileIt = allTiles->begin(); tileIt != allTiles->end(); tileIt++)
         {
             //domain of source tile
@@ -200,8 +265,11 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
             
             const char* resDataPtr = resTile->getContents();
             
+            //initialize the tile to be filled with nullValues.
+            op->fillTileWithNullvalues(const_cast<char*>(resDataPtr), intersectDom.cell_count());
+            
             //construct iterators for filling data in result tile
-            r_Miter resTileMaskIterator(&intersectDom, resultDom.get(), sizeof(char), resultMaskPtr);
+            r_Miter resTileMaskIterator(&intersectDom, resultDom.get(), sizeof(char), resultMask.get());
             r_Miter sourceTileIterator(&intersectDom, &srcTileDom, typeSize, sourceDataPtr);
             r_Miter resTileIterator(&intersectDom, &intersectDom, typeSize, resDataPtr);
             
@@ -216,9 +284,8 @@ QtMulticlipping::extractMultipolygon(const r_Minterval& areaOp, const MDDObj* op
                 else
                 {
                     //step to next cell for resTileIterator and sourceTileIterator
-                    //and assign a nullValue to the current result tile cell.
                     sourceTileIterator.nextCell();
-                    memcpy(resTileIterator.nextCell(), nullValue.get(), typeSize);
+                    resTileIterator.nextCell();
                 }
             }
             
@@ -301,7 +368,8 @@ QtMulticlipping::computeOp(QtMDD* operand)
     return returnValue;
 }
 
-const QtTypeElement& QtMulticlipping::checkType(QtTypeTuple *typeTuple)
+const QtTypeElement&
+QtMulticlipping::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 

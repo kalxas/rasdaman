@@ -1,1 +1,1 @@
-rasdaman error 521: Error: The dimension of the vertices defining the curtain's cross-section should match that of the cross-sectional sample of the requested curtain.
+rasdaman error 507: Exception: The dimension of the points differs from that of the MDD object in which they are expected to lie.

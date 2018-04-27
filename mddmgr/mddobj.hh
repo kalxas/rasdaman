@@ -197,7 +197,7 @@ public:
     /// Gets the cell with coordinates {\tt searchPoint} in the MDD.
     char* pointQuery(const r_Point& searchPoint);
     /**
-        Returns null pointer if cell doesnt exist in the object.
+        Returns null pointer if cell doesn't exist in the object.
     */
     //@}
 
@@ -255,6 +255,11 @@ public:
     /// Override method in NullValuesHandler, in order to set null values to the
     /// underlying database object
     void setUpdateNullValues(r_Minterval* newNullValues);
+
+    /// write nullValues to a given tile...
+    /// given a tile from (op) with the result of getContents() being resDataPtr, and total # cells in that tile = cellCount, this method initializes
+    /// the entire tile with nullValues derived from (op). A templated helper function addresses the stored data type.   
+    void fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const;
 
 protected:
 

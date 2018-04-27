@@ -1,1 +1,1 @@
-select encode(clip(c, curtain( range(0, 99), polygon((-1 -1, -99 -99, -1 -99)))), "csv") from test_grey3d as c
+select encode(clip(c[0:99,*:*,*:*], curtain( projection(1,2), polygon((-1 -1, -99 -99, -1 -99)))), "csv") from test_grey3d as c
