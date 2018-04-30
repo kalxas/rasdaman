@@ -3,6 +3,7 @@
 <%@page import="java.util.List"%>
 <%@page import="petascope.util.ListUtil"%>
 <%@page import="org.rasdaman.config.ConfigManager"%>
+<%@page import="petascope.controller.AbstractController"%>
 
 <!--
 /*
@@ -215,6 +216,9 @@
                                 return false;
                             }
 
+                        } else {
+                            // cancel button
+                            return false;
                         }
 
                         return true;
@@ -235,7 +239,7 @@
                         <div id="content">
                             <br/>
                             <h5 style="text-align:center;"> Hint: Please reload Petascope Home page (<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/"%>ows) to see the modification.
-                                <a href="<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/"%>admin/form?logout=true"><span style="color:red;">[Log out]</span></a></h5>  <br/>
+                                <a href="<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/" + ConfigManager.OWS_ADMIN + "/?" + AbstractController.LOGOUT_PARAM + "=true"%>"><span style="color:red;">[Log out]</span></a></h5>  <br/>
 
                             <h5 style="text-align:center;color:red;" id="retMessage">
                                 <%
@@ -262,7 +266,7 @@
 
                                         </div>
                                         <div id="collapseOne" class="panel-collapse collapse in">
-                                            <form id="serviceIdentification" method="post" action="<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/"%>admin/form?updateIdentification=true" onsubmit="return validateFormIdentification();">
+                                            <form id="serviceIdentification" method="post" action="<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/" + ConfigManager.OWS_ADMIN%>/form?updateIdentification=true" onsubmit="return validateFormIdentification();">
 
                                                 <table style="width:80%; margin: 20px;">
 
@@ -353,7 +357,7 @@
 
                                     <!-----------------------------------------SERVICE PROVIDER ----------------------------------->
 
-                                    <form id="service_provider" method="post" action="<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/"%>admin/form?updateProvider=true" onsubmit="return validateFormServiceProvider();">
+                                    <form id="service_provider" method="post" action="<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/" + ConfigManager.OWS_ADMIN%>/form?updateProvider=true" onsubmit="return validateFormServiceProvider();">
 
                                         <div style="margin-top: -20px;">
 

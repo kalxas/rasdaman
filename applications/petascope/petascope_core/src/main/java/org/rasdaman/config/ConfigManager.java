@@ -66,6 +66,7 @@ public class ConfigManager {
     public static final String OWS = "ows";
     public static final String WCPS = "wcps";
     public static final String RASQL = "rasql";
+    public static final String OWS_ADMIN = OWS + "/" + "admin";
     public static final String ADMIN = "admin";
     public static final String GET_COVERAGE_EXTENTS = "GetCoveragesExtents";
     

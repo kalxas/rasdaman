@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.rasdaman.config.ConfigManager;
-import static org.rasdaman.config.ConfigManager.ADMIN;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
 import petascope.util.ListUtil;
+import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
 
 /**
  * Controller to handle request to Admin page to update OWS Service metadata
@@ -47,19 +47,13 @@ import petascope.util.ListUtil;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 @Controller
-public class AdminController extends AbstractController {
+public class OWSAdminController extends AbstractController {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(AdminController.class);
-
-    // Request parameters for login, form pages
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(OWSAdminController.class);
 
     private static final String UPDATE_IDENTIFICATION = "updateIdentification";
     private static final String UPDATE_PROVIDER = "updateProvider";
-
-    private static final String LOGIN_PAGE = "login";
-    private static final String FORM_PAGE = "form";
+    private static final String FORM_PAGE = "ows_admin_form";
 
     @Autowired
     HttpServletRequest httpServletRequest;
@@ -75,14 +69,20 @@ public class AdminController extends AbstractController {
      * @return
      * @throws java.lang.Exception
      */
-    @RequestMapping(ADMIN)
-    public String loginPage(@RequestBody(required = false) String postBody, Map<String, Object> modelToView) throws Exception {
+    @RequestMapping(OWS_ADMIN)
+    public String handle(@RequestBody(required = false) String postBody, Map<String, Object> modelToView) throws Exception {
         Map<String, String[]> kvpParameters;
 
         if (httpServletRequest.getSession().getAttribute(USERNAME) != null) {
-            // Session is created, just reload the form page
-            return this.handleFormRequest(null, modelToView);
+            // User want to logout, so clear session of this user and redirect to login page
+            if (httpServletRequest.getParameter(LOGOUT_PARAM) != null) {
+                httpServletRequest.getSession().setAttribute(USERNAME, null);
 
+                return LOGIN_PAGE;
+            } else {
+                // Session is created, just reload the form page
+                return this.handleFormRequest(null, modelToView);
+            }
         } else if (postBody != null) {
             kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
             return this.handleLoginRequest(kvpParameters, modelToView);
@@ -101,29 +101,30 @@ public class AdminController extends AbstractController {
      * @return
      * @throws java.lang.Exception
      */
-    @RequestMapping(ADMIN + "/form")
+    @RequestMapping(OWS_ADMIN + "/form")
     public String formPage(@RequestBody(required = false) String postBody, Map<String, Object> modelToView) throws Exception {
         Map<String, String[]> kvpParameters;
 
-        if (postBody != null) {
-            // If request without submitting data, then just return the login page
-            postBody = URLDecoder.decode(postBody, "utf-8");
-            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-            // Session is created, just reload the form page with the new updated data
-            return this.handleFormRequest(kvpParameters, modelToView);
-        } else if (httpServletRequest.getSession().getAttribute(USERNAME) != null) {
-            // User want to logout, so clear session of this user and redirect to login page
-            if (httpServletRequest.getParameter("logout") != null) {
-                httpServletRequest.getSession().setAttribute(USERNAME, null);
-
-                return LOGIN_PAGE;
-            } else {
-                // Session is created, just reload the form page
-                return this.handleFormRequest(null, modelToView);
-            }
-        } else {
-            // Session does not exist, just return login page
+        if (httpServletRequest.getSession().getAttribute(USERNAME) == null) {
+            // Session doesn't exist, user not log in yet
             return LOGIN_PAGE;
+        } else {
+            if (postBody != null) {            
+                // If request without submitting data, then just return the login page
+                postBody = URLDecoder.decode(postBody, "utf-8");
+                kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+                // Session is created, just reload the form page with the new updated data
+                return this.handleFormRequest(kvpParameters, modelToView);
+            } else {
+                // User want to logout, so clear session of this user and redirect to login page
+                if (httpServletRequest.getParameter(LOGOUT_PARAM) != null) {
+                    httpServletRequest.getSession().setAttribute(USERNAME, null);
+                    return LOGIN_PAGE;
+                } else {
+                    // Session is created, just reload the form page
+                    return this.handleFormRequest(null, modelToView);
+                }
+            }
         }
     }
 
@@ -138,11 +139,11 @@ public class AdminController extends AbstractController {
         // If submitted username, password are not as same as admin's account in petascope.properties, so return error status.
         if (!(kvpParameters.get(USERNAME)[0].equals(ConfigManager.PETASCOPE_ADMIN_USERNAME)
                 && kvpParameters.get(PASSWORD)[0].equals(ConfigManager.PETASCOPE_ADMIN_PASSWORD))) {
-            modelToView.put("isSuccess", "false");
+            modelToView.put(IS_SUCCESS_ATTRIBUTE, "false");
 
             return LOGIN_PAGE;
         } else {
-            modelToView.put("isSuccess", "true");
+            modelToView.put(IS_SUCCESS_ATTRIBUTE, "true");
             // Create a session for this loggin then foward to form.jsp page
             httpServletRequest.getSession().setAttribute(USERNAME, kvpParameters.get(USERNAME)[0]);
 

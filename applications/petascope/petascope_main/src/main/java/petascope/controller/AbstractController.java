@@ -77,6 +77,22 @@ public abstract class AbstractController {
     // Spring finds all the subclass of AbstractHandler and injects to the list
     List<AbstractHandler> handlers;
     
+    // **************** Configuration for controllers which needs to be logged in before processing request ****************
+    // This is the name of the jsp page (WEB-INF/jsp/login.jsp) to be used for admin controllers
+    protected static final String LOGIN_PAGE = "login";
+        // store the loggin information to session
+    protected static final String USERNAME_SESSION = "username_session";
+    protected static final String IS_SUCCESS_ATTRIBUTE = "isSuccess";
+
+    protected static final String USERNAME = "username";
+    protected static final String PASSWORD = "password";
+
+    protected static final String CLIENT_REQUEST_URI_ATTRIBUTE = "rascontrol";
+    protected static final String CLIENT_SUCCESS_ATTRIBUTE = "success";
+    
+    // If URL contains this parameter (e.g: ?logout) then remove the logged in session and returns the login.jsp page
+    public static final String LOGOUT_PARAM = "logout";
+    
     // When result_bytes of all processed requests > this number, call the gabarge co
     private static final Long GARBAGE_COLLECTION_THRESHOLD = 104857600l;
     // All the returned bytes to clients up to this current request

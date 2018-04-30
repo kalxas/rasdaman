@@ -48,7 +48,7 @@
         }
     </style>
 
-    <title>Rasdaman.org - Update Service Identification & Service Provider Configuration</title>
+    <title>Rasdaman - Login to admin page</title>
     <link rel="shortcut icon" type="image/png" href="http://rasdaman.org/chrome/site/favicon.ico" />
 
     <script>
@@ -58,8 +58,8 @@
 
         // Check username and password is not empty
         function checkIsEmpty() {
-            var userName = document.getElementById("userName");
-            var passWord = document.getElementById("passWord");
+            var userName = document.getElementById("username");
+            var passWord = document.getElementById("password");
 
             var valid = false;
 
@@ -102,15 +102,15 @@
                         </h5>
                     <div class="panel-body" style="margin-left:140px;">
 
-                        <form method="post" action="<%=ConfigManager.PETASCOPE_APPLICATION_CONTEXT_PATH + "/"%>admin">
+                        <form method="post" action="" onsubmit="return checkIsEmpty();">
                             <p>
-                                <input type="text" id="username" name="username" value="" placeholder="Username petascopedb">
+                                <input type="text" id="username" name="username" value="" placeholder="Petascope admin username">
                             </p>
                             <p>
-                                <input type="password" id="password" name="password" value="" placeholder="Password petascopedb">
+                                <input type="password" id="password" name="password" value="" placeholder="Petascope admin password">
                             </p>
                             <p class="submit" style="margin-top:10px;">
-                                <input type="submit" name="login" value="Login" onclick="return checkIsEmpty();">
+                                <input type="submit" name="login" value="Login">
                             </p>
                         </form>
                     </div>
