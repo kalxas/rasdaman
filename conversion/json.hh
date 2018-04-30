@@ -56,7 +56,8 @@ public:
     ~r_Conv_JSON(void);
 
     /// convert to CSV
-    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL) throw(r_Error);
     /// convert from CSV
     using r_Convertor::convertFrom;
     virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);

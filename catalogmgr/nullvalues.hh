@@ -57,6 +57,9 @@ public:
 
     /// get null values
     r_Minterval* getNullValues() const;
+    
+    /// get the first valid null value (fixed lower/upper bound)
+    r_Range getNullValue() const;
 
     /// set null values
     void setNullValues(r_Minterval* newNullValues);

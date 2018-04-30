@@ -179,6 +179,7 @@ QtConversion::evaluate(QtDataList* inputList)
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
+    MDDObj* currentMDDObj = NULL;
     r_Minterval* nullValues = NULL;
 
     if (conversionType == QT_UNKNOWN)
@@ -219,7 +220,7 @@ QtConversion::evaluate(QtDataList* inputList)
 #endif
 
             QtMDD* qtMDD = static_cast<QtMDD*>(operand);
-            MDDObj* currentMDDObj = qtMDD->getMDDObject();
+            currentMDDObj = qtMDD->getMDDObject();
             nullValues = currentMDDObj->getNullValues();
             vector<boost::shared_ptr<Tile>>* tiles = NULL;
             if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
@@ -268,8 +269,16 @@ QtConversion::evaluate(QtDataList* inputList)
             }
             if (conversionType < QT_FROMTIFF)
             {
+                // if no null values are set in the source object, then the 
+                // nullValue passed to convertTo is NULL.
+                r_Range* nullValue = NULL;
+                r_Range tmpNullValue{};
+                if (nullValues) {
+                    tmpNullValue = currentMDDObj->getNullValue();
+                    nullValue = &tmpNullValue;
+                }
                 LDEBUG << "convertor '" << convType << "' converting to format '" << format << "'.";
-                convDesc = convertor->convertTo(paramStr);
+                convDesc = convertor->convertTo(paramStr, nullValue);
             }
             else
             {

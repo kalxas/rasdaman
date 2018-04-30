@@ -39,7 +39,7 @@ induction_all_operations_sinh.rasql
 induction_all_operations_arccos.rasql
 extending_a_spatial_domain.rasql
 composite_constants_struct.rasql
-
+project_multiband.rasql
 
 # error message is contained in grpc exception message
 range_egt.rasql

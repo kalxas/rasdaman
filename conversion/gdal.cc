@@ -93,7 +93,8 @@ r_Conv_GDAL::~r_Conv_GDAL(void)
 
 #ifdef HAVE_GDAL
 
-r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
+                                    const r_Range* nullValue) throw(r_Error)
 {
     if (format.empty())
     {
@@ -108,6 +109,8 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options) throw(r_Error)
     {
         initEncodeParams(string{options});
     }
+    updateNodataValue(nullValue);
+    
     //if selected, transposes rasdaman data before converting to gdal
     if(formatParams.isTranspose())
     {

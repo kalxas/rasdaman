@@ -80,7 +80,8 @@ r_Conv_GRIB::~r_Conv_GRIB(void)
 
 /// convert to GRIB
 
-r_Conv_Desc& r_Conv_GRIB::convertTo(__attribute__ ((unused)) const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertTo(__attribute__ ((unused)) const char* options,
+                                   __attribute__ ((unused)) const r_Range* nullValue) throw(r_Error)
 {
     LERROR << "converting to GRIB is not supported.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

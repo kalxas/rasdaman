@@ -564,13 +564,15 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
     }
 }
 
-r_Conv_Desc& r_Conv_CSV::convertTo(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_CSV::convertTo(const char* options,
+                                   const r_Range* nullValue) throw(r_Error)
 {
     order = r_Conv_CSV::OUTER_INNER;
     if (options)
     {
         processEncodeOptions(string{options});
     }
+    updateNodataValue(nullValue);
     std::stringstream csvtemp;
 
     unsigned long rank, i;

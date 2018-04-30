@@ -224,7 +224,8 @@ r_Conv_TIFF::~r_Conv_TIFF(void)
 // Compression modes recommended:
 // Bitmap, Greyscales:  COMPRESSION_LZW, COMPRESSION_DEFLATE
 // RGB:                 COMPRESSION_JPEG, COMPRESSION_SGILOG24
-r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
+                                    const r_Range* nullValue) throw(r_Error)
 {
     TIFF* tif = NULL;
     char dummyFile[256];
@@ -240,6 +241,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options) throw(r_Error)
     unsigned int spp = 1; // samples per pixel
 
     params->process(options);
+    updateNodataValue(nullValue);
 
     // translate string compression type to libtiff compression type
     if (compType != NULL)

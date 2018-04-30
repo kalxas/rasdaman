@@ -136,7 +136,8 @@ public:
 
     virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
 
-    r_Conv_Desc& convertTo(const char* options = NULL) throw (r_Error);
+    r_Conv_Desc& convertTo(const char* options = NULL,
+                           const r_Range* nullValue = NULL) throw (r_Error);
 
     const char* get_name() const throw();
 

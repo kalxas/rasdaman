@@ -68,9 +68,10 @@ r_Conv_JSON::~r_Conv_JSON(void)
 {
 }
 
-r_Conv_Desc& r_Conv_JSON::convertTo(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_JSON::convertTo(const char* options,
+                                   const r_Range* nullValue) throw(r_Error)
 {
-    return r_Conv_CSV::convertTo(options);
+    return r_Conv_CSV::convertTo(options, nullValue);
 }
 
 r_Conv_Desc& r_Conv_JSON::convertFrom(const char* options) throw(r_Error)

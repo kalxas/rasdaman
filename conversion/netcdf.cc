@@ -87,13 +87,15 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
 }
 
 /// convert to NETCDF
-r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options) throw (r_Error)
+r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options,
+                                      const r_Range* nullValue) throw (r_Error)
 {
 #ifdef HAVE_NETCDF
     if (options)
     {
         parseEncodeOptions(string{options});
     }
+    updateNodataValue(nullValue);
     
     //if selected, transpose rasdaman data prior to writing to netcdf.
     //requires the transpose parameters to be passed to the function.

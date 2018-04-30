@@ -374,6 +374,14 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
     return retval;
 }
 
+void r_Convertor::updateNodataValue(const r_Range* nullValue)
+{
+    if (formatParams.getNodata().empty() && nullValue != NULL)
+    {
+        formatParams.addNodata(static_cast<double>(*nullValue));
+    }
+}
+
 std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
 {
     switch (cte)

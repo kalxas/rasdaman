@@ -475,7 +475,7 @@ MDDObj::setUpdateNullValues(r_Minterval* newNullValues)
 }
 
 template <class T>
-char* fillTile(r_Long fillValArg, size_t cellCount, char* startPointArg)
+char* fillTile(r_Range fillValArg, size_t cellCount, char* startPointArg)
 {
     T fillValue = static_cast<T>(fillValArg);
     T* startPoint = reinterpret_cast<T*>(startPointArg);
@@ -485,37 +485,18 @@ char* fillTile(r_Long fillValArg, size_t cellCount, char* startPointArg)
 void
 MDDObj::fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const
 {
-
-    r_Minterval* nullValues = this->getNullValues();
-
-    if(nullValues)
+    if(this->getNullValues())
     {
         // the vector of potential nullValues
-        r_Point nullValue(nullValues->dimension());
-        
-        // picks the first fixed value found in the r_Minterval defining the range of nullValues
-        for (auto i = 0; i < nullValues->dimension(); i++)
-        {
-            if((*nullValues)[i].is_low_fixed())
-            {
-                nullValue[i] = (*nullValues)[i].low();
-            }
-            else if((*nullValues)[i].is_high_fixed())
-            {
-                nullValue[i] = (*nullValues)[i].high();
-            }
-            else
-            {
-                //since we do not initialize nullValue above, we must throw an error in this case!
-                throw r_Error(INTERVALOPEN);
-            }
-        }
+        auto nullValue = this->getNullValue();
 
-        // convert the null value to the correct base type, and fill resDataPtr with these values.
-        // break into a switch/case for converting the r_Point to the correct type of null value     
+        // convert the null value to the correct base type, and fill resDataPtr 
+        // with these values. break into a switch/case for converting the 
+        // r_Point to the correct type of null value     
         switch(this->getCellType()->getType())
         {
-            // for now, we restrict ourselves to atomic types, and throw struct types into a default case.
+            // for now, we restrict ourselves to atomic types, and throw 
+            // struct types into a default case.
     //        case STRUCT:
     //        {
     //            LTRACE << "Structural base type: " << this->getCellType()->getName();
@@ -525,63 +506,49 @@ MDDObj::fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const
     //        }
             case ULONG:
             {
-                fillTile<r_ULong>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_ULong>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case USHORT:
             {
-                fillTile<r_UShort>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_UShort>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case CHAR:
             {
-                fillTile<r_Char>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_Char>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case BOOLTYPE:
             {
-                fillTile<r_Boolean>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_Boolean>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case LONG:
             {
-                fillTile<r_Long>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_Long>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case SHORT:
             {
-                fillTile<r_Short>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_Short>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case OCTET:
             {
-                fillTile<r_Octet>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_Octet>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case DOUBLE:
             {
-                fillTile<r_Double>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_Double>(nullValue, cellCount, resDataPtr);
                 break;
             }
             case FLOAT:
             {
-                fillTile<r_Float>(nullValue[0], cellCount, resDataPtr);
+                fillTile<r_Float>(nullValue, cellCount, resDataPtr);
                 break;
             }
-    //        case COMPLEXTYPE1:
-    //        {
-    //            LTRACE << "Complex base type: " << this->getCellType()->getName();
-    //            size_t typeSize = this->getCellType()->getSize();
-    //            fillTile<r_Char>(0, cellCount * typeSize, resDataPtr);            
-    //            break;
-    //        }
-    //        case COMPLEXTYPE2:
-    //        {
-    //            LTRACE << "Complex base type: " << this->getCellType()->getName();
-    //            size_t typeSize = this->getCellType()->getSize();
-    //            fillTile<r_Char>(0, cellCount * typeSize, resDataPtr);            
-    //            break;
-    //        }
             default:
             {
                 LTRACE << "Unknown base type: " << this->getCellType()->getName();

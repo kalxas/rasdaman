@@ -64,7 +64,8 @@ public:
     ~r_Conv_GRIB(void);
 
     /// convert to GRIB
-    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw (r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL) throw (r_Error);
     /// convert from GRIB
     virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
     /// convert data in a specific format to array

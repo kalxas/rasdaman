@@ -58,6 +58,35 @@ NullValuesHandler::getNullValues() const
     return nullValues;
 }
 
+r_Range 
+NullValuesHandler::getNullValue() const
+{
+    if (nullValues != NULL)
+    {
+        // picks the first fixed value found in the r_Minterval 
+        // defining the range of nullValues
+        for (auto i = 0; i < nullValues->dimension(); i++)
+        {
+            if((*nullValues)[i].is_low_fixed())
+            {
+                return (*nullValues)[i].low();
+            }
+            else if((*nullValues)[i].is_high_fixed())
+            {
+                return (*nullValues)[i].high();
+            }
+            else
+            {
+                // since we do not initialize nullValue above, we must throw 
+                // an error in this case!
+                LERROR << "Invalid null value specification (*:*)";
+                throw r_Error(INTERVALOPEN);
+            }
+        }
+    }
+    return r_Range(0);
+}
+
 void
 NullValuesHandler::setNullValues(r_Minterval* newNullValues)
 {

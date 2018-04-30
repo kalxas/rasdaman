@@ -129,7 +129,8 @@ r_Conv_HDF::~r_Conv_HDF(void)
 
 
 
-r_Conv_Desc& r_Conv_HDF::convertTo(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
+                                   const r_Range* nullValue) throw(r_Error)
 {
 #ifdef HAVE_HDF
     char name[] = "hdfTempXXXXXX";
@@ -178,6 +179,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options) throw(r_Error)
     SDsetfillmode(sds_id, SD_NOFILL);
 
     params->process(options);
+    updateNodataValue(nullValue);
 
     comp_type = COMP_CODE_DEFLATE;
     if (compType != NULL)

@@ -112,7 +112,8 @@ public:
     ~r_Conv_TIFF(void);
 
     /// convert to TIFF
-    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL) throw(r_Error);
     /// convert from TIFF
     virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
     /// convert data in a specific format to array

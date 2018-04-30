@@ -61,7 +61,8 @@ public:
     ~r_Conv_GDAL(void);
 
     /// convert to format
-    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw (r_Error);
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL) throw (r_Error);
     /// convert from format
     virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
 

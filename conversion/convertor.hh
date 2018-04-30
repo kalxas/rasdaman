@@ -124,7 +124,8 @@ public:
 
     //@Man: Interface
     /// convert array to a specific format
-    virtual r_Conv_Desc& convertTo(const char* options = NULL) throw(r_Error) = 0;
+    virtual r_Conv_Desc& convertTo(const char* options = NULL,
+                                   const r_Range* nullValue = NULL) throw(r_Error) = 0;
 
     /// convert data in a specific format to array
     virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error) = 0;
@@ -173,6 +174,10 @@ protected:
     /// convert unsupported type to rgb by applying the default color scheme
     template <class baseType>
     void applyColorScheme();
+    
+    // if no nodata is present in formatParams and nullValue is not NULL, then
+    // add the nullValue to nodata
+    void updateNodataValue(const r_Range* nullValue = NULL);
 
     /// true if we should free the src area (in case the input was converted to rgb)
     bool destroySrc;

@@ -186,6 +186,7 @@ QtProject::checkType(QtTypeTuple* typeTuple)
         }
 
         dataStreamType.setDataType(QT_MDD);
+        dataStreamType.setType(const_cast<Type*>(inputType.getType()));
     }
     else
     {
