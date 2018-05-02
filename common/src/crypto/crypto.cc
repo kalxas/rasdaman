@@ -40,8 +40,9 @@ namespace common
 bool Crypto::isMessageDigestAvailable(const std::string& mdName)
 {
     const EVP_MD* md;
-
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     OpenSSL_add_all_digests();
+#endif
 
     md = EVP_get_digestbyname(mdName.c_str());//"MD5");
 
@@ -63,8 +64,9 @@ std::string Crypto::messageDigest(const std::string& message, const std::string&
     unsigned int md_len, i;
     unsigned char md_value[100];
     char output[35];
-
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     OpenSSL_add_all_digests();
+#endif
 
     md = EVP_get_digestbyname(mdName.c_str());
 

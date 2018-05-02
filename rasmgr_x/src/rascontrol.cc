@@ -604,8 +604,6 @@ std::string RasControl::defineInpeer(std::string hostName)
         this->peerManager_->defineInPeer(hostName);
 
         this->rasmanager_->setIsConfigurationDirty(true);
-
-        message = "Defining inpeer rasmgr " + hostName;
     }
     catch (std::exception& ex)
     {
@@ -628,8 +626,6 @@ std::string RasControl::removeInpeer(std::string hostName)
         this->peerManager_->removeInPeer(hostName);
 
         this->rasmanager_->setIsConfigurationDirty(true);
-
-        message = "Peer " + hostName + " removed";
     }
     catch (std::exception& ex)
     {
@@ -673,8 +669,6 @@ std::string RasControl::defineOutpeer(const DefineOutpeer& outpeerData)
         this->peerManager_->defineOutPeer(outpeerData.host_name(), peerPort);
 
         this->rasmanager_->setIsConfigurationDirty(true);
-
-        message = "Defining outpeer rasmgr " + outpeerData.host_name() + " port=" + std::to_string(peerPort);
     }
     catch (std::exception& ex)
     {
@@ -695,8 +689,6 @@ std::string RasControl::removeOutpeer(std::string hostName)
     try
     {
         this->peerManager_->removeOutPeer(hostName);
-
-        message = "Peer " + hostName + " removed";
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
