@@ -52,7 +52,7 @@ class Recipe(BaseRecipe):
         recipe check ingredients/time_series_regular
         """
         super(Recipe, self).__init__(session)
-        self.options = session.get_recipe()['options']
+        self.options = session.get_recipe()['options'] if "options" in session.get_recipe() else {}
         self.importer = None
 
         validator = GDALValidator(self.session.files)
