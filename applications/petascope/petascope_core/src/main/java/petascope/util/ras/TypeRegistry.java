@@ -23,15 +23,17 @@ package petascope.util.ras;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
+import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
 
@@ -75,10 +77,10 @@ public class TypeRegistry {
      * @return the type entry for the given type name
      * @throws petascope.util.ras.TypeRegistryEntryMissingException
      */
-    public TypeRegistryEntry getTypeEntry(String typeName) throws TypeRegistryEntryMissingException {
+    public TypeRegistryEntry getTypeEntry(String typeName) throws PetascopeException {
         TypeRegistryEntry type = typeRegistry.get(typeName);
         if (type == null) {
-            throw new TypeRegistryEntryMissingException("Could not find the requested type: " + typeName);
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Could not find the requested type: " + typeName);
         }
         return type;
     }
@@ -139,9 +141,9 @@ public class TypeRegistry {
 
     public String createNewType(String collectionName, Integer numberOfDimensions, List<String> bandBaseTypes, List<NilValue> nullValues) throws PetascopeException {
         log.info("Creating new type.");
-        String cellName = collectionName + "_Cell";
-        String marrayName = collectionName + "_Array";
-        String setName = collectionName + "_Set";
+        String cellName = collectionName + CELL_TYPE_SUFFIX;
+        String marrayName = collectionName + ARRAY_TYPE_SUFFIX;
+        String setName = collectionName + SET_TYPE_SUFFIX;
         
         if (bandBaseTypes.size() == 1) {
             //simple types
@@ -181,13 +183,14 @@ public class TypeRegistry {
     public String getMddTypeForCollectionType(String collectionType) {
         String mddType = "";
         for (Pair<String, String> i : setTypeDefinitions) {
-            if (collectionType.equals(i.getKey())) {
-                mddType = i.getValue();
+            if (collectionType.equals(i.fst)) {
+                mddType = i.snd;
                 break;
             }
         }
         return mddType;
     }
+    
     
     /**
      * Collects the types from rasdl and inserts them into an internal registry
@@ -328,6 +331,43 @@ public class TypeRegistry {
             return typeName;
         }
     }
+    
+    /**
+     * Delete the input set type from stored set registries.
+     * @param setType collection type
+     */
+    public boolean deleteSetTypeFromRegistry(String setType) {
+        if (this.typeRegistry.containsKey(setType)) {
+            this.typeRegistry.remove(setType);
+            this.setTypeNullValues.remove(setType);
+
+            for (Iterator<Pair<String, String>> iterator = this.setTypeDefinitions.iterator(); iterator.hasNext();) {
+                Pair<String, String> pair = iterator.next();
+                if (pair.fst.equals(setType)) {
+                    // Remove the current element from the iterator and the list.
+                    iterator.remove();
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Delete the input MDD type from stored MDD registry
+     * @param mddType MDD type
+     */
+    public boolean deleteMDDTypeFromRegistry(String mddType) {
+        return this.marrayTypeDefinitions.remove(mddType) != null;
+    }
+    
+    /**
+     * Delete the cell type from stored cell registry
+     * @param cellType cell type
+     */
+    public boolean deleteCellTypeFromRegistry(String cellType) {
+        return this.structTypeDefinitions.remove(cellType) != null;
+    }
 
     /**
      * @deprectaed
@@ -372,14 +412,14 @@ public class TypeRegistry {
      */
     private void buildRegistry() {
         for (Pair<String, String> entry : setTypeDefinitions) {
-            String domainType = marrayTypeDefinitions.get(entry.getValue());
+            String domainType = marrayTypeDefinitions.get(entry.snd);
             if (domainType != null) {
                 String[] domainTypeParts = domainType.split(",");
                 if (domainTypeParts.length >= 2) {
                     String[] baseTypeParts = ArrayUtils.remove(domainTypeParts, domainTypeParts.length - 1);
                     String baseType = StringUtils.join(baseTypeParts, "");
-                    String[] nullParts = setTypeNullValues.get(entry.getKey()).split(",");
-                    List<NilValue> nullValues = new ArrayList<NilValue>();
+                    String[] nullParts = setTypeNullValues.get(entry.fst).split(",");
+                    List<NilValue> nullValues = new ArrayList<>();
                     for (String val : nullParts) {
                         if (!val.isEmpty()) {
                             //if the value that is parsed is an interval with the same limits (e.g. 5:5), add only 1
@@ -396,7 +436,7 @@ public class TypeRegistry {
                             nullValues.add(nullValue);
                         }
                     }
-                    typeRegistry.put(entry.getKey(), new TypeRegistryEntry(baseType, domainType, nullValues));
+                    typeRegistry.put(entry.fst, new TypeRegistryEntry(baseType, domainType, nullValues));
                 }
             }
         }
@@ -454,6 +494,10 @@ public class TypeRegistry {
         private String mdArrayType;
         private List<NilValue> nilValues;
     }
+    
+    public static final String SET_TYPE_SUFFIX = "_Set";
+    public static final String ARRAY_TYPE_SUFFIX = "_Array";
+    public static final String CELL_TYPE_SUFFIX = "_Cell";
 
     private final HashMap<String, TypeRegistryEntry> typeRegistry = new HashMap<String, TypeRegistryEntry>();
     private final HashMap<String, String> marrayTypeDefinitions = new HashMap<String, String>();

@@ -271,7 +271,7 @@ public abstract class AbstractController {
         if (!folderPath.exists()) {
             folderPath.mkdir();
         }
-        String fileName = StringUtil.createRandomString(UPLOAD_FILE_PREFIX + uploadedFile.getOriginalFilename());
+        String fileName = StringUtil.addDateTimeSuffix(UPLOAD_FILE_PREFIX + uploadedFile.getOriginalFilename());
         String filePath = UPLOADED_FILE_DIR_TMP + "/" + fileName;
         Path path = Paths.get(filePath);
         try {

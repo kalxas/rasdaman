@@ -203,7 +203,7 @@ public class InsertCoverageHandler {
                 try {
                     rasdamanCollectionCreator.createCollection();
                 } catch (RasdamanCollectionExistsException e) {
-                    collectionName = StringUtil.createRandomString(collectionName);
+                    collectionName = StringUtil.addDateTimeSuffix(collectionName);
                     // Retry to create collection with new collection name
                     rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
                     rasdamanCollectionCreator.createCollection();

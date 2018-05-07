@@ -46,6 +46,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import org.rasdaman.repository.interfaces.CoverageRepository;
+import org.rasdaman.repository.interfaces.RasdamanRangeSetRepository;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
@@ -64,6 +65,9 @@ public class CoverageRepostioryService {
 
     @Autowired
     private CoverageRepository coverageRepository;
+    
+    @Autowired
+    private RasdamanRangeSetRepository rasdamanRangeSetRepository;
 
     // NOTE: for migration, Hibernate caches the object in first-level cache internally
     // and recheck everytime a new entity is saved, then with thousands of cached objects for nothing
@@ -502,5 +506,13 @@ public class CoverageRepostioryService {
         List<String> coverageIds = this.coverageRepository.readAllCoverageIds();
 
         return coverageIds;
+    }
+    
+    /**
+     * Fetch all the collection types names from rasdaman_range_set table
+     */
+    public boolean collectionTypeExist(String collectionType) {
+        int numberOfCollectionTypes = this.rasdamanRangeSetRepository.collectionTypeExists(collectionType);        
+        return (numberOfCollectionTypes > 0);
     }
 }

@@ -564,6 +564,14 @@ public class RasUtil {
 
         return result;
     }
+    
+    /**
+     * Drop set/mdd/cell type from Rasdaman (if input type is not used by other stored objects).
+     */
+    public static void dropRasdamanType(String type) throws PetascopeException {
+        String rasqlQuery = TEMPLATE_DROP_RASDAMAN_TYPE.replace(RASDAMAN_TYPE, type);
+        executeRasqlQuery(rasqlQuery, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+    }
 
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
     private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";
@@ -571,6 +579,7 @@ public class RasUtil {
     private static final String TOKEN_VALUES = "%values%";
     private static final String TOKEN_TILING = "%tiling%";
     private static final String TILING_KEYWORD = "TILING";
+    private static final String RASDAMAN_TYPE = "%TYPE%";
     private static final String TEMPLATE_INSERT_VALUES = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES " + TOKEN_VALUES + " " + TOKEN_TILING;
     private static final String TEMPLATE_SELECT_OID = "SELECT oid(" + TOKEN_COLLECTION_NAME + ") FROM " + TOKEN_COLLECTION_NAME;
     private static final String TOKEN_OID = "%oid%";
@@ -579,4 +588,5 @@ public class RasUtil {
     private static final String RASQL = "rasql";
     private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";
     private static final String TEMPLATE_DROP_COLLECTION = "DROP COLLECTION " + TOKEN_COLLECTION_NAME;
+    private static final String TEMPLATE_DROP_RASDAMAN_TYPE = "DROP TYPE " + RASDAMAN_TYPE; 
 }

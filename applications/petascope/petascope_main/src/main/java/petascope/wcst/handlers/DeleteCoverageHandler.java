@@ -38,6 +38,12 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.ras.RasUtil;
 import petascope.core.response.Response;
+import petascope.util.ras.TypeRegistry;
+import static petascope.util.ras.TypeRegistry.ARRAY_TYPE_SUFFIX;
+import static petascope.util.ras.TypeRegistry.CELL_TYPE_SUFFIX;
+import static petascope.util.ras.TypeRegistry.SET_TYPE_SUFFIX;
+import petascope.util.ras.TypeResolverUtil;
+import static petascope.util.ras.TypeResolverUtil.getMddTypeForCollectionType;
 import petascope.wcst.exceptions.WCSTCoverageIdNotFound;
 import petascope.wcst.parsers.DeleteCoverageRequest;
 import petascope.wms.exception.WMSLayerNotExistException;
@@ -89,6 +95,36 @@ public class DeleteCoverageHandler {
 
             // collection is removed, try to remove coverage metadata
             coverageRepostioryService.delete(coverage);
+            
+            // Finally, delete all created set/mdd/cell types for this coverage if no other coverages is using them.
+            String collectionType = coverage.getRasdamanRangeSet().getCollectionType();
+            if (!coverageRepostioryService.collectionTypeExist(collectionType)) {
+                String suffix = collectionType.substring(collectionType.length() - 4, collectionType.length());
+                
+                // NOTE: Only delete types which were created from Petascope internally (with suffix _Set, _Array, _Cell)
+                if (suffix.equals(SET_TYPE_SUFFIX)) {
+                    String prefix = collectionType.substring(0, collectionType.length() - 4);
+                    String mddType = prefix + ARRAY_TYPE_SUFFIX;
+                    String cellType = prefix + CELL_TYPE_SUFFIX;
+                    
+                    // And delete them from registry
+                    TypeRegistry typeRegistry = TypeRegistry.getInstance();
+                    boolean setTypeExist = typeRegistry.deleteSetTypeFromRegistry(collectionType);
+                    boolean mddTypeExist = typeRegistry.deleteMDDTypeFromRegistry(mddType);
+                    boolean cellTypeExist = typeRegistry.deleteCellTypeFromRegistry(cellType);
+                    
+                     // Then, delete these types from Rasdaman
+                    if (setTypeExist) {
+                        RasUtil.dropRasdamanType(collectionType);
+                    }
+                    if (mddTypeExist) {
+                        RasUtil.dropRasdamanType(mddType);
+                    }
+                    if (cellTypeExist) {
+                        RasUtil.dropRasdamanType(cellType);
+                    }
+                }
+            }
 
         }
         return new Response();

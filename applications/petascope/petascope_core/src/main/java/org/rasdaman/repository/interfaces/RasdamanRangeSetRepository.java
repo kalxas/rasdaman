@@ -23,11 +23,16 @@ package org.rasdaman.repository.interfaces;
 
 import java.math.BigInteger;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Repository to store the RasdamanRangeSet object to database
  */
 public interface RasdamanRangeSetRepository extends CrudRepository<RasdamanRangeSet,Long> {
     RasdamanRangeSet findOneByOid(BigInteger oid);
+    
+    @Query("select count(c.collectionType) from RasdamanRangeSet as c where c.collectionType = :collectionType")
+    int collectionTypeExists(@Param("collectionType") String collectionType);
 }

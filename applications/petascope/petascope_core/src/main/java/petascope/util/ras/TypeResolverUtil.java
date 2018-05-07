@@ -31,6 +31,7 @@ import org.rasdaman.domain.cis.NilValue;
 import petascope.exceptions.PetascopeException;
 import petascope.core.Pair;
 import petascope.exceptions.WCSException;
+import petascope.util.StringUtil;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
 
 /**
@@ -73,11 +74,20 @@ public class TypeResolverUtil {
             throw new WCSException("Unknown pixel data type: " + pixelDataType);
         }
         //assume band type char on every band
-        ArrayList<String> bandTypes = new ArrayList<String>();
+        ArrayList<String> bandTypes = new ArrayList<>();
         for (Integer i = 0; i < numberOfBands; i++) {
             bandTypes.add(pixelDataType);
         }
         return Pair.of(guessCollectionType(collectionName, numberOfDimensions, bandTypes, nullValues), RAS_TYPES_TO_ABBREVIATION.get(GDAL_TYPES_TO_RAS_TYPES.get(pixelDataType)));
+    }
+    
+    /**
+     * From collection type, return the TypeRegistryEntry objects contains information about MDD, Cell types
+     */
+    public static TypeRegistryEntry getTypeRegistryEntry(String collectionType) throws PetascopeException {
+        TypeRegistry typeRegistry = TypeRegistry.getInstance();
+        TypeRegistryEntry entry = typeRegistry.getTypeEntry(collectionType);
+        return entry;
     }
 
     /**
@@ -93,7 +103,6 @@ public class TypeResolverUtil {
         return ret;
     }
 
-
     /**
      * Guesses the collection type. If no type is found, a new one is created.
      *
@@ -106,6 +115,7 @@ public class TypeResolverUtil {
 
         //get the type registry
         TypeRegistry typeRegistry = TypeRegistry.getInstance();
+        
         for (Map.Entry<String, TypeRegistryEntry> entry : typeRegistry.getTypeRegistry().entrySet()) {
             //filter by dimensionality (e.g: struct { char band0, char band1, char band2 }, 2)
             String mdArrayType = entry.getValue().getMDArrayType();
@@ -156,6 +166,12 @@ public class TypeResolverUtil {
                         }
                     }
                 }
+            }     
+            
+            // NOTE: if an existing set type doesn't match with coverage new set type, then the new one will need to have different name
+            // to avoid duplicate creating type error
+            if (entry.getKey().equals(collectionName + TypeRegistry.SET_TYPE_SUFFIX)) {
+                collectionName = StringUtil.addDateTimeSuffix(collectionName);
             }
         }
         // no existing set type can be used for the coverage, so create the new one

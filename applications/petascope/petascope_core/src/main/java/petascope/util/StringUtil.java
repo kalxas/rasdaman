@@ -226,7 +226,7 @@ public class StringUtil {
      * @param label
      * @return
      */
-    public static String createRandomString(String label) {
+    public static String addDateTimeSuffix(String label) {
         String dateTime = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date());
         Random random = new Random();
         String randomNumber = String.valueOf(random.nextInt(10000) + 1);
