@@ -1,7 +1,11 @@
 package org.rasdaman;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 /*
   *  This file is part of rasdaman community.
@@ -43,13 +47,40 @@ public class Config {
      * Wait few seconds before taking the image of web page as test result
      */
     public static final String PATH_TO_PHANTOMJS_FILE = "/tmp/phantomjs";
-    
+
+    public static final String PATH_TO_PROPERTIES_FILE = "/opt/rasdaman/etc";
+    public static final String PATH_TO_PETASCOPE_PROPERTIES_FILE = PATH_TO_PROPERTIES_FILE + "/petascope.properties";
+    public static final String PATH_TO_SECORE_PROPERTIES_FILE = PATH_TO_PROPERTIES_FILE + "/secore.properties";
+
     // path to oracle folder at test script folder
     public static String ORACLE_FOLDER_PATH;
     // path to output folder at test script folder
     public static String OUTPUT_FOLDER_PATH;
     // path to log file at test script folder
     public static String LOG_FILE;
+
+    private Properties petascopeProperties = new Properties();
+    private Properties secoreProperties = new Properties();
+    
+    /* ************************ petascope.properties **************************** */
+    // KEYS in petascope.properties 
+    private static final String PETASCOPE_KEY_PETASCOPE_ADMIN_USER = "petascope_admin_user";
+    private static final String PETASCOPE_KEY_PETASCOPE_ADMIN_PASS = "petascope_admin_pass";
+    
+    // VALUES in petascope.properties 
+    public static String PETASCOPE_VALUE_PETASCOPE_ADMIN_USER;
+    public static String PETASCOPE_VALUE_PETASCOPE_ADMIN_PASS;
+    
+    /* ************************ secore.properties **************************** */
+    // KEYS in secore.properties 
+    private static final String SECORE_KEY_SECORE_ADMIN_USER = "secore_admin_user";
+    private static final String SECORE_KEY_SECORE_ADMIN_PASS = "secore_admin_pass";
+    
+    // VALUES in secore.properties 
+    public static String SECORE_VALUE_SECORE_ADMIN_USER;
+    public static String SECORE_VALUE_SECORE_ADMIN_PASS;
+    
+    
 
     /**
      * Wait milliseconds after clicking button to get result
@@ -61,15 +92,45 @@ public class Config {
      */
     public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 1500;
 
-    public Config() {
+    private void loadPropertiesFile(Properties properties, String filePath) throws IOException {
+        InputStream input = null;
+        input = new FileInputStream(filePath);
+        // load a properties file
+        properties.load(input);
+    }
+    
+    private void loadPetascopePropertiesValues() {
+        PETASCOPE_VALUE_PETASCOPE_ADMIN_USER = this.petascopeProperties.getProperty(PETASCOPE_KEY_PETASCOPE_ADMIN_USER);
+        PETASCOPE_VALUE_PETASCOPE_ADMIN_PASS = this.petascopeProperties.getProperty(PETASCOPE_KEY_PETASCOPE_ADMIN_PASS);
+    }
+    
+    private void loadSecorePropertiesValues() {
+        SECORE_VALUE_SECORE_ADMIN_USER = this.secoreProperties.getProperty(SECORE_KEY_SECORE_ADMIN_USER);
+        SECORE_VALUE_SECORE_ADMIN_PASS = this.secoreProperties.getProperty(SECORE_KEY_SECORE_ADMIN_PASS);
+    }
+
+    public Config() throws IOException {
         // Current directory of the jar application
         String currentDirectory = Paths.get(".").toAbsolutePath().normalize().toString();
-        String scriptDirectory = new File (currentDirectory).getParent();
+        String scriptDirectory = new File(currentDirectory).getParent();
         ORACLE_FOLDER_PATH = scriptDirectory + "/oracle/";
         OUTPUT_FOLDER_PATH = scriptDirectory + "/output/";
         LOG_FILE = scriptDirectory + "/test.log";
-        
+
         WS_CLIENT_CONTEXT_PATH = WEB_CONTEXT_PATH + PETASCOPE_PORT + "/rasdaman/ows";
         SECORE_CONTEXT_PATH = WEB_CONTEXT_PATH + SECORE_PORT + "/def/";
+
+        // Load properties for testing web applications
+        this.loadPropertiesFile(petascopeProperties, PATH_TO_PETASCOPE_PROPERTIES_FILE);
+        this.loadPropertiesFile(secoreProperties, PATH_TO_SECORE_PROPERTIES_FILE);
+        
+        // Load values from properties for testing web applications
+        this.loadPetascopePropertiesValues();
+        this.loadSecorePropertiesValues();
+    }
+
+    public String getProperty(Properties properties, String key) {
+        String value = properties.getProperty(key);
+        return value;
     }
 }

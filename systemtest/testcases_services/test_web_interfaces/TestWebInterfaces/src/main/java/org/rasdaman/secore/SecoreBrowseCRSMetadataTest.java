@@ -50,13 +50,23 @@ public class SecoreBrowseCRSMetadataTest extends SecoreAbstractSectionWebPageTes
 
         String testCaseName;
         
-        // It needs to login with SECORE admin and password first
-        testCaseName = this.getSectionTestCaseName("login_admin_page");
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
-        log.info("Testing login with username, password in admin page: crs/EPGS/0/4326/browse.jsp URI...");
-        String username = "secoreuser";
+        
+        testCaseName = this.getSectionTestCaseName("login_admin_page_wrong_credential");
+        log.info("Testing login with ****wrong*** username, password in admin page: crs/EPGS/0/4326/browse.jsp URI...");
+        String username = "user";
         this.addTextToTextBox(webDriver, username, "//*[@id=\"username\"]");
-        String password = "secorepasswd";
+        String password = "pass";
+        this.addTextToTextBox(webDriver, password, "//*[@id=\"password\"]");
+        // then, login and capture the result
+        this.runTestByClickingOnElement(webDriver, testCaseName, "//*[@id=\"collapseOne\"]/div/form/p[3]/input");
+        
+        // It needs to login with SECORE admin and password first
+        testCaseName = this.getSectionTestCaseName("login_admin_page");        
+        log.info("Testing login with username, password in admin page: crs/EPGS/0/4326/browse.jsp URI...");
+        username = Config.SECORE_VALUE_SECORE_ADMIN_USER;
+        this.addTextToTextBox(webDriver, username, "//*[@id=\"username\"]");
+        password = Config.SECORE_VALUE_SECORE_ADMIN_PASS;
         this.addTextToTextBox(webDriver, password, "//*[@id=\"password\"]");
         // then, login and capture the result
         this.runTestByClickingOnElement(webDriver, testCaseName, "//*[@id=\"collapseOne\"]/div/form/p[3]/input");

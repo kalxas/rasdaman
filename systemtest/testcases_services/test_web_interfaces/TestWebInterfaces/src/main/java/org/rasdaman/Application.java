@@ -59,7 +59,7 @@ public class Application {
 
     final static Logger log = Logger.getLogger(Application.class);
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
                         
         // Read the input command arguments for petascope port, secore port in test.cfg file
         Config.PETASCOPE_PORT = args[0];
