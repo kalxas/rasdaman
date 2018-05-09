@@ -83,6 +83,9 @@ class Recipe(BaseRecipe):
         else:
             self.options['wms_import'] = bool(self.options['wms_import'])
 
+        if 'scale_levels' not in self.options:
+            self.options['scale_levels'] = None
+
     def describe(self):
         """
         Implementation of the base recipe describe method
@@ -218,7 +221,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'])
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'])
         return self.importer
 
     @staticmethod

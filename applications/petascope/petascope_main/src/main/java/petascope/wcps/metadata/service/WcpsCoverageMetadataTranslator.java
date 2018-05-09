@@ -35,6 +35,9 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.core.AxisTypes;
 import petascope.core.AxisTypes.AxisDirection;
+import petascope.core.Pair;
+import petascope.service.PyramidService;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -55,12 +58,14 @@ public class WcpsCoverageMetadataTranslator {
 
     @Autowired
     private CoverageRepostioryService persistedCoverageService;
+    @Autowired
+    private PyramidService pyramidService;
 
 
     public WcpsCoverageMetadataTranslator() {
 
     }
-
+    
     /**
      * Create a WCPS coverage metadata object from a Coverage CIS 1.1 model in
      * database.
@@ -109,6 +114,54 @@ public class WcpsCoverageMetadataTranslator {
 
         return wcpsCoverageMetadata;
     }
+    
+    /**
+     * Create a WcpsCoverageMetadata metadata object depending on the input GeoXY axes domains. 
+     * This method will check which Rasdaman downscaled collection the metadata object should contain and also the XY grid domains accordingly.
+     * 
+     * NOTE: It needs to select a suitable downscaled collection based on geo XY subsets to help reduce the time to process Rasql on lower resolution collection.
+     */
+    public WcpsCoverageMetadata createForDownscaledLevelByGeoXYSubsets(WcpsCoverageMetadata metadata, 
+            Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY) throws PetascopeException, SecoreException {
+        
+        Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(metadata.getCoverageName());
+        
+        WcpsCoverageMetadata newMetadata = metadata;
+        String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
+        // Depend on the geo XY axes subsets, select a suitable downscaled level (it must be the lowest level which is valid for both X and Y axes).
+        BigDecimal downscaledLevel = this.pyramidService.getDownscaledLevel(coverage, geoSubsetX, geoSubsetY);
+        if (downscaledLevel.compareTo(BigDecimal.ONE) > 0) {
+            collectionName = this.pyramidService.createDownscaledCollectionName(collectionName, downscaledLevel);
+        }
+        
+        for (int i = 0; i < newMetadata.getAxes().size(); i++) {
+            Axis axis = newMetadata.getAxes().get(i);
+            
+            if (axis.isXYGeoreferencedAxis()) {
+                BigDecimal scaleRatio = BigDecimalUtil.divide(BigDecimal.ONE, downscaledLevel);
+                BigDecimal axisResolutionTmp = axis.getResolution().multiply(downscaledLevel);
+                    
+                BigDecimal newGridLowerBound = new BigDecimal(axis.getGridBounds().getLowerLimit().multiply(scaleRatio).longValue());
+                BigDecimal newGridUpperBound = new BigDecimal(axis.getGridBounds().getUpperLimit().multiply(scaleRatio).longValue());
+                BigDecimal newAxisResolution = axisResolutionTmp;
+
+                NumericSubset newOriginalGridBounds = new NumericTrimming(newGridLowerBound, newGridUpperBound);
+                NumericSubset newGridBounds = new NumericTrimming(newGridLowerBound, newGridUpperBound);
+                    
+                axis = new RegularAxis(axis.getLabel(), axis.getGeoBounds(), newOriginalGridBounds, newGridBounds, axis.getDirection(), 
+                                       axis.getNativeCrsUri(), axis.getCrsDefinition(), axis.getAxisType(), axis.getAxisUoM(), 
+                                       axis.getRasdamanOrder(), axis.getOrigin(), newAxisResolution);
+                
+                // Replace the old geo axis with new geo axis.
+                newMetadata.updateAxisByIndex(i, axis);
+            }
+        }
+        // If a downscaled collection is selected, metadata object should use this one for other processes.
+        newMetadata.setRasdamanCollectionName(collectionName);
+        
+        return newMetadata;
+    }
+    
 
     /**
      * Build list of RangeField for WcpsCoverageMetadata object

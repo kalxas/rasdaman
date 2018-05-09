@@ -27,6 +27,10 @@ import petascope.wcst.exceptions.WCSTInvalidComputedDomainCellCount;
 import java.util.*;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.springframework.stereotype.Service;
+import petascope.util.ras.RasConstants;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  * Validate the grid domains from the input coverage slice update request and
@@ -106,12 +110,12 @@ public class GridDomainsValidator {
      * @return
      */
     private List<Long> getNonSliceCellCounts(String affectDomain) {
-        List<Long> result = new ArrayList<Long>();
-        String[] domainParts = affectDomain.replace("[", "").replace("]", "").split(",");
+        List<Long> result = new ArrayList<>();
+        String[] domainParts = affectDomain.replace(RASQL_OPEN_SUBSETS, "").replace(RASQL_CLOSE_SUBSETS, "").split(",");
         for (String domainPart : domainParts) {
-            if (domainPart.contains(":")) {
-                Long low = new Long(domainPart.split(":")[0].trim());
-                Long high = new Long(domainPart.split(":")[1].trim());
+            if (domainPart.contains(RASQL_BOUND_SEPARATION)) {
+                Long low = new Long(domainPart.split(RASQL_BOUND_SEPARATION)[0].trim());
+                Long high = new Long(domainPart.split(RASQL_BOUND_SEPARATION)[1].trim());
                 if (high > low) {
                     result.add(high - low + 1);
                 }
@@ -143,12 +147,12 @@ public class GridDomainsValidator {
      */
     private long getDomainCellCount(String affectDomain) {
         long result = 1;
-        String[] domainParts = affectDomain.replace("[", "").replace("]", "").split(",");
+        String[] domainParts = affectDomain.replace(RASQL_OPEN_SUBSETS, "").replace(RASQL_CLOSE_SUBSETS, "").split(",");
         for (String domainPart : domainParts) {
-            if (domainPart.contains(":")) {
+            if (domainPart.contains(RASQL_BOUND_SEPARATION)) {
                 //trimming only, slicing doesn't add to the cell count
-                long low = NumberUtils.toInt(domainPart.split(":")[0].trim());
-                long high = NumberUtils.toInt(domainPart.split(":")[1].trim());
+                long low = NumberUtils.toInt(domainPart.split(RASQL_BOUND_SEPARATION)[0].trim());
+                long high = NumberUtils.toInt(domainPart.split(RASQL_BOUND_SEPARATION)[1].trim());
                 result *= high - low + 1;
             }
         }
@@ -163,16 +167,17 @@ public class GridDomainsValidator {
      * @return
      */
     private String getCellDomainListStringRepresentation(List<IndexAxis> indexAxes) {
-        String result = "[";
+        String result = RASQL_OPEN_SUBSETS;
+        
         int count = 0;
         for (IndexAxis indexAxis : indexAxes) {
-            result += indexAxis.getLowerBound() + ":" + indexAxis.getUpperBound();
+            result += indexAxis.getLowerBound() + RASQL_BOUND_SEPARATION + indexAxis.getUpperBound();
             if (count < indexAxes.size() - 1) {
                 result += ",";
             }
             count++;
         }
-        result += "]";
+        result += RASQL_CLOSE_SUBSETS;
 
         return result;
     }

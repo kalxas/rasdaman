@@ -36,10 +36,14 @@ import petascope.wcst.exceptions.WCSTInvalidXML;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.wcst.handlers.DeleteCoverageHandler;
+import petascope.wcst.handlers.DeleteScaleLevelHandler;
 import petascope.wcst.handlers.InsertCoverageHandler;
+import petascope.wcst.handlers.InsertScaleLevelHandler;
 import petascope.wcst.handlers.UpdateCoverageHandler;
 import petascope.wcst.parsers.DeleteCoverageRequest;
+import petascope.wcst.parsers.DeleteScaleLevelRequest;
 import petascope.wcst.parsers.InsertCoverageRequest;
+import petascope.wcst.parsers.InsertScaleLevelRequest;
 import petascope.wcst.parsers.KVPWCSTParser;
 import petascope.wcst.parsers.UpdateCoverageRequest;
 
@@ -61,6 +65,11 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
     UpdateCoverageHandler updateCoverageHandler;
     @Autowired private
     DeleteCoverageHandler deleteCoverageHandler;
+    
+    @Autowired private
+    InsertScaleLevelHandler insertScaleLeveHandler;
+    @Autowired private
+    DeleteScaleLevelHandler deleteScaleLevelHandler;
 
     @Autowired private
     KVPWCSTParser kvpWCSTParser;
@@ -73,6 +82,9 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
         requestServices.add(KVPSymbols.VALUE_INSERT_COVERAGE);
         requestServices.add(KVPSymbols.VALUE_UPDATE_COVERAGE);
         requestServices.add(KVPSymbols.VALUE_DELETE_COVERAGE);
+        
+        requestServices.add(KVPSymbols.VALUE_INSERT_SCALE_LEVEL);
+        requestServices.add(KVPSymbols.VALUE_DELETE_SCALE_LEVEL);
     }
 
 
@@ -103,11 +115,26 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
             long end = System.currentTimeMillis();
             
             log.debug("Total time to delete an existing coverage is " + String.valueOf(end - start) + " ms.");
+        } else if (queryString.contains(KVPSymbols.VALUE_INSERT_SCALE_LEVEL)) {
+            // Create an empty downscaled collection by input level from InsertScaleLevel request
+            // and if input coverage has data then also update data in downscaled collection.
+            long start = System.currentTimeMillis();
+            response = this.handleInsertScaleLevel(kvpParameters);
+            long end = System.currentTimeMillis();
+            
+            log.debug("Total time to insert scale level is " + String.valueOf(end - start) + " ms.");
+        } else if (queryString.contains(KVPSymbols.VALUE_DELETE_SCALE_LEVEL)) {
+            // Delete the coverage's downscaled collection with a specific level from DeleteScaleLevel request
+            long start = System.currentTimeMillis();
+            response = this.handleDeleteScaleLevel(kvpParameters);
+            long end = System.currentTimeMillis();
+            
+            log.debug("Total time to delete scale level is " + String.valueOf(end - start) + " ms.");
         }
-
+        
         return response;
     }
-
+    
     /**
      * Insert coverage from wcst_import request with GML and rasdaman collection
      * type
@@ -145,6 +172,28 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
         DeleteCoverageRequest deleteCoverageRequest = ((DeleteCoverageRequest) kvpWCSTParser.parse(kvpParameters));
         Response response = this.deleteCoverageHandler.handle(deleteCoverageRequest);
 
+        return response;
+    }
+    
+    // ***************** Image Pyramid requests *****************
+    
+    /**
+     * Handle InsertScaleLevel for a specific coverage with a level from wcst_import request.
+     */
+    private Response handleInsertScaleLevel(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException, SecoreException {
+        InsertScaleLevelRequest insertScaleLevelRequest = ((InsertScaleLevelRequest) kvpWCSTParser.parse(kvpParameters));
+        Response response = this.insertScaleLeveHandler.handle(insertScaleLevelRequest);
+        
+        return response;
+    }
+    
+    /**
+     * Handle InsertScaleLevel for a specific coverage with a level from wcst_import request.
+     */
+    private Response handleDeleteScaleLevel(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException, SecoreException {
+        DeleteScaleLevelRequest deleteScaleLevelRequest = ((DeleteScaleLevelRequest) kvpWCSTParser.parse(kvpParameters));
+        Response response = this.deleteScaleLevelHandler.handle(deleteScaleLevelRequest);
+        
         return response;
     }
 }

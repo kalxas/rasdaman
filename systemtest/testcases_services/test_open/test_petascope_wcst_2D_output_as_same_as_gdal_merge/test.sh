@@ -33,8 +33,9 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
-sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "ingest.template.json" > "ingest.json"
+# NOTE: script_dir is folder of children test cases and it needs to be specified in path variables
+sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$SCRIPT_DIR/ingest.template.json" > "$SCRIPT_DIR/ingest.json"
 
 # Run the import test and compare with result from gdal_merge
-python main.py "$PETASCOPE_URL"
+python "$SCRIPT_DIR/main.py" "$PETASCOPE_URL"
 check_passed

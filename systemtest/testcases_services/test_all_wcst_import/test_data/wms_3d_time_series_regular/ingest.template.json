@@ -19,6 +19,7 @@
     "name": "time_series_regular",
     "options": {
       "wms_import": true,
+      "scale_levels": [4, 20e-1, 16],
       "time_start": "2012-12-02T20:12:02",
       "time_format": "auto",
       "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",

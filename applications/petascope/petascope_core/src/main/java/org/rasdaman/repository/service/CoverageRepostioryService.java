@@ -51,6 +51,7 @@ import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
+import petascope.util.ras.RasUtil;
 
 /**
  *
@@ -60,6 +61,7 @@ import petascope.util.CrsProjectionUtil;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 @Service
+@Transactional
 public class CoverageRepostioryService {
 
     @Autowired
@@ -73,6 +75,7 @@ public class CoverageRepostioryService {
     // it will slow significantly the speed of next saving coverage, then it must be clear this cache.   
     // As targetEntityManagerFactory is set with Primary in bean application of migration application, no need to specify the unitName=target for this PersistenceContext
     @PersistenceContext
+    // NOTE: it needs @Transactional annotate at class level or it throw exception when saving coverage because no transaction.
     EntityManager entityManager;
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(CoverageRepostioryService.class);
@@ -119,8 +122,6 @@ public class CoverageRepostioryService {
             coverage = coveragePair.fst;
         }
         
-        log.debug("Coverage id '" + coverageId + "' is read from cache.");
-
         return coverage;
     }
 
@@ -166,10 +167,26 @@ public class CoverageRepostioryService {
 
         log.debug("Coverage: " + coverageId + " is read from database.");
 
+        // Then, check if rasdaman's collection tile configuration of this coverage is null or not, if it is null, provide the value from rasql
+        if (coverage.getRasdamanRangeSet().getTiling() == null) {
+            // e.g: [0:500,0:500] ALIGNED 4194304
+            String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
+            long oid = coverage.getRasdamanRangeSet().getOid();
+            String tiling = RasUtil.retrieveTilingInfo(collectionName, oid);
+            coverage.getRasdamanRangeSet().setTiling(tiling);                
+            // Then update coverage to database
+            this.save(coverage);
+        }
+        
+        // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
+        // with a DescribeCoverage request, after the replacement, 
+        // it will save coverage's crs with localhost:8080 instead of the placeholder $SCORE_URL$ in database.
+        entityManager.clear();
+        
         // NOTE: As coverage is saved with a placeholder for SECORE prefix, so after reading coverage from database, 
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
         CoverageRepostioryService.addCrsPrefix(coverage);
-
+        
         // put to cache        
         coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
 
@@ -208,6 +225,9 @@ public class CoverageRepostioryService {
 
                 // Each coverage has only 1 envelope and each envelope has only 1 envelopeByAxis
                 EnvelopeByAxis envelopeByAxis = coverageRepository.readEnvelopeByAxisByCoverageId(coverageId);
+                // NOTE: this coverage object will update CRS with current configured SECORE URL (e.g: http://localhost:8080/def) in petascope.propeties
+                // don't let Hibernate see this object is updated and it will update this change to petascopedb as it should keep the pattern $SECORE_URL$/crs in petascopedb.
+                entityManager.clear();
                 
                 // NOTE: replace the abstract SECORE url in database first ($SECORE$/crs -> localhost:8080/def/crs)
                 envelopeByAxis.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(envelopeByAxis.getSrsName()));
@@ -370,7 +390,7 @@ public class CoverageRepostioryService {
      * @throws petascope.exceptions.SecoreException
      */
     @Transactional
-    public Coverage save(Coverage coverage) throws PetascopeException, SecoreException {
+    public Coverage save(Coverage coverage) throws PetascopeException {
         String coverageId = coverage.getCoverageId();
         // NOTE: Don't save coverage with fixed CRS (e.g: http://localhost:8080/def/crs/epsg/0/4326)
         // it must use a string placeholder so when setting up Petascope with a different SECORE endpoint, it will replace the placeholder
@@ -390,8 +410,12 @@ public class CoverageRepostioryService {
         // Don't addCrsPrefix now as Hibernate not yet persists the coverage's metadata, so, it will only save the fixed CRSs instead of the abstract CRSs to database.
         // When reading coverage from cache method, it will add back the CRS.
         coveragesCacheMap.put(coverageId, new Pair(coverage, false));
-        // Also insert/update the coverage's extent in cache as the bounding box of XY axes can be extended by WCST_Import.
-        this.createCoverageExtent(coverageId);
+        try {
+            // Also insert/update the coverage's extent in cache as the bounding box of XY axes can be extended by WCST_Import.
+            this.createCoverageExtent(coverageId);
+        } catch (SecoreException ex) {
+            log.warn("Cannot create coverage's extent for coverage '" + coverageId + "'. Reason: " + ex.getExceptionText());
+        }
 
         log.debug("Coverage '" + coverageId + "' is persisted in database.");
 

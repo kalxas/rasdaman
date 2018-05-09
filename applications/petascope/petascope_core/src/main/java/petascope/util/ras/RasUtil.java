@@ -21,16 +21,22 @@
  */
 package petascope.util.ras;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 import org.odmg.Database;
 import org.odmg.ODMGException;
 import org.odmg.OQLQuery;
@@ -39,6 +45,7 @@ import org.odmg.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.domain.cis.Coverage;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
@@ -46,11 +53,16 @@ import petascope.rasdaman.exceptions.RasdamanCollectionDoesNotExistException;
 import petascope.rasdaman.exceptions.RasdamanCollectionExistsException;
 import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
+import petascope.util.ListUtil;
+import petascope.util.StringUtil;
 import static petascope.util.ras.RasConstants.RASQL_VERSION;
 import rasj.RasClientInternalException;
 import rasj.RasConnectionFailedException;
 import rasj.RasImplementation;
 import rasj.odmg.RasBag;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  * Rasdaman utility classes - execute queries, etc.
@@ -316,6 +328,58 @@ public class RasUtil {
                 .replace(TOKEN_COLLECTION_TYPE, collectionType);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
     }
+    
+    /**
+     * Insert one MDD point to a rasdaman collection, e.g: 3D coverages with 3 bands, base type is char (c)
+     * 
+     * INSERT INTO test_AverageTemperature_2 VALUES <[0:0,0:0,0:0] {0c, 0c, 0c}> TILING ALIGNED [0:1000,0:1000,0:2] tile size 4194304
+     */
+    public static Long initializeMDD(int numberOfDimensions, int numberOfBands, 
+            String collectionType, String tileSetting, String collectionName) throws PetascopeException {
+
+        List<String> domainsTmp = new ArrayList<>();
+        List<String> bandsTmp = new ArrayList<>();
+        for (int i = 0; i < numberOfDimensions; i++) {
+            domainsTmp.add("0:0");
+        }
+
+        List<String> baseTypeAbbreviations;
+        try {
+            baseTypeAbbreviations = TypeResolverUtil.getBaseTypeAbbreviationsForCollectionType(collectionType);
+        } catch (TypeRegistryEntryMissingException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError,
+                    "Cannot get the base type abbreviation for collection type '" + collectionType + "' from type registry. Reason: " + ex.getMessage());
+        }
+
+        for (int i = 0; i < numberOfBands; i++) {
+            bandsTmp.add("0" + baseTypeAbbreviations.get(i));
+        }
+
+        String domainValue = ListUtil.join(domainsTmp, ",");
+        String bandValue = ListUtil.join(bandsTmp, ",");
+        if (bandsTmp.size() > 1) {
+            bandValue = "{" + bandValue + "}";
+        }
+
+        // e.g: 3 dimensions and 3 bands: <[0:0,0:0,0:0] {0c,0c,0c}>
+        String values = "<[" + domainValue + "] " + bandValue + ">";
+        Long oid = RasUtil.executeInsertStatement(collectionName, values, tileSetting);
+        
+        return oid;
+    }
+    
+    /**
+     * Update data from a source Rasdaman collection with grid subsets on a downscaled Rasdaman collection with grid subets.
+     */
+    public static void updateDownscaledCollectionFromSourceCollection(Long oid, String sourceAffectedDomain, 
+            String targetAffectedDomain, String sourceCollectionName, String targetDownscaledCollectionName) throws PetascopeException {
+        
+        // e.g: update test_mr1 as c set c[*:*,*:*] assign scale(d[*:*,*:*], [0:20,0:30]) from test_mr as d
+        String rasqlQuery = "UPDATE " + targetDownscaledCollectionName + " as d SET d" + targetAffectedDomain 
+                     + " ASSIGN SCALE(c" + sourceAffectedDomain + ", " + targetAffectedDomain + ")"
+                     + " FROM " + sourceCollectionName + " as c WHERE oid(c) = " + oid;
+        RasUtil.executeRasqlQuery(rasqlQuery, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, Boolean.TRUE);
+    }
 
     /**
      * Inserts a set of values given as an array constant in rasdaman. e.g:
@@ -328,7 +392,7 @@ public class RasUtil {
      * @return the oid of the newly inserted object
      * @throws RasdamanException
      */
-    public static Long executeInsertValuesStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
+    public static Long executeInsertStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
         long start = System.currentTimeMillis();
 
         Long oid = null;
@@ -519,11 +583,12 @@ public class RasUtil {
      * @return
      */
     public static List<Pair<Long, Long>> parseDomainIntervals(String domainIntervals) {
-        List<Pair<Long, Long>> results = new ArrayList<Pair<Long, Long>>();
-        String extracted = domainIntervals.substring(domainIntervals.indexOf("[") + 1, domainIntervals.indexOf("]"));
+        List<Pair<Long, Long>> results = new ArrayList<>();
+        String extracted = domainIntervals.substring(domainIntervals.indexOf(RASQL_OPEN_SUBSETS) + 1,
+                                                     domainIntervals.indexOf(RASQL_CLOSE_SUBSETS));
         String[] values = extracted.split(",");
         for (String value : values) {
-            String[] lowerUpperBounds = value.split(":");
+            String[] lowerUpperBounds = value.split(RASQL_BOUND_SEPARATION);
             Long lowerBound = null, upperBound = null;
             // Slicing
             if (lowerUpperBounds.length == 1) {
@@ -567,10 +632,38 @@ public class RasUtil {
     
     /**
      * Drop set/mdd/cell type from Rasdaman (if input type is not used by other stored objects).
-     */
+    */
     public static void dropRasdamanType(String type) throws PetascopeException {
         String rasqlQuery = TEMPLATE_DROP_RASDAMAN_TYPE.replace(RASDAMAN_TYPE, type);
         executeRasqlQuery(rasqlQuery, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+    }
+    
+     /* Get the tiling information from rasql query of a collection.
+     * 
+     * @param coverageId
+     * @return 
+     */
+    public static String retrieveTilingInfo(String collectionName, long oid) throws PetascopeException {
+        String query = "select dbinfo(c) from " + collectionName + " as c where oid(c) = " + oid;
+        String dbinfoResult = new RasQueryResult(RasUtil.executeRasqlQuery(query)).toString();
+        // Parse the result for "tiling" value, e.g:  "tiling": { "tilingScheme": "aligned", "tileSize": "4194304", "tileConfiguration": "[0:500,0:500]" }
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rootObj;
+        String tiling = "";
+        try {
+            rootObj = mapper.readTree(dbinfoResult);
+            JsonNode tilingObj = rootObj.get("tiling");
+            JsonNode tilingSchemeObj = tilingObj.get("tilingScheme");
+            JsonNode tileSizeObj = tilingObj.get("tileSize");
+            JsonNode tileConfigurationObj = tilingObj.get("tileConfiguration");
+
+            tiling = tilingSchemeObj.asText().toUpperCase() + " " + tileConfigurationObj.asText() + " tile size " + tileSizeObj.asText();
+        } catch (IOException ex) {
+            log.warn("Cannot parse result of query '" + query + "' as JSON object from Rasdaman. Reason: " + ex.getMessage());
+        }
+        
+        return tiling;
     }
 
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
@@ -588,5 +681,5 @@ public class RasUtil {
     private static final String RASQL = "rasql";
     private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";
     private static final String TEMPLATE_DROP_COLLECTION = "DROP COLLECTION " + TOKEN_COLLECTION_NAME;
-    private static final String TEMPLATE_DROP_RASDAMAN_TYPE = "DROP TYPE " + RASDAMAN_TYPE; 
+    private static final String TEMPLATE_DROP_RASDAMAN_TYPE = "DROP TYPE " + RASDAMAN_TYPE;
 }

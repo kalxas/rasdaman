@@ -16,6 +16,7 @@
   "recipe": {
     "name": "map_mosaic",
     "options": {
+      "scale_levels": [2],
       "wms_import": true
     }
   }

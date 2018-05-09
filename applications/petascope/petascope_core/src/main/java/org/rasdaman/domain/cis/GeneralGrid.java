@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -35,7 +36,7 @@ dimensional coordinate space, depending on the type of grid.
  */
 @Entity
 @Table(name = GeneralGrid.TABLE_NAME)
-public class GeneralGrid {
+public class GeneralGrid implements Serializable {
     
     public static final String TABLE_NAME = "general_grid";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

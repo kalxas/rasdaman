@@ -39,6 +39,7 @@ import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
@@ -166,7 +167,7 @@ public class RasqlTranslationService {
         for (WcpsSubsetDimension subsetDimension : subsetDimensions) {
             if (subsetDimension instanceof WcpsTrimSubsetDimension) {
                 results.add(((WcpsTrimSubsetDimension) subsetDimension).getLowerBound()
-                            + ":" + ((WcpsTrimSubsetDimension) subsetDimension).getUpperBound());
+                            + RASQL_BOUND_SEPARATION + ((WcpsTrimSubsetDimension) subsetDimension).getUpperBound());
             } else {
                 results.add(((WcpsSliceSubsetDimension) subsetDimension).getBound());
             }

@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -54,7 +55,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = CoverageFunction.TABLE_NAME)
-public class CoverageFunction {
+public class CoverageFunction implements Serializable {
 
     public static final String TABLE_NAME = "coverage_function";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

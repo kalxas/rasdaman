@@ -34,6 +34,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
+# NOTE: script_dir is folder of children test cases and it needs to be specified in path variables
 readonly ORACLE_DIR="$SCRIPT_DIR/oracle"
 readonly ORACLE_FILE="$ORACLE_DIR/valid_response.oracle"
 [ -f "$ORACLE_FILE" ] || error "$ORACLE_FILE not found"

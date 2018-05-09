@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.*;
 
@@ -50,7 +51,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = DataRecord.TABLE_NAME)
-public class DataRecord {
+public class DataRecord implements Serializable {
 
     public static final String TABLE_NAME = "data_record";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

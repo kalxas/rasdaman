@@ -102,7 +102,39 @@ public class TypeResolverUtil {
         ret = typeRegistry.getMddTypeForCollectionType(collectionType);
         return ret;
     }
-
+    
+    /**
+     * Return the abbreviation of mdd type for a given collection type.
+     * 
+     * e.g: MDD type: char -> c
+     *      MDD type: struct {red char blue float red short} -> char,float,short -> c,f,s
+     */
+    public static List<String> getBaseTypeAbbreviationsForCollectionType(String collectionType) throws PetascopeException, TypeRegistryEntryMissingException {
+        
+        List<String> results = new ArrayList<>();
+        TypeRegistry typeRegistry = TypeRegistry.getInstance();
+        TypeRegistryEntry entry = typeRegistry.getTypeEntry(collectionType);
+        String cellType = entry.getCellType();
+        
+        if (!cellType.contains("{")) {
+            // cell type is not a struct
+            // e.g: float -> f
+            results.add(RAS_TYPES_TO_ABBREVIATION.get(cellType));
+        } else {
+            // cell type is a struct, e.g: struct {red char blue float red short}
+            String structContent = cellType.substring(cellType.indexOf("{") + 1, cellType.length() - 1);
+            String[] tempArray = structContent.split(" ");
+            for (int i = 0; i < tempArray.length; i++) {
+                if (i % 2 == 1) {
+                    // e.g: char -> c
+                    results.add(RAS_TYPES_TO_ABBREVIATION.get(tempArray[i]));
+                }
+            }
+        }
+        
+        return results;
+    }
+    
     /**
      * Guesses the collection type. If no type is found, a new one is created.
      *

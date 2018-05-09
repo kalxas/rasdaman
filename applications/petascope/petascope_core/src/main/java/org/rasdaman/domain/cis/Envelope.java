@@ -20,6 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package org.rasdaman.domain.cis;
+import java.io.Serializable;
 import javax.persistence.*;
 
 /**
@@ -34,7 +35,7 @@ CIS::EnvelopeByAxis which contains list of AxisExtent.
  */
 @Entity
 @Table(name = Envelope.TABLE_NAME)
-public class Envelope {
+public class Envelope implements Serializable {
     
     public static final String TABLE_NAME = "envelope";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

@@ -28,6 +28,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
 /**
  * Class to translate axisIterator element from XML syntax to abstract syntax
@@ -93,7 +94,7 @@ public class AxisIterator extends AbstractRasNode {
             result = result + "(" + imageCrsDomainBounds + ")";
         } else {
             // lowerBound and upperBound is numeric
-            result = result + "(" + lowerBound.toAbstractSyntax() + ":" + upperBound.toAbstractSyntax() + ")";
+            result = result + "(" + lowerBound.toAbstractSyntax() + RASQL_BOUND_SEPARATION + upperBound.toAbstractSyntax() + ")";
         }
 
         return result;

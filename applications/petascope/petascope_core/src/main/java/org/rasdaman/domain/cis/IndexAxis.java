@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -46,7 +47,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = IndexAxis.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = IndexAxis.COLUMN_ID, referencedColumnName = Axis.COLUMN_ID)
-public class IndexAxis extends Axis {
+public class IndexAxis extends Axis implements Serializable {
 
     public static final String TABLE_NAME = "index_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

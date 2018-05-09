@@ -60,7 +60,7 @@ public class RasdamanValuesInserter implements RasdamanInserter {
         Long oid = null;
         try {
             //insert the values
-            oid = RasUtil.executeInsertValuesStatement(collectionName, values, tiling);
+            oid = RasUtil.executeInsertStatement(collectionName, values, tiling);
         } catch (RasdamanException ex) {
             log.error("Rasdaman error when inserting into collection " + collectionName + ". Error message: " + ex.getMessage());
             throw ex;

@@ -21,11 +21,14 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import petascope.core.AxisTypes;
+import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
@@ -41,7 +44,7 @@ import petascope.util.TimeUtil;
 @Entity
 @Table(name = GeoAxis.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = GeoAxis.COLUMN_ID, referencedColumnName = Axis.COLUMN_ID)
-public class GeoAxis extends Axis {
+public class GeoAxis extends Axis implements Serializable {
 
     public static final String TABLE_NAME = "geo_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
@@ -136,6 +139,60 @@ public class GeoAxis extends Axis {
         if (this.getClass().equals(IrregularAxis.class)) {
             return true;
         }
+        return false;
+    }
+    
+    /**
+     * Check if axis is X/Y type
+     */
+    public boolean isXYAxis() throws PetascopeException, SecoreException {
+        String axisLabel = this.getAxisLabel();
+        String axisCRS = this.getSrsName();
+        
+        CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(axisCRS);
+        // x, y, t,...
+        String axisType = CrsUtil.getAxisType(crsDefinition, axisLabel);
+
+        if (axisType.equals(AxisTypes.X_AXIS) || axisType.equals(AxisTypes.Y_AXIS)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if axis is X type
+     */
+    public boolean isXAxis() throws PetascopeException, SecoreException {
+        String axisLabel = this.getAxisLabel();
+        String axisCRS = this.getSrsName();
+        
+        CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(axisCRS);
+        // x, y, t,...
+        String axisType = CrsUtil.getAxisType(crsDefinition, axisLabel);
+
+        if (axisType.equals(AxisTypes.X_AXIS)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if axis is Y type
+     */
+    public boolean isYAxis() throws PetascopeException, SecoreException {
+        String axisLabel = this.getAxisLabel();
+        String axisCRS = this.getSrsName();
+        
+        CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(axisCRS);
+        // x, y, t,...
+        String axisType = CrsUtil.getAxisType(crsDefinition, axisLabel);
+
+        if (axisType.equals(AxisTypes.Y_AXIS)) {
+            return true;
+        }
+        
         return false;
     }
 }

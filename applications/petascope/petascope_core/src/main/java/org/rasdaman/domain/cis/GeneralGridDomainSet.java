@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,7 +40,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = GeneralGridDomainSet.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = GeneralGridDomainSet.COLUMN_ID, referencedColumnName = DomainSet.COLUMN_ID)
-public class GeneralGridDomainSet extends DomainSet {
+public class GeneralGridDomainSet extends DomainSet implements Serializable {
     
     public static final String TABLE_NAME = "general_grid_domain_set";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

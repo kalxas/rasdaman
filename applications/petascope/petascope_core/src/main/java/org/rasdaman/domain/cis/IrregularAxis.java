@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import javax.persistence.*;
@@ -55,7 +56,7 @@ import petascope.exceptions.WCSException;
 @Entity
 @Table(name = IrregularAxis.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = IrregularAxis.COLUMN_ID, referencedColumnName = GeoAxis.COLUMN_ID)
-public class IrregularAxis extends GeoAxis {
+public class IrregularAxis extends GeoAxis implements Serializable {
 
     public static final String TABLE_NAME = "irregular_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
@@ -150,7 +151,7 @@ public class IrregularAxis extends GeoAxis {
             // e.g: 
             // coefficient: 0.04166666666666666666666666667
             // input:       0.04166666666666666666666666666666666666666666666667
-             // find the min number which >= minInput
+            // find the min number which >= minInput
             if (!foundMinIndex) {
                 if (this.epsilonGreaterOrEqual(coefficient, minInput)) {
                     minIndex = i;

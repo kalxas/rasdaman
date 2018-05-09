@@ -22,6 +22,7 @@
 package org.rasdaman.domain.cis;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import javax.persistence.*;
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -52,7 +53,7 @@ import static petascope.core.XMLSymbols.PREFIX_SWE;
  */
 @Entity
 @Table(name = NilValue.TABLE_NAME)
-public class NilValue {
+public class NilValue implements Serializable {
 
     public static final String TABLE_NAME = "nil_value";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

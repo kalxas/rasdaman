@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 /**
@@ -45,7 +46,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = DomainSet.TABLE_NAME)
 @Inheritance(strategy=InheritanceType.JOINED)
-public abstract class DomainSet {
+public abstract class DomainSet implements Serializable {
 
     public static final String TABLE_NAME = "domain_set";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

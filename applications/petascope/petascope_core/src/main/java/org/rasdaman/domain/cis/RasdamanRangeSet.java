@@ -21,7 +21,12 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.io.Serializable;
 import javax.persistence.*;
+import petascope.util.BigDecimalUtil;
 
 /**
  * CIS 1.1
@@ -32,7 +37,7 @@ of the coverage (stored as Rasdaman collection and mdds).
 
 @Entity
 @Table(name = RasdamanRangeSet.TABLE_NAME)
-public class RasdamanRangeSet {
+public class RasdamanRangeSet implements Serializable {
     
     public static final String TABLE_NAME = "rasdaman_range_set";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
@@ -53,18 +58,19 @@ public class RasdamanRangeSet {
 
     @Column(name= "mdd_type")
     private String mddType;
+    
+    @Column(name = "tiling")
+    private String tiling;
+    
+    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
+    @OrderColumn
+    @JoinColumn(name = RasdamanRangeSet.COLUMN_ID)
+    private List<RasdamanDownscaledCollection> rasdamanDownscaledCollections;
 
     public RasdamanRangeSet() {
         
     }
 
-    protected RasdamanRangeSet(String collectionName, String collectionType, Long oid, String mddType) {
-        this.collectionName = collectionName;
-        this.collectionType = collectionType;
-        this.oid = oid;
-        this.mddType = mddType;
-    }
-    
     public long getId() {
         return id;
     }
@@ -103,5 +109,54 @@ public class RasdamanRangeSet {
 
     public void setMddType(String mddType) {
         this.mddType = mddType;
+    }
+
+    public String getTiling() {
+        return tiling;
+    }
+
+    public void setTiling(String tiling) {
+        this.tiling = tiling;
+    }
+
+    public List<RasdamanDownscaledCollection> getRasdamanDownscaledCollections() {
+        // NOTE: it needs to be sorted by level ascending.
+        Collections.sort(rasdamanDownscaledCollections);
+        return this.rasdamanDownscaledCollections;
+    }
+    
+    public void setRasdamanDownscaledCollections(List<RasdamanDownscaledCollection> rasdamanDownscaledCollections) {
+        this.rasdamanDownscaledCollections = rasdamanDownscaledCollections;
+    }
+    
+    /**
+     * Get the downscaled collection by scale level.
+     */
+    public RasdamanDownscaledCollection getRasdamanDownscaledCollectionByScaleLevel(BigDecimal level) {
+        for (RasdamanDownscaledCollection rasdamanDownscaledCollection : this.rasdamanDownscaledCollections) {           
+            if (rasdamanDownscaledCollection.getLevel().equals(BigDecimalUtil.stripDecimalZeros(level))) {
+                return rasdamanDownscaledCollection;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * From the list of downscaled collections and input level, 
+     * select the ***highest level collection which is lower than**** this input level.
+     * e.g: a list of levels [2, 5, 6, 9], input is: 7, then result is collection with level 6.
+     */
+    public RasdamanDownscaledCollection getRasdamanDownscaledCollectionAsSourceCollection(BigDecimal level) {
+        RasdamanDownscaledCollection result = null;
+        for (RasdamanDownscaledCollection rasdamanDownscaledCollection : this.getRasdamanDownscaledCollections()) {            
+            if (rasdamanDownscaledCollection.getLevel().compareTo(level) > 0) {
+                return result;
+            } else if (rasdamanDownscaledCollection.getLevel().compareTo(level) < 0) {
+                result = rasdamanDownscaledCollection;
+            }
+        }
+        
+        return result;
     }
 }

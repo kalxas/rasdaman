@@ -25,6 +25,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import petascope.wcps.metadata.model.ParsedSubset;
 
 import java.util.Map;
+import petascope.util.ras.RasConstants;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  * Representation of a message, understandable by rasdaman.
@@ -72,15 +76,18 @@ public class RasdamanGribMessage {
     }
 
     private String getAffectedDomain(Map<Integer, ParsedSubset<Long>> pixelIndices) {
-        String domain = "[";
+        
+        String domain = RASQL_OPEN_SUBSETS;
+        
         for (int i = 0; i < pixelIndices.size(); i++) {
-            domain += String.valueOf(pixelIndices.get(i).getLowerLimit()) + ":" + String.valueOf(pixelIndices.get(i).getUpperLimit());
+            domain += String.valueOf(pixelIndices.get(i).getLowerLimit()) + RASQL_BOUND_SEPARATION + String.valueOf(pixelIndices.get(i).getUpperLimit());
             //if not last, add a comma
             if (i < pixelIndices.keySet().size() - 1) {
                 domain += ",";
             }
         }
-        domain += "]";
+        domain += RASQL_CLOSE_SUBSETS;
+        
         return domain;
     }
 }

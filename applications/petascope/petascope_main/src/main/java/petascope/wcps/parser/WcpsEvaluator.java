@@ -1140,7 +1140,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // SCALE LEFT_PARENTHESIS
         //        coverageExpression COMMA number
         // RIGHT_PARENTHESIS
-        // e.g: scale(c[t(0)], 2.5) with c is 3D coverage which means 2D output will be scaled down to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)
+        // e.g: scale(c[t(0)], 2.5) with c is 3D coverage which means 2D output will be 
+        // downscaled to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         String factorNumber = ctx.number().getText();        
         WcpsResult wcpsResult = scaleExpressionByFactorHandler.handle(coverageExpr, new BigDecimal(factorNumber));
@@ -1153,7 +1154,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // SCALE_AXES LEFT_PARENTHESIS
         //        coverageExpression COMMA scaleDimensionIntervalList
         // RIGHT_PARENTHESIS
-        // e.g: scaleaxes(c[t(0)], [Lat(2.5), Long(2.5)]) with c is 3D coverage which means 2D output will be scaled down to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)
+        // e.g: scaleaxes(c[t(0)], [Lat(2.5), Long(2.5)]) with c is 3D coverage which means 2D output will be 
+        // downscaled to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         WcpsScaleDimensionIntevalList scaleAxesDimensionList = (WcpsScaleDimensionIntevalList) visit(ctx.scaleDimensionIntervalList());
         

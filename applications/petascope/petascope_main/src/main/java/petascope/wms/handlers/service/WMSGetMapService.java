@@ -64,6 +64,12 @@ import petascope.wcs2.parsers.subsets.TrimmingSubsetDimension;
 import petascope.wms.exception.WMSInternalException;
 import petascope.wms.handlers.model.TranslatedGridDimensionSubset;
 import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER;
+import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
+import petascope.util.ras.RasConstants;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  * Service class to build the response from a WMS GetMap request. In case of a
@@ -111,8 +117,6 @@ public class WMSGetMapService {
     private CoordinateTranslationService coordinateTranslationService;
     @Autowired
     private KVPWCSProcessCoverageHandler kvpWCSProcessCoverageHandler;
-    @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
     
     // In case of nativeCrs of layer (coverage) is different from outputCrs of GetMap request, then it needs to reproject $collectionExpression from sourceCrs to targetCrs.
     private static final String COLLECTION_EXPRESSION_TEMPLATE = "$collectionExpression";
@@ -141,7 +145,12 @@ public class WMSGetMapService {
     private String format;
     private boolean transparent;
     // BBox already translated from requesting CRS to native CRS of XY geo-referenced axes
-    private BoundingBox bbox;
+    // NOTE: it needs to keep the original BBox for Extend() to display result correctly in WMS client
+    private BoundingBox originalBBox;
+    // NOTE: this fittedBBox is used to fit input BBox to coverage's geo XY axes' domains 
+    // to avoid server killed by subsetting collection (e.g: c[-20:30] instead of c[0:30])
+    private BoundingBox fittedBBbox;
+    
     private Map<String, String> dimSubsetsMap = new HashMap<>();
 
     public WMSGetMapService() {
@@ -160,10 +169,25 @@ public class WMSGetMapService {
         this.outputCRS = outputCRS;
     }
 
-    public void setBBox(BoundingBox bbox) throws PetascopeException, SecoreException {
+    public void setBBoxes(BoundingBox bbox) throws PetascopeException, SecoreException {
         // If request is in YX order for bounding box (e.g: EPSG:4326 Lat, Long, swap it to XY order Long, Lat)
         // NOTE: as all layers requested with same outputCRS so only do this one time
-        this.bbox = this.swapYXBoundingBox(bbox, outputCRS);
+        this.originalBBox = this.swapYXBoundingBox(bbox, outputCRS);
+        this.fittedBBbox = this.swapYXBoundingBox(bbox, outputCRS);
+        
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(this.layerNames.get(0));
+        List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
+        String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
+        if (!this.outputCRS.equalsIgnoreCase(nativeCRS)) {
+            // First, transform from the request BBox in outputCrs to nativeCrs to calculate the grid bounds on the current coverages
+            // e.g: coverage's nativeCRS is EPSG:4326 and request BBox which contains coordinates in EPSG:3857
+            this.originalBBox = this.transformBoundingBox(this.originalBBox, this.outputCRS, nativeCRS);
+            this.fittedBBbox = this.transformBoundingBox(this.fittedBBbox, this.outputCRS, nativeCRS);
+        }
+        
+        // NOTE: to avoid error in rasql when server is killed from WMS client which sends request out of coverage's grid domains, 
+        // adjust the bounding box to fit with coverage's grid XY axes' domains
+        this.fitBBoxToCoverageGeoXYBounds();
     }
 
     public void setWidth(int width) {
@@ -257,16 +281,8 @@ public class WMSGetMapService {
         // If a subset dimension (e.g: time=...) does not exist in one of the layer, it is not a problem.
         for (String layerName : layerNames) {
 
-            WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerName);
+            WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
             List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets = new ArrayList<>();
-            
-            List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
-            String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
-            if (!this.outputCRS.equalsIgnoreCase(nativeCRS)) {
-                // First, transform from the request BBox in outputCrs to nativeCrs to calculate the grid bounds on the current coverages
-                // e.g: coverage's nativeCRS is EPSG:4326 and request BBox which contains coordinates in EPSG:3857
-                this.bbox = this.transformBoundingBox(this.bbox, this.outputCRS, nativeCRS);
-            }
 
             // First, convert all the input dimensions subsets to BigDecimal to be translated to grid subsets
             // e.g: time="2015-02-05"
@@ -300,9 +316,9 @@ public class WMSGetMapService {
                 } else {
                     // X, Y axes (bbox=...)
                     if (axis.isXAxis()) {
-                        parsedGeoSubsets.add(new ParsedSubset<>(bbox.getXMin(), bbox.getXMax()));
+                        parsedGeoSubsets.add(new ParsedSubset<>(fittedBBbox.getXMin(), fittedBBbox.getXMax()));
                     } else {
-                        parsedGeoSubsets.add(new ParsedSubset<>(bbox.getYMin(), bbox.getYMax()));
+                        parsedGeoSubsets.add(new ParsedSubset<>(fittedBBbox.getYMin(), fittedBBbox.getYMax()));
                     }
                 }
 
@@ -367,22 +383,31 @@ public class WMSGetMapService {
 
             for (String styleName : this.styleNames) {
 
-                Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);                        
+                Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);
+                String styleExpression = "";
                 if (style == null) {
                     // no complex coverage expression (e.g: c[0:50,0:20] - 5) just simple subsetted coverage expression c[0:50,0:20]
                     coverageExpression = aliasNameTemp;
                 } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
                     // wcpsQueryFragment
                     coverageExpression = this.buildCoverageExpressionByWCPSQueryFragment(aliasNameTemp, layerName, styleName);
+                    styleExpression = style.getWcpsQueryFragment();
                 } else {
                     // rasqlTransformFragment
                     coverageExpression = this.buildCoverageExpressionByRasqlTransformFragment(aliasNameTemp, layerName, styleName);
+                    styleExpression = style.getRasqlQueryTransformFragment();
                 }
 
-                // Then, apply the trimming subset for each coverage iterator
+                // Normally, apply the trimming subset for each coverage iterator
                 // e.g: style is $c + 5 then rasql will be: c[0:20,0:30] + 5
                 // NOTE: select c0 + udf.c0test() only should replace c0 with c0[0:20, 30:40] not udf.c0test to udf.c0[0:20, 30:40]test
-                coverageExpression = coverageExpression.replace(aliasNameTemp, aliasName + gridSpatialDomain);
+                String valueToReplace = aliasName + gridSpatialDomain;
+                // NOTE: if WMS style already contains "[" (e.g: condense + over $ts t( imageCrsDomain($c[ansi:"CRS:1"(0:3)], ansi) ) using $c[ansi($ts)])
+                // It means user already picked the grid domains to be translated in WCPS query, don't add the additional subsets from bbox anymore.
+                if (styleExpression.contains(RASQL_OPEN_SUBSETS)) {
+                    valueToReplace = aliasName;
+                }
+                coverageExpression = coverageExpression.replace(aliasNameTemp, valueToReplace);
 
                 // Add the translated Rasql query for the style to combine later
                 coverageExpressionsLayer.add("( " + coverageExpression + " )");
@@ -414,7 +439,7 @@ public class WMSGetMapService {
             for (Map.Entry<String, List<TranslatedGridDimensionSubset>> entry : translatedSubsetsAllLayersMap.entrySet()) {
                 String layerName = entry.getKey();
                 
-                WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerName);
+                WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
                 
                 // NOTE: the nodata values are fetched from coverage which has largest number of bands because the output also have the same bands
                 // e.g: coverage 1: 3 bands, coverage 2: 1 band, then output coverage has 3 bands.
@@ -427,11 +452,11 @@ public class WMSGetMapService {
                 
                 List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
                 String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
-                String gridBBoxSpatialDomains = this.createBBoxGridSpatialDomains(layerName);
+                String gridBBoxSpatialDomains = this.createBBoxGridSpatialDomainsForExtend(layerName);
                 
                 String aliasName = ALIAS_NAME + "" + i;
                 // a layer is equivalent to a rasdaman collection
-                String collectionName = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(layerName).getRasdamanRangeSet().getCollectionName();
+                String collectionName = wcpsCoverageMetadata.getRasdamanCollectionName();
                 collectionAlias.add(collectionName + " as " + aliasName);
                 
                 List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets = entry.getValue();
@@ -457,10 +482,10 @@ public class WMSGetMapService {
                 if (!nativeCRS.equals(outputCRS)) {
                     // It needs to be projected when the requesting CRS is different from the geo-referenced XY axes
                     finalCollectionExpressionLayer = PROJECTION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayer)
-                                                                        .replace("$xMin", this.bbox.getXMin().toPlainString())
-                                                                        .replace("$yMin", this.bbox.getYMin().toPlainString())
-                                                                        .replace("$xMax", this.bbox.getXMax().toPlainString())
-                                                                        .replace("$yMax", this.bbox.getYMax().toPlainString())
+                                                                        .replace("$xMin", this.fittedBBbox.getXMin().toPlainString())
+                                                                        .replace("$yMin", this.fittedBBbox.getYMin().toPlainString())
+                                                                        .replace("$xMax", this.fittedBBbox.getXMax().toPlainString())
+                                                                        .replace("$yMax", this.fittedBBbox.getYMax().toPlainString())
                                                                         .replace("$sourceCRS", nativeCRS)
                                                                         .replace("$targetCRS", this.outputCRS);
                 }
@@ -492,6 +517,18 @@ public class WMSGetMapService {
     }
     
     /**
+     * Create a WCPS Coverage metadata object based on layerName (coverageId) and input bounding box (geoXY subsets) which fits on a rasdaman downscaled collection.
+     */
+    private WcpsCoverageMetadata createWcpsCoverageMetadataForDownscaledLevel(String layerName) throws PetascopeException, SecoreException {
+        WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerName);
+        Pair<BigDecimal, BigDecimal> geoSubsetX = new Pair(fittedBBbox.getXMin(), fittedBBbox.getXMax());
+        Pair<BigDecimal, BigDecimal> geoSubsetY = new Pair(fittedBBbox.getYMin(), fittedBBbox.getYMax());
+        wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.createForDownscaledLevelByGeoXYSubsets(wcpsCoverageMetadata, geoSubsetX, geoSubsetY);
+        
+        return wcpsCoverageMetadata;
+    }
+    
+    /**
      * From the list of nodata values from all combined layers, create a nodata string for SELECT encode() query.
      * 
      */
@@ -504,7 +541,7 @@ public class WMSGetMapService {
                 values = ListUtil.join(nodataValues, ",");
             }
             // e.g: {"nodata": [10, 20, 40]}
-            nodata = "{\\\"nodata\\\": [" + values + "] }";
+            nodata = "{\\\"nodata\\\": " + RASQL_OPEN_SUBSETS + values + RASQL_CLOSE_SUBSETS + "}";
         }
         
         return nodata;
@@ -528,23 +565,29 @@ public class WMSGetMapService {
         BigDecimal minY = inputBBox.getYMin();
         BigDecimal maxX = inputBBox.getXMax();
         BigDecimal maxY = inputBBox.getYMax();
+        
+        BoundingBox bbox = new BoundingBox();
+        bbox.setXMin(new BigDecimal(inputBBox.getXMin().toPlainString()));
+        bbox.setYMin(new BigDecimal(inputBBox.getYMin().toPlainString()));
+        bbox.setXMax(new BigDecimal(inputBBox.getXMax().toPlainString()));
+        bbox.setYMax(new BigDecimal(inputBBox.getYMax().toPlainString()));
+        
         if (crsDefinition.getAxes().get(0).getType().equals(AxisTypes.Y_AXIS)) {
             // CRS axis is YX order so must swap the input bbox to XY order (e.g: EPSG:4326 (Lat, Long) to Long, Lat.
-            BigDecimal minTemp = minX;
-            BigDecimal maxTemp = maxX;
-            minX = minY;
-            minY = minTemp;
-            maxX = maxY;
-            maxY = maxTemp;
+            BigDecimal minTemp = new BigDecimal(minX.toPlainString());
+            BigDecimal maxTemp = new BigDecimal(maxX.toPlainString());
+            minX = new BigDecimal(minY.toPlainString());
+            minY = new BigDecimal(minTemp.toPlainString());
+            maxX = new BigDecimal(maxY.toPlainString());
+            maxY = new BigDecimal(maxTemp.toPlainString());
 
-            inputBBox.setXMin(minX);
-            inputBBox.setYMin(minY);
-            inputBBox.setXMax(maxX);
-            inputBBox.setYMax(maxY);
+            bbox.setXMin(minX);
+            bbox.setYMin(minY);
+            bbox.setXMax(maxX);
+            bbox.setYMax(maxY);
         }
 
-        return inputBBox;
-
+        return bbox;
     }
 
     /**
@@ -581,11 +624,49 @@ public class WMSGetMapService {
     }
     
     /**
+     * If request bbox is outside of first layer's geo XY axes bounds, adjust it to fit with coverage's geo XY axes bounds
+     * to avoid server killed by Rasql query.
+     * 
+     */
+    private void fitBBoxToCoverageGeoXYBounds() throws PetascopeException, SecoreException {
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(this.layerNames.get(0));
+        
+        List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
+        Axis axisX = xyAxes.get(0);
+        Axis axisY = xyAxes.get(1);
+        
+        if (this.fittedBBbox.getXMin().compareTo(axisX.getGeoBounds().getLowerLimit()) < 0) {
+            this.fittedBBbox.setXMin(axisX.getGeoBounds().getLowerLimit());
+        }
+        if (this.fittedBBbox.getXMax().compareTo(axisX.getGeoBounds().getUpperLimit()) > 0) {
+            this.fittedBBbox.setXMax(axisX.getGeoBounds().getUpperLimit());
+        }
+        
+        if (this.fittedBBbox.getYMin().compareTo(axisY.getGeoBounds().getLowerLimit()) < 0) {
+            this.fittedBBbox.setYMin(axisY.getGeoBounds().getLowerLimit());
+        }
+        if (this.fittedBBbox.getYMax().compareTo(axisY.getGeoBounds().getUpperLimit()) > 0) {
+            this.fittedBBbox.setYMax(axisY.getGeoBounds().getUpperLimit());
+        }
+        
+        if (this.fittedBBbox.getXMin().compareTo(this.fittedBBbox.getXMax()) > 0) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                                         "Geo lower bound cannot be greater than geo upper bound on X axis named '" + axisX.getLabel() 
+                                         + "', given '" + this.fittedBBbox.getXMin().toPlainString() + ":" + this.fittedBBbox.getXMax().toPlainString() + "'.");
+        } else if (this.fittedBBbox.getYMin().compareTo(this.fittedBBbox.getYMax()) > 0) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                                         "Geo lower bound cannot be greater than geo upper bound on Y axis named '" + axisY.getLabel() 
+                                         + "', given '" + this.fittedBBbox.getYMin().toPlainString() + ":" + this.fittedBBbox.getYMax().toPlainString() + "'.");
+        }
+    }
+    
+    /**
      * Translate the geo bounding box from the input parameter to grid spatial domains by ****grid axes order****.
      * e.g: if coverage imported as YX (Lat, Long) grid axes order, it should keep this order.
      */
-    private String createBBoxGridSpatialDomains(String layerName) throws PetascopeException, SecoreException {
-        WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerName);
+    private String createBBoxGridSpatialDomainsForExtend(String layerName) throws PetascopeException, SecoreException {
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
+        
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
         Axis axisX = xyAxes.get(0);
         Axis axisY = xyAxes.get(1);
@@ -593,18 +674,18 @@ public class WMSGetMapService {
         
         // as BBox always in XY CRS order (e.g: Long, Lat) not Lat, Long
         ParsedSubset<Long> parsedGridSubsetX = coordinateTranslationService.geoToGridSpatialDomain(axisX, 
-                                                                         new ParsedSubset<>(bbox.getXMin(), bbox.getXMax()));
+                                                                         new ParsedSubset<>(originalBBox.getXMin(), originalBBox.getXMax()));
         ParsedSubset<Long> parsedGridSubsetY = coordinateTranslationService.geoToGridSpatialDomain(axisY, 
-                                                                         new ParsedSubset<>(bbox.getYMin(), bbox.getYMax()));
+                                                                         new ParsedSubset<>(originalBBox.getYMin(), originalBBox.getYMax()));
 
         if (xyAxes.get(0).getRasdamanOrder() < xyAxes.get(1).getRasdamanOrder()) {
             // Coverage is imported with grid XY order (e.g: Long, Lat) - e.g: test_mean_summer_airtemp
-            gridBBoxSpatialDomains = "[" + parsedGridSubsetX.getLowerLimit() + ":" + parsedGridSubsetX.getUpperLimit() + ","
-                                   + parsedGridSubsetY.getLowerLimit() + ":" + parsedGridSubsetY.getUpperLimit() + "]";
+            gridBBoxSpatialDomains = RASQL_OPEN_SUBSETS + parsedGridSubsetX.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetX.getUpperLimit() + ","
+                                   + parsedGridSubsetY.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetY.getUpperLimit() + RASQL_CLOSE_SUBSETS;
         } else {
             // Coverage is imported with grid YX order (e.g: Lat, Long) - e.g: test_eobstest
-            gridBBoxSpatialDomains = "[" + parsedGridSubsetY.getLowerLimit() + ":" + parsedGridSubsetY.getUpperLimit() + ","
-                                   + parsedGridSubsetX.getLowerLimit() + ":" + parsedGridSubsetX.getUpperLimit() + "]";
+            gridBBoxSpatialDomains = RASQL_OPEN_SUBSETS + parsedGridSubsetY.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetY.getUpperLimit() + ","
+                                   + parsedGridSubsetX.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetX.getUpperLimit() + RASQL_CLOSE_SUBSETS;
         }
         
         return gridBBoxSpatialDomains;

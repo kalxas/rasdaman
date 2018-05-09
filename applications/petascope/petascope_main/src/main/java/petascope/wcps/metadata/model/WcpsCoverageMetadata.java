@@ -47,7 +47,7 @@ public class WcpsCoverageMetadata {
     private final String coverageName;   
     // NOTE: rasdaman collection name can be different from coverageName (in case of import a coverageName which is duplicate to an existing collectionName)
     // then coverage will create a new collectionName_datetime to store data.
-    private final String rasdamanCollectionName;
+    private String rasdamanCollectionName;
     private String coverageType;
     // List of axes after coverage expression (it will be stripped when there is a slicing expression, 
     // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)
@@ -78,6 +78,13 @@ public class WcpsCoverageMetadata {
 
     public void setAxes(List<Axis> axes) {
         this.axes = axes;
+    }
+    
+    /**
+     * Replace an existing axis with new axis by index in axis list.
+     */
+    public void updateAxisByIndex(int index, Axis axis) {
+        this.axes.set(index, axis);
     }
 
     /**
@@ -134,6 +141,10 @@ public class WcpsCoverageMetadata {
     
     public String getRasdamanCollectionName() {
         return this.rasdamanCollectionName;
+    }
+
+    public void setRasdamanCollectionName(String rasdamanCollectionName) {
+        this.rasdamanCollectionName = rasdamanCollectionName;
     }
 
     public void setRangeFields(List<RangeField> rangeFields) {

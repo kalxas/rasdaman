@@ -24,6 +24,7 @@ package petascope.wms.handlers.model;
 import java.util.ArrayList;
 import java.util.List;
 import petascope.wcps.metadata.model.ParsedSubset;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
 /**
  * A model object to store the translated grid dimension (of an axis)
@@ -70,7 +71,7 @@ public class TranslatedGridDimensionSubset {
                 }
             } else {
                 // X, Y axes, it is always trimming
-                value = parsedSubset.getLowerLimit() + ":" + parsedSubset.getUpperLimit();
+                value = parsedSubset.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedSubset.getUpperLimit();
                 this.gridBounds.add(value);
             }
         }

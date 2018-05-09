@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -43,7 +44,7 @@ import petascope.util.CrsUtil;
  */
 @Entity
 @Table(name = EnvelopeByAxis.TABLE_NAME)
-public class EnvelopeByAxis {
+public class EnvelopeByAxis implements Serializable {
 
     public static final String TABLE_NAME = "envelope_by_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

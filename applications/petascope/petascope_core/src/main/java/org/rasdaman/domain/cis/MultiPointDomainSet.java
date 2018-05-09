@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -35,7 +36,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = MultiPointDomainSet.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = GeneralGridDomainSet.COLUMN_ID, referencedColumnName = DomainSet.COLUMN_ID)
-public class MultiPointDomainSet extends DomainSet {
+public class MultiPointDomainSet extends DomainSet implements Serializable {
     
     public static final String TABLE_NAME = "multi_point_domain_set";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

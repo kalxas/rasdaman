@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 /**
@@ -46,7 +47,7 @@ this axis as defined in the CRS identified in the srsName item of the envelope.
 @Entity
 @Table(name = RegularAxis.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = RegularAxis.COLUMN_ID, referencedColumnName = GeoAxis.COLUMN_ID)
-public class RegularAxis extends GeoAxis {
+public class RegularAxis extends GeoAxis implements Serializable {
     
     public static final String TABLE_NAME = "regular_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

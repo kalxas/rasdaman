@@ -22,9 +22,7 @@
 package org.rasdaman;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -142,7 +140,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
         init();
         
         try {
-            SpringApplication.run(ApplicationMain.class, args);            
+            SpringApplication.run(ApplicationMain.class, args);
         } catch (Exception ex) {
             // NOTE: This class is private in Spring framework, cannot be imported here to compare by instanceof so must use class name to compare.
             if (!ex.getClass().getCanonicalName().equals("org.springframework.boot.devtools.restart.SilentExitExceptionHandler.SilentExitException")) {

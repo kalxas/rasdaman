@@ -21,12 +21,14 @@
  */
 package petascope.core;
 
+import java.io.Serializable;
+
 /**
  * A simple class to represent a pair.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
-public class Pair<A, B> {
+public class Pair<A, B> implements Serializable {
 
     /**
      * The fst component.

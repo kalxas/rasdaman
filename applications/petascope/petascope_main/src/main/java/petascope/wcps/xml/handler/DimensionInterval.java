@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
 /**
  * Translate a subset dimension from XML syntax to abstract syntax, used in
@@ -124,7 +125,7 @@ public class DimensionInterval extends AbstractRasNode {
         if (lowerBound != null && upperBound != null) {
             result = result + "(";
             result = result + lowerBound.toAbstractSyntax();
-            result = result + ":";
+            result = result + RASQL_BOUND_SEPARATION;
             result = result + upperBound.toAbstractSyntax();
             result = result + ")";
         }

@@ -24,7 +24,6 @@ package petascope.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +214,7 @@ public class TimeUtil {
         Long vectorMillis = (new BigDecimal(getMillis(timeResolution)).multiply(timeVector)).longValue();
         fractionalTimeSteps = BigDecimalUtil.divide(new BigDecimal(millis.getMillis()), new BigDecimal(vectorMillis));
 
-        log.debug("Computed " + fractionalTimeSteps + " offset-vectors between " + dtLo + " and " + dtHi + ".");
+        // log.debug("Computed " + fractionalTimeSteps + " offset-vectors between " + dtLo + " and " + dtHi + ".");
         return fractionalTimeSteps;
     }
 

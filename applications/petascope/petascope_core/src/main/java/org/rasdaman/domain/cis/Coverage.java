@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -61,7 +62,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = Coverage.TABLE_NAME)
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Coverage {
+public abstract class Coverage implements Serializable {
 
     public static final String TABLE_NAME = "coverage";
     public static final String COLUMN_ID = "id";

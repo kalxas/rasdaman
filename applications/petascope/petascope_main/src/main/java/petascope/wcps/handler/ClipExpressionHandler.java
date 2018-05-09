@@ -30,6 +30,7 @@ import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
+import petascope.util.ras.RasConstants;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.exception.processing.InvalidCoordinatesForClippingException;
 import petascope.wcps.exception.processing.WcpsRasqlException;
@@ -49,6 +50,9 @@ import petascope.wcps.subset_axis.model.WKTCompoundPoint;
 import petascope.wcps.subset_axis.model.WKTCompoundPoints;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  *
@@ -98,7 +102,7 @@ public class ClipExpressionHandler {
     private String translateGeoToGridPointCoordinate(Axis axis, BigDecimal geoPointCoordinate) throws PetascopeException {
         if (geoPointCoordinate.compareTo(axis.getGeoBounds().getLowerLimit()) < 0 || geoPointCoordinate.compareTo(axis.getGeoBounds().getUpperLimit()) > 0) {
             String errorMessage = "Coordinate is not within axis: " + axis.getLabel() + "("
-                    + axis.getGeoBounds().getLowerLimit().toPlainString() + ":" + axis.getGeoBounds().getUpperLimit().toPlainString() + ").";
+                    + axis.getGeoBounds().getLowerLimit().toPlainString() + RASQL_BOUND_SEPARATION + axis.getGeoBounds().getUpperLimit().toPlainString() + ").";
             throw new InvalidCoordinatesForClippingException(geoPointCoordinate, errorMessage);
         }
 
@@ -276,10 +280,10 @@ public class ClipExpressionHandler {
         try {
             // e.g: [0:20,0:50]
             String sdom = new String(RasUtil.getRasqlResultAsBytes(rasqlQuery));
-            sdom = sdom.replace("[", "").replace("]", "");
+            sdom = sdom.replace(RASQL_OPEN_SUBSETS, "").replace(RASQL_CLOSE_SUBSETS, "");
             String[] tmpArray = sdom.split(",");
             for (String tmp : tmpArray) {
-                String[] domain = tmp.split(":");
+                String[] domain = tmp.split(RASQL_BOUND_SEPARATION);
                 Pair<String, String> pair = new Pair<>(domain[0], domain[1]);
                 pairs.add(pair);
             }

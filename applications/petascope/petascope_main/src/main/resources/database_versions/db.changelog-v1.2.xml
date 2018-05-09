@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+<changeSet author="rasdaman (generated)" id="1528383036128-1">
+<createTable tableName="rasdaman_down_scaled_collection">
+<column name="rasdaman_down_scaled_collection_id" type="BIGINT">
+<constraints nullable="false"/>
+</column>
+<column name="collection_name" type="VARCHAR(255)"/>
+<column name="level" type="numeric(19, 2)"/>
+<column name="oid" type="BIGINT"/>
+<column name="rasdaman_range_set_id" type="BIGINT"/>
+<column name="rasdaman_downscaled_collections_order" type="INT"/>
+</createTable>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1528383036128-2">
+<addColumn tableName="rasdaman_range_set">
+<column name="tiling" type="varchar(255 BYTE)"/>
+</addColumn>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1528383036128-3">
+<addPrimaryKey columnNames="rasdaman_down_scaled_collection_id" constraintName="rasdaman_down_scaled_collection_pkey" tableName="rasdaman_down_scaled_collection"/>
+</changeSet>
+<changeSet author="rasdaman (generated)" id="1528383036128-4">
+<addForeignKeyConstraint baseColumnNames="rasdaman_range_set_id" baseTableName="rasdaman_down_scaled_collection" constraintName="fkejb9odlh4t21a7lk1tx83br9v" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="rasdaman_range_set_id" referencedTableName="rasdaman_range_set"/>
+</changeSet>
+</databaseChangeLog>

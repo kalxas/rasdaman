@@ -74,6 +74,9 @@ class Recipe(BaseRecipe):
         else:
             self.options['wms_import'] = bool(self.options['wms_import'])
 
+        if 'scale_levels' not in self.options:
+            self.options['scale_levels'] = None
+
         # Validate wcs_endpoint
         validate_and_read_url(self.options['wcs_endpoint'])
 
@@ -115,7 +118,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'])
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'])
         return self.importer
 
     @staticmethod

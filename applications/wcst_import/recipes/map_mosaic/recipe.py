@@ -37,6 +37,7 @@ from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
 
+
 class Recipe(BaseRecipe):
     def __init__(self, session):
         """
@@ -68,6 +69,9 @@ class Recipe(BaseRecipe):
 
         if 'band_names' not in self.options:
             self.options['band_names'] = None
+
+        if 'scale_levels' not in self.options:
+            self.options['scale_levels'] = None
 
     def describe(self):
         """
@@ -129,7 +133,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'], False)
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'], False)
         return self.importer
 
 

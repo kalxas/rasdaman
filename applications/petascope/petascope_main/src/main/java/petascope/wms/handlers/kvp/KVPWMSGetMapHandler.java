@@ -243,7 +243,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             wmsGetMapService.setLayerNames(layerNames);
             wmsGetMapService.setStyleNames(styleNames);
             wmsGetMapService.setOutputCRS(outputCRS);
-            wmsGetMapService.setBBox(bbox);
+            wmsGetMapService.setBBoxes(bbox);
             wmsGetMapService.setWidth(width);
             wmsGetMapService.setHeight(height);
             wmsGetMapService.setFormat(format);

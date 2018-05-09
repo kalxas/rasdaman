@@ -73,6 +73,9 @@ class Recipe(BaseRecipe):
         else:
             self.options['wms_import'] = bool(self.options['wms_import'])
 
+        if 'scale_levels' not in self.options:
+            self.options['scale_levels'] = None
+
         if 'tiling' not in self.options:
             self.options['tiling'] = None
 
@@ -458,7 +461,7 @@ class Recipe(BaseRecipe):
         :rtype: Importer
         """
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'],
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'],
                                      self.options['coverage']['grid_coverage'])
         return self.importer
 

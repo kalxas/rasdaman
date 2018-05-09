@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -41,7 +42,7 @@ arbitrarily distributed geometric points (positions).
  */
 @Entity
 @Table(name = DirectMultiPoint.TABLE_NAME)
-public class DirectMultiPoint {
+public class DirectMultiPoint implements Serializable {
     
     public static final String TABLE_NAME = "general_grid";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

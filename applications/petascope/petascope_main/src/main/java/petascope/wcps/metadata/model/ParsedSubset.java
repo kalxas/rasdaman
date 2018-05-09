@@ -186,7 +186,7 @@ public class ParsedSubset<CoordinateType> {
         return lowerLimit.toString().equals(WHOLE_DIMENSION_SYMBOL)
                && upperLimit.toString().equals(WHOLE_DIMENSION_SYMBOL);
     }
-
+    
     private CoordinateType lowerLimit;
     private CoordinateType upperLimit;
     private CoordinateType slicingCoordinate;

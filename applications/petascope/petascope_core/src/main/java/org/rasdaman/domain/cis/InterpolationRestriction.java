@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import java.util.List;
 
@@ -49,7 +50,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = InterpolationRestriction.TABLE_NAME)
-public class InterpolationRestriction {
+public class InterpolationRestriction implements Serializable {
 
     public static final String TABLE_NAME = "interpolation_restriction";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 /**
@@ -30,7 +31,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = Axis.TABLE_NAME)
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Axis {
+public abstract class Axis implements Serializable {
     
     public static final String TABLE_NAME = "axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";   

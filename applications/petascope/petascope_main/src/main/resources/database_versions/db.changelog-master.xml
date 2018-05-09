@@ -4,5 +4,6 @@
    <!-- Add more diff files below with new database versions -->
    <include file="database_versions/db.changelog-v1.0.xml"/>
    <include file="database_versions/db.changelog-v1.1.xml"/>
+   <include file="database_versions/db.changelog-v1.2.xml"/>
 </databaseChangeLog>
 

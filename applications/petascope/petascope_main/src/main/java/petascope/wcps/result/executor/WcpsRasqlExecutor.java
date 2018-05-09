@@ -32,6 +32,9 @@ import petascope.core.gml.GmlCoverageBuilder;
 import petascope.util.MIMEUtil;
 import petascope.core.Templates;
 import petascope.util.XMLUtil;
+import petascope.util.ras.RasConstants;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  * Execute the Rasql query and return result.
@@ -107,6 +110,6 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
      * @return JSON string of form b1 b2 .. bn, b1 b2 ... bn, ...
      */
     private String rasJsonToTupleList(String json) {
-        return json.replace("[", "").replace("]", "").replace("\"", "");
+        return json.replace(RASQL_OPEN_SUBSETS, "").replace(RASQL_CLOSE_SUBSETS, "").replace("\"", "");
     }
 }

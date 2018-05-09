@@ -108,14 +108,15 @@ public class InitAllConfigurationsApplicationService {
             throw new PetascopeException(ExceptionCode.RuntimeError,
                         "Cannot copy native library folder from '" + sourceNativeFolder + "' to '" + tmpNativeChildFolder + "'. Reason: " + ex.getMessage() + ".");
         }
-        
+                
         // Then load this new created tmp native library folder by Java class loader
         loadNativeLibraryByClassLoader(tmpNativeParentFolderPath, tmpNativeChildFolderPath);               
               
         // NOTE: As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
         // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
         Runtime rt = Runtime.getRuntime();
-        rt.exec("chmod -R 777 " + tmpNativeParentFolder);
+        Process process = rt.exec("chmod -R 777 " + tmpNativeParentFolder);
+        process.waitFor();
     }
 
     /**
@@ -167,7 +168,7 @@ public class InitAllConfigurationsApplicationService {
             usrPathsField.set(null, newPaths);
         }
     }
-
+    
     /**
      * Add JDBC driver to classpath to be used at runtime from configuration in petascope.properties.
      * 

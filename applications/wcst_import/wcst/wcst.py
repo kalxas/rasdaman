@@ -156,6 +156,43 @@ class WCSTInsertRequest(WCSTRequest):
     __REQUEST_TYPE = "InsertCoverage"
 
 
+class WCSTInsertScaleLevelsRequest(WCSTRequest):
+    def __init__(self, coverage_id, level):
+        """
+        Class to represent WCST InsertScaleLevels request
+
+        :param str coverage_id: the name of the coverage in string format
+        :param int level: the level to create a downscaled collection in Petascope after the request.
+
+        """
+        WCSTRequest.__init__(self)
+        self.coverage_id = coverage_id
+        self.level = level
+
+    def _get_request_type(self):
+        """
+        Returns the request type
+        :rtype str
+        """
+        return self.__REQUEST_TYPE
+
+    def _get_request_type_parameters(self):
+        """
+        Returns the request specific parameters
+        :rtype dict
+        """
+        request_kvp = {
+            self.__COVERAGE_ID_PARAMETER : self.coverage_id,
+            self.__LEVEL_PARAMETER : self.level
+        }
+
+        return request_kvp
+
+    __COVERAGE_ID_PARAMETER = "coverageId"
+    __LEVEL_PARAMETER = "level"
+    __REQUEST_TYPE = "InsertScaleLevel"
+
+
 class WCSTUpdateRequest(WCSTRequest):
     """
     Class to perform WCST insert requests

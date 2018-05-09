@@ -72,14 +72,21 @@ import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.IrregularAxis.CoefficientStatus;
+import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.gml.GeneralGridCoverageGMLService;
+import static petascope.core.service.CrsComputerService.GRID_POINT_EPSILON_WCPS;
+import petascope.service.PyramidService;
+import petascope.util.ras.RasConstants;
 
 import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
 import petascope.wcst.exceptions.WCSTInvalidXML;
 import petascope.wcps.metadata.model.ParsedSubset;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 @Service
 public class UpdateCoverageHandler {
@@ -96,6 +103,8 @@ public class UpdateCoverageHandler {
     private RangeParametersConvertorFactory rangeParametersConvertorFactory;
     @Autowired
     private GridDomainsValidator gridDomainsValidator;
+    @Autowired
+    private PyramidService pyramidService;
 
     /**
      * Handles the update of an existing WCS coverage.
@@ -139,8 +148,8 @@ public class UpdateCoverageHandler {
             //handle cell values
             Element rangeSet = GMLParserService.parseRangeSet(gmlInputCoverageDocument.getRootElement());
 
-            Map<Integer, String> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, dimensionSubsets);
-            String affectedDomain = getAffectedDomain(currentCoverage, dimensionSubsets, pixelIndices);
+            TreeMap<Integer, Pair<Boolean, String>> gridDomainsPairsMap = getPixelIndicesByCoordinate(currentCoverage, dimensionSubsets);
+            String affectedDomain = getAffectedDomain(currentCoverage, dimensionSubsets, gridDomainsPairsMap);
 
             // Only support GeneralGridCoverage now
             List<IndexAxis> inputIndexAxes = ((GeneralGridCoverage) inputCoverage).getIndexAxes();
@@ -149,7 +158,7 @@ public class UpdateCoverageHandler {
             // and the output grid domains which is calculated from the subsets with exising coverage
             gridDomainsValidator.validate(inputIndexAxes, affectedDomain);
 
-            String shiftDomain = getShiftDomain(inputCoverage, currentCoverage, pixelIndices);
+            String shiftDomain = getShiftDomain(inputCoverage, currentCoverage, gridDomainsPairsMap);
             RasdamanUpdater updater;
 
             Elements dataBlockElements = rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
@@ -197,7 +206,16 @@ public class UpdateCoverageHandler {
             // After updating rasdaman collection, we need to update current coverage with new geo, grid domains
             updateGeoDomains(currentCoverage, inputCoverage, dimensionSubsets);
             updateAxisExtents(currentCoverage);
-            updateGridDomains(currentCoverage, pixelIndices);
+            updateGridDomains(currentCoverage, gridDomainsPairsMap);
+            
+            // If coverage has downscaled collections, then update these collections from current input data by subsets
+            for (RasdamanDownscaledCollection rasdamanDownscaledCollection : currentCoverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
+                String coverageId = currentCoverage.getCoverageId();
+                BigDecimal level = rasdamanDownscaledCollection.getLevel();
+                
+                this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap);
+            }
+
             // Now, we can persist the updated current coverage from input slice
             persistedCoverageService.save(currentCoverage);
         } catch (IOException e) {
@@ -221,6 +239,8 @@ public class UpdateCoverageHandler {
      * e.g: 3.2 -> 3, 3.5 -> 4
      */
     private BigDecimal shiftToRoundedNumber(BigDecimal number) {
+        // NOTE: Add an epsilon before shifting in case the result is double but wrapped as BigDecimal with losing precision (e.g: for DateTime axis)
+        number = number.add(GRID_POINT_EPSILON_WCPS);
         return number.add(new BigDecimal("0.5")).setScale(0, RoundingMode.FLOOR);
     }
     
@@ -523,7 +543,7 @@ public class UpdateCoverageHandler {
      * @throws PetascopeException
      */
     private String getAffectedDomain(Coverage currentCoverage, List<AbstractSubsetDimension> subsets,
-            Map<Integer, String> pixelIndices) throws PetascopeException {
+            Map<Integer, Pair<Boolean, String>> pixelIndices) throws PetascopeException {
         String affectedDomain = "";
 
         // Only support GeneralGridCoverage now
@@ -531,20 +551,20 @@ public class UpdateCoverageHandler {
 
         if (!subsets.isEmpty()) {
             //construct the rasdaman domain starting from cellDomains and replace the values where subsets are given
-            affectedDomain += "[";
+            affectedDomain += RASQL_OPEN_SUBSETS;
             for (int i = 0; i < currentIndexAxes.size(); i++) {
 
                 IndexAxis currentIndexAxis = ((GeneralGridCoverage) currentCoverage).getIndexAxisByOrder(i);
 
                 //if a given subset for this cell domain is given, use that
                 if (pixelIndices.containsKey(i)) {
-                    affectedDomain += pixelIndices.get(i);
+                    affectedDomain += pixelIndices.get(i).snd;
                 } //otherwise, use the entire domain
                 else {
                     affectedDomain += currentIndexAxis.getLowerBound();
                     //only add upper bound if greater than equal lower
                     if (currentIndexAxis.getUpperBound() > currentIndexAxis.getLowerBound()) {
-                        affectedDomain += ":" + currentIndexAxis.getUpperBound();
+                        affectedDomain += RASQL_BOUND_SEPARATION + currentIndexAxis.getUpperBound();
                     }
                 }
                 //add separator between dimensions if not at the last dimension
@@ -552,7 +572,7 @@ public class UpdateCoverageHandler {
                     affectedDomain += ",";
                 }
             }
-            affectedDomain += "]";
+            affectedDomain += RASQL_CLOSE_SUBSETS;
         }
         return affectedDomain;
     }
@@ -569,8 +589,8 @@ public class UpdateCoverageHandler {
      * @return the string representation of the rasdaman domain with which the
      * array must be shifted.
      */
-    private String getShiftDomain(Coverage inputCoverage, Coverage currentCoverage, Map<Integer, String> pixelIndices) {
-        String shiftDomain = "[";
+    private String getShiftDomain(Coverage inputCoverage, Coverage currentCoverage, Map<Integer, Pair<Boolean, String>> pixelIndices) {
+        String shiftDomain = RASQL_OPEN_SUBSETS;
         List<AxisExtent> inputAxesExtent = inputCoverage.getEnvelope().getEnvelopeByAxis().getAxisExtents();
         for (int i = 0; i < inputAxesExtent.size(); i++) {
             String shift = "0";
@@ -582,10 +602,10 @@ public class UpdateCoverageHandler {
             int correspondingAxisOrder = ((GeneralGridCoverage) currentCoverage).getGeoAxisOrderByName(inputAxisLabel);
             if (pixelIndices.containsKey(correspondingAxisOrder)) {
                 //add the lower limit
-                if (pixelIndices.get(correspondingAxisOrder).contains(":")) {
-                    shift = pixelIndices.get(correspondingAxisOrder).split(":")[0];
+                if (pixelIndices.get(correspondingAxisOrder).snd.contains(RASQL_BOUND_SEPARATION)) {
+                    shift = pixelIndices.get(correspondingAxisOrder).snd.split(RASQL_BOUND_SEPARATION)[0];
                 } else {
-                    shift = pixelIndices.get(correspondingAxisOrder);
+                    shift = pixelIndices.get(correspondingAxisOrder).snd;
                 }
             }
             shiftDomain += shift;
@@ -593,7 +613,7 @@ public class UpdateCoverageHandler {
                 shiftDomain += ",";
             }
         }
-        shiftDomain += "]";
+        shiftDomain += RASQL_CLOSE_SUBSETS;
         return shiftDomain;
     }
 
@@ -608,9 +628,9 @@ public class UpdateCoverageHandler {
      * coverage request.
      * @return map indicating the pixel indices for each dimension.
      */
-    private Map<Integer, String> getPixelIndicesByCoordinate(Coverage currentCoverage,
+    private TreeMap<Integer, Pair<Boolean, String>> getPixelIndicesByCoordinate(Coverage currentCoverage,
             List<AbstractSubsetDimension> dimensionSubsets) throws WCSException, PetascopeException, SecoreException {
-        Map<Integer, String> result = new HashMap<>();
+        TreeMap<Integer, Pair<Boolean, String>> result = new TreeMap<>();
 
         for (AbstractSubsetDimension dimensionSubset : dimensionSubsets) {
             String low = "";
@@ -648,13 +668,14 @@ public class UpdateCoverageHandler {
             if (dimensionSubset instanceof SlicingSubsetDimension) {
                 resultingDomain = gridLowerBound.toString();
             } else {
-                resultingDomain = gridLowerBound.toString() + ":" + gridUpperBound.toString();
+                resultingDomain = gridLowerBound.toString() + RASQL_BOUND_SEPARATION + gridUpperBound.toString();
             }
 
             // Only supports GeneralGridCoverage now
             // NOTE: the order of CRS could be different from the order of grid CRS (e.g: Lat, Long but in rasdaman it is stored as Long, Lat as row-major order)
             int correspondingAxisOrder = ((GeneralGridCoverage) currentCoverage).getIndexAxisByName(inputAxisLabel).getAxisOrder();
-            result.put(correspondingAxisOrder, resultingDomain);
+            boolean isXYAxis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(inputAxisLabel).isXYAxis();
+            result.put(correspondingAxisOrder, new Pair<>(isXYAxis, resultingDomain));
         }
 
         return result;
@@ -765,13 +786,13 @@ public class UpdateCoverageHandler {
      * @param coverage
      * @param pixelIndices
      */
-    private void updateGridDomains(Coverage currentCoverage, Map<Integer, String> pixelIndices) {
+    private void updateGridDomains(Coverage currentCoverage, Map<Integer, Pair<Boolean, String>> pixelIndices) {
 
-        for (Map.Entry<Integer, String> entry : pixelIndices.entrySet()) {
+        for (Map.Entry<Integer, Pair<Boolean, String>> entry : pixelIndices.entrySet()) {
             Long gridLowerBound = null, gridUpperBound = null;
             Integer geoAxisOrder = entry.getKey();
             // e.g: 0:20 or 5
-            String[] gridDomains = entry.getValue().split(":");
+            String[] gridDomains = entry.getValue().snd.split(RASQL_BOUND_SEPARATION);
             if (gridDomains.length == 1) {
                 gridLowerBound = new Long(gridDomains[0]);
                 gridUpperBound = new Long(gridDomains[0]);

@@ -21,6 +21,7 @@
  */
 package petascope.wcst.parsers;
 
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,15 +44,20 @@ import static petascope.core.KVPSymbols.KEY_COVERAGEID;
 import static petascope.core.KVPSymbols.KEY_COVERAGE_REF;
 import static petascope.core.KVPSymbols.KEY_INPUT_COVERAGE;
 import static petascope.core.KVPSymbols.KEY_INPUT_COVERAGE_REF;
+import static petascope.core.KVPSymbols.KEY_LEVEL;
 import static petascope.core.KVPSymbols.KEY_MASK_GRID;
 import static petascope.core.KVPSymbols.KEY_MASK_GRID_REF;
 import static petascope.core.KVPSymbols.KEY_PIXEL_DATA_TYPE;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_TILING;
 import static petascope.core.KVPSymbols.KEY_USE_ID;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
 import petascope.wcs2.parsers.subsets.SubsetDimensionParserService;
+import petascope.wcst.exceptions.WCSTMissingMandatoryParameter;
 import petascope.wcst.exceptions.WCSTOperationNotAllowed;
+import petascope.wcst.exceptions.WCSTScaleLevelNotValid;
 
 /**
  * Parser for the requests handled by the Transaction Extension of OGC Web
@@ -63,6 +69,9 @@ import petascope.wcst.exceptions.WCSTOperationNotAllowed;
 public class KVPWCSTParser {
 
     private static final Logger log = LoggerFactory.getLogger(KVPWCSTParser.class);
+    private static final String ERROR_MESSAGE_TEMPLATE = "Missing key parameter '$key' from '$request' request.";
+    private static final String KEY_TEMPLATE = "$key";
+    private static final String REQUEST_TEMPLATE = "$request";
 
     /**
      * Constructor which distinguishes between the possible request types.
@@ -71,7 +80,7 @@ public class KVPWCSTParser {
      * @return
      * @throws WCSException
      */
-    public AbstractWCSTRequest parse(Map<String, String[]> kvpParameters) throws WCSException {
+    public AbstractWCSTRequest parse(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException {
         //distinguish between the 3 possible request types: InsertCoverage, DeleteCoverage and UpdateCoverage
         String requestType = kvpParameters.get(KEY_REQUEST)[0];
         //NOTE: when disable_write_operations is enabled in petascope.properties
@@ -121,11 +130,54 @@ public class KVPWCSTParser {
                     maskGrid, maskGridRefURL, subsets, rangeComponents, null, tiling);
 
             return updateCoverageRequest;
+        } else if (requestType.equals(KVPSymbols.VALUE_INSERT_SCALE_LEVEL)) {
+            // InsertScaleLevel request received (e.g: coverageId=test_mr&level=2)
+            String coverageId = kvpParameters.get(KEY_COVERAGEID) == null ? null : kvpParameters.get(KEY_COVERAGEID)[0];
+            BigDecimal level = this.getScaleLevel(kvpParameters);
+            
+            if (coverageId == null) {
+                throw new WCSTMissingMandatoryParameter(KEY_COVERAGEID);
+            }
+            
+            InsertScaleLevelRequest insertScaleLevelRequest = new InsertScaleLevelRequest(coverageId, level);
+            
+            return insertScaleLevelRequest;
+        } else if (requestType.equals(KVPSymbols.VALUE_DELETE_SCALE_LEVEL)) {
+            // DeleteScaleLevel request received (e.g: coverageId=test_mr&level=2)
+            String coverageId = kvpParameters.get(KEY_COVERAGEID) == null ? null : kvpParameters.get(KEY_COVERAGEID)[0];
+            BigDecimal level = this.getScaleLevel(kvpParameters);
+            
+            if (coverageId == null) {
+                throw new WCSTMissingMandatoryParameter(KEY_COVERAGEID);
+            }
+            
+            DeleteScaleLevelRequest deleteScaleLevelRequest = new DeleteScaleLevelRequest(coverageId, level);
+            
+            return deleteScaleLevelRequest;
         }
         //not a request that this parser can parse, but canParse returned true
         //should never happen
         log.error("Invalid request type: " + kvpParameters.get(KEY_REQUEST)[0] + ". This parser can not parse requests of this type.");
         throw new WCSTInvalidRequestException(kvpParameters.get(KEY_REQUEST)[0]);
+    }
+    
+    /**
+     * Check if level parameter for InsertScaleLevel request should be integer and greater than 1.
+     */
+    private BigDecimal getScaleLevel(Map<String, String[]> kvpParameters) throws WCSTScaleLevelNotValid, WCSTMissingMandatoryParameter {
+        BigDecimal level = BigDecimal.ONE;
+        try {
+            level = kvpParameters.get(KEY_LEVEL) == null ? null : new BigDecimal(kvpParameters.get(KEY_LEVEL)[0]);
+            if (level == null) {
+                throw new WCSTMissingMandatoryParameter(KEY_LEVEL);
+            } else if (level.compareTo(BigDecimal.ONE) <= 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException ex) {
+            throw new WCSTScaleLevelNotValid(kvpParameters.get(KEY_LEVEL)[0]);
+        }
+        
+        return level;
     }
 
     /**

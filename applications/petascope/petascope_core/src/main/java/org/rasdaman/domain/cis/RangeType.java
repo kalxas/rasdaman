@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 /**
@@ -48,7 +49,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = RangeType.TABLE_NAME)
-public class RangeType {
+public class RangeType implements Serializable {
 
     public static final String TABLE_NAME = "range_type";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

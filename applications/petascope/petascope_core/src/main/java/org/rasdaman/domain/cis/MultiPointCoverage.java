@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -32,7 +33,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = MultiPointCoverage.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = MultiPointCoverage.COLUMN_ID, referencedColumnName = Coverage.COLUMN_ID)
-public class MultiPointCoverage extends Coverage {
+public class MultiPointCoverage extends Coverage implements Serializable {
     
     public static final String TABLE_NAME = "multi_point_coverage";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

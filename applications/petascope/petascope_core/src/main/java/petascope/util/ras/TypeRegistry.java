@@ -36,6 +36,7 @@ import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
+import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
 /**
  * Keeps track of the types that exist in the tracked rasdaman instance.
@@ -111,10 +112,10 @@ public class TypeRegistry {
                 String val = nullValue.getValue();
                 //check if i is an interval, if not (and is a single value), make it an interval, as there is a bug in
                 // rasdaman which prevents adding single values as null values
-                if (val.contains(":")) {
+                if (val.contains(RASQL_BOUND_SEPARATION)) {
                     values += val;
                 } else {
-                    values += val + ":" + val;
+                    values += val + RASQL_BOUND_SEPARATION + val;
                 }
                 //add "," on all but last dim
                 if (count < nullValues.size() - 1) {
@@ -426,8 +427,8 @@ public class TypeRegistry {
                             //value. This is needed because currently there is a bug when creating types via rasql,
                             //which doesn't allow single values to be specified. However, petascope needs to display single
                             //values when presenting the output to the user.
-                            if (val.contains(":")) {
-                                String[] parts = val.split(":");
+                            if (val.contains(RASQL_BOUND_SEPARATION)) {
+                                String[] parts = val.split(RASQL_BOUND_SEPARATION);
                                 if (parts.length == 2 & parts[0].equals(parts[1])) {
                                     val = parts[0];
                                 }

@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 /**
@@ -40,7 +41,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = AllowedValue.TABLE_NAME)
-public class AllowedValue {
+public class AllowedValue implements Serializable {
 
     public static final String TABLE_NAME = "allowed_value";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

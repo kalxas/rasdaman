@@ -39,6 +39,7 @@ import petascope.core.KVPSymbols;
 import petascope.exceptions.WMSException;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
+import petascope.util.ras.RasConstants;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
@@ -48,6 +49,8 @@ import petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageScalingService;
 import petascope.wcs2.handlers.kvp.service.KVPWCSGetCoverageSubsetDimensionService;
 import petascope.wcs2.handlers.kvp.service.KVPWCSGetcoverageClipService;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  * Class which handles the WCS GetCoverage request and translates to a WCPS
@@ -220,7 +223,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
             coverageExpression = WCPS_COVERAGE_ALIAS + RANGE_NAME;
         } else {
             // e.g: subset=Lat(20:30)
-            coverageExpression = WCPS_COVERAGE_ALIAS + "[" + ListUtil.join(intervals, ", ") + "]" + RANGE_NAME;
+            coverageExpression = WCPS_COVERAGE_ALIAS + RASQL_OPEN_SUBSETS + ListUtil.join(intervals, ", ") + RASQL_CLOSE_SUBSETS + RANGE_NAME;
         }        
 
         // NOTE: if subsettingCrs exists but outputCrs is null, then outputCrs is subsettingCrs

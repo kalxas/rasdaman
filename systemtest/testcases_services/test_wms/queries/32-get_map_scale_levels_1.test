@@ -1,0 +1,10 @@
+service=WMS&
+version=1.3.0&
+request=GetMap&
+layers=test_scale_levels&
+bbox=15,15,24,24&
+crs=EPSG:4326&
+width=128&
+height=128&
+Styles=&
+format=image/png

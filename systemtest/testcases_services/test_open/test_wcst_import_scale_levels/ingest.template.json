@@ -1,0 +1,22 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "track_files": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_import_scale_levels",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "map_mosaic",
+    "options": {
+      "scale_levels": [2,4,6],
+      "wms_import": true
+    }
+  }
+}

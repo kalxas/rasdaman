@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 /**
@@ -28,7 +29,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = Uom.TABLE_NAME)
-public class Uom {
+public class Uom implements Serializable {
     
     public static final String TABLE_NAME = "uom";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

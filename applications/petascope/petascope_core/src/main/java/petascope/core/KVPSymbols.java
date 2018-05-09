@@ -79,6 +79,8 @@ public interface KVPSymbols {
     String VALUE_INSERT_COVERAGE = "InsertCoverage";
     String VALUE_DELETE_COVERAGE = "DeleteCoverage";
     String VALUE_UPDATE_COVERAGE = "UpdateCoverage";
+    String VALUE_INSERT_SCALE_LEVEL = "InsertScaleLevel";
+    String VALUE_DELETE_SCALE_LEVEL = "DeleteScaleLevel";
 
     String KEY_USE_ID = "useId";
     String KEY_COVERAGE_REF = "coverageRef";
@@ -89,6 +91,7 @@ public interface KVPSymbols {
     String KEY_MASK_GRID_REF = "maskgridref";
     String KEY_PIXEL_DATA_TYPE = "pixelDataType";
     String KEY_TILING = "tiling";
+    String KEY_LEVEL = "level";
 
     // WCPS
     String VALUE_PROCESS_COVERAGES = "ProcessCoverages";

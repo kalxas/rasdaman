@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.util.ras.RasConstants;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
@@ -32,6 +33,8 @@ import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
+import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 
 /**
  * Class to translate a coverage variable name  <code>
@@ -64,7 +67,7 @@ public class CoverageVariableNameHandler {
         // assume it is an axis iterator
         if (coverageName == null) {
             AxisIterator axisIterator = axisIteratorAliasRegistry.getAxisIterator(coverageAlias);
-            rasql = axisIterator.getRasqlAliasName() + "[" + axisIterator.getAxisIteratorOrder() + "]";
+            rasql = axisIterator.getRasqlAliasName() + RASQL_OPEN_SUBSETS + axisIterator.getAxisIteratorOrder() + RASQL_CLOSE_SUBSETS;
             axisIteratorAliasRegistry.addRasqlAxisIterator(rasql);
             //axis iterator, no coverage information, just pass the info up
             metadata = null;

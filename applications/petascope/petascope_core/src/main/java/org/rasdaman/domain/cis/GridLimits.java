@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import java.util.List;
 
@@ -39,7 +40,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = GridLimits.TABLE_NAME)
-public class GridLimits {
+public class GridLimits implements Serializable {
 
     public static final String TABLE_NAME = "grid_limits";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

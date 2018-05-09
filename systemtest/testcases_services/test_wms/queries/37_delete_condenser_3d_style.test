@@ -1,0 +1,5 @@
+service=WMS&
+version=1.3.0&
+request=DeleteStyle&
+name=style_condenser_3d&
+layer=test_wms_3d_time_series_regular

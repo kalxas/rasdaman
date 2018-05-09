@@ -17,6 +17,7 @@
     "name": "time_series_irregular",
     "options": {
       "wms_import": true,
+      "scale_levels": [5, 3, 2],
       "time_parameter": {
         "filename": {
           "regex": "(.*)_(.*)\\.(.*)",

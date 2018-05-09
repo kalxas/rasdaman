@@ -24,6 +24,7 @@ package petascope.wcst.handlers;
 import java.util.ArrayList;
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
@@ -31,7 +32,6 @@ import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
@@ -46,7 +46,6 @@ import petascope.util.ras.TypeResolverUtil;
 import static petascope.util.ras.TypeResolverUtil.getMddTypeForCollectionType;
 import petascope.wcst.exceptions.WCSTCoverageIdNotFound;
 import petascope.wcst.parsers.DeleteCoverageRequest;
-import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 
 /**
@@ -88,6 +87,14 @@ public class DeleteCoverageHandler {
             } catch (RasdamanException e) {
                 log.error("Cannot delete collection: " + collectionName + ", error: ", e);
                 // NOTE: If cannot delete collection for some reason (e.g: collection does not exist), it should not throw exception as it cannot delete coverage's metadata
+            }
+            
+            // then, try to delete all associated downscaled collection
+            try {
+                this.deleteAssociatedScaleLevelFromRasdaman(coverage);
+            } catch (Exception ex) {
+                // NOTE: If cannot delete collection for some reason (e.g: collection does not exist), it should not throw exception as it cannot delete coverage's metadata
+                log.error("Cannot delete associated scale levels with collection '" + collectionName +"'. Reason: " + ex.getMessage());
             }
 
             // check if WMS layer does exist, then remove it as well
@@ -153,6 +160,17 @@ public class DeleteCoverageHandler {
      */
     private void deleteFromRasdaman(Long oid, String collectionName) throws RasdamanException, PetascopeException {
         RasUtil.deleteFromRasdaman(oid, collectionName);
+    }
+    
+    /**
+     * Delete all associated scale level collections of this input coverage.
+     */
+    private void deleteAssociatedScaleLevelFromRasdaman(Coverage coverage) throws RasdamanException, PetascopeException {
+        for (RasdamanDownscaledCollection rasdamanScaleDownCollection : coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
+            Long oid = rasdamanScaleDownCollection.getOid();
+            String collectionName = rasdamanScaleDownCollection.getCollectionName();
+            RasUtil.deleteFromRasdaman(oid, collectionName);
+        }
     }
 
     /**

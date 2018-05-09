@@ -42,15 +42,16 @@ from master.provider.metadata.metadata_provider import MetadataProvider
 from util.coverage_util import CoverageUtil
 from util.file_obj import File
 from util.log import log
-from wcst.wcst import WCSTInsertRequest, WCSTUpdateRequest, WCSTSubset
+from wcst.wcst import WCSTInsertRequest, WCSTInsertScaleLevelsRequest, WCSTUpdateRequest, WCSTSubset
 from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest
 from wcst.wmst import WMSTGetCapabilities
 from util.crs_util import CRSUtil
 from util.time_util import DateTimeUtil
 from lxml import etree
 
+
 class Importer:
-    def __init__(self, coverage, insert_into_wms=False, grid_coverage=False):
+    def __init__(self, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False):
         """
         Imports a coverage into wcst
         :param Coverage coverage: the coverage to be imported
@@ -62,6 +63,7 @@ class Importer:
         self.processed = 0
         self.total = len(coverage.slices)
         self.insert_into_wms = insert_into_wms
+        self.scale_levels = scale_levels
         self.grid_coverage = grid_coverage
 
     def ingest(self):
@@ -210,6 +212,15 @@ class Importer:
         executor.insitu = current_insitu_value
         file.release()
 
+        # If scale_levels specified in ingredient files, send the query to Petascope to create downscaled collections
+        if self.scale_levels:
+            # Levels be ascending order
+            sorted_list = sorted(self.scale_levels)
+            # NOTE: each level is processed separately with each HTTP request
+            for level in sorted_list:
+                request = WCSTInsertScaleLevelsRequest(self.coverage.coverage_id, level)
+                executor.execute(request, mock=ConfigManager.mock)
+
     def _get_update_subsets_for_slice(self, slice):
         """
         Returns the given slice's interval as a list of wcst subsets
@@ -268,7 +279,6 @@ class Importer:
         data_provider = slice.data_provider
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         return file
-
 
     def _get_update_axes(self, slice):
         """

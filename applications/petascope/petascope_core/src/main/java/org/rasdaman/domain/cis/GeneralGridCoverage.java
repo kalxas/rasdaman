@@ -21,10 +21,17 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import petascope.core.AxisTypes;
+import petascope.core.CrsDefinition;
+import petascope.core.Pair;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.util.CrsUtil;
 
 /**
  *
@@ -37,7 +44,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = GeneralGridCoverage.TABLE_NAME)
 @PrimaryKeyJoinColumn(name = GeneralGridCoverage.COLUMN_ID, referencedColumnName = Coverage.COLUMN_ID)
-public class GeneralGridCoverage extends Coverage {
+public class GeneralGridCoverage extends Coverage implements Serializable {
 
     public static final String TABLE_NAME = "general_grid_coverage";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
@@ -140,5 +147,33 @@ public class GeneralGridCoverage extends Coverage {
         }
 
         return null;
+    }
+    
+    /**
+     * Return the XY geo axes of a coverage if possible
+     * @return 
+     */
+    public Pair<GeoAxis, GeoAxis> getXYGeoAxes() throws PetascopeException, SecoreException {
+        GeoAxis geoAxisX = null, geoAxisY = null;
+        
+        List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
+        for (GeoAxis geoAxis : geoAxes) {
+            String srs = geoAxis.getSrsName();
+            CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(srs);
+            // x, y, t,...
+            String axisType = CrsUtil.getAxisType(crsDefinition, geoAxis.getAxisLabel());
+
+            if (axisType.equals(AxisTypes.X_AXIS)) {
+                geoAxisX = geoAxis;
+            } else if (axisType.equals(AxisTypes.Y_AXIS)) {
+                geoAxisY = geoAxis;
+            }
+        }
+        
+        // Coverage has XY geo axes
+        if (geoAxisX != null && geoAxisY != null) {
+            return new Pair<>(geoAxisX, geoAxisY);
+        }
+        return null;        
     }
 }

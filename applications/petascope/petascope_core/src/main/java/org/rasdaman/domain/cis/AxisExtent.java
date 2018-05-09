@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.*;
 import petascope.exceptions.PetascopeException;
@@ -43,7 +44,7 @@ import petascope.util.TimeUtil;
  */
 @Entity
 @Table(name = AxisExtent.TABLE_NAME)
-public class AxisExtent {
+public class AxisExtent implements Serializable {
 
     public static final String TABLE_NAME = "axis_extent";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
