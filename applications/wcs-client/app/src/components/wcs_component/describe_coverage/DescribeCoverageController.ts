@@ -37,6 +37,7 @@ module rasdaman {
             "$rootScope",
             "$log",
             "rasdaman.WCSService",
+            "rasdaman.WCSSettingsService",
             "Notification",
             "rasdaman.ErrorHandlingService",
             "rasdaman.WebWorldWindService"
@@ -46,6 +47,7 @@ module rasdaman {
                            $rootScope:angular.IRootScopeService,
                            $log:angular.ILogService,
                            wcsService:rasdaman.WCSService,
+                           settings:rasdaman.WCSSettingsService,
                            alertService:any,
                            errorHandlingService:rasdaman.ErrorHandlingService,
                            webWorldWindService:rasdaman.WebWorldWindService) {            
@@ -102,6 +104,7 @@ module rasdaman {
                 coverageIds.push($scope.selectedCoverageId);
 
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
+                $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
 
                 //Retrieve coverage description
                 wcsService.getCoverageDescription(describeCoverageRequest)
@@ -154,7 +157,9 @@ module rasdaman {
         availableCoverageIds:string[];
         selectedCoverageId:string;
 
+        requestUrl:string;
+
         isCoverageIdValid():void;
-        describeCoverage():void;
+        describeCoverage():void;        
     }
 }

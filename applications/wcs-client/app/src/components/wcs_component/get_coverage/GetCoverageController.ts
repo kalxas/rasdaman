@@ -204,7 +204,7 @@ module rasdaman {
                                 // GET KVP request which open a new Window to show the result
                                 wcsService.getCoverageHTTPGET(getCoverageRequest)
                                 .then(
-                                    (requestUrl:string)=> {
+                                    (requestUrl:string)=> {                                        
                                         $scope.core.requestUrl = requestUrl;                                        
                                     },
                                     (...args:any[])=> {
@@ -214,6 +214,7 @@ module rasdaman {
                                         $log.error(args);
                                     });
                             } else {
+                                $scope.core.requestUrl = null;
                                 // POST KVP request which open a new Window to show the result
                                 wcsService.getCoverageHTTPPOST(getCoverageRequest);
                             }                           

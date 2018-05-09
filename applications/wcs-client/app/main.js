@@ -2769,7 +2769,7 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WCSDescribeCoverageController = (function () {
-        function WCSDescribeCoverageController($scope, $rootScope, $log, wcsService, alertService, errorHandlingService, webWorldWindService) {
+        function WCSDescribeCoverageController($scope, $rootScope, $log, wcsService, settings, alertService, errorHandlingService, webWorldWindService) {
             $scope.selectedCoverageId = null;
             $scope.isCoverageDescriptionsDocumentOpen = false;
             $scope.isCoverageDescriptionsHideGlobe = true;
@@ -2810,6 +2810,7 @@ var rasdaman;
                 var coverageIds = [];
                 coverageIds.push($scope.selectedCoverageId);
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
+                $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
                 wcsService.getCoverageDescription(describeCoverageRequest)
                     .then(function (response) {
                     $scope.coverageDescriptionsDocument = response.document;
@@ -2845,6 +2846,7 @@ var rasdaman;
             "$rootScope",
             "$log",
             "rasdaman.WCSService",
+            "rasdaman.WCSSettingsService",
             "Notification",
             "rasdaman.ErrorHandlingService",
             "rasdaman.WebWorldWindService"
@@ -3114,6 +3116,7 @@ var rasdaman;
                             });
                         }
                         else {
+                            $scope.core.requestUrl = null;
                             wcsService.getCoverageHTTPPOST(getCoverageRequest);
                         }
                     };
