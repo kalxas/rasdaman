@@ -472,8 +472,8 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile*
 
     /* And init rasdaman data structures */
     r_Minterval testInterval = r_Minterval(2);
-    testInterval << r_Sinterval((r_Range)1, (r_Range)width);
-    testInterval << r_Sinterval((r_Range)1, (r_Range)height);
+    testInterval << r_Sinterval((r_Range)0, ((r_Range)width) - 1);
+    testInterval << r_Sinterval((r_Range)0, ((r_Range)height) - 1);
 
     /* Allocate memory */
     int typeSize = (int)((r_Primitive_Type*) bandType)->size();
