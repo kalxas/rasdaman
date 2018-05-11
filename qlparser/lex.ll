@@ -231,7 +231,6 @@ int string_yyinput( char* buf, int max_size )
 "subspace"                               { SETTOKEN( SUBSPACE, commandToken, SUBSPACE)}
 "multipolygon"                           { SETTOKEN( MULTIPOLYGON, commandToken, MULTIPOLYGON)}
 "projection"                             { SETTOKEN( PROJECTION, commandToken, PROJECTION)}
-"polytope"                               { SETTOKEN( POLYTOPE, commandToken, POLYTOPE )}
 "polygon"                                { SETTOKEN( POLYGON, commandToken, POLYGON)}
 "curtain"                                { SETTOKEN( CURTAIN, commandToken, CURTAIN)}
 "linestring"                             { SETTOKEN( LINESTRING, commandToken, LINESTRING)}

@@ -41,6 +41,7 @@ rasdaman GmbH.
 #include "qlparser/qtclippingutil.hh"
 #include "qlparser/qtpolygonclipping.hh"
 #include "qlparser/qtpolygonutil.hh"
+#include "qlparser/qtmulticlipping.hh"
 #include "raslib/minterval.hh"
 #include "catalogmgr/ops.hh"
 
@@ -54,8 +55,9 @@ rasdaman GmbH.
 class QtCurtain : public QtUnaryOperation
 {
   public:     
-    //constructor getting the mdd beign operated on, the mask, and the the projection dimensions containing the mask
-    QtCurtain(QtOperation* mddOp, std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > maskArg, QtMShapeData* projDims);
+  
+    //constructor getting the mdd being operated on, the mask generator (QtMulticlipping object), and the projection dimensions containing the mask.
+    QtCurtain(QtOperation* mddOp, std::shared_ptr<QtMulticlipping> clipArg, QtMShapeData* projDims);
     
     QtData* computeOp(QtMDD* operand);
 
@@ -78,6 +80,7 @@ class QtCurtain : public QtUnaryOperation
     
     std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >  mask;
     
+    std::shared_ptr<QtMulticlipping> clipping;
     // list of mask dimensions for curtains
     std::vector<r_Dimension> maskDims;
 };

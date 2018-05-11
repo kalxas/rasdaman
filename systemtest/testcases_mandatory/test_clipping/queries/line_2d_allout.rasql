@@ -1,1 +1,1 @@
-select encode(subspace( c , (-10 -10, -9 -9)), "csv") from test_rgb2 as c
+select encode(clip( c, subspace(-10 -10, -9 -9) ), "csv") from test_rgb2 as c

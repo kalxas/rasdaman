@@ -64,9 +64,9 @@ static const char rcsid[] = "@(#)qlparser, QtCurtain: $Id: qtcurtain.cc,v 1.47 2
 const QtNode::QtNodeType QtCurtain::nodeType = QtNode::QT_CURTAIN;
 
 QtCurtain::QtCurtain(QtOperation* mddOp, 
-                     std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > maskArg, 
+                     std::shared_ptr<QtMulticlipping> clipArg, 
                      QtMShapeData* projDims)
-    : QtUnaryOperation(mddOp), mask(maskArg)
+    : QtUnaryOperation(mddOp), clipping(clipArg)
 {
     //the assumption here is that the mshapeProjections form a pair of r_Dimension values
     //the parser should take something in the format of a 1-D linestring WKT point: (x, y)
@@ -89,8 +89,9 @@ QtCurtain::QtCurtain(QtOperation* mddOp,
     for(size_t i = 0; i < projDims->getPolytopePoints().size(); i++)
     {
         maskDims.emplace_back(static_cast<r_Dimension>(projDims->getPolytopePoints()[i][0]));
-    }
+    }    
 }
+
 
 MDDObj*
 QtCurtain::extractCurtain(const MDDObj* op, const r_Minterval& areaOp)
@@ -202,6 +203,9 @@ QtCurtain::evaluate(QtDataList* inputList)
     
     // get the operand
     QtData* operand = input->evaluate( inputList );
+    
+    //now, we generate the mask
+    mask = clipping->buildAbstractMask();
     
     // evaluate sub-nodes to obtain operand values
     if (operand)

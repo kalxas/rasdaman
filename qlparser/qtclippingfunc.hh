@@ -53,7 +53,7 @@ rasdaman GmbH.
   given dataset). For the moment there is an implementation of operation only as a stand alone operation. The purpose of the subspacing operation is to be used in the future as a basis for implementing the above operations as well.
   The subspacing operation is currently exectued when the user makes the following query type:
 
-  'select subspace(c, (1-stpoint, n-thPoint)) from collectionName as c'
+  'select clip(c, subspace(1-stpoint, n-thPoint)) from collectionName as c'
   where the point coordinates are defined by simple integer values separated by spaces and the points are separated by commas.
 
   ## Subspacing Result:

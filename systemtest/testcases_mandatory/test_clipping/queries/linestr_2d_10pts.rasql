@@ -1,1 +1,1 @@
-select encode(linestring( c , (0 39, 119 141, 121 176, 0 39, 13 37, 14 14, 37 37, 37 37, 39 37, 121 176)), "csv") from test_rgb2 as c
+select encode(clip( c, linestring(0 39, 119 141, 121 176, 0 39, 13 37, 14 14, 37 37, 37 37, 39 37, 121 176)), "csv") from test_rgb2 as c
