@@ -21,20 +21,15 @@
  */
 package petascope.wcps.handler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
-import petascope.util.ListUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
-import petascope.wcps.exception.processing.InvalidAxisNameException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
@@ -61,8 +56,6 @@ public class SubsetExpressionHandler {
     private SubsetParsingService subsetParsingService;
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
-    @Autowired
-    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
 
     public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
 
@@ -75,22 +68,21 @@ public class SubsetExpressionHandler {
         // Validate axis name before doing other processes.
         validateSubsets(metadata, subsetDimensions);
 
-        //check in the list of subsets the ones that do not contain "$" and use only those
-        // subset dimension without "$"
-        List<WcpsSubsetDimension> pureSubsetDimensions = subsetParsingService.getPureSubsetDimensions(subsetDimensions);
-        // subset dimension with "$"
-        List<WcpsSubsetDimension> axisIteratorSubsetDimensions = subsetParsingService.getAxisIteratorSubsetDimensions(subsetDimensions);
+        //subset dimensions with numeric or timestamp bounds (Lat(0:4) or ansi("2006-01-01")).
+        List<WcpsSubsetDimension> terminalSubsetDimensions = subsetParsingService.getTerminalSubsetDimensions(subsetDimensions);
+        // subset dimension containing expressions as bounds (Lat($px)).
+        List<WcpsSubsetDimension> expressionSubsetDimensions = subsetParsingService.getExpressionSubsetDimensions(subsetDimensions);
 
-        // Only apply subsets if subset dimensions don't contain the "$"
-        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(pureSubsetDimensions, metadata, false);
+        // Only apply subsets if subset dimensions have numeric bounds.
+        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(terminalSubsetDimensions, metadata, false);
 
         // Update the coverage expression metadata with the new subsets
-        wcpsCoverageMetadataService.applySubsets(true, metadata, numericSubsets);        
+        wcpsCoverageMetadataService.applySubsets(true, metadata, numericSubsets);
 
         //now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.
         String dimensions = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(),
-                                                        axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+                                                        expressionSubsetDimensions);
         String rasqlSubset = template.replace("$dimensionIntervalList", dimensions);
         
         // NOTE: DimensionIntervalList with Trim expression can contain slicing as well (e.g: c[t(0), Lat(0:20), Long(30)])

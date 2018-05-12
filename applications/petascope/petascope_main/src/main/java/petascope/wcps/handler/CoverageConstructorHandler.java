@@ -59,8 +59,6 @@ public class CoverageConstructorHandler {
     private SubsetParsingService subsetParsingService;
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
-    @Autowired
-    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
 
     public WcpsResult handle(String coverageName, List<AxisIterator> axisIterators, WcpsResult values) {
 
@@ -80,7 +78,7 @@ public class CoverageConstructorHandler {
                 rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
-            if (i.getSubsetDimension().getStringRepresentation().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
+            if (i.getSubsetDimension().getStringBounds().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
                 axisIteratorSubsetDimensions.add(subsetDimension);
             } else {
                 pureSubsetDimensions.add(subsetDimension);
@@ -90,7 +88,7 @@ public class CoverageConstructorHandler {
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(coverageName, numericSubsets);
 
-        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions);
         String template = TEMPLATE.replace("$iter", rasqlAliasName)
                 .replace("$intervals", rasqlDomain)
                 .replace("$values", values.getRasql());

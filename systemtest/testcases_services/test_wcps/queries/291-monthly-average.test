@@ -1,0 +1,5 @@
+for $c in (test_AverageChloro), $d in (DaysPerMonth) return encode(
+  coverage monthlyAvg
+  over $x x(0:11)
+  values avg($c[unix(add($d[i(0:$x)]) - $d[i($x)]:add($d[i(0:$x)]))])
+, "json")

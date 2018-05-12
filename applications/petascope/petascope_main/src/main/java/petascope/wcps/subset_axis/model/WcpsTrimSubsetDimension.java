@@ -52,7 +52,17 @@ public class WcpsTrimSubsetDimension extends WcpsSubsetDimension {
     }
 
     @Override
-    public String getStringRepresentation() {
+    public String getStringBounds() {
         return lowerBound + ":" + upperBound;
+    }
+
+    @Override
+    public String toString() {
+        String result = getAxisName();
+        if(getCrs() != null && !getCrs().isEmpty()){
+            result += ":\"" + getCrs() + "\"";
+        }
+        result += "(" + lowerBound + ":" + upperBound + ")";
+        return result;
     }
 }

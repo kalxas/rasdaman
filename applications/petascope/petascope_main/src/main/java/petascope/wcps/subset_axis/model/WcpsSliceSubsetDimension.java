@@ -23,7 +23,7 @@ package petascope.wcps.subset_axis.model;
 
 /**
  *
- * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+ * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class WcpsSliceSubsetDimension  extends WcpsSubsetDimension {
 
@@ -43,7 +43,17 @@ public class WcpsSliceSubsetDimension  extends WcpsSubsetDimension {
     }
 
     @Override
-    public String getStringRepresentation() {
+    public String getStringBounds() {
         return bound;
+    }
+
+    @Override
+    public String toString() {
+        String result = getAxisName();
+        if(getCrs() != null && !getCrs().isEmpty()){
+            result += ":\"" + getCrs() + "\"";
+        }
+        result += "(" + bound + ")";
+        return result;
     }
 }

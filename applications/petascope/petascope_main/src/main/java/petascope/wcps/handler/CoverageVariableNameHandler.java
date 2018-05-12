@@ -65,8 +65,8 @@ public class CoverageVariableNameHandler {
         if (coverageName == null) {
             AxisIterator axisIterator = axisIteratorAliasRegistry.getAxisIterator(coverageAlias);
             rasql = axisIterator.getRasqlAliasName() + "[" + axisIterator.getAxisIteratorOrder() + "]";
+            axisIteratorAliasRegistry.addRasqlAxisIterator(rasql);
             //axis iterator, no coverage information, just pass the info up
-
             metadata = null;
         } else {
             // coverage does exist, translate the persisted coverage to WcpsCoverageMetadata object

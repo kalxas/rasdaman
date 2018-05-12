@@ -61,8 +61,6 @@ public class GeneralCondenserHandler {
     private SubsetParsingService subsetParsingService;
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
-    @Autowired
-    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
 
     public WcpsResult handle(String operation, ArrayList<AxisIterator> axisIterators, WcpsResult whereClause,
             WcpsResult using) {
@@ -82,7 +80,7 @@ public class GeneralCondenserHandler {
                 rasqlAliasName = alias.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
             }
             // Check if axis iterator's subset dimension which has the "$"
-            if (i.getSubsetDimension().getStringRepresentation().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
+            if (i.getSubsetDimension().getStringBounds().contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
                 axisIteratorSubsetDimensions.add(subsetDimension);
             } else {
                 pureSubsetDimensions.add(subsetDimension);
@@ -93,7 +91,7 @@ public class GeneralCondenserHandler {
         List<Subset> numericSubsets = subsetParsingService.convertToRawNumericSubsets(pureSubsetDimensions);
         WcpsCoverageMetadata metadata = wcpsCoverageMetadataService.createCoverage(CONDENSER_TEMP_NAME, numericSubsets);
 
-        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions, axisIteratorAliasRegistry);
+        String rasqlDomain = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(), axisIteratorSubsetDimensions);
         String template = TEMPLATE.replace("$operation", operation)
                 .replace("$iter", rasqlAliasName)
                 .replace("$intervals", rasqlDomain)

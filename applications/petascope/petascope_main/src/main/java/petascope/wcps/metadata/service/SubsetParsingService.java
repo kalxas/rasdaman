@@ -21,6 +21,8 @@
  */
 package petascope.wcps.metadata.service;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import petascope.wcps.exception.processing.InvalidIntervalNumberFormat;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
@@ -30,6 +32,7 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
 import petascope.util.BigDecimalUtil;
@@ -44,6 +47,7 @@ import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 import petascope.core.service.CrsComputerService;
+
 import static petascope.util.WCPSConstants.MSG_STAR;
 
 /**
@@ -61,75 +65,79 @@ public class SubsetParsingService {
     }
 
     /**
-     * Get a list of subset dimensions which does not contains axis iterator
-     * (e.g: Lat($px))
+     * Get a list of subset dimensions which have numeric / timestamp lower and upper bounds.
+     * e.g: Lat(0), Lat(0:0), ansi("1950-01-01") but not Lat($p), Lat(p), Lat(avg(c)).
      *
      * @param subsetDimensions
      * @return
      */
-    public List<WcpsSubsetDimension> getPureSubsetDimensions(List<WcpsSubsetDimension> subsetDimensions) {
-        List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
+    public List<WcpsSubsetDimension> getTerminalSubsetDimensions(List<WcpsSubsetDimension> subsetDimensions) {
+        List<WcpsSubsetDimension> terminalSubsetDimensions = new ArrayList<>();
 
         for (WcpsSubsetDimension subsetDimension : subsetDimensions) {
-            boolean pureSubsetDimension = true;
-            if (subsetDimension instanceof WcpsTrimSubsetDimension) {
-                // trim subset dimension
-                String lowerBound = ((WcpsTrimSubsetDimension) subsetDimension).getLowerBound();
-                String upperBound = ((WcpsTrimSubsetDimension) subsetDimension).getUpperBound();
-                if (lowerBound.contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN) || upperBound.contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
-                    pureSubsetDimension = false;
-                }
-            } else {
-                // slice subset dimension
-                String bound = ((WcpsSliceSubsetDimension) subsetDimension).getBound();
-                if (bound.contains(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN)) {
-                    pureSubsetDimension = false;
-                }
-            }
-
-            // Only add subset dimension which does not contain "$"
-            if (pureSubsetDimension) {
-                pureSubsetDimensions.add(subsetDimension);
+            if (isSubsetTerminal(subsetDimension)) {
+                terminalSubsetDimensions.add(subsetDimension);
             }
         }
 
-        return pureSubsetDimensions;
+        return terminalSubsetDimensions;
     }
 
     /**
-     * Get a list of subset dimensions which contains axis iterator (e.g:
-     * Lat($px))
+     * Get a list of subset dimensions which are non numeric.
+     * e.g: Lat($p), Lat(p), Lat(avg(c)) but not Lat(0), Lat(0:0).
      *
      * @param subsetDimensions
      * @return
      */
-    public List<WcpsSubsetDimension> getAxisIteratorSubsetDimensions(List<WcpsSubsetDimension> subsetDimensions) {
-        List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
+    public List<WcpsSubsetDimension> getExpressionSubsetDimensions(List<WcpsSubsetDimension> subsetDimensions) {
+        List<WcpsSubsetDimension> nonTerminalSubsetDimensions = new ArrayList<>();
 
         for (WcpsSubsetDimension subsetDimension : subsetDimensions) {
-            boolean pureSubsetDimension = false;
-            if (subsetDimension instanceof WcpsTrimSubsetDimension) {
-                // trim subset dimension
-                String lowerBound = ((WcpsTrimSubsetDimension) subsetDimension).getLowerBound();
-                String upperBound = ((WcpsTrimSubsetDimension) subsetDimension).getUpperBound();
-                if (lowerBound.contains("$") || upperBound.contains("$")) {
-                    pureSubsetDimension = true;
-                }
-            } else {
-                // slice subset dimension
-                String bound = ((WcpsSliceSubsetDimension) subsetDimension).getBound();
-                if (bound.contains("$")) {
-                    pureSubsetDimension = true;
-                }
-            }
-
-            // Only add subset dimension which does not contain "$"
-            if (pureSubsetDimension) {
-                pureSubsetDimensions.add(subsetDimension);
+            if (!isSubsetTerminal(subsetDimension)) {
+                nonTerminalSubsetDimensions.add(subsetDimension);
             }
         }
 
-        return pureSubsetDimensions;
+        return nonTerminalSubsetDimensions;
+    }
+
+    /**
+     * Checks if a subset is has only terminal symbols as bounds (number, timestamp or star).
+     *
+     * @param
+     * @return
+     */
+    private boolean isSubsetTerminal(WcpsSubsetDimension subset) {
+        //temporal
+        if (subset.isTemporal()) {
+            return true;
+        }
+        //non-temporal, check bounds
+        if (subset instanceof WcpsTrimSubsetDimension) {
+            // trim subset dimension
+            String lowerBound = ((WcpsTrimSubsetDimension) subset).getLowerBound();
+            String upperBound = ((WcpsTrimSubsetDimension) subset).getUpperBound();
+            return isBoundTerminal(lowerBound) && isBoundTerminal(upperBound);
+        } else {
+            // slice subset dimension
+            String bound = ((WcpsSliceSubsetDimension) subset).getBound();
+            return isBoundTerminal(bound);
+        }
+
+    }
+
+    /**
+     * Checks if a subset bound is a terminal symbol (number or *).
+     *
+     * @param bound
+     * @return
+     */
+    private boolean isBoundTerminal(String bound) {
+        if (NumberUtils.isNumber(bound) || TimeUtil.isValidTimestamp(bound) || bound.equals(MSG_STAR)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -139,15 +147,15 @@ public class SubsetParsingService {
      * @param dimensions
      * @param metadata
      * @param isScaleExtend if subsets are used in scale/extend, we need to
-     * check it specially
+     *                      check it specially
      * @return
      */
     public List<Subset> convertToNumericSubsets(List<WcpsSubsetDimension> dimensions, WcpsCoverageMetadata metadata, boolean isScaleExtend) {
         List<Subset> result = new ArrayList();
         for (WcpsSubsetDimension subsetDimension : dimensions) {
             result.add(this.convertToNumericSubset(subsetDimension, metadata, isScaleExtend));
-        }       
-        
+        }
+
         return result;
     }
 
@@ -201,7 +209,7 @@ public class SubsetParsingService {
      * @param dimension
      * @param metadata
      * @param isScaleExtend if subsetDimension is used to scale or extends will
-     * need to be checked specially
+     *                      need to be checked specially
      * @return
      */
     private Subset convertToNumericSubset(WcpsSubsetDimension dimension, WcpsCoverageMetadata metadata, boolean isScaleExtend) {
@@ -247,8 +255,7 @@ public class SubsetParsingService {
      * NOTE: we don't need to fit to sample space if coverage is GridCoverage
      * and axis is CRS:1 OR axis type is not X, Y
      *
-     *
-     * @param subsets e.g: c[Lat(0), Long(20:30)]
+     * @param subsets  e.g: c[Lat(0), Long(20:30)]
      * @param metadata
      */
     public void fitToSampleSpaceRegularAxes(List<Subset> subsets, WcpsCoverageMetadata metadata) {
@@ -317,7 +324,7 @@ public class SubsetParsingService {
             // e.g: original geo axis is: (ORIGIN) 0 --- 30 ---- 60 ---- 90 then lower trim on 31 will return geoBound: 30
             BigDecimal tmpGridLowerBound = BigDecimalUtil.divide(geoLowerBound.subtract(geoOriginalOrigin), resolution);
             tmpGridLowerBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridLowerBound);
-            
+
             gridLowerBound = tmpGridLowerBound.setScale(0, BigDecimal.ROUND_FLOOR);
             geoLowerBound = geoOriginalOrigin.add(gridLowerBound.multiply(resolution));
 
@@ -325,7 +332,7 @@ public class SubsetParsingService {
             // e.g: original geo axis is: (ORIGIN) 0--- 30 ---- 60 ---- 90 then upper trim on 31 will return geoBound: 60
             BigDecimal tmpGridUpperBound = BigDecimalUtil.divide(geoUpperBound.subtract(geoOriginalOrigin), resolution);
             tmpGridUpperBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridUpperBound);
-            
+
             gridUpperBound = tmpGridUpperBound.setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
             geoUpperBound = geoOriginalOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
         } else {
@@ -334,8 +341,8 @@ public class SubsetParsingService {
             // grid lower bound is the floor of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then upper trim on 31 will return geoBound: 60
             BigDecimal tmpGridLowerBound = BigDecimalUtil.divide(geoUpperBound.subtract(geoOriginalOrigin), resolution);
-            tmpGridLowerBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridLowerBound);            
-            
+            tmpGridLowerBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridLowerBound);
+
             gridLowerBound = tmpGridLowerBound.setScale(0, BigDecimal.ROUND_FLOOR);
             geoUpperBound = geoOriginalOrigin.add(gridLowerBound.multiply(resolution));
 
@@ -343,7 +350,7 @@ public class SubsetParsingService {
             // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then lower trim on 31 will return geoBound: 30
             BigDecimal tmpGridUpperBound = BigDecimalUtil.divide(geoLowerBound.subtract(geoOriginalOrigin), resolution);
             tmpGridUpperBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridUpperBound);
-            
+
             gridUpperBound = tmpGridUpperBound.setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
             geoLowerBound = geoOriginalOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
         }
@@ -366,14 +373,14 @@ public class SubsetParsingService {
      * Try to parse a slicing point (from a slicing subset or low/high of
      * trimming subset) to numeric
      *
-     * @param isTrimming check if subset is trimming
-     * @param isLowerPoint check if point is in lower or upper subset
-     * @param axisName axis name
-     * @param point the value of slicing point (can be numeric, date time or
-     * string (throw exception if cannot parse))
+     * @param isTrimming    check if subset is trimming
+     * @param isLowerPoint  check if point is in lower or upper subset
+     * @param axisName      axis name
+     * @param point         the value of slicing point (can be numeric, date time or
+     *                      string (throw exception if cannot parse))
      * @param isScaleExtend is used to check whether should fit the input
-     * subsets to coverage bounding box or not (scale / extend intervals can be
-     * larger than coverage bounding box).
+     *                      subsets to coverage bounding box or not (scale / extend intervals can be
+     *                      larger than coverage bounding box).
      * @return
      */
     private BigDecimal convertPointToBigDecimal(boolean isTrimming, boolean isLowerPoint, Axis axis, String point) {

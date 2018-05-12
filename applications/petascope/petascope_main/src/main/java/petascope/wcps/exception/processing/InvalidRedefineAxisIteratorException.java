@@ -42,7 +42,7 @@ public class InvalidRedefineAxisIteratorException extends WCPSException {
      */
     public InvalidRedefineAxisIteratorException(String axisIteratorAlias, WcpsSubsetDimension subsetDimension) {
         super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisIteratorAlias", axisIteratorAlias)
-                            .replace("$subsetDimensionString", subsetDimension.getStringRepresentation()));
+                            .replace("$subsetDimensionString", subsetDimension.getStringBounds()));
     }
 
     private static final String ERROR_TEMPLATE = "Cannot redefine axis iterator '$axisIteratorAlias' in '$subsetDimensionString'.";

@@ -1,0 +1,1 @@
+for $c in (test_mean_summer_airtemp) return encode($c[Lat(200 + 200), Long(120)], "json")

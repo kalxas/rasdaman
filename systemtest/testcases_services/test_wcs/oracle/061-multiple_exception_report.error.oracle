@@ -2,7 +2,7 @@
 <ows:ExceptionReport version="2.0.1"
     
       >
-    <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Invalid slicing coordinate '110.0/2' for axis 'j'.</ows:ExceptionText>
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode(c[2:9,110.0 / 2], "json" ) FROM test_rgb AS c'</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

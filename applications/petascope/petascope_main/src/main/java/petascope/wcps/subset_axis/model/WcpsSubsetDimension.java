@@ -74,9 +74,20 @@ public abstract class WcpsSubsetDimension extends ParameterResult {
         this.crs = crsUri;
     }
 
-    public abstract String getStringRepresentation();
+    public boolean isTemporal() {
+        return temporal;
+    }
+
+    public void setTemporal(boolean temporal) {
+        this.temporal = temporal;
+    }
+
+    public abstract String getStringBounds();
+
+    public abstract String toString();
 
     private String axisName;
     private String crs;
+    private boolean temporal = false;
     public static final String AXIS_ITERATOR_DOLLAR_SIGN = "$";
 }

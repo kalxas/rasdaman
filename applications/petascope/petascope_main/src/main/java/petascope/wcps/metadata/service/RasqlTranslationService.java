@@ -22,21 +22,21 @@
 package petascope.wcps.metadata.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import petascope.util.CrsUtil;
+import petascope.wcps.exception.processing.InvalidExpressionSubsetException;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wcps.metadata.model.Axis;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 import org.springframework.stereotype.Service;
 import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
-import petascope.wcps.result.WcpsMetadataResult;
-import petascope.wcps.subset_axis.model.AxisIterator;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
@@ -46,34 +46,40 @@ import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 @Service
 public class RasqlTranslationService {
 
+    @Autowired
+    private AxisIteratorAliasRegistry axisIteratorAliasRegistry;
+
     /**
      * Constructs the rasql domain corresponding to the current list of axes.
      *
      * @param axes list of axes of coverage sorted by grid order
-     * @param subsetAxisIteratorDimensions list of subset dimensions which contains "$" as axis iterator
-     * @param axisIteratorAliasRegistry list of axis iterator alias and their subset dimensions
+     * @param nonNumericSubsets list of subset dimensions which contains "$" as axis iterator
      * @return
      */
-    public String constructRasqlDomain(List<Axis> axes, List<WcpsSubsetDimension> subsetAxisIteratorDimensions, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {        
+    public String constructRasqlDomain(List<Axis> axes, List<WcpsSubsetDimension> nonNumericSubsets) {
         
         String rasqlDomain = "";
         String result = "";
         List<String> translatedDomains = new ArrayList<>();
         for (Axis axis : axes) {
             //we should use the grid bounds, unless we have a dollar subset on this axis
-            boolean dollarSubsetFound = false;
-            for (WcpsSubsetDimension dollarSubset : subsetAxisIteratorDimensions) {
-                if (dollarSubset.getAxisName().equals(axis.getLabel())) {
-                    // found this subset containing axis iterator alias (e.g: c[i($px), j($px+$py)]
-                    // NOTE: need to change axis iterator alias with the correct order inside a coverage
-                    // e.g: Marray px in [0:20,0:20] values c[ px[0],px[0] + px[1] ]
-                    String subsetDimensionStr = dollarSubset.getStringRepresentation();
-                    result = this.replaceAxisIteratorAliasNames(subsetDimensionStr, axisIteratorAliasRegistry);
-                    dollarSubsetFound = true;
+            boolean nonNumericSubsetFound = false;
+            for (WcpsSubsetDimension nonNumericSubset : nonNumericSubsets) {
+                if (nonNumericSubset.getAxisName().equals(axis.getLabel())) {
+                    // found subset containing axis iterator alias or expression
+                    //only allow this kind of subsets for index and grid axes
+                    boolean isSubsetValid = validateExpressionSubset(axis.getNativeCrsUri(), nonNumericSubset);
+                    if(!isSubsetValid){
+                        throw new InvalidExpressionSubsetException(nonNumericSubset);
+                    }
+                    String subsetDimensionStr = nonNumericSubset.getStringBounds();
+
+                    result = subsetDimensionStr;
+                    nonNumericSubsetFound = true;
                     break;
                 }
             }
-            if (!dollarSubsetFound) {
+            if (!nonNumericSubsetFound) {
                 //ok, regular grid domain
                 NumericSubset gridBounds = axis.getGridBounds();
                 result = gridBounds.getStringRepresentationInInteger();
@@ -84,6 +90,35 @@ public class RasqlTranslationService {
 
         rasqlDomain = StringUtils.join(translatedDomains, ",");
         return rasqlDomain;
+    }
+
+    /**
+     * Checks whether a subset specified as expression is valid.
+     * An expression subset is valid if:
+     *  - the axis on which it is specified is a grid axis
+     *  - the axis on which it is specified is an index axis
+     *  - for backwards compatibility, the subset expression references an iterator in a coverage constructor or condenser
+     * @param axisCrs: the crs of the axis on which the subset is applied.
+     * @param subset: the WCPS subset.
+     * @return true if the subset is valid, false otherwise.
+     */
+    private boolean validateExpressionSubset(String axisCrs, WcpsSubsetDimension subset){
+        String subsetCrs = subset.getCrs();
+        //in case no subset crs is indicated, check if the axis' crs is index or grid
+        if(StringUtils.isEmpty(subsetCrs) && (CrsUtil.isGridCrs(axisCrs) || CrsUtil.isIndexCrs(axisCrs))){
+            return true;
+        }
+        //in case a subset crs is indicated, check if it is index or grid
+        if(!StringUtils.isEmpty(subsetCrs) && (CrsUtil.isGridCrs(subsetCrs) || CrsUtil.isIndexCrs(subsetCrs))){
+            return true;
+        }
+        //check whether the subset expression contains a rasql axis iterator
+        for(String rasqlIter: axisIteratorAliasRegistry.getRasqlAxisIterators()){
+            if(subset.getStringBounds().contains(rasqlIter)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -140,25 +175,6 @@ public class RasqlTranslationService {
         return StringUtils.join(results, ",");
     }
 
-    /**
-     * Constructs a TrimmingSubsetDimension from result of WcpsMetadataResult
-     * such as imageCrsdomain(), domain(). Used in axis iterator, e.g: $px x
-     * (imageCrsdomain(c[Lat(0:30)], Lat)) -> i_i in (80:120) in Rasql
-     *
-     * @param wcpsMetadataResult
-     * @return SubsetDimension
-     */
-    public WcpsSubsetDimension constructRasqlDomainFromWcpsMetadataDomainInterval(WcpsMetadataResult wcpsMetadataResult) {
-        // NOTE: it only support 1D domain for the axis iterator
-        Axis axis = wcpsMetadataResult.getMetadata().getAxes().get(0);
-        String axisName = axis.getLabel();
-        String crsUri = axis.getNativeCrsUri();
-        String lowerBound = ((NumericTrimming) axis.getGridBounds()).getLowerLimit().toPlainString();
-        String upperBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
-        WcpsSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axisName, crsUri, lowerBound, upperBound);
-
-        return trimSubsetDimension;
-    }
 
     /**
      * check if axisName is in the list of specific subsets, it not then don't
@@ -174,35 +190,5 @@ public class RasqlTranslationService {
             }
         }
         return false;
-    }
-
-    /**
-     * Extract all the axis iterator alias names in the subset dimension
-     * e.g: i($px + $py) or j($px)
-     * then replace with the rasql axis iterator (e.g: px[0])
-     * @param subsetDimensionStr the subset of interval in string
-     * @return the subsetDimensionStr which has replaced axis iterator alias name with the rasql alias name
-     */
-    private String replaceAxisIteratorAliasNames(String subsetDimensionStr, AxisIteratorAliasRegistry axisIteratorAliasRegistry) {
-        List<String> axisIteratorAlias = new ArrayList<String>();
-
-        Pattern pattern = Pattern.compile("\\$.*?(?=(\\+|-|\\*|/|\\)|:|\\s|$))");
-        Matcher matcher = pattern.matcher(subsetDimensionStr);
-        while (matcher.find()) {
-            // Add the found axis iterator alias name to the list
-            axisIteratorAlias.add(matcher.group(0));
-        }
-
-        // replace all the axis iterator alias name with the translated rasql alias name
-        // e.g: $px -> px[0]
-        for (String alias : axisIteratorAlias) {
-            AxisIterator axisIterator = axisIteratorAliasRegistry.getAxisIterator(alias);
-            // e.g: px[0]
-            String rasqlAlias = axisIterator.getRasqlAliasName() + "[" + axisIterator.getAxisIteratorOrder() + "]";
-            // Replace the alias name with rasql alias
-            subsetDimensionStr = subsetDimensionStr.replace(alias, rasqlAlias);
-        }
-
-        return subsetDimensionStr;
     }
 }

@@ -21,7 +21,10 @@
  */
 package petascope.wcps.metadata.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
@@ -45,6 +48,9 @@ public class AxisIteratorAliasRegistry {
 
     // NOTE: axis iterator alias can only be unique for a subset dimension (e.g: $px x(0:20))
     private final LinkedHashMap<String, AxisIterator> axisIteratorMappings = new LinkedHashMap<String, AxisIterator>();
+
+    // maintains a list of rasql subsets that represent axis iterators.
+    private final List<String> rasqlAxisIterators = new ArrayList<>();
 
     public AxisIteratorAliasRegistry() {
 
@@ -72,6 +78,18 @@ public class AxisIteratorAliasRegistry {
         }
 
         return axisIterator;
+    }
+
+    public List<String> getRasqlAxisIterators() {
+        return rasqlAxisIterators;
+    }
+
+    /**
+     * Adds a subset to the list of maintained rasql subsets representing axis iterator aliases.
+     * @param rasqlSubset
+     */
+    public void addRasqlAxisIterator(String rasqlSubset){
+        rasqlAxisIterators.add(rasqlSubset);
     }
 
 }

@@ -1359,9 +1359,11 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         if (ctx.crsName() != null) {
             crs = ctx.crsName().getText().replace("\"", "");
         }
-        String bound = ctx.coverageExpression().getText();
-
+        String bound = ((WcpsResult)visit(ctx.coverageExpression())).getRasql();
         WcpsSliceSubsetDimension sliceSubsetDimension = new WcpsSliceSubsetDimension(axisName, crs, bound);
+        if(ctx.coverageExpression().getText().startsWith("\"")){
+            sliceSubsetDimension.setTemporal(true);
+        }
         return sliceSubsetDimension;
     }
 
@@ -1415,12 +1417,15 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitSliceDimensionIntervalElementLabel(@NotNull wcpsParser.SliceDimensionIntervalElementLabelContext ctx) {
         // axisName (COLON crsName)?  LEFT_PARENTHESIS   coverageExpression   RIGHT_PARENTHESIS
         // e.g: i(0)
-        String bound = ctx.coverageExpression().getText();
+        String bound = ((WcpsResult)visit(ctx.coverageExpression())).getRasql();
         String crs = ctx.crsName() == null ? "" : ctx.crsName().getText().replace("\"", "");
 
         WcpsSliceSubsetDimension sliceSubsetDimension = null;
         try {
             sliceSubsetDimension = new WcpsSliceSubsetDimension(ctx.axisName().getText(), crs, bound);
+            if(ctx.coverageExpression().getText().startsWith("\"")){
+                sliceSubsetDimension.setTemporal(true);
+            }
         } catch (InvalidSlicingException ex) {
             throw ex;
         }
@@ -1433,8 +1438,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // axisName (COLON crsName)? LEFT_PARENTHESIS  coverageExpression   COLON coverageExpression    RIGHT_PARENTHESIS
         // e.g: i:"CRS:1"(2:3)
         try {
-            String rawLowerBound = ctx.coverageExpression(0).getText();
-            String rawUpperBound = ctx.coverageExpression(1).getText();
+            String rawLowerBound = ((WcpsResult)visit(ctx.coverageExpression(0))).getRasql();
+            String rawUpperBound = ((WcpsResult)visit(ctx.coverageExpression(1))).getRasql();
             String crs = null;
             if (ctx.crsName() != null) {
                 crs = ctx.crsName().getText().replace("\"", "");
@@ -1445,6 +1450,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             String axisName = ctx.axisName().getText();
 
             WcpsTrimSubsetDimension trimSubsetDimension = new WcpsTrimSubsetDimension(axisName, crs, rawLowerBound, rawUpperBound);
+
+            if(ctx.coverageExpression(0).getText().startsWith("\"") || ctx.coverageExpression(1).getText().startsWith("\"")){
+                trimSubsetDimension.setTemporal(true);
+            }
 
             return trimSubsetDimension;
         } catch (NumberFormatException e) {

@@ -1,0 +1,44 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "DaysPerMonth",
+    "paths": [ "DaysPerMonth.nc" ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "grid_coverage": true,
+        "crs": "OGC/0/Index1D",
+        "slicer": {
+          "type": "netcdf",
+          "bands": [
+            {
+              "name": "data",
+              "variable": "data",
+              "description": "Days per month.",
+              "nilReason": "",
+              "identifier": "data"
+            }
+          ],
+          "axes": {
+            "i": {
+              "min": "0",
+              "max": "11",
+              "resolution": 1,
+              "gridOrder": 0
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:11]"
+    }
+  }
+}
