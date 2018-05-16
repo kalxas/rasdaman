@@ -1,0 +1,29 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "track_files": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_overlapping_time_series_irregular",
+    "paths": [
+      "../test_overlapping_map_mosaic/*.tif"
+    ]
+  },
+  "recipe": {
+     "name": "time_series_irregular",
+    "options": {
+      "time_parameter": {
+        "filename": {
+          "regex": "(.*)_(.*)_(.*)_(.*)_(.*)_(.*)_(.*)_(.*)_(.*)_(.*)_(.*)\\.(.*)",
+          "group": "5"
+        },
+        "datetime_format": "YYYYMMDDTHHmmss"
+      },
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate?axis-label=\"unix\"",
+      "tiling": "ALIGNED [0:500, 0:500, 0]"
+    }
+  }
+}

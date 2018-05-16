@@ -2,12 +2,12 @@
   "config": {
     "service_url": "PETASCOPE_URL",
     "tmp_directory": "/tmp/",
-    "mock": true,
+    "mock": false,
     "track_files": false,
     "automated": true
   },
   "input": {
-    "coverage_id": "test_wms_mock_true",
+    "coverage_id": "test_overlapping_map_mosaic",
     "paths": [
       "*.tif"
     ]
@@ -15,7 +15,7 @@
   "recipe": {
     "name": "map_mosaic",
     "options": {
-      "wms_import": true
+  
     }
   }
 }

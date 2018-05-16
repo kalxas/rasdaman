@@ -133,7 +133,7 @@ public class BigDecimalUtil {
         }
         return -1;
     }
-    
+
     /**
      * Convert list of String to list of BigDecimal values
      * @param values
@@ -146,5 +146,12 @@ public class BigDecimalUtil {
         }
         
         return convertedValues;
+    }
+    
+    /**
+     * Check if a big decimal is an integer value (e.g: 2.00000000000000, 2)
+     */
+    public static boolean integer(BigDecimal number) {
+        return number.signum() == 0 || number.scale() <= 0 || number.stripTrailingZeros().scale() <= 0;
     }
 }
