@@ -40,13 +40,13 @@ import org.rasdaman.domain.cis.GeneralGridDomainSet;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import org.rasdaman.repository.interfaces.CoverageRepository;
 import org.rasdaman.repository.interfaces.RasdamanRangeSetRepository;
+import org.springframework.transaction.annotation.Transactional;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
 import petascope.core.Pair;
@@ -60,7 +60,6 @@ import petascope.util.CrsProjectionUtil;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 @Service
-@Transactional
 public class CoverageRepostioryService {
 
     @Autowired
@@ -166,11 +165,6 @@ public class CoverageRepostioryService {
         }
 
         log.debug("Coverage: " + coverageId + " is read from database.");
-        
-        // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
-        // with a DescribeCoverage request, after the replacement, 
-        // it will save coverage's crs with localhost:8080 instead of the placeholder $SCORE_URL$ in database.
-        entityManager.clear();
 
         // NOTE: As coverage is saved with a placeholder for SECORE prefix, so after reading coverage from database, 
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
@@ -214,6 +208,7 @@ public class CoverageRepostioryService {
 
                 // Each coverage has only 1 envelope and each envelope has only 1 envelopeByAxis
                 EnvelopeByAxis envelopeByAxis = coverageRepository.readEnvelopeByAxisByCoverageId(coverageId);
+                
                 // NOTE: replace the abstract SECORE url in database first ($SECORE$/crs -> localhost:8080/def/crs)
                 envelopeByAxis.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(envelopeByAxis.getSrsName()));
                 // also with AxisExtents of EnvelopeByAxis
@@ -374,6 +369,7 @@ public class CoverageRepostioryService {
      * @throws petascope.exceptions.PetascopeException
      * @throws petascope.exceptions.SecoreException
      */
+    @Transactional
     public Coverage save(Coverage coverage) throws PetascopeException, SecoreException {
         String coverageId = coverage.getCoverageId();
         // NOTE: Don't save coverage with fixed CRS (e.g: http://localhost:8080/def/crs/epsg/0/4326)
@@ -407,6 +403,7 @@ public class CoverageRepostioryService {
      *
      * @param coverage
      */
+    @Transactional
     public void delete(Coverage coverage) {
         String coverageId = coverage.getCoverageId();
         this.coverageRepository.delete(coverage);
