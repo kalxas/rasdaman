@@ -21,13 +21,9 @@
 */
 package petascope.wcps.encodeparameters.service;
 
-import petascope.exceptions.WCSException;
-import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.core.BoundingBox;
-import petascope.exceptions.PetascopeException;
 import petascope.wcps.encodeparameters.model.GeoReference;
-import petascope.wcps.exception.processing.InvalidBoundingBoxInCrsTransformException;
 import petascope.wcps.exception.processing.NotGeoReferencedCoverageInCrsTransformException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
@@ -46,37 +42,15 @@ public class GeoReferenceService {
         // coverage metadata is null in case such as return condense +
         BoundingBoxExtractorService bboxExtractorService = new BoundingBoxExtractorService();
         String xyCrs = metadata.getXYCrs();
-        String outputCrs = metadata.getOutputCrsUri();
 
-        // transformation from xyCrs to outputCrs
-        if (outputCrs != null && !CrsUtil.isGridCrs(outputCrs) && !CrsUtil.isIndexCrs(outputCrs)) {
-            // NOTE: not allow to transform from CRS:1 or IndexND to a geo-referenced CRS
-            if (CrsUtil.isGridCrs(xyCrs) || CrsUtil.isIndexCrs(xyCrs)) {
-                throw new NotGeoReferencedCoverageInCrsTransformException();
-            }
-            // transform bbox
+        // No transformation between xyCrs and outputCrs
+        if (!CrsUtil.isGridCrs(xyCrs) && !CrsUtil.isIndexCrs(xyCrs)) {
+            // xyCrs is geo-referenced CRS
             BoundingBox bbox = bboxExtractorService.extract(metadata);
-            try {
-                bbox = CrsProjectionUtil.transformBoundingBox(xyCrs, outputCrs, bbox);
-            } catch (PetascopeException ex) {
-                String bboxStr = "xmin=" + bbox.getXMin() + "," + "ymin=" + bbox.getYMin() + ","
-                               + "xmax=" + bbox.getXMax() + "," + "ymax=" + bbox.getYMax();
-                throw new InvalidBoundingBoxInCrsTransformException(bboxStr, outputCrs, ex.getMessage());
-            }
 
             // Only get the EPSG code, e.g: http://opengis.net/def/crs/epsg/0/4326 -> epsg:4326
-            String crs = CrsUtil.CrsUri.getAuthorityCode(outputCrs);
+            String crs = CrsUtil.CrsUri.getAuthorityCode(xyCrs);
             geoReference = new GeoReference(bbox, crs);
-        } else {
-            // No transformation between xyCrs and outputCrs
-            if (!CrsUtil.isGridCrs(xyCrs) && !CrsUtil.isIndexCrs(xyCrs)) {
-                // xyCrs is geo-referenced CRS
-                BoundingBox bbox = bboxExtractorService.extract(metadata);
-
-                // Only get the EPSG code, e.g: http://opengis.net/def/crs/epsg/0/4326 -> epsg:4326
-                String crs = CrsUtil.CrsUri.getAuthorityCode(xyCrs);
-                geoReference = new GeoReference(bbox, crs);
-            }
         }
         
         return geoReference;

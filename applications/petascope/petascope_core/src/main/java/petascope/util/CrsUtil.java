@@ -230,7 +230,7 @@ public class CrsUtil {
         List<List<String>> axes = new ArrayList<List<String>>();
 
         // Remove any possible slicing suffixes:
-        givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "");
+        givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "").trim();
 
         // Check first if the definition is already in cache:
         if (CrsUri.isCached(givenCrsUri)) {
@@ -910,7 +910,7 @@ public class CrsUtil {
     public static String getEPSGFullUri(String epsgCode) {
         return EPSG_ALL_CRS + "/" + epsgCode.split(":")[1];
     }
-
+ 
     /**
      * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326)
      *
@@ -1565,6 +1565,7 @@ public class CrsUtil {
             String authorityCode = authorityName + ":" + codeName;
             return authorityCode;
         }
+        
 
         /**
          * Converts a simple (not composed) crs uri to the form that is stored

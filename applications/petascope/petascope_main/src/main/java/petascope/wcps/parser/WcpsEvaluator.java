@@ -101,6 +101,7 @@ import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
@@ -490,7 +491,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             }
         }
 
-        WcpsResult result = crsTransformHandler.handle(coverageExpression, axisCrss, rangeInterpolations);
+        
+        WcpsResult result = null;
+        try {
+            result = crsTransformHandler.handle(coverageExpression, axisCrss, rangeInterpolations);
+        } catch (Exception ex) {
+            throw new WCPSException(ExceptionCode.RuntimeError, "Cannot proces coverage expression within crsTransform() operator. Reason: " + ex.getMessage());
+        }
         return result;
 
     }

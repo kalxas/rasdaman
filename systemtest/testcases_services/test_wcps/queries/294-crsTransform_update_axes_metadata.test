@@ -1,0 +1,1 @@
+for c in (test_wms_3857)  return encode((crsTransform(c, {X:"http://localhost:8080/def/crs/EPSG/0/4326", Y:"http://localhost:8080/def/crs/EPSG/0/4326"}, {}))[Long(120:130), Lat(-20:-30)], "application/gml+xml")

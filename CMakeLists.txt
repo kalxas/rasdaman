@@ -295,7 +295,7 @@ if (ENABLE_JAVA)
         message(STATUS "Found gdal-java: ${GDAL_JAVA_DIR}")
         set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
         # used in Petascope-core pom.xml.in
-        set(GDAL_JAVA_VERSION "1.11.1")
+        set(GDAL_JAVA_VERSION "1.10.1")
     endif()
     
 

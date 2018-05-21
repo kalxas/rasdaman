@@ -204,12 +204,11 @@ public class SerializationEncodingService {
         String coverageId = metadata.getCoverageName();
         // NOTE: with coverage constructor inside WCPS query, it doesn't have rasdaman collection, so do nothing in this case.
         if (this.coverageRepostioryService.coveragesCacheMap.get(coverageId) != null) {
-            Coverage coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(metadata.getCoverageName());
             // e.g: geo order is Lat, Long check if grid order is also Lat, Long. If it is then need to add transpose
             Axis firstAxis = metadata.getAxes().get(0);
-            int firstGridAxisOrder =  ((GeneralGridCoverage) coverage).getIndexAxisByName(firstAxis.getLabel()).getAxisOrder();
+            int firstGridAxisOrder = firstAxis.getRasdamanOrder();
             Axis secondAxis = metadata.getAxes().get(1);
-            int secondGridAxisOrder =  ((GeneralGridCoverage) coverage).getIndexAxisByName(secondAxis.getLabel()).getAxisOrder();
+            int secondGridAxisOrder = secondAxis.getRasdamanOrder();
             if (firstGridAxisOrder < secondGridAxisOrder) {
                 // equivalent to \"transpose\": [0,1]
                 List<Integer> transposeList = new ArrayList<>();

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="InvalidSubsetting">
+        <ows:ExceptionText>Invalid 'subsetting' with '-20:-30' for axis 'Lat'.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

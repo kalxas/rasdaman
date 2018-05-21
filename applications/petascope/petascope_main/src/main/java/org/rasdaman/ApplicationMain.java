@@ -141,12 +141,16 @@ public class ApplicationMain extends SpringBootServletInitializer {
         MIGRATE = Arrays.asList(args).contains("--migrate");
         init();
         
-        SpringApplication.run(ApplicationMain.class, args);
         try {
-            
+            SpringApplication.run(ApplicationMain.class, args);            
         } catch (Exception ex) {
-            log.error("Error starting petascope with embedded Tomcat. Reason: " + ex.getMessage());
-            System.exit(ExitCode.FAILURE.getExitCode());
+            // NOTE: This class is private in Spring framework, cannot be imported here to compare by instanceof so must use class name to compare.
+            if (!ex.getClass().getCanonicalName().equals("org.springframework.boot.devtools.restart.SilentExitExceptionHandler.SilentExitException")) {
+                // There is a NULL error from Spring dev tools restarts Tomcat internally when a java file is saved (Compile on save) and this can be ignored in any cases.
+                // NOTE: This error only happens when starting Petascope main application with mvn spring-boot:run for development.
+                log.error("Error starting petascope with embedded Tomcat. Reason: " + ex.getMessage(), ex);
+                System.exit(ExitCode.FAILURE.getExitCode());
+            }
         }
     }
 

@@ -21,6 +21,8 @@
  */
 package petascope.wcps.handler;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import petascope.util.CrsUtil;
 
 import java.util.Arrays;
@@ -28,14 +30,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
+import petascope.core.AxisTypes;
 import petascope.core.CrsDefinition;
+import petascope.core.GeoTransform;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.util.CrsProjectionUtil;
 import petascope.wcps.exception.processing.IdenticalAxisNameInCrsTransformException;
 import petascope.wcps.exception.processing.InvalidOutputCrsProjectionInCrsTransformException;
 import petascope.wcps.exception.processing.Not2DXYGeoreferencedAxesCrsTransformException;
 import petascope.wcps.exception.processing.NotGeoReferenceAxisNameInCrsTransformException;
 import petascope.wcps.exception.processing.NotIdenticalCrsInCrsTransformException;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
+import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
 
@@ -66,14 +75,98 @@ public class CrsTransformHandler {
      * @param wcpsCoverageMetadataService
      * @return
      */
-    public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, HashMap<String, HashMap<String, String>> rangeInterpolations) {
+    public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, HashMap<String, HashMap<String, String>> rangeInterpolations) throws PetascopeException, SecoreException {
         checkValid(axisCrss);
         String rasql = getBoundingBox(coverageExpression, axisCrss);
+        String outputCrs = axisCrss.values().toArray()[0].toString();
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
-        metadata.setOutputCrsUri(axisCrss.values().toArray()[0].toString());
+        metadata.setOutputCrsUri(outputCrs);
+        
+        if (!CrsUtil.isGridCrs(outputCrs) && !CrsUtil.isIndexCrs(outputCrs)) {
+            // NOTE: after this crsTransform operator, the coverage's axes will need to updated with values from outputCRS also.
+            // e.g: crsTransform(c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"))
+            // with c has X, Y axes (CRS:3857), then output of crsTransform is a 2D coverage with Lat, Long axes (CRS:4326).
+            this.updateAxesByOutputCRS(metadata);
+        }
+        
         WcpsResult result = new WcpsResult(metadata, rasql);
         return result;
+    }
+    
+    /**
+     * Update the values of 2D geo, grid axes of current coverage to the corresponding values in OutputCRS.
+     * e.g: coverage with 2 axes in EPSG:4326 Lat, Long order and outputCRS is EPSG:3857 X, Y order.
+     */
+    private void updateAxesByOutputCRS(WcpsCoverageMetadata covMetadata) throws PetascopeException, SecoreException {
+        List<Axis> axisList = covMetadata.getXYAxes();
+        Axis axisX = axisList.get(0);
+        Axis axisY = axisList.get(1);
+
+        GeoTransform sourceGeoTransform = new GeoTransform();
+        
+        int sourceEPSGCode = new Integer(CrsUtil.getCode(axisList.get(0).getNativeCrsUri()));
+        sourceGeoTransform.setEPSGCode(sourceEPSGCode);
+        
+        sourceGeoTransform.setGeoXResolution(axisX.getResolution().doubleValue());
+        sourceGeoTransform.setGeoYResolution(axisY.getResolution().doubleValue());
+        sourceGeoTransform.setUpperLeftGeoX(new Double(axisX.getLowerGeoBoundRepresentation()));
+        sourceGeoTransform.setUpperLeftGeoY(new Double(axisY.getUpperGeoBoundRepresentation()));
+        
+        int width = axisX.getGridBounds().getUpperLimit().subtract(axisX.getGridBounds().getLowerLimit()).toBigInteger().intValue() + 1;
+        int height = axisY.getGridBounds().getUpperLimit().subtract(axisY.getGridBounds().getLowerLimit()).toBigInteger().intValue() + 1;
+        sourceGeoTransform.setGridWidth(width);
+        sourceGeoTransform.setGridHeight(height);
+        
+        String outputCRS = covMetadata.getOutputCrsUri();
+        
+        // Do the geo transform for this 2D geo, grid domains from source CRS to output CRS by GDAL
+        GeoTransform targetGeoTransform = CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGeoTransform, outputCRS);
+        CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(outputCRS);
+        
+        CrsDefinition.Axis firstCRSAxis, secondCRSAxis;
+        
+        if (CrsUtil.isXYAxesOrder(outputCRS)) {
+            // e.g: X, Y EPSG:3857
+            firstCRSAxis = crsDefinition.getAxes().get(0);
+            secondCRSAxis = crsDefinition.getAxes().get(1);
+        } else {
+            // e.g: Lat, Long EPSG:4326
+            firstCRSAxis = crsDefinition.getAxes().get(1);
+            secondCRSAxis = crsDefinition.getAxes().get(0);
+        }
+        
+        BigDecimal geoLowerBoundX = new BigDecimal(targetGeoTransform.getUpperLeftGeoX());
+        BigDecimal geoUpperBoundX = new BigDecimal(targetGeoTransform.getUpperLeftGeoX() + targetGeoTransform.getGeoXResolution() * targetGeoTransform.getGridWidth());
+        
+        NumericSubset geoBoundsX = new NumericTrimming(geoLowerBoundX, geoUpperBoundX);
+        NumericSubset originalGridBoundX = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridWidth() - 1));
+        NumericSubset gridBoundX = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridWidth() - 1));
+
+        axisX = new RegularAxis(firstCRSAxis.getAbbreviation(), geoBoundsX, originalGridBoundX, gridBoundX, 
+                AxisTypes.AxisDirection.EASTING, outputCRS, crsDefinition, 
+                firstCRSAxis.getType(), firstCRSAxis.getUoM(), axisX.getRasdamanOrder(), 
+                geoLowerBoundX, new BigDecimal(targetGeoTransform.getGeoXResolution()));
+        
+        BigDecimal geoUpperBoundY = new BigDecimal(targetGeoTransform.getUpperLeftGeoY());
+        BigDecimal geoLowerBoundY = new BigDecimal(targetGeoTransform.getUpperLeftGeoY() + targetGeoTransform.getGeoYResolution() * targetGeoTransform.getGridHeight());
+        
+        NumericSubset geoBoundsY = new NumericTrimming(geoLowerBoundY, geoUpperBoundY);
+        NumericSubset originalGridBoundY = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridHeight() - 1));
+        NumericSubset gridBoundY = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridHeight() - 1));
+
+        axisY = new RegularAxis(secondCRSAxis.getAbbreviation(), geoBoundsY, originalGridBoundY, gridBoundY, 
+                AxisTypes.AxisDirection.NORTHING, outputCRS, crsDefinition, 
+                secondCRSAxis.getType(), secondCRSAxis.getUoM(), axisY.getRasdamanOrder(), 
+                geoLowerBoundY, new BigDecimal(targetGeoTransform.getGeoYResolution()));
+        
+        List<Axis> targetAxes;
+        if (CrsUtil.isXYAxesOrder(outputCRS)) {
+            targetAxes = new ArrayList<>(Arrays.asList(axisX, axisY));
+        } else {
+            targetAxes = new ArrayList<>(Arrays.asList(axisY, axisX));
+        }
+        covMetadata.setAxes(targetAxes);
     }
 
     /**

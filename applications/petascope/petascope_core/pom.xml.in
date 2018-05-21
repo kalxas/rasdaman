@@ -18,6 +18,15 @@
         <version>1.5.2.RELEASE</version>
         <relativePath></relativePath>
     </parent>
+
+    <repositories>
+        <repository>
+            <id>GDAL version 1.10.1 repositories</id>
+            <name>For Debian 8, Ubuntun 14.04 as they only installed this version.</name>
+            <url>https://repo.boundlessgeo.com/main/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- There is a conflict XmlMapper with older dependency,
         so use the newest one here and the importing order is important as Maven will use this library as default -->
