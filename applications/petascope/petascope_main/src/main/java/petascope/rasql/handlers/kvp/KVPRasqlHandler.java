@@ -38,6 +38,7 @@ import static petascope.core.KVPSymbols.KEY_USERNAME;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WMSException;
 import petascope.ihandlers.kvp.IKVPHandler;
+import petascope.util.MIMEUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 
@@ -111,6 +112,7 @@ public class KVPRasqlHandler implements IKVPHandler {
      */
     private Response executeQuery(String username, String password, String query, String filePath) throws PetascopeException {
         Response response = new Response();
+        response.setFormatType(MIMEUtil.MIME_TEXT);
         try {
             Object tmpResult = null;
 

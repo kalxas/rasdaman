@@ -1,14 +1,12 @@
 package petascope.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCSException;
 
 /**
  * Class stores the mime type and rasdaman data type
@@ -19,6 +17,7 @@ public class MIMEUtil {
 
     // mime types (gml+xml needs to be the first wcs:formatSupported in GetCapabilities result for OGC CITE test)
     public static final String MIME_GML = "application/gml+xml";
+    public static final String MIME_TEXT = "text/plain";
     public static final String MIME_JPEG = "image/jpeg";
     public static final String MIME_PNG = "image/png";
     public static final String MIME_TIFF = "image/tiff";

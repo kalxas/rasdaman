@@ -1,0 +1,1 @@
+username=rasadmin&password=rasadmin&query=SELECT c[0,50] = 73 FROM test_mr AS c

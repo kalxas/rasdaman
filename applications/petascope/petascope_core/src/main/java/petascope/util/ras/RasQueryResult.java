@@ -49,7 +49,25 @@ public class RasQueryResult extends AbstractRasQueryResult {
     }
 
     public void scalar(Object res) {
-        scalars.add(res.toString());
+        String scalarResult = res.toString();
+        // NOTE: keep the result consistent as from rasql.
+        switch (scalarResult) {
+            case "-Infinity":
+                scalarResult = "-inf";
+                break;
+            case "Infinity":
+                scalarResult = "inf";
+                break;
+            case "true":
+                scalarResult = "t";
+                break;
+            case "false":
+                scalarResult = "f";
+                break;
+            default:
+                break;
+        }
+        scalars.add(scalarResult);
     }
 
     public List<byte[]> getMdds() {

@@ -889,6 +889,11 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             ret = new RasOID(new String(binData));
             break;
         case RAS_BOOLEAN:
+            if (dis.readUnsignedByte() == 1) {
+                return true;
+            } else {
+                return false;
+            }
         case RAS_CHAR:
             ret = dis.readUnsignedByte();
             break;

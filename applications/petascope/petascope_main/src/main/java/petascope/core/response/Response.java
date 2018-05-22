@@ -77,6 +77,10 @@ public class Response {
     public List<byte[]> getDatas() {
         return datas;
     }        
+    
+    public void setFormatType(String formatType) {
+        this.formatType = formatType;
+    }
 
     // Encoding in Rasql
     public String getFormatType() {
