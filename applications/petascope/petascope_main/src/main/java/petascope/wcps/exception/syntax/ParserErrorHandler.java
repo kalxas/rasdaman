@@ -19,18 +19,13 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps.parser;
+package petascope.wcps.exception.syntax;
 
 import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import petascope.exceptions.WCPSException;
-import petascope.wcps.exception.syntax.ErrorRegistry;
-import petascope.wcps.exception.syntax.WCPSSyntaxError;
-
-import java.util.Collections;
-import java.util.List;
+import org.antlr.v4.runtime.Token;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.XMLUtil;
 
@@ -44,13 +39,9 @@ import petascope.util.XMLUtil;
 public class ParserErrorHandler extends BaseErrorListener {
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-        List<String> stack = ((Parser) recognizer).getRuleInvocationStack();
-        Collections.reverse(stack);
-        ErrorRegistry registry = new ErrorRegistry();
-        WCPSSyntaxError error = registry.lookupError(stack, offendingSymbol, line, charPositionInLine, msg);
-        // NOTE: the error message contains special character (<, >) so must be enquoted
-        String errorMessage = XMLUtil.enquoteCDATA(error.getErrorMessage());
-        
-        throw new WCPSException(ExceptionCode.WcpsError, errorMessage);
+        String offendingToken = recognizer.getTokenErrorDisplay((Token) offendingSymbol);
+        String errorMessage = "A parsing error occurred at line '" + line + "', column '" + charPositionInLine + "'. "
+                + "Offending token is " + offendingToken + ". Reason: " + msg.replace("\\n", "").replace("\\r", "") + ".";
+        throw new WCPSException(ExceptionCode.WcpsError, XMLUtil.enquoteCDATA(errorMessage));
     }
 }

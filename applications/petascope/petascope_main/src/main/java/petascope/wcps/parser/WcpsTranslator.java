@@ -21,6 +21,7 @@
  */
 package petascope.wcps.parser;
 
+import petascope.wcps.exception.syntax.ParserErrorHandler;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -80,6 +81,7 @@ public class WcpsTranslator {
         parser.addErrorListener(new ParserErrorHandler());
         VisitorResult translationTree = null;
         ParseTree parseTree = null;
+
 
         // If query cannot be parsed, it is SyntaxError Exception (needed for OGC CITE test)
         try {

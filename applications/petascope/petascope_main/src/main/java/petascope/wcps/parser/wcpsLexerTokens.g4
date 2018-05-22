@@ -133,5 +133,5 @@ SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;
 //COVERAGE_VARIABLE_NAME: '$'[a-zA-Z0-9_]+; disabled for backwards compatibility with WCPS1
 COVERAGE_VARIABLE_NAME: [$a-zA-Z0-9_]+; // added $ for backwards compatibility with WCPS1
 STRING_LITERAL: '"' [a-zA-Z0-9!#$&.+-^_/ ]+? '"';
-WS: [ \n\t\r]+ -> skip;
+WS: [ \n\t\r]+ -> channel(HIDDEN);
 EXTRA_PARAMS:  '"' (~[\\"] | '\\' [\\"])* '"';

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="SyntaxError">
+        <ows:ExceptionText><![CDATA[A parsing error occurred at line '1', column '176'. Offending token is '/'. Reason: no viable alternative at input '[Long(-29.8:-15.4), Lat(35.6:65.0), t($ts)          /'.]]></ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

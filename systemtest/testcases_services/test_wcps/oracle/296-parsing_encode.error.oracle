@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="SyntaxError">
-        <ows:ExceptionText><![CDATA[A parsing error occurred at line '1', column '56'. Offending token is '0'. Reason: missing '(' at '0'.]]></ows:ExceptionText>
+        <ows:ExceptionText><![CDATA[A parsing error occurred at line '1', column '63'. Offending token is ','. Reason: no viable alternative at input ','.]]></ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>
