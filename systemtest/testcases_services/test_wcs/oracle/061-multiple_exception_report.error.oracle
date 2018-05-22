@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode(c[2:9,110.0 / 2], "json" ) FROM test_rgb AS c'</ows:ExceptionText>
+        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode(c[2:9,110.0 / 2], "json" ) FROM test_rgb AS c'. Reason: Execution error 390 in line 1, column 16, near token [: Minterval dimension specifications must be either of type interval or integer.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

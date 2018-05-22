@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'create collection test_mr GreySet'</ows:ExceptionText>
+        <ows:ExceptionText>Error evaluating rasdaman query: 'delete from test_mr'. Reason: RasManager Error: Access denied, no permission for operation.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

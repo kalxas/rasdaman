@@ -153,7 +153,7 @@ public class RasUtil {
                         throw new RasdamanCollectionDoesNotExistException(ExceptionCode.CollectionDoesNotExist, query, ex);
                     } else {
                         throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                                "Error evaluating rasdaman query: '" + query + "'", ex);
+                                "Error evaluating rasdaman query: '" + query + "'. Reason: " + ex.getMessage(), ex);
                     }
                 } catch (Error ex) {
                     tr.abort();

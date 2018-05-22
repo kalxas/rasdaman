@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'select encode(c, "png") from test_mr as no_name'. Reason: Execution error 357 in line 1, column 15, near token c: Variable is unknown.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>
