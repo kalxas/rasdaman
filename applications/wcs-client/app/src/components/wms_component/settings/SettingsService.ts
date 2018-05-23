@@ -34,6 +34,10 @@ module rasdaman {
         public constructor($window:angular.IWindowService) {
             // e.g: http://localhost:8080/rasdaman/ows
             this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
+            // In case of only WSClient is deployed to external web server (e.g: Tomcat) and this Tomcat has Petascope
+            // This is used for development only.
+            this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
+            
             // e.g: service=WMS&version=1.3.0
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
             // e.g: http://localhost:8080/rasdaman/ows?service=WMS&version=1.3.0

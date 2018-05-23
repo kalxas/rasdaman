@@ -64,9 +64,9 @@
 
                             Display WMS layer on WebWorldWind globe: &nbsp;&nbsp;&nbsp;
                             <input type="button"
-                                ng-model="displayWMSLayer" ng-click="showWMSLayerOnGlobe(displayWMSLayer)" value="show layer" ng-show="!displayWMSLayer"/>
+                                ng-model="selectedStyleName" ng-click="showWMSLayerOnGlobe(selectedStyleName)" value="show layer" ng-show="!displayWMSLayer"/>
                             <input type="button"
-                                ng-model="displayWMSLayer" ng-click="hideWMSLayerOnGlobe(displayWMSLayer)" value="hide layer" ng-show="displayWMSLayer"/>
+                                ng-model="selectedStyleName" ng-click="hideWMSLayerOnGlobe()" value="hide layer" ng-show="displayWMSLayer"/>
                         </div>
                         <br/>
                         <!-- Create a canvas for Web WorldWind. -->
@@ -83,7 +83,7 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isLayerDocumentOpen"> 	
                     <uib-accordion-heading>
-                        Styles of layer
+                        Styles of the selected layer
                         <i class="pull-right glyphicon"
                            ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen, 
                                     'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
@@ -93,9 +93,9 @@
                            class="table table-striped">
                         <thead>
                             <tr>
-                                <th colspan=25%>Style Name</th>
-                                <th colspan=65% style="width: 65%;">Abstract</th>
-                                <th colspan=10% style="width: 15%;">Operation</th>
+                                <th colspan=15%>Style Name</th>
+                                <th colspan=55% style="width: 55%;">Abstract</th>
+                                <th colspan=30% style="width: 30%;">Operations</th>
                             </tr>
                             <tr>
                                 <td colspan=100%><input st-search="name" class="form-control"
@@ -104,12 +104,31 @@
 
                         </thead>
                         <tbody>                            
+                            <tr>
+                                <!-- Every layer has this no style and cannot be deleted -->
+                                <td colspan=15%>No style</td>
+                                <td colspan=55%></td>                                
+                                <td colspan=10%>
+                                    <input type="radio" ng-model="selectedStyleName" value="" ng-click='showWMSLayerOnGlobe("")' name="styles" title="Display the layer with selected style on WebWorldWind globe as WMS layer." 
+                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left"> &nbsp; View style
+                                </td>
+                                <td colspan=10%><a href="{{getMapRequestURL}}" target="_blank" title="Open a new tab in web browser to show the GetMap request result." 
+                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">GetMap request</a></td>
+                                <td colspan=10%></td>
+                            </tr>
                             <tr ng-repeat="style in styles">                                
-                                <td colspan=25%><a ng-click='describeStyleToUpdate(style.name);'>{{style.name}}</a></td>                                
-                                <td colspan=65%>{{style.abstract}}</td>                                
+                                <td colspan=15%><a ng-click='describeStyleToUpdate(style.name);'>{{style.name}}</a></td>                                
+                                <td colspan=55%>{{style.abstract}}</td>
+                                <td colspan=10%>
+                                    <input type="radio" ng-model="selectedStyleName" value="{{style.name}}" ng-click="showWMSLayerOnGlobe(style.name)" name="styles" title="Display the layer with selected style on WebWorldWind globe as WMS layer." 
+                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left"> &nbsp; View style
+                                </td>
+                                <td colspan=10%><a href='{{getMapRequestURL}}{{style.name}}' target="_blank" title="Open a new tab in web browser to show the GetMap request result." 
+                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">GetMap request</a></td>
+                                </td>
                                 <td colspan=10%>                                    
                                      <button class="btn btn-danger" ng-click="deleteStyle(style.name)">Delete</button>                                    
-                                </td>                                
+                                </td>                           
                             </tr>
                         </tbody>
                         <tfoot>

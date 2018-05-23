@@ -129,7 +129,8 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
         // Delete a style
         testCaseName = this.getSectionTestCaseName("delete_a_style");
         log.info("Testing delete a style...");
-        this.clickOnElement(webDriver, "/html/body/div[1]/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/table/tbody/tr/td[3]/button");                
+        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/table/tbody/tr[2]/td[5]/button");                
+        
         // fetch new Capabilities to show the deleted style
         this.fetchNewLayerMetadata(webDriver);        
         this.runTestByNonElementEvent(webDriver, testCaseName);

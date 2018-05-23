@@ -40,7 +40,7 @@ module wms {
 
         public toKVP():string {
             return "request=" + "GetMap&layers=" + this.layers + "&bbox=" + this.bbox + 
-                   "&width=" + this.width + "&height=" + this.height + "&styles=&crs=EPSG:4326&format=image/png";
+                   "&width=" + this.width + "&height=" + this.height + "&crs=EPSG:4326&format=image/png&transparent=true&styles=";
         }
     }
 }

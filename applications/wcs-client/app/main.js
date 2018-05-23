@@ -1942,6 +1942,7 @@ var rasdaman;
     var WCSSettingsService = (function () {
         function WCSSettingsService($window) {
             this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
+            this.wcsEndpoint = this.wcsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
         }
         WCSSettingsService.$inject = ["$window"];
@@ -2149,6 +2150,7 @@ var rasdaman;
     var WMSSettingsService = (function () {
         function WMSSettingsService($window) {
             this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
+            this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
             this.setWMSFullEndPoint();
         }
@@ -2422,7 +2424,7 @@ var rasdaman;
             var userProperties = coverageIdsStr + "\n" + coverageExtentStr;
             return userProperties;
         };
-        WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, layerName, bbox, displayLayer) {
+        WebWorldWindService.prototype.loadGetMapResultOnGlobe = function (canvasId, layerName, styleName, bbox, displayLayer) {
             var webWorldWindModel = null;
             var exist = false;
             for (var i = 0; i < this.webWorldWindModels.length; i++) {
@@ -2445,6 +2447,7 @@ var rasdaman;
                 levelZeroDelta: new WorldWind.Location(36, 36),
                 numLevels: 15,
                 format: "image/png",
+                styleNames: styleName,
                 size: 256
             };
             wwd.navigator.range = 3000 * 1000;
@@ -4273,6 +4276,7 @@ var rasdaman;
             $scope.describeLayer = function () {
                 var _this = this;
                 $scope.displayWMSLayer = false;
+                $scope.selectedStyleName = "";
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         $scope.layer = $scope.layers[i];
@@ -4304,7 +4308,7 @@ var rasdaman;
                                     var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
                                     var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
                                     _this.getMapRequestURL = url;
-                                    webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
+                                    webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, false);
                                 }
                             }
                             if (!showGetMapURL) {
@@ -4324,13 +4328,14 @@ var rasdaman;
                 }
             };
             $scope.isLayerDocumentOpen = false;
-            $scope.showWMSLayerOnGlobe = function () {
+            $scope.showWMSLayerOnGlobe = function (styleName) {
+                $scope.selectedStyleName = styleName;
                 $scope.displayWMSLayer = true;
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, true);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, styleName, $scope.bboxLayer, true);
             };
             $scope.hideWMSLayerOnGlobe = function () {
                 $scope.displayWMSLayer = false;
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false);
             };
             $scope.isStyleNameValid = function (styleName) {
                 for (var i = 0; i < $scope.layer.styles.length; ++i) {
@@ -4592,7 +4597,7 @@ var wms;
         }
         GetMap.prototype.toKVP = function () {
             return "request=" + "GetMap&layers=" + this.layers + "&bbox=" + this.bbox +
-                "&width=" + this.width + "&height=" + this.height + "&styles=&crs=EPSG:4326&format=image/png";
+                "&width=" + this.width + "&height=" + this.height + "&crs=EPSG:4326&format=image/png&transparent=true&styles=";
         };
         return GetMap;
     }());

@@ -106,6 +106,7 @@ module rasdaman {
             $scope.describeLayer = function() {
 
                 $scope.displayWMSLayer = false;
+                $scope.selectedStyleName = "";
 
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
@@ -157,7 +158,7 @@ module rasdaman {
                                             this.getMapRequestURL = url;
                                             // Then, let webworldwind shows the result of GetMap on the globe
                                             // Default layer is not shown
-                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
+                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, false);
                                         }
                                     }
                                     if (!showGetMapURL) {
@@ -182,14 +183,15 @@ module rasdaman {
             $scope.isLayerDocumentOpen = false;
             
             // Load/Unload WMSLayer on WebWorldWind globe from the checkbox user selected
-            $scope.showWMSLayerOnGlobe = ()=> {                
+            $scope.showWMSLayerOnGlobe = (styleName:string)=> {
+                $scope.selectedStyleName = styleName;
                 $scope.displayWMSLayer = true;          
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, true);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, styleName, $scope.bboxLayer, true);
             }
 
             $scope.hideWMSLayerOnGlobe = ()=> {                
                 $scope.displayWMSLayer = false;          
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.bboxLayer, false);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false);
             }
 
 
@@ -322,7 +324,7 @@ module rasdaman {
         displayWMSLayer:boolean;
 
         // Show the WMSLayer on WebWorldWind globe (default doesn't show)
-        showWMSLayerOnGlobe():void;
+        showWMSLayerOnGlobe(styleName:string):void;
         // Hide the WMSLayer on WebWorldWind globe
         hideWMSLayerOnGlobe():void;
 
@@ -332,7 +334,8 @@ module rasdaman {
         layers:wms.Layer[];        
         // Selected layer to describe
         layer:wms.Layer;
-        selectedLayerName:string;        
+        selectedLayerName:string;       
+        selectedStyleName:string; 
         describeLayer():void;
     }
 }

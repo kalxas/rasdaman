@@ -408,7 +408,7 @@ module rasdaman {
          * @param coveragesExtentsArray 
          * @param getMapRequestURL 
          */
-        public loadGetMapResultOnGlobe(canvasId: string, layerName: string, bbox: any, displayLayer: boolean) {
+        public loadGetMapResultOnGlobe(canvasId: string, layerName: string, styleName: string, bbox: any, displayLayer: boolean) {
             // It uses the same canvasId for DescribeLayer
             var webWorldWindModel = null;            
             var exist = false;
@@ -436,6 +436,7 @@ module rasdaman {
                     levelZeroDelta: new WorldWind.Location(36, 36),
                     numLevels: 15,
                     format: "image/png",
+                    styleNames: styleName,
                     size: 256
                 };
 

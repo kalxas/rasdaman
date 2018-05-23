@@ -29,8 +29,13 @@ module rasdaman {
 	    public wcsServiceNameVersion:string; 
         public static $inject = ["$window"];
 
-        public constructor($window:angular.IWindowService) {
+        public constructor($window:angular.IWindowService) {  
+            // In case of Petascope is deployed to an URI without /rasdaman/ows
             this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
+
+            // In case of only WSClient is deployed to external web server (e.g: Tomcat) and this Tomcat has Petascope
+            // This is used for development only.
+            this.wcsEndpoint = this.wcsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
         }
     }
