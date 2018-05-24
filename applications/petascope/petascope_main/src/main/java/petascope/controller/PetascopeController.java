@@ -28,8 +28,11 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import static org.rasdaman.config.ConfigManager.OWS;
+import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,6 +56,9 @@ import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
 public class PetascopeController extends AbstractController {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PetascopeController.class);
+    
+    @Autowired
+    HttpServletRequest httpServletRequest;
 
     public PetascopeController() {
 
@@ -110,6 +116,12 @@ public class PetascopeController extends AbstractController {
         // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)                
         try {
             log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+            
+            // no url for petascope is defined in petascope.properties, only now can have the HTTP request object to set this value
+            if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
+                // use the requesting URL to Petascope (not always: http://localhost:8080/rasdaman/ows)
+                PETASCOPE_ENDPOINT_URL = this.httpServletRequest.getRequestURL().toString();
+            }
                 
             if (startException != null) {
                 throwStartException();

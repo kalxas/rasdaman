@@ -91,9 +91,6 @@ public class ConfigManager {
     public static final String PETASCOPE_PROPERTIES_FILE = "petascope.properties";    
     // The default database name of petascope
     public static final String PETASCOPE_DB = "petascopedb";
-    private static final String PETASCOPE_HOST_DEFAULT = "http://localhost";
-    // e.g: 8080
-    private static String PETASCOPE_PORT;
 
     // e.g: /rasdaman
     public static String PETASCOPE_APPLICATION_CONTEXT_PATH;
@@ -167,7 +164,6 @@ public class ConfigManager {
     // If user doesn't use default postgresql (e.g: H2 database), then user needs to provide a corresponding JDBC driver (h2-jdbc.jar) manually
     public static final String KEY_PETASCOPE_DATASOURCE_JDBC_JAR_PATH = "spring.datasource.jdbc_jar_path";
     private static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
-    private static final String KEY_PORT = "server.port";
     private static final String KEY_APPLICATION_NAME = "server.contextPath";
 
     // For old Petascopedb to migrate (source datasource)
@@ -325,13 +321,8 @@ public class ConfigManager {
 
         /* ***** Petascope configuration ***** */
         PETASCOPE_ENDPOINT_URL = get(KEY_PETASCOPE_SERVLET_URL);
-        PETASCOPE_PORT = get(KEY_PORT);
         PETASCOPE_APPLICATION_CONTEXT_PATH = get(KEY_APPLICATION_NAME);
-        // no url for petascope is defined in petascope.properties
-        if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
-            // use the default url (http://localhost:8080/rasdaman/ows)
-            PETASCOPE_ENDPOINT_URL = PETASCOPE_HOST_DEFAULT + ":" + PETASCOPE_PORT + PETASCOPE_APPLICATION_CONTEXT_PATH + "/" + OWS;
-        }
+
         PETASCOPE_DATASOURCE_URL = get(KEY_PETASCOPE_DATASOURCE_URL);
         PETASCOPE_DATASOURCE_USERNAME = get(KEY_PETASCOPE_DATASOURCE_USERNAME);
         PETASCOPE_DATASOURCE_PASSWORD = get(KEY_PETASCOPE_DATASOURCE_PASSWORD);        
