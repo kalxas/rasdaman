@@ -53,8 +53,14 @@
 
 /// <reference path="main/WCSMainController.ts"/>
 /// <reference path="main/WMSMainController.ts"/>
+/// <reference path="main/AdminMainController.ts"/>
 
 //// WMS
 /// <reference path="wms_component/settings/SettingsService.ts"/>
 /// <reference path="wms_component/get_capabilities/GetCapabilitiesController.ts"/>
 /// <reference path="wms_component/describe_layer/DescribeLayerController.ts"/>
+
+//// Admin
+/// <reference path="../components/admin_component/AdminService.ts"/>
+/// <reference path="admin_component/login/AdminLoginController.ts"/>
+/// <reference path="admin_component/ows_metadata_management/AdminOWSMetadataManagementController.ts"/>

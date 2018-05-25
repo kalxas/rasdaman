@@ -35,6 +35,7 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import static org.rasdaman.Config.PATH_TO_PHANTOMJS_FILE;
+import org.rasdaman.admin.AdminOWSMetadataManagementTest;
 import org.rasdaman.secore.SecoreBrowseCRSMetadataTest;
 import org.rasdaman.secore.SecoreCompare2CRSsMetadataTest;
 import org.rasdaman.secore.SecoreDeleteCRSMetadataTest;
@@ -85,6 +86,10 @@ public class Application {
 
             // List of test classes
             List<AbstractWebPageTest> webPageTests = new ArrayList<>();
+            
+            // TEST Admin            
+            webPageTests.add(new AdminOWSMetadataManagementTest());
+            
             // TEST WCS
             webPageTests.add(new WCSGetCapabilitiesTest());
             webPageTests.add(new WCSDescribeCoverageTest());

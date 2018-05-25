@@ -3932,6 +3932,45 @@ var rasdaman;
     }());
     rasdaman.WMSMainController = WMSMainController;
 })(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var AdminMainController = (function () {
+        function AdminMainController($scope, $rootScope, $state) {
+            this.$scope = $scope;
+            this.initializeTabs($scope);
+            $scope.adminStateInformation = {
+                loggedIn: false
+            };
+            $scope.loggedIn = false;
+            $scope.tabs = [$scope.adminLogin];
+            $scope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
+                if (newValue) {
+                    $scope.tabs = [$scope.adminOWSMetadataManagement];
+                }
+                else {
+                    $scope.tabs = [$scope.adminLogin];
+                }
+            });
+        }
+        AdminMainController.prototype.initializeTabs = function ($scope) {
+            $scope.adminLogin = {
+                heading: "Login",
+                view: "admin_login",
+                active: true,
+                disabled: false
+            };
+            $scope.adminOWSMetadataManagement = {
+                heading: "OWS Metadata Management",
+                view: "admin_ows_metadata_management",
+                active: true,
+                disabled: false
+            };
+        };
+        AdminMainController.$inject = ["$scope", "$rootScope", "$state"];
+        return AdminMainController;
+    }());
+    rasdaman.AdminMainController = AdminMainController;
+})(rasdaman || (rasdaman = {}));
 var wms;
 (function (wms) {
     var GetCapabilities = (function () {
@@ -4176,9 +4215,6 @@ var rasdaman;
                     }
                 }
             };
-            $rootScope.$on("reloadServerCapabilities", function (event, value) {
-                $scope.getServerCapabilities();
-            });
             $scope.$watch("wmsStateInformation.reloadServerCapabilities", function (capabilities) {
                 $scope.getServerCapabilities();
                 $scope.wmsStateInformation.reloadServerCapabilities = false;
@@ -4466,6 +4502,308 @@ var rasdaman;
     }());
     rasdaman.WMSDescribeLayerController = WMSDescribeLayerController;
 })(rasdaman || (rasdaman = {}));
+var admin;
+(function (admin) {
+    var Credential = (function () {
+        function Credential(username, password) {
+            this.username = username;
+            this.password = password;
+        }
+        Credential.prototype.toKVP = function () {
+            return "username=" + this.username +
+                "&password=" + this.password;
+        };
+        return Credential;
+    }());
+    admin.Credential = Credential;
+})(admin || (admin = {}));
+var admin;
+(function (admin) {
+    var ServiceIdentification = (function () {
+        function ServiceIdentification(serviceTitle, abstract) {
+            this.serviceTitle = serviceTitle;
+            this.abstract = abstract;
+        }
+        ServiceIdentification.prototype.toKVP = function () {
+            return "serviceTitle=" + this.serviceTitle +
+                "&abstract=" + this.abstract;
+        };
+        return ServiceIdentification;
+    }());
+    admin.ServiceIdentification = ServiceIdentification;
+})(admin || (admin = {}));
+var admin;
+(function (admin) {
+    var ServiceProvider = (function () {
+        function ServiceProvider(providerName, providerSite, individualName, positionName, role, email, voicePhone, facsimilePhone, hoursOfService, contactInstructions, city, administrativeArea, postalCode, country) {
+            this.providerName = providerName;
+            this.providerSite = providerSite;
+            this.individualName = individualName;
+            this.positionName = positionName;
+            this.role = role;
+            this.email = email;
+            this.voicePhone = voicePhone;
+            this.facsimilePhone = facsimilePhone;
+            this.hoursOfService = hoursOfService;
+            this.contactInstructions = contactInstructions;
+            this.city = city;
+            this.administrativeArea = administrativeArea;
+            this.postalCode = postalCode;
+            this.country = country;
+        }
+        ServiceProvider.prototype.toKVP = function () {
+            return "providerName=" + this.providerName +
+                "&providerSite=" + this.providerSite +
+                "&individualName=" + this.individualName +
+                "&positionName=" + this.positionName +
+                "&role=" + this.role +
+                "&email=" + this.email +
+                "&voicePhone=" + this.voicePhone +
+                "&facsimilePhone=" + this.facsimilePhone +
+                "&hoursOfService=" + this.hoursOfService +
+                "&contactInstructions=" + this.contactInstructions +
+                "&city=" + this.city +
+                "&administrativeArea=" + this.administrativeArea +
+                "&postalCode=" + this.postalCode +
+                "&country=" + this.country;
+        };
+        return ServiceProvider;
+    }());
+    admin.ServiceProvider = ServiceProvider;
+})(admin || (admin = {}));
+var rasdaman;
+(function (rasdaman) {
+    var AdminService = (function () {
+        function AdminService($http, $q, settings, serializedObjectFactory, $window) {
+            this.$http = $http;
+            this.$q = $q;
+            this.settings = settings;
+            this.serializedObjectFactory = serializedObjectFactory;
+            this.$window = $window;
+        }
+        AdminService.prototype.login = function (credential) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/admin/Login";
+            var request = {
+                method: 'POST',
+                url: requestUrl,
+                transformResponse: null,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                data: credential.toKVP()
+            };
+            this.$http(request).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        AdminService.prototype.updateServiceIdentification = function (serviceIdentification) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceIdentification";
+            var request = {
+                method: 'POST',
+                url: requestUrl,
+                transformResponse: null,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                withCredentials: true,
+                data: serviceIdentification.toKVP()
+            };
+            this.$http(request).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        AdminService.prototype.updateServiceProvider = function (serviceProvider) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/admin/UpdateServiceProvider";
+            var request = {
+                method: 'POST',
+                url: requestUrl,
+                transformResponse: null,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                withCredentials: true,
+                data: serviceProvider.toKVP()
+            };
+            this.$http(request).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
+        AdminService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        return AdminService;
+    }());
+    rasdaman.AdminService = AdminService;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var AdminLoginController = (function () {
+        function AdminLoginController($scope, $rootScope, $log, settings, adminService, alertService, errorHandlingService) {
+            this.$scope = $scope;
+            this.$rootScope = $rootScope;
+            this.$log = $log;
+            this.settings = settings;
+            this.adminService = adminService;
+            this.alertService = alertService;
+            this.errorHandlingService = errorHandlingService;
+            $scope.credential = new admin.Credential("", "");
+            $scope.login = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                adminService.login($scope.credential).then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    alertService.success("Successfully logged in.");
+                    $scope.adminStateInformation.loggedIn = true;
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                })["finally"](function () {
+                });
+            };
+        }
+        AdminLoginController.$inject = [
+            "$scope",
+            "$rootScope",
+            "$log",
+            "rasdaman.WCSSettingsService",
+            "rasdaman.AdminService",
+            "Notification",
+            "rasdaman.ErrorHandlingService"
+        ];
+        return AdminLoginController;
+    }());
+    rasdaman.AdminLoginController = AdminLoginController;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var AdminOWSMetadataManagementController = (function () {
+        function AdminOWSMetadataManagementController($scope, $rootScope, $log, wcsService, settings, adminService, alertService, errorHandlingService) {
+            this.$scope = $scope;
+            this.$rootScope = $rootScope;
+            this.$log = $log;
+            this.wcsService = wcsService;
+            this.settings = settings;
+            this.adminService = adminService;
+            this.alertService = alertService;
+            this.errorHandlingService = errorHandlingService;
+            $rootScope.$on("reloadServerCapabilities", function (event, value) {
+                $scope.getServerCapabilities();
+            });
+            $scope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
+                $scope.getServerCapabilities();
+            });
+            $scope.getServerCapabilities = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                var capabilitiesRequest = new wcs.GetCapabilities();
+                wcsService.getServerCapabilities(capabilitiesRequest)
+                    .then(function (response) {
+                    $scope.capabilitiesDocument = response.document;
+                    var capabilities = response.value;
+                    var serviceTitle = capabilities.serviceIdentification.title[0].value;
+                    var abstract = capabilities.serviceIdentification.abstract[0].value;
+                    $scope.serviceIdentification = new admin.ServiceIdentification(serviceTitle, abstract);
+                    var providerName = capabilities.serviceProvider.providerName;
+                    var providerSite = capabilities.serviceProvider.providerSite.href;
+                    var individualName = capabilities.serviceProvider.serviceContact.individualName;
+                    var positionName = capabilities.serviceProvider.serviceContact.positionName;
+                    var role = capabilities.serviceProvider.serviceContact.role.code;
+                    var email = capabilities.serviceProvider.serviceContact.contactInfo.address.electronicMailAddress[0];
+                    var voicePhone = capabilities.serviceProvider.serviceContact.contactInfo.phone.voice[0];
+                    var facsimilePhone = capabilities.serviceProvider.serviceContact.contactInfo.phone.facsimile[0];
+                    var hoursOfService = capabilities.serviceProvider.serviceContact.contactInfo.hoursOfService;
+                    var contactInstructions = capabilities.serviceProvider.serviceContact.contactInfo.contactInstructions;
+                    var city = capabilities.serviceProvider.serviceContact.contactInfo.address.city;
+                    var administrativeArea = capabilities.serviceProvider.serviceContact.contactInfo.address.administrativeArea;
+                    var postalCode = capabilities.serviceProvider.serviceContact.contactInfo.address.postalCode;
+                    var country = capabilities.serviceProvider.serviceContact.contactInfo.address.country;
+                    $scope.serviceProvider = new admin.ServiceProvider(providerName, providerSite, individualName, positionName, role, email, voicePhone, facsimilePhone, hoursOfService, contactInstructions, city, administrativeArea, postalCode, country);
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                    $log.error(args);
+                })["finally"](function () {
+                });
+            };
+            $scope.updateServiceIdentification = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                adminService.updateServiceIdentification($scope.serviceIdentification).then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    alertService.success("Successfully update Service Identifcation to Petascope database.");
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                })["finally"](function () {
+                });
+            };
+            $scope.updateServiceProvider = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                adminService.updateServiceProvider($scope.serviceProvider).then(function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    alertService.success("Successfully update Service Provider to Petascope database.");
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                })["finally"](function () {
+                });
+            };
+            $scope.logOut = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                $scope.adminStateInformation.loggedIn = false;
+            };
+        }
+        AdminOWSMetadataManagementController.$inject = [
+            "$scope",
+            "$rootScope",
+            "$log",
+            "rasdaman.WCSService",
+            "rasdaman.WCSSettingsService",
+            "rasdaman.AdminService",
+            "Notification",
+            "rasdaman.ErrorHandlingService"
+        ];
+        return AdminOWSMetadataManagementController;
+    }());
+    rasdaman.AdminOWSMetadataManagementController = AdminOWSMetadataManagementController;
+})(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
     "use strict";
@@ -4510,6 +4848,16 @@ var rasdaman;
                         url: "wms_describe_layer",
                         templateUrl: 'src/components/wms_component/describe_layer/DescribeLayerView.html',
                         controller: rasdaman.WMSDescribeLayerController
+                    },
+                    'admin_login': {
+                        url: "admin_login",
+                        templateUrl: 'src/components/admin_component/login/AdminLoginView.html',
+                        controller: rasdaman.AdminLoginController
+                    },
+                    'admin_ows_metadata_management': {
+                        url: "admin_ows_metadata_management",
+                        templateUrl: 'src/components/admin_component/ows_metadata_management/AdminOWSMetadataManagementView.html',
+                        controller: rasdaman.AdminOWSMetadataManagementController
                     }
                 }
             });
@@ -4549,6 +4897,7 @@ var rasdaman;
         .service("rasdaman.WCSSettingsService", rasdaman.WCSSettingsService)
         .service("rasdaman.WMSService", rasdaman.WMSService)
         .service("rasdaman.WMSSettingsService", rasdaman.WMSSettingsService)
+        .service("rasdaman.AdminService", rasdaman.AdminService)
         .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
         .service("rasdaman.ErrorHandlingService", rasdaman.ErrorHandlingService)
         .controller("rasdaman.WCSMainController", rasdaman.WCSMainController)
@@ -4559,6 +4908,7 @@ var rasdaman;
         .controller("rasdaman.WCSGetCoverageController", rasdaman.WCSGetCoverageController)
         .controller("rasdaman.WCSProcessCoverageController", rasdaman.WCSProcessCoverageController)
         .controller("rasdaman.WMSMainController", rasdaman.WMSMainController)
+        .controller("rasdaman.AdminMainController", rasdaman.AdminMainController)
         .directive("rangeSubsettingExtension", rasdaman.WCSRangeSubsettingExtension)
         .directive("scalingExtension", rasdaman.WCSScalingExtension)
         .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)

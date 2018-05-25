@@ -118,11 +118,6 @@ module rasdaman {
                 }
             }            
 
-            // When WCS GetCapabilities button is clicked, then WMS also needs to reload its GetCapabilities
-            $rootScope.$on("reloadServerCapabilities", (event:angular.IAngularEvent, value:boolean)=> {                
-                $scope.getServerCapabilities();
-            });
-
             // When WMS insertStyle, updateStyle, deleteStyle is called sucessfully, it should reload the new capabilities            
             $scope.$watch("wmsStateInformation.reloadServerCapabilities", (capabilities:wms.Capabilities)=> {
                 $scope.getServerCapabilities();

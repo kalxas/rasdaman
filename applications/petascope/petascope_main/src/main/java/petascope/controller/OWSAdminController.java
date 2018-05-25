@@ -22,17 +22,16 @@
 package petascope.controller;
 
 import java.io.IOException;
-import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -40,175 +39,99 @@ import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
 import petascope.util.ListUtil;
 import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
+import org.springframework.context.annotation.Scope;
+import org.springframework.web.bind.annotation.RestController;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Controller to handle request to Admin page to update OWS Service metadata
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-@Controller
+@RestController
 public class OWSAdminController extends AbstractController {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(OWSAdminController.class);
-
-    private static final String UPDATE_IDENTIFICATION = "updateIdentification";
-    private static final String UPDATE_PROVIDER = "updateProvider";
-    private static final String FORM_PAGE = "ows_admin_form";
-
-    @Autowired
-    HttpServletRequest httpServletRequest;
 
     @Autowired
     OWSMetadataRepostioryService owsMetadataRepostioryService;
 
     /**
-     * Handle the login page for logging in and update OWS Service metadata
-     *
-     * @param postBody
-     * @param modelToView
-     * @return
-     * @throws java.lang.Exception
+     * Only process non-login request if user logged in.
      */
-    @RequestMapping(OWS_ADMIN)
-    public String handle(@RequestBody(required = false) String postBody, Map<String, Object> modelToView) throws Exception {
-        Map<String, String[]> kvpParameters;
-
-        if (httpServletRequest.getSession().getAttribute(USERNAME) != null) {
-            // User want to logout, so clear session of this user and redirect to login page
-            if (httpServletRequest.getParameter(LOGOUT_PARAM) != null) {
-                httpServletRequest.getSession().setAttribute(USERNAME, null);
-
-                return LOGIN_PAGE;
-            } else {
-                // Session is created, just reload the form page
-                return this.handleFormRequest(null, modelToView);
-            }
-        } else if (postBody != null) {
-            kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-            return this.handleLoginRequest(kvpParameters, modelToView);
-        }
-        // This value will be passed to JSP
-        modelToView.put("message", String.valueOf(modelToView.size()));
-
-        return LOGIN_PAGE;
-    }
-
-    /**
-     * Handle the form page for updating OWS Service metadata
-     *
-     * @param postBody
-     * @param modelToView
-     * @return
-     * @throws java.lang.Exception
-     */
-    @RequestMapping(OWS_ADMIN + "/form")
-    public String formPage(@RequestBody(required = false) String postBody, Map<String, Object> modelToView) throws Exception {
-        Map<String, String[]> kvpParameters;
-
+    private void validateSession(HttpServletRequest httpServletRequest) throws PetascopeException {
+        // NOTE: for Ajax request from client (AngularJS), without "withCredentials: true" for IRequestConfig, Java Servlet will create a new session
+        // and this check will always fail.
         if (httpServletRequest.getSession().getAttribute(USERNAME) == null) {
-            // Session doesn't exist, user not log in yet
-            return LOGIN_PAGE;
-        } else {
-            if (postBody != null) {            
-                // If request without submitting data, then just return the login page
-                postBody = URLDecoder.decode(postBody, "utf-8");
-                kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-                // Session is created, just reload the form page with the new updated data
-                return this.handleFormRequest(kvpParameters, modelToView);
-            } else {
-                // User want to logout, so clear session of this user and redirect to login page
-                if (httpServletRequest.getParameter(LOGOUT_PARAM) != null) {
-                    httpServletRequest.getSession().setAttribute(USERNAME, null);
-                    return LOGIN_PAGE;
-                } else {
-                    // Session is created, just reload the form page
-                    return this.handleFormRequest(null, modelToView);
-                }
-            }
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Session does not exist, please login first.");
         }
     }
-
-    /**
-     * Handle the request from/to login page
-     *
-     * @param kvpParameters
-     * @param modelToView
-     * @return
-     */
-    private String handleLoginRequest(Map<String, String[]> kvpParameters, Map<String, Object> modelToView) throws WCSException, PetascopeException {
-        // If submitted username, password are not as same as admin's account in petascope.properties, so return error status.
-        if (!(kvpParameters.get(USERNAME)[0].equals(ConfigManager.PETASCOPE_ADMIN_USERNAME)
-                && kvpParameters.get(PASSWORD)[0].equals(ConfigManager.PETASCOPE_ADMIN_PASSWORD))) {
-            modelToView.put(IS_SUCCESS_ATTRIBUTE, "false");
-
-            return LOGIN_PAGE;
-        } else {
-            modelToView.put(IS_SUCCESS_ATTRIBUTE, "true");
-            // Create a session for this loggin then foward to form.jsp page
-            httpServletRequest.getSession().setAttribute(USERNAME, kvpParameters.get(USERNAME)[0]);
-
-            return this.handleFormRequest(null, modelToView);
-        }
-    }
-
-    /**
-     * Handle the request from/to the form page
-     *
-     * @param modelToView
-     * @return
-     */
-    private String handleFormRequest(Map<String, String[]> kvpParameters, Map<String, Object> modelToView) throws WCSException, PetascopeException {
-        if (startException != null) {
-            throwStartException();
-        }
+     
+    @RequestMapping(OWS_ADMIN + "/Login")
+    public void handleOWSLogin(HttpServletRequest httpServletRequest, HttpSession session) throws Exception {
+        String postBody = this.getPOSTRequestBody(httpServletRequest);     
+        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         
+        String username = kvpParameters.get(USERNAME)[0];
+        String password = kvpParameters.get(PASSWORD)[0];
+        if (!(username.equals(ConfigManager.PETASCOPE_ADMIN_USERNAME) && password.equals(ConfigManager.PETASCOPE_ADMIN_PASSWORD))) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Petascope admin username or password is not valid.");
+        } else {
+           session.setAttribute(USERNAME, username);
+        }
+        httpServletRequest.getSession().setAttribute(USERNAME, true);
+    }
+    
+    @RequestMapping(OWS_ADMIN + "/UpdateServiceIdentification")
+    public void handleOWSUpdateServiceIdentification(HttpServletRequest httpServletRequest) throws Exception {
+        this.validateSession(httpServletRequest);
+        
+        String postBody = this.getPOSTRequestBody(httpServletRequest);     
+        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         OwsServiceMetadata owsServiceMetadata = owsMetadataRepostioryService.read();
-
-        if (kvpParameters != null) {
-            // Check what kind of update request
-            if (httpServletRequest.getParameter(UPDATE_IDENTIFICATION) != null) {
-                log.debug("Update Identification");
-                owsServiceMetadata.getServiceIdentification().setServiceTitle(kvpParameters.get("serviceTitle")[0]);
-                owsServiceMetadata.getServiceIdentification().setServiceAbstract(kvpParameters.get("abstract")[0]);
-                
-                modelToView.put("retMessage", "Service identification is updated in database.");
-            } else if (httpServletRequest.getParameter(UPDATE_PROVIDER) != null) {
-                // Update Service provider
-                log.debug("Update Provider");
-                
-                owsServiceMetadata.getServiceProvider().setProviderName(kvpParameters.get("providerName")[0]);
-                owsServiceMetadata.getServiceProvider().setProviderSite(kvpParameters.get("providerSite")[0]);
-                
-                owsServiceMetadata.getServiceProvider().getServiceContact().setIndividualName(kvpParameters.get("individualName")[0]);
-                owsServiceMetadata.getServiceProvider().getServiceContact().setPositionName(kvpParameters.get("positionName")[0]);
-                owsServiceMetadata.getServiceProvider().getServiceContact().setRole(kvpParameters.get("role")[0]);
-                
-                List<String> emails = ListUtil.valuesToList(kvpParameters.get("email"));
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setElectronicMailAddresses(emails);
-                
-                List<String> voicePhones = ListUtil.valuesToList(kvpParameters.get("voicePhone"));
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setVoicePhones(voicePhones);
-                List<String> facsimilePhones = ListUtil.valuesToList(kvpParameters.get("facsimilePhone"));
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setFacsimilePhone(facsimilePhones);
-                
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setHoursOfService(kvpParameters.get("hoursOfService")[0]);
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setContactInstructions(kvpParameters.get("contactInstructions")[0]);
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCity(kvpParameters.get("cityAddress")[0]);
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setAdministrativeArea(kvpParameters.get("administrativeArea")[0]);
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setPostalCode(kvpParameters.get("postalCode")[0]);
-                owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCountry(kvpParameters.get("country")[0]);
-                
-                modelToView.put("retMessage", "Service provider is updated in database.");
-            }
-            
-            // Update the new submitted values to ows service metadata object
-            owsMetadataRepostioryService.save(owsServiceMetadata);            
-            log.debug("OWS Service metadata is updated in database.");
-        }
+        log.debug("Updating Service Identification");
+        owsServiceMetadata.getServiceIdentification().setServiceTitle(kvpParameters.get("serviceTitle")[0]);
+        owsServiceMetadata.getServiceIdentification().setServiceAbstract(kvpParameters.get("abstract")[0]);    
         
-        modelToView.put("owsServiceMetadata", owsServiceMetadata);
+        // Update the new submitted values to ows service metadata object
+        owsMetadataRepostioryService.save(owsServiceMetadata);            
+        log.debug("OWS Service metadata is updated in database from input Service Identification.");
+    }
+    
+    @RequestMapping(OWS_ADMIN + "/UpdateServiceProvider")
+    public void handleOWSUpdateServiceProvider(HttpServletRequest httpServletRequest) throws Exception {
+        this.validateSession(httpServletRequest);
+        
+        String postBody = this.getPOSTRequestBody(httpServletRequest);     
+        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
+        OwsServiceMetadata owsServiceMetadata = owsMetadataRepostioryService.read();
+        log.debug("Updating Service Provider");
+                
+        owsServiceMetadata.getServiceProvider().setProviderName(kvpParameters.get("providerName")[0]);
+        owsServiceMetadata.getServiceProvider().setProviderSite(kvpParameters.get("providerSite")[0]);
 
-        return FORM_PAGE;
+        owsServiceMetadata.getServiceProvider().getServiceContact().setIndividualName(kvpParameters.get("individualName")[0]);
+        owsServiceMetadata.getServiceProvider().getServiceContact().setPositionName(kvpParameters.get("positionName")[0]);
+        owsServiceMetadata.getServiceProvider().getServiceContact().setRole(kvpParameters.get("role")[0]);
+
+        List<String> emails = ListUtil.valuesToList(kvpParameters.get("email"));
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setElectronicMailAddresses(emails);
+
+        List<String> voicePhones = ListUtil.valuesToList(kvpParameters.get("voicePhone"));
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setVoicePhones(voicePhones);
+        List<String> facsimilePhones = ListUtil.valuesToList(kvpParameters.get("facsimilePhone"));
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getPhone().setFacsimilePhone(facsimilePhones);
+
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setHoursOfService(kvpParameters.get("hoursOfService")[0]);
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().setContactInstructions(kvpParameters.get("contactInstructions")[0]);
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCity(kvpParameters.get("city")[0]);
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setAdministrativeArea(kvpParameters.get("administrativeArea")[0]);
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setPostalCode(kvpParameters.get("postalCode")[0]);
+        owsServiceMetadata.getServiceProvider().getServiceContact().getContactInfo().getAddress().setCountry(kvpParameters.get("country")[0]);   
+        
+        // Update the new submitted values to ows service metadata object
+        owsMetadataRepostioryService.save(owsServiceMetadata);            
+        log.debug("OWS Service metadata is updated in database from input Service Provider.");
     }
 
     @Override

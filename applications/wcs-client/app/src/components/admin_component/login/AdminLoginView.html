@@ -1,0 +1,31 @@
+<div class="row">
+    <div class="col-sm-12">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="true">
+                    <uib-accordion-heading>
+                        Login with Petascope admin credentials
+                    </uib-accordion-heading>
+    
+                        <div class="col-sm-6 col-md-offset-3">
+                            <!--Username-->            
+                            <div class="form-group">
+                                <label>Petascope admin user</label>
+                                <!-- NOTE: ng-model with value:string cannot work under accordion for two ways data binding, it needs an object -->
+                                <input class="form-control" ng-model="credential.username">
+                            </div>
+        
+                            <!--Password-->            
+                            <div class="form-group">
+                                <label>Petascope admin password</label>
+                                <input class="form-control" ng-model="credential.password">
+                            </div>
+        
+                            <div class="form-group">
+                                <input type="button" class="btn btn-primary" ng-click="login()" value="Login"/>
+                            </div>
+                        </div>
+    
+                </uib-accordion-group>
+            </uib-accordion>
+    </div>
+</div>

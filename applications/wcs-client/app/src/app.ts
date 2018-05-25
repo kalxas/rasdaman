@@ -81,6 +81,18 @@ module rasdaman {
                         url: "wms_describe_layer",
                         templateUrl: 'src/components/wms_component/describe_layer/DescribeLayerView.html',
                         controller: rasdaman.WMSDescribeLayerController
+                    },
+
+                    // Admin
+                    'admin_login': {
+                        url: "admin_login",
+                        templateUrl: 'src/components/admin_component/login/AdminLoginView.html',
+                        controller: rasdaman.AdminLoginController
+                    }, 
+                    'admin_ows_metadata_management': {
+                        url: "admin_ows_metadata_management",
+                        templateUrl: 'src/components/admin_component/ows_metadata_management/AdminOWSMetadataManagementView.html',
+                        controller: rasdaman.AdminOWSMetadataManagementController
                     }
                     
                 }
@@ -118,6 +130,7 @@ module rasdaman {
         .service("rasdaman.WCSSettingsService", rasdaman.WCSSettingsService)
         .service("rasdaman.WMSService", rasdaman.WMSService)
         .service("rasdaman.WMSSettingsService", rasdaman.WMSSettingsService)
+        .service("rasdaman.AdminService", rasdaman.AdminService)
         .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
         .service("rasdaman.ErrorHandlingService", rasdaman.ErrorHandlingService)
         .controller("rasdaman.WCSMainController", rasdaman.WCSMainController)
@@ -128,6 +141,7 @@ module rasdaman {
         .controller("rasdaman.WCSGetCoverageController", rasdaman.WCSGetCoverageController)
         .controller("rasdaman.WCSProcessCoverageController", rasdaman.WCSProcessCoverageController)        
         .controller("rasdaman.WMSMainController", rasdaman.WMSMainController)
+        .controller("rasdaman.AdminMainController", rasdaman.AdminMainController)
         .directive("rangeSubsettingExtension", rasdaman.WCSRangeSubsettingExtension)
         .directive("scalingExtension", rasdaman.WCSScalingExtension)
         .directive("interpolationExtension", rasdaman.WCSInterpolationExtension)
