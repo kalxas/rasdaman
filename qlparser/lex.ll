@@ -284,8 +284,11 @@ int string_yyinput( char* buf, int max_size )
 "cosh"                                   { SETTOKEN( COSH, commandToken, COSH ) }
 "tanh"                                   { SETTOKEN( TANH, commandToken, TANH ) }
 "arcsin"                                 { SETTOKEN( ARCSIN, commandToken, ARCSIN ) }
+"asin"                                   { SETTOKEN( ASIN, commandToken, ASIN ) }
 "arccos"                                 { SETTOKEN( ARCCOS, commandToken, ARCCOS ) }
+"acos"                                   { SETTOKEN( ACOS, commandToken, ACOS ) }
 "arctan"                                 { SETTOKEN( ARCTAN, commandToken, ARCTAN ) }
+"atan"                                   { SETTOKEN( ATAN, commandToken, ATAN ) }
 
 "index"					{ SETTOKEN( INDEX, commandToken, INDEX ) }
 "rc_index"				{ SETTOKEN( RC_INDEX, commandToken, RC_INDEX ) }

@@ -245,8 +245,8 @@ struct QtUpdateSpecElement
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
                          MDDPARAM OID SHIFT CLIP CURTAIN POLYGON MULTIPOLYGON LINESTRING MULTILINESTRING RANGE SCALE SQRT ABS EXP 
-                         LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN SUBSPACE
-                         ARCCOS ARCTAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION
+                         LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN ASIN SUBSPACE
+                         ARCCOS ACOS ARCTAN ATAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION
 			 INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
@@ -2740,7 +2740,27 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
+	| ASIN LRPAR generalExp RRPAR
+	{
+	  $$ = new QtArcsin( $3 );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	}
 	| ARCCOS LRPAR generalExp RRPAR         
+	{
+	  $$ = new QtArccos( $3 );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	}
+  | ACOS LRPAR generalExp RRPAR         
 	{
 	  $$ = new QtArccos( $3 );
 	  $$->setParseInfo( *($1.info) );
@@ -2760,6 +2780,17 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
 	}
+  | ATAN LRPAR generalExp RRPAR         
+	{
+	  $$ = new QtArctan( $3 );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	}
+  
         | generalExp DOT RE
         {
           $$ = new QtRealPartOp( $1 );

@@ -40,6 +40,14 @@ induction_all_operations_arccos.rasql
 extending_a_spatial_domain.rasql
 composite_constants_struct.rasql
 project_multiband.rasql
+acos_zero.rasql
+arccos_zero.rasql
+arcsin_one.rasql
+asin_one.rasql
+arctan_one.rasql
+atan_inf.rasql
+atan_neginf.rasql
+atan_one.rasql
 
 # error message is contained in grpc exception message
 range_egt.rasql
