@@ -95,7 +95,7 @@ public class ClipExpressionHandler {
      * @return a grid coordinate
      * @throws PetascopeException
      */
-    private String translateGeoToGridPointCoordinate(Axis axis, BigDecimal geoPointCoordinate) {
+    private String translateGeoToGridPointCoordinate(Axis axis, BigDecimal geoPointCoordinate) throws PetascopeException {
         if (geoPointCoordinate.compareTo(axis.getGeoBounds().getLowerLimit()) < 0 || geoPointCoordinate.compareTo(axis.getGeoBounds().getUpperLimit()) > 0) {
             String errorMessage = "Coordinate is not within axis: " + axis.getLabel() + "("
                     + axis.getGeoBounds().getLowerLimit().toPlainString() + ":" + axis.getGeoBounds().getUpperLimit().toPlainString() + ").";
@@ -150,7 +150,7 @@ public class ClipExpressionHandler {
      * input CRS to coverage's native XY axes CRS.
      * @return A string representing translated coordinates in grid-axes order
      */
-    private String translateGeoToGridCoorinates(WcpsCoverageMetadata metadata, String[] geoCoordinateArray, String wktCRS) {
+    private String translateGeoToGridCoorinates(WcpsCoverageMetadata metadata, String[] geoCoordinateArray, String wktCRS) throws PetascopeException {
         // First, determine the XY axes from this coverage.
         Integer xOrder = -1;
         Integer yOrder = -1;
@@ -301,7 +301,7 @@ public class ClipExpressionHandler {
      * LineString((..)))
      * @return WcpsResult an object to be used in upper parsing tree.
      */
-    public WcpsResult handle(WcpsResult coverageExpression, AbstractWKTShape wktShape, String wktCRS) {
+    public WcpsResult handle(WcpsResult coverageExpression, AbstractWKTShape wktShape, String wktCRS) throws PetascopeException {
         // Clear stored data from last request
         this.clippedCoverageAxesGeoBounds.clear();
 

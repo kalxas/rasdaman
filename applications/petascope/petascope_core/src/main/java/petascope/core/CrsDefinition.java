@@ -66,11 +66,11 @@ public class CrsDefinition {
                 "Lat",  // eg CS EPSG:6422 ELLISPOIDAL CS
                 "j"     // eg ImageCRS
             );
-    public static final List<String> ELEV_ALIASES = Arrays.asList(
-                "h",    // eg CS EPSG:6423 ELLIPSOIDAL-3D / ImageCRS
-                "H",    // eg CS EPSG:1030 |
-                "D"     // eg CS EPSG:6495 |-VERTICAL
-            );
+    
+    // eg CS EPSG:6423 ELLIPSOIDAL-3D / ImageCRS, CS EPSG:1030
+    public static final List<String> ELEVATION_UP_ALIASES = Arrays.asList("h", "H");
+    // eg CS EPSG:6495 |-VERTICAL
+    public static final List<String> ELEVATION_DOWN_ALIASES = Arrays.asList("D");
 
     /* Constants */
     // GML values

@@ -1,0 +1,12 @@
+service=WMS&
+version=1.3.0&
+request=GetMap&
+layers=test_wms_4d_ecmwf_fire_netcdf&
+bbox=30,34,30,34&
+width=800&
+height=600&
+styles=&
+crs=EPSG:4326&
+format=image/png&
+dim_forecast=8,15,22&
+time="2017-02-10T00:00:00.000Z","2017-12-15T00:00:00.000Z","2017-09-18T00:00:00.000Z"

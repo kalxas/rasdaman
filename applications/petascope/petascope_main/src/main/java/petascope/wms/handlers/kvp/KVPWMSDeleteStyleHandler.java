@@ -37,7 +37,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
 import petascope.wms.exception.WMSMissingRequestParameter;
-import petascope.wms.exception.WMSStyleNotExistException;
+import petascope.wms.exception.WMSStyleNotFoundException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 
 /**
@@ -100,7 +100,7 @@ public class KVPWMSDeleteStyleHandler extends KVPWMSAbstractHandler {
 
         // Style does not exist, so cannot delete it.
         if (requestingStyle == null) {
-            throw new WMSStyleNotExistException(styleName, layerName);
+            throw new WMSStyleNotFoundException(styleName, layerName);
         }
         
         layer.getStyles().remove(i);

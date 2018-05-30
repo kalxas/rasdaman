@@ -237,13 +237,13 @@ public class UpdateCoverageHandler {
             GeoAxis axis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(axisLabel);
             
             if (axis instanceof org.rasdaman.domain.cis.RegularAxis) {
-                Pair<BigDecimal, BigDecimal> subsetDomain = this.parseSubsetDimensionToNumbers(currentCoverage, dimensionSubset);
+                ParsedSubset<BigDecimal> subsetDomain = CrsComputerService.parseSubsetDimensionToNumbers(axis.getSrsName(), axis.getUomLabel(), dimensionSubset);
                 // NOTE: Only support this feature if axis is regular
                 BigDecimal currentLowerBound = axis.getLowerBoundNumber();
                 BigDecimal currentUpperBound = axis.getUpperBoundNumber();
                 
-                BigDecimal inputLowerBound = subsetDomain.fst;
-                BigDecimal inputUpperBound = subsetDomain.snd;
+                BigDecimal inputLowerBound = subsetDomain.getLowerLimit();
+                BigDecimal inputUpperBound = subsetDomain.getUpperLimit();
                 
                 BigDecimal axisResolution = axis.getResolution();                
                 BigDecimal lowerGeoOffSet = BigDecimal.ZERO;
@@ -462,40 +462,6 @@ public class UpdateCoverageHandler {
         }
     }
     
-    /**
-     * From the input subset (E.g: subset=Lat(0,20) or subset=ansi("2012-02-03")) of input slice, parse the domain(lowerBound,uppperBound)
-     * from String to numbers.
-     */
-    private Pair<BigDecimal, BigDecimal> parseSubsetDimensionToNumbers(Coverage coverage, AbstractSubsetDimension subset) throws PetascopeException, SecoreException {
-        String lowerBound, upperBound;
-        String axisLabel = subset.getDimensionName();
-        Axis axis = ((GeneralGridCoverage) coverage).getGeoAxisByName(axisLabel);
-        String axisCRS = axis.getSrsName();
-        String axisUoM = axis.getUomLabel();
-        
-        if (subset instanceof TrimmingSubsetDimension) {
-            TrimmingSubsetDimension trimSubset = (TrimmingSubsetDimension) subset;
-            lowerBound = trimSubset.getLowerBound();
-            upperBound = trimSubset.getUpperBound();
-        } else {
-            lowerBound = ((SlicingSubsetDimension) subset).getBound();
-            upperBound = lowerBound;
-        }
-        
-        if (subset.isNumeric()) {
-            // e.g: Lat=(20, 30)
-            return new Pair<>(new BigDecimal(lowerBound), new BigDecimal(upperBound));
-        } else {
-            // e.g: t="2012-02-03"
-            String datumOrigin = CrsUtil.getDatumOrigin(axisCRS);
-
-            BigDecimal lowerBoundNumber = TimeUtil.countOffsets(datumOrigin, lowerBound, axisUoM, BigDecimal.ONE);
-            BigDecimal upperBoundNumber = TimeUtil.countOffsets(datumOrigin, upperBound, axisUoM, BigDecimal.ONE);
-            
-            return new Pair<>(lowerBoundNumber, upperBoundNumber);
-        }
-    }
-
     /**
      * Computes the offset in coefficients for a domain extensions of the
      * coverage.

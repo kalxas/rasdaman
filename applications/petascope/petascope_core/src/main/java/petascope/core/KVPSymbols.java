@@ -66,6 +66,8 @@ public interface KVPSymbols {
     // clip coverage with WKT (e.g: POLYGON, LineString,...)
     String KEY_CLIP = "clip";
     
+    String VALUE_TIME_PATTERN_CHARACTER = "\"";
+    
     // WCS
     String VALUE_GET_CAPABILITIES = "GetCapabilities";
     String VALUE_DESCRIBE_COVERAGE = "DescribeCoverage";
@@ -128,12 +130,18 @@ public interface KVPSymbols {
     String KEY_WMS_FORMAT = "format";
     String KEY_WMS_TRANSPARENT = "transparent";
     String KEY_WMS_BGCOLOR = "bgcolor";
+    // used for non XY axes, time axis, elevation axis, (e.g: dim_pressure with axis name is pressure) 
+    String KEY_WMS_DIM_PREFIX = "dim_";
     String KEY_WMS_EXCEPTIONS = "exceptions";
     String VALUE_WMS_EXCEPTIONS_XML = "xml";
     String VALUE_WMS_EXCEPTIONS_INIMAGE = "inimage";
     String VALUE_WMS_EXCEPTIONS_BLANK = "blank";
     String KEY_WMS_TIME = "time";
     String KEY_WMS_ELEVATION = "elevation";
+    // separate between min/max values for dimension subsets (e.g: time=min/max)
+    String VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER = "/";
+    // e.g: elevation=20,30,50
+    String VALUE_WMS_SUBSET_SEPARATE_CHARACTER = ",";
 
     /**
      * Service name

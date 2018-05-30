@@ -23,6 +23,7 @@ package petascope.wms.handlers.kvp;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -46,8 +47,9 @@ import petascope.util.StringUtil;
 import petascope.wms.exception.WMSInvalidCrsUriException;
 import petascope.wms.exception.WMSInvalidHeight;
 import petascope.wms.exception.WMSInvalidWidth;
+import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.exception.WMSMissingRequestParameter;
-import petascope.wms.exception.WMSStylesSizeNotCorrsespondLayersSizeException;
+import petascope.wms.exception.WMSStyleNotFoundException;
 import petascope.wms.exception.WMSUnsupportedFormatException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 import petascope.wms.handlers.service.WMSGetMapExceptionService;
@@ -94,6 +96,9 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         } else {
             for (String layerName : layersParam[0].split(",")) {
                 Layer layer = wmsRepostioryService.readLayerByNameFromCache(layerName);
+                if (layer == null) {
+                    throw new WMSLayerNotExistException(layerName);
+                }
                 layers.add(layer);
             }
         }
@@ -103,16 +108,26 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         if (stylesParam == null) {
             throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_STYLES);
         } else {
-            // NOTE: if Styles=&format=image/png, so styles is empty for all the requesting layers (use the first style of layers)            
+            // NOTE: if Styles=&format=image/png, so styles is empty for all the requesting layers (use the first style of layers)        
             if (!stylesParam[0].isEmpty()) {
-                if (stylesParam[0].split(",").length != layers.size()) {
-                    throw new WMSStylesSizeNotCorrsespondLayersSizeException(stylesParam.length, layers.size());
-                }
-                for (int i = 0; i < stylesParam.length; i++) {
+                String[] styleNames = stylesParam[0].split(",");
+                for (int i = 0; i < styleNames.length; i++) {
+                    String styleName = styleNames[i];
                     // Each map in the list of LAYERS is drawn using the corresponding style in the same position in the list of STYLES.
-                    // Style must exist in layer's styles.
-                    Layer layer = layers.get(i);
-                    Style style = layer.getStyle(stylesParam[i]);
+                    // Style must exist in one of layers' styles.
+                    boolean styleExists = false;
+                    for (int j = 0; j < layers.size(); j++) {
+                        Layer layer = layers.get(j);
+                        Style style = layer.getStyle(styleName);
+                        if (style != null) {
+                            styleExists = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!styleExists) {
+                        throw new WMSStyleNotFoundException(styleName);
+                    }
                 }
             }
         }
@@ -202,6 +217,27 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             if (kvpParameters.get(KVPSymbols.KEY_WMS_TRANSPARENT) != null) {
                 transparent = Boolean.parseBoolean(kvpParameters.get(KVPSymbols.KEY_WMS_TRANSPARENT)[0]);
             }
+            
+            // Optional non XY axes subsets (e.g: time=...,dim_pressure=...)
+            Map<String, String> dimSubsetsMap = new HashMap<>();
+            if (kvpParameters.get(KVPSymbols.KEY_WMS_TIME) != null) {
+                String timeSubset = kvpParameters.get(KVPSymbols.KEY_WMS_TIME)[0].trim();
+                dimSubsetsMap.put(KVPSymbols.KEY_WMS_TIME, timeSubset);
+            } 
+            
+            if (kvpParameters.get(KVPSymbols.KEY_WMS_ELEVATION) != null) {
+                String elevationSubset = kvpParameters.get(KVPSymbols.KEY_WMS_ELEVATION)[0].trim();
+                dimSubsetsMap.put(KVPSymbols.KEY_WMS_ELEVATION, elevationSubset);
+            } 
+            
+            // Check if request contains other dimensions (e.g: dim_pressure)
+            for (Map.Entry<String, String[]> entry : kvpParameters.entrySet()) {
+                if (entry.getKey().contains(KVPSymbols.KEY_WMS_DIM_PREFIX)) {
+                    String axisName = entry.getKey().split("_")[1];
+                    String dimSubset = entry.getValue()[0];
+                    dimSubsetsMap.put(axisName, dimSubset.trim());
+                }
+            }
 
             // @TODO: supports TIME, ELEVATION and other dimensions in WMS coverage > 2D.  
             wmsGetMapService.setLayerNames(layerNames);
@@ -212,6 +248,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             wmsGetMapService.setHeight(height);
             wmsGetMapService.setFormat(format);
             wmsGetMapService.setTransparent(transparent);
+            wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
 
             response = wmsGetMapService.createGetMapResponse();
             // Add the successful result to the cache

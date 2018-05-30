@@ -30,6 +30,11 @@ import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.core.service.CrsComputerService;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
+import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.RegularAxis;
 
 /**
  * Translate the coordinates from geo bound to grid bound for trimming/slicing and vice versa if using CRS:1 in trimming/slicing
@@ -40,7 +45,24 @@ import petascope.core.service.CrsComputerService;
 @Service
 public class CoordinateTranslationService {
     
-
+    /**
+     * Translate a geo subset on an axis to grid subset accordingly.
+     * e.g: Lat(0:20) -> c[10:15]
+     */
+    public ParsedSubset<Long> geoToGridSpatialDomain(Axis axis, ParsedSubset<BigDecimal> parsedGeoSubset) throws PetascopeException {
+        ParsedSubset<Long> parsedGridSubset;
+        if (axis instanceof RegularAxis) {
+            parsedGridSubset = this.geoToGridForRegularAxis(parsedGeoSubset, axis.getGeoBounds().getLowerLimit(),
+                                                            axis.getGeoBounds().getUpperLimit(), axis.getResolution(), axis.getGridBounds().getLowerLimit());
+        } else {
+            parsedGridSubset = this.geoToGridForIrregularAxes(parsedGeoSubset, axis.getResolution(), axis.getGridBounds().getLowerLimit(), 
+                                                            axis.getGridBounds().getUpperLimit(), axis.getGeoBounds().getLowerLimit(), (IrregularAxis)axis);
+        }
+        
+        return parsedGridSubset;
+    }
+    
+    
     /**
      * Computes the pixel indices for a subset on a regular axis.
      *
@@ -159,7 +181,7 @@ public class CoordinateTranslationService {
      */
     public ParsedSubset<Long> geoToGridForIrregularAxes(
         ParsedSubset<BigDecimal> numericSubset, BigDecimal scalarResolution, BigDecimal gridDomainMin,
-        BigDecimal gridDomainMax, BigDecimal geoDomainMin, IrregularAxis irregularAxis) {
+        BigDecimal gridDomainMax, BigDecimal geoDomainMin, IrregularAxis irregularAxis) throws PetascopeException {
 
         // e.g: t(148654) in irr_cube_2
         BigDecimal lowerCoefficient = ((numericSubset.getLowerLimit()).subtract(geoDomainMin)).divide(scalarResolution);

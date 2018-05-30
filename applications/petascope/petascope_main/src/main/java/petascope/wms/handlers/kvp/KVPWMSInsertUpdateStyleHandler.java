@@ -38,7 +38,7 @@ import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
 import petascope.wms.exception.WMSDuplicateStyleForLayerException;
 import petascope.wms.exception.WMSMissingRequestParameter;
-import petascope.wms.exception.WMSStyleNotExistException;
+import petascope.wms.exception.WMSStyleNotFoundException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 
 /**
@@ -128,7 +128,7 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         }
         
         if (style == null) {
-            throw new WMSStyleNotExistException(styleName, layerName);
+            throw new WMSStyleNotFoundException(styleName, layerName);
         }
 
         style.setName(styleName);

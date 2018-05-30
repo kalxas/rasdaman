@@ -93,6 +93,25 @@
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_4d_ecmwf_fire_netcdf</Name>
+                <Title>test_wms_4d_ecmwf_fire_netcdf</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>24.9609375</westBoundLongitude>
+                    <eastBoundLongitude>34.9453125</eastBoundLongitude>
+                    <southBoundLatitude>29.94142595070422535211267606</southBoundLatitude>
+                    <northBoundLatitude>40.06247304929577464788732394</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326"
+                    maxx="40.06247304929577464788732394"
+                    maxy="34.9453125"
+                    minx="29.94142595070422535211267606" miny="24.9609375"/>
+                <Dimension name="time">"2017-01-10T00:00:00.000Z","2017-02-10T00:00:00.000Z","2017-06-20T00:00:00.000Z","2017-09-18T00:00:00.000Z","2017-11-18T00:00:00.000Z","2017-12-15T00:00:00.000Z"</Dimension>
+                <Dimension name="forecast">0,3,5,8,15,22</Dimension>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
                 <Name>mean_summer_airtemp</Name>
                 <Title>mean_summer_airtemp</Title>
                 <Abstract/>
@@ -105,6 +124,38 @@
                 </EX_GeographicBoundingBox>
                 <BoundingBox CRS="EPSG:4326" maxx="-8.975"
                     maxy="156.275" minx="-44.525" miny="111.975"/>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_3d_time_series_irregular</Name>
+                <Title>test_wms_3d_time_series_irregular</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>-180</westBoundLongitude>
+                    <eastBoundLongitude>180</eastBoundLongitude>
+                    <southBoundLatitude>-90</southBoundLatitude>
+                    <northBoundLatitude>90</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326" maxx="90" maxy="180"
+                    minx="-90" miny="-180"/>
+                <Dimension name="time">"2015-01-01T00:00:00.000Z","2015-02-01T00:00:00.000Z","2015-03-01T00:00:00.000Z","2015-04-01T00:00:00.000Z","2015-05-01T00:00:00.000Z","2015-07-01T00:00:00.000Z"</Dimension>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_3d_time_series_regular</Name>
+                <Title>test_wms_3d_time_series_regular</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>-180</westBoundLongitude>
+                    <eastBoundLongitude>180</eastBoundLongitude>
+                    <southBoundLatitude>-90</southBoundLatitude>
+                    <northBoundLatitude>90</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326" maxx="90" maxy="180"
+                    minx="-90" miny="-180"/>
+                <Dimension name="time">"2012-12-01T20:07:00.500Z"/"2012-12-07T20:37:09.500Z"/2.00697916667d</Dimension>
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">

@@ -22,11 +22,13 @@
 package petascope.wms.handlers.kvp;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.rasdaman.domain.wms.BoundingBox;
+import org.rasdaman.domain.wms.Dimension;
 import org.rasdaman.domain.wms.EXGeographicBoundingBox;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
@@ -35,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.AxisTypes;
 import petascope.core.KVPSymbols;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -45,15 +48,16 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.IrregularAxis;
+import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wms.exception.WMSDuplicateLayerException;
 import petascope.wms.exception.WMSInvalidBoundingBoxInCrsTransformException;
 import petascope.wms.exception.WMSInvalidCrsUriException;
-import petascope.wms.exception.WMSInvalidDimensionalityException;
-import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.exception.WMSMissingRequestParameter;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
+import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER;
 
 /**
  * Handle the InsertWCSLayer request to insert a WMS layer, e.g:
@@ -151,13 +155,43 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         // Only set 1 bounding box for 1 native CRS now
         BoundingBox bbox = this.createBoundingBox(wcpsCoverageMetadata.isXYOrder(), xyAxes);
         layer.setBoundingBoxes(ListUtil.valuesToList(bbox));
-
-        // NOTE: not supports insert 2D+ WMS coverage now, it needs to add the dimension object from WCS coverage metadata
-        // @TODO: add non XY axes as Dimensions to layer so WMS can supports more than 2D request.
-        int coverageDimensions = wcpsCoverageMetadata.getAxes().size();
-        if (coverageDimensions > 2) {
-            throw new WMSInvalidDimensionalityException(coverageDimensions);
+        
+        List<Dimension> dimensions = new ArrayList<>();
+        // Create dimensions for 3D+ coverage
+        for (Axis axis : wcpsCoverageMetadata.getAxes()) {
+            // Non XY axes only
+            if (axis.isNonXYAxis()) {
+                Dimension dimension = new Dimension();
+                
+                if (axis.isTimeAxis()) {
+                    // NOTE: TIME and ELEVATION are special axes names in WMS 1.3
+                    dimension.setName(KVPSymbols.KEY_WMS_TIME);
+                } else if (axis.isElevationAxis()) {
+                    dimension.setName(KVPSymbols.KEY_WMS_ELEVATION);
+                } else {
+                    dimension.setName(axis.getLabel());
+                }
+                
+                String axisExtent;
+                // According to Table C.2, WMS 1.3 document
+                // if axis is regular, the extent will be: minGeoBound/maxGeoBound/resolution_with_axisUom (e.g: "1949-12-31T12:00:00.000Z"/"1950-01-06T12:00:00.000Z"/1d)
+                if (axis instanceof RegularAxis) {
+                    String minGeoBound = axis.getLowerGeoBoundRepresentation();
+                    String maxGeoBound = axis.getUpperGeoBoundRepresentation();
+                    String resolution = axis.getResolution().toPlainString();
+                    String axisUoM = axis.getAxisUoM();
+                    axisExtent = minGeoBound + VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER + maxGeoBound + VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER + resolution + axisUoM;
+                } else {
+                    // if it is irregular, the extent will be the list of seperate values: value1,value2,...valueN
+                    axisExtent = ((IrregularAxis)axis).getRepresentationCoefficients();
+                    axisExtent = axisExtent.replace(" ", ",");
+                }
+                dimension.setExtent(axisExtent);
+                dimensions.add(dimension);
+            }
         }
+        
+        layer.setDimensions(dimensions);
 
         // No need to add a default style as before, WMS with Styles= will return the default style
         // Persist the layer

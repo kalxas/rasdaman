@@ -89,6 +89,11 @@ class Recipe(BaseRecipe):
         if 'band_names' not in self.options:
             self.options['band_names'] = None
 
+        if 'wms_import' not in self.options:
+            self.options['wms_import'] = False
+        else:
+            self.options['wms_import'] = bool(self.options['wms_import'])
+
     def describe(self):
         """
         Implementation of the base recipe describe method
@@ -207,7 +212,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage())
+            self.importer = Importer(self._get_coverage(), self.options['wms_import'])
         return self.importer
 
 

@@ -26,6 +26,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -125,12 +126,13 @@ public class Dimension {
     @Column(name = "current")
     private int current = 0;
 
-    // One, Mandatory
+    // One, Mandatory for displaying in GetCapabilities
     // Display the values of the geo bound of axis (Table C.2)
     // + min/max/resolution An interval defined by its lower and upper bounds and its resolution. 
     // If axis is regular, extent=lowerBound/upperBound/resolution
     // + value1,value2,value3,... a A list of multiple values
     // If axis is irregular, extent=value0, value1, value2,...,valueN
+    @Lob
     @Column(name = "extent")
     private String extent;
 
@@ -207,18 +209,22 @@ public class Dimension {
         
         Element dimensionElement = new Element(XMLSymbols.LABEL_WMS_DIMENSION);
         Attribute nameAttribute = new Attribute(XMLSymbols.ATT_WMS_NAME, this.name);
-        Attribute unitsAttribute = new Attribute(XMLSymbols.ATT_WMS_UNITS, this.units);
-        Attribute defaultAttribute = new Attribute(XMLSymbols.ATT_WMS_DEFAULT, this.defaultValue);
-        Attribute multipleValuesAttribute = new Attribute(XMLSymbols.ATT_WMS_MULTIPLE_VALUES, String.valueOf(this.multipleValues));
-        Attribute nearestValueAttribute = new Attribute(XMLSymbols.ATT_WMS_NEAREST_VALUES, String.valueOf(this.nearestValue));
-        Attribute currentAttribute = new Attribute(XMLSymbols.ATT_WMS_CURRENT, String.valueOf(this.current));        
+        
+        // Optional values according to Table C.1 WMS 1.3 document
+//        Attribute unitsAttribute = new Attribute(XMLSymbols.ATT_WMS_UNITS, this.units);
+//        Attribute defaultAttribute = new Attribute(XMLSymbols.ATT_WMS_DEFAULT, this.defaultValue);
+//        Attribute multipleValuesAttribute = new Attribute(XMLSymbols.ATT_WMS_MULTIPLE_VALUES, String.valueOf(this.multipleValues));
+//        Attribute nearestValueAttribute = new Attribute(XMLSymbols.ATT_WMS_NEAREST_VALUES, String.valueOf(this.nearestValue));
+//        Attribute currentAttribute = new Attribute(XMLSymbols.ATT_WMS_CURRENT, String.valueOf(this.current));        
         
         dimensionElement.addAttribute(nameAttribute);
-        dimensionElement.addAttribute(unitsAttribute);
-        dimensionElement.addAttribute(defaultAttribute);
-        dimensionElement.addAttribute(multipleValuesAttribute);
-        dimensionElement.addAttribute(nearestValueAttribute);
-        dimensionElement.addAttribute(currentAttribute);
+        
+        // Optional values
+//        dimensionElement.addAttribute(unitsAttribute);
+//        dimensionElement.addAttribute(defaultAttribute);
+//        dimensionElement.addAttribute(multipleValuesAttribute);
+//        dimensionElement.addAttribute(nearestValueAttribute);
+//        dimensionElement.addAttribute(currentAttribute);
         
         // Extent (e.g: 0,1000,3000,5000,10000), built when Petascope inserts layers
         dimensionElement.appendChild(this.extent);

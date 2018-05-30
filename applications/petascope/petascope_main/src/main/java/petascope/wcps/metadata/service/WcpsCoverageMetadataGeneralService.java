@@ -206,7 +206,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param subsets
      * @throws petascope.exceptions.PetascopeException
      */
-    public void applySubsets(Boolean checkBoundary, WcpsCoverageMetadata metadata, List<Subset> subsets) {
+    public void applySubsets(Boolean checkBoundary, WcpsCoverageMetadata metadata, List<Subset> subsets) throws PetascopeException {
         checkSubsetConsistency(metadata, subsets);
 
         // If the subsets contain subsettingCrs which is different from XY-georeferenced axis's nativeCRS, then do the transform for both XY axes
@@ -502,7 +502,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param axis
      * @throws PetascopeException
      */
-    private void applyTrimmingSubset(Boolean checkBoundary, WcpsCoverageMetadata metadata, Subset subset, Axis axis) {
+    private void applyTrimmingSubset(Boolean checkBoundary, WcpsCoverageMetadata metadata, Subset subset, Axis axis) throws PetascopeException {
 
         boolean geoToGrid = true;
         //set the lower, upper bounds and crs
@@ -570,7 +570,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @throws PetascopeException
      */
     private void translateTrimmingGeoToGridSubset(Axis axis, Subset subset,
-            NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset) {
+            NumericTrimming unAppliedNumericSubset, NumericTrimming unTranslatedNumericSubset) throws PetascopeException {
         BigDecimal geoDomainMin = ((NumericTrimming) axis.getGeoBounds()).getLowerLimit();
         BigDecimal geoDomainMax = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit();
         BigDecimal gridDomainMin = ((NumericTrimming) axis.getGridBounds()).getLowerLimit();
@@ -640,7 +640,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param axis
      */
     private void applySlicing(Boolean checkBoundary, WcpsCoverageMetadata metadata,
-            Subset subset, Axis axis) {
+            Subset subset, Axis axis) throws PetascopeException {
         boolean geoToGrid = true;
         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
 
@@ -685,7 +685,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param subset
      * @param metadata
      */
-    private void translateSlicingGeoToGridSubset(Axis axis, Subset subset) {
+    private void translateSlicingGeoToGridSubset(Axis axis, Subset subset) throws PetascopeException {
 
         BigDecimal bound = ((NumericSlicing) subset.getNumericSubset()).getBound();
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(bound, bound);
@@ -788,7 +788,7 @@ public class WcpsCoverageMetadataGeneralService {
     public ParsedSubset<Long> translateGeoToGridCoordinates(ParsedSubset<BigDecimal> parsedSubset,
             Axis axis, BigDecimal geoDomainMin,
             BigDecimal geoDomainMax, BigDecimal gridDomainMin,
-            BigDecimal gridDomainMax) {
+            BigDecimal gridDomainMax) throws PetascopeException {
         ParsedSubset<Long> translatedSubset;
         // Regular axis (no need to query database)
         if (axis instanceof RegularAxis) {

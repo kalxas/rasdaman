@@ -30,6 +30,7 @@ import petascope.core.AxisTypes.AxisDirection;
 import static petascope.core.AxisTypes.T_AXIS;
 import petascope.util.ListUtil;
 import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
 import petascope.util.TimeUtil;
 
 /**
@@ -71,7 +72,7 @@ public class IrregularAxis extends Axis {
      * @param maxInput
      * @return
      */
-    public Pair<Long, Long> getGridIndices(BigDecimal minInput, BigDecimal maxInput) {
+    public Pair<Long, Long> getGridIndices(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
 
         Long minIndex = null;
         Long maxIndex = null;
@@ -98,8 +99,16 @@ public class IrregularAxis extends Axis {
             i++;
         }
         
-        if (minIndex == null || maxIndex == null) {
-           
+        if (minIndex == null) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Input lower bound '" + minInput + "' is lower than the direct positions' lower bound of irregular axis '" + this.getLabel() + "'.");
+        } else if (maxIndex == null) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Input upper bound '" + maxInput + "' is greater than the direct positions' upper bound of irregular axis '" + this.getLabel() + "'.");
+        }
+        
+        if (minIndex > maxIndex) {
+            // it happens when the subset=(20,10) in irregular axis.
+            String errorMessage = "Input lower bound '" + minInput + "' is greater than upper bound '" + maxInput + "' in direct positions list of irregular axis '" + this.getLabel();
+            throw new PetascopeException(ExceptionCode.RuntimeError, errorMessage);
         }
 
         return new Pair(minIndex, maxIndex);
@@ -113,7 +122,7 @@ public class IrregularAxis extends Axis {
      * @param maxInput
      * @return
      */
-    public List<BigDecimal> getAllCoefficientsInInterval(BigDecimal minInput, BigDecimal maxInput) {
+    public List<BigDecimal> getAllCoefficientsInInterval(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
         // Find the min and max grid incides in the List of directPositions
         Pair<Long, Long> gridIndices = this.getGridIndices(minInput, maxInput);
         List<BigDecimal> coefficients = new ArrayList<>();

@@ -96,11 +96,14 @@ import petascope.wcps.result.VisitorResult;
 import static petascope.wcs2.parsers.subsets.SlicingSubsetDimension.ASTERISK;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
@@ -438,7 +441,14 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         if (ctx.crsName() != null) {
             wktCRS = ctx.crsName().getText().replace("\"", "");
         }        
-        WcpsResult result = clipExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
+        WcpsResult result = null;
+        try {
+            result = clipExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
+        } catch (PetascopeException ex) {
+            String errorMessage = "Error processing WCPS clip expression. Reason: '" + ex.getExceptionText() + "'.";
+            log.error(errorMessage, ex);
+            throw new WCPSException(ex.getExceptionCode(), errorMessage);
+        }
         return result;
     }
 
@@ -457,7 +467,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         axisCrss.put(crsY.axisName().getText(), crsY.crsName().getText().replace("\"", ""));
 
         // Store the interpolation objects (rangeName, method -> nodata values)
-        HashMap<String, HashMap<String, String>> rangeInterpolations = new LinkedHashMap<String, HashMap<String, String>>();
+        HashMap<String, HashMap<String, String>> rangeInterpolations = new LinkedHashMap<>();
 
         // get interpolation parameters
         if (ctx.fieldInterpolationList().fieldInterpolationListElement().size() > 0) {
@@ -473,7 +483,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
                 String nullValues = intMethodObj.getChild(2).getText().replace("\"", "");
 
                 // e.g: "near" -> "1,2,3"
-                HashMap<String, String> map = new LinkedHashMap<String, String>();
+                HashMap<String, String> map = new LinkedHashMap<>();
                 map.put(interpolationMethod, nullValues);
 
                 rangeInterpolations.put(rangeName, map);

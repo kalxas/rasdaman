@@ -177,6 +177,10 @@ public class WcpsCoverageMetadataTranslator {
                 axisDirection = AxisDirection.EASTING;
             } else if (axisType.equals(AxisTypes.Y_AXIS)) {
                 axisDirection = AxisDirection.NORTHING;
+            } else if (axisType.equals(AxisTypes.HEIGHT_AXIS)) {
+                axisDirection = AxisDirection.UP;
+            } else if (axisType.equals(AxisTypes.DEPTH_AXIS)) {
+                axisDirection = AxisDirection.DOWN;
             } else if (axisType.equals(AxisTypes.T_AXIS)) {
                 axisDirection = AxisDirection.FUTURE;
             } else {

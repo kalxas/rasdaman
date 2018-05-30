@@ -30,7 +30,7 @@ import petascope.exceptions.WMSException;
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public class WMSStyleNotExistException extends WMSException {
+public class WMSStyleNotFoundException extends WMSException {
 
     /**
      * Constructor for the class
@@ -38,8 +38,12 @@ public class WMSStyleNotExistException extends WMSException {
      * @param styleName
      * @param layerName
      */
-    public WMSStyleNotExistException(String styleName, String layerName) {
-        super(ERROR_MESSAGE.replace("$styleName", styleName).replace("$layerName", layerName));
+    public WMSStyleNotFoundException(String styleName, String layerName) {
+        super(ERROR_MESSAGE_ONE_LAYER.replace("$styleName", styleName).replace("$layerName", layerName));
+    }
+    
+    public WMSStyleNotFoundException(String styleName) {
+        super(ERROR_MESSAGE_MULTIPLE_LAYERS.replace("$styleName", styleName));
     }
 
     @NotNull
@@ -48,6 +52,7 @@ public class WMSStyleNotExistException extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private final static String ERROR_MESSAGE = "The given style name '$styleName' of layer '$layerName' does not exist in database.";
+    private final static String ERROR_MESSAGE_ONE_LAYER = "The given style name '$styleName' of layer '$layerName' does not exist in database.";
+    private final static String ERROR_MESSAGE_MULTIPLE_LAYERS = "The given style name '$styleName' does not exist from one of requesting layers.";
     private final static String EXCEPTION_CODE = "StyleNotFound";
 }

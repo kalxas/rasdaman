@@ -39,6 +39,9 @@ import org.rasdaman.domain.cis.Coverage;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.Pair;
+import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
+import petascope.wcs2.parsers.subsets.SlicingSubsetDimension;
+import petascope.wcs2.parsers.subsets.TrimmingSubsetDimension;
 
 /**
  * Translates a CRS subset interval to array indices
@@ -65,6 +68,36 @@ public class CrsComputerService {
         // Only support generalGridCoverage now
         this.geoAxis = ((GeneralGridCoverage) coverage).getGeoAxisByName(axisName);
         this.indexAxis = ((GeneralGridCoverage) coverage).getIndexAxisByName(axisName);
+    }
+    
+    /**
+     * From the input subset (E.g: subset=Lat(0,20) or subset=ansi("2012-02-03")) of input slice, parse the domain(lowerBound,uppperBound)
+     * from String to big decimal numbers.
+     */
+    public static ParsedSubset<BigDecimal> parseSubsetDimensionToNumbers(String axisCRS, String axisUoM, AbstractSubsetDimension subset) throws PetascopeException, SecoreException {
+        String lowerBound, upperBound;
+        
+        if (subset instanceof TrimmingSubsetDimension) {
+            TrimmingSubsetDimension trimSubset = (TrimmingSubsetDimension) subset;
+            lowerBound = trimSubset.getLowerBound();
+            upperBound = trimSubset.getUpperBound();
+        } else {
+            lowerBound = ((SlicingSubsetDimension) subset).getBound();
+            upperBound = lowerBound;
+        }
+        
+        if (subset.isNumeric()) {
+            // e.g: Lat=(20, 30)
+            return new ParsedSubset<>(new BigDecimal(lowerBound), new BigDecimal(upperBound));
+        } else {
+            // e.g: t="2012-02-03"
+            String datumOrigin = CrsUtil.getDatumOrigin(axisCRS);
+
+            BigDecimal lowerBoundNumber = TimeUtil.countOffsets(datumOrigin, lowerBound, axisUoM, BigDecimal.ONE);
+            BigDecimal upperBoundNumber = TimeUtil.countOffsets(datumOrigin, upperBound, axisUoM, BigDecimal.ONE);
+            
+            return new ParsedSubset<>(lowerBoundNumber, upperBoundNumber);
+        }
     }
 
     /**

@@ -230,4 +230,17 @@ public abstract class Axis<T> {
     public boolean isYAxis() {
         return this.axisType.equals(AxisTypes.Y_AXIS);
     }    
+    
+    public boolean isNonXYAxis() {
+        return !(this.isXAxis() || this.isYAxis());
+    }
+    
+    public boolean isTimeAxis() {
+        return this.axisType.equals(AxisTypes.T_AXIS);
+    }
+    
+    public boolean isElevationAxis() {
+        return this.axisType.equals(AxisTypes.HEIGHT_AXIS) 
+            || this.axisType.equals(AxisTypes.DEPTH_AXIS);
+    }
 }

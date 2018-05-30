@@ -1,1 +1,3 @@
+# cannot overlay collection 3 bands and 1 collection 1 band, http://rasdaman.org/ticket/1776
+21_request_3_layers_styles.test
 22_project_3_layers_styles_4326_to_3857.test

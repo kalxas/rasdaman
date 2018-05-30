@@ -316,6 +316,32 @@ public class ListUtil {
     public static <T> List<T> valuesToList(T... value) {
         return new ArrayList<>(Arrays.asList(value));
     }
+    
+    /**
+     * Create the Cartesian product of input lists.
+     * e.g: list1[0,1], list2[0,2]
+     * 
+     * returns list[[0,0],[1,0],[0,2],[1,2]]
+     */
+    public static <T> List<List<T>> cartesianProduct(List<List<T>> lists) {
+        List<List<T>> resultLists = new ArrayList<>();
+        if (lists.isEmpty()) {
+            resultLists.add(new ArrayList<T>());
+            return resultLists;
+        } else {
+            List<T> firstList = lists.get(0);
+            List<List<T>> remainingLists = cartesianProduct(lists.subList(1, lists.size()));
+            for (T condition : firstList) {
+                for (List<T> remainingList : remainingLists) {
+                    ArrayList<T> resultList = new ArrayList<>();
+                    resultList.add(condition);
+                    resultList.addAll(remainingList);
+                    resultLists.add(resultList);
+                }
+            }
+        }
+        return resultLists;
+    }
 
     /**
      * Generic comparator for numbers.

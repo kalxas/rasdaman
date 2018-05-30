@@ -51,18 +51,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
 import petascope.core.CrsDefinition;
-import static petascope.core.CrsDefinition.ELEV_ALIASES;
 import static petascope.core.CrsDefinition.X_ALIASES;
 import static petascope.core.CrsDefinition.Y_ALIASES;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
-import petascope.exceptions.WCSException;
 import petascope.core.AxisTypes;
-import petascope.util.StringUtil;
+import static petascope.core.CrsDefinition.ELEVATION_DOWN_ALIASES;
 import petascope.core.XMLSymbols;
-import petascope.util.XMLUtil;
 import static petascope.util.StringUtil.ENCODING_UTF8;
+import static petascope.core.CrsDefinition.ELEVATION_UP_ALIASES;
 
 /**
  * Coordinates transformation utility in case a spatial reprojection is needed
@@ -724,10 +722,12 @@ public class CrsUtil {
             type = AxisTypes.X_AXIS;
         } else if (Y_ALIASES.contains(axisName)) {
             type = AxisTypes.Y_AXIS;
-        } else if (ELEV_ALIASES.contains(axisName)) {
-            type = AxisTypes.ELEV_AXIS;
-            // A TemporalCRS has just one axis:
+        } else if (ELEVATION_UP_ALIASES.contains(axisName)) {
+            type = AxisTypes.HEIGHT_AXIS;
+        } else if (ELEVATION_DOWN_ALIASES.contains(axisName)) {
+            type = AxisTypes.DEPTH_AXIS;
         } else if (crs.getType().equals(XMLSymbols.LABEL_TEMPORALCRS)) {
+             // A TemporalCRS has just one axis:
             type = AxisTypes.T_AXIS;
         } else {
             type = AxisTypes.OTHER;
