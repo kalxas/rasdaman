@@ -40,10 +40,10 @@ class Tile;
 #include "raslib/mddtypes.hh"
 
 //used to hold oids for indexes, blobs, and dbmintervals.  no double entries
-typedef std::set<OId, std::less<double>> OIdSet;
+using OIdSet = std::set<OId, std::less<OId> >;
 
 //used to hold oids for indexes, blobs, and dbmintervals.  no double entries
-typedef std::set<const OId, std::less<double>> OIdConstSet;
+using OIdConstSet = std::set<const OId, std::less<OId> >;
 
 typedef std::vector<HierIndexDS*> HierIndexDSPVector;
 
