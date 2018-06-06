@@ -79,7 +79,7 @@ using namespace std;
 
 // update blob in ras_tiles table, identified by variable myOId (from blobtile.cc), update map ref
 void
-BLOBTile::updateInDb() throw (r_Error)
+BLOBTile::updateInDb()
 {
 #ifdef NOTYET   // should be in future
     /*
@@ -203,7 +203,7 @@ BLOBTile::updateInDb() throw (r_Error)
 // tuple is identified by blobtile.cc var myOId
 // data is taken from buffer 'cells' containing 'size' bytes
 void
-BLOBTile::insertInDb() throw (r_Error)
+BLOBTile::insertInDb()
 {
     /*
     #ifdef NOTYET
@@ -294,7 +294,7 @@ BLOBTile::insertInDb() throw (r_Error)
 // delete one tuple from ras_tiles table, update map ref
 // tuple is identified by blobtile.cc var myOId
 void
-BLOBTile::deleteFromDb() throw (r_Error)
+BLOBTile::deleteFromDb()
 {
     /*
     #ifdef NOTYET
@@ -632,7 +632,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
 // allocates necessary mem into ptr 'cells' and fills it; must be freed elsewhere
 // external var 'size' is set to the number of bytes read
 void
-BLOBTile::readFromDb() throw (r_Error)
+BLOBTile::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();

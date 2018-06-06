@@ -58,7 +58,7 @@ values. The value of a Short is stored in four chars.
 class ShortType : public IntegralType
 {
 public:
-    ShortType(const OId& id) throw (r_Error);
+    ShortType(const OId& id);
 
     ShortType();
     /*@Doc:
@@ -96,7 +96,7 @@ public:
 
 protected:
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

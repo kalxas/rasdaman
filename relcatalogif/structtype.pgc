@@ -48,7 +48,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include <logging.hh>
 
 void
-StructType::insertInDb() throw (r_Error)
+StructType::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long         structtypeid;
@@ -92,7 +92,7 @@ StructType::insertInDb() throw (r_Error)
 }
 
 void
-StructType::deleteFromDb() throw (r_Error)
+StructType::deleteFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    basetypeid3;
@@ -122,7 +122,7 @@ StructType::deleteFromDb() throw (r_Error)
 }
 
 void
-StructType::readFromDb() throw (r_Error)
+StructType::readFromDb()
 {
     short count = 0;
 

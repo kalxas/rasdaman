@@ -142,7 +142,7 @@ OIdMap
 ObjectBroker::theTileIndexMappings;
 
 bool
-ObjectBroker::freeMemory() throw (r_Error)
+ObjectBroker::freeMemory()
 {
     LTRACE << "memoryOverFlow()";
     bool retval = false;
@@ -306,7 +306,7 @@ ObjectBroker::deinit()
 }
 
 DBObject*
-ObjectBroker::getObjectByOId(const OId& id) throw (r_Error)
+ObjectBroker::getObjectByOId(const OId& id)
 {
     DBObject* retval = 0;
     if (id.getType() == OId::INVALID)
@@ -381,7 +381,7 @@ ObjectBroker::getObjectByOId(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::isInMemory(const OId& id) throw (r_Error)
+ObjectBroker::isInMemory(const OId& id)
 {
     DBObject* retval = 0;
     DBObjectPMap& theMap = ObjectBroker::getMap(id.getType());
@@ -467,7 +467,7 @@ ObjectBroker::getAllObjects(OId::OIdType type)
 
 
 OId
-ObjectBroker::getOIdByName(OId::OIdType type, const char* name) throw (r_Error)
+ObjectBroker::getOIdByName(OId::OIdType type, const char* name)
 {
     OId id;
     switch (type)
@@ -550,7 +550,7 @@ ObjectBroker::getOIdByName(OId::OIdType type, const char* name) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::getObjectByName(OId::OIdType type, const char* name) throw (r_Error)
+ObjectBroker::getObjectByName(OId::OIdType type, const char* name)
 {
     DBObject* retval = 0;
     DBObjectPMap* theMap = 0;
@@ -610,7 +610,7 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char* name) throw (r_Erro
 }
 
 void
-ObjectBroker::completelyClearMap(DBObjectPMap& theMap) throw (r_Error)
+ObjectBroker::completelyClearMap(DBObjectPMap& theMap)
 {
     DBObjectPVector test;
     test.reserve(theMap.size());
@@ -630,7 +630,7 @@ ObjectBroker::completelyClearMap(DBObjectPMap& theMap) throw (r_Error)
 }
 
 void
-ObjectBroker::clearBroker() throw (r_Error)
+ObjectBroker::clearBroker()
 {
     //do not ever clear the ATOMICTYPEOID map! those are on the stack, not heap!
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDCOLLOID));
@@ -656,7 +656,7 @@ ObjectBroker::clearBroker() throw (r_Error)
 }
 
 DBObjectPMap&
-ObjectBroker::getMap(OId::OIdType type) throw (r_Error)
+ObjectBroker::getMap(OId::OIdType type)
 {
     DBObjectPMap* theMap = 0;
     switch (type)
@@ -719,7 +719,7 @@ ObjectBroker::getMap(OId::OIdType type) throw (r_Error)
 }
 
 DBObject*
-ObjectBroker::loadDBStorage(const OId& id) throw (r_Error)
+ObjectBroker::loadDBStorage(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -742,7 +742,7 @@ ObjectBroker::loadDBStorage(const OId& id) throw (r_Error)
 }
 
 DBObject*
-ObjectBroker::loadSetType(const OId& id) throw (r_Error)
+ObjectBroker::loadSetType(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -765,7 +765,7 @@ ObjectBroker::loadSetType(const OId& id) throw (r_Error)
 }
 
 DBObject*
-ObjectBroker::loadMDDType(const OId& id) throw (r_Error)
+ObjectBroker::loadMDDType(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -789,7 +789,7 @@ ObjectBroker::loadMDDType(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadMDDBaseType(const OId& id) throw (r_Error)
+ObjectBroker::loadMDDBaseType(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -813,7 +813,7 @@ ObjectBroker::loadMDDBaseType(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadMDDDimensionType(const OId& id) throw (r_Error)
+ObjectBroker::loadMDDDimensionType(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -837,7 +837,7 @@ ObjectBroker::loadMDDDimensionType(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadMDDDomainType(const OId& id) throw (r_Error)
+ObjectBroker::loadMDDDomainType(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -861,7 +861,7 @@ ObjectBroker::loadMDDDomainType(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadStructType(const OId& id) throw (r_Error)
+ObjectBroker::loadStructType(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -885,7 +885,7 @@ ObjectBroker::loadStructType(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadDBMinterval(const OId& id) throw (r_Error)
+ObjectBroker::loadDBMinterval(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -909,7 +909,7 @@ ObjectBroker::loadDBMinterval(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadDBMDDObj(const OId& id) throw (r_Error)
+ObjectBroker::loadDBMDDObj(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -935,7 +935,7 @@ ObjectBroker::loadDBMDDObj(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadMDDSet(const OId& id) throw (r_Error)
+ObjectBroker::loadMDDSet(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -958,7 +958,7 @@ ObjectBroker::loadMDDSet(const OId& id) throw (r_Error)
 }
 
 DBObject*
-ObjectBroker::loadDBTCIndex(const OId& id) throw (r_Error)
+ObjectBroker::loadDBTCIndex(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -982,7 +982,7 @@ ObjectBroker::loadDBTCIndex(const OId& id) throw (r_Error)
 }
 
 DBObject*
-ObjectBroker::loadDBHierIndex(const OId& id) throw (r_Error)
+ObjectBroker::loadDBHierIndex(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -1007,7 +1007,7 @@ ObjectBroker::loadDBHierIndex(const OId& id) throw (r_Error)
 
 
 DBObject*
-ObjectBroker::loadBLOBTile(const OId& id) throw (r_Error)
+ObjectBroker::loadBLOBTile(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -1030,7 +1030,7 @@ ObjectBroker::loadBLOBTile(const OId& id) throw (r_Error)
 }
 
 DBObject*
-ObjectBroker::loadDBRCIndexDS(const OId& id) throw (r_Error)
+ObjectBroker::loadDBRCIndexDS(const OId& id)
 {
     DBObject* retval = 0;
     try
@@ -1072,7 +1072,7 @@ ObjectBroker::deregisterTileIndexMapping(const OId& tileoid, const OId& indexoid
 }
 
 OIdSet*
-ObjectBroker::getAllAtomicTypes() throw (r_Error)
+ObjectBroker::getAllAtomicTypes()
 {
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::ATOMICTYPEOID);

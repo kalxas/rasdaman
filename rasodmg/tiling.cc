@@ -65,7 +65,7 @@ r_Tiling::~r_Tiling()
 const char*
 r_No_Tiling::description = "no parameters";
 
-r_No_Tiling::r_No_Tiling(__attribute__((unused)) const char* encoded) throw(r_Error)
+r_No_Tiling::r_No_Tiling(__attribute__((unused)) const char* encoded)
 {
     //we don't use encoded string, it is present in order to have
     //uniform interface "char* constructor" for every tiling strategy
@@ -92,7 +92,7 @@ r_No_Tiling::is_compatible(__attribute__((unused)) const r_Minterval& obj_domain
 }
 
 std::vector<r_Minterval>*
-r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const throw (r_Error)
+r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const
 {
     std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
     result->push_back(obj_domain);
@@ -122,7 +122,7 @@ operator<<(std::ostream& os, const r_Tiling& t)
 const char*
 r_Size_Tiling::description = "tile configuration or tile dimension and tile size (in bytes) (ex: \"[0:9,0:9];100\" or \"2;100\")";
 
-r_Size_Tiling::r_Size_Tiling(const char* encoded) throw (r_Error)
+r_Size_Tiling::r_Size_Tiling(const char* encoded)
     :   tile_size(0)
 {
     if (!encoded)
@@ -168,7 +168,7 @@ r_Size_Tiling::is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize
 }
 
 std::vector<r_Minterval>*
-r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const throw (r_Error)
+r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const
 {
     if (cellTypeSize > tile_size)
     {

@@ -438,7 +438,7 @@ r_Ref<T>::operator=(const r_Ref<T>& objptr)
 
 template<class T>
 const T&
-r_Ref<T>::operator*() const throw(r_Error)
+r_Ref<T>::operator*() const
 {
     LTRACE << "operator*()";
     if (!memptr)
@@ -458,7 +458,7 @@ r_Ref<T>::operator*() const throw(r_Error)
 
 template<class T>
 T&
-r_Ref<T>::operator*() throw(r_Error)
+r_Ref<T>::operator*()
 {
     LTRACE << "operator*()";
     if (!memptr)
@@ -479,7 +479,7 @@ r_Ref<T>::operator*() throw(r_Error)
 
 template<class T>
 const T*
-r_Ref<T>::operator->() const throw(r_Error)
+r_Ref<T>::operator->() const
 {
     LTRACE << "operator->()";
     if (!memptr)
@@ -498,7 +498,7 @@ r_Ref<T>::operator->() const throw(r_Error)
 
 template<class T>
 T*
-r_Ref<T>::operator->() throw(r_Error)
+r_Ref<T>::operator->()
 {
     LTRACE << "operator->()";
     if (!memptr)
@@ -519,7 +519,7 @@ r_Ref<T>::operator->() throw(r_Error)
 
 template<class T>
 const T*
-r_Ref<T>::ptr() const throw(r_Error)
+r_Ref<T>::ptr() const
 {
     LTRACE << "ptr()";
     if (!memptr)
@@ -533,7 +533,7 @@ r_Ref<T>::ptr() const throw(r_Error)
 
 template<class T>
 T*
-r_Ref<T>::ptr() throw(r_Error)
+r_Ref<T>::ptr()
 {
     LTRACE << "ptr()";
     if (!memptr)

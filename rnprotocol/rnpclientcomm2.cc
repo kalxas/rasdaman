@@ -321,7 +321,7 @@ int RnpClientComm::executeStartInsertPersMDD(const char* collName, r_GMarray* ma
 }
 
 // retrieval query
-int RnpClientComm::executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& result) throw(r_Error)
+int RnpClientComm::executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& result)
 {
     startRequest(RnpRasserver::cmd_queryrpc);
     encoder.adjustBufferSize(strlen(query));
@@ -438,7 +438,7 @@ int RnpClientComm::executeInsertCollection(const char* collName, const char* typ
 }
 
 // common function using the dynamic parameter facility of RNP
-r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r_OId& oid) throw(r_Error)
+r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r_OId& oid)
 {
     startRequest(RnpRasserver::cmd_getcoll);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -509,7 +509,7 @@ r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r
 
 
 // common function using the dynamic parameter facility of RNP
-r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid) throw(r_Error)
+r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid)
 {
     startRequest(RnpRasserver::cmd_getcolloids);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -699,7 +699,7 @@ void RnpClientComm::executeEndInsertMDD(bool persistent)
 }
 
 // update
-int  RnpClientComm::executeExecuteUpdateQuery(const char* query) throw(r_Error)
+int  RnpClientComm::executeExecuteUpdateQuery(const char* query)
 {
     startRequest(RnpRasserver::cmd_updaterpc);
     encoder.adjustBufferSize(strlen(query));
@@ -742,7 +742,7 @@ int  RnpClientComm::executeExecuteUpdateQuery(const char* query) throw(r_Error)
 }
 
 // insert
-int  RnpClientComm::executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_Any>& result) throw(r_Error)
+int  RnpClientComm::executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_Any>& result)
 {
     startRequest(RnpRasserver::cmd_insertrpc);
     encoder.adjustBufferSize(strlen(query));
@@ -784,7 +784,7 @@ int  RnpClientComm::executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_Any
     return status;
 }
 
-r_OId RnpClientComm::executeGetNewOId(unsigned short objType) throw(r_Error)
+r_OId RnpClientComm::executeGetNewOId(unsigned short objType)
 {
     //cout<<" RnpClientComm::getNewOId: not implemented"<<endl;
 
@@ -802,7 +802,7 @@ r_OId RnpClientComm::executeGetNewOId(unsigned short objType) throw(r_Error)
     return oid;
 }
 
-unsigned short RnpClientComm::executeGetObjectType(const r_OId& oid) throw(r_Error)
+unsigned short RnpClientComm::executeGetObjectType(const r_OId& oid)
 {
     startRequest(RnpRasserver::cmd_getobjecttype);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -841,7 +841,7 @@ unsigned short RnpClientComm::executeGetObjectType(const r_OId& oid) throw(r_Err
     return objType;
 }
 
-char* RnpClientComm::executeGetTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error)
+char* RnpClientComm::executeGetTypeStructure(const char* typeName, r_Type_Type typeType)
 {
     startRequest(RnpRasserver::cmd_gettypestruct);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -901,7 +901,7 @@ int RnpClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format format, 
 }
 
 //----------------------------------------------------------
-int RnpClientComm::sendAndReturnStatus() throw (r_Error)
+int RnpClientComm::sendAndReturnStatus()
 {
     sendRequestGetAnswer();
 
@@ -912,7 +912,7 @@ int RnpClientComm::sendAndReturnStatus() throw (r_Error)
     return status;
 }
 
-void RnpClientComm::sendRequestGetAnswer() throw (r_Error)
+void RnpClientComm::sendRequestGetAnswer()
 {
     RnpBaseClientComm::setMaxRetry(RNP_MAX_RETRY);  // defined in raslib/rminit.hh -- PB 2005-sep-01
     if (RnpBaseClientComm::sendRequestGetAnswer() == false)
@@ -929,7 +929,7 @@ void RnpClientComm::sendRequestGetAnswer() throw (r_Error)
     }
 }
 
-void RnpClientComm::helper012d(__attribute__((unused)) const char* caller) throw (r_Error)
+void RnpClientComm::helper012d(__attribute__((unused)) const char* caller)
 {
     int status = sendAndReturnStatus();
 
@@ -964,7 +964,7 @@ bool RnpClientComm::detectErrors()
     return true;
 }
 
-void RnpClientComm::reassemble_r_Error() throw (r_Error)
+void RnpClientComm::reassemble_r_Error()
 {
     decoder.getFirstParameter();
     if (decoder.getParameterType() != Rnp::ert_Other)
@@ -996,7 +996,7 @@ int  RnpClientComm::getTimeoutInterval()
 
 //## unofficial functions
 
-r_OId RnpClientComm::createCollection(const char* collName, const char* collTypeName) throw(r_Error)
+r_OId RnpClientComm::createCollection(const char* collName, const char* collTypeName)
 {
     checkForRwTransaction();
     startRequest(RnpRasserver::cmd_createcollection);
@@ -1014,7 +1014,7 @@ r_OId RnpClientComm::createCollection(const char* collName, const char* collType
     return oid;
 }
 
-r_OId RnpClientComm::createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char* tileDomain, bool rcindex) throw(r_Error)
+r_OId RnpClientComm::createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char* tileDomain, bool rcindex)
 {
     checkForRwTransaction();
     startRequest(RnpRasserver::cmd_createmdd);
@@ -1036,7 +1036,7 @@ r_OId RnpClientComm::createMDD(const char* collName, const char* mddTypeName, co
     return oid;
 }
 
-void RnpClientComm::extendMDD(r_OId mddOId, const char* stripeDomain, const char* tileDomain) throw(r_Error)
+void RnpClientComm::extendMDD(r_OId mddOId, const char* stripeDomain, const char* tileDomain)
 {
     checkForRwTransaction();
     startRequest(RnpRasserver::cmd_extendmdd);
@@ -1051,21 +1051,21 @@ void RnpClientComm::extendMDD(r_OId mddOId, const char* stripeDomain, const char
     clearAnswer();
 }
 
-vector<r_OId> RnpClientComm::getOIdsFromCollection(const char* collName) throw(r_Error)
+vector<r_OId> RnpClientComm::getOIdsFromCollection(const char* collName)
 {
     vector<r_OId> result = executeGetOIdsFromCollection(collName, r_OId());
 
     return result;
 }
 
-vector<r_OId> RnpClientComm::getOIdsFromCollection(const r_OId& oid) throw(r_Error)
+vector<r_OId> RnpClientComm::getOIdsFromCollection(const r_OId& oid)
 {
     vector<r_OId> result = executeGetOIdsFromCollection(0, oid);
 
     return result;
 }
 
-vector<r_OId> RnpClientComm::executeGetOIdsFromCollection(const char* collName, const r_OId& oid) throw(r_Error)
+vector<r_OId> RnpClientComm::executeGetOIdsFromCollection(const char* collName, const r_OId& oid)
 {
     startRequest(RnpRasserver::cmd_getcolloids);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
@@ -1139,7 +1139,7 @@ vector<r_OId> RnpClientComm::executeGetOIdsFromCollection(const char* collName, 
     return result;
 }
 
-vector<r_Minterval> RnpClientComm::getTileDomains(r_OId mddOId, const char* stripeDomain) throw(r_Error)
+vector<r_Minterval> RnpClientComm::getTileDomains(r_OId mddOId, const char* stripeDomain)
 {
     startRequest(RnpRasserver::cmd_gettiledomains);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);

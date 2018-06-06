@@ -41,7 +41,7 @@ public:
      */
     DuplicateDbSessionException(const std::string& dbName, const std::string& sessionUID);
 
-    virtual ~DuplicateDbSessionException() throw();
+    virtual ~DuplicateDbSessionException() noexcept;
 };
 }
 

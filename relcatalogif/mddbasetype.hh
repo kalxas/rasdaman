@@ -64,7 +64,7 @@ public:
 
     virtual char* getNewTypeStructure() const;
 
-    MDDBaseType(const OId& id) throw (r_Error);
+    MDDBaseType(const OId& id);
     /*@Doc:
     constructs a MDDBaseType out of the database.
     */
@@ -132,11 +132,11 @@ public:
 
 protected:
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 
     const BaseType* myBaseType;
     /*@Doc:

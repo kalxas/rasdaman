@@ -45,7 +45,7 @@ public:
      */
     OutPeerAlreadyExistsException(const std::string& hostName, const boost::uint32_t port);
 
-    virtual ~OutPeerAlreadyExistsException() throw();
+    virtual ~OutPeerAlreadyExistsException() noexcept;
 };
 }
 

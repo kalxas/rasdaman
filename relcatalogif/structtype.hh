@@ -105,7 +105,7 @@ public:
     /// checks if a certain StructType is contained in this StructType
     int contains(const StructType* aStruct) const;
 
-    StructType(const OId& structtypeid) throw (r_Error);
+    StructType(const OId& structtypeid);
 
     /// default constructor, sets type name to "".
     StructType();
@@ -139,11 +139,11 @@ private:
 
 protected:
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
     // moves back one step all elements all elements behind pos
     void moveBack(int pos);

@@ -175,7 +175,7 @@ char* disp_exception(const char* stmt, int sqlerr_code)
  * database access and print message into log if so.
  */
 int
-check(const char* stmt) throw (r_Error)
+check(const char* stmt)
 {
     char* msg = disp_exception(stmt, sqlstate_err());
     if (msg != NULL)
@@ -190,7 +190,7 @@ check(const char* stmt) throw (r_Error)
 
 // generate r_Ebase_dbms exception using SQL error code and message
 void
-generateException() throw (r_Error)
+generateException()
 {
     LDEBUG << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg;
     LFATAL << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg;

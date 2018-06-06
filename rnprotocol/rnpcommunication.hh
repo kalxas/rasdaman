@@ -60,39 +60,39 @@ class RnpClientJob : public NbClientJob
 {
 public:
     /// Default constructor
-    RnpClientJob() throw();
+    RnpClientJob() noexcept;
 
     /** Initialization: takes the tarnsmitter buffer containing data to be send
         and a pointer to a Communicator object, which will coordinate the transmission
     Assert: transmitterBuffer!=0, newClientComm !=0  */
-    void init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newClientComm) throw();
+    void init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newClientComm) noexcept;
 
     /// Call-back function for the Communicator.
-    void processRequest() throw();
+    void processRequest() noexcept;
 
     /** Returns a pointer to the buffer containing the answer. The buffer
         holds only the RNP message, without carrier header  */
-    CommBuffer* getAnswerBuffer() throw();
+    CommBuffer* getAnswerBuffer() noexcept;
 
     /// Returns 'true' if the answer was correctly received
-    bool        isAnswerOk() throw();
+    bool        isAnswerOk() noexcept;
 
     /// Returns true if the format of the received message is not valid RNP and was discarded
-    bool        isInvalidFormat() throw();
+    bool        isInvalidFormat() noexcept;
 
     /** Clears the answer buffer. Important if huge amount of data where received.
         The buffer is cleared by the next transmission, also. */
-    void        clearAnswerBuffer() throw();
+    void        clearAnswerBuffer() noexcept;
 protected:
     /// (See the explanations from NbJob)
-    bool validateMessage() throw();
-    void executeOnWriteReady() throw();
-    void specificCleanUpOnTimeout() throw();
-    void executeOnReadError() throw();
-    void executeOnWriteError() throw();
+    bool validateMessage() noexcept;
+    void executeOnWriteReady() noexcept;
+    void specificCleanUpOnTimeout() noexcept;
+    void executeOnReadError() noexcept;
+    void executeOnWriteError() noexcept;
 
     /// Resets the object: clears the connection and marks the job as ready
-    void resetState() throw();
+    void resetState() noexcept;
 private:
     RnpBaseClientComm* clientCommPtr;
 
@@ -118,26 +118,26 @@ class RnpBaseClientComm
 {
 public:
     /// Constructor taking the server type and the carrier protocol
-    RnpBaseClientComm(RnpQuark serverType, RnpTransport::CarrierProtocol = RnpTransport::crp_Rnp) throw();
+    RnpBaseClientComm(RnpQuark serverType, RnpTransport::CarrierProtocol = RnpTransport::crp_Rnp) noexcept;
 
     /** Constructor taking also the connection info for the server
         Assert: serverHost != 0, serverPort > 0  */
-    RnpBaseClientComm(const char* serverHost, int serverPort, RnpQuark serverType, RnpTransport::CarrierProtocol = RnpTransport::crp_Rnp) throw();
+    RnpBaseClientComm(const char* serverHost, int serverPort, RnpQuark serverType, RnpTransport::CarrierProtocol = RnpTransport::crp_Rnp) noexcept;
 
     /// Destructor
-    virtual ~RnpBaseClientComm() throw();
+    virtual ~RnpBaseClientComm() noexcept;
 
     /** Set the connection parameter
         Assert: serverHost != 0, serverPort > 0  */
-    void setConnectionParameters(const char* serverHost, int serverPort) throw();
+    void setConnectionParameters(const char* serverHost, int serverPort) noexcept;
 
     /// Set the carrier protocol
-    void setCarrierProtocol(RnpTransport::CarrierProtocol) throw();
+    void setCarrierProtocol(RnpTransport::CarrierProtocol) noexcept;
     /// Returns the used carrier protocol
-    RnpTransport::CarrierProtocol getCarrierProtocol() throw();
+    RnpTransport::CarrierProtocol getCarrierProtocol() noexcept;
 
     // callback from RnpClientJob
-    void jobIsReady() throw();
+    void jobIsReady() noexcept;
 
     // Set the maximal retry count (retries to connect to the server)
     void setMaxRetry(unsigned int newMaxRetry);
@@ -167,19 +167,19 @@ protected:
 
 #ifdef AFTERV52
     // reassembles and throws an AkgSerializableException. Returns if it isn't an Akg...
-    void reassembleAkgSerializable() throw(AkgSerializableException);
+    void reassembleAkgSerializable();
 
     // reassembles and throws a STL-exception. Returns only if it isn't a stl-exception
-    void reassembleStlException() throw(RnpStlException);
+    void reassembleStlException();
 #endif
     /// Clear the answer when you don't need it any more, memory is released
-    void clearAnswer() throw();
+    void clearAnswer() noexcept;
 
     /** Default communication init, build another init() if you don't like this
         This sets 1 job, 60sec as timeout, attaches the internal job.
     Be aware that this timeout is not the timeout of the client job,
     but the one of the communicator  */
-    void initDefaultCommunication() throw();
+    void initDefaultCommunication() noexcept;
 
     // encoding and decoding
     RnpProtocolDecoder decoder;
@@ -197,7 +197,7 @@ protected:
     unsigned int     maxRetry;
 
     /// Helper function for ptinting the current parameter
-    void printCurrentParameter() throw();
+    void printCurrentParameter() noexcept;
 };
 
 
@@ -216,25 +216,25 @@ class RnpServerJob : public NbServerJob
 {
 public:
     /// Default constructor
-    RnpServerJob() throw();
+    RnpServerJob() noexcept;
 
     /** Initialization: it connects to the given 'RnpBaseServerComm'
         Assert: theServerComm != 0 */
-    void init(RnpBaseServerComm*) throw();
+    void init(RnpBaseServerComm*) noexcept;
 
     /// Calls the 'RnpBaseServerComm->processRequest()' and than initiates the transmission
-    void processRequest() throw();
+    void processRequest() noexcept;
 
 protected:
     /// (See explanations from NbJob)
-    bool validateMessage() throw();
-    void executeOnAccept() throw();
-    void executeOnWriteReady() throw();
-    void specificCleanUpOnTimeout() throw();
-    void executeOnReadError() throw();
-    void executeOnWriteError() throw();
+    bool validateMessage() noexcept;
+    void executeOnAccept() noexcept;
+    void executeOnWriteReady() noexcept;
+    void specificCleanUpOnTimeout() noexcept;
+    void executeOnReadError() noexcept;
+    void executeOnWriteError() noexcept;
 
-    void resetJob() throw();
+    void resetJob() noexcept;
 
     RnpBaseServerComm* serverCommPtr;
 
@@ -261,30 +261,30 @@ class RnpBaseServerComm
 {
 public:
     /// Default constructor -  1 server job
-    RnpBaseServerComm() throw();
+    RnpBaseServerComm() noexcept;
 
     /// Destructor
-    virtual ~RnpBaseServerComm() throw();
+    virtual ~RnpBaseServerComm() noexcept;
 
     /** Sets the number of server jobs, only if there is no connection to a communicator
         Otherwise it changes nothing and returns 'false' */
-    bool setServerJobs(int nrOfServerJobs) throw();
+    bool setServerJobs(int nrOfServerJobs) noexcept;
 
     /// Returns the number of server jobs
-    int  countServerJobs() throw();
+    int  countServerJobs() noexcept;
 
     /// Connect to the communicator. It also creates the jobs. Throws whatever new throws. Assert: no other connection!
     void connectToCommunicator(NbCommunicator&);
 
     /** Disconnect the jobs from the communicator and destroys them.
         Returns 'false' if there wasn't any connection to a communicator */
-    bool disconnectFromCommunicator() throw();
+    bool disconnectFromCommunicator() noexcept;
 
     /// Set the transmitter buffer size
-    void setTransmitterBufferSize(int) throw();
+    void setTransmitterBufferSize(int) noexcept;
 
     /// Returns the transmitter buffer size
-    int  getTransmitterBufferSize() throw();
+    int  getTransmitterBufferSize() noexcept;
 
     /** The heart of the class. It takes the request, decodes it, sends every fragment
         to the 'decodeFragment()', which has to dispatch the commands to the specific
@@ -292,11 +292,11 @@ public:
     might throw whatever is appropriate. 'processRequest()' catches 'AkgException',
     'exception' and (...) and converts them for transmission.
     If you don't like this version, make another one */
-    virtual void processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob* callingJob) throw();
+    virtual void processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob* callingJob) noexcept;
 
     /** Instructs the communicator that it should exit. Usefull to implement
         'down server' commands  */
-    void communicatorShouldExit() throw();
+    void communicatorShouldExit() noexcept;
 
 protected:
     /** Called by 'processRequest' to dispatch to the specific functions
@@ -319,25 +319,25 @@ protected:
     const void* getNextAsOpaque(RnpQuark parameterType) const;
 
     /// Returns the length of the data of the current parameter
-    int     getCurrentParameterLength() const throw();
+    int     getCurrentParameterLength() const noexcept;
 #ifdef AFTERV52
     /// Helper function to serialize an 'AkgException'
-    void answerAkgSerializable(AkgSerializableException&) throw();
+    void answerAkgSerializable(AkgSerializableException&) noexcept;
 #endif
     /// Helper function to serialize an 'exception' (based on it's 'what()'-member
-    void answerSTLException(exception&) throw();
+    void answerSTLException(exception&) noexcept;
 
     /// Helper function to serialize an unknown exception
-    void answerUnknownError() throw();
+    void answerUnknownError() noexcept;
 
     /// Helper function to discard a fragment
-    void discardFragment() throw();
+    void discardFragment() noexcept;
 
     /// Start building an OK-answer
-    void startOkAnswer() throw();
+    void startOkAnswer() noexcept;
 
     /// Just for completeness, it's only an 'encoder.endFragment()'
-    void endOkAnswer() throw();
+    void endOkAnswer() noexcept;
 
     RnpProtocolDecoder decoder;
     RnpTransmitter     encoder;

@@ -49,7 +49,7 @@ class DBMinterval : public DBObject, public r_Minterval
 public:
     DBMinterval();
 
-    DBMinterval(const OId& id) throw (r_Error);
+    DBMinterval(const OId& id);
 
     DBMinterval(r_Dimension dim);
 
@@ -83,22 +83,22 @@ public:
 
 protected:
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
     /*@Doc:
     inserts the object into the database.  it uses one table
     for the fixed length attributes (oid, size, dimension) and
     another for dynamic data (lower/upper bounds/fixed ranges)
     */
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
     /*@Doc:
     */
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
     /*@Doc:
     */
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     */
 };

@@ -94,7 +94,7 @@ r_Error::r_Error(kind the_kind, unsigned int newErrorNo)
     resetErrorText();
 }
 
-r_Error::~r_Error() throw()
+r_Error::~r_Error() noexcept
 {
     if (errorText)
     {
@@ -105,7 +105,7 @@ r_Error::~r_Error() throw()
 
 
 const char*
-r_Error::what() const throw ()
+r_Error::what() const noexcept
 {
     return static_cast<const char*>(errorText);
 }
@@ -714,7 +714,7 @@ r_Equery_execution_failed::r_Equery_execution_failed(const r_Equery_execution_fa
 
 
 
-r_Equery_execution_failed::~r_Equery_execution_failed() throw()
+r_Equery_execution_failed::~r_Equery_execution_failed() noexcept
 {
     if (token)
     {
@@ -838,7 +838,7 @@ r_Ebase_dbms::r_Ebase_dbms(kind newTheKind, unsigned long newErrNum, const char*
     free(tmpBuf);                   // allocated in strdup() -- PB 2005-jan-14
 }
 
-r_Ebase_dbms::~r_Ebase_dbms() throw()
+r_Ebase_dbms::~r_Ebase_dbms() noexcept
 {
     if (whatTxt)
     {
@@ -909,7 +909,7 @@ r_Ebase_dbms::buildWhat()
 }
 
 const char*
-r_Ebase_dbms::what() const throw()
+r_Ebase_dbms::what() const noexcept
 {
     return whatTxt;
 }

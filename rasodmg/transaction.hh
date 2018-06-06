@@ -71,7 +71,7 @@ public:
     ~r_Transaction();
 
     /// start the transaction
-    void begin(r_TAMode mode = read_write) throw(r_Error);
+    void begin(r_TAMode mode = read_write);
     /**
       By default, a transaction is started in write mode. If the read_only
       mode is specified, no write operations are allowed within the transaction
@@ -84,7 +84,7 @@ public:
     */
 
     /// commit transaction and make changes persistent
-    void commit() throw(r_Error);
+    void commit();
     /**
       The transaction is committed and changes are made persistent
       in the database.

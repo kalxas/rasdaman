@@ -134,7 +134,7 @@ public:
     ///
     virtual   void   output(FILE*)const = 0;
     ///
-    virtual void insertData() const throw(r_Equery_execution_failed);
+    virtual void insertData() const;
 
     ///
     void setParseInfo(const Parse_info& token);
@@ -318,7 +318,7 @@ public:
     ///
     virtual void output(FILE*)const;
     ///
-    virtual void insertData() const throw(r_Equery_execution_failed);
+    virtual void insertData() const;
     ///
     virtual const CType* getType(const char* typeName = NULL) const;
 };
@@ -535,7 +535,7 @@ public:
     ///
     virtual void output(FILE*)const;
     ///
-    virtual void insertData() const throw(r_Equery_execution_failed);
+    virtual void insertData() const;
     ///
     const Parse_type*   type;
 };

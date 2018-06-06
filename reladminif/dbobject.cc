@@ -186,7 +186,7 @@ DBObject::DBObject(const DBObject& old)
 
 //constructs an object and reads it from the database.  the oid must match the type of the object.
 //a r_Error::r_Error_ObjectUnknown is thrown when the oid is not in the database.
-DBObject::DBObject(const OId& id) throw (r_Error)
+DBObject::DBObject(const OId& id)
     :   _isCached(false),
         myOId(id),
         objecttype(id.getType()),
@@ -215,7 +215,7 @@ DBObject::operator=(const DBObject& old)
 //setPersistent(true) makes the object persistent as soon as validate is called.
 //a r_Error::r_Error_TransactionReadOnly is thrown when the transaction is readonly.
 void
-DBObject::setPersistent(bool newPersistent) throw (r_Error)
+DBObject::setPersistent(bool newPersistent)
 {
     if (newPersistent)
     {
@@ -278,7 +278,7 @@ DBObject::isPersistent() const
 //writes the object to database/deletes it or updates it.
 //a r_Error::r_Error_TransactionReadOnly is thrown when the transaction is readonly.
 void
-DBObject::validate() throw (r_Error)
+DBObject::validate()
 {
     if (_isModified)
     {
@@ -348,7 +348,7 @@ DBObject::validate() throw (r_Error)
 }
 
 void
-DBObject::setModified() throw (r_Error)
+DBObject::setModified()
 {
     if (!AdminIf::isReadOnlyTA())
     {
@@ -398,7 +398,7 @@ DBObject::~DBObject()
 }
 
 void
-DBObject::updateInDb() throw (r_Error)
+DBObject::updateInDb()
 {
     _isModified = false;
     _isInDatabase = true;
@@ -407,7 +407,7 @@ DBObject::updateInDb() throw (r_Error)
 
 //writes the object into the database.  the object must not be in the database.
 void
-DBObject::insertInDb() throw (r_Error)
+DBObject::insertInDb()
 {
     _isModified = false;
     _isInDatabase = true;
@@ -415,7 +415,7 @@ DBObject::insertInDb() throw (r_Error)
 }
 
 void
-DBObject::deleteFromDb() throw (r_Error)
+DBObject::deleteFromDb()
 {
     _isModified = false;
     _isInDatabase = false;
@@ -423,7 +423,7 @@ DBObject::deleteFromDb() throw (r_Error)
 }
 
 void
-DBObject::readFromDb() throw (r_Error)
+DBObject::readFromDb()
 {
     _isPersistent = true;
     _isModified = false;
@@ -431,14 +431,14 @@ DBObject::readFromDb() throw (r_Error)
 }
 
 BinaryRepresentation
-DBObject::getBinaryRepresentation() const throw (r_Error)
+DBObject::getBinaryRepresentation() const
 {
     LFATAL << "getBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYEXPORTNOTSUPPORTEDFOROBJECT);
 }
 
 void
-DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation& br) throw (r_Error)
+DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation& br)
 {
     LFATAL << "setBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYIMPORTNOTSUPPORTEDFOROBJECT);

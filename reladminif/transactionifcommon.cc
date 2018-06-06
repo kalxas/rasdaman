@@ -51,7 +51,7 @@ TransactionIf::getDatabaseIf()
 }
 
 void
-TransactionIf::begin(DatabaseIf* currBase, bool readOnly) throw (r_Error)
+TransactionIf::begin(DatabaseIf* currBase, bool readOnly)
 {
     try
     {

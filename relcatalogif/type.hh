@@ -108,7 +108,7 @@ public:
     default constructor, cannot be used.
     */
 
-    Type(const OId& id) throw (r_Error);
+    Type(const OId& id);
     /*@Doc:
     */
 

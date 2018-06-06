@@ -42,7 +42,7 @@ public:
      */
     ResourceBusyException(const std::string& whatArg);
 
-    virtual ~ResourceBusyException() throw();
+    virtual ~ResourceBusyException() noexcept;
 };
 }
 #endif // COMMON_SRC_EXCEPTIONS_RESOURCEBUSYEXCEPTION_HH

@@ -29,7 +29,7 @@ InexistentInPeerException::InexistentInPeerException(const std::string& hostName
     : common::MissingResourceException("No inpeer with host name" + hostName + " found. ")
 {}
 
-InexistentInPeerException::~InexistentInPeerException() throw()
+InexistentInPeerException::~InexistentInPeerException() noexcept
 {}
 
 }

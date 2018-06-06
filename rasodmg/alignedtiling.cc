@@ -46,7 +46,7 @@ rasdaman GmbH.
 const char*
 r_Aligned_Tiling::description = "tile configuration or tile dimension and tile size (in bytes) (ex: \"[0:9,0:9];100\" or \"2;100\")";
 
-r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
+r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
     :   r_Dimension_Tiling(0, 0)
 {
 
@@ -145,7 +145,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded) throw (r_Error)
 
 }
 
-r_Aligned_Tiling::r_Aligned_Tiling(r_Dimension dim, r_Bytes ts) throw (r_Error)
+r_Aligned_Tiling::r_Aligned_Tiling(r_Dimension dim, r_Bytes ts)
     :   r_Dimension_Tiling(dim, ts),
         tile_config(dim)
 {
@@ -156,7 +156,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(r_Dimension dim, r_Bytes ts) throw (r_Error)
     }
 }
 
-r_Aligned_Tiling::r_Aligned_Tiling(const r_Minterval& tc, r_Bytes ts) throw (r_Error)
+r_Aligned_Tiling::r_Aligned_Tiling(const r_Minterval& tc, r_Bytes ts)
     :   r_Dimension_Tiling(tc.dimension(), ts),
         tile_config(tc)
 {
@@ -347,7 +347,7 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
 }
 
 std::vector<r_Minterval>*
-r_Aligned_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const throw (r_Error)
+r_Aligned_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const
 {
     std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
 

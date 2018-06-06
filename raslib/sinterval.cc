@@ -52,7 +52,7 @@ r_Sinterval::r_Sinterval()
 }
 
 
-r_Sinterval::r_Sinterval(char* stringRep) throw(r_Eno_interval)
+r_Sinterval::r_Sinterval(char* stringRep)
     : lower_bound(0),
       upper_bound(0),
       low_fixed(false),
@@ -110,7 +110,7 @@ r_Sinterval::r_Sinterval(char* stringRep) throw(r_Eno_interval)
 }
 
 
-r_Sinterval::r_Sinterval(r_Range newLow, r_Range newHigh) throw(r_Eno_interval)
+r_Sinterval::r_Sinterval(r_Range newLow, r_Range newHigh)
     : lower_bound(newLow),
       upper_bound(newHigh),
       low_fixed(true),
@@ -189,7 +189,7 @@ r_Sinterval::operator!=(const r_Sinterval& interval) const
 }
 
 r_Range
-r_Sinterval::get_extent() const throw(r_Error)
+r_Sinterval::get_extent() const
 {
     r_Range ext;
 
@@ -206,7 +206,7 @@ r_Sinterval::get_extent() const throw(r_Error)
 }
 
 void
-r_Sinterval::set_low(r_Range newLow) throw(r_Eno_interval)
+r_Sinterval::set_low(r_Range newLow)
 {
     if (high_fixed && newLow > upper_bound)
     {
@@ -221,7 +221,7 @@ r_Sinterval::set_low(r_Range newLow) throw(r_Eno_interval)
 
 
 void
-r_Sinterval::set_high(r_Range newHigh) throw(r_Eno_interval)
+r_Sinterval::set_high(r_Range newHigh)
 {
     if (low_fixed && newHigh < lower_bound)
     {
@@ -236,7 +236,7 @@ r_Sinterval::set_high(r_Range newHigh) throw(r_Eno_interval)
 
 
 void
-r_Sinterval::set_interval(r_Range newLow, r_Range newHigh) throw(r_Eno_interval)
+r_Sinterval::set_interval(r_Range newLow, r_Range newHigh)
 {
     if (newLow > newHigh)
     {
@@ -293,7 +293,7 @@ r_Sinterval::intersects_with(const r_Sinterval& interval) const
 
 
 r_Sinterval&
-r_Sinterval::union_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
+r_Sinterval::union_of(const r_Sinterval& interval1, const r_Sinterval& interval2)
 {
     *this = calc_union(interval1, interval2);
 
@@ -302,7 +302,7 @@ r_Sinterval::union_of(const r_Sinterval& interval1, const r_Sinterval& interval2
 
 
 r_Sinterval&
-r_Sinterval::union_with(const r_Sinterval& interval) throw(r_Eno_interval)
+r_Sinterval::union_with(const r_Sinterval& interval)
 {
     *this = calc_union(interval, *this);
 
@@ -311,7 +311,7 @@ r_Sinterval::union_with(const r_Sinterval& interval) throw(r_Eno_interval)
 
 
 r_Sinterval&
-r_Sinterval::operator+=(const r_Sinterval& interval) throw(r_Eno_interval)
+r_Sinterval::operator+=(const r_Sinterval& interval)
 {
     *this = calc_union(interval, *this);
 
@@ -320,7 +320,7 @@ r_Sinterval::operator+=(const r_Sinterval& interval) throw(r_Eno_interval)
 
 
 r_Sinterval
-r_Sinterval::create_union(const r_Sinterval& interval) const throw(r_Eno_interval)
+r_Sinterval::create_union(const r_Sinterval& interval) const
 {
     r_Sinterval result;
 
@@ -331,7 +331,7 @@ r_Sinterval::create_union(const r_Sinterval& interval) const throw(r_Eno_interva
 
 
 r_Sinterval
-r_Sinterval::operator+(const r_Sinterval& interval) const throw(r_Eno_interval)
+r_Sinterval::operator+(const r_Sinterval& interval) const
 {
     r_Sinterval result;
 
@@ -342,7 +342,7 @@ r_Sinterval::operator+(const r_Sinterval& interval) const throw(r_Eno_interval)
 
 
 r_Sinterval&
-r_Sinterval::difference_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
+r_Sinterval::difference_of(const r_Sinterval& interval1, const r_Sinterval& interval2)
 {
     *this = calc_difference(interval1, interval2);
 
@@ -351,7 +351,7 @@ r_Sinterval::difference_of(const r_Sinterval& interval1, const r_Sinterval& inte
 
 
 r_Sinterval&
-r_Sinterval::difference_with(const r_Sinterval& interval) throw(r_Eno_interval)
+r_Sinterval::difference_with(const r_Sinterval& interval)
 {
     *this = calc_difference(interval, *this);
 
@@ -361,7 +361,7 @@ r_Sinterval::difference_with(const r_Sinterval& interval) throw(r_Eno_interval)
 
 
 r_Sinterval&
-r_Sinterval::operator-=(const r_Sinterval& interval) throw(r_Eno_interval)
+r_Sinterval::operator-=(const r_Sinterval& interval)
 {
     *this = calc_difference(interval, *this);
 
@@ -370,7 +370,7 @@ r_Sinterval::operator-=(const r_Sinterval& interval) throw(r_Eno_interval)
 
 
 r_Sinterval
-r_Sinterval::create_difference(const r_Sinterval& interval) const throw(r_Eno_interval)
+r_Sinterval::create_difference(const r_Sinterval& interval) const
 {
     r_Sinterval result;
 
@@ -381,7 +381,7 @@ r_Sinterval::create_difference(const r_Sinterval& interval) const throw(r_Eno_in
 
 
 r_Sinterval
-r_Sinterval::operator-(const r_Sinterval& interval) const throw(r_Eno_interval)
+r_Sinterval::operator-(const r_Sinterval& interval) const
 {
     r_Sinterval result;
 
@@ -392,7 +392,7 @@ r_Sinterval::operator-(const r_Sinterval& interval) const throw(r_Eno_interval)
 
 
 r_Sinterval&
-r_Sinterval::intersection_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
+r_Sinterval::intersection_of(const r_Sinterval& interval1, const r_Sinterval& interval2)
 {
     *this = calc_intersection(interval1, interval2);
 
@@ -401,7 +401,7 @@ r_Sinterval::intersection_of(const r_Sinterval& interval1, const r_Sinterval& in
 
 
 r_Sinterval&
-r_Sinterval::intersection_with(const r_Sinterval& interval) throw(r_Eno_interval)
+r_Sinterval::intersection_with(const r_Sinterval& interval)
 {
     *this = calc_intersection(interval, *this);
 
@@ -410,7 +410,7 @@ r_Sinterval::intersection_with(const r_Sinterval& interval) throw(r_Eno_interval
 
 
 r_Sinterval&
-r_Sinterval::operator*=(const r_Sinterval& interval)  throw(r_Eno_interval)
+r_Sinterval::operator*=(const r_Sinterval& interval)
 {
     *this = calc_intersection(interval, *this);
 
@@ -419,7 +419,7 @@ r_Sinterval::operator*=(const r_Sinterval& interval)  throw(r_Eno_interval)
 
 
 r_Sinterval
-r_Sinterval::create_intersection(const r_Sinterval& interval) const throw(r_Eno_interval)
+r_Sinterval::create_intersection(const r_Sinterval& interval) const
 {
     r_Sinterval result;
 
@@ -430,7 +430,7 @@ r_Sinterval::create_intersection(const r_Sinterval& interval) const throw(r_Eno_
 
 
 r_Sinterval
-r_Sinterval::operator*(const r_Sinterval& interval) const throw(r_Eno_interval)
+r_Sinterval::operator*(const r_Sinterval& interval) const
 {
     r_Sinterval result;
 
@@ -441,7 +441,7 @@ r_Sinterval::operator*(const r_Sinterval& interval) const throw(r_Eno_interval)
 
 
 r_Sinterval&
-r_Sinterval::closure_of(const r_Sinterval& interval1, const r_Sinterval& interval2) throw(r_Eno_interval)
+r_Sinterval::closure_of(const r_Sinterval& interval1, const r_Sinterval& interval2)
 {
     *this = calc_closure(interval1, interval2);
 
@@ -450,7 +450,7 @@ r_Sinterval::closure_of(const r_Sinterval& interval1, const r_Sinterval& interva
 
 
 r_Sinterval&
-r_Sinterval::closure_with(const r_Sinterval& interval) throw(r_Eno_interval)
+r_Sinterval::closure_with(const r_Sinterval& interval)
 {
     *this = calc_closure(interval, *this);
 
@@ -459,7 +459,7 @@ r_Sinterval::closure_with(const r_Sinterval& interval) throw(r_Eno_interval)
 
 
 r_Sinterval
-r_Sinterval::create_closure(const r_Sinterval& interval) const throw(r_Eno_interval)
+r_Sinterval::create_closure(const r_Sinterval& interval) const
 {
     r_Sinterval result;
 
@@ -501,7 +501,7 @@ r_Sinterval::get_storage_size() const
 }
 
 r_Sinterval
-r_Sinterval::calc_union(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
+r_Sinterval::calc_union(const r_Sinterval& a, const r_Sinterval& b) const
 {
     r_Sinterval result;
 
@@ -613,7 +613,7 @@ r_Sinterval::calc_union(const r_Sinterval& a, const r_Sinterval& b) const throw(
 
 
 r_Sinterval
-r_Sinterval::calc_difference(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
+r_Sinterval::calc_difference(const r_Sinterval& a, const r_Sinterval& b) const
 {
     r_Sinterval result;
 
@@ -710,7 +710,7 @@ r_Sinterval::calc_difference(const r_Sinterval& a, const r_Sinterval& b) const t
 
 
 r_Sinterval
-r_Sinterval::calc_intersection(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
+r_Sinterval::calc_intersection(const r_Sinterval& a, const r_Sinterval& b) const
 {
     r_Sinterval result;
 
@@ -846,7 +846,7 @@ r_Sinterval::calc_intersection(const r_Sinterval& a, const r_Sinterval& b) const
 
 
 r_Sinterval
-r_Sinterval::calc_closure(const r_Sinterval& a, const r_Sinterval& b) const throw(r_Eno_interval)
+r_Sinterval::calc_closure(const r_Sinterval& a, const r_Sinterval& b) const
 {
     r_Sinterval closure;
 

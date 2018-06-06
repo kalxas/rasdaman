@@ -29,7 +29,7 @@ DbHostAlreadyExistsException::DbHostAlreadyExistsException(const std::string& db
     : common::LogicException("Database host " + dbHostName + " already defined.")
 {}
 
-DbHostAlreadyExistsException::~DbHostAlreadyExistsException() throw()
+DbHostAlreadyExistsException::~DbHostAlreadyExistsException() noexcept
 {}
 
 }

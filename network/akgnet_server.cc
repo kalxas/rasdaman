@@ -40,40 +40,40 @@ rasdaman GmbH.
 //#include<iostream>
 
 
-akg::GenericServer::GenericServer() throw()
+akg::GenericServer::GenericServer() noexcept
 {
     listenPort = 0;
     exitRequest = false;
 }
-akg::GenericServer::~GenericServer() throw()
+akg::GenericServer::~GenericServer() noexcept
 {
 }
 
-void akg::GenericServer::setListenPort(int x) throw()
+void akg::GenericServer::setListenPort(int x) noexcept
 {
     listenPort = x;
 }
-int akg::GenericServer::getListenPort() throw()
+int akg::GenericServer::getListenPort() noexcept
 {
     return listenPort;
 }
 
-void akg::GenericServer::setTimeout(int sec, int milisec) throw()
+void akg::GenericServer::setTimeout(int sec, int milisec) noexcept
 {
     selector.setTimeout(sec, milisec);
 }
-void akg::GenericServer::disableTimeout() throw()
+void akg::GenericServer::disableTimeout() noexcept
 {
     selector.disableTimeout();
 }
 
-void akg::GenericServer::shouldExit() throw()
+void akg::GenericServer::shouldExit() noexcept
 {
     exitRequest = true;
 }
 
 
-bool akg::GenericServer::initListenSocket(int port, bool nonblocking) throw()
+bool akg::GenericServer::initListenSocket(int port, bool nonblocking) noexcept
 {
     if (listenSocket.open(port) == false)
     {
@@ -91,7 +91,7 @@ bool akg::GenericServer::initListenSocket(int port, bool nonblocking) throw()
     return true;
 }
 
-bool akg::GenericServer::connectNewClient(ServerSocket& s) throw()
+bool akg::GenericServer::connectNewClient(ServerSocket& s) noexcept
 {
     if (s.acceptFrom(listenSocket) == false)
     {
@@ -102,7 +102,7 @@ bool akg::GenericServer::connectNewClient(ServerSocket& s) throw()
 
     return true;
 }
-void akg::GenericServer::closeSocket(Socket& s) throw()
+void akg::GenericServer::closeSocket(Socket& s) noexcept
 {
     if (s.isOpen())
     {
@@ -115,14 +115,14 @@ void akg::GenericServer::closeSocket(Socket& s) throw()
 
 //###########################
 
-akg::BlockingServer::BlockingServer() throw()
+akg::BlockingServer::BlockingServer() noexcept
 {
 }
-akg::BlockingServer::~BlockingServer() throw()
+akg::BlockingServer::~BlockingServer() noexcept
 {
 }
 
-bool akg::BlockingServer::runServer() throw()
+bool akg::BlockingServer::runServer() noexcept
 {
     if (listenPort == 0)
     {

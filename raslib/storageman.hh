@@ -74,7 +74,7 @@ public:
     /// assignment
     r_Storage_Man& operator=(const r_Storage_Man& src);
     /// allocation
-    void* storage_alloc(size_t size) const throw(r_Error);
+    void* storage_alloc(size_t size) const;
     /// deallocation
     void storage_free(void* data) const;
 

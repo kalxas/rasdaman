@@ -54,7 +54,7 @@ static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2
 using boost::shared_ptr;
 
 const r_Minterval&
-MDDObj::checkStorage(const r_Minterval& domain2) throw (r_Error)
+MDDObj::checkStorage(const r_Minterval& domain2)
 {
     r_Minterval domain(domain2.dimension());
     if (myStorageLayout->getIndexType() == r_Reg_Computed_Index)
@@ -126,7 +126,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Minterva
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms) throw (r_Error)
+MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms)
     :   NullValuesHandler(),
         myDBMDDObj(),
         myMDDIndex(NULL),
@@ -145,7 +145,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), ms.getDBStorageLayout(), newOId);
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId) throw (r_Error)
+MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId)
     : myDBMDDObj(),
       myMDDIndex(NULL),
       myStorageLayout(NULL)
@@ -163,7 +163,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
 
 
 
-MDDObj::MDDObj(const DBMDDObjId& dbmddobj) throw(r_Error)
+MDDObj::MDDObj(const DBMDDObjId& dbmddobj)
     :   NullValuesHandler(),
         myDBMDDObj(dbmddobj),
         myMDDIndex(NULL),
@@ -175,7 +175,7 @@ MDDObj::MDDObj(const DBMDDObjId& dbmddobj) throw(r_Error)
     myMDDIndex = new MDDObjIx(myDBMDDObj->getDBIndexDS(), *myStorageLayout, myDBMDDObj->getMDDBaseType()->getBaseType());
 }
 
-MDDObj::MDDObj(const OId& givenOId) throw(r_Error)
+MDDObj::MDDObj(const OId& givenOId)
     :   NullValuesHandler(),
         myDBMDDObj(OId()),
         myMDDIndex(NULL),
@@ -475,7 +475,7 @@ MDDObj::setUpdateNullValues(r_Minterval* newNullValues)
 }
 
 template <class T>
-char* fillTile(r_Range fillValArg, size_t cellCount, char* startPointArg)
+void fillTile(r_Range fillValArg, size_t cellCount, char* startPointArg)
 {
     T fillValue = static_cast<T>(fillValArg);
     T* startPoint = reinterpret_cast<T*>(startPointArg);

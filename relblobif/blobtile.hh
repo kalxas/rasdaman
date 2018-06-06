@@ -82,7 +82,7 @@ public:
     constructs a new empty BLOBTile and gets an id for it.
     */
 
-    BLOBTile(const OId& BlobId) throw (r_Error);
+    BLOBTile(const OId& BlobId);
     /*@Doc:
     constructs a BlobTile out of the database
     */
@@ -141,22 +141,22 @@ public:
 
 protected:
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
     /*@Doc:
     update the contents of a Tile in the db
     */
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
     /*@Doc:
     inserts the Blob into the db.
     */
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     read blob from db into blobtile
     */
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
     /*@Doc:
     deletes a blob from TILES, sets size to 0 and flags to -1
     */

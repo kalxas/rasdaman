@@ -41,7 +41,7 @@ public:
      */
     UserDbRightsException(const std::string& userName, const std::string& databaseName);
 
-    virtual ~UserDbRightsException() throw();
+    virtual ~UserDbRightsException() noexcept;
 };
 }
 

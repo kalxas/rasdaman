@@ -76,7 +76,7 @@ AtomicType::AtomicType(const AtomicType& old)
 	_isModified = 0;
 	}
 
-AtomicType::AtomicType(const OId& id) throw (r_Error)
+AtomicType::AtomicType(const OId& id)
 	:	BaseType(id)
 	{
 	objecttype = OId::ATOMICTYPEOID;

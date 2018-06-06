@@ -117,20 +117,20 @@ public:
     };
 
     /// Functions to get the names of the various elements
-    static const char* getFragmentTypeName(RnpQuark) throw();
-    static const char* getDataTypeName(RnpQuark)     throw();
-    static const char* getEndiannessName(Endianness) throw();
-    static const char* getErrorTypeName(RnpQuark)    throw();
-    static const char* getErrorParamName(RnpQuark)   throw();
+    static const char* getFragmentTypeName(RnpQuark) noexcept;
+    static const char* getDataTypeName(RnpQuark) noexcept;
+    static const char* getEndiannessName(Endianness) noexcept;
+    static const char* getErrorTypeName(RnpQuark) noexcept;
+    static const char* getErrorParamName(RnpQuark) noexcept;
 
     /** Every server has his own command set, each with parameters
         Define your own functions to get names for this elements */
-    virtual const char* getParameterTypeName(RnpQuark) const throw() = 0;
-    virtual const char* getCommandName(RnpQuark)       const throw() = 0;
+    virtual const char* getParameterTypeName(RnpQuark) const noexcept = 0;
+    virtual const char* getCommandName(RnpQuark)       const noexcept = 0;
 
     /// Helper functions for endianness
-    static RnpQuark   swapBytes(RnpQuark)    throw();
-    static Endianness detectHostEndianness() throw();
+    static RnpQuark   swapBytes(RnpQuark) noexcept;
+    static Endianness detectHostEndianness() noexcept;
 
 #ifdef AFTERV52
     /// Log connection for the whole RNP module
@@ -170,20 +170,20 @@ struct RnpHeader
     // sizeof = 64
 
     /// Returns 'true' if this is a valid RNP header
-    bool     isRnpMessage() const throw();
+    bool     isRnpMessage() const noexcept;
 
     /// Returns the message endianness
-    Rnp::Endianness getEndianness() const throw();
+    Rnp::Endianness getEndianness() const noexcept;
 
     /// Returns the total length of the message, regardless of endianness
-    RnpQuark getTotalLength() const throw();
+    RnpQuark getTotalLength() const noexcept;
 
     /** Changes the endianness of the header to the specified one
         Returns 'true' if a change was necessary */
-    bool     changeEndianness(Rnp::Endianness) throw();
+    bool     changeEndianness(Rnp::Endianness) noexcept;
 
     /// Returns a pointer to the first fragment. Header has to be in host endianness
-    RnpFragmentHeader* getFirstFragment() const throw();
+    RnpFragmentHeader* getFirstFragment() const noexcept;
 };
 
 /** The header of parameters. Size is 16.
@@ -205,23 +205,23 @@ struct RnpParameter
     RnpQuark totalLength;
 
     /// Returns a pointer to the next parameter
-    RnpParameter* getNextParameter() const throw();
+    RnpParameter* getNextParameter() const noexcept;
 
     /// Returns a pointer to the parameter data
-    void*         getData() const throw();
+    void*         getData() const noexcept;
 
     /// Returns the length of the parameter data
-    RnpQuark      getDataLength() const throw();
+    RnpQuark      getDataLength() const noexcept;
 
     /** Changes the endianness of the parameter. Since there is no info
         about the current endianness, be carefull when you use it.
         It also changes the endianness of the data, except when it is
     opaque data.*/
-    void          changeToHostEndianness() throw();
-    void          changeToPartnerEndianness() throw();
+    void          changeToHostEndianness() noexcept;
+    void          changeToPartnerEndianness() noexcept;
 
-    RnpQuark      computeTotalAlignedLength() throw();
-    RnpQuark      getPaddLength() const throw();
+    RnpQuark      computeTotalAlignedLength() noexcept;
+    RnpQuark      getPaddLength() const noexcept;
 };
 
 /** The header of fragments. Size is 16.
@@ -242,14 +242,14 @@ struct RnpFragmentHeader
     RnpQuark totalLength;
 
     /// Returns a pointer to the next fragment
-    RnpFragmentHeader* getNextFragment() const throw();
+    RnpFragmentHeader* getNextFragment() const noexcept;
 
     /// Returns a pointer to the first parameter of this fragment
-    RnpParameter*      getFirstParameter() const throw();
+    RnpParameter*      getFirstParameter() const noexcept;
 
     /** Changes the endianness of the fragment. Since there is no info
         about the current endianness, be carefull when you use it */
-    void               changeEndianness() throw();
+    void               changeEndianness() noexcept;
 };
 
 /** Class for encoding a RNP message. It has support for the header of the
@@ -265,22 +265,22 @@ class RnpProtocolEncoder
 {
 public:
     /// Default constructor
-    RnpProtocolEncoder() throw();
+    RnpProtocolEncoder() noexcept;
     /// Destructor
-    ~RnpProtocolEncoder() throw();
+    ~RnpProtocolEncoder() noexcept;
 
     /// Sets an external buffer as work buffer.
-    void setBuffer(akg::CommBuffer*) throw();
+    void setBuffer(akg::CommBuffer*) noexcept;
 
     /// Allocates an internal buffer as work buffer
-    bool allocateBuffer(int maxMessageLength) throw();
+    bool allocateBuffer(int maxMessageLength) noexcept;
 
     /** resizes the internal buffer, so the new buffer can hold the actual data plus
         the requested difference. Additionally we allocate also RNP_DEFAULTBUFFERSIZE bytes
     Assert: commBuffer != 0 , differenceSize >= 0*/
-    bool adjustBufferSize(int differenceSize) throw();
+    bool adjustBufferSize(int differenceSize) noexcept;
 
-    int  getBufferSize() throw();
+    int  getBufferSize() noexcept;
 
     /** Makes the necessary initializations for a new message.
         Takes as parameter the type of the destination server and allocates
@@ -291,45 +291,45 @@ public:
         message have to be called in the correct order, otherwise undefined
     results may occur!
     */
-    void startMessage(RnpQuark serverType, int carrierHeaderSize = 0) throw();
+    void startMessage(RnpQuark serverType, int carrierHeaderSize = 0) noexcept;
 
     /** Sets the desired endianness for the answer. Servers have to use
         this endianness when they answer, clients might use it for the next
     requests
     */
-    void setDesiredEndianness(Rnp::Endianness) throw();
+    void setDesiredEndianness(Rnp::Endianness) noexcept;
 
     /** Sets the final endianness for the message. 'endMessage()' is the one
         who changes the endianness to the final one
     */
-    void setFinalEndianness(Rnp::Endianness) throw();
+    void setFinalEndianness(Rnp::Endianness) noexcept;
 
     /// Starts a new fragment.
-    void startFragment(Rnp::FragmentType, RnpQuark command) throw();
+    void startFragment(Rnp::FragmentType, RnpQuark command) noexcept;
 
     /// Adds a string parameter to the current fragment
-    void addStringParameter(RnpQuark parameterType, const char*) throw();
+    void addStringParameter(RnpQuark parameterType, const char*) noexcept;
 
     /// Adds an int parameter to the current fragment
-    void addInt32Parameter(RnpQuark parameterType, int) throw();
+    void addInt32Parameter(RnpQuark parameterType, int) noexcept;
 
     /// Adds a float parameter to the current fragment
-    void addFloat32Parameter(RnpQuark parameterType, float) throw();
+    void addFloat32Parameter(RnpQuark parameterType, float) noexcept;
 
     /// Adds a double parameter to the current fragment
-    void addDouble64Parameter(RnpQuark parameterType, double) throw();
+    void addDouble64Parameter(RnpQuark parameterType, double) noexcept;
 
     /// Adds an opaque parameter to the current fragment
-    void addOpaqueParameter(RnpQuark parameterType, const void*, int size) throw();
+    void addOpaqueParameter(RnpQuark parameterType, const void*, int size) noexcept;
 
     /// Ends the current fragment
-    void endFragment() throw();
+    void endFragment() noexcept;
 
     /// Ends the message and, if necessary, changes the endianness
-    akg::CommBuffer* endMessage() throw();
+    akg::CommBuffer* endMessage() noexcept;
 
     /// Returns the size of the reserved space for the embedding carrier header
-    int getCarrierHeaderSize() throw();
+    int getCarrierHeaderSize() noexcept;
 
 protected:
 
@@ -338,10 +338,10 @@ protected:
 private:
 
     /// Helper function to add a parameter to the current fragment
-    void addParameter(RnpQuark parameterType, Rnp::DataType, const void* data, int length) throw();
+    void addParameter(RnpQuark parameterType, Rnp::DataType, const void* data, int length) noexcept;
 
     /// The function which does the endianness change
-    bool changeToPartnerEndianness(Rnp::Endianness) throw();
+    bool changeToPartnerEndianness(Rnp::Endianness) noexcept;
 
     bool               allocated;
     int                carrierHeaderSize;
@@ -363,7 +363,7 @@ class RnpProtocolDecoder
 {
 public:
     /// Default constructor
-    RnpProtocolDecoder() throw();
+    RnpProtocolDecoder() noexcept;
 
     /** Takes the buffer and decodes it, provided it is a RNP message
         Returns 'false' if it is not a RNP message, or the message is corrupt
@@ -371,79 +371,79 @@ public:
      verification is done. In this case endianness is changes, but if the
      message is corrupt...bang!!). Later this will have to throw something
     */
-    bool decode(akg::CommBuffer*) throw();
+    bool decode(akg::CommBuffer*) noexcept;
 
     /// Returns the code of the destination server
-    RnpQuark        getDestinationServerType() const throw();
+    RnpQuark        getDestinationServerType() const noexcept;
 
     /// Returns the desired endianness
-    Rnp::Endianness getDesiredEndianness() const throw();
+    Rnp::Endianness getDesiredEndianness() const noexcept;
 
     /// Returns the original endianness of the message
-    Rnp::Endianness getOriginalEndianness() const throw();
+    Rnp::Endianness getOriginalEndianness() const noexcept;
 
     /// Returns the total message length
-    int             getMessageLength() const throw();
+    int             getMessageLength() const noexcept;
 
     /// Returns the version of the message
-    int             getMessageVersion() const throw();
+    int             getMessageVersion() const noexcept;
 
     /// Returns the number of fragments contained in the message
-    RnpQuark        countFragments() const throw();
+    RnpQuark        countFragments() const noexcept;
 
     /// Returns a pointer to the first fragment
-    const RnpFragmentHeader* getFirstFragment() const throw();
+    const RnpFragmentHeader* getFirstFragment() const noexcept;
 
     /// Returns a pointer to the next fragment
-    const RnpFragmentHeader* getNextFragment() const throw();
+    const RnpFragmentHeader* getNextFragment() const noexcept;
 
     /// Returns the type of the current fragment
-    RnpQuark         getFragmentType() const throw();
+    RnpQuark         getFragmentType() const noexcept;
 
     /// Returns the name of type of the current fragment
-    const char*      getFragmentTypeName() const throw();
+    const char*      getFragmentTypeName() const noexcept;
 
     /// Returns the command of the current fragment
-    RnpQuark         getCommand() const throw();
+    RnpQuark         getCommand() const noexcept;
 
     /// Returns the number of parameters of the current fragment
-    int              countParameters() const throw();
+    int              countParameters() const noexcept;
 
     /// Returns the length of the current fragment
-    RnpQuark         getFragmentLength() const throw();
+    RnpQuark         getFragmentLength() const noexcept;
 
     /// Returns a pointer to the first parameter of the current fragment
-    const RnpParameter*      getFirstParameter() const throw();
+    const RnpParameter*      getFirstParameter() const noexcept;
 
     /// Returns a pointer to the next parameter of the current fragment
-    const RnpParameter*      getNextParameter() const throw();
+    const RnpParameter*      getNextParameter() const noexcept;
 
     /// Returns the logical type of the current parameter
-    RnpQuark             getParameterType() const throw();
+    RnpQuark             getParameterType() const noexcept;
 
     /// Returns the data type of the current parameter
-    RnpQuark             getDataType() const throw();
+    RnpQuark             getDataType() const noexcept;
 
     /// Returns a pointer to the data of the current parameter, can't be NULL
-    const void*          getData() const throw();
+    const void*          getData() const noexcept;
 
     /// Returns a pointer to the data of the current parameter, as string-asciiz (assert!) (can be NULL)
-    const char*          getDataAsString() const throw();
+    const char*          getDataAsString() const noexcept;
 
     /// Returns a pointer to the data of the current parameter, as integer (assert!)
-    int                  getDataAsInteger() const throw();
+    int                  getDataAsInteger() const noexcept;
 
     /// Returns a pointer to the data of the current parameter, as float (assert!)
-    float            getDataAsFloat() const throw();
+    float            getDataAsFloat() const noexcept;
 
     /// Returns a pointer to the data of the current parameter, as double (assert!)
-    double           getDataAsDouble() const throw();
+    double           getDataAsDouble() const noexcept;
 
     /// Returns a pointer to the data of the current parameter, as const void* (assert!) (can be NULL)
-    const void*          getDataAsOpaque() const throw();
+    const void*          getDataAsOpaque() const noexcept;
 
     /// Returns the length of the data of the current parameter
-    int              getDataLength() const throw();
+    int              getDataLength() const noexcept;
 
 private:
     akg::CommBuffer*            commBuffer;
@@ -456,17 +456,17 @@ private:
     mutable int                currParameterIdx;
 
     /// Helper function to print a RNP header
-    void printRnpHeader(RnpHeader*)  const throw();
+    void printRnpHeader(RnpHeader*)  const noexcept;
 
     /// Tests the integrity of the message
-    bool testIntegrity() const throw();
+    bool testIntegrity() const noexcept;
 
 
     /// Returns 'true' if the message is a RNP message
-    bool isRnpMessage() const throw();
+    bool isRnpMessage() const noexcept;
 
     /// Changes the endianness of the message to the message of the host
-    bool changeToHostEndianness() throw();
+    bool changeToHostEndianness() noexcept;
 };
 
 

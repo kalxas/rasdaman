@@ -56,7 +56,7 @@ values. The value of a Float is stored in four chars.
 class FloatType : public RealType
 {
 public:
-    FloatType(const OId& id) throw (r_Error);
+    FloatType(const OId& id);
 
     FloatType();
     /*@Doc:
@@ -88,7 +88,7 @@ public:
 
 protected:
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

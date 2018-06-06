@@ -38,7 +38,7 @@ static const char rcsid[] = "@(#)catalogif,DoubleType: $Header: /home/rasdev/CVS
 #include <iomanip>
 #include <string.h>
 
-DoubleType::DoubleType(const OId& id) throw (r_Error)
+DoubleType::DoubleType(const OId& id)
 	:	RealType(id)
 	{
 	readFromDb();
@@ -104,7 +104,7 @@ DoubleType::~DoubleType()
 }
 
 void
-DoubleType::readFromDb() throw (r_Error)
+DoubleType::readFromDb()
 	{
 	size = 8;
 	setName(DoubleType::Name);

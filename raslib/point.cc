@@ -42,7 +42,7 @@ static const char rcsid[] = "@(#)raslib, r_Point: $Id: point.cc,v 1.22 2002/08/2
 
 #include "raslib/error.hh"
 
-r_Point::r_Point(char* stringRep) throw (r_Error)
+r_Point::r_Point(char* stringRep)
     : points(NULL), dimensionality(1), streamInitCnt(0)
 {
     char    charToken = 0;
@@ -105,7 +105,7 @@ r_Point::r_Point(r_Dimension dim)
 }
 
 
-r_Point& r_Point::operator<<(r_Range newElement) throw(r_Einit_overflow)
+r_Point& r_Point::operator<<(r_Range newElement)
 {
     if (streamInitCnt >= dimensionality)
     {
@@ -206,7 +206,7 @@ r_Point::~r_Point()
 
 
 r_Range
-r_Point::operator[](r_Dimension i) const throw(r_Eindex_violation)
+r_Point::operator[](r_Dimension i) const
 {
     if (i >= dimensionality)
     {
@@ -219,7 +219,7 @@ r_Point::operator[](r_Dimension i) const throw(r_Eindex_violation)
 
 
 r_Range&
-r_Point::operator[](r_Dimension i) throw(r_Eindex_violation)
+r_Point::operator[](r_Dimension i)
 {
     if (i >= dimensionality)
     {
@@ -293,7 +293,7 @@ r_Point::operator!=(const r_Point& pt) const
 }
 
 bool
-r_Point::operator < (const r_Point& pt) const  throw(r_Edim_mismatch)
+r_Point::operator < (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
@@ -309,7 +309,7 @@ r_Point::operator < (const r_Point& pt) const  throw(r_Edim_mismatch)
     return returnValue;
 }
 bool
-r_Point::operator > (const r_Point& pt) const  throw(r_Edim_mismatch)
+r_Point::operator > (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
@@ -326,7 +326,7 @@ r_Point::operator > (const r_Point& pt) const  throw(r_Edim_mismatch)
 }
 
 bool
-r_Point::operator >= (const r_Point& pt) const  throw(r_Edim_mismatch)
+r_Point::operator >= (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
@@ -343,7 +343,7 @@ r_Point::operator >= (const r_Point& pt) const  throw(r_Edim_mismatch)
 }
 
 bool
-r_Point::operator <= (const r_Point& pt) const  throw(r_Edim_mismatch)
+r_Point::operator <= (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
@@ -360,7 +360,7 @@ r_Point::operator <= (const r_Point& pt) const  throw(r_Edim_mismatch)
 }
 
 r_Point
-r_Point::operator+(const r_Point& pt) const throw(r_Edim_mismatch)
+r_Point::operator+(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -379,7 +379,7 @@ r_Point::operator+(const r_Point& pt) const throw(r_Edim_mismatch)
 }
 
 r_Point
-r_Point::operator-(const r_Point& pt) const throw(r_Edim_mismatch)
+r_Point::operator-(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -398,7 +398,7 @@ r_Point::operator-(const r_Point& pt) const throw(r_Edim_mismatch)
 }
 
 r_Point
-r_Point::operator*(const r_Point& pt) const throw(r_Edim_mismatch)
+r_Point::operator*(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -442,7 +442,7 @@ r_Point::indexedMap(const std::vector<r_Dimension>& vecArg) const
 
 
 r_Range
-r_Point::dotProduct(const r_Point& pt) const throw(r_Edim_mismatch)
+r_Point::dotProduct(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {

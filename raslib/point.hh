@@ -64,10 +64,10 @@ public:
     r_Point(r_Dimension);
 
     /// stream-input operator for stream initializing
-    r_Point& operator<<(r_Range) throw(r_Einit_overflow);
+    r_Point& operator<<(r_Range);
 
     /// constructor taking string representation (e.g. [ 1, 2, 3])
-    r_Point(char*) throw(r_Error);
+    r_Point(char*);
 
     //@Man: 'easy-to-use' constructors
     //@{
@@ -93,9 +93,9 @@ public:
     ~r_Point();
 
     /// subscriptor for read access
-    r_Range  operator[](r_Dimension) const throw(r_Eindex_violation);
+    r_Range  operator[](r_Dimension) const;
     /// subscriptor for write access
-    r_Range& operator[](r_Dimension) throw(r_Eindex_violation);
+    r_Range& operator[](r_Dimension);
     
     /// assignment: cleanup + copy
     const r_Point& operator= (const r_Point&);
@@ -118,26 +118,26 @@ public:
     /// non equal operator - negation of equal operator
     bool operator!=(const r_Point&) const;
 
-    bool operator < (const r_Point&) const throw(r_Edim_mismatch);
+    bool operator < (const r_Point&) const;
 
-    bool operator > (const r_Point&) const throw(r_Edim_mismatch);
+    bool operator > (const r_Point&) const;
 
 
-    bool operator <= (const r_Point&) const throw(r_Edim_mismatch);
+    bool operator <= (const r_Point&) const;
 
-    bool operator >= (const r_Point&) const throw(r_Edim_mismatch);
+    bool operator >= (const r_Point&) const;
 
     /// vector addition
     r_Point operator+(const r_Point&) const
-    throw(r_Edim_mismatch);
+;
 
     /// vector subtraction
     r_Point operator-(const r_Point&) const
-    throw(r_Edim_mismatch);
+;
 
     /// vector multiplication
     r_Point operator*(const r_Point&) const
-    throw(r_Edim_mismatch);
+;
     
     /// vector multiplication with a scalar
     r_Point operator*(const r_Range newElement) const;
@@ -147,7 +147,7 @@ public:
 
     /// vector dotProduct
     r_Range dotProduct(const r_Point &r) const
-    throw(r_Edim_mismatch);
+;
 
     /// get dimensionality
     inline r_Dimension dimension() const;

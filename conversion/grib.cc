@@ -59,14 +59,14 @@ using namespace std;
 
 /// constructor using an r_Type object. Exception if the type isn't atomic.
 
-r_Conv_GRIB::r_Conv_GRIB(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
+r_Conv_GRIB::r_Conv_GRIB(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Convert_Memory(src, interv, tp, true)
 {
 }
 
 /// constructor using convert_type_e shortcut
 
-r_Conv_GRIB::r_Conv_GRIB(const char* src, const r_Minterval& interv, int tp) throw(r_Error)
+r_Conv_GRIB::r_Conv_GRIB(const char* src, const r_Minterval& interv, int tp)
     : r_Convert_Memory(src, interv, tp)
 {
 }
@@ -81,7 +81,7 @@ r_Conv_GRIB::~r_Conv_GRIB(void)
 /// convert to GRIB
 
 r_Conv_Desc& r_Conv_GRIB::convertTo(__attribute__ ((unused)) const char* options,
-                                   __attribute__ ((unused)) const r_Range* nullValue) throw(r_Error)
+                                   __attribute__ ((unused)) const r_Range* nullValue)
 {
     LERROR << "converting to GRIB is not supported.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -103,7 +103,7 @@ r_Conv_Desc& r_Conv_GRIB::convertTo(__attribute__ ((unused)) const char* options
 
 /// convert from GRIB
 
-r_Conv_Desc& r_Conv_GRIB::convertFrom(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertFrom(const char* options)
 {
     if (options == NULL)
     {
@@ -114,7 +114,7 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(const char* options) throw(r_Error)
     return this->convertFrom(formatParams);
 }
 
-r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options)
 {
     formatParams = options;
     Json::Value messageDomains = getMessageDomainsJson();
@@ -203,7 +203,7 @@ r_Conv_Desc& r_Conv_GRIB::convertFrom(r_Format_Params options) throw(r_Error)
     return desc;
 }
 
-Json::Value r_Conv_GRIB::getMessageDomainsJson() throw(r_Error)
+Json::Value r_Conv_GRIB::getMessageDomainsJson()
 {
     Json::Value val = formatParams.getParams();
     if (val.isMember(FormatParamKeys::Decode::INTERNAL_STRUCTURE) &&
@@ -218,7 +218,7 @@ Json::Value r_Conv_GRIB::getMessageDomainsJson() throw(r_Error)
     }
 }
 
-FILE* r_Conv_GRIB::getFileHandle() throw (r_Error)
+FILE* r_Conv_GRIB::getFileHandle()
 {
     size_t srcSize = (size_t)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
 
@@ -256,7 +256,7 @@ size_t r_Conv_GRIB::getSliceOffset(const r_Minterval& domain, const r_Minterval&
     return ret;
 }
 
-unordered_map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Value& messageDomains) throw (r_Error)
+unordered_map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Value& messageDomains)
 {
     if (messageDomains.empty())
     {
@@ -278,7 +278,7 @@ unordered_map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Va
     return ret;
 }
 
-r_Minterval r_Conv_GRIB::computeBoundingBox(const unordered_map<int, r_Minterval>& messageDomains) throw (r_Error)
+r_Minterval r_Conv_GRIB::computeBoundingBox(const unordered_map<int, r_Minterval>& messageDomains)
 {
     unordered_map<int, r_Minterval>::const_iterator messageDomainIt = messageDomains.begin();
     r_Minterval ret = messageDomainIt->second;
@@ -323,7 +323,7 @@ r_Minterval r_Conv_GRIB::computeBoundingBox(const unordered_map<int, r_Minterval
     return ret;
 }
 
-void r_Conv_GRIB::setTargetDomain(const r_Minterval& fullBoundingBox) throw (r_Error)
+void r_Conv_GRIB::setTargetDomain(const r_Minterval& fullBoundingBox)
 {
     if (formatParams.getSubsetDomain().dimension() == 0)
     {
@@ -343,7 +343,7 @@ void r_Conv_GRIB::setTargetDomain(const r_Minterval& fullBoundingBox) throw (r_E
     }
 }
 
-void r_Conv_GRIB::setTargetDataAndType() throw (r_Error)
+void r_Conv_GRIB::setTargetDataAndType()
 {
     r_Area totalSize = desc.destInterv.cell_count() * sizeof(double);
     LDEBUG << "allocating " << totalSize << " bytes for the result array with domain " << desc.destInterv;
@@ -358,7 +358,7 @@ void r_Conv_GRIB::setTargetDataAndType() throw (r_Error)
 }
 
 void r_Conv_GRIB::validateMessageDomain(FILE* in, grib_handle* h, int messageIndex,
-                                        r_Range messageWidth, r_Range messageHeight, size_t messageArea) throw (r_Error)
+                                        r_Range messageWidth, r_Range messageHeight, size_t messageArea)
 {
     long x = 0;
     int err = grib_get_long(h, "Ni", &x);
@@ -424,7 +424,7 @@ void r_Conv_GRIB::decodeSubset(char* messageData, r_Minterval messageDomain, r_M
     memcpy((desc.dest + subsetOffset), messageData, subsetArea * sizeof(double));
 }
 
-void r_Conv_GRIB::checkDomain(const r_Minterval& domain) throw (r_Error)
+void r_Conv_GRIB::checkDomain(const r_Minterval& domain)
 {
     r_Dimension xDimIndex = domain.dimension() - 2;
     r_Dimension yDimIndex = domain.dimension() - 1;
@@ -453,7 +453,7 @@ bool r_Conv_GRIB::isSlice(const r_Sinterval& domainAxis)
     return domainAxis.get_extent() == 1;
 }
 
-r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain) throw (r_Error)
+r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain)
 {
     try
     {
@@ -469,13 +469,13 @@ r_Minterval r_Conv_GRIB::domainStringToMinterval(const char* domain) throw (r_Er
 
 #else // !HAVE_GRIB
 
-r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__ ((unused)) const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__ ((unused)) const char* options)
 {
     LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_GRIB::convertFrom(__attribute__ ((unused)) r_Format_Params options)
 {
     LERROR << "support for decoding GRIB file is not supported; rasdaman should be configured with option --with-grib to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

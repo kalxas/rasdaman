@@ -193,7 +193,7 @@ QtVariable::optimizeLoad(QtTrimList* trimList)
 
 
 QtData*
-QtVariable::evaluate(QtDataList* inputList) throw (ParseInfo)
+QtVariable::evaluate(QtDataList* inputList)
 {
     startTimer("QtVariable");
 
@@ -408,7 +408,7 @@ QtVariable::printAlgebraicExpression(ostream& s)
 
 
 const QtTypeElement&
-QtVariable::checkType(QtTypeTuple* typeTuple) throw (ParseInfo)
+QtVariable::checkType(QtTypeTuple* typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 

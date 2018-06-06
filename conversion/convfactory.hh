@@ -57,8 +57,8 @@ public:
     static bool is_supported(r_Data_Format fmt);
     /// creating from r_Type
     static r_Convertor* create(r_Data_Format fmt, const char* src, const r_Minterval& interv,
-                               const r_Type* tp) throw(r_Error);
+                               const r_Type* tp);
     /// creating from internal type
     static r_Convertor* create(r_Data_Format fmt, const char* src, const r_Minterval& interv,
-                               int type) throw(r_Error);
+                               int type);
 };

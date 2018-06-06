@@ -38,7 +38,7 @@
 using namespace std;
 using namespace blobfs;
 
-void DirWrapper::createDirectory(const string& dirPath) throw (r_Error)
+void DirWrapper::createDirectory(const string& dirPath)
 {
     struct stat status;
     if (stat(dirPath.c_str(), &status) == IO_ERROR_RC)
@@ -65,7 +65,7 @@ int removePath(const char* fpath, __attribute__ ((unused)) const struct stat* sb
     return ret;
 }
 
-void DirWrapper::removeDirectory(const string& dirPath) throw (r_Error)
+void DirWrapper::removeDirectory(const string& dirPath)
 {
     if (nftw(dirPath.c_str(), removePath, 64, FTW_DEPTH | FTW_PHYS) == IO_ERROR_RC)
     {

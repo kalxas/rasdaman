@@ -149,7 +149,7 @@ r_Edge::isHorizontal() const
 
 const r_Dimension r_Polygon::polyPointDim = 2;
 
-r_Polygon::r_Polygon(const char* init) throw (r_Error)
+r_Polygon::r_Polygon(const char* init)
     :   closed(false),
         firstPointSet(false)
 {
@@ -235,7 +235,7 @@ r_Polygon::operator=(const r_Polygon& old)
 }
 
 void
-r_Polygon::addPoint(const r_Point& newPoint) throw(r_Error)
+r_Polygon::addPoint(const r_Point& newPoint)
 {
     if (newPoint.dimension() != polyPointDim)
     {
@@ -267,7 +267,7 @@ r_Polygon::addPoint(const r_Point& newPoint) throw(r_Error)
 }
 
 void
-r_Polygon::addPointXY(r_Range x, r_Range y) throw(r_Error)
+r_Polygon::addPointXY(r_Range x, r_Range y)
 {
     r_Point newPoint(x, y);
     addPoint(newPoint);
@@ -287,7 +287,7 @@ r_Polygon::close()
 }
 
 const std::vector<r_Edge>&
-r_Polygon::getEdges() const throw(r_Error)
+r_Polygon::getEdges() const
 {
     // if the polygon is not closed we raise an exception.
     if (!closed)
@@ -301,7 +301,7 @@ r_Polygon::getEdges() const throw(r_Error)
 }
 
 std::vector<r_Point>
-r_Polygon::getPoints() const throw(r_Error)
+r_Polygon::getPoints() const
 {
     if (!closed)
     {
@@ -320,7 +320,7 @@ r_Polygon::getPoints() const throw(r_Error)
 }
 
 r_Polygon::r_Polygon_Type
-r_Polygon::detectPolygonType() const throw(r_Error)
+r_Polygon::detectPolygonType() const
 {
     const unsigned int minNoEdges = 3;
     std::vector<r_Point> points = getPoints();
@@ -419,7 +419,7 @@ std::ostream& operator<<(std::ostream& s, const r_Polygon& d)
 }
 
 void
-r_Polygon::fillMArray(r_GMarray& myArray, bool fillInside, const std::string& bgr) const throw(r_Error)
+r_Polygon::fillMArray(r_GMarray& myArray, bool fillInside, const std::string& bgr) const
 {
     if (!closed)
     {
@@ -503,7 +503,7 @@ r_Polygon::fillMArray(r_GMarray& myArray, bool fillInside, const std::string& bg
 }
 
 r_Minterval
-r_Polygon::getBoundingBox() const throw(r_Error)
+r_Polygon::getBoundingBox() const
 {
     if (!closed)
     {
@@ -537,7 +537,7 @@ r_Polygon::getBoundingBox() const throw(r_Error)
 }
 
 void
-r_Polygon::clip(const r_Minterval& clipDom) throw(r_Error)
+r_Polygon::clip(const r_Minterval& clipDom)
 {
     if (!closed)
     {
@@ -579,7 +579,7 @@ r_Polygon::clip(const r_Minterval& clipDom) throw(r_Error)
 
 void
 r_Polygon::scale(const r_Point& origin, const r_Minterval& mddDom,
-                 const r_Minterval& clipDom, const double& scaleFactor) throw(r_Error)
+                 const r_Minterval& clipDom, const double& scaleFactor)
 {
     r_Dimension dim = origin.dimension();
     std::vector<r_Point> oldPoints = getPoints();
@@ -616,7 +616,7 @@ r_Polygon::scale(const r_Point& origin, const r_Minterval& mddDom,
 
 
 void
-r_Polygon::scale(const r_Point& origin, const double& scaleFactor) throw(r_Error)
+r_Polygon::scale(const r_Point& origin, const double& scaleFactor)
 {
     r_Dimension dim = origin.dimension();
     std::vector<r_Point> oldPoints = getPoints();
@@ -649,7 +649,7 @@ r_Polygon::scale(const r_Point& origin, const double& scaleFactor) throw(r_Error
 }
 
 void
-r_Polygon::mirror(const r_Minterval& mddDom) throw(r_Error)
+r_Polygon::mirror(const r_Minterval& mddDom)
 {
     r_Dimension dim = mddDom.dimension();
     std::vector<r_Point> oldPoints = getPoints();
@@ -672,7 +672,7 @@ r_Polygon::mirror(const r_Minterval& mddDom) throw(r_Error)
 }
 
 void
-r_Polygon::fromPoints(const std::vector<r_Point>& newPoints) throw(r_Error)
+r_Polygon::fromPoints(const std::vector<r_Point>& newPoints)
 {
     std::vector<r_Point>::const_iterator iter, iterEnd;
 
@@ -699,7 +699,7 @@ r_Polygon::fromPoints(const std::vector<r_Point>& newPoints) throw(r_Error)
 }
 
 void
-r_Polygon::eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr) const throw(r_Error)
+r_Polygon::eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr) const
 {
     // Do nothing in that case (may happen due to rounding problems)
     if (x2 < x1)
@@ -821,7 +821,7 @@ r_Polygon::intersect(const r_Minterval& b, const r_Edge& e, r_Polygon::Side s)
 }
 
 r_Point
-r_Polygon::getMiddle() const throw(r_Error)
+r_Polygon::getMiddle() const
 {
     // Note that the summing up done here is a bit risky since overflows
     // give incorrect results.
@@ -848,7 +848,7 @@ r_Polygon::getMiddle() const throw(r_Error)
 }
 
 void
-r_Polygon::shrinkPoly(int pixelCount) throw(r_Error)
+r_Polygon::shrinkPoly(int pixelCount)
 {
     // Ok now, we move all points towards the middle. Since we store edges we
     // have to use this somewhat clumsy form with using points in between.

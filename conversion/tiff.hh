@@ -105,19 +105,19 @@ class r_Conv_TIFF : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object
-    r_Conv_TIFF(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error);
+    r_Conv_TIFF(const char* src, const r_Minterval& interv, const r_Type* tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_TIFF(const char* src, const r_Minterval& interv, int type) throw(r_Error);
+    r_Conv_TIFF(const char* src, const r_Minterval& interv, int type);
     /// destructor
     ~r_Conv_TIFF(void);
 
     /// convert to TIFF
     virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL) throw(r_Error);
+                                   const r_Range* nullValue = NULL);
     /// convert from TIFF
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
     /// cloning
     virtual r_Convertor* clone(void) const;
     /// identification

@@ -45,7 +45,7 @@ public:
     sets Name to defaultName
     */
 
-    DBNamedObject(const OId& id) throw (r_Error);
+    DBNamedObject(const OId& id);
     /*@Doc:
     only initializes itself
     */

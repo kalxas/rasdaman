@@ -97,13 +97,13 @@ void r_Conv_DEM::initGeoBBox(r_GeoBBox& cBBox)
     cBBox.resy   = DBL_MAX;
 }
 
-r_Conv_DEM::r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, const r_Type* tp) throw(r_Error)
+r_Conv_DEM::r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, const r_Type* tp)
     :   r_Convertor(source, lengthordomain, tp, true)
 {
     initGeoBBox(collBBox);
 }
 
-r_Conv_DEM::r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, int tp) throw(r_Error)
+r_Conv_DEM::r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, int tp)
     :   r_Convertor(source, lengthordomain, tp)
 {
     initGeoBBox(collBBox);
@@ -111,7 +111,7 @@ r_Conv_DEM::r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, in
 
 bool
 r_Conv_DEM::decodeOptions(const char* options,
-                          r_GeoBBox& cBBox) throw()
+                          r_GeoBBox& cBBox) noexcept
 {
     LINFO  << "r_Conv_DEM::decodeOptions(" << (options ? options : "NULL") << ")";
 
@@ -214,7 +214,7 @@ r_Conv_DEM::decodeOptions(const char* options,
 }
 
 string
-r_Conv_DEM::encodeOptions(const r_GeoBBox& cBBox) throw()
+r_Conv_DEM::encodeOptions(const r_GeoBBox& cBBox) noexcept
 {
     std::ostringstream os;
 
@@ -235,7 +235,7 @@ r_Conv_DEM::encodeOptions(const r_GeoBBox& cBBox) throw()
 }
 
 void
-r_Conv_DEM::checkLimits() throw(r_Error)
+r_Conv_DEM::checkLimits()
 {
     //show processed data
     LINFO   << "r_Conv_DEM::checkLimits() processed data:\n"
@@ -268,7 +268,7 @@ r_Conv_DEM::checkLimits() throw(r_Error)
 }
 
 void
-r_Conv_DEM::readFromSrcStream() throw(r_Error)
+r_Conv_DEM::readFromSrcStream()
 {
     istringstream iFile(desc.src);
     string currStrRow;
@@ -376,7 +376,7 @@ r_Conv_DEM::readFromSrcStream() throw(r_Error)
 
 
 void
-r_Conv_DEM::readToSrcStream() throw(r_Error)
+r_Conv_DEM::readToSrcStream()
 {
     r_Long x = 0, y = 0;
     r_Long xlow = 0, ylow = 0;
@@ -521,7 +521,7 @@ r_Conv_DEM::readToSrcStream() throw(r_Error)
 
 
 void
-r_Conv_DEM::writeFromDestStream() throw(r_Error)
+r_Conv_DEM::writeFromDestStream()
 {
     DEMRowVec::const_iterator iter, iterEnd;
     r_Long xdim, ydim, offset;
@@ -570,7 +570,7 @@ r_Conv_DEM::writeFromDestStream() throw(r_Error)
 }
 
 void
-r_Conv_DEM::writeToDestStream(ofstream& oFile) throw(r_Error)
+r_Conv_DEM::writeToDestStream(ofstream& oFile)
 {
     DEMRowVec::const_iterator iter, iterEnd;
     r_Double currH;
@@ -603,7 +603,7 @@ r_Conv_DEM::writeToDestStream(ofstream& oFile) throw(r_Error)
 }
 
 r_Conv_Desc&
-r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
+r_Conv_DEM::convertFrom(const char* options)
 {
     bool hasSrcType = true;
 
@@ -731,14 +731,14 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
     return desc;
 }
 
-r_Conv_Desc& r_Conv_DEM::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_DEM::convertFrom(__attribute__ ((unused)) r_Format_Params options)
 {    
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 
 r_Conv_Desc&
-r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue) throw (r_Error)
+r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue)
 {
     bool hasSrcType = true;
 
@@ -903,19 +903,19 @@ r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue) throw (r_Er
 }
 
 const char*
-r_Conv_DEM::get_name() const throw()
+r_Conv_DEM::get_name() const noexcept
 {
     return get_name_from_data_format(r_DEM);
 }
 
 r_Data_Format
-r_Conv_DEM::get_data_format() const throw()
+r_Conv_DEM::get_data_format() const noexcept
 {
     return r_DEM;
 }
 
 r_Convertor*
-r_Conv_DEM::clone() const throw(r_Error)
+r_Conv_DEM::clone() const
 {
     return new r_Conv_DEM(desc.src, desc.srcInterv, desc.srcType);
 }

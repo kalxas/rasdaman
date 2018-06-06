@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 void
-MDDBaseType::insertInDb() throw (r_Error)
+MDDBaseType::insertInDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
@@ -61,7 +61,7 @@ MDDBaseType::insertInDb() throw (r_Error)
 }
 
 void
-MDDBaseType::readFromDb() throw (r_Error)
+MDDBaseType::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -96,7 +96,7 @@ MDDBaseType::readFromDb() throw (r_Error)
 }
 
 void
-MDDBaseType::deleteFromDb() throw (r_Error)
+MDDBaseType::deleteFromDb()
 {
     long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = %lld",

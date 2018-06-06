@@ -49,11 +49,11 @@ class DirWrapper
 public:
 
     // Create a directory at dirPath; ignore if directory already exists
-    static void createDirectory(const std::string& dirPath) throw (r_Error);
+    static void createDirectory(const std::string& dirPath);
 
     // Remove a directory at dirPath recursively, including all content
     // files/subdirs; print warning in case of error
-    static void removeDirectory(const std::string& dirPath) throw (r_Error);
+    static void removeDirectory(const std::string& dirPath);
 
     // Append final '/' to dirPath if necessary
     static std::string convertToCanonicalPath(const std::string& dirPath);

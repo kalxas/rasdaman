@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include <string.h>
 #include <assert.h>
 
-akg::HostAddress::HostAddress() throw()
+akg::HostAddress::HostAddress() noexcept
 {
     initDefault();
 }
@@ -71,7 +71,7 @@ akg::HostAddress::HostAddress(const akg::HostAddress& ha)
     strAddress     = new char[strlen(ha.strAddress) + 1];
     strcpy(strAddress, ha.strAddress);
 }
-akg::HostAddress::~HostAddress() throw()
+akg::HostAddress::~HostAddress() noexcept
 {
     if (fullHostName)
     {
@@ -87,12 +87,12 @@ akg::HostAddress::~HostAddress() throw()
     }
 }
 
-bool akg::HostAddress::isValid() const throw()
+bool akg::HostAddress::isValid() const noexcept
 {
     return address.s_addr == addrNone ? false : true;
 }
 
-void akg::HostAddress::initDefault() throw()
+void akg::HostAddress::initDefault() noexcept
 {
     fullHostName   = NULL;
     shortHostName  = NULL;
@@ -132,65 +132,65 @@ bool akg::HostAddress::init(hostent* host)
     return true;
 }
 
-const char* akg::HostAddress::getFullHostName() const throw()
+const char* akg::HostAddress::getFullHostName() const noexcept
 {
     return fullHostName;
 }
 
-const char* akg::HostAddress::getShortHostName() const throw()
+const char* akg::HostAddress::getShortHostName() const noexcept
 {
     return shortHostName;
 }
 
-uint32_t akg::HostAddress::getAddress() const throw()
+uint32_t akg::HostAddress::getAddress() const noexcept
 {
     return ntohl(address.s_addr);
 }
 
-const char* akg::HostAddress::getStringAddress() const throw()
+const char* akg::HostAddress::getStringAddress() const noexcept
 {
     return strAddress;
 }
 
 //############################################################
 
-akg::SocketAddress::SocketAddress() throw()
+akg::SocketAddress::SocketAddress() noexcept
 {
     clear();
 }
 
-akg::SocketAddress::SocketAddress(sockaddr_in& x) throw()
+akg::SocketAddress::SocketAddress(sockaddr_in& x) noexcept
 {
     init(x);
 }
 
-void akg::SocketAddress::init(sockaddr_in& x) throw()
+void akg::SocketAddress::init(sockaddr_in& x) noexcept
 {
     valid = true;
     address = x;
 }
 
-bool akg::SocketAddress::isValid() const throw()
+bool akg::SocketAddress::isValid() const noexcept
 {
     return valid;
 }
-void akg::SocketAddress::clear() throw()
+void akg::SocketAddress::clear() noexcept
 {
     valid = false;
     address.sin_family = AF_INET;
 }
 
-akg::HostAddress akg::SocketAddress::getHostAddress() const throw()
+akg::HostAddress akg::SocketAddress::getHostAddress() const noexcept
 {
     return valid ? HostAddress(getAddress()) : HostAddress();
 }
 
-uint32_t akg::SocketAddress::getAddress() const throw()
+uint32_t akg::SocketAddress::getAddress() const noexcept
 {
     return ntohl(address.sin_addr.s_addr);
 }
 
-int akg::SocketAddress::getPort() const throw()
+int akg::SocketAddress::getPort() const noexcept
 {
     return ntohs(address.sin_port);
 }

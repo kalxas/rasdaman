@@ -43,11 +43,11 @@ rasdaman GmbH.
 
 using namespace rnp;
 
-RnpClientJob::RnpClientJob() throw()
+RnpClientJob::RnpClientJob() noexcept
 {
 }
 
-void RnpClientJob::init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newClientComm) throw()
+void RnpClientJob::init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newClientComm) noexcept
 {
     if (!(transmitterBuffer != 0))
     {
@@ -69,12 +69,12 @@ void RnpClientJob::init(CommBuffer* transmitterBuffer, RnpBaseClientComm* newCli
     status = wks_notdefined;
 }
 
-void RnpClientJob::clearAnswerBuffer() throw()
+void RnpClientJob::clearAnswerBuffer() noexcept
 {
     rnpReceiver.reset();
 }
 
-void RnpClientJob::resetState() throw()
+void RnpClientJob::resetState() noexcept
 {
     clearConnection();
 
@@ -82,7 +82,7 @@ void RnpClientJob::resetState() throw()
 
     status = wks_notdefined;
 }
-void RnpClientJob::processRequest() throw()
+void RnpClientJob::processRequest() noexcept
 {
     answerOk = true;
 
@@ -91,7 +91,7 @@ void RnpClientJob::processRequest() throw()
     resetState();
 }
 
-bool RnpClientJob::validateMessage() throw()
+bool RnpClientJob::validateMessage() noexcept
 {
     bool validated = rnpReceiver.validateMessage();
 
@@ -115,7 +115,7 @@ bool RnpClientJob::validateMessage() throw()
     return false;
 }
 
-void RnpClientJob::executeOnWriteReady() throw()
+void RnpClientJob::executeOnWriteReady() noexcept
 {
     rnpReceiver.reset();
 
@@ -126,35 +126,35 @@ void RnpClientJob::executeOnWriteReady() throw()
     readyToReadAnswer();
 }
 
-void RnpClientJob::specificCleanUpOnTimeout() throw()
+void RnpClientJob::specificCleanUpOnTimeout() noexcept
 {
     answerOk = false;
     resetState();
 }
 
-void RnpClientJob::executeOnReadError() throw()
+void RnpClientJob::executeOnReadError() noexcept
 {
     answerOk = false;
     resetState();
 }
 
-void RnpClientJob::executeOnWriteError() throw()
+void RnpClientJob::executeOnWriteError() noexcept
 {
     answerOk = false;
     resetState();
 }
 
-CommBuffer* RnpClientJob::getAnswerBuffer() throw()
+CommBuffer* RnpClientJob::getAnswerBuffer() noexcept
 {
     return rnpReceiver.getMessageBuffer();
 }
 
-bool RnpClientJob::isAnswerOk() throw()
+bool RnpClientJob::isAnswerOk() noexcept
 {
     return answerOk;
 }
 
-bool RnpClientJob::isInvalidFormat() throw()
+bool RnpClientJob::isInvalidFormat() noexcept
 {
     return invalidFormat;
 }
@@ -162,7 +162,7 @@ bool RnpClientJob::isInvalidFormat() throw()
 
 //###################################################
 
-RnpBaseClientComm::RnpBaseClientComm(RnpQuark theServerType,  RnpTransport::CarrierProtocol theProtocol) throw()
+RnpBaseClientComm::RnpBaseClientComm(RnpQuark theServerType,  RnpTransport::CarrierProtocol theProtocol) noexcept
 {
     serverHost = NULL;
     serverPort = 0;
@@ -173,7 +173,7 @@ RnpBaseClientComm::RnpBaseClientComm(RnpQuark theServerType,  RnpTransport::Carr
     maxRetry = 0;   // # of RE-tries -- PB 2005-aug-31
 }
 
-RnpBaseClientComm::RnpBaseClientComm(const char* theServerHost, int theServerPort, RnpQuark theServerType,  RnpTransport::CarrierProtocol theProtocol) throw()
+RnpBaseClientComm::RnpBaseClientComm(const char* theServerHost, int theServerPort, RnpQuark theServerType,  RnpTransport::CarrierProtocol theProtocol) noexcept
 {
     if (!(theServerHost != 0))
     {
@@ -195,11 +195,11 @@ RnpBaseClientComm::RnpBaseClientComm(const char* theServerHost, int theServerPor
 
     maxRetry = 0;   // # of RE-tries -- PB 2005-aug-31
 }
-RnpBaseClientComm::~RnpBaseClientComm() throw()
+RnpBaseClientComm::~RnpBaseClientComm() noexcept
 {
 }
 
-void RnpBaseClientComm::setConnectionParameters(const char* theServerHost, int theServerPort) throw()
+void RnpBaseClientComm::setConnectionParameters(const char* theServerHost, int theServerPort) noexcept
 {
     if (!(theServerHost != 0))
     {
@@ -216,17 +216,17 @@ void RnpBaseClientComm::setConnectionParameters(const char* theServerHost, int t
     serverPort = static_cast<unsigned int>(theServerPort);
 }
 
-void RnpBaseClientComm::setCarrierProtocol(RnpTransport::CarrierProtocol theProtocol) throw()
+void RnpBaseClientComm::setCarrierProtocol(RnpTransport::CarrierProtocol theProtocol) noexcept
 {
     carrierProtocol =  theProtocol;
 }
 
-RnpTransport::CarrierProtocol RnpBaseClientComm::getCarrierProtocol() throw()
+RnpTransport::CarrierProtocol RnpBaseClientComm::getCarrierProtocol() noexcept
 {
     return carrierProtocol;
 }
 
-void RnpBaseClientComm::initDefaultCommunication() throw()
+void RnpBaseClientComm::initDefaultCommunication() noexcept
 {
     communicatorPtr = &internalCommunicator;
 
@@ -239,7 +239,7 @@ void RnpBaseClientComm::initDefaultCommunication() throw()
 }
 
 
-void RnpBaseClientComm::jobIsReady() throw()
+void RnpBaseClientComm::jobIsReady() noexcept
 {
     communicatorPtr->shouldExit();
 }
@@ -319,7 +319,7 @@ bool RnpBaseClientComm::checkForExceptions()
     return true;
 }
 
-void RnpBaseClientComm::clearAnswer() throw()
+void RnpBaseClientComm::clearAnswer() noexcept
 {
     clientJob.clearAnswerBuffer();
 }
@@ -337,11 +337,11 @@ unsigned int  RnpBaseClientComm::getMaxRetry()
 //#######################################################################
 //#######################################################################
 
-RnpServerJob::RnpServerJob() throw()
+RnpServerJob::RnpServerJob() noexcept
 {
 }
 
-void RnpServerJob::init(RnpBaseServerComm* theServerComm) throw()
+void RnpServerJob::init(RnpBaseServerComm* theServerComm) noexcept
 {
     if (!(theServerComm != 0))
     {
@@ -356,7 +356,7 @@ void RnpServerJob::init(RnpBaseServerComm* theServerComm) throw()
     status = wks_accepting;
 }
 
-void RnpServerJob::processRequest() throw()
+void RnpServerJob::processRequest() noexcept
 {
     serverCommPtr->processRequest(currentBufferPtr, &transmiterBuffer, rnpReceiver.getCarrierProtocol(), this);
 
@@ -367,7 +367,7 @@ void RnpServerJob::processRequest() throw()
     readyToWriteAnswer();
 }
 
-bool RnpServerJob::validateMessage() throw()
+bool RnpServerJob::validateMessage() noexcept
 {
 
     bool validated = false;
@@ -389,16 +389,16 @@ bool RnpServerJob::validateMessage() throw()
     return validated;
 }
 
-void RnpServerJob::executeOnWriteReady() throw()
+void RnpServerJob::executeOnWriteReady() noexcept
 {
     resetJob();
 }
 
-void RnpServerJob::executeOnAccept() throw()
+void RnpServerJob::executeOnAccept() noexcept
 {
 }
 
-void RnpServerJob::specificCleanUpOnTimeout() throw()
+void RnpServerJob::specificCleanUpOnTimeout() noexcept
 {
     // initial era gol, dar...
     // clearConnection face cine apeleaza: NbJob::cleanUpIfTimeout()
@@ -413,17 +413,17 @@ void RnpServerJob::specificCleanUpOnTimeout() throw()
     status = wks_accepting;
 }
 
-void RnpServerJob::executeOnReadError() throw()
+void RnpServerJob::executeOnReadError() noexcept
 {
     resetJob();
 }
 
-void RnpServerJob::executeOnWriteError() throw()
+void RnpServerJob::executeOnWriteError() noexcept
 {
     resetJob();
 }
 
-void RnpServerJob::resetJob() throw()
+void RnpServerJob::resetJob() noexcept
 {
     clearConnection();
 
@@ -439,7 +439,7 @@ void RnpServerJob::resetJob() throw()
 }
 
 //###################################################
-RnpBaseServerComm::RnpBaseServerComm() throw()
+RnpBaseServerComm::RnpBaseServerComm() noexcept
 {
     nrServerJobs = 1;
 
@@ -448,12 +448,12 @@ RnpBaseServerComm::RnpBaseServerComm() throw()
     communicator = NULL;
 }
 
-RnpBaseServerComm::~RnpBaseServerComm() throw()
+RnpBaseServerComm::~RnpBaseServerComm() noexcept
 {
     disconnectFromCommunicator();
 }
 
-bool RnpBaseServerComm::setServerJobs(int nrOfServerJobs) throw()
+bool RnpBaseServerComm::setServerJobs(int nrOfServerJobs) noexcept
 {
     if (communicator != 0)
     {
@@ -465,7 +465,7 @@ bool RnpBaseServerComm::setServerJobs(int nrOfServerJobs) throw()
     return true;
 }
 
-int RnpBaseServerComm::countServerJobs() throw()
+int RnpBaseServerComm::countServerJobs() noexcept
 {
     return nrServerJobs;
 }
@@ -493,7 +493,7 @@ void RnpBaseServerComm::connectToCommunicator(NbCommunicator& theCommunicator)
     }
 }
 
-bool RnpBaseServerComm::disconnectFromCommunicator() throw()
+bool RnpBaseServerComm::disconnectFromCommunicator() noexcept
 {
     if (communicator == NULL)
     {
@@ -520,18 +520,18 @@ RnpServerJob* RnpBaseServerComm::createJob()
 }
 
 
-void RnpBaseServerComm::setTransmitterBufferSize(int nSize) throw()
+void RnpBaseServerComm::setTransmitterBufferSize(int nSize) noexcept
 {
     transmitterBufferSize = nSize;
 }
 
-int RnpBaseServerComm::getTransmitterBufferSize() throw()
+int RnpBaseServerComm::getTransmitterBufferSize() noexcept
 {
     return transmitterBufferSize;
 }
 
 
-void RnpBaseServerComm::processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__((unused)) RnpServerJob* callingJob) throw()
+void RnpBaseServerComm::processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__((unused)) RnpServerJob* callingJob) noexcept
 {
     // use 'callingJob' to get info about the client (hostaddress, etc)
 
@@ -608,12 +608,12 @@ const void* RnpBaseServerComm::getNextAsOpaque(__attribute__((unused)) RnpQuark 
     return decoder.getDataAsOpaque();
 }
 
-int RnpBaseServerComm::getCurrentParameterLength() const throw()
+int RnpBaseServerComm::getCurrentParameterLength() const noexcept
 {
     return decoder.getDataLength();
 }
 
-void RnpBaseServerComm::answerSTLException(exception& ex) throw()
+void RnpBaseServerComm::answerSTLException(exception& ex) noexcept
 {
     encoder.startFragment(Rnp::fgt_Error, decoder.getCommand());
     encoder.addInt32Parameter(Rnp::ert_StlException, 0);
@@ -621,31 +621,31 @@ void RnpBaseServerComm::answerSTLException(exception& ex) throw()
     encoder.endFragment();
 }
 
-void RnpBaseServerComm::answerUnknownError() throw()
+void RnpBaseServerComm::answerUnknownError() noexcept
 {
     encoder.startFragment(Rnp::fgt_Error, decoder.getCommand());
     encoder.addInt32Parameter(Rnp::ert_Unknown, 0);
     encoder.endFragment();
 }
 
-void RnpBaseServerComm::discardFragment() throw()
+void RnpBaseServerComm::discardFragment() noexcept
 {
     encoder.startFragment(Rnp::fgt_DiscardedRequest, decoder.getCommand());
 
     encoder.endFragment();
 }
 
-void RnpBaseServerComm::startOkAnswer() throw()
+void RnpBaseServerComm::startOkAnswer() noexcept
 {
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
 }
 
-void RnpBaseServerComm::endOkAnswer() throw()
+void RnpBaseServerComm::endOkAnswer() noexcept
 {
     encoder.endFragment();
 }
 
-void RnpBaseServerComm::communicatorShouldExit() throw()
+void RnpBaseServerComm::communicatorShouldExit() noexcept
 {
     if (!(communicator != NULL))
     {

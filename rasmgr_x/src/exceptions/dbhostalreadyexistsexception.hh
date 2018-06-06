@@ -41,7 +41,7 @@ public:
      */
     DbHostAlreadyExistsException(const std::string& dbHostName);
 
-    virtual ~DbHostAlreadyExistsException() throw();
+    virtual ~DbHostAlreadyExistsException() noexcept;
 };
 
 }

@@ -72,7 +72,7 @@ public:
     constructs a new empty InlineTile and gets an id for it.
     */
 
-    InlineTile(const OId& BlobId) throw (r_Error);
+    InlineTile(const OId& BlobId);
     /*@Doc:
     constructs a InlineTile out of the database
     */
@@ -121,7 +121,7 @@ public:
         the returned pointer is after the end of this tiles data.
     */
 
-    virtual void setModified() throw(r_Error);
+    virtual void setModified();
     /*@Doc:
         does not only set itself modified but also informs its parent of changes.
     */

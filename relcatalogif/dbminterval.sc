@@ -49,7 +49,7 @@ DBMinterval::DBMinterval()
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const OId& id) throw (r_Error)
+DBMinterval::DBMinterval(const OId& id)
     :   DBObject(id),
         r_Minterval()
 {
@@ -121,7 +121,7 @@ DBMinterval::getMemorySize() const
 }
 
 void
-DBMinterval::insertInDb() throw (r_Error)
+DBMinterval::insertInDb()
 {
     long long domainid;
     unsigned int count;
@@ -162,7 +162,7 @@ DBMinterval::insertInDb() throw (r_Error)
 }
 
 void
-DBMinterval::updateInDb() throw (r_Error)
+DBMinterval::updateInDb()
 {
     long long domainid;
     unsigned int count;
@@ -243,7 +243,7 @@ DBMinterval::updateInDb() throw (r_Error)
 }
 
 void
-DBMinterval::deleteFromDb() throw (r_Error)
+DBMinterval::deleteFromDb()
 {
     long long domainid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_DOMAINS WHERE DomainId = %lld", domainid);
@@ -252,7 +252,7 @@ DBMinterval::deleteFromDb() throw (r_Error)
 }
 
 void
-DBMinterval::readFromDb() throw (r_Error)
+DBMinterval::readFromDb()
 {
     char undefined = '*';
     long long domainid;

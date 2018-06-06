@@ -83,7 +83,7 @@ extern char globalDbPasswd[256];
 
 
 void
-DatabaseIf::disconnect() throw (r_Error)
+DatabaseIf::disconnect()
 {
     LDEBUG << "EXEC SQL ROLLBACK WORK";
     EXEC SQL ROLLBACK WORK;
@@ -109,7 +109,7 @@ DatabaseIf::disconnect() throw (r_Error)
 }
 
 void
-DatabaseIf::connect() throw (r_Error)
+DatabaseIf::connect()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         char    id[STRING_MAXLEN];
@@ -194,7 +194,7 @@ DatabaseIf::connect() throw (r_Error)
 }
 
 void
-DatabaseIf::checkCompatibility() throw (r_Error)
+DatabaseIf::checkCompatibility()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long rasver1;               // rasdaman version as stored in db
@@ -304,7 +304,7 @@ DatabaseIf::checkCompatibility() throw (r_Error)
 }
 
 bool
-DatabaseIf::isConsistent() throw (r_Error)
+DatabaseIf::isConsistent()
 {
     bool retval=true;
 
@@ -734,7 +734,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 }
 
 void
-DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* volumeName) throw(r_Error)
+DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* volumeName)
 {
     unsigned int i=0;
     EXEC SQL BEGIN DECLARE SECTION;
@@ -1242,7 +1242,7 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
 }
 
 void
-DatabaseIf::destroyDB(const char* dbName) throw(r_Error)
+DatabaseIf::destroyDB(const char* dbName)
 {
     if (AdminIf::getCurrentDatabaseIf() != 0)
     {

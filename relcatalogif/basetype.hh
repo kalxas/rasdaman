@@ -141,7 +141,7 @@ public:
     default constructor, cannot be used.
     */
 
-    BaseType(const OId& id) throw (r_Error);
+    BaseType(const OId& id);
 
     BaseType(const BaseType& old);
 

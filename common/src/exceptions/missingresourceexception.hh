@@ -42,7 +42,7 @@ public:
      */
     MissingResourceException(const std::string& whatArg);
 
-    virtual ~MissingResourceException() throw();
+    virtual ~MissingResourceException() noexcept;
 };
 }
 

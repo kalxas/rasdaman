@@ -184,19 +184,19 @@ protected:
     /*@Doc:
     */
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     */
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
     /*@Doc:
     */
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
     /*@Doc:
     */
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
     /*@Doc:
     */
 

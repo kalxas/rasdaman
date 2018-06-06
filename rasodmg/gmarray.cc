@@ -64,7 +64,7 @@ static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.4
 #include <logging.hh>
 
 
-r_GMarray::r_GMarray() throw(r_Error)
+r_GMarray::r_GMarray()
     : r_Object(1),
       data(0),
       tiled_data(0),
@@ -78,7 +78,7 @@ r_GMarray::r_GMarray() throw(r_Error)
 
 
 
-r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl, bool initialize) throw (r_Error)
+r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl, bool initialize)
     : r_Object(1),
       domain(initDomain),
       data(0),
@@ -136,7 +136,7 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
 
 
 
-r_GMarray::r_GMarray(const r_GMarray& obj) throw(r_Error)
+r_GMarray::r_GMarray(const r_GMarray& obj)
     : r_Object(obj, 1),
       domain(obj.spatial_domain()),
       data(0),
@@ -167,7 +167,7 @@ r_GMarray::r_GMarray(const r_GMarray& obj) throw(r_Error)
 
 
 
-r_GMarray::r_GMarray(r_GMarray& obj) throw(r_Error)
+r_GMarray::r_GMarray(r_GMarray& obj)
     : r_Object(obj, 1),
       domain(obj.spatial_domain()),
       data(obj.data),
@@ -232,7 +232,6 @@ r_GMarray::r_deactivate()
 
 const char*
 r_GMarray::operator[](const r_Point& point) const
-throw(r_Edim_mismatch, r_Eindex_violation)
 {
     return &(data[ domain.cell_offset(point) * type_length ]);
 }
@@ -247,7 +246,7 @@ r_GMarray::get_storage_layout() const
 
 
 void
-r_GMarray::set_storage_layout(r_Storage_Layout* stl) throw(r_Error)
+r_GMarray::set_storage_layout(r_Storage_Layout* stl)
 {
     if (!stl->is_compatible(domain, type_length))
     {

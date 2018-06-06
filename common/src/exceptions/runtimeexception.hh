@@ -40,7 +40,7 @@ public:
      */
     RuntimeException(const std::string& whatArg);
 
-    virtual ~RuntimeException() throw();
+    virtual ~RuntimeException() noexcept;
 };
 
 } /* namespace rasmgr */

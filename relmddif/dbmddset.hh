@@ -52,19 +52,19 @@ class CollectionType;
 class DBMDDSet  :   public DBNamedObject
 {
 public:
-    DBMDDSet(const char* name, const CollectionType* type) throw (r_Error);
+    DBMDDSet(const char* name, const CollectionType* type);
     /*@Doc:
         creates a new set
     */
 
-    DBMDDSet(const char* name, const OId& id, const CollectionType* type) throw (r_Error);
+    DBMDDSet(const char* name, const OId& id, const CollectionType* type);
     /*@Doc:
         creates a new set
     */
 
-    static DBMDDSetId getDBMDDSet(const char* name) throw (r_Error);
+    static DBMDDSetId getDBMDDSet(const char* name);
 
-    static DBMDDSetId getDBMDDSet(const OId& id) throw (r_Error);
+    static DBMDDSetId getDBMDDSet(const OId& id);
 
     static bool deleteDBMDDSet(const OId& id);
     /*@Doc:
@@ -78,7 +78,7 @@ public:
 
     virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
 
-    virtual void setPersistent(bool state) throw (r_Error);
+    virtual void setPersistent(bool state);
     /*@Doc:
         throws r_Error when the mdd set may not be made persistent.
     */
@@ -149,24 +149,24 @@ protected:
 
     typedef std::set<DBMDDObjId, std::less<DBMDDObjId>> DBMDDObjIdSet;
 
-    DBMDDSet(const OId& id) throw (r_Error);
+    DBMDDSet(const OId& id);
     /*@Doc:
         gets an existing coll from the db
     */
 
-    virtual void updateInDb() throw(r_Error);
+    virtual void updateInDb();
     /*@Doc:
     */
 
-    virtual void insertInDb() throw(r_Error);
+    virtual void insertInDb();
     /*@Doc:
     */
 
-    virtual void readFromDb() throw(r_Error);
+    virtual void readFromDb();
     /*@Doc:
     */
 
-    virtual void deleteFromDb() throw(r_Error);
+    virtual void deleteFromDb();
     /*@Doc:
     */
 

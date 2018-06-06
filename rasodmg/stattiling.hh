@@ -75,7 +75,7 @@ public:
 
     /// Checks if a certain access pattern is "close enough" of other
     /// throws exception if the domains do not match
-    bool is_near(const r_Access& other, r_ULong border_threshold) const throw (r_Error);
+    bool is_near(const r_Access& other, r_ULong border_threshold) const;
 
     /// Merge this access pattern with another
     void merge_with(const r_Access& other);
@@ -141,14 +141,14 @@ public: // constants
 
     /// read everything from an encoded string
     /// e.g. "2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100"
-    r_Stat_Tiling(const char* encoded) throw (r_Error);
+    r_Stat_Tiling(const char* encoded);
 
     /// Class constructor
     r_Stat_Tiling(r_Dimension dim,
                   const std::vector<r_Access>& stat_info,
                   r_Bytes ts = RMInit::clientTileSize,
                   r_Area border_threshold = DEF_BORDER_THR,
-                  r_Double interesting_threshold = DEF_INTERESTING_THR) throw (r_Error);
+                  r_Double interesting_threshold = DEF_INTERESTING_THR);
     /**
       This is the "Statistic Tiling" class constructor.
       It takes as parameters the threshold for, when performing filtering,
@@ -183,7 +183,7 @@ public: // constants
 
     virtual void print_status(std::ostream& os) const;
 
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const throw (r_Error);
+    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
 
     virtual r_Tiling* clone() const;
 
@@ -195,7 +195,7 @@ protected:  // methods
 
     /// Filters and access pattern table (list)
     /// throws exception if dimensions of access patterns are not the same
-    void filter(std::vector<r_Access>& patterns) const throw (r_Error);
+    void filter(std::vector<r_Access>& patterns) const;
 
     /// Merges a list of access patterns
     r_Access merge(const std::vector<r_Access>& patterns) const;

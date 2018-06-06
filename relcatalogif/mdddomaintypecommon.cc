@@ -46,7 +46,7 @@ MDDDomainType::getMemorySize() const
     return MDDBaseType::getMemorySize() + sizeof(DBMinterval*) + myDomain->getMemorySize();
 }
 
-MDDDomainType::MDDDomainType(const OId& id) throw (r_Error)
+MDDDomainType::MDDDomainType(const OId& id)
     :   MDDBaseType(id),
         myDomain(0)
 {
@@ -228,7 +228,7 @@ MDDDomainType::compatibleWith(const Type* aType) const
 }
 
 void
-MDDDomainType::setPersistent(bool t) throw (r_Error)
+MDDDomainType::setPersistent(bool t)
 {
     MDDBaseType::setPersistent(t);
     myDomain->setPersistent(t);

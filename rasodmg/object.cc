@@ -102,7 +102,7 @@ r_Object::r_Object()
 
 
 
-r_Object::r_Object(unsigned short objType) throw(r_Error)
+r_Object::r_Object(unsigned short objType)
     : object_name(0),
       type_name(0),
       type_structure(0),
@@ -169,7 +169,7 @@ r_Object::r_Object(unsigned short objType) throw(r_Error)
 
 
 /* OBSOLETE
-r_Object::r_Object( unsigned short objType, const char* name ) throw(r_Error)
+r_Object::r_Object( unsigned short objType, const char* name )
   : object_status( next_object_status ),
     object_name( strdup(name) ),
     type_name(0),
@@ -207,7 +207,7 @@ r_Object::r_Object( unsigned short objType, const char* name ) throw(r_Error)
 */
 
 
-r_Object::r_Object(const r_Object& obj, unsigned short objType) throw(r_Error)
+r_Object::r_Object(const r_Object& obj, unsigned short objType)
     : object_name(0),
       type_name(0),
       type_structure(0),
@@ -286,7 +286,7 @@ r_Object::r_Object(const r_Object& obj, unsigned short objType) throw(r_Error)
 }
 
 void
-r_Object::set_type_schema(const r_Type* tyy) throw (r_Error)
+r_Object::set_type_schema(const r_Type* tyy)
 {
     if (type_schema)
     {

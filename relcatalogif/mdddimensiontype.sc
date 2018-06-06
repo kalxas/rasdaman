@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 void
-MDDDimensionType::insertInDb() throw (r_Error)
+MDDDimensionType::insertInDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
@@ -64,7 +64,7 @@ MDDDimensionType::insertInDb() throw (r_Error)
 }
 
 void
-MDDDimensionType::readFromDb() throw (r_Error)
+MDDDimensionType::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -104,7 +104,7 @@ MDDDimensionType::readFromDb() throw (r_Error)
 }
 
 void
-MDDDimensionType::deleteFromDb() throw (r_Error)
+MDDDimensionType::deleteFromDb()
 {
     long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = %lld",

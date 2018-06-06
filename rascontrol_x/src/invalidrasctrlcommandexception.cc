@@ -30,7 +30,7 @@ InvalidRasctrlCommandException::InvalidRasctrlCommandException()
     : common::Exception("The given rascontrol command is invalid.")
 {}
 
-InvalidRasctrlCommandException::~InvalidRasctrlCommandException() throw()
+InvalidRasctrlCommandException::~InvalidRasctrlCommandException() noexcept
 {}
 
 }

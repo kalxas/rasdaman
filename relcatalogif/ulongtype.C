@@ -39,7 +39,7 @@ static const char rcsid[] = "@(#)catalogif,ULongType: $Header: /home/rasdev/CVS-
 #include <string.h>
 #include "reladminif/externs.h"
 
-ULongType::ULongType(const OId& id) throw (r_Error)
+ULongType::ULongType(const OId& id)
 	:	UIntegralType(id)
 	{
 	readFromDb();
@@ -139,7 +139,7 @@ ULongType::makeFromCULong(char* cell, const r_ULong* value) const
 }
 
 void
-ULongType::readFromDb() throw (r_Error)
+ULongType::readFromDb()
 	{
 	setName(ULongType::Name);
 	size = 4;

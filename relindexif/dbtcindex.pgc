@@ -49,7 +49,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include <logging.hh>
 
 void
-DBTCIndex::deleteFromDb() throw (r_Error)
+DBTCIndex::deleteFromDb()
 {
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
@@ -207,7 +207,7 @@ DBTCIndex::insertBlob()
 }
 
 void
-DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute__ ((unused)) r_Bytes blobSize) throw (r_Error)
+DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute__ ((unused)) r_Bytes blobSize)
 {
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
@@ -239,7 +239,7 @@ DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute_
 }
 
 void
-DBTCIndex::readInlineTiles() throw (r_Error)
+DBTCIndex::readInlineTiles()
 {
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 
@@ -285,7 +285,7 @@ DBTCIndex::readInlineTiles() throw (r_Error)
 }
 
 void
-DBTCIndex::updateTileIndexMappings() throw (r_Error)
+DBTCIndex::updateTileIndexMappings()
 {
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );
 

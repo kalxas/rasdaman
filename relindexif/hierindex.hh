@@ -177,9 +177,9 @@ public:
 
     virtual IndexDS* getNewInstance() const;
 
-    virtual BinaryRepresentation getBinaryRepresentation() const throw (r_Error);
+    virtual BinaryRepresentation getBinaryRepresentation() const;
 
-    virtual void setBinaryRepresentation(const BinaryRepresentation&) throw (r_Error);
+    virtual void setBinaryRepresentation(const BinaryRepresentation&);
 
 protected:
     friend class ObjectBroker;
@@ -191,23 +191,23 @@ protected:
     /*@Doc:
     */
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     */
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
     /*@Doc:
     */
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
     /*@Doc:
     */
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
     /*@Doc:
     */
 
-    void extendCoveredDomain(const r_Minterval& newTilesExtents) throw (r_Edim_mismatch, r_Eno_interval);
+    void extendCoveredDomain(const r_Minterval& newTilesExtents);
     /*@Doc:
         Recalculates the current domain of this index to
         include newTilesExtents.

@@ -69,10 +69,10 @@ class r_GMarray : public r_Object
 {
 public:
     /// default constructor (no memory is allocated!)
-    r_GMarray() throw(r_Error);
+    r_GMarray();
 
     /// constructor for uninitialized MDD objects
-    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0, bool initialize = true) throw (r_Error);
+    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0, bool initialize = true);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_GMarray} class.
@@ -82,10 +82,10 @@ public:
     */
 
     /// copy constructor
-    r_GMarray(const r_GMarray&) throw(r_Error);
+    r_GMarray(const r_GMarray&);
 
     /// constructor which doesn't copy the data
-    r_GMarray(r_GMarray&) throw(r_Error);
+    r_GMarray(r_GMarray&);
 
     /// destructor
     virtual ~r_GMarray();
@@ -97,8 +97,7 @@ public:
     r_GMarray& operator= (const r_GMarray&);
 
     /// subscript operator for read access of a cell
-    const char* operator[](const r_Point&) const
-    throw(r_Edim_mismatch, r_Eindex_violation);
+    const char* operator[](const r_Point&) const;
 
     /// Returns a r_GMarray that is the intersection of the current domain with the specified interval
     r_GMarray* intersect(r_Minterval where) const;
@@ -136,7 +135,7 @@ public:
     //@{
     ///
     /// sets the storage layout object and checks compatibility with the domain
-    void set_storage_layout(r_Storage_Layout*) throw (r_Error);
+    void set_storage_layout(r_Storage_Layout*);
     /// set spatial domain
     inline void  set_spatial_domain(const r_Minterval& domain);
     /// set the internal representation of the array

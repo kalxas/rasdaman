@@ -67,7 +67,7 @@ UShortType::UShortType(const UShortType& old)
 	{
 	}
 
-UShortType::UShortType(const OId& id) throw (r_Error)
+UShortType::UShortType(const OId& id)
 	:	UIntegralType(id)
 	{
 	readFromDb();
@@ -145,7 +145,7 @@ UShortType::makeFromCULong(char* cell, const r_ULong* value) const
 }
 
 void
-UShortType::readFromDb() throw (r_Error)
+UShortType::readFromDb()
 	{
 	size = 2;
 	setName(UShortType::Name);

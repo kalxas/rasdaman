@@ -84,7 +84,7 @@ public:
     default constructor, cannot be used.
     */
 
-    CollectionType(const OId& id) throw (r_Error);
+    CollectionType(const OId& id);
     /*@Doc:
     */
 

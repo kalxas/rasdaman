@@ -72,7 +72,7 @@ ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto& config, boost::sh
 
     for (int i = 0; i < this->config.ports_size(); ++i)
     {
-        this->availablePorts.insert(this->config.ports(i));
+        this->availablePorts.insert(static_cast<int>(this->config.ports(i)));
     }
 }
 
@@ -284,7 +284,7 @@ void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto& value)
         this->availablePorts.clear();
         for (int i = 0; i < this->config.ports_size(); ++i)
         {
-            this->availablePorts.insert(this->config.ports(i));
+            this->availablePorts.insert(static_cast<boost::int32_t>(this->config.ports(i)));
         }
     }
 }
@@ -307,7 +307,7 @@ ServerGroupProto ServerGroupImpl::serializeToProto()
 
     for (int i = 0; i < this->config.ports_size(); ++i)
     {
-        result.add_ports(this->config.ports(i));
+        result.add_ports(static_cast<boost::int32_t>(this->config.ports(i)));
     }
 
     result.set_min_alive_server_no(this->config.min_alive_server_no());
@@ -691,13 +691,13 @@ void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto& config)
 
     for (int i = 0; i < config.ports_size(); ++i)
     {
-        ports.insert(config.ports(i));
+        ports.insert(static_cast<boost::int32_t>(config.ports(i)));
     }
 
     config.clear_ports();
     for (std::set<boost::int32_t>::iterator it = ports.begin(); it != ports.end(); ++it)
     {
-        config.add_ports(*it);
+        config.add_ports(static_cast<std::uint32_t>(*it));
     }
 
     if (!config.has_min_alive_server_no())

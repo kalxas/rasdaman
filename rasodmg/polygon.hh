@@ -128,7 +128,7 @@ public:
     };
 
     /// constructor to initialize polygon from a string
-    r_Polygon(const char* init) throw (r_Error);
+    r_Polygon(const char* init);
 
     /// constructor getting x and y of the first point in the polygon.
     r_Polygon(r_Range x, r_Range y);
@@ -143,26 +143,26 @@ public:
     r_Polygon& operator=(const r_Polygon&);
 
     /// add a point to the polygon.
-    void addPoint(const r_Point& newPoint) throw(r_Error);
+    void addPoint(const r_Point& newPoint);
 
     /// add a point to the polygon specifying x and y.
-    void addPointXY(r_Range x, r_Range y) throw(r_Error);
+    void addPointXY(r_Range x, r_Range y);
 
     /// close a polygon after creation with addPointXY.
     void close();
 
     /// retrieve the set of all edges of the polygon.
-    const std::vector<r_Edge>& getEdges() const throw(r_Error);
+    const std::vector<r_Edge>& getEdges() const;
 
     /// determine the polygon type for an polygon in 2D
-    r_Polygon::r_Polygon_Type detectPolygonType() const throw(r_Error);
+    r_Polygon::r_Polygon_Type detectPolygonType() const;
     /**
         It is assumed that the polygon is simple (does not intersect itself or have holes)
         Returns UNKNOWN for incomputables eg: polygon with colinear points,  polygon with less then 3 points
     */
 
     /// retrieve a vector of all points in the polygon.
-    std::vector<r_Point> getPoints() const throw(r_Error);
+    std::vector<r_Point> getPoints() const;
     /**
      Each point is connected with its successor. The last point is connected to the first one.
     */
@@ -171,7 +171,7 @@ public:
     void print_status(std::ostream& s = std::cout) const;
 
     /// Fill the 2-D array myArray according to the polygon.
-    void fillMArray(r_GMarray& myArray, bool fillInside = false, const std::string& bgr = "") const throw(r_Error);
+    void fillMArray(r_GMarray& myArray, bool fillInside = false, const std::string& bgr = "") const;
     /** The polygon has to be completely in the domain of the array. Should this not be the case,
         then the polygon must be clipped according to the domain of the array. Filling is done
         so that the data in the array is overwritten byte by byte with 0 which is not inside
@@ -179,16 +179,16 @@ public:
     */
 
     /// retrieve the bounding box of the polygon.
-    r_Minterval getBoundingBox() const throw(r_Error);
+    r_Minterval getBoundingBox() const;
 
     /// clip the polygon according to the bounding box specified in clipDom.
-    void clip(const r_Minterval& clipDom) throw(r_Error);
+    void clip(const r_Minterval& clipDom);
     /** Note that the r_Polygon object is modified! So after calling clip you will generally
         have a different polygon represented by your object. */
 
     /// scale the points of the polygon according to scaleFactor.
     void scale(const r_Point& origin, const r_Minterval& mddDom,
-               const r_Minterval& clipDom, const double& scaleFactor) throw(r_Error);
+               const r_Minterval& clipDom, const double& scaleFactor);
     /** This function is used when using a polygon to extract part of an image retrieved
         with r_Fast_Scale. The scaling is done like in r_Fast_Base_Scale::get_scaled_domain().
         origin is the point of origin for the scaling. mddDom is the domain of the MDD which
@@ -200,21 +200,21 @@ public:
         bit complicated, I know. scaleFactor is trivially the scaleFactor used. */
 
     /// scale the points of the polygon according to scaleFactor.
-    void scale(const r_Point& origin, const double& scaleFactor) throw(r_Error);
+    void scale(const r_Point& origin, const double& scaleFactor);
     /** This function is used used when we scale a polygon to extract part of an image retrieved
         with r_Fast_Scale. The scaling is done like in r_Fast_Base_Scale::get_scaled_domain().
         origin is the point of origin for the scaling. scaleFactor is the scale factor used. */
 
     /// mirrors a polygon along the y-axes point by point.
-    void mirror(const r_Minterval& mddDom) throw(r_Error);
+    void mirror(const r_Minterval& mddDom);
     /** The mirroring is done along the middle of mddDom. It is done like that to be coherent
         with the mirroring commonly done when inserting TIFF image, e.g. in insertlva.cc. */
 
     /// get "middle" point by averaging all x and y values.
-    r_Point getMiddle() const throw(r_Error);
+    r_Point getMiddle() const;
 
     /// "shrink" polygon by moving all points towards the middle by pixelCount pixels.
-    void shrinkPoly(int pixelCount) throw(r_Error);
+    void shrinkPoly(int pixelCount);
 
     ///  returns the number of edges
     int  countEdges() const;
@@ -234,10 +234,10 @@ private:
     };
 
     /// overwrite this with a polygon create from a vector of points.
-    void fromPoints(const std::vector<r_Point>& newPoints) throw(r_Error);
+    void fromPoints(const std::vector<r_Point>& newPoints);
 
     /// erase the area in myArray outside of the polygon for one scanline.
-    void eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr) const throw(r_Error);
+    void eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr) const;
 
     /// return the polygon clipped on the specified side as a list of points.
     std::vector<r_Point> clip1Side(const r_Minterval& b, r_Polygon::Side s);

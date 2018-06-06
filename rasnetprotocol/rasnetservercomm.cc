@@ -364,12 +364,12 @@ grpc::Status RasnetServerComm::InsertTile(__attribute__ ((unused)) grpc::ServerC
         bool persistent = request->persistent();
 
         rpcMarray->domain = strdup(request->domain().c_str());
-        rpcMarray->cellTypeLength = request->type_length();
+        rpcMarray->cellTypeLength = static_cast<u_long>(request->type_length());
         rpcMarray->currentFormat = request->current_format();
         rpcMarray->storageFormat = request->storage_format();
-        rpcMarray->data.confarray_len = request->data_length();
-        rpcMarray->data.confarray_val = (char*) mymalloc(request->data_length());
-        memcpy(rpcMarray->data.confarray_val, request->data().c_str(), request->data_length());
+        rpcMarray->data.confarray_len = static_cast<u_int>(request->data_length());
+        rpcMarray->data.confarray_val = (char*) mymalloc(static_cast<size_t>(request->data_length()));
+        memcpy(rpcMarray->data.confarray_val, request->data().c_str(), static_cast<size_t>(request->data_length()));
 
         int statusCode = rasserver.compat_InsertTile(persistent, rpcMarray);
 
@@ -796,7 +796,7 @@ grpc::Status RasnetServerComm::GetNextTile(__attribute__ ((unused)) grpc::Server
             response->set_cell_type_length(tempRpcMarray->cellTypeLength);
             response->set_current_format(tempRpcMarray->currentFormat);
             response->set_storage_format(tempRpcMarray->storageFormat);
-            response->set_data_length(tempRpcMarray->data.confarray_len);
+            response->set_data_length(static_cast<int>(tempRpcMarray->data.confarray_len));
             response->set_data(tempRpcMarray->data.confarray_val, tempRpcMarray->data.confarray_len);
 
             free(tempRpcMarray->domain);
@@ -975,7 +975,7 @@ grpc::Status RasnetServerComm::ExecuteHttpQuery(__attribute__ ((unused)) grpc::S
         char* resultBuffer = 0;
         int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
 
-        response->set_data(resultBuffer, resultLen);
+        response->set_data(resultBuffer, static_cast<size_t>(resultLen));
         delete[] resultBuffer;
     }
     catch (r_Ebase_dbms& edb)
@@ -1015,12 +1015,13 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(__attribute__ ((unused)) g
 
         string requestUUID = UUID::generateUUID();
 
-        boost::shared_ptr<ClientQueryStreamedResult> result(new ClientQueryStreamedResult(resultBuffer, resultLen, request->client_uuid()));
+        boost::shared_ptr<ClientQueryStreamedResult> result(new ClientQueryStreamedResult(
+          resultBuffer, static_cast<uint64_t>(resultLen), request->client_uuid()));
 
         rasserver::DataChunk nextChunk = result->getNextChunk();
         response->set_data(nextChunk.bytes, nextChunk.length);
-        response->set_bytes_left(result->getRemainingBytesLength());
-        response->set_data_length(resultLen);
+        response->set_bytes_left(static_cast<uint64_t>(result->getRemainingBytesLength()));
+        response->set_data_length(static_cast<uint64_t>(resultLen));
         response->set_uuid(requestUUID);
 
         this->clientManager->addQueryStreamedResult(requestUUID, result);
@@ -1095,8 +1096,8 @@ grpc::Status RasnetServerComm::GetNextElement(__attribute__ ((unused)) grpc::Ser
         unsigned int bufferSize;
 
         int statusCode = rasServerEntry.compat_getNextElement(buffer, bufferSize);
-        response->set_data(buffer, bufferSize);
-        response->set_data_length(bufferSize);
+        response->set_data(buffer, static_cast<size_t>(bufferSize));
+        response->set_data_length(static_cast<int32_t>(bufferSize));
         response->set_status(statusCode);
         free(buffer);
     }

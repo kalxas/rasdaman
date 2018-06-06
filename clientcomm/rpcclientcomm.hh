@@ -92,7 +92,7 @@ class RpcClientComm : public ClientComm
 {
 public:
     /// constructor getting the host name of the rasmgr host and it's listening port (default 7001).
-    RpcClientComm(const char* rasmgrHost, int rasmgrPort = RASMGRPORT) throw(r_Error);
+    RpcClientComm(const char* rasmgrHost, int rasmgrPort = RASMGRPORT);
 
     /*@Doc:
       May throw an exception of type {\tt r_Error_HostInvalid} if the hostname
@@ -101,9 +101,9 @@ public:
     */
 
     /// destructor (closes the connection and releases resources)
-    ~RpcClientComm() throw();
+    ~RpcClientComm();
 
-    bool effectivTypeIsRNP() throw();
+    bool effectivTypeIsRNP();
 
     //@Man: Database methods
     //@{
@@ -114,9 +114,9 @@ public:
     /// close current database
     int closeDB();
     /// create a database
-    int createDB(const char* name) throw(r_Error);
+    int createDB(const char* name);
     /// destroy a database
-    int destroyDB(const char* name) throw(r_Error);
+    int destroyDB(const char* name);
 
     ///
     //@}
@@ -126,9 +126,9 @@ public:
     ///
 
     /// begin transaction
-    int openTA(unsigned short readOnly = 0) throw(r_Error);
+    int openTA(unsigned short readOnly = 0);
     /// commit current transaction
-    int commitTA() throw(r_Error);
+    int commitTA();
     /// abort current transaction
     int abortTA();
 
@@ -140,9 +140,9 @@ public:
     ///
 
     /// inserts a MDD object in an existing MDD collection on the server
-    void insertMDD(const char* collName, r_GMarray* mar) throw(r_Error);
+    void insertMDD(const char* collName, r_GMarray* mar);
     /// gets MDD object by oid
-    r_Ref_Any getMDDByOId(const r_OId& oid) throw(r_Error);
+    r_Ref_Any getMDDByOId(const r_OId& oid);
 
     ///
     //@}
@@ -152,21 +152,21 @@ public:
     ///
 
     /// creates an empty MDD collection on the server
-    void insertColl(const char* collName, const char* typeName, const r_OId& oid) throw(r_Error);
+    void insertColl(const char* collName, const char* typeName, const r_OId& oid);
     /// deletes an MDD collection by name
-    void deleteCollByName(const char* collName) throw(r_Error);
+    void deleteCollByName(const char* collName);
     /// deletes an object by oid (right now, objects are collection only)
-    void deleteObjByOId(const r_OId& oid) throw(r_Error);
+    void deleteObjByOId(const r_OId& oid);
     /// removes an object from a collection
-    void removeObjFromColl(const char* name, const r_OId& oid) throw (r_Error);
+    void removeObjFromColl(const char* name, const r_OId& oid);
     /// gets collection by name
-    r_Ref_Any getCollByName(const char* name) throw(r_Error);
+    r_Ref_Any getCollByName(const char* name);
     /// gets collection by oid
-    r_Ref_Any getCollByOId(const r_OId& oid) throw(r_Error);
+    r_Ref_Any getCollByOId(const r_OId& oid);
     /// gets collection references by name
-    r_Ref_Any getCollOIdsByName(const char* name) throw(r_Error);
+    r_Ref_Any getCollOIdsByName(const char* name);
     /// gets collection references by oid
-    r_Ref_Any getCollOIdsByOId(const r_OId& oid) throw(r_Error);
+    r_Ref_Any getCollOIdsByOId(const r_OId& oid);
 
     ///
     //@}
@@ -176,7 +176,7 @@ public:
     ///
 
     /// query execution
-    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result) throw(r_Error);
+    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result);
     /*@Doc:
       Executes a retrieval query of type \Ref{r_OQL_Query} and returns the result. Every
       MDD object of the MDD collection is fetched from the server and inserted
@@ -184,13 +184,13 @@ public:
     */
 
     /// update execution
-    void executeQuery(const r_OQL_Query& query) throw(r_Error);
+    void executeQuery(const r_OQL_Query& query);
     /*@Doc:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
     // insert execution
-    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) throw(r_Error);
+    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy);
 
     ///
     //@}
@@ -201,14 +201,14 @@ public:
     ///
 
     /// get new oid
-    r_OId getNewOId(unsigned short objType) throw(r_Error);
+    r_OId getNewOId(unsigned short objType);
 
     /// get oid type
-    unsigned short getObjectType(const r_OId& oid) throw(r_Error);
+    unsigned short getObjectType(const r_OId& oid);
 
     /// get type structure
     /// dallocate using delete []
-    char* getTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error);
+    char* getTypeStructure(const char* typeName, r_Type_Type typeType);
 
     ///
     //@}
@@ -257,7 +257,7 @@ public:
     int checkRPCActive();
 
     /// get extended error information
-    const char* getExtendedErrorInfo() throw(r_Error);
+    const char* getExtendedErrorInfo();
 
     /// get real server name (the dinamic one, assigned by the RasMGR)
     const char* getServerName();
@@ -303,7 +303,7 @@ private:
     int aliveSignalRemaining;
 
     /// internal function for reading an MDD from the database
-    unsigned short getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery) throw(r_Error);
+    unsigned short getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery);
 
     /// concatenate data to an array, making sure there are no overflows (used by getMDDCore())
     int concatArrayData(const char* source, unsigned long srcSize, char*& dest,
@@ -318,10 +318,10 @@ private:
     void freeMarRpcRepresentation(const r_GMarray* mar, RPCMarray* rpcMarray);
 
     /// internal function for client/server protocol handling of MDD collection transfer
-    void getMDDCollection(r_Set<r_Ref_Any>& result, unsigned int isQuery) throw(r_Error);
+    void getMDDCollection(r_Set<r_Ref_Any>& result, unsigned int isQuery);
 
     /// internal function for client/server protocol handling of non-MDD collection transfer
-    void getElementCollection(r_Set<r_Ref_Any>& result) throw(r_Error);
+    void getElementCollection(r_Set<r_Ref_Any>& result);
 
     /// endianness of client and server (0 means big endian)
     int endianServer;
@@ -360,7 +360,7 @@ private:
     int connectToServer(unsigned short readOnly);
 
     /// disconnects from RPC-Server after completed request
-    int disconnectFromServer() throw();
+    int disconnectFromServer();
 
     /// requests a free server from the rasmgr, retrying maxRetry times
     int getFreeServer(unsigned short readOnly);

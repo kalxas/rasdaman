@@ -36,7 +36,7 @@ class UserAlreadyExistsException : public common::LogicException
 public:
     UserAlreadyExistsException(const std::string& userName);
 
-    virtual ~UserAlreadyExistsException() throw();
+    virtual ~UserAlreadyExistsException() noexcept;
 };
 
 } /* namespace rasmgr */

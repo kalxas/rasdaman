@@ -45,7 +45,7 @@ r_Object::mark_modified()
 
 
 inline void
-r_Object::set_object_name( const char* name ) throw(r_Error)
+r_Object::set_object_name( const char* name )
 {
     if(!name)
     {
@@ -83,7 +83,7 @@ r_Object::set_object_name( const char* name ) throw(r_Error)
 
 
 inline void
-r_Object::set_type_by_name( const char* name ) throw(r_Error)
+r_Object::set_type_by_name( const char* name )
 {
     if(!name)
     {
@@ -100,7 +100,7 @@ r_Object::set_type_by_name( const char* name ) throw(r_Error)
 
 
 inline void
-r_Object::set_type_structure( const char* name ) throw(r_Error)
+r_Object::set_type_structure( const char* name )
 {
     if(!name)
     {

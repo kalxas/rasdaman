@@ -72,7 +72,7 @@ r_Convertor::r_Convertor(void)
 }
 
 
-r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp, bool fullTypes) throw(r_Error)
+r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp, bool fullTypes)
 {
     initShare(src, interv);
 
@@ -110,7 +110,7 @@ r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Typ
 }
 
 
-r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, int type) throw(r_Error)
+r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, int type)
 {
     initShare(src, interv);
 
@@ -153,7 +153,7 @@ r_Convertor::get_storage_handler() const
     return mystore;
 }
 
-std::string r_Convertor::type_to_string(int ctype) throw(r_Error)
+std::string r_Convertor::type_to_string(int ctype)
 {
     switch (ctype)
     {
@@ -193,7 +193,7 @@ std::string r_Convertor::type_to_string(int ctype) throw(r_Error)
     }
 }
 
-r_Type* r_Convertor::get_external_type(int ctype) throw(r_Error)
+r_Type* r_Convertor::get_external_type(int ctype)
 {
     return r_Type::get_any_type(type_to_string(ctype).c_str());
 }
@@ -244,7 +244,7 @@ void r_Convertor::applyColorScheme()
 }
 
 convert_type_e
-r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
+r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes)
 {
     convert_type_e retval = ctype_void;
 
@@ -440,7 +440,7 @@ std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
  *  r_Convert_Memory class
  */
 
-void r_Convert_Memory::initMemory(void) throw(r_Error)
+void r_Convert_Memory::initMemory(void)
 {
     int status = -1;
 
@@ -465,14 +465,14 @@ void r_Convert_Memory::initMemory(void) throw(r_Error)
 }
 
 
-r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp, int fullTypes) throw(r_Error)
+r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp, int fullTypes)
     : r_Convertor(src, interv, tp, fullTypes)
 {
     initMemory();
 }
 
 
-r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, int type) throw(r_Error)
+r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, int type)
     : r_Convertor(src, interv, type)
 {
     initMemory();

@@ -130,7 +130,7 @@ Parse_atom::~Parse_atom()
 {
 }
 
-void Parse_atom::insertData() const throw(r_Equery_execution_failed)
+void Parse_atom::insertData() const
 {
     LTRACE << "printData() kind " << kind << ", name " << name << ", symbol " << symbol;
     LDEBUG << "Parse_atom::insertData: doing nothing with name=" << name << ", symbol=" << symbol;
@@ -260,7 +260,7 @@ void Parse_struct::output(FILE* stream)const
 
 
 
-void Parse_struct::insertData() const throw(r_Equery_execution_failed)
+void Parse_struct::insertData() const
 {
     // get catalog type structure
     StructType* catType = static_cast<StructType*>(const_cast<CType*>(getType()));
@@ -556,7 +556,7 @@ void Parse_alias::output(FILE* stream)const
     fprintf(stream, ";\n\n");
 }
 
-void Parse_alias::insertData() const throw(r_Equery_execution_failed)
+void Parse_alias::insertData() const
 {
     // get catalog type structure
 

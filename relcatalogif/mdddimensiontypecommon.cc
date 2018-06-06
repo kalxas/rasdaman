@@ -45,7 +45,7 @@ MDDDimensionType::getMemorySize() const
     return MDDBaseType::getMemorySize() + sizeof(r_Dimension);
 }
 
-MDDDimensionType::MDDDimensionType(const OId& id) throw (r_Error)
+MDDDimensionType::MDDDimensionType(const OId& id)
     :   MDDBaseType(id),
         myDimension(0)
 {

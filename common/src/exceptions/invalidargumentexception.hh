@@ -44,7 +44,7 @@ public:
      */
     InvalidArgumentException(const std::string& whatArg);
 
-    virtual ~InvalidArgumentException() throw();
+    virtual ~InvalidArgumentException() noexcept;
 };
 
 }

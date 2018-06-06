@@ -95,7 +95,7 @@ public:
 
 protected:
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

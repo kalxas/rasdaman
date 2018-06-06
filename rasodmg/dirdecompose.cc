@@ -146,7 +146,6 @@ int r_Dir_Decompose::get_num_intervals() const
 }
 
 r_Range r_Dir_Decompose::get_partition(int number) const
-throw (r_Eindex_violation)
 {
     if (number >= static_cast<int>(current_interval))
     {

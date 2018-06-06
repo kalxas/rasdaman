@@ -83,11 +83,11 @@ public:
 
     /// access an element by name
     /// throws TypeInvalid and r_Eindex_violation
-    const r_Scalar& operator[](const char* name) const throw(r_Error);
+    const r_Scalar& operator[](const char* name) const;
 
     /// access an element by number
     /// throws TypeInvalid and NameInvalid
-    const r_Scalar& operator[](unsigned int) const throw(r_Error);
+    const r_Scalar& operator[](unsigned int) const;
 
 private:
     /// number of elements

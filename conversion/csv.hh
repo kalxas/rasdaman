@@ -50,20 +50,20 @@ class r_Conv_CSV : public r_Convertor
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error);
+    r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_CSV(const char* src, const r_Minterval& interv, int tp) throw(r_Error);
+    r_Conv_CSV(const char* src, const r_Minterval& interv, int tp);
     /// destructor
     ~r_Conv_CSV(void);
 
     /// convert to CSV
     virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL) throw(r_Error);
+                                   const r_Range* nullValue = NULL);
     /// convert from CSV
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
     /// convert data in a specific format to array
     using r_Convertor::convertFrom;
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
     /// cloning
     virtual r_Convertor* clone(void) const;
     /// identification

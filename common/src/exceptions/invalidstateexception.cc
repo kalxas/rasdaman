@@ -29,7 +29,7 @@ InvalidStateException::InvalidStateException(const std::string& whatArg)
     : LogicException(whatArg)
 {}
 
-InvalidStateException::~InvalidStateException() throw()
+InvalidStateException::~InvalidStateException() noexcept
 {}
 
 } /* namespace common */

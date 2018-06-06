@@ -46,7 +46,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include <logging.hh>
 
 void
-MDDBaseType::insertInDb() throw (r_Error)
+MDDBaseType::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long      mddtypeid;
@@ -68,7 +68,7 @@ MDDBaseType::insertInDb() throw (r_Error)
 }
 
 void
-MDDBaseType::readFromDb() throw (r_Error)
+MDDBaseType::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -105,7 +105,7 @@ MDDBaseType::readFromDb() throw (r_Error)
 }
 
 void
-MDDBaseType::deleteFromDb() throw (r_Error)
+MDDBaseType::deleteFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid2;

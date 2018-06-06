@@ -54,19 +54,19 @@ class r_Conv_GDAL : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Type* tp) throw (r_Error);
+    r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Type* tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp) throw (r_Error);
+    r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp);
     /// destructor
     ~r_Conv_GDAL(void);
 
     /// convert to format
     virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL) throw (r_Error);
+                                   const r_Range* nullValue = NULL);
     /// convert from format
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
 
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
 
     /// cloning
     virtual r_Convertor* clone(void) const;
@@ -92,7 +92,7 @@ private:
      * @param rasBandType rasdaman band type
      */
     void encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, r_Primitive_Type* rasBandType,
-                     unsigned int width, unsigned int height, unsigned int numBands) throw (r_Error);
+                     unsigned int width, unsigned int height, unsigned int numBands);
 
     /**
      * Transforms the rasdaman array desc.src array of a given band base type T to a GDAL dataset.
@@ -107,13 +107,13 @@ private:
      */
     template<typename T>
     void encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, bool isBoolean,
-                     unsigned int width, unsigned int height, unsigned int numBands) throw (r_Error);
+                     unsigned int width, unsigned int height, unsigned int numBands);
 
     /**
      * @return (width, height) of the rasdaman array, throw an error in case of
      * overflow or invalid image dimension.
      */
-    std::pair<unsigned int, unsigned int> getImageSize() throw (r_Error);
+    std::pair<unsigned int, unsigned int> getImageSize();
 
     /**
      * Transforms the file read with GDAL to an internal rasdaman array.
@@ -123,7 +123,7 @@ private:
      *                a subset of the bands can be selected: this vector holds the ids (0-based)
      *                of the bands that should be read, whether all or a subset.
      */
-    char* decodeImage(GDALDataset* poDataSet, const std::vector<int>& bandIds) throw (r_Error);
+    char* decodeImage(GDALDataset* poDataSet, const std::vector<int>& bandIds);
 
     /**
      * Copy and transform a single band data read with GDAL to an internal rasdaman array.
@@ -138,7 +138,7 @@ private:
      * @param signedByte optional argument indicating if GDT_Byte is to be interpreted as a signed char
      */
     void decodeBand(const char* bandCells, char* tileCells, size_t tileBaseTypeSize,
-                    int width, int height, GDALDataType gdalBandType, bool signedByte = false) throw (r_Error);
+                    int width, int height, GDALDataType gdalBandType, bool signedByte = false);
 
     /**
      * Copy and transform a single band data read with GDAL to an internal rasdaman array.
@@ -161,26 +161,26 @@ private:
      * are returned, otherwise the returned vector contains 0..bandNo-1, i.e.
      * all bands.
      */
-    std::vector<int> getBandIds(GDALDataset* poDataset) throw (r_Error);
+    std::vector<int> getBandIds(GDALDataset* poDataset);
 
     /**
      * @return the base type of a single band (equals to baseType in case it is
      * a primitive type).
      */
-    r_Primitive_Type* getBandType(const r_Type* baseType) throw (r_Error);
+    r_Primitive_Type* getBandType(const r_Type* baseType);
 
     /**
      * @param buffer the current buffer
      * @param bufferSize the current buffer size in bytes, updated if the buffer is changed.
      * @return a potentially bigger buffer if bufferSize is greater than the previousBufferSize.
      */
-    char* upsizeBufferIfNeeded(char* buffer, size_t& bufferSize, size_t newBufferSize) throw (r_Error);
+    char* upsizeBufferIfNeeded(char* buffer, size_t& bufferSize, size_t newBufferSize);
 
     /**
      * Set the result array domain from decode (desc.destInterv).
      * @param poDataset the dataset read with GDAL
      */
-    void setTargetDomain(GDALDataset* poDataset) throw (r_Error);
+    void setTargetDomain(GDALDataset* poDataset);
 
     /**
      * Initialize the format parameters (third parameter of the encode function).
@@ -200,8 +200,8 @@ private:
     void setNodata(GDALDataset* gdalDataSet);
     void setGeoreference(GDALDataset* gdalDataSet);
     void setGeotransform(GDALDataset* gdalDataSet);
-    void setGCPs(GDALDataset* gdalDataSet, const Json::Value& gcpsJson) throw (r_Error);
-    void setColorPalette(GDALDataset* gdalDataSet) throw (r_Error);
+    void setGCPs(GDALDataset* gdalDataSet, const Json::Value& gcpsJson);
+    void setColorPalette(GDALDataset* gdalDataSet);
 
     /**
      * @return the crs specified in the format parameters in WKT format, or NULL
@@ -213,7 +213,7 @@ private:
      * @param paletteInterpVal one of Gray, RGB, CMYK, HSL.
      * @return the corresponding GDAL enum
      */
-    GDALPaletteInterp getPaletteInterp(const std::string& paletteInterpVal) throw (r_Error);
+    GDALPaletteInterp getPaletteInterp(const std::string& paletteInterpVal);
 
     /**
      * @param stringList this parameter is populated with a list of key/value

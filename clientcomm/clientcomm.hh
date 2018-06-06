@@ -69,7 +69,7 @@ class ClientComm
 public:
 
     /// destructor (closes the connection and releases resources)
-    virtual ~ClientComm() throw();
+    virtual ~ClientComm();
 
     // the class is not necessary singleton, but the type of the actual object depends on the environment
     static ClientComm* createObject(const char* rasmgrName, int rasmgrPort);
@@ -88,12 +88,12 @@ public:
     NOTE: This methods will be removed in the next version
       */
 
-    static  void useRNP() throw();
-    static  void useRPC() throw();
-    static  void useRASNET() throw();
-    static  bool internalSettingIsRNP() throw();
+    static  void useRNP();
+    static  void useRPC();
+    static  void useRASNET();
+    static  bool internalSettingIsRNP();
 
-    virtual bool effectivTypeIsRNP() throw() = 0;
+    virtual bool effectivTypeIsRNP() = 0;
 
     //@Man: Database methods
     //@{
@@ -105,9 +105,9 @@ public:
     /// close current database
     virtual int closeDB() = 0;
     /// create a database
-    virtual int createDB(const char* name) throw(r_Error) = 0;
+    virtual int createDB(const char* name) = 0;
     /// destroy a database
-    virtual int destroyDB(const char* name) throw(r_Error) = 0;
+    virtual int destroyDB(const char* name) = 0;
 
     ///
     //@}
@@ -117,9 +117,9 @@ public:
     ///
 
     /// begin transaction
-    virtual int openTA(unsigned short readOnly = 0) throw(r_Error) = 0;
+    virtual int openTA(unsigned short readOnly = 0) = 0;
     /// commit current transaction
-    virtual int commitTA() throw(r_Error) = 0;
+    virtual int commitTA() = 0;
     /// abort current transaction
     virtual int abortTA() = 0;
 
@@ -131,9 +131,9 @@ public:
     ///
 
     /// inserts a MDD object in an existing MDD collection on the server
-    virtual void insertMDD(const char* collName, r_GMarray* mar) throw(r_Error) = 0;
+    virtual void insertMDD(const char* collName, r_GMarray* mar) = 0;
     /// gets MDD object by oid
-    virtual r_Ref_Any getMDDByOId(const r_OId& oid) throw(r_Error) = 0;
+    virtual r_Ref_Any getMDDByOId(const r_OId& oid) = 0;
 
     ///
     //@}
@@ -143,21 +143,21 @@ public:
     ///
 
     /// creates an empty MDD collection on the server
-    virtual void insertColl(const char* collName, const char* typeName, const r_OId& oid) throw(r_Error) = 0;
+    virtual void insertColl(const char* collName, const char* typeName, const r_OId& oid) = 0;
     /// deletes an MDD collection by name
-    virtual void deleteCollByName(const char* collName) throw(r_Error) = 0;
+    virtual void deleteCollByName(const char* collName) = 0;
     /// deletes an object by oid (right now, objects are collection only)
-    virtual void deleteObjByOId(const r_OId& oid) throw(r_Error) = 0;
+    virtual void deleteObjByOId(const r_OId& oid) = 0;
     /// removes an object from a collection
-    virtual void removeObjFromColl(const char* name, const r_OId& oid) throw (r_Error) = 0;
+    virtual void removeObjFromColl(const char* name, const r_OId& oid) = 0;
     /// gets collection by name
-    virtual r_Ref_Any getCollByName(const char* name) throw(r_Error) = 0;
+    virtual r_Ref_Any getCollByName(const char* name) = 0;
     /// gets collection by oid
-    virtual r_Ref_Any getCollByOId(const r_OId& oid) throw(r_Error) = 0;
+    virtual r_Ref_Any getCollByOId(const r_OId& oid) = 0;
     /// gets collection references by name
-    virtual r_Ref_Any getCollOIdsByName(const char* name) throw(r_Error) = 0;
+    virtual r_Ref_Any getCollOIdsByName(const char* name) = 0;
     /// gets collection references by oid
-    virtual r_Ref_Any getCollOIdsByOId(const r_OId& oid) throw(r_Error) = 0;
+    virtual r_Ref_Any getCollOIdsByOId(const r_OId& oid) = 0;
 
     ///
     //@}
@@ -167,7 +167,7 @@ public:
     ///
 
     /// query execution
-    virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result) throw(r_Error) = 0;
+    virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result) = 0;
     /*@Doc:
       Executes a retrieval query of type \Ref{r_OQL_Query} and returns the result. Every
       MDD object of the MDD collection is fetched from the server and inserted
@@ -175,13 +175,13 @@ public:
     */
 
     /// update execution
-    virtual void executeQuery(const r_OQL_Query& query) throw(r_Error) = 0;
+    virtual void executeQuery(const r_OQL_Query& query) = 0;
     /*@Doc:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
     // insert returning oid, third parameter is dummy parameter
-    virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) throw(r_Error) = 0;
+    virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) = 0;
     /*@Doc:
       Executes an insert query of type \Ref{r_OQL_Query}.
     */
@@ -195,10 +195,10 @@ public:
     ///
 
     /// get new oid
-    virtual r_OId getNewOId(unsigned short objType) throw(r_Error) = 0;
+    virtual r_OId getNewOId(unsigned short objType) = 0;
 
     /// get oid type
-    virtual unsigned short getObjectType(const r_OId& oid) throw(r_Error) = 0;
+    virtual unsigned short getObjectType(const r_OId& oid) = 0;
 
     enum r_Type_Type
     {
@@ -208,7 +208,7 @@ public:
 
     /// get type structure
     /// deallocate using delete []
-    virtual char* getTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error) = 0;
+    virtual char* getTypeStructure(const char* typeName, r_Type_Type typeType) = 0;
 
     ///
     //@}
@@ -248,7 +248,7 @@ public:
     virtual int setStorageFormat(r_Data_Format format, const char* formatParams = NULL) = 0;
 
     /// get extended error information
-    virtual const char* getExtendedErrorInfo() throw(r_Error)  = 0;
+    virtual const char* getExtendedErrorInfo()  = 0;
 
     /// get real server name (the dinamic one, assigned by the RasMGR)
     const char* getServerName();
@@ -271,7 +271,7 @@ public:
 
 protected:
     /// constructor getting nothing
-    ClientComm() throw(r_Error);
+    ClientComm();
 
 private:
 

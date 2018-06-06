@@ -50,11 +50,11 @@ public:
     virtual void print_status(std::ostream& s = std::cout) const;
     virtual void print_value(const char* storage, std::ostream& s = std::cout) const;
 
-    r_Double get_re(const char* cell) const throw(r_Error);
-    r_Double get_im(const char* cell) const throw(r_Error);
+    r_Double get_re(const char* cell) const;
+    r_Double get_im(const char* cell) const;
 
-    void set_re(char* cell, r_Double re) throw(r_Error);
-    void set_im(char* cell, r_Double im) throw(r_Error);
+    void set_re(char* cell, r_Double re);
+    void set_im(char* cell, r_Double im);
 
 
     virtual void convertToLittleEndian(char* cells, r_Area noCells) const;

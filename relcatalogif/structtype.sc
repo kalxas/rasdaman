@@ -45,7 +45,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 void
-StructType::insertInDb() throw (r_Error)
+StructType::insertInDb()
 {
     long long structtypeid;
     char structtypename[VARCHAR_MAXLEN];
@@ -74,7 +74,7 @@ StructType::insertInDb() throw (r_Error)
 }
 
 void
-StructType::readFromDb() throw (r_Error)
+StructType::readFromDb()
 {
     short count = 0;
 
@@ -116,7 +116,7 @@ StructType::readFromDb() throw (r_Error)
 }
 
 void
-StructType::deleteFromDb() throw (r_Error)
+StructType::deleteFromDb()
 {
     long long basetypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld",

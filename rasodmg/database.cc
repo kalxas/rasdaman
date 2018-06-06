@@ -65,7 +65,7 @@ r_Database::r_Database()
 {
 }
 
-r_Database::r_Database(const char* name) throw(r_Error)
+r_Database::r_Database(const char* name)
     : communication(0),
       db_status(not_open),
       userName(0),
@@ -80,7 +80,7 @@ r_Database::r_Database(const char* name) throw(r_Error)
 }
 
 r_Type*
-r_Database::get_type_schema(const char* typeName, type_schema typeType) throw (r_Error)
+r_Database::get_type_schema(const char* typeName, type_schema typeType)
 {
     r_Type* retval = 0;
 
@@ -150,7 +150,6 @@ r_Database::~r_Database()
 
 void
 r_Database::open(const char* database_name, access_status new_status)
-throw(r_Error)
 {
     if (db_status != not_open || actual_database)
     {
@@ -273,14 +272,14 @@ r_Database::close()
 }
 
 void
-r_Database::create(__attribute__((unused)) const char* name) throw(r_Error)
+r_Database::create(__attribute__((unused)) const char* name)
 {
     // this operation is not supported through this interface; use rasdl
     throw (r_Error(803));  // Access denied, no permission
 }
 
 void
-r_Database::destroy(__attribute__((unused)) const char* name) throw(r_Error)
+r_Database::destroy(__attribute__((unused)) const char* name)
 {
     // this operation is not supported through this interface; use rasdl
     throw (r_Error(803));  // Access denied, no permission
@@ -288,7 +287,7 @@ r_Database::destroy(__attribute__((unused)) const char* name) throw(r_Error)
 
 
 void
-r_Database::set_servername(const char* name, int port) throw (r_Error)
+r_Database::set_servername(const char* name, int port)
 {
     //We let the name of the function as it is, but it's about the rasmgr name
 
@@ -307,7 +306,7 @@ r_Database::set_servername(const char* name, int port) throw (r_Error)
     rasmgrPort = port;
 }
 void
-r_Database::set_useridentification(const char* name, const char* plain_pass) throw(r_Error)
+r_Database::set_useridentification(const char* name, const char* plain_pass)
 {
     if (!name)
     {
@@ -333,13 +332,13 @@ r_Database::set_useridentification(const char* name, const char* plain_pass) thr
 }
 
 void
-r_Database::set_object_name(r_Object& obj, const char* name) throw(r_Error)
+r_Database::set_object_name(r_Object& obj, const char* name)
 {
     obj.set_object_name(name);
 }
 
 r_Ref_Any
-r_Database::lookup_object(const char* name) const throw(r_Error)
+r_Database::lookup_object(const char* name) const
 {
     r_Ref_Any returnValue;
 
@@ -378,7 +377,7 @@ r_Database::lookup_object(const char* name) const throw(r_Error)
 
 
 r_Ref_Any
-r_Database::lookup_object(const r_OId& oid) const throw(r_Error)
+r_Database::lookup_object(const r_OId& oid) const
 {
     r_Ref_Any returnValue;
 
@@ -417,7 +416,7 @@ r_Database::lookup_object(const r_OId& oid) const throw(r_Error)
 
 
 void
-r_Database::set_transfer_format(r_Data_Format format, const char* formatParams) throw(r_Error)
+r_Database::set_transfer_format(r_Data_Format format, const char* formatParams)
 {
     unsigned short result;
 
@@ -453,7 +452,7 @@ r_Database::set_transfer_format(r_Data_Format format, const char* formatParams) 
 }
 
 void
-r_Database::set_storage_format(r_Data_Format format, const char* formatParams) throw(r_Error)
+r_Database::set_storage_format(r_Data_Format format, const char* formatParams)
 {
     unsigned short result;
 
@@ -493,18 +492,18 @@ r_Database::set_storage_format(r_Data_Format format, const char* formatParams) t
 
 
 const r_OId
-r_Database::get_new_oid(unsigned short objType) const throw(r_Error)
+r_Database::get_new_oid(unsigned short objType) const
 {
     return communication->getNewOId(objType);
 }
 
 
-void r_Database::insertColl(const char* collName, const char* typeName, const r_OId& oid) throw(r_Error)
+void r_Database::insertColl(const char* collName, const char* typeName, const r_OId& oid)
 {
     communication->insertColl(collName, typeName, oid);
 }
 
-void r_Database::removeObjFromColl(const char* name, const r_OId& oid) throw (r_Error)
+void r_Database::removeObjFromColl(const char* name, const r_OId& oid)
 {
     communication->removeObjFromColl(name, oid);
 }

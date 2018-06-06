@@ -44,7 +44,7 @@ static const char rcsid[] = "@(#)catalogif,FloatType: $Header: /home/rasdev/CVS-
 #include <values.h>
 #endif
 
-FloatType::FloatType(const OId& id) throw (r_Error)
+FloatType::FloatType(const OId& id)
 	:	RealType(id)
 	{
 	readFromDb();
@@ -109,7 +109,7 @@ FloatType::~FloatType()
 }
 
 void
-FloatType::readFromDb() throw (r_Error)
+FloatType::readFromDb()
 	{
 	setName(FloatType::Name);
 	size = 4;

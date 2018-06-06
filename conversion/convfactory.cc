@@ -71,7 +71,7 @@ bool r_Convertor_Factory::is_supported(r_Data_Format fmt)
     return retval;
 }
 
-r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
+r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, const r_Type* tp)
 {
     r_Convertor* result = NULL;
 
@@ -111,7 +111,7 @@ r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, con
 }
 
 
-r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, int type) throw(r_Error)
+r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, int type)
 {
     r_Convertor* result = NULL;
 

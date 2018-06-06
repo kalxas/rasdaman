@@ -76,7 +76,7 @@ public:
     virtual char* getNewTypeStructure() const;
 
 
-    MDDType(const OId& id) throw (r_Error);
+    MDDType(const OId& id);
 
     MDDType();
     /*@Doc:
@@ -134,11 +134,11 @@ public:
 
 protected:
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 
     MDDTypeEnum mySubclass;
     /*@Doc:

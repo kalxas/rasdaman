@@ -51,9 +51,9 @@ class QtProject : public QtUnaryOperation
 {
 public:
     /// constructor getting the mdd operand and the other projection parameters
-    QtProject(QtOperation* mddOp, const char* bounds, const char* crsIn, const char* crsOut) throw(r_Error);
+    QtProject(QtOperation* mddOp, const char* bounds, const char* crsIn, const char* crsOut);
 
-    QtProject(QtOperation* mddOp, const char* crsIn, const char* crsOut) throw(r_Error);
+    QtProject(QtOperation* mddOp, const char* crsIn, const char* crsOut);
 
 
     ~QtProject();
@@ -70,7 +70,7 @@ public:
     virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// method for evaluating the reprojection with a given operand
-    QtData* evaluateMDD(QtMDD* mdd) throw (r_Error);
+    QtData* evaluateMDD(QtMDD* mdd);
 
     /// getters for the geo bounding box
     float getMinX() const;
@@ -93,18 +93,18 @@ private:
     void saveDatasetToFile(GDALDataset* ds, const char* filename, const char* driverName);
 
     // Perform reprojection with the help of GDAL library
-    GDALDataset* performGdalReprojection(GDALDataset* gdalSource) throw (r_Error);
+    GDALDataset* performGdalReprojection(GDALDataset* gdalSource);
 
     // For checking the "bounds" input string
-    void parseNumbers(const char* str) throw(r_Error);
-    float parseOneNumber(char* str) throw(r_Error);
+    void parseNumbers(const char* str);
+    float parseOneNumber(char* str);
 
     // Expands a CRS definition (e.g. "EPSG:4326" etc) into its Well-Known-Text representation
     bool setCrsWKT(const char* srsin, char*& wkt);
 
     void setBounds(GDALDataset* dataset);
 
-    void testCrsTransformation(const char* in, const char* out) throw (r_Error);
+    void testCrsTransformation(const char* in, const char* out);
 #endif
 
 

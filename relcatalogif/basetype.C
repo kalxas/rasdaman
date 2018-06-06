@@ -58,7 +58,7 @@ BaseType::BaseType()
     LTRACE << "BaseType()";
 }
 
-BaseType::BaseType(const OId& id) throw (r_Error)
+BaseType::BaseType(const OId& id)
 	:	Type(id)
 {
     LTRACE << "BaseType(" << myOId << ")";

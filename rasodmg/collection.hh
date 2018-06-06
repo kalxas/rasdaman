@@ -60,9 +60,9 @@ class r_Collection : public r_Object
 
 public:
     /// default constructor
-    r_Collection() throw(r_Error);
+    r_Collection();
     /// copy constructor
-    r_Collection(const r_Collection<T>& collection) throw(r_Error);
+    r_Collection(const r_Collection<T>& collection);
     /// virtual destructor
     virtual ~r_Collection();
 

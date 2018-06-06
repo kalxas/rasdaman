@@ -125,7 +125,7 @@ r_Storage_Layout::get_storage_format_params() const
 }
 
 r_Set<r_GMarray*>*
-r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const throw (r_Error)
+r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const
 {
     r_Bytes cell_size = mar->get_type_length();
     std::vector<r_Minterval>* tiles = NULL;
@@ -145,7 +145,7 @@ r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const throw (r_Error)
 }
 
 std::vector<r_Minterval>*
-r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_size) const throw (r_Error)
+r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_size) const
 {
     std::vector<r_Minterval>* tiles = NULL;
 

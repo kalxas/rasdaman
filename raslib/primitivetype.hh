@@ -84,50 +84,50 @@ public:
     ///
 
     ///
-    r_Double get_value(const char* cell) const throw(r_Error);
+    r_Double get_value(const char* cell) const;
     ///
-    void  set_value(char* cell, r_Double) throw(r_Error);
+    void  set_value(char* cell, r_Double);
     ///
-    void  get_limits(r_Double&,  r_Double&) throw(r_Error);
+    void  get_limits(r_Double&,  r_Double&);
 
 
     ///
-    r_Boolean get_boolean(const char* cell) const throw(r_Error);
+    r_Boolean get_boolean(const char* cell) const;
     ///
-    r_Char    get_char(const char* cell)    const throw(r_Error);
+    r_Char    get_char(const char* cell)    const;
     ///
-    r_Octet   get_octet(const char* cell)   const throw(r_Error);
+    r_Octet   get_octet(const char* cell)   const;
     ///
-    r_Short   get_short(const char* cell)   const throw(r_Error);
+    r_Short   get_short(const char* cell)   const;
     ///
-    r_UShort  get_ushort(const char* cell)  const throw(r_Error);
+    r_UShort  get_ushort(const char* cell)  const;
     ///
-    r_Long    get_long(const char* cell)    const throw(r_Error);
+    r_Long    get_long(const char* cell)    const;
     ///
-    r_ULong   get_ulong(const char* cell)   const throw(r_Error);
+    r_ULong   get_ulong(const char* cell)   const;
     ///
-    r_Float   get_float(const char* cell)   const throw(r_Error);
+    r_Float   get_float(const char* cell)   const;
     ///
-    r_Double  get_double(const char* cell)  const throw(r_Error);
+    r_Double  get_double(const char* cell)  const;
 
     ///
-    void  set_boolean(char* cell, r_Boolean) throw(r_Error);
+    void  set_boolean(char* cell, r_Boolean);
     ///
-    void  set_char(char* cell, r_Char)       throw(r_Error);
+    void  set_char(char* cell, r_Char);
     ///
-    void  set_octet(char* cell, r_Octet)     throw(r_Error);
+    void  set_octet(char* cell, r_Octet);
     ///
-    void  set_short(char* cell, r_Short)     throw(r_Error);
+    void  set_short(char* cell, r_Short);
     ///
-    void  set_ushort(char* cell, r_UShort)   throw(r_Error);
+    void  set_ushort(char* cell, r_UShort);
     ///
-    void  set_long(char* cell, r_Long)       throw(r_Error);
+    void  set_long(char* cell, r_Long);
     ///
-    void  set_ulong(char* cell, r_ULong)     throw(r_Error);
+    void  set_ulong(char* cell, r_ULong);
     ///
-    void  set_float(char* cell, r_Float)     throw(r_Error);
+    void  set_float(char* cell, r_Float);
     ///
-    void  set_double(char* cell, r_Double)   throw(r_Error);
+    void  set_double(char* cell, r_Double);
 
 
     ///

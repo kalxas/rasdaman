@@ -64,7 +64,7 @@ DBStorageLayout::DBStorageLayout()
     objecttype = OId::STORAGEOID;
 }
 
-DBStorageLayout::DBStorageLayout(const OId& id) throw (r_Error)
+DBStorageLayout::DBStorageLayout(const OId& id)
     : DBObject(id),
       indexType(StorageLayout::DefaultIndexType),
       indexSize(StorageLayout::DefaultIndexSize),
@@ -363,7 +363,7 @@ TABLE RAS_STORAGE (
  */
 
 void
-DBStorageLayout::readFromDb() throw (r_Error)
+DBStorageLayout::readFromDb()
 {
     long long storageid1;
     long long domainid1;
@@ -496,7 +496,7 @@ DBStorageLayout::readFromDb() throw (r_Error)
 }
 
 void
-DBStorageLayout::updateInDb() throw (r_Error)
+DBStorageLayout::updateInDb()
 {
     deleteFromDb();
     insertInDb();
@@ -504,7 +504,7 @@ DBStorageLayout::updateInDb() throw (r_Error)
 }
 
 void
-DBStorageLayout::insertInDb() throw (r_Error)
+DBStorageLayout::insertInDb()
 {
     long long storageid2;
     long long domainid2;
@@ -592,7 +592,7 @@ DBStorageLayout::insertInDb() throw (r_Error)
 }
 
 void
-DBStorageLayout::deleteFromDb() throw (r_Error)
+DBStorageLayout::deleteFromDb()
 {
     long long storageid3;
 

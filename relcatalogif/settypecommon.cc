@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "mddtype.hh"
 
 
-SetType::SetType(const OId& id) throw (r_Error)
+SetType::SetType(const OId& id)
     :   CollectionType(id)
 {
     objecttype = OId::SETTYPEOID;

@@ -136,39 +136,39 @@ public:
     Assignment operator: removes old binding and rebinds to object ptr.
     */
 
-    T* operator->(void) throw (r_Error);
+    T* operator->(void);
     /*@Doc:
     Dereferencing operator -> for accessing the managed object's members.
     */
 
-    const T* operator->(void) const throw (r_Error);
+    const T* operator->(void) const;
     /*@Doc:
     Dereferencing operator -> for accessing the managed object's members.
     */
 
-    T& operator*(void) throw (r_Error);
+    T& operator*(void);
     /*@Doc:
     Dereferencing operator * for accessing the managed object.
     */
 
-    const T& operator*(void) const throw (r_Error);
+    const T& operator*(void) const;
     /*@Doc:
     Dereferencing operator * for accessing the managed object.
     */
 
 #ifndef __GNUG__
-    T& operator[](int idx) const throw (r_Error);
+    T& operator[](int idx) const;
     /*@Doc:
     Dereferencing operator [] for accessing array objects.
     */
 #endif
 
-    T* ptr(void) throw (r_Error);
+    T* ptr(void);
     /*@Doc:
     Returns pointer to managed object.
     */
 
-    const T* ptr(void) const throw (r_Error);
+    const T* ptr(void) const;
     /*@Doc:
     Returns pointer to managed object.
     */
@@ -209,51 +209,51 @@ public:
     cast operator. works allways.
     */
 
-    operator DBRef<BLOBTile>() const throw (r_Error);
+    operator DBRef<BLOBTile>() const;
     /*@Doc:
     cast operator.  checks it the objects type is of OId::BLOBOID.
     */
 
-    operator DBRef<DBTile>() const throw (r_Error);
+    operator DBRef<DBTile>() const;
     /*@Doc:
     cast operator.  checks it the objects type is of OId::BLOBOID or OId::INLINETILEOID.
     */
 
-    operator DBRef<InlineTile>() const throw (r_Error);
+    operator DBRef<InlineTile>() const;
     /*@Doc:
     cast operator.  checks it the objects type is of OId::INLINETILEOID.
     */
 
-    operator DBRef<DBHierIndex>() const throw (r_Error);
+    operator DBRef<DBHierIndex>() const;
     /*@Doc:
     cast operator.  checks it the objects type is of OId::MDDHIERIXOID.
     */
 
-    operator DBRef<DBTCIndex>() const throw (r_Error);
+    operator DBRef<DBTCIndex>() const;
     /*@Doc:
     cast operator.  checks it the objects type is of OId::INLINEIXOID.
     */
 
-    operator DBRef<DBRCIndexDS>() const throw (r_Error);
+    operator DBRef<DBRCIndexDS>() const;
     /*@Doc:
     cast operator.  checks it the objects type is of OId::MDDRCIXOID.
     */
 
-    operator IndexDS* () const throw (r_Error);
+    operator IndexDS* () const;
     /*@Doc:
     cast operator.  checks it the objects type is of any valid index.
     */
 
-    operator HierIndexDS* () const throw (r_Error);
+    operator HierIndexDS* () const;
     /*@Doc:
     cast operator.  checks it the objects type is of any valid hierarchical index.
     */
 
-    operator T* () throw (r_Error);
+    operator T* ();
     /*@Doc:
     */
 
-    operator const T* () const throw (r_Error);
+    operator const T* () const;
     /*@Doc:
     */
 

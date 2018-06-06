@@ -97,14 +97,14 @@ public:
     clones all attributes.
     */
 
-    DBObject(const OId& id) throw (r_Error);
+    DBObject(const OId& id);
     /*@Doc:
     initializes only referenceCount, myOId, objecttype. _isCached is set to 0.
     Subclasses may contain a call to readFromDb which can throw a r_Error_ObjectUnknown
     or database related exception.
     */
 
-    virtual void setPersistent(bool newPersistent) throw (r_Error);
+    virtual void setPersistent(bool newPersistent);
     /*@Doc:
     setPersistent(true) makes the object persistent as soon as validate is called.
     a r_Error_TransactionReadOnly is thrown when the transaction is readonly.
@@ -118,14 +118,14 @@ public:
     tells if an object is persistent.
     */
 
-    void validate() throw (r_Error);
+    void validate();
     /*@Doc:
     writes the object to database/deletes it or updates it.
     any r_Errors from insertInDb, updateInDb, deleteFromDb, readFromDb are passed to the
     caller.
     */
 
-    virtual void setModified() throw (r_Error);
+    virtual void setModified();
     /*@Doc:
     marks this object dirty.
     a r_Error_TransactionReadOnly should be thrown when the transaction is readonly.
@@ -184,12 +184,12 @@ public:
     as dbobject has no persistent attributes it returns 0.
     */
 
-    virtual BinaryRepresentation getBinaryRepresentation() const throw (r_Error);
+    virtual BinaryRepresentation getBinaryRepresentation() const;
     /*@Doc:
     returns the binary representation fit for storage in the database
     */
 
-    virtual void setBinaryRepresentation(const BinaryRepresentation&) throw (r_Error);
+    virtual void setBinaryRepresentation(const BinaryRepresentation&);
     /*@Doc:
     set the objects state from the binary represenation
     */
@@ -217,27 +217,27 @@ protected:
     dbobject does not have any dynamic memory.
     */
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     reads the object from database.  myOId must be set!!!
     a r_Error_ObjectUnknown is thrown when the oid is not in the database.
     */
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
     /*@Doc:
     writes the object into the database.  the object must not be in the database.
     a r_Error_TransactionReadOnly is thrown when the transaction is readonly.
     this implementation checks for readOnlyTA
     */
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
     /*@Doc:
     deletes an object in the database.
     a r_Error_TransactionReadOnly is thrown when the transaction is readonly.
     this implementation checks for readOnlyTA
     */
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
     /*@Doc:
     updates an existing object in the database
     a r_Error_TransactionReadOnly is thrown when the transaction is readonly.

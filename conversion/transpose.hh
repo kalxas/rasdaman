@@ -49,6 +49,6 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType);
 //either a cumbersome memory computation, a vacancy tracking algorithm, or
 //a bit map to implement effectively. For now, we only need this for pictures,
 //and as such, transposeLastTwo is good enough for the time being.
-void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams) throw (r_Error);
+void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams);
 
 #endif /* TRANSPOSE_HH */

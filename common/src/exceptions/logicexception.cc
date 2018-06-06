@@ -29,6 +29,6 @@ LogicException::LogicException(const std::string& whatArg)
     : Exception(whatArg)
 {}
 
-LogicException::~LogicException() throw()
+LogicException::~LogicException() noexcept
 {}
 }

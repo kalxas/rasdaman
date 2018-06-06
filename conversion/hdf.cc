@@ -96,7 +96,7 @@ void r_Conv_HDF::initHDF(void)
 }
 
 
-r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
+r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Convertor(src, interv, tp, true)
 {
     initHDF();
@@ -110,7 +110,7 @@ r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type*
 
 
 
-r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, int tp) throw(r_Error)
+r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, int tp)
     : r_Convertor(src, interv, tp)
 {
     initHDF();
@@ -130,7 +130,7 @@ r_Conv_HDF::~r_Conv_HDF(void)
 
 
 r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
-                                   const r_Range* nullValue) throw(r_Error)
+                                   const r_Range* nullValue)
 {
 #ifdef HAVE_HDF
     char name[] = "hdfTempXXXXXX";
@@ -252,7 +252,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
 
 
-r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 {
 #ifdef HAVE_HDF
 
@@ -367,7 +367,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options) throw(r_Error)
 #endif // HAVE_HDF
 }
 
-r_Conv_Desc& r_Conv_HDF::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_HDF::convertFrom(__attribute__ ((unused)) r_Format_Params options)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }

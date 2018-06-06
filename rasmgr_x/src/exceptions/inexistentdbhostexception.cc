@@ -29,7 +29,7 @@ InexistentDbHostException::InexistentDbHostException(const std::string& dbHostNa
     : common::MissingResourceException("The database host" + dbHostName + " does not exist.")
 {}
 
-InexistentDbHostException::~InexistentDbHostException() throw()
+InexistentDbHostException::~InexistentDbHostException() noexcept
 {}
 
 

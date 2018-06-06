@@ -67,7 +67,7 @@ DBMDDObj::DBMDDObj()
     storageLayoutId->setPersistent(true);
 }
 
-DBMDDObj::DBMDDObj(const OId& id) throw (r_Error)
+DBMDDObj::DBMDDObj(const OId& id)
     :   DBObject(id),
         myDomain(NULL),
         objIxId(),
@@ -84,7 +84,7 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
                     const r_Minterval& domain,
                     const DBObjectId& newObjIx,
                     const DBStorageLayoutId& newSL,
-                    const OId& newOId) throw (r_Error)
+                    const OId& newOId)
     :   DBObject(),
         objIxId(newObjIx.getOId()),
         mddType(newMDDType),
@@ -242,7 +242,7 @@ DBMDDObj::setCached(bool ic)
 
 //this should only receive an setPersistent(false)
 void
-DBMDDObj::setPersistent(bool o) throw (r_Error)
+DBMDDObj::setPersistent(bool o)
 {
     DBObject::setPersistent(o);
     if (!o)
@@ -332,7 +332,7 @@ DBMDDObj::setIx(const DBObjectId& newIx)
 }
 
 void
-DBMDDObj::updateInDb() throw (r_Error)
+DBMDDObj::updateInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long        mddoid3;
@@ -423,7 +423,7 @@ DBMDDObj::updateInDb() throw (r_Error)
 }
 
 void
-DBMDDObj::insertInDb() throw (r_Error)
+DBMDDObj::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long        mddoid;
@@ -454,7 +454,7 @@ DBMDDObj::insertInDb() throw (r_Error)
 }
 
 void
-DBMDDObj::deleteFromDb() throw (r_Error)
+DBMDDObj::deleteFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddoid1;
@@ -473,7 +473,7 @@ DBMDDObj::deleteFromDb() throw (r_Error)
 }
 
 void
-DBMDDObj::readFromDb() throw (r_Error)
+DBMDDObj::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();

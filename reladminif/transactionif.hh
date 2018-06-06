@@ -52,14 +52,14 @@ class DatabaseIf;
 class TransactionIf
 {
 public:
-    void begin(DatabaseIf* currBase, bool readOnly = false) throw (r_Error);
+    void begin(DatabaseIf* currBase, bool readOnly = false);
     /*@Doc:
     begin a TA.
     By default, the TA started is a write TA. If {\tt readOnly} is set to 1,
     the TA will be read only.
     */
 
-    void commit() throw (r_Error);
+    void commit();
     /*@Doc:
     commit a transaction.  make all changes permanent.
     r_Error is thrown when any objects have problems
@@ -85,7 +85,7 @@ public:
     */
 
 private:
-    void begin(bool readOnly = false) throw (r_Error);
+    void begin(bool readOnly = false);
     /*@Doc:
     begin a TA. Internal usage only.
     This function does not work if the appropriate initializations have'nt

@@ -54,7 +54,7 @@ DBNamedObject::printStatus(unsigned int level, std::ostream& stream) const
     stream << " Name: " << myName;
 }
 
-DBNamedObject::DBNamedObject(const OId& id) throw (r_Error)
+DBNamedObject::DBNamedObject(const OId& id)
     :   DBObject(id),
         myName(NULL),
         myNameSize(0)

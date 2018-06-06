@@ -83,7 +83,7 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType) 
     dimData.transpose(dimData.dimension()-2, dimData.dimension()-1);
 }
 
-void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams) throw (r_Error)
+void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams)
 {
     int dims = static_cast<int>(dimData.dimension());
     int tParam0 = std::get<0>(transposeParams);

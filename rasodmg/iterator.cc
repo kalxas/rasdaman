@@ -170,7 +170,7 @@ r_Iterator<T>::operator++(int)
 template<class T>
 T
 r_Iterator<T>::operator*()
-throw(r_Error)
+
 {
     if (!ndone || ptr->elem == 0)
     {
@@ -186,7 +186,7 @@ throw(r_Error)
 template<class T>
 T
 r_Iterator<T>::get_element() const
-throw(r_Error)
+
 {
     if (!ndone || ptr->elem == 0)
     {

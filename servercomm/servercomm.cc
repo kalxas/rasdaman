@@ -221,7 +221,7 @@ void our_svc_run();
 
 void
 ServerComm::startRpcServer()
-throw(r_Error)
+
 {
     // create administraion object (O2 session is initialized)
     admin = AdminIf::instance();
@@ -852,7 +852,7 @@ ServerComm::getServerStatus(ServerStatRes& returnStruct)
  * Method name...: addClientTblEntry( ClientTblElt *context )
  ************************************************************************/
 void
-ServerComm::addClientTblEntry(ClientTblElt* context) throw (r_Error)
+ServerComm::addClientTblEntry(ClientTblElt* context)
 {
     if (context == NULL)
     {

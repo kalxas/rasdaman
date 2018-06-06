@@ -126,7 +126,7 @@ public:
     constructs a new empty DBTile.  Length is 0.
     */
 
-    DBTile(const OId& BlobId) throw (r_Error);
+    DBTile(const OId& BlobId);
     /*@Doc:
     Passes to DBObject.
     */

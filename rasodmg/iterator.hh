@@ -105,9 +105,9 @@ public:
     void advance();
 
     /// the dereference operator gets the actual element
-    T    operator*() throw(r_Error);
+    T    operator*();
     /// gets the actual element
-    T    get_element() const throw(r_Error);
+    T    get_element() const;
 
     /// gets the actual element, advances one element, and returns whether iteration is complete or not
     int  next(T& element);

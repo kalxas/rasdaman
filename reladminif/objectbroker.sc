@@ -54,7 +54,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 DBObject*
-ObjectBroker::loadInlineTile(const OId& id) throw (r_Error)
+ObjectBroker::loadInlineTile(const OId& id)
 {
     DBObject* retval = 0;
     OIdMap::iterator i = theTileIndexMappings.find(id);
@@ -107,7 +107,7 @@ ObjectBroker::loadInlineTile(const OId& id) throw (r_Error)
 }
 
 OId
-ObjectBroker::getOIdOfSetType(const char* name) throw (r_Error)
+ObjectBroker::getOIdOfSetType(const char* name)
 {
     long long setoid;
 
@@ -135,7 +135,7 @@ ObjectBroker::getOIdOfSetType(const char* name) throw (r_Error)
 }
 
 MDDType*
-ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
+ObjectBroker::getMDDTypeByName(const char* name)
 {
     long long mddtoidv;
 
@@ -187,7 +187,7 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
 }
 
 OId
-ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
+ObjectBroker::getOIdOfMDDType(const char* name)
 {
     char mddtname[STRING_MAXLEN];
     long long mddtoid;
@@ -217,7 +217,7 @@ ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
 }
 
 OId
-ObjectBroker::getOIdOfMDDBaseType(const char* name) throw (r_Error)
+ObjectBroker::getOIdOfMDDBaseType(const char* name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -243,7 +243,7 @@ ObjectBroker::getOIdOfMDDBaseType(const char* name) throw (r_Error)
 }
 
 OId
-ObjectBroker::getOIdOfMDDDimensionType(const char* name) throw (r_Error)
+ObjectBroker::getOIdOfMDDDimensionType(const char* name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -269,7 +269,7 @@ ObjectBroker::getOIdOfMDDDimensionType(const char* name) throw (r_Error)
 }
 
 OId
-ObjectBroker::getOIdOfMDDDomainType(const char* name) throw (r_Error)
+ObjectBroker::getOIdOfMDDDomainType(const char* name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -295,7 +295,7 @@ ObjectBroker::getOIdOfMDDDomainType(const char* name) throw (r_Error)
 }
 
 OId
-ObjectBroker::getOIdOfStructType(const char* name) throw (r_Error)
+ObjectBroker::getOIdOfStructType(const char* name)
 {
 
     OId retval;
@@ -322,7 +322,7 @@ ObjectBroker::getOIdOfStructType(const char* name) throw (r_Error)
 }
 
 OId
-ObjectBroker::getOIdOfMDDSet(const char* name) throw (r_Error)
+ObjectBroker::getOIdOfMDDSet(const char* name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -348,7 +348,7 @@ ObjectBroker::getOIdOfMDDSet(const char* name) throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllSetTypes() throw (r_Error)
+ObjectBroker::getAllSetTypes()
 {
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::SETTYPEOID);
@@ -375,7 +375,7 @@ ObjectBroker::getAllSetTypes() throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllMDDTypes() throw (r_Error)
+ObjectBroker::getAllMDDTypes()
 {
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDTYPEOID);
@@ -402,7 +402,7 @@ ObjectBroker::getAllMDDTypes() throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllMDDBaseTypes() throw (r_Error)
+ObjectBroker::getAllMDDBaseTypes()
 {
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDBASETYPEOID);
@@ -429,7 +429,7 @@ ObjectBroker::getAllMDDBaseTypes() throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllMDDDimensionTypes() throw (r_Error)
+ObjectBroker::getAllMDDDimensionTypes()
 {
 
     OIdSet* retval = new OIdSet();
@@ -457,7 +457,7 @@ ObjectBroker::getAllMDDDimensionTypes() throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllMDDDomainTypes() throw (r_Error)
+ObjectBroker::getAllMDDDomainTypes()
 {
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDDOMTYPEOID);
@@ -484,7 +484,7 @@ ObjectBroker::getAllMDDDomainTypes() throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllStructTypes() throw (r_Error)
+ObjectBroker::getAllStructTypes()
 {
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::STRUCTTYPEOID);
@@ -511,7 +511,7 @@ ObjectBroker::getAllStructTypes() throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllMDDObjects() throw (r_Error)
+ObjectBroker::getAllMDDObjects()
 {
     OIdSet* retval = new OIdSet();
     DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDOID);
@@ -537,7 +537,7 @@ ObjectBroker::getAllMDDObjects() throw (r_Error)
 }
 
 OIdSet*
-ObjectBroker::getAllMDDSets() throw (r_Error)
+ObjectBroker::getAllMDDSets()
 {
 
     OIdSet* retval = new OIdSet();

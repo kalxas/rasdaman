@@ -234,7 +234,7 @@ r_Structure::isStructure() const
 
 
 const r_Scalar&
-r_Structure::operator[](unsigned int index) const throw(r_Error)
+r_Structure::operator[](unsigned int index) const
 {
     if (!valueType)
     {
@@ -254,7 +254,7 @@ r_Structure::operator[](unsigned int index) const throw(r_Error)
 
 
 const r_Scalar&
-r_Structure::operator[](const char* name) const throw(r_Error)
+r_Structure::operator[](const char* name) const
 {
     if (!valueType)
     {

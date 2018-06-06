@@ -43,7 +43,7 @@ r_Format_Params::r_Format_Params() :
 {
 }
 
-bool r_Format_Params::parse(const string& options) throw (r_Error)
+bool r_Format_Params::parse(const string& options)
 {
     bool ret = false;
     if (!options.empty())
@@ -79,7 +79,7 @@ bool r_Format_Params::isJson(string options) const
     return !options.empty() && options[0] == '{';
 }
 
-void r_Format_Params::parseJson() throw (r_Error)
+void r_Format_Params::parseJson()
 {
     parseTranspose();
     parseVariables();
@@ -92,7 +92,7 @@ void r_Format_Params::parseJson() throw (r_Error)
     parseGeoReference();
 }
 
-void r_Format_Params::parseTranspose() throw (r_Error)
+void r_Format_Params::parseTranspose()
 {
     const string& key = FormatParamKeys::General::TRANSPOSE;
     if (params.isMember(key))
@@ -108,7 +108,7 @@ void r_Format_Params::parseTranspose() throw (r_Error)
     }
 }
 
-void r_Format_Params::parseVariables() throw (r_Error)
+void r_Format_Params::parseVariables()
 {
     const string& key = FormatParamKeys::General::VARIABLES;
     if (params.isMember(key))
@@ -143,7 +143,7 @@ void r_Format_Params::parseVariables() throw (r_Error)
     }
 }
 
-void r_Format_Params::parseFilepaths() throw (r_Error)
+void r_Format_Params::parseFilepaths()
 {
     const string& key = FormatParamKeys::Decode::FILEPATHS;
     if (params.isMember(key))
@@ -161,7 +161,7 @@ void r_Format_Params::parseFilepaths() throw (r_Error)
     }
 }
 
-void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<std::pair<std::string, std::string>>& targetVector) throw (r_Error)
+void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<std::pair<std::string, std::string>>& targetVector)
 {
     if (params.isMember(key))
     {
@@ -181,7 +181,7 @@ void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<st
     }
 }
 
-void r_Format_Params::parseSubsetDomain() throw (r_Error)
+void r_Format_Params::parseSubsetDomain()
 {
     const string& key = FormatParamKeys::Decode::SUBSET_DOMAIN;
     if (params.isMember(key))
@@ -199,7 +199,7 @@ void r_Format_Params::parseSubsetDomain() throw (r_Error)
     }
 }
 
-void r_Format_Params::parseNodata() throw (r_Error)
+void r_Format_Params::parseNodata()
 {
     const string& key = FormatParamKeys::Encode::NODATA;
     if (params.isMember(key))
@@ -229,7 +229,7 @@ void r_Format_Params::parseNodata() throw (r_Error)
     }
 }
 
-void r_Format_Params::parseMetadata() throw (r_Error)
+void r_Format_Params::parseMetadata()
 {
     const string& key = FormatParamKeys::Encode::METADATA;
     if (params.isMember(key))
@@ -255,7 +255,7 @@ void r_Format_Params::parseMetadata() throw (r_Error)
     }
 }
 
-void r_Format_Params::parseGeoReference() throw (r_Error)
+void r_Format_Params::parseGeoReference()
 {
     const string& key = FormatParamKeys::Encode::GEO_REFERENCE;
     if (params.isMember(key))

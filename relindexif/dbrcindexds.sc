@@ -54,7 +54,7 @@ r_Bytes
 DBRCIndexDS::BytesPerTuple = BYTES_PER_TUPLE;
 
 void
-DBRCIndexDS::insertInDb() throw (r_Error)
+DBRCIndexDS::insertInDb()
 {
     int header = 1010;
     int headersize = 4;
@@ -168,7 +168,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
 }
 
 void
-DBRCIndexDS::readFromDb() throw (r_Error)
+DBRCIndexDS::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -379,7 +379,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 }
 
 void
-DBRCIndexDS::deleteFromDb() throw (r_Error)
+DBRCIndexDS::deleteFromDb()
 {
     long long id3 = myOId;
     // (3) --- delete tuple

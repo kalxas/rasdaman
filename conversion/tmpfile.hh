@@ -37,7 +37,7 @@ class r_TmpFile
 public:
 
     /// constructor creates a temporary file
-    r_TmpFile() throw (r_Error);
+    r_TmpFile();
     /// destructor removes the temporary file
     ~r_TmpFile(void);
     /// return temporary file name
@@ -45,13 +45,13 @@ public:
     /// return temporary file descriptor
     int getFileDescriptor() const;
     /// write the given data with dataSize (bytes)
-    void writeData(const char* data, size_t dataSize) throw (r_Error);
+    void writeData(const char* data, size_t dataSize);
     /// write the given data with dataSize (bytes)
-    char* readData(long& dataSize) throw (r_Error);
+    char* readData(long& dataSize);
 
 private:
 
-    void initTmpFile() throw (r_Error);
+    void initTmpFile();
     std::string fileName;
     int fd;
     static const int INVALID_FILE_DESCRIPTOR;

@@ -37,7 +37,7 @@ class DbHostBusyException: public common::ResourceBusyException
 public:
     DbHostBusyException(const std::string& dbHostName);
 
-    virtual ~DbHostBusyException() throw();
+    virtual ~DbHostBusyException() noexcept;
 };
 
 } /* namespace rasmgr */

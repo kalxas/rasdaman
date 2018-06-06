@@ -94,7 +94,7 @@ closeDbConnection()
     SQLiteQuery::closeConnection();
 }
 
-AdminIf::AdminIf(bool createDb) throw (r_Error)
+AdminIf::AdminIf(bool createDb)
 {
     if (!createDb)
     {

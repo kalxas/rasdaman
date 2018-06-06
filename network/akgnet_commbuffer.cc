@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include <assert.h>
 #include <logging.hh>
 
-akg::CommBuffer::CommBuffer() throw()
+akg::CommBuffer::CommBuffer() noexcept
 {
     data     = NULL;
     buffSize = 0;
@@ -46,7 +46,7 @@ akg::CommBuffer::CommBuffer() throw()
     allocated = false;
 }
 
-akg::CommBuffer::CommBuffer(int size) throw()
+akg::CommBuffer::CommBuffer(int size) noexcept
 {
     assert(size > 0);
     data = NULL;
@@ -54,14 +54,14 @@ akg::CommBuffer::CommBuffer(int size) throw()
     allocate(size);
 }
 
-akg::CommBuffer::CommBuffer(void* externalBuffer, int totalSize, int dataSize) throw()
+akg::CommBuffer::CommBuffer(void* externalBuffer, int totalSize, int dataSize) noexcept
 {
     data = NULL;
     maxBuffSize = 0;
     takeOver(externalBuffer, totalSize, dataSize);
 }
 
-akg::CommBuffer::~CommBuffer() throw()
+akg::CommBuffer::~CommBuffer() noexcept
 {
     if (data != NULL)
     {
@@ -70,7 +70,7 @@ akg::CommBuffer::~CommBuffer() throw()
     }
 }
 
-bool  akg::CommBuffer::allocate(int size) throw()
+bool  akg::CommBuffer::allocate(int size) noexcept
 {
     assert(size > 0);
 
@@ -95,7 +95,7 @@ bool  akg::CommBuffer::allocate(int size) throw()
     return true;
 }
 
-void akg::CommBuffer::freeBuffer() throw()
+void akg::CommBuffer::freeBuffer() noexcept
 {
     // optimize -- buffer is only freed in the destructor -- DM 2014-feb-03
 //    if(allocated == true && data != NULL) delete[] data;
@@ -106,7 +106,7 @@ void akg::CommBuffer::freeBuffer() throw()
     allocated = false;
 }
 
-void akg::CommBuffer::takeOver(void* externalBuffer, int totalSize, int dataSize) throw()
+void akg::CommBuffer::takeOver(void* externalBuffer, int totalSize, int dataSize) noexcept
 {
     assert(externalBuffer != 0);
     assert(totalSize > 0);
@@ -125,7 +125,7 @@ void akg::CommBuffer::takeOver(void* externalBuffer, int totalSize, int dataSize
     fillSize = dataSize;
 }
 
-bool akg::CommBuffer::resize(int newSize) throw()
+bool akg::CommBuffer::resize(int newSize) noexcept
 {
     assert(data != 0);
 
@@ -150,36 +150,36 @@ bool akg::CommBuffer::resize(int newSize) throw()
     return true;
 }
 
-void* akg::CommBuffer::getData()          throw()
+void* akg::CommBuffer::getData() noexcept
 {
     return data;
 }
-int   akg::CommBuffer::getDataSize()      throw()
+int   akg::CommBuffer::getDataSize() noexcept
 {
     return fillSize;
 }
-int   akg::CommBuffer::getBufferSize()    throw()
+int   akg::CommBuffer::getBufferSize() noexcept
 {
     return buffSize;
 }
-int   akg::CommBuffer::getSendedSize()    throw()
+int   akg::CommBuffer::getSendedSize() noexcept
 {
     return sendSize;
 }
-int   akg::CommBuffer::getNotFilledSize() throw()
+int   akg::CommBuffer::getNotFilledSize() noexcept
 {
     return buffSize - fillSize;
 }
-int   akg::CommBuffer::getNotSendedSize() throw()
+int   akg::CommBuffer::getNotSendedSize() noexcept
 {
     return fillSize - sendSize;
 }
-bool  akg::CommBuffer::isAllocated()      throw()
+bool  akg::CommBuffer::isAllocated() noexcept
 {
     return allocated;
 }
 
-int akg::CommBuffer::read(FileDescriptor& socket) throw()
+int akg::CommBuffer::read(FileDescriptor& socket) noexcept
 {
     int rasp = socket.read(data + fillSize, buffSize - fillSize);
 
@@ -191,7 +191,7 @@ int akg::CommBuffer::read(FileDescriptor& socket) throw()
     return rasp;
 }
 
-int akg::CommBuffer::read(const void* externalBuffer, int size) throw()
+int akg::CommBuffer::read(const void* externalBuffer, int size) noexcept
 {
     assert(externalBuffer != 0);
     assert(size >= 0);
@@ -204,7 +204,7 @@ int akg::CommBuffer::read(const void* externalBuffer, int size) throw()
     return cpSize;
 }
 
-int akg::CommBuffer::reserve(int size) throw()
+int akg::CommBuffer::reserve(int size) noexcept
 {
     assert(size >= 0);
 
@@ -215,7 +215,7 @@ int akg::CommBuffer::reserve(int size) throw()
     return cpSize;
 }
 
-int akg::CommBuffer::write(FileDescriptor& socket) throw()
+int akg::CommBuffer::write(FileDescriptor& socket) noexcept
 {
     LDEBUG << "CommBuffer write fillSize=" << fillSize << " sendSize=" << sendSize;
     int rasp = socket.write(data + sendSize, fillSize - sendSize);
@@ -228,7 +228,7 @@ int akg::CommBuffer::write(FileDescriptor& socket) throw()
     return rasp;
 }
 
-int akg::CommBuffer::write(void* externalBuffer, int size) throw()
+int akg::CommBuffer::write(void* externalBuffer, int size) noexcept
 {
     assert(externalBuffer != 0);
     assert(size >= 0);
@@ -241,13 +241,13 @@ int akg::CommBuffer::write(void* externalBuffer, int size) throw()
     return cpSize;
 }
 
-void akg::CommBuffer::clearToRead() throw()
+void akg::CommBuffer::clearToRead() noexcept
 {
     LDEBUG << "CommBuffer clearToRead";
     fillSize = 0;
     sendSize = 0;
 }
-void akg::CommBuffer::clearToWrite() throw()
+void akg::CommBuffer::clearToWrite() noexcept
 {
     LDEBUG << "CommBuffer clearToWrite";
     sendSize = 0;

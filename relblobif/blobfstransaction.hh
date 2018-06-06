@@ -60,7 +60,7 @@ public:
      */
     BlobFSTransaction(BlobFSConfig& config,
                       const std::string& transactionDir,
-                      const std::string& fileStorageTransactionPath) throw (r_Error);
+                      const std::string& fileStorageTransactionPath);
 
     /**
      * Clears any transaction locks and removes the transaction directory in
@@ -71,42 +71,42 @@ public:
     /**
      * Add blob data to the list of pending operations to be executed in this transaction.
      */
-    virtual void add(BlobData& blobData) throw (r_Error) = 0;
+    virtual void add(BlobData& blobData) = 0;
 
     /**
      * To be called before committing to RASBASE. This is utilized only on remove
      * transactions -- files are moved from TILES to the transaction dir in this
      * step.
      */
-    virtual void preRasbaseCommit() throw (r_Error);
+    virtual void preRasbaseCommit();
 
     /**
      * To be called after committing to RASBASE; all file operations are
      * finalized here.
      */
-    virtual void postRasbaseCommit() throw (r_Error);
+    virtual void postRasbaseCommit();
 
     /**
      * To be called after ROLLBACK on RASBASE.
      */
-    virtual void postRasbaseAbort() throw (r_Error);
+    virtual void postRasbaseAbort();
 
     /**
      * Finalize an interrupted transaction (e.g. by a crash).
      */
-    void finalizeUncompleted() throw (r_Error);
+    void finalizeUncompleted();
 
     /**
      * Given a blob ID return its absolute file path in the final $RASDATA/TILES
      * location.
      */
-    const std::string getFinalBlobPath(long long blobId) throw (r_Error);
+    const std::string getFinalBlobPath(long long blobId);
 
     /**
      * Given a blob ID return its absolute file path in the temporary transaction
      * directory (under $RASDATA/TRANSACTIONS).
      */
-    const std::string getTmpBlobPath(long long blobId) throw (r_Error);
+    const std::string getTmpBlobPath(long long blobId);
 
     // Return the right transaction object, based on the given transaction path;
     // Return NULL in case of invalid path.
@@ -124,7 +124,7 @@ protected:
      * transaction directory exists in RASBASE as well, in order to decide
      * whether to remove it or revert it.
      */
-    void finalizeRasbaseCrash() throw (r_Error);
+    void finalizeRasbaseCrash();
 
     /**
      * Add the blob files in the temp transaction directory to the pending blobIds.
@@ -159,7 +159,7 @@ protected:
      * Create temporary transaction directory under $RASDATA/TRANSACTIONS
      * for a given transaction type
      */
-    void initTransactionDirectory(const std::string& transactionType) throw (r_Error);
+    void initTransactionDirectory(const std::string& transactionType);
 
     BlobFSConfig& config;
 
@@ -194,52 +194,52 @@ class BlobFSInsertTransaction: public BlobFSTransaction
 {
 public:
     BlobFSInsertTransaction(BlobFSConfig& config,
-                            const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
+                            const std::string& fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData& blobData) throw (r_Error);
+    virtual void add(BlobData& blobData);
 
     // To be called after commit to RASBASE
-    virtual void postRasbaseCommit() throw (r_Error);
+    virtual void postRasbaseCommit();
     // To be called before abort to RASBASE
-    virtual void postRasbaseAbort() throw (r_Error);
+    virtual void postRasbaseAbort();
 };
 
 class BlobFSUpdateTransaction: public BlobFSTransaction
 {
 public:
     BlobFSUpdateTransaction(BlobFSConfig& config,
-                            const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
+                            const std::string& fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData& blobData) throw (r_Error);
+    virtual void add(BlobData& blobData);
 
     // To be called after commit to RASBASE
-    virtual void postRasbaseCommit() throw (r_Error);
+    virtual void postRasbaseCommit();
     // To be called before abort to RASBASE
-    virtual void postRasbaseAbort() throw (r_Error);
+    virtual void postRasbaseAbort();
 };
 
 class BlobFSRemoveTransaction: public BlobFSTransaction
 {
 public:
     BlobFSRemoveTransaction(BlobFSConfig& config,
-                            const std::string& fileStorageTransactionPath = std::string()) throw (r_Error);
+                            const std::string& fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData& blobData) throw (r_Error);
+    virtual void add(BlobData& blobData);
 
     // To be called before commit to RASBASE
-    virtual void preRasbaseCommit() throw (r_Error);
+    virtual void preRasbaseCommit();
     // To be called after commit to RASBASE
-    virtual void postRasbaseCommit() throw (r_Error);
+    virtual void postRasbaseCommit();
     // To be called before abort to RASBASE
-    virtual void postRasbaseAbort() throw (r_Error);
+    virtual void postRasbaseAbort();
 };
 
 class BlobFSSelectTransaction: public BlobFSTransaction
 {
 public:
-    BlobFSSelectTransaction(BlobFSConfig& config) throw (r_Error);
+    BlobFSSelectTransaction(BlobFSConfig& config);
 
-    virtual void add(BlobData& blobData) throw (r_Error);
+    virtual void add(BlobData& blobData);
 };
 
 }

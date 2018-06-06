@@ -88,7 +88,7 @@ DatabaseIf::isOpen() const
 }
 
 void
-DatabaseIf::open(const char* dbName) throw(r_Error)
+DatabaseIf::open(const char* dbName)
 {
     if (opened)
     {
@@ -113,7 +113,7 @@ DatabaseIf::open(const char* dbName) throw(r_Error)
 }
 
 void
-DatabaseIf::baseDBMSOpen() throw (r_Error)
+DatabaseIf::baseDBMSOpen()
 {
     if (connected)
     {

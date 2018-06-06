@@ -36,7 +36,7 @@ class InexistentDatabaseException: public common::MissingResourceException
 public:
     InexistentDatabaseException(const std::string& dbName);
 
-    virtual ~InexistentDatabaseException() throw();
+    virtual ~InexistentDatabaseException() noexcept;
 };
 }
 #endif // RASMGR_X_SRC_EXCEPTIONS_INEXISTENDDATABASEEXCEPTION_HH

@@ -79,7 +79,7 @@ InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newC
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(const OId& id) throw (r_Error)
+InlineTile::InlineTile(const OId& id)
     :   BLOBTile(id)
 {
     LTRACE << "InlineTile(" << id << ")";
@@ -149,7 +149,7 @@ InlineTile::isCached() const
 }
 
 void
-InlineTile::setModified() throw(r_Error)
+InlineTile::setModified()
 {
     DBObject::setModified();
     if (isInlined())

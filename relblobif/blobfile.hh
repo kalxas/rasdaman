@@ -77,24 +77,24 @@ public:
     /**
      * Insert blob data, handling possible error conditions.
      */
-    void insertData(BlobData& blobData) throw (r_Error);
+    void insertData(BlobData& blobData);
 
     /**
      * Update blob data, handling possible error conditions.
      */
-    void updateData(BlobData& blobData) throw (r_Error);
+    void updateData(BlobData& blobData);
 
     /**
      * Read blob data, handling possible error conditions.
      * Data is directly read into blobData; blobData.data is allocated
      * automatically.
      */
-    void readData(BlobData& blobData) throw (r_Error);
+    void readData(BlobData& blobData);
 
     /**
      * Return the size (bytes) of filePath
      */
-    off_t getSize() throw (r_Error);
+    off_t getSize();
 
     /**
      * Returns the blob id of the blob file
@@ -106,23 +106,23 @@ public:
     /**
      * Return true if filePath exists
      */
-    static bool fileExists(const std::string& filePath) throw (r_Error);
+    static bool fileExists(const std::string& filePath);
 
-    static void moveFile(const std::string& fromFilePath, const std::string& toFilePath) throw (r_Error);
+    static void moveFile(const std::string& fromFilePath, const std::string& toFilePath);
 
     static void removeFile(const std::string& filePath);
 
 private:
 
-    void prepareForInserting() throw (r_Error);
-    void prepareForUpdating() throw (r_Error);
-    void prepareForReading() throw (r_Error);
-    void closeFileDescriptor() throw (r_Error);
+    void prepareForInserting();
+    void prepareForUpdating();
+    void prepareForReading();
+    void closeFileDescriptor();
 
     /**
      * Helper for generating an exception.
      */
-    void generateError(const char* message, int errorCode) throw (r_Error);
+    void generateError(const char* message, int errorCode);
 
     const std::string& filePath;
     int fd;

@@ -173,10 +173,10 @@ public:
     r_Error(int errorno);
 
     /// destructor
-    virtual ~r_Error() throw();
+    virtual ~r_Error() noexcept;
 
     /// get an error description
-    virtual const char* what() const throw();
+    virtual const char* what() const noexcept;
 
     /// assignment operator
     const r_Error& operator=(const r_Error& obj);
@@ -406,7 +406,7 @@ public:
     r_Equery_execution_failed(const r_Equery_execution_failed& err);
 
     /// destructor
-    ~r_Equery_execution_failed() throw();
+    ~r_Equery_execution_failed() noexcept;
 
     //@Man: Read methods:
     //@{
@@ -486,13 +486,13 @@ public:
     r_Ebase_dbms(kind newTheKind, unsigned long newErrNum, const char* myStr);
 
     /// destructor
-    ~r_Ebase_dbms() throw();
+    ~r_Ebase_dbms() noexcept;
 
     /// assignment operator
     const r_Ebase_dbms& operator=(const r_Ebase_dbms& obj);
 
     // overloads from r_Error
-    virtual const char* what() const throw();
+    virtual const char* what() const noexcept;
     virtual char* serialiseError();
 
 private:

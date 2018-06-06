@@ -29,7 +29,7 @@ DuplicateDbSessionException::DuplicateDbSessionException(const std::string& dbNa
     : common::RuntimeException("Database " + dbName + " already contains session:" + sessionUID)
 {}
 
-DuplicateDbSessionException::~DuplicateDbSessionException() throw()
+DuplicateDbSessionException::~DuplicateDbSessionException() noexcept
 {
 
 }

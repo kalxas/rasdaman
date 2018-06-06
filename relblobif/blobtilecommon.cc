@@ -127,7 +127,7 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataform
     ObjectBroker::registerDBObject(this);
 }
 
-BLOBTile::BLOBTile(const OId& id) throw (r_Error)
+BLOBTile::BLOBTile(const OId& id)
     :   DBTile(id)
 {
     readFromDb();

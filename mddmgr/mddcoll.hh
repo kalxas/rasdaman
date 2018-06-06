@@ -107,24 +107,24 @@ public:
     static const char* AllMarrayTypesName;
     static const char* AllSetTypesName;
 
-    static MDDColl* getMDDCollection(const char* collName) throw (r_Error);
+    static MDDColl* getMDDCollection(const char* collName);
     /**
         Retrieve a mdd collection from database.
         Throws r_Error::r_Error_ObjectUnknown if the name is unknown.
     */
 
-    static MDDColl* getMDDCollection(const OId& collOId) throw (r_Error);
+    static MDDColl* getMDDCollection(const OId& collOId);
     /**
         Retrieve a mdd collection from database.
         Throws r_Error::r_Error_ObjectUnknown if the oid is unknown.
     */
 
-    static MDDColl* createMDDCollection(const char* name, const CollectionType* ct) throw (r_Error);
+    static MDDColl* createMDDCollection(const char* name, const CollectionType* ct);
     /**
         Throws r_Error::r_Error_NameNotUnique if the name exists already or is NULL.
     */
 
-    static MDDColl* createMDDCollection(const char* name, const OId& o, const CollectionType* ct) throw (r_Error);
+    static MDDColl* createMDDCollection(const char* name, const OId& o, const CollectionType* ct);
     /**
         Throws r_Error::r_Error_NameNotUnique if the name exists already or is NULL.
         Throws r_Error::r_Error_OIdNotUnique if the oid exists already.

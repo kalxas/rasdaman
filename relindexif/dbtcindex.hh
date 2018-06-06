@@ -118,7 +118,7 @@ protected:
         registers all inline oids with the objectbroker.  changeIOIdToBOId is supposed to be called afterwards.
     */
 
-    void readInlineTiles() throw (r_Error);
+    void readInlineTiles();
     /*
         loads the tiles from the blob tablespace.
         errors are database errors.
@@ -139,13 +139,13 @@ protected:
         write the tiles into the blob space if neccessary.
     */
 
-    void writeInlineTiles(char* cells, r_Bytes blobSize) throw (r_Error);
+    void writeInlineTiles(char* cells, r_Bytes blobSize);
     /*
         writes the tiles into the blob tablespace.
         errors are database errors.
     */
 
-    void updateTileIndexMappings() throw (r_Error);
+    void updateTileIndexMappings();
     /*
         writes the mappings among dbtcindex and inlinetiles into the database for objectbroker to see.
         errors are database errors.
@@ -158,13 +158,13 @@ protected:
         tells the index that it has to update the table for mapping inlined inlinetile oids to dbtcindexes.
     */
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
     bool mappingHasChanged;
     /*@Doc:

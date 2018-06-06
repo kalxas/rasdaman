@@ -60,21 +60,21 @@ BlobFS& BlobFS::getInstance()
     return instance;
 }
 
-BlobFS::BlobFS() throw (r_Error)
+BlobFS::BlobFS()
     : config(BlobFS::getFileStorageRootPath(), string(""), string(""), true),
       insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
 {
     init();
 }
 
-BlobFS::BlobFS(const string& rasdataPathParam) throw (r_Error)
+BlobFS::BlobFS(const string& rasdataPathParam)
     : config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string(""), true),
       insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
 {
     init();
 }
 
-void BlobFS::init() throw (r_Error)
+void BlobFS::init()
 {
     LDEBUG << "initializing file storage on directory " << config.rootPath;
     if (config.rootPath.empty())
@@ -109,7 +109,7 @@ void BlobFS::init() throw (r_Error)
     LDEBUG << "(using " << (config.nested ? "new" : "old") << " storage organization).";
 }
 
-void BlobFS::validateFileStorageRootPath() throw (r_Error)
+void BlobFS::validateFileStorageRootPath()
 {
     struct stat status;
     if (stat(config.rootPath.c_str(), &status) == -1)
@@ -154,22 +154,22 @@ bool BlobFS::isNestedStorage()
     }
 }
 
-void BlobFS::insert(BlobData& blob) throw (r_Error)
+void BlobFS::insert(BlobData& blob)
 {
     insertTransaction->add(blob);
 }
 
-void BlobFS::update(BlobData& blob) throw (r_Error)
+void BlobFS::update(BlobData& blob)
 {
     updateTransaction->add(blob);
 }
 
-void BlobFS::select(BlobData& blob) throw (r_Error)
+void BlobFS::select(BlobData& blob)
 {
     selectTransaction->add(blob);
 }
 
-void BlobFS::remove(BlobData& blob) throw (r_Error)
+void BlobFS::remove(BlobData& blob)
 {
     removeTransaction->add(blob);
 }
@@ -204,14 +204,14 @@ const string BlobFS::getFileStorageRootPath()
     return DirWrapper::convertToCanonicalPath(string(ret));
 }
 
-void BlobFS::generateError(const char* message, const string& path, int errorCode) throw (r_Error)
+void BlobFS::generateError(const char* message, const string& path, int errorCode)
 {
     LFATAL << "Error: " << message << " - " << path;
     LFATAL << "Reason: " << strerror(errno);
     throw r_Error(static_cast<unsigned int>(errorCode));
 }
 
-void BlobFS::preRasbaseCommit() throw (r_Error)
+void BlobFS::preRasbaseCommit()
 {
     insertTransaction->preRasbaseCommit();
     updateTransaction->preRasbaseCommit();
@@ -219,7 +219,7 @@ void BlobFS::preRasbaseCommit() throw (r_Error)
     removeTransaction->preRasbaseCommit();
 }
 
-void BlobFS::postRasbaseCommit() throw (r_Error)
+void BlobFS::postRasbaseCommit()
 {
     insertTransaction->postRasbaseCommit();
     updateTransaction->postRasbaseCommit();
@@ -227,7 +227,7 @@ void BlobFS::postRasbaseCommit() throw (r_Error)
     removeTransaction->postRasbaseCommit();
 }
 
-void BlobFS::postRasbaseAbort() throw (r_Error)
+void BlobFS::postRasbaseAbort()
 {
     insertTransaction->postRasbaseAbort();
     updateTransaction->postRasbaseAbort();
@@ -235,7 +235,7 @@ void BlobFS::postRasbaseAbort() throw (r_Error)
     removeTransaction->postRasbaseAbort();
 }
 
-void BlobFS::finalizeUncompletedTransactions() throw (r_Error)
+void BlobFS::finalizeUncompletedTransactions()
 {
     DirEntryIterator subdirIterator(config.transactionsPath);
     if (subdirIterator.open())

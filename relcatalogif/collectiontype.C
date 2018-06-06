@@ -56,7 +56,7 @@ CollectionType::CollectionType(const char* name, const MDDType* newMDDType)
 	myMDDType = newMDDType;
 	}
 
-CollectionType::CollectionType(const OId& id) throw (r_Error)
+CollectionType::CollectionType(const OId& id)
 	:	Type(id), nullValues(NULL)
 	{
 	}

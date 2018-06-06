@@ -55,7 +55,7 @@ BlobFile::~BlobFile()
     }
 }
 
-void BlobFile::insertData(BlobData& blob) throw (r_Error)
+void BlobFile::insertData(BlobData& blob)
 {
     prepareForInserting();
     ssize_t count = write(fd, blob.data, blob.size);
@@ -71,7 +71,7 @@ void BlobFile::insertData(BlobData& blob) throw (r_Error)
     closeFileDescriptor();
 }
 
-void BlobFile::updateData(BlobData& blob) throw (r_Error)
+void BlobFile::updateData(BlobData& blob)
 {
     prepareForUpdating();
     ssize_t count = write(fd, blob.data, blob.size);
@@ -87,7 +87,7 @@ void BlobFile::updateData(BlobData& blob) throw (r_Error)
     closeFileDescriptor();
 }
 
-void BlobFile::readData(BlobData& blob) throw (r_Error)
+void BlobFile::readData(BlobData& blob)
 {
     blob.size = static_cast<r_Bytes>(getSize());
     if (blob.size == 0)
@@ -114,7 +114,7 @@ void BlobFile::readData(BlobData& blob) throw (r_Error)
     closeFileDescriptor();
 }
 
-void BlobFile::prepareForInserting() throw (r_Error)
+void BlobFile::prepareForInserting()
 {
     fd = open(filePath.c_str(), O_CREAT | O_WRONLY, 0660);
     if (fd == INVALID_FILE_DESCRIPTOR)
@@ -123,7 +123,7 @@ void BlobFile::prepareForInserting() throw (r_Error)
     }
 }
 
-void BlobFile::prepareForUpdating() throw (r_Error)
+void BlobFile::prepareForUpdating()
 {
     fd = open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0660);
     if (fd == INVALID_FILE_DESCRIPTOR)
@@ -132,7 +132,7 @@ void BlobFile::prepareForUpdating() throw (r_Error)
     }
 }
 
-void BlobFile::prepareForReading() throw (r_Error)
+void BlobFile::prepareForReading()
 {
     fd = open(filePath.c_str(), O_RDONLY);
     if (fd == INVALID_FILE_DESCRIPTOR)
@@ -141,7 +141,7 @@ void BlobFile::prepareForReading() throw (r_Error)
     }
 }
 
-void BlobFile::closeFileDescriptor() throw (r_Error)
+void BlobFile::closeFileDescriptor()
 {
     if (close(fd) == IO_ERROR_RC)
     {
@@ -151,7 +151,7 @@ void BlobFile::closeFileDescriptor() throw (r_Error)
     fd = INVALID_FILE_DESCRIPTOR;
 }
 
-off_t BlobFile::getSize() throw (r_Error)
+off_t BlobFile::getSize()
 {
     struct stat status;
     if (stat(filePath.c_str(), &status) == IO_ERROR_RC)
@@ -161,12 +161,12 @@ off_t BlobFile::getSize() throw (r_Error)
     return status.st_size;
 }
 
-bool BlobFile::fileExists(const string& filePath) throw (r_Error)
+bool BlobFile::fileExists(const string& filePath)
 {
     return access(filePath.c_str(), F_OK) != IO_ERROR_RC;
 }
 
-void BlobFile::moveFile(const std::string& fromFilePath, const std::string& toFilePath) throw (r_Error)
+void BlobFile::moveFile(const std::string& fromFilePath, const std::string& toFilePath)
 {
     if (rename(fromFilePath.c_str(), toFilePath.c_str()) == IO_ERROR_RC)
     {
@@ -208,7 +208,7 @@ long long BlobFile::getBlobId()
     return ret;
 }
 
-void BlobFile::generateError(const char* message, int errorCode) throw (r_Error)
+void BlobFile::generateError(const char* message, int errorCode)
 {
     LFATAL << message << " - " << filePath;
     LFATAL << "reason: " << strerror(errno);

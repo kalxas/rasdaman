@@ -452,7 +452,7 @@ DBHierIndex::setAssignedDomain(const r_Minterval& newDomain)
 }
 
 void
-DBHierIndex::extendCoveredDomain(const r_Minterval& newTilesExtents) throw (r_Edim_mismatch, r_Eno_interval)
+DBHierIndex::extendCoveredDomain(const r_Minterval& newTilesExtents)
 {
     myDomain.closure_with(newTilesExtents);
     setModified();
@@ -731,7 +731,7 @@ value :
 // text/exportindex.cc, this will be done later
 //
 BinaryRepresentation
-DBHierIndex::getBinaryRepresentation() const throw (r_Error)
+DBHierIndex::getBinaryRepresentation() const
 {
     BinaryRepresentation brp;
     brp.binaryName = getBinaryName();
@@ -852,7 +852,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
 }
 
 void
-DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_Error)
+DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
 {
     // This format is not efficient (but also not in use..), it should be reviewed against alignment issues
     if (memcmp(brp.binaryData, BinaryRepresentation::fileTag, 5) != 0)

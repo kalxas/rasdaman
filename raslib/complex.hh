@@ -74,11 +74,11 @@ public:
     /// operator for assigning a primitive
     const r_Complex& operator =(const r_Complex&);
 
-    r_Double get_re() const throw(r_Error);
-    r_Double get_im() const throw(r_Error);
+    r_Double get_re() const;
+    r_Double get_im() const;
 
-    void set_re(r_Double) throw(r_Error);
-    void set_im(r_Double) throw(r_Error);
+    void set_re(r_Double);
+    void set_im(r_Double);
 
 };
 

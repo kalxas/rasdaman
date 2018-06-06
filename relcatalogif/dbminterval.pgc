@@ -48,7 +48,7 @@ DBMinterval::DBMinterval()
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const OId& id) throw (r_Error)
+DBMinterval::DBMinterval(const OId& id)
     :   r_Minterval(),
         DBObject(id)
 {
@@ -116,7 +116,7 @@ DBMinterval::getMemorySize() const
 }
 
 void
-DBMinterval::insertInDb() throw (r_Error)
+DBMinterval::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    domainid;
@@ -173,7 +173,7 @@ DBMinterval::insertInDb() throw (r_Error)
 }
 
 void
-DBMinterval::updateInDb() throw (r_Error)
+DBMinterval::updateInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    domainid1;
@@ -279,7 +279,7 @@ DBMinterval::updateInDb() throw (r_Error)
 }
 
 void
-DBMinterval::deleteFromDb() throw (r_Error)
+DBMinterval::deleteFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    domainid2;
@@ -307,7 +307,7 @@ DBMinterval::deleteFromDb() throw (r_Error)
 }
 
 void
-DBMinterval::readFromDb() throw (r_Error)
+DBMinterval::readFromDb()
 {
     char undefined = '*';
     EXEC SQL BEGIN DECLARE SECTION;

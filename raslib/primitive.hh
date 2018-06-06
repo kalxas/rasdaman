@@ -85,42 +85,42 @@ public:
     ///
 
     ///
-    r_Boolean get_boolean() const throw(r_Error);
+    r_Boolean get_boolean() const;
     ///
-    r_Char    get_char()    const throw(r_Error);
+    r_Char    get_char()    const;
     ///
-    r_Octet   get_octet()   const throw(r_Error);
+    r_Octet   get_octet()   const;
     ///
-    r_Short   get_short()   const throw(r_Error);
+    r_Short   get_short()   const;
     ///
-    r_UShort  get_ushort()  const throw(r_Error);
+    r_UShort  get_ushort()  const;
     ///
-    r_Long    get_long()    const throw(r_Error);
+    r_Long    get_long()    const;
     ///
-    r_ULong   get_ulong()   const throw(r_Error);
+    r_ULong   get_ulong()   const;
     ///
-    r_Float   get_float()   const throw(r_Error);
+    r_Float   get_float()   const;
     ///
-    r_Double  get_double()  const throw(r_Error);
+    r_Double  get_double()  const;
 
     ///
-    void set_boolean(r_Boolean) throw(r_Error);
+    void set_boolean(r_Boolean);
     ///
-    void set_char(r_Char)       throw(r_Error);
+    void set_char(r_Char);
     ///
-    void set_octet(r_Octet)     throw(r_Error);
+    void set_octet(r_Octet);
     ///
-    void set_short(r_Short)     throw(r_Error);
+    void set_short(r_Short);
     ///
-    void set_ushort(r_UShort)   throw(r_Error);
+    void set_ushort(r_UShort);
     ///
-    void set_long(r_Long)       throw(r_Error);
+    void set_long(r_Long);
     ///
-    void set_ulong(r_ULong)     throw(r_Error);
+    void set_ulong(r_ULong);
     ///
-    void set_float(r_Float)     throw(r_Error);
+    void set_float(r_Float);
     ///
-    void set_double(r_Double)   throw(r_Error);
+    void set_double(r_Double);
 
 
     ///

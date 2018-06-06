@@ -123,7 +123,7 @@ bool r_PointDouble::operator!=(const r_PointDouble &pt) const
     return this->points != pt.getVectorContent();
 }
 
-bool r_PointDouble::operator<(const r_PointDouble &pt) const throw(r_Edim_mismatch)
+bool r_PointDouble::operator<(const r_PointDouble &pt) const
 {
     if (points.size() != pt.dimension())
     {
@@ -147,7 +147,7 @@ bool r_PointDouble::operator<(const r_PointDouble &pt) const throw(r_Edim_mismat
 
 
 r_PointDouble
-r_PointDouble::operator+(const r_PointDouble &pt) const throw(r_Edim_mismatch)
+r_PointDouble::operator+(const r_PointDouble &pt) const
 {
     if (points.size() != pt.dimension())
     {
@@ -165,7 +165,7 @@ r_PointDouble::operator+(const r_PointDouble &pt) const throw(r_Edim_mismatch)
 }
 
 r_PointDouble
-r_PointDouble::operator-(const r_PointDouble &pt) const throw(r_Edim_mismatch)
+r_PointDouble::operator-(const r_PointDouble &pt) const
 {
     if (points.size() != pt.dimension())
     {
@@ -183,7 +183,7 @@ r_PointDouble::operator-(const r_PointDouble &pt) const throw(r_Edim_mismatch)
 }
 
 r_PointDouble
-    r_PointDouble::operator*(const r_PointDouble &pt) const throw(r_Edim_mismatch)
+    r_PointDouble::operator*(const r_PointDouble &pt) const
 {
     if (points.size() != pt.dimension())
     {
@@ -212,7 +212,7 @@ r_PointDouble::operator*(const double scalarArg) const
 }
 
 double
-r_PointDouble::dotProduct(const r_PointDouble& pt) const throw(r_Edim_mismatch)
+r_PointDouble::dotProduct(const r_PointDouble& pt) const
 {
     if (points.size() != pt.dimension())
     {

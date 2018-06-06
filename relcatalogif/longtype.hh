@@ -57,7 +57,7 @@ values. The value of a Long is stored in four chars.
 class LongType : public IntegralType
 {
 public:
-    LongType(const OId& id) throw (r_Error);
+    LongType(const OId& id);
     /*@Doc:
     */
 
@@ -98,7 +98,7 @@ public:
 
 protected:
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

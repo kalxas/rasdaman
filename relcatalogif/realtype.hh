@@ -65,7 +65,7 @@ public:
     copy constructor.
     */
 
-    RealType(const OId& id) throw (r_Error):
+    RealType(const OId& id):
         AtomicType(id) {}
     /*@Doc:
     */

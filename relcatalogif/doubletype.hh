@@ -61,7 +61,7 @@ public:
     default constructor, sets type name to "Double".
     */
 
-    DoubleType(const OId& id) throw (r_Error);
+    DoubleType(const OId& id);
     /*@Doc:
     */
 
@@ -96,7 +96,7 @@ public:
 
 protected:
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

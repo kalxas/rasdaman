@@ -84,7 +84,7 @@ CompositeType::CompositeType(const CompositeType& old)
 	{
 	}
 
-CompositeType::CompositeType(const OId& id) throw (r_Error)
+CompositeType::CompositeType(const OId& id)
 	:	BaseType(id)
 	{
 	}

@@ -242,7 +242,7 @@ public:
     virtual ~ServerComm();
 
     /// forces the server to listen for client calls
-    virtual void startRpcServer() throw(r_Error);
+    virtual void startRpcServer();
 
     /// stops the server
     virtual void stopRpcServer();
@@ -256,7 +256,7 @@ public:
 #define SERVER_REGULARSIG  3
 
     /// adds an entry to the client table (used in RasServerEntry)
-    void addClientTblEntry(ClientTblElt* context) throw (r_Error);
+    void addClientTblEntry(ClientTblElt* context);
     /**
       Adds the context entry passed to the client table.
       Throws an exception if context==NULL.

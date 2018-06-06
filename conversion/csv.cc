@@ -101,7 +101,7 @@ void r_Conv_CSV::initCSV(void)
 }
 
 
-r_Conv_CSV::r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
+r_Conv_CSV::r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Convertor(src, interv, tp, true)
 {
     initCSV();
@@ -109,7 +109,7 @@ r_Conv_CSV::r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type*
 
 
 
-r_Conv_CSV::r_Conv_CSV(const char* src, const r_Minterval& interv, int tp) throw(r_Error)
+r_Conv_CSV::r_Conv_CSV(const char* src, const r_Minterval& interv, int tp)
     : r_Convertor(src, interv, tp)
 {
     initCSV();
@@ -565,7 +565,7 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
 }
 
 r_Conv_Desc& r_Conv_CSV::convertTo(const char* options,
-                                   const r_Range* nullValue) throw(r_Error)
+                                   const r_Range* nullValue)
 {
     order = r_Conv_CSV::OUTER_INNER;
     if (options)
@@ -644,7 +644,7 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options,
     return desc;
 }
 
-r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
 {
     if (options)
     {
@@ -680,7 +680,7 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options) throw(r_Error)
     return desc;
 }
 
-r_Conv_Desc& r_Conv_CSV::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_CSV::convertFrom(__attribute__ ((unused)) r_Format_Params options)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }

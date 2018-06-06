@@ -53,7 +53,7 @@ MDDBaseType::getMemorySize() const
     return MDDType::getMemorySize() + myBaseType->getMemorySize() + sizeof(BaseType*);
 }
 
-MDDBaseType::MDDBaseType(const OId& id) throw (r_Error)
+MDDBaseType::MDDBaseType(const OId& id)
     :   MDDType(id)
 {
     if (objecttype == OId::MDDBASETYPEOID)

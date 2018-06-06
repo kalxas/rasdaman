@@ -148,7 +148,7 @@ OctetType::makeFromCLong(char* cell, const r_Long* value) const
 }
 
 void
-OctetType::readFromDb() throw (r_Error)
+OctetType::readFromDb()
 	{
 	setName(OctetType::Name);
 	size = 1;

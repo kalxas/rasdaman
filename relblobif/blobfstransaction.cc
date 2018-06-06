@@ -68,7 +68,7 @@ BlobFSTransaction::~BlobFSTransaction()
 
 BlobFSTransaction::BlobFSTransaction(BlobFSConfig& configArg,
                                      const std::string& transactionDir,
-                                     const std::string& fileStorageTransactionPathArg) throw (r_Error)
+                                     const std::string& fileStorageTransactionPathArg)
     : config(configArg), transactionPath(DirWrapper::convertToCanonicalPath(fileStorageTransactionPathArg)),
       transactionLock(NULL), dir1IndexCache(INVALID_DIR_INDEX), dir2IndexCache(INVALID_DIR_INDEX)
 {
@@ -88,19 +88,19 @@ BlobFSTransaction::BlobFSTransaction(BlobFSConfig& configArg)
 {
 }
 
-void BlobFSTransaction::preRasbaseCommit() throw (r_Error)
+void BlobFSTransaction::preRasbaseCommit()
 {
 }
 
-void BlobFSTransaction::postRasbaseCommit() throw (r_Error)
+void BlobFSTransaction::postRasbaseCommit()
 {
 }
 
-void BlobFSTransaction::postRasbaseAbort() throw (r_Error)
+void BlobFSTransaction::postRasbaseAbort()
 {
 }
 
-const string BlobFSTransaction::getTmpBlobPath(long long blobId) throw (r_Error)
+const string BlobFSTransaction::getTmpBlobPath(long long blobId)
 {
     if (blobId > 0)
     {
@@ -117,7 +117,7 @@ const string BlobFSTransaction::getTmpBlobPath(long long blobId) throw (r_Error)
     }
 }
 
-const string BlobFSTransaction::getFinalBlobPath(long long blobId) throw (r_Error)
+const string BlobFSTransaction::getFinalBlobPath(long long blobId)
 {
     if (blobId > 0)
     {
@@ -161,7 +161,7 @@ const string BlobFSTransaction::getFinalBlobPath(long long blobId) throw (r_Erro
     }
 }
 
-void BlobFSTransaction::finalizeUncompleted() throw (r_Error)
+void BlobFSTransaction::finalizeUncompleted()
 {
     collectBlobIds();
     if (!blobIds.empty())
@@ -187,7 +187,7 @@ void BlobFSTransaction::finalizeUncompleted() throw (r_Error)
     }
 }
 
-void BlobFSTransaction::finalizeRasbaseCrash() throw (r_Error)
+void BlobFSTransaction::finalizeRasbaseCrash()
 {
     if (!blobIds.empty())
     {
@@ -256,7 +256,7 @@ bool BlobFSTransaction::addBlobId(const std::string blobPath)
     }
 }
 
-void BlobFSTransaction::initTransactionDirectory(const string& transactionSubdir) throw (r_Error)
+void BlobFSTransaction::initTransactionDirectory(const string& transactionSubdir)
 {
     string tempDirPath = config.transactionsPath + transactionSubdir + ".XXXXXX";
     if (mkdtemp(const_cast<char*>(tempDirPath.c_str())) == NULL)
@@ -320,12 +320,12 @@ BlobFSTransaction::getBlobFSTransaction(const string& transactionPath,
 // -- insert
 
 BlobFSInsertTransaction::BlobFSInsertTransaction(BlobFSConfig& configArg,
-        const string& fileStorageTransactionPathArg) throw (r_Error)
+        const string& fileStorageTransactionPathArg)
     : BlobFSTransaction(configArg, FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg)
 {
 }
 
-void BlobFSInsertTransaction::add(BlobData& blob) throw (r_Error)
+void BlobFSInsertTransaction::add(BlobData& blob)
 {
     const string blobPath = getTmpBlobPath(blob.blobId);
     BlobFile blobFile(blobPath);
@@ -333,7 +333,7 @@ void BlobFSInsertTransaction::add(BlobData& blob) throw (r_Error)
     blobIds.push_back(blob.blobId);
 }
 
-void BlobFSInsertTransaction::postRasbaseCommit() throw (r_Error)
+void BlobFSInsertTransaction::postRasbaseCommit()
 {
     if (!blobIds.empty())
     {
@@ -347,7 +347,7 @@ void BlobFSInsertTransaction::postRasbaseCommit() throw (r_Error)
     }
 }
 
-void BlobFSInsertTransaction::postRasbaseAbort() throw (r_Error)
+void BlobFSInsertTransaction::postRasbaseAbort()
 {
     if (!blobIds.empty())
     {
@@ -364,12 +364,12 @@ void BlobFSInsertTransaction::postRasbaseAbort() throw (r_Error)
 // -- update
 
 BlobFSUpdateTransaction::BlobFSUpdateTransaction(BlobFSConfig& configArg,
-        const string& fileStorageTransactionPathArg) throw (r_Error)
+        const string& fileStorageTransactionPathArg)
     : BlobFSTransaction(configArg, FILESTORAGE_UPDATE_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg)
 {
 }
 
-void BlobFSUpdateTransaction::add(BlobData& blob) throw (r_Error)
+void BlobFSUpdateTransaction::add(BlobData& blob)
 {
     const string blobPath = getTmpBlobPath(blob.blobId);
     BlobFile blobFile(blobPath);
@@ -377,7 +377,7 @@ void BlobFSUpdateTransaction::add(BlobData& blob) throw (r_Error)
     blobIds.push_back(blob.blobId);
 }
 
-void BlobFSUpdateTransaction::postRasbaseCommit() throw (r_Error)
+void BlobFSUpdateTransaction::postRasbaseCommit()
 {
     if (!blobIds.empty())
     {
@@ -391,7 +391,7 @@ void BlobFSUpdateTransaction::postRasbaseCommit() throw (r_Error)
     }
 }
 
-void BlobFSUpdateTransaction::postRasbaseAbort() throw (r_Error)
+void BlobFSUpdateTransaction::postRasbaseAbort()
 {
     if (!blobIds.empty())
     {
@@ -408,12 +408,12 @@ void BlobFSUpdateTransaction::postRasbaseAbort() throw (r_Error)
 // -- remove
 
 BlobFSRemoveTransaction::BlobFSRemoveTransaction(BlobFSConfig& configArg,
-        const string& fileStorageTransactionPathArg) throw (r_Error)
+        const string& fileStorageTransactionPathArg)
     : BlobFSTransaction(configArg, FILESTORAGE_REMOVE_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg)
 {
 }
 
-void BlobFSRemoveTransaction::add(BlobData& blob) throw (r_Error)
+void BlobFSRemoveTransaction::add(BlobData& blob)
 {
     if (blob.blobId > 0)
     {
@@ -426,7 +426,7 @@ void BlobFSRemoveTransaction::add(BlobData& blob) throw (r_Error)
     }
 }
 
-void BlobFSRemoveTransaction::preRasbaseCommit() throw (r_Error)
+void BlobFSRemoveTransaction::preRasbaseCommit()
 {
     if (!blobIds.empty())
     {
@@ -439,7 +439,7 @@ void BlobFSRemoveTransaction::preRasbaseCommit() throw (r_Error)
     }
 }
 
-void BlobFSRemoveTransaction::postRasbaseCommit() throw (r_Error)
+void BlobFSRemoveTransaction::postRasbaseCommit()
 {
     if (!blobIds.empty())
     {
@@ -453,7 +453,7 @@ void BlobFSRemoveTransaction::postRasbaseCommit() throw (r_Error)
     }
 }
 
-void BlobFSRemoveTransaction::postRasbaseAbort() throw (r_Error)
+void BlobFSRemoveTransaction::postRasbaseAbort()
 {
     if (!blobIds.empty())
     {
@@ -473,12 +473,12 @@ void BlobFSRemoveTransaction::postRasbaseAbort() throw (r_Error)
 
 // -- select/retrieve
 
-BlobFSSelectTransaction::BlobFSSelectTransaction(BlobFSConfig& configArg) throw (r_Error)
+BlobFSSelectTransaction::BlobFSSelectTransaction(BlobFSConfig& configArg)
     : BlobFSTransaction(configArg)
 {
 }
 
-void BlobFSSelectTransaction::add(BlobData& blob) throw (r_Error)
+void BlobFSSelectTransaction::add(BlobData& blob)
 {
     const string blobPath = getFinalBlobPath(blob.blobId);
     BlobFile blobFile(blobPath);

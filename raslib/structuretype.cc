@@ -174,7 +174,7 @@ r_Structure_Type::defines_attribute_end() const
 }
 
 r_Attribute
-r_Structure_Type::resolve_attribute(const char* newName) const throw(r_Error)
+r_Structure_Type::resolve_attribute(const char* newName) const
 {
     r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
 
@@ -194,7 +194,7 @@ r_Structure_Type::resolve_attribute(const char* newName) const throw(r_Error)
 }
 
 r_Attribute
-r_Structure_Type::resolve_attribute(unsigned int number) const throw(r_Error)
+r_Structure_Type::resolve_attribute(unsigned int number) const
 {
     r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
     unsigned int i = 0;
@@ -214,7 +214,7 @@ r_Structure_Type::resolve_attribute(unsigned int number) const throw(r_Error)
 }
 
 r_Attribute
-r_Structure_Type::operator[](unsigned int number) const throw(r_Error)
+r_Structure_Type::operator[](unsigned int number) const
 {
     return resolve_attribute(number);
 }

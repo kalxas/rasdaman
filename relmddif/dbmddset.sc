@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
 
-DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type) throw (r_Error)
+DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
     : DBNamedObject(id, name),
       collType(const_cast<CollectionType*>(type))
 {
@@ -112,7 +112,7 @@ DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type) 
 }
 
 void
-DBMDDSet::insertInDb() throw (r_Error)
+DBMDDSet::insertInDb()
 {
     long long mddoid;
     long long mddcolloid;
@@ -136,7 +136,7 @@ DBMDDSet::insertInDb() throw (r_Error)
 }
 
 void
-DBMDDSet::deleteFromDb() throw (r_Error)
+DBMDDSet::deleteFromDb()
 {
     long long mddcolloid1 = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDCOLLNAMES WHERE MDDCollId = %lld", mddcolloid1);
@@ -145,7 +145,7 @@ DBMDDSet::deleteFromDb() throw (r_Error)
 }
 
 void
-DBMDDSet::readFromDb() throw (r_Error)
+DBMDDSet::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();

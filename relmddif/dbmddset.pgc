@@ -47,7 +47,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
 
-DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type) throw (r_Error)
+DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
     :   DBNamedObject(id, name),
         collType(type)
 {
@@ -117,7 +117,7 @@ DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type) 
 }
 
 void
-DBMDDSet::insertInDb() throw (r_Error)
+DBMDDSet::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddoid;
@@ -164,7 +164,7 @@ DBMDDSet::insertInDb() throw (r_Error)
 }
 
 void
-DBMDDSet::deleteFromDb() throw (r_Error)
+DBMDDSet::deleteFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddcolloid1;
@@ -198,7 +198,7 @@ DBMDDSet::deleteFromDb() throw (r_Error)
 }
 
 void
-DBMDDSet::readFromDb() throw (r_Error)
+DBMDDSet::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();

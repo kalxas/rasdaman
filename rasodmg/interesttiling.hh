@@ -82,12 +82,12 @@ public:
 
     /// read everything from an encoded string
     /// e.g. "2;[0:9,0:9];[100:109,0:9];100;REGROUPSUBTILING"
-    r_Interest_Tiling(const char* encoded) throw (r_Error);
+    r_Interest_Tiling(const char* encoded);
 
     r_Interest_Tiling(r_Dimension dim,
                       const std::vector<r_Minterval>& interest_areas,
                       r_Bytes ts = RMInit::clientTileSize,
-                      Tilesize_Limit strat = SUB_TILING) throw (r_Error);
+                      Tilesize_Limit strat = SUB_TILING);
     /**
       It takes as parameter a list containing the areas of interest to
       the user and also the tilesize to be used.
@@ -116,7 +116,7 @@ public:
 
     virtual ~r_Interest_Tiling();
 
-    std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const throw (r_Error);
+    std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
 
     virtual void print_status(std::ostream& os) const;
 

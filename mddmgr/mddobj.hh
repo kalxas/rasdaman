@@ -83,7 +83,7 @@ public:
     */
 
     /// Creates a new persistent MDD object using preallocated OId {\ttnewOId}.
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms) throw (r_Error);
+    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms);
     /**
         Creates a new persistent MDD object with definition domaini {\tt domain} and type (\tt mddType).
         The newly created object has no tiles.
@@ -91,7 +91,7 @@ public:
         Throws an exception if the object already exists or if the OId is not valid.
     */
 
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId) throw (r_Error);
+    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId);
     /**
         Creates a new persistent MDD object with definition domaini {\tt domain} and type (\tt mddType).
         The newly created object has no tiles.
@@ -101,13 +101,13 @@ public:
     */
 
     /// Opens an existent transient/persistent MDD object
-    MDDObj(const DBMDDObjId& dbmddobj) throw (r_Error);
+    MDDObj(const DBMDDObjId& dbmddobj);
     /**
         Throws an exception if the object does not exists.
     */
 
     /// Opens an existent persistent MDD object which has the OIdi {\tt givenOId }
-    MDDObj(const OId& givenOId) throw (r_Error);
+    MDDObj(const OId& givenOId);
     /**
         Throws an exception if the object does not exists.
     */
@@ -264,7 +264,7 @@ public:
 protected:
 
     /// does some consistency checks for regular tiling with rc index
-    const r_Minterval& checkStorage(const r_Minterval& domain) throw (r_Error);
+    const r_Minterval& checkStorage(const r_Minterval& domain);
 
     ///The data class that holds all information
     DBMDDObjId myDBMDDObj;

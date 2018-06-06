@@ -86,36 +86,36 @@ public:
 
     /// subscript operator to access attributes of a structured attribute
     /// throws error when type is not a struct type
-    r_Attribute operator[](unsigned int number) const throw(r_Error);
+    r_Attribute operator[](unsigned int number) const;
 
     //@Man: Type-safe value access methods. In case of type mismatch, an exception is raised.
     //@{
     ///
-    r_Boolean get_boolean(const char* cell) const throw(r_Error);
+    r_Boolean get_boolean(const char* cell) const;
 
     ///
-    r_Char    get_char(const char* cell)    const throw(r_Error);
+    r_Char    get_char(const char* cell)    const;
 
     ///
-    r_Octet   get_octet(const char* cell)   const throw(r_Error);
+    r_Octet   get_octet(const char* cell)   const;
 
     ///
-    r_Short   get_short(const char* cell)   const throw(r_Error);
+    r_Short   get_short(const char* cell)   const;
 
     ///
-    r_UShort  get_ushort(const char* cell)  const throw(r_Error);
+    r_UShort  get_ushort(const char* cell)  const;
 
     ///
-    r_Long    get_long(const char* cell)    const throw(r_Error);
+    r_Long    get_long(const char* cell)    const;
 
     ///
-    r_ULong   get_ulong(const char* cell)   const throw(r_Error);
+    r_ULong   get_ulong(const char* cell)   const;
 
     ///
-    r_Float   get_float(const char* cell)   const throw(r_Error);
+    r_Float   get_float(const char* cell)   const;
 
     ///
-    r_Double  get_double(const char* cell)  const throw(r_Error);
+    r_Double  get_double(const char* cell)  const;
 
     ///
     //@}

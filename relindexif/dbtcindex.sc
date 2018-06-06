@@ -42,7 +42,7 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 
 void
-DBTCIndex::deleteFromDb() throw (r_Error)
+DBTCIndex::deleteFromDb()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
@@ -60,19 +60,19 @@ DBTCIndex::insertBlob()
 }
 
 void
-DBTCIndex::writeInlineTiles(__attribute__((unused)) char* theblob, __attribute__((unused)) r_Bytes blobSize) throw (r_Error)
+DBTCIndex::writeInlineTiles(__attribute__((unused)) char* theblob, __attribute__((unused)) r_Bytes blobSize)
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
 void
-DBTCIndex::readInlineTiles() throw (r_Error)
+DBTCIndex::readInlineTiles()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
 void
-DBTCIndex::updateTileIndexMappings() throw (r_Error)
+DBTCIndex::updateTileIndexMappings()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }

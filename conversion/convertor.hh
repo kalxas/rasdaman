@@ -115,9 +115,9 @@ public:
     r_Convertor(void);
     /// constructor using an r_Type object
     r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp,
-                bool fullTypes = false) throw(r_Error);
+                bool fullTypes = false);
     /// constructor using convert_type_e shortcut
-    r_Convertor(const char* src, const r_Minterval& interv, int type) throw(r_Error);
+    r_Convertor(const char* src, const r_Minterval& interv, int type);
 
     /// destructor
     virtual ~r_Convertor(void);
@@ -125,13 +125,13 @@ public:
     //@Man: Interface
     /// convert array to a specific format
     virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL) throw(r_Error) = 0;
+                                   const r_Range* nullValue = NULL) = 0;
 
     /// convert data in a specific format to array
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw(r_Error) = 0;
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL) = 0;
 
     /// convert data in a specific format to array
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error) = 0;
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options) = 0;
 
 
     /// cloning
@@ -159,13 +159,13 @@ public:
     //@}
 
     /// get a string representation of the internal type
-    static std::string type_to_string(int ctype) throw(r_Error);
+    static std::string type_to_string(int ctype);
 
     /// get a r_Type from an internal type
-    static r_Type* get_external_type(int ctype) throw(r_Error);
+    static r_Type* get_external_type(int ctype);
 
     /// get a internal type from a r_Type
-    static convert_type_e get_internal_type(const r_Type* type, bool fullTypes = false) throw(r_Error);
+    static convert_type_e get_internal_type(const r_Type* type, bool fullTypes = false);
 
 protected:
     /// initialize internal structures
@@ -213,16 +213,16 @@ class r_Convert_Memory : public r_Convertor
 public:
     /// constructor using an r_Type object
     r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp,
-                     int fullTypes = 0) throw(r_Error);
+                     int fullTypes = 0);
     /// constructur using convert_type_e shortcut
-    r_Convert_Memory(const char* src, const r_Minterval& interv, int type) throw(r_Error);
+    r_Convert_Memory(const char* src, const r_Minterval& interv, int type);
     /// destructor
     virtual ~r_Convert_Memory(void);
 
 
 protected:
     /// init memfs
-    void initMemory(void) throw(r_Error);
+    void initMemory(void);
 
     /// variables
     memFSContext* memFS;

@@ -293,7 +293,7 @@ r_Primitive_Type::print_value(const char* storage,  std::ostream& s) const
 // This may change in future
 
 r_Double
-r_Primitive_Type::get_value(const char* storage) const throw(r_Error)
+r_Primitive_Type::get_value(const char* storage) const
 {
     r_Double retVal = 0.;
 
@@ -342,7 +342,7 @@ r_Primitive_Type::get_value(const char* storage) const throw(r_Error)
 // This may change in future
 
 void
-r_Primitive_Type::set_value(char* storage, r_Double val) throw(r_Error)
+r_Primitive_Type::set_value(char* storage, r_Double val)
 {
     switch (typeId)
     {
@@ -388,7 +388,7 @@ r_Primitive_Type::set_value(char* storage, r_Double val) throw(r_Error)
 // This may change in future
 
 void
-r_Primitive_Type::get_limits(r_Double& min, r_Double& max) throw(r_Error)
+r_Primitive_Type::get_limits(r_Double& min, r_Double& max)
 {
     r_Double* type = NULL;
     switch (typeId)
@@ -422,7 +422,7 @@ r_Primitive_Type::get_limits(r_Double& min, r_Double& max) throw(r_Error)
 }
 
 r_Boolean
-r_Primitive_Type::get_boolean(const char* cell) const throw(r_Error)
+r_Primitive_Type::get_boolean(const char* cell) const
 {
     if (typeId != r_Type::BOOL)
     {
@@ -437,7 +437,7 @@ r_Primitive_Type::get_boolean(const char* cell) const throw(r_Error)
 
 
 r_Char
-r_Primitive_Type::get_char(const char* cell)    const throw(r_Error)
+r_Primitive_Type::get_char(const char* cell)    const
 {
     if (typeId != r_Type::CHAR)
     {
@@ -452,7 +452,7 @@ r_Primitive_Type::get_char(const char* cell)    const throw(r_Error)
 
 
 r_Octet
-r_Primitive_Type::get_octet(const char* cell)   const throw(r_Error)
+r_Primitive_Type::get_octet(const char* cell)   const
 {
     if (typeId != r_Type::OCTET)
     {
@@ -467,7 +467,7 @@ r_Primitive_Type::get_octet(const char* cell)   const throw(r_Error)
 
 
 r_Short
-r_Primitive_Type::get_short(const char* cell)   const throw(r_Error)
+r_Primitive_Type::get_short(const char* cell)   const
 {
     if (typeId != r_Type::SHORT)
     {
@@ -482,7 +482,7 @@ r_Primitive_Type::get_short(const char* cell)   const throw(r_Error)
 
 
 r_UShort
-r_Primitive_Type::get_ushort(const char* cell)  const throw(r_Error)
+r_Primitive_Type::get_ushort(const char* cell)  const
 {
     if (typeId != r_Type::USHORT)
     {
@@ -497,7 +497,7 @@ r_Primitive_Type::get_ushort(const char* cell)  const throw(r_Error)
 
 
 r_Long
-r_Primitive_Type::get_long(const char* cell)    const throw(r_Error)
+r_Primitive_Type::get_long(const char* cell)    const
 {
     if (typeId != r_Type::LONG)
     {
@@ -512,7 +512,7 @@ r_Primitive_Type::get_long(const char* cell)    const throw(r_Error)
 
 
 r_ULong
-r_Primitive_Type::get_ulong(const char* cell)   const throw(r_Error)
+r_Primitive_Type::get_ulong(const char* cell)   const
 {
     if (typeId != r_Type::ULONG)
     {
@@ -527,7 +527,7 @@ r_Primitive_Type::get_ulong(const char* cell)   const throw(r_Error)
 
 
 r_Float
-r_Primitive_Type::get_float(const char* cell)   const throw(r_Error)
+r_Primitive_Type::get_float(const char* cell)   const
 {
     if (typeId != r_Type::FLOAT)
     {
@@ -542,7 +542,7 @@ r_Primitive_Type::get_float(const char* cell)   const throw(r_Error)
 
 
 r_Double
-r_Primitive_Type::get_double(const char* cell)  const throw(r_Error)
+r_Primitive_Type::get_double(const char* cell)  const
 {
     if (typeId != r_Type::DOUBLE)
     {
@@ -555,7 +555,7 @@ r_Primitive_Type::get_double(const char* cell)  const throw(r_Error)
 }
 
 void
-r_Primitive_Type::set_boolean(char* cell, r_Boolean val) throw(r_Error)
+r_Primitive_Type::set_boolean(char* cell, r_Boolean val)
 {
     if (typeId != r_Type::BOOL)
     {
@@ -570,7 +570,7 @@ r_Primitive_Type::set_boolean(char* cell, r_Boolean val) throw(r_Error)
 
 
 void
-r_Primitive_Type::set_char(char* cell, r_Char val)    throw(r_Error)
+r_Primitive_Type::set_char(char* cell, r_Char val)
 {
     if (typeId != r_Type::CHAR)
     {
@@ -585,7 +585,7 @@ r_Primitive_Type::set_char(char* cell, r_Char val)    throw(r_Error)
 
 
 void
-r_Primitive_Type::set_octet(char* cell, r_Octet val)   throw(r_Error)
+r_Primitive_Type::set_octet(char* cell, r_Octet val)
 {
     if (typeId != r_Type::OCTET)
     {
@@ -600,7 +600,7 @@ r_Primitive_Type::set_octet(char* cell, r_Octet val)   throw(r_Error)
 
 
 void
-r_Primitive_Type::set_short(char* cell, r_Short val)   throw(r_Error)
+r_Primitive_Type::set_short(char* cell, r_Short val)
 {
     if (typeId != r_Type::SHORT)
     {
@@ -615,7 +615,7 @@ r_Primitive_Type::set_short(char* cell, r_Short val)   throw(r_Error)
 
 
 void
-r_Primitive_Type::set_ushort(char* cell, r_UShort val)  throw(r_Error)
+r_Primitive_Type::set_ushort(char* cell, r_UShort val)
 {
     if (typeId != r_Type::USHORT)
     {
@@ -630,7 +630,7 @@ r_Primitive_Type::set_ushort(char* cell, r_UShort val)  throw(r_Error)
 
 
 void
-r_Primitive_Type::set_long(char* cell, r_Long val)    throw(r_Error)
+r_Primitive_Type::set_long(char* cell, r_Long val)
 {
     if (typeId != r_Type::LONG)
     {
@@ -645,7 +645,7 @@ r_Primitive_Type::set_long(char* cell, r_Long val)    throw(r_Error)
 
 
 void
-r_Primitive_Type::set_ulong(char* cell, r_ULong val)   throw(r_Error)
+r_Primitive_Type::set_ulong(char* cell, r_ULong val)
 {
     if (typeId != r_Type::ULONG)
     {
@@ -660,7 +660,7 @@ r_Primitive_Type::set_ulong(char* cell, r_ULong val)   throw(r_Error)
 
 
 void
-r_Primitive_Type::set_float(char* cell, r_Float val)   throw(r_Error)
+r_Primitive_Type::set_float(char* cell, r_Float val)
 {
     if (typeId != r_Type::FLOAT)
     {
@@ -675,7 +675,7 @@ r_Primitive_Type::set_float(char* cell, r_Float val)   throw(r_Error)
 
 
 void
-r_Primitive_Type::set_double(char* cell, r_Double val)  throw(r_Error)
+r_Primitive_Type::set_double(char* cell, r_Double val)
 {
     if (typeId != r_Type::DOUBLE)
     {

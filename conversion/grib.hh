@@ -57,19 +57,19 @@ class r_Conv_GRIB : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_GRIB(const char* src, const r_Minterval& interv, const r_Type* tp) throw (r_Error);
+    r_Conv_GRIB(const char* src, const r_Minterval& interv, const r_Type* tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_GRIB(const char* src, const r_Minterval& interv, int tp) throw (r_Error);
+    r_Conv_GRIB(const char* src, const r_Minterval& interv, int tp);
     /// destructor
     ~r_Conv_GRIB(void);
 
     /// convert to GRIB
     virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL) throw (r_Error);
+                                   const r_Range* nullValue = NULL);
     /// convert from GRIB
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
+    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
     /// cloning
     virtual r_Convertor* clone(void) const;
 
@@ -85,26 +85,26 @@ private:
 #ifdef HAVE_GRIB
 
     /// parse the options to a JSON object
-    Json::Value getMessageDomainsJson() throw (r_Error);
+    Json::Value getMessageDomainsJson();
 
     /// get a handle to the GRIB file
-    FILE* getFileHandle() throw (r_Error);
+    FILE* getFileHandle();
 
     /// collect the message ids from the format parameters
-    std::unordered_map<int, r_Minterval> getMessageDomainsMap(const Json::Value& messageDomains) throw (r_Error);
+    std::unordered_map<int, r_Minterval> getMessageDomainsMap(const Json::Value& messageDomains);
 
     /// compute final bounding box from all message domains
-    r_Minterval computeBoundingBox(const std::unordered_map<int, r_Minterval>& messageDomains) throw (r_Error);
+    r_Minterval computeBoundingBox(const std::unordered_map<int, r_Minterval>& messageDomains);
 
     /// set the target domain of the decode result
-    void setTargetDomain(const r_Minterval& fullBoundingBox) throw (r_Error);
+    void setTargetDomain(const r_Minterval& fullBoundingBox);
 
     /// set the target data and type of the decode result
-    void setTargetDataAndType() throw (r_Error);
+    void setTargetDataAndType();
 
     /// check if the message bounds correspond to the bounds given by the format parameters
     void validateMessageDomain(FILE* in, grib_handle* h, int messageIndex,
-                               r_Range messageWidth, r_Range messageHeight, size_t messageArea) throw (r_Error);
+                               r_Range messageWidth, r_Range messageHeight, size_t messageArea);
 
     /**
      * Convert a subset of a GRIB message to the right sliceOffset in the rasddaman
@@ -119,10 +119,10 @@ private:
                       size_t subsetOffset, r_Range subsetWidth, r_Range subsetHeight, size_t subsetArea);
 
     /// get an r_Minterval object for domain in string representation
-    r_Minterval domainStringToMinterval(const  char* domain) throw (r_Error);
+    r_Minterval domainStringToMinterval(const  char* domain);
 
     /// the first dims-2 bounds must be slices (low == high); the last two (x/y) must be trims
-    void checkDomain(const r_Minterval& domain) throw (r_Error);
+    void checkDomain(const r_Minterval& domain);
 
     /// return true if domainAxis is a slice (lower = upper bound)
     bool isSlice(const r_Sinterval& domainAxis);

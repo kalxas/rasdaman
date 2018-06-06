@@ -70,13 +70,13 @@ const string r_Conv_NETCDF::VALID_MAX{"valid_max"};
 const string r_Conv_NETCDF::MISSING_VALUE{"missing_value"};
 
 /// constructor using an r_Type object.
-r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, const r_Type* tp) throw (r_Error)
+r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Convert_Memory(src, interv, tp, true)
 {
 }
 
 /// constructor using convert_type_e shortcut
-r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, int tp) throw (r_Error)
+r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, int tp)
     : r_Convert_Memory(src, interv, tp)
 {
 }
@@ -88,7 +88,7 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
 
 /// convert to NETCDF
 r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options,
-                                      const r_Range* nullValue) throw (r_Error)
+                                      const r_Range* nullValue)
 {
 #ifdef HAVE_NETCDF
     if (options)
@@ -154,7 +154,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options,
 }
 
 /// convert from NETCDF
-r_Conv_Desc& r_Conv_NETCDF::convertFrom(const char* options) throw (r_Error)
+r_Conv_Desc& r_Conv_NETCDF::convertFrom(const char* options)
 {
 #ifdef HAVE_NETCDF
     if (options)
@@ -168,7 +168,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertFrom(const char* options) throw (r_Error)
 #endif
 }
 
-r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options)
 {
 #ifdef HAVE_NETCDF
     formatParams = options;
@@ -230,7 +230,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options) throw(r_Error)
 
 #ifdef HAVE_NETCDF
 
-void r_Conv_NETCDF::readDimSizes(const NcFile& dataFile) throw (r_Error)
+void r_Conv_NETCDF::readDimSizes(const NcFile& dataFile)
 {
     NcVar* var = dataFile.get_var(varNames[0].c_str());
     numDims = (size_t)var->num_dims();
@@ -265,7 +265,7 @@ void r_Conv_NETCDF::readDimSizes(const NcFile& dataFile) throw (r_Error)
     }
 }
 
-void r_Conv_NETCDF::parseDecodeOptions(const string& options) throw (r_Error)
+void r_Conv_NETCDF::parseDecodeOptions(const string& options)
 {
     if (formatParams.parse(options))
     {
@@ -300,7 +300,7 @@ void r_Conv_NETCDF::parseDecodeOptions(const string& options) throw (r_Error)
     }
 }
 
-void r_Conv_NETCDF::validateDecodeOptions(const NcFile& dataFile) throw (r_Error)
+void r_Conv_NETCDF::validateDecodeOptions(const NcFile& dataFile)
 {
     size_t foundVarNames = 0;
     for (int i = 0; i < dataFile.num_vars(); i++)
@@ -318,7 +318,7 @@ void r_Conv_NETCDF::validateDecodeOptions(const NcFile& dataFile) throw (r_Error
     }
 }
 
-void r_Conv_NETCDF::parseEncodeOptions(const string& options) throw (r_Error)
+void r_Conv_NETCDF::parseEncodeOptions(const string& options)
 {
     if (!formatParams.parse(options))
     {
@@ -332,7 +332,7 @@ void r_Conv_NETCDF::parseEncodeOptions(const string& options) throw (r_Error)
     }
 }
 
-void r_Conv_NETCDF::validateJsonEncodeOptions() throw (r_Error)
+void r_Conv_NETCDF::validateJsonEncodeOptions()
 {
     if (!encodeOptions.isMember(FormatParamKeys::Encode::NetCDF::DIMENSIONS))
     {
@@ -375,7 +375,7 @@ void r_Conv_NETCDF::validateJsonEncodeOptions() throw (r_Error)
     }
 }
 
-void r_Conv_NETCDF::readSingleVar(const NcFile& dataFile) throw (r_Error)
+void r_Conv_NETCDF::readSingleVar(const NcFile& dataFile)
 {
     NcVar* var = dataFile.get_var(varNames[0].c_str());
     switch (var->type())
@@ -418,7 +418,7 @@ void r_Conv_NETCDF::readSingleVar(const NcFile& dataFile) throw (r_Error)
     }
 }
 
-void r_Conv_NETCDF::readMultipleVars(const NcFile& dataFile) throw (r_Error)
+void r_Conv_NETCDF::readMultipleVars(const NcFile& dataFile)
 {
     size_t structSize = buildStructType(dataFile);
 
@@ -473,7 +473,7 @@ void r_Conv_NETCDF::readMultipleVars(const NcFile& dataFile) throw (r_Error)
     }
 }
 
-size_t r_Conv_NETCDF::buildStructType(const NcFile& dataFile) throw (r_Error)
+size_t r_Conv_NETCDF::buildStructType(const NcFile& dataFile)
 {
     size_t structSize = 0;        // size of the struct type, used for offset computations in memcpy
     size_t alignSize = 1;  // alignment of size (taken from StructType::calcSize())
@@ -581,7 +581,7 @@ r_Conv_NETCDF::RasType r_Conv_NETCDF::getRasType(NcVar* var)
 }
 
 template<class T>
-void r_Conv_NETCDF::readData(NcVar* var, convert_type_e ctype) throw (r_Error)
+void r_Conv_NETCDF::readData(NcVar* var, convert_type_e ctype)
 {
     // get variable data
     desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof(T));
@@ -597,7 +597,7 @@ void r_Conv_NETCDF::readData(NcVar* var, convert_type_e ctype) throw (r_Error)
 }
 
 template<class T>
-void r_Conv_NETCDF::readDataStruct(NcVar* var, size_t structSize, size_t& bandOffset) throw (r_Error)
+void r_Conv_NETCDF::readDataStruct(NcVar* var, size_t structSize, size_t& bandOffset)
 {
     unique_ptr<T[]> data(new(nothrow) T[dataSize]);
     if (!data)
@@ -619,7 +619,7 @@ void r_Conv_NETCDF::readDataStruct(NcVar* var, size_t structSize, size_t& bandOf
 }
 
 /// write single variable data
-void r_Conv_NETCDF::writeSingleVar(NcFile& dataFile, const NcDim** dims) throw (r_Error)
+void r_Conv_NETCDF::writeSingleVar(NcFile& dataFile, const NcDim** dims)
 {
     string varName = getVariableName();
     switch (desc.baseType)
@@ -675,7 +675,7 @@ void r_Conv_NETCDF::writeSingleVar(NcFile& dataFile, const NcDim** dims) throw (
 }
 
 /// write multiple variables
-void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims) throw (r_Error)
+void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims)
 {
     r_Structure_Type* st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
     if (st == NULL)
@@ -757,7 +757,7 @@ void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims) thro
     }
 }
 
-void r_Conv_NETCDF::writeMetadata(NcFile& dataFile) throw (r_Error)
+void r_Conv_NETCDF::writeMetadata(NcFile& dataFile)
 {
     if (encodeOptions.isNull())
     {
@@ -853,7 +853,7 @@ void r_Conv_NETCDF::writeMetadata(NcFile& dataFile) throw (r_Error)
 #define ADD_ATTRIBUTE(v) \
     { (var != NULL) ? var->add_att(key, v) : dataFile.add_att(key, v); }
 
-void r_Conv_NETCDF::addJsonAttributes(NcFile& dataFile, const Json::Value& metadata, NcVar* var) throw (r_Error)
+void r_Conv_NETCDF::addJsonAttributes(NcFile& dataFile, const Json::Value& metadata, NcVar* var)
 {
     vector<string> m = metadata.getMemberNames();
     for (const string& keyStr : m)
@@ -1021,7 +1021,7 @@ void r_Conv_NETCDF::jsonArrayToNcVar(NcVar* var, Json::Value jsonArray)
 
 template <class S, class T>
 void r_Conv_NETCDF::writeData(NcFile& dataFile, string& varName, const NcDim** dims, NcType ncType,
-                              long validMin, long validMax, const char* missingValue) throw (r_Error)
+                              long validMin, long validMax, const char* missingValue)
 {
     NcVar* ncVar = dataFile.add_var(varName.c_str(), ncType, numDims, dims);
     if (validMax != 0)
@@ -1064,7 +1064,7 @@ void r_Conv_NETCDF::writeData(NcFile& dataFile, string& varName, const NcDim** d
 
 template <class S, class T>
 void r_Conv_NETCDF::writeDataStruct(NcFile& dataFile, string& varName, const NcDim** dims, size_t structSize, size_t bandOffset,
-                                    NcType ncType, long validMin, long validMax, const char* missingValue, size_t dimNum) throw (r_Error)
+                                    NcType ncType, long validMin, long validMax, const char* missingValue, size_t dimNum)
 {
     unique_ptr<T[]> buff(new(nothrow) T[dataSize]);
     if (!buff)
@@ -1097,7 +1097,7 @@ void r_Conv_NETCDF::writeDataStruct(NcFile& dataFile, string& varName, const NcD
     }
 }
 
-string r_Conv_NETCDF::getDimensionName(unsigned int dimId) throw (r_Error)
+string r_Conv_NETCDF::getDimensionName(unsigned int dimId)
 {
     static string dimNamePrefix(DEFAULT_DIM_NAME_PREFIX);
     stringstream dimName;
@@ -1105,7 +1105,7 @@ string r_Conv_NETCDF::getDimensionName(unsigned int dimId) throw (r_Error)
     return dimName.str();
 }
 
-string r_Conv_NETCDF::getVariableName() throw (r_Error)
+string r_Conv_NETCDF::getVariableName()
 {
     string ret;
     if (desc.baseType != ctype_struct && varNames.size() > 1)

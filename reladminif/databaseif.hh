@@ -72,7 +72,7 @@ public:
     */
 
     /// opens database with name {\tt dbName}.
-    void open(const char* dbName) throw(r_Error);
+    void open(const char* dbName);
     /*@Doc:
         Precondition: not opened, not connected, db exists
         Postcondition: open, not connected, db exists
@@ -89,7 +89,7 @@ public:
         closes currently opened database.  only frees name and sets connected/opened to false.
     */
 
-    static void createDB(const char* dbName, const char* schemaName, const char* volumeName = 0) throw(r_Error);
+    static void createDB(const char* dbName, const char* schemaName, const char* volumeName = 0);
     /*@Doc:
         Precondition: not open, not connected, db does not exist
         Postcondition: not open, not connected, db exists
@@ -97,7 +97,7 @@ public:
         only successful if dbName is RASBASE
     */
 
-    static void destroyDB(const char* dbName) throw(r_Error);
+    static void destroyDB(const char* dbName);
     /*@Doc:
         Precondition: not open, not connected, db exists
         Postcondition: not open, not connected, db does not exist
@@ -133,7 +133,7 @@ public:
     executes a baseDBMSClose() if it is still connected.
     */
 
-    static bool databaseExists(const char* dbname) throw (r_Error);
+    static bool databaseExists(const char* dbname);
     /*@Doc:
         Precondition: none checked.  db must be open and connected.
         Postcondition: none
@@ -141,7 +141,7 @@ public:
         checks if a database has been created.
     */
 
-    static bool isConsistent() throw (r_Error);
+    static bool isConsistent();
     /*@Doc:
         Precondition: none checked.  db must be open and connected.
         Postcondition: none
@@ -158,7 +158,7 @@ public:
 protected:
     friend class TransactionIf;
 
-    void baseDBMSOpen() throw (r_Error);
+    void baseDBMSOpen();
     /*@Doc:
     Precondition: current database = 0
     Postcondition: current database = this
@@ -175,7 +175,7 @@ protected:
         sets the DatabaseIf object in AdminIf to 0, if it was the same.
     */
 
-    static void connect() throw (r_Error);
+    static void connect();
     /*@Doc:
         Precondition: none checked.
         Postcondition: none.
@@ -183,7 +183,7 @@ protected:
         throws r_Error if there is a problem during connection.
     */
 
-    static void disconnect() throw (r_Error);
+    static void disconnect();
     /*@Doc:
         Precondition: none checked.
         Postcondition: none.
@@ -191,7 +191,7 @@ protected:
         throws r_Error if there is a problem during disconnection.
     */
 
-    void checkCompatibility() throw (r_Error);
+    void checkCompatibility();
     /*@Doc:
         Precondition: none checked.
         Postcondition: none.

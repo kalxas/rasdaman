@@ -139,20 +139,20 @@ public:
     //@}
 
 protected:
-    DBStorageLayout(const OId& id) throw (r_Error);
+    DBStorageLayout(const OId& id);
 
     friend class ObjectBroker;
 
     //@Man: Operations
     //@{
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
 
 
     //@}

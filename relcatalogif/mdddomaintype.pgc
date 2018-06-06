@@ -47,7 +47,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include <cstring>
 
 void
-MDDDomainType::insertInDb() throw (r_Error)
+MDDDomainType::insertInDb()
 {
     char* domstr = 0;
     EXEC SQL BEGIN DECLARE SECTION;
@@ -72,7 +72,7 @@ MDDDomainType::insertInDb() throw (r_Error)
 }
 
 void
-MDDDomainType::readFromDb() throw (r_Error)
+MDDDomainType::readFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid1;
@@ -109,7 +109,7 @@ MDDDomainType::readFromDb() throw (r_Error)
 }
 
 void
-MDDDomainType::deleteFromDb() throw (r_Error)
+MDDDomainType::deleteFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid2;

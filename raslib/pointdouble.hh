@@ -100,26 +100,26 @@ public:
 
     bool operator!=(const r_PointDouble& vectorArg) const;
 
-    bool operator<(const r_PointDouble& vectorArg) const throw(r_Edim_mismatch);
+    bool operator<(const r_PointDouble& vectorArg) const;
     /**
       Two points are equal if they have the same number of dimensions and
       the same values.
     */
 
     /// std::vector addition
-    r_PointDouble operator+(const r_PointDouble& vectorArg) const throw(r_Edim_mismatch);
+    r_PointDouble operator+(const r_PointDouble& vectorArg) const;
 
     /// std::vector subtraction
-    r_PointDouble operator-(const r_PointDouble& vectorArg) const throw(r_Edim_mismatch);
+    r_PointDouble operator-(const r_PointDouble& vectorArg) const;
 
     /// diagonal extension of multiplication across the cartesian product
-    r_PointDouble operator*(const r_PointDouble& vectorArg) const throw(r_Edim_mismatch);
+    r_PointDouble operator*(const r_PointDouble& vectorArg) const;
     
     /// scalar multiplication
     r_PointDouble operator*(const double scalarArg) const;
 
     /// scalar product
-    double dotProduct(const r_PointDouble& r) const throw(r_Edim_mismatch);
+    double dotProduct(const r_PointDouble& r) const;
 
     /// same as std::vector::size()
     inline size_t dimension() const;

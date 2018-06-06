@@ -291,32 +291,32 @@ r_Set<r_Ref_Any> result_set;
 //function prototypes:
 
 void
-parseParams(int argc, char** argv) throw(RasqlError, r_Error);
+parseParams(int argc, char** argv);
 
 void
-openDatabase() throw(r_Error);
+openDatabase();
 
 void
-closeDatabase() throw(r_Error);
+closeDatabase();
 
 void
-openTransaction(bool readwrite) throw(r_Error);
+openTransaction(bool readwrite);
 
 void
-closeTransaction(bool doCommit) throw(r_Error);
+closeTransaction(bool doCommit);
 
 void
 printScalar(char* buffer, QtData* data, unsigned int resultIndex);
 
 
 void
-printResult(Tile* tile, int resultIndex) throw(RasqlError);
+printResult(Tile* tile, int resultIndex);
 
 void
-printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlError);
+printOutput(unsigned short status, ExecuteQueryRes* result);
 
 r_Marray_Type*
-getTypeFromDatabase(const char* mddTypeName) throw(RasqlError, r_Error);
+getTypeFromDatabase(const char* mddTypeName);
 
 void
 freeResult(ExecuteQueryRes* result);
@@ -328,7 +328,7 @@ void
 printError(unsigned short status, ExecuteUpdateRes* result);
 
 void
-doStuff() throw(RasqlError, r_Error);
+doStuff();
 
 void
 crash_handler(int sig, siginfo_t* info, void* ucontext);
@@ -336,7 +336,7 @@ crash_handler(int sig, siginfo_t* info, void* ucontext);
 
 
 void
-parseParams(int argc, char** argv) throw(RasqlError, r_Error)
+parseParams(int argc, char** argv)
 {
     CommandLineParser& cmlInter = CommandLineParser::getInstance();
 
@@ -514,7 +514,7 @@ parseParams(int argc, char** argv) throw(RasqlError, r_Error)
 } // parseParams()
 
 void
-openDatabase() throw(r_Error)
+openDatabase()
 {
     if (!dbIsOpen)
     {
@@ -534,7 +534,7 @@ openDatabase() throw(r_Error)
 } // openDatabase()
 
 void
-closeDatabase() throw(r_Error)
+closeDatabase()
 {
     if (dbIsOpen)
     {
@@ -548,7 +548,7 @@ closeDatabase() throw(r_Error)
 } // closeDatabase()
 
 void
-openTransaction(bool readwrite) throw(r_Error)
+openTransaction(bool readwrite)
 {
     if (!taIsOpen)
     {
@@ -570,7 +570,7 @@ openTransaction(bool readwrite) throw(r_Error)
 } // openTransaction()
 
 void
-closeTransaction(bool doCommit) throw(r_Error)
+closeTransaction(bool doCommit)
 {
     if (taIsOpen)
     {
@@ -673,7 +673,7 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 
 
 // result_set should be parameter, but is global -- see def for reason
-void printResult(Tile* tile, int resultIndex) throw(RasqlError)
+void printResult(Tile* tile, int resultIndex)
 {
     const char* theStuff = tile->getContents();
     r_Bytes numCells = tile->getSize();
@@ -770,7 +770,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
 
 } // printResult()
 
-void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlError)
+void printOutput(unsigned short status, ExecuteQueryRes* result)
 {
     switch (status)
     {
@@ -849,7 +849,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
  * throws r_Error upon general database comm error
  * needs an open transaction
  */
-r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2) throw(RasqlError, r_Error)
+r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
 {
     r_Marray_Type* retval = NULL;
     char* typeStructure = NULL;
@@ -936,7 +936,7 @@ void printError(unsigned short status, ExecuteUpdateRes* result)
          "' Line: " << result->lineNo << " Column: " << result->columnNo << " (status: " << status << ")" << endl << flush;
 }
 
-void doStuff() throw(RasqlError, r_Error)
+void doStuff()
 {
     char* fileContents = NULL; // contents of file satisfying "$1" parameter in query
     r_Marray_Type* mddType = NULL; // this MDD's type

@@ -74,7 +74,7 @@ public:
     copy constructor.
     */
 
-    AtomicType(const OId& id) throw (r_Error);
+    AtomicType(const OId& id);
     /*@Doc:
     */
 

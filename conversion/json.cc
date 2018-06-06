@@ -50,7 +50,7 @@ void r_Conv_JSON::initJSON(void)
 }
 
 
-r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
+r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Conv_CSV(src, interv, tp)
 {
     initJSON();
@@ -58,7 +58,7 @@ r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, const r_Typ
 
 
 
-r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, int tp) throw(r_Error)
+r_Conv_JSON::r_Conv_JSON(const char* src, const r_Minterval& interv, int tp)
     : r_Conv_CSV(src, interv, tp)
 {
     initJSON();
@@ -69,12 +69,12 @@ r_Conv_JSON::~r_Conv_JSON(void)
 }
 
 r_Conv_Desc& r_Conv_JSON::convertTo(const char* options,
-                                   const r_Range* nullValue) throw(r_Error)
+                                   const r_Range* nullValue)
 {
     return r_Conv_CSV::convertTo(options, nullValue);
 }
 
-r_Conv_Desc& r_Conv_JSON::convertFrom(const char* options) throw(r_Error)
+r_Conv_Desc& r_Conv_JSON::convertFrom(const char* options)
 {
     return r_Conv_CSV::convertFrom(options);
 }

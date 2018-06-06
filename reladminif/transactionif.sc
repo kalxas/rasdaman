@@ -51,7 +51,7 @@ rasdaman GmbH.
 using blobfs::BlobFS;
 
 void
-TransactionIf::begin(bool readOnly) throw (r_Error)
+TransactionIf::begin(bool readOnly)
 {
     // if a transaction is already started, then commit it first
     if (SQLiteQuery::isTransactionActive())
@@ -87,7 +87,7 @@ TransactionIf::begin(bool readOnly) throw (r_Error)
 }
 
 void
-TransactionIf::commit() throw (r_Error)
+TransactionIf::commit()
 {
     AdminIf::setAborted(false);
     TypeFactory::freeTempTypes();

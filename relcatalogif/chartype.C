@@ -68,7 +68,7 @@ CharType::CharType(const CharType& old)
 	{
 	}
 
-CharType::CharType(__attribute__ ((unused)) const OId& id) throw (r_Error)
+CharType::CharType(__attribute__ ((unused)) const OId& id)
 	:	UIntegralType(OId(CHAR, OId::ATOMICTYPEOID))
 	{
 	readFromDb();
@@ -93,7 +93,7 @@ CharType::operator=(const CharType& old)
 	}
 
 void
-CharType::readFromDb() throw (r_Error)
+CharType::readFromDb()
 	{
 	setName(CharType::Name);
 	myType = CHAR;

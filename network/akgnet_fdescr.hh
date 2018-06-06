@@ -54,49 +54,49 @@ class FileDescriptor
 {
 public:
     /// Destructor, if open, closes the file descriptor
-    ~FileDescriptor() throw();
+    ~FileDescriptor() noexcept;
 
     /// Returns the OS file descriptor
-    int  operator()() throw ();
+    int  operator()() noexcept;
 
     /** Returns true if the descriptor is open.
         Be aware that closing the file descriptor by
     using SO specific functions instead of the
     methods of this class can lead to incorrect results
     */
-    bool isOpen() throw();
+    bool isOpen() noexcept;
 
     /// Closes the descriptor
-    void close()  throw();
+    void close() noexcept;
 
     /// Returns the error number of the last operation
-    int  getErrno() throw();
+    int  getErrno() noexcept;
 
     /** Writes the specified number of bytes from the
         specified buffer.
     Returns the number of bytes actually written
     */
-    int  write(const void* buffer, int count) throw();
+    int  write(const void* buffer, int count) noexcept;
 
     /** Reads the specified number of bytes into the
         specified buffer.
     Returns the number of bytes actually read
     */
-    int  read(void* buffer, int count) throw();
+    int  read(void* buffer, int count) noexcept;
 
     /** Sets the non-blocking mode on or off
         Returns true o succes
     */
-    bool setNonBlocking(bool nonBlocking) throw();
+    bool setNonBlocking(bool nonBlocking) noexcept;
 
     ///  Returns true if the descriptors is in non-blocking mode
-    bool isNonBlocking() throw();
+    bool isNonBlocking() noexcept;
 protected:
     /// Protected constructor
-    FileDescriptor() throw();
+    FileDescriptor() noexcept;
 
     /// Saves the errno
-    void saveErrno() throw();
+    void saveErrno() noexcept;
 
     int  fileDescriptor;
     int  savedErrno;

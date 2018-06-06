@@ -50,7 +50,7 @@ using blobfs::BlobFS;
 using blobfs::BlobData;
 
 void
-BLOBTile::updateInDb() throw (r_Error)
+BLOBTile::updateInDb()
 {
     long long blobOid = myOId.getCounter();
     LTRACE << "updating tile with id " << blobOid;
@@ -80,7 +80,7 @@ BLOBTile::updateInDb() throw (r_Error)
 }
 
 void
-BLOBTile::insertInDb() throw (r_Error)
+BLOBTile::insertInDb()
 {
     long long blobOid = myOId.getCounter();
     LTRACE << "inserting tile with id " << blobOid;
@@ -109,7 +109,7 @@ BLOBTile::insertInDb() throw (r_Error)
 }
 
 void
-BLOBTile::deleteFromDb() throw (r_Error)
+BLOBTile::deleteFromDb()
 {
     long long blobOid = myOId.getCounter();
     LTRACE << "deleting tile with id " << blobOid;
@@ -222,7 +222,7 @@ BLOBTile::getAnyTileOid()
 // external var 'size' is set to the number of bytes read
 
 void
-BLOBTile::readFromDb() throw (r_Error)
+BLOBTile::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();

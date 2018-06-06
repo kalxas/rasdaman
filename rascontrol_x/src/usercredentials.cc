@@ -39,10 +39,10 @@
 namespace rascontrol
 {
 
-UserCredentials::UserCredentials(const std::string& userName, const std::string& userPassword):
-    userName(userName)
+UserCredentials::UserCredentials(const std::string& userNameArg, const std::string& userPasswordArg):
+    userName(userNameArg)
 {
-    this->userPassword = common::Crypto::messageDigest(userPassword, DEFAULT_DIGEST);
+    this->userPassword = common::Crypto::messageDigest(userPasswordArg, DEFAULT_DIGEST);
 }
 
 void UserCredentials::interactiveLogin()

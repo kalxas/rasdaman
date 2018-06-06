@@ -72,7 +72,7 @@ unsigned int r_Flat_Base_Type::get_num_types(void) const
 }
 
 
-const r_Primitive_Type* r_Flat_Base_Type::type(unsigned int num) const throw (r_Eindex_violation)
+const r_Primitive_Type* r_Flat_Base_Type::type(unsigned int num) const
 {
     if (num < numPrimTypes)
     {
@@ -86,7 +86,7 @@ const r_Primitive_Type* r_Flat_Base_Type::type(unsigned int num) const throw (r_
 }
 
 
-const r_Primitive_Type* r_Flat_Base_Type::operator[](unsigned int num) const throw (r_Eindex_violation)
+const r_Primitive_Type* r_Flat_Base_Type::operator[](unsigned int num) const
 {
     if (num < numPrimTypes)
     {
@@ -100,7 +100,7 @@ const r_Primitive_Type* r_Flat_Base_Type::operator[](unsigned int num) const thr
 }
 
 
-unsigned int r_Flat_Base_Type::offset(unsigned int num) const throw (r_Eindex_violation)
+unsigned int r_Flat_Base_Type::offset(unsigned int num) const
 {
     if (num < numPrimTypes)
     {

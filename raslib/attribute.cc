@@ -106,7 +106,7 @@ r_Attribute::print_status(std::ostream& s) const
 
 
 r_Attribute
-r_Attribute::operator[](unsigned int number) const throw(r_Error)
+r_Attribute::operator[](unsigned int number) const
 {
     if (type_of().type_id() != r_Type::STRUCTURETYPE)
     {
@@ -122,7 +122,7 @@ r_Attribute::operator[](unsigned int number) const throw(r_Error)
 
 
 r_Boolean
-r_Attribute::get_boolean(const char* cell) const throw(r_Error)
+r_Attribute::get_boolean(const char* cell) const
 {
     if (type_of().type_id() != r_Type::BOOL)
     {
@@ -137,7 +137,7 @@ r_Attribute::get_boolean(const char* cell) const throw(r_Error)
 
 
 r_Char
-r_Attribute::get_char(const char* cell) const throw(r_Error)
+r_Attribute::get_char(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::CHAR)
     {
@@ -152,7 +152,7 @@ r_Attribute::get_char(const char* cell) const throw(r_Error)
 
 
 r_Octet
-r_Attribute::get_octet(const char* cell) const throw(r_Error)
+r_Attribute::get_octet(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::OCTET)
     {
@@ -167,7 +167,7 @@ r_Attribute::get_octet(const char* cell) const throw(r_Error)
 
 
 r_Short
-r_Attribute::get_short(const char* cell) const throw(r_Error)
+r_Attribute::get_short(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::SHORT)
     {
@@ -182,7 +182,7 @@ r_Attribute::get_short(const char* cell) const throw(r_Error)
 
 
 r_UShort
-r_Attribute::get_ushort(const char* cell) const throw(r_Error)
+r_Attribute::get_ushort(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::USHORT)
     {
@@ -197,7 +197,7 @@ r_Attribute::get_ushort(const char* cell) const throw(r_Error)
 
 
 r_Long
-r_Attribute::get_long(const char* cell) const throw(r_Error)
+r_Attribute::get_long(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::LONG)
     {
@@ -212,7 +212,7 @@ r_Attribute::get_long(const char* cell) const throw(r_Error)
 
 
 r_ULong
-r_Attribute::get_ulong(const char* cell) const throw(r_Error)
+r_Attribute::get_ulong(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::ULONG)
     {
@@ -227,7 +227,7 @@ r_Attribute::get_ulong(const char* cell) const throw(r_Error)
 
 
 r_Float
-r_Attribute::get_float(const char* cell) const throw(r_Error)
+r_Attribute::get_float(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::FLOAT)
     {
@@ -242,7 +242,7 @@ r_Attribute::get_float(const char* cell) const throw(r_Error)
 
 
 r_Double
-r_Attribute::get_double(const char* cell) const throw(r_Error)
+r_Attribute::get_double(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::DOUBLE)
     {

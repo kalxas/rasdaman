@@ -123,7 +123,7 @@ public:
     virtual ~HttpServer();
 
     /// forces the server to listen for client calls
-    virtual void startRpcServer() throw(r_Error);
+    virtual void startRpcServer();
 
     /// stops the server
     virtual void stopRpcServer();

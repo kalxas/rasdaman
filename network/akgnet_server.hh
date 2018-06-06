@@ -58,10 +58,10 @@ class GenericServer
 {
 public:
     /// Default constructor
-    GenericServer() throw();
+    GenericServer() noexcept;
 
     /// Destructor
-    virtual ~GenericServer() throw();
+    virtual ~GenericServer() noexcept;
 
     //*************************
     /** Pure function to run the server. Has to initialize
@@ -70,39 +70,39 @@ public:
     for processing. It should'n throw, it has to handle
     correcty every exception
      */
-    virtual bool runServer() throw() = 0;
+    virtual bool runServer() noexcept = 0;
     //*************************
 
     /// Instructs the server to leave the loop (runServer())
-    void shouldExit() throw();
+    void shouldExit() noexcept;
 
     /// Sets the listen port
-    void setListenPort(int) throw();
+    void setListenPort(int) noexcept;
 
     /// Returns the listen port
-    int  getListenPort() throw();
+    int  getListenPort() noexcept;
 
     /** Sets the timeout, how much time the selector should
         wait for incomming requests
     */
-    void setTimeout(int sec, int milisec) throw();
+    void setTimeout(int sec, int milisec) noexcept;
 
     /// Disables timeout, means wait unlimited
-    void disableTimeout() throw();
+    void disableTimeout() noexcept;
 
 protected:
     /// Init the listen socket
-    bool initListenSocket(int port, bool nonblocking) throw();
+    bool initListenSocket(int port, bool nonblocking) noexcept;
 
     /** Connects a new client by accepting the connection
         and setting the ServerSocket in read modus
     */
-    bool connectNewClient(ServerSocket&) throw();
+    bool connectNewClient(ServerSocket&) noexcept;
 
     /** Closes the given Socket and removes it
         from the Selector
     */
-    void closeSocket(Socket&) throw();
+    void closeSocket(Socket&) noexcept;
 
     ListenSocket listenSocket;
     int          listenPort;
@@ -133,25 +133,25 @@ class BlockingServer : public GenericServer
 {
 public:
     /// Default constructor
-    BlockingServer()  throw();
+    BlockingServer() noexcept;
     /// Destructor
-    ~BlockingServer() throw();
+    ~BlockingServer() noexcept;
 
     /** runs the server. Accepts only one connection
         and blocks until the request is done
     */
-    bool runServer() throw();
+    bool runServer() noexcept;
 protected:
     //************************************************
     /** Pure function to process the request. It has to read,
         process and write the answer, because afterwards
     the socket is closed. Don't throw!
     */
-    virtual void executeRequest(ServerSocket&) throw() = 0;
+    virtual void executeRequest(ServerSocket&) noexcept = 0;
 
     /** Pure function to execute on timeout. Don't throw!
     */
-    virtual void executeTimeout() throw() = 0;
+    virtual void executeTimeout() noexcept = 0;
     //************************************************
 private:
     ServerSocket serverSocket;

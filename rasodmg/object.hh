@@ -68,14 +68,14 @@ public:
     r_Object();
 
     /// constructor getting objType
-    r_Object(unsigned short objType) throw(r_Error);
+    r_Object(unsigned short objType);
     /**
       {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
       This is needed for oid allocation and propably dropped in future.
     */
 
     /// copy constructor
-    r_Object(const r_Object&, unsigned short objType = 0) throw(r_Error);
+    r_Object(const r_Object&, unsigned short objType = 0);
     /**
       {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
       This is needed for oid allocation and propably dropped in future.
@@ -100,7 +100,7 @@ public:
     void operator delete(void* obj_ptr);
 
     /// set object type by name
-    inline void set_type_by_name(const char* name) throw(r_Error);
+    inline void set_type_by_name(const char* name);
     /**
       With this method a type name has to be given by the user for each
       object which he wants to make persistent. The type name is the name
@@ -113,7 +113,7 @@ public:
     */
 
     /// set object type by name
-    inline void set_type_structure(const char* name) throw(r_Error);
+    inline void set_type_structure(const char* name);
 
     /// get object type name
     inline const char* get_type_name() const;
@@ -127,7 +127,7 @@ public:
     /// get type schema
     const r_Type* get_type_schema();
 
-    void set_type_schema(const r_Type* type) throw (r_Error);
+    void set_type_schema(const r_Type* type);
 
     //@Man: Methods and types for internal use only:
     //@{
@@ -181,7 +181,7 @@ public:
 
     ///
     /// set object name. object name should contain only [a-zA-Z0-9_]
-    inline void set_object_name(const char* name) throw(r_Error);
+    inline void set_object_name(const char* name);
     /// get object name
     inline const char* get_object_name() const;
 

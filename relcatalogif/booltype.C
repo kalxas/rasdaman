@@ -46,7 +46,7 @@ static const char rcsid[] = "@(#)catalogif,BoolType: $Header: /home/rasdev/CVS-r
  *                 BoolType.
  ************************************************************/
 
-BoolType::BoolType(const OId& id) throw (r_Error)
+BoolType::BoolType(const OId& id)
 	:	UIntegralType(id)
 	{
 	readFromDb();
@@ -147,7 +147,7 @@ BoolType::makeFromCULong(char* cell, const r_ULong* value) const
 }
 
 void
-BoolType::readFromDb() throw (r_Error)
+BoolType::readFromDb()
 	{
 	setName(BoolType::Name);
 	size = 1;

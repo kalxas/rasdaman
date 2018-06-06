@@ -86,11 +86,11 @@ public:
     /// returns attribute iterator at end position (behind last attribute).
     attribute_iterator defines_attribute_end() const;
     /// return attribute specified by name.
-    r_Attribute resolve_attribute(const char* name) const throw(r_Error);
+    r_Attribute resolve_attribute(const char* name) const;
     /// return attribute specified by number starting with zero.
-    r_Attribute resolve_attribute(unsigned int number) const throw(r_Error);
+    r_Attribute resolve_attribute(unsigned int number) const;
     /// subscript operator to access attributes by index
-    r_Attribute operator[](unsigned int number) const throw(r_Error);
+    r_Attribute operator[](unsigned int number) const;
 
     /// get number of attributes
     unsigned int count_elements() const;

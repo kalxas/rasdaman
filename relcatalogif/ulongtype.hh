@@ -56,7 +56,7 @@ values. The value of a ULong is stored in four chars.
 class ULongType : public UIntegralType
 {
 public:
-    ULongType(const OId& id) throw (r_Error);
+    ULongType(const OId& id);
 
     ULongType();
     /*@Doc:
@@ -94,7 +94,7 @@ public:
 
 protected:
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

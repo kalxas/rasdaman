@@ -117,8 +117,8 @@ public:
         cmd_HowMany
     };
 
-    const char* getParameterTypeName(RnpQuark) const throw();
-    const char* getCommandName(RnpQuark)       const throw();
+    const char* getParameterTypeName(RnpQuark) const noexcept;
+    const char* getCommandName(RnpQuark)       const noexcept;
 
 protected:
     /// Arrays containing the names of the various elements

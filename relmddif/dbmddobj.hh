@@ -69,7 +69,7 @@ public:
              const r_Minterval& domain,
              const DBObjectId& i,
              const DBStorageLayoutId& s,
-             const OId& theMDDObj) throw (r_Error);
+             const OId& theMDDObj);
     /*@Doc:
         type: it contains the basetype which will be used to create perstiles.
         domain: the definition domain.  the extend to which the mdd object may grow.
@@ -162,7 +162,7 @@ public:
         Validates the object and deletes the definition domain.
     */
 
-    virtual void setPersistent(bool t = true) throw (r_Error);
+    virtual void setPersistent(bool t = true);
     /*@Doc:
         Was overridden to pass changes to definition domain, storage layout  and
         to the index.
@@ -209,27 +209,27 @@ public:
 protected:
     friend class ObjectBroker;
 
-    DBMDDObj(const OId& id) throw (r_Error);
+    DBMDDObj(const OId& id);
     /*@Doc:
         Constructs a DBMDDObj from the database.
     */
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
     /*@Doc:
 
     */
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
     /*@Doc:
 
     */
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
 
     */
 
-    virtual void updateInDb() throw (r_Error);
+    virtual void updateInDb();
     /*@Doc:
 
     */

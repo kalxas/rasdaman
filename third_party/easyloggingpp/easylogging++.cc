@@ -1194,7 +1194,7 @@ char* DateTime::parseFormat(char* buf, std::size_t bufSz, const char* format, co
         --format;
         break;
       case 'd':  // Day
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_mday, 2, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_mday), 2, buf, bufLim);
         continue;
       case 'a':  // Day of week (short)
         buf = base::utils::Str::addToBuff(base::consts::kDaysAbbrev[tInfo->tm_wday], buf, bufLim);
@@ -1203,7 +1203,7 @@ char* DateTime::parseFormat(char* buf, std::size_t bufSz, const char* format, co
         buf = base::utils::Str::addToBuff(base::consts::kDays[tInfo->tm_wday], buf, bufLim);
         continue;
       case 'M':  // month
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_mon + 1, 2, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_mon) + 1, 2, buf, bufLim);
         continue;
       case 'b':  // month (short)
         buf = base::utils::Str::addToBuff(base::consts::kMonthsAbbrev[tInfo->tm_mon], buf, bufLim);
@@ -1212,22 +1212,22 @@ char* DateTime::parseFormat(char* buf, std::size_t bufSz, const char* format, co
         buf = base::utils::Str::addToBuff(base::consts::kMonths[tInfo->tm_mon], buf, bufLim);
         continue;
       case 'y':  // year (two digits)
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_year + base::consts::kYearBase, 2, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_year + base::consts::kYearBase), 2, buf, bufLim);
         continue;
       case 'Y':  // year (four digits)
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_year + base::consts::kYearBase, 4, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_year + base::consts::kYearBase), 4, buf, bufLim);
         continue;
       case 'h':  // hour (12-hour)
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_hour % 12, 2, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_hour) % 12, 2, buf, bufLim);
         continue;
       case 'H':  // hour (24-hour)
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_hour, 2, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_hour), 2, buf, bufLim);
         continue;
       case 'm':  // minute
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_min, 2, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_min), 2, buf, bufLim);
         continue;
       case 's':  // second
-        buf = base::utils::Str::convertAndAddToBuff(tInfo->tm_sec, 2, buf, bufLim);
+        buf = base::utils::Str::convertAndAddToBuff(static_cast<size_t>(tInfo->tm_sec), 2, buf, bufLim);
         continue;
       case 'z':  // subsecond part
       case 'g':
@@ -1476,7 +1476,7 @@ void LogFormat::updateDateFormat(std::size_t index, base::type::string_t& currFo
   if ((currFormat.size() > index) && (ptr[0] == '{')) {
     // User has provided format for date/time
     ++ptr;
-    int count = 1;  // Start by 1 in order to remove starting brace
+    size_t count = 1;  // Start by 1 in order to remove starting brace
     std::stringstream ss;
     for (; *ptr; ++ptr, ++count) {
       if (*ptr == '}') {
@@ -1669,7 +1669,7 @@ unsigned long TypedConfigurations::getULong(std::string confVal) {
     ELPP_ASSERT(valid, "Configuration value not a valid integer [" << confVal << "]");
     return 0;
   }
-  return atol(confVal.c_str());
+  return static_cast<unsigned long>(atol(confVal.c_str()));
 }
 
 std::string TypedConfigurations::resolveFilename(const std::string& filename) {
@@ -1688,7 +1688,7 @@ std::string TypedConfigurations::resolveFilename(const std::string& filename) {
       if ((resultingFilename.size() > dateIndex) && (ptr[0] == '{')) {
         // User has provided format for date/time
         ++ptr;
-        int count = 1;  // Start by 1 in order to remove starting brace
+        size_t count = 1;  // Start by 1 in order to remove starting brace
         std::stringstream ss;
         for (; *ptr; ++ptr, ++count) {
           if (*ptr == '}') {
@@ -1721,26 +1721,26 @@ void TypedConfigurations::insertFile(Level level, const std::string& fullFilenam
   if (filePath.size() < resolvedFilename.size()) {
     base::utils::File::createPath(filePath);
   }
-  auto create = [&](Level level) {
+  auto create = [&](Level levelArg) {
     base::LogStreamsReferenceMap::iterator filestreamIter = m_logStreamsReference->find(resolvedFilename);
     base::type::fstream_t* fs = nullptr;
     if (filestreamIter == m_logStreamsReference->end()) {
       // We need a completely new stream, nothing to share with
       fs = base::utils::File::newFileStream(resolvedFilename);
-      m_filenameMap.insert(std::make_pair(level, resolvedFilename));
-      m_fileStreamMap.insert(std::make_pair(level, base::FileStreamPtr(fs)));
-      m_logStreamsReference->insert(std::make_pair(resolvedFilename, base::FileStreamPtr(m_fileStreamMap.at(level))));
+      m_filenameMap.insert(std::make_pair(levelArg, resolvedFilename));
+      m_fileStreamMap.insert(std::make_pair(levelArg, base::FileStreamPtr(fs)));
+      m_logStreamsReference->insert(std::make_pair(resolvedFilename, base::FileStreamPtr(m_fileStreamMap.at(levelArg))));
     } else {
       // Woops! we have an existing one, share it!
-      m_filenameMap.insert(std::make_pair(level, filestreamIter->first));
-      m_fileStreamMap.insert(std::make_pair(level, base::FileStreamPtr(filestreamIter->second)));
+      m_filenameMap.insert(std::make_pair(levelArg, filestreamIter->first));
+      m_fileStreamMap.insert(std::make_pair(levelArg, base::FileStreamPtr(filestreamIter->second)));
       fs = filestreamIter->second.get();
     }
     if (fs == nullptr) {
       // We display bad file error from newFileStream()
       ELPP_INTERNAL_ERROR("Setting [TO_FILE] of ["
-                          << LevelHelper::convertToString(level) << "] to FALSE", false);
-      setValue(level, false, &m_toFileMap);
+                          << LevelHelper::convertToString(levelArg) << "] to FALSE", false);
+      setValue(levelArg, false, &m_toFileMap);
     }
   };
   // If we dont have file conf for any level, create it for Level::Global first
@@ -2145,7 +2145,7 @@ void DefaultLogDispatchCallback::dispatch(base::type::string_t&& logLine) {
       base::type::fstream_t* fs = m_data->logMessage()->logger()->m_typedConfigurations->fileStream(
                                     m_data->logMessage()->level());
       if (fs != nullptr) {
-        fs->write(logLine.c_str(), logLine.size());
+        fs->write(logLine.c_str(), static_cast<long>(logLine.size()));
         if (fs->fail()) {
           ELPP_INTERNAL_ERROR("Unable to write log to file ["
                               << m_data->logMessage()->logger()->m_typedConfigurations->filename(m_data->logMessage()->level()) << "].\n"
@@ -2471,7 +2471,7 @@ Writer& Writer::construct(int count, const char* loggerIds, ...) {
     va_list loggersList;
     va_start(loggersList, loggerIds);
     const char* id = loggerIds;
-    m_loggerIds.reserve(count);
+    m_loggerIds.reserve(static_cast<size_t>(count));
     for (int i = 0; i < count; ++i) {
       m_loggerIds.push_back(std::string(id));
       id = va_arg(loggersList, const char*);
@@ -2718,8 +2718,8 @@ void StackTrace::generateNew(void) {
 #if ELPP_STACKTRACE
   m_stack.clear();
   void* stack[kMaxStack];
-  unsigned int size = backtrace(stack, kMaxStack);
-  char** strings = backtrace_symbols(stack, size);
+  unsigned int size = static_cast<unsigned int>(backtrace(stack, kMaxStack));
+  char** strings = backtrace_symbols(stack, static_cast<int>(size));
   if (size > kStackStart) {  // Skip StackTrace c'tor and generateNew
     for (std::size_t i = kStackStart; i < size; ++i) {
       char* mangName = nullptr;

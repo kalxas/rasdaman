@@ -35,7 +35,7 @@ using namespace std;
 
 const int r_TmpFile::INVALID_FILE_DESCRIPTOR = -1;
 
-r_TmpFile::r_TmpFile() throw (r_Error)
+r_TmpFile::r_TmpFile()
 {
     initTmpFile();
 }
@@ -50,7 +50,7 @@ r_TmpFile::~r_TmpFile(void)
     }
 }
 
-void r_TmpFile::initTmpFile() throw (r_Error)
+void r_TmpFile::initTmpFile()
 {
     char tmpFileName[] = TMP_FILENAME_TEMPLATE;
     if ((fd = mkstemp(tmpFileName)) == INVALID_FILE_DESCRIPTOR)
@@ -73,7 +73,7 @@ int r_TmpFile::getFileDescriptor() const
     return fd;
 }
 
-void r_TmpFile::writeData(const char* data, size_t dataSize) throw (r_Error)
+void r_TmpFile::writeData(const char* data, size_t dataSize)
 {
     if (fd != INVALID_FILE_DESCRIPTOR)
     {
@@ -88,7 +88,7 @@ void r_TmpFile::writeData(const char* data, size_t dataSize) throw (r_Error)
     }
 }
 
-char* r_TmpFile::readData(long& dataSize) throw (r_Error)
+char* r_TmpFile::readData(long& dataSize)
 {
     char* fileContents = NULL;
     if (fd != INVALID_FILE_DESCRIPTOR)

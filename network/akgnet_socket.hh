@@ -53,18 +53,18 @@ class Socket : public FileDescriptor
 {
 public:
     /// Default constructor
-    Socket() throw();
+    Socket() noexcept;
 
     /// Returns the SocketAddress of this socket
-    SocketAddress getAddress() throw();
+    SocketAddress getAddress() noexcept;
 
     /** Returns the SocketAddress of the peer. If the Socket is not connected
         returns the SocketAddress of this socket
     */
-    SocketAddress getPeerAddress() throw();
+    SocketAddress getPeerAddress() noexcept;
 protected:
     /// helper function to initialize this Socket as a TCP/IP socket
-    bool createTcpSocket() throw();
+    bool createTcpSocket() noexcept;
 
 private:
     /// unimplemented, objects of this type can't be copied
@@ -84,21 +84,21 @@ class ListenSocket : public Socket
 {
 public:
     /// Default constructor
-    ListenSocket() throw();
+    ListenSocket() noexcept;
 
     /// Destructor, closes, indirectly, the socket
-    ~ListenSocket() throw();
+    ~ListenSocket() noexcept;
 
     /// Opens the listen socket. Returns true if succes
-    bool open(int port) throw();
+    bool open(int port) noexcept;
 
     /** Sets the OS queue size for this socket. Maximal size is SOMAXCONN
         Assert: newSize > 0
     */
-    void setQueueSize(int newSize) throw();
+    void setQueueSize(int newSize) noexcept;
 
     /// Returns the OS queue size for this socket
-    int  getQueueSize() throw();
+    int  getQueueSize() noexcept;
 
 private:
     int  queuesize;
@@ -121,13 +121,13 @@ class ServerSocket : public Socket
 {
 public:
     /// Default constructor
-    ServerSocket() throw();
+    ServerSocket() noexcept;
 
     /// Destructor
-    ~ServerSocket() throw();
+    ~ServerSocket() noexcept;
 
     /// Accepts a pending connection from a ListenSocket. Returns true on succes
-    bool acceptFrom(ListenSocket&) throw();
+    bool acceptFrom(ListenSocket&) noexcept;
 private:
     /// unimplemented, objects of this type can't be copied
     ServerSocket(const ServerSocket&);
@@ -146,13 +146,13 @@ class ClientSocket : public Socket
 {
 public:
     /// Default constructor
-    ClientSocket() throw();
+    ClientSocket() noexcept;
 
     /// Destructor
-    ~ClientSocket() throw();
+    ~ClientSocket() noexcept;
 
     /// Opens the connection with the given server. Returns true on succes
-    bool open(const char* serverHost, int serverPort) throw();
+    bool open(const char* serverHost, int serverPort) noexcept;
 private:
     /// unimplemented, objects of this type can't be copied
     ClientSocket(const ClientSocket&);

@@ -55,7 +55,7 @@ values. The value of a UShort is stored in four chars.
 class UShortType : public UIntegralType
 {
 public:
-    UShortType(const OId& id) throw (r_Error);
+    UShortType(const OId& id);
 
     UShortType();
     /*@Doc:
@@ -93,7 +93,7 @@ public:
 
 protected:
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

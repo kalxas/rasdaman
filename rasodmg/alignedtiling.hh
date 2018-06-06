@@ -117,16 +117,16 @@ class r_Aligned_Tiling : public r_Dimension_Tiling
 public:
     /// read everything from encoded string
     /// (e.g. "[0:9,0:9];100" or "2;100")
-    r_Aligned_Tiling(const char* encoded) throw (r_Error);
+    r_Aligned_Tiling(const char* encoded);
 
     /// dimension and tile size.
-    r_Aligned_Tiling(r_Dimension dim, r_Bytes ts = RMInit::clientTileSize) throw (r_Error);
+    r_Aligned_Tiling(r_Dimension dim, r_Bytes ts = RMInit::clientTileSize);
 
     /// dimension and tile size will be taken from RMInit::clientTileSize.
-    //r_Aligned_Tiling(r_Dimension dim) throw (r_Error);
+    //r_Aligned_Tiling(r_Dimension dim);
 
     /// tile configuration and tile size.
-    r_Aligned_Tiling(const r_Minterval& tc, r_Bytes ts = RMInit::clientTileSize) throw (r_Error);
+    r_Aligned_Tiling(const r_Minterval& tc, r_Bytes ts = RMInit::clientTileSize);
 
     virtual r_Tiling* clone() const;
 
@@ -135,7 +135,7 @@ public:
     /// returns the current value for the tile configuration option
     const r_Minterval& get_tile_config() const;
 
-    std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const throw (r_Error);
+    std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
 
     char* get_string_representation() const;
     /**

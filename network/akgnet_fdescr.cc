@@ -34,28 +34,28 @@ rasdaman GmbH.
 #include <akgnet_fdescr.hh>
 #include <logging.hh>
 
-akg::FileDescriptor::FileDescriptor() throw()
+akg::FileDescriptor::FileDescriptor() noexcept
 {
     fileDescriptor = -1;
     savedErrno = 0;
 }
 
-akg::FileDescriptor::~FileDescriptor() throw()
+akg::FileDescriptor::~FileDescriptor() noexcept
 {
     close();
 }
 
-int akg::FileDescriptor::operator()() throw()
+int akg::FileDescriptor::operator()() noexcept
 {
     return fileDescriptor;
 }
 
-bool akg::FileDescriptor::isOpen() throw()
+bool akg::FileDescriptor::isOpen() noexcept
 {
     return fileDescriptor == -1 ? false : true;
 }
 
-void akg::FileDescriptor::close() throw()
+void akg::FileDescriptor::close() noexcept
 {
     if (isOpen())
     {
@@ -65,7 +65,7 @@ void akg::FileDescriptor::close() throw()
     fileDescriptor = -1;
 }
 
-int akg::FileDescriptor::write(const void* buffer, int count) throw()
+int akg::FileDescriptor::write(const void* buffer, int count) noexcept
 {
     savedErrno = 0;
     LDEBUG << "FileDescriptor write: " << buffer << " count=" << count;
@@ -77,7 +77,7 @@ int akg::FileDescriptor::write(const void* buffer, int count) throw()
     return nbytes;
 }
 
-int akg::FileDescriptor::read(void* buffer, int count) throw()
+int akg::FileDescriptor::read(void* buffer, int count) noexcept
 {
     savedErrno = 0;
     LDEBUG << "FileDescriptor read: " << buffer << " count=" << count;
@@ -89,7 +89,7 @@ int akg::FileDescriptor::read(void* buffer, int count) throw()
     return nbytes;
 }
 
-bool akg::FileDescriptor::setNonBlocking(bool  nonBlocking) throw()
+bool akg::FileDescriptor::setNonBlocking(bool  nonBlocking) noexcept
 {
     if (isOpen())
     {
@@ -110,7 +110,7 @@ bool akg::FileDescriptor::setNonBlocking(bool  nonBlocking) throw()
 
     return false;
 }
-bool akg::FileDescriptor::isNonBlocking() throw()
+bool akg::FileDescriptor::isNonBlocking() noexcept
 {
     if (isOpen())
     {
@@ -120,11 +120,11 @@ bool akg::FileDescriptor::isNonBlocking() throw()
     return false;
 }
 
-int akg::FileDescriptor::getErrno() throw()
+int akg::FileDescriptor::getErrno() noexcept
 {
     return savedErrno;
 }
-void akg::FileDescriptor::saveErrno() throw()
+void akg::FileDescriptor::saveErrno() noexcept
 {
     savedErrno = errno;
 }

@@ -51,14 +51,14 @@ using std::endl;
 #ifdef BASEDB_DB2
 #define generateException() generateExceptionn(sqlca)
 
-void generateExceptionn(struct sqlca&) throw (r_Error);
+void generateExceptionn(struct sqlca&);
 
 /*@Doc:
 generates a new r_Ebase_dbms exception and throws it.
 */
 
 #define is_error(msg) checkk(msg, sqlca)
-int checkk(const char* msg, struct sqlca& mysql) throw(r_Error);
+int checkk(const char* msg, struct sqlca& mysql);
 /*@Doc:
 returns sqlcode, prints error messages when appropriate.
 the msg is inserted in the error message.
@@ -68,12 +68,12 @@ changes are not rolledback, nothing is done to the connection.
 #endif
 
 #ifdef BASEDB_ORACLE
-void generateException() throw (r_Error);
+void generateException();
 /*@Doc:
 generates a new r_Ebase_dbms exception and throws it.
 */
 
-int is_error(const char* msg) throw (r_Error);
+int is_error(const char* msg);
 /*@Doc:
 returns sqlcode, prints error messages when appropriate.
 the msg is inserted in the error message.
@@ -81,19 +81,19 @@ changes are not rolledback, nothing is done to the connection.
 */
 
 void printSQLError(void* err, int status);
-void printSQLError(void* err) throw (r_Error);
+void printSQLError(void* err);
 /*@Doc:
 This diplays cli errors.
 */
 #endif
 
 #ifdef BASEDB_INFORMIX
-void generateException() throw (r_Error);
+void generateException();
 /*@Doc:
 This generates exceptions.
 */
 
-int is_error(const char* msg, bool displayWarning = false) throw (r_Error);
+int is_error(const char* msg, bool displayWarning = false);
 /*@Doc:
 This diplays esql errors.
 */
@@ -105,12 +105,12 @@ This diplays cli errors.
 #endif
 
 #ifdef BASEDB_PGSQL
-void generateException() throw (r_Error);
+void generateException();
 /*@Doc:
 This generates exceptions.
 */
 
-int check(const char* msg) throw (r_Error);
+int check(const char* msg);
 /*@Doc:
 Display error message if SQL errors have occurred.
 */
@@ -120,18 +120,18 @@ Display error message if SQL errors have occurred.
 #define UNDEFINED_RETVAL -10000
 #include <sqlite3.h>
 
-bool is_error(sqlite3* db) throw (r_Error);
+bool is_error(sqlite3* db);
 /*@Doc:
 Display error message if SQL errors have occurred.
 */
 
-void failOnError(const char* msg, sqlite3* db) throw (r_Error);
+void failOnError(const char* msg, sqlite3* db);
 /*@Doc:
  * Throw an exception when an error happens.
  * retval is an optional return value from an sqlite3_* function execution.
 */
 
-void warnOnError(const char* msg, sqlite3* db) throw (r_Error);
+void warnOnError(const char* msg, sqlite3* db);
 /*@Doc:
  * Print a warning when an error happens.
  * retval is an optional return value from an sqlite3_* function execution.

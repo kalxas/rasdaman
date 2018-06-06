@@ -86,7 +86,7 @@ ClientComm::changeEndianness(const r_GMarray* mdd, void* newMdd, const r_Base_Ty
     return 1;
 }
 
-ClientComm::ClientComm() throw(r_Error)
+ClientComm::ClientComm()
 {
 
 }
@@ -132,7 +132,7 @@ ClientComm* ClientComm::createObject(const char* rasmgrName, int rasmgrPort)
     }
 }
 
-ClientComm::~ClientComm() throw()
+ClientComm::~ClientComm()
 {
 }
 
@@ -145,22 +145,22 @@ ClientComm::CommunicationProtocol ClientComm::DEFAULT_PROTOCOL = ClientComm::RAS
 ClientComm::CommunicationProtocol ClientComm::DEFAULT_PROTOCOL = ClientComm::RNP;
 #endif
 
-void ClientComm::useRNP() throw()
+void ClientComm::useRNP()
 {
     DEFAULT_PROTOCOL = RNP;
 }
 
-void ClientComm::useRPC() throw()
+void ClientComm::useRPC()
 {
     DEFAULT_PROTOCOL = RPC;
 }
 
-void ClientComm::useRASNET() throw()
+void ClientComm::useRASNET()
 {
     DEFAULT_PROTOCOL = RASNET;
 }
 
-bool ClientComm::internalSettingIsRNP()  throw()
+bool ClientComm::internalSettingIsRNP()
 {
     return DEFAULT_PROTOCOL == RNP;
 }

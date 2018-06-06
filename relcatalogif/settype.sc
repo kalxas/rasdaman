@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 void
-SetType::insertInDb() throw (r_Error)
+SetType::insertInDb()
 {
     long long mddtypeid;
     char settypename[VARCHAR_MAXLEN];
@@ -70,7 +70,7 @@ SetType::insertInDb() throw (r_Error)
 }
 
 void
-SetType::deleteFromDb() throw (r_Error)
+SetType::deleteFromDb()
 {
     long long settypeid = myOId.getCounter();
 
@@ -88,7 +88,7 @@ SetType::deleteFromDb() throw (r_Error)
 }
 
 void
-SetType::readFromDb() throw (r_Error)
+SetType::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();

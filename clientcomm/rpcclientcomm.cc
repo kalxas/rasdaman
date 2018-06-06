@@ -146,7 +146,7 @@ void  aliveSignal(int)
 }
 
 
-RpcClientComm::RpcClientComm(const char* _rasmgrHost, int _rasmgrPort) throw(r_Error)
+RpcClientComm::RpcClientComm(const char* _rasmgrHost, int _rasmgrPort)
     :       binding_h(NULL),
             clientID(0),
 #ifdef __VISUALC__
@@ -183,14 +183,14 @@ RpcClientComm::RpcClientComm(const char* _rasmgrHost, int _rasmgrPort) throw(r_E
 
 static unsigned int rpcRetryCounter = 0;
 
-RpcClientComm::~RpcClientComm() throw()
+RpcClientComm::~RpcClientComm()
 {
     disconnectFromServer();
     delete clientParams;
     clientParams = NULL;
 }
 
-bool RpcClientComm::effectivTypeIsRNP() throw()
+bool RpcClientComm::effectivTypeIsRNP()
 {
     return false;
 }
@@ -198,7 +198,7 @@ bool RpcClientComm::effectivTypeIsRNP() throw()
 // retrieving query
 void
 RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -293,7 +293,7 @@ throw(r_Error)
 // update and insert (< v9.1)
 void
 RpcClientComm::executeQuery(const r_OQL_Query& query)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -598,7 +598,7 @@ throw(r_Error)
 // insert query (>= v9.1)
 void
 RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, __attribute__((unused)) int dummy)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -919,7 +919,7 @@ throw(r_Error)
 
 void
 RpcClientComm::insertColl(const char* collName, const char* typeName, const r_OId& oid)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -995,7 +995,7 @@ throw(r_Error)
 
 void
 RpcClientComm::deleteCollByName(const char* collName)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1066,7 +1066,7 @@ throw(r_Error)
 
 void
 RpcClientComm::deleteObjByOId(const r_OId& oid)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1136,7 +1136,7 @@ throw(r_Error)
 
 void
 RpcClientComm::removeObjFromColl(const char* collName, const r_OId& oid)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1209,7 +1209,7 @@ throw(r_Error)
 
 void
 RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1496,7 +1496,7 @@ throw(r_Error)
 
 r_Ref_Any
 RpcClientComm::getMDDByOId(const r_OId& oid)
-throw(r_Error)
+
 {
 
     if (binding_h == NULL)
@@ -1611,7 +1611,7 @@ throw(r_Error)
 
 r_Ref_Any
 RpcClientComm::getCollByName(const char* collName)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1700,7 +1700,7 @@ throw(r_Error)
 
 r_Ref_Any
 RpcClientComm::getCollByOId(const r_OId& oid)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1790,7 +1790,7 @@ throw(r_Error)
 
 r_Ref_Any
 RpcClientComm::getCollOIdsByName(const char* collName)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1882,7 +1882,7 @@ throw(r_Error)
 
 r_Ref_Any
 RpcClientComm::getCollOIdsByOId(const r_OId& oid)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -1971,7 +1971,7 @@ throw(r_Error)
 
 int
 RpcClientComm::createDB(const char* name)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -2010,7 +2010,7 @@ throw(r_Error)
 
 int
 RpcClientComm::destroyDB(const char* name)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -2205,7 +2205,7 @@ RpcClientComm::executeCloseDB()
 
 int
 RpcClientComm::openTA(unsigned short readOnly)
-throw(r_Error)
+
 {
     int answer = 0;
     connectToServer(readOnly);
@@ -2305,7 +2305,7 @@ RpcClientComm::executeOpenTA(unsigned short readOnly)
 
 int
 RpcClientComm::commitTA()
-throw(r_Error)
+
 {
     int answer = executeCommitTA();
 
@@ -2432,7 +2432,7 @@ RpcClientComm::executeAbortTA()
 
 r_OId
 RpcClientComm::getNewOId(unsigned short objType)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -2509,7 +2509,7 @@ throw(r_Error)
 
 unsigned short
 RpcClientComm::getObjectType(const r_OId& oid)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -2575,7 +2575,7 @@ throw(r_Error)
 
 char*
 RpcClientComm::getTypeStructure(const char* typeName, r_Type_Type typeType)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -2722,7 +2722,7 @@ RpcClientComm::freeMarRpcRepresentation(const r_GMarray* mar, RPCMarray* rpcMarr
 
 void
 RpcClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -2827,7 +2827,7 @@ throw(r_Error)
 
 void
 RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -3021,7 +3021,7 @@ throw(r_Error)
 
 unsigned short
 RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery)
-throw(r_Error)
+
 {
     //  create r_Minterval and oid
     r_Minterval mddDomain(thisResult->domain);
@@ -3506,7 +3506,7 @@ RpcClientComm::checkRPCActive()
 
 const char*
 RpcClientComm::getExtendedErrorInfo()
-throw(r_Error)
+
 {
     if (binding_h == NULL)
     {
@@ -3910,7 +3910,7 @@ RpcClientComm::connectToServer(unsigned short readOnly)
     return 1;
 }
 
-int RpcClientComm::disconnectFromServer() throw()
+int RpcClientComm::disconnectFromServer()
 {
     if (!binding_h)
     {

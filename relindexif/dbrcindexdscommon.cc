@@ -272,7 +272,7 @@ DBRCIndexDS::~DBRCIndexDS()
 }
 
 void
-DBRCIndexDS::updateInDb() throw (r_Error)
+DBRCIndexDS::updateInDb()
 {
     // this operation is illegal
     LFATAL << "DBRCIndexDS::updateInDb() update is not possible";

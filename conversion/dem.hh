@@ -128,22 +128,22 @@ public:
         r_ULong flipy, flipx;
     };
 
-    r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, const r_Type* tp) throw(r_Error);
+    r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, const r_Type* tp);
 
-    r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, int tp) throw(r_Error);
+    r_Conv_DEM(const char* source, const r_Minterval& lengthordomain, int tp);
 
-    r_Conv_Desc& convertFrom(const char* options = NULL) throw (r_Error);
+    r_Conv_Desc& convertFrom(const char* options = NULL);
 
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options) throw(r_Error);
+    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
 
     r_Conv_Desc& convertTo(const char* options = NULL,
-                           const r_Range* nullValue = NULL) throw (r_Error);
+                           const r_Range* nullValue = NULL);
 
-    const char* get_name() const throw();
+    const char* get_name() const noexcept;
 
-    r_Data_Format get_data_format() const throw();
+    r_Data_Format get_data_format() const noexcept;
 
-    r_Convertor* clone() const throw(r_Error);
+    r_Convertor* clone() const;
 
     /// dimension of src domain accepted as input in convertFrom
     static const r_Dimension srcIntervDim;
@@ -153,10 +153,10 @@ public:
 
     /// decode convertor options
     static bool decodeOptions(const char* options,
-                              r_GeoBBox& collBBox) throw();
+                              r_GeoBBox& collBBox) noexcept;
 
     /// encode convertor options
-    static string encodeOptions(const r_GeoBBox& collBBox) throw();
+    static string encodeOptions(const r_GeoBBox& collBBox) noexcept;
 
     /// destructor
     virtual ~r_Conv_DEM(void);
@@ -168,13 +168,13 @@ private:
 
 
     /// check limits before converting
-    void checkLimits() throw(r_Error);
+    void checkLimits();
 
     ///i/o src/dest stream
-    void readFromSrcStream() throw(r_Error);
-    void readToSrcStream() throw(r_Error);
-    void writeFromDestStream() throw(r_Error);
-    void writeToDestStream(ofstream& oFile) throw(r_Error);
+    void readFromSrcStream();
+    void readToSrcStream();
+    void writeFromDestStream();
+    void writeToDestStream(ofstream& oFile);
 
     /// parameters
     r_GeoBBox collBBox;

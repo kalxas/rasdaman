@@ -253,31 +253,31 @@ r_Set<r_Ref_Any> result_set;
 //function prototypes:
 
 void
-parseParams(int argc, char** argv) throw (RasqlError, r_Error);
+parseParams(int argc, char** argv);
 
 void
-openDatabase() throw (r_Error);
+openDatabase();
 
 void
-closeDatabase() throw (r_Error);
+closeDatabase();
 
 void
-openTransaction(bool readwrite) throw (r_Error);
+openTransaction(bool readwrite);
 
 void
-closeTransaction(bool doCommit) throw (r_Error);
+closeTransaction(bool doCommit);
 
 void
 printScalar(const r_Scalar& scalar);
 
 void
-printResult() throw(RasqlError);
+printResult();
 
 r_Marray_Type*
-getTypeFromDatabase(const char* mddTypeName2) throw(RasqlError, r_Error);
+getTypeFromDatabase(const char* mddTypeName2);
 
 void
-doStuff(int argc, char** argv) throw (RasqlError, r_Error);
+doStuff(int argc, char** argv);
 
 void
 crash_handler(int sig, siginfo_t* info, void* ucontext);
@@ -285,7 +285,7 @@ crash_handler(int sig, siginfo_t* info, void* ucontext);
 
 
 void
-parseParams(int argc, char** argv) throw (RasqlError, r_Error)
+parseParams(int argc, char** argv)
 {
     CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
 
@@ -466,7 +466,7 @@ parseParams(int argc, char** argv) throw (RasqlError, r_Error)
 
 
 void
-openDatabase() throw (r_Error)
+openDatabase()
 {
     if (! dbIsOpen)
     {
@@ -482,7 +482,7 @@ openDatabase() throw (r_Error)
 } // openDatabase()
 
 void
-closeDatabase() throw (r_Error)
+closeDatabase()
 {
     if (dbIsOpen)
     {
@@ -494,7 +494,7 @@ closeDatabase() throw (r_Error)
 } // closeDatabase()
 
 void
-openTransaction(bool readwrite) throw (r_Error)
+openTransaction(bool readwrite)
 {
     if (! taIsOpen)
     {
@@ -516,7 +516,7 @@ openTransaction(bool readwrite) throw (r_Error)
 } // openTransaction()
 
 void
-closeTransaction(bool doCommit) throw (r_Error)
+closeTransaction(bool doCommit)
 {
     if (taIsOpen)
     {
@@ -605,7 +605,7 @@ void printScalar(const r_Scalar& scalar)
 
 
 // result_set should be parameter, but is global -- see def for reason
-void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
+void printResult(/* r_Set< r_Ref_Any > result_set */)
 {
     LINFO << "Query result collection has " << result_set.cardinality() << " element(s):";
 
@@ -786,7 +786,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */) throw(RasqlError)
  * throws r_Error upon general database comm error
  * needs an open transaction
  */
-r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2) throw(RasqlError, r_Error)
+r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
 {
     r_Marray_Type* retval = NULL;
     char* typeStructure = NULL;
@@ -848,7 +848,7 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2) throw(RasqlError, r
     return retval;
 } // getTypeFromDatabase()
 
-void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) throw (RasqlError, r_Error)
+void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** argv)
 {
     char* fileContents = NULL;                       // contents of file satisfying "$1" parameter in query
     r_Set<r_GMarray*>* fileContentsChunked = NULL; // file contents partitioned into smaller chunks

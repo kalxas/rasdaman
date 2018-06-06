@@ -49,7 +49,7 @@ rasdaman GmbH.
 const unsigned int RNP_PAUSE_INCREMENT = 100;
 
 
-RnpClientComm::RnpClientComm(const char* nRasmgrHost, int nRasmgrPort) throw(r_Error)
+RnpClientComm::RnpClientComm(const char* nRasmgrHost, int nRasmgrPort)
     : RnpBaseClientComm(RnpRasserver::serverID, RnpTransport::crp_Rnp)
 {
     clientID = -1;
@@ -77,7 +77,7 @@ RnpClientComm::RnpClientComm(const char* nRasmgrHost, int nRasmgrPort) throw(r_E
     akg::NbJob::setTimeoutInterval(3600);
 }
 
-RnpClientComm::~RnpClientComm() throw ()
+RnpClientComm::~RnpClientComm() noexcept
 {
     if (clientParams != NULL)
     {
@@ -86,7 +86,7 @@ RnpClientComm::~RnpClientComm() throw ()
     }
 }
 
-bool RnpClientComm::effectivTypeIsRNP() throw()
+bool RnpClientComm::effectivTypeIsRNP() noexcept
 {
     bool retval = true;
     return retval;
@@ -127,19 +127,19 @@ int RnpClientComm::closeDB()
     return retval;
 }
 
-int RnpClientComm::createDB(__attribute__((unused)) const char* name) throw(r_Error)
+int RnpClientComm::createDB(__attribute__((unused)) const char* name)
 {
     int retval = -1;
     return retval;
 }
 
-int RnpClientComm::destroyDB(__attribute__((unused)) const char* name) throw(r_Error)
+int RnpClientComm::destroyDB(__attribute__((unused)) const char* name)
 {
     int retval = -1;
     return retval;
 }
 
-int RnpClientComm::openTA(unsigned short readOnly) throw(r_Error)
+int RnpClientComm::openTA(unsigned short readOnly)
 {
     int retval = 1;
 
@@ -163,7 +163,7 @@ int RnpClientComm::openTA(unsigned short readOnly) throw(r_Error)
     return retval;
 }
 
-int RnpClientComm::commitTA() throw(r_Error)
+int RnpClientComm::commitTA()
 {
     int retval = 1;
 
@@ -207,7 +207,7 @@ int RnpClientComm::abortTA()
     return retval;
 }
 
-void RnpClientComm::insertMDD(const char* collName, r_GMarray* mar) throw(r_Error)
+void RnpClientComm::insertMDD(const char* collName, r_GMarray* mar)
 {
 
     checkForRwTransaction();
@@ -336,7 +336,7 @@ void RnpClientComm::insertMDD(const char* collName, r_GMarray* mar) throw(r_Erro
 
 //################################################################
 
-r_Ref_Any RnpClientComm::getMDDByOId(__attribute__((unused)) const r_OId& oid) throw(r_Error)
+r_Ref_Any RnpClientComm::getMDDByOId(__attribute__((unused)) const r_OId& oid)
 {
 
     LERROR << "Internal error: RnpClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any().";
@@ -344,7 +344,7 @@ r_Ref_Any RnpClientComm::getMDDByOId(__attribute__((unused)) const r_OId& oid) t
     return r_Ref_Any();
 }
 
-void RnpClientComm::insertColl(const char* collName, const char* typeName, const r_OId& oid) throw(r_Error)
+void RnpClientComm::insertColl(const char* collName, const char* typeName, const r_OId& oid)
 {
     checkForRwTransaction();
 
@@ -371,7 +371,7 @@ void RnpClientComm::insertColl(const char* collName, const char* typeName, const
 }
 
 
-void RnpClientComm::deleteCollByName(const char* collName) throw(r_Error)
+void RnpClientComm::deleteCollByName(const char* collName)
 {
     checkForRwTransaction();
 
@@ -383,7 +383,7 @@ void RnpClientComm::deleteCollByName(const char* collName) throw(r_Error)
     helper012d("removeObjFromColl");
 }
 
-void RnpClientComm::deleteObjByOId(const r_OId& oid) throw(r_Error)
+void RnpClientComm::deleteObjByOId(const r_OId& oid)
 {
     checkForRwTransaction();
 
@@ -396,7 +396,7 @@ void RnpClientComm::deleteObjByOId(const r_OId& oid) throw(r_Error)
 
 }
 
-void RnpClientComm::removeObjFromColl(const char* collName, const r_OId& oid) throw (r_Error)
+void RnpClientComm::removeObjFromColl(const char* collName, const r_OId& oid)
 {
     checkForRwTransaction();
 
@@ -410,28 +410,28 @@ void RnpClientComm::removeObjFromColl(const char* collName, const r_OId& oid) th
 }
 
 
-r_Ref_Any RnpClientComm::getCollByName(const char* collName) throw(r_Error)
+r_Ref_Any RnpClientComm::getCollByName(const char* collName)
 {
     r_Ref_Any result = executeGetCollByNameOrOId(collName, r_OId());
 
     return result;
 }
 
-r_Ref_Any RnpClientComm::getCollByOId(const r_OId& oid) throw(r_Error)
+r_Ref_Any RnpClientComm::getCollByOId(const r_OId& oid)
 {
     r_Ref_Any result = executeGetCollByNameOrOId(NULL, oid);
 
     return result;
 }
 
-r_Ref_Any RnpClientComm::getCollOIdsByName(const char* name) throw(r_Error)
+r_Ref_Any RnpClientComm::getCollOIdsByName(const char* name)
 {
     r_Ref_Any result = executeGetCollOIdsByNameOrOId(name, r_OId());
 
     return result;
 }
 
-r_Ref_Any RnpClientComm::getCollOIdsByOId(const r_OId& oid) throw(r_Error)
+r_Ref_Any RnpClientComm::getCollOIdsByOId(const r_OId& oid)
 {
     r_Ref_Any result = executeGetCollOIdsByNameOrOId(NULL, oid);
 
@@ -440,7 +440,7 @@ r_Ref_Any RnpClientComm::getCollOIdsByOId(const r_OId& oid) throw(r_Error)
 
 
 // retrieval query
-void RnpClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result) throw(r_Error)
+void RnpClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result)
 {
     sendMDDConstants(query);
     int status = executeExecuteQuery(query.get_query(), result);
@@ -460,7 +460,7 @@ void RnpClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& res
     }
 }
 
-void RnpClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery) throw(r_Error)
+void RnpClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
 {
     unsigned short tileStatus = 0;
     unsigned short mddStatus = 0;
@@ -519,7 +519,7 @@ void freeGetTileRes(GetTileRes* ptr)
 }
 
 unsigned short
-RnpClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery) throw(r_Error)
+RnpClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery)
 {
     //  create r_Minterval and oid
     r_Minterval mddDomain(thisResult->domain);
@@ -760,7 +760,7 @@ int RnpClientComm::concatArrayData(const char* source, unsigned long srcSize, ch
 }
 
 
-void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl) throw(r_Error)
+void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 {
     unsigned short rpcStatus = 0;
 
@@ -888,7 +888,7 @@ void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl) throw(r_E
     executeEndTransfer();
 }
 
-void RnpClientComm::sendMDDConstants(const r_OQL_Query& query) throw(r_Error)
+void RnpClientComm::sendMDDConstants(const r_OQL_Query& query)
 {
     unsigned short status;
 
@@ -977,7 +977,7 @@ void RnpClientComm::sendMDDConstants(const r_OQL_Query& query) throw(r_Error)
 }
 
 // update query and insert (< v9.1)
-void RnpClientComm::executeQuery(const r_OQL_Query& query) throw(r_Error)
+void RnpClientComm::executeQuery(const r_OQL_Query& query)
 {
     checkForRwTransaction();
 
@@ -987,7 +987,7 @@ void RnpClientComm::executeQuery(const r_OQL_Query& query) throw(r_Error)
 }
 
 // insert query (>=v9.1)
-void RnpClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, __attribute__((unused)) int i) throw(r_Error)
+void RnpClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, __attribute__((unused)) int i)
 {
     checkForRwTransaction();
 
@@ -1093,17 +1093,17 @@ RnpClientComm::freeMarRpcRepresentation(const r_GMarray* mar, RPCMarray* rpcMarr
 
 
 //#########################################################################
-r_OId RnpClientComm::getNewOId(unsigned short objType) throw(r_Error)
+r_OId RnpClientComm::getNewOId(unsigned short objType)
 {
     return executeGetNewOId(objType);
 }
 
-unsigned short RnpClientComm::getObjectType(const r_OId& oid) throw(r_Error)
+unsigned short RnpClientComm::getObjectType(const r_OId& oid)
 {
     return executeGetObjectType(oid);
 }
 
-char* RnpClientComm::getTypeStructure(const char* typeName, r_Type_Type typeType) throw(r_Error)
+char* RnpClientComm::getTypeStructure(const char* typeName, r_Type_Type typeType)
 {
     return executeGetTypeStructure(typeName, typeType);
 }
@@ -1151,7 +1151,7 @@ int RnpClientComm::setTransferFormat(r_Data_Format format, const char* formatPar
     return result;
 }
 
-const char* RnpClientComm::getExtendedErrorInfo() throw(r_Error)
+const char* RnpClientComm::getExtendedErrorInfo()
 {
     // This function shouldn't be called for RNP protocol
     static char* errorInfo = new char[30];
@@ -1512,7 +1512,7 @@ int RnpClientComm::writeWholeMessage(int socket, char* destBuffer, int buffSize)
 }
 
 
-void RnpClientComm::checkForRwTransaction() throw (r_Error)
+void RnpClientComm::checkForRwTransaction()
 {
     r_Transaction* trans = r_Transaction::actual_transaction;
     if (trans == 0 || trans->get_mode() == r_Transaction::read_only)

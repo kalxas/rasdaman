@@ -134,7 +134,7 @@ QueryTree::checkSemantics()
 }
 
 vector<QtData*>*
-QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
+QueryTree::evaluateRetrieval()
 {
     vector<QtData*>* returnValue = NULL;
 
@@ -313,7 +313,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
 
 
 vector<QtData*>*
-QueryTree::evaluateUpdate() throw (r_Error, ParseInfo)
+QueryTree::evaluateUpdate()
 {
     QtData* resultElement = NULL;
     // create result collection

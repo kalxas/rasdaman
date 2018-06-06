@@ -39,7 +39,7 @@ public:
 
     ConnectionFailedException(const std::string& reason);
 
-    virtual ~ConnectionFailedException() throw();
+    virtual ~ConnectionFailedException() noexcept;
 };
 }
 

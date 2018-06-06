@@ -57,7 +57,7 @@ r_Complex::operator=(const r_Complex& obj)
 }
 
 r_Double
-r_Complex::get_re() const throw (r_Error)
+r_Complex::get_re() const
 {
     if (!get_buffer() || !valueType || !valueType->isComplexType())
     {
@@ -69,7 +69,7 @@ r_Complex::get_re() const throw (r_Error)
 }
 
 r_Double
-r_Complex::get_im() const throw (r_Error)
+r_Complex::get_im() const
 {
     if (!get_buffer() || !valueType || !valueType->isComplexType())
     {
@@ -81,7 +81,7 @@ r_Complex::get_im() const throw (r_Error)
 }
 
 void
-r_Complex::set_re(r_Double re) throw (r_Error)
+r_Complex::set_re(r_Double re)
 {
     if (!valueType || !valueType->isComplexType())
     {
@@ -93,7 +93,7 @@ r_Complex::set_re(r_Double re) throw (r_Error)
 }
 
 void
-r_Complex::set_im(r_Double im) throw (r_Error)
+r_Complex::set_im(r_Double im)
 {
     if (!valueType || !valueType->isComplexType())
     {

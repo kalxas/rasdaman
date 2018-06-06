@@ -124,7 +124,7 @@ string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
 
 #ifdef HAVE_GDAL
 
-r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& bandIds) throw (r_Error)
+r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& bandIds)
 {
     size_t nBands = bandIds.size();
     r_Type* baseType = NULL;

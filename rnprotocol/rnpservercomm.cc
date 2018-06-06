@@ -78,20 +78,20 @@ const char* now()
 
 const int RnpRasDaManComm::NoClient = -1;
 
-RnpRasDaManComm::RnpRasDaManComm() throw()
+RnpRasDaManComm::RnpRasDaManComm() noexcept
 {
     requestCounter  =  0;
     fragmentCounter =  0;
     clientID        =  NoClient;
 }
 
-RnpRasDaManComm::~RnpRasDaManComm() throw()
+RnpRasDaManComm::~RnpRasDaManComm() noexcept
 {
     LDEBUG << "RnpRasDaManComm::~RnpRasDaManComm";
 }
 
 // we need our implementation because of r_Error, but we will go for the default when r_Error is AkgException
-void RnpRasDaManComm::processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__((unused)) RnpServerJob* callingJob) throw()
+void RnpRasDaManComm::processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__((unused)) RnpServerJob* callingJob) noexcept
 {
     RMTimer requestTime("RnpRasDaManComm", "request");
 
@@ -219,7 +219,7 @@ void RnpRasDaManComm::checkForTimeout()
 }
 
 
-void RnpRasDaManComm::decodeFragment() throw(r_Error)
+void RnpRasDaManComm::decodeFragment()
 {
 #ifdef RMANBENCHMARK
     RMTimer requestTime("RnpRasDaManComm", "request");
@@ -1205,7 +1205,7 @@ void RnpRasDaManComm::disconnectClient()
 }
 
 
-void RnpRasDaManComm::verifyClientID(RnpQuark command) throw (r_Error)
+void RnpRasDaManComm::verifyClientID(RnpQuark command)
 {
     decoder.getFirstParameter();
 
@@ -1282,54 +1282,54 @@ void RnpRasDaManComm::answerr_Error(r_Error& err)
 }
 
 //######################################################
-RnpRasserverJob::RnpRasserverJob() throw()
+RnpRasserverJob::RnpRasserverJob() noexcept
 {
     LDEBUG << "RNP: RnpRasserverJob created";
 }
 
-bool RnpRasserverJob::validateMessage() throw()
+bool RnpRasserverJob::validateMessage() noexcept
 {
     LDEBUG << "RNP: validateMessage()";
     return RnpServerJob::validateMessage();
 }
 
-void RnpRasserverJob::executeOnAccept() throw()
+void RnpRasserverJob::executeOnAccept() noexcept
 {
     LDEBUG << "RNP: executeOnAccept()";
     RnpServerJob::executeOnAccept();
 }
 
-void RnpRasserverJob::executeOnWriteReady() throw()
+void RnpRasserverJob::executeOnWriteReady() noexcept
 {
     LDEBUG << "RNP: executeOnWriteReady()";
     RnpServerJob::executeOnWriteReady();
 }
 
-void RnpRasserverJob::specificCleanUpOnTimeout() throw()
+void RnpRasserverJob::specificCleanUpOnTimeout() noexcept
 {
     LDEBUG << "RNP: specificCleanUpOnTimeout()";
     RnpServerJob::specificCleanUpOnTimeout();
 }
 
-void RnpRasserverJob::executeOnReadError() throw()
+void RnpRasserverJob::executeOnReadError() noexcept
 {
     LERROR << "Error while executing read operation.";
     RnpServerJob::executeOnReadError();
 }
 
-void RnpRasserverJob::executeOnWriteError() throw()
+void RnpRasserverJob::executeOnWriteError() noexcept
 {
     LERROR << "Error while executing write operation.";
     RnpServerJob::executeOnWriteError();
 }
 
 //#########################################################
-RasserverCommunicator::RasserverCommunicator(RnpRasDaManComm* cmm) throw()
+RasserverCommunicator::RasserverCommunicator(RnpRasDaManComm* cmm) noexcept
 {
     commPtr = cmm;
 }
 
-bool RasserverCommunicator::executeOnTimeout() throw()
+bool RasserverCommunicator::executeOnTimeout() noexcept
 {
     LDEBUG << "RasserverCommunicator::executeOnTimeout()";
 

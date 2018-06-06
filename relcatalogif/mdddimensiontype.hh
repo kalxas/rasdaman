@@ -69,7 +69,7 @@ public:
     MDDBaseType::getMemorySize() + sizeof(r_Dimension);
     */
 
-    MDDDimensionType(const OId& id) throw (r_Error);
+    MDDDimensionType(const OId& id);
     /*@Doc:
     */
 
@@ -118,11 +118,11 @@ public:
 
 protected:
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 
     r_Dimension myDimension;
     /*@Doc:

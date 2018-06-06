@@ -97,7 +97,7 @@ int main()
 
 
 void
-TransactionIf::begin( bool readOnly ) throw ( r_Error )
+TransactionIf::begin( bool readOnly )
 {
     RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "begin(" << readOnly << ")");
     ENTER( "TransactionIf::begin, readOnly=" << readOnly );
@@ -163,7 +163,7 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
 }
 
 void
-TransactionIf::commit() throw (  r_Error  )
+TransactionIf::commit()
 {
     RMDBGENTER(2, RMDebug::module_adminif, "TransactionIf", "commit()");
     ENTER( "TransactionIf::commit" );

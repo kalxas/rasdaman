@@ -54,24 +54,24 @@ public:
     static BlobFS& getInstance();
 
     // Store the content of a new blob.
-    void insert(BlobData& blob) throw (r_Error);
+    void insert(BlobData& blob);
     // Update the content of a blob. The blob should exist already.
-    void update(BlobData& blob) throw (r_Error);
+    void update(BlobData& blob);
     // Retrive the content of a previously stored blob; the data buffer to hold is
     // automatically allocated, and size is accordingly set.
-    void select(BlobData& blob) throw (r_Error);
+    void select(BlobData& blob);
     // Delete a previously stored blob.
-    void remove(BlobData& blob) throw (r_Error);
+    void remove(BlobData& blob);
 
     // To be called before commit to RASBASE
-    void preRasbaseCommit() throw (r_Error);
+    void preRasbaseCommit();
     // To be called after commit to RASBASE
-    void postRasbaseCommit() throw (r_Error);
+    void postRasbaseCommit();
     // To be called before abort to RASBASE
-    void postRasbaseAbort() throw (r_Error);
+    void postRasbaseAbort();
 
     // To be called once, cleans up any failed transaction (e.g. due to a crash)
-    void finalizeUncompletedTransactions() throw (r_Error);
+    void finalizeUncompletedTransactions();
 
     // Destructor
     virtual ~BlobFS();
@@ -80,15 +80,15 @@ private:
 
     // Initialize with a root file storage path determined from the
     // RASDATA env variable, or the --with-filedatadir configuration setting;
-    BlobFS() throw (r_Error);
+    BlobFS();
     // Initialize with a given root file storage path
-    BlobFS(const std::string& rasdataPath) throw (r_Error);
+    BlobFS(const std::string& rasdataPath);
 
     // Initialize
-    void init() throw (r_Error);
+    void init();
 
     // Check that the root storage path is valid (exists, is writable, etc) and throw an exception if it isn't
-    void validateFileStorageRootPath() throw (r_Error);
+    void validateFileStorageRootPath();
 
     // Check if the organization of RASDATA is flat file (old) or nested (new)
     bool isNestedStorage();
@@ -102,7 +102,7 @@ private:
     static const std::string getFileStorageRootPath();
 
     // Helper for generating an error
-    void generateError(const char* message, const std::string& path, int errorCode) throw (r_Error);
+    void generateError(const char* message, const std::string& path, int errorCode);
 
     BlobFSConfig config;
 

@@ -29,7 +29,7 @@ ServerGroupBusyException::ServerGroupBusyException(const std::string& serverGrou
     common::ResourceBusyException("The server group " + serverGroupName + " is busy and the operation cannot be completed.")
 {}
 
-ServerGroupBusyException::~ServerGroupBusyException() throw()
+ServerGroupBusyException::~ServerGroupBusyException() noexcept
 {}
 
 

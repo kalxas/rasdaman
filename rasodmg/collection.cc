@@ -51,7 +51,7 @@ static const char rcsidcollection[] = "@(#)rasodmg, r_Collection: $Id: collectio
 #endif
 
 template<class T>
-r_Collection<T>::r_Collection() throw(r_Error)
+r_Collection<T>::r_Collection()
     : r_Object(2), card(0)
 {
     init_node_list(coll);
@@ -60,7 +60,7 @@ r_Collection<T>::r_Collection() throw(r_Error)
 
 
 template<class T>
-r_Collection<T>::r_Collection(const r_Collection<T>& collection) throw(r_Error)
+r_Collection<T>::r_Collection(const r_Collection<T>& collection)
     : r_Object(collection, 2)
 {
     CNode* nptr;

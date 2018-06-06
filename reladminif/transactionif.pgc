@@ -56,7 +56,7 @@ extern PGconn *pgConn;
 
 
 void
-TransactionIf::begin( bool readOnly ) throw ( r_Error )
+TransactionIf::begin( bool readOnly )
 {
     isReadOnly = readOnly;
     AdminIf::setAborted(false);
@@ -116,7 +116,7 @@ TransactionIf::begin( bool readOnly ) throw ( r_Error )
 }
 
 void
-TransactionIf::commit() throw (  r_Error  )
+TransactionIf::commit()
 {
     if (isReadOnly)
     {

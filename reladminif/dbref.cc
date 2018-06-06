@@ -351,7 +351,7 @@ DBRef<T>& DBRef<T>::operator=(T* newPtr)
 
 
 template <class T>
-T& DBRef<T>::operator *(void) throw (r_Error)
+T& DBRef<T>::operator *(void)
 {
     if (is_null())
     {
@@ -366,7 +366,7 @@ T& DBRef<T>::operator *(void) throw (r_Error)
 
 
 template <class T>
-const T& DBRef<T>::operator *(void) const throw (r_Error)
+const T& DBRef<T>::operator *(void) const
 {
     if (is_null())
     {
@@ -383,7 +383,7 @@ const T& DBRef<T>::operator *(void) const throw (r_Error)
 #ifndef __GNUG__
 
 template <class T>
-T& DBRef<T>::operator[](int idx) const throw(r_Error)
+T& DBRef<T>::operator[](int idx) const
 {
 
     if (is_null())
@@ -400,7 +400,7 @@ T& DBRef<T>::operator[](int idx) const throw(r_Error)
 #endif
 
 template <class T>
-T* DBRef<T>::operator->(void) throw(r_Error)
+T* DBRef<T>::operator->(void)
 {
     if (is_null())
     {
@@ -415,7 +415,7 @@ T* DBRef<T>::operator->(void) throw(r_Error)
 
 
 template <class T>
-const T* DBRef<T>::operator->(void) const throw(r_Error)
+const T* DBRef<T>::operator->(void) const
 {
     if (is_null())
     {
@@ -430,7 +430,7 @@ const T* DBRef<T>::operator->(void) const throw(r_Error)
 
 
 template <class T>
-T* DBRef<T>::ptr(void) throw(r_Error)
+T* DBRef<T>::ptr(void)
 {
     if (is_null())
     {
@@ -445,7 +445,7 @@ T* DBRef<T>::ptr(void) throw(r_Error)
 
 
 template <class T>
-const T* DBRef<T>::ptr(void) const throw(r_Error)
+const T* DBRef<T>::ptr(void) const
 {
     if (is_null())
     {
@@ -466,7 +466,7 @@ OId DBRef<T>::getObjId()
 
 
 template <class T>
-DBRef<T>::operator T* () throw (r_Error)
+DBRef<T>::operator T* ()
 {
     if (is_null())
     {
@@ -481,7 +481,7 @@ DBRef<T>::operator T* () throw (r_Error)
 
 
 template <class T>
-DBRef<T>::operator const T* () const throw (r_Error)
+DBRef<T>::operator const T* () const
 {
     if (is_null())
     {
@@ -586,7 +586,7 @@ DBRef<T>::operator DBRef<DBObject>() const
 }
 
 template <class T>
-DBRef<T>::operator DBRef<InlineTile>() const throw (r_Error)
+DBRef<T>::operator DBRef<InlineTile>() const
 {
     if (object && pointerCaching)
     {
@@ -607,7 +607,7 @@ DBRef<T>::operator DBRef<InlineTile>() const throw (r_Error)
 }
 
 template <class T>
-DBRef<T>::operator DBRef<DBTile>() const throw (r_Error)
+DBRef<T>::operator DBRef<DBTile>() const
 {
     LDEBUG << "DBRef::DBRef<DBTile>(): object=" << (long) object;
     if (object && pointerCaching)
@@ -639,7 +639,7 @@ DBRef<T>::operator DBRef<DBTile>() const throw (r_Error)
 }
 
 template <class T>
-DBRef<T>::operator DBRef<BLOBTile>() const throw (r_Error)
+DBRef<T>::operator DBRef<BLOBTile>() const
 {
     if (object && pointerCaching)
     {
@@ -660,7 +660,7 @@ DBRef<T>::operator DBRef<BLOBTile>() const throw (r_Error)
 }
 
 template <class T>
-DBRef<T>::operator DBRef<DBTCIndex>() const throw (r_Error)
+DBRef<T>::operator DBRef<DBTCIndex>() const
 {
     if (object && pointerCaching)
     {
@@ -681,7 +681,7 @@ DBRef<T>::operator DBRef<DBTCIndex>() const throw (r_Error)
 }
 
 template <class T>
-DBRef<T>::operator DBRef<DBHierIndex>() const throw (r_Error)
+DBRef<T>::operator DBRef<DBHierIndex>() const
 {
     if (object && pointerCaching)
     {
@@ -703,7 +703,7 @@ DBRef<T>::operator DBRef<DBHierIndex>() const throw (r_Error)
 
 
 template <class T>
-DBRef<T>::operator DBRef<DBRCIndexDS>() const throw (r_Error)
+DBRef<T>::operator DBRef<DBRCIndexDS>() const
 {
     if (object && pointerCaching)
     {
@@ -725,7 +725,7 @@ DBRef<T>::operator DBRef<DBRCIndexDS>() const throw (r_Error)
 
 
 template <class T>
-DBRef<T>::operator HierIndexDS* () const throw (r_Error)
+DBRef<T>::operator HierIndexDS* () const
 {
     if (object && pointerCaching)
     {
@@ -756,7 +756,7 @@ DBRef<T>::operator HierIndexDS* () const throw (r_Error)
 
 
 template <class T>
-DBRef<T>::operator IndexDS* () const throw (r_Error)
+DBRef<T>::operator IndexDS* () const
 {
     if (object && pointerCaching)
     {

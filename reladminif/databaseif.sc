@@ -59,24 +59,24 @@ extern char globalConnectId[PATH_MAX];
 #define SIZE_ARCH_RASADMIN 20
 
 void
-DatabaseIf::disconnect() throw (r_Error)
+DatabaseIf::disconnect()
 {
     SQLiteQuery::closeConnection();
 }
 
 void
-DatabaseIf::connect() throw (r_Error)
+DatabaseIf::connect()
 {
     SQLiteQuery::openConnection(globalConnectId);
 }
 
 void
-DatabaseIf::checkCompatibility() throw (r_Error)
+DatabaseIf::checkCompatibility()
 {
 }
 
 bool
-DatabaseIf::isConsistent() throw (r_Error)
+DatabaseIf::isConsistent()
 {
     // done once at rasserver startup, in AdminIf
     bool retval = true;
@@ -86,7 +86,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 void
 DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
                      __attribute__((unused)) const char* schemaName,
-                     __attribute__((unused)) const char* volumeName) throw (r_Error)
+                     __attribute__((unused)) const char* volumeName)
 {
     try
     {
@@ -342,7 +342,7 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
 }
 
 void
-DatabaseIf::destroyDB(const char* dbName) throw (r_Error)
+DatabaseIf::destroyDB(const char* dbName)
 {
     if (AdminIf::getCurrentDatabaseIf() != 0)
     {

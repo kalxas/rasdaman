@@ -29,7 +29,7 @@ UserDbRightsException::UserDbRightsException(const std::string& userName, const 
     : common::RuntimeException("The user " + userName + " does not have rights on the database " + databaseName)
 {}
 
-UserDbRightsException::~UserDbRightsException() throw()
+UserDbRightsException::~UserDbRightsException() noexcept
 {}
 
 }

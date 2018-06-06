@@ -69,7 +69,7 @@ DBMDDObj::DBMDDObj()
 
 }
 
-DBMDDObj::DBMDDObj(const OId& id) throw (r_Error)
+DBMDDObj::DBMDDObj(const OId& id)
     : DBObject(id),
       persistentRefCount(0),
       mddType(NULL),
@@ -86,7 +86,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType,
                    const r_Minterval& domain,
                    const DBObjectId& newObjIx,
                    const DBStorageLayoutId& newSL,
-                   const OId& newOId) throw (r_Error)
+                   const OId& newOId)
     : DBObject(),
       persistentRefCount(0),
       mddType(newMDDType),
@@ -231,7 +231,7 @@ DBMDDObj::setCached(bool ic)
 //this should only receive an setPersistent(false)
 
 void
-DBMDDObj::setPersistent(bool o) throw (r_Error)
+DBMDDObj::setPersistent(bool o)
 {
     DBObject::setPersistent(o);
     if (!o)
@@ -336,7 +336,7 @@ DBMDDObj::setIx(const DBObjectId& newIx)
 }
 
 void
-DBMDDObj::updateInDb() throw (r_Error)
+DBMDDObj::updateInDb()
 {
     long long mddoid3{};
     long long objindex3{};
@@ -404,7 +404,7 @@ DBMDDObj::updateInDb() throw (r_Error)
 }
 
 void
-DBMDDObj::insertInDb() throw (r_Error)
+DBMDDObj::insertInDb()
 {
     long long mddoid{};
     long long basetypeid{};
@@ -426,7 +426,7 @@ DBMDDObj::insertInDb() throw (r_Error)
 }
 
 void
-DBMDDObj::deleteFromDb() throw (r_Error)
+DBMDDObj::deleteFromDb()
 {
     long long mddoid1 = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDOBJECTS WHERE MDDId = %lld", mddoid1);
@@ -434,7 +434,7 @@ DBMDDObj::deleteFromDb() throw (r_Error)
 }
 
 void
-DBMDDObj::readFromDb() throw (r_Error)
+DBMDDObj::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();

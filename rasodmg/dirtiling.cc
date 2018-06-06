@@ -117,7 +117,7 @@ r_Dir_Tiling::get_name_from_subtiling(SubTiling tsl)
     return all_subtiling_names[idx];
 }
 
-r_Dir_Tiling::r_Dir_Tiling(const char* encoded) throw (r_Error)
+r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
     :   r_Dimension_Tiling(0, 0)
 {
     if (!encoded)
@@ -387,7 +387,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char* encoded) throw (r_Error)
     tile_size = tileS;
 }
 
-r_Dir_Tiling::r_Dir_Tiling(r_Dimension dims, const std::vector<r_Dir_Decompose>& decomp, r_Bytes ts, SubTiling sub) throw (r_Error)
+r_Dir_Tiling::r_Dir_Tiling(r_Dimension dims, const std::vector<r_Dir_Decompose>& decomp, r_Bytes ts, SubTiling sub)
     :   r_Dimension_Tiling(dims, ts),
         dim_decomp(decomp),
         sub_tile(sub)
@@ -430,7 +430,7 @@ void r_Dir_Tiling::print_status(std::ostream& os) const
 }
 
 std::vector<r_Minterval>*
-r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const throw (r_Error)
+r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
 {
     // Aux variable
     r_Dimension i = 0;

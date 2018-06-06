@@ -65,8 +65,8 @@ class CmlException : public std::exception
 {
 public:
     explicit CmlException(const string& whatString);
-    virtual ~CmlException() throw();
-    virtual  const char* what() const throw();
+    virtual ~CmlException() noexcept;
+    virtual  const char* what() const noexcept;
 
 protected:
     string  problem;
@@ -98,8 +98,8 @@ public:
     char         getShortName() const;
     const char*  getLongName() const;
 
-    virtual bool setPresent(char c) throw(CmlException) = 0;
-    virtual bool setPresent(const char* s) throw(CmlException) = 0;
+    virtual bool setPresent(char c) = 0;
+    virtual bool setPresent(const char* s) = 0;
 
     virtual bool needsValue() = 0;
     virtual bool takeValue(const char* s) = 0;
@@ -111,16 +111,16 @@ public:
     // has a (at least one) value been assigned?
     virtual bool isPresent() = 0;
 
-    virtual const char* getValueAsString() throw(CmlException) = 0;
-    virtual long        getValueAsLong()   throw(CmlException) = 0;
-    virtual double      getValueAsDouble() throw(CmlException) = 0;
+    virtual const char* getValueAsString() = 0;
+    virtual long        getValueAsLong() = 0;
+    virtual double      getValueAsDouble() = 0;
 
     virtual ostream& printStatus(ostream& = cout) = 0;
     ostream& printHelp(ostream& = cout);
 
 protected:
-    CommandLineParameter(char newShortName, const char* newLongName, const char* newDefaultValue) throw(CmlException);
-    CommandLineParameter(char newShortName, const char* newLongName, long newDefaultValue) throw(CmlException);
+    CommandLineParameter(char newShortName, const char* newLongName, const char* newDefaultValue);
+    CommandLineParameter(char newShortName, const char* newLongName, long newDefaultValue);
 
 protected:
 
@@ -140,19 +140,19 @@ protected:
 class FlagParameter: public CommandLineParameter
 {
 public:
-    FlagParameter(char nShortName, const char* nLongName) throw(CmlException);
+    FlagParameter(char nShortName, const char* nLongName);
 
-    bool setPresent(char c) throw(CmlException);
-    bool setPresent(const char* s) throw(CmlException);
+    bool setPresent(char c);
+    bool setPresent(const char* s);
     bool isPresent();
 
     bool needsValue();
     bool takeValue(const char* s);
     void popValue();
 
-    const char* getValueAsString() throw(CmlException);
-    long        getValueAsLong()   throw(CmlException);
-    double      getValueAsDouble() throw(CmlException);
+    const char* getValueAsString();
+    long        getValueAsLong();
+    double      getValueAsDouble();
 
     ostream& printStatus(ostream& = cout);
 };
@@ -163,21 +163,21 @@ private:
     list<char*> value;
 
 public:
-    StringParameter(char nShortName, const char* nLongName, const char* newDefaultValue = NULL) throw(CmlException);
-    StringParameter(char nShortName, const char* nLongName, long newDefaultValue = 0L) throw(CmlException);
+    StringParameter(char nShortName, const char* nLongName, const char* newDefaultValue = NULL);
+    StringParameter(char nShortName, const char* nLongName, long newDefaultValue = 0L);
     ~StringParameter();
 
-    bool setPresent(char c) throw(CmlException);
-    bool setPresent(const char* s) throw(CmlException);
+    bool setPresent(char c);
+    bool setPresent(const char* s);
     bool isPresent();
 
     bool needsValue();
     bool takeValue(const char* s);
     void popValue();
 
-    const char* getValueAsString() throw(CmlException);
-    long        getValueAsLong()   throw(CmlException);
-    double      getValueAsDouble() throw(CmlException);
+    const char* getValueAsString();
+    long        getValueAsLong();
+    double      getValueAsDouble();
 
     void reset();
 
@@ -206,22 +206,22 @@ public:
         brackets<> and space after are mandatory if there is a parameter!
         Otherwise no <>!
     */
-    CommandLineParameter& addFlagParameter(char shortName, const char* longName, const char* description) throw(CmlException);
-    CommandLineParameter& addStringParameter(char shortName, const char* longName,  const char* description, const char* newDefaultValue = NULL) throw(CmlException);
-    CommandLineParameter& addLongParameter(char shortName, const char* longName,  const char* description, long newDefaultValue = 0L) throw(CmlException);
+    CommandLineParameter& addFlagParameter(char shortName, const char* longName, const char* description);
+    CommandLineParameter& addStringParameter(char shortName, const char* longName,  const char* description, const char* newDefaultValue = NULL);
+    CommandLineParameter& addLongParameter(char shortName, const char* longName,  const char* description, long newDefaultValue = 0L);
 
-    bool isPresent(char shortName) throw(CmlException);
-    bool isPresent(const char* longName) throw(CmlException);
+    bool isPresent(char shortName);
+    bool isPresent(const char* longName);
 
-    const char* getValueAsString(char shortName) throw(CmlException);
-    long        getValueAsLong(char shortName)   throw(CmlException);
-    double      getValueAsDouble(char shortName) throw(CmlException);
+    const char* getValueAsString(char shortName);
+    long        getValueAsLong(char shortName);
+    double      getValueAsDouble(char shortName);
 
-    const char* getValueAsString(const char* longName) throw(CmlException);
-    long        getValueAsLong(const char* longName)   throw(CmlException);
-    double      getValueAsDouble(const char* longName) throw(CmlException);
+    const char* getValueAsString(const char* longName);
+    long        getValueAsLong(const char* longName);
+    double      getValueAsDouble(const char* longName);
 
-    void processCommandLine(int argc, char** argv) throw(CmlException);
+    void processCommandLine(int argc, char** argv);
 
     bool testProcessCommandLine(const char* test_cml);
 
@@ -238,14 +238,14 @@ private:
 
     CommandLineParser();
 
-    CommandLineParameter& getParameter(char shortName) throw(CmlException);
-    CommandLineParameter& getParameter(const char* longName) throw(CmlException);
+    CommandLineParameter& getParameter(char shortName);
+    CommandLineParameter& getParameter(const char* longName);
 
-    void setValue(const char* value) throw(CmlException);
+    void setValue(const char* value);
 
-    void longNameParameter(const char* nextToken) throw(CmlException);
+    void longNameParameter(const char* nextToken);
 
-    void shortNameParameter(const char* nextToken) throw(CmlException);
+    void shortNameParameter(const char* nextToken);
 };
 
 #endif

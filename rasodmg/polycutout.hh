@@ -122,8 +122,8 @@ public:
     void setMArray(r_GMarray& myArray);
     void addPolygon(const r_Polygon&);
 
-    bool fillMArrayInside(const string& bgr = "") throw(r_Error);
-    bool fillMArrayOutside(const string& bgr = "") throw(r_Error);
+    bool fillMArrayInside(const string& bgr = "");
+    bool fillMArrayOutside(const string& bgr = "");
 
     // just for debugging
     void print(r_Range onlyLine = -1);
@@ -131,7 +131,7 @@ public:
 
 private:
     bool compute();
-    void eraseLine(r_Range, r_Range, r_Range y, const string& bgr) throw(r_Error);
+    void eraseLine(r_Range, r_Range, r_Range y, const string& bgr);
 
     r_Range imgWidth, imgHeight;
     r_Range imgX, imgY; // - the origin of the mdd domain

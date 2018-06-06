@@ -260,7 +260,7 @@ DBTile::DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_
     objecttype = OId::INVALID;
 }
 
-DBTile::DBTile(const OId& id) throw (r_Error)
+DBTile::DBTile(const OId& id)
     :   DBObject(id),
         size(0),
         cells(NULL),

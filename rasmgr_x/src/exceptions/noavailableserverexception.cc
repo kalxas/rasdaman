@@ -28,6 +28,6 @@ NoAvailableServerException::NoAvailableServerException()
     : common::ResourceBusyException("There is no available server for the client.")
 {}
 
-NoAvailableServerException::~NoAvailableServerException() throw()
+NoAvailableServerException::~NoAvailableServerException() noexcept
 {}
 }

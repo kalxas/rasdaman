@@ -25,24 +25,24 @@ rasdaman GmbH.
 #include "akgnet_selector.hh"
 
 
-akg::Selector::Selector() throw()
+akg::Selector::Selector() noexcept
 {
     FD_ZERO(& watchReadFdSet);
     FD_ZERO(& watchWriteFdSet);
     FD_ZERO(& watchExceptFdSet);
     tvptr = NULL;
 }
-void akg::Selector::setTimeout(int sec, int milisec) throw()
+void akg::Selector::setTimeout(int sec, int milisec) noexcept
 {
     tvinit.tv_sec = sec;
     tvinit.tv_usec = milisec;
     tvptr = &tv; // yes, yes, &tv
 }
-void akg::Selector::disableTimeout() throw()
+void akg::Selector::disableTimeout() noexcept
 {
     tvptr = NULL;
 }
-void akg::Selector::setRead(int fdescr) throw()
+void akg::Selector::setRead(int fdescr) noexcept
 {
     if (fdescr < 0)
     {
@@ -50,7 +50,7 @@ void akg::Selector::setRead(int fdescr) throw()
     }
     FD_SET(fdescr, &watchReadFdSet);
 }
-void akg::Selector::clearRead(int fdescr) throw()
+void akg::Selector::clearRead(int fdescr) noexcept
 {
     if (fdescr < 0)
     {
@@ -58,7 +58,7 @@ void akg::Selector::clearRead(int fdescr) throw()
     }
     FD_CLR(fdescr, &watchReadFdSet);
 }
-void akg::Selector::setWrite(int fdescr) throw()
+void akg::Selector::setWrite(int fdescr) noexcept
 {
     if (fdescr < 0)
     {
@@ -66,7 +66,7 @@ void akg::Selector::setWrite(int fdescr) throw()
     }
     FD_SET(fdescr, &watchWriteFdSet);
 }
-void akg::Selector::clearWrite(int fdescr) throw()
+void akg::Selector::clearWrite(int fdescr) noexcept
 {
     if (fdescr < 0)
     {
@@ -75,7 +75,7 @@ void akg::Selector::clearWrite(int fdescr) throw()
     FD_CLR(fdescr, &watchWriteFdSet);
 }
 
-int akg::Selector::operator()() throw()
+int akg::Selector::operator()() noexcept
 {
     resultReadFdSet = watchReadFdSet;
     resultWriteFdSet = watchWriteFdSet;
@@ -87,7 +87,7 @@ int akg::Selector::operator()() throw()
     return select(FD_SETSIZE, &resultReadFdSet, &resultWriteFdSet, NULL, tvptr);
 }
 
-bool akg::Selector::isRead(int fdescr) throw()
+bool akg::Selector::isRead(int fdescr) noexcept
 {
     if (fdescr < 0)
     {
@@ -95,7 +95,7 @@ bool akg::Selector::isRead(int fdescr) throw()
     }
     return FD_ISSET(fdescr, &resultReadFdSet);
 }
-bool akg::Selector::isWrite(int fdescr) throw()
+bool akg::Selector::isWrite(int fdescr) noexcept
 {
     if (fdescr < 0)
     {
@@ -104,7 +104,7 @@ bool akg::Selector::isWrite(int fdescr) throw()
     return FD_ISSET(fdescr, &resultWriteFdSet);
 }
 
-void akg::Selector::closeForcedAllFileDescriptors() throw()
+void akg::Selector::closeForcedAllFileDescriptors() noexcept
 {
     for (int i = 0; i < FD_SETSIZE; i++)
     {

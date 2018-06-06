@@ -54,7 +54,7 @@ Type::Type()
         LTRACE << "Type()";
 	}
 
-Type::Type(const OId& id) throw (r_Error)
+Type::Type(const OId& id)
 	:	DBNamedObject(id)
 	{
         LTRACE << "Type(" << myOId << ")";

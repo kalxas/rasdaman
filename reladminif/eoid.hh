@@ -108,7 +108,7 @@ public:
     returns the systemname|databasename|oid
     */
 
-    static void allocateEOId(EOId& eoid, OId::OIdType t) throw (r_Error);
+    static void allocateEOId(EOId& eoid, OId::OIdType t);
     /*@Doc:
     Allocates a new logical MDD EOid in the currently opened base.
     throws an r_Error_DatabaseClosed when the database is not really open.

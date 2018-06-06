@@ -42,7 +42,7 @@ const char* RnpTransport::carrierNames[] =
     "(unknown)", "RNP", "HTTP", "(bad)"
 };
 
-const char* RnpTransport::getCarrierName(RnpTransport::CarrierProtocol x) throw()
+const char* RnpTransport::getCarrierName(RnpTransport::CarrierProtocol x) noexcept
 {
     if (x < crp_Unknown || x >= crp_HowMany)
     {
@@ -54,18 +54,18 @@ const char* RnpTransport::getCarrierName(RnpTransport::CarrierProtocol x) throw(
 
 const int RnpReceiver::headerBufferLength = 1000;
 
-RnpReceiver::RnpReceiver() throw()
+RnpReceiver::RnpReceiver() noexcept
 {
     headerBuffer.allocate(headerBufferLength);
 
     reset();
 }
 
-RnpReceiver::~RnpReceiver() throw()
+RnpReceiver::~RnpReceiver() noexcept
 {
 }
 
-void RnpReceiver::reset() throw()
+void RnpReceiver::reset() noexcept
 {
     rnpMessageBuffer.freeBuffer();
     headerBuffer.clearToRead();
@@ -73,38 +73,38 @@ void RnpReceiver::reset() throw()
     carrier = RnpTransport::crp_Unknown;
 }
 
-akg::CommBuffer* RnpReceiver::getCurrentBuffer() throw()
+akg::CommBuffer* RnpReceiver::getCurrentBuffer() noexcept
 {
     return status == readingMessage ? &rnpMessageBuffer : &headerBuffer;
 }
 
-akg::CommBuffer* RnpReceiver::getMessageBuffer() throw()
+akg::CommBuffer* RnpReceiver::getMessageBuffer() noexcept
 {
     return &rnpMessageBuffer;
 }
 
 RnpTransport::CarrierProtocol
-RnpReceiver::getCarrierProtocol() const throw()
+RnpReceiver::getCarrierProtocol() const noexcept
 {
     return carrier;
 }
 
-int RnpReceiver::getCarrierHeaderSize() const throw()
+int RnpReceiver::getCarrierHeaderSize() const noexcept
 {
     return carrierHeaderLength;
 }
 
-const void* RnpReceiver::getCarrierHeader() throw()
+const void* RnpReceiver::getCarrierHeader() noexcept
 {
     return headerBuffer.getData();
 }
 
-bool RnpReceiver::isDiscarding() const throw()
+bool RnpReceiver::isDiscarding() const noexcept
 {
     return status == discarding ? true : false;
 }
 
-bool RnpReceiver::validateMessage() throw()
+bool RnpReceiver::validateMessage() noexcept
 {
     if (status == waitingHeader)
     {
@@ -168,7 +168,7 @@ bool RnpReceiver::validateMessage() throw()
     - valid carrier & valid rnp header =>true/rnpHeader != NULL carrierHeaderLength set
 */
 
-bool RnpReceiver::isHttpCarrier() throw()
+bool RnpReceiver::isHttpCarrier() noexcept
 {
     char* data = static_cast<char*>(headerBuffer.getData());
 
@@ -216,7 +216,7 @@ bool RnpReceiver::isHttpCarrier() throw()
     return isRnp;
 }
 
-bool RnpReceiver::isRnpCarrier() throw()
+bool RnpReceiver::isRnpCarrier() noexcept
 {
     char* data = static_cast<char*>(headerBuffer.getData());
 
@@ -243,7 +243,7 @@ bool RnpReceiver::isRnpCarrier() throw()
     return isRnp;
 }
 
-bool RnpReceiver::prepareMessageBuffer() throw()
+bool RnpReceiver::prepareMessageBuffer() noexcept
 {
     if (rnpMessageBuffer.allocate(rnpHeader->getTotalLength()) == false)
     {
@@ -261,13 +261,13 @@ bool RnpReceiver::prepareMessageBuffer() throw()
 
 //########################################################################################################
 
-RnpTransmitter::RnpTransmitter() throw()
+RnpTransmitter::RnpTransmitter() noexcept
 {
     carrier     = NULL;
     carrierType = RnpTransport::crp_Http;
 }
 
-RnpTransmitter::~RnpTransmitter() throw()
+RnpTransmitter::~RnpTransmitter() noexcept
 {
     if (carrier != NULL)
     {
@@ -275,7 +275,7 @@ RnpTransmitter::~RnpTransmitter() throw()
     }
 }
 
-bool RnpTransmitter::startRequest(RnpQuark serverType, RnpTransport::CarrierProtocol desiredProtocol) throw()
+bool RnpTransmitter::startRequest(RnpQuark serverType, RnpTransport::CarrierProtocol desiredProtocol) noexcept
 {
     getCarrierObject(desiredProtocol);
 
@@ -289,7 +289,7 @@ bool RnpTransmitter::startRequest(RnpQuark serverType, RnpTransport::CarrierProt
     return true;
 }
 
-bool RnpTransmitter::startAnswer(RnpQuark serverType, RnpTransport::CarrierProtocol desiredProtocol) throw()
+bool RnpTransmitter::startAnswer(RnpQuark serverType, RnpTransport::CarrierProtocol desiredProtocol) noexcept
 {
     getCarrierObject(desiredProtocol);
 
@@ -303,7 +303,7 @@ bool RnpTransmitter::startAnswer(RnpQuark serverType, RnpTransport::CarrierProto
     return true;
 }
 
-akg::CommBuffer* RnpTransmitter::endMessage() throw()
+akg::CommBuffer* RnpTransmitter::endMessage() noexcept
 {
     if (carrier == NULL)
     {
@@ -317,12 +317,12 @@ akg::CommBuffer* RnpTransmitter::endMessage() throw()
 }
 
 RnpTransport::CarrierProtocol
-RnpTransmitter::getCarrierProtocol() throw()
+RnpTransmitter::getCarrierProtocol() noexcept
 {
     return carrierType;
 }
 
-RnpCarrier* RnpTransmitter::getCarrierObject(RnpTransport::CarrierProtocol desiredProtocol) throw()
+RnpCarrier* RnpTransmitter::getCarrierObject(RnpTransport::CarrierProtocol desiredProtocol) noexcept
 {
     carrierType = desiredProtocol;
 
@@ -352,7 +352,7 @@ RnpCarrier* RnpTransmitter::getCarrierObject(RnpTransport::CarrierProtocol desir
     return carrier;
 }
 
-int  RnpTransmitter::getBufferSize() const throw()
+int  RnpTransmitter::getBufferSize() const noexcept
 {
     if (!(commBuffer != 0))
     {
@@ -362,7 +362,7 @@ int  RnpTransmitter::getBufferSize() const throw()
     return commBuffer->getBufferSize();
 }
 
-int  RnpTransmitter::getNotFilledSize() const throw()
+int  RnpTransmitter::getNotFilledSize() const noexcept
 {
     if (!(commBuffer != 0))
     {
@@ -372,7 +372,7 @@ int  RnpTransmitter::getNotFilledSize() const throw()
     return commBuffer->getNotFilledSize();
 }
 
-int  RnpTransmitter::getDataSize() const throw()
+int  RnpTransmitter::getDataSize() const noexcept
 {
     if (!(commBuffer != 0))
     {
@@ -384,57 +384,57 @@ int  RnpTransmitter::getDataSize() const throw()
 
 //################################################
 
-RnpCarrier::RnpCarrier() throw()
+RnpCarrier::RnpCarrier() noexcept
 {
     type = RnpTransport::crp_Rnp;
 }
 
-RnpCarrier::~RnpCarrier() throw()
+RnpCarrier::~RnpCarrier() noexcept
 {
 }
 
-RnpTransport::CarrierProtocol RnpCarrier::getType() throw()
+RnpTransport::CarrierProtocol RnpCarrier::getType() noexcept
 {
     return type;
 }
 
-int  RnpCarrier::getRequestHeaderLength() throw()
+int  RnpCarrier::getRequestHeaderLength() noexcept
 {
     requestHeader = true;
     return 0;
 }
 
-int  RnpCarrier::getAnswerHeaderLength() throw()
+int  RnpCarrier::getAnswerHeaderLength() noexcept
 {
     requestHeader = false;
     return 0;
 }
 
-void RnpCarrier::putHeader(akg::CommBuffer*) throw()
+void RnpCarrier::putHeader(akg::CommBuffer*) noexcept
 {
     // nothing!!
 }
 
 
-HttpRnpCarrier::HttpRnpCarrier() throw()
+HttpRnpCarrier::HttpRnpCarrier() noexcept
 {
     type = RnpTransport::crp_Http;
 }
 
 
-int HttpRnpCarrier::getRequestHeaderLength() throw()
+int HttpRnpCarrier::getRequestHeaderLength() noexcept
 {
     requestHeader = true;
     return strlen(theRequestHeader);
 }
 
-int HttpRnpCarrier::getAnswerHeaderLength() throw()
+int HttpRnpCarrier::getAnswerHeaderLength() noexcept
 {
     requestHeader = false;
     return strlen(theAnswerHeader);
 }
 
-void HttpRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) throw()
+void HttpRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) noexcept
 {
     char* data = static_cast<char*>(messageBuffer->getData());
 
@@ -458,24 +458,24 @@ const char HttpRnpCarrier::theAnswerHeader[] =
 
 
 
-BadRnpCarrier::BadRnpCarrier() throw()
+BadRnpCarrier::BadRnpCarrier() noexcept
 {
     type = RnpTransport::crp_BadCarrier;
 }
 
-int BadRnpCarrier::getRequestHeaderLength() throw()
+int BadRnpCarrier::getRequestHeaderLength() noexcept
 {
     requestHeader = true;
     return strlen(theHeader);
 }
 
-int BadRnpCarrier::getAnswerHeaderLength() throw()
+int BadRnpCarrier::getAnswerHeaderLength() noexcept
 {
     requestHeader = false;
     return strlen(theHeader);
 }
 
-void BadRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) throw()
+void BadRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) noexcept
 {
     char* data = static_cast<char*>(messageBuffer->getData());
 

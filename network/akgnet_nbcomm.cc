@@ -39,23 +39,23 @@ rasdaman GmbH.
 time_t akg::NbJob::timeOutInterv = 30;
 time_t akg::NbJob::currentTime = 0;
 
-void akg::NbJob::setCurrentTime() throw()
+void akg::NbJob::setCurrentTime() noexcept
 {
     currentTime = time(NULL);
 }
 
-void akg::NbJob::setTimeoutInterval(time_t x) throw()
+void akg::NbJob::setTimeoutInterval(time_t x) noexcept
 {
     timeOutInterv = x;
 }
 
-time_t akg::NbJob::getTimeoutInterval() throw()
+time_t akg::NbJob::getTimeoutInterval() noexcept
 {
     return timeOutInterv;
 }
 
 //####################################################
-akg::NbJob::NbJob(FileDescriptor& fd) throw()
+akg::NbJob::NbJob(FileDescriptor& fd) noexcept
     : fdRef(fd)
 {
     status           = wks_notdefined;
@@ -64,39 +64,39 @@ akg::NbJob::NbJob(FileDescriptor& fd) throw()
     lastActionTime   = 0;
 }
 
-akg::NbJob::~NbJob() throw()
+akg::NbJob::~NbJob() noexcept
 {
 }
 
-akg::NbJob::workingStatus akg::NbJob::getStatus()  throw()
+akg::NbJob::workingStatus akg::NbJob::getStatus() noexcept
 {
     return status;
 }
 
-bool akg::NbJob::isOperationPending() throw()
+bool akg::NbJob::isOperationPending() noexcept
 {
     return (status != wks_notdefined &&
             status != wks_accepting) ? true : false;
 }
 
-bool akg::NbJob::isAccepting() throw()
+bool akg::NbJob::isAccepting() noexcept
 {
     return status == wks_accepting ? true : false;
 }
-bool akg::NbJob::isReading() throw()
+bool akg::NbJob::isReading() noexcept
 {
     return status == wks_reading ? true : false;
 }
-bool akg::NbJob::isWriting() throw()
+bool akg::NbJob::isWriting() noexcept
 {
     return status == wks_writing ? true : false;
 }
-bool akg::NbJob::isProcessing() throw()
+bool akg::NbJob::isProcessing() noexcept
 {
     return status == wks_processing ? true : false;
 }
 
-bool akg::NbJob::readPartialMessage() throw()
+bool akg::NbJob::readPartialMessage() noexcept
 {
     assert(currentBufferPtr != NULL);
 
@@ -134,7 +134,7 @@ bool akg::NbJob::readPartialMessage() throw()
     return false;
 }
 
-bool akg::NbJob::writePartialMessage() throw()
+bool akg::NbJob::writePartialMessage() noexcept
 {
     assert(currentBufferPtr != NULL);
 
@@ -175,7 +175,7 @@ bool akg::NbJob::writePartialMessage() throw()
     return  false;
 }
 
-bool akg::NbJob::cleanUpIfTimeout() throw()
+bool akg::NbJob::cleanUpIfTimeout() noexcept
 {
     if (fdRef.isOpen() == false)
     {
@@ -195,7 +195,7 @@ bool akg::NbJob::cleanUpIfTimeout() throw()
     return true;
 }
 
-void akg::NbJob::clearConnection() throw()
+void akg::NbJob::clearConnection() noexcept
 {
     if (fdRef.isOpen() && selectorPtr)
     {
@@ -205,20 +205,20 @@ void akg::NbJob::clearConnection() throw()
     }
 }
 
-void akg::NbJob::action()  throw()
+void akg::NbJob::action() noexcept
 {
     lastActionTime = currentTime;
 }
 
-int  akg::NbJob::getSocket() throw()
+int  akg::NbJob::getSocket() noexcept
 {
     return fdRef();
 }
 
-void akg::NbJob::executeOnAccept() throw()
+void akg::NbJob::executeOnAccept() noexcept
 {
 }
-bool akg::NbJob::setReading() throw()
+bool akg::NbJob::setReading() noexcept
 {
     if (selectorPtr == NULL)
     {
@@ -229,7 +229,7 @@ bool akg::NbJob::setReading() throw()
     return true;
 }
 
-bool akg::NbJob::setWriting() throw()
+bool akg::NbJob::setWriting() noexcept
 {
     if (selectorPtr == NULL)
     {
@@ -240,24 +240,24 @@ bool akg::NbJob::setWriting() throw()
     return true;
 }
 
-int akg::NbJob::getErrno() throw()
+int akg::NbJob::getErrno() noexcept
 {
     return fdRef.getErrno();
 }
 
 //##################################################################
-akg::NbServerJob::NbServerJob()  throw()
+akg::NbServerJob::NbServerJob() noexcept
     : NbJob(serverSocket)
 {
 }
 
-void akg::NbServerJob::initOnAttach(Selector* pSelector) throw()
+void akg::NbServerJob::initOnAttach(Selector* pSelector) noexcept
 {
     selectorPtr = pSelector;
 }
 
 
-akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listenSocket) throw()
+akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listenSocket) noexcept
 {
     LDEBUG << "Am intrat in accepting";
     assert(currentBufferPtr != NULL);
@@ -292,17 +292,17 @@ akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listen
 }
 
 
-akg::SocketAddress akg::NbServerJob::getClientSocketAddress() throw()
+akg::SocketAddress akg::NbServerJob::getClientSocketAddress() noexcept
 {
     return serverSocket.getPeerAddress();
 }
 
-akg::HostAddress akg::NbServerJob::getClientHostAddress() throw()
+akg::HostAddress akg::NbServerJob::getClientHostAddress() noexcept
 {
     return serverSocket.getPeerAddress().getHostAddress();
 }
 
-void akg::NbServerJob::readyToWriteAnswer() throw()
+void akg::NbServerJob::readyToWriteAnswer() noexcept
 {
     currentBufferPtr->clearToWrite();
 
@@ -314,12 +314,12 @@ void akg::NbServerJob::readyToWriteAnswer() throw()
 }
 //##################################################################
 
-akg::NbClientJob::NbClientJob() throw()
+akg::NbClientJob::NbClientJob() noexcept
     : NbJob(clientSocket)
 {
 }
 
-bool akg::NbClientJob::connectToServer(const char* serverHost, int serverPort) throw()
+bool akg::NbClientJob::connectToServer(const char* serverHost, int serverPort) noexcept
 {
     if (clientSocket.open(serverHost, serverPort))
     {
@@ -332,7 +332,7 @@ bool akg::NbClientJob::connectToServer(const char* serverHost, int serverPort) t
     return false;
 }
 
-void akg::NbClientJob::initOnAttach(Selector* pselector) throw()
+void akg::NbClientJob::initOnAttach(Selector* pselector) noexcept
 {
     selectorPtr = pselector;
 
@@ -343,13 +343,13 @@ void akg::NbClientJob::initOnAttach(Selector* pselector) throw()
 }
 
 akg::NbJob::acceptStatus
-akg::NbClientJob::acceptConnection(ListenSocket&) throw()
+akg::NbClientJob::acceptConnection(ListenSocket&) noexcept
 {
     // we don't accept connections
     return acs_Iambusy;
 }
 
-void akg::NbClientJob::readyToReadAnswer() throw()
+void akg::NbClientJob::readyToReadAnswer() noexcept
 {
     currentBufferPtr->clearToRead();
 
@@ -361,7 +361,7 @@ void akg::NbClientJob::readyToReadAnswer() throw()
 }
 
 //##################################################################
-akg::NbCommunicator::NbCommunicator() throw()
+akg::NbCommunicator::NbCommunicator() noexcept
 {
     maxJobs = 0;
     jobPtr = NULL;
@@ -388,7 +388,7 @@ bool akg::NbCommunicator::initJobs(int newMaxJobs)
     return true;
 }
 
-akg::NbCommunicator::~NbCommunicator() throw()
+akg::NbCommunicator::~NbCommunicator() noexcept
 {
     if (jobPtr != NULL)
     {
@@ -396,7 +396,7 @@ akg::NbCommunicator::~NbCommunicator() throw()
     }
 }
 
-bool akg::NbCommunicator::attachJob(NbJob& newJob) throw()
+bool akg::NbCommunicator::attachJob(NbJob& newJob) noexcept
 {
     int freeSlot  = -1;
     for (int i = 0; i < maxJobs; i++)
@@ -420,7 +420,7 @@ bool akg::NbCommunicator::attachJob(NbJob& newJob) throw()
     return true;
 }
 
-bool akg::NbCommunicator::deattachJob(NbJob& oldJob) throw()
+bool akg::NbCommunicator::deattachJob(NbJob& oldJob) noexcept
 {
     for (int i = 0; i < maxJobs; i++)
     {
@@ -435,7 +435,7 @@ bool akg::NbCommunicator::deattachJob(NbJob& oldJob) throw()
     return false;
 }
 
-bool akg::NbCommunicator::mayExit() throw()
+bool akg::NbCommunicator::mayExit() noexcept
 {
     if (exitRequest == false)
     {
@@ -458,7 +458,7 @@ bool akg::NbCommunicator::mayExit() throw()
     return true; // ok, we may exit
 }
 
-bool akg::NbCommunicator::runServer() throw()
+bool akg::NbCommunicator::runServer() noexcept
 {
     if (listenPort == 0)
     {
@@ -473,12 +473,12 @@ bool akg::NbCommunicator::runServer() throw()
     return mainLoop();
 }
 
-bool akg::NbCommunicator::runClient() throw()
+bool akg::NbCommunicator::runClient() noexcept
 {
     return mainLoop();
 }
 
-bool akg::NbCommunicator::mainLoop() throw()
+bool akg::NbCommunicator::mainLoop() noexcept
 {
     exitRequest = false;
 
@@ -527,7 +527,7 @@ bool akg::NbCommunicator::mainLoop() throw()
     return true;
 }
 
-void akg::NbCommunicator::processJobs() throw()
+void akg::NbCommunicator::processJobs() noexcept
 {
     LDEBUG << "process Jobs - entering";
 
@@ -549,7 +549,7 @@ void akg::NbCommunicator::processJobs() throw()
     }
 }
 
-void akg::NbCommunicator::lookForTimeout() throw()
+void akg::NbCommunicator::lookForTimeout() noexcept
 {
     LDEBUG << "Looking for timeout";
 
@@ -564,7 +564,7 @@ void akg::NbCommunicator::lookForTimeout() throw()
     }
 }
 
-void akg::NbCommunicator::dispatchWriteRequest() throw()
+void akg::NbCommunicator::dispatchWriteRequest() noexcept
 {
     LDEBUG << "Dispatch writing";
     int i;
@@ -589,7 +589,7 @@ void akg::NbCommunicator::dispatchWriteRequest() throw()
     }
 }
 
-void akg::NbCommunicator::dispatchReadRequest() throw()
+void akg::NbCommunicator::dispatchReadRequest() noexcept
 {
     LDEBUG << "Dispatch reading";
     int i;
@@ -614,7 +614,7 @@ void akg::NbCommunicator::dispatchReadRequest() throw()
     }
 }
 
-void akg::NbCommunicator::connectNewClients() throw()
+void akg::NbCommunicator::connectNewClients() noexcept
 {
     LDEBUG << "connect listenSocket=" << listenSocket();
 
@@ -651,19 +651,19 @@ void akg::NbCommunicator::connectNewClients() throw()
     }
 }
 
-bool akg::NbCommunicator::executeBeforeSelect() throw()
+bool akg::NbCommunicator::executeBeforeSelect() noexcept
 {
     // false means server exit immediately
     return true;
 }
 
-bool akg::NbCommunicator::executeAfterSelect() throw()
+bool akg::NbCommunicator::executeAfterSelect() noexcept
 {
     // false means server exit immediately
     return true;
 }
 
-bool akg::NbCommunicator::executeOnTimeout() throw()
+bool akg::NbCommunicator::executeOnTimeout() noexcept
 {
     // false means server exit immediately
     return true;

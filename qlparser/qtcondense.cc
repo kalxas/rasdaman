@@ -172,7 +172,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
         // get new operation object
         CondenseOp* condOp = Ops::getCondenseOp(opType, resultType, mdd->getCellType());
         condOp->setNullValues(nullValues);
-        long totalValuesCount{0};
+        unsigned long totalValuesCount{0};
 
         LDEBUG << "computeFullCondense-9\n";
         // and iterate over them

@@ -59,7 +59,7 @@ public:
         crp_HowMany
     };
 
-    static const char* getCarrierName(CarrierProtocol) throw();
+    static const char* getCarrierName(CarrierProtocol) noexcept;
 private:
     static const char* carrierNames[];
 };
@@ -83,36 +83,36 @@ class RnpReceiver
 {
 public:
     /// Default constructor
-    RnpReceiver() throw();
+    RnpReceiver() noexcept;
 
     /// Destructor
-    ~RnpReceiver() throw();
+    ~RnpReceiver() noexcept;
 
     /// Resets the receiver, preparing for a new message
-    void reset() throw();
+    void reset() noexcept;
 
     /// Returns a pointer to the current buffer (the header one or the message one)
-    akg::CommBuffer* getCurrentBuffer() throw();
+    akg::CommBuffer* getCurrentBuffer() noexcept;
 
     /** Returns a pointer to the message buffer, which contains the RNP message,
         whitout any carrier header */
-    akg::CommBuffer* getMessageBuffer() throw();
+    akg::CommBuffer* getMessageBuffer() noexcept;
 
     /// Returns 'true' if the whole message was received, 'false' if more data is expected
-    bool        validateMessage() throw();
+    bool        validateMessage() noexcept;
 
     /** Returns 'true' if an error occured and the message has to be discarded
         If validate()==false and isDiscarding()==true => NbJob has to reset receiver and close connection*/
-    bool        isDiscarding() const throw();
+    bool        isDiscarding() const noexcept;
 
     /// Returns the type of the carrier protocol
-    RnpTransport::CarrierProtocol  getCarrierProtocol() const throw();
+    RnpTransport::CarrierProtocol  getCarrierProtocol() const noexcept;
 
     /// Returns the size of the carrier header
-    int         getCarrierHeaderSize() const throw();
+    int         getCarrierHeaderSize() const noexcept;
 
     /// Returns a pointer to the carrier header
-    const void* getCarrierHeader() throw();
+    const void* getCarrierHeader() noexcept;
 
 private:
 
@@ -136,9 +136,9 @@ private:
 
     static const int   headerBufferLength;
 
-    bool isHttpCarrier() throw();
-    bool isRnpCarrier() throw();
-    bool prepareMessageBuffer() throw();
+    bool isHttpCarrier() noexcept;
+    bool isRnpCarrier() noexcept;
+    bool prepareMessageBuffer() noexcept;
 
 };
 
@@ -156,31 +156,31 @@ class RnpTransmitter : public RnpProtocolEncoder
 {
 public:
     /// Default constructor
-    RnpTransmitter() throw();
+    RnpTransmitter() noexcept;
 
     /// Destructor
-    ~RnpTransmitter() throw();
+    ~RnpTransmitter() noexcept;
 
     /// Starts a new message, as a request, embedded in a specified protocol
-    bool startRequest(RnpQuark serverType, RnpTransport::CarrierProtocol) throw();
+    bool startRequest(RnpQuark serverType, RnpTransport::CarrierProtocol) noexcept;
 
     /// Starts a new message, as an answer, embedded in a specified protocol
-    bool startAnswer(RnpQuark serverType, RnpTransport::CarrierProtocol) throw();
+    bool startAnswer(RnpQuark serverType, RnpTransport::CarrierProtocol) noexcept;
 
     /// ends the message, puts the carrier headers and, if requested, changes endianness
-    akg::CommBuffer* endMessage() throw();
+    akg::CommBuffer* endMessage() noexcept;
 
     /// Returns the carrier protocol
-    RnpTransport::CarrierProtocol getCarrierProtocol() throw();
+    RnpTransport::CarrierProtocol getCarrierProtocol() noexcept;
 
     /// Returns the total size of the buffer
-    int  getBufferSize() const throw();
+    int  getBufferSize() const noexcept;
 
     /// Return the space left in the buffer
-    int  getNotFilledSize() const throw();
+    int  getNotFilledSize() const noexcept;
 
     /// Returns the data size in the buffer
-    int  getDataSize() const throw();
+    int  getDataSize() const noexcept;
 private:
 
     RnpTransport::CarrierProtocol carrierType;
@@ -189,7 +189,7 @@ private:
         It assignes the object to 'carrier' and it also destroys the previous
     assigned object
     */
-    RnpCarrier* getCarrierObject(RnpTransport::CarrierProtocol) throw();
+    RnpCarrier* getCarrierObject(RnpTransport::CarrierProtocol) noexcept;
     RnpCarrier* carrier;
 };
 
@@ -203,23 +203,23 @@ class RnpCarrier
 {
 public:
     /// Default constructor
-    RnpCarrier() throw();
+    RnpCarrier() noexcept;
 
     /// Virtual destructor
-    virtual ~RnpCarrier() throw();
+    virtual ~RnpCarrier() noexcept;
 
     /// Returns the type of the object
-    RnpTransport::CarrierProtocol getType() throw();
+    RnpTransport::CarrierProtocol getType() noexcept;
 
     /// Returns the length of the request header
-    virtual int  getRequestHeaderLength() throw();
+    virtual int  getRequestHeaderLength() noexcept;
 
     /// Returns the length of the answer header
-    virtual int  getAnswerHeaderLength() throw();
+    virtual int  getAnswerHeaderLength() noexcept;
 
     /** Write the header directly into the reserved space of the buffer,
         since the rest of the message is already there*/
-    virtual void putHeader(akg::CommBuffer*) throw();
+    virtual void putHeader(akg::CommBuffer*) noexcept;
 
 protected:
     /// The type of the carrier
@@ -240,16 +240,16 @@ class HttpRnpCarrier : public RnpCarrier
 {
 public:
     /// Default constructor
-    HttpRnpCarrier() throw();
+    HttpRnpCarrier() noexcept;
 
     /// Returns the length of the request header
-    int  getRequestHeaderLength() throw();
+    int  getRequestHeaderLength() noexcept;
 
     /// Returns the length of the answer header
-    int  getAnswerHeaderLength() throw();
+    int  getAnswerHeaderLength() noexcept;
 
     /// Writes the header into the buffer
-    void putHeader(akg::CommBuffer*) throw();
+    void putHeader(akg::CommBuffer*) noexcept;
 
 private:
     static const char theRequestHeader[];
@@ -265,11 +265,11 @@ private:
 class BadRnpCarrier : public RnpCarrier
 {
 public:
-    BadRnpCarrier() throw();
+    BadRnpCarrier() noexcept;
 
-    int  getRequestHeaderLength() throw();
-    int  getAnswerHeaderLength() throw();
-    void putHeader(akg::CommBuffer*) throw();
+    int  getRequestHeaderLength() noexcept;
+    int  getAnswerHeaderLength() noexcept;
+    void putHeader(akg::CommBuffer*) noexcept;
 
 private:
     static const char theHeader[];

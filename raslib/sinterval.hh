@@ -237,10 +237,10 @@ public:
     r_Sinterval();
 
     /// constructor taking string representation (e.g. *:200 )
-    r_Sinterval(char*) throw(r_Eno_interval);
+    r_Sinterval(char*);
 
     /// constructor for an interval with fixed bounds
-    r_Sinterval(r_Range low, r_Range high) throw(r_Eno_interval);
+    r_Sinterval(r_Range low, r_Range high);
 
     //@Man: Constructors for intervals with at least one open bound.
     //@{
@@ -275,22 +275,22 @@ public:
     inline bool      is_high_fixed() const;
 
     ///
-    void set_low(r_Range low) throw(r_Eno_interval);
+    void set_low(r_Range low);
     ///
-    void set_high(r_Range high) throw(r_Eno_interval);
+    void set_high(r_Range high);
     ///
     inline void set_low(char);
     ///
     inline void set_high(char);
 
     /// get the size of one dimensional interval as range.
-    r_Range get_extent() const throw(r_Error);
+    r_Range get_extent() const;
     /*@Doc:
       Returns a range with high() - low() + 1 of this interval.
     */
 
     ///
-    void set_interval(r_Range low, r_Range high) throw(r_Eno_interval);
+    void set_interval(r_Range low, r_Range high);
     ///
     void set_interval(char,        r_Range high);
     ///
@@ -307,19 +307,19 @@ public:
     //@{
     ///
     r_Sinterval& union_of(const r_Sinterval&, const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval& union_with(const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval& operator+= (const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  create_union(const r_Sinterval&) const
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  operator+ (const r_Sinterval&) const
-    throw(r_Eno_interval);
+;
     ///
     //@}
 
@@ -327,19 +327,19 @@ public:
     //@{
     ///
     r_Sinterval& difference_of(const r_Sinterval&, const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval& difference_with(const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval& operator-= (const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  create_difference(const r_Sinterval&) const
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  operator- (const r_Sinterval&) const
-    throw(r_Eno_interval);
+;
     ///
     //@}
 
@@ -347,19 +347,19 @@ public:
     //@{
     ///
     r_Sinterval& intersection_of(const r_Sinterval&, const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval& intersection_with(const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval& operator*= (const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  create_intersection(const r_Sinterval&) const
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  operator* (const r_Sinterval&) const
-    throw(r_Eno_interval);
+;
     ///
     //@}
 
@@ -367,13 +367,13 @@ public:
     //@{
     ///
     r_Sinterval& closure_of(const r_Sinterval&, const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval& closure_with(const r_Sinterval&)
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  create_closure(const r_Sinterval&) const
-    throw(r_Eno_interval);
+;
     ///
     //@}
 
@@ -402,16 +402,16 @@ private:
     //@{
     ///
     r_Sinterval  calc_union(const r_Sinterval& a, const r_Sinterval& b) const
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  calc_difference(const r_Sinterval& a, const r_Sinterval& b) const
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  calc_intersection(const r_Sinterval& a, const r_Sinterval& b) const
-    throw(r_Eno_interval);
+;
     ///
     r_Sinterval  calc_closure(const r_Sinterval& a, const r_Sinterval& b) const
-    throw(r_Eno_interval);
+;
     ///
     //@}
 

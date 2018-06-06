@@ -62,7 +62,7 @@ public:
 
 private:
     // allow only [A-Z,a-z,_]
-    void verifyName(const char* name) throw(r_Error);
+    void verifyName(const char* name);
 
     const char* collectionName;
     const char* collectionTypeName;
@@ -89,7 +89,7 @@ public:
 
     vector<r_Minterval> getTileDomains(r_OId mddOId, const char* stripeDomain);
 private:
-    void verifyCompatibility(MDDColl* collection) throw(r_Error);
+    void verifyCompatibility(MDDColl* collection);
 
     void createCompressedTileData(r_Minterval&, const BaseType* baseType);
 

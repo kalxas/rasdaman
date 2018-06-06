@@ -82,7 +82,7 @@ r_Transaction::~r_Transaction()
 
 
 void
-r_Transaction::begin(r_Transaction::r_TAMode mode) throw(r_Error)
+r_Transaction::begin(r_Transaction::r_TAMode mode)
 {
     // check if no other transaction is running
     if (ta_state != inactive || actual_transaction)
@@ -111,7 +111,7 @@ r_Transaction::begin(r_Transaction::r_TAMode mode) throw(r_Error)
 
 
 void
-r_Transaction::commit() throw(r_Error)
+r_Transaction::commit()
 {
     if (ta_state != active)
     {

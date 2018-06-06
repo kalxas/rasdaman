@@ -39,7 +39,7 @@ static const char rcsid[] = "@(#)catalogif,ShortType: $Header: /home/rasdev/CVS-
 #include <limits.h>
 #include <string.h>
 
-ShortType::ShortType(const OId& id) throw (r_Error)
+ShortType::ShortType(const OId& id)
 	:IntegralType(id)
 	{
 	readFromDb();
@@ -144,7 +144,7 @@ ShortType::makeFromCLong(char* cell, const r_Long* value) const
 }
 
 void
-ShortType::readFromDb() throw (r_Error)
+ShortType::readFromDb()
 	{
 	setName(ShortType::Name);
 	myType = SHORT;

@@ -197,14 +197,14 @@ void r_Conv_TIFF::initTIFF(void)
 }
 
 /// constructor using type structure
-r_Conv_TIFF::r_Conv_TIFF(const char* src, const r_Minterval& interv, const r_Type* tp) throw(r_Error)
+r_Conv_TIFF::r_Conv_TIFF(const char* src, const r_Minterval& interv, const r_Type* tp)
     : r_Convert_Memory(src, interv, tp, true)
 {
     initTIFF();
 }
 
 /// constructor using int type indicator
-r_Conv_TIFF::r_Conv_TIFF(const char* src, const r_Minterval& interv, int type) throw(r_Error)
+r_Conv_TIFF::r_Conv_TIFF(const char* src, const r_Minterval& interv, int type)
     : r_Convert_Memory(src, interv, type)
 {
     initTIFF();
@@ -225,7 +225,7 @@ r_Conv_TIFF::~r_Conv_TIFF(void)
 // Bitmap, Greyscales:  COMPRESSION_LZW, COMPRESSION_DEFLATE
 // RGB:                 COMPRESSION_JPEG, COMPRESSION_SGILOG24
 r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
-                                    const r_Range* nullValue) throw(r_Error)
+                                    const r_Range* nullValue)
 {
     TIFF* tif = NULL;
     char dummyFile[256];
@@ -576,7 +576,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
 
 
 /// convert TIFF stream into array
-r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) throw(r_Error) // CONVERTION FROM TIFF TO DATA
+r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TIFF TO DATA
 {
     params->process(options); //==> CHECK THIS "IMP"
     TIFF* tif = NULL;
@@ -981,7 +981,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) throw(r_Error) // CON
     return desc;
 }
 
-r_Conv_Desc& r_Conv_TIFF::convertFrom(__attribute__ ((unused)) r_Format_Params options) throw(r_Error)
+r_Conv_Desc& r_Conv_TIFF::convertFrom(__attribute__ ((unused)) r_Format_Params options)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }

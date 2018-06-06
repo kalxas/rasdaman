@@ -53,17 +53,17 @@ class File : public FileDescriptor
 {
 public:
     /// Default constructor
-    File() throw();
+    File() noexcept;
 
     /** Constructor taking an already opened file descriptor
         Assert: osFileDescriptor > 0
     */
-    File(int osFileDescriptor) throw();
+    File(int osFileDescriptor) noexcept;
 
     /** Connect to an already opened file descriptor
         Assert: osFileDescriptor > 0
     */
-    void connectToDescriptor(int osFileDescriptor) throw();
+    void connectToDescriptor(int osFileDescriptor) noexcept;
 
 private:
     /// unimplemented, objects of this type can't be copied

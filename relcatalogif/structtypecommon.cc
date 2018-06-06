@@ -107,7 +107,7 @@ StructType::StructType(const StructType& old)
     align = old.align;
 }
 
-StructType::StructType(const OId& structtypeid) throw (r_Error)
+StructType::StructType(const OId& structtypeid)
     :   CompositeType(structtypeid),
         elements(0),
         elementNames(0),

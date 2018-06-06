@@ -58,82 +58,82 @@ class CommBuffer
 {
 public:
     /// Default constructor, no data is allocated
-    CommBuffer() throw();
+    CommBuffer() noexcept;
 
     /** Constructor allocating a 'size' bytes buffer
         Assert: size > 0
     */
-    CommBuffer(int size)  throw();
+    CommBuffer(int size) noexcept;
 
     /** Constructor taking over an existing buffer
         totalSize - the total size of the buffer
     dataSize  - the size of the usefull data
     */
-    CommBuffer(void*, int totalSize, int dataSize = 0) throw();
+    CommBuffer(void*, int totalSize, int dataSize = 0) noexcept;
 
     /// Destructor. If the internal buffer is allocated, it will be deallocated
-    ~CommBuffer() throw();
+    ~CommBuffer() noexcept;
 
     /** Allocates a new buffer. The old one, if allocated, will be deallocated
         Assert: size > 0
     */
-    bool  allocate(int size) throw();
+    bool  allocate(int size) noexcept;
 
     /// Frees the internal buffer, if allocated.
-    void  freeBuffer() throw();
+    void  freeBuffer() noexcept;
 
     /** Takes over an external buffer
         totalSize - the total size of the buffer
     dataSize  - the size of the usefull data
     Assert: externalBuffer != 0, totalSize > 0, dataSize>=0, totalSize>=dataSize
     */
-    void takeOver(void* externalBuffer, int totalSize, int dataSize = 0) throw();
+    void takeOver(void* externalBuffer, int totalSize, int dataSize = 0) noexcept;
 
     /** Resizes the internal buffer, by allocating and copying the data.
         Returns false if the new buffer is smaller than the actual data
     Assert: there is a buffer, so 'data != 0'*/
-    bool resize(int newSize) throw();
+    bool resize(int newSize) noexcept;
 
     /// Returns a pointer to the internal buffer. You are on your own!
-    void* getData() throw();
+    void* getData() noexcept;
 
     /// Returns the size of the data stored in the buffer
-    int   getDataSize() throw();
+    int   getDataSize() noexcept;
 
     /// Returns the total capacity of the buffer
-    int   getBufferSize() throw();
+    int   getBufferSize() noexcept;
 
     /// Returns the size already written
-    int   getSendedSize() throw();
+    int   getSendedSize() noexcept;
 
     /// Returns the size not filled yet
-    int   getNotFilledSize() throw();
+    int   getNotFilledSize() noexcept;
 
     /// Returns the size not written yet
-    int   getNotSendedSize() throw();
+    int   getNotSendedSize() noexcept;
 
     /// Returns true if the internal buffer is allocated
-    bool  isAllocated() throw();
+    bool  isAllocated() noexcept;
 
     /** Reads as much as possible from the specified FileDescriptor
         It stops if the buffer is full or there are are no more bytes to read
     Returns the number of bytes red
     */
-    int   read(FileDescriptor&) throw();
+    int   read(FileDescriptor&) noexcept;
 
     /** Reads at most 'size' bytes from the specified memory address
         It stops if the buffer is full or there are are no more bytes to read
     Returns the number of bytes red
     Assert: externalBuffer != 0, size >=0
     */
-    int   read(const void* externalBuffer, int size) throw();
+    int   read(const void* externalBuffer, int size) noexcept;
 
     /** Fake read, used to reserve space for future direct write
         Returns the number of bytes reserverd, which can be less
     than 'size' if there is not enough space
     Assert: size >=0
     */
-    int   reserve(int size) throw();
+    int   reserve(int size) noexcept;
 
 
     /** Write as much as possible to the specified FileDescriptor
@@ -141,22 +141,22 @@ public:
     can't accept more bytes
     Returns the number of bytes written
     */
-    int   write(FileDescriptor&) throw();
+    int   write(FileDescriptor&) noexcept;
 
     /** Writes at most 'size' bytes to the specified memory address
         It stops if the there are no more bytes to write
     Returns the number of bytes written
     Assert: externalBuffer != 0, size >=0
     */
-    int   write(void* externalBuffer, int size) throw();
+    int   write(void* externalBuffer, int size) noexcept;
 
     /// Resets the buffer for reading. The data inside is discarded
-    void  clearToRead() throw();
+    void  clearToRead() noexcept;
 
     /** Resets the buffer for writing. The data inside is not touched,
         just the writing counters are reset
     */
-    void  clearToWrite() throw();
+    void  clearToWrite() noexcept;
 
 private:
     /// the internal buffer

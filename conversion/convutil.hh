@@ -53,7 +53,7 @@ public:
      * @param bandIds a vector of the band ids to be considered for the type translation (0-indexed)
      * @return an r_Type for the dataset
      */
-    static r_Type* gdalTypeToRasType(GDALDataset* poDataSet, const std::vector<int>& bandIds) throw (r_Error);
+    static r_Type* gdalTypeToRasType(GDALDataset* poDataSet, const std::vector<int>& bandIds);
 
     /// convert rasdaman type to GDAL type
     static GDALDataType rasTypeToGdalType(r_Type* rasType);

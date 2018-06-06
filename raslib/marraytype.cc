@@ -41,7 +41,7 @@ r_Marray_Type::r_Marray_Type(const r_Base_Type& newBaseType)
 {
 }
 
-r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj) throw (r_Error)
+r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj)
     :   r_Type(oldObj)
 {
     if (oldObj.baseType)
@@ -56,7 +56,7 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj) throw (r_Error)
 }
 
 const r_Marray_Type&
-r_Marray_Type::operator=(const r_Marray_Type& oldObj) throw (r_Error)
+r_Marray_Type::operator=(const r_Marray_Type& oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)

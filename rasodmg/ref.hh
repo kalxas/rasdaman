@@ -235,28 +235,28 @@ public:
     r_Ref<T>& operator=(const r_Ref<T>&);
 
     /// dereference operator (error kinds: r_Error_RefNull, r_Error_RefInvalid)
-    const T& operator*() const throw (r_Error);
+    const T& operator*() const;
 
     /// dereference operator (error kinds: r_Error_RefNull, r_Error_RefInvalid)
-    T& operator*() throw(r_Error);
+    T& operator*();
     /**
       If the memory pointer is zero and the oid is valid, the object is loaded from the server
       and a reference to the object in memory is returned.
     */
 
-    const T* operator->() const throw (r_Error);
+    const T* operator->() const;
 
     /// operator for dereferencing the reference (error kinds: r_Error_RefNull, r_Error_RefInvalid)
-    T* operator->() throw(r_Error);
+    T* operator->();
     /**
       If the memory pointer is zero and the oid is valid, the object is loaded from the server
       and the new memory location is returned.
     */
 
-    const T* ptr() const throw (r_Error);
+    const T* ptr() const;
 
     /// method for dereferencing the reference (error kinds: r_Error_RefNull, r_Error_RefInvalid)
-    T* ptr() throw(r_Error);
+    T* ptr();
     /**
       If the memory pointer is zero and the oid is valid, the object is loaded from the server
       and the new memory location is returned.

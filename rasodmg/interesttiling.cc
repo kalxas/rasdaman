@@ -137,7 +137,7 @@ r_Interest_Tiling::get_name_from_tilesize_limit(Tilesize_Limit tsl)
     return all_tilesizelimit_names[idx];
 }
 
-r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
+r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     :   r_Dimension_Tiling(0, 0)
 {
     if (!encoded)
@@ -293,7 +293,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
     tile_size = tileS;
 }
 
-r_Interest_Tiling::r_Interest_Tiling(r_Dimension dim, const std::vector<r_Minterval>& interest_areas, r_Bytes ts, Tilesize_Limit strat) throw (r_Error)
+r_Interest_Tiling::r_Interest_Tiling(r_Dimension dim, const std::vector<r_Minterval>& interest_areas, r_Bytes ts, Tilesize_Limit strat)
     :   r_Dimension_Tiling(dim, ts),
         ts_strat(strat),
         iareas(interest_areas)
@@ -562,7 +562,7 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
 }
 
 std::vector<r_Minterval>*
-r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const throw (r_Error)
+r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
 {
     r_Dimension num_dims = domain.dimension();                   // Dimensionality of dom
     if (domain.dimension() != dimension)

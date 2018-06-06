@@ -53,9 +53,9 @@ class r_Set : public r_Collection<T>
 {
 public:
     /// default constructor
-    r_Set() throw(r_Error);
+    r_Set();
     /// copy constructor
-    r_Set(const r_Set<T>& set) throw(r_Error);
+    r_Set(const r_Set<T>& set);
     /// virtual destructor
     virtual ~r_Set();
 

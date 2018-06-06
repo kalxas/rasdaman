@@ -65,17 +65,17 @@ public:
 
     static int readScaleLevels(const char* argv);
 
-    static int initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Format conversionFormat, r_Minterval& tempDataDomain, const char* conversionParams) throw (r_Error);
+    static int initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Format conversionFormat, r_Minterval& tempDataDomain, const char* conversionParams);
 
     static int overlayGMarrays(r_Ref<r_GMarray>& target, const r_Ref<r_GMarray>& replaceBlackMDD, const r_Ref<r_GMarray>& backgroundMDD);
 
     static int compareGMarrays(const r_Ref<r_GMarray>& baseMDD, r_Ref<r_GMarray>& topMDD);
 
-    static void openTransaction(bool readwrite = true) throw (r_Error);
+    static void openTransaction(bool readwrite = true);
 
-    static int compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDom, const r_Minterval& downScaledDomain, unsigned int length, const char* collectionName) throw (r_Error);
+    static int compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDom, const r_Minterval& downScaledDomain, unsigned int length, const char* collectionName);
 
-    static int updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDom, const r_Minterval& downScaledDomain, unsigned int length, const char* collectionName) throw (r_Error);
+    static int updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDom, const r_Minterval& downScaledDomain, unsigned int length, const char* collectionName);
 
     static int scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, double factor, r_Minterval& scaledDomain, r_Minterval& clipDomain, unsigned int& length);
 

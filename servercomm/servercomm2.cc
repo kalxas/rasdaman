@@ -1822,13 +1822,13 @@ ServerComm::executeQuery(unsigned long callingClientId,
                             TypeFactory::addTempType(mddType);
 
                             // print total data size
-                            long totalReturnedSize = 0;
+                            unsigned long totalReturnedSize = 0;
                             for (auto it = context->transferData->begin(); it != context->transferData->end(); it++)
                             {
                                 QtMDD* mdd = static_cast<QtMDD*>(*it);
                                 auto baseTypeSize = mddObj->getMDDObject()->getCellType()->getSize();
-                                r_Minterval domain = mddObj->getLoadDomain();
-                                totalReturnedSize += (domain.cell_count() * baseTypeSize);
+                                r_Minterval tmpDomain = mddObj->getLoadDomain();
+                                totalReturnedSize += (tmpDomain.cell_count() * baseTypeSize);
                             }
                             BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)"
                                   << ", total size " << totalReturnedSize << " bytes.\n";

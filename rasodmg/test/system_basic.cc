@@ -825,7 +825,7 @@ SystemBasic::saveData(const char* fileNamePat, const char* data, r_Bytes length,
 }
 
 void
-SystemBasic::openTransaction(bool readwrite) throw (r_Error)
+SystemBasic::openTransaction(bool readwrite)
 {
     db.set_servername(serverName, serverPort);
     db.set_useridentification(userName, passwd);
@@ -1327,7 +1327,7 @@ SystemBasic::explainRetval(int retval)
 }
 
 int
-SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Format conversionFormat, r_Minterval& tempDataDomain, const char* conversionParams) throw (r_Error)
+SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Format conversionFormat, r_Minterval& tempDataDomain, const char* conversionParams)
 {
     int retval = 0;
     char* mddData = NULL;
@@ -1667,7 +1667,7 @@ SystemBasic::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, d
 }
 
 int
-SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDomain, const r_Minterval& downScaleDomain, unsigned int length, const char* collectionName) throw (r_Error)
+SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDomain, const r_Minterval& downScaleDomain, unsigned int length, const char* collectionName)
 {
     RMInit::logOut << "SystemBasic::updateScaledMDD(MDD, " << clipDomain << ", " << downScaleDomain << ", " << length << ", " << collectionName << ")" << endl;
     int retval = 0;
@@ -1722,7 +1722,7 @@ SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval&
 }
 
 int
-SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDomain, const r_Minterval& downScaleDomain, unsigned int length, const char* collectionName) throw (r_Error)
+SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDomain, const r_Minterval& downScaleDomain, unsigned int length, const char* collectionName)
 {
     RMInit::logOut << "SystemBasic::compareScaledMDD(MDD, " << clipDomain << ", " << downScaleDomain << ", " << length << ", " << collectionName << ")" << endl;
     int retval = 0;

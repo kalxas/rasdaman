@@ -68,13 +68,13 @@ public:
     unsigned int get_num_types(void) const;
     /// return pointer to primitive type num
     /// index violation is thrown if higher index is requested than available
-    const r_Primitive_Type* type(unsigned int num) const throw (r_Eindex_violation);
+    const r_Primitive_Type* type(unsigned int num) const;
     /// operator returns pointer to primitive type num or NULL if invalid
     /// index violation is thrown if higher index is requested than available
-    const r_Primitive_Type* operator[](unsigned int num) const throw (r_Eindex_violation);
+    const r_Primitive_Type* operator[](unsigned int num) const;
     /// return offset of primitive type num
     /// index violation is thrown if higher index is requested than available
-    unsigned int offset(unsigned int num) const throw (r_Eindex_violation);
+    unsigned int offset(unsigned int num) const;
     /// return size of entire type
     r_Bytes size(void) const;
     /// assignment of another flat type

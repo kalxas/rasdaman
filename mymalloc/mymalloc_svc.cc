@@ -37,7 +37,7 @@ using namespace std;
 // if impossible, try to free some, then retry allocation (by recursion)
 // if nothing can be freed & allocated, give up & throw exception
 
-void* mymalloc(size_t size) // throw(bad_alloc) // FIXME: gcc3 doesn't like it, & can't do that unless other places are adapted too
+void* mymalloc(size_t size) // // FIXME: gcc3 doesn't like it, & can't do that unless other places are adapted too
 {
     void* p = malloc(size);
 

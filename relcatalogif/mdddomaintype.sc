@@ -46,7 +46,7 @@ rasdaman GmbH.
 #include <cstring>
 
 void
-MDDDomainType::insertInDb() throw (r_Error)
+MDDDomainType::insertInDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
@@ -64,7 +64,7 @@ MDDDomainType::insertInDb() throw (r_Error)
 }
 
 void
-MDDDomainType::readFromDb() throw (r_Error)
+MDDDomainType::readFromDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
@@ -101,7 +101,7 @@ MDDDomainType::readFromDb() throw (r_Error)
 }
 
 void
-MDDDomainType::deleteFromDb() throw (r_Error)
+MDDDomainType::deleteFromDb()
 {
     long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld",

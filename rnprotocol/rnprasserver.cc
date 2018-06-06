@@ -54,7 +54,7 @@ const char* RnpRasserver::commandNames[cmd_HowMany] =
     "cmd_gettiledomains", "cmd_insertrpc"
 };
 
-const char* RnpRasserver::getParameterTypeName(RnpQuark pType) const throw()
+const char* RnpRasserver::getParameterTypeName(RnpQuark pType) const noexcept
 {
     if (0 <= pType && pType < pmt_HowMany)
     {
@@ -63,7 +63,7 @@ const char* RnpRasserver::getParameterTypeName(RnpQuark pType) const throw()
     return undefValue;
 }
 
-const char* RnpRasserver::getCommandName(RnpQuark cmd) const throw()
+const char* RnpRasserver::getCommandName(RnpQuark cmd) const noexcept
 {
     const char* result = NULL;
 

@@ -86,7 +86,7 @@ r_Complex_Type::clone() const
 }
 
 r_Double
-r_Complex_Type::get_re(const char* cell) const throw(r_Error)
+r_Complex_Type::get_re(const char* cell) const
 {
     double res = 0;
 
@@ -115,7 +115,7 @@ r_Complex_Type::get_re(const char* cell) const throw(r_Error)
 }
 
 r_Double
-r_Complex_Type::get_im(const char* cell) const throw(r_Error)
+r_Complex_Type::get_im(const char* cell) const
 {
     double res = 0;
 
@@ -146,7 +146,7 @@ r_Complex_Type::get_im(const char* cell) const throw(r_Error)
 
 
 void
-r_Complex_Type::set_re(char* cell, r_Double re) throw(r_Error)
+r_Complex_Type::set_re(char* cell, r_Double re)
 {
     r_Float ref = 0.;
     if ((typeId != r_Type::COMPLEXTYPE1) &&
@@ -173,7 +173,7 @@ r_Complex_Type::set_re(char* cell, r_Double re) throw(r_Error)
 }
 
 void
-r_Complex_Type::set_im(char* cell, r_Double im) throw(r_Error)
+r_Complex_Type::set_im(char* cell, r_Double im)
 {
     r_Float imf = 0.;
 

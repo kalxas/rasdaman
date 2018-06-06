@@ -90,7 +90,7 @@ const char* passwd          = DEFAULT_PASSWD;
 
 
 void
-openDatabase() throw (r_Error)
+openDatabase()
 {
     ENTER("openDatabase");
 
@@ -110,7 +110,7 @@ openDatabase() throw (r_Error)
 }
 
 void
-closeDatabase() throw (r_Error)
+closeDatabase()
 {
     ENTER("closeDatabase");
 

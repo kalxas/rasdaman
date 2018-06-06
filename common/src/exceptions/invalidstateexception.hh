@@ -42,7 +42,7 @@ public:
      */
     InvalidStateException(const std::string& whatArg);
 
-    virtual ~InvalidStateException() throw();
+    virtual ~InvalidStateException() noexcept;
 };
 
 } /* namespace common */

@@ -69,7 +69,7 @@ public:
 
     virtual char* getNewTypeStructure() const;
 
-    MDDDomainType(const OId& id) throw (r_Error);
+    MDDDomainType(const OId& id);
 
     MDDDomainType(const char* newTypeName, const BaseType* newBaseType, const r_Minterval& newDomain);
 
@@ -105,7 +105,7 @@ public:
     calls validate and deletes myDomain
     */
 
-    virtual void setPersistent(bool t) throw (r_Error);
+    virtual void setPersistent(bool t);
     /*@Doc:
         this method from DBObject is overridden to make sure that
         the dbminterval is also made persistent/deleted from db.
@@ -132,11 +132,11 @@ protected:
     persistent domain.
     */
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 };
 
 #endif

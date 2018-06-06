@@ -58,7 +58,7 @@ static const char rcsidmarray[] = "@(#)rasodmg, r_Marray: $Id: marray.cc,v 1.36 
 
 
 template<class T>
-r_Marray<T>::r_Marray() throw(r_Error)
+r_Marray<T>::r_Marray()
     : r_GMarray()
 {
 }
@@ -66,7 +66,7 @@ r_Marray<T>::r_Marray() throw(r_Error)
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_Storage_Layout* stl) throw(r_Error)
+r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_Storage_Layout* stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
 }
@@ -74,7 +74,7 @@ r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_Storage_Layout* stl) thro
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Minterval& initDomain, const T& value, r_Storage_Layout* stl) throw(r_Error)
+r_Marray<T>::r_Marray(const r_Minterval& initDomain, const T& value, r_Storage_Layout* stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
     T* dataPtr = (T*)data;
@@ -88,7 +88,7 @@ r_Marray<T>::r_Marray(const r_Minterval& initDomain, const T& value, r_Storage_L
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_InitFunction function, r_Storage_Layout* stl) throw(r_Error)
+r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_InitFunction function, r_Storage_Layout* stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
     r_Dimension d;
@@ -129,7 +129,7 @@ r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_InitFunction function, r_
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Marray<T>& obj) throw(r_Error)
+r_Marray<T>::r_Marray(const r_Marray<T>& obj)
     : r_GMarray(obj)
 {
 }
@@ -137,7 +137,7 @@ r_Marray<T>::r_Marray(const r_Marray<T>& obj) throw(r_Error)
 
 
 template<class T>
-r_Marray<T>::r_Marray(r_GMarray& obj) throw(r_Error)
+r_Marray<T>::r_Marray(r_GMarray& obj)
     : r_GMarray(obj)
 {
 }
@@ -162,7 +162,7 @@ const r_Marray<T>& r_Marray<T>::operator=(const r_Marray<T>& marray)
 template<class T>
 r_Marray<T>
 r_Marray<T>::operator[](long cordnt) const
-throw(r_Eindex_violation)
+
 {
     // check if self does not just represent a cell
     if (domain.dimension() == 0)
@@ -203,7 +203,7 @@ throw(r_Eindex_violation)
 template<class T>
 r_Marray<T>
 r_Marray<T>::operator[](const r_Minterval& mint) const
-throw(r_Edim_mismatch)
+
 {
     unsigned long offset;
     r_Point  pt;
@@ -251,7 +251,7 @@ throw(r_Edim_mismatch)
 template<class T>
 const T&
 r_Marray<T>::operator[](const r_Point& point) const
-throw(r_Edim_mismatch, r_Eindex_violation)
+
 {
     // first test dimensionality
     if (point.dimension() != domain.dimension())
@@ -276,7 +276,7 @@ throw(r_Edim_mismatch, r_Eindex_violation)
 template<class T>
 T&
 r_Marray<T>::operator[](const r_Point& point)
-throw(r_Edim_mismatch, r_Eindex_violation)
+
 {
     // first test dimensionality
     if (point.dimension() != domain.dimension())
@@ -300,7 +300,7 @@ throw(r_Edim_mismatch, r_Eindex_violation)
 
 template<class T>
 r_Marray<T>::operator T()
-throw(r_Eno_cell)
+
 {
     // check if the spatial domain of self is really zero
     if (domain.dimension() > 0 || data == 0)

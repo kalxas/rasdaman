@@ -75,7 +75,7 @@ public:
     r_Database();
 
     /// constructor getting the rasmgr name
-    r_Database(const char* name) throw(r_Error);
+    r_Database(const char* name);
     /**
       One error situations can occur which raise an exception of type \Ref{r_Error} with
       one of the following kinds:
@@ -86,8 +86,7 @@ public:
     ~r_Database();
 
     /// open a database
-    void open(const char* database_name, access_status status = read_write)
-    throw(r_Error);
+    void open(const char* database_name, access_status status = read_write);
     /**
       The method opens the database specified with {\tt database_name}. Several error
       situations can occur which raise an exception of type \Ref{r_Error} with
@@ -108,7 +107,7 @@ public:
     void close();
 
     /// create a database with fixed schema RasDaSchema
-    void create(const char* name) throw(r_Error);
+    void create(const char* name);
     /**
       This method works only if a server host name has been specified with
       {\tt set_servername()}.
@@ -118,7 +117,7 @@ public:
     */
 
     /// destroy a database
-    void destroy(const char* name) throw(r_Error);
+    void destroy(const char* name);
     /**
      This method works only if a server host name has been specified with
      {\tt set_servername()}.
@@ -128,14 +127,14 @@ public:
     */
 
     /// set the server name
-    void set_servername(const char* name, int port = RASMGRPORT) throw(r_Error);
+    void set_servername(const char* name, int port = RASMGRPORT);
     /**
       One of error situations can occur will raise an exception of type \Ref{r_Error} with
       one of the following kinds:
       r_Error_NameInvalid     && Name is NULL.\\
     */
     /// set the user name and password
-    void set_useridentification(const char* name, const char* plain_pass) throw(r_Error);
+    void set_useridentification(const char* name, const char* plain_pass);
     /**
       One of error situations can occur will raise an exception of type \Ref{r_Error} with
       one of the following kinds:
@@ -146,7 +145,7 @@ public:
     inline access_status get_status() const;
 
     /// give a name to an object (signature is not ODMG conformant because of compiler bug)
-    void set_object_name(r_Object& obj, const char* name) throw(r_Error);
+    void set_object_name(r_Object& obj, const char* name);
     /**
       The method gives the {\tt name} to the object {\tt obj}. The name is used for
       further retrieval of the object. Right now, names can just be given to sets
@@ -158,7 +157,7 @@ public:
 
     /// lookup named objects in a database (must be called within open database and running transaction)
     r_Ref_Any lookup_object(const char* name) const
-    throw(r_Error);
+;
     /**
       The method looks up an object with {\tt name}. Right now, just objects of type \Ref{r_Set} are
       allowed. Error kinds:
@@ -175,7 +174,7 @@ public:
 
     /// lookup objects by oids in a database (must be called within open database and running transaction)
     r_Ref_Any lookup_object(const r_OId& oid) const
-    throw(r_Error);
+;
     /**
       The method looks up an object with {\tt oid}. Right now, just objects of type \Ref{r_Set} and
       \Ref{r_GMarray} are allowed.
@@ -190,7 +189,7 @@ public:
       \end{tabular}
     */
 
-    r_Type* get_type_schema(const char* typeName, type_schema typetype) throw (r_Error);
+    r_Type* get_type_schema(const char* typeName, type_schema typetype);
     /**
       The method looks up the type structure with {\tt typeName} as its name.  typetype is 1 for marray and 2 for collection.
 
@@ -209,7 +208,7 @@ public:
 
     /// set the transfer compression format, both for data sent from the server
     /// to the client and the other way around.
-    void set_transfer_format(r_Data_Format format, const char* formatParams = NULL) throw(r_Error);
+    void set_transfer_format(r_Data_Format format, const char* formatParams = NULL);
     /**
       The method sets the transfer compression used for the communications of
       this client with the server.
@@ -223,7 +222,7 @@ public:
     */
 
     /// set the storage format for newly created MDD for this client
-    void set_storage_format(r_Data_Format format, const char* formatParams = NULL) throw(r_Error);
+    void set_storage_format(r_Data_Format format, const char* formatParams = NULL);
     /**
       This method sets the storage format to use for MDD created by this client
       in the RasDaMan database. The return values are identical to set_transfer_format()
@@ -236,16 +235,16 @@ public:
     //@Man: Methods for internal use only:
     //@{
     ///
-    const r_OId get_new_oid(unsigned short objType) const throw(r_Error);
+    const r_OId get_new_oid(unsigned short objType) const;
     ///
     //@}
 
 
     // creates an empty MDD collection on the server
-    void insertColl(const char* collName, const char* typeName, const r_OId& oid) throw(r_Error);
+    void insertColl(const char* collName, const char* typeName, const r_OId& oid);
 
     /// removes an object from a collection
-    void removeObjFromColl(const char* name, const r_OId& oid) throw (r_Error);
+    void removeObjFromColl(const char* name, const r_OId& oid);
 
     ClientComm* getComm();
 private:

@@ -29,6 +29,6 @@ MissingResourceException::MissingResourceException(const std::string& whatArg)
 {
 }
 
-MissingResourceException::~MissingResourceException() throw()
+MissingResourceException::~MissingResourceException() noexcept
 {}
 }

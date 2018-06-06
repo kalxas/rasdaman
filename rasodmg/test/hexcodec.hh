@@ -35,8 +35,8 @@ using std::ostream;
 class HexCodec
 {
 public:
-    static string convertTo(const string& figureStr) throw(ImportError);
-    static string convertFrom(const string& hexaStr) throw(ImportError);
+    static string convertTo(const string& figureStr);
+    static string convertFrom(const string& hexaStr);
     void printStatus(ostream& s);
 
 private:

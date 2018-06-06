@@ -37,7 +37,7 @@ class InexistentServerGroupException : public common::MissingResourceException
 public:
     InexistentServerGroupException(const std::string& serverId);
 
-    virtual ~InexistentServerGroupException() throw();
+    virtual ~InexistentServerGroupException() noexcept;
 };
 
 } /* namespace rasmgr */

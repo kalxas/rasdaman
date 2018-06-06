@@ -69,15 +69,15 @@ private:
 class RnpRasserverJob : public RnpServerJob
 {
 public:
-    RnpRasserverJob() throw();
+    RnpRasserverJob() noexcept;
 
 private:
-    bool validateMessage() throw();
-    void executeOnAccept() throw();
-    void executeOnWriteReady() throw();
-    void specificCleanUpOnTimeout() throw();
-    void executeOnReadError() throw();
-    void executeOnWriteError() throw();
+    bool validateMessage() noexcept;
+    void executeOnAccept() noexcept;
+    void executeOnWriteReady() noexcept;
+    void specificCleanUpOnTimeout() noexcept;
+    void executeOnReadError() noexcept;
+    void executeOnWriteError() noexcept;
 };
 
 
@@ -87,11 +87,11 @@ private:
 class RnpRasDaManComm : public RnpBaseServerComm
 {
 public:
-    RnpRasDaManComm() throw();
+    RnpRasDaManComm() noexcept;
 
-    ~RnpRasDaManComm() throw();
+    ~RnpRasDaManComm() noexcept;
 
-    void processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob* callingJob) throw();
+    void processRequest(CommBuffer* receiverBuffer, CommBuffer* transmiterBuffer, RnpTransport::CarrierProtocol, RnpServerJob* callingJob) noexcept;
 
     void setTimeoutInterval(int seconds);
     void checkForTimeout();
@@ -99,7 +99,7 @@ public:
 private: // inherited from RnpBaseServerComm
     RnpServerJob* createJobs(int howMany);
 
-    void decodeFragment() throw(r_Error);
+    void decodeFragment();
 
     ClientTimer  clientTimer;
 private: // the execution functions:
@@ -150,7 +150,7 @@ private: // helper functions
     void disconnectInternally();
     // reset connection, with reporting availability to rasmgr
     void disconnectClient();
-    void verifyClientID(RnpQuark command) throw (r_Error);
+    void verifyClientID(RnpQuark command);
     int  makeNewClientID();
 
     int  clientID;         // un timestamp, de fapt!
@@ -167,10 +167,10 @@ private: // helper functions
 class RasserverCommunicator : public NbCommunicator
 {
 public:
-    RasserverCommunicator(RnpRasDaManComm*) throw();
+    RasserverCommunicator(RnpRasDaManComm*) noexcept;
 
 protected:
-    bool executeOnTimeout() throw();
+    bool executeOnTimeout() noexcept;
 
     RnpRasDaManComm* commPtr;
 };

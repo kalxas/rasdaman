@@ -73,7 +73,7 @@ is_error_code(int return_code)
  * Set global variables error_code and error_message in case of an error.
  */
 bool
-is_error(sqlite3* sqliteConn) throw (r_Error)
+is_error(sqlite3* sqliteConn)
 {
     int sqlite_err_code = sqlite3_errcode(sqliteConn);
     bool error = is_error_code(sqlite_err_code);
@@ -86,7 +86,7 @@ is_error(sqlite3* sqliteConn) throw (r_Error)
 }
 
 void
-failOnError(const char* stmt, sqlite3* sqliteConn) throw (r_Error)
+failOnError(const char* stmt, sqlite3* sqliteConn)
 {
     if (is_error(sqliteConn))
     {
@@ -97,7 +97,7 @@ failOnError(const char* stmt, sqlite3* sqliteConn) throw (r_Error)
 }
 
 void
-warnOnError(const char* stmt, sqlite3* sqliteConn) throw (r_Error)
+warnOnError(const char* stmt, sqlite3* sqliteConn)
 {
     if (is_error(sqliteConn))
     {

@@ -66,7 +66,7 @@ public:
     copy constructor.
     */
 
-    UIntegralType(const OId& id) throw (r_Error):
+    UIntegralType(const OId& id):
         AtomicType(id) {}
     /*@Doc:
     */

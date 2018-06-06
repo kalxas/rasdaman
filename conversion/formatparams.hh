@@ -57,7 +57,7 @@ public:
      * false otherwise. It throws an error if it is a JSON string and parsing
      * it failed.
      */
-    bool parse(const std::string& paramsStr) throw (r_Error);
+    bool parse(const std::string& paramsStr);
 
     /// get the JSON params
     Json::Value getParams() const;
@@ -148,15 +148,15 @@ private:
      */
     bool isJson(std::string options) const;
     
-    void parseJson() throw (r_Error);
-    void parseTranspose() throw (r_Error);
-    void parseVariables() throw (r_Error);
-    void parseFilepaths() throw (r_Error);
-    void parseStringKeyValuesList(const std::string& key, std::vector<std::pair<std::string, std::string>>& targetVector) throw (r_Error);
-    void parseSubsetDomain() throw (r_Error);
-    void parseNodata() throw (r_Error);
-    void parseMetadata() throw (r_Error);
-    void parseGeoReference() throw (r_Error);
+    void parseJson();
+    void parseTranspose();
+    void parseVariables();
+    void parseFilepaths();
+    void parseStringKeyValuesList(const std::string& key, std::vector<std::pair<std::string, std::string>>& targetVector);
+    void parseSubsetDomain();
+    void parseNodata();
+    void parseMetadata();
+    void parseGeoReference();
 
     Json::Value params;
 

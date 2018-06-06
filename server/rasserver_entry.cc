@@ -80,7 +80,7 @@ RasServerEntry::~RasServerEntry()
 {
 }
 
-void RasServerEntry::compat_connectToDBMS() throw(r_Error)
+void RasServerEntry::compat_connectToDBMS()
 {
     // here no log output, this is a server startup function!
 
@@ -408,7 +408,7 @@ int RasServerEntry::compat_SetStorageFormat(int format, const char* params)
 }
 
 //### stupid inherited stuff, we'll lose them later #####
-void RasServerEntry::startRpcServer() throw(r_Error) {}
+void RasServerEntry::startRpcServer() {}
 void RasServerEntry::stopRpcServer() {}
 //#######################################################
 

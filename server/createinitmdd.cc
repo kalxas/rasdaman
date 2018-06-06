@@ -94,7 +94,7 @@ r_OId FastCollectionCreator::createCollection()
     return oid;
 }
 
-void FastCollectionCreator::verifyName(const char* name) throw(r_Error)
+void FastCollectionCreator::verifyName(const char* name)
 {
     if (!name)
     {
@@ -157,7 +157,7 @@ void FastMDDCreator::setMDDTypeName(const char* _mddTypeName)
     mddTypeName = _mddTypeName;
 }
 
-void FastMDDCreator::verifyCompatibility(MDDColl* collection) throw (r_Error)
+void FastMDDCreator::verifyCompatibility(MDDColl* collection)
 {
     if (collection->isPersistent())
     {

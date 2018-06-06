@@ -28,6 +28,6 @@ RuntimeException::RuntimeException(const std::string& whatArg)
     : Exception(whatArg)
 {}
 
-RuntimeException::~RuntimeException() throw()
+RuntimeException::~RuntimeException() noexcept
 {}
 } /* namespace rasmgr */

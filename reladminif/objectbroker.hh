@@ -71,7 +71,7 @@ The list of objects which are kept by the ObjectBroker are cleared by Transactio
 class ObjectBroker
 {
 public:
-    static bool freeMemory() throw (r_Error);
+    static bool freeMemory();
     /*@Doc:
     this will handle the memory issue.
     returns true if memory was freed, false otherwise.
@@ -98,12 +98,12 @@ public:
     removes the object with the specified oid from the list
     */
 
-    static DBObject* getObjectByOId(const OId& id) throw (r_Error);
+    static DBObject* getObjectByOId(const OId& id);
     /*@Doc:
     retrieve a dbobject from db.  passes (r_Error)s from DBObject up.
     */
 
-    static DBObject* isInMemory(const OId& id) throw (r_Error);
+    static DBObject* isInMemory(const OId& id);
     /*@Doc:
     does not retrieve the object from db.  only retrieves from memory.
     if there is no matching object a 0 pointer is returned.
@@ -116,7 +116,7 @@ public:
     specified type.  the vector must be deleted by the calling function
     */
 
-    static MDDType* getMDDTypeByName(const char* name) throw (r_Error);
+    static MDDType* getMDDTypeByName(const char* name);
     /*@Doc:
     retrieves an object with that name and that type from the db.
     this method was introduced to remove the spurious sqlwarnings.
@@ -124,14 +124,14 @@ public:
     no matching object
     */
 
-    static DBObject* getObjectByName(OId::OIdType type, const char* name) throw (r_Error);
+    static DBObject* getObjectByName(OId::OIdType type, const char* name);
     /*@Doc:
     retrieves an object with that name and that type from the db.
     passes (r_Error)s from DBObject up or ObjectNotFound when there is
     no matching object
     */
 
-    static void clearBroker() throw (r_Error);
+    static void clearBroker();
     /*@Doc:
     deletes persistent objects from memory, depending on cache ofcourse.
     any (r_Error)s thrown during the deletion/update/insert process are
@@ -150,95 +150,95 @@ public:
     delete the atomic types and maps
     */
 
-    static DBObjectPMap& getMap(OId::OIdType type) throw (r_Error);
+    static DBObjectPMap& getMap(OId::OIdType type);
     /*@Doc:
     returns a pointer to the store of objects of that particular type.
     (r_Error) is thrown if there is no map for that type
     */
 
 protected:
-    static DBObject* loadDBMDDObj(const OId& id) throw (r_Error);
+    static DBObject* loadDBMDDObj(const OId& id);
     /*@Doc:
     retrieves MDDObjects from memory and from database
     */
 
-    static DBObject* loadMDDSet(const OId& id) throw (r_Error);
+    static DBObject* loadMDDSet(const OId& id);
     /*@Doc:
     retrieves MDDSets from memory and from database
     */
 
-    static DBObject* loadMDDType(const OId& id) throw (r_Error);
+    static DBObject* loadMDDType(const OId& id);
     /*@Doc:
     retrieves MDDTypes from memory and from database
     */
 
-    static DBObject* loadMDDBaseType(const OId& id) throw (r_Error);
+    static DBObject* loadMDDBaseType(const OId& id);
     /*@Doc:
     retrieves MDDBaseTypes from memory and from database
     */
 
-    static DBObject* loadMDDDimensionType(const OId& id) throw (r_Error);
+    static DBObject* loadMDDDimensionType(const OId& id);
     /*@Doc:
     retrieves MDDDimTypes from memory and from database
     */
 
-    static DBObject* loadMDDDomainType(const OId& id) throw (r_Error);
+    static DBObject* loadMDDDomainType(const OId& id);
     /*@Doc:
     retrieves MDDDomTypes from memory and from database
     */
 
-    static DBObject* loadStructType(const OId& id) throw (r_Error);
+    static DBObject* loadStructType(const OId& id);
     /*@Doc:
     retrieves StructTypes from memory and from database
     */
 
-    static DBObject* loadSetType(const OId& id) throw (r_Error);
+    static DBObject* loadSetType(const OId& id);
     /*@Doc:
     retrieves SetTypes from memory and from database
     */
 
-    static DBObject* loadBLOBTile(const OId& id) throw (r_Error);
+    static DBObject* loadBLOBTile(const OId& id);
     /*@Doc:
     retrieves BLOBTiles from memory and from database.
     knows how to get a inlinetile from a dbtcindex.
     */
 
-    static DBObject* loadDBMinterval(const OId& id) throw (r_Error);
+    static DBObject* loadDBMinterval(const OId& id);
     /*@Doc:
     retrieves DBMintervals from memory and from database
     */
 
-    static DBObject* loadDBStorage(const OId& id) throw (r_Error);
+    static DBObject* loadDBStorage(const OId& id);
     /*@Doc:
     retrieves DBStorageLayout from memory and from database
     */
 
-    static DBObject* loadDBHierIndex(const OId& id) throw (r_Error);
+    static DBObject* loadDBHierIndex(const OId& id);
     /*@Doc:
     retrieves HierIxs from memory and from database
     */
 
-    static DBObject* loadDBTCIndex(const OId& id) throw (r_Error);
+    static DBObject* loadDBTCIndex(const OId& id);
     /*@Doc:
     retrieves DBTCIndex from memory and from database
     */
 
-    static DBObject* loadInlineTile(const OId& id) throw (r_Error);
+    static DBObject* loadInlineTile(const OId& id);
     /*@Doc:
     retrieves InlineTiles from memory and from database
     */
 
-    static DBObject* loadDBRCIndexDS(const OId& id) throw (r_Error);
+    static DBObject* loadDBRCIndexDS(const OId& id);
     /*@Doc:
     retrieves DBRCIndexDS from memory and from database
     */
 
-    static OId getOIdByName(OId::OIdType type, const char* name) throw (r_Error);
+    static OId getOIdByName(OId::OIdType type, const char* name);
     /*@Doc:
     finds the oid of an object with the given type and name
     */
 
-    static void completelyClearMap(DBObjectPMap& theMap) throw (r_Error);
+    static void completelyClearMap(DBObjectPMap& theMap);
     /*@Doc:
     deletes entries in this map
     (r_Error) is thrown when there is a problem in ~DBObject.
@@ -246,98 +246,98 @@ protected:
     */
 
 
-    static OId getOIdOfMDDSet(const char* name) throw (r_Error);
+    static OId getOIdOfMDDSet(const char* name);
     /*@Doc:
     retrieves MDDSets from memory and from database
     */
 
-    static OId getOIdOfMDDType(const char* name) throw (r_Error);
+    static OId getOIdOfMDDType(const char* name);
     /*@Doc:
     retrieves MDDTypes from memory and from database
     */
 
-    static OId getOIdOfMDDBaseType(const char* name) throw (r_Error);
+    static OId getOIdOfMDDBaseType(const char* name);
     /*@Doc:
     retrieves MDDBaseTypes from memory and from database
     */
 
-    static OId getOIdOfMDDDimensionType(const char* name) throw (r_Error);
+    static OId getOIdOfMDDDimensionType(const char* name);
     /*@Doc:
     retrieves MDDDimTypes from memory and from database
     */
 
-    static OId getOIdOfMDDDomainType(const char* name) throw (r_Error);
+    static OId getOIdOfMDDDomainType(const char* name);
     /*@Doc:
     retrieves MDDDomTypes from memory and from database
     */
 
-    static OId getOIdOfStructType(const char* name) throw (r_Error);
+    static OId getOIdOfStructType(const char* name);
     /*@Doc:
     retrieves StructTypes from memory and from database
     */
 
-    static OId getOIdOfSetType(const char* name) throw (r_Error);
+    static OId getOIdOfSetType(const char* name);
     /*@Doc:
     retrieves SetTypes from memory and from database
     */
 
-    static OIdSet* getAllMDDObjects() throw (r_Error);
+    static OIdSet* getAllMDDObjects();
     /*@Doc:
     retrieves the oids of all MDD Objects from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllMDDSets() throw (r_Error);
+    static OIdSet* getAllMDDSets();
     /*@Doc:
     retrieves the oids of all MDDSets from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllMDDTypes() throw (r_Error);
+    static OIdSet* getAllMDDTypes();
     /*@Doc:
     retrieves the oids of all MDDTypes from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllMDDBaseTypes() throw (r_Error);
+    static OIdSet* getAllMDDBaseTypes();
     /*@Doc:
     retrieves the oids of all MDDBaseTypes from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllMDDDimensionTypes() throw (r_Error);
+    static OIdSet* getAllMDDDimensionTypes();
     /*@Doc:
     retrieves the oids of all MDDDimTypes from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllMDDDomainTypes() throw (r_Error);
+    static OIdSet* getAllMDDDomainTypes();
     /*@Doc:
     retrieves the oids of all MDDDomTypes from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllStructTypes() throw (r_Error);
+    static OIdSet* getAllStructTypes();
     /*@Doc:
     retrieves the oids of all StructTypes from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllSetTypes() throw (r_Error);
+    static OIdSet* getAllSetTypes();
     /*@Doc:
     retrieves the oids of all SetTypes from memory and from database
     oidlist must be deallocated by the caller
     (r_Error) occures in a database failure
     */
 
-    static OIdSet* getAllAtomicTypes() throw (r_Error);
+    static OIdSet* getAllAtomicTypes();
     /*@Doc:
     retrieves the oids of all AtomicTypes from memory
     oidlist must be deallocated by the caller

@@ -92,7 +92,7 @@ public:
     int get_num_intervals() const;
 
     /// Gets a restriction
-    r_Range get_partition(int number) const throw (r_Eindex_violation);
+    r_Range get_partition(int number) const;
 
     /// Prints the current status of the object
     virtual void print_status(std::ostream& os = cout) const;

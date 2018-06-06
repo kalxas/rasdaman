@@ -38,7 +38,7 @@ static const char rcsid[] = "@(#)catalogif,LongType: $Header: /home/rasdev/CVS-r
 #include <iomanip>
 #include <string.h>
 
-LongType::LongType(const OId& id) throw (r_Error)
+LongType::LongType(const OId& id)
 	:	IntegralType(id)
 	{
 	readFromDb();
@@ -61,7 +61,7 @@ LongType::LongType()
 	}
 
 void
-LongType::readFromDb() throw (r_Error)
+LongType::readFromDb()
 	{
 	setName(LongType::Name);
 	size = 4;

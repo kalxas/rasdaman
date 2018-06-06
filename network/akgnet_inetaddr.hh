@@ -58,7 +58,7 @@ public:
     static const uint32_t addrNone      = INADDR_NONE;
 
     /// Default constructor, creating an 'invalid' object
-    HostAddress() throw();
+    HostAddress() noexcept;
 
     /// Copy constructor
     HostAddress(const HostAddress&);
@@ -73,26 +73,26 @@ public:
     HostAddress(const char* theHostName);
 
     /// Destructor
-    ~HostAddress() throw();
+    ~HostAddress() noexcept;
 
     /// Returns true if the object was initialized correctly
-    bool        isValid() const throw();
+    bool        isValid() const noexcept;
 
     /// Returns the full host name, meaning hostname.domainname
-    const char* getFullHostName() const throw();
+    const char* getFullHostName() const noexcept;
 
     /// Returns the short form of the host name
-    const char* getShortHostName() const throw();
+    const char* getShortHostName() const noexcept;
 
     /// Returns the IP-Address as a 32-bit value
-    uint32_t    getAddress() const throw();
+    uint32_t    getAddress() const noexcept;
 
     /// Returns the string representation of the IP-Address
-    const char* getStringAddress() const throw();
+    const char* getStringAddress() const noexcept;
 
 private:
     /// Initializes the object with default values. Used by the constructors
-    void initDefault() throw();
+    void initDefault() noexcept;
 
     /// Initializes the object from a OS 'hostent' object. Used by the constructors
     bool init(hostent*);
@@ -120,26 +120,26 @@ class SocketAddress
 {
 public:
     /// Default constructor
-    SocketAddress() throw();
+    SocketAddress() noexcept;
 
     /// Constructor taking a 'sockaddr_in'
-    SocketAddress(sockaddr_in&) throw();
+    SocketAddress(sockaddr_in&) noexcept;
 
     /// Initialization from a 'sockaddr_in'
-    void        init(sockaddr_in&) throw();
+    void        init(sockaddr_in&) noexcept;
 
     /// Returns true if the object is initialized
-    bool        isValid() const throw();
+    bool        isValid() const noexcept;
 
     /// Returns the HostAddress of this socket
-    HostAddress getHostAddress() const throw();
+    HostAddress getHostAddress() const noexcept;
 
     /// Returns the IP Address
-    uint32_t    getAddress() const throw();
-    int         getPort() const throw();
+    uint32_t    getAddress() const noexcept;
+    int         getPort() const noexcept;
 private:
     bool valid;
-    void clear() throw();
+    void clear() noexcept;
 
 private:
     sockaddr_in address;

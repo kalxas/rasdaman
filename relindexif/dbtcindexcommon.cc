@@ -203,7 +203,7 @@ DBTCIndex::addInlineTile(InlineTile* it)
 }
 
 void
-DBTCIndex::insertInDb() throw (r_Error)
+DBTCIndex::insertInDb()
 {
     if (isLeaf())
     {
@@ -224,7 +224,7 @@ DBTCIndex::insertInDb() throw (r_Error)
 }
 
 void
-DBTCIndex::readFromDb() throw (r_Error)
+DBTCIndex::readFromDb()
 {
     DBHierIndex::readFromDb();
     if (isLeaf())
@@ -237,7 +237,7 @@ DBTCIndex::readFromDb() throw (r_Error)
 }
 
 void
-DBTCIndex::updateInDb() throw (r_Error)
+DBTCIndex::updateInDb()
 {
     if (isLeaf())
     {

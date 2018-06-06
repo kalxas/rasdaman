@@ -65,7 +65,7 @@ public:
     copy constructor.
     */
 
-    IntegralType(const OId& id) throw (r_Error):
+    IntegralType(const OId& id):
         AtomicType(id) {}
     /*@Doc:
     */

@@ -163,14 +163,14 @@ DBMDDSet::releaseAll()
 }
 
 DBMDDSetId
-DBMDDSet::getDBMDDSet(const char* name) throw (r_Error)
+DBMDDSet::getDBMDDSet(const char* name)
 {
     DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, name)));
     return set;
 }
 
 DBMDDSetId
-DBMDDSet::getDBMDDSet(const OId& o) throw (r_Error)
+DBMDDSet::getDBMDDSet(const OId& o)
 {
     DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByOId(o)));
     return set;
@@ -222,7 +222,7 @@ DBMDDSet::deleteDBMDDSet(const char* name)
     return retval;
 }
 
-DBMDDSet::DBMDDSet(const char* name, const CollectionType* type) throw (r_Error)
+DBMDDSet::DBMDDSet(const char* name, const CollectionType* type)
     :   DBNamedObject(name),
         collType(const_cast<CollectionType*>(type))
 {
@@ -240,7 +240,7 @@ DBMDDSet::DBMDDSet(const char* name, const CollectionType* type) throw (r_Error)
 }
 
 void
-DBMDDSet::setPersistent(bool state) throw (r_Error)
+DBMDDSet::setPersistent(bool state)
 {
     DBMDDSet* set = NULL;
     if (state)
@@ -281,7 +281,7 @@ DBMDDSet::setPersistent(bool state) throw (r_Error)
     DBNamedObject::setPersistent(state);
 }
 
-DBMDDSet::DBMDDSet(const OId& id) throw (r_Error)
+DBMDDSet::DBMDDSet(const OId& id)
     :   DBNamedObject(id),
         collType(0)
 {
@@ -290,7 +290,7 @@ DBMDDSet::DBMDDSet(const OId& id) throw (r_Error)
 }
 
 void
-DBMDDSet::updateInDb() throw (r_Error)
+DBMDDSet::updateInDb()
 {
     deleteFromDb();
     insertInDb();

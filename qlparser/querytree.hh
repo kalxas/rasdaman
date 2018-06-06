@@ -118,7 +118,7 @@ public:
     */
 
     /// executes a retrieval tree and gives back the result collection
-    vector<QtData*>* evaluateRetrieval() throw (r_Error, ParseInfo);
+    vector<QtData*>* evaluateRetrieval();
 
     /*@Doc:
       The method evaluates a retrieval tree and returns the result collection. For this purpose,
@@ -130,7 +130,7 @@ public:
     */
 
     /// executes an update tree and throws a ParseInfo if query does not begin with INSERT, DELETE, UPDATE, ...
-    vector<QtData*>* evaluateUpdate() throw (r_Error, ParseInfo);
+    vector<QtData*>* evaluateUpdate();
 
     /// debugging method
     void printTree(int tab, ostream& s = cout);

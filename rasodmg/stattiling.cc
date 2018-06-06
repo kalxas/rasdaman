@@ -66,7 +66,7 @@ r_Area r_Stat_Tiling::DEF_BORDER_THR = 50L;
 const r_Double
 r_Stat_Tiling::DEF_INTERESTING_THR  = 0.20;
 
-r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
+r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
     :   r_Dimension_Tiling(0, 0)
 {
     if (!encoded)
@@ -331,7 +331,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 }
 
 
-r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_info2, r_Bytes ts, r_Area border_threshold, r_Double interesting_threshold) throw (r_Error)
+r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_info2, r_Bytes ts, r_Area border_threshold, r_Double interesting_threshold)
     :   r_Dimension_Tiling(dim, ts),
         interesting_thr(interesting_threshold),
         border_thr(border_threshold),
@@ -433,7 +433,7 @@ r_Stat_Tiling::merge(const std::vector<r_Access>& patterns) const
     return result;                                     // Return the result
 }
 
-void r_Stat_Tiling::filter(std::vector<r_Access>& patterns) const throw (r_Error)
+void r_Stat_Tiling::filter(std::vector<r_Access>& patterns) const
 {
     // List to hold the result
     std::vector<r_Access> result;
@@ -478,7 +478,7 @@ void r_Stat_Tiling::filter(std::vector<r_Access>& patterns) const throw (r_Error
 }
 
 std::vector<r_Minterval>*
-r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const throw (r_Error)
+r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
 {
     r_Dimension num_dims = domain.dimension();                   // Dimensionality of dom
     if (domain.dimension() != dimension)
@@ -605,7 +605,7 @@ void r_Access::set_times(r_ULong accesses)
     times = accesses;
 }
 
-bool r_Access::is_near(const r_Access& other, r_ULong border_threshold) const throw (r_Error)
+bool r_Access::is_near(const r_Access& other, r_ULong border_threshold) const
 {
     const r_Minterval& a = this->interval;
     const r_Minterval& b = other.interval;

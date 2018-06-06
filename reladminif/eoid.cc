@@ -128,7 +128,7 @@ EOId::getOId() const
 
 
 void
-EOId::allocateEOId(EOId& eoid, OId::OIdType t) throw (r_Error)
+EOId::allocateEOId(EOId& eoid, OId::OIdType t)
 {
     if (AdminIf::getCurrentDatabaseIf())
     {

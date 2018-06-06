@@ -55,12 +55,12 @@ public:
     /// copy constructor
     /// if base type is NULL an exception will be raised.
     /// this is possible
-    r_Marray_Type(const r_Marray_Type&) throw (r_Error);
+    r_Marray_Type(const r_Marray_Type&);
 
     /// assignment operator
     /// if base type is NULL an exception will be raised.
     /// this is possible
-    const r_Marray_Type& operator=(const r_Marray_Type&) throw (r_Error);
+    const r_Marray_Type& operator=(const r_Marray_Type&);
 
     bool isMarrayType() const;
 

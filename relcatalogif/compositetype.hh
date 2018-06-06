@@ -64,7 +64,7 @@ public:
     constructor.
     */
 
-    CompositeType(const OId& id) throw (r_Error);
+    CompositeType(const OId& id);
     /*@Doc:
     constructor.
     */

@@ -54,7 +54,7 @@ public:
     /// copy constructor
     /// the exception is only raised when the element type of the copied type is NULL.
     /// (this can not happen)
-    r_Collection_Type(const r_Collection_Type&) throw (r_Error);
+    r_Collection_Type(const r_Collection_Type&);
 
     /// constructor getting element type
     r_Collection_Type(r_Type& newType);
@@ -65,12 +65,12 @@ public:
     /// assignment operator
     /// the exception is only raised when the element type of the copied type is NULL.
     /// (this can not happen)
-    const r_Collection_Type& operator=(const r_Collection_Type& oldObj) throw (r_Error);
+    const r_Collection_Type& operator=(const r_Collection_Type& oldObj);
 
     /// get element type
     /// the exception is only raised when the element type of the copied type is NULL.
     /// (this can not happen)
-    const r_Type& element_type() const throw (r_Error);
+    const r_Type& element_type() const;
 
     /// clone operation
     virtual r_Type* clone() const;

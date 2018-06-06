@@ -50,36 +50,36 @@ class Selector
 {
 public:
     /// Default constructor
-    Selector() throw();
+    Selector() noexcept;
 
     /// Sets the timeout interval
-    void setTimeout(int sec, int milisec) throw();
+    void setTimeout(int sec, int milisec) noexcept;
 
     /// Disables the timeout
-    void disableTimeout() throw();
+    void disableTimeout() noexcept;
 
     /// Registers the file descriptor for reading
-    void setRead(int fdescr) throw();
+    void setRead(int fdescr) noexcept;
     /// Unregisters the file descriptor from reading
-    void clearRead(int fdescr) throw();
+    void clearRead(int fdescr) noexcept;
 
     /// Registers the file descriptor for writing
-    void setWrite(int fdescr) throw();
+    void setWrite(int fdescr) noexcept;
     /// Unregisters the file descriptor from writing
-    void clearWrite(int fdescr) throw();
+    void clearWrite(int fdescr) noexcept;
 
     /// The real 'select' operation. The return value is the one of 'select'
-    int operator()() throw();
+    int operator()() noexcept;
 
     /// Returns true if the file descriptor is registered for read
-    bool isRead(int fdescr) throw();
+    bool isRead(int fdescr) noexcept;
     /// Returns true if the file descriptor is registered for write
-    bool isWrite(int fdescr) throw();
+    bool isWrite(int fdescr) noexcept;
 
     /** Closes all file descriptors. Usefull when forking so
         child processes don't inherit this file descriptors
     */
-    void closeForcedAllFileDescriptors() throw();
+    void closeForcedAllFileDescriptors() noexcept;
 private:
     fd_set watchReadFdSet;
     fd_set watchWriteFdSet;

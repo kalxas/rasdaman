@@ -45,7 +45,7 @@ using namespace std;
 
 const QtNode::QtNodeType QtProject::nodeType = QtNode::QT_PROJECT;
 
-QtProject::QtProject(QtOperation* mddOpArg, const char* initBounds, const char* crsIn, const char* crsOut) throw (r_Error)
+QtProject::QtProject(QtOperation* mddOpArg, const char* initBounds, const char* crsIn, const char* crsOut)
     : QtUnaryOperation(mddOpArg), xmin(-1), ymin(-1), xmax(-1), ymax(-1), wktCrsIn(NULL), wktCrsOut(NULL)
 {
     initialBounds = std::string(initBounds);
@@ -58,7 +58,7 @@ QtProject::QtProject(QtOperation* mddOpArg, const char* initBounds, const char* 
 #endif
 }
 
-QtProject::QtProject(QtOperation* mddOpArg, const char* crsIn, const char* crsOut) throw (r_Error)
+QtProject::QtProject(QtOperation* mddOpArg, const char* crsIn, const char* crsOut)
     : QtUnaryOperation(mddOpArg), xmin(-1), ymin(-1), xmax(-1), ymax(-1), wktCrsIn(NULL), wktCrsOut(NULL)
 {
     initialCrsIn = std::string(crsIn);
@@ -74,7 +74,7 @@ QtProject::~QtProject()
 }
 
 #ifdef HAVE_GDAL
-void QtProject::parseNumbers(const char* str) throw (r_Error)
+void QtProject::parseNumbers(const char* str)
 {
     char* split = strtok(const_cast<char*>(str), ", ");
     xmin = parseOneNumber(split);
@@ -86,7 +86,7 @@ void QtProject::parseNumbers(const char* str) throw (r_Error)
     ymax = parseOneNumber(split);
 }
 
-float QtProject::parseOneNumber(char* str) throw (r_Error)
+float QtProject::parseOneNumber(char* str)
 {
     char* end;
     float f = strtof(str, &end);
@@ -98,7 +98,7 @@ float QtProject::parseOneNumber(char* str) throw (r_Error)
     return f;
 }
 
-void QtProject::testCrsTransformation(const char* in, const char* out) throw (r_Error)
+void QtProject::testCrsTransformation(const char* in, const char* out)
 {
     if (setCrsWKT(in, wktCrsIn) == false)
     {
@@ -202,7 +202,7 @@ QtProject::checkType(QtTypeTuple* typeTuple)
 }
 
 
-QtData* QtProject::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
+QtData* QtProject::evaluateMDD(QtMDD* qtMDD)
 {
 #ifdef HAVE_GDAL
 
@@ -555,7 +555,7 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile*
     return resultTile;
 }
 
-GDALDataset* QtProject::performGdalReprojection(GDALDataset* hSrcDS) throw (r_Error)
+GDALDataset* QtProject::performGdalReprojection(GDALDataset* hSrcDS)
 {
     if (xmin == -1 || ymin == -1 || xmax == -1 || ymax == -1)
     {

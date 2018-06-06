@@ -177,7 +177,7 @@ r_OQL_Query::operator=(const r_OQL_Query& q)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(const char* s) throw(r_Error)
+r_OQL_Query::operator<<(const char* s)
 {
     try
     {
@@ -193,7 +193,7 @@ r_OQL_Query::operator<<(const char* s) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_Char c) throw(r_Error)
+r_OQL_Query::operator<<(r_Char c)
 {
     char valueString[2];
 
@@ -214,7 +214,7 @@ r_OQL_Query::operator<<(r_Char c) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_Short s) throw(r_Error)
+r_OQL_Query::operator<<(r_Short s)
 {
 
     std::ostringstream valueStream;
@@ -236,7 +236,7 @@ r_OQL_Query::operator<<(r_Short s) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_UShort us) throw(r_Error)
+r_OQL_Query::operator<<(r_UShort us)
 {
 
     std::ostringstream valueStream;
@@ -258,7 +258,7 @@ r_OQL_Query::operator<<(r_UShort us) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_Long l) throw(r_Error)
+r_OQL_Query::operator<<(r_Long l)
 {
     std::ostringstream valueStream;
 
@@ -279,7 +279,7 @@ r_OQL_Query::operator<<(r_Long l) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_ULong ul) throw(r_Error)
+r_OQL_Query::operator<<(r_ULong ul)
 {
     std::ostringstream valueStream;
 
@@ -299,7 +299,7 @@ r_OQL_Query::operator<<(r_ULong ul) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_Point pt) throw(r_Error)
+r_OQL_Query::operator<<(r_Point pt)
 {
     std::ostringstream valueStream;
 
@@ -320,7 +320,7 @@ r_OQL_Query::operator<<(r_Point pt) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_Sinterval in) throw(r_Error)
+r_OQL_Query::operator<<(r_Sinterval in)
 {
     std::ostringstream valueStream;
 
@@ -341,7 +341,7 @@ r_OQL_Query::operator<<(r_Sinterval in) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_Minterval in) throw(r_Error)
+r_OQL_Query::operator<<(r_Minterval in)
 {
     std::ostringstream valueStream;
 
@@ -362,7 +362,7 @@ r_OQL_Query::operator<<(r_Minterval in) throw(r_Error)
 
 
 r_OQL_Query&
-r_OQL_Query::operator<<(r_GMarray& in) throw(r_Error)
+r_OQL_Query::operator<<(r_GMarray& in)
 {
     // determine number of next mdd (starting with 0)
     unsigned long mddNo = 0;
@@ -468,7 +468,6 @@ r_OQL_Query::reset_query()
 
 void
 r_OQL_Query::replaceNextArgument(const char* valueString)
-throw(r_Error)
 {
     char* argumentBegin = NULL;
     char* argumentEnd = NULL;
@@ -556,7 +555,6 @@ throw(r_Error)
 typedef r_Iterator<r_GMarray*> r_Iterator_r_GMarray;
 
 void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result)
-throw(r_Error)
 {
     if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
     {
@@ -586,7 +584,6 @@ throw(r_Error)
 
 // select query
 void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result)
-throw(r_Error)
 {
     if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
     {
@@ -641,7 +638,6 @@ throw(r_Error)
 
 // insert query returning OID
 void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy)
-throw(r_Error)
 {
     if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
     {
@@ -670,7 +666,6 @@ throw(r_Error)
 
 // update and delete and insert (< v9.1)
 void r_oql_execute(r_OQL_Query& query)
-throw(r_Error)
 {
     if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
     {

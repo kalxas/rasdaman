@@ -47,7 +47,7 @@ template class r_Set<r_GMarray*>;
 #endif
 
 template<class T>
-r_Set<T>::r_Set() throw(r_Error)
+r_Set<T>::r_Set()
     : r_Collection<T>()
 {
     this->allowsDuplicates = 0;
@@ -67,7 +67,7 @@ r_Set<T>::r_Set( const char* name )
 */
 
 template<class T>
-r_Set<T>::r_Set(const r_Set<T>& set) throw(r_Error)
+r_Set<T>::r_Set(const r_Set<T>& set)
     : r_Collection<T>(set)
 {
     this->allowsDuplicates = 0;

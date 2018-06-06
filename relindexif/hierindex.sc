@@ -48,7 +48,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 void
-DBHierIndex::insertInDb() throw (r_Error)
+DBHierIndex::insertInDb()
 {
     // old format a 13, new format >= 1009 (to align with dbrcindex.pgc)
     long long header = 1010;
@@ -184,7 +184,7 @@ DBHierIndex::insertInDb() throw (r_Error)
 } // insertInDb()
 
 void
-DBHierIndex::readFromDb() throw (r_Error)
+DBHierIndex::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -417,7 +417,7 @@ DBHierIndex::readFromDb() throw (r_Error)
 } // readFromDb()
 
 void
-DBHierIndex::updateInDb() throw (r_Error)
+DBHierIndex::updateInDb()
 {
     long long header = 1010;
 
@@ -513,7 +513,7 @@ DBHierIndex::updateInDb() throw (r_Error)
 } // updateInDb()
 
 void
-DBHierIndex::deleteFromDb() throw (r_Error)
+DBHierIndex::deleteFromDb()
 {
     long long id = myOId.getCounter();
 

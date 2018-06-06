@@ -155,7 +155,7 @@ r_Primitive::print_status(std::ostream& s) const
 
 
 r_Boolean
-r_Primitive::get_boolean() const throw(r_Error)
+r_Primitive::get_boolean() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -170,7 +170,7 @@ r_Primitive::get_boolean() const throw(r_Error)
 
 
 r_Char
-r_Primitive::get_char() const throw(r_Error)
+r_Primitive::get_char() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -185,7 +185,7 @@ r_Primitive::get_char() const throw(r_Error)
 
 
 r_Octet
-r_Primitive::get_octet() const throw(r_Error)
+r_Primitive::get_octet() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -200,7 +200,7 @@ r_Primitive::get_octet() const throw(r_Error)
 
 
 r_Short
-r_Primitive::get_short() const throw(r_Error)
+r_Primitive::get_short() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -215,7 +215,7 @@ r_Primitive::get_short() const throw(r_Error)
 
 
 r_UShort
-r_Primitive::get_ushort() const throw(r_Error)
+r_Primitive::get_ushort() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -230,7 +230,7 @@ r_Primitive::get_ushort() const throw(r_Error)
 
 
 r_Long
-r_Primitive::get_long() const throw(r_Error)
+r_Primitive::get_long() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -245,7 +245,7 @@ r_Primitive::get_long() const throw(r_Error)
 
 
 r_ULong
-r_Primitive::get_ulong() const throw(r_Error)
+r_Primitive::get_ulong() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -260,7 +260,7 @@ r_Primitive::get_ulong() const throw(r_Error)
 
 
 r_Float
-r_Primitive::get_float() const throw(r_Error)
+r_Primitive::get_float() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -275,7 +275,7 @@ r_Primitive::get_float() const throw(r_Error)
 
 
 r_Double
-r_Primitive::get_double() const throw(r_Error)
+r_Primitive::get_double() const
 {
     if (!valueBuffer || !valueType)
     {
@@ -289,7 +289,7 @@ r_Primitive::get_double() const throw(r_Error)
 
 
 void
-r_Primitive::set_boolean(r_Boolean val) throw(r_Error)
+r_Primitive::set_boolean(r_Boolean val)
 {
     if (!valueType || valueType->type_id() != r_Type::BOOL)
     {
@@ -309,7 +309,7 @@ r_Primitive::set_boolean(r_Boolean val) throw(r_Error)
 
 
 void
-r_Primitive::set_char(r_Char val) throw(r_Error)
+r_Primitive::set_char(r_Char val)
 {
     if (!valueType || valueType->type_id() != r_Type::CHAR)
     {
@@ -329,7 +329,7 @@ r_Primitive::set_char(r_Char val) throw(r_Error)
 
 
 void
-r_Primitive::set_octet(r_Octet val) throw(r_Error)
+r_Primitive::set_octet(r_Octet val)
 {
     if (!valueType || valueType->type_id() != r_Type::OCTET)
     {
@@ -349,7 +349,7 @@ r_Primitive::set_octet(r_Octet val) throw(r_Error)
 
 
 void
-r_Primitive::set_short(r_Short val) throw(r_Error)
+r_Primitive::set_short(r_Short val)
 {
     if (!valueType || valueType->type_id() != r_Type::SHORT)
     {
@@ -369,7 +369,7 @@ r_Primitive::set_short(r_Short val) throw(r_Error)
 
 
 void
-r_Primitive::set_ushort(r_UShort val) throw(r_Error)
+r_Primitive::set_ushort(r_UShort val)
 {
     if (!valueType || valueType->type_id() != r_Type::USHORT)
     {
@@ -389,7 +389,7 @@ r_Primitive::set_ushort(r_UShort val) throw(r_Error)
 
 
 void
-r_Primitive::set_long(r_Long val) throw(r_Error)
+r_Primitive::set_long(r_Long val)
 {
     if (!valueType || valueType->type_id() != r_Type::LONG)
     {
@@ -409,7 +409,7 @@ r_Primitive::set_long(r_Long val) throw(r_Error)
 
 
 void
-r_Primitive::set_ulong(r_ULong val) throw(r_Error)
+r_Primitive::set_ulong(r_ULong val)
 {
     if (!valueType || valueType->type_id() != r_Type::ULONG)
     {
@@ -429,7 +429,7 @@ r_Primitive::set_ulong(r_ULong val) throw(r_Error)
 
 
 void
-r_Primitive::set_float(r_Float val) throw(r_Error)
+r_Primitive::set_float(r_Float val)
 {
     if (!valueType || valueType->type_id() != r_Type::FLOAT)
     {
@@ -449,7 +449,7 @@ r_Primitive::set_float(r_Float val) throw(r_Error)
 
 
 void
-r_Primitive::set_double(r_Double val) throw(r_Error)
+r_Primitive::set_double(r_Double val)
 {
     if (!valueType || valueType->type_id() != r_Type::DOUBLE)
     {

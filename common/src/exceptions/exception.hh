@@ -42,7 +42,7 @@ public:
      */
     Exception(const std::string& whatArg);
 
-    virtual ~Exception() throw();
+    virtual ~Exception() noexcept;
 };
 }
 

@@ -215,11 +215,11 @@ bool        printToFile = false;
 void printNames();
 void printHeader(const char* headerFileName2);
 void disconnectDB(bool commitTa);
-void connectDB(const char* baseName2, bool openDb, bool openTa, bool createDb = false) throw (r_Error, RasdlError);
+void connectDB(const char* baseName2, bool openDb, bool openTa, bool createDb = false);
 bool isCommand(const char* command, const char* key);
 bool readRasmgrConf();
-void parseParams(int argc, char* argv[]) throw (r_Error, RasdlError);
-void readMode() throw (r_Error, RasdlError);
+void parseParams(int argc, char* argv[]);
+void readMode();
 
 
 void
@@ -391,7 +391,7 @@ disconnectDB(bool commitTa)
 }
 
 void
-connectDB(const char* baseName2, bool openDb, bool openTa, bool createDb) throw (r_Error, RasdlError)
+connectDB(const char* baseName2, bool openDb, bool openTa, bool createDb)
 {
     admin = AdminIf::instance(createDb);
     if (!admin)
@@ -516,7 +516,7 @@ readRasmgrConf()
 
 //analyse params
 void
-parseParams(int argc, char* argv[]) throw (r_Error, RasdlError)
+parseParams(int argc, char* argv[])
 {
     CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
 
@@ -726,7 +726,7 @@ parseParams(int argc, char* argv[]) throw (r_Error, RasdlError)
 } // parseParams()
 
 void
-readMode() throw (r_Error, RasdlError)
+readMode()
 {
     cout << "Reading rasdaman data definition file " << odlFileName << "..." << flush;
 

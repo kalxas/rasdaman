@@ -58,13 +58,13 @@ class GenericComplexType : public AtomicType
 
 public:
     GenericComplexType(const char* name, unsigned int newSize): AtomicType(name, newSize) {}
-    GenericComplexType(const OId& id) throw (r_Error): AtomicType(id) {}
+    GenericComplexType(const OId& id): AtomicType(id) {}
     virtual ~GenericComplexType() {}
     virtual unsigned int getReOffset() const = 0;
     virtual unsigned int getImOffset() const = 0;
 
 protected:
-    virtual void readFromDb() throw (r_Error) = 0;
+    virtual void readFromDb() = 0;
 };
 
 
@@ -76,7 +76,7 @@ class ComplexType1 : public GenericComplexType
 
 public:
     ComplexType1();
-    ComplexType1(const OId& id) throw (r_Error);
+    ComplexType1(const OId& id);
     ComplexType1(const ComplexType1& old);
     ComplexType1& operator=(const ComplexType1& old);
     virtual ~ComplexType1();
@@ -88,7 +88,7 @@ public:
 
 
 protected:
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
 private:
     unsigned int reOffset, imOffset;
@@ -112,7 +112,7 @@ class ComplexType2 : public GenericComplexType
 
 public:
     ComplexType2();
-    ComplexType2(const OId& id) throw (r_Error);
+    ComplexType2(const OId& id);
     ComplexType2(const ComplexType2& old);
     ComplexType2& operator=(const ComplexType2& old);
     virtual ~ComplexType2();
@@ -123,7 +123,7 @@ public:
     static const char* Name;
 
 protected:
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 
 private:
     unsigned int reOffset, imOffset;

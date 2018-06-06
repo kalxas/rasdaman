@@ -36,11 +36,11 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-akg::Socket::Socket() throw()
+akg::Socket::Socket() noexcept
 {
 }
 
-bool akg::Socket::createTcpSocket() throw()
+bool akg::Socket::createTcpSocket() noexcept
 {
     struct protoent* getprotoptr = getprotobyname("tcp");
     fileDescriptor = socket(PF_INET, SOCK_STREAM, getprotoptr->p_proto);
@@ -52,7 +52,7 @@ bool akg::Socket::createTcpSocket() throw()
     return true;
 }
 
-akg::SocketAddress akg::Socket::getAddress() throw()
+akg::SocketAddress akg::Socket::getAddress() noexcept
 {
     akgSocklen_t size = sizeof(sockaddr_in);
     sockaddr_in buffer;
@@ -62,7 +62,7 @@ akg::SocketAddress akg::Socket::getAddress() throw()
     return SocketAddress(buffer);
 }
 
-akg::SocketAddress akg::Socket::getPeerAddress() throw()
+akg::SocketAddress akg::Socket::getPeerAddress() noexcept
 {
     akgSocklen_t size = sizeof(sockaddr_in);
     sockaddr_in buffer;
@@ -74,16 +74,16 @@ akg::SocketAddress akg::Socket::getPeerAddress() throw()
 
 //###########################################################
 
-akg::ListenSocket::ListenSocket() throw()
+akg::ListenSocket::ListenSocket() noexcept
 {
     queuesize = SOMAXCONN;
 }
 
-akg::ListenSocket::~ListenSocket() throw()
+akg::ListenSocket::~ListenSocket() noexcept
 {
 }
 
-bool akg::ListenSocket::open(int port) throw()
+bool akg::ListenSocket::open(int port) noexcept
 {
     close();
     if (createTcpSocket() == false)
@@ -120,28 +120,28 @@ bool akg::ListenSocket::open(int port) throw()
     return true;
 }
 
-void akg::ListenSocket::setQueueSize(int newSize) throw()
+void akg::ListenSocket::setQueueSize(int newSize) noexcept
 {
     assert(newSize > 0);
     queuesize = newSize < SOMAXCONN ? newSize : SOMAXCONN;
 }
 
-int  akg::ListenSocket::getQueueSize() throw()
+int  akg::ListenSocket::getQueueSize() noexcept
 {
     return queuesize;
 }
 
 
 //###########################################################
-akg::ServerSocket::ServerSocket() throw()
+akg::ServerSocket::ServerSocket() noexcept
 {
 }
 
-akg::ServerSocket::~ServerSocket() throw()
+akg::ServerSocket::~ServerSocket() noexcept
 {
 }
 
-bool akg::ServerSocket::acceptFrom(ListenSocket& listenSocket) throw()
+bool akg::ServerSocket::acceptFrom(ListenSocket& listenSocket) noexcept
 {
     close();
     struct sockaddr_in internetAddress;
@@ -160,14 +160,14 @@ bool akg::ServerSocket::acceptFrom(ListenSocket& listenSocket) throw()
 
 //###########################################################
 
-akg::ClientSocket::ClientSocket() throw()
+akg::ClientSocket::ClientSocket() noexcept
 {
 }
-akg::ClientSocket::~ClientSocket() throw()
+akg::ClientSocket::~ClientSocket() noexcept
 {
 }
 
-bool akg::ClientSocket::open(const char* serverHost, int serverPort) throw()
+bool akg::ClientSocket::open(const char* serverHost, int serverPort) noexcept
 {
 
     close();

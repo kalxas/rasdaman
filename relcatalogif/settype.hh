@@ -57,7 +57,7 @@ class OId;
 class SetType : public CollectionType
 {
 public:
-    SetType(const OId& id) throw (r_Error);
+    SetType(const OId& id);
 
     virtual char* getTypeStructure() const;
 
@@ -75,11 +75,11 @@ public:
 
 protected:
 
-    virtual void deleteFromDb() throw (r_Error);
+    virtual void deleteFromDb();
 
-    virtual void insertInDb() throw (r_Error);
+    virtual void insertInDb();
 
-    virtual void readFromDb() throw (r_Error);
+    virtual void readFromDb();
 };
 
 #endif

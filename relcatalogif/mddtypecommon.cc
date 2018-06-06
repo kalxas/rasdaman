@@ -41,7 +41,7 @@ MDDType::getMemorySize() const
     return sizeof(MDDType::MDDTypeEnum) + DBNamedObject::getMemorySize();
 }
 
-MDDType::MDDType(const OId& id) throw (r_Error)
+MDDType::MDDType(const OId& id)
     :   Type(id)
 {
     if (objecttype == OId::MDDTYPEOID)

@@ -304,7 +304,7 @@ const char*
 MDDColl::AllSetTypesName = "RAS_SET_TYPES";
 
 MDDColl*
-MDDColl::createMDDCollection(const char* name, const CollectionType* ct) throw (r_Error)
+MDDColl::createMDDCollection(const char* name, const CollectionType* ct)
 {
     if (name == NULL)
     {
@@ -329,7 +329,7 @@ MDDColl::createMDDCollection(const char* name, const CollectionType* ct) throw (
 }
 
 MDDColl*
-MDDColl::createMDDCollection(const char* name, const OId& o, const CollectionType* ct) throw (r_Error)
+MDDColl::createMDDCollection(const char* name, const OId& o, const CollectionType* ct)
 {
     // may generate an exception:
     if (name == NULL)
@@ -366,7 +366,7 @@ MDDColl::dropMDDCollection(const OId& o)
 }
 
 MDDColl*
-MDDColl::getMDDCollection(const OId& collOId) throw (r_Error)
+MDDColl::getMDDCollection(const OId& collOId)
 {
     DBMDDSetId t(collOId);
     //this will throw an exception
@@ -376,7 +376,7 @@ MDDColl::getMDDCollection(const OId& collOId) throw (r_Error)
 }
 
 MDDColl*
-MDDColl::getMDDCollection(const char* collName) throw (r_Error)
+MDDColl::getMDDCollection(const char* collName)
 {
     MDDColl* retval = 0;
     DBMDDSetId dbset;

@@ -42,7 +42,7 @@ r_Collection_Type::r_Collection_Type(r_Type& newElementType)
 {
 }
 
-r_Collection_Type::r_Collection_Type(const r_Collection_Type& oldObj) throw (r_Error)
+r_Collection_Type::r_Collection_Type(const r_Collection_Type& oldObj)
     :   r_Type(oldObj),
         elementType(NULL)
 {
@@ -64,7 +64,7 @@ r_Collection_Type::isCollectionType() const
 }
 
 const r_Collection_Type&
-r_Collection_Type::operator=(const r_Collection_Type& oldObj) throw (r_Error)
+r_Collection_Type::operator=(const r_Collection_Type& oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
@@ -88,7 +88,7 @@ r_Collection_Type::operator=(const r_Collection_Type& oldObj) throw (r_Error)
 }
 
 const r_Type&
-r_Collection_Type::element_type() const throw (r_Error)
+r_Collection_Type::element_type() const
 {
     if (elementType == NULL)
     {

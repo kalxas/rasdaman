@@ -31,7 +31,7 @@ inline ComplexType1::ComplexType1()
 	myOId = OId(COMPLEXTYPE1, OId::ATOMICTYPEOID);
 }
 
-inline ComplexType1::ComplexType1(const OId& id) throw (r_Error) 
+inline ComplexType1::ComplexType1(const OId& id) 
 	: GenericComplexType(id), reOffset(0), imOffset(sizeof(float)) {
 	readFromDb();
 }
@@ -57,7 +57,7 @@ inline void ComplexType1::printCell( ostream& stream, const char* cell ) const {
 	stream << "Im: " << *(float *)(const_cast<char*>(cell) + imOffset) << " )\n";
 }
 
-inline void ComplexType1::readFromDb() throw (r_Error) 	{
+inline void ComplexType1::readFromDb()	{
 	size = 2 * sizeof(float);
 	setName(ComplexType1::Name);
 	myType = COMPLEXTYPE1;
@@ -98,7 +98,7 @@ inline ComplexType2::ComplexType2()
 	myOId = OId(COMPLEXTYPE2, OId::ATOMICTYPEOID);
 }
 
-inline ComplexType2::ComplexType2(const OId& id) throw (r_Error) 
+inline ComplexType2::ComplexType2(const OId& id) 
 	: GenericComplexType(id), reOffset(0), imOffset(sizeof(double)) {
 	readFromDb();
 }
@@ -124,7 +124,7 @@ inline void ComplexType2::printCell( ostream& stream, const char* cell ) const {
 	stream << "Im: " << *(double *)(const_cast<char*>(cell) + imOffset) << " )\n";
 }
 
-inline void ComplexType2::readFromDb() throw (r_Error) 	{
+inline void ComplexType2::readFromDb()	{
 	size = 2 * sizeof(double);
 	setName(ComplexType2::Name);
 	myType = COMPLEXTYPE2;

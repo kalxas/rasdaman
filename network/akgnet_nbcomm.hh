@@ -52,16 +52,16 @@ public:
     /** Static function for setting the current time. Used
         for marking the last action time, so timeout can be monitorized
     */
-    static void   setCurrentTime() throw();
+    static void   setCurrentTime() noexcept;
 
     /** Static function for setting the timeout interval
         We use the same timeout for all jobs because the
     server doesn't do any distinction between jobs
     */
-    static void   setTimeoutInterval(time_t x) throw();
+    static void   setTimeoutInterval(time_t x) noexcept;
 
     /// Returns the timeout interval set for the jobs
-    static time_t getTimeoutInterval() throw();
+    static time_t getTimeoutInterval() noexcept;
 
 public:
     /// Status regarding accepting a new job
@@ -81,31 +81,31 @@ public:
         wks_processing = 4  // job is processing the request
     };
 
-    virtual ~NbJob() throw();
+    virtual ~NbJob() noexcept;
     /// Returns the working status
-    workingStatus getStatus() throw();
+    workingStatus getStatus() noexcept;
 
     /** Returns true if there is an operation in progress
         this means reading, writing or processing
     */
-    bool isOperationPending() throw();
+    bool isOperationPending() noexcept;
 
     /// Returns true if the job is ready to accept a connection
-    bool isAccepting() throw();
+    bool isAccepting() noexcept;
 
     /// Returns true if the job is reading data
-    bool isReading() throw();
+    bool isReading() noexcept;
 
     /// Returns true if the job is writing data
-    bool isWriting() throw();
+    bool isWriting() noexcept;
 
     /// Returns true if the job is processing
-    bool isProcessing() throw();
+    bool isProcessing() noexcept;
 
     /** Pure function to do initialization when attached to a Selector
         Don't throw!
     */
-    virtual void initOnAttach(Selector* pselector) throw() = 0;
+    virtual void initOnAttach(Selector* pselector) noexcept = 0;
 
     /** Pure function to do initialization when accepting a connection
         Returns:
@@ -116,7 +116,7 @@ public:
       the 'currentBufferPtr' is initialized. This would be a software error
         Don't throw!
     */
-    virtual acceptStatus acceptConnection(ListenSocket& listenSocket) throw() = 0;
+    virtual acceptStatus acceptConnection(ListenSocket& listenSocket) noexcept = 0;
 
     /** Reads as much data as it can. After every read it calls the
         'validateMessage()' function and returns whatever this function returns.
@@ -125,7 +125,7 @@ public:
     Returns 'true' if the message is completelly red
     Returns 'false' if there should be some more data
     */
-    bool readPartialMessage() throw();
+    bool readPartialMessage() noexcept;
 
     /** Writes as much data as it can. After writing all data the function
         'executeOnWriteReady()' is called.
@@ -134,16 +134,16 @@ public:
     Returns 'true' if the message is completelly written
     Returns 'false' if there should be some more data to write
     */
-    bool writePartialMessage() throw();
+    bool writePartialMessage() noexcept;
 
     /// Clears the connection - closes the socket and removes it from the Selector
-    void clearConnection() throw();
+    void clearConnection() noexcept;
 
     /// Returns the OS file descriptor for the socket
-    int  getSocket() throw();
+    int  getSocket() noexcept;
 
     /// Returns the errno of the last socket operation
-    int  getErrno() throw();
+    int  getErrno() noexcept;
     //######################################
     /** Virtual function to clean up if timeout occured
         This version returns 'false' if no timeout or no connection
@@ -151,43 +151,43 @@ public:
     'specificCleanUpOnTimeout()'
     Don't throw!
     */
-    virtual bool cleanUpIfTimeout() throw();
+    virtual bool cleanUpIfTimeout() noexcept;
 
     /** Pure function to process the request
         It has to set the appropriate status, so the server
     knows how to continue with this job
     Don't throw!
     */
-    virtual void processRequest() throw() = 0;
+    virtual void processRequest() noexcept = 0;
     //######################################
 protected:
     /// called after every read, returns 'true' if the message is all here
-    virtual bool validateMessage() throw() = 0;
+    virtual bool validateMessage() noexcept = 0;
 
     /// called when client is accepted, default does nothing
-    virtual void executeOnAccept() throw();
+    virtual void executeOnAccept() noexcept;
 
     /// called when message is written
-    virtual void executeOnWriteReady() throw() = 0;
+    virtual void executeOnWriteReady() noexcept = 0;
 
     /// called when timeout, it has to set the status apropriate and do other cleanup
-    virtual void specificCleanUpOnTimeout() throw() = 0;
+    virtual void specificCleanUpOnTimeout() noexcept = 0;
 
     /// called when a read error occurs, usual a message and clean up
-    virtual void executeOnReadError() throw() = 0;
+    virtual void executeOnReadError() noexcept = 0;
 
     /// called when a write error occurs, usual a message and clean up
-    virtual void executeOnWriteError() throw() = 0;
+    virtual void executeOnWriteError() noexcept = 0;
     //######################################
 protected:
     /// Protected constructor, taking a FileDescriptor, usually a Socket
-    NbJob(FileDescriptor&) throw() ;
+    NbJob(FileDescriptor&) noexcept ;
 
     /// Helper function for setting the job in read modus
-    bool setReading() throw();
+    bool setReading() noexcept;
 
     /// Helper function for setting the job in write modus
-    bool setWriting() throw();
+    bool setWriting() noexcept;
     workingStatus status;
 
     /** Reference to a FileDescriptor, usually a Socket. It has to be provided by the
@@ -208,7 +208,7 @@ protected:
     time_t lastActionTime;
 
     /// Helper function which marks the current moment, so timeout counter is reset
-    void   action() throw();
+    void   action() noexcept;
 
     static time_t timeOutInterv;
     static time_t currentTime;
@@ -225,27 +225,27 @@ class NbServerJob : public NbJob
 {
 public:
     /// Default constructor
-    NbServerJob() throw();
+    NbServerJob() noexcept;
 
     /** The version for servers, it just initializes the 'Selector*'
         It doesn't have to be overloaded, it's OK for servers
     */
-    void initOnAttach(Selector* pselector) throw();
+    void initOnAttach(Selector* pselector) noexcept;
 
     /** The version for servers
         It doesn't have to be overloaded, it's OK for most servers
     */
-    acceptStatus acceptConnection(ListenSocket& listenSocket) throw();
+    acceptStatus acceptConnection(ListenSocket& listenSocket) noexcept;
 
     /// Returns the SocketAddress of the client
-    SocketAddress getClientSocketAddress() throw();
+    SocketAddress getClientSocketAddress() noexcept;
 
     /// Returns the HostAddress of the client
-    HostAddress   getClientHostAddress() throw();
+    HostAddress   getClientHostAddress() noexcept;
 protected:
 
     /// helper function, call it in "processRequest" to switch to writing
-    void readyToWriteAnswer() throw();
+    void readyToWriteAnswer() noexcept;
 
     ServerSocket serverSocket;
 };
@@ -261,10 +261,10 @@ class NbClientJob : public NbJob
 {
 public:
     /// Default constructor
-    NbClientJob() throw();
+    NbClientJob() noexcept;
 
     /// Returns 'true' if connection succeded
-    bool connectToServer(const char* serverHost, int serverPort) throw();
+    bool connectToServer(const char* serverHost, int serverPort) noexcept;
 
 
     /** The version for clients, it initializes the 'Selector*'
@@ -272,17 +272,17 @@ public:
     connection to the server succeded!
         It doesn't have to be overloaded, it's OK for most clients
     */
-    void initOnAttach(Selector* pselector) throw();
+    void initOnAttach(Selector* pselector) noexcept;
 
     /** The version for clients. It just returns 'acs_Iambusy' since
         clients don't accept connections
         It doesn't have to be overloaded, it's OK for most clients
     */
-    acceptStatus acceptConnection(ListenSocket& listenSocket) throw();
+    acceptStatus acceptConnection(ListenSocket& listenSocket) noexcept;
 protected:
 
     /// helper function, call it in 'executeOnWriteReady()' to switch to reading
-    void readyToReadAnswer() throw();
+    void readyToReadAnswer() noexcept;
 
     ClientSocket clientSocket;
 };
@@ -304,50 +304,50 @@ class NbCommunicator : public GenericServer
 {
 public:
     /// Default constructor
-    NbCommunicator() throw();
+    NbCommunicator() noexcept;
 
     /// Constructor setting also the maximal number of simultan jobs
     NbCommunicator(int newMaxJobs);
 
     /// Destructor
-    ~NbCommunicator() throw();
+    ~NbCommunicator() noexcept;
 
     /// Sets the maximal number of simultan jobs
     bool initJobs(int newMaxJobs);
 
     /// returns the maximal number of simultan jobs
-    int  getMaxJobs() throw();
+    int  getMaxJobs() noexcept;
 
     /** Attaches a new job. Returns 'true' if succeded, 'false' if the
         job is already attached or if the maximal number of jobs
     is already attached
      */
-    bool attachJob(NbJob&) throw();
+    bool attachJob(NbJob&) noexcept;
 
     /** Deattach job. Returns 'true' if succeded, 'false' if the
         job is not attached
     */
-    bool deattachJob(NbJob&) throw();
+    bool deattachJob(NbJob&) noexcept;
 
     /// This runs the main loop for servers, this means it initializes the listen socket first
-    bool runServer() throw();
+    bool runServer() noexcept;
 
     /// This runs the main loop for clients, this means without initializing the listen socket
-    bool runClient() throw();
+    bool runClient() noexcept;
 protected:
     /** Called before select, if it returns 'false' the loop exits.
         This version just returns 'true'
     */
-    virtual bool executeBeforeSelect() throw();
+    virtual bool executeBeforeSelect() noexcept;
 
     /** Called after select, if it returns 'false' the loop exits.
         This version just returns 'true'
     */
-    virtual bool executeAfterSelect() throw();
+    virtual bool executeAfterSelect() noexcept;
     /** Called if select times out, if it returns 'false' the loop exits.
         This version just returns 'true'
       */
-    virtual bool executeOnTimeout() throw();
+    virtual bool executeOnTimeout() noexcept;
 private:
     typedef NbJob* JobPtr;
 
@@ -360,28 +360,28 @@ private:
     return 'false'
     Otherwise it returns 'true'
      */
-    bool mainLoop() throw();
+    bool mainLoop() noexcept;
 
     /// Helper function for dispatching read requests
-    void dispatchReadRequest() throw();
+    void dispatchReadRequest() noexcept;
 
     /// Helper function for dispatching write requests
-    void dispatchWriteRequest() throw();
+    void dispatchWriteRequest() noexcept;
 
     /// Helper function for dispatching connect requests
-    void connectNewClients() throw();
+    void connectNewClients() noexcept;
 
     /// Helper function which looks for timeouted jobs
-    void lookForTimeout() throw();
+    void lookForTimeout() noexcept;
 
     /// Helper function which calls 'processRequest()' of all jobs that are processing
-    void processJobs() throw();
+    void processJobs() noexcept;
 
     /** Helper function which returns 'true' if somebody called 'shouldExit()'
         and there is no job which processes anything. But it closes the listen socket
     so no more jobs are accepted and returns 'true' when all jobs finish
     */
-    bool mayExit() throw();
+    bool mayExit() noexcept;
 
 };
 

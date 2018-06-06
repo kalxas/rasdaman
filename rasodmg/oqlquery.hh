@@ -99,25 +99,25 @@ public:
     //@Man: Stream input operators for every parameter type:
     //@{
     ///
-    r_OQL_Query& operator<<(const char* s)   throw(r_Error);
+    r_OQL_Query& operator<<(const char* s);
     ///
-    r_OQL_Query& operator<<(r_Char c)        throw(r_Error);
+    r_OQL_Query& operator<<(r_Char c);
     ///
-    r_OQL_Query& operator<<(r_Short s)       throw(r_Error);
+    r_OQL_Query& operator<<(r_Short s);
     ///
-    r_OQL_Query& operator<<(r_UShort us)     throw(r_Error);
+    r_OQL_Query& operator<<(r_UShort us);
     ///
-    r_OQL_Query& operator<<(r_Long l)        throw(r_Error);
+    r_OQL_Query& operator<<(r_Long l);
     ///
-    r_OQL_Query& operator<<(r_ULong ul)      throw(r_Error);
+    r_OQL_Query& operator<<(r_ULong ul);
     ///
-    r_OQL_Query& operator<<(r_Point pt)      throw(r_Error);
+    r_OQL_Query& operator<<(r_Point pt);
     ///
-    r_OQL_Query& operator<<(r_Sinterval in)  throw(r_Error);
+    r_OQL_Query& operator<<(r_Sinterval in);
     ///
-    r_OQL_Query& operator<<(r_Minterval in)  throw(r_Error);
+    r_OQL_Query& operator<<(r_Minterval in);
     ///
-    r_OQL_Query& operator<<(r_GMarray& in)   throw(r_Error);
+    r_OQL_Query& operator<<(r_GMarray& in);
     ///
     //@}
 
@@ -145,7 +145,7 @@ public:
 
 private:
     /// method replaces the next argument with the delivered valueString
-    void replaceNextArgument(const char* valueString) throw(r_Error);
+    void replaceNextArgument(const char* valueString);
 
     /// storage for the expanded query string
     char* queryString;
@@ -186,8 +186,7 @@ private:
   \end{tabular}
 */
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result)
-throw(r_Error);
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -198,8 +197,7 @@ throw(r_Error);
   compatibility reasons only. We suggest to use the general function
   \Ref{r_oql_execute} able to maintain query results of any type.
 */
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result)
-throw(r_Error);
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result);
 
 /*@Doc:
   The free standing function \Ref{r_oql_execute} is called to execute an insert query
@@ -215,8 +213,7 @@ throw(r_Error);
   transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
 */
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy)
-throw(r_Error);
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -244,8 +241,7 @@ throw(r_Error);
   \end{tabular}
 */
 
-void r_oql_execute(r_OQL_Query& query)
-throw(r_Error);
+void r_oql_execute(r_OQL_Query& query);
 
 #include "rasodmg/oqlquery.icc"
 

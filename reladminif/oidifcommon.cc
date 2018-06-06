@@ -146,7 +146,7 @@ OId::allocateOId(OId& id, OIdType type, OIdCounter howMany)
         LFATAL << "OId::allocateOId(" << id << ", " << type << ", " << howMany << ") allocation of zero oids not supported";
         throw r_Error(r_Error::r_Error_CreatingOIdFailed);
     }
-    if (type == INVALID || type == INNEROID || type == ATOMICTYPEOID || type > maxCounter)
+    if (type == INVALID || type == INNEROID || type == ATOMICTYPEOID || static_cast<unsigned int>(type) > maxCounter)
     {
         LFATAL << "OIDs of the specified type (" << type << " cannot be allocated.";
         throw r_Error(r_Error::r_Error_CreatingOIdFailed);

@@ -252,15 +252,15 @@ public:
     /// constructor getting dimensionality for stream initializing
     r_Minterval(r_Dimension);
     /// constructor taking string representation (e.g. [ 1:255, *:200, *:* ])
-    r_Minterval(const char*) throw(r_Eno_interval);
+    r_Minterval(const char*);
     /// constructor taking string representation (e.g. [ 1:255, *:200, *:* ])
-    r_Minterval(char*) throw(r_Eno_interval);
+    r_Minterval(char*);
     /// for stream initializing with intervals
     r_Minterval& operator<<(const r_Sinterval&)
-    throw(r_Einit_overflow);
+;
     /// for stream initializing with point intervals
     r_Minterval& operator<<(r_Range)
-    throw(r_Einit_overflow);
+;
 
     /// default constructor
     r_Minterval();
@@ -327,7 +327,7 @@ public:
     */
 
     /// get lower left corner of minterval.
-    r_Point get_origin() const throw(r_Error);
+    r_Point get_origin() const;
     /*@Doc:
       Returns a point with the minimum coordinates in all dimensions.
       This is operation is only legal if all lower bounds are fixed!
@@ -340,14 +340,14 @@ public:
     */
 
     /// get highest corner of tile.
-    r_Point get_high() const throw(r_Error);
+    r_Point get_high() const;
     /*@Doc:
       Returns a point with the maximum coordinates in all dimensions.
       This is operation is only legal if all upper bounds are fixed!
     */
 
     /// get size of minterval as point.
-    r_Point get_extent() const throw(r_Error);
+    r_Point get_extent() const;
     /*@Doc:
       Returns a point with high() - low() + 1 of this in each
       dimension when all bounds are fixed
@@ -378,7 +378,7 @@ public:
     //@{
     /// translates this by a point.
     r_Minterval& reverse_translate(const r_Point&)
-    throw(r_Error, r_Edim_mismatch, r_Eno_interval);
+;
     /*@Doc:
       Subtracts respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all bounds are
@@ -386,7 +386,7 @@ public:
     */
     /// returns new interval as translation of this by a point.
     r_Minterval create_reverse_translation(const r_Point&) const
-    throw(r_Error, r_Edim_mismatch, r_Eno_interval);
+;
     /*@Doc:
       Subtracts respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all bounds are
@@ -394,7 +394,7 @@ public:
     */
     /// translates this by a point.
     r_Minterval& translate(const r_Point&)
-    throw(r_Error, r_Edim_mismatch, r_Eno_interval);
+;
     /*@Doc:
       Adds respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all bounds are
@@ -402,7 +402,7 @@ public:
     */
     /// returns new interval as translation of this by a point.
     r_Minterval create_translation(const r_Point&) const
-    throw(r_Error, r_Edim_mismatch, r_Eno_interval);
+;
     /*@Doc:
       Adds respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all lower bounds are
@@ -416,22 +416,22 @@ public:
     //@Man: Methods for scaling:
     //@{
     /// scales this by a factor.
-    r_Minterval& scale(const double&) throw (r_Eno_interval);
+    r_Minterval& scale(const double&);
     /*@Doc:
       Scales respective extents by factor.
     */
     /// scales this by a factor.
-    r_Minterval& scale(const vector<double>&) throw (r_Eno_interval);
+    r_Minterval& scale(const vector<double>&);
     /*@Doc:
       Scales respective extents by vector of factors.
     */
     /// returns new interval as scaled from this by a point.
-    r_Minterval create_scale(const double&) const throw (r_Eno_interval);
+    r_Minterval create_scale(const double&) const;
     /*@Doc:
       Scales respective extents by factor.
     */
     /// returns new interval as scaled from this by a point.
-    r_Minterval create_scale(const vector<double>&) const throw (r_Eno_interval);
+    r_Minterval create_scale(const vector<double>&) const;
     /*@Doc:
       Scales respective extents by vector of factors.
     */
@@ -447,19 +447,19 @@ public:
     //@{
     ///
     r_Minterval& union_of(const r_Minterval&, const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval& union_with(const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval& operator+= (const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval  create_union(const r_Minterval&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval  operator+ (const r_Minterval&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     //@}
 
@@ -467,19 +467,19 @@ public:
     //@{
     ///
     r_Minterval& difference_of(const r_Minterval&, const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval& difference_with(const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval& operator-= (const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval  create_difference(const r_Minterval&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval  operator- (const r_Minterval&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     //@}
 
@@ -487,19 +487,19 @@ public:
     //@{
     ///
     r_Minterval& intersection_of(const r_Minterval&, const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval& intersection_with(const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval& operator*= (const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval  create_intersection(const r_Minterval&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval  operator* (const r_Minterval&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     //@}
 
@@ -507,13 +507,13 @@ public:
     //@{
     ///
     r_Minterval& closure_of(const r_Minterval&, const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval& closure_with(const r_Minterval&)
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     r_Minterval  create_closure(const r_Minterval&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     //@}
 
@@ -522,10 +522,10 @@ public:
     /// the vector of projection dimensions cannot have more values than this->dimensionality
     /// this should really be called "trim_wrt_slice" because the result dimension is this->dimensionality
     r_Minterval trim_along_slice(const r_Minterval&, const std::vector<r_Dimension>&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     /// the vector of projection dimensions can have more values than this->dimensionality
     r_Minterval project_along_dims(const std::vector<r_Dimension>&) const
-    throw(r_Edim_mismatch, r_Eno_interval);
+;
     ///
     //@}
     
@@ -556,19 +556,19 @@ public:
     //@Man: Methods for internal use only:
     //@{
     /// calculate number of cells
-    r_Area cell_count() const throw(r_Error);
+    r_Area cell_count() const;
     /// calculate offset in cells for one dimensional access (dimension ordering is high first)
-    r_Area cell_offset(const r_Point&) const throw(r_Eindex_violation, r_Error);
+    r_Area cell_offset(const r_Point&) const;
     // as above, but without error checking, for performance
     r_Area efficient_cell_offset(const r_Point&) const;
     /// calculate point index out of offset
-    r_Point cell_point(r_Area) const throw(r_Eno_cell, r_Error);
+    r_Point cell_point(r_Area) const;
     /// delete the specified dimension
-    void delete_dimension(r_Dimension) throw(r_Eindex_violation);
+    void delete_dimension(r_Dimension);
     /// calculate the size of the storage space occupied
     r_Bytes get_storage_size() const;
     /// transpose two axes
-    void transpose(r_Dimension a, r_Dimension b) throw(r_Eindex_violation);
+    void transpose(r_Dimension a, r_Dimension b);
     ///
     //@}
 
@@ -583,7 +583,7 @@ protected:
     r_Dimension streamInitCnt;
 
     /// initialization for constructors which take chars
-    void constructorinit(char*) throw(r_Eno_interval);
+    void constructorinit(char*);
 };
 
 

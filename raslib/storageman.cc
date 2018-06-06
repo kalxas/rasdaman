@@ -97,7 +97,7 @@ r_Storage_Man& r_Storage_Man::operator=(const r_Storage_Man& src)
     return *this;
 }
 
-void* r_Storage_Man::storage_alloc(size_t size) const throw(r_Error)
+void* r_Storage_Man::storage_alloc(size_t size) const
 {
     void* result;
 

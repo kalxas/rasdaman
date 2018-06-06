@@ -84,7 +84,7 @@ ClientComm::changeEndianness(const r_GMarray* mdd, void* newMdd, const r_Base_Ty
     return 1;
 }
 
-ClientComm::ClientComm() throw(r_Error)
+ClientComm::ClientComm()
 {
 
 }
@@ -116,7 +116,7 @@ ClientComm* ClientComm::createObject(const char* rasmgrName, int rasmgrPort)
     return new RpcClientComm(rasmgrName, rasmgrPort);
 }
 
-ClientComm::~ClientComm() throw()
+ClientComm::~ClientComm()
 {
 }
 
@@ -125,17 +125,17 @@ ClientComm::~ClientComm() throw()
 //  false   use RPC
 bool ClientComm::currentProtocolIsRNP = true; // up to (excl) 6.0 'false' for MOSS to maintain compat with old apps
 
-void ClientComm::useRNP() throw()
+void ClientComm::useRNP()
 {
     currentProtocolIsRNP = true;
 }
 
-void ClientComm::useRPC() throw()
+void ClientComm::useRPC()
 {
     currentProtocolIsRNP = false;
 }
 
-bool ClientComm::internalSettingIsRNP()  throw()
+bool ClientComm::internalSettingIsRNP()
 {
     return currentProtocolIsRNP;
 }

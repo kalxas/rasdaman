@@ -56,7 +56,7 @@ public:
     /// constructor.
     /// An exception is thrown if newIterDom and newImgDom have different dimension
     r_MiterArea(const r_Minterval* newIterDom,
-                const r_Minterval* newImgDom) throw(r_Error);
+                const r_Minterval* newImgDom);
     /**
       The pointers are stored, do not delete the objects as long
       as the iterator is used!

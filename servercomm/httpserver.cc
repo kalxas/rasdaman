@@ -451,7 +451,7 @@ void termSignalHandler(int sig);
 
 void
 HttpServer::startRpcServer()
-throw(r_Error)
+
 {
     // create administraion object (O2 session is initialized)
     admin = AdminIf::instance();

@@ -68,13 +68,13 @@ public:
     };
     /// read everything from encoded string
     /// e.g. "3;[0,2,4,5],[*],[0,10,15];100;NOSUBTILING"
-    r_Dir_Tiling(const char* encoded) throw (r_Error);
+    r_Dir_Tiling(const char* encoded);
 
     /// Class constructor
     r_Dir_Tiling(r_Dimension dims,
                  const std::vector<r_Dir_Decompose>& decomp,
                  r_Bytes ts = RMInit::clientTileSize,
-                 SubTiling sub = WITH_SUBTILING) throw (r_Error);
+                 SubTiling sub = WITH_SUBTILING);
     /**
     The user has to give the number of dimensions of the space and the
     decomposition wanted for that space. Note that the number of elements of
@@ -88,7 +88,7 @@ public:
 
     virtual ~r_Dir_Tiling();
 
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const throw (r_Error);
+    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
 
     virtual bool is_compatible(const r_Minterval& obj_domain, r_Bytes type_len) const;
 

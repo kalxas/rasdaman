@@ -692,7 +692,7 @@ bool r_PolygonCutOut::TablePoint::operator==(r_PolygonCutOut::TablePoint& tp)
 
 // debug only int lastline = -1;
 void
-r_PolygonCutOut::eraseLine(r_Range x1, r_Range x2, r_Range y, const string& bgr) throw(r_Error)
+r_PolygonCutOut::eraseLine(r_Range x1, r_Range x2, r_Range y, const string& bgr)
 {
     // can heapen if we are outside the domain of the array
     if (x2 < x1)
@@ -739,7 +739,7 @@ r_PolygonCutOut::eraseLine(r_Range x1, r_Range x2, r_Range y, const string& bgr)
 
 
 bool
-r_PolygonCutOut::fillMArrayOutside(const string& bgr) throw(r_Error)
+r_PolygonCutOut::fillMArrayOutside(const string& bgr)
 {
     if (compute() == false)
     {
@@ -834,7 +834,7 @@ r_PolygonCutOut::fillMArrayOutside(const string& bgr) throw(r_Error)
 */
 
 bool
-r_PolygonCutOut::fillMArrayInside(const string& bgr) throw(r_Error)
+r_PolygonCutOut::fillMArrayInside(const string& bgr)
 {
     if (compute() == false)
     {

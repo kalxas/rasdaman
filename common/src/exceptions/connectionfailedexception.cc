@@ -33,6 +33,6 @@ ConnectionFailedException::ConnectionFailedException(const std::string& reason)
     : RuntimeException(reason)
 {}
 
-ConnectionFailedException::~ConnectionFailedException() throw()
+ConnectionFailedException::~ConnectionFailedException() noexcept
 {}
 }

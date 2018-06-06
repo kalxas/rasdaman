@@ -85,35 +85,34 @@ const map<string, string> TypeFactory::internalTypeSyntaxTypeMap = TypeFactory::
 
 map<string, string> TypeFactory::createSyntaxTypeInternalTypeMap()
 {
-    map<string, string> syntaxTypeInternalTypeMap;
+    map<string, string> ret;
 
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::OCTET_NAME, OctetType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::USHORT_NAME, UShortType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::UNSIGNED_SHORT_NAME, UShortType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::SHORT_NAME, ShortType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::ULONG_NAME, ULongType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::UNSIGNED_LONG_NAME, ULongType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::LONG_NAME, LongType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::BOOL_NAME, BoolType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::CHAR_NAME, CharType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::FLOAT_NAME, FloatType::Name));
-    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::DOUBLE_NAME, DoubleType::Name));
+    ret.insert(std::make_pair(SyntaxType::OCTET_NAME, OctetType::Name));
+    ret.insert(std::make_pair(SyntaxType::USHORT_NAME, UShortType::Name));
+    ret.insert(std::make_pair(SyntaxType::UNSIGNED_SHORT_NAME, UShortType::Name));
+    ret.insert(std::make_pair(SyntaxType::SHORT_NAME, ShortType::Name));
+    ret.insert(std::make_pair(SyntaxType::ULONG_NAME, ULongType::Name));
+    ret.insert(std::make_pair(SyntaxType::UNSIGNED_LONG_NAME, ULongType::Name));
+    ret.insert(std::make_pair(SyntaxType::LONG_NAME, LongType::Name));
+    ret.insert(std::make_pair(SyntaxType::BOOL_NAME, BoolType::Name));
+    ret.insert(std::make_pair(SyntaxType::CHAR_NAME, CharType::Name));
+    ret.insert(std::make_pair(SyntaxType::FLOAT_NAME, FloatType::Name));
+    ret.insert(std::make_pair(SyntaxType::DOUBLE_NAME, DoubleType::Name));
 
-    return syntaxTypeInternalTypeMap;
+    return ret;
 }
 
 map<string, string> TypeFactory::createInternalTypeSyntaxTypeMap()
 {
-    map<string, string> internalTypeSyntaxTypeMap;
-    map<string, string> syntaxTypeInternalTypeMap = createSyntaxTypeInternalTypeMap();
+    map<string, string> ret;
+    map<string, string> tmp = createSyntaxTypeInternalTypeMap();
 
-    for (map<string, string>::iterator mapIt = syntaxTypeInternalTypeMap.begin();
-            mapIt != syntaxTypeInternalTypeMap.end(); ++mapIt)
+    for (auto mapIt = tmp.begin(); mapIt != tmp.end(); ++mapIt)
     {
-        internalTypeSyntaxTypeMap.insert(std::make_pair(mapIt->second, mapIt->first));
+        ret.insert(std::make_pair(mapIt->second, mapIt->first));
     }
 
-    return internalTypeSyntaxTypeMap;
+    return ret;
 }
 
 string TypeFactory::getInternalTypeFromSyntaxType(const std::string& syntaxTypeName)

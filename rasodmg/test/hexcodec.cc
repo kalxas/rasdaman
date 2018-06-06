@@ -61,7 +61,7 @@ string
 HexCodec::figStr;
 
 string
-HexCodec::convertTo(const string& figureStr) throw(ImportError)
+HexCodec::convertTo(const string& figureStr)
 {
     string errMsg;
     string::size_type sizeHexStr = 0, sizeFigStr = 0;
@@ -130,7 +130,7 @@ HexCodec::convertTo(const string& figureStr) throw(ImportError)
 }
 
 string
-HexCodec::convertFrom(const string& hexaStr) throw(ImportError)
+HexCodec::convertFrom(const string& hexaStr)
 {
     string::size_type sizeHexStr = 0, idxHexStr = 0;
     string::size_type sizeFigStr = 0, idxFigStr = 0;

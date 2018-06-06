@@ -78,7 +78,7 @@ public:
     virtual bool is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const = 0;
 
     /// Decompose an object in tiles
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const throw (r_Error) = 0;
+    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const = 0;
     /**
     This method provides the core funcionality of this class. All derived
     classes must implement it. As input parameters it takes the big object to
@@ -116,7 +116,7 @@ class r_Size_Tiling :   public r_Tiling
 public:
     /// Constructor that reads everything from a string
     /// e.g."100"
-    r_Size_Tiling(const char* encoded) throw (r_Error);
+    r_Size_Tiling(const char* encoded);
 
     /// Constructor for this object (Takes tile size as parameter)
     r_Size_Tiling(r_Bytes ts = RMInit::clientTileSize);
@@ -132,7 +132,7 @@ public:
     /// returns true if the cellTypeSize is smaller or equal to the tile size and obj_domain has more than 0 dimensions
     virtual bool is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const;
 
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const throw (r_Error);
+    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const;
 
     virtual r_Tiling* clone() const;
 
@@ -167,7 +167,7 @@ public:
     virtual bool is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const;
     /// returns true if the cellTypeSize is smaller or equal to the tile size and the dimension fits the obj_domain
 
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const throw (r_Error) = 0;
+    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const = 0;
 
     virtual r_Tiling* clone() const = 0;
 
@@ -187,7 +187,7 @@ public:
     /// Constructor that reads everything from a string e.g."100"
     /// This string is ignored in the constructor, it is present
     /// in order to have an uniform interface
-    r_No_Tiling(const char* encoded) throw (r_Error);
+    r_No_Tiling(const char* encoded);
     /// Constructor for this object
     r_No_Tiling();
 
@@ -202,7 +202,7 @@ public:
     /// returns true
 
     /// Decompose an object in tiles
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const throw (r_Error);
+    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const;
     /// returns obj_domain
 
     virtual r_Tiling* clone() const;
